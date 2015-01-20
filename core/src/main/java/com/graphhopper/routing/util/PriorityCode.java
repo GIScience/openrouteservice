@@ -2,13 +2,13 @@
  *  Licensed to GraphHopper and Peter Karich under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
- * 
+ *
  *  GraphHopper licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,27 +17,32 @@
  */
 package com.graphhopper.routing.util;
 
-import com.graphhopper.routing.RoutingAlgorithm;
-import com.graphhopper.storage.Graph;
-
 /**
- * Holds an algorithm which can be prepared and created.
- * <p/>
+ * Used to store a priority value in the way flags of an edge. Used in combination with
+ * PriorityWeighting
+ * <p>
  * @author Peter Karich
  */
-public interface AlgorithmPreparation
+public enum PriorityCode
 {
-    /**
-     * Prepares the underlying graph to be used by a specialized algorithm.
-     */
-    AlgorithmPreparation doWork();
+    WORST(0),
+    AVOID_AT_ALL_COSTS(1),
+    REACH_DEST(2),
+    AVOID_IF_POSSIBLE(3),
+    UNCHANGED(4),
+    PREFER(5),
+    VERY_NICE(6),
+    BEST(7);
+    private final int value;
 
-    /**
-     * @return true if doWork was already called.
-     */
-    boolean isPrepared();
+    private PriorityCode( int value )
+    {
+        this.value = value;
+    }
 
-    AlgorithmPreparation setGraph( Graph g );
+    public int getValue()
+    {
+        return value;
+    }
 
-    RoutingAlgorithm createAlgo();
 }

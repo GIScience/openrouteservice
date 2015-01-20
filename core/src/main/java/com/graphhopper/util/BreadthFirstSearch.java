@@ -15,26 +15,41 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.graphhopper.routing;
+package com.graphhopper.util;
 
-import com.graphhopper.routing.util.*;
-import com.graphhopper.storage.Graph;
+import com.graphhopper.coll.GHBitSet;
 
 /**
+ * Implementattion of breadth first search (BFS)
+ * <p/>
  * @author Peter Karich
  */
-public class DijkstraBidirectionTest extends AbstractRoutingAlgorithmTester
+public class BreadthFirstSearch extends XFirstSearch
 {
     @Override
-    public AlgorithmPreparation prepareGraph( Graph defaultGraph, final FlagEncoder encoder, final Weighting w )
+    public void start( EdgeExplorer explorer, int startNode )
     {
-        return new NoOpAlgorithmPreparation()
+        SimpleIntDeque fifo = new SimpleIntDeque();
+        GHBitSet visited = createBitSet();
+        visited.add(startNode);
+        fifo.push(startNode);
+        int current;
+        while (!fifo.isEmpty())
         {
-            @Override
-            public RoutingAlgorithm createAlgo()
+            current = fifo.pop();
+            if (!goFurther(current))
+                continue;
+
+            EdgeIterator iter = explorer.setBaseNode(current);
+            while (iter.next())
             {
-                return new DijkstraBidirection(_graph, encoder, w);
+                int connectedId = iter.getAdjNode();
+                if (checkAdjacent(iter) && !visited.contains(connectedId))
+                {
+                    visited.add(connectedId);
+                    fifo.push(connectedId);
+                }
             }
-        }.setGraph(defaultGraph);
+        }
     }
 }
