@@ -17,48 +17,21 @@
  */
 package com.graphhopper.reader;
 
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Represents an OSM Relation
+ * Represents a relation received from the reader.
  * <p>
  * @author Nop
  */
-public class OSMRelation extends OSMElement
+public class ReaderRelation extends ReaderElement
 {
-    protected final ArrayList<Member> members = new ArrayList<Member>(5);
+    protected final List<Member> members = new ArrayList<Member>(5);
 
-    public static OSMRelation create( long id, XMLStreamReader parser ) throws XMLStreamException
-    {
-        OSMRelation rel = new OSMRelation(id);
-
-        parser.nextTag();
-        rel.readMembers(parser);
-        rel.readTags(parser);
-        return rel;
-    }
-
-    public OSMRelation( long id )
+    public ReaderRelation( long id )
     {
         super(id, RELATION);
-    }
-
-    protected void readMembers( XMLStreamReader parser ) throws XMLStreamException
-    {
-        int event = parser.getEventType();
-        while (event != XMLStreamConstants.END_DOCUMENT && parser.getLocalName().equalsIgnoreCase("member"))
-        {
-            if (event == XMLStreamConstants.START_ELEMENT)
-            {
-                // read member
-                members.add(new Member(parser));
-            }
-
-            event = parser.nextTag();
-        }
     }
 
     @Override
@@ -67,7 +40,7 @@ public class OSMRelation extends OSMElement
         return "Relation (" + getId() + ", " + members.size() + " members)";
     }
 
-    public ArrayList<Member> getMembers()
+    public List<Member> getMembers()
     {
         return members;
     }
@@ -76,7 +49,7 @@ public class OSMRelation extends OSMElement
     {
         for (Member member : members)
         {
-            if (member.type() == RELATION)
+            if (member.getType() == RELATION)
             {
                 return true;
             }
@@ -91,18 +64,13 @@ public class OSMRelation extends OSMElement
 
         for (Member member : members)
         {
-            if (member.type() == RELATION)
-            {
+            if (member.getType() == RELATION)
                 hasRel = true;
-            } else
-            {
+            else
                 hasOther = true;
-            }
 
             if (hasRel && hasOther)
-            {
                 return true;
-            }
         }
         return false;
     }
@@ -111,10 +79,8 @@ public class OSMRelation extends OSMElement
     {
         for (int i = members.size() - 1; i >= 0; i--)
         {
-            if (members.get(i).type() == RELATION)
-            {
+            if (members.get(i).getType() == RELATION)
                 members.remove(i);
-            }
         }
     }
 
@@ -131,18 +97,9 @@ public class OSMRelation extends OSMElement
         public static final int NODE = 0;
         public static final int WAY = 1;
         public static final int RELATION = 2;
-        private static final String typeDecode = "nwr";
         private final int type;
         private final long ref;
         private final String role;
-
-        public Member( XMLStreamReader parser )
-        {
-            String typeName = parser.getAttributeValue(null, "type");
-            type = typeDecode.indexOf(typeName.charAt(0));
-            ref = Long.parseLong(parser.getAttributeValue(null, "ref"));
-            role = parser.getAttributeValue(null, "role");
-        }
 
         public Member( Member input )
         {
@@ -158,24 +115,28 @@ public class OSMRelation extends OSMElement
             this.role = role;
         }
 
+        @Override
         public String toString()
         {
             return "Member " + type + ":" + ref;
         }
 
-        public int type()
+        public int getType()
         {
             return type;
         }
 
-        public String role()
-        {
-            return role;
-        }
-
-        public long ref()
+        /**
+         * member reference which is an OSM ID
+         */
+        public long getRef()
         {
             return ref;
+        }
+
+        public String getRole()
+        {
+            return role;
         }
     }
 }

@@ -17,44 +17,31 @@
  */
 package com.graphhopper.reader;
 
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
+import gnu.trove.list.TLongList;
+import gnu.trove.list.array.TLongArrayList;
 
 /**
- * Represents an OSM file header
+ * Represents a way received from the reader.
  * <p>
- * @author ratrun
+ * @author Nop
  */
-public class OSMFileHeader extends OSMElement
+public class ReaderWay extends ReaderElement
 {
-    /**
-     * Constructor for XML Parser
-     */
-    public static OSMFileHeader create( long id, XMLStreamReader parser ) throws XMLStreamException
+    protected final TLongList nodes = new TLongArrayList(5);
+
+    public ReaderWay( long id )
     {
-        OSMFileHeader header = new OSMFileHeader();
-        parser.nextTag();
-        return header;
+        super(id, WAY);
     }
 
-    public OSMFileHeader()
+    public TLongList getNodes()
     {
-        super(0, FILEHEADER);
-    }
-
-    protected void readFileHeader( XMLStreamReader parser ) throws XMLStreamException
-    {
-        int event = parser.getEventType();
-        while (event != XMLStreamConstants.END_DOCUMENT && parser.getLocalName().equals("osm"))
-        {
-            event = parser.nextTag();
-        }
+        return nodes;
     }
 
     @Override
     public String toString()
     {
-        return "OSM File header:" + super.toString();
+        return "Way id:" + getId() + ", nodes:" + nodes.size() + ", tags:" + super.toString();
     }
 }

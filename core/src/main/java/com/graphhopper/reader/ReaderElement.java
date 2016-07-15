@@ -17,9 +17,6 @@
  */
 package com.graphhopper.reader;
 
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,12 +24,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * Base class for all OSM objects
+ * Base class for all network objects
  * <p>
  * @author Nop
  * @author Peter
  */
-public abstract class OSMElement
+public abstract class ReaderElement
 {
     public static final int NODE = 0;
     public static final int WAY = 1;
@@ -42,7 +39,7 @@ public abstract class OSMElement
     private final long id;
     private final Map<String, Object> properties = new HashMap<String, Object>(5);
 
-    protected OSMElement( long id, int type )
+    protected ReaderElement( long id, int type )
     {
         this.id = id;
         this.type = type;
@@ -51,25 +48,6 @@ public abstract class OSMElement
     public long getId()
     {
         return id;
-    }
-
-    protected void readTags( XMLStreamReader parser ) throws XMLStreamException
-    {
-        int event = parser.getEventType();
-        while (event != XMLStreamConstants.END_DOCUMENT && parser.getLocalName().equals("tag"))
-        {
-            if (event == XMLStreamConstants.START_ELEMENT)
-            {
-                // read tag
-                String key = parser.getAttributeValue(null, "k");
-                String value = parser.getAttributeValue(null, "v");
-                // ignore tags with empty values
-                if (value != null && value.length() > 0)
-                    setTag(key, value);
-            }
-
-            event = parser.nextTag();
-        }
     }
 
     protected String tagsToString()
@@ -141,8 +119,8 @@ public abstract class OSMElement
      */
     public boolean hasTag( String key, String... values )
     {
-        Object osmValue = properties.get(key);
-        if (osmValue == null)
+        Object value = properties.get(key);
+        if (value == null)
             return false;
 
         // tag present, no values given: success
@@ -151,7 +129,7 @@ public abstract class OSMElement
 
         for (String val : values)
         {
-            if (val.equals(osmValue))
+            if (val.equals(value))
                 return true;
         }
         return false;

@@ -15,16 +15,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.graphhopper.reader.pbf;
-
-import com.graphhopper.reader.OSMElement;
+package com.graphhopper.reader;
 
 /**
- * @author Nop
+ *
+ * @author Peter Karich
  */
-public interface Sink
+public interface ConditionalTagInspector
 {
-    void process( OSMElement item );
+    boolean isRestrictedWayConditionallyPermitted( ReaderWay way );
 
-    void complete();
+    boolean isPermittedWayConditionallyRestricted( ReaderWay way );
 }

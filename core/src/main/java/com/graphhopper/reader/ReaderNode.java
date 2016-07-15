@@ -19,31 +19,17 @@ package com.graphhopper.reader;
 
 import com.graphhopper.util.PointAccess;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-
 /**
- * Represents an OSM Node
+ * Represents a node received from the reader.
  * <p>
  * @author Nop
  */
-public class OSMNode extends OSMElement
+public class ReaderNode extends ReaderElement
 {
     private final double lat;
     private final double lon;
 
-    public static OSMNode create( long id, XMLStreamReader parser ) throws XMLStreamException
-    {
-        OSMNode node = new OSMNode(id,
-                Double.parseDouble(parser.getAttributeValue(null, "lat")),
-                Double.parseDouble(parser.getAttributeValue(null, "lon")));
-
-        parser.nextTag();
-        node.readTags(parser);
-        return node;
-    }
-
-    public OSMNode( long id, PointAccess pointAccess, int accessId )
+    public ReaderNode( long id, PointAccess pointAccess, int accessId )
     {
         super(id, NODE);
 
@@ -53,7 +39,7 @@ public class OSMNode extends OSMElement
             setTag("ele", pointAccess.getElevation(accessId));
     }
 
-    public OSMNode( long id, double lat, double lon )
+    public ReaderNode( long id, double lat, double lon )
     {
         super(id, NODE);
 

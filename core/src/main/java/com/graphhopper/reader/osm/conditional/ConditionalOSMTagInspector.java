@@ -17,7 +17,8 @@
  */
 package com.graphhopper.reader.osm.conditional;
 
-import com.graphhopper.reader.OSMWay;
+import com.graphhopper.reader.ConditionalTagInspector;
+import com.graphhopper.reader.ReaderWay;
 import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * @author Robin Boldt
  */
-public class ConditionalTagsInspector
+public class ConditionalOSMTagInspector implements ConditionalTagInspector
 {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     // enabling by default makes noise but could improve OSM data
@@ -36,13 +37,13 @@ public class ConditionalTagsInspector
     private final Map<String, Object> valueMap;
     private final ConditionalParser permitParser, restrictiveParser;
 
-    public ConditionalTagsInspector( Object value, List<String> tagsToCheck,
+    public ConditionalOSMTagInspector( Object value, List<String> tagsToCheck,
                                      Set<String> restrictiveValues, Set<String> permittedValues )
     {
         this(tagsToCheck, createDefaultMapping(value), restrictiveValues, permittedValues, true);
     }
 
-    public ConditionalTagsInspector( List<String> tagsToCheck, Map<String, Object> valueMap,
+    public ConditionalOSMTagInspector( List<String> tagsToCheck, Map<String, Object> valueMap,
                                      Set<String> restrictiveValues, Set<String> permittedValues, boolean enabledLogs )
     {
         this.valueMap = valueMap;
@@ -68,17 +69,19 @@ public class ConditionalTagsInspector
         return map;
     }
 
-    public boolean isRestrictedWayConditionallyPermitted( OSMWay way )
+    @Override
+    public boolean isRestrictedWayConditionallyPermitted( ReaderWay way )
     {
         return applies(way, true);
     }
 
-    public boolean isPermittedWayConditionallyRestricted( OSMWay way )
+    @Override
+    public boolean isPermittedWayConditionallyRestricted( ReaderWay way )
     {
         return applies(way, false);
     }
 
-    protected boolean applies( OSMWay way, boolean checkPermissiveValues )
+    protected boolean applies( ReaderWay way, boolean checkPermissiveValues )
     {
         for (int index = 0; index < tagsToCheck.size(); index++)
         {
