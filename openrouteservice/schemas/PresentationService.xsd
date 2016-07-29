@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.opengis.net/xls" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml" xmlns:xls="http://www.opengis.net/xls" elementFormDefault="qualified" version="1.1">
+	<!--Copyright (c) 2003 OGC, All Rights Reserved - This OGC document is a draft and is copyright-protected by OGC. While the reproduction of drafts in any form for use by participants in the OGC Interoperability Program is permitted without prior permission from OGC, neither this document nor any extract from it may be reproduced, stored or transmitted in any form for any other purpose without prior written permission from OGC.-->
+	<import namespace="http://www.opengis.net/gml" schemaLocation="gml4xls.xsd"/>
+	<include schemaLocation="XLS.xsd"/>
+	<!-- ==============================================GetCapabilities Request=====================-->
+	<element name="GetPortrayMapCapabilitiesRequest" type="xls:GetPortrayMapCapabilitiesRequestType" substitutionGroup="xls:_RequestParameters">
+		<annotation>
+			<documentation>Request the capabilities that the implementation provides (srs, formats, layers, styles)</documentation>
+		</annotation>
+	</element>
+	<complexType name="GetPortrayMapCapabilitiesRequestType">
+		<complexContent>
+			<extension base="xls:AbstractRequestParametersType"/>
+		</complexContent>
+	</complexType>
+	<!-- ==============================================GetCapabilities Response=====================-->
+	<element name="GetPortrayMapCapabilitiesResponse" type="xls:GetPortrayMapCapabilitiesResponseType" substitutionGroup="xls:_ResponseParameters">
+		<annotation>
+			<documentation>Content of the capabilities response</documentation>
+		</annotation>
+	</element>
+	<complexType name="GetPortrayMapCapabilitiesResponseType">
+		<complexContent>
+			<extension base="xls:AbstractResponseParametersType">
+				<sequence>
+					<element name="AvailableSRS" type="xls:AvailableSRSType">
+						<annotation>
+							<documentation>The list of the projections that the impl provides (EPSG:XXXX)</documentation>
+						</annotation>
+					</element>
+					<element name="AvailableLayers" type="xls:AvailableLayersType">
+						<annotation>
+							<documentation>The list of the layers that the implementation provides for portraying the baseMap. To try and keep this within scope of openLS, the style of these layers is left up to the impl.</documentation>
+						</annotation>
+					</element>
+					<element name="AvailableFormats" type="xls:AvailableFormatsType">
+						<annotation>
+							<documentation>The list of formats (mime-types) that the impl will encode the protrayed map with (image/gif, image/png, text/xml-svg etc)</documentation>
+						</annotation>
+					</element>
+					<element name="AvailableStyles" type="xls:AvailableStylesType">
+						<annotation>
+							<documentation>The list of available named styles</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="AvailableSRSType">
+		<sequence>
+			<element name="SRS" type="string" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<complexType name="AvailableLayersType">
+		<sequence>
+			<element name="Layer" type="string" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<complexType name="AvailableFormatsType">
+		<sequence>
+			<element name="Format" type="string" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<complexType name="AvailableStylesType">
+		<sequence>
+			<element name="Style" type="string" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<!-- ==============================================Request=====================-->
+	<element name="PortrayMapRequest" type="xls:PortrayMapRequestType" substitutionGroup="xls:_RequestParameters">
+		<annotation>
+			<documentation>Content of a presentation request</documentation>
+		</annotation>
+	</element>
+	<complexType name="PortrayMapRequestType">
+		<complexContent>
+			<extension base="xls:AbstractRequestParametersType">
+				<sequence>
+					<element name="Output" type="xls:OutputType" maxOccurs="unbounded">
+						<annotation>
+							<documentation>Specifies the output of the map(s) that should generated</documentation>
+						</annotation>
+					</element>
+					<element name="Basemap" type="xls:LayerType" minOccurs="0">
+						<annotation>
+							<documentation>The layers that should make up the baseMap. (getCapabilites provides the list the impl provides)					</documentation>
+						</annotation>
+					</element>
+					<element name="Overlay" type="xls:OverlayType" minOccurs="0" maxOccurs="unbounded">
+						<annotation>
+							<documentation>Overlays the set of ADT's onto the basemap</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<!-- ==================================================================-->
+	<complexType name="OutputType">
+		<choice minOccurs="0">
+			<element name="BBoxContext" type="gml:EnvelopeType">
+				<annotation>
+					<documentation>Context described as a bounding box</documentation>
+				</annotation>
+				<!-- type="xls:BoxType"> -->
+			</element>
+			<element name="CenterContext" type="xls:CenterContextType">
+				<annotation>
+					<documentation>Context described by a center point and scale</documentation>
+				</annotation>
+			</element>
+		</choice>
+		<attribute name="width" type="nonNegativeInteger">
+			<annotation>
+				<documentation>width of the resulting map in pixels</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="height" type="nonNegativeInteger">
+			<annotation>
+				<documentation>height of the resulting map in pixels</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="format" type="string">
+			<annotation>
+				<documentation>mime type describing the encoding (getCapabilites provides the list that the impl provides)</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="BGcolor" type="string" use="optional">
+			<annotation>
+				<documentation>Background Color of the map in RGB Hex format, defaults to "#FFFFFF" (White)</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="transparent" type="boolean" use="optional">
+			<annotation>
+				<documentation>The opacity of the map, defaults to true if not specified</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="content" type="xls:presentationContentType" use="optional" default="URL"/>
+		<!-- [MM] 17/3/03 added this new attribute to allow client to pick between the two modes that the map can be returned in -->
+		<!--[MM] 17/3/03 sequence>
+			<element name="Clip" type="xls:ClipType" minOccurs="0">
+				<annotation>
+					<documentation>Specifies the clipping shape to be used when portraying the map</documentation>
+				</annotation>
+			</element-->
+		<!--/sequence-->
+	</complexType>
+	<simpleType name="presentationContentType">
+		<annotation>
+			<documentation>Map can be returned as one of those content types</documentation>
+		</annotation>
+		<restriction base="string">
+			<enumeration value="URL"/>
+			<enumeration value="Data"/>
+		</restriction>
+	</simpleType>
+	<complexType name="OverlayType">
+		<sequence>
+			<choice>
+				<element ref="xls:POI"/>
+				<element ref="xls:RouteGeometry"/>
+				<element ref="xls:Position"/>
+				<element ref="xls:Map"/>
+			</choice>
+			<element name="Style" type="xls:StyleType" minOccurs="0">
+				<annotation>
+					<documentation>The Style describing how the ADT's should be portrayed. Either a named style or a user defined style. The implementation should use a default if neither is specified</documentation>
+				</annotation>
+			</element>
+		</sequence>
+		<attribute name="zorder" type="integer" use="optional">
+			<annotation>
+				<documentation>The order in which the overlay's are laid on top of each other over the base map</documentation>
+			</annotation>
+		</attribute>
+	</complexType>
+	<complexType name="LayerType">
+		<sequence>
+			<element name="Layer" maxOccurs="unbounded">
+				<complexType>
+					<sequence>
+						<element name="Style" type="xls:StyleType" minOccurs="0">
+							<annotation>
+								<documentation>The style describing how the layer should be portrayed</documentation>
+							</annotation>
+						</element>
+					</sequence>
+					<attribute name="name" type="string" use="required">
+						<annotation>
+							<documentation>The layer name, getCapabilites provides a list the impl provides</documentation>
+						</annotation>
+					</attribute>
+				</complexType>
+			</element>
+		</sequence>
+		<attribute name="filter" use="required">
+			<simpleType>
+				<restriction base="string">
+					<enumeration value="Include"/>
+					<enumeration value="Exclude"/>
+				</restriction>
+			</simpleType>
+		</attribute>
+	</complexType>
+	<complexType name="StyleType">
+		<choice>
+			<element name="Name" type="string">
+				<annotation>
+					<documentation>Portray using a named style</documentation>
+				</annotation>
+			</element>
+			<element name="StyleContent" type="string">
+				<annotation>
+					<documentation>Portray using a user defined style</documentation>
+				</annotation>
+			</element>
+		</choice>
+	</complexType>
+	<complexType name="ClipType">
+		<choice>
+			<element ref="gml:Polygon">
+				<annotation>
+					<documentation>Clips the portrayed map with a polygon</documentation>
+				</annotation>
+			</element>
+			<element ref="gml:CircleByCenterPoint">
+				<annotation>
+					<documentation>Clips the portrayed map with a circle</documentation>
+				</annotation>
+				<!--  ref="xls:Circle" -->
+			</element>
+			<element name="LineCorridor" type="xls:LineCorridorType">
+				<annotation>
+					<documentation>Clips the portrayed map along a line with a corridor width</documentation>
+				</annotation>
+			</element>
+		</choice>
+	</complexType>
+	<complexType name="LineCorridorType">
+		<sequence>
+			<element ref="gml:LineString"/>
+			<element ref="xls:Distance"/>
+			<!-- ref="xls:LineString  -->
+		</sequence>
+	</complexType>
+	<!-- ==============================================Response=====================-->
+	<element name="PortrayMapResponse" type="xls:PortrayMapResponseType" substitutionGroup="xls:_ResponseParameters">
+		<annotation>
+			<documentation>Content of a presentation response</documentation>
+		</annotation>
+	</element>
+	<complexType name="PortrayMapResponseType">
+		<complexContent>
+			<extension base="xls:AbstractResponseParametersType">
+				<sequence>
+					<element ref="xls:Map" maxOccurs="unbounded"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+</schema>

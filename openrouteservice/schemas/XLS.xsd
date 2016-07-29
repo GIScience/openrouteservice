@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.opengis.net/xls" xmlns:xls="http://www.opengis.net/xls" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="1.1">
+	<!--Copyright (c) 2003 OGC, All Rights Reserved - This OGC document is a draft and is copyright-protected by OGC. While the reproduction of drafts in any form for use by participants in the OGC Interoperability Program is permitted without prior permission from OGC, neither this document nor any extract from it may be reproduced, stored or transmitted in any form for any other purpose without prior written permission from OGC.-->
+	<include schemaLocation="ADT.xsd"/>
+	<element name="XLS" type="xls:XLSType">
+		<annotation>
+			<documentation>The top element of an OpenLS request-response  message; an XML document.</documentation>
+		</annotation>
+	</element>
+	<complexType name="XLSType">
+		<annotation>
+			<documentation>Defines the top element of an XML document representing a message.</documentation>
+		</annotation>
+		<sequence>
+			<element ref="xls:_Header"/>
+			<element ref="xls:_Body" maxOccurs="unbounded"/>
+		</sequence>
+		<attribute name="version" type="decimal" use="required"/>
+		<attribute ref="xls:lang" use="optional">
+			<annotation>
+				<documentation>Defines the preferred language used for formatting responses. </documentation>
+			</annotation>
+		</attribute>
+	</complexType>
+	<element name="_Header" type="xls:AbstractHeaderType" abstract="true">
+		<annotation>
+			<documentation>Defines the portion of a message that contains header information; see _Body for  the specific information needed to execute a request.</documentation>
+			<documentation>Base element representing all types of header information.</documentation>
+		</annotation>
+	</element>
+	<complexType name="AbstractHeaderType" abstract="true">
+		<annotation>
+			<documentation>Defines the portion of a message that contains information orthogonal to the specific information needed to execute a request.  Typical header information includes infomation associated with authentication and authorization, transaction management, payment processing, tracing and auditing.</documentation>
+			<documentation>Abstract type common to all types of header information.</documentation>
+		</annotation>
+	</complexType>
+	<element name="_Body" type="xls:AbstractBodyType" abstract="true">
+		<annotation>
+			<documentation>The portion of a message containing information that is core to the message; the request-response pair.</documentation>
+			<documentation>Base element representing all types of body information.</documentation>
+		</annotation>
+	</element>
+	<complexType name="AbstractBodyType" abstract="true">
+		<annotation>
+			<documentation>Defines the portion of a message containing information that is core to the message.</documentation>
+			<documentation>Abstract type common to all types of body information.</documentation>
+		</annotation>
+	</complexType>
+	<element name="RequestHeader" type="xls:RequestHeaderType" substitutionGroup="xls:_Header">
+		<annotation>
+			<documentation>The header information for request messages.</documentation>
+		</annotation>
+	</element>
+	<complexType name="RequestHeaderType">
+		<annotation>
+			<documentation>Defines the header information for request messages.</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="xls:AbstractHeaderType">
+				<attribute name="clientName" type="string" use="optional">
+					<annotation>
+						<documentation>The client name, used for authentication.</documentation>
+					</annotation>
+				</attribute>
+				<attribute name="clientPassword" type="string" use="optional">
+					<annotation>
+						<documentation/>
+						<documentation>The client password, used for authentication.</documentation>
+					</annotation>
+				</attribute>
+				<attribute name="sessionID" type="string" use="optional">
+					<annotation>
+						<documentation>A client-defined unique session Iidentifier, which should be returned in the response header.</documentation>
+					</annotation>
+				</attribute>
+				<attribute name="srsName" type="anyURI" use="optional">
+					<annotation>
+						<documentation>In general this reference points to a CRS instance of gml:CoordinateReferenceSystemType (see coordinateReferenceSystems.xsd). For well known references it is not required that the CRS description exists at the location the URI points to (Note: These "WKCRS"-ids still have to be specified).  If no srsName attribute is given, the CRS must be specified as part of the larger context this geometry element is part of, e.g. a geometric aggregate. Default value is WGS84</documentation>
+					</annotation>
+				</attribute>
+				<attribute name="MSID" type="string" use="optional">
+					<annotation>
+						<documentation>A client-defined unique Iidentifier. Can be used for different purposes, for example billing.</documentation>
+					</annotation>
+				</attribute>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="Request" type="xls:RequestType" substitutionGroup="xls:_Body">
+		<annotation>
+			<documentation>The core information of a service request message.</documentation>
+		</annotation>
+	</element>
+	<complexType name="RequestType">
+		<annotation>
+			<documentation>Defines the core information of a service request message.</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="xls:AbstractBodyType">
+				<sequence>
+					<element ref="xls:_RequestParameters" minOccurs="0"/>
+				</sequence>
+				<attribute name="methodName" type="NMTOKEN" use="required">
+					<annotation>
+						<documentation>The name of the method to be invoked by the service.</documentation>
+					</annotation>
+				</attribute>
+				<attribute name="version" type="string" use="required">
+					<annotation>
+						<documentation>The version level of the request parameters supported by the client.</documentation>
+					</annotation>
+				</attribute>
+				<attribute name="requestID" type="string" use="required">
+					<annotation>
+						<documentation>A client-defined request identifier, unique within the scope of the session.  The request identifier must be returned in the service response.</documentation>
+					</annotation>
+				</attribute>
+				<attribute name="maximumResponses" type="nonNegativeInteger" use="optional">
+					<annotation>
+						<documentation>This parameter will allow the request to control the number of responses generated. For example the POI request will use this as a contraint to generate a certain number of POIs. In the special cases where one of the responses can contain multiple values this will be controlled within the request itself, in those cases this parameter will not be applicable</documentation>
+					</annotation>
+				</attribute>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="_RequestParameters" type="xls:AbstractRequestParametersType" abstract="true">
+		<annotation>
+			<documentation>Base element representing the set of parameters for a service request.</documentation>
+		</annotation>
+	</element>
+	<complexType name="AbstractRequestParametersType" abstract="true">
+		<annotation>
+			<documentation>Abstract type representing the set of parameters for a service request.</documentation>
+		</annotation>
+	</complexType>
+	<element name="ResponseHeader" type="xls:ResponseHeaderType" substitutionGroup="xls:_Header">
+		<annotation>
+			<documentation>The header information for response messages.</documentation>
+		</annotation>
+	</element>
+	<complexType name="ResponseHeaderType">
+		<annotation>
+			<documentation>Defines the header information for response messages.</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="xls:AbstractHeaderType">
+				<sequence>
+					<element ref="xls:ErrorList" minOccurs="0"/>
+				</sequence>
+				<attribute name="sessionID" type="string" use="optional">
+					<annotation>
+						<documentation>The session identifier, specified by the client in the request header.</documentation>
+					</annotation>
+				</attribute>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="Response" type="xls:ResponseType" substitutionGroup="xls:_Body">
+		<annotation>
+			<documentation>The response information returned from a service request.</documentation>
+		</annotation>
+	</element>
+	<complexType name="ResponseType">
+		<annotation>
+			<documentation>Defines the response information returned from a service response.</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="xls:AbstractBodyType">
+				<sequence>
+					<element ref="xls:ErrorList" minOccurs="0"/>
+					<element ref="xls:_ResponseParameters" minOccurs="0"/>
+				</sequence>
+				<attribute name="version" type="string" use="required">
+					<annotation>
+						<documentation>The version level of the response parameters supported by the service.</documentation>
+					</annotation>
+				</attribute>
+				<attribute name="requestID" type="string" use="required">
+					<annotation>
+						<documentation>The request identifier, unique within the scope of the session, specified by the client in the service request.</documentation>
+					</annotation>
+				</attribute>
+				<attribute name="numberOfResponses" type="nonNegativeInteger" use="optional">
+					<annotation>
+						<documentation>This is the number of responses that are generated by the request. For example a map request can contain multiple requests for multiple maps, the responses will contain mulitple responses to that. In the case of Geocode, multiple responses will be equal to the number of requests, each response may contain one or more candidate addresses. For the scope of this specification, most of the time the number of responses will be equal to 1 </documentation>
+					</annotation>
+				</attribute>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="_ResponseParameters" type="xls:AbstractResponseParametersType" abstract="true">
+		<annotation>
+			<documentation>Base element representing the response information returned from a service request.</documentation>
+		</annotation>
+	</element>
+	<complexType name="AbstractResponseParametersType" abstract="true">
+		<annotation>
+			<documentation>Abstract type representing the response information returned from a service request.</documentation>
+		</annotation>
+	</complexType>
+	<element name="ErrorList" type="xls:ErrorListType">
+		<annotation>
+			<documentation>A list of errors encountered while attempting to process a request.</documentation>
+		</annotation>
+	</element>
+	<complexType name="ErrorListType">
+		<annotation>
+			<documentation>Defines a list of errors.</documentation>
+		</annotation>
+		<sequence>
+			<element ref="xls:Error" maxOccurs="unbounded"/>
+		</sequence>
+		<attribute name="highestSeverity" type="xls:SeverityType" use="optional" default="Warning">
+			<annotation>
+				<documentation>Set to the highest severity of any of the Error elements. Specifically, if any of the Error elements have a severity of Error then highestSeverity must be set to Error, otherwise set highestSeverity to Warning.</documentation>
+			</annotation>
+		</attribute>
+	</complexType>
+	<element name="Error" type="xls:ErrorType">
+		<annotation>
+			<documentation>Contains error and/or status information.</documentation>
+		</annotation>
+	</element>
+	<complexType name="ErrorType">
+		<annotation>
+			<documentation>Defines the characteristics of a processing error.</documentation>
+		</annotation>
+		<attribute name="errorCode" type="xls:ErrorCodeType" use="required">
+			<annotation>
+				<documentation>XML qualified name identifying the error. The well-known error codes within the "http://www.opengis.org/xls" namespace are enumerated in the type ErrorCodeEnum.</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="severity" type="xls:SeverityType" use="optional" default="Warning">
+			<annotation>
+				<documentation>Indicates the severity of the error.</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="locationID" type="IDREF" use="optional">
+			<annotation>
+				<documentation>The ID of the element associated with the error.</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="locationPath" type="string" use="optional">
+			<annotation>
+				<documentation>If the XML is well formed, then this attribute contains the path to the XML element or attribute associated with the error.</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="message" type="string" use="optional">
+			<annotation>
+				<documentation>Provides a human readable explanation of the error, which is not intended for algorithmic processing.</documentation>
+			</annotation>
+		</attribute>
+	</complexType>
+	<simpleType name="ErrorCodeType">
+		<annotation>
+			<documentation>Enumeration of error codes defined within the "http://www.opengis.net/xls" namespace.</documentation>
+		</annotation>
+		<restriction base="string">
+			<enumeration value="RequestVersionMismatch">
+				<annotation>
+					<documentation>Version of Request Schema not supported.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="ResponseVersionMismatch">
+				<annotation>
+					<documentation>Version of Response Schema not supported.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="ValueNotRecognized">
+				<annotation>
+					<documentation>Element content or attribute value not recognized.  Although the document is well formed and valid, the element/attribute contains a value that could not be recognized and therefore could not be used by the service processing the message.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="NotSupported">
+				<annotation>
+					<documentation>Element or attribute not supported. Although the document is well formed and valid, an element or attribute is present that is consistent with the rules and constraints contained in the OpenLS specification, but is not supported by the service processing the message.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="Inconsistent">
+				<annotation>
+					<documentation>Element content or attribute value inconsistent with other elements or attributes. Although the document is well formed and valid, according to the rules and constraints contained in the OpenLS specification the content of an element or attribute is inconsistent with the content of other elements or their attributes.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="OtherXml">
+				<annotation>
+					<documentation>Other error in an element content or attribute value. Although the document is well formed and valid, the element content or attribute value contains values that do not conform to the rules and constraints contained in the OpenLS specification and is not covered by other error codes. The Error message attribute should be used to indicate the nature of the problem.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="DeliveryFailure">
+				<annotation>
+					<documentation>Message Delivery Failure. A message has been received that either probably or definitely could not be sent to its next destination. Note: if severity is set to Warning then there is a small probability that the message was delivered.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="SecurityFailure">
+				<annotation>
+					<documentation>Message Security Checks Failed. Validation of signatures or checks on the authenticity or authority of the sender of the message have failed.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="Unknown">
+				<annotation>
+					<documentation>Unknown Error. Indicates that an error has occurred that is not covered explicitly by any of the other errors. The Error message attribute should be used to indicate the nature of the problem.</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<simpleType name="SeverityType">
+		<annotation>
+			<documentation>Enumeration of the error severity levels.</documentation>
+		</annotation>
+		<restriction base="string">
+			<enumeration value="Warning">
+				<annotation>
+					<documentation>This indicates that although there is an error, other parts of the request will still be processed in the normal way.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="Error">
+				<annotation>
+					<documentation>This indicates that there is an unrecoverable error in the request and no part of the request will processed.</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+</schema>

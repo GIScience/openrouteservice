@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="http://geographie.uni-bonn.de/rs" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://geographie.uni-bonn.de/rs" elementFormDefault="qualified">
+	<xs:element name="InstructionTags">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Language" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Language">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="LanguageType">
+					<xs:attribute name="Description" type="xs:string" use="required"/>
+					<xs:attribute name="Code" type="xs:string" use="required"/>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="LanguageType">
+		<xs:sequence>
+			<xs:element name="Start" type="PointType" minOccurs="0"/>
+			<xs:element name="End" type="PointType" minOccurs="0"/>
+			<xs:element name="Road" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Name" type="xs:string"/>
+						<xs:element name="RoadClass" type="xs:string" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>"Autobahn, Landstrasse, Nebenstrasse, etc."</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="MobilityBasedMovementInstruction" type="MovementType"/>
+			<xs:element name="Time" type="TimeType"/>
+			<xs:element name="Direction" type="DirectionType"/>
+			<xs:element name="ActionNumber" type="xs:string"/>
+			<xs:element name="FillWord" type="FillWordType"/>
+			<xs:element name="Symbol" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Satzzeichen etc.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PointType">
+		<xs:sequence>
+			<xs:element name="Name" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="Usage" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="Street" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="Number" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="NumberAddition" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="Code" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="City" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="CenterPoint" type="CenterPointType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CenterPointType">
+		<xs:sequence>
+			<xs:element name="X-Coordinate" type="xs:boolean"/>
+			<xs:element name="Y-Coordinate" type="xs:boolean"/>
+			<xs:element name="Z-Coordinate" type="xs:boolean" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MovementType">
+		<xs:sequence>
+			<xs:element name="Vehicle" type="xs:string"/>
+			<xs:element name="Pedestrian" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TimeType">
+		<xs:sequence>
+			<xs:element name="Appoximation" type="xs:string"/>
+			<xs:element name="Day" type="xs:string"/>
+			<xs:element name="Hour" type="xs:string"/>
+			<xs:element name="Minute" type="xs:string"/>
+			<xs:element name="Second" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DirectionType">
+		<xs:sequence>
+			<xs:element name="Curve" type="xs:string"/>
+			<xs:element name="SharpLeft" type="xs:string"/>
+			<xs:element name="Left" type="xs:string"/>
+			<xs:element name="HalfLeft" type="xs:string"/>
+			<xs:element name="StraightForward" type="xs:string"/>
+			<xs:element name="HalfRight" type="xs:string"/>
+			<xs:element name="Right" type="xs:string"/>
+			<xs:element name="SharpRight" type="xs:string"/>
+			<xs:element name="UTurn" type="xs:string"/>
+                  	<xs:element name="InitialHeading" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FillWordType">
+		<xs:sequence>
+			<xs:element name="StartTag" type="xs:string"/>
+			<xs:element name="EndTag" type="xs:string"/>
+			<xs:element name="On" type="xs:string"/>
+			<xs:element name="For" type="xs:string"/>
+			<xs:element name="Before" type="xs:string"/>
+			<xs:element name="After" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns:gml="http://www.opengis.net/gml" xmlns:xls="http://www.opengis.net/xls" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:aas="http://www.geoinform.fh-mainz.de/aas" targetNamespace="http://www.geoinform.fh-mainz.de/aas" elementFormDefault="qualified" version="1.0">
+	<import namespace="http://www.opengis.net/gml" schemaLocation="gml4xls.xsd"/>
+	<import namespace="http://www.opengis.net/xls" schemaLocation="RoutePreference.xsd"/>
+       <include schemaLocation="AAS.xsd"/>
+	<!-- ======================================================================================
+				Accessibility Request
+	========================================================================================= -->
+	<element name="DetermineAccessibilityRequest" type="aas:DetermineAccessibilityRequestType" substitutionGroup="aas:_RequestParameters">
+		<annotation>
+			<documentation>Specifies the Accessibility request parameters.</documentation>
+		</annotation>
+	</element>
+	<complexType name="DetermineAccessibilityRequestType">
+		<complexContent>
+			<extension base="aas:AbstractRequestParametersType">
+				<sequence>
+					<element ref="aas:Accessibility">
+						<annotation>
+							<documentation>Specifies the Accessibility request parameters.</documentation>
+						</annotation>
+					</element>
+					<element ref="aas:AccessibilityOutputRequest" minOccurs="0">
+						<annotation>
+							<documentation>Request parameters for more detail infomations.</documentation>
+						</annotation>
+					</element>
+					<element ref="aas:AccessibilityGeometryRequest" minOccurs="0">
+						<annotation>
+							<documentation>Request parameters for Accessibility geometry.</documentation>
+						</annotation>
+					</element>
+					<element ref="aas:AccessibilityMapRequest" minOccurs="0">
+						<annotation>
+							<documentation>Request parameters for Accessibility map.</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<!-- ===== Accessibility ===== -->
+	<element name="Accessibility" type="aas:AccessibilityType"/>
+	<complexType name="AccessibilityType">
+		<sequence>
+			<element ref="aas:AccessibilityPreference"/>
+			<element ref="aas:AccessibilitySettings" minOccurs="0"/>
+			<element ref="aas:LocationPoint"/>
+		</sequence>
+	</complexType>
+	<!-- ===== Accessibility Preference =====-->
+	<element name="AccessibilityPreference" type="aas:AccessibilityPreferenceType"/>
+	<complexType name="AccessibilityPreferenceType">
+		<annotation>
+			<documentation>Defines the request parameters for Accessibility preference.</documentation>
+		</annotation>
+		<choice>
+			<element name="Time" type="aas:AccessibilityPreferenceTimeType"/>
+			<element name="Distance" type="aas:AccessibilityPreferenceDistanceType"/>
+		</choice>
+	</complexType>
+	<complexType name="AccessibilityPreferenceTimeType">
+		<annotation>
+			<documentation>Defines the request attribute for a Time Accessibility.</documentation>
+		</annotation>
+		<attribute name="Duration" type="duration" use="required"/>
+	</complexType>
+	<complexType name="AccessibilityPreferenceDistanceType">
+		<annotation>
+			<documentation>Defines the request attribute for a Distance Accessibility.</documentation>
+		</annotation>
+		<attribute name="DistanceUnit" type="aas:DistanceUnitType" default="M"/>
+		<attribute name="Distance" type="nonNegativeInteger" use="required"/>
+	</complexType>
+
+	<element name="AccessibilitySettings" type="aas:AccessibilitySettingsType"/>
+	<complexType name="AccessibilitySettingsType">
+		<annotation>
+			<documentation>Defines the request parameters to perform accessibility analysis.</documentation>
+		</annotation>
+              <sequence>
+                     <!-- ===== Extensions for new features. Added by Maxim Rylov =====-->
+                     <element name="RoutePreference" type="xls:RoutePreferenceType" minOccurs="0" />
+                     <element name="Method" type="aas:AccessibilityPreferenceMethodType" minOccurs="0" />
+                     <element name="Interval" type="aas:AccessibilityPreferenceIntervalType" minOccurs="0"/>                     
+              </sequence>
+	</complexType>
+
+	<complexType name="AccessibilityPreferenceMethodType">
+		<simpleContent>
+			<extension base="string">
+	       	</extension>
+		</simpleContent>
+	</complexType>
+
+	<complexType name="AccessibilityPreferenceIntervalType">
+		<simpleContent>
+			<extension base="double">
+	       	</extension>
+		</simpleContent>
+	</complexType>
+    
+	<!-- ===== Accessibility Output Request ===== -->
+	<element name="AccessibilityOutputRequest" type="aas:AccessibilityOutputRequestType"/>
+	<complexType name="AccessibilityOutputRequestType">
+		<annotation>
+			<documentation>Defines the request parameters for Accessibility informations.</documentation>
+		</annotation>
+		<attribute name="Name" type="boolean" use="optional" default="false">
+			<annotation>
+				<documentation>If true, return the name of the location.</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="Time" type="boolean" use="optional" default="false">
+			<annotation>
+				<documentation>If true, return the Time in which the location can be attained.</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="Distance" type="boolean" use="optional" default="false">
+			<annotation>
+				<documentation>If true, return the Distance in which the location can be attained.</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="DistanceUnit" type="aas:DistanceUnitType" use="optional" default="M">
+			<annotation>
+				<documentation>Specifies the unit for measuring distance.</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="Coordinate" type="boolean" use="optional" default="false">
+			<annotation>
+				<documentation>If true, return the Coordinate of the location.</documentation>
+			</annotation>
+		</attribute>
+	</complexType>
+	<!-- ===== Accessibility Geometry Request ===== -->
+	<element name="AccessibilityGeometryRequest" type="aas:AccessibilityGeometryRequestType"/>
+	<complexType name="AccessibilityGeometryRequestType">
+		<annotation>
+			<documentation>Request parameters for Accessibility geometry.</documentation>
+		</annotation>
+		<sequence>
+			<choice>
+				<element ref="aas:PolygonPreference"/>
+				<element ref="aas:LineStringPreference"/>
+			</choice>
+		</sequence>
+	</complexType>
+	<simpleType name="PolygonPreferenceType">
+		<annotation>
+			<documentation>Enumeration of preferences to be taken into consideration when determining the Accessibility Polygon Geometry.</documentation>
+		</annotation>
+		<restriction base="string">
+			<enumeration value="Convex">
+				<annotation>
+					<documentation>Convex Hull of the Accessibility Polygon.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="Detailed">
+				<annotation>
+					<documentation>Deatiled Accessibility Polygon.</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<element name="PolygonPreference" type="aas:PolygonPreferenceType">
+		<annotation>
+			<documentation>Preference to be taken into consideration when determining the Accessibility Polygon Geometry.</documentation>
+		</annotation>
+	</element>
+	<simpleType name="LineStringPreferenceType">
+		<annotation>
+			<documentation>Enumeration of preferences to be taken into consideration when determining the Accessibility Polygon Geometry.</documentation>
+		</annotation>
+		<restriction base="string">
+			<enumeration value="StreetsGeom">
+				<annotation>
+					<documentation>Geometry of the Streets within the Accessibility Polygon.</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<element name="LineStringPreference" type="aas:LineStringPreferenceType">
+		<annotation>
+			<documentation>Preference to be taken into consideration when determining the Accessibility Polygon Geometry.</documentation>
+		</annotation>
+	</element>
+	<!-- ===== Accessibility Map Request ===== -->
+	<element name="AccessibilityMapRequest" type="aas:AccessibilityMapRequestType"/>
+	<complexType name="AccessibilityMapRequestType">
+		<sequence>
+			<element name="Output" type="aas:AccessibilityMapOutputType" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<complexType name="AccessibilityMapOutputType">
+		<annotation>
+			<documentation>Defines the request parameters for Accessibility maps.</documentation>
+		</annotation>
+		<sequence>
+			<element name="BBoxContext" type="gml:EnvelopeType" minOccurs="0">
+				<annotation>
+					<documentation>Rectangular area to be displayed in the rendered map.  If not specified, defaults to full Area.</documentation>
+				</annotation>
+			</element>
+		</sequence>
+		<attribute name="width" type="nonNegativeInteger">
+			<annotation>
+				<documentation>pixel width of the resulting map</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="height" type="nonNegativeInteger">
+			<annotation>
+				<documentation>pixel height of the resulting map</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="format" type="string">
+			<annotation>
+				<documentation>mime type describing the encoding</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="BGcolor" type="string" use="optional">
+			<annotation>
+				<documentation>color of the background, e.g. "#FFFFFF" -> White</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="transparent" type="boolean" use="optional">
+			<annotation>
+				<documentation>If true, the map is transparent.</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="AccessibilityMapPreference" type="aas:AccessibilityMapPreferenceType" use="optional" default="DetailedPolygon">
+			<annotation>
+				<documentation>Preference to be taken into consideration when create the Accessibility Map.</documentation>
+			</annotation>
+		</attribute>
+	</complexType>
+	<simpleType name="AccessibilityMapPreferenceType">
+		<annotation>
+			<documentation>Enumeration of preferences to be taken into consideration when creating the Accessibility Map.</documentation>
+		</annotation>
+		<restriction base="string">
+			<enumeration value="ConvexPolygon">
+				<annotation>
+					<documentation>Convex Hull of the Accessibility Polygon.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="DetailedPolygon">
+				<annotation>
+					<documentation>Deatiled Accessibility Polygon.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="StreetsBuffer">
+				<annotation>
+					<documentation>Streets Buffer.</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<!-- ===================================================================================
+			Accessibility Response 
+	====================================================================================== -->
+	<element name="AccessibilityResponse" type="aas:AccessibilityResponseType" substitutionGroup="aas:_ResponseParameters">
+		<annotation>
+			<documentation>Specifies the Accessibility response parameters.</documentation>
+		</annotation>
+	</element>
+	<complexType name="AccessibilityResponseType">
+		<annotation>
+			<documentation>Defines the Accessibility response parameters.</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="aas:AbstractResponseParametersType">
+				<sequence>
+					<element ref="aas:AccessibilitySummary">
+						<annotation>
+							<documentation>Response for requested Accessibility summary.</documentation>
+						</annotation>
+					</element>
+					<element ref="aas:AccessibilityOutputList" minOccurs="0">
+						<annotation>
+							<documentation>Response for requested Accessibility output.</documentation>
+						</annotation>
+					</element>
+					<element ref="aas:AccessibilityGeometry" minOccurs="0">
+						<annotation>
+							<documentation>Response for requested Accessibility geometry.</documentation>
+						</annotation>
+					</element>
+					<element ref="aas:AccessibilityMap" minOccurs="0" maxOccurs="unbounded">
+						<annotation>
+							<documentation>Response for requested Accessibility map.</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+</schema>

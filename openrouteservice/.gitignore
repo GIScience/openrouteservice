@@ -1,0 +1,6 @@
+target/
+*~
+TODO.txt
+.settings/
+.classpath
+.project

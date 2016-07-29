@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.opengis.net/xls" xmlns:xls="http://www.opengis.net/xls" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="1.1">
+	<!--Copyright (c) 2003 OGC, All Rights Reserved -  This OGC document is a draft and is copyright-protected by OGC. While the reproduction of drafts in any form for use by participants in the OGC Interoperability Program is permitted without prior permission from OGC, neither this document nor any extract from it may be reproduced, stored or transmitted in any form for any other purpose without prior written permission from OGC.-->
+	<import namespace="http://www.opengis.net/gml" schemaLocation="gml4xls.xsd"/>
+	<include schemaLocation="XLS.xsd"/>
+	<!-- ====================================================== -->
+	<element name="DirectoryRequest" type="xls:DirectoryRequestType" substitutionGroup="xls:_RequestParameters"/>
+	<complexType name="DirectoryRequestType">
+		<annotation>
+			<documentation>ADT for a DirectoryRequest</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="xls:AbstractRequestParametersType">
+				<sequence>
+					<element ref="xls:POILocation" minOccurs="0"/>
+					<element ref="xls:_POISelectionCriteria"/>
+				</sequence>
+				<attribute name="sortCriteria" type="string" use="optional">
+					<annotation>
+						<documentation>POI property used to sort the result. It may take on the well-known values of “Name” and “Distance” as well as any other POI property names.
+		</documentation>
+					</annotation>
+				</attribute>
+				<attribute name="sortDirection" type="xls:SortDirectionType" use="optional" default="Ascending">
+					<annotation>
+						<documentation>Ascending/Descending</documentation>
+					</annotation>
+				</attribute>
+				<attribute name="distanceUnit" type="xls:DistanceUnitType" use="optional" default="M">
+					<annotation>
+						<documentation>Specifies the unit for measuring distance.</documentation>
+					</annotation>
+				</attribute>
+			</extension>
+		</complexContent>
+	</complexType>
+	<!-- ====================================================== -->
+	<element name="DirectoryResponse" type="xls:DirectoryResponseType" substitutionGroup="xls:_ResponseParameters">
+		<annotation>
+			<documentation>Directory Service Response</documentation>
+		</annotation>
+	</element>
+	<!-- ====================================================== -->
+	<complexType name="DirectoryResponseType">
+		<annotation>
+			<documentation>ADT for a ProximityResponse. One or more POIs may be returned</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="xls:AbstractResponseParametersType">
+				<sequence>
+					<element name="POIContext" type="xls:POIWithDistanceType" minOccurs="0" maxOccurs="unbounded"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<!-- ====================================================== -->
+	<complexType name="WithinBoundaryType">
+		<annotation>
+			<documentation>Defines a spatial filter which selects POIs located within a specified bounding area.</documentation>
+		</annotation>
+		<sequence>
+			<element ref="xls:AOI"/>
+		</sequence>
+	</complexType>
+	<!-- ====================================================== -->
+	<complexType name="WithinDistanceType">
+		<annotation>
+			<documentation>Defines a spatial filter which selects POIs located within a specified distance from a location.</documentation>
+		</annotation>
+		<sequence>
+			<element ref="xls:_Location"/>
+			<element name="MinimumDistance" type="xls:DistanceType" minOccurs="0"/>
+			<element name="MaximumDistance" type="xls:DistanceType" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<!-- ====================================================== -->
+	<complexType name="NearestType">
+		<annotation>
+			<documentation>Defines a spatial filter which selects the POI nearest to the specified location.</documentation>
+		</annotation>
+		<sequence>
+			<element ref="xls:_Location" maxOccurs="unbounded"/>
+		</sequence>
+		<attribute name="nearestCriterion" type="xls:NearestCriterionType" use="optional" default="Proximity">
+			<annotation>
+				<documentation>Proximity - nearest by straightline distance</documentation>
+			</annotation>
+		</attribute>
+	</complexType>
+	<simpleType name="NearestCriterionType">
+		<restriction base="string">
+			<enumeration value="Proximity"/>
+			<enumeration value="Fastest"/>
+			<enumeration value="Shortest"/>
+			<enumeration value="Easiest"/>
+		</restriction>
+	</simpleType>
+	<!-- ====================================================== -->
+	<element name="_POISelectionCriteria" type="xls:AbstractPOISelectionCriteriaType">
+		<annotation>
+			<documentation>Base element that specifies POI selection criteria</documentation>
+		</annotation>
+	</element>
+	<!-- ====================================================== -->
+	<complexType name="AbstractPOISelectionCriteriaType" abstract="true">
+		<annotation>
+			<documentation>Abstract POI selection criteria</documentation>
+		</annotation>
+	</complexType>
+	<!-- ====================================================== -->
+	<simpleType name="SortDirectionType">
+		<annotation>
+			<documentation>Defines the sort direction (Ascending/Descending)</documentation>
+		</annotation>
+		<restriction base="string">
+			<enumeration value="Ascending"/>
+			<enumeration value="Descending"/>
+		</restriction>
+	</simpleType>
+	<!-- ====================================================== -->
+	<element name="POILocation" type="xls:POILocationType"/>
+	<complexType name="POILocationType">
+		<annotation>
+			<documentation>Defines the type of location constraints to perform search.</documentation>
+		</annotation>
+		<choice>
+			<element ref="xls:Address"/>
+			<element name="Nearest" type="xls:NearestType"/>
+			<element name="WithinDistance" type="xls:WithinDistanceType"/>
+			<element name="WithinBoundary" type="xls:WithinBoundaryType"/>
+		</choice>
+	</complexType>
+	<!-- ====================================================== -->
+	<complexType name="POIWithDistanceType">
+		<annotation>
+			<documentation>Defines a POI and its distance from a predetermined point.</documentation>
+		</annotation>
+		<sequence>
+			<element ref="xls:POI"/>
+			<element ref="xls:Distance" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<!-- ====================================================== -->
+	<element name="POIProperties" substitutionGroup="xls:_POISelectionCriteria">
+		<annotation>
+			<documentation>Specifies POI selection criteria as a list of properties</documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="xls:POIPropertiesType"/>
+			</complexContent>
+		</complexType>
+	</element>
+	<!-- ====================================================== -->
+	<complexType name="POIPropertiesType">
+		<annotation>
+			<documentation>Defines POI selection criteria as a list of properties</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="xls:AbstractPOISelectionCriteriaType">
+				<sequence>
+					<element ref="xls:_POIProperty" minOccurs="0" maxOccurs="unbounded"/>
+				</sequence>
+				<attribute name="directoryType" type="string" use="optional"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<!-- ====================================================== -->
+	<complexType name="AbstractPOIPropertyType" abstract="true">
+		<annotation>
+			<documentation>Abstract POI property</documentation>
+		</annotation>
+	</complexType>
+	<!-- ====================================================== -->
+	<element name="_POIProperty">
+		<annotation>
+			<documentation>Base element representing a POI property</documentation>
+		</annotation>
+	</element>
+	<complexType name="POIPropertyType">
+		<annotation>
+			<documentation>Defines a POI property, represented as a name/value pair</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="xls:AbstractPOIPropertyType">
+				<attribute name="name" type="xls:POIPropertyNameType" use="required"/>
+				<attribute name="value" type="string" use="required"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<!-- ====================================================== -->
+	<element name="POIProperty" type="xls:POIPropertyType" substitutionGroup="xls:_POIProperty">
+		<annotation>
+			<documentation>A POI property, represented as a name/value pair</documentation>
+		</annotation>
+	</element>
+	<simpleType name="POIPropertyNameType">
+		<annotation>
+			<documentation>Enumeration of  references to properties within the POI element</documentation>
+		</annotation>
+		<restriction base="string">
+			<enumeration value="ID"/>
+			<enumeration value="POIName"/>
+			<enumeration value="PhoneNumber"/>
+			<enumeration value="Keyword"/>
+			<enumeration value="NAICS_type"/>
+			<enumeration value="NAICS_subType"/>
+			<enumeration value="NAICS_category"/>
+			<enumeration value="SIC_type"/>
+			<enumeration value="SIC_subType"/>
+			<enumeration value="SIC_category"/>
+			<enumeration value="SIC_code"/>
+			<enumeration value="other"/>
+		</restriction>
+	</simpleType>
+</schema>

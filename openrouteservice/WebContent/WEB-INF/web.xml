@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+	<display-name>OpenLS OSM</display-name>
+	<!-- OPENLS ROUTE SERVICE -->
+	<servlet>
+		<servlet-name>openls-rs</servlet-name>
+		<servlet-class>org.freeopenls.routeservice.RSServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>openls-rs</servlet-name>
+		<url-pattern>/determineroute</url-pattern>
+	</servlet-mapping>
+	<!-- GEOCODING SERVICE -->
+	<servlet>
+	<servlet-name>openls-gs</servlet-name>
+		<servlet-class>org.freeopenls.locationutilityservice.LUSServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>openls-gs</servlet-name>
+		<url-pattern>/geocode</url-pattern>
+	</servlet-mapping>
+	<!-- ACCESSIBILITY ANALYSIS SERVICE -->
+	<servlet>
+		<servlet-name>aas</servlet-name>
+		<servlet-class>org.freeopenls.accessibilityanalyseservice.AASServlet</servlet-class>
+		<load-on-startup>5</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>aas</servlet-name>
+		<url-pattern>/analyse</url-pattern>
+	</servlet-mapping>
+    <!-- OPENLS DIRECTORY SERVICE -->
+    <servlet>
+        <servlet-name>openls-ds</servlet-name>
+        <servlet-class>org.freeopenls.directoryservice.DSServlet</servlet-class>
+        <load-on-startup>3</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>openls-ds</servlet-name>
+        <url-pattern>/directory</url-pattern>
+    </servlet-mapping>
+	<!-- OPENLS PRESENTATION SERVICE -->
+	<servlet>
+		<servlet-name>openls-ps</servlet-name>
+		<servlet-class>org.freeopenls.presentationservice.PSServlet</servlet-class>
+		<load-on-startup>4</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>openls-ps</servlet-name>
+		<url-pattern>/getmap</url-pattern>
+	</servlet-mapping>
+	<!-- ShortenLink SERVICE -->
+	<servlet>
+		<servlet-name>openls-sl</servlet-name>
+		<servlet-class>org.freeopenls.shortlinkservice.SLServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>openls-sl</servlet-name>
+		<url-pattern>/shortenlink</url-pattern>
+	</servlet-mapping>
+	<!-- Proxy CGI Configuration -->
+
+<!--
+  <filter>
+    <filter-name>MultipleRequestFilter</filter-name>
+    <filter-class>org.freeopenls.servlet.filters.MultipleRequestFilter</filter-class>
+  </filter>
+
+  <filter-mapping>
+	<filter-name>MultipleRequestFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+	<dispatcher>REQUEST</dispatcher>
+  </filter-mapping>
+-->
+
+   <filter>
+    <filter-name>RequestRateThrottleFilter</filter-name>
+    <filter-class>org.freeopenls.servlet.filters.RequestRateThrottleFilter</filter-class>
+    <init-param>
+      <param-name>hits</param-name>
+      <param-value>1000</param-value>
+    </init-param> 
+    <init-param>
+      <param-name>period</param-name>
+      <param-value>3600</param-value>
+    </init-param> 
+  </filter>
+
+  <filter-mapping>
+    <filter-name>RequestRateThrottleFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+   <filter>
+    <filter-name>PiwikRequestFilter</filter-name>
+    <filter-class>org.freeopenls.servlet.filters.PiwikRequestFilter</filter-class>
+    <init-param>
+      <param-name>SiteID</param-name>
+      <param-value>16</param-value>
+    </init-param> 
+    <init-param>
+      <param-name>APIURL</param-name>
+      <param-value>http://129.206.66.245:8010</param-value>
+    </init-param> 
+  </filter>
+  
+  <filter-mapping>
+    <filter-name>PiwikRequestFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+</web-app>
+
+

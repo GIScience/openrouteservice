@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://www.w3.org/1999/xlink" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema" version="1.1">
+	<xsd:annotation>
+		<xsd:documentation>Copyright (c) 2003 OGC, All Rights Reserved - This OGC document is a draft and is copyright-protected by OGC. While the reproduction of drafts in any form for use by participants in the OGC Interoperability Program is permitted without prior permission from OGC, neither this document nor any extract from it may be reproduced, stored or transmitted in any form for any other purpose without prior written permission from OGC.</xsd:documentation>
+	</xsd:annotation>
+	<xsd:annotation>
+		<xsd:appinfo source="urn:opengis:specification:gml:schema-xlinks:v3.0c2">xlinks.xsd v3.0b2 2001-07</xsd:appinfo>
+		<xsd:documentation>
+			GML 3.0 xlinks schema. .
+		</xsd:documentation>
+	</xsd:annotation>
+	<!-- ==============================================================
+       global declarations
+  	=============================================================== -->
+	<!-- locator attribute -->
+	<xsd:attribute name="href" type="anyURI"/>
+	<!-- semantic attributes -->
+	<xsd:attribute name="role" type="anyURI"/>
+	<xsd:attribute name="arcrole" type="anyURI"/>
+	<xsd:attribute name="title" type="string"/>
+	<!-- behavior attributes -->
+	<xsd:attribute name="show">
+		<xsd:annotation>
+			<xsd:documentation>
+        The 'show' attribute is used to communicate the desired presentation 
+        of the ending resource on traversal from the starting resource; it's 
+        value should be treated as follows: 
+        new - load ending resource in a new window, frame, pane, or other 
+              presentation context
+        replace - load the resource in the same window, frame, pane, or 
+                  other presentation context
+        embed - load ending resource in place of the presentation of the 
+                starting resource
+        other - behavior is unconstrained; examine other markup in the 
+                link for hints 
+        none - behavior is unconstrained 
+      </xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="string">
+				<xsd:enumeration value="new"/>
+				<xsd:enumeration value="replace"/>
+				<xsd:enumeration value="embed"/>
+				<xsd:enumeration value="other"/>
+				<xsd:enumeration value="none"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:attribute>
+	<xsd:attribute name="actuate">
+		<xsd:annotation>
+			<xsd:documentation>
+        The 'actuate' attribute is used to communicate the desired timing 
+        of traversal from the starting resource to the ending resource; 
+        it's value should be treated as follows:
+        onLoad - traverse to the ending resource immediately on loading 
+                 the starting resource 
+        onRequest - traverse from the starting resource to the ending 
+                    resource only on a post-loading event triggered for 
+                    this purpose 
+        other - behavior is unconstrained; examine other markup in link 
+                for hints 
+        none - behavior is unconstrained
+      </xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="string">
+				<xsd:enumeration value="onLoad"/>
+				<xsd:enumeration value="onRequest"/>
+				<xsd:enumeration value="other"/>
+				<xsd:enumeration value="none"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:attribute>
+	<!-- traversal attributes -->
+	<xsd:attribute name="label" type="string"/>
+	<xsd:attribute name="from" type="string"/>
+	<xsd:attribute name="to" type="string"/>
+	<!-- ==============================================================
+       Attributes grouped by XLink type, as specified in the W3C 
+       Proposed Recommendation (dated 2000-12-20)
+	============================================================== -->
+	<xsd:attributeGroup name="simpleLink">
+		<xsd:attribute name="type" type="string" fixed="simple" form="qualified"/>
+		<xsd:attribute ref="xlink:href" use="optional"/>
+		<xsd:attribute ref="xlink:role" use="optional"/>
+		<xsd:attribute ref="xlink:arcrole" use="optional"/>
+		<xsd:attribute ref="xlink:title" use="optional"/>
+		<xsd:attribute ref="xlink:show" use="optional"/>
+		<xsd:attribute ref="xlink:actuate" use="optional"/>
+	</xsd:attributeGroup>
+	<xsd:attributeGroup name="extendedLink">
+		<xsd:attribute name="type" type="string" fixed="extended" form="qualified"/>
+		<xsd:attribute ref="xlink:role" use="optional"/>
+		<xsd:attribute ref="xlink:title" use="optional"/>
+	</xsd:attributeGroup>
+	<xsd:attributeGroup name="locatorLink">
+		<xsd:attribute name="type" type="string" fixed="locator" form="qualified"/>
+		<xsd:attribute ref="xlink:href" use="required"/>
+		<xsd:attribute ref="xlink:role" use="optional"/>
+		<xsd:attribute ref="xlink:title" use="optional"/>
+		<xsd:attribute ref="xlink:label" use="optional"/>
+	</xsd:attributeGroup>
+	<xsd:attributeGroup name="arcLink">
+		<xsd:attribute name="type" type="string" fixed="arc" form="qualified"/>
+		<xsd:attribute ref="xlink:arcrole" use="optional"/>
+		<xsd:attribute ref="xlink:title" use="optional"/>
+		<xsd:attribute ref="xlink:show" use="optional"/>
+		<xsd:attribute ref="xlink:actuate" use="optional"/>
+		<xsd:attribute ref="xlink:from" use="optional"/>
+		<xsd:attribute ref="xlink:to" use="optional"/>
+	</xsd:attributeGroup>
+	<xsd:attributeGroup name="resourceLink">
+		<xsd:attribute name="type" type="string" fixed="resource" form="qualified"/>
+		<xsd:attribute ref="xlink:role" use="optional"/>
+		<xsd:attribute ref="xlink:title" use="optional"/>
+		<xsd:attribute ref="xlink:label" use="optional"/>
+	</xsd:attributeGroup>
+	<xsd:attributeGroup name="titleLink">
+		<xsd:attribute name="type" type="string" fixed="title" form="qualified"/>
+	</xsd:attributeGroup>
+	<xsd:attributeGroup name="emptyLink">
+		<xsd:attribute name="type" type="string" fixed="none" form="qualified"/>
+	</xsd:attributeGroup>
+</xsd:schema>

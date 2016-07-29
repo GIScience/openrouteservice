@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml" xmlns:aas="http://www.geoinform.fh-mainz.de/aas" targetNamespace="http://www.geoinform.fh-mainz.de/aas" elementFormDefault="qualified" version="1.0">
+	<import namespace="http://www.opengis.net/gml" schemaLocation="gml4xls.xsd"/>
+	<include schemaLocation="geometry4aas.xsd"/>
+	<!--	===============================================================================
+				Root ADT XML schema types -  ADT and Location
+	==================================================================================== -->
+	<element name="_ADT" type="aas:AbstractDataType" abstract="true">
+		<annotation>
+			<documentation>This is the abstract type that all other abstract types will extend</documentation>
+		</annotation>
+	</element>
+	<complexType name="AbstractDataType"/>
+	<element name="_Location" type="aas:AbstractLocationType" abstract="true" substitutionGroup="aas:_ADT"/>
+	<complexType name="AbstractLocationType" abstract="true">
+		<annotation>
+			<documentation>Location can be one of two things: Position or Address.</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="aas:AbstractDataType"/>
+		</complexContent>
+	</complexType>
+	<!--	===============================================================================
+				Position ADT
+	==================================================================================== -->
+	<complexType name="AbstractPositionType" abstract="true">
+		<complexContent>
+			<extension base="aas:AbstractLocationType"/>
+		</complexContent>
+	</complexType>
+	<element name="_Position" type="aas:AbstractPositionType" abstract="true" substitutionGroup="aas:_Location"/>
+	<complexType name="PositionType">
+		<complexContent>
+			<extension base="aas:AbstractPositionType">
+				<sequence>
+					<element ref="gml:Point"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="Position" type="aas:PositionType" substitutionGroup="aas:_Position"/>
+	<!--	=============================================================================== 
+				Address ADT definitions
+	==================================================================================== -->
+	<complexType name="AbstractAddressType" abstract="true">
+		<complexContent>
+			<extension base="aas:AbstractLocationType">
+				<attribute name="countryCode" type="aas:CountryCodeType" use="required"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<simpleType name="CountryCodeType">
+		<restriction base="string"/>
+	</simpleType>
+	<complexType name="StreetAddressType">
+		<sequence>
+			<element ref="aas:_StreetLocation" minOccurs="0"/>
+			<element ref="aas:Street" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<element name="StreetAddress" type="aas:StreetAddressType">
+		<annotation>
+			<documentation>Structured street address.</documentation>
+		</annotation>
+	</element>
+	<element name="_StreetLocation" type="aas:AbstractStreetLocatorType">
+		<annotation>
+			<documentation>The location on a street.</documentation>
+		</annotation>
+	</element>
+	<complexType name="AbstractStreetLocatorType" abstract="true">
+		<annotation>
+			<documentation>
+	The AbstractStreetLocatorType is an abstract type  for describing the location on a street within an AddressType.
+	We do this because the components of a location on a street vary greatly throughout the world.
+	So that the schema can accommodate this variation we create derived types such as the
+	BuildingLocatorType which has the components for an apartment or suite or floor within a building.
+		</documentation>
+		</annotation>
+	</complexType>
+	<element name="Building" type="aas:BuildingLocatorType" substitutionGroup="aas:_StreetLocation">
+		<annotation>
+			<documentation>An addressable place; normally a location on a street: number, subdivision name and/or building number.</documentation>
+		</annotation>
+	</element>
+	<complexType name="BuildingLocatorType">
+		<annotation>
+			<documentation>A type of AbstractStreetLocatorType</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="aas:AbstractStreetLocatorType">
+				<attribute name="number" type="string" use="optional"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="StreetNameType">
+		<simpleContent>
+			<extension base="string">
+				<attribute name="name" type="string" use="required"/>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<element name="Street" type="aas:StreetNameType"/>
+	<element name="Address" type="aas:AddressType" substitutionGroup="aas:_Location"/>
+	<complexType name="AddressType">
+		<annotation>
+			<documentation>Defines an address</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="aas:AbstractAddressType">
+				<sequence>
+					<element ref="aas:StreetAddress"/>
+					<element ref="aas:Place"/>
+					<element ref="aas:PostalCode"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="Place" type="aas:PlaceType">
+		<annotation>
+			<documentation>Place represents a Placename.</documentation>
+		</annotation>
+	</element>
+	<complexType name="PlaceType">
+		<simpleContent>
+			<extension base="string">
+				<attribute name="name" type="string" use="required"/>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<element name="PostalCode" type="aas:PostalCodeType">
+		<annotation>
+			<documentation>A zipcode or international postal code as defined by the governing postal authority.</documentation>
+		</annotation>
+	</element>
+	<simpleType name="PostalCodeType">
+		<restriction base="string"/>
+	</simpleType>
+	<!--	=============================================================================== 
+				Map ADT
+	==================================================================================== -->
+	<element name="Map" type="aas:MapType" substitutionGroup="aas:_ADT"/>
+	<complexType name="MapType">
+		<complexContent>
+			<extension base="aas:AbstractDataType">
+				<sequence minOccurs="0">
+					<element name="Content" type="aas:ContentType"/>
+					<element name="BBoxContext" type="gml:EnvelopeType"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="ContentType">
+		<sequence>
+			<element name="URL" type="string">
+				<annotation>
+					<documentation>The Data can be found at this URL</documentation>
+				</annotation>
+			</element>
+		</sequence>
+		<attribute name="format" type="string" use="required"/>
+		<attribute name="width" type="integer" use="required"/>
+		<attribute name="height" type="integer" use="required"/>
+	</complexType>
+	<!--	=============================================================================== 
+				Accessibility Abstract Types
+	==================================================================================== -->
+	<complexType name="AbstractLocationPointType" abstract="true"/>
+	<element name="_LocationPoint" type="aas:AbstractLocationPointType" abstract="true"/>
+	<complexType name="AbstractAccessibilitySummaryType" abstract="true">
+		<annotation>
+			<documentation>Abstract type which specifies an Accessibility's overall characteristics.</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="aas:AbstractDataType">
+				<sequence>
+					<element name="NumberOfLocations" type="string"/>
+					<element ref="aas:BoundingBox"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="_AccessibilitySummary" type="aas:AbstractAccessibilitySummaryType" abstract="true" substitutionGroup="aas:_ADT"/>
+	<!--	=============================================================================== 
+				Accessibility ADT
+	==================================================================================== -->
+	<complexType name="AccessibilitySummaryType">
+		<complexContent>
+			<extension base="aas:AbstractAccessibilitySummaryType"/>
+		</complexContent>
+	</complexType>
+	<element name="AccessibilitySummary" type="aas:AccessibilitySummaryType" substitutionGroup="aas:_AccessibilitySummary">
+		<annotation>
+			<documentation>An Accessibility's overall characteristics.</documentation>
+		</annotation>
+	</element>
+	<element name="BoundingBox" type="gml:EnvelopeType">
+		<annotation>
+			<documentation>Rectangular bounding area.</documentation>
+		</annotation>
+		<!-- type="xls:BoxType" changed to gml:EnvelopeType -->
+	</element>
+	<complexType name="LocationPointType">
+		<complexContent>
+			<extension base="aas:AbstractLocationPointType">
+				<sequence>
+					<element ref="aas:_Location"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="LocationPoint" type="aas:LocationPointType" substitutionGroup="aas:_LocationPoint">
+		<annotation>
+			<documentation>Location for Accessibility Analyse.</documentation>
+		</annotation>
+	</element>
+	<!-- ===== Accessibility Output ===== -->
+	<element name="AccessibilityOutputList" type="aas:AccessibilityOutputListType" substitutionGroup="aas:_ADT"/>
+	<complexType name="AccessibilityOutputListType">
+		<complexContent>
+			<extension base="aas:AbstractDataType">
+				<sequence>
+					<element ref="aas:AccessibilityOutput" maxOccurs="unbounded"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="AccessibilityOutputType">
+		<sequence minOccurs="0">
+			<element ref="gml:Point"/>
+		</sequence>
+		<attribute name="ID" type="string" use="required"/>
+		<attribute name="Name" type="string" use="optional"/>
+		<attribute name="Time" type="duration" use="optional"/>
+		<attribute name="Distance" type="string" use="optional"/>
+	</complexType>
+	<element name="AccessibilityOutput" type="aas:AccessibilityOutputType"/>
+	<!-- ===== Accessibility Geometry ===== -->
+	<complexType name="AccessibilityGeometryType">
+		<annotation>
+			<documentation>Defines the geometry of an Accessibility analyse.</documentation>
+		</annotation>
+		<sequence>
+                   <element name="Isochrone" type="aas:IsochroneType"/>
+		</sequence>
+	</complexType>
+	<element name="AccessibilityGeometry" type="aas:AccessibilityGeometryType">
+		<annotation>
+			<documentation>Geometry of an Accessibility Analyse.</documentation>
+		</annotation>
+	</element>
+
+       <complexType name="IsochroneGeometryType">
+             <annotation>
+		    <documentation>Defines the geometry of an isochrone.</documentation>
+             </annotation>
+           <complexContent>
+		<extension base="aas:AbstractDataType">
+		  <sequence>
+		    <choice>
+			<element ref="gml:Polygon" maxOccurs="unbounded"/>
+			<element ref="gml:LineString" maxOccurs="unbounded"/>
+		    </choice>
+	 	  </sequence>
+                <attribute name="area" type="double" use="optional">
+                   <annotation>
+				<documentation>The time value of isochorone.</documentation>
+		     </annotation>
+                </attribute>
+	      </extension>
+	    </complexContent>
+       </complexType>
+
+       <complexType name="IsochroneType">
+              <annotation>
+			<documentation>Defines the isochrone.</documentation>
+		</annotation>
+ 	       <complexContent>
+		   <extension base="aas:AbstractDataType">
+                    <sequence>
+                      <element name="IsochroneGeometry" type="aas:IsochroneGeometryType"/>
+  	             </sequence>
+                    <attribute name="time" type="double" use="optional">
+                        <annotation>
+				<documentation>The time value of isochorone.</documentation>
+			   </annotation>
+		      </attribute>
+                 </extension>
+   	      </complexContent>
+       </complexType>
+
+	<!-- ===== Accessibility Map ===== -->
+	<complexType name="AccessibilityMapType">
+		<annotation>
+			<documentation>Defines an Accessibility Analyse map.</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="aas:AbstractDataType">
+				<sequence>
+					<element ref="aas:Map"/>
+				</sequence>
+				<attribute name="description" type="string"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="AccessibilityMap" type="aas:AccessibilityMapType" substitutionGroup="aas:_ADT">
+		<annotation>
+			<documentation>An Accessibility Analyse map.</documentation>
+		</annotation>
+	</element>
+</schema>

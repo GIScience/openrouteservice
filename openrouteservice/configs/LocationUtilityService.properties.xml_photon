@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>OpenLS Location Utility Service Configurationsfile</comment>
+<!--================================================================-->
+<!-- *** Logging *** -->
+<!-- Log configuration file -->
+<entry key="LOGFILE">../config.log.xml</entry>
+<!--================================================================-->
+<!-- *** Web Service Name *** -->
+<entry key="SERVICE_NAME">OSM LUS Photon</entry>
+<entry key="GEOCODER_NAME">Photon</entry>
+
+<!-- *** Service URL *** -->
+<entry key="GEOCODING_URL">http://openls.geog.uni-heidelberg.de/osm/geocode-photon/api</entry>
+<entry key="REVERSE_GEOCODING_URL">http://openls.geog.uni-heidelberg.de/osm/geocode-photon/reverse</entry>
+<entry key="USER_AGENT">OpenRouteService.org</entry>
+<!--================================================================-->
+</properties>

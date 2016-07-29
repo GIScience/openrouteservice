@@ -1,0 +1,2 @@
+1 * * * * mrylov /home/mrylov/osmupdate/osmupdater.sh 2>&1>/dev/null 
+

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.opengis.net/xls" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xls="http://www.opengis.net/xls" elementFormDefault="qualified" version="1.1">
+	<!--Copyright (c) 2003 OGC, All Rights Reserved - This OGC document is a draft and is copyright-protected by OGC. While the reproduction of drafts in any form for use by participants in the OGC Interoperability Program is permitted without prior permission from OGC, neither this document nor any extract from it may be reproduced, stored or transmitted in any form for any other purpose without prior written permission from OGC.-->
+	<import namespace="http://www.w3.org/1999/xlink" schemaLocation="xlinks.xsd"/>
+	<complexType name="AbstractMeasureType" abstract="true">
+		<attribute name="value" type="decimal" use="required"/>
+		<attribute name="accuracy" type="decimal" use="optional"/>
+	</complexType>
+	<element name="_Measure" type="xls:AbstractMeasureType" abstract="true"/>
+	<simpleType name="DistanceUnitType">
+		<restriction base="string">
+			<enumeration value="KM"/>
+			<enumeration value="M"/>
+			<enumeration value="DM"/>
+			<enumeration value="MI"/>
+			<enumeration value="YD"/>
+			<enumeration value="FT"/>
+		</restriction>
+	</simpleType>
+	<complexType name="DistanceType">
+		<complexContent>
+			<extension base="xls:AbstractMeasureType">
+				<attribute name="uom" type="xls:DistanceUnitType" use="optional" default="M"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="Distance" type="xls:DistanceType" substitutionGroup="xls:_Measure"/>
+	<complexType name="AltitudeType">
+		<complexContent>
+			<extension base="xls:DistanceType"/>
+		</complexContent>
+	</complexType>
+	<element name="Altitude" type="xls:AltitudeType"/>
+	<!-- ============================================================= -->
+	<complexType name="AngleType">
+		<annotation>
+			<documentation>This type is used as a unit of measure for ADTs only, it's not used by the GML3 geometry. This will be a point for future work of harmonization.</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="xls:AbstractMeasureType">
+				<attribute name="uom" type="string" use="optional" fixed="DecimalDegrees"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="Angle" type="xls:AngleType" substitutionGroup="xls:_Measure"/>
+	<!-- ============================================================= -->
+	<simpleType name="SpeedUnitType">
+		<restriction base="string">
+			<enumeration value="KPH"/>
+			<enumeration value="MPH"/>
+			<enumeration value="MPS"/>
+			<enumeration value="FPS"/>
+		</restriction>
+	</simpleType>
+	<complexType name="SpeedType">
+		<complexContent>
+			<extension base="xls:AbstractMeasureType">
+				<attribute name="uom" type="xls:SpeedUnitType" use="optional" default="KPH"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="Speed" type="xls:SpeedType" substitutionGroup="xls:_Measure"/>
+	<!-- ============================================================= -->
+	<complexType name="TimeStampType">
+		<attribute name="begin" type="dateTime" use="required"/>
+		<attribute name="duration" type="duration" use="optional"/>
+	</complexType>
+	<element name="TimeStamp" type="xls:TimeStampType"/>
+	<complexType name="TimeType">
+		<complexContent>
+			<extension base="xls:TimeStampType">
+				<attribute name="utcOffset" type="integer" use="optional"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="Time" type="xls:TimeType"/>
+</schema>

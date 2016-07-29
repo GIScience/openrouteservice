@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM 'log4j.dtd'>
+<log4j:configuration debug="false" xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<!--  ROLLING  Logger -->
+	<appender name="ROLL_ERROR" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="datePattern" value="'.'yyyy-ww"/>
+		<param name="file" value="C:\Program Files\Apache Software Foundation\Tomcat 7.0\webapps\openrouteservice-0.0.1-SNAPSHOT\WEB-INF\logs\logError.log"/>
+		<param name="Append" value="true"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<!-- <param name="ConversionPattern" value="%5p [%t] %5rms - (%d{ISO8601}) (%5L) %c - %m%n"/> -->
+			<param name="ConversionPattern" value="%d{ISO8601} %c [%t] %n %-5p: %m%n"/>
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="ERROR"/>
+			<param name="LevelMax" value="FATAL"/>
+			<param name="AcceptOnMatch" value="true"/>
+		</filter>
+	</appender>
+	<appender name="ROLL_INFO_WARN" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="datePattern" value="'.'yyyy-ww"/>
+		<param name="file" value="C:\Program Files\Apache Software Foundation\Tomcat 7.0\webapps\openrouteservice-0.0.1-SNAPSHOT\WEB-INF\logs\logError.log"/>
+		<param name="Append" value="true"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<!-- <param name="ConversionPattern" value="%5p [%t] %5rms - (%d{ISO8601}) (%5L) %c - %m%n"/> -->
+			<param name="ConversionPattern" value="%d{ISO8601} %c [%t] %n %-5p: %m%n"/>
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="INFO"/>
+			<param name="LevelMax" value="WARN"/>
+			<param name="AcceptOnMatch" value="true"/>
+		</filter>
+	</appender>
+	<!--  CONSOLE  Logger -->
+	<!-- Konfiguration der Konsolenausgabe (System.out) -->
+	<appender name="CONSOLE_OUT" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out"/>
+		<!-- Formatierung der Konsolenausgabe -->
+		<layout class="org.apache.log4j.PatternLayout">
+			<!-- <param name="ConversionPattern" value="%5p [%t] %5rms - (%d{ISO8601}) (%5L) %c - %m%n"/> -->
+			<param name="ConversionPattern" value="%d{ISO8601} %m%n"/>
+		</layout>
+		<!-- Level DEBUG bis INFO werden ausgegeben -->
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="DEBUG"/>
+			<param name="LevelMax" value="ERROR"/>
+			<param name="AcceptOnMatch" value="true"/>
+		</filter>
+	</appender>
+	<!--  COUNTER  Logger -->
+	<!-- Logger file for the Counter of the services -->
+	<appender name="COUNTER_RS" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="datePattern" value="'.'yyyy-ww"/>
+		<param name="file" value="C:\Program Files\Apache Software Foundation\Tomcat 7.0\webapps\openrouteservice-0.0.1-SNAPSHOT\WEB-INF\logs\Counter_RS.csv"/>
+		<param name="Append" value="true"/>
+		<param name="Encoding" value="ISO-8859-1"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{ISO8601} %m%n"/>
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="INFO"/>
+			<param name="LevelMax" value="INFO"/>
+			<param name="AcceptOnMatch" value="true"/>
+		</filter>
+	</appender>
+	<appender name="COUNTER_PS" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="datePattern" value="'.'yyyy-ww"/>
+		<param name="file" value="C:\Program Files\Apache Software Foundation\Tomcat 7.0\webapps\openrouteservice-0.0.1-SNAPSHOT\WEB-INF\logs\Counter_PS.csv"/>
+		<param name="Append" value="true"/>
+		<param name="Encoding" value="ISO-8859-1"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{ISO8601} %m%n"/>
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="INFO"/>
+			<param name="LevelMax" value="INFO"/>
+			<param name="AcceptOnMatch" value="true"/>
+		</filter>
+	</appender>
+	<appender name="COUNTER_AAS" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="datePattern" value="'.'yyyy-ww"/>
+		<param name="file" value="C:\Program Files\Apache Software Foundation\Tomcat 7.0\webapps\openrouteservice-0.0.1-SNAPSHOT\WEB-INF\logs\Counter_AAS.csv"/>
+		<param name="Append" value="true"/>
+		<param name="Encoding" value="ISO-8859-1"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{ISO8601} %m%n"/>
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="INFO"/>
+			<param name="LevelMax" value="INFO"/>
+			<param name="AcceptOnMatch" value="true"/>
+		</filter>
+	</appender>
+	
+	<appender name="RATE_THROTTLE" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="datePattern" value="'.'yyyy-ww"/>
+		<param name="file" value="C:\Program Files\Apache Software Foundation\Tomcat 7.0\webapps\openrouteservice-0.0.1-SNAPSHOT\WEB-INF\logs\logRateThrottle.log"/>
+		<param name="Append" value="true"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<!-- <param name="ConversionPattern" value="%5p [%t] %5rms - (%d{ISO8601}) (%5L) %c - %m%n"/> -->
+			<param name="ConversionPattern" value="%d{ISO8601} %c [%t] %n %-5p: %m%n"/>
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="ERROR"/>
+			<param name="LevelMax" value="FATAL"/>
+			<param name="AcceptOnMatch" value="true"/>
+		</filter>
+	</appender>
+	
+	<!-- Define the special logging level for each package or class -->
+	<!-- Level: DEBUG, INFO, WARN, ERROR, FATAL -->
+	<!-- Graph -->
+	<logger name="org.freeopenls.graph.GraphManager">	
+		<level value="INFO"/>
+	</logger>
+	<!-- Route Service -->
+	<logger name="org.freeopenls.routeservice.RSConfigurator">	
+		<level value="INFO"/>
+	</logger>
+	<logger name="org.freeopenls.routeservice.RSServlet.Counter">
+		<level value="INFO"/>
+		<appender-ref ref="COUNTER_RS"/>
+	</logger>
+	<logger name="org.freeopenls.routeservice.documents.RequestXLSDocument.Counter">
+		<level value="INFO"/>
+		<appender-ref ref="COUNTER_RS"/>
+	</logger>
+        <!-- Presentation Service -->
+	<logger name="org.freeopenls.presentationservice.PSConfigurator">	
+		<level value="INFO"/>
+		<appender-ref ref="ROLL_INFO_WARN"/>
+	</logger>
+	<logger name="org.freeopenls.presentationservice.PSServlet.Counter">
+		<level value="INFO"/>
+		<appender-ref ref="COUNTER_PS"/>
+	</logger>
+	<logger name="org.freeopenls.presentationservice.documents.RequestXLSDocument.Counter">
+		<level value="INFO"/>
+		<appender-ref ref="COUNTER_PS"/>
+	</logger>
+	<!-- AAS -->
+	<logger name="org.freeopenls.accessibilityanalyseservice.AASConfigurator">	
+		<level value="INFO"/>
+	</logger>
+	<logger name="org.freeopenls.accessibilityanalyseservice.AASServlet.Counter">
+		<level value="INFO"/>
+		<appender-ref ref="COUNTER_AAS"/>
+	</logger>
+		<logger name="org.freeopenls.accessibilityanalyseservice.documents.RequestAASDocument.Counter">
+		<level value="INFO"/>
+		<appender-ref ref="COUNTER_AAS"/>
+	</logger>
+    <logger name="org.freeopenls.servlet.filters.RequestRateThrottleFilter">
+		<level value="INFO"/>
+		<appender-ref ref="RATE_THROTTLE"/>
+	</logger>
+	<!-- FILEDELETE -->
+	<logger name="org.freeopenls.filedelete.FileDelete">
+		<level value="INFO"/>
+	</logger>
+	<!-- CONFIGURE the ROOT-Logger and the used appender -->
+	<root>
+		<priority value="ERROR"/>
+		<!-- <appender-ref ref="CONSOLE_OUT"/> -->
+		<!-- Define the generel logging level -->
+		<appender-ref ref="ROLL_ERROR"/>
+		<appender-ref ref="ROLL_INFO_WARN"/>
+	</root>
+</log4j:configuration>

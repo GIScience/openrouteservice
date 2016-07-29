@@ -1,0 +1,63 @@
+/*|----------------------------------------------------------------------------------------------
+ *|														Heidelberg University
+ *|	  _____ _____  _____      _                     	Department of Geography		
+ *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014
+ *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
+ *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
+ *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
+ *|	        	                                       	http://www.giscience.uni-hd.de
+ *|								
+ *|----------------------------------------------------------------------------------------------*/
+
+// Authors: M. Rylov 
+
+package org.freeopenls.routeservice.graphhopper.extensions.edgefilters;
+
+import java.util.List;
+
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.util.EdgeIteratorState;
+
+public class AcceptEdgesEdgeFilter implements EdgeFilter {
+
+	private final boolean in;
+	private final boolean out;
+	private FlagEncoder encoder;
+	private List<Integer> edges;
+
+	public AcceptEdgesEdgeFilter(FlagEncoder encoder, List<Integer> edges) {
+		this(encoder, true, true, edges);
+	}
+
+	/**
+	 * Creates an edges filter which accepts both direction of the specified
+	 * vehicle.
+	 */
+	public AcceptEdgesEdgeFilter(FlagEncoder encoder, boolean in, boolean out, List<Integer> edges) {
+		this.encoder = encoder;
+		this.in = in;
+		this.out = out;
+		this.edges = edges;
+	}
+
+	@Override
+	public boolean accept(EdgeIteratorState iter) {
+		long flags = iter.getFlags();
+
+		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder)) {
+		    if (edges.contains(iter.getEdge()))
+				return true;
+			else
+			    return false;
+		}
+
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		return encoder.toString() + ", in:" + in + ", out:" + out;
+	}
+}
