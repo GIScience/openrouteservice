@@ -1673,11 +1673,13 @@ public class ORSOSMReader extends OSMReader {
 				if (p1Lat == p3Lat && p1Lon == p3Lon) {
 					return new OSMNode(createNewNodeId(), p1Lat, p1Lon);
 				}
-				
-				// System.out.println("ORSOSMReader.getLineIntersection(), null, p1Lat="+p1Lat+", p1Lon="+p1Lon+", p2Lat="+p2Lat+", p2Lon="+p2Lon+", p3Lat="+p3Lat+", p3Lon="+p3Lon+", p4Lat="+p4Lat+", p4Lon="+p4Lon);
-				// Lines are parallel
-				// No intersection
-				return null;
+				else {
+					// System.out.println("ORSOSMReader.getLineIntersection(), null, p1Lat="+p1Lat+", p1Lon="+p1Lon+", p2Lat="+p2Lat+", p2Lon="+p2Lon+", p3Lat="+p3Lat+", p3Lon="+p3Lon+", p4Lat="+p4Lat+", p4Lon="+p4Lon);
+					// Lines are parallel --> actually no intersection
+					// However, to prevent NullPointerException in subsequent methods:
+					return new OSMNode(createNewNodeId(), ((p1Lat+p3Lat)/2d), ((p1Lon+p3Lon)/2d));
+				}
+				// return null;
 			}
 		}
 		
