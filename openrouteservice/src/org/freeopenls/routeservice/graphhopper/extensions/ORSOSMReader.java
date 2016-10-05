@@ -47,9 +47,12 @@ import com.graphhopper.reader.OSMReader;
 import com.graphhopper.reader.OSMWay;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.WaySurfaceDescription;
+import com.graphhopper.storage.DataAccess;
+import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphExtension.ExtendedStorageSequence;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.util.BitUtil;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PointList;
@@ -85,10 +88,12 @@ public class ORSOSMReader extends OSMReader {
 	private int attributeTypes = -1;
 	private Envelope bbox;
 	private HashMap<Integer, Long> tmcEdges;
+	private HashMap<Long, HashMap<Integer, Integer>> osmId2EdgeIds;
 	private RouteProfile refProfile;
 	private boolean enrichInstructions;
 	private Boolean isWheelchair = false;
 	private HashMap<Long, List<WayWithSidewalk>> sidewalkJunctions;
+
 
 	private Pattern patternHeight = Pattern.compile("(?:\\s*(\\d+)\\s*(?:feet|ft\\.|ft|'))?(?:(\\d+)\\s*(?:inches|in\\.|in|''|\"))?");
 
@@ -97,13 +102,15 @@ public class ORSOSMReader extends OSMReader {
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
 			"primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential" };
 
-	public ORSOSMReader(GraphHopperStorage storage, WaySurfaceTypeStorage waySurfaceStorage, Envelope bbox, HashMap<Integer, Long> tmcEdges, RouteProfile refProfile) {
+	public ORSOSMReader(GraphHopperStorage storage, WaySurfaceTypeStorage waySurfaceStorage, Envelope bbox, HashMap<Integer, Long> tmcEdges, HashMap<Long, HashMap<Integer, Integer>> osmId2EdgeIds, RouteProfile refProfile) {
 		super(storage);
 		
 		this.bbox = bbox;
 		this.tmcEdges = tmcEdges;
+	    this.osmId2EdgeIds = osmId2EdgeIds;
 		this.refProfile = refProfile;
 		this.gsWaySurfaceType = waySurfaceStorage;
+	
 
 		motorVehicleRestrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access"));
 
@@ -140,7 +147,10 @@ public class ORSOSMReader extends OSMReader {
 		
 		sidewalkJunctions = new HashMap<Long, List<WayWithSidewalk>>();
 	}
+	
 
+	
+	 
 	private boolean assignExtension(GraphExtension ext) {
 		if (ext instanceof MotorcarAttributesGraphStorage) {
 			this.gsMotorcarAttrs = (MotorcarAttributesGraphStorage) ext;
@@ -779,16 +789,31 @@ public class ORSOSMReader extends OSMReader {
 		}
 
 		super.processEdge(way, edge);
-
+		
 		try {
-			if (tmcEdges != null) {
+			if ((tmcEdges != null) && (osmId2EdgeIds!=null)) {
 				String highwayValue = way.getTag("highway");
 
 				if (!Helper.isEmpty(highwayValue)) {
+	
 
 					for (int i = 0; i < TMC_ROAD_TYPES.length; i++) {
 						if (TMC_ROAD_TYPES[i].equalsIgnoreCase(highwayValue)) {
 							tmcEdges.put(edge.getEdge(), way.getId());
+							
+							if (osmId2EdgeIds.containsKey(way.getId())){
+							
+								HashMap<Integer, Integer> edge2geom = osmId2EdgeIds.get(way.getId());
+								edge2geom.put(edge.getEdge(), edge.getAdjNode());
+								
+							} else{
+								
+								HashMap<Integer, Integer> edgeID2AdjId = new HashMap<Integer, Integer>();
+								edgeID2AdjId.put(edge.getEdge(), edge.getAdjNode());
+								osmId2EdgeIds.put(way.getId(), edgeID2AdjId);		
+							} 							
+							
+							
 							break;
 						}
 					}
@@ -1375,6 +1400,9 @@ public class ORSOSMReader extends OSMReader {
 			return createdSidewalkEdges;
 		}
 	    
+	    
+
+	    
 	    @Override 
 	    protected void finishedReading() {
 	    	handleSidewalkJunctions();
@@ -1668,7 +1696,7 @@ public class ORSOSMReader extends OSMReader {
 				}
 				return new OSMNode(createNewNodeId(), lat, lon);
 			}
-			else {
+            else {
 				
 				if (p1Lat == p3Lat && p1Lon == p3Lon) {
 					return new OSMNode(createNewNodeId(), p1Lat, p1Lon);
@@ -1781,13 +1809,13 @@ public class ORSOSMReader extends OSMReader {
 	    }
 	    
 	    private double getIncline(String inclineValue) {
-			double v = 0d;
+	    	double v = 0d;
 			boolean isDegree = false;
 			try {
 				inclineValue = inclineValue.replace("%", "");
 				inclineValue = inclineValue.replace(",", ".");
-				if (inclineValue.contains("Â°")) {
-					inclineValue = inclineValue.replace("Â°", "");
+				if (inclineValue.contains("¡ã")) {
+					inclineValue = inclineValue.replace("¡ã", "");
 					isDegree = true;
 				}
 				// TODO: the following lines are assumptions - can they be validated?

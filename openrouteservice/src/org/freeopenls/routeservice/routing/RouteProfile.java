@@ -137,6 +137,11 @@ public class RouteProfile {
 	public HashMap<Integer, Long> getTmcEdges() {
 		return mGraphHopper.getTmcGraphEdges();
 	}
+	
+	public HashMap<Long, HashMap<Integer, Integer>> getOsmId2edgeIds() {
+		return mGraphHopper.getOsmId2EdgeIds();
+	}
+
 
 	public BBox getBounds() {
 		return mGraphHopper.getGraphHopperStorage().getBounds();
@@ -144,8 +149,15 @@ public class RouteProfile {
 	
 	public Geometry getEdgeGeometry(int edgeId)
 	{
-		EdgeIteratorState iter = mGraphHopper.getGraphHopperStorage().getEdgeIteratorState(edgeId, Integer.MIN_VALUE);
-		PointList points = iter.fetchWayGeometry(3);
+		
+		return getEdgeGeometry(edgeId, 3, Integer.MIN_VALUE);
+	}
+	
+	
+	public Geometry getEdgeGeometry(int edgeId, int mode, int adjnodeid)
+	{
+		EdgeIteratorState iter = mGraphHopper.getGraphHopperStorage().getEdgeIteratorState(edgeId, adjnodeid);
+		PointList points = iter.fetchWayGeometry(mode);
 		if (points.size() > 1)
 		{
 			Coordinate[] coords = new Coordinate[points.size()];
@@ -208,6 +220,10 @@ public class RouteProfile {
 		mGraphHopper.close();
 	}
 
+	public GraphHopper getGraphhopper() {
+		return mGraphHopper;
+	}
+	
 	private synchronized boolean isGHUsed() {
 		return mUseCounter > 0;
 	}
@@ -481,6 +497,7 @@ public class RouteProfile {
 				if (routePlan.getUseRealTimeTraffic()/* && mHasDynamicWeights */) {
 					if (RoutePreferenceType.isCar(routePref) && weightingMethod != WeightingMethod.SHORTEST
 							&& RealTrafficDataProvider.getInstance().isInitialized()) {
+						
 						req.setWeighting("TrafficBlockWeighting-" + routePref);
 
 						EdgeFilter ef = new BlockedEdgesEdgeFilter(flagEncoder, RealTrafficDataProvider.getInstance()
@@ -683,3 +700,4 @@ public class RouteProfile {
 		return mGraphHopper.getGraphHopperStorage().getDirectory().getLocation().hashCode();
 	}
 }
+

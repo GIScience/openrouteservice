@@ -179,7 +179,11 @@ public class RequestXLSDocument {
 		}			
 		
 		//RouteSummary
-		routeResult.setDuration(Duration.getGDuration((int)routeResult.getTotalTime()));
+		if (routePlan.getUseRealTimeTraffic()){
+			routeResult.setDuration(Duration.getGDuration((int)routeResult.getActualTotalTime()));
+		} else{
+			routeResult.setDuration(Duration.getGDuration((int)routeResult.getTotalTime()));
+		}
 		routeResult.setEnvelopeRoute(new Envelope(routeResult.getResponseSRS(), routeResult.getRouteEnvelope(), routeResult.getFeatCollSRS()));
 		RouteSummaryType routeSumType = createRouteSummary(routeResult,  determineRouteResponse.addNewRouteSummary());
 

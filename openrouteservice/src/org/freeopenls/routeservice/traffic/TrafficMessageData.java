@@ -35,7 +35,7 @@ public class TrafficMessageData {
 	int direction = 0;
 	boolean bothDirections = false;
 	List<String> messageDataText = new ArrayList<String>();
-	List<Integer> locationCodes = new ArrayList<Integer>();
+	List<Long> locationCodes = new ArrayList<Long>();
 	List<Integer> eventDataCodes = new ArrayList<Integer>();
 	Coordinate location;
 	String startTime;
@@ -58,7 +58,7 @@ public class TrafficMessageData {
 
 			String timeStamp = "";
 			ArrayList<String> messageDataText = new ArrayList<String>();
-			ArrayList<Integer> locationCodes = new ArrayList<Integer>();
+			ArrayList<Long> locationCodes = new ArrayList<Long>();
 			ArrayList<Integer> eventDataCodes = new ArrayList<Integer>();
 			ArrayList<Coordinate> locations = new ArrayList<Coordinate>();
 
@@ -159,7 +159,7 @@ public class TrafficMessageData {
 
 				NodeList listOfLCDs = ifnElement.getElementsByTagName("LCD");
 				for (int j = 0; j < listOfLCDs.getLength(); j++) {
-					locationCodes.add(Integer.parseInt(listOfLCDs.item(j).getTextContent()));
+					locationCodes.add(Long.parseLong(listOfLCDs.item(j).getTextContent()));
 				}
 				NodeList listOfECOs = ifnElement.getElementsByTagName("ECO");
 				for (int j = 0; j < listOfECOs.getLength(); j++) {
@@ -211,7 +211,7 @@ public class TrafficMessageData {
 					}
 
 					if (locationCodes.size() > 1) {
-						List<Integer> lcList = new ArrayList<Integer>(locationCodes);
+						List<Long> lcList = new ArrayList<Long>(locationCodes);
 						List<Integer> evtList = new ArrayList<Integer>(eventDataCodes);
 
 						TrafficMessageData m = new TrafficMessageData();
@@ -233,14 +233,14 @@ public class TrafficMessageData {
 							Collections.reverse(locationCodes);
 						}
 
-						List<Integer> lcList = new ArrayList<Integer>(locationCodes);
+						List<Long> lcList = new ArrayList<Long>(locationCodes);
 						List<Integer> evtList = new ArrayList<Integer>(eventDataCodes);
 
 						for (int mi = 0; mi < lcList.size() - 1; mi++) {
-							int sCode = lcList.get(mi);
-							int eCode = lcList.get(mi + 1);
+							long sCode = lcList.get(mi);
+							long eCode = lcList.get(mi + 1);
 
-							List<Integer> lcList1 = getCodeList(graph, sCode, eCode);
+							List<Long> lcList1 = getCodeList(graph, sCode, eCode);
 
 							TrafficMessageData m = new TrafficMessageData();
 							m.messageDataText = msgText;
@@ -326,36 +326,36 @@ public class TrafficMessageData {
 		return messages;
 	}
 
-	private static List<Integer> getCodeList(TrafficLocationGraph graph, int startIndex, int endIndex)
+	private static List<Long> getCodeList(TrafficLocationGraph graph, long startIndex, long endIndex)
 	{
 		if (startIndex == endIndex)
 		{
-			List<Integer> list = new ArrayList<>();
+			List<Long> list = new ArrayList<>();
 			list.add(startIndex);
 			
 			return list;
 		}
 		else
 		{
-			if (graph.containsCode(startIndex) && graph.containsCode(endIndex))
+			if (graph.containsCode(startIndex) && graph.containsCode(endIndex)&&graph.getShortestPath(startIndex, endIndex)!=null)
 				return graph.getShortestPath(startIndex, endIndex);
 			else
 			{
-				List<Integer> list = new ArrayList<>();
+				List<Long> list = new ArrayList<>();
 
 				if (Math.abs(startIndex - endIndex) <= 5)
 				{
-					List<Integer> lcList1 = new ArrayList<Integer>();
+					List<Long> lcList1 = new ArrayList<Long>();
 
 					if (endIndex > startIndex)
 					{
-						for (int ci = startIndex; ci <= endIndex; ci++) {
+						for (long ci = startIndex; ci <= endIndex; ci++) {
 							list.add(ci);
 						}
 					}
 					else
 					{
-						for (int ci = endIndex; ci <= startIndex; ci++) {
+						for (long ci = endIndex; ci <= startIndex; ci++) {
 							list.add(0, ci);
 						}
 					}

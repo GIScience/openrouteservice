@@ -48,6 +48,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 	private Envelope bbox;
 	private HashMap<Integer, Long> tmcEdges;
+	private HashMap<Long, HashMap<Integer, Integer>> osmId2EdgeIds;
 	private WaySurfaceTypeStorage gsWaySurface;
 	
 	// A route profile for referencing which is used to extract names of adjacent streets and other objects.
@@ -63,6 +64,7 @@ public class ORSGraphHopper extends GraphHopper {
 		
 		if (useTmc)
 			tmcEdges = new HashMap<Integer, Long>();
+	        osmId2EdgeIds = new HashMap<Long, HashMap<Integer, Integer>>();
 	}
 	
 	public WaySurfaceTypeStorage getWaySurfaceStorage()
@@ -71,7 +73,7 @@ public class ORSGraphHopper extends GraphHopper {
 	}
 
 	protected DataReader createReader(GraphHopperStorage tmpGraph) {
-		return initOSMReader(new ORSOSMReader(tmpGraph,gsWaySurface, bbox, tmcEdges, refRouteProfile));
+		return initOSMReader(new ORSOSMReader(tmpGraph,gsWaySurface, bbox, tmcEdges,osmId2EdgeIds, refRouteProfile));
 	}
 	
 	public boolean load( String graphHopperFolder )
@@ -109,10 +111,10 @@ public class ORSGraphHopper extends GraphHopper {
 	public GraphHopper importOrLoad() {
 		GraphHopper gh = super.importOrLoad();
 
-		if (tmcEdges != null) {
+		if ((tmcEdges != null) && (osmId2EdgeIds !=null)) {
 			java.nio.file.Path path = Paths.get(gh.getGraphHopperLocation(), "edges_ors_traffic");
 
-			if (tmcEdges.size() == 0) {
+			if ((tmcEdges.size() == 0) || (osmId2EdgeIds.size()==0)) {
 				// try to load TMC edges from file.
 				try {
 					File file = path.toFile();
@@ -122,9 +124,10 @@ public class ORSGraphHopper extends GraphHopper {
 						FileInputStream fis = new FileInputStream(path.toString());
 						ObjectInputStream ois = new ObjectInputStream(fis);
 						tmcEdges = (HashMap<Integer, Long>)ois.readObject();
+						osmId2EdgeIds = (HashMap<Long, HashMap<Integer, Integer>>)ois.readObject();
 						ois.close();
 						fis.close();
-						System.out.printf("Serialized HashMap data is saved in trafficEdges");
+						//System.out.println("Serialized HashMap data is saved in trafficEdges" + osmIDd2edges.size());
 					}
 				} catch (IOException ioe) {
 					ioe.printStackTrace();
@@ -140,9 +143,10 @@ public class ORSGraphHopper extends GraphHopper {
 					FileOutputStream fos = new FileOutputStream(path.toString());
 					ObjectOutputStream oos = new ObjectOutputStream(fos);
 					oos.writeObject(tmcEdges);
+					oos.writeObject(osmId2EdgeIds);
 					oos.close();
 					fos.close();
-					System.out.printf("Serialized HashMap data is saved in trafficEdges");
+					//System.out.printf("Serialized HashMap data is saved in trafficEdges");
 				} catch (IOException ioe) {
 					ioe.printStackTrace();
 				}
@@ -224,5 +228,9 @@ public class ORSGraphHopper extends GraphHopper {
 
 	public HashMap<Integer, Long> getTmcGraphEdges() {
 		return tmcEdges;
+	}
+	
+	public HashMap<Long, HashMap<Integer, Integer>> getOsmId2EdgeIds() {
+		return this.osmId2EdgeIds;
 	}
 }

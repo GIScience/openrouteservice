@@ -10,7 +10,7 @@
  *|								
  *|----------------------------------------------------------------------------------------------*/
 
-// Authors: M. Rylov
+// Authors: M. Rylov and ZWang
 
 package org.freeopenls.routeservice.traffic;
 
@@ -27,6 +27,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,6 +40,8 @@ import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.freeopenls.routeservice.graphhopper.extensions.ORSGraphHopper;
+import org.freeopenls.routeservice.routing.RoutePreferenceType;
 import org.freeopenls.routeservice.routing.RouteProfile;
 import org.freeopenls.routeservice.routing.RouteProfilesCollection;
 import org.freeopenls.routeservice.routing.configuration.RouteManagerConfiguration;
@@ -54,10 +57,21 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.xml.sax.SAXException;
 
+import com.graphhopper.routing.util.AllEdgesIterator;
+import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.storage.index.LocationIndex;
+import com.graphhopper.storage.index.QueryResult;
+import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
+import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.Point;
@@ -81,7 +95,7 @@ public class RealTrafficDataProvider {
 		private HashMap<Integer, EdgeInfo> m_edges;
 		private HashMap<Integer, AvoidEdgeInfo> m_avoidEdges;
 		private List<Integer> m_blockedEdges;
-		private HashMap<Integer, Integer> m_edgeIdsMap;
+		private HashMap<Integer, TrafficFeatureInfo> m_edgeId2Feature;
 		private RouteProfile m_routeProfile;
 
 		public RouteProfileTmcData(RouteProfile rp) {
@@ -89,13 +103,23 @@ public class RealTrafficDataProvider {
 			m_edges = new HashMap<Integer, EdgeInfo>();
 			m_avoidEdges = new HashMap<Integer, AvoidEdgeInfo>();
 			m_blockedEdges = new ArrayList<Integer>();
-			m_edgeIdsMap = new HashMap<Integer, Integer>();
+			m_edgeId2Feature = new HashMap<Integer, TrafficFeatureInfo>();
+		}
+
+		public HashMap<Integer, TrafficFeatureInfo> getMapEddgeId2Feature() {
+			return m_edgeId2Feature;
+		}
+		
+		public void setMapEddgeId2Feature(HashMap<Integer, TrafficFeatureInfo> m_edgeId2Feature){
+			this.m_edgeId2Feature = m_edgeId2Feature;
+			
 		}
 
 		public RouteProfile getRouteProfile() {
 			return m_routeProfile;
 		}
 
+		
 		public List<Integer> getBlockedEdges() {
 			return m_blockedEdges;
 		}
@@ -108,13 +132,6 @@ public class RealTrafficDataProvider {
 			return m_edges;
 		}
 
-		public HashMap<Integer, Integer> getEdgeIdsMap() {
-			return m_edgeIdsMap;
-		}
-
-		public void setEdgeIdsMap(HashMap<Integer, Integer> edgeIdsMap) {
-			m_edgeIdsMap = edgeIdsMap;
-		}
 
 		public void update(HashMap<Integer, EdgeInfo> edges, HashMap<Integer, AvoidEdgeInfo> avoidEdges,
 				List<Integer> blockedEdges) {
@@ -128,11 +145,23 @@ public class RealTrafficDataProvider {
 		private Date time;
 		private List<TrafficFeatureInfo> features;
 		private Quadtree quadTree;
+		private List<Integer> tmcEdgeIds = new ArrayList<Integer>();
 
 		private TmcUpdateInfo(Date time, List<TrafficFeatureInfo> features) {
 			this.time = time;
 			this.features = features;
+			
+			for (int i= 0; i < features.size(); i++){
+	
+				tmcEdgeIds.addAll(features.get(i).getEdgeIds());
+			}
 		}
+		
+		public List<Integer> getTmcEdgeIds(){
+			
+			return this.tmcEdgeIds;
+		} 
+		
 		
 		public Date getTime()
 		{
@@ -209,6 +238,7 @@ public class RealTrafficDataProvider {
 			try
 			{
 				for (RouteProfile rp : profiles.getCarProfiles()) {
+
 					if (rp.useTrafficInformation() && rp.hasDynamicWeights()) {
 						if (rpc == null) {
 							rpc = new RouteProfileConfiguration();
@@ -232,12 +262,18 @@ public class RealTrafficDataProvider {
 
 							m_tmcDatasource = TrafficInfoDataSourceFactory.create(m_config.getDataSourceProperties());
 
+	
 							break;
 						}
 					}
 				}
 
-				for (RouteProfile rp : profiles.getCarProfiles()) {
+					
+			
+			    // only update the car profile	
+				RouteProfile rp = profiles.getRouteProfile(RoutePreferenceType.CAR, false, true);			    	
+				//for (RouteProfile rp : profiles.getCarProfiles()) {
+					
 					if (rp.useTrafficInformation()) {
 
 						RouteProfileTmcData rptd = new RouteProfileTmcData(rp);
@@ -248,12 +284,12 @@ public class RealTrafficDataProvider {
 
 							saveTmcData(updateInfo);
 						}
-
+						
 						updateRouteProfile(rptd, updateInfo, true);
-
+                        
 						m_routeProfilesMap.put(rp.hashCode(), rptd);
 					}
-				}
+				//}
 			}catch(Exception ex)
 			{
 				logger.warning(ex.getMessage());
@@ -337,33 +373,83 @@ public class RealTrafficDataProvider {
 			updateGraphMatchingInternal(false);
 		}
 	}
-
-	private void updateRouteProfile(RouteProfileTmcData rptd, TmcUpdateInfo updateInfo, boolean loadExisting) {
-		HashMap<Integer, Integer> edgeIdsMap = new HashMap<Integer, Integer>();
-		HashMap<Integer, Long> graphOsmIdsMapMatch = m_tmcRouteProfile.getTmcEdges();
-		HashMap<Integer, Long> graphOsmIdsMapRoute = rptd.getRouteProfile().getTmcEdges();
-
-		if (graphOsmIdsMapMatch != null && graphOsmIdsMapRoute != null) {
-			HashMap<Long, Integer> map = new HashMap<Long, Integer>();
-
-			for (Entry<Integer, Long> entry : graphOsmIdsMapRoute.entrySet()) {
-				map.put(entry.getValue(), entry.getKey());
-			}
-
-			for (Entry<Integer, Long> entry : graphOsmIdsMapMatch.entrySet()) {
-				Integer edgeId = entry.getKey();
-				Long osmId = entry.getValue();
-
-				if (map.containsKey(osmId)) {
-					edgeIdsMap.put(edgeId, map.get(osmId));
-				}
-			}
-
-			rptd.setEdgeIdsMap(edgeIdsMap);
-
-			updateEdges(rptd, updateInfo);
-		}
+	
+	
+	private double calcDistance(double lat, double lon, Geometry geom){
+		
+	    Point c = new GeometryFactory().createPoint(new Coordinate(lon,lat));
+        return geom.distance(c);
+		
 	}
+	
+	
+	
+	private void updateRouteProfile(RouteProfileTmcData rptd, TmcUpdateInfo updateInfo, boolean loadExisting) {
+        //System.out.println("updating route profile " + rptd.getRouteProfile().getGraphLocation());
+        HashMap<Integer, TrafficFeatureInfo> m_edgeId2Feature = new HashMap<Integer, TrafficFeatureInfo>();
+        List<Integer> edgeIds = new ArrayList<Integer>();
+        
+		for (TrafficFeatureInfo tmcFeature:updateInfo.features) {
+			for (int i=0; i < tmcFeature.getEdgeIds().size(); i++){
+			    
+				int edgeId  = tmcFeature.getEdgeIds().get(i);
+				long osmId  = m_tmcRouteProfile.getTmcEdges().get(edgeId); // todo: use graphhopperstorage to obtain osmid
+				
+				if (rptd.getRouteProfile().getOsmId2edgeIds().containsKey(osmId)) { 
+				    	
+				    	HashMap<Integer, Integer> newEdgeIds = rptd.getRouteProfile().getOsmId2edgeIds().get(osmId);
+					    boolean foundMatched = false;
+						for (Entry<Integer, Integer> entry1 : newEdgeIds.entrySet()) {
+							Integer newEdgeId = entry1.getKey();
+							// one edge in an osm way has tmc doesnt mean all edges of the osm way have tmc
+							// so check if there is a newEdgeId corresponding to edgeid in tmc graph
+							boolean isMatched = isEdgesMatched(edgeId, m_tmcRouteProfile, newEdgeId, rptd.getRouteProfile());
+							
+							if (isMatched) {
+							    edgeIds.add(newEdgeId);
+							    m_edgeId2Feature.put(newEdgeId, tmcFeature);
+							    foundMatched = true;
+							}
+						} // end for all new edge ids						
+						 // if (!foundMatched){System.err.println("tmc edge " + edgeId+ " doesnt have matched newEdgeId " 
+						 //		+ rptd.getRouteProfile().getGraphLocation());}
+						
+				} // end if contains osm id 
+
+		     } // end for tmc edgeIds
+		} // end for tmc features 	
+	
+
+		// TrafficUtility.saveTmcInfoToShapefile(edgeIds, m_edgeId2Feature,  rptd.getRouteProfile(), "D://allmatched_"+rptd.getRouteProfile().hashCode()+".shp");
+		rptd.setMapEddgeId2Feature(m_edgeId2Feature);
+		updateEdges(rptd, updateInfo);
+
+	}
+	
+	
+	private boolean isEdgesMatched(int edgeId, RouteProfile rp4tmc, int newEdgeId, RouteProfile rp4routing){
+		
+		// check the validity of the edge
+		boolean flag1 = rp4tmc.getGraphhopper().getGraphHopperStorage().isValidEdge(edgeId);
+		boolean flag2 = rp4routing.getGraphhopper().getGraphHopperStorage().isValidEdge(newEdgeId);
+			
+		LineString edge_geom = null;
+		LineString new_edge_geom = null;
+		
+		if (flag1 && flag2){
+		
+			 edge_geom = (LineString) rp4tmc.getEdgeGeometry(edgeId, 3, Integer.MIN_VALUE);		
+		     new_edge_geom = (LineString) rp4routing.getEdgeGeometry(newEdgeId, 3, Integer.MIN_VALUE);
+		
+		    if (edge_geom.intersects(new_edge_geom)){		    	
+			   return true;			   
+		    }
+		}
+				
+		return false;
+		
+	}
+	
 
 	private void updateGraphMatchingInternal(boolean loadExisting) {
 		long startTime = System.currentTimeMillis();
@@ -394,7 +480,7 @@ public class RealTrafficDataProvider {
 
 			TmcUpdateInfo updateInfo = getUpdateInfo();
 			for (Entry<Integer, RouteProfileTmcData> entry : m_routeProfilesMap.entrySet()) {
-				updateEdges(entry.getValue(), updateInfo);
+				updateRouteProfile(entry.getValue(), updateInfo, true);
 			}
 
 			saveTmcData(updateInfo);
@@ -415,9 +501,11 @@ public class RealTrafficDataProvider {
 			if (dir.isDirectory()) {
 				try
 				{
+
 				Path path = Paths.get(m_config.OutputDirectory, "traffic_data.shp");
 				TrafficUtility.saveMatchedTmcDataToFile(updateInfo.features, path.toString());
 				//TmcEventCodesTable.saveToFile(Paths.get(m_config.OutputDirectory, "tmc_codes.txt").toFile());
+				System.out.println("The real time tmc data has been saved in shapefile..");
 				}catch (Exception ex)
 				{
 					logger.warning(ex.getMessage());
@@ -431,8 +519,8 @@ public class RealTrafficDataProvider {
 	}
 
 	private void updateEdges(RouteProfileTmcData rptd, TmcUpdateInfo updateInfo) {
-		HashMap<Integer, Integer> edgeIdsMap = rptd.getEdgeIdsMap();
-		if (edgeIdsMap.size() == 0)
+		 HashMap<Integer, TrafficFeatureInfo> m_edgeId2Feature = rptd.getMapEddgeId2Feature();
+		if (m_edgeId2Feature.size() == 0)
 			return;
 
 		HashMap<Integer, AvoidEdgeInfo> avoidEdges = new HashMap<Integer, AvoidEdgeInfo>();
@@ -445,12 +533,15 @@ public class RealTrafficDataProvider {
 															 * more than one
 															 * hour
 															 */) {
-				List<TrafficFeatureInfo> tmcFeatures = updateInfo.features;
-
-				for (TrafficFeatureInfo tfi : tmcFeatures) {
-										if (!(tfi.getGeometry() instanceof LineString))
+				
+				for (Entry<Integer, TrafficFeatureInfo> entry : m_edgeId2Feature.entrySet()) {  
+					  
+				    //System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());  
+				    int newEdgeId = (Integer) entry.getKey();
+				    TrafficFeatureInfo tfi = (TrafficFeatureInfo) entry.getValue();
+				    
+				    if (!(tfi.getGeometry() instanceof LineString))
 						continue;
-						
 					short[] codes = new short[tfi.getEventCodes().size()];
 					for (int i = 0; i < codes.length; i++) {
 						codes[i] = (short)Math.min(Math.max(tfi.getEventCodes().get(i), Short.MIN_VALUE), Short.MAX_VALUE);
@@ -459,48 +550,46 @@ public class RealTrafficDataProvider {
 					String message = tfi.getMessage();
 					if (tfi.getEdgeIds() == null)
 						continue;
+				    
+					edges.put(newEdgeId, new EdgeInfo(newEdgeId, codes, message));
 					
-					for (int i = 0; i < tfi.getEdgeIds().size(); i++) {
-						Integer newEdgeId = edgeIdsMap.get(tfi.getEdgeIds().get(i));
-						if ( newEdgeId != null)
-							edges.put(newEdgeId, new EdgeInfo(newEdgeId, codes, message));
+					
+					if (tfi.getEndTime() != null) {
+						Date now = new Date();
+						if (now.compareTo(tfi.getEndTime()) > 0)
+							continue;
 					}
-
+					
 					for (int i = 0; i < codes.length; i++) {
 						int code = codes[i];
-
 						TrafficEventInfo tec = TmcEventCodesTable.getEventInfo(code);
 						if (tec != null) {
 							int codeType = tec.type;
-
-							for (int edgeId : tfi.getEdgeIds()) {
-								if (edgeIdsMap.containsKey(edgeId)) {
-									Integer newEdgeId = edgeIdsMap.get(edgeId);
-									if (tfi.getEndTime() != null) {
-										Date now = new Date();
-										if (now.compareTo(tfi.getEndTime()) > 0)
-											continue;
-									}
-
-									if (codeType == TrafficEventType.AVOID) {
-										if (!avoidEdges.containsKey(newEdgeId)){
-											AvoidEdgeInfo edgeInfo = new AvoidEdgeInfo(newEdgeId, codes, tec.speedFactor / 2.0f);
-											avoidEdges.put(newEdgeId, edgeInfo);
-										}
-									} else if (codeType == TrafficEventType.BLOCKED) {
-										if (!blockedEdges.contains(newEdgeId))
-											blockedEdges.add(newEdgeId);
-									}
-									else if (codeType != TrafficEventType.ANY)
-									{
-										logger.info("The TMC code '" + codeType +"' is not considered yet.");
-									}
-								}
+							int mode = tec.mode;
+							if (codeType == TrafficEventType.AVOID && mode == TmcMode.CAR_TMC) {
+								if (!avoidEdges.containsKey(newEdgeId)){				
+								
+										AvoidEdgeInfo edgeInfo = new AvoidEdgeInfo(newEdgeId, codes);
+										avoidEdges.put(newEdgeId, edgeInfo);
+								
+								} 
+								
+							 } else if (codeType == TrafficEventType.BLOCKED && mode == TmcMode.CAR_TMC) {
+								 
+									    if (!blockedEdges.contains(newEdgeId))
+									    blockedEdges.add(newEdgeId);
+							
+							 }  else if (codeType != TrafficEventType.ANY) {
+								
+							    	 logger.info("The TMC code '" + codeType +"' is not considered yet.");
+					         } 
+							
 							}
-						}
-					}
-				}
-			} else {
+							
+						} // end for codes    
+			
+				} // end for hashmap
+			}else { // end if debug
 				logger.info("TMC data is outdated." + updateInfo.time.toString());
 			}
 		} catch (Exception ex) {
@@ -508,7 +597,11 @@ public class RealTrafficDataProvider {
 		}
 
 		// TODO make it thread safe.
+	    // System.out.println("edges size " +  edges.size() + " ; avoid edges size = "+ avoidEdges.size() + " ; blocked edges size = " + blockedEdges.size());
 		rptd.update(edges, avoidEdges, blockedEdges);
+		
+		// System.out.println("traffic edges size " + edges.keySet().toString());
+	    // System.out.println("TmcUpdateInfo size " + updateInfo.getTmcEdgeIds().size() +" info are "+ Arrays.deepToString(updateInfo.getTmcEdgeIds().toArray()));
 	}
 
 	private TmcUpdateInfo getUpdateInfo() throws ParserConfigurationException, SAXException, IOException,
@@ -520,8 +613,11 @@ public class RealTrafficDataProvider {
 		
 		Date msgTime = TrafficUtility.getMessageDateTime(message);
 		List<TrafficFeatureInfo> tmcFeatures = TrafficUtility.extractTmcFeatures(message, m_tmcSegments, 6*60*60*1000, m_locationGraph, logger);
-
 		m_lastUpdateInfo = new TmcUpdateInfo(msgTime, tmcFeatures);
+		
+		
+
+		//TrafficUtility.saveTmcInfoToShapefile(m_lastUpdateInfo.getTmcEdgeIds(), null,  this.m_tmcRouteProfile, "D:\\mymcshp.shp");
 		
 		return m_lastUpdateInfo;
 		
