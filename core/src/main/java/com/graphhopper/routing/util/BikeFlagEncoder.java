@@ -30,7 +30,7 @@ public class BikeFlagEncoder extends BikeCommonFlagEncoder
 {
     public BikeFlagEncoder()
     {
-        this(4, 2, 0);
+        this(4, 2, 0, false);
     }
 
     public BikeFlagEncoder( String propertiesString )
@@ -40,16 +40,21 @@ public class BikeFlagEncoder extends BikeCommonFlagEncoder
 
     public BikeFlagEncoder( PMap properties )
     {
-        this((int) properties.getLong("speedBits", 4),
+        this((int) properties.getLong("speedBits", 4) + (properties.getBool("considerElevation", false) ? 1 : 0),
                 properties.getLong("speedFactor", 2),
-                properties.getBool("turnCosts", false) ? 1 : 0);
+                properties.getBool("turnCosts", false) ? 1 : 0, properties.getBool("considerElevation", false));
         this.properties = properties;
         this.setBlockFords(properties.getBool("blockFords", true));
     }
-
-    public BikeFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts )
+    
+    public BikeFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts)
     {
-        super(speedBits, speedFactor, maxTurnCosts);
+      this(speedBits, speedFactor, maxTurnCosts, false);
+    }
+
+    public BikeFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation)
+    {
+        super(speedBits, speedFactor, maxTurnCosts,considerElevation);
         addPushingSection("path");
         addPushingSection("footway");
         addPushingSection("pedestrian");
@@ -89,6 +94,12 @@ public class BikeFlagEncoder extends BikeCommonFlagEncoder
                 || "track".equals(highway) && trackType != null 
             	&&  !("grade1".equals(trackType) || "grade2".equals(trackType) || "grade3".equals(trackType)); // Runge
     }
+    
+    @Override
+	protected double getDownhillMaxSpeed()
+	{
+		return 50;
+	}
 
     @Override
     public String toString()

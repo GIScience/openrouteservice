@@ -40,7 +40,7 @@ public class FastestWeighting implements Weighting
     private double maxSpeed;
     private double defaultMaxSpeed;
     private double userMaxSpeed;
-
+    
     public FastestWeighting( FlagEncoder encoder, PMap pMap )
     {
         if (!encoder.isRegistered())
@@ -103,7 +103,7 @@ public class FastestWeighting implements Weighting
         boolean penalizeEdge = edge.getBoolean(EdgeIteratorState.K_UNFAVORED_EDGE, reverse, false);
         if (penalizeEdge)
             time += heading_penalty;
-
+        
         return time;
     }
 

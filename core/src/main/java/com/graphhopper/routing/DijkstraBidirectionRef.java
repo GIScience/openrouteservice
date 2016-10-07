@@ -259,7 +259,7 @@ public class DijkstraBidirectionRef extends AbstractBidirAlgo
         if (newWeight < bestPath.getWeight())
         {
             bestPath.setSwitchToFrom(reverse);
-            bestPath.setEdgeEntry(entryCurrent);
+            bestPath.setEdgeEntry(entryCurrent); 
             bestPath.setWeight(newWeight);
             bestPath.setEdgeEntryTo(entryOther);
         }

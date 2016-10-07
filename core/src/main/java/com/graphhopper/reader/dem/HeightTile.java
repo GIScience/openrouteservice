@@ -43,6 +43,8 @@ public class HeightTile
     private final double lowerBound;
     private final double higherBound;
     private boolean calcMean;
+    
+    public static boolean CUSTOM_ROUND = false;
 
     public HeightTile( int minLat, int minLon, int width, double precision, int degree )
     {
@@ -89,13 +91,26 @@ public class HeightTile
 
         // first row in the file is the northernmost one
         // http://gis.stackexchange.com/a/43756/9006
-        int lonSimilar = (int) (width / degree * deltaLon);
+        int lonSimilar = (int)(width / degree * deltaLon ); // Runge change (int) to Math.Round
         // different fallback methods for lat and lon as we have different rounding (lon -> positive, lat -> negative)
         if (lonSimilar >= width)
             lonSimilar = width - 1;
-        int latSimilar = width - 1 - (int) (width / degree * deltaLat);
+        int latSimilar = width - 1 - (int)(width / degree * deltaLat );  // Runge change (int) to Math.Round
         if (latSimilar < 0)
             latSimilar = 0;
+        
+   /*     if (CUSTOM_ROUND)
+        {
+        	// first row in the file is the northernmost one
+            // http://gis.stackexchange.com/a/43756/9006
+            lonSimilar = (int)(width / degree * deltaLon + 0.5 ); // Runge change (int) to Math.Round
+            // different fallback methods for lat and lon as we have different rounding (lon -> positive, lat -> negative)
+            if (lonSimilar >= width)
+                lonSimilar = width - 1;
+            latSimilar = (width - (int)(width / degree * deltaLat + 0.5));  // Runge change (int) to Math.Round
+            if (latSimilar < 0)
+                latSimilar = 0;
+        }*/
 
         // always keep in mind factor 2 because of short value
         int daPointer = 2 * (latSimilar * width + lonSimilar);

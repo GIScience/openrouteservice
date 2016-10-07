@@ -50,6 +50,8 @@ public class EncodingManager
     public static final String FOOT = "foot";
     public static final String MOTORCYCLE = "motorcycle";
     public static final String WHEELCHAIR = "wheelchair";
+    public static final String HIKING = "hike";
+    
 
     private final List<AbstractFlagEncoder> edgeEncoders = new ArrayList<AbstractFlagEncoder>();
     private static final Map<String, FlagEncoder> defaultEdgeFlagEncoders = new HashMap<String, FlagEncoder>(); // Runge
@@ -166,7 +168,9 @@ public class EncodingManager
 
             else if (entry.equals(MOTORCYCLE))
                 fe = new MotorcycleFlagEncoder(configuration);
-
+            else if (entry.equals(HIKING))
+                fe = new HikeFlagEncoder(configuration);
+            
             else if (defaultEdgeFlagEncoders.containsKey(entry)){ // Runge
                 
             	AbstractFlagEncoder encoder = (AbstractFlagEncoder)defaultEdgeFlagEncoders.get(entry);

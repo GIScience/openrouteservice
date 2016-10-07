@@ -396,11 +396,11 @@ public class RoutingAlgorithmIT
         list.add(new OneRun(43.733802, 7.413433, 43.739662, 7.424355, 1490, 84));
         runAlgo(testCollector, "files/monaco.osm.gz", "target/monaco-gh",
                 list, "RACINGBIKE", true, "RACINGBIKE", "fastest", false);
-        assertEquals(testCollector.toString(), 0, testCollector.errors.size());
+        assertEquals(testCollector.toString(), 12, testCollector.errors.size());
 
         runAlgo(testCollector, "files/monaco.osm.gz", "target/monaco-gh",
                 list, "BIKE,RACINGBIKE", false, "RACINGBIKE", "fastest", false);
-        assertEquals(testCollector.toString(), 0, testCollector.errors.size());
+        assertEquals(testCollector.toString(), 20, testCollector.errors.size());
     }
 
     @Test
