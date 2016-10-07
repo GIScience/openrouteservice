@@ -86,7 +86,7 @@ public class TrafficUtility {
 			System.out.println("Start ...");
 
 			System.out.println(" Parse TMC Points (Offsets)");
-			HashMap<Long, TmcPoint> getPoffsets = new HashMap<Long, TmcPoint>();
+			HashMap<Integer, TmcPoint> getPoffsets = new HashMap<Integer, TmcPoint>();
 			BufferedReader brPoffsets = new BufferedReader(new FileReader(poffsets));
 			readLines = 0;
 
@@ -94,16 +94,16 @@ public class TrafficUtility {
 				if ((!line.startsWith("#")) && (!line.equals(""))) {
 
 					String[] tmp = line.split(";");
-					long lcd = -1;
-					long neg_lcd = -1;
-					long pos_lcd = -1;
+					int lcd = -1;
+					int neg_lcd = -1;
+					int pos_lcd = -1;
 					if (!tmp[2].equals(""))
-						lcd = Long.parseLong(tmp[2]);
+						lcd = Integer.parseInt(tmp[2]);
 					if (!tmp[3].equals(""))
-						neg_lcd = Long.parseLong(tmp[3]);
+						neg_lcd = Integer.parseInt(tmp[3]);
 					if ((tmp.length > 4) && (!tmp[4].equals("")))
-						pos_lcd = Long.parseLong(tmp[4]);
-					getPoffsets.put(Long.valueOf(lcd), new TmcPoint(lcd, neg_lcd, pos_lcd));
+						pos_lcd = Integer.parseInt(tmp[4]);
+					getPoffsets.put(Integer.valueOf(lcd), new TmcPoint(lcd, neg_lcd, pos_lcd));
 				}
 				readLines++;
 			}
@@ -114,7 +114,7 @@ public class TrafficUtility {
 			int internalID = 1;
 
 			System.out.println(" Parse TMC Points");
-			HashMap<Long, ArrayList<Long>> getSegmentPoints = new HashMap<Long, ArrayList<Long>>();
+			HashMap<Integer, ArrayList<Integer>> getSegmentPoints = new HashMap<Integer, ArrayList<Integer>>();
 			BufferedReader brPoints = new BufferedReader(new FileReader(points));
 			readLines = 0;
 			double y;
@@ -124,32 +124,32 @@ public class TrafficUtility {
 				if ((!line.startsWith("#")) && (!line.equals(""))) {
 					String[] tmp = line.split(";");
 
-					long lcd = -1;
-					long seg_lcd = -1;
+					int lcd = -1;
+					int seg_lcd = -1;
 					if (!tmp[2].equals(""))
-						lcd = Long.parseLong(tmp[2]);
+						lcd = Integer.parseInt(tmp[2]);
 					if (!tmp[12].equals(""))
-						seg_lcd = Long.parseLong(tmp[12]);
+						seg_lcd = Integer.parseInt(tmp[12]);
 					if ((tmp[12].equals("")) && (!tmp[13].equals(""))) {
-						seg_lcd = Long.parseLong(tmp[13]);
+						seg_lcd = Integer.parseInt(tmp[13]);
 					}
 					if ((lcd > 0) && (seg_lcd > 0)) {
 						x = Double.parseDouble(tmp[22].replace("+", "")) / 100000.0D;
 						y = Double.parseDouble(tmp[23].replace("+", "")) / 100000.0D;
 
-						if (getPoffsets.containsKey(Long.valueOf(lcd))) {
-							TmcPoint p = (TmcPoint) getPoffsets.get(Long.valueOf(lcd));
-							getPoffsets.remove(Long.valueOf(lcd));
+						if (getPoffsets.containsKey(Integer.valueOf(lcd))) {
+							TmcPoint p = (TmcPoint) getPoffsets.get(Integer.valueOf(lcd));
+							getPoffsets.remove(Integer.valueOf(lcd));
 							p.setCoordinate(new com.vividsolutions.jts.geom.Coordinate(x, y));
-							getPoffsets.put(Long.valueOf(lcd), p);
+							getPoffsets.put(Integer.valueOf(lcd), p);
 
-							ArrayList<Long> pointsOfSegment = new ArrayList<Long>();
-							if (getSegmentPoints.containsKey(Long.valueOf(seg_lcd))) {
-								pointsOfSegment = getSegmentPoints.get(Long.valueOf(seg_lcd));
-								getSegmentPoints.remove(Long.valueOf(seg_lcd));
+							ArrayList<Integer> pointsOfSegment = new ArrayList<Integer>();
+							if (getSegmentPoints.containsKey(Integer.valueOf(seg_lcd))) {
+								pointsOfSegment = getSegmentPoints.get(Integer.valueOf(seg_lcd));
+								getSegmentPoints.remove(Integer.valueOf(seg_lcd));
 							}
-							pointsOfSegment.add(Long.valueOf(lcd));
-							getSegmentPoints.put(Long.valueOf(seg_lcd), pointsOfSegment);
+							pointsOfSegment.add(Integer.valueOf(lcd));
+							getSegmentPoints.put(Integer.valueOf(seg_lcd), pointsOfSegment);
 						} else {
 							System.out.println("No Poffsets for > " + line);
 						}
@@ -177,36 +177,36 @@ public class TrafficUtility {
 						if (!isInteger(tmp[2]))
 							continue;
 
-						long seg_lcd = Long.parseLong(tmp[2]);
+						int seg_lcd = Integer.parseInt(tmp[2]);
 						String roadnumber = tmp[6];
 
-						ArrayList<Long> pointsOfSegment = (ArrayList<Long>) getSegmentPoints.get(Long
+						ArrayList<Integer> pointsOfSegment = (ArrayList<Integer>) getSegmentPoints.get(Integer
 								.valueOf(seg_lcd));
 
 						if (pointsOfSegment != null) {
-							HashSet<Long> listOfSegments = new HashSet<Long>(pointsOfSegment);
+							HashSet<Integer> listOfSegments = new HashSet<Integer>(pointsOfSegment);
 							TmcPoint start = null;
 
-							for (Iterator<Long> localIterator = pointsOfSegment.iterator(); localIterator.hasNext();) {
-								long lcd =  localIterator.next().longValue();
-								TmcPoint p = (TmcPoint) getPoffsets.get(Long.valueOf(lcd));
-								if (!listOfSegments.contains(Long.valueOf(p.getNeg_off_lcd()))) {
+							for (Iterator<Integer> localIterator = pointsOfSegment.iterator(); localIterator.hasNext();) {
+								int lcd = ((Integer) localIterator.next()).intValue();
+								TmcPoint p = (TmcPoint) getPoffsets.get(Integer.valueOf(lcd));
+								if (!listOfSegments.contains(Integer.valueOf(p.getNeg_off_lcd()))) {
 									if (p.getNeg_off_lcd() == -1)
 										start = p;
 									else {
-										start = (TmcPoint) getPoffsets.get(Long.valueOf(p.getNeg_off_lcd()));
+										start = (TmcPoint) getPoffsets.get(Integer.valueOf(p.getNeg_off_lcd()));
 									}
 								}
 							}
 
 							if ((start != null) && (listOfSegments.size() > 1)) {
-								getSegmentPoints.remove(Long.valueOf(seg_lcd));
+								getSegmentPoints.remove(Integer.valueOf(seg_lcd));
 								boolean done = false;
 								TmcPoint tmcpPrior = start;
 								while (!done) {
-									TmcPoint tmcpNext = (TmcPoint) getPoffsets.get(Long.valueOf(tmcpPrior
+									TmcPoint tmcpNext = (TmcPoint) getPoffsets.get(Integer.valueOf(tmcpPrior
 											.getPos_off_lcd()));
-									if (!listOfSegments.contains(Long.valueOf(tmcpNext.getPos_off_lcd()))) {
+									if (!listOfSegments.contains(Integer.valueOf(tmcpNext.getPos_off_lcd()))) {
 										done = true;
 									}
 
@@ -240,7 +240,7 @@ public class TrafficUtility {
 						}
 
 						if (readLines % 100 == 0) {
-							System.out.println("  ... " + readLines + " , calculated Routes: "
+							System.out.println("  ... " + readLines + " Segments done, calculated Routes: "
 									+ internalID);
 						}
 					}
@@ -262,7 +262,7 @@ public class TrafficUtility {
 		return result;
 	}
 
-	public static TmcSegment[] detectSegments(RouteProfile rp, long id, String roadnumber, Long startID, Long endID,
+	public static TmcSegment[] detectSegments(RouteProfile rp, long id, String roadnumber, Integer startID, Integer endID,
 			Integer direction, Coordinate startCoordinate, Coordinate endCoordinate) {
 		TmcSegment[] result = new TmcSegment[2];
 
@@ -472,14 +472,14 @@ public class TrafficUtility {
 					List<Integer> edgeIds_reverse = new ArrayList<Integer>();
 
 					for (int j = 0; j < m.locationCodes.size() - 1; j++) {
-						Long lcl_fr = m.locationCodes.get(j);
-						Long lcl_to = m.locationCodes.get(j + 1);
+						Integer lcl_fr = m.locationCodes.get(j);
+						Integer lcl_to = m.locationCodes.get(j + 1);
 						
 						for (int si = 0; si < segments.size(); si++) {
 							TmcSegment seg = segments.get(si);
 
-							long osm_fr = seg.getFrom();
-							long osm_to = seg.getTo();
+							int osm_fr = seg.getFrom();
+							int osm_to = seg.getTo();
 
 							if ((lcl_fr == osm_fr && lcl_to == osm_to) || (lcl_fr == osm_to && lcl_to == osm_fr)) {
 								if (m.bothDirections || m.direction != seg.getDirection()) {
@@ -806,8 +806,8 @@ public class TrafficUtility {
 					feat.setAttribute("id", Integer.valueOf(si));
 					feat.setAttribute("segment", Integer.valueOf((int) seg.getId()));
 					feat.setAttribute("direction", Integer.valueOf((int) seg.getDirection()));
-					feat.setAttribute("from", Long.valueOf((long) seg.getFrom()));
-					feat.setAttribute("to", Long.valueOf((long) seg.getTo()));
+					feat.setAttribute("from", Integer.valueOf((int) seg.getFrom()));
+					feat.setAttribute("to", Integer.valueOf((int) seg.getTo()));
 					String direction = seg.getDirection() < 0 ? "-" : "+";
 					feat.setAttribute("tmc", "DE:" + seg.getFrom() + direction + seg.getTo());
 					feat.setAttribute("roadnumber", seg.getRoadnumber());
@@ -830,48 +830,5 @@ public class TrafficUtility {
 		}
 
 	}
-	
-	
-	public static void saveTmcInfoToShapefile(List<Integer> edgeIds, HashMap<Integer, TrafficFeatureInfo> mapEdgeId2Tmcfeature, RouteProfile routeProfile, String shapeFileName) {
-		if (edgeIds != null) {
-			FeatureSchema fs = new FeatureSchema();
-
-			fs.addAttribute("id", AttributeType.INTEGER);
-			fs.addAttribute("GEOMETRY", AttributeType.GEOMETRY);
-			fs.addAttribute("eventcodes", AttributeType.STRING);
-			FeatureCollection fc = new FeatureDataset(fs);
-
-			for (int si = 0; si < edgeIds.size(); si++) {
-				int edgeId = edgeIds.get(si);
-			
-					Feature feat = new BasicFeature(fs);
-					feat.setAttribute("id", Integer.valueOf(edgeId));
-					
-					feat.setAttribute("eventcodes", mapEdgeId2Tmcfeature.get(edgeId).getEventCodesAsString());
-					
-					if (routeProfile.getEdgeGeometry(edgeId, 3, Integer.MIN_VALUE) ==null){
-						     System.err.println("edge " +  edgeId + " has no geometry");
-						}
-					feat.setGeometry(routeProfile.getEdgeGeometry(edgeId, 3, Integer.MIN_VALUE));
-					fc.add(feat);
-				
-			}
-
-			File output = new File(shapeFileName);
-
-			ShapefileWriter shapeWriter = new ShapefileWriter();
-			DriverProperties prop = new DriverProperties();
-			prop.set("File", output.getAbsolutePath());
-			prop.set("ShapeType", "xy");
-			try {
-				shapeWriter.write(fc, prop);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-		}
-
-	}
-	
-	
 
 }

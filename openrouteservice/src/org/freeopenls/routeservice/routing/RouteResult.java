@@ -75,7 +75,6 @@ public class RouteResult {
 	private double mActualDistance = 0.0;
 	/** Total Time of the Route in seconds [s] **/
 	private double mTotalTime = 0;
-	private double mActualTotalTime = 0;
 	// Total ascent of the route
 	private double mTotalAscent;
 	// Total descent of the route
@@ -190,23 +189,6 @@ public class RouteResult {
 	public void setTotalTime(double totalTime) {
 		mTotalTime = totalTime;
 	}
-	
-	
-	/**
-	 * @return the actual TotalTime
-	 */
-	public double getActualTotalTime() {
-		return mActualTotalTime;
-	}
-
-	/**
-	 * @param totalTime
-	 *            the actual TotalTime to set
-	 */
-	public void setActualTotalTime(double actualTotalTime) {
-		mActualTotalTime = actualTotalTime;
-	}
-	
 
 	/**
 	 * @return the ResponseSRS
@@ -252,8 +234,6 @@ public class RouteResult {
 	public void setDuration(GDuration duration) {
 		mDuration = duration;
 	}
-
-
 
 	/**
 	 * @return the EnvelopeRoute
@@ -355,7 +335,6 @@ public class RouteResult {
 				
 			setTotalAscent(getTotalAscent() + seg.getAscent());
 			setTotalDescent(getTotalDescent() + seg.getDescent());
-			
 		}
 	}
 }

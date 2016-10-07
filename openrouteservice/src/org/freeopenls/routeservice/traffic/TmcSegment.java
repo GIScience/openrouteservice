@@ -32,14 +32,14 @@ public class TmcSegment implements Serializable {
 
 	private long id = -1L;
 	private String roadnumber = null;
-	private long from = -1;
-	private long to = -1;
+	private Integer from = -1;
+	private Integer to = -1;
 	private List<Integer> edgeIDs;
 	private Geometry geom = null;
 	private Integer direction;
 	private double distance;
 
-	public TmcSegment(long id, String roadnumber, Long from, Long to, Integer direction, double distance, Geometry geom, List<Integer> edgeIDs) {
+	public TmcSegment(long id, String roadnumber, Integer from, Integer to, Integer direction, double distance, Geometry geom, List<Integer> edgeIDs) {
 		this.id = id;
 		this.roadnumber = roadnumber;
 		this.from = from;
@@ -55,11 +55,11 @@ public class TmcSegment implements Serializable {
 				+ this.to + " \n Edge IDs:" + this.edgeIDs + " \n Geometry: " + this.geom;
 	}
 
-	public Long getFrom() {
+	public Integer getFrom() {
 		return this.from;
 	}
 
-	public Long getTo() {
+	public Integer getTo() {
 		return this.to;
 	}
 	

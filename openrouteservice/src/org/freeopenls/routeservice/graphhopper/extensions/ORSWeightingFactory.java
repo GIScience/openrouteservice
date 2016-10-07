@@ -22,9 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.freeopenls.routeservice.graphhopper.extensions.weighting.AvoidFeaturesWeighting;
+import org.freeopenls.routeservice.graphhopper.extensions.weighting.BlockingWeighting;
 import org.freeopenls.routeservice.graphhopper.extensions.weighting.OptimizedPriorityWeighting;
 import org.freeopenls.routeservice.graphhopper.extensions.weighting.PreferencePriorityWeighting;
-import org.freeopenls.routeservice.graphhopper.extensions.weighting.TrafficAvoidWeighting;
 import org.freeopenls.routeservice.graphhopper.extensions.weighting.WeightingSequence;
 import org.freeopenls.routeservice.traffic.RealTrafficDataProvider;
 
@@ -89,12 +89,11 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 			}
 		}
 		
-		if (weighting.toLowerCase().startsWith("trafficblockweighting"))
+		if (weighting.startsWith("TrafficBlockWeighting"))
 		{
 			//String strPref = weighting.substring(weighting.indexOf("-") + 1);
-			//Weighting w = new BlockingWeighting(encoder, m_trafficDataProvider.getAvoidEdges(graphStorage));
-     		//result = (result != null) ? createWeighting(w, result): w;
-			result = new TrafficAvoidWeighting(result, encoder, m_trafficDataProvider.getAvoidEdges(graphStorage));
+			Weighting w = new BlockingWeighting(encoder, m_trafficDataProvider.getAvoidEdges(graphStorage));
+     		result = (result != null) ? createWeighting(w, result): w;
 		}
 
 		if (encoder.supports(TurnWeighting.class) && !(encoder instanceof FootFlagEncoder) && graphStorage != null) {

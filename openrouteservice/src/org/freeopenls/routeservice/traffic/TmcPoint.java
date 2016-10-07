@@ -20,12 +20,12 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class TmcPoint
 {
-  private long lcd = -1;
-  private long neg_off_lcd = -1;
-  private long pos_off_lcd = -1;
+  private int lcd = -1;
+  private int neg_off_lcd = -1;
+  private int pos_off_lcd = -1;
   private Coordinate coord = null;
   
-  public TmcPoint(long lcd, long neg_off_lcd, long pos_off_lcd) {
+  public TmcPoint(int lcd, int neg_off_lcd, int pos_off_lcd) {
     this.lcd = lcd;
     this.neg_off_lcd = neg_off_lcd;
     this.pos_off_lcd = pos_off_lcd;
@@ -35,17 +35,17 @@ public class TmcPoint
     return "LCD: " + this.lcd + " Neg_Off_LCD: " + this.neg_off_lcd + " Pos_Off_LCD: " + this.pos_off_lcd + " Coordinate: " + this.coord;
   }
 
-  public long getLcd()
+  public int getLcd()
   {
     return this.lcd;
   }
   
-  public long getNeg_off_lcd()
+  public int getNeg_off_lcd()
   {
     return this.neg_off_lcd;
   }
 
-  public long getPos_off_lcd()
+  public int getPos_off_lcd()
   {
     return this.pos_off_lcd;
   }
