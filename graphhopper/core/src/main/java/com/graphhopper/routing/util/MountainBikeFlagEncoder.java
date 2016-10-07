@@ -38,15 +38,15 @@ public class MountainBikeFlagEncoder extends BikeCommonFlagEncoder
 {
     public MountainBikeFlagEncoder()
     {
-        this(4, 2, 0);
+        this(4, 2, 0, false);
     }
 
     public MountainBikeFlagEncoder( PMap properties )
     {
         this(
-                (int) properties.getLong("speedBits", 4),
+                (int) properties.getLong("speedBits", 4) + (properties.getBool("considerElevation", false) ? 1 : 0),
                 properties.getDouble("speedFactor", 2),
-                properties.getBool("turnCosts", false) ? 1 : 0
+                properties.getBool("turnCosts", false) ? 1 : 0, properties.getBool("considerElevation", false)
         );
         this.properties = properties;
         this.setBlockFords(properties.getBool("blockFords", true));
@@ -57,9 +57,9 @@ public class MountainBikeFlagEncoder extends BikeCommonFlagEncoder
         this(new PMap(propertiesStr));
     }
 
-    public MountainBikeFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts )
+    public MountainBikeFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation )
     {
-        super(speedBits, speedFactor, maxTurnCosts);
+        super(speedBits, speedFactor, maxTurnCosts,considerElevation);
         setTrackTypeSpeed("grade1", 18); // paved
         setTrackTypeSpeed("grade2", 16); // now unpaved ...
         setTrackTypeSpeed("grade3", 12);
@@ -192,6 +192,12 @@ public class MountainBikeFlagEncoder extends BikeCommonFlagEncoder
         return "hiking".equals(sacScale) || "mountain_hiking".equals(sacScale)
                 || "demanding_mountain_hiking".equals(sacScale) || "alpine_hiking".equals(sacScale);
     }
+
+    @Override
+	protected double getDownhillMaxSpeed()
+	{
+		return 60;
+	}
 
     @Override
     public String toString()

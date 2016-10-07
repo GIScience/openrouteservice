@@ -21,6 +21,7 @@ import gnu.trove.map.TIntObjectMap;
 
 import org.freeopenls.routeservice.graphhopper.extensions.HeavyVehicleAttributes;
 import org.freeopenls.routeservice.graphhopper.extensions.flagencoders.HeavyVehicleFlagEncoder;
+import org.freeopenls.routeservice.graphhopper.extensions.storages.GraphStorageUtils;
 import org.freeopenls.routeservice.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 
 import com.graphhopper.routing.Dijkstra;
@@ -100,41 +101,7 @@ public abstract class HeavyVehicleEdgeFilter implements DestinationDependentEdge
 			//this.encoder.setVehicleType(vehicleType);
 		}
 
-		setGraphStorage(graphStorage);
-	}
-
-	private void setGraphStorage(GraphStorage graphStorage) {
-		if (graphStorage != null) {
-			if (graphStorage instanceof GraphHopperStorage) {
-				GraphHopperStorage ghs = (GraphHopperStorage) graphStorage;
-				GraphExtension ge = ghs.getExtension();
-				
-				if(ge instanceof ExtendedStorageSequence)
-				{
-					ExtendedStorageSequence ess = (ExtendedStorageSequence)ge;
-					GraphExtension[] exts = ess.getExtensions();
-					for (int i = 0; i < exts.length; i++)
-					{
-						if (assignExtension(exts[i]))
-							break;
-					}
-				}
-				else 
-				{
-					assignExtension(ge);
-				}
-			}
-		}
-	}
-	
-	private boolean assignExtension(GraphExtension ext)
-	{
-		if (ext instanceof HeavyVehicleAttributesGraphStorage) {
-			this.gsHeavyVehicles = (HeavyVehicleAttributesGraphStorage) ext;
-			return true;
-		} 
-		
-		return false;
+		this.gsHeavyVehicles = GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class);
 	}
 	
 	public void setDestinationEdge(EdgeIteratorState edge, Graph graph, FlagEncoder encoder, TraversalMode tMode)

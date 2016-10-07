@@ -43,11 +43,13 @@ public class FootFlagEncoder extends AbstractFlagEncoder
     private EncodedValue priorityWayEncoder;
     private EncodedValue relationCodeEncoder;
     protected HashSet<String> sidewalks = new HashSet<String>();
-    private final Set<String> safeHighwayTags = new HashSet<String>();
-    private final Set<String> allowedHighwayTags = new HashSet<String>();
-    private final Set<String> avoidHighwayTags = new HashSet<String>();
+    protected HashSet<String> sidewalkValues = new HashSet<String>();
+    protected HashSet<String> sidewalksNoValues = new HashSet<String>();
+    protected final Set<String> safeHighwayTags = new HashSet<String>();
+    protected final Set<String> allowedHighwayTags = new HashSet<String>();
+    protected final Set<String> avoidHighwayTags = new HashSet<String>();
     // convert network tag of hiking routes into a way route code
-    private final Map<String, Integer> hikingNetworkToCode = new HashMap<String, Integer>();
+    protected final Map<String, Integer> hikingNetworkToCode = new HashMap<String, Integer>();
 
     /**
      * Should be only instantiated via EncodingManager
@@ -311,8 +313,9 @@ public class FootFlagEncoder extends AbstractFlagEncoder
 
         } else
         {
-            encoded = encoded | handleFerryTags(way, SLOW_SPEED, MEAN_SPEED, FERRY_SPEED);
-            encoded |= directionBitMask;
+        	 double ferrySpeed = getFerrySpeed(way, SLOW_SPEED, MEAN_SPEED, FERRY_SPEED);
+        	 encoded = setSpeed(encoded, ferrySpeed);
+        	 encoded |= directionBitMask;
         }
 
         int priorityFromRelation = 0;

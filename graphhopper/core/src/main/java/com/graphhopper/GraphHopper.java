@@ -919,7 +919,7 @@ public class GraphHopper implements GraphHopperAPI
     	// Runge
     	if (weightingFactory != null)
     	{
-    		return weightingFactory.createWeighting(weighting, maxSpeed, encoder, graphStorage);
+    		return weightingFactory.createWeighting(weightingMap, maxSpeed, encoder, graphStorage);
     	}
         
         if ("shortest".equalsIgnoreCase(weighting))
@@ -986,6 +986,162 @@ public class GraphHopper implements GraphHopperAPI
                 setSimplifyResponse(simplifyResponse && wayPointMaxDistance > 0).
                 doWork(response, paths, request.getEdgeAnnotator(), request.getWaySurfaceDescriptor(), trMap.getWithFallBack(locale));
         return response;
+    }
+    
+    // Runge
+    public GHResponse directRoute(GHRequest request)
+    {
+    	if (ghStorage == null || !fullyLoaded)
+    		throw new IllegalStateException("Call load or importOrLoad before routing");
+
+    	if (ghStorage.isClosed())
+    		throw new IllegalStateException("You need to create a new GraphHopper instance as it is already closed");
+
+    	String vehicle = request.getVehicle();
+    	if (vehicle.isEmpty())
+    		vehicle = getDefaultVehicle().toString();
+
+    	GHResponse rsp = new GHResponse();
+
+    	if (!encodingManager.supports(vehicle))
+    	{
+    		rsp.addError(new IllegalArgumentException("Vehicle " + vehicle + " unsupported. "
+    				+ "Supported are: " + getEncodingManager()));
+    		return rsp;
+    	}
+
+    	FlagEncoder encoder = encodingManager.getEncoder(vehicle);
+    	//EdgeFilter edgeFilter = new DefaultEdgeFilter(encoder);
+    	EdgeFilter edgeFilter = request.getEdgeFilter(); //Runge
+    	if (edgeFilter == null)
+    		edgeFilter = new DefaultEdgeFilter(encoder);  
+
+    	List<GHPoint> points = request.getPoints();
+    	if (points.size() < 2)
+    	{
+    		rsp.addError(new IllegalStateException("At least 2 points has to be specified, but was:" + points.size()));
+    		return rsp;
+    	}
+
+    	
+    	boolean bSnappedPointStart = request.getHints().getBool("snapped_point_start", false);
+    	boolean bSnappedPointEnd = request.getHints().getBool("snapped_point_end", false);
+    	List<QueryResult> qResults = null;
+    	if (bSnappedPointStart || bSnappedPointEnd)
+    	{
+    		qResults = new ArrayList<QueryResult>(points.size());
+    		for (int placeIndex = 0; placeIndex < points.size(); placeIndex++)
+    		{
+    			GHPoint point = points.get(placeIndex);
+    			QueryResult res = locationIndex.findClosest(point.lat, point.lon, edgeFilter);
+    			if (!res.isValid())
+    				rsp.addError(new IllegalArgumentException("Cannot find point " + placeIndex + ": " + point));
+    			else // Runge
+    			{
+    				if (request.getMaxSearchDistance() > 0) {
+    					int nodeId = res.getClosestNode();
+    					double lat = ghStorage.getNodeAccess().getLat(nodeId);
+    					double lon = ghStorage.getNodeAccess().getLon(nodeId);
+
+    					if (Helper.DIST_EARTH.calcDist(lat, lon, point.getLat(), point.getLon()) > request
+    							.getMaxSearchDistance()) {
+    						rsp.addError(new IllegalArgumentException("Found point is too far."));
+    					}
+    				}
+    			}
+
+    			qResults.add(res);
+    		}
+    	}
+
+    	if (rsp.hasErrors())
+    		return rsp;		
+
+    	double reqLat0 = request.getPoints().get(0).lat;
+    	double reqLon0 = request.getPoints().get(0).lon;
+    	
+    	double reqLat1 = request.getPoints().get(1).lat;
+    	double reqLon1 = request.getPoints().get(1).lon;
+
+    	PointList rPoints = new PointList(4, hasElevation());
+
+       	if (bSnappedPointEnd || bSnappedPointStart)
+       	{
+       		QueryResult qr0 = qResults.get(0);
+       		QueryResult qr1 = qResults.get(1);
+
+       		double lat1 = qr1.getSnappedPoint().lat;
+       		double lon1 = qr1.getSnappedPoint().lon;
+
+       		if (bSnappedPointStart)
+       		{
+       			double lat0 = qr0.getSnappedPoint().lat;
+       			double lon0 = qr0.getSnappedPoint().lon;
+
+       			if (Math.abs(lat0 - reqLat0) > 0.000001 || Math.abs(lon0 - reqLon0) > 0.000001)
+       			{
+       				if (hasElevation())
+       					rPoints.add(lat0, lon0, qr0.getSnappedPoint().getEle() /* eleProvider.getEle(reqLat0, reqLon0)*/);
+       				else
+       					rPoints.add(lat0, lon0);
+       			}
+       		}
+
+       		if (hasElevation())
+       		{
+       			rPoints.add(reqLat0, reqLon0, qr0.getSnappedPoint().getEle());
+       			rPoints.add(reqLat1, reqLon1, qr1.getSnappedPoint().getEle());
+       		}
+       		else
+       		{
+       			rPoints.add(reqLat0, reqLon0);
+       			rPoints.add(reqLat1, reqLon1);
+       		}
+
+       		if (bSnappedPointEnd)
+       		{
+       			if (Math.abs(lat1 - reqLat1) > 0.000001 || Math.abs(lon1 - reqLon1) > 0.000001)
+       			{
+       				if (hasElevation())
+       					rPoints.add(lat1, lon1, qr1.getSnappedPoint().getEle()/*eleProvider.getEle(reqLat1, reqLon1)*/);
+       				else
+       					rPoints.add(lat1, lon1);
+       			}
+       		}
+       	}
+       	else
+       	{
+       		if (hasElevation())
+       		{
+       			rPoints.add(reqLat0, reqLon0, 0);
+       			rPoints.add(reqLat1, reqLon1, 0);
+       		}
+       		else
+       		{
+       			rPoints.add(reqLat0, reqLon0);
+       			rPoints.add(reqLat1, reqLon1);
+       		}
+       	}
+       	
+    	rsp.setPoints(rPoints);
+
+    	DistanceCalc dc = new DistanceCalcEarth();
+    	double dist = rPoints.calcDistance(dc);
+    	rsp.setDistance(dist);
+
+    	double maxSpeed = Math.max(encoder.getMaxSpeed(), request.getMaxSpeed());
+    	long time = (long) (dist * 3600 / maxSpeed);
+    	rsp.setTime(time);
+
+    	InstructionList instructions = new InstructionList(null);
+    	InstructionAnnotation ia = new InstructionAnnotation(1, "");
+    	Instruction instr = new Instruction(0, "", ia, rPoints);
+    	instr.setDistance(dist);
+    	instr.setTime(time);
+    	instructions.add(instr);
+    	rsp.setInstructions(instructions);
+
+    	return rsp;
     }
 
     protected List<Path> getPaths( GHRequest request, GHResponse rsp )

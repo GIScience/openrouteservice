@@ -2,9 +2,10 @@ package com.graphhopper.routing.util;
 
 public class DefaultWeightingFactory implements WeightingFactory {
 	
-	public Weighting createWeighting(String weighting, double maxSpeed, FlagEncoder encoder, Object userState)
+	public Weighting createWeighting(WeightingMap weightingMap, double maxSpeed, FlagEncoder encoder, Object userState)
     {
-		 weighting = weighting.toLowerCase();
+	    String weighting = weightingMap.getWeighting().toLowerCase();
+
 	     if ("fastest".equals(weighting))
 	     {
 	    	 if (encoder instanceof BikeCommonFlagEncoder)

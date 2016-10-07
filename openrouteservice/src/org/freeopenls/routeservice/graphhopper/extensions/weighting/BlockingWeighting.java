@@ -57,6 +57,7 @@ public class BlockingWeighting implements Weighting {
 		
 		if (speed == 0)
 			return Double.POSITIVE_INFINITY;
+		
 		return edge.getDistance() / speed;
 	}
 	

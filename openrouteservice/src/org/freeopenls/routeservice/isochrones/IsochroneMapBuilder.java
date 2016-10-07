@@ -91,7 +91,6 @@ public class IsochroneMapBuilder {
 
 			if (map.size() == 0)
 				return null;
-
 			
 			List<Coordinate> initialPoints = new ArrayList<Coordinate>(map.size());
 			Quadtree qtree = new Quadtree();

@@ -1,6 +1,7 @@
 package org.freeopenls.routeservice.graphhopper.extensions.edgefilters;
 
 import org.freeopenls.routeservice.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
+import org.freeopenls.routeservice.graphhopper.extensions.storages.GraphStorageUtils;
 import org.freeopenls.routeservice.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
 import org.freeopenls.routeservice.graphhopper.extensions.util.WheelchairRestrictionCodes;
 
@@ -25,7 +26,8 @@ public class WheelchairEdgeFilter implements EdgeFilter {
 	 {
 		 this.userDefinedRestrictionValues = restrictionValues;
 		 this.encoder = encoder;
-		 setGraphStorage(graphStorage);
+		 
+		 wheelchairAttributeGraphStorage = GraphStorageUtils.getGraphExtension(graphStorage, WheelchairAttributesGraphStorage.class);
 	 }
 
 	@Override
@@ -67,36 +69,5 @@ public class WheelchairEdgeFilter implements EdgeFilter {
 			return false;
 		// System.out.println("WheelchairEdgeFilter.accept(), return=true");
 		return true;
-	}
-	
-	private void setGraphStorage(GraphStorage graphStorage) {
-		if (graphStorage != null) {
-			if (graphStorage instanceof GraphHopperStorage) {
-				GraphHopperStorage ghs = (GraphHopperStorage) graphStorage;
-				GraphExtension ge = ghs.getExtension();
-				
-				if(ge instanceof ExtendedStorageSequence) {
-					ExtendedStorageSequence ess = (ExtendedStorageSequence)ge;
-					GraphExtension[] exts = ess.getExtensions();
-					for (int i = 0; i < exts.length; i++) {
-						if (assignExtension(exts[i]))
-							break;
-					}
-				}
-				else {
-					assignExtension(ge);
-				}
-			}
-		}
-	}
-	
-	private boolean assignExtension(GraphExtension ge)
-	{
-		if (ge instanceof WheelchairAttributesGraphStorage) {
-			this.wheelchairAttributeGraphStorage = (WheelchairAttributesGraphStorage) ge;
-			return true;
-		} 
-		
-		return false;
 	}
 }

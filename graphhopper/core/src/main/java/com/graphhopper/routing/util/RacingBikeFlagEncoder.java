@@ -18,6 +18,7 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.OSMWay;
+import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 
 import static com.graphhopper.routing.util.PriorityCode.*;
@@ -34,15 +35,15 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder
 {
     public RacingBikeFlagEncoder()
     {
-        this(4, 2, 0);
+        this(4, 2, 0, false);
     }
 
     public RacingBikeFlagEncoder( PMap properties )
     {
         this(
-                (int) properties.getLong("speedBits", 4),
+                (int) properties.getLong("speedBits", 4)+ (properties.getBool("considerElevation", false) ? 1 : 0),
                 properties.getDouble("speedFactor", 2),
-                properties.getBool("turnCosts", false) ? 1 : 0
+                properties.getBool("turnCosts", false) ? 1 : 0, properties.getBool("considerElevation", false)
         );
         this.properties = properties;
         this.setBlockFords(properties.getBool("blockFords", true));
@@ -54,9 +55,9 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder
     }
 
 
-    public RacingBikeFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts )
+    public RacingBikeFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation )
     {
-        super(speedBits, speedFactor, maxTurnCosts);
+        super(speedBits, speedFactor, maxTurnCosts, considerElevation);
         preferHighwayTags.add("road");
         preferHighwayTags.add("secondary");
         preferHighwayTags.add("secondary_link");
@@ -104,17 +105,17 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder
         setHighwaySpeed("road", 12);
         setHighwaySpeed("track", PUSHING_SECTION_SPEED / 2); // assume unpaved
         setHighwaySpeed("service", 12);
-        setHighwaySpeed("unclassified", 16);
-        setHighwaySpeed("residential", 16);
+        setHighwaySpeed("unclassified", 20);
+        setHighwaySpeed("residential", 20);
 
-        setHighwaySpeed("trunk", 20);
-        setHighwaySpeed("trunk_link", 20);
-        setHighwaySpeed("primary", 20);
-        setHighwaySpeed("primary_link", 20);
-        setHighwaySpeed("secondary", 20);
-        setHighwaySpeed("secondary_link", 20);
-        setHighwaySpeed("tertiary", 20);
-        setHighwaySpeed("tertiary_link", 20);
+        setHighwaySpeed("trunk", 24);
+        setHighwaySpeed("trunk_link", 24);
+        setHighwaySpeed("primary", 24);
+        setHighwaySpeed("primary_link", 24);
+        setHighwaySpeed("secondary", 24);
+        setHighwaySpeed("secondary_link", 24);
+        setHighwaySpeed("tertiary", 24);
+        setHighwaySpeed("tertiary_link", 24);
 
         addPushingSection("path");
         addPushingSection("track");
@@ -150,7 +151,7 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder
         if ("service".equals(highway))
         {
             weightToPrioMap.put(40d, UNCHANGED.getValue());
-        } else if ("track".equals(highway))
+        } else if ("track".equals(highway) || "path".equals(highway) ) // Runge, see http://www.openstreetmap.org/way/157482832
         {
             String trackType = way.getTag("tracktype");
             if ("grade1".equals(trackType))
@@ -165,9 +166,30 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder
     {
         String highway = way.getTag("highway");
         String trackType = way.getTag("tracktype");
-        return way.hasTag("highway", pushingSections)
+        
+        // Runge
+        boolean isPushing =  way.hasTag("highway", pushingSections)
                 || way.hasTag("railway", "platform")  || way.hasTag("route", ferries)
                 || "track".equals(highway) && trackType != null && !"grade1".equals(trackType);
+        
+        if (isPushing)
+        {
+        	if ("track".equals(highway) && trackType != null && "grade1".equals(trackType))
+        	{
+        		String surface = way.getTag("surface"); // Runge
+        	    if (!Helper.isEmpty(surface))
+        	    {
+        	    	Integer surfaceSpeed = surfaceSpeeds.get(surface);
+        	    	if (surfaceSpeed != null)
+        	    	{
+        	    		if (surfaceSpeed >= PUSHING_SECTION_SPEED)
+        	    			isPushing = false;
+        	    	}
+        	    }
+        	}
+        }
+        
+        return isPushing;
     }
 
     @Override
@@ -176,6 +198,12 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder
         // for racing bike it is only allowed if empty
         return false;
     }
+    
+    @Override
+	protected double getDownhillMaxSpeed()
+	{
+		return 60;
+	}
 
     @Override
     public String toString()

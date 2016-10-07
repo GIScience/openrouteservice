@@ -355,6 +355,7 @@ public class RSConfigurator {
 				String sSharpRight = direction.getSharpRight();
 				String sStraightForward = direction.getStraightForward();
 				String sInitialHeading = direction.getInitialHeading();
+				String sRoundabout = direction.getRoundabout();
 				
 				//ActionNumber
 				String sActionNr = lang[i].getActionNumber();
@@ -370,7 +371,7 @@ public class RSConfigurator {
 				
 				InstructionLanguageTags instructag = new InstructionLanguageTags(sLangCode, sLanguage,
 						sActionNr, sStart, sFinish, sDrive, sGo, sTurn,
-						sStraightForward, sLeft, sSharpLeft, sHalfLeft, sRight, sSharpRight, sHalfRight, sInitialHeading,
+						sStraightForward, sLeft, sSharpLeft, sHalfLeft, sRight, sSharpRight, sHalfRight, sInitialHeading,sRoundabout,
 						sApprox, sDay, sHour, sMinute, sSecond,
 						sOn, sFor, sBefore, sAfter);
 				hmRouteInstructionLanguages.put(sLangCode, instructag);

@@ -231,7 +231,7 @@ public class OffRoadVehicleFlagEncoder extends AbstractFlagEncoder {
 		if (!isAccept(allowed))
 			return 0;
 
-		long encoded;
+		long encoded = 0;
 		if (!isFerry(allowed)) {
 			// get assumed speed from highway type
 			double speed = getSpeed(way);
@@ -264,9 +264,9 @@ public class OffRoadVehicleFlagEncoder extends AbstractFlagEncoder {
 				encoded |= directionBitMask;
 
 		} else {
-			encoded = handleFerryTags(way, defaultSpeedMap.get("living_street"), defaultSpeedMap.get("service"),
-					defaultSpeedMap.get("residential"));
-			encoded |= directionBitMask;
+			  double ferrySpeed = getFerrySpeed(way, defaultSpeedMap.get("living_street"), defaultSpeedMap.get("service"), defaultSpeedMap.get("residential"));
+			  encoded = setSpeed(encoded, ferrySpeed);
+			  encoded |= directionBitMask;
 		}
 
 		return encoded;

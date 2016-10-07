@@ -23,7 +23,9 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.freeopenls.servlet.requests.MultiReadHttpServletRequest;
@@ -44,12 +46,14 @@ public class UserAuthenticationFilter implements Filter {
 		try {
 			boolean isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().
 				    getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
-            if (!isDebug)
+            if (isDebug)
             {
             	localAddresses.add(InetAddress.getLocalHost().getHostAddress());
             	for (InetAddress inetAddress : InetAddress.getAllByName("localhost")) {
             		localAddresses.add(inetAddress.getHostAddress());
             	}
+            	
+            	localAddresses.add("::1");
             }
 		} catch (IOException e) {
 			
@@ -65,7 +69,7 @@ public class UserAuthenticationFilter implements Filter {
 	      if (Helper.isEmpty(pathDatabase))
 	    	  pathDatabase = "ORS_Users.db";
 
-	        Boolean logStats = Helper.isEmpty(fConfig.getInitParameter("LOG_STATS")) ?  true : fConfig.getInitParameter("LOG_STATS") == "true";
+	        Boolean logStats = Helper.isEmpty(fConfig.getInitParameter("LOG_STATS")) ?  true : Boolean.parseBoolean(fConfig.getInitParameter("LOG_STATS"));
 	    	m_userMangementCntx = new UserAuthenticationContext(pathDatabase, logStats,  m_servletContext);
 	    } catch ( Exception e ) {
 	    	m_servletContext.log("Unable to connect the database.");
@@ -78,30 +82,40 @@ public class UserAuthenticationFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, 
 			ServletException {
 		HttpServletRequest req = (HttpServletRequest)request;
-		
+
 		if (m_userMangementCntx != null) {
 			String userIp = HTTPUtility.getRemoteAddr(req);
-
+			
+			if (!(req instanceof MultiReadHttpServletRequest))
+				req = new MultiReadHttpServletRequest(req);
+			
 			if (!localAddresses.contains(userIp)) 
 			{
-				if (!(req instanceof MultiReadHttpServletRequest))
-					req = new MultiReadHttpServletRequest(req);
-				
-				String apiKey = req.getParameter("apikey");
+				String apiKey = req.getParameter("api_key");
 				if (!Helper.isEmpty(apiKey)) {
+					
 					boolean isValidUser = m_userMangementCntx.isValidUser(req, apiKey, userIp, true);
 
 					if (!isValidUser) {
-						response.getWriter().println("Your request was declined. The APIKey is either incorrect or expired.");
+						response.getWriter().println("Your request was denied. The API key is either incorrect or expired.");
 						return;
 					} else {
 						m_userMangementCntx.logRequest(req);
 					}
 				}
+				else
+				{
+					response.getWriter().println("The API key is not defined.");
+					return;
+				}
 			}
+			
+			chain.doFilter(req, response);
 		}
-
-		chain.doFilter(req, response);
+		else
+		{
+			chain.doFilter(request, response);
+		}
 	}
 		
 	@Override

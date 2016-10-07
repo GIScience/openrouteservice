@@ -22,9 +22,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.freeopenls.routeservice.graphhopper.extensions.weighting.AvoidFeaturesWeighting;
+import org.freeopenls.routeservice.graphhopper.extensions.weighting.AvoidHillsWeighting;
 import org.freeopenls.routeservice.graphhopper.extensions.weighting.BlockingWeighting;
+import org.freeopenls.routeservice.graphhopper.extensions.weighting.FastestSafeWeighting;
 import org.freeopenls.routeservice.graphhopper.extensions.weighting.OptimizedPriorityWeighting;
 import org.freeopenls.routeservice.graphhopper.extensions.weighting.PreferencePriorityWeighting;
+import org.freeopenls.routeservice.graphhopper.extensions.weighting.SteepnessDifficultyWeighting;
 import org.freeopenls.routeservice.graphhopper.extensions.weighting.WeightingSequence;
 import org.freeopenls.routeservice.traffic.RealTrafficDataProvider;
 
@@ -36,6 +39,7 @@ import com.graphhopper.routing.util.PriorityWeighting;
 import com.graphhopper.routing.util.ShortestWeighting;
 import com.graphhopper.routing.util.TurnWeighting;
 import com.graphhopper.routing.util.Weighting;
+import com.graphhopper.routing.util.WeightingMap;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.storage.TurnCostExtension;
@@ -51,9 +55,10 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 		m_turnCostExtensions = new HashMap<Object, TurnCostExtension>();
 	}
 	
-	public Weighting createWeighting(String weighting, double maxSpeed, FlagEncoder encoder, Object userState) {
+	public Weighting createWeighting(WeightingMap weightingMap, double maxSpeed, FlagEncoder encoder, Object userState) {
+	    String weighting = weightingMap.getWeighting().toLowerCase();
 		// System.out.println("ORSWeightingFactory.createWeighting(), weighting="+weighting);
-
+		    
 		Weighting result = null;
 		
 		GraphHopperStorage graphStorage = null;
@@ -74,13 +79,14 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
             	else if ("recommended".equalsIgnoreCase(weighting))
                     result = new OptimizedPriorityWeighting(maxSpeed, encoder);
             	else
-            		result = new FastestWeighting(maxSpeed, encoder);
+            		result = new FastestSafeWeighting(maxSpeed, encoder);
             }
             else
                 result = new FastestWeighting(maxSpeed, encoder);
         } 
-		
-		if (weighting.startsWith("AvoidFeatures")) {
+
+        // Is not supporte yet
+		if (weightingMap.getBool("AvoidFeatures", false)) {
 			String strTypes = weighting.substring(weighting.indexOf("-") + 1);
 			int types = Integer.parseInt(strTypes);
 			if (types > 0)
@@ -89,7 +95,17 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 			}
 		}
 		
-		if (weighting.startsWith("TrafficBlockWeighting"))
+		if (weightingMap.getBool("SteepnessDifficulty", false)) {
+			 int difficultyLevel = weightingMap.getInt("SteepnessDifficultyLevel", -1);
+			 double maxSteepness = weightingMap.getDouble("SteepnessMaximum", -1);
+			 result = new SteepnessDifficultyWeighting(result, encoder, graphStorage, difficultyLevel, maxSteepness);
+	    }
+		else if (weightingMap.getBool("AvoidHills", false)) {
+			 double maxSteepness = weightingMap.getDouble("SteepnessMaximum", -1);
+			 result = new AvoidHillsWeighting(result, encoder, (GraphStorage)userState, maxSteepness);
+		}
+		
+		if (weightingMap.getBool("TrafficBlockWeighting", false))
 		{
 			//String strPref = weighting.substring(weighting.indexOf("-") + 1);
 			Weighting w = new BlockingWeighting(encoder, m_trafficDataProvider.getAvoidEdges(graphStorage));
@@ -117,7 +133,7 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 		if (result != null)
 			return result;
 
-		return super.createWeighting(weighting, maxSpeed, encoder, userState);
+		return super.createWeighting(weightingMap, maxSpeed, encoder, userState);
 	}
 	
 	private Weighting createWeighting(Weighting w1, Weighting seq) {

@@ -28,21 +28,21 @@ import com.graphhopper.util.Helper;
 public class SafetyBikeFlagEncoder extends BikeCommonFlagEncoder {
 	public SafetyBikeFlagEncoder()
     {
-        this(4, 2, 0);
+        this(4, 2, 0, false);
     }
 	
 	public SafetyBikeFlagEncoder( String propertiesStr )
     {
-	      this((int) parseLong(propertiesStr, "speedBits", 4),
+	      this((int) parseLong(propertiesStr, "speedBits", 4)+ (parseBoolean(propertiesStr,"considerElevation", false) ? 1 : 0),
 	                parseDouble(propertiesStr, "speedFactor", 2),
-	                parseBoolean(propertiesStr, "turnCosts", false) ? 3 : 0);
+	                parseBoolean(propertiesStr, "turnCosts", false) ? 3 : 0, parseBoolean(propertiesStr,"considerElevation", false));
 	      
 	      setBlockFords(false);
     }
 
-    public SafetyBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts )
+    public SafetyBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation)
     {
-    	super(speedBits, speedFactor, maxTurnCosts);
+    	super(speedBits, speedFactor, maxTurnCosts, considerElevation);
     	
 		addPushingSection("path");
 		addPushingSection("footway");
@@ -144,6 +144,12 @@ public class SafetyBikeFlagEncoder extends BikeCommonFlagEncoder {
 
 		if (way.hasTag("railway", "tram"))
 			weightToPrioMap.put(30d, PriorityCode.AVOID_AT_ALL_COSTS.getValue());
+	}
+
+    @Override
+	protected double getDownhillMaxSpeed()
+	{
+		return 30;
 	}
 
 	@Override

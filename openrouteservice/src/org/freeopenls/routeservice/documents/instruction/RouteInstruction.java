@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import com.graphhopper.routing.util.RouteSplit;
+import com.graphhopper.routing.util.SteepnessUtil;
+
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.GDuration;
 import org.freeopenls.constants.RouteService;
@@ -33,7 +36,6 @@ import org.freeopenls.routeservice.documents.instruction.Duration;
 import org.freeopenls.routeservice.documents.instruction.InstructionLanguageTags;
 import org.freeopenls.routeservice.RSConfigurator;
 import org.freeopenls.routeservice.documents.Envelope;
-import org.freeopenls.routeservice.documents.RouteSplit;
 import org.freeopenls.routeservice.routing.RoutePlan;
 import org.freeopenls.routeservice.routing.RoutePreferenceType;
 import org.freeopenls.routeservice.routing.RouteResult;
@@ -70,6 +72,7 @@ import com.graphhopper.util.Helper;
 import com.graphhopper.util.Instruction;
 import com.graphhopper.util.InstructionAnnotation;
 import com.graphhopper.util.PointList;
+import com.graphhopper.util.RoundaboutInstruction;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jump.feature.Feature;
@@ -90,8 +93,6 @@ public class RouteInstruction {
 	/** RouteInstruction Language */
 	private InstructionLanguageTags m_sLanguage;
 	private StringBuffer m_stringBuffer;
-	
-	private static double ELEVATION_THRESHOLD = 20;
 
 	/**
 	 * Constructor
@@ -166,6 +167,7 @@ public class RouteInstruction {
 		String sInstruction = m_sLanguage.DIRECTION_STRAIGHTFORWARD;
 		double dDistance = 0;
 		int sign;
+		int exitNumber = -1;
 		int time = 0;
 		String streetName = "";
 		String annotation = "";
@@ -312,17 +314,30 @@ public class RouteInstruction {
 					else
 						instructionText = m_sLanguage.START + wordSpace + "(" + startDirection + ")";
 				} else {
-					sInstruction = getInstructionTranslation(sign);
-
-					String strBegin = isTurnInstruction(sign) ? m_sLanguage.TURN : sInstructionBegin;
-					instructionText = (bChinese ? (sInstruction + wordSpace + strBegin) : strBegin + wordSpace
-							+ sInstruction);
-
-					if (!(streetName.equals("n/a") || Helper.isEmpty(streetName)))
-						instructionText += wordSpace + m_sLanguage.FILLWORD_ON + " " + streetName;
+					
+					if (instr instanceof RoundaboutInstruction && !Helper.isEmpty(m_sLanguage.DIRECTION_ROUNDABOUT))
+					{
+						RoundaboutInstruction raInstr = (RoundaboutInstruction)instr;
+						exitNumber = raInstr.getExitNumber();
+						
+						instructionText = String.format(m_sLanguage.DIRECTION_ROUNDABOUT, exitNumber, streetName);
+					}
+					else
+					{
+						sInstruction = getInstructionTranslation(sign);
+						exitNumber = -1;
+					
+						String strBegin = isTurnInstruction(sign) ? m_sLanguage.TURN : sInstructionBegin;
+						
+						instructionText = (bChinese ? (sInstruction + wordSpace + strBegin) : strBegin + wordSpace
+								+ sInstruction);
+						
+						if (!(streetName.equals("n/a") || Helper.isEmpty(streetName)))
+							instructionText += wordSpace + m_sLanguage.FILLWORD_ON + " " + streetName;
+					}
 				}
 
-				createRouteInstruction(RouteInstrucList.addNewRouteInstruction(), sign, RouteService.GRAPH_SRS,
+				createRouteInstruction(RouteInstrucList.addNewRouteInstruction(), sign,exitNumber, RouteService.GRAPH_SRS,
 						routeResult.getResponseSRS(), instr.getPoints(), nextPoints, iActionNr, instructionText, annotation,
 						sDistance, routeResult.getDistanceUnit(), bProvideGeometry, bProvideBoundingBox,
 						routePlan.getExpectedDateTime(), routePlan.getCalendarDateTime(), gdurationTotal, time);
@@ -372,7 +387,7 @@ public class RouteInstruction {
 					if (z1 < minAltitude)
 						minAltitude = z1;
 					
-					if (maxAltitude - z1 > ELEVATION_THRESHOLD || z1 - minAltitude > ELEVATION_THRESHOLD)
+					if (maxAltitude - z1 > SteepnessUtil.ELEVATION_THRESHOLD || z1 - minAltitude > SteepnessUtil.ELEVATION_THRESHOLD)
 					{
 						boolean bApply = true;
 						int elevSign = cumElev > 0 ? 1 : -1;
@@ -404,15 +419,16 @@ public class RouteInstruction {
 							}
 
 							if (zn != Double.MIN_VALUE)
-							{							
+							{	
+								double elevGap = length/30;
 								if (elevSign > 0 /* && Math.Abs(prevSplit.Gradient - gradient) < gradientDiff)//*/ && prevGC > 0)
 								{
-									if (zn >= z1)
+									if (Math.abs(zn - z1) < elevGap)
 										bApply = false;
 								}
 								else if(/*Math.Abs(prevSplit.Gradient - gradient) < gradientDiff)//*/prevGC < 0)
 								{
-									if (zn <= z1)
+									if (Math.abs(z1 - zn) < elevGap)
 										bApply = false;
 								}
 							}
@@ -420,7 +436,7 @@ public class RouteInstruction {
 						
 						if (bApply)
 						{
-							int gc = getSteepnessCategory(gradient);
+							int gc = SteepnessUtil.getCategory(gradient);
 							if (prevSplit != null && gc == prevGC)
 							{
 								prevSplit.End = iPoints - 1;
@@ -438,8 +454,8 @@ public class RouteInstruction {
 							}
 							
 							startIndex = iPoints - 1;
-							minAltitude = z1;
-							maxAltitude = z1;
+							minAltitude = Math.min(z0, z1);
+							maxAltitude = Math.max(z0, z1);
 							splitLength = 0.0;
 							
 							cumElev= elevDiff;
@@ -464,7 +480,7 @@ public class RouteInstruction {
 			if (splitLength > 0)
 			{
 				double gradient = (cumElev > 0 ? 1: -1)*100*(maxAltitude - minAltitude) / splitLength;
-				int gc = getSteepnessCategory(gradient);
+				int gc = SteepnessUtil.getCategory(gradient);
 				if (prevSplit != null && (prevSplit.Value == gc || splitLength < 25))
 				{
 					prevSplit.End = iPoints - 1;
@@ -488,36 +504,6 @@ public class RouteInstruction {
 				steep.setType(BigInteger.valueOf(split.Value));
 			}
 		}
-	}
-	
-	private int getSteepnessCategory(double value)
-	{
-		if (Double.isNaN(value))
-			return 0;
-		
-		double absValue = Math.abs(value);
-		int res = 0;
-		
-		// 0%: A flat road
-		if (absValue < 1.0)
-			res = 0;
-		// 1-3%: Slightly uphill but not particularly challenging. A bit like riding into the wind.
-		else if (absValue >=1 && absValue < 4)
-			res = 1;
-		// 4-6%: A manageable gradient that can cause fatigue over long periods.
-		else if (absValue >= 4 && absValue < 7)
-			res = 2;
-		// 7-9%: Starting to become uncomfortable for seasoned riders, and very challenging for new climbers.
-		else if (absValue >= 7 && absValue < 10)
-			res = 3;
-		// 10%-15%: A painful gradient, especially if maintained for any length of time
-		else if (absValue >= 10 && absValue < 16)
-			res = 4;
-		// 16%+: Very challenging for riders of all abilities. Maintaining this sort of incline for any length of time is very painful.
-		else if (absValue >= 16)
-			res = 5;
-		
-		return res*((value > 0) ? 1 :-1);
 	}
 	
 	private Coordinate getCoordinate(PointList points, int index)
@@ -578,7 +564,7 @@ public class RouteInstruction {
 	 * @param iDuration
 	 * @throws ServiceError
 	 */
-	private void createRouteInstruction(RouteInstructionType routeinstrucType, int directionCode, String sFeatSRS,
+	private void createRouteInstruction(RouteInstructionType routeinstrucType, int directionCode, int exitNumber, String sFeatSRS,
 			String sResponseSRS, PointList points, PointList nextPoints, int iActionNr, String sInstruction, String annotation,
 			String sDistance, DistanceUnitType.Enum distUnit, boolean bProvideGeom, boolean bProvideBBox,
 			String sExpectedTimeType, Calendar calendarDateTime, GDuration gdurationTotal, int iDuration)
@@ -591,6 +577,9 @@ public class RouteInstruction {
 
 		if (points == null || points.getSize() == 0)
 			return;
+
+		if (exitNumber != -1)
+			routeinstrucType.setExitNumber(BigInteger.valueOf(exitNumber));
 
 		// setDuration
 		routeinstrucType.setDuration(Duration.getGDuration(iDuration));

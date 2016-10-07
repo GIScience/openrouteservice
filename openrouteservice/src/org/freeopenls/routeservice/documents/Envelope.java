@@ -4,7 +4,6 @@ package org.freeopenls.routeservice.documents;
 import java.text.DecimalFormat;
 
 import org.freeopenls.error.ServiceError;
-import org.freeopenls.routeservice.graphhopper.extensions.util.ConvertUtils;
 import org.freeopenls.tools.CoordTransform;
 import org.freeopenls.tools.FormatUtility;
 import org.geotools.referencing.crs.DefaultGeographicCRS;

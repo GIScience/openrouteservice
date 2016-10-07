@@ -171,6 +171,11 @@ public class PMap
     {
         return map;
     }
+    
+    public void clear()
+    {
+    	map.clear();
+    }
 
     public PMap merge( PMap read )
     {

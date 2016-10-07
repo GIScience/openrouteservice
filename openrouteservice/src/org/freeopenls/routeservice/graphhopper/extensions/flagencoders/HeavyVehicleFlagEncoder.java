@@ -443,8 +443,9 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 
         } else
         {
-            encoded = handleFerryTags(way, defaultSpeedMap.get("living_street"), defaultSpeedMap.get("service"), defaultSpeedMap.get("residential"));
-            encoded |= directionBitMask;
+        	double ferrySpeed = getFerrySpeed(way, defaultSpeedMap.get("living_street"), defaultSpeedMap.get("service"), defaultSpeedMap.get("residential"));
+        	encoded = setSpeed(encoded, ferrySpeed);
+        	encoded |= directionBitMask;
         }
 
         return encoded;

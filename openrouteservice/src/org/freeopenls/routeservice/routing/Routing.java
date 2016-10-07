@@ -23,6 +23,7 @@ import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.Instruction;
 import com.graphhopper.util.InstructionList;
+import com.graphhopper.util.PMap;
 import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -82,12 +83,12 @@ public class Routing {
 	 * @param hmEdgeIDtoLength
 	 * @throws Exception
 	 */
-	public void doRouting(RoutePlan routePlan, RouteResult routeResult, WayPoint wpStart, WayPoint wpEnd)
+	public void doRouting(RoutePlan routePlan, RouteResult routeResult, WayPoint wpStart, WayPoint wpEnd, PMap props)
 			throws Exception {
 		Coordinate wps = wpStart.getCoordinate();
 		Coordinate wpe = wpEnd.getCoordinate();
 
-		GHResponse resp = RouteProfileManager.getInstance().getPath(routePlan, wps.y, wps.x, wpe.y, wpe.x, wpStart.getCode());
+		GHResponse resp = RouteProfileManager.getInstance().getPath(routePlan, wps.y, wps.x, wpe.y, wpe.x, props);
 
 		if (resp.hasErrors())
 			throw new Exception(resp.getErrors().get(0).getMessage());

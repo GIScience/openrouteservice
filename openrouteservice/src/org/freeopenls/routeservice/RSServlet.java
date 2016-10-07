@@ -113,14 +113,14 @@ public class RSServlet extends HttpServlet {
 		long requestTime = System.currentTimeMillis();
 
 		try {
-			// Get the request
-			InputStream in = request.getInputStream();
-			String decodedString = StringUtility.decodeRequestString(StreamUtility.readStream(in));
-			in.close();
-
-			if ("info".equalsIgnoreCase(decodedString)) {
+			if (request.getParameterMap().containsKey("info")) {
 				RouteInfoUtils.writeRouteInfo(request, response);
 			} else {
+				// Get the request
+				InputStream in = request.getInputStream();
+				String decodedString = StringUtility.decodeRequestString(StreamUtility.readStream(in));
+				in.close();
+
 				mReqOperator = new RequestOperator();
 				ResponseXLSDocument routeserviceResp = mReqOperator.doOperation(decodedString);
 				doResponse(response, routeserviceResp);
@@ -149,10 +149,10 @@ public class RSServlet extends HttpServlet {
 		long requestTime = System.currentTimeMillis();
 
 		try {
-			String strRequest = request.getQueryString();
-			if ("info".equalsIgnoreCase(strRequest)) {
+		
+			if (request.getParameterMap().containsKey("info")) {
 				RouteInfoUtils.writeRouteInfo(request, response);
-			} else if (strRequest.startsWith("tmc") && RealTrafficDataProvider.getInstance().isInitialized()) {
+			} else if (request.getParameterMap().containsKey("tmc") && RealTrafficDataProvider.getInstance().isInitialized()) {
 			  String bbox =	request.getParameter("bbox");
 			  Envelope env = null;
 			  if (!Helper.isEmpty(bbox))
@@ -169,6 +169,8 @@ public class RSServlet extends HttpServlet {
 			  response.getWriter().append(json);
 			}
 			else {
+				String strRequest = request.getQueryString();
+
 				mReqOperator = new RequestOperator();
 				ResponseXLSDocument routeserviceResp = mReqOperator.doOperation(strRequest);
 				doResponse(response, routeserviceResp);

@@ -17,12 +17,10 @@ package org.freeopenls.routeservice.graphhopper.extensions.storages;
 import com.graphhopper.routing.util.WaySurfaceDescription;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.GHDirectory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
-import com.graphhopper.storage.GraphStorage;
 
-public class WaySurfaceTypeStorage implements GraphExtension {
+public class WaySurfaceTypeGraphStorage implements GraphExtension {
 	/* pointer for no entry */
 	protected final int NO_ENTRY = -1;
 	protected final int EF_WAYTYPE;
@@ -32,10 +30,9 @@ public class WaySurfaceTypeStorage implements GraphExtension {
 	protected int edgeEntryBytes;
 	protected int edgesCount; // number of edges with custom values
 
-	private Graph graph;
 	private byte[] byteValues;
 
-	public WaySurfaceTypeStorage() {
+	public WaySurfaceTypeGraphStorage() {
 		EF_WAYTYPE = nextBlockEntryIndex(1);
 	
 		edgeEntryBytes = edgeEntryIndex + 4;
@@ -47,7 +44,6 @@ public class WaySurfaceTypeStorage implements GraphExtension {
 		if (edgesCount > 0)
 			throw new AssertionError("The ORS storage must be initialized only once.");
 
-		this.graph = graph;
 		this.orsEdges = dir.find("way_surface");
 	}
 
@@ -139,11 +135,11 @@ public class WaySurfaceTypeStorage implements GraphExtension {
 	}
 
 	public GraphExtension copyTo(GraphExtension clonedStorage) {
-		if (!(clonedStorage instanceof WaySurfaceTypeStorage)) {
+		if (!(clonedStorage instanceof WaySurfaceTypeGraphStorage)) {
 			throw new IllegalStateException("the extended storage to clone must be the same");
 		}
 
-		WaySurfaceTypeStorage clonedTC = (WaySurfaceTypeStorage) clonedStorage;
+		WaySurfaceTypeGraphStorage clonedTC = (WaySurfaceTypeGraphStorage) clonedStorage;
 
 		orsEdges.copyTo(clonedTC.orsEdges);
 		clonedTC.edgesCount = edgesCount;

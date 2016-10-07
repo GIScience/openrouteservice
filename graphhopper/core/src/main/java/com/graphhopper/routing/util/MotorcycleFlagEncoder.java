@@ -224,8 +224,10 @@ public class MotorcycleFlagEncoder extends CarFlagEncoder
 
         } else
         {
-            encoded = handleFerryTags(way, defaultSpeedMap.get("living_street"), defaultSpeedMap.get("service"), defaultSpeedMap.get("residential"));
-            encoded |= directionBitMask;
+        	double ferrySpeed = getFerrySpeed(way, defaultSpeedMap.get("living_street"), defaultSpeedMap.get("service"), defaultSpeedMap.get("residential"));
+        	encoded = setSpeed(encoded, ferrySpeed);
+        	encoded = setReverseSpeed(encoded, ferrySpeed);
+        	encoded |= directionBitMask;
         }
 
         // relations are not yet stored -> see BikeCommonFlagEncoder.defineRelationBits how to do this

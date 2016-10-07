@@ -37,6 +37,7 @@ import org.freeopenls.tools.TimeUtility;
 import com.graphhopper.GHResponse;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.util.DistanceCalcEarth;
+import com.graphhopper.util.PMap;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -62,7 +63,6 @@ public class RouteProfileManager {
 	public RouteProfileManager() {
 	}
 	
-	
 	private void registerFlagEncoders()
 	{
 		// Register all custom EdgeFlagaEncoders here.
@@ -72,6 +72,7 @@ public class RouteProfileManager {
 		EncodingManager.registerDefaultEdgeFlagEncoder("offroadvehicle", new OffRoadVehicleFlagEncoder());
 		EncodingManager.registerDefaultEdgeFlagEncoder("cartmc", new CarTmcFlagEncoder());
 		EncodingManager.registerDefaultEdgeFlagEncoder("heavyvehicle", new HeavyVehicleFlagEncoder());
+		EncodingManager.registerDefaultEdgeFlagEncoder("hike2", new Hike2FlagEncoder());
 		// EncodingManager.registerDefaultEdgeFlagEncoder("ELECTRO_VEHICLE",
 	}
 	
@@ -216,7 +217,7 @@ public class RouteProfileManager {
 		return m_profileUpdater == null ? null : m_profileUpdater.getStatus();
 	}
 	
-	public GHResponse getPath(RoutePlan routePlan, double lat0, double lon0, double lat1, double lon1, short code) throws Exception {
+	public GHResponse getPath(RoutePlan routePlan, double lat0, double lon0, double lat1, double lon1, PMap props) throws Exception {
 		int routePref = routePlan.getRoutePreference();
 		
 		boolean dynamicWeights = (routePlan.hasAvoidAreas() || routePlan.hasAvoidFeatures() || routePlan.getMaxSpeed() > 0 || (RoutePreferenceType.isCar(routePref) && (routePlan.hasVehicleAttributes() || routePlan.getUseRealTimeTraffic())) || (routePlan.getWeightingMethod() == WeightingMethod.SHORTEST || routePlan.getWeightingMethod() == WeightingMethod.RECOMMENDED) || routePlan.getSupportTurnRestrictions() || routePlan.getSurfaceInformation());
@@ -239,6 +240,10 @@ public class RouteProfileManager {
 				routePlan.setLoadCharacteristics(null);
 			}
 		}
+		
+		// use BICYCLE preference since BICYCLE_ELECTRO is just a psuedo profile that uses BICYCLE.
+		if (routePref == RoutePreferenceType.BICYCLE_ELECTRO)
+			routePref = RoutePreferenceType.BICYCLE;
 
 		RouteProfile rp = m_routeProfiles.getRouteProfile(routePref, chEnabled, dynamicWeights, lat0, lon0, lat1, lon1, checkDistance);
 		
@@ -259,7 +264,7 @@ public class RouteProfileManager {
 				throw new Exception("The requested route is too long and therefore cann't be processed due to a lack of resources.");
 		}
 
-		return rp.getRoute(lat0, lon0, lat1, lon1, routePlan, code);
+		return rp.getRoute(lat0, lon0, lat1, lon1, routePlan, props);
 	}
 	
 	public IsochroneMap buildIsochroneMap(double cx, double cy, double maxCost, String prefType, String method, double interval, double gridSize) throws Exception

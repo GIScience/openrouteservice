@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.freeopenls.routeservice.graphhopper.extensions.storages.WaySurfaceTypeStorage;
+import org.freeopenls.routeservice.graphhopper.extensions.storages.WaySurfaceTypeGraphStorage;
 import org.freeopenls.routeservice.mapmatching.RouteSegmentInfo;
 import org.freeopenls.routeservice.routing.RouteProfile;
 
@@ -48,24 +48,22 @@ public class ORSGraphHopper extends GraphHopper {
 
 	private Envelope bbox;
 	private HashMap<Integer, Long> tmcEdges;
-	private WaySurfaceTypeStorage gsWaySurface;
+	private WaySurfaceTypeGraphStorage gsWaySurface;
 	
 	// A route profile for referencing which is used to extract names of adjacent streets and other objects.
 	private RouteProfile refRouteProfile;
 
-	public ORSGraphHopper(Envelope bbox, boolean storeWaySurfaceInfo, boolean useTmc, RouteProfile refProfile) {
+	public ORSGraphHopper(Envelope bbox, boolean storeWaySurfaceInfo, boolean storeHillIndex, boolean useTmc, RouteProfile refProfile) {
 		this.bbox = bbox;
 		this.refRouteProfile= refProfile;
 		if  (storeWaySurfaceInfo)
-		{
-			gsWaySurface = new WaySurfaceTypeStorage();
-		}
+			gsWaySurface = new WaySurfaceTypeGraphStorage();
 		
 		if (useTmc)
 			tmcEdges = new HashMap<Integer, Long>();
 	}
 	
-	public WaySurfaceTypeStorage getWaySurfaceStorage()
+	public WaySurfaceTypeGraphStorage getWaySurfaceStorage()
 	{
 		return gsWaySurface;
 	}
@@ -101,7 +99,7 @@ public class ORSGraphHopper extends GraphHopper {
 	{
         if (gsWaySurface != null)
         	gsWaySurface.flush();
-
+        
         super.flush();
 	}
 
@@ -187,7 +185,7 @@ public class ORSGraphHopper extends GraphHopper {
 			double distance = 0;
 			for (int pathIndex = 0; pathIndex < paths.size(); pathIndex++) {
 				Path path = paths.get(pathIndex);
-                time += path.getMillis();
+                time += path.getTime();
                 
 				for (EdgeIteratorState edge : path.calcEdges()) {
 				//	fullEdges.add(edge.getEdge());

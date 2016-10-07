@@ -118,7 +118,7 @@ public class RacingBikeFlagEncoderTest extends AbstractBikeFlagEncoderTester
 
         way.clearTags();
         way.setTag("highway", "primary");
-        assertEquals(20, getSpeedFromFlags(way), 1e-1);
+        assertEquals(24, getSpeedFromFlags(way), 1e-1);
 
         way.clearTags();
         way.setTag("highway", "primary");
@@ -231,7 +231,7 @@ public class RacingBikeFlagEncoderTest extends AbstractBikeFlagEncoderTester
 
         osmWay.setTag("highway", "motorway");
         assertEquals(20, encoder.getSpeed(encoder.setSpeed(0, encoder.applyMaxSpeed(osmWay, 20, false))), 1e-1);
-        assertPriority(REACH_DEST.getValue(), osmWay);
+        assertPriority(AVOID_AT_ALL_COSTS.getValue(), osmWay); // Runge REACH_DEST changed to AVOID_AT_ALL_COSTS
 
         osmWay.setTag("tunnel", "yes");
         assertEquals(20, encoder.getSpeed(encoder.setSpeed(0, encoder.applyMaxSpeed(osmWay, 20, false))), 1e-1);
