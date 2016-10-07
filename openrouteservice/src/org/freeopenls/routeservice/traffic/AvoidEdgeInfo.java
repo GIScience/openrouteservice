@@ -12,16 +12,15 @@
 package org.freeopenls.routeservice.traffic;
 
 public class AvoidEdgeInfo extends EdgeInfo {
-	
+   private float mSpeedFactor;
    
-	public AvoidEdgeInfo(Integer edgeId, short[] codes) {
+   public AvoidEdgeInfo(Integer edgeId, short[] codes, float speedFactor) {
 	  super(edgeId, codes);
-
+	   
+	   mSpeedFactor = speedFactor;
    }
    
-   public String toString(){
-	   
-	   return "Avoiding Edge info";
+   public float getSpeedFactor() {
+	   return mSpeedFactor;
    }
-
 }

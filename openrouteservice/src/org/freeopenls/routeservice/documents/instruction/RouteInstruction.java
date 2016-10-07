@@ -340,9 +340,6 @@ public class RouteInstruction {
 				segIndex++;
 			}
 			
-			// use the route weight to obtain the actual total travel time
-			routeResult.setActualTotalTime(routeResult.getActualTotalTime() + seg.getRouteWeight());
-			
 			if (bSurfaceInfo)
 			{
 				PointList points = seg.getPoints();

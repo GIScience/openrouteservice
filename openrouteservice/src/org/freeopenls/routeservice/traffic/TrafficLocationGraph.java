@@ -30,10 +30,10 @@ import org.jgrapht.graph.DefaultEdge;
 public class TrafficLocationGraph {
 	private class LocationEdge extends DefaultEdge
 	{
-		private Long source;
-		private Long target;
+		private Integer source;
+		private Integer target;
 		
-		public LocationEdge(Long source, Long target)
+		public LocationEdge(Integer source, Integer target)
 		{
 			this.source = source;
 			this.target = target;
@@ -43,44 +43,42 @@ public class TrafficLocationGraph {
 		 */
 		private static final long serialVersionUID = -3996637280511152711L;
 
-		public Long getSource()
+		public Integer getSource()
 		{
 			return source;
 		}
 
-		public Long getTarget()
+		public Integer getTarget()
 		{
 			return target;
 		}
 	}
 
-	private DirectedGraph<Long, LocationEdge> graph;
+	private DirectedGraph<Integer, LocationEdge> graph;
 
 	private TrafficLocationGraph()
 	{
-		EdgeFactory<Long, LocationEdge> ef = new EdgeFactory<Long, TrafficLocationGraph.LocationEdge>() {
+		EdgeFactory<Integer, LocationEdge> ef = new EdgeFactory<Integer, TrafficLocationGraph.LocationEdge>() {
 			
 			@Override
-			public LocationEdge createEdge(Long sourceVertex, Long targetVertex) {
+			public LocationEdge createEdge(Integer sourceVertex, Integer targetVertex) {
 				// TODO Auto-generated method stub
 				return new LocationEdge(sourceVertex, targetVertex);
 			}
 		};
-		graph = new DefaultDirectedGraph<Long, LocationEdge>(ef);
+		graph = new DefaultDirectedGraph<Integer, LocationEdge>(ef);
 	}
 	
-	public boolean containsCode(long code)
+	public boolean containsCode(int code)
 	{
 		return graph.containsVertex(code);
 	}
 
-	public List<Long> getShortestPath(Long startVertex, Long endVertex)
+	public List<Integer> getShortestPath(int startVertex, int endVertex)
 	{
-		List<Long> result = new ArrayList<Long>();
+		List<Integer> result = new ArrayList<Integer>();
 
-		DijkstraShortestPath<Long, LocationEdge> dijkstra = new DijkstraShortestPath<Long, LocationEdge>(graph, startVertex, endVertex);
-		
-		if (dijkstra.getPathEdgeList()==null){ return null;}
+		DijkstraShortestPath<Integer, LocationEdge> dijkstra = new DijkstraShortestPath<Integer, LocationEdge>(graph, startVertex, endVertex);
 		
 		for(LocationEdge edge : dijkstra.getPathEdgeList())
 		{
@@ -100,7 +98,7 @@ public class TrafficLocationGraph {
 		try {
 			BufferedReader brPoffsets = new BufferedReader(new FileReader(file));
 			String line = null;
-			DirectedGraph<Long, LocationEdge> graph = tlg.graph;
+			DirectedGraph<Integer, LocationEdge> graph = tlg.graph;
 
 			while ((line = brPoffsets.readLine()) != null) {
 				if ((!line.startsWith("#")) && (!line.equals(""))) {
@@ -109,7 +107,7 @@ public class TrafficLocationGraph {
 					
 					if (tmp[2].equals(""))
 						continue;
-					long loc0 = Long.parseLong(tmp[2]);
+					int loc0 = Integer.parseInt(tmp[2]);
 
 					if (!graph.containsVertex(loc0))
 						graph.addVertex(loc0);
@@ -119,12 +117,11 @@ public class TrafficLocationGraph {
 						if (tmp[i].equals(""))
 							continue;
 						
-						long loc1 = Long.parseLong(tmp[i]);
+						int loc1 = Integer.parseInt(tmp[i]);
 
 						if (!graph.containsVertex(loc1))
 							graph.addVertex(loc1);
 
-						// if (loc0==22598){System.out.println("loc0" + loc0 + "loc1" + loc1);}
 						graph.addEdge(loc0, loc1);
 					}
 				}
