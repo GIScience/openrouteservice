@@ -258,7 +258,7 @@ public class MiniGraphUI
 //                    mg.plotText(g2, lat, lon, nodeId + ": " + dist);
 //                    mg.plotNode(g2, nodeId, Color.red);
 //                }
-                path = algo.calcPath(fromRes.getClosestNode(), toRes.getClosestNode());
+                path = algo.calcPath(fromRes.getClosestNode(), toRes.getClosestNode(), -1);
                 sw.stop();
 
                 // if directed edges
@@ -305,7 +305,7 @@ public class MiniGraphUI
         // System.out.println(GraphUtility.getNodeInfo(graph, 60139, new DefaultEdgeFilter(new CarFlagEncoder()).direction(false, true)));
         // System.out.println(((GraphStorage) graph).debug(202947, 10));
 //        GraphUtility.printInfo(graph, 106511, 10);
-        return algo.calcPath(162810, 35120);
+        return algo.calcPath(162810, 35120, -1);
     }
 
     void plotNodeName( Graphics2D g2, int node )

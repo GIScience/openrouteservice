@@ -73,6 +73,8 @@ public class RoutePlan {
 	private boolean mSupportTurnRestrictions = false;
 	private boolean mGetSurfaceInformation = false;
 	private boolean mGetElevationInformation = false;
+	private int mSteepnessDifficultyLevel = -1;
+	private double mSteepnessMaxValue = -1;
 
 	public RoutePlan() {
 	}
@@ -320,5 +322,21 @@ public class RoutePlan {
 	 */
 	public void addViaWayPoint(WayPoint viaWayPoint) {
 		mViaWayPoints.add(viaWayPoint);
+	}
+	
+	public int getSteepnessDifficultyLevel() {
+	  return mSteepnessDifficultyLevel;	
+	}
+	
+	public void setSteepnessDifficultyLevel(int value) {
+		  mSteepnessDifficultyLevel =  value;	
+		}
+	
+	public double getSteepnessMaxValue() {
+		return mSteepnessMaxValue;	
+	}
+
+	public void setSteepnessMaxValue(double value) {
+		mSteepnessMaxValue =  value;	
 	}
 }

@@ -15,7 +15,9 @@
 package org.freeopenls.routeservice.graphhopper.extensions.weighting;
 
 import org.freeopenls.routeservice.graphhopper.extensions.storages.BikeAttributesGraphStorage;
+import org.freeopenls.routeservice.graphhopper.extensions.storages.GraphStorageUtils;
 import org.freeopenls.routeservice.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
+import org.freeopenls.routeservice.graphhopper.extensions.storages.HillIndexGraphStorage;
 import org.freeopenls.routeservice.graphhopper.extensions.storages.MotorcarAttributesGraphStorage;
 import org.freeopenls.routeservice.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
 import org.freeopenls.routeservice.routing.AvoidFeatureFlags;
@@ -41,6 +43,7 @@ public class AvoidFeaturesWeighting implements Weighting {
 	private HeavyVehicleAttributesGraphStorage gsHeavyVehicles;
 	private BikeAttributesGraphStorage gsBike;
 	private WheelchairAttributesGraphStorage gsWheelchair;
+	private HillIndexGraphStorage gsHillIndex;
     private Weighting superWeighting;
     private byte[] buffer;
 	
@@ -53,58 +56,25 @@ public class AvoidFeaturesWeighting implements Weighting {
 	private static final int BORDERS = AvoidFeatureFlags.Borders;
 	private static final int TUNNELS = AvoidFeatureFlags.Tunnels;
 	private static final int BRIDGES = AvoidFeatureFlags.Bridges;
+	private static final int HILLS = AvoidFeatureFlags.Hills;
 
-	public AvoidFeaturesWeighting(Weighting superWeighting, FlagEncoder encoder, int avoidFeatureType, GraphStorage graphStorage) {
+	public AvoidFeaturesWeighting(Weighting superWeighting, FlagEncoder encoder, int avoidFeatureType, GraphStorage graphStorage)  {
 		this.encoder = encoder;
 		this.superWeighting = superWeighting;
 		this.avoidFeatureType = avoidFeatureType;
         this.buffer = new byte[10];
+        
+		//setGraphStorage(graphStorage);
+        
+        gsMotorcar = GraphStorageUtils.getGraphExtension(graphStorage, MotorcarAttributesGraphStorage.class);
+        gsHeavyVehicles = GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class);
+        gsBike = GraphStorageUtils.getGraphExtension(graphStorage, BikeAttributesGraphStorage.class);
+        gsWheelchair = GraphStorageUtils.getGraphExtension(graphStorage, WheelchairAttributesGraphStorage.class);
+  	    if (((avoidFeatureType & HILLS) == HILLS))
+			gsHillIndex = GraphStorageUtils.getGraphExtension(graphStorage, HillIndexGraphStorage.class); 
 		
-		setGraphStorage(graphStorage);
-	}
-
-	private void setGraphStorage(GraphStorage graphStorage) {
-		if (graphStorage != null) {
-			if (graphStorage instanceof GraphHopperStorage) {
-				GraphHopperStorage ghs = (GraphHopperStorage) graphStorage;
-				GraphExtension ge = ghs.getExtension();
-				
-				if(ge instanceof ExtendedStorageSequence)
-				{
-					ExtendedStorageSequence ess = (ExtendedStorageSequence)ge;
-					GraphExtension[] exts = ess.getExtensions();
-					for (int i = 0; i < exts.length; i++)
-					{
-						if (assignExtension(exts[i]))
-							break;
-					}
-				}
-				else 
-				{
-					assignExtension(ge);
-				}
-			}
-		}
-	}
-	
-	private boolean assignExtension(GraphExtension ext)
-	{
-		if (ext instanceof MotorcarAttributesGraphStorage) {
-			this.gsMotorcar = (MotorcarAttributesGraphStorage)ext;
-			return true;
-		} else if (ext instanceof HeavyVehicleAttributesGraphStorage) {
-			this.gsHeavyVehicles = (HeavyVehicleAttributesGraphStorage) ext;
-			return true;
-		} else if (ext instanceof BikeAttributesGraphStorage) {
-			this.gsBike = (BikeAttributesGraphStorage) ext;
-			return true;
-		} else if (ext instanceof WheelchairAttributesGraphStorage)
-		{
-			this.gsWheelchair = (WheelchairAttributesGraphStorage) ext;
-			return true;
-		}
-		
-		return false;
+		//if (((avoidFeatureType & HILLS) == HILLS) && gsHillIndex == null)
+		//		throw new Exception("Unable to detect HillIndex storage");
 	}
 
 	@Override
@@ -234,6 +204,17 @@ public class AvoidFeaturesWeighting implements Weighting {
 							reduceFactor = SPEED_FACTOR;
 						}
 					}
+				}
+			}
+			
+			if ((avoidFeatureType & HILLS) == HILLS) {
+				int hi = gsHillIndex.getEdgeValue(edge.getOriginalEdge(), reverse, buffer);
+				if (hi > 0)
+				{
+					if (reduceFactor == 1.0)
+						reduceFactor = SPEED_FACTOR/hi;
+					else 
+						reduceFactor /= hi;
 				}
 			}
 		}

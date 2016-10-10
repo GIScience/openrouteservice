@@ -14,6 +14,7 @@ package org.freeopenls.locationutilityservice.geocoders;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.freeopenls.tools.HTTPUtility;
 import org.json.simple.JSONArray;
@@ -24,14 +25,27 @@ import com.graphhopper.util.Helper;
 
 public class PhotonGeocoder extends AbstractGeocoder {
 
+	private static final ArrayList<String> supportedLanguages = new ArrayList<String>();
+	
+	static
+	{
+		//{"message":"language kg is not supported, supported languages are: de, en, it, fr"}
+		supportedLanguages.add("de");
+		supportedLanguages.add("en");
+		supportedLanguages.add("it");
+		supportedLanguages.add("fr");
+	}
+	
 	public PhotonGeocoder(String geocodingURL, String reverseGeocodingURL, String userAgent) {
 		super(geocodingURL, reverseGeocodingURL, userAgent);
-		// TODO Auto-generated constructor stub
 	}
 
     public GeocodingResult[] geocode(String address, String languages, int limit) throws IOException
     {
     	String code = (languages == null) ? "en" : languages.toLowerCase();
+    	
+    	if (!supportedLanguages.contains(code))
+    		code = "en";
     	
 		String reqParams = "?q=" + URLEncoder.encode(GeocodingUtils.sanitizeAddress(address), "UTF-8") + "&limit=" + limit + "&lang=" + code;
 		String respContent = HTTPUtility.getResponse(geocodingURL + reqParams, 5000, userAgent, "UTF-8");

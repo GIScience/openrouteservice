@@ -20,8 +20,12 @@ import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -55,20 +59,23 @@ public class UserAuthenticationContext
 	
 	private class UserInfo
 	{
-		public int userId;
-		public String apiKey;
-		public String userIp;
-		public int sessions;
-		public int requests = 0;
-		public int requestsLimit = 0;
-		public Date expirationDate;
-		public Date sessionBegin;
+		private int userId;
+		private String apiKey;
+		private ArrayList<String> ipAddresses;
+		private String referer;
+		private int sessions;
+		private int requests = 0;
+		private int requestsLimit = 0;
+		private Date expirationDate;
+		private Date sessionBegin;
 		
-		public UserInfo(int userId, String apiKey, String userIp, Date expirationDate, int requestsLimit)
+		public UserInfo(int userId, String apiKey, Collection<String> ipAddressses, String referer, Date expirationDate, int requestsLimit)
 		{
 			this.userId = userId;
 			this.apiKey = apiKey;
-			this.userIp = userIp;
+			if (ipAddressses != null)
+				this.ipAddresses =  new ArrayList<>(ipAddresses);
+			this.referer = referer;
 			this.expirationDate = expirationDate;
 			this.sessionBegin = new Date(System.currentTimeMillis());
 			this.requestsLimit = requestsLimit;
@@ -86,10 +93,39 @@ public class UserAuthenticationContext
 			else
 				return false;
 		}
+		
+		public Boolean isIpAddressAllowed(String ip)
+		{
+			if (ipAddresses != null)
+			{
+				return ipAddresses.contains(ip);
+			}
+			
+			return false;
+		}
+		
+		public void setIpAddresses(Collection<String> ipAddresses)
+		{
+			if (this.ipAddresses == null)
+				this.ipAddresses = new ArrayList<>(ipAddresses);
+			else
+				this.ipAddresses.addAll(ipAddresses);
+		}
+		
+		public void setReferer(String referer)
+		{
+			this.referer = referer;
+		}
+		
+		public String getReferer()
+		{
+			return this.referer;
+		}
 	}
 	
 	private Connection m_connection;
 	private HashMap<String, UserInfo> m_activeUsers;
+	private List<String> m_invalidApiKeys;
 	private boolean m_logStatistics;
 	private ServletContext m_servletContext;
 	
@@ -104,6 +140,7 @@ public class UserAuthenticationContext
 
 		m_logStatistics = logStatisits;
 		m_activeUsers = new HashMap<String, UserAuthenticationContext.UserInfo>();
+		m_invalidApiKeys = new ArrayList<String>();
 		
 		m_servletContext = servletContext;
 		m_servletContext.addListener(new SessionListener(this));
@@ -143,7 +180,8 @@ public class UserAuthenticationContext
 		sql = "CREATE TABLE IF NOT EXISTS users_settings " + 
                 "(user_id INT PRIMARY KEY     NOT NULL," + 
 	             "user_available_features     INT, " + 
-                 "user_ip             TEXT    , " + 
+                 "user_ip_addresses           TEXT    , " + 
+                 "user_referer                TEXT    , " +
                  "user_requests_limitations   INT    NOT NULL)";
         stmt.execute(sql);
 
@@ -160,12 +198,17 @@ public class UserAuthenticationContext
 	
 	public boolean isValidUser(HttpServletRequest req, String apiKey, String userIp, Boolean createSession) 
 	{
+		synchronized (m_invalidApiKeys) {
+			if (m_invalidApiKeys.contains(apiKey))
+				return false;
+		}
+
 		boolean res = false;
 
 		UserInfo userInfo = null;
 
 		if (req.getSession(false) != null) {
-			userInfo = (UserInfo) req.getSession().getAttribute("UserInfo");
+			userInfo = (UserInfo) req.getSession().getAttribute("user_info");
 		}
 		if (userInfo == null) {
 			synchronized (m_activeUsers) {
@@ -174,7 +217,7 @@ public class UserAuthenticationContext
 		}
 
 		if (userInfo != null) {
-			if (userInfo.userIp != null && !userInfo.userIp.equals(userIp)) {
+			if (userInfo.ipAddresses != null && !userInfo.isIpAddressAllowed(userIp)) {
 				return false;
 			}
 
@@ -216,10 +259,22 @@ public class UserAuthenticationContext
 				rs = stmt.executeQuery("SELECT * FROM users_settings WHERE user_id = " + String.valueOf(userId) + ";");
 
 				while (rs.next()) {
-					String userIp2 = rs.getString("user_ip");
+					String IPs = rs.getString("user_ip_addresses");
 
-					if (!Helper.isEmpty(userIp2)) {
-						res = userIp2.equals(userIp);
+					if (!Helper.isEmpty(IPs)) {
+						Collection<String> ipAddresses = parseIpAddresses(IPs);
+						res = ipAddresses.contains(userIp);
+					}
+					
+					if (res)
+					{
+						String referer = rs.getString("user_referer");
+						if (!Helper.isEmpty(referer))
+						{
+							String reqReferer = req.getHeader("HTTP_REFERER");
+							if (reqReferer != null && !reqReferer.contains(reqReferer))
+								res = false;
+						}
 					}
 					break;
 				}
@@ -237,6 +292,13 @@ public class UserAuthenticationContext
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			res = false;
+		}
+		
+		if (!res)
+		{
+			synchronized (m_invalidApiKeys) {
+				m_invalidApiKeys.add(apiKey);
+			}
 		}
 	      
 		return res;
@@ -258,10 +320,10 @@ public class UserAuthenticationContext
 	private HttpSession createSessionInternal(HttpServletRequest req, UserInfo userInfo)
 	{
 		HttpSession session = req.getSession(true);
-		session.setAttribute("apikey", userInfo.apiKey);
+		session.setAttribute("api_key", userInfo.apiKey);
 		session.setMaxInactiveInterval(10 * 60);
-		session.setAttribute("UserInfo", userInfo);
-		session.setAttribute("RequestsLimitation", userInfo.requestsLimit);
+		session.setAttribute("user_info", userInfo);
+		session.setAttribute("user_requests_limitation", userInfo.requestsLimit);
 		
 		return session;
 	}
@@ -308,7 +370,7 @@ public class UserAuthenticationContext
 
 			while (rs.next()) {
 				java.sql.Date date = getDate(rs, "user_expiration_date");
-				userInfo = new UserInfo(userId, apiKey, null, date == null ? null : new Date(date.getTime()), 0);
+				userInfo = new UserInfo(userId, apiKey, null, null, date == null ? null : new Date(date.getTime()), 0);
 				break;
 			}
 
@@ -316,7 +378,14 @@ public class UserAuthenticationContext
 			
 			rs = stmt.executeQuery("SELECT * FROM users_settings WHERE user_id = " + String.valueOf(userId) + ";");
 			while (rs.next()) {
-				userInfo.userIp = rs.getString("user_ip");
+				String ipAddresses = rs.getString("user_ip_addresses");
+				if (!Helper.isEmpty(ipAddresses))
+				{
+					userInfo.setIpAddresses(parseIpAddresses(ipAddresses));
+				}
+				
+				userInfo.setReferer(rs.getString("user_referer"));
+
 				userInfo.requestsLimit = rs.getInt("user_requests_limitations");
 				break;
 			}
@@ -336,7 +405,7 @@ public class UserAuthenticationContext
 
 	public void endSession(HttpSession session)
 	{
-		String apiKey = (String)session.getAttribute("apikey");
+		String apiKey = (String)session.getAttribute("api_key");
 		
 		synchronized (m_activeUsers) {
 			UserInfo userInfo = m_activeUsers.get(apiKey);
@@ -360,10 +429,10 @@ public class UserAuthenticationContext
 	{
 		if (m_logStatistics)
 		{
-			UserInfo userInfo = (UserInfo)req.getSession().getAttribute("UserInfo");
+			UserInfo userInfo = (UserInfo)req.getSession().getAttribute("user_info");
 			userInfo.requests++;
 			
-			if (userInfo.requests >= 5)
+			if (userInfo.requests >= 100)
 			{
 				writeUserStatistics(userInfo);
 			}
@@ -402,5 +471,20 @@ public class UserAuthenticationContext
 		{
 			
 		}
+	}
+	
+	private Collection<String> parseIpAddresses(String ipAddresses)
+	{
+		String[] array = ipAddresses.split(",");
+		if (array != null)
+		{
+			ArrayList<String> result = new ArrayList<String>(); 
+		    for(String e : array)
+		    	result.add(e.trim());
+		    
+		    return result;
+		}
+		
+		return null;
 	}
 }

@@ -88,6 +88,9 @@ public class PiwikRequestFilter implements Filter {
 					String routePref = getRoutePreferenceType(strRequest);
 					if (routePref != null)
 						piwikTracker.setPageCustomVariable("RouteType", routePref);
+					String apiKey = req.getParameter("api_key");
+					if (apiKey != null)
+						piwikTracker.setPageCustomVariable("APIKey", apiKey);
 				}
 
 				// proxy.cgi has to include at least the following line
@@ -112,10 +115,12 @@ public class PiwikRequestFilter implements Filter {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} else {
+		}
+		else
+		{
 			chain.doFilter(request, response);
 		}
-
+		
 		return;
 	}
 

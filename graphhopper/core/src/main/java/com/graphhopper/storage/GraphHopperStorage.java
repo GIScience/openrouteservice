@@ -444,4 +444,16 @@ public final class GraphHopperStorage implements GraphStorage, Graph
     {
         return baseGraph.getExtension();
     }
+    
+    public boolean isValidEdge(int edgeId){
+    	
+        long edgePointer = (long) edgeId * baseGraph.edgeAccess.getEntryBytes();
+
+        int baseNode = baseGraph.edgeAccess.edges.getInt(edgePointer + baseGraph.edgeAccess.E_NODEA);
+        // some edges are deleted and have a negative node
+        if (baseNode == EdgeAccess.NO_NODE)
+            return false;
+    	
+        return true;
+    }
 }

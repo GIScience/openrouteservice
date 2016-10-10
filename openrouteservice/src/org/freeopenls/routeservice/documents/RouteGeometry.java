@@ -7,9 +7,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.freeopenls.constants.RouteService;
 import org.freeopenls.error.ServiceError;
-import org.freeopenls.gml.Pos;
-import org.freeopenls.overlay.Overlay;
-import org.freeopenls.routeservice.documents.geometry.Generalizer;
 import org.freeopenls.routeservice.routing.RoutePlan;
 import org.freeopenls.routeservice.routing.RouteResult;
 import org.freeopenls.tools.FormatUtility;
@@ -18,21 +15,9 @@ import org.freeopenls.tools.CoordTransform;
 import com.graphhopper.GHResponse;
 import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jump.feature.AttributeType;
-import com.vividsolutions.jump.feature.BasicFeature;
 import com.vividsolutions.jump.feature.Feature;
 import com.vividsolutions.jump.feature.FeatureCollection;
-import com.vividsolutions.jump.feature.FeatureDataset;
-import com.vividsolutions.jump.feature.FeatureSchema;
-
-
-
-
-
 
 import net.opengis.gml.DirectPositionType;
 import net.opengis.gml.EnvelopeType;

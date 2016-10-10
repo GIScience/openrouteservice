@@ -676,6 +676,7 @@ public class OSMReader implements DataReader
 
     protected double getElevation( OSMNode node )
     {
+   	
         return eleProvider.getEle(node.getLat(), node.getLon());
     }
 

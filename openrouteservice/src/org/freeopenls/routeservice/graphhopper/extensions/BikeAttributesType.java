@@ -19,4 +19,5 @@ public class BikeAttributesType {
 	public static final int Restrictions = 1;
 	public static final int Passability = 2;
 	public static final int WaySurface = 4;
+	public static final int DifficultyGrade = 8;
 }

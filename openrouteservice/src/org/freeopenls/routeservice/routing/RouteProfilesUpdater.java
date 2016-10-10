@@ -283,7 +283,7 @@ public class RouteProfilesUpdater {
 					m_updateStatus = "preparing profile " + Integer.toString(i);
 
 					GraphHopper gh = RouteProfile.initGraphHopper(osmFile, profile.getConfigRootPath(),
-							rpc.ConfigFileName, tempLocation, rpc.DynamicWeighting, rpc.StoreSurfaceInformation, rpc.UseTrafficInformation, rpc.BBox, RouteProfileManager.getInstance().getProfiles());
+							rpc.ConfigFileName, tempLocation, rpc.DynamicWeighting, rpc.StoreSurfaceInformation, rpc.StoreHillIndex, rpc.UseTrafficInformation, rpc.BBox, RouteProfileManager.getInstance().getProfiles());
 
 					if (gh != null) {
 						profile.updateGH(gh);

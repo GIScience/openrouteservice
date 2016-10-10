@@ -283,6 +283,8 @@ public class AvoidList {
 					flags |= AvoidFeatureFlags.Borders;
 				else if (aft == AvoidFeatureType.FORDS)
 					flags |= AvoidFeatureFlags.Fords;
+				else if (aft == AvoidFeatureType.HILLS)
+					flags |= AvoidFeatureFlags.Hills;
 			}
 			
 			return flags;

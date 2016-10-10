@@ -143,6 +143,10 @@ public class RouteManagerConfiguration {
                 {
                     ppc.StoreSurfaceInformation = Boolean.parseBoolean(currentText.toString());
                 }
+                else if (elemName.equals("StoreHillIndex"))
+                {
+                    ppc.StoreHillIndex = Boolean.parseBoolean(currentText.toString());
+                }
                 else if (elemName.equals("Enabled"))
                 {
     				ppc.Enabled = Boolean.parseBoolean(currentText.toString()); 

@@ -30,10 +30,13 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.freeopenls.routeservice.documents.instruction.HillIndexCalculator;
 import org.freeopenls.routeservice.graphhopper.extensions.storages.BikeAttributesGraphStorage;
+import org.freeopenls.routeservice.graphhopper.extensions.storages.GraphStorageUtils;
 import org.freeopenls.routeservice.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
+import org.freeopenls.routeservice.graphhopper.extensions.storages.HillIndexGraphStorage;
 import org.freeopenls.routeservice.graphhopper.extensions.storages.MotorcarAttributesGraphStorage;
-import org.freeopenls.routeservice.graphhopper.extensions.storages.WaySurfaceTypeStorage;
+import org.freeopenls.routeservice.graphhopper.extensions.storages.WaySurfaceTypeGraphStorage;
 import org.freeopenls.routeservice.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
 import org.freeopenls.routeservice.graphhopper.extensions.util.ConvertUtils;
 import org.freeopenls.routeservice.graphhopper.extensions.util.VehicleRestrictionCodes;
@@ -45,6 +48,7 @@ import org.freeopenls.routeservice.routing.RouteProfileManager;
 import com.graphhopper.reader.OSMNode;
 import com.graphhopper.reader.OSMReader;
 import com.graphhopper.reader.OSMWay;
+import com.graphhopper.reader.dem.HeightTile;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.WaySurfaceDescription;
 import com.graphhopper.storage.GraphExtension;
@@ -62,7 +66,9 @@ public class ORSOSMReader extends OSMReader {
 	private BikeAttributesGraphStorage gsBikeAttrs;  // 2
 	private WheelchairAttributesGraphStorage gsWheelchair; // 3
 	
-	private WaySurfaceTypeStorage gsWaySurfaceType;
+	private WaySurfaceTypeGraphStorage gsWaySurfaceType;
+	private HillIndexGraphStorage gsHillIndex;
+	private HillIndexCalculator hillIndexCalc;
 	
 	private int[] wayFlags = new int[4];
 	private int heavyVehicleType = 0;
@@ -97,14 +103,14 @@ public class ORSOSMReader extends OSMReader {
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
 			"primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential" };
 
-	public ORSOSMReader(GraphHopperStorage storage, WaySurfaceTypeStorage waySurfaceStorage, Envelope bbox, HashMap<Integer, Long> tmcEdges, RouteProfile refProfile) {
+	public ORSOSMReader(GraphHopperStorage storage, WaySurfaceTypeGraphStorage waySurfaceStorage, Envelope bbox, HashMap<Integer, Long> tmcEdges, RouteProfile refProfile) {
 		super(storage);
 		
 		this.bbox = bbox;
 		this.tmcEdges = tmcEdges;
 		this.refProfile = refProfile;
 		this.gsWaySurfaceType = waySurfaceStorage;
-
+		
 		motorVehicleRestrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access"));
 
 		motorVehicleRestrictedValues.add("private");
@@ -121,47 +127,28 @@ public class ORSOSMReader extends OSMReader {
 		ferries.add("shuttle_train");
 		ferries.add("ferry");
 
-		if (storage instanceof GraphHopperStorage) {
-			GraphHopperStorage ghs = (GraphHopperStorage) storage;
-			GraphExtension ge = ghs.getExtension();
+		gsMotorcarAttrs = GraphStorageUtils.getGraphExtension(storage, MotorcarAttributesGraphStorage.class);
+		if (gsMotorcarAttrs != null)
+			this.attributeTypes = gsMotorcarAttrs.getAttributeTypes();
 
-			if (ge instanceof ExtendedStorageSequence) {
-				ExtendedStorageSequence ess = (ExtendedStorageSequence) ge;
-				GraphExtension[] exts = ess.getExtensions();
-				for (int i = 0; i < exts.length; i++) {
-					assignExtension(exts[i]);
-					//if (assignExtension(exts[i]))
-					//	break;
-				}
-			} else {
-				assignExtension(ge);
-			}
-		}
+		gsHeavyVehicleAttrs = GraphStorageUtils.getGraphExtension(storage, HeavyVehicleAttributesGraphStorage.class);
+		if (gsHeavyVehicleAttrs != null)
+			this.attributeTypes = gsHeavyVehicleAttrs.getAttributeTypes();
+		
+		gsBikeAttrs = GraphStorageUtils.getGraphExtension(storage, BikeAttributesGraphStorage.class);
+		if (gsBikeAttrs != null)
+			this.attributeTypes = gsBikeAttrs.getAttributeTypes();
+		
+		gsWheelchair = GraphStorageUtils.getGraphExtension(storage, WheelchairAttributesGraphStorage.class);
+		
+		this.gsHillIndex = GraphStorageUtils.getGraphExtension(storage, HillIndexGraphStorage.class);;
+		if (this.gsHillIndex != null)
+			this.hillIndexCalc = new HillIndexCalculator();
 		
 		sidewalkJunctions = new HashMap<Long, List<WayWithSidewalk>>();
+		
+		HeightTile.CUSTOM_ROUND = true;
 	}
-
-	private boolean assignExtension(GraphExtension ext) {
-		if (ext instanceof MotorcarAttributesGraphStorage) {
-			this.gsMotorcarAttrs = (MotorcarAttributesGraphStorage) ext;
-			this.attributeTypes = gsMotorcarAttrs.getAttributeTypes();
-			return true;
-		} else if (ext instanceof HeavyVehicleAttributesGraphStorage) {
-			this.gsHeavyVehicleAttrs = (HeavyVehicleAttributesGraphStorage) ext;
-			this.attributeTypes = gsHeavyVehicleAttrs.getAttributeTypes();
-			return true;
-		} else if (ext instanceof BikeAttributesGraphStorage) {
-			this.gsBikeAttrs = (BikeAttributesGraphStorage) ext;
-			this.attributeTypes = gsBikeAttrs.getAttributeTypes();
-			return true;
-		} else if (ext instanceof WheelchairAttributesGraphStorage) {
-			this.gsWheelchair = (WheelchairAttributesGraphStorage) ext;
-			return true;
-		}
-
-		return false;
-	}
-	
 	
 	public OSMReader setEncodingManager( EncodingManager em )
 	{
@@ -797,6 +784,21 @@ public class ORSOSMReader extends OSMReader {
 			
 			if (gsWaySurfaceType != null) {
 				gsWaySurfaceType.setEdgeValue(edge.getEdge(), waySurfaceDesc);
+			}
+			
+			if (gsHillIndex != null)
+			{
+				boolean revert = edge.getBaseNode() > edge.getAdjNode();
+
+				PointList points = edge.fetchWayGeometry(3);
+			
+				byte hillIndex = hillIndexCalc.getHillIndex(points, false);
+				byte reverseHillIndex = hillIndexCalc.getHillIndex(points, true);
+
+				if (revert)
+					gsHillIndex.setEdgeValue(edge.getEdge(), reverseHillIndex, hillIndex);
+				else
+					gsHillIndex.setEdgeValue(edge.getEdge(), hillIndex, reverseHillIndex);
 			}
 
 			if (gsMotorcarAttrs != null) {

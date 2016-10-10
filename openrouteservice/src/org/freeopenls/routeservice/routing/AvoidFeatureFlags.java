@@ -24,4 +24,5 @@ public class AvoidFeatureFlags {
 	public static final int Fords = 128; // 1 << 7;
 	public static final int Bridges = 256; // does not work as it is greater than byte limit of 255.
 	public static final int Borders = 512; 
+	public static final int Hills = 1024;
 }

@@ -21,11 +21,13 @@ import java.util.ArrayList;
 
 import org.freeopenls.routeservice.graphhopper.extensions.storages.BikeAttributesGraphStorage;
 import org.freeopenls.routeservice.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
+import org.freeopenls.routeservice.graphhopper.extensions.storages.HillIndexGraphStorage;
 import org.freeopenls.routeservice.graphhopper.extensions.storages.MotorcarAttributesGraphStorage;
 import org.freeopenls.routeservice.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GHDirectory;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphExtension.ExtendedStorageSequence;
@@ -38,10 +40,12 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 
 	private Boolean dynamicWeighting;
 	private Boolean surfaceInfo;
+	private Boolean hillIndex;
 	
-	public ORSGraphStorageFactory(Boolean dynamicWeighting, Boolean surfaceInfo) {
+	public ORSGraphStorageFactory(Boolean dynamicWeighting, Boolean surfaceInfo, Boolean hillIndex) {
 		this.dynamicWeighting = dynamicWeighting;
 		this.surfaceInfo = surfaceInfo;
+		this.hillIndex = hillIndex;
 	}
 
 	@Override
@@ -71,6 +75,12 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 		}
 		else if (dynamicWeighting) {
 		
+			if (gh.hasElevation() && hillIndex)
+			{
+				GraphExtension ext =  new HillIndexGraphStorage();
+				geRestrictions.add(ext);
+			}
+			
 			int attrTypes = 0;
 			if (encodingManager.supports("heavyvehicle"))
 			{
@@ -93,9 +103,14 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 			
 			if (encodingManager.supports("bike") || encodingManager.supports("safetybike") || encodingManager.supports("cycletourbike") || encodingManager.supports("mtb")  || encodingManager.supports("racingbike"))
 			{
+				//gh.hasElevation()
+				
 				attrTypes = BikeAttributesType.WayType;
 				 if (surfaceInfo)
 					attrTypes |= BikeAttributesType.WaySurface;
+				 if (gh.hasElevation())
+					 attrTypes |= BikeAttributesType.DifficultyGrade;
+				 
 				GraphExtension ext = new BikeAttributesGraphStorage(attrTypes);
 				geRestrictions.add(ext);
 			}

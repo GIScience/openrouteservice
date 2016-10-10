@@ -32,6 +32,7 @@ import org.freeopenls.routeservice.graphhopper.extensions.ORSWeightingFactory;
 import org.freeopenls.routeservice.graphhopper.extensions.edgefilters.*;
 import org.freeopenls.routeservice.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import org.freeopenls.routeservice.graphhopper.extensions.util.VehicleRestrictionCodes;
+import org.freeopenls.routeservice.graphhopper.extensions.weighting.SteepnessDifficultyWeighting;
 import org.freeopenls.routeservice.isochrones.IsochroneMap;
 import org.freeopenls.routeservice.isochrones.IsochroneMapBuilder;
 import org.freeopenls.routeservice.mapmatching.MapMatcher;
@@ -61,6 +62,7 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Instruction;
 import com.graphhopper.util.InstructionAnnotation;
 import com.graphhopper.util.InstructionList;
+import com.graphhopper.util.PMap;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
@@ -77,6 +79,7 @@ public class RouteProfile {
 	private double mMinDistance;
 	private boolean mHasDynamicWeights;
 	private boolean mHasSurfaceInfo;
+	private boolean mHasHillIndex;
 	private boolean mUseTrafficInfo;
 	private Integer[] mRoutePrefs;
 	private Integer mUseCounter;
@@ -93,17 +96,18 @@ public class RouteProfile {
 		mMinDistance = rpc.MinimumDistance == null ? 0 : rpc.MinimumDistance;
 		mHasDynamicWeights = rpc.DynamicWeighting == null ? false : rpc.DynamicWeighting;
 		mHasSurfaceInfo = rpc.StoreSurfaceInformation == null ? false : rpc.StoreSurfaceInformation;
+		mHasHillIndex = rpc.StoreHillIndex == null ? false : rpc.StoreHillIndex;
 		mUseTrafficInfo = /*mHasDynamicWeights &&*/ hasCarPreferences() ? rpc.UseTrafficInformation : false;
 
 		mGraphHopper = initGraphHopper(osmFile, configRoot, rpc.ConfigFileName, rpc.GraphLocation,
-				mHasDynamicWeights, mHasSurfaceInfo, mUseTrafficInfo, rpc.BBox, profiles);
+				mHasDynamicWeights, mHasSurfaceInfo, mHasHillIndex,  mUseTrafficInfo, rpc.BBox, profiles);
 
 		mConfigRootPath = configRoot;
 		mProfileConfig = rpc;
 	}
 
 	public static ORSGraphHopper initGraphHopper(String osmFile, String configRoot, String configFileName,
-			String graphLocation, boolean dynamicWeighting, boolean surfaceInfo, boolean useTmc, Envelope bbox, RouteProfilesCollection profiles) throws IOException {
+			String graphLocation, boolean dynamicWeighting, boolean surfaceInfo, boolean hillIndex, boolean useTmc, Envelope bbox, RouteProfilesCollection profiles) throws IOException {
 		String graphConfig = FileUtility.combinePaths(new String[] { configRoot, configFileName });
 		CmdArgs args = CmdArgs.readFromConfig(graphConfig, "graphhopper.config");
 		args.put("osmreader.osm", osmFile);
@@ -118,8 +122,8 @@ public class RouteProfile {
 		catch(Exception ex)
 		{}
 		
-		ORSGraphHopper gh = (ORSGraphHopper) new ORSGraphHopper(bbox, surfaceInfo, useTmc, refProfile).init(args);
-		gh.setGraphStorageFactory(new ORSGraphStorageFactory(dynamicWeighting, surfaceInfo));
+		ORSGraphHopper gh = (ORSGraphHopper) new ORSGraphHopper(bbox, surfaceInfo, hillIndex, useTmc, refProfile).init(args);
+		gh.setGraphStorageFactory(new ORSGraphStorageFactory(dynamicWeighting, surfaceInfo, hillIndex));
 
 		gh.importOrLoad();
 		gh.setWeightingFactory(new ORSWeightingFactory(RealTrafficDataProvider.getInstance()));
@@ -144,8 +148,15 @@ public class RouteProfile {
 	
 	public Geometry getEdgeGeometry(int edgeId)
 	{
-		EdgeIteratorState iter = mGraphHopper.getGraphHopperStorage().getEdgeIteratorState(edgeId, Integer.MIN_VALUE);
-		PointList points = iter.fetchWayGeometry(3);
+		
+		return getEdgeGeometry(edgeId, 3, Integer.MIN_VALUE);
+	}
+	
+	
+	public Geometry getEdgeGeometry(int edgeId, int mode, int adjnodeid)
+	{
+		EdgeIteratorState iter = mGraphHopper.getGraphHopperStorage().getEdgeIteratorState(edgeId, adjnodeid);
+		PointList points = iter.fetchWayGeometry(mode);
 		if (points.size() > 1)
 		{
 			Coordinate[] coords = new Coordinate[points.size()];
@@ -247,7 +258,7 @@ public class RouteProfile {
 					FileUtils.deleteDirectory(srcDir);
 
 					mGraphHopper = initGraphHopper(ghOld.getOSMFile(), mConfigRootPath, mProfileConfig.ConfigFileName,
-							mProfileConfig.GraphLocation, mProfileConfig.DynamicWeighting, mProfileConfig.StoreSurfaceInformation,
+							mProfileConfig.GraphLocation, mProfileConfig.DynamicWeighting, mProfileConfig.StoreSurfaceInformation, mProfileConfig.StoreHillIndex,
 							mProfileConfig.UseTrafficInformation, mProfileConfig.BBox, RouteProfileManager.getInstance().getProfiles());
 
 					break;
@@ -372,7 +383,7 @@ public class RouteProfile {
 		return true;
 	}
 
-	public GHResponse getRoute(double lat0, double lon0, double lat1, double lon1, RoutePlan routePlan, short code)
+	public GHResponse getRoute(double lat0, double lon0, double lat1, double lon1, RoutePlan routePlan, PMap props)
 			throws Exception {
 
 		GHResponse resp = null;
@@ -387,124 +398,131 @@ public class RouteProfile {
 			EdgeFilter edgeFilter = null;
 			FlagEncoder flagEncoder = mGraphHopper.getEncodingManager().getEncoder(vehicle);
 
-			if (code == 1) {
-				DistanceCalc dc = new DistanceCalcEarth();
-				double dist = dc.calcDist(lat0, lon0, lat1, lon1);
-				resp = new GHResponse();
-				resp.setDistance(dist);
+			if (routePlan.hasAvoidAreas()) {
+				if (vehicle.isEmpty())
+					throw new Exception("vehicle parameter is empty.");
 
-				// routePlan.getMaxSpeed()
-				double maxSpeed = Math.max(flagEncoder.getMaxSpeed(), routePlan.getMaxSpeed());
-				long time = (long) (dist * 3600 / maxSpeed);
-				resp.setTime(time);
-
-				PointList points = new PointList();
-				points.add(lat0, lon0);
-				points.add(lat1, lon1);
-				resp.setPoints(points);
-				
-				InstructionList instructions = new InstructionList(null);
-				InstructionAnnotation ia = new InstructionAnnotation(1, "");
-				Instruction instr = new Instruction(0, "", ia, points);
-				instr.setDistance(dist);
-				instr.setTime(time);
-				instructions.add(instr);
-				resp.setInstructions(instructions);
-			} else {
-				if (routePlan.hasAvoidAreas()) {
-					if (vehicle.isEmpty())
-						throw new Exception("vehicle parameter is empty.");
-
-					if (!mGraphHopper.getEncodingManager().supports(vehicle)) {
-						throw new IllegalArgumentException("Vehicle " + vehicle + " unsupported. " + "Supported are: "
-								+ mGraphHopper.getEncodingManager());
-					}
-
-					edgeFilter = new AvoidAreasEdgeFilter(flagEncoder, routePlan.getAvoidAreas());
+				if (!mGraphHopper.getEncodingManager().supports(vehicle)) {
+					throw new IllegalArgumentException("Vehicle " + vehicle + " unsupported. " + "Supported are: "
+							+ mGraphHopper.getEncodingManager());
 				}
 
-				if (RoutePreferenceType.isCar(routePref)) {
-					if (RoutePreferenceType.isHeavyVehicle(routePref)) {
-						edgeFilter = createHeavyVehicleEdgeFilter(routePlan, mGraphHopper, flagEncoder, edgeFilter);
-						/*
-						 * double maxSpeed = 80; if (routePlan.getMaxSpeed() ==
-						 * -1) routePlan.setMaxSpeed(maxSpeed);
-						 */
-					} else if (routePlan.hasVehicleAttributes()) {
-						edgeFilter = createWayRestrictionsEdgeFilter(routePlan, mGraphHopper, flagEncoder, edgeFilter);
-					}
-				} else if (routePref == RoutePreferenceType.WHEELCHAIR) {
-					if (routePlan.hasWheelchairAttributes()) {
-						edgeFilter = createWheelchairRestrictionsEdgeFilter(routePlan, mGraphHopper, flagEncoder,
-								edgeFilter);
-					}
-				}
-
-				int weightingMethod = routePlan.getWeightingMethod();
-
-				GHRequest req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
-				req.setVehicle(vehicle);
-				req.setAlgorithm("dijkstrabi");
-				req.setMaxSpeed(routePlan.getMaxSpeed());
-
-				if (supportWeightingMethod(routePref)) {
-					if (weightingMethod == WeightingMethod.FASTEST)
-						req.setWeighting("fastest");
-					else if (weightingMethod == WeightingMethod.SHORTEST)
-						req.setWeighting("shortest");
-					else if (weightingMethod == WeightingMethod.RECOMMENDED)
-						req.setWeighting("recommended");
-				}
-
-				if ((routePref == RoutePreferenceType.BICYCLE_TOUR || routePref == RoutePreferenceType.BICYCLE_MTB)
-						&& weightingMethod == WeightingMethod.FASTEST) {
-					req.setWeighting("recommended");
-				}
-
-				if ((routePref == RoutePreferenceType.BICYCLE_TOUR || (routePref == RoutePreferenceType.HEAVY_VEHICLE && HeavyVehicleAttributes.Hgv == routePlan
-						.getVehicleType())) && weightingMethod == WeightingMethod.RECOMMENDED) {
-					req.setWeighting("recommended_pref");
-				}
-
-				if (routePlan.hasAvoidFeatures()) {
-					if (RoutePreferenceType.isCar(routePref) || RoutePreferenceType.isBicycle(routePref)
-							|| routePref == RoutePreferenceType.PEDESTRIAN
-							|| routePref == RoutePreferenceType.WHEELCHAIR) {
-						// req.setWeighting("AvoidFeatures-" +
-						// routePlan.getAvoidFeatureTypes());
-						EdgeFilter ef = new AvoidFeaturesEdgeFilter(flagEncoder, routePlan.getAvoidFeatureTypes(),
-								mGraphHopper.getGraphHopperStorage());
-						edgeFilter = createEdgeFilter(ef, edgeFilter);
-					}
-				}
-
-				if (routePlan.getUseRealTimeTraffic()/* && mHasDynamicWeights */) {
-					if (RoutePreferenceType.isCar(routePref) && weightingMethod != WeightingMethod.SHORTEST
-							&& RealTrafficDataProvider.getInstance().isInitialized()) {
-						req.setWeighting("TrafficBlockWeighting-" + routePref);
-
-						EdgeFilter ef = new BlockedEdgesEdgeFilter(flagEncoder, RealTrafficDataProvider.getInstance()
-								.getBlockedEdges(mGraphHopper.getGraphHopperStorage()));
-						edgeFilter = createEdgeFilter(ef, edgeFilter);
-					}
-				}
-
-				if (RoutePreferenceType.isCar(routePref) && RealTrafficDataProvider.getInstance().isInitialized())
-					req.setEdgeAnnotator(new TrafficEdgeAnnotator(mGraphHopper.getGraphHopperStorage()));
-
-				if (edgeFilter != null) {
-					req.setEdgeFilter(edgeFilter);
-				}
-
-				if (routePlan.getSurfaceInformation()) {
-					if (mHasSurfaceInfo)
-						req.setWaySurfaceDescriptor(new ORSWaySurfaceDescriptor(mGraphHopper.getWaySurfaceStorage()));
-					else
-						routePlan.setSurfaceInformation(false);
-				}
-
-				resp = mGraphHopper.route(req);
+				edgeFilter = new AvoidAreasEdgeFilter(flagEncoder, routePlan.getAvoidAreas());
 			}
+
+			if (RoutePreferenceType.isCar(routePref)) {
+				if (RoutePreferenceType.isHeavyVehicle(routePref)) {
+					edgeFilter = createHeavyVehicleEdgeFilter(routePlan, mGraphHopper, flagEncoder, edgeFilter);
+					/*
+					 * double maxSpeed = 80; if (routePlan.getMaxSpeed() ==
+					 * -1) routePlan.setMaxSpeed(maxSpeed);
+					 */
+				} else if (routePlan.hasVehicleAttributes()) {
+					edgeFilter = createWayRestrictionsEdgeFilter(routePlan, mGraphHopper, flagEncoder, edgeFilter);
+				}
+			} else if (routePref == RoutePreferenceType.WHEELCHAIR) {
+				if (routePlan.hasWheelchairAttributes()) {
+					edgeFilter = createWheelchairRestrictionsEdgeFilter(routePlan, mGraphHopper, flagEncoder,
+							edgeFilter);
+				}
+			}
+
+			int weightingMethod = routePlan.getWeightingMethod();
+
+			GHRequest req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
+			req.setVehicle(vehicle);
+			req.setAlgorithm("dijkstrabi");
+			req.setMaxSpeed(routePlan.getMaxSpeed());
+
+			if (supportWeightingMethod(routePref)) {
+				if (weightingMethod == WeightingMethod.FASTEST)
+					req.setWeighting("fastest");
+				else if (weightingMethod == WeightingMethod.SHORTEST)
+					req.setWeighting("shortest");
+				else if (weightingMethod == WeightingMethod.RECOMMENDED)
+					req.setWeighting("recommended");
+			}
+
+			if ((routePref == RoutePreferenceType.BICYCLE_TOUR || routePref == RoutePreferenceType.BICYCLE_MTB)
+					&& weightingMethod == WeightingMethod.FASTEST) {
+				req.setWeighting("recommended");
+			}
+
+			if ((routePref == RoutePreferenceType.BICYCLE_TOUR || (routePref == RoutePreferenceType.HEAVY_VEHICLE && HeavyVehicleAttributes.Hgv == routePlan
+					.getVehicleType())) && weightingMethod == WeightingMethod.RECOMMENDED) {
+				req.setWeighting("recommended_pref");
+			}
+			
+			boolean bAvoidHills = false;
+
+			if (routePlan.hasAvoidFeatures()) {
+				if (RoutePreferenceType.isCar(routePref) || RoutePreferenceType.isBicycle(routePref)
+						|| routePref == RoutePreferenceType.PEDESTRIAN
+						|| routePref == RoutePreferenceType.WHEELCHAIR) {
+					EdgeFilter ef = new AvoidFeaturesEdgeFilter(flagEncoder, routePlan.getAvoidFeatureTypes(),
+							mGraphHopper.getGraphHopperStorage());
+					edgeFilter = createEdgeFilter(ef, edgeFilter);
+					
+					if ((routePlan.getAvoidFeatureTypes() & AvoidFeatureFlags.Hills) == AvoidFeatureFlags.Hills)
+					{
+						req.getHints().put("AvoidHills", true);
+						req.getHints().put("SteepnessMaximum", routePlan.getSteepnessMaxValue());
+						bAvoidHills = true;
+					}
+				}
+			}
+			
+			if (!bAvoidHills && routePref == RoutePreferenceType.BICYCLE_ELECTRO)
+			{
+				req.getHints().put("AvoidHills", true);
+				req.getHints().put("SteepnessMaximum", routePlan.getSteepnessMaxValue());
+				bAvoidHills = true;
+			}
+			
+			if (!((routePlan.getAvoidFeatureTypes() & AvoidFeatureFlags.Hills) == AvoidFeatureFlags.Hills))
+			{
+				if (routePlan.getSteepnessDifficultyLevel() >= 0 || routePlan.getSteepnessMaxValue() >= 0)
+				{
+					req.getHints().put("SteepnessDifficulty", true);
+					req.getHints().put("SteepnessDifficultyLevel", routePlan.getSteepnessDifficultyLevel());
+					req.getHints().put("SteepnessMaximum", routePlan.getSteepnessMaxValue());
+					req.setAlgorithm("dijkstra");
+				}
+			}
+			
+			if (routePlan.getUseRealTimeTraffic()/* && mHasDynamicWeights */) {
+				if (RoutePreferenceType.isCar(routePref) && weightingMethod != WeightingMethod.SHORTEST
+						&& RealTrafficDataProvider.getInstance().isInitialized()) {
+					req.getHints().put("TrafficBlockWeighting", true);
+
+					EdgeFilter ef = new BlockedEdgesEdgeFilter(flagEncoder, RealTrafficDataProvider.getInstance()
+							.getBlockedEdges(mGraphHopper.getGraphHopperStorage()));
+					edgeFilter = createEdgeFilter(ef, edgeFilter);
+				}
+			}
+
+			if (RoutePreferenceType.isCar(routePref) && RealTrafficDataProvider.getInstance().isInitialized())
+				req.setEdgeAnnotator(new TrafficEdgeAnnotator(mGraphHopper.getGraphHopperStorage()));
+
+			if (edgeFilter != null) {
+				req.setEdgeFilter(edgeFilter);
+			}
+
+			if (routePlan.getSurfaceInformation()) {
+				if (mHasSurfaceInfo)
+					req.setWaySurfaceDescriptor(new ORSWaySurfaceDescriptor(mGraphHopper.getWaySurfaceStorage()));
+				else
+					routePlan.setSurfaceInformation(false);
+			}
+
+			if (props.has("direct_segment"))
+			{
+				req.getHints().merge(props);
+				resp = mGraphHopper.directRoute(req);
+			}
+			else 
+				resp = mGraphHopper.route(req);
+
 			endUseGH();
 		} catch (Exception ex) {
 			endUseGH();
@@ -660,11 +678,13 @@ public class RouteProfile {
 			return "CYCLETOURBIKE";
 		else if (routePref == RoutePreferenceType.BICYCLE_SAFETY) // custom
 			return "SAFETYBIKE";
+		else if (routePref == RoutePreferenceType.BICYCLE_ELECTRO) // custom
+			return "BIKE";
 		else if (routePref == RoutePreferenceType.MOTORBIKE) // custom
 			return "MOTORBIKE";
 		else if (routePref == RoutePreferenceType.WHEELCHAIR) // custom
 			return "WHEELCHAIR";
-		else if (routePref == RoutePreferenceType.ELECTRO_VEHICLE) // custom
+		else if (routePref == RoutePreferenceType.ELECTRO_CAR) // custom
 			return "EVEHICLE";
 		else if (routePref == RoutePreferenceType.HEAVY_VEHICLE) // custom
 			return "HEAVYVEHICLE";

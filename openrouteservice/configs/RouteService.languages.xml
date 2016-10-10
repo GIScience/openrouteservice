@@ -22,7 +22,8 @@
 			<Right>Rechts abbiegen</Right>
 			<SharpRight>Scharf rechts abbiegen</SharpRight>
 			<UTurn>Wenden Sie</UTurn>
-            <InitialHeading>north, northeast, east, southeast, south, southwest, west, northwest</InitialHeading>
+                        <InitialHeading>north, northeast, east, southeast, south, southwest, west, northwest</InitialHeading>
+			<Roundabout>Im Kreisverkehr nehmen Sie die %1$d Ausfahrt und biegen in die Strasse %2$s ab.</Roundabout>
 		</Direction>
 		<ActionNumber>Anweisungsnr.</ActionNumber>
 		<FillWord>
@@ -456,6 +457,7 @@
           <Right>вправо</Right>
           <SharpRight>круто направо</SharpRight>
           <UTurn>Развернитесь</UTurn>
+		  <Roundabout>На круге съезжайте в съезд %1$d на %2$s.</Roundabout>
       </Direction>
       <ActionNumber>Actionno.</ActionNumber>
       <FillWord>
@@ -787,6 +789,7 @@
            <SharpRight>sharp right</SharpRight>
            <UTurn>turn</UTurn>
            <InitialHeading>north, northeast, east, southeast, south, southwest, west, northwest</InitialHeading>
+		   <Roundabout>Take exit %1$d from roundabout onto %2$s.</Roundabout>
        </Direction>
        <ActionNumber>Actionno.</ActionNumber>
        <FillWord>

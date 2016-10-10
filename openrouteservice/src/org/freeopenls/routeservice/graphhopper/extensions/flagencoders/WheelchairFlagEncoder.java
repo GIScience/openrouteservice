@@ -594,7 +594,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder {
         if (!isAccept(allowed))
             return 0;
 
-        long encoded;
+        long encoded = 0;
         if (!isFerry(allowed))
         {
         	// TODO: Depending on availability of sidewalk, surface, smoothness, tracktype and incline MEAN_SPEED or SLOW_SPEED should be encoded
@@ -781,7 +781,8 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder {
             encoded = setLong(encoded, PriorityWeighting.KEY, handlePriority(way, priorityFromRelation));
         } 
         else {
-            encoded = handleFerryTags(way, SLOW_SPEED, MEAN_SPEED, FERRY_SPEED);
+            double ferrySpeed = getFerrySpeed(way, SLOW_SPEED, MEAN_SPEED, FERRY_SPEED);
+            encoded = setSpeed(encoded, ferrySpeed);
             encoded |= directionBitMask;
         }
 

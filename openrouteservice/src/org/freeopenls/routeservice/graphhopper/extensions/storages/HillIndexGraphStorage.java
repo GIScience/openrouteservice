@@ -20,37 +20,31 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphStorage;
 
-public class BikeAttributesGraphStorage implements GraphExtension {
+public class HillIndexGraphStorage implements GraphExtension {
 	/* pointer for no entry */
 	protected final int NO_ENTRY = -1;
-	protected final int EF_WAYTYPE;//, EF_RESTRICTION, EF_PASSABILITY;
+	protected final int EF_HILLINDEX;//, EF_RESTRICTION, EF_PASSABILITY;
 
 	protected DataAccess orsEdges;
 	protected int edgeEntryIndex = 0;
 	protected int edgeEntryBytes;
 	protected int edgesCount; // number of edges with custom values
 
-	private int attrTypes;
 	private byte[] byteValues;
 
-	public BikeAttributesGraphStorage(int attrTypes) {
-		this.attrTypes = attrTypes;
-		EF_WAYTYPE = nextBlockEntryIndex(1);
+	public HillIndexGraphStorage() {
+		EF_HILLINDEX = nextBlockEntryIndex(1);
 	
 		edgeEntryBytes = edgeEntryIndex + 4;
 		edgesCount = 0;
-		byteValues = new byte[10];
-	}
-
-	public int getAttributeTypes() {
-		return this.attrTypes;
+		byteValues = new byte[1];
 	}
 
 	public void init(Graph graph, Directory dir) {
 		if (edgesCount > 0)
 			throw new AssertionError("The ORS storage must be initialized only once.");
 
-		this.orsEdges = dir.find("edges_ors_bike");
+		this.orsEdges = dir.find("edges_ors_hillindex");
 	}
 
 	protected final int nextBlockEntryIndex(int size) {
@@ -87,7 +81,7 @@ public class BikeAttributesGraphStorage implements GraphExtension {
 
 	public boolean loadExisting() {
 		if (!orsEdges.loadExisting())
-			throw new IllegalStateException("cannot load ORS edges. corrupt file or directory? " );
+			throw new IllegalStateException("cannot load HillIndex edges. corrupt file or directory? " );
 
 		edgeEntryBytes = orsEdges.getHeader(0);
 		edgesCount = orsEdges.getHeader(4);
@@ -97,26 +91,34 @@ public class BikeAttributesGraphStorage implements GraphExtension {
 	void ensureEdgesIndex(int edgeIndex) {
 		orsEdges.ensureCapacity(((long) edgeIndex + 1) * edgeEntryBytes);
 	}
+	
+	private int getHillIndex(int value)
+	{
+		return value > 15 ? 15: value;
+	}
 
-	public void setEdgeValue(int edgeId, int wayFlag) {
+	public void setEdgeValue(int edgeId, int hillIndex, int reverseHillIndex) {
 		edgesCount++;
 		ensureEdgesIndex(edgeId);
 
 		// add entry
 		long edgePointer = (long) edgeId * edgeEntryBytes;
-		byteValues[0] = (byte)wayFlag;
-		orsEdges.setBytes(edgePointer + EF_WAYTYPE, byteValues, 1);
+		byteValues[0] = (byte)(getHillIndex(hillIndex) << 4 | (0x0F & getHillIndex(reverseHillIndex))); //hillIndex | (reverseHillIndex << 4));
+		orsEdges.setBytes(edgePointer + EF_HILLINDEX, byteValues, 1);
 	}
 
-	public int getEdgeWayFlag(int edgeId, byte[] buffer) {
+	public int getEdgeValue(int edgeId, boolean reverse, byte[] buffer) {
 		long edgePointer = (long) edgeId * edgeEntryBytes;
-		orsEdges.getBytes(edgePointer + EF_WAYTYPE, buffer, 1);
+		orsEdges.getBytes(edgePointer + EF_HILLINDEX, buffer, 1);
 		
-		int result = buffer[0];
-	    if (result < 0)
-	    	result = (int)result & 0xff;
+		int value = buffer[0];
+		if (value < 0)
+			value = 256 + value;
 		
-		return result;
+	    if (reverse)
+		   return (value >> 4) & 0xF;
+	    else
+	    	return value & 0xF;
 	}
 
 	public boolean isRequireNodeField() {
@@ -138,11 +140,11 @@ public class BikeAttributesGraphStorage implements GraphExtension {
 	}
 
 	public GraphExtension copyTo(GraphExtension clonedStorage) {
-		if (!(clonedStorage instanceof BikeAttributesGraphStorage)) {
+		if (!(clonedStorage instanceof HillIndexGraphStorage)) {
 			throw new IllegalStateException("the extended storage to clone must be the same");
 		}
 
-		BikeAttributesGraphStorage clonedTC = (BikeAttributesGraphStorage) clonedStorage;
+		HillIndexGraphStorage clonedTC = (HillIndexGraphStorage) clonedStorage;
 
 		orsEdges.copyTo(clonedTC.orsEdges);
 		clonedTC.edgesCount = edgesCount;

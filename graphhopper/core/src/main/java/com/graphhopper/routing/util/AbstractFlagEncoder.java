@@ -49,6 +49,9 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
     protected long directionBitMask;
     protected long roundaboutBit;
     protected EncodedDoubleValue speedEncoder;
+    
+    protected EncodedDoubleValue reverseSpeedEncoder; // Runge
+
     // bit to signal that way is accepted
     protected long acceptBit;
     protected long ferryBit;
@@ -79,6 +82,7 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
     protected final Set<String> potentialBarriers = new HashSet<String>(5);
     private boolean blockByDefault = true;
     private boolean blockFords = true;
+    private boolean considerElevation = false; // Runge
     protected final int speedBits;
     protected final double speedFactor;
     private boolean registered;
@@ -153,12 +157,22 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
     {
         this.blockFords = blockFords;
     }
-
+    
     public boolean isBlockFords()
     {
         return blockFords;
     }
 
+    public void setConsiderElevation(boolean considerElevation)
+    {
+    	this.considerElevation = considerElevation;
+    }
+
+    public boolean isConsiderElevation()
+    {
+        return considerElevation;
+    }
+    
     /**
      * Defines the bits for the node flags, which are currently used for barriers only.
      * <p>
@@ -286,11 +300,30 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
      */
     public long reverseFlags( long flags )
     {
-        long dir = flags & directionBitMask;
-        if (dir == directionBitMask || dir == 0)
-            return flags;
+    	// Runge
+    	if (considerElevation)
+    	{
+    		long dir = flags & directionBitMask;
+    		if (dir == directionBitMask || dir == 0)
+    		{
+    			
+    		}
+    		else
+    			flags = flags ^ directionBitMask;
 
-        return flags ^ directionBitMask;
+    		// swap speeds 
+    		double otherValue = reverseSpeedEncoder.getDoubleValue(flags);
+    		flags = setReverseSpeed(flags, speedEncoder.getDoubleValue(flags));
+    		return setSpeed(flags, otherValue);
+    	}
+    	else
+    	{
+    		long dir = flags & directionBitMask;
+    		if (dir == directionBitMask || dir == 0)
+    			return flags;
+
+    		return flags ^ directionBitMask;
+    	}
     }
     
     public long adaptSpeed(long flags, double factor)
@@ -313,8 +346,19 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
      */
     public long flagsDefault( boolean forward, boolean backward )
     {
-        long flags = speedEncoder.setDefaultValue(0);
-        return setAccess(flags, forward, backward);
+    	//Runge
+    	if (isConsiderElevation() && backward)
+    	{
+    		long flags = speedEncoder.setDefaultValue(0);
+    		flags = setAccess(flags, forward, backward);
+
+  			return reverseSpeedEncoder.setDefaultValue(flags);
+    	}
+    	else
+    	{
+    		long flags = speedEncoder.setDefaultValue(0);
+    		return setAccess(flags, forward, backward);
+    	}
     }
 
     @Override
@@ -341,7 +385,10 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
 
     protected long setLowSpeed( long flags, double speed, boolean reverse )
     {
-        return setAccess(speedEncoder.setDoubleValue(flags, 0), false, false);
+    	 if (reverse && isConsiderElevation())
+             return setBool(reverseSpeedEncoder.setDoubleValue(flags, 0), K_BACKWARD, false);
+
+         return setAccess(speedEncoder.setDoubleValue(flags, 0), false, false);
     }
 
     @Override
@@ -357,19 +404,41 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
     @Override
     public long setReverseSpeed( long flags, double speed )
     {
+    	if (considerElevation)
+    	{ 
+    		if (speed < 0)
+    			throw new IllegalArgumentException("Speed cannot be negative: " + speed + ", flags:" + BitUtil.LITTLE.toBitString(flags));
+
+    		if (speed < speedEncoder.factor / 2)
+    			return setLowSpeed(flags, speed, true);
+
+    		if (speed > getMaxSpeed())
+    			speed = getMaxSpeed();
+
+    		return reverseSpeedEncoder.setDoubleValue(flags, speed);
+    	}
+    	
         return setSpeed(flags, speed);
     }
 
     @Override
     public double getReverseSpeed( long flags )
     {
-        return getSpeed(flags);
+    	// Runge
+    	if (considerElevation)
+ 		    return reverseSpeedEncoder.getDoubleValue(flags);
+    	else
+    		return getSpeed(flags);
     }
 
     @Override
     public long setProperties( double speed, boolean forward, boolean backward )
     {
-        return setAccess(setSpeed(0, speed), forward, backward);
+        long flags = setAccess(setSpeed(0, speed), forward, backward);
+        if (backward && considerElevation)
+        	 return setReverseSpeed(flags, speed);
+        
+        return flags;
     }
 
     @Override
@@ -541,13 +610,22 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
     /**
      * Special handling for ferry ways.
      */
-    protected long handleFerryTags( OSMWay way, double unknownSpeed, double shortTripsSpeed, double longTripsSpeed )
+    protected double getFerrySpeed( OSMWay way, double unknownSpeed, double shortTripsSpeed, double longTripsSpeed )
     {
-        // to hours
-        double durationInHours = parseDuration(way.getTag("duration")) / 60d;
+        long duration = 0;
+        try
+        {
+            // During the reader process we have converted the duration value into a artificial tag called "duration:seconds".
+            duration = Long.parseLong(way.getTag("duration:seconds"));
+        } catch (Exception ex)
+        {
+        }
+        // seconds to hours
+        double durationInHours = duration / 60d / 60d;
         if (durationInHours > 0)
             try
             {
+                // Check if our graphhopper specific artificially created estimated_distance way tag is present
                 Number estimatedLength = way.getTag("estimated_distance", null);
                 if (estimatedLength != null)
                 {
@@ -555,10 +633,30 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
                     double val = estimatedLength.doubleValue() / 1000;
                     // If duration AND distance is available we can calculate the speed more precisely
                     // and set both speed to the same value. Factor 1.4 slower because of waiting time!
-                    shortTripsSpeed = Math.round(val / durationInHours / 1.4);
-                    if (shortTripsSpeed > getMaxSpeed())
-                        shortTripsSpeed = getMaxSpeed();
-                    longTripsSpeed = shortTripsSpeed;
+                    double calculatedTripSpeed = val / durationInHours / 1.4;
+                    // Plausibility check especially for the case of wrongly used PxM format with the intention to
+                    // specify the duration in minutes, but actually using months
+                    if (calculatedTripSpeed > 0.01d)
+                    {
+                        // If we have a very short ferry with an average lower compared to what we can encode 
+                        // then we need to avoid setting it as otherwise the edge would not be found at all any more.
+                        if (Math.round(calculatedTripSpeed) > speedEncoder.factor / 2)
+                        {
+                            shortTripsSpeed = Math.round(calculatedTripSpeed);
+                            if (shortTripsSpeed > getMaxSpeed())
+                                shortTripsSpeed = getMaxSpeed();
+                            longTripsSpeed = shortTripsSpeed;
+                        } else
+                        {
+                            // Now we set to the lowest possible still accessible speed. 
+                            shortTripsSpeed = speedEncoder.factor / 2;
+                        }
+                    } else
+                    {
+                        logger.warn("Unrealistic long duration ignored in way with OSMID=" + way.getId() + " : Duration tag value="
+                                + way.getTag("duration") + " (=" + Math.round(duration / 60d) + " minutes)");
+                        durationInHours = 0;
+                    }
                 }
             } catch (Exception ex)
             {
@@ -567,14 +665,14 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
         if (durationInHours == 0)
         {
             // unknown speed -> put penalty on ferry transport
-            return setSpeed(0, unknownSpeed);
+            return unknownSpeed;
         } else if (durationInHours > 1)
         {
             // lengthy ferries should be faster than short trip ferry
-            return setSpeed(0, longTripsSpeed);
+            return longTripsSpeed;
         } else
         {
-            return setSpeed(0, shortTripsSpeed);
+            return shortTripsSpeed;
         }
     }
 

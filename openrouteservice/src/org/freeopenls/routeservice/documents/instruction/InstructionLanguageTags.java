@@ -41,6 +41,7 @@ public class InstructionLanguageTags {
 	public final String DIRECTION_SHARP_RIGHT;
 	public final String DIRECTION_HALFRIGHT;
 	public final String[] DIRECTION_INITIAL_HEADING;
+	public final String DIRECTION_ROUNDABOUT;
 
 	/** Time **/
 	public final String TIME_APPROX;
@@ -81,7 +82,7 @@ public class InstructionLanguageTags {
 	 */
 	public InstructionLanguageTags(String LanguageCode, String Language, String ActionNr, String Start, String Finish,
 			String Drive, String Go, String Turn, String StraightForward, String Left, String SharpLeft, String HalfLeft, String Right,String SharpRight,
-			String HalfRight, String InitialHeading, String Approx, String Day, String Hour, String Minute, String Second, String On,
+			String HalfRight, String InitialHeading, String Roundabout, String Approx, String Day, String Hour, String Minute, String Second, String On,
 			String For, String Before, String After) {
 
 		// Language
@@ -104,6 +105,7 @@ public class InstructionLanguageTags {
 		DIRECTION_RIGHT = Right;
 		DIRECTION_SHARP_RIGHT = SharpRight;
 		DIRECTION_HALFRIGHT = HalfRight;
+		DIRECTION_ROUNDABOUT = Roundabout;
 		
 		if (Helper.isEmpty(InitialHeading))
 			DIRECTION_INITIAL_HEADING = new String[] { "north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest" };

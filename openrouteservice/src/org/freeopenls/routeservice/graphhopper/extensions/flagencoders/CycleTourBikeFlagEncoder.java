@@ -43,12 +43,13 @@ import com.graphhopper.util.Helper;
  */
 public class CycleTourBikeFlagEncoder extends BikeCommonFlagEncoder {
 	public CycleTourBikeFlagEncoder() {
-		super(4, 2, 0);
+		super(4, 2, 0,false);
 	}
 
 	public CycleTourBikeFlagEncoder(String propertiesStr) {
-		super((int) parseLong(propertiesStr, "speedBits", 4), parseDouble(propertiesStr, "speedFactor", 2),
-				parseBoolean(propertiesStr, "turnCosts", false) ? 3 : 0);
+		super((int) parseLong(propertiesStr, "speedBits", 4) + (parseBoolean(propertiesStr,"considerElevation", false) ? 1 : 0),
+				parseDouble(propertiesStr, "speedFactor", 2),
+				parseBoolean(propertiesStr, "turnCosts", false) ? 3 : 0, parseBoolean(propertiesStr,"considerElevation", false));
 
 		//setBlockFords(parseBoolean(propertiesStr, "blockFords", true));
 		setBlockFords(false);
@@ -169,6 +170,12 @@ public class CycleTourBikeFlagEncoder extends BikeCommonFlagEncoder {
 				weightToPrioMap.put(100d, convertCallValueToPriority(classBicycle).getValue());
 			}
 		}
+	}
+	
+    @Override
+	protected double getDownhillMaxSpeed()
+	{
+		return 50;
 	}
 
 	@Override

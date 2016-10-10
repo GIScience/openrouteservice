@@ -255,7 +255,7 @@ public class CarFlagEncoder extends AbstractFlagEncoder
         	try
             {
         		double mwv = Double.parseDouble(maxwidth);
-        		if (mwv >= 1.9)
+        		if (mwv < 2.0)
         			return 0;
             }
         	catch(Exception ex)
@@ -279,7 +279,7 @@ public class CarFlagEncoder extends AbstractFlagEncoder
         if (!isAccept(allowed))
             return 0;
 
-        long encoded;
+        long encoded = 0;
         if (!isFerry(allowed))
         {
             // get assumed speed from highway type
@@ -341,8 +341,9 @@ public class CarFlagEncoder extends AbstractFlagEncoder
 
         } else
         {
-            encoded = handleFerryTags(way, defaultSpeedMap.get("living_street"), defaultSpeedMap.get("service"), defaultSpeedMap.get("residential"));
-            encoded |= directionBitMask;
+        	double ferrySpeed = getFerrySpeed(way, defaultSpeedMap.get("living_street"), defaultSpeedMap.get("service"), defaultSpeedMap.get("residential"));
+        	encoded = setSpeed(encoded, ferrySpeed);
+        	encoded |= directionBitMask;
         }
 
         return encoded;

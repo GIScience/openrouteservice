@@ -50,6 +50,7 @@ import org.freeopenls.routeservice.graphhopper.extensions.util.WheelchairRestric
 import org.freeopenls.routeservice.routing.RoutePreferenceType;
 import org.freeopenls.tools.TimeUtility;
 
+import com.graphhopper.util.PMap;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -371,6 +372,12 @@ public class RequestXLSDocument {
 			{
 				routePlan.setLoadCharacteristics(loadCharacteristics.getLoadCharacteristicList());
 			}
+			
+			if (erpt.isSetDifficultyLevel())
+				routePlan.setSteepnessDifficultyLevel(erpt.getDifficultyLevel().getBigDecimalValue().intValue());
+			
+			if (erpt.isSetMaxSteepness())
+				routePlan.setSteepnessMaxValue(erpt.getMaxSteepness().getBigDecimalValue().doubleValue());
 
 			double[] wheelchairAttributes = new double[5];
 			ExtendedRoutePreferenceType.SurfaceTypes surfaceTypes = erpt.getSurfaceTypes();
@@ -425,14 +432,42 @@ public class RequestXLSDocument {
 			
 			routePlan.setAvoidFeatureTypes(AvoidList.getAvoidFeatureTypes(avoidListType));
 		}
-
+		
 		Routing rout = new Routing();
 
 		///////////////////////////////////////
 		//*** ROUTING ***
+		
+		PMap props = new PMap();
+		boolean isDirectSegment = false;
 		int nWayPoints = wayPoints.size();
 		for(int i=0 ; i< nWayPoints-1 ; i++){
-			rout.doRouting(routePlan, routeResult, wayPoints.get(i), wayPoints.get(i+1));
+			WayPoint wpStart = wayPoints.get(i);
+			WayPoint wpEnd = wayPoints.get(i+1);
+
+			isDirectSegment = (wpStart.getCode() == 1);
+
+			if (isDirectSegment)
+			{
+				props.put("direct_segment", true);
+
+				if (i > 0)
+				{
+					if (wayPoints.get(i-1).getCode() != 1)
+						props.put("snapped_point_start", true);
+				}
+
+				if (i+1 < nWayPoints-1)
+				{
+					if (wayPoints.get(i+1).getCode() != 1)
+						props.put("snapped_point_end", true);
+				}
+			}
+
+			rout.doRouting(routePlan, routeResult, wpStart, wpEnd, props);
+			
+			if (isDirectSegment)
+                props.clear();
 			
 			if (nWayPoints > 2 && i < nWayPoints - 2)
 			{

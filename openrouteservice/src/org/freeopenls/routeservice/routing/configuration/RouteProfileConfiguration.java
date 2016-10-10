@@ -13,6 +13,7 @@ public class RouteProfileConfiguration
 	public String GraphLocation;
 	public Boolean DynamicWeighting = false; // to store additional fields such as max_width, max_height, max_weight, etc.
 	public Boolean StoreSurfaceInformation = false;// to store way and surface type information
+	public Boolean StoreHillIndex = false;// to store way and surface type information
 	public Double MaximumDistance;
 	public Double MinimumDistance; 
 	public Boolean Enabled = true;

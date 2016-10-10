@@ -48,18 +48,20 @@ public class RoutePreferenceType {
 	// Field descriptor #68 I
 	public static final int BICYCLE_TOUR = 12;
 
-	public static final int WHEELCHAIR = 13;
+	public static final int BICYCLE_ELECTRO = 13;
 
-	public static final int ELECTRO_VEHICLE = 14;
+	public static final int WHEELCHAIR = 14;
+
+	public static final int ELECTRO_CAR = 15;
 	
-	public static final int CAR_TMC = 15;
+	public static final int CAR_TMC = 16;
 
-	public static final int UNKNOWN = 16;
+	public static final int UNKNOWN = 17;
 
 
 	public static boolean isCar(int routePref) {
 		if (routePref == RoutePreferenceType.CAR
-				|| routePref == RoutePreferenceType.HEAVY_VEHICLE || routePref == RoutePreferenceType.ELECTRO_VEHICLE
+				|| routePref == RoutePreferenceType.HEAVY_VEHICLE || routePref == RoutePreferenceType.ELECTRO_CAR
 				|| routePref == RoutePreferenceType.X_4_WD || routePref == RoutePreferenceType.CAR_TMC)
 			return true;
 		else
@@ -75,7 +77,8 @@ public class RoutePreferenceType {
 	
 	public static boolean isBicycle(int routePref) {
 		if (routePref == RoutePreferenceType.BICYCLE || routePref == RoutePreferenceType.BICYCLE_MTB
-				|| routePref == RoutePreferenceType.BICYCLE_RACER || routePref == RoutePreferenceType.BICYCLE_TOUR || routePref == RoutePreferenceType.BICYCLE_SAFETY)
+				|| routePref == RoutePreferenceType.BICYCLE_RACER || routePref == RoutePreferenceType.BICYCLE_TOUR || routePref == RoutePreferenceType.BICYCLE_SAFETY
+				|| routePref == RoutePreferenceType.BICYCLE_ELECTRO)
 			return true;
 		else
 			return false;
@@ -103,7 +106,9 @@ public class RoutePreferenceType {
 			case BICYCLE_SAFETY:
 				return "BicycleSafety";
 			case BICYCLE_TOUR:
-				return "BicycleTour"; 
+				return "BicycleTour";
+			case BICYCLE_ELECTRO:
+				return "BicycleElectro"; 
 			case WHEELCHAIR:
 				return "Wheelchair";
 			case HEAVY_VEHICLE:
@@ -128,7 +133,9 @@ public class RoutePreferenceType {
 			return RoutePreferenceType.BICYCLE_SAFETY;
 		} else if ("BicycleTour".equalsIgnoreCase(prefType)) {
 			return RoutePreferenceType.BICYCLE_TOUR;
-		} else if ("MotorBike".equalsIgnoreCase(prefType)) {
+		} else if ("BicycleElectro".equalsIgnoreCase(prefType)) {
+		    return RoutePreferenceType.BICYCLE_ELECTRO;
+	    } else if ("MotorBike".equalsIgnoreCase(prefType)) {
 			return RoutePreferenceType.MOTORBIKE;
 		} else if ("Wheelchair".equalsIgnoreCase(prefType)) {
 			return RoutePreferenceType.WHEELCHAIR;

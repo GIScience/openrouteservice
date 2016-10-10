@@ -23,7 +23,7 @@ import com.graphhopper.util.EdgeIteratorState;
 public class WeightingSequence implements Weighting {
 	private ArrayList<Weighting> weightings;
 	private int weightingsCount;
-	private Weighting weighting1, weighting2;
+	private Weighting weighting1, weighting2, weighting3;
 
 	public WeightingSequence(ArrayList<Weighting> weightings) {
 		this.weightings = weightings;
@@ -33,6 +33,11 @@ public class WeightingSequence implements Weighting {
 		{
 			weighting1 = weightings.get(0);
 			weighting2 = weightings.get(1);
+		} else if (weightingsCount == 3)
+		{
+			weighting1 = weightings.get(0);
+			weighting2 = weightings.get(1);
+			weighting3 = weightings.get(2);
 		}
 	}
 
@@ -65,6 +70,10 @@ public class WeightingSequence implements Weighting {
 		if (weightingsCount == 2)
 		{
 			return weighting1.calcWeight(edge, reverse, prevOrNextEdgeId) + weighting2.calcWeight(edge, reverse, prevOrNextEdgeId);
+		}
+		else if (weightingsCount == 3)
+		{
+			return weighting1.calcWeight(edge, reverse, prevOrNextEdgeId) + weighting2.calcWeight(edge, reverse, prevOrNextEdgeId) + weighting3.calcWeight(edge, reverse, prevOrNextEdgeId);
 		}
 		
         double result = 0;

@@ -108,6 +108,7 @@ public class RequestRateThrottleFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
 			ServletException {
 		if (hits > 0) {
+			int hitsCount = hits;
 			HttpServletRequest httpRequest = (HttpServletRequest) request;
 			String ip = HTTPUtility.getRemoteAddr(httpRequest);
 			
@@ -115,11 +116,11 @@ public class RequestRateThrottleFilter implements Filter {
 			HttpSession session = httpRequest.getSession(false);
 			if (session != null)
 			{
-				Object objHits = session.getAttribute("RequestsLimitation");
+				Object objHits = session.getAttribute("user_requests_limitation");
 				if (objHits != null)
 				{
-					int userHits = (int)objHits;
-					if (userHits <= 0)
+					hitsCount = (int)objHits;
+					if (hitsCount <= 0)
 					{
 						chain.doFilter(request, response);
 						return;
@@ -140,7 +141,7 @@ public class RequestRateThrottleFilter implements Filter {
 							clientStats.put(ip, times);
 						}
 
-						if (!processRequest(times, response, ip))
+						if (!processRequest(times, response, ip, hitsCount))
 							return;
 					}
 				} else if (mode == 1) {
@@ -148,14 +149,14 @@ public class RequestRateThrottleFilter implements Filter {
 
 					synchronized (session.getId().intern()) {
 						@SuppressWarnings("unchecked")
-						Stack<Date> times = (Stack<Date>) session.getAttribute("RequestsTimes");
+						Stack<Date> times = (Stack<Date>) session.getAttribute("user_requests_times");
 						if (times == null) {
 							times = new Stack<Date>();
 							times.push(new Date(0));
-							session.setAttribute("RequestsTimes", times);
+							session.setAttribute("user_requests_times", times);
 						}
 
-						if (!processRequest(times, response, ip))
+						if (!processRequest(times, response, ip, hitsCount))
 							return;
 					}
 				}
@@ -187,9 +188,9 @@ public class RequestRateThrottleFilter implements Filter {
 		}
 	}
 
-	private boolean processRequest(Stack<Date> times, ServletResponse response, String ip) throws IOException {
+	private boolean processRequest(Stack<Date> times, ServletResponse response, String ip, int hitsCount) throws IOException {
 		times.push(new Date());
-		if (times.size() >= hits) {
+		if (times.size() >= hitsCount) {
 			times.removeElementAt(0);
 		}
 
