@@ -833,7 +833,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder {
 			stringValue = stringValue.replace("flush;lowered", "0.0");
 			stringValue = stringValue.replace("sloped", "0.03");
 			stringValue = stringValue.replace("lowered_and_sloped", "0.03");
-			stringValue = stringValue.replace("flush", "0.03");
+			stringValue = stringValue.replace("flush", "0.0");
 			stringValue = stringValue.replace("none", "0.15");
 			stringValue = stringValue.replace("flush_and_lowered", "0.0");
 		}

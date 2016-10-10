@@ -883,6 +883,13 @@ public class ORSOSMReader extends OSMReader {
 		// solution 2. has been implemented (cf. OSMReader class)
 		@Override
 	    protected Collection<EdgeIteratorState> addSidewalks(OSMWay way, long wayFlags) {
+			
+			// TODO: there are problems with the computation of sidewalks in global OSM data dumps (update of graphs takes to long and requires too much RAM)
+			if (true) {
+				return null;
+			}
+			
+			// System.out.println("ORSOSMReader.addSidewalks()");
 	    	List<EdgeIteratorState> createdEdges = new ArrayList<EdgeIteratorState>();
 	    	if (way.containsTag("highway") && way.containsTag("sidewalk")) {
 	    		boolean doLeft = false;
@@ -944,6 +951,7 @@ public class ORSOSMReader extends OSMReader {
 	     * @return a collection of edges of the derived sidewalk
 	     */
 	    protected Collection<EdgeIteratorState> addSidewalk(OSMWay way, long wayFlags, double offset, double[] leftSidewalkAttributes, double[] rightSidewalkAttributes) {
+	    	
 	    	// String wayName = way.getTag("name");
 	    	// the flags of the way are transfered to the sidewalk
 	    	// ~33 meters
@@ -1387,6 +1395,11 @@ public class ORSOSMReader extends OSMReader {
 		 */
 		private void handleSidewalkJunctions() {
 			
+			// TODO: there are problems with the computation of sidewalks in global OSM data dumps (update of graphs takes to long and requires too much RAM)
+			if (true) {
+				return;
+			}
+			
 			// handle junctions
 			int n = 0;
 	    	for (Long junctionOsmNodeId : sidewalkJunctions.keySet()) {
@@ -1408,7 +1421,7 @@ public class ORSOSMReader extends OSMReader {
 						// System.out.println("0 ORSOSMReader.finishedReading(), wayWithSidewalkI="+wayWithSidewalkI.wayName+" ("+wayWithSidewalkI.osmWayId+", "+wayWithSidewalkI.bearing+")"+", wayWithSidewalkCounterClockwiseNeighbour="+wayWithSidewalkCounterClockwiseNeighbour.wayName+" ("+wayWithSidewalkCounterClockwiseNeighbour.osmWayId+", "+wayWithSidewalkCounterClockwiseNeighbour.bearing+")");
 						// System.out.println("1 ORSOSMReader.finishedReading(), wayWithSidewalkI.hasCloseCrossing="+wayWithSidewalkI.hasCloseCrossing+", wayWithSidewalkCounterClockwiseNeighbour.hasCloseCrossing="+wayWithSidewalkCounterClockwiseNeighbour.hasCloseCrossing);
 						// System.out.println("2 ORSOSMReader.finishedReading(), wayI.rightNodeId="+wayWithSidewalkI.rightJunctionNodeId+" ("+getTmpLatitude(wayWithSidewalkI.rightJunctionNodeId)+", "+getTmpLongitude(wayWithSidewalkI.rightJunctionNodeId)+"), wayWithSidewalkI.rightPreNodeId="+wayWithSidewalkI.rightPreJunctionNodeId+" ("+getTmpLatitude(wayWithSidewalkI.rightPreJunctionNodeId)+", "+getTmpLongitude(wayWithSidewalkI.rightPreJunctionNodeId)+"), ccwNeighbour.leftNodeId="+wayWithSidewalkCounterClockwiseNeighbour.leftJunctionNodeId+" ("+getTmpLatitude(wayWithSidewalkCounterClockwiseNeighbour.leftJunctionNodeId)+", "+getTmpLongitude(wayWithSidewalkCounterClockwiseNeighbour.leftJunctionNodeId)+"), ccwNeighbour.leftPreNodeId="+wayWithSidewalkCounterClockwiseNeighbour.leftPreJunctionNodeId+" ("+getTmpLatitude(wayWithSidewalkCounterClockwiseNeighbour.leftPreJunctionNodeId)+", "+getTmpLongitude(wayWithSidewalkCounterClockwiseNeighbour.leftPreJunctionNodeId)+")");
-						// System.out.println("ORSOSMReader.handleSidewalkJunctions(), wayWithSidewalkI="+wayWithSidewalkI+", wayWithSidewalkCounterClockwiseNeighbour="+wayWithSidewalkCounterClockwiseNeighbour);
+						// System.out.println("3 ORSOSMReader.handleSidewalkJunctions(), wayWithSidewalkI="+wayWithSidewalkI+", wayWithSidewalkCounterClockwiseNeighbour="+wayWithSidewalkCounterClockwiseNeighbour);
 						if (wayWithSidewalkI.rightJunctionNodeId != 0 && wayWithSidewalkI.rightPreJunctionNodeId != 0 && wayWithSidewalkCounterClockwiseNeighbour.leftJunctionNodeId != 0 && wayWithSidewalkCounterClockwiseNeighbour.leftPreJunctionNodeId != 0) {
 							
 							// the graphhopper internal id of the intersection point
@@ -1470,8 +1483,8 @@ public class ORSOSMReader extends OSMReader {
 							
 							// add an edge between the pre-junction node way i to the intersection node 
 							PointList pillarNodes = new PointList(2, nodeAccess.is3D());
-					        pillarNodes.add(getTmpLatitude(wayWithSidewalkI.rightPreJunctionNodeId), getTmpLongitude(wayWithSidewalkI.rightPreJunctionNodeId), getTmpElevation(wayWithSidewalkI.rightPreJunctionNodeId));
-					        pillarNodes.add(getTmpLatitude(intersectionInternalId), getTmpLongitude(intersectionInternalId), getTmpElevation(intersectionInternalId));
+					        pillarNodes.add(getTmpLatitude(wayWithSidewalkI.rightPreJunctionNodeId), getTmpLongitude(wayWithSidewalkI.rightPreJunctionNodeId));
+					        pillarNodes.add(getTmpLatitude(intersectionInternalId), getTmpLongitude(intersectionInternalId));
 					        double[] sidewalkIWheelchairAttributes = new double[5];
 					        double[] wayWithSidewalkCounterClockwiseNeighbourWheelchairAttributes = new double[5];
 					        if (wayWithSidewalkI.wheelchairRightSidewalkAttibutes == null) {
@@ -1493,8 +1506,8 @@ public class ORSOSMReader extends OSMReader {
 					        
 					        // add an edge between the pre-junction node way j to the intersection node
 					        pillarNodes = new PointList(2, nodeAccess.is3D());
-					        pillarNodes.add(getTmpLatitude(wayWithSidewalkCounterClockwiseNeighbour.leftPreJunctionNodeId), getTmpLongitude(wayWithSidewalkCounterClockwiseNeighbour.leftPreJunctionNodeId), getTmpElevation(wayWithSidewalkCounterClockwiseNeighbour.leftPreJunctionNodeId));
-					        pillarNodes.add(getTmpLatitude(intersectionInternalId), getTmpLongitude(intersectionInternalId), getTmpElevation(intersectionInternalId));
+					        pillarNodes.add(getTmpLatitude(wayWithSidewalkCounterClockwiseNeighbour.leftPreJunctionNodeId), getTmpLongitude(wayWithSidewalkCounterClockwiseNeighbour.leftPreJunctionNodeId));
+					        pillarNodes.add(getTmpLatitude(intersectionInternalId), getTmpLongitude(intersectionInternalId));
 					        newEdge = addEdge(-wayWithSidewalkCounterClockwiseNeighbour.leftPreJunctionNodeId-3, -intersectionInternalId-3, pillarNodes, wayWithSidewalkCounterClockwiseNeighbour.wayFlags, 0);
 					        gsWheelchair.setEdgeValue(newEdge.getEdge(), wayWithSidewalkCounterClockwiseNeighbour.wayFeatureType, wayWithSidewalkCounterClockwiseNeighbourWheelchairAttributes);
 					        
@@ -1504,8 +1517,8 @@ public class ORSOSMReader extends OSMReader {
 					        if (!(wayWithSidewalkI.hasCloseCrossing || wayWithSidewalkCounterClockwiseNeighbour.hasCloseCrossing)) {
 					        	int internalJunctionId = getNodeMap().get(junctionOsmNodeId);
 						        pillarNodes = new PointList(2, nodeAccess.is3D());
-						        pillarNodes.add(getTmpLatitude(internalJunctionId), getTmpLongitude(internalJunctionId), getTmpElevation(internalJunctionId));
-						        pillarNodes.add(getTmpLatitude(intersectionInternalId), getTmpLongitude(intersectionInternalId), getTmpElevation(intersectionInternalId));
+						        pillarNodes.add(getTmpLatitude(internalJunctionId), getTmpLongitude(internalJunctionId));
+						        pillarNodes.add(getTmpLatitude(intersectionInternalId), getTmpLongitude(intersectionInternalId));
 								// intersection flags are the logical intersection of both way flags
 								long intersectionFlags = wayWithSidewalkI.wayFlags & wayWithSidewalkCounterClockwiseNeighbour.wayFlags;
 						        newEdge = addEdge(-internalJunctionId-3, -intersectionInternalId-3, pillarNodes, intersectionFlags, 0);
@@ -1532,24 +1545,24 @@ public class ORSOSMReader extends OSMReader {
 
 						// add edge from pre junction node to junction sidewalk node (right side of way)
 						PointList pillarNodes = new PointList(2, nodeAccess.is3D());
-				        pillarNodes.add(getTmpLatitude(wayWithSidewalk.rightPreJunctionNodeId), getTmpLongitude(wayWithSidewalk.rightPreJunctionNodeId), getTmpElevation(wayWithSidewalk.rightPreJunctionNodeId));
-				        pillarNodes.add(getTmpLatitude(wayWithSidewalk.rightJunctionNodeId), getTmpLongitude(wayWithSidewalk.rightJunctionNodeId), getTmpElevation(wayWithSidewalk.rightJunctionNodeId));
+				        pillarNodes.add(getTmpLatitude(wayWithSidewalk.rightPreJunctionNodeId), getTmpLongitude(wayWithSidewalk.rightPreJunctionNodeId));
+				        pillarNodes.add(getTmpLatitude(wayWithSidewalk.rightJunctionNodeId), getTmpLongitude(wayWithSidewalk.rightJunctionNodeId));
 						EdgeIteratorState newEdge = addEdge(-wayWithSidewalk.rightPreJunctionNodeId-3, -wayWithSidewalk.rightJunctionNodeId-3, pillarNodes, wayWithSidewalk.wayFlags, 0);
 						double[] sidewalkWheelchairAttributes = wayWithSidewalk.wheelchairRightSidewalkAttibutes != null ? wayWithSidewalk.wheelchairRightSidewalkAttibutes : wayWithSidewalk.wheelchairAttributes;
 						gsWheelchair.setEdgeValue(newEdge.getEdge(), wayWithSidewalk.wayFeatureType, sidewalkWheelchairAttributes);
 
 						// add edge from pre junction node to junction sidewalk node (left side of way)
 						pillarNodes = new PointList(2, nodeAccess.is3D());
-				        pillarNodes.add(getTmpLatitude(wayWithSidewalk.leftPreJunctionNodeId), getTmpLongitude(wayWithSidewalk.leftPreJunctionNodeId), getTmpElevation(wayWithSidewalk.leftPreJunctionNodeId));
-				        pillarNodes.add(getTmpLatitude(wayWithSidewalk.leftJunctionNodeId), getTmpLongitude(wayWithSidewalk.leftJunctionNodeId), getTmpElevation(wayWithSidewalk.leftJunctionNodeId));
+				        pillarNodes.add(getTmpLatitude(wayWithSidewalk.leftPreJunctionNodeId), getTmpLongitude(wayWithSidewalk.leftPreJunctionNodeId));
+				        pillarNodes.add(getTmpLatitude(wayWithSidewalk.leftJunctionNodeId), getTmpLongitude(wayWithSidewalk.leftJunctionNodeId));
 				        newEdge = addEdge(-wayWithSidewalk.leftPreJunctionNodeId-3, -wayWithSidewalk.leftJunctionNodeId-3, pillarNodes, wayWithSidewalk.wayFlags, 0);
 				        sidewalkWheelchairAttributes = wayWithSidewalk.wheelchairLeftSidewalkAttibutes != null ? wayWithSidewalk.wheelchairLeftSidewalkAttibutes : wayWithSidewalk.wheelchairAttributes;
 						gsWheelchair.setEdgeValue(newEdge.getEdge(), wayWithSidewalk.wayFeatureType, sidewalkWheelchairAttributes);
 						
 						// add edge from junction sidewalk node (right side of way) to junction node to allow crossing the way
 						pillarNodes = new PointList(2, nodeAccess.is3D());
-				        pillarNodes.add(getTmpLatitude(wayWithSidewalk.rightJunctionNodeId), getTmpLongitude(wayWithSidewalk.rightJunctionNodeId), getTmpElevation(wayWithSidewalk.rightJunctionNodeId));
-				        pillarNodes.add(getTmpLatitude(junctionNode), getTmpLongitude(junctionNode), getTmpElevation(junctionNode));
+				        pillarNodes.add(getTmpLatitude(wayWithSidewalk.rightJunctionNodeId), getTmpLongitude(wayWithSidewalk.rightJunctionNodeId));
+				        pillarNodes.add(getTmpLatitude(junctionNode), getTmpLongitude(junctionNode));
 				        newEdge = addEdge(-wayWithSidewalk.rightJunctionNodeId-3, -junctionNode-3, pillarNodes, wayWithSidewalk.wayFlags, 0);
 				        sidewalkWheelchairAttributes = wayWithSidewalk.wheelchairRightSidewalkAttibutes != null ? wayWithSidewalk.wheelchairRightSidewalkAttibutes : wayWithSidewalk.wheelchairAttributes;
 						gsWheelchair.setEdgeValue(newEdge.getEdge(), wayWithSidewalk.wayFeatureType, sidewalkWheelchairAttributes);
@@ -1557,8 +1570,8 @@ public class ORSOSMReader extends OSMReader {
 
 						// add edge from junction sidewalk node (left side of way) to junction node to allow crossing the way
 						pillarNodes = new PointList(2, nodeAccess.is3D());
-				        pillarNodes.add(getTmpLatitude(wayWithSidewalk.leftJunctionNodeId), getTmpLongitude(wayWithSidewalk.leftJunctionNodeId), getTmpElevation(wayWithSidewalk.leftJunctionNodeId));
-				        pillarNodes.add(getTmpLatitude(junctionNode), getTmpLongitude(junctionNode), getTmpElevation(junctionNode));
+				        pillarNodes.add(getTmpLatitude(wayWithSidewalk.leftJunctionNodeId), getTmpLongitude(wayWithSidewalk.leftJunctionNodeId));
+				        pillarNodes.add(getTmpLatitude(junctionNode), getTmpLongitude(junctionNode));
 				        newEdge = addEdge(-wayWithSidewalk.leftJunctionNodeId-3, -junctionNode-3, pillarNodes, wayWithSidewalk.wayFlags, 0);
 				        sidewalkWheelchairAttributes = wayWithSidewalk.wheelchairLeftSidewalkAttibutes != null ? wayWithSidewalk.wheelchairLeftSidewalkAttibutes : wayWithSidewalk.wheelchairAttributes;
 						gsWheelchair.setEdgeValue(newEdge.getEdge(), wayWithSidewalk.wayFeatureType, sidewalkWheelchairAttributes);
@@ -1573,8 +1586,8 @@ public class ORSOSMReader extends OSMReader {
 			PointList nodes = new PointList(2, nodeAccess.is3D());
 			if (nodeAccess.is3D())
 			{
-				nodes.add(getTmpLatitude(id1), getTmpLongitude(id1), getTmpElevation(id1));
-				nodes.add(getTmpLatitude(id2), getTmpLongitude(id2), getTmpElevation(id2));
+				nodes.add(getTmpLatitude(id1), getTmpLongitude(id1));
+				nodes.add(getTmpLatitude(id2), getTmpLongitude(id2));
 			}
 			else
 			{
