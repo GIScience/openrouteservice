@@ -491,6 +491,7 @@ public class Path
                     ways.add(prevInstruction);
                     prevName = name;
                     prevAnnotation = annotation;
+                    prevWaySurfaceDesc = waySurfaceDesc;
 
                 } else
                 {
