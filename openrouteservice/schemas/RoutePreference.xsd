@@ -49,8 +49,9 @@
 			<enumeration value="BicycleRacer"/>
 			<enumeration value="BicycleSafety"/>
 			<enumeration value="BicycleTour"/>
+			<enumeration value="BicycleElectro"/>
 			<enumeration value="Wheelchair"/>
-			<enumeration value="ElectroVehicle"/>
+			<enumeration value="CarElectro"/>
 		</restriction>
 	</simpleType>
 </schema>

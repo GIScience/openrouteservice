@@ -91,6 +91,7 @@
 			<xs:element name="SharpRight" type="xs:string"/>
 			<xs:element name="UTurn" type="xs:string"/>
                   	<xs:element name="InitialHeading" type="xs:string"/>
+                     <xs:element name="Roundabout" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="FillWordType">

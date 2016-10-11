@@ -51,8 +51,6 @@ import com.graphhopper.reader.OSMWay;
 import com.graphhopper.reader.dem.HeightTile;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.WaySurfaceDescription;
-import com.graphhopper.storage.GraphExtension;
-import com.graphhopper.storage.GraphExtension.ExtendedStorageSequence;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;

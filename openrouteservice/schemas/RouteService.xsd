@@ -263,6 +263,11 @@
 							<documentation>Response for requested information about surface.</documentation>
 						</annotation>
 					</element>
+                                   <element ref="xls:WaySteepnessList" minOccurs="0">
+						<annotation>
+							<documentation>Response for requested information about steepness.</documentation>
+						</annotation>
+					</element>
 					<element ref="xls:RouteMap" minOccurs="0" maxOccurs="unbounded">
 						<annotation>
 							<documentation>Response list for requested route maps.</documentation>
@@ -356,6 +361,11 @@
 					<documentation>Minimize the use of fords.</documentation>
 				</annotation>
 			</enumeration>
+                     <enumeration value="Hills">
+				<annotation>
+					<documentation>Minimize the use of hills.</documentation>
+				</annotation>
+			</enumeration>
 		</restriction>
 	</simpleType>
 	<element name="RoutePreference" type="xls:RoutePreferenceType">
@@ -431,6 +441,27 @@
 					</simpleContent>
 				</complexType>
 			</element>
+
+                     <element name="MaxSteepness" minOccurs="0" maxOccurs="1">
+				<complexType>
+					<simpleContent>
+						<extension base="decimal">
+							<attribute name="unit" type="string" />
+						</extension>
+					</simpleContent>
+				</complexType>
+			</element>
+
+			 <element name="DifficultyLevel" minOccurs="0" maxOccurs="1">
+				<complexType>
+					<simpleContent>
+						<extension base="decimal">
+							<attribute name="unit" type="string" />
+						</extension>
+					</simpleContent>
+				</complexType>
+			</element>
+
 
                      <element name="LoadCharacteristics" minOccurs="0" maxOccurs="1">
 				<complexType>			

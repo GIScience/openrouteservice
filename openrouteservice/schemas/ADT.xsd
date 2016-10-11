@@ -666,6 +666,12 @@ An example:     <Street directionalPrefix="W" officialName="83RD" typeSuffix="ST
 						<documentation>Specifies whether the traveler plans to stop at the waypoint, or simply pass through it.								</documentation>
 					</annotation>
 				</attribute>
+                           <!-- ===== Extension. Added by Maxim Rylov =====-->
+                            <attribute name="code" type="integer" use="optional" default="0">
+					<annotation>
+						<documentation>Specifies additional information related either to a point or a segment which starts at the waypoint.								</documentation>
+					</annotation>
+				</attribute>
 			</extension>
 		</complexContent>
 	</complexType>
@@ -732,6 +738,7 @@ An example:     <Street directionalPrefix="W" officialName="83RD" typeSuffix="ST
 		</annotation>
 		<sequence>
 			<element name="DirectionCode" type="integer" minOccurs="0"/>
+                     <element name="ExitNumber" type="integer" minOccurs="0"/>
 			<element name="Instruction" type="string"/>
 			<element name="Message" type="string"/>
 			<element name="Distance" type="xls:DistanceType"/>
@@ -816,6 +823,40 @@ An example:     <Street directionalPrefix="W" officialName="83RD" typeSuffix="ST
 	<element name="WayType" type="xls:WayTypeType">
 		<annotation>
 			<documentation>Type of the way (motorway, secondary, steps).</documentation>
+		</annotation>
+	</element>
+
+
+      <complexType name="WaySteepnessListType">
+		<annotation>
+			<documentation>Defines a list of way steepness.</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="xls:AbstractDataType">
+				<sequence>
+					<element ref="xls:WaySteepness" maxOccurs="unbounded"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+       <element name="WaySteepnessList" type="xls:WaySteepnessListType">
+		<annotation>
+			<documentation>List of way steepness.</documentation>
+		</annotation>
+	</element>
+       <complexType name="WaySteepnessType">
+		<annotation>
+			<documentation>Defines a type of the way's steepness.</documentation>
+		</annotation>
+		<sequence>
+                     <element name="From" type="integer" minOccurs="0"/>
+                     <element name="To" type="integer" minOccurs="0"/>
+			<element name="Type" type="integer" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<element name="WaySteepness" type="xls:WaySteepnessType">
+		<annotation>
+			<documentation>Steepness information for a way.</documentation>
 		</annotation>
 	</element>
 
