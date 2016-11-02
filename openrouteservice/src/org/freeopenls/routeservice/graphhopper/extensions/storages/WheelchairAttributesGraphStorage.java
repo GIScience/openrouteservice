@@ -121,9 +121,11 @@ public void setEdgeValue(int edgeId, int featureTypeFlag, double[] wheelchairAtt
 		else {
 			byteValues[WheelchairRestrictionCodes.SURFACE] = (byte)(wheelchairAttributes[WheelchairRestrictionCodes.SURFACE]);
 			byteValues[WheelchairRestrictionCodes.SMOOTHNESS] = (byte)(wheelchairAttributes[WheelchairRestrictionCodes.SMOOTHNESS]);
-			byteValues[WheelchairRestrictionCodes.SLOPED_CURB] = (byte)(wheelchairAttributes[WheelchairRestrictionCodes.SLOPED_CURB] *10d);
+			// byteValues[WheelchairRestrictionCodes.SLOPED_CURB] = (byte)(wheelchairAttributes[WheelchairRestrictionCodes.SLOPED_CURB] *10d);
+			byteValues[WheelchairRestrictionCodes.SLOPED_CURB] = (byte)(wheelchairAttributes[WheelchairRestrictionCodes.SLOPED_CURB]);
 			byteValues[WheelchairRestrictionCodes.TRACKTYPE] = (byte)(wheelchairAttributes[WheelchairRestrictionCodes.TRACKTYPE]);
-			byteValues[WheelchairRestrictionCodes.INCLINE] = (byte)(wheelchairAttributes[WheelchairRestrictionCodes.INCLINE] * 10d);
+			// byteValues[WheelchairRestrictionCodes.INCLINE] = (byte)(wheelchairAttributes[WheelchairRestrictionCodes.INCLINE] * 10d);
+			byteValues[WheelchairRestrictionCodes.INCLINE] = (byte)(wheelchairAttributes[WheelchairRestrictionCodes.INCLINE]);
 		}
 		orsEdges.setBytes(edgePointer + EF_WHEELCHAIR_ATTRIBUTES, byteValues, 5);
 	}
@@ -139,13 +141,17 @@ public void setEdgeValue(int edgeId, int featureTypeFlag, double[] wheelchairAtt
 		return result;
 	}
 	
-	public double[] getWheelchairAttributes(int edgeId, byte[] buffer) {
+	public void getWheelchairAttributes(int edgeId, byte[] buffer) {
 		long edgePointer = (long) edgeId * (long) edgeEntryBytes;
+		//TODO: remove these lines
+		/*
 		if (buffer == null) {
 			buffer = new byte[20];
 		}
-		buffer = new byte[20];
-		orsEdges.getBytes(edgePointer + EF_WHEELCHAIR_ATTRIBUTES, buffer, 20);
+		*/
+		// buffer = new byte[20];
+		// orsEdges.getBytes(edgePointer + EF_WHEELCHAIR_ATTRIBUTES, buffer, 20);
+		orsEdges.getBytes(edgePointer + EF_WHEELCHAIR_ATTRIBUTES, buffer, 5);
 		/*
 		try {
 			orsEdges.getBytes(edgePointer + EF_WHEELCHAIR_ATTRIBUTES, buffer, 5);
@@ -159,6 +165,8 @@ public void setEdgeValue(int edgeId, int featureTypeFlag, double[] wheelchairAtt
 		    System.out.println("ORSOSMReader.processEdge(), "+sw.getBuffer().toString());
 		}
 		*/
+		/*
+		//TODO: 
 		double[] result = new double[5];
 		
 		result[WheelchairRestrictionCodes.SURFACE] = buffer[WheelchairRestrictionCodes.SURFACE];
@@ -166,8 +174,8 @@ public void setEdgeValue(int edgeId, int featureTypeFlag, double[] wheelchairAtt
 		result[WheelchairRestrictionCodes.SLOPED_CURB] = (double)(buffer[WheelchairRestrictionCodes.SLOPED_CURB] & 0xff) / 10d;
 		result[WheelchairRestrictionCodes.TRACKTYPE] = buffer[WheelchairRestrictionCodes.TRACKTYPE];
 		result[WheelchairRestrictionCodes.INCLINE] = (double)(buffer[WheelchairRestrictionCodes.INCLINE] & 0xff) / 10d;
-		
 		return result;
+		*/
 	}
 
 	public boolean isRequireNodeField() {
