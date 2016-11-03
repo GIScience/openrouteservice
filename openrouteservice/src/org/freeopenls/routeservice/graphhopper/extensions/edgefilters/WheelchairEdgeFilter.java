@@ -17,7 +17,7 @@ public class WheelchairEdgeFilter implements EdgeFilter {
 	private WheelchairFlagEncoder encoder;
 	private double[] userDefinedRestrictionValues;
 	private WheelchairAttributesGraphStorage wheelchairAttributeGraphStorage;
-	byte[] buffer = new byte[10];
+	byte[] buffer = new byte[5];
 	
 	/**
 	  * Creates an edges filter which accepts both direction of the specified vehicle.
@@ -52,20 +52,21 @@ public class WheelchairEdgeFilter implements EdgeFilter {
 			return false;
 		*/
 		
-		double[] wheelchairAttributes = wheelchairAttributeGraphStorage.getWheelchairAttributes(iter.getEdge(), buffer);
+		// double[] wheelchairAttributes = wheelchairAttributeGraphStorage.getWheelchairAttributes(iter.getEdge(), buffer);
+		wheelchairAttributeGraphStorage.getWheelchairAttributes(iter.getEdge(), buffer);
 		// System.out.println("WheelchairEdgeFilter.accept(), edgeId="+iter.getEdge()+", wheelchairAttributes[WheelchairRestrictionCodes.INCLINE]="+wheelchairAttributes[WheelchairRestrictionCodes.INCLINE]+", userDefinedRestrictionValues[WheelchairRestrictionCodes.INCLINE]="+userDefinedRestrictionValues[WheelchairRestrictionCodes.INCLINE]);
 		// System.out.println("WheelchairEdgeFilter.accept(), edgeId="+iter.getEdge()+", wheelchairAttributes[WheelchairRestrictionCodes.SMOOTHNESS]="+wheelchairAttributes[WheelchairRestrictionCodes.SMOOTHNESS]+", userDefinedRestrictionValues[WheelchairRestrictionCodes.SMOOTHNESS]="+userDefinedRestrictionValues[WheelchairRestrictionCodes.SMOOTHNESS]);
-		if (!((byte)wheelchairAttributes[WheelchairRestrictionCodes.SURFACE] <= (byte)userDefinedRestrictionValues[WheelchairRestrictionCodes.SURFACE]))
+		if (!(buffer[WheelchairRestrictionCodes.SURFACE] <= userDefinedRestrictionValues[WheelchairRestrictionCodes.SURFACE]))
 			return false;
-		if (!((byte)wheelchairAttributes[WheelchairRestrictionCodes.SMOOTHNESS] <= (byte)userDefinedRestrictionValues[WheelchairRestrictionCodes.SMOOTHNESS]))
+		if (!(buffer[WheelchairRestrictionCodes.SMOOTHNESS] <= userDefinedRestrictionValues[WheelchairRestrictionCodes.SMOOTHNESS]))
 			return false;
 		/*
 		if (!(wheelchairAttributes[WheelchairRestrictionCodes.SLOPED_CURB] <= userDefinedRestrictionValues[WheelchairRestrictionCodes.SLOPED_CURB]))
 			return false;
 		*/
-		if (!((byte)wheelchairAttributes[WheelchairRestrictionCodes.TRACKTYPE] <= (byte)userDefinedRestrictionValues[WheelchairRestrictionCodes.TRACKTYPE]))
+		if (!(buffer[WheelchairRestrictionCodes.TRACKTYPE] <= userDefinedRestrictionValues[WheelchairRestrictionCodes.TRACKTYPE]))
 			return false;
-		if (!(wheelchairAttributes[WheelchairRestrictionCodes.INCLINE] <= userDefinedRestrictionValues[WheelchairRestrictionCodes.INCLINE]))
+		if (!(buffer[WheelchairRestrictionCodes.INCLINE] <= userDefinedRestrictionValues[WheelchairRestrictionCodes.INCLINE]))
 			return false;
 		// System.out.println("WheelchairEdgeFilter.accept(), return=true");
 		return true;
