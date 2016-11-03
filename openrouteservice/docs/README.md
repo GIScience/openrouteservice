@@ -2,6 +2,7 @@
 1. Edit DNS Servers, e.g,
 - path `sudo nano /etc/resolv.conf`
 - add `nameserver 8.8.8.8` and `nameserver 8.8.4.4` (these are Googles DNS)
+- Note these may be removed on restart!
 2. Edit `etc/hosts` and add `name of the instance` after `ip localhost`, for instance `ip localhost ors-update`
 2. Install Apache2, e.g.,
 - run `sudo apt-get install apache2`
