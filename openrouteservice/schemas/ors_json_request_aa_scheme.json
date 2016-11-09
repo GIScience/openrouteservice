@@ -1,0 +1,34 @@
+{
+    "mode": "Bicycle" // "Pedestrian" // "Wheelchair" ..,
+    "weightingMethod": "",
+    "method": "TIN" /* or .. */,
+    "range": {
+        "value": 180 /* in seconds */ ,
+        "units": "meters" /* or "seconds" */
+    },
+    "positions": [
+        [54, 8], [], [], []
+    ],
+    /* if length is 3 then direct point */
+    "units": "miles", // "meters" for area response
+    "options": {
+        "maximumSpeed": 120,
+        "avoidFeatures": ["hills", "ferry", "tollways "..],
+        "modeType": "hgv" // "bus", // "BicycleRacer", // "BicycleMTB"
+        "vehicleParams": {
+            "length": 30,
+            "width": 30,
+            "height": 3,
+            "axleload": 4,
+            "weight": 3,
+            "hazardous": true,
+            /* can also contain wheelchair params..*/
+        },
+        "fitnessParams": {
+            "level": 2,
+            "maximumGradient": 13
+        },
+        "avoidPolygons": /* geojson Polygon or MultiPolygon */
+    }
+}
+
