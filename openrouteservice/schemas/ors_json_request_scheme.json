@@ -11,7 +11,8 @@
         [43, 2, 1],
     ],
     /* if length is 3 then direct point */
-    "units": "miles", // "meters"
+    "units": "miles", // "meters",
+    "language": "de",
     "routePoints": true, // false, /* if false then routeSegments are false
     "routeSegments": true, // false,
     "options": {
