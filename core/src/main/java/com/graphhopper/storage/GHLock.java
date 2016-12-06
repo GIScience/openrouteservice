@@ -17,24 +17,20 @@
  */
 package com.graphhopper.storage;
 
-import java.io.File;
-
 /**
+ * A write lock interface. Influenced by Lucene code
+ * <p>
+ *
  * @author Peter Karich
  */
-public interface LockFactory {
-    void setLockDir(File lockDir);
+public interface GHLock {
+    String getName();
 
-    /**
-     * This creates a file for write or read locks depending on the specified writeAccess property.
-     * Important note: even for read locks we need write access to the underlying filesystem in
-     * order to avoid writes from other processes.
-     */
-    GHLock create(String fileName, boolean writeAccess);
+    boolean tryLock();
 
-    /**
-     * Removes the specified lock. Note: on windows we cannot forcefully remove an unreleased native
-     * lock
-     */
-    void forceRemove(String fileName, boolean writeAccess);
+    boolean isLocked();
+
+    void release();
+
+    Exception getObtainFailedReason();
 }

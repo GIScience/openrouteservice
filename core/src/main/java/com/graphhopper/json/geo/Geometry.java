@@ -15,22 +15,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.graphhopper.storage;
+package com.graphhopper.json.geo;
+
+import com.graphhopper.util.PointList;
+import com.graphhopper.util.shapes.GHPoint;
 
 /**
- * A write lock. Influenced by Lucene code
- * <p>
+ * This interface is used to define an area or location being used to block or change areas in the graph.
  *
  * @author Peter Karich
  */
-public interface Lock {
-    String getName();
+public interface Geometry {
+    String getType();
 
-    boolean tryLock();
+    boolean isPoint();
 
-    boolean isLocked();
+    GHPoint asPoint();
 
-    void release();
+    boolean isPointList();
 
-    Exception getObtainFailedReason();
+    PointList asPointList();
 }

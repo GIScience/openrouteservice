@@ -15,26 +15,43 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.graphhopper.storage;
+package com.graphhopper.json.geo;
 
-import java.io.File;
+import com.graphhopper.util.PointList;
+import com.graphhopper.util.shapes.GHPoint;
 
 /**
+ * Wrapper to read a PointList easily from GeoJSON (type=LineString)
+ *
  * @author Peter Karich
  */
-public interface LockFactory {
-    void setLockDir(File lockDir);
+public class LineString extends PointList implements Geometry {
+    public LineString(int size, boolean is3D) {
+        super(size, is3D);
+    }
 
-    /**
-     * This creates a file for write or read locks depending on the specified writeAccess property.
-     * Important note: even for read locks we need write access to the underlying filesystem in
-     * order to avoid writes from other processes.
-     */
-    GHLock create(String fileName, boolean writeAccess);
+    @Override
+    public String getType() {
+        return "LineString";
+    }
 
-    /**
-     * Removes the specified lock. Note: on windows we cannot forcefully remove an unreleased native
-     * lock
-     */
-    void forceRemove(String fileName, boolean writeAccess);
+    @Override
+    public boolean isPoint() {
+        return false;
+    }
+
+    @Override
+    public GHPoint asPoint() {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
+    @Override
+    public boolean isPointList() {
+        return true;
+    }
+
+    @Override
+    public PointList asPointList() {
+        return this;
+    }
 }

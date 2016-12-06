@@ -15,26 +15,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.graphhopper.storage;
+package com.graphhopper.json;
 
-import java.io.File;
+import java.io.Reader;
 
 /**
+ * A simple JSON (de)serialization facade. E.g. to be easily replaced with platform specific
+ * implementations.
+ *
  * @author Peter Karich
  */
-public interface LockFactory {
-    void setLockDir(File lockDir);
-
+public interface GHJson {
     /**
-     * This creates a file for write or read locks depending on the specified writeAccess property.
-     * Important note: even for read locks we need write access to the underlying filesystem in
-     * order to avoid writes from other processes.
+     * This method reads JSON data from the provided source and creates an instance of the provided
+     * class.
      */
-    GHLock create(String fileName, boolean writeAccess);
-
-    /**
-     * Removes the specified lock. Note: on windows we cannot forcefully remove an unreleased native
-     * lock
-     */
-    void forceRemove(String fileName, boolean writeAccess);
+    <T> T fromJson(Reader source, Class<T> aClass);
 }

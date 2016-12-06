@@ -15,26 +15,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.graphhopper.storage;
+package com.graphhopper.json.geo;
 
-import java.io.File;
+import java.util.List;
 
 /**
  * @author Peter Karich
  */
-public interface LockFactory {
-    void setLockDir(File lockDir);
+public class JsonFeatureCollection {
+    String type;
+    List<JsonFeature> features;
 
-    /**
-     * This creates a file for write or read locks depending on the specified writeAccess property.
-     * Important note: even for read locks we need write access to the underlying filesystem in
-     * order to avoid writes from other processes.
-     */
-    GHLock create(String fileName, boolean writeAccess);
+    public String getType() {
+        return type;
+    }
 
-    /**
-     * Removes the specified lock. Note: on windows we cannot forcefully remove an unreleased native
-     * lock
-     */
-    void forceRemove(String fileName, boolean writeAccess);
+    public List<JsonFeature> getFeatures() {
+        return features;
+    }
 }
