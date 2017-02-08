@@ -22,6 +22,7 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.util.EdgeAnnotator;
 import com.graphhopper.routing.util.EdgeWaySurfaceDescriptor;
+import com.graphhopper.routing.util.PathProcessor;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -44,7 +45,7 @@ public class PathMerger
       doWork(rsp, paths, null, null, tr);
     }
 
-    public void doWork( GHResponse rsp, List<Path> paths, EdgeAnnotator edgeAnnotator, EdgeWaySurfaceDescriptor edgeWaySurfaceDescriptor,Translation tr )
+    public void doWork( GHResponse rsp, List<Path> paths, EdgeAnnotator edgeAnnotator, PathProcessor pathProcessor,Translation tr )
     {
         int origPoints = 0;
         long fullTimeInMillis = 0;
@@ -52,6 +53,14 @@ public class PathMerger
         double fullDistance = 0;
         boolean allFound = true;
 
+        if (pathProcessor != null)
+        {
+        	if (paths.size() > 0)
+        		pathProcessor.start(paths.get(0).getEncoder());
+        	else 
+        		pathProcessor.start(null);
+        }
+        
         InstructionList fullInstructions = new InstructionList(tr);
         PointList fullPoints = PointList.EMPTY;
         for (int pathIndex = 0; pathIndex < paths.size(); pathIndex++)
@@ -62,7 +71,7 @@ public class PathMerger
             fullWeight += path.getWeight();
             if (enableInstructions)
             {
-                InstructionList il = path.calcInstructions(edgeAnnotator, edgeWaySurfaceDescriptor,tr);
+                InstructionList il = path.calcInstructions(pathIndex, edgeAnnotator, pathProcessor,tr);
 
                 if (!il.isEmpty())
                 {
@@ -109,16 +118,20 @@ public class PathMerger
 
             allFound = allFound && path.isFound();
         }
+        
+        if (pathProcessor != null)
+        	pathProcessor.finish();
 
         if (!fullPoints.isEmpty())
         {
             String debug = rsp.getDebugInfo() + ", simplify (" + origPoints + "->" + fullPoints.getSize() + ")";
             rsp.setDebugInfo(debug);
-            
+
+        	if (pathProcessor != null)
+            	 fullPoints = pathProcessor.processPoints(fullPoints);
+
             if (fullPoints.is3D)
             {
-            	if (edgeWaySurfaceDescriptor != null)
-            		fullPoints.smooth(20);
             	calcAscentDescent(rsp, fullPoints);
             }
         }

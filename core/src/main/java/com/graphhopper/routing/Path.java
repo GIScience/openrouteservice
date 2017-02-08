@@ -21,6 +21,7 @@ import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeAnnotator;
 import com.graphhopper.routing.util.EdgeWaySurfaceDescriptor;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.util.WaySurfaceDescription;
 import com.graphhopper.storage.EdgeEntry;
 import com.graphhopper.storage.Graph;
@@ -63,7 +64,7 @@ public class Path
     // Runge
 	private double maxSpeed = -1;
 
-    public Path( Graph graph, FlagEncoder encoder, double maxSpeed )
+    public Path(Graph graph, FlagEncoder encoder, double maxSpeed )
     {
         this.weight = Double.MAX_VALUE;
         this.graph = graph;
@@ -108,6 +109,12 @@ public class Path
     {
         fromNode = from;
         return this;
+    }
+    
+    // Runge
+    public FlagEncoder getEncoder()
+    {
+    	return encoder;
     }
 
     /**
@@ -381,13 +388,13 @@ public class Path
     }
 
 	public InstructionList calcInstructions(final Translation tr) {
-		return calcInstructions(null, null, tr);
+		return calcInstructions(-1, null, null, tr);
 	}
 
     /**
      * @return the list of instructions for this path.
      */
-    public InstructionList calcInstructions(final EdgeAnnotator edgeAnnotator, final EdgeWaySurfaceDescriptor edgeWaySurfaceDescriptor, final Translation tr )
+    public InstructionList calcInstructions(final int pathIndex, final EdgeAnnotator edgeAnnotator, final PathProcessor pathProcessor, final Translation tr )
     {
         final InstructionList ways = new InstructionList(edgeIds.size() / 4, tr);
         if (edgeIds.isEmpty())
@@ -428,13 +435,12 @@ public class Path
             private int prevNode = -1;
             private double prevOrientation;
             private Instruction prevInstruction;
-            private WaySurfaceDescription prevWaySurfaceDesc;
             private boolean prevInRoundabout = false;
             private String name, prevName = null;
             private InstructionAnnotation annotation, prevAnnotation;
 			private String prevAnnotationMessage = null;
             private EdgeExplorer outEdgeExplorer = graph.createEdgeExplorer(new DefaultEdgeFilter(encoder, false, true));
-
+            
             @Override
             public void next( EdgeIteratorState edge, int index )
             {
@@ -463,11 +469,8 @@ public class Path
 
                 name = edge.getName();
                 annotation = encoder.getAnnotation(flags, tr);
-                WaySurfaceDescription waySurfaceDesc = null;
-    			if (edgeWaySurfaceDescriptor != null)
-    				waySurfaceDesc = edgeWaySurfaceDescriptor.getDescription(edge.getOriginalEdge());
 
-
+                // Runge
 				if (edgeAnnotator != null) {
 					String annotationMessage = edgeAnnotator.getAnnotation(edge.getOriginalEdge());
 					if (!Helper.isEmpty(annotationMessage))
@@ -485,14 +488,9 @@ public class Path
                     int sign = Instruction.CONTINUE_ON_STREET;
                     prevInstruction = new Instruction(sign, name, annotation, new PointList(10, nodeAccess.is3D()));
                     
-    				if (edgeWaySurfaceDescriptor != null)
-    					prevInstruction.setWaySurfaceDescription(waySurfaceDesc);
-
                     ways.add(prevInstruction);
                     prevName = name;
                     prevAnnotation = annotation;
-                    prevWaySurfaceDesc = waySurfaceDesc;
-
                 } else
                 {
                     if (isRoundabout)
@@ -535,9 +533,6 @@ public class Path
                             }
                             prevInstruction = roundaboutInstruction;
                             
-                            if (edgeWaySurfaceDescriptor != null) // Runge
-            					prevInstruction.setWaySurfaceDescription(waySurfaceDesc);
-                            
                             ways.add(prevInstruction);
                         }
 
@@ -555,7 +550,6 @@ public class Path
 
                     } else if (prevInRoundabout) //previously in roundabout but not anymore
                     {
-
                         prevInstruction.setName(name);
 
                         // calc angle between roundabout entrance and exit
@@ -576,9 +570,8 @@ public class Path
 
                         prevName = name;
                         prevAnnotation = annotation;
-                        prevWaySurfaceDesc = waySurfaceDesc;
 
-                    } else if ((!name.equals(prevName)) || (!annotation.equals(prevAnnotation)) || (waySurfaceDesc != null && !waySurfaceDesc.equals(prevWaySurfaceDesc)))
+                    } else if ((!name.equals(prevName)) || (!annotation.equals(prevAnnotation)))
                     {
                         prevOrientation = ac.calcOrientation(doublePrevLat, doublePrevLong, prevLat, prevLon);
                         double orientation = ac.calcOrientation(prevLat, prevLon, latitude, longitude);
@@ -618,13 +611,9 @@ public class Path
                         }
                         prevInstruction = new Instruction(sign, name, annotation, new PointList(10, nodeAccess.is3D()));
                         
-        				if (edgeWaySurfaceDescriptor != null)
-        					prevInstruction.setWaySurfaceDescription(waySurfaceDesc);
-
                         ways.add(prevInstruction);
                         prevName = name;
                         prevAnnotation = annotation;
-                        prevWaySurfaceDesc = waySurfaceDesc;
                     }
                 }
 
@@ -660,6 +649,10 @@ public class Path
                     }
                     ways.add(new FinishInstruction(nodeAccess, adjNode));
                 }
+                
+                // Runge
+    			if (pathProcessor != null)
+    				pathProcessor.processEdge(pathIndex, edge, lastEdge, wayGeo);
             }
 
             private void updatePointsAndInstruction( EdgeIteratorState edge, PointList pl )

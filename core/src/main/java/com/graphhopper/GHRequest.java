@@ -20,6 +20,7 @@ package com.graphhopper;
 import com.graphhopper.routing.util.EdgeAnnotator;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EdgeWaySurfaceDescriptor;
+import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.util.WeightingMap;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.GHPoint;
@@ -47,7 +48,7 @@ public class GHRequest
     
     // Runge
     private EdgeAnnotator edgeAnnotator;
-    private EdgeWaySurfaceDescriptor edgeWaySurfaceDescriptor;
+    private PathProcessor pathProcessor;
     private EdgeFilter edgeFilter; 
     private double maxSpeed = -1; 
     private double maxSearchDistance;
@@ -241,14 +242,14 @@ public class GHRequest
     	this.edgeAnnotator = edgeAnnotator; 
     }
     
-    public EdgeWaySurfaceDescriptor getWaySurfaceDescriptor()
+    public PathProcessor getPathProcessor()
     {
-    	return this.edgeWaySurfaceDescriptor;
+    	return this.pathProcessor;
     }
     
-    public void setWaySurfaceDescriptor(EdgeWaySurfaceDescriptor edgeDescriptor)
+    public void setPathProcessor(PathProcessor pathProcessor)
     {
-    	this.edgeWaySurfaceDescriptor = edgeDescriptor;
+    	this.pathProcessor = pathProcessor;
     }
     
     public double getMaxSearchDistance() // Runge
