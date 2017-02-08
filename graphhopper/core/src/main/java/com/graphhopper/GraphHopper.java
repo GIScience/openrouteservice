@@ -402,7 +402,8 @@ public class GraphHopper implements GraphHopperAPI
      * This method specifies if the returned path should be simplified or not, via douglas-peucker
      * or similar algorithm.
      */
-    private GraphHopper setSimplifyResponse( boolean doSimplify )
+    // runge: make it protected
+    protected GraphHopper setSimplifyResponse( boolean doSimplify )
     {
         this.simplifyResponse = doSimplify;
         return this;
@@ -984,7 +985,7 @@ public class GraphHopper implements GraphHopperAPI
                 setDouglasPeucker(peucker).
                 setEnableInstructions(tmpEnableInstructions).
                 setSimplifyResponse(simplifyResponse && wayPointMaxDistance > 0).
-                doWork(response, paths, request.getEdgeAnnotator(), request.getWaySurfaceDescriptor(), trMap.getWithFallBack(locale));
+                doWork(response, paths, request.getEdgeAnnotator(), request.getPathProcessor(), trMap.getWithFallBack(locale));
         return response;
     }
     

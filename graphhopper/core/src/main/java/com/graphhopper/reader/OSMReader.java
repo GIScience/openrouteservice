@@ -479,6 +479,7 @@ public class OSMReader implements DataReader
         	// do nothing
         	// encodingManager.getEncoder(EncodingManager.WHEELCHAIR); throws an exception for all graph storages that do not contain the wheelchair profile
         }
+        
         for (EdgeIteratorState edge : createdEdges)
         {
         	processEdge(way, edge);

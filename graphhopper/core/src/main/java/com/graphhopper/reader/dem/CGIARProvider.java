@@ -174,26 +174,25 @@ public class CGIARProvider implements ElevationProvider
                 {
                     try
                     {
-                        for (int i = 0; i < 3; i++)
-                        {
-                            try
-                            {
+                    	int max = 3;
+                        for (int trial = 0; trial < max; trial++) {
+                            try {
                                 downloader.downloadFile(zippedURL, file.getAbsolutePath());
                                 break;
-                            } catch (SocketTimeoutException ex)
-                            {
+                            } catch (SocketTimeoutException ex) {
                                 // just try again after a little nap
                                 Thread.sleep(2000);
+                                if (trial >= max - 1)
+                                    throw ex;
                                 continue;
-                            } catch (IOException ex)
-                            {
+                            } catch (IOException ex) {
                                 demProvider.setSeaLevel(true);
                                 // use small size on disc and in-memory
                                 heights.setSegmentSize(100).create(10).
                                         flush();
                                 return 0;
                             }
-                        }
+}
                     } catch (Exception ex)
                     {
                         throw new RuntimeException(ex);
