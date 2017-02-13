@@ -29,7 +29,7 @@
                 "direct": false,
                 "steps": [{
                     "distance": 66 /*m*/ ,
-                    "code": 2, 
+                    "code": 2,
                     "interval": [0, 3],
                     "text": "Turn left at..",
                     "duration": 123 /*ms*/ ,
@@ -89,15 +89,18 @@
             }]
             "wayPoints": [0, 9, 16] /*indices of closest point in geometry*/ ,
             "extras": {
-                "gradients": [{
-                    "from": 0,
-                    "to": 3,
-                    "value": 10
-                }, {
-                    "from": 3,
-                    "to": 10,
-                    "value": 10
-                }],
+                "gradients": {
+                    "points": [{
+                        "from": 0,
+                        "to": 3,
+                        "value": 10
+                    }, {
+                        "from": 3,
+                        "to": 10,
+                        "value": 1
+                    }],
+                    "summary": {}
+                },
                 "surfaces": [{
                     "from": 0,
                     "to": 3,
@@ -115,7 +118,8 @@
                     "from": 3,
                     "to": 10,
                     "value": 10
-                }]
+                }],
+                ,
             }
         },
         /** alternatives */
