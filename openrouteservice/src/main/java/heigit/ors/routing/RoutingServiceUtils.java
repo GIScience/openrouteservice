@@ -92,8 +92,8 @@ public class RoutingServiceUtils {
 					profileProps.put("mindistance", rpc.MinimumDistance.toString());
 				}
 
-				if (rpc.DynamicWeighting != null && rpc.DynamicWeighting == true) {
-					profileProps.put("custom_attributes", "true");
+				if (rpc.ExtStorages != null) {
+					profileProps.put("storages", rpc.ExtStorages);
 				}
 
 				StorableProperties storageProps = rp.getGraphProperties();

@@ -11,66 +11,153 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.routing.util.extrainfobuilders;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.graphhopper.routing.util.RouteSplit;
+import com.graphhopper.routing.util.SteepnessUtil;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.PointList;
 
 import heigit.ors.routing.RouteExtraInfo;
+import heigit.ors.routing.RouteSegmentItem;
 
 public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder {
-	//private List<RouteSplit> _splits;
+	private boolean _firstSegment = true;
+	private double _x0, _y0, _z0, _x1, _y1, _z1;
+	private double _elevDiff = 0;
+	private double _cumElevation = 0.0;
+	private double _maxAltitude = Double.MIN_VALUE;
+	private double _minAltitude = Double.MAX_VALUE;
+	private double _prevMinAltitude, _prevMaxAltitude;
+	private double _splitLength = 0.0;
+	private int _prevGradientCat = 0;
+	private int _startIndex;
+	private int _pointsCount = 0;
+	private RouteSegmentItem _prevSegmentItem;
 	private DistanceCalc _distCalc;
-	private double _prevElevation;
-	private double _splitLength;
 	
-    public SteepnessExtraInfoBuilder(RouteExtraInfo extraInfo) {
+    public SteepnessExtraInfoBuilder(RouteExtraInfo extraInfo) 
+    {
 		super(extraInfo);
-		
-	//	_splits = new ArrayList<RouteSplit>();
 		_distCalc = new DistanceCalcEarth();
 	}
 
 	public void addSegment(double value, int valueIndex, PointList geom, double dist, boolean lastEdge)
     {
 		int nPoints = geom.getSize() - 1;
+		if (nPoints == 0)
+			return;		
+
+		int j0 = 0;
 		
-		
-		_splitLength = dist;
-		
-		/*if ((_prevValue != Double.MAX_VALUE && value != _prevValue) || (lastEdge))
+		if (_firstSegment)
 		{
-			RouteSegmentItem item = null;
-			if (lastEdge)
-				item = new RouteSegmentItem(_prevIndex, _prevIndex + _segmentLength + nPoints, valueIndex, _segmentDist + dist);
-			else
+			j0 = 1;
+
+			_x0 = geom.getLon(0);
+			_y0 = geom.getLat(0);
+			_z0 = geom.getEle(0);
+			
+			_maxAltitude = _z0;
+			_minAltitude = _z0;
+			_pointsCount++;
+			
+			_firstSegment = false;
+		}
+		
+		for (int j = j0; j < nPoints; ++j) {
+			_x1 = geom.getLon(j);
+			_y1 = geom.getLat(j);
+			_z1 = geom.getEle(j);
+			
+			_elevDiff = _z1 - _z0;
+			_cumElevation += _elevDiff;
+			double segLength = _distCalc.calcDist(_y0, _x0, _y1, _x1);
+
+			_prevMinAltitude = _minAltitude;
+			_prevMaxAltitude = _maxAltitude;
+			if (_z1 > _maxAltitude)
+				_maxAltitude = _z1;
+			if (_z1 < _minAltitude)
+				_minAltitude = _z1;
+
+			if (_maxAltitude - _z1 > SteepnessUtil.ELEVATION_THRESHOLD || _z1 - _minAltitude > SteepnessUtil.ELEVATION_THRESHOLD)
 			{
-				item = new RouteSegmentItem(_prevIndex, _prevIndex + _segmentLength, _prevValueIndex, _segmentDist);
-				_prevIndex +=_segmentLength;
-				_segmentDist = dist;
-				_segmentLength = nPoints;
+				boolean bApply = true;
+				int elevSign = _cumElevation > 0 ? 1 : -1;
+				double gradient = elevSign*100*(_prevMaxAltitude - _prevMinAltitude) / _splitLength;
+				
+				if (_prevGradientCat != 0 )
+				{
+					double zn= Double.MIN_NORMAL;
+					
+					if (j + 1 < nPoints)
+					  zn = geom.getEle(j + 1);
+
+					if (zn != Double.MIN_VALUE)
+					{						
+						double elevGap = segLength/30;
+						if (elevSign > 0 /* && Math.Abs(prevSplit.Gradient - gradient) < gradientDiff)//*/ && _prevGradientCat > 0)
+						{
+							if (Math.abs(zn - _z1) < elevGap)
+								bApply = false;
+						}
+						else if(/*Math.Abs(prevSplit.Gradient - gradient) < gradientDiff)//*/_prevGradientCat < 0)
+						{
+							if (Math.abs(zn - _z1) < elevGap)
+								bApply = false;
+						}
+					}
+				}
+				
+				if (bApply)
+				{
+					_prevGradientCat = SteepnessUtil.getCategory(gradient);
+					int iEnd = _pointsCount - 1;
+
+					RouteSegmentItem item = new RouteSegmentItem(_startIndex, iEnd, _prevGradientCat, _splitLength);
+					_extraInfo.add(item);
+					
+					_prevSegmentItem = item;
+					_startIndex = iEnd;
+					_minAltitude = Math.min(_z0, _z1);
+					_maxAltitude = Math.max(_z0, _z1);
+					_splitLength = 0.0;
+					
+					_cumElevation = _elevDiff;
+				}
 			}
 			
-			_extraInfo.add(item);
-		}
-		else
-		{
-			_segmentLength += nPoints;
-			_segmentDist += dist;
-		}
+			_splitLength += segLength;
 
-		_prevValue = value;
-		_prevValueIndex = valueIndex;*/
+
+			_x0 = _x1;
+			_y0 = _y1;
+			_z0 = _z1;
+			
+			_pointsCount++;
+		}
+		
+		if (lastEdge && _splitLength > 0)
+		{
+			int iEnd = _pointsCount;
+			_elevDiff = _maxAltitude - _minAltitude;
+			if (_extraInfo.isEmpty() && _splitLength < 50 && _elevDiff < SteepnessUtil.ELEVATION_THRESHOLD)
+				_elevDiff = 0;
+			
+			double gradient = (_cumElevation > 0 ? 1: -1)*100*_elevDiff / _splitLength;
+			int gc = SteepnessUtil.getCategory(gradient);
+			if (_prevSegmentItem != null && (_prevGradientCat == gc || _splitLength < 25))
+			{
+				_prevSegmentItem.setTo(iEnd);
+			}
+			else
+			{
+				RouteSegmentItem item = new RouteSegmentItem(_startIndex, iEnd, _prevGradientCat, _splitLength);
+				_extraInfo.add(item);
+			}
+		}
     }
 	
 	public void finish()
 	{
-		/*for(RouteSplit split : _splits)
-		{
-			RouteSegmentItem item = new RouteSegmentItem(_prevIndex, _prevIndex + _segmentLength + nPoints, valueIndex, _segmentDist + dist); 
-		}*/
 	}
 }

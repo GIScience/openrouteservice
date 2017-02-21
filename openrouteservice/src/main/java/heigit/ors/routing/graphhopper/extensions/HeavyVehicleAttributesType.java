@@ -15,8 +15,6 @@
 package heigit.ors.routing.graphhopper.extensions;
 
 public class HeavyVehicleAttributesType {
-	public static final int WayType = 0;
-	public static final int VehicleType = 1;
-	public static final int Restrictions = 2;
-	public static final int WaySurface = 4;
+	public static final int VehicleType = 2;
+	public static final int Restrictions = 4;
 }

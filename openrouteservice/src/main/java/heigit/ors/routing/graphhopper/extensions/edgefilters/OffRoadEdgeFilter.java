@@ -13,7 +13,7 @@
 // Authors: M. Rylov 
 
 package heigit.ors.routing.graphhopper.extensions.edgefilters;
-
+/*
 import heigit.ors.routing.graphhopper.extensions.storages.MotorcarAttributesGraphStorage;
 
 import com.graphhopper.routing.util.EdgeFilter;
@@ -38,10 +38,7 @@ public class OffRoadEdgeFilter implements EdgeFilter {
 		this(encoder, true, true, restrictionValues, indexValues, graphStorage);
 	}
 
-	/**
-	 * Creates an edges filter which accepts both direction of the specified
-	 * vehicle.
-	 */
+
 	public OffRoadEdgeFilter(FlagEncoder encoder, boolean in, boolean out, float[] restrictionValues,
 			Integer[] indexValues, GraphStorage graphStorage) {
 		this.encoder = encoder;
@@ -104,4 +101,4 @@ public class OffRoadEdgeFilter implements EdgeFilter {
 	public String toString() {
 		return encoder.toString() + ", in:" + in + ", out:" + out;
 	}
-}
+}*/

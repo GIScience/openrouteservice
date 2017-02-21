@@ -60,7 +60,7 @@ public class RoutingProfilesUpdater {
 		}
 	}
 
-	private Logger logger = Logger.getLogger("org.freeopenls.routeservice.routing.RouteProfilesUpdater");
+	private static Logger LOGGER = Logger.getLogger("org.freeopenls.routeservice.routing.RouteProfilesUpdater");
 
 	private RouteUpdateConfiguration m_config;
 	private RoutingProfilesCollection m_routeProfiles;
@@ -104,7 +104,7 @@ public class RoutingProfilesUpdater {
 		m_timer.schedule(timerTask, firstUpdateTime, m_updatePeriod);
 
 		m_nextUpdate = firstUpdateTime;
-		logger.info("Next route profiles update is scheduled at " + firstUpdateTime.toString());
+		LOGGER.info("Next route profiles update is scheduled at " + firstUpdateTime.toString());
 	}
 
 	private void downloadFile(String url, File destination) {
@@ -118,34 +118,34 @@ public class RoutingProfilesUpdater {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static String downloadFileContent(String url) throws Exception {
-        URL website = new URL(url);
-        URLConnection connection = website.openConnection();
-       
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+		URL website = new URL(url);
+		URLConnection connection = website.openConnection();
 
-        StringBuilder response = new StringBuilder();
-        String inputLine;
+		BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
-        while ((inputLine = in.readLine()) != null) 
-            response.append(inputLine);
+		StringBuilder response = new StringBuilder();
+		String inputLine;
 
-        in.close();
+		while ((inputLine = in.readLine()) != null) 
+			response.append(inputLine);
 
-        return response.toString();
-    }
-	
+		in.close();
+
+		return response.toString();
+	}
+
 	public Date getNextUpdate()
 	{
 		return m_nextUpdate;		
 	}
-	
+
 	public String getStatus()
 	{
 		return m_updateStatus;
 	}
-	
+
 	public boolean isRunning()
 	{
 		return m_isRunning;
@@ -156,11 +156,11 @@ public class RoutingProfilesUpdater {
 			return;
 
 		m_isRunning = true;
-		
+
 		try {
 			long startTime = System.currentTimeMillis();
 
-			logger.info("Start updating route profiles...");
+			LOGGER.info("Start updating route profiles...");
 
 			m_nextUpdate = new Date(startTime + m_updatePeriod);
 
@@ -168,150 +168,165 @@ public class RoutingProfilesUpdater {
 			String datasource = m_config.DataSource;
 
 			FileUtility.makeDirectory(m_config.WorkingDirectory);
-			
+
 			String md5Sum = null;
 			String newMd5Sum = null;
-			
-			File fileMd5 = Paths.get(m_config.WorkingDirectory,"last-update.md5").toFile();
-			if (fileMd5.exists())
-				md5Sum =  FileUtils.readFileToString(fileMd5);
-			
+			boolean skipUpdate = false;  
+
+			File fileLastUpdate =  Paths.get(m_config.WorkingDirectory,"last-update.md5").toFile();
+			if (fileLastUpdate.exists())
+				md5Sum =  FileUtils.readFileToString(fileLastUpdate);
+
 			if (datasource.contains("http")) {
 				m_updateStatus = "donwloading data";
-				
+
 				try
 				{
 					newMd5Sum = downloadFileContent(datasource + ".md5");
 				}
 				catch(Exception ex2)
 				{
-					
+
 				}
 
 				if (md5Sum != null && newMd5Sum != null && md5Sum.contains(newMd5Sum))
-					return;
+					skipUpdate = true;
 
-				Path path = Paths.get(m_config.WorkingDirectory, FileUtility.getFileName(new URL(datasource)));
-				
+				if (!skipUpdate)
+				{
+					Path path = Paths.get(m_config.WorkingDirectory, FileUtility.getFileName(new URL(datasource)));
+
+					try
+					{
+						downloadFile(datasource, path.toFile());
+					}
+					catch(Exception ex)
+					{
+						LOGGER.warning(ex.getMessage());
+
+						Thread.sleep(300000);
+
+						m_isRunning = false;
+						run();
+
+						return;
+					}
+
+					osmFile = path.toString();
+				}
+			} else {
+				File file = new File(datasource + ".md5");
+				newMd5Sum = file.exists() ? FileUtils.readFileToString(file) : FileUtility.getMd5OfFile(datasource);
+
+				if (md5Sum != null && newMd5Sum != null && md5Sum.contains(newMd5Sum))
+					skipUpdate = true;
+
+				if (!skipUpdate)
+				{
+					file = new File(datasource);
+					Path path = Paths.get(m_config.WorkingDirectory, file.getName());
+
+					// make a local copy of the file
+					FileUtils.copyFile(file, path.toFile());
+
+					osmFile = path.toString();
+				}
+			}
+
+			if (!skipUpdate)
+			{
+				if (Helper.isEmpty(newMd5Sum))
+					newMd5Sum = FileUtility.getMd5OfFile(osmFile);
+
+				md5Sum = newMd5Sum;
+				File file = new File(osmFile);
+				String newFileStamp = Long.toString(file.length());
+
+				String tempGraphLocation = Paths.get(m_config.WorkingDirectory, "graph").toString();
+
 				try
 				{
-					downloadFile(datasource, path.toFile());
+					// Clear directory from a previous build
+					File fileGraph = new File(tempGraphLocation);
+					if (fileGraph.exists())
+						FileUtils.deleteDirectory(fileGraph);	
 				}
 				catch(Exception ex)
-				{
-					logger.warning(ex.getMessage());
-					
-					Thread.sleep(300000);
-					
-					m_isRunning = false;
-					run();
-					
-					return;
-				}
-				
-				osmFile = path.toString();
-			} else {
-				File fMd5 = new File(datasource + ".md5");
-				if (fMd5.exists())
-				{
-					newMd5Sum = FileUtils.readFileToString(fMd5);
-					
-					if (md5Sum != null && md5Sum.contains(newMd5Sum))
-						return;
-				}
-				
-				File file = new File(datasource);
-				Path path = Paths.get(m_config.WorkingDirectory, file.getName());
-				
-				// make a local copy of the file
-				FileUtils.copyFile(file, path.toFile());
-				
-				osmFile = path.toString();
-			}
-			
-			if (Helper.isEmpty(newMd5Sum))
-			  newMd5Sum = FileUtility.getMd5OfFile(osmFile);
+				{}
 
-			md5Sum = newMd5Sum;
-			File file = new File(osmFile);
-			String newFileStamp = Long.toString(file.length());
-			int i = 0;
+				FileUtility.makeDirectory(tempGraphLocation);
 
-			String tempLocation = Paths.get(m_config.WorkingDirectory, "graph").toString();
-			
-			try
-			{
-				// Clear directory from a previous build
-				File fileGraph = new File(tempLocation);
-				if (fileGraph.exists())
-					FileUtils.deleteDirectory(fileGraph);	
-			}
-			catch(Exception ex)
-			{}
+				int nUpdatedProfiles = 0;
 
-			FileUtility.makeDirectory(tempLocation);
+				for (RoutingProfile profile : m_routeProfiles.getUniqueProfiles()) {
+					RouteProfileConfiguration rpc = profile.getConfiguration();
 
-			for (RoutingProfile profile : m_routeProfiles.getUniqueProfiles()) {
-				i++;
-				RouteProfileConfiguration rpc = profile.getConfiguration();
-			
-				Path pathTimestamp = Paths.get(rpc.GraphPath, "stamp.txt");
-				File file2 = pathTimestamp.toFile();
-				if (file2.exists()) {
-					String oldFileStamp = FileUtils.readFileToString(file2);
-					if (newFileStamp.equals(oldFileStamp))
-						continue;
-				}
-				
-				if (m_updatePeriod > 0)
-				{
-					StorableProperties storageProps = profile.getGraphProperties();
-					DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-
-					Date importDate = df.parse(storageProps.get("osmreader.import.date"));
-					
-					long diff = startTime - importDate.getTime();
-					
-					if (!DebugUtility.isDebug())
-					{
-						if (diff < m_updatePeriod)
+					Path pathTimestamp = Paths.get(rpc.GraphPath, "stamp.txt");
+					File file2 = pathTimestamp.toFile();
+					if (file2.exists()) {
+						String oldFileStamp = FileUtils.readFileToString(file2);
+						if (newFileStamp.equals(oldFileStamp))
 							continue;
 					}
-				}
 
-				try {
-					m_updateStatus = "preparing profile " + Integer.toString(i);
+					if (m_updatePeriod > 0)
+					{
+						StorableProperties storageProps = profile.getGraphProperties();
+						DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-					GraphHopper gh = RoutingProfile.initGraphHopper(osmFile, profile.getConfigRootPath(),
-							rpc.ConfigPath, tempLocation, rpc.DynamicWeighting, rpc.SurfaceInformation, rpc.HillIndex, rpc.UseTrafficInformation, rpc.BBox, RoutingProfileManager.getInstance().getProfiles());
+						Date importDate = df.parse(storageProps.get("osmreader.import.date"));
 
-					if (gh != null) {
-						profile.updateGH(gh);
+						long diff = startTime - importDate.getTime();
 
-						if (RealTrafficDataProvider.getInstance().isInitialized())
+						if (!DebugUtility.isDebug())
 						{
-							m_updateStatus += ". Performing map matching...";
-							RealTrafficDataProvider.getInstance().updateGraphMatching(profile, profile.getGraphLocation());
+							if (diff < m_updatePeriod)
+								continue;
 						}
 					}
-				} catch (Exception ex) {
-					logger.severe("Failed to update graph profile '" + rpc.ConfigPath +"'. Message:" + ex.getMessage() + "; StackTrace: " +	StackTraceUtility.getStackTrace(ex));
+
+					try {
+						m_updateStatus = "preparing profile '" + rpc.Profiles +"'";
+
+						RouteProfileConfiguration rpcNew = rpc.clone();
+						rpcNew.GraphPath = tempGraphLocation;
+						GraphHopper gh = RoutingProfile.initGraphHopper(osmFile, rpcNew, RoutingProfileManager.getInstance().getProfiles());
+
+						if (gh != null) {
+							profile.updateGH(gh);
+
+							if (RealTrafficDataProvider.getInstance().isInitialized())
+							{
+								m_updateStatus += ". Performing map matching...";
+								RealTrafficDataProvider.getInstance().updateGraphMatching(profile, profile.getGraphLocation());
+							}
+
+							nUpdatedProfiles++;
+						}
+					} catch (Exception ex) {
+						LOGGER.severe("Failed to update graph profile. Message:" + ex.getMessage() + "; StackTrace: " +	StackTraceUtility.getStackTrace(ex));
+					}
+
+					m_updateStatus = null;
 				}
-				
-				m_updateStatus = null;
+
+				FileUtils.writeStringToFile(fileLastUpdate, md5Sum);
+
+				long seconds = (System.currentTimeMillis() - startTime) / 1000;
+				LOGGER.info(nUpdatedProfiles + " of " + m_routeProfiles.size() + " profiles were updated in " + seconds + " s.");
+
+				m_updateStatus = "Last update on " + new Date() + " took " + seconds + " s.";
+			}
+			else
+			{
+				LOGGER.info("No new data is available.");
 			}
 			
-		    FileUtils.writeStringToFile(fileMd5, md5Sum);
-		    
-			long seconds = (System.currentTimeMillis() - startTime) / 1000;
-			logger.info(i + " of " + m_routeProfiles.size() + " profiles were updated in " + seconds + " s.");
-			
-			m_updateStatus = "last update on " + new Date() + " took " + seconds + " s.";
 		} catch (Exception ex) {
-			logger.warning(ex.getMessage());
+			LOGGER.warning(ex.getMessage());
 		}
 
-		logger.info("Next route profiles update is scheduled on " + m_nextUpdate.toString());
+		LOGGER.info("Next route profiles update is scheduled on " + m_nextUpdate.toString());
 
 		m_isRunning = false;
 	}

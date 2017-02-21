@@ -18,19 +18,17 @@ import heigit.ors.routing.configuration.RouteProfileConfiguration;
 
 public class RoutingProfileLoader implements Callable<RoutingProfile> {
 	private String osmFile;
-	private String configRoot;
 	private RouteProfileConfiguration rpc;
 	private RoutingProfilesCollection routeProfiles;
 
-	public RoutingProfileLoader(String osmFile, String configRoot, RouteProfileConfiguration rpc, RoutingProfilesCollection routeProfiles) {
+	public RoutingProfileLoader(String osmFile, RouteProfileConfiguration rpc, RoutingProfilesCollection routeProfiles) {
 		this.osmFile = osmFile;
-		this.configRoot = configRoot;
 		this.rpc = rpc;
 		this.routeProfiles = routeProfiles;
 	}
 
 	@Override
 	public RoutingProfile call() throws Exception {
-		return new RoutingProfile(osmFile, configRoot, rpc, routeProfiles);
+		return new RoutingProfile(osmFile, rpc, routeProfiles);
 	}
 }

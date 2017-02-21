@@ -38,6 +38,7 @@ import heigit.ors.services.isochrones.IsochroneRequest;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.isochrones.IsochroneUtility;
 import heigit.ors.isochrones.IsochronesIntersection;
+import heigit.ors.isochrones.IsochronesRangeType;
 import heigit.ors.isochrones.Isochrone;
 import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.routing.RoutingProfileManager;
@@ -132,7 +133,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
 		int groupIndex = 0;
 		boolean includeArea = request.hasAttribute("area");
-		boolean includeReachFactor = request.hasAttribute("reachfactor");
+		boolean includeReachFactor = request.getRangeType() == IsochronesRangeType.Time && request.hasAttribute("reachfactor");
 		String units = request.getUnits() != null ? request.getUnits().toLowerCase() : null;
 
 		for (IsochroneMap isoMap : isochroneMaps)
@@ -248,7 +249,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
 		jQuery.put("ranges", StringUtility.arrayToString(request.getRanges(), ","));
 
-		jQuery.put("locations", GeometryJSON.toJSON(request.getLocations()));
+		jQuery.put("locations", GeometryJSON.toJSON(request.getLocations(), false));
 
 		if (request.getUnits() != null)
 			jQuery.put("units", request.getUnits());
@@ -264,6 +265,9 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
 		if (!Helper.isEmpty(request.getRouteSearchParameters().getOptions()))
 			jQuery.put("options", new JSONObject(request.getRouteSearchParameters().getOptions()));
+
+		if (request.getId() != null)
+			jQuery.put("id", request.getId());
 
 		jInfo.put("query", jQuery);
 

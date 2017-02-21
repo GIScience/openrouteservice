@@ -1,9 +1,9 @@
 package heigit.ors.routing;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.graphhopper.util.Helper;
+
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
@@ -13,7 +13,7 @@ import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import heigit.ors.routing.graphhopper.extensions.WheelchairRestrictionCodes;
-import heigit.ors.routing.util.AvoidFeatureFlags;
+import heigit.ors.routing.parameters.*;
 import heigit.ors.util.StringUtility;
 
 public class RouteSearchParameters {
@@ -248,7 +248,7 @@ public class RouteSearchParameters {
 		}
 	}
 
-	public boolean hasParameters(Class value)
+	public boolean hasParameters(Class<?> value)
 	{
 		if (_profileParams == null)
 			return false;

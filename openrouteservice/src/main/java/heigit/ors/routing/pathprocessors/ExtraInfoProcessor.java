@@ -22,16 +22,18 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
 
 import heigit.ors.routing.RouteExtraInfo;
-import heigit.ors.routing.RouteExtraInformationFlag;
+import heigit.ors.routing.RouteExtraInfoFlag;
 import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
+import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.graphhopper.extensions.storages.WaySurfaceTypeGraphStorage;
-import heigit.ors.routing.util.extrainfobuilders.DummyRouteExtraInfoBuilder;
+import heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
 import heigit.ors.routing.util.extrainfobuilders.RouteExtraInfoBuilder;
 import heigit.ors.routing.util.extrainfobuilders.SimpleRouteExtraInfoBuilder;
 import heigit.ors.routing.util.extrainfobuilders.SteepnessExtraInfoBuilder;
 
 public class ExtraInfoProcessor extends PathProcessor {
-	private WaySurfaceTypeGraphStorage storageWaySurface;
+	private WaySurfaceTypeGraphStorage extWaySurface;
+	private WayCategoryGraphStorage extWayCategory;
 	
 	private RouteExtraInfo _surfaceInfo;
 	private RouteExtraInfoBuilder _surfaceInfoBuilder;
@@ -45,34 +47,46 @@ public class ExtraInfoProcessor extends PathProcessor {
 	private RouteExtraInfo _waySuitabilityInfo;
 	private RouteExtraInfoBuilder _waySuitabilityInfoBuilder;
 	
+	private RouteExtraInfo _wayCategoryInfo;
+	private RouteExtraInfoBuilder _wayCategoryInfoBuilder;
+	
 	private FlagEncoder _encoder;
 	private byte[] buffer;
 	private boolean _lastSegment;
 
 	public ExtraInfoProcessor(ORSGraphHopper graphHopper, int extraInfo) {
-		storageWaySurface = graphHopper.getWaySurfaceStorage();
-
-		if (storageWaySurface != null)
+		
+		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.WayCategory))
 		{
-			if (RouteExtraInformationFlag.isSet(extraInfo, RouteExtraInformationFlag.Surface))
+			extWayCategory = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), WayCategoryGraphStorage.class);
+			
+			_wayCategoryInfo = new RouteExtraInfo("waycategory");
+			_wayCategoryInfoBuilder = new SimpleRouteExtraInfoBuilder(_wayCategoryInfo);
+		}
+		
+		extWaySurface = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), WaySurfaceTypeGraphStorage.class);
+		
+		if (extWaySurface != null)
+		{
+			if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Surface))
 			{
 				_surfaceInfo = new RouteExtraInfo("surface");
 				_surfaceInfoBuilder = new SimpleRouteExtraInfoBuilder(_surfaceInfo);
 			}
-			if (RouteExtraInformationFlag.isSet(extraInfo, RouteExtraInformationFlag.WayTypes))
+			if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.WayType))
 			{
 				_wayTypeInfo = new RouteExtraInfo("waytypes");
 				_wayTypeInfoBuilder = new SimpleRouteExtraInfoBuilder(_wayTypeInfo);
 			}
 		}
 		
-		if (RouteExtraInformationFlag.isSet(extraInfo, RouteExtraInformationFlag.Steepness))
+		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Steepness))
 		{
 			_steepnessInfo = new RouteExtraInfo("steepness");
-			_steepnessInfoBuilder = new DummyRouteExtraInfoBuilder(_steepnessInfo);// new SteepnessExtraInfoBuilder(_steepnessInfo);
+			_steepnessInfoBuilder = new SteepnessExtraInfoBuilder(_steepnessInfo);
 		}
 		
-		if (RouteExtraInformationFlag.isSet(extraInfo, RouteExtraInformationFlag.Suitability))
+		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Suitability))
 		{
 			_waySuitabilityInfo = new RouteExtraInfo("suitability");
 			_waySuitabilityInfoBuilder = new SimpleRouteExtraInfoBuilder(_waySuitabilityInfo);
@@ -106,15 +120,20 @@ public class ExtraInfoProcessor extends PathProcessor {
 	public void processEdge(int pathIndex, EdgeIteratorState edge, boolean lastEdge, PointList geom) {
 		double dist = edge.getDistance();
 
-		if (storageWaySurface != null && _wayTypeInfo != null || _surfaceInfo != null)
+		if (extWaySurface != null && _wayTypeInfo != null || _surfaceInfo != null)
 		{
-			WaySurfaceDescription wsd = storageWaySurface.getEdgeValue(edge.getOriginalEdge(), buffer);
+			WaySurfaceDescription wsd = extWaySurface.getEdgeValue(edge.getOriginalEdge(), buffer);
 
 			if (_surfaceInfoBuilder != null)
 				_surfaceInfoBuilder.addSegment(wsd.SurfaceType, wsd.SurfaceType, geom, dist, lastEdge && _lastSegment);
 			
 			if (_wayTypeInfo != null)
 				_wayTypeInfoBuilder.addSegment(wsd.WayType, wsd.WayType, geom, dist, lastEdge && _lastSegment);
+		}
+		
+		if (_wayCategoryInfoBuilder != null)
+		{
+			//_wayCategoryInfoBuilder.addSegment(value, valueIndex, geom, dist, lastEdge);
 		}
 
 		if (_waySuitabilityInfoBuilder != null)
@@ -141,8 +160,6 @@ public class ExtraInfoProcessor extends PathProcessor {
 
 	public void finish()
 	{
-		if (_steepnessInfoBuilder != null)
-			_steepnessInfoBuilder.finish();
 	}
 
 	@Override

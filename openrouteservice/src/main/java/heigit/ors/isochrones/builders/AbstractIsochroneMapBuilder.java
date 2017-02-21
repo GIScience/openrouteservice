@@ -15,12 +15,13 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.EdgeFilter;
 
 import heigit.ors.isochrones.builders.IsochroneMapBuilder;
+import heigit.ors.routing.RouteSearchContext;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.isochrones.IsochroneMap;
 
 public abstract class AbstractIsochroneMapBuilder implements IsochroneMapBuilder {
 	
-	public abstract void initialize(GraphHopper gh, EdgeFilter edgeFilter, String encoderName);
+	public abstract void initialize(RouteSearchContext searchContext);
 	
 	public abstract IsochroneMap compute(IsochroneSearchParameters parameters) throws Exception; 
 }

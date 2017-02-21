@@ -1,4 +1,4 @@
-package heigit.ors.routing;
+package heigit.ors.routing.parameters;
 
 public class ProfileParameters {
 

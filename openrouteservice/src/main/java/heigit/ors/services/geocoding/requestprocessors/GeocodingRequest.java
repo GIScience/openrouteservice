@@ -15,7 +15,9 @@ import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
-public class GeocodingRequest 
+import heigit.ors.services.ServiceRequest;
+
+public class GeocodingRequest extends ServiceRequest
 {
 	private String _query;
 	private int _limit = 5;

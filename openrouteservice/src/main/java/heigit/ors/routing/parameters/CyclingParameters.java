@@ -9,10 +9,10 @@
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-package heigit.ors.routing;
+package heigit.ors.routing.parameters;
 
 public class CyclingParameters extends ProfileParameters {
-	private int _difficultyLevel = 0;
+	private int _difficultyLevel = -1;
 	private int _maximumGradient = -1;
 
 	public CyclingParameters()

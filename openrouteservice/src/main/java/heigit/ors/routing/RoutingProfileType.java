@@ -1,3 +1,14 @@
+/*|----------------------------------------------------------------------------------------------
+ *|														Heidelberg University
+ *|	  _____ _____  _____      _                     	Department of Geography		
+ *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014
+ *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
+ *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
+ *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
+ *|	        	                                       	http://www.giscience.uni-hd.de
+ *|								
+ *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.routing;
 
 public class RoutingProfileType {
@@ -9,7 +20,7 @@ public class RoutingProfileType {
 	public static final int DRIVING_MOTORCYCLE = 4;
 	public static final int DRIVING_OFFROAD = 5; // not supported
 	public static final int DRIVING_SEGWAY = 6; // not supported
-
+	
 	public static final int DRIVING_TRAFFIC = 9;
 
 	public static final int CYCLING_REGULAR = 10;
@@ -25,6 +36,8 @@ public class RoutingProfileType {
 	public static final int FOOT_JOGGING = 22; // not supported
 
 	public static final int WHEELCHAIR = 30;
+	
+	
 
 	public static boolean isDriving(int routePref) {
 		if (routePref == DRIVING_CAR
@@ -171,5 +184,42 @@ public class RoutingProfileType {
 			return "X_4_WD";
 
 		return "UNKNOWN";
+	}
+	
+	public static int getFromEncoderName(String encoder) {
+		if ("CAR".equalsIgnoreCase(encoder))
+			return RoutingProfileType.DRIVING_CAR;
+		else if ("CARTMC".equalsIgnoreCase(encoder))
+			return RoutingProfileType.DRIVING_TRAFFIC;
+		else if ("FOOT".equalsIgnoreCase(encoder))
+			return RoutingProfileType.FOOT_WALKING;
+		else if ("EVEHICLE".equalsIgnoreCase(encoder))
+			return RoutingProfileType.DRIVING_ELECTRIC_CAR;
+		else if ("HEAVYVEHICLE".equalsIgnoreCase(encoder))
+			return RoutingProfileType.DRIVING_HGV;
+		else if ("X_4_WD".equalsIgnoreCase(encoder))
+			return RoutingProfileType.DRIVING_OFFROAD;
+		else if ("HIKING".equalsIgnoreCase(encoder))
+			return RoutingProfileType.FOOT_HIKING;
+		else if ("RUNNING".equalsIgnoreCase(encoder))
+			return RoutingProfileType.FOOT_HIKING;
+		else if ("BIKE".equalsIgnoreCase(encoder))
+			return RoutingProfileType.CYCLING_REGULAR;
+		else if ("MTB".equalsIgnoreCase(encoder))
+			return RoutingProfileType.CYCLING_MOUNTAIN;
+		else if ("RACINGBIKE".equalsIgnoreCase(encoder))
+			return RoutingProfileType.CYCLING_ROAD;
+		else if ("CYCLETOURBIKE".equalsIgnoreCase(encoder))
+			return RoutingProfileType.CYCLING_TOUR;
+		else if ("SAFETYBIKE".equalsIgnoreCase(encoder))
+			return RoutingProfileType.CYCLING_SAFE;
+		else if ("ELECTROBIKE".equalsIgnoreCase(encoder))
+			return RoutingProfileType.CYCLING_ELECTRIC;
+		else if ("MOTORBIKE".equalsIgnoreCase(encoder))
+			return RoutingProfileType.CYCLING_MOTOR;
+		else if ("WHEELCHAIR".equalsIgnoreCase(encoder))
+			return RoutingProfileType.WHEELCHAIR;
+
+		return RoutingProfileType.UNKNOWN;
 	}
 }

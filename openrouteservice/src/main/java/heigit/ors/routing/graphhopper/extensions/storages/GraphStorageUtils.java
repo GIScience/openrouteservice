@@ -21,6 +21,7 @@ import com.graphhopper.storage.GraphExtension.ExtendedStorageSequence;
 
 public class GraphStorageUtils {
 
+	@SuppressWarnings("unchecked")
 	public static <T extends GraphExtension> T getGraphExtension(GraphStorage graphStorage, Class<T> type)
 	{
 		if (graphStorage != null) {

@@ -44,7 +44,7 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
 		if (edgesCount > 0)
 			throw new AssertionError("The ORS storage must be initialized only once.");
 
-		this.orsEdges = dir.find("way_surface");
+		this.orsEdges = dir.find("ext_waysurface");
 	}
 
 	protected final int nextBlockEntryIndex(int size) {

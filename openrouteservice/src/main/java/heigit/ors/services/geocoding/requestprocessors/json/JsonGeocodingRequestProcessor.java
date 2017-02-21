@@ -90,6 +90,10 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 				Envelope bbox = new Envelope(Double.parseDouble(coords[0]),  Double.parseDouble(coords[2]), Double.parseDouble(coords[1]), Double.parseDouble(coords[3]));
 				req.setBBox(bbox);
 			}
+			
+			value = _request.getParameter("id");
+			if (!Helper.isEmpty(value))
+			   req.setId(value);
 			break;
 		case "POST":
 			throw new Exception("POST request is not supported.");  
@@ -165,6 +169,9 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 			if (!Helper.isEmpty(gr.state))
 				properties.put("state", gr.state);
 			
+			if (!Helper.isEmpty(gr.city))
+				properties.put("city", gr.city);
+			
 			if (!Helper.isEmpty(gr.stateDistrict))
 				properties.put("district", gr.stateDistrict);
 			
@@ -224,6 +231,8 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
         	query.put("lang", request.getLanguage());
         if (request.getLocation() != null)
         	query.put("location", GeometryJSON.toJSON(request.getLocation()));
+        if (request.getId()!= null)
+        	query.put("id", request.getId());
         
         info.put("query", query);
 

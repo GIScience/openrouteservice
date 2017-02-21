@@ -178,6 +178,10 @@ public class JsonIsochroneRequestParser {
 		if (!Helper.isEmpty(value))
 			req.getRouteSearchParameters().setOptions(value);
 		
+		value = request.getParameter("id");
+		if (!Helper.isEmpty(value))
+			req.setId(value);
+		
 		return req;
 	}
 }

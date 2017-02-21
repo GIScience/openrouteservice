@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import heigit.ors.routing.graphhopper.extensions.storages.WaySurfaceTypeGraphStorage;
 import heigit.ors.mapmatching.RouteSegmentInfo;
 import heigit.ors.routing.RoutingProfile;
 
@@ -35,7 +34,6 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.DataReader;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.WaySurfaceDescription;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
@@ -48,49 +46,27 @@ public class ORSGraphHopper extends GraphHopper {
 
 	private Envelope bbox;
 	private HashMap<Integer, Long> tmcEdges;
-	private WaySurfaceTypeGraphStorage gsWaySurface;
 	
 	// A route profile for referencing which is used to extract names of adjacent streets and other objects.
 	private RoutingProfile refRouteProfile;
 
-	public ORSGraphHopper(Envelope bbox, boolean storeWaySurfaceInfo, boolean storeHillIndex, boolean useTmc, RoutingProfile refProfile) {
+	public ORSGraphHopper(Envelope bbox, boolean useTmc, RoutingProfile refProfile) {
 		this.bbox = bbox;
 		this.refRouteProfile= refProfile;
 		this.setSimplifyResponse(false);
-		if  (storeWaySurfaceInfo)
-			gsWaySurface = new WaySurfaceTypeGraphStorage();
 		
 		if (useTmc)
 			tmcEdges = new HashMap<Integer, Long>();
 	}
 	
-	public WaySurfaceTypeGraphStorage getWaySurfaceStorage()
-	{
-		return gsWaySurface;
-	}
-
 	protected DataReader createReader(GraphHopperStorage tmpGraph) {
-		return initOSMReader(new ORSOSMReader(tmpGraph,gsWaySurface, bbox, tmcEdges, refRouteProfile));
+		return initOSMReader(new ORSOSMReader(tmpGraph, bbox, tmcEdges, refRouteProfile));
 	}
 	
 	public boolean load( String graphHopperFolder )
     {
 		boolean res = super.load(graphHopperFolder);
 		
-		if (gsWaySurface != null)
-		{
-			gsWaySurface.init(this.getGraphHopperStorage(), this.getGraphHopperStorage().getDirectory());
-			gsWaySurface.setSegmentSize(-1);
-			
-			if (res)
-			{
-				 gsWaySurface.loadExisting();
-			}
-			else
-			{
-				gsWaySurface.create(100);
-			}
-		}
 		
 		return res;
     }
@@ -98,9 +74,6 @@ public class ORSGraphHopper extends GraphHopper {
     
 	protected void flush()
 	{
-        if (gsWaySurface != null)
-        	gsWaySurface.flush();
-        
         super.flush();
 	}
 
@@ -151,13 +124,6 @@ public class ORSGraphHopper extends GraphHopper {
 		return gh;
 	}
 	
-	public WaySurfaceDescription getWaySurfaceDescription(int edgeId)
-	{
-		WaySurfaceDescription res = new WaySurfaceDescription();
-		
-		return res;
-	}
-
 	public RouteSegmentInfo getRouteSegment(double[] latitudes, double[] longitudes, String vehicle,
 			EdgeFilter edgeFilter) {
 		RouteSegmentInfo result = null;

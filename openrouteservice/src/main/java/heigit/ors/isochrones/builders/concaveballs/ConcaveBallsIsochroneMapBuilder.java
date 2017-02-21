@@ -15,9 +15,6 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.EdgeEntry;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
@@ -40,6 +37,7 @@ import gnu.trove.iterator.TIntObjectIterator;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
+import org.apache.log4j.Logger;
 import org.opensphere.geometry.algorithm.ConcaveHull;
 
 import heigit.ors.isochrones.IsochroneSearchParameters;
@@ -47,10 +45,13 @@ import heigit.ors.isochrones.GraphEdgeMapFinder;
 import heigit.ors.isochrones.Isochrone;
 import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
+import heigit.ors.routing.RouteSearchContext;
 import heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
 
 public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder 
 {
+	private final Logger LOGGER = Logger.getLogger(ConcaveBallsIsochroneMapBuilder.class.getName());
+
 	private static double CONCAVE_HULL_THRESHOLD = 0.012;
 
 	private double searchWidth = 0.0007; 
@@ -59,97 +60,126 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 	private Envelope searchEnv = new Envelope();
 	private GeometryFactory _geomFactory;
 	private PointItemVisitor visitor = null;
-	private List<Point2D> prevIsoPoints = null; 
-	private GraphHopper _graphhopper;
-	private String _encoderName;
-	private EdgeFilter _edgeFilter;
+	private List<Point2D> prevIsoPoints = null;
+	private RouteSearchContext _searchContext;
 
-	public void initialize(GraphHopper gh, EdgeFilter edgeFilter, String encoderName) {
+	public void initialize(RouteSearchContext searchContext) {
 		// TODO Auto-generated method stub
 		_geomFactory = new GeometryFactory();
-		_graphhopper = gh;
-		_edgeFilter = edgeFilter;
-		_encoderName = encoderName;		
+		_searchContext = searchContext;		
 	}
 
 	public IsochroneMap compute(IsochroneSearchParameters parameters) throws Exception {
-		StopWatch	swTotal = new StopWatch();
-		swTotal.start();
-		StopWatch sw = new StopWatch();
-		sw.start();
+		StopWatch	swTotal = null;
+		StopWatch sw = null;
+		if (LOGGER.isDebugEnabled())
+		{
+			swTotal = new StopWatch();
+			swTotal.start();
+			sw = new StopWatch();
+			sw.start();
+		}
 
 		// 1. Find all graph edges for a given cost.
-		FlagEncoder encoder = _graphhopper.getEncodingManager().getEncoder(_encoderName);
-		double maxSpeed = encoder.getMaxSpeed();
-        
+		double maxSpeed = _searchContext.getEncoder().getMaxSpeed();
+
 		Coordinate loc = parameters.getLocation();
 		IsochroneMap isochroneMap = new IsochroneMap(loc);
 
-		AccessibilityMap edgeMap = GraphEdgeMapFinder.findEdgeMap(_graphhopper, _encoderName, _edgeFilter, parameters);
+		AccessibilityMap edgeMap = GraphEdgeMapFinder.findEdgeMap(_searchContext, parameters);
 
-		sw.stop();
+		if (LOGGER.isDebugEnabled())
+		{
+			sw.stop();
 
-		System.out.println("Find edges: " + sw.getSeconds());
+			LOGGER.debug("Find edges: " + sw.getSeconds());
+		}
 
 		if (edgeMap.isEmpty())
 			return isochroneMap;
-		
+
 		List<Point2D> isoPoints = new ArrayList<Point2D>(edgeMap.getMap().size());
 
-		sw = new StopWatch();
-		sw.start();
+		if (LOGGER.isDebugEnabled())
+		{
+			sw = new StopWatch();
+			sw.start();
+		}
 
 		markDeadEndEdges(edgeMap);
-		
-		sw.stop();
-		System.out.println("Mark dead ends: " + sw.getSeconds());
+
+		if (LOGGER.isDebugEnabled())
+		{
+			sw.stop();
+			LOGGER.debug("Mark dead ends: " + sw.getSeconds());
+		}
 
 		int nRanges = parameters.getRanges().length;
 		double metersPerSecond = maxSpeed / 3.6;
-		
+
 		double prevCost = 0;
 		for (int i = 0; i < nRanges; i++) {
 			double isoValue = parameters.getRanges()[i];
-			sw = new StopWatch();
-			sw.start();
+
+			if (LOGGER.isDebugEnabled())
+			{
+				sw = new StopWatch();
+				sw.start();
+			}
 
 			GeometryCollection points = buildIsochrone(edgeMap, isoPoints, loc.x, loc.y, isoValue, prevCost,maxSpeed, 0.85);
-			
-			//	 savePoints(points, "D:\\isochrones3.shp");
-			sw.stop();
-			System.out.println(i + " Find points: " + sw.getSeconds() + " " + points.getNumGeometries());
 
-			sw = new StopWatch();
-			sw.start();
+			if (LOGGER.isDebugEnabled())
+			{
+				//	 savePoints(points, "D:\\isochrones3.shp");
+				sw.stop();
+				LOGGER.debug(i + " Find points: " + sw.getSeconds() + " " + points.getNumGeometries());
+
+				sw = new StopWatch();
+				sw.start();
+			}
 
 			addIsochrone(isochroneMap, points, isoValue, metersPerSecond * isoValue);
 
-			System.out.println("Build concave hull: " + sw.stop().getSeconds());
-			
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("Build concave hull: " + sw.stop().getSeconds());
+
 			prevCost = isoValue;
 		}
 
-		
-		System.out.println("Total time: " + swTotal.stop().getSeconds());
-		
+		if (LOGGER.isDebugEnabled())
+			LOGGER.debug("Total time: " + swTotal.stop().getSeconds());
+
 		return isochroneMap;
 	}
-	
+
 	private void addIsochrone(IsochroneMap isochroneMap, GeometryCollection points, double isoValue, double maxRadius)
 	{
+		if (points.isEmpty())
+			return;
+		
 		ConcaveHull ch = new ConcaveHull(points, CONCAVE_HULL_THRESHOLD);
-		Polygon poly = (Polygon)ch.getConcaveHull();
+		Geometry geom = ch.getConcaveHull();
 		
+		if (geom instanceof GeometryCollection)
+		{
+			GeometryCollection geomColl = (GeometryCollection)geom;
+			if (geomColl.isEmpty())
+				return;
+		}
+		
+		Polygon poly = (Polygon)geom;
+
 		copyConvexHullPoints(poly);
-		
+
 		isochroneMap.addIsochrone(new Isochrone(poly, isoValue, maxRadius));
 	}
-	
+
 	private void markDeadEndEdges(AccessibilityMap edgeMap)
 	{
 		TIntObjectMap<EdgeEntry> map = edgeMap.getMap();
 		TIntObjectMap<Integer> result = new TIntObjectHashMap<Integer>(map.size()/20);
-		
+
 		for (TIntObjectIterator<EdgeEntry> it = map.iterator(); it.hasNext();) {
 			it.advance();
 
@@ -158,20 +188,20 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 				continue;
 
 			result.put(edge.parent.originalEdge, 1);
-	    }
-		
+		}
+
 		for (TIntObjectIterator<EdgeEntry> it = map.iterator(); it.hasNext();) {
 			it.advance();
-			
+
 			EdgeEntry edge = it.value();
 			if (edge.originalEdge == -1)
 				continue;
-			
+
 			if (!result.containsKey(edge.originalEdge))
 				edge.edge =-2;
 		}
 	}
-	
+
 	public void addPoint(List<Point2D> points, Quadtree tree, double lon, double lat, boolean checkNeighbours) {
 		if (checkNeighbours)
 		{
@@ -193,7 +223,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			points.add(p);
 		} 
 	}
-	
+
 	private void addBufferPoints(List<Point2D> points, Quadtree tree, double lon0, double lat0, double lon1,
 			double lat1, boolean addLast, boolean checkNeighbours, double bufferSize) {
 		double dx = (lon0 - lon1);
@@ -219,17 +249,17 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			addPoint(points, tree, lon1 - dx2, lat1 - dy2, checkNeighbours);
 		}
 	}
-	
+
 	private GeometryCollection buildIsochrone(AccessibilityMap edgeMap, List<Point2D> points, double lon, double lat,
 			double isolineCost, double prevCost,  double maxSpeed, double detailedGeomFactor) {
 		TIntObjectMap<EdgeEntry> map = edgeMap.getMap();
-		
+
 		points.clear();
-		
+
 		if (prevIsoPoints != null)
 			points.addAll(prevIsoPoints);
 
-		GraphHopperStorage graph = _graphhopper.getGraphHopperStorage();
+		GraphHopperStorage graph = _searchContext.getGraphHopper().getGraphHopperStorage();
 		NodeAccess nodeAccess = graph.getNodeAccess();
 		int maxNodeId = graph.getNodes();
 
@@ -243,17 +273,17 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		double detailedZone = isolineCost * detailedGeomFactor;
 		double isolineDist = isolineCost * maxSpeed*1000/3600;
 		double lonN, latN;
-		
+
 		double defaultSearchWidth = 0.0005;
 		double defaultVisitorThreshold = 0.0045;
 		double defaulPointWidth =  0.0045;
-		
-	 	if (isolineDist*0.5 < 20000)
+
+		if (isolineDist*0.5 < 20000)
 		{
 			defaultVisitorThreshold = 0.002;
 			defaulPointWidth = 0.002;
 		}
- 
+
 		for (TIntObjectIterator<EdgeEntry> it = map.iterator(); it.hasNext();) {
 			it.advance();
 			int nodeId = it.key();
@@ -272,7 +302,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 			float maxCost = (float) (goalEdge.weight);
 			float minCost = (float) (goalEdge.parent.weight);
-			
+
 			if (maxCost < prevCost)
 				continue;
 
@@ -297,8 +327,8 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 					if (distTo < isolineDist*0.3)
 					{
 						searchWidth = 0.001; 
-						visitorThreshold = 0.01; 
-						pointWidth = 0.01;
+						visitorThreshold = 0.0015; 
+						pointWidth = 0.0015;
 					}
 					else if (distTo < isolineDist*0.6)
 					{
@@ -314,7 +344,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 					}  
 				}
 			}
-			
+
 			visitor.setThreshold(visitorThreshold);
 
 			if (isolineCost >= maxCost) {
@@ -328,7 +358,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 					double edgeDist = iter.getDistance();
 
 					if (((maxCost >= detailedZone && maxCost <= isolineCost) || edgeDist > 300)) 
-						{
+					{
 						boolean detailedShape = (edgeDist > 300);
 						// always use mode=3, since other ones do not provide correct results
 						PointList pl = iter.fetchWayGeometry(3);
@@ -337,7 +367,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 							double lat0 = pl.getLat(0);
 							double lon0 = pl.getLon(0);
 							double lat1, lon1;
-							
+
 							if (detailedShape)
 							{
 								for (int i = 1; i < size; ++i) {
@@ -357,8 +387,8 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 									lon1 = pl.getLon(i);
 
 									addPoint(points, qtree, lon0, lat0, true);
-								  	if (i == size -1)
-								  		addPoint(points, qtree, lon1, lat1, true);
+									if (i == size -1)
+										addPoint(points, qtree, lon1, lat1, true);
 
 									lon0 = lon1;
 									lat0 = lat1;
@@ -421,7 +451,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 		return new GeometryCollection(geometries, _geomFactory);
 	}
-	
+
 	private void copyConvexHullPoints(Polygon poly)
 	{
 		LineString ring = (LineString)poly.getExteriorRing();		

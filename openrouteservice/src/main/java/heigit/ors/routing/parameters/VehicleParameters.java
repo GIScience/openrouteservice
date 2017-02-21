@@ -1,4 +1,4 @@
-package heigit.ors.routing;
+package heigit.ors.routing.parameters;
 
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 

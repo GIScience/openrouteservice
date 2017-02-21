@@ -18,7 +18,6 @@ import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
-import com.graphhopper.storage.GraphStorage;
 
 public class HillIndexGraphStorage implements GraphExtension {
 	/* pointer for no entry */
@@ -44,7 +43,7 @@ public class HillIndexGraphStorage implements GraphExtension {
 		if (edgesCount > 0)
 			throw new AssertionError("The ORS storage must be initialized only once.");
 
-		this.orsEdges = dir.find("edges_ors_hillindex");
+		this.orsEdges = dir.find("ext_hillindex");
 	}
 
 	protected final int nextBlockEntryIndex(int size) {

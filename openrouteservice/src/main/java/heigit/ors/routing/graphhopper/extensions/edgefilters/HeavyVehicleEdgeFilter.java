@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gnu.trove.map.TIntObjectMap;
-import heigit.ors.routing.VehicleParameters;
+import heigit.ors.routing.parameters.VehicleParameters;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import heigit.ors.routing.graphhopper.extensions.VehicleRestrictionCodes;
@@ -145,7 +145,7 @@ public abstract class HeavyVehicleEdgeFilter implements DestinationDependentEdge
 
 				if (!destinationEdges.contains(edge.getOriginalEdge()))
 				{
-					gsHeavyVehicles.getEdgeVehicleTypeFlag(edge.getOriginalEdge(), buffer);
+					gsHeavyVehicles.getEdgeVehicleType(edge.getOriginalEdge(), buffer);
 					int vt = buffer[0];
 					boolean dstFlag = buffer[1]!=0;// ((buffer[1] >> (vehicleType >> 1)) & 1) == 1;
 
@@ -166,7 +166,7 @@ public abstract class HeavyVehicleEdgeFilter implements DestinationDependentEdge
 		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder)) {
 			int edgeId = iter.getOriginalEdge();
 
-			gsHeavyVehicles.getEdgeVehicleTypeFlag(edgeId, buffer);
+			gsHeavyVehicles.getEdgeVehicleType(edgeId, buffer);
 
 			int vt = buffer[0];
 			boolean dstFlag = buffer[1] != 0; // ((buffer[1] >> (vehicleType >> 1)) & 1) == 1;

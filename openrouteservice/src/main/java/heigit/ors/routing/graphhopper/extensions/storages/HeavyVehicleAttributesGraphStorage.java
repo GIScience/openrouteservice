@@ -24,7 +24,7 @@ import com.graphhopper.storage.GraphExtension;
 public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 	/* pointer for no entry */
 	protected final int NO_ENTRY = -1;
-	protected final int EF_WAYTYPE, EF_VEHICLETYPE, EF_DESTINATIONTYPE, EF_RESTRICTION;
+	protected final int EF_VEHICLETYPE, EF_DESTINATIONTYPE, EF_RESTRICTION;
 
 	protected DataAccess orsEdges;
 	protected int edgeEntryIndex = 0;
@@ -32,12 +32,10 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 	protected int edgesCount; // number of edges with custom values
 	private byte[] byteValues;
 
-	private Graph graph;
 	private int attrTypes;
 
 	public HeavyVehicleAttributesGraphStorage(int attrTypes) {
 		this.attrTypes = attrTypes;
-		EF_WAYTYPE = nextBlockEntryIndex(1);
 		
 		EF_VEHICLETYPE = nextBlockEntryIndex(1);
 		EF_DESTINATIONTYPE = nextBlockEntryIndex(1);
@@ -60,8 +58,7 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 		if (edgesCount > 0)
 			throw new AssertionError("The ORS storage must be initialized only once.");
 
-		this.graph = graph;
-		this.orsEdges = dir.find("edges_ors_hgv");
+		this.orsEdges = dir.find("ext_hgv");
 	}
 
 	protected final int nextBlockEntryIndex(int size) {
@@ -109,16 +106,14 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 		orsEdges.ensureCapacity(((long) edgeIndex + 1) * edgeEntryBytes);
 	}
 
-	public void setEdgeValue(int edgeId, int wayFlag, int vehicleType, int heavyVehicleDestination, double[] restrictionValues) {
+	public void setEdgeValue(int edgeId, int vehicleType, int heavyVehicleDestination, double[] restrictionValues) {
 		edgesCount++;
 		ensureEdgesIndex(edgeId);
 
 		// add entry
 		long edgePointer = (long) edgeId * edgeEntryBytes;
 		
-		byteValues[0] = (byte)wayFlag;
-		orsEdges.setBytes(edgePointer + EF_WAYTYPE, byteValues, 1);
-		
+	
 		byteValues[0] = (byte)vehicleType;
 		orsEdges.setBytes(edgePointer + EF_VEHICLETYPE, byteValues, 1);
 		
@@ -180,18 +175,7 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 		return result;
 	}
 
-	public int getEdgeWayFlag(int edgeId, byte[] buffer) {
-		long edgeBase = (long) edgeId * edgeEntryBytes;
-		orsEdges.getBytes(edgeBase + EF_WAYTYPE, buffer, 1);
-		
-		int result = buffer[0];
-	    if (result < 0)
-	    	result = (int)result & 0xff;
-		
-		return result;
-	}
-	
-	public void getEdgeVehicleTypeFlag(int edgeId, byte[] buffer) {
+	public void getEdgeVehicleType(int edgeId, byte[] buffer) {
 		long edgeBase = (long) edgeId * edgeEntryBytes;
 		orsEdges.getBytes(edgeBase + EF_VEHICLETYPE, buffer, 2);
 		

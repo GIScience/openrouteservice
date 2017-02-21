@@ -13,13 +13,18 @@ package heigit.ors.config;
 
 import java.io.File;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigList;
+import com.typesafe.config.ConfigValue;
 
 import heigit.ors.services.shortenlink.ShortenLinkServlet;
+import heigit.ors.util.StringUtility;
 
 public class AppConfig {
 
@@ -47,6 +52,18 @@ public class AppConfig {
 		return _global;
 	}
 	
+	public String getParameter(String section, String paramName)
+	{
+		try
+		{
+			return _config.getString("ors." + section + "." + paramName);
+		}
+		catch(ConfigException ex)
+		{}
+		
+		return null;
+	}
+	
 	public String getServiceParameter(String serviceName, String paramName)
 	{
 		try
@@ -59,7 +76,19 @@ public class AppConfig {
 		return null;
 	}
 	
-	public List<String> getServiceParameters(String serviceName, String paramName)
+	public List<Double> getDoubleList(String serviceName, String paramName) 
+	{
+		try
+		{
+			return _config.getDoubleList("ors.services." + serviceName + "." + paramName);
+		}
+		catch(Exception ex)
+		{}
+		
+		return null;
+	}
+	
+	public List<String> getServiceParametersList(String serviceName, String paramName)
 	{
 		try
 		{
@@ -69,5 +98,45 @@ public class AppConfig {
 		{}
 		
 		return null;
+	}
+	
+
+	public Map<String,Object> getServiceParametersMap(String serviceName, String paramName)
+	{
+		Map<String,Object> result = null;
+		
+		try
+		{
+			Config config = _config.getConfig("ors.services." + serviceName + "." + paramName);
+			
+			result = new HashMap<String, Object>();
+			
+			for(Map.Entry<String, ConfigValue> param : config.entrySet())
+			{
+				Object value = null;
+				switch(param.getValue().valueType())
+				{
+				case NUMBER:
+					value = param.getValue().unwrapped();
+					break;
+				case OBJECT:
+					value = param.getValue().render();
+					break;
+				case LIST:
+					value = param.getValue().unwrapped();
+					break;
+				case STRING:
+					value = StringUtility.trim(param.getValue().render(), '"');
+					break;
+				case BOOLEAN:
+					value = param.getValue().unwrapped();
+				}
+				result.put(param.getKey(), value);
+			}
+		}
+		catch(Exception ex)
+		{}
+		
+		return result;
 	}
 }

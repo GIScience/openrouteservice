@@ -19,9 +19,9 @@ import heigit.ors.routing.RouteSegmentItem;
 public class SimpleRouteExtraInfoBuilder extends RouteExtraInfoBuilder {
 	private int _prevIndex = 0;
 	private int _segmentLength = 0;
-	private double _segmentDist = 0;
-	private double _prevValue = Double.MAX_VALUE;
 	private int _prevValueIndex = -1;
+	private double _prevValue = Double.MAX_VALUE;
+	private double _segmentDist = 0;
 	
     public SimpleRouteExtraInfoBuilder(RouteExtraInfo extraInfo) {
 		super(extraInfo);

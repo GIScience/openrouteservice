@@ -72,9 +72,10 @@ public class InstructionTranslator
 
 	public String getContinue(InstructionType type, String wayName)
 	{
-		String str = wayName == null ? _actionContinueDefault: _actionContinueName;
+		boolean isWayNull = Helper.isEmpty(wayName);
+		String str = isWayNull ? _actionContinueDefault: _actionContinueName;
 
-		if (wayName == null)
+		if (isWayNull)
 			return str.replace("{turn_maneuver}",  _turnManeuvers[getTurnManeuver(type)]);
 		else 
 			return str.replace("{turn_maneuver}", _turnManeuvers[getTurnManeuver(type)]).replace("{way_name}", wayName);

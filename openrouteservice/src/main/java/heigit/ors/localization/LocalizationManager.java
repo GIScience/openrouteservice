@@ -20,12 +20,17 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 import heigit.ors.util.StringUtility;
 
 public class LocalizationManager {
+	protected static Logger LOGGER = LoggerFactory.getLogger(LocalizationManager.class);
+	
 	private Map<String, LanguageResources> _langResources = null;
 	private static volatile LocalizationManager m_instance = null;
 
@@ -62,6 +67,8 @@ public class LocalizationManager {
 		File[] files = new File(localesPath.toString()).listFiles();
 
 		for (File file : files) {
+			try
+			{
 			if (file.isFile()) {
 				if (file.getName().matches(filePattern))
 				{
@@ -83,6 +90,11 @@ public class LocalizationManager {
 						_langResources.put(langCode, langResources);
 					}
 				}
+			}
+			}
+			catch(Exception ex)
+			{
+				LOGGER.error("Unable to load resources from file " + file.getAbsolutePath());				
 			}
 		}
 	}

@@ -57,7 +57,7 @@ public class RoutingProfilesCollection {
 	public boolean add(int routePref, RoutingProfile rp, boolean isUnique) {
 		synchronized (m_routeProfiles) {
 			
-			int key = getRoutePreferenceKey(routePref, rp.isCHEnabled(), rp.hasDynamicWeights());
+			int key = getRoutePreferenceKey(routePref, rp.isCHEnabled());
 
 			if (!m_routeProfiles.containsKey(key))
 			{
@@ -82,10 +82,10 @@ public class RoutingProfilesCollection {
 		return result;
 	}
 
-	public RoutingProfile getRouteProfile(int routePref, boolean chEnabled, boolean dynamicWeights, double lat0,
+	public RoutingProfile getRouteProfile(int routePref, boolean chEnabled, double lat0,
 			double lon0, double lat1, double lon1, boolean checkDistance) throws Exception {
 
-		int routePrefKey = getRoutePreferenceKey(routePref, chEnabled, dynamicWeights);
+		int routePrefKey = getRoutePreferenceKey(routePref, chEnabled);
 		RoutingProfile rp = getRouteProfileByKey(routePrefKey);
 
 		if (rp != null)
@@ -98,7 +98,7 @@ public class RoutingProfilesCollection {
 	}
 
 	public RoutingProfile getRouteProfile(int routePref, boolean chEnabled, boolean dynamicWeights) throws Exception {
-		int routePrefKey = getRoutePreferenceKey(routePref, chEnabled, dynamicWeights);
+		int routePrefKey = getRoutePreferenceKey(routePref, chEnabled);
 		if (!m_routeProfiles.containsKey(routePrefKey))
 			return null;
 		else {
@@ -109,9 +109,9 @@ public class RoutingProfilesCollection {
 	
 	public RoutingProfile getRouteProfile(int routePref) throws Exception
 	{
-		RoutingProfile rp = getRouteProfileByKey(getRoutePreferenceKey(routePref, false, true));
-		if (rp == null)
-			rp = getRouteProfileByKey(getRoutePreferenceKey(routePref, false, false));
+		RoutingProfile rp = getRouteProfileByKey(getRoutePreferenceKey(routePref, false));
+		//if (rp == null)
+		//	rp = getRouteProfileByKey(getRoutePreferenceKey(routePref, false));
 		
 		return rp;
 	}
@@ -125,12 +125,10 @@ public class RoutingProfilesCollection {
 		}
 	}
 
-	private int getRoutePreferenceKey(int routePref, boolean chEnabled, boolean dynamicWeights) {
+	private int getRoutePreferenceKey(int routePref, boolean chEnabled) {
 		int key = routePref;
 		if (chEnabled)
 			key += 100;
-		else if (dynamicWeights)
-			key += 1000;
 
 		return key;
 	}

@@ -14,10 +14,11 @@ package heigit.ors.services.isochrones;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.isochrones.IsochronesRangeType;
 import heigit.ors.routing.RouteSearchParameters;
+import heigit.ors.services.ServiceRequest;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-public class IsochroneRequest 
+public class IsochroneRequest extends ServiceRequest
 {
 	private String _calcMethod;
 	private Coordinate[] _locations;

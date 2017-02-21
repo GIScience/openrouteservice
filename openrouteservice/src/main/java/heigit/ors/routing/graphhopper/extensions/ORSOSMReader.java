@@ -32,15 +32,13 @@ import java.util.regex.Pattern;
 
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributesType;
-import heigit.ors.routing.graphhopper.extensions.MotorcarAttributesType;
 import heigit.ors.routing.graphhopper.extensions.SurfaceType;
 import heigit.ors.routing.util.HillIndexCalculator;
 import heigit.ors.routing.graphhopper.extensions.storages.*;
-import heigit.ors.routing.graphhopper.extensions.util.OSMTagsEncoder;
 import heigit.ors.routing.graphhopper.extensions.VehicleRestrictionCodes;
 import heigit.ors.routing.graphhopper.extensions.WayType;
 import heigit.ors.routing.graphhopper.extensions.WheelchairRestrictionCodes;
-import heigit.ors.routing.util.AvoidFeatureFlags;
+import heigit.ors.routing.AvoidFeatureFlags;
 import heigit.ors.routing.RoutingProfile;
 import heigit.ors.routing.RoutingProfileManager;
 
@@ -58,16 +56,14 @@ import com.vividsolutions.jts.geom.Envelope;
 
 public class ORSOSMReader extends OSMReader {
 	
-	private MotorcarAttributesGraphStorage gsMotorcarAttrs; // 0
-	private HeavyVehicleAttributesGraphStorage gsHeavyVehicleAttrs; // 1
-	private BikeAttributesGraphStorage gsBikeAttrs;  // 2
-	private WheelchairAttributesGraphStorage gsWheelchair; // 3
-	
+	private HeavyVehicleAttributesGraphStorage gsHeavyVehicleAttrs; 
+	private WayCategoryGraphStorage gsWayCategory;  
+	private WheelchairAttributesGraphStorage gsWheelchair; 
 	private WaySurfaceTypeGraphStorage gsWaySurfaceType;
 	private HillIndexGraphStorage gsHillIndex;
 	private HillIndexCalculator hillIndexCalc;
 	
-	private int[] wayFlags = new int[4];
+	private int[] wayFlags = new int[2];
 	private int heavyVehicleType = 0;
 	private int heavyVehicleDestination = 0;
 	private WaySurfaceDescription waySurfaceDesc = new WaySurfaceDescription();
@@ -100,13 +96,12 @@ public class ORSOSMReader extends OSMReader {
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
 			"primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential" };
 
-	public ORSOSMReader(GraphHopperStorage storage, WaySurfaceTypeGraphStorage waySurfaceStorage, Envelope bbox, HashMap<Integer, Long> tmcEdges, RoutingProfile refProfile) {
+	public ORSOSMReader(GraphHopperStorage storage, Envelope bbox, HashMap<Integer, Long> tmcEdges, RoutingProfile refProfile) {
 		super(storage);
 		
 		this.bbox = bbox;
 		this.tmcEdges = tmcEdges;
 		this.refProfile = refProfile;
-		this.gsWaySurfaceType = waySurfaceStorage;
 		
 		motorVehicleRestrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access"));
 
@@ -124,21 +119,17 @@ public class ORSOSMReader extends OSMReader {
 		ferries.add("shuttle_train");
 		ferries.add("ferry");
 
-		gsMotorcarAttrs = GraphStorageUtils.getGraphExtension(storage, MotorcarAttributesGraphStorage.class);
-		if (gsMotorcarAttrs != null)
-			this.attributeTypes = gsMotorcarAttrs.getAttributeTypes();
-
 		gsHeavyVehicleAttrs = GraphStorageUtils.getGraphExtension(storage, HeavyVehicleAttributesGraphStorage.class);
 		if (gsHeavyVehicleAttrs != null)
 			this.attributeTypes = gsHeavyVehicleAttrs.getAttributeTypes();
 		
-		gsBikeAttrs = GraphStorageUtils.getGraphExtension(storage, BikeAttributesGraphStorage.class);
-		if (gsBikeAttrs != null)
-			this.attributeTypes = gsBikeAttrs.getAttributeTypes();
+		gsWayCategory = GraphStorageUtils.getGraphExtension(storage, WayCategoryGraphStorage.class);
 		
 		gsWheelchair = GraphStorageUtils.getGraphExtension(storage, WheelchairAttributesGraphStorage.class);
-		
-		this.gsHillIndex = GraphStorageUtils.getGraphExtension(storage, HillIndexGraphStorage.class);;
+
+		gsWaySurfaceType = GraphStorageUtils.getGraphExtension(storage, WaySurfaceTypeGraphStorage.class);
+
+		gsHillIndex = GraphStorageUtils.getGraphExtension(storage, HillIndexGraphStorage.class);
 		if (this.gsHillIndex != null)
 			this.hillIndexCalc = new HillIndexCalculator();
 		
@@ -170,14 +161,14 @@ public class ORSOSMReader extends OSMReader {
 	private boolean isFerryRoute(OSMWay way) {
 		if (way.hasTag("route", ferries)) {
 
-			if (gsMotorcarAttrs != null) {
+			if (gsWayCategory != null) {
 				String motorcarTag = way.getTag("motorcar");
 				if (motorcarTag == null)
 					motorcarTag = way.getTag("motor_vehicle");
 
 				if (motorcarTag == null && !way.hasTag("foot") && !way.hasTag("bicycle") || "yes".equals(motorcarTag))
 					return true;
-			} else if (gsBikeAttrs != null) {
+			
 				//return way.hasTag("bicycle", "yes");
 				String bikeTag = way.getTag("bicycle");
 				if (bikeTag == null && !way.hasTag("foot") || "yes".equals(bikeTag))
@@ -220,7 +211,7 @@ public class ORSOSMReader extends OSMReader {
     @Override
 	public void processWay(OSMWay way) {
 		
-		if (gsMotorcarAttrs != null || gsHeavyVehicleAttrs != null || gsBikeAttrs != null || gsWheelchair != null) {
+		if (gsWayCategory != null || gsHeavyVehicleAttrs != null || gsWayCategory != null || gsWheelchair != null || gsWaySurfaceType !=null) {
 			   // ignore multipolygon geometry
 	        if (!way.hasTags())
 	            return;
@@ -231,8 +222,6 @@ public class ORSOSMReader extends OSMReader {
 	        
 	        wayFlags[0] = 0;
 	        wayFlags[1] = 0;
-	        wayFlags[2] = 0;
-	        wayFlags[3] = 0;
 			heavyVehicleType = 0;
 			heavyVehicleDestination = 0;
 			waySurfaceDesc.Reset();
@@ -284,8 +273,8 @@ public class ORSOSMReader extends OSMReader {
 							}
 							else if (value.equals("steps"))
 							{
-								wayFlags[2] |= AvoidFeatureFlags.Steps;
-								wayFlags[3] |= AvoidFeatureFlags.Steps;
+								wayFlags[0] |= AvoidFeatureFlags.Steps;
+								wayFlags[1] |= AvoidFeatureFlags.Steps;
 							}
 							else if ("track".equals(value)) {
 								String tracktype = way.getTag("tracktype");
@@ -348,7 +337,7 @@ public class ORSOSMReader extends OSMReader {
 								setWayFlags(AvoidFeatureFlags.UnpavedRoads);
 							}
 						} else {
-							if ((gsMotorcarAttrs != null && (this.attributeTypes & MotorcarAttributesType.Restrictions) == MotorcarAttributesType.Restrictions)
+							if ((gsWayCategory != null)
 									|| (gsHeavyVehicleAttrs != null && (this.attributeTypes & HeavyVehicleAttributesType.Restrictions) == HeavyVehicleAttributesType.Restrictions)) {
 								int valueIndex = -1;
 
@@ -517,6 +506,7 @@ public class ORSOSMReader extends OSMReader {
 								// (07:00-11:00); customer @ (07:00-17:00)
 							}
 
+							/*
 							if (gsMotorcarAttrs != null
 									&& (this.attributeTypes & MotorcarAttributesType.Passability) == MotorcarAttributesType.Passability) {
 								if (key.equals("track")) {
@@ -530,6 +520,7 @@ public class ORSOSMReader extends OSMReader {
 									hasPassabilityValues = true;
 								}
 							}
+							*/
 						}
 					}
 				}
@@ -655,8 +646,6 @@ public class ORSOSMReader extends OSMReader {
 	{
 		wayFlags[0] |= value;
 		wayFlags[1] |= value;
-		wayFlags[2] |= value;
-		wayFlags[3] |= value;
 	}
 
 	private String getHeavyVehicleValue(String key, String hv, String value)
@@ -730,9 +719,6 @@ public class ORSOSMReader extends OSMReader {
 		hasWheelchairRightSidewalkAttributes = false;
 	}
 
-	private long prevMatchedWayId = -1;
-	private String matchedEdgeName = null;
-	
 	protected void processEdge(OSMWay way, EdgeIteratorState edge) {
 
 		if (enrichInstructions && Helper.isEmpty(way.getTag("name")) && Helper.isEmpty(way.getTag("ref"))) {
@@ -798,7 +784,8 @@ public class ORSOSMReader extends OSMReader {
 					gsHillIndex.setEdgeValue(edge.getEdge(), hillIndex, reverseHillIndex);
 			}
 
-			if (gsMotorcarAttrs != null) {
+			/*
+			if (gsWayCategory != null) {
 				if (wayFlags[0] > 0 || hasRestrictionValues || hasPassabilityValues) {
 					if (hasRestrictionValues && hasPassabilityValues)
 						gsMotorcarAttrs.setEdgeValue(edge.getEdge(), wayFlags[0], restrictionValues, passabilityValues);
@@ -807,29 +794,25 @@ public class ORSOSMReader extends OSMReader {
 					else
 						gsMotorcarAttrs.setEdgeValue(edge.getEdge(), wayFlags[0], null, null);
 				}
-			} 
+			} */
 			
 			if (gsHeavyVehicleAttrs != null) {
-				if (wayFlags[1] > 0 || heavyVehicleType > HeavyVehicleAttributes.Unknown || heavyVehicleDestination > 0 || hasRestrictionValues) {
+				if (heavyVehicleType > HeavyVehicleAttributes.Unknown || heavyVehicleDestination > 0 || hasRestrictionValues) {
 					if (hasRestrictionValues)
-						gsHeavyVehicleAttrs.setEdgeValue(edge.getEdge(), wayFlags[1], heavyVehicleType, heavyVehicleDestination, restrictionValues);
+						gsHeavyVehicleAttrs.setEdgeValue(edge.getEdge(), heavyVehicleType, heavyVehicleDestination, restrictionValues);
 					else
-						gsHeavyVehicleAttrs.setEdgeValue(edge.getEdge(), wayFlags[1], heavyVehicleType, heavyVehicleDestination, null);
+						gsHeavyVehicleAttrs.setEdgeValue(edge.getEdge(), heavyVehicleType, heavyVehicleDestination, null);
 				}
 			} 
 			
-			if (gsBikeAttrs != null) {
-				if (wayFlags[2] > 0) {
-					if ((wayFlags[2] & AvoidFeatureFlags.Ferries) == AvoidFeatureFlags.Ferries
-							|| (wayFlags[2] & AvoidFeatureFlags.Steps) == AvoidFeatureFlags.Steps
-							|| (wayFlags[2] & AvoidFeatureFlags.UnpavedRoads) == AvoidFeatureFlags.UnpavedRoads) {
-						gsBikeAttrs.setEdgeValue(edge.getEdge(), wayFlags[2]);
-					}
+			if (gsWayCategory != null) {
+				if (wayFlags[0] > 0) {
+					gsWayCategory.setEdgeValue(edge.getEdge(), wayFlags[0]);
 				}
 			} 
 			
 			if (gsWheelchair != null) {
-				if ((wayFlags[3] & AvoidFeatureFlags.Ferries) == AvoidFeatureFlags.Ferries || hasWheelchairAttributes || hasWheelchairLeftSidewalkAttributes || hasWheelchairRightSidewalkAttributes || wheelchairLeftSidewalkEdges != null || wheelchairRightSidewalkEdges != null) {
+				if ((wayFlags[1] & AvoidFeatureFlags.Ferries) == AvoidFeatureFlags.Ferries || hasWheelchairAttributes || hasWheelchairLeftSidewalkAttributes || hasWheelchairRightSidewalkAttributes || wheelchairLeftSidewalkEdges != null || wheelchairRightSidewalkEdges != null) {
 					
 					double wheelchairAttributes[] = new double[5];
 					if (hasWheelchairAttributes) {
@@ -865,7 +848,7 @@ public class ORSOSMReader extends OSMReader {
 							}
 						}
 					}
-					gsWheelchair.setEdgeValue(edge.getEdge(), wayFlags[3], wheelchairAttributes);
+					gsWheelchair.setEdgeValue(edge.getEdge(), wayFlags[1], wheelchairAttributes);
 				}
 			}
 			
@@ -1159,7 +1142,7 @@ public class ORSOSMReader extends OSMReader {
 							}
 						}
 		 				if (wayWithSidewalk == null) {
-		 					wayWithSidewalk = new WayWithSidewalk(wayId, wayFlags, bearing, this.wayFlags[3], wheelchairAttributes);
+		 					wayWithSidewalk = new WayWithSidewalk(wayId, wayFlags, bearing, this.wayFlags[1], wheelchairAttributes);
 		 					// wayWithSidewalk.wayName = way.getTag("name");
 		 					waysWithSidewalk.add(wayWithSidewalk);
 		 				}
@@ -1209,7 +1192,7 @@ public class ORSOSMReader extends OSMReader {
 							}
 						}
 		 				if (wayWithSidewalk == null) {
-		 					wayWithSidewalk = new WayWithSidewalk(wayId, wayFlags, bearing, this.wayFlags[3], wheelchairAttributes);
+		 					wayWithSidewalk = new WayWithSidewalk(wayId, wayFlags, bearing, this.wayFlags[1], wheelchairAttributes);
 		 					// wayWithSidewalk.wayName = way.getTag("name");
 		 					waysWithSidewalk.add(wayWithSidewalk);
 		 				}
@@ -1261,7 +1244,7 @@ public class ORSOSMReader extends OSMReader {
 						}
 					}
 	 				if (wayWithSidewalk == null) {
-	 					wayWithSidewalk = new WayWithSidewalk(wayId, wayFlags, bearing, this.wayFlags[3], wheelchairAttributes);
+	 					wayWithSidewalk = new WayWithSidewalk(wayId, wayFlags, bearing, this.wayFlags[1], wheelchairAttributes);
 	 					// wayWithSidewalk.wayName = way.getTag("name");
 	 					waysWithSidewalk.add(wayWithSidewalk);
 	 				}
@@ -1309,7 +1292,7 @@ public class ORSOSMReader extends OSMReader {
 						}
 					}
 	 				if (wayWithSidewalk == null) {
-	 					wayWithSidewalk = new WayWithSidewalk(wayId, wayFlags, bearing, this.wayFlags[3], wheelchairAttributes);
+	 					wayWithSidewalk = new WayWithSidewalk(wayId, wayFlags, bearing, this.wayFlags[1], wheelchairAttributes);
 	 					// wayWithSidewalk.wayName = way.getTag("name");
 	 					waysWithSidewalk.add(wayWithSidewalk);
 	 				}

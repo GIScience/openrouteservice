@@ -18,9 +18,8 @@ import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
-import com.graphhopper.storage.GraphStorage;
 
-public class BikeAttributesGraphStorage implements GraphExtension {
+public class WayCategoryGraphStorage implements GraphExtension {
 	/* pointer for no entry */
 	protected final int NO_ENTRY = -1;
 	protected final int EF_WAYTYPE;//, EF_RESTRICTION, EF_PASSABILITY;
@@ -30,11 +29,9 @@ public class BikeAttributesGraphStorage implements GraphExtension {
 	protected int edgeEntryBytes;
 	protected int edgesCount; // number of edges with custom values
 
-	private int attrTypes;
 	private byte[] byteValues;
 
-	public BikeAttributesGraphStorage(int attrTypes) {
-		this.attrTypes = attrTypes;
+	public WayCategoryGraphStorage() {
 		EF_WAYTYPE = nextBlockEntryIndex(1);
 	
 		edgeEntryBytes = edgeEntryIndex + 4;
@@ -42,15 +39,11 @@ public class BikeAttributesGraphStorage implements GraphExtension {
 		byteValues = new byte[10];
 	}
 
-	public int getAttributeTypes() {
-		return this.attrTypes;
-	}
-
 	public void init(Graph graph, Directory dir) {
 		if (edgesCount > 0)
 			throw new AssertionError("The ORS storage must be initialized only once.");
 
-		this.orsEdges = dir.find("edges_ors_bike");
+		this.orsEdges = dir.find("ext_waycategory");
 	}
 
 	protected final int nextBlockEntryIndex(int size) {
@@ -98,17 +91,17 @@ public class BikeAttributesGraphStorage implements GraphExtension {
 		orsEdges.ensureCapacity(((long) edgeIndex + 1) * edgeEntryBytes);
 	}
 
-	public void setEdgeValue(int edgeId, int wayFlag) {
+	public void setEdgeValue(int edgeId, int wayType) {
 		edgesCount++;
 		ensureEdgesIndex(edgeId);
 
 		// add entry
 		long edgePointer = (long) edgeId * edgeEntryBytes;
-		byteValues[0] = (byte)wayFlag;
+		byteValues[0] = (byte)wayType;
 		orsEdges.setBytes(edgePointer + EF_WAYTYPE, byteValues, 1);
 	}
 
-	public int getEdgeWayFlag(int edgeId, byte[] buffer) {
+	public int getEdgeValue(int edgeId, byte[] buffer) {
 		long edgePointer = (long) edgeId * edgeEntryBytes;
 		orsEdges.getBytes(edgePointer + EF_WAYTYPE, buffer, 1);
 		
@@ -138,11 +131,11 @@ public class BikeAttributesGraphStorage implements GraphExtension {
 	}
 
 	public GraphExtension copyTo(GraphExtension clonedStorage) {
-		if (!(clonedStorage instanceof BikeAttributesGraphStorage)) {
+		if (!(clonedStorage instanceof WayCategoryGraphStorage)) {
 			throw new IllegalStateException("the extended storage to clone must be the same");
 		}
 
-		BikeAttributesGraphStorage clonedTC = (BikeAttributesGraphStorage) clonedStorage;
+		WayCategoryGraphStorage clonedTC = (WayCategoryGraphStorage) clonedStorage;
 
 		orsEdges.copyTo(clonedTC.orsEdges);
 		clonedTC.edgesCount = edgesCount;

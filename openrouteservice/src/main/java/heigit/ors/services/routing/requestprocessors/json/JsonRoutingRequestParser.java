@@ -6,10 +6,11 @@ import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import heigit.ors.exceptions.UnknownParameterValueException;
-import heigit.ors.routing.RouteExtraInformationFlag;
+import heigit.ors.routing.RouteExtraInfoFlag;
 import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.WeightingMethod;
+import heigit.ors.services.routing.RouteInstructionsFormat;
 import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.util.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
@@ -66,6 +67,10 @@ public class JsonRoutingRequestParser {
 
 			req.setGeometryFormat(value);
 		}
+		
+		value = request.getParameter("geometry_simplify");
+		if (!Helper.isEmpty(value))
+		   req.setSimplifyGeometry(Boolean.parseBoolean(value));
 
 		value = request.getParameter("instructions");
 		if (!Helper.isEmpty(value))
@@ -75,13 +80,18 @@ public class JsonRoutingRequestParser {
 		if (!Helper.isEmpty(value))
 			req.setIncludeElevation(Boolean.parseBoolean(value));
 		
-		value = request.getParameter("prettify_instructions");
+		value = request.getParameter("instructions_format");
 		if (!Helper.isEmpty(value))
-			req.setPrettifyInstructions(Boolean.parseBoolean(value));
+		{
+			RouteInstructionsFormat instrFormat = RouteInstructionsFormat.fromString(value);
+			if (instrFormat == RouteInstructionsFormat.UNKNOWN)
+				throw new UnknownParameterValueException("instructions_format", value);
+			req.setInstructionsFormat(instrFormat);
+		}
 		
 		value = request.getParameter("extra_info");
 		if (!Helper.isEmpty(value))
-			req.setExtraInfo(RouteExtraInformationFlag.getFromString(value));
+			req.setExtraInfo(RouteExtraInfoFlag.getFromString(value));
 		
 		value = request.getParameter("attributes");
 		if (!Helper.isEmpty(value))
@@ -90,6 +100,10 @@ public class JsonRoutingRequestParser {
 		value = request.getParameter("options");
 		if (!Helper.isEmpty(value))
 			searchParams.setOptions(value);
+		
+		value = request.getParameter("id");
+		if (!Helper.isEmpty(value))
+			req.setId(value);
 			
 		return req;		
 	}

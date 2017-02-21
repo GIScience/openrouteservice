@@ -14,14 +14,13 @@
 
 package heigit.ors.routing.graphhopper.extensions.edgefilters;
 
+import heigit.ors.routing.AvoidFeatureFlags;
+import heigit.ors.routing.RoutingProfileCategory;
+import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.graphhopper.extensions.storages.*;
-import heigit.ors.routing.util.AvoidFeatureFlags;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.GraphExtension;
-import com.graphhopper.storage.GraphExtension.ExtendedStorageSequence;
-import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
 
@@ -32,12 +31,10 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 	protected final FlagEncoder encoder;
 	private int avoidFeatureType;
 	private byte[] buffer;
-	private MotorcarAttributesGraphStorage gsMotorcar;
-	private HeavyVehicleAttributesGraphStorage gsHeavyVehicles;
-	private BikeAttributesGraphStorage gsBike;
+	private WayCategoryGraphStorage gsWayCategory;
 	private WheelchairAttributesGraphStorage gsWheelchair;
+	private int profileCategory; 
 
-	private static final double SPEED_FACTOR = 0.001;
 	private static final int HIGHWAYS = AvoidFeatureFlags.Highways;
 	private static final int TOLLWAYS = AvoidFeatureFlags.Tollways;
 	private static final int FERRIES = AvoidFeatureFlags.Ferries;
@@ -61,202 +58,130 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 
 		this.encoder = encoder;
 		this.avoidFeatureType = avoidFeatureType;
-        this.buffer = new byte[10];
-        
-		setGraphStorage(graphStorage, encoder);
-	}
+		this.buffer = new byte[10];
 
-	private void setGraphStorage(GraphStorage graphStorage, FlagEncoder encoder) {
-		if (graphStorage != null) {
-			if (graphStorage instanceof GraphHopperStorage) {
-				GraphHopperStorage ghs = (GraphHopperStorage) graphStorage;
-				GraphExtension ge = ghs.getExtension();
+		profileCategory = RoutingProfileCategory.getFromRouteProfile(RoutingProfileType.getFromEncoderName(encoder.toString()));
 
-				if (ge instanceof ExtendedStorageSequence) {
-					ExtendedStorageSequence ess = (ExtendedStorageSequence) ge;
-					GraphExtension[] exts = ess.getExtensions();
-					for (int i = 0; i < exts.length; i++) {
-						if (assignExtension(exts[i], encoder))
-							break;
-					}
-				} else {
-					assignExtension(ge, encoder);
-				}
-			}
-		}
-	}
-
-	private boolean assignExtension(GraphExtension ext, FlagEncoder encoder) {
-		if ("car".equalsIgnoreCase(encoder.toString()) && ext instanceof MotorcarAttributesGraphStorage) {
-			this.gsMotorcar = (MotorcarAttributesGraphStorage) ext;
-			return true;
-		} else if ("heavyvehicle".equalsIgnoreCase(encoder.toString()) && ext instanceof HeavyVehicleAttributesGraphStorage) {
-			this.gsHeavyVehicles = (HeavyVehicleAttributesGraphStorage) ext;
-			return true;
-		} else if (ext instanceof BikeAttributesGraphStorage) {
-			this.gsBike = (BikeAttributesGraphStorage) ext;
-			return true;
-		} else if (ext instanceof WheelchairAttributesGraphStorage) {
-			this.gsWheelchair = (WheelchairAttributesGraphStorage) ext;
-			return true;
-		}
-   
-		return false;
+		gsWayCategory = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
 	}
 
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {
-		long flags = iter.getFlags();
 
 		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder)) {
 			if (avoidFeatureType != 0) {
 				int edgeFeatType = 0;
-				if (gsMotorcar != null) {
-					edgeFeatType = gsMotorcar.getEdgeWayFlag(iter.getEdge(), buffer);
-					if (edgeFeatType > 0) {
-						if ((avoidFeatureType & HIGHWAYS) == HIGHWAYS) {
-							if ((edgeFeatType & HIGHWAYS) == HIGHWAYS) {
-								return false;
-							}
-						}
-						
-						if ((avoidFeatureType & TOLLWAYS) == TOLLWAYS) {
-							if ((edgeFeatType & TOLLWAYS) == TOLLWAYS) {
-								return false;
-							}
-						} 
-						
-						if ((avoidFeatureType & FERRIES) == FERRIES) {
-							if ((edgeFeatType & FERRIES) == FERRIES) {
-								return false;
-							}
-						} 
-						
-						if ((avoidFeatureType & UNPAVEDROADS) == UNPAVEDROADS) {
-							if ((edgeFeatType & UNPAVEDROADS) == UNPAVEDROADS) {
-								return false;
-							}
-						}
-						
-						if ((avoidFeatureType & TRACKS) == TRACKS) {
-							if ((edgeFeatType & TRACKS) == TRACKS) {
-								return false;
-							}
-						} 
-						
-						if ((avoidFeatureType & BORDERS) == BORDERS) {
-							if ((edgeFeatType & BORDERS) == BORDERS) {
-								return false;
-							}
-						} 
-						
-						if ((avoidFeatureType & TUNNELS) == TUNNELS) {
-							if ((edgeFeatType & TUNNELS) == TUNNELS) {
-								return false;
-							}
-						} 
-						
-						if ((avoidFeatureType & BRIDGES) == BRIDGES) {
-							if ((edgeFeatType & BRIDGES) == BRIDGES) {
-								return false;
-							}
-						} 
-						
-						if ((avoidFeatureType & FORDS) == FORDS) {
-							if ((edgeFeatType & FORDS) == FORDS) {
-								return false;
-							}
-						}
-					}
-				} else if (gsHeavyVehicles != null) {
-					edgeFeatType = gsHeavyVehicles.getEdgeWayFlag(iter.getEdge(), buffer);
+				if (gsWayCategory != null) {
+					edgeFeatType = gsWayCategory.getEdgeValue(iter.getEdge(), buffer);
 
 					if (edgeFeatType > 0) {
-						if ((avoidFeatureType & HIGHWAYS) == HIGHWAYS) {
-							if ((edgeFeatType & HIGHWAYS) == HIGHWAYS) {
-								return false;
-							}
-						} 
-						
-						if ((avoidFeatureType & TOLLWAYS) == TOLLWAYS) {
-							if ((edgeFeatType & TOLLWAYS) == TOLLWAYS) {
-								return false;
-							}
-						} 
-						
-						if ((avoidFeatureType & FERRIES) == FERRIES) {
-							if ((edgeFeatType & FERRIES) == FERRIES) {
-								return false;
-							}
-						} 
-						
-						if ((avoidFeatureType & UNPAVEDROADS) == UNPAVEDROADS) {
-							if ((edgeFeatType & UNPAVEDROADS) == UNPAVEDROADS) {
-								return false;
-							}
-						} 
-						
-						if ((avoidFeatureType & TRACKS) == TRACKS) {
-							if ((edgeFeatType & TRACKS) == TRACKS) {
-								return false;
-							}
-						} 
-					
-						if ((avoidFeatureType & BORDERS) == BORDERS) {
-							if ((edgeFeatType & BORDERS) == BORDERS) {
-								return false;
-							}
-						}
-						
-						if ((avoidFeatureType & TUNNELS) == TUNNELS) {
-							if ((edgeFeatType & TUNNELS) == TUNNELS) {
-								return false;
-							}
-						} 
-						
-						if ((avoidFeatureType & BRIDGES) == BRIDGES) {
-							if ((edgeFeatType & BRIDGES) == BRIDGES) {
-								return false;
-							}
-						} 
-						
-						if ((avoidFeatureType & FORDS) == FORDS) {
-							if ((edgeFeatType & FORDS) == FORDS) {
-								return false;
-							}
-						}
-					}
-				} else if (gsBike != null) {
-					edgeFeatType = gsBike.getEdgeWayFlag(iter.getEdge(), buffer);
 
-					if (edgeFeatType > 0) {
-						if ((avoidFeatureType & FERRIES) == FERRIES) {
-							if ((edgeFeatType & FERRIES) == FERRIES) {
-								return false;
+						if (profileCategory == RoutingProfileCategory.DRIVING)
+						{
+							if ((avoidFeatureType & HIGHWAYS) == HIGHWAYS) {
+								if ((edgeFeatType & HIGHWAYS) == HIGHWAYS) {
+									return false;
+								}
 							}
-						}
 
-						if ((avoidFeatureType & UNPAVEDROADS) == UNPAVEDROADS) {
-							if ((edgeFeatType & UNPAVEDROADS) == UNPAVEDROADS) {
-								return false;
-							}
-						}
+							if ((avoidFeatureType & TOLLWAYS) == TOLLWAYS) {
+								if ((edgeFeatType & TOLLWAYS) == TOLLWAYS) {
+									return false;
+								}
+							} 
 
-						if ((avoidFeatureType & PAVEDROADS) == PAVEDROADS) {
-							if ((edgeFeatType & PAVEDROADS) == PAVEDROADS) {
-								return false;
-							}
-						}
+							if ((avoidFeatureType & FERRIES) == FERRIES) {
+								if ((edgeFeatType & FERRIES) == FERRIES) {
+									return false;
+								}
+							} 
 
-						if ((avoidFeatureType & STEPS) == STEPS) {
-							if ((edgeFeatType & STEPS) == STEPS) {
-								return false;
+							if ((avoidFeatureType & UNPAVEDROADS) == UNPAVEDROADS) {
+								if ((edgeFeatType & UNPAVEDROADS) == UNPAVEDROADS) {
+									return false;
+								}
+							}
+
+							if ((avoidFeatureType & TRACKS) == TRACKS) {
+								if ((edgeFeatType & TRACKS) == TRACKS) {
+									return false;
+								}
+							} 
+
+							if ((avoidFeatureType & BORDERS) == BORDERS) {
+								if ((edgeFeatType & BORDERS) == BORDERS) {
+									return false;
+								}
+							} 
+
+							if ((avoidFeatureType & TUNNELS) == TUNNELS) {
+								if ((edgeFeatType & TUNNELS) == TUNNELS) {
+									return false;
+								}
+							} 
+
+							if ((avoidFeatureType & BRIDGES) == BRIDGES) {
+								if ((edgeFeatType & BRIDGES) == BRIDGES) {
+									return false;
+								}
+							} 
+
+							if ((avoidFeatureType & FORDS) == FORDS) {
+								if ((edgeFeatType & FORDS) == FORDS) {
+									return false;
+								}
 							}
 						}
-						
-						if ((avoidFeatureType & FORDS) == FORDS) {
-							if ((edgeFeatType & FORDS) == FORDS) {
-								return false;
+						else if (profileCategory == RoutingProfileCategory.CYCLING)
+						{
+							if ((avoidFeatureType & FERRIES) == FERRIES) {
+								if ((edgeFeatType & FERRIES) == FERRIES) {
+									return false;
+								}
+							}
+
+							if ((avoidFeatureType & UNPAVEDROADS) == UNPAVEDROADS) {
+								if ((edgeFeatType & UNPAVEDROADS) == UNPAVEDROADS) {
+									return false;
+								}
+							}
+
+							if ((avoidFeatureType & PAVEDROADS) == PAVEDROADS) {
+								if ((edgeFeatType & PAVEDROADS) == PAVEDROADS) {
+									return false;
+								}
+							}
+
+							if ((avoidFeatureType & STEPS) == STEPS) {
+								if ((edgeFeatType & STEPS) == STEPS) {
+									return false;
+								}
+							}
+
+							if ((avoidFeatureType & FORDS) == FORDS) {
+								if ((edgeFeatType & FORDS) == FORDS) {
+									return false;
+								}
+							}
+						}
+						else if (profileCategory == RoutingProfileCategory.WALKING)
+						{
+							if ((avoidFeatureType & FERRIES) == FERRIES) {
+								if ((edgeFeatType & FERRIES) == FERRIES) {
+									return false;
+								}
+							}
+
+							if ((avoidFeatureType & STEPS) == STEPS) {
+								if ((edgeFeatType & STEPS) == STEPS) {
+									return false;
+								}
+							}
+
+							if ((avoidFeatureType & FORDS) == FORDS) {
+								if ((edgeFeatType & FORDS) == FORDS) {
+									return false;
+								}
 							}
 						}
 					}
@@ -271,12 +196,11 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 						}
 					}
 				}
-				
 			}
 
 			return true;
 		}
-		
+
 		return false;
 	}
 

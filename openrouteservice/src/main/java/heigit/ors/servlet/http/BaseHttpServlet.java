@@ -23,12 +23,9 @@ import org.slf4j.LoggerFactory;
 
 public class BaseHttpServlet extends HttpServlet {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	
-    protected static Logger logger = LoggerFactory.getLogger(BaseHttpServlet.class);
+    protected static Logger LOGGER = LoggerFactory.getLogger(BaseHttpServlet.class);
 
 	protected void writeError(HttpServletResponse res, Exception ex) 
 	{
@@ -37,7 +34,7 @@ public class BaseHttpServlet extends HttpServlet {
 			json.put("message", ex.getMessage());
 			writeError(res, SC_BAD_REQUEST, json);
 			
-			logger.error(ex.getMessage());
+			LOGGER.error(ex.getMessage());
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -53,7 +50,7 @@ public class BaseHttpServlet extends HttpServlet {
 			res.getWriter().append(json.toString(2));
 		} catch (Exception ex)
 		{
-			logger.error("Unable to write error " + ex.getMessage());
+			LOGGER.error("Unable to write error " + ex.getMessage());
 		}
 	}
 }

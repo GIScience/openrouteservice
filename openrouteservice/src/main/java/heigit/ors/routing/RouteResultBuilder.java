@@ -28,6 +28,7 @@ import heigit.ors.localization.LocalizationManager;
 import heigit.ors.routing.instructions.InstructionTranslator;
 import heigit.ors.routing.instructions.InstructionTranslatorsCache;
 import heigit.ors.routing.instructions.InstructionType;
+import heigit.ors.services.routing.RouteInstructionsFormat;
 import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.util.CardinalDirection;
 import heigit.ors.util.DistanceUnit;
@@ -60,9 +61,12 @@ public class RouteResultBuilder {
 
 		InstructionTranslator instrTranslator = InstructionTranslatorsCache.getInstance().getTranslator(request.getLanguage());
 
+		boolean formatInstructions = request.getInstructionsFormat() == RouteInstructionsFormat.HTML;
 		int nRoutes = routes.size();
 		double distance = 0.0;
 		double duration = 0.0;
+		double ascent = 0.0;
+		double descent = 0.0;
 		double distanceActual = 0.0;
 
 		boolean includeDetourFactor = request.hasAttribute("detourfactor");
@@ -134,7 +138,7 @@ public class RouteResultBuilder {
 						InstructionAnnotation instrAnnotation = instr.getAnnotation();
 						instrType = getInstructionType(instr);
 						PointList segPoints = instr.getPoints();
-						String roadName = request.getPrettifyInstructions() ? "<b>" + instr.getName() + "</b>" : instr.getName();
+						String roadName = formatInstructions && !Helper.isEmpty(instr.getName()) ? "<b>" + instr.getName() + "</b>" : instr.getName();
 						instrText = "";
 
 						stepDistance = FormatUtility.roundToDecimals(DistanceUnitUtil.convert(instr.getDistance(), DistanceUnit.Meters, units), unitDecimals);
@@ -194,7 +198,7 @@ public class RouteResultBuilder {
 							roadName = mergeInstructions(instr.getName(), prevInstr.getName());
 							if (nameAppendix != null)
 								roadName += " ("+ nameAppendix + ")";
-							roadName = request.getPrettifyInstructions() ? "<b>" + roadName + "</b>" : roadName;
+							roadName = formatInstructions ? "<b>" + roadName + "</b>" : roadName;
 
 							int[] wayPoints = prevStep.getWayPoints();
 							wayPoints[1] = wayPoints[1] + instr.getPoints().size();
@@ -238,6 +242,11 @@ public class RouteResultBuilder {
 					distance += seg.getDistance();
 					duration += seg.getDuration();
 				}
+				else
+				{
+					distance += FormatUtility.roundToDecimals(DistanceUnitUtil.convert(resp.getDistance(), DistanceUnit.Meters, units), FormatUtility.getUnitDecimals(units));
+					duration +=  FormatUtility.roundToDecimals(resp.getTime()/1000.0, 1);
+				}
 			}
 			else
 			{
@@ -257,11 +266,16 @@ public class RouteResultBuilder {
 				distance += FormatUtility.roundToDecimals(DistanceUnitUtil.convert(resp.getDistance(), DistanceUnit.Meters, units), unitDecimals);
 				duration += FormatUtility.roundToDecimals(resp.getTime()/1000.0, 1);
 			}
+
+			ascent += resp.getAscent();
+			descent += resp.getDescent();
 		}
 
 		result.getSummary().setDistance(FormatUtility.roundToDecimals(distance, unitDecimals));
 		result.getSummary().setDistanceActual(FormatUtility.roundToDecimals(distanceActual, unitDecimals));
 		result.getSummary().setDuration(duration);
+		result.getSummary().setAscent(FormatUtility.roundToDecimals(ascent, 1));
+		result.getSummary().setDescent(FormatUtility.roundToDecimals(descent, 1));
 
 		if (routeWayPoints != null)
 			result.setWayPointsIndices(routeWayPoints);

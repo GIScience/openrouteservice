@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.*;
+import heigit.ors.routing.parameters.VehicleParameters;
 import heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import heigit.ors.routing.configuration.RouteManagerConfiguration;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
@@ -49,13 +50,12 @@ import com.graphhopper.routing.util.PathProcessor;
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class RoutingProfileManager {
-	/** Logger, used to log errors(exceptions) and additionally information */
-	private final Logger mLogger = Logger.getLogger(RoutingProfileManager.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(RoutingProfileManager.class.getName());
 
-	private RoutingProfilesCollection m_routeProfiles;
-	private RoutingProfilesUpdater m_profileUpdater;
+	private RoutingProfilesCollection _routeProfiles;
+	private RoutingProfilesUpdater _profileUpdater;
 	private static RoutingProfileManager mInstance;
-	private double mDynamicWeightingMaxDistance = 0; 
+	private double _dynamicWeightingMaxDistance = 0; 
 
 	public static synchronized RoutingProfileManager getInstance() throws IOException {
 		if (mInstance == null)
@@ -101,42 +101,42 @@ public class RoutingProfileManager {
 				if (!rpc.Enabled)
 					continue;
 
-				mLogger.info("Preparing route profile in "  + rpc.GraphPath + " ...");
+				LOGGER.info("Preparing route profile in "  + rpc.GraphPath + " ...");
                
-				RoutingProfile rp = new RoutingProfile(rmc.SourceFile, rmc.ConfigPathsRoot, rpc, coll);
+				RoutingProfile rp = new RoutingProfile(rmc.SourceFile, rpc, coll);
 				
 				rp.close();
 				
-				mLogger.info("Done.");
+				LOGGER.info("Done.");
 			}
 			
-	 	    mLogger.info("*  Graphs were prepaired in " + TimeUtility.getElapsedTime(startTime, true) + ".");
+			LOGGER.info("Graphs were prepaired in " + TimeUtility.getElapsedTime(startTime, true) + ".");
 		}
 		catch(Exception ex)
 		{
-			mLogger.error("Failed to prepare graphs.", ex);
+			LOGGER.error("Failed to prepare graphs.", ex);
 		}
 	
-		RuntimeUtility.clearMemAndLogRAM(mLogger);
+		RuntimeUtility.clearMemory(LOGGER);
 	}
 	
 	public void initialize(String graphProps) {
 
-		mLogger.info("*  Start preparing RouteProfileManager ...");
-		RuntimeUtility.logRAMInformations(mLogger);
+		LOGGER.info("Start preparing profiles ...");
+		RuntimeUtility.printRAMInfo(LOGGER);
 
 		long startTime = System.currentTimeMillis();
 		
 		try {
 			RouteManagerConfiguration rmc = RouteManagerConfiguration.loadFromFile(graphProps);
-			mDynamicWeightingMaxDistance = rmc.DynamicWeightingMaxDistance;
+			_dynamicWeightingMaxDistance = rmc.DynamicWeightingMaxDistance;
 			
 			if ("PrepareGraphs".equalsIgnoreCase(rmc.Mode)) {
 				prepareGraphs(graphProps);
 			} else {
 				registerFlagEncoders();
-
-				m_routeProfiles = new RoutingProfilesCollection();
+				
+				_routeProfiles = new RoutingProfilesCollection();
 				int nRouteInstances = rmc.Profiles.length;
 
 				ExecutorService executor = Executors.newFixedThreadPool(rmc.InitializationThreads);
@@ -146,11 +146,11 @@ public class RoutingProfileManager {
 					if (!rpc.Enabled)
 						continue;
 
-					Integer[] routeProfiles = rpc.GetProfiles();
+					Integer[] routeProfiles = rpc.GetProfilesTypes();
 
 					if (routeProfiles != null) {
-						Callable<RoutingProfile> worker = new RoutingProfileLoader(rmc.SourceFile, rmc.ConfigPathsRoot, rpc,
-								m_routeProfiles);
+						Callable<RoutingProfile> worker = new RoutingProfileLoader(rmc.SourceFile, rpc,
+								_routeProfiles);
 						Future<RoutingProfile> submit = executor.submit(worker);
 						list.add(submit);
 					}
@@ -161,14 +161,13 @@ public class RoutingProfileManager {
 					try {
 						RoutingProfile rp = future.get();
 
-						if (!m_routeProfiles.add(rp))
-							mLogger.warn("Route preference has already been added.");
-						
+						if (!_routeProfiles.add(rp))
+							LOGGER.warn("Route preference has already been added.");
 					} catch (InterruptedException e) {
-						mLogger.error(e.getMessage());
+						LOGGER.error(e.getMessage());
 						e.printStackTrace();
 					} catch (ExecutionException e) {
-						mLogger.error(e.getMessage());
+						LOGGER.error(e.getMessage());
 						e.printStackTrace();
 					}
 				}
@@ -176,51 +175,51 @@ public class RoutingProfileManager {
 				executor.shutdown();
 
 				if (rmc.TrafficInfoConfig != null && rmc.TrafficInfoConfig.Enabled) {
-					RealTrafficDataProvider.getInstance().initialize(rmc, m_routeProfiles);
+					RealTrafficDataProvider.getInstance().initialize(rmc, _routeProfiles);
 				}
 
 				if (rmc.UpdateConfig != null && rmc.UpdateConfig.Enabled) {
-					m_profileUpdater = new RoutingProfilesUpdater(rmc.UpdateConfig, m_routeProfiles);
-					m_profileUpdater.start();
+					_profileUpdater = new RoutingProfilesUpdater(rmc.UpdateConfig, _routeProfiles);
+					_profileUpdater.start();
 				}
 				
-				mLogger.info("*  RouteProfileManager is ready. Took " + TimeUtility.getElapsedTime(startTime, true) + ".");
+				LOGGER.info("All profiles are successfully loaded. Took " + TimeUtility.getElapsedTime(startTime, true) + ".");
 			}
 		} catch (Exception ex) {
-			mLogger.error("Failed to initialize RouteProfileManager", ex);
+			LOGGER.error("Failed to initialize RouteProfileManager instance.", ex);
 		}
 		
-		RuntimeUtility.clearMemAndLogRAM(mLogger);
+		RuntimeUtility.clearMemory(LOGGER);
 	}
 
 	public void destroy() {
-		if (m_profileUpdater != null)
-			m_profileUpdater.destroy();
+		if (_profileUpdater != null)
+			_profileUpdater.destroy();
 		
 		if (RealTrafficDataProvider.getInstance().isInitialized())
 			RealTrafficDataProvider.getInstance().destroy();
 
-		m_routeProfiles.destroy();
+		_routeProfiles.destroy();
 	}
 	
 	public RoutingProfilesCollection getProfiles()
 	{
-		return m_routeProfiles;
+		return _routeProfiles;
 	}
 	
 	public boolean updateEnabled()
 	{
-		return m_profileUpdater != null; 
+		return _profileUpdater != null; 
 	}
 	
 	public Date getNextUpdateTime()
 	{
-		return m_profileUpdater == null ? new Date() : m_profileUpdater.getNextUpdate();
+		return _profileUpdater == null ? new Date() : _profileUpdater.getNextUpdate();
 	}
 	
 	public String getUpdatedStatus()
 	{
-		return m_profileUpdater == null ? null : m_profileUpdater.getStatus();
+		return _profileUpdater == null ? null : _profileUpdater.getStatus();
 	}
 	
 	public RouteResult getRoute(RoutingRequest req) throws Exception
@@ -231,12 +230,17 @@ public class RoutingProfileManager {
 
 		Coordinate[] coords = req.getCoordinates();
 		
-		RoutingProfile rp = getRouteProfile(coords[0].y, coords[0].x, coords[1].y, coords[1].x, searchParams, false);
+		RoutingProfile rp = getRouteProfile(coords[0].y, coords[0].x, coords[1].y, coords[1].x, false, searchParams);
 
 		ExtraInfoProcessor extraInfoAggregator = null;
 
 		if (req.getExtraInfo() > 0)
+		{
+			// do not allow geometry simplification when extras are requested
+			req.setSimplifyGeometry(false);
+			
 			extraInfoAggregator = new ExtraInfoProcessor(rp.getGraphhopper(), req.getExtraInfo());
+		}
 		
 		Coordinate c0 = coords[0];
 		Coordinate c1;
@@ -247,7 +251,7 @@ public class RoutingProfileManager {
 			if (extraInfoAggregator != null)
 				extraInfoAggregator.setSegmentIndex(i - 1, nSegments);
 			c1 = coords[i];
-			GHResponse gr = rp.getRoute(c0.y, c0.x, c1.y, c1.x, searchParams, c0.z == 1.0, extraInfoAggregator);
+			GHResponse gr = rp.getRoute(c0.y, c0.x, c1.y, c1.x, c0.z == 1.0, searchParams, req.getSimplifyGeometry(), extraInfoAggregator);
 			routes.add(gr);
 			c0 = c1;
 		}
@@ -255,23 +259,23 @@ public class RoutingProfileManager {
 		return new RouteResultBuilder().createRouteResult(routes, req, extraInfoAggregator != null ? extraInfoAggregator.getExtras(): null);
 	}
 	
-	public GHResponse getRoute(double lat0, double lon0, double lat1, double lon1, RouteSearchParameters searchParams, boolean directedSegment, PathProcessor pathProcessor) throws Exception {
-		RoutingProfile rp = getRouteProfile(lat0, lon0, lat1, lon1, searchParams, directedSegment);
+	public GHResponse getRoute(double lat0, double lon0, double lat1, double lon1,  boolean directedSegment, RouteSearchParameters searchParams, boolean simplifyGeometry, PathProcessor pathProcessor) throws Exception {
+		RoutingProfile rp = getRouteProfile(lat0, lon0, lat1, lon1, directedSegment, searchParams);
 
-		return rp.getRoute(lat0, lon0, lat1, lon1, searchParams, directedSegment, pathProcessor);
+		return rp.getRoute(lat0, lon0, lat1, lon1, directedSegment, searchParams, simplifyGeometry, pathProcessor);
 	}
 	
-	public RoutingProfile getRouteProfile(double lat0, double lon0, double lat1, double lon1, RouteSearchParameters searchParams, boolean directedSegment) throws Exception {
+	public RoutingProfile getRouteProfile(double lat0, double lon0, double lat1, double lon1, boolean directedSegment, RouteSearchParameters searchParams) throws Exception {
 		int profileType = searchParams.getProfileType();
 		
 		boolean dynamicWeights = (searchParams.hasAvoidAreas() || searchParams.hasAvoidFeatures() || searchParams.getMaximumSpeed() > 0 || (RoutingProfileType.isDriving(profileType) && (searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
 		boolean chEnabled = !dynamicWeights;
 		boolean checkDistance = true;
 		
-		if (chEnabled == false && mDynamicWeightingMaxDistance > 0.0)
+		if (chEnabled == false && _dynamicWeightingMaxDistance > 0.0)
 		{
 			double dist = CoordTools.calcDistHaversine(lon0, lat0, lon1, lat1);
-			if (dist > mDynamicWeightingMaxDistance)
+			if (dist > _dynamicWeightingMaxDistance)
 			{
 				chEnabled = true;
 				dynamicWeights = false;
@@ -292,15 +296,13 @@ public class RoutingProfileManager {
 		/*chEnabled = true;
 		dynamicWeights  = false;
 		checkDistance = false;*/
-		RoutingProfile rp = m_routeProfiles.getRouteProfile(profileType, chEnabled, dynamicWeights, lat0, lon0, lat1, lon1, checkDistance);
+		RoutingProfile rp = _routeProfiles.getRouteProfile(profileType, chEnabled, lat0, lon0, lat1, lon1, checkDistance);
 		
 		if (rp == null && checkDistance) {
 			if (chEnabled == true) {
-				rp = m_routeProfiles.getRouteProfile(profileType, false, dynamicWeights, lat0, lon0, lat1, lon1, checkDistance);
-				if (rp == null)
-					rp = m_routeProfiles.getRouteProfile(profileType, false, !dynamicWeights, lat0, lon0, lat1, lon1, checkDistance);
+				rp = _routeProfiles.getRouteProfile(profileType, false, lat0, lon0, lat1, lon1, checkDistance);
 			} else {
-				rp = m_routeProfiles.getRouteProfile(profileType, false, !dynamicWeights, lat0, lon0, lat1, lon1, checkDistance);
+				rp = _routeProfiles.getRouteProfile(profileType, true, lat0, lon0, lat1, lon1, checkDistance);
 			}
 		}
 
@@ -316,10 +318,10 @@ public class RoutingProfileManager {
 	public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters) throws Exception
 	{
 		int profileType = parameters.getRouteParameters().getProfileType();
-		RoutingProfile rp = m_routeProfiles.getRouteProfile(profileType, false, false);
+		RoutingProfile rp = _routeProfiles.getRouteProfile(profileType, false, false);
 		
 		if (rp == null)
-			rp = m_routeProfiles.getRouteProfile(profileType, false, true);
+			rp = _routeProfiles.getRouteProfile(profileType, false, true);
 		
 		return rp.buildIsochrone(parameters);
 	}

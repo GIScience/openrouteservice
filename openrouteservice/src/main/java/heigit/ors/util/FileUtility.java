@@ -20,21 +20,19 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 
 import org.apache.commons.io.FileUtils;
 
 public class FileUtility {
-	/**
-	 * 
-	 * 
-	 * @param coordstream
-	 *            InputStream
-	 * @param bufferSize
-	 *            int
-	 * @return result String
-	 * @throws IOException
-	 */
+	public static Boolean isAbsolutePath(String path)
+	{
+		Path path2 = Paths.get(path);
+		return path2.isAbsolute();
+	}
+	
 	public static String readFile(String fileName, int bufferSize) throws IOException {
 		File file = new File(fileName);
 		FileInputStream fis = new FileInputStream(file);

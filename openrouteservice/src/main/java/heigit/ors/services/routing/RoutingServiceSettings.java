@@ -12,6 +12,7 @@
 package heigit.ors.services.routing;
 
 import java.util.List;
+import java.util.Map;
 
 import com.graphhopper.util.Helper;
 
@@ -60,9 +61,19 @@ public class RoutingServiceSettings {
 	   return value;
 	}
 	
-	public static List<String> getParameters(String paramName) 
+	public static List<String> getParametersList(String paramName) 
 	{
-	   return _config.getServiceParameters("routing", paramName);	
+	   return _config.getServiceParametersList("routing", paramName);	
+	}
+	
+	public static List<Double> getDoubleList(String paramName) 
+	{
+	   return _config.getDoubleList("routing", paramName);	
+	}
+	
+	public static Map<String, Object> getParametersMap(String paramName) 
+	{
+	   return _config.getServiceParametersMap("routing", paramName);	
 	}
 	
  	public static String getAttribution() {

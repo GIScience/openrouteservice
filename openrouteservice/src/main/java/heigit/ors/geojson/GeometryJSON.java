@@ -119,7 +119,7 @@ public class GeometryJSON {
 		return arrCoords;
 	}
 
-	public static JSONArray toJSON(Coordinate[] coords)
+	public static JSONArray toJSON(Coordinate[] coords, boolean includeElevation)
 	{
 		JSONArray arrCoords =  new JSONArray();
 		int size = coords.length;
@@ -130,6 +130,9 @@ public class GeometryJSON {
 			JSONArray coord =  new JSONArray();
 			coord.put(FormatUtility.roundToDecimals(c.x, COORDINATE_PRECISION));
 			coord.put(FormatUtility.roundToDecimals(c.y, COORDINATE_PRECISION));
+			if (includeElevation)
+				coord.put(FormatUtility.roundToDecimals(c.y, 1));
+				
 			arrCoords.put(coord);
 		}
 

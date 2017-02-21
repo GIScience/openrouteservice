@@ -17,20 +17,15 @@ package heigit.ors.isochrones;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.isochrones.builders.IsochroneMapBuilder;
 import heigit.ors.isochrones.builders.concaveballs.ConcaveBallsIsochroneMapBuilder;
+import heigit.ors.routing.RouteSearchContext;
 
-import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.Helper;
 
 public class IsochroneMapBuilderFactory {
-	private GraphHopper _graphHopper;
-	private EdgeFilter _edgeFilter;
-	private String _encoderName;
+	private RouteSearchContext _searchContext;
 
-	public IsochroneMapBuilderFactory(GraphHopper gh, EdgeFilter edgeFilter, String encoderName) {
-		_graphHopper = gh;
-		_edgeFilter = edgeFilter;
-		_encoderName = encoderName;
+	public IsochroneMapBuilderFactory(RouteSearchContext searchContext) {
+		_searchContext = searchContext;
 	}
 
 	public IsochroneMap buildMap(IsochroneSearchParameters parameters) throws Exception {
@@ -44,7 +39,7 @@ public class IsochroneMapBuilderFactory {
 			throw new Exception("Unknown method.");
 		}
 		
-		isochroneBuilder.initialize(_graphHopper, _edgeFilter, _encoderName);
+		isochroneBuilder.initialize(_searchContext);
 		return isochroneBuilder.compute(parameters);
 	}
 }

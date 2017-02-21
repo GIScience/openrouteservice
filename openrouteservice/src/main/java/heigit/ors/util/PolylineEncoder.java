@@ -3,11 +3,13 @@ package heigit.ors.util;
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class PolylineEncoder {
-	public static String encode(final Coordinate[] coords, StringBuffer buffer) {
+	public static String encode(final Coordinate[] coords, boolean includeElevation, StringBuffer buffer) {
 		long lat, lon;
 	    long prevLat = 0;
 	    long prevLon = 0;
-
+	    long elev = 0;
+	    long prevEle = 0;
+	    
 	    final StringBuffer result = new StringBuffer();
 
 	    for (final Coordinate c : coords) {
@@ -16,7 +18,14 @@ public class PolylineEncoder {
 
 	      encode(lat - prevLat, result);
 	      encode(lon - prevLon, result);
-
+	      
+	      if (includeElevation)
+	      {
+	    	  elev = (long)Math.floor(c.z * 100);
+	    	  encode(elev - prevEle, buffer);
+              prevEle = elev;
+	      }
+	      
 	      prevLat = lat;
 	      prevLon = lon;
 	    }

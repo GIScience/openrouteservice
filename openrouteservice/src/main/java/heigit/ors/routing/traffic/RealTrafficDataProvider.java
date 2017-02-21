@@ -206,19 +206,18 @@ public class RealTrafficDataProvider {
 			try
 			{
 				for (RoutingProfile rp : profiles.getCarProfiles()) {
-					if (rp.useTrafficInformation() && rp.hasDynamicWeights()) {
+					if (rp.useTrafficInformation() && !rp.isCHEnabled()) {
 						if (rpc == null) {
 							rpc = new RouteProfileConfiguration();
 							rpc.Enabled = true;
 							rpc.GraphPath = rp.getConfiguration().GraphPath + "_tmc";
-							rpc.ConfigPath = m_config.ConfigPath;
-							rpc.Profiles = "CAR_TMC";
+							rpc.Profiles = "driving-traffic";
 							rpc.UseTrafficInformation = true;
-							rpc.DynamicWeighting = true;
+							rpc.ExtStorages = null;
 							// Germany only
 							rpc.BBox = new Envelope(5.866240, 15.042050, 47.270210, 55.058140);
 
-							RoutingProfile rpTmc = new RoutingProfile(rmc.SourceFile, rmc.ConfigPathsRoot, rpc, profiles);
+							RoutingProfile rpTmc = new RoutingProfile(rmc.SourceFile, rpc, profiles);
 
 							profiles.add(7777, rpTmc, true);
 

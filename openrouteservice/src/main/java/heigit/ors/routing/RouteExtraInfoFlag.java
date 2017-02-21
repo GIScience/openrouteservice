@@ -2,16 +2,17 @@ package heigit.ors.routing;
 
 import com.graphhopper.util.Helper;
 
-public class RouteExtraInformationFlag {
+public class RouteExtraInfoFlag {
 	public static final int Steepness = 1;
 	public static final int Surface = 2;
-	public static final int WayTypes = 4;
-	public static final int Suitability = 8;
+	public static final int WayType = 4;
+	public static final int WayCategory = 8;
+	public static final int Suitability = 16;
 
 	public static boolean isSet(int extraInfo, int value)
-   {
+	{
 		return (extraInfo & value) == value;
-   }
+	}
 
 	public static int getFromString(String value) {
 		if (Helper.isEmpty(value))
@@ -28,8 +29,11 @@ public class RouteExtraInformationFlag {
 			case "surface":
 				res |= Surface;
 				break;
-			case "waytypes":
-				res |= WayTypes;
+			case "waytype":
+				res |= WayType;
+				break;
+			case "waycategory":
+				res |= WayCategory;
 				break;
 			case "suitability":
 				res |= Suitability;

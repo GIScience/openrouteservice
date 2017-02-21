@@ -13,22 +13,24 @@ package heigit.ors.services.routing;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import heigit.ors.routing.RouteExtraInformationFlag;
 import heigit.ors.routing.RouteSearchParameters;
+import heigit.ors.services.ServiceRequest;
 import heigit.ors.util.DistanceUnit;
 
-public class RoutingRequest {
+public class RoutingRequest extends ServiceRequest
+{
 	private Coordinate[] _coordinates;
 	private RouteSearchParameters _searchParameters;
 	private DistanceUnit _units = DistanceUnit.Meters;
 	private String _language = "en";
 	private String _geometryFormat = "encodedpolyline";
-	private Boolean _prettifyInstructions = false;
+	private RouteInstructionsFormat _instructionsFormat = RouteInstructionsFormat.TEXT;
 	private Boolean _includeInstructions = true;
 	private Boolean _includeElevation = false;
 	private Boolean _includeGeometry = true;
+	private Boolean _simplifyGeometry = false;
 	private String[] _attributes = null;
-    private int _extraInfo;	
+    private int _extraInfo;
 	
 	public RoutingRequest()
 	{
@@ -83,12 +85,12 @@ public class RoutingRequest {
 		_language = language;
 	}
 
-	public Boolean getPrettifyInstructions() {
-		return _prettifyInstructions;
+	public RouteInstructionsFormat getInstructionsFormat() {
+		return _instructionsFormat;
 	}
 
-	public void setPrettifyInstructions(Boolean prettifyInstructions) {
-		this._prettifyInstructions = prettifyInstructions;
+	public void setInstructionsFormat(RouteInstructionsFormat format) {
+		_instructionsFormat = format;
 	}
 
 	public int getExtraInfo() {
@@ -132,5 +134,13 @@ public class RoutingRequest {
 				return true;
 
 		return false;
+	}
+
+	public Boolean getSimplifyGeometry() {
+		return _simplifyGeometry;
+	}
+
+	public void setSimplifyGeometry(Boolean _simplifyGeometry) {
+		this._simplifyGeometry = _simplifyGeometry;
 	}
 }

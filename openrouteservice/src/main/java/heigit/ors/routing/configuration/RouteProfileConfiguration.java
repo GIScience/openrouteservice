@@ -8,19 +8,29 @@ import heigit.ors.routing.RoutingProfileType;
 
 public class RouteProfileConfiguration
 {
-	public String Profiles; // comma separated
-	public String ConfigPath;   // path to Graphhopper's configuration file.
-	public String GraphPath;
-	public Boolean DynamicWeighting = false; // to store additional fields such as max_width, max_height, max_weight, etc.
-	public Boolean SurfaceInformation = false;// to store way and surface type information
-	public Boolean HillIndex = false;// to store way and surface type information
-	public Double MaximumDistance;
-	public Double MinimumDistance; 
 	public Boolean Enabled = true;
+
+	public String Profiles; // comma separated
+	public String GraphPath;
+	
+	public String ExtStorages;
+	
+	public Double MaximumDistance = 0.0;
+	public Double MinimumDistance = 0.0; 
 	public Boolean UseTrafficInformation = false;
+	
+	public Boolean Instructions = true;
+	
+	public int EncoderFlagsSize = 4;
+	public String EncoderOptions = null;
+	public String CHWeighting = null;
+	
+	public String ElevationCachPath = null;
+	public String ElevationProvider = null;
+	
 	public Envelope BBox;
 	
-	public Integer[] GetProfiles()
+	public Integer[] GetProfilesTypes()
 	{
 		ArrayList<Integer> list = new ArrayList<Integer>();
 		
@@ -37,5 +47,32 @@ public class RouteProfileConfiguration
 		}
 		
 		return (Integer[])list.toArray(new Integer[list.size()]);
+	}
+	
+	public RouteProfileConfiguration clone()
+	{
+		RouteProfileConfiguration rpc = new RouteProfileConfiguration();
+		
+		rpc.Enabled = this.Enabled;
+		rpc.Profiles = this.Profiles;
+			
+		rpc.MaximumDistance = this.MaximumDistance;
+		rpc.MinimumDistance = this.MinimumDistance; 
+		rpc.UseTrafficInformation = this.UseTrafficInformation;
+		
+		rpc.Instructions = this.Instructions;
+		
+		rpc.EncoderFlagsSize = this.EncoderFlagsSize;
+		rpc.EncoderOptions = this.EncoderOptions;
+		rpc.CHWeighting = this.CHWeighting;
+
+		rpc.ExtStorages = this.ExtStorages;
+
+		rpc.ElevationCachPath = this.ElevationCachPath;
+		rpc.ElevationProvider = this.ElevationProvider;
+		
+		rpc.BBox = this.BBox;
+		
+		return rpc;
 	}
 }

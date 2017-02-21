@@ -46,6 +46,9 @@ public class JsonRoutingResponseWriter {
 		StringBuffer buffer = new StringBuffer();
 		// *************** routes ***************
 
+		boolean attrDetourFactor = request.hasAttribute("detourfactor");
+		boolean attrPercentage = request.hasAttribute("percentage");
+		
 		JSONArray jRoutes = new JSONArray();
 
 		jResp.put("routes", jRoutes);
@@ -83,10 +86,7 @@ public class JsonRoutingResponseWriter {
 				if (request.getGeometryFormat() != null)
 					jRoute.put("geometry_format", request.getGeometryFormat());
 
-				jRoute.put("geometry", getGeometry(route.getGeometry(), request.getGeometryFormat(), buffer));
-
-				if (request.getIncludeElevation())
-					jRoute.put("elevations", getElevations(route.getGeometry()));
+				jRoute.put("geometry", getGeometry(route.getGeometry(), request.getIncludeElevation(), request.getGeometryFormat(), buffer));
 
 				if (request.getIncludeInstructions() && route.getSegments().size() > 0)
 				{
@@ -106,8 +106,10 @@ public class JsonRoutingResponseWriter {
 							jSegment.put("descent", seg.getDescent());
 						}
 
-						if (seg.getDetourFactor() != 0.0)
+						if (attrDetourFactor)
 							jSegment.put("detour_factor", seg.getDetourFactor());
+						if (attrPercentage)
+							jSegment.put("percentage", FormatUtility.roundToDecimals(seg.getDistance() * 100 / route.getSummary().getDistance(), 2));
 
 						JSONArray jSteps = new JSONArray();
 
@@ -248,7 +250,7 @@ public class JsonRoutingResponseWriter {
 
 		jQuery.put("preference", WeightingMethod.getName(request.getSearchParameters().getWeightingMethod()));
 
-		jQuery.put("coordinates", GeometryJSON.toJSON(request.getCoordinates()));
+		jQuery.put("coordinates", GeometryJSON.toJSON(request.getCoordinates(), request.getIncludeElevation()));
 
 		if (request.getLanguage() != null)
 			jQuery.put("language", request.getLanguage());
@@ -260,16 +262,20 @@ public class JsonRoutingResponseWriter {
 		if (request.getIncludeGeometry())
 		{
 			jQuery.put("geometry_format", Helper.isEmpty(request.getGeometryFormat()) ? "encodedpolyline" : request.getGeometryFormat());
+			jQuery.put("geometry_simplify", request.getSimplifyGeometry());
 
-			if (request.getIncludeInstructions() && request.getPrettifyInstructions() != null)
-				jQuery.put("prettify_instructions", request.getPrettifyInstructions());
+			if (request.getIncludeInstructions())
+				jQuery.put("instructions_format", request.getInstructionsFormat().toString().toLowerCase());
 
 			jQuery.put("instructions", request.getIncludeInstructions());
 			jQuery.put("elevation", request.getIncludeElevation());
 		}
-
+		
 		if (!Helper.isEmpty(request.getSearchParameters().getOptions()))
 			jQuery.put("options", new JSONObject(request.getSearchParameters().getOptions()));
+		
+		if (!Helper.isEmpty(request.getId()))
+			jQuery.put("id", request.getId());
 
 		jInfo.put("query", jQuery);
 
@@ -284,23 +290,14 @@ public class JsonRoutingResponseWriter {
 		return new JSONObject(map);
 	}
 
-	private static JSONArray getElevations(Coordinate[] points)
-	{
-		JSONArray elevations = new JSONArray();
-		for (int i = 0; i < points.length; ++i)
-			elevations.put(i, FormatUtility.roundToDecimals(points[i].z, 1));
-
-		return elevations;
-	}
-
-	private static Object getGeometry(Coordinate[] points, String format, StringBuffer buffer)
+	private static Object getGeometry(Coordinate[] points, boolean includeElevation, String format, StringBuffer buffer)
 	{
 		if (points == null)
 			return "";
 
 		if (Helper.isEmpty(format) || "encodedpolyline".equalsIgnoreCase(format))
 		{
-			return PolylineEncoder.encode(points, buffer);
+			return PolylineEncoder.encode(points, includeElevation, buffer);
 		}
 		else if ("geojson".equalsIgnoreCase(format))
 		{
@@ -313,13 +310,13 @@ public class JsonRoutingResponseWriter {
              }
 			 */
 			json.put("type", "LineString");
-			json.put("coordinates", GeometryJSON.toJSON(points));
+			json.put("coordinates", GeometryJSON.toJSON(points, includeElevation));
 
 			return json;
 		}
 		else if ("polyline".equalsIgnoreCase(format))
 		{
-			return GeometryJSON.toJSON(points);
+			return GeometryJSON.toJSON(points, includeElevation);
 		}
 
 		return "";

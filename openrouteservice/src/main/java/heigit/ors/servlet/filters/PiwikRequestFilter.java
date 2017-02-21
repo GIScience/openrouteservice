@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -31,7 +30,6 @@ import com.graphhopper.util.Helper;
 @WebFilter("/PiwikRequestFilter")
 public class PiwikRequestFilter implements Filter {
 
-	private ServletContext m_context;
 	private int m_siteID = -1;
 	private String m_apiURL;
 	private Set<String> localAddresses = new HashSet<String>();
@@ -45,9 +43,6 @@ public class PiwikRequestFilter implements Filter {
 			m_siteID = Integer.parseInt(siteID);
 		}
 		
-		m_context = fConfig.getServletContext();
-		m_context.log("PiwikRequestFilter initialized");
-
 		try {
 			localAddresses.add(InetAddress.getLocalHost().getHostAddress());
 			for (InetAddress inetAddress : InetAddress.getAllByName("localhost")) {

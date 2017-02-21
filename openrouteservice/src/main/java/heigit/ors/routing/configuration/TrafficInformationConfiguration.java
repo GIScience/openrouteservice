@@ -9,7 +9,6 @@ public class TrafficInformationConfiguration {
 	public String MessagesDatasource;
 	public String OutputDirectory;
 	public Boolean Enabled = true;
-	public String ConfigPath;
 	public Integer UpdateInterval;
 	
 	public Properties getDataSourceProperties()

@@ -10,7 +10,7 @@
  *|								
  *|----------------------------------------------------------------------------------------------*/
 
-package heigit.ors.routing.util;
+package heigit.ors.routing;
 
 public class AvoidFeatureFlags {
 	public static final int Highways = 1; // 1 << 0;

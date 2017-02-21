@@ -15,24 +15,22 @@ import org.apache.log4j.Logger;
 
 public class RuntimeUtility {
 
-	/**
-	 * Clear Garbage Collector and log some informations
-	 * 
-	 */
-	public static void clearMemAndLogRAM(Logger logger) {
-		logRAMInformations(logger);
+	public static void clearMemory(Logger logger) {
+		printRAMInfo(logger);
 		Runtime.getRuntime().gc();
-		logRAMInformations(logger);
+		printRAMInfo(logger);
 	}
 
-	/**
-	 * log some informations about the ram-usage
-	 */
-	public static void logRAMInformations(Logger logger) {
-		logger.info("*  -> TotalMemory: " + Runtime.getRuntime().totalMemory() / 1000000 + " MB  FreeMemory: "
-				+ Runtime.getRuntime().freeMemory() / 1000000 + " MB  MaxMemory: " + Runtime.getRuntime().maxMemory()
-				/ 1000000 + " MB  --> UsedMemory: "
-				+ ((Runtime.getRuntime().totalMemory() / 1000000) - (Runtime.getRuntime().freeMemory() / 1000000))
-				+ " MB  <--");
+	public static void printRAMInfo(Logger logger) {
+		logger.info("RAM STATS: TotalMemory: " + getMemorySize(Runtime.getRuntime().totalMemory()) + ", FreeMemory: "
+				+ getMemorySize(Runtime.getRuntime().freeMemory()) + ", MaxMemory: " + getMemorySize(Runtime.getRuntime().maxMemory())
+				+ "  --> UsedMemory: "
+				+ getMemorySize(Runtime.getRuntime().totalMemory() -(Runtime.getRuntime().freeMemory())));
+	}
+	
+	private static String getMemorySize(long value)
+	{
+		double gigaBytes = FormatUtility.roundToDecimals(value * 9.31322574615479e-10, 3);
+		return gigaBytes + " GB";
 	}
 }

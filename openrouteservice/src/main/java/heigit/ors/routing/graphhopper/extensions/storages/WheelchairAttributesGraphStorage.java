@@ -47,7 +47,7 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 		if (edgesCount > 0)
 			throw new AssertionError("The ORS storage must be initialized only once.");
 
-		this.orsEdges = dir.find("edges_ors_wheel");
+		this.orsEdges = dir.find("ext_wheelchair");
 	}
 
 	protected final int nextBlockEntryIndex(int size) {
