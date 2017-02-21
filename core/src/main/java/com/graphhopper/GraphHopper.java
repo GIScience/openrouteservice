@@ -762,14 +762,6 @@ public class GraphHopper implements GraphHopperAPI
         GraphExtension ext = encodingManager.needsTurnCostsSupport()
                 ? new TurnCostExtension() : new GraphExtension.NoOpExtension();
                 
-  /*      if (chEnabled)
-        {
-            initCHAlgoFactories();
-            ghStorage = new GraphHopperStorage(new ArrayList<Weighting>(algoFactories.keySet()), dir, encodingManager, hasElevation(), ext);
-        } else
-            ghStorage = new GraphHopperStorage(dir, encodingManager, hasElevation(), ext);
-*/
-                
         if (graphStorageFactory != null) // Runge
         {
         	ghStorage = graphStorageFactory.createStorage(dir, this);
@@ -827,6 +819,11 @@ public class GraphHopper implements GraphHopperAPI
     {
         return algoFactories.values();
     }
+    
+    public Set<Weighting> getAlgorithmFactories2()
+    {
+        return algoFactories.keySet();
+    }
 
     public GraphHopper putAlgorithmFactory( Weighting weighting, RoutingAlgorithmFactory algoFactory )
     {
@@ -834,7 +831,8 @@ public class GraphHopper implements GraphHopperAPI
         return this;
     }
 
-    private void initCHAlgoFactories()
+    //Runge make it public
+    public void initCHAlgoFactories()
     {
         if (algoFactories.isEmpty())
             for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders())
@@ -984,7 +982,8 @@ public class GraphHopper implements GraphHopperAPI
                 setCalcPoints(tmpCalcPoints).
                 setDouglasPeucker(peucker).
                 setEnableInstructions(tmpEnableInstructions).
-                setSimplifyResponse(simplifyResponse && wayPointMaxDistance > 0).
+                //setSimplifyResponse(simplifyResponse && wayPointMaxDistance > 0). // Runge
+                setSimplifyResponse(request.getSimplifyGeometry() && wayPointMaxDistance > 0).
                 doWork(response, paths, request.getEdgeAnnotator(), request.getPathProcessor(), trMap.getWithFallBack(locale));
         return response;
     }

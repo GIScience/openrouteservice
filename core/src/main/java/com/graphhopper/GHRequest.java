@@ -52,6 +52,7 @@ public class GHRequest
     private EdgeFilter edgeFilter; 
     private double maxSpeed = -1; 
     private double maxSearchDistance;
+    private Boolean simplifyGeometry = true;
 
     // List of favored start (1st element) and arrival heading (all other).
     // Headings are north based azimuth (clockwise) in (0, 360) or NaN for equal preference
@@ -280,6 +281,15 @@ public class GHRequest
     	return this;
     }
 
+    public Boolean getSimplifyGeometry()
+    {
+    	return simplifyGeometry;
+    }
+    
+    public void setSimplifyGeometry(Boolean value)
+    {
+    	simplifyGeometry = value;
+    }
 
     public Locale getLocale()
     {

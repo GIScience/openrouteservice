@@ -59,7 +59,12 @@ public class PMap
             this.map.put(s.substring(0, index).toLowerCase(), s.substring(index + 1));
         }
     }
-
+    
+    public int size()
+    {
+    	return map.size();
+    }
+    
     public PMap put( String key, Object str )
     {
         if (str == null)
