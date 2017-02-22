@@ -118,7 +118,7 @@
     "logging": {
       "enabled": true,
       "level_file": "DEBUG_LOGGING.properties",
-      "location": "D:/Temp/output/ors.log",
+      "location": "/usr/local/var/log/ors/ors.log",
       "stdout": true
     }
   }
