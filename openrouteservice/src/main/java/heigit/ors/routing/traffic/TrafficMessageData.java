@@ -159,7 +159,12 @@ public class TrafficMessageData {
 
 				NodeList listOfLCDs = ifnElement.getElementsByTagName("LCD");
 				for (int j = 0; j < listOfLCDs.getLength(); j++) {
-					locationCodes.add(Integer.parseInt(listOfLCDs.item(j).getTextContent()));
+					String lcdStr = listOfLCDs.item(j).getTextContent();
+
+					// ignore the lcd if it is bigger than IntegerMax
+					if (isParsable(lcdStr))	
+						locationCodes.add(Integer.parseInt(lcdStr));
+					
 				}
 				NodeList listOfECOs = ifnElement.getElementsByTagName("ECO");
 				for (int j = 0; j < listOfECOs.getLength(); j++) {
@@ -370,5 +375,16 @@ public class TrafficMessageData {
 				return list;
 			}			
 		}
+	}
+	
+	private static boolean isParsable(String lcdStr){
+	    boolean parsable = true;
+	
+	    try{
+	        Integer.parseInt(lcdStr);
+	    }catch(NumberFormatException e){
+	        parsable = false;
+	    }
+	    return parsable;
 	}
 }
