@@ -160,7 +160,7 @@ public class TrafficMessageData {
 				NodeList listOfLCDs = ifnElement.getElementsByTagName("LCD");
 				for (int j = 0; j < listOfLCDs.getLength(); j++) {
 					String lcdStr = listOfLCDs.item(j).getTextContent();
-
+					
 					// ignore the lcd if it is bigger than IntegerMax
 					if (isParsable(lcdStr))	
 						locationCodes.add(Integer.parseInt(lcdStr));
@@ -342,8 +342,10 @@ public class TrafficMessageData {
 		}
 		else
 		{
-			if (graph.containsCode(startIndex) && graph.containsCode(endIndex))
-				return graph.getShortestPath(startIndex, endIndex);
+			List<Integer> locationsInShortestPath = new ArrayList<Integer>();
+			if (graph.containsCode(startIndex) && graph.containsCode(endIndex) && (graph.findShortestPath(startIndex, endIndex, locationsInShortestPath)))
+				return locationsInShortestPath;
+			
 			else
 			{
 				List<Integer> list = new ArrayList<>();
@@ -380,7 +382,7 @@ public class TrafficMessageData {
 	private static boolean isParsable(String lcdStr){
 	    boolean parsable = true;
 	
-	    try{
+	    try{	
 	        Integer.parseInt(lcdStr);
 	    }catch(NumberFormatException e){
 	        parsable = false;
