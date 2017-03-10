@@ -45,6 +45,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 public class ORSGraphHopper extends GraphHopper {
 
 	private Envelope bbox;
+	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds; // one osm id can correspond to multiple edges 
 	private HashMap<Integer, Long> tmcEdges;
 	
 	// A route profile for referencing which is used to extract names of adjacent streets and other objects.
@@ -55,12 +56,14 @@ public class ORSGraphHopper extends GraphHopper {
 		this.refRouteProfile= refProfile;
 		this.setSimplifyResponse(false);
 		
-		if (useTmc)
-			tmcEdges = new HashMap<Integer, Long>();
+		if (useTmc){
+			tmcEdges = new HashMap<Integer, Long>(); 
+			osmId2EdgeIds = new HashMap<Long, ArrayList<Integer>>();
+		}
 	}
 	
 	protected DataReader createReader(GraphHopperStorage tmpGraph) {
-		return initOSMReader(new ORSOSMReader(tmpGraph, bbox, tmcEdges, refRouteProfile));
+		return initOSMReader(new ORSOSMReader(tmpGraph, bbox, tmcEdges, osmId2EdgeIds, refRouteProfile));
 	}
 	
 	public boolean load( String graphHopperFolder )
@@ -80,12 +83,14 @@ public class ORSGraphHopper extends GraphHopper {
 	@SuppressWarnings("unchecked")
 	public GraphHopper importOrLoad() {
 		GraphHopper gh = super.importOrLoad();
+		
 
-		if (tmcEdges != null) {
+		if ((tmcEdges != null) && (osmId2EdgeIds !=null)) {
 			java.nio.file.Path path = Paths.get(gh.getGraphHopperLocation(), "edges_ors_traffic");
 
-			if (tmcEdges.size() == 0) {
+			if ((tmcEdges.size() == 0) || (osmId2EdgeIds.size()==0)) {
 				// try to load TMC edges from file.
+				
 				try {
 					File file = path.toFile();
 
@@ -189,5 +194,9 @@ public class ORSGraphHopper extends GraphHopper {
 
 	public HashMap<Integer, Long> getTmcGraphEdges() {
 		return tmcEdges;
+	}
+	
+	public HashMap<Long, ArrayList<Integer>> getOsmId2EdgeIds() {		
+		return osmId2EdgeIds;
 	}
 }

@@ -167,6 +167,10 @@ public class RoutingProfile {
 	public HashMap<Integer, Long> getTmcEdges() {
 		return mGraphHopper.getTmcGraphEdges();
 	}
+		
+	public HashMap<Long, ArrayList<Integer>> getOsmId2edgeIds() {
+		return mGraphHopper.getOsmId2EdgeIds();
+	}
 
 	public ORSGraphHopper getGraphhopper() {
 		return mGraphHopper;
@@ -226,6 +230,7 @@ public class RoutingProfile {
 
 		return false;
 	}
+	
 
 	public boolean isCHEnabled() {
 		return mGraphHopper != null && mGraphHopper.isCHEnabled();
@@ -427,7 +432,9 @@ public class RoutingProfile {
 				props.put("TrafficBlockWeighting", true);
 
 				EdgeFilter ef = new BlockedEdgesEdgeFilter(flagEncoder, RealTrafficDataProvider.getInstance()
-						.getBlockedEdges(mGraphHopper.getGraphHopperStorage()));
+						.getBlockedEdges(mGraphHopper.getGraphHopperStorage()), RealTrafficDataProvider.getInstance()
+						.getHeavyVehicleBlockedEdges(mGraphHopper.getGraphHopperStorage()));
+				
 				edgeFilter = createEdgeFilter(ef, edgeFilter);
 			}
 		}

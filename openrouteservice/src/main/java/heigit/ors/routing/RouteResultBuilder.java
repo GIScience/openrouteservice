@@ -68,7 +68,8 @@ public class RouteResultBuilder {
 		double ascent = 0.0;
 		double descent = 0.0;
 		double distanceActual = 0.0;
-
+		double durationTraffic = 0.0;
+		
 		boolean includeDetourFactor = request.hasAttribute("detourfactor");
 		boolean includeElev = request.getIncludeElevation();
 		DistanceUnit units = request.getUnits();
@@ -245,7 +246,7 @@ public class RouteResultBuilder {
 				else
 				{
 					distance += FormatUtility.roundToDecimals(DistanceUnitUtil.convert(resp.getDistance(), DistanceUnit.Meters, units), FormatUtility.getUnitDecimals(units));
-					duration +=  FormatUtility.roundToDecimals(resp.getTime()/1000.0, 1);
+					duration += FormatUtility.roundToDecimals(resp.getTime()/1000.0, 1);
 				}
 			}
 			else
@@ -269,13 +270,19 @@ public class RouteResultBuilder {
 
 			ascent += resp.getAscent();
 			descent += resp.getDescent();
+			durationTraffic += resp.getRouteWeight();
 		}
 
 		result.getSummary().setDistance(FormatUtility.roundToDecimals(distance, unitDecimals));
 		result.getSummary().setDistanceActual(FormatUtility.roundToDecimals(distanceActual, unitDecimals));
-		result.getSummary().setDuration(duration);
 		result.getSummary().setAscent(FormatUtility.roundToDecimals(ascent, 1));
 		result.getSummary().setDescent(FormatUtility.roundToDecimals(descent, 1));
+		
+		if (request.getConsiderTraffic())
+			result.getSummary().setDuration(durationTraffic);
+		 else
+			result.getSummary().setDuration(duration);
+		
 
 		if (routeWayPoints != null)
 			result.setWayPointsIndices(routeWayPoints);
