@@ -59,7 +59,8 @@ public class CGIARProvider implements ElevationProvider
     private static final int WIDTH = 6000;
     private Downloader downloader = new Downloader("GraphHopper CGIARReader").setTimeout(10000);
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final Map<String, HeightTile> cacheData = new HashMap<String, HeightTile>();
+    //Runge: String substituted with Integer
+    private final Map<Integer, HeightTile> cacheData = new HashMap<Integer, HeightTile>();
     private File cacheDir = new File("/tmp/cgiar");
     // for alternatives see #346
     private String baseUrl = "http://srtm.csi.cgiar.org/SRT-ZIP/SRTM_V41/SRTM_Data_GeoTiff";
@@ -128,18 +129,14 @@ public class CGIARProvider implements ElevationProvider
         this.daType = daType;
         return this;
     }
-
-    @Override
-    public double getEle( double lat, double lon )
+    
+    //Runge
+    public HeightTile loadTile(double lat, double lon)
     {
-        // no data we can avoid the trouble
-        if (lat > 60 || lat < -60)
-            return 0;
-
-        lat = (int) (lat * precision) / precision;
-        lon = (int) (lon * precision) / precision;
-        String name = getFileName(lat, lon);
-        HeightTile demProvider = cacheData.get(name);
+    	//String name = getFileName(lat, lon);
+    	//Runge 
+    	int key = getTileKey(lat, lon);
+    	HeightTile demProvider = cacheData.get(key);
         if (demProvider == null)
         {
             if (!cacheDir.exists())
@@ -151,7 +148,8 @@ public class CGIARProvider implements ElevationProvider
             demProvider = new HeightTile(minLat, minLon, WIDTH, degree * precision, degree);
             demProvider.setCalcMean(calcMean);
 
-            cacheData.put(name, demProvider);
+            cacheData.put(key, demProvider);
+            String name = getFileName(lat, lon);
             DataAccess heights = getDirectory().find(name + ".gh");
             demProvider.setHeights(heights);
             boolean loadExisting = false;
@@ -190,7 +188,7 @@ public class CGIARProvider implements ElevationProvider
                                 // use small size on disc and in-memory
                                 heights.setSegmentSize(100).create(10).
                                         flush();
-                                return 0;
+                                return null;
                             }
 }
                     } catch (Exception ex)
@@ -255,6 +253,35 @@ public class CGIARProvider implements ElevationProvider
                 }
             } // loadExisting
         }
+        
+        return demProvider;
+    }
+    
+    @Override
+    public HeightTile getTile(int key)
+	{
+		HeightTile demProvider = cacheData.get(key);
+		return demProvider;
+	}
+
+    @Override
+    public double getEle( double lat, double lon )
+    {
+        // no data we can avoid the trouble
+        if (lat > 60 || lat < -60)
+            return 0;
+
+        lat = (int) (lat * precision) / precision;
+        lon = (int) (lon * precision) / precision;
+                
+        int key =  getTileKey(lat, lon); 
+        HeightTile demProvider = getTile(key); 
+        		
+        if (demProvider == null)
+        	demProvider = loadTile(lat, lon);
+        
+        if (demProvider == null)
+        	return 0;
 
         if (demProvider.isSeaLevel())
             return 0;
@@ -272,6 +299,23 @@ public class CGIARProvider implements ElevationProvider
         return intVal;
     }
 
+    public int getTileKey( double lat, double lon )
+    {
+    	 lon = 1 + (180 + lon) / degree;
+         int lonInt = (int) lon;
+         lat = 1 + (60 - lat) / degree;
+         int latInt = (int) lat;
+
+         if (Math.abs(latInt - lat) < invPrecision / degree)
+             latInt--;
+         
+         int hashCode = 23;
+         hashCode = 31 * hashCode + lonInt;
+         hashCode = 31 * hashCode + latInt;
+         
+         return hashCode;
+    }
+    
     protected String getFileName( double lat, double lon )
     {
         lon = 1 + (180 + lon) / degree;

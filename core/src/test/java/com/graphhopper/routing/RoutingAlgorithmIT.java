@@ -232,7 +232,8 @@ public class RoutingAlgorithmIT
         // roundabout contains sidewalk=no which should be avoided
         list.add(new OneRun(57.154888, -2.101822, 57.153445, -2.099869, 329, 31));
         // longer path should go through tertiary, see discussion in #476
-        list.add(new OneRun(57.154888, -2.101822, 57.147299, -2.096286, 1118, 68));
+       // list.add(new OneRun(57.154888, -2.101822, 57.147299, -2.096286, 1118, 68));  Runge: changed behaviour on highways when maxspeed is great
+        list.add(new OneRun(57.154888, -2.101822, 57.147299, -2.096286,  1464, 96)); 
 
         boolean testAlsoCH = false, is3D = false;
         runAlgo(testCollector, "files/map-sidewalk-no.osm.gz", "target/graph-sidewalkno",
