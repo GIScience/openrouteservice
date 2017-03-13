@@ -455,13 +455,13 @@ public class RoutingAlgorithmIT
         assertEquals(testCollector.toString(), 0, testCollector.errors.size());
     }
 
-    @Test
-    public void testAndorraPbf()
-    {
-        runAlgo(testCollector, "files/andorra.osm.pbf", "target/andorra-gh",
-                createAndorra(), "CAR", true, "CAR", "shortest", false);
-        assertEquals(testCollector.toString(), 0, testCollector.errors.size());
-    }
+//    @Test
+//    public void testAndorraPbf()
+//    {
+//        runAlgo(testCollector, "files/andorra.osm.pbf", "target/andorra-gh",
+//                createAndorra(), "CAR", true, "CAR", "shortest", false);
+//        assertEquals(testCollector.toString(), 0, testCollector.errors.size());
+//    }
 
     @Test
     public void testAndorraFoot()
