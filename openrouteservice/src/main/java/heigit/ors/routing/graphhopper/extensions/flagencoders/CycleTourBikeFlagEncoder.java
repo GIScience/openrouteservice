@@ -10,11 +10,8 @@ import static com.graphhopper.routing.util.PriorityCode.BEST;
 
 import java.util.TreeMap;
 
-import com.graphhopper.reader.OSMRelation;
 import com.graphhopper.reader.OSMWay;
 import com.graphhopper.routing.util.BikeCommonFlagEncoder;
-import com.graphhopper.routing.util.BikeFlagEncoder;
-import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.util.Helper;
 
 /**

@@ -14,8 +14,6 @@
 
 package heigit.ors.routing.graphhopper.extensions.storages;
 
-import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributesType;
-
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
@@ -29,41 +27,42 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 	protected DataAccess orsEdges;
 	protected int edgeEntryIndex = 0;
 	protected int edgeEntryBytes;
-	protected int edgesCount; // number of edges with custom values
+	protected int edgesCount; 
 	private byte[] byteValues;
 
 	private int attrTypes;
 
-	public HeavyVehicleAttributesGraphStorage(int attrTypes) {
-		this.attrTypes = attrTypes;
-		
+	public HeavyVehicleAttributesGraphStorage(boolean includeRestrictions) 
+	{
 		EF_VEHICLETYPE = nextBlockEntryIndex(1);
 		EF_DESTINATIONTYPE = nextBlockEntryIndex(1);
 
-		if ((attrTypes & HeavyVehicleAttributesType.Restrictions) == HeavyVehicleAttributesType.Restrictions)
-			EF_RESTRICTION = nextBlockEntryIndex(5);
+		if (includeRestrictions)
+			// first byte indicates whether any restrictions are given 
+			EF_RESTRICTION = nextBlockEntryIndex(6);
 		else
 			EF_RESTRICTION = -1;
 
-		edgeEntryBytes = edgeEntryIndex + 4;
+		edgeEntryBytes = edgeEntryIndex;
 		edgesCount = 0;
 		byteValues = new byte[10];
 	}
-
+	
 	public int getAttributeTypes() {
 		return this.attrTypes;
 	}
 	
 	public void init(Graph graph, Directory dir) {
 		if (edgesCount > 0)
-			throw new AssertionError("The ORS storage must be initialized only once.");
+			throw new AssertionError("The ext_hgv storage must be initialized only once.");
 
 		this.orsEdges = dir.find("ext_hgv");
 	}
 
 	protected final int nextBlockEntryIndex(int size) {
+		int res = edgeEntryIndex;
 		edgeEntryIndex += size;
-		return edgeEntryIndex;
+		return res;
 	}
 
 	public void setSegmentSize(int bytes) {
@@ -95,7 +94,7 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 
 	public boolean loadExisting() {
 		if (!orsEdges.loadExisting())
-			throw new IllegalStateException("cannot load ORS edges. corrupt file or directory? ");
+			throw new IllegalStateException("Unable to load storage 'ext_hgv'. corrupt file or directory? ");
 
 		edgeEntryBytes = orsEdges.getHeader(0);
 		edgesCount = orsEdges.getHeader(4);
@@ -110,11 +109,9 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 		edgesCount++;
 		ensureEdgesIndex(edgeId);
 
-		// add entry
 		long edgePointer = (long) edgeId * edgeEntryBytes;
 		
-	
-		byteValues[0] = (byte)vehicleType;
+	    byteValues[0] = (byte)vehicleType;
 		orsEdges.setBytes(edgePointer + EF_VEHICLETYPE, byteValues, 1);
 		
 		byteValues[0] = (byte)heavyVehicleDestination;
@@ -130,17 +127,19 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 			byteValues[2] = 0;
 			byteValues[3] = 0;
 			byteValues[4] = 0;
+			byteValues[5] = 0;
 		}
 		else
 		{
-			byteValues[0] = (byte)(restrictionValues[0] * 10);
-			byteValues[1] = (byte)(restrictionValues[1] * 10);
-			byteValues[2] = (byte)(restrictionValues[2] * 10);
-			byteValues[3] = (byte)(restrictionValues[3] * 10);
-			byteValues[4] = (byte)(restrictionValues[4] * 10);
+			byteValues[0] = 1;
+			byteValues[1] = (byte)(restrictionValues[0] * 10);
+			byteValues[2] = (byte)(restrictionValues[1] * 10);
+			byteValues[3] = (byte)(restrictionValues[2] * 10);
+			byteValues[4] = (byte)(restrictionValues[3] * 10);
+			byteValues[5] = (byte)(restrictionValues[4] * 10);
 		}
 		
-		orsEdges.setBytes(edgePointer + EF_RESTRICTION, byteValues, 5);
+		orsEdges.setBytes(edgePointer + EF_RESTRICTION, byteValues, 6);
 	}
 
 	public double getEdgeRestrictionValue(int edgeId, int valueIndex, byte[] buffer) {
@@ -149,7 +148,7 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 		if (EF_RESTRICTION == -1)
 			throw new IllegalStateException("EF_RESTRICTION is not supported.");
 
-		orsEdges.getBytes(edgeBase + EF_RESTRICTION, buffer, 5);
+		orsEdges.getBytes(edgeBase + EF_RESTRICTION + 1, buffer, 5);
 		int retValue = buffer[valueIndex];
 		if (retValue == 0)
 			return 0.0;
@@ -157,31 +156,36 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 		return retValue / 10d;
 	}
 
-	public double[] getEdgeRestrictionValues(int edgeId, byte[] buffer) {
-		double[] result = new double[5];
+	public boolean getEdgeRestrictionValues(int edgeId, byte[] buffer, double[] retValues) {
 		long edgeBase = (long) edgeId * edgeEntryBytes;
 
 		if (EF_RESTRICTION == -1)
 			throw new IllegalStateException("EF_RESTRICTION is not supported.");
 
-		orsEdges.getBytes(edgeBase + EF_RESTRICTION, buffer, 5);
+		orsEdges.getBytes(edgeBase + EF_RESTRICTION, buffer, 1);
+		if (buffer[0] == 0)
+			return false;
 		
-		result[0] = buffer[0] / 10d; 
-		result[1] = buffer[1] / 10d;
-		result[2] = buffer[2] / 10d;
-		result[3] = buffer[3] / 10d;
-		result[4] = buffer[4] / 10d;
+		orsEdges.getBytes(edgeBase + EF_RESTRICTION + 1, buffer, 5);
 		
-		return result;
+		retValues[0] = buffer[0] / 10d; 
+		retValues[1] = buffer[1] / 10d;
+		retValues[2] = buffer[2] / 10d;
+		retValues[3] = buffer[3] / 10d;
+		retValues[4] = buffer[4] / 10d;
+		
+		return true;
 	}
 
-	public void getEdgeVehicleType(int edgeId, byte[] buffer) {
+	public int getEdgeVehicleType(int edgeId, byte[] buffer) {
 		long edgeBase = (long) edgeId * edgeEntryBytes;
 		orsEdges.getBytes(edgeBase + EF_VEHICLETYPE, buffer, 2);
 		
 		int result = buffer[0];
 	    if (result < 0)
-	    	buffer[0] = (byte)((int)result & 0xff);
+	    	result = (byte)((int)result & 0xff);
+	    
+	    return result;
 	}
 	
 	public boolean isRequireNodeField() {

@@ -1,0 +1,2 @@
+heigit.ors.locations.providers.memsql.MemSQLLocationsDataProvider
+heigit.ors.locations.providers.postgresql.PostgreSQLLocationsDataProvider

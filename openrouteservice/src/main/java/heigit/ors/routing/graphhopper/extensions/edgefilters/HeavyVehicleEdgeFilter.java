@@ -61,6 +61,7 @@ public abstract class HeavyVehicleEdgeFilter implements DestinationDependentEdge
 	private final boolean out;
 	private FlagEncoder encoder;
 	private float[] restrictionValues;
+	private double[] retValues;
 	private Integer[] indexValues;
 	private int restCount;
 	private int mode = MODE_CLOSEST_EDGE;
@@ -104,6 +105,7 @@ public abstract class HeavyVehicleEdgeFilter implements DestinationDependentEdge
 			}
 		}
 
+		retValues = new double[5];
 		Integer[] indexValues = idx.toArray(new Integer[idx.size()]);
 
 		this.restrictionValues = vehicleAttrs;
@@ -145,8 +147,7 @@ public abstract class HeavyVehicleEdgeFilter implements DestinationDependentEdge
 
 				if (!destinationEdges.contains(edge.getOriginalEdge()))
 				{
-					gsHeavyVehicles.getEdgeVehicleType(edge.getOriginalEdge(), buffer);
-					int vt = buffer[0];
+					int vt = gsHeavyVehicles.getEdgeVehicleType(edge.getOriginalEdge(), buffer);
 					boolean dstFlag = buffer[1]!=0;// ((buffer[1] >> (vehicleType >> 1)) & 1) == 1;
 
 					if (((vt & vehicleType) == vehicleType) && (dstFlag))
@@ -166,13 +167,11 @@ public abstract class HeavyVehicleEdgeFilter implements DestinationDependentEdge
 		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder)) {
 			int edgeId = iter.getOriginalEdge();
 
-			gsHeavyVehicles.getEdgeVehicleType(edgeId, buffer);
-
-			int vt = buffer[0];
+			int vt = gsHeavyVehicles.getEdgeVehicleType(edgeId, buffer);
 			boolean dstFlag = buffer[1] != 0; // ((buffer[1] >> (vehicleType >> 1)) & 1) == 1;
 
 			// if edge has some restrictions
-			if (vt != HeavyVehicleAttributes.Unknown) {
+			if (vt != HeavyVehicleAttributes.UNKNOWN) {
 				if (mode == MODE_CLOSEST_EDGE)
 				{
 					// current vehicle type is not forbidden
@@ -258,7 +257,7 @@ public abstract class HeavyVehicleEdgeFilter implements DestinationDependentEdge
 
 			if (hasHazmat)
 			{
-				if ((vt & HeavyVehicleAttributes.Hazmat) != 0) {
+				if ((vt & HeavyVehicleAttributes.HAZMAT) != 0) {
 					return false;
 				}
 			}
@@ -271,32 +270,33 @@ public abstract class HeavyVehicleEdgeFilter implements DestinationDependentEdge
 					else
 						return true;
 				} else {
-					double[] retValues = gsHeavyVehicles.getEdgeRestrictionValues(edgeId, buffer);
-
-					double value = retValues[0];
-					if (value > 0.0f && value < restrictionValues[0])
-						return false;
-
-					value = retValues[1];
-					if (value > 0.0f && value < restrictionValues[1])
-						return false;
-
-					if (restCount >= 3) {
-						value = retValues[2];
-						if (value > 0.0f && value < restrictionValues[2])
+					if (gsHeavyVehicles.getEdgeRestrictionValues(edgeId, buffer, retValues))
+					{
+						double value = retValues[0];
+						if (value > 0.0f && value < restrictionValues[0])
 							return false;
-					}
 
-					if (restCount >= 4) {
-						value = retValues[3];
-						if (value > 0.0f && value < restrictionValues[3])
+						value = retValues[1];
+						if (value > 0.0f && value < restrictionValues[1])
 							return false;
-					}
 
-					if (restCount == 5) {
-						value = retValues[4];
-						if (value > 0.0f && value < restrictionValues[4])
-							return false;
+						if (restCount >= 3) {
+							value = retValues[2];
+							if (value > 0.0f && value < restrictionValues[2])
+								return false;
+						}
+
+						if (restCount >= 4) {
+							value = retValues[3];
+							if (value > 0.0f && value < restrictionValues[3])
+								return false;
+						}
+
+						if (restCount == 5) {
+							value = retValues[4];
+							if (value > 0.0f && value < restrictionValues[4])
+								return false;
+						}
 					}
 				}
 			}

@@ -21,7 +21,7 @@ public final class TimeUtility {
 		long time = endTime - startTime;
 		double handlingTimeSeconds = (double) time / 1000;
 
-		String res = Double.toString(handlingTimeSeconds).replace(".", ",");
+		String res = Double.toString(handlingTimeSeconds).replace(",", ".");
 
 		if (addSeconds)
 			res += "s";

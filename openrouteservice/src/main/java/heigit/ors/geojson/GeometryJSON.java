@@ -131,7 +131,7 @@ public class GeometryJSON {
 			coord.put(FormatUtility.roundToDecimals(c.x, COORDINATE_PRECISION));
 			coord.put(FormatUtility.roundToDecimals(c.y, COORDINATE_PRECISION));
 			if (includeElevation)
-				coord.put(FormatUtility.roundToDecimals(c.y, 1));
+				coord.put(FormatUtility.roundToDecimals(c.z, 1));
 				
 			arrCoords.put(coord);
 		}

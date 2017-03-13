@@ -3,6 +3,7 @@ package heigit.ors.routing.configuration;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -61,22 +62,22 @@ public class RouteManagerConfiguration {
 
 			profile.GraphPath = graphPath;
 
-			Map<String, Object> paramList = RoutingServiceSettings.getParametersMap(profileRef + ".parameters");
+			Map<String, Object> profileParams = RoutingServiceSettings.getParametersMap(profileRef + ".parameters");
 			
-			if (paramList == null)
-				paramList = defaultParams;
+			if (profileParams == null)
+				profileParams = defaultParams;
 			else if (defaultParams != null)
 			{
 				for(Map.Entry<String, Object> defParamItem : defaultParams.entrySet())
 				{
-					if (!paramList.containsKey(defParamItem.getKey()))
-						paramList.put(defParamItem.getKey(), defParamItem.getValue());
+					if (!profileParams.containsKey(defParamItem.getKey()))
+						profileParams.put(defParamItem.getKey(), defParamItem.getValue());
 				}				
 			}
 			
-			if (paramList != null)
+			if (profileParams != null)
 			{
-				for(Map.Entry<String, Object> paramItem : paramList.entrySet())
+				for(Map.Entry<String, Object> paramItem : profileParams.entrySet())
 				{
 					switch(paramItem.getKey())
 					{
@@ -95,12 +96,33 @@ public class RouteManagerConfiguration {
 					case "elevation":
 						if (Boolean.parseBoolean(paramItem.getValue().toString()))
 						{
-							profile.ElevationProvider = paramList.get("elevation_provider").toString();
-							profile.ElevationCachPath = paramList.get("elevation_cache_path").toString();
+							profile.ElevationProvider = profileParams.get("elevation_provider").toString();
+							profile.ElevationCachePath = profileParams.get("elevation_cache_path").toString();
 						}
 					    break;
 					case "ext_storages":
-						profile.ExtStorages = paramItem.getValue().toString();
+						@SuppressWarnings("unchecked") 
+						Map<String, Object> storageList = (Map<String, Object>)paramItem.getValue();
+						
+						for(Map.Entry<String, Object> storageEntry : storageList.entrySet())
+						{
+							@SuppressWarnings("unchecked")
+							Map<String, Object> entryValue = (Map<String, Object>)storageEntry.getValue();
+							Map<String, String> storageParams = new HashMap<String, String>();
+
+							if (storageParams != null)		
+							{		
+								for(Map.Entry<String, Object> entry : entryValue.entrySet())
+								{	
+									storageParams.put(entry.getKey(), entry.getValue().toString());
+								}
+							}
+							
+							profile.ExtStorages.put(storageEntry.getKey(), storageParams);
+						}
+						//
+ 						//paramItem.getValue();
+						//profile.ExtStorages = paramItem.getValue().toString();
 						break;
 					case "traffic":
 						profile.UseTrafficInformation = Boolean.parseBoolean(paramItem.getValue().toString());
@@ -112,7 +134,9 @@ public class RouteManagerConfiguration {
 						profile.MaximumDistance = Double.parseDouble(paramItem.getValue().toString());
 						break;
 					case "extent":
+						@SuppressWarnings("unchecked") 
 						List<Double> bbox = (List<Double>)paramItem.getValue();
+						
 						if (bbox.size() != 4)
 							throw new Exception("'extent' element must contain 4 elements.");
 						profile.BBox = new Envelope(bbox.get(0),bbox.get(1),bbox.get(2),bbox.get(3));

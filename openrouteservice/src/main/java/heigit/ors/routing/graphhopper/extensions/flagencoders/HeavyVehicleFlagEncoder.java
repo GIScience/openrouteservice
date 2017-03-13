@@ -41,7 +41,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 	        //value /= factor; factor is always 1
 			// vehicle mask contains of pairs such as  00 00 00 00 00 00 where each group defines forbidden directions for each vehicle type (bf bf bf bf bf bf).
 
-			long value = 1 << ((shift + ((vehicleType - HeavyVehicleAttributes.Goods) >> 1)) + direction);
+			long value = 1 << ((shift + ((vehicleType - HeavyVehicleAttributes.GOODS) >> 1)) + direction);
 
 	        // clear value bits
 	        flags &= ~mask;
@@ -53,7 +53,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 		public long getValue(int vehicleType, long flags, long direction)
 	    {
 	        flags &= mask;
-	        return ((flags >> ((shift + ((vehicleType - HeavyVehicleAttributes.Goods) >> 1)) + direction)) & 1); 
+	        return ((flags >> ((shift + ((vehicleType - HeavyVehicleAttributes.GOODS) >> 1)) + direction)) & 1); 
 	    }
 		
 		public long reverseFlags(long flags)
@@ -97,7 +97,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 		
 		public void setVehicleType(int vt)
 		{
-			vehicleType = vt - HeavyVehicleAttributes.Goods;
+			vehicleType = vt - HeavyVehicleAttributes.GOODS;
 		}
 	}
 	
@@ -330,6 +330,9 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
         if ("track".equals(highwayValue))
         {
             String tt = way.getTag("tracktype");
+            if (tt != null && !tt.equals("grade1")) // TODO allow higher grade values for forestry and agriculture
+            	return 0;
+            	
             if (tt != null && !trackTypeSpeedMap.containsKey(tt))
                 return 0;
         }

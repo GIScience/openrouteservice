@@ -18,9 +18,10 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 
 import heigit.ors.routing.graphhopper.extensions.storages.*;
-import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributesType;
+import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.EncodingManager;
@@ -34,10 +35,10 @@ import com.graphhopper.storage.TurnCostExtension;
 
 public class ORSGraphStorageFactory implements GraphStorageFactory {
 
-	private int _storageType;
+	private List<GraphStorageBuilder> _graphStorageBuilders;
 	
-	public ORSGraphStorageFactory(int storageType) {
-		_storageType = storageType;
+	public ORSGraphStorageFactory(List<GraphStorageBuilder> graphStorageBuilders) {
+		_graphStorageBuilders = graphStorageBuilders;
 	}
 
 	@Override
@@ -59,68 +60,34 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 				geTurnCosts =  new TurnCostExtension();
 		}
 
-		if (gh.hasElevation() && GraphStorageType.isSet(_storageType, GraphStorageType.HillIndex))
+		if (_graphStorageBuilders.size() > 0)
 		{
-			GraphExtension ext =  new HillIndexGraphStorage();
-			graphExtensions.add(ext);
+			for(GraphStorageBuilder builder : _graphStorageBuilders)
+			{
+				try
+				{
+					GraphExtension ext = builder.init(gh);
+					if (ext != null)
+						graphExtensions.add(ext);
+				}
+				catch(Exception ex)
+				{}
+			}
 		}
-		
-	    if (GraphStorageType.isSet(_storageType, GraphStorageType.WaySurfaceType))
-		{
-			GraphExtension ext = new WaySurfaceTypeGraphStorage();
-			graphExtensions.add(ext);
-		}	
-
-		if  (GraphStorageType.isSet(_storageType, GraphStorageType.WayCategory)) 
-		{
-			GraphExtension ext = new WayCategoryGraphStorage();
-			graphExtensions.add(ext);
-		}
-
+	
 		if (gh.isCHEnabled())
 		{
     		gh.initCHAlgoFactories();
             return new GraphHopperStorage(new ArrayList<Weighting>(gh.getAlgorithmFactories2()), dir, encodingManager, gh.hasElevation(), getExtension(graphExtensions));
 		}
-		else  {
-			int attrTypes = 0;
-			
-			if (encodingManager.supports("heavyvehicle"))
-			{
-				if  (GraphStorageType.isSet(_storageType, GraphStorageType.VehicleType)) 
-					attrTypes |= HeavyVehicleAttributesType.VehicleType;		
-				if  (GraphStorageType.isSet(_storageType, GraphStorageType.Restrictions)) 
-					attrTypes |= HeavyVehicleAttributesType.Restrictions;						
-			 
-			    if (attrTypes > 0)
-			    {
-			    	GraphExtension ext = new HeavyVehicleAttributesGraphStorage(attrTypes);
-			    	graphExtensions.add(ext);
-			    }
-			}			 
-			
-			if (encodingManager.supports("car") || encodingManager.supports("offroadvehicle"))
-			{
-			}
-
-			if (encodingManager.supports("bike") || encodingManager.supports("safetybike") || encodingManager.supports("cycletourbike") || encodingManager.supports("mtb")  || encodingManager.supports("racingbike") || encodingManager.supports("electrobike"))
-			{
-			}
-			
-			if (encodingManager.supports("wheelchair"))
-			{
-				GraphExtension ext = new WheelchairAttributesGraphStorage();
-				graphExtensions.add(ext);
-			}
-		} 
 		
-		if (geTurnCosts == null && graphExtensions == null)
+		if (geTurnCosts == null && graphExtensions.size() == 0)
 			graph = new GraphHopperStorage(dir, encodingManager, gh.hasElevation(), new GraphExtension.NoOpExtension());
 		else if (geTurnCosts != null && graphExtensions.size() > 0)
 		{
 			ArrayList<GraphExtension> seq = new ArrayList<GraphExtension>();
-			seq.addAll(graphExtensions);
 			seq.add(geTurnCosts);
+			seq.addAll(graphExtensions);
 			
 			graph = new GraphHopperStorage(dir, encodingManager, gh.hasElevation(), getExtension(seq));
 		} 

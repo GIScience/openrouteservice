@@ -184,7 +184,12 @@ public class PbfDecoder implements Runnable
         {
             processBlobs();
 
-        } finally
+        }
+        catch(Exception ex)
+        {
+        	throw ex;
+        }
+        finally
         {
             lock.unlock();
         }

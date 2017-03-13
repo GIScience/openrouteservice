@@ -13,10 +13,12 @@ package heigit.ors.services.geocoding;
 
 import heigit.ors.config.AppConfig;
 
-public class GeocodingServiceSettings {
+public class GeocodingServiceSettings 
+{
 	private static String geocoderName = "photon";
 	private static String geocodingUrl = "";
 	private static String reverseGeocodingUrl = "";
+	private static int responseLimit = 20;
 	private static String userAgent = "ors";
 	private static String attribution = "";
 	private static boolean enabled = true;
@@ -35,6 +37,9 @@ public class GeocodingServiceSettings {
 		value = AppConfig.Global().getServiceParameter("geocoding", "reverse_geocoding_url");
 		if (value != null)
 			reverseGeocodingUrl = value;
+		value = AppConfig.Global().getServiceParameter("geocoding", "response_limit");
+		if (value != null)
+			responseLimit = Integer.parseInt(value);
 		value = AppConfig.Global().getServiceParameter("geocoding", "user_agent");
 		if (value != null)
 			userAgent = value;
@@ -57,6 +62,10 @@ public class GeocodingServiceSettings {
 	
 	public static String getReverseGeocodingURL() {
 		return reverseGeocodingUrl;
+	}
+	
+	public static int getResponseLimit() {
+		return responseLimit;
 	}
 
 	public static String getUserAgent() {

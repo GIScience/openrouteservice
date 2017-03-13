@@ -13,6 +13,7 @@
 		<servlet-name>routing</servlet-name>
 		<url-pattern>/routes</url-pattern>
 	</servlet-mapping>
+	
 	<!-- GEOCODING SERVICE -->
 	<servlet>
 	<servlet-name>geocoding</servlet-name>
@@ -23,6 +24,7 @@
 		<servlet-name>geocoding</servlet-name>
 		<url-pattern>/geocode</url-pattern>
 	</servlet-mapping>
+	
 	<!-- ISOCHRONES SERVICE -->
 	<servlet>
 		<servlet-name>isochrones</servlet-name>
@@ -33,11 +35,23 @@
 		<servlet-name>isochrones</servlet-name>
 		<url-pattern>/isochrones</url-pattern>
 	</servlet-mapping>
+	
+	<!-- LOCATIONS SERVICE -->
+	<servlet>
+		<servlet-name>locations</servlet-name>
+		<servlet-class>heigit.ors.services.locations.LocationsServiceServlet</servlet-class>
+		<load-on-startup>4</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>locations</servlet-name>
+		<url-pattern>/locations</url-pattern>
+	</servlet-mapping>
+	
 	<!-- ShortenLink SERVICE -->
 	<servlet>
 		<servlet-name>shortenlink</servlet-name>
 		<servlet-class>heigit.ors.services.shortenlink.ShortenLinkServlet</servlet-class>
-		<load-on-startup>4</load-on-startup>
+		<load-on-startup>5</load-on-startup>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>shortenlink</servlet-name>
@@ -72,24 +86,6 @@
 
   <filter-mapping>
     <filter-name>RequestRateThrottleFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
-
-   <filter>
-    <filter-name>PiwikRequestFilter</filter-name>
-    <filter-class>heigit.ors.servlet.filters.PiwikRequestFilter</filter-class>
-    <init-param>
-      <param-name>SiteID</param-name>
-      <param-value>16</param-value>
-    </init-param> 
-    <init-param>
-      <param-name>APIURL</param-name>
-      <param-value>http://129.206.66.245:8010</param-value>
-    </init-param> 
-  </filter>
-  
-  <filter-mapping>
-    <filter-name>PiwikRequestFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 

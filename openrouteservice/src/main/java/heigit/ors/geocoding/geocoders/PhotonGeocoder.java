@@ -52,8 +52,7 @@ public class PhotonGeocoder extends AbstractGeocoder {
 		
 		if (!Helper.isEmpty(respContent) && !respContent.equals("[]")) {
 	    	
-			ArrayList<GeocodingResult> res = getGeocodeResults(respContent, bbox);
-			return res.toArray(new GeocodingResult[res.size()]);
+			return getGeocodeResults(respContent, bbox);
 		}
 		
 		return null;
@@ -65,47 +64,45 @@ public class PhotonGeocoder extends AbstractGeocoder {
 		String respContent = HTTPUtility.getResponse(reverseGeocodingURL + reqParams, 5000, userAgent, "UTF-8");
 
 		if (!Helper.isEmpty(respContent) && !respContent.equals("[]")) {
-			ArrayList<GeocodingResult> res = getGeocodeResults(respContent, bbox);
-			return res.toArray(new GeocodingResult[res.size()]);
+			return getGeocodeResults(respContent, bbox);
 		}
 
 		return null;
 	}
 	
-	private ArrayList<GeocodingResult> getGeocodeResults(String respContent, Envelope bbox)
+	private GeocodingResult[] getGeocodeResults(String respContent, Envelope bbox)
 	{
-		ArrayList<GeocodingResult> res = new ArrayList<GeocodingResult>();
-    	
 		JSONObject features = new JSONObject(respContent);
 		JSONArray arr = (JSONArray)features.get("features");
+	
+		GeocodingResult[] results = new GeocodingResult[arr.length()];
 		
 		for (int j = 0; j < arr.length(); j++) {
-			Object obj = arr.get(j);
-
-			JSONObject geomObj = (JSONObject)((JSONObject) obj).get("geometry");
+			JSONObject feature = arr.getJSONObject(j);
+			JSONObject geomObj = feature.getJSONObject("geometry");
+			JSONArray coordsObj = geomObj.getJSONArray("coordinates");
 			
-			JSONArray coordsObj = (JSONArray)geomObj.get("coordinates");
 			double lon = Double.parseDouble(coordsObj.get(0).toString());
 			double lat = Double.parseDouble(coordsObj.get(1).toString());
 			
 			if (bbox != null && !bbox.contains(lon, lat))
 				continue;		
 
-			JSONObject addressObj = (JSONObject) ((JSONObject) obj).get("properties");
+			JSONObject props = feature.getJSONObject("properties");
 
-			String country = getJSONValue(addressObj, "country");
-			String state = getJSONValue(addressObj, "state");
+			String country = props.optString("country");
+			String state = props.optString("state");
 			String state_district = null;
-			String postal_code = getJSONValue(addressObj, "postcode");
-			String city = getJSONValue(addressObj, "city");
-			String street = getJSONValue(addressObj, "street");
-			String house_number = getJSONValue(addressObj, "housenumber");
-			String name = getJSONValue(addressObj, "name");
+			String postal_code = props.optString("postcode");
+			String city = props.optString("city");
+			String street = props.optString("street");
+			String house_number = props.optString("housenumber");
+			String name = props.optString("name");
 			String house = name;
-			String osm_value = getJSONValue(addressObj, "osm_value");
+			String osm_value = props.optString("osm_value");
 			if (!Helper.isEmpty(osm_value))
 			{
-				String osm_key = getJSONValue(addressObj, "osm_key");
+				String osm_key = props.optString("osm_key");
 				if (osm_value.equals("district"))
 					state_district = osm_key;
 				else if (osm_value.equals("state") && osm_key.equals("place"))
@@ -119,28 +116,16 @@ public class PhotonGeocoder extends AbstractGeocoder {
 				gr.state = state;
 				gr.stateDistrict = state_district;
 				gr.postalCode = postal_code;
-				gr.road = street;
-				gr.house = house;
+				gr.street = street;
+				gr.name = house;
 				gr.houseNumber = house_number;
 				gr.longitude = lon;
 				gr.latitude = lat;
 				
-				res.add(gr);
+				results[j] = gr;
 			}
 		}
 		
-		return res;
-	}
-	
-	private String getJSONValue(JSONObject obj, String propName)
-	{
-		String value = null;
-		if (obj.has(propName)) {
-			Object obj2 = obj.get(propName);
-			if (obj2 != null)
-				value = obj2.toString();
-		}
-		
-		return value;
+		return results;
 	}
 }
