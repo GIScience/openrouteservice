@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import heigit.ors.routing.RoutingProfileManager;
+import heigit.ors.locations.providers.LocationsDataProviderFactory;
 
 public class ORSInitContextListener implements ServletContextListener
 {
@@ -42,7 +43,8 @@ public class ORSInitContextListener implements ServletContextListener
 
 			RoutingProfileManager.getInstance().destroy();
 
-
+			LocationsDataProviderFactory.releaseProviders();
+			
 			LogFactory.release(Thread.currentThread().getContextClassLoader());
 
 			try {
@@ -54,7 +56,7 @@ public class ORSInitContextListener implements ServletContextListener
 				LOGGER.error("Failed to perform finalization.");
 				t.printStackTrace();
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

@@ -32,9 +32,9 @@ public class HillIndexGraphStorage implements GraphExtension {
 	private byte[] byteValues;
 
 	public HillIndexGraphStorage() {
-		EF_HILLINDEX = nextBlockEntryIndex(1);
+		EF_HILLINDEX = 0;
 	
-		edgeEntryBytes = edgeEntryIndex + 4;
+		edgeEntryBytes = edgeEntryIndex + 1;
 		edgesCount = 0;
 		byteValues = new byte[1];
 	}
@@ -44,11 +44,6 @@ public class HillIndexGraphStorage implements GraphExtension {
 			throw new AssertionError("The ORS storage must be initialized only once.");
 
 		this.orsEdges = dir.find("ext_hillindex");
-	}
-
-	protected final int nextBlockEntryIndex(int size) {
-		edgeEntryIndex += size;
-		return edgeEntryIndex;
 	}
 
 	public void setSegmentSize(int bytes) {
@@ -80,7 +75,7 @@ public class HillIndexGraphStorage implements GraphExtension {
 
 	public boolean loadExisting() {
 		if (!orsEdges.loadExisting())
-			throw new IllegalStateException("cannot load HillIndex edges. corrupt file or directory? " );
+			throw new IllegalStateException("Unable to load storage 'ext_hillindex'. corrupt file or directory?");
 
 		edgeEntryBytes = orsEdges.getHeader(0);
 		edgesCount = orsEdges.getHeader(4);

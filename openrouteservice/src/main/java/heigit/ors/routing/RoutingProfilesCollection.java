@@ -3,6 +3,10 @@ package heigit.ors.routing;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.apache.log4j.Logger;
+
+import heigit.ors.util.RuntimeUtility;
+
 public class RoutingProfilesCollection {
 	private HashMap<Integer, RoutingProfile> m_routeProfiles;
 	private ArrayList<RoutingProfile> m_uniqueProfiles;
@@ -131,5 +135,25 @@ public class RoutingProfilesCollection {
 			key += 100;
 
 		return key;
+	}
+	
+	public void printStatistics(Logger logger)
+	{
+		logger.info("====> Memory usage by profiles:");
+		long totalUsedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+		long totalProfilesMemory = 0;
+		
+		int i = 0;
+		for(RoutingProfile profile : getUniqueProfiles())
+		{
+			i++;
+			long capacity = profile.getCapacity();
+			totalProfilesMemory += capacity;
+			logger.info(String.format("[%d] %s (%.1f%%)", i, RuntimeUtility.getMemorySize(capacity), ((double)capacity/totalUsedMemory)*100)); 
+		}
+		
+		logger.info(String.format("Total: %s (%.1f%%)", RuntimeUtility.getMemorySize(totalProfilesMemory), ((double)totalProfilesMemory/totalUsedMemory)*100)); 
+		
+		logger.info("========================================================================");
 	}
 }

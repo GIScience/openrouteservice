@@ -9,12 +9,26 @@
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
+package heigit.ors.routing.graphhopper.extensions.storages.builders;
 
-// Authors: M. Rylov
+import java.util.Map;
 
-package heigit.ors.routing.graphhopper.extensions;
+import com.graphhopper.GraphHopper;
+import com.graphhopper.reader.OSMWay;
+import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.util.EdgeIteratorState;
 
-public class HeavyVehicleAttributesType {
-	public static final int VehicleType = 2;
-	public static final int Restrictions = 4;
+public interface GraphStorageBuilder 
+{
+	public abstract GraphExtension init(GraphHopper graphhopper) throws Exception;
+
+	public abstract void processWay(OSMWay way);
+	
+	public abstract void processEdge(OSMWay way, EdgeIteratorState edge);
+
+	public abstract void setParameters(Map<String, String> parameters);
+
+	public abstract String getName();
+	
+	public abstract void finish();
 }

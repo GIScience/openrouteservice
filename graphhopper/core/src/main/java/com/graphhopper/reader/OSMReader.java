@@ -44,7 +44,6 @@ import com.graphhopper.reader.OSMTurnRelation.TurnCostTableEntry;
 import com.graphhopper.reader.dem.ElevationProvider;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.storage.*;
-import com.graphhopper.storage.GraphExtension.ExtendedStorageSequence;
 import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.GHPoint;
 

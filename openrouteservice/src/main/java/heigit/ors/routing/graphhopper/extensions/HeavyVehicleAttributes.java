@@ -13,17 +13,17 @@
 package heigit.ors.routing.graphhopper.extensions;
 
 public class HeavyVehicleAttributes {
-	public static final int Unknown = 0;
+	public static final int UNKNOWN = 0;
 	//public static final int Destination = 1;
 	// Vehicle type and 
-	public static final int Goods = 1;
-	public static final int Hgv = 2;
-	public static final int Bus = 4;
-	public static final int Agricultural = 8;
-	public static final int Forestry = 16;
-	public static final int Delivery = 32;
+	public static final int GOODS = 1;
+	public static final int HGV = 2;
+	public static final int BUS = 4;
+	public static final int AGRICULTURE = 8;
+	public static final int FORESTRY = 16;
+	public static final int DELIVERY = 32;
 	// Load characteristics
-	public static final int Hazmat = 128;
+	public static final int HAZMAT = 128;
 	
 	public static int getVehiclesCount()
 	{
@@ -33,19 +33,19 @@ public class HeavyVehicleAttributes {
 	public static int getFromString(String value)
 	{
 		if ("goods".equalsIgnoreCase(value)) {
-			return HeavyVehicleAttributes.Goods;
+			return HeavyVehicleAttributes.GOODS;
 		} else if ("hgv".equalsIgnoreCase(value)) {
-			return HeavyVehicleAttributes.Hgv;
+			return HeavyVehicleAttributes.HGV;
 		} else if ("bus".equalsIgnoreCase(value)) {
-			return HeavyVehicleAttributes.Bus;
+			return HeavyVehicleAttributes.BUS;
 		} else if ("agricultural".equalsIgnoreCase(value)) {
-			return HeavyVehicleAttributes.Agricultural;
+			return HeavyVehicleAttributes.AGRICULTURE;
 		} else if ("forestry".equalsIgnoreCase(value)) {
-			return HeavyVehicleAttributes.Forestry;
+			return HeavyVehicleAttributes.FORESTRY;
 		} else if ("delivery".equalsIgnoreCase(value)) {
-			return HeavyVehicleAttributes.Delivery;
+			return HeavyVehicleAttributes.DELIVERY;
 	    }
 		
-		return HeavyVehicleAttributes.Unknown;
+		return HeavyVehicleAttributes.UNKNOWN;
 	}
 }

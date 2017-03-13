@@ -11,9 +11,6 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.isochrones.builders;
 
-import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.util.EdgeFilter;
-
 import heigit.ors.isochrones.builders.IsochroneMapBuilder;
 import heigit.ors.routing.RouteSearchContext;
 import heigit.ors.isochrones.IsochroneSearchParameters;

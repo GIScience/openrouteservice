@@ -79,7 +79,7 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder {
 			if (_z1 < _minAltitude)
 				_minAltitude = _z1;
 
-			if (_maxAltitude - _z1 > SteepnessUtil.ELEVATION_THRESHOLD || _z1 - _minAltitude > SteepnessUtil.ELEVATION_THRESHOLD)
+			if ((_maxAltitude - _z1 > SteepnessUtil.ELEVATION_THRESHOLD || _z1 - _minAltitude > SteepnessUtil.ELEVATION_THRESHOLD) && _splitLength > 30)
 			{
 				boolean bApply = true;
 				int elevSign = _cumElevation > 0 ? 1 : -1;
@@ -145,7 +145,7 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder {
 			
 			double gradient = (_cumElevation > 0 ? 1: -1)*100*_elevDiff / _splitLength;
 			int gc = SteepnessUtil.getCategory(gradient);
-			if (_prevSegmentItem != null && (_prevGradientCat == gc || _splitLength < 25))
+			if (_prevSegmentItem != null && (_prevGradientCat == gc || _splitLength < 30))
 			{
 				_prevSegmentItem.setTo(iEnd);
 			}

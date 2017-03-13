@@ -34,14 +34,14 @@ public class LocalizationManager {
 	private Map<String, LanguageResources> _langResources = null;
 	private static volatile LocalizationManager m_instance = null;
 
-	private LocalizationManager()
+	private LocalizationManager() throws Exception
 	{
 		_langResources = new HashMap<String, LanguageResources>();
 
 		loadLocalizations();
 	}
 
-	public static LocalizationManager getInstance()
+	public static LocalizationManager getInstance() throws Exception
 	{
 		if(null == m_instance)
 		{
@@ -54,7 +54,7 @@ public class LocalizationManager {
 		return m_instance;
 	}
 
-	private void loadLocalizations()
+	private void loadLocalizations() throws Exception
 	{
 		File classFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getFile());
 		String classPath = classFile.getAbsolutePath();
@@ -65,6 +65,9 @@ public class LocalizationManager {
 		Pattern pattern = Pattern.compile(filePattern);
 
 		File[] files = new File(localesPath.toString()).listFiles();
+		
+		if (files == null)
+			throw new Exception("Resources can not be found.");
 
 		for (File file : files) {
 			try

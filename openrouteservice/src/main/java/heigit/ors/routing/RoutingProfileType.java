@@ -154,6 +154,14 @@ public class RoutingProfileType {
 			return "CAR";
 		else if (routePref == RoutingProfileType.DRIVING_TRAFFIC)
 			return "CARTMC";
+		else if (routePref == RoutingProfileType.DRIVING_MOTORCYCLE) 
+			return "MOTORCYCLE";
+		else if (routePref == RoutingProfileType.DRIVING_ELECTRIC_CAR)  
+			return "EVEHICLE";
+		else if (routePref == RoutingProfileType.DRIVING_HGV)  
+			return "HEAVYVEHICLE";
+		else if (routePref == RoutingProfileType.DRIVING_OFFROAD)  
+			return "X_4_WD";
 		else if (routePref == RoutingProfileType.FOOT_WALKING)
 			return "FOOT";
 		else if (routePref == RoutingProfileType.FOOT_HIKING)
@@ -172,16 +180,8 @@ public class RoutingProfileType {
 			return "SAFETYBIKE";
 		else if (routePref == RoutingProfileType.CYCLING_ELECTRIC) // custom
 			return "ELECTROBIKE";
-		else if (routePref == RoutingProfileType.CYCLING_MOTOR) // custom
-			return "MOTORBIKE";
 		else if (routePref == RoutingProfileType.WHEELCHAIR) // custom
 			return "WHEELCHAIR";
-		else if (routePref == RoutingProfileType.DRIVING_ELECTRIC_CAR) // custom
-			return "EVEHICLE";
-		else if (routePref == RoutingProfileType.DRIVING_HGV) // custom
-			return "HEAVYVEHICLE";
-		else if (routePref == RoutingProfileType.DRIVING_OFFROAD) // custom
-			return "X_4_WD";
 
 		return "UNKNOWN";
 	}
@@ -191,14 +191,16 @@ public class RoutingProfileType {
 			return RoutingProfileType.DRIVING_CAR;
 		else if ("CARTMC".equalsIgnoreCase(encoder))
 			return RoutingProfileType.DRIVING_TRAFFIC;
-		else if ("FOOT".equalsIgnoreCase(encoder))
-			return RoutingProfileType.FOOT_WALKING;
+		else if ("MOTORCYCLE".equalsIgnoreCase(encoder))
+			return RoutingProfileType.DRIVING_MOTORCYCLE;
 		else if ("EVEHICLE".equalsIgnoreCase(encoder))
 			return RoutingProfileType.DRIVING_ELECTRIC_CAR;
 		else if ("HEAVYVEHICLE".equalsIgnoreCase(encoder))
 			return RoutingProfileType.DRIVING_HGV;
 		else if ("X_4_WD".equalsIgnoreCase(encoder))
 			return RoutingProfileType.DRIVING_OFFROAD;
+		else if ("FOOT".equalsIgnoreCase(encoder))
+			return RoutingProfileType.FOOT_WALKING;
 		else if ("HIKING".equalsIgnoreCase(encoder))
 			return RoutingProfileType.FOOT_HIKING;
 		else if ("RUNNING".equalsIgnoreCase(encoder))
@@ -215,8 +217,6 @@ public class RoutingProfileType {
 			return RoutingProfileType.CYCLING_SAFE;
 		else if ("ELECTROBIKE".equalsIgnoreCase(encoder))
 			return RoutingProfileType.CYCLING_ELECTRIC;
-		else if ("MOTORBIKE".equalsIgnoreCase(encoder))
-			return RoutingProfileType.CYCLING_MOTOR;
 		else if ("WHEELCHAIR".equalsIgnoreCase(encoder))
 			return RoutingProfileType.WHEELCHAIR;
 

@@ -23,6 +23,7 @@ import com.graphhopper.util.InstructionAnnotation;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.RoundaboutInstruction;
 import com.graphhopper.util.shapes.BBox;
+import com.vividsolutions.jts.geom.Coordinate;
 
 import heigit.ors.localization.LocalizationManager;
 import heigit.ors.routing.instructions.InstructionTranslator;
@@ -36,8 +37,8 @@ import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.StringUtility;
 
-public class RouteResultBuilder {
-
+public class RouteResultBuilder 
+{
 	private AngleCalc _angleCalc;
 	private DistanceCalc _distCalc;
 	private String nameAppendix;
@@ -69,11 +70,11 @@ public class RouteResultBuilder {
 		double descent = 0.0;
 		double distanceActual = 0.0;
 
+		double lon0 = 0, lat0 = 0, lat1 = 0, lon1 = 0;
 		boolean includeDetourFactor = request.hasAttribute("detourfactor");
 		boolean includeElev = request.getIncludeElevation();
 		DistanceUnit units = request.getUnits();
 		int unitDecimals = FormatUtility.getUnitDecimals(units);
-		double lon0, lat0, lat1 = 0, lon1 = 0;
 		
 		BBox bbox = null; 
 		int[] routeWayPoints = null;
@@ -92,7 +93,9 @@ public class RouteResultBuilder {
 			GHResponse resp = routes.get(ri);
 
 			if (resp.hasErrors())
-				throw new Exception("Unable to find a route between points " + ri + " and " + (ri+1));
+			{
+				throw new Exception(String.format("Unable to find a route between points %d (%s) and %d (%s)", ri, FormatUtility.formatCoordinate(request.getCoordinates()[ri]), ri + 1, FormatUtility.formatCoordinate(request.getCoordinates()[ri+1])));
+			}
 
 			PointList routePoints = resp.getPoints();
 
@@ -125,7 +128,7 @@ public class RouteResultBuilder {
                         lat1 = routePoints.getLat(routePoints.getSize() - 1);
                         lon1 = routePoints.getLon(routePoints.getSize() - 1);
                         
-						seg.setDetourFactor(FormatUtility.roundToDecimals(_distCalc.calcDist(lat0, lon1, lat1, lon1)/ resp.getDistance(), 2));
+						seg.setDetourFactor(FormatUtility.roundToDecimals(_distCalc.calcDist(lat0, lon0, lat1, lon1)/ resp.getDistance(), 2));
 					}
 					
 					RouteStep prevStep = null;
@@ -198,7 +201,8 @@ public class RouteResultBuilder {
 							roadName = mergeInstructions(instr.getName(), prevInstr.getName());
 							if (nameAppendix != null)
 								roadName += " ("+ nameAppendix + ")";
-							roadName = formatInstructions ? "<b>" + roadName + "</b>" : roadName;
+							if (formatInstructions)
+								roadName = "<b>" + roadName + "</b>";
 
 							int[] wayPoints = prevStep.getWayPoints();
 							wayPoints[1] = wayPoints[1] + instr.getPoints().size();

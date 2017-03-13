@@ -1,6 +1,8 @@
 package heigit.ors.routing.configuration;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -13,7 +15,7 @@ public class RouteProfileConfiguration
 	public String Profiles; // comma separated
 	public String GraphPath;
 	
-	public String ExtStorages;
+	public Map<String, Map<String, String>> ExtStorages;
 	
 	public Double MaximumDistance = 0.0;
 	public Double MinimumDistance = 0.0; 
@@ -25,12 +27,17 @@ public class RouteProfileConfiguration
 	public String EncoderOptions = null;
 	public String CHWeighting = null;
 	
-	public String ElevationCachPath = null;
+	public String ElevationCachePath = null;
 	public String ElevationProvider = null;
 	
 	public Envelope BBox;
 	
-	public Integer[] GetProfilesTypes()
+	public RouteProfileConfiguration()
+	{
+		ExtStorages = new HashMap<String, Map<String, String>>();
+	}
+	
+	public Integer[] getProfilesTypes()
 	{
 		ArrayList<Integer> list = new ArrayList<Integer>();
 		
@@ -68,7 +75,7 @@ public class RouteProfileConfiguration
 
 		rpc.ExtStorages = this.ExtStorages;
 
-		rpc.ElevationCachPath = this.ElevationCachPath;
+		rpc.ElevationCachePath = this.ElevationCachePath;
 		rpc.ElevationProvider = this.ElevationProvider;
 		
 		rpc.BBox = this.BBox;

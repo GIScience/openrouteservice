@@ -16,6 +16,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
 import heigit.ors.services.ServiceRequest;
+import heigit.ors.services.geocoding.GeocodingServiceSettings;
 
 public class GeocodingRequest extends ServiceRequest
 {
@@ -45,7 +46,7 @@ public class GeocodingRequest extends ServiceRequest
 	}
 
 	public void setLimit(int limit) {
-		_limit = Math.max(limit, 20);
+		_limit = Math.min(limit, GeocodingServiceSettings.getResponseLimit());
 	}
 
 	public String getLanguage() {

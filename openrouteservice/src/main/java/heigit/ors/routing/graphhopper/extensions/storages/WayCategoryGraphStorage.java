@@ -22,7 +22,7 @@ import com.graphhopper.storage.GraphExtension;
 public class WayCategoryGraphStorage implements GraphExtension {
 	/* pointer for no entry */
 	protected final int NO_ENTRY = -1;
-	protected final int EF_WAYTYPE;//, EF_RESTRICTION, EF_PASSABILITY;
+	protected final int EF_WAYTYPE;
 
 	protected DataAccess orsEdges;
 	protected int edgeEntryIndex = 0;
@@ -32,7 +32,7 @@ public class WayCategoryGraphStorage implements GraphExtension {
 	private byte[] byteValues;
 
 	public WayCategoryGraphStorage() {
-		EF_WAYTYPE = nextBlockEntryIndex(1);
+		EF_WAYTYPE = 0;
 	
 		edgeEntryBytes = edgeEntryIndex + 4;
 		edgesCount = 0;
@@ -44,11 +44,6 @@ public class WayCategoryGraphStorage implements GraphExtension {
 			throw new AssertionError("The ORS storage must be initialized only once.");
 
 		this.orsEdges = dir.find("ext_waycategory");
-	}
-
-	protected final int nextBlockEntryIndex(int size) {
-		edgeEntryIndex += size;
-		return edgeEntryIndex;
 	}
 
 	public void setSegmentSize(int bytes) {
@@ -80,7 +75,7 @@ public class WayCategoryGraphStorage implements GraphExtension {
 
 	public boolean loadExisting() {
 		if (!orsEdges.loadExisting())
-			throw new IllegalStateException("cannot load ORS edges. corrupt file or directory? " );
+			throw new IllegalStateException("Unable to load storage 'ext_waycategory'. corrupt file or directory? " );
 
 		edgeEntryBytes = orsEdges.getHeader(0);
 		edgesCount = orsEdges.getHeader(4);
@@ -113,7 +108,7 @@ public class WayCategoryGraphStorage implements GraphExtension {
 	}
 
 	public boolean isRequireNodeField() {
-		return true;
+		return false;
 	}
 
 	public boolean isRequireEdgeField() {

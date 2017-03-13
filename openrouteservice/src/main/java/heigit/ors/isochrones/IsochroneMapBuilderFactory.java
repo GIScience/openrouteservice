@@ -17,6 +17,7 @@ package heigit.ors.isochrones;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.isochrones.builders.IsochroneMapBuilder;
 import heigit.ors.isochrones.builders.concaveballs.ConcaveBallsIsochroneMapBuilder;
+import heigit.ors.isochrones.builders.grid.GridBasedIsochroneMapBuilder;
 import heigit.ors.routing.RouteSearchContext;
 
 import com.graphhopper.util.Helper;
@@ -35,7 +36,12 @@ public class IsochroneMapBuilderFactory {
 		if (Helper.isEmpty(method) || "Default".equalsIgnoreCase(method) || "ConcaveBalls".equalsIgnoreCase(method)) {
 			isochroneBuilder = new ConcaveBallsIsochroneMapBuilder();
 					} 
-        else {
+        else if ("grid".equalsIgnoreCase(method))
+        {
+        	isochroneBuilder= new GridBasedIsochroneMapBuilder();
+        }
+        else
+        {
 			throw new Exception("Unknown method.");
 		}
 		

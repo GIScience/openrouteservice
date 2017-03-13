@@ -31,8 +31,7 @@ import static javax.servlet.http.HttpServletResponse.*;
 
 public class RoutingServiceUtils {
 
-	public static void writeRouteInfo(HttpServletRequest req, HttpServletResponse res) throws JSONException,
-			IOException {
+	public static void writeRouteInfo(HttpServletRequest req, HttpServletResponse res) throws Exception {
 		RoutingProfileManager profileManager = RoutingProfileManager.getInstance();
 
 		JSONObject props = createJsonObject();
