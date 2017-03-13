@@ -28,7 +28,7 @@
 			routing: {
 				enabled: true,
 				mode: "normal",
-				sources: ["D:/Projects/ORS/OSM-Files/karlsruhe-regbez-latest.osm.pbf"],
+				sources: ["/Users/lliu/Research/data/OSM/oberbayern-latest.osm.pbf"],
 				init_threads: 1,
 				dynamic_weighting_max_distance: 200000,
 				attribution: "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
@@ -40,9 +40,9 @@
 					 # if graphs_root_path parameter is not defined in default_params #
 					default_params: {
 						encoder_flags_size: 8, 
-						graphs_root_path: "D:/Temp/GHGraphs", 
+						graphs_root_path: "/Users/lliu/Research/data/ors/graphcache/GHGraphs",
 						elevation_provider: cgiar,
-						elevation_cache_path: "D:/Temp/cgiar_provider",
+						elevation_cache_path: "/Users/lliu/Research/data/ors/cgiar_provider",
 	          		    instructions: true
 					},
 
@@ -118,7 +118,7 @@
 		logging: {
 			enabled: true,
 			level_file: "DEBUG_LOGGING.properties",
-			location: "D:/Temp/output/ors.log",
+			location: "/usr/local/var/log/ors/ors.log",
 			stdout: true
 		}
 	}
