@@ -63,6 +63,7 @@ public class EncodingManager
     private final int bitsForEdgeFlags;
     private final int bitsForTurnFlags = 8 * 4;
     private boolean enableInstructions = true;
+    private int totalUsedBits = 0; // Runge
 
     public static void registerDefaultEdgeFlagEncoder(String name, FlagEncoder encoder) // Runge
     {
@@ -111,6 +112,7 @@ public class EncodingManager
             throw new IllegalStateException("For 'edge flags' currently only 4 or 8 bytes supported");
 
         this.bitsForEdgeFlags = bytesForEdgeFlags * 8;
+
         for (FlagEncoder flagEncoder : flagEncoders)
         {
             registerEncoder((AbstractFlagEncoder) flagEncoder);
@@ -123,6 +125,11 @@ public class EncodingManager
     public int getBytesForFlags()
     {
         return bitsForEdgeFlags / 8;
+    }
+    
+    public int getUsedBitsForFlags()
+    {
+    	return totalUsedBits;
     }
 
     static List<FlagEncoder> parseEncoderString( String encoderList )
@@ -207,24 +214,28 @@ public class EncodingManager
     private static final String ERR = "Encoders are requesting more than %s bits of %s flags. ";
     private static final String WAY_ERR = "Decrease the number of vehicles or increase the flags to take long via graph.bytesForFlags=8";
 
-    private void registerEncoder( AbstractFlagEncoder encoder )
+    private void registerEncoder( AbstractFlagEncoder encoder)
     {
         int encoderCount = edgeEncoders.size();
         int usedBits = encoder.defineNodeBits(encoderCount, nextNodeBit);
-        if (usedBits > bitsForEdgeFlags)
+         if (usedBits > bitsForEdgeFlags)
             throw new IllegalArgumentException(String.format(ERR, bitsForEdgeFlags, "node"));
+     	totalUsedBits += usedBits - nextNodeBit;
         encoder.setNodeBitMask(usedBits - nextNodeBit, nextNodeBit);
         nextNodeBit = usedBits;
 
         usedBits = encoder.defineWayBits(encoderCount, nextWayBit);
         if (usedBits > bitsForEdgeFlags)
             throw new IllegalArgumentException(String.format(ERR, bitsForEdgeFlags, "way") + WAY_ERR);
+    	totalUsedBits += usedBits - nextWayBit;
+
         encoder.setWayBitMask(usedBits - nextWayBit, nextWayBit);
         nextWayBit = usedBits;
 
         usedBits = encoder.defineRelationBits(encoderCount, nextRelBit);
         if (usedBits > bitsForEdgeFlags)
             throw new IllegalArgumentException(String.format(ERR, bitsForEdgeFlags, "relation"));
+    	totalUsedBits += usedBits - nextRelBit;
         encoder.setRelBitMask(usedBits - nextRelBit, nextRelBit);
         nextRelBit = usedBits;
 
