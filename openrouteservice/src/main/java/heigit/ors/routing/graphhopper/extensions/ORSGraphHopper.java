@@ -99,6 +99,7 @@ public class ORSGraphHopper extends GraphHopper {
 						FileInputStream fis = new FileInputStream(path.toString());
 						ObjectInputStream ois = new ObjectInputStream(fis);
 						tmcEdges = (HashMap<Integer, Long>)ois.readObject();
+						osmId2EdgeIds = (HashMap<Long, ArrayList<Integer>>)ois.readObject();	
 						ois.close();
 						fis.close();
 						System.out.printf("Serialized HashMap data is saved in trafficEdges");
@@ -117,6 +118,7 @@ public class ORSGraphHopper extends GraphHopper {
 					FileOutputStream fos = new FileOutputStream(path.toString());
 					ObjectOutputStream oos = new ObjectOutputStream(fos);
 					oos.writeObject(tmcEdges);
+					oos.writeObject(osmId2EdgeIds);
 					oos.close();
 					fos.close();
 					System.out.printf("Serialized HashMap data is saved in trafficEdges");
