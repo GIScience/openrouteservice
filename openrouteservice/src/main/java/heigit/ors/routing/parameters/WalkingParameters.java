@@ -15,16 +15,16 @@ package heigit.ors.routing.parameters;
  * Created by lliu on 15/03/2017.
  */
 public class WalkingParameters extends ProfileParameters {
-    private int _greenLevel = -1;
+    private boolean _enabledGreenRouting = false;
     private int _difficultyLevel = -1;
     private int _maximumGradient = -1;
 
-    public int getGreenLevel() {
-        return _greenLevel;
+    public boolean getGreenRouting() {
+        return _enabledGreenRouting;
     }
 
-    public void setGreenLevel(int level) {
-        this._greenLevel = level;
+    public void setGreenRouting(boolean isEnabled) {
+        this._enabledGreenRouting = isEnabled;
     }
 
     public int getDifficultyLevel() {

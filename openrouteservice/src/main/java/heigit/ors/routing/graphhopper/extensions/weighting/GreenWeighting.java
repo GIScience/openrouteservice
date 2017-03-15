@@ -17,11 +17,10 @@ public class GreenWeighting extends FastestWeighting {
     private int _totalLevel = 64;
     private byte[] _buffer;
 
-    public GreenWeighting(Weighting superWeighting, FlagEncoder encoder, GraphStorage graphStorage, int totalLevel) {
+    public GreenWeighting(Weighting superWeighting, FlagEncoder encoder, GraphStorage graphStorage) {
         super(-1, encoder);
         this._superWeighting = superWeighting;
         _buffer = new byte[1];
-        this._totalLevel = totalLevel;
         _gsGreenIndex = GraphStorageUtils.getGraphExtension(graphStorage, GreenIndexGraphStorage.class);
     }
 
