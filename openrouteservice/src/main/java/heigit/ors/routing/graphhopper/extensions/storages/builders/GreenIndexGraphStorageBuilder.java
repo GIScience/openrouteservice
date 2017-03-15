@@ -18,8 +18,8 @@ import java.util.*;
 public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private GreenIndexGraphStorage _storage;
     private Map<Long, Double> _greenIndices = new HashMap<>();
-    private static int SLOT_COUNT = 64;
-    private Map<Byte, SlotRange> _slots = new HashMap<>(SLOT_COUNT);
+    private static int TOTAL_LEVEL = 64;
+    private Map<Byte, SlotRange> _slots = new HashMap<>(TOTAL_LEVEL);
 
     public GreenIndexGraphStorageBuilder() {
 
@@ -42,10 +42,10 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private void prepareGreenIndexSlots() {
         double max = Collections.max(_greenIndices.values());
         double min = Collections.min(_greenIndices.values());
-        double step = (max - min) / SLOT_COUNT;
-        // Divide the range of raw green index values into SLOT_COUNT,
-        // then map the raw value to [0..SLOT_COUNT - 1]
-        for (byte i = 0; i < SLOT_COUNT; i++) {
+        double step = (max - min) / TOTAL_LEVEL;
+        // Divide the range of raw green index values into TOTAL_LEVEL,
+        // then map the raw value to [0..TOTAL_LEVEL - 1]
+        for (byte i = 0; i < TOTAL_LEVEL; i++) {
             _slots.put(i, new SlotRange(min + i * step, min + (i + 1) * step));
         }
     }
@@ -100,11 +100,11 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
                     return s.getKey();
             } else {
                 // No such @id key in the _greenIndices, or the value of it is null
-                // We set its green level to SLOT_COUNT/2 indicating the middle value for such cases
-                return (byte) (SLOT_COUNT / 2);
+                // We set its green level to TOTAL_LEVEL/2 indicating the middle value for such cases
+                return (byte) (TOTAL_LEVEL / 2);
             }
         }
-        return (byte) (SLOT_COUNT - 1);
+        return (byte) (TOTAL_LEVEL - 1);
     }
 
     @Override
