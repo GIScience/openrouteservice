@@ -42,7 +42,7 @@ public class GreenIndexGraphStorage implements GraphExtension {
         orsEdges.ensureCapacity(((long) edgeId + 1) * edgeEntryBytes);
     }
 
-    public int getEdgeValue(int edgeId, boolean reverse, byte[] buffer) {
+    public int getEdgeValue(int edgeId, byte[] buffer) {
         // TODO this needs further checking when implementing the Weighting classes/functions
         long edgePointer = (long) edgeId * edgeEntryBytes;
         orsEdges.getBytes(edgePointer + EF_GREENINDEX, buffer, 1);
