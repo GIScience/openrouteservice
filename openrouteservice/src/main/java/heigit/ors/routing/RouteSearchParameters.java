@@ -154,7 +154,7 @@ public class RouteSearchParameters {
 
 		if (json.has("profile_params"))
 		{
-			if (RoutingProfileType.isCycling(_profileType) || RoutingProfileType.isWalking(_profileType))
+			if (RoutingProfileType.isCycling(_profileType))
 			{
 				CyclingParameters cyclingParams = new CyclingParameters();
 
@@ -166,6 +166,18 @@ public class RouteSearchParameters {
 					cyclingParams.setMaximumGradient(jFitnessParams.getInt("maximum_gradient"));
 
 				_profileParams = cyclingParams;
+			}
+			else if (RoutingProfileType.isWalking(_profileType)) {
+			    WalkingParameters walkingParams = new WalkingParameters();
+			    JSONObject walkingProfileParams = json.getJSONObject("profile_params");
+			    if (walkingProfileParams.has("green_routing"))
+			    	walkingParams.setGreenRouting(walkingProfileParams.getBoolean("green_routing"));
+			    if (walkingProfileParams.has("difficulty_level"))
+			    	walkingParams.setDifficultyLevel(walkingProfileParams.getInt("difficulty_level"));
+			    if (walkingProfileParams.has("maximum_gradient"))
+			    	walkingParams.setMaximumGradient(walkingProfileParams.getInt("maximum_gradient"));
+
+			    _profileParams = walkingParams;
 			}
 			else if (RoutingProfileType.isHeavyVehicle(_profileType) == true)
 			{
