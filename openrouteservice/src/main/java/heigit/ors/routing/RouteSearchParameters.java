@@ -117,6 +117,12 @@ public class RouteSearchParameters {
 
 		_options = StringUtility.trim(options, '\"');
 
+		//////////////
+		// FIXME Only for debugging!!
+		// This option for green routing should be constructed by the client
+//		_options = "{\"profile_params\":{\"green_routing\":true}}"
+		//////////////
+
 		JSONObject json = new JSONObject(_options);
 
 		if (json.has("maximum_speed"))
