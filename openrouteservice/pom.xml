@@ -194,12 +194,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
         <artifactId>mysql-connector-java</artifactId>
         <version>6.0.5</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
-    <dependency>
-        <groupId>com.opencsv</groupId>
-        <artifactId>opencsv</artifactId>
-        <version>3.9</version>
-    </dependency>
 </dependencies>
 <!-- mvn deploy -DperformRelease=true -->
 <profiles>
