@@ -6,11 +6,13 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import heigit.ors.routing.graphhopper.extensions.storages.GreenIndexGraphStorage;
 
-import com.opencsv.CSVReader;
-
+import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by lliu on 13/03/2017.
@@ -51,19 +53,39 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
     }
 
     private void readGreenIndicesFromCSV(String csvFile) throws IOException {
-        CSVReader reader = null;
+        BufferedReader csvBuffer = null;
         try {
-            reader = new CSVReader(new FileReader(csvFile));
-            String[] line;
+            String row;
+            csvBuffer = new BufferedReader(new FileReader(csvFile));
             // Jump the header line
-            reader.readNext();
-            while ((line = reader.readNext()) != null) {
-                _greenIndices.put(Long.parseLong(line[0]), Double.parseDouble(line[1]));
+            csvBuffer.readLine();
+            while ((row = csvBuffer.readLine()) != null) {
+                ArrayList<String> parsedRow = parseCSVrow(row);
+                if (parsedRow == null) continue;
+                _greenIndices.put(Long.parseLong(parsedRow.get(0)), Double.parseDouble(parsedRow.get(1)));
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw e;
+
+        } catch (IOException openFileEx) {
+            openFileEx.printStackTrace();
+            throw openFileEx;
+        } finally {
+            if (csvBuffer != null) csvBuffer.close();
         }
+    }
+
+    private ArrayList<String> parseCSVrow(String row) {
+        ArrayList<String> result = new ArrayList<>();
+        if (row != null) {
+            String[] splitData = row.split("\\s*,\\s*");
+            for (String col : splitData) {
+                if ((col != null) && (col.length() > 0)) {
+                    result.add(col.trim());
+                } else {
+                    return null;
+                }
+            }
+        }
+        return result;
     }
 
     @Override
