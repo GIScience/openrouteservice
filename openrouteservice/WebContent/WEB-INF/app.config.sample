@@ -1,0 +1,203 @@
+{
+	ors {
+		services: {
+			shortenlink: {
+				enabled: true,
+				user_name: YOUR_USER,
+				user_password: YOUR_PASSWORD,
+				api_key: YOUR_API_KEY,
+				attribution: "openrouteservice.org, OpenStreetMap contributors"
+			}
+			isochrones: {
+				enabled: true,
+				maximum_range_distance: 100000,
+				maixmum_range_time: 3600,
+				maximum_intervals: 10,
+				maximum_locations: 2,
+				allow_compute_area: true,
+				attribution: "openrouteservice.org, OpenStreetMap contributors"
+			}
+			geocoding: {
+				enabled: true,
+				#geocoder_name: photon,
+				#geocoding_url: "http://129.206.7.103:2322/api",
+				#reverse_geocoding_url: "http://129.206.7.103:2322/reverse",
+                                geocoder_name: pelias,
+				geocoding_url: "http://GEOCODING_SERVICE_URL",
+				reverse_geocoding_url: "http://REVERSE_GEOCODING_SERVICE_URL",
+				user_agent: openrouteservice.org,
+				attribution: "openrouteservice.org, OpenStreetMap contributors"
+			}
+			locations: {
+				enabled: true,
+				provider_name: memsql,
+				provider_parameters: {
+				    # *********** connection settings ***********
+				    host: "MEMSQL_HOST",
+				    port: 3306,
+				    db_name: "MEMSQL_DB_NAME",
+				    user: "MEMSQL_USER", 
+				    #password : "", 
+                                    query: "SELECT osm_id, category, category_type, name, opening_hours, phone, website, access, smoking, GEOGRAPHY_LONGITUDE(!geometry_column!) AS lon, GEOGRAPHY_LATITUDE(!geometry_column!) AS lat FROM planet_osm_pois",
+				    geometry_column: "way"
+                                    longitude_column: "lon",
+				    latitude_column: "lat",
+ 			        },				
+
+				provider_parameters2: {
+				    # *********** connection settings ***********
+				    host: "DB_HOST",
+				    port: 5433,
+				    db_name: "DB_NAME",
+				    user: "DB_USER", 
+				    password : "DB_PASSWORD", 
+				    max_pool_size: 15,
+				    # *********** query parameters ***********
+				    query: "SELECT osm_id, category, category_type, name, opening_hours, phone, website, access, smoking, ST_AsBinary(ST_Transform(!geometry_column!, 4326)) as !geometry_column! FROM planet_osm_pois",
+				    geometry_column: "way",
+				    geometry_srid: 900913
+				},				
+				response_limit: 1000,
+                                # maximum allowed length of a linestring, measured in meters
+                                maximum_feature_length: 10000000,
+                                # maximum allowed area of a polygon, measured in square meters
+                                maximum_feature_area: -1, 
+                                # maximum allowed search radius 
+                                maximum_search_radius: 200,
+				attribution: "openrouteservice.org, OpenStreetMap contributors"
+			}
+			routing: {
+				enabled: true,
+				mode: "normal",
+				sources: ["PATH_TO_THE_RAW_OSM_FILE"],
+				init_threads: 2,
+				maximum_distance_with_dynamic_weights: 200000,
+				attribution: "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
+
+				profiles: {
+					active: ["vehicles", "vehicles-ch", "bike", "bike2", "pedestrian"],
+
+					 # graph_path must be explicitly defined in profile settings #
+					 # if graphs_root_path parameter is not defined in default_params #
+					default_params: {
+						encoder_flags_size: 8, 
+						graphs_root_path: "D:/Temp/GHGraphs", 
+						elevation_provider: cgiar,
+						elevation_cache_path: "D:/Temp/cgiar_provider",
+ 	          		                instructions: true
+					},
+
+					profile-vehicles: {
+						profiles: "driving-car,driving-hgv,driving-motorcycle",
+						 # graph_path: "CAR",	 #
+						parameters: {
+						    encoder_flags_size: 8,
+						    encoder_options : "turnCosts=true|blockFords=false,turnCosts=true|blockFords=false,turnCosts=true|blockFords=false",
+                            maximum_distance: 100000,
+                            elevation: true, 
+						    ext_storages: {
+                                WayCategory: {
+                                },								
+                                HeavyVehicle: {
+								    restrictions: true
+                                },								
+								WaySurfaceType: {
+								}
+						    }
+						    traffic: false
+					    }
+					}
+					profile-vehicles-ch: {
+						profiles: "driving-car,driving-hgv",
+						parameters: {
+						    encoder_flags_size: 4,
+						    encoder_options : "",
+                            ch_weighting: fastest,
+                            elevation: true, 
+							ext_storages: {
+                                WayCategory: {
+                                },								
+								WaySurfaceType: {
+								},
+								HillIndex: {
+								}
+						    }
+						}
+					}
+					profile-bike: {
+						profiles: "cycling-regular, cycling-mountain, cycling-road",
+						parameters: {
+						    # extent: [5.866240, 15.042050, 47.270210, 55.058140], #
+         					encoder_options :"considerElevation=true|turnCosts=true|blockFords=false,considerElevation=true|turnCosts=true|blockFords=false,considerElevation=true|turnCosts=true|blockFords=false", 
+  				            elevation: true, 
+						    ext_storages: {
+                                WayCategory: {
+								  
+                                },								
+								WaySurfaceType: {
+								},
+								HillIndex: {
+								}
+						    }
+						}
+					}
+					profile-bike2: {
+						profiles: "cycling-safe,cycling-tour, cycling-electric",
+						parameters: {
+         					encoder_options: "considerElevation=true|turnCosts=true|blockFords=false,considerElevation=true|turnCosts=true|blockFords=false,considerElevation=true|turnCosts=true|blockFords=false", 
+					        elevation: true, 
+					 	    ext_storages: {
+                                WayCategory: {
+                                },								
+								WaySurfaceType: {
+								},
+								HillIndex: {
+								}
+						    }
+						}
+					}
+					profile-pedestrian: {
+						profiles: "foot-walking,foot-hiking",
+						parameters: {
+						    encoder_options: "blockFords=false,blockFords=false",
+						    elevation: true, 
+                            ext_storages: {
+                                GreenIndex: {
+                                    filepath: "PATH_TO_THE_GREEN_INDEX_CSV_FILE"
+                                },
+                                WayCategory: {
+                                },								
+								WaySurfaceType: {
+								},
+								HillIndex: {
+								}
+						    } 						
+						}
+					}
+				}
+
+				update: {
+					enabled: true,
+					time: "5, 10:10:00, 100000",
+					source: "D:\\Projects\\ORS\\OSM-Files\\hamburg-latest.osm.pbf",
+					extent: "",
+					working_directory: "D:\\Temp\\GHWorkingDir"
+				}
+
+				traffic: {
+					enabled: false,
+					source: "type=ftp;server=viznrwftp.gewi.com;user=cacc016;password=4)Zn3450;file=viznrw.xml",
+					location_codes_path: "C:\\Users\\Runge\\workspace\\!TMC\\lcl_list\\",
+					update_interval: 300000,
+					output_directory: "Temp"
+				}
+			}
+		}
+		logging: {
+			enabled: true,
+			level_file: "DEBUG_LOGGING.properties",
+			location: "D:/Temp/output/ors.log",
+			stdout: true
+		}
+	}
+}
