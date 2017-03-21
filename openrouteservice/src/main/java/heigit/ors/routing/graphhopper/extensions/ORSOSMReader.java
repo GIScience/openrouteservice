@@ -38,6 +38,7 @@ public class ORSOSMReader extends OSMReader {
 
 	private Envelope bbox;
 	private HashMap<Integer, Long> tmcEdges;
+	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds;
 	private RoutingProfile refProfile;
 	private boolean enrichInstructions;
 
@@ -46,12 +47,13 @@ public class ORSOSMReader extends OSMReader {
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
 			"primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential" };
 
-	public ORSOSMReader(GraphHopperStorage storage, Envelope bbox, List<GraphStorageBuilder> storageBuilders, HashMap<Integer, Long> tmcEdges, RoutingProfile refProfile) {
+	public ORSOSMReader(GraphHopperStorage storage, Envelope bbox, HashMap<Integer, Long> tmcEdges,  HashMap<Long, ArrayList<Integer>> osmId2EdgeIds, RoutingProfile refProfile) {
 		super(storage);
 
 		this._storageBuilders = storageBuilders;
 		this.bbox = bbox;
 		this.tmcEdges = tmcEdges;
+		this.osmId2EdgeIds = osmId2EdgeIds;
 		this.refProfile = refProfile;
 
 		enrichInstructions = (refProfile != null) && (storage.getEncodingManager().supports("foot")
@@ -149,7 +151,9 @@ public class ORSOSMReader extends OSMReader {
 		super.processEdge(way, edge);
 
 		try {
-			if (tmcEdges != null) {
+			
+			
+			if ((tmcEdges != null) && (osmId2EdgeIds!=null)) {
 				String highwayValue = way.getTag("highway");
 
 				if (!Helper.isEmpty(highwayValue)) {
@@ -157,6 +161,16 @@ public class ORSOSMReader extends OSMReader {
 					for (int i = 0; i < TMC_ROAD_TYPES.length; i++) {
 						if (TMC_ROAD_TYPES[i].equalsIgnoreCase(highwayValue)) {
 							tmcEdges.put(edge.getEdge(), way.getId());
+							
+							if (osmId2EdgeIds.containsKey(way.getId())){
+								osmId2EdgeIds.get(way.getId()).add(edge.getEdge());
+								
+							} else{								
+								ArrayList<Integer> edgeIds = new ArrayList<Integer>();
+								edgeIds.add(edge.getEdge()); 
+								osmId2EdgeIds.put(way.getId(), edgeIds);		
+							} 							
+							
 							break;
 						}
 					}

@@ -12,15 +12,16 @@
 package heigit.ors.routing.traffic;
 
 public class AvoidEdgeInfo extends EdgeInfo {
-   private float mSpeedFactor;
-   
-   public AvoidEdgeInfo(Integer edgeId, short[] codes, float speedFactor) {
+     
+	public AvoidEdgeInfo(Integer edgeId, short[] codes) {
 	  super(edgeId, codes);
-	   
-	   mSpeedFactor = speedFactor;
    }
    
-   public float getSpeedFactor() {
-	   return mSpeedFactor;
+   public String toString(){
+	   
+	   return "Avoiding Edge info";
    }
 }
+
+
+
