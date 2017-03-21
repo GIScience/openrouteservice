@@ -158,13 +158,31 @@ public interface GraphExtension extends Storable<GraphExtension>
     public class ExtendedStorageSequence implements GraphExtension
     {
         private GraphExtension[] extensions;
-        private boolean twoInstances;
         private int numExtensions;
+        private boolean isRequireNodeField = false;
+        private boolean isRequireEdgeField = false;
+        private int defaultNodeValue = -1;
+        private int defaultEdgeValue = -1;
         
         public ExtendedStorageSequence(ArrayList<GraphExtension> seq)
         {
         	numExtensions = seq.size();
         	extensions = seq.toArray(new GraphExtension[numExtensions]);
+        	
+        	for (int i = 0; i< numExtensions;i++ )
+    		{
+        		GraphExtension ge = extensions[i];
+    			if  (ge.isRequireNodeField())
+    			{
+    				isRequireNodeField = true;
+    				defaultNodeValue = ge.getDefaultNodeFieldValue();
+    			}
+    			if  (ge.isRequireEdgeField())
+    			{
+    				isRequireEdgeField = true;
+    				defaultEdgeValue = ge.getDefaultEdgeFieldValue();
+    			}
+    		}
         }
         
         public GraphExtension[] getExtensions()
@@ -175,47 +193,25 @@ public interface GraphExtension extends Storable<GraphExtension>
         @Override
         public boolean isRequireNodeField()
         {
-        	if (numExtensions == 2)
-        		return extensions[0].isRequireNodeField() || extensions[1].isRequireNodeField();
-        	else
-        	{
-        		for (int i = 0; i< numExtensions;i++ )
-        		{
-        			if  (extensions[i].isRequireNodeField())
-        				return true;
-        		}
-        	}
-        	
-        	return false;
+        	return isRequireNodeField;
         }
 
         @Override
         public boolean isRequireEdgeField()
         {
-        	if (numExtensions == 2)
-        		return extensions[0].isRequireEdgeField() || extensions[0].isRequireEdgeField();
-        	else
-        	{
-        		for (int i = 0; i< numExtensions;i++ )
-        		{
-        			if  (extensions[i].isRequireEdgeField())
-        				return true;
-        		}
-        	}
-        	
-        	return false;
+        	return isRequireEdgeField;
         }
 
         @Override
         public int getDefaultNodeFieldValue()
         {
-        	return extensions[0].getDefaultNodeFieldValue();
+        	return defaultNodeValue;
         }
 
         @Override
         public int getDefaultEdgeFieldValue()
         {
-        	return extensions[0].getDefaultEdgeFieldValue();
+        	return defaultEdgeValue;
         }
 
         @Override

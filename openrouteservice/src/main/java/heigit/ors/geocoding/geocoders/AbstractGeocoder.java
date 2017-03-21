@@ -31,5 +31,5 @@ public abstract class AbstractGeocoder implements Geocoder {
 	
 	public abstract GeocodingResult[] geocode(String address, String languages, int limit, Envelope bbox) throws UnsupportedEncodingException, IOException;
 	
-	public abstract GeocodingResult[] reverseGeocode(double lat, double lon, int limit, Envelope bbox) throws IOException;
+	public abstract GeocodingResult[] reverseGeocode(double lon, double lat, int limit, Envelope bbox) throws IOException;
 }

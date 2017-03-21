@@ -22,12 +22,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.geotools.geometry.AbstractDirectPosition;
 import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
-import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 

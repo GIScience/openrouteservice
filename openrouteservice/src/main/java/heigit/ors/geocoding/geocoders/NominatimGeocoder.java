@@ -23,7 +23,6 @@ import com.vividsolutions.jts.geom.Envelope;
 
 import heigit.ors.geocoding.geocoders.AbstractGeocoder;
 import heigit.ors.util.HTTPUtility;
-import jdk.nashorn.internal.parser.JSONParser;
 
 public class NominatimGeocoder extends AbstractGeocoder {
 	
@@ -79,11 +78,11 @@ public class NominatimGeocoder extends AbstractGeocoder {
 		if (!Helper.isEmpty(respContent) && !respContent.equals("[]")) {
 			JSONArray arr = new JSONArray(respContent);
 			for (int j = 0; j < arr.length(); j++) {
-				Object obj = arr.get(j);
+				JSONObject obj = arr.getJSONObject(j);
 
 				// Get Lon/Lat
-				String lon = ((JSONObject) obj).get("lon").toString();
-				String lat = ((JSONObject) obj).get("lat").toString();
+				String lon = obj.get("lon").toString();
+				String lat = obj.get("lat").toString();
 				
 				if (bbox != null && !bbox.contains(Double.parseDouble(lon), Double.parseDouble(lat)))
 					continue;					
@@ -111,7 +110,7 @@ public class NominatimGeocoder extends AbstractGeocoder {
 				if (Helper.isEmpty(city)) {
 					city = getJSONValue(addressObj, "hamlet");
 				} 
-				String suburb = getJSONValue(addressObj, "suburb");
+				//String suburb = getJSONValue(addressObj, "suburb");
 				String road = getJSONValue(addressObj, "road");
 				
 				if (Helper.isEmpty(road))
@@ -148,11 +147,13 @@ public class NominatimGeocoder extends AbstractGeocoder {
 					GeocodingResult gr = new GeocodingResult();
 					gr.city = city;
 					gr.country = country;
+					gr.countryCode = country_code;
+					gr.county = county;
 					gr.state = state;
 					gr.stateDistrict = state_district;
 					gr.postalCode = postal_code;
-					gr.road = road;
-					gr.house = house;
+					gr.street = road;
+					gr.name = house;
 					gr.houseNumber = house_number;
 					gr.objectName = object_name;
 					gr.longitude = Double.parseDouble(lon);
@@ -211,7 +212,7 @@ public class NominatimGeocoder extends AbstractGeocoder {
 		return null;
 	}
 	
-	public GeocodingResult[] reverseGeocode(double lat, double lon, int limit, Envelope bbox) throws IOException
+	public GeocodingResult[] reverseGeocode(double lon, double lat, int limit, Envelope bbox) throws IOException
 	{
 		GeocodingResult gr = new GeocodingResult();		
 
@@ -254,10 +255,10 @@ public class NominatimGeocoder extends AbstractGeocoder {
 		if (Helper.isEmpty(gr.city)) {
 			gr.city = getJSONValue(address, "hamlet");
 		}
-		gr.suburb = getJSONValue(address, "suburb");
-		gr.road = getJSONValue(address, "road");
+		gr.neighbourhood = getJSONValue(address, "suburb");
+		gr.street = getJSONValue(address, "road");
 		gr.houseNumber = getJSONValue(address, "house_number");
-		gr.house = getJSONValue(address, "house");
+		gr.name = getJSONValue(address, "house");
 		gr.objectName = getJSONValue(address, OSM_TAGS);
 
 		return new GeocodingResult[] { gr };

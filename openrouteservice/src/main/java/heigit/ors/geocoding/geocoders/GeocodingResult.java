@@ -19,9 +19,9 @@ public class GeocodingResult {
 	public String stateDistrict;
 	public String county;
 	public String city;
-	public String suburb;
-	public String road;
-	public String house;
+	public String neighbourhood;
+	public String street;
+	public String name;
 	public String houseNumber;
 	public String objectName;
 	

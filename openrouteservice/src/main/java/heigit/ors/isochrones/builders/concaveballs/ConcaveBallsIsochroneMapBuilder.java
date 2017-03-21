@@ -64,13 +64,12 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 	private RouteSearchContext _searchContext;
 
 	public void initialize(RouteSearchContext searchContext) {
-		// TODO Auto-generated method stub
 		_geomFactory = new GeometryFactory();
 		_searchContext = searchContext;		
 	}
 
 	public IsochroneMap compute(IsochroneSearchParameters parameters) throws Exception {
-		StopWatch	swTotal = null;
+		StopWatch swTotal = null;
 		StopWatch sw = null;
 		if (LOGGER.isDebugEnabled())
 		{

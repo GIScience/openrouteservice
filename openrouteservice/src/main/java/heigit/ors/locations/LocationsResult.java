@@ -9,21 +9,40 @@
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-package heigit.ors.util.distancefunctions;
+package heigit.ors.locations;
 
-import static java.lang.Math.asin;
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
-import static java.lang.Math.sqrt;
+import java.util.HashMap;
+import java.util.Map;
 
-public class HaversineFunction extends AbstractDistanceFunction {
+import com.vividsolutions.jts.geom.Geometry;
 
-	public double calcDistance(double lon0, double lat0, double lon1, double lat1) {
-		// return CoordTools.calculateLengthWGS84(lon0, lat0, lon1, lat1);
-		double sinDLat = sin(DEG_TO_RAD_HALF * (lat1 - lat0));
-		double sinDLon = sin(DEG_TO_RAD_HALF * (lon1 - lon0));
-		double c = sinDLat * sinDLat + sinDLon * sinDLon * cos(DEG_TO_RAD * (lat0)) * cos(DEG_TO_RAD * (lat1));
+public class LocationsResult 
+{
+	private Geometry _geometry;
+	private Map<String, String> _properties;
 
-		return R2 * asin(sqrt(c));
+	public LocationsResult()
+	{
+		_properties = new HashMap<String, String>();
+	}
+
+	public Geometry getGeometry() 
+	{
+		return _geometry;
+	}
+
+	public void setGeometry(Geometry geometry) 
+	{
+		_geometry = geometry;
+	}
+	
+	public Map<String, String> getProperties()
+	{
+		return _properties;
+	}	
+	
+	public void addProperty(String name, String value)
+	{
+		_properties.put(name, value);
 	}
 }

@@ -94,6 +94,7 @@ public class RoutingProfileManager {
 			
 			RouteManagerConfiguration rmc = RouteManagerConfiguration.loadFromFile(graphProps);
 			RoutingProfilesCollection coll = new RoutingProfilesCollection();
+			RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
 			int nRouteInstances = rmc.Profiles.length;
 			
 			for (int i = 0; i < nRouteInstances; i++) {
@@ -103,12 +104,14 @@ public class RoutingProfileManager {
 
 				LOGGER.info("Preparing route profile in "  + rpc.GraphPath + " ...");
                
-				RoutingProfile rp = new RoutingProfile(rmc.SourceFile, rpc, coll);
+				RoutingProfile rp = new RoutingProfile(rmc.SourceFile, rpc, coll, loadCntx);
 				
 				rp.close();
 				
 				LOGGER.info("Done.");
 			}
+			
+			loadCntx.release();
 			
 			LOGGER.info("Graphs were prepaired in " + TimeUtility.getElapsedTime(startTime, true) + ".");
 		}
@@ -121,14 +124,18 @@ public class RoutingProfileManager {
 	}
 	
 	public void initialize(String graphProps) {
+		RuntimeUtility.printRAMInfo("", LOGGER);
 
-		LOGGER.info("Start preparing profiles ...");
-		RuntimeUtility.printRAMInfo(LOGGER);
-
+		LOGGER.info("      ");
+		
 		long startTime = System.currentTimeMillis();
 		
 		try {
 			RouteManagerConfiguration rmc = RouteManagerConfiguration.loadFromFile(graphProps);
+
+			LOGGER.info(String.format("====> Initializing profiles (%d threads) ...", rmc.InitializationThreads));
+			LOGGER.info("                              ");
+
 			_dynamicWeightingMaxDistance = rmc.DynamicWeightingMaxDistance;
 			
 			if ("PrepareGraphs".equalsIgnoreCase(rmc.Mode)) {
@@ -139,22 +146,32 @@ public class RoutingProfileManager {
 				_routeProfiles = new RoutingProfilesCollection();
 				int nRouteInstances = rmc.Profiles.length;
 
+				RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
 				ExecutorService executor = Executors.newFixedThreadPool(rmc.InitializationThreads);
 				List<Future<RoutingProfile>> list = new ArrayList<Future<RoutingProfile>>();
+				
+				int j = 1;
+				
 				for (int i = 0; i < nRouteInstances; i++) {
 					RouteProfileConfiguration rpc = rmc.Profiles[i];
 					if (!rpc.Enabled)
 						continue;
 
-					Integer[] routeProfiles = rpc.GetProfilesTypes();
+					LOGGER.info(String.format("[%d] Profiles: '%s', location: '%s'.", j, rpc.Profiles, rpc.GraphPath));
+
+					Integer[] routeProfiles = rpc.getProfilesTypes();
 
 					if (routeProfiles != null) {
 						Callable<RoutingProfile> worker = new RoutingProfileLoader(rmc.SourceFile, rpc,
-								_routeProfiles);
+								_routeProfiles, loadCntx);
 						Future<RoutingProfile> submit = executor.submit(worker);
 						list.add(submit);
 					}
+					
+					j++;
 				}
+
+				LOGGER.info("               ");
 
 				// now retrieve the result
 				for (Future<RoutingProfile> future : list) {
@@ -162,7 +179,7 @@ public class RoutingProfileManager {
 						RoutingProfile rp = future.get();
 
 						if (!_routeProfiles.add(rp))
-							LOGGER.warn("Route preference has already been added.");
+							LOGGER.warn("Routing profile has already been added.");
 					} catch (InterruptedException e) {
 						LOGGER.error(e.getMessage());
 						e.printStackTrace();
@@ -173,7 +190,11 @@ public class RoutingProfileManager {
 				}
 
 				executor.shutdown();
-
+				loadCntx.release();
+				
+				LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
+				LOGGER.info("========================================================================");
+				
 				if (rmc.TrafficInfoConfig != null && rmc.TrafficInfoConfig.Enabled) {
 					RealTrafficDataProvider.getInstance().initialize(rmc, _routeProfiles);
 				}
@@ -182,14 +203,15 @@ public class RoutingProfileManager {
 					_profileUpdater = new RoutingProfilesUpdater(rmc.UpdateConfig, _routeProfiles);
 					_profileUpdater.start();
 				}
-				
-				LOGGER.info("All profiles are successfully loaded. Took " + TimeUtility.getElapsedTime(startTime, true) + ".");
 			}
 		} catch (Exception ex) {
 			LOGGER.error("Failed to initialize RouteProfileManager instance.", ex);
 		}
 		
 		RuntimeUtility.clearMemory(LOGGER);
+		
+		if (LOGGER.isInfoEnabled())
+			_routeProfiles.printStatistics(LOGGER);
 	}
 
 	public void destroy() {

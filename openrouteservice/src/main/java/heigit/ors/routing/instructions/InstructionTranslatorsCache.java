@@ -3,7 +3,6 @@ package heigit.ors.routing.instructions;
 import java.util.HashMap;
 import java.util.Map;
 
-import heigit.ors.localization.Language;
 import heigit.ors.localization.LocalizationManager;
 
 public class InstructionTranslatorsCache {

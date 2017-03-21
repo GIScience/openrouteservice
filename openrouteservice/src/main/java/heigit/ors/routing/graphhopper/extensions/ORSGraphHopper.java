@@ -27,6 +27,7 @@ import java.util.List;
 
 import heigit.ors.mapmatching.RouteSegmentInfo;
 import heigit.ors.routing.RoutingProfile;
+import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
@@ -44,15 +45,16 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 
 public class ORSGraphHopper extends GraphHopper {
 
-	private Envelope bbox;
-	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds; // one osm id can correspond to multiple edges 
+	private Envelope _bbox;
+	private List<GraphStorageBuilder> _storageBuilders;
 	private HashMap<Integer, Long> tmcEdges;
 	
 	// A route profile for referencing which is used to extract names of adjacent streets and other objects.
 	private RoutingProfile refRouteProfile;
 
-	public ORSGraphHopper(Envelope bbox, boolean useTmc, RoutingProfile refProfile) {
-		this.bbox = bbox;
+	public ORSGraphHopper(Envelope bbox, List<GraphStorageBuilder> storageBuilders, boolean useTmc, RoutingProfile refProfile) {
+		this._bbox = bbox;
+		this._storageBuilders = storageBuilders;
 		this.refRouteProfile= refProfile;
 		this.setSimplifyResponse(false);
 		
@@ -63,7 +65,7 @@ public class ORSGraphHopper extends GraphHopper {
 	}
 	
 	protected DataReader createReader(GraphHopperStorage tmpGraph) {
-		return initOSMReader(new ORSOSMReader(tmpGraph, bbox, tmcEdges, osmId2EdgeIds, refRouteProfile));
+		return initOSMReader(new ORSOSMReader(tmpGraph, _bbox, _storageBuilders, tmcEdges, refRouteProfile));
 	}
 	
 	public boolean load( String graphHopperFolder )

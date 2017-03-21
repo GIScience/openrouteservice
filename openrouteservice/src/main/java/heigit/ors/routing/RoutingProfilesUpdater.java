@@ -60,7 +60,7 @@ public class RoutingProfilesUpdater {
 		}
 	}
 
-	private static Logger LOGGER = Logger.getLogger("org.freeopenls.routeservice.routing.RouteProfilesUpdater");
+	private static Logger LOGGER = Logger.getLogger(RoutingProfilesUpdater.class.getName());
 
 	private RouteUpdateConfiguration m_config;
 	private RoutingProfilesCollection m_routeProfiles;
@@ -104,7 +104,7 @@ public class RoutingProfilesUpdater {
 		m_timer.schedule(timerTask, firstUpdateTime, m_updatePeriod);
 
 		m_nextUpdate = firstUpdateTime;
-		LOGGER.info("Next route profiles update is scheduled at " + firstUpdateTime.toString());
+		LOGGER.info("Profile updater is started and scheduled at " + firstUpdateTime.toString() + ".");
 	}
 
 	private void downloadFile(String url, File destination) {
@@ -160,7 +160,7 @@ public class RoutingProfilesUpdater {
 		try {
 			long startTime = System.currentTimeMillis();
 
-			LOGGER.info("Start updating route profiles...");
+			LOGGER.info("Start updating profiles...");
 
 			m_nextUpdate = new Date(startTime + m_updatePeriod);
 
@@ -256,6 +256,7 @@ public class RoutingProfilesUpdater {
 
 				FileUtility.makeDirectory(tempGraphLocation);
 
+				RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
 				int nUpdatedProfiles = 0;
 
 				for (RoutingProfile profile : m_routeProfiles.getUniqueProfiles()) {
@@ -290,7 +291,7 @@ public class RoutingProfilesUpdater {
 
 						RouteProfileConfiguration rpcNew = rpc.clone();
 						rpcNew.GraphPath = tempGraphLocation;
-						GraphHopper gh = RoutingProfile.initGraphHopper(osmFile, rpcNew, RoutingProfileManager.getInstance().getProfiles());
+						GraphHopper gh = RoutingProfile.initGraphHopper(osmFile, rpcNew, RoutingProfileManager.getInstance().getProfiles(), loadCntx);
 
 						if (gh != null) {
 							profile.updateGH(gh);
@@ -310,6 +311,8 @@ public class RoutingProfilesUpdater {
 					m_updateStatus = null;
 				}
 
+				loadCntx.release();
+				
 				FileUtils.writeStringToFile(fileLastUpdate, md5Sum);
 
 				long seconds = (System.currentTimeMillis() - startTime) / 1000;

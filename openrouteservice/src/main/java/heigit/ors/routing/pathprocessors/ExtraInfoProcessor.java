@@ -25,6 +25,7 @@ import heigit.ors.routing.RouteExtraInfo;
 import heigit.ors.routing.RouteExtraInfoFlag;
 import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStorage;
 import heigit.ors.routing.graphhopper.extensions.storages.WaySurfaceTypeGraphStorage;
 import heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
 import heigit.ors.routing.util.extrainfobuilders.RouteExtraInfoBuilder;
@@ -34,6 +35,7 @@ import heigit.ors.routing.util.extrainfobuilders.SteepnessExtraInfoBuilder;
 public class ExtraInfoProcessor extends PathProcessor {
 	private WaySurfaceTypeGraphStorage extWaySurface;
 	private WayCategoryGraphStorage extWayCategory;
+	private HillIndexGraphStorage extHillIndex;
 	
 	private RouteExtraInfo _surfaceInfo;
 	private RouteExtraInfoBuilder _surfaceInfoBuilder;
@@ -54,20 +56,26 @@ public class ExtraInfoProcessor extends PathProcessor {
 	private byte[] buffer;
 	private boolean _lastSegment;
 
-	public ExtraInfoProcessor(ORSGraphHopper graphHopper, int extraInfo) {
+	public ExtraInfoProcessor(ORSGraphHopper graphHopper, int extraInfo) throws Exception {
 		
 		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.WayCategory))
 		{
 			extWayCategory = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), WayCategoryGraphStorage.class);
 			
+			if (extWayCategory == null)
+				throw new Exception("WayCategory storage is not found.");
+			
 			_wayCategoryInfo = new RouteExtraInfo("waycategory");
 			_wayCategoryInfoBuilder = new SimpleRouteExtraInfoBuilder(_wayCategoryInfo);
 		}
 		
-		extWaySurface = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), WaySurfaceTypeGraphStorage.class);
-		
-		if (extWaySurface != null)
+		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Surface) || RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.WayType))
 		{
+			extWaySurface = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), WaySurfaceTypeGraphStorage.class);
+			
+			if (extWaySurface == null)
+				throw new Exception("WaySurfaceType storage is not found.");
+
 			if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Surface))
 			{
 				_surfaceInfo = new RouteExtraInfo("surface");
@@ -82,6 +90,11 @@ public class ExtraInfoProcessor extends PathProcessor {
 		
 		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Steepness))
 		{
+			extHillIndex =  GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), HillIndexGraphStorage.class);
+			
+			if (extHillIndex == null)
+				throw new Exception("HillIndex storage is not found.");
+			
 			_steepnessInfo = new RouteExtraInfo("steepness");
 			_steepnessInfoBuilder = new SteepnessExtraInfoBuilder(_steepnessInfo);
 		}
@@ -112,6 +125,8 @@ public class ExtraInfoProcessor extends PathProcessor {
 			extras.add(_steepnessInfo);
 		if (_waySuitabilityInfo != null)
 			extras.add(_waySuitabilityInfo);
+		if (_wayCategoryInfo != null)
+			extras.add(_wayCategoryInfo);
 
 		return extras;
 	}
@@ -133,7 +148,8 @@ public class ExtraInfoProcessor extends PathProcessor {
 		
 		if (_wayCategoryInfoBuilder != null)
 		{
-			//_wayCategoryInfoBuilder.addSegment(value, valueIndex, geom, dist, lastEdge);
+			int value = extWayCategory.getEdgeValue(edge.getOriginalEdge(), buffer);
+			_wayCategoryInfoBuilder.addSegment(value, value, geom, dist, lastEdge && _lastSegment);
 		}
 
 		if (_waySuitabilityInfoBuilder != null)
@@ -144,7 +160,11 @@ public class ExtraInfoProcessor extends PathProcessor {
 		}
 		
 		if (_steepnessInfoBuilder != null)
-			_steepnessInfoBuilder.addSegment(0, 0, geom, dist, lastEdge);
+		{
+			boolean revert = edge.getBaseNode() < edge.getAdjNode();
+			int value = extHillIndex.getEdgeValue(edge.getOriginalEdge(), revert, buffer);
+			_steepnessInfoBuilder.addSegment(value, value, geom, dist, lastEdge && _lastSegment);
+		}
 	}
 
 	@Override

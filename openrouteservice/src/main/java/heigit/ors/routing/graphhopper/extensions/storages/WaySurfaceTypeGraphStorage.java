@@ -33,7 +33,7 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
 	private byte[] byteValues;
 
 	public WaySurfaceTypeGraphStorage() {
-		EF_WAYTYPE = nextBlockEntryIndex(1);
+		EF_WAYTYPE = 0;
 	
 		edgeEntryBytes = edgeEntryIndex + 4;
 		edgesCount = 0;
@@ -81,7 +81,7 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
 
 	public boolean loadExisting() {
 		if (!orsEdges.loadExisting())
-			throw new IllegalStateException("cannot load ORS WaySurface storage. corrupt file or directory? ");
+			throw new IllegalStateException("Unable to load storage 'ext_waysurface'. corrupt file or directory? ");
 
 		edgeEntryBytes = orsEdges.getHeader(0);
 		edgesCount = orsEdges.getHeader(4);

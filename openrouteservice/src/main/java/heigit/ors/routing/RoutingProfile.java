@@ -10,8 +10,6 @@
  *|								
  *|----------------------------------------------------------------------------------------------*/
 
-// Authors M. Rylov
-
 package heigit.ors.routing;
 
 import java.io.File;
@@ -19,8 +17,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -30,7 +31,9 @@ import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import heigit.ors.routing.graphhopper.extensions.ORSGraphStorageFactory;
 import heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
-import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageType;
+import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilderService;
 import heigit.ors.routing.parameters.*;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.*;
 import heigit.ors.isochrones.IsochroneSearchParameters;
@@ -52,28 +55,29 @@ import heigit.ors.util.TimeUtility;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
+import com.graphhopper.reader.dem.ElevationProvider;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EdgeFilterSequence;
+import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
+
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.storage.StorableProperties;
 import com.graphhopper.util.CmdArgs;
-import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
-import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import com.graphhopper.util.PMap;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-
-public class RoutingProfile {
+public class RoutingProfile 
+{
 	private static final Logger LOGGER = Logger.getLogger(RoutingProfileManager.class.getName());
-	
+	private static int profileIdentifier = 0;
+	private static final Object lockObj = new Object();
+
 	private ORSGraphHopper mGraphHopper;
 	private boolean mUseTrafficInfo;
 	private Integer[] mRoutePrefs;
@@ -83,17 +87,17 @@ public class RoutingProfile {
 
 	private RouteProfileConfiguration mProfileConfig;
 
-	public RoutingProfile(String osmFile, RouteProfileConfiguration rpc, RoutingProfilesCollection profiles) throws IOException {
-		mRoutePrefs = rpc.GetProfilesTypes();
+	public RoutingProfile(String osmFile, RouteProfileConfiguration rpc, RoutingProfilesCollection profiles, RoutingProfileLoadContext loadCntx) throws IOException {
+		mRoutePrefs = rpc.getProfilesTypes();
 		mUseCounter = 0;
 		mUseTrafficInfo = /*mHasDynamicWeights &&*/ hasCarPreferences() ? rpc.UseTrafficInformation : false;
 
-		mGraphHopper = initGraphHopper(osmFile, rpc, profiles);
+		mGraphHopper = initGraphHopper(osmFile, rpc, profiles, loadCntx);
 
 		mProfileConfig = rpc;
 	}
 
-	public static ORSGraphHopper initGraphHopper(String osmFile, RouteProfileConfiguration config, RoutingProfilesCollection profiles) throws IOException {
+	public static ORSGraphHopper initGraphHopper(String osmFile, RouteProfileConfiguration config, RoutingProfilesCollection profiles, RoutingProfileLoadContext loadCntx) throws IOException {
 		CmdArgs args = createGHSettings(osmFile, config);
 
 		RoutingProfile refProfile = null;
@@ -105,13 +109,41 @@ public class RoutingProfile {
 		catch(Exception ex)
 		{}
 
+		int profileId = 0;
+		synchronized (lockObj) {
+			profileIdentifier++;
+			profileId = profileIdentifier;
+		}
+
 		long startTime = System.currentTimeMillis();
+
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info(String.format("[%d] Building/loading graphs....", profileId));
 		
-		ORSGraphHopper gh = (ORSGraphHopper) new ORSGraphHopper(config.BBox, config.UseTrafficInformation, refProfile).init(args);
-		gh.setGraphStorageFactory(new ORSGraphStorageFactory(GraphStorageType.getFomString(config.ExtStorages)));
+		List<GraphStorageBuilder> storageBuilders = GraphStorageBuilderService.getInstance().createBuilders(config.ExtStorages);
+		
+		ORSGraphHopper gh = (ORSGraphHopper) new ORSGraphHopper(config.BBox, storageBuilders, config.UseTrafficInformation, refProfile).init(args);
+		gh.setGraphStorageFactory(new ORSGraphStorageFactory(storageBuilders));
+		
+		if (!Helper.isEmpty(config.ElevationProvider) && !Helper.isEmpty(config.ElevationCachePath))
+		{
+			ElevationProvider elevProvider = loadCntx.getElevationProvider(config.ElevationProvider, config.ElevationCachePath);
+			gh.setElevationProvider(elevProvider);
+		}
 
 		gh.importOrLoad();
 		gh.setWeightingFactory(new ORSWeightingFactory(RealTrafficDataProvider.getInstance()));
+
+		if (LOGGER.isInfoEnabled())
+		{
+			EncodingManager encodingMgr = gh.getEncodingManager();
+			LOGGER.info(String.format("[%d] FlagEncoders: %s, bits used %d/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getUsedBitsForFlags(), encodingMgr.getBytesForFlags()*8));
+			GraphHopperStorage graph = gh.getGraphHopperStorage();
+			LOGGER.info(String.format("[%d] Capacity: main - %s, ext. storages - %s.", profileId, RuntimeUtility.getMemorySize(graph.getCapacity()), RuntimeUtility.getMemorySize(GraphStorageUtils.getCapacity(graph.getExtension()))));
+			LOGGER.info(String.format("[%d] Total time: %s.", profileId, TimeUtility.getElapsedTime(startTime, true)));
+			LOGGER.info(String.format("[%d] Finished at: %s.", profileId, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
+			LOGGER.info("                              ");
+		}
 
 		// Make a stamp which help tracking any changes in the size of OSM file.
 		File file = new File(osmFile);
@@ -120,9 +152,13 @@ public class RoutingProfile {
 		if (!file2.exists())
 			Files.write(pathTimestamp, Long.toString(file.length()).getBytes());
 
-		LOGGER.info("Profiles '" + config.Profiles  +"' are loaded in " + TimeUtility.getElapsedTime(startTime, true) + ". Graph location: " + gh.getGraphHopperLocation() + ".");
-
 		return gh;
+	}
+
+	public long getCapacity()
+	{
+		GraphHopperStorage graph = mGraphHopper.getGraphHopperStorage();
+		return graph.getCapacity() + GraphStorageUtils.getCapacity(graph.getExtension());
 	}
 
 	private static CmdArgs createGHSettings(String sourceFile, RouteProfileConfiguration config)
@@ -135,17 +171,17 @@ public class RoutingProfile {
 
 		if (config.Instructions == false)
 			args.put("instructions", false);
-		if (config.ElevationCachPath != null)
+		if (config.ElevationCachePath != null)
 		{
 			args.put("graph.elevation.provider", config.ElevationProvider);
-			args.put("graph.elevation.cachedir", config.ElevationCachPath);
+			args.put("graph.elevation.cachedir", config.ElevationCachePath);
 		}
 
 		args.put("prepare.chWeighting", (config.CHWeighting != null) ? config.CHWeighting: "no");
 
 		String flagEncoders = "";
 		String[] encoderOpts = !Helper.isEmpty(config.EncoderOptions) ? config.EncoderOptions.split(","): null;
-		Integer[] profiles = config.GetProfilesTypes();
+		Integer[] profiles = config.getProfilesTypes();
 		for (int i = 0; i < profiles.length; i++)
 		{
 			if (encoderOpts == null)
@@ -157,7 +193,7 @@ public class RoutingProfile {
 		}
 
 		args.put("graph.flagEncoders", flagEncoders);
-		
+
 		args.put("osmreader.wayPointMaxDistance",1);
 		args.put("index.highResolution", 500);
 
@@ -178,31 +214,6 @@ public class RoutingProfile {
 
 	public BBox getBounds() {
 		return mGraphHopper.getGraphHopperStorage().getBounds();
-	}
-
-	public Geometry getEdgeGeometry(int edgeId)
-	{
-		return getEdgeGeometry(edgeId, 3, Integer.MIN_VALUE);
-	}
-
-	public Geometry getEdgeGeometry(int edgeId, int mode, int adjnodeid)
-	{
-		EdgeIteratorState iter = mGraphHopper.getGraphHopperStorage().getEdgeIteratorState(edgeId, adjnodeid);
-		PointList points = iter.fetchWayGeometry(mode);
-		if (points.size() > 1)
-		{
-			Coordinate[] coords = new Coordinate[points.size()];
-
-			for (int i = 0; i < points.size(); i++) {
-				double x = points.getLon(i);
-				double y = points.getLat(i);
-				coords[i] = new Coordinate(x, y);
-			}
-
-			return new GeometryFactory().createLineString(coords);
-		}
-
-		return null;
 	}
 
 	public StorableProperties getGraphProperties() {
@@ -282,7 +293,11 @@ public class RoutingProfile {
 					FileUtils.copyDirectory(srcDir, dstDir, true);
 					FileUtils.deleteDirectory(srcDir);
 
-					mGraphHopper = initGraphHopper(ghOld.getOSMFile(), mProfileConfig, RoutingProfileManager.getInstance().getProfiles());
+					RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
+
+					mGraphHopper = initGraphHopper(ghOld.getOSMFile(), mProfileConfig, RoutingProfileManager.getInstance().getProfiles(), loadCntx);
+
+					loadCntx.release();
 
 					break;
 				}
@@ -334,15 +349,15 @@ public class RoutingProfile {
 
 		return result;
 	}
-	
+
 	private RouteSearchContext createSearchContext(RouteSearchParameters searchParams, RouteSearchMode mode) throws Exception
 	{
 		int profileType = searchParams.getProfileType();
-        int weightingMethod = searchParams.getWeightingMethod();
+		int weightingMethod = searchParams.getWeightingMethod();
 		String encoderName = RoutingProfileType.getEncoderName(profileType);
 		EdgeFilter edgeFilter = null;
 		FlagEncoder flagEncoder = mGraphHopper.getEncodingManager().getEncoder(encoderName);
-		String algorithm = null;
+		//String algorithm = null;
 		PMap props = new PMap();
 
 		if (searchParams.hasAvoidAreas()) {
@@ -361,7 +376,7 @@ public class RoutingProfile {
 			if (RoutingProfileType.isHeavyVehicle(profileType)) {
 				edgeFilter = createHeavyVehicleEdgeFilter(searchParams, flagEncoder, edgeFilter);
 			} else if (searchParams.hasParameters(VehicleParameters.class)) {
-				edgeFilter = createWayRestrictionsEdgeFilter(searchParams, flagEncoder, edgeFilter);
+				//edgeFilter = createWayRestrictionsEdgeFilter(searchParams, flagEncoder, edgeFilter);
 			}
 		} else if (profileType == RoutingProfileType.WHEELCHAIR) {
 			if (searchParams.hasParameters(WheelchairParameters.class)) {
@@ -372,29 +387,33 @@ public class RoutingProfile {
 
 		boolean bSteepness = false;
 
-		if (searchParams.hasAvoidFeatures() && mode == RouteSearchMode.Routing) {
+		if (searchParams.hasAvoidFeatures() ) {
 			if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)
 					|| profileType == RoutingProfileType.FOOT_WALKING || profileType == RoutingProfileType.FOOT_HIKING
 					|| profileType == RoutingProfileType.WHEELCHAIR) { 
-				
+
 				if (searchParams.getAvoidFeatureTypes() != AvoidFeatureFlags.Hills)
 				{
 					EdgeFilter ef = new AvoidFeaturesEdgeFilter(flagEncoder, searchParams.getAvoidFeatureTypes(),
-						mGraphHopper.getGraphHopperStorage());
+							mGraphHopper.getGraphHopperStorage());
 					edgeFilter = createEdgeFilter(ef, edgeFilter);
 				}
 
-				if ((searchParams.getAvoidFeatureTypes() & AvoidFeatureFlags.Hills) == AvoidFeatureFlags.Hills)
+				if (mode == RouteSearchMode.Routing)
 				{
-					props.put("AvoidHills", true);
-
-					if (searchParams.hasParameters(CyclingParameters.class))
+					if ((searchParams.getAvoidFeatureTypes() & AvoidFeatureFlags.Hills) == AvoidFeatureFlags.Hills)
 					{
-						CyclingParameters cyclingParams = (CyclingParameters)searchParams.getProfileParameters();
+						props.put("AvoidHills", true);
 
-						props.put("SteepnessMaximum", cyclingParams.getMaximumGradient());
+						if (searchParams.hasParameters(CyclingParameters.class))
+						{
+							CyclingParameters cyclingParams = (CyclingParameters)searchParams.getProfileParameters();
+
+							props.put("SteepnessMaximum", cyclingParams.getMaximumGradient());
+						}
+
+						bSteepness = true;
 					}
-					bSteepness = true;
 				}
 			}
 		}
@@ -423,8 +442,8 @@ public class RoutingProfile {
 			}
 		}
 
-		if (bSteepness)
-			algorithm = "dijkstra";
+	/*	if (bSteepness)
+			algorithm = "dijkstra";*/
 
 		if (searchParams.getConsiderTraffic()/* && mHasDynamicWeights */) {
 			if (RoutingProfileType.isDriving(profileType) && weightingMethod != WeightingMethod.SHORTEST
@@ -438,13 +457,13 @@ public class RoutingProfile {
 				edgeFilter = createEdgeFilter(ef, edgeFilter);
 			}
 		}
-		
+
 		if (edgeFilter == null)
 			edgeFilter = new DefaultEdgeFilter(flagEncoder);
-		
+
 		RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, edgeFilter, flagEncoder);
 		searchCntx.setProperties(props);
-		
+
 		return searchCntx;		
 	}
 
@@ -486,7 +505,7 @@ public class RoutingProfile {
 	public boolean canProcessRequest(double lat0, double lon0, double lat1, double lon1) {
 		if (mProfileConfig.MaximumDistance > 0) {
 			double dist = CoordTools.calcDistHaversine(lon0, lat0, lon1, lat1);
-			if (dist >= mProfileConfig.MaximumDistance)
+			if (dist <= mProfileConfig.MaximumDistance)
 				return true;
 			else
 				return false;
@@ -516,14 +535,14 @@ public class RoutingProfile {
 		try {
 			int profileType = searchParams.getProfileType();
 			int weightingMethod = searchParams.getWeightingMethod();
-            RouteSearchContext searchCntx = createSearchContext(searchParams, RouteSearchMode.Routing);
-            
+			RouteSearchContext searchCntx = createSearchContext(searchParams, RouteSearchMode.Routing);
+
 			GHRequest req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
 			req.setVehicle(searchCntx.getEncoder().toString());
 			req.setAlgorithm("dijkstrabi");
 			req.setMaxSpeed(searchParams.getMaximumSpeed());
 			req.setSimplifyGeometry(simplifyGeometry);
-			
+
 			PMap props = searchCntx.getProperties();
 			if (props != null && props.size() > 0)
 				req.getHints().merge(props);
@@ -542,7 +561,7 @@ public class RoutingProfile {
 				req.setWeighting("recommended");
 			}
 
-			if ((profileType == RoutingProfileType.CYCLING_TOUR || (profileType == RoutingProfileType.DRIVING_HGV && HeavyVehicleAttributes.Hgv == searchParams
+			if ((profileType == RoutingProfileType.CYCLING_TOUR || (profileType == RoutingProfileType.DRIVING_HGV && HeavyVehicleAttributes.HGV == searchParams
 					.getVehicleType())) && weightingMethod == WeightingMethod.RECOMMENDED) {
 				req.setWeighting("recommended_pref");
 			}
@@ -618,69 +637,6 @@ public class RoutingProfile {
 		}
 
 		return edgeFilter;
-	}
-
-	private EdgeFilter createWayRestrictionsEdgeFilter(RouteSearchParameters searchParams, FlagEncoder flagEncoder,
-			EdgeFilter edgeFilter) throws Exception {
-
-		throw new Exception("not implemented");
-		/*
-		GraphStorage gs = mGraphHopper.getGraphHopperStorage();
-
-		float[] vehicleAttrs = searchParams.getVehicleParameters().getAttributes();
-		int valuesCount = 0;
-		ArrayList<Integer> idx = new ArrayList<Integer>();
-
-		for (int i = 0; i < VehicleRestrictionCodes.Count; i++) {
-			float value = vehicleAttrs[i];
-			if (value > 0) {
-				idx.add(i);
-				valuesCount++;
-			}
-		}
-
-		if (valuesCount == 1) {
-			int code = -1;
-			float restrictionValue = -1;
-
-			for (int i = 0; i < VehicleRestrictionCodes.Count; i++) {
-				if (vehicleAttrs[i] != 0) {
-					code = i;
-					restrictionValue = vehicleAttrs[i];
-					break;
-				}
-			}
-
-			if (code >= 0) {
-				EdgeFilter ef = null;
-
-				switch (code) {
-				case 0:// VehicleRestrictionCodes.MaxHeight:
-					ef = new VehicleMaxHeightEdgeFilter(flagEncoder, restrictionValue, gs);
-					break;
-				case 1:// VehicleRestrictionCodes.MaxWeight:
-					ef = new VehicleMaxWeightEdgeFilter(flagEncoder, restrictionValue, gs);
-					break;
-				case 2:// VehicleRestrictionCodes.MaxWidth:
-					ef = new VehicleMaxWidthEdgeFilter(flagEncoder, restrictionValue, gs);
-					break;
-				case 3:// VehicleRestrictionCodes.MaxWeight:
-					ef = new VehicleMaxLengthEdgeFilter(flagEncoder, restrictionValue, gs);
-					break;
-				case 4:// VehicleRestrictionCodes.MaxAxleLoad:
-					ef = new VehicleMaxAxleLoadEdgeFilter(flagEncoder, restrictionValue, gs);
-					break;
-				}
-
-				edgeFilter = createEdgeFilter(ef, edgeFilter);
-			}
-		} else {
-			EdgeFilter ef = new WayMultipleRestrictionsEdgeFilter(flagEncoder, vehicleAttrs,
-					idx.toArray(new Integer[idx.size()]), gs);
-			edgeFilter = createEdgeFilter(ef, edgeFilter);
-		}
-
-		return edgeFilter;*/
 	}
 
 	private static boolean supportWeightingMethod(int profileType) {

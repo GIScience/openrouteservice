@@ -20,7 +20,7 @@ import java.util.Map;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigList;
+import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
 
 import heigit.ors.services.shortenlink.ShortenLinkServlet;
@@ -107,31 +107,38 @@ public class AppConfig {
 		
 		try
 		{
-			Config config = _config.getConfig("ors.services." + serviceName + "." + paramName);
+			String rootPath = "ors.services." + serviceName + "." + paramName;
+			ConfigObject configObj = _config.getObject(rootPath);
 			
 			result = new HashMap<String, Object>();
 			
-			for(Map.Entry<String, ConfigValue> param : config.entrySet())
+			for(String key : configObj.keySet())
 			{
 				Object value = null;
-				switch(param.getValue().valueType())
+				ConfigValue paramValue = _config.getValue(rootPath + "." + key);
+
+				switch(paramValue.valueType())
 				{
 				case NUMBER:
-					value = param.getValue().unwrapped();
+					value = paramValue.unwrapped();
 					break;
 				case OBJECT:
-					value = param.getValue().render();
+					Map<String,Object> map = getServiceParametersMap(serviceName, paramName + "." + key);
+					value = map;
 					break;
 				case LIST:
-					value = param.getValue().unwrapped();
+					value = paramValue.unwrapped();
 					break;
 				case STRING:
-					value = StringUtility.trim(param.getValue().render(), '"');
+					value = StringUtility.trim(paramValue.render(), '"');
 					break;
 				case BOOLEAN:
-					value = param.getValue().unwrapped();
+					value = paramValue.unwrapped();
+				default:
+					break;
 				}
-				result.put(param.getKey(), value);
+				
+				result.put(key, value);
 			}
 		}
 		catch(Exception ex)

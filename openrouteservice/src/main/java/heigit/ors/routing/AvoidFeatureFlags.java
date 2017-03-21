@@ -15,13 +15,14 @@ package heigit.ors.routing;
 public class AvoidFeatureFlags {
 	public static final int Highways = 1; // 1 << 0;
 	public static final int Tollways = 2; // 1 << 1;
+	public static final int Steps = 2; // 1 << 1;
 	public static final int Ferries = 4; // 1 << 2;
 	public static final int UnpavedRoads = 8; // 1 << 3;
-	public static final int Steps = 16; // 1 << 4;
 	public static final int Tracks = 16; // 1 << 4;
 	public static final int Tunnels = 32; // 1 << 5;
 	public static final int PavedRoads = 64; // 1 << 6;
 	public static final int Fords = 128; // 1 << 7;
+	
 	public static final int Bridges = 256; // does not work as it is greater than byte limit of 255.
 	public static final int Borders = 512; 
 	public static final int Hills = 1024;

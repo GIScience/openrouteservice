@@ -6,8 +6,12 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
+import com.graphhopper.util.DistanceCalc;
+import com.graphhopper.util.DistanceCalc2D;
+import com.graphhopper.util.DistanceCalcEarth;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.LineString;
 
 public class GeomUtility {
 	
@@ -63,6 +67,35 @@ public class GeomUtility {
 	  double e2y = py - ay;
 	  double val = e1x*e2x + e1y*e2y;
 	  return (val > 0 && val < recArea);
+	}
+	
+	public static double getLength(Geometry geom, Boolean inMeters) throws Exception
+	{
+		if (!(geom instanceof LineString))
+			throw new Exception("Specified geometry type is not supported.");
+
+		LineString ls = (LineString)geom;
+		if (ls.getNumPoints() == 0)
+			return 0.0;
+
+		if (inMeters)
+		{
+			double length = 0.0;
+			DistanceCalc dc = new DistanceCalcEarth();
+
+
+			Coordinate c0  = ls.getCoordinateN(0);
+			for (int i = 1; i < ls.getNumPoints(); ++i)
+			{
+				Coordinate c1 = ls.getCoordinateN(i);
+				length += dc.calcDist(c0.y, c0.x, c1.y, c1.x);
+				c0 = c1;
+			}
+
+			return length;
+		}
+		else
+			return ls.getLength();
 	}
 	
 	public static double getArea(Geometry geom, Boolean inMeters) throws Exception

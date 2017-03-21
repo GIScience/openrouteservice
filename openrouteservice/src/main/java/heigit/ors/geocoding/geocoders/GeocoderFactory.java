@@ -21,6 +21,9 @@ public class GeocoderFactory {
 	  
 	  	case "photon":
 	  	  return new PhotonGeocoder(geocodingURL, reverseGeocodingURL, userAgent);
+	  	  
+	  	case "pelias":
+		  	  return new PeliasGeocoder(geocodingURL, reverseGeocodingURL, userAgent);
 	  }
 	  
       throw new Exception("Unknown geocoder name.");

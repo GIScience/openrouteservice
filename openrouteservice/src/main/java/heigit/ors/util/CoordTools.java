@@ -7,7 +7,6 @@ import static java.lang.Math.sqrt;
 
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
-import com.graphhopper.util.AngleCalc;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;

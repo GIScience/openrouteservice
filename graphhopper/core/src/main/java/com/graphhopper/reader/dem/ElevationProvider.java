@@ -27,6 +27,14 @@ import java.io.File;
  */
 public interface ElevationProvider
 {
+	// Runge
+	int getTileKey(double lat, double lon);
+	
+	HeightTile getTile(int key);
+	
+	HeightTile loadTile(double lat, double lon);
+	
+	//***************************
     /**
      * @return returns the hight in meter or Double.NaN if invalid
      */
@@ -62,6 +70,23 @@ public interface ElevationProvider
 
     public final static ElevationProvider NOOP = new ElevationProvider()
     {
+
+		@Override
+		public int getTileKey(double lat, double lon) {
+			return -1;
+		}
+
+		@Override
+		public HeightTile getTile(int key) {
+			return null;
+		}
+		
+    	@Override
+    	public HeightTile loadTile(double lat, double lon)
+    	{
+    		return null;
+    	}
+    	
         @Override
         public double getEle( double lat, double lon )
         {

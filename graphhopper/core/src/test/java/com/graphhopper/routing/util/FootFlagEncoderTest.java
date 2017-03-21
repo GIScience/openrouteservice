@@ -203,7 +203,7 @@ public class FootFlagEncoderTest
         assertEquals(PriorityCode.UNCHANGED.getValue(), footEncoder.handlePriority(way, 0));
 
         way.setTag("highway", "primary");
-        assertEquals(PriorityCode.REACH_DEST.getValue(), footEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.AVOID_AT_ALL_COSTS.getValue(), footEncoder.handlePriority(way, 0)); // Runge REACH_DEST changed to AVOID_AT_ALL_COSTS
 
         way.setTag("highway", "track");
         way.setTag("bicycle", "official");
@@ -221,7 +221,7 @@ public class FootFlagEncoderTest
         way.clearTags();
         way.setTag("highway", "primary");
         way.setTag("sidewalk", "yes");
-        assertEquals(PriorityCode.REACH_DEST.getValue(), footEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.REACH_DEST.getValue(), footEncoder.handlePriority(way, 0)); 
 
         way.clearTags();
         way.setTag("highway", "cycleway");

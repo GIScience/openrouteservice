@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 
 import heigit.ors.routing.RoutingProfile;
+import heigit.ors.routing.RoutingProfileLoadContext;
 import heigit.ors.routing.RoutingProfilesCollection;
 import heigit.ors.routing.configuration.RouteManagerConfiguration;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
@@ -225,6 +226,8 @@ public class RealTrafficDataProvider {
 
 			try
 			{
+				RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
+				
 				for (RoutingProfile rp : profiles.getCarProfiles()) {
 					if (rp.useTrafficInformation() && !rp.isCHEnabled()) {
 						if (rpc == null) {
@@ -236,8 +239,8 @@ public class RealTrafficDataProvider {
 							rpc.ExtStorages = null;
 							// Germany only
 							rpc.BBox = new Envelope(5.866240, 15.042050, 47.270210, 55.058140);
-
-							RoutingProfile rpTmc = new RoutingProfile(rmc.SourceFile, rpc, profiles);
+							
+							RoutingProfile rpTmc = new RoutingProfile(rmc.SourceFile, rpc, profiles, loadCntx);
 
 							profiles.add(7777, rpTmc, true);
 
@@ -251,6 +254,8 @@ public class RealTrafficDataProvider {
 						}
 					}
 				}
+				
+				loadCntx.release();
 
 				for (RoutingProfile rp : profiles.getCarProfiles()) {
 					if (rp.useTrafficInformation()) {

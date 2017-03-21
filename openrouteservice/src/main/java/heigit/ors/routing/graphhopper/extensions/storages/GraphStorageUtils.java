@@ -51,4 +51,30 @@ public class GraphStorageUtils {
 
 		return null;
 	}
+	
+	public static long getCapacity(GraphExtension ext)
+	{
+		if (!(ext instanceof GraphExtension.NoOpExtension))
+    	{
+			long capacity = 0;
+			
+    		if(ext instanceof ExtendedStorageSequence)
+			{
+				ExtendedStorageSequence ess = (ExtendedStorageSequence)ext;
+				GraphExtension[] exts = ess.getExtensions();
+				for (int i = 0; i < exts.length; i++)
+				{
+					capacity += exts[i].getCapacity();
+				}
+			}
+			else 
+			{
+				capacity += ext.getCapacity();
+			}
+    		
+    		return capacity;
+    	}
+		
+		return 0;
+	}
 }

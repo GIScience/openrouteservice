@@ -9,9 +9,6 @@
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-
-// Authors: M. Rylov 
-
 package heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import java.util.List;
@@ -53,7 +50,6 @@ public class BlockedEdgesEdgeFilter implements EdgeFilter {
 
 	@Override
 	public boolean accept(EdgeIteratorState iter) {
-
 		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder)) {
             if (blockedEdges != null)
             {

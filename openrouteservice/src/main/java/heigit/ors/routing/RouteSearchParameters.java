@@ -24,7 +24,7 @@ public class RouteSearchParameters {
 	private double _maxSpeed = -1;
 	private Polygon[] _avoidAreas;
 	private int _avoidFeaturesTypes;
-	private int _vehicleType = HeavyVehicleAttributes.Goods;
+	private int _vehicleType = HeavyVehicleAttributes.GOODS;
 	private ProfileParameters _profileParams;
 
 	private String _options;

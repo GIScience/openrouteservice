@@ -84,7 +84,7 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 
 	public boolean loadExisting() {
 		if (!orsEdges.loadExisting())
-			throw new IllegalStateException("cannot load ORS edges. corrupt file or directory? " );
+			throw new IllegalStateException("Unable to load storage 'ext_wheelchair'. corrupt file or directory? " );
 
 		edgeEntryBytes = orsEdges.getHeader(0);
 		edgesCount = orsEdges.getHeader(4);
