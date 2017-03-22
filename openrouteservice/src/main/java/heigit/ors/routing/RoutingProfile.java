@@ -447,6 +447,13 @@ public class RoutingProfile
 			}
 		}
 
+		if (searchParams.hasParameters(WalkingParameters.class)) {
+			WalkingParameters walkingParams = (WalkingParameters)searchParams.getProfileParameters();
+			if (walkingParams.getGreenRouting() && mode == RouteSearchMode.Routing) {
+				props.put("GreenRouting", true);
+			}
+		}
+
 		/*	if (bSteepness)
 			algorithm = "dijkstra";*/
 

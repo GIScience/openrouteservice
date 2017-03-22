@@ -1,25 +1,27 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>heigit.ors</groupId>
-  <artifactId>openrouteservice</artifactId>
-  <version>4.0.0</version>
-  <packaging>war</packaging>
-  
-  <name>OpenRouteService</name>
-  <url>openrouteservice.org</url>
-  <inceptionYear>2017</inceptionYear>
-  <issueManagement>
-  	<system>GitLab</system>
-  	<url>https://github.com/graphhopper/graphhopper/issues</url>
-  </issueManagement>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>heigit.ors</groupId>
+    <artifactId>openrouteservice</artifactId>
+    <version>4.0.0</version>
+    <packaging>war</packaging>
+    <name>OpenRouteService</name>
+    <url>openrouteservice.org</url>
+    <inceptionYear>2017</inceptionYear>
+    <issueManagement>
+        <system>GitLab</system>
+        <url>https://github.com/graphhopper/graphhopper/issues</url>
+    </issueManagement>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <project.reporting.outputEncoding>
+            UTF-8</project.reporting.outputEncoding>
         <project.timestamp>${maven.build.timestamp}</project.timestamp>
-        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+        <maven.build.timestamp.format>yyyy-MM-dd
+            HH:mm</maven.build.timestamp.format>
     </properties>
-
   <scm>
   	<url>git@gitlab.com:giscience/ORS_backend.git</url>
    	<connection>scm:git:git@gitlab.com:giscience/ORS_backend.git</connection>
