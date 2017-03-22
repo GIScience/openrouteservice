@@ -101,8 +101,7 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 		if (weightingMap.getBool("TrafficBlockWeighting", false))
 		{
 			//String strPref = weighting.substring(weighting.indexOf("-") + 1);
-			Weighting w = new BlockingWeighting(encoder, m_trafficDataProvider.getAvoidEdges(graphStorage));
-     		result = (result != null) ? createWeighting(w, result): w;
+			result = new TrafficAvoidWeighting(result, encoder, m_trafficDataProvider.getAvoidEdges(graphStorage));
 		}
 
 		if (encoder.supports(TurnWeighting.class) && !(encoder instanceof FootFlagEncoder) && graphStorage != null) {

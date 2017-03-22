@@ -2,7 +2,8 @@ package heigit.ors.routing;
 
 import com.graphhopper.util.Helper;
 
-public class RouteExtraInfoFlag {
+public class RouteExtraInfoFlag 
+{
 	public static final int Steepness = 1;
 	public static final int Surface = 2;
 	public static final int WayType = 4;

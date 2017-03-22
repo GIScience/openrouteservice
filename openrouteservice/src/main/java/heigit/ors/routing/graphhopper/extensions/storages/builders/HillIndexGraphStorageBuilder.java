@@ -46,8 +46,7 @@ public class HillIndexGraphStorageBuilder extends AbstractGraphStorageBuilder
 	}
 
 	public void processWay(OSMWay way) {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub		
 	}
 
 	public void processEdge(OSMWay way, EdgeIteratorState edge) {

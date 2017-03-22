@@ -31,15 +31,12 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.CoordinateSequence;
-import com.vividsolutions.jts.geom.CoordinateSequenceFilter;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.operation.polygonize.Polygonizer;
 
 /**
  * JTS Geometry utility methods, bringing Geotools to JTS.
@@ -513,51 +510,5 @@ public final class JTS {
         throw new IllegalArgumentException(
                 "This method can work on LineString, Polygon and Multipolygon: "
                         + geometry.getClass());
-    }
-
-    /**
-     * Given a potentially invalid polygon it rebuilds it as a list of valid polygons, eventually removing the holes
-     * 
-     * @param polygon
-     * @return
-     */
-    public static List<Polygon> makeValid(Polygon polygon, boolean removeHoles) {
-        // add all segments into the polygonizer
-        final Polygonizer p = new Polygonizer();
-        polygon.apply(new CoordinateSequenceFilter() {
-
-            public boolean isGeometryChanged() {
-                return false;
-            }
-
-            public boolean isDone() {
-                return false;
-            }
-
-            public void filter(CoordinateSequence seq, int i) {
-                if (i == 0) {
-                    return;
-                }
-                p.add(new GeometryFactory().createLineString(new Coordinate[] {
-                        seq.getCoordinate(i - 1), seq.getCoordinate(i) }));
-            }
-        });
-
-        List<Polygon> result = new ArrayList<Polygon>(p.getPolygons());
-
-        // if necessary throw away the holes and return just the shells
-        if (removeHoles) {
-            for (int i = 0; i < result.size(); i++) {
-                Polygon item = result.get(i);
-                if (item.getNumInteriorRing() > 0) {
-                    GeometryFactory factory = item.getFactory();
-                    Polygon noHoles = factory.createPolygon((LinearRing) item.getExteriorRing(),
-                            null);
-                    result.set(i, noHoles);
-                }
-            }
-        }
-
-        return result;
     }
 }

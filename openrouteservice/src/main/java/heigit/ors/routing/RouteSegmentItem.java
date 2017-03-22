@@ -42,4 +42,9 @@ public class RouteSegmentItem {
 	{
 		return _distance;
 	}
+	
+	public void setDistance(double value)
+	{
+		_distance = value;
+	}
 }

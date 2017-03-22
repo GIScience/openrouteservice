@@ -11,8 +11,10 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.locations.providers;
 
+import java.util.List;
 import java.util.Map;
 
+import heigit.ors.locations.LocationsCategory;
 import heigit.ors.locations.LocationsRequest;
 import heigit.ors.locations.LocationsResult;
 
@@ -22,7 +24,9 @@ public interface LocationsDataProvider
 	
 	public void close() throws Exception;
 	
-	public LocationsResult[] findLocations(LocationsRequest request) throws Exception;
+	public List<LocationsResult> findLocations(LocationsRequest request) throws Exception;
+	
+	public List<LocationsCategory> findCategories(LocationsRequest request) throws Exception;
 	
 	public String getName();
 }

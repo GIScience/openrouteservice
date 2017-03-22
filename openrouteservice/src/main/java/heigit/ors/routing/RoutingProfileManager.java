@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.*;
 import heigit.ors.routing.parameters.VehicleParameters;
+import heigit.ors.routing.pathprocessors.ElevationSmoothPathProcessor;
 import heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import heigit.ors.routing.configuration.RouteManagerConfiguration;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
@@ -254,14 +255,19 @@ public class RoutingProfileManager {
 		
 		RoutingProfile rp = getRouteProfile(coords[0].y, coords[0].x, coords[1].y, coords[1].x, false, searchParams);
 
-		ExtraInfoProcessor extraInfoAggregator = null;
+		PathProcessor pathProcessor = null;
 
 		if (req.getExtraInfo() > 0)
 		{
 			// do not allow geometry simplification when extras are requested
 			req.setSimplifyGeometry(false);
 			
-			extraInfoAggregator = new ExtraInfoProcessor(rp.getGraphhopper(), req.getExtraInfo());
+			pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req.getExtraInfo());
+		}
+		else
+		{ 
+			if (req.getIncludeElevation())
+				pathProcessor = new ElevationSmoothPathProcessor();
 		}
 		
 		Coordinate c0 = coords[0];
@@ -270,15 +276,16 @@ public class RoutingProfileManager {
 		
 		for(int i = 1; i <= nSegments; ++i)
 		{
-			if (extraInfoAggregator != null)
-				extraInfoAggregator.setSegmentIndex(i - 1, nSegments);
+			if (pathProcessor != null)
+				pathProcessor.setSegmentIndex(i - 1, nSegments);
+			
 			c1 = coords[i];
-			GHResponse gr = rp.getRoute(c0.y, c0.x, c1.y, c1.x, c0.z == 1.0, searchParams, req.getSimplifyGeometry(), extraInfoAggregator);
+			GHResponse gr = rp.getRoute(c0.y, c0.x, c1.y, c1.x, c0.z == 1.0, searchParams, req.getSimplifyGeometry(), pathProcessor);
 			routes.add(gr);
 			c0 = c1;
 		}
 
-		return new RouteResultBuilder().createRouteResult(routes, req, extraInfoAggregator != null ? extraInfoAggregator.getExtras(): null);
+		return new RouteResultBuilder().createRouteResult(routes, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor)pathProcessor).getExtras(): null);
 	}
 	
 	public GHResponse getRoute(double lat0, double lon0, double lat1, double lon1,  boolean directedSegment, RouteSearchParameters searchParams, boolean simplifyGeometry, PathProcessor pathProcessor) throws Exception {

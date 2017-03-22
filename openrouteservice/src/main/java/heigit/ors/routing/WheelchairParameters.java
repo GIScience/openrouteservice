@@ -2,7 +2,8 @@ package heigit.ors.routing;
 
 import heigit.ors.routing.parameters.ProfileParameters;
 
-public class WheelchairParameters extends ProfileParameters {
+public class WheelchairParameters extends ProfileParameters 
+{
 	private double _maxIncline = 0.0;
 	private double _maxSlopedCurb;
 	private int _surfaceType;
