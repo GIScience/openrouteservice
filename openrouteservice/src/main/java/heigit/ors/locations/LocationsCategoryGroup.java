@@ -9,13 +9,45 @@
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-package heigit.ors.exceptions;
+package heigit.ors.locations;
 
-public class UnknownParameterValueException extends Exception{
-	private static final long serialVersionUID = 4866998272349837464L;
+import java.util.Map;
 
-	public UnknownParameterValueException(String paramName, String paramValue)
+public class LocationsCategoryGroup 
+{
+	private String _name;
+	private int _id;
+	private int _minCategoryId;
+	private int _maxCategoryId;
+	private Map<String, Integer> _categories;
+
+	public LocationsCategoryGroup(int id, String name, int minId, int maxId, Map<String, Integer> categories)
 	{
-		super("Unknown parameter value '" + paramValue + "' for '" + paramName + "'.");
+		_id = id;
+		_name = name;
+		_minCategoryId = minId;
+		_maxCategoryId = maxId;
+		_categories = categories;
+	}
+
+	public String getName() {
+		return _name;
+	}
+
+	public int getId() {
+		return _id;
+	}
+
+	public int getMinCategoryId() {
+		return _minCategoryId;
+	}
+
+	public int getMaxCategoryId() {
+		return _maxCategoryId;
+	}
+	
+	public Map<String, Integer> getCategories()
+	{
+		return _categories;
 	}
 }

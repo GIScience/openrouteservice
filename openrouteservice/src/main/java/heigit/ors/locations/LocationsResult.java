@@ -11,7 +11,7 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.locations;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -23,7 +23,7 @@ public class LocationsResult
 
 	public LocationsResult()
 	{
-		_properties = new HashMap<String, String>();
+		_properties = new LinkedHashMap<String, String>();
 	}
 
 	public Geometry getGeometry() 

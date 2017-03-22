@@ -8,3 +8,4 @@ openrouteservice/Program FilesApache Software FoundationTomcat 7.0webappsopenrou
 *.iml
 .DS_Store
 app.config
+/osmpoiextractor/

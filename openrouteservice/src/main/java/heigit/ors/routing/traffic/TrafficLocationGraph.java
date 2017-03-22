@@ -74,21 +74,25 @@ public class TrafficLocationGraph {
 		return graph.containsVertex(code);
 	}
 
-	public List<Integer> getShortestPath(int startVertex, int endVertex)
+
+	public boolean findShortestPath(int startVertex, int endVertex, List<Integer> result)
 	{
-		List<Integer> result = new ArrayList<Integer>();
-
 		DijkstraShortestPath<Integer, LocationEdge> dijkstra = new DijkstraShortestPath<Integer, LocationEdge>(graph, startVertex, endVertex);
-		
-		for(LocationEdge edge : dijkstra.getPathEdgeList())
-		{
-			if (!result.contains(edge.getSource()))
-				result.add(edge.getSource());
-			if (!result.contains(edge.getTarget()))
-				result.add(edge.getTarget());
-		}
-
-		return result;
+		if (dijkstra.getPathEdgeList() == null){			
+			System.err.println("There is no shortest path between startVertex "  + startVertex + " and endVertex " + endVertex);
+			return false;
+	 
+		} else {
+			
+			for(LocationEdge edge : dijkstra.getPathEdgeList())
+			{
+				if (!result.contains(edge.getSource()))
+					result.add(edge.getSource());
+				if (!result.contains(edge.getTarget()))
+					result.add(edge.getTarget());
+			}
+			return true;
+		}			
 	}
 
 	public static TrafficLocationGraph createFromFile(File file) 

@@ -11,7 +11,6 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.locations;
 
-import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -20,31 +19,29 @@ import heigit.ors.services.locations.LocationsServiceSettings;
 
 public class LocationsRequest extends ServiceRequest
 {
-	private String _query;
+	private LocationsSearchFilter _filter = new LocationsSearchFilter();
 	private int _limit = 20;
 	private String _language;
-    private Envelope _bbox;
-    private Geometry _geometry;
-    private double _radius;
-   
-   public LocationsRequest()
-   {
-	   
-   }
-   
-   public String getQuery() {
-		return _query;
+	private Envelope _bbox;
+	private Geometry _geometry;
+	private double _radius;
+	private LocationRequestType _type = LocationRequestType.POIS;
+	private LocationsResultSortType _sortType = LocationsResultSortType.NONE;
+
+	public LocationsRequest()
+	{
+
 	}
 
-	public void setQuery(String query) {
-		_query = query;
+	public LocationsSearchFilter getSearchFilter() {
+		return _filter;
 	}
-	
+
 	public Geometry getGeometry()
 	{
 		return _geometry;
 	}
-	
+
 	public void setGeometry(Geometry geom)
 	{
 		_geometry =  geom;
@@ -65,10 +62,9 @@ public class LocationsRequest extends ServiceRequest
 	public void setLanguage(String language) {
 		this._language = language;
 	}
-	
-	public boolean isValid()
-	{
-		return !Helper.isEmpty(_query) || _geometry != null;
+
+	public boolean isValid() {
+		return _type == LocationRequestType.CATEGORIESLIST || (!(_geometry == null && _bbox == null));
 	}
 
 	public Envelope getBBox() {
@@ -85,5 +81,21 @@ public class LocationsRequest extends ServiceRequest
 
 	public void setRadius(double radius) {
 		_radius = radius;
+	}
+
+	public LocationRequestType getType() {
+		return _type;
+	}
+
+	public void setType(LocationRequestType type) {
+		_type = type;
+	}
+
+	public LocationsResultSortType getSortType() {
+		return _sortType;
+	}
+
+	public void setSortType(LocationsResultSortType value) {
+		this._sortType = value;
 	}
 }

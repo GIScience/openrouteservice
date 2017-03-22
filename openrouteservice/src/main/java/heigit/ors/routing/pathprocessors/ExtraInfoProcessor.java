@@ -25,6 +25,7 @@ import heigit.ors.routing.RouteExtraInfo;
 import heigit.ors.routing.RouteExtraInfoFlag;
 import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import heigit.ors.routing.graphhopper.extensions.storages.*;
+import heigit.ors.routing.util.ElevationSmoother;
 import heigit.ors.routing.util.extrainfobuilders.RouteExtraInfoBuilder;
 import heigit.ors.routing.util.extrainfobuilders.SimpleRouteExtraInfoBuilder;
 import heigit.ors.routing.util.extrainfobuilders.SteepnessExtraInfoBuilder;
@@ -42,7 +43,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 	private RouteExtraInfoBuilder _wayTypeInfoBuilder;
 	
 	private RouteExtraInfo _steepnessInfo;
-	private RouteExtraInfoBuilder _steepnessInfoBuilder;
+	private SteepnessExtraInfoBuilder _steepnessInfoBuilder;
 	
 	private RouteExtraInfo _waySuitabilityInfo;
 	private RouteExtraInfoBuilder _waySuitabilityInfoBuilder;
@@ -91,11 +92,6 @@ public class ExtraInfoProcessor extends PathProcessor {
 		
 		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Steepness))
 		{
-			extHillIndex =  GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), HillIndexGraphStorage.class);
-			
-			if (extHillIndex == null)
-				throw new Exception("HillIndex storage is not found.");
-			
 			_steepnessInfo = new RouteExtraInfo("steepness");
 			_steepnessInfoBuilder = new SteepnessExtraInfoBuilder(_steepnessInfo);
 		}
@@ -175,9 +171,8 @@ public class ExtraInfoProcessor extends PathProcessor {
 		
 		if (_steepnessInfoBuilder != null)
 		{
-			boolean revert = edge.getBaseNode() < edge.getAdjNode();
-			int value = extHillIndex.getEdgeValue(edge.getOriginalEdge(), revert, buffer);
-			_steepnessInfoBuilder.addSegment(value, value, geom, dist, lastEdge && _lastSegment);
+			// just add dummy values
+			_steepnessInfoBuilder.addSegment(0, 0, geom, dist, lastEdge && _lastSegment);
 		}
 
 		if (_greenInfoBuilder != null) {
@@ -193,18 +188,25 @@ public class ExtraInfoProcessor extends PathProcessor {
 	}
 
 	@Override
-	public PointList processPoints(PointList points) {
-
+	public PointList processPoints(PointList points) 
+	{
+        PointList result = points;
+		
 		if (points.is3D())
+			result = ElevationSmoother.smooth(points);
+		
+		if (_steepnessInfoBuilder != null)
 		{
-			points.smooth(20);
+			// compute steepness information only after elevation data is smoothed.
+			_steepnessInfoBuilder.addPoints(result);
 		}
 
-		return points;
+		return result;
 	}
 
 	public void finish()
 	{
+		
 	}
 
 	@Override

@@ -2,26 +2,31 @@
  *|														Heidelberg University
  *|	  _____ _____  _____      _                     	Department of Geography		
  *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
- *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2016
  *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
  *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
  *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-package heigit.ors.routing.traffic;
+package heigit.ors.locations;
 
-public class AvoidEdgeInfo extends EdgeInfo {
-     
-	public AvoidEdgeInfo(Integer edgeId, short[] codes) {
-	  super(edgeId, codes);
-   }
+public enum LocationsResultSortType
+{
+	NONE,
+    DISTANCE,
+    CATEGORIES;
    
-   public String toString(){
+   public static LocationsResultSortType fromString(String value)
+   {
+	   if (value == null)
+		   return LocationsResultSortType.NONE;
 	   
-	   return "Avoiding Edge info";
+	   if ("distance".equalsIgnoreCase(value))
+		   return LocationsResultSortType.DISTANCE;
+	   else if ("categories".equalsIgnoreCase(value))
+	   	return LocationsResultSortType.CATEGORIES;
+		
+	   return LocationsResultSortType.NONE; 
    }
 }
-
-
-

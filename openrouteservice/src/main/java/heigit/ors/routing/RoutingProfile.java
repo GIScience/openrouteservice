@@ -67,10 +67,15 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.storage.StorableProperties;
 import com.graphhopper.util.CmdArgs;
+import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.graphhopper.util.PMap;
+import com.graphhopper.util.PointList;
 
 public class RoutingProfile 
 {
@@ -119,12 +124,12 @@ public class RoutingProfile
 
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info(String.format("[%d] Building/loading graphs....", profileId));
-		
+
 		List<GraphStorageBuilder> storageBuilders = GraphStorageBuilderService.getInstance().createBuilders(config.ExtStorages);
-		
+
 		ORSGraphHopper gh = (ORSGraphHopper) new ORSGraphHopper(config.BBox, storageBuilders, config.UseTrafficInformation, refProfile).init(args);
 		gh.setGraphStorageFactory(new ORSGraphStorageFactory(storageBuilders));
-		
+
 		if (!Helper.isEmpty(config.ElevationProvider) && !Helper.isEmpty(config.ElevationCachePath))
 		{
 			ElevationProvider elevProvider = loadCntx.getElevationProvider(config.ElevationProvider, config.ElevationCachePath);
@@ -204,6 +209,10 @@ public class RoutingProfile
 		return mGraphHopper.getTmcGraphEdges();
 	}
 
+	public HashMap<Long, ArrayList<Integer>> getOsmId2edgeIds() {
+		return mGraphHopper.getOsmId2EdgeIds();
+	}
+
 	public ORSGraphHopper getGraphhopper() {
 		return mGraphHopper;
 	}
@@ -237,6 +246,7 @@ public class RoutingProfile
 
 		return false;
 	}
+
 
 	public boolean isCHEnabled() {
 		return mGraphHopper != null && mGraphHopper.isCHEnabled();
@@ -444,7 +454,7 @@ public class RoutingProfile
 			}
 		}
 
-	/*	if (bSteepness)
+		/*	if (bSteepness)
 			algorithm = "dijkstra";*/
 
 		if (searchParams.getConsiderTraffic()/* && mHasDynamicWeights */) {
@@ -453,7 +463,9 @@ public class RoutingProfile
 				props.put("TrafficBlockWeighting", true);
 
 				EdgeFilter ef = new BlockedEdgesEdgeFilter(flagEncoder, RealTrafficDataProvider.getInstance()
-						.getBlockedEdges(mGraphHopper.getGraphHopperStorage()));
+						.getBlockedEdges(mGraphHopper.getGraphHopperStorage()), RealTrafficDataProvider.getInstance()
+						.getHeavyVehicleBlockedEdges(mGraphHopper.getGraphHopperStorage()));
+
 				edgeFilter = createEdgeFilter(ef, edgeFilter);
 			}
 		}
@@ -644,6 +656,26 @@ public class RoutingProfile
 			return true;
 		else
 			return false;
+	}
+
+	public Geometry getEdgeGeometry(int edgeId) 	
+	{ 		
+		return getEdgeGeometry(edgeId, 3, Integer.MIN_VALUE); 	
+	}
+
+	public Geometry getEdgeGeometry(int edgeId, int mode, int adjnodeid) 	
+	{ 	
+		EdgeIteratorState iter = mGraphHopper.getGraphHopperStorage().getEdgeIteratorState(edgeId, adjnodeid); 	
+		PointList points = iter.fetchWayGeometry(mode); 	
+		if (points.size() > 1) 		{ 		
+			Coordinate[] coords = new Coordinate[points.size()]; 	
+			for (int i = 0; i < points.size(); i++) { 		
+				double x = points.getLon(i); 			
+				double y = points.getLat(i); 	
+				coords[i] = new Coordinate(x, y); 	
+			} 		
+			return new GeometryFactory().createLineString(coords); 		} 	
+		return null; 
 	}
 
 	public int hashCode()

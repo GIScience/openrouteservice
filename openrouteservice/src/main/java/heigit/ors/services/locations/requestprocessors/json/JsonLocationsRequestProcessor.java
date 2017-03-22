@@ -11,7 +11,7 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.services.locations.requestprocessors.json;
 
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,15 +29,18 @@ import heigit.ors.services.locations.requestprocessors.json.JsonLocationsRequest
 import heigit.ors.services.locations.LocationsServiceSettings;
 import heigit.ors.locations.providers.LocationsDataProvider;
 import heigit.ors.locations.providers.LocationsDataProviderFactory;
+import heigit.ors.locations.LocationsCategory;
+import heigit.ors.locations.LocationsCategoryClassifier;
 import heigit.ors.locations.LocationsRequest;
 import heigit.ors.locations.LocationsResult;
+import heigit.ors.locations.LocationsSearchFilter;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
 import heigit.ors.util.AppInfo;
+import heigit.ors.util.OrderedJSONObjectFactory;
 
 public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 {
-
 	public JsonLocationsRequestProcessor(HttpServletRequest request) 
 	{
 		super(request);
@@ -55,7 +58,8 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 			req = JsonLocationsRequestParser.parseFromRequestParams(_request);
 			break;
 		case "POST":
-			req = JsonLocationsRequestParser.parseFromStream(_request.getInputStream());  
+			req = JsonLocationsRequestParser.parseFromStream(_request);
+			break;
 		}
 
 		if (req == null)
@@ -66,14 +70,74 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 
 		LocationsDataProvider provider = LocationsDataProviderFactory.getProvider(LocationsServiceSettings.getProviderName(), LocationsServiceSettings.getProviderParameters());
 
-		LocationsResult[] locations = provider.findLocations(req);
+		switch(req.getType())
+		{
+		case  POIS:
+			writeLocationsResponse(response, req, provider.findLocations(req));			
+			break;
+		case CATEGORIES:
+			writeCategoriesResponse(response, req, provider.findCategories(req));
+			break;
+		case CATEGORIESLIST:
+			writeCategoriesListResponse(response);
+			break;
+		case UNKNOWN:
+			break;
+		}
+	}
+	
+	private void writeCategoriesListResponse(HttpServletResponse response) throws Exception
+	{
+		JSONObject resp = new JSONObject();
+		
+		resp.put("categories", LocationsCategoryClassifier.getCategoriesList());
+		
+		writeInfoSection(resp, null);
+		
+		byte[] bytes = resp.toString().getBytes("UTF-8");
+		ServletUtility.write(response, bytes, "text/json", "UTF-8");
+	}
+	
+	private void writeCategoriesResponse(HttpServletResponse response, LocationsRequest request, List<LocationsCategory> categories) throws Exception
+	{
+		JSONObject resp = new JSONObject();
 
-		writeLocationsResponse(response, req, locations);			
+		JSONObject jLocations = OrderedJSONObjectFactory.create();
+		resp.put("places", jLocations);
+
+		if (categories != null)
+		{
+			long totalCount = 0;
+
+			for (int j = 0; j < categories.size(); j++) 
+			{
+				JSONObject jCategory = OrderedJSONObjectFactory.create();
+				
+				LocationsCategory cat = categories.get(j);
+				
+				for(Map.Entry<Integer, Long> stats : cat.getStats().entrySet())
+				{
+					jCategory.put(stats.getKey().toString(), stats.getValue());
+				}
+				
+				jCategory.put("total_count", cat.getTotalCount());
+				jLocations.put(cat.getCategoryName(), jCategory);
+				
+				totalCount += cat.getTotalCount(); 
+			}
+			
+			jLocations.put("total_count", totalCount);
+		}
+
+		writeInfoSection(resp, request);
+
+		byte[] bytes = resp.toString().getBytes("UTF-8");
+		ServletUtility.write(response, bytes, "text/json", "UTF-8");
 	}
 
-	private void writeLocationsResponse(HttpServletResponse response, LocationsRequest request, LocationsResult[] locations) throws Exception
+	private void writeLocationsResponse(HttpServletResponse response, LocationsRequest request, List<LocationsResult> locations) throws Exception
 	{
-		JSONObject resp = createJsonObject();
+		JSONObject resp = OrderedJSONObjectFactory.create();
 
 		JSONArray features = new JSONArray();
 		resp.put("type", "FeatureCollection");        
@@ -90,26 +154,26 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 
 			int nResults = 0;
 
-			for (int j = 0; j < locations.length; j++) 
+			for (int j = 0; j < locations.size(); j++) 
 			{
-				LocationsResult lr = locations[j];
+				LocationsResult lr = locations.get(j);
 
 				if (lr == null)
 					continue;
 
 				Geometry geom = lr.getGeometry();
 
-				JSONObject feature = createJsonObject();
+				JSONObject feature = OrderedJSONObjectFactory.create();
 				feature.put("type", "Feature");
 
-				JSONObject point = createJsonObject();
+				JSONObject point = OrderedJSONObjectFactory.create();
 				point.put("type", geom.getClass().getSimpleName());
 
 				point.put("coordinates", GeometryJSON.toJSON(geom, buffer));
 
 				feature.put("geometry", point);
 
-				JSONObject properties = createJsonObject();
+				JSONObject properties = OrderedJSONObjectFactory.create();
 
 				Map<String, String> props = lr.getProperties();
 				if (props.size() > 0)
@@ -140,35 +204,58 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 				resp.put("bbox", GeometryJSON.toJSON(minX, minY, maxX, maxY));
 		}
 
-		JSONObject info = new JSONObject();
-		info.put("service", "location");
-		info.put("version", AppInfo.VERSION);
-		if (!Helper.isEmpty(LocationsServiceSettings.getAttribution()))
-			info.put("attribution", LocationsServiceSettings.getAttribution());
-		info.put("timestamp", System.currentTimeMillis());
-
-		JSONObject query = new JSONObject();
-		query.put("query", request.getQuery());
-		if (request.getRadius() > 0)
-			query.put("radius", request.getLimit());
-		if (request.getLimit() > 0)
-			query.put("limit", request.getLimit());
-		if (!Helper.isEmpty(request.getLanguage()))
-			query.put("lang", request.getLanguage());
-		if (request.getId() != null)
-			query.put("id", request.getId());
-
-		info.put("query", query);
-
-		resp.put("info", info);
+		writeInfoSection(resp, request);
 
 		byte[] bytes = resp.toString().getBytes("UTF-8");
 		ServletUtility.write(response, bytes, "text/json", "UTF-8");
 	}
-
-	private JSONObject createJsonObject()
+	
+	private void writeInfoSection(JSONObject jResponse, LocationsRequest request)
 	{
-		Map<String,String > map =  new LinkedHashMap<String, String>();
-		return new JSONObject(map);
+		JSONObject jInfo = OrderedJSONObjectFactory.create();
+		jInfo.put("service", "locations");
+		jInfo.put("version", AppInfo.VERSION);
+		if (!Helper.isEmpty(LocationsServiceSettings.getAttribution()))
+			jInfo.put("attribution", LocationsServiceSettings.getAttribution());
+		jInfo.put("timestamp", System.currentTimeMillis());
+
+		if (request != null)
+		{
+			JSONObject jQuery = OrderedJSONObjectFactory.create();
+
+			writeFilterSection(jQuery, request.getSearchFilter());
+
+			if (request.getRadius() > 0)
+				jQuery.put("radius", request.getRadius());
+			if (request.getLimit() > 0)
+				jQuery.put("limit", request.getLimit());
+			if (!Helper.isEmpty(request.getLanguage()))
+				jQuery.put("lang", request.getLanguage());
+			if (request.getId() != null)
+				jQuery.put("id", request.getId());
+
+			jInfo.put("query", jQuery);
+		}
+
+		jResponse.put("info", jInfo);
+	}
+	
+	private void writeFilterSection(JSONObject jQuery, LocationsSearchFilter query)
+	{
+		JSONObject jFilter = OrderedJSONObjectFactory.create();
+		if (query.getCategoryGroupIds() != null)
+			jFilter.put("category_group_ids", new JSONArray(query.getCategoryGroupIds()));
+		if (query.getCategoryIds() != null)
+			jFilter.put("category_ids", new JSONArray(query.getCategoryIds()));
+		if (!Helper.isEmpty(query.getName()))
+			jFilter.put("name", query.getName());
+		if (!Helper.isEmpty(query.getWheelchair()))
+			jFilter.put("wheelchair", query.getWheelchair());
+		if (!Helper.isEmpty(query.getSmoking()))
+			jFilter.put("smoking", query.getSmoking());
+		if (query.getFee() != null)
+			jFilter.put("fee", query.getFee());
+		
+		jQuery.put("filter", jFilter);
 	}
 }

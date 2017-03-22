@@ -143,4 +143,9 @@ public class RoutingRequest extends ServiceRequest
 	public void setSimplifyGeometry(Boolean _simplifyGeometry) {
 		this._simplifyGeometry = _simplifyGeometry;
 	}
+	
+	public boolean getConsiderTraffic(){
+		return this._searchParameters.getConsiderTraffic();
+		
+	}
 }

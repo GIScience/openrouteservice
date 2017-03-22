@@ -1,4 +1,4 @@
-package heigit.ors.services;
+package heigit.ors.exceptions;
 
 public class ParameterOutOfRangeException extends Exception 
 {
