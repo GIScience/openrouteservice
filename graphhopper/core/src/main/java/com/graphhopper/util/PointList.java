@@ -605,29 +605,6 @@ public class PointList implements Iterable<GHPoint3D>, PointAccess
     {
         return latitudes.length;
     }
-    
-    
-    // Runge
-    public void smooth(double threshold)
-    {
-    	LinkedList<Double> values = new LinkedList<Double>();
-    	double sum = 0;
-
-    	for (int i = 0; i < elevations.length; i++)
-    	{
-    		double ele = elevations[i];
-    		// Apply Simple Moving Average algorithm to smooth data
-    		if (values.size() == threshold && threshold > 0)
-    		{
-    			sum -= ((Double) values.getFirst()).doubleValue();
-    			values.removeFirst();
-    		}
-    		sum += ele;
-    		values.addLast(ele);
-    		ele = sum / values.size();
-    		elevations[i] = ele;
-    	}
-    }
 
     @Override
     public Iterator<GHPoint3D> iterator()
