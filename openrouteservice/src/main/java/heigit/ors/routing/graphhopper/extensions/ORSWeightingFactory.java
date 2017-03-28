@@ -104,6 +104,10 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 			result = new TrafficAvoidWeighting(result, encoder, m_trafficDataProvider.getAvoidEdges(graphStorage));
 		}
 
+		if (weightingMap.getBool("GreenRouting", false)) {
+			result = new GreenWeighting(result, encoder, graphStorage);
+		}
+
 		if (encoder.supports(TurnWeighting.class) && !(encoder instanceof FootFlagEncoder) && graphStorage != null) {
 			Path path = Paths.get(graphStorage.getDirectory().getLocation(), "turn_costs");
 			File file = path.toFile();

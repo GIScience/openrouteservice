@@ -3,9 +3,9 @@
 		services: {
 			shortenlink: {
 				enabled: true,
-				user_name: timmccauley,
-				user_password: none,
-				api_key: R_87a5a597341f45829e6a1d1719269f71,
+				user_name: YOUR_USER,
+				user_password: YOUR_PASSWORD,
+				api_key: YOUR_API_KEY,
 				attribution: "openrouteservice.org, OpenStreetMap contributors"
 			}
 			isochrones: {
@@ -23,54 +23,53 @@
 				#geocoding_url: "http://129.206.7.103:2322/api",
 				#reverse_geocoding_url: "http://129.206.7.103:2322/reverse",
                                 geocoder_name: pelias,
-				geocoding_url: "http://129.206.7.154:3100/v1/search",
-				reverse_geocoding_url: "http://129.206.7.154:3100/v1/reverse",
+				geocoding_url: "http://GEOCODING_SERVICE_URL",
+				reverse_geocoding_url: "http://REVERSE_GEOCODING_SERVICE_URL",
 				user_agent: openrouteservice.org,
 				attribution: "openrouteservice.org, OpenStreetMap contributors"
 			}
 			locations: {
 				enabled: true,
-				provider_name: postgresql,
+				provider_name: memsql,
 				provider_parameters: {
 				    # *********** connection settings ***********
-				    host: "localhost",
-				    port: 5432,
-				    db_name: "gis",
-				    user: "postgres", 
-				    password : "pioner45Q", 
-                                    categories_query: "SELECT category, COUNT(category) FROM planet_osm_pois !where_clause! GROUP BY category", 
-                                    locations_query: "SELECT osm_id, category,  name, opening_hours, phone, website, wheelchair, smoking, address, ST_X(!geometry_column!::geometry) AS lon, ST_Y(!geometry_column!::geometry) AS lat FROM planet_osm_pois",
-   			            geometry_column: "geom"
+				    host: "MEMSQL_HOST",
+				    port: 3306,
+				    db_name: "MEMSQL_DB_NAME",
+				    user: "MEMSQL_USER", 
+				    #password : "", 
+                                    query: "SELECT osm_id, category, category_type, name, opening_hours, phone, website, access, smoking, GEOGRAPHY_LONGITUDE(!geometry_column!) AS lon, GEOGRAPHY_LATITUDE(!geometry_column!) AS lat FROM planet_osm_pois",
+				    geometry_column: "way"
                                     longitude_column: "lon",
 				    latitude_column: "lat",
  			        },				
 
 				provider_parameters2: {
 				    # *********** connection settings ***********
-				    host: "129.206.7.158",
-				    port: 3306,
-				    db_name: "OSM",
-				    user: "root", 
-				    #password : "", 
-                                    categories_query: "SELECT category, COUNT(category) FROM planet_osm_pois_test !where_clause! GROUP BY category", 
-                                    locations_query: "SELECT osm_id, category,  name, opening_hours, phone, website, wheelchair, smoking, address, GEOGRAPHY_LONGITUDE(!geometry_column!) AS lon, GEOGRAPHY_LATITUDE(!geometry_column!) AS lat FROM planet_osm_pois_test",
-   			            geometry_column: "geom"
-                                    longitude_column: "lon",
-				    latitude_column: "lat",
- 			        },				
+				    host: "DB_HOST",
+				    port: 5433,
+				    db_name: "DB_NAME",
+				    user: "DB_USER", 
+				    password : "DB_PASSWORD", 
+				    max_pool_size: 15,
+				    # *********** query parameters ***********
+				    query: "SELECT osm_id, category, category_type, name, opening_hours, phone, website, access, smoking, ST_AsBinary(ST_Transform(!geometry_column!, 4326)) as !geometry_column! FROM planet_osm_pois",
+				    geometry_column: "way",
+				    geometry_srid: 900913
+				},				
 				response_limit: 1000,
                                 # maximum allowed length of a linestring, measured in meters
                                 maximum_feature_length: 10000000,
                                 # maximum allowed area of a polygon, measured in square meters
                                 maximum_feature_area: -1, 
                                 # maximum allowed search radius 
-                                maximum_search_radius: 1000,
+                                maximum_search_radius: 200,
 				attribution: "openrouteservice.org, OpenStreetMap contributors"
 			}
 			routing: {
 				enabled: true,
 				mode: "normal",
-				sources: ["D:/Projects/ORS/OSM-Files/karlsruhe-regbez-latest.osm.pbf"],
+				sources: ["PATH_TO_THE_RAW_OSM_FILE"],
 				init_threads: 2,
 				maximum_distance_with_dynamic_weights: 200000,
 				attribution: "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
@@ -164,7 +163,7 @@
 						    elevation: true, 
                             ext_storages: {
                                 GreenIndex: {
-                                    filepath: "/Users/lliu/Research/data/green_routing/csv/green_streets_munich.csv"
+                                    filepath: "PATH_TO_THE_GREEN_INDEX_CSV_FILE"
                                 },
                                 WayCategory: {
                                 },								

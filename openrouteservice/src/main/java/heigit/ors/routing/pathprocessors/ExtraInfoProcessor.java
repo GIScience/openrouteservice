@@ -24,9 +24,7 @@ import com.graphhopper.util.PointList;
 import heigit.ors.routing.RouteExtraInfo;
 import heigit.ors.routing.RouteExtraInfoFlag;
 import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
-import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import heigit.ors.routing.graphhopper.extensions.storages.WaySurfaceTypeGraphStorage;
-import heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
+import heigit.ors.routing.graphhopper.extensions.storages.*;
 import heigit.ors.routing.util.ElevationSmoother;
 import heigit.ors.routing.util.extrainfobuilders.RouteExtraInfoBuilder;
 import heigit.ors.routing.util.extrainfobuilders.SimpleRouteExtraInfoBuilder;
@@ -35,6 +33,8 @@ import heigit.ors.routing.util.extrainfobuilders.SteepnessExtraInfoBuilder;
 public class ExtraInfoProcessor extends PathProcessor {
 	private WaySurfaceTypeGraphStorage extWaySurface;
 	private WayCategoryGraphStorage extWayCategory;
+	private HillIndexGraphStorage extHillIndex;
+	private GreenIndexGraphStorage extGreenIndex;
 	
 	private RouteExtraInfo _surfaceInfo;
 	private RouteExtraInfoBuilder _surfaceInfoBuilder;
@@ -50,6 +50,9 @@ public class ExtraInfoProcessor extends PathProcessor {
 	
 	private RouteExtraInfo _wayCategoryInfo;
 	private RouteExtraInfoBuilder _wayCategoryInfoBuilder;
+
+	private RouteExtraInfo _greenInfo;
+	private RouteExtraInfoBuilder _greenInfoBuilder;
 	
 	private FlagEncoder _encoder;
 	private byte[] buffer;
@@ -99,6 +102,17 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_waySuitabilityInfoBuilder = new SimpleRouteExtraInfoBuilder(_waySuitabilityInfo);
 		}
 
+		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Green)) {
+			extGreenIndex = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), GreenIndexGraphStorage.class);
+
+			if (extGreenIndex == null)
+				throw new Exception("GreenIndex storage is not found.");
+			// FIXME use "suitability" RouteExtraInfo for green routing for the moment
+			// Should be changed to "green" in the future
+			_greenInfo = new RouteExtraInfo("green");
+			_greenInfoBuilder = new SimpleRouteExtraInfoBuilder(_greenInfo);
+		}
+
 		buffer = new byte[1];
 	}
 
@@ -121,6 +135,8 @@ public class ExtraInfoProcessor extends PathProcessor {
 			extras.add(_waySuitabilityInfo);
 		if (_wayCategoryInfo != null)
 			extras.add(_wayCategoryInfo);
+		if (_greenInfo != null)
+			extras.add(_greenInfo);
 
 		return extras;
 	}
@@ -158,6 +174,17 @@ public class ExtraInfoProcessor extends PathProcessor {
 			// just add dummy values
 			_steepnessInfoBuilder.addSegment(0, 0, geom, dist, lastEdge && _lastSegment);
 		}
+
+		if (_greenInfoBuilder != null) {
+			int value = extGreenIndex.getEdgeValue(edge.getOriginalEdge(), buffer);
+			// This number is how many levels client can display in the stats bar
+			// FIXME should be changed when the specific bar legend for green routing is finished
+			int MIN_CLIENT_VAL = 3;
+			int MAX_CLIENT_VAL = 10;
+			int clientVal = MIN_CLIENT_VAL + value * (MAX_CLIENT_VAL - MIN_CLIENT_VAL + 1) / 64;
+			_greenInfoBuilder.addSegment(value, clientVal, geom, dist, lastEdge && _lastSegment);
+		}
+
 	}
 
 	@Override

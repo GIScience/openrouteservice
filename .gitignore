@@ -4,4 +4,8 @@
 openrouteservice/Program FilesApache Software FoundationTomcat 7.0webappsopenrouteservice-0.0.1-SNAPSHOTWEB-INFlogsCounter_RS.csv
 .recommenders/caches/manual-mappings.json
 .recommenders/index/http___download_eclipse_org_recommenders_models_neon_/segments.gen
+.idea/
+*.iml
+.DS_Store
+app.config
 /osmpoiextractor/
