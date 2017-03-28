@@ -9,22 +9,26 @@
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-package heigit.ors.services.routing.requestprocessors;
+package heigit.ors.exceptions;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import heigit.ors.common.StatusCode;
 
-import heigit.ors.routing.RoutingServiceUtils;
-import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
+public class InternalServerException extends StatusCodeException 
+{
+	private static final long serialVersionUID = -1504840251219099113L;
 
-public class RoutingServiceInformationRequestProcessor extends AbstractHttpRequestProcessor {
-
-	public RoutingServiceInformationRequestProcessor(HttpServletRequest request) throws Exception {
-		super(request);
+	public InternalServerException()
+	{
+	  this(1);
 	}
-
-	@Override
-	public void process(HttpServletResponse response) throws Exception  {
-			RoutingServiceUtils.writeRouteInfo(_request, response);
+	
+	public InternalServerException(int code)
+	{
+		super(StatusCode.INTERNAL_SERVER_ERROR, code);
+	}
+	
+	public InternalServerException(int code, String message)
+	{
+		super(StatusCode.INTERNAL_SERVER_ERROR, code, message);
 	}
 }

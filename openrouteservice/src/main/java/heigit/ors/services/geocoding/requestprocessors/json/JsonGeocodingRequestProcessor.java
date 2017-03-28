@@ -11,9 +11,6 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.services.geocoding.requestprocessors.json;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -27,6 +24,8 @@ import com.vividsolutions.jts.geom.Envelope;
 
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.services.geocoding.GeocodingServiceSettings;
+import heigit.ors.common.StatusCode;
+import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.geocoding.geocoders.Geocoder;
 import heigit.ors.geocoding.geocoders.GeocoderFactory;
 import heigit.ors.geocoding.geocoders.GeocodingResult;
@@ -35,11 +34,12 @@ import heigit.ors.services.geocoding.requestprocessors.GeocodingRequest;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
 import heigit.ors.util.FormatUtility;
+import heigit.ors.util.OrderedJSONObjectFactory;
 import heigit.ors.util.AppInfo;
 
 public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor {
 
-	public JsonGeocodingRequestProcessor(HttpServletRequest request) {
+	public JsonGeocodingRequestProcessor(HttpServletRequest request) throws Exception {
 		super(request);
 		// TODO Auto-generated constructor stub
 	}
@@ -85,7 +85,7 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 			{
 				String[] coords = value.split(",");
 				if (coords == null || coords.length != 4)
-					throw new Exception("BBox parameter is either empty or has wrong number of values.");
+					throw new StatusCodeException(StatusCode.BAD_REQUEST, "BBox parameter is either empty or has wrong number of values.");
 				
 				Envelope bbox = new Envelope(Double.parseDouble(coords[0]),  Double.parseDouble(coords[2]), Double.parseDouble(coords[1]), Double.parseDouble(coords[3]));
 				req.setBBox(bbox);
@@ -96,15 +96,16 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 			   req.setId(value);
 			break;
 		case "POST":
-			throw new Exception("POST request is not supported.");  
+			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, "POST request is not supported.");  
+		default:
+			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, "POST request is not supported.");
 		}
 
 		if (req == null)
-			throw new Exception("GeocodingRequest object is null.");
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, "GeocodingRequest object is null.");
 
 		if (!req.isValid())
-			throw new Exception("Geocoding request parameters are missing or invalid.");
-
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, "Geocoding request parameters are missing or invalid.");
 
 		Geocoder geocoder = GeocoderFactory.createGeocoder(GeocodingServiceSettings.getGeocoderName(), GeocodingServiceSettings.getGeocodingURL(), GeocodingServiceSettings.getReverseGeocodingURL(), GeocodingServiceSettings.getUserAgent()); 
 
@@ -123,7 +124,7 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 	
 	private void writeGeocodingResponse(HttpServletResponse response, GeocodingRequest request, GeocodingResult[] result) throws Exception
 	{
-		JSONObject resp = createJsonObject();
+		JSONObject resp = OrderedJSONObjectFactory.create();
 		
         JSONArray features = new JSONArray();
         resp.put("type", "FeatureCollection");        
@@ -146,10 +147,10 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 			if (gr == null)
 				continue;
 			
-			JSONObject feature = createJsonObject();
+			JSONObject feature = OrderedJSONObjectFactory.create();
 			feature.put("type", "Feature");
 
-			JSONObject point = createJsonObject();
+			JSONObject point = OrderedJSONObjectFactory.create();
 			point.put("type", "Point");
 		    JSONArray arrCoord = new JSONArray();
 		    
@@ -159,7 +160,7 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 	            
 		    feature.put("geometry", point);
 			
-			JSONObject properties = createJsonObject();
+			JSONObject properties = OrderedJSONObjectFactory.create();
 			if (!Helper.isEmpty(gr.country))
 				properties.put("country", gr.country);
 			
@@ -241,13 +242,6 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 
         resp.put("info", info);
 
-		byte[] bytes = resp.toString().getBytes("UTF-8");
-		ServletUtility.write(response, bytes, "text/json", "UTF-8");
-	}
-	
-	private JSONObject createJsonObject()
-	{
-		Map<String,String > map =  new LinkedHashMap<String, String>();
-		return new JSONObject(map);
+        ServletUtility.write(response, resp);
 	}
 }

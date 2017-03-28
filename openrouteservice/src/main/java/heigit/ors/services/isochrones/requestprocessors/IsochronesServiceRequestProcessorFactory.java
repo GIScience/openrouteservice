@@ -14,6 +14,9 @@ package heigit.ors.services.isochrones.requestprocessors;
 import javax.servlet.http.HttpServletRequest;
 
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
+import heigit.ors.common.StatusCode;
+import heigit.ors.exceptions.StatusCodeException;
+import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.services.isochrones.requestprocessors.json.JsonIsochronesRequestProcessor;
 
@@ -24,7 +27,7 @@ public class IsochronesServiceRequestProcessorFactory {
 	public static AbstractHttpRequestProcessor createProcessor(HttpServletRequest request) throws Exception  
 	{
 		if (!IsochronesServiceSettings.getEnabled())
-			throw new Exception("Isochrones service is not enabled.");		
+			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, "Isochrones service is not enabled.");		
 
 		String formatParam = request.getParameter("format");
 
@@ -36,6 +39,6 @@ public class IsochronesServiceRequestProcessorFactory {
 		/*else if (formatParam.equalsIgnoreCase("xml"))
 			return new XmlAccessibilityRequestProcessor(request);*/
 		else 
-			throw new Exception("Unknown parameter: 'format'.");
+			throw new UnknownParameterValueException("format", formatParam);
 	}
 }

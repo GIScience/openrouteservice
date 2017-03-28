@@ -40,11 +40,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import heigit.ors.routing.RoutingProfile;
 import heigit.ors.routing.RoutingProfileLoadContext;
 import heigit.ors.routing.RoutingProfilesCollection;
-import heigit.ors.routing.configuration.RouteManagerConfiguration;
+import heigit.ors.routing.configuration.RoutingManagerConfiguration;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.configuration.TrafficInformationConfiguration;
 import heigit.ors.routing.traffic.providers.TrafficInfoDataSource;
 import heigit.ors.routing.traffic.providers.TrafficInfoDataSourceFactory;
+import heigit.ors.services.routing.RoutingServiceSettings;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.xml.sax.SAXException;
@@ -215,7 +217,7 @@ public class RealTrafficDataProvider {
 		m_routeProfilesMap = new HashMap<Integer, RealTrafficDataProvider.RouteProfileTmcData>();
 	}
 
-	public void initialize(RouteManagerConfiguration rmc, RoutingProfilesCollection profiles) throws Exception {
+	public void initialize(RoutingManagerConfiguration rmc, RoutingProfilesCollection profiles) throws Exception {
 		m_config = rmc.TrafficInfoConfig;
 
 		// Proceeed only when we have a car profile.
@@ -240,7 +242,7 @@ public class RealTrafficDataProvider {
 							// Germany only
 							rpc.BBox = new Envelope(5.866240, 15.042050, 47.270210, 55.058140);
 							
-							RoutingProfile rpTmc = new RoutingProfile(rmc.SourceFile, rpc, profiles, loadCntx);
+							RoutingProfile rpTmc = new RoutingProfile(RoutingServiceSettings.getSourceFile(), rpc, profiles, loadCntx);
 
 							profiles.add(7777, rpTmc, true);
 

@@ -16,13 +16,16 @@ import javax.servlet.http.HttpServletRequest;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.routing.RouteExtraInfoFlag;
 import heigit.ors.routing.RouteSearchParameters;
+import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.WeightingMethod;
 import heigit.ors.services.routing.RouteInstructionsFormat;
 import heigit.ors.services.routing.RoutingRequest;
+import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
 
@@ -55,6 +58,9 @@ public class JsonRoutingRequestParser
 				else
 					coords[i] = new Coordinate(Double.parseDouble(locations[0]),Double.parseDouble(locations[1]));
 			} 
+			
+			if (coords.length > RoutingServiceSettings.getMaximumWayPoints())
+				throw new ParameterOutOfRangeException("coordinates", Integer.toString(coords.length), Integer.toString(RoutingServiceSettings.getMaximumWayPoints()));
 			
 			req.setCoordinates(coords);
 		}		

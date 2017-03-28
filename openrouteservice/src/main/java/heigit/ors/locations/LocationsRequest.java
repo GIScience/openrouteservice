@@ -26,6 +26,7 @@ public class LocationsRequest extends ServiceRequest
 	private Geometry _geometry;
 	private double _radius;
 	private LocationRequestType _type = LocationRequestType.POIS;
+	private int _details = LocationDetailsType.NONE;
 	private LocationsResultSortType _sortType = LocationsResultSortType.NONE;
 
 	public LocationsRequest()
@@ -97,5 +98,13 @@ public class LocationsRequest extends ServiceRequest
 
 	public void setSortType(LocationsResultSortType value) {
 		this._sortType = value;
+	}
+
+	public int getDetails() {
+		return _details;
+	}
+
+	public void setDetails(int value) {
+		_details = value;
 	}
 }

@@ -21,18 +21,35 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BaseHttpServlet extends HttpServlet {
+import heigit.ors.exceptions.InternalServerException;
+import heigit.ors.exceptions.StatusCodeException;
 
+public class BaseHttpServlet extends HttpServlet 
+{
 	private static final long serialVersionUID = 1L;
 	
     protected static Logger LOGGER = LoggerFactory.getLogger(BaseHttpServlet.class);
 
 	protected void writeError(HttpServletResponse res, Exception ex) 
 	{
-		try {
+		try
+		{
 			JSONObject json = new JSONObject();
 			json.put("message", ex.getMessage());
-			writeError(res, SC_BAD_REQUEST, json);
+			
+			if (ex instanceof InternalServerException)
+			{
+				InternalServerException ise = (InternalServerException)ex;
+				json.put("internal_code", ise.getInternalCode());
+				writeError(res, ise.getStatusCode(), json);
+			}
+			else if (ex instanceof StatusCodeException)
+			{
+				StatusCodeException sce = (StatusCodeException)ex;
+				writeError(res, sce.getStatusCode(), json);
+			}
+			else 
+				writeError(res, SC_BAD_REQUEST, json);
 			
 			LOGGER.error(ex.getMessage());
 		} catch (JSONException e) {

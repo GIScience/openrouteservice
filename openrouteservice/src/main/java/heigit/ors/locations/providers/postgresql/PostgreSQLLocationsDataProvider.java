@@ -13,11 +13,9 @@ package heigit.ors.locations.providers.postgresql;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,19 +26,20 @@ import org.postgresql.ds.PGSimpleDataSource;
 
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.StopWatch;
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.OutputStreamOutStream;
+import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKBWriter;
-import com.vividsolutions.jts.io.WKTWriter;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import heigit.ors.locations.providers.LocationsDataProvider;
 import heigit.ors.util.ArraysUtility;
+import heigit.ors.common.StatusCode;
+import heigit.ors.exceptions.InternalServerException;
+import heigit.ors.locations.LocationDetailsType;
 import heigit.ors.locations.LocationsCategory;
 import heigit.ors.locations.LocationsCategoryClassifier;
 import heigit.ors.locations.LocationsCategoryGroup;
@@ -53,52 +52,63 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 {
 	private static final Logger LOGGER = Logger.getLogger(PostgreSQLLocationsDataProvider.class.getName());
 
-	private String _locationsQuery;
-	private String _geomColumn;
-	private String[] _queryColumns;
-	private int _geomColumnIndex = -1;
-	private int _latitudeColumnIndex = -1;
-	private int _longitudeColumnIndex = -1;
-	private GeometryFactory _geomFactory;
-	private String _categoriesQuery;
+	private static QueryColumnsInfo[] COLUMNS_INFO;
+	 
+	private String _tableName = null;
+	private int _geomColumnIndex = 3;
 	private HikariDataSource  _dataSource;
+	
+	static
+	{
+		COLUMNS_INFO = new QueryColumnsInfo[8];
+		COLUMNS_INFO[0] = new QueryColumnsInfo(new String[] { "osm_id", "category", "name", "geom", "distance" });
+		
+		for (int i = 0; i< 8;i++)
+			COLUMNS_INFO[i] = new QueryColumnsInfo(getColumnNames(i)); 
+	}
+	
+	private static String[] getColumnNames(int details)
+	{
+		List<String> res = new ArrayList<String>();
+		
+		res.add("osm_id");
+		res.add("category"); 
+	    res.add("name");
+	    res.add("geom");
+	    
+	    if (LocationDetailsType.isSet(details, LocationDetailsType.ADDRESS))
+	    	res.add("address");
+	    
+	    if (LocationDetailsType.isSet(details, LocationDetailsType.CONTACT))
+	    {
+	    	res.add("phone");
+	    	res.add("website");
+	    }
+		
+	    if (LocationDetailsType.isSet(details, LocationDetailsType.ATTRIBUTES))
+	    {
+	    	res.add("opening_hours");
+	    	res.add("wheelchair");
+	    	res.add("smoking");
+	    	res.add("fee");
+	    }
+	    
+	    res.add("distance");
+	    
+		return  res.toArray(new String[res.size()]);
+	}
 
 	public void init(Map<String, Object> parameters) throws Exception
 	{
-		_locationsQuery = null;
-		_categoriesQuery = null;
 		_dataSource = null;
+		_tableName = null;
 
-		boolean queryHasWhere = false;
-		String value = (String)parameters.get("locations_query");
+		String value = (String)parameters.get("table_name");
 		if (Helper.isEmpty(value))
-			throw new Exception("'locations_query' parameter can not be null or empty.");
+			throw new Exception("'table_name' parameter can not be null or empty.");
 		else
-		{
-			_locationsQuery = value;
-			queryHasWhere = _locationsQuery.toLowerCase().indexOf("where") > 0;
-		}
-
-		value = (String)parameters.get("categories_query");
-		if (Helper.isEmpty(value))
-			throw new Exception("'categories_query' parameter can not be null or empty.");
-		else
-			_categoriesQuery = value;
-
-		_geomColumn = null;
-		value = (String)parameters.get("geometry_column");
-		if (Helper.isEmpty(value))
-			throw new Exception("'geometry_column' parameter can not be null or empty.");
-		else
-			_geomColumn = value;
-
-		String latitudeColumn = (String)parameters.get("latitude_column");
-		String longitudeColumn = (String)parameters.get("longitude_column");
-
-		_locationsQuery = _locationsQuery.replace("!geometry_column!", _geomColumn) + (queryHasWhere ? " AND ": " WHERE ");
-
-		_geomFactory = new GeometryFactory();
-
+			_tableName = value;
+	
 		HikariConfig config = new HikariConfig();
 		String port = "5432";
 		if (parameters.containsKey("port"))
@@ -117,39 +127,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 		config.setConnectionTestQuery("SELECT 1");
 
 		_dataSource = new HikariDataSource(config);
-
-		// retrieve meta data
-		Connection connection = _dataSource.getConnection();
-		if (connection == null)
-			throw new Exception("Connection has not been established.");
-
-		LocationsRequest request = new LocationsRequest();
-		request.setGeometry(_geomFactory.createPoint(new Coordinate(0,0)));
-		request.setRadius(10);
-
-		PreparedStatement statement = createLocationsStatement(request, connection);
-		ResultSetMetaData rs = statement.getMetaData();
-		_queryColumns = new String[rs.getColumnCount()];
-
-		for (int i = 1; i <= rs.getColumnCount(); i++) 
-		{
-			String clmName = rs.getColumnName(i);
-
-			_queryColumns[i - 1] = clmName;
-			if (clmName.equalsIgnoreCase(_geomColumn))
-				_geomColumnIndex = i;
-			else if (latitudeColumn != null && clmName.equalsIgnoreCase(latitudeColumn))
-				_latitudeColumnIndex = i;
-			else if (longitudeColumn != null && clmName.equalsIgnoreCase(longitudeColumn))
-				_longitudeColumnIndex = i;
-		}
-
-		if (_latitudeColumnIndex >=0 && _longitudeColumnIndex >= 0)
-			_geomColumnIndex = -1;
-
-		connection.close();
 	}
-	
 
 	public List<LocationsResult> findLocations(LocationsRequest request) throws Exception
 	{
@@ -196,44 +174,32 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 				resSet = statement.executeQuery();
 			}
 
-			int nColumns = _queryColumns.length;
-
+			QueryColumnsInfo queryColumns = COLUMNS_INFO[request.getDetails()];
+			int nColumns = queryColumns.getCount();
+			if (request.getGeometry() instanceof Polygon)
+				nColumns--; // skip distance column for polygons
+			
+			WKBReader wkbReader = new WKBReader();
+			
 			while (resSet.next()) 
 			{
 				try {
 					LocationsResult lr = new LocationsResult();
 
-					for(int i = 1; i <= nColumns; i++)
+					for(int i = 0; i < nColumns; i++)
 					{
-						if (i != _geomColumnIndex && i != _latitudeColumnIndex && i != _longitudeColumnIndex)
+						if (i != _geomColumnIndex)
 						{
-							String value = resSet.getString(i);
+							String value = resSet.getString(i+1);
 							if (!Helper.isEmpty(value))
-								lr.addProperty(_queryColumns[i - 1], value);
+								lr.addProperty(queryColumns.getName(i), value);
 						}
-					}
-
-					if (_geomColumnIndex != -1)
-					{
-						String strGeom = resSet.getString(_geomColumnIndex);
-						if (strGeom != null)
+						else
 						{
-							int pos1 = strGeom.indexOf('(');
-							int pos2 = strGeom.indexOf(' ');
-							String value = strGeom.substring(pos1 + 1, pos2);
-							double x = Double.parseDouble(value);
-
-							pos1 =  strGeom.indexOf(')');
-							value = strGeom.substring(pos2+1, pos1);
-							double y = Double.parseDouble(value);
-							lr.setGeometry(_geomFactory.createPoint(new Coordinate(x,y)));
+							byte[] bytes = resSet.getBytes(_geomColumnIndex + 1);
+							if (bytes != null)
+								lr.setGeometry(wkbReader.read(bytes));
 						}
-					}
-					else
-					{
-						double x = resSet.getDouble(_longitudeColumnIndex);
-						double y = resSet.getDouble(_latitudeColumnIndex);
-						lr.setGeometry(_geomFactory.createPoint(new Coordinate(x,y)));
 					}
 
 					results.add(lr);
@@ -255,7 +221,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 		catch(Exception ex)
 		{
 			LOGGER.error(ex);
-			exception = new Exception("Unable to retrieve data from the data source. " + ex.getMessage());
+			exception = new Exception("Unable to retrieve data from the data source.");
 		}
 		finally
 		{
@@ -269,87 +235,72 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 		return results;
 	}
 
-	private String buildSearchFilter(String cmdText, LocationsSearchFilter filter) throws Exception
+	private String buildSearchFilter(LocationsSearchFilter filter) throws Exception
 	{
+		String cmdText = "";
+		
 		if (filter != null)
 		{
 			if (filter.getCategoryGroupIds() != null)
-				cmdText +=  "(" + buildCategoryGroupIdsFilter(filter.getCategoryGroupIds()) + ")" + " AND ";
+				cmdText = addConditions(cmdText, "(" + buildCategoryGroupIdsFilter(filter.getCategoryGroupIds()) + ")");
 			else if (filter.getCategoryIds() != null)
-				cmdText +=  "(" + buildCategoryIdsFilter(filter.getCategoryIds()) + ")" + " AND ";
+				cmdText = addConditions(cmdText, "(" + buildCategoryIdsFilter(filter.getCategoryIds()) + ")");
 
 			if (filter.getName() != null)
-				cmdText += "(name = '" + filter.getName() + "')" + " AND ";
+				cmdText = addConditions(cmdText, "(name = ''" + filter.getName() + "'')");
 
 			if (!Helper.isEmpty(filter.getWheelchair()))
 			{
 				if (filter.getWheelchair().indexOf(',') > 0)
-					cmdText +=  "(wheelchair IN ("+ fixStringValues(filter.getWheelchair(), true) +"))" + " AND ";
+					cmdText = addConditions(cmdText, "(wheelchair IN ("+ fixStringValues(filter.getWheelchair(), true) +"))");
 				else
-					cmdText +=  "(wheelchair = "+ fixStringValues(filter.getWheelchair(), false) +")" + " AND ";
+					cmdText = addConditions(cmdText, "(wheelchair = "+ fixStringValues(filter.getWheelchair(), false) +")");
 			}
 			if (!Helper.isEmpty(filter.getSmoking()))
 			{
 				if (filter.getSmoking().indexOf(',') > 0)
-					cmdText +=  "(smoking IN (" + fixStringValues(filter.getSmoking(), true) + "))" + " AND ";
+					cmdText = addConditions(cmdText, "(smoking IN (" + fixStringValues(filter.getSmoking(), true) + "))");
 				else
-					cmdText +=  "(smoking = "+ fixStringValues(filter.getSmoking(), false) +")" + " AND ";
+					cmdText = addConditions(cmdText, "(smoking = "+ fixStringValues(filter.getSmoking(), false) +")");
 			}
 
 			if (filter.getFee() != null)
-			{
-				cmdText +=  "(fee =" + (filter.getFee() == true ? "1": "0") + ")" + " AND ";
-			}
+				cmdText = addConditions(cmdText, "(fee =" + (filter.getFee() == true ? "1": "0") + ")");
 		}
 
 		return cmdText;
 	}
+	
+	private String addConditions(String condition1, String condition2)
+	{
+		if (!Helper.isEmpty(condition1))
+			return condition1 + " AND " + condition2;
+		else
+			return condition2;
+	}
 
 	private PreparedStatement createLocationsStatement(LocationsRequest request, Connection conn) throws Exception
 	{
-		String stateText = buildSearchFilter(_locationsQuery, request.getSearchFilter());
-
 		Geometry geom = request.getGeometry();
+
+		byte[] geomBytes = geometryToWKB(geom);
+
+		QueryColumnsInfo ci = COLUMNS_INFO[request.getDetails()];
+		// at the end, we add virtual column to store the exact distance. 
+		String query = "SELECT " + ci.getQuery1Columns() +" FROM " + _tableName;
 		Envelope bbox = request.getBBox();
 		if (bbox != null)
-			stateText += buildBboxFilter(bbox) + (geom == null ? "" : " AND ");
+			query += buildBboxFilter(bbox);
 
-		byte[] geomBytes = null;
-		if (geom != null)
-		{
-			if (geom instanceof Point)
-			{
-				Point p = (Point)geom;
-				stateText += String.format("ST_Distance(%s::geography, ST_GeographyFromText('SRID=4326;POINT(%.7f %.7f)')) <= %.1f", _geomColumn, p.getCoordinate().x, p.getCoordinate().y, request.getRadius());
-			} 
-			else 
-			{
-				stateText += String.format("ST_DWithin(%s, ST_GeomFromWKB(?, 4326)::geography, %.1f)", _geomColumn, request.getRadius());
-				geomBytes = geometryToWKB(geom);
-			}
-		}
+		String stateText = String.format("SELECT %s FROM ORS_FindLocations('(%s) as tmp', '%s', ?, %.3f, %d) AS %s", ci.getQuery2Columns(), query,  buildSearchFilter(request.getSearchFilter()), request.getRadius(), request.getLimit(), ci.getReturnTable());
 
 		if (request.getSortType() != LocationsResultSortType.NONE)
 		{
-			if (request.getSortType() == LocationsResultSortType.CATEGORIES)
+			if (request.getSortType() == LocationsResultSortType.CATEGORY)
 				stateText += " ORDER BY category";
 			else if (request.getSortType() == LocationsResultSortType.DISTANCE)
-			{
-				if (geom instanceof Point)
-				{
-					Point p = (Point)geom;
-					stateText += String.format(" ORDER BY ST_Distance(%s::geography, ST_GeographyFromText('SRID=4326;POINT(%.7f %.7f)'))" ,_geomColumn, p.getCoordinate().x, p.getCoordinate().y);
-				}
-				else
-				{
-					// is not supported
-					//stateText += String.format(" ORDER BY GEOGRAPHY_DISTANCE(%s, \"%s\")" ,_geomColumn, strGeomWkt);
-				}
-			}
+				stateText += " ORDER BY distance";
 		}
-
-		if (request.getLimit() > 0)
-			stateText += " LIMIT " + request.getLimit() + ";";
 
 		PreparedStatement statement = conn.prepareStatement(stateText);    
 		statement.setMaxRows(request.getLimit());
@@ -401,7 +352,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 			for (Map.Entry<Integer, Map<Integer, Long>> stats : groupsStats.entrySet())
 			{
 				int groupIndex = stats.getKey();
-				LocationsCategory lc = new LocationsCategory(LocationsCategoryClassifier.getGroupName(groupIndex), stats.getValue(), groupCount[groupIndex]);
+				LocationsCategory lc = new LocationsCategory(LocationsCategoryClassifier.getGroupId(groupIndex), LocationsCategoryClassifier.getGroupName(groupIndex), stats.getValue(), groupCount[groupIndex]);
 
 				results.add(lc);
 			}
@@ -409,7 +360,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 		catch(Exception ex)
 		{
 			LOGGER.error(ex);
-			exception = new Exception("Unable to retrieve data from the data source. " + ex.getMessage());
+			exception = new Exception("Unable to retrieve data from the data source.");
 		}
 		finally
 		{
@@ -425,32 +376,16 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 
 	private PreparedStatement createCategoriesStatement(LocationsRequest request, Connection conn) throws Exception 
 	{
-		String cmdFilter = buildSearchFilter("", request.getSearchFilter()); 
+		String cmdFilter = buildSearchFilter(request.getSearchFilter()); 
 
 		Geometry geom = request.getGeometry();
+		byte[] 	geomBytes = geometryToWKB(geom);
+
 		Envelope bbox = request.getBBox();
 		if (bbox != null)
-			cmdFilter += buildBboxFilter(bbox) + (geom == null ? "" : " AND ");
+			cmdFilter = addConditions(cmdFilter, buildBboxFilter(bbox));
 
-		byte[] geomBytes = null;
-		if (geom != null)
-		{
-			if (geom instanceof Point)
-			{
-				Point p = (Point)geom;
-				cmdFilter += String.format("ST_Distance(%s, ST_SetSRID(ST_MAKE_POINT(%.7f, %.7f), 4326)) <= %.1f", _geomColumn, p.getCoordinate().x, p.getCoordinate().y, request.getRadius());
-			} 
-			else 
-			{
-				cmdFilter += String.format("ST_DWithin(%s, ST_GeomFromWKB(?, 4326), %.1f)", _geomColumn, request.getRadius());
-				geomBytes = geometryToWKB(geom);
-			}
-		}
-
-		if (cmdFilter != "")
-			cmdFilter = " WHERE " + cmdFilter;
-
-		String stateText = _categoriesQuery.replace("!where_clause!", cmdFilter);
+		String stateText = String.format("SELECT * FROM ORS_FindLocationCategories('%s', '%s', ?, %.3f) AS categories(category smallint, count bigint)", _tableName, cmdFilter, request.getRadius());
 
 		PreparedStatement statement = conn.prepareStatement(stateText);
 		if (geomBytes != null)
@@ -472,7 +407,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 
 	private String buildBboxFilter(Envelope bbox)
 	{
-		return  String.format("(%s && ST_MakeEnvelope(%.7f,%.7f,%.7f,%.7f,4326)) AND ", _geomColumn, bbox.getMinX(), bbox.getMinY(), bbox.getMaxX(), bbox.getMaxY());
+		return  String.format(" (geom && ST_Transform(ST_MakeEnvelope(%.7f,%.7f,%.7f,%.7f,4326), 900913))", bbox.getMinX(), bbox.getMinY(), bbox.getMaxX(), bbox.getMaxY());
 	}
 
 	private String buildCategoryIdsFilter(int[] ids)
@@ -497,12 +432,12 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 		{
 			int nValues = ids.length;
 
-			for (int i = 0; i< nValues; i++)
+			for (int i = 0; i < nValues; i++)
 			{
 				int groupId = ids[i];
 				LocationsCategoryGroup group = LocationsCategoryClassifier.getGroupById(groupId);
 				if (group == null)
-					throw new Exception("Unknown group id '" + groupId + "'.");
+					throw new InternalServerException(StatusCode.BAD_REQUEST, "Unknown group id '" + groupId + "'.");
 
 				result += "("+ group.getMinCategoryId() + " <= category AND category <= " + group.getMaxCategoryId() + ")";
 
@@ -518,7 +453,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 
 			LocationsCategoryGroup group = LocationsCategoryClassifier.getGroupById(groupId);
 			if (group == null)
-				throw new Exception("Unknown group id '" + groupId + "'.");
+				throw new InternalServerException(StatusCode.BAD_REQUEST, "Unknown group id '" + groupId + "'.");
 
 			result = group.getMinCategoryId() + " <= category AND category <= " + group.getMaxCategoryId(); 
 		}

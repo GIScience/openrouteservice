@@ -27,12 +27,15 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 import heigit.ors.geojson.GeometryJSON;
+import heigit.ors.locations.LocationDetailsType;
 import heigit.ors.locations.LocationRequestType;
 import heigit.ors.locations.LocationsRequest;
 import heigit.ors.locations.LocationsResultSortType;
 import heigit.ors.locations.LocationsSearchFilter;
+import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
+import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.services.locations.LocationsServiceSettings;
 import heigit.ors.util.GeomUtility;
@@ -67,22 +70,33 @@ public class JsonLocationsRequestParser {
 				JSONObject jFilter = obj.getJSONObject("filter");
 				LocationsSearchFilter query = req.getSearchFilter();
 
+				int[] ids = null;
+				String paramIdsName = "";
 				if (jFilter.has("category_group_ids"))
 				{
-					JSONArray jArr = jFilter.getJSONArray("category_group_ids");
-					query.setCategoryGroupIds(parseIntArray(jArr, "category_group_ids"));
+					paramIdsName = "category_group_ids";
+					JSONArray jArr = jFilter.getJSONArray(paramIdsName);
+					ids = parseIntArray(jArr, paramIdsName);
+					query.setCategoryGroupIds(ids);
 				}
 				else
 				{
 					if (jFilter.has("category_ids"))
 					{
-						JSONArray jArr = jFilter.getJSONArray("category_ids");
-						query.setCategoryIds(parseIntArray(jArr, "category_ids"));
+						paramIdsName = "category_ids";
+						JSONArray jArr = jFilter.getJSONArray(paramIdsName);
+						ids = parseIntArray(jArr, paramIdsName);
+						query.setCategoryIds(ids);
 					}
 				}
-
+				
 				if (req.getType() == LocationRequestType.POIS)
 				{
+					if (ids != null && LocationsServiceSettings.getMaximumCategories() > 0 && LocationsServiceSettings.getMaximumCategories() < ids.length)
+					{
+						throw new ParameterOutOfRangeException(paramIdsName, "", Integer.toString(LocationsServiceSettings.getMaximumCategories()));
+					}
+					
 					value = jFilter.optString("name");
 					if (!Helper.isEmpty(value))
 						query.setName(value);
@@ -100,7 +114,7 @@ public class JsonLocationsRequestParser {
 			{
 				String[] coords = value.split(",");
 				if (coords == null || coords.length != 4)
-					throw new Exception("BBox parameter is either empty or has wrong number of values.");
+					throw new StatusCodeException(StatusCode.BAD_REQUEST, "BBox parameter is either empty or has wrong number of values.");
 
 				Envelope bbox = new Envelope(Double.parseDouble(coords[0]),  Double.parseDouble(coords[2]), Double.parseDouble(coords[1]), Double.parseDouble(coords[3]));
 				req.setBBox(bbox);
@@ -111,7 +125,7 @@ public class JsonLocationsRequestParser {
 			{
 				Geometry geom = parseGeometry(value);
 				if (geom == null)
-					throw new Exception("'geometry' parameter is incorrect.");	
+					throw new StatusCodeException(StatusCode.BAD_REQUEST, "'geometry' parameter is incorrect.");	
 				req.setGeometry(geom);
 			}
 			else 
@@ -124,9 +138,7 @@ public class JsonLocationsRequestParser {
 			if (!Helper.isEmpty(value))
 			{
 				double dvalue = Double.parseDouble(value);
-				if (LocationsServiceSettings.getMaximumSearchRadius() > 0 && LocationsServiceSettings.getMaximumSearchRadius() < dvalue)
-					throw new ParameterOutOfRangeException("radius", value, Double.toString(LocationsServiceSettings.getMaximumSearchRadius()));
-
+				checkSearchRadius(req.getGeometry(), dvalue);
 				req.setRadius(dvalue);
 			}
 			else if (req.getGeometry() instanceof Point || req.getGeometry() instanceof LineString)
@@ -144,10 +156,23 @@ public class JsonLocationsRequestParser {
 					req.setLimit(ivalue);
 				}
 			}
+			else
+			{
+				req.setLimit(-1);
+			}
 
 			value = obj.optString("sortby");
 			if (!Helper.isEmpty(value))
-				req.setSortType(LocationsResultSortType.fromString(value));
+			{
+				LocationsResultSortType sortType = LocationsResultSortType.fromString(value);
+				if (sortType == LocationsResultSortType.NONE)
+					throw new UnknownParameterValueException("sortby", value);
+				req.setSortType(sortType);
+			}
+			
+			value = obj.optString("details");
+			if (!Helper.isEmpty(value))
+				req.setDetails(LocationDetailsType.fromString(value));
 
 			value = obj.optString("id");
 			if (!Helper.isEmpty(value))
@@ -155,7 +180,7 @@ public class JsonLocationsRequestParser {
 		}
 		catch(JSONException jex)
 		{
-			throw new Exception("Unable to parse JSON document. " + jex.getMessage());
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, "Unable to parse JSON document. " + jex.getMessage());
 		}
 		catch (Exception ex) 
 		{
@@ -219,7 +244,7 @@ public class JsonLocationsRequestParser {
 		{
 			String[] coords = value.split(",");
 			if (coords == null || coords.length != 4)
-				throw new Exception("BBox parameter is either empty or has wrong number of values.");
+				throw new StatusCodeException(StatusCode.BAD_REQUEST, "BBox parameter is either empty or has wrong number of values.");
 
 			Envelope bbox = new Envelope(Double.parseDouble(coords[0]),  Double.parseDouble(coords[2]), Double.parseDouble(coords[1]), Double.parseDouble(coords[3]));
 			req.setBBox(bbox);
@@ -230,7 +255,7 @@ public class JsonLocationsRequestParser {
 		{
 			Geometry geom = parseGeometry(value);
 			if (geom == null)
-				throw new Exception("'geometry' parameter is incorrect.");
+				throw new StatusCodeException(StatusCode.BAD_REQUEST, "'geometry' parameter is incorrect.");
 
 			req.setGeometry(geom);
 		}
@@ -244,15 +269,13 @@ public class JsonLocationsRequestParser {
 		if (!Helper.isEmpty(value))
 		{
 			double dvalue = Double.parseDouble(value);
-			if (LocationsServiceSettings.getMaximumSearchRadius() > 0 && LocationsServiceSettings.getMaximumSearchRadius() < dvalue)
-				throw new ParameterOutOfRangeException("radius", value, Double.toString(LocationsServiceSettings.getMaximumSearchRadius()));
-			else
-				req.setRadius(dvalue);
+			checkSearchRadius(req.getGeometry(), dvalue);
+			req.setRadius(dvalue);
 		}
 		else if (req.getGeometry() instanceof Point || req.getGeometry() instanceof LineString)
 			throw new MissingParameterException("radius");
 
-		if (req.getType() ==  LocationRequestType.POIS)
+		if (req.getType() == LocationRequestType.POIS)
 		{
 			value = request.getParameter("limit");
 			if (!Helper.isEmpty(value))
@@ -264,10 +287,24 @@ public class JsonLocationsRequestParser {
 				req.setLimit(ivalue);
 			}
 		}
+		else
+		{
+			req.setLimit(-1);
+		}
 
 		value = request.getParameter("sortby");
 		if (!Helper.isEmpty(value))
-			req.setSortType(LocationsResultSortType.fromString(value));
+		{
+			LocationsResultSortType sortType = LocationsResultSortType.fromString(value);
+			if (sortType == LocationsResultSortType.NONE)
+				throw new UnknownParameterValueException("sortby", value);
+			
+			req.setSortType(sortType);
+		}
+		
+		value = request.getParameter("details");
+		if (!Helper.isEmpty(value))
+			req.setDetails(LocationDetailsType.fromString(value));
 
 		value = request.getParameter("id");
 		if (!Helper.isEmpty(value))
@@ -284,18 +321,37 @@ public class JsonLocationsRequestParser {
 		{
 			double length = GeomUtility.getLength(geometry, true);
 			if (length > LocationsServiceSettings.getMaximumFeatureLength())
-				throw new Exception(String.format("LineString length (%.1f) is greater than allowed maximum value (%.1f)", length, LocationsServiceSettings.getMaximumFeatureLength()));
+				throw new ParameterOutOfRangeException("geometry", String.format("LineString length (%.1f) is greater than allowed maximum value (%.1f)", length, LocationsServiceSettings.getMaximumFeatureLength()), Double.toString(LocationsServiceSettings.getMaximumFeatureLength()));
 		}
 		else if (geometry instanceof Polygon && LocationsServiceSettings.getMaximumFeatureArea() > 0)
 		{
 			double area = GeomUtility.getArea(geometry, true);
 			if (area > LocationsServiceSettings.getMaximumFeatureArea())
-				throw new Exception(String.format("Polygon area (%.1f) is greater than allowed maximum value (%.1f)", area, LocationsServiceSettings.getMaximumFeatureArea()));
+				throw new ParameterOutOfRangeException("geometry", String.format("Polygon area (%.1f) is greater than allowed maximum value (%.1f)", area, LocationsServiceSettings.getMaximumFeatureArea()), Double.toString(LocationsServiceSettings.getMaximumFeatureArea()));
 		}
 
 		return geometry;
 	}
 
+	private static void checkSearchRadius(Geometry geom, double value) throws ParameterOutOfRangeException
+	{
+		if (geom instanceof Point)
+		{
+			if (LocationsServiceSettings.getMaximumSearchRadiusForPoints() > 0 && LocationsServiceSettings.getMaximumSearchRadiusForPoints() < value)
+				throw new ParameterOutOfRangeException("radius", Double.toString(value), Double.toString(LocationsServiceSettings.getMaximumSearchRadiusForPoints()));
+		}
+		else if (geom instanceof LineString)
+		{
+			if (LocationsServiceSettings.getMaximumSearchRadiusForLinestrings() > 0 && LocationsServiceSettings.getMaximumSearchRadiusForLinestrings() < value)
+				throw new ParameterOutOfRangeException("radius", Double.toString(value), Double.toString(LocationsServiceSettings.getMaximumSearchRadiusForLinestrings()));
+		}
+		else if (geom instanceof Polygon)
+		{
+			if (LocationsServiceSettings.getMaximumSearchRadiusForPolygons() > 0 && LocationsServiceSettings.getMaximumSearchRadiusForPolygons() < value)
+				throw new ParameterOutOfRangeException("radius", Double.toString(value), Double.toString(LocationsServiceSettings.getMaximumSearchRadiusForPolygons()));
+		}
+	}
+	
 	private static Boolean parseBooleanFlag(String value)
 	{
 		if (value == null)
@@ -323,7 +379,7 @@ public class JsonLocationsRequestParser {
 		}
 		catch(Exception ex)
 		{
-			throw new Exception("Unable to parse the element '" + elemName + "'. " + ex.getMessage());
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, "Unable to parse the element '" + elemName + "'. " + ex.getMessage());
 		}
 	}
 	
@@ -343,7 +399,7 @@ public class JsonLocationsRequestParser {
 		}
 		catch(Exception ex)
 		{
-			throw new Exception("Unable to parse the element '" + elemName + "'. " + ex.getMessage());
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, "Unable to parse the element '" + elemName + "'. " + ex.getMessage());
 		}
 	}
 }

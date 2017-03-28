@@ -22,7 +22,7 @@ import heigit.ors.servlet.util.ServletUtility;
 
 public class JsonRoutingRequestProcessor extends AbstractHttpRequestProcessor {
 
-	public JsonRoutingRequestProcessor(HttpServletRequest request) {
+	public JsonRoutingRequestProcessor(HttpServletRequest request) throws Exception {
 		super(request);
 		// TODO Auto-generated constructor stub
 	}

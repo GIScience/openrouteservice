@@ -18,6 +18,8 @@ import java.io.OutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONObject;
+
 import heigit.ors.util.StreamUtility;
 import heigit.ors.util.StringUtility;
  
@@ -30,6 +32,17 @@ public class ServletUtility
 		in.close();
 		
 		return strDecoded;
+	}
+	
+	public static void write(HttpServletResponse response, JSONObject json) throws IOException
+	{
+	  write(response, json, "UTF-8");
+	}
+	
+	public static void write(HttpServletResponse response, JSONObject json, String encoding) throws IOException
+	{
+		byte[] bytes = json.toString().getBytes(encoding);
+		write(response, bytes, "text/json", encoding);
 	}
 	
 	public static void write(HttpServletResponse response, byte[] bytes, String contentType) throws IOException

@@ -24,7 +24,7 @@ import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 
 public class TmcInformationRequestProcessor extends AbstractHttpRequestProcessor 
 {
-	public TmcInformationRequestProcessor(HttpServletRequest request) 
+	public TmcInformationRequestProcessor(HttpServletRequest request) throws Exception 
 	{
 		super(request);
 	}

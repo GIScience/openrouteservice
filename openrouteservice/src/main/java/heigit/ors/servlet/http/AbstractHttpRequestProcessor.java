@@ -17,15 +17,17 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import heigit.ors.exceptions.InternalServerException;
+
 public abstract class AbstractHttpRequestProcessor implements HttpRequestProcessor {
 	protected static Logger logger = LoggerFactory.getLogger(AbstractHttpRequestProcessor.class);
 	
 	protected HttpServletRequest _request;
 	
-	public AbstractHttpRequestProcessor(HttpServletRequest request)
+	public AbstractHttpRequestProcessor(HttpServletRequest request) throws Exception
 	{
 		if (request == null)
-			throw new NullPointerException("request");
+			throw new InternalServerException();
 		
 		_request = request;
 	}

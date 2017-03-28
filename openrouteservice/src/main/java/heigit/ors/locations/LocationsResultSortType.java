@@ -15,7 +15,7 @@ public enum LocationsResultSortType
 {
 	NONE,
     DISTANCE,
-    CATEGORIES;
+    CATEGORY;
    
    public static LocationsResultSortType fromString(String value)
    {
@@ -24,8 +24,8 @@ public enum LocationsResultSortType
 	   
 	   if ("distance".equalsIgnoreCase(value))
 		   return LocationsResultSortType.DISTANCE;
-	   else if ("categories".equalsIgnoreCase(value))
-	   	return LocationsResultSortType.CATEGORIES;
+	   else if ("category".equalsIgnoreCase(value))
+	   	return LocationsResultSortType.CATEGORY;
 		
 	   return LocationsResultSortType.NONE; 
    }

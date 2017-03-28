@@ -24,6 +24,8 @@ import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
+import heigit.ors.common.StatusCode;
+import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.services.locations.requestprocessors.json.JsonLocationsRequestParser;
 import heigit.ors.services.locations.LocationsServiceSettings;
@@ -41,7 +43,7 @@ import heigit.ors.util.OrderedJSONObjectFactory;
 
 public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 {
-	public JsonLocationsRequestProcessor(HttpServletRequest request) 
+	public JsonLocationsRequestProcessor(HttpServletRequest request) throws Exception 
 	{
 		super(request);
 	}
@@ -60,13 +62,15 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 		case "POST":
 			req = JsonLocationsRequestParser.parseFromStream(_request);
 			break;
+		default:
+			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED);
 		}
 
 		if (req == null)
-			throw new Exception("LocationRequest object is null.");
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, "LocationRequest object is null.");
 
 		if (!req.isValid())
-			throw new Exception("Location request parameters are missing or invalid.");
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, "Location request parameters are missing or invalid.");
 
 		LocationsDataProvider provider = LocationsDataProviderFactory.getProvider(LocationsServiceSettings.getProviderName(), LocationsServiceSettings.getProviderParameters());
 
@@ -82,20 +86,19 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 			writeCategoriesListResponse(response);
 			break;
 		case UNKNOWN:
-			break;
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, "Request parameter is unknown.");
 		}
 	}
 	
 	private void writeCategoriesListResponse(HttpServletResponse response) throws Exception
 	{
-		JSONObject resp = new JSONObject();
+		JSONObject jResp = new JSONObject();
 		
-		resp.put("categories", LocationsCategoryClassifier.getCategoriesList());
+		jResp.put("categories", LocationsCategoryClassifier.getCategoriesList());
 		
-		writeInfoSection(resp, null);
+		writeInfoSection(jResp, null);
 		
-		byte[] bytes = resp.toString().getBytes("UTF-8");
-		ServletUtility.write(response, bytes, "text/json", "UTF-8");
+		ServletUtility.write(response, jResp);
 	}
 	
 	private void writeCategoriesResponse(HttpServletResponse response, LocationsRequest request, List<LocationsCategory> categories) throws Exception
@@ -115,13 +118,18 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 				
 				LocationsCategory cat = categories.get(j);
 				
+				JSONObject jValues = OrderedJSONObjectFactory.create();
+				
 				for(Map.Entry<Integer, Long> stats : cat.getStats().entrySet())
 				{
-					jCategory.put(stats.getKey().toString(), stats.getValue());
+					jValues.put(stats.getKey().toString(), stats.getValue());
 				}
 				
+				jCategory.put("name", cat.getCategoryName());
+				jCategory.put("categories", jValues);
 				jCategory.put("total_count", cat.getTotalCount());
-				jLocations.put(cat.getCategoryName(), jCategory);
+				
+				jLocations.put(Integer.toString(cat.getCategoryId()), jCategory);
 				
 				totalCount += cat.getTotalCount(); 
 			}
@@ -131,17 +139,16 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 
 		writeInfoSection(resp, request);
 
-		byte[] bytes = resp.toString().getBytes("UTF-8");
-		ServletUtility.write(response, bytes, "text/json", "UTF-8");
+		ServletUtility.write(response, resp);
 	}
 
 	private void writeLocationsResponse(HttpServletResponse response, LocationsRequest request, List<LocationsResult> locations) throws Exception
 	{
-		JSONObject resp = OrderedJSONObjectFactory.create();
+		JSONObject jResp = OrderedJSONObjectFactory.create();
 
 		JSONArray features = new JSONArray();
-		resp.put("type", "FeatureCollection");        
-		resp.put("features", features);
+		jResp.put("type", "FeatureCollection");        
+		jResp.put("features", features);
 
 		if (locations != null)
 		{
@@ -201,13 +208,12 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 			}
 
 			if (nResults > 0)
-				resp.put("bbox", GeometryJSON.toJSON(minX, minY, maxX, maxY));
+				jResp.put("bbox", GeometryJSON.toJSON(minX, minY, maxX, maxY));
 		}
 
-		writeInfoSection(resp, request);
+		writeInfoSection(jResp, request);
 
-		byte[] bytes = resp.toString().getBytes("UTF-8");
-		ServletUtility.write(response, bytes, "text/json", "UTF-8");
+		ServletUtility.write(response, jResp);
 	}
 	
 	private void writeInfoSection(JSONObject jResponse, LocationsRequest request)

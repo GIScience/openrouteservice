@@ -12,12 +12,11 @@
 package heigit.ors.services.isochrones.requestprocessors.json;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.swing.plaf.basic.BasicDirectoryModel;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -30,6 +29,8 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
 
 import heigit.ors.common.Pair;
+import heigit.ors.common.StatusCode;
+import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
@@ -45,12 +46,13 @@ import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
 import heigit.ors.util.FormatUtility;
+import heigit.ors.util.OrderedJSONObjectFactory;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.StringUtility;
 
 public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor {
 
-	public JsonIsochronesRequestProcessor(HttpServletRequest request) {
+	public JsonIsochronesRequestProcessor(HttpServletRequest request) throws Exception {
 		super(request);
 		// TODO Auto-generated constructor stub
 	}
@@ -68,10 +70,12 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 		case "POST":
 			req = JsonIsochroneRequestParser.parseFromStream(_request.getInputStream());  
 			break;
+		default:
+			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED);
 		}
 
 		if (req == null)
-			throw new Exception("IsochronesRequest object is null.");
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, "IsochronesRequest object is null.");
 
 		if (req.getRouteSearchParameters().getProfileType() == RoutingProfileType.UNKNOWN)
 		{
@@ -120,7 +124,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
 	private void writeResponse(HttpServletResponse response, IsochroneRequest request, List<IsochroneMap> isochroneMaps) throws Exception
 	{
-		JSONObject jResp = createJsonObject();
+		JSONObject jResp = OrderedJSONObjectFactory.create();
 
 		jResp.put("type", "FeatureCollection");        
 		JSONArray jFeatures = new JSONArray();
@@ -142,17 +146,17 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 			{
 				Polygon isoPoly = (Polygon)isoLine.getGeometry();
 				LineString shell = isoPoly.getExteriorRing();
-				JSONObject jFeature = createJsonObject();
+				JSONObject jFeature = OrderedJSONObjectFactory.create();
 				jFeature.put("type", "Feature");
 
-				JSONObject jPolygon = createJsonObject();
+				JSONObject jPolygon = OrderedJSONObjectFactory.create();
 				jPolygon.put("type", "Polygon");
 
 				jPolygon.put("coordinates", GeometryJSON.toJSON(isoPoly));
 
 				jFeature.put("geometry", jPolygon);
 
-				JSONObject jProperties = createJsonObject();
+				JSONObject jProperties = OrderedJSONObjectFactory.create();
 
 				jProperties.put("group_index", groupIndex);
 				jProperties.put("value", isoLine.getValue());
@@ -199,16 +203,16 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 				for (IsochronesIntersection isoIntersection : isoIntersections)
 				{
 					Geometry geom = isoIntersection.getGeometry();
-					JSONObject jFeature = createJsonObject();
+					JSONObject jFeature = OrderedJSONObjectFactory.create();
 					jFeature.put("type", "Feature");
 
-					JSONObject jGeometry = createJsonObject();
+					JSONObject jGeometry = OrderedJSONObjectFactory.create();
 					jGeometry.put("type", geom.getGeometryType());
 					jGeometry.put("coordinates", GeometryJSON.toJSON(geom, null));
 
 					jFeature.put("geometry", jGeometry);
 
-					JSONObject jProperties = createJsonObject();
+					JSONObject jProperties = OrderedJSONObjectFactory.create();
 
 					JSONArray jContours = new JSONArray();
 					jProperties.put("contours", jContours);
@@ -273,13 +277,6 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
 		jResp.put("info", jInfo);
 
-		byte[] bytes = jResp.toString().getBytes("UTF-8");
-		ServletUtility.write(response, bytes, "text/json", "UTF-8");
-	}
-
-	private JSONObject createJsonObject()
-	{
-		Map<String,String > map =  new LinkedHashMap<String, String>();
-		return new JSONObject(map);
+		ServletUtility.write(response, jResp);
 	}
 }

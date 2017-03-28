@@ -11,11 +11,13 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.exceptions;
 
-public class UnknownParameterValueException extends Exception{
+import heigit.ors.common.StatusCode;
+
+public class UnknownParameterValueException extends StatusCodeException{
 	private static final long serialVersionUID = 4866998272349837464L;
 
 	public UnknownParameterValueException(String paramName, String paramValue)
 	{
-		super("Unknown parameter value '" + paramValue + "' for '" + paramName + "'.");
+		super(StatusCode.BAD_REQUEST, "Unknown parameter value '" + paramValue + "' for '" + paramName + "'.");
 	}
 }

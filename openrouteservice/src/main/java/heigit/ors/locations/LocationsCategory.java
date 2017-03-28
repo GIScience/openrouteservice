@@ -15,15 +15,22 @@ import java.util.Map;
 
 public class LocationsCategory 
 {
+	private int _id;
 	private String _categoryName;
 	private Map<Integer, Long> _stats; 
 	private long _totalCount;
 
-	public LocationsCategory(String category, Map<Integer, Long> stats, long totalCount)
+	public LocationsCategory(Integer id, String category, Map<Integer, Long> stats, long totalCount)
 	{
+		_id = id;
 		_categoryName = category;
 		_stats = stats;
 		_totalCount = totalCount;
+	}
+	
+	public int getCategoryId()
+	{
+		return _id;
 	}
 
 	public String getCategoryName() 

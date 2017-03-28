@@ -14,6 +14,9 @@ package heigit.ors.services.locations.requestprocessors;
 import javax.servlet.http.HttpServletRequest;
 
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
+import heigit.ors.common.StatusCode;
+import heigit.ors.exceptions.StatusCodeException;
+import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.services.locations.LocationsServiceSettings;
 import heigit.ors.services.locations.requestprocessors.json.JsonLocationsRequestProcessor;
 
@@ -24,7 +27,7 @@ public class LocationsServiceRequestProcessorFactory {
 	public static AbstractHttpRequestProcessor createProcessor(HttpServletRequest request) throws Exception  
 	{
 		if (!LocationsServiceSettings.getEnabled())
-			throw new Exception("Location service is not enabled.");
+			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, "Location service is not enabled.");
 		
 		String formatParam = request.getParameter("format");
 
@@ -34,6 +37,6 @@ public class LocationsServiceRequestProcessorFactory {
 		if (formatParam.equalsIgnoreCase("json"))
 			return new JsonLocationsRequestProcessor(request);
 		else 
-			throw new Exception("Unknown parameter: 'format'.");
+			throw new UnknownParameterValueException("format", formatParam);
 	}
 }

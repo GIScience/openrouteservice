@@ -22,6 +22,8 @@ import javax.servlet.http.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import heigit.ors.common.StatusCode;
+import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.servlet.http.BaseHttpServlet;
 import heigit.ors.servlet.util.ServletUtility;
 import heigit.ors.util.HTTPUtility;
@@ -59,7 +61,7 @@ public class ShortenLinkServlet extends BaseHttpServlet {
 		try
 		{
 			if (!ShortenLinkServiceSettings.getEnabled())
-				throw new Exception("Shortenlink service is not enabled.");
+				throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, "Shortenlink service is not enabled.");
 			
 			String decodedString = StringUtility.decodeRequestString(request.getQueryString());
 			String shortenLink = getShortenLink(decodedString);

@@ -11,14 +11,47 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.exceptions;
 
-import heigit.ors.common.StatusCode;
-
-public class ParameterOutOfRangeException extends StatusCodeException 
+public class StatusCodeException extends Exception 
 {
-	private static final long serialVersionUID = 7728944138955234463L;
-
-	public ParameterOutOfRangeException(String paramName, String value, String maxRangeValue)
+	private static final long serialVersionUID = 5306540089149750357L;
+	
+	private int _statusCode = 200;
+	private int _internalCode = 200;
+   
+	public StatusCodeException(int statusCode, int internalCode)
 	{
-		super(StatusCode.BAD_REQUEST, "Parameter '" + paramName + "="+ value +"' is out of range. Maximum possible value is " + maxRangeValue + ".");
+		super();
+	}
+	
+	public StatusCodeException(int statusCode)
+	{
+		super();
+		
+		_statusCode = statusCode;
+	}
+	
+	public StatusCodeException(int statusCode, String message)
+	{
+		super(message);
+		
+		_statusCode = statusCode;
+	}
+	
+	public StatusCodeException(int statusCode, int internalCode, String message)
+	{
+		super(message);
+		
+		_statusCode = statusCode;
+		_internalCode = internalCode;
+	}
+	
+	public int getStatusCode()
+	{
+		return _statusCode;
+	}
+	
+	public int getInternalCode()
+	{
+		return _internalCode;
 	}
 }

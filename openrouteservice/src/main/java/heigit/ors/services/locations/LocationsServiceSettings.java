@@ -20,12 +20,15 @@ public class LocationsServiceSettings
 	private static String providerName = null;
 	private static Map<String, Object> providerParameters;
 	private static int responseLimit = 100;
+	private static int maximumCategories = 5;
 	// maximum allowed length of a linestring, measured in meters
     private static double maximumFeatureLength = -1.0;	
     // maximum allowed area of a polygon, measured in square meters
     private static double  maximumFeatureArea = -1.0; 
-    // maximum allowed search radius
-    private static double maximumSearchRadius = 200;
+    // maximum allowed search radius, measured in meters
+    private static double maximumSearchRadiusForPoints = 20000;
+    private static double maximumSearchRadiusForLinestrings = 500;
+    private static double maximumSearchRadiusForPolygons = 500;
 	private static String attribution = "";
 	private static boolean enabled = true;
 
@@ -41,6 +44,10 @@ public class LocationsServiceSettings
 		
 		providerParameters = AppConfig.Global().getServiceParametersMap("locations", "provider_parameters");
 
+		value = AppConfig.Global().getServiceParameter("locations", "maximum_categories");
+		if (value != null)
+			maximumCategories = Integer.parseInt(value);
+		
 		value = AppConfig.Global().getServiceParameter("locations", "maximum_feature_length");
 		if (value != null)
 			maximumFeatureLength = Double.parseDouble(value);
@@ -49,9 +56,17 @@ public class LocationsServiceSettings
 		if (value != null)
 			maximumFeatureArea = Double.parseDouble(value);
 		
-		value = AppConfig.Global().getServiceParameter("locations", "maximum_search_radius");
+		value = AppConfig.Global().getServiceParameter("locations", "maximum_search_radius_for_points");
 		if (value != null)
-			maximumSearchRadius = Double.parseDouble(value);
+			maximumSearchRadiusForPoints = Double.parseDouble(value);
+		
+		value = AppConfig.Global().getServiceParameter("locations", "maximum_search_radius_for_linestrings");
+		if (value != null)
+			maximumSearchRadiusForLinestrings = Double.parseDouble(value);
+		
+		value = AppConfig.Global().getServiceParameter("locations", "maximum_search_radius_for_polygons");
+		if (value != null)
+			maximumSearchRadiusForPolygons = Double.parseDouble(value);		
 
 		value = AppConfig.Global().getServiceParameter("locations", "response_limit");
 		if (value != null)
@@ -77,6 +92,11 @@ public class LocationsServiceSettings
 		return providerParameters;
 	}
 	
+	public static int getMaximumCategories()
+	{
+		return maximumCategories;
+	}
+	
 	public static double getMaximumFeatureLength()
 	{
 		return maximumFeatureLength;
@@ -87,9 +107,19 @@ public class LocationsServiceSettings
 		return maximumFeatureArea;
 	}
 	
-	public static double getMaximumSearchRadius()
+	public static double getMaximumSearchRadiusForPoints()
 	{
-		return maximumSearchRadius;
+		return maximumSearchRadiusForPoints;
+	}
+
+	public static double getMaximumSearchRadiusForLinestrings()
+	{
+		return maximumSearchRadiusForLinestrings;
+	}
+	
+	public static double getMaximumSearchRadiusForPolygons()
+	{
+		return maximumSearchRadiusForPolygons;
 	}
 
 	public static int getResponseLimit()

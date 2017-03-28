@@ -31,10 +31,11 @@ import heigit.ors.routing.graphhopper.extensions.flagencoders.*;
 import heigit.ors.routing.parameters.VehicleParameters;
 import heigit.ors.routing.pathprocessors.ElevationSmoothPathProcessor;
 import heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
-import heigit.ors.routing.configuration.RouteManagerConfiguration;
+import heigit.ors.routing.configuration.RoutingManagerConfiguration;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
 import heigit.ors.services.routing.RoutingRequest;
+import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.CoordTools;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.isochrones.IsochroneMap;
@@ -56,7 +57,6 @@ public class RoutingProfileManager {
 	private RoutingProfilesCollection _routeProfiles;
 	private RoutingProfilesUpdater _profileUpdater;
 	private static RoutingProfileManager mInstance;
-	private double _dynamicWeightingMaxDistance = 0; 
 
 	public static synchronized RoutingProfileManager getInstance() throws IOException {
 		if (mInstance == null)
@@ -93,7 +93,7 @@ public class RoutingProfileManager {
 		{
 			registerFlagEncoders();
 			
-			RouteManagerConfiguration rmc = RouteManagerConfiguration.loadFromFile(graphProps);
+			RoutingManagerConfiguration rmc = RoutingManagerConfiguration.loadFromFile(graphProps);
 			RoutingProfilesCollection coll = new RoutingProfilesCollection();
 			RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
 			int nRouteInstances = rmc.Profiles.length;
@@ -105,7 +105,7 @@ public class RoutingProfileManager {
 
 				LOGGER.info("Preparing route profile in "  + rpc.GraphPath + " ...");
                
-				RoutingProfile rp = new RoutingProfile(rmc.SourceFile, rpc, coll, loadCntx);
+				RoutingProfile rp = new RoutingProfile(RoutingServiceSettings.getSourceFile(), rpc, coll, loadCntx);
 				
 				rp.close();
 				
@@ -131,15 +131,14 @@ public class RoutingProfileManager {
 		
 		long startTime = System.currentTimeMillis();
 		
-		try {
-			RouteManagerConfiguration rmc = RouteManagerConfiguration.loadFromFile(graphProps);
+		try 
+		{
+			RoutingManagerConfiguration rmc = RoutingManagerConfiguration.loadFromFile(graphProps);
 
-			LOGGER.info(String.format("====> Initializing profiles (%d threads) ...", rmc.InitializationThreads));
+			LOGGER.info(String.format("====> Initializing profiles (%d threads) ...", RoutingServiceSettings.getInitializationThreads()));
 			LOGGER.info("                              ");
 
-			_dynamicWeightingMaxDistance = rmc.DynamicWeightingMaxDistance;
-			
-			if ("PrepareGraphs".equalsIgnoreCase(rmc.Mode)) {
+			if ("PrepareGraphs".equalsIgnoreCase(RoutingServiceSettings.getWorkingMode())) {
 				prepareGraphs(graphProps);
 			} else {
 				registerFlagEncoders();
@@ -148,7 +147,7 @@ public class RoutingProfileManager {
 				int nRouteInstances = rmc.Profiles.length;
 
 				RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
-				ExecutorService executor = Executors.newFixedThreadPool(rmc.InitializationThreads);
+				ExecutorService executor = Executors.newFixedThreadPool(RoutingServiceSettings.getInitializationThreads());
 				List<Future<RoutingProfile>> list = new ArrayList<Future<RoutingProfile>>();
 				
 				int j = 1;
@@ -163,7 +162,7 @@ public class RoutingProfileManager {
 					Integer[] routeProfiles = rpc.getProfilesTypes();
 
 					if (routeProfiles != null) {
-						Callable<RoutingProfile> worker = new RoutingProfileLoader(rmc.SourceFile, rpc,
+						Callable<RoutingProfile> worker = new RoutingProfileLoader(RoutingServiceSettings.getSourceFile(), rpc,
 								_routeProfiles, loadCntx);
 						Future<RoutingProfile> submit = executor.submit(worker);
 						list.add(submit);
@@ -301,10 +300,10 @@ public class RoutingProfileManager {
 		boolean chEnabled = !dynamicWeights;
 		boolean checkDistance = true;
 		
-		if (chEnabled == false && _dynamicWeightingMaxDistance > 0.0)
+		if (chEnabled == false && RoutingServiceSettings.getDynamicWeightingMaximumDistance() > 0.0)
 		{
 			double dist = CoordTools.calcDistHaversine(lon0, lat0, lon1, lat1);
-			if (dist > _dynamicWeightingMaxDistance)
+			if (dist > RoutingServiceSettings.getDynamicWeightingMaximumDistance())
 			{
 				chEnabled = true;
 				dynamicWeights = false;

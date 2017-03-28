@@ -246,7 +246,7 @@ public class MemSQLLocationsDataProvider implements LocationsDataProvider
 		catch(Exception ex)
 		{
 			LOGGER.error(ex);
-			exception = new Exception("Unable to retrieve data from the data source. " + ex.getMessage());
+			exception = new Exception("Unable to retrieve data from the data source.");
 		}
 		finally
 		{
@@ -321,7 +321,7 @@ public class MemSQLLocationsDataProvider implements LocationsDataProvider
 
 		if (request.getSortType() != LocationsResultSortType.NONE)
 		{
-			if (request.getSortType() == LocationsResultSortType.CATEGORIES)
+			if (request.getSortType() == LocationsResultSortType.CATEGORY)
 				stateText += " ORDER BY category";
 			else if (request.getSortType() == LocationsResultSortType.DISTANCE)
 			{
@@ -389,7 +389,7 @@ public class MemSQLLocationsDataProvider implements LocationsDataProvider
 			for (Map.Entry<Integer, Map<Integer, Long>> stats : groupsStats.entrySet())
 			{
 				int groupIndex = stats.getKey();
-				LocationsCategory lc = new LocationsCategory(LocationsCategoryClassifier.getGroupName(groupIndex), stats.getValue(), groupCount[groupIndex]);
+				LocationsCategory lc = new LocationsCategory(LocationsCategoryClassifier.getGroupId(groupIndex), LocationsCategoryClassifier.getGroupName(groupIndex), stats.getValue(), groupCount[groupIndex]);
 
 				results.add(lc);
 			}
@@ -397,7 +397,7 @@ public class MemSQLLocationsDataProvider implements LocationsDataProvider
 		catch(Exception ex)
 		{
 			LOGGER.error(ex);
-			exception = new Exception("Unable to retrieve data from the data source. " + ex.getMessage());
+			exception = new Exception("Unable to retrieve data from the data source.");
 		}
 		finally
 		{

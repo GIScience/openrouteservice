@@ -172,6 +172,13 @@ public class LocationsCategoryClassifier
 			return null;
 	}
 
+	public static int getGroupId(int groupIndex)
+	{
+		if (_categoryGroups != null && groupIndex >=0 && groupIndex < _categoryGroups.length)
+			return _categoryGroups[groupIndex].getId();
+		else
+			return -1;
+	}
 	public static LocationsCategoryGroup getGroupById(int groupId)
 	{
 		return _groupsMap.get(groupId);

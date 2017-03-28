@@ -13,28 +13,18 @@ import com.vividsolutions.jts.geom.Envelope;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.FileUtility;
 
-public class RouteManagerConfiguration {
-	public String SourceFile;
-	public int InitializationThreads;
-	public String Mode = "Normal"; // Normal or PrepareGraphs
-	public double DynamicWeightingMaxDistance = 0;
+public class RoutingManagerConfiguration 
+{
 	public RouteUpdateConfiguration UpdateConfig;
 	public TrafficInformationConfiguration TrafficInfoConfig;
 	public RouteProfileConfiguration[] Profiles;
 
-	public static RouteManagerConfiguration loadFromFile(String path) throws IOException, Exception
+	public static RoutingManagerConfiguration loadFromFile(String path) throws IOException, Exception
 	{
-		RouteManagerConfiguration gc = new RouteManagerConfiguration();
+		RoutingManagerConfiguration gc = new RoutingManagerConfiguration();
 
 		if (!Helper.isEmpty(path))
 			RoutingServiceSettings.loadFromFile(path);
-
-		gc.SourceFile = RoutingServiceSettings.getParametersList("sources").get(0);
-		gc.Mode = RoutingServiceSettings.getParameter("mode");
-		if (RoutingServiceSettings.getParameter("init_threads") != null)
-			gc.InitializationThreads = Math.max(1, Integer.parseInt(RoutingServiceSettings.getParameter("init_threads")));
-		if(RoutingServiceSettings.getParameter("maximum_distance_with_dynamic_weights") != null)
-			gc.DynamicWeightingMaxDistance = Double.parseDouble(RoutingServiceSettings.getParameter("maximum_distance_with_dynamic_weights"));
 
 		// Read profile settings
 		List<RouteProfileConfiguration> profiles = new ArrayList<RouteProfileConfiguration>();
