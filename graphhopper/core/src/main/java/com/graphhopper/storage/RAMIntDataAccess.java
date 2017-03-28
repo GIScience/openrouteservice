@@ -23,6 +23,8 @@ import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
+import com.graphhopper.util.StopWatch;
+
 /**
  * This is an in-memory data structure based on an integer array. With the possibility to be stored
  * on flush().
@@ -148,29 +150,31 @@ class RAMIntDataAccess extends AbstractDataAccess
             RandomAccessFile raFile = new RandomAccessFile(getFullName(), "r");
             try
             {
+              
                 long byteCount = readHeader(raFile) - HEADER_OFFSET;
                 if (byteCount < 0)
                 {
                     return false;
                 }
+                int segmentCount = (int) (byteCount / segmentSizeInBytes);
+
                 byte[] bytes = new byte[segmentSizeInBytes];
                 raFile.seek(HEADER_OFFSET);
                 // raFile.readInt() <- too slow                
-                int segmentCount = (int) (byteCount / segmentSizeInBytes);
                 if (byteCount % segmentSizeInBytes != 0)
                     segmentCount++;
 
                 segments = new int[segmentCount][];
-                for (int s = 0; s < segmentCount; s++)
-                {
-                    int read = raFile.read(bytes) / 4;
-                    int area[] = new int[read];
-                    for (int j = 0; j < read; j++)
-                    {
-                        area[j] = bitUtil.toInt(bytes, j * 4);
-                    }
-                    segments[s] = area;
-                }
+                
+                for (int s = 0; s < segmentCount; s++) {
+            		int read = raFile.read(bytes) / 4;
+            		int area[] = new int[read];
+            		for (int j = 0; j < read; j++) {
+            			area[j] = bitUtil.toInt(bytes, j * 4);
+            		}
+            		segments[s] = area;
+            	}   
+                
                 return true;
             } finally
             {

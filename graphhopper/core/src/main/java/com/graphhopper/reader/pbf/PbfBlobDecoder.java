@@ -121,6 +121,9 @@ public class PbfBlobDecoder implements Runnable
          */
     }
 
+    // Runge: add variable to reuse it multiple times
+    private Map<String, String> entityTags = null;
+    
     private Map<String, String> buildTags( List<Integer> keys, List<Integer> values, PbfFieldDecoder fieldDecoder )
     {
 
@@ -138,14 +141,19 @@ public class PbfBlobDecoder implements Runnable
         Iterator<Integer> valueIterator = values.iterator();
         if (keyIterator.hasNext())
         {
-            Map<String, String> tags = new HashMap<String, String>(keys.size());
+        	if (entityTags == null)
+        		entityTags = new HashMap<String, String>(keys.size());
+        	else
+        		entityTags.clear();
+        	
+            //Map<String, String> tags = new HashMap<String, String>(keys.size());
             while (keyIterator.hasNext())
             {
                 String key = fieldDecoder.decodeString(keyIterator.next());
                 String value = fieldDecoder.decodeString(valueIterator.next());
-                tags.put(key, value);
+                entityTags.put(key, value);
             }
-            return tags;
+            return entityTags;
         }
         return null;
     }

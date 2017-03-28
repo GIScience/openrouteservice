@@ -44,7 +44,6 @@ import com.graphhopper.reader.OSMTurnRelation.TurnCostTableEntry;
 import com.graphhopper.reader.dem.ElevationProvider;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.storage.*;
-import com.graphhopper.storage.GraphExtension.ExtendedStorageSequence;
 import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.GHPoint;
 
@@ -479,6 +478,7 @@ public class OSMReader implements DataReader
         	// do nothing
         	// encodingManager.getEncoder(EncodingManager.WHEELCHAIR); throws an exception for all graph storages that do not contain the wheelchair profile
         }
+        
         for (EdgeIteratorState edge : createdEdges)
         {
         	processEdge(way, edge);

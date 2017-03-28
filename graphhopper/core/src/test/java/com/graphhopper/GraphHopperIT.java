@@ -201,8 +201,11 @@ public class GraphHopperIT
         req.getHints().put("heading_penalty", "300");
         GHResponse rsp = hopper.route(req);
 
-        assertEquals(874., rsp.getDistance(), 10.);
-        assertEquals(33, rsp.getPoints().getSize());
+        //assertEquals(874., rsp.getDistance(), 10.); // Runge  REACH_DEST changed to AVOID_AT_ALL_COSTS
+        assertEquals(921.8312498729247, rsp.getDistance(), 10.);
+        
+        //assertEquals(33, rsp.getPoints().getSize());
+        assertEquals(38, rsp.getPoints().getSize());
     }
 
     @Test

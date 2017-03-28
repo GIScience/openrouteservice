@@ -119,6 +119,7 @@ public class Downloader
         int size = 8 * 1024;
         BufferedOutputStream writer = new BufferedOutputStream(new FileOutputStream(toFile), size);
         InputStream in = new BufferedInputStream(iStream, size);
+        
         try
         {
             byte[] buffer = new byte[size];
@@ -127,7 +128,12 @@ public class Downloader
             {
                 writer.write(buffer, 0, numRead);
             }
-        } finally
+        }
+        catch(Exception ex)
+        {
+        	throw new IOException(ex.getMessage()); // Runge
+        }
+        finally
         {
             writer.close();
             in.close();

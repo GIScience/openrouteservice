@@ -43,6 +43,14 @@ public class Dijkstra extends AbstractRoutingAlgorithm
     protected EdgeEntry currEdge;
     protected int visitedNodes;
     protected int to = -1;
+    
+    protected Boolean reverseDirection = false;
+    
+    // Runge: this flag has been update to support reverse direction in isochrones
+    public void setReverseDirection(Boolean reverse)
+    {
+    	reverseDirection = reverse;	
+    }
 
     public Dijkstra( Graph g, FlagEncoder encoder, Weighting weighting, TraversalMode tMode )
     {
@@ -87,7 +95,7 @@ public class Dijkstra extends AbstractRoutingAlgorithm
                     continue;
 
                 int traversalId = traversalMode.createTraversalId(iter, false);
-                double tmpWeight = weighting.calcWeight(iter, false, currEdge.originalEdge) + currEdge.weight; // Runge: substitute  currEdge.edge for currEdge.originalEdge
+                double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight; // Runge: substitute  currEdge.edge for currEdge.originalEdge
                 if (Double.isInfinite(tmpWeight))
                     continue;
 

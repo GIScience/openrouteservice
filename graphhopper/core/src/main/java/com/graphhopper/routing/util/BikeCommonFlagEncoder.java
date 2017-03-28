@@ -780,13 +780,7 @@ public class BikeCommonFlagEncoder extends AbstractFlagEncoder
 				// for short edges an incline makes no sense and for 0 distances could lead to NaN values for speed, see #432
 				if (fullDist2D < 1)
 					return;
-				
-				if (way.getId() == 25157163)
-				{
-					int i = 0;
-					i++;
-				}
-
+ 
 				double wayMaxSpeed = getMaxSpeed(way);
 				double maxSpeed = getDownhillMaxSpeed(); // getHighwaySpeed("cycleway");
 				if (wayMaxSpeed != -1)
@@ -922,7 +916,7 @@ public class BikeCommonFlagEncoder extends AbstractFlagEncoder
 		}
 	}
 
-	private double getGradientSpeed(double speed, int gradient)
+	protected double getGradientSpeed(double speed, int gradient)
 	{
 		if (gradient < -18)
 		{
@@ -1066,12 +1060,12 @@ public class BikeCommonFlagEncoder extends AbstractFlagEncoder
 		return highwaySpeeds.get(key);
 	}
 
-	void setTrackTypeSpeed( String tracktype, int speed )
+	protected void setTrackTypeSpeed( String tracktype, int speed )
 	{
 		trackTypeSpeeds.put(tracktype, speed);
 	}
 
-	void setSurfaceSpeed( String surface, int speed )
+	protected void setSurfaceSpeed( String surface, int speed )
 	{
 		surfaceSpeeds.put(surface, speed);
 	}
