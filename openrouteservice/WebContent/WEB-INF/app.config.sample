@@ -19,51 +19,36 @@
 			}
 			geocoding: {
 				enabled: true,
-				#geocoder_name: photon,
-				#geocoding_url: "http://129.206.7.103:2322/api",
-				#reverse_geocoding_url: "http://129.206.7.103:2322/reverse",
-                                geocoder_name: pelias,
+				# Possible geocoder names are photon, pelias or nominatim
+                geocoder_name: GEOCODER_NAME,
 				geocoding_url: "http://GEOCODING_SERVICE_URL",
 				reverse_geocoding_url: "http://REVERSE_GEOCODING_SERVICE_URL",
 				user_agent: openrouteservice.org,
 				attribution: "openrouteservice.org, OpenStreetMap contributors"
 			}
 			locations: {
-				enabled: true,
-				provider_name: memsql,
+				enabled: false,
+				# Possible providers are postgresql, memsql
+				provider_name: PROVIDER_NAME,
 				provider_parameters: {
-				    # *********** connection settings ***********
-				    host: "MEMSQL_HOST",
-				    port: 3306,
-				    db_name: "MEMSQL_DB_NAME",
-				    user: "MEMSQL_USER", 
-				    #password : "", 
-                                    query: "SELECT osm_id, category, category_type, name, opening_hours, phone, website, access, smoking, GEOGRAPHY_LONGITUDE(!geometry_column!) AS lon, GEOGRAPHY_LATITUDE(!geometry_column!) AS lat FROM planet_osm_pois",
-				    geometry_column: "way"
-                                    longitude_column: "lon",
-				    latitude_column: "lat",
- 			        },				
-
-				provider_parameters2: {
-				    # *********** connection settings ***********
-				    host: "DB_HOST",
-				    port: 5433,
-				    db_name: "DB_NAME",
-				    user: "DB_USER", 
-				    password : "DB_PASSWORD", 
-				    max_pool_size: 15,
-				    # *********** query parameters ***********
-				    query: "SELECT osm_id, category, category_type, name, opening_hours, phone, website, access, smoking, ST_AsBinary(ST_Transform(!geometry_column!, 4326)) as !geometry_column! FROM planet_osm_pois",
-				    geometry_column: "way",
-				    geometry_srid: 900913
-				},				
+				    # *********** connection settings for postgresql ***********
+				    host: "DATABASE_HOST",
+				    port: 5432,
+				    db_name: "DATABASE_NAME",
+				    user: "DATABASE_USER_NAME", 
+ 				    password : "DATABASE_USER_PASSWORD", 
+                    table_name : "TABLE_NAME"
+ 			    },				
 				response_limit: 1000,
-                                # maximum allowed length of a linestring, measured in meters
-                                maximum_feature_length: 10000000,
-                                # maximum allowed area of a polygon, measured in square meters
-                                maximum_feature_area: -1, 
-                                # maximum allowed search radius 
-                                maximum_search_radius: 200,
+				maximum_categories: 5,
+                # maximum allowed length of a linestring, measured in meters
+                maximum_feature_length: 10000000,
+                # maximum allowed area of a polygon, measured in square meters
+                maximum_feature_area: -1, 
+                # maximum allowed search radius 
+                maximum_search_radius_for_points: 20000,
+                maximum_search_radius_for_linestrings: 1000,
+                maximum_search_radius_for_polygons: 1000,
 				attribution: "openrouteservice.org, OpenStreetMap contributors"
 			}
 			routing: {
@@ -84,7 +69,7 @@
 						graphs_root_path: "D:/Temp/GHGraphs", 
 						elevation_provider: cgiar,
 						elevation_cache_path: "D:/Temp/cgiar_provider",
- 	          		                instructions: true
+ 	          		    instructions: true
 					},
 
 					profile-vehicles: {
@@ -196,7 +181,7 @@
 		logging: {
 			enabled: true,
 			level_file: "DEBUG_LOGGING.properties",
-			location: "D:/Temp/output/ors.log",
+			location: "LOG_FILE_PATH",
 			stdout: true
 		}
 	}
