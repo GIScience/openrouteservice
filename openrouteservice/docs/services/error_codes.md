@@ -8,7 +8,8 @@ The following table describes the supported HTTP status codes.
 | 400 |  TODO |
 | 405 |  TODO |
 | 413 |  TODO |
-| 500 |  An unexpected error was encountered and more detailed internal error code is provided. |
+| 413 |  TODO |
+| 500 |  An unexpected error was encountered and more detailed internal error code is provided (see **Internal Error Codes**). |
 | 501 |  Indicates that the server does not support the functionality needed to fulfill the request. |
 | 503 |  The server is currently unavailable due to overload or maintenance. |
 
