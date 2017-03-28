@@ -1,6 +1,6 @@
 #accomodation		100							
 tourism	alpine_hut	101							
-tourism	apparmtent	102							
+tourism	appartment	102							
 tourism	camp_site	103							
 tourism	caravan_site	104							
 tourism	chalet	105							
