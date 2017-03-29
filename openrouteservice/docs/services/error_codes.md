@@ -17,7 +17,7 @@ The following table describes the supported HTTP status codes.
 
 The following sections describes the list of possible internal error codes that might be provided by different ORS EndPoints. 
 
-## Geocoding
+## Geocoding API
 | Error Code   |  Description |
 |----------|-------------|
 | 100 |  Unable to parse JSON request. |
@@ -27,14 +27,14 @@ The following sections describes the list of possible internal error codes that 
 | 104 |  Parameter value exceeds the maximum allowed limit. |
 | 199 |  Unknown internal error. |
 
-## Routing
+## Routing API
 | Error Code   |  Description |
 |----------|-------------|
 | 200 |  Unable to parse JSON request. |
 | 299 |  Unknown internal error. |
 
 
-## Isochrones
+## Isochrones API
 | Error Code   |  Description |
 |----------|-------------|
 | 300 |  Unable to parse JSON request. |
@@ -45,7 +45,7 @@ The following sections describes the list of possible internal error codes that 
 | 305 |  Requested feature is not supported. |
 | 399 |  Unknown internal error. |
 
-## Locations
+## Locations API
 | Error Code   |  Description |
 |----------|-------------|
 | 400 |  Unable to parse JSON request. |
