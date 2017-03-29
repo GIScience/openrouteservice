@@ -179,19 +179,12 @@ public class PbfDecoder implements Runnable
     @Override
     public void run()
     {
-        lock.lock();
-        try
-        {
-            processBlobs();
+    	 lock.lock();
+         try {
+             processBlobs();
 
-        }
-        catch(Exception ex)
-        {
-        	throw ex;
-        }
-        finally
-        {
-            lock.unlock();
-        }
+         } finally {
+             lock.unlock();
+         }
     }
 }
