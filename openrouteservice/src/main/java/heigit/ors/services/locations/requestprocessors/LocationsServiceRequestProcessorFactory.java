@@ -17,6 +17,7 @@ import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
+import heigit.ors.locations.LocationsErrorCodes;
 import heigit.ors.services.locations.LocationsServiceSettings;
 import heigit.ors.services.locations.requestprocessors.json.JsonLocationsRequestProcessor;
 
@@ -37,6 +38,6 @@ public class LocationsServiceRequestProcessorFactory {
 		if (formatParam.equalsIgnoreCase("json"))
 			return new JsonLocationsRequestProcessor(request);
 		else 
-			throw new UnknownParameterValueException("format", formatParam);
+			throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "format", formatParam);
 	}
 }

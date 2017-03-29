@@ -9,20 +9,15 @@
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-package heigit.ors.exceptions;
+package heigit.ors.isochrones;
 
-import heigit.ors.common.StatusCode;
-
-public class UnknownParameterValueException extends StatusCodeException{
-	private static final long serialVersionUID = 4866998272349837464L;
-
-	public UnknownParameterValueException(String paramName, String paramValue)
-	{
-		this(-1 ,paramName, paramValue);
-	}
-	
-	public UnknownParameterValueException(int errorCode, String paramName, String paramValue)
-	{
-		super(StatusCode.BAD_REQUEST, errorCode, "Unknown parameter value '" + paramValue + "' for '" + paramName + "'.");
-	}
+public class IsochronesErrorCodes 
+{
+	public static int INVALID_JSON_FORMAT = 300;
+	public static int MISSING_PARAMETER = 301;
+	public static int INVALID_PARAMETER_FORMAT = 302;
+	public static int INVALID_PARAMETER_VALUE = 303;
+	public static int PARAMETER_VALUE_EXCEEDS_MAXIMUM = 304;
+	public static int FEATURE_NOT_SUPPORTED = 305;
+	public static int UNKNOWN = 399;
 }

@@ -22,6 +22,7 @@ import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.FormatUtility;
+import heigit.ors.util.OrderedJSONObjectFactory;
 import heigit.ors.util.StringUtility;
 
 import com.graphhopper.storage.StorableProperties;
@@ -34,7 +35,7 @@ public class RoutingServiceUtils {
 	public static void writeRouteInfo(HttpServletRequest req, HttpServletResponse res) throws Exception {
 		RoutingProfileManager profileManager = RoutingProfileManager.getInstance();
 
-		JSONObject props = createJsonObject();
+		JSONObject props = OrderedJSONObjectFactory.create();
 
 		if (profileManager.getProfiles().getUniqueProfiles().size() > 0) {
 			
@@ -186,11 +187,5 @@ public class RoutingServiceUtils {
 		} catch (IOException ex) {
 			// logger.error("Cannot write message:" + str, ex);
 		}
-	}
-
-	private static JSONObject createJsonObject()
-	{
-		Map<String,String > map =  new LinkedHashMap<String, String>();
-		return new JSONObject(map);
 	}
 }

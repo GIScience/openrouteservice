@@ -37,6 +37,8 @@ import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageB
 import heigit.ors.routing.parameters.*;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.*;
 import heigit.ors.isochrones.IsochroneSearchParameters;
+import heigit.ors.isochrones.IsochronesErrorCodes;
+import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.isochrones.IsochroneMapBuilderFactory;
 import heigit.ors.routing.RouteSearchParameters;
@@ -348,8 +350,9 @@ public class RoutingProfile
 		} catch (Exception ex) {
 			endUseGH();
 
-			ex.printStackTrace();
-			throw new Exception("Unable to build isochrone map. " + ex.toString());
+			LOGGER.error(ex);
+
+			throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to build isochrone map.");
 		}
 
 		return result;
@@ -367,7 +370,7 @@ public class RoutingProfile
 
 		if (searchParams.hasAvoidAreas()) {
 			if (encoderName.isEmpty())
-				throw new Exception("vehicle parameter is empty.");
+				throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "vehicle parameter is empty.");
 
 			if (!mGraphHopper.getEncodingManager().supports(encoderName)) {
 				throw new IllegalArgumentException("Vehicle " + encoderName + " unsupported. " + "Supported are: "
@@ -596,7 +599,9 @@ public class RoutingProfile
 		} catch (Exception ex) {
 			endUseGH();
 
-			throw ex;
+			LOGGER.error(ex);
+			
+			throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to compute a route between coordinates %s-%s", Double.toString(lon0) + ", " + Double.toString(lat0),  Double.toString(lon1) + ", " + Double.toString(lat1)));
 		}
 
 		return resp;

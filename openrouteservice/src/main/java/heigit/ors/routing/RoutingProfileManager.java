@@ -38,6 +38,7 @@ import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.CoordTools;
 import heigit.ors.isochrones.IsochroneSearchParameters;
+import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.routing.RoutingProfilesCollection;
 import heigit.ors.routing.RouteSearchParameters;
@@ -336,9 +337,9 @@ public class RoutingProfileManager {
 
 		if (rp == null) {
 			if (checkDistance)
-				throw new Exception("Unable to get an appropriate route profile instance for RoutePreference = " + RoutingProfileType.getName(profileType));
+				throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to get an appropriate route profile instance for RoutePreference = " + RoutingProfileType.getName(profileType));
 			else
-				throw new Exception("The requested route is too long and therefore cann't be processed due to a lack of resources.");
+				throw new InternalServerException(RoutingErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "The requested route is too long and therefore cann't be processed due to a lack of resources.");
 		}
 
 		return rp;

@@ -17,6 +17,7 @@ import heigit.ors.services.routing.requestprocessors.json.JsonRoutingRequestProc
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
+import heigit.ors.routing.RoutingErrorCodes;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.services.routing.requestprocessors.TmcInformationRequestProcessor;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
@@ -29,7 +30,7 @@ public class RoutingServiceRequestProcessorFactory {
 	{
 		if (!RoutingServiceSettings.getEnabled())
 			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, "Routing service is not enabled.");
-		
+
 		String requestParam = request.getParameter("request");
 
 		if (Helper.isEmpty(requestParam))
@@ -51,8 +52,9 @@ public class RoutingServiceRequestProcessorFactory {
 			//else if (formatParam.equalsIgnoreCase("xml"))
 			//	return new XmlRouteRequestProcessor(request);
 			else 
-				throw new UnknownParameterValueException("format", formatParam);
+				throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "format", formatParam);
 		default:
-			throw new UnknownParameterValueException("request", requestParam);		}
+			throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "request", requestParam);		
+		}
 	}
 }

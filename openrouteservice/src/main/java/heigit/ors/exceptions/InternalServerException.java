@@ -22,13 +22,13 @@ public class InternalServerException extends StatusCodeException
 	  this(1);
 	}
 	
-	public InternalServerException(int code)
+	public InternalServerException(int errorCode)
 	{
-		super(StatusCode.INTERNAL_SERVER_ERROR, code);
+		super(StatusCode.INTERNAL_SERVER_ERROR, errorCode, "Unknown internal server error has occured.");
 	}
 	
-	public InternalServerException(int code, String message)
+	public InternalServerException(int errorCode, String message)
 	{
-		super(StatusCode.INTERNAL_SERVER_ERROR, code, message);
+		super(StatusCode.INTERNAL_SERVER_ERROR, errorCode, message);
 	}
 }

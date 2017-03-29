@@ -16,7 +16,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.swing.plaf.basic.BasicDirectoryModel;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -30,7 +29,10 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import heigit.ors.common.Pair;
 import heigit.ors.common.StatusCode;
+import heigit.ors.exceptions.MissingParameterException;
+import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.StatusCodeException;
+import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
@@ -38,6 +40,7 @@ import heigit.ors.services.isochrones.requestprocessors.json.JsonIsochroneReques
 import heigit.ors.services.isochrones.IsochroneRequest;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.isochrones.IsochroneUtility;
+import heigit.ors.isochrones.IsochronesErrorCodes;
 import heigit.ors.isochrones.IsochronesIntersection;
 import heigit.ors.isochrones.IsochronesRangeType;
 import heigit.ors.isochrones.Isochrone;
@@ -50,15 +53,17 @@ import heigit.ors.util.OrderedJSONObjectFactory;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.StringUtility;
 
-public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor {
+public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor 
+{
 
-	public JsonIsochronesRequestProcessor(HttpServletRequest request) throws Exception {
+	public JsonIsochronesRequestProcessor(HttpServletRequest request) throws Exception
+	{
 		super(request);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public void process(HttpServletResponse response) throws Exception {
+	public void process(HttpServletResponse response) throws Exception 
+	{
 		String reqMethod = _request.getMethod();
 
 		IsochroneRequest req = null;
@@ -81,27 +86,27 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 		{
 			String profileName = _request.getParameter("profile");
 			if (Helper.isEmpty(profileName))
-				throw new Exception("Unknown profile name.");
+				throw new MissingParameterException(IsochronesErrorCodes.MISSING_PARAMETER, "profile");
 			else
-				throw new Exception("Unknown profile name '" + profileName +"'.");
+				throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "profile", profileName);
 		}
 
 		if (!req.isValid())
-			throw new Exception("IsochronesRequest is not valid.");
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, "IsochronesRequest is not valid.");
 
 		if (IsochronesServiceSettings.getAllowComputeArea() == false && req.hasAttribute("area"))
-			throw new Exception("Area computation is not allowed.");
+			throw new StatusCodeException(IsochronesErrorCodes.FEATURE_NOT_SUPPORTED, "Area computation is not enabled.");
 
 		if (req.getLocations().length > IsochronesServiceSettings.getMaximumLocations())
-			throw new Exception("Number of requested locations is greater than allowed.");
+			throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations", Integer.toString(req.getLocations().length), Integer.toString(IsochronesServiceSettings.getMaximumLocations()));
 
 		if (req.getMaximumRange() > IsochronesServiceSettings.getMaximumRange(req.getRangeType()))
-			throw new Exception("Requested range is greater than allowed. Maximum value is "+ IsochronesServiceSettings.getMaximumRange(req.getRangeType()) +".");
+			throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(IsochronesServiceSettings.getMaximumRange(req.getRangeType())), Double.toString(req.getMaximumRange()));
 
 		if (IsochronesServiceSettings.getMaximumIntervals() > 0)
 		{
 			if (IsochronesServiceSettings.getMaximumIntervals() < req.getRanges().length)
-				throw new Exception("Number of intervals is greater than allowed. Maximum value is " + IsochronesServiceSettings.getMaximumIntervals() + ".");
+				throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(req.getRanges().length), Integer.toString(IsochronesServiceSettings.getMaximumIntervals()));
 		}
 
 		Coordinate[] coords = req.getLocations();
@@ -257,7 +262,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
 		if (request.getUnits() != null)
 			jQuery.put("units", request.getUnits());
-		
+
 		if (request.getLocationType() != null)
 			jQuery.put("location_type", request.getLocationType());
 

@@ -43,6 +43,7 @@ import heigit.ors.locations.LocationDetailsType;
 import heigit.ors.locations.LocationsCategory;
 import heigit.ors.locations.LocationsCategoryClassifier;
 import heigit.ors.locations.LocationsCategoryGroup;
+import heigit.ors.locations.LocationsErrorCodes;
 import heigit.ors.locations.LocationsRequest;
 import heigit.ors.locations.LocationsResult;
 import heigit.ors.locations.LocationsResultSortType;
@@ -105,7 +106,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 
 		String value = (String)parameters.get("table_name");
 		if (Helper.isEmpty(value))
-			throw new Exception("'table_name' parameter can not be null or empty.");
+			throw new InternalServerException(LocationsErrorCodes.UNKNOWN, "'table_name' parameter can not be null or empty.");
 		else
 			_tableName = value;
 	
@@ -221,7 +222,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 		catch(Exception ex)
 		{
 			LOGGER.error(ex);
-			exception = new Exception("Unable to retrieve data from the data source.");
+			exception = new InternalServerException(LocationsErrorCodes.UNKNOWN, "Unable to retrieve data from the data source.");
 		}
 		finally
 		{
@@ -360,7 +361,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 		catch(Exception ex)
 		{
 			LOGGER.error(ex);
-			exception = new Exception("Unable to retrieve data from the data source.");
+			exception = new InternalServerException(LocationsErrorCodes.UNKNOWN, "Unable to retrieve data from the data source.");
 		}
 		finally
 		{

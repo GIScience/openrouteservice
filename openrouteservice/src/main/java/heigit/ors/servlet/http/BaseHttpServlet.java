@@ -11,63 +11,81 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.servlet.http;
 
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.StatusCodeException;
+import heigit.ors.util.AppInfo;
 
 public class BaseHttpServlet extends HttpServlet 
 {
 	private static final long serialVersionUID = 1L;
 	
-    protected static Logger LOGGER = LoggerFactory.getLogger(BaseHttpServlet.class);
+    protected static Logger LOGGER = Logger.getLogger(BaseHttpServlet.class.getName());
 
-	protected void writeError(HttpServletResponse res, Exception ex) 
-	{
-		try
+    protected void writeError(HttpServletResponse res, Exception ex)
+    {
+    	try
 		{
 			JSONObject json = new JSONObject();
-			json.put("message", ex.getMessage());
+			
+			JSONObject jError = new JSONObject();
+			jError.put("message", ex.getMessage());
+			json.put("error", jError);
+			
+			JSONObject jInfo = new JSONObject();
+			jInfo.put("version", AppInfo.VERSION);
+			jInfo.put("timestamp", System.currentTimeMillis());
+			json.put("info", jInfo);
+
+			int statusCode = StatusCode.BAD_REQUEST;
+			int errorCode = -1;
 			
 			if (ex instanceof InternalServerException)
 			{
 				InternalServerException ise = (InternalServerException)ex;
-				json.put("internal_code", ise.getInternalCode());
-				writeError(res, ise.getStatusCode(), json);
+				statusCode = StatusCode.INTERNAL_SERVER_ERROR;
+				errorCode = ise.getInternalCode();
 			}
 			else if (ex instanceof StatusCodeException)
 			{
 				StatusCodeException sce = (StatusCodeException)ex;
-				writeError(res, sce.getStatusCode(), json);
+				statusCode = sce.getStatusCode();
+				errorCode = sce.getInternalCode();
 			}
-			else 
-				writeError(res, SC_BAD_REQUEST, json);
 			
-			LOGGER.error(ex.getMessage());
+			if (errorCode > 0)
+			{
+				jError.put("code", errorCode);
+				writeError(res, statusCode, json);
+			}					
+			else
+				writeError(res, statusCode, json);
+			
+			LOGGER.error(ex);
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.error(e);
 		}
-	}
-
-	protected void writeError(HttpServletResponse res, int code, JSONObject json ) 
+    }
+    
+	protected void writeError(HttpServletResponse res, int httpStatusCode, JSONObject json ) 
 	{
 		try
 		{
 			res.setContentType("application/json");
 			res.setCharacterEncoding("UTF-8");
-			res.setStatus(code);
+			res.setStatus(httpStatusCode);
 			res.getWriter().append(json.toString(2));
 		} catch (Exception ex)
 		{
-			LOGGER.error("Unable to write error " + ex.getMessage());
+			LOGGER.error(ex);
 		}
 	}
 }

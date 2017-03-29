@@ -13,6 +13,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import gnu.trove.map.TIntObjectMap;
 
 import heigit.ors.isochrones.IsochronesRangeType;
+import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.routing.graphhopper.extensions.DijkstraCostCondition;
 import heigit.ors.routing.RouteSearchContext;
@@ -32,7 +33,7 @@ public class GraphEdgeMapFinder {
 		int fromId = res.getClosestNode();
 
 		if (fromId == -1)
-			throw new Exception("The closest node is null.");
+			throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "The closest node is null.");
 	
 		Weighting weighting = null;
 		

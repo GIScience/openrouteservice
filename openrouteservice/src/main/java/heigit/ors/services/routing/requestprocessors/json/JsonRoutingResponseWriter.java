@@ -11,7 +11,6 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.services.routing.requestprocessors.json;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,13 +34,14 @@ import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.FormatUtility;
+import heigit.ors.util.OrderedJSONObjectFactory;
 import heigit.ors.util.PolylineEncoder;
 
 public class JsonRoutingResponseWriter {
 
 	public static String toString(RoutingRequest request, RouteResult[] routeResult) throws Exception
 	{
-		JSONObject jResp = createJsonObject();
+		JSONObject jResp = OrderedJSONObjectFactory.create();
 
 		StringBuffer buffer = new StringBuffer();
 		// *************** routes ***************
@@ -59,12 +59,12 @@ public class JsonRoutingResponseWriter {
 		for (int i = 0; i < nRoutes; ++i)
 		{
 			RouteResult route = routeResult[i];
-			JSONObject jRoute = createJsonObject();
+			JSONObject jRoute = OrderedJSONObjectFactory.create();
 
 			if (request.getIncludeElevation())
 				jRoute.put("elevation", true);
 
-			JSONObject jSummary = createJsonObject();
+			JSONObject jSummary = OrderedJSONObjectFactory.create();
 
 			RouteSummary rSummary = route.getSummary();
 			jSummary.put("distance", rSummary.getDistance());
@@ -93,7 +93,7 @@ public class JsonRoutingResponseWriter {
 					JSONArray jSegments = new JSONArray();
 					for (int j = 0; j < route.getSegments().size(); ++j)
 					{
-						JSONObject jSegment = createJsonObject();
+						JSONObject jSegment = OrderedJSONObjectFactory.create();
 
 						RouteSegment seg = route.getSegments().get(j);
 
@@ -117,7 +117,7 @@ public class JsonRoutingResponseWriter {
 						{
 							RouteStep step = seg.getSteps().get(k);
 
-							JSONObject jStep = createJsonObject();
+							JSONObject jStep = OrderedJSONObjectFactory.create();
 							jStep.put("distance", step.getDistance());
 							jStep.put("duration", step.getDuration());
 							jStep.put("type", step.getType());
@@ -154,7 +154,7 @@ public class JsonRoutingResponseWriter {
 
 				if (extras != null && extras.size() > 0)
 				{
-					JSONObject jExtras = createJsonObject();
+					JSONObject jExtras = OrderedJSONObjectFactory.create();
 
 					for (int j = 0; j < extras.size(); ++j)
 					{
@@ -162,7 +162,7 @@ public class JsonRoutingResponseWriter {
 
 						if (!extraInfo.isEmpty())
 						{
-							JSONObject jExtraItem = createJsonObject();
+							JSONObject jExtraItem = OrderedJSONObjectFactory.create();
 
 							// ---------- values ---------- 
 							JSONArray jExtraItemValues = new JSONArray();
@@ -191,7 +191,7 @@ public class JsonRoutingResponseWriter {
 								
 								for (Map.Entry<String, Map<String, Object>> kv : summary.entrySet())
 								{
-									JSONObject jExtraItemSummaryType = createJsonObject();
+									JSONObject jExtraItemSummaryType = OrderedJSONObjectFactory.create();
 									for (Map.Entry<String, Object> kv2 : kv.getValue().entrySet())
 									{
 										jExtraItemSummaryType.put(kv2.getKey(), kv2.getValue());
@@ -244,7 +244,7 @@ public class JsonRoutingResponseWriter {
 			jInfo.put("attribution", RoutingServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());
 
-		JSONObject jQuery = createJsonObject();
+		JSONObject jQuery = OrderedJSONObjectFactory.create();
 
 		jQuery.put("profile", RoutingProfileType.getName(request.getSearchParameters().getProfileType()));
 
@@ -284,12 +284,6 @@ public class JsonRoutingResponseWriter {
 		return jResp.toString();
 	}  
 
-	private static JSONObject createJsonObject()
-	{
-		Map<String,String > map =  new LinkedHashMap<String, String>();
-		return new JSONObject(map);
-	}
-
 	private static Object getGeometry(Coordinate[] points, boolean includeElevation, String format, StringBuffer buffer)
 	{
 		if (points == null)
@@ -301,7 +295,7 @@ public class JsonRoutingResponseWriter {
 		}
 		else if ("geojson".equalsIgnoreCase(format))
 		{
-			JSONObject json = createJsonObject();
+			JSONObject json = OrderedJSONObjectFactory.create();
 
 			/*
 			 *{

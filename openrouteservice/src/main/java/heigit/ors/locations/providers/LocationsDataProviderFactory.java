@@ -16,6 +16,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.ServiceLoader;
 
+import heigit.ors.exceptions.InternalServerException;
+import heigit.ors.locations.LocationsErrorCodes;
 import heigit.ors.locations.providers.LocationsDataProvider;
 
 public class LocationsDataProviderFactory 
@@ -67,7 +69,7 @@ public class LocationsDataProviderFactory
 			LocationsDataProviderItem item = _providers.get(pname);
 
 			if (item == null)
-				throw new Exception("Unable to find a data provider with name '" + name + "'.");
+				throw new InternalServerException(LocationsErrorCodes.UNKNOWN, "Unable to find a data provider with name '" + name + "'.");
 
 			provider = item.getProvider();
 			

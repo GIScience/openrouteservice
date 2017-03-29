@@ -29,9 +29,9 @@ public class LocationDetailsType
 
 	public static int fromString(String value) throws UnknownParameterValueException {
 		if (Helper.isEmpty(value))
-			return 0;
+			return NONE;
 
-		int res = 0;
+		int res = NONE;
 
 		String[] values = value.split("\\|");
 		for (int i = 0; i < values.length; ++i) {
@@ -45,8 +45,6 @@ public class LocationDetailsType
 			case "attributes":
 				res |= ATTRIBUTES;
 				break;
-			default:
-				throw new UnknownParameterValueException("details", values[i]);
 			}
 		}
 

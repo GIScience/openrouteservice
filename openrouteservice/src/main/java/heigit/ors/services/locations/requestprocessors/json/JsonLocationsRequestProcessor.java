@@ -26,6 +26,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.StatusCodeException;
+import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.services.locations.requestprocessors.json.JsonLocationsRequestParser;
 import heigit.ors.services.locations.LocationsServiceSettings;
@@ -33,6 +34,7 @@ import heigit.ors.locations.providers.LocationsDataProvider;
 import heigit.ors.locations.providers.LocationsDataProviderFactory;
 import heigit.ors.locations.LocationsCategory;
 import heigit.ors.locations.LocationsCategoryClassifier;
+import heigit.ors.locations.LocationsErrorCodes;
 import heigit.ors.locations.LocationsRequest;
 import heigit.ors.locations.LocationsResult;
 import heigit.ors.locations.LocationsSearchFilter;
@@ -86,7 +88,7 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 			writeCategoriesListResponse(response);
 			break;
 		case UNKNOWN:
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, "Request parameter is unknown.");
+			throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "request", "");
 		}
 	}
 	

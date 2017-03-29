@@ -17,6 +17,7 @@ import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
+import heigit.ors.isochrones.IsochronesErrorCodes;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.services.isochrones.requestprocessors.json.JsonIsochronesRequestProcessor;
 
@@ -39,6 +40,6 @@ public class IsochronesServiceRequestProcessorFactory {
 		/*else if (formatParam.equalsIgnoreCase("xml"))
 			return new XmlAccessibilityRequestProcessor(request);*/
 		else 
-			throw new UnknownParameterValueException("format", formatParam);
+			throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "format", formatParam);
 	}
 }

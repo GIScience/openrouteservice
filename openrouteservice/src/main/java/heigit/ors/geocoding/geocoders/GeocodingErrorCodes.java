@@ -9,20 +9,13 @@
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-package heigit.ors.exceptions;
+package heigit.ors.geocoding.geocoders;
 
-import heigit.ors.common.StatusCode;
-
-public class UnknownParameterValueException extends StatusCodeException{
-	private static final long serialVersionUID = 4866998272349837464L;
-
-	public UnknownParameterValueException(String paramName, String paramValue)
-	{
-		this(-1 ,paramName, paramValue);
-	}
-	
-	public UnknownParameterValueException(int errorCode, String paramName, String paramValue)
-	{
-		super(StatusCode.BAD_REQUEST, errorCode, "Unknown parameter value '" + paramValue + "' for '" + paramName + "'.");
-	}
+public class GeocodingErrorCodes {
+   public static int INVALID_JSON_FORMAT = 100; 
+   public static int MISSING_PARAMETER = 101;
+   public static int INVALID_PARAMETER_FORMAT = 102;
+   public static int INVALID_PARAMETER_VALUE = 103;
+   public static int PARAMETER_VALUE_EXCEEDS_MAXIMUM = 104;
+   public static int UKNOWN = 199;
 }

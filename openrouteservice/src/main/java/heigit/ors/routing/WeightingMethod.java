@@ -12,20 +12,21 @@
 package heigit.ors.routing;
 
 public class WeightingMethod {
+	public static final int UNKNOWN = 0;
 	public static final int FASTEST = 1;
 	public static final int SHORTEST = 2;
 	public static final int RECOMMENDED = 3;
 	
 	public static int getFromString(String method) {
-		if ("Fastest".equalsIgnoreCase(method)) {
+		if ("fastest".equalsIgnoreCase(method)) {
 			return WeightingMethod.FASTEST;
-		} else if ("Shortest".equalsIgnoreCase(method)) {
+		} else if ("shortest".equalsIgnoreCase(method)) {
 			return WeightingMethod.SHORTEST;
-		} else if ("Recommended".equalsIgnoreCase(method)) {
+		} else if ("recommended".equalsIgnoreCase(method)) {
 			return WeightingMethod.RECOMMENDED; 
 		} 
 		
-		return WeightingMethod.FASTEST;
+		return WeightingMethod.UNKNOWN;
 	}
 	
 	public static String getName(int profileType)

@@ -17,8 +17,13 @@ public class ParameterOutOfRangeException extends StatusCodeException
 {
 	private static final long serialVersionUID = 7728944138955234463L;
 
+	public ParameterOutOfRangeException(int errorCode, String paramName, String value, String maxRangeValue)
+	{
+		super(StatusCode.BAD_REQUEST, errorCode, "Parameter '" + paramName + "="+ value +"' is out of range. Maximum possible value is " + maxRangeValue + ".");
+	}
+	
 	public ParameterOutOfRangeException(String paramName, String value, String maxRangeValue)
 	{
-		super(StatusCode.BAD_REQUEST, "Parameter '" + paramName + "="+ value +"' is out of range. Maximum possible value is " + maxRangeValue + ".");
+		this(-1, paramName, value, maxRangeValue);
 	}
 }

@@ -21,6 +21,12 @@ public class StatusCode
    public static int INTERNAL_SERVER_ERROR = javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
    
    /**
+    * Status code (501) indicating the HTTP server does not support
+    * the functionality needed to fulfill the request.
+    */
+   public static int NOT_IMPLEMENTED = javax.servlet.http.HttpServletResponse.SC_NOT_IMPLEMENTED;
+   
+   /**
     * Status code (503) indicating that the End Point is
     * temporarily overloaded, and unable to handle the request.
     */

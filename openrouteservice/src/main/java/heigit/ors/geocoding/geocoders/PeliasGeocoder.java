@@ -34,7 +34,7 @@ public class PeliasGeocoder extends AbstractGeocoder
 	public GeocodingResult[] geocode(String address, String languages, int limit, Envelope bbox)
 			throws UnsupportedEncodingException, IOException {
 		String reqParams = "?text=" + URLEncoder.encode(GeocodingUtils.sanitizeAddress(address), "UTF-8") + "&size=" + limit + "&lang=" + "en"; // fix language
-		String respContent = HTTPUtility.getResponse(geocodingURL + reqParams, 5000, userAgent, "UTF-8");
+		String respContent = HTTPUtility.getResponse(geocodingURL + reqParams, 10000, userAgent, "UTF-8");
 
 		if (!Helper.isEmpty(respContent) && !respContent.equals("[]")) {
 
@@ -47,7 +47,7 @@ public class PeliasGeocoder extends AbstractGeocoder
 	@Override
 	public GeocodingResult[] reverseGeocode(double lon, double lat, int limit, Envelope bbox) throws IOException {
 		String reqParams = "?point.lat=" + lat  + "&point.lon=" + lon + "&size=" + limit;
-		String respContent = HTTPUtility.getResponse(reverseGeocodingURL + reqParams, 5000, userAgent, "UTF-8");
+		String respContent = HTTPUtility.getResponse(reverseGeocodingURL + reqParams, 10000, userAgent, "UTF-8");
 
 		if (!Helper.isEmpty(respContent) && !respContent.equals("[]")) {
 			return getGeocodeResults(respContent, bbox);

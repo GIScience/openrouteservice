@@ -36,9 +36,11 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import heigit.ors.locations.providers.LocationsDataProvider;
 import heigit.ors.util.ArraysUtility;
+import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.locations.LocationsCategory;
 import heigit.ors.locations.LocationsCategoryClassifier;
 import heigit.ors.locations.LocationsCategoryGroup;
+import heigit.ors.locations.LocationsErrorCodes;
 import heigit.ors.locations.LocationsRequest;
 import heigit.ors.locations.LocationsResult;
 import heigit.ors.locations.LocationsResultSortType;
@@ -67,7 +69,7 @@ public class MemSQLLocationsDataProvider implements LocationsDataProvider
 		boolean queryHasWhere = false;
 		String value = (String)parameters.get("locations_query");
 		if (Helper.isEmpty(value))
-			throw new Exception("'locations_query' parameter can not be null or empty.");
+			throw new InternalServerException(LocationsErrorCodes.UNKNOWN, "'locations_query' parameter can not be null or empty.");
 		else
 		{
 			_locationsQuery = value;
@@ -76,14 +78,14 @@ public class MemSQLLocationsDataProvider implements LocationsDataProvider
 
 		value = (String)parameters.get("categories_query");
 		if (Helper.isEmpty(value))
-			throw new Exception("'categories_query' parameter can not be null or empty.");
+			throw new InternalServerException(LocationsErrorCodes.UNKNOWN, "'categories_query' parameter can not be null or empty.");
 		else
 			_categoriesQuery = value;
 
 		_geomColumn = null;
 		value = (String)parameters.get("geometry_column");
 		if (Helper.isEmpty(value))
-			throw new Exception("'geometry_column' parameter can not be null or empty.");
+			throw new InternalServerException(LocationsErrorCodes.UNKNOWN, "'geometry_column' parameter can not be null or empty.");
 		else
 			_geomColumn = value;
 
@@ -113,7 +115,7 @@ public class MemSQLLocationsDataProvider implements LocationsDataProvider
 		// retrieve meta data
 		Connection connection = _dataSource.getConnection();
 		if (connection == null)
-			throw new Exception("Connection has not been established.");
+			throw new InternalServerException(LocationsErrorCodes.UNKNOWN, "Connection to Locations database has not been established.");
 
 		LocationsRequest request = new LocationsRequest();
 		request.setGeometry(_geomFactory.createPoint(new Coordinate(0,0)));
@@ -246,7 +248,7 @@ public class MemSQLLocationsDataProvider implements LocationsDataProvider
 		catch(Exception ex)
 		{
 			LOGGER.error(ex);
-			exception = new Exception("Unable to retrieve data from the data source.");
+			exception = new InternalServerException(LocationsErrorCodes.UNKNOWN, "Unable to retrieve data from the data source.");
 		}
 		finally
 		{
@@ -397,7 +399,7 @@ public class MemSQLLocationsDataProvider implements LocationsDataProvider
 		catch(Exception ex)
 		{
 			LOGGER.error(ex);
-			exception = new Exception("Unable to retrieve data from the data source.");
+			exception = new InternalServerException(LocationsErrorCodes.UNKNOWN, "Unable to retrieve data from the data source.");
 		}
 		finally
 		{
@@ -479,7 +481,7 @@ public class MemSQLLocationsDataProvider implements LocationsDataProvider
 				int groupId = ids[i];
 				LocationsCategoryGroup group = LocationsCategoryClassifier.getGroupById(groupId);
 				if (group == null)
-					throw new Exception("Unknown group id '" + groupId + "'.");
+					throw  new InternalServerException(LocationsErrorCodes.UNKNOWN, "Unknown group id '" + groupId + "'.");
 
 				result += "("+ group.getMinCategoryId() + " <= category AND category <= " + group.getMaxCategoryId() + ")";
 
@@ -495,7 +497,7 @@ public class MemSQLLocationsDataProvider implements LocationsDataProvider
 
 			LocationsCategoryGroup group = LocationsCategoryClassifier.getGroupById(groupId);
 			if (group == null)
-				throw new Exception("Unknown group id '" + groupId + "'.");
+				throw new InternalServerException(LocationsErrorCodes.UNKNOWN, "Unknown group id '" + groupId + "'.");
 
 			result = group.getMinCategoryId() + " <= category AND category <= " + group.getMaxCategoryId(); 
 		}

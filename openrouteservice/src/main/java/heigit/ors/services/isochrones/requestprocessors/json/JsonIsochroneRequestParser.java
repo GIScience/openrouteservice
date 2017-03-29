@@ -19,8 +19,11 @@ import javax.servlet.http.HttpServletRequest;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import heigit.ors.common.StatusCode;
+import heigit.ors.exceptions.MissingParameterException;
+import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
-import heigit.ors.exceptions.UnsetParameterException;
+import heigit.ors.isochrones.IsochronesErrorCodes;
 import heigit.ors.isochrones.IsochronesRangeType;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.services.isochrones.IsochroneRequest;
@@ -32,33 +35,49 @@ public class JsonIsochroneRequestParser {
 		IsochroneRequest req = null;
 
 		try {
-		
+
 		} catch (Exception ex) {
-			throw new Exception("Unable to parse JSON document.");
+			throw new StatusCodeException(IsochronesErrorCodes.INVALID_JSON_FORMAT, "Unable to parse JSON document.");
 		}
 
 		return req;
 	}
-	
+
 	public static IsochroneRequest parseFromRequestParams(HttpServletRequest request) throws Exception
 	{
 		IsochroneRequest req = new IsochroneRequest();
 
 		String value = request.getParameter("profile");
 		if (!Helper.isEmpty(value))
-			req.getRouteSearchParameters().setProfileType(RoutingProfileType.getFromString(value));
+		{
+			int profileType = RoutingProfileType.getFromString(value);
+			if (profileType == RoutingProfileType.UNKNOWN)
+				throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "profile", value);
+			req.getRouteSearchParameters().setProfileType(profileType);
+		}
+		else
+		{
+			throw new MissingParameterException(IsochronesErrorCodes.MISSING_PARAMETER, "profile");
+		}
 
 		double rangeValue= - 1;
 		value = request.getParameter("range");
 		if (Helper.isEmpty(value))
-			throw new UnsetParameterException("range");
+			throw new MissingParameterException(IsochronesErrorCodes.MISSING_PARAMETER, "range");
 		else
 		{
 			String[] rangeValues = value.split(",");
-			
+
 			if (rangeValues.length == 1)
 			{
-				rangeValue = Double.parseDouble(value);
+				try
+				{
+					rangeValue = Double.parseDouble(value);
+				}
+				catch(NumberFormatException ex)
+				{
+					throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "Unable to parse range value.");
+				}
 			}
 			else
 			{
@@ -71,9 +90,9 @@ public class JsonIsochroneRequestParser {
 						maxRange = dv;
 					ranges[i] = dv;
 				}
-				
+
 				Arrays.sort(ranges);
-				
+
 				req.setRanges(ranges);
 				req.setMaximumRange(maxRange);
 			}
@@ -93,7 +112,7 @@ public class JsonIsochroneRequestParser {
 		value = request.getParameter("range_type");
 		if (!Helper.isEmpty(value))
 		{
-			switch (value)
+			switch (value.toLowerCase())
 			{
 			case "distance":
 				req.setRangeType(IsochronesRangeType.Distance);
@@ -102,10 +121,10 @@ public class JsonIsochroneRequestParser {
 				req.setRangeType(IsochronesRangeType.Time);
 				break;
 			default:
-				throw new UnknownParameterValueException("range_type", value);
+				throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "range_type", value);
 			}
 		}
-		
+
 		value = request.getParameter("units");
 		if (!Helper.isEmpty(value))
 		{
@@ -116,7 +135,7 @@ public class JsonIsochroneRequestParser {
 			}
 			else
 			{
-				throw new Exception("Parameter 'units' must only be set together with 'range_type=distance'.");
+				throw new StatusCodeException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "Parameter 'units' must only be set together with 'range_type=distance'.");
 			}
 
 			req.setUnits(value.toLowerCase());
@@ -137,31 +156,38 @@ public class JsonIsochroneRequestParser {
 			String[] coordValues = value.split("\\|");
 			Coordinate[] coords = new Coordinate[coordValues.length];
 
-			for (int i = 0; i < coordValues.length; i++)
+			try
 			{
-				String[] locations = coordValues[i].split(",");
-				if (inverseXY)
-					coords[i] = new Coordinate(Double.parseDouble(locations[1]),Double.parseDouble(locations[0]));
-				else
-					coords[i] = new Coordinate(Double.parseDouble(locations[0]),Double.parseDouble(locations[1]));
+				for (int i = 0; i < coordValues.length; i++)
+				{
+					String[] locations = coordValues[i].split(",");
+					if (inverseXY)
+						coords[i] = new Coordinate(Double.parseDouble(locations[1]),Double.parseDouble(locations[0]));
+					else
+						coords[i] = new Coordinate(Double.parseDouble(locations[0]),Double.parseDouble(locations[1]));
+				}
+			}
+			catch(NumberFormatException ex)
+			{
+				throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "Unable to parse location coordinates.");
 			}
 
 			req.setLocations(coords);
 		}
 		else
 		{
-			throw new UnsetParameterException("locations");
+			throw new MissingParameterException(IsochronesErrorCodes.MISSING_PARAMETER, "locations");
 		}
-		
+
 		value = request.getParameter("location_type");
 		if (!Helper.isEmpty(value))
 		{
 			if (!"start".equalsIgnoreCase(value) && !"destination".equalsIgnoreCase(value))
 				throw new UnknownParameterValueException("location_type", value);
-			
-           req.setLocationType(value);
+
+			req.setLocationType(value);
 		}
-		
+
 		value = request.getParameter("calc_method");
 		if (!Helper.isEmpty(value))
 			req.setCalcMethod(value);
@@ -169,19 +195,19 @@ public class JsonIsochroneRequestParser {
 		value = request.getParameter("attributes");
 		if (!Helper.isEmpty(value))
 			req.setAttributes(value.split("\\|"));
-		
+
 		value = request.getParameter("intersections");
 		if (!Helper.isEmpty(value))
 			req.setIncludeIntersections(Boolean.parseBoolean(value));
-		
+
 		value = request.getParameter("options");
 		if (!Helper.isEmpty(value))
 			req.getRouteSearchParameters().setOptions(value);
-		
+
 		value = request.getParameter("id");
 		if (!Helper.isEmpty(value))
 			req.setId(value);
-		
+
 		return req;
 	}
 }
