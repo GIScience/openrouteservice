@@ -31,6 +31,10 @@ The following sections describes the list of possible internal error codes that 
 | Error Code   |  Description |
 |----------|-------------|
 | 200 |  Unable to parse JSON request. |
+| 201 |  Required parameter is missing. |
+| 202 |  Invalid parameter format. |
+| 203 |  Invalid parameter value. |
+| 204 |  Parameter value exceeds the maximum allowed limit. |
 | 299 |  Unknown internal error. |
 
 
