@@ -49,4 +49,8 @@ The following sections describes the list of possible internal error codes that 
 | Error Code   |  Description |
 |----------|-------------|
 | 400 |  Unable to parse JSON request. |
+| 401 |  Required parameter is missing. |
+| 402 |  Invalid parameter format. |
+| 403 |  Invalid parameter value. |
+| 404 |  Parameter value exceeds the maximum allowed limit. |
 | 499 |  Unknown internal error. |
