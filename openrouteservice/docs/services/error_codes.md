@@ -38,6 +38,11 @@ The following sections describes the list of possible internal error codes that 
 | Error Code   |  Description |
 |----------|-------------|
 | 300 |  Unable to parse JSON request. |
+| 301 |  Required parameter is missing. |
+| 302 |  Invalid parameter format. |
+| 303 |  Invalid parameter value. |
+| 304 |  Parameter value exceeds the maximum allowed limit. |
+| 305 |  Requested feature is not supported. |
 | 399 |  Unknown internal error. |
 
 ## Locations
