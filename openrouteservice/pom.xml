@@ -16,16 +16,14 @@
     </issueManagement>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>
-            UTF-8</project.reporting.outputEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.timestamp>${maven.build.timestamp}</project.timestamp>
-        <maven.build.timestamp.format>yyyy-MM-dd
-            HH:mm</maven.build.timestamp.format>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
     </properties>
   <scm>
-  	<url>git@gitlab.com:giscience/ORS_backend.git</url>
-   	<connection>scm:git:git@gitlab.com:giscience/ORS_backend.git</connection>
-   	<developerConnection>scm:git:git@gitlab.com:giscience/ORS_backend.git</developerConnection>
+  	<url>git@gitlab.com:giscience/openrouteservice/ORS_backend.git</url>
+   	<connection>scm:git:git@gitlab.com:giscience/openrouteservice/ORS_backend.git</connection>
+   	<developerConnection>scm:git:git@gitlab.com:giscience/openrouteservice/ORS_backend.git</developerConnection>
   </scm>
     
   <build>
