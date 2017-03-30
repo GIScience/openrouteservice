@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
-
-<web-app>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
 	<display-name>OpenRouteService API</display-name>
 	<!-- ROUTING SERVICE -->
 	<servlet>
@@ -69,7 +67,7 @@
     <url-pattern>/*</url-pattern>
 	<dispatcher>REQUEST</dispatcher>
   </filter-mapping>
--->
+
 
    <filter>
     <filter-name>RequestRateThrottleFilter</filter-name>
@@ -88,7 +86,7 @@
     <filter-name>RequestRateThrottleFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
-
+-->
 <filter>
   <filter-name>CorsFilter</filter-name>
   <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
@@ -117,6 +115,7 @@
     <param-value>10</param-value>
   </init-param>
 </filter>
+
 <filter-mapping>
   <filter-name>CorsFilter</filter-name>
   <url-pattern>/*</url-pattern>
