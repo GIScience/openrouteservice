@@ -94,15 +94,17 @@ BEGIN
         END LOOP;
 
      WHEN 'POLYGON'  THEN
-        geom_feature := ST_Transform(geom_feature, 900913);
-
-        query := 'SELECT * FROM ' || table_name ||' WHERE (' || condition || ') AND ST_Within(geom, $1)';
+        IF (distance > 0) THEN
+	   geog_feature := ST_Buffer(geog_feature, distance);
+        END IF;
+        
+        query := 'SELECT * FROM ' || table_name ||' WHERE (' || condition || ') AND ST_Within(location, $1)';
 
         IF (limit_size > 0) THEN
            query := query || ' LIMIT '  || limit_size::text; 
         END IF;
        
-        FOR rec IN EXECUTE format(query) USING geom_feature LOOP
+        FOR rec IN EXECUTE format(query) USING geog_feature LOOP
             rec.distance := 0.0;   
             RETURN NEXT rec;
         END LOOP;
@@ -112,7 +114,6 @@ BEGIN
     RETURN;
 END;
 $$ LANGUAGE plpgsql;
-
 
 
 --*********************************************************************************************************
