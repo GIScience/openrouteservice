@@ -35,7 +35,7 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
 	public WaySurfaceTypeGraphStorage() {
 		EF_WAYTYPE = 0;
 	
-		edgeEntryBytes = edgeEntryIndex + 4;
+		edgeEntryBytes = edgeEntryIndex + 1;
 		edgesCount = 0;
 		byteValues = new byte[10];
 	}
