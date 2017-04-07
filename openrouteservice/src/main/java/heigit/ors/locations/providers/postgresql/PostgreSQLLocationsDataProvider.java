@@ -379,14 +379,21 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 	{
 		String cmdFilter = buildSearchFilter(request.getSearchFilter()); 
 
+		byte[] 	geomBytes = null;
 		Geometry geom = request.getGeometry();
-		byte[] 	geomBytes = geometryToWKB(geom);
+		if (geom != null)
+		   geomBytes = geometryToWKB(geom);
 
 		Envelope bbox = request.getBBox();
 		if (bbox != null)
 			cmdFilter = addConditions(cmdFilter, buildBboxFilter(bbox));
 
-		String stateText = String.format("SELECT * FROM ORS_FindLocationCategories('%s', '%s', ?, %.3f) AS categories(category smallint, count bigint)", _tableName, cmdFilter, request.getRadius());
+		String stateText = null;
+		
+		if (geom == null)
+			stateText = String.format("SELECT category, COUNT(category) AS count FROM %s WHERE (%s) GROUP BY category ORDER BY category", _tableName, cmdFilter);
+		else
+			stateText = String.format("SELECT * FROM ORS_FindLocationCategories('%s', '%s', ?, %.3f) AS categories(category smallint, count bigint)", _tableName, cmdFilter, request.getRadius());
 
 		PreparedStatement statement = conn.prepareStatement(stateText);
 		if (geomBytes != null)
