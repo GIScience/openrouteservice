@@ -77,16 +77,6 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
             else
                 result = new FastestWeighting(maxSpeed, encoder);
         } 
-
-        // Is not supporte yet
-		if (weightingMap.getBool("AvoidFeatures", false)) {
-			String strTypes = weighting.substring(weighting.indexOf("-") + 1);
-			int types = Integer.parseInt(strTypes);
-			if (types > 0)
-			{
-				result = new AvoidFeaturesWeighting(result, encoder, types, (GraphStorage) userState);
-			}
-		}
 		
 		if (weightingMap.getBool("SteepnessDifficulty", false)) {
 			 int difficultyLevel = weightingMap.getInt("SteepnessDifficultyLevel", -1);
