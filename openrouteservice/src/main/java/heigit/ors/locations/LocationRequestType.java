@@ -14,8 +14,8 @@ package heigit.ors.locations;
 public enum LocationRequestType
 {
 	UNKNOWN,
-    CATEGORIES,
-    CATEGORIESLIST,
+    CATEGORY_STATS,
+    CATEGORY_LIST,
     POIS;
    
    public static LocationRequestType fromString(String value)
@@ -25,10 +25,10 @@ public enum LocationRequestType
 	   
 	   if ("pois".equalsIgnoreCase(value))
 		   return LocationRequestType.POIS;
-	   else if ("categories".equalsIgnoreCase(value))
-	   	return LocationRequestType.CATEGORIES;
-	   else if ("categories_list".equalsIgnoreCase(value))
-		   	return LocationRequestType.CATEGORIESLIST;
+	   else if ("category_stats".equalsIgnoreCase(value))
+	   	return LocationRequestType.CATEGORY_STATS;
+	   else if ("category_list".equalsIgnoreCase(value))
+		   	return LocationRequestType.CATEGORY_LIST;
 		
 	   return LocationRequestType.UNKNOWN; 
    }

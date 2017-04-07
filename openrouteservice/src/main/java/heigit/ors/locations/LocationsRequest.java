@@ -65,7 +65,7 @@ public class LocationsRequest extends ServiceRequest
 	}
 
 	public boolean isValid() {
-		return _type == LocationRequestType.CATEGORIESLIST || (!(_geometry == null && _bbox == null));
+		return _type == LocationRequestType.CATEGORY_LIST || (!(_geometry == null && _bbox == null));
 	}
 
 	public Envelope getBBox() {
