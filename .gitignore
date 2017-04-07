@@ -1,5 +1,6 @@
 .metadata/
 
+.recommenders/
 .recommenders/caches/identified-project-coordinates.json
 openrouteservice/Program FilesApache Software FoundationTomcat 7.0webappsopenrouteservice-0.0.1-SNAPSHOTWEB-INFlogsCounter_RS.csv
 .recommenders/caches/manual-mappings.json
@@ -7,6 +8,6 @@ openrouteservice/Program FilesApache Software FoundationTomcat 7.0webappsopenrou
 .idea/
 *.iml
 .DS_Store
-app.config
-/osmpoiextractor/
+
 .project
+openrouteservice/WebContent/WEB-INF/app.config
