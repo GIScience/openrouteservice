@@ -63,7 +63,11 @@ public class JsonLocationsRequestParser {
 			if (req.getType() == LocationRequestType.UNKNOWN)
 				throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "request", value);
 
-			if (req.getType() == LocationRequestType.CATEGORIESLIST)
+			value = obj.optString("id");
+			if (!Helper.isEmpty(value))
+				req.setId(value);	
+			
+			if (req.getType() == LocationRequestType.CATEGORY_LIST)
 				return req;
 
 			if (obj.has("filter"))
@@ -142,7 +146,7 @@ public class JsonLocationsRequestParser {
 			else 
 			{
 				if (req.getBBox() == null)
-					throw new MissingParameterException(LocationsErrorCodes.MISSING_PARAMETER, "geometry");
+					throw new MissingParameterException(LocationsErrorCodes.MISSING_PARAMETER, "bbox or geometry");
 			}
 
 			value = obj.optString("radius");
@@ -166,35 +170,31 @@ public class JsonLocationsRequestParser {
 
 					req.setLimit(ivalue);
 				}
+				
+				value = obj.optString("sortby");
+				if (!Helper.isEmpty(value))
+				{
+					LocationsResultSortType sortType = LocationsResultSortType.fromString(value);
+					if (sortType == LocationsResultSortType.NONE)
+						throw new UnknownParameterValueException("sortby", value);
+					
+					req.setSortType(sortType);
+				}
+
+				value = obj.optString("details");
+				if (!Helper.isEmpty(value))
+				{
+					int detailsType = LocationDetailsType.fromString(value);
+					if (detailsType == LocationDetailsType.NONE)
+						throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "details", value);
+
+					req.setDetails(detailsType);
+				}
 			}
 			else
 			{
 				req.setLimit(-1);
 			}
-
-			value = obj.optString("sortby");
-			if (!Helper.isEmpty(value))
-			{
-				LocationsResultSortType sortType = LocationsResultSortType.fromString(value);
-				if (sortType == LocationsResultSortType.NONE)
-					throw new UnknownParameterValueException("sortby", value);
-				
-				req.setSortType(sortType);
-			}
-
-			value = obj.optString("details");
-			if (!Helper.isEmpty(value))
-			{
-				int detailsType = LocationDetailsType.fromString(value);
-				if (detailsType == LocationDetailsType.NONE)
-					throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "details", value);
-
-				req.setDetails(detailsType);
-			}
-
-			value = obj.optString("id");
-			if (!Helper.isEmpty(value))
-				req.setId(value);			
 		}
 		catch(JSONException jex)
 		{
@@ -220,8 +220,13 @@ public class JsonLocationsRequestParser {
 
 		if (req.getType() == LocationRequestType.UNKNOWN)
 			throw new UnknownParameterValueException("request", value);
+		
 
-		if (req.getType() == LocationRequestType.CATEGORIESLIST)
+		value = request.getParameter("id");
+		if (!Helper.isEmpty(value))
+			req.setId(value);
+
+		if (req.getType() == LocationRequestType.CATEGORY_LIST)
 			return req;
 
 		LocationsSearchFilter query = req.getSearchFilter();
@@ -313,36 +318,32 @@ public class JsonLocationsRequestParser {
 
 				req.setLimit(ivalue);
 			}
+
+			value = request.getParameter("sortby");
+			if (!Helper.isEmpty(value))
+			{
+				LocationsResultSortType sortType = LocationsResultSortType.fromString(value);
+				if (sortType == LocationsResultSortType.NONE)
+					throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "sortby", value);
+
+				req.setSortType(sortType);
+			}
+
+			value = request.getParameter("details");
+			if (!Helper.isEmpty(value))
+			{
+				int detailsType = LocationDetailsType.fromString(value);
+
+				if (detailsType == LocationDetailsType.NONE)
+					throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "details", value);
+
+				req.setDetails(detailsType);
+			}
 		}
 		else
 		{
 			req.setLimit(-1);
 		}
-
-		value = request.getParameter("sortby");
-		if (!Helper.isEmpty(value))
-		{
-			LocationsResultSortType sortType = LocationsResultSortType.fromString(value);
-			if (sortType == LocationsResultSortType.NONE)
-				throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "sortby", value);
-
-			req.setSortType(sortType);
-		}
-
-		value = request.getParameter("details");
-		if (!Helper.isEmpty(value))
-		{
-			int detailsType = LocationDetailsType.fromString(value);
-
-			if (detailsType == LocationDetailsType.NONE)
-				throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "details", value);
-
-			req.setDetails(detailsType);
-		}
-
-		value = request.getParameter("id");
-		if (!Helper.isEmpty(value))
-			req.setId(value);
 
 		return req;
 	}

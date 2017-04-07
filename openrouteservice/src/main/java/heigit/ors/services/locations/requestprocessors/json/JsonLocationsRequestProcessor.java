@@ -81,10 +81,10 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 		case  POIS:
 			writeLocationsResponse(response, req, provider.findLocations(req));			
 			break;
-		case CATEGORIES:
+		case CATEGORY_STATS:
 			writeCategoriesResponse(response, req, provider.findCategories(req));
 			break;
-		case CATEGORIESLIST:
+		case CATEGORY_LIST:
 			writeCategoriesListResponse(response);
 			break;
 		case UNKNOWN:
@@ -264,6 +264,7 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 		if (query.getFee() != null)
 			jFilter.put("fee", query.getFee());
 		
-		jQuery.put("filter", jFilter);
+		if (jFilter.length() > 0)
+			jQuery.put("filter", jFilter);
 	}
 }
