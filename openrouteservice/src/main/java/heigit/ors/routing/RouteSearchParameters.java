@@ -12,7 +12,7 @@ import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
-import heigit.ors.routing.graphhopper.extensions.WheelchairRestrictionCodes;
+import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import heigit.ors.routing.parameters.*;
 import heigit.ors.util.StringUtility;
 
@@ -228,19 +228,19 @@ public class RouteSearchParameters {
 				JSONObject jWheelchairParams = json.getJSONObject("profile_params");
 
 				if (jWheelchairParams.has("surface_type"))
-					wheelchairParams.setSurfaceType(WheelchairRestrictionCodes.SURFACE_MAP.get(jWheelchairParams.getString("surface_type")));
+					wheelchairParams.setSurfaceType(WheelchairTypesEncoder.getSurfaceType(jWheelchairParams.getString("surface_type")));
 
 				if (jWheelchairParams.has("track_type"))
-					wheelchairParams.setTrackType(WheelchairRestrictionCodes.TRACKTYPE_MAP.get(jWheelchairParams.getString("track_type")));
+					wheelchairParams.setTrackType(WheelchairTypesEncoder.getTrackType(jWheelchairParams.getString("track_type")));
 
 				if (jWheelchairParams.has("smoothness_type"))
-					wheelchairParams.setSmoothnessType(WheelchairRestrictionCodes.SMOOTHNESS_MAP.get(jWheelchairParams.getString("smoothness_type")));
+					wheelchairParams.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(jWheelchairParams.getString("smoothness_type")));
 
 				if (jWheelchairParams.has("maximum_sloped_curb"))
-					wheelchairParams.setMaximumSlopedCurb(jWheelchairParams.getDouble("maximum_sloped_curb"));
+					wheelchairParams.setMaximumSlopedCurb((float)jWheelchairParams.getDouble("maximum_sloped_curb"));
 
 				if (jWheelchairParams.has("maximum_incline"))
-					wheelchairParams.setMaximumSlopedCurb(jWheelchairParams.getDouble("maximum_incline"));
+					wheelchairParams.setMaximumIncline((float)jWheelchairParams.getDouble("maximum_incline"));
 
 				_profileParams = wheelchairParams;
 			}

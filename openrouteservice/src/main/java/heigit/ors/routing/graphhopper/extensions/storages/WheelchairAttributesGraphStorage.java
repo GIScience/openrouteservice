@@ -14,33 +14,55 @@
 
 package heigit.ors.routing.graphhopper.extensions.storages;
 
-import heigit.ors.routing.graphhopper.extensions.WheelchairRestrictionCodes;
+import heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 
+import com.graphhopper.routing.util.EncodedDoubleValue;
+import com.graphhopper.routing.util.EncodedValue;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
 
-public class WheelchairAttributesGraphStorage implements GraphExtension {
+public class WheelchairAttributesGraphStorage implements GraphExtension
+{
 	/* pointer for no entry */
 	protected final int NO_ENTRY = -1;
-	protected final int EF_FEATURETYPE, EF_WHEELCHAIR_ATTRIBUTES;
+	protected final int EF_WHEELCHAIR_ATTRIBUTES;
 
 	protected DataAccess orsEdges;
 	protected int edgeEntryIndex = 0;
 	protected int edgeEntryBytes;
 	protected int edgesCount; // number of edges with custom values
 
-	private byte[] byteValues;
+	private byte[] _buffer;
 
-	public WheelchairAttributesGraphStorage() {
-		EF_FEATURETYPE = nextBlockEntryIndex(1);
-		EF_WHEELCHAIR_ATTRIBUTES = nextBlockEntryIndex(5);
-
+	// bit encoders
+	private EncodedValue _surfaceEncoder;
+	private EncodedValue _smoothnessEncoder;
+	private EncodedValue _trackTypeEncoder;
+	private EncodedDoubleValue _curbHeightEncoder;
+	private EncodedDoubleValue _inclineEncoder; 
 	
-		edgeEntryBytes = edgeEntryIndex + 4;
+	private static int BYTE_COUNT = 3;
+
+	public WheelchairAttributesGraphStorage() 
+	{
+		_buffer = new byte[BYTE_COUNT];
+		EF_WHEELCHAIR_ATTRIBUTES = 0;
+
+		edgeEntryBytes = edgeEntryIndex + BYTE_COUNT;
 		edgesCount = 0;
-		byteValues = new byte[5];
+
+		int shift = 1;
+		_surfaceEncoder = new EncodedValue("surface", shift, 5, 1, 0, 30);
+		shift += _surfaceEncoder.getBits();
+		_smoothnessEncoder = new EncodedValue("smoothness", shift, 4, 1, 0, 8);
+		shift += _smoothnessEncoder.getBits();
+		_trackTypeEncoder = new EncodedValue("tracktype", shift, 3, 1, 0, 5);
+		shift += _trackTypeEncoder.getBits();
+		_inclineEncoder = new EncodedDoubleValue("incline", shift, 6, 0.5, 0, 30);
+		shift += _inclineEncoder.getBits();
+		_curbHeightEncoder = new EncodedDoubleValue("curbHeight", shift, 4, 1, 0, 15);
 	}
 
 	public void init(Graph graph, Directory dir) {
@@ -48,11 +70,6 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 			throw new AssertionError("The ORS storage must be initialized only once.");
 
 		this.orsEdges = dir.find("ext_wheelchair");
-	}
-
-	protected final int nextBlockEntryIndex(int size) {
-		edgeEntryIndex += size;
-		return edgeEntryIndex;
 	}
 
 	public void setSegmentSize(int bytes) {
@@ -95,82 +112,103 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 		orsEdges.ensureCapacity(((long) edgeIndex + 1) * edgeEntryBytes);
 	}
 
-public void setEdgeValue(int edgeId, int featureTypeFlag, double[] wheelchairAttributes) {
-		
+	public void setEdgeValues(int edgeId, WheelchairAttributes attrs) {
+
 		edgesCount++;
 		ensureEdgesIndex(edgeId);
 
-		// add entry
 		long edgePointer = (long) edgeId * edgeEntryBytes;
-		
-		byteValues[0] = (byte)featureTypeFlag;
-		orsEdges.setBytes(edgePointer + EF_FEATURETYPE, byteValues, 1);
-		
-		if (wheelchairAttributes == null) {
-			byteValues[WheelchairRestrictionCodes.SURFACE] = 0;
-			byteValues[WheelchairRestrictionCodes.SMOOTHNESS] = 0;
-			byteValues[WheelchairRestrictionCodes.SLOPED_CURB] = 0;
-			byteValues[WheelchairRestrictionCodes.TRACKTYPE] = 0;
-			byteValues[WheelchairRestrictionCodes.INCLINE] = 0;
-		}
-		else {
-			byteValues[WheelchairRestrictionCodes.SURFACE] = (byte)(wheelchairAttributes[WheelchairRestrictionCodes.SURFACE]);
-			byteValues[WheelchairRestrictionCodes.SMOOTHNESS] = (byte)(wheelchairAttributes[WheelchairRestrictionCodes.SMOOTHNESS]);
-			// byteValues[WheelchairRestrictionCodes.SLOPED_CURB] = (byte)(wheelchairAttributes[WheelchairRestrictionCodes.SLOPED_CURB] *10d);
-			byteValues[WheelchairRestrictionCodes.SLOPED_CURB] = (byte)(wheelchairAttributes[WheelchairRestrictionCodes.SLOPED_CURB]);
-			byteValues[WheelchairRestrictionCodes.TRACKTYPE] = (byte)(wheelchairAttributes[WheelchairRestrictionCodes.TRACKTYPE]);
-			// byteValues[WheelchairRestrictionCodes.INCLINE] = (byte)(wheelchairAttributes[WheelchairRestrictionCodes.INCLINE] * 10d);
-			byteValues[WheelchairRestrictionCodes.INCLINE] = (byte)(wheelchairAttributes[WheelchairRestrictionCodes.INCLINE]);
-		}
-		orsEdges.setBytes(edgePointer + EF_WHEELCHAIR_ATTRIBUTES, byteValues, 5);
+
+		encodeAttributes(attrs, _buffer);
+
+		orsEdges.setBytes(edgePointer + EF_WHEELCHAIR_ATTRIBUTES, _buffer, BYTE_COUNT);
 	}
 
-	public int getEdgeFeatureTypeFlag(int edgeId, byte[] buffer) {
-		long edgePointer = (long) edgeId * edgeEntryBytes;
-		orsEdges.getBytes(edgePointer + EF_FEATURETYPE, buffer, 1);
-		
-		int result = buffer[0];
-	    if (result < 0)
-	    	result = (int)result & 0xff;
-		
-		return result;
-	}
+	private void encodeAttributes(WheelchairAttributes attrs, byte[] buffer)
+	{
+		/*
+		 *       | flag  | surface | smoothness | tracktype | curbHeight | incline |
+		 * lsb-> | 1 bit | 5 bits  |  4 bits    | 3 bits    | 6 bits     | 4 bits  |   23 bits in total which can fit into 3 bytes
+		 * 	
+		 * 
+		 */
+
+		if (attrs.hasValues())
+		{
+			long encodedValue = 0;
+			// set first bit to 1 to mark that we have wheelchair specific attributes for this edge
+			encodedValue |= (1L << 0);
+
+			if (attrs.getSurfaceType() > 0)
+				encodedValue = _surfaceEncoder.setValue(encodedValue, attrs.getSurfaceType());
+
+			if (attrs.getSmoothnessType() > 0)
+				encodedValue = _smoothnessEncoder.setValue(encodedValue, attrs.getSmoothnessType());
+
+			if (attrs.getTrackType() > 0)
+				encodedValue = _trackTypeEncoder.setValue(encodedValue, attrs.getTrackType());
+
+			encodedValue = _inclineEncoder.setDoubleValue(encodedValue, 15 + attrs.getIncline());
+
+			if (attrs.getSlopedCurbHeight() > 0.0)
+				encodedValue = _curbHeightEncoder.setDoubleValue(encodedValue, attrs.getSlopedCurbHeight()*100);
+
+			buffer[2] = (byte) ((encodedValue >> 16) & 0xFF);
+			buffer[1] = (byte) ((encodedValue >> 8) & 0xFF);
+			buffer[0] = (byte) ((encodedValue) & 0xFF);
+		}
+		else
+		{
+			buffer[0] = 0;
+			buffer[1] = 0;
+			buffer[2] = 0;
+		}
+  /*
+		WheelchairAttributes attr2 = new WheelchairAttributes();
+		decodeAttributes(attr2, buffer);
+		if (attrs.hasValues() && !attrs.equals(attr2))
+			attr2 = null;*/
 	
-	public void getWheelchairAttributes(int edgeId, byte[] buffer) {
+	}	
+
+	private void decodeAttributes(WheelchairAttributes attrs, byte[] buffer)
+	{
+		attrs.reset();
+
+		if (buffer[0] == 0)
+			return;
+
+		long encodedValue = ((buffer[0] & 0xFF) | (buffer[1] & 0xFF) << 8 |	(buffer[2] & 0xFF) << 16);
+
+		if ((1 & (encodedValue >> 0)) != 0)
+		{
+			long iValue = _surfaceEncoder.getValue(encodedValue);
+			if (iValue != 0)
+				attrs.setSurfaceType((int)iValue);
+
+			iValue = _smoothnessEncoder.getValue(encodedValue);
+			if (iValue != 0)
+				attrs.setSmoothnessType((int)iValue);
+
+			iValue = _trackTypeEncoder.getValue(encodedValue);
+			if (iValue != 0)
+				attrs.setTrackType((int)iValue);
+
+			double dValue = _inclineEncoder.getDoubleValue(encodedValue) - 15.0;
+			if (dValue != 0.0)
+				attrs.setIncline((float)(dValue));
+
+			dValue = _curbHeightEncoder.getDoubleValue(encodedValue);
+			if (dValue != 0.0)
+				attrs.setSlopedCurbHeight((float)(dValue/100.0));
+		}
+	}
+
+	public void getEdgeValues(int edgeId, WheelchairAttributes attrs, byte[] buffer) {
 		long edgePointer = (long) edgeId * (long) edgeEntryBytes;
-		//TODO: remove these lines
-		/*
-		if (buffer == null) {
-			buffer = new byte[20];
-		}
-		*/
-		// buffer = new byte[20];
-		// orsEdges.getBytes(edgePointer + EF_WHEELCHAIR_ATTRIBUTES, buffer, 20);
-		orsEdges.getBytes(edgePointer + EF_WHEELCHAIR_ATTRIBUTES, buffer, 5);
-		/*
-		try {
-			orsEdges.getBytes(edgePointer + EF_WHEELCHAIR_ATTRIBUTES, buffer, 5);
-		}
-		//TODO: Why is this Exception occurring??
-		catch (ArrayIndexOutOfBoundsException e) {
-			e.printStackTrace();
-			final StringWriter sw = new StringWriter();
-		    final PrintWriter pw = new PrintWriter(sw, true);
-		    e.printStackTrace(pw);
-		    System.out.println("ORSOSMReader.processEdge(), "+sw.getBuffer().toString());
-		}
-		*/
-		/*
-		//TODO: 
-		double[] result = new double[5];
-		
-		result[WheelchairRestrictionCodes.SURFACE] = buffer[WheelchairRestrictionCodes.SURFACE];
-		result[WheelchairRestrictionCodes.SMOOTHNESS] = buffer[WheelchairRestrictionCodes.SMOOTHNESS];
-		result[WheelchairRestrictionCodes.SLOPED_CURB] = (double)(buffer[WheelchairRestrictionCodes.SLOPED_CURB] & 0xff) / 10d;
-		result[WheelchairRestrictionCodes.TRACKTYPE] = buffer[WheelchairRestrictionCodes.TRACKTYPE];
-		result[WheelchairRestrictionCodes.INCLINE] = (double)(buffer[WheelchairRestrictionCodes.INCLINE] & 0xff) / 10d;
-		return result;
-		*/
+		orsEdges.getBytes(edgePointer + EF_WHEELCHAIR_ATTRIBUTES, buffer, BYTE_COUNT);
+
+		decodeAttributes(attrs, buffer);
 	}
 
 	public boolean isRequireNodeField() {

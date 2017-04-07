@@ -4,8 +4,8 @@ import heigit.ors.routing.parameters.ProfileParameters;
 
 public class WheelchairParameters extends ProfileParameters 
 {
-	private double _maxIncline = 0.0;
-	private double _maxSlopedCurb;
+	private float _maxIncline = 0.0F;
+	private float _maxSlopedCurb;
 	private int _surfaceType;
 	private int _trackType;
 	private int _smoothnessType;
@@ -15,11 +15,11 @@ public class WheelchairParameters extends ProfileParameters
 
 	}
 
-	public double getMaximumIncline() {
+	public float getMaximumIncline() {
 		return _maxIncline;
 	}
 
-	public void setMaximumIncline(double maxIncline) {
+	public void setMaximumIncline(float maxIncline) {
 		_maxIncline = maxIncline;
 	}
 
@@ -31,11 +31,11 @@ public class WheelchairParameters extends ProfileParameters
 		_surfaceType = surfaceType;
 	}
 
-	public double getMaximumSlopedCurb() {
+	public float getMaximumSlopedCurb() {
 		return _maxSlopedCurb;
 	}
 
-	public void setMaximumSlopedCurb(double maxSlopedCurb) {
+	public void setMaximumSlopedCurb(float maxSlopedCurb) {
 		_maxSlopedCurb = maxSlopedCurb;
 	}
 

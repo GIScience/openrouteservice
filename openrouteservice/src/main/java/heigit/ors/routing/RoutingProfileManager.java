@@ -37,6 +37,7 @@ import heigit.ors.routing.traffic.RealTrafficDataProvider;
 import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.CoordTools;
+import heigit.ors.util.FormatUtility;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.isochrones.IsochroneMap;
@@ -281,6 +282,10 @@ public class RoutingProfileManager {
 			
 			c1 = coords[i];
 			GHResponse gr = rp.getRoute(c0.y, c0.x, c1.y, c1.x, c0.z == 1.0, searchParams, req.getSimplifyGeometry(), pathProcessor);
+			
+			if (gr.hasErrors())
+				throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
+			
 			routes.add(gr);
 			c0 = c1;
 		}
