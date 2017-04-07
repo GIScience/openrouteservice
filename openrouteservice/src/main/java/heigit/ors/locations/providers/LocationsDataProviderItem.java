@@ -17,11 +17,13 @@ public class LocationsDataProviderItem
 		return _provider;
 	}
 
-	public boolean getIsInitialized() {
+	public boolean getIsInitialized() 
+	{
 		return _isInitialized;
 	}
 
-	public void setIsInitialized(boolean isInitialized) {
+	public void setIsInitialized(boolean isInitialized) 
+	{
 		_isInitialized = isInitialized;
 	}
 }
