@@ -23,8 +23,8 @@ import com.graphhopper.util.InstructionAnnotation;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.RoundaboutInstruction;
 import com.graphhopper.util.shapes.BBox;
-import com.vividsolutions.jts.geom.Coordinate;
 
+import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.localization.LocalizationManager;
 import heigit.ors.routing.instructions.InstructionTranslator;
 import heigit.ors.routing.instructions.InstructionTranslatorsCache;
@@ -94,9 +94,7 @@ public class RouteResultBuilder
 			GHResponse resp = routes.get(ri);
 
 			if (resp.hasErrors())
-			{
-				throw new Exception(String.format("Unable to find a route between points %d (%s) and %d (%s)", ri, FormatUtility.formatCoordinate(request.getCoordinates()[ri]), ri + 1, FormatUtility.formatCoordinate(request.getCoordinates()[ri+1])));
-			}
+				throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", ri, FormatUtility.formatCoordinate(request.getCoordinates()[ri]), ri + 1, FormatUtility.formatCoordinate(request.getCoordinates()[ri+1])));
 
 			PointList routePoints = resp.getPoints();
 
