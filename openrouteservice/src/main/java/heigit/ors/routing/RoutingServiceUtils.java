@@ -19,6 +19,7 @@ import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
 import heigit.ors.services.geocoding.GeocodingServiceSettings;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
+import heigit.ors.services.locations.LocationsServiceSettings;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.FormatUtility;
@@ -46,6 +47,8 @@ public class RoutingServiceUtils {
 				list.add("geocoding");
 			if (IsochronesServiceSettings.getEnabled())
 				list.add("isochrones");
+			if (LocationsServiceSettings.getEnabled())
+				list.add("locations");
 			props.put("services", list);
 			props.put("languages", LocalizationManager.getInstance().getLanguages());
 
@@ -75,8 +78,7 @@ public class RoutingServiceUtils {
 			Map<String, Object> profiles = new LinkedHashMap<String, Object>();
 			int i = 1;
 
-			if (RoutingServiceSettings.getParameter("dynamic_weighting_max_distance") !=  null)
-				profiles.put("dynamic_weighting_max_distance", RoutingServiceSettings.getParameter("dynamic_weighting_max_distance"));
+			profiles.put("dynamic_weighting_maximum_distance", RoutingServiceSettings.getDynamicWeightingMaximumDistance());
 
 			for (RoutingProfile rp : profileManager.getProfiles().getUniqueProfiles()) {
 				RouteProfileConfiguration rpc = rp.getConfiguration();
