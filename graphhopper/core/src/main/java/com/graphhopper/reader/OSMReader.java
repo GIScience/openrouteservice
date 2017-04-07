@@ -354,7 +354,7 @@ public class OSMReader implements DataReader
     /**
      * Process properties, encode flags and create edges for the way.
      */
-    protected void processWay( OSMWay way ) // Runge protected
+    protected void processWay( OSMWay way ) 
     {
         if (way.getNodes().size() < 2)
             return;
@@ -479,17 +479,32 @@ public class OSMReader implements DataReader
         	// encodingManager.getEncoder(EncodingManager.WHEELCHAIR); throws an exception for all graph storages that do not contain the wheelchair profile
         }
         
+        
+        onProcessWay(way);
+        
         for (EdgeIteratorState edge : createdEdges)
         {
         	processEdge(way, edge);
         }
     }
     
+    protected void onProcessWay(OSMWay way) // runge
+    {
+    	
+    }
+    
     protected void processEdge(OSMWay way, EdgeIteratorState edge) // Runge
     {
     	encodingManager.applyWayTags(way, edge);
+    	
+    	onProcessEdge(way, edge);
     }
-
+    
+    protected void onProcessEdge(OSMWay way, EdgeIteratorState edge) // runge
+    {
+    	
+    }
+    
     public void processRelation( OSMRelation relation ) throws XMLStreamException
     {
         if (relation.hasTag("type", "restriction"))

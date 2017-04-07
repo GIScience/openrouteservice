@@ -86,15 +86,7 @@ public class ORSOSMReader extends OSMReader {
 	}
 
 	@Override
-	public void processWay(OSMWay way) {
-
-		if (!way.hasTags())
-			return;
-
-		long includeWay = encodingManager.acceptWay(way);
-		if (includeWay == 0)
-			return;
-
+	public void onProcessWay(OSMWay way) {
 		try
 		{
 			if (_storageBuilders != null)
@@ -114,12 +106,9 @@ public class ORSOSMReader extends OSMReader {
 		{
 			LOGGER.warning(ex.getMessage() + ". Way id = " + way.getId());
 		}
-
-		super.processWay(way);
 	}
 
-
-	protected void processEdge(OSMWay way, EdgeIteratorState edge) {
+	protected void onProcessEdge(OSMWay way, EdgeIteratorState edge) {
 
 		if (enrichInstructions && Helper.isEmpty(way.getTag("name")) && Helper.isEmpty(way.getTag("ref"))) {
 			try {
@@ -148,11 +137,7 @@ public class ORSOSMReader extends OSMReader {
 			}
 		}
 
-		super.processEdge(way, edge);
-
 		try {
-			
-			
 			if ((tmcEdges != null) && (osmId2EdgeIds!=null)) {
 				String highwayValue = way.getTag("highway");
 
