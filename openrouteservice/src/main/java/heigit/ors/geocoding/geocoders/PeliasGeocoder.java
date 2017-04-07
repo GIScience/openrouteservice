@@ -63,7 +63,8 @@ public class PeliasGeocoder extends AbstractGeocoder
 
 		GeocodingResult[] results = new GeocodingResult[arr.length()];
 
-		for (int j = 0; j < arr.length(); j++) {
+		for (int j = 0; j < arr.length(); j++) 
+		{
 			JSONObject feature = arr.getJSONObject(j);
 			JSONObject geom = feature.getJSONObject("geometry");
 			JSONArray coords = geom.getJSONArray("coordinates");
