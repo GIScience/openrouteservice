@@ -32,7 +32,6 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 	private int avoidFeatureType;
 	private byte[] buffer;
 	private WayCategoryGraphStorage gsWayCategory;
-	private WheelchairAttributesGraphStorage gsWheelchair;
 	private int profileCategory; 
 
 	private static final int HIGHWAYS = AvoidFeatureFlags.Highways;
@@ -184,16 +183,15 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 								}
 							}
 						}
-					}
-				} else if (gsWheelchair != null) {
-					edgeFeatType = gsWheelchair.getEdgeFeatureTypeFlag(iter.getEdge(), buffer);
-
-					if (edgeFeatType > 0) {
-						if ((avoidFeatureType & FERRIES) == FERRIES) {
-							if ((edgeFeatType & FERRIES) == FERRIES) {
-								return false;
+						else if (profileCategory == RoutingProfileCategory.WHEELCHAIR)
+						{
+							if ((avoidFeatureType & FERRIES) == FERRIES) {
+								if ((edgeFeatType & FERRIES) == FERRIES) {
+									return false;
+								}
 							}
 						}
+						
 					}
 				}
 			}
