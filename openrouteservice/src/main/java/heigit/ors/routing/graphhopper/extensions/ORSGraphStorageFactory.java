@@ -20,7 +20,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import heigit.ors.routing.graphhopper.extensions.storages.*;
+import org.apache.log4j.Logger;
+
 import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 
 import com.graphhopper.GraphHopper;
@@ -35,6 +36,8 @@ import com.graphhopper.storage.TurnCostExtension;
 
 public class ORSGraphStorageFactory implements GraphStorageFactory {
 
+	private static Logger LOGGER = Logger.getLogger(ORSGraphStorageFactory.class.getName());
+	
 	private List<GraphStorageBuilder> _graphStorageBuilders;
 	
 	public ORSGraphStorageFactory(List<GraphStorageBuilder> graphStorageBuilders) {
@@ -71,7 +74,9 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 						graphExtensions.add(ext);
 				}
 				catch(Exception ex)
-				{}
+				{
+					LOGGER.error(ex);
+				}
 			}
 		}
 	
