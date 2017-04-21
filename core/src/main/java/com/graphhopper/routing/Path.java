@@ -60,9 +60,10 @@ public class Path
     private TIntList edgeIds;
     private double weight;
     private NodeAccess nodeAccess;
-
+    
     // Runge
 	private double maxSpeed = -1;
+    private int encoderIndex = -1;
 
     public Path(Graph graph, FlagEncoder encoder, double maxSpeed )
     {
@@ -72,6 +73,7 @@ public class Path
         this.encoder = encoder;
         this.edgeIds = new TIntArrayList();
         this.maxSpeed = maxSpeed;
+        this.encoderIndex = this.encoder.getIndex();
     }
 
     /**
@@ -239,7 +241,7 @@ public class Path
         EdgeIteratorState iter = graph.getEdgeIteratorState(edgeId, adjNode);
         double dist = iter.getDistance();
         distance += dist;
-        time += calcMillis(dist, iter.getFlags(), false);
+        time += calcMillis(dist, iter.getFlags(encoderIndex), false);
         addEdge(edgeId);
     }
 
@@ -447,7 +449,7 @@ public class Path
                 // baseNode is the current node and adjNode is the next
                 int adjNode = edge.getAdjNode();
                 int baseNode = edge.getBaseNode();
-                long flags = edge.getFlags();
+                long flags = edge.getFlags(encoderIndex);
                 double adjLat = nodeAccess.getLatitude(adjNode);
                 double adjLon = nodeAccess.getLongitude(adjNode);
                 double latitude, longitude;
@@ -508,7 +510,7 @@ public class Path
                                 while (edgeIter.next())
                                 {
                                     if ((edgeIter.getAdjNode() != prevNode)
-                                            && !encoder.isBool(edgeIter.getFlags(), FlagEncoder.K_ROUNDABOUT))
+                                            && !encoder.isBool(edgeIter.getFlags(encoderIndex), FlagEncoder.K_ROUNDABOUT))
                                     {
                                         roundaboutInstruction.increaseExitNumber();
                                         break;
@@ -541,7 +543,7 @@ public class Path
                         EdgeIterator edgeIter = outEdgeExplorer.setBaseNode(adjNode);
                         while (edgeIter.next())
                         {
-                            if (!encoder.isBool(edgeIter.getFlags(), FlagEncoder.K_ROUNDABOUT))
+                            if (!encoder.isBool(edgeIter.getFlags(encoderIndex), FlagEncoder.K_ROUNDABOUT))
                             {
                                 ((RoundaboutInstruction) prevInstruction).increaseExitNumber();
                                 break;
@@ -665,7 +667,7 @@ public class Path
                 }
                 double newDist = edge.getDistance();
                 prevInstruction.setDistance(newDist + prevInstruction.getDistance());
-                long flags = edge.getFlags();
+                long flags = edge.getFlags(encoderIndex);
                 prevInstruction.setTime(calcMillis(newDist, flags, false) + prevInstruction.getTime());
             }
         });

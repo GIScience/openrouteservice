@@ -40,6 +40,7 @@ public class FastestWeighting implements Weighting
     private double maxSpeed;
     private double defaultMaxSpeed;
     private double userMaxSpeed;
+    private int encoderIndex = -1;
     
     public FastestWeighting( FlagEncoder encoder, PMap pMap )
     {
@@ -51,6 +52,7 @@ public class FastestWeighting implements Weighting
         maxSpeed = encoder.getMaxSpeed() / SPEED_CONV;
         defaultMaxSpeed = encoder.getMaxSpeed()/ SPEED_CONV;
         userMaxSpeed = -1;
+        encoderIndex = encoder.getIndex();
     }
 
     public FastestWeighting( FlagEncoder encoder )
@@ -83,7 +85,7 @@ public class FastestWeighting implements Weighting
     @Override
     public double calcWeight( EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId )
     {
-        double speed = reverse ? flagEncoder.getReverseSpeed(edge.getFlags()) : flagEncoder.getSpeed(edge.getFlags());
+        double speed = reverse ? flagEncoder.getReverseSpeed(edge.getFlags(encoderIndex)) : flagEncoder.getSpeed(edge.getFlags(encoderIndex));
         if (speed == 0)
             return Double.POSITIVE_INFINITY;
 

@@ -58,7 +58,7 @@ abstract class EdgeAccess
 
     abstract boolean isInBounds( int edgeOrShortcutId );
 
-    abstract long reverseFlags( long edgePointer, long flags );
+    abstract long reverseFlags( long edgePointer, long flags, int encoderIndex );
 
     abstract int getEdgeRef( int nodeId );
 
@@ -107,7 +107,7 @@ abstract class EdgeAccess
         return val / INT_DIST_FACTOR;
     }
 
-    final long getFlags_( long edgePointer, boolean reverse )
+    final long getFlags_( long edgePointer, boolean reverse, int encoderIndex )
     {
         int low = edges.getInt(edgePointer + E_FLAGS);
         long resFlags = low;
@@ -117,15 +117,15 @@ abstract class EdgeAccess
             resFlags = bitUtil.combineIntsToLong(low, high);
         }
         if (reverse)
-            resFlags = reverseFlags(edgePointer, resFlags);
+            resFlags = reverseFlags(edgePointer, resFlags, encoderIndex);
 
         return resFlags;
     }
 
-    final long setFlags_( long edgePointer, boolean reverse, long flags )
+    final long setFlags_( long edgePointer, boolean reverse, long flags, int encoderIndex )
     {
         if (reverse)
-            flags = reverseFlags(edgePointer, flags);
+            flags = reverseFlags(edgePointer, flags, encoderIndex);
 
         edges.setInt(edgePointer + E_FLAGS, bitUtil.getIntLow(flags));
 

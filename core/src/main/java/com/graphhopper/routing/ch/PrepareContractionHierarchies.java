@@ -86,6 +86,8 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     private double lazyTime;
     private double neighborTime;
     private int maxEdgesCount;
+    
+    private FlagEncoder encoder;
 
     public PrepareContractionHierarchies( Directory dir, GraphHopperStorage ghStorage, CHGraph chGraph,
                                           FlagEncoder encoder, Weighting weighting, TraversalMode traversalMode )
