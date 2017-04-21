@@ -21,6 +21,7 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Represents an OSM Relation
@@ -45,6 +46,12 @@ public class OSMRelation extends OSMElement
     {
         super(id, RELATION);
     }
+    
+    public OSMRelation( long id, Map<String, String> tags)
+    {
+        super(id, RELATION, tags);
+    }
+
 
     protected void readMembers( XMLStreamReader parser ) throws XMLStreamException
     {

@@ -126,7 +126,6 @@ public class PbfBlobDecoder implements Runnable
     
     private Map<String, String> buildTags( List<Integer> keys, List<Integer> values, PbfFieldDecoder fieldDecoder )
     {
-
         // Ensure parallel lists are of equal size.
         if (checkData)
         {
@@ -137,21 +136,30 @@ public class PbfBlobDecoder implements Runnable
             }
         }
 
+    	if (entityTags == null)
+    		entityTags = new HashMap<String, String>(keys.size());
+    	else
+    		entityTags.clear();
+
         Iterator<Integer> keyIterator = keys.iterator();
         Iterator<Integer> valueIterator = values.iterator();
         if (keyIterator.hasNext())
         {
-        	if (entityTags == null)
-        		entityTags = new HashMap<String, String>(keys.size());
-        	else
-        		entityTags.clear();
-        	
-            //Map<String, String> tags = new HashMap<String, String>(keys.size());
+        	int keyId = 1;
+
             while (keyIterator.hasNext())
             {
-                String key = fieldDecoder.decodeString(keyIterator.next());
-                String value = fieldDecoder.decodeString(valueIterator.next());
-                entityTags.put(key, value);
+            	keyId = keyIterator.next();
+            	if (!fieldDecoder.skip(keyId))
+            	{
+            		String key = fieldDecoder.decodeString(keyId);
+            		String value = fieldDecoder.decodeString(valueIterator.next());
+            		entityTags.put(key, value);
+            	}
+            	else
+            	{
+            		valueIterator.next();
+            	}
             }
             return entityTags;
         }
@@ -165,8 +173,8 @@ public class PbfBlobDecoder implements Runnable
             Map<String, String> tags = buildTags(node.getKeysList(), node.getValsList(), fieldDecoder);
 
             OSMNode osmNode = new OSMNode(node.getId(), fieldDecoder.decodeLatitude(node
-                    .getLat()), fieldDecoder.decodeLatitude(node.getLon()));
-            osmNode.setTags(tags);
+                    .getLat()), fieldDecoder.decodeLatitude(node.getLon()), tags);
+            //osmNode.setTags(tags);
 
             // Add the bound object to the results.
             decodedEntities.add(osmNode);
@@ -199,6 +207,8 @@ public class PbfBlobDecoder implements Runnable
          denseInfo = null;
          }
          */
+        
+
         long nodeId = 0;
         long latitude = 0;
         long longitude = 0;
@@ -239,7 +249,13 @@ public class PbfBlobDecoder implements Runnable
             // Build the tags. The key and value string indexes are sequential
             // in the same PBF array. Each set of tags is delimited by an index
             // with a value of 0.
-            Map<String, String> tags = null;
+            
+            if (entityTags == null)
+             	entityTags = new HashMap<String, String>(5);
+            else
+            	entityTags.clear();
+
+            Map<String, String> tags = entityTags; // Runge
             while (keysValuesIterator.hasNext())
             {
                 int keyIndex = keysValuesIterator.next();
@@ -262,11 +278,12 @@ public class PbfBlobDecoder implements Runnable
                     tags = new HashMap<String, String>();
                 }
 
-                tags.put(fieldDecoder.decodeString(keyIndex), fieldDecoder.decodeString(valueIndex));
+                if (!fieldDecoder.skip(keyIndex))
+                	tags.put(fieldDecoder.decodeString(keyIndex), fieldDecoder.decodeString(valueIndex));
             }
 
-            OSMNode node = new OSMNode(nodeId, ((double) latitude) / 10000000, ((double) longitude) / 10000000);
-            node.setTags(tags);
+            OSMNode node = new OSMNode(nodeId, ((double) latitude) / 10000000, ((double) longitude) / 10000000, tags); // Runge
+            //node.setTags(tags);
 
             // Add the bound object to the results.
             decodedEntities.add(node);
@@ -278,9 +295,9 @@ public class PbfBlobDecoder implements Runnable
         for (Osmformat.Way way : ways)
         {
             Map<String, String> tags = buildTags(way.getKeysList(), way.getValsList(), fieldDecoder);
-            OSMWay osmWay = new OSMWay(way.getId());
-            osmWay.setTags(tags);
-
+            OSMWay osmWay = new OSMWay(way.getId(), way.getRefsList().size(), tags); // Runge
+            //osmWay.setTags(tags);
+            
             // Build up the list of way nodes for the way. The node ids are
             // delta encoded meaning that each id is stored as a delta against
             // the previous one.
@@ -354,8 +371,8 @@ public class PbfBlobDecoder implements Runnable
         {
             Map<String, String> tags = buildTags(relation.getKeysList(), relation.getValsList(), fieldDecoder);
 
-            OSMRelation osmRelation = new OSMRelation(relation.getId());
-            osmRelation.setTags(tags);
+            OSMRelation osmRelation = new OSMRelation(relation.getId(), tags); // Runge
+            //osmRelation.setTags(tags);
 
             buildRelationMembers(osmRelation, relation.getMemidsList(), relation.getRolesSidList(),
                     relation.getTypesList(), fieldDecoder);
@@ -384,7 +401,7 @@ public class PbfBlobDecoder implements Runnable
     {
         try
         {
-            decodedEntities = new ArrayList<OSMElement>();
+            decodedEntities = new ArrayList<OSMElement>(8000);
             if ("OSMHeader".equals(blobType))
             {
                 processOsmHeader(readBlobContent());

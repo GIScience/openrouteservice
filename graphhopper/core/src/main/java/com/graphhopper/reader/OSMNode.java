@@ -19,6 +19,8 @@ package com.graphhopper.reader;
 
 import com.graphhopper.util.PointAccess;
 
+import java.util.Map;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
@@ -56,6 +58,14 @@ public class OSMNode extends OSMElement
     public OSMNode( long id, double lat, double lon )
     {
         super(id, NODE);
+
+        this.lat = lat;
+        this.lon = lon;
+    }
+    
+    public OSMNode( long id, double lat, double lon, Map<String, String> tags)
+    {
+        super(id, NODE, tags);
 
         this.lat = lat;
         this.lon = lon;
