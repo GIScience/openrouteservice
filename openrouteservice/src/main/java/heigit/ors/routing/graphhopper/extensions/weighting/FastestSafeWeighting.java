@@ -14,7 +14,6 @@ import com.graphhopper.util.EdgeIteratorState;
 public class FastestSafeWeighting extends FastestWeighting {
 	private Double THRESHOLD_AVOID_AT_ALL_COSTS = (double) (PriorityCode.AVOID_AT_ALL_COSTS.getValue() / (double)PriorityCode.BEST
 			.getValue());
-
 	
 	/**
 	 * For now used only in BikeCommonFlagEncoder and MotorcycleFlagEncoder

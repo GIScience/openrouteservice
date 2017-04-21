@@ -104,15 +104,29 @@ public class QueryGraph implements Graph
         List<QueryResult> results = new ArrayList<QueryResult>(2);
         results.add(fromRes);
         results.add(toRes);
-        lookup(results);
+        lookup(results, -1);
         return this;
+    }
+    
+    public QueryGraph lookup( QueryResult fromRes, QueryResult toRes, int encoderIndex)
+    {
+        List<QueryResult> results = new ArrayList<QueryResult>(2);
+        results.add(fromRes);
+        results.add(toRes);
+        lookup(results, encoderIndex);
+        return this;
+    }
+
+    public void lookup( List<QueryResult> resList)
+    {
+    	lookup(resList, -1);
     }
 
     /**
      * For all specified query results calculate snapped point and set closest node and edge to a
      * virtual one if necessary. Additionally the wayIndex can change if an edge is swapped.
      */
-    public void lookup( List<QueryResult> resList )
+    public void lookup( List<QueryResult> resList, int ecnoderIndex)
     {
         if (isInitialized())
             throw new IllegalStateException("Call lookup only once. Otherwise you'll have problems for queries sharing the same edge.");
@@ -221,7 +235,7 @@ public class QueryGraph implements Graph
                 int adjNode = closestEdge.getAdjNode();
                 int origTraversalKey = GHUtility.createEdgeKey(baseNode, adjNode, closestEdge.getEdge(), false);
                 int origRevTraversalKey = GHUtility.createEdgeKey(baseNode, adjNode, closestEdge.getEdge(), true);
-                long reverseFlags = closestEdge.detach(true).getFlags();
+                long reverseFlags = closestEdge.detach(true).getFlags(ecnoderIndex);
                 int prevWayIndex = 1;
                 int prevNodeId = baseNode;
                 int virtNodeId = virtualNodes.getSize() + mainNodes;

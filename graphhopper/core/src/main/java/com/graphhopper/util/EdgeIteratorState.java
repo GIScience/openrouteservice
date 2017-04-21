@@ -81,6 +81,8 @@ public interface EdgeIteratorState
     EdgeIteratorState setDistance( double dist );
 
     long getFlags();
+    
+    long getFlags(int encoderIndex);
 
     EdgeIteratorState setFlags( long flags );
 

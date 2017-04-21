@@ -71,9 +71,10 @@ public class BikeCommonFlagEncoder extends AbstractFlagEncoder
 	protected String specificBicycleClass;
 
 	//Runge
-	private static DistanceCalc distCalc = new DistanceCalc3D();
-	private static List<RouteSplit> splits = new ArrayList<RouteSplit>();
-	private static int prevEdgeId = Integer.MAX_VALUE;
+	private DistanceCalc distCalc = new DistanceCalc3D();
+	private List<RouteSplit> splits = new ArrayList<RouteSplit>();
+	private int prevEdgeId = Integer.MAX_VALUE;
+	public static boolean SKIP_WAY_TYPE_INFO = false;
 
 
 	protected BikeCommonFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation)
@@ -463,9 +464,14 @@ public class BikeCommonFlagEncoder extends AbstractFlagEncoder
 		if (isBool(flags, K_UNPAVED))
 			paveType = 1; // unpaved        
 
-		int wayType = (int) wayTypeEncoder.getValue(flags);
-		String wayName = getWayName(paveType, wayType, tr);
-		return new InstructionAnnotation(0, wayName, wayType/*Runge*/);
+		if (SKIP_WAY_TYPE_INFO)  // Runge. We don't use this information
+			return new InstructionAnnotation(0, "", 0/*Runge*/);
+		else
+		{
+			int wayType = (int) wayTypeEncoder.getValue(flags);
+			String wayName = getWayName(paveType, wayType, tr); 
+			return new InstructionAnnotation(0, wayName, wayType/*Runge*/);
+		}
 	}
 
 	String getWayName( int pavementType, int wayType, Translation tr )

@@ -15,15 +15,16 @@ public class OptimizedPriorityWeighting extends FastestWeighting {
 	 * For now used only in BikeCommonFlagEncoder and MotorcycleFlagEncoder
 	 */
 	public static final int KEY = 101;
-
+    private int encoderIndex = -1;
+	
 	public OptimizedPriorityWeighting(double maxSpeed, FlagEncoder encoder) {
 		super(maxSpeed, encoder);
-
+		encoderIndex = encoder.getIndex();
 	}
 
 	@Override
 	public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-		double priority = getFlagEncoder().getDouble(edgeState.getFlags(), KEY);
+		double priority = getFlagEncoder().getDouble(edgeState.getFlags(encoderIndex), KEY);
 
 		double weight = super.calcWeight(edgeState, reverse, prevOrNextEdgeId);
 		if (Double.isInfinite(weight))

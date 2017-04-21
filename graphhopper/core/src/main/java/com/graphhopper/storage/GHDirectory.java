@@ -160,7 +160,7 @@ public class GHDirectory implements Directory
     {
         removeFromMap(da.getName());
         removeDA(da, da.getName(), true);
-    }
+    }	
 
     void removeDA( DataAccess da, String name, boolean forceClean )
     {

@@ -91,6 +91,12 @@ public class FastestWeightingTest
             {
                 return flags;
             }
+            
+            @Override
+            public long getFlags(int encoderIndex)
+            {
+                return flags;
+            }
 
             @Override
             public boolean getBoolean( int key, boolean reverse, boolean _default )

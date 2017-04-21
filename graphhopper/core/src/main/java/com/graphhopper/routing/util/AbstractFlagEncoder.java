@@ -86,6 +86,8 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
     protected final int speedBits;
     protected final double speedFactor;
     private boolean registered;
+    
+    private int mgrIndex = -1;
 
     public AbstractFlagEncoder( PMap properties )
     {
@@ -127,6 +129,16 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
         acceptedRailways.add("razed");
         acceptedRailways.add("historic");
         acceptedRailways.add("obliterated");
+    }
+    
+    public void setIndex(int index)
+    {
+    	this.mgrIndex = index;
+    }
+    
+    public int getIndex()
+    {
+    	return mgrIndex;
     }
 
     public void setRegistered( boolean registered )

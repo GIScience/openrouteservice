@@ -64,7 +64,7 @@ public class EncodingManager
     private final int bitsForTurnFlags = 8 * 4;
     private boolean enableInstructions = true;
     private int totalUsedBits = 0; // Runge
-
+ 
     public static void registerDefaultEdgeFlagEncoder(String name, FlagEncoder encoder) // Runge
     {
         defaultEdgeFlagEncoders.put(name, encoder);
@@ -245,6 +245,7 @@ public class EncodingManager
             throw new IllegalArgumentException(String.format(ERR, bitsForEdgeFlags, "turn"));
         nextTurnBit = usedBits;
 
+        encoder.setIndex(edgeEncoders.size());
         edgeEncoders.add(encoder);
     }
 
@@ -378,8 +379,11 @@ public class EncodingManager
     /**
      * Reverse flags, to do so all encoders are called.
      */
-    public long reverseFlags( long flags )
+    public long reverseFlags( long flags, int encoderindex)
     {
+    	if (encoderindex != -1) // Runge
+    		return edgeEncoders.get(encoderindex).reverseFlags(flags);
+    	
         // performance critical
         int len = edgeEncoders.size();
         for (int i = 0; i < len; i++)
