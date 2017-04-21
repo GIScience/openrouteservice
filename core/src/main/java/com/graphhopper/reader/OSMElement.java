@@ -41,14 +41,29 @@ public abstract class OSMElement
     public static final int RELATION = 2;
     private final int type;
     private final long id;
-    private final Map<String, Object> properties = new HashMap<String, Object>(5);
+    private final Map<String, Object> properties; // Runge
 
     protected OSMElement( long id, int type )
     {
         this.id = id;
         this.type = type;
+        properties = new HashMap<String, Object>(5);
     }
 
+    
+    protected OSMElement( long id, int type, Map<String, String> tags)
+    {
+        this.id = id;
+        this.type = type;
+        if (tags != null && tags.size() > 0)
+        {
+            properties = new HashMap<String, Object>(tags.size());
+        	setTags(tags);
+        }
+        else
+        	properties = new HashMap<String, Object>(1);
+    }
+    
     public long getId()
     {
         return id;
