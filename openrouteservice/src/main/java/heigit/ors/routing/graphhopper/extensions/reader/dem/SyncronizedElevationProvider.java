@@ -18,9 +18,9 @@ import com.graphhopper.reader.dem.ElevationProvider;
 import com.graphhopper.reader.dem.HeightTile;
 import com.graphhopper.storage.DAType;
 
-public class SyncronizedElevationProvider implements ElevationProvider {
+public class SyncronizedElevationProvider implements ElevationProvider 
+{
 	private final StampedLock _lock = new StampedLock();
-	//private Object _lockObj = new Object();
 	private ElevationProvider _elevProvider;
 
 	public SyncronizedElevationProvider(ElevationProvider elevProvider)
@@ -53,10 +53,10 @@ public class SyncronizedElevationProvider implements ElevationProvider {
 		
 		long stamp = _lock.readLock();
 		
-		try{
+		try
+		{
 			tileKey = getTileKey(lat, lon);
 			dem = getTile(tileKey);
-            
         }
 		finally
 		{
