@@ -55,6 +55,18 @@
 		<servlet-name>shortenlink</servlet-name>
 		<url-pattern>/shortenlink</url-pattern>
 	</servlet-mapping>
+	
+		
+	<!-- ORS Server Status Servlet -->
+	<servlet>
+		<servlet-name>status</servlet-name>
+		<servlet-class>heigit.ors.servlet.http.ServerStatusServlet</servlet-class>
+		<load-on-startup>5</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>status</servlet-name>
+		<url-pattern>/status</url-pattern>
+	</servlet-mapping>
 
 <filter>
   <filter-name>CorsFilter</filter-name>
