@@ -37,6 +37,7 @@ public class RoutingManagerConfiguration
 			String profileRef = "profiles.profile-" + item;
 
 			RouteProfileConfiguration profile = new RouteProfileConfiguration();
+			profile.Name = item;
 			profile.Enabled = true;
 			profile.Profiles = RoutingServiceSettings.getParameter(profileRef + ".profiles");
 
@@ -53,7 +54,7 @@ public class RoutingManagerConfiguration
 			profile.GraphPath = graphPath;
 
 			Map<String, Object> profileParams = RoutingServiceSettings.getParametersMap(profileRef + ".parameters");
-			
+
 			if (profileParams == null)
 				profileParams = defaultParams;
 			else if (defaultParams != null)
@@ -64,7 +65,7 @@ public class RoutingManagerConfiguration
 						profileParams.put(defParamItem.getKey(), defParamItem.getValue());
 				}				
 			}
-			
+
 			if (profileParams != null)
 			{
 				for(Map.Entry<String, Object> paramItem : profileParams.entrySet())
@@ -73,6 +74,9 @@ public class RoutingManagerConfiguration
 					{
 					case "ch_weighting":
 						profile.CHWeighting = paramItem.getValue().toString();
+						break;
+					case "ch_threads":
+						profile.CHThreads = Integer.parseInt(paramItem.getValue().toString());
 						break;
 					case "encoder_options":
 						profile.EncoderOptions = paramItem.getValue().toString();
@@ -87,13 +91,22 @@ public class RoutingManagerConfiguration
 						if (Boolean.parseBoolean(paramItem.getValue().toString()))
 						{
 							profile.ElevationProvider = profileParams.get("elevation_provider").toString();
+							if (profileParams.get("elevation_data_access") != null)
+								profile.ElevationDataAccess  = profileParams.get("elevation_data_access").toString();
 							profile.ElevationCachePath = profileParams.get("elevation_cache_path").toString();
+
+							if (profileParams.get("elevation_cache_clear") != null)
+							{
+								String clearCache = profileParams.get("elevation_cache_clear").toString();
+								if (!Helper.isEmpty(clearCache))
+									profile.ElevationCacheClear = Boolean.parseBoolean(clearCache);
+							}
 						}
-					    break;
+						break;
 					case "ext_storages":
 						@SuppressWarnings("unchecked") 
 						Map<String, Object> storageList = (Map<String, Object>)paramItem.getValue();
-						
+
 						for(Map.Entry<String, Object> storageEntry : storageList.entrySet())
 						{
 							@SuppressWarnings("unchecked")
@@ -107,18 +120,15 @@ public class RoutingManagerConfiguration
 									storageParams.put(entry.getKey(), entry.getValue().toString());
 								}
 							}
-							
+
 							profile.ExtStorages.put(storageEntry.getKey(), storageParams);
 						}
 						//
- 						//paramItem.getValue();
+						//paramItem.getValue();
 						//profile.ExtStorages = paramItem.getValue().toString();
 						break;
 					case "traffic":
 						profile.UseTrafficInformation = Boolean.parseBoolean(paramItem.getValue().toString());
-						break;
-					case "minimum_distance":
-						profile.MinimumDistance = Double.parseDouble(paramItem.getValue().toString());
 						break;
 					case "maximum_distance":
 						profile.MaximumDistance = Double.parseDouble(paramItem.getValue().toString());
@@ -126,14 +136,14 @@ public class RoutingManagerConfiguration
 					case "extent":
 						@SuppressWarnings("unchecked") 
 						List<Double> bbox = (List<Double>)paramItem.getValue();
-						
+
 						if (bbox.size() != 4)
 							throw new Exception("'extent' element must contain 4 elements.");
 						profile.BBox = new Envelope(bbox.get(0),bbox.get(1),bbox.get(2),bbox.get(3));
 					}
 				}
 			}
-			
+
 			profiles.add(profile);
 		}
 

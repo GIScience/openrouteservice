@@ -10,6 +10,7 @@ import heigit.ors.routing.RoutingProfileType;
 
 public class RouteProfileConfiguration
 {
+	public String Name = "";
 	public Boolean Enabled = true;
 
 	public String Profiles; // comma separated
@@ -18,7 +19,6 @@ public class RouteProfileConfiguration
 	public Map<String, Map<String, String>> ExtStorages;
 	
 	public Double MaximumDistance = 0.0;
-	public Double MinimumDistance = 0.0; 
 	public Boolean UseTrafficInformation = false;
 	
 	public Boolean Instructions = true;
@@ -26,9 +26,12 @@ public class RouteProfileConfiguration
 	public int EncoderFlagsSize = 4;
 	public String EncoderOptions = null;
 	public String CHWeighting = null;
+	public int CHThreads = 1;
 	
-	public String ElevationCachePath = null;
 	public String ElevationProvider = null;
+	public String ElevationCachePath = null;
+	public boolean ElevationCacheClear = true;
+	public String ElevationDataAccess = "MMAP";
 	
 	public Envelope BBox;
 	
@@ -60,11 +63,11 @@ public class RouteProfileConfiguration
 	{
 		RouteProfileConfiguration rpc = new RouteProfileConfiguration();
 		
+		rpc.Name = this.Name;
 		rpc.Enabled = this.Enabled;
 		rpc.Profiles = this.Profiles;
 			
 		rpc.MaximumDistance = this.MaximumDistance;
-		rpc.MinimumDistance = this.MinimumDistance; 
 		rpc.UseTrafficInformation = this.UseTrafficInformation;
 		
 		rpc.Instructions = this.Instructions;
@@ -72,11 +75,14 @@ public class RouteProfileConfiguration
 		rpc.EncoderFlagsSize = this.EncoderFlagsSize;
 		rpc.EncoderOptions = this.EncoderOptions;
 		rpc.CHWeighting = this.CHWeighting;
+		rpc.CHThreads = this.CHThreads;
 
 		rpc.ExtStorages = this.ExtStorages;
 
 		rpc.ElevationCachePath = this.ElevationCachePath;
+		rpc.ElevationCacheClear = this.ElevationCacheClear;
 		rpc.ElevationProvider = this.ElevationProvider;
+		rpc.ElevationDataAccess = this.ElevationDataAccess;
 		
 		rpc.BBox = this.BBox;
 		

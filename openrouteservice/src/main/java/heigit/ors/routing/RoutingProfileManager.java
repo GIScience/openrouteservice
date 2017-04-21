@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -49,8 +50,11 @@ import heigit.ors.util.RuntimeUtility;
 import heigit.ors.util.TimeUtility;
 
 import com.graphhopper.GHResponse;
+import com.graphhopper.routing.util.BikeCommonFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.PathProcessor;
+import com.graphhopper.storage.RAMDataAccess;
+import com.graphhopper.util.DistanceCalc3D;
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class RoutingProfileManager {
@@ -140,6 +144,10 @@ public class RoutingProfileManager {
 			LOGGER.info(String.format("====> Initializing profiles (%d threads) ...", RoutingServiceSettings.getInitializationThreads()));
 			LOGGER.info("                              ");
 
+			DistanceCalc3D.ASIN_APPROXIMATION = RoutingServiceSettings.getDistanceApproximation();
+			RAMDataAccess.LZ4_COMPRESSION_ENABLED = "LZ4".equalsIgnoreCase(RoutingServiceSettings.getStorageFormat());	
+			BikeCommonFlagEncoder.SKIP_WAY_TYPE_INFO = true;
+
 			if ("PrepareGraphs".equalsIgnoreCase(RoutingServiceSettings.getWorkingMode())) {
 				prepareGraphs(graphProps);
 			} else {
@@ -148,12 +156,12 @@ public class RoutingProfileManager {
 				_routeProfiles = new RoutingProfilesCollection();
 				int nRouteInstances = rmc.Profiles.length;
 
-				RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
+				RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext(RoutingServiceSettings.getInitializationThreads());
 				ExecutorService executor = Executors.newFixedThreadPool(RoutingServiceSettings.getInitializationThreads());
-				List<Future<RoutingProfile>> list = new ArrayList<Future<RoutingProfile>>();
+				ExecutorCompletionService<RoutingProfile> compService = new ExecutorCompletionService<RoutingProfile>(executor);
 				
-				int j = 1;
-				
+				int nTotalTasks = 0;
+				int j = 1; 
 				for (int i = 0; i < nRouteInstances; i++) {
 					RouteProfileConfiguration rpc = rmc.Profiles[i];
 					if (!rpc.Enabled)
@@ -164,10 +172,10 @@ public class RoutingProfileManager {
 					Integer[] routeProfiles = rpc.getProfilesTypes();
 
 					if (routeProfiles != null) {
-						Callable<RoutingProfile> worker = new RoutingProfileLoader(RoutingServiceSettings.getSourceFile(), rpc,
+						Callable<RoutingProfile> task = new RoutingProfileLoader(RoutingServiceSettings.getSourceFile(), rpc,
 								_routeProfiles, loadCntx);
-						Future<RoutingProfile> submit = executor.submit(worker);
-						list.add(submit);
+						compService.submit(task);
+						nTotalTasks++;
 					}
 					
 					j++;
@@ -175,18 +183,21 @@ public class RoutingProfileManager {
 
 				LOGGER.info("               ");
 
-				// now retrieve the result
-				for (Future<RoutingProfile> future : list) {
+				int nCompletedTasks = 0;
+				while (nCompletedTasks < nTotalTasks)
+				{
+					Future<RoutingProfile> future = compService.take();
+					
 					try {
 						RoutingProfile rp = future.get();
-
+						nCompletedTasks ++;
 						if (!_routeProfiles.add(rp))
 							LOGGER.warn("Routing profile has already been added.");
 					} catch (InterruptedException e) {
-						LOGGER.error(e.getMessage());
+						LOGGER.error(e);
 						e.printStackTrace();
 					} catch (ExecutionException e) {
-						LOGGER.error(e.getMessage());
+						LOGGER.error(e);
 						e.printStackTrace();
 					}
 				}
@@ -207,7 +218,7 @@ public class RoutingProfileManager {
 				}
 			}
 		} catch (Exception ex) {
-			LOGGER.error("Failed to initialize RouteProfileManager instance.", ex);
+			LOGGER.error("Failed to initialize RoutingProfileManager instance.", ex);
 		}
 		
 		RuntimeUtility.clearMemory(LOGGER);

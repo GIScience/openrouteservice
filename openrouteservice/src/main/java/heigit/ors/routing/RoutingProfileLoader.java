@@ -31,6 +31,15 @@ public class RoutingProfileLoader implements Callable<RoutingProfile> {
 
 	@Override
 	public RoutingProfile call() throws Exception {
+		Thread.currentThread().setName("ORS-pl-" + rpc.Name);
 		return new RoutingProfile(osmFile, rpc, routeProfiles, loadCntx);
+	}
+	
+	
+	protected void afterExecute(Runnable r, Throwable t) {
+	  if (t != null)
+	  {
+		  
+	  }
 	}
 }

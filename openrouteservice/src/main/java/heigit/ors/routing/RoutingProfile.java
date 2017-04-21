@@ -134,7 +134,7 @@ public class RoutingProfile
 
 		if (!Helper.isEmpty(config.ElevationProvider) && !Helper.isEmpty(config.ElevationCachePath))
 		{
-			ElevationProvider elevProvider = loadCntx.getElevationProvider(config.ElevationProvider, config.ElevationCachePath);
+			ElevationProvider elevProvider = loadCntx.getElevationProvider(config.ElevationProvider, config.ElevationCachePath, config.ElevationDataAccess, config.ElevationCacheClear);
 			gh.setElevationProvider(elevProvider);
 		}
 
@@ -182,9 +182,12 @@ public class RoutingProfile
 		{
 			args.put("graph.elevation.provider", config.ElevationProvider);
 			args.put("graph.elevation.cachedir", config.ElevationCachePath);
+			args.put("graph.elevation.dataaccess", config.ElevationDataAccess);
 		}
 
 		args.put("prepare.chWeighting", (config.CHWeighting != null) ? config.CHWeighting: "no");
+		
+		args.put("prepare.threads", config.CHThreads);
 
 		String flagEncoders = "";
 		String[] encoderOpts = !Helper.isEmpty(config.EncoderOptions) ? config.EncoderOptions.split(","): null;
@@ -526,18 +529,9 @@ public class RoutingProfile
 				return false;
 		}
 
-		if (mProfileConfig.MinimumDistance > 0) {
-			double dist = CoordTools.calcDistHaversine(lon0, lat0, lon1, lat1);
-
-			if (dist >= mProfileConfig.MinimumDistance)
-				return true;
-			else
-				return false;
-		}
-
 		return true;
 	}
-
+	
 	public GHResponse getRoute(double lat0, double lon0, double lat1, double lon1, boolean directedSegment, RouteSearchParameters searchParams, boolean simplifyGeometry, PathProcessor pathProcessor)
 			throws Exception {
 
@@ -552,6 +546,7 @@ public class RoutingProfile
 			int weightingMethod = searchParams.getWeightingMethod();
 			RouteSearchContext searchCntx = createSearchContext(searchParams, RouteSearchMode.Routing);
 
+			boolean flexibleMode = false;
 			GHRequest req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
 			req.setVehicle(searchCntx.getEncoder().toString());
 			req.setAlgorithm("dijkstrabi");
@@ -566,19 +561,27 @@ public class RoutingProfile
 				if (weightingMethod == WeightingMethod.FASTEST)
 					req.setWeighting("fastest");
 				else if (weightingMethod == WeightingMethod.SHORTEST)
+				{
 					req.setWeighting("shortest");
+					flexibleMode = true;
+				}
 				else if (weightingMethod == WeightingMethod.RECOMMENDED)
+				{
 					req.setWeighting("recommended");
-			}
+					flexibleMode = true;
+				}
+			} 
 
 			if ((profileType == RoutingProfileType.CYCLING_TOUR || profileType == RoutingProfileType.CYCLING_MOUNTAIN)
 					&& weightingMethod == WeightingMethod.FASTEST) {
 				req.setWeighting("recommended");
+				flexibleMode = true;
 			}
 
 			if ((profileType == RoutingProfileType.CYCLING_TOUR || (profileType == RoutingProfileType.DRIVING_HGV && HeavyVehicleAttributes.HGV == searchParams
 					.getVehicleType())) && weightingMethod == WeightingMethod.RECOMMENDED) {
 				req.setWeighting("recommended_pref");
+				flexibleMode = true;
 			}
 
 			if (RoutingProfileType.isDriving(profileType) && RealTrafficDataProvider.getInstance().isInitialized())
@@ -589,7 +592,10 @@ public class RoutingProfile
 
 			if (pathProcessor != null)
 				req.setPathProcessor(pathProcessor);
-
+			
+			if (useDynamicWeights(searchParams) || flexibleMode)
+				req.getHints().put("CH.Disable", true);
+			
 			if (directedSegment)
 				resp = mGraphHopper.directRoute(req);
 			else 
@@ -605,6 +611,13 @@ public class RoutingProfile
 		}
 
 		return resp;
+	}
+	
+	private boolean useDynamicWeights(RouteSearchParameters searchParams)
+	{
+		boolean dynamicWeights = (searchParams.hasAvoidAreas() || searchParams.hasAvoidFeatures() || searchParams.getMaximumSpeed() > 0 || (RoutingProfileType.isDriving(searchParams.getProfileType()) && (searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
+
+		return dynamicWeights;
 	}
 
 	private EdgeFilter createEdgeFilter(EdgeFilter edgeFilter, EdgeFilter seq) {

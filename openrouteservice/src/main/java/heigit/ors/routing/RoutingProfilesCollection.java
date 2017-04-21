@@ -59,8 +59,9 @@ public class RoutingProfilesCollection {
 	}
 
 	public boolean add(int routePref, RoutingProfile rp, boolean isUnique) {
+		boolean res = false;
+
 		synchronized (m_routeProfiles) {
-			
 			int key = getRoutePreferenceKey(routePref, rp.isCHEnabled());
 
 			if (!m_routeProfiles.containsKey(key))
@@ -68,12 +69,27 @@ public class RoutingProfilesCollection {
 				m_routeProfiles.put(key, rp);
 				if (isUnique)
 					m_uniqueProfiles.add(rp);
+				
+				res = true;
 			}
-			else
-				return false;
+			
+			if (rp.isCHEnabled())
+			{
+				//  add the same profile but with dynamic weights
+				key = getRoutePreferenceKey(routePref, false);
+
+				if (!m_routeProfiles.containsKey(key))
+				{
+					m_routeProfiles.put(key, rp);
+					if (isUnique)
+						m_uniqueProfiles.add(rp);
+					
+					res = true;
+				}
+			}
 		}
 
-		return true;
+		return res;
 	}
 
 	public ArrayList<RoutingProfile> getCarProfiles() {

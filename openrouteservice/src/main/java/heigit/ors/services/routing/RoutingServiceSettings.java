@@ -25,6 +25,8 @@ public class RoutingServiceSettings {
 	private static int initializationThreads = 1;
 	private static int maximumWayPoints = 30;
 	private static double dynamicWeightingMaximumDistance = 0.0;
+	private static boolean distanceApproximation = false;
+	private static String storageFormat = "Native";
 	private static String attribution = "";
 	private static AppConfig _config;
 	
@@ -57,6 +59,14 @@ public class RoutingServiceSettings {
 		if (value != null)
 			initializationThreads = Integer.parseInt(value);
 		
+		value = config.getServiceParameter("routing", "distance_approximation");
+		if (value != null)
+			distanceApproximation = Boolean.parseBoolean(value);
+		
+		value = config.getServiceParameter("routing", "storage_format");
+		if (value != null)
+			storageFormat = value;
+		
 		value = config.getServiceParameter("routing", "maximum_way_points");
 		if (value != null)
 			maximumWayPoints = Integer.parseInt(value);
@@ -85,6 +95,14 @@ public class RoutingServiceSettings {
 	
 	public static int getInitializationThreads() {
 		return initializationThreads;
+	}
+	
+	public static boolean getDistanceApproximation()	{
+		return distanceApproximation;
+	}
+	
+	public static String getStorageFormat()	{
+		return storageFormat;
 	}
 	
 	public static int getMaximumWayPoints() {

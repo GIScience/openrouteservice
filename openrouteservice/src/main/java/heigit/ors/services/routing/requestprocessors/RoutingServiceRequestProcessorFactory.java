@@ -38,8 +38,6 @@ public class RoutingServiceRequestProcessorFactory {
 
 		switch (requestParam.toLowerCase()) 
 		{
-		case "info":
-			return new RoutingServiceInformationRequestProcessor(request);
 		case "tmc":
 			return new TmcInformationRequestProcessor(request);
 		case "route":
