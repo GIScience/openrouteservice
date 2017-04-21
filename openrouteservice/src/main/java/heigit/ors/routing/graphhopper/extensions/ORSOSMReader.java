@@ -42,7 +42,7 @@ public class ORSOSMReader extends OSMReader {
 	private RoutingProfile refProfile;
 	private boolean enrichInstructions;
 
-	private List<GraphStorageBuilder> _storageBuilders;
+	private GraphStorageBuilder[] _storageBuilders;
 
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
 			"primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential" };
@@ -50,7 +50,11 @@ public class ORSOSMReader extends OSMReader {
 	public ORSOSMReader(GraphHopperStorage storage, Envelope bbox,  List<GraphStorageBuilder> storageBuilders, HashMap<Integer, Long> tmcEdges,  HashMap<Long, ArrayList<Integer>> osmId2EdgeIds, RoutingProfile refProfile) {
 		super(storage);
 
-		this._storageBuilders = storageBuilders;
+		if (storageBuilders != null && storageBuilders.size() > 0)
+		{
+			_storageBuilders = new GraphStorageBuilder[storageBuilders.size()];
+			_storageBuilders = storageBuilders.toArray(_storageBuilders);
+		}
 		this.bbox = bbox;
 		this.tmcEdges = tmcEdges;
 		this.osmId2EdgeIds = osmId2EdgeIds;
@@ -91,13 +95,37 @@ public class ORSOSMReader extends OSMReader {
 		{
 			if (_storageBuilders != null)
 			{
-				int nStorages = _storageBuilders.size();
+				int nStorages = _storageBuilders.length;
 				if (nStorages > 0)
 				{
-					for (int i = 0; i < nStorages; ++i)
+					if (nStorages == 1)
 					{
-						GraphStorageBuilder gsBuilder = _storageBuilders.get(i);
-						gsBuilder.processWay(way);
+						_storageBuilders[0].processWay(way);
+					}
+					else if (nStorages == 2)
+					{
+						_storageBuilders[0].processWay(way);
+						_storageBuilders[1].processWay(way);
+					}
+					else if (nStorages == 3)
+					{
+						_storageBuilders[0].processWay(way);
+						_storageBuilders[1].processWay(way);
+						_storageBuilders[2].processWay(way);
+					}
+					else  if (nStorages == 4)
+					{
+						_storageBuilders[0].processWay(way);
+						_storageBuilders[1].processWay(way);
+						_storageBuilders[2].processWay(way);
+						_storageBuilders[3].processWay(way);
+					}
+					else
+					{		
+						for (int i = 0; i < nStorages; ++i)
+						{
+							_storageBuilders[i].processWay(way);
+						}
 					}
 				}
 			}
@@ -146,16 +174,16 @@ public class ORSOSMReader extends OSMReader {
 					for (int i = 0; i < TMC_ROAD_TYPES.length; i++) {
 						if (TMC_ROAD_TYPES[i].equalsIgnoreCase(highwayValue)) {
 							tmcEdges.put(edge.getEdge(), way.getId());
-							
+
 							if (osmId2EdgeIds.containsKey(way.getId())){
 								osmId2EdgeIds.get(way.getId()).add(edge.getEdge());
-								
+
 							} else{								
 								ArrayList<Integer> edgeIds = new ArrayList<Integer>();
 								edgeIds.add(edge.getEdge()); 
 								osmId2EdgeIds.put(way.getId(), edgeIds);		
 							} 							
-							
+
 							break;
 						}
 					}
@@ -164,13 +192,37 @@ public class ORSOSMReader extends OSMReader {
 
 			if (_storageBuilders != null)
 			{
-				int nStorages = _storageBuilders.size();
+				int nStorages = _storageBuilders.length;
 				if (nStorages > 0)
 				{
-					for (int i = 0; i < nStorages; ++i)
+					if (nStorages == 1)
 					{
-						GraphStorageBuilder gsBuilder = _storageBuilders.get(i);
-						gsBuilder.processEdge(way, edge);
+						_storageBuilders[0].processEdge(way, edge);
+					}
+					else if (nStorages == 2)
+					{
+						_storageBuilders[0].processEdge(way, edge);
+						_storageBuilders[1].processEdge(way, edge);
+					}
+					else if (nStorages == 3)
+					{
+						_storageBuilders[0].processEdge(way, edge);
+						_storageBuilders[1].processEdge(way, edge);
+						_storageBuilders[2].processEdge(way, edge);
+					}
+					else  if (nStorages == 4)
+					{
+						_storageBuilders[0].processEdge(way, edge);
+						_storageBuilders[1].processEdge(way, edge);
+						_storageBuilders[2].processEdge(way, edge);
+						_storageBuilders[3].processEdge(way, edge);
+					}
+					else
+					{		
+						for (int i = 0; i < nStorages; ++i)
+						{
+							_storageBuilders[i].processEdge(way, edge);
+						}
 					}
 				}
 			}
@@ -178,23 +230,20 @@ public class ORSOSMReader extends OSMReader {
 			LOGGER.warning(ex.getMessage() + ". Way id = " + way.getId());
 		}
 	}
-	
+
 	@Override 
 	protected void finishedReading() {
-		
+
 		// System.out.println("----------  ORSOSMReader.finishedReading()");
 		super.finishedReading();
-		
+
 		if (_storageBuilders != null)
 		{
-			int nStorages = _storageBuilders.size();
+			int nStorages = _storageBuilders.length;
 			if (nStorages > 0)
 			{
 				for (int i = 0; i < nStorages; ++i)
-				{
-					GraphStorageBuilder gsBuilder = _storageBuilders.get(i);
-					gsBuilder.finish();
-				}
+					_storageBuilders[i].finish();
 			}
 		}
 	}
