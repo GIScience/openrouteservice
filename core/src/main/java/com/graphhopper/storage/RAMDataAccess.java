@@ -25,6 +25,10 @@ import java.util.Arrays;
 
 import org.slf4j.LoggerFactory;
 
+import net.jpountz.lz4.LZ4Compressor;
+import net.jpountz.lz4.LZ4Factory;
+import net.jpountz.lz4.LZ4FastDecompressor;
+
 /**
  * This is an in-memory byte-based data structure with the possibility to be stored on flush().
  * Thread safe.
@@ -35,6 +39,8 @@ public class RAMDataAccess extends AbstractDataAccess
 {
     private byte[][] segments = new byte[0][];
     private boolean store;
+    
+    public static boolean LZ4_COMPRESSION_ENABLED = false;
 
     RAMDataAccess( String name, String location, boolean store, ByteOrder order )
     {
@@ -156,14 +162,39 @@ public class RAMDataAccess extends AbstractDataAccess
                     segmentCount++;
 
                 segments = new byte[segmentCount][];
-                for (int s = 0; s < segmentCount; s++)
+                
+                if (LZ4_COMPRESSION_ENABLED)
                 {
-                    byte[] bytes = new byte[segmentSizeInBytes];
-                    int read = raFile.read(bytes);
-                    if (read <= 0)
-                        throw new IllegalStateException("segment " + s + " is empty? " + toString());
+                	LZ4Factory factory = LZ4Factory.fastestInstance();
+                	LZ4FastDecompressor decompressor = factory.fastDecompressor();
+                	byte[] compressed = new byte[segmentSizeInBytes];
+                		
+                	for (int s = 0; s < segmentCount; s++)
+                	{
+                		int compressedLength = raFile.readInt();
+                		if (compressedLength > compressed.length)
+                			compressed = new byte[compressedLength];
+                		int read = raFile.read(compressed, 0, compressedLength);
+                		if (read <= 0)
+                			throw new IllegalStateException("segment " + s + " is empty? " + toString());
+                		
+                		byte[] bytes = new byte[segmentSizeInBytes];
+                		int compressedLength2 = decompressor.decompress(compressed, 0, bytes, 0, segmentSizeInBytes);
+                		
+                		segments[s] = bytes;
+                	}
+                }
+                else
+                {
+                	for (int s = 0; s < segmentCount; s++)
+                	{
+                		byte[] bytes = new byte[segmentSizeInBytes];
+                		int read = raFile.read(bytes);
+                		if (read <= 0)
+                			throw new IllegalStateException("segment " + s + " is empty? " + toString());
 
-                    segments[s] = bytes;
+                		segments[s] = bytes;
+                	}
                 }
                 return true;
             } finally
@@ -194,10 +225,28 @@ public class RAMDataAccess extends AbstractDataAccess
                 writeHeader(raFile, len, segmentSizeInBytes);
                 raFile.seek(HEADER_OFFSET);
                 // raFile.writeInt() <- too slow, so copy into byte array
-                for (int s = 0; s < segments.length; s++)
+                
+                if (LZ4_COMPRESSION_ENABLED)
                 {
-                    byte area[] = segments[s];
-                    raFile.write(area);
+                	LZ4Factory factory = LZ4Factory.fastestInstance();
+                	LZ4Compressor compressor = factory.fastCompressor();
+                	int maxCompressedLength = compressor.maxCompressedLength(segmentSizeInBytes);
+                	byte[] compressed = new byte[maxCompressedLength];
+                	for (int s = 0; s < segments.length; s++)
+                	{
+                		byte area[] = segments[s];
+                		int compressedLength = compressor.compress(area, 0, segmentSizeInBytes, compressed, 0, maxCompressedLength);
+                		raFile.writeInt(compressedLength);
+                		raFile.write(compressed, 0, compressedLength);
+               		}
+                }
+                else
+                {
+                    for (int s = 0; s < segments.length; s++)
+                    {
+                        byte area[] = segments[s];
+                        raFile.write(area);
+                    }
                 }
             } finally
             {
