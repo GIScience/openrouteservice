@@ -11,9 +11,12 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.servlet.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,8 +44,19 @@ public class ServletUtility
 	
 	public static void write(HttpServletResponse response, JSONObject json, String encoding) throws IOException
 	{
-		byte[] bytes = json.toString().getBytes(encoding);
-		write(response, bytes, "text/json", encoding);
+		ByteArrayOutputStream byteStream = new ByteArrayOutputStream(1024);
+		Writer writer = new OutputStreamWriter(byteStream, "UTF-8");
+		json.write(writer);
+		writer.flush();
+
+		response.setHeader("Content-Type", "text/json");
+		response.setContentLength(byteStream.size());
+		response.setCharacterEncoding(encoding);
+		response.setContentType("text/json");
+		
+		OutputStream outStream = response.getOutputStream();
+		byteStream.writeTo(outStream);
+		outStream.close();
 	}
 	
 	public static void write(HttpServletResponse response, byte[] bytes, String contentType) throws IOException
@@ -52,12 +66,12 @@ public class ServletUtility
 	
 	public static void write(HttpServletResponse response, byte[] bytes, String contentType, String encoding) throws IOException
 	{
-		OutputStream out = response.getOutputStream();
+		OutputStream outStream = response.getOutputStream();
 		response.setHeader("Content-Type", contentType);
 		response.setContentLength(bytes.length);
 		response.setCharacterEncoding(encoding);
 		response.setContentType(contentType);
-		out.write(bytes);
-		out.close();
+		outStream.write(bytes);
+		outStream.close();
 	}
 }
