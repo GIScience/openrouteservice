@@ -120,7 +120,7 @@ public class LocationsCategoryClassifier
 			_categoryGroups  = groups.toArray(new LocationsCategoryGroup[groups.size()]);
 			_categoryIdToGroupIndex = new int[totalMaxId + 1];
 			
-			JSONObject jCategories = OrderedJSONObjectFactory.create();
+			JSONObject jCategories = new JSONObject(true);
 
 			int j = 0;
 			for(LocationsCategoryGroup group : _categoryGroups)
@@ -130,8 +130,8 @@ public class LocationsCategoryClassifier
 				
 				_groupsMap.put(group.getId(), group);
 				
-				JSONObject jGroup = OrderedJSONObjectFactory.create();
-				JSONObject jValues = OrderedJSONObjectFactory.create();
+				JSONObject jGroup = new JSONObject(true);
+				JSONObject jValues = new JSONObject(true);
 				for(Map.Entry<String, Integer> category : group.getCategories().entrySet())
 				{
 					jValues.put(category.getKey(), category.getValue());
