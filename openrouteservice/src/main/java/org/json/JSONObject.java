@@ -1932,6 +1932,7 @@ public class JSONObject {
             if (length == 1) {
                 Object key = keys.next();
                 //writer.write(quote(key.toString()));
+                sw.getBuffer().setLength(0);
                 writer.write(quote(key.toString(), sw).toString());
                 writer.write(':');
                 if (indentFactor > 0) {
@@ -1950,6 +1951,7 @@ public class JSONObject {
                     }
                     indent(writer, newindent);
                     //writer.write(quote(key.toString())); // StringWriter is created every time
+                    sw.getBuffer().setLength(0);
                     writer.write(quote(key.toString(), sw).toString());
                     writer.write(':');
                     if (indentFactor > 0) {
