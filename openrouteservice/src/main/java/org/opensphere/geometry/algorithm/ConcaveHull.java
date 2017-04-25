@@ -226,7 +226,7 @@ public class ConcaveHull {
             qes.delete(qe);
         }
 
-        HashMap<QuadEdge, Double> qeDistances = new HashMap<QuadEdge, Double>();
+        HashMap<QuadEdge, Double> qeDistances = new HashMap<QuadEdge, Double>(quadEdges.size()); // Runge
         for (QuadEdge qe : quadEdges) {
             qeDistances.put(qe, qe.toLineSegment().getLength());
         }
@@ -433,7 +433,7 @@ public class ConcaveHull {
         }
 
         // concave hull creation
-        List<LineString> edges = new ArrayList<LineString>();
+        List<LineString> edges = new ArrayList<LineString>(this.lengths.size() + this.shortLengths.size());
         for (Edge e : this.lengths.values()) {
             LineString l = e.getGeometry().toGeometry(this.geomFactory);
             edges.add(l);
