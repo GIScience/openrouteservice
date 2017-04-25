@@ -10,14 +10,14 @@ public class PolylineEncoder {
 	    long elev = 0;
 	    long prevEle = 0;
 	    
-	    final StringBuffer result = new StringBuffer();
+	    buffer.setLength(0);
 
 	    for (final Coordinate c : coords) {
 	      lat = Math.round(c.y * 1e5);
 	      lon = Math.round(c.x * 1e5);
 
-	      encode(lat - prevLat, result);
-	      encode(lon - prevLon, result);
+	      encode(lat - prevLat, buffer);
+	      encode(lon - prevLon, buffer);
 	      
 	      if (includeElevation)
 	      {
@@ -30,7 +30,7 @@ public class PolylineEncoder {
 	      prevLon = lon;
 	    }
 	    
-	    return result.toString();
+	    return buffer.toString();
 	}
 	
 	private static void encode(long v, StringBuffer buffer) {
