@@ -320,6 +320,13 @@ class Location2IDQuadtree implements LocationIndex
     public QueryResult findClosest( final double queryLat, final double queryLon,
                                     final EdgeFilter edgeFilter )
     {
+    	return findClosest(queryLat, queryLon, edgeFilter, null);
+    }
+    
+    @Override
+    public QueryResult findClosest( final double queryLat, final double queryLon,
+                                    final EdgeFilter edgeFilter, ArrayBuffer arrayBuffer)
+    {
         if (isClosed())
             throw new IllegalStateException("You need to create a new LocationIndex instance as it is already closed");
 

@@ -31,6 +31,7 @@ import com.graphhopper.util.*;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -390,13 +391,13 @@ public class Path
     }
 
 	public InstructionList calcInstructions(final Translation tr) {
-		return calcInstructions(-1, null, null, tr);
+		return calcInstructions(-1, null, null, tr, null);
 	}
 
     /**
      * @return the list of instructions for this path.
      */
-    public InstructionList calcInstructions(final int pathIndex, final EdgeAnnotator edgeAnnotator, final PathProcessor pathProcessor, final Translation tr )
+    public InstructionList calcInstructions(final int pathIndex, final EdgeAnnotator edgeAnnotator, final PathProcessor pathProcessor, final Translation tr, final ArrayBuffer arrayBuffer)
     {
         final InstructionList ways = new InstructionList(edgeIds.size() / 4, tr);
         if (edgeIds.isEmpty())
@@ -454,7 +455,7 @@ public class Path
                 double adjLon = nodeAccess.getLongitude(adjNode);
                 double latitude, longitude;
 
-                PointList wayGeo = edge.fetchWayGeometry(3);
+                PointList wayGeo = edge.fetchWayGeometry(3, arrayBuffer);
                 boolean isRoundabout = encoder.isBool(flags, FlagEncoder.K_ROUNDABOUT);
 
                 if (wayGeo.getSize() <= 2)

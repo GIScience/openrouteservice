@@ -23,6 +23,7 @@ import com.graphhopper.reader.OSMRelation;
 import static com.graphhopper.routing.util.PriorityCode.*;
 import static com.graphhopper.util.Helper.keepIn;
 
+import com.graphhopper.util.ArrayBuffer;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalc3D;
 import com.graphhopper.util.EdgeIteratorState;
@@ -75,7 +76,7 @@ public class BikeCommonFlagEncoder extends AbstractFlagEncoder
 	private List<RouteSplit> splits = new ArrayList<RouteSplit>();
 	private int prevEdgeId = Integer.MAX_VALUE;
 	public static boolean SKIP_WAY_TYPE_INFO = false;
-
+    private ArrayBuffer arrayBuffer =  new ArrayBuffer(100);
 
 	protected BikeCommonFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation)
 	{
@@ -763,7 +764,7 @@ public class BikeCommonFlagEncoder extends AbstractFlagEncoder
 		// Runge
 		if (isConsiderElevation())
 		{
-			PointList pl = edge.fetchWayGeometry(3);
+			PointList pl = edge.fetchWayGeometry(3, arrayBuffer);
 			if (!pl.is3D())
 				throw new IllegalStateException("To support speed calculation based on elevation data it is necessary to enable import of it.");
 

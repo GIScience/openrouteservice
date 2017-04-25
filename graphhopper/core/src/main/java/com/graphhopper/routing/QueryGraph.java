@@ -122,11 +122,15 @@ public class QueryGraph implements Graph
     	lookup(resList, -1);
     }
 
+    public void lookup( List<QueryResult> resList, int encoderIndex)
+    {
+       lookup(resList, encoderIndex, null);
+    }
     /**
      * For all specified query results calculate snapped point and set closest node and edge to a
      * virtual one if necessary. Additionally the wayIndex can change if an edge is swapped.
      */
-    public void lookup( List<QueryResult> resList, int ecnoderIndex)
+    public void lookup( List<QueryResult> resList, int ecnoderIndex, ArrayBuffer buffer)
     {
         if (isInitialized())
             throw new IllegalStateException("Call lookup only once. Otherwise you'll have problems for queries sharing the same edge.");
@@ -169,7 +173,7 @@ public class QueryGraph implements Graph
             if (doReverse)
             {
                 closestEdge = closestEdge.detach(true);
-                PointList fullPL = closestEdge.fetchWayGeometry(3);
+                PointList fullPL = closestEdge.fetchWayGeometry(3, buffer);
                 res.setClosestEdge(closestEdge);
                 if (res.getSnappedPosition() == QueryResult.Position.PILLAR)
                     // ON pillar node                
@@ -203,7 +207,7 @@ public class QueryGraph implements Graph
             {
                 // we can expect at least one entry in the results
                 EdgeIteratorState closestEdge = results.get(0).getClosestEdge();
-                final PointList fullPL = closestEdge.fetchWayGeometry(3);
+                final PointList fullPL = closestEdge.fetchWayGeometry(3, buffer);
                 int baseNode = closestEdge.getBaseNode();
                 // sort results on the same edge by the wayIndex and if equal by distance to pillar node
                 Collections.sort(results, new Comparator<QueryResult>()

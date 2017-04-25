@@ -19,6 +19,7 @@ package com.graphhopper.storage.index;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.Storable;
+import com.graphhopper.util.ArrayBuffer;
 
 /**
  * Provides a way to map realword data "lat,lon" to internal ids/indices of a memory efficient graph
@@ -61,6 +62,8 @@ public interface LocationIndex extends Storable<LocationIndex>
      * the method QueryResult.isValid will return false.
      */
     QueryResult findClosest( double lat, double lon, EdgeFilter edgeFilter );
+    
+    QueryResult findClosest( double lat, double lon, EdgeFilter edgeFilter, ArrayBuffer buffer );
 
     /**
      * @param approxDist false if initialization and querying should be faster but less precise.
