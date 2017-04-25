@@ -42,10 +42,10 @@ public class PathMerger
 
     public void doWork( GHResponse rsp, List<Path> paths, Translation tr ) // Runge
     {
-      doWork(rsp, paths, null, null, tr);
+      doWork(rsp, paths, null, null, tr, null);
     }
 
-    public void doWork( GHResponse rsp, List<Path> paths, EdgeAnnotator edgeAnnotator, PathProcessor pathProcessor,Translation tr )
+    public void doWork( GHResponse rsp, List<Path> paths, EdgeAnnotator edgeAnnotator, PathProcessor pathProcessor,Translation tr, ArrayBuffer arrayBuffer)
     {
         int origPoints = 0;
         long fullTimeInMillis = 0;
@@ -71,7 +71,7 @@ public class PathMerger
             fullWeight += path.getWeight();
             if (enableInstructions)
             {
-                InstructionList il = path.calcInstructions(pathIndex, edgeAnnotator, pathProcessor,tr);
+                InstructionList il = path.calcInstructions(pathIndex, edgeAnnotator, pathProcessor,tr, arrayBuffer);
 
                 if (!il.isEmpty())
                 {

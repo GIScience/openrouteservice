@@ -22,6 +22,7 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.util.DistancePlaneProjection;
+import com.graphhopper.util.ArrayBuffer;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.Helper;
@@ -80,9 +81,15 @@ public class Location2IDFullWithEdgesIndex implements LocationIndex
     {
         return findClosest(lat, lon, EdgeFilter.ALL_EDGES).getClosestNode();
     }
-
+    
     @Override
-    public QueryResult findClosest( double queryLat, double queryLon, EdgeFilter filter )
+    public QueryResult findClosest( double queryLat, double queryLon, EdgeFilter filter)
+    {
+    	return findClosest(queryLat, queryLon, filter, null);
+    }
+    
+    @Override
+    public QueryResult findClosest( double queryLat, double queryLon, EdgeFilter filter, ArrayBuffer arrayBuffer )
     {
         if (isClosed())
             throw new IllegalStateException("You need to create a new LocationIndex instance as it is already closed");

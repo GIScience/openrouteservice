@@ -17,6 +17,8 @@
  */
 package com.graphhopper.util;
 
+import java.nio.ByteBuffer;
+
 import com.graphhopper.routing.util.FlagEncoder;
 
 /**
@@ -66,6 +68,8 @@ public interface EdgeIteratorState
      * @return pillar nodes
      */
     PointList fetchWayGeometry( int mode );
+    
+    PointList fetchWayGeometry( int mode, ArrayBuffer buffer);
 
     /**
      * @param list is a sorted collection of nodes between the baseNode and the current adjacent

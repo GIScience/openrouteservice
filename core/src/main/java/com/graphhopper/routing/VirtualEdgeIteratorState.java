@@ -15,6 +15,8 @@
  */
 package com.graphhopper.routing;
 
+import java.nio.ByteBuffer;
+
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.util.*;
 
@@ -83,6 +85,12 @@ public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIterat
     public int getAdjNode()
     {
         return adjNode;
+    }
+    
+    @Override
+    public PointList fetchWayGeometry( int mode, ArrayBuffer buffer )
+    {
+    	return fetchWayGeometry(mode);
     }
 
     @Override

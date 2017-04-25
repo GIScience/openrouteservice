@@ -17,6 +17,7 @@
  */
 package com.graphhopper.storage.index;
 
+import com.graphhopper.util.ArrayBuffer;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
@@ -43,7 +44,7 @@ public class QueryResult
     private final GHPoint queryPoint;
     private GHPoint3D snappedPoint;
     private Position snappedPosition;
-
+    
     /**
      * Due to precision differences it is hard to define when something is exactly 90° or "on-node"
      * like TOWER or PILLAR or if it is more "on-edge" (EDGE). The default mechanism is to prefer
@@ -155,17 +156,21 @@ public class QueryResult
         return snappedPoint;
     }
 
+    public void calcSnappedPoint( DistanceCalc distCalc)
+    {
+    	calcSnappedPoint(distCalc, null);
+    }
     /**
      * Calculates the closet point on the edge from the query point.
      */
-    public void calcSnappedPoint( DistanceCalc distCalc )
+    public void calcSnappedPoint( DistanceCalc distCalc, ArrayBuffer arrayBuffer)
     {
         if (closestEdge == null)
             throw new IllegalStateException("No closest edge?");
         if (snappedPoint != null)
             throw new IllegalStateException("Calculate snapped point only once");
 
-        PointList fullPL = getClosestEdge().fetchWayGeometry(3);
+        PointList fullPL = getClosestEdge().fetchWayGeometry(3, arrayBuffer);
         double tmpLat = fullPL.getLatitude(wayIndex);
         double tmpLon = fullPL.getLongitude(wayIndex);
         double tmpEle = fullPL.getElevation(wayIndex);

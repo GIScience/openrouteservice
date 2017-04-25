@@ -968,12 +968,19 @@ public class GraphHopper implements GraphHopperAPI
 
 		return weighting;
 	}
-
+	
 	@Override
-	public GHResponse route( GHRequest request )
+	public GHResponse route( GHRequest request  )
+	{
+		ArrayBuffer arrayBuffer = new ArrayBuffer(4);
+
+		return route(request, arrayBuffer);
+	}
+	
+	public GHResponse route( GHRequest request, ArrayBuffer arrayBuffer)
 	{
 		GHResponse response = new GHResponse();
-		List<Path> paths = getPaths(request, response);
+		List<Path> paths = getPaths(request, response, arrayBuffer);
 		if (response.hasErrors())
 			return response;
 
@@ -989,7 +996,7 @@ public class GraphHopper implements GraphHopperAPI
 		setEnableInstructions(tmpEnableInstructions).
 		//setSimplifyResponse(simplifyResponse && wayPointMaxDistance > 0). // Runge
 		setSimplifyResponse(request.getSimplifyGeometry() && wayPointMaxDistance > 0).
-		doWork(response, paths, request.getEdgeAnnotator(), request.getPathProcessor(), trMap.getWithFallBack(locale));
+		doWork(response, paths, request.getEdgeAnnotator(), request.getPathProcessor(), trMap.getWithFallBack(locale), arrayBuffer);
 		return response;
 	}
 
@@ -1151,6 +1158,11 @@ public class GraphHopper implements GraphHopperAPI
 
 	protected List<Path> getPaths( GHRequest request, GHResponse rsp )
 	{
+	  return getPaths(request, rsp, null);
+	}
+	
+	protected List<Path> getPaths( GHRequest request, GHResponse rsp,  ArrayBuffer arrayBuffer)
+	{
 		if (ghStorage == null || !fullyLoaded)
 			throw new IllegalStateException("Call load or importOrLoad before routing");
 
@@ -1198,7 +1210,7 @@ public class GraphHopper implements GraphHopperAPI
 		for (int placeIndex = 0; placeIndex < points.size(); placeIndex++)
 		{
 			GHPoint point = points.get(placeIndex);
-			QueryResult res = locationIndex.findClosest(point.lat, point.lon, edgeFilter);
+			QueryResult res = locationIndex.findClosest(point.lat, point.lon, edgeFilter, arrayBuffer);
 			if (!res.isValid())
 				rsp.addError(new IllegalArgumentException("Cannot find point " + placeIndex + ": " + point));
 			else // Runge
@@ -1240,7 +1252,7 @@ public class GraphHopper implements GraphHopperAPI
 
 		RoutingAlgorithmFactory tmpAlgoFactory = flexibleMode ? new RoutingAlgorithmFactorySimple() : getAlgorithmFactory(weighting);
 		QueryGraph queryGraph = new QueryGraph(routingGraph);
-		queryGraph.lookup(qResults, encoder.getIndex());
+		queryGraph.lookup(qResults, encoder.getIndex(), arrayBuffer);
 		weighting = createTurnWeighting(weighting, queryGraph, encoder);
 
 		List<Path> paths = new ArrayList<Path>(points.size() - 1);

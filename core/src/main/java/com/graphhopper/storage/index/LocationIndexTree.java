@@ -780,9 +780,15 @@ public class LocationIndexTree implements LocationIndex
         long keyPart = createReverseKey(queryLat, queryLon);
         fillIDs(keyPart, START_POINTER, storedNetworkEntryIds, 0);
     }
-
+    
     @Override
     public QueryResult findClosest( final double queryLat, final double queryLon, final EdgeFilter edgeFilter )
+    {
+    	return findClosest(queryLat, queryLon, edgeFilter, null);
+    }
+
+    @Override
+    public QueryResult findClosest( final double queryLat, final double queryLon, final EdgeFilter edgeFilter, ArrayBuffer arrayBuffer )
     {
         if (isClosed())
             throw new IllegalStateException("You need to create a new LocationIndex instance as it is already closed");
@@ -805,7 +811,7 @@ public class LocationIndexTree implements LocationIndex
                 @Override
                 public boolean execute( int networkEntryNodeId )
                 {
-                    new XFirstSearchCheck(queryLat, queryLon, checkBitset, edgeFilter)
+                    new XFirstSearchCheck(queryLat, queryLon, checkBitset, edgeFilter, arrayBuffer)
                     {
                         @Override
                         protected double getQueryDistance()
@@ -841,7 +847,7 @@ public class LocationIndexTree implements LocationIndex
         if (closestMatch.isValid())
         {
             closestMatch.setQueryDistance(distCalc.calcDenormalizedDist(closestMatch.getQueryDistance()));
-            closestMatch.calcSnappedPoint(distCalc);
+            closestMatch.calcSnappedPoint(distCalc, arrayBuffer);
         }
 
         return closestMatch;
@@ -861,13 +867,15 @@ public class LocationIndexTree implements LocationIndex
         final double queryLon;
         final GHBitSet checkBitset;
         final EdgeFilter edgeFilter;
+        final ArrayBuffer arrayBuffer;
 
-        public XFirstSearchCheck( double queryLat, double queryLon, GHBitSet checkBitset, EdgeFilter edgeFilter )
+        public XFirstSearchCheck( double queryLat, double queryLon, GHBitSet checkBitset, EdgeFilter edgeFilter, ArrayBuffer arrayBuffer )
         {
             this.queryLat = queryLat;
             this.queryLon = queryLon;
             this.checkBitset = checkBitset;
             this.edgeFilter = edgeFilter;
+            this.arrayBuffer = arrayBuffer;
         }
 
         @Override
@@ -915,7 +923,7 @@ public class LocationIndexTree implements LocationIndex
             double tmpLat = currLat;
             double tmpLon = currLon;
             double tmpNormedDist;
-            PointList pointList = currEdge.fetchWayGeometry(2);
+            PointList pointList = currEdge.fetchWayGeometry(2, arrayBuffer);
             int len = pointList.getSize();
             for (int pointIndex = 0; pointIndex < len; pointIndex++)
             {
