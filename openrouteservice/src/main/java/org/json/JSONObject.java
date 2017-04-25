@@ -159,6 +159,10 @@ public class JSONObject {
         this.map = new HashMap<String, Object>();
     }
     
+    public JSONObject(int capacity) {
+        this.map = new HashMap<String, Object>(capacity);
+    }
+    
     /**
      * Construct an empty JSONObject.
      */
@@ -167,6 +171,16 @@ public class JSONObject {
     		this. map = new LinkedHashMap<>();
     	else
     		this.map = new HashMap<String, Object>();
+    }
+    
+    /**
+     * Construct an empty JSONObject.
+     */
+    public JSONObject(boolean ordered, int capacity) {
+    	if (ordered)
+    		this. map = new LinkedHashMap<>(capacity);
+    	else
+    		this.map = new HashMap<String, Object>(capacity);
     }
 
     /**
