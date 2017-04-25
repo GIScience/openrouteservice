@@ -41,7 +41,6 @@ public class DistanceCalcEarth implements DistanceCalc
 	public final static double C = 2 * PI * R;
 	public final static double KM_MILE = 1.609344;
 
-	private final static double HALF_PI = Math.PI / 2.0;
 	private final static double R_2 = 2 * R;
 	
 	public static boolean ASIN_APPROXIMATION = false; 
@@ -60,7 +59,7 @@ public class DistanceCalcEarth implements DistanceCalc
 		double normedDist = sinDeltaLat * sinDeltaLat
 				+ sinDeltaLon * sinDeltaLon * cos(toRadians(fromLat)) * cos(toRadians(toLat));
 		if (ASIN_APPROXIMATION)
-			return R_2 * asin_approx(sqrt(normedDist));
+			return R_2 * MathEx.asin(sqrt(normedDist));
 		else
 			return R_2 * asin(sqrt(normedDist));
 	}
@@ -68,24 +67,9 @@ public class DistanceCalcEarth implements DistanceCalc
 	public double calcDenormalizedDist( double normedDist )
 	{
 		if (ASIN_APPROXIMATION)
-			return R * 2 * asin_approx(sqrt(normedDist));
+			return R_2 * MathEx.asin(sqrt(normedDist));
 		else
-			return R * 2 * asin(sqrt(normedDist));
-	}
-
-	private double asin_approx(double x)
-	{
-		boolean negate = x < 0;
-		x = Math.abs(x);
-		double y1 = x * ( -.0170881256 + ( x * ( .0066700901 + ( x * -.0012624911 ) ) ) );
-		double y2 = x * ( -.0501743046 + ( x * ( .0308918810 + y1 ) ) );
-		double y = 1.5707963050 + ( x * ( -.2145988016 + ( x * ( .0889789874 + y2 ) ) ) );
-		y = HALF_PI - ( Math.sqrt( 1.0 - x ) * y );
-
-		if (negate)
-			y = -y;
-
-		return y;
+			return R_2 * asin(sqrt(normedDist));
 	}
 
 	/**
