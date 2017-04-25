@@ -49,9 +49,10 @@ public class GeometryJSON {
 
 	public static JSONArray toJSON(MultiPolygon multiPoly)
 	{
-		JSONArray coords = new JSONArray();
+		int size = multiPoly.getNumGeometries();
+		JSONArray coords = new JSONArray(size);
 
-		for (int i = 0; i < multiPoly.getNumGeometries(); i++)
+		for (int i = 0; i < size; i++)
 		{
 			Polygon poly = (Polygon)multiPoly.getGeometryN(i);
 			coords.put(toJSON(poly));
@@ -62,7 +63,7 @@ public class GeometryJSON {
 
 	public static JSONArray toJSON(Polygon poly)
 	{
-		JSONArray coords = new JSONArray();
+		JSONArray coords = new JSONArray(1 + poly.getNumInteriorRing());
 
 		LineString shell = poly.getExteriorRing();
 
@@ -87,10 +88,9 @@ public class GeometryJSON {
 	public static JSONArray toJSON(LineString line, boolean inverseSeq)
 	{
 		// "coordinates": [ [100.0, 0.0], [101.0, 1.0] ]
-
-		JSONArray arrCoords = new JSONArray();
-
 		int size = line.getNumPoints();
+
+		JSONArray arrCoords = new JSONArray(size);
 
 		CoordinateSequence seq = line.getCoordinateSequence();
 		Coordinate coord = null;
@@ -112,7 +112,7 @@ public class GeometryJSON {
 
 	public static JSONArray toJSON(Coordinate c)
 	{
-		JSONArray arrCoords =  new JSONArray();
+		JSONArray arrCoords =  new JSONArray(2);
 		arrCoords.put(FormatUtility.roundToDecimals(c.x, COORDINATE_PRECISION));
 		arrCoords.put(FormatUtility.roundToDecimals(c.y, COORDINATE_PRECISION));
 
@@ -121,13 +121,13 @@ public class GeometryJSON {
 
 	public static JSONArray toJSON(Coordinate[] coords, boolean includeElevation)
 	{
-		JSONArray arrCoords =  new JSONArray();
 		int size = coords.length;
+		JSONArray arrCoords =  new JSONArray(size);
 
 		for (int i = 0; i < size; ++i)
 		{
 			Coordinate c = coords[i];
-			JSONArray coord =  new JSONArray();
+			JSONArray coord =  new JSONArray(includeElevation ? 3 : 2);
 			coord.put(FormatUtility.roundToDecimals(c.x, COORDINATE_PRECISION));
 			coord.put(FormatUtility.roundToDecimals(c.y, COORDINATE_PRECISION));
 			if (includeElevation)
@@ -141,7 +141,7 @@ public class GeometryJSON {
 
 	public static JSONArray toJSON(double minX, double minY, double maxX, double maxY)
 	{
-		JSONArray bbox = new JSONArray();
+		JSONArray bbox = new JSONArray(4);
 
 		bbox.put(FormatUtility.roundToDecimals(minX, COORDINATE_PRECISION));
 		bbox.put(FormatUtility.roundToDecimals(minY, COORDINATE_PRECISION));
