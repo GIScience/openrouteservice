@@ -34,37 +34,37 @@ import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.FormatUtility;
-import heigit.ors.util.OrderedJSONObjectFactory;
 import heigit.ors.util.PolylineEncoder;
 
 public class JsonRoutingResponseWriter {
 
-	public static String toString(RoutingRequest request, RouteResult[] routeResult) throws Exception
+	public static JSONObject toJson(RoutingRequest request, RouteResult[] routeResult) throws Exception
 	{
-		JSONObject jResp = OrderedJSONObjectFactory.create();
+		JSONObject jResp = new JSONObject(true);
 
 		StringBuffer buffer = new StringBuffer();
 		// *************** routes ***************
 
 		boolean attrDetourFactor = request.hasAttribute("detourfactor");
 		boolean attrPercentage = request.hasAttribute("percentage");
-		
-		JSONArray jRoutes = new JSONArray();
+
+		int nRoutes = routeResult.length;
+
+		JSONArray jRoutes = new JSONArray(nRoutes);
 
 		jResp.put("routes", jRoutes);
 
-		int nRoutes = routeResult.length;
 		BBox bboxResp = null;
 
 		for (int i = 0; i < nRoutes; ++i)
 		{
 			RouteResult route = routeResult[i];
-			JSONObject jRoute = OrderedJSONObjectFactory.create();
+			JSONObject jRoute = new JSONObject(true);
 
 			if (request.getIncludeElevation())
 				jRoute.put("elevation", true);
 
-			JSONObject jSummary = OrderedJSONObjectFactory.create();
+			JSONObject jSummary = new JSONObject(true, 6);
 
 			RouteSummary rSummary = route.getSummary();
 			jSummary.put("distance", rSummary.getDistance());
@@ -90,10 +90,11 @@ public class JsonRoutingResponseWriter {
 
 				if (request.getIncludeInstructions() && route.getSegments().size() > 0)
 				{
-					JSONArray jSegments = new JSONArray();
+					int nSegments = route.getSegments().size();
+					JSONArray jSegments = new JSONArray(nSegments);
 					for (int j = 0; j < route.getSegments().size(); ++j)
 					{
-						JSONObject jSegment = OrderedJSONObjectFactory.create();
+						JSONObject jSegment = new JSONObject(true);
 
 						RouteSegment seg = route.getSegments().get(j);
 
@@ -111,13 +112,14 @@ public class JsonRoutingResponseWriter {
 						if (attrPercentage)
 							jSegment.put("percentage", FormatUtility.roundToDecimals(seg.getDistance() * 100 / route.getSummary().getDistance(), 2));
 
-						JSONArray jSteps = new JSONArray();
+						int nSteps = seg.getSteps().size();
+						JSONArray jSteps = new JSONArray(nSteps);
 
 						for (int k = 0; k < seg.getSteps().size(); ++k)
 						{
 							RouteStep step = seg.getSteps().get(k);
 
-							JSONObject jStep = OrderedJSONObjectFactory.create();
+							JSONObject jStep = new JSONObject(true);
 							jStep.put("distance", step.getDistance());
 							jStep.put("duration", step.getDuration());
 							jStep.put("type", step.getType());
@@ -154,7 +156,7 @@ public class JsonRoutingResponseWriter {
 
 				if (extras != null && extras.size() > 0)
 				{
-					JSONObject jExtras = OrderedJSONObjectFactory.create();
+					JSONObject jExtras = new JSONObject(true);
 
 					for (int j = 0; j < extras.size(); ++j)
 					{
@@ -162,16 +164,17 @@ public class JsonRoutingResponseWriter {
 
 						if (!extraInfo.isEmpty())
 						{
-							JSONObject jExtraItem = OrderedJSONObjectFactory.create();
+							JSONObject jExtraItem = new JSONObject(true);
 
 							// ---------- values ---------- 
-							JSONArray jExtraItemValues = new JSONArray();
+							int nExtraValues = extraInfo.getSegments().size();
+							JSONArray jExtraItemValues = new JSONArray(nExtraValues);
 
-							for (int k = 0; k < extraInfo.getSegments().size(); ++k)
+							for (int k = 0; k < nExtraValues; ++k)
 							{
 								RouteSegmentItem segExtra = extraInfo.getSegments().get(k); 
 
-								JSONArray jExtraItemValue = new JSONArray();
+								JSONArray jExtraItemValue = new JSONArray(3);
 								jExtraItemValue.put(segExtra.getFrom());
 								jExtraItemValue.put(segExtra.getTo());
 								jExtraItemValue.put(segExtra.getValue());
@@ -187,11 +190,11 @@ public class JsonRoutingResponseWriter {
 							
 							if (summary.size() > 0)
 							{
-								JSONArray jExtraItemSummary = new JSONArray();
+								JSONArray jExtraItemSummary = new JSONArray(summary.size());
 								
 								for (Map.Entry<String, Map<String, Object>> kv : summary.entrySet())
 								{
-									JSONObject jExtraItemSummaryType = OrderedJSONObjectFactory.create();
+									JSONObject jExtraItemSummaryType = new JSONObject(true);
 									for (Map.Entry<String, Object> kv2 : kv.getValue().entrySet())
 									{
 										jExtraItemSummaryType.put(kv2.getKey(), kv2.getValue());
@@ -237,14 +240,14 @@ public class JsonRoutingResponseWriter {
 
 		// *************** info ***************
 
-		JSONObject jInfo = new JSONObject();
+		JSONObject jInfo = new JSONObject(3);
 		jInfo.put("service", "routing");
 		jInfo.put("version", AppInfo.VERSION);
 		if (!Helper.isEmpty(RoutingServiceSettings.getAttribution()))
 			jInfo.put("attribution", RoutingServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());
 
-		JSONObject jQuery = OrderedJSONObjectFactory.create();
+		JSONObject jQuery = new JSONObject(true);
 
 		jQuery.put("profile", RoutingProfileType.getName(request.getSearchParameters().getProfileType()));
 
@@ -281,7 +284,7 @@ public class JsonRoutingResponseWriter {
 
 		jResp.put("info", jInfo);
 
-		return jResp.toString();
+		return jResp;
 	}  
 
 	private static Object getGeometry(Coordinate[] points, boolean includeElevation, String format, StringBuffer buffer)
@@ -295,7 +298,7 @@ public class JsonRoutingResponseWriter {
 		}
 		else if ("geojson".equalsIgnoreCase(format))
 		{
-			JSONObject json = OrderedJSONObjectFactory.create();
+			JSONObject json = new JSONObject(true);
 
 			/*
 			 *{

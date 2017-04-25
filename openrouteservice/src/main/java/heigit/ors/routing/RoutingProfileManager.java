@@ -285,6 +285,7 @@ public class RoutingProfileManager {
 		Coordinate c0 = coords[0];
 		Coordinate c1;
 		int nSegments = coords.length - 1;
+		RouteProcessContext routeProcCntx = new RouteProcessContext(pathProcessor);
 		
 		for(int i = 1; i <= nSegments; ++i)
 		{
@@ -292,7 +293,7 @@ public class RoutingProfileManager {
 				pathProcessor.setSegmentIndex(i - 1, nSegments);
 			
 			c1 = coords[i];
-			GHResponse gr = rp.getRoute(c0.y, c0.x, c1.y, c1.x, c0.z == 1.0, searchParams, req.getSimplifyGeometry(), pathProcessor);
+			GHResponse gr = rp.getRoute(c0.y, c0.x, c1.y, c1.x, c0.z == 1.0, searchParams, req.getSimplifyGeometry(), routeProcCntx);
 			
 			if (gr.hasErrors())
 				throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
@@ -304,10 +305,10 @@ public class RoutingProfileManager {
 		return new RouteResultBuilder().createRouteResult(routes, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor)pathProcessor).getExtras(): null);
 	}
 	
-	public GHResponse getRoute(double lat0, double lon0, double lat1, double lon1,  boolean directedSegment, RouteSearchParameters searchParams, boolean simplifyGeometry, PathProcessor pathProcessor) throws Exception {
+	public GHResponse getRoute(double lat0, double lon0, double lat1, double lon1,  boolean directedSegment, RouteSearchParameters searchParams, boolean simplifyGeometry, RouteProcessContext routeProcCntx) throws Exception {
 		RoutingProfile rp = getRouteProfile(lat0, lon0, lat1, lon1, directedSegment, searchParams);
 
-		return rp.getRoute(lat0, lon0, lat1, lon1, directedSegment, searchParams, simplifyGeometry, pathProcessor);
+		return rp.getRoute(lat0, lon0, lat1, lon1, directedSegment, searchParams, simplifyGeometry, routeProcCntx);
 	}
 	
 	public RoutingProfile getRouteProfile(double lat0, double lon0, double lat1, double lon1, boolean directedSegment, RouteSearchParameters searchParams) throws Exception {

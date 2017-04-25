@@ -169,9 +169,9 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 
 	private void writeGeocodingResponse(HttpServletResponse response, GeocodingRequest request, GeocodingResult[] result) throws Exception
 	{
-		JSONObject resp = OrderedJSONObjectFactory.create();
+		JSONObject resp = new JSONObject(true);
 
-		JSONArray features = new JSONArray();
+		JSONArray features = new JSONArray(result.length);
 		resp.put("type", "FeatureCollection");        
 		resp.put("features", features);
 
@@ -192,12 +192,12 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 			if (gr == null)
 				continue;
 
-			JSONObject feature = OrderedJSONObjectFactory.create();
+			JSONObject feature = new JSONObject(true);
 			feature.put("type", "Feature");
 
-			JSONObject point = OrderedJSONObjectFactory.create();
+			JSONObject point = new JSONObject(true);
 			point.put("type", "Point");
-			JSONArray arrCoord = new JSONArray();
+			JSONArray arrCoord = new JSONArray(2);
 
 			arrCoord.put(FormatUtility.roundToDecimals(gr.longitude, 6));
 			arrCoord.put(FormatUtility.roundToDecimals(gr.latitude, 6));
@@ -205,7 +205,7 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 
 			feature.put("geometry", point);
 
-			JSONObject properties = OrderedJSONObjectFactory.create();
+			JSONObject properties = new JSONObject(true);
 			if (!Helper.isEmpty(gr.country))
 				properties.put("country", gr.country);
 

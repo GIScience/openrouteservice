@@ -107,7 +107,7 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 	{
 		JSONObject resp = new JSONObject();
 
-		JSONObject jLocations = OrderedJSONObjectFactory.create();
+		JSONObject jLocations = new JSONObject(true);
 		resp.put("places", jLocations);
 
 		if (categories != null)
@@ -116,11 +116,11 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 
 			for (int j = 0; j < categories.size(); j++) 
 			{
-				JSONObject jCategory = OrderedJSONObjectFactory.create();
+				JSONObject jCategory = new JSONObject(true);
 				
 				LocationsCategory cat = categories.get(j);
 				
-				JSONObject jValues = OrderedJSONObjectFactory.create();
+				JSONObject jValues = new JSONObject(true);
 				
 				for(Map.Entry<Integer, Long> stats : cat.getStats().entrySet())
 				{
@@ -146,9 +146,10 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 
 	private void writeLocationsResponse(HttpServletResponse response, LocationsRequest request, List<LocationsResult> locations) throws Exception
 	{
-		JSONObject jResp = OrderedJSONObjectFactory.create();
+		int nLocations = locations.size();
+		JSONObject jResp = new JSONObject(true);
 
-		JSONArray features = new JSONArray();
+		JSONArray features = new JSONArray(nLocations);
 		jResp.put("type", "FeatureCollection");        
 		jResp.put("features", features);
 
@@ -163,7 +164,7 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 
 			int nResults = 0;
 
-			for (int j = 0; j < locations.size(); j++) 
+			for (int j = 0; j < nLocations; j++) 
 			{
 				LocationsResult lr = locations.get(j);
 
@@ -172,17 +173,17 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 
 				Geometry geom = lr.getGeometry();
 
-				JSONObject feature = OrderedJSONObjectFactory.create();
+				JSONObject feature = new JSONObject(true);
 				feature.put("type", "Feature");
 
-				JSONObject point = OrderedJSONObjectFactory.create();
+				JSONObject point = new JSONObject(true);
 				point.put("type", geom.getClass().getSimpleName());
 
 				point.put("coordinates", GeometryJSON.toJSON(geom, buffer));
 
 				feature.put("geometry", point);
 
-				JSONObject properties = OrderedJSONObjectFactory.create();
+				JSONObject properties = new JSONObject(true);
 
 				Map<String, String> props = lr.getProperties();
 				if (props.size() > 0)
@@ -220,7 +221,7 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 	
 	private void writeInfoSection(JSONObject jResponse, LocationsRequest request)
 	{
-		JSONObject jInfo = OrderedJSONObjectFactory.create();
+		JSONObject jInfo = new JSONObject(true);
 		jInfo.put("service", "locations");
 		jInfo.put("version", AppInfo.VERSION);
 		if (!Helper.isEmpty(LocationsServiceSettings.getAttribution()))
@@ -229,7 +230,7 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 
 		if (request != null)
 		{
-			JSONObject jQuery = OrderedJSONObjectFactory.create();
+			JSONObject jQuery = new JSONObject(true);
 
 			writeFilterSection(jQuery, request.getSearchFilter());
 
@@ -250,7 +251,7 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 	
 	private void writeFilterSection(JSONObject jQuery, LocationsSearchFilter query)
 	{
-		JSONObject jFilter = OrderedJSONObjectFactory.create();
+		JSONObject jFilter = new JSONObject(true);
 		if (query.getCategoryGroupIds() != null)
 			jFilter.put("category_group_ids", new JSONArray(query.getCategoryGroupIds()));
 		if (query.getCategoryIds() != null)

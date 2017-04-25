@@ -8,6 +8,7 @@ import com.graphhopper.routing.util.Weighting;
 import com.graphhopper.storage.EdgeEntry;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.QueryResult;
+import com.graphhopper.util.ArrayBuffer;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import gnu.trove.map.TIntObjectMap;
@@ -23,13 +24,13 @@ import heigit.ors.routing.graphhopper.extensions.weighting.DistanceWeighting;
 
 public class GraphEdgeMapFinder {
 	
-   public static AccessibilityMap findEdgeMap(RouteSearchContext searchCntx, IsochroneSearchParameters parameters) throws Exception {
+   public static AccessibilityMap findEdgeMap(RouteSearchContext searchCntx, IsochroneSearchParameters parameters, ArrayBuffer arrayBuffer) throws Exception {
 		GraphHopper gh = searchCntx.getGraphHopper();
 	    FlagEncoder encoder = searchCntx.getEncoder();
 		GraphHopperStorage graph = gh.getGraphHopperStorage();
 
 		Coordinate loc = parameters.getLocation();
-		QueryResult res = gh.getLocationIndex().findClosest(loc.y, loc.x, searchCntx.getEdgeFilter());
+		QueryResult res = gh.getLocationIndex().findClosest(loc.y, loc.x, searchCntx.getEdgeFilter(), arrayBuffer);
 		int fromId = res.getClosestNode();
 
 		if (fromId == -1)

@@ -21,7 +21,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import heigit.ors.common.Pair;
 
 public class IsochroneUtility {
-	public static List<IsochronesIntersection> computeIntersections(List<IsochroneMap> isochroneMaps)
+	public static List<IsochronesIntersection> computeIntersections(IsochroneMapCollection isochroneMaps)
 	{
 		if (isochroneMaps.size() == 1)
 			return null;
@@ -31,7 +31,7 @@ public class IsochroneUtility {
 		List<IsochronesIntersection> result = null;
 
 		int im = 0;
-		for (IsochroneMap isoMap : isochroneMaps)
+		for (IsochroneMap isoMap : isochroneMaps.getIsochroneMaps())
 		{
 			int ii = 0;
 			for (Isochrone isoLine : isoMap.getIsochrones()) 
@@ -100,7 +100,7 @@ public class IsochroneUtility {
 		return result;
 	}
 
-	private static List<IsochronesIntersection> computeIntersection(Isochrone isoLine, Integer isoIndex, IsochroneMap isoMap, Integer isoMapIndex, List<IsochroneMap> isochroneMaps, List<Integer> processedPairs)
+	private static List<IsochronesIntersection> computeIntersection(Isochrone isoLine, Integer isoIndex, IsochroneMap isoMap, Integer isoMapIndex, IsochroneMapCollection isochroneMaps, List<Integer> processedPairs)
 	{
 		List<IsochronesIntersection> result = null;
 		Envelope isoEnvelope = isoLine.getEnvelope();
@@ -108,7 +108,7 @@ public class IsochroneUtility {
 
 		for (int im = isoMapIndex + 1; im < isochroneMaps.size(); im++)
 		{
-			IsochroneMap isoMap2 =  isochroneMaps.get(im);
+			IsochroneMap isoMap2 =  isochroneMaps.getIsochrone(im);
 			if (!Objects.equals(isoMap2, isoMap) && isoMap2.getEnvelope().intersects(isoEnvelope))
 			{
 				int ii = 0;

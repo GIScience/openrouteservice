@@ -45,6 +45,7 @@ import heigit.ors.isochrones.IsochronesIntersection;
 import heigit.ors.isochrones.IsochronesRangeType;
 import heigit.ors.isochrones.Isochrone;
 import heigit.ors.isochrones.IsochroneMap;
+import heigit.ors.isochrones.IsochroneMapCollection;
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
@@ -112,7 +113,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 		Coordinate[] coords = req.getLocations();
 		if (coords != null)
 		{
-			List<IsochroneMap> isoMaps = new ArrayList<IsochroneMap>();
+			IsochroneMapCollection isoMaps = new IsochroneMapCollection();
 
 			IsochroneSearchParameters searchParams = req.getSearchParameters(coords[0]);
 			searchParams.setRouteParameters(req.getRouteSearchParameters());
@@ -127,12 +128,13 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 		}
 	}
 
-	private void writeResponse(HttpServletResponse response, IsochroneRequest request, List<IsochroneMap> isochroneMaps) throws Exception
+	private void writeResponse(HttpServletResponse response, IsochroneRequest request, IsochroneMapCollection isochroneMaps) throws Exception
 	{
-		JSONObject jResp = OrderedJSONObjectFactory.create();
+		JSONObject jResp = new JSONObject(true);
 
-		jResp.put("type", "FeatureCollection");        
-		JSONArray jFeatures = new JSONArray();
+		jResp.put("type", "FeatureCollection");
+		
+		JSONArray jFeatures = new JSONArray(isochroneMaps.getIsochronesCount());
 		jResp.put("features", jFeatures);
 
 		double minX = Double.MAX_VALUE;
@@ -145,23 +147,23 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 		boolean includeReachFactor = request.getRangeType() == IsochronesRangeType.Time && request.hasAttribute("reachfactor");
 		String units = request.getUnits() != null ? request.getUnits().toLowerCase() : null;
 
-		for (IsochroneMap isoMap : isochroneMaps)
+		for (IsochroneMap isoMap : isochroneMaps.getIsochroneMaps())
 		{
 			for (Isochrone isoLine : isoMap.getIsochrones()) 
 			{
 				Polygon isoPoly = (Polygon)isoLine.getGeometry();
 				LineString shell = isoPoly.getExteriorRing();
-				JSONObject jFeature = OrderedJSONObjectFactory.create();
+				JSONObject jFeature = new JSONObject(true);
 				jFeature.put("type", "Feature");
 
-				JSONObject jPolygon = OrderedJSONObjectFactory.create();
+				JSONObject jPolygon = new JSONObject(true);
 				jPolygon.put("type", "Polygon");
 
 				jPolygon.put("coordinates", GeometryJSON.toJSON(isoPoly));
 
 				jFeature.put("geometry", jPolygon);
 
-				JSONObject jProperties = OrderedJSONObjectFactory.create();
+				JSONObject jProperties = new JSONObject(true);
 
 				jProperties.put("group_index", groupIndex);
 				jProperties.put("value", isoLine.getValue());
@@ -208,23 +210,23 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 				for (IsochronesIntersection isoIntersection : isoIntersections)
 				{
 					Geometry geom = isoIntersection.getGeometry();
-					JSONObject jFeature = OrderedJSONObjectFactory.create();
+					JSONObject jFeature = new JSONObject(true);
 					jFeature.put("type", "Feature");
 
-					JSONObject jGeometry = OrderedJSONObjectFactory.create();
+					JSONObject jGeometry = new JSONObject(true);
 					jGeometry.put("type", geom.getGeometryType());
 					jGeometry.put("coordinates", GeometryJSON.toJSON(geom, null));
 
 					jFeature.put("geometry", jGeometry);
 
-					JSONObject jProperties = OrderedJSONObjectFactory.create();
+					JSONObject jProperties = new JSONObject(true);
 
-					JSONArray jContours = new JSONArray();
+					JSONArray jContours = new JSONArray(isoIntersection.getContourRefs().size());
 					jProperties.put("contours", jContours);
 
 					for(Pair<Integer, Integer> ref : isoIntersection.getContourRefs())
 					{
-						JSONArray jRef = new JSONArray();
+						JSONArray jRef = new JSONArray(2);
 						jRef.put(ref.first);
 						jRef.put(ref.second);
 						jContours.put(jRef);

@@ -532,7 +532,7 @@ public class RoutingProfile
 		return true;
 	}
 	
-	public GHResponse getRoute(double lat0, double lon0, double lat1, double lon1, boolean directedSegment, RouteSearchParameters searchParams, boolean simplifyGeometry, PathProcessor pathProcessor)
+	public GHResponse getRoute(double lat0, double lon0, double lat1, double lon1, boolean directedSegment, RouteSearchParameters searchParams, boolean simplifyGeometry, RouteProcessContext routeProcCntx)
 			throws Exception {
 
 		GHResponse resp = null; 
@@ -590,8 +590,8 @@ public class RoutingProfile
 			if (searchCntx.getEdgeFilter() != null) 
 				req.setEdgeFilter(searchCntx.getEdgeFilter());
 
-			if (pathProcessor != null)
-				req.setPathProcessor(pathProcessor);
+			if (routeProcCntx.getPathProcessor() != null)
+				req.setPathProcessor(routeProcCntx.getPathProcessor());
 			
 			if (useDynamicWeights(searchParams) || flexibleMode)
 				req.getHints().put("CH.Disable", true);
@@ -599,7 +599,7 @@ public class RoutingProfile
 			if (directedSegment)
 				resp = mGraphHopper.directRoute(req);
 			else 
-				resp = mGraphHopper.route(req);
+				resp = mGraphHopper.route(req, routeProcCntx.getArrayBuffer());
 
 			endUseGH();
 		} catch (Exception ex) {

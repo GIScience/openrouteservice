@@ -14,6 +14,8 @@ package heigit.ors.services.routing.requestprocessors.json;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONObject;
+
 import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.services.routing.RoutingRequest;
@@ -33,7 +35,7 @@ public class JsonRoutingRequestProcessor extends AbstractHttpRequestProcessor {
 		
 		RouteResult result = RoutingProfileManager.getInstance().getRoute(rreq);
 		
-		byte[] bytes = JsonRoutingResponseWriter.toString(rreq, new RouteResult[] { result }).getBytes("UTF-8");
-		ServletUtility.write(response, bytes, "text/json", "UTF-8");
+		JSONObject json = JsonRoutingResponseWriter.toJson(rreq, new RouteResult[] { result });
+		ServletUtility.write(response, json, "UTF-8");
 	}
 }
