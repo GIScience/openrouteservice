@@ -75,7 +75,11 @@ BEGIN
 	max_latitude := GREATEST(abs(ST_YMin(geom_env)), abs(ST_YMax(geom_env)));
 	distance_factor := 1/COS(max_latitude*3.1416/180);
 
-	query := 'SELECT * FROM ' || table_name ||' WHERE (' || condition || ') AND ST_DWithin(geom, $1 , $2)';
+        IF (condition = '') THEN
+	    query := 'SELECT * FROM ' || table_name ||' WHERE ST_DWithin(geom, $1 , $2)';
+        ELSE
+            query := 'SELECT * FROM ' || table_name ||' WHERE (' || condition || ') AND ST_DWithin(geom, $1 , $2)';
+        END IF;
 
 	IF (limit_size > 0) THEN
            query := query || ' LIMIT '  || limit_size::text; 
@@ -97,8 +101,12 @@ BEGIN
         IF (distance > 0) THEN
 	   geog_feature := ST_Buffer(geog_feature, distance);
         END IF;
-        
-        query := 'SELECT * FROM ' || table_name ||' WHERE (' || condition || ') AND ST_Within(location, $1)';
+
+        IF (condition = '') THEN
+           query := 'SELECT * FROM ' || table_name ||' WHERE ST_DWithin(location, $1, 0)';
+        ELSE
+           query := 'SELECT * FROM ' || table_name ||' WHERE (' || condition || ') AND ST_DWithin(location, $1, 0)';
+        END IF;   
 
         IF (limit_size > 0) THEN
            query := query || ' LIMIT '  || limit_size::text; 
