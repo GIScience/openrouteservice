@@ -17,6 +17,7 @@ import java.util.List;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.util.PriorityCode;
+import com.graphhopper.routing.util.PriorityWeighting;
 import com.graphhopper.routing.util.WaySurfaceDescription;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
@@ -33,7 +34,6 @@ import heigit.ors.routing.util.extrainfobuilders.SteepnessExtraInfoBuilder;
 public class ExtraInfoProcessor extends PathProcessor {
 	private WaySurfaceTypeGraphStorage extWaySurface;
 	private WayCategoryGraphStorage extWayCategory;
-	private HillIndexGraphStorage extHillIndex;
 	private GreenIndexGraphStorage extGreenIndex;
 	
 	private RouteExtraInfo _surfaceInfo;
@@ -55,6 +55,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 	private RouteExtraInfoBuilder _greenInfoBuilder;
 	
 	private FlagEncoder _encoder;
+	private boolean _encoderWithPriority = false;
 	private byte[] buffer;
 	private boolean _lastSegment;
 
@@ -164,8 +165,22 @@ public class ExtraInfoProcessor extends PathProcessor {
 
 		if (_waySuitabilityInfoBuilder != null)
 		{
-			double priority = _encoder.getDouble(edge.getFlags(), 101);
-			int priorityIndex = (int)(3 + priority*PriorityCode.BEST.getValue()); // normalize values between 3 and 10
+			double priority = 0.3;
+			int priorityIndex = 3;
+			
+			if (_encoderWithPriority)
+			{
+				priority = _encoder.getDouble(edge.getFlags(_encoder.getIndex()), 101);
+				priorityIndex = (int)(3 + priority*PriorityCode.BEST.getValue()); // normalize values between 3 and 10
+			}
+			else
+			{
+				priority = _encoder.getSpeed(edge.getFlags(_encoder.getIndex())) / _encoder.getMaxSpeed();
+				if (priority < 0.3)
+					priority = 0.3;
+				priorityIndex = (int)(priority * 10);
+			}
+			
 			_waySuitabilityInfoBuilder.addSegment(priority, priorityIndex, geom, dist,  lastEdge && _lastSegment);
 		}
 		
@@ -212,5 +227,6 @@ public class ExtraInfoProcessor extends PathProcessor {
 	@Override
 	public void start(FlagEncoder encoder) {
 		_encoder = encoder;
+		_encoderWithPriority = encoder.supports(PriorityWeighting.class);
 	}
 }
