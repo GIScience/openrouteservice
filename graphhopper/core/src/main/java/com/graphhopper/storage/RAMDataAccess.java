@@ -179,7 +179,7 @@ public class RAMDataAccess extends AbstractDataAccess
                 			throw new IllegalStateException("segment " + s + " is empty? " + toString());
                 		
                 		byte[] bytes = new byte[segmentSizeInBytes];
-                		int compressedLength2 = decompressor.decompress(compressed, 0, bytes, 0, segmentSizeInBytes);
+                		compressedLength = decompressor.decompress(compressed, 0, bytes, 0, segmentSizeInBytes);
                 		
                 		segments[s] = bytes;
                 	}
