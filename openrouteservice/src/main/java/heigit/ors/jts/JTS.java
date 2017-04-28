@@ -31,6 +31,7 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -65,11 +66,14 @@ public final class JTS {
      * A pool of direct positions for use in {@link #orthodromicDistance}.
      */
     private static final GeneralDirectPosition[] POSITIONS = new GeneralDirectPosition[4];
+    private static GeometryFactory _factory;
 
     static {
         for (int i = 0; i < POSITIONS.length; i++) {
             POSITIONS[i] = new GeneralDirectPosition(i);
         }
+        
+        _factory = new GeometryFactory();
     }
 
     /**
@@ -511,4 +515,23 @@ public final class JTS {
                 "This method can work on LineString, Polygon and Multipolygon: "
                         + geometry.getClass());
     }
+    
+    public static Polygon toGeometry(final Envelope env)
+    {
+    	return toGeometry(env, _factory);
+    }
+    
+    public static Polygon toGeometry(final Envelope env, GeometryFactory factory) {
+        ensureNonNull("env", env);
+        
+        Polygon polygon = factory.createPolygon(
+                factory.createLinearRing(new Coordinate[] {
+                        new Coordinate(env.getMinX(), env.getMinY()),
+                        new Coordinate(env.getMaxX(), env.getMinY()),
+                        new Coordinate(env.getMaxX(), env.getMaxY()),
+                        new Coordinate(env.getMinX(), env.getMaxY()),
+                        new Coordinate(env.getMinX(), env.getMinY()) }), null);
+        
+        return polygon;
+}
 }
