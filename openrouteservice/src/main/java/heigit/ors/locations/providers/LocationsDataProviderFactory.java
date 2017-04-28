@@ -16,12 +16,16 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.ServiceLoader;
 
+import org.apache.log4j.Logger;
+
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.locations.LocationsErrorCodes;
 import heigit.ors.locations.providers.LocationsDataProvider;
 
 public class LocationsDataProviderFactory 
 {
+	private static final Logger LOGGER = Logger.getLogger(LocationsDataProviderFactory.class.getName());
+	
 	private static Map<String, LocationsDataProviderItem> _providers;
     private static Object _lockObj;
 
@@ -69,13 +73,28 @@ public class LocationsDataProviderFactory
 			LocationsDataProviderItem item = _providers.get(pname);
 
 			if (item == null)
-				throw new InternalServerException(LocationsErrorCodes.UNKNOWN, "Unable to find a data provider with name '" + name + "'.");
+			{
+				Exception ex = new Exception("Unable to find a data provider with name '" + name + "'.");
+				LOGGER.error(ex);
+				
+				throw new InternalServerException(LocationsErrorCodes.UNKNOWN, ex.getMessage());
+			}
 
 			provider = item.getProvider();
 			
 			if (!item.getIsInitialized())
 			{
-				provider.init(parameters);
+				try
+				{
+					provider.init(parameters);
+				}
+				catch(Exception ex)
+				{
+					LOGGER.error(ex);
+					
+					throw new InternalServerException(LocationsErrorCodes.UNKNOWN, "Unable to initialize a data provider with name '" + name + "'.");
+				}
+				
 				item.setIsInitialized(true);
 			}
 		}
