@@ -194,9 +194,8 @@
 	<dependency>
     	<groupId>org.postgresql</groupId>
     	<artifactId>postgresql</artifactId>
-    	<version>42.0.0</version>
+    	<version>9.4.1212</version>
 	</dependency>
-
         
 	<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
 <!-- <dependency>
