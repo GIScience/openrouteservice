@@ -866,18 +866,49 @@ public class JSONObject {
         // Shave off trailing zeros and decimal point, if possible.
 
         String string = number.toString();
-        if (string.indexOf('.') > 0 && string.indexOf('e') < 0
-                && string.indexOf('E') < 0) {
-            while (string.endsWith("0")) {
-                string = string.substring(0, string.length() - 1);
-            }
-            if (string.endsWith(".")) {
-                string = string.substring(0, string.length() - 1);
-            }
+        //if (string.indexOf('.') > 0 && string.indexOf('e') < 0
+//                && string.indexOf('E') < 0) // Runge
+        if ((number instanceof Double || number instanceof Float) && isFloatNumber(string))
+        {
+        	while (string.endsWith("0")) {
+        		string = string.substring(0, string.length() - 1);
+        	}
+        	if (string.endsWith(".")) {
+        		string = string.substring(0, string.length() - 1);
+        	}
         }
+        
         return string;
     }
 
+	private static boolean isFloatNumber(String str)
+	{
+		int len = str.length();
+		boolean hasDot = false;
+		boolean hasE = false;
+		char ch = '_';
+		
+		for (int i = 0; i < len; i++)
+		{
+			ch = str.charAt(i);
+
+			if (i > 0 && ch == '.')
+				hasDot = true;
+			else if (ch == 'e' || ch == 'E')
+			{
+				hasE = true;
+			}
+		}
+		
+		if (hasDot && !hasE)
+		{
+			if (ch == '0' || ch == '.')
+				return true;
+		}
+		
+		return false;
+	}
+	
     /**
      * Get an optional value associated with a key.
      *
@@ -1866,7 +1897,8 @@ public class JSONObject {
         } else if (value instanceof Number) {
             // not all Numbers may match actual JSON Numbers. i.e. fractions or Imaginary
             final String numberAsString = numberToString((Number) value);
-            try {
+            writer.write(numberAsString);
+          /*  try {
                 // Use the BigDecimal constructor for it's parser to validate the format.
                 @SuppressWarnings("unused")
                 BigDecimal testNum = new BigDecimal(numberAsString);
@@ -1876,7 +1908,7 @@ public class JSONObject {
                 // The Number value is not a valid JSON number.
                 // Instead we will quote it as a string
                 quote(numberAsString, writer);
-            }
+            }*/
         } else if (value instanceof Boolean) {
             writer.write(value.toString());
         } else if (value instanceof Enum<?>) {

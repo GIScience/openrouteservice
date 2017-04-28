@@ -40,7 +40,7 @@ public class JsonRoutingResponseWriter {
 
 	public static JSONObject toJson(RoutingRequest request, RouteResult[] routeResult) throws Exception
 	{
-		JSONObject jResp = new JSONObject(true);
+		JSONObject jResp = new JSONObject(true, 1);
 
 		StringBuffer buffer = new StringBuffer();
 		// *************** routes ***************

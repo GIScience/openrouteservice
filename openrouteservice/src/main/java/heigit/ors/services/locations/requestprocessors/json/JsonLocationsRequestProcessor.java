@@ -41,7 +41,6 @@ import heigit.ors.locations.LocationsSearchFilter;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
 import heigit.ors.util.AppInfo;
-import heigit.ors.util.OrderedJSONObjectFactory;
 
 public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 {
@@ -105,9 +104,9 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 	
 	private void writeCategoriesResponse(HttpServletResponse response, LocationsRequest request, List<LocationsCategory> categories) throws Exception
 	{
-		JSONObject resp = new JSONObject();
+		JSONObject resp = new JSONObject(1);
 
-		JSONObject jLocations = new JSONObject(true);
+		JSONObject jLocations = new JSONObject(true,  categories != null ? categories.size(): 1);
 		resp.put("places", jLocations);
 
 		if (categories != null)
@@ -120,7 +119,7 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 				
 				LocationsCategory cat = categories.get(j);
 				
-				JSONObject jValues = new JSONObject(true);
+				JSONObject jValues = new JSONObject(true, cat.getStats().size());
 				
 				for(Map.Entry<Integer, Long> stats : cat.getStats().entrySet())
 				{
@@ -146,8 +145,8 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 
 	private void writeLocationsResponse(HttpServletResponse response, LocationsRequest request, List<LocationsResult> locations) throws Exception
 	{
-		int nLocations = locations.size();
-		JSONObject jResp = new JSONObject(true);
+		int nLocations = locations != null ? locations.size() : 1;
+		JSONObject jResp = new JSONObject(true, 3);
 
 		JSONArray features = new JSONArray(nLocations);
 		jResp.put("type", "FeatureCollection");        
@@ -173,7 +172,7 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 
 				Geometry geom = lr.getGeometry();
 
-				JSONObject feature = new JSONObject(true);
+				JSONObject feature = new JSONObject(true, 3);
 				feature.put("type", "Feature");
 
 				JSONObject point = new JSONObject(true);
@@ -183,9 +182,10 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 
 				feature.put("geometry", point);
 
-				JSONObject properties = new JSONObject(true);
-
 				Map<String, String> props = lr.getProperties();
+
+				JSONObject properties = new JSONObject(true, props.size());
+
 				if (props.size() > 0)
 				{
 					for(Map.Entry<String, String> entry : props.entrySet())
