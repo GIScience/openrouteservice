@@ -11,7 +11,7 @@
 			isochrones: {
 				enabled: true,
 				maximum_range_distance: 100000,
-				maixmum_range_time: 3600,
+				maximum_range_time: 3600,
 				maximum_intervals: 10,
 				maximum_locations: 2,
 				allow_compute_area: true,
