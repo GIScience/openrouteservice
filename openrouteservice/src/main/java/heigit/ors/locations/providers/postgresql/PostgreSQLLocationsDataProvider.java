@@ -39,6 +39,7 @@ import heigit.ors.locations.providers.LocationsDataProvider;
 import heigit.ors.util.ArraysUtility;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.InternalServerException;
+import heigit.ors.jts.JTS;
 import heigit.ors.locations.LocationDetailsType;
 import heigit.ors.locations.LocationsCategory;
 import heigit.ors.locations.LocationsCategoryClassifier;
@@ -109,6 +110,9 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 			throw new InternalServerException(LocationsErrorCodes.UNKNOWN, "'table_name' parameter can not be null or empty.");
 		else
 			_tableName = value;
+		
+		//https://github.com/pgjdbc/pgjdbc/pull/772
+		org.postgresql.Driver.isRegistered();
 	
 		HikariConfig config = new HikariConfig();
 		String port = "5432";
@@ -135,6 +139,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 		List<LocationsResult> results = new ArrayList<LocationsResult>();
 
 		Connection connection = null;
+		PreparedStatement statement = null;
 		Exception exception = null;
 
 		try
@@ -149,7 +154,6 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 				sw.start();
 			}
 
-			PreparedStatement statement = null;
 			ResultSet resSet = null;
 
 			if (LOGGER.isDebugEnabled())
@@ -177,7 +181,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 
 			QueryColumnsInfo queryColumns = COLUMNS_INFO[request.getDetails()];
 			int nColumns = queryColumns.getCount();
-			if (request.getGeometry() instanceof Polygon)
+			if (request.getGeometry() instanceof Polygon || request.getGeometry() == null)
 				nColumns--; // skip distance column for polygons
 			
 			WKBReader wkbReader = new WKBReader();
@@ -211,7 +215,6 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 			}
 
 			resSet.close();
-			statement.close();
 
 			if (LOGGER.isDebugEnabled())
 			{
@@ -226,6 +229,9 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 		}
 		finally
 		{
+			if (statement != null)
+				statement.close();
+
 			if (connection != null)
 				connection.close();
 		}
@@ -283,15 +289,15 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 	private PreparedStatement createLocationsStatement(LocationsRequest request, Connection conn) throws Exception
 	{
 		Geometry geom = request.getGeometry();
+		Envelope bbox = request.getBBox();
 
-		byte[] geomBytes = geometryToWKB(geom);
+		byte[] geomBytes = geometryToWKB(geom, bbox);
 
 		QueryColumnsInfo ci = COLUMNS_INFO[request.getDetails()];
 		// at the end, we add virtual column to store the exact distance. 
 		String query = "SELECT " + ci.getQuery1Columns() +" FROM " + _tableName;
-		Envelope bbox = request.getBBox();
 		if (bbox != null)
-			query += buildBboxFilter(bbox);
+			query += " WHERE " + buildBboxFilter(bbox);
 
 		String stateText = String.format("SELECT %s FROM ORS_FindLocations('(%s) as tmp', '%s', ?, %.3f, %d) AS %s", ci.getQuery2Columns(), query,  buildSearchFilter(request.getSearchFilter()), request.getRadius(), request.getLimit(), ci.getReturnTable());
 
@@ -381,10 +387,11 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 
 		byte[] 	geomBytes = null;
 		Geometry geom = request.getGeometry();
-		if (geom != null)
-		   geomBytes = geometryToWKB(geom);
-
 		Envelope bbox = request.getBBox();
+		
+		if (geom != null)
+		   geomBytes = geometryToWKB(geom, bbox);
+
 		if (bbox != null)
 			cmdFilter = addConditions(cmdFilter, buildBboxFilter(bbox));
 
@@ -402,8 +409,11 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 		return statement;
 	}
 	
-	private byte[] geometryToWKB(Geometry geom) throws IOException
+	private byte[] geometryToWKB(Geometry geom, Envelope bbox) throws IOException
 	{
+		if (geom == null)
+			geom = JTS.toGeometry(bbox);
+		
 		WKBWriter wkbWriter = new WKBWriter();
 		ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
 		wkbWriter.write(geom, new OutputStreamOutStream(bytesStream));
