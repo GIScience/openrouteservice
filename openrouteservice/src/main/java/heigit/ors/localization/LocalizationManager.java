@@ -30,7 +30,7 @@ import heigit.ors.util.StringUtility;
 
 public class LocalizationManager {
 	protected static Logger LOGGER = LoggerFactory.getLogger(LocalizationManager.class);
-	
+
 	private Map<String, LanguageResources> _langResources = null;
 	private static volatile LocalizationManager m_instance = null;
 
@@ -65,35 +65,35 @@ public class LocalizationManager {
 		Pattern pattern = Pattern.compile(filePattern);
 
 		File[] files = new File(localesPath.toString()).listFiles();
-		
+
 		if (files == null)
 			throw new Exception("Resources can not be found.");
 
 		for (File file : files) {
 			try
 			{
-			if (file.isFile()) {
-				if (file.getName().matches(filePattern))
-				{
-					Matcher matcher = pattern.matcher(file.getName());
-					if (matcher.find())
+				if (file.isFile()) {
+					if (file.getName().matches(filePattern))
 					{
-						String langCode = matcher.group(1).toLowerCase();
-						String[] langCountry = langCode.split("-");
-						Locale locale = new Locale(langCountry[0], langCountry.length == 2 ? langCountry[1] : "");
-						Language lang = new Language(langCode, locale.getDisplayLanguage(), locale.getDisplayName());
-						LanguageResources langResources = new LanguageResources(lang);
-						
-						Config allConfig = ConfigFactory.parseFile(file);
-						
-						allConfig.entrySet().forEach(entry -> {
-							langResources.addLocalString(entry.getKey(), StringUtility.trim(entry.getValue().render(), '\"'));
-						});
-						
-						_langResources.put(langCode, langResources);
+						Matcher matcher = pattern.matcher(file.getName());
+						if (matcher.find())
+						{
+							String langCode = matcher.group(1).toLowerCase();
+							String[] langCountry = langCode.split("-");
+							Locale locale = new Locale(langCountry[0], langCountry.length == 2 ? langCountry[1] : "");
+							Language lang = new Language(langCode, locale.getDisplayLanguage(), locale.getDisplayName());
+							LanguageResources langResources = new LanguageResources(lang);
+
+							Config allConfig = ConfigFactory.parseFile(file);
+
+							allConfig.entrySet().forEach(entry -> {
+								langResources.addLocalString(entry.getKey(), StringUtility.trim(entry.getValue().render(), '\"'));
+							});
+
+							_langResources.put(langCode, langResources);
+						}
 					}
 				}
-			}
 			}
 			catch(Exception ex)
 			{
@@ -111,50 +111,50 @@ public class LocalizationManager {
 
 		if (langRes != null)
 			return langRes.getTranslation(name, throwException);
-		
+
 		if (throwException)
 			throw new Exception("Unable to find translation for '" + name + "' in language '" + langCode + "'.");
 		else
 			return null;
 	}
-	
+
 	public LanguageResources getLanguageResources(String langCode)
 	{
 		String lang = langCode.toLowerCase();
-		LanguageResources res = _langResources.get(langCode);
+		LanguageResources res = _langResources.get(lang);
 		if (res == null)
 		{
 			if (!langCode.contains("-"))
 				res = _langResources.get(lang + "-" + lang);
 		}
-		
+
 		return res;
 	}
-	
+
 	public boolean isLanguageSupported(String langCode)
 	{
 		String lang = langCode.toLowerCase();
 		boolean res = _langResources.containsKey(lang);
-		
+
 		if (!res)
 		{
 			if (!langCode.contains("-"))
 				res = _langResources.containsKey(lang + "-" + lang);
 		}
-		
+
 		return res;
 	}
-	
+
 	public String[] getLanguages()
 	{
 		String[] langs = new String[_langResources.size()];
 		int i = 0;
 		for (Map.Entry<String, LanguageResources> entry : _langResources.entrySet())
 		{
-			 langs[i] = entry.getKey();
-			 i++;
+			langs[i] = entry.getKey();
+			i++;
 		}
-		
+
 		return langs;
 	}
 }
