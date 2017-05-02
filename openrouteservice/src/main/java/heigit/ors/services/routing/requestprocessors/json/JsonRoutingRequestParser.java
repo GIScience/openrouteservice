@@ -21,6 +21,7 @@ import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
+import heigit.ors.localization.LocalizationManager;
 import heigit.ors.routing.RouteExtraInfoFlag;
 import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.routing.RoutingErrorCodes;
@@ -101,7 +102,12 @@ public class JsonRoutingRequestParser
 
 		value = request.getParameter("language");
 		if (!Helper.isEmpty(value))
+		{
+			if(!LocalizationManager.getInstance().isLanguageSupported(value))
+				throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, "Specified language '" +  value + "' is not supported.");
+
 			req.setLanguage(value);
+		}
 
 		value = request.getParameter("geometry");
 		if (!Helper.isEmpty(value))
