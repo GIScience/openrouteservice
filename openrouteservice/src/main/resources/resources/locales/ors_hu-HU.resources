@@ -1,0 +1,72 @@
+{
+	instructions {
+		"numerals": {
+			"1": "első",
+			"2": "második",
+			"3": "harmadik",
+			"4": "negyedik",
+			"5": "ötödik",
+			"6": "hatodik",
+			"7": "hetedik",
+			"8": "nyolcadik",
+			"9": "kilencedik",
+			"10": "tizedik"
+		},
+		"directions": {
+			"north": "észak",
+			"northeast": "északkelet",
+			"east": "kelet",
+			"southeast": "délkelet",
+			"south": "dél",
+			"southwest": "délnyugat",
+			"west": "nyugat",
+			"northwest": "északnyugat"
+		},
+		"turn_maneuvers": {
+			"left": "bal",
+			"right": "jobb",
+			"sharp_left": "élesen balra",
+			"sharp_right": "élesen jobbra",
+			"slight_left": "enyhén balra",
+			"slight_right": "enyhén jobbra",
+			"straight": "egyenesen",
+			"uturn": "vissza"
+		},
+		"actions": {
+			"depart": {
+				"default": {
+					"default": "{direction} felé",
+					"name": "{direction} felé a(z) {way_name}-on" //it can be "-on" "-en" "-ön", it depends on the name of the way
+				}
+			},
+			"roundabout": {
+				"default": {
+					"exit": {
+						"default": "Menj be a köforgalomba és hagyd el a {exit_number} kijáratnál",
+						"name": "Menj be a köforgalomba és hagyd el a {exit_number} kijáratnál a(z) {way_name} felé"
+					},
+					"default": {
+						"default": "Menj be a köforgalomba",
+						"name": "Menj be a köforgalomba és hagyd el a(z) {way_name}-on" //it can be "-on" "-en" "-ön", it depends on the name of the way
+					}
+				}
+			},
+			"turn": {
+				"default": {
+					"default": "Fordulj {turn_maneuver}",
+					"name": "Fordulj {turn_maneuver} a(z) {way_name}-on", //it can be "-on" "-en" "-ön", it depends on the name of the way
+				},
+			},
+			"continue": {
+				"default": {
+					"default": "Haladj {turn_maneuver}",
+					"name": "Haladj {turn_maneuver} a(z) {way_name}-on" //it can be "-on" "-en" "-ön", it depends on the name of the way
+				},
+				"uturn": {
+					"default": "Fordulj meg",
+					"name": "Fordulj meg  a(z) {way_name}-ra" //it can be "-ra" "-re", it depends on the name of the way
+				}
+			}
+		}
+	}
+}
