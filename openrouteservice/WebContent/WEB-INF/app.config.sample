@@ -56,7 +56,6 @@
 				mode: "normal",
 				sources: ["PATH_TO_THE_RAW_OSM_FILE"],
 				init_threads: 2,
-				maximum_distance_with_dynamic_weights: 200000,
 				attribution: "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
 
 				profiles: {
@@ -69,7 +68,12 @@
 						graphs_root_path: "D:/Temp/GHGraphs", 
 						elevation_provider: cgiar,
 						elevation_cache_path: "D:/Temp/cgiar_provider",
- 	          		    instructions: true
+ 	          		    instructions: true,
+ 	          		    # maximum allowed approximated distance of a route, measured in meters
+ 	          		    maximum_distance: 100000,
+ 	          		    # maximum allowed approximated distance of a route segment when dynamic weighting is applied, measured in meters
+ 	          		    maximum_segment_distance_with_dynamic_weights: 50000,
+ 	          		    maximum_waypoints: 50
 					},
 
 					profile-vehicles: {

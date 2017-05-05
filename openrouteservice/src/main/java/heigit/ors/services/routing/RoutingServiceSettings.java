@@ -23,8 +23,6 @@ public class RoutingServiceSettings {
 	private static String sourceFile = "";
 	private static String workingMode = "Normal"; // Normal or PrepareGraphs
 	private static int initializationThreads = 1;
-	private static int maximumWayPoints = 30;
-	private static double dynamicWeightingMaximumDistance = 0.0;
 	private static boolean distanceApproximation = false;
 	private static String storageFormat = "Native";
 	private static String attribution = "";
@@ -67,14 +65,6 @@ public class RoutingServiceSettings {
 		if (value != null)
 			storageFormat = value;
 		
-		value = config.getServiceParameter("routing", "maximum_way_points");
-		if (value != null)
-			maximumWayPoints = Integer.parseInt(value);
-		
-		value = config.getServiceParameter("routing", "maximum_distance_with_dynamic_weights");
-		if (value != null)
-			dynamicWeightingMaximumDistance = Double.parseDouble(value);
-		
 		value = config.getServiceParameter("routing", "attribution");
 		if (value != null)
 			attribution = value;
@@ -103,14 +93,6 @@ public class RoutingServiceSettings {
 	
 	public static String getStorageFormat()	{
 		return storageFormat;
-	}
-	
-	public static int getMaximumWayPoints() {
-		return maximumWayPoints;
-	}
-	
-	public static double getDynamicWeightingMaximumDistance() {
-		return dynamicWeightingMaximumDistance;
 	}
 
 	public static String getParameter(String paramName) 

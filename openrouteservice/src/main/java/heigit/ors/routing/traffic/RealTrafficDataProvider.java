@@ -234,13 +234,13 @@ public class RealTrafficDataProvider {
 					if (rp.useTrafficInformation() && !rp.isCHEnabled()) {
 						if (rpc == null) {
 							rpc = new RouteProfileConfiguration();
-							rpc.Enabled = true;
-							rpc.GraphPath = rp.getConfiguration().GraphPath + "_tmc";
-							rpc.Profiles = "driving-traffic";
-							rpc.UseTrafficInformation = true;
-							rpc.ExtStorages = null;
+							rpc.setEnabled(true);
+							rpc.setGraphPath(rp.getConfiguration().getGraphPath() + "_tmc");
+							rpc.setProfiles("driving-traffic");
+							rpc.setUseTrafficInformation(true);
+							rpc.setExtStorages(null);
 							// Germany only
-							rpc.BBox = new Envelope(5.866240, 15.042050, 47.270210, 55.058140);
+							rpc.setExtent(new Envelope(5.866240, 15.042050, 47.270210, 55.058140));
 							
 							RoutingProfile rpTmc = new RoutingProfile(RoutingServiceSettings.getSourceFile(), rpc, profiles, loadCntx);
 

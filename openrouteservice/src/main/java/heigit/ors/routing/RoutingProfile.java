@@ -63,7 +63,6 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EdgeFilterSequence;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.PathProcessor;
 
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.GraphStorage;
@@ -92,16 +91,16 @@ public class RoutingProfile
 	private boolean mUpdateRun;
 	private MapMatcher mMapMatcher;
 
-	private RouteProfileConfiguration mProfileConfig;
+	private RouteProfileConfiguration _config;
 
 	public RoutingProfile(String osmFile, RouteProfileConfiguration rpc, RoutingProfilesCollection profiles, RoutingProfileLoadContext loadCntx) throws IOException {
 		mRoutePrefs = rpc.getProfilesTypes();
 		mUseCounter = 0;
-		mUseTrafficInfo = /*mHasDynamicWeights &&*/ hasCarPreferences() ? rpc.UseTrafficInformation : false;
+		mUseTrafficInfo = /*mHasDynamicWeights &&*/ hasCarPreferences() ? rpc.getUseTrafficInformation() : false;
 
 		mGraphHopper = initGraphHopper(osmFile, rpc, profiles, loadCntx);
 
-		mProfileConfig = rpc;
+		_config = rpc;
 	}
 
 	public static ORSGraphHopper initGraphHopper(String osmFile, RouteProfileConfiguration config, RoutingProfilesCollection profiles, RoutingProfileLoadContext loadCntx) throws IOException {
@@ -127,14 +126,14 @@ public class RoutingProfile
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info(String.format("[%d] Building/loading graphs....", profileId));
 
-		List<GraphStorageBuilder> storageBuilders = GraphStorageBuilderService.getInstance().createBuilders(config.ExtStorages);
+		List<GraphStorageBuilder> storageBuilders = GraphStorageBuilderService.getInstance().createBuilders(config.getExtStorages());
 
-		ORSGraphHopper gh = (ORSGraphHopper) new ORSGraphHopper(config.BBox, storageBuilders, config.UseTrafficInformation, refProfile).init(args);
+		ORSGraphHopper gh = (ORSGraphHopper) new ORSGraphHopper(config.getExtent(), storageBuilders, config.getUseTrafficInformation(), refProfile).init(args);
 		gh.setGraphStorageFactory(new ORSGraphStorageFactory(storageBuilders));
 
-		if (!Helper.isEmpty(config.ElevationProvider) && !Helper.isEmpty(config.ElevationCachePath))
+		if (!Helper.isEmpty(config.getElevationProvider()) && !Helper.isEmpty(config.getElevationCachePath()))
 		{
-			ElevationProvider elevProvider = loadCntx.getElevationProvider(config.ElevationProvider, config.ElevationCachePath, config.ElevationDataAccess, config.ElevationCacheClear);
+			ElevationProvider elevProvider = loadCntx.getElevationProvider(config.getElevationProvider(), config.getElevationCachePath(), config.getElevationDataAccess(), config.getElevationCacheClear());
 			gh.setElevationProvider(elevProvider);
 		}
 
@@ -154,7 +153,7 @@ public class RoutingProfile
 
 		// Make a stamp which help tracking any changes in the size of OSM file.
 		File file = new File(osmFile);
-		Path pathTimestamp = Paths.get(config.GraphPath, "stamp.txt");
+		Path pathTimestamp = Paths.get(config.getGraphPath(), "stamp.txt");
 		File file2 = pathTimestamp.toFile();
 		if (!file2.exists())
 			Files.write(pathTimestamp, Long.toString(file.length()).getBytes());
@@ -173,24 +172,23 @@ public class RoutingProfile
 		CmdArgs args = new CmdArgs();
 		args.put("graph.dataaccess", "RAM_STORE");
 		args.put("osmreader.osm", sourceFile);
-		args.put("graph.location", config.GraphPath);
-		args.put("graph.bytesForFlags", config.EncoderFlagsSize);
+		args.put("graph.location", config.getGraphPath());
+		args.put("graph.bytesForFlags", config.getEncoderFlagsSize());
 
-		if (config.Instructions == false)
+		if (config.getInstructions() == false)
 			args.put("instructions", false);
-		if (config.ElevationCachePath != null)
+		if (config.getElevationProvider() != null&& config.getElevationCachePath() != null)
 		{
-			args.put("graph.elevation.provider", config.ElevationProvider);
-			args.put("graph.elevation.cachedir", config.ElevationCachePath);
-			args.put("graph.elevation.dataaccess", config.ElevationDataAccess);
+			args.put("graph.elevation.provider", config.getElevationProvider());
+			args.put("graph.elevation.cachedir", config.getElevationCachePath());
+			args.put("graph.elevation.dataaccess", config.getElevationDataAccess());
 		}
 
-		args.put("prepare.chWeighting", (config.CHWeighting != null) ? config.CHWeighting: "no");
-		
-		args.put("prepare.threads", config.CHThreads);
+		args.put("prepare.chWeighting", (config.getCHWeighting() != null) ? config.getCHWeighting() : "no");
+		args.put("prepare.threads", config.getCHThreads());
 
 		String flagEncoders = "";
-		String[] encoderOpts = !Helper.isEmpty(config.EncoderOptions) ? config.EncoderOptions.split(","): null;
+		String[] encoderOpts = !Helper.isEmpty(config.getEncoderOptions()) ? config.getEncoderOptions().split(",") : null;
 		Integer[] profiles = config.getProfilesTypes();
 		for (int i = 0; i < profiles.length; i++)
 		{
@@ -236,7 +234,7 @@ public class RoutingProfile
 	}
 
 	public RouteProfileConfiguration getConfiguration() {
-		return mProfileConfig;
+		return _config;
 	}
 
 	public Integer[] getPreferences() {
@@ -305,7 +303,7 @@ public class RoutingProfile
 
 					RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
 
-					mGraphHopper = initGraphHopper(ghOld.getOSMFile(), mProfileConfig, RoutingProfileManager.getInstance().getProfiles(), loadCntx);
+					mGraphHopper = initGraphHopper(ghOld.getOSMFile(), _config, RoutingProfileManager.getInstance().getProfiles(), loadCntx);
 
 					loadCntx.release();
 
@@ -520,16 +518,11 @@ public class RoutingProfile
 		return mMapMatcher.match(lat0, lon0, lat1, lon1, bothDirections);
 	}
 
-	public boolean canProcessRequest(double lat0, double lon0, double lat1, double lon1) {
-		if (mProfileConfig.MaximumDistance > 0) {
-			double dist = CoordTools.calcDistHaversine(lon0, lat0, lon1, lat1);
-			if (dist <= mProfileConfig.MaximumDistance)
-				return true;
-			else
-				return false;
-		}
-
-		return true;
+	public boolean canProcessRequest(double totalDistance, double longestSegmentDistance, int wayPoints) {
+		double maxDistance = (_config.getMaximumDistance() > 0) ? _config.getMaximumDistance(): Double.MAX_VALUE;
+		int maxWayPoints = (_config.getMaximumWayPoints() > 0) ? _config.getMaximumWayPoints(): Integer.MAX_VALUE;
+		
+    	return totalDistance <= maxDistance && wayPoints <= maxWayPoints;
 	}
 	
 	public GHResponse getRoute(double lat0, double lon0, double lat1, double lon1, boolean directedSegment, RouteSearchParameters searchParams, boolean simplifyGeometry, RouteProcessContext routeProcCntx)

@@ -262,7 +262,7 @@ public class RoutingProfilesUpdater {
 				for (RoutingProfile profile : m_routeProfiles.getUniqueProfiles()) {
 					RouteProfileConfiguration rpc = profile.getConfiguration();
 
-					Path pathTimestamp = Paths.get(rpc.GraphPath, "stamp.txt");
+					Path pathTimestamp = Paths.get(rpc.getGraphPath(), "stamp.txt");
 					File file2 = pathTimestamp.toFile();
 					if (file2.exists()) {
 						String oldFileStamp = FileUtils.readFileToString(file2);
@@ -287,10 +287,10 @@ public class RoutingProfilesUpdater {
 					}
 
 					try {
-						m_updateStatus = "preparing profile '" + rpc.Profiles +"'";
+						m_updateStatus = "preparing profile '" + rpc.getProfiles() +"'";
 
 						RouteProfileConfiguration rpcNew = rpc.clone();
-						rpcNew.GraphPath = tempGraphLocation;
+						rpcNew.setGraphPath(tempGraphLocation);
 						GraphHopper gh = RoutingProfile.initGraphHopper(osmFile, rpcNew, RoutingProfileManager.getInstance().getProfiles(), loadCntx);
 
 						if (gh != null) {

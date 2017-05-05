@@ -102,22 +102,7 @@ public class RoutingProfilesCollection {
 		return result;
 	}
 
-	public RoutingProfile getRouteProfile(int routePref, boolean chEnabled, double lat0,
-			double lon0, double lat1, double lon1, boolean checkDistance) throws Exception {
-
-		int routePrefKey = getRoutePreferenceKey(routePref, chEnabled);
-		RoutingProfile rp = getRouteProfileByKey(routePrefKey);
-
-		if (rp != null)
-		{
-			if (!checkDistance || rp.canProcessRequest(lat0, lon0, lat1, lon1))
-				return rp;
-		}
-		
-		return null;
-	}
-
-	public RoutingProfile getRouteProfile(int routePref, boolean chEnabled, boolean dynamicWeights) throws Exception {
+	public RoutingProfile getRouteProfile(int routePref, boolean chEnabled) throws Exception {
 		int routePrefKey = getRoutePreferenceKey(routePref, chEnabled);
 		if (!m_routeProfiles.containsKey(routePrefKey))
 			return null;

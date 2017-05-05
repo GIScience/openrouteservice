@@ -10,41 +10,39 @@ import heigit.ors.routing.RoutingProfileType;
 
 public class RouteProfileConfiguration
 {
-	public String Name = "";
-	public Boolean Enabled = true;
-
-	public String Profiles; // comma separated
-	public String GraphPath;
+	private String _name = "";
+	private Boolean _enabled = true;
+	private String _profiles; // comma separated
+	private String _graphPath;
+	private Map<String, Map<String, String>> _extStorages;
+	private Double _maximumDistance = 0.0;
+	private Double _maximumSegmentDistanceWithDynamicWeights = 0.0;
+	private Integer _maximumWayPoints = 0;
+	private Boolean _useTrafficInformation = false;
+	private Boolean _instructions = true;
 	
-	public Map<String, Map<String, String>> ExtStorages;
+	private int _encoderFlagsSize = 4;
+	private String _encoderOptions = null;
+	private String _chWeighting = null;
+	private int _chThreads = 1;
 	
-	public Double MaximumDistance = 0.0;
-	public Boolean UseTrafficInformation = false;
+	private String _elevationProvider = null;
+	private String _elevationCachePath = null;
+	private String _elevationDataAccess = "MMAP";
+	private boolean _elevationCacheClear = true;
 	
-	public Boolean Instructions = true;
-	
-	public int EncoderFlagsSize = 4;
-	public String EncoderOptions = null;
-	public String CHWeighting = null;
-	public int CHThreads = 1;
-	
-	public String ElevationProvider = null;
-	public String ElevationCachePath = null;
-	public boolean ElevationCacheClear = true;
-	public String ElevationDataAccess = "MMAP";
-	
-	public Envelope BBox;
+	private Envelope _extent;
 	
 	public RouteProfileConfiguration()
 	{
-		ExtStorages = new HashMap<String, Map<String, String>>();
+		_extStorages = new HashMap<String, Map<String, String>>();
 	}
 	
 	public Integer[] getProfilesTypes()
 	{
 		ArrayList<Integer> list = new ArrayList<Integer>();
 		
-		String[] elements = Profiles.split("\\s*,\\s*");
+		String[] elements = _profiles.split("\\s*,\\s*");
 		
 		for (int i = 0; i< elements.length; i++)
 		{
@@ -63,29 +61,222 @@ public class RouteProfileConfiguration
 	{
 		RouteProfileConfiguration rpc = new RouteProfileConfiguration();
 		
-		rpc.Name = this.Name;
-		rpc.Enabled = this.Enabled;
-		rpc.Profiles = this.Profiles;
+		rpc._name = this._name;
+		rpc._enabled = this._enabled;
+		rpc._profiles = this._profiles;
+		rpc._graphPath = this._graphPath;
 			
-		rpc.MaximumDistance = this.MaximumDistance;
-		rpc.UseTrafficInformation = this.UseTrafficInformation;
+		rpc._maximumDistance = this._maximumDistance;
+		rpc._maximumSegmentDistanceWithDynamicWeights = this._maximumSegmentDistanceWithDynamicWeights;
+		rpc._maximumWayPoints = this._maximumWayPoints;
+		rpc._useTrafficInformation = this._useTrafficInformation;
 		
-		rpc.Instructions = this.Instructions;
+		rpc._instructions = this._instructions;
 		
-		rpc.EncoderFlagsSize = this.EncoderFlagsSize;
-		rpc.EncoderOptions = this.EncoderOptions;
-		rpc.CHWeighting = this.CHWeighting;
-		rpc.CHThreads = this.CHThreads;
+		rpc._encoderFlagsSize = this._encoderFlagsSize;
+		rpc._encoderOptions = this._encoderOptions;
+		rpc._chWeighting = this._chWeighting;
+		rpc._chThreads = this._chThreads;
 
-		rpc.ExtStorages = this.ExtStorages;
+		rpc._extStorages = this._extStorages;
 
-		rpc.ElevationCachePath = this.ElevationCachePath;
-		rpc.ElevationCacheClear = this.ElevationCacheClear;
-		rpc.ElevationProvider = this.ElevationProvider;
-		rpc.ElevationDataAccess = this.ElevationDataAccess;
+		rpc._elevationCachePath = this._elevationCachePath;
+		rpc._elevationCacheClear = this._elevationCacheClear;
+		rpc._elevationProvider = this._elevationProvider;
+		rpc._elevationDataAccess = this._elevationDataAccess;
 		
-		rpc.BBox = this.BBox;
+		rpc._extent = this._extent;
 		
 		return rpc;
+	}
+	
+	public void setName(String value)
+	{
+		_name = value; 
+	}
+	
+	public String getName()
+	{
+		return _name;
+	}
+	
+	public void setEnabled(Boolean value)
+	{
+		_enabled = value; 
+	}
+	
+	public Boolean getEnabled()
+	{
+		return _enabled;
+	}
+	
+	public void setProfiles(String value)
+	{
+		_profiles = value; 
+	}
+	
+	public String getProfiles()
+	{
+		return _profiles;
+	}
+	
+	public void setGraphPath(String value)
+	{
+		_graphPath = value; 
+	}
+	
+	public String getGraphPath()
+	{
+		return _graphPath;
+	}
+	
+	public void setExtStorages(Map<String, Map<String, String>> value)
+	{
+		_extStorages = value; 
+	}
+	
+	public Map<String, Map<String, String>> getExtStorages()
+	{
+		return _extStorages;
+	}
+	
+	public void setInstructions(Boolean value)
+	{
+		_instructions = value; 
+	}
+	
+	public Boolean getInstructions()
+	{
+		return _instructions;
+	}
+	
+	public void setMaximumDistance(Double value)
+	{
+		_maximumDistance = value; 
+	}
+	
+	public Double getMaximumDistance()
+	{
+		return _maximumDistance;
+	}
+	
+	public void setMaximumSegmentDistanceWithDynamicWeights(Double value)
+	{
+		_maximumSegmentDistanceWithDynamicWeights = value; 
+	}
+	
+	public Double getMaximumSegmentDistanceWithDynamicWeights()
+	{
+		return _maximumSegmentDistanceWithDynamicWeights;
+	}
+	
+	public void setMaximumWayPoints(Integer value)
+	{
+		_maximumWayPoints = value; 
+	}
+	
+	public Integer getMaximumWayPoints()
+	{
+		return _maximumWayPoints;
+	}
+	
+	public void setUseTrafficInformation(Boolean value)
+	{
+		_useTrafficInformation = value; 
+	}
+	
+	public Boolean getUseTrafficInformation()
+	{
+		return _useTrafficInformation;
+	}
+	
+	public void setEncoderFlagsSize(Integer value)
+	{
+		_encoderFlagsSize = value; 
+	}
+	
+	public Integer getEncoderFlagsSize()
+	{
+		return _encoderFlagsSize;
+	}
+	
+	public void setEncoderOptions(String value)
+	{
+		_encoderOptions = value; 
+	}
+	
+	public String getEncoderOptions()
+	{
+		return _encoderOptions;
+	}
+	
+	public void setCHWeighting(String value)
+	{
+		_chWeighting = value; 
+	}
+	
+	public String getCHWeighting()
+	{
+		return _chWeighting;
+	}
+	
+	public void setCHThreads(Integer value)
+	{
+		_chThreads = value; 
+	}
+	
+	public Integer getCHThreads()
+	{
+		return _chThreads;
+	}
+	
+	public void setExtent(Envelope value)
+	{
+		_extent = value; 
+	}
+	
+	public Envelope getExtent()
+	{
+		return _extent;
+	}
+	
+	public void setElevationProvider(String value)
+	{
+		_elevationProvider = value; 
+	}
+	
+	public String getElevationProvider()
+	{
+		return _elevationProvider;
+	}
+	
+	public void setElevationCachePath(String value)
+	{
+		_elevationCachePath = value; 
+	}
+	
+	public String getElevationCachePath()
+	{
+		return _elevationCachePath;
+	}
+	
+	public void setElevationDataAccess(String value)
+	{
+		_elevationDataAccess = value; 
+	}
+	
+	public String getElevationDataAccess()
+	{
+		return _elevationDataAccess;
+	}
+	
+	public void setElevationCacheClear(Boolean value)
+	{
+		_elevationCacheClear = value; 
+	}
+	
+	public Boolean getElevationCacheClear()
+	{
+		return _elevationCacheClear;
 	}
 }

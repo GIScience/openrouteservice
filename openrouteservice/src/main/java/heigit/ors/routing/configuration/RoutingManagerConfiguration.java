@@ -37,12 +37,11 @@ public class RoutingManagerConfiguration
 			String profileRef = "profiles.profile-" + item;
 
 			RouteProfileConfiguration profile = new RouteProfileConfiguration();
-			profile.Name = item;
-			profile.Enabled = true;
-			profile.Profiles = RoutingServiceSettings.getParameter(profileRef + ".profiles");
+			profile.setName(item);
+			profile.setEnabled(true);
+			profile.setProfiles(RoutingServiceSettings.getParameter(profileRef + ".profiles"));
 
 			String graphPath = RoutingServiceSettings.getParameter(profileRef + ".graph_path", false);
-
 			if (!Helper.isEmpty(rootGraphsPath))
 			{
 				if (Helper.isEmpty(graphPath))
@@ -51,7 +50,7 @@ public class RoutingManagerConfiguration
 					graphPath = Paths.get(rootGraphsPath, graphPath).toString();
 			}
 
-			profile.GraphPath = graphPath;
+			profile.setGraphPath(graphPath);
 
 			Map<String, Object> profileParams = RoutingServiceSettings.getParametersMap(profileRef + ".parameters");
 
@@ -73,33 +72,33 @@ public class RoutingManagerConfiguration
 					switch(paramItem.getKey())
 					{
 					case "ch_weighting":
-						profile.CHWeighting = paramItem.getValue().toString();
+						profile.setCHWeighting(paramItem.getValue().toString());
 						break;
 					case "ch_threads":
-						profile.CHThreads = Integer.parseInt(paramItem.getValue().toString());
+						profile.setCHThreads(Integer.parseInt(paramItem.getValue().toString()));
 						break;
 					case "encoder_options":
-						profile.EncoderOptions = paramItem.getValue().toString();
+						profile.setEncoderOptions(paramItem.getValue().toString());
 						break;
 					case "encoder_flags_size":
-						profile.EncoderFlagsSize = Integer.parseInt(paramItem.getValue().toString());
+						profile.setEncoderFlagsSize(Integer.parseInt(paramItem.getValue().toString()));
 						break;
 					case "instructions":
-						profile.Instructions = Boolean.parseBoolean(paramItem.getValue().toString());
+						profile.setInstructions(Boolean.parseBoolean(paramItem.getValue().toString()));
 						break;
 					case "elevation":
 						if (Boolean.parseBoolean(paramItem.getValue().toString()))
 						{
-							profile.ElevationProvider = profileParams.get("elevation_provider").toString();
+							profile.setElevationProvider(profileParams.get("elevation_provider").toString());
 							if (profileParams.get("elevation_data_access") != null)
-								profile.ElevationDataAccess  = profileParams.get("elevation_data_access").toString();
-							profile.ElevationCachePath = profileParams.get("elevation_cache_path").toString();
+								profile.setElevationDataAccess(profileParams.get("elevation_data_access").toString());
+							profile.setElevationCachePath(profileParams.get("elevation_cache_path").toString());
 
 							if (profileParams.get("elevation_cache_clear") != null)
 							{
 								String clearCache = profileParams.get("elevation_cache_clear").toString();
 								if (!Helper.isEmpty(clearCache))
-									profile.ElevationCacheClear = Boolean.parseBoolean(clearCache);
+									profile.setElevationCacheClear(Boolean.parseBoolean(clearCache));
 							}
 						}
 						break;
@@ -121,17 +120,21 @@ public class RoutingManagerConfiguration
 								}
 							}
 
-							profile.ExtStorages.put(storageEntry.getKey(), storageParams);
+							profile.getExtStorages().put(storageEntry.getKey(), storageParams);
 						}
 						//
-						//paramItem.getValue();
-						//profile.ExtStorages = paramItem.getValue().toString();
 						break;
 					case "traffic":
-						profile.UseTrafficInformation = Boolean.parseBoolean(paramItem.getValue().toString());
+						profile.setUseTrafficInformation(Boolean.parseBoolean(paramItem.getValue().toString()));
 						break;
 					case "maximum_distance":
-						profile.MaximumDistance = Double.parseDouble(paramItem.getValue().toString());
+						profile.setMaximumDistance(Double.parseDouble(paramItem.getValue().toString()));
+						break;
+					case "maximum_segment_distance_with_dynamic_weights":
+						profile.setMaximumSegmentDistanceWithDynamicWeights(Double.parseDouble(paramItem.getValue().toString()));
+						break;
+					case "maximum_waypoints":
+						profile.setMaximumWayPoints(Integer.parseInt(paramItem.getValue().toString()));
 						break;
 					case "extent":
 						@SuppressWarnings("unchecked") 
@@ -139,7 +142,7 @@ public class RoutingManagerConfiguration
 
 						if (bbox.size() != 4)
 							throw new Exception("'extent' element must contain 4 elements.");
-						profile.BBox = new Envelope(bbox.get(0),bbox.get(1),bbox.get(2),bbox.get(3));
+						profile.setExtent(new Envelope(bbox.get(0),bbox.get(1),bbox.get(2),bbox.get(3)));
 					}
 				}
 			}

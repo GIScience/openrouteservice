@@ -18,7 +18,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.MissingParameterException;
-import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.localization.LocalizationManager;
@@ -29,7 +28,6 @@ import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.WeightingMethod;
 import heigit.ors.services.routing.RouteInstructionsFormat;
 import heigit.ors.services.routing.RoutingRequest;
-import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
 
@@ -71,9 +69,6 @@ public class JsonRoutingRequestParser
 
 			if (nCoords< 2)
 				throw new StatusCodeException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "coordinates parameter must contain at least two locations");
-
-			if (nCoords > RoutingServiceSettings.getMaximumWayPoints())
-				throw new ParameterOutOfRangeException("coordinates", Integer.toString(nCoords), Integer.toString(RoutingServiceSettings.getMaximumWayPoints()));
 
 			Coordinate[] coords = new Coordinate[nCoords];
 
