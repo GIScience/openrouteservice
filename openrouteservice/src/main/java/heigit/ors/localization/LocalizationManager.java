@@ -14,6 +14,7 @@ package heigit.ors.localization;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -155,6 +156,8 @@ public class LocalizationManager {
 			i++;
 		}
 
+		Arrays.sort(langs);
+		
 		return langs;
 	}
 }
