@@ -3,14 +3,14 @@
         "numerals": {
             "1": "1er",
             "2": "2ème",
-            "3": "3ème ",
-            "4": "4ème ",
-            "5": "5ème ",
-            "6": "6ème ",
-            "7": "7ème ",
-            "8": "8ème ",
-            "9": "9ème ",
-            "10": "10ème "
+            "3": "3ème",
+            "4": "4ème",
+            "5": "5ème",
+            "6": "6ème",
+            "7": "7ème",
+            "8": "8ème",
+            "9": "9ème",
+            "10": "10ème"
         },
         "directions": {
             "north": "le nord",
@@ -42,12 +42,12 @@
             "roundabout": {
                 "default": {
                     "exit": {
-                        "default": " Entrez le rond-point et prenez la  {exit_number} sortie",
-                        "name": " Entrez le rond-point et prenez la {exit_number} sortie sur {way_name}"
+                        "default": "Entrez le rond-point et prenez la {exit_number} sortie",
+                        "name": "Entrez le rond-point et prenez la {exit_number} sortie sur {way_name}"
                     },
                     "default": {
-                        "default": " Entrez le rond-point",
-                        "name": " Entrez le rond-point et sortie sur{way_name}"
+                        "default": "Entrez le rond-point",
+                        "name": "Entrez le rond-point et sortie sur{way_name}"
                     }
                 }
             },
@@ -63,8 +63,8 @@
                     "name": "Continuez {turn_maneuver} sur {way_name}"
                 },
                 "uturn": {
-                    "default": " Faites un demi-tour ",
-                    "name": " Faites un demi-tour {way_name}"
+                    "default": "Faites un demi-tour ",
+                    "name": "Faites un demi-tour {way_name}"
                 }
             }
         }
