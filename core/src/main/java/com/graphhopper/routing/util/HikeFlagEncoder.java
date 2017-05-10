@@ -117,7 +117,7 @@ public class HikeFlagEncoder extends FootFlagEncoder
     }
 
     @Override
-    void collect(OSMWay way, TreeMap<Double, Integer> weightToPrioMap )
+    protected void collect(OSMWay way, TreeMap<Double, Integer> weightToPrioMap )
     {
         String highway = way.getTag("highway");
         if (way.hasTag("foot", "designated"))
