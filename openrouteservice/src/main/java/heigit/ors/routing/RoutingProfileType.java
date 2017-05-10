@@ -58,6 +58,7 @@ public class RoutingProfileType {
 	public static boolean isWalking(int routePref) {
 	  return (routePref == FOOT_WALKING || routePref == FOOT_HIKING || routePref == FOOT_JOGGING);
 	}
+	
 	public static boolean isCycling(int routePref) {
 		if (routePref == CYCLING_REGULAR || routePref == CYCLING_MOUNTAIN
 				|| routePref == CYCLING_ROAD || routePref == CYCLING_TOUR || routePref == CYCLING_SAFE
@@ -204,7 +205,7 @@ public class RoutingProfileType {
 		else if ("HIKING".equalsIgnoreCase(encoder))
 			return RoutingProfileType.FOOT_HIKING;
 		else if ("RUNNING".equalsIgnoreCase(encoder))
-			return RoutingProfileType.FOOT_HIKING;
+			return RoutingProfileType.FOOT_JOGGING;
 		else if ("BIKE".equalsIgnoreCase(encoder))
 			return RoutingProfileType.CYCLING_REGULAR;
 		else if ("MTB".equalsIgnoreCase(encoder))
