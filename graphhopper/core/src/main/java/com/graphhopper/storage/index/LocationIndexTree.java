@@ -387,6 +387,8 @@ public class LocationIndexTree implements LocationIndex
             final EdgeIterator allIter = graph.getAllEdges();
             try
             {
+            	ArrayBuffer arrayBuffer = new ArrayBuffer();
+            	
                 while (allIter.next())
                 {
                     int nodeA = allIter.getBaseNode();
@@ -395,7 +397,7 @@ public class LocationIndexTree implements LocationIndex
                     double lon1 = nodeAccess.getLongitude(nodeA);
                     double lat2;
                     double lon2;
-                    PointList points = allIter.fetchWayGeometry(0);
+                    PointList points = allIter.fetchWayGeometry(0, arrayBuffer);
                     int len = points.getSize();
                     for (int i = 0; i < len; i++)
                     {
