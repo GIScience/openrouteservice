@@ -415,13 +415,26 @@ public class BikeCommonFlagEncoder extends AbstractFlagEncoder
 			{
 				speed = surfaceSpeed;
 				// Boost handling for good surfaces
-				if (highwaySpeed != null && surfaceSpeed > highwaySpeed)
+				if (highwaySpeed != null)
 				{
-					// Avoid boosting if pushing section
-					if (pushingSections.contains(highwayTag) && /* Runge */!highwayTag.equals("track"))
-						speed = highwaySpeed;
-					else
-						speed = surfaceSpeed;
+					if (surfaceSpeed > highwaySpeed)
+					{
+						// Avoid boosting if pushing section
+						if (pushingSections.contains(highwayTag) && /* Runge */!highwayTag.equals("track"))
+							speed = highwaySpeed;
+						else
+							speed = surfaceSpeed;
+					}
+					else  // runge
+					{
+						String cyclewayTag = way.getTag("cycleway");
+						if (cyclewayTag != null && "track".equals(cyclewayTag))
+						{
+							// http://www.openstreetmap.org/way/28310994#map=19/51.44178/7.01691&layers=D
+							// do not use speed taken according to surface type
+							speed =  highwaySpeeds.get("cycleway");
+						}
+					}
 				}
 			}
 		} else
