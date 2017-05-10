@@ -33,9 +33,10 @@ public class IsochroneMapBuilderFactory {
 		IsochroneMapBuilder isochroneBuilder = null;
 
 		String method = parameters.getCalcMethod();
+
 		if (Helper.isEmpty(method) || "Default".equalsIgnoreCase(method) || "ConcaveBalls".equalsIgnoreCase(method)) {
 			isochroneBuilder = new ConcaveBallsIsochroneMapBuilder();
-					} 
+		} 
         else if ("grid".equalsIgnoreCase(method))
         {
         	isochroneBuilder= new GridBasedIsochroneMapBuilder();

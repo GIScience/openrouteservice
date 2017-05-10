@@ -11,9 +11,9 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.isochrones.builders.concaveballs;
 
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 import com.graphhopper.storage.EdgeEntry;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -24,6 +24,7 @@ import com.graphhopper.util.DistancePlaneProjection;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.StopWatch;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -53,15 +54,14 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 {
 	private final Logger LOGGER = Logger.getLogger(ConcaveBallsIsochroneMapBuilder.class.getName());
 
-	private double CONCAVE_HULL_THRESHOLD = 0.012;
-
 	private double searchWidth = 0.0007; 
 	private double pointWidth = 0.0005;
 	private double visitorThreshold = 0.0013;
 	private Envelope searchEnv = new Envelope();
 	private GeometryFactory _geomFactory;
 	private PointItemVisitor visitor = null;
-	private List<Point2D> prevIsoPoints = null;
+	private List<Coordinate> prevIsoPoints = null;
+    private TreeSet<Coordinate>_treeSet;
 	private RouteSearchContext _searchContext;
 
 	private boolean BUFFERED_OUTPUT = true;
@@ -101,7 +101,9 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		if (edgeMap.isEmpty())
 			return isochroneMap;
 
-		List<Point2D> isoPoints = new ArrayList<Point2D>(edgeMap.getMap().size());
+		_treeSet = new TreeSet<Coordinate>();
+
+		List<Coordinate> isoPoints = new ArrayList<Coordinate>((int)(1.2*edgeMap.getMap().size()));
 
 		if (LOGGER.isDebugEnabled())
 		{
@@ -155,13 +157,29 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 		return isochroneMap;
 	}
+	
+	private double getConcaveHullTreshold(double isoValue)
+	{
+		//	private double CONCAVE_HULL_THRESHOLD = 0.012;
+
+		/*if (isoValue < 10000)
+			return 0.005;
+		else if (isoValue < 30000)
+			return 0.008;
+		else if (isoValue < 50000)
+			return 0.012;
+		else if (isoValue < 100000)
+			return 0.02;*/
+		
+		return 0.012;
+	}
 
 	private void addIsochrone(IsochroneMap isochroneMap, GeometryCollection points, double isoValue, double maxRadius)
 	{
 		if (points.isEmpty())
 			return;
 
-		ConcaveHull ch = new ConcaveHull(points, CONCAVE_HULL_THRESHOLD);
+		ConcaveHull ch = new ConcaveHull(points, getConcaveHullTreshold(isoValue), false);
 		Geometry geom = ch.getConcaveHull();
 
 		if (geom instanceof GeometryCollection)
@@ -205,29 +223,45 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		}
 	}
 
-	public void addPoint(List<Point2D> points, Quadtree tree, double lon, double lat, boolean checkNeighbours) {
+	public Boolean addPoint(List<Coordinate> points, Quadtree tree, double lon, double lat, boolean checkNeighbours) {
 		if (checkNeighbours)
 		{
 			visitor.setPoint(lon, lat);
 			searchEnv.init(lon - searchWidth, lon + searchWidth, lat - searchWidth, lat + searchWidth);
 			tree.query(searchEnv, visitor);
-			if (!visitor.isNeighbourFound()) {
-				Envelope env = new Envelope(lon - pointWidth, lon + pointWidth, lat - pointWidth, lat + pointWidth);
-				Point2D p = new Point2D.Double(lon, lat);
-				tree.insert(env, p);
-				points.add(p);
+			if (!visitor.isNeighbourFound()) 
+			{
+				Coordinate p = new Coordinate(lon, lat);
+
+				if (!_treeSet.contains(p))
+				{
+					Envelope env = new Envelope(lon - pointWidth, lon + pointWidth, lat - pointWidth, lat + pointWidth);
+					tree.insert(env, p);
+					points.add(p);
+					_treeSet.add(p);
+					
+					return true;
+				}
 			}
 		}
 		else
 		{
-			Envelope env = new Envelope(lon - pointWidth, lon + pointWidth, lat - pointWidth, lat + pointWidth);
-			Point2D p = new Point2D.Double(lon, lat);
-			tree.insert(env, p);
-			points.add(p);
+			Coordinate p = new Coordinate(lon, lat);
+			if (!_treeSet.contains(p))
+			{
+				Envelope env = new Envelope(lon - pointWidth, lon + pointWidth, lat - pointWidth, lat + pointWidth);
+				tree.insert(env, p);
+				points.add(p);
+				_treeSet.add(p);
+				
+				return true;
+			}
 		} 
+		
+		return false;
 	}
 
-	private void addBufferPoints(List<Point2D> points, Quadtree tree, double lon0, double lat0, double lon1,
+	private void addBufferPoints(List<Coordinate> points, Quadtree tree, double lon0, double lat0, double lon1,
 			double lat1, boolean addLast, boolean checkNeighbours, double bufferSize) {
 		double dx = (lon0 - lon1);
 		double dy = (lat0 - lat1);
@@ -239,25 +273,26 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 		addPoint(points, tree, lon0 + dx2, lat0 + dy2, checkNeighbours);
 		addPoint(points, tree, lon0 - dx2, lat0 - dy2, checkNeighbours);
-
+			
 		// add a middle point if two points are too far from each other
 		if (norm_length > 2*bufferSize)
 		{
-			addPoint(points, tree, (lon0 + lon1)/2 + dx2, (lat0 + lat1)/2 + dy2, checkNeighbours);	
-			addPoint(points, tree, (lon0 + lon1)/2 - dx2, (lat0 + lat1)/2 - dy2, checkNeighbours);
+			addPoint(points, tree, (lon0 + lon1)/2.0 + dx2, (lat0 + lat1)/2.0 + dy2, checkNeighbours);	
+			addPoint(points, tree, (lon0 + lon1)/2.0 - dx2, (lat0 + lat1)/2.0 - dy2, checkNeighbours);
 		}
-
+/*
 		if (addLast) {
-			addPoint(points, tree, lon1 + dx2, lat1 + dy2, checkNeighbours);
-			addPoint(points, tree, lon1 - dx2, lat1 - dy2, checkNeighbours);
-		}
+			added= addPoint(points, tree, lon1 + dx2, lat1 + dy2, checkNeighbours);
+			added= addPoint(points, tree, lon1 - dx2, lat1 - dy2, checkNeighbours);
+		}*/
 	}
 
-	private GeometryCollection buildIsochrone(AccessibilityMap edgeMap, List<Point2D> points, double lon, double lat,
+	private GeometryCollection buildIsochrone(AccessibilityMap edgeMap, List<Coordinate> points, double lon, double lat,
 			double isolineCost, double prevCost,  double maxSpeed, double detailedGeomFactor, ArrayBuffer arrayBuffer) {
 		TIntObjectMap<EdgeEntry> map = edgeMap.getMap();
 
 		points.clear();
+		_treeSet.clear();
 
 		if (prevIsoPoints != null)
 			points.addAll(prevIsoPoints);
@@ -274,19 +309,11 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		Quadtree qtree = new Quadtree();
 		visitor = new PointItemVisitor(lon, lat, visitorThreshold);
 		double detailedZone = isolineCost * detailedGeomFactor;
-		double isolineDist = isolineCost * maxSpeed*1000/3600;
-		double lonN, latN;
 
-		double defaultSearchWidth = 0.0005;
+		double defaultSearchWidth = 0.0008;
 		double defaultVisitorThreshold = 0.0045;
-		double defaulPointWidth =  0.0045;
-
-		if (isolineDist*0.5 < 20000)
-		{
-			defaultVisitorThreshold = 0.002;
-			defaulPointWidth = 0.002;
-		}
-
+		double defaulPointWidth =  0.006;
+ 
 		for (TIntObjectIterator<EdgeEntry> it = map.iterator(); it.hasNext();) {
 			it.advance();
 			int nodeId = it.key();
@@ -306,6 +333,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			float maxCost = (float) (goalEdge.weight);
 			float minCost = (float) (goalEdge.parent.weight);
 
+			// ignore all edges that have been considered in the previous step
 			if (maxCost < prevCost)
 				continue;
 
@@ -313,54 +341,19 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			visitorThreshold = defaultVisitorThreshold; 
 			pointWidth = defaulPointWidth;		
 
-			if (goalEdge.edge != -2)
-			{
-				if (maxCost > isolineCost*0.95)
-				{
-					searchWidth = 0.0004; 
-					visitorThreshold = 0.003; 
-					pointWidth = 0.003;
-				}
-				else if (maxCost < isolineCost*0.8)
-				{
-					lonN = nodeAccess.getLon(nodeId);
-					latN = nodeAccess.getLat(nodeId);
-					double distTo = dcFast.calcDist(lat, lon, latN, lonN);
-
-					if (distTo < isolineDist*0.3)
-					{
-						searchWidth = 0.001; 
-						visitorThreshold = 0.0015; 
-						pointWidth = 0.0015;
-					}
-					else if (distTo < isolineDist*0.6)
-					{
-						searchWidth = 0.0007; 
-						visitorThreshold = 0.007; 
-						pointWidth = 0.007; 
-					}
-					else if (distTo < isolineDist*0.7)
-					{
-						searchWidth = 0.0005; 
-						visitorThreshold = 0.005; 
-						pointWidth = 0.005; 
-					}  
-				}
-			}
-
 			visitor.setThreshold(visitorThreshold);
 
+			// edges that are fully inside of the isochrone
 			if (isolineCost >= maxCost) {
 
 				if (goalEdge.edge == -2)
 				{
-					addPoint(points, qtree, nodeAccess.getLon(nodeId), nodeAccess.getLat(nodeId), true);
+					//addPoint(points, qtree, nodeAccess.getLon(nodeId), nodeAccess.getLat(nodeId), true);
 				}
 				else
 				{
 					double edgeDist = iter.getDistance();
-
-					if (((maxCost >= detailedZone && maxCost <= isolineCost) || edgeDist > 300)) 
+					if (((maxCost >= detailedZone && maxCost <= isolineCost) || edgeDist > 300))
 					{
 						boolean detailedShape = (edgeDist > 300);
 						// always use mode=3, since other ones do not provide correct results
@@ -452,11 +445,13 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			}
 		}
 
+		
 		Geometry[] geometries = new Geometry[points.size()];
+
 		for (int i = 0;i < points.size();++i)
 		{
-			Point2D p = points.get(i);
-			geometries[i] = _geomFactory.createPoint(new Coordinate(p.getX(), p.getY()));
+			Coordinate c = points.get(i);
+			geometries[i] = _geomFactory.createPoint(c);
 		}
 
 		return new GeometryCollection(geometries, _geomFactory);
@@ -466,13 +461,13 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 	{
 		LineString ring = (LineString)poly.getExteriorRing();		
 		if (prevIsoPoints == null)
-			prevIsoPoints = new ArrayList<Point2D>(ring.getNumPoints());
+			prevIsoPoints = new ArrayList<Coordinate>(ring.getNumPoints());
 		else
 			prevIsoPoints.clear();
 		for (int i = 0; i< ring.getNumPoints(); ++i)
 		{
 			Point p = ring.getPointN(i);
-			prevIsoPoints.add(new Point2D.Double(p.getX(), p.getY()));
+			prevIsoPoints.add(new Coordinate(p.getX(), p.getY()));
 		}
 	}
 }

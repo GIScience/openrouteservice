@@ -1,24 +1,19 @@
 package heigit.ors.isochrones.builders.grid;
 
-import java.awt.geom.Point2D;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 
 import com.graphhopper.GraphHopper;
-import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.storage.index.QueryResult;
+import com.graphhopper.util.ArrayBuffer;
 import com.graphhopper.util.StopWatch;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
-import heigit.ors.isochrones.GraphEdgeMapFinder;
 import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
 import heigit.ors.routing.RouteSearchContext;
-import heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
 
 public class GridBasedIsochroneMapBuilder extends AbstractIsochroneMapBuilder 
 {
@@ -59,7 +54,9 @@ public class GridBasedIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 		Coordinate loc = parameters.getLocation();
 		GraphHopper gh = _searchContext.getGraphHopper();
+		//LocationIndexMatch index = new LocationIndexMatch(gh.getGraphHopperStorage(),(LocationIndexTree)gh.getLocationIndex()); 
 		LocationIndexTree index = (LocationIndexTree)gh.getLocationIndex();
+		//index.setGpxAccuracy(500);
      	//index.setMinResolutionInMeter(200);
 		
 		int gridSizeMeters = 400;
@@ -69,6 +66,7 @@ public class GridBasedIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		double gridSizeY = Math.toDegrees(gridSizeMeters / 6378100.0);
 		double gridSizeX = gridSizeY / Math.cos(Math.toRadians(cx));
 		double halfN = gridSizeMeters/2;
+		ArrayBuffer arrayBuffer = new ArrayBuffer(50);
 		
 		for (int xi = 0; xi < gridSizeMeters; xi++)
 		{
@@ -80,7 +78,7 @@ public class GridBasedIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 				
 				int p = xi + yi*gridSizeMeters;
 
-				QueryResult res = index.findClosest(cy + dy, cx + dx, _searchContext.getEdgeFilter());
+				QueryResult res = index.findClosest(cy + dy, cx + dx, _searchContext.getEdgeFilter(), arrayBuffer);
 				if (res.isValid())
 					gridValues[p] = res.getClosestNode();
 				else

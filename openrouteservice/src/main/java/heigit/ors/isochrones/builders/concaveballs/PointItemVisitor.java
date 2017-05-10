@@ -1,5 +1,6 @@
 package heigit.ors.isochrones.builders.concaveballs;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.index.ItemVisitor;
 
 import java.awt.geom.Point2D;
@@ -30,13 +31,13 @@ public class PointItemVisitor implements ItemVisitor
 
 	public void visitItem(Object item) {
 		if (bFound == false) {
-			Point2D p = (Point2D) item;
+			Coordinate p = (Coordinate) item;
 
-			double dx = p.getX() - lon;
+			double dx = p.x - lon;
 			if (dx > _threshold)
 				return;
 
-			double dy = p.getY()- lat;
+			double dy = p.y - lat;
 			if (Math.abs(dy) > _threshold )
 				return;
 

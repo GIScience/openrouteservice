@@ -100,8 +100,8 @@ public class ConcaveHull {
      * @param geometries
      * @param threshold
      */
-    public ConcaveHull(GeometryCollection geometries, double threshold) {
-        this.geometries = transformIntoPointGeometryCollection(geometries);
+    public ConcaveHull(GeometryCollection geometries, double threshold, boolean convertGeometryCollection) {
+        this.geometries = convertGeometryCollection ? transformIntoPointGeometryCollection(geometries): geometries; // runge
         this.threshold = threshold;
         this.geomFactory = geometries.getFactory();
     }
