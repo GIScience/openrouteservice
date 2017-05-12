@@ -306,13 +306,13 @@ public class RouteResultBuilder
 		if (name.length() > prevName.length())
 		{
 			int pos = name.indexOf(prevName);
-			if (pos >= 0)
+			if (pos >= 0 && !Helper.isEmpty(prevName))
 				return true;
 		}
 		else
 		{
 			int pos = prevName.indexOf(name);
-			if (pos >= 0)
+			if (pos >= 0 && !Helper.isEmpty(name))
 				return true;
 		}
 
