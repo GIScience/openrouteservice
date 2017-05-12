@@ -104,7 +104,7 @@
 
   
  <filter>
-    <filter-name>CompressionFilter</filter-name> <!-- mandatory -->
+    <filter-name>CompressionFilter</filter-name> 
     <filter-class>heigit.ors.servlet.filters.CompressionFilter</filter-class> 
 </filter>
     
