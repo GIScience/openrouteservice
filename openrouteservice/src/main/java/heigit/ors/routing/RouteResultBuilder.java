@@ -206,8 +206,11 @@ public class RouteResultBuilder
 							int[] wayPoints = prevStep.getWayPoints();
 							wayPoints[1] = wayPoints[1] + instr.getPoints().size();
 
-							prevStep.setDistance(prevStep.getDistance() +  stepDistance);
-							prevStep.setDuration(prevStep.getDuration() +  stepDuration);
+							
+							stepDuration = FormatUtility.roundToDecimals(instr.getTime()/1000.0, 1); 
+
+							prevStep.setDistance(FormatUtility.roundToDecimals(DistanceUnitUtil.convert(prevStep.getDistance() +  stepDistance, DistanceUnit.Meters, units), unitDecimals));
+							prevStep.setDuration(FormatUtility.roundToDecimals(prevStep.getDuration() +  stepDuration, 1));
 							prevStep.setInstruction(instrTranslator.getContinue(instrType, roadName));
 						}
 						else
