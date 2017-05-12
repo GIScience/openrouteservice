@@ -103,6 +103,17 @@
 </filter-mapping>
 
   
+ <filter>
+    <filter-name>CompressionFilter</filter-name> <!-- mandatory -->
+    <filter-class>heigit.ors.servlet.filters.CompressionFilter</filter-class> 
+</filter>
+    
+
+<filter-mapping>
+  <filter-name>CompressionFilter</filter-name>
+  <url-pattern>/*</url-pattern>
+</filter-mapping>
+  
   <listener>
       <listener-class>heigit.ors.servlet.listeners.LoggingStartupContextListener</listener-class>
   </listener>
