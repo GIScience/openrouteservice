@@ -181,24 +181,24 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 
         // autobahn
         defaultSpeedMap.put("motorway", 80);
-        defaultSpeedMap.put("motorway_link", 60);
+        defaultSpeedMap.put("motorway_link", 50);
         defaultSpeedMap.put("motorroad", 80);
         // bundesstraße
-        defaultSpeedMap.put("trunk", 60);
-        defaultSpeedMap.put("trunk_link", 55);
+        defaultSpeedMap.put("trunk", 80);
+        defaultSpeedMap.put("trunk_link", 50);
         // linking bigger town
-        defaultSpeedMap.put("primary", 50);
+        defaultSpeedMap.put("primary", 60);  
         defaultSpeedMap.put("primary_link", 50);
         // linking towns + villages
-        defaultSpeedMap.put("secondary", 50);
-        defaultSpeedMap.put("secondary_link", 45);
+        defaultSpeedMap.put("secondary", 60);
+        defaultSpeedMap.put("secondary_link", 50);
         // streets without middle line separation
-        defaultSpeedMap.put("tertiary", 50);
-        defaultSpeedMap.put("tertiary_link", 40);
-        defaultSpeedMap.put("unclassified", 30);
-        defaultSpeedMap.put("residential", 30);
+        defaultSpeedMap.put("tertiary", 60);
+        defaultSpeedMap.put("tertiary_link", 50);
+        defaultSpeedMap.put("unclassified", 60);
+        defaultSpeedMap.put("residential", 60);
         // spielstraße
-        defaultSpeedMap.put("living_street", 5);
+        defaultSpeedMap.put("living_street", 10);
         defaultSpeedMap.put("service", 20);
         // unknown road
         defaultSpeedMap.put("road", 20);
@@ -262,6 +262,37 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 		default:
 			return super.getDouble(flags, key);
 		}
+	}
+	
+	@Override
+	protected double getMaxSpeed( OSMWay way ) // runge
+	{
+		boolean bCheckMaxSpeed = false;
+		String maxspeedTag = way.getTag("maxspeed:hgv");
+		if (maxspeedTag == null)
+		{
+			maxspeedTag = way.getTag("maxspeed");
+			bCheckMaxSpeed = true;
+		}
+		
+		double maxSpeed = parseSpeed(maxspeedTag);
+
+		double fwdSpeed = parseSpeed(way.getTag("maxspeed:forward"));
+		if (fwdSpeed >= 0 && (maxSpeed < 0 || fwdSpeed < maxSpeed))
+			maxSpeed = fwdSpeed;
+
+		double backSpeed = parseSpeed(way.getTag("maxspeed:backward"));
+		if (backSpeed >= 0 && (maxSpeed < 0 || backSpeed < maxSpeed))
+			maxSpeed = backSpeed;
+
+		if (bCheckMaxSpeed)
+		{
+			double defaultSpeed = defaultSpeedMap.get(way.getTag("highway"));
+			if (defaultSpeed < maxSpeed)
+				maxSpeed = defaultSpeed;
+		}
+
+		return maxSpeed;
 	}
 	
     protected double getSpeed(OSMWay way )
@@ -410,7 +441,14 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
         	
             // get assumed speed from highway type
             double speed = getSpeed(way);
-            speed = applyMaxSpeed(way, speed, true);
+            
+            // runge
+            // every road type except motorways and trunks might have traffic lights, so we make an actual speed a bit lower 
+            String highway = way.getTag("highway");
+            if ("motorway".equals(highway) || "motorway_link".equals(highway) || "trunk".equals(highway) || "trunk_link".equals(highway))
+				speed = applyMaxSpeed(way, speed, false);
+            else
+            	speed = applyMaxSpeed(way, speed, true);
 
             // limit speed to max 30 km/h if bad surface
             if (speed > 30 && way.hasTag("surface", badSurfaceSpeedMap))
@@ -456,7 +494,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 				if ("motorway".equals(highway) || "motorway_link".equals(highway) || "trunk".equals(highway) || "trunk_link".equals(highway))
 					weightToPrioMap.put(100d,  PriorityCode.BEST.getValue());
 				else if ("primary".equals(highway) || "primary_link".equals(highway))
-					weightToPrioMap.put(100d,  PriorityCode.VERY_NICE.getValue());
+					weightToPrioMap.put(100d,  PriorityCode.PREFER.getValue());
 				else if ("secondary".equals(highway) || "secondary_link".equals(highway))
 					weightToPrioMap.put(100d,  PriorityCode.PREFER.getValue());
 				else if ("tertiary".equals(highway) || "tertiary_link".equals(highway))
@@ -483,7 +521,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 				// We assume that the given road segment goes through a settlement.
 				if (maxSpeed <= 40)
 					weightToPrioMap.put(110d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
-				else if (maxSpeed < 80)
+				else if (maxSpeed <= 50)
 					weightToPrioMap.put(110d, PriorityCode.UNCHANGED.getValue());
 			}
 		}
