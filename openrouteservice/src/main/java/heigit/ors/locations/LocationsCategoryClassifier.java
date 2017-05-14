@@ -27,7 +27,6 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import heigit.ors.exceptions.MissingParameterException;
-import heigit.ors.util.OrderedJSONObjectFactory;
 
 public class LocationsCategoryClassifier 
 {

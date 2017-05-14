@@ -14,8 +14,6 @@ package heigit.ors.servlet.http;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-import heigit.ors.services.ORSServicesUtils;
-
 public class ServerStatusServlet extends BaseHttpServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -34,7 +32,7 @@ public class ServerStatusServlet extends BaseHttpServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		try
 		{
-			ORSServicesUtils.writeStatusInfo(request, response);
+			//ORSServicesUtils.writeStatusInfo(request, response);
 		}
 		catch (Exception ex) {
 			writeError(response, ex);

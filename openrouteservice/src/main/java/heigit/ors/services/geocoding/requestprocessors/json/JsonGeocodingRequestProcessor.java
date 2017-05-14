@@ -38,7 +38,6 @@ import heigit.ors.services.geocoding.requestprocessors.GeocodingRequest;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
 import heigit.ors.util.FormatUtility;
-import heigit.ors.util.OrderedJSONObjectFactory;
 import heigit.ors.util.AppInfo;
 
 public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor {
