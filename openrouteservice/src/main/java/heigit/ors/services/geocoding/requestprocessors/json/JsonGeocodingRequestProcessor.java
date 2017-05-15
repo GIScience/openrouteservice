@@ -94,9 +94,9 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 				req.setLanguage(null);
 				req.setLimit(1);
 			}
-			else
+			else if (Helper.isEmpty(req.getQuery()))
 			{
-				throw new MissingParameterException(GeocodingErrorCodes.MISSING_PARAMETER, "location");
+				throw new MissingParameterException(GeocodingErrorCodes.MISSING_PARAMETER, "query/location");
 			}
 
 			value = _request.getParameter("limit");
