@@ -12,6 +12,8 @@
 package heigit.ors.servlet.http;
 
 
+import java.io.OutputStream;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
 
@@ -75,14 +77,20 @@ public class BaseHttpServlet extends HttpServlet
 		}
     }
     
-	protected void writeError(HttpServletResponse res, int httpStatusCode, JSONObject json ) 
+	protected void writeError(HttpServletResponse resp, int httpStatusCode, JSONObject json ) 
 	{
 		try
 		{
-			res.setContentType("application/json");
-			res.setCharacterEncoding("UTF-8");
-			res.setStatus(httpStatusCode);
-			res.getWriter().append(json.toString(2));
+			byte[] bytes = json.toString().getBytes("UTF-8");
+
+			resp.setContentType("application/json");
+			resp.setCharacterEncoding("UTF-8");
+			resp.setStatus(httpStatusCode);
+		
+			OutputStream outStream = resp.getOutputStream();
+			resp.setContentLength(bytes.length);
+			outStream.write(bytes);
+			outStream.close();
 		} catch (Exception ex)
 		{
 			LOGGER.error(ex);
