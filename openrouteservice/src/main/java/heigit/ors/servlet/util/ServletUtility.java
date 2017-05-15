@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
+import heigit.ors.common.StatusCode;
 import heigit.ors.util.StreamUtility;
 import heigit.ors.util.StringUtility;
  
@@ -42,7 +43,13 @@ public class ServletUtility
 	public static void write(HttpServletResponse response, JSONObject json, String encoding) throws IOException
 	{
 		byte[] bytes = json.toString().getBytes(encoding);
-		write(response, bytes, "text/json", encoding);
+		write(response, bytes, "application/json", encoding);
+	}
+	
+	public static void write(HttpServletResponse response, JSONObject json, String encoding, int statusCode) throws IOException
+	{
+		byte[] bytes = json.toString().getBytes(encoding);
+		write(response, bytes, "application/json", encoding, statusCode);
 	}
 	
 	public static void write(HttpServletResponse response, byte[] bytes, String contentType) throws IOException
@@ -52,11 +59,18 @@ public class ServletUtility
 	
 	public static void write(HttpServletResponse response, byte[] bytes, String contentType, String encoding) throws IOException
 	{
+		write (response, bytes, contentType, encoding, StatusCode.SC_OK);
+	}
+	
+	public static void write(HttpServletResponse response, byte[] bytes, String contentType, String encoding, int statusCode) throws IOException
+	{
 		OutputStream outStream = response.getOutputStream();
 		response.setHeader("Content-Type", contentType);
 		response.setContentLength(bytes.length);
 		response.setCharacterEncoding(encoding);
 		response.setContentType(contentType);
+		if (statusCode != StatusCode.SC_OK)
+			response.setStatus(statusCode);
 		outStream.write(bytes);
 		outStream.close();
 	}

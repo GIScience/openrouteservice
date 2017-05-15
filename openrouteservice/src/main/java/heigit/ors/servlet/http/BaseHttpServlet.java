@@ -79,9 +79,7 @@ public class BaseHttpServlet extends HttpServlet
 	{
 		try
 		{
-			ServletUtility.write(resp, json, "UTF-8");
-			resp.setContentType("application/json");
-			resp.setStatus(httpStatusCode);
+			ServletUtility.write(resp, json, "UTF-8", httpStatusCode);
 		} catch (Exception ex)
 		{
 			LOGGER.error(ex);
