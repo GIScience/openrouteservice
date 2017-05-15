@@ -43,21 +43,6 @@ public class ServletUtility
 	{
 		byte[] bytes = json.toString().getBytes(encoding);
 		write(response, bytes, "text/json", encoding);
-
-		/*
-		ByteArrayOutputStream byteStream = new ByteArrayOutputStream(1024);
-		Writer writer = new OutputStreamWriter(byteStream, "UTF-8");
-		json.write(writer);
-		writer.flush();
-
-		response.setHeader("Content-Type", "text/json");
-		response.setContentLength(byteStream.size());
-		response.setCharacterEncoding(encoding);
-		response.setContentType("text/json");
-		
-		OutputStream outStream = response.getOutputStream();
-		byteStream.writeTo(outStream);
-		outStream.close();*/
 	}
 	
 	public static void write(HttpServletResponse response, byte[] bytes, String contentType) throws IOException
