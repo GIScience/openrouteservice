@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponseWrapper;
 
 class GZIPResponseWrapper extends HttpServletResponseWrapper {
 	protected HttpServletResponse _origResponse = null;
-	protected ServletOutputStream _stream = null;
+	protected GZIPResponseStream _stream = null;
 	protected PrintWriter _writer = null;
 
 	public GZIPResponseWrapper(HttpServletResponse response) {
@@ -18,44 +18,45 @@ class GZIPResponseWrapper extends HttpServletResponseWrapper {
 		_origResponse = response;
 	}
 
-	public ServletOutputStream createOutputStream() throws IOException {
-		return (new GZIPResponseStream(_origResponse));
+	public GZIPResponseStream createOutputStream() throws IOException {
+		return new GZIPResponseStream(_origResponse);
 	}
 
 	public void finishResponse() {
 		try {
-			if (_writer != null) {
+			if (_writer != null) 
 				_writer.close();
-			} else {
-				if (_stream != null) {
+			else {
+				if (_stream != null && !_stream.isClosed()) 
 					_stream.close();
-				}
 			}
-		} catch (IOException e) {}
+		} catch (IOException e) 
+		{
+
+		}
 	}
 
 	public void flushBuffer() throws IOException {
-		_stream.flush();
+		if (!_stream.isClosed())
+			_stream.flush();
 	}
 
 	public ServletOutputStream getOutputStream() throws IOException {
-		if (_writer != null) {
+		if (_writer != null) 
 			throw new IllegalStateException("getWriter() has already been called!");
-		}
 
 		if (_stream == null)
 			_stream = createOutputStream();
+
 		return (_stream);
 	}
 
 	public PrintWriter getWriter() throws IOException {
-		if (_writer != null) {
+		if (_writer != null) 
 			return (_writer);
-		}
 
-		if (_stream != null) {
+		if (_stream != null) 
 			throw new IllegalStateException("getOutputStream() has already been called!");
-		}
 
 		_stream = createOutputStream();
 		_writer = new PrintWriter(new OutputStreamWriter(_stream, "UTF-8"));

@@ -15,15 +15,11 @@ import heigit.ors.servlet.requests.StatusCodeCaptureWrapper;
 
 public class StatusCodeHandlerFilter implements Filter {
 
-	public StatusCodeHandlerFilter()
-	{
-
+	public StatusCodeHandlerFilter() {
 	}
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -40,13 +36,12 @@ public class StatusCodeHandlerFilter implements Filter {
 			exception = e;
 		}
 
-		// flush to prevent servlet container to add anymore  headers or content
+		// 	flush to prevent servlet container to add anymore  headers or content
 		response.flushBuffer();
 	}
 
 	@Override
 	public void destroy() {
 		// TODO Auto-generated method stub
-
 	}
 }

@@ -41,6 +41,10 @@ class GZIPResponseStream extends ServletOutputStream {
         _outputStream.close();
 		_closed = true;
 	}
+	
+	public boolean isClosed() {
+		return _closed;
+	}
 
 	public void flush() throws IOException {
 		if (_closed) 
@@ -65,10 +69,6 @@ class GZIPResponseStream extends ServletOutputStream {
 			throw new IOException("Cannot write to a closed output stream");
 		
 		_gzipstream.write(b, off, len);
-	}
-
-	public boolean closed() {
-		return (this._closed);
 	}
 
 	public void reset() {
