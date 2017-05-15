@@ -94,6 +94,10 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 				req.setLanguage(null);
 				req.setLimit(1);
 			}
+			else
+			{
+				throw new MissingParameterException(GeocodingErrorCodes.MISSING_PARAMETER, "location");
+			}
 
 			value = _request.getParameter("limit");
 			if (!Helper.isEmpty(value))
@@ -133,12 +137,10 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 		case "POST":
 			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, "POST request is not supported.");  
 		default:
-			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, "POST request is not supported.");
+			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, "Unknown request type.");
 		}
 
-		if (req == null)
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, "GeocodingRequest object is null.");
-		else if (!req.isValid())
+        if (!req.isValid())
 			throw new StatusCodeException(StatusCode.BAD_REQUEST, "Geocoding request parameters are missing or invalid.");
 
 		try
