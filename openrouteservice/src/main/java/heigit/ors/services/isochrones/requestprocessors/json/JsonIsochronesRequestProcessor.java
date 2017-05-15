@@ -11,7 +11,6 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.services.isochrones.requestprocessors.json;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -55,6 +54,7 @@ import heigit.ors.util.StringUtility;
 
 public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor 
 {
+
 	public JsonIsochronesRequestProcessor(HttpServletRequest request) throws Exception
 	{
 		super(request);
