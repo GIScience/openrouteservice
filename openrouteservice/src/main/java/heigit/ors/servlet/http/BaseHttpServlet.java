@@ -11,9 +11,6 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.servlet.http;
 
-
-import java.io.OutputStream;
-
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
 
@@ -24,6 +21,7 @@ import org.json.JSONObject;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.StatusCodeException;
+import heigit.ors.servlet.util.ServletUtility;
 import heigit.ors.util.AppInfo;
 
 public class BaseHttpServlet extends HttpServlet 
@@ -81,16 +79,9 @@ public class BaseHttpServlet extends HttpServlet
 	{
 		try
 		{
-			byte[] bytes = json.toString().getBytes("UTF-8");
-
+			ServletUtility.write(resp, json, "UTF-8");
 			resp.setContentType("application/json");
-			resp.setCharacterEncoding("UTF-8");
 			resp.setStatus(httpStatusCode);
-		
-			OutputStream outStream = resp.getOutputStream();
-			resp.setContentLength(bytes.length);
-			outStream.write(bytes);
-			outStream.close();
 		} catch (Exception ex)
 		{
 			LOGGER.error(ex);
