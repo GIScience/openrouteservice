@@ -10,7 +10,6 @@
  *|								
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.locations;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,13 +21,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
-
 import heigit.ors.exceptions.MissingParameterException;
-import heigit.ors.util.OrderedJSONObjectFactory;
-
 public class LocationsCategoryClassifier 
 {
 	private static int[] _categoryIdToGroupIndex;
@@ -45,14 +40,11 @@ public class LocationsCategoryClassifier
 			String classPath = classFile.getAbsolutePath();
 			String classesPath = classPath.substring(0, classPath.indexOf("classes") + "classes".length());
 			Path categoriesPath = Paths.get(classesPath, "resources", "services", "locations", "categories.txt");
-
 			File categoriesFile = categoriesPath.toFile();
 			if (!categoriesFile.exists())
 				throw new MissingParameterException("File 'categories.txt' is missing.");
-
 			FileInputStream fstream = new FileInputStream(categoriesFile);
 			BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
-
 			List<LocationsCategoryGroup> groups = new ArrayList<LocationsCategoryGroup>();
 			
 			int groupId = -1;
@@ -61,12 +53,10 @@ public class LocationsCategoryClassifier
 			int maxId = Integer.MIN_VALUE;
 			int totalMaxId = Integer.MIN_VALUE;
 			Map<String, Integer> groupCategories = null;
-
 			String strLine;
 			while ((strLine = br.readLine()) != null)   {
 				if (strLine == null || strLine == "")
 					continue;
-
 				if (strLine.startsWith("#"))
 				{
 					if (groupName != null)
@@ -87,7 +77,6 @@ public class LocationsCategoryClassifier
 				else
 				{
 					String[] values = strLine.split("\t");
-
 					if (values.length == 3)
 					{
 						// shop supermarket 102
@@ -107,7 +96,6 @@ public class LocationsCategoryClassifier
 					}
 				}
 			}
-
 			br.close();
 			
 			if (groupName != null)
@@ -115,13 +103,11 @@ public class LocationsCategoryClassifier
 				LocationsCategoryGroup group = new LocationsCategoryGroup(groupId, groupName, minId, maxId, groupCategories);
 				groups.add(group);		
 			}
-
 			_groupsMap = new HashMap<Integer, LocationsCategoryGroup>();
 			_categoryGroups  = groups.toArray(new LocationsCategoryGroup[groups.size()]);
 			_categoryIdToGroupIndex = new int[totalMaxId + 1];
 			
 			JSONObject jCategories = new JSONObject(true);
-
 			int j = 0;
 			for(LocationsCategoryGroup group : _categoryGroups)
 			{
@@ -144,7 +130,6 @@ public class LocationsCategoryClassifier
 				
 				j++;
 			}
-
 			_categoriesJSON = jCategories;
 		}
 		catch(Exception ex)
@@ -153,17 +138,14 @@ public class LocationsCategoryClassifier
 			logger.error(ex);
 		}
 	}
-
 	public static int getGroupsCount()
 	{
 		return _categoryGroups.length;
 	}
-
 	public static int getGroupIndex(int categoryId)
 	{
 		return _categoryIdToGroupIndex[categoryId];
 	}
-
 	public static String getGroupName(int groupIndex)
 	{
 		if (_categoryGroups != null && groupIndex >=0 && groupIndex < _categoryGroups.length)
@@ -171,7 +153,6 @@ public class LocationsCategoryClassifier
 		else
 			return null;
 	}
-
 	public static int getGroupId(int groupIndex)
 	{
 		if (_categoryGroups != null && groupIndex >=0 && groupIndex < _categoryGroups.length)
