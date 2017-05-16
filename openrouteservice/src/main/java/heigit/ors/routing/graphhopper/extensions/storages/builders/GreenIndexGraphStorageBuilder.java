@@ -115,18 +115,18 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
     }
 
     private byte calcGreenIndex(long id) {
-        Double gi = _greenIndices.get(id);
-        for (Map.Entry<Byte, SlotRange> s : _slots.entrySet()) {
-            if (gi != null) {
-                if (s.getValue().within(_greenIndices.get(id)))
-                    return s.getKey();
-            } else {
-                // No such @id key in the _greenIndices, or the value of it is null
-                // We set its green level to TOTAL_LEVEL/2 indicating the middle value for such cases
-                return (byte) (TOTAL_LEVEL / 2);
-            }
-        }
-        return (byte) (TOTAL_LEVEL - 1);
+    	Double gi = _greenIndices.get(id);
+
+    	// No such @id key in the _greenIndices, or the value of it is null
+    	// We set its green level to TOTAL_LEVEL/2 indicating the middle value for such cases
+    	if (gi == null)
+    		return (byte) (TOTAL_LEVEL / 2);
+
+    	for (Map.Entry<Byte, SlotRange> s : _slots.entrySet()) {
+    		if (s.getValue().within(gi))
+    			return s.getKey();
+    	}
+    	return (byte) (TOTAL_LEVEL - 1);
     }
 
     @Override
