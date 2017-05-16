@@ -18,6 +18,7 @@ import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.routing.RoutingErrorCodes;
+import heigit.ors.routing.RoutingProfileManagerStatus;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.services.routing.requestprocessors.TmcInformationRequestProcessor;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
@@ -31,6 +32,9 @@ public class RoutingServiceRequestProcessorFactory {
 		if (!RoutingServiceSettings.getEnabled())
 			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, "Routing service is not enabled.");
 
+		if (!RoutingProfileManagerStatus.isReady())
+			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, "Routing service is not ready yet.");
+		
 		String requestParam = request.getParameter("request");
 
 		if (Helper.isEmpty(requestParam))

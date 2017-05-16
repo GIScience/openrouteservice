@@ -11,8 +11,6 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.servlet.listeners;
 
-import java.io.IOException;
-
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -21,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import heigit.ors.routing.RoutingProfileManager;
+import heigit.ors.routing.RoutingProfileManagerStatus;
 import heigit.ors.locations.providers.LocationsDataProviderFactory;
 
 public class ORSInitContextListener implements ServletContextListener
@@ -29,19 +28,27 @@ public class ORSInitContextListener implements ServletContextListener
 
 	public void contextInitialized(ServletContextEvent contextEvent) 
 	{
-		try {
-			RoutingProfileManager.getInstance().toString();
-		} catch (IOException e) {
-			LOGGER.warn("Unable to initialize ORS.");
-			e.printStackTrace();
-		}
+		Runnable runnable = () -> {
+		    try {
+		    	RoutingProfileManager.getInstance().toString();
+		    }
+		    catch (Exception e) {
+		    	LOGGER.warn("Unable to initialize ORS.");
+				e.printStackTrace();
+		    } 
+		};
+
+		Thread thread = new Thread(runnable);
+		thread.setName("ORS-Init");
+		thread.start();
 	}
 
 	public void contextDestroyed(ServletContextEvent contextEvent) {
 		try {
 			LOGGER.info("Start shutting down ORS and releasing resources.");
 
-			RoutingProfileManager.getInstance().destroy();
+			if (RoutingProfileManagerStatus.isReady())
+				RoutingProfileManager.getInstance().destroy();
 
 			LocationsDataProviderFactory.releaseProviders();
 			

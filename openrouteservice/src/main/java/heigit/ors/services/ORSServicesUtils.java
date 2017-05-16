@@ -26,6 +26,7 @@ import org.json.JSONObject;
 import heigit.ors.localization.LocalizationManager;
 import heigit.ors.routing.RoutingProfile;
 import heigit.ors.routing.RoutingProfileManager;
+import heigit.ors.routing.RoutingProfileManagerStatus;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
 //import heigit.ors.services.accessibility.AccessibilityServiceSettings;
@@ -42,7 +43,6 @@ import static javax.servlet.http.HttpServletResponse.*;
 public class ORSServicesUtils {
 
 	public static void writeStatusInfo(HttpServletRequest req, HttpServletResponse res) throws Exception {
-		RoutingProfileManager profileManager = RoutingProfileManager.getInstance();
 
 		JSONObject jInfo = new JSONObject(true);
 
@@ -51,69 +51,78 @@ public class ORSServicesUtils {
 		appInfo.put("build_date", AppInfo.BUILD_DATE);
 		jInfo.put("app_info", appInfo);
 
-		if (profileManager.getProfiles().getUniqueProfiles().size() > 0) {
-			
-			List<String> list = new ArrayList<String>(4);
-			if (RoutingServiceSettings.getEnabled())
-				list.add("routing");
-			if (GeocodingServiceSettings.getEnabled())
-				list.add("geocoding");
-			if (IsochronesServiceSettings.getEnabled())
-				list.add("isochrones");
-			//if (AccessibilityServiceSettings.getEnabled())
-			//	list.add("accessibility");
-			if (LocationsServiceSettings.getEnabled())
-				list.add("locations");
-			jInfo.put("services", list);
-			jInfo.put("languages", LocalizationManager.getInstance().getLanguages());
-
-			if (profileManager.updateEnabled()) {
-				jInfo.put("next_update", formatDateTime(profileManager.getNextUpdateTime()));
-				String status = profileManager.getUpdatedStatus();
-				if (status != null)
-					jInfo.put("update_status", status);
-			}
-
-			JSONObject jProfiles = new JSONObject(true);
-			int i = 1;
-
-			for (RoutingProfile rp : profileManager.getProfiles().getUniqueProfiles()) {
-				RouteProfileConfiguration rpc = rp.getConfiguration();
-				JSONObject jProfileProps = new JSONObject(true);
-
-				jProfileProps.put("profiles", rpc.getProfiles());
-				StorableProperties storageProps = rp.getGraphProperties();
-				jProfileProps.put("creation_date", storageProps.get("osmreader.import.date"));
-
-				if (rpc.getExtStorages() != null && rpc.getExtStorages().size() > 0) 
-					jProfileProps.put("storages", rpc.getExtStorages());
-
-				JSONObject jProfileLimits = new JSONObject(true);
-				if (rpc.getMaximumDistance() > 0) 
-					jProfileLimits.put("maximum_distance", rpc.getMaximumDistance());
-				
-				if (rpc.getMaximumSegmentDistanceWithDynamicWeights() > 0) 
-					jProfileLimits.put("maximum_segment_distance_with_dynamic_weights", rpc.getMaximumSegmentDistanceWithDynamicWeights());
-				
-				if (rpc.getMaximumWayPoints() > 0) 
-					jProfileLimits.put("maximum_waypoints", rpc.getMaximumWayPoints());
-				
-				if (jProfileLimits.length() > 0)
-					jProfileProps.put("limits", jProfileLimits);
-				
-				jProfiles.put("profile " + Integer.toString(i), jProfileProps);
-			
-				i++;
-			}
-
-			jInfo.put("profiles", jProfiles);
-		}
-		
-		if (RealTrafficDataProvider.getInstance().isInitialized())
+		if (RoutingProfileManagerStatus.isReady())
 		{
-			JSONObject jTrafficInfo = new JSONObject(true);
-			jTrafficInfo.put("update_date", RealTrafficDataProvider.getInstance().getTimeStamp());
-			jInfo.put("tmc", jTrafficInfo);
+			RoutingProfileManager profileManager = RoutingProfileManager.getInstance();
+
+			if (profileManager.getProfiles().getUniqueProfiles().size() > 0) {
+
+				List<String> list = new ArrayList<String>(4);
+				if (RoutingServiceSettings.getEnabled())
+					list.add("routing");
+				if (GeocodingServiceSettings.getEnabled())
+					list.add("geocoding");
+				if (IsochronesServiceSettings.getEnabled())
+					list.add("isochrones");
+				//if (AccessibilityServiceSettings.getEnabled())
+				//	list.add("accessibility");
+				if (LocationsServiceSettings.getEnabled())
+					list.add("locations");
+				jInfo.put("services", list);
+				jInfo.put("languages", LocalizationManager.getInstance().getLanguages());
+
+				if (profileManager.updateEnabled()) {
+					jInfo.put("next_update", formatDateTime(profileManager.getNextUpdateTime()));
+					String status = profileManager.getUpdatedStatus();
+					if (status != null)
+						jInfo.put("update_status", status);
+				}
+
+				JSONObject jProfiles = new JSONObject(true);
+				int i = 1;
+
+				for (RoutingProfile rp : profileManager.getProfiles().getUniqueProfiles()) {
+					RouteProfileConfiguration rpc = rp.getConfiguration();
+					JSONObject jProfileProps = new JSONObject(true);
+
+					jProfileProps.put("profiles", rpc.getProfiles());
+					StorableProperties storageProps = rp.getGraphProperties();
+					jProfileProps.put("creation_date", storageProps.get("osmreader.import.date"));
+
+					if (rpc.getExtStorages() != null && rpc.getExtStorages().size() > 0) 
+						jProfileProps.put("storages", rpc.getExtStorages());
+
+					JSONObject jProfileLimits = new JSONObject(true);
+					if (rpc.getMaximumDistance() > 0) 
+						jProfileLimits.put("maximum_distance", rpc.getMaximumDistance());
+
+					if (rpc.getMaximumSegmentDistanceWithDynamicWeights() > 0) 
+						jProfileLimits.put("maximum_segment_distance_with_dynamic_weights", rpc.getMaximumSegmentDistanceWithDynamicWeights());
+
+					if (rpc.getMaximumWayPoints() > 0) 
+						jProfileLimits.put("maximum_waypoints", rpc.getMaximumWayPoints());
+
+					if (jProfileLimits.length() > 0)
+						jProfileProps.put("limits", jProfileLimits);
+
+					jProfiles.put("profile " + Integer.toString(i), jProfileProps);
+
+					i++;
+				}
+
+				jInfo.put("profiles", jProfiles);
+			}
+
+			if (RealTrafficDataProvider.getInstance().isInitialized())
+			{
+				JSONObject jTrafficInfo = new JSONObject(true);
+				jTrafficInfo.put("update_date", RealTrafficDataProvider.getInstance().getTimeStamp());
+				jInfo.put("tmc", jTrafficInfo);
+			}
+		}
+		else
+		{
+			// TODO
 		}
 
 		writeJson(req, res, jInfo);
@@ -147,11 +156,11 @@ public class ORSServicesUtils {
 			}
 		}
 	}
-	
-    private static String formatDateTime(Date date )
-    {
-        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(date);
-    }
+
+	private static String formatDateTime(Date date )
+	{
+		return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(date);
+	}
 
 	protected static boolean getBooleanParam(HttpServletRequest req, String string, boolean _default) {
 		try {

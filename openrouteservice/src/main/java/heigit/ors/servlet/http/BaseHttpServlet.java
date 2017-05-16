@@ -32,6 +32,11 @@ public class BaseHttpServlet extends HttpServlet
 
     protected void writeError(HttpServletResponse res, Exception ex)
     {
+      writeError(res, ex, StatusCode.BAD_REQUEST);
+    }
+    
+    protected void writeError(HttpServletResponse res, Exception ex, int statusCode)
+    {
     	try
 		{
 			JSONObject json = new JSONObject();
@@ -45,7 +50,6 @@ public class BaseHttpServlet extends HttpServlet
 			jInfo.put("timestamp", System.currentTimeMillis());
 			json.put("info", jInfo);
 
-			int statusCode = StatusCode.BAD_REQUEST;
 			int errorCode = -1;
 			
 			if (ex instanceof InternalServerException)

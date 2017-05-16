@@ -5,7 +5,7 @@ public class StatusCode
     /**
      * Status code (200) indicating the request succeeded normally.
      */
-    public static final int SC_OK = javax.servlet.http.HttpServletResponse.SC_OK;
+    public static final int OK = javax.servlet.http.HttpServletResponse.SC_OK;
 	 /**
      * Status code (400) indicating the request sent by the client was
      * syntactically incorrect.

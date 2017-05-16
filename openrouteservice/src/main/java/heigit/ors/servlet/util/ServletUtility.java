@@ -46,6 +46,11 @@ public class ServletUtility
 		write(response, bytes, "application/json", encoding);
 	}
 	
+	public static void write(HttpServletResponse response, JSONObject json, int statusCode) throws IOException
+	{
+	  write(response, json, "UTF-8", statusCode);
+	}
+	
 	public static void write(HttpServletResponse response, JSONObject json, String encoding, int statusCode) throws IOException
 	{
 		byte[] bytes = json.toString().getBytes(encoding);
@@ -59,7 +64,7 @@ public class ServletUtility
 	
 	public static void write(HttpServletResponse response, byte[] bytes, String contentType, String encoding) throws IOException
 	{
-		write (response, bytes, contentType, encoding, StatusCode.SC_OK);
+		write (response, bytes, contentType, encoding, StatusCode.OK);
 	}
 	
 	public static void write(HttpServletResponse response, byte[] bytes, String contentType, String encoding, int statusCode) throws IOException
@@ -69,7 +74,7 @@ public class ServletUtility
 		response.setContentLength(bytes.length);
 		response.setCharacterEncoding(encoding);
 		response.setContentType(contentType);
-		if (statusCode != StatusCode.SC_OK)
+		if (statusCode != StatusCode.OK)
 			response.setStatus(statusCode);
 		outStream.write(bytes);
 		outStream.close();
