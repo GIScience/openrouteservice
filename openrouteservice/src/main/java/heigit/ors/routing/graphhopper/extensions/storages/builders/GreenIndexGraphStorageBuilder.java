@@ -1,18 +1,30 @@
+/*|----------------------------------------------------------------------------------------------
+ *|														Heidelberg University
+ *|	  _____ _____  _____      _                     	Department of Geography		
+ *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014
+ *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
+ *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
+ *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
+ *|	        	                                       	http://www.giscience.uni-hd.de
+ *|								
+ *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.OSMWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
-import heigit.ors.routing.graphhopper.extensions.storages.GreenIndexGraphStorage;
+import com.graphhopper.util.Helper;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import heigit.ors.routing.graphhopper.extensions.storages.GreenIndexGraphStorage;
 
 /**
  * Created by lliu on 13/03/2017.
@@ -59,33 +71,41 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
             csvBuffer = new BufferedReader(new FileReader(csvFile));
             // Jump the header line
             csvBuffer.readLine();
-            while ((row = csvBuffer.readLine()) != null) {
-                ArrayList<String> parsedRow = parseCSVrow(row);
-                if (parsedRow == null) continue;
-                _greenIndices.put(Long.parseLong(parsedRow.get(0)), Double.parseDouble(parsedRow.get(1)));
+            String[] rowValues = new String[2]; 
+            while ((row = csvBuffer.readLine()) != null) 
+            {
+                if (!parseCSVrow(row, rowValues)) 
+                	continue;
+                
+                _greenIndices.put(Long.parseLong(rowValues[0]), Double.parseDouble(rowValues[1]));
             }
 
         } catch (IOException openFileEx) {
             openFileEx.printStackTrace();
             throw openFileEx;
         } finally {
-            if (csvBuffer != null) csvBuffer.close();
+            if (csvBuffer != null) 
+            	csvBuffer.close();
         }
     }
 
-    private ArrayList<String> parseCSVrow(String row) {
-        ArrayList<String> result = new ArrayList<>(2);
-        if (row == null) return null;
-        String[] splitData = row.split(",");
-        // read, check and push "osm_id" and "ungreen_factor" values
-        if (IsInvalid(splitData[0]) || IsInvalid(splitData[1])) return null;
-        result.add(splitData[0].trim());
-        result.add(splitData[1].trim());
-        return result;
-    }
-
-    private boolean IsInvalid(String col) {
-        return col == null || col.length() <= 0;
+    private boolean parseCSVrow(String row,  String[] rowValues) {
+        if (Helper.isEmpty(row))
+        	return false;
+        
+        int pos = row.indexOf(',');
+        if (pos > 0)
+        {
+        	rowValues[0] = row.substring(0, pos).trim();
+        	rowValues[1] = row.substring(pos+1, row.length()).trim();
+        	// read, check and push "osm_id" and "ungreen_factor" values
+        	if (Helper.isEmpty(rowValues[0]) || Helper.isEmpty(rowValues[1])) 
+        		return false;
+        	
+        	return true;
+        }
+        else
+        	return false;
     }
 
     @Override
