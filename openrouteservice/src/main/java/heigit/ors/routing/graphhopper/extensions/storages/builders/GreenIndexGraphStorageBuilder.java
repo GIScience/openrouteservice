@@ -4,13 +4,12 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.OSMWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.Helper;
-
 import heigit.ors.routing.graphhopper.extensions.storages.GreenIndexGraphStorage;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,41 +59,33 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
             csvBuffer = new BufferedReader(new FileReader(csvFile));
             // Jump the header line
             csvBuffer.readLine();
-            String[] rowValues = new String[2]; 
-            while ((row = csvBuffer.readLine()) != null) 
-            {
-                if (!parseCSVrow(row, rowValues)) 
-                	continue;
-                
-                _greenIndices.put(Long.parseLong(rowValues[0]), Double.parseDouble(rowValues[1]));
+            while ((row = csvBuffer.readLine()) != null) {
+                ArrayList<String> parsedRow = parseCSVrow(row);
+                if (parsedRow == null) continue;
+                _greenIndices.put(Long.parseLong(parsedRow.get(0)), Double.parseDouble(parsedRow.get(1)));
             }
 
         } catch (IOException openFileEx) {
             openFileEx.printStackTrace();
             throw openFileEx;
         } finally {
-            if (csvBuffer != null) 
-            	csvBuffer.close();
+            if (csvBuffer != null) csvBuffer.close();
         }
     }
 
-    private boolean parseCSVrow(String row,  String[] rowValues) {
-        if (Helper.isEmpty(row))
-        	return false;
-        
-        int pos = row.indexOf(',');
-        if (pos > 0)
-        {
-        	rowValues[0] = row.substring(0, pos).trim();
-        	rowValues[1] = row.substring(pos+1, row.length()).trim();
-        	// read, check and push "osm_id" and "ungreen_factor" values
-        	if (Helper.isEmpty(rowValues[0]) || Helper.isEmpty(rowValues[1])) 
-        		return false;
-        	
-        	return true;
-        }
-        else
-        	return false;
+    private ArrayList<String> parseCSVrow(String row) {
+        ArrayList<String> result = new ArrayList<>(2);
+        if (row == null) return null;
+        String[] splitData = row.split(",");
+        // read, check and push "osm_id" and "ungreen_factor" values
+        if (IsInvalid(splitData[0]) || IsInvalid(splitData[1])) return null;
+        result.add(splitData[0].trim());
+        result.add(splitData[1].trim());
+        return result;
+    }
+
+    private boolean IsInvalid(String col) {
+        return col == null || col.length() <= 0;
     }
 
     @Override
