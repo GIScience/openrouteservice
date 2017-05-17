@@ -74,18 +74,18 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
     }
 
     private ArrayList<String> parseCSVrow(String row) {
-        ArrayList<String> result = new ArrayList<>();
-        if (row != null) {
-            String[] splitData = row.split("\\s*,\\s*");
-            for (String col : splitData) {
-                if ((col != null) && (col.length() > 0)) {
-                    result.add(col.trim());
-                } else {
-                    return null;
-                }
-            }
-        }
+        ArrayList<String> result = new ArrayList<>(2);
+        if (row == null) return null;
+        String[] splitData = row.split(",");
+        // read, check and push "osm_id" and "ungreen_factor" values
+        if (IsInvalid(splitData[0]) || IsInvalid(splitData[1])) return null;
+        result.add(splitData[0].trim());
+        result.add(splitData[1].trim());
         return result;
+    }
+
+    private boolean IsInvalid(String col) {
+        return col == null || col.length() <= 0;
     }
 
     @Override
@@ -108,25 +108,25 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
         }
 
         boolean within(double val) {
-            // check if the @val falls in (left, right] range
-            if ((val <= left) || (val > right)) return false;
+            // check if the @val falls in [left, right] range
+            if ((val < left) || (val > right)) return false;
             return true;
         }
     }
 
     private byte calcGreenIndex(long id) {
-    	Double gi = _greenIndices.get(id);
+        Double gi = _greenIndices.get(id);
 
-    	// No such @id key in the _greenIndices, or the value of it is null
-    	// We set its green level to TOTAL_LEVEL/2 indicating the middle value for such cases
-    	if (gi == null)
-    		return (byte) (TOTAL_LEVEL / 2);
+        // No such @id key in the _greenIndices, or the value of it is null
+        // We set its green level to TOTAL_LEVEL/2 indicating the middle value for such cases
+        if (gi == null)
+            return (byte) (TOTAL_LEVEL / 2);
 
-    	for (Map.Entry<Byte, SlotRange> s : _slots.entrySet()) {
-    		if (s.getValue().within(gi))
-    			return s.getKey();
-    	}
-    	return (byte) (TOTAL_LEVEL - 1);
+        for (Map.Entry<Byte, SlotRange> s : _slots.entrySet()) {
+            if (s.getValue().within(gi))
+                return s.getKey();
+        }
+        return (byte) (TOTAL_LEVEL - 1);
     }
 
     @Override
