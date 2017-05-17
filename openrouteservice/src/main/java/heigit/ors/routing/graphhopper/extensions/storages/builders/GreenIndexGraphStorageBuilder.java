@@ -4,12 +4,13 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.OSMWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.Helper;
+
 import heigit.ors.routing.graphhopper.extensions.storages.GreenIndexGraphStorage;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,33 +60,41 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
             csvBuffer = new BufferedReader(new FileReader(csvFile));
             // Jump the header line
             csvBuffer.readLine();
-            while ((row = csvBuffer.readLine()) != null) {
-                ArrayList<String> parsedRow = parseCSVrow(row);
-                if (parsedRow == null) continue;
-                _greenIndices.put(Long.parseLong(parsedRow.get(0)), Double.parseDouble(parsedRow.get(1)));
+            String[] rowValues = new String[2]; 
+            while ((row = csvBuffer.readLine()) != null) 
+            {
+                if (!parseCSVrow(row, rowValues)) 
+                	continue;
+                
+                _greenIndices.put(Long.parseLong(rowValues[0]), Double.parseDouble(rowValues[1]));
             }
 
         } catch (IOException openFileEx) {
             openFileEx.printStackTrace();
             throw openFileEx;
         } finally {
-            if (csvBuffer != null) csvBuffer.close();
+            if (csvBuffer != null) 
+            	csvBuffer.close();
         }
     }
 
-    private ArrayList<String> parseCSVrow(String row) {
-        ArrayList<String> result = new ArrayList<>();
-        if (row != null) {
-            String[] splitData = row.split("\\s*,\\s*");
-            for (String col : splitData) {
-                if ((col != null) && (col.length() > 0)) {
-                    result.add(col.trim());
-                } else {
-                    return null;
-                }
-            }
+    private boolean parseCSVrow(String row,  String[] rowValues) {
+        if (Helper.isEmpty(row))
+        	return false;
+        
+        int pos = row.indexOf(',');
+        if (pos > 0)
+        {
+        	rowValues[0] = row.substring(0, pos).trim();
+        	rowValues[1] = row.substring(pos+1, row.length()).trim();
+        	// read, check and push "osm_id" and "ungreen_factor" values
+        	if (Helper.isEmpty(rowValues[0]) || Helper.isEmpty(rowValues[1])) 
+        		return false;
+        	
+        	return true;
         }
-        return result;
+        else
+        	return false;
     }
 
     @Override
@@ -108,25 +117,25 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
         }
 
         boolean within(double val) {
-            // check if the @val falls in (left, right] range
-            if ((val <= left) || (val > right)) return false;
+            // check if the @val falls in [left, right] range
+            if ((val < left) || (val > right)) return false;
             return true;
         }
     }
 
     private byte calcGreenIndex(long id) {
-    	Double gi = _greenIndices.get(id);
+        Double gi = _greenIndices.get(id);
 
-    	// No such @id key in the _greenIndices, or the value of it is null
-    	// We set its green level to TOTAL_LEVEL/2 indicating the middle value for such cases
-    	if (gi == null)
-    		return (byte) (TOTAL_LEVEL / 2);
+        // No such @id key in the _greenIndices, or the value of it is null
+        // We set its green level to TOTAL_LEVEL/2 indicating the middle value for such cases
+        if (gi == null)
+            return (byte) (TOTAL_LEVEL / 2);
 
-    	for (Map.Entry<Byte, SlotRange> s : _slots.entrySet()) {
-    		if (s.getValue().within(gi))
-    			return s.getKey();
-    	}
-    	return (byte) (TOTAL_LEVEL - 1);
+        for (Map.Entry<Byte, SlotRange> s : _slots.entrySet()) {
+            if (s.getValue().within(gi))
+                return s.getKey();
+        }
+        return (byte) (TOTAL_LEVEL - 1);
     }
 
     @Override
