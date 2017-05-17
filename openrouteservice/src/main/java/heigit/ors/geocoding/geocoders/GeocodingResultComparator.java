@@ -11,22 +11,31 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.geocoding.geocoders;
 
-public class GeocodingResult  {
-	public String country;
-	public String countryCode;
-	public String postalCode;
-	public String state;
-	public String stateDistrict;
-	public String county;
-	public String city;
-	public String neighbourhood;
-	public String street;
-	public String name;
-	public String houseNumber;
-	public String objectName;
-	
-	public double latitude;
-	public double longitude;
-	
-	public float accuracy = 1.0F;
+import java.util.Comparator;
+
+import com.graphhopper.util.Helper;
+
+public class GeocodingResultComparator implements Comparator<GeocodingResult> {
+	@Override
+	public int compare(GeocodingResult gr1, GeocodingResult gr2) {
+		if (gr1 != null && gr2 != null)
+		{
+			// compare results with the same accuracy value
+			if (gr1.accuracy == gr2.accuracy)
+			{
+				boolean gr1HasHouseNumber = !Helper.isEmpty(gr1.houseNumber) && !Helper.isEmpty(gr1.street);
+				boolean gr2HasHouseNumber = !Helper.isEmpty(gr2.houseNumber) && !Helper.isEmpty(gr2.street);
+
+				if (gr1HasHouseNumber != gr2HasHouseNumber)
+				{
+					if (gr1HasHouseNumber && !gr2HasHouseNumber)
+						return -1;
+					else if (!gr1HasHouseNumber && gr2HasHouseNumber)
+						return 1;
+				}
+			}
+		}
+		
+		return 0;
+	}
 }

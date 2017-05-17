@@ -14,6 +14,7 @@ package heigit.ors.geocoding.geocoders;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Arrays;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -106,6 +107,8 @@ public class PeliasGeocoder extends AbstractGeocoder
 			}
 		}
 
+		Arrays.sort(results, new GeocodingResultComparator());
+		
 		return results;
 	}
 }

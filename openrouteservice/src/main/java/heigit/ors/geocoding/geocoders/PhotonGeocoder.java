@@ -14,6 +14,7 @@ package heigit.ors.geocoding.geocoders;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -125,6 +126,8 @@ public class PhotonGeocoder extends AbstractGeocoder {
 				results[j] = gr;
 			}
 		}
+		
+		Arrays.sort(results, new GeocodingResultComparator());
 		
 		return results;
 	}
