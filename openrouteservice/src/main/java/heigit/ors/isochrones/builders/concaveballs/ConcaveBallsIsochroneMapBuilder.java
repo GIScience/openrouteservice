@@ -280,11 +280,11 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			addPoint(points, tree, (lon0 + lon1)/2.0 + dx2, (lat0 + lat1)/2.0 + dy2, checkNeighbours);	
 			addPoint(points, tree, (lon0 + lon1)/2.0 - dx2, (lat0 + lat1)/2.0 - dy2, checkNeighbours);
 		}
-/*
+ 
 		if (addLast) {
-			added= addPoint(points, tree, lon1 + dx2, lat1 + dy2, checkNeighbours);
-			added= addPoint(points, tree, lon1 - dx2, lat1 - dy2, checkNeighbours);
-		}*/
+			 addPoint(points, tree, lon1 + dx2, lat1 + dy2, checkNeighbours);
+			 addPoint(points, tree, lon1 - dx2, lat1 - dy2, checkNeighbours);
+		} 
 	}
 
 	private GeometryCollection buildIsochrone(AccessibilityMap edgeMap, List<Coordinate> points, double lon, double lat,
@@ -311,9 +311,17 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		double detailedZone = isolineCost * detailedGeomFactor;
 
 		double defaultSearchWidth = 0.0008;
-		double defaultVisitorThreshold = 0.0045;
-		double defaulPointWidth =  0.006;
- 
+		double defaulPointWidth =  0.005;
+		double defaultVisitorThreshold = 0.0035;
+		
+		// make results a bit more precise for regions with low data density
+		if (map.size() < 10000)
+		{
+			defaultSearchWidth = 0.0008;
+			defaulPointWidth = 0.005;
+			defaultVisitorThreshold = 0.0025;  
+		}
+
 		for (TIntObjectIterator<EdgeEntry> it = map.iterator(); it.hasNext();) {
 			it.advance();
 			int nodeId = it.key();
@@ -334,12 +342,12 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			float minCost = (float) (goalEdge.parent.weight);
 
 			// ignore all edges that have been considered in the previous step
-			if (maxCost < prevCost)
+			if (minCost < prevCost)
 				continue;
 
 			searchWidth = defaultSearchWidth; 
 			visitorThreshold = defaultVisitorThreshold; 
-			pointWidth = defaulPointWidth;		
+			pointWidth = defaulPointWidth;
 
 			visitor.setThreshold(visitorThreshold);
 
@@ -370,7 +378,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 									lat1 = pl.getLat(i);
 									lon1 = pl.getLon(i);
 
-									addBufferPoints(points, qtree, lon0, lat0, lon1, lat1, i == size - 1, true, bufferSize);
+									addBufferPoints(points, qtree, lon0, lat0, lon1, lat1, goalEdge.edge < 0 && i == size - 1, true, bufferSize);
 
 									lon0 = lon1;
 									lat0 = lat1;
@@ -396,7 +404,8 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 					}
 				}
 			} else {
-				if ((minCost < isolineCost && maxCost >= isolineCost)) {
+				if ((minCost < isolineCost && maxCost >= isolineCost)) 
+				{
 
 					PointList pl = iter.fetchWayGeometry(3, arrayBuffer);
 
