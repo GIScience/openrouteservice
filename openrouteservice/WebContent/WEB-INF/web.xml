@@ -45,6 +45,17 @@
 		<url-pattern>/locations</url-pattern>
 	</servlet-mapping>
 	
+	<!-- ACCESSIBILITY SERVICE -->
+	<servlet>
+		<servlet-name>accessibility</servlet-name>
+		<servlet-class>heigit.ors.services.accessibility.AccessibilityServiceServlet</servlet-class>
+		<load-on-startup>4</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>accessibility</servlet-name>
+		<url-pattern>/accessibility</url-pattern>
+	</servlet-mapping>
+	
 	<!-- ShortenLink SERVICE -->
 	<servlet>
 		<servlet-name>shortenlink</servlet-name>

@@ -20,11 +20,11 @@ import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import heigit.ors.common.StatusCode;
+import heigit.ors.common.TravelRangeType;
 import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.isochrones.IsochronesErrorCodes;
-import heigit.ors.isochrones.IsochronesRangeType;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.services.isochrones.IsochroneRequest;
 
@@ -115,10 +115,10 @@ public class JsonIsochroneRequestParser {
 			switch (value.toLowerCase())
 			{
 			case "distance":
-				req.setRangeType(IsochronesRangeType.Distance);
+				req.setRangeType(TravelRangeType.Distance);
 				break;
 			case "time":
-				req.setRangeType(IsochronesRangeType.Time);
+				req.setRangeType(TravelRangeType.Time);
 				break;
 			default:
 				throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "range_type", value);
@@ -128,7 +128,7 @@ public class JsonIsochroneRequestParser {
 		value = request.getParameter("units");
 		if (!Helper.isEmpty(value))
 		{
-			if (req.getRangeType() == IsochronesRangeType.Distance)
+			if (req.getRangeType() == TravelRangeType.Distance)
 			{
 				if (!("m".equals(value) || "km".equals(value) || "mi".equals(value)))
 					throw new UnknownParameterValueException("units", value);

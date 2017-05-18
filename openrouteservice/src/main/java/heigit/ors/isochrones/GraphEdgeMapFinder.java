@@ -13,7 +13,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 import gnu.trove.map.TIntObjectMap;
 
-import heigit.ors.isochrones.IsochronesRangeType;
+import heigit.ors.common.TravelRangeType;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.routing.graphhopper.extensions.DijkstraCostCondition;
@@ -38,7 +38,7 @@ public class GraphEdgeMapFinder {
 	
 		Weighting weighting = null;
 		
-		if (parameters.getRangeType() == IsochronesRangeType.Time)
+		if (parameters.getRangeType() == TravelRangeType.Time)
 		{
 			double maxSpeed = -1;
 			RouteSearchParameters routeParams = parameters.getRouteParameters();
