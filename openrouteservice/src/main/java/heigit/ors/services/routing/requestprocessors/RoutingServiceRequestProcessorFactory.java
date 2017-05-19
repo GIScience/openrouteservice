@@ -30,10 +30,10 @@ public class RoutingServiceRequestProcessorFactory {
 	public static AbstractHttpRequestProcessor createProcessor(HttpServletRequest request) throws Exception  
 	{
 		if (!RoutingServiceSettings.getEnabled())
-			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, "Routing service is not enabled.");
+			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, RoutingErrorCodes.UNKNOWN, "Routing service is not enabled.");
 
 		if (!RoutingProfileManagerStatus.isReady())
-			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, "Routing service is not ready yet.");
+			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, RoutingErrorCodes.UNKNOWN, "Routing service is not ready yet.");
 		
 		String requestParam = request.getParameter("request");
 

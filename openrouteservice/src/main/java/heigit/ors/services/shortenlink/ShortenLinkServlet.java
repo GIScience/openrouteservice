@@ -61,7 +61,7 @@ public class ShortenLinkServlet extends BaseHttpServlet {
 		try
 		{
 			if (!ShortenLinkServiceSettings.getEnabled())
-				throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, "Shortenlink service is not enabled.");
+				throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, 0, "Shortenlink service is not enabled.");
 			
 			String decodedString = StringUtility.decodeRequestString(request.getQueryString());
 			String shortenLink = getShortenLink(decodedString);

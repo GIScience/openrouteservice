@@ -135,13 +135,13 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 				req.setId(value);
 			break;
 		case "POST":
-			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, "POST request is not supported.");  
+			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, GeocodingErrorCodes.UKNOWN, "POST request is not supported.");  
 		default:
-			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, "Unknown request type.");
+			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, GeocodingErrorCodes.UKNOWN, "Unknown request type.");
 		}
 
         if (!req.isValid())
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, "Geocoding request parameters are missing or invalid.");
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, GeocodingErrorCodes.UKNOWN, "Geocoding request parameters are missing or invalid.");
 
 		try
 		{

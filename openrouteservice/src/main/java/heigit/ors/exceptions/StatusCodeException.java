@@ -16,7 +16,7 @@ public class StatusCodeException extends Exception
 	private static final long serialVersionUID = 5306540089149750357L;
 	
 	private int _statusCode = 200;
-	private int _internalCode = 200;
+	private int _internalCode = 0;
    
 	public StatusCodeException(int statusCode, int internalCode)
 	{
