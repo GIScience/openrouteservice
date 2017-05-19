@@ -68,7 +68,7 @@ public class JsonRoutingRequestParser
 			int nCoords = coordValues.length;
 
 			if (nCoords< 2)
-				throw new StatusCodeException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "coordinates parameter must contain at least two locations");
+				throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, "coordinates parameter must contain at least two locations");
 
 			Coordinate[] coords = new Coordinate[nCoords];
 
