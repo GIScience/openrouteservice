@@ -11,11 +11,35 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.accessibility;
 
-public class AccessibilityErrorCodes {
-	public static int INVALID_JSON_FORMAT = 500; 
-	public static int MISSING_PARAMETER = 501;
-	public static int INVALID_PARAMETER_FORMAT = 502;
-	public static int INVALID_PARAMETER_VALUE = 503;
-	public static int PARAMETER_VALUE_EXCEEDS_MAXIMUM = 504;
-	public static int UNKNOWN = 599;
+import java.util.List;
+
+import heigit.ors.locations.LocationsResult;
+import heigit.ors.routing.RouteResult;
+
+public class AccessibilityResult {
+    private List<RouteResult> _routes;
+    private List<LocationsResult> _locations;
+    
+    public AccessibilityResult()
+    {
+    	
+    }
+    
+    public void setRoutes(List<RouteResult> routes)
+    {
+    	_routes = routes;
+    }
+    
+    public List<RouteResult> getRoutes()
+    {
+    	return _routes;
+    }
+
+	public List<LocationsResult> getLocations() {
+		return _locations;
+	}
+
+	public void setLocations(List<LocationsResult> locations) {
+		_locations = locations;
+	}
 }

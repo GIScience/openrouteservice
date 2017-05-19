@@ -21,26 +21,27 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.graphhopper.util.Helper;
+import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
+import heigit.ors.accessibility.AccessibilityAnalyzer;
+import heigit.ors.accessibility.AccessibilityErrorCodes;
+import heigit.ors.accessibility.AccessibilityResult;
 import heigit.ors.common.StatusCode;
+import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.geojson.GeometryJSON;
-import heigit.ors.services.locations.requestprocessors.json.JsonLocationsRequestParser;
+import heigit.ors.services.accessibility.AccessibilityRequest;
 import heigit.ors.services.locations.LocationsServiceSettings;
-import heigit.ors.locations.providers.LocationsDataProvider;
-import heigit.ors.locations.providers.LocationsDataProviderFactory;
-import heigit.ors.locations.LocationsCategory;
-import heigit.ors.locations.LocationsCategoryClassifier;
-import heigit.ors.locations.LocationsErrorCodes;
-import heigit.ors.locations.LocationsRequest;
+import heigit.ors.services.routing.requestprocessors.json.JsonRoutingResponseWriter;
 import heigit.ors.locations.LocationsResult;
 import heigit.ors.locations.LocationsSearchFilter;
+import heigit.ors.routing.RouteResult;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
 import heigit.ors.util.AppInfo;
+import heigit.ors.util.GeomUtility;
 
 public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProcessor
 {
@@ -52,122 +53,63 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 	@Override
 	public void process(HttpServletResponse response) throws Exception
 	{
-		/*String reqMethod = _request.getMethod();
+		AccessibilityRequest req = null;
 
-		LocationsRequest req = null;
-		switch (reqMethod)
+		switch (_request.getMethod())
 		{
 		case "GET":
-			req = JsonLocationsRequestParser.parseFromRequestParams(_request);
+			req = JsonAccessibilityRequestParser.parseFromRequestParams(_request);
 			break;
 		case "POST":
-			req = JsonLocationsRequestParser.parseFromStream(_request);
-			break;
+			//req = JsonAccessibilityRequestParser.parseFromStream(_request.getInputStream());
+			throw new InternalServerException(AccessibilityErrorCodes.UNKNOWN, "POST requests are not supported.");
 		default:
 			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED);
 		}
 
 		if (req == null)
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, "LocationRequest object is null.");
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, "AccessibilityRequest object is null.");
 
-		if (!req.isValid())
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, "Location request parameters are missing or invalid.");
+		AccessibilityResult accesibilityResult = AccessibilityAnalyzer.computeAccessibility(req);
 
-		LocationsDataProvider provider = LocationsDataProviderFactory.getProvider(LocationsServiceSettings.getProviderName(), LocationsServiceSettings.getProviderParameters());
-
-		switch(req.getType())
-		{
-		case  POIS:
-			writeLocationsResponse(response, req, provider.findLocations(req));			
-			break;
-		case CATEGORY_STATS:
-			writeCategoriesResponse(response, req, provider.findCategories(req));
-			break;
-		case CATEGORY_LIST:
-			writeCategoriesListResponse(response);
-			break;
-		case UNKNOWN:
-			throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "request", "");
-		}*/
-	}
-	
-	private void writeCategoriesListResponse(HttpServletResponse response) throws Exception
-	{
-		JSONObject jResp = new JSONObject();
-		
-		jResp.put("categories", LocationsCategoryClassifier.getCategoriesList());
-		
-		writeInfoSection(jResp, null);
-		
-		ServletUtility.write(response, jResp);
-	}
-	
-	private void writeCategoriesResponse(HttpServletResponse response, LocationsRequest request, List<LocationsCategory> categories) throws Exception
-	{
-		JSONObject resp = new JSONObject(1);
-
-		JSONObject jLocations = new JSONObject(true,  categories != null ? categories.size(): 1);
-		resp.put("places", jLocations);
-
-		if (categories != null)
-		{
-			long totalCount = 0;
-
-			for (int j = 0; j < categories.size(); j++) 
-			{
-				JSONObject jCategory = new JSONObject(true);
-				
-				LocationsCategory cat = categories.get(j);
-				
-				JSONObject jValues = new JSONObject(true, cat.getStats().size());
-				
-				for(Map.Entry<Integer, Long> stats : cat.getStats().entrySet())
-				{
-					jValues.put(stats.getKey().toString(), stats.getValue());
-				}
-				
-				jCategory.put("name", cat.getCategoryName());
-				jCategory.put("categories", jValues);
-				jCategory.put("total_count", cat.getTotalCount());
-				
-				jLocations.put(Integer.toString(cat.getCategoryId()), jCategory);
-				
-				totalCount += cat.getTotalCount(); 
-			}
-			
-			jLocations.put("total_count", totalCount);
-		}
-
-		writeInfoSection(resp, request);
-
-		ServletUtility.write(response, resp);
+		writeAccessibilityResponse(response, req, accesibilityResult);
 	}
 
-	private void writeLocationsResponse(HttpServletResponse response, LocationsRequest request, List<LocationsResult> locations) throws Exception
+	private void writeAccessibilityResponse(HttpServletResponse response, AccessibilityRequest request, AccessibilityResult result) throws Exception
 	{
-		int nLocations = locations != null ? locations.size() : 1;
-		JSONObject jResp = new JSONObject(true, 3);
+		JSONObject jResp = new JSONObject(4);
 
-		JSONArray features = new JSONArray(nLocations);
-		jResp.put("type", "FeatureCollection");        
-		jResp.put("features", features);
+		int nResults = result.getLocations().size();
+		boolean geoJsonFormat = true;
 
-		if (locations != null)
+
+		if (nResults > 0)
 		{
 			StringBuffer buffer = new StringBuffer();
+
+			List<LocationsResult> locations = result.getLocations();
+			List<RouteResult> routes = result.getRoutes();
 
 			double minX = Double.MAX_VALUE;
 			double minY = Double.MAX_VALUE;
 			double maxX = Double.MIN_VALUE;
 			double maxY = Double.MIN_VALUE;
 
-			int nResults = 0;
+			// **************** Locations **********************
 
-			for (int j = 0; j < nLocations; j++) 
+			JSONObject jLocations = new JSONObject(true, nResults);
+			jResp.put("places", jLocations);
+
+			JSONArray jLocationFeatures = new JSONArray(nResults);
+			jLocations.put("type", "FeatureCollection");        
+			jLocations.put("features", jLocationFeatures);
+
+			for (int j = 0; j < nResults; j++) 
 			{
 				LocationsResult lr = locations.get(j);
 
-				if (lr == null)
+				// skip locations that don't have routes
+				if (routes.get(j) == null)
 					continue;
 
 				Geometry geom = lr.getGeometry();
@@ -177,7 +119,6 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 
 				JSONObject point = new JSONObject(true);
 				point.put("type", geom.getClass().getSimpleName());
-
 				point.put("coordinates", GeometryJSON.toJSON(geom, buffer));
 
 				feature.put("geometry", point);
@@ -193,36 +134,103 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 				}
 
 				feature.put("properties", properties);
-
-				features.put(feature);
-
-				Envelope env = geom.getEnvelopeInternal();
-
-				if (minX > env.getMinX())
-					minX =  env.getMinX();
-				if (minY > env.getMinY())
-					minY = env.getMinY();
-				if (maxX < env.getMaxX())
-					maxX = env.getMaxX();
-				if (maxY < env.getMaxY())
-					maxY = env.getMaxY();
-
-				nResults++;
+				jLocationFeatures.put(feature);
 			}
 
-			if (nResults > 0)
-				jResp.put("bbox", GeometryJSON.toJSON(minX, minY, maxX, maxY));
+
+			// **************** Routes **********************
+			if (geoJsonFormat)
+			{
+				JSONObject jRoutes = new JSONObject(true, nResults);
+				jResp.put("routes", jRoutes);
+
+				JSONArray jRouteFeatures = new JSONArray(nResults);
+				jRoutes.put("type", "FeatureCollection");        
+				jRoutes.put("features", jRouteFeatures);
+				
+				for (int i = 0; i< nResults; ++i)
+				{
+					RouteResult route = result.getRoutes().get(i);
+					if (route != null)
+					{
+						JSONObject feature = new JSONObject(true, 3);
+						feature.put("type", "Feature");
+
+						Geometry geom = GeomUtility.createLinestring(route.getGeometry());
+						
+						JSONObject jGeometry = new JSONObject(true);
+						jGeometry.put("type", geom.getClass().getSimpleName());
+						jGeometry.put("coordinates", GeometryJSON.toJSON(geom, buffer));
+						feature.put("geometry", jGeometry);
+						
+						JSONObject properties = new JSONObject(true, 3);
+						properties.put("duration", route.getSummary().getDuration());
+						properties.put("distance", route.getSummary().getDistance());
+						feature.put("properties", properties);
+						
+						jRouteFeatures.put(feature);
+						
+						Envelope env = geom.getEnvelopeInternal();
+						
+						if (minX > env.getMinX())
+							minX =  env.getMinX();
+						if (minY > env.getMinY())
+							minY = env.getMinY();
+						if (maxX < env.getMaxX())
+							maxX = env.getMaxX();
+						if (maxY < env.getMaxY())
+							maxY = env.getMaxY();
+					}
+				}
+			}
+			else
+			{
+				JSONArray jRoutes = new JSONArray(nResults);
+				jResp.put("routes", jRoutes);
+				
+				for (int i = 0; i< nResults; ++i)
+				{
+					RouteResult route = result.getRoutes().get(i);
+					if (route != null)
+					{
+						BBox bbox = new BBox(0,0,0,0);
+						JSONArray jRoute = JsonRoutingResponseWriter.toJsonArray(request.getRoutingRequest(), new RouteResult[] {result.getRoutes().get(i)}, bbox);
+						jRoutes.put(jRoute.get(0));
+
+						if (minX > bbox.minLon)
+							minX =  bbox.minLon;
+						if (minY > bbox.minLat)
+							minY = bbox.minLat;
+						if (maxX < bbox.maxLon)
+							maxX = bbox.maxLon;
+						if (maxY < bbox.maxLat)
+							maxY = bbox.maxLat;
+					}
+				}
+			}
+
+			jResp.put("bbox", GeometryJSON.toJSON(minX, minY, maxX, maxY));
 		}
+		else
+		{
+			JSONObject jLocations = new JSONObject(true);
+			jResp.put("places", jLocations);
+
+			JSONObject jRoutes = new JSONObject(true);
+			jResp.put("routes", jRoutes);
+		}
+
+		// **************************************************
 
 		writeInfoSection(jResp, request);
 
 		ServletUtility.write(response, jResp);
 	}
-	
-	private void writeInfoSection(JSONObject jResponse, LocationsRequest request)
+
+	private void writeInfoSection(JSONObject jResponse, AccessibilityRequest request)
 	{
 		JSONObject jInfo = new JSONObject(true);
-		jInfo.put("service", "locations");
+		jInfo.put("service", "accessibility");
 		jInfo.put("version", AppInfo.VERSION);
 		if (!Helper.isEmpty(LocationsServiceSettings.getAttribution()))
 			jInfo.put("attribution", LocationsServiceSettings.getAttribution());
@@ -232,23 +240,27 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 		{
 			JSONObject jQuery = new JSONObject(true);
 
-			writeFilterSection(jQuery, request.getSearchFilter());
 
+			writeFilterSection(jQuery, request.getLocationsRequest().getSearchFilter());
+			/*
 			if (request.getRadius() > 0)
 				jQuery.put("radius", request.getRadius());
 			if (request.getLimit() > 0)
 				jQuery.put("limit", request.getLimit());
 			if (!Helper.isEmpty(request.getLanguage()))
 				jQuery.put("lang", request.getLanguage());
+			jQuery.put("locations", value) */
+
 			if (request.getId() != null)
 				jQuery.put("id", request.getId());
+
 
 			jInfo.put("query", jQuery);
 		}
 
 		jResponse.put("info", jInfo);
 	}
-	
+
 	private void writeFilterSection(JSONObject jQuery, LocationsSearchFilter query)
 	{
 		JSONObject jFilter = new JSONObject(true);
@@ -264,7 +276,7 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 			jFilter.put("smoking", query.getSmoking());
 		if (query.getFee() != null)
 			jFilter.put("fee", query.getFee());
-		
+
 		if (jFilter.length() > 0)
 			jQuery.put("filter", jFilter);
 	}
