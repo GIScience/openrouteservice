@@ -246,7 +246,9 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 				properties.put("distance", FormatUtility.roundToDecimals(dist, 2));
 				properties.put("confidence", GeocodingUtils.getDistanceAccuracyScore(dist)); 
 			}
-
+			else 
+				properties.put("confidence", FormatUtility.roundToDecimals(gr.accuracy, 2));
+			
 			feature.put("properties", properties);
 
 			features.put(feature);

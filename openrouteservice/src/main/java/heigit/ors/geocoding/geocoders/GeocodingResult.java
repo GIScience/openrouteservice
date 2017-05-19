@@ -28,5 +28,5 @@ public class GeocodingResult  {
 	public double latitude;
 	public double longitude;
 	
-	public float accuracy = 1.0F;
+	public float accuracy = 0.5F;
 }
