@@ -11,12 +11,27 @@ import com.graphhopper.util.DistanceCalcEarth;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 public class GeomUtility {
 
+	private static GeometryFactory GEOM_FACTORY = new GeometryFactory();
+	
 	private static MathTransform TRANSFORM_WGS84_SPHERICALMERCATOR = null;// CRS.findMathTransform(DefaultGeographicCRS.WGS84,
+	
+	public static Point createPoint(Coordinate c)
+	{
+	  return GEOM_FACTORY.createPoint(c);	
+	}
+	
+	public static LineString createLinestring(Coordinate[] coords)
+	{
+	  return GEOM_FACTORY.createLineString(coords);
+	}
+	
 	// CRS.decode("EPSG:3785",
 	// true), true);
 	public static double pointToLineDistance(double ax, double ay, double bx, double by, double px, double py) {
