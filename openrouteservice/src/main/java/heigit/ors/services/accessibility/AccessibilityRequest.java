@@ -15,7 +15,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.locations.LocationsRequest;
-import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.services.ServiceRequest;
 import heigit.ors.services.routing.RoutingRequest;
 
@@ -23,9 +22,11 @@ public class AccessibilityRequest extends ServiceRequest
 {
 	private LocationsRequest _locationsRequest;
 	private RoutingRequest _routingRequest;
+	private Coordinate[] _locations;
 	private String _locationType = "start"; // either start or destination
 	private double _range;
 	private TravelRangeType _rangeType = TravelRangeType.Time;
+	private String _routesFormat = "detailed";
 	private int _limit = 5;
 	
 	public AccessibilityRequest()
@@ -75,5 +76,21 @@ public class AccessibilityRequest extends ServiceRequest
 
 	public void setRangeType(TravelRangeType rangeType) {
 		_rangeType = rangeType;
+	}
+
+	public Coordinate[] getLocations() {
+		return _locations;
+	}
+
+	public void setLocations(Coordinate[] locations) {
+		_locations = locations;
+	}
+
+	public String getRoutesFormat() {
+		return _routesFormat;
+	}
+
+	public void setRoutesFormat(String routesFormat) {
+		_routesFormat = routesFormat;
 	}
 }

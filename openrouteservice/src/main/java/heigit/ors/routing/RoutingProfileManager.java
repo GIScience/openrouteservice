@@ -310,7 +310,7 @@ public class RoutingProfileManager {
 				resp.clear();
 				resp.add(gr);
 				RouteResult route = routeBuilder.createRouteResult(resp, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor)pathProcessor).getExtras(): null);
-
+				route.setLocationIndex(req.getLocationIndex());
 				routes.add(route);
 			}
 			else
@@ -393,36 +393,49 @@ public class RoutingProfileManager {
 
 			if (config.getMaximumDistance() > 0 || (dynamicWeights && config.getMaximumSegmentDistanceWithDynamicWeights() > 0))
 			{
-				double totalDist =  0.0;
 				double longestSegmentDist = 0.0;
 				DistanceCalc distCalc = Helper.DIST_EARTH;
 
 				Coordinate c0 = coords[0], c1 = null;
+				double totalDist =  0.0;
 
-				if (nCoords == 2)
+				if (oneToMany)
 				{
-					c1 = coords[1];
-					totalDist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
-					longestSegmentDist = totalDist;
-				}
-				else
-				{
-					double dist = 0;
 					for(int i = 1; i < nCoords; i++)
 					{
 						c1 = coords[i];
-						dist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
-						totalDist += dist;
-						if (dist > longestSegmentDist)
-							longestSegmentDist = dist;
+						totalDist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
+						if (totalDist > longestSegmentDist)
+							longestSegmentDist = totalDist;
+					}
+				}
+				else
+				{
+					if (nCoords == 2)
+					{
+						c1 = coords[1];
+						totalDist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
+						longestSegmentDist = totalDist;
+					}
+					else
+					{
+						double dist = 0;
+						for(int i = 1; i < nCoords; i++)
+						{
+							c1 = coords[i];
+							dist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
+							totalDist += dist;
+							if (dist > longestSegmentDist)
+								longestSegmentDist = dist;
 
-						c0 = c1;
+							c0 = c1;
+						}
 					}
 				}
 
 				if (config.getMaximumDistance() > 0 && totalDist > config.getMaximumDistance())
 					throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The approximated route distance must not be greater than " + Double.toString(config.getMaximumDistance()) + " meters.");
-				
+
 				if (dynamicWeights && config.getMaximumSegmentDistanceWithDynamicWeights() > 0 && longestSegmentDist > config.getMaximumSegmentDistanceWithDynamicWeights())
 					throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "By dynamic weighting, the approximated distance of a route segment must not be greater than " + Double.toString(config.getMaximumSegmentDistanceWithDynamicWeights()) + " meters.");
 			}

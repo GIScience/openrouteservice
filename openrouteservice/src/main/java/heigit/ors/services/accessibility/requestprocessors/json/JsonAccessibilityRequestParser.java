@@ -43,7 +43,6 @@ import heigit.ors.services.routing.RouteInstructionsFormat;
 import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.util.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
-import heigit.ors.util.GeomUtility;
 import heigit.ors.util.JsonUtility;
 
 public class JsonAccessibilityRequestParser {
@@ -62,38 +61,9 @@ public class JsonAccessibilityRequestParser {
 		if (!Helper.isEmpty(value))
 			req.setId(value);
 		
-		value = request.getParameter("location");
-		if (!Helper.isEmpty(value))
-		{
-			String[] coordValues = value.split("\\|");
-
-			int nCoords = coordValues.length;
-
-			if (nCoords != 1)
-				throw new StatusCodeException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "location parameter must have longitude and latitude values.");
-
-			try
-			{
-				String[] locations = coordValues[0].split(",");
-				if (locations.length == 3)
-					location = new Coordinate(Double.parseDouble(locations[0]), Double.parseDouble(locations[1]), Integer.parseInt(locations[2]));
-				else
-					location = new Coordinate(Double.parseDouble(locations[0]),Double.parseDouble(locations[1]));
-			}
-			catch(NumberFormatException ex)
-			{
-				throw new StatusCodeException(StatusCode.BAD_REQUEST, AccessibilityErrorCodes.INVALID_PARAMETER_FORMAT, "Unable to parse coordinates value.");
-			}
-		}
-		else
-		{
-			throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "location");
-		}
-
 		// ************ Parsing LocationsRequest parameters ************
 
 		LocationsRequest reqLocations = req.getLocationsRequest();
-		reqLocations.setGeometry(GeomUtility.createPoint(location));
 		reqLocations.setType(LocationRequestType.POIS);
 
 		LocationsSearchFilter query = reqLocations.getSearchFilter();
@@ -190,39 +160,6 @@ public class JsonAccessibilityRequestParser {
 			reqLocations.setDetails(detailsType);
 		}
 
-		// ************ Parsing other search parameters ************
-
-		value = request.getParameter("range_type");
-		if (!Helper.isEmpty(value))
-		{
-			switch (value.toLowerCase())
-			{
-			case "distance":
-				req.setRangeType(TravelRangeType.Distance);
-				break;
-			case "time":
-				req.setRangeType(TravelRangeType.Time);
-				break;
-			default:
-				throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "range_type", value);
-			}
-		}
-
-		value = request.getParameter("location_type");
-		if (!Helper.isEmpty(value))
-		{
-			if (!"start".equalsIgnoreCase(value) && !"destination".equalsIgnoreCase(value))
-				throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "location_type", value);
-
-			req.setLocationType(value);
-		}
-		
-		value = request.getParameter("range");
-		if (!Helper.isEmpty(value))
-			req.setRange(Double.parseDouble(value));
-		else
-			throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "range");
-		
 		// ************ Parsing RoutingRequest parameters ************
 		RoutingRequest reqRouting = req.getRoutingRequest();
 		
@@ -312,8 +249,71 @@ public class JsonAccessibilityRequestParser {
 		if (!Helper.isEmpty(value))
 			searchParams.setOptions(value);
 		
-		//**************************************************
+        // ************ Parsing other search parameters ************
 		
+		value = request.getParameter("location");
+		if (!Helper.isEmpty(value))
+		{
+			String[] coordValues = value.split("\\|");
+
+			int nCoords = coordValues.length;
+
+			if (nCoords != 1)
+				throw new StatusCodeException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "location parameter must have longitude and latitude values.");
+
+			try
+			{
+				String[] locations = coordValues[0].split(",");
+				if (locations.length == 3)
+					location = new Coordinate(Double.parseDouble(locations[0]), Double.parseDouble(locations[1]), Integer.parseInt(locations[2]));
+				else
+					location = new Coordinate(Double.parseDouble(locations[0]),Double.parseDouble(locations[1]));
+			}
+			catch(NumberFormatException ex)
+			{
+				throw new StatusCodeException(StatusCode.BAD_REQUEST, AccessibilityErrorCodes.INVALID_PARAMETER_FORMAT, "Unable to parse coordinates value.");
+			}
+		}
+		else
+		{
+			throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "location");
+		}
+
+		req.setLocations(new Coordinate[] { location });
+
+		value = request.getParameter("range_type");
+		if (!Helper.isEmpty(value))
+		{
+			switch (value.toLowerCase())
+			{
+			case "distance":
+				req.setRangeType(TravelRangeType.Distance);
+				break;
+			case "time":
+				req.setRangeType(TravelRangeType.Time);
+				break;
+			default:
+				throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "range_type", value);
+			}
+		}
+
+		value = request.getParameter("location_type");
+		if (!Helper.isEmpty(value))
+		{
+			if (!"start".equalsIgnoreCase(value) && !"destination".equalsIgnoreCase(value))
+				throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "location_type", value);
+
+			req.setLocationType(value);
+		}
+		
+		value = request.getParameter("range");
+		if (!Helper.isEmpty(value))
+			req.setRange(Double.parseDouble(value));
+		else
+			throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "range");
+		
+		req.setRoutesFormat(request.getParameter("routes_format"));
+	
 		double range = req.getRange();
 		
 		switch(req.getRangeType())

@@ -204,6 +204,9 @@ public class JsonRoutingResponseWriter {
 
 					jRoute.put("segments", jSegments);
 				}
+				
+				//if (route.getLocationIndex() >= 0)
+				//	jRoute.put("location_index", route.getLocationIndex());
 
 				if (route.getWayPointsIndices() != null)
 					jRoute.put("way_points", new JSONArray(route.getWayPointsIndices()));

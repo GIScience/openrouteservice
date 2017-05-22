@@ -11,6 +11,7 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.services.accessibility.requestprocessors.json;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -80,8 +81,7 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 		JSONObject jResp = new JSONObject(4);
 
 		int nResults = result.getLocations().size();
-		boolean geoJsonFormat = true;
-
+		boolean geoJsonFormat = request.getRoutesFormat() != null && "geojson".equalsIgnoreCase(request.getRoutesFormat());
 
 		if (nResults > 0)
 		{
@@ -139,15 +139,13 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 
 
 			// **************** Routes **********************
+			JSONArray jRoutes = new JSONArray();
+			jResp.put("routes", jRoutes);
+
 			if (geoJsonFormat)
 			{
-				JSONObject jRoutes = new JSONObject(true, nResults);
-				jResp.put("routes", jRoutes);
+				Map<Integer, JSONObject> routesByLocationIndex = new LinkedHashMap<Integer, JSONObject>();
 
-				JSONArray jRouteFeatures = new JSONArray(nResults);
-				jRoutes.put("type", "FeatureCollection");        
-				jRoutes.put("features", jRouteFeatures);
-				
 				for (int i = 0; i< nResults; ++i)
 				{
 					RouteResult route = result.getRoutes().get(i);
@@ -157,21 +155,38 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 						feature.put("type", "Feature");
 
 						Geometry geom = GeomUtility.createLinestring(route.getGeometry());
-						
+
 						JSONObject jGeometry = new JSONObject(true);
 						jGeometry.put("type", geom.getClass().getSimpleName());
 						jGeometry.put("coordinates", GeometryJSON.toJSON(geom, buffer));
 						feature.put("geometry", jGeometry);
-						
+
 						JSONObject properties = new JSONObject(true, 3);
 						properties.put("duration", route.getSummary().getDuration());
 						properties.put("distance", route.getSummary().getDistance());
 						feature.put("properties", properties);
-						
+
+						JSONArray jRouteFeatures = null;
+						JSONObject jRouteForLocIndex = routesByLocationIndex.get(route.getLocationIndex());
+						if (jRouteForLocIndex == null)
+						{
+							jRouteForLocIndex = new JSONObject(true);
+							jRouteForLocIndex.put("type", "FeatureCollection");
+
+							jRouteFeatures = new JSONArray();
+							jRouteForLocIndex.put("features", jRouteFeatures);
+
+							routesByLocationIndex.put(route.getLocationIndex(), jRouteForLocIndex);
+						}
+						else
+						{
+							jRouteFeatures = jRouteForLocIndex.getJSONArray("features");
+						}
+
 						jRouteFeatures.put(feature);
-						
+
 						Envelope env = geom.getEnvelopeInternal();
-						
+
 						if (minX > env.getMinX())
 							minX =  env.getMinX();
 						if (minY > env.getMinY())
@@ -182,20 +197,32 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 							maxY = env.getMaxY();
 					}
 				}
+				
+				for (Map.Entry<Integer, JSONObject> entry : routesByLocationIndex.entrySet()) 
+					jRoutes.put(entry.getValue());
 			}
 			else
 			{
-				JSONArray jRoutes = new JSONArray(nResults);
-				jResp.put("routes", jRoutes);
-				
+				//JSONArray jRoutes = new JSONArray(nResults);
+				//jResp.put("routes", jRoutes);
+				Map<Integer, JSONArray> routesByLocationIndex = new LinkedHashMap<Integer, JSONArray>();
+
+
 				for (int i = 0; i< nResults; ++i)
 				{
 					RouteResult route = result.getRoutes().get(i);
 					if (route != null)
 					{
+						JSONArray jRouteForLocIndex = routesByLocationIndex.get(route.getLocationIndex());
+						if (jRouteForLocIndex == null)
+						{
+							jRouteForLocIndex = new JSONArray();
+							routesByLocationIndex.put(route.getLocationIndex(), jRouteForLocIndex);
+						}
+						
 						BBox bbox = new BBox(0,0,0,0);
-						JSONArray jRoute = JsonRoutingResponseWriter.toJsonArray(request.getRoutingRequest(), new RouteResult[] {result.getRoutes().get(i)}, bbox);
-						jRoutes.put(jRoute.get(0));
+						JSONArray jRoute = JsonRoutingResponseWriter.toJsonArray(request.getRoutingRequest(), new RouteResult[] { route }, bbox);
+						jRouteForLocIndex.put(jRoute.get(0));
 
 						if (minX > bbox.minLon)
 							minX =  bbox.minLon;
@@ -207,6 +234,9 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 							maxY = bbox.maxLat;
 					}
 				}
+				
+				for (Map.Entry<Integer, JSONArray> entry : routesByLocationIndex.entrySet()) 
+					jRoutes.put(entry.getValue());
 			}
 
 			jResp.put("bbox", GeometryJSON.toJSON(minX, minY, maxX, maxY));
