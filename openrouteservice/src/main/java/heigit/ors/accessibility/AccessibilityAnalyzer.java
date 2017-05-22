@@ -40,7 +40,6 @@ public class AccessibilityAnalyzer {
 			AccessibilityResult accesibilityResult = new AccessibilityResult();
 
 			// Phase I: compute isochrone that includes all possible POIs.
-
 			IsochroneRequest reqIsochrone = new IsochroneRequest();
 			reqIsochrone.setLocationType(req.getLocationType());
 			reqIsochrone.setLocations(req.getLocations());
