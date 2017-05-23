@@ -14,8 +14,6 @@ package heigit.ors.geocoding.geocoders;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import com.vividsolutions.jts.geom.Envelope;
-
 public abstract class AbstractGeocoder implements Geocoder {
 
 	protected String geocodingURL;
@@ -29,7 +27,7 @@ public abstract class AbstractGeocoder implements Geocoder {
 		this.userAgent = userAgent;
 	}
 	
-	public abstract GeocodingResult[] geocode(String address, String languages, int limit, Envelope bbox) throws UnsupportedEncodingException, IOException;
+	public abstract GeocodingResult[] geocode(String address, String languages, SearchBoundary searchBoundary, int limit) throws UnsupportedEncodingException, IOException;
 	
-	public abstract GeocodingResult[] reverseGeocode(double lon, double lat, int limit, Envelope bbox) throws IOException;
+	public abstract GeocodingResult[] reverseGeocode(double lon, double lat, int limit) throws IOException;
 }

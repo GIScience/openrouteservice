@@ -32,32 +32,46 @@ public class PeliasGeocoder extends AbstractGeocoder
 	}
 
 	@Override
-	public GeocodingResult[] geocode(String address, String languages, int limit, Envelope bbox)
+	public GeocodingResult[] geocode(String address, String languages, SearchBoundary searchBoundary, int limit)
 			throws UnsupportedEncodingException, IOException {
 		String reqParams = "?text=" + URLEncoder.encode(GeocodingUtils.sanitizeAddress(address), "UTF-8") + "&size=" + limit + "&lang=" + "en"; // fix language
+		if (searchBoundary != null)
+		{
+			if (searchBoundary instanceof RectSearchBoundary)
+			{
+				RectSearchBoundary rsb = (RectSearchBoundary)searchBoundary;
+				Envelope env = rsb.getRectangle();
+				reqParams += "&boundary.rect.min_lat=" + env.getMinY() + "&boundary.rect.min_lon=" + env.getMinX() + "&boundary.rect.max_lat=" + env.getMaxY() + "&boundary.rect.max_lon=" + env.getMaxX();
+			}
+			else if (searchBoundary instanceof CircleSearchBoundary)
+			{
+				CircleSearchBoundary csb = (CircleSearchBoundary)searchBoundary;
+				reqParams += "&boundary.circle.lat=" + csb.getLatitude() + "&boundary.circle.lon=" + csb.getLongitude() + "&boundary.circle.radius=" + csb.getRadius();
+			}
+		}
 		String respContent = HTTPUtility.getResponse(geocodingURL + reqParams, 10000, userAgent, "UTF-8");
 
 		if (!Helper.isEmpty(respContent) && !respContent.equals("[]")) {
 
-			return getGeocodeResults(respContent, bbox);
+			return getGeocodeResults(respContent, searchBoundary);
 		}
 
 		return null;
 	}
 
 	@Override
-	public GeocodingResult[] reverseGeocode(double lon, double lat, int limit, Envelope bbox) throws IOException {
+	public GeocodingResult[] reverseGeocode(double lon, double lat, int limit) throws IOException {
 		String reqParams = "?point.lat=" + lat  + "&point.lon=" + lon + "&size=" + limit;
 		String respContent = HTTPUtility.getResponse(reverseGeocodingURL + reqParams, 10000, userAgent, "UTF-8");
 
 		if (!Helper.isEmpty(respContent) && !respContent.equals("[]")) {
-			return getGeocodeResults(respContent, bbox);
+			return getGeocodeResults(respContent, null);
 		}
 
 		return null;
 	}
 
-	private GeocodingResult[] getGeocodeResults(String respContent, Envelope bbox)
+	private GeocodingResult[] getGeocodeResults(String respContent, SearchBoundary searchBoundary)
 	{
 		JSONObject features = new JSONObject(respContent);
 		JSONArray arr = (JSONArray)features.get("features");
@@ -72,7 +86,7 @@ public class PeliasGeocoder extends AbstractGeocoder
 			double lon = Double.parseDouble(coords.get(0).toString());
 			double lat = Double.parseDouble(coords.get(1).toString());
 			
-			if (bbox != null && !bbox.contains(lon, lat))
+			if (searchBoundary != null && !searchBoundary.contains(lon, lat))
 				continue;
 
 			JSONObject props = feature.getJSONObject("properties");

@@ -165,11 +165,13 @@ public class RoutingManagerConfiguration
 		// Read traffic settings
 		TrafficInformationConfiguration tic = new TrafficInformationConfiguration();
 		tic.Enabled = Boolean.parseBoolean(RoutingServiceSettings.getParameter("traffic.enabled"));
-		tic.LocationCodesPath = RoutingServiceSettings.getParameter("traffic.location_codes_path");
-		tic.MessagesDatasource = RoutingServiceSettings.getParameter("traffic.source");
-		tic.OutputDirectory = RoutingServiceSettings.getParameter("traffic.output_directory");
-		tic.UpdateInterval = Integer.parseInt(RoutingServiceSettings.getParameter("traffic.update_interval"));
-
+		if (tic.Enabled)
+		{
+			tic.LocationCodesPath = RoutingServiceSettings.getParameter("traffic.location_codes_path");
+			tic.MessagesDatasource = RoutingServiceSettings.getParameter("traffic.source");
+			tic.OutputDirectory = RoutingServiceSettings.getParameter("traffic.output_directory");
+			tic.UpdateInterval = Integer.parseInt(RoutingServiceSettings.getParameter("traffic.update_interval"));
+		}
 		gc.TrafficInfoConfig = tic;
 
 		return gc;

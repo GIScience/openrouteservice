@@ -15,6 +15,7 @@ import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
+import heigit.ors.geocoding.geocoders.SearchBoundary;
 import heigit.ors.services.ServiceRequest;
 import heigit.ors.services.geocoding.GeocodingServiceSettings;
 
@@ -23,7 +24,7 @@ public class GeocodingRequest extends ServiceRequest
 	private String _query;
 	private int _limit = 5;
 	private String _language;
-	private Envelope _bbox;
+	private SearchBoundary _boundary;
 	
 	// reverse geocoding parameter
 	private Coordinate _location;
@@ -70,11 +71,11 @@ public class GeocodingRequest extends ServiceRequest
 		return !Helper.isEmpty(_query) || _location != null;
 	}
 
-	public Envelope getBBox() {
-		return _bbox;
+	public SearchBoundary getBoundary() {
+		return _boundary;
 	}
 
-	public void setBBox(Envelope bbox) {
-		this._bbox = bbox;
+	public void setBoundary(SearchBoundary boundary) {
+		this._boundary = boundary;
 	}
 }

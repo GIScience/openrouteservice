@@ -19,7 +19,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.graphhopper.util.Helper;
-import com.vividsolutions.jts.geom.Envelope;
 
 import heigit.ors.geocoding.geocoders.AbstractGeocoder;
 import heigit.ors.util.HTTPUtility;
@@ -49,7 +48,7 @@ public class NominatimGeocoder extends AbstractGeocoder {
 		// TODO Auto-generated constructor stub
 	}
 
-    public GeocodingResult[] geocode(String address, String languages, int limit, Envelope bbox) throws IOException
+    public GeocodingResult[] geocode(String address, String languages, SearchBoundary boundary, int limit) throws IOException
     {
 		ArrayList<GeocodingResult> res = new ArrayList<GeocodingResult>();
 
@@ -84,7 +83,7 @@ public class NominatimGeocoder extends AbstractGeocoder {
 				String lon = obj.get("lon").toString();
 				String lat = obj.get("lat").toString();
 				
-				if (bbox != null && !bbox.contains(Double.parseDouble(lon), Double.parseDouble(lat)))
+				if (boundary != null && !boundary.contains(Double.parseDouble(lon), Double.parseDouble(lat)))
 					continue;					
 
 				// Get Address Details
@@ -212,7 +211,7 @@ public class NominatimGeocoder extends AbstractGeocoder {
 		return null;
 	}
 	
-	public GeocodingResult[] reverseGeocode(double lon, double lat, int limit, Envelope bbox) throws IOException
+	public GeocodingResult[] reverseGeocode(double lon, double lat, int limit) throws IOException
 	{
 		GeocodingResult gr = new GeocodingResult();		
 
@@ -230,9 +229,6 @@ public class NominatimGeocoder extends AbstractGeocoder {
 		
 		gr.latitude = Double.parseDouble(slat);
 		gr.longitude = Double.parseDouble(slon);
-		
-		if (bbox != null && !bbox.contains(gr.longitude, gr.latitude))
-			return null;			
 
 		// Get Address Details
 		JSONObject address = (JSONObject) ((JSONObject) obj).get("address");
