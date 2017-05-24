@@ -8,10 +8,10 @@ import org.junit.Test;
 public class OrsFirstTest {
 	
 	@Test
-    public void makeSureThatGoogleIsUp() {
-		System.out.println("A"); 
+    public void makeSureORSIsUp() {
 
-    	given().when().get("http://www.google.com").then().statusCode(200);
-    }
+    	given().when().get("http://localhost:8082/openrouteservice-4.0.0/status").then().statusCode(200);
+    
+	}
 	
 }
