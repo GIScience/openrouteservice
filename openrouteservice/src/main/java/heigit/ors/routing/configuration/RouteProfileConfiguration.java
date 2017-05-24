@@ -15,6 +15,7 @@ public class RouteProfileConfiguration
 	private String _profiles; // comma separated
 	private String _graphPath;
 	private Map<String, Map<String, String>> _extStorages;
+	private Map<String, Map<String, String>> _graphBuilders;
 	private Double _maximumDistance = 0.0;
 	private Double _maximumSegmentDistanceWithDynamicWeights = 0.0;
 	private Integer _maximumWayPoints = 0;
@@ -26,7 +27,7 @@ public class RouteProfileConfiguration
 	private String _chWeighting = null;
 	private int _chThreads = 1;
 	
-	private String _elevationProvider = null;
+	private String _elevationProvider = null; 
 	private String _elevationCachePath = null;
 	private String _elevationDataAccess = "MMAP";
 	private boolean _elevationCacheClear = true;
@@ -36,6 +37,7 @@ public class RouteProfileConfiguration
 	public RouteProfileConfiguration()
 	{
 		_extStorages = new HashMap<String, Map<String, String>>();
+		_graphBuilders = new HashMap<String, Map<String, String>>();
 	}
 	
 	public Integer[] getProfilesTypes()
@@ -79,6 +81,7 @@ public class RouteProfileConfiguration
 		rpc._chThreads = this._chThreads;
 
 		rpc._extStorages = this._extStorages;
+		rpc._graphBuilders = this._graphBuilders;
 
 		rpc._elevationCachePath = this._elevationCachePath;
 		rpc._elevationCacheClear = this._elevationCacheClear;
@@ -138,6 +141,16 @@ public class RouteProfileConfiguration
 	public Map<String, Map<String, String>> getExtStorages()
 	{
 		return _extStorages;
+	}
+	
+	public void setGraphBuilders(Map<String, Map<String, String>> value)
+	{
+		_graphBuilders = value; 
+	}
+	
+	public Map<String, Map<String, String>> getGraphBuilders()
+	{
+		return _graphBuilders;
 	}
 	
 	public void setInstructions(Boolean value)

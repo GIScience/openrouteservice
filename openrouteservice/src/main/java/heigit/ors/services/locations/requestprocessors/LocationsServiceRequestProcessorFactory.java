@@ -28,7 +28,7 @@ public class LocationsServiceRequestProcessorFactory {
 	public static AbstractHttpRequestProcessor createProcessor(HttpServletRequest request) throws Exception  
 	{
 		if (!LocationsServiceSettings.getEnabled())
-			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, "Location service is not enabled.");
+			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, LocationsErrorCodes.UNKNOWN, "Location service is not enabled.");
 		
 		String formatParam = request.getParameter("format");
 

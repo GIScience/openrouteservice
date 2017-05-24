@@ -29,11 +29,13 @@ import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.StatusCodeException;
+import heigit.ors.geocoding.geocoders.CircleSearchBoundary;
 import heigit.ors.geocoding.geocoders.Geocoder;
 import heigit.ors.geocoding.geocoders.GeocoderFactory;
 import heigit.ors.geocoding.geocoders.GeocodingErrorCodes;
 import heigit.ors.geocoding.geocoders.GeocodingResult;
 import heigit.ors.geocoding.geocoders.GeocodingUtils;
+import heigit.ors.geocoding.geocoders.RectSearchBoundary;
 import heigit.ors.services.geocoding.requestprocessors.GeocodingRequest;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
@@ -109,25 +111,41 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 				req.setLimit(limit);
 			}
 
-			value = _request.getParameter("bbox");
+			value = _request.getParameter("boundary_type");
 			if (!Helper.isEmpty(value))
 			{
-				String[] coords = value.split(",");
-				if (coords == null || coords.length != 4)
-					throw new StatusCodeException(StatusCode.BAD_REQUEST, GeocodingErrorCodes.INVALID_PARAMETER_VALUE, "BBox parameter is either empty or has wrong number of values.");
-
-				Envelope bbox = null;
-				
-				try
+				if ("rect".equalsIgnoreCase(value))
 				{
-					bbox = new Envelope(Double.parseDouble(coords[0]),  Double.parseDouble(coords[2]), Double.parseDouble(coords[1]), Double.parseDouble(coords[3]));
-				}
-				catch(NumberFormatException ex)
-				{
-					throw new StatusCodeException(StatusCode.BAD_REQUEST, GeocodingErrorCodes.INVALID_PARAMETER_FORMAT, "Unable to parse bbox coordinates.");
-				}
+					value = _request.getParameter("rect");
+					String[] coords = value.split(",");
+					if (coords == null || coords.length != 4)
+						throw new StatusCodeException(StatusCode.BAD_REQUEST, GeocodingErrorCodes.INVALID_PARAMETER_VALUE, "Rect parameter is either empty or has wrong number of values.");
 
-				req.setBBox(bbox);
+					Envelope bbox = null;
+
+					try
+					{
+						bbox = new Envelope(Double.parseDouble(coords[0]),  Double.parseDouble(coords[2]), Double.parseDouble(coords[1]), Double.parseDouble(coords[3]));
+					}
+					catch(NumberFormatException ex)
+					{
+						throw new StatusCodeException(StatusCode.BAD_REQUEST, GeocodingErrorCodes.INVALID_PARAMETER_FORMAT, "Unable to parse 'rect' value.");
+					}
+
+					RectSearchBoundary rsb = new RectSearchBoundary(bbox);
+					req.setBoundary(rsb);
+				}
+				else if ("circle".equalsIgnoreCase(value))
+				{
+					value = _request.getParameter("circle");
+					
+					String[] values = value.split(",");
+					if (values == null || values.length != 3)
+						throw new StatusCodeException(StatusCode.BAD_REQUEST, GeocodingErrorCodes.INVALID_PARAMETER_VALUE, "Circle parameter is either empty or has wrong number of values.");
+
+					CircleSearchBoundary csb = new CircleSearchBoundary(Double.parseDouble(values[0]), Double.parseDouble(values[1]), Double.parseDouble(values[2]));
+					req.setBoundary(csb);
+				}
 			}
 
 			value = _request.getParameter("id");
@@ -135,13 +153,13 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 				req.setId(value);
 			break;
 		case "POST":
-			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, "POST request is not supported.");  
+			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, GeocodingErrorCodes.UKNOWN, "POST request is not supported.");  
 		default:
-			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, "Unknown request type.");
+			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, GeocodingErrorCodes.UKNOWN, "Unknown request type.");
 		}
 
         if (!req.isValid())
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, "Geocoding request parameters are missing or invalid.");
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, GeocodingErrorCodes.UKNOWN, "Geocoding request parameters are missing or invalid.");
 
 		try
 		{
@@ -150,7 +168,7 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 			if (req.getLocation() != null)
 			{
 				Coordinate c = req.getLocation();
-				GeocodingResult[] gresults = geocoder.reverseGeocode(c.x, c.y, req.getLimit(), req.getBBox());
+				GeocodingResult[] gresults = geocoder.reverseGeocode(c.x, c.y, req.getLimit());
 				writeGeocodingResponse(response, req,  gresults);
 			}
 			else
@@ -158,7 +176,7 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 				if (Helper.isEmpty(req.getQuery()))
 					throw new MissingParameterException(GeocodingErrorCodes.MISSING_PARAMETER, "query");
 				
-				GeocodingResult[] gresults = geocoder.geocode(req.getQuery(), req.getLanguage(), req.getLimit(), req.getBBox());
+				GeocodingResult[] gresults = geocoder.geocode(req.getQuery(), req.getLanguage(), req.getBoundary(), req.getLimit());
 				writeGeocodingResponse(response, req, gresults);			
 			}
 		}

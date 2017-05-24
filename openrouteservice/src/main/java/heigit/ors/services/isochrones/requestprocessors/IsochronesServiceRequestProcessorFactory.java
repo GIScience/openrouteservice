@@ -29,10 +29,10 @@ public class IsochronesServiceRequestProcessorFactory {
 	public static AbstractHttpRequestProcessor createProcessor(HttpServletRequest request) throws Exception  
 	{
 		if (!IsochronesServiceSettings.getEnabled())
-			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, "Isochrones service is not enabled.");
+			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, IsochronesErrorCodes.UNKNOWN, "Isochrones service is not enabled.");
 		
 		if (!RoutingProfileManagerStatus.isReady())
-			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, "Isochrones service is not ready yet.");
+			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, IsochronesErrorCodes.UNKNOWN, "Isochrones service is not ready yet.");
 
 		String formatParam = request.getParameter("format");
 

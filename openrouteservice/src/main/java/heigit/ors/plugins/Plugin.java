@@ -2,21 +2,19 @@
  *|														Heidelberg University
  *|	  _____ _____  _____      _                     	Department of Geography		
  *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
- *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2016
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014
  *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
  *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
  *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-package heigit.ors.geocoding.geocoders;
+package heigit.ors.plugins;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
-public interface Geocoder {
-	
-	public GeocodingResult[] geocode(String address, String languages, SearchBoundary boundary, int limit) throws UnsupportedEncodingException, IOException;
-	
-	public GeocodingResult[] reverseGeocode(double lat, double lon, int limit) throws IOException;
+public interface Plugin {
+   String getName();
+   
+   void setParameters(Map<String, String> parameters);
 }

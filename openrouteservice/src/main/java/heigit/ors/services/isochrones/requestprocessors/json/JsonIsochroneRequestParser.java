@@ -37,7 +37,7 @@ public class JsonIsochroneRequestParser {
 		try {
 
 		} catch (Exception ex) {
-			throw new StatusCodeException(IsochronesErrorCodes.INVALID_JSON_FORMAT, "Unable to parse JSON document.");
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.INVALID_JSON_FORMAT, "Unable to parse JSON document.");
 		}
 
 		return req;
@@ -135,7 +135,7 @@ public class JsonIsochroneRequestParser {
 			}
 			else
 			{
-				throw new StatusCodeException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "Parameter 'units' must only be set together with 'range_type=distance'.");
+				throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "Parameter 'units' must only be set together with 'range_type=distance'.");
 			}
 
 			req.setUnits(value.toLowerCase());

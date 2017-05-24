@@ -79,7 +79,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 		}
 
 		if (req == null)
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, "IsochronesRequest object is null.");
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.UNKNOWN, "IsochronesRequest object is null.");
 
 		if (req.getRouteSearchParameters().getProfileType() == RoutingProfileType.UNKNOWN)
 		{
@@ -91,7 +91,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 		}
 
 		if (!req.isValid())
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, "IsochronesRequest is not valid.");
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.UNKNOWN, "IsochronesRequest is not valid.");
 
 		if (IsochronesServiceSettings.getAllowComputeArea() == false && req.hasAttribute("area"))
 			throw new StatusCodeException(IsochronesErrorCodes.FEATURE_NOT_SUPPORTED, "Area computation is not enabled.");

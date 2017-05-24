@@ -11,12 +11,40 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.geocoding.geocoders;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import com.graphhopper.util.Helper;
 
-public interface Geocoder {
+public class CircleSearchBoundary implements SearchBoundary {
+
+	private double _lon;
+	private double _lat;
 	
-	public GeocodingResult[] geocode(String address, String languages, SearchBoundary boundary, int limit) throws UnsupportedEncodingException, IOException;
+	private double _radius;
 	
-	public GeocodingResult[] reverseGeocode(double lat, double lon, int limit) throws IOException;
+	public CircleSearchBoundary(double lon, double lat, double radius)
+	{
+		_lon = lon;
+		_lat = lat;
+		_radius = radius;
+	}
+	
+	public double getLongitude()
+	{
+		return _lon;
+	}
+	
+	public double getLatitude()
+	{
+		return _lat;
+	}
+	
+	public double getRadius()
+	{
+		return _radius;
+	}
+	
+	@Override
+	public boolean contains(double lon, double lat) {
+        double dist = Helper.DIST_EARTH.calcDist(_lat, _lon, lat, lon) / 1000;
+        return dist <= _radius;
+	}
 }

@@ -68,10 +68,10 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 		}
 
 		if (req == null)
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, "LocationRequest object is null.");
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, LocationsErrorCodes.UNKNOWN, "LocationRequest object is null.");
 
 		if (!req.isValid())
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, "Location request parameters are missing or invalid.");
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, LocationsErrorCodes.UNKNOWN, "Location request parameters are missing or invalid.");
 
 		LocationsDataProvider provider = LocationsDataProviderFactory.getProvider(LocationsServiceSettings.getProviderName(), LocationsServiceSettings.getProviderParameters());
 
