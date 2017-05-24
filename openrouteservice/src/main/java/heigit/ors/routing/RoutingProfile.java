@@ -21,19 +21,17 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
+import heigit.ors.routing.graphhopper.extensions.GraphProcessContext;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import heigit.ors.routing.graphhopper.extensions.ORSGraphStorageFactory;
 import heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
-import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilderService;
 import heigit.ors.routing.parameters.*;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.*;
 import heigit.ors.isochrones.IsochroneSearchParameters;
@@ -50,7 +48,6 @@ import heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
 import heigit.ors.routing.traffic.TrafficEdgeAnnotator;
-import heigit.ors.util.CoordTools;
 import heigit.ors.util.RuntimeUtility;
 import heigit.ors.util.TimeUtility;
 
@@ -93,7 +90,7 @@ public class RoutingProfile
 
 	private RouteProfileConfiguration _config;
 
-	public RoutingProfile(String osmFile, RouteProfileConfiguration rpc, RoutingProfilesCollection profiles, RoutingProfileLoadContext loadCntx) throws IOException {
+	public RoutingProfile(String osmFile, RouteProfileConfiguration rpc, RoutingProfilesCollection profiles, RoutingProfileLoadContext loadCntx) throws Exception {
 		mRoutePrefs = rpc.getProfilesTypes();
 		mUseCounter = 0;
 		mUseTrafficInfo = /*mHasDynamicWeights &&*/ hasCarPreferences() ? rpc.getUseTrafficInformation() : false;
@@ -103,7 +100,7 @@ public class RoutingProfile
 		_config = rpc;
 	}
 
-	public static ORSGraphHopper initGraphHopper(String osmFile, RouteProfileConfiguration config, RoutingProfilesCollection profiles, RoutingProfileLoadContext loadCntx) throws IOException {
+	public static ORSGraphHopper initGraphHopper(String osmFile, RouteProfileConfiguration config, RoutingProfilesCollection profiles, RoutingProfileLoadContext loadCntx) throws Exception {
 		CmdArgs args = createGHSettings(osmFile, config);
 
 		RoutingProfile refProfile = null;
@@ -126,10 +123,10 @@ public class RoutingProfile
 		if (LOGGER.isInfoEnabled())
 			LOGGER.info(String.format("[%d] Building/loading graphs....", profileId));
 
-		List<GraphStorageBuilder> storageBuilders = GraphStorageBuilderService.getInstance().createBuilders(config.getExtStorages());
+		GraphProcessContext gpc = new GraphProcessContext(config);
 
-		ORSGraphHopper gh = (ORSGraphHopper) new ORSGraphHopper(config.getExtent(), storageBuilders, config.getUseTrafficInformation(), refProfile).init(args);
-		gh.setGraphStorageFactory(new ORSGraphStorageFactory(storageBuilders));
+		ORSGraphHopper gh = (ORSGraphHopper) new ORSGraphHopper(gpc, config.getUseTrafficInformation(), refProfile).init(args);
+		gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
 
 		if (!Helper.isEmpty(config.getElevationProvider()) && !Helper.isEmpty(config.getElevationCachePath()))
 		{

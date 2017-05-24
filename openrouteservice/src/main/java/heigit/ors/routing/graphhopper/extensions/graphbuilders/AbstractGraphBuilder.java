@@ -9,28 +9,31 @@
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-package heigit.ors.routing.graphhopper.extensions.storages.builders;
+package heigit.ors.routing.graphhopper.extensions.graphbuilders;
 
+import java.util.List;
 import java.util.Map;
 
 import com.graphhopper.GraphHopper;
+import com.graphhopper.reader.OSMReader;
 import com.graphhopper.reader.OSMWay;
-import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 
-import heigit.ors.plugins.Plugin;
+import gnu.trove.list.TLongList;
 
-public interface GraphStorageBuilder extends Plugin
-{
-	public abstract GraphExtension init(GraphHopper graphhopper) throws Exception;
-
-	public abstract void processWay(OSMWay way);
+public abstract class AbstractGraphBuilder implements GraphBuilder {
+	protected Map<String, String> _parameters;
 	
-	public abstract void processEdge(OSMWay way, EdgeIteratorState edge);
-
-	public abstract void setParameters(Map<String, String> parameters);
-
-	public abstract String getName();
+	public abstract void init(GraphHopper graphhopper) throws Exception;
+	
+	public abstract boolean createEdges(OSMReader reader, OSMWay way, TLongList osmNodeIds, long wayFlags, List<EdgeIteratorState> createdEdges) throws Exception;
 	
 	public abstract void finish();
+	
+	public abstract String getName();
+	
+	public void setParameters(Map<String, String> parameters)
+	{
+		_parameters = parameters;
+	}
 }

@@ -622,19 +622,19 @@ public class OSMReaderTest
         {
             // mock data access
             @Override
-            protected double getTmpLatitude( int id )
+            public double getTmpLatitude( int id )
             {
                 return latMap.get(id);
             }
 
             @Override
-            protected double getTmpLongitude( int id )
+            public double getTmpLongitude( int id )
             {
                 return lonMap.get(id);
             }
 
             @Override
-            protected Collection<EdgeIteratorState> addOSMWay( TLongList osmNodeIds, long wayFlags, long osmId )
+            public Collection<EdgeIteratorState> addOSMWay( TLongList osmNodeIds, long wayFlags, long osmId )
             {
                 return Collections.emptyList();
             }
