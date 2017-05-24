@@ -452,11 +452,14 @@ public class OSMReader implements DataReader
             }
         } else
         {
-            // no barriers - simply add the whole way
-            createdEdges.addAll(addOSMWay(way.getNodes(), wayFlags, wayOsmId));
+        	if (!onCreateEdges(way, osmNodeIds, wayFlags, createdEdges))
+        	{
+        		// no barriers - simply add the whole way
+        		createdEdges.addAll(addOSMWay(way.getNodes(), wayFlags, wayOsmId));
+        	}
         }
 
-        
+        /*
         try {
         	// only create sidewalks for wheelchair profile
         	// this will throw an IllegalArgumentException if the graph storage/encoding manager that do not contain the wheelchair profil
@@ -478,7 +481,7 @@ public class OSMReader implements DataReader
         	// do nothing
         	// encodingManager.getEncoder(EncodingManager.WHEELCHAIR); throws an exception for all graph storages that do not contain the wheelchair profile
         }
-        
+        */
         
         onProcessWay(way);
         
@@ -486,6 +489,12 @@ public class OSMReader implements DataReader
         {
         	processEdge(way, edge);
         }
+    }
+    
+    // runge
+    protected boolean onCreateEdges(OSMWay way, TLongList osmNodeIds, long wayFlags, List<EdgeIteratorState> createdEdges)
+    {
+    	return false;
     }
     
     protected void onProcessWay(OSMWay way) // runge
@@ -588,7 +597,7 @@ public class OSMReader implements DataReader
     }
 
     // TODO remove this ugly stuff via better preparsing phase! E.g. putting every tags etc into a helper file!
-    protected double getTmpLatitude( int id )
+    public double getTmpLatitude( int id )
     {
         if (id == EMPTY)
             return Double.NaN;
@@ -607,7 +616,7 @@ public class OSMReader implements DataReader
             return Double.NaN;
     }
 
-    protected double getTmpLongitude( int id )
+    public double getTmpLongitude( int id )
     {
         if (id == EMPTY)
             return Double.NaN;
@@ -754,7 +763,7 @@ public class OSMReader implements DataReader
     /**
      * This method creates from an OSM way (via the osm ids) one or more edges in the graph.
      */
-    protected Collection<EdgeIteratorState> addOSMWay( final TLongList osmNodeIds, final long flags, final long wayOsmId )
+    public Collection<EdgeIteratorState> addOSMWay( final TLongList osmNodeIds, final long flags, final long wayOsmId )
     {
         PointList pointList = new PointList(osmNodeIds.size(), nodeAccess.is3D());
         List<EdgeIteratorState> newEdges = new ArrayList<EdgeIteratorState>(5);
@@ -1056,7 +1065,7 @@ public class OSMReader implements DataReader
     /**
      * Maps OSM IDs (long) to internal node IDs (int)
      */
-    protected LongIntMap getNodeMap()
+    public LongIntMap getNodeMap()
     {
         return osmNodeIdToInternalNodeMap;
     }
