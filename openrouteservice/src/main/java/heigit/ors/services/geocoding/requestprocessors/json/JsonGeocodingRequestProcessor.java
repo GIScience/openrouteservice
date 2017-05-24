@@ -266,7 +266,7 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 			}
 			else 
 				properties.put("confidence", FormatUtility.roundToDecimals(gr.accuracy, 2));
-			
+
 			feature.put("properties", properties);
 
 			features.put(feature);

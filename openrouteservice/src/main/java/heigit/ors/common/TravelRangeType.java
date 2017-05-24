@@ -9,9 +9,9 @@
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-package heigit.ors.isochrones;
+package heigit.ors.common;
 
-public enum IsochronesRangeType {
+public enum TravelRangeType {
    Distance,
    Time
 }

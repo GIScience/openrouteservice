@@ -40,23 +40,30 @@ import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.services.locations.LocationsServiceSettings;
 import heigit.ors.util.GeomUtility;
+import heigit.ors.util.JsonUtility;
 import heigit.ors.util.StreamUtility;
 
 public class JsonLocationsRequestParser {
-
+	
 	public static LocationsRequest parseFromStream(HttpServletRequest request) throws Exception 
 	{
-		InputStream stream = request.getInputStream();
+		String value = request.getParameter("request");
 
+		InputStream stream = request.getInputStream();
+		JSONObject obj = new JSONObject(StreamUtility.readStream(stream));
+		
+		return parseFromJSON(value, obj);
+	}
+
+	public static LocationsRequest parseFromJSON(String request, JSONObject obj) throws Exception 
+	{
 		LocationsRequest req = null;
 
 		try 
 		{
-			JSONObject obj = new JSONObject(StreamUtility.readStream(stream));
-
 			req = new LocationsRequest();		 
 
-			String value = request.getParameter("request");
+			String value = request;
 			if (!Helper.isEmpty(value))
 				req.setType(LocationRequestType.fromString(value));
 
@@ -81,7 +88,7 @@ public class JsonLocationsRequestParser {
 				{
 					paramIdsName = "category_group_ids";
 					JSONArray jArr = jFilter.getJSONArray(paramIdsName);
-					ids = parseIntArray(jArr, paramIdsName);
+					ids = JsonUtility.parseIntArray(jArr, paramIdsName);
 					query.setCategoryGroupIds(ids);
 				}
 				else
@@ -90,7 +97,7 @@ public class JsonLocationsRequestParser {
 					{
 						paramIdsName = "category_ids";
 						JSONArray jArr = jFilter.getJSONArray(paramIdsName);
-						ids = parseIntArray(jArr, paramIdsName);
+						ids = JsonUtility.parseIntArray(jArr, paramIdsName);
 						query.setCategoryIds(ids);
 					}
 				}
@@ -137,7 +144,7 @@ public class JsonLocationsRequestParser {
 			value = obj.optString("geometry");
 			if (!Helper.isEmpty(value))
 			{
-				Geometry geom = parseGeometry(value);
+				Geometry geom = JsonUtility.parseGeometry(value);
 				if (geom == null)
 					throw new StatusCodeException(StatusCode.BAD_REQUEST, LocationsErrorCodes.INVALID_PARAMETER_VALUE, "'geometry' parameter is incorrect.");
 
@@ -221,7 +228,6 @@ public class JsonLocationsRequestParser {
 		if (req.getType() == LocationRequestType.UNKNOWN)
 			throw new UnknownParameterValueException("request", value);
 		
-
 		value = request.getParameter("id");
 		if (!Helper.isEmpty(value))
 			req.setId(value);
@@ -233,12 +239,12 @@ public class JsonLocationsRequestParser {
 
 		value = request.getParameter("category_group_ids");
 		if (!Helper.isEmpty(value))
-			query.setCategoryGroupIds(parseIntArray(value, "category_group_ids"));
+			query.setCategoryGroupIds(JsonUtility.parseIntArray(value, "category_group_ids"));
 		else
 		{
 			value = request.getParameter("category_ids");
 			if (!Helper.isEmpty(value))
-				query.setCategoryIds(parseIntArray(value, "category_ids"));
+				query.setCategoryIds(JsonUtility.parseIntArray(value, "category_ids"));
 		}
 
 		if (req.getType() == LocationRequestType.POIS)
@@ -285,7 +291,7 @@ public class JsonLocationsRequestParser {
 		value = request.getParameter("geometry");
 		if (!Helper.isEmpty(value))
 		{
-			Geometry geom = parseGeometry(value);
+			Geometry geom = JsonUtility.parseGeometry(value);
 			if (geom == null)
 				throw new StatusCodeException(StatusCode.BAD_REQUEST, LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "'geometry' parameter is incorrect.");
 
@@ -348,26 +354,6 @@ public class JsonLocationsRequestParser {
 		return req;
 	}
 
-	private static Geometry parseGeometry(String geomText) throws JSONException, Exception
-	{
-		Geometry geometry = GeometryJSON.parse(new JSONObject(geomText));
-
-		if (geometry instanceof LineString && LocationsServiceSettings.getMaximumFeatureLength() > 0)
-		{
-			double length = GeomUtility.getLength(geometry, true);
-			if (length > LocationsServiceSettings.getMaximumFeatureLength())
-				throw new ParameterOutOfRangeException(LocationsErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "geometry", String.format("LineString length (%.1f) is greater than allowed maximum value (%.1f)", length, LocationsServiceSettings.getMaximumFeatureLength()), Double.toString(LocationsServiceSettings.getMaximumFeatureLength()));
-		}
-		else if (geometry instanceof Polygon && LocationsServiceSettings.getMaximumFeatureArea() > 0)
-		{
-			double area = GeomUtility.getArea(geometry, true);
-			if (area > LocationsServiceSettings.getMaximumFeatureArea())
-				throw new ParameterOutOfRangeException(LocationsErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "geometry", String.format("Polygon area (%.1f) is greater than allowed maximum value (%.1f)", area, LocationsServiceSettings.getMaximumFeatureArea()), Double.toString(LocationsServiceSettings.getMaximumFeatureArea()));
-		}
-
-		return geometry;
-	}
-
 	private static void checkSearchRadius(Geometry geom, double value) throws Exception
 	{
 		if (geom instanceof Point)
@@ -398,43 +384,5 @@ public class JsonLocationsRequestParser {
 			return false;
 
 		return null;
-	}
-
-	private static int[] parseIntArray(JSONArray array, String elemName) throws Exception
-	{
-		if (array.length() <= 0)
-			return null;
-
-		try
-		{
-			int[] res = new int[array.length()];
-			for (int i = 0; i < array.length(); i++)
-				res [i] = array.getInt(i);
-			return res;
-		}
-		catch(Exception ex)
-		{
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, LocationsErrorCodes.INVALID_PARAMETER_FORMAT,  "Unable to parse the element '" + elemName + "'. " + ex.getMessage());
-		}
-	}
-
-	private static int[] parseIntArray(String strArray, String elemName) throws Exception
-	{
-		if (Helper.isEmpty(strArray))
-			return null;
-
-		try
-		{
-			String[] array = strArray.split(",");
-			int[] res = new int[array.length];
-			for (int i = 0; i < array.length; i++)
-				res [i] = Integer.parseInt(array[i]);
-
-			return res;
-		}
-		catch(Exception ex)
-		{
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, LocationsErrorCodes.INVALID_PARAMETER_FORMAT,  "Unable to parse the element '" + elemName + "'. " + ex.getMessage());
-		}
 	}
 }

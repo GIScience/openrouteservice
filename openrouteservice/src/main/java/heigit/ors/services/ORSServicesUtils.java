@@ -29,7 +29,7 @@ import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.routing.RoutingProfileManagerStatus;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
-//import heigit.ors.services.accessibility.AccessibilityServiceSettings;
+import heigit.ors.services.accessibility.AccessibilityServiceSettings;
 import heigit.ors.services.geocoding.GeocodingServiceSettings;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.services.locations.LocationsServiceSettings;
@@ -64,8 +64,8 @@ public class ORSServicesUtils {
 					list.add("geocoding");
 				if (IsochronesServiceSettings.getEnabled())
 					list.add("isochrones");
-				//if (AccessibilityServiceSettings.getEnabled())
-				//	list.add("accessibility");
+				if (AccessibilityServiceSettings.getEnabled())
+					list.add("accessibility");
 				if (LocationsServiceSettings.getEnabled())
 					list.add("locations");
 				jInfo.put("services", list);

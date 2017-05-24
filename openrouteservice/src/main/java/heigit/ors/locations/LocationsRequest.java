@@ -107,4 +107,21 @@ public class LocationsRequest extends ServiceRequest
 	public void setDetails(int value) {
 		_details = value;
 	}
+	
+	public LocationsRequest clone()
+	{
+		LocationsRequest req = new LocationsRequest();
+		req._bbox = _bbox;
+		req._filter = _filter.clone();
+		req._geometry = _geometry;
+		req._language = _language;
+		req._limit = _limit;
+		req._radius = _radius;
+		req._sortType = _sortType;
+		req._type = _type;
+		req._details = _details;
+		
+		return req;
+	}
 }
+

@@ -217,7 +217,7 @@ public class RoutingProfileManager {
 						_profileUpdater.start();
 					}
 				}
-				
+
 				RoutingProfileManagerStatus.setReady(true);
 			}
 		} catch (Exception ex) {
@@ -260,14 +260,72 @@ public class RoutingProfileManager {
 		return _profileUpdater == null ? null : _profileUpdater.getStatus();
 	}
 
+	public List<RouteResult> getRoutes(RoutingRequest req, boolean invertFlow, boolean oneToMany) throws Exception
+	{
+		if (req.getCoordinates().length <= 1)
+			throw new Exception("Number of coordinates must be greater than 1.");
+
+		List<RouteResult> routes = new ArrayList<RouteResult>(req.getCoordinates().length - 1);
+
+		RoutingProfile rp = getRouteProfile(req, true);
+		RouteSearchParameters searchParams = req.getSearchParameters();
+		PathProcessor pathProcessor = null;
+
+		if (req.getExtraInfo() > 0)
+		{
+			// do not allow geometry simplification when extras are requested
+			req.setSimplifyGeometry(false);
+			pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req.getExtraInfo());
+		}
+		else
+		{ 
+			if (req.getIncludeElevation())
+				pathProcessor = new ElevationSmoothPathProcessor();
+		}
+
+		Coordinate[] coords = req.getCoordinates();
+		Coordinate c0 = coords[0];
+		int nSegments = coords.length - 1;
+		RouteProcessContext routeProcCntx = new RouteProcessContext(pathProcessor);
+		RouteResultBuilder routeBuilder = new RouteResultBuilder();
+		List<GHResponse> resp =  new ArrayList<GHResponse>(); 
+
+		for(int i = 1; i <= nSegments; ++i)
+		{
+			if (pathProcessor != null)
+				pathProcessor.setSegmentIndex(i - 1, nSegments);
+
+			Coordinate c1 = coords[i];
+			GHResponse gr = null;
+			if (invertFlow)
+				gr = rp.getRoute(c0.y, c0.x, c1.y, c1.x, false, searchParams, req.getSimplifyGeometry(), routeProcCntx);
+			else
+				gr = rp.getRoute(c1.y, c1.x, c0.y, c0.x, false, searchParams, req.getSimplifyGeometry(), routeProcCntx);
+
+			//if (gr.hasErrors())
+			//	throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
+
+			if (!gr.hasErrors())
+			{
+				resp.clear();
+				resp.add(gr);
+				RouteResult route = routeBuilder.createRouteResult(resp, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor)pathProcessor).getExtras(): null);
+				route.setLocationIndex(req.getLocationIndex());
+				routes.add(route);
+			}
+			else
+				routes.add(null);
+		}
+
+		return routes;
+	}
+
 	public RouteResult getRoute(RoutingRequest req) throws Exception
 	{
 		List<GHResponse> routes = new ArrayList<GHResponse>();
 
-		RoutingProfile rp = getRouteProfile(req);
-
+		RoutingProfile rp = getRouteProfile(req, false);
 		RouteSearchParameters searchParams = req.getSearchParameters();
-
 		PathProcessor pathProcessor = null;
 
 		if (req.getExtraInfo() > 0)
@@ -307,7 +365,7 @@ public class RoutingProfileManager {
 		return new RouteResultBuilder().createRouteResult(routes, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor)pathProcessor).getExtras(): null);
 	}
 
-	public RoutingProfile getRouteProfile(RoutingRequest req) throws Exception {
+	public RoutingProfile getRouteProfile(RoutingRequest req, boolean oneToMany) throws Exception {
 		RouteSearchParameters searchParams = req.getSearchParameters();
 		int profileType = searchParams.getProfileType();
 
@@ -329,41 +387,55 @@ public class RoutingProfileManager {
 			int nCoords = coords.length;
 			if (config.getMaximumWayPoints() > 0)
 			{
-				if (nCoords > config.getMaximumWayPoints())
+				if (!oneToMany && nCoords > config.getMaximumWayPoints())
 					throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The specified number of waypoints must not be greater than " + Integer.toString(config.getMaximumWayPoints()) + ".");
 			}
 
 			if (config.getMaximumDistance() > 0 || (dynamicWeights && config.getMaximumSegmentDistanceWithDynamicWeights() > 0))
 			{
-				double totalDist =  0.0;
 				double longestSegmentDist = 0.0;
 				DistanceCalc distCalc = Helper.DIST_EARTH;
 
 				Coordinate c0 = coords[0], c1 = null;
+				double totalDist =  0.0;
 
-				if (nCoords == 2)
+				if (oneToMany)
 				{
-					c1 = coords[1];
-					totalDist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
-					longestSegmentDist = totalDist;
-				}
-				else
-				{
-					double dist = 0;
 					for(int i = 1; i < nCoords; i++)
 					{
 						c1 = coords[i];
-						dist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
-						totalDist += dist;
-						if (dist > longestSegmentDist)
-							longestSegmentDist = dist;
+						totalDist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
+						if (totalDist > longestSegmentDist)
+							longestSegmentDist = totalDist;
+					}
+				}
+				else
+				{
+					if (nCoords == 2)
+					{
+						c1 = coords[1];
+						totalDist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
+						longestSegmentDist = totalDist;
+					}
+					else
+					{
+						double dist = 0;
+						for(int i = 1; i < nCoords; i++)
+						{
+							c1 = coords[i];
+							dist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
+							totalDist += dist;
+							if (dist > longestSegmentDist)
+								longestSegmentDist = dist;
 
-						c0 = c1;
+							c0 = c1;
+						}
 					}
 				}
 
 				if (config.getMaximumDistance() > 0 && totalDist > config.getMaximumDistance())
 					throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The approximated route distance must not be greater than " + Double.toString(config.getMaximumDistance()) + " meters.");
+
 				if (dynamicWeights && config.getMaximumSegmentDistanceWithDynamicWeights() > 0 && longestSegmentDist > config.getMaximumSegmentDistanceWithDynamicWeights())
 					throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "By dynamic weighting, the approximated distance of a route segment must not be greater than " + Double.toString(config.getMaximumSegmentDistanceWithDynamicWeights()) + " meters.");
 			}

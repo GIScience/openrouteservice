@@ -254,7 +254,12 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 				cmdText = addConditions(cmdText, "(" + buildCategoryIdsFilter(filter.getCategoryIds()) + ")");
 
 			if (filter.getName() != null)
-				cmdText = addConditions(cmdText, "(name = ''" + filter.getName() + "'')");
+			{
+				if (filter.getName().contains("*"))
+					cmdText = addConditions(cmdText, "(name IS NOT NULL AND (lower(name) LIKE ''" + filter.getName().replace('*', '%').toLowerCase() + "''))");
+				else
+					cmdText = addConditions(cmdText, "(lower(name) = ''" + filter.getName().toLowerCase() + "'')");
+			}
 
 			if (!Helper.isEmpty(filter.getWheelchair()))
 			{

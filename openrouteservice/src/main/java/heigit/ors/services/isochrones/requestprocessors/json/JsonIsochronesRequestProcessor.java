@@ -41,7 +41,7 @@ import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.isochrones.IsochroneUtility;
 import heigit.ors.isochrones.IsochronesErrorCodes;
 import heigit.ors.isochrones.IsochronesIntersection;
-import heigit.ors.isochrones.IsochronesRangeType;
+import heigit.ors.common.TravelRangeType;
 import heigit.ors.isochrones.Isochrone;
 import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.isochrones.IsochroneMapCollection;
@@ -142,7 +142,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
 		int groupIndex = 0;
 		boolean includeArea = request.hasAttribute("area");
-		boolean includeReachFactor = request.getRangeType() == IsochronesRangeType.Time && request.hasAttribute("reachfactor");
+		boolean includeReachFactor = request.getRangeType() == TravelRangeType.Time && request.hasAttribute("reachfactor");
 		String units = request.getUnits() != null ? request.getUnits().toLowerCase() : null;
 
 		for (IsochroneMap isoMap : isochroneMaps.getIsochroneMaps())

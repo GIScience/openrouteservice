@@ -31,6 +31,7 @@ public class RoutingRequest extends ServiceRequest
 	private Boolean _simplifyGeometry = false;
 	private String[] _attributes = null;
     private int _extraInfo;
+    private int _locationIndex = -1;
 	
 	public RoutingRequest()
 	{
@@ -147,5 +148,13 @@ public class RoutingRequest extends ServiceRequest
 	public boolean getConsiderTraffic(){
 		return this._searchParameters.getConsiderTraffic();
 		
+	}
+
+	public int getLocationIndex() {
+		return _locationIndex;
+	}
+
+	public void setLocationIndex(int locationIndex) {
+		_locationIndex = locationIndex;
 	}
 }
