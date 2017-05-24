@@ -24,7 +24,7 @@ public class LocationsRequest extends ServiceRequest
 	private String _language;
 	private Envelope _bbox;
 	private Geometry _geometry;
-	private double _radius;
+	private double _radius = 0.0;
 	private LocationRequestType _type = LocationRequestType.POIS;
 	private int _details = LocationDetailsType.NONE;
 	private LocationsResultSortType _sortType = LocationsResultSortType.NONE;
