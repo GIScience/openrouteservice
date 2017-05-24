@@ -9,9 +9,6 @@
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-
-// Authors: M. Rylov 
-
 package heigit.ors.isochrones;
 
 import java.util.ArrayList;
@@ -19,6 +16,7 @@ import java.util.List;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
 
 public class IsochroneMap {
 	private Envelope _envelope;

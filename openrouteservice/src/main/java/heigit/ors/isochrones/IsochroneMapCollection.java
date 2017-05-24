@@ -14,6 +14,9 @@ package heigit.ors.isochrones;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+
 public class IsochroneMapCollection {
 	private int _nIsochrones = 0;
 	private List<IsochroneMap> _isochroneMaps = new ArrayList<IsochroneMap>();
@@ -45,5 +48,33 @@ public class IsochroneMapCollection {
 	public int size()
 	{
 		return _isochroneMaps.size();
+	}
+	
+	public Geometry computeIntersection()
+	{
+		if (_isochroneMaps.size() == 0)
+			return null;
+		
+		if (_isochroneMaps.size() == 1)
+			return _isochroneMaps.get(0).getIsochrone(0).getGeometry();
+		
+		Isochrone iso = _isochroneMaps.get(0).getIsochrone(0);
+		Geometry geomIntersection = iso.getGeometry();
+		Envelope envIntersection = iso.getEnvelope();
+		
+		for (int i = 1; i < _isochroneMaps.size(); ++i)
+		{
+			iso = _isochroneMaps.get(i).getIsochrone(0);
+			if (envIntersection.intersects(iso.getEnvelope()))
+			{
+				geomIntersection = geomIntersection.intersection(iso.getGeometry());
+				if (geomIntersection == null || geomIntersection.isEmpty())
+					return null;
+			}
+			else
+				return null;
+		}
+		
+		return geomIntersection;
 	}
 }

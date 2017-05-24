@@ -12,12 +12,13 @@
 package heigit.ors.accessibility;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 
 import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.isochrones.Isochrone;
 import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.isochrones.IsochroneMapCollection;
 import heigit.ors.isochrones.IsochroneSearchParameters;
@@ -57,32 +58,47 @@ public class AccessibilityAnalyzer {
 				IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams);
 				isoMaps.add(isochroneMap);
 			}
-			
+
 			if (isoMaps.size() > 0)
 			{
-				// Phase II: find locations within an isochrone
-				Isochrone isochrone = isoMaps.getIsochrone(0).getIsochrone(0);
-				LocationsRequest reqLocations = req.getLocationsRequest().clone();
-				reqLocations.setGeometry(isochrone.getGeometry());
-				LocationsDataProvider provider = LocationsDataProviderFactory.getProvider(LocationsServiceSettings.getProviderName(), LocationsServiceSettings.getProviderParameters());
-				List<LocationsResult> locations = provider.findLocations(reqLocations);
+				// Compute intersection between all isochrones
+				Geometry geomArea = isoMaps.computeIntersection();
 
-				accesibilityResult.setLocations(locations);
-
-				// Phase III: compute routes from start point to all found places
-				if (!locations.isEmpty())
+				if (geomArea != null)
 				{
-					RoutingRequest reqRouting = req.getRoutingRequest();
-					reqRouting.setCoordinates(new Coordinate[] { req.getLocations()[0] });
-					//reqRouting.setLocationIndex(locationIndex);
-					Coordinate[] coords = new Coordinate[locations.size() + 1];
-					coords[0] = reqRouting.getCoordinates()[0];
-					for(int i = 0 ; i < locations.size(); ++i)
-						coords[i+1] = locations.get(i).getGeometry().getCoordinate();
-					reqRouting.setCoordinates(coords);
+					// Phase II: find locations within an isochrone
+					LocationsRequest reqLocations = req.getLocationsRequest().clone();
+					reqLocations.setGeometry(geomArea);
+					
+					LocationsDataProvider provider = LocationsDataProviderFactory.getProvider(LocationsServiceSettings.getProviderName(), LocationsServiceSettings.getProviderParameters());
+					List<LocationsResult> poiLocations = provider.findLocations(reqLocations);
+					accesibilityResult.setLocations(poiLocations);
 
-					List<RouteResult> routes = RoutingProfileManager.getInstance().getRoutes(reqRouting, "destination".equalsIgnoreCase(req.getLocationType()), true);
-					accesibilityResult.setRoutes(routes);
+					// Phase III: compute routes from start point to all found places
+					if (!poiLocations.isEmpty())
+					{
+						Coordinate[] coords = new Coordinate[poiLocations.size() + 1];
+
+						for(int i = 0 ; i < poiLocations.size(); ++i)
+							coords[i+1] = poiLocations.get(i).getGeometry().getCoordinate();
+						
+						List<RouteResult> routes = new ArrayList<RouteResult>(2*req.getLocations().length);
+						
+						RoutingRequest reqRouting = req.getRoutingRequest();
+						reqRouting.setCoordinates(coords);
+
+						for (int j = 0; j < req.getLocations().length; j++)
+						{
+							coords[0] = req.getLocations()[j];
+							reqRouting.setCoordinates(coords);
+							reqRouting.setLocationIndex(j);
+							
+							List<RouteResult> routesToLocation = RoutingProfileManager.getInstance().getRoutes(reqRouting, "destination".equalsIgnoreCase(req.getLocationType()), true);
+							routes.addAll(routesToLocation);
+						}
+					
+						accesibilityResult.setRoutes(routes);
+					}
 				}
 			}
 
