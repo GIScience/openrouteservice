@@ -146,7 +146,7 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 			{
 				Map<Integer, JSONObject> routesByLocationIndex = new LinkedHashMap<Integer, JSONObject>();
 
-				for (int i = 0; i< nResults; ++i)
+				for (int i = 0; i < result.getRoutes().size(); ++i)
 				{
 					RouteResult route = result.getRoutes().get(i);
 					if (route != null)

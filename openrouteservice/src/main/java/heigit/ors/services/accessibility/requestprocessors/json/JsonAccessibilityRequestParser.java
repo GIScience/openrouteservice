@@ -26,6 +26,7 @@ import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
+import heigit.ors.isochrones.IsochronesErrorCodes;
 import heigit.ors.localization.LocalizationManager;
 import heigit.ors.locations.LocationDetailsType;
 import heigit.ors.locations.LocationRequestType;
@@ -55,7 +56,7 @@ public class JsonAccessibilityRequestParser {
 	{
 		AccessibilityRequest req = new AccessibilityRequest();
 
-		Coordinate location = null;
+		Coordinate[] locations = null;
 		
 		String value = request.getParameter("id");
 		if (!Helper.isEmpty(value))
@@ -165,7 +166,7 @@ public class JsonAccessibilityRequestParser {
 		
 		RouteSearchParameters searchParams = reqRouting.getSearchParameters();
 
-		reqRouting.setCoordinates(new Coordinate[] { location });
+		reqRouting.setCoordinates(locations);
 
 		value = request.getParameter("profile");
 		if (!Helper.isEmpty(value))
@@ -251,36 +252,49 @@ public class JsonAccessibilityRequestParser {
 		
         // ************ Parsing other search parameters ************
 		
-		value = request.getParameter("location");
+		value = request.getParameter("locations");
 		if (!Helper.isEmpty(value))
 		{
 			String[] coordValues = value.split("\\|");
-
 			int nCoords = coordValues.length;
+			
+			if (AccessibilityServiceSettings.getMaximumLocations() > 0 && nCoords > AccessibilityServiceSettings.getMaximumLocations())
+				throw new ParameterOutOfRangeException(AccessibilityErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations", Integer.toString(nCoords), Integer.toString(AccessibilityServiceSettings.getMaximumLocations()));
 
-			if (nCoords != 1)
-				throw new StatusCodeException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "location parameter must have longitude and latitude values.");
+			locations = new Coordinate[nCoords];
 
 			try
 			{
-				String[] locations = coordValues[0].split(",");
-				if (locations.length == 3)
-					location = new Coordinate(Double.parseDouble(locations[0]), Double.parseDouble(locations[1]), Integer.parseInt(locations[2]));
-				else
-					location = new Coordinate(Double.parseDouble(locations[0]),Double.parseDouble(locations[1]));
+				for (int i = 0; i < nCoords; i++)
+				{
+					String[] strValues = coordValues[i].split(",");
+					if (strValues.length == 3)
+						locations[i] = new Coordinate(Double.parseDouble(strValues[0]), Double.parseDouble(strValues[1]), Integer.parseInt(strValues[2]));
+					else
+						locations[i] = new Coordinate(Double.parseDouble(strValues[0]),Double.parseDouble(strValues[1]));
+				}
 			}
 			catch(NumberFormatException ex)
 			{
 				throw new StatusCodeException(StatusCode.BAD_REQUEST, AccessibilityErrorCodes.INVALID_PARAMETER_FORMAT, "Unable to parse coordinates value.");
 			}
+			
+			req.setLocations(locations);
 		}
 		else
 		{
 			throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "location");
 		}
 
-		req.setLocations(new Coordinate[] { location });
+		value = request.getParameter("location_type");
+		if (!Helper.isEmpty(value))
+		{
+			if (!"start".equalsIgnoreCase(value) && !"destination".equalsIgnoreCase(value))
+				throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "location_type", value);
 
+			req.setLocationType(value);
+		}
+		
 		value = request.getParameter("range_type");
 		if (!Helper.isEmpty(value))
 		{
@@ -296,35 +310,34 @@ public class JsonAccessibilityRequestParser {
 				throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "range_type", value);
 			}
 		}
-
-		value = request.getParameter("location_type");
-		if (!Helper.isEmpty(value))
-		{
-			if (!"start".equalsIgnoreCase(value) && !"destination".equalsIgnoreCase(value))
-				throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "location_type", value);
-
-			req.setLocationType(value);
-		}
 		
 		value = request.getParameter("range");
 		if (!Helper.isEmpty(value))
+		{
 			req.setRange(Double.parseDouble(value));
+
+			if (req.getRange() > AccessibilityServiceSettings.getMaximumRange(req.getRangeType()))
+				throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(AccessibilityServiceSettings.getMaximumRange(req.getRangeType())), Double.toString(req.getRange()));
+		}
 		else
 			throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "range");
 		
 		req.setRoutesFormat(request.getParameter("routes_format"));
-	
-		double range = req.getRange();
-		
-		switch(req.getRangeType())
-		{
-		case Distance:
-			reqLocations.setRadius(2*range);
-			break;
-		case Time:
-			reqLocations.setRadius(120000*range/3600);
-			break;
-		}
+
+		/*
+		if (req.getLocations().length == 1){
+			double range = req.getRange();
+			
+			switch(req.getRangeType())
+			{
+			case Distance:
+				reqLocations.setRadius(2*range);
+				break;
+			case Time:
+				reqLocations.setRadius(120000*range/3600);
+				break;
+			}
+		}*/
 		
 		return req;
 	}
