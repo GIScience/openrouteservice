@@ -13,6 +13,7 @@ package heigit.ors.services.accessibility.requestprocessors;
 
 import javax.servlet.http.HttpServletRequest;
 
+import heigit.ors.accessibility.AccessibilityErrorCodes;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
@@ -28,10 +29,10 @@ public class AccessibilityServiceRequestProcessorFactory {
 	public static AbstractHttpRequestProcessor createProcessor(HttpServletRequest request) throws Exception  
 	{
 		if (!AccessibilityServiceSettings.getEnabled())
-			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, "Accessibility service is not enabled.");
+			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, AccessibilityErrorCodes.UNKNOWN,  "Accessibility service is not enabled.");
 
 		if (!RoutingProfileManagerStatus.isReady())
-			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, "Accessibility service is not ready yet.");
+			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, AccessibilityErrorCodes.UNKNOWN, "Accessibility service is not ready yet.");
 
 		String formatParam = request.getParameter("format");
 

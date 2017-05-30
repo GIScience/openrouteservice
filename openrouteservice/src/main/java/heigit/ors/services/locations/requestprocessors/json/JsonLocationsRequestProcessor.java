@@ -77,7 +77,7 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 
 		switch(req.getType())
 		{
-		case  POIS:
+		case POIS:
 			writeLocationsResponse(response, req, provider.findLocations(req));			
 			break;
 		case CATEGORY_STATS:

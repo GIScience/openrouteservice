@@ -42,6 +42,7 @@ import heigit.ors.services.accessibility.AccessibilityRequest;
 import heigit.ors.services.accessibility.AccessibilityServiceSettings;
 import heigit.ors.services.routing.RouteInstructionsFormat;
 import heigit.ors.services.routing.RoutingRequest;
+import heigit.ors.util.CoordTools;
 import heigit.ors.util.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.JsonUtility;
@@ -248,37 +249,34 @@ public class JsonAccessibilityRequestParser {
 
 		value = request.getParameter("options");
 		if (!Helper.isEmpty(value))
-			searchParams.setOptions(value);
+		{
+			try
+			{
+				searchParams.setOptions(value);
+			}
+			catch(Exception ex)
+			{
+				throw new StatusCodeException(StatusCode.BAD_REQUEST, AccessibilityErrorCodes.INVALID_JSON_FORMAT, "Unable to parse 'options' value.");
+			}
+		}
 		
         // ************ Parsing other search parameters ************
 		
 		value = request.getParameter("locations");
 		if (!Helper.isEmpty(value))
 		{
-			String[] coordValues = value.split("\\|");
-			int nCoords = coordValues.length;
-			
-			if (AccessibilityServiceSettings.getMaximumLocations() > 0 && nCoords > AccessibilityServiceSettings.getMaximumLocations())
-				throw new ParameterOutOfRangeException(AccessibilityErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations", Integer.toString(nCoords), Integer.toString(AccessibilityServiceSettings.getMaximumLocations()));
-
-			locations = new Coordinate[nCoords];
-
 			try
 			{
-				for (int i = 0; i < nCoords; i++)
-				{
-					String[] strValues = coordValues[i].split(",");
-					if (strValues.length == 3)
-						locations[i] = new Coordinate(Double.parseDouble(strValues[0]), Double.parseDouble(strValues[1]), Integer.parseInt(strValues[2]));
-					else
-						locations[i] = new Coordinate(Double.parseDouble(strValues[0]),Double.parseDouble(strValues[1]));
-				}
+				locations = CoordTools.parse(value, "\\|", false, false);	
 			}
 			catch(NumberFormatException ex)
 			{
 				throw new StatusCodeException(StatusCode.BAD_REQUEST, AccessibilityErrorCodes.INVALID_PARAMETER_FORMAT, "Unable to parse coordinates value.");
 			}
-			
+
+			if (AccessibilityServiceSettings.getMaximumLocations() > 0 && locations.length > AccessibilityServiceSettings.getMaximumLocations())
+				throw new ParameterOutOfRangeException(AccessibilityErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations", Integer.toString(locations.length), Integer.toString(AccessibilityServiceSettings.getMaximumLocations()));
+
 			req.setLocations(locations);
 		}
 		else

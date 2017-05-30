@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import heigit.ors.accessibility.AccessibilityErrorCodes;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.StatusCodeException;
@@ -28,6 +29,7 @@ import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.WeightingMethod;
 import heigit.ors.services.routing.RouteInstructionsFormat;
 import heigit.ors.services.routing.RoutingRequest;
+import heigit.ors.util.CoordTools;
 import heigit.ors.util.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
 
@@ -63,30 +65,19 @@ public class JsonRoutingRequestParser
 		value = request.getParameter("coordinates");
 		if (!Helper.isEmpty(value))
 		{
-			String[] coordValues = value.split("\\|");
-
-			int nCoords = coordValues.length;
-
-			if (nCoords< 2)
-				throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, "coordinates parameter must contain at least two locations");
- 
-			Coordinate[] coords = new Coordinate[nCoords];
+			Coordinate[] coords = null;
 
 			try
 			{
-				for (int i = 0; i < nCoords; i++)
-				{
-					String[] locations = coordValues[i].split(",");
-					if (locations.length == 3)
-						coords[i] = new Coordinate(Double.parseDouble(locations[0]), Double.parseDouble(locations[1]), Integer.parseInt(locations[2]));
-					else
-						coords[i] = new Coordinate(Double.parseDouble(locations[0]),Double.parseDouble(locations[1]));
-				} 
+				coords = CoordTools.parse(value, "\\|", true, false);		
 			}
 			catch(NumberFormatException ex)
 			{
 				throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "Unable to parse coordinates value.");
 			}
+
+			if (coords.length < 2)
+				throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, "coordinates parameter must contain at least two locations");
 
 			req.setCoordinates(coords);
 		}		
@@ -149,7 +140,16 @@ public class JsonRoutingRequestParser
 
 		value = request.getParameter("options");
 		if (!Helper.isEmpty(value))
-			searchParams.setOptions(value);
+		{
+			try
+			{
+				searchParams.setOptions(value);
+			}
+			catch(Exception ex)
+			{
+				throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_JSON_FORMAT, "Unable to parse 'options' value.");
+			}
+		}
 
 		value = request.getParameter("id");
 		if (!Helper.isEmpty(value))

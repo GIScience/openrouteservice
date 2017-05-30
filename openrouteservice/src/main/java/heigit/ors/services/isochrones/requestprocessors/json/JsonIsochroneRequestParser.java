@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import heigit.ors.accessibility.AccessibilityErrorCodes;
 import heigit.ors.common.StatusCode;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.exceptions.MissingParameterException;
@@ -27,6 +28,7 @@ import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.isochrones.IsochronesErrorCodes;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.services.isochrones.IsochroneRequest;
+import heigit.ors.util.CoordTools;
 
 public class JsonIsochroneRequestParser {
 
@@ -153,23 +155,19 @@ public class JsonIsochroneRequestParser {
 
 		if (!Helper.isEmpty(value))
 		{
-			String[] coordValues = value.split("\\|");
-			Coordinate[] coords = new Coordinate[coordValues.length];
+			Coordinate[] coords = null;
 
 			try
 			{
-				for (int i = 0; i < coordValues.length; i++)
-				{
-					String[] locations = coordValues[i].split(",");
-					if (inverseXY)
-						coords[i] = new Coordinate(Double.parseDouble(locations[1]),Double.parseDouble(locations[0]));
-					else
-						coords[i] = new Coordinate(Double.parseDouble(locations[0]),Double.parseDouble(locations[1]));
-				}
+				coords = CoordTools.parse(value, "\\|", false, inverseXY);						
 			}
-			catch(NumberFormatException ex)
+			catch(NumberFormatException nfex)
 			{
-				throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "Unable to parse location coordinates.");
+				throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "Unable to parse location coordinates." + nfex.getMessage());
+			}
+			catch(Exception ex)
+			{
+				throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "Unable to parse location coordinates." + ex.getMessage());
 			}
 
 			req.setLocations(coords);
@@ -202,7 +200,16 @@ public class JsonIsochroneRequestParser {
 
 		value = request.getParameter("options");
 		if (!Helper.isEmpty(value))
-			req.getRouteSearchParameters().setOptions(value);
+		{
+			try
+			{
+				req.getRouteSearchParameters().setOptions(value);
+			}
+			catch(Exception ex)
+			{
+				throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.INVALID_JSON_FORMAT, "Unable to parse 'options' value.");
+			}
+		}
 
 		value = request.getParameter("id");
 		if (!Helper.isEmpty(value))

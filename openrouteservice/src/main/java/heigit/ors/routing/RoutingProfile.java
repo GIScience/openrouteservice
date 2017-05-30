@@ -350,7 +350,7 @@ public class RoutingProfile
 
 			LOGGER.error(ex);
 
-			throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to build isochrone map.");
+			throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to build an isochrone map.");
 		}
 
 		return result;

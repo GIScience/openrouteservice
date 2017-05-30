@@ -26,7 +26,6 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
-import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.locations.LocationDetailsType;
 import heigit.ors.locations.LocationRequestType;
 import heigit.ors.locations.LocationsErrorCodes;
@@ -39,7 +38,6 @@ import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.services.locations.LocationsServiceSettings;
-import heigit.ors.util.GeomUtility;
 import heigit.ors.util.JsonUtility;
 import heigit.ors.util.StreamUtility;
 

@@ -39,6 +39,7 @@ import heigit.ors.locations.providers.LocationsDataProvider;
 import heigit.ors.util.ArraysUtility;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.InternalServerException;
+import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.jts.JTS;
 import heigit.ors.locations.LocationDetailsType;
 import heigit.ors.locations.LocationsCategory;
@@ -460,7 +461,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 				int groupId = ids[i];
 				LocationsCategoryGroup group = LocationsCategoryClassifier.getGroupById(groupId);
 				if (group == null)
-					throw new InternalServerException(StatusCode.BAD_REQUEST, "Unknown group id '" + groupId + "'.");
+					throw new UnknownParameterValueException("category_group_id", "Unknown group id '" + groupId + "'.");
 
 				result += "("+ group.getMinCategoryId() + " <= category AND category <= " + group.getMaxCategoryId() + ")";
 
@@ -476,7 +477,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 
 			LocationsCategoryGroup group = LocationsCategoryClassifier.getGroupById(groupId);
 			if (group == null)
-				throw new InternalServerException(StatusCode.BAD_REQUEST, "Unknown group id '" + groupId + "'.");
+				throw new UnknownParameterValueException("category_group_id", "Unknown group id '" + groupId + "'.");
 
 			result = group.getMinCategoryId() + " <= category AND category <= " + group.getMaxCategoryId(); 
 		}

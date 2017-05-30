@@ -94,7 +94,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 			throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.UNKNOWN, "IsochronesRequest is not valid.");
 
 		if (IsochronesServiceSettings.getAllowComputeArea() == false && req.hasAttribute("area"))
-			throw new StatusCodeException(IsochronesErrorCodes.FEATURE_NOT_SUPPORTED, "Area computation is not enabled.");
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.FEATURE_NOT_SUPPORTED, "Area computation is not enabled.");
 
 		if (req.getLocations().length > IsochronesServiceSettings.getMaximumLocations())
 			throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations", Integer.toString(req.getLocations().length), Integer.toString(IsochronesServiceSettings.getMaximumLocations()));
