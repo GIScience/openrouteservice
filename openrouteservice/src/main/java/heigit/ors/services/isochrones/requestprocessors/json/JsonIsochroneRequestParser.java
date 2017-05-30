@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
-import heigit.ors.accessibility.AccessibilityErrorCodes;
 import heigit.ors.common.StatusCode;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.exceptions.MissingParameterException;
