@@ -26,7 +26,6 @@ import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
-import heigit.ors.isochrones.IsochronesErrorCodes;
 import heigit.ors.localization.LocalizationManager;
 import heigit.ors.locations.LocationDetailsType;
 import heigit.ors.locations.LocationRequestType;
@@ -58,11 +57,11 @@ public class JsonAccessibilityRequestParser {
 		AccessibilityRequest req = new AccessibilityRequest();
 
 		Coordinate[] locations = null;
-		
+
 		String value = request.getParameter("id");
 		if (!Helper.isEmpty(value))
 			req.setId(value);
-		
+
 		// ************ Parsing LocationsRequest parameters ************
 
 		LocationsRequest reqLocations = req.getLocationsRequest();
@@ -79,7 +78,7 @@ public class JsonAccessibilityRequestParser {
 			if (!Helper.isEmpty(value))
 				query.setCategoryIds(JsonUtility.parseIntArray(value, "category_ids"));
 		}
-		
+
 		if (query.getCategoryGroupIds() == null && query.getCategoryIds() == null)
 			throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "category_ids/category_group_ids");
 
@@ -130,7 +129,7 @@ public class JsonAccessibilityRequestParser {
 			reqLocations.setRadius(dvalue);
 		}
 		 */
-		
+
 		value = request.getParameter("limit");
 		if (!Helper.isEmpty(value))
 		{
@@ -164,7 +163,7 @@ public class JsonAccessibilityRequestParser {
 
 		// ************ Parsing RoutingRequest parameters ************
 		RoutingRequest reqRouting = req.getRoutingRequest();
-		
+
 		RouteSearchParameters searchParams = reqRouting.getSearchParameters();
 
 		reqRouting.setCoordinates(locations);
@@ -193,59 +192,70 @@ public class JsonAccessibilityRequestParser {
 
 		value = request.getParameter("units");
 		if (!Helper.isEmpty(value))
-			reqRouting.setUnits(DistanceUnitUtil.getFromString(value, DistanceUnit.Meters));		
+			reqRouting.setUnits(DistanceUnitUtil.getFromString(value, DistanceUnit.Meters));	
 
-		value = request.getParameter("language");
-		if (!Helper.isEmpty(value))
+		if (AccessibilityServiceSettings.getRouteDetailsAllowed())
 		{
-			if(!LocalizationManager.getInstance().isLanguageSupported(value))
-				throw new StatusCodeException(StatusCode.BAD_REQUEST, AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "Specified language '" +  value + "' is not supported.");
+			value = request.getParameter("language");
+			if (!Helper.isEmpty(value))
+			{
+				if(!LocalizationManager.getInstance().isLanguageSupported(value))
+					throw new StatusCodeException(StatusCode.BAD_REQUEST, AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "Specified language '" +  value + "' is not supported.");
 
-			reqRouting.setLanguage(value);
-		}
+				reqRouting.setLanguage(value);
+			}
 
-		value = request.getParameter("geometry");
-		if (!Helper.isEmpty(value))
-			reqRouting.setIncludeGeometry(Boolean.parseBoolean(value));
+			value = request.getParameter("geometry");
+			if (!Helper.isEmpty(value))
+				reqRouting.setIncludeGeometry(Boolean.parseBoolean(value));
 
-		value = request.getParameter("geometry_format");
-		if (!Helper.isEmpty(value))
-		{
-			if (!("geojson".equalsIgnoreCase(value) || "polyline".equalsIgnoreCase(value) || "encodedpolyline".equalsIgnoreCase(value)))
-				throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "geometry_format", value);
+			value = request.getParameter("geometry_format");
+			if (!Helper.isEmpty(value))
+			{
+				if (!("geojson".equalsIgnoreCase(value) || "polyline".equalsIgnoreCase(value) || "encodedpolyline".equalsIgnoreCase(value)))
+					throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "geometry_format", value);
 
-			reqRouting.setGeometryFormat(value);
-		}
+				reqRouting.setGeometryFormat(value);
+			}
 
-		value = request.getParameter("geometry_simplify");
-		if (!Helper.isEmpty(value))
-			reqRouting.setSimplifyGeometry(Boolean.parseBoolean(value));
+			value = request.getParameter("geometry_simplify");
+			if (!Helper.isEmpty(value))
+				reqRouting.setSimplifyGeometry(Boolean.parseBoolean(value));
 
-		value = request.getParameter("instructions");
-		if (!Helper.isEmpty(value))
-			reqRouting.setIncludeInstructions(Boolean.parseBoolean(value));
+			value = request.getParameter("instructions");
+			if (!Helper.isEmpty(value))
+				reqRouting.setIncludeInstructions(Boolean.parseBoolean(value));
 
-		value = request.getParameter("elevation");
-		if (!Helper.isEmpty(value))
-			reqRouting.setIncludeElevation(Boolean.parseBoolean(value));
+			value = request.getParameter("elevation");
+			if (!Helper.isEmpty(value))
+				reqRouting.setIncludeElevation(Boolean.parseBoolean(value));
 
-		value = request.getParameter("instructions_format");
-		if (!Helper.isEmpty(value))
-		{
-			RouteInstructionsFormat instrFormat = RouteInstructionsFormat.fromString(value);
-			if (instrFormat == RouteInstructionsFormat.UNKNOWN)
-				throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "instructions_format", value);
+			value = request.getParameter("instructions_format");
+			if (!Helper.isEmpty(value))
+			{
+				RouteInstructionsFormat instrFormat = RouteInstructionsFormat.fromString(value);
+				if (instrFormat == RouteInstructionsFormat.UNKNOWN)
+					throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "instructions_format", value);
+
+				reqRouting.setInstructionsFormat(instrFormat);
+			}
+
+			value = request.getParameter("extra_info");
+			if (!Helper.isEmpty(value))
+				reqRouting.setExtraInfo(RouteExtraInfoFlag.getFromString(value));
+
+			value = request.getParameter("attributes");
+			if (!Helper.isEmpty(value))
+				reqRouting.setAttributes(value.split("\\|"));
 			
-			reqRouting.setInstructionsFormat(instrFormat);
+			req.setRoutesFormat(request.getParameter("routes_format"));
 		}
-
-		value = request.getParameter("extra_info");
-		if (!Helper.isEmpty(value))
-			reqRouting.setExtraInfo(RouteExtraInfoFlag.getFromString(value));
-
-		value = request.getParameter("attributes");
-		if (!Helper.isEmpty(value))
-			reqRouting.setAttributes(value.split("\\|"));
+		else
+		{
+			reqRouting.setIncludeGeometry(false);
+			reqRouting.setIncludeInstructions(false);
+			req.setRoutesFormat("simple");
+		}
 
 		value = request.getParameter("options");
 		if (!Helper.isEmpty(value))
@@ -259,9 +269,9 @@ public class JsonAccessibilityRequestParser {
 				throw new StatusCodeException(StatusCode.BAD_REQUEST, AccessibilityErrorCodes.INVALID_JSON_FORMAT, "Unable to parse 'options' value.");
 			}
 		}
-		
-        // ************ Parsing other search parameters ************
-		
+
+		// ************ Parsing other search parameters ************
+
 		value = request.getParameter("locations");
 		if (!Helper.isEmpty(value))
 		{
@@ -292,7 +302,7 @@ public class JsonAccessibilityRequestParser {
 
 			req.setLocationType(value);
 		}
-		
+
 		value = request.getParameter("range_type");
 		if (!Helper.isEmpty(value))
 		{
@@ -308,35 +318,18 @@ public class JsonAccessibilityRequestParser {
 				throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "range_type", value);
 			}
 		}
-		
+
 		value = request.getParameter("range");
 		if (!Helper.isEmpty(value))
 		{
 			req.setRange(Double.parseDouble(value));
 
 			if (req.getRange() > AccessibilityServiceSettings.getMaximumRange(req.getRangeType()))
-				throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(AccessibilityServiceSettings.getMaximumRange(req.getRangeType())), Double.toString(req.getRange()));
+				throw new ParameterOutOfRangeException(AccessibilityErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(AccessibilityServiceSettings.getMaximumRange(req.getRangeType())), Double.toString(req.getRange()));
 		}
 		else
 			throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "range");
-		
-		req.setRoutesFormat(request.getParameter("routes_format"));
 
-		/*
-		if (req.getLocations().length == 1){
-			double range = req.getRange();
-			
-			switch(req.getRangeType())
-			{
-			case Distance:
-				reqLocations.setRadius(2*range);
-				break;
-			case Time:
-				reqLocations.setRadius(120000*range/3600);
-				break;
-			}
-		}*/
-		
 		return req;
 	}
 

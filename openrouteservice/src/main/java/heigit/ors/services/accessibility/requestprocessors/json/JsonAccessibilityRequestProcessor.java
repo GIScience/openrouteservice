@@ -34,6 +34,7 @@ import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.services.accessibility.AccessibilityRequest;
+import heigit.ors.services.accessibility.AccessibilityServiceSettings;
 import heigit.ors.services.locations.LocationsServiceSettings;
 import heigit.ors.services.routing.requestprocessors.json.JsonRoutingResponseWriter;
 import heigit.ors.locations.LocationsResult;
@@ -61,9 +62,6 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 		case "GET":
 			req = JsonAccessibilityRequestParser.parseFromRequestParams(_request);
 			break;
-		case "POST":
-			//req = JsonAccessibilityRequestParser.parseFromStream(_request.getInputStream());
-			throw new InternalServerException(AccessibilityErrorCodes.UNKNOWN, "POST requests are not supported.");
 		default:
 			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED);
 		}
@@ -81,7 +79,7 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 		JSONObject jResp = new JSONObject(4);
 
 		int nResults = result.getLocations().size();
-		boolean geoJsonFormat = request.getRoutesFormat() != null && "geojson".equalsIgnoreCase(request.getRoutesFormat());
+		boolean geoJsonFormat = AccessibilityServiceSettings.getRouteDetailsAllowed() &&  request.getRoutesFormat() != null && "geojson".equalsIgnoreCase(request.getRoutesFormat());
 
 		if (nResults > 0)
 		{
@@ -203,10 +201,7 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 			}
 			else
 			{
-				//JSONArray jRoutes = new JSONArray(nResults);
-				//jResp.put("routes", jRoutes);
 				Map<Integer, JSONArray> routesByLocationIndex = new LinkedHashMap<Integer, JSONArray>();
-
 
 				for (int i = 0; i< nResults; ++i)
 				{

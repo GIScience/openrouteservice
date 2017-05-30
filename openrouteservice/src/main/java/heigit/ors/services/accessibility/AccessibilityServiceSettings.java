@@ -19,6 +19,7 @@ public class AccessibilityServiceSettings
 	private static int maximumLocations = 1;
 	private static int maximumRangeDistance = 100000; //  in meters
 	private static int maximumRangeTime = 3600; // in seconds
+	private static boolean routeDetailsAllowed = false;
 	private static int  responseLimit = 50; 
 	private static String attribution = "";
 	private static boolean enabled = true;
@@ -37,6 +38,9 @@ public class AccessibilityServiceSettings
 		value = AppConfig.Global().getServiceParameter("accessibility", "maximum_range_time");
 		if (value != null)
 			maximumRangeTime = Integer.parseInt(value);
+		value = AppConfig.Global().getServiceParameter("accessibility", "route_details_allowed");
+		if (value != null)
+			routeDetailsAllowed = Boolean.parseBoolean(value);
 		value = AppConfig.Global().getServiceParameter("accessibility", "response_limit");
 		if (value != null)
 			responseLimit = Integer.parseInt(value);
@@ -67,6 +71,11 @@ public class AccessibilityServiceSettings
 		}
 
 		return 0;
+	}
+	
+	public static boolean getRouteDetailsAllowed()
+	{
+		return routeDetailsAllowed;
 	}
 	
 	public static String getAttribution() {
