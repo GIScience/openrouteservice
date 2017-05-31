@@ -180,17 +180,9 @@ public abstract class AbstractBikeFlagEncoderTester
     public void testTramStations()
     {
         OSMWay way = new OSMWay(1);
-        way.setTag("highway", "secondary");
-        way.setTag("railway", "rail");
-        // disallow rail
-        assertEquals(0, encoder.acceptWay(way));
-
-        way = new OSMWay(1);
-        way.setTag("highway", "secondary");
-        way.setTag("railway", "station");
-        // disallow stations
-        assertEquals(0, encoder.acceptWay(way));
-
+        way.setTag("railway", "rail");        
+        assertTrue(encoder.acceptWay(way) > 0);
+        
         way = new OSMWay(1);
         way.setTag("highway", "secondary");
         way.setTag("railway", "station");

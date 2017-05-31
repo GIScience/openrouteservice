@@ -321,8 +321,8 @@ public class BikeCommonFlagEncoder extends AbstractFlagEncoder
 			return 0;
 
 		// do not accept railways (sometimes incorrectly mapped!)
-		if (way.hasTag("railway") && !way.hasTag("railway", acceptedRailways) && !"footway".equals(highwayValue) /*Runge*/)
-			return 0;
+		//if (way.hasTag("railway") && !way.hasTag("railway", acceptedRailways) && !"footway".equals(highwayValue) /*Runge*/)
+		//	return 0;
 
 		String sacScale = way.getTag("sac_scale");
 		if (sacScale != null)
