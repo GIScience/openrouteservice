@@ -28,13 +28,13 @@ public class PeliasGeocoder extends AbstractGeocoder
 {
 	public PeliasGeocoder(String geocodingURL, String reverseGeocodingURL, String userAgent) {
 		super(geocodingURL, reverseGeocodingURL, userAgent);
-
 	}
 
 	@Override
 	public GeocodingResult[] geocode(String address, String languages, SearchBoundary searchBoundary, int limit)
 			throws UnsupportedEncodingException, IOException {
-		String reqParams = "?text=" + URLEncoder.encode(GeocodingUtils.sanitizeAddress(address), "UTF-8") + "&size=" + limit + "&lang=" + "en"; // fix language
+		String lang = Helper.isEmpty(languages) ? "en": languages;
+		String reqParams = "?text=" + URLEncoder.encode(GeocodingUtils.sanitizeAddress(address), "UTF-8") + "&size=" + limit + "&lang=" + lang; 
 		if (searchBoundary != null)
 		{
 			if (searchBoundary instanceof RectSearchBoundary)
@@ -49,8 +49,8 @@ public class PeliasGeocoder extends AbstractGeocoder
 				reqParams += "&boundary.circle.lat=" + csb.getLatitude() + "&boundary.circle.lon=" + csb.getLongitude() + "&boundary.circle.radius=" + csb.getRadius();
 			}
 		}
+		
 		String respContent = HTTPUtility.getResponse(geocodingURL + reqParams, 10000, userAgent, "UTF-8");
-
 		if (!Helper.isEmpty(respContent) && !respContent.equals("[]")) {
 
 			return getGeocodeResults(respContent, searchBoundary);
@@ -64,11 +64,10 @@ public class PeliasGeocoder extends AbstractGeocoder
 		String reqParams = "?point.lat=" + lat  + "&point.lon=" + lon + "&size=" + limit;
 		String respContent = HTTPUtility.getResponse(reverseGeocodingURL + reqParams, 10000, userAgent, "UTF-8");
 
-		if (!Helper.isEmpty(respContent) && !respContent.equals("[]")) {
+		if (!Helper.isEmpty(respContent) && !respContent.equals("[]")) 
 			return getGeocodeResults(respContent, null);
-		}
-
-		return null;
+		else
+			return null;
 	}
 
 	private GeocodingResult[] getGeocodeResults(String respContent, SearchBoundary searchBoundary)
