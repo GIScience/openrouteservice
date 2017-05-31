@@ -350,7 +350,7 @@ public class CarFlagEncoderTest
         way.setTag("highway", "secondary");
         way.setTag("railway", "rail");
         // disallow rail
-        assertTrue(encoder.acceptWay(way) == 0);
+        assertTrue(encoder.acceptWay(way) == 1);
 
         way.clearTags();
         way.setTag("highway", "path");

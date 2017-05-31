@@ -235,7 +235,9 @@ public class CarFlagEncoder extends AbstractFlagEncoder
         // do not drive street cars into fords
         if (isBlockFords() && ("ford".equals(highwayValue) || way.hasTag("ford")))
             return 0;
-
+/*
+ * Runge 31.05.2017: Removed in the latest version of GH
+ * 
         // do not drive cars over railways (sometimes incorrectly mapped!)
         if (way.hasTag("railway") && !way.hasTag("railway", acceptedRailways))
         {
@@ -244,10 +246,13 @@ public class CarFlagEncoder extends AbstractFlagEncoder
               if (motorcarTag == null)
                   motorcarTag = way.getTag("motor_vehicle");
 
+              if ( highwayValue == null)
+              {
               if (motorcarTag == null || "no".equals(motorcarTag))
             	  return 0;
+              }
         }
-
+*/
         
         String maxwidth = way.getTag("maxwidth"); // Runge added on 23.02.2016
         if (maxwidth != null)

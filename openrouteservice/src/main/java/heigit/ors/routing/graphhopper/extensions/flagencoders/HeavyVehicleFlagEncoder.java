@@ -388,7 +388,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
         }
 
         // do not drive cars over railways (sometimes incorrectly mapped!)
-        if (way.hasTag("railway") && !way.hasTag("railway", acceptedRailways))
+    /*    if (way.hasTag("railway") && !way.hasTag("railway", acceptedRailways))
         {
       	  // Runge, see http://www.openstreetmap.org/way/36106092
       	    String motorcarTag = way.getTag("motorcar");
@@ -397,7 +397,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 
             if (motorcarTag == null || "no".equals(motorcarTag))
           	  return 0;
-        }
+        }*/
         
         return acceptBit;
     }
