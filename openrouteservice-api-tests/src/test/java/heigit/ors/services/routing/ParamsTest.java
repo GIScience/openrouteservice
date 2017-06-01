@@ -3,7 +3,7 @@ package heigit.ors.services.routing;
 import static io.restassured.RestAssured.*;
 //import static io.restassured.matcher.RestAssuredMatchers.*;
 import static org.hamcrest.Matchers.*;
-
+//import java.util.Arrays;
 import org.junit.Test;
 import org.json.JSONObject;
 
@@ -29,16 +29,56 @@ public class ParamsTest extends ServiceTest {
 		addParameter("profile", "cycling-regular");
 		addParameter("units", "m");
 		addParameter("languageUnknown", "huyd");
+		System.out.println("calling..");
 
-		JSONObject optionsJson = new JSONObject();
-		optionsJson.put("maximum_gradient", "50");
-		optionsJson.put("avoid_features", "unpavedroads|steps");
+		// options for driving profiles
+		JSONObject options = new JSONObject();
+		options.put("avoid_features", "highways|tollways|ferries|tunnels|unpavedroads|tracks|fords");
+		options.put("maximum_speed", "105");
+		addParameter("drivingOptions", options.toString());
+
+		// options for driving profiles with avoid polygon
+		options = new JSONObject();
+		options.put("avoid_features", "tunnels");
+		options.put("maximum_speed", "75");
+		JSONObject polygon = new JSONObject();
+		polygon.put("type", "Polygon");
+		String[][][] coords = new String[][][] { { { "8.91197", "53.07257" }, { "8.91883", "53.06081" },
+				{ "8.86699", "53.07381" }, { "8.91197", "53.07257" } } };
+		polygon.put("coordinates", coords);
+		options.put("avoid_polygons", polygon);
+		addParameter("drivingAvoidpolygonOptions", options.toString());
+
+		// options for HGV profiles
+		options = new JSONObject();
+		options.put("avoid_features", "highways|tollways|ferries|tunnels|unpavedroads|tracks|fords");
+		options.put("maximum_speed", "75");
 		JSONObject profileParams = new JSONObject();
+		profileParams.put("width", "5");
+		profileParams.put("height", "3");
+		profileParams.put("length", "10");
+		profileParams.put("axleload", "2");
+		profileParams.put("weight", "5");
+		profileParams.put("hazmat", "true");
+		options.put("profile_params", profileParams);
+		addParameter("hgvOptions", options.toString());
+
+		// options for cycling profiles
+		options = new JSONObject();
+		options.put("avoid_features", "ferries|pavedroads|fords");
+		options.put("maximum_speed", "25");
+		profileParams = new JSONObject();
 		profileParams.put("maximum_gradient", "5");
 		profileParams.put("difficulty_level", "1");
-		optionsJson.put("profile_params", profileParams.toString());
-		optionsJson.toString();
-		addParameter("options", optionsJson);
+		options.put("profile_params", profileParams);
+		addParameter("bicycleOptions", options.toString());
+
+		// options for walking profiles
+		options = new JSONObject();
+		options.put("avoid_features", "steps|fords");
+		options.put("maximum_speed", "5");
+		addParameter("walkingOptions", options.toString());
+
 	}
 
 	/**
@@ -345,7 +385,7 @@ public class ParamsTest extends ServiceTest {
 				.body("error.code", is(203))
 				.statusCode(400);
 	}
-	
+
 	@Test
 	public void expect400204() {
 
@@ -357,11 +397,30 @@ public class ParamsTest extends ServiceTest {
 				.when()
 				.get(getServiceName())
 				.then()
-				.log()
-				.all()
 				.assertThat()
 				.body("error.code", is(204))
 				.statusCode(400);
+	}
+
+	@Test
+	public void expectOptions() {
+
+		given()
+				.param("coordinates", getParameter("coordinatesShort"))
+				.param("preference", getParameter("preference"))
+				.param("geometry", getParameter("geometry"))
+				.param("profile", getParameter("profile"))
+				.param("options", getParameter("drivingOptions"))
+				.when()
+				.log()
+				.all()
+				.get(getServiceName())
+				.then()
+				.log()
+				.all()
+				.assertThat()
+				.body("info.query.options.containsKey('avoid_features')", is(true))
+				.statusCode(200);
 	}
 
 }
