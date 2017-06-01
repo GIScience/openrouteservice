@@ -15,6 +15,18 @@ public class ParametersValidationTest extends ServiceTest {
 	}
 
 	@Test
+	public void postRequestTest() {
+		given()
+		.param("query", "Heidelberg")
+		.when()
+		.post(getEndPointName())
+		.then()
+		.assertThat()
+		.body("error.code", is(199))
+		.statusCode(405);
+	}
+	
+	@Test
 	public void mandatoryParametersTest() {
 		given()
 		.param("query2", "Heidelberg")
