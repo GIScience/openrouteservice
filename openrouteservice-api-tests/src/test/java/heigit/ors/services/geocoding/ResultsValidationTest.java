@@ -25,8 +25,8 @@ public class ResultsValidationTest extends ServiceTest {
 		.get(getEndPointName());
 		
 		Assert.assertEquals(response.getStatusCode(), 200);
-        JSONObject jFeatures = new JSONObject(response.body().asString());
-        Assert.assertEquals(jFeatures.getJSONArray("features").length(), 10);
+        JSONObject jResponse = new JSONObject(response.body().asString());
+        Assert.assertEquals(jResponse.getJSONArray("features").length(), 10);
 	}
 	
 	@Test
@@ -38,9 +38,9 @@ public class ResultsValidationTest extends ServiceTest {
 		.get(getEndPointName());
 		
 		Assert.assertEquals(response.getStatusCode(), 200);
-        JSONObject jFeatures = new JSONObject(response.body().asString());
-        Assert.assertEquals(jFeatures.getJSONArray("features").length(), 1);
-        JSONObject jAddress = jFeatures.getJSONArray("features").getJSONObject(0);
+        JSONObject jResponse = new JSONObject(response.body().asString());
+        Assert.assertEquals(jResponse.getJSONArray("features").length(), 1);
+        JSONObject jAddress = jResponse.getJSONArray("features").getJSONObject(0);
         JSONObject jAddrProperties = jAddress.getJSONObject("properties");
         Assert.assertEquals(jAddrProperties.get("country"), "Germany");
         Assert.assertEquals(jAddrProperties.get("county"), "Heidelberg");
@@ -66,8 +66,8 @@ public class ResultsValidationTest extends ServiceTest {
 		.get(getEndPointName());
 		
 		Assert.assertEquals(response.getStatusCode(), 200);
-        JSONObject jFeatures = new JSONObject(response.body().asString());
-        Assert.assertEquals(jFeatures.getJSONArray("features").length(), 10);
+        JSONObject jResponse = new JSONObject(response.body().asString());
+        Assert.assertEquals(jResponse.getJSONArray("features").length(), 10);
 	}
 	
 	@Test
@@ -81,7 +81,21 @@ public class ResultsValidationTest extends ServiceTest {
 		.get(getEndPointName());
 		
 		Assert.assertEquals(response.getStatusCode(), 200);
-        JSONObject jFeatures = new JSONObject(response.body().asString());
-        Assert.assertEquals(jFeatures.getJSONArray("features").length(), 7);
+        JSONObject jResponse = new JSONObject(response.body().asString());
+        Assert.assertEquals(jResponse.getJSONArray("features").length(), 7);
+	}
+	
+	@Test
+	public void idParameterTest() {
+		Response response = given()
+		.param("query", "Heidelberg")
+		.param("limit", "10")
+		.param("id", "829723410")
+		.when()
+		.get(getEndPointName());
+		
+		Assert.assertEquals(response.getStatusCode(), 200);
+        JSONObject jResponse = new JSONObject(response.body().asString());
+        Assert.assertEquals(jResponse.getJSONObject("info").getJSONObject("query").get("id"), "829723410");
 	}
 }
