@@ -206,7 +206,7 @@ public class JsonIsochroneRequestParser {
 			}
 			catch(Exception ex)
 			{
-				throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.INVALID_JSON_FORMAT, "Unable to parse 'options' value.");
+				throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.INVALID_JSON_FORMAT, "Unable to parse 'options' value."  + ex.getMessage());
 			}
 		}
 

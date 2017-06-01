@@ -8,6 +8,8 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
+import heigit.ors.common.StatusCode;
+import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
@@ -150,7 +152,6 @@ public class RouteSearchParameters {
 						}
 					}
 
-
 					if (flags != 0)
 						_avoidFeaturesTypes = flags;
 
@@ -262,6 +263,10 @@ public class RouteSearchParameters {
 				_avoidAreas = new Polygon[multiPoly.getNumGeometries()];
 				for (int i = 0; i < multiPoly.getNumGeometries(); i++)
 					_avoidAreas[i] = (Polygon)multiPoly.getGeometryN(i);
+			}
+			else
+			{
+				throw new Exception("Not supported geometry type in avoid_polygons.");
 			}
 		}
 	}
