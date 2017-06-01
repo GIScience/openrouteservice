@@ -10,7 +10,7 @@ import org.json.JSONObject;
 import heigit.ors.services.common.EndPointAnnotation;
 import heigit.ors.services.common.ServiceTest;
 
-@EndPointAnnotation(name="routes")
+@EndPointAnnotation(name = "routes")
 public class ParamsTest extends ServiceTest {
 
 	public ParamsTest() {
@@ -28,9 +28,12 @@ public class ParamsTest extends ServiceTest {
 		addParameter("instructions_format_text", "text");
 		addParameter("preference", "fastest");
 		addParameter("profile", "cycling-regular");
+		addParameter("bikeProfile", "cycling-road");
+		addParameter("carProfile", "driving-car");
+		addParameter("carProfileFaulty", "driving-carr");
+		addParameter("hgvProfile", "driving-hgv");
 		addParameter("units", "m");
 		addParameter("languageUnknown", "huyd");
-		System.out.println("calling..");
 
 		// options for driving profiles
 		JSONObject options = new JSONObject();
@@ -38,7 +41,13 @@ public class ParamsTest extends ServiceTest {
 		options.put("maximum_speed", "105");
 		addParameter("drivingOptions", options.toString());
 
-		// options for driving profiles with avoid polygon
+		// options faulty avoidables
+		options = new JSONObject();
+		// options.put("avoid_features", "highwayss|tolllways|f3erries");
+		options.put("maximum_speed", "105fg");
+		addParameter("drivingOptionsFaulty", options.toString());
+
+		// options for avoid polygon
 		options = new JSONObject();
 		options.put("avoid_features", "tunnels");
 		options.put("maximum_speed", "75");
@@ -48,12 +57,39 @@ public class ParamsTest extends ServiceTest {
 				{ "8.86699", "53.07381" }, { "8.91197", "53.07257" } } };
 		polygon.put("coordinates", coords);
 		options.put("avoid_polygons", polygon);
-		addParameter("drivingAvoidpolygonOptions", options.toString());
+		addParameter("avoidPolygons", options.toString());
+
+		// options for avoid polygon faulty
+		options = new JSONObject();
+		options.put("avoid_features", "tunnels");
+		options.put("maximum_speed", "75");
+		polygon = new JSONObject();
+		polygon.put("type", "Polygon");
+		coords = new String[][][] { { { "8b.91197", "53a.07257" }, { "c8.91883", "53.06081" },
+				{ "8.86699", "53.07381" }, { "8.91197", "d53.07257" } } };
+		polygon.put("coordinates", coords);
+		options.put("avoid_polygons", polygon);
+		addParameter("avoidPolygonsFaulty", options.toString());
+
+		// options for avoid polygon wrong feature type (can be polygon or
+		// linestring)
+		options = new JSONObject();
+		options.put("avoid_features", "tunnels");
+		options.put("maximum_speed", "75");
+		polygon = new JSONObject();
+		polygon.put("type", "Polygon");
+		String[][] polygonCoords = new String[][] { { "8.91197", "53.07257" }, { "8.91883", "53.06081" },
+				{ "8.86699", "53.07381" }, { "8.91197", "53.07257" } };
+		polygon.put("coordinates", polygonCoords);
+		options.put("avoid_polygons", polygon);
+		addParameter("avoidPolygonsFaultyFeaturetype", options.toString());
 
 		// options for HGV profiles
 		options = new JSONObject();
 		options.put("avoid_features", "highways|tollways|ferries|tunnels|unpavedroads|tracks|fords");
 		options.put("maximum_speed", "75");
+		addParameter("hgvOptions", options.toString());
+
 		JSONObject profileParams = new JSONObject();
 		profileParams.put("width", "5");
 		profileParams.put("height", "3");
@@ -62,17 +98,19 @@ public class ParamsTest extends ServiceTest {
 		profileParams.put("weight", "5");
 		profileParams.put("hazmat", "true");
 		options.put("profile_params", profileParams);
-		addParameter("hgvOptions", options.toString());
+		addParameter("hgvOptionsWithProfileparams", options.toString());
 
 		// options for cycling profiles
 		options = new JSONObject();
 		options.put("avoid_features", "ferries|pavedroads|fords");
 		options.put("maximum_speed", "25");
+		addParameter("bicycleOptions", options.toString());
+
 		profileParams = new JSONObject();
 		profileParams.put("maximum_gradient", "5");
 		profileParams.put("difficulty_level", "1");
 		options.put("profile_params", profileParams);
-		addParameter("bicycleOptions", options.toString());
+		addParameter("bicycleOptionsWithProfileparams", options.toString());
 
 		// options for walking profiles
 		options = new JSONObject();
@@ -81,15 +119,6 @@ public class ParamsTest extends ServiceTest {
 		addParameter("walkingOptions", options.toString());
 
 	}
-
-	/**
-	 * @Test public void basicPingTest() {
-	 *       given().when().get("/status").then().statusCode(200); }
-	 *       .param("elevation", getParameter("elevation")) .param("geometry",
-	 *       !((Boolean) getParameter("geometry")).booleanValue())
-	 *       .param("geometry_format", getParameter("geometry_format"))
-	 *       .param("instructions_format", getParameter("html"))
-	 */
 
 	@Test
 	public void basicPingTest() {
@@ -413,15 +442,134 @@ public class ParamsTest extends ServiceTest {
 				.param("profile", getParameter("profile"))
 				.param("options", getParameter("drivingOptions"))
 				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("info.query.options.containsKey('avoid_features')", is(true))
+				.statusCode(200);
+	}
+
+	@Test
+	public void expectAvoidablesError() {
+
+		given()
+				.param("coordinates", getParameter("coordinatesShort"))
+				.param("preference", getParameter("preference"))
+				.param("geometry", getParameter("geometry"))
+				.param("profile", getParameter("profile"))
+				.param("options", getParameter("drivingOptionsFaulty"))
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("error.code", is(200))
+				.statusCode(400);
+	}
+
+	@Test
+	public void expectAvoidpolygons() {
+
+		given()
+				.param("coordinates", getParameter("coordinatesShort"))
+				.param("preference", getParameter("preference"))
+				.param("geometry", getParameter("geometry"))
+				.param("profile", getParameter("profile"))
+				.param("options", getParameter("avoidPolygons"))
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("info.query.options.containsKey('avoid_polygons')", is(true))
+				.statusCode(200);
+	}
+
+	@Test
+	public void expectAvoidpolygonsError() {
+
+		given()
+				.param("coordinates", getParameter("coordinatesShort"))
+				.param("preference", getParameter("preference"))
+				.param("geometry", getParameter("geometry"))
+				.param("profile", getParameter("profile"))
+				.param("options", getParameter("avoidPolygonsFaulty"))
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("error.code", is(200))
+				.statusCode(400);
+	}
+
+	@Test
+	public void expectAvoidpolygonsTypeError() {
+
+		given()
+				.param("coordinates", getParameter("coordinatesShort"))
+				.param("preference", getParameter("preference"))
+				.param("geometry", getParameter("geometry"))
+				.param("profile", getParameter("profile"))
+				.param("options", getParameter("avoidPolygonsFaultyFeaturetype"))
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("error.code", is(200))
+				.statusCode(400);
+	}
+
+	@Test
+	public void expectCyclingToRejectHgvAvoidables() {
+
+		given()
+				.param("coordinates", getParameter("coordinatesShort"))
+				.param("preference", getParameter("preference"))
+				.param("geometry", getParameter("geometry"))
+				.param("profile", getParameter("bikeProfile"))
+				.param("options", getParameter("hgvOptions"))
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("error.code", is(200))
+				.statusCode(400);
+	}
+
+	@Test
+	public void expectCarToRejectWalkingAvoidables() {
+
+		given()
+				.param("coordinates", getParameter("coordinatesShort"))
+				.param("preference", getParameter("preference"))
+				.param("geometry", getParameter("geometry"))
+				.param("profile", getParameter("carProfile"))
+				.param("options", getParameter("walkingOptions"))
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("error.code", is(200))
+				.statusCode(400);
+	}
+
+	@Test
+	public void expectMaximumspeedError() {
+
+		given()
+				.param("coordinates", getParameter("coordinatesShort"))
+				.param("preference", getParameter("preference"))
+				.param("geometry", getParameter("geometry"))
+				.param("profile", getParameter("carProfile"))
+				.param("options", getParameter("drivingOptionsFaulty"))
+				.when()
 				.log()
 				.all()
-				.get(getServiceName())
+				.get(getEndPointName())
 				.then()
 				.log()
 				.all()
 				.assertThat()
-				.body("info.query.options.containsKey('avoid_features')", is(true))
-				.statusCode(200);
+				.body("error.code", is(200))
+				.statusCode(400);
 	}
 
 }
