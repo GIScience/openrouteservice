@@ -84,6 +84,7 @@ public class AccessibilityRequest extends ServiceRequest
 
 	public void setLocations(Coordinate[] locations) {
 		_locations = locations;
+		_routingRequest.setCoordinates(locations);
 	}
 
 	public String getRoutesFormat() {
