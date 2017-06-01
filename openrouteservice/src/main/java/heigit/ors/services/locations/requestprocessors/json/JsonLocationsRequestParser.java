@@ -35,6 +35,7 @@ import heigit.ors.locations.LocationsSearchFilter;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
+import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.services.locations.LocationsServiceSettings;
@@ -124,7 +125,7 @@ public class JsonLocationsRequestParser {
 			{
 				String[] coords = value.split(",");
 				if (coords == null || coords.length != 4)
-					throw new StatusCodeException(StatusCode.BAD_REQUEST, LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "BBox parameter is either empty or has wrong number of values.");
+					throw new ParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "bbox");
 
 				Envelope bbox = null;
 				try
@@ -133,7 +134,7 @@ public class JsonLocationsRequestParser {
 				}
 				catch(NumberFormatException ex)
 				{
-					throw new StatusCodeException(StatusCode.BAD_REQUEST, LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "Unable to parse bbox value.");
+					throw new ParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "bbox");
 				}
 
 				req.setBBox(bbox);
@@ -144,7 +145,7 @@ public class JsonLocationsRequestParser {
 			{
 				Geometry geom = JsonUtility.parseGeometry(value);
 				if (geom == null)
-					throw new StatusCodeException(StatusCode.BAD_REQUEST, LocationsErrorCodes.INVALID_PARAMETER_VALUE, "'geometry' parameter is incorrect.");
+					throw new ParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "geometry");
 
 				req.setGeometry(geom);
 			}
@@ -224,7 +225,7 @@ public class JsonLocationsRequestParser {
 			req.setType(LocationRequestType.fromString(value));
 
 		if (req.getType() == LocationRequestType.UNKNOWN)
-			throw new UnknownParameterValueException("request", value);
+			throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "request", value);
 		
 		value = request.getParameter("id");
 		if (!Helper.isEmpty(value))
@@ -271,7 +272,7 @@ public class JsonLocationsRequestParser {
 		{
 			String[] coords = value.split(",");
 			if (coords == null || coords.length != 4)
-				throw new StatusCodeException(StatusCode.BAD_REQUEST, LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "BBox parameter is either empty or has wrong number of values.");
+				throw new ParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "bbox");
 
 			Envelope bbox = null;
 			try
@@ -280,7 +281,7 @@ public class JsonLocationsRequestParser {
 			}
 			catch(NumberFormatException ex)
 			{
-				throw new StatusCodeException(StatusCode.BAD_REQUEST, LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "Unable to parse bbox value.");
+				throw new ParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "bbox");
 			}
 			
 			req.setBBox(bbox);
@@ -289,9 +290,19 @@ public class JsonLocationsRequestParser {
 		value = request.getParameter("geometry");
 		if (!Helper.isEmpty(value))
 		{
-			Geometry geom = JsonUtility.parseGeometry(value);
+			Geometry geom = null;
+			
+			try
+			{
+				geom = JsonUtility.parseGeometry(value);
+			}
+			catch(Exception ex)
+			{
+				throw new ParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "geometry");
+			}
+			
 			if (geom == null)
-				throw new StatusCodeException(StatusCode.BAD_REQUEST, LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "'geometry' parameter is incorrect.");
+				throw new ParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "geometry");
 
 			req.setGeometry(geom);
 		}
