@@ -41,6 +41,7 @@ import heigit.ors.services.accessibility.AccessibilityRequest;
 import heigit.ors.services.accessibility.AccessibilityServiceSettings;
 import heigit.ors.services.routing.RouteInstructionsFormat;
 import heigit.ors.services.routing.RoutingRequest;
+import heigit.ors.util.ArraysUtility;
 import heigit.ors.util.CoordTools;
 import heigit.ors.util.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
@@ -71,12 +72,12 @@ public class JsonAccessibilityRequestParser {
 
 		value = request.getParameter("category_group_ids");
 		if (!Helper.isEmpty(value))
-			query.setCategoryGroupIds(JsonUtility.parseIntArray(value, "category_group_ids"));
+			query.setCategoryGroupIds(ArraysUtility.parseIntArray(value, "category_group_ids", AccessibilityErrorCodes.INVALID_PARAMETER_FORMAT));
 		else
 		{
 			value = request.getParameter("category_ids");
 			if (!Helper.isEmpty(value))
-				query.setCategoryIds(JsonUtility.parseIntArray(value, "category_ids"));
+				query.setCategoryIds(ArraysUtility.parseIntArray(value, "category_ids", AccessibilityErrorCodes.INVALID_PARAMETER_FORMAT));
 		}
 
 		if (query.getCategoryGroupIds() == null && query.getCategoryIds() == null)
