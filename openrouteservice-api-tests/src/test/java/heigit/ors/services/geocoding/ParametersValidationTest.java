@@ -73,6 +73,19 @@ public class ParametersValidationTest extends ServiceTest {
 	}
 	
 	@Test
+	public void limitOutOfRangeValueTest() {
+		given()
+		.param("query", "Heidelberg")
+		.param("limit", "1000")
+		.when()
+		.get(getEndPointName())
+		.then()
+		.assertThat()
+		.body("error.code", is(104))
+		.statusCode(400);
+	}
+	
+	@Test
 	public void boundaryTypeUnknownValuesTest() {
 		given()
 		.param("query", "Heidelberg")
