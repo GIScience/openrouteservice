@@ -264,7 +264,7 @@ public class JsonAccessibilityRequestParser {
 			}
 			catch(Exception ex)
 			{
-				throw new StatusCodeException(StatusCode.BAD_REQUEST, AccessibilityErrorCodes.INVALID_JSON_FORMAT, "Unable to parse 'options' value.");
+				throw new StatusCodeException(StatusCode.BAD_REQUEST, AccessibilityErrorCodes.INVALID_JSON_FORMAT, "Unable to parse 'options' value." + ex.getMessage());
 			}
 		}
 

@@ -146,7 +146,7 @@ public class JsonRoutingRequestParser
 			}
 			catch(Exception ex)
 			{
-				throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_JSON_FORMAT, "Unable to parse 'options' value.");
+				throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_JSON_FORMAT, "Unable to parse 'options' value." + ex.getMessage());
 			}
 		}
 

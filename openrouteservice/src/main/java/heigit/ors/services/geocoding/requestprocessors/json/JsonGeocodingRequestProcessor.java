@@ -28,6 +28,7 @@ import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
+import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.geocoding.geocoders.CircleSearchBoundary;
 import heigit.ors.geocoding.geocoders.Geocoder;
@@ -79,7 +80,7 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 			{
 				String[] coords = value.split(",");
 				if (coords.length != 2)
-					throw new StatusCodeException(StatusCode.BAD_REQUEST, GeocodingErrorCodes.MISSING_PARAMETER,  "location parameter is either empty or has wrong number of values.");
+					throw new ParameterValueException(GeocodingErrorCodes.INVALID_PARAMETER_FORMAT,  "location");
 
 				try
 				{
@@ -90,7 +91,7 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 				}
 				catch(NumberFormatException ex)
 				{
-					throw new StatusCodeException(StatusCode.BAD_REQUEST, GeocodingErrorCodes.INVALID_PARAMETER_FORMAT, "Unable to parse location coordinates.");
+					throw new ParameterValueException(GeocodingErrorCodes.INVALID_PARAMETER_VALUE, "location");
 				}
 
 				req.setLanguage(null);
@@ -104,7 +105,17 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 			value = _request.getParameter("limit");
 			if (!Helper.isEmpty(value))
 			{
-				int limit = Integer.parseInt(value);
+				int limit = 1;
+				
+				try
+				{
+					limit = Integer.parseInt(value);
+				}
+				catch(NumberFormatException nfex)
+				{
+					throw new ParameterValueException(GeocodingErrorCodes.INVALID_PARAMETER_VALUE, "limit");
+				}
+				
 				if (limit > GeocodingServiceSettings.getResponseLimit())
 					throw new ParameterOutOfRangeException(GeocodingErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "limit", value, Integer.toString(GeocodingServiceSettings.getResponseLimit()));
 
@@ -117,9 +128,12 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 				if ("rect".equalsIgnoreCase(value))
 				{
 					value = _request.getParameter("rect");
+					if (Helper.isEmpty(value))
+						throw new MissingParameterException(GeocodingErrorCodes.MISSING_PARAMETER, "rect");
+					
 					String[] coords = value.split(",");
 					if (coords == null || coords.length != 4)
-						throw new StatusCodeException(StatusCode.BAD_REQUEST, GeocodingErrorCodes.INVALID_PARAMETER_VALUE, "Rect parameter is either empty or has wrong number of values.");
+						throw new ParameterValueException(GeocodingErrorCodes.INVALID_PARAMETER_VALUE, "rect");
 
 					Envelope bbox = null;
 
@@ -129,7 +143,7 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 					}
 					catch(NumberFormatException ex)
 					{
-						throw new StatusCodeException(StatusCode.BAD_REQUEST, GeocodingErrorCodes.INVALID_PARAMETER_FORMAT, "Unable to parse 'rect' value.");
+						throw new ParameterValueException(GeocodingErrorCodes.INVALID_PARAMETER_FORMAT, "rect");
 					}
 
 					RectSearchBoundary rsb = new RectSearchBoundary(bbox);
@@ -139,12 +153,28 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 				{
 					value = _request.getParameter("circle");
 					
+					if (Helper.isEmpty(value))
+						throw new MissingParameterException(GeocodingErrorCodes.MISSING_PARAMETER, "circle");
+					
 					String[] values = value.split(",");
 					if (values == null || values.length != 3)
-						throw new StatusCodeException(StatusCode.BAD_REQUEST, GeocodingErrorCodes.INVALID_PARAMETER_VALUE, "Circle parameter is either empty or has wrong number of values.");
+						throw new ParameterValueException(GeocodingErrorCodes.INVALID_PARAMETER_VALUE, "circle");
 
-					CircleSearchBoundary csb = new CircleSearchBoundary(Double.parseDouble(values[0]), Double.parseDouble(values[1]), Double.parseDouble(values[2]));
+					CircleSearchBoundary csb = null;
+					try
+					{
+						csb = new CircleSearchBoundary(Double.parseDouble(values[0]), Double.parseDouble(values[1]), Double.parseDouble(values[2]));
+					}
+					catch(NumberFormatException nfex)
+					{
+						throw new ParameterValueException(GeocodingErrorCodes.INVALID_PARAMETER_FORMAT, "circle");
+					}
+					
 					req.setBoundary(csb);
+				}
+				else
+				{
+					throw new ParameterValueException(GeocodingErrorCodes.INVALID_PARAMETER_VALUE, "boundary_type");
 				}
 			}
 
