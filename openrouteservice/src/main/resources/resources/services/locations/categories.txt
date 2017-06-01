@@ -113,7 +113,7 @@ historic	wayside_shrine	248
 historic	wreck	249							
 									
 									
-#leisure_and_ntertainment		260							
+#leisure_and_entertainment		260							
 leisure	adult_gaming_centre	261							
 leisure	amusement_arcade	262							
 leisure	beach_resort	263							
