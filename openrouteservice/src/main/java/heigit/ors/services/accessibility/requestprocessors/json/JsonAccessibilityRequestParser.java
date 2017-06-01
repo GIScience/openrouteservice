@@ -166,8 +166,6 @@ public class JsonAccessibilityRequestParser {
 
 		RouteSearchParameters searchParams = reqRouting.getSearchParameters();
 
-		reqRouting.setCoordinates(locations);
-
 		value = request.getParameter("profile");
 		if (!Helper.isEmpty(value))
 		{
@@ -291,7 +289,7 @@ public class JsonAccessibilityRequestParser {
 		}
 		else
 		{
-			throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "location");
+			throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "locations");
 		}
 
 		value = request.getParameter("location_type");
