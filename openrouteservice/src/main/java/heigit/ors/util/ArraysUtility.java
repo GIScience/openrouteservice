@@ -28,18 +28,23 @@ public class ArraysUtility {
 		if (Helper.isEmpty(strArray))
 			return null;
 
+		String value = null;
+		
 		try
 		{
 			String[] array = strArray.split(",");
 			int[] res = new int[array.length];
 			for (int i = 0; i < array.length; i++)
-				res [i] = Integer.parseInt(array[i].trim());
+			{
+				value = array[i].trim();
+				res[i] = Integer.parseInt(value);
+			}
 
 			return res;
 		}
 		catch(Exception ex)
 		{
-			throw new ParameterValueException(errorCode, "Unable to parse the element '" + elemName + "'. " + ex.getMessage());
+			throw new ParameterValueException(errorCode, elemName, value);
 		}
 	}
 }
