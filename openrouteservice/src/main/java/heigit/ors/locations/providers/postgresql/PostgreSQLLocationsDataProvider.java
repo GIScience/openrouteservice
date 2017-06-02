@@ -37,7 +37,6 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import heigit.ors.locations.providers.LocationsDataProvider;
 import heigit.ors.util.ArraysUtility;
-import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.jts.JTS;
