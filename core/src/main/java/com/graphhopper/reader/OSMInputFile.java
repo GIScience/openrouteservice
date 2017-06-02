@@ -194,8 +194,11 @@ public class OSMInputFile implements Sink, Closeable
                             // note vs. node
                             if ("node".equals(name))
                             {
-                                id = Long.parseLong(idStr);
-                                return OSMNode.create(id, parser);
+                            	if (parser.getAttributeValue(null, "lat") != null) // Runge
+                            	{
+                            		id = Long.parseLong(idStr);
+                            		return OSMNode.create(id, parser);
+                            	}
                             }
                             break;
 
