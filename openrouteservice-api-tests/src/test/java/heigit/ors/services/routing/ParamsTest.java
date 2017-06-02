@@ -17,21 +17,9 @@ public class ParamsTest extends ServiceTest {
 		addParameter("coordinatesShort", "8.85498,53.097323|8.78906,53.071752");
 		addParameter("coordinatesShortFaulty", "8p.85498,53.097323|8.78906,53.071752");
 		addParameter("coordinatesLong", "8.85498,53.097323|4.78906,53.071752");
-		addParameter("elevation", true);
 		addParameter("extra_info", "surface|suitability|steepness");
-		addParameter("geometry", true);
-		addParameter("geojson", "geojson");
-		addParameter("polyline", "polyline");
-		addParameter("encodedpolyline", "encodedpolyline");
-		addParameter("instructions", true);
-		addParameter("instructions_format_html", "html");
-		addParameter("instructions_format_text", "text");
 		addParameter("preference", "fastest");
 		addParameter("profile", "cycling-regular");
-		addParameter("bikeProfile", "cycling-road");
-		addParameter("carProfile", "driving-car");
-		addParameter("carProfileFaulty", "driving-carr");
-		addParameter("hgvProfile", "driving-hgv");
 		addParameter("units", "m");
 
 	}
@@ -55,7 +43,7 @@ public class ParamsTest extends ServiceTest {
 
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
-				.param("instructions", !((Boolean) getParameter("instructions")).booleanValue())
+				.param("instructions", "false")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("profile"))
 				.when()
@@ -72,7 +60,7 @@ public class ParamsTest extends ServiceTest {
 
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
-				.param("instructions", getParameter("instructions"))
+				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("profile"))
 				.when()
@@ -90,8 +78,8 @@ public class ParamsTest extends ServiceTest {
 
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
-				.param("instructions", getParameter("instructions"))
-				.param("instructions_format", getParameter("instructions_format_text"))
+				.param("instructions", "true")
+				.param("instructions_format", "text")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("profile"))
 				.when()
@@ -108,8 +96,8 @@ public class ParamsTest extends ServiceTest {
 
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
-				.param("instructions", getParameter("instructions"))
-				.param("instructions_format", getParameter("instructions_format_html"))
+				.param("instructions", "true")
+				.param("instructions_format", "html")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("profile"))
 				.when()
@@ -128,7 +116,7 @@ public class ParamsTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("profile"))
-				.param("geometry", getParameter("geometry"))
+				.param("geometry", "true")
 				.when()
 				.get(getEndPointName())
 				.then()
@@ -145,7 +133,7 @@ public class ParamsTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("profile"))
-				.param("geometry", !((Boolean) getParameter("geometry")).booleanValue())
+				.param("geometry", "false")
 				.when()
 				.get(getEndPointName())
 				.then()
@@ -162,8 +150,8 @@ public class ParamsTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("profile"))
-				.param("geometry", getParameter("geometry"))
-				.param("geometry_format", getParameter("geojson"))
+				.param("geometry", "true")
+				.param("geometry_format", "geojson")
 				.when()
 				.get(getEndPointName())
 				.then()
@@ -182,8 +170,8 @@ public class ParamsTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("profile"))
-				.param("geometry", getParameter("geometry"))
-				.param("geometry_format", getParameter("polyline"))
+				.param("geometry", "true")
+				.param("geometry_format", "polyline")
 				.when()
 				.get(getEndPointName())
 				.then()
@@ -202,8 +190,8 @@ public class ParamsTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("profile"))
-				.param("geometry", getParameter("geometry"))
-				.param("geometry_format", getParameter("encodedpolyline"))
+				.param("geometry", "true")
+				.param("geometry_format", "encodedpolyline")
 				.when()
 				.get(getEndPointName())
 				.then()
@@ -225,9 +213,9 @@ public class ParamsTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("profile"))
-				.param("geometry", getParameter("geometry"))
-				.param("geometry_format", getParameter("geojson"))
-				.param("elevation", getParameter("elevation"))
+				.param("geometry", "true")
+				.param("geometry_format", "geojson")
+				.param("elevation", "true")
 				.when()
 				.get(getEndPointName())
 				.then()
@@ -247,9 +235,9 @@ public class ParamsTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("profile"))
-				.param("geometry", getParameter("geometry"))
-				.param("geometry_format", getParameter("geojson"))
-				.param("elevation", !((Boolean) getParameter("elevation")).booleanValue())
+				.param("geometry", "true")
+				.param("geometry_format", "geojson")
+				.param("elevation", "false")
 				.when()
 				.get(getEndPointName())
 				.then()
@@ -269,7 +257,7 @@ public class ParamsTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("profile"))
-				.param("geometry", getParameter("geometry"))
+				.param("geometry", "true")
 				.param("extra_info", getParameter("extra_info"))
 				.when()
 				.get(getEndPointName())
@@ -285,12 +273,28 @@ public class ParamsTest extends ServiceTest {
 	}
 
 	@Test
+	public void expectUnknownProfile() {
+
+		given()
+				.param("coordinates", getParameter("coordinatesShort"))
+				.param("preference", getParameter("preference"))
+				.param("profile", "driving-car123")
+				.param("geometry", "true")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("error.code", is(203))
+				.statusCode(400);
+	}
+
+	@Test
 	public void expect400201() {
 
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
-				.param("geometry", getParameter("geometry"))
+				.param("geometry", "true")
 				.when()
 				.get(getEndPointName())
 				.then()
@@ -305,7 +309,7 @@ public class ParamsTest extends ServiceTest {
 		given()
 				.param("coordinates", getParameter("coordinatesShortFaulty"))
 				.param("preference", getParameter("preference"))
-				.param("geometry", getParameter("geometry"))
+				.param("geometry", "true")
 				.param("profile", getParameter("profile"))
 				.when()
 				.get(getEndPointName())
@@ -321,7 +325,7 @@ public class ParamsTest extends ServiceTest {
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
-				.param("geometry", getParameter("geometry"))
+				.param("geometry", "true")
 				.param("profile", getParameter("profile"))
 				.param("language", "yuhd")
 				.when()
@@ -338,7 +342,7 @@ public class ParamsTest extends ServiceTest {
 		given()
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("preference", getParameter("preference"))
-				.param("geometry", getParameter("geometry"))
+				.param("geometry", "true")
 				.param("profile", getParameter("profile"))
 				.when()
 				.get(getEndPointName())
@@ -358,7 +362,7 @@ public class ParamsTest extends ServiceTest {
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
-				.param("geometry", getParameter("geometry"))
+				.param("geometry", "true")
 				.param("profile", getParameter("profile"))
 				.param("options", options.toString())
 				.when()
@@ -379,7 +383,7 @@ public class ParamsTest extends ServiceTest {
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
-				.param("geometry", getParameter("geometry"))
+				.param("geometry", "true")
 				.param("profile", getParameter("profile"))
 				.param("options", options.toString())
 				.when()
@@ -407,7 +411,7 @@ public class ParamsTest extends ServiceTest {
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
-				.param("geometry", getParameter("geometry"))
+				.param("geometry", "true")
 				.param("profile", getParameter("profile"))
 				.param("options", options.toString())
 				.when()
@@ -435,7 +439,7 @@ public class ParamsTest extends ServiceTest {
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
-				.param("geometry", getParameter("geometry"))
+				.param("geometry", "true")
 				.param("profile", getParameter("profile"))
 				.param("options", options.toString())
 				.when()
@@ -464,7 +468,7 @@ public class ParamsTest extends ServiceTest {
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
-				.param("geometry", getParameter("geometry"))
+				.param("geometry", "true")
 				.param("profile", getParameter("profile"))
 				.param("options", options.toString())
 				.when()
@@ -493,8 +497,8 @@ public class ParamsTest extends ServiceTest {
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
-				.param("geometry", getParameter("geometry"))
-				.param("profile", getParameter("bikeProfile"))
+				.param("geometry", "true")
+				.param("profile", "cycling-road")
 				.param("options", options.toString())
 				.when()
 				.get(getEndPointName())
@@ -515,8 +519,8 @@ public class ParamsTest extends ServiceTest {
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
-				.param("geometry", getParameter("geometry"))
-				.param("profile", getParameter("carProfile"))
+				.param("geometry", "true")
+				.param("profile", "driving-car")
 				.param("options", options.toString())
 				.when()
 				.get(getEndPointName())
@@ -541,14 +545,14 @@ public class ParamsTest extends ServiceTest {
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
-				.param("geometry", getParameter("geometry"))
+				.param("geometry", "true")
 				.param("profile", getParameter("carProfile"))
 				.param("options", options.toString())
 				.when()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(200))
+				.body("error.code", is(201))
 				.statusCode(400);
 	}
 
@@ -558,7 +562,7 @@ public class ParamsTest extends ServiceTest {
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
-				.param("geometry", getParameter("geometry"))
+				.param("geometry", "true")
 				.param("profile", getParameter("carProfile"))
 				.param("options", getParameter("drivingOptionsFaulty"))
 				.when()
@@ -569,7 +573,7 @@ public class ParamsTest extends ServiceTest {
 				.log()
 				.all()
 				.assertThat()
-				.body("error.code", is(200))
+				.body("error.code", is(201))
 				.statusCode(400);
 	}
 
