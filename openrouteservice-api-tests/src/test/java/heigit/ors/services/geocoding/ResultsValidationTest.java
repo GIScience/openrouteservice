@@ -32,6 +32,8 @@ public class ResultsValidationTest extends ServiceTest {
 	@Test
 	public void locationParameterTest() {
 		Response response = given()
+		.log()
+		.all()
 		.param("location", "8.67678, 49.4187")
 		.param("limit", "1")
 		.when()
