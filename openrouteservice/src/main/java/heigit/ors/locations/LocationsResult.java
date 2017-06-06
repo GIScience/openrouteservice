@@ -19,11 +19,11 @@ import com.vividsolutions.jts.geom.Geometry;
 public class LocationsResult 
 {
 	private Geometry _geometry;
-	private Map<String, String> _properties;
+	private Map<String, Object> _properties;
 
 	public LocationsResult()
 	{
-		_properties = new LinkedHashMap<String, String>();
+		_properties = new LinkedHashMap<String, Object>();
 	}
 
 	public Geometry getGeometry() 
@@ -36,12 +36,12 @@ public class LocationsResult
 		_geometry = geometry;
 	}
 	
-	public Map<String, String> getProperties()
+	public Map<String, Object> getProperties()
 	{
 		return _properties;
 	}	
 	
-	public void addProperty(String name, String value)
+	public void addProperty(String name, Object value)
 	{
 		_properties.put(name, value);
 	}

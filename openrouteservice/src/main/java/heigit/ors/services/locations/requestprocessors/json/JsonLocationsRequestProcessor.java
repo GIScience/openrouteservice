@@ -183,13 +183,13 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 
 				feature.put("geometry", point);
 
-				Map<String, String> props = lr.getProperties();
+				Map<String, Object> props = lr.getProperties();
 
 				JSONObject properties = new JSONObject(true, props.size());
 
 				if (props.size() > 0)
 				{
-					for(Map.Entry<String, String> entry : props.entrySet())
+					for(Map.Entry<String, Object> entry : props.entrySet())
 						properties.put(entry.getKey(), entry.getValue());
 				}
 

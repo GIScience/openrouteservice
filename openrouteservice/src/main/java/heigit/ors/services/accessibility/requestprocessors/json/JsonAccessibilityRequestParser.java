@@ -24,6 +24,7 @@ import heigit.ors.common.StatusCode;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
+import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.localization.LocalizationManager;
@@ -34,7 +35,6 @@ import heigit.ors.locations.LocationsResultSortType;
 import heigit.ors.locations.LocationsSearchFilter;
 import heigit.ors.routing.RouteExtraInfoFlag;
 import heigit.ors.routing.RouteSearchParameters;
-import heigit.ors.routing.RoutingErrorCodes;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.WeightingMethod;
 import heigit.ors.services.accessibility.AccessibilityRequest;
@@ -45,7 +45,6 @@ import heigit.ors.util.ArraysUtility;
 import heigit.ors.util.CoordTools;
 import heigit.ors.util.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
-import heigit.ors.util.JsonUtility;
 
 public class JsonAccessibilityRequestParser {
 	public static AccessibilityRequest parseFromStream(InputStream stream) throws Exception 
@@ -191,7 +190,14 @@ public class JsonAccessibilityRequestParser {
 
 		value = request.getParameter("units");
 		if (!Helper.isEmpty(value))
-			reqRouting.setUnits(DistanceUnitUtil.getFromString(value, DistanceUnit.Meters));	
+		{
+			DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.Unknown);
+			
+			if (units == DistanceUnit.Unknown)
+				throw new ParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "units");
+			
+			reqRouting.setUnits(units);
+		}
 
 		if (AccessibilityServiceSettings.getRouteDetailsAllowed())
 		{
@@ -212,7 +218,7 @@ public class JsonAccessibilityRequestParser {
 			if (!Helper.isEmpty(value))
 			{
 				if (!("geojson".equalsIgnoreCase(value) || "polyline".equalsIgnoreCase(value) || "encodedpolyline".equalsIgnoreCase(value)))
-					throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "geometry_format", value);
+					throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "geometry_format", value);
 
 				reqRouting.setGeometryFormat(value);
 			}
@@ -234,7 +240,7 @@ public class JsonAccessibilityRequestParser {
 			{
 				RouteInstructionsFormat instrFormat = RouteInstructionsFormat.fromString(value);
 				if (instrFormat == RouteInstructionsFormat.UNKNOWN)
-					throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "instructions_format", value);
+					throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "instructions_format", value);
 
 				reqRouting.setInstructionsFormat(instrFormat);
 			}
