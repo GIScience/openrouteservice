@@ -27,10 +27,8 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 import heigit.ors.accessibility.AccessibilityAnalyzer;
-import heigit.ors.accessibility.AccessibilityErrorCodes;
 import heigit.ors.accessibility.AccessibilityResult;
 import heigit.ors.common.StatusCode;
-import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.services.accessibility.AccessibilityRequest;
@@ -121,13 +119,13 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 
 				feature.put("geometry", point);
 
-				Map<String, String> props = lr.getProperties();
+				Map<String, Object> props = lr.getProperties();
 
 				JSONObject properties = new JSONObject(true, props.size());
 
 				if (props.size() > 0)
 				{
-					for(Map.Entry<String, String> entry : props.entrySet())
+					for(Map.Entry<String, Object> entry : props.entrySet())
 						properties.put(entry.getKey(), entry.getValue());
 				}
 

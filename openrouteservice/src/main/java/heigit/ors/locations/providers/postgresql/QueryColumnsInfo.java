@@ -1,24 +1,32 @@
 package heigit.ors.locations.providers.postgresql;
 
+import java.sql.ResultSet;
+import java.util.List;
+
+import com.graphhopper.util.Helper;
+
 public class QueryColumnsInfo 
 {
 	private String _query1Columns;
 	private String _query2Columns;
 	private String _returnTable;
-	private String[] _columnNames;
+	private ColumnDescription[] _columns;
+	private int _returnColumnCount;
 
-	public QueryColumnsInfo(String[] columnNames)
+	public QueryColumnsInfo(ColumnDescription[] columns, List<String> ignoreQuery2Columns)
 	{
-		_columnNames = columnNames;
+		_columns = columns;
 
 		_query1Columns = "";
 		_query2Columns = "";
 		String returnTable = "";
 
-		int nColumns = _columnNames.length;
+		int nColumns = _columns.length;
+		_returnColumnCount = nColumns;
+		
 		for (int i = 0; i < nColumns; i++)
 		{
-			String clmName = _columnNames[i];
+			String clmName = _columns[i].getName();
 			
 			// Skp distance as it is added as the last column
 			if (clmName.equals("distance"))
@@ -28,7 +36,15 @@ public class QueryColumnsInfo
 
 			if (!clmName.equalsIgnoreCase("geom"))
 			{
-				_query2Columns += clmName + ", ";
+				if (ignoreQuery2Columns != null && ignoreQuery2Columns.contains(clmName))
+				{
+					// skip column from result
+					_returnColumnCount--;
+				}
+				else
+				{
+					_query2Columns += clmName + ", ";
+				}
 			}
 			else
 			{
@@ -80,12 +96,38 @@ public class QueryColumnsInfo
 
 	public String getName(int index)
 	{
-		return _columnNames[index];
+		return _columns[index].getName();
+	}
+	
+	public Object getType(int index, ResultSet resultSet) throws Exception
+	{
+		Class type = _columns[index].getType();
+		
+		if (type == String.class)
+		{
+			String str = resultSet.getString(index + 1);
+			if (!Helper.isEmpty(str))
+				return str;
+		}
+		else if (type == Integer.class)
+		{
+			return resultSet.getInt(index + 1);
+		}
+		else if (type == Long.class)
+		{
+			return resultSet.getLong(index + 1);
+		}
+		else if (type == Double.class)
+		{
+			return resultSet.getDouble(index + 1);
+		}
+		
+		return null;
 	}
 
-	public int getCount()
+	public int getReturnColumnsCount()
 	{
-		return _columnNames.length;
+		return _returnColumnCount;
 	}
 
 	public String getQuery1Columns()

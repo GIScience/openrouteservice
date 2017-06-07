@@ -71,24 +71,15 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 		case "GET":
 			req = JsonIsochroneRequestParser.parseFromRequestParams(_request);
 			break;
-		case "POST":
-			req = JsonIsochroneRequestParser.parseFromStream(_request.getInputStream());  
-			break;
+		///case "POST":  needs to be implemented
+		//	req = JsonIsochroneRequestParser.parseFromStream(_request.getInputStream());  
+		//	break;
 		default:
 			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED);
 		}
 
 		if (req == null)
 			throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.UNKNOWN, "IsochronesRequest object is null.");
-
-		if (req.getRouteSearchParameters().getProfileType() == RoutingProfileType.UNKNOWN)
-		{
-			String profileName = _request.getParameter("profile");
-			if (Helper.isEmpty(profileName))
-				throw new MissingParameterException(IsochronesErrorCodes.MISSING_PARAMETER, "profile");
-			else
-				throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "profile", profileName);
-		}
 
 		if (!req.isValid())
 			throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.UNKNOWN, "IsochronesRequest is not valid.");

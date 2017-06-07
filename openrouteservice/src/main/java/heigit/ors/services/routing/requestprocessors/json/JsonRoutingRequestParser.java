@@ -18,6 +18,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.MissingParameterException;
+import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.localization.LocalizationManager;
@@ -72,7 +73,7 @@ public class JsonRoutingRequestParser
 			}
 			catch(NumberFormatException ex)
 			{
-				throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "Unable to parse coordinates value.");
+				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "coordinates");
 			}
 
 			if (coords.length < 2)
@@ -83,7 +84,14 @@ public class JsonRoutingRequestParser
 
 		value = request.getParameter("units");
 		if (!Helper.isEmpty(value))
-			req.setUnits(DistanceUnitUtil.getFromString(value, DistanceUnit.Meters));		
+		{
+			DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.Unknown);
+			
+			if (units == DistanceUnit.Unknown)
+				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "units");
+			
+			req.setUnits(units);
+		}
 
 		value = request.getParameter("language");
 		if (!Helper.isEmpty(value))

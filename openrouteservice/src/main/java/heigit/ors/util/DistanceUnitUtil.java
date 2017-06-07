@@ -35,6 +35,8 @@ public class DistanceUnitUtil
 				return value / 1000.0;
 			case Miles:
 				return value * 0.000621371192;
+			default:
+				break;
 			}
 			return value;
 		}

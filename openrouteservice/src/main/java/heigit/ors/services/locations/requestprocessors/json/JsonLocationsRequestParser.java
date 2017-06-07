@@ -54,7 +54,20 @@ public class JsonLocationsRequestParser {
 		String value = request.getParameter("request");
 
 		InputStream stream = request.getInputStream();
-		JSONObject obj = new JSONObject(StreamUtility.readStream(stream));
+		JSONObject obj = null;
+		
+		try
+		{
+			String body = StreamUtility.readStream(stream);
+			if (Helper.isEmpty(body))
+				obj = new JSONObject();
+			else
+				obj = new JSONObject(body);
+		}
+		catch(Exception ex)
+		{
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, LocationsErrorCodes.INVALID_JSON_FORMAT, "Unable to parse JSON document. " + ex.getMessage());
+		}
 
 		return parseFromJSON(value, obj);
 	}
@@ -135,7 +148,7 @@ public class JsonLocationsRequestParser {
 			{
 				String[] coords = value.split(",");
 				if (coords == null || coords.length != 4)
-					throw new ParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "bbox");
+					throw new ParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "bbox", value);
 
 				Envelope bbox = null;
 				try
@@ -144,7 +157,8 @@ public class JsonLocationsRequestParser {
 				}
 				catch(NumberFormatException ex)
 				{
-					throw new ParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "bbox");
+					String str = ex.getMessage().replaceAll("For input string:", "").trim();
+					throw new ParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "bbox", str);
 				}
 
 				req.setBBox(bbox);
@@ -293,7 +307,7 @@ public class JsonLocationsRequestParser {
 		{
 			String[] coords = value.split(",");
 			if (coords == null || coords.length != 4)
-				throw new ParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "bbox");
+				throw new ParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "bbox", value);
 
 			Envelope bbox = null;
 			try
@@ -302,7 +316,8 @@ public class JsonLocationsRequestParser {
 			}
 			catch(NumberFormatException ex)
 			{
-				throw new ParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "bbox");
+				String str = ex.getMessage().replaceAll("For input string:", "").trim();
+				throw new ParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "bbox", str);
 			}
 
 			req.setBBox(bbox);
