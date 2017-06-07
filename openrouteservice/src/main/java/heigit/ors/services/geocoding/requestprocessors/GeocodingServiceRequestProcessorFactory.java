@@ -28,7 +28,7 @@ public class GeocodingServiceRequestProcessorFactory {
 	public static AbstractHttpRequestProcessor createProcessor(HttpServletRequest request) throws Exception  
 	{
 		if (!GeocodingServiceSettings.getEnabled())
-			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, GeocodingErrorCodes.UKNOWN, "Geocoding service is not enabled.");
+			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, GeocodingErrorCodes.UNKNOWN, "Geocoding service is not enabled.");
 		
 		String formatParam = request.getParameter("format");
 
