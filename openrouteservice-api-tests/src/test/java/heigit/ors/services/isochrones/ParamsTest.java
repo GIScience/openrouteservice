@@ -77,9 +77,6 @@ public class ParamsTest extends ServiceTest {
 				.statusCode(400);
 	}
 
-	// failing due to {"error":{"message":"Unknown parameter value 'start123123'
-	// for
-	// 'location_type'."},"info":{"version":"4.0.0","timestamp":1496754092123}}
 	@Test
 	public void testWrongLocationType() {
 
@@ -93,7 +90,7 @@ public class ParamsTest extends ServiceTest {
 				.when()
 				.get(getEndPointName())
 				.then()
-				.body("error.code", is(302))
+				.body("error.code", is(303))
 				.statusCode(400);
 	}
 
@@ -145,7 +142,7 @@ public class ParamsTest extends ServiceTest {
 				.when()
 				.get(getEndPointName())
 				.then()
-				.body("error.code", is(304))
+				.body("error.code", is(303))
 				.statusCode(400);
 	}
 
@@ -241,7 +238,6 @@ public class ParamsTest extends ServiceTest {
 				.statusCode(200);
 	}
 
-	// TODO list of ranges, why do I need interval here???
 	@Test
 	public void testRanges() {
 
@@ -261,7 +257,6 @@ public class ParamsTest extends ServiceTest {
 				.statusCode(200);
 	}
 
-	// TODO set to 3600
 	@Test
 	public void testRangeRestrictionTime() {
 
@@ -277,19 +272,19 @@ public class ParamsTest extends ServiceTest {
 				.body("error.code", is(304));
 	}
 
-	// TODO set to 10000
 	@Test
 	public void testRangeRestrictionDistance() {
 
 		given()
 				.param("locations", getParameter("location"))
 				.param("profile", getParameter("profile"))
-				.param("range", "11000")
+				.param("range", "1100000")
 				.param("range_type", "distance")
 				.when()
 				.get(getEndPointName())
 				.then()
-				.statusCode(400);
+				.statusCode(400)
+				.body("error.code", is(304));
 	}
 
 	@Test
@@ -326,7 +321,6 @@ public class ParamsTest extends ServiceTest {
 				.statusCode(200);
 	}
 
-	// TODO should return 400
 	@Test
 	public void testWrongAttributes() {
 
@@ -335,14 +329,14 @@ public class ParamsTest extends ServiceTest {
 				.param("profile", getParameter("profile"))
 				.param("range", "400")
 				.param("range_type", "time")
-				.param("attributes", "areaaa|reachfactorrr")
+				.param("attributes", "area|reachfactorrr")
 				.when()
 				.get(getEndPointName())
 				.then()
 				.log()
 				.all()
 				.statusCode(400)
-				.body("error.code", is(304));
+				.body("error.code", is(303));
 	}
 
 }

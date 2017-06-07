@@ -28,10 +28,8 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import heigit.ors.common.Pair;
 import heigit.ors.common.StatusCode;
-import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
