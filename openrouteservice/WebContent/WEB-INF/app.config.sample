@@ -16,6 +16,12 @@
                 route_details_allowed: true,
                 attribution: "openrouteservice.org, OpenStreetMap contributors"
             }			
+            matrix:
+            {
+                maximum_locations: 200,
+                allow_resolve_locations: true,
+                attribution: "openrouteservice.org, OpenStreetMap contributors"
+            }
 			isochrones: {
 				enabled: true,
 				maximum_range_distance: 100000,
