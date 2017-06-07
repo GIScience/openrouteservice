@@ -515,7 +515,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 				int groupId = ids[i];
 				LocationsCategoryGroup group = LocationsCategoryClassifier.getGroupById(groupId);
 				if (group == null)
-					throw new UnknownParameterValueException("category_group_id", "Unknown group id '" + groupId + "'.");
+					throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "category_group_id", Integer.toString(groupId));
 
 				result += "("+ group.getMinCategoryId() + " <= category AND category <= " + group.getMaxCategoryId() + ")";
 
@@ -531,7 +531,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 
 			LocationsCategoryGroup group = LocationsCategoryClassifier.getGroupById(groupId);
 			if (group == null)
-				throw new UnknownParameterValueException("category_group_id", "Unknown group id '" + groupId + "'.");
+				throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "category_group_id", Integer.toString(groupId));
 
 			result = group.getMinCategoryId() + " <= category AND category <= " + group.getMaxCategoryId(); 
 		}

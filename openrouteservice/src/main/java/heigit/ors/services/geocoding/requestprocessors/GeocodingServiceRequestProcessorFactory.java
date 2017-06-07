@@ -40,6 +40,6 @@ public class GeocodingServiceRequestProcessorFactory {
 	/*	else if (formatParam.equalsIgnoreCase("xml"))
 			return new XmlGeocodingRequestProcessor(request);*/
 		else 
-			throw new UnknownParameterValueException("format", formatParam);
+			throw new UnknownParameterValueException(GeocodingErrorCodes.INVALID_PARAMETER_VALUE, "format", formatParam);
 	}
 }

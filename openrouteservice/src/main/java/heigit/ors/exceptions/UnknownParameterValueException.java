@@ -16,11 +16,6 @@ import heigit.ors.common.StatusCode;
 public class UnknownParameterValueException extends StatusCodeException{
 	private static final long serialVersionUID = 4866998272349837464L;
 
-	public UnknownParameterValueException(String paramName, String paramValue)
-	{
-		this(-1 ,paramName, paramValue);
-	}
-	
 	public UnknownParameterValueException(int errorCode, String paramName, String paramValue)
 	{
 		super(StatusCode.BAD_REQUEST, errorCode, "Unknown parameter value '" + paramValue + "' for '" + paramName + "'.");
