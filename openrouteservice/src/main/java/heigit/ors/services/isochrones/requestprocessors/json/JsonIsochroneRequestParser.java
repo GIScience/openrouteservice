@@ -161,18 +161,15 @@ public class JsonIsochroneRequestParser {
 
 		if (!Helper.isEmpty(value))
 		{
-			Coordinate[] coords = null;
-
 			try
 			{
-				coords = CoordTools.parse(value, "\\|", false, inverseXY);						
+				Coordinate[] coords = CoordTools.parse(value, "\\|", false, inverseXY);						
+				req.setLocations(coords);
 			}
 			catch(NumberFormatException nfex)
 			{
 				throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "locations");
 			}
-
-			req.setLocations(coords);
 		}
 		else
 		{
