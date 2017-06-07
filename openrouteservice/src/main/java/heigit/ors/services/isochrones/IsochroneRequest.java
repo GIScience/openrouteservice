@@ -115,7 +115,7 @@ public class IsochroneRequest extends ServiceRequest
 		if (_attributes == null || attr == null)
 			return false;
 
-		for (int i = 0; i< _attributes.length; i++)
+		for (int i = 0; i < _attributes.length; i++)
 			if (attr.equalsIgnoreCase(_attributes[i]))
 				return true;
 
