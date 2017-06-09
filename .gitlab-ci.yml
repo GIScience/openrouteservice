@@ -25,17 +25,21 @@ stages:
 
 maven-gh-install:
   stage: gh-install
-  script: 
-    - mvn -f ./graphhopper/pom.xml install -B
   only: 
     - development
+  script: 
+    - mvn -f ./graphhopper/pom.xml install -B
 
 maven-ors-build:
   stage: ors-build
-  script: 
-    - mvn -f ./openrouteservice/pom.xml package -B
   only: 
     - development
+  script: 
+    - mvn -f ./openrouteservice/pom.xml package -B
 
-# apply an app.config for the test environement
-  #maven-ors-deploy:
+maven-ors-deploy:
+  stage: ors-deploy
+  only: 
+    - development
+  script:
+    - mvn -f ./openrouteservice/pom.xml -X tomcat7:run
