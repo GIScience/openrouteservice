@@ -34,7 +34,7 @@ maven-ors-build:
   only: 
     - development
   script: 
-    - mvn -f ./openrouteservice/pom.xml package -B
+    - mvn -f ./openrouteservice/pom.xml install -B
   #artifacts:
   #  paths:
   #    - target/*.war
