@@ -1,20 +1,25 @@
-image: docker:latest
+#image: docker:latest
+image: maven:3-jdk-8
 
 variables:
   DOCKER_DRIVER: overlay
 
 stages:
-  - build
-  - package
+  - gh-install
+  - ors-build
   - deploy
+  - ors-api-test
 
-maven-build:
-  image: maven:3-jdk-8
-  stage: build
+maven-gh-install:
+  stage: gh-install
   script: 
-    - mvn -f ./graphhopper/pom.xml package -B
+    - mvn -f ./graphhopper/pom.xml install -B
   only: 
     - development
-  artifacts:
-    paths:
-      - target/*.jar
+
+maven-ors-build:
+  stage: ors-build
+  script: 
+    - mvn -f ./openrouteservice/pom.xml package -B
+  only: 
+    - development
