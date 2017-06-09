@@ -1,0 +1,20 @@
+image: docker:latest
+
+variables:
+  DOCKER_DRIVER: overlay
+
+stages:
+  - build
+  - package
+  - deploy
+
+maven-build:
+  image: maven:3-jdk-8
+  stage: build
+  script: 
+    - mvn -f ./graphhopper/pom.xml package -B
+  only: 
+    - development
+  artifacts:
+    paths:
+      - target/*.jar
