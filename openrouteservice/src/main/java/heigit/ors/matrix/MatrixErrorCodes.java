@@ -9,13 +9,13 @@
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-package heigit.ors.geocoding.geocoders;
+package heigit.ors.matrix;
 
-public class GeocodingErrorCodes {
-   public static int INVALID_JSON_FORMAT = 100; 
-   public static int MISSING_PARAMETER = 101;
-   public static int INVALID_PARAMETER_FORMAT = 102;
-   public static int INVALID_PARAMETER_VALUE = 103;
-   public static int PARAMETER_VALUE_EXCEEDS_MAXIMUM = 104;
-   public static int UNKNOWN = 199;
+public class MatrixErrorCodes {
+   public static int INVALID_JSON_FORMAT = 600; 
+   public static int MISSING_PARAMETER = 601;
+   public static int INVALID_PARAMETER_FORMAT = 602;
+   public static int INVALID_PARAMETER_VALUE = 603;
+   public static int PARAMETER_VALUE_EXCEEDS_MAXIMUM = 604;
+   public static int UNKNOWN = 699;
 }

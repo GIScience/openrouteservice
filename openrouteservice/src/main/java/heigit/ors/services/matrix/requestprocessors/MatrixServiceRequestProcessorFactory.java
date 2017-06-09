@@ -9,37 +9,39 @@
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-package heigit.ors.services.geocoding.requestprocessors;
+package heigit.ors.services.matrix.requestprocessors;
 
 import javax.servlet.http.HttpServletRequest;
 
-import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
-import heigit.ors.geocoding.geocoders.GeocodingErrorCodes;
-import heigit.ors.services.geocoding.GeocodingServiceSettings;
-import heigit.ors.services.geocoding.requestprocessors.json.JsonGeocodingRequestProcessor;
+import heigit.ors.matrix.MatrixErrorCodes;
+import heigit.ors.routing.RoutingProfileManagerStatus;
+import heigit.ors.services.matrix.MatrixServiceSettings;
+import heigit.ors.services.matrix.requestprocessors.json.JsonMatrixRequestProcessor;
+import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 
 import com.graphhopper.util.Helper;
 
-public class GeocodingServiceRequestProcessorFactory {
+public class MatrixServiceRequestProcessorFactory {
 
 	public static AbstractHttpRequestProcessor createProcessor(HttpServletRequest request) throws Exception  
 	{
-		if (!GeocodingServiceSettings.getEnabled())
-			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, GeocodingErrorCodes.UNKNOWN, "Geocoding service is not enabled.");
-		
+		if (!MatrixServiceSettings.getEnabled())
+			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, MatrixErrorCodes.UNKNOWN,  "Matrix service is not enabled.");
+
+		if (!RoutingProfileManagerStatus.isReady())
+			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, MatrixErrorCodes.UNKNOWN, "Matrix service is not ready yet.");
+
 		String formatParam = request.getParameter("format");
 
 		if (Helper.isEmpty(formatParam))
 			formatParam = "json";
 
 		if (formatParam.equalsIgnoreCase("json"))
-			return new JsonGeocodingRequestProcessor(request);
-	/*	else if (formatParam.equalsIgnoreCase("xml"))
-			return new XmlGeocodingRequestProcessor(request);*/
+			return new JsonMatrixRequestProcessor(request);
 		else 
-			throw new UnknownParameterValueException(GeocodingErrorCodes.INVALID_PARAMETER_VALUE, "format", formatParam);
+			throw new UnknownParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "format", formatParam);
 	}
 }

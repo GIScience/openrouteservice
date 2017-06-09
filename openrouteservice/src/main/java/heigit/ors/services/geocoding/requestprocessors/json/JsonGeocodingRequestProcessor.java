@@ -2,7 +2,7 @@
  *|														Heidelberg University
  *|	  _____ _____  _____      _                     	Department of Geography		
  *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
- *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2016
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2017
  *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
  *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
  *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
@@ -47,7 +47,6 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 
 	public JsonGeocodingRequestProcessor(HttpServletRequest request) throws Exception {
 		super(request);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -183,13 +182,13 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 				req.setId(value);
 			break;
 		case "POST":
-			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, GeocodingErrorCodes.UKNOWN, "POST request is not supported.");  
+			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, GeocodingErrorCodes.UNKNOWN, "POST request is not supported.");  
 		default:
-			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, GeocodingErrorCodes.UKNOWN, "Unknown request type.");
+			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, GeocodingErrorCodes.UNKNOWN, "Unknown request type.");
 		}
 
         if (!req.isValid())
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, GeocodingErrorCodes.UKNOWN, "Geocoding request parameters are missing or invalid.");
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, GeocodingErrorCodes.UNKNOWN, "Geocoding request parameters are missing or invalid.");
 
 		try
 		{
@@ -212,7 +211,7 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 		}
 		catch(Exception ex)
 		{
-			throw new InternalServerException(GeocodingErrorCodes.UKNOWN);
+			throw new InternalServerException(GeocodingErrorCodes.UNKNOWN);
 		}
 	}
 

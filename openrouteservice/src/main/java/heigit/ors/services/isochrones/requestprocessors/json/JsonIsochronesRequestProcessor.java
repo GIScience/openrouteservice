@@ -52,7 +52,6 @@ import heigit.ors.util.StringUtility;
 
 public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor 
 {
-
 	public JsonIsochronesRequestProcessor(HttpServletRequest request) throws Exception
 	{
 		super(request);

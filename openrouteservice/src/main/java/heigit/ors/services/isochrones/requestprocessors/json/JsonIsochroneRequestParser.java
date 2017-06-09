@@ -150,7 +150,6 @@ public class JsonIsochroneRequestParser {
 			req.setUnits(value.toLowerCase());
 		}
 
-
 		boolean inverseXY = false;
 		value = request.getParameter("locations");
 
@@ -162,18 +161,15 @@ public class JsonIsochroneRequestParser {
 
 		if (!Helper.isEmpty(value))
 		{
-			Coordinate[] coords = null;
-
 			try
 			{
-				coords = CoordTools.parse(value, "\\|", false, inverseXY);						
+				Coordinate[] coords = CoordTools.parse(value, "\\|", false, inverseXY);						
+				req.setLocations(coords);
 			}
 			catch(NumberFormatException nfex)
 			{
 				throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "locations");
 			}
-
-			req.setLocations(coords);
 		}
 		else
 		{
@@ -209,7 +205,16 @@ public class JsonIsochroneRequestParser {
 
 		value = request.getParameter("intersections");
 		if (!Helper.isEmpty(value))
-			req.setIncludeIntersections(Boolean.parseBoolean(value));
+		{
+			try
+			{
+				req.setIncludeIntersections(Boolean.parseBoolean(value));
+			}
+			catch(Exception ex)
+			{
+				throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "intersections", value);
+			}
+		}
 
 		value = request.getParameter("options");
 		if (!Helper.isEmpty(value))

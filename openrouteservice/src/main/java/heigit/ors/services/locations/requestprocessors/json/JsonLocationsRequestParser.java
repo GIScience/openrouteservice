@@ -51,8 +51,6 @@ public class JsonLocationsRequestParser {
 
 	public static LocationsRequest parseFromStream(HttpServletRequest request) throws Exception 
 	{
-		String value = request.getParameter("request");
-
 		InputStream stream = request.getInputStream();
 		JSONObject obj = null;
 		
@@ -69,10 +67,10 @@ public class JsonLocationsRequestParser {
 			throw new StatusCodeException(StatusCode.BAD_REQUEST, LocationsErrorCodes.INVALID_JSON_FORMAT, "Unable to parse JSON document. " + ex.getMessage());
 		}
 
-		return parseFromJSON(value, obj);
+		return parseFromJSON(obj);
 	}
 
-	public static LocationsRequest parseFromJSON(String request, JSONObject obj) throws Exception 
+	public static LocationsRequest parseFromJSON(JSONObject obj) throws Exception 
 	{
 		LocationsRequest req = null;
 
@@ -80,7 +78,7 @@ public class JsonLocationsRequestParser {
 		{
 			req = new LocationsRequest();		 
 
-			String value = request;
+			String value = obj.getString("request");
 			if (!Helper.isEmpty(value))
 				req.setType(LocationRequestType.fromString(value));
 
@@ -116,6 +114,10 @@ public class JsonLocationsRequestParser {
 						paramIdsName = "category_ids";
 						JSONArray jArr = jFilter.getJSONArray(paramIdsName);
 						ids = JsonUtility.parseIntArray(jArr, paramIdsName, LocationsErrorCodes.INVALID_PARAMETER_FORMAT);
+						
+						if (ids != null && LocationsServiceSettings.getMaximumCategories() > 0 && LocationsServiceSettings.getMaximumCategories() < ids.length)
+							throw new ParameterOutOfRangeException(LocationsErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, paramIdsName, "category_ids (or category_group_ids)", Integer.toString(LocationsServiceSettings.getMaximumCategories()));
+
 						validateCategoryIds(ids);
 						query.setCategoryIds(ids);
 					}
@@ -126,11 +128,6 @@ public class JsonLocationsRequestParser {
 
 				if (req.getType() == LocationRequestType.POIS)
 				{
-					if (ids != null && LocationsServiceSettings.getMaximumCategories() > 0 && LocationsServiceSettings.getMaximumCategories() < ids.length)
-					{
-						throw new ParameterOutOfRangeException(LocationsErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, paramIdsName, "category_ids (or category_group_ids)", Integer.toString(LocationsServiceSettings.getMaximumCategories()));
-					}
-
 					value = jFilter.optString("name");
 					if (!Helper.isEmpty(value))
 						query.setName(value);
@@ -140,6 +137,8 @@ public class JsonLocationsRequestParser {
 				query.setSmoking(jFilter.optString("smoking"));
 				query.setFee(parseBooleanFlag(jFilter.optString("fee")));
 			}
+			else
+				throw new MissingParameterException(LocationsErrorCodes.MISSING_PARAMETER, "filter");
 
 			req.setLanguage(obj.optString("lang"));
 
@@ -182,9 +181,16 @@ public class JsonLocationsRequestParser {
 			value = obj.optString("radius");
 			if (!Helper.isEmpty(value))
 			{
-				double dvalue = Double.parseDouble(value);
-				checkSearchRadius(req.getGeometry(), dvalue);
-				req.setRadius(dvalue);
+				try
+				{
+					double dvalue = Double.parseDouble(value);
+					checkSearchRadius(req.getGeometry(), dvalue);
+					req.setRadius(dvalue);
+				}
+				catch(Exception ex)
+				{
+					throw new ParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "radius");
+				}
 			}
 			else if (req.getGeometry() instanceof Point || req.getGeometry() instanceof LineString)
 				throw new MissingParameterException(LocationsErrorCodes.MISSING_PARAMETER, "radius");
@@ -206,7 +212,7 @@ public class JsonLocationsRequestParser {
 				{
 					LocationsResultSortType sortType = LocationsResultSortType.fromString(value);
 					if (sortType == LocationsResultSortType.NONE)
-						throw new UnknownParameterValueException("sortby", value);
+						throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "sortby", value);
 
 					req.setSortType(sortType);
 				}
@@ -273,6 +279,10 @@ public class JsonLocationsRequestParser {
 			if (!Helper.isEmpty(value))
 			{
 				int[] ids = ArraysUtility.parseIntArray(value, "category_ids", LocationsErrorCodes.INVALID_PARAMETER_FORMAT);
+				
+				if (ids != null && LocationsServiceSettings.getMaximumCategories() > 0 && LocationsServiceSettings.getMaximumCategories() < ids.length)
+					throw new ParameterOutOfRangeException(LocationsErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "category_ids", value, Integer.toString(LocationsServiceSettings.getMaximumCategories()));
+
 				validateCategoryIds(ids);
 				query.setCategoryIds(ids);
 			}
@@ -351,9 +361,16 @@ public class JsonLocationsRequestParser {
 		value = request.getParameter("radius");
 		if (!Helper.isEmpty(value))
 		{
-			double dvalue = Double.parseDouble(value);
-			checkSearchRadius(req.getGeometry(), dvalue);
-			req.setRadius(dvalue);
+			try
+			{
+				double dvalue = Double.parseDouble(value);
+				checkSearchRadius(req.getGeometry(), dvalue);
+				req.setRadius(dvalue);
+			}
+			catch(Exception ex)
+			{
+				throw new ParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "radius");
+			}
 		}
 		else if (req.getGeometry() instanceof Point || req.getGeometry() instanceof LineString)
 			throw new MissingParameterException(LocationsErrorCodes.MISSING_PARAMETER, "radius");

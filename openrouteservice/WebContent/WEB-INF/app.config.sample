@@ -8,7 +8,20 @@
 				api_key: YOUR_API_KEY,
 				attribution: "openrouteservice.org, OpenStreetMap contributors"
 			}
-			isochrones: {
+		accessibility: {
+                	enabled: true,
+                	maximum_range_distance: 120000,
+                	maximum_range_time: 3600,
+                	maximum_locations: 2,
+                	route_details_allowed: true,
+                	attribution: "openrouteservice.org, OpenStreetMap contributors"
+            	}			
+           	 matrix: {
+                	maximum_locations: 200,
+               	 	allow_resolve_locations: true,
+                	attribution: "openrouteservice.org, OpenStreetMap contributors"
+            	}
+		isochrones: {
 				enabled: true,
 				maximum_range_distance: 100000,
 				maximum_range_time: 3600,
@@ -17,7 +30,7 @@
 				allow_compute_area: true,
 				attribution: "openrouteservice.org, OpenStreetMap contributors"
 			}
-			geocoding: {
+		geocoding: {
             	geocoder_name: pelias,
                 geocoding_url: "http://129.206.7.154:3100/v1/search",
                 reverse_geocoding_url: "http://129.206.7.154:3100/v1/reverse",

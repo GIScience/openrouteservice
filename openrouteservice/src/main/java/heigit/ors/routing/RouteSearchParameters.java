@@ -146,7 +146,7 @@ public class RouteSearchParameters {
 						{
 							int flag = AvoidFeatureFlags.getFromString(featName);
 							if (flag == 0)
-								throw new UnknownParameterValueException("avoid_features", featName);
+								throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", featName);
 
 							flags |= flag;
 						}
