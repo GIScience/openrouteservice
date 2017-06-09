@@ -35,8 +35,9 @@ maven-ors-build:
     - development
   script: 
     - mvn -f ./openrouteservice/pom.xml package -B
-  artifacts:
-    untracked: true
+  #artifacts:
+  #  paths:
+  #    - target/*.war
 
 maven-ors-api-test:
   stage: ors-api-test
@@ -45,6 +46,6 @@ maven-ors-api-test:
   dependencies:
     - maven-ors-build
   before_script:
-    - nohup mvn -f ./openrouteservice/pom.xml -X tomcat7:run &
+    - nohup mvn -f ./openrouteservice/pom.xml tomcat7:run &
   script:
     - mvn -f ./openrouteservice-api-tests/pom.xml test
