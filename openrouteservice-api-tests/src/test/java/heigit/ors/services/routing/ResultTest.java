@@ -239,5 +239,7 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].segments[0].steps[10].instruction", is("Turn slight right onto Lessingstraße"))
 				.statusCode(200);
 	}
+	
+	// test fitness params bike..
 
 }

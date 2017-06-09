@@ -8,14 +8,6 @@
 				api_key: YOUR_API_KEY,
 				attribution: "openrouteservice.org, OpenStreetMap contributors"
 			}
-			accessibility: {
-                enabled: true,
-                maximum_range_distance: 120000,
-                maximum_range_time: 3600,
-                maximum_locations: 2,
-                route_details_allowed: true,
-                attribution: "openrouteservice.org, OpenStreetMap contributors"
-            }			
 			isochrones: {
 				enabled: true,
 				maximum_range_distance: 100000,
@@ -26,56 +18,52 @@
 				attribution: "openrouteservice.org, OpenStreetMap contributors"
 			}
 			geocoding: {
-				enabled: true,
-				# Possible geocoder names are photon, pelias or nominatim
-                geocoder_name: GEOCODER_NAME,
-				geocoding_url: "http://GEOCODING_SERVICE_URL",
-				reverse_geocoding_url: "http://REVERSE_GEOCODING_SERVICE_URL",
-				user_agent: openrouteservice.org,
-				attribution: "openrouteservice.org, OpenStreetMap contributors"
-			}
+            	geocoder_name: pelias,
+                geocoding_url: "http://129.206.7.154:3100/v1/search",
+                reverse_geocoding_url: "http://129.206.7.154:3100/v1/reverse",
+                response_limit: 20,
+                user_agent: openrouteservice.org,
+                attribution: "openrouteservice.org, OpenStreetMap contributors"
+            }
 			locations: {
-				enabled: false,
-				# Possible providers are postgresql, memsql
-				provider_name: PROVIDER_NAME,
+				enabled: true,
+				provider_name: postgresql,
 				provider_parameters: {
-				    # *********** connection settings for postgresql ***********
-				    host: "DATABASE_HOST",
-				    port: 5432,
-				    db_name: "DATABASE_NAME",
-				    user: "DATABASE_USER_NAME", 
- 				    password : "DATABASE_USER_PASSWORD", 
-                    table_name : "TABLE_NAME"
- 			    },				
+				host: "129.206.7.206",
+				port: 5432,
+				db_name: "gis",
+				user: "admin", 
+				password : "gZwe5Nj", 
+				table_name : "planet_osm_pois_g"
+				},
 				response_limit: 1000,
 				maximum_categories: 5,
-                # maximum allowed length of a linestring, measured in meters
-                maximum_feature_length: 10000000,
-                # maximum allowed area of a polygon, measured in square meters
-                maximum_feature_area: -1, 
-                # maximum allowed search radius 
-                maximum_search_radius_for_points: 20000,
-                maximum_search_radius_for_linestrings: 1000,
-                maximum_search_radius_for_polygons: 1000,
+				# maximum allowed length of a linestring, measured in meters
+				maximum_feature_length: 10000000,
+				# maximum allowed area of a polygon, measured in square meters
+				maximum_feature_area: -1, 
+				# maximum allowed search radius 
+				maximum_search_radius_for_points: 50000,
+				maximum_search_radius_for_linestrings: 2000,
+				maximum_search_radius_for_polygons: 1000,
 				attribution: "openrouteservice.org, OpenStreetMap contributors"
 			}
 			routing: {
 				enabled: true,
 				mode: "normal",
-				sources: ["PATH_TO_THE_RAW_OSM_FILE"],
+				sources: ["/Users/neilmccauley/Workspaces/ORS_core/openrouteservice/src/main/files/heidelberg.osm"],
 				init_threads: 2,
 				attribution: "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
-
+				distance_approximation: true,
 				profiles: {
 					active: ["vehicles", "vehicles-ch", "bike", "bike2", "pedestrian"],
-
-					 # graph_path must be explicitly defined in profile settings #
-					 # if graphs_root_path parameter is not defined in default_params #
+					# graph_path must be explicitly defined in profile settings #
+					# if graphs_root_path parameter is not defined in default_params #
 					default_params: {
 						encoder_flags_size: 8, 
-						graphs_root_path: "D:/Temp/GHGraphs", 
+						graphs_root_path: "/PATH/TO/processed_graphs", 
 						elevation_provider: cgiar,
-						elevation_cache_path: "D:/Temp/cgiar_provider",
+						elevation_cache_path: "/PATH/TO/cgiar_provider",
  	          		    instructions: true,
  	          		    # maximum allowed approximated distance of a route, measured in meters
  	          		    maximum_distance: 100000,
@@ -83,7 +71,6 @@
  	          		    maximum_segment_distance_with_dynamic_weights: 50000,
  	          		    maximum_waypoints: 50
 					},
-
 					profile-vehicles: {
 						profiles: "driving-car,driving-hgv,driving-motorcycle",
 						 # graph_path: "CAR",	 #
@@ -159,8 +146,8 @@
 						    encoder_options: "blockFords=false,blockFords=false",
 						    elevation: true, 
                             ext_storages: {
-                                GreenIndex: {
-                                    filepath: "PATH_TO_THE_GREEN_INDEX_CSV_FILE"
+                                GreenIndex_: {
+                                    filepath: "PATH/TO/THE_GREEN_INDEX_CSV_FILE"
                                 },
                                 WayCategory: {
                                 },								
@@ -172,19 +159,18 @@
 						}
 					}
 				}
-
 				update: {
-					enabled: true,
+					enabled: false,
 					time: "5, 10:10:00, 100000",
-					source: "D:\\Projects\\ORS\\OSM-Files\\hamburg-latest.osm.pbf",
+					source: "PATH/TO/**.osm.pbf",
 					extent: "",
-					working_directory: "D:\\Temp\\GHWorkingDir"
+					working_directory: "PATH/TO/GH_WORKING_DIR"
 				}
 
 				traffic: {
 					enabled: false,
 					source: "type=ftp;server=viznrwftp.gewi.com;user=cacc016;password=4)Zn3450;file=viznrw.xml",
-					location_codes_path: "C:\\Users\\Runge\\workspace\\!TMC\\lcl_list\\",
+					location_codes_path: "PATH/TO/TMC_LCL_LIST",
 					update_interval: 300000,
 					output_directory: "Temp"
 				}
@@ -193,7 +179,7 @@
 		logging: {
 			enabled: true,
 			level_file: "DEBUG_LOGGING.properties",
-			location: "LOG_FILE_PATH",
+			location: "/PATH/TO/LOGS",
 			stdout: true
 		}
 	}
