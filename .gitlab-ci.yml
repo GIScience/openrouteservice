@@ -44,7 +44,7 @@ maven-ors-api-test:
   only: 
     - development
   dependencies:
-    - maven-ors-build
+    - maven-ors-install
   before_script:
     #- nohup mvn -f ./openrouteservice/pom.xml tomcat7:run &
     - mvn -f ./openrouteservice/pom.xml tomcat7:run
