@@ -39,6 +39,7 @@ maven-ors-install:
     paths:
       - ./openrouteservice/target/*.war
 
+# TODO for tests to pass configure app.config !!
 maven-ors-api-test:
   stage: ors-api-test
   only: 
@@ -47,7 +48,7 @@ maven-ors-api-test:
     - maven-ors-install
   before_script:
     - nohup mvn -f ./openrouteservice/pom.xml tomcat7:run &
-    - sleep 1m    
-    #- mvn -f ./openrouteservice/pom.xml tomcat7:run
+    # TODO does app config have the right paths? wait for ors to build, graphs etc.. how many minutes?
+    - sleep 3m    
   script:
     - mvn -f ./openrouteservice-api-tests/pom.xml test
