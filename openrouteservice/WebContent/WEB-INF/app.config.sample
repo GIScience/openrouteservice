@@ -8,20 +8,20 @@
 				api_key: YOUR_API_KEY,
 				attribution: "openrouteservice.org, OpenStreetMap contributors"
 			}
-		accessibility: {
-                	enabled: true,
-                	maximum_range_distance: 120000,
-                	maximum_range_time: 3600,
-                	maximum_locations: 2,
-                	route_details_allowed: true,
-                	attribution: "openrouteservice.org, OpenStreetMap contributors"
-            	}			
-           	 matrix: {
-                	maximum_locations: 200,
-               	 	allow_resolve_locations: true,
-                	attribution: "openrouteservice.org, OpenStreetMap contributors"
-            	}
-		isochrones: {
+			accessibility: {
+	        	enabled: true,
+	        	maximum_range_distance: 120000,
+	        	maximum_range_time: 3600,
+	        	maximum_locations: 2,
+	        	route_details_allowed: true,
+	        	attribution: "openrouteservice.org, OpenStreetMap contributors"
+	    	}			
+        	matrix: {
+                maximum_locations: 200,
+               	allow_resolve_locations: true,
+                attribution: "openrouteservice.org, OpenStreetMap contributors"
+            }
+			isochrones: {
 				enabled: true,
 				maximum_range_distance: 100000,
 				maximum_range_time: 3600,
@@ -30,7 +30,7 @@
 				allow_compute_area: true,
 				attribution: "openrouteservice.org, OpenStreetMap contributors"
 			}
-		geocoding: {
+			geocoding: {
             	geocoder_name: pelias,
                 geocoding_url: "http://129.206.7.154:3100/v1/search",
                 reverse_geocoding_url: "http://129.206.7.154:3100/v1/reverse",
@@ -42,12 +42,12 @@
 				enabled: true,
 				provider_name: postgresql,
 				provider_parameters: {
-				host: "129.206.7.206",
-				port: 5432,
-				db_name: "gis",
-				user: "admin", 
-				password : "gZwe5Nj", 
-				table_name : "planet_osm_pois_g"
+					host: "129.206.7.206",
+					port: 5432,
+					db_name: "gis",
+					user: "admin", 
+					password : "gZwe5Nj", 
+					table_name : "planet_osm_pois_g"
 				},
 				response_limit: 1000,
 				maximum_categories: 5,
@@ -64,29 +64,24 @@
 			routing: {
 				enabled: true,
 				mode: "normal",
-				sources: ["/Users/neilmccauley/Workspaces/ORS_core/openrouteservice/src/main/files/heidelberg.osm"],
+				sources: ["./openrouteservice/src/main/files/heidelberg.osm"],
 				init_threads: 2,
 				attribution: "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
 				distance_approximation: true,
 				profiles: {
 					active: ["vehicles", "vehicles-ch", "bike", "bike2", "pedestrian"],
-					# graph_path must be explicitly defined in profile settings #
-					# if graphs_root_path parameter is not defined in default_params #
 					default_params: {
 						encoder_flags_size: 8, 
-						graphs_root_path: "/PATH/TO/processed_graphs", 
+						graphs_root_path: "./processed_graphs", 
 						elevation_provider: cgiar,
-						elevation_cache_path: "/PATH/TO/cgiar_provider",
+						elevation_cache_path: "./cgiar_provider",
  	          		    instructions: true,
- 	          		    # maximum allowed approximated distance of a route, measured in meters
  	          		    maximum_distance: 100000,
- 	          		    # maximum allowed approximated distance of a route segment when dynamic weighting is applied, measured in meters
  	          		    maximum_segment_distance_with_dynamic_weights: 50000,
  	          		    maximum_waypoints: 50
 					},
 					profile-vehicles: {
 						profiles: "driving-car,driving-hgv,driving-motorcycle",
-						 # graph_path: "CAR",	 #
 						parameters: {
 						    encoder_flags_size: 8,
 						    encoder_options : "turnCosts=true|blockFords=false,turnCosts=true|blockFords=false,turnCosts=true|blockFords=false",
@@ -159,9 +154,9 @@
 						    encoder_options: "blockFords=false,blockFords=false",
 						    elevation: true, 
                             ext_storages: {
-                                GreenIndex_: {
-                                    filepath: "PATH/TO/THE_GREEN_INDEX_CSV_FILE"
-                                },
+                                #GreenIndex_: {
+                                #    filepath: "PATH/TO/THE_GREEN_INDEX_CSV_FILE"
+                                #},
                                 WayCategory: {
                                 },								
 								WaySurfaceType: {
@@ -175,9 +170,9 @@
 				update: {
 					enabled: false,
 					time: "5, 10:10:00, 100000",
-					source: "PATH/TO/**.osm.pbf",
+					source: "URL/TO/**.osm.pbf",
 					extent: "",
-					working_directory: "PATH/TO/GH_WORKING_DIR"
+					working_directory: "./update_graphs"
 				}
 
 				traffic: {
@@ -192,7 +187,7 @@
 		logging: {
 			enabled: true,
 			level_file: "DEBUG_LOGGING.properties",
-			location: "/PATH/TO/LOGS",
+			location: "./logs",
 			stdout: true
 		}
 	}
