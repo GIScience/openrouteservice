@@ -41,6 +41,6 @@ maven-ors-api-test:
   only: 
     - development
   before_script:
-    - mvn -f ./openrouteservice/pom.xml -X tomcat7:run
+    - nohup mvn -f ./openrouteservice/pom.xml -X tomcat7:run &
   script:
     - mvn -f ./openrouteservice-api-tests/pom.xml test
