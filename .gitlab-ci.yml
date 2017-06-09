@@ -20,7 +20,6 @@ cache:
 stages:
   - gh-install
   - ors-build
-  - ors-deploy
   - ors-api-test
 
 maven-gh-install:
@@ -37,9 +36,11 @@ maven-ors-build:
   script: 
     - mvn -f ./openrouteservice/pom.xml package -B
 
-maven-ors-deploy:
-  stage: ors-deploy
+maven-ors-api-test:
+  stage: ors-api-test
   only: 
     - development
-  script:
+  before_script:
     - mvn -f ./openrouteservice/pom.xml -X tomcat7:run
+  script:
+    - mvn -f ./openrouteservice-api-tests/pom.xml test
