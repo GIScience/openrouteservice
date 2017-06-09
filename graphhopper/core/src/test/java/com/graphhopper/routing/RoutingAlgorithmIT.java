@@ -636,7 +636,7 @@ public class RoutingAlgorithmIT
         }
     }
 
-    @Test
+/*    @Test
     public void testMonacoParallel() throws IOException
     {
         System.out.println("testMonacoParallel takes a bit time...");
@@ -708,7 +708,7 @@ public class RoutingAlgorithmIT
         assertEquals(MAX * algosLength * instances.size(), integ.get());
         assertEquals(testCollector.toString(), 0, testCollector.errors.size());
         hopper.close();
-    }
+    }*/
 
     static List<AlgoHelperEntry> createAlgos( GraphHopperStorage ghStorage,
                                               LocationIndex idx, final FlagEncoder encoder, boolean withCh,
