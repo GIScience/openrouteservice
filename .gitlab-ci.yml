@@ -53,4 +53,5 @@ maven-ors-api-test:
   script:
     - mvn -f ./openrouteservice-api-tests/pom.xml test
   artifacts:
-    - ./processed_graphs
+    paths:   
+      - ./processed_graphs
