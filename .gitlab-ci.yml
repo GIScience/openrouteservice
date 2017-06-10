@@ -49,9 +49,6 @@ maven-ors-api-test:
   before_script:
     - nohup mvn -f ./openrouteservice/pom.xml tomcat7:run &
     # TODO does app config have the right paths? wait for ors to build, graphs etc.. how many minutes?
-    - sleep 3m    
+    - sleep 5m    
   script:
     - mvn -f ./openrouteservice-api-tests/pom.xml test
-  artifacts:
-    paths:   
-      - ./processed_graphs
