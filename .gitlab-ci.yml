@@ -52,3 +52,5 @@ maven-ors-api-test:
     - sleep 3m    
   script:
     - mvn -f ./openrouteservice-api-tests/pom.xml test
+  artifacts:
+    - ./processed_graphs
