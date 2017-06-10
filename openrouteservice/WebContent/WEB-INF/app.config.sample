@@ -64,7 +64,7 @@
 			routing: {
 				enabled: true,
 				mode: "normal",
-				sources: ["./openrouteservice/src/main/files/heidelberg.osm"],
+				sources: ["src/main/files/heidelberg.osm"],
 				init_threads: 2,
 				attribution: "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
 				distance_approximation: true,
@@ -72,9 +72,9 @@
 					active: ["vehicles", "vehicles-ch", "bike", "bike2", "pedestrian"],
 					default_params: {
 						encoder_flags_size: 8, 
-						graphs_root_path: "./processed_graphs", 
+						graphs_root_path: "graphs", 
 						elevation_provider: cgiar,
-						elevation_cache_path: "./cgiar_provider",
+						elevation_cache_path: "cgiar_provider",
  	          		    instructions: true,
  	          		    maximum_distance: 100000,
  	          		    maximum_segment_distance_with_dynamic_weights: 50000,
