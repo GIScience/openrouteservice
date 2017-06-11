@@ -41,6 +41,7 @@ maven-ors-install:
 
 # TODO for tests to pass configure app.config !!
 maven-ors-api-test:
+  image: tomcat:8-jre8
   stage: ors-api-test
   only: 
     - development
