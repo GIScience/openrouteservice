@@ -39,18 +39,13 @@ maven-ors-install:
     paths:
       - ./openrouteservice/target/*.war
 
-# TODO for tests to pass configure app.config !!
 maven-ors-api-test:
-#  services: 
-#    - tomcat:8-jre8
   stage: ors-api-test
   only: 
     - development
-#  dependencies:
-#    - maven-ors-install
   before_script:
     - mvn -f ./openrouteservice/pom.xml install -B
-    - nohup mvn -f ./openrouteservice/pom.xml tomcat7:run-war &
+    - nohup mvn -f ./openrouteservice/pom.xml tomcat7:run &
     - sleep 8m    
   script:
     - mvn -f ./openrouteservice-api-tests/pom.xml test

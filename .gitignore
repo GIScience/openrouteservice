@@ -8,8 +8,8 @@ openrouteservice/Program FilesApache Software FoundationTomcat 7.0webappsopenrou
 .idea/
 *.iml
 .DS_Store
+nohup.out
+.python-version
 
 .project
-#openrouteservice/WebContent/WEB-INF/app.config
-
-
+# openrouteservice/WebContent/WEB-INF/app.config
