@@ -519,6 +519,7 @@ public class ParamsTest extends ServiceTest {
 				.param("profile", "cycling-road")
 				.param("options", options.toString())
 				.when()
+				.log().all()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -541,6 +542,7 @@ public class ParamsTest extends ServiceTest {
 				.param("profile", "driving-car")
 				.param("options", options.toString())
 				.when()
+				.log().all()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -553,8 +555,6 @@ public class ParamsTest extends ServiceTest {
 
 		// options for cycling profiles
 		JSONObject options = new JSONObject();
-		// options.put("avoid_features", "ferries|pavedroads|fords");
-		// options.put("maximum_speed", "25");
 		JSONObject profileParams = new JSONObject();
 		profileParams.put("maximum_gradient", "5");
 		profileParams.put("difficulty_level", "1");
@@ -577,12 +577,16 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void expectMaximumspeedError() {
 
+		// options for cycling profiles
+		JSONObject options = new JSONObject();
+		options.put("maximum_speed", "25fgf");
+		
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
 				.param("geometry", "true")
 				.param("profile", getParameter("carProfile"))
-				.param("options", getParameter("drivingOptionsFaulty"))
+				.param("options", options.toString())
 				.when()
 				.get(getEndPointName())
 				.then()
@@ -605,7 +609,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(203))
+				.body("error.code", is(201))
 				.statusCode(400);
 	}
 
