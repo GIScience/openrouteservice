@@ -4,4 +4,4 @@ TODO.txt
 .settings/
 .classpath
 .project
-/WebContent/WEB-INF/app.config
+#/WebContent/WEB-INF/app.config

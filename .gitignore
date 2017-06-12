@@ -10,6 +10,6 @@ openrouteservice/Program FilesApache Software FoundationTomcat 7.0webappsopenrou
 .DS_Store
 
 .project
-openrouteservice/WebContent/WEB-INF/app.config
+#openrouteservice/WebContent/WEB-INF/app.config
 
 
