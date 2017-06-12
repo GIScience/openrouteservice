@@ -22,7 +22,7 @@ stages:
   - ors-install
   - ors-api-test
 
-maven-gh-install:
+maven-gh-install: 
   stage: gh-install
   only: 
     - development
@@ -31,7 +31,7 @@ maven-gh-install:
 
 maven-ors-install:
   stage: ors-install
-  only: 
+  only:
     - development
   script: 
     - mvn -f ./openrouteservice/pom.xml install -B
@@ -41,10 +41,11 @@ maven-ors-install:
 
 maven-ors-api-test:
   stage: ors-api-test
-  only: 
-    - development
+  only:
+    - development  
   before_script:
     - mvn -f ./openrouteservice/pom.xml install -B
+    - cp ./openrouteservice/WebContent/WEB-INF/app.config.sample ./openrouteservice/WebContent/WEB-INF/app.config
     - nohup mvn -f ./openrouteservice/pom.xml tomcat7:run &
     - sleep 8m    
   script:
