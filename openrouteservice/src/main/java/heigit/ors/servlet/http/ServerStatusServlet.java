@@ -21,14 +21,12 @@ public class ServerStatusServlet extends BaseHttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	public void init() throws ServletException {
-
 	}
 
 	public void destroy() {
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-		
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
