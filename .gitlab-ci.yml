@@ -50,7 +50,7 @@ maven-ors-api-test:
 #    - maven-ors-install
   before_script:
     - mvn -f ./openrouteservice/pom.xml install -B
-    - nohup mvn -f ./openrouteservice/pom.xml tomcat7:run-war &
+    - nohup mvn -f ./openrouteservice/pom.xml tomcat7:run &
     - sleep 8m    
   script:
     - mvn -f ./openrouteservice-api-tests/pom.xml test
