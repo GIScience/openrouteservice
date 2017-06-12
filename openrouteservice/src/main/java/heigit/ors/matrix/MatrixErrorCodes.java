@@ -17,5 +17,5 @@ public class MatrixErrorCodes {
    public static int INVALID_PARAMETER_FORMAT = 602;
    public static int INVALID_PARAMETER_VALUE = 603;
    public static int PARAMETER_VALUE_EXCEEDS_MAXIMUM = 604;
-   public static int UNKNOWN = 699;
+   public static int UNKNOWN = 699; 
 }
