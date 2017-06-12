@@ -21,7 +21,7 @@ public class ParamsTest extends ServiceTest {
 		addParameter("extra_info", "surface|suitability|steepness");
 		addParameter("preference", "fastest");
 		addParameter("profile", "cycling-regular");
-
+		addParameter("carProfile", "driving-car");
 	}
 
 	@Test
@@ -374,7 +374,7 @@ public class ParamsTest extends ServiceTest {
 	public void expectOptions() {
 
 		JSONObject options = new JSONObject();
-		options.put("avoid_features", "highways|tollways|ferries|tunnels|unpavedroads|tracks|fords");
+		options.put("avoid_features", "unpavedroads|tracks|fords");
 		options.put("maximum_speed", "105");
 
 		given()
@@ -396,7 +396,6 @@ public class ParamsTest extends ServiceTest {
 
 		JSONObject options = new JSONObject();
 		options.put("avoid_features", "highwayss|tolllways|f3erries");
-		options.put("maximum_speed", "105fg");
 
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
@@ -408,7 +407,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(200))
+				.body("error.code", is(203))
 				.statusCode(400);
 	}
 
@@ -430,7 +429,7 @@ public class ParamsTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
 				.param("geometry", "true")
-				.param("profile", getParameter("profile"))
+				.param("profile", getParameter("carProfile"))
 				.param("options", options.toString())
 				.when()
 				.get(getEndPointName())
@@ -458,7 +457,7 @@ public class ParamsTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
 				.param("geometry", "true")
-				.param("profile", getParameter("profile"))
+				.param("profile", getParameter("carProfile"))
 				.param("options", options.toString())
 				.when()
 				.get(getEndPointName())
@@ -474,7 +473,6 @@ public class ParamsTest extends ServiceTest {
 		// options for avoid polygon wrong feature type (can be polygon or
 		// linestring)
 		JSONObject options = new JSONObject();
-		options.put("avoid_features", "tunnels");
 		options.put("maximum_speed", "75");
 		JSONObject polygon = new JSONObject();
 		polygon.put("type", "Polygon");
@@ -523,7 +521,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(200))
+				.body("error.code", is(203))
 				.statusCode(400);
 	}
 
@@ -539,38 +537,14 @@ public class ParamsTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
 				.param("geometry", "true")
-				.param("profile", "driving-car")
+				.param("profile", getParameter("carProfile"))
 				.param("options", options.toString())
 				.when()
 				.log().all()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(200))
-				.statusCode(400);
-	}
-
-	@Test
-	public void expectCarToRejectBikeParams() {
-
-		// options for cycling profiles
-		JSONObject options = new JSONObject();
-		JSONObject profileParams = new JSONObject();
-		profileParams.put("maximum_gradient", "5");
-		profileParams.put("difficulty_level", "1");
-		options.put("profile_params", profileParams);
-
-		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("geometry", "true")
-				.param("profile", getParameter("carProfile"))
-				.param("options", options.toString())
-				.when()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("error.code", is(201))
+				.body("error.code", is(203))
 				.statusCode(400);
 	}
 
@@ -591,7 +565,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(201))
+				.body("error.code", is(202))
 				.statusCode(400);
 	}
 	
@@ -609,7 +583,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(201))
+				.body("error.code", is(203))
 				.statusCode(400);
 	}
 
