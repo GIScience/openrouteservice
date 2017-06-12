@@ -67,7 +67,7 @@
 				sources: ["openrouteservice/src/main/files/heidelberg.osm"],
 				init_threads: 2,
 				attribution: "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
-				distance_approximation: false,
+				distance_approximation: true,
 				profiles: {
 					active: ["vehicles", "vehicles-ch", "bike", "bike2", "pedestrian"],
 					default_params: {
