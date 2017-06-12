@@ -336,17 +336,7 @@ public class JsonLocationsRequestParser {
 		value = request.getParameter("geometry");
 		if (!Helper.isEmpty(value))
 		{
-			Geometry geom = null;
-
-			try
-			{
-				geom = parseGeometry(value);
-			}
-			catch(Exception ex)
-			{
-				throw new ParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "geometry");
-			}
-
+			Geometry geom = parseGeometry(value);
 			if (geom == null)
 				throw new ParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_FORMAT, "geometry");
 
@@ -455,7 +445,16 @@ public class JsonLocationsRequestParser {
 
 	public static Geometry parseGeometry(String geomText) throws JSONException, Exception
 	{
-		Geometry geometry = GeometryJSON.parse(new JSONObject(geomText));
+		Geometry geometry = null;
+		
+		try
+		{
+			geometry = GeometryJSON.parse(new JSONObject(geomText));
+		}
+		catch(Exception ex)
+		{
+			return null;
+		}
 
 		if (geometry instanceof LineString && LocationsServiceSettings.getMaximumFeatureLength() > 0)
 		{

@@ -59,4 +59,20 @@ public class AvoidFeatureFlags {
 		
 		return 0;
 	}
+	
+	public static boolean isValid(int profileType, int value)
+	{
+		if (RoutingProfileType.isDriving(profileType))
+		{
+			if (value == Steps)
+				return false;
+		}
+		else if (RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType))
+		{
+			if (value == Highways || value == Tollways || value == Tunnels)
+				return false;
+		}
+		
+		return true;
+	}
 }

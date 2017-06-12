@@ -14,11 +14,18 @@ package heigit.ors.services.matrix.requestprocessors.json;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONObject;
+
 import heigit.ors.common.StatusCode;
+import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.services.matrix.MatrixRequest;
+import heigit.ors.matrix.MatrixRequest;
+import heigit.ors.matrix.MatrixResult;
 import heigit.ors.matrix.MatrixErrorCodes;
+import heigit.ors.routing.RoutingProfileManager;
+import heigit.ors.services.matrix.MatrixServiceSettings;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
+import heigit.ors.servlet.util.ServletUtility;
 
 public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor 
 {
@@ -47,26 +54,21 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor
 
 		if (req == null)
 			throw new StatusCodeException(StatusCode.BAD_REQUEST, MatrixErrorCodes.UNKNOWN, "MatrixRequest object is null.");
-/*
-		if (!req.isValid())
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.UNKNOWN, "IsochronesRequest is not valid.");
-
-		if (IsochronesServiceSettings.getAllowComputeArea() == false && req.hasAttribute("area"))
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.FEATURE_NOT_SUPPORTED, "Area computation is not enabled.");
-
-		if (req.getLocations().length > IsochronesServiceSettings.getMaximumLocations())
-			throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations", Integer.toString(req.getLocations().length), Integer.toString(IsochronesServiceSettings.getMaximumLocations()));
-
-		if (req.getMaximumRange() > IsochronesServiceSettings.getMaximumRange(req.getRangeType()))
-			throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(IsochronesServiceSettings.getMaximumRange(req.getRangeType())), Double.toString(req.getMaximumRange()));
-
-		if (IsochronesServiceSettings.getMaximumIntervals() > 0)
-		{
-			if (IsochronesServiceSettings.getMaximumIntervals() < req.getRanges().length)
-				throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(req.getRanges().length), Integer.toString(IsochronesServiceSettings.getMaximumIntervals()));
-		}
-*/
+		
+		if (MatrixServiceSettings.getMaximumLocations() > 0 && req.getTotalNumberOfLocations() > MatrixServiceSettings.getMaximumLocations())
+			throw new ParameterOutOfRangeException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "sources/destinations", Integer.toString(req.getTotalNumberOfLocations()), Integer.toString(MatrixServiceSettings.getMaximumLocations()));
+		
+		MatrixResult mtxResult = RoutingProfileManager.getInstance().computeMatrix(req);
+		
+		writeResponse(response, req, mtxResult);
 	}
+	
+	private void writeResponse(HttpServletResponse response, MatrixRequest request, MatrixResult mtxResult) throws Exception
+	{
+		JSONObject jResp = new JSONObject(true);
+		
+		
 
-
+		ServletUtility.write(response, jResp);
+	}
 }

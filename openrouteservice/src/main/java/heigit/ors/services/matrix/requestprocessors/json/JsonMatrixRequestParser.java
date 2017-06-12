@@ -25,17 +25,15 @@ import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.matrix.MatrixErrorCodes;
 import heigit.ors.matrix.MatrixMetricsType;
-import heigit.ors.routing.RoutingErrorCodes;
+import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.services.isochrones.IsochroneRequest;
-import heigit.ors.services.matrix.MatrixRequest;
 import heigit.ors.util.CoordTools;
 import heigit.ors.util.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
 
 public class JsonMatrixRequestParser {
 
-	public static IsochroneRequest parseFromStream(InputStream stream) throws Exception 
+	public static MatrixRequest parseFromStream(InputStream stream) throws Exception 
 	{
 		throw new StatusCodeException(StatusCode.BAD_REQUEST, MatrixErrorCodes.INVALID_JSON_FORMAT, "Unable to parse JSON document.");
 	}
@@ -92,18 +90,7 @@ public class JsonMatrixRequestParser {
 		{
 			throw new MissingParameterException(MatrixErrorCodes.MISSING_PARAMETER, "destinations");
 		}
-		
-		value = request.getParameter("units");
-		if (!Helper.isEmpty(value))
-		{
-			DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.Unknown);
-			
-			if (units == DistanceUnit.Unknown)
-				throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "units");
-			
-			req.setUnits(units);
-		}
-		
+
 		value = request.getParameter("metrics");
 		if (!Helper.isEmpty(value))
 		{
@@ -114,7 +101,21 @@ public class JsonMatrixRequestParser {
 		   
 		   req.setMetrics(metrics);
 		}
-		
+
+		if (MatrixMetricsType.isSet(req.getMetrics(), MatrixMetricsType.Distance))
+		{
+			value = request.getParameter("units");
+			if (!Helper.isEmpty(value))
+			{
+				DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.Unknown);
+
+				if (units == DistanceUnit.Unknown)
+					throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "units");
+
+				req.setUnits(units);
+			}
+		}
+	
 		value = request.getParameter("resolve_locations");
 		if (!Helper.isEmpty(value))
 		{

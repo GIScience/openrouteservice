@@ -12,6 +12,8 @@
 package heigit.ors.services.accessibility.requestprocessors.json;
 
 import java.io.InputStream;
+import java.text.ParseException;
+
 import javax.servlet.http.HttpServletRequest;
 
 import com.graphhopper.util.Helper;
@@ -269,9 +271,13 @@ public class JsonAccessibilityRequestParser {
 			{
 				searchParams.setOptions(value);
 			}
-			catch(Exception ex)
+			catch(ParseException ex)
 			{
 				throw new StatusCodeException(StatusCode.BAD_REQUEST, AccessibilityErrorCodes.INVALID_JSON_FORMAT, "Unable to parse 'options' value." + ex.getMessage());
+			}
+			catch(StatusCodeException scex)
+			{
+				throw scex;
 			}
 		}
 

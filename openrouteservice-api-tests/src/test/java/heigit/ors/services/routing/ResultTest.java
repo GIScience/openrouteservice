@@ -5,6 +5,7 @@ import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 
 import org.hamcrest.Matcher;
+import org.json.JSONObject;
 import org.junit.Test;
 
 import heigit.ors.services.common.EndPointAnnotation;
@@ -19,10 +20,33 @@ public class ResultTest extends ServiceTest {
 		addParameter("coordinatesLong", "8.680916,49.410973|8.680916,49.210973|8.680026,49.210973|8.687782,49.424597");
 		addParameter("extra_info", "surface|suitability|steepness");
 		addParameter("preference", "fastest");
-		addParameter("profile", "cycling-regular");
-
+		addParameter("bikeProfile", "cycling-regular");
+		addParameter("carProfile", "driving-car");
 	}
 
+	@Test
+	public void expectCarToRejectBikeParams() {
+
+		// options for cycling profiles
+		JSONObject options = new JSONObject();
+		JSONObject profileParams = new JSONObject();
+		profileParams.put("maximum_gradient", "5");
+		profileParams.put("difficulty_level", "1");
+		options.put("profile_params", profileParams);
+
+		given()
+				.param("coordinates", getParameter("coordinatesShort"))
+				.param("preference", getParameter("preference"))
+				.param("geometry", "true")
+				.param("profile", getParameter("carProfile"))
+				.param("options", options.toString())
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.statusCode(200);
+	}
+	
 	@Test
 	public void expectSegmentsToMatchCoordinates() {
 
@@ -30,7 +54,7 @@ public class ResultTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
+				.param("profile", getParameter("bikeProfile"))
 				.when()
 				.get(getEndPointName())
 				.then()
@@ -48,7 +72,7 @@ public class ResultTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
+				.param("profile", getParameter("bikeProfile"))
 				.when()
 				.get(getEndPointName())
 				.then()
@@ -70,7 +94,7 @@ public class ResultTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
+				.param("profile", getParameter("bikeProfile"))
 				.when()
 				.get(getEndPointName())
 				.then()
@@ -94,7 +118,7 @@ public class ResultTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
+				.param("profile", getParameter("bikeProfile"))
 				.when()
 				.get(getEndPointName())
 				.then()
@@ -114,7 +138,7 @@ public class ResultTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
+				.param("profile", getParameter("bikeProfile"))
 				.when()
 				.get(getEndPointName())
 				.then()
@@ -131,7 +155,7 @@ public class ResultTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
+				.param("profile", getParameter("bikeProfile"))
 				.when()
 				.log()
 				.all()
@@ -152,7 +176,7 @@ public class ResultTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
+				.param("profile", getParameter("bikeProfile"))
 				.param("extra_info", getParameter("extra_info"))
 				.when()
 				.get(getEndPointName())
@@ -173,7 +197,7 @@ public class ResultTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
+				.param("profile", getParameter("bikeProfile"))
 				.param("extra_info", getParameter("extra_info"))
 				.when()
 				.get(getEndPointName())
@@ -195,7 +219,7 @@ public class ResultTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
+				.param("profile", getParameter("bikeProfile"))
 				.when()
 				.get(getEndPointName())
 				.then()
@@ -217,7 +241,7 @@ public class ResultTest extends ServiceTest {
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
+				.param("profile", getParameter("bikeProfile"))
 				.when()
 				.get(getEndPointName())
 				.then()

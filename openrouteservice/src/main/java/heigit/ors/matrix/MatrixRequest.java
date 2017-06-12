@@ -9,7 +9,7 @@
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-package heigit.ors.services.matrix;
+package heigit.ors.matrix;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -81,5 +81,10 @@ public class MatrixRequest extends ServiceRequest
 
 	public void setUnits(DistanceUnit units) {
 		_units = units;
+	}
+	
+	public int getTotalNumberOfLocations()
+	{
+		return _destinations.length * _sources.length;
 	}
 }

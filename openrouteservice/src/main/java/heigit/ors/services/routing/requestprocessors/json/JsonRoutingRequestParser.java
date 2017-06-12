@@ -11,6 +11,8 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.services.routing.requestprocessors.json;
 
+import java.text.ParseException;
+
 import javax.servlet.http.HttpServletRequest;
 
 import com.graphhopper.util.Helper;
@@ -88,7 +90,7 @@ public class JsonRoutingRequestParser
 			DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.Unknown);
 			
 			if (units == DistanceUnit.Unknown)
-				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "units");
+				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "units", value);
 			
 			req.setUnits(units);
 		}
@@ -152,9 +154,13 @@ public class JsonRoutingRequestParser
 			{
 				searchParams.setOptions(value);
 			}
-			catch(Exception ex)
+			catch(ParseException ex)
 			{
 				throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_JSON_FORMAT, "Unable to parse 'options' value." + ex.getMessage());
+			}
+			catch(StatusCodeException scex)
+			{
+				throw scex;
 			}
 		}
 

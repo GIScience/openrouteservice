@@ -13,7 +13,7 @@ public class ParameterValueException extends StatusCodeException
    
    public ParameterValueException(int errorCode, String paramName, String paramValue)
    {
-	   super(StatusCode.BAD_REQUEST, errorCode, "Parameter '" + paramName + "' has incorrect value of " + paramValue + ".");
+	   super(StatusCode.BAD_REQUEST, errorCode, "Parameter '" + paramName + "' has incorrect value of '" + paramValue + "'.");
    }
    
    public ParameterValueException(String paramName)

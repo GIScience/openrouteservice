@@ -35,6 +35,10 @@ import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.isochrones.IsochroneSearchParameters;
+import heigit.ors.matrix.MatrixRequest;
+import heigit.ors.matrix.MatrixResult;
+import heigit.ors.matrix.algorithms.MatrixAlgorithm;
+import heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.ServerLimitExceededException;
 import heigit.ors.isochrones.IsochroneMap;
@@ -46,10 +50,17 @@ import heigit.ors.util.RuntimeUtility;
 import heigit.ors.util.TimeUtility;
 
 import com.graphhopper.GHResponse;
+import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.BikeCommonFlagEncoder;
+import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.storage.RAMDataAccess;
+import com.graphhopper.storage.index.LocationIndex;
+import com.graphhopper.storage.index.QueryResult;
+import com.graphhopper.util.ArrayBuffer;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalc3D;
 import com.graphhopper.util.Helper;
@@ -369,7 +380,7 @@ public class RoutingProfileManager {
 		RouteSearchParameters searchParams = req.getSearchParameters();
 		int profileType = searchParams.getProfileType();
 
-		boolean dynamicWeights = (searchParams.hasAvoidAreas() || searchParams.hasAvoidFeatures() || searchParams.getMaximumSpeed() > 0 || (RoutingProfileType.isDriving(profileType) && (searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
+		boolean dynamicWeights = (searchParams.hasAvoidAreas() || searchParams.hasAvoidFeatures() || searchParams.getMaximumSpeed() > 0 || (RoutingProfileType.isDriving(profileType) && ((RoutingProfileType.isHeavyVehicle(profileType) && searchParams.getVehicleType() > 0) ||  searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
 
 		RoutingProfile rp = _routeProfiles.getRouteProfile(profileType, !dynamicWeights);
 
@@ -450,5 +461,50 @@ public class RoutingProfileManager {
 		RoutingProfile rp = _routeProfiles.getRouteProfile(profileType, false);
 
 		return rp.buildIsochrone(parameters);
+	}
+	
+	public MatrixResult computeMatrix(MatrixRequest req) throws Exception
+	{
+		 RoutingProfile rp = _routeProfiles.getRouteProfile(req.getProfileType(), true);
+		 
+		 if (rp == null)
+			 throw new Exception("Unable to find an appropriate routing profile.");
+		 
+		 GraphHopper gh = rp.getGraphhopper();
+ 		 String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
+		 FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
+		 EdgeFilter filter = new DefaultEdgeFilter(flagEncoder);
+		 LocationIndex locIndex = gh.getLocationIndex();
+		 
+		 ArrayBuffer buffer = new ArrayBuffer();
+		 int[] srcNodes = getNodeIds(locIndex, req.getSources(), filter, buffer);
+		 int[] destNodes = getNodeIds(locIndex, req.getSources(), filter, buffer);
+
+		 MatrixAlgorithm alg = new RPHASTMatrixAlgorithm();
+		 MatrixResult mtxResult = alg.compute(gh, srcNodes, destNodes, req.getMetrics());
+		 
+		 if (req.getResolveLocations())
+		 {
+			 //gh.getGraphHopperStorage().getBaseGraph().getEdgeIteratorState(1,1).getName()
+			 //mtxResult.
+		 }
+		 
+		 return mtxResult;
+	}
+	
+	private int[] getNodeIds(LocationIndex index, Coordinate[] coords, EdgeFilter edgeFilter, ArrayBuffer buffer)
+	{
+		int[] res = new int[coords.length];
+		
+		Coordinate p = null;
+		for (int i = 0; i < coords.length; i++)
+		{
+			p = coords[i];
+			
+			QueryResult qr = index.findClosest(p.y, p.x, edgeFilter, buffer);
+			res[i] = qr.isValid() ? qr.getClosestNode() : -1;
+		}
+		
+		return res;
 	}
 }
