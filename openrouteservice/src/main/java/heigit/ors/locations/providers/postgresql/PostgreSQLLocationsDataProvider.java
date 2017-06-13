@@ -63,15 +63,6 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 	static
 	{
 		COLUMNS_INFO = new HashMap<Integer, QueryColumnsInfo>();
-
-		/*COLUMNS_INFO[0] = new QueryColumnsInfo(getColumnsDescription(-1), null);
-		COLUMNS_INFO[1] = new QueryColumnsInfo(getColumnsDescription(LocationDetailsType.ADDRESS), null);
-		COLUMNS_INFO[2] = new QueryColumnsInfo(getColumnsDescription(LocationDetailsType.CONTACT), null);
-		COLUMNS_INFO[3] = new QueryColumnsInfo(getColumnsDescription(LocationDetailsType.ATTRIBUTES), null);
-		*/
-		
-		//for (int i = 0; i < 8; i++)
-		//	COLUMNS_INFO[i] = new QueryColumnsInfo(getColumnsDescription(i)); 
 	}
 	
 	private static ColumnDescription[] getColumnsDescription(int details)
