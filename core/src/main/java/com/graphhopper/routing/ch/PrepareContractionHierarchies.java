@@ -918,7 +918,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
         algo.setEdgeFilter(levelFilter);
         return algo;
     }
-
+    
     private static class PriorityNode implements Comparable<PriorityNode>
     {
         int node;
