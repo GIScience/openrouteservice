@@ -11,26 +11,67 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.matrix;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.vividsolutions.jts.geom.Coordinate;
 
 public class MatrixResult {
-  public Map<Integer, float[]> _tables;
+  private float[][] _tables;
+  private Coordinate[] _destinations;
+  private String[] _destinationNames;
+  private Coordinate[] _sources;
+  private String[] _sourceNames;
   
   public MatrixResult()
   {
-	  _tables = new HashMap<Integer, float[]>();
+	  _tables = new float[4][];
   }
   
   public void setTable(int metric, float[] values)
   {
-	  
+	  _tables[metric] = values;
   }
   
   public float[] getTable(int metric)
   {
-	  return null;
+	  return _tables[metric];
+  }
+
+  public Coordinate[] getDestinations()
+  {
+	  return _destinations;
   }
   
-  //public void setDestinations(Coordinate[] coords,)
+  public void setDestinations(Coordinate[] coords)
+  {
+	  _destinations = coords;
+  }
+  
+  public String[] getDestinationNames()
+  {
+	  return _destinationNames;
+  }
+  
+  public void setDestinationNames(String[] names)
+  {
+	  _destinationNames = names;
+  } 
+  
+  public Coordinate[] getSources()
+  {
+	  return _sources;
+  }
+  
+  public void setSources(Coordinate[] coords)
+  {
+	  _sources = coords;
+  }
+  
+  public String[] getSourceNames()
+  {
+	  return _sourceNames;
+  }
+  
+  public void setSourceNames(String[] names)
+  {
+	  _sourceNames = names;
+  } 
 }

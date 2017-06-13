@@ -55,8 +55,8 @@ public class MatrixRequest extends ServiceRequest
 		return _metrics;
 	}
 
-	public void setMetrics(int valueTypes) {
-		_metrics = valueTypes;
+	public void setMetrics(int metrics) {
+		_metrics = metrics;
 	}
 
 	public boolean getResolveLocations() {

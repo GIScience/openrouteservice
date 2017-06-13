@@ -4,8 +4,6 @@ import static io.restassured.RestAssured.*;
 
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 

@@ -43,6 +43,20 @@ public class ParametersValidationTest extends ServiceTest {
 	}
 
 	@Test
+	public void sourcesEmptyTest() {
+		given()
+		.param("profile", "driving-car")
+		.param("sources", "")
+		.param("destinations", "10.5,48.7")
+		.when()
+		.get(getEndPointName())
+		.then()
+		.assertThat()
+		.body("error.code", is(602))
+		.statusCode(400);
+	}
+	
+	@Test
 	public void sourcesFormatTest() {
 		given()
 		.param("profile", "driving-car")

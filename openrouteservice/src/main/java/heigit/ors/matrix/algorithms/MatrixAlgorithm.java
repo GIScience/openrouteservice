@@ -13,8 +13,9 @@ package heigit.ors.matrix.algorithms;
 
 import com.graphhopper.GraphHopper;
 
+import heigit.ors.matrix.MatrixLocationData;
 import heigit.ors.matrix.MatrixResult;
 
 public interface MatrixAlgorithm {
-  public MatrixResult compute(GraphHopper gh, int[] srcNodes, int[] destNodes, int metrics);
+  public MatrixResult compute(GraphHopper gh, MatrixLocationData srcData, MatrixLocationData dstData, int metrics);
 }

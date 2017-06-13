@@ -35,6 +35,7 @@ import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.isochrones.IsochroneSearchParameters;
+import heigit.ors.matrix.MatrixLocationData;
 import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
 import heigit.ors.matrix.algorithms.MatrixAlgorithm;
@@ -475,36 +476,15 @@ public class RoutingProfileManager {
 		 FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
 		 EdgeFilter filter = new DefaultEdgeFilter(flagEncoder);
 		 LocationIndex locIndex = gh.getLocationIndex();
-		 
 		 ArrayBuffer buffer = new ArrayBuffer();
-		 int[] srcNodes = getNodeIds(locIndex, req.getSources(), filter, buffer);
-		 int[] destNodes = getNodeIds(locIndex, req.getSources(), filter, buffer);
 
 		 MatrixAlgorithm alg = new RPHASTMatrixAlgorithm();
-		 MatrixResult mtxResult = alg.compute(gh, srcNodes, destNodes, req.getMetrics());
-		 
-		 if (req.getResolveLocations())
-		 {
-			 //gh.getGraphHopperStorage().getBaseGraph().getEdgeIteratorState(1,1).getName()
-			 //mtxResult.
-		 }
+
+		 MatrixLocationData srcData = MatrixLocationData.createData(locIndex, req.getSources(), filter, buffer, req.getResolveLocations());
+		 MatrixLocationData dstData = MatrixLocationData.createData(locIndex, req.getDestinations(), filter, buffer, req.getResolveLocations());
+
+		 MatrixResult mtxResult = alg.compute(gh, srcData, dstData, req.getMetrics());
 		 
 		 return mtxResult;
-	}
-	
-	private int[] getNodeIds(LocationIndex index, Coordinate[] coords, EdgeFilter edgeFilter, ArrayBuffer buffer)
-	{
-		int[] res = new int[coords.length];
-		
-		Coordinate p = null;
-		for (int i = 0; i < coords.length; i++)
-		{
-			p = coords[i];
-			
-			QueryResult qr = index.findClosest(p.y, p.x, edgeFilter, buffer);
-			res[i] = qr.isValid() ? qr.getClosestNode() : -1;
-		}
-		
-		return res;
 	}
 }

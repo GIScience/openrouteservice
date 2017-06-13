@@ -33,6 +33,7 @@ import heigit.ors.routing.WeightingMethod;
 import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
+import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.PolylineEncoder;
 
@@ -72,7 +73,7 @@ public class JsonRoutingResponseWriter {
 			jQuery.put("language", request.getLanguage());
 
 		if (request.getUnits() != null)
-			jQuery.put("units", request.getUnits().toString().toLowerCase());
+			jQuery.put("units", DistanceUnitUtil.toString(request.getUnits()));
 
 		jQuery.put("geometry", request.getIncludeGeometry());
 		if (request.getIncludeGeometry())

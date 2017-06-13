@@ -121,7 +121,7 @@ public class JsonMatrixRequestParser {
 		{
 		   try
 		   {
-			   req.setResolveLocations(Boolean.getBoolean(value));
+			   req.setResolveLocations(Boolean.parseBoolean(value));
 		   }
 		   catch(Exception ex)
 		   {

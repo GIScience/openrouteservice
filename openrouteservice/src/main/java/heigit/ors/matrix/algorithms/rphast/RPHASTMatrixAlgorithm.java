@@ -13,14 +13,43 @@ package heigit.ors.matrix.algorithms.rphast;
 
 import com.graphhopper.GraphHopper;
 
+import heigit.ors.matrix.MatrixLocationData;
+import heigit.ors.matrix.MatrixMetricsType;
 import heigit.ors.matrix.MatrixResult;
 import heigit.ors.matrix.algorithms.MatrixAlgorithm;
 
 public class RPHASTMatrixAlgorithm implements MatrixAlgorithm {
 
 	@Override
-	public MatrixResult compute(GraphHopper gh, int[] srcNodes, int[] destNodes, int metrics) {
-		// TODO Auto-generated method stub
-		return null;
+	public MatrixResult compute(GraphHopper gh, MatrixLocationData srcData, MatrixLocationData dstData, int metrics) {
+		MatrixResult mtxResult = new MatrixResult();
+
+		mtxResult.setSources(srcData.getCoordinates());
+		mtxResult.setSourceNames(srcData.getNames());
+
+		mtxResult.setDestinations(dstData.getCoordinates());
+		mtxResult.setDestinationNames(dstData.getNames());
+
+		int size = srcData.getSize() * dstData.getSize();
+
+		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Distance))
+		{
+			float[] values = new float[size]; 
+			mtxResult.setTable(MatrixMetricsType.Distance, values);
+		}
+
+		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Duration))
+		{
+			float[] values = new float[size]; 
+			mtxResult.setTable(MatrixMetricsType.Duration, values);
+		}
+		
+		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Weight))
+		{
+			float[] values = new float[size]; 
+			mtxResult.setTable(MatrixMetricsType.Weight, values);
+		}
+
+		return mtxResult;
 	}
 }

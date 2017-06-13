@@ -22,6 +22,24 @@ public class DistanceUnitUtil
 
 		return defaultValue;
 	}
+	
+	public static String toString( DistanceUnit unit)
+	{
+		switch (unit)
+		{
+		case Meters:
+			return "m";
+		case Kilometers:
+			return "km";
+		case Miles:
+			return "mi";
+		default:
+			break;
+		}
+
+		return "";
+	}
+
 
 	public static double convert(double value, DistanceUnit unitsFrom, DistanceUnit unitsTo) throws Exception
 	{
