@@ -36,8 +36,10 @@ public class ParametersValidationTest extends ServiceTest {
 		.param("category_ids", "518")
 		.param("geometry", "{\"type2\":\"Point\", \"coordinates\": [8.676826, 49.418675]}")
 		.when()
+		.log().all()
 		.get(getEndPointName())
 		.then()
+		.log().all()
 		.assertThat()
 		.body("error.code", is(402))
 		.statusCode(400);
