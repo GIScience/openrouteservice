@@ -41,7 +41,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.body("error.code", is(601))
 		.statusCode(400);
 	}
-/*
+	
 	@Test
 	public void sourcesEmptyTest() {
 		given()
@@ -52,10 +52,10 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(602))
+		.body("error.code", is(601))
 		.statusCode(400);
 	}
-*/	
+	
 	@Test
 	public void sourcesFormatTest() {
 		given()
