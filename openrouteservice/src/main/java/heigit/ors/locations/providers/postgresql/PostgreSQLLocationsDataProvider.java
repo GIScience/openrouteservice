@@ -345,10 +345,9 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 		
 		String whereCondition = "";
 		
-		if (bbox != null)
-			whereCondition = buildBboxFilter(bbox);
-
-		whereCondition += buildSearchFilter(request.getSearchFilter());
+		String searchCondition = buildSearchFilter(request.getSearchFilter());
+		if (!Helper.isEmpty(searchCondition))
+			whereCondition += searchCondition;
 		
 		String stateText = String.format("SELECT %s FROM ORS_FindLocations('(%s) as tmp', '%s', ?, %.3f, %d) AS %s", queryInfo.getQuery2Columns(), query, whereCondition, request.getRadius(), request.getLimit(), queryInfo.getReturnTable());
 
