@@ -44,7 +44,7 @@ maven-ors-api-test:
   only:
     - development  
   before_script:
-    - cp ./openrouteservice/WebContent/WEB-INF/app.config.sample ./openrouteservice/WebContent/WEB-INF/app.config
+    - cp ./openrouteservice-api-tests/conf/app.config.test ./openrouteservice/WebContent/WEB-INF/app.config
     - mvn -f ./openrouteservice/pom.xml install -B
     - nohup mvn -f ./openrouteservice/pom.xml tomcat7:run &
     - sleep 5m    
