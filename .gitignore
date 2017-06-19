@@ -11,4 +11,8 @@ openrouteservice/Program FilesApache Software FoundationTomcat 7.0webappsopenrou
 
 .project
 openrouteservice/WebContent/WEB-INF/app.config
-openrouteservice/WebContent/WEB-INF/app.config
+app.config.local
+.python-version
+nohup.out
+cgiar_provider/
+graphs/
