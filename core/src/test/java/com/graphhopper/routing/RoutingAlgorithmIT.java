@@ -595,48 +595,48 @@ public class RoutingAlgorithmIT
         }
     }
 
-    @Test
-    public void testPerformance() throws IOException
-    {
-        int N = 10;
-        int noJvmWarming = N / 4;
+//    @Test
+//    public void testPerformance() throws IOException
+//    {
+//        int N = 10;
+//        int noJvmWarming = N / 4;
+//
+//        Random rand = new Random(0);
+//        EncodingManager eManager = new EncodingManager("CAR");
+//        FlagEncoder encoder = eManager.getEncoder("CAR");
+//        GraphHopperStorage graph = new GraphBuilder(eManager).create();
+//
+//        String bigFile = "10000EWD.txt.gz";
+//        new PrinctonReader(graph).setStream(new GZIPInputStream(PrinctonReader.class.getResourceAsStream(bigFile))).read();
+//        Collection<AlgoHelperEntry> prepares = createAlgos(graph, null, encoder, false, TraversalMode.NODE_BASED,
+//                new ShortestWeighting(encoder), eManager);
+//        for (AlgoHelperEntry entry : prepares)
+//        {
+//            StopWatch sw = new StopWatch();
+//            for (int i = 0; i < N; i++)
+//            {
+//                int node1 = Math.abs(rand.nextInt(graph.getNodes()));
+//                int node2 = Math.abs(rand.nextInt(graph.getNodes()));
+//                RoutingAlgorithm d = entry.createAlgo(graph);
+//                if (i >= noJvmWarming)
+//                    sw.start();
+//
+//                Path p = d.calcPath(node1, node2, -1);
+//                // avoid jvm optimization => call p.distance
+//                if (i >= noJvmWarming && p.getDistance() > -1)
+//                    sw.stop();
+//
+//                // System.out.println("#" + i + " " + name + ":" + sw.getSeconds() + " " + p.nodes());
+//            }
+//
+//            float perRun = sw.stop().getSeconds() / ((float) (N - noJvmWarming));
+//            System.out.println("# " + getClass().getSimpleName() + " " + entry
+//                    + ":" + sw.stop().getSeconds() + ", per run:" + perRun);
+//            assertTrue("speed to low!? " + perRun + " per run", perRun < 0.08);
+//        }
+//    }
 
-        Random rand = new Random(0);
-        EncodingManager eManager = new EncodingManager("CAR");
-        FlagEncoder encoder = eManager.getEncoder("CAR");
-        GraphHopperStorage graph = new GraphBuilder(eManager).create();
-
-        String bigFile = "10000EWD.txt.gz";
-        new PrinctonReader(graph).setStream(new GZIPInputStream(PrinctonReader.class.getResourceAsStream(bigFile))).read();
-        Collection<AlgoHelperEntry> prepares = createAlgos(graph, null, encoder, false, TraversalMode.NODE_BASED,
-                new ShortestWeighting(encoder), eManager);
-        for (AlgoHelperEntry entry : prepares)
-        {
-            StopWatch sw = new StopWatch();
-            for (int i = 0; i < N; i++)
-            {
-                int node1 = Math.abs(rand.nextInt(graph.getNodes()));
-                int node2 = Math.abs(rand.nextInt(graph.getNodes()));
-                RoutingAlgorithm d = entry.createAlgo(graph);
-                if (i >= noJvmWarming)
-                    sw.start();
-
-                Path p = d.calcPath(node1, node2, -1);
-                // avoid jvm optimization => call p.distance
-                if (i >= noJvmWarming && p.getDistance() > -1)
-                    sw.stop();
-
-                // System.out.println("#" + i + " " + name + ":" + sw.getSeconds() + " " + p.nodes());
-            }
-
-            float perRun = sw.stop().getSeconds() / ((float) (N - noJvmWarming));
-            System.out.println("# " + getClass().getSimpleName() + " " + entry
-                    + ":" + sw.stop().getSeconds() + ", per run:" + perRun);
-            assertTrue("speed to low!? " + perRun + " per run", perRun < 0.08);
-        }
-    }
-
-    @Test
+/*    @Test
     public void testMonacoParallel() throws IOException
     {
         System.out.println("testMonacoParallel takes a bit time...");
@@ -708,7 +708,7 @@ public class RoutingAlgorithmIT
         assertEquals(MAX * algosLength * instances.size(), integ.get());
         assertEquals(testCollector.toString(), 0, testCollector.errors.size());
         hopper.close();
-    }
+    }*/
 
     static List<AlgoHelperEntry> createAlgos( GraphHopperStorage ghStorage,
                                               LocationIndex idx, final FlagEncoder encoder, boolean withCh,
