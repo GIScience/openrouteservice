@@ -6,51 +6,56 @@
     <groupId>com.graphhopper</groupId>
     <artifactId>graphhopper-web</artifactId>
     <packaging>jar</packaging>
-    <version>0.5.0</version>
+    <version>0.10-SNAPSHOT</version>
     <name>GraphHopper Web</name>
-    <description>Example on how to use GraphHopper in a web-based application</description>
-        
+    <description>Use the GraphHopper routing engine as a web-service</description>
+
     <parent>
         <groupId>com.graphhopper</groupId>
-        <artifactId>graphhopper-parent</artifactId>    	
-        <version>0.5.0</version>
+        <artifactId>graphhopper-parent</artifactId>
+        <version>0.10-SNAPSHOT</version>
     </parent>
     <properties>
-        <jetty.version>8.1.16.v20140903</jetty.version>
+        <jetty.version>9.4.2.v20170220</jetty.version>
     </properties>
-    
+
     <dependencies>
         <dependency>
             <groupId>com.graphhopper</groupId>
-            <artifactId>graphhopper</artifactId>
-            <version>${project.parent.version}</version>            
+            <artifactId>graphhopper-reader-osm</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
-        
         <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>            
-            <version>20140107</version>
-        </dependency>    
-        
+            <groupId>com.graphhopper</groupId>
+            <artifactId>graphhopper-reader-json</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.graphhopper</groupId>
+            <artifactId>graphhopper-reader-gtfs</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <version>4.0</version>
+            <version>4.1.0</version>
         </dependency>
-        
+
         <!-- necessary to use guice ('@Inject') in servlets -->
         <dependency>
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-servlet</artifactId>
-            <version>4.0</version>
+            <version>4.1.0</version>
         </dependency>
-                
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
-            <scope>provided</scope>
-        </dependency>
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -62,7 +67,7 @@
             <version>${slf4j.version}</version>
             <scope>runtime</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -75,7 +80,7 @@
             <artifactId>jetty-servlets</artifactId>
             <version>${jetty.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
@@ -86,7 +91,7 @@
             <artifactId>jetty-servlet</artifactId>
             <version>${jetty.version}</version>
         </dependency>
-        
+
         <!-- for integration tests of service -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -94,22 +99,40 @@
             <version>${jetty.version}</version>
             <scope>test</scope>
         </dependency>
-      
+        <!-- for integration tests of service --> 
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>3.4.2</version>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
 
     <build>
         <plugins>
-            <!-- create a jar file too, so others can use it more easily -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>                
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
                 <configuration>
-                    <attachClasses>true</attachClasses>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
-            </plugin>            
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <!-- this is an old version but 2.6 fails with java 9
+                see: https://stackoverflow.com/questions/36583118/is-maven-ready-for-jdk9-->
+                <version>2.4.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-archiver</artifactId>
+                        <version>2.4.4</version>
+                    </dependency>
+                </dependencies>
                 <configuration>
                     <archive>
                         <manifest>
@@ -125,15 +148,14 @@
                 <executions>
                     <execution>
                         <id>make-assembly</id>
-                        <!-- bind to verify and not package to pass integration tests before creating assemblies -->
-                        <phase>integration-test</phase> 
-                       <goals>
+                        <phase>package</phase>
+                        <goals>
                             <goal>single</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
- 
+
         </plugins>
     </build>
 

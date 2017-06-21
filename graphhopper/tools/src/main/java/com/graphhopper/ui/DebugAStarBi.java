@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -17,44 +17,48 @@
  */
 package com.graphhopper.ui;
 
+import com.graphhopper.routing.AStar;
 import com.graphhopper.routing.AStarBidirection;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
-import com.graphhopper.routing.util.Weighting;
-import com.graphhopper.storage.EdgeEntry;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeIteratorState;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
+import java.awt.*;
 
 /**
  * @author Peter Karich
  */
-public class DebugAStarBi extends AStarBidirection implements DebugAlgo
-{
-    private GraphicsWrapper mg;
+public class DebugAStarBi extends AStarBidirection implements DebugAlgo {
+    private final GraphicsWrapper mg;
     private Graphics2D g2;
 
-    public DebugAStarBi( Graph graph, FlagEncoder encoder, Weighting type, TraversalMode tMode, GraphicsWrapper mg )
-    {
-        super(graph, encoder, type, tMode);
+    public DebugAStarBi(Graph graph, Weighting type, TraversalMode tMode, GraphicsWrapper mg) {
+        super(graph, type, tMode);
         this.mg = mg;
     }
 
     @Override
-    public void setGraphics2D( Graphics2D g2 )
-    {
+    public void setGraphics2D(Graphics2D g2) {
         this.g2 = g2;
     }
 
     @Override
-    public void updateBestPath( EdgeIteratorState es, EdgeEntry bestEE, int currLoc )
-    {
-        if (g2 != null)
-        {
+    public void updateBestPath(EdgeIteratorState edgeState, AStar.AStarEntry entryCurrent, int currLoc) {
+        if (g2 != null) {
             mg.plotNode(g2, currLoc, Color.YELLOW);
         }
-        super.updateBestPath(es, bestEE, currLoc);
+        super.updateBestPath(edgeState, entryCurrent, currLoc);
+    }
+
+    @Override
+    public void updateBestPath(EdgeIteratorState es, SPTEntry bestEE, int currLoc) {
+        throw new IllegalStateException("cannot happen");
+    }
+
+    @Override
+    public String toString() {
+        return "debugui|" + super.toString();
     }
 }

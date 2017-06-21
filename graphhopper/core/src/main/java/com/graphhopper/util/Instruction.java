@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -21,12 +21,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.graphhopper.routing.util.WaySurfaceDescription;
-
-public class Instruction
-{
-    private static final AngleCalc ac = new AngleCalc();
-
+public class Instruction {
+    public static final int UNKNOWN = -99;
     public static final int LEAVE_ROUNDABOUT = -6; // for future use
     public static final int TURN_SHARP_LEFT = -3;
     public static final int TURN_LEFT = -2;
@@ -38,22 +34,26 @@ public class Instruction
     public static final int FINISH = 4;
     public static final int REACHED_VIA = 5;
     public static final int USE_ROUNDABOUT = 6;
-
+    public static final int IGNORE = Integer.MIN_VALUE;
+    public static final int KEEP_LEFT = -7;
+    public static final int KEEP_RIGHT = 7;
+    public static final int PT_START_TRIP = 101;
+    public static final int PT_TRANSFER = 102;
+    public static final int PT_END_TRIP = 103;
+    private static final AngleCalc AC = Helper.ANGLE_CALC;
+    protected final PointList points;
+    protected final InstructionAnnotation annotation;
     protected boolean rawName;
     protected int sign;
     protected String name;
     protected double distance;
     protected long time;
-    protected final PointList points;
-    protected final InstructionAnnotation annotation;
-    private WaySurfaceDescription waySurfaceDescription; // Runge
 
     /**
      * The points, distances and times have exactly the same count. The last point of this
      * instruction is not duplicated here and should be in the next one.
      */
-    public Instruction( int sign, String name, InstructionAnnotation ia, PointList pl )
-    {
+    public Instruction(int sign, String name, InstructionAnnotation ia, PointList pl) {
         this.sign = sign;
         this.name = name;
         this.points = pl;
@@ -64,105 +64,80 @@ public class Instruction
      * This method does not perform translation or combination with the sign - it just uses the
      * provided name as instruction.
      */
-    public void setUseRawName()
-    {
+    public void setUseRawName() {
         rawName = true;
     }
 
-    public InstructionAnnotation getAnnotation()
-    {
+    public InstructionAnnotation getAnnotation() {
         return annotation;
-    }
-
-    public WaySurfaceDescription getWaySurfaceDescription()
-    {
-    	return waySurfaceDescription;
-    }
-    
-    public void setWaySurfaceDescription(WaySurfaceDescription description)
-    {
-    	this.waySurfaceDescription = description;
     }
 
     /**
      * The instruction for the person/driver to execute.
      */
-    public int getSign()
-    {
+    public int getSign() {
         return sign;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public void setName( String name )
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public Map<String, Object> getExtraInfoJSON()
-    {
+    public Map<String, Object> getExtraInfoJSON() {
         return Collections.<String, Object>emptyMap();
     }
 
-    public void setExtraInfo( String key, Object value )
-    {
+    public void setExtraInfo(String key, Object value) {
         throw new IllegalArgumentException("Key" + key + " is not a valid option");
-    }
-
-    public Instruction setDistance( double distance )
-    {
-        this.distance = distance;
-        return this;
     }
 
     /**
      * Distance in meter until no new instruction
      */
-    public double getDistance()
-    {
+    public double getDistance() {
         return distance;
     }
 
-    public Instruction setTime( long time )
-    {
+    public Instruction setDistance(double distance) {
+        this.distance = distance;
+        return this;
+    }
+
+    /**
+     * Duration until the next instruction, in milliseconds
+     */
+    public long getTime() {
+        return time;
+    }
+
+    public Instruction setTime(long time) {
         this.time = time;
         return this;
     }
 
     /**
-     * Time in time until no new instruction
-     */
-    public long getTime()
-    {
-        return time;
-    }
-
-    /**
      * Latitude of the location where this instruction should take place.
      */
-    double getFirstLat()
-    {
+    double getFirstLat() {
         return points.getLatitude(0);
     }
 
     /**
      * Longitude of the location where this instruction should take place.
      */
-    double getFirstLon()
-    {
+    double getFirstLon() {
         return points.getLongitude(0);
     }
 
-    double getFirstEle()
-    {
+    double getFirstEle() {
         return points.getElevation(0);
     }
 
-    public PointList getPoints()
-    {
+    public PointList getPoints() {
         return points;
     }
 
@@ -170,11 +145,11 @@ public class Instruction
      * This method returns a list of gpx entries where the time (in time) is relative to the first
      * which is 0. It does NOT contain the last point which is the first of the next instruction.
      * <p>
+     *
      * @return the time offset to add for the next instruction
      */
-    long fillGPXList( List<GPXEntry> list, long time,
-                      Instruction prevInstr, Instruction nextInstr, boolean firstInstr )
-    {
+    long fillGPXList(List<GPXEntry> list, long time,
+                     Instruction prevInstr, Instruction nextInstr, boolean firstInstr) {
         checkOne();
         int len = points.size();
         long prevTime = time;
@@ -185,8 +160,7 @@ public class Instruction
         if (is3D)
             ele = points.getElevation(0);
 
-        for (int i = 0; i < len; i++)
-        {
+        for (int i = 0; i < len; i++) {
             list.add(new GPXEntry(lat, lon, ele, prevTime));
 
             boolean last = i + 1 == len;
@@ -206,8 +180,7 @@ public class Instruction
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append('(');
         sb.append(sign).append(',');
@@ -222,13 +195,12 @@ public class Instruction
      * Return the direction like 'NE' based on the first tracksegment of the instruction. If
      * Instruction does not contain enough coordinate points, an empty string will be returned.
      */
-    String calcDirection( Instruction nextI )
-    {
+    String calcDirection(Instruction nextI) {
         double azimuth = calcAzimuth(nextI);
         if (Double.isNaN(azimuth))
             return "";
 
-        return ac.azimuth2compassPoint(azimuth);
+        return AC.azimuth2compassPoint(azimuth);
     }
 
     /**
@@ -236,51 +208,51 @@ public class Instruction
      * instruction contains less than 2 points then NaN will be returned or the specified
      * instruction will be used if that is the finish instruction.
      */
-    public double calcAzimuth( Instruction nextI )
-    {
+    public double calcAzimuth(Instruction nextI) {
         double nextLat;
         double nextLon;
 
-        if (points.getSize() >= 2)
-        {
+        if (points.getSize() >= 2) {
             nextLat = points.getLatitude(1);
             nextLon = points.getLongitude(1);
-        } else if (nextI != null && points.getSize() == 1)
-        {
+        } else if (nextI != null && points.getSize() == 1) {
             nextLat = nextI.points.getLatitude(0);
             nextLon = nextI.points.getLongitude(0);
-        } else
-        {
+        } else {
             return Double.NaN;
         }
 
         double lat = points.getLatitude(0);
         double lon = points.getLongitude(0);
-        return ac.calcAzimuth(lat, lon, nextLat, nextLon);
+        return AC.calcAzimuth(lat, lon, nextLat, nextLon);
     }
 
-    void checkOne()
-    {
+    void checkOne() {
         if (points.size() < 1)
             throw new IllegalStateException("Instruction must contain at least one point " + toString());
     }
 
-    public String getTurnDescription( Translation tr )
-    {
+    public String getTurnDescription(Translation tr) {
         if (rawName)
             return getName();
 
         String str;
         String streetName = getName();
         int indi = getSign();
-        if (indi == Instruction.CONTINUE_ON_STREET)
-        {
+        if (indi == Instruction.CONTINUE_ON_STREET) {
             str = Helper.isEmpty(streetName) ? tr.tr("continue") : tr.tr("continue_onto", streetName);
-        } else
-        {
+        } else if (indi == Instruction.PT_START_TRIP) {
+            str = tr.tr("pt_start_trip", streetName);
+        } else if (indi == Instruction.PT_TRANSFER) {
+            str = tr.tr("pt_transfer_to", streetName);
+        } else if (indi == Instruction.PT_END_TRIP) {
+            str = tr.tr("pt_end_trip", streetName);
+        } else {
             String dir = null;
-            switch (indi)
-            {
+            switch (indi) {
+                case Instruction.KEEP_LEFT:
+                    dir = tr.tr("keep_left");
+                    break;
                 case Instruction.TURN_SHARP_LEFT:
                     dir = tr.tr("turn_sharp_left");
                     break;
@@ -299,11 +271,14 @@ public class Instruction
                 case Instruction.TURN_SHARP_RIGHT:
                     dir = tr.tr("turn_sharp_right");
                     break;
+                case Instruction.KEEP_RIGHT:
+                    dir = tr.tr("keep_right");
+                    break;
             }
             if (dir == null)
-                throw new IllegalStateException("Turn indication not found " + indi);
-
-            str = Helper.isEmpty(streetName) ? dir : tr.tr("turn_onto", dir, streetName);
+                str = tr.tr("unknown", indi);
+            else
+                str = Helper.isEmpty(streetName) ? dir : tr.tr("turn_onto", dir, streetName);
         }
         return str;
     }

@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -19,17 +19,17 @@ package com.graphhopper.coll;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Peter Karich
  */
-public class GHSortedCollectionTest
-{
+public class GHSortedCollectionTest {
+
     @Test
-    public void testPoll()
-    {
-        GHSortedCollection instance = new GHSortedCollection(100);
+    public void testPoll() {
+        GHSortedCollection instance = new GHSortedCollection();
         assertTrue(instance.isEmpty());
         instance.insert(0, 10);
         assertEquals(10, instance.peekValue());
@@ -42,9 +42,8 @@ public class GHSortedCollectionTest
     }
 
     @Test
-    public void testInsert()
-    {
-        GHSortedCollection instance = new GHSortedCollection(100);
+    public void testInsert() {
+        GHSortedCollection instance = new GHSortedCollection();
         assertTrue(instance.isEmpty());
         instance.insert(0, 10);
         assertEquals(1, instance.getSize());
@@ -62,9 +61,8 @@ public class GHSortedCollectionTest
     }
 
     @Test
-    public void testUpdate()
-    {
-        GHSortedCollection instance = new GHSortedCollection(100);
+    public void testUpdate() {
+        GHSortedCollection instance = new GHSortedCollection();
         assertTrue(instance.isEmpty());
         instance.insert(0, 10);
         instance.insert(1, 11);

@@ -1,20 +1,23 @@
 package heigit.ors.routing.graphhopper.extensions.weighting;
 
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.Weighting;
+import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.weighting.AbstractWeighting;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 
-public class DistanceWeighting implements Weighting
+public class DistanceWeighting extends AbstractWeighting
 {
     protected final FlagEncoder flagEncoder;
+    private int encoderIndex = -1;
     
     public DistanceWeighting( FlagEncoder encoder, PMap pMap )
     {
-        if (!encoder.isRegistered())
-            throw new IllegalStateException("Make sure you add the FlagEncoder " + encoder + " to an EncodingManager before using it elsewhere");
+        super(encoder);
 
         this.flagEncoder = encoder;
+        this.encoderIndex = encoder.getIndex();
     }
 
     public DistanceWeighting( FlagEncoder encoder )
@@ -28,49 +31,23 @@ public class DistanceWeighting implements Weighting
     }
     
     @Override
-    public double getMinWeight( double distance )
+    public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId)
     {
-        return distance;
-    }
-
-    @Override
-    public double calcWeight( EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId )
-    {
-        double speed = reverse ? flagEncoder.getReverseSpeed(edge.getFlags()) : flagEncoder.getSpeed(edge.getFlags());
+        double speed = reverse ? flagEncoder.getReverseSpeed(edge.getFlags(encoderIndex)) : flagEncoder.getSpeed(edge.getFlags(encoderIndex));
         if (speed == 0)
             return Double.POSITIVE_INFINITY;
 
        return edge.getDistance();
     }
 
-    @Override
-    public FlagEncoder getFlagEncoder()
-    {
-        return flagEncoder;
-    }
+	@Override
+	public double getMinWeight(double distance) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
-    @Override
-    public int hashCode()
-    {
-        int hash = 7;
-        hash = 71 * hash + toString().hashCode();
-        return hash;
-    }
-
-    @Override
-    public boolean equals( Object obj )
-    {
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        final DistanceWeighting other = (DistanceWeighting) obj;
-        return toString().equals(other.toString());
-    }
-
-    @Override
-    public String toString()
-    {
-        return "DISTANCE|" + flagEncoder;
-    }
+	@Override
+	public String getName() {
+		return "distance";
+	}
 }

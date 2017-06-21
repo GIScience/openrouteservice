@@ -38,6 +38,22 @@ public class ResultsValidationTest extends ServiceTest {
 	}
 	
 	@Test
+	public void bboxSearchFilterTest() {
+		Response response = given()
+		.param("request", "pois")
+		.param("bbox", "8.909633159637453,49.23201735762508,8.920919895172121,49.23629777889019")
+		.param("category_group_ids", "120,160")
+		.param("limit", "200")
+		.when()
+		.get(getEndPointName());
+		
+		Assert.assertEquals(response.getStatusCode(), 200);
+		JSONObject jResponse = new JSONObject(response.body().asString());
+		
+	    Assert.assertEquals(jResponse.getJSONArray("features").length(), 8);
+	}
+
+	@Test
 	public void pointSearchWithoutNameFilterTest() {
 		Response response = given()
 		.param("request", "pois")

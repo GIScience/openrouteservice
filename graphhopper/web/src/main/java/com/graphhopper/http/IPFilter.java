@@ -1,13 +1,30 @@
+/*
+ *  Licensed to GraphHopper GmbH under one or more contributor
+ *  license agreements. See the NOTICE file distributed with this work for 
+ *  additional information regarding copyright ownership.
+ * 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
+ *  Version 2.0 (the "License"); you may not use this file except in 
+ *  compliance with the License. You may obtain a copy of the License at
+ * 
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package com.graphhopper.http;
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-import javax.servlet.*;
-import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This IP filter class accepts a list of IPs for blacklisting OR for whitelisting (but not both).
@@ -16,16 +33,15 @@ import org.slf4j.LoggerFactory;
  * <p>
  * The internal ip filter from jetty did not work (NP exceptions)
  * <p>
+ *
  * @author Peter Karich
  */
-public class IPFilter implements Filter
-{
+public class IPFilter implements Filter {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final Set<String> whites;
     private final Set<String> blacks;
 
-    public IPFilter( String whiteList, String blackList )
-    {
+    public IPFilter(String whiteList, String blackList) {
         whites = createSet(whiteList.split(","));
         blacks = createSet(blackList.split(","));
         if (!whites.isEmpty())
@@ -38,28 +54,22 @@ public class IPFilter implements Filter
     }
 
     @Override
-    public void doFilter( ServletRequest request, ServletResponse response, FilterChain chain ) throws IOException, ServletException
-    {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         String ip = request.getRemoteAddr();
-        if (accept(ip))
-        {
+        if (accept(ip)) {
             chain.doFilter(request, response);
-        } else
-        {
+        } else {
             logger.warn("Did not accept IP " + ip);
             ((HttpServletResponse) response).sendError(HttpServletResponse.SC_FORBIDDEN);
         }
     }
 
-    public boolean accept( String ip )
-    {
+    public boolean accept(String ip) {
         if (whites.isEmpty() && blacks.isEmpty())
             return true;
 
-        if (!whites.isEmpty())
-        {
-            for (String w : whites)
-            {
+        if (!whites.isEmpty()) {
+            for (String w : whites) {
                 if (simpleMatch(ip, w))
                     return true;
             }
@@ -69,8 +79,7 @@ public class IPFilter implements Filter
         if (blacks.isEmpty())
             throw new IllegalStateException("cannot happen");
 
-        for (String b : blacks)
-        {
+        for (String b : blacks) {
             if (simpleMatch(ip, b))
                 return false;
         }
@@ -79,20 +88,16 @@ public class IPFilter implements Filter
     }
 
     @Override
-    public void init( FilterConfig filterConfig ) throws ServletException
-    {
+    public void init(FilterConfig filterConfig) throws ServletException {
     }
 
     @Override
-    public void destroy()
-    {
+    public void destroy() {
     }
 
-    private Set<String> createSet( String[] split )
-    {
+    private Set<String> createSet(String[] split) {
         Set<String> set = new HashSet<String>(split.length);
-        for (String str : split)
-        {
+        for (String str : split) {
             str = str.trim();
             if (!str.isEmpty())
                 set.add(str);
@@ -100,11 +105,9 @@ public class IPFilter implements Filter
         return set;
     }
 
-    public boolean simpleMatch( String ip, String pattern )
-    {
+    public boolean simpleMatch(String ip, String pattern) {
         String[] ipParts = pattern.split("\\*");
-        for (String ipPart : ipParts)
-        {
+        for (String ipPart : ipParts) {
             int idx = ip.indexOf(ipPart);
             if (idx == -1)
                 return false;

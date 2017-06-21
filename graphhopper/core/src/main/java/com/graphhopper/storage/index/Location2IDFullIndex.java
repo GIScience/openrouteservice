@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -21,7 +21,7 @@ import com.graphhopper.routing.util.AllEdgesIterator;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
-import com.graphhopper.util.ArrayBuffer;
+import com.graphhopper.util.ByteArrayBuffer;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.Circle;
@@ -29,30 +29,27 @@ import com.graphhopper.util.shapes.Circle;
 /**
  * Very slow O(n) LocationIndex but no RAM/disc required.
  * <p>
+ *
  * @author Peter Karich
  */
-public class Location2IDFullIndex implements LocationIndex
-{
-    private DistanceCalc calc = Helper.DIST_PLANE;
+public class Location2IDFullIndex implements LocationIndex {
     private final Graph graph;
     private final NodeAccess nodeAccess;
+    private DistanceCalc calc = Helper.DIST_PLANE;
     private boolean closed = false;
 
-    public Location2IDFullIndex( Graph g )
-    {
+    public Location2IDFullIndex(Graph g) {
         this.graph = g;
         this.nodeAccess = g.getNodeAccess();
     }
 
     @Override
-    public boolean loadExisting()
-    {
+    public boolean loadExisting() {
         return true;
     }
 
     @Override
-    public LocationIndex setApproximation( boolean approxDist )
-    {
+    public LocationIndex setApproximation(boolean approxDist) {
         if (approxDist)
             calc = Helper.DIST_PLANE;
         else
@@ -62,14 +59,12 @@ public class Location2IDFullIndex implements LocationIndex
     }
 
     @Override
-    public LocationIndex setResolution( int resolution )
-    {
+    public LocationIndex setResolution(int resolution) {
         return this;
     }
 
     @Override
-    public LocationIndex prepareIndex()
-    {
+    public LocationIndex prepareIndex() {
         return this;
     }
     
@@ -78,35 +73,29 @@ public class Location2IDFullIndex implements LocationIndex
     {
      return findClosest(queryLat, queryLon, edgeFilter, null);
     }
-    
+
     @Override
-    public QueryResult findClosest( double queryLat, double queryLon, EdgeFilter edgeFilter, ArrayBuffer arrayBuffer)
-    {
+    public QueryResult findClosest(double queryLat, double queryLon, EdgeFilter edgeFilter, ByteArrayBuffer buffer) {
         if (isClosed())
             throw new IllegalStateException("You need to create a new LocationIndex instance as it is already closed");
 
         QueryResult res = new QueryResult(queryLat, queryLon);
         Circle circle = null;
         AllEdgesIterator iter = graph.getAllEdges();
-        while (iter.next())
-        {
+        while (iter.next()) {
             if (!edgeFilter.accept(iter))
                 continue;
 
-            for (int node, i = 0; i < 2; i++)
-            {
-                if (i == 0)
-                {
+            for (int node, i = 0; i < 2; i++) {
+                if (i == 0) {
                     node = iter.getBaseNode();
-                } else
-                {
+                } else {
                     node = iter.getAdjNode();
                 }
                 double tmpLat = nodeAccess.getLatitude(node);
                 double tmpLon = nodeAccess.getLongitude(node);
                 double dist = calc.calcDist(tmpLat, tmpLon, queryLat, queryLon);
-                if (circle == null || dist < calc.calcDist(circle.getLat(), circle.getLon(), queryLat, queryLon))
-                {
+                if (circle == null || dist < calc.calcDist(circle.getLat(), circle.getLon(), queryLat, queryLon)) {
                     res.setClosestEdge(iter.detach(false));
                     res.setClosestNode(node);
                     res.setQueryDistance(dist);
@@ -121,42 +110,30 @@ public class Location2IDFullIndex implements LocationIndex
     }
 
     @Override
-    public int findID( double lat, double lon )
-    {
-        return findClosest(lat, lon, EdgeFilter.ALL_EDGES).getClosestNode();
-    }
-
-    @Override
-    public LocationIndex create( long size )
-    {
+    public LocationIndex create(long size) {
         return this;
     }
 
     @Override
-    public void flush()
-    {
+    public void flush() {
     }
 
     @Override
-    public void close()
-    {
+    public void close() {
         closed = true;
     }
 
     @Override
-    public boolean isClosed()
-    {
+    public boolean isClosed() {
         return closed;
     }
 
     @Override
-    public long getCapacity()
-    {
+    public long getCapacity() {
         return 0;
     }
 
     @Override
-    public void setSegmentSize( int bytes )
-    {
+    public void setSegmentSize(int bytes) {
     }
 }

@@ -14,7 +14,7 @@ package heigit.ors.matrix;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.QueryResult;
-import com.graphhopper.util.ArrayBuffer;
+import com.graphhopper.util.ByteArrayBuffer;
 import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -51,7 +51,7 @@ public class MatrixLocationData {
 		return _coords;
 	}
 
-	public static MatrixLocationData createData(LocationIndex index, Coordinate[] coords, EdgeFilter edgeFilter, ArrayBuffer buffer, boolean resolveNames)
+	public static MatrixLocationData createData(LocationIndex index, Coordinate[] coords, EdgeFilter edgeFilter, ByteArrayBuffer buffer, boolean resolveNames)
 	{
 		MatrixLocationData mld = new MatrixLocationData(coords.length, resolveNames);
 

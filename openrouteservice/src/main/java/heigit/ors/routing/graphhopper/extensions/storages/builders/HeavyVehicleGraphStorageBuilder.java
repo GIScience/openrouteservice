@@ -22,7 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.graphhopper.GraphHopper;
-import com.graphhopper.reader.OSMWay;
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
@@ -71,7 +71,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 		return _storage;
 	}
 
-	public void processWay(OSMWay way) {
+	public void processWay(ReaderWay way) {
 		
 		_hgvType = 0;
 		_hgvDestination = 0;
@@ -86,7 +86,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 			_hasRestrictionValues = false;
 		}
 
-		boolean hasHighway = way.containsTag("highway");
+		boolean hasHighway = way.hasTag("highway");
 			if (hasHighway && way.hasTag(_motorVehicleRestrictions, _motorVehicleRestrictedValues))
 			{
 				_hgvType |= HeavyVehicleAttributes.BUS;
@@ -299,7 +299,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 			}
 	}
 
-	public void processEdge(OSMWay way, EdgeIteratorState edge)
+	public void processEdge(ReaderWay way, EdgeIteratorState edge)
 	{
 		if (_hgvType > HeavyVehicleAttributes.UNKNOWN || _hgvDestination > 0 || _hasRestrictionValues) 
 		{

@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -19,9 +19,8 @@ package com.graphhopper;
 
 import com.graphhopper.routing.util.EdgeAnnotator;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.EdgeWaySurfaceDescriptor;
+import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.util.PathProcessor;
-import com.graphhopper.routing.util.WeightingMap;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.GHPoint;
 
@@ -32,17 +31,18 @@ import java.util.Locale;
 
 /**
  * GraphHopper request wrapper to simplify requesting GraphHopper.
- * <p>
  *
  * @author Peter Karich
  * @author ratrun
  */
-public class GHRequest
-{
-    private String algo = "";
+public class GHRequest {
     private final List<GHPoint> points;
-    private final WeightingMap hints = new WeightingMap();
-    private String vehicle = "";
+    private final HintsMap hints = new HintsMap();
+    // List of favored start (1st element) and arrival heading (all other).
+    // Headings are north based azimuth (clockwise) in (0, 360) or NaN for equal preference
+    private final List<Double> favoredHeadings;
+    private List<String> pointHints = new ArrayList<>();
+    private String algo = "";
     private boolean possibleToAdd = false;
     private Locale locale = Locale.US;
     
@@ -54,17 +54,11 @@ public class GHRequest
     private double maxSearchDistance;
     private Boolean simplifyGeometry = true;
 
-    // List of favored start (1st element) and arrival heading (all other).
-    // Headings are north based azimuth (clockwise) in (0, 360) or NaN for equal preference
-    private final List<Double> favoredHeadings;
-
-    public GHRequest()
-    {
+    public GHRequest() {
         this(5);
     }
 
-    public GHRequest( int size )
-    {
+    public GHRequest(int size) {
         points = new ArrayList<GHPoint>(size);
         favoredHeadings = new ArrayList<Double>(size);
         possibleToAdd = true;
@@ -75,17 +69,15 @@ public class GHRequest
      * with a preferred start and end heading. Headings are north based azimuth (clockwise) in (0,
      * 360) or NaN for equal preference.
      */
-    public GHRequest( double fromLat, double fromLon, double toLat, double toLon,
-                      double startHeading, double endHeading )
-    {
+    public GHRequest(double fromLat, double fromLon, double toLat, double toLon,
+                     double startHeading, double endHeading) {
         this(new GHPoint(fromLat, fromLon), new GHPoint(toLat, toLon), startHeading, endHeading);
     }
 
     /**
      * Set routing request from specified startPlace (fromLat, fromLon) to endPlace (toLat, toLon)
      */
-    public GHRequest( double fromLat, double fromLon, double toLat, double toLon )
-    {
+    public GHRequest(double fromLat, double fromLon, double toLat, double toLon) {
         this(new GHPoint(fromLat, fromLon), new GHPoint(toLat, toLon));
     }
 
@@ -93,8 +85,7 @@ public class GHRequest
      * Set routing request from specified startPlace to endPlace with a preferred start and end
      * heading. Headings are north based azimuth (clockwise) in (0, 360) or NaN for equal preference
      */
-    public GHRequest( GHPoint startPlace, GHPoint endPlace, double startHeading, double endHeading )
-    {
+    public GHRequest(GHPoint startPlace, GHPoint endPlace, double startHeading, double endHeading) {
         if (startPlace == null)
             throw new IllegalStateException("'from' cannot be null");
 
@@ -112,27 +103,24 @@ public class GHRequest
         favoredHeadings.add(endHeading);
     }
 
-    public GHRequest( GHPoint startPlace, GHPoint endPlace )
-    {
+    public GHRequest(GHPoint startPlace, GHPoint endPlace) {
         this(startPlace, endPlace, Double.NaN, Double.NaN);
     }
 
     /**
      * Set routing request
      * <p>
-     * @param points List of stopover points in order: start, 1st stop, 2nd stop, ..., end
+     *
+     * @param points          List of stopover points in order: start, 1st stop, 2nd stop, ..., end
      * @param favoredHeadings List of favored headings for starting (start point) and arrival (via
-     * and end points) Headings are north based azimuth (clockwise) in (0, 360) or NaN for equal
-     * preference
+     *                        and end points) Headings are north based azimuth (clockwise) in (0, 360) or NaN for equal
      */
-    public GHRequest( List<GHPoint> points, List<Double> favoredHeadings )
-    {
+    public GHRequest(List<GHPoint> points, List<Double> favoredHeadings) {
         if (points.size() != favoredHeadings.size())
             throw new IllegalArgumentException("Size of headings (" + favoredHeadings.size()
                     + ") must match size of points (" + points.size() + ")");
 
-        for (Double heading : favoredHeadings)
-        {
+        for (Double heading : favoredHeadings) {
             validateAzimuthValue(heading);
         }
         this.points = points;
@@ -142,21 +130,21 @@ public class GHRequest
     /**
      * Set routing request
      * <p>
+     *
      * @param points List of stopover points in order: start, 1st stop, 2nd stop, ..., end
      */
-    public GHRequest( List<GHPoint> points )
-    {
+    public GHRequest(List<GHPoint> points) {
         this(points, Collections.nCopies(points.size(), Double.NaN));
     }
 
     /**
      * Add stopover point to routing request.
      * <p>
-     * @param point geographical position (see GHPoint)
+     *
+     * @param point          geographical position (see GHPoint)
      * @param favoredHeading north based azimuth (clockwise) in (0, 360) or NaN for equal preference
      */
-    public GHRequest addPoint( GHPoint point, double favoredHeading )
-    {
+    public GHRequest addPoint(GHPoint point, double favoredHeading) {
         if (point == null)
             throw new IllegalArgumentException("point cannot be null");
 
@@ -173,10 +161,10 @@ public class GHRequest
     /**
      * Add stopover point to routing request.
      * <p>
+     *
      * @param point geographical position (see GHPoint)
      */
-    public GHRequest addPoint( GHPoint point )
-    {
+    public GHRequest addPoint(GHPoint point) {
         addPoint(point, Double.NaN);
         return this;
     }
@@ -184,47 +172,96 @@ public class GHRequest
     /**
      * @return north based azimuth (clockwise) in (0, 360) or NaN for equal preference
      */
-    public double getFavoredHeading( int i )
-    {
+    public double getFavoredHeading(int i) {
         return favoredHeadings.get(i);
     }
 
     /**
      * @return if there exist a preferred heading for start/via/end point i
      */
-    public boolean hasFavoredHeading( int i )
-    {
+    public boolean hasFavoredHeading(int i) {
         if (i >= favoredHeadings.size())
             return false;
 
         return !Double.isNaN(favoredHeadings.get(i));
     }
 
-    private void validateAzimuthValue( double heading )
-    {
+    private void validateAzimuthValue(double heading) {
         // heading must be in (0, 360) oder NaN
-        if (!Double.isNaN(heading) && ((Double.compare(heading, 360) > 0) || (Double.compare(heading, 0) < 0)))
+        if (!Double.isNaN(heading) && (Double.compare(heading, 360) > 0 || Double.compare(heading, 0) < 0))
             throw new IllegalArgumentException("Heading " + heading + " must be in range (0,360) or NaN");
     }
 
-    public List<GHPoint> getPoints()
-    {
+    public List<GHPoint> getPoints() {
         return points;
+    }
+
+    public String getAlgorithm() {
+        return algo;
     }
 
     /**
      * For possible values see AlgorithmOptions.*
      */
-    public GHRequest setAlgorithm( String algo )
-    {
+    public GHRequest setAlgorithm(String algo) {
         if (algo != null)
-            this.algo = algo;
+            this.algo = Helper.camelCaseToUnderScore(algo);
         return this;
     }
 
-    public String getAlgorithm()
-    {
-        return algo;
+    public Locale getLocale() {
+        return locale;
+    }
+
+    public GHRequest setLocale(Locale locale) {
+        if (locale != null)
+            this.locale = locale;
+        return this;
+    }
+
+    public GHRequest setLocale(String localeStr) {
+        return setLocale(Helper.getLocale(localeStr));
+    }
+
+    public String getWeighting() {
+        return hints.getWeighting();
+    }
+
+    /**
+     * By default it supports fastest and shortest. Or specify empty to use default.
+     */
+    public GHRequest setWeighting(String w) {
+        hints.setWeighting(w);
+        return this;
+    }
+
+    public String getVehicle() {
+        return hints.getVehicle();
+    }
+
+    /**
+     * Specify car, bike or foot. Or specify empty to use default.
+     */
+    public GHRequest setVehicle(String vehicle) {
+        hints.setVehicle(vehicle);
+        return this;
+    }
+
+    public HintsMap getHints() {
+        return hints;
+    }
+
+    public GHRequest setPointHints(List<String> pointHints) {
+        this.pointHints = pointHints;
+        return this;
+    }
+
+    public List<String> getPointHints() {
+        return pointHints;
+    }
+
+    public boolean hasPointHints() {
+        return pointHints.size() == points.size();
     }
     
     // Runge
@@ -243,7 +280,7 @@ public class GHRequest
     	this.edgeAnnotator = edgeAnnotator; 
     }
     
-    public PathProcessor getPathProcessor()
+    public PathProcessor getPathProcessor()	
     {
     	return this.pathProcessor;
     }
@@ -270,6 +307,9 @@ public class GHRequest
     
     public void setMaxSpeed(double speed)
     {
+    	if (speed > 0)
+    		hints.put("max_speed", speed);
+    	
     	maxSpeed = speed;
     }
 
@@ -291,71 +331,20 @@ public class GHRequest
     	simplifyGeometry = value;
     }
 
-    public Locale getLocale()
-    {
-        return locale;
-    }
-
-    public GHRequest setLocale( Locale locale )
-    {
-        if (locale != null)
-            this.locale = locale;
-        return this;
-    }
-
-    public GHRequest setLocale( String localeStr )
-    {
-        return setLocale(Helper.getLocale(localeStr));
-    }
-
-    /**
-     * By default it supports fastest and shortest. Or specify empty to use default.
-     */
-    public GHRequest setWeighting( String w )
-    {
-        hints.setWeighting(w);
-        return this;
-    }
-
-    public String getWeighting()
-    {
-        return hints.getWeighting();
-    }
-
-    /**
-     * Specifiy car, bike or foot. Or specify empty to use default.
-     */
-    public GHRequest setVehicle( String vehicle )
-    {
-        if (vehicle != null)
-            this.vehicle = vehicle;
-        return this;
-    }
-
-    public String getVehicle()
-    {
-        return vehicle;
-    }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         String res = "";
-        for (GHPoint point : points)
-        {
-            if (res.isEmpty())
-            {
+        for (GHPoint point : points) {
+            if (res.isEmpty()) {
                 res = point.toString();
-            } else
-            {
+            } else {
                 res += "; " + point.toString();
             }
         }
-        return res + "(" + algo + ")";
-    }
+        if (!algo.isEmpty())
+            res += " (" + algo + ")";
 
-    public WeightingMap getHints()
-    {
-        return hints;
+        return res;
     }
 }

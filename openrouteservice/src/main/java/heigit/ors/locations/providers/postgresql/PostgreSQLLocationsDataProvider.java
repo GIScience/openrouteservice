@@ -345,10 +345,9 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 		
 		String whereCondition = "";
 		
-		if (bbox != null)
-			whereCondition = buildBboxFilter(bbox);
-
-		whereCondition += buildSearchFilter(request.getSearchFilter());
+		String searchCondition = buildSearchFilter(request.getSearchFilter());
+		if (!Helper.isEmpty(searchCondition))
+			whereCondition += searchCondition;
 		
 		String stateText = String.format("SELECT %s FROM ORS_FindLocations('(%s) as tmp', '%s', ?, %.3f, %d) AS %s", queryInfo.getQuery2Columns(), query, whereCondition, request.getRadius(), request.getLimit(), queryInfo.getReturnTable());
 
@@ -495,7 +494,8 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 		if (ids == null)
 			return "";
 
-		String result = "";
+		StringBuilder sb = new StringBuilder();
+		sb.append("(");
 
 		if (ids.length > 1)
 		{
@@ -508,13 +508,15 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 				if (group == null)
 					throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "category_group_id", Integer.toString(groupId));
 
-				result += "("+ group.getMinCategoryId() + " <= category AND category <= " + group.getMaxCategoryId() + ")";
+				sb.append("(");
+				sb.append(group.getMinCategoryId());
+				sb.append(" <= category AND category <= ");
+				sb.append(group.getMaxCategoryId());
+				sb.append(")");
 
 				if (i < nValues - 1)
-					result += " OR ";
+					sb.append(" OR ");
 			}
-
-			result = "(" + result +")";
 		}
 		else
 		{
@@ -524,10 +526,14 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 			if (group == null)
 				throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "category_group_id", Integer.toString(groupId));
 
-			result = group.getMinCategoryId() + " <= category AND category <= " + group.getMaxCategoryId(); 
+			sb.append(group.getMinCategoryId());
+			sb.append(" <= category AND category <= ");
+			sb.append(group.getMaxCategoryId());
 		}
 
-		return result;
+		sb.append(")");
+
+		return sb.toString();
 	}
 
 	private String fixStringValues(String value, Boolean multipeValues)

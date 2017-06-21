@@ -14,12 +14,14 @@ package heigit.ors.routing;
 import java.util.List;
 
 import com.graphhopper.GHResponse;
+import com.graphhopper.PathWrapper;
 import com.graphhopper.util.AngleCalc;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.Instruction;
 import com.graphhopper.util.InstructionAnnotation;
+import com.graphhopper.util.InstructionList;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.RoundaboutInstruction;
 import com.graphhopper.util.shapes.BBox;
@@ -96,11 +98,12 @@ public class RouteResultBuilder
 			if (resp.hasErrors())
 				throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", ri, FormatUtility.formatCoordinate(request.getCoordinates()[ri]), ri + 1, FormatUtility.formatCoordinate(request.getCoordinates()[ri+1])));
 
-			PointList routePoints = resp.getPoints();
+			PathWrapper path = resp.getBest();
+			PointList routePoints = path.getPoints();
 
 			if (bbox == null)
 				bbox = new BBox(routePoints.getLon(0), routePoints.getLon(0), routePoints.getLat(0), routePoints.getLat(0));
-			bbox = resp.calcRouteBBox(bbox);
+			bbox = path.calcRouteBBox(bbox);
 
 			if (request.getIncludeGeometry())
 			{
@@ -110,14 +113,15 @@ public class RouteResultBuilder
 
 				if (request.getIncludeInstructions())
 				{
+					InstructionList instructions = path.getInstructions();
 					int startWayPointIndex = routeWayPoints[ri];
-					int nInstructions = resp.getInstructions().getSize(); 
+					int nInstructions = instructions.size(); 
 					if (nInstructions > 1) // last is finishinstruction
 						nInstructions -= 1;
 
 					Instruction instr, prevInstr = null;
 					InstructionType instrType, prevInstrType = InstructionType.UNKNOWN;
-					RouteSegment seg = new RouteSegment(resp, units);
+					RouteSegment seg = new RouteSegment(path, units);
 					
 					if (includeDetourFactor)
 					{
@@ -127,7 +131,7 @@ public class RouteResultBuilder
                         lat1 = routePoints.getLat(routePoints.getSize() - 1);
                         lon1 = routePoints.getLon(routePoints.getSize() - 1);
                         
-						seg.setDetourFactor(FormatUtility.roundToDecimals(_distCalc.calcDist(lat0, lon0, lat1, lon1)/ resp.getDistance(), 2));
+						seg.setDetourFactor(FormatUtility.roundToDecimals(_distCalc.calcDist(lat0, lon0, lat1, lon1)/ path.getDistance(), 2));
 					}
 					
 					RouteStep prevStep = null;
@@ -136,7 +140,7 @@ public class RouteResultBuilder
 
 					for (int ii = 0; ii < nInstructions; ++ii) 
 					{
-						instr = resp.getInstructions().get(ii);
+						instr = instructions.get(ii);
 						InstructionAnnotation instrAnnotation = instr.getAnnotation();
 						instrType = getInstructionType(instr);
 						PointList segPoints = instr.getPoints();
@@ -154,7 +158,7 @@ public class RouteResultBuilder
 							{
                                 if (ii + 1 < nInstructions)
                                 {
-                                	PointList nextSegPoints = resp.getInstructions().get(ii+1).getPoints();
+                                	PointList nextSegPoints = instructions.get(ii+1).getPoints();
                                 	lat1 = nextSegPoints.getLat(0);
     								lon1 = nextSegPoints.getLon(0);
                                 }
@@ -250,32 +254,33 @@ public class RouteResultBuilder
 				}
 				else
 				{
-					distance += FormatUtility.roundToDecimals(DistanceUnitUtil.convert(resp.getDistance(), DistanceUnit.Meters, units), FormatUtility.getUnitDecimals(units));
-					duration += FormatUtility.roundToDecimals(resp.getTime()/1000.0, 1);
+					distance += FormatUtility.roundToDecimals(DistanceUnitUtil.convert(path.getDistance(), DistanceUnit.Meters, units), FormatUtility.getUnitDecimals(units));
+					duration += FormatUtility.roundToDecimals(path.getTime()/1000.0, 1);
 				}
 			}
 			else
 			{
-				int nInstructions = resp.getInstructions().getSize(); 
+				InstructionList instructions = path.getInstructions();
+				int nInstructions = instructions.size(); 
 				if (nInstructions > 1) 
 					nInstructions -= 1;
 
 				for (int j = 0; j < nInstructions; ++j) 
 				{
-					Instruction instr = resp.getInstructions().get(j);
+					Instruction instr = instructions.get(j);
 					InstructionAnnotation instrAnnotation = instr.getAnnotation();
 
 					if (instrAnnotation != null && instrAnnotation.getWayType() != 1) // Ferry, Steps as pushing sections
 						distanceActual += FormatUtility.roundToDecimals(DistanceUnitUtil.convert(instr.getDistance(), DistanceUnit.Meters, units), unitDecimals);
 				}
 
-				distance += FormatUtility.roundToDecimals(DistanceUnitUtil.convert(resp.getDistance(), DistanceUnit.Meters, units), unitDecimals);
-				duration += FormatUtility.roundToDecimals(resp.getTime()/1000.0, 1);
+				distance += FormatUtility.roundToDecimals(DistanceUnitUtil.convert(path.getDistance(), DistanceUnit.Meters, units), unitDecimals);
+				duration += FormatUtility.roundToDecimals(path.getTime()/1000.0, 1);
 			}
 
-			ascent += resp.getAscent();
-			descent += resp.getDescent();
-			durationTraffic += resp.getRouteWeight();
+			ascent += path.getAscend();
+			descent += path.getDescend();
+			durationTraffic += path.getRouteWeight();
 		}
 
 		result.getSummary().setDistance(FormatUtility.roundToDecimals(distance, unitDecimals));

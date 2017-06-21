@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -17,12 +17,11 @@
  */
 package com.graphhopper.ui;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 
 /**
  * @author Peter Karich
  */
-public interface DebugAlgo
-{
-    void setGraphics2D( Graphics2D g2 );
+public interface DebugAlgo {
+    void setGraphics2D(Graphics2D g2);
 }

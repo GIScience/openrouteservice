@@ -1,10 +1,12 @@
 package heigit.ors.routing.graphhopper.extensions.weighting;
 
-import com.graphhopper.routing.util.FastestWeighting;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.Weighting;
+import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.PMap;
+
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.graphhopper.extensions.storages.GreenIndexGraphStorage;
 
@@ -17,8 +19,8 @@ public class GreenWeighting extends FastestWeighting {
     private int _totalLevel = 64;
     private byte[] _buffer;
 
-    public GreenWeighting(Weighting superWeighting, FlagEncoder encoder, GraphStorage graphStorage) {
-        super(-1, encoder);
+    public GreenWeighting(Weighting superWeighting, FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
+        super(encoder, map);
         this._superWeighting = superWeighting;
         _buffer = new byte[1];
         _gsGreenIndex = GraphStorageUtils.getGraphExtension(graphStorage, GreenIndexGraphStorage.class);

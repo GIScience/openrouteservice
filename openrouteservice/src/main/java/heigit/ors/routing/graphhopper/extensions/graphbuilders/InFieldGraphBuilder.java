@@ -8,17 +8,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.carrotsearch.hppc.IntIndexedContainer;
+import com.carrotsearch.hppc.LongArrayList;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.coll.LongIntMap;
-import com.graphhopper.reader.OSMReader;
-import com.graphhopper.reader.OSMWay;
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.Dijkstra;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.FastestWeighting;
+import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.util.FootFlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
-import com.graphhopper.routing.util.Weighting;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RAMDirectory;
@@ -31,9 +32,7 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 
-import gnu.trove.list.TIntList;
-import gnu.trove.list.TLongList;
-import gnu.trove.list.array.TLongArrayList;
+import heigit.ors.routing.graphhopper.extensions.DataReaderContext;
 
 public class InFieldGraphBuilder extends AbstractGraphBuilder {
 
@@ -61,13 +60,13 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 	}
 
 	@Override
-	public boolean createEdges(OSMReader reader, OSMWay way, TLongList osmNodeIds, long wayFlags, List<EdgeIteratorState> createdEdges) throws Exception 
+	public boolean createEdges(DataReaderContext readerCntx, ReaderWay way, LongArrayList osmNodeIds, long wayFlags, List<EdgeIteratorState> createdEdges) throws Exception 
 	{
 		if (!hasOpenSpace(way, osmNodeIds))
 			return false;
 
-		LongIntMap nodeMap = reader.getNodeMap();
-		Polygon openSpace = osmPolygon2JTS(reader, osmNodeIds);
+		LongIntMap nodeMap = readerCntx.getNodeMap();
+		Polygon openSpace = osmPolygon2JTS(readerCntx, osmNodeIds);
 
 		internalTowerNodeIds.clear();
 		intId2osmId.clear();
@@ -78,7 +77,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 		// fill map "internal ID 2 OSM ID"     
 		for (int j = 0; j < osmNodeIds.size() - 1; j++) {       
 			long osmNodeId = osmNodeIds.get(j);           
-			int internalOSMId = reader.getNodeMap().get(osmNodeId);   
+			int internalOSMId = nodeMap.get(osmNodeId);   
 			intId2osmId.put(internalOSMId, osmNodeId);          
 			if (internalOSMId < -2) //towernode
 			{        
@@ -94,13 +93,13 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 			int internalMainId = nodeMap.get(mainOsmId);       
 			int idxMain = j;         
 			// coordinates of the first nodes     
-			double latMain = reader.getTmpLatitude(internalMainId),      
-					lonMain = reader.getTmpLongitude(internalMainId);     
+			double latMain = readerCntx.getNodeLatitude(internalMainId),      
+					lonMain = readerCntx.getNodeLongitude(internalMainId);     
 			// connect the boundary of the open space        
 			long neighborOsmId = osmNodeIds.get(j + 1);           
 			int internalNeighborId = nodeMap.get(neighborOsmId);   
 			int idxNeighbor = idxMain + 1;                               
-			double latNeighbor = reader.getTmpLatitude(internalNeighborId), lonNeighbor = reader.getTmpLongitude(internalNeighborId);         
+			double latNeighbor = readerCntx.getNodeLatitude(internalNeighborId), lonNeighbor = readerCntx.getNodeLongitude(internalNeighborId);         
 			double distance = distCalc.calcDist(latMain, lonMain, latNeighbor, lonNeighbor);    
 			graphStorage.edge(idxMain, idxNeighbor, distance, true);         
 			// iterate through remaining nodes,        
@@ -109,8 +108,8 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 				long partnerOsmId = osmNodeIds.get(k);          
 				int internalPartnerId = nodeMap.get(partnerOsmId);  
 				// coordinates of second nodes            
-				double latPartner = reader.getTmpLatitude(internalPartnerId),
-						lonPartner = reader.getTmpLongitude(internalPartnerId);   
+				double latPartner = readerCntx.getNodeLatitude(internalPartnerId),
+						lonPartner = readerCntx.getNodeLatitude(internalPartnerId);   
 				// connect nodes            
 				LineString ls = (LineString) geometryFactory.createLineString( new Coordinate[] { new Coordinate(lonMain, latMain), new Coordinate(lonPartner, latPartner) }); 
 				// check if new edge is within open space     
@@ -156,9 +155,9 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 				// compute route between tower nodes          
 				try
 				{
-					Dijkstra dijkstra = new Dijkstra(graphStorage, footEncoder, weightings.get(0), TraversalMode.EDGE_BASED_2DIR);  
-					Path path = dijkstra.calcPath(idxTowerStart, idxTowerDest,0);            
-					TIntList pathNodes = path.calcNodes();           
+					Dijkstra dijkstra = new Dijkstra(graphStorage, weightings.get(0), TraversalMode.EDGE_BASED_2DIR);  
+					Path path = dijkstra.calcPath(idxTowerStart, idxTowerDest);            
+					IntIndexedContainer pathNodes = path.calcNodes();           
 					// iterate through nodes of routing result           
 					for (int k = 0; k < pathNodes.size() - 1; k++) {      
 						// local index                 
@@ -178,7 +177,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 							// it is necessary to get the long node OSM IDs...           
 							long osmNodeA = intId2osmId.get(minNode);         
 							long osmNodeB = intId2osmId.get(maxNode);            
-							addNodePairAsEdgeToGraph(reader, way.getId(), wayFlags, createdEdges, osmNodeA, osmNodeB);           
+							addNodePairAsEdgeToGraph(readerCntx, way.getId(), wayFlags, createdEdges, osmNodeA, osmNodeB);           
 						}     
 					}
 				}
@@ -207,7 +206,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 			boolean edgeIsNew = _edges.add(tmpEdge);    
 			if (edgeIsNew) {     
 				// edge is added to global GraphHopper graph  
-				addNodePairAsEdgeToGraph(reader, way.getId(), wayFlags, createdEdges, osmIdA, osmIdB);   
+				addNodePairAsEdgeToGraph(readerCntx, way.getId(), wayFlags, createdEdges, osmIdA, osmIdB);   
 			}     
 		}
 
@@ -216,15 +215,15 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 		return true;
 	}
 
-	private void addNodePairAsEdgeToGraph(OSMReader reader, long wayOsmId, long wayFlags,  List<EdgeIteratorState> createdEdges, long Node1, long Node2) {   
+	private void addNodePairAsEdgeToGraph(DataReaderContext readerCntx, long wayOsmId, long wayFlags,  List<EdgeIteratorState> createdEdges, long Node1, long Node2) {   
 		// list which contains the Nodes of the new Edge     
-		TLongArrayList subgraphNodes = new TLongArrayList(5);  
+		LongArrayList subgraphNodes = new LongArrayList(5);  
 		subgraphNodes.add(Node1);     
 		subgraphNodes.add(Node2);      
-		createdEdges.addAll(reader.addOSMWay(subgraphNodes, wayFlags, wayOsmId));   
+		createdEdges.addAll(readerCntx.addWay(subgraphNodes, wayFlags, wayOsmId));   
 	}
 
-	private Polygon osmPolygon2JTS(OSMReader reader, TLongList osmNodeIds) {     
+	private Polygon osmPolygon2JTS(DataReaderContext readerCntx, LongArrayList osmNodeIds) {     
 		// collect all coordinates in ArrayList       
 		if (_coordinates == null || _coordinates.length < osmNodeIds.size())
 			_coordinates = new Coordinate[osmNodeIds.size()];
@@ -232,8 +231,8 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 		for (int i = 0; i < osmNodeIds.size(); i++) 
 		{      
 			long osmNodeId = osmNodeIds.get(i);       
-			int internalID = reader.getNodeMap().get(osmNodeId);   
-			_coordinates[i] = new Coordinate(reader.getTmpLongitude(internalID),  reader.getTmpLatitude(internalID));
+			int internalID = readerCntx.getNodeMap().get(osmNodeId);   
+			_coordinates[i] = new Coordinate(readerCntx.getNodeLongitude(internalID),  readerCntx.getNodeLatitude(internalID));
 		}  
 
 		Coordinate[] coords  = Arrays.copyOf(_coordinates, osmNodeIds.size());
@@ -253,7 +252,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 	 * @param way      
 	 * @param osmNodeIds      
 	 * @return      */ 
-	private boolean hasOpenSpace(OSMWay way, TLongList osmNodeIds) 
+	private boolean hasOpenSpace(ReaderWay way, LongArrayList osmNodeIds) 
 	{    
 		long firstNodeId = osmNodeIds.get(0);        
 		long lastNodeId = osmNodeIds.get(osmNodeIds.size() - 1);       

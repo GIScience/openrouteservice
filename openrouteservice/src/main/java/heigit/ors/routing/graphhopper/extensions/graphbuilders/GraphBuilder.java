@@ -14,18 +14,18 @@ package heigit.ors.routing.graphhopper.extensions.graphbuilders;
 import java.util.List;
 import java.util.Map;
 
+import com.carrotsearch.hppc.LongArrayList;
 import com.graphhopper.GraphHopper;
-import com.graphhopper.reader.OSMReader;
-import com.graphhopper.reader.OSMWay;
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.EdgeIteratorState;
 
-import gnu.trove.list.TLongList;
 import heigit.ors.plugins.Plugin;
+import heigit.ors.routing.graphhopper.extensions.DataReaderContext;
 
 public interface GraphBuilder extends Plugin {
 	void init(GraphHopper graphhopper) throws Exception;
 	
-	boolean createEdges(OSMReader reader, OSMWay way, TLongList osmNodeIds, long wayFlags, List<EdgeIteratorState> createdEdges) throws Exception;
+	boolean createEdges(DataReaderContext readerCntx, ReaderWay way, LongArrayList osmNodeIds, long wayFlags, List<EdgeIteratorState> createdEdges) throws Exception;
 	
 	void finish();
 	

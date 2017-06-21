@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 
 import heigit.ors.routing.graphhopper.extensions.GraphProcessContext;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
+import heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
 import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import heigit.ors.routing.graphhopper.extensions.ORSGraphStorageFactory;
 import heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
@@ -124,8 +125,16 @@ public class RoutingProfile
 
 		GraphProcessContext gpc = new GraphProcessContext(config);
 
-		ORSGraphHopper gh = (ORSGraphHopper) new ORSGraphHopper(gpc, config.getUseTrafficInformation(), refProfile).init(args);
+		ORSGraphHopper gh = (ORSGraphHopper) new ORSGraphHopper(gpc, config.getUseTrafficInformation(), refProfile);
+
+		ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
+		gh.setFlagEncoderFactory(flagEncoderFactory);
+		gh.setFlagEncoderFactory(flagEncoderFactory);
+
+		gh.init(args);
+		
 		gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
+		gh.setWeightingFactory(new ORSWeightingFactory(RealTrafficDataProvider.getInstance()));
 
 		if (!Helper.isEmpty(config.getElevationProvider()) && !Helper.isEmpty(config.getElevationCachePath()))
 		{
@@ -134,7 +143,6 @@ public class RoutingProfile
 		}
 
 		gh.importOrLoad();
-		gh.setWeightingFactory(new ORSWeightingFactory(RealTrafficDataProvider.getInstance()));
 
 		if (LOGGER.isInfoEnabled())
 		{
@@ -167,7 +175,7 @@ public class RoutingProfile
 	{
 		CmdArgs args = new CmdArgs();
 		args.put("graph.dataaccess", "RAM_STORE");
-		args.put("osmreader.osm", sourceFile);
+		args.put("datareader.file", sourceFile);
 		args.put("graph.location", config.getGraphPath());
 		args.put("graph.bytesForFlags", config.getEncoderFlagsSize());
 
@@ -180,8 +188,8 @@ public class RoutingProfile
 			args.put("graph.elevation.dataaccess", config.getElevationDataAccess());
 		}
 
-		args.put("prepare.chWeighting", (config.getCHWeighting() != null) ? config.getCHWeighting() : "no");
-		args.put("prepare.threads", config.getCHThreads());
+		args.put("prepare.ch.weightings", (config.getCHWeighting() != null) ? config.getCHWeighting() : "no");
+		args.put("prepare.ch.threads", config.getCHThreads());
 
 		String flagEncoders = "";
 		String[] encoderOpts = !Helper.isEmpty(config.getEncoderOptions()) ? config.getEncoderOptions().split(",") : null;
@@ -196,7 +204,7 @@ public class RoutingProfile
 				flagEncoders += ",";
 		}
 
-		args.put("graph.flagEncoders", flagEncoders);
+		args.put("graph.flagEncoders", flagEncoders.toLowerCase());
 
 		args.put("osmreader.wayPointMaxDistance",1);
 		args.put("index.highResolution", 500);
@@ -299,7 +307,7 @@ public class RoutingProfile
 
 					RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
 
-					mGraphHopper = initGraphHopper(ghOld.getOSMFile(), _config, RoutingProfileManager.getInstance().getProfiles(), loadCntx);
+					mGraphHopper = initGraphHopper(ghOld.getDataReaderFile(), _config, RoutingProfileManager.getInstance().getProfiles(), loadCntx);
 
 					loadCntx.release();
 
@@ -585,9 +593,9 @@ public class RoutingProfile
 			if (useDynamicWeights(searchParams) || flexibleMode)
 				req.getHints().put("CH.Disable", true);
 			
-			if (directedSegment)
-				resp = mGraphHopper.directRoute(req);
-			else 
+			/*if (directedSegment)
+				resp = mGraphHopper.directRoute(req); NOTE IMPLEMENTED!!!
+			else */
 				resp = mGraphHopper.route(req, routeProcCntx.getArrayBuffer());
 
 			endUseGH();

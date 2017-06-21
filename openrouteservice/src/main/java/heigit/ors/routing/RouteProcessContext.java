@@ -1,11 +1,11 @@
 package heigit.ors.routing;
 
 import com.graphhopper.routing.util.PathProcessor;
-import com.graphhopper.util.ArrayBuffer;
+import com.graphhopper.util.ByteArrayBuffer;
 
 public class RouteProcessContext {
 	private PathProcessor _pathProcessor;
-	private ArrayBuffer _arrayBuffer;
+	private ByteArrayBuffer _arrayBuffer;
 	
    public RouteProcessContext(PathProcessor pathProcessor)
    {
@@ -17,10 +17,10 @@ public class RouteProcessContext {
 	   return _pathProcessor;
    }
    
-   public ArrayBuffer getArrayBuffer()
+   public ByteArrayBuffer getArrayBuffer()
    {
 	   if (_arrayBuffer == null)
-		   _arrayBuffer = new ArrayBuffer(4);
+		   _arrayBuffer = new ByteArrayBuffer(4);
 	   
 	   return _arrayBuffer;
    }

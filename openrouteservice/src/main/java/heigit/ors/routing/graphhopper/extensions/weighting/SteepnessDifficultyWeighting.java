@@ -3,11 +3,12 @@ package heigit.ors.routing.graphhopper.extensions.weighting;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStorage;
 
-import com.graphhopper.routing.util.FastestWeighting;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.Weighting;
+import com.graphhopper.routing.weighting.FastestWeighting;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.PMap;
 
 /**
  * Special weighting for down/uphills
@@ -182,9 +183,9 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
 		}
 	}
 
-    public SteepnessDifficultyWeighting(Weighting superWeighting, FlagEncoder encoder, GraphStorage graphStorage, int difficultyLevel, double maxSteepness)
+    public SteepnessDifficultyWeighting(Weighting superWeighting, FlagEncoder encoder, PMap map, GraphStorage graphStorage, int difficultyLevel, double maxSteepness)
     {
-        super(-1, encoder);
+        super(encoder, map);
         
         this.superWeighting = superWeighting;
         buffer = new byte[1];

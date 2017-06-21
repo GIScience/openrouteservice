@@ -1,7 +1,7 @@
 
 package heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-import com.graphhopper.reader.OSMWay;
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.BikeCommonFlagEncoder;
 import com.graphhopper.util.PMap;
 
@@ -18,7 +18,7 @@ public class ElectroBikeFlagEncoder extends BikeCommonFlagEncoder
         this(new PMap(propertiesString));
     }
 
-    public ElectroBikeFlagEncoder( PMap properties )
+    public ElectroBikeFlagEncoder(PMap properties )
     {
         this((int) properties.getLong("speedBits", 4) + (properties.getBool("considerElevation", false) ? 1 : 0),
                 properties.getLong("speedFactor", 2),
@@ -111,21 +111,23 @@ public class ElectroBikeFlagEncoder extends BikeCommonFlagEncoder
         preferHighwayTags.add("unclassified");
 
         absoluteBarriers.add("kissing_gate");
-        setSpecificBicycleClass("touring");
+        setSpecificClassBicycle("touring");
+        
+        init();
     }
 
     @Override
     public int getVersion()
     {
-        return 1;
+        return 2;
     }
 
     @Override
-    protected boolean isPushingSection( OSMWay way )
+    protected boolean isPushingSection(ReaderWay way )
     {
         String highway = way.getTag("highway");
         String trackType = way.getTag("tracktype");
-        return way.hasTag("highway", pushingSections)
+        return way.hasTag("highway", pushingSectionsHighways)
                 || way.hasTag("railway", "platform")  || way.hasTag("route", ferries)
                 || "track".equals(highway) && trackType != null 
             	&&  !("grade1".equals(trackType) || "grade2".equals(trackType) || "grade3".equals(trackType)); // Runge

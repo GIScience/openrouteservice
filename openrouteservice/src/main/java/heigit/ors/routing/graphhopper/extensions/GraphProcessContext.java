@@ -3,16 +3,13 @@ package heigit.ors.routing.graphhopper.extensions;
 import java.util.List;
 import java.util.logging.Logger;
 
+import com.carrotsearch.hppc.LongArrayList;
 import com.graphhopper.GraphHopper;
-import com.graphhopper.reader.OSMReader;
-import com.graphhopper.reader.OSMWay;
-import com.graphhopper.storage.GraphExtension;
-import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.EdgeIteratorState;
+
 import com.vividsolutions.jts.geom.Envelope;
 
-import gnu.trove.list.TLongList;
-import gnu.trove.map.TLongIntMap;
 import heigit.ors.plugins.PluginManager;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.graphhopper.extensions.graphbuilders.GraphBuilder;
@@ -71,7 +68,7 @@ public class GraphProcessContext {
 		return _storageBuilders;
 	}
 	
-	public void processWay(OSMWay way) 
+	public void processWay(ReaderWay way) 
 	{
 		try
 		{
@@ -118,7 +115,7 @@ public class GraphProcessContext {
 		}
 	}
 	
-	public void processEdge(OSMWay way, EdgeIteratorState edge)
+	public void processEdge(ReaderWay way, EdgeIteratorState edge)
 	{
 		if (_arrStorageBuilders != null)
 		{
@@ -158,7 +155,7 @@ public class GraphProcessContext {
 		}
 	}
 	
-	public boolean createEdges(OSMReader reader, OSMWay way, TLongList osmNodeIds, long wayFlags, List<EdgeIteratorState> createdEdges) throws Exception
+	public boolean createEdges(DataReaderContext readerCntx, ReaderWay way, LongArrayList osmNodeIds, long wayFlags, List<EdgeIteratorState> createdEdges) throws Exception
     {
 		if (_arrGraphBuilders != null)
 		{
@@ -168,12 +165,12 @@ public class GraphProcessContext {
 				boolean res = false;
 				if (nBuilders == 1)
 				{
-					res = _arrGraphBuilders[0].createEdges(reader, way, osmNodeIds, wayFlags, createdEdges);
+					res = _arrGraphBuilders[0].createEdges(readerCntx, way, osmNodeIds, wayFlags, createdEdges);
 				}
 				else if (nBuilders == 2)
 				{
-					res = _arrGraphBuilders[0].createEdges(reader, way, osmNodeIds, wayFlags, createdEdges);
-					boolean res2 = _arrGraphBuilders[1].createEdges(reader, way, osmNodeIds, wayFlags, createdEdges);
+					res = _arrGraphBuilders[0].createEdges(readerCntx, way, osmNodeIds, wayFlags, createdEdges);
+					boolean res2 = _arrGraphBuilders[1].createEdges(readerCntx, way, osmNodeIds, wayFlags, createdEdges);
 					if (res2)
 						res = res2;
 				}
@@ -181,7 +178,7 @@ public class GraphProcessContext {
 				{		
 					for (int i = 0; i < nBuilders; ++i)
 					{
-						boolean res2 = _arrGraphBuilders[i].createEdges(reader, way, osmNodeIds, wayFlags, createdEdges);
+						boolean res2 = _arrGraphBuilders[i].createEdges(readerCntx, way, osmNodeIds, wayFlags, createdEdges);
 						if (res2)
 							res = res2;
 					}

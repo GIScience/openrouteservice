@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -17,22 +17,20 @@
  */
 package com.graphhopper.ui;
 
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.Serializable;
 
 /**
  * @author Peter Karich
  */
-public interface MapLayer extends Serializable
-{
-    void setBounds( Rectangle r );
-
+public interface MapLayer extends Serializable {
     Rectangle getBounds();
 
-    void setBuffering( boolean enable );
+    void setBounds(Rectangle r);
+
+    void setBuffering(boolean enable);
 
     void repaint();
 
-    void paint( Graphics2D g );
+    void paint(Graphics2D g);
 }

@@ -1,14 +1,14 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
- *
- *  GraphHopper licenses this file to you under the Apache License, 
+ * 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
- *
+ * 
  *       http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,16 +24,22 @@ import com.graphhopper.util.Translation;
  * This class provides methods to define how a value (like speed or direction) converts to a flag
  * (currently an integer value), which is stored in an edge .
  * <p>
+ *
  * @author Peter Karich
  */
-public interface FlagEncoder extends TurnCostEncoder
-{
+public interface FlagEncoder extends TurnCostEncoder {
+    /**
+     * Reports whether this edge is part of a roundabout.
+     */
+    static final int K_ROUNDABOUT = 2;
+
     /**
      * @return the version of this FlagEncoder to enforce none-compatibility when new attributes are
      * introduced
      */
     int getVersion();
-    
+
+    // Runge     
     int getIndex();
 
     /**
@@ -44,119 +50,92 @@ public interface FlagEncoder extends TurnCostEncoder
     /**
      * @return the speed in km/h for this direction, for backward direction use getReverseSpeed
      */
-    double getSpeed( long flags );
+    double getSpeed(long flags);
 
     /**
      * Sets the speed in km/h.
      * <p>
+     *
      * @return modified setProperties
      */
-    long setSpeed( long flags, double speed );
+    long setSpeed(long flags, double speed);
 
     /**
      * @return the speed of the reverse direction in km/h
      */
-    double getReverseSpeed( long flags );
+    double getReverseSpeed(long flags);
 
     /**
      * Sets the reverse speed in the flags.
      */
-    long setReverseSpeed( long flags, double speed );
+    long setReverseSpeed(long flags, double speed);
 
     /**
      * Sets the access of the edge.
      * <p>
+     *
      * @return modified flags
      */
-    long setAccess( long flags, boolean forward, boolean backward );
+    long setAccess(long flags, boolean forward, boolean backward);
 
     /**
      * Sets speed and access properties.
      * <p>
+     *
      * @return created flags
      */
-    long setProperties( double speed, boolean forward, boolean backward );
+    long setProperties(double speed, boolean forward, boolean backward);
 
     /**
-     * Reports wether the edge is available in forward direction for a certain vehicle
+     * Reports whether the edge is available in forward direction (i.e. from base node to adj node)
+     * for a certain vehicle.
      */
-    boolean isForward( long flags );
+    boolean isForward(long flags);
 
-    /**
-     * Reports wether the edge is available in backward direction for a certain vehicle
-     */
-    boolean isBackward( long flags );
-
-    /**
-     * Reports wether the edge is available in forward direction for a certain vehicle
-     */
-    static final int K_FORWARD = 0;
-    /**
-     * Reports wether the edge is available in backward direction for a certain vehicle
-     */
-    static final int K_BACKWARD = 1;
-    /**
     /*
      * Simple rules for every subclass which introduces a new key. It has to use the prefix K_ and
      * uses a minimum value which is two magnitudes higher than in the super class. 
      * Currently this means starting from 100, and subclasses of this class start from 10000 and so on.
      */
-    /**
-     * Reports wether this edge is part of a roundabout.
-     */
-    static final int K_ROUNDABOUT = 2;
 
-    // Stefan
     /**
-     * Reports whether this node is a highway crossing.
+     * Reports whether the edge is available in backward direction (i.e. from adj node to base node)
+     * for a certain vehicle.
      */
-    static final int K_CROSSING = 3;
-    /**
-     * Reports whether this node is a kerb.
-     */
-    static final int K_KERB = 4;
-    /**
-     * Reports whether this node is a highway crossing.
-     */
-    static final int K_BARRIER = 5;
-    /**
-     * Reports whether a way has a sidewalk.
-     */
-    static final int K_SIDEWALK = 6;
+    boolean isBackward(long flags);
 
-    
     /**
      * Returns arbitrary boolean value identified by the specified key.
      */
-    boolean isBool( long flags, int key );
+    boolean isBool(long flags, int key);
 
-    long setBool( long flags, int key, boolean value );
+    long setBool(long flags, int key, boolean value);
 
     /**
      * Returns arbitrary long value identified by the specified key. E.g. can be used to return the
      * way or surface type of an edge
      */
-    long getLong( long flags, int key );
+    long getLong(long flags, int key);
 
-    long setLong( long flags, int key, long value );
+    long setLong(long flags, int key, long value);
 
     /**
      * Returns arbitrary double value identified by the specified key. E.g. can be used to return
      * the maximum width or height allowed for an edge.
      */
-    double getDouble( long flags, int key );
+    double getDouble(long flags, int key);
 
-    long setDouble( long flags, int key, double value );
+    long setDouble(long flags, int key, double value);
 
     /**
      * Returns true if the feature class is supported like TurnWeighting or PriorityWeighting.
      */
-    public boolean supports( Class<?> feature );
+    boolean supports(Class<?> feature);
 
     /**
      * @return additional cost or warning information for an instruction like ferry or road charges.
      */
-    InstructionAnnotation getAnnotation( long flags, Translation tr );
+    InstructionAnnotation getAnnotation(long flags, Translation tr);
 
     /**
      * @return true if already registered in an EncodingManager

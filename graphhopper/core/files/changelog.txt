@@ -1,3 +1,52 @@
+0.9
+    remove war bundling support #297
+    rename of DefaultModule to GraphHopperModule and GHServletModule to GraphHopperServletModule
+    EncodedValue uses Math.round(value/factor). This can change the retrieved values for EncodedValues #954
+    EncodedDoubleValue and EncodedValue requires maxValue/factor to be a natural number #954
+    default base algorithm for all modes is bidirectional A* (except speed mode)
+    introduced landmarks based hybrid mode, #780
+    moving all prepare.xy configs to prepare.ch.xy and e.g. disallow the old
+    removed deprecated methods in GraphHopper (setCHWeighting, setCHWeightings, getCHWeightings, setCHWeightings, getCHPrepareThreads, setCHPrepareThreads), Path.calcMillis, findID of LocationIndex and all implementations
+
+0.8
+    refactoring to Weighting class, see #807
+    removed FlagEncoder from parameters as weighting.getFlagEncoder can and is used
+    all properties with prefix "osmreader." changed to "datareader." and osmreader.osm changed to datareader.file
+    maven/gradle dependency graphhopper is now splitted into graphhopper-core and graphhopper-reader-osm, i.e. if you previouls depend on 'graphhopper' artificat you should now use graphhopper-reader-osm except environments like Android where you just load the graph and do no import
+    use GraphHopperOSM as base class instead of GraphHopper
+    OSM reader separated from core, use new graphhopper-core package
+    moved subnetwork code into own package com.graphhopper.routing.subnetwork
+    moved weighting code into own package com.graphhopper.routing.weighting
+    code format has changed, so it is important to change your PRs too before you merge master, see discussion #770
+
+0.7        
+    added snapped points to output JSON for every path
+    the foot routing is now much smoother and only considers safe paths, to use beautiful roads (i.e. prefer hiking routes etc) use the new 'hike' profiles, see #633
+    vehicle constants have moved to FlagEncoderFactory
+    several constants changed to under score notation see #719 with a few breaking changes, e.g. use lower case names for flag encoders or jsonp_allowed instead of the jsonpAllowed annotation
+    moving all string parameter constants into the Parameters class
+    no more acceptedRailways set see #662 for more information
+    web API: content type of gpx export is now application/gpx+xml if not explicitely specified
+    use prepare.ch.weightings instead of prepare.chWeighting e.g. for disabling CH use prepare.ch.weightings=no
+    GraphHopper class is refactored regarding RoutingAlgorithmFactory in order to fix problem when integrating flexibility routing, most of the CH related stuff is moved into CHAlgoFactoryDecorator, several methods are deprecated to use the methods of the decorator, see #631
+    WeightingMap is now named HintsMap
+    use the correct graphHopperFolder as no automatic fallback to 'folder-gh' is happening anymore, see #704
+    refactored FlagEncoder.handleFerryWay to getFerrySpeed to make it possible to fix #665
+    removed setWeightLimit as too unspecific for arbitrary weights, use setMaxVisitedNodes instead
+    missing renames for Path.setEdgeEntry -> setSPTEntry and AbstractAlgorithm.createEdgeEntry -> createSPTEntry
+
+0.6
+    removed methods deprecated in 0.4 and 0.5
+    renamed EdgeEntry to SPTEntry and AStar.AStarEdge to AStar.AStarEntry
+    parameter force removed from AbstractFlagEncoder.applyMaxSpeed
+    GHResponse now wraps multiple PathWrapper; renamed GraphHopper.getPaths to calcPaths as 'get' sounded too cheap; a new method RoutingAlgorithm.calcPaths is added; see #596
+    moving lgpl licensed file into own submodule graphhopper-tools-lgpl
+    renaming of Tarjans algorithm class to TarjansSCCAlgorithm
+    more strict naming for Weighting enforced and more strict matching to select Weighting (equals check), #490
+    specify the preferred-language for way names during graph import (ISO 639-1 or ISO 639-2)
+    renaming of getCHWeighting to getCHWeightings due to supporting multiple CH weightings, #623
+    deprecation of setCHWeighting, please use setCHWeightings instead, #623
+
 0.5
     Several names have changed see #466, #467, #468
     GraphHopper.optimize removed use postProcessing instead

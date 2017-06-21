@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -19,22 +19,19 @@ package com.graphhopper.util;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Peter Karich
  */
-public class BitUtilLittleTest extends AbstractBitUtilTester
-{
+public class BitUtilLittleTest extends AbstractBitUtilTester {
     @Override
-    BitUtil getBitUtil()
-    {
+    BitUtil getBitUtil() {
         return BitUtil.LITTLE;
     }
 
     @Test
-    public void testToBitString()
-    {
+    public void testToBitString() {
         assertEquals("0010101010101010101010101010101010101010101010101010101010101010", bitUtil.toBitString(Long.MAX_VALUE / 3));
         assertEquals("0111111111111111111111111111111111111111111111111111111111111111", bitUtil.toBitString(Long.MAX_VALUE));
 
@@ -45,8 +42,7 @@ public class BitUtilLittleTest extends AbstractBitUtilTester
     }
 
     @Test
-    public void testFromBitString()
-    {
+    public void testFromBitString() {
         String str = "001110110";
         assertEquals(str + "0000000", bitUtil.toBitString(bitUtil.fromBitString(str)));
 

@@ -24,7 +24,6 @@ import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
-import heigit.ors.routing.graphhopper.extensions.flagencoders.*;
 import heigit.ors.routing.parameters.VehicleParameters;
 import heigit.ors.routing.pathprocessors.ElevationSmoothPathProcessor;
 import heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
@@ -35,6 +34,7 @@ import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.isochrones.IsochroneSearchParameters;
+import heigit.ors.matrix.MatrixErrorCodes;
 import heigit.ors.matrix.MatrixLocationData;
 import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
@@ -42,6 +42,7 @@ import heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.ServerLimitExceededException;
+import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.routing.RoutingProfilesCollection;
 import heigit.ors.routing.RouteSearchParameters;
@@ -52,16 +53,15 @@ import heigit.ors.util.TimeUtility;
 
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
+import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.BikeCommonFlagEncoder;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.storage.RAMDataAccess;
 import com.graphhopper.storage.index.LocationIndex;
-import com.graphhopper.storage.index.QueryResult;
-import com.graphhopper.util.ArrayBuffer;
+import com.graphhopper.util.ByteArrayBuffer;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalc3D;
 import com.graphhopper.util.Helper;
@@ -87,28 +87,12 @@ public class RoutingProfileManager {
 	public RoutingProfileManager() {
 	}
 
-	private void registerFlagEncoders()
-	{
-		// Register all custom EdgeFlagaEncoders here.
-		EncodingManager.registerDefaultEdgeFlagEncoder("wheelchair", new WheelchairFlagEncoder());
-		EncodingManager.registerDefaultEdgeFlagEncoder("safetybike", new SafetyBikeFlagEncoder());
-		EncodingManager.registerDefaultEdgeFlagEncoder("electrobike", new ElectroBikeFlagEncoder());
-		EncodingManager.registerDefaultEdgeFlagEncoder("cycletourbike", new CycleTourBikeFlagEncoder());
-		EncodingManager.registerDefaultEdgeFlagEncoder("offroadvehicle", new OffRoadVehicleFlagEncoder());
-		EncodingManager.registerDefaultEdgeFlagEncoder("cartmc", new CarTmcFlagEncoder());
-		EncodingManager.registerDefaultEdgeFlagEncoder("heavyvehicle", new HeavyVehicleFlagEncoder());
-		EncodingManager.registerDefaultEdgeFlagEncoder("hiking", new HikingFlagEncoder());
-		// EncodingManager.registerDefaultEdgeFlagEncoder("ELECTRO_VEHICLE",
-	}
-
 	public void prepareGraphs(String graphProps)
 	{
 		long startTime = System.currentTimeMillis();
 
 		try
 		{
-			registerFlagEncoders();
-
 			RoutingManagerConfiguration rmc = RoutingManagerConfiguration.loadFromFile(graphProps);
 			RoutingProfilesCollection coll = new RoutingProfilesCollection();
 			RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
@@ -153,18 +137,17 @@ public class RoutingProfileManager {
 			{
 				RoutingManagerConfiguration rmc = RoutingManagerConfiguration.loadFromFile(graphProps);
 
-				LOGGER.info(String.format("====> Initializing profiles (%d threads) ...", RoutingServiceSettings.getInitializationThreads()));
+				LOGGER.info(String.format("====> Initializing profiles from '%s' (%d threads) ...", RoutingServiceSettings.getSourceFile(), RoutingServiceSettings.getInitializationThreads()));
 				LOGGER.info("                              ");
 
 				DistanceCalc3D.ASIN_APPROXIMATION = RoutingServiceSettings.getDistanceApproximation();
 				RAMDataAccess.LZ4_COMPRESSION_ENABLED = "LZ4".equalsIgnoreCase(RoutingServiceSettings.getStorageFormat());	
 				BikeCommonFlagEncoder.SKIP_WAY_TYPE_INFO = true;
+				PrepareContractionHierarchies.ALLOW_DISCONNECT_EDGES = false;
 
 				if ("PrepareGraphs".equalsIgnoreCase(RoutingServiceSettings.getWorkingMode())) {
 					prepareGraphs(graphProps);
 				} else {
-					registerFlagEncoders();
-
 					_routeProfiles = new RoutingProfilesCollection();
 					int nRouteInstances = rmc.Profiles.length;
 
@@ -231,6 +214,7 @@ public class RoutingProfileManager {
 				}
 
 				RoutingProfileManagerStatus.setReady(true);
+				PrepareContractionHierarchies.IGNORE_DOWNWARD_SHORTCUTS = true;
 			}
 		} catch (Exception ex) {
 			LOGGER.error("Failed to initialize RoutingProfileManager instance.", ex);
@@ -469,21 +453,33 @@ public class RoutingProfileManager {
 		 RoutingProfile rp = _routeProfiles.getRouteProfile(req.getProfileType(), true);
 		 
 		 if (rp == null)
-			 throw new Exception("Unable to find an appropriate routing profile.");
+			 throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
 		 
-		 GraphHopper gh = rp.getGraphhopper();
- 		 String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
-		 FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
-		 EdgeFilter filter = new DefaultEdgeFilter(flagEncoder);
-		 LocationIndex locIndex = gh.getLocationIndex();
-		 ArrayBuffer buffer = new ArrayBuffer();
+		 MatrixResult mtxResult = null;
+		 try
+		 {
+			 GraphHopper gh = rp.getGraphhopper();
+			 String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
+			 FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
+			 EdgeFilter filter = new DefaultEdgeFilter(flagEncoder);
+			 LocationIndex locIndex = gh.getLocationIndex();
+			 ByteArrayBuffer buffer = new ByteArrayBuffer();
 
-		 MatrixAlgorithm alg = new RPHASTMatrixAlgorithm();
+			 MatrixAlgorithm alg = null;
+			 //if (gh.getCHFactoryDecorator()..getPreparations().get(0).)
+			 // TODO implement MatrixAlgorithmFactory
+			 alg = new RPHASTMatrixAlgorithm();
+			 alg.init(gh, flagEncoder);
 
-		 MatrixLocationData srcData = MatrixLocationData.createData(locIndex, req.getSources(), filter, buffer, req.getResolveLocations());
-		 MatrixLocationData dstData = MatrixLocationData.createData(locIndex, req.getDestinations(), filter, buffer, req.getResolveLocations());
+			 MatrixLocationData srcData = MatrixLocationData.createData(locIndex, req.getSources(), filter, buffer, req.getResolveLocations());
+			 MatrixLocationData dstData = MatrixLocationData.createData(locIndex, req.getDestinations(), filter, buffer, req.getResolveLocations());
 
-		 MatrixResult mtxResult = alg.compute(gh, srcData, dstData, req.getMetrics());
+			 mtxResult = alg.compute(srcData, dstData, req.getMetrics());
+		 }
+		 catch(Exception ex)
+		 {
+			 throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute distance/duration matrix.");
+		 }
 		 
 		 return mtxResult;
 	}

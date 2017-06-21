@@ -11,14 +11,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.graphhopper.reader.OSMRelation;
-import com.graphhopper.reader.OSMWay;
+import com.graphhopper.reader.ReaderRelation;
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodedDoubleValue;
 import com.graphhopper.routing.util.EncodedValue;
 import com.graphhopper.routing.util.PriorityCode;
-import com.graphhopper.routing.util.PriorityWeighting;
+import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.util.Helper;
+import com.graphhopper.util.PMap;
 
 import java.util.*;
 
@@ -127,11 +128,11 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
         this(5, 5, 0);
     }
 
-    public HeavyVehicleFlagEncoder( String propertiesStr )
+    public HeavyVehicleFlagEncoder(PMap properties)
     {
-        this((int) parseLong(propertiesStr, "speedBits", 5),
-                parseDouble(propertiesStr, "speedFactor", 5),
-                parseBoolean(propertiesStr, "turnCosts", false) ? 3 : 0);
+        this(properties.getInt("speedBits", 5),
+        		properties.getDouble("speedFactor", 5),
+        		properties.getBool("turnCosts", false) ? 3 : 0);
         
         setBlockFords(false);
     }
@@ -265,7 +266,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 	}
 	
 	@Override
-	protected double getMaxSpeed( OSMWay way ) // runge
+	protected double getMaxSpeed( ReaderWay way ) // runge
 	{
 		boolean bCheckMaxSpeed = false;
 		String maxspeedTag = way.getTag("maxspeed:hgv");
@@ -295,7 +296,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 		return maxSpeed;
 	}
 	
-    protected double getSpeed(OSMWay way )
+    protected double getSpeed(ReaderWay way )
     {
         String highwayValue = way.getTag("highway");
         Integer speed = defaultSpeedMap.get(highwayValue);
@@ -340,7 +341,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
     }
 
     @Override
-    public long acceptWay(OSMWay way)
+    public long acceptWay(ReaderWay way)
     {
         String highwayValue = way.getTag("highway");
         
@@ -403,7 +404,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
     }
 
     @Override
-    public long handleRelationTags( OSMRelation relation, long oldRelationFlags )
+    public long handleRelationTags( ReaderRelation relation, long oldRelationFlags )
     {
         return oldRelationFlags;
     }
@@ -429,7 +430,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 	}
 
     @Override
-    public long handleWayTags( OSMWay way, long allowed, long relationFlags )
+    public long handleWayTags( ReaderWay way, long allowed, long relationFlags )
     {
         if (!isAccept(allowed))
             return 0;
@@ -444,12 +445,13 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
             
             // runge
             // every road type except motorways and trunks might have traffic lights, so we make an actual speed a bit lower 
-            String highway = way.getTag("highway");
+            /*String highway = way.getTag("highway");
             if ("motorway".equals(highway) || "motorway_link".equals(highway) || "trunk".equals(highway) || "trunk_link".equals(highway))
 				speed = applyMaxSpeed(way, speed, false);
             else
             	speed = applyMaxSpeed(way, speed, true);
-
+            */
+            speed = applyMaxSpeed(way, speed);
             // limit speed to max 30 km/h if bad surface
             if (speed > 30 && way.hasTag("surface", badSurfaceSpeedMap))
                 speed = 30;
@@ -466,7 +468,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
         return encoded;
     }
     
-    protected int handlePriority(OSMWay way) {
+    protected int handlePriority(ReaderWay way) {
 		TreeMap<Double, Integer> weightToPrioMap = new TreeMap<Double, Integer>();
 		
 		collect(way, weightToPrioMap);
@@ -481,7 +483,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 	 *            subclasses to 'insert' more important priorities as well as
 	 *            overwrite determined priorities.
 	 */
-	protected void collect(OSMWay way, TreeMap<Double, Integer> weightToPrioMap) { // Runge
+	protected void collect(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) { // Runge
 		if (way.hasTag("hgv", "designated") || (way.hasTag("access", "designated") && (way.hasTag("goods", "yes") || way.hasTag("hgv", "yes") || way.hasTag("bus", "yes") || way.hasTag("agricultural", "yes") || way.hasTag("forestry", "yes") )))
 			weightToPrioMap.put(100d, PriorityCode.BEST.getValue());
 		else
@@ -527,7 +529,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 		}
 	}
     
-    private long handleSpeed(OSMWay way, double speed, long encoded) 
+    private long handleSpeed(ReaderWay way, double speed, long encoded) 
     {
     	encoded = setSpeed(encoded, speed);
 
@@ -614,7 +616,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
     		vehicleDirectionEncoder.setVehicleType(vt);
 	}
 
-    public String getWayInfo( OSMWay way )
+    public String getWayInfo( ReaderWay way )
     {
         String str = "";
         String highwayValue = way.getTag("highway");

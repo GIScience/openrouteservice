@@ -10,26 +10,21 @@ import static com.graphhopper.routing.util.PriorityCode.BEST;
 
 import java.util.TreeMap;
 
-import com.graphhopper.reader.OSMWay;
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.BikeCommonFlagEncoder;
 import com.graphhopper.util.Helper;
+import com.graphhopper.util.PMap;
 
-/**
- * Specifies the settings for cycletouring/trekking
- * <p/>
- * 
- * @author ratrun
- * @author Peter Karich
- */
 public class CycleTourBikeFlagEncoder extends BikeCommonFlagEncoder {
 	public CycleTourBikeFlagEncoder() {
-		super(4, 2, 0,false);
+		super(4, 2, 0, false);
 	}
 
-	public CycleTourBikeFlagEncoder(String propertiesStr) {
-		super((int) parseLong(propertiesStr, "speedBits", 4) + (parseBoolean(propertiesStr,"considerElevation", false) ? 1 : 0),
-				parseDouble(propertiesStr, "speedFactor", 2),
-				parseBoolean(propertiesStr, "turnCosts", false) ? 3 : 0, parseBoolean(propertiesStr,"considerElevation", false));
+	public CycleTourBikeFlagEncoder(PMap configuration) {
+		super(configuration.getInt("speedBits", 4),
+			    configuration.getDouble("speedFactor", 2),
+				configuration.getBool("turnCosts", false) ? 3 : 0, 
+				configuration.getBool("considerElevation", false));
 
 		//setBlockFords(parseBoolean(propertiesStr, "blockFords", true));
 		setBlockFords(false);
@@ -65,19 +60,21 @@ public class CycleTourBikeFlagEncoder extends BikeCommonFlagEncoder {
 
 		setAvoidSpeedLimit(61);
 
-		setSpecificBicycleClass("touring");
+		setSpecificClassBicycle("touring");
+		
+		init();
 	}
 
 	@Override
-	protected boolean isPushingSection(OSMWay way) {
+	protected boolean isPushingSection(ReaderWay way) {
 		String highway = way.getTag("highway");
 		String trackType = way.getTag("tracktype");
-		return way.hasTag("highway", pushingSections) || way.hasTag("railway", "platform")  || way.hasTag("route", ferries) 
+		return way.hasTag("highway", pushingSectionsHighways) || way.hasTag("railway", "platform")  || way.hasTag("route", ferries) 
 				|| "track".equals(highway) && trackType != null
 				&&  !("grade1".equals(trackType) || "grade2".equals(trackType) || "grade3".equals(trackType));
 	}
 
-	protected void collect(OSMWay way, TreeMap<Double, Integer> weightToPrioMap) { // Runge
+	protected void collect(ReaderWay way, double wayTypeSpeed, TreeMap<Double, Integer> weightToPrioMap) { // Runge
 		String service = way.getTag("service");
 		String highway = way.getTag("highway");
 		if (way.hasTag("bicycle", "designated"))
@@ -127,7 +124,7 @@ public class CycleTourBikeFlagEncoder extends BikeCommonFlagEncoder {
 			}
 		}
 
-		if (pushingSections.contains(highway) || way.hasTag("bicycle", "use_sidepath")
+		if (pushingSectionsHighways.contains(highway) || way.hasTag("bicycle", "use_sidepath")
 				|| "parking_aisle".equals(service)) {
 			weightToPrioMap.put(50d, AVOID_IF_POSSIBLE.getValue());
 		}
@@ -139,19 +136,24 @@ public class CycleTourBikeFlagEncoder extends BikeCommonFlagEncoder {
 		if (way.hasTag("railway", "tram"))
 			weightToPrioMap.put(50d, AVOID_AT_ALL_COSTS.getValue());
 
-		String classBicycleSpecific = way.getTag(specificBicycleClass);
+		String classBicycleSpecific = way.getTag(classBicycleKey);
 		if (classBicycleSpecific != null) {
 			// We assume that humans are better in classifying preferences
 			// compared to our algorithm above -> weight = 100
-			weightToPrioMap.put(100d, convertCallValueToPriority(classBicycleSpecific).getValue());
+			weightToPrioMap.put(100d, convertClassValueToPriority(classBicycleSpecific).getValue());
 		} else {
 			String classBicycle = way.getTag("class:bicycle");
 			if (classBicycle != null) {
-				weightToPrioMap.put(100d, convertCallValueToPriority(classBicycle).getValue());
+				weightToPrioMap.put(100d, convertClassValueToPriority(classBicycle).getValue());
 			}
 		}
 	}
 	
+	@Override
+    public int getVersion() {
+        return 2;
+    }
+
     @Override
 	protected double getDownhillMaxSpeed()
 	{

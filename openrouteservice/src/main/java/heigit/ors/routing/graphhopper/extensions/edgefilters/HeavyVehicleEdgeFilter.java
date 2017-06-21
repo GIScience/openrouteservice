@@ -10,14 +10,11 @@
  *|								
  *|----------------------------------------------------------------------------------------------*/
 
-// Authors: M. Rylov 
-
 package heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import gnu.trove.map.TIntObjectMap;
 import heigit.ors.routing.parameters.VehicleParameters;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
@@ -26,14 +23,16 @@ import heigit.ors.routing.graphhopper.extensions.flagencoders.HeavyVehicleFlagEn
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 
+import com.carrotsearch.hppc.IntObjectMap;
+import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.routing.Dijkstra;
 import com.graphhopper.routing.util.DestinationDependentEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.FastestWeighting;
+import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
-import com.graphhopper.routing.util.Weighting;
-import com.graphhopper.storage.EdgeEntry;
+import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
@@ -44,11 +43,11 @@ public abstract class HeavyVehicleEdgeFilter implements DestinationDependentEdge
 	{
 		public CustomDijkstra(Graph g, FlagEncoder encoder, Weighting weighting, TraversalMode tMode)
 		{
-			super(g, encoder, weighting, tMode);
+			super(g, weighting, tMode);
 			initCollections(1000);
 		}
 
-		public TIntObjectMap<EdgeEntry> getMap()
+		public IntObjectMap<SPTEntry> getMap()
 		{
 			return fromMap;
 		} 
@@ -134,15 +133,14 @@ public abstract class HeavyVehicleEdgeFilter implements DestinationDependentEdge
 				CustomDijkstra dijkstraAlg = new CustomDijkstra(graph, encoder, weighting, tMode);
 				EdgeFilter edgeFilter = this;
 				dijkstraAlg.setEdgeFilter(edgeFilter);
-				dijkstraAlg.calcPath(nodeId, Integer.MIN_VALUE, -1);
+				dijkstraAlg.calcPath(nodeId, Integer.MIN_VALUE);
 
-				TIntObjectMap<EdgeEntry> destination = dijkstraAlg.getMap();
+				IntObjectMap<SPTEntry> destination = dijkstraAlg.getMap();
 
 				destinationEdges = new ArrayList<Integer>(destination.size());
-				for (int key : destination.keys()) {
-					EdgeEntry ee = destination.get(key);
-					if (!destinationEdges.contains(ee.originalEdge))
-						destinationEdges.add(ee.originalEdge);
+				for (IntObjectCursor<SPTEntry> ee : destination) {
+					if (!destinationEdges.contains(ee.value.edge)) // was originalEdge
+						destinationEdges.add(ee.value.edge);
 				}
 
 				if (!destinationEdges.contains(edge.getOriginalEdge()))

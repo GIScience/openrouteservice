@@ -10,19 +10,16 @@
  *|								
  *|----------------------------------------------------------------------------------------------*/
 
-// Authors: M. Rylov
-
 package heigit.ors.routing.graphhopper.extensions;
 
-import gnu.trove.map.TIntObjectMap;
-
-import com.graphhopper.storage.EdgeEntry;
+import com.carrotsearch.hppc.IntObjectMap;
+import com.graphhopper.storage.SPTEntry;
 
 public class AccessibilityMap {
-	private TIntObjectMap<EdgeEntry> map;
-	private EdgeEntry edgeEntry;
+	private IntObjectMap<SPTEntry> map;
+	private SPTEntry edgeEntry;
 	
-	public AccessibilityMap(TIntObjectMap<EdgeEntry> map, EdgeEntry edgeEntry)
+	public AccessibilityMap(IntObjectMap<SPTEntry> map, SPTEntry edgeEntry)
 	{
 		this.map = map;
 		this.edgeEntry = edgeEntry;
@@ -33,12 +30,12 @@ public class AccessibilityMap {
 		return map.size() == 0;
 	}
 	
-	public TIntObjectMap<EdgeEntry> getMap()
+	public IntObjectMap<SPTEntry> getMap()
 	{
 		return map;
 	}
 	
-	public EdgeEntry getEdgeEntry()
+	public SPTEntry getEdgeEntry()
 	{
 		return edgeEntry;
 	}

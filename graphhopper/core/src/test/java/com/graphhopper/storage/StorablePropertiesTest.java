@@ -1,14 +1,14 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
- *
- *  GraphHopper licenses this file to you under the Apache License, 
+ * 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
- *
+ * 
  *       http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,26 +18,22 @@
 package com.graphhopper.storage;
 
 import com.graphhopper.util.Helper;
+import org.junit.Test;
 
 import java.io.File;
-
-import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 /**
  * @author Peter Karich
  */
-public class StorablePropertiesTest
-{
-    Directory createDir( String location, boolean store )
-    {
-        return new RAMDirectory(location, store);
+public class StorablePropertiesTest {
+    Directory createDir(String location, boolean store) {
+        return new RAMDirectory(location, store).create();
     }
 
     @Test
-    public void testLoad()
-    {
+    public void testLoad() {
         StorableProperties instance = new StorableProperties(createDir("", false));
         // an in-memory storage does not load anything
         assertFalse(instance.loadExisting());
@@ -48,8 +44,7 @@ public class StorablePropertiesTest
     }
 
     @Test
-    public void testVersionCheck()
-    {
+    public void testVersionCheck() {
         StorableProperties instance = new StorableProperties(createDir("", false));
         instance.putCurrentVersions();
         assertTrue(instance.checkVersions(true));
@@ -57,19 +52,16 @@ public class StorablePropertiesTest
         instance.put("nodes.version", 0);
         assertFalse(instance.checkVersions(true));
 
-        try
-        {
+        try {
             instance.checkVersions(false);
             assertTrue(false);
-        } catch (Exception ex)
-        {
+        } catch (Exception ex) {
         }
         instance.close();
     }
 
     @Test
-    public void testStore()
-    {
+    public void testStore() {
         String dir = "./target/test";
         Helper.removeDir(new File(dir));
         StorableProperties instance = new StorableProperties(createDir(dir, true));

@@ -1,14 +1,14 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
- *  license agreements. See the NOTICE file distributed with this work for
+ *  Licensed to GraphHopper GmbH under one or more contributor
+ *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
- *
- *  GraphHopper licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except in
+ * 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
+ *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
- *
+ * 
  *       http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,15 +17,13 @@
  */
 package com.graphhopper.tools;
 
-import com.graphhopper.util.CmdArgs;
-import com.graphhopper.util.DistanceCalc;
-import com.graphhopper.util.DistanceCalcEarth;
-import com.graphhopper.util.Downloader;
-import com.graphhopper.util.Helper;
-import com.graphhopper.util.StopWatch;
+import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.GHPoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.Map.Entry;
@@ -33,21 +31,13 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- * Reads log files and queries the live service
+ * Reads log files and queries any GraphHopper service
  * <p>
+ *
  * @author Peter Karich
  */
-public class QueryTorture
-{
-    public static void main( String[] args )
-    {
-        new QueryTorture().start(CmdArgs.read(args));
-    }
-
+public class QueryTorture {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private ExecutorService service;
     private BlockingQueue<Query> queryQueue;
@@ -58,33 +48,41 @@ public class QueryTorture
     private AtomicInteger routingErrorCounter;
     private CountDownLatch workerStartedBarrier;
     private CountDownLatch logfileEOFBarrier;
-    private int skippedTooShort;
-    private int readQueries;
-    private int maxQueries;
+    private long skippedTooShort;
+    private long readQueries;
+    private long maxQueries;
     private int timeout;
-    private int statusUpdateCnt;
+    private long statusUpdateCnt;
+    private double tooShortDistance;
+    private boolean logRequest = false;
 
-    public QueryTorture()
-    {
+    public QueryTorture() {
     }
 
-    public void start( CmdArgs read )
-    {
-        String logfile = read.get("logfile", "");
-        int workers = read.getInt("workers", 1);
-        baseUrl = read.get("baseurl", "");
-        maxQueries = read.getInt("maxqueries", 1000);
-        timeout = read.getInt("timeout", 3000);
+    public static void main(String[] args) {
+        new QueryTorture().start(CmdArgs.read(args));
+    }
+
+    public void start(CmdArgs cmdArgs) {
+        String logfile = cmdArgs.get("logfile", "");
+        int workers = cmdArgs.getInt("workers", 1);
+        baseUrl = cmdArgs.get("baseurl", "");
+        tooShortDistance = cmdArgs.getDouble("too_short_distance", 50d);
+        maxQueries = cmdArgs.getLong("maxqueries", 1000L);
+        timeout = cmdArgs.getInt("timeout", 3000);
+        logRequest = cmdArgs.getBool("log_request", false);
         statusUpdateCnt = maxQueries / 10;
         if (Helper.isEmpty(baseUrl))
             throw new IllegalArgumentException("baseUrl cannot be empty!?");
 
-        if (!baseUrl.endsWith("/"))
-            baseUrl += "/";
-        if (!baseUrl.endsWith("route/"))
-            baseUrl += "route/";
-        if (!baseUrl.endsWith("?"))
-            baseUrl += "?";
+        if (!baseUrl.contains("?")) {
+            if (!baseUrl.endsWith("/"))
+                baseUrl += "/";
+            if (!baseUrl.endsWith("route/"))
+                baseUrl += "route/";
+            if (!baseUrl.endsWith("?"))
+                baseUrl += "?";
+        }
 
         // there should be enough feed available for the workers in the queue
         queryQueue = new LinkedBlockingQueue<Query>(workers * 100);
@@ -99,11 +97,9 @@ public class QueryTorture
 
         // start reading the logs and interrupt mainThread if no further entry available
         startReadingLogs(logfile);
-        try
-        {
+        try {
             mainThread.join();
-        } catch (Exception ex)
-        {
+        } catch (Exception ex) {
             logger.info("End waiting", ex);
         }
 
@@ -120,34 +116,25 @@ public class QueryTorture
         logger.info("mean query time in sec:" + sw.getSeconds() / successfullQueries.get());
     }
 
-    Thread startWorkers( final int workers )
-    {
-        Thread mainThread = new Thread("mainThread")
-        {
+    Thread startWorkers(final int workers) {
+        Thread mainThread = new Thread("mainThread") {
             @Override
-            public void run()
-            {
+            public void run() {
                 Collection<Callable<Object>> workerCollection = new ArrayList<Callable<Object>>(workers);
-                for (int i = 0; i < workers; i++)
-                {
+                for (int i = 0; i < workers; i++) {
                     final int workerNo = i;
-                    workerCollection.add(new Callable<Object>()
-                    {
+                    workerCollection.add(new Callable<Object>() {
                         @Override
-                        public Object call() throws Exception
-                        {
+                        public Object call() throws Exception {
                             workerStartedBarrier.countDown();
-                            try
-                            {
-                                while (!isInterrupted())
-                                {
+                            try {
+                                while (!isInterrupted()) {
                                     if (logfileEOFBarrier.getCount() == 0 && queryQueue.isEmpty())
                                         break;
 
                                     execute(workerNo);
                                 }
-                            } catch (Throwable ex)
-                            {
+                            } catch (Throwable ex) {
                                 logger.error(getName() + " - worker " + workerNo + " died", ex);
                             }
                             return null;
@@ -155,16 +142,13 @@ public class QueryTorture
                     });
                 }
                 service = Executors.newFixedThreadPool(workers);
-                try
-                {
+                try {
                     logger.info(getName() + " started with " + workers + " workers");
                     service.invokeAll(workerCollection);
-                    logger.info(getName() + " FINISHED");
-                } catch (RejectedExecutionException ex)
-                {
+                    logger.info(getName() + " FINISHED. Queue: " + queryQueue.size() + ", successfullQueries:" + successfullQueries.get());
+                } catch (RejectedExecutionException ex) {
                     logger.info(getName() + " cannot create threads", ex);
-                } catch (InterruptedException ex)
-                {
+                } catch (InterruptedException ex) {
                     // logger.info(getName() + " was interrupted", ex);
                 }
             }
@@ -173,39 +157,36 @@ public class QueryTorture
         return mainThread;
     }
 
-    void execute( int workerNo ) throws InterruptedException
-    {
+    void execute(int workerNo) throws InterruptedException {
         Query query = queryQueue.take();
-        try
-        {
+        try {
             String url = baseUrl + query.createQueryString();
+            if (logRequest)
+                logger.info(url);
             String res = new Downloader("QueryTorture!").setTimeout(timeout).downloadAsString(url, false);
             if (res.contains("errors"))
                 routingErrorCounter.incrementAndGet();
             else
                 successfullQueries.incrementAndGet();
 
-            if (successfullQueries.get() % statusUpdateCnt == 0)
-            {
-                logger.info("progress: " + (int) (successfullQueries.get() * 100 / maxQueries) + "%");
+            if (query.realCount % statusUpdateCnt == 0) {
+                logger.info("progress: " + (int) (query.realCount * 100 / maxQueries) + "%");
             }
-        } catch (IOException ex)
-        {
-            // logger.error("Error while querying " + query.queryString, ex);
+        } catch (MalformedURLException ex) {
+            logger.error("Error while querying", ex);
+        } catch (IOException ex) {
+//            if (httpErrorCounter.get() % maxQueries == 0)
+//                logger.error("http error", ex);
             httpErrorCounter.incrementAndGet();
         }
     }
 
-    void startReadingLogs( final String logFile )
-    {
+    void startReadingLogs(final String logFile) {
         final DistanceCalc distCalc = new DistanceCalcEarth();
-        new Thread("readLogFile")
-        {
+        new Thread("readLogFile") {
             @Override
-            public void run()
-            {
-                try
-                {
+            public void run() {
+                try {
                     InputStream is;
                     if (logFile.endsWith(".gz"))
                         is = new GZIPInputStream(new FileInputStream(logFile));
@@ -213,39 +194,38 @@ public class QueryTorture
                         is = new FileInputStream(logFile);
 
                     BufferedReader reader = new BufferedReader(new InputStreamReader(is, Helper.UTF_CS));
-                    try
-                    {
+                    try {
                         String logLine;
-                        while ((logLine = reader.readLine()) != null)
-                        {
+                        while ((logLine = reader.readLine()) != null) {
                             Query q = Query.parse(logLine);
                             if (q == null)
                                 continue;
 
                             double dist = distCalc.calcDist(q.start.lat, q.start.lon, q.end.lat, q.end.lon);
-                            if (dist < 100)
-                            {
+                            if (dist < tooShortDistance) {
                                 skippedTooShort++;
                                 continue;
                             }
                             readQueries++;
+                            q.realCount = readQueries;
                             if (noDuplicate.size() >= maxQueries)
                                 break;
                             if (noDuplicate.add(q))
                                 queryQueue.put(q);
                         }
-                    } finally
-                    {
+                    } finally {
                         reader.close();
                     }
+
+                    logger.info("Reader finished");
+
                     // wait until all worker threads have started
                     workerStartedBarrier.await();
                     // now tell workers that we are ready with log reading
                     logfileEOFBarrier.countDown();
                     // now wait for termination
                     service.shutdown();
-                } catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     logger.error("Stopped reading logs", ex);
                     // do not wait, just shut down
                     if (service != null)
@@ -255,16 +235,15 @@ public class QueryTorture
         }.start();
     }
 
-    static class Query
-    {
+    static class Query {
         GHPoint start;
         GHPoint end;
+        long realCount;
         List<String> points = new ArrayList<String>();
         Map<String, String> params = new HashMap<String, String>();
 
-        static Query parse( String logLine )
-        {
-            String START = "GraphHopperServlet - ";
+        static Query parse(String logLine) {
+            String START = "GHBaseServlet - ";
             int index = logLine.indexOf(START);
             if (index < 0)
                 return null;
@@ -277,16 +256,14 @@ public class QueryTorture
             Query q = new Query();
             String queryString = logLine.substring(0, index);
             String[] tmpStrings = queryString.split("\\&");
-            for (String paramStr : tmpStrings)
-            {
+            for (String paramStr : tmpStrings) {
                 int equalIndex = paramStr.indexOf("=");
                 if (equalIndex <= 0)
                     continue;
 
                 String key = paramStr.substring(0, equalIndex);
                 String value = paramStr.substring(equalIndex + 1);
-                if (!paramStr.startsWith("point="))
-                {
+                if (!paramStr.startsWith("point=")) {
                     q.params.put(key, value);
                     continue;
                 }
@@ -308,23 +285,27 @@ public class QueryTorture
             return null;
         }
 
-        public void put( String key, String value )
-        {
+        static String encodeURL(String str) {
+            try {
+                return URLEncoder.encode(str, "UTF-8");
+            } catch (Exception _ignore) {
+                return str;
+            }
+        }
+
+        public void put(String key, String value) {
             params.put(key, value);
         }
 
-        public String createQueryString()
-        {
+        public String createQueryString() {
             String qStr = "";
-            for (String pointStr : points)
-            {
+            for (String pointStr : points) {
                 if (!qStr.isEmpty())
                     qStr += "&";
 
-                qStr += "point=" + pointStr;
+                qStr += "point=" + encodeURL(pointStr);
             }
-            for (Entry<String, String> e : params.entrySet())
-            {
+            for (Entry<String, String> e : params.entrySet()) {
                 if (!qStr.isEmpty())
                     qStr += "&";
 
@@ -334,20 +315,8 @@ public class QueryTorture
             return qStr;
         }
 
-        static String encodeURL( String str )
-        {
-            try
-            {
-                return URLEncoder.encode(str, "UTF-8");
-            } catch (Exception _ignore)
-            {
-                return str;
-            }
-        }
-
         @Override
-        public String toString()
-        {
+        public String toString() {
             return createQueryString();
         }
     }

@@ -1,8 +1,9 @@
 package heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-import com.graphhopper.reader.OSMWay;
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.util.Helper;
+import com.graphhopper.util.PMap;
 
 /**
  * Defines bit layout for cars. (speed, access, ferries, ...)
@@ -20,11 +21,11 @@ public class CarTmcFlagEncoder extends CarFlagEncoder {
 		this(5, 5, 0);
 	}
 
-    public CarTmcFlagEncoder( String propertiesStr )
+    public CarTmcFlagEncoder(PMap configuration)
     {
-		     this((int) parseLong(propertiesStr, "speedBits", 5),
-		                parseDouble(propertiesStr, "speedFactor", 5),
-		                parseBoolean(propertiesStr, "turnCosts", false) ? 3 : 0);
+		     this(configuration.getInt("speedBits", 5),
+		                configuration.getDouble("speedFactor", 5),
+		                configuration.getBool("turnCosts", false) ? 3 : 0);
     }
 
 	public CarTmcFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
@@ -35,7 +36,7 @@ public class CarTmcFlagEncoder extends CarFlagEncoder {
 	}
 
 	@Override
-	public long acceptWay(OSMWay way) {
+	public long acceptWay(ReaderWay way) {
 		String highwayValue = way.getTag("highway");
 
 		if (Helper.isEmpty(highwayValue))

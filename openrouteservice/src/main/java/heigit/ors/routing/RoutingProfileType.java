@@ -152,39 +152,39 @@ public class RoutingProfileType {
 
 	public static String getEncoderName(int routePref) {
 		if (routePref == RoutingProfileType.DRIVING_CAR)
-			return "CAR";
+			return "car";
 		else if (routePref == RoutingProfileType.DRIVING_TRAFFIC)
-			return "CARTMC";
+			return "cartmc";
 		else if (routePref == RoutingProfileType.DRIVING_MOTORCYCLE) 
-			return "MOTORCYCLE";
+			return "motorcycle";
 		else if (routePref == RoutingProfileType.DRIVING_ELECTRIC_CAR)  
-			return "EVEHICLE";
+			return "evehicle";
 		else if (routePref == RoutingProfileType.DRIVING_HGV)  
-			return "HEAVYVEHICLE";
+			return "heavyvehicle";
 		else if (routePref == RoutingProfileType.DRIVING_OFFROAD)  
-			return "X_4_WD";
+			return "x_4_wd";
 		else if (routePref == RoutingProfileType.FOOT_WALKING)
-			return "FOOT";
+			return "foot";
 		else if (routePref == RoutingProfileType.FOOT_HIKING)
-			return "HIKING";
+			return "hiking";
 		else if (routePref == RoutingProfileType.FOOT_HIKING)
-			return "RUNNING";
+			return "running";
 		else if (routePref == RoutingProfileType.CYCLING_REGULAR)
-			return "BIKE";
+			return "bike";
 		else if (routePref == RoutingProfileType.CYCLING_MOUNTAIN)
-			return "MTB";
+			return "mtb";
 		else if (routePref == RoutingProfileType.CYCLING_ROAD)
-			return "RACINGBIKE";
+			return "racingbike";
 		else if (routePref == RoutingProfileType.CYCLING_TOUR) // custom
-			return "CYCLETOURBIKE";
+			return "cycletourbike";
 		else if (routePref == RoutingProfileType.CYCLING_SAFE) // custom
-			return "SAFETYBIKE";
+			return "safetybike";
 		else if (routePref == RoutingProfileType.CYCLING_ELECTRIC) // custom
-			return "ELECTROBIKE";
+			return "electrobike";
 		else if (routePref == RoutingProfileType.WHEELCHAIR) // custom
-			return "WHEELCHAIR";
+			return "wheelchair";
 
-		return "UNKNOWN";
+		return "unknown";
 	}
 	
 	public static int getFromEncoderName(String encoder) {

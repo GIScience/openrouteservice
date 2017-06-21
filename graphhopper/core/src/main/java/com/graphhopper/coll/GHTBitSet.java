@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -17,84 +17,77 @@
  */
 package com.graphhopper.coll;
 
-import gnu.trove.iterator.TIntIterator;
-import gnu.trove.set.hash.TIntHashSet;
+import com.carrotsearch.hppc.cursors.IntCursor;
+
+import java.util.Iterator;
 
 /**
- * Implements the bitset interface via a trove THashSet. More efficient for a few entries.
+ * Implements the bitset interface via a hash set. It is more efficient for only a few entries.
  * <p>
+ *
  * @author Peter Karich
  */
-public class GHTBitSet implements GHBitSet
-{
-    private final TIntHashSet tHash;
+public class GHTBitSet implements GHBitSet {
+    private final GHIntHashSet tHash;
 
-    public GHTBitSet( TIntHashSet set )
-    {
+    public GHTBitSet(GHIntHashSet set) {
         tHash = set;
     }
 
-    public GHTBitSet( int no )
-    {
-        tHash = new TIntHashSet(no, 0.7f, -1);
+    public GHTBitSet(int no) {
+        tHash = new GHIntHashSet(no, 0.7f);
     }
 
-    public GHTBitSet()
-    {
+    public GHTBitSet() {
         this(1000);
     }
 
     @Override
-    public final boolean contains( int index )
-    {
+    public final boolean contains(int index) {
         return tHash.contains(index);
     }
 
     @Override
-    public final void add( int index )
-    {
+    public final void add(int index) {
         tHash.add(index);
     }
 
     @Override
-    public final String toString()
-    {
+    public final String toString() {
         return tHash.toString();
     }
 
     @Override
-    public final int getCardinality()
-    {
+    public final int getCardinality() {
         return tHash.size();
     }
 
     @Override
-    public final void clear()
-    {
+    public final void clear() {
         tHash.clear();
     }
 
     @Override
-    public final GHBitSet copyTo( GHBitSet bs )
-    {
+    public void remove(int index) {
+        tHash.remove(index);
+    }
+
+    @Override
+    public final GHBitSet copyTo(GHBitSet bs) {
         bs.clear();
-        if (bs instanceof GHTBitSet)
-        {
+        if (bs instanceof GHTBitSet) {
             ((GHTBitSet) bs).tHash.addAll(this.tHash);
-        } else
-        {
-            TIntIterator iter = tHash.iterator();
-            while (iter.hasNext())
-            {
-                bs.add(iter.next());
+        } else {
+            Iterator<IntCursor> iter = tHash.iterator();
+            while (iter.hasNext()) {
+                bs.add(iter.next().value);
             }
         }
         return bs;
     }
 
     @Override
-    public int next( int index )
-    {
+    public int next(int index) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

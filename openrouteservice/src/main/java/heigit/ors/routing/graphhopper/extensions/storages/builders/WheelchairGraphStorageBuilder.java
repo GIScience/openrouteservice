@@ -12,7 +12,7 @@
 package heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.GraphHopper;
-import com.graphhopper.reader.OSMWay;
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 
@@ -45,7 +45,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		return _storage;
 	}
 
-	public void processWay(OSMWay way) 
+	public void processWay(ReaderWay way) 
 	{
 		_wheelchairAttributes.reset();
 
@@ -99,12 +99,12 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		}
 	}
 
-	public void processEdge(OSMWay way, EdgeIteratorState edge) 
+	public void processEdge(ReaderWay way, EdgeIteratorState edge) 
 	{
 		_storage.setEdgeValues(edge.getEdge(), _wheelchairAttributes);
 	}
 
-	private double getCurbHeight(OSMWay way) {
+	private double getCurbHeight(ReaderWay way) {
 		// http://taginfo.openstreetmap.org/keys/kerb#overview: 80% nodes, 20% ways
 		// http://taginfo.openstreetmap.org/keys/kerb#values
 		double res = 0d;
@@ -181,7 +181,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		return res;
 	}
 
-	private double getIncline(OSMWay way)
+	private double getIncline(ReaderWay way)
 	{
 		String inclineValue = way.getTag("incline");
 		if (inclineValue != null) 

@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -20,12 +20,11 @@ package com.graphhopper.coll;
 /**
  * @author Peter Karich
  */
-public interface BinHeapWrapper<K, E>
-{
+public interface BinHeapWrapper<K, E> {
 
-    void update( K key, E element );
+    void update(K key, E element);
 
-    void insert( K key, E element );
+    void insert(K key, E element);
 
     boolean isEmpty();
 
@@ -40,5 +39,5 @@ public interface BinHeapWrapper<K, E>
     // not necessary? V pollValue();
     void clear();
 
-    void ensureCapacity( int size );
+    void ensureCapacity(int size);
 }

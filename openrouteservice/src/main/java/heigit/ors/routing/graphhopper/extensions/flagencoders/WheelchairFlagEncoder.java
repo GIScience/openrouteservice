@@ -27,15 +27,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.graphhopper.reader.OSMNode;
-import com.graphhopper.reader.OSMRelation;
-import com.graphhopper.reader.OSMWay;
+import com.graphhopper.reader.ReaderNode;
+import com.graphhopper.reader.ReaderRelation;
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodedDoubleValue;
 import com.graphhopper.routing.util.EncodedValue;
 import com.graphhopper.routing.util.PriorityCode;
-import com.graphhopper.routing.util.PriorityWeighting;
+import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.PMap;
 
 public class WheelchairFlagEncoder extends AbstractFlagEncoder 
 {
@@ -85,10 +86,10 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
     
     private final Set<String> accessibilityRelatedAttributes = new HashSet<String>();
 
-  	public WheelchairFlagEncoder( String propertiesStr )
+  	public WheelchairFlagEncoder(PMap configuration)
     {
-		 this((int) parseLong(propertiesStr, "speedBits", 4),
-	                parseDouble(propertiesStr, "speedFactor", 1));
+		 this(configuration.getInt("speedBits", 4),
+			  configuration.getDouble("speedFactor", 1));
     }
 
     /**
@@ -217,6 +218,8 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
         hikingNetworkToCode.put("nwn", BEST.getValue());
         hikingNetworkToCode.put("rwn", VERY_NICE.getValue());
         hikingNetworkToCode.put("lwn", VERY_NICE.getValue());
+        
+        init();
     }
     
     public double getDefaultMaxSpeed()
@@ -254,7 +257,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
         return speedVal;
     }
     
-    @Override
+    //@Override
     public long adaptSpeed(long flags, double factor)
     {
     	
@@ -267,7 +270,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
         return flags;
     }
     
-    @Override
+    //@Override
     public long setSidewalkSpeed(long flags)
     {
     	// return flags;
@@ -275,7 +278,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
     	// return adaptSpeed(flags, 1d);
     }
     
-    @Override
+    //@Override
     public long setNonSidewalkSpeed(long flags)
     {
     	// return flags;
@@ -333,7 +336,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
      * @param way
      */
     @Override
-    public long acceptWay( OSMWay way )
+    public long acceptWay(ReaderWay way )
     {
     	// check access restrictions
         if (way.hasTag(restrictions, restrictedValues) && !(way.hasTag(restrictions, intendedValues) || way.hasTag("sidewalk", usableSidewalkValues)))
@@ -476,7 +479,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
     }
 
     @Override
-    public long handleRelationTags( OSMRelation relation, long oldRelationFlags )
+    public long handleRelationTags(ReaderRelation relation, long oldRelationFlags )
     {
         int code = 0;
         if (relation.hasTag("route", "hiking") || relation.hasTag("route", "foot")) {
@@ -495,7 +498,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
     }
 
     @Override
-    public long handleWayTags(OSMWay way, long allowed, long relationFlags )
+    public long handleWayTags(ReaderWay way, long allowed, long relationFlags )
     {
         if (!isAccept(allowed))
             return 0;
@@ -510,7 +513,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
         	// This is a trick, where we try to underrate the speed for highways that do not have tagged sidewalks.
         	// TODO: this actually affects travel time estimation (might be a good or negative side effect depending on context)
         	double speed = MEAN_SPEED;
-        	if (way.containsTag("highway"))
+        	if (way.hasTag("highway"))
         	{
         		
         		String highway = way.getTag("highway");
@@ -568,7 +571,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
      * method is called in the second parsing step.
      */
     @Override
-    public long handleNodeTags(OSMNode node)
+    public long handleNodeTags(ReaderNode node)
     {
     	long encoded = 0;
     	
@@ -652,7 +655,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
      * calculate precise speed values based on elevation data stored in the specified edge.
      */
     @Override
-    public void applyWayTags( OSMWay way, EdgeIteratorState edge )
+    public void applyWayTags(ReaderWay way, EdgeIteratorState edge )
     {
     	/*
         PointList pl = edge.fetchWayGeometry(3);
@@ -726,7 +729,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
         }
     }
     
-    protected int handlePriority(OSMWay way, int priorityFromRelation)
+    protected int handlePriority(ReaderWay way, int priorityFromRelation)
     {
         TreeMap<Double, Integer> weightToPrioMap = new TreeMap<Double, Integer>();
         if (priorityFromRelation == 0)
@@ -744,7 +747,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
      * @param weightToPrioMap associate a weight with every priority. This sorted map allows
      * subclasses to 'insert' more important priorities as well as overwrite determined priorities.
      */
-    public void collect(OSMWay way, TreeMap<Double, Integer> weightToPrioMap)
+    public void collect(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap)
     { 
     	int positiveFeatures = 0;
     	int negativeFeatures = 0;
@@ -781,7 +784,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
         if (limitedWheelchairAccessibleHighways.contains(highwayValue)) {
         	boolean hasAccessibilityRelatedAttributes = false;
         	for (String key : accessibilityRelatedAttributes) {
-        		hasAccessibilityRelatedAttributes |= way.containsTag(key);
+        		hasAccessibilityRelatedAttributes |= way.hasTag(key);
 			}
         	if (!hasAccessibilityRelatedAttributes) {
         		negativeFeatures+=2;
@@ -860,7 +863,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
 
 	@Override
 	public int getVersion() {
-		return 1;
+		return 2;
 	}
 
 

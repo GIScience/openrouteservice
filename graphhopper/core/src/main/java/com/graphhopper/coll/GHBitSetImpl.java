@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -22,59 +22,52 @@ import java.util.BitSet;
 /**
  * @author Peter Karich
  */
-public class GHBitSetImpl extends BitSet implements GHBitSet
-{
-    public GHBitSetImpl()
-    {
+public class GHBitSetImpl extends BitSet implements GHBitSet {
+    public GHBitSetImpl() {
+        super();
     }
 
-    public GHBitSetImpl( int nbits )
-    {
+    public GHBitSetImpl(int nbits) {
         super(nbits);
     }
 
     @Override
-    public final boolean contains( int index )
-    {
+    public final boolean contains(int index) {
         return super.get(index);
     }
 
     @Override
-    public final void add( int index )
-    {
+    public final void add(int index) {
         super.set(index);
     }
 
     @Override
-    public final int getCardinality()
-    {
+    public final int getCardinality() {
         return super.cardinality();
     }
 
     @Override
-    public final int next( int index )
-    {
+    public final int next(int index) {
         return super.nextSetBit(index);
     }
 
-    public final int nextClear( int index )
-    {
+    public final int nextClear(int index) {
         return super.nextClearBit(index);
     }
 
     @Override
-    public final GHBitSet copyTo( GHBitSet bs )
-    {
+    public void remove(int index) {
+        super.clear(index);
+    }
+
+    @Override
+    public final GHBitSet copyTo(GHBitSet bs) {
         bs.clear();
-        if (bs instanceof GHBitSetImpl)
-        {
+        if (bs instanceof GHBitSetImpl) {
             ((GHBitSetImpl) bs).or(this);
-        } else
-        {
-            int len = size();
+        } else {
             for (int index = super.nextSetBit(0); index >= 0;
-                 index = super.nextSetBit(index + 1))
-            {
+                 index = super.nextSetBit(index + 1)) {
                 bs.add(index);
             }
         }

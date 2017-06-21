@@ -1,15 +1,14 @@
 /*
- *  Licensed to Peter Karich under one or more contributor license
- *  agreements. See the NOTICE file distributed with this work for
+ *  Licensed to GraphHopper GmbH under one or more contributor
+ *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
- *
- *  Peter Karich licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License. You may obtain a copy of the
- *  License at
- *
+ * 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
+ *  Version 2.0 (the "License"); you may not use this file except in 
+ *  compliance with the License. You may obtain a copy of the License at
+ * 
  *       http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,29 +19,29 @@ package com.graphhopper.routing.ch;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Peter Karich
  */
-public class PrepareEncoderTest
-{
+public class PrepareEncoderTest {
 
     @Test
-    public void testOverwrite()
-    {
+    public void testOverwrite() {
         long forward = PrepareEncoder.getScFwdDir();
         long backward = PrepareEncoder.getScFwdDir() ^ PrepareEncoder.getScDirMask();
         long both = PrepareEncoder.getScDirMask();
-        assertTrue(PrepareEncoder.canBeOverwritten(forward, forward));
-        assertTrue(PrepareEncoder.canBeOverwritten(backward, backward));
-        assertTrue(PrepareEncoder.canBeOverwritten(forward, both));
-        assertTrue(PrepareEncoder.canBeOverwritten(backward, both));
+        assertEquals(1, PrepareEncoder.getScMergeStatus(forward, forward));
+        assertEquals(1, PrepareEncoder.getScMergeStatus(backward, backward));
+        assertEquals(2, PrepareEncoder.getScMergeStatus(forward, both));
+        assertEquals(2, PrepareEncoder.getScMergeStatus(backward, both));
 
-        assertTrue(PrepareEncoder.canBeOverwritten(both, both));
-        assertFalse(PrepareEncoder.canBeOverwritten(both, forward));
-        assertFalse(PrepareEncoder.canBeOverwritten(both, backward));
-        assertFalse(PrepareEncoder.canBeOverwritten(forward, backward));
-        assertFalse(PrepareEncoder.canBeOverwritten(backward, forward));
+        assertEquals(1, PrepareEncoder.getScMergeStatus(both, both));
+        assertEquals(0, PrepareEncoder.getScMergeStatus(both, forward));
+        assertEquals(0, PrepareEncoder.getScMergeStatus(both, backward));
+        assertEquals(0, PrepareEncoder.getScMergeStatus(forward, backward));
+        assertEquals(0, PrepareEncoder.getScMergeStatus(backward, forward));
     }
 }

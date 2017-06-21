@@ -3,7 +3,7 @@ target/
 TODO.txt
 *-gh/
 *.osm
-nbactions-*.xml
+nbactions*.xml
 config.properties
 build.xml
 queries.sh
@@ -17,6 +17,9 @@ android/libs/graphhopper-*-android.jar
 .idea/
 *iml
 debug.sh
+/web/src/main/webapp/js/config/options_prod.js
+*.pbf
+!/reader-osm/src/test/resources/com/graphhopper/reader/osm/*.pbf
 *.dem
 *.log
 core/TODO*.txt
@@ -32,4 +35,12 @@ android/.gradle
 .settings/
 .classpath
 .project
-/build/
+local.properties
+**/node_modules
+*.zip
+.DS_Store
+/core/nbproject/
+/reader-overlay-data/nbproject/
+!malta-latest.osm.pbf
+/reader-json/nbproject/
+/graph-cache

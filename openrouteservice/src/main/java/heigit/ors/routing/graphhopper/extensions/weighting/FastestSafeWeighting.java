@@ -1,9 +1,10 @@
 package heigit.ors.routing.graphhopper.extensions.weighting;
 
-import com.graphhopper.routing.util.FastestWeighting;
+import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.PMap;
 
 /**
  * Special weighting for (motor)bike
@@ -20,8 +21,8 @@ public class FastestSafeWeighting extends FastestWeighting {
 	 */
 	public static final int KEY = 101;
 
-	public FastestSafeWeighting(double maxSpeed, FlagEncoder encoder) {
-		super(maxSpeed, encoder);
+	public FastestSafeWeighting(FlagEncoder encoder, PMap map) {
+		super(encoder, map);
 
 	}
 

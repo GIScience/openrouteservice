@@ -12,16 +12,30 @@
 package heigit.ors.matrix.algorithms.rphast;
 
 import com.graphhopper.GraphHopper;
+import com.graphhopper.routing.ch.PrepareContractionHierarchies;
+import com.graphhopper.routing.phast.MatrixResponse;
+import com.graphhopper.routing.phast.MatrixService;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.storage.CHGraph;
 
 import heigit.ors.matrix.MatrixLocationData;
 import heigit.ors.matrix.MatrixMetricsType;
 import heigit.ors.matrix.MatrixResult;
-import heigit.ors.matrix.algorithms.MatrixAlgorithm;
+import heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
 
-public class RPHASTMatrixAlgorithm implements MatrixAlgorithm {
+public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
+	private MatrixService _mtxService;
+	
+	public void init(GraphHopper gh, FlagEncoder encoder)
+    {
+	    super.init(gh, encoder);
+		PrepareContractionHierarchies pch = _graphHopper.getCHFactoryDecorator().getPreparations().get(0);
 
+	    _mtxService = new MatrixService(pch, _graphHopper.getGraphHopperStorage().getGraph(CHGraph.class), encoder);
+	}
+	
 	@Override
-	public MatrixResult compute(GraphHopper gh, MatrixLocationData srcData, MatrixLocationData dstData, int metrics) {
+	public MatrixResult compute(MatrixLocationData srcData, MatrixLocationData dstData, int metrics) {
 		MatrixResult mtxResult = new MatrixResult();
 
 		mtxResult.setSources(srcData.getCoordinates());
@@ -30,26 +44,35 @@ public class RPHASTMatrixAlgorithm implements MatrixAlgorithm {
 		mtxResult.setDestinations(dstData.getCoordinates());
 		mtxResult.setDestinationNames(dstData.getNames());
 
-		int size = srcData.getSize() * dstData.getSize();
+		MatrixResponse mr = _mtxService.calcMatrix(srcData.getNodeIds(), dstData.getNodeIds(), metrics);
+		
+		int matIndex = 0;
+		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Duration))
+		{
+			mtxResult.setTable(MatrixMetricsType.Duration, getMatrix(mr, matIndex));
+			matIndex++;
+		}
 
 		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Distance))
 		{
-			float[] values = new float[size]; 
-			mtxResult.setTable(MatrixMetricsType.Distance, values);
+			mtxResult.setTable(MatrixMetricsType.Distance, getMatrix(mr, matIndex));
+			matIndex++;
 		}
 
-		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Duration))
-		{
-			float[] values = new float[size]; 
-			mtxResult.setTable(MatrixMetricsType.Duration, values);
-		}
-		
 		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Weight))
 		{
-			float[] values = new float[size]; 
-			mtxResult.setTable(MatrixMetricsType.Weight, values);
+			mtxResult.setTable(MatrixMetricsType.Weight, getMatrix(mr, matIndex));
+			matIndex++;
 		}
-
+		
 		return mtxResult;
+	}
+	
+	private float[] getMatrix(MatrixResponse mtxResp, int matIndex)
+	{
+		if (matIndex == 0)
+			return mtxResp.getMat0();
+		else
+			return mtxResp.getMat1();
 	}
 }

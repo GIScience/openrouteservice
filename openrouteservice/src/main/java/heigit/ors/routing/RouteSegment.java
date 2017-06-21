@@ -14,7 +14,7 @@ package heigit.ors.routing;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.graphhopper.GHResponse;
+import com.graphhopper.PathWrapper;
 import com.graphhopper.util.shapes.BBox;
 
 import heigit.ors.util.DistanceUnit;
@@ -30,21 +30,21 @@ public class RouteSegment {
 	private BBox _bbox;
 	private List<RouteStep> _steps;
 
-	public RouteSegment(GHResponse resp, DistanceUnit units) throws Exception
+	public RouteSegment(PathWrapper path, DistanceUnit units) throws Exception
 	{
-		_distance = FormatUtility.roundToDecimals(DistanceUnitUtil.convert(resp.getDistance(), DistanceUnit.Meters, units), FormatUtility.getUnitDecimals(units));
-		_duration =   FormatUtility.roundToDecimals(resp.getTime()/1000.0, 1);
-		_ascent = FormatUtility.roundToDecimals(resp.getAscent(), 1);
-		_descent = FormatUtility.roundToDecimals(resp.getDescent() ,1);
+		_distance = FormatUtility.roundToDecimals(DistanceUnitUtil.convert(path.getDistance(), DistanceUnit.Meters, units), FormatUtility.getUnitDecimals(units));
+		_duration =   FormatUtility.roundToDecimals(path.getTime()/1000.0, 1);
+		_ascent = FormatUtility.roundToDecimals(path.getAscend(), 1);
+		_descent = FormatUtility.roundToDecimals(path.getDescend() ,1);
 
 		if (_bbox == null)
 		{
-			double lat = resp.getPoints().getLat(0);
-			double lon = resp.getPoints().getLon(0);
+			double lat = path.getPoints().getLat(0);
+			double lon = path.getPoints().getLon(0);
 			_bbox = new BBox(lon, lon, lat, lat);
 		}
 
-		resp.calcRouteBBox(_bbox);
+		path.calcRouteBBox(_bbox);
 
 		_steps = new ArrayList<RouteStep>();
 	}

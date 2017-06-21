@@ -22,6 +22,22 @@ public class MatrixMetricsType {
     public static boolean isSet(int metrics, int value) {
         return (metrics & value) == value;
     }
+    
+    public int getMetricsCount(int metrics)
+    {
+    	int res = 0;
+    	
+    	if (isSet(metrics, Duration))
+    		res++;
+
+    	if (isSet(metrics, Distance))
+    		res++;
+
+    	if (isSet(metrics, Weight))
+    		res++;
+
+    	return res;
+    }
 
 	public static int getFromString(String value)
 	{

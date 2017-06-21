@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -34,10 +34,10 @@ import java.io.Closeable;
  * <li>Finally do close() which does no flush()</li>
  * </ol>
  * <p>
+ *
  * @author Peter Karich
  */
-public interface Storable<T> extends Closeable
-{
+public interface Storable<T> extends Closeable {
     /**
      * @return true if successfully loaded from persistent storage.
      */
@@ -46,7 +46,7 @@ public interface Storable<T> extends Closeable
     /**
      * Creates the underlying storage. First operation if it cannot be loaded.
      */
-    T create( long byteCount );
+    T create(long byteCount);
 
     /**
      * This method makes sure that the underlying data is written to the storage. Keep in mind that

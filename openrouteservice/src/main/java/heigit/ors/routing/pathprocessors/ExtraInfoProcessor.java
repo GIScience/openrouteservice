@@ -17,7 +17,7 @@ import java.util.List;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.util.PriorityCode;
-import com.graphhopper.routing.util.PriorityWeighting;
+import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.routing.util.WaySurfaceDescription;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;

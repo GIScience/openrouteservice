@@ -26,7 +26,7 @@ import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageB
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.Weighting;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GHDirectory;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphExtension.ExtendedStorageSequence;
@@ -82,8 +82,9 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 	
 		if (gh.isCHEnabled())
 		{
-    		gh.initCHAlgoFactories();
-            return new GraphHopperStorage(new ArrayList<Weighting>(gh.getAlgorithmFactories2()), dir, encodingManager, gh.hasElevation(), getExtension(graphExtensions));
+			gh.initCHAlgoFactoryDecorator();
+			//LMAlgoFactoryDecorator getLMFactoryDecorator()  TODO
+            return new GraphHopperStorage(gh.getCHFactoryDecorator().getWeightings(), dir, encodingManager, gh.hasElevation(), getExtension(graphExtensions));
 		}
 		
 		if (geTurnCosts == null && graphExtensions.size() == 0)

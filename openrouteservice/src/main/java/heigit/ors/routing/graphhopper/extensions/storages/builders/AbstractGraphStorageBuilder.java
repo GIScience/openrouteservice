@@ -14,7 +14,7 @@ package heigit.ors.routing.graphhopper.extensions.storages.builders;
 import java.util.Map;
 
 import com.graphhopper.GraphHopper;
-import com.graphhopper.reader.OSMWay;
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 
@@ -24,9 +24,9 @@ public abstract class AbstractGraphStorageBuilder implements GraphStorageBuilder
 	
 	public abstract GraphExtension init(GraphHopper graphhopper) throws Exception;
 
-	public abstract void processWay(OSMWay way);
+	public abstract void processWay(ReaderWay way);
 	
-	public abstract void processEdge(OSMWay way, EdgeIteratorState edge);
+	public abstract void processEdge(ReaderWay way, EdgeIteratorState edge);
 	
 	public void setParameters(Map<String, String> parameters)
 	{

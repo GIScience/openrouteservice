@@ -21,16 +21,13 @@ import java.util.logging.Logger;
 
 import heigit.ors.routing.RoutingProfile;
 
-import com.graphhopper.reader.OSMNode;
-import com.graphhopper.reader.OSMReader;
-import com.graphhopper.reader.OSMWay;
-import com.graphhopper.reader.dem.HeightTile;
-import com.graphhopper.routing.util.EncodingManager;
+import com.carrotsearch.hppc.LongArrayList;
+import com.graphhopper.reader.ReaderNode;
+import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
-
-import gnu.trove.list.TLongList;
 
 public class ORSOSMReader extends OSMReader {
 
@@ -41,6 +38,7 @@ public class ORSOSMReader extends OSMReader {
 	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds;
 	private RoutingProfile refProfile;
 	private boolean enrichInstructions;
+	private OSMDataReaderContext _readerCntx;
 
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
 			"primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential" };
@@ -49,6 +47,7 @@ public class ORSOSMReader extends OSMReader {
 		super(storage);
 
 		this._procCntx = procCntx;
+		this._readerCntx = new OSMDataReaderContext(this);
 		this.tmcEdges = tmcEdges;
 		this.osmId2EdgeIds = osmId2EdgeIds;
 		this.refProfile = refProfile;
@@ -58,20 +57,10 @@ public class ORSOSMReader extends OSMReader {
 				|| storage.getEncodingManager().supports("MTB")
 				|| storage.getEncodingManager().supports("RACINGBIKE")
 				|| storage.getEncodingManager().supports("SAFETYBIKE"));
-
-
-		HeightTile.CUSTOM_ROUND = true;
-	}
-
-	public OSMReader setEncodingManager( EncodingManager em )
-	{
-		super.setEncodingManager(em);
-
-		return this;
 	}
 
 	@Override
-	protected boolean isInBounds(OSMNode node) {
+	protected boolean isInBounds(ReaderNode node) {
 		if (_procCntx != null) {
 			return _procCntx.isValidPoint(node.getLon(), node.getLat());
 		}
@@ -80,11 +69,11 @@ public class ORSOSMReader extends OSMReader {
 	}
 
 	@Override
-	public void onProcessWay(OSMWay way) {
+	public void onProcessWay(ReaderWay way) {
 		_procCntx.processWay(way);
 	}
 
-	protected void onProcessEdge(OSMWay way, EdgeIteratorState edge) {
+	protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge) {
 
 		if (enrichInstructions && Helper.isEmpty(way.getTag("name")) && Helper.isEmpty(way.getTag("ref"))) {
 			try {
@@ -145,11 +134,11 @@ public class ORSOSMReader extends OSMReader {
 	}
 	
 	@Override 
-    protected boolean onCreateEdges(OSMWay way, TLongList osmNodeIds, long wayFlags, List<EdgeIteratorState> createdEdges)
+    protected boolean onCreateEdges(ReaderWay way, LongArrayList osmNodeIds, long wayFlags, List<EdgeIteratorState> createdEdges)
     {
 		try
 		{
-			return _procCntx.createEdges(this, way, osmNodeIds, wayFlags, createdEdges);
+			return _procCntx.createEdges(_readerCntx, way, osmNodeIds, wayFlags, createdEdges);
 		}
 		catch (Exception ex) {
 			LOGGER.warning(ex.getMessage() + ". Way id = " + way.getId());

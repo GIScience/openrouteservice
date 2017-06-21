@@ -1,40 +1,35 @@
 package heigit.ors.routing.graphhopper.extensions;
 
+import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.routing.Dijkstra;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
-import com.graphhopper.routing.util.Weighting;
-import com.graphhopper.storage.EdgeEntry;
+import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.storage.Graph;
-
-import gnu.trove.map.TIntObjectMap;
 
 public class DijkstraCostCondition extends Dijkstra
 {
-    public DijkstraCostCondition(Graph g, FlagEncoder encoder, Weighting weighting, double maxCost, boolean reverseDirection, TraversalMode tMode)
+	private double weightLimit = -1;
+    public DijkstraCostCondition(Graph g, Weighting weighting, double maxCost, boolean reverseDirection, TraversalMode tMode)
     {
-        super(g, encoder, weighting, tMode);
+        super(g, weighting, tMode, -1);
 
         initCollections(1000);
         this.weightLimit = maxCost;
         setReverseDirection(reverseDirection);
     }
 
-    public void computePath(int from, int to )
-    {
-        checkAlreadyRun();
-        this.to = to;
-        currEdge = createEdgeEntry(from, 0);
-        fromMap.put(from, currEdge);
-        runAlgo(-1);
+    @Override
+    protected boolean finished() {
+        return  super.finished() || currEdge.weight > weightLimit;
     }
     
-    public TIntObjectMap<EdgeEntry> getMap()
+    public IntObjectMap<SPTEntry> getMap()
     {
     	return fromMap;
     }
     
-    public EdgeEntry getCurrentEdge()
+    public SPTEntry getCurrentEdge()
     {
     	if (currEdge == null || !finished())
     		return  null;

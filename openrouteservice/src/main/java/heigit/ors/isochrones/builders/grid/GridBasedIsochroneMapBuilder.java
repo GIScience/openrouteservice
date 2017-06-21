@@ -5,7 +5,7 @@ import org.apache.log4j.Logger;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.storage.index.QueryResult;
-import com.graphhopper.util.ArrayBuffer;
+import com.graphhopper.util.ByteArrayBuffer;
 import com.graphhopper.util.StopWatch;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -66,7 +66,7 @@ public class GridBasedIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		double gridSizeY = Math.toDegrees(gridSizeMeters / 6378100.0);
 		double gridSizeX = gridSizeY / Math.cos(Math.toRadians(cx));
 		double halfN = gridSizeMeters/2;
-		ArrayBuffer arrayBuffer = new ArrayBuffer(50);
+		ByteArrayBuffer arrayBuffer = new ByteArrayBuffer(50);
 		
 		for (int xi = 0; xi < gridSizeMeters; xi++)
 		{

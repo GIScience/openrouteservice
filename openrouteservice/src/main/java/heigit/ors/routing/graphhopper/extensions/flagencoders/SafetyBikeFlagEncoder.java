@@ -16,14 +16,14 @@ import static com.graphhopper.routing.util.PriorityCode.AVOID_AT_ALL_COSTS;
 import static com.graphhopper.routing.util.PriorityCode.AVOID_IF_POSSIBLE;
 import static com.graphhopper.routing.util.PriorityCode.PREFER;
 import static com.graphhopper.routing.util.PriorityCode.REACH_DEST;
-import static com.graphhopper.routing.util.PriorityCode.VERY_NICE;
 
 import java.util.TreeMap;
 
-import com.graphhopper.reader.OSMWay;
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.BikeCommonFlagEncoder;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.util.Helper;
+import com.graphhopper.util.PMap;
 
 public class SafetyBikeFlagEncoder extends BikeCommonFlagEncoder {
 	public SafetyBikeFlagEncoder()
@@ -31,11 +31,12 @@ public class SafetyBikeFlagEncoder extends BikeCommonFlagEncoder {
         this(4, 2, 0, false);
     }
 	
-	public SafetyBikeFlagEncoder( String propertiesStr )
+	public SafetyBikeFlagEncoder(PMap configuration)
     {
-	      this((int) parseLong(propertiesStr, "speedBits", 4)+ (parseBoolean(propertiesStr,"considerElevation", false) ? 1 : 0),
-	                parseDouble(propertiesStr, "speedFactor", 2),
-	                parseBoolean(propertiesStr, "turnCosts", false) ? 3 : 0, parseBoolean(propertiesStr,"considerElevation", false));
+	      this(configuration.getInt("speedBits", 4),
+	    		  configuration.getDouble("speedFactor", 2),
+	              configuration.getBool("turnCosts", false) ? 3 : 0,
+	              configuration.getBool("considerElevation", false));
 	      
 	      setBlockFords(false);
     }
@@ -76,20 +77,22 @@ public class SafetyBikeFlagEncoder extends BikeCommonFlagEncoder {
 		setHighwaySpeed("secondary_link", 14);
 		setHighwaySpeed("tertiary", 14);
 		setHighwaySpeed("tertiary_link", 14);
+		
+		init();
 	}
 
     @Override
-    public boolean isPushingSection(OSMWay way )
+    public boolean isPushingSection(ReaderWay way )
     {
         String highway = way.getTag("highway");
         String trackType = way.getTag("tracktype");
-        return way.hasTag("highway", pushingSections)  || way.hasTag("railway", "platform")  || way.hasTag("route", ferries)
+        return way.hasTag("highway", pushingSectionsHighways)  || way.hasTag("railway", "platform")  || way.hasTag("route", ferries)
                 || "track".equals(highway) && trackType != null && !"grade1".equals(trackType);
     }
     
 
 	@Override
-	protected void collect(OSMWay way, TreeMap<Double, Integer> weightToPrioMap) {
+	protected void collect(ReaderWay way, double wayTypeSpeed, TreeMap<Double, Integer> weightToPrioMap) {
 		String service = way.getTag("service");
 		String highway = way.getTag("highway");
 		
@@ -132,7 +135,7 @@ public class SafetyBikeFlagEncoder extends BikeCommonFlagEncoder {
 				weightToPrioMap.put(40d, PriorityCode.UNCHANGED.getValue());
 		}
 
-		if (pushingSections.contains(highway) || "parking_aisle".equals(service))
+		if (pushingSectionsHighways.contains(highway) || "parking_aisle".equals(service))
 			weightToPrioMap.put(30d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
 
 		if (avoidHighwayTags.contains(highway) || maxSpeed > 50) {

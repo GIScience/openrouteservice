@@ -17,12 +17,13 @@ import java.util.List;
 
 import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import heigit.ors.mapmatching.AbstractMapMatcher;
+import heigit.ors.mapmatching.LocationIndexMatch;
 import heigit.ors.mapmatching.RouteSegmentInfo;
 
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
-import com.graphhopper.matching.LocationIndexMatch;
+import com.graphhopper.PathWrapper;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -269,6 +270,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 						
 							if (!resp.hasErrors())
 							{
+								PathWrapper path = resp.getBest();
 								/*
 								double dx = resp.getDistance();
 								double dt = Math.abs(dz - dx);
@@ -276,10 +278,10 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 								value = exponentialDistribution(100*beta, dt);  // Equation 2
 								*/
 								
-								double dx = resp.getDistance();
+								double dx = path.getDistance();
 								double dt = Math.abs(dz - dx)/distances[0]; // normalize 
 
-								double time = resp.getTime();
+								double time = path.getTime();
 								//(distances[0]/1000/encoder.getMaxSpeed())*60*60*1000
                                 double dt2 = Math.abs(time - perfTime)/perfTime;
                                 								

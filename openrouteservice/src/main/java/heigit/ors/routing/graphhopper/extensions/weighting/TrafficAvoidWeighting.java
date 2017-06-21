@@ -20,7 +20,8 @@ import java.util.HashMap;
 
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.Weighting;
+import com.graphhopper.routing.weighting.AbstractWeighting;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 
@@ -29,27 +30,27 @@ import heigit.ors.routing.traffic.TmcEventCodesTable;
 import heigit.ors.routing.traffic.TmcMode;
 import heigit.ors.routing.traffic.TrafficEventInfo;
 
-public class TrafficAvoidWeighting implements Weighting {
+public class TrafficAvoidWeighting extends AbstractWeighting {
 
     /**
      * Converting to seconds is not necessary but makes adding other penalities easier (e.g. turn
      * costs or traffic light costs etc)
      */
     protected final static double SPEED_CONV = 1;
-    protected final FlagEncoder flagEncoder;
     private double maxSpeed;
 	private HashMap<Integer, AvoidEdgeInfo> forbiddenEdges;
 
-	
+	private int encoderIndex = -1;
 
-    public TrafficAvoidWeighting( FlagEncoder encoder, PMap pMap )
+    public TrafficAvoidWeighting( FlagEncoder encoder, PMap map)
     {
+    	super(encoder);
+    	
         if (!encoder.isRegistered())
             throw new IllegalStateException("Make sure you add the FlagEncoder " + encoder + " to an EncodingManager before using it elsewhere");
 
-        this.flagEncoder = encoder;
+        encoderIndex = encoder.getIndex();
         maxSpeed = encoder.getMaxSpeed() / SPEED_CONV;
-
     }
 
     public TrafficAvoidWeighting( FlagEncoder encoder )
@@ -62,7 +63,6 @@ public class TrafficAvoidWeighting implements Weighting {
     {
         this(encoder, new PMap(0));
 		this.forbiddenEdges = forbiddenEdges;     
-        
     }
 
     
@@ -75,7 +75,7 @@ public class TrafficAvoidWeighting implements Weighting {
     @Override
     public double calcWeight( EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId )
     {
-        double normal_speed = reverse ? flagEncoder.getReverseSpeed(edge.getFlags()) : flagEncoder.getSpeed(edge.getFlags());
+        double normal_speed = reverse ? getFlagEncoder().getReverseSpeed(edge.getFlags(encoderIndex)) : getFlagEncoder().getSpeed(edge.getFlags(encoderIndex));
         if (normal_speed == 0)
             return Double.POSITIVE_INFINITY;
 
@@ -141,33 +141,13 @@ public class TrafficAvoidWeighting implements Weighting {
 		return weight; 
 		
     }
-
-    @Override
-    public FlagEncoder getFlagEncoder()
-    {
-        return flagEncoder;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        int hash = 7;
-        hash = 71 * hash + toString().hashCode();
-	
-        return hash;
-    }
-
     
     private double calcTravelTimeInSec (double distance, double speed) {
-    	
     	return distance *3600 / (1000 * speed);
-    	
     }
-   
 
-    @Override
-    public String toString()
-    {
-        return "traffic avoiding weighting";
-    }
+	@Override
+	public String getName() {
+		return "traffic_avoiding_weighting";
+	}
 }

@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -17,41 +17,37 @@
  */
 package com.graphhopper.routing;
 
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.EdgeEntry;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeIterator;
 
 /**
  * This class creates a DijkstraPath from two Edge's resulting from a BidirectionalDijkstra
  * <p>
+ *
  * @author Peter Karich
  */
-public class PathBidirRef extends Path
-{
-    protected EdgeEntry edgeTo;
-    private boolean switchWrapper = false;
+public class PathBidirRef extends Path {
+    protected SPTEntry edgeTo;
+    private boolean switchFromAndToSPTEntry = false;
 
-    public PathBidirRef( Graph g, FlagEncoder encoder, double maxSpeed)
-    {
-        super(g, encoder, maxSpeed);
+    public PathBidirRef(Graph g, Weighting weighting, double maxSpeed) {
+        super(g, weighting, maxSpeed);
     }
 
-    PathBidirRef( PathBidirRef p )
-    {
+    PathBidirRef(PathBidirRef p) {
         super(p);
         edgeTo = p.edgeTo;
-        switchWrapper = p.switchWrapper;
+        switchFromAndToSPTEntry = p.switchFromAndToSPTEntry;
     }
 
-    public PathBidirRef setSwitchToFrom( boolean b )
-    {
-        switchWrapper = b;
+    public PathBidirRef setSwitchToFrom(boolean b) {
+        switchFromAndToSPTEntry = b;
         return this;
     }
 
-    public PathBidirRef setEdgeEntryTo( EdgeEntry edgeTo )
-    {
+    public PathBidirRef setSPTEntryTo(SPTEntry edgeTo) {
         this.edgeTo = edgeTo;
         return this;
     }
@@ -60,36 +56,39 @@ public class PathBidirRef extends Path
      * Extracts path from two shortest-path-tree
      */
     @Override
-    public Path extract()
-    {
-        if (edgeEntry == null || edgeTo == null)
+    public Path extract() {
+        if (sptEntry == null || edgeTo == null)
             return this;
 
-        if (edgeEntry.adjNode != edgeTo.adjNode)
-            throw new IllegalStateException("Locations of the 'to'- and 'from'-Edge has to be the same." + toString() + ", fromEntry:" + edgeEntry + ", toEntry:" + edgeTo);
+        if (sptEntry.adjNode != edgeTo.adjNode)
+            throw new IllegalStateException("Locations of the 'to'- and 'from'-Edge has to be the same." + toString() + ", fromEntry:" + sptEntry + ", toEntry:" + edgeTo);
 
         extractSW.start();
-        if (switchWrapper)
-        {
-            EdgeEntry ee = edgeEntry;
-            edgeEntry = edgeTo;
+        if (switchFromAndToSPTEntry) {
+            SPTEntry ee = sptEntry;
+            sptEntry = edgeTo;
             edgeTo = ee;
         }
-
-        EdgeEntry currEdge = edgeEntry;
-        while (EdgeIterator.Edge.isValid(currEdge.edge))
-        {
-            processEdge(currEdge.edge, currEdge.adjNode);
+        SPTEntry currEdge = sptEntry;
+        boolean nextEdgeValid = EdgeIterator.Edge.isValid(currEdge.edge);
+        int nextEdge;
+        while (nextEdgeValid) {
+            // the reverse search needs the next edge
+            nextEdgeValid = EdgeIterator.Edge.isValid(currEdge.parent.edge);
+            nextEdge = nextEdgeValid ? currEdge.parent.edge : EdgeIterator.NO_EDGE;
+            processEdge(currEdge.edge, currEdge.adjNode, nextEdge);
             currEdge = currEdge.parent;
         }
+
         setFromNode(currEdge.adjNode);
         reverseOrder();
         currEdge = edgeTo;
+        int prevEdge = nextEdgeValid ? sptEntry.edge : EdgeIterator.NO_EDGE;
         int tmpEdge = currEdge.edge;
-        while (EdgeIterator.Edge.isValid(tmpEdge))
-        {
+        while (EdgeIterator.Edge.isValid(tmpEdge)) {
             currEdge = currEdge.parent;
-            processEdge(tmpEdge, currEdge.adjNode);
+            processEdge(tmpEdge, currEdge.adjNode, prevEdge);
+            prevEdge = tmpEdge;
             tmpEdge = currEdge.edge;
         }
         setEndNode(currEdge.adjNode);

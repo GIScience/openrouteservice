@@ -17,7 +17,8 @@ package heigit.ors.routing.graphhopper.extensions.weighting;
 import java.util.ArrayList;
 
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.Weighting;
+import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 
 public class WeightingSequence implements Weighting {
@@ -88,5 +89,23 @@ public class WeightingSequence implements Weighting {
 	@Override
 	public FlagEncoder getFlagEncoder() {
 		return weightings.get(0).getFlagEncoder();
+	}
+
+	@Override
+	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean matches(HintsMap map) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

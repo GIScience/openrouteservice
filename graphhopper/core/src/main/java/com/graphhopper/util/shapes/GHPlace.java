@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -22,50 +22,42 @@ import com.graphhopper.util.Helper;
 /**
  * Specifies a place by its coordinates or name
  * <p>
+ *
  * @author Peter Karich
  */
-public class GHPlace extends GHPoint
-{
+public class GHPlace extends GHPoint {
     private String name = "";
 
-    public GHPlace()
-    {
+    public GHPlace() {
     }
 
-    public GHPlace( String name )
-    {
+    public GHPlace(String name) {
         setName(name);
     }
 
-    public GHPlace( double lat, double lon )
-    {
+    public GHPlace(double lat, double lon) {
         super(lat, lon);
     }
 
-    public void setValue( String t )
-    {
+    public void setValue(String t) {
         setName(t);
     }
 
-    public GHPlace setName( String name )
-    {
+    public String getName() {
+        return name;
+    }
+
+    public GHPlace setName(String name) {
         this.name = name;
         return this;
     }
 
-    public String getName()
-    {
-        return name;
-    }
-
-    public boolean isValidName()
-    {
+    public boolean isValidName() {
         return !Helper.isEmpty(name);
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         String str = "";
         if (isValidName())
             str += name;

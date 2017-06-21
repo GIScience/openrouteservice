@@ -6,53 +6,50 @@
     <groupId>com.graphhopper</groupId>
     <artifactId>graphhopper-parent</artifactId>
     <name>GraphHopper Parent Project</name>
-    <version>0.5.0</version>
-    <packaging>pom</packaging> 
-    <url>http://graphhopper.com</url> 
+    <version>0.10-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <url>https://www.graphhopper.com</url>
     <inceptionYear>2012</inceptionYear>
-    <description>
-        Super pom of GraphHopper core, a fast Java road routing engine.
-    </description>
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>9</version>
-        <relativePath></relativePath>
-    </parent>
+    <description>Super pom of GraphHopper, the fast and flexible routing engine</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <slf4j.version>1.7.12</slf4j.version>
+        <slf4j.version>1.7.25</slf4j.version>
         <log4j.version>1.2.17</log4j.version>
-        
-        <!-- netbeans formatting rules -->
-        <org-netbeans-modules-editor-indent.CodeStyle.usedProfile>project</org-netbeans-modules-editor-indent.CodeStyle.usedProfile>
+        <commons-compress.version>1.12</commons-compress.version>
+        <jackson.version>2.8.4</jackson.version>
+
+        <org-netbeans-modules-editor-indent.CodeStyle.project.indent-shift-width>4</org-netbeans-modules-editor-indent.CodeStyle.project.indent-shift-width>
         <org-netbeans-modules-editor-indent.CodeStyle.project.spaces-per-tab>4</org-netbeans-modules-editor-indent.CodeStyle.project.spaces-per-tab>
         <org-netbeans-modules-editor-indent.CodeStyle.project.tab-size>8</org-netbeans-modules-editor-indent.CodeStyle.project.tab-size>
-        <org-netbeans-modules-editor-indent.CodeStyle.project.indent-shift-width>4</org-netbeans-modules-editor-indent.CodeStyle.project.indent-shift-width>
-        <org-netbeans-modules-editor-indent.CodeStyle.project.expand-tabs>true</org-netbeans-modules-editor-indent.CodeStyle.project.expand-tabs>
         <org-netbeans-modules-editor-indent.CodeStyle.project.text-limit-width>100</org-netbeans-modules-editor-indent.CodeStyle.project.text-limit-width>
-        <org-netbeans-modules-editor-indent.CodeStyle.project.text-line-wrap>none</org-netbeans-modules-editor-indent.CodeStyle.project.text-line-wrap>
-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.blankLinesAfterClassHeader>0</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.blankLinesAfterClassHeader>
-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinMethodDeclParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinMethodDeclParens>
-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.classDeclBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.classDeclBracePlacement>
+        <org-netbeans-modules-editor-indent.CodeStyle.project.expand-tabs>true</org-netbeans-modules-editor-indent.CodeStyle.project.expand-tabs>
+        <org-netbeans-modules-editor-indent.CodeStyle.usedProfile>project</org-netbeans-modules-editor-indent.CodeStyle.usedProfile>
         <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.redundantIfBraces>LEAVE_ALONE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.redundantIfBraces>
-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.otherBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.otherBracePlacement>
-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.methodDeclBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.methodDeclBracePlacement>
-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.generateParagraphTagOnBlankLines>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.generateParagraphTagOnBlankLines>
-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.allowConvertToStarImport>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.allowConvertToStarImport>
-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.countForUsingStaticStarImport>2</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.countForUsingStaticStarImport>
-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.importGroupsOrder>*</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.importGroupsOrder>        
+        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.alignJavadocExceptionDescriptions>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.alignJavadocExceptionDescriptions>
+        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.alignJavadocParameterDescriptions>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.alignJavadocParameterDescriptions>
+        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.blankLinesAfterClassHeader>0</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.blankLinesAfterClassHeader>
+        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.wrapCommentText>false</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.wrapCommentText>
+        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.wrapOneLineComment>false</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.wrapOneLineComment>
         <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.alignMultilineMethodParams>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.alignMultilineMethodParams>
-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.alignMultilineAnnotationArgs>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.alignMultilineAnnotationArgs>        
+        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.alignMultilineFor>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.alignMultilineFor>
+        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.alignMultilineTryResources>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.alignMultilineTryResources>
     </properties>
-    
+
     <scm>
         <connection>scm:git:git@github.com:graphhopper/graphhopper.git</connection>
         <developerConnection>scm:git:git@github.com:graphhopper/graphhopper.git</developerConnection>
         <url>git@github.com:graphhopper/graphhopper.git</url>
     </scm>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
+
     <developers>
         <developer>
             <id>karussell</id>
@@ -60,62 +57,64 @@
             <email>my.name@graphhopper.com</email>
         </developer>
     </developers>
-    
+
     <mailingLists>
         <mailingList>
             <name>GraphHopper</name>
-            <subscribe>http://lists.openstreetmap.org/listinfo/graphhopper</subscribe>      
-            <archive>http://lists.openstreetmap.org/pipermail/graphhopper/</archive>
-            <otherArchives>
-                <otherArchive>http://graphhopper.1087335.n5.nabble.com/</otherArchive>
-            </otherArchives>
+            <subscribe>https://discuss.graphhopper.com/</subscribe>
+            <archive>https://discuss.graphhopper.com/</archive>
         </mailingList>
     </mailingLists>
     <issueManagement>
         <system>GitHub</system>
         <url>https://github.com/graphhopper/graphhopper/issues</url>
     </issueManagement>
+
+    <prerequisites>
+        <maven>3.2</maven>
+    </prerequisites>
     <modules>
         <module>core</module>
-        <!--<module>tools</module>-->
-        <!--<module>web</module>-->
+        <module>reader-osm</module>
+        <module>reader-gtfs</module>
+        <module>reader-json</module>
+        <module>tools</module>
+        <module>web</module>
     </modules>
-        
-    <build>        
+    <build>
         <plugins>
-        
-            <!-- to avoid problems with jvm 1.5 and @Override -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
+                <version>3.5.1</version>
                 <configuration>
                     <!--
                     <compilerArgument>-Xlint:unchecked</compilerArgument>
+                    <compilerArgument>-Xlint:deprecation</compilerArgument>
                     -->
-                    
-                    <!-- suppress warning about Unsafe functionality -->
+
+                    <!-- suppress warning about Unsafe functionality -->                    
                     <compilerArgument>-XDignore.symbol.file</compilerArgument>
                     <fork>true</fork>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
-            
+
             <!-- to run single tests -->
-            <plugin>                
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.18.1</version>
+                <version>2.19.1</version>
                 <configuration>
                     <argLine>-Xmx100m -Xms100m</argLine>
                 </configuration>
             </plugin>
-                        
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.18.1</version>
+                <version>2.19.1</version>
                 <executions>
                     <execution>
                         <goals>
@@ -125,67 +124,75 @@
                     </execution>
                 </executions>
             </plugin>
-            
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.8.2</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.3</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.4</version>
-            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.5</version>                    
+                <version>3.0.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.6</version>
+                <version>3.0.2</version>
+            </plugin>
+            <!-- example https://github.com/tananaev/traccar/blob/master/checkstyle.xml
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.17</version>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                </configuration>
+            </plugin>
+            -->
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>3.0.4</version>
             </plugin>
             <plugin>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>2.6</version>                
-            </plugin>            
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.7</version>
+                <!-- e.g. under core/target/site/pmd.html
+                <configuration>
+                    <format>html</format>
+                </configuration>
+                -->
+            </plugin>
         </plugins>
-    </build>    
-    
-    <dependencies>      
+    </build>
+
+    <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
-        
-       <!-- https://mvnrepository.com/artifact/net.jpountz.lz4/lz4 -->
-<dependency>
-    <groupId>net.jpountz.lz4</groupId>
-    <artifactId>lz4</artifactId>
-    <version>1.3.0</version>
-</dependency>
-
-         
     </dependencies>
-    
-    <!-- mvn deploy -DperformRelease=true -->
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <!-- mvn clean deploy -P release -->
     <profiles>
         <profile>
-            <id>release-sign-artifacts</id>
+            <id>release</id>
             <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
+                <activeByDefault>false</activeByDefault>
             </activation>
+            <!-- this exception is valid for jdk8 profile below too -->
+            <modules>                
+                <!-- See https://github.com/graphhopper/graphhopper/pull/874#issuecomment-261231518
+                Currently works for jdk8 only -->
+                <module>reader-shp</module>
+            </modules>
             <build>
                 <plugins>
                     <plugin>
@@ -202,10 +209,48 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.7</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.10.4</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.0.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
-        
+
         <profile>
             <id>include-android</id>
             <activation>
@@ -215,6 +260,59 @@
                 <module>android/app</module>
             </modules>
         </profile>
+        
+        <profile>
+            <id>jdk8</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties />
+            <modules>                
+                <!-- See https://github.com/graphhopper/graphhopper/pull/874#issuecomment-261231518
+                Currently works for jdk8 only -->
+                <module>reader-shp</module>
+            </modules>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <profile>
+            <id>jdk9</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>                                
+                <jdk>9-ea</jdk>
+            </activation>
+            <properties />           
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables />
+                            <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.19.1</version>
+                        <configuration>
+                            <!-- See #852 and #701 for the add exports or add opens option
+                            -->                            
+                            <argLine>-Xmx100m -Xms100m --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
-    
+
 </project>

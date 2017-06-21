@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -21,30 +21,25 @@ import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.Graph;
-
-import static com.graphhopper.util.GHUtility.*;
-
 import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.util.EdgeExplorer;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.zip.GZIPInputStream;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+import static com.graphhopper.util.GHUtility.count;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Peter Karich
  */
-public class PrinctonReaderTest
-{
-    private EncodingManager encodingManager = new EncodingManager("CAR");
-    private EdgeFilter carOutEdges = new DefaultEdgeFilter(encodingManager.getEncoder("CAR"), false, true);
+public class PrinctonReaderTest {
+    private EncodingManager encodingManager = new EncodingManager("car");
+    private EdgeFilter carOutEdges = new DefaultEdgeFilter(encodingManager.getEncoder("car"), false, true);
 
     @Test
-    public void testRead()
-    {
+    public void testRead() {
         Graph graph = new GraphBuilder(encodingManager).create();
         new PrinctonReader(graph).setStream(PrinctonReader.class.getResourceAsStream("tinyEWD.txt")).read();
         assertEquals(8, graph.getNodes());
@@ -54,8 +49,7 @@ public class PrinctonReaderTest
     }
 
     @Test
-    public void testMediumRead() throws IOException
-    {
+    public void testMediumRead() throws IOException {
         Graph graph = new GraphBuilder(encodingManager).create();
         new PrinctonReader(graph).setStream(new GZIPInputStream(PrinctonReader.class.getResourceAsStream("mediumEWD.txt.gz"))).read();
         assertEquals(250, graph.getNodes());

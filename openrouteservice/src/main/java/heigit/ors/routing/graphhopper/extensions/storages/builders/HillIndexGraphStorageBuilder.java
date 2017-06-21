@@ -12,9 +12,9 @@
 package heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.GraphHopper;
-import com.graphhopper.reader.OSMWay;
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
-import com.graphhopper.util.ArrayBuffer;
+import com.graphhopper.util.ByteArrayBuffer;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
 
@@ -25,7 +25,7 @@ public class HillIndexGraphStorageBuilder extends AbstractGraphStorageBuilder
 {
 	private HillIndexGraphStorage _storage;
 	private HillIndexCalculator _hillIndexCalc;
-	private ArrayBuffer _arrayBuffer;
+	private ByteArrayBuffer _arrayBuffer;
 	
 	public HillIndexGraphStorageBuilder()
 	{
@@ -36,7 +36,7 @@ public class HillIndexGraphStorageBuilder extends AbstractGraphStorageBuilder
 		if (_storage != null)
 			throw new Exception("GraphStorageBuilder has been already initialized.");
 		
-		_arrayBuffer = new ArrayBuffer();
+		_arrayBuffer = new ByteArrayBuffer();
 		if (graphhopper.hasElevation())
 		{
 			_storage = new HillIndexGraphStorage();
@@ -48,11 +48,11 @@ public class HillIndexGraphStorageBuilder extends AbstractGraphStorageBuilder
 			return null;
 	}
 
-	public void processWay(OSMWay way) {
+	public void processWay(ReaderWay way) {
 		// TODO Auto-generated method stub		
 	}
 
-	public void processEdge(OSMWay way, EdgeIteratorState edge) {
+	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
 		boolean revert = edge.getBaseNode() > edge.getAdjNode();
 
 		PointList points = edge.fetchWayGeometry(3, _arrayBuffer);

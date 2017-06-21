@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -23,8 +23,7 @@ import java.util.ArrayList;
  * If you need custom storages, like turn cost tables, or osmid tables for your graph you implement
  * this interface and put it in any graph storage you want.
  */
-public interface GraphExtension extends Storable<GraphExtension>
-{
+public interface GraphExtension extends Storable<GraphExtension> {
     /**
      * @return true, if and only if, if an additional field at the graphs node storage is required
      */
@@ -48,109 +47,94 @@ public interface GraphExtension extends Storable<GraphExtension>
     /**
      * initializes the extended storage by giving the base graph
      */
-    void init( Graph graph, Directory dir );
+    void init(Graph graph, Directory dir);
 
     /**
      * sets the segment size in all additional data storages
      */
-    void setSegmentSize( int bytes );
+    void setSegmentSize(int bytes);
 
     /**
      * creates a copy of this extended storage
      */
-    GraphExtension copyTo( GraphExtension extStorage );
+    GraphExtension copyTo(GraphExtension extStorage);
 
     /**
      * default implementation defines no additional fields or any logic. there's like nothing , like
      * the default behavior.
      */
-    public class NoOpExtension implements GraphExtension
-    {
+    class NoOpExtension implements GraphExtension {
 
         @Override
-        public boolean isRequireNodeField()
-        {
+        public boolean isRequireNodeField() {
             return false;
         }
 
         @Override
-        public boolean isRequireEdgeField()
-        {
+        public boolean isRequireEdgeField() {
             return false;
         }
 
         @Override
-        public int getDefaultNodeFieldValue()
-        {
+        public int getDefaultNodeFieldValue() {
             return 0;
         }
 
         @Override
-        public int getDefaultEdgeFieldValue()
-        {
+        public int getDefaultEdgeFieldValue() {
             return 0;
         }
 
         @Override
-        public void init( Graph grap, Directory dir )
-        {
+        public void init(Graph graph, Directory dir) {
             // noop
         }
 
         @Override
-        public GraphExtension create( long byteCount )
-        {
+        public GraphExtension create(long byteCount) {
             // noop
             return this;
         }
 
         @Override
-        public boolean loadExisting()
-        {
+        public boolean loadExisting() {
             // noop
             return true;
         }
 
         @Override
-        public void setSegmentSize( int bytes )
-        {
+        public void setSegmentSize(int bytes) {
             // noop
         }
 
         @Override
-        public void flush()
-        {
+        public void flush() {
             // noop
         }
 
         @Override
-        public void close()
-        {
+        public void close() {
             // noop
         }
 
         @Override
-        public long getCapacity()
-        {
+        public long getCapacity() {
             return 0;
         }
 
         @Override
-        public GraphExtension copyTo( GraphExtension extStorage )
-        {
+        public GraphExtension copyTo(GraphExtension extStorage) {
             // noop
             return extStorage;
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return "NoExt";
         }
 
         @Override
-        public boolean isClosed()
-        {
+        public boolean isClosed() {
             return false;
         }
     }

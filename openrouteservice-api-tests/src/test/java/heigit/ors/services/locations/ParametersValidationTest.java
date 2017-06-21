@@ -8,8 +8,6 @@ import org.junit.Test;
 
 import heigit.ors.services.common.EndPointAnnotation;
 import heigit.ors.services.common.ServiceTest;
-import io.restassured.response.Response;
-import junit.framework.Assert;
 
 @EndPointAnnotation(name="locations")
 public class ParametersValidationTest extends ServiceTest {

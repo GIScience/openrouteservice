@@ -18,9 +18,9 @@
 package heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.util.PMap;
-import com.graphhopper.reader.OSMWay;
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.FootFlagEncoder;
-import com.graphhopper.routing.util.PriorityWeighting;
+import com.graphhopper.routing.weighting.PriorityWeighting;
 
 import java.util.*;
 
@@ -71,7 +71,7 @@ public class RunningFlagEncoder extends FootFlagEncoder
     }
 
     @Override
-    public long acceptWay(OSMWay way )
+    public long acceptWay(ReaderWay way )
     {
         String highwayValue = way.getTag("highway");
         if (highwayValue == null)
@@ -120,7 +120,7 @@ public class RunningFlagEncoder extends FootFlagEncoder
     }
 
     @Override
-    protected void collect(OSMWay way, TreeMap<Double, Integer> weightToPrioMap )
+    protected void collect(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap )
     {
         String highway = way.getTag("highway");
         if (way.hasTag("foot", "designated"))

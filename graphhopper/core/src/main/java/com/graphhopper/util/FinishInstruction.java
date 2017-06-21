@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -20,27 +20,35 @@ package com.graphhopper.util;
 /**
  * @author Peter Karich
  */
-public class FinishInstruction extends Instruction
-{
-    public FinishInstruction( final double lat, final double lon, final double ele )
-    {
-        super(FINISH, "", InstructionAnnotation.EMPTY, new PointList(2, true)
-        {
+public class FinishInstruction extends Instruction {
+    public FinishInstruction(String name, final double lat, final double lon, final double ele) {
+        super(FINISH, name, InstructionAnnotation.EMPTY, new PointList(2, !Double.isNaN(ele)) {
             {
                 add(lat, lon, ele);
             }
         });
     }
 
-    public FinishInstruction( PointAccess pointAccess, int node )
-    {
+    public FinishInstruction(final double lat, final double lon, final double ele) {
+        super(FINISH, "", InstructionAnnotation.EMPTY, new PointList(2, !Double.isNaN(ele)) {
+            {
+                add(lat, lon, ele);
+            }
+        });
+    }
+
+    public FinishInstruction(String name, PointAccess pointAccess, int node) {
+        this(name, pointAccess.getLatitude(node), pointAccess.getLongitude(node),
+                pointAccess.is3D() ? pointAccess.getElevation(node) : Double.NaN);
+    }
+
+    public FinishInstruction(PointAccess pointAccess, int node) {
         this(pointAccess.getLatitude(node), pointAccess.getLongitude(node),
-                pointAccess.is3D() ? pointAccess.getElevation(node) : 0);
+                pointAccess.is3D() ? pointAccess.getElevation(node) : Double.NaN);
     }
 
     @Override
-    public String getTurnDescription( Translation tr )
-    {
+    public String getTurnDescription(Translation tr) {
         if (rawName)
             return getName();
 

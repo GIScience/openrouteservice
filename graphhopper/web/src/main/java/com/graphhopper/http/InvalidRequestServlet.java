@@ -15,19 +15,17 @@
  */
 package com.graphhopper.http;
 
-import org.json.JSONObject;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class InvalidRequestServlet extends GHBaseServlet
-{
+public class InvalidRequestServlet extends GHBaseServlet {
     @Override
-    protected void service( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException
-    {
-        JSONObject json = new JSONObject();
+    protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        ObjectNode json = objectMapper.createObjectNode();
         json.put("message", "Not found");
         writeJsonError(res, HttpServletResponse.SC_NOT_FOUND, json);
     }

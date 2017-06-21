@@ -53,7 +53,7 @@ public class ORSGraphHopper extends GraphHopper {
 	public ORSGraphHopper(GraphProcessContext procCntx, boolean useTmc, RoutingProfile refProfile) {
 		_procCntx = procCntx;
 		this.refRouteProfile= refProfile;
-		this.setSimplifyResponse(false);
+		this.forDesktop();
 		
 		if (useTmc){
 			tmcEdges = new HashMap<Integer, Long>(); 
@@ -62,9 +62,9 @@ public class ORSGraphHopper extends GraphHopper {
 		_procCntx.init(this);
 	}
 	
-	protected DataReader createReader(GraphHopperStorage tmpGraph) {
+    protected DataReader createReader(GraphHopperStorage tmpGraph) {
 
-		return initOSMReader(new ORSOSMReader(tmpGraph, _procCntx, tmcEdges, osmId2EdgeIds, refRouteProfile));
+		return initDataReader(new ORSOSMReader(tmpGraph, _procCntx, tmcEdges, osmId2EdgeIds, refRouteProfile));
 	}
 	
 	public boolean load( String graphHopperFolder )
@@ -148,7 +148,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 		GHResponse resp = new GHResponse();
 
-		List<Path> paths = this.getPaths(req, resp);
+		List<Path> paths = this.calcPaths(req, resp);
 
 		if (!resp.hasErrors()) {
 

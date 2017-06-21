@@ -52,6 +52,7 @@ import org.json.JSONWriter;
 import org.xml.sax.SAXException;
 
 import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -406,16 +407,12 @@ public class RealTrafficDataProvider {
 	private boolean isEdgesMatched(int edgeId, RoutingProfile rp4tmc, int newEdgeId, RoutingProfile rp4routing){
 		
 		// check the validity of the edge
-		boolean flag1 = rp4tmc.getGraphhopper().getGraphHopperStorage().isValidEdge(edgeId);
-		boolean flag2 = rp4routing.getGraphhopper().getGraphHopperStorage().isValidEdge(newEdgeId);
+		//boolean flag1 = rp4tmc.getGraphhopper().getGraphHopperStorage().isValidEdge(edgeId);
+		//boolean flag2 = rp4routing.getGraphhopper().getGraphHopperStorage().isValidEdge(newEdgeId); // Runge: it has been commented out as the meaning of this check is not entirely clear
 			
-		LineString edge_geom = null;
-		LineString new_edge_geom = null;
-		
-		if (flag1 && flag2){
-		
-			 edge_geom = (LineString) rp4tmc.getEdgeGeometry(edgeId, 3, Integer.MIN_VALUE);		
-		     new_edge_geom = (LineString) rp4routing.getEdgeGeometry(newEdgeId, 3, Integer.MIN_VALUE);
+		if (EdgeIterator.Edge.isValid(edgeId) && EdgeIterator.Edge.isValid(newEdgeId)){
+			LineString edge_geom  = (LineString) rp4tmc.getEdgeGeometry(edgeId, 3, Integer.MIN_VALUE); 
+			LineString new_edge_geom = (LineString) rp4routing.getEdgeGeometry(newEdgeId, 3, Integer.MIN_VALUE);
 		
 		    if (edge_geom.intersects(new_edge_geom)){		    	
 			   return true;			   

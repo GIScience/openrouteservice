@@ -1,15 +1,14 @@
 /*
- *  Licensed to Peter Karich under one or more contributor license
- *  agreements. See the NOTICE file distributed with this work for
+ *  Licensed to GraphHopper GmbH under one or more contributor
+ *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
- *
- *  Peter Karich licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License. You may obtain a copy of the
- *  License at
- *
+ * 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
+ *  Version 2.0 (the "License"); you may not use this file except in 
+ *  compliance with the License. You may obtain a copy of the License at
+ * 
  *       http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,34 +19,30 @@ package com.graphhopper.reader.dem;
 
 import com.graphhopper.storage.DataAccess;
 
-import java.awt.Color;
-import java.awt.Graphics;
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.imageio.ImageIO;
 
 /**
  * One rectangle of height data from Shuttle Radar Topography Mission.
  * <p>
+ *
  * @author Peter Karich
  */
-public class HeightTile
-{
-    private DataAccess heights;
+public class HeightTile {
     private final int minLat;
     private final int minLon;
     private final int width;
     private final int degree;
     private final double lowerBound;
     private final double higherBound;
+    private DataAccess heights;
     private boolean calcMean;
-    
-    public static boolean CUSTOM_ROUND = false;
 
-    public HeightTile( int minLat, int minLon, int width, double precision, int degree )
-    {
+    public HeightTile(int minLat, int minLon, int width, double precision, int degree) {
         this.minLat = minLat;
         this.minLon = minLon;
         this.width = width;
@@ -58,30 +53,25 @@ public class HeightTile
         this.degree = degree;
     }
 
-    public HeightTile setCalcMean( boolean b )
-    {
+    public HeightTile setCalcMean(boolean b) {
         this.calcMean = b;
         return this;
     }
 
-    public HeightTile setSeaLevel( boolean b )
-    {
+    public boolean isSeaLevel() {
+        return heights.getHeader(0) == 1;
+    }
+
+    public HeightTile setSeaLevel(boolean b) {
         heights.setHeader(0, b ? 1 : 0);
         return this;
     }
 
-    public boolean isSeaLevel()
-    {
-        return heights.getHeader(0) == 1;
-    }
-
-    void setHeights( DataAccess da )
-    {
+    void setHeights(DataAccess da) {
         this.heights = da;
     }
 
-    public double getHeight( double lat, double lon )
-    {
+    public double getHeight(double lat, double lon) {
         double deltaLat = Math.abs(lat - minLat);
         double deltaLon = Math.abs(lon - minLon);
         if (deltaLat > higherBound || deltaLat < lowerBound)
@@ -91,26 +81,13 @@ public class HeightTile
 
         // first row in the file is the northernmost one
         // http://gis.stackexchange.com/a/43756/9006
-        int lonSimilar = (int)(width / degree * deltaLon ); // Runge change (int) to Math.Round
+        int lonSimilar = (int) (width / degree * deltaLon);
         // different fallback methods for lat and lon as we have different rounding (lon -> positive, lat -> negative)
         if (lonSimilar >= width)
             lonSimilar = width - 1;
-        int latSimilar = width - 1 - (int)(width / degree * deltaLat );  // Runge change (int) to Math.Round
+        int latSimilar = width - 1 - (int) (width / degree * deltaLat);
         if (latSimilar < 0)
             latSimilar = 0;
-        
-   /*     if (CUSTOM_ROUND)
-        {
-        	// first row in the file is the northernmost one
-            // http://gis.stackexchange.com/a/43756/9006
-            lonSimilar = (int)(width / degree * deltaLon + 0.5 ); // Runge change (int) to Math.Round
-            // different fallback methods for lat and lon as we have different rounding (lon -> positive, lat -> negative)
-            if (lonSimilar >= width)
-                lonSimilar = width - 1;
-            latSimilar = (width - (int)(width / degree * deltaLat + 0.5));  // Runge change (int) to Math.Round
-            if (latSimilar < 0)
-                latSimilar = 0;
-        }*/
 
         // always keep in mind factor 2 because of short value
         int daPointer = 2 * (latSimilar * width + lonSimilar);
@@ -119,8 +96,7 @@ public class HeightTile
         if (value == Short.MIN_VALUE)
             return Double.NaN;
 
-        if (calcMean)
-        {
+        if (calcMean) {
             if (lonSimilar > 0)
                 value += includePoint(daPointer - 2, counter);
 
@@ -137,8 +113,7 @@ public class HeightTile
         return (double) value / counter.get();
     }
 
-    private double includePoint( int pointer, AtomicInteger counter )
-    {
+    private double includePoint(int pointer, AtomicInteger counter) {
         short value = heights.getShort(pointer);
         if (value == Short.MIN_VALUE)
             return 0;
@@ -147,31 +122,25 @@ public class HeightTile
         return value;
     }
 
-    public void toImage( String imageFile ) throws IOException
-    {
+    public void toImage(String imageFile) throws IOException {
         ImageIO.write(makeARGB(), "PNG", new File(imageFile));
     }
 
-    protected BufferedImage makeARGB()
-    {
+    protected BufferedImage makeARGB() {
         int height = width;
         BufferedImage argbImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics g = argbImage.getGraphics();
-        long len = heights.getCapacity() / 2;
-        for (int i = 0; i < len; i++)
-        {
+        long len = width * width;
+        for (int i = 0; i < len; i++) {
             int lonSimilar = i % width;
             // no need for width - y as coordinate system for Graphics is already this way
             int latSimilar = i / width;
             int green = Math.abs(heights.getShort(i * 2));
-            if (green == 0)
-            {
+            if (green == 0) {
                 g.setColor(new Color(255, 0, 0, 255));
-            } else
-            {
+            } else {
                 int red = 0;
-                while (green > 255)
-                {
+                while (green > 255) {
                     green = green / 10;
                     red += 50;
                 }
@@ -185,8 +154,7 @@ public class HeightTile
         return argbImage;
     }
 
-    public BufferedImage getImageFromArray( int[] pixels, int width )
-    {
+    public BufferedImage getImageFromArray(int[] pixels, int width) {
         int height = width;
         BufferedImage tmpImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
         tmpImage.setRGB(0, 0, width, height, pixels, 0, width);
@@ -194,8 +162,7 @@ public class HeightTile
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return minLat + "," + minLon;
     }
 }

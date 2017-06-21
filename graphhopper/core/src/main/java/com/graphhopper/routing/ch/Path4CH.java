@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -19,41 +19,37 @@ package com.graphhopper.routing.ch;
 
 import com.graphhopper.routing.PathBidirRef;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.util.CHEdgeIteratorState;
+import com.graphhopper.util.EdgeIterator;
 
 /**
- * Recursivly unpack shortcuts.
+ * Recursively unpack shortcuts.
  * <p>
+ *
  * @author Peter Karich
  * @see PrepareContractionHierarchies
  */
-public class Path4CH extends PathBidirRef
-{
+public class Path4CH extends PathBidirRef {
     private final Graph routingGraph;
 
-    public Path4CH( Graph routingGraph, Graph baseGraph, FlagEncoder encoder )
-    {
-        super(baseGraph, encoder, -1);
+    public Path4CH(Graph routingGraph, Graph baseGraph, Weighting weighting, double maxSpeed) {
+        super(baseGraph, weighting, maxSpeed);
         this.routingGraph = routingGraph;
     }
 
     @Override
-    protected final void processEdge( int tmpEdge, int endNode )
-    {
+    protected final void processEdge(int tmpEdge, int endNode, int prevEdgeId) {
         // Shortcuts do only contain valid weight so first expand before adding
         // to distance and time
         expandEdge((CHEdgeIteratorState) routingGraph.getEdgeIteratorState(tmpEdge, endNode), false);
     }
 
-    private void expandEdge( CHEdgeIteratorState mainEdgeState, boolean reverse )
-    {
-        if (!mainEdgeState.isShortcut())
-        {
-            double dist = mainEdgeState.getDistance();
-            distance += dist;
-            long flags = mainEdgeState.getFlags();
-            time += calcMillis(dist, flags, reverse);
+    private void expandEdge(CHEdgeIteratorState mainEdgeState, boolean reverse) {
+        if (!mainEdgeState.isShortcut()) {
+            distance += mainEdgeState.getDistance();
+            time += weighting.calcMillis(mainEdgeState, reverse, EdgeIterator.NO_EDGE);
             addEdge(mainEdgeState.getEdge());
             return;
         }
@@ -63,16 +59,14 @@ public class Path4CH extends PathBidirRef
         int from = mainEdgeState.getBaseNode(), to = mainEdgeState.getAdjNode();
 
         // get properties like speed of the edge in the correct direction
-        if (reverse)
-        {
+        if (reverse) {
             int tmp = from;
             from = to;
             to = tmp;
         }
 
         // getEdgeProps could possibly return an empty edge if the shortcut is available for both directions
-        if (reverseOrder)
-        {
+        if (reverseOrder) {
             CHEdgeIteratorState edgeState = (CHEdgeIteratorState) routingGraph.getEdgeIteratorState(skippedEdge1, to);
             boolean empty = edgeState == null;
             if (empty)
@@ -86,8 +80,7 @@ public class Path4CH extends PathBidirRef
                 edgeState = (CHEdgeIteratorState) routingGraph.getEdgeIteratorState(skippedEdge2, from);
 
             expandEdge(edgeState, true);
-        } else
-        {
+        } else {
             CHEdgeIteratorState iter = (CHEdgeIteratorState) routingGraph.getEdgeIteratorState(skippedEdge1, from);
             boolean empty = iter == null;
             if (empty)

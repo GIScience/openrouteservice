@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.graphhopper.GraphHopper;
-import com.graphhopper.reader.OSMWay;
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 
@@ -45,10 +45,10 @@ public class WayCategoryGraphStorageBuilder extends AbstractGraphStorageBuilder
 		return _storage;
 	}
 
-	public void processWay(OSMWay way) {
+	public void processWay(ReaderWay way) {
 		_wayType = 0;
 		
-		boolean hasHighway = way.containsTag("highway");
+		boolean hasHighway = way.hasTag("highway");
 		boolean isFerryRoute = isFerryRoute(way);
 		
 		java.util.Iterator<Entry<String, Object>> it = way.getProperties();
@@ -115,13 +115,13 @@ public class WayCategoryGraphStorageBuilder extends AbstractGraphStorageBuilder
 		}
 	}
 
-	public void processEdge(OSMWay way, EdgeIteratorState edge)
+	public void processEdge(ReaderWay way, EdgeIteratorState edge)
 	{
 		if (_wayType > 0) 
 			_storage.setEdgeValue(edge.getEdge(), _wayType);
 	}
 
-	private boolean isFerryRoute(OSMWay way) {
+	private boolean isFerryRoute(ReaderWay way) {
 		if (way.hasTag("route", ferries)) {
 
 				String motorcarTag = way.getTag("motorcar");

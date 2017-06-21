@@ -15,10 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-import com.graphhopper.storage.EdgeEntry;
+import com.carrotsearch.hppc.IntObjectMap;
+import com.carrotsearch.hppc.cursors.IntObjectCursor;
+import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
-import com.graphhopper.util.ArrayBuffer;
+import com.graphhopper.storage.SPTEntry;
+import com.graphhopper.util.ByteArrayBuffer;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistancePlaneProjection;
 import com.graphhopper.util.EdgeIteratorState;
@@ -34,10 +37,6 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
-
-import gnu.trove.iterator.TIntObjectIterator;
-import gnu.trove.map.TIntObjectMap;
-import gnu.trove.map.hash.TIntObjectHashMap;
 
 import org.apache.log4j.Logger;
 import org.opensphere.geometry.algorithm.ConcaveHull;
@@ -87,7 +86,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 		Coordinate loc = parameters.getLocation();
 		IsochroneMap isochroneMap = new IsochroneMap(loc);
-		ArrayBuffer arrayBuffer = new ArrayBuffer();
+		ByteArrayBuffer arrayBuffer = new ByteArrayBuffer();
 
 		AccessibilityMap edgeMap = GraphEdgeMapFinder.findEdgeMap(_searchContext, parameters, arrayBuffer);
 
@@ -198,27 +197,23 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 	private void markDeadEndEdges(AccessibilityMap edgeMap)
 	{
-		TIntObjectMap<EdgeEntry> map = edgeMap.getMap();
-		TIntObjectMap<Integer> result = new TIntObjectHashMap<Integer>(map.size()/20);
+		IntObjectMap<SPTEntry> map = edgeMap.getMap();
+		IntObjectMap<Integer> result = new GHIntObjectHashMap<Integer>(map.size()/20);
 
-		for (TIntObjectIterator<EdgeEntry> it = map.iterator(); it.hasNext();) {
-			it.advance();
-
-			EdgeEntry edge = it.value();
-			if (edge.originalEdge == -1)
+		for (IntObjectCursor<SPTEntry> entry : map) {
+			SPTEntry  edge = entry.value;
+			if (edge.getOriginalEdgeId() == -1)
 				continue;
 
-			result.put(edge.parent.originalEdge, 1);
+			result.put(edge.parent.getOriginalEdgeId(), 1);
 		}
 
-		for (TIntObjectIterator<EdgeEntry> it = map.iterator(); it.hasNext();) {
-			it.advance();
-
-			EdgeEntry edge = it.value();
-			if (edge.originalEdge == -1)
+		for (IntObjectCursor<SPTEntry> entry : map) {
+			SPTEntry  edge = entry.value;
+			if (edge.getOriginalEdgeId() == -1)
 				continue;
 
-			if (!result.containsKey(edge.originalEdge))
+			if (!result.containsKey(edge.getOriginalEdgeId()))
 				edge.edge =-2;
 		}
 	}
@@ -288,8 +283,8 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 	}
 
 	private GeometryCollection buildIsochrone(AccessibilityMap edgeMap, List<Coordinate> points, double lon, double lat,
-			double isolineCost, double prevCost,  double maxSpeed, double detailedGeomFactor, ArrayBuffer arrayBuffer) {
-		TIntObjectMap<EdgeEntry> map = edgeMap.getMap();
+			double isolineCost, double prevCost,  double maxSpeed, double detailedGeomFactor, ByteArrayBuffer arrayBuffer) {
+		IntObjectMap<SPTEntry> map = edgeMap.getMap();
 
 		points.clear();
 		_treeSet.clear();
@@ -301,8 +296,8 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		NodeAccess nodeAccess = graph.getNodeAccess();
 		int maxNodeId = graph.getNodes();
 
-		EdgeEntry edgeEntry = edgeMap.getEdgeEntry();
-		EdgeEntry goalEdge = edgeEntry;
+		SPTEntry edgeEntry = edgeMap.getEdgeEntry();
+		SPTEntry goalEdge = edgeEntry;
 
 		DistanceCalc dcFast = new DistancePlaneProjection();
 		double bufferSize = 0.0018;
@@ -322,16 +317,15 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			defaultVisitorThreshold = 0.0025;  
 		}
 
-		for (TIntObjectIterator<EdgeEntry> it = map.iterator(); it.hasNext();) {
-			it.advance();
-			int nodeId = it.key();
+		for (IntObjectCursor<SPTEntry> entry : map) {
+			int nodeId = entry.key;
 
 			if (nodeId == -1 || nodeId > maxNodeId)
 				continue;
 
-			goalEdge = it.value();
+			goalEdge = entry.value;
 
-			int edgeId = goalEdge.originalEdge;
+			int edgeId = goalEdge.getOriginalEdgeId();
 
 			if (edgeId == -1)
 				continue;

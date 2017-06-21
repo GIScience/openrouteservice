@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -29,33 +29,23 @@ import java.util.Properties;
 /**
  * Stores command line options in a map. The capitalization of the key is ignored.
  * <p>
+ *
  * @author Peter Karich
  */
-public class CmdArgs extends PMap
-{
+public class CmdArgs extends PMap {
 
-    public CmdArgs()
-    {
+    public CmdArgs() {
     }
 
-    public CmdArgs( Map<String, String> map )
-    {
+    public CmdArgs(Map<String, String> map) {
         super(map);
     }
 
-    @Override
-    public CmdArgs put( String key, Object str )
-    {
-        super.put(key, str);
-        return this;
-    }
-
     /**
-     * @param fileStr the file name of config.properties
+     * @param fileStr        the file name of config.properties
      * @param systemProperty the property name of the configuration. E.g. -Dgraphhopper.config
      */
-    public static CmdArgs readFromConfig( String fileStr, String systemProperty ) throws IOException
-    {
+    public static CmdArgs readFromConfig(String fileStr, String systemProperty) throws IOException {
         if (systemProperty.startsWith("-D"))
             systemProperty = systemProperty.substring(2);
 
@@ -71,12 +61,10 @@ public class CmdArgs extends PMap
 
         // overwrite with system settings
         Properties props = System.getProperties();
-        for (Entry<Object, Object> e : props.entrySet())
-        {
+        for (Entry<Object, Object> e : props.entrySet()) {
             String k = ((String) e.getKey());
             String v = ((String) e.getValue());
-            if (k.startsWith("graphhopper."))
-            {
+            if (k.startsWith("graphhopper.")) {
                 k = k.substring("graphhopper.".length());
                 args.put(k, v);
             }
@@ -84,30 +72,31 @@ public class CmdArgs extends PMap
         return args;
     }
 
-    public static CmdArgs read( String[] args )
-    {
-        Map<String, String> map = new LinkedHashMap<String, String>();
-        for (String arg : args)
-        {
+    /**
+     * This method creates a CmdArgs object from the specified string array (a list of key=value pairs).
+     */
+    public static CmdArgs read(String[] args) {
+        Map<String, String> map = new LinkedHashMap<>();
+        for (String arg : args) {
             int index = arg.indexOf("=");
-            if (index <= 0)
-            {
+            if (index <= 0) {
                 continue;
             }
 
             String key = arg.substring(0, index);
-            if (key.startsWith("-"))
-            {
+            if (key.startsWith("-")) {
                 key = key.substring(1);
             }
 
-            if (key.startsWith("-"))
-            {
+            if (key.startsWith("-")) {
                 key = key.substring(1);
             }
 
             String value = arg.substring(index + 1);
-            map.put(key.toLowerCase(), value);
+            String old = map.put(key.toLowerCase(), value);
+            if (old != null)
+                throw new IllegalArgumentException("Pair '" + key.toLowerCase() + "'='" + value + "' not possible to " +
+                        "add to the CmdArgs-object as the key already exists with '" + old + "'");
         }
 
         return new CmdArgs(map);
@@ -115,24 +104,26 @@ public class CmdArgs extends PMap
 
     /**
      * Command line configuration overwrites the ones in the config file.
-     * <p>
+     *
      * @return a new CmdArgs object if necessary.
      */
-    public static CmdArgs readFromConfigAndMerge( CmdArgs args, String configKey, String configSysAttr )
-    {
+    public static CmdArgs readFromConfigAndMerge(CmdArgs args, String configKey, String configSysAttr) {
         String configVal = args.get(configKey, "");
-        if (!Helper.isEmpty(configVal))
-        {
-            try
-            {
+        if (!Helper.isEmpty(configVal)) {
+            try {
                 CmdArgs tmp = CmdArgs.readFromConfig(configVal, configSysAttr);
                 tmp.merge(args);
                 return tmp;
-            } catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
         }
         return args;
+    }
+
+    @Override
+    public CmdArgs put(String key, Object str) {
+        super.put(key, str);
+        return this;
     }
 }

@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -28,18 +28,17 @@ import java.util.Map;
 /**
  * Implements some common methods for the subclasses.
  * <p>
+ *
  * @author Peter Karich
  */
-public class GHDirectory implements Directory
-{
-    protected Map<String, DataAccess> map = new HashMap<String, DataAccess>();
-    protected Map<String, DAType> types = new HashMap<String, DAType>();
+public class GHDirectory implements Directory {
     protected final String location;
     private final DAType defaultType;
     private final ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+    protected Map<String, DataAccess> map = new HashMap<String, DataAccess>();
+    protected Map<String, DAType> types = new HashMap<String, DAType>();
 
-    public GHDirectory( String _location, DAType defaultType )
-    {
+    public GHDirectory(String _location, DAType defaultType) {
         this.defaultType = defaultType;
         if (Helper.isEmpty(_location))
             _location = new File("").getAbsolutePath();
@@ -54,38 +53,34 @@ public class GHDirectory implements Directory
 
         // set default access to integer based
         // improves performance on server side, 10% faster for queries and preparation
-        if (this.defaultType.isInMemory())
-        {
-            if (isStoring())
-            {
-                put("locationIndex", DAType.RAM_INT_STORE);
+        if (this.defaultType.isInMemory()) {
+            if (isStoring()) {
+                put("location_index", DAType.RAM_INT_STORE);
                 put("edges", DAType.RAM_INT_STORE);
                 put("nodes", DAType.RAM_INT_STORE);
-            } else
-            {
-                put("locationIndex", DAType.RAM_INT);
+            } else {
+                put("location_index", DAType.RAM_INT);
                 put("edges", DAType.RAM_INT);
                 put("nodes", DAType.RAM_INT);
             }
         }
-        mkdirs();
     }
 
     @Override
-    public ByteOrder getByteOrder()
-    {
+    public ByteOrder getByteOrder() {
         return byteOrder;
     }
 
-    public Directory put( String name, DAType type )
-    {
+    public Directory put(String name, DAType type) {
+        if (!name.equals(name.toLowerCase()))
+            throw new IllegalArgumentException("Since 0.7 DataAccess objects does no longer accept upper case names");
+
         types.put(name, type);
         return this;
     }
 
     @Override
-    public DataAccess find( String name )
-    {
+    public DataAccess find(String name) {
         DAType type = types.get(name);
         if (type == null)
             type = defaultType;
@@ -94,57 +89,46 @@ public class GHDirectory implements Directory
     }
 
     @Override
-    public DataAccess find( String name, DAType type )
-    {
+    public DataAccess find(String name, DAType type) {
+        if (!name.equals(name.toLowerCase()))
+            throw new IllegalArgumentException("Since 0.7 DataAccess objects does no longer accept upper case names");
+
         DataAccess da = map.get(name);
-        if (da != null)
-        {
+        if (da != null) {
             if (!type.equals(da.getType()))
                 throw new IllegalStateException("Found existing DataAccess object '" + name
                         + "' but types did not match. Requested:" + type + ", was:" + da.getType());
             return da;
         }
 
-        if (type.isInMemory())
-        {
-            if (type.isInteg())
-            {
+        if (type.isInMemory()) {
+            if (type.isInteg()) {
                 if (type.isStoring())
                     da = new RAMIntDataAccess(name, location, true, byteOrder);
                 else
                     da = new RAMIntDataAccess(name, location, false, byteOrder);
-            } else
-            {
-                if (type.isStoring())
-                    da = new RAMDataAccess(name, location, true, byteOrder);
-                else
-                    da = new RAMDataAccess(name, location, false, byteOrder);
-            }
-        } else if (type.isMMap())
-        {
+            } else if (type.isStoring())
+                da = new RAMDataAccess(name, location, true, byteOrder);
+            else
+                da = new RAMDataAccess(name, location, false, byteOrder);
+        } else if (type.isMMap()) {
             da = new MMapDataAccess(name, location, byteOrder, type.isAllowWrites());
-        } else
-        {
+        } else {
             da = new UnsafeDataAccess(name, location, byteOrder);
         }
-
-        if (type.isSynched())
-            da = new SynchedDAWrapper(da);
 
         map.put(name, da);
         return da;
     }
 
     @Override
-    public void clear()
-    {
+    public void clear() {
         // If there is at least one MMap DA then do not apply the cleanHack 
         // for every single mmap DA as this is very slow if lots of DataAccess objects were collected 
         // => forceClean == false
 
         MMapDataAccess mmapDA = null;
-        for (DataAccess da : map.values())
-        {
+        for (DataAccess da : map.values()) {
             if (da instanceof MMapDataAccess)
                 mmapDA = (MMapDataAccess) da;
 
@@ -156,14 +140,12 @@ public class GHDirectory implements Directory
     }
 
     @Override
-    public void remove( DataAccess da )
-    {
+    public void remove(DataAccess da) {
         removeFromMap(da.getName());
         removeDA(da, da.getName(), true);
-    }	
+    }
 
-    void removeDA( DataAccess da, String name, boolean forceClean )
-    {
+    void removeDA(DataAccess da, String name, boolean forceClean) {
         if (da instanceof MMapDataAccess)
             ((MMapDataAccess) da).close(forceClean);
         else
@@ -173,45 +155,40 @@ public class GHDirectory implements Directory
             Helper.removeDir(new File(location + name));
     }
 
-    void removeFromMap( String name )
-    {
+    void removeFromMap(String name) {
         DataAccess da = map.remove(name);
         if (da == null)
             throw new IllegalStateException("Couldn't remove dataAccess object:" + name);
     }
 
     @Override
-    public DAType getDefaultType()
-    {
+    public DAType getDefaultType() {
         return defaultType;
     }
 
-    public boolean isStoring()
-    {
+    public boolean isStoring() {
         return defaultType.isStoring();
     }
 
-    protected void mkdirs()
-    {
+    @Override
+    public Directory create() {
         if (isStoring())
             new File(location).mkdirs();
+        return this;
     }
 
     @Override
-    public Collection<DataAccess> getAll()
-    {
+    public Collection<DataAccess> getAll() {
         return map.values();
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return getLocation();
     }
 
     @Override
-    public String getLocation()
-    {
+    public String getLocation() {
         return location;
     }
 }

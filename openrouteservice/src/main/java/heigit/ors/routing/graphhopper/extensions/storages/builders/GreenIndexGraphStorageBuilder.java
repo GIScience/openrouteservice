@@ -12,7 +12,7 @@
 package heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.GraphHopper;
-import com.graphhopper.reader.OSMWay;
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
@@ -109,12 +109,12 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
     }
 
     @Override
-    public void processWay(OSMWay way) {
+    public void processWay(ReaderWay way) {
 
     }
 
     @Override
-    public void processEdge(OSMWay way, EdgeIteratorState edge) {
+    public void processEdge(ReaderWay way, EdgeIteratorState edge) {
         _storage.setEdgeValue(edge.getEdge(), calcGreenIndex(way.getId()));
     }
 

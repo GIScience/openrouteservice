@@ -1,4 +1,6 @@
 #!/bin/bash
+(set -o igncr) 2>/dev/null && set -o igncr; # this comment is required for handling Windows cr/lf 
+# See StackOverflow answer http://stackoverflow.com/a/14607651
 
 GH_CLASS=com.graphhopper.tools.Import
 GH_HOME=$(dirname "$0")
@@ -24,18 +26,20 @@ FILE=$2
 
 function printUsage {
  echo
- echo "./graphhopper.sh import|web <your-osm-file>"
- echo "./graphhopper.sh clean|build|help"
+ echo "./graphhopper.sh import|web <some-map-file>"
+ echo "./graphhopper.sh clean|build|buildweb|help"
  echo
  echo "  help        this message"
  echo "  import      creates the graphhopper files used for later (faster) starts"
- echo "  web         starts a local server for user access at localhost:8989 and developer access at localhost:8989/route"
+ echo "  web         starts a local server for user access at localhost:8989 and API access at localhost:8989/route"
  echo "  build       creates the graphhopper JAR (without the web module)"
+ echo "  buildweb    creates the graphhopper JAR (with the web module)"
  echo "  clean       removes all JARs, necessary if you need to use the latest source (e.g. after switching the branch etc)"
- echo "  measurement does performance analysis of the current source version via artificial, random routes (Measurement class)"
- echo "  torture     can be used to test real world routes via feeding graphhopper logs into a graphhopper system (Torture class)"
- echo "  miniui      is a simple Java/Swing application used for debugging purposes only (MiniGraphUI class)"
- echo "  extract     calls the overpass API to easily grab any area as .osm file"
+ echo "  measurement does performance analysis of the current source version via random routes (Measurement class)"
+ echo "  torture     can be used to test real world routes via feeding graphhopper logs into a GraphHopper system (Torture class)"
+ echo "  miniui      is a simple Java/Swing visualization application used for debugging purposes (MiniGraphUI class)"
+ echo "  extract     calls the overpass API to grab any area as .osm file"
+ echo "  android     builds, deploys and starts the Android demo for your connected device"
 }
 
 if [ "$ACTION" = "" ]; then
@@ -43,7 +47,7 @@ if [ "$ACTION" = "" ]; then
  printUsage
 fi
 
-function ensureOsmXml { 
+function ensureOsm { 
   if [ "$OSM_FILE" = "" ]; then
     # skip
     return
@@ -79,15 +83,15 @@ function ensureMaven {
   # maven home existent?
   if [ "$MAVEN_HOME" = "" ]; then
     # not existent but probably is maven in the path?
-    MAVEN_HOME=$(mvn -v | grep "Maven home" | cut -d' ' -f3)
+    MAVEN_HOME=$(mvn -v | grep "Maven home" | cut -d' ' -f3,4,5,6)
     if [ "$MAVEN_HOME" = "" ]; then
       # try to detect previous downloaded version
       MAVEN_HOME="$GH_HOME/maven"
       if [ ! -f "$MAVEN_HOME/bin/mvn" ]; then
         echo "No Maven found in the PATH. Now downloading+installing it to $MAVEN_HOME"
         cd "$GH_HOME"
-        MVN_PACKAGE=apache-maven-3.2.5
-        wget -O maven.zip http://archive.apache.org/dist/maven/maven-3/3.2.5/binaries/$MVN_PACKAGE-bin.zip
+        MVN_PACKAGE=apache-maven-3.5.0
+        wget -O maven.zip http://archive.apache.org/dist/maven/maven-3/3.5.0/binaries/$MVN_PACKAGE-bin.zip
         unzip maven.zip
         mv $MVN_PACKAGE maven
         rm maven.zip
@@ -96,54 +100,47 @@ function ensureMaven {
   fi
 }
 
-function packageCoreJar {
-  if [ ! -d "./target" ]; then
-    echo "## building parent"
-    "$MAVEN_HOME/bin/mvn" --non-recursive install > /tmp/graphhopper-compile.log
-     returncode=$?
-     if [[ $returncode != 0 ]] ; then
-       echo "## compilation of parent failed"
-       cat /tmp/graphhopper-compile.log
-       exit $returncode
-     fi                                     
+function execMvn {
+  "$MAVEN_HOME/bin/mvn" "$@" > /tmp/graphhopper-compile.log
+  returncode=$?
+  if [[ $returncode != 0 ]] ; then
+    echo "## compilation of parent failed"
+    cat /tmp/graphhopper-compile.log
+    exit $returncode
   fi
-  
+}
+
+function packageCoreJar {
   if [ ! -f "$JAR" ]; then
-    echo "## now building graphhopper jar: $JAR"
+    echo "## building graphhopper jar: $JAR"
     echo "## using maven at $MAVEN_HOME"
-    #mvn clean
-    "$MAVEN_HOME/bin/mvn" --projects core,tools -DskipTests=true install assembly:single > /tmp/graphhopper-compile.log
-    returncode=$?
-    if [[ $returncode != 0 ]] ; then
-        echo "## compilation of core failed"
-        cat /tmp/graphhopper-compile.log
-        exit $returncode
-    fi      
+    execMvn --projects tools -am -DskipTests=true package
   else
     echo "## existing jar found $JAR"
   fi
 }
 
-function prepareEclipse {
- ensureMaven   
- packageCoreJar
- # cp core/target/graphhopper-*-android.jar android/libs/   
-}
-
+ensureMaven
 
 ## now handle actions which do not take an OSM file
 if [ "$ACTION" = "clean" ]; then
+ rm -rf ./android/app/target
  rm -rf ./*/target
+ rm -rf ./target
  exit
 
 elif [ "$ACTION" = "eclipse" ]; then
- prepareEclipse
+ packageCoreJar
  exit
 
 elif [ "$ACTION" = "build" ]; then
- prepareEclipse
+ packageCoreJar
  exit  
  
+elif [ "$ACTION" = "buildweb" ]; then
+ execMvn --projects web -am -DskipTests=true package
+ exit
+
 elif [ "$ACTION" = "extract" ]; then
  echo use "./graphhopper.sh extract \"left,bottom,right,top\""
  URL="http://overpass-api.de/api/map?bbox=$2"
@@ -152,8 +149,7 @@ elif [ "$ACTION" = "extract" ]; then
  exit
  
 elif [ "$ACTION" = "android" ]; then
- prepareEclipse
- "$MAVEN_HOME/bin/mvn" -P include-android --projects android install android:deploy android:run
+ execMvn -P include-android --projects android/app -am package android:deploy android:run
  exit
 fi
 
@@ -168,9 +164,7 @@ NAME="${FILE%.*}"
 
 if [ "$FILE" == "-" ]; then
    OSM_FILE=
-elif [ ${FILE: -4} == ".osm" ]; then
-   OSM_FILE="$FILE"
-elif [ ${FILE: -4} == ".pbf" ]; then
+elif [ ${FILE: -4} == ".osm" ] || [ ${FILE: -4} == ".xml" ] || [ ${FILE: -4} == ".pbf" ]; then
    OSM_FILE="$FILE"
 elif [ ${FILE: -7} == ".osm.gz" ]; then
    OSM_FILE="$FILE"
@@ -209,9 +203,7 @@ if [ "$JAVA_OPTS" = "" ]; then
   JAVA_OPTS="-Xmx1000m -Xms1000m -server"
 fi
 
-
-ensureOsmXml
-ensureMaven
+ensureOsm
 packageCoreJar
 
 echo "## now $ACTION. JAVA_OPTS=$JAVA_OPTS"
@@ -222,14 +214,8 @@ if [ "$ACTION" = "ui" ] || [ "$ACTION" = "web" ]; then
     JETTY_PORT=8989
   fi
   WEB_JAR="$GH_HOME/web/target/graphhopper-web-$VERSION-with-dep.jar"
-  if [ ! -s "$WEB_JAR" ]; then         
-    "$MAVEN_HOME/bin/mvn" --projects web -DskipTests=true install assembly:single > /tmp/graphhopper-web-compile.log
-    returncode=$?
-    if [[ $returncode != 0 ]] ; then
-      echo "## compilation of web failed"
-      cat /tmp/graphhopper-web-compile.log
-      exit $returncode
-    fi
+  if [ ! -s "$WEB_JAR" ]; then
+    execMvn --projects web -am -DskipTests=true package
   fi
 
   RC_BASE=./web/src/main/webapp
@@ -237,12 +223,12 @@ if [ "$ACTION" = "ui" ] || [ "$ACTION" = "web" ]; then
   if [ "$GH_FOREGROUND" = "" ]; then
     exec "$JAVA" $JAVA_OPTS -jar "$WEB_JAR" jetty.resourcebase=$RC_BASE \
 	jetty.port=$JETTY_PORT jetty.host=$JETTY_HOST \
-    	config=$CONFIG $GH_WEB_OPTS graph.location="$GRAPH" osmreader.osm="$OSM_FILE"
+    	config=$CONFIG $GH_WEB_OPTS graph.location="$GRAPH" datareader.file="$OSM_FILE"
     # foreground => we never reach this here
   else
     exec "$JAVA" $JAVA_OPTS -jar "$WEB_JAR" jetty.resourcebase=$RC_BASE \
     	jetty.port=$JETTY_PORT jetty.host=$JETTY_HOST \
-    	config=$CONFIG $GH_WEB_OPTS graph.location="$GRAPH" osmreader.osm="$OSM_FILE" <&- &
+    	config=$CONFIG $GH_WEB_OPTS graph.location="$GRAPH" datareader.file="$OSM_FILE" <&- &
     if [ "$GH_PID_FILE" != "" ]; then
        echo $! > $GH_PID_FILE
     fi
@@ -251,35 +237,36 @@ if [ "$ACTION" = "ui" ] || [ "$ACTION" = "web" ]; then
 
 elif [ "$ACTION" = "import" ]; then
  "$JAVA" $JAVA_OPTS -cp "$JAR" $GH_CLASS config=$CONFIG \
-      $GH_IMPORT_OPTS graph.location="$GRAPH" osmreader.osm="$OSM_FILE"
+      $GH_IMPORT_OPTS graph.location="$GRAPH" datareader.file="$OSM_FILE"
 
 
 elif [ "$ACTION" = "torture" ]; then
- "$JAVA" $JAVA_OPTS -cp "$JAR" com.graphhopper.tools.QueryTorture $3 $4 $5 $6 $7 $8 $9
+ "$JAVA" $JAVA_OPTS -cp "$JAR" com.graphhopper.tools.QueryTorture $@
 
 
 elif [ "$ACTION" = "miniui" ]; then
- "$MAVEN_HOME/bin/mvn" --projects tools -DskipTests clean install assembly:single
+ execMvn --projects tools -am -DskipTests clean package
  JAR=tools/target/graphhopper-tools-$VERSION-jar-with-dependencies.jar   
- "$JAVA" $JAVA_OPTS -cp "$JAR" com.graphhopper.ui.MiniGraphUI osmreader.osm="$OSM_FILE" config=$CONFIG \
+ "$JAVA" $JAVA_OPTS -cp "$JAR" com.graphhopper.ui.MiniGraphUI datareader.file="$OSM_FILE" config=$CONFIG \
               graph.location="$GRAPH"
 
 
 elif [ "$ACTION" = "measurement" ]; then
- ARGS="config=$CONFIG graph.location=$GRAPH osmreader.osm=$OSM_FILE prepare.chWeighting=fastest graph.flagEncoders=CAR"
- echo -e "\ncreate graph via $ARGS, $JAR"
- START=$(date +%s)
+ ARGS="config=$CONFIG graph.location=$GRAPH datareader.file=$OSM_FILE prepare.ch.weightings=fastest prepare.lm.weightings=fastest graph.flag_encoders=car prepare.min_network_size=10000 prepare.min_oneway_network_size=10000"
+ # echo -e "\ncreate graph via $ARGS, $JAR"
+ # START=$(date +%s)
  # avoid islands for measurement at all costs
- "$JAVA" $JAVA_OPTS -cp "$JAR" $GH_CLASS $ARGS prepare.doPrepare=false prepare.minNetworkSize=10000 prepare.minOnewayNetworkSize=10000
- END=$(date +%s)
- IMPORT_TIME=$(($END - $START))
+ # "$JAVA" $JAVA_OPTS -cp "$JAR" $GH_CLASS $ARGS prepare.doPrepare=false prepare.minNetworkSize=10000 prepare.minOnewayNetworkSize=10000
+ # END=$(date +%s)
+ # IMPORT_TIME=$(($END - $START))
 
  function startMeasurement {
+    execMvn --projects tools -am -DskipTests clean package
     COUNT=5000
     commit_info=$(git log -n 1 --pretty=oneline)
     echo -e "\nperform measurement via jar=> $JAR and ARGS=> $ARGS"
     "$JAVA" $JAVA_OPTS -cp "$JAR" com.graphhopper.tools.Measurement $ARGS measurement.count=$COUNT measurement.location="$M_FILE_NAME" \
-            graph.importTime=$IMPORT_TIME measurement.gitinfo="$commit_info"
+            measurement.gitinfo="$commit_info"
  }
  
  
@@ -287,8 +274,6 @@ elif [ "$ACTION" = "measurement" ]; then
  last_commits=$3
   
  if [ "$last_commits" = "" ]; then
-   # use current version
-   "$MAVEN_HOME/bin/mvn" --projects core,tools -DskipTests clean install assembly:single
    startMeasurement
    exit
  fi
@@ -301,7 +286,6 @@ elif [ "$ACTION" = "measurement" ]; then
    M_FILE_NAME="measurement$M_FILE_NAME.properties"
    echo -e "\nusing commit $commit and $M_FILE_NAME"
    
-   "$MAVEN_HOME/bin/mvn" --projects core,tools -DskipTests clean install assembly:single
    startMeasurement
    echo -e "\nmeasurement.commit=$commit\n" >> "$M_FILE_NAME"
  done
