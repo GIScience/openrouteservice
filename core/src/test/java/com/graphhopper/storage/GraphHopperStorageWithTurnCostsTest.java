@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -17,12 +17,12 @@
  */
 package com.graphhopper.storage;
 
-import java.io.IOException;
-import java.util.Random;
-
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -30,21 +30,18 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Karl Hübner
  */
-public class GraphHopperStorageWithTurnCostsTest extends GraphHopperStorageTest
-{
+public class GraphHopperStorageWithTurnCostsTest extends GraphHopperStorageTest {
     private TurnCostExtension turnCostStorage;
 
     @Override
-    protected GraphHopperStorage newGHStorage( Directory dir, boolean is3D )
-    {
+    protected GraphHopperStorage newGHStorage(Directory dir, boolean is3D) {
         turnCostStorage = new TurnCostExtension();
         return new GraphHopperStorage(dir, encodingManager, is3D, turnCostStorage);
     }
 
     @Override
     @Test
-    public void testSave_and_fileFormat() throws IOException
-    {
+    public void testSave_and_fileFormat() throws IOException {
         graph = newGHStorage(new RAMDirectory(defaultGraphLoc, true), true).create(defaultSize);
         NodeAccess na = graph.getNodeAccess();
         assertTrue(na.is3D());
@@ -90,20 +87,18 @@ public class GraphHopperStorageWithTurnCostsTest extends GraphHopperStorageTest
     }
 
     @Test
-    public void testEnsureCapacity() throws IOException
-    {
+    public void testEnsureCapacity() throws IOException {
         graph = newGHStorage(new MMapDirectory(defaultGraphLoc), false);
         graph.setSegmentSize(128);
         graph.create(100); // 100 is the minimum size
 
         // assert that turnCostStorage can hold 104 turn cost entries at the beginning
-        assertEquals(104, turnCostStorage.getCapacity() / 16);
+        assertEquals(128, turnCostStorage.getCapacity());
 
         Random r = new Random();
 
         NodeAccess na = graph.getNodeAccess();
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             double randomLat = 90 * r.nextDouble();
             double randomLon = 180 * r.nextDouble();
 
@@ -111,18 +106,15 @@ public class GraphHopperStorageWithTurnCostsTest extends GraphHopperStorageTest
         }
 
         // Make node 50 the 'center' node
-        for (int nodeId = 51; nodeId < 100; nodeId++)
-        {
+        for (int nodeId = 51; nodeId < 100; nodeId++) {
             graph.edge(50, nodeId, r.nextDouble(), true);
         }
-        for (int nodeId = 0; nodeId < 50; nodeId++)
-        {
+        for (int nodeId = 0; nodeId < 50; nodeId++) {
             graph.edge(nodeId, 50, r.nextDouble(), true);
         }
 
         // add 100 turn cost entries around node 50
-        for (int edgeId = 0; edgeId < 50; edgeId++)
-        {
+        for (int edgeId = 0; edgeId < 50; edgeId++) {
             turnCostStorage.addTurnInfo(edgeId, 50, edgeId + 50, 1337);
             turnCostStorage.addTurnInfo(edgeId + 50, 50, edgeId, 1337);
         }

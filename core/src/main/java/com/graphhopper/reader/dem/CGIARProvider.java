@@ -1,15 +1,14 @@
 /*
- *  Licensed to Peter Karich under one or more contributor license
- *  agreements. See the NOTICE file distributed with this work for
+ *  Licensed to GraphHopper GmbH under one or more contributor
+ *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
- *
- *  Peter Karich licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License. You may obtain a copy of the
- *  License at
- *
+ * 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
+ *  Version 2.0 (the "License"); you may not use this file except in 
+ *  compliance with the License. You may obtain a copy of the License at
+ * 
  *       http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,20 +23,22 @@ import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.GHDirectory;
 import com.graphhopper.util.Downloader;
 import com.graphhopper.util.Helper;
-
-import java.awt.image.Raster;
-import java.io.*;
-import java.net.SocketTimeoutException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
 import org.apache.xmlgraphics.image.codec.tiff.TIFFDecodeParam;
 import org.apache.xmlgraphics.image.codec.tiff.TIFFImageDecoder;
 import org.apache.xmlgraphics.image.codec.util.SeekableStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.awt.image.Raster;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Elevation data from CGIAR project http://srtm.csi.cgiar.org/ 'PROCESSED SRTM DATA VERSION 4.1'.
@@ -51,31 +52,63 @@ import org.slf4j.LoggerFactory;
  * </li>
  * </ol>
  * <p>
+ *
  * @author NopMap
  * @author Peter Karich
  */
-public class CGIARProvider implements ElevationProvider
-{
+public class CGIARProvider implements ElevationProvider {
     private static final int WIDTH = 6000;
-    private Downloader downloader = new Downloader("GraphHopper CGIARReader").setTimeout(10000);
+    final double precision = 1e7;
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    //Runge: String substituted with Integer
     private final Map<Integer, HeightTile> cacheData = new HashMap<Integer, HeightTile>();
+    private final double invPrecision = 1 / precision;
+    private final int degree = 5;
+    private Downloader downloader = new Downloader("GraphHopper CGIARReader").setTimeout(10000);
     private File cacheDir = new File("/tmp/cgiar");
     // for alternatives see #346
     private String baseUrl = "http://srtm.csi.cgiar.org/SRT-ZIP/SRTM_V41/SRTM_Data_GeoTiff";
     private Directory dir;
     private DAType daType = DAType.MMAP;
-    final double precision = 1e7;
-    private final double invPrecision = 1 / precision;
-    private final int degree = 5;
     private boolean calcMean = false;
     private boolean autoRemoveTemporary = true;
+    private long sleep = 2000;
+
+    public static void main(String[] args) {
+        CGIARProvider provider = new CGIARProvider();
+
+        System.out.println(provider.getEle(46, -20));
+
+        // 337.0
+        System.out.println(provider.getEle(49.949784, 11.57517));
+        // 453.0
+        System.out.println(provider.getEle(49.968668, 11.575127));
+        // 447.0
+        System.out.println(provider.getEle(49.968682, 11.574842));
+
+        // 3131
+        System.out.println(provider.getEle(-22.532854, -65.110474));
+
+        // 123
+        System.out.println(provider.getEle(38.065392, -87.099609));
+
+        // 1615
+        System.out.println(provider.getEle(40, -105.2277023));
+        System.out.println(provider.getEle(39.99999999, -105.2277023));
+        System.out.println(provider.getEle(39.9999999, -105.2277023));
+        // 1617
+        System.out.println(provider.getEle(39.999999, -105.2277023));
+
+        // 0
+        System.out.println(provider.getEle(29.840644, -42.890625));
+    }
 
     @Override
-    public void setCalcMean( boolean eleCalcMean )
-    {
+    public void setCalcMean(boolean eleCalcMean) {
         calcMean = eleCalcMean;
+    }
+
+    void setSleep(long sleep) {
+        this.sleep = sleep;
     }
 
     /**
@@ -83,39 +116,32 @@ public class CGIARProvider implements ElevationProvider
      * our DataAccess object, so this option can be used to disable the default clear mechanism via
      * specifying 'false'.
      */
-    public void setAutoRemoveTemporaryFiles( boolean autoRemoveTemporary )
-    {
+    public void setAutoRemoveTemporaryFiles(boolean autoRemoveTemporary) {
         this.autoRemoveTemporary = autoRemoveTemporary;
     }
 
-    public void setDownloader( Downloader downloader )
-    {
+    public void setDownloader(Downloader downloader) {
         this.downloader = downloader;
     }
 
     @Override
-    public ElevationProvider setCacheDir( File cacheDir )
-    {
+    public ElevationProvider setCacheDir(File cacheDir) {
         if (cacheDir.exists() && !cacheDir.isDirectory())
             throw new IllegalArgumentException("Cache path has to be a directory");
-        try
-        {
+        try {
             this.cacheDir = cacheDir.getCanonicalFile();
-        } catch (IOException ex)
-        {
+        } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
         return this;
     }
 
-    protected File getCacheDir()
-    {
+    protected File getCacheDir() {
         return cacheDir;
-    }        
+    }
 
     @Override
-    public ElevationProvider setBaseURL( String baseUrl )
-    {
+    public ElevationProvider setBaseURL(String baseUrl) {
         if (baseUrl == null || baseUrl.isEmpty())
             throw new IllegalArgumentException("baseUrl cannot be empty");
 
@@ -124,10 +150,26 @@ public class CGIARProvider implements ElevationProvider
     }
 
     @Override
-    public ElevationProvider setDAType( DAType daType )
-    {
+    public ElevationProvider setDAType(DAType daType) {
         this.daType = daType;
         return this;
+    }
+    
+    public int getTileKey( double lat, double lon )
+    {
+    	 lon = 1 + (180 + lon) / degree;
+         int lonInt = (int) lon;
+         lat = 1 + (60 - lat) / degree;
+         int latInt = (int) lat;
+
+         if (Math.abs(latInt - lat) < invPrecision / degree)
+             latInt--;
+         
+         int hashCode = 23;
+         hashCode = 31 * hashCode + lonInt;
+         hashCode = 31 * hashCode + latInt;
+         
+         return hashCode;
     }
     
     //Runge
@@ -264,9 +306,9 @@ public class CGIARProvider implements ElevationProvider
 		return demProvider;
 	}
 
+
     @Override
-    public double getEle( double lat, double lon )
-    {
+    public double getEle(double lat, double lon) {
         // no data we can avoid the trouble
         if (lat > 60 || lat < -60)
             return 0;
@@ -287,10 +329,10 @@ public class CGIARProvider implements ElevationProvider
             return 0;
 
         return demProvider.getHeight(lat, lon);
+
     }
 
-    int down( double val )
-    {
+    int down(double val) {
         // 'rounding' to closest 5
         int intVal = (int) (val / degree) * degree;
         if (!(val >= 0 || intVal - val < invPrecision))
@@ -299,25 +341,7 @@ public class CGIARProvider implements ElevationProvider
         return intVal;
     }
 
-    public int getTileKey( double lat, double lon )
-    {
-    	 lon = 1 + (180 + lon) / degree;
-         int lonInt = (int) lon;
-         lat = 1 + (60 - lat) / degree;
-         int latInt = (int) lat;
-
-         if (Math.abs(latInt - lat) < invPrecision / degree)
-             latInt--;
-         
-         int hashCode = 23;
-         hashCode = 31 * hashCode + lonInt;
-         hashCode = 31 * hashCode + latInt;
-         
-         return hashCode;
-    }
-    
-    protected String getFileName( double lat, double lon )
-    {
+    protected String getFileName(double lat, double lon) {
         lon = 1 + (180 + lon) / degree;
         int lonInt = (int) lon;
         lat = 1 + (60 - lat) / degree;
@@ -338,8 +362,7 @@ public class CGIARProvider implements ElevationProvider
     }
 
     @Override
-    public void release()
-    {
+    public void release() {
         cacheData.clear();
 
         // for memory mapped type we create temporary unpacked files which should be removed
@@ -348,47 +371,15 @@ public class CGIARProvider implements ElevationProvider
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "CGIAR";
     }
 
-    private Directory getDirectory()
-    {
+    private Directory getDirectory() {
         if (dir != null)
             return dir;
 
         logger.info(this.toString() + " Elevation Provider, from: " + baseUrl + ", to: " + cacheDir + ", as: " + daType);
         return dir = new GHDirectory(cacheDir.getAbsolutePath(), daType);
-    }
-
-    public static void main( String[] args )
-    {
-        CGIARProvider provider = new CGIARProvider();
-        
-        System.out.println(provider.getEle(46, -20));
-        
-        // 337.0
-        System.out.println(provider.getEle(49.949784, 11.57517));
-        // 453.0
-        System.out.println(provider.getEle(49.968668, 11.575127));
-        // 447.0
-        System.out.println(provider.getEle(49.968682, 11.574842));
-
-        // 3131
-        System.out.println(provider.getEle(-22.532854, -65.110474));
-
-        // 123               
-        System.out.println(provider.getEle(38.065392, -87.099609));
-
-        // 1615
-        System.out.println(provider.getEle(40, -105.2277023));
-        System.out.println(provider.getEle(39.99999999, -105.2277023));
-        System.out.println(provider.getEle(39.9999999, -105.2277023));
-        // 1617
-        System.out.println(provider.getEle(39.999999, -105.2277023));
-
-        // 0
-        System.out.println(provider.getEle(29.840644, -42.890625));
     }
 }

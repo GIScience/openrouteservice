@@ -1,14 +1,14 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
- *  license agreements. See the NOTICE file distributed with this work for
+ *  Licensed to GraphHopper GmbH under one or more contributor
+ *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
- *
- *  GraphHopper licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except in
+ * 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
+ *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
- *
+ * 
  *       http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,51 +17,46 @@
  */
 package com.graphhopper.routing;
 
+import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.weighting.FastestWeighting;
+import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.storage.index.QueryResult;
-
-import static com.graphhopper.storage.index.QueryResult.Position.*;
-
 import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.GHPoint;
-import gnu.trove.map.TIntObjectMap;
-
-import java.util.Arrays;
-import java.util.Collections;
-
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 
-import org.junit.Before;
+import static com.graphhopper.storage.index.QueryResult.Position.*;
+import static org.junit.Assert.*;
 
 /**
  * @author Peter Karich
  */
-public class QueryGraphTest
-{
+public class QueryGraphTest {
     private EncodingManager encodingManager;
     private FlagEncoder carEncoder;
     private GraphHopperStorage g;
 
     @Before
-    public void setUp()
-    {
+    public void setUp() {
         carEncoder = new CarFlagEncoder();
         encodingManager = new EncodingManager(carEncoder);
         g = new GraphHopperStorage(new RAMDirectory(), encodingManager, false, new GraphExtension.NoOpExtension()).create(100);
     }
 
     @After
-    public void tearDown()
-    {
+    public void tearDown() {
         g.close();
     }
 
-    void initGraph( Graph g )
-    {
+    void initGraph(Graph g) {
         //
         //  /*-*\
         // 0     1
@@ -76,8 +71,7 @@ public class QueryGraphTest
     }
 
     @Test
-    public void testOneVirtualNode()
-    {
+    public void testOneVirtualNode() {
         initGraph(g);
         EdgeExplorer expl = g.createEdgeExplorer();
 
@@ -148,8 +142,7 @@ public class QueryGraphTest
     }
 
     @Test
-    public void testFillVirtualEdges()
-    {
+    public void testFillVirtualEdges() {
         initGraph(g);
         g.getNodeAccess().setNode(3, 0, 1);
         g.edge(1, 3);
@@ -158,12 +151,10 @@ public class QueryGraphTest
         EdgeIterator iter = g.createEdgeExplorer().setBaseNode(baseNode);
         iter.next();
         QueryResult res1 = createLocationResult(2, 1.7, iter, 1, PILLAR);
-        QueryGraph queryGraph = new QueryGraph(g)
-        {
+        QueryGraph queryGraph = new QueryGraph(g) {
 
             @Override
-            void fillVirtualEdges( TIntObjectMap<VirtualEdgeIterator> node2Edge, int towerNode, EdgeExplorer mainExpl )
-            {
+            void fillVirtualEdges(IntObjectMap<VirtualEdgeIterator> node2Edge, int towerNode, EdgeExplorer mainExpl) {
                 super.fillVirtualEdges(node2Edge, towerNode, mainExpl);
                 // ignore nodes should include baseNode == 1
                 if (towerNode == 3)
@@ -184,8 +175,7 @@ public class QueryGraphTest
     }
 
     @Test
-    public void testMultipleVirtualNodes()
-    {
+    public void testMultipleVirtualNodes() {
         initGraph(g);
 
         // snap to edge which has pillar nodes        
@@ -230,8 +220,7 @@ public class QueryGraphTest
     }
 
     @Test
-    public void testOneWay()
-    {
+    public void testOneWay() {
         NodeAccess na = g.getNodeAccess();
         na.setNode(0, 0, 0);
         na.setNode(1, 0, 1);
@@ -255,8 +244,7 @@ public class QueryGraphTest
     }
 
     @Test
-    public void testVirtEdges()
-    {
+    public void testVirtEdges() {
         initGraph(g);
 
         EdgeIterator iter = g.createEdgeExplorer().setBaseNode(0);
@@ -269,8 +257,7 @@ public class QueryGraphTest
     }
 
     @Test
-    public void testUseMeanElevation()
-    {
+    public void testUseMeanElevation() {
         g.close();
         g = new GraphHopperStorage(new RAMDirectory(), encodingManager, true, new GraphExtension.NoOpExtension()).create(100);
         NodeAccess na = g.getNodeAccess();
@@ -296,8 +283,7 @@ public class QueryGraphTest
     }
 
     @Test
-    public void testLoopStreet_Issue151()
-    {
+    public void testLoopStreet_Issue151() {
         // do query at x should result in ignoring only the bottom edge 1-3 not the upper one => getNeighbors are 0, 5, 3 and not only 0, 5
         //
         // 0--1--3--4
@@ -326,8 +312,7 @@ public class QueryGraphTest
     }
 
     @Test
-    public void testOneWayLoop_Issue162()
-    {
+    public void testOneWayLoop_Issue162() {
         // do query at x, where edge is oneway
         //
         // |\
@@ -366,8 +351,7 @@ public class QueryGraphTest
     }
 
     @Test
-    public void testEdgesShareOneNode()
-    {
+    public void testEdgesShareOneNode() {
         initGraph(g);
 
         EdgeIteratorState iter = GHUtility.getEdge(g, 0, 2);
@@ -383,8 +367,7 @@ public class QueryGraphTest
     }
 
     @Test
-    public void testAvoidDuplicateVirtualNodesIfIdentical()
-    {
+    public void testAvoidDuplicateVirtualNodesIfIdentical() {
         initGraph(g);
 
         EdgeIteratorState edgeState = GHUtility.getEdge(g, 0, 2);
@@ -412,8 +395,7 @@ public class QueryGraphTest
     }
 
     @Test
-    public void testGetEdgeProps()
-    {
+    public void testGetEdgeProps() {
         initGraph(g);
         EdgeIteratorState e1 = GHUtility.getEdge(g, 0, 2);
         QueryGraph queryGraph = new QueryGraph(g);
@@ -425,17 +407,15 @@ public class QueryGraphTest
         assertEquals(e1.getEdge(), e2.getEdge());
     }
 
-    PointList getPoints( Graph g, int base, int adj )
-    {
+    PointList getPoints(Graph g, int base, int adj) {
         EdgeIteratorState edge = GHUtility.getEdge(g, base, adj);
         if (edge == null)
             throw new IllegalStateException("edge " + base + "-" + adj + " not found");
         return edge.fetchWayGeometry(3);
     }
 
-    public QueryResult createLocationResult( double lat, double lon,
-                                             EdgeIteratorState edge, int wayIndex, QueryResult.Position pos )
-    {
+    public QueryResult createLocationResult(double lat, double lon,
+                                            EdgeIteratorState edge, int wayIndex, QueryResult.Position pos) {
         if (edge == null)
             throw new IllegalStateException("Specify edge != null");
         QueryResult tmp = new QueryResult(lat, lon);
@@ -447,10 +427,9 @@ public class QueryGraphTest
     }
 
     @Test
-    public void testIteration_Issue163()
-    {
-        EdgeFilter outEdgeFilter = new DefaultEdgeFilter(encodingManager.getEncoder("CAR"), false, true);
-        EdgeFilter inEdgeFilter = new DefaultEdgeFilter(encodingManager.getEncoder("CAR"), true, false);
+    public void testIteration_Issue163() {
+        EdgeFilter outEdgeFilter = new DefaultEdgeFilter(encodingManager.getEncoder("car"), false, true);
+        EdgeFilter inEdgeFilter = new DefaultEdgeFilter(encodingManager.getEncoder("car"), true, false);
         EdgeExplorer inExplorer = g.createEdgeExplorer(inEdgeFilter);
         EdgeExplorer outExplorer = g.createEdgeExplorer(outEdgeFilter);
 
@@ -489,8 +468,7 @@ public class QueryGraphTest
         assertEdgeIdsStayingEqual(inExplorer, outExplorer, nodeD, nodeB);
     }
 
-    private void assertEdgeIdsStayingEqual( EdgeExplorer inExplorer, EdgeExplorer outExplorer, int startNode, int endNode )
-    {
+    private void assertEdgeIdsStayingEqual(EdgeExplorer inExplorer, EdgeExplorer outExplorer, int startNode, int endNode) {
         EdgeIterator it = outExplorer.setBaseNode(startNode);
         it.next();
         assertEquals(startNode, it.getBaseNode());
@@ -509,8 +487,7 @@ public class QueryGraphTest
     }
 
     @Test
-    public void testTurnCostsProperlyPropagated_Issue282()
-    {
+    public void testTurnCostsProperlyPropagated_Issue282() {
         TurnCostExtension turnExt = new TurnCostExtension();
         FlagEncoder encoder = new CarFlagEncoder(5, 5, 15);
 
@@ -527,7 +504,7 @@ public class QueryGraphTest
 
         QueryGraph qGraph = new QueryGraph(graphWithTurnCosts);
         FastestWeighting weighting = new FastestWeighting(encoder);
-        TurnWeighting turnWeighting = new TurnWeighting(weighting, encoder, (TurnCostExtension) qGraph.getExtension());
+        TurnWeighting turnWeighting = new TurnWeighting(weighting, (TurnCostExtension) qGraph.getExtension());
 
         assertEquals(0, turnWeighting.calcTurnWeight(edge0.getEdge(), 1, edge1.getEdge()), .1);
 
@@ -548,8 +525,7 @@ public class QueryGraphTest
         graphWithTurnCosts.close();
     }
 
-    private void initHorseshoeGraph( Graph g )
-    {
+    private void initHorseshoeGraph(Graph g) {
         // setup graph
         //   ____
         //  |    |
@@ -561,8 +537,7 @@ public class QueryGraphTest
         g.edge(0, 1, 10, true).setWayGeometry(Helper.createPointList(2, 0, 2, 2));
     }
 
-    private QueryResult fakeEdgeQueryResult( EdgeIteratorState edge, double lat, double lon, int wayIndex )
-    {
+    private QueryResult fakeEdgeQueryResult(EdgeIteratorState edge, double lat, double lon, int wayIndex) {
         QueryResult qr = new QueryResult(lat, lon);
         qr.setClosestEdge(edge);
         qr.setWayIndex(wayIndex);
@@ -571,16 +546,13 @@ public class QueryGraphTest
         return qr;
     }
 
-    private boolean getEdgePreference( QueryGraph queryGraph, int virtualEdgeTypeId, boolean reverse, boolean _default )
-    {
-        boolean edgeUnfavored = queryGraph.virtualEdges.get(virtualEdgeTypeId).getBoolean(
-                EdgeIteratorState.K_UNFAVORED_EDGE, reverse, _default);
-        return edgeUnfavored;
+    private boolean isAvoidEdge(QueryGraph queryGraph, int virtualEdgeTypeId, boolean _default) {
+        boolean avoidEdge = queryGraph.virtualEdges.get(virtualEdgeTypeId).getBool(EdgeIteratorState.K_UNFAVORED_EDGE, _default);
+        return avoidEdge;
     }
 
     @Test
-    public void testEnforceHeading()
-    {
+    public void testEnforceHeading() {
 
         initHorseshoeGraph(g);
         EdgeIteratorState edge = GHUtility.getEdge(g, 0, 1);
@@ -594,21 +566,21 @@ public class QueryGraphTest
         queryGraph.enforceHeading(qr.getClosestNode(), 0., false);
         // test penalized south
         boolean expect = true;
-        assertEquals(expect, getEdgePreference(queryGraph, QueryGraph.VE_BASE_REV, false, !expect));
-        assertEquals(expect, getEdgePreference(queryGraph, QueryGraph.VE_BASE, true, !expect));
+        assertEquals(expect, isAvoidEdge(queryGraph, QueryGraph.VE_BASE_REV, !expect));
+        assertEquals(expect, isAvoidEdge(queryGraph, QueryGraph.VE_BASE, !expect));
 
         queryGraph.clearUnfavoredStatus();
         // test cleared edges south
         expect = false;
-        assertEquals(expect, getEdgePreference(queryGraph, QueryGraph.VE_BASE_REV, false, !expect));
-        assertEquals(expect, getEdgePreference(queryGraph, QueryGraph.VE_BASE, true, !expect));
+        assertEquals(expect, isAvoidEdge(queryGraph, QueryGraph.VE_BASE_REV, !expect));
+        assertEquals(expect, isAvoidEdge(queryGraph, QueryGraph.VE_BASE, !expect));
 
         // enforce coming in north
         queryGraph.enforceHeading(qr.getClosestNode(), 180., true);
         // test penalized south
         expect = true;
-        assertEquals(expect, getEdgePreference(queryGraph, QueryGraph.VE_BASE_REV, true, !expect));
-        assertEquals(expect, getEdgePreference(queryGraph, QueryGraph.VE_BASE, false, !expect));
+        assertEquals(expect, isAvoidEdge(queryGraph, QueryGraph.VE_BASE_REV, !expect));
+        assertEquals(expect, isAvoidEdge(queryGraph, QueryGraph.VE_BASE, !expect));
 
         // query result on second vertical part of way (downward)
         qr = fakeEdgeQueryResult(edge, 1.5, 2, 2);
@@ -619,21 +591,20 @@ public class QueryGraphTest
         queryGraph.enforceHeading(qr.getClosestNode(), 0., false);
         // test penalized south
         expect = true;
-        assertEquals(expect, getEdgePreference(queryGraph, QueryGraph.VE_ADJ, false, !expect));
-        assertEquals(expect, getEdgePreference(queryGraph, QueryGraph.VE_ADJ_REV, true, !expect));
+        assertEquals(expect, isAvoidEdge(queryGraph, QueryGraph.VE_ADJ, !expect));
+        assertEquals(expect, isAvoidEdge(queryGraph, QueryGraph.VE_ADJ_REV, !expect));
 
         queryGraph.clearUnfavoredStatus();
         // enforce coming in north
         queryGraph.enforceHeading(qr.getClosestNode(), 180., true);
         // test penalized south
         expect = true;
-        assertEquals(expect, getEdgePreference(queryGraph, QueryGraph.VE_ADJ, true, !expect));
-        assertEquals(expect, getEdgePreference(queryGraph, QueryGraph.VE_ADJ_REV, false, !expect));
+        assertEquals(expect, isAvoidEdge(queryGraph, QueryGraph.VE_ADJ, !expect));
+        assertEquals(expect, isAvoidEdge(queryGraph, QueryGraph.VE_ADJ_REV, !expect));
     }
 
     @Test
-    public void testEnforceHeadingByEdgeId()
-    {
+    public void testunfavorVirtualEdgePair() {
 
         initHorseshoeGraph(g);
         EdgeIteratorState edge = GHUtility.getEdge(g, 0, 1);
@@ -644,27 +615,25 @@ public class QueryGraphTest
         queryGraph.lookup(Arrays.asList(qr));
 
         // enforce coming in north
-        queryGraph.enforceHeadingByEdgeId(2, 1, false);
+        queryGraph.unfavorVirtualEdgePair(2, 1);
         // test penalized south
-        boolean expect = true;
         VirtualEdgeIteratorState incomingEdge = (VirtualEdgeIteratorState) queryGraph.getEdgeIteratorState(1, 2);
-
         VirtualEdgeIteratorState incomingEdgeReverse = (VirtualEdgeIteratorState) queryGraph.getEdgeIteratorState(1, incomingEdge.getBaseNode());
-        // expect incoming edge in reverse direction to be unfavored
-        assertEquals(expect, incomingEdge.getBoolean(EdgeIteratorState.K_UNFAVORED_EDGE, true, !expect));
-        // expect reverse incoming edge to be unfavored
-        assertEquals(expect, incomingEdgeReverse.getBoolean(EdgeIteratorState.K_UNFAVORED_EDGE, false, !expect));
+        boolean expect = true;  // expect incoming and reverse incoming edge to be avoided
+        assertEquals(expect, incomingEdge.getBool(EdgeIteratorState.K_UNFAVORED_EDGE, !expect));
+        assertEquals(expect, incomingEdgeReverse.getBool(EdgeIteratorState.K_UNFAVORED_EDGE, !expect));
+        assertEquals(new LinkedHashSet<>(Arrays.asList(incomingEdge, incomingEdgeReverse)),
+                queryGraph.getUnfavoredVirtualEdges());
 
         queryGraph.clearUnfavoredStatus();
-        expect = false;
-        assertEquals(expect, incomingEdge.getBoolean(EdgeIteratorState.K_UNFAVORED_EDGE, true, !expect));
-        // expect reverse incoming edge to be unfavored
-        assertEquals(expect, incomingEdgeReverse.getBoolean(EdgeIteratorState.K_UNFAVORED_EDGE, false, !expect));
+        expect = false; // expect incoming and reverse incoming edge not to be avoided
+        assertEquals(expect, incomingEdge.getBool(EdgeIteratorState.K_UNFAVORED_EDGE, !expect));
+        assertEquals(expect, incomingEdgeReverse.getBool(EdgeIteratorState.K_UNFAVORED_EDGE, !expect));
+        assertEquals(new LinkedHashSet<>(), queryGraph.getUnfavoredVirtualEdges());
     }
 
     @Test
-    public void testInternalAPIOriginalTraversalKey()
-    {
+    public void testInternalAPIOriginalTraversalKey() {
         initGraph(g);
 
         EdgeExplorer explorer = g.createEdgeExplorer();
@@ -689,5 +658,21 @@ public class QueryGraphTest
         assertEquals(1, iter.getAdjNode());
         assertEquals(GHUtility.createEdgeKey(0, 1, origEdgeId, false),
                 ((VirtualEdgeIteratorState) queryGraph.getEdgeIteratorState(iter.getEdge(), 1)).getOriginalTraversalKey());
+    }
+
+    @Test
+    public void useEECache() {
+        initGraph(g);
+        EdgeExplorer explorer = g.createEdgeExplorer();
+        EdgeIterator iter = explorer.setBaseNode(1);
+        assertTrue(iter.next());
+        QueryResult res = createLocationResult(2, 1.5, iter, 1, PILLAR);
+
+        QueryGraph queryGraph = new QueryGraph(g).setUseEdgeExplorerCache(true);
+        queryGraph.lookup(Arrays.asList(res));
+
+        EdgeExplorer edgeExplorer = queryGraph.createEdgeExplorer();
+        // using cache means same reference
+        assertTrue(edgeExplorer == queryGraph.createEdgeExplorer());
     }
 }

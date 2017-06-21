@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -17,40 +17,35 @@
  */
 package com.graphhopper.util;
 
+import com.carrotsearch.hppc.IntArrayList;
+import com.graphhopper.coll.GHIntHashSet;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.Graph;
-import gnu.trove.list.TIntList;
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.set.hash.TIntHashSet;
+import com.graphhopper.storage.GraphBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Peter Karich
  */
-public class BreadthFirstSearchTest
-{
+public class BreadthFirstSearchTest {
     int counter;
-    TIntHashSet set = new TIntHashSet();
-    TIntList list = new TIntArrayList();
+    GHIntHashSet set = new GHIntHashSet();
+    IntArrayList list = new IntArrayList();
 
     @Before
-    public void setup()
-    {
+    public void setup() {
         counter = 0;
     }
 
     @Test
-    public void testBFS()
-    {
-        BreadthFirstSearch bfs = new BreadthFirstSearch()
-        {
+    public void testBFS() {
+        BreadthFirstSearch bfs = new BreadthFirstSearch() {
             @Override
-            public boolean goFurther( int v )
-            {
+            public boolean goFurther(int v) {
                 counter++;
                 assertTrue("v " + v + " is already contained in set. iteration:" + counter, !set.contains(v));
                 set.add(v);
@@ -59,7 +54,7 @@ public class BreadthFirstSearchTest
             }
         };
 
-        Graph g = new GraphBuilder(new EncodingManager("CAR")).create();
+        Graph g = new GraphBuilder(new EncodingManager("car")).create();
         g.edge(0, 1, 85, true);
         g.edge(0, 2, 217, true);
         g.edge(0, 3, 173, true);
@@ -77,17 +72,14 @@ public class BreadthFirstSearchTest
 
         assertTrue(counter > 0);
         assertEquals(g.getNodes(), counter);
-        assertEquals("{0, 5, 3, 2, 1, 10, 8, 7, 6, 9, 4}", list.toString());
+        assertEquals("[0, 5, 3, 2, 1, 10, 8, 7, 6, 9, 4]", list.toString());
     }
 
     @Test
-    public void testBFS2()
-    {
-        BreadthFirstSearch bfs = new BreadthFirstSearch()
-        {
+    public void testBFS2() {
+        BreadthFirstSearch bfs = new BreadthFirstSearch() {
             @Override
-            public boolean goFurther( int v )
-            {
+            public boolean goFurther(int v) {
                 counter++;
                 assertTrue("v " + v + " is already contained in set. iteration:" + counter, !set.contains(v));
                 set.add(v);
@@ -96,7 +88,7 @@ public class BreadthFirstSearchTest
             }
         };
 
-        Graph g = new GraphBuilder(new EncodingManager("CAR")).create();
+        Graph g = new GraphBuilder(new EncodingManager("car")).create();
         g.edge(1, 2, 1, false);
         g.edge(2, 3, 1, false);
         g.edge(3, 4, 1, false);
@@ -107,8 +99,7 @@ public class BreadthFirstSearchTest
         bfs.start(g.createEdgeExplorer(), 1);
 
         assertTrue(counter > 0);
-        assertEquals("{1, 5, 2, 6, 3, 4}", list.toString());
+        assertEquals("[1, 5, 2, 6, 3, 4]", list.toString());
     }
-
 
 }

@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -19,19 +19,16 @@ package com.graphhopper.geohash;
 
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
-
-import static org.junit.Assert.*;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Peter Karich
  */
-public class LinearKeyAlgoTest
-{
+public class LinearKeyAlgoTest {
     @Test
-    public void testEncode()
-    {
+    public void testEncode() {
         KeyAlgo algo = new LinearKeyAlgo(3, 4).setBounds(-1, 9, -2, 20);
         assertEquals(2L, algo.encode(-1, 5));
         assertEquals(11L, algo.encode(14, 7));
@@ -48,8 +45,7 @@ public class LinearKeyAlgoTest
     }
 
     @Test
-    public void testDecode()
-    {
+    public void testDecode() {
         KeyAlgo algo = new LinearKeyAlgo(3, 4).setBounds(-1, 9, -2, 20);
         GHPoint latLon = new GHPoint();
 
@@ -75,8 +71,7 @@ public class LinearKeyAlgoTest
     * Test if different constructors yield same results
      */
     @Test
-    public void testInstantiation()
-    {
+    public void testInstantiation() {
         double minLon = 0;
         double minLat = 2;
         double maxLat = 6;

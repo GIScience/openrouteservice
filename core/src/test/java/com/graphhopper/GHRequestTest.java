@@ -1,15 +1,14 @@
 /*
- *  Licensed to Peter Karich under one or more contributor license
- *  agreements. See the NOTICE file distributed with this work for
+ *  Licensed to GraphHopper GmbH under one or more contributor
+ *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
- *
- *  Peter Karich licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License. You may obtain a copy of the
- *  License at
- *
+ * 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
+ *  Version 2.0 (the "License"); you may not use this file except in 
+ *  compliance with the License. You may obtain a copy of the License at
+ * 
  *       http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,16 +25,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Peter Karich
  */
-public class GHRequestTest
-{
+public class GHRequestTest {
     @Test
-    public void testGetHint()
-    {
+    public void testGetHint() {
         GHRequest instance = new GHRequest(10, 12, 12, 10);
         instance.getHints().put("something", "1");
         assertEquals(1, instance.getHints().getInt("something", 2));
@@ -44,8 +40,7 @@ public class GHRequestTest
     }
 
     @Test
-    public void testCorrectInit()
-    {
+    public void testCorrectInit() {
         double lat0 = 51, lon0 = 1, lat1 = 52, lon1 = 2, lat2 = 53, lon2 = 3;
 
         ArrayList<GHPoint> points = new ArrayList<GHPoint>(3);
@@ -99,10 +94,8 @@ public class GHRequestTest
         compareFavoredHeadings(instance, emptyHeadings);
     }
 
-    private void compareFavoredHeadings( GHRequest request, List<Double> expected )
-    {
-        for (int ind = 0; ind < expected.size(); ind++)
-        {
+    private void compareFavoredHeadings(GHRequest request, List<Double> expected) {
+        for (int ind = 0; ind < expected.size(); ind++) {
             double favoredHeading = request.getFavoredHeading(ind);
             assertEquals(ind + " favored Heading does not match" + expected.get(ind) + " vs ." + favoredHeading,
                     expected.get(ind), favoredHeading, 0.01);

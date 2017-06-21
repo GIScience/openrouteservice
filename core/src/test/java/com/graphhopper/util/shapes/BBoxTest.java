@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -19,18 +19,16 @@ package com.graphhopper.util.shapes;
 
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
-import org.junit.*;
+import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 /**
  * @author Peter Karich
  */
-public class BBoxTest
-{
+public class BBoxTest {
     @Test
-    public void testCreate()
-    {
+    public void testCreate() {
         DistanceCalc c = new DistanceCalcEarth();
         BBox b = c.createBBox(52, 10, 100000);
 
@@ -41,15 +39,10 @@ public class BBoxTest
 
         assertEquals(51.1007, b.minLat, 1e-4);
         assertEquals(11.4607, b.maxLon, 1e-4);
-
-        // something about 141 = sqrt(2*100^2)
-//        System.out.println(c.calcDist(52, 10, 52.8993, 11.4607));
-//        System.out.println(c.calcDist(52, 10, 51.1007, 8.5393));
     }
 
     @Test
-    public void testContains()
-    {
+    public void testContains() {
         assertTrue(new BBox(1, 2, 0, 1).contains(new BBox(1, 2, 0, 1)));
         assertTrue(new BBox(1, 2, 0, 1).contains(new BBox(1.5, 2, 0.5, 1)));
         assertFalse(new BBox(1, 2, 0, 0.5).contains(new BBox(1.5, 2, 0.5, 1)));
@@ -60,8 +53,15 @@ public class BBoxTest
     }
 
     @Test
-    public void testIntersect()
-    {
+    public void testGetCenter() {
+        BBox bBox = new BBox(0, 2, 0, 2);
+        GHPoint center = bBox.getCenter();
+        assertEquals(1, center.getLat(), .00001);
+        assertEquals(1, center.getLon(), .00001);
+    }
+
+    @Test
+    public void testIntersect() {
         //    ---
         //    | |
         // ---------
@@ -86,52 +86,75 @@ public class BBoxTest
     }
 
     @Test
-    public void testBasicJavaOverload()
-    {
-        new BBox(2, 4, 0, 1)
-        {
+    public void testCalculateIntersection() {
+
+        BBox b1 = new BBox(0, 2, 0, 1);
+        BBox b2 = new BBox(-1, 1, -1, 2);
+        BBox expected = new BBox(0, 1, 0, 1);
+
+        assertEquals(expected, b1.calculateIntersection(b2));
+
+        //No intersection
+        b2 = new BBox(100, 200, 100, 200);
+        assertNull(b1.calculateIntersection(b2));
+
+        //Real Example
+        b1 = new BBox(8.8591,9.9111,48.3145,48.8518);
+        b2 = new BBox(5.8524,17.1483,46.3786,55.0653);
+
+        assertEquals(b1, b1.calculateIntersection(b2));
+    }
+
+    @Test
+    public void testBasicJavaOverload() {
+        new BBox(2, 4, 0, 1) {
             @Override
-            public boolean intersect( Circle c )
-            {
+            public boolean intersect(Circle c) {
                 assertTrue(true);
                 return super.intersect(c);
             }
 
             @Override
-            public boolean intersect( Shape c )
-            {
+            public boolean intersect(Shape c) {
                 assertTrue(false);
                 return true;
             }
 
             @Override
-            public boolean intersect( BBox c )
-            {
+            public boolean intersect(BBox c) {
                 assertTrue(false);
                 return true;
             }
-        }.intersect(new Circle(1, 2, 3)
-        {
+        }.intersect(new Circle(1, 2, 3) {
             @Override
-            public boolean intersect( Circle c )
-            {
-                assertTrue(false);
-                return true;
-            }
-
-            @Override
-            public boolean intersect( Shape b )
-            {
+            public boolean intersect(Circle c) {
                 assertTrue(false);
                 return true;
             }
 
             @Override
-            public boolean intersect( BBox b )
-            {
+            public boolean intersect(Shape b) {
+                assertTrue(false);
+                return true;
+            }
+
+            @Override
+            public boolean intersect(BBox b) {
                 assertTrue(true);
                 return true;
             }
         });
+    }
+
+    @Test
+    public void testParseTwoPoints() {
+        assertEquals(new BBox(2, 4, 1, 3), BBox.parseTwoPoints("1,2,3,4"));
+        // stable parsing, i.e. if first point is in north or south it does not matter:
+        assertEquals(new BBox(2, 4, 1, 3), BBox.parseTwoPoints("3,2,1,4"));
+    }
+
+    @Test
+    public void testParseBBoxString() {
+        assertEquals(new BBox(2, 4, 1, 3), BBox.parseBBoxString("2,4,1,3"));
     }
 }

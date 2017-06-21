@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -17,32 +17,28 @@
  */
 package com.graphhopper.coll;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Peter Karich
  */
-public class GHTBitSetTest extends AbstractMyBitSetTest
-{
+public class GHTBitSetTest extends AbstractMyBitSetTest {
     @Override
-    public GHBitSet createBitSet( int no )
-    {
+    public GHBitSet createBitSet(int no) {
         return new GHTBitSet(no);
     }
 
     @Override
-    public void testNext()
-    {
+    public void testNext() {
         // not supported (yet) -> due to sorting
     }
 
     @Override
-    public void testToString()
-    {
+    public void testToString() {
         // unsorted output!
         GHBitSet bs = createBitSet(100);
         bs.add(12);
         bs.add(1);
-        assertEquals("{12,1}", bs.toString());
+        assertEquals("[1, 12]", bs.toString());
     }
 }

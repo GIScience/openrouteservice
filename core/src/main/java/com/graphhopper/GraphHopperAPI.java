@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -20,22 +20,24 @@ package com.graphhopper;
 /**
  * Wrapper of the graphhopper online or offline API. Provides read only access.
  * <p>
+ *
  * @author Peter Karich
  */
-public interface GraphHopperAPI
-{
+public interface GraphHopperAPI {
     /**
      * Connects to the specified service (graphhopper URL) or loads a graph from the graphhopper
      * folder.
      * <p>
+     *
      * @return true if successfully connected or loaded
      */
-    boolean load( String urlOrFile );
+    boolean load(String urlOrFile);
 
     /**
      * Calculates the path from specified request visiting the specified locations.
      * <p>
+     *
      * @return the response with the route and possible errors
      */
-    GHResponse route( GHRequest request );
+    GHResponse route(GHRequest request);
 }

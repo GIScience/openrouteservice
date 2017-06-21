@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -20,28 +20,38 @@ package com.graphhopper.util.shapes;
 /**
  * A shape interface to implement circles or rectangles.
  * <p>
+ *
  * @author Peter Karich
  */
-public interface Shape
-{
+public interface Shape {
     /**
      * @return true if edges or areas of this and the specified shapes overlap
      */
-    boolean intersect( Shape o );
+    boolean intersect(Shape o);
 
     /**
      * @return true only if lat and lon are inside (or on the edge) of this shape
      */
-    boolean contains( double lat, double lon );
+    boolean contains(double lat, double lon);
 
     /**
      * @return true if the specified shape is fully contained in this shape. Only iff
      * <pre> s1.contains(s2) &amp;&amp; s2.contains(s1) </pre> then s1 is equal to s2
      */
-    boolean contains( Shape s );
+    boolean contains(Shape s);
 
     /**
      * @return the minimal rectangular bounding box of this shape
      */
     BBox getBounds();
+
+    /**
+     * @return The center of the shape, if applicable
+     */
+    GHPoint getCenter();
+
+    /**
+     * @return an estimated area in m^2
+     */
+    double calculateArea();
 }

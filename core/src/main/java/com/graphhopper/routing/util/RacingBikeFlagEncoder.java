@@ -1,14 +1,14 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
- *
- *  GraphHopper licenses this file to you under the Apache License, 
+ * 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
- *
+ * 
  *       http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,46 +17,42 @@
  */
 package com.graphhopper.routing.util;
 
-import com.graphhopper.reader.OSMWay;
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 
-import static com.graphhopper.routing.util.PriorityCode.*;
-
 import java.util.TreeMap;
 
+import static com.graphhopper.routing.util.PriorityCode.*;
+
 /**
- * Specifies the settings for racebikeing
+ * Specifies the settings for race biking
  * <p>
+ *
  * @author ratrun
  * @author Peter Karich
  */
-public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder
-{
-    public RacingBikeFlagEncoder()
-    {
+public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder {
+    public RacingBikeFlagEncoder() {
         this(4, 2, 0, false);
     }
 
-    public RacingBikeFlagEncoder( PMap properties )
-    {
+    public RacingBikeFlagEncoder(PMap properties) {
         this(
-                (int) properties.getLong("speedBits", 4)+ (properties.getBool("considerElevation", false) ? 1 : 0),
-                properties.getDouble("speedFactor", 2),
-                properties.getBool("turnCosts", false) ? 1 : 0, properties.getBool("considerElevation", false)
+                (int) properties.getLong("speed_bits", 4),
+                properties.getDouble("speed_factor", 2),
+                properties.getBool("turn_costs", false) ? 1 : 0, 
+                properties.getBool("considerElevation", false)
         );
         this.properties = properties;
-        this.setBlockFords(properties.getBool("blockFords", true));
+        this.setBlockFords(properties.getBool("block_fords", true));
     }
 
-    public RacingBikeFlagEncoder( String propertiesStr )
-    {
+    public RacingBikeFlagEncoder(String propertiesStr) {
         this(new PMap(propertiesStr));
     }
 
-
-    public RacingBikeFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation )
-    {
+    public RacingBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
         super(speedBits, speedFactor, maxTurnCosts, considerElevation);
         preferHighwayTags.add("road");
         preferHighwayTags.add("secondary");
@@ -105,20 +101,19 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder
         setHighwaySpeed("road", 12);
         setHighwaySpeed("track", PUSHING_SECTION_SPEED / 2); // assume unpaved
         setHighwaySpeed("service", 12);
-        setHighwaySpeed("unclassified", 20);
-        setHighwaySpeed("residential", 20);
+        setHighwaySpeed("unclassified", 16);
+        setHighwaySpeed("residential", 16);
 
-        setHighwaySpeed("trunk", 24);
-        setHighwaySpeed("trunk_link", 24);
-        setHighwaySpeed("primary", 24);
-        setHighwaySpeed("primary_link", 24);
-        setHighwaySpeed("secondary", 24);
-        setHighwaySpeed("secondary_link", 24);
-        setHighwaySpeed("tertiary", 24);
-        setHighwaySpeed("tertiary_link", 24);
+        setHighwaySpeed("trunk", 20);
+        setHighwaySpeed("trunk_link", 20);
+        setHighwaySpeed("primary", 20);
+        setHighwaySpeed("primary_link", 20);
+        setHighwaySpeed("secondary", 20);
+        setHighwaySpeed("secondary_link", 20);
+        setHighwaySpeed("tertiary", 20);
+        setHighwaySpeed("tertiary_link", 20);
 
         addPushingSection("path");
-        addPushingSection("track");
         addPushingSection("footway");
         addPushingSection("pedestrian");
         addPushingSection("steps");
@@ -132,27 +127,24 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder
         absoluteBarriers.add("kissing_gate");
 
         setAvoidSpeedLimit(81);
-        setSpecificBicycleClass("roadcycling");
+        setSpecificClassBicycle("roadcycling");
 
+        init();
     }
 
     @Override
-    public int getVersion()
-    {
-        return 1;
+    public int getVersion() {
+        return 2;
     }
 
     @Override
-    protected void collect( OSMWay way, TreeMap<Double, Integer> weightToPrioMap )
-    {
-        super.collect(way, weightToPrioMap);
+    protected void collect(ReaderWay way, double wayTypeSpeed, TreeMap<Double, Integer> weightToPrioMap) {
+        super.collect(way, wayTypeSpeed, weightToPrioMap);
 
         String highway = way.getTag("highway");
-        if ("service".equals(highway))
-        {
+        if ("service".equals(highway)) {
             weightToPrioMap.put(40d, UNCHANGED.getValue());
-        } else if ("track".equals(highway) || "path".equals(highway) ) // Runge, see http://www.openstreetmap.org/way/157482832
-        {
+        } else if ("track".equals(highway)) {
             String trackType = way.getTag("tracktype");
             if ("grade1".equals(trackType))
                 weightToPrioMap.put(110d, PREFER.getValue());
@@ -162,14 +154,13 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder
     }
 
     @Override
-    protected boolean isPushingSection( OSMWay way )
-    {
+    protected boolean isPushingSection(ReaderWay way) {
         String highway = way.getTag("highway");
         String trackType = way.getTag("tracktype");
         
         // Runge
-        boolean isPushing =  way.hasTag("highway", pushingSections)
-                || way.hasTag("railway", "platform")  || way.hasTag("route", ferries)
+        boolean isPushing =  way.hasTag("highway", pushingSectionsHighways)
+                || way.hasTag("railway", "platform")  || way.hasTag("route", ferries)   || way.hasTag("bicycle", "dismount")
                 || "track".equals(highway) && trackType != null && !"grade1".equals(trackType);
         
         if (isPushing)
@@ -193,21 +184,13 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder
     }
 
     @Override
-    boolean allowedSacScale( String sacScale )
-    {
+    boolean isSacScaleAllowed(String sacScale) {
         // for racing bike it is only allowed if empty
         return false;
     }
-    
-    @Override
-	protected double getDownhillMaxSpeed()
-	{
-		return 60;
-	}
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "racingbike";
     }
 }

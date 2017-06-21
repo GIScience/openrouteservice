@@ -1,30 +1,33 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
- * agreements. See the NOTICE file distributed with this work for additional information regarding
- * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License. You may obtain a
- * copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+/*
+ *  Licensed to GraphHopper GmbH under one or more contributor
+ *  license agreements. See the NOTICE file distributed with this work for 
+ *  additional information regarding copyright ownership.
+ * 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
+ *  Version 2.0 (the "License"); you may not use this file except in 
+ *  compliance with the License. You may obtain a copy of the License at
+ * 
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 package com.graphhopper.util;
 
 import com.graphhopper.GraphHopper;
-import static com.graphhopper.util.Helper.readFile;
 
 import java.io.InputStreamReader;
 import java.util.List;
 
+import static com.graphhopper.util.Helper.readFile;
+
 /**
  * Defining several important constants for GraphHopper. Partially taken from Lucene.
  */
-public class Constants
-{
+public class Constants {
     /**
      * The value of <tt>System.getProperty("java.version")</tt>. *
      */
@@ -37,6 +40,10 @@ public class Constants
      * True iff running on Linux.
      */
     public static final boolean LINUX = OS_NAME.startsWith("Linux");
+    /**
+     * True iff running on Android.
+     */
+    public static final boolean ANDROID = System.getProperty("java.vendor").contains("Android");
     /**
      * True iff running on Windows.
      */
@@ -52,12 +59,12 @@ public class Constants
     public static final String OS_ARCH = System.getProperty("os.arch");
     public static final String OS_VERSION = System.getProperty("os.version");
     public static final String JAVA_VENDOR = System.getProperty("java.vendor");
-    public static final int VERSION_NODE = 4;
-    public static final int VERSION_EDGE = 12;
-    public static final int VERSION_SHORTCUT = 1;
-    public static final int VERSION_GEOMETRY = 3;
-    public static final int VERSION_LOCATION_IDX = 2;
-    public static final int VERSION_NAME_IDX = 2;
+    public static final int VERSION_NODE = 5;
+    public static final int VERSION_EDGE = 14;
+    public static final int VERSION_SHORTCUT = 2;
+    public static final int VERSION_GEOMETRY = 4;
+    public static final int VERSION_LOCATION_IDX = 3;
+    public static final int VERSION_NAME_IDX = 3;
     /**
      * The version without the snapshot string
      */
@@ -65,38 +72,26 @@ public class Constants
     public static final String BUILD_DATE;
     public static final boolean SNAPSHOT;
 
-    public static String getVersions()
-    {
-        return VERSION_NODE + "," + VERSION_EDGE + "," + VERSION_GEOMETRY + "," + VERSION_LOCATION_IDX
-                + "," + VERSION_NAME_IDX + "," + VERSION_SHORTCUT;
-    }
-
-    static
-    {
+    static {
         String version = "0.0";
-        try
-        {
-            // see com/graphhopper/version file in resources which is modified in the maven packaging process 
+        try {
+            // see com/graphhopper/version file in resources which is modified in the maven packaging process
             // to contain the current version
             List<String> v = readFile(new InputStreamReader(GraphHopper.class.getResourceAsStream("version"), Helper.UTF_CS));
             version = v.get(0);
-        } catch (Exception ex)
-        {
+        } catch (Exception ex) {
             System.err.println("GraphHopper Initialization ERROR: cannot read version!? " + ex.getMessage());
         }
         int indexM = version.indexOf("-");
-        if ("${project.version}".equals(version))
-        {
+        if ("${project.version}".equals(version)) {
             VERSION = "0.0";
             SNAPSHOT = true;
             System.err.println("GraphHopper Initialization WARNING: maven did not preprocess the version file! Do not use the jar for a release!");
-        } else if ("0.0".equals(version))
-        {
+        } else if ("0.0".equals(version)) {
             VERSION = "0.0";
             SNAPSHOT = true;
             System.err.println("GraphHopper Initialization WARNING: cannot get version!?");
-        } else
-        {
+        } else {
             String tmp = version;
             // throw away the "-SNAPSHOT"
             if (indexM >= 0)
@@ -106,13 +101,27 @@ public class Constants
             VERSION = tmp;
         }
         String buildDate = "";
-        try
-        {
+        try {
             List<String> v = readFile(new InputStreamReader(GraphHopper.class.getResourceAsStream("builddate"), Helper.UTF_CS));
             buildDate = v.get(0);
-        } catch (Exception ex)
-        {
+        } catch (Exception ex) {
         }
         BUILD_DATE = buildDate;
+    }
+
+    public static String getVersions() {
+        return VERSION_NODE + "," + VERSION_EDGE + "," + VERSION_GEOMETRY + "," + VERSION_LOCATION_IDX
+                + "," + VERSION_NAME_IDX + "," + VERSION_SHORTCUT;
+    }
+
+    public static String getMajorVersion() {
+        int firstIdx = VERSION.indexOf(".");
+        if (firstIdx < 0)
+            throw new IllegalStateException("Cannot extract major version from version " + VERSION);
+
+        int sndIdx = VERSION.indexOf(".", firstIdx + 1);
+        if (sndIdx < 0)
+            return VERSION;
+        return VERSION.substring(0, sndIdx);
     }
 }

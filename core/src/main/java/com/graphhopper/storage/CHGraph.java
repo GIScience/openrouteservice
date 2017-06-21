@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -27,36 +27,36 @@ import com.graphhopper.util.CHEdgeIteratorState;
  * levels for a node and creating shortcuts, which are additional 'artificial' edges to speedup
  * traversal in certain cases.
  * <p>
+ *
  * @author Peter Karich
  */
-public interface CHGraph extends Graph
-{
+public interface CHGraph extends Graph {
     /**
      * This methods sets the level of the specified node.
      */
-    void setLevel( int nodeId, int level );
+    void setLevel(int nodeId, int level);
 
     /**
      * @return the level of the specified node.
      */
-    int getLevel( int nodeId );
+    int getLevel(int nodeId);
 
-    boolean isShortcut( int edgeId );
+    boolean isShortcut(int edgeId);
 
     /**
      * This method creates a shortcut between a to b which is nearly identical to creating an edge
      * except that it can be excluded or included for certain traversals or algorithms.
      */
-    CHEdgeIteratorState shortcut( int a, int b );
+    CHEdgeIteratorState shortcut(int a, int b);
 
     @Override
-    CHEdgeIteratorState getEdgeIteratorState( int edgeId, int endNode );
+    CHEdgeIteratorState getEdgeIteratorState(int edgeId, int endNode);
 
     @Override
     CHEdgeExplorer createEdgeExplorer();
 
     @Override
-    CHEdgeExplorer createEdgeExplorer( EdgeFilter filter );
+    CHEdgeExplorer createEdgeExplorer(EdgeFilter filter);
 
     @Override
     AllCHEdgesIterator getAllEdges();

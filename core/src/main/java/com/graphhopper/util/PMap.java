@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -21,193 +21,169 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A properties map with convenient accessors
+ * A properties map (String to String) with convenient accessors
  * <p>
+ *
  * @author Peter Karich
  */
-public class PMap
-{
+public class PMap {
     private final Map<String, String> map;
 
-    public PMap()
-    {
+    public PMap() {
         this(5);
     }
 
-    public PMap( int capacity )
-    {
+    public PMap(int capacity) {
         this(new HashMap<String, String>(capacity));
     }
 
-    public PMap( Map<String, String> map )
-    {
-        this.map = map;
+    public PMap(Map<String, String> map) {
+        this.map = new HashMap<>(map);
     }
 
-    public PMap( String propertiesString )
-    {
-        // five chosen as arbitrary initial capacity
-        this.map = new HashMap<String, String>(5);
+    public PMap(PMap map) {
+        this.map = new HashMap<>(map.map);
+    }
 
-        for (String s : propertiesString.split("\\|"))
-        {
+    public PMap(String propertiesString) {
+        // five chosen as arbitrary initial capacity
+        this.map = new HashMap<>(5);
+
+        for (String s : propertiesString.split("\\|")) {
             s = s.trim();
             int index = s.indexOf("=");
             if (index < 0)
                 continue;
 
-            this.map.put(s.substring(0, index).toLowerCase(), s.substring(index + 1));
+            put(s.substring(0, index), s.substring(index + 1));
         }
+    }
+
+    public PMap put(PMap map) {
+        this.map.putAll(map.map);
+        return this;
+    }
+
+    public PMap put(String key, Object str) {
+        if (str == null)
+            throw new NullPointerException("Value cannot be null. Use remove instead.");
+
+        // store in under_score
+        map.put(Helper.camelCaseToUnderScore(key), str.toString());
+        return this;
+    }
+
+    public PMap remove(String key) {
+        // query accepts camelCase and under_score
+        map.remove(Helper.camelCaseToUnderScore(key));
+        return this;
+    }
+
+    public boolean has(String key) {
+        // query accepts camelCase and under_score
+        return map.containsKey(Helper.camelCaseToUnderScore(key));
     }
     
     public int size()
     {
     	return map.size();
     }
-    
-    public PMap put( String key, Object str )
-    {
-        if (str == null)
-            throw new NullPointerException("Value cannot be null. Use remove instead.");
 
-        map.put(key.toLowerCase(), str.toString());
-        return this;
-    }
-
-    public PMap remove( String key )
-    {
-        map.remove(key);
-        return this;
-    }
-
-    public long getLong( String key, long _default )
-    {
+    public long getLong(String key, long _default) {
         String str = get(key);
-        if (!Helper.isEmpty(str))
-        {
-            try
-            {
+        if (!Helper.isEmpty(str)) {
+            try {
                 return Long.parseLong(str);
-            } catch (Exception ex)
-            {
+            } catch (Exception ex) {
             }
         }
         return _default;
     }
 
-    public int getInt( String key, int _default )
-    {
+    public int getInt(String key, int _default) {
         String str = get(key);
-        if (!Helper.isEmpty(str))
-        {
-            try
-            {
+        if (!Helper.isEmpty(str)) {
+            try {
                 return Integer.parseInt(str);
-            } catch (Exception ex)
-            {
+            } catch (Exception ex) {
             }
         }
         return _default;
     }
 
-    public boolean getBool( String key, boolean _default )
-    {
+    public boolean getBool(String key, boolean _default) {
         String str = get(key);
-        if (!Helper.isEmpty(str))
-        {
-            try
-            {
+        if (!Helper.isEmpty(str)) {
+            try {
                 return Boolean.parseBoolean(str);
-            } catch (Exception ex)
-            {
+            } catch (Exception ex) {
             }
         }
         return _default;
     }
 
-    public double getDouble( String key, double _default )
-    {
+    public double getDouble(String key, double _default) {
         String str = get(key);
-        if (!Helper.isEmpty(str))
-        {
-            try
-            {
+        if (!Helper.isEmpty(str)) {
+            try {
                 return Double.parseDouble(str);
-            } catch (Exception ex)
-            {
+            } catch (Exception ex) {
             }
         }
         return _default;
     }
 
-    public String get( String key, String _default )
-    {
+    public String get(String key, String _default) {
         String str = get(key);
         if (Helper.isEmpty(str))
-        {
             return _default;
-        }
+
         return str;
     }
 
-    String get( String key )
-    {
+    String get(String key) {
         if (Helper.isEmpty(key))
-        {
             return "";
-        }
-        String val = map.get(key.toLowerCase());
+
+        // query accepts camelCase and under_score
+        String val = map.get(Helper.camelCaseToUnderScore(key));
         if (val == null)
-        {
             return "";
-        }
+
         return val;
     }
 
     /**
-     * This method copies the underlying structur into a new Map object
+     * This method copies the underlying structure into a new Map object
      */
-    public Map<String, String> toMap()
-    {
-        return new HashMap<String, String>(map);
+    public Map<String, String> toMap() {
+        return new HashMap<>(map);
     }
 
-    private Map<String, String> getMap()
-    {
+    private Map<String, String> getMap() {
         return map;
     }
-    
-    public void clear()
-    {
-    	map.clear();
-    }
 
-    public PMap merge( PMap read )
-    {
+    public PMap merge(PMap read) {
         return merge(read.getMap());
     }
 
-    PMap merge( Map<String, String> map )
-    {
-        for (Map.Entry<String, String> e : map.entrySet())
-        {
+    PMap merge(Map<String, String> map) {
+        for (Map.Entry<String, String> e : map.entrySet()) {
             if (Helper.isEmpty(e.getKey()))
-            {
                 continue;
-            }
-            this.getMap().put(e.getKey().toLowerCase(), e.getValue());
+
+            put(e.getKey(), e.getValue());
         }
         return this;
     }
 
-    public boolean has( String key )
-    {
-        return this.getMap().containsKey(key);
+    public boolean isEmpty() {
+        return map.isEmpty();
     }
 
     @Override
-    public String toString()
-    {
-        return this.getMap().toString();
+    public String toString() {
+        return getMap().toString();
     }
 }

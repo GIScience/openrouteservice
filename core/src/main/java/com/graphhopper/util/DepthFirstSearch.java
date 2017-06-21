@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -17,41 +17,36 @@
  */
 package com.graphhopper.util;
 
+import com.carrotsearch.hppc.IntArrayDeque;
 import com.graphhopper.coll.GHBitSet;
-import gnu.trove.stack.array.TIntArrayStack;
 
 /**
  * Implementation of depth first search (DFS) by LIFO queue
  * <p>
+ *
  * @author Peter Karich
  * @author Jan Sölter
  */
-public class DepthFirstSearch extends XFirstSearch
-{
+public class DepthFirstSearch extends XFirstSearch {
     /**
      * beginning with startNode add all following nodes to LIFO queue. If node has been already
      * explored before, skip reexploration.
      */
     @Override
-    public void start( EdgeExplorer explorer, int startNode )
-    {
-        TIntArrayStack stack = new TIntArrayStack();
+    public void start(EdgeExplorer explorer, int startNode) {
+        IntArrayDeque stack = new IntArrayDeque();
 
         GHBitSet explored = createBitSet();
-        stack.push(startNode);
+        stack.addLast(startNode);
         int current;
-        while (stack.size() > 0)
-        {
-            current = stack.pop();
-            if (!explored.contains(current) && goFurther(current))
-            {
+        while (stack.size() > 0) {
+            current = stack.removeLast();
+            if (!explored.contains(current) && goFurther(current)) {
                 EdgeIterator iter = explorer.setBaseNode(current);
-                while (iter.next())
-                {
+                while (iter.next()) {
                     int connectedId = iter.getAdjNode();
-                    if (checkAdjacent(iter))
-                    {
-                        stack.push(connectedId);
+                    if (checkAdjacent(iter)) {
+                        stack.addLast(connectedId);
                     }
                 }
                 explored.add(current);

@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -23,25 +23,23 @@ package com.graphhopper.util;
  * not so much sense as it is only important for large distances where then the rather smallish
  * heights would becomes neglectable.
  * <p>
+ *
  * @author Peter Karich
  */
-public class DistanceCalc3D extends DistanceCalcEarth
-{
+public class DistanceCalc3D extends DistanceCalcEarth {
     /**
      * @param fromHeight in meters above 0
-     * @param toHeight in meters above 0
+     * @param toHeight   in meters above 0
      */
-    public double calcDist( double fromLat, double fromLon, double fromHeight,
-                            double toLat, double toLon, double toHeight )
-    {
+    public double calcDist(double fromLat, double fromLon, double fromHeight,
+                           double toLat, double toLon, double toHeight) {
         double len = super.calcDist(fromLat, fromLon, toLat, toLon);
         double delta = Math.abs(toHeight - fromHeight);
         return Math.sqrt(delta * delta + len * len);
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "EXACT3D";
     }
 }

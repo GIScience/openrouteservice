@@ -1,9 +1,9 @@
 /*
- *  Licensed to GraphHopper and Peter Karich under one or more contributor
+ *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
  * 
- *  GraphHopper licenses this file to you under the Apache License, 
+ *  GraphHopper GmbH licenses this file to you under the Apache License, 
  *  Version 2.0 (the "License"); you may not use this file except in 
  *  compliance with the License. You may obtain a copy of the License at
  * 
@@ -19,57 +19,57 @@ package com.graphhopper.routing.ch;
 
 import com.graphhopper.routing.*;
 import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.weighting.FastestWeighting;
+import com.graphhopper.routing.weighting.ShortestWeighting;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
-import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.CHEdgeIteratorState;
+import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
+import com.graphhopper.util.Parameters;
+import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests if a graph optimized by contraction hierarchies returns the same results as a none
  * optimized one. Additionally fine grained path unpacking is tested.
  * <p>
+ *
  * @author Peter Karich
  */
-public class DijkstraBidirectionCHTest extends AbstractRoutingAlgorithmTester
-{
+public class DijkstraBidirectionCHTest extends AbstractRoutingAlgorithmTester {
     @Override
-    protected CHGraph getGraph( GraphHopperStorage ghStorage, Weighting weighting )
-    {
+    protected CHGraph getGraph(GraphHopperStorage ghStorage, Weighting weighting) {
         return ghStorage.getGraph(CHGraph.class, weighting);
     }
 
     @Override
-    protected GraphHopperStorage createGHStorage( EncodingManager em, 
-                                                  List<? extends Weighting> weightings, boolean is3D )
-    {
+    protected GraphHopperStorage createGHStorage(EncodingManager em,
+                                                 List<? extends Weighting> weightings, boolean is3D) {
         return new GraphHopperStorage(weightings, new RAMDirectory(),
                 em, is3D, new GraphExtension.NoOpExtension()).
                 create(1000);
     }
 
     @Override
-    public RoutingAlgorithmFactory createFactory( GraphHopperStorage ghStorage, AlgorithmOptions opts )
-    {
+    public RoutingAlgorithmFactory createFactory(GraphHopperStorage ghStorage, AlgorithmOptions opts) {
         PrepareContractionHierarchies ch = new PrepareContractionHierarchies(new GHDirectory("", DAType.RAM_INT),
                 ghStorage, getGraph(ghStorage, opts.getWeighting()),
-                opts.getFlagEncoder(), opts.getWeighting(), TraversalMode.NODE_BASED);
+                opts.getWeighting(), TraversalMode.NODE_BASED);
         ch.doWork();
         return ch;
     }
 
     @Test
-    public void testPathRecursiveUnpacking()
-    {
+    public void testPathRecursiveUnpacking() {
         // use an encoder where it is possible to store 2 weights per edge        
         FlagEncoder encoder = new Bike2WeightFlagEncoder();
-        ShortestWeighting weighting = new ShortestWeighting(encoder);
         EncodingManager em = new EncodingManager(encoder);
+        ShortestWeighting weighting = new ShortestWeighting(encoder);
         GraphHopperStorage ghStorage = createGHStorage(em, Arrays.asList(weighting), false);
         CHGraphImpl g2 = (CHGraphImpl) ghStorage.getGraph(CHGraph.class, weighting);
         g2.edge(0, 1, 1, true);
@@ -104,10 +104,10 @@ public class DijkstraBidirectionCHTest extends AbstractRoutingAlgorithmTester
         g2.setLevel(7, 6);
         g2.setLevel(0, 7);
 
-        AlgorithmOptions opts = new AlgorithmOptions(AlgorithmOptions.DIJKSTRA_BI, encoder, weighting);
+        AlgorithmOptions opts = new AlgorithmOptions(Parameters.Algorithms.DIJKSTRA_BI, weighting);
         Path p = new PrepareContractionHierarchies(new GHDirectory("", DAType.RAM_INT),
-                ghStorage, g2, encoder, weighting, TraversalMode.NODE_BASED).
-                createAlgo(g2, opts).calcPath(0, 7, -1);
+                ghStorage, g2, weighting, TraversalMode.NODE_BASED).
+                createAlgo(g2, opts).calcPath(0, 7);
 
         assertEquals(Helper.createTList(0, 2, 5, 7), p.calcNodes());
         assertEquals(1064, p.getTime());
@@ -115,31 +115,31 @@ public class DijkstraBidirectionCHTest extends AbstractRoutingAlgorithmTester
     }
 
     @Test
-    public void testBaseGraph()
-    {
+    public void testBaseGraph() {
         CarFlagEncoder carFE = new CarFlagEncoder();
-        AlgorithmOptions opts = AlgorithmOptions.start().flagEncoder(carFE).
+        EncodingManager em = new EncodingManager(carFE);
+        AlgorithmOptions opts = AlgorithmOptions.start().
                 weighting(new ShortestWeighting(carFE)).build();
-        GraphHopperStorage ghStorage = createGHStorage(new EncodingManager(carFE),
+        GraphHopperStorage ghStorage = createGHStorage(em,
                 Arrays.asList(opts.getWeighting()), false);
+
         initDirectedAndDiffSpeed(ghStorage, carFE);
 
         // do CH preparation for car        
         createFactory(ghStorage, opts);
 
         // use base graph for solving normal Dijkstra
-        Path p1 = new RoutingAlgorithmFactorySimple().createAlgo(ghStorage, defaultOpts).calcPath(0, 3, -1);
+        Path p1 = new RoutingAlgorithmFactorySimple().createAlgo(ghStorage, defaultOpts).calcPath(0, 3);
         assertEquals(Helper.createTList(0, 1, 5, 2, 3), p1.calcNodes());
         assertEquals(p1.toString(), 402.29, p1.getDistance(), 1e-2);
         assertEquals(p1.toString(), 144823, p1.getTime());
     }
 
     @Test
-    public void testBaseGraphMultipleVehicles()
-    {
-        AlgorithmOptions footOptions = AlgorithmOptions.start().flagEncoder(footEncoder).
+    public void testBaseGraphMultipleVehicles() {
+        AlgorithmOptions footOptions = AlgorithmOptions.start().
                 weighting(new FastestWeighting(footEncoder)).build();
-        AlgorithmOptions carOptions = AlgorithmOptions.start().flagEncoder(carEncoder).
+        AlgorithmOptions carOptions = AlgorithmOptions.start().
                 weighting(new FastestWeighting(carEncoder)).build();
 
         GraphHopperStorage g = createGHStorage(encodingManager,
@@ -150,26 +150,20 @@ public class DijkstraBidirectionCHTest extends AbstractRoutingAlgorithmTester
         RoutingAlgorithmFactory contractedFactory = createFactory(g, carOptions);
 
         // use contracted graph
-        Path p1 = contractedFactory.createAlgo(getGraph(g, carOptions.getWeighting()), carOptions).calcPath(0, 7, -1);
+        Path p1 = contractedFactory.createAlgo(getGraph(g, carOptions.getWeighting()), carOptions).calcPath(0, 7);
         assertEquals(Helper.createTList(0, 4, 6, 7), p1.calcNodes());
         assertEquals(p1.toString(), 15000, p1.getDistance(), 1e-6);
 
         // use base graph for solving normal Dijkstra via car
-        Path p2 = new RoutingAlgorithmFactorySimple().createAlgo(g, carOptions).calcPath(0, 7, -1);
+        Path p2 = new RoutingAlgorithmFactorySimple().createAlgo(g, carOptions).calcPath(0, 7);
         assertEquals(Helper.createTList(0, 4, 6, 7), p2.calcNodes());
         assertEquals(p2.toString(), 15000, p2.getDistance(), 1e-6);
         assertEquals(p2.toString(), 2700 * 1000, p2.getTime());
 
         // use base graph for solving normal Dijkstra via foot
-        Path p3 = new RoutingAlgorithmFactorySimple().createAlgo(g, footOptions).calcPath(0, 7, -1);
+        Path p3 = new RoutingAlgorithmFactorySimple().createAlgo(g, footOptions).calcPath(0, 7);
         assertEquals(p3.toString(), 17000, p3.getDistance(), 1e-6);
         assertEquals(p3.toString(), 12240 * 1000, p3.getTime());
         assertEquals(Helper.createTList(0, 4, 5, 7), p3.calcNodes());
-    }
-
-    @Override
-    public void testRekeyBugOfIntBinHeap()
-    {
-        super.testRekeyBugOfIntBinHeap(); //To change body of generated methods, choose Tools | Templates.
     }
 }
