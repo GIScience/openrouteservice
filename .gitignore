@@ -17,3 +17,6 @@ app.config.local
 cgiar_provider/
 graphs/
 target/
+.python-version
+nohup.out
+build/

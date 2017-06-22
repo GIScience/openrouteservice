@@ -21,18 +21,20 @@ stages:
   - gh-install
   - ors-install
   - ors-api-test
+  - sesame-deploy
+  - rice-deploy
 
 maven-gh-install: 
   stage: gh-install
   only: 
-    - development
+    - master
   script: 
     - mvn -f ./graphhopper/pom.xml install -B
 
 maven-ors-install:
   stage: ors-install
   only:
-    - development
+    - master
   script: 
     - mvn -f ./openrouteservice/pom.xml install -B
   artifacts:
@@ -42,7 +44,7 @@ maven-ors-install:
 maven-ors-api-test:
   stage: ors-api-test
   only:
-    - development  
+    - master  
   before_script:
     - cp ./openrouteservice-api-tests/conf/app.config.test ./openrouteservice/WebContent/WEB-INF/app.config
     - mvn -f ./openrouteservice/pom.xml install -B
