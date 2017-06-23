@@ -168,6 +168,10 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
             highwayValue = "motorroad";
         }
         Integer speed = defaultSpeedMap.get(highwayValue);
+        int maxSpeed = (int) Math.round(getMaxSpeed(way)); // Runge
+        if (maxSpeed > 0)
+        	speed = maxSpeed;	
+
         if (speed == null)
             throw new IllegalStateException(toString() + ", no speed found for: " + highwayValue + ", tags: " + way);
 
@@ -178,6 +182,13 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
                 if (tInt != null)
                     speed = tInt;
             }
+        }
+
+        if (way.hasTag("access")) // Runge  //https://www.openstreetmap.org/way/132312559
+        {
+        	String accessTag = way.getTag("access");
+        	if ("destination".equals(accessTag))
+        		return 1; 
         }
 
         return speed;
@@ -223,6 +234,22 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
         // do not drive street cars into fords
         if (isBlockFords() && ("ford".equals(highwayValue) || way.hasTag("ford")))
             return 0;
+        
+        
+        String maxwidth = way.getTag("maxwidth"); // Runge added on 23.02.2016
+        if (maxwidth != null)
+        {
+        	try
+            {
+        		double mwv = Double.parseDouble(maxwidth);
+        		if (mwv < 2.0)
+        			return 0;
+            }
+        	catch(Exception ex)
+            {
+            	
+            }
+        }
 
         if (getConditionalTagInspector().isPermittedWayConditionallyRestricted(way))
             return 0;
@@ -247,12 +274,37 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
             speed = applyMaxSpeed(way, speed);
 
             speed = applyBadSurfaceSpeed(way, speed);
+            
+            boolean isRoundabout = way.hasTag("junction", "roundabout");
+
+            if (isRoundabout) // Runge
+            {
+            	//http://www.sidrasolutions.com/Documents/OArndt_Speed%20Control%20at%20Roundabouts_23rdARRBConf.pdf
+            	if (way.hasTag("highway", "mini_roundabout"))
+            		speed = speed < 25 ? speed : 25;
+            	
+            	if (way.hasTag("lanes"))
+            	{
+            		try
+            		{
+            			// The following line throws exceptions when it tries to parse a value "3; 2"
+            			int lanes = Integer.parseInt(way.getTag("lanes"));
+            			if (lanes >= 2)
+            				speed  = speed < 40 ? speed : 40;
+            			else
+            				speed  = speed < 35 ? speed : 35;
+            		}
+            		catch(Exception ex)
+            		{}
+            	}
+            }
 
             flags = setSpeed(flags, speed);
 
-            boolean isRoundabout = way.hasTag("junction", "roundabout");
             if (isRoundabout)
+            {
                 flags = setBool(flags, K_ROUNDABOUT, true);
+            }
 
             if (isOneway(way) || isRoundabout) {
                 if (isBackwardOneway(way))

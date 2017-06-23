@@ -17,7 +17,6 @@
  */
 package com.graphhopper.storage;
 
-import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.ch.PrepareEncoder;
 import com.graphhopper.routing.util.AllCHEdgesIterator;
 import com.graphhopper.routing.util.EdgeFilter;
@@ -412,81 +411,21 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
 			assert baseGraph.isFrozen() : "Traversal CHGraph is only possible if BaseGraph is frozen";
 
 			// always use ch edge access
-			setEdgeId(resolveEdgeId(chEdgeAccess.getEdgeRef(baseNode), baseNode));
+			setEdgeId(chEdgeAccess.getEdgeRef(baseNode));
 			_setBaseNode(baseNode);
 			return this;
 		}
 
-		private int resolveEdgeId(int edgeId, int baseNode)
-		{
-			if (PrepareContractionHierarchies.PRINT_EDGES)
-			{
-					if (edgeId >= baseGraph.edgeCount)
-				{
-				/*	nextEdgeId = edgeId;
-					selectEdgeAccess();
-					edgePointer = edgeAccess.toPointer(edgeId);
-					adjNode = edgeAccess.getOtherNode(baseNode, edgePointer);
-
-					nextEdgeId = edgeAccess.getEdgeRef(baseNode, adjNode, edgePointer);
-
-					if (nextEdgeId >= baseGraph.edgeCount)
-					{
-						while (nextEdgeId >= baseGraph.edgeCount)
-						{
-							selectEdgeAccess();
-							edgePointer = edgeAccess.toPointer(nextEdgeId);
-							adjNode = edgeAccess.getOtherNode(baseNode, edgePointer);
-							nextEdgeId = edgeAccess.getEdgeRef(baseNode, adjNode, edgePointer);
-						}
-					}
-
-					return nextEdgeId;*/
-				}
-			}
-			return edgeId;
-		}
-
 		@Override
 		protected void setEdgeId(int edgeId) {
-			if (!(PrepareContractionHierarchies.ALLOW_DISCONNECT_EDGES == true))
-			{
-				/*if (edgeId >= baseGraph.edgeCount)
-				{
-					if(baseNode > adjNode) // baseNode == 17 && adjNode == 2)
-					{
-						// an edge is shared across the two nodes even if the edge is not in both directions
-						// so we need to know two edge-pointers pointing to the edge before edgeToRemovePointer
-						selectEdgeAccess();
-						edgePointer = edgeAccess.toPointer(edgeId);
-						adjNode = edgeAccess.getOtherNode(baseNode, edgePointer);
-						nextEdgeId = edgeAccess.getEdgeRef(baseNode, adjNode, edgePointer);
-
-						if (edgeId >= baseGraph.edgeCount)
-						{
-							while (edgeId >= baseGraph.edgeCount)
-							{
-								selectEdgeAccess();
-								edgePointer = edgeAccess.toPointer(edgeId);
-								adjNode = edgeAccess.getOtherNode(baseNode, edgePointer);
-								edgeId = edgeAccess.getEdgeRef(baseNode, adjNode, edgePointer);
-							}
-						}
-					}
-				}*/
-			}
 			this.nextEdgeId = this.edgeId = edgeId;
 		}
-
+		
 		@Override
-		public  boolean next() {  // Runge: FIX
-			//	if (!PrepareContractionHierarchies.IGNORE_DOWNWARD_SHORTCUTS)
-			//		return super.next();
-
+		public final boolean next() {
 			while (true) {
 				if (nextEdgeId == EdgeIterator.NO_EDGE)
 					return false;
-
 				selectEdgeAccess();
 				edgePointer = edgeAccess.toPointer(nextEdgeId);
 				edgeId = nextEdgeId;
@@ -494,67 +433,17 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
 				reverse = baseNode > adjNode;
 				freshFlags = false;
 
-				// position to next edge                
+				// position to next edge
 				nextEdgeId = edgeAccess.getEdgeRef(baseNode, adjNode, edgePointer);
-/*
-				if (PrepareContractionHierarchies.PRINT_EDGES)
-				{
-					//prevEdgeId = nextEdgeId;
-					//resolveNextEdgeId();
+				assert nextEdgeId != edgeId : ("endless loop detected for base node: " + baseNode + ", adj node: "
+						+ adjNode + ", edge pointer: " + edgePointer + ", edge: " + edgeId);
 
-					if (nextEdgeId == EdgeIterator.NO_EDGE)
-					{
-						if (edgeId >= baseGraph.edgeCount)
-						{
-							if(baseNode > adjNode ) 
-							{
-								//return false;
-							}
-						}
-					}
-				
-					System.out.print(edgeId + "->" + nextEdgeId + ":" + filter.accept(this) +":"+ baseNode + "->" + adjNode + " ");
-				}
-*/
-				assert nextEdgeId != edgeId : ("endless loop detected for base node: " + baseNode + ", adj node: " + adjNode
-						+ ", edge pointer: " + edgePointer + ", edge: " + edgeId);
-
-				if (filter.accept(this))
+				if (filter.accept(this)) {
+					if (isShortcut() && getLevel(baseNode) > getLevel(adjNode))
+						continue;
 					return true;
-			}
-		}
-
-		private int prevEdgeId = -1;
-		private int tmpEdgeId = -1;
-		private void resolveNextEdgeId()
-		{
-			if (nextEdgeId >= baseGraph.edgeCount)
-			{
-				if(baseNode > adjNode) // baseNode == 17 && adjNode == 2)
-				{
-					tmpEdgeId = -1;
-					selectEdgeAccess();
-
-					tmpEdgeId = edgeAccess.getEdgeRef(baseNode);
-					// an edge is shared across the two nodes even if the edge is not in both directions
-					// so we need to know two edge-pointers pointing to the edge before edgeToRemovePointer
-					edgePointer = edgeAccess.toPointer(tmpEdgeId);
-					adjNode = edgeAccess.getOtherNode(baseNode, edgePointer);
-					tmpEdgeId = edgeAccess.getEdgeRef(baseNode, adjNode, edgePointer);
-
-					if (tmpEdgeId >= baseGraph.edgeCount)
-					{
-						while (tmpEdgeId >= baseGraph.edgeCount && (baseNode > adjNode))
-						{
-							selectEdgeAccess();
-							edgePointer = edgeAccess.toPointer(tmpEdgeId);
-							adjNode = edgeAccess.getOtherNode(baseNode, edgePointer);
-							tmpEdgeId = edgeAccess.getEdgeRef(baseNode, adjNode, edgePointer);
-						}
-					}
-
-					nextEdgeId = tmpEdgeId;
 				}
+
 			}
 		}
 

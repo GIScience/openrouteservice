@@ -748,14 +748,15 @@ public class GraphHopper implements GraphHopperAPI {
         	ghStorage = graphStorageFactory.createStorage(dir, this);
         }
 
+        if (lmFactoryDecorator.isEnabled())
+            initLMAlgoFactoryDecorator();
+
+    	if (chFactoryDecorator.isEnabled()) 
+    		initCHAlgoFactoryDecorator();
+
         if (ghStorage == null) // Runge 
         { 
-               if (lmFactoryDecorator.isEnabled())
-                 initLMAlgoFactoryDecorator();
-
-
         	if (chFactoryDecorator.isEnabled()) {
-        		initCHAlgoFactoryDecorator();
         		ghStorage = new GraphHopperStorage(chFactoryDecorator.getWeightings(), dir, encodingManager, hasElevation(), ext);
         	} else {
         		ghStorage = new GraphHopperStorage(dir, encodingManager, hasElevation(), ext);
@@ -950,7 +951,7 @@ public class GraphHopper implements GraphHopperAPI {
     public Weighting createTurnWeighting(Graph graph, Weighting weighting, TraversalMode tMode) {
         FlagEncoder encoder = weighting.getFlagEncoder();
         if (encoder.supports(TurnWeighting.class) && !tMode.equals(TraversalMode.NODE_BASED))
-            return new TurnWeighting(weighting, (TurnCostExtension) graph.getExtension());
+            return new TurnWeighting(weighting, /*(TurnCostExtension) graph.getExtension()*/ Helper.getTurnCostExtensions(graph.getExtension()) );
         return weighting;
     }
 
@@ -1081,6 +1082,9 @@ public class GraphHopper implements GraphHopperAPI {
                         maxVisitedNodes(maxVisitedNodesForRequest).
                         hints(hints).
                         build();
+                
+                if (request.getEdgeFilter() != null)
+                	algoOpts.setEdgeFilter(request.getEdgeFilter());
 
                 altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts,  byteBuffer);
 
@@ -1094,7 +1098,8 @@ public class GraphHopper implements GraphHopperAPI {
                         setEnableInstructions(tmpEnableInstructions).
                         setSimplifyResponse(simplifyResponse && wayPointMaxDistance > 0);
 
-                if (routingTemplate.isReady(pathMerger, tr, byteBuffer))
+                PathProcessingContext pathProcCntx = new PathProcessingContext(tr, request.getEdgeAnnotator(), request.getPathProcessor(), byteBuffer);
+                if (routingTemplate.isReady(pathMerger, pathProcCntx))
                     break;
             }
 

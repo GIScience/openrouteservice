@@ -42,7 +42,7 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder {
                 (int) properties.getLong("speed_bits", 4),
                 properties.getDouble("speed_factor", 2),
                 properties.getBool("turn_costs", false) ? 1 : 0, 
-                properties.getBool("considerElevation", false)
+                properties.getBool("consider_elevation", false)
         );
         this.properties = properties;
         this.setBlockFords(properties.getBool("block_fords", true));

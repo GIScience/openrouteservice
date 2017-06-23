@@ -17,6 +17,7 @@
  */
 package com.graphhopper.routing;
 
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.PMap;
@@ -41,6 +42,7 @@ public class AlgorithmOptions {
     private TraversalMode traversalMode = TraversalMode.NODE_BASED;
     private int maxVisitedNodes = Integer.MAX_VALUE;
     private double maxSpeed = -1; // runge
+    private EdgeFilter edgeFilter;
 
     private AlgorithmOptions() {
     }
@@ -135,7 +137,15 @@ public class AlgorithmOptions {
         return algorithm + ", " + weighting + ", " + traversalMode;
     }
 
-    public static class Builder {
+    public EdgeFilter getEdgeFilter() {
+		return edgeFilter;
+	}
+
+	public void setEdgeFilter(EdgeFilter edgeFilter) {
+		this.edgeFilter = edgeFilter;
+	}
+
+	public static class Builder {
         private AlgorithmOptions opts = new AlgorithmOptions();
         private boolean buildCalled;
 

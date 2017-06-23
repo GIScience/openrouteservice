@@ -19,6 +19,8 @@ package com.graphhopper.util;
 
 import com.graphhopper.PathWrapper;
 import com.graphhopper.routing.Path;
+import com.graphhopper.routing.PathProcessingContext;
+import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 
 import java.util.ArrayList;
@@ -59,24 +61,35 @@ public class PathMerger {
         return this;
     }
 
-    public void doWork(PathWrapper altRsp, List<Path> paths, Translation tr, ByteArrayBuffer byteBuffer) {
+    public void doWork(PathWrapper altRsp, List<Path> paths, PathProcessingContext procCntx) {
         int origPoints = 0;
         long fullTimeInMillis = 0;
         double fullWeight = 0;
         double fullDistance = 0;
         boolean allFound = true;
 
-        InstructionList fullInstructions = new InstructionList(tr);
+        // Runge
+        PathProcessor pathProcessor = procCntx.getPathProcessor();
+        if (pathProcessor != null)
+        {
+        	if (paths.size() > 0)
+        		pathProcessor.start(paths.get(0).getEncoder());
+        	else 
+        		pathProcessor.start(null);
+        }
+
+        InstructionList fullInstructions = new InstructionList(procCntx.getTranslation());
         PointList fullPoints = PointList.EMPTY;
         List<String> description = new ArrayList<String>();
         for (int pathIndex = 0; pathIndex < paths.size(); pathIndex++) {
             Path path = paths.get(pathIndex);
+            procCntx.setPathIndex(pathIndex); // Runge
             description.addAll(path.getDescription());
             fullTimeInMillis += path.getTime();
             fullDistance += path.getDistance();
             fullWeight += path.getWeight();
             if (enableInstructions) {
-                InstructionList il = path.calcInstructions(tr, byteBuffer);
+                InstructionList il = path.calcInstructions(procCntx);
 
                 if (!il.isEmpty()) {
                     if (fullPoints.isEmpty()) {
@@ -117,7 +130,14 @@ public class PathMerger {
             allFound = allFound && path.isFound();
         }
 
+        // Runge
+        if (pathProcessor != null)
+        	pathProcessor.finish();
+
         if (!fullPoints.isEmpty()) {
+        	if (pathProcessor != null)
+           	 fullPoints = pathProcessor.processPoints(fullPoints);
+
             String debug = altRsp.getDebugInfo() + ", simplify (" + origPoints + "->" + fullPoints.getSize() + ")";
             altRsp.addDebugInfo(debug);
             if (fullPoints.is3D)

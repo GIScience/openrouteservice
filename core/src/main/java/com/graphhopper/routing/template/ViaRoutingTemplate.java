@@ -60,7 +60,11 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
         if (points.size() < 2)
             throw new IllegalArgumentException("At least 2 points have to be specified, but was:" + points.size());
 
-        EdgeFilter edgeFilter = new DefaultEdgeFilter(encoder);
+        // runge
+		EdgeFilter edgeFilter = ghRequest.getEdgeFilter(); //Runge
+		if (edgeFilter == null)
+			edgeFilter = new DefaultEdgeFilter(encoder);  
+
         queryResults = new ArrayList<>(points.size());
         for (int placeIndex = 0; placeIndex < points.size(); placeIndex++) {
             GHPoint point = points.get(placeIndex);
@@ -147,13 +151,13 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
     }
 
     @Override
-    public boolean isReady(PathMerger pathMerger, Translation tr, ByteArrayBuffer buffer) {
+    public boolean isReady(PathMerger pathMerger, PathProcessingContext pathProcCntx) {
         if (ghRequest.getPoints().size() - 1 != pathList.size())
             throw new RuntimeException("There should be exactly one more points than paths. points:" + ghRequest.getPoints().size() + ", paths:" + pathList.size());
 
         altResponse.setWaypoints(getWaypoints());
         ghResponse.add(altResponse);
-        pathMerger.doWork(altResponse, pathList, tr, buffer);
+        pathMerger.doWork(altResponse, pathList, pathProcCntx);
         return true;
     }
 

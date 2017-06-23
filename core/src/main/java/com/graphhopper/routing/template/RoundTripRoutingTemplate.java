@@ -148,11 +148,11 @@ public class RoundTripRoutingTemplate extends AbstractRoutingTemplate implements
     }
 
     @Override
-    public boolean isReady(PathMerger pathMerger, Translation tr, ByteArrayBuffer buffer) {
+    public boolean isReady(PathMerger pathMerger, PathProcessingContext pathProcCntx) {
         altResponse = new PathWrapper();
         altResponse.setWaypoints(getWaypoints());
         ghResponse.add(altResponse);
-        pathMerger.doWork(altResponse, pathList, tr, buffer);
+        pathMerger.doWork(altResponse, pathList, pathProcCntx);
         // with potentially retrying, including generating new route points, for now disabled
         return true;
     }

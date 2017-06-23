@@ -79,7 +79,8 @@ public class TestAlgoCollector {
                 setEnableInstructions(true);
         PathWrapper rsp = new PathWrapper();
         ByteArrayBuffer buffer = new ByteArrayBuffer();
-        pathMerger.doWork(rsp, altPaths, trMap.getWithFallBack(Locale.US), buffer);
+        PathProcessingContext pathProcCntx = new PathProcessingContext(trMap.getWithFallBack(Locale.US), null, null, new ByteArrayBuffer()); // runge
+        pathMerger.doWork(rsp, altPaths, pathProcCntx);
 
         if (rsp.hasErrors()) {
             errors.add("response for " + algoEntry + " contains errors. Expected distance: " + oneRun.getDistance()

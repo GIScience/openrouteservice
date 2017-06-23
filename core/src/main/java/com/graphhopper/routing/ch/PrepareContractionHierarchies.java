@@ -87,10 +87,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     private double neighborTime;
     private int maxEdgesCount;
     
-    public static boolean ALLOW_DISCONNECT_EDGES = true;
-	public static boolean IGNORE_DOWNWARD_SHORTCUTS = false;
-	public static boolean PRINT_EDGES = false;
-	
+
     public PrepareContractionHierarchies(Directory dir, GraphHopperStorage ghStorage, CHGraph chGraph,
                                          Weighting weighting, TraversalMode traversalMode) {
         this.ghStorage = ghStorage;
@@ -329,9 +326,8 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
                     neighborSW.stop();
                 }
 
-                 if (ALLOW_DISCONNECT_EDGES)
-                    // Hendrik: PHAST algorithm does not work properly with removed shortcuts
-                	prepareGraph.disconnect(vehicleAllTmpExplorer, iter); 
+                 // Hendrik: PHAST algorithm does not work properly with removed shortcuts
+                 //	prepareGraph.disconnect(vehicleAllTmpExplorer, iter); 
             }
         }
 

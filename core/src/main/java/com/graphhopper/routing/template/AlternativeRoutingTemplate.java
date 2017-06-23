@@ -22,6 +22,7 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.PathWrapper;
 import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.routing.Path;
+import com.graphhopper.routing.PathProcessingContext;
 import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.RoutingAlgorithmFactory;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -68,7 +69,7 @@ final public class AlternativeRoutingTemplate extends ViaRoutingTemplate {
     }
 
     @Override
-    public boolean isReady(PathMerger pathMerger, Translation tr, ByteArrayBuffer buffer) {
+    public boolean isReady(PathMerger pathMerger, PathProcessingContext pathProcCntx) {
         if (pathList.isEmpty())
             throw new RuntimeException("Empty paths for alternative route calculation not expected");
 
@@ -76,12 +77,12 @@ final public class AlternativeRoutingTemplate extends ViaRoutingTemplate {
         PointList wpList = getWaypoints();
         altResponse.setWaypoints(wpList);
         ghResponse.add(altResponse);
-        pathMerger.doWork(altResponse, Collections.singletonList(pathList.get(0)), tr, buffer);
+        pathMerger.doWork(altResponse, Collections.singletonList(pathList.get(0)), pathProcCntx);
         for (int index = 1; index < pathList.size(); index++) {
             PathWrapper tmpAltRsp = new PathWrapper();
             tmpAltRsp.setWaypoints(wpList);
             ghResponse.add(tmpAltRsp);
-            pathMerger.doWork(tmpAltRsp, Collections.singletonList(pathList.get(index)), tr, buffer);
+            pathMerger.doWork(tmpAltRsp, Collections.singletonList(pathList.get(index)), pathProcCntx);
         }
         return true;
     }
