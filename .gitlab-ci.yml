@@ -63,4 +63,4 @@ ors-deploy-chia:
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
     - ssh-add <(echo "$STAGING_PRIVATE_KEY")
-    - ssh -p22 ubuntu@129.206.7.188 "cd ~/ors/core-docker && sudo ./start-ors.sh db150 r3i1b406 /home/ubuntu/webfrastructure/tomcat/data development ../core"
+    - ssh -p22 ubuntu@129.206.7.188 "cd ~/ors/core-docker && sudo ./start-ors.sh db150 r3i1b406 /home/ubuntu/webfrastructure/tomcat/data development development ../core"
