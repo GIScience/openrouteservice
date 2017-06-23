@@ -23,9 +23,9 @@ public class CarTmcFlagEncoder extends CarFlagEncoder {
 
     public CarTmcFlagEncoder(PMap configuration)
     {
-		     this(configuration.getInt("speedBits", 5),
-		                configuration.getDouble("speedFactor", 5),
-		                configuration.getBool("turnCosts", false) ? 3 : 0);
+		     this(configuration.getInt("speed_bits", 5),
+		                configuration.getDouble("speed_factor", 5),
+		                configuration.getBool("turn_costs", false) ? 3 : 0);
     }
 
 	public CarTmcFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {

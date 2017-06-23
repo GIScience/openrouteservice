@@ -1,5 +1,7 @@
 package heigit.ors.locations.providers.postgresql;
 
+@SuppressWarnings("rawtypes")
+
 public class ColumnDescription {
    public String _name;
    public Class _type;

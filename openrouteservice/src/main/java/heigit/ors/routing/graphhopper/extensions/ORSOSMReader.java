@@ -73,6 +73,7 @@ public class ORSOSMReader extends OSMReader {
 		_procCntx.processWay(way);
 	}
 
+	@Override
 	protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge) {
 
 		if (enrichInstructions && Helper.isEmpty(way.getTag("name")) && Helper.isEmpty(way.getTag("ref"))) {

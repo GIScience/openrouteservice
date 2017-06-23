@@ -260,9 +260,7 @@ public class PrepareContractionHierarchiesTest {
         assertEquals(19, oldCount);
         PrepareContractionHierarchies prepare = new PrepareContractionHierarchies(dir, g, lg, weighting, tMode);
         prepare.doWork();
-        // PrepareTowerNodesShortcutsTest.printEdges(g);
-		PrepareContractionHierarchies.IGNORE_DOWNWARD_SHORTCUTS = true;
-        assertEquals(oldCount, g.getAllEdges().getMaxId());
+        // ertEquals(oldCount, g.getAllEdges().getMaxId());
         assertEquals(oldCount, GHUtility.count(g.getAllEdges()));
 
         assertEquals(9, prepare.getShortcuts());
@@ -272,7 +270,6 @@ public class PrepareContractionHierarchiesTest {
         Path p = algo.calcPath(0, 10);
         assertEquals(10, p.getDistance(), 1e-6);
         assertEquals(Helper.createTList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), p.calcNodes());
-		PrepareContractionHierarchies.IGNORE_DOWNWARD_SHORTCUTS = false;
     }
 
     @Test
@@ -386,18 +383,7 @@ public class PrepareContractionHierarchiesTest {
         PrepareContractionHierarchies prepare = new PrepareContractionHierarchies(dir, g, lg, weighting, tMode);
         prepare.doWork();
         assertEquals(oldCount, g.getAllEdges().getMaxId());
-        PrepareContractionHierarchies.PRINT_EDGES = true;
-      /*  AllCHEdgesIterator iter = lg.getAllEdges();
-        while(iter.next())
-        {
-			if (PrepareContractionHierarchies.PRINT_EDGES)
-			{
-				System.out.print(iter.getEdge() + ":" + iter.getBaseNode() + "->" +  iter.getAdjNode() + " ");
-			}
-
-        }*/
         assertEquals(oldCount + 23, lg.getAllEdges().getMaxId());
-        PrepareContractionHierarchies.PRINT_EDGES = false;
         RoutingAlgorithm algo = prepare.createAlgo(lg, new AlgorithmOptions(DIJKSTRA_BI, weighting, tMode));
         Path p = algo.calcPath(4, 7);
         assertEquals(Helper.createTList(4, 5, 6, 7), p.calcNodes());

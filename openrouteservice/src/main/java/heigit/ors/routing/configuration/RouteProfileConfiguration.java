@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
+import com.typesafe.config.Config;
 import com.vividsolutions.jts.geom.Envelope;
 
 import heigit.ors.routing.RoutingProfileType;
@@ -24,8 +25,9 @@ public class RouteProfileConfiguration
 	
 	private int _encoderFlagsSize = 4;
 	private String _encoderOptions = null;
-	private String _chWeighting = null;
-	private int _chThreads = 1;
+	
+	private Config _preparationOpts;
+	private Config _executionOpts;
 	
 	private String _elevationProvider = null; 
 	private String _elevationCachePath = null;
@@ -77,8 +79,8 @@ public class RouteProfileConfiguration
 		
 		rpc._encoderFlagsSize = this._encoderFlagsSize;
 		rpc._encoderOptions = this._encoderOptions;
-		rpc._chWeighting = this._chWeighting;
-		rpc._chThreads = this._chThreads;
+		rpc._preparationOpts = this._preparationOpts;
+		rpc._executionOpts = this._executionOpts;
 
 		rpc._extStorages = this._extStorages;
 		rpc._graphBuilders = this._graphBuilders;
@@ -223,26 +225,6 @@ public class RouteProfileConfiguration
 		return _encoderOptions;
 	}
 	
-	public void setCHWeighting(String value)
-	{
-		_chWeighting = value; 
-	}
-	
-	public String getCHWeighting()
-	{
-		return _chWeighting;
-	}
-	
-	public void setCHThreads(Integer value)
-	{
-		_chThreads = value; 
-	}
-	
-	public Integer getCHThreads()
-	{
-		return _chThreads;
-	}
-	
 	public void setExtent(Envelope value)
 	{
 		_extent = value; 
@@ -291,5 +273,21 @@ public class RouteProfileConfiguration
 	public Boolean getElevationCacheClear()
 	{
 		return _elevationCacheClear;
+	}
+
+	public Config getPreparationOpts() {
+		return _preparationOpts;
+	}
+
+	public void setPreparationOpts(Config preparationOpts) {
+		_preparationOpts = preparationOpts;
+	}
+
+	public Config getExecutionOpts() {
+		return _executionOpts;
+	}
+
+	public void setExecutionOpts(Config executionOpts) {
+		this._executionOpts = executionOpts;
 	}
 }

@@ -23,7 +23,9 @@ import com.graphhopper.coll.GHIntArrayList;
 import com.graphhopper.debatty.java.stringsimilarity.JaroWinkler;
 import com.graphhopper.routing.util.DataFlagEncoder;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.EdgeAnnotator;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
@@ -97,6 +99,11 @@ public class Path {
         weight = p.weight;
         edgeIds = new GHIntArrayList(p.edgeIds);
         sptEntry = p.sptEntry;
+    }
+    
+    public FlagEncoder getEncoder()
+    {
+    	return encoder;
     }
 
     /**
@@ -276,7 +283,7 @@ public class Path {
             tmpNode = edgeBase.getBaseNode();
             // more efficient swap, currently not implemented for virtual edges: visitor.next(edgeBase.detach(true), i);
             edgeBase = graph.getEdgeIteratorState(edgeBase.getEdge(), tmpNode);
-            visitor.next(edgeBase, i, prevEdgeId);
+            visitor.next(edgeBase, i, len, prevEdgeId);
 
             prevEdgeId = edgeBase.getEdge();
         }
@@ -293,7 +300,7 @@ public class Path {
 
         forEveryEdge(new EdgeVisitor() {
             @Override
-            public void next(EdgeIteratorState eb, int index, int prevEdgeId) {
+            public void next(EdgeIteratorState eb, int index, int len, int prevEdgeId) {
                 edges.add(eb);
             }
 
@@ -321,7 +328,7 @@ public class Path {
         nodes.add(tmpNode);
         forEveryEdge(new EdgeVisitor() {
             @Override
-            public void next(EdgeIteratorState eb, int index, int prevEdgeId) {
+            public void next(EdgeIteratorState eb, int index, int len, int prevEdgeId) {
                 nodes.add(eb.getAdjNode());
             }
 
@@ -356,7 +363,7 @@ public class Path {
         points.add(nodeAccess, tmpNode);
         forEveryEdge(new EdgeVisitor() {
             @Override
-            public void next(EdgeIteratorState eb, int index, int prevEdgeId) {
+            public void next(EdgeIteratorState eb, int index, int len, int prevEdgeId) {
                 PointList pl = eb.fetchWayGeometry(2, byteBuffer);
                 for (int j = 0; j < pl.getSize(); j++) {
                     points.add(pl, j);
@@ -372,21 +379,22 @@ public class Path {
     }
 
     public InstructionList calcInstructions(final Translation tr) {
-    	return calcInstructions(tr, null);	
+    	PathProcessingContext pathProcCntx = new PathProcessingContext(tr, null, null, null);
+    	return calcInstructions(pathProcCntx);	
     }
     
     /**
      * @return the list of instructions for this path.
      */
-    public InstructionList calcInstructions(final Translation tr, ByteArrayBuffer byteBuffer) {
-        final InstructionList ways = new InstructionList(edgeIds.size() / 4, tr);
+    public InstructionList calcInstructions(PathProcessingContext procCntx) {
+        final InstructionList ways = new InstructionList(edgeIds.size() / 4, procCntx.getTranslation());
         if (edgeIds.isEmpty()) {
             if (isFound()) {
                 ways.add(new FinishInstruction(nodeAccess, endNode));
             }
             return ways;
         }
-        forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, nodeAccess, tr, ways, byteBuffer));
+        forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, nodeAccess, procCntx, ways));
         return ways;
     }
 
@@ -410,7 +418,7 @@ public class Path {
      * The callback used in forEveryEdge.
      */
     public interface EdgeVisitor {
-        void next(EdgeIteratorState edge, int index, int prevEdgeId);
+        void next(EdgeIteratorState edge, int index, int count, int prevEdgeId); // Runge: added argument "count"
         void finish();
     }
 }

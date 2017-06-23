@@ -18,7 +18,9 @@
 package com.graphhopper.routing;
 
 import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.EdgeAnnotator;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
@@ -38,7 +40,6 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
     private final FlagEncoder encoder;
     private final NodeAccess nodeAccess;
 
-    private final Translation tr;
     private final InstructionList ways;
     /*
      * We need three points to make directions
@@ -72,13 +73,13 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
     private InstructionAnnotation prevAnnotation;
     private EdgeExplorer outEdgeExplorer;
     private EdgeExplorer crossingExplorer;
-    private ByteArrayBuffer byteBuffer;
-
-    public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder, NodeAccess nodeAccess, Translation tr, InstructionList ways, ByteArrayBuffer byteBuffer) {
+    private PathProcessingContext pathProcCntx;
+    
+    public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder, NodeAccess nodeAccess, PathProcessingContext pathProcCntx, InstructionList ways) {
         this.weighting = weighting;
         this.encoder = encoder;
         this.nodeAccess = nodeAccess;
-        this.tr = tr;
+        this.pathProcCntx = pathProcCntx;
         this.ways = ways;
         prevLat = this.nodeAccess.getLatitude(tmpNode);
         prevLon = this.nodeAccess.getLongitude(tmpNode);
@@ -87,12 +88,10 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         prevName = null;
         outEdgeExplorer = graph.createEdgeExplorer(new DefaultEdgeFilter(this.encoder, false, true));
         crossingExplorer = graph.createEdgeExplorer(new DefaultEdgeFilter(encoder, true, true));
-        this.byteBuffer = byteBuffer;
     }
 
-
     @Override
-    public void next(EdgeIteratorState edge, int index, int prevEdgeId) {
+    public void next(EdgeIteratorState edge, int index, int count, int prevEdgeId) {
         // baseNode is the current node and adjNode is the next
         int adjNode = edge.getAdjNode();
         int baseNode = edge.getBaseNode();
@@ -101,7 +100,7 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         double adjLon = nodeAccess.getLongitude(adjNode);
         double latitude, longitude;
 
-        PointList wayGeo = edge.fetchWayGeometry(3, byteBuffer);
+        PointList wayGeo = edge.fetchWayGeometry(3, pathProcCntx.getByteBuffer());
         boolean isRoundabout = encoder.isBool(flags, FlagEncoder.K_ROUNDABOUT);
 
         if (wayGeo.getSize() <= 2) {
@@ -115,7 +114,20 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         }
 
         String name = edge.getName();
-        InstructionAnnotation annotation = encoder.getAnnotation(flags, tr);
+        InstructionAnnotation annotation = encoder.getAnnotation(flags, pathProcCntx.getTranslation());
+
+        // Runge
+		if (pathProcCntx.getEdgeAnnotator() != null) {
+			/*String annotationMessage = pathProcCntx.getEdgeAnnotator().getAnnotation(edge.getOriginalEdge());
+			if (!Helper.isEmpty(annotationMessage))
+			{
+				if (!annotationMessage.equals(prevAnnotationMessage))
+				{
+					prevAnnotationMessage = annotationMessage;
+					annotation = new InstructionAnnotation(0, annotationMessage, -1);
+				}
+			}*/
+		}
 
         if ((prevName == null) && (!isRoundabout)) // very first instruction (if not in Roundabout)
         {
@@ -226,7 +238,13 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         prevLat = adjLat;
         prevLon = adjLon;
         prevEdge = edge;
-    }
+        
+        boolean lastEdge = index == count - 1;
+
+        // Runge
+		if (pathProcCntx.getPathProcessor() != null)
+			pathProcCntx.getPathProcessor().processEdge(pathProcCntx.getPathIndex(), edge, lastEdge, wayGeo);
+   }
 
     @Override
     public void finish() {

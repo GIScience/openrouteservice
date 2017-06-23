@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.graphhopper.util.Helper;
+import com.typesafe.config.ConfigFactory;
 import com.vividsolutions.jts.geom.Envelope;
 
 import heigit.ors.services.routing.RoutingServiceSettings;
@@ -71,11 +72,11 @@ public class RoutingManagerConfiguration
 				{
 					switch(paramItem.getKey())
 					{
-					case "ch_weighting":
-						profile.setCHWeighting(paramItem.getValue().toString());
+					case "preparation":
+						profile.setPreparationOpts(ConfigFactory.parseString(paramItem.getValue().toString()));
 						break;
-					case "ch_threads":
-						profile.setCHThreads(Integer.parseInt(paramItem.getValue().toString()));
+					case "execution":
+						profile.setExecutionOpts(ConfigFactory.parseString(paramItem.getValue().toString()));
 						break;
 					case "encoder_options":
 						profile.setEncoderOptions(paramItem.getValue().toString());

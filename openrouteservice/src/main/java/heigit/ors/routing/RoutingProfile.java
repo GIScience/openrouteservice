@@ -45,6 +45,13 @@ import heigit.ors.routing.WeightingMethod;
 import heigit.ors.mapmatching.MapMatcher;
 import heigit.ors.mapmatching.RouteSegmentInfo;
 import heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
+import heigit.ors.matrix.MatrixErrorCodes;
+import heigit.ors.matrix.MatrixLocationData;
+import heigit.ors.matrix.MatrixLocationDataResolver;
+import heigit.ors.matrix.MatrixRequest;
+import heigit.ors.matrix.MatrixResult;
+import heigit.ors.matrix.algorithms.MatrixAlgorithm;
+import heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
 import heigit.ors.routing.traffic.TrafficEdgeAnnotator;
@@ -64,11 +71,14 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.storage.StorableProperties;
+import com.graphhopper.storage.index.LocationIndex;
+import com.graphhopper.util.ByteArrayBuffer;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
+import com.typesafe.config.Config;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -177,20 +187,79 @@ public class RoutingProfile
 		args.put("graph.dataaccess", "RAM_STORE");
 		args.put("datareader.file", sourceFile);
 		args.put("graph.location", config.getGraphPath());
-		args.put("graph.bytesForFlags", config.getEncoderFlagsSize());
+		args.put("graph.bytes_for_flags", config.getEncoderFlagsSize());
 
 		if (config.getInstructions() == false)
 			args.put("instructions", false);
 		if (config.getElevationProvider() != null&& config.getElevationCachePath() != null)
 		{
 			args.put("graph.elevation.provider", config.getElevationProvider());
-			args.put("graph.elevation.cachedir", config.getElevationCachePath());
+			args.put("graph.elevation.cache_dir", config.getElevationCachePath());
 			args.put("graph.elevation.dataaccess", config.getElevationDataAccess());
 		}
 
-		args.put("prepare.ch.weightings", (config.getCHWeighting() != null) ? config.getCHWeighting() : "no");
-		args.put("prepare.ch.threads", config.getCHThreads());
+		if (config.getPreparationOpts() != null)
+		{
+			Config opts = config.getPreparationOpts();
+			if (opts.hasPath("min_network_size"))
+				args.put("prepare.min_network_size", opts.getInt("min_network_size"));
+			if (opts.hasPath("min_one_way_network_size"))
+				args.put("prepare.min_one_way_network_size", opts.getInt("min_one_way_network_size"));
+			
+			if (opts.hasPath("methods"))
+			{
+				if (opts.hasPath("methods.ch"))
+				{
+					Config chOpts = opts.getConfig("methods.ch");
+					if (!chOpts.hasPath("enabled") || chOpts.getBoolean("enabled"))
+					{
+						if (chOpts.hasPath("threads"))
+   							args.put("prepare.ch.threads", chOpts.getInt("threads"));
+						if (chOpts.hasPath("weightings"))
+   							args.put("prepare.ch.weightings", chOpts.getString("weightings"));
+						else
+							args.put("prepare.ch.weightings", "no");
+					}
+				}
+				
+				if (opts.hasPath("methods.lm"))
+				{
+					Config lmOpts = opts.getConfig("methods.lm");
+					if (!lmOpts.hasPath("enabled") || lmOpts.getBoolean("enabled"))
+					{
+						if (lmOpts.hasPath("threads"))
+   							args.put("prepare.lm.threads", lmOpts.getInt("threads"));
+						if (lmOpts.hasPath("weightings"))
+   							args.put("prepare.lm.weightings", lmOpts.getString("weightings"));
+						else
+							args.put("prepare.lm.weightings", "no");
+						if (lmOpts.hasPath("landmarks"))
+   							args.put("prepare.lm.landmarks", lmOpts.getInt("landmarks"));	
+					}
+				}
+			}
+		}
 
+		if (config.getExecutionOpts() != null)
+		{
+			Config opts = config.getExecutionOpts();
+			if (opts.hasPath("methods.ch"))
+			{
+				Config chOpts = opts.getConfig("methods.ch");
+				if (chOpts.hasPath("disabling_allowed"))
+					args.put("routing.ch.disabling_allowed", chOpts.getBoolean("disabling_allowed"));
+			}
+			if (opts.hasPath("methods.lm"))
+			{
+				Config lmOpts = opts.getConfig("methods.lm");
+				if (lmOpts.hasPath("disabling_allowed"))
+					args.put("routing.lm.disabling_allowed", lmOpts.getBoolean("disabling_allowed"));
+				
+				if (lmOpts.hasPath("active_landmarks"))
+					args.put("routing.lm.active_landmarks", lmOpts.getInt("active_landmarks"));
+			}
+		}
+		
 		String flagEncoders = "";
 		String[] encoderOpts = !Helper.isEmpty(config.getEncoderOptions()) ? config.getEncoderOptions().split(",") : null;
 		Integer[] profiles = config.getProfilesTypes();
@@ -204,10 +273,10 @@ public class RoutingProfile
 				flagEncoders += ",";
 		}
 
-		args.put("graph.flagEncoders", flagEncoders.toLowerCase());
+		args.put("graph.flag_encoders", flagEncoders.toLowerCase());
 
-		args.put("osmreader.wayPointMaxDistance",1);
-		args.put("index.highResolution", 500);
+		//args.put("osmreader.wayPointMaxDistance",1);
+		args.put("index.high_resolution", 500);
 
 		return args;
 	}
@@ -361,6 +430,39 @@ public class RoutingProfile
 		}
 
 		return result;
+	}
+	
+	public MatrixResult computeMatrix(MatrixRequest req) throws Exception
+	{
+		 MatrixResult mtxResult = null;
+		 try
+		 {
+			 GraphHopper gh = getGraphhopper();
+			 String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
+			 FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
+			 EdgeFilter filter = new DefaultEdgeFilter(flagEncoder);
+			 LocationIndex locIndex = gh.getLocationIndex();
+			 ByteArrayBuffer buffer = new ByteArrayBuffer();
+
+			 MatrixAlgorithm alg = null;
+			 //if (gh.getCHFactoryDecorator()..getPreparations().get(0).)
+			 // TODO implement MatrixAlgorithmFactory
+			 alg = new RPHASTMatrixAlgorithm();
+			 alg.init(gh, flagEncoder);
+
+			 MatrixLocationDataResolver locResolver = new MatrixLocationDataResolver(locIndex, filter, buffer, req.getResolveLocations());
+			 
+			 MatrixLocationData srcData = locResolver.resolve(req.getSources());
+			 MatrixLocationData dstData = locResolver.resolve(req.getDestinations()); 
+
+			 mtxResult = alg.compute(srcData, dstData, req.getMetrics());
+		 }
+		 catch(Exception ex)
+		 {
+			 throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute distance/duration matrix.");
+		 }
+		 
+		 return mtxResult;
 	}
 
 	private RouteSearchContext createSearchContext(RouteSearchParameters searchParams, RouteSearchMode mode) throws Exception
@@ -591,7 +693,7 @@ public class RoutingProfile
 				req.setPathProcessor(routeProcCntx.getPathProcessor());
 			
 			if (useDynamicWeights(searchParams) || flexibleMode)
-				req.getHints().put("CH.Disable", true);
+				req.getHints().put("ch.disable", true);
 			
 			/*if (directedSegment)
 				resp = mGraphHopper.directRoute(req); NOTE IMPLEMENTED!!!

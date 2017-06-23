@@ -298,7 +298,7 @@ public class ParamsTest extends ServiceTest {
 				.when()
 				.post(getEndPointName())
 				.then()
-				.statusCode(500);
+				.statusCode(405);
 	}
 
 	@Test

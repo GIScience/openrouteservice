@@ -11,11 +11,6 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.matrix;
 
-import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.storage.index.LocationIndex;
-import com.graphhopper.storage.index.QueryResult;
-import com.graphhopper.util.ByteArrayBuffer;
-import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class MatrixLocationData {
@@ -23,7 +18,7 @@ public class MatrixLocationData {
 	private String[] _names;
 	private Coordinate[] _coords;
 
-	private MatrixLocationData(int size, boolean resolveNames)
+	public MatrixLocationData(int size, boolean resolveNames)
 	{
 		_nodeIds = new int[size];
 		_coords = new Coordinate[size];
@@ -50,35 +45,13 @@ public class MatrixLocationData {
 	{
 		return _coords;
 	}
-
-	public static MatrixLocationData createData(LocationIndex index, Coordinate[] coords, EdgeFilter edgeFilter, ByteArrayBuffer buffer, boolean resolveNames)
+	
+	public void setData(int index, Coordinate coord, int nodeId, String name)
 	{
-		MatrixLocationData mld = new MatrixLocationData(coords.length, resolveNames);
-
-		Coordinate p = null;
-		for (int i = 0; i < coords.length; i++)
-		{
-			p = coords[i];
-
-			QueryResult qr = index.findClosest(p.y, p.x, edgeFilter, buffer);
-			if (qr.isValid())
-			{
-				mld._nodeIds[i] = qr.getClosestNode();
-				GHPoint3D pt = qr.getSnappedPoint();
-				mld._coords[i] = new Coordinate(pt.getLon(), pt.getLat());
-				
-				if (resolveNames)
-				{
-					mld._names[i] = qr.getClosestEdge().getName();
-				}
-			}
-			else
-			{
-				mld._nodeIds[i] = -1;
-				mld._coords[i] = null;
-			}
-		}
-
-		return mld;
+		_nodeIds[index] = nodeId;
+		_coords[index] = coord;
+		
+		if (_names != null)
+			_names[index] = name; 
 	}
 }

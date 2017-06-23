@@ -278,8 +278,11 @@ public class RouteResultBuilder
 				duration += FormatUtility.roundToDecimals(path.getTime()/1000.0, 1);
 			}
 
-			ascent += path.getAscend();
-			descent += path.getDescend();
+			if (includeElev)
+			{
+				ascent += path.getAscend();
+				descent += path.getDescend();
+			}
 			durationTraffic += path.getRouteWeight();
 		}
 

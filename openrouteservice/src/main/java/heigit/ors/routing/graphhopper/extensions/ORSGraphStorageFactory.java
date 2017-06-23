@@ -26,7 +26,6 @@ import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageB
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GHDirectory;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphExtension.ExtendedStorageSequence;

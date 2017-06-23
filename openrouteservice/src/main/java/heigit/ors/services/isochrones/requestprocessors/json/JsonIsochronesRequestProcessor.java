@@ -72,7 +72,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 		//	req = JsonIsochroneRequestParser.parseFromStream(_request.getInputStream());  
 		//	break;
 		default:
-			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED);
+			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, IsochronesErrorCodes.UNKNOWN);
 		}
 
 		if (req == null)

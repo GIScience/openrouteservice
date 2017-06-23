@@ -3,8 +3,6 @@ package heigit.ors.isochrones.builders.concaveballs;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.index.ItemVisitor;
 
-import java.awt.geom.Point2D;
-
 public class PointItemVisitor implements ItemVisitor 
 {
 	private double _threshold;

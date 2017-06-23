@@ -130,9 +130,9 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 
     public HeavyVehicleFlagEncoder(PMap properties)
     {
-        this(properties.getInt("speedBits", 5),
-        		properties.getDouble("speedFactor", 5),
-        		properties.getBool("turnCosts", false) ? 3 : 0);
+        this(properties.getInt("speed_bits", 5),
+        		properties.getDouble("speed_factor", 5),
+        		properties.getBool("turn_costs", false) ? 3 : 0);
         
         setBlockFords(false);
     }

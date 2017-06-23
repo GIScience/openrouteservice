@@ -43,10 +43,10 @@ public class RunningFlagEncoder extends FootFlagEncoder
 
     public RunningFlagEncoder( PMap properties )
     {
-        this((int) properties.getLong("speedBits", 4),
-                properties.getDouble("speedFactor", 1));
+        this((int) properties.getLong("speed_bits", 4),
+                properties.getDouble("speed_factor", 1));
         this.properties = properties;
-        this.setBlockFords(properties.getBool("blockFords", true));
+        this.setBlockFords(properties.getBool("block_fords", true));
     }
 
     public RunningFlagEncoder( String propertiesStr )

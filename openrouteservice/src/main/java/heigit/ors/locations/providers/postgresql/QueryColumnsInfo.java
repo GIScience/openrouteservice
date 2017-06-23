@@ -99,6 +99,7 @@ public class QueryColumnsInfo
 		return _columns[index].getName();
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public Object getType(int index, ResultSet resultSet) throws Exception
 	{
 		Class type = _columns[index].getType();

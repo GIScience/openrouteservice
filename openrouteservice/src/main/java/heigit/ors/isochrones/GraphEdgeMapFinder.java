@@ -13,8 +13,6 @@ import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.ByteArrayBuffer;
 import com.vividsolutions.jts.geom.Coordinate;
 
-import gnu.trove.map.TIntObjectMap;
-
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.isochrones.IsochroneSearchParameters;

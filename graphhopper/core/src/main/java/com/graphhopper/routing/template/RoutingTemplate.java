@@ -19,6 +19,7 @@ package com.graphhopper.routing.template;
 
 import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.routing.Path;
+import com.graphhopper.routing.PathProcessingContext;
 import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.RoutingAlgorithmFactory;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -52,7 +53,7 @@ public interface RoutingTemplate {
      * This method merges the returned paths appropriately e.g. all paths from the list into one
      * PathWrapper of GHResponse or multiple (via / round trip).
      */
-    boolean isReady(PathMerger pathMerger, Translation tr, ByteArrayBuffer buffer);
+    boolean isReady(PathMerger pathMerger, PathProcessingContext pathProcCntx);
 
     /**
      * This method returns the maximum number of full retries of these 3 steps

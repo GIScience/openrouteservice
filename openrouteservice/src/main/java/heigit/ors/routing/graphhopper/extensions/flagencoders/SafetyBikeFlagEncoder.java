@@ -33,10 +33,10 @@ public class SafetyBikeFlagEncoder extends BikeCommonFlagEncoder {
 	
 	public SafetyBikeFlagEncoder(PMap configuration)
     {
-	      this(configuration.getInt("speedBits", 4),
-	    		  configuration.getDouble("speedFactor", 2),
-	              configuration.getBool("turnCosts", false) ? 3 : 0,
-	              configuration.getBool("considerElevation", false));
+	      this(configuration.getInt("speed_bits", 4) + (configuration.getBool("consider_elevation", false) ? 1 : 0),
+	    		  configuration.getDouble("speed_factor", 2),
+	              configuration.getBool("turn_costs", false) ? 3 : 0,
+	              configuration.getBool("consider_elevation", false));
 	      
 	      setBlockFords(false);
     }

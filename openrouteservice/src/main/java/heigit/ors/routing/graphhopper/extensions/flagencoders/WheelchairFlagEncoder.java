@@ -88,8 +88,8 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
 
   	public WheelchairFlagEncoder(PMap configuration)
     {
-		 this(configuration.getInt("speedBits", 4),
-			  configuration.getDouble("speedFactor", 1));
+		 this(configuration.getInt("speed_bits", 4),
+			  configuration.getDouble("speed_factor", 1));
     }
 
     /**

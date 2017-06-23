@@ -21,6 +21,8 @@ public class StatusCodeException extends Exception
 	public StatusCodeException(int statusCode, int internalCode)
 	{
 		super();
+		_statusCode = statusCode;
+		_internalCode = internalCode;
 	}
 	
 	public StatusCodeException(int statusCode)

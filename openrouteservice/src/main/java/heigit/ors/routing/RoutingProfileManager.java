@@ -36,6 +36,7 @@ import heigit.ors.util.FormatUtility;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.matrix.MatrixErrorCodes;
 import heigit.ors.matrix.MatrixLocationData;
+import heigit.ors.matrix.MatrixLocationDataResolver;
 import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
 import heigit.ors.matrix.algorithms.MatrixAlgorithm;
@@ -143,7 +144,6 @@ public class RoutingProfileManager {
 				DistanceCalc3D.ASIN_APPROXIMATION = RoutingServiceSettings.getDistanceApproximation();
 				RAMDataAccess.LZ4_COMPRESSION_ENABLED = "LZ4".equalsIgnoreCase(RoutingServiceSettings.getStorageFormat());	
 				BikeCommonFlagEncoder.SKIP_WAY_TYPE_INFO = true;
-				PrepareContractionHierarchies.ALLOW_DISCONNECT_EDGES = false;
 
 				if ("PrepareGraphs".equalsIgnoreCase(RoutingServiceSettings.getWorkingMode())) {
 					prepareGraphs(graphProps);
@@ -214,7 +214,6 @@ public class RoutingProfileManager {
 				}
 
 				RoutingProfileManagerStatus.setReady(true);
-				PrepareContractionHierarchies.IGNORE_DOWNWARD_SHORTCUTS = true;
 			}
 		} catch (Exception ex) {
 			LOGGER.error("Failed to initialize RoutingProfileManager instance.", ex);
@@ -455,32 +454,6 @@ public class RoutingProfileManager {
 		 if (rp == null)
 			 throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
 		 
-		 MatrixResult mtxResult = null;
-		 try
-		 {
-			 GraphHopper gh = rp.getGraphhopper();
-			 String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
-			 FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
-			 EdgeFilter filter = new DefaultEdgeFilter(flagEncoder);
-			 LocationIndex locIndex = gh.getLocationIndex();
-			 ByteArrayBuffer buffer = new ByteArrayBuffer();
-
-			 MatrixAlgorithm alg = null;
-			 //if (gh.getCHFactoryDecorator()..getPreparations().get(0).)
-			 // TODO implement MatrixAlgorithmFactory
-			 alg = new RPHASTMatrixAlgorithm();
-			 alg.init(gh, flagEncoder);
-
-			 MatrixLocationData srcData = MatrixLocationData.createData(locIndex, req.getSources(), filter, buffer, req.getResolveLocations());
-			 MatrixLocationData dstData = MatrixLocationData.createData(locIndex, req.getDestinations(), filter, buffer, req.getResolveLocations());
-
-			 mtxResult = alg.compute(srcData, dstData, req.getMetrics());
-		 }
-		 catch(Exception ex)
-		 {
-			 throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute distance/duration matrix.");
-		 }
-		 
-		 return mtxResult;
+		return rp.computeMatrix(req);
 	}
 }

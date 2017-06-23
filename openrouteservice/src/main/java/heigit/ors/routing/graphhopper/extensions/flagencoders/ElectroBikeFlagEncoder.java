@@ -20,11 +20,11 @@ public class ElectroBikeFlagEncoder extends BikeCommonFlagEncoder
 
     public ElectroBikeFlagEncoder(PMap properties )
     {
-        this((int) properties.getLong("speedBits", 4) + (properties.getBool("considerElevation", false) ? 1 : 0),
-                properties.getLong("speedFactor", 2),
-                properties.getBool("turnCosts", false) ? 1 : 0, properties.getBool("considerElevation", false));
+        this((int) properties.getLong("speed_bits", 4) + (properties.getBool("consider_elevation", false) ? 1 : 0),
+                properties.getLong("speed_factor", 2),
+                properties.getBool("turn_costs", false) ? 1 : 0, properties.getBool("consider_elevation", false));
         this.properties = properties;
-        this.setBlockFords(properties.getBool("blockFords", true));
+        this.setBlockFords(properties.getBool("block_fords", true));
     }
     
     public ElectroBikeFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts)

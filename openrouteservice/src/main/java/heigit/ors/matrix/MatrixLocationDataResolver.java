@@ -11,17 +11,76 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.matrix;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.storage.index.LocationIndex;
+import com.graphhopper.storage.index.QueryResult;
+import com.graphhopper.util.ByteArrayBuffer;
+import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
-/*
+
 public class MatrixLocationDataResolver {
-   private Map<Coordinate, Integer> _locationCache;
+   private Map<Coordinate, LocationData> _locationCache;
+   private boolean _resolveNames;
+   private LocationIndex _locIndex;
+   private EdgeFilter _edgeFilter;
+   private ByteArrayBuffer _buffer;
    
-   
-   public void MatrixLocationDataResolver()
+   class LocationData
    {
+	   public Coordinate coordinate;
+	   public int nodeId;
+	   public String name;
+   }
+   
+   public MatrixLocationDataResolver(LocationIndex index, EdgeFilter edgeFilter, ByteArrayBuffer buffer, boolean resolveNames)
+   {
+	   _locIndex = index;
+	   _edgeFilter = edgeFilter;
+	   _buffer = buffer;
+	   _resolveNames = resolveNames;
+   }
+   
+   public MatrixLocationData resolve(Coordinate[] coords)
+   {
+	   if (_locationCache == null)
+		   _locationCache = new HashMap<Coordinate, LocationData>();
 	   
+	   MatrixLocationData mld = new MatrixLocationData(coords.length, _resolveNames);
+
+		Coordinate p = null;
+		for (int i = 0; i < coords.length; i++)
+		{
+			p = coords[i];
+
+			LocationData ld = _locationCache.get(p);
+			if (ld != null)
+				mld.setData(i, ld.coordinate, ld.nodeId, ld.name);
+			else
+			{  
+				ld = new LocationData();
+				
+				QueryResult qr = _locIndex.findClosest(p.y, p.x, _edgeFilter, _buffer);
+				if (qr.isValid())
+				{
+					ld.nodeId = qr.getClosestNode();
+					GHPoint3D pt = qr.getSnappedPoint();
+					ld.coordinate = new Coordinate(pt.getLon(), pt.getLat());
+					if (_resolveNames)
+						ld.name = qr.getClosestEdge().getName();
+				}
+				else
+				{
+					ld.nodeId = -1;
+					ld.coordinate = null;
+				}
+				
+				_locationCache.put(p, ld);
+				mld.setData(i, ld.coordinate, ld.nodeId, ld.name);
+			}
+		}
+	   return mld;
    }
 }
-*/

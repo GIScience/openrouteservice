@@ -419,6 +419,7 @@ public class OSMReader implements DataReader {
         
         for (EdgeIteratorState edge : createdEdges) {
             encodingManager.applyWayTags(way, edge);
+            onProcessEdge(way, edge);
         }
     }
     
@@ -433,7 +434,7 @@ public class OSMReader implements DataReader {
     	
     }
     
-    protected void processEdge(ReaderWay way, EdgeIteratorState edge) // Runge
+    protected void processEdge(ReaderWay way, EdgeIteratorState edge) // runge
     {
     	encodingManager.applyWayTags(way, edge);
     	

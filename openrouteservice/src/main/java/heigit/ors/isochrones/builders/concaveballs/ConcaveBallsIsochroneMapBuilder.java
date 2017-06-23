@@ -202,18 +202,18 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 		for (IntObjectCursor<SPTEntry> entry : map) {
 			SPTEntry  edge = entry.value;
-			if (edge.getOriginalEdgeId() == -1)
+			if (edge.originalEdge == -1)
 				continue;
 
-			result.put(edge.parent.getOriginalEdgeId(), 1);
+			result.put(edge.parent.originalEdge, 1);
 		}
 
 		for (IntObjectCursor<SPTEntry> entry : map) {
 			SPTEntry  edge = entry.value;
-			if (edge.getOriginalEdgeId() == -1)
+			if (edge.originalEdge == -1)
 				continue;
 
-			if (!result.containsKey(edge.getOriginalEdgeId()))
+			if (!result.containsKey(edge.originalEdge))
 				edge.edge =-2;
 		}
 	}
@@ -325,7 +325,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 			goalEdge = entry.value;
 
-			int edgeId = goalEdge.getOriginalEdgeId();
+			int edgeId = goalEdge.originalEdge;
 
 			if (edgeId == -1)
 				continue;

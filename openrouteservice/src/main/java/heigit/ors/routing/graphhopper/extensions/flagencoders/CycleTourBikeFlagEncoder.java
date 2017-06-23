@@ -21,13 +21,13 @@ public class CycleTourBikeFlagEncoder extends BikeCommonFlagEncoder {
 	}
 
 	public CycleTourBikeFlagEncoder(PMap configuration) {
-		super(configuration.getInt("speedBits", 4),
-			    configuration.getDouble("speedFactor", 2),
-				configuration.getBool("turnCosts", false) ? 3 : 0, 
-				configuration.getBool("considerElevation", false));
+		super(configuration.getInt("speed_bits", 4) + (configuration.getBool("consider_elevation", false) ? 1 : 0),
+			    configuration.getDouble("speed_factor", 2),
+				configuration.getBool("turn_costs", false) ? 3 : 0, 
+				configuration.getBool("consider_elevation", false));
 
-		//setBlockFords(parseBoolean(propertiesStr, "blockFords", true));
 		setBlockFords(false);
+        this.setBlockFords(configuration.getBool("block_fords", true));
 
 		setCyclingNetworkPreference("icn", BEST.getValue());
 		setCyclingNetworkPreference("ncn", BEST.getValue());

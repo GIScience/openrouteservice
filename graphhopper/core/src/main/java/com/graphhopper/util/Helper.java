@@ -19,6 +19,9 @@ package com.graphhopper.util;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntIndexedContainer;
+import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.storage.GraphExtension.ExtendedStorageSequence;
+import com.graphhopper.storage.TurnCostExtension;
 import com.graphhopper.util.shapes.BBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -557,5 +560,23 @@ public class Helper {
         }
 
         return sb.toString();
+    }
+    
+    public static TurnCostExtension getTurnCostExtensions(GraphExtension extendedStorage) // Runge
+    {
+    	if (extendedStorage instanceof TurnCostExtension)
+    		return (TurnCostExtension) extendedStorage;
+    	else if (extendedStorage instanceof ExtendedStorageSequence)
+    	{
+    		ExtendedStorageSequence ess = (ExtendedStorageSequence)extendedStorage;
+    		GraphExtension[] exts = ess.getExtensions(); 
+    		for (int i = 0; i< exts.length; i++ )
+    		{
+    			if  (exts[i] instanceof TurnCostExtension)
+    				return (TurnCostExtension) exts[i];
+    		}
+    	}
+    	
+    	return null;
     }
 }

@@ -27,7 +27,7 @@ public class IsochronesServiceServlet extends BaseHttpServlet {
 		}
 		catch(Exception ex)
 		{
-		
+			writeError(response, ex);
 		}
 	}
 	
