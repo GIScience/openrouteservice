@@ -13,8 +13,8 @@ COPY graphhopper /ors-core/graphhopper
 COPY openrouteservice /ors-core/openrouteservice
 COPY openrouteservice-api-tests /ors-core/openrouteservice-api-tests
 # Copy the app.config.$branch for the current build
-ARG branch=master
-COPY deployment/conf/app.config.$branch /ors-core/openrouteservice/WebContent/WEB-INF/app.config
+ARG env=development
+COPY deployment/conf/app.config.$env /ors-core/openrouteservice/WebContent/WEB-INF/app.config
 
 WORKDIR /ors-core
 
