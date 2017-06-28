@@ -12,9 +12,6 @@ RUN mkdir -p /ors-core/build
 COPY graphhopper /ors-core/graphhopper
 COPY openrouteservice /ors-core/openrouteservice
 COPY openrouteservice-api-tests /ors-core/openrouteservice-api-tests
-# Copy the app.config.$branch for the current build
-ARG env=development
-COPY deployment/conf/app.config.$env /ors-core/openrouteservice/WebContent/WEB-INF/app.config
 
 WORKDIR /ors-core
 
@@ -22,7 +19,5 @@ WORKDIR /ors-core
 RUN mvn -f ./graphhopper/pom.xml install
 # Build and install openrouteservice
 RUN mvn -f ./openrouteservice/pom.xml package
-
-# VOLUME /home/root/ors-core/openrouteservice/target
 
 CMD cp /ors-core/openrouteservice/target/openrouteservice-4.0.0.war /ors-core/build/ors.war
