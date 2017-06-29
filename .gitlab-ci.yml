@@ -26,14 +26,14 @@ stages:
 maven-gh-install: 
   stage: gh-install
   only: 
-    - development
+    - master
   script: 
     - mvn -f ./graphhopper/pom.xml install -B
 
 maven-ors-install:
   stage: ors-install
   only:
-    - development
+    - master
   script: 
     - mvn -f ./openrouteservice/pom.xml install -B
   artifacts:
@@ -43,7 +43,7 @@ maven-ors-install:
 maven-ors-api-test:
   stage: ors-api-test
   only:
-    - development  
+    - master  
   before_script:
     - cp ./openrouteservice-api-tests/conf/app.config.test ./openrouteservice/WebContent/WEB-INF/app.config
     - mvn -f ./openrouteservice/pom.xml install -B
@@ -55,7 +55,7 @@ maven-ors-api-test:
 ors-deploy-chia:
   stage: ors-deploy-chia
   only:
-    - development
+    - master
   before_script:
     - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
     - mkdir -p ~/.ssh
@@ -63,4 +63,4 @@ ors-deploy-chia:
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
     - ssh-add <(echo "$STAGING_PRIVATE_KEY")
-    - ssh -p22 ubuntu@129.206.7.188 "curl 'https://gitlab.gistools.geog.uni-heidelberg.de/giscience/openrouteservice/core-deployment/raw/master/bootstrap.sh?private_token=$ORS_CI_DEPLOY_TOKEN' | bash -s $ORS_DEPLOY_USER $ORS_DEPLOY_USER_PWD /home/ubuntu/webfrastructure/tomcat/data/ development development 3g"
+    - ssh -p22 ubuntu@129.206.7.188 "curl 'https://gitlab.gistools.geog.uni-heidelberg.de/giscience/openrouteservice/core-deployment/raw/master/bootstrap.sh?private_token=$ORS_CI_DEPLOY_TOKEN' | bash -s $ORS_DEPLOY_USER $ORS_DEPLOY_USER_PWD /home/ubuntu/webfrastructure/tomcat/data/ development master 3g"
