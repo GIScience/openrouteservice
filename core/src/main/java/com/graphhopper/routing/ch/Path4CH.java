@@ -51,6 +51,8 @@ public class Path4CH extends PathBidirRef {
             distance += mainEdgeState.getDistance();
             time += weighting.calcMillis(mainEdgeState, reverse, EdgeIterator.NO_EDGE);
             addEdge(mainEdgeState.getEdge());
+//            System.out.print(Integer.toString(mainEdgeState.getEdge()) + ",");
+
             return;
         }
 

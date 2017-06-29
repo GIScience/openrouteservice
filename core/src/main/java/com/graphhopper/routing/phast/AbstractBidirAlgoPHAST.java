@@ -42,7 +42,7 @@ public abstract class AbstractBidirAlgoPHAST extends AbstractRoutingAlgorithmCH 
 	FlagEncoder encoder;
 
 	public AbstractBidirAlgoPHAST(CHGraph chGraph, Weighting weighting, TraversalMode tMode) {
-		super(chGraph, weighting, tMode);
+		super(chGraph, weighting, tMode, true);
 		this.chGraph = chGraph;
 	}
 

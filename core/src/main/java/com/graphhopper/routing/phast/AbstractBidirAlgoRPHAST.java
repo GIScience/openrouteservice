@@ -22,6 +22,7 @@ import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.AbstractRoutingAlgorithmCH;
 import com.graphhopper.routing.Path;
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.RPHASTEdgeFilter;
 import com.graphhopper.routing.util.TraversalMode;
@@ -45,7 +46,7 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmCH
 	FlagEncoder encoder;
 
 	public AbstractBidirAlgoRPHAST(CHGraph chGraph, Weighting weighting, TraversalMode tMode) {
-		super(chGraph, weighting, tMode);
+		super(chGraph, weighting, tMode, true);
 		this.chGraph = chGraph;
 	}
 
@@ -122,8 +123,7 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmCH
 	 * @param pos
 	 * @return
 	 */
-	public IntObjectMap<SPTEntry> calcMatrix(int from, int[] intTargetMap, IntObjectMap<SPTEntry> tree, float[] times,
-			int pos) {
+	public IntObjectMap<SPTEntry> calcMatrix(int from, int[] intTargetMap, IntObjectMap<SPTEntry> tree, int pos) {
 		checkAlreadyRun();
 		IntObjectMap<SPTEntry> bestWeightMapFrom = init(from, 0);
 		IntObjectMap<SPTEntry> targetMap = new GHIntObjectHashMap<SPTEntry>(intTargetMap.length);
@@ -137,11 +137,13 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmCH
 		runDownwardsAlgo();
 		// From all checked nodes extract only the ones requested via targetMap
 		// and set their weight
-		int i = 0;
+		
+		//int i = 0;
 		for (int target : intTargetMap) {
 			targetMap.put(target, bestWeightMapFrom.get(target));
-			times[pos + i] = (float) (bestWeightMapFrom.get(target) == null ? -1 : bestWeightMapFrom.get(target).weight);
-			i++;
+ 		  // Runge: we can compute times later together with distances and weights.
+			//times[pos + i] = (float) (bestWeightMapFrom.get(target) == null ? -1 : bestWeightMapFrom.get(target).weight);
+		//	i++;
 		}
 		return targetMap;
 	}

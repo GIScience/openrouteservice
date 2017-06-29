@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.graphhopper.routing.util.CHEdgeFilter;
 import com.graphhopper.routing.util.CHLevelEdgeFilter;
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
@@ -60,16 +61,25 @@ public abstract class AbstractRoutingAlgorithmCH implements RoutingAlgorithm {
 	 *            how the graph is traversed e.g. if via nodes or edges.
 	 */
 
-	public AbstractRoutingAlgorithmCH(CHGraph chGraph, Weighting weighting, TraversalMode traversalMode) {
+	public AbstractRoutingAlgorithmCH(CHGraph chGraph, Weighting weighting, TraversalMode traversalMode, boolean downwardSearchAllowed) {
 		this.weighting = weighting;
 		this.flagEncoder = weighting.getFlagEncoder();
 		this.traversalMode = traversalMode;
 		this.graph = chGraph;
 		this.nodeAccess = chGraph.getNodeAccess();
 
-		outEdgeExplorer = chGraph.createEdgeExplorer();
-		inEdgeExplorer = chGraph.createEdgeExplorer();
-		targetEdgeExplorer = chGraph.createEdgeExplorer();
+		if (!downwardSearchAllowed)
+		{
+			outEdgeExplorer = chGraph.createEdgeExplorer();
+			inEdgeExplorer = chGraph.createEdgeExplorer();
+			targetEdgeExplorer = chGraph.createEdgeExplorer();
+		}
+		else
+		{
+			outEdgeExplorer = chGraph.createEdgeExplorer(EdgeFilter.ALL_EDGES, true);
+			inEdgeExplorer = chGraph.createEdgeExplorer(EdgeFilter.ALL_EDGES, true);
+			targetEdgeExplorer = chGraph.createEdgeExplorer(EdgeFilter.ALL_EDGES, true);
+		}
 	}
 
 	@Override

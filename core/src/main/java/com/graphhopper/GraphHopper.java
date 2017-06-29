@@ -1234,11 +1234,12 @@ public class GraphHopper implements GraphHopperAPI {
         preparation.setMinNetworkSize(minNetworkSize);
         preparation.setMinOneWayNetworkSize(minOneWayNetworkSize);
         preparation.doWork();
+        /*
         int currNodeCount = ghStorage.getNodes();
         logger.info("edges: " + ghStorage.getAllEdges().getMaxId() + ", nodes " + currNodeCount
                 + ", there were " + preparation.getMaxSubnetworks()
                 + " subnetworks. removed them => " + (prevNodeCount - currNodeCount)
-                + " less nodes");
+                + " less nodes");*/
     }
 
     protected void flush() {
