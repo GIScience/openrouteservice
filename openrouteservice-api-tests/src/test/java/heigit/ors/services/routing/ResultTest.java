@@ -222,8 +222,8 @@ public class ResultTest extends ServiceTest {
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].segments[0].containsKey('steps')", is(true))
 				.body("routes[0].segments[1].containsKey('steps')", is(true))
-				.body("routes[0].segments[0].steps.size()", is(40))
-				.body("routes[0].segments[1].steps.size()", is(21))
+				.body("routes[0].segments[0].steps.size()", is(45))
+				.body("routes[0].segments[1].steps.size()", is(27))
 				.statusCode(200);
 	}
 
@@ -242,16 +242,16 @@ public class ResultTest extends ServiceTest {
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].segments[0].containsKey('steps')", is(true))
 				.body("routes[0].segments[1].containsKey('steps')", is(true))
-				.body("routes[0].segments[0].steps.size()", is(40))
-				.body("routes[0].segments[1].steps.size()", is(21))
+				.body("routes[0].segments[0].steps.size()", is(45))
+				.body("routes[0].segments[1].steps.size()", is(27))
 				.body("routes[0].segments[0].steps[0].distance", is(513.3f))
 				.body("routes[0].segments[0].steps[0].duration", is(231))
 				.body("routes[0].segments[0].steps[0].type", is(6))
 				.body("routes[0].segments[0].steps[0].instruction", is("Head west"))
-				.body("routes[0].segments[0].steps[10].distance", is(191.7f))
-				.body("routes[0].segments[0].steps[10].duration", is(35.2f))
-				.body("routes[0].segments[0].steps[10].type", is(6))
-				.body("routes[0].segments[0].steps[10].instruction", is("Continue straight onto Mittermaierstraße"))
+				.body("routes[0].segments[0].steps[10].distance", is(305.7f))
+				.body("routes[0].segments[0].steps[10].duration", is(61.1f))
+				.body("routes[0].segments[0].steps[10].type", is(5))
+				.body("routes[0].segments[0].steps[10].instruction", is("Turn slight right onto Mittermaierstraße"))
 				.statusCode(200);
 	}
 	

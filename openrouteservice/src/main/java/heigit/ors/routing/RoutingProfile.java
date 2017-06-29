@@ -455,7 +455,7 @@ public class RoutingProfile
 			 MatrixSearchData srcData = locResolver.resolve(req.getSources());
 			 MatrixSearchData dstData = locResolver.resolve(req.getDestinations()); 
 
-			 mtxResult = alg.compute(srcData, dstData, req.getMetrics());
+			 mtxResult = alg.compute(srcData, dstData, req.getMetrics()); 
 		 }
 		 catch(Exception ex)
 		 {

@@ -33,11 +33,11 @@ public class ResultsValidationTest extends ServiceTest {
 		JSONObject jResponse = new JSONObject(response.body().asString());
 		checkTableDimensions(jResponse, "distances", 3, 3);
 	}
-	
+/*	
 	@Test
 	public void emptyLocationEntryTest() {
 		Response response = given()
-				.param("locations", "8.690733,49.387283|8.686409,49.426272"/*8.692771,49.385118|8.686409,149.426272*/)
+				.param("locations", "8.690733,49.387283|8.686409,49.426272")
 				.param("sources", "0")
 				.param("destinations", "1")
 				.param("metrics", "duration|distance")
@@ -49,6 +49,7 @@ public class ResultsValidationTest extends ServiceTest {
 		JSONObject jResponse = new JSONObject(response.body().asString());
 		checkTableDimensions(jResponse, "distances", 2, 1);
 	}
+	*/
 	
 	@Test
 	public void distanceTableTest() {

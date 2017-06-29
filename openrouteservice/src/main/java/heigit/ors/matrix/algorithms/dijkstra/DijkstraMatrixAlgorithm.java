@@ -93,7 +93,9 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 				if (algorithm.getFoundTargets() != targets.size())
 					throw new Exception("Search exceeds the limit of visited nodes.");
 				
-				targets.get(sourceId).edge = EdgeIterator.NO_EDGE;
+				SPTEntry entry = targets.get(sourceId);
+				if (entry != null)
+					 entry.edge = EdgeIterator.NO_EDGE;
 
 				_pathMetricsExtractor.calcValues(srcIndex, targets, srcData, dstData, times, distances, weights);
 			}

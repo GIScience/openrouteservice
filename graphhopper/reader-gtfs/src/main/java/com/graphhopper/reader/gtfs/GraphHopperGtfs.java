@@ -26,6 +26,7 @@ import com.graphhopper.*;
 import com.graphhopper.gtfs.fare.Fares;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.InstructionsFromEdges;
+import com.graphhopper.routing.PathProcessingContext;
 import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.weighting.Weighting;
@@ -454,11 +455,12 @@ public final class GraphHopperGtfs implements GraphHopperAPI {
             return result;
         } else {
             InstructionList instructions = new InstructionList(tr);
-            InstructionsFromEdges instructionsFromEdges = new InstructionsFromEdges(path.get(1).edge.edgeIteratorState.getBaseNode(), graph, weighting, weighting.getFlagEncoder(), graph.getNodeAccess(), tr, instructions);
+            PathProcessingContext pathProcCntx = new PathProcessingContext(tr, null, null, null);
+            InstructionsFromEdges instructionsFromEdges = new InstructionsFromEdges(path.get(1).edge.edgeIteratorState.getBaseNode(), graph, weighting, weighting.getFlagEncoder(), graph.getNodeAccess(), pathProcCntx, instructions);
             int prevEdgeId = -1;
             for (int i=1; i<path.size(); i++) {
                 EdgeIteratorState edge = path.get(i).edge.edgeIteratorState;
-                instructionsFromEdges.next(edge, i, prevEdgeId);
+                instructionsFromEdges.next(edge, i, path.size(), prevEdgeId);
                 prevEdgeId = edge.getEdge();
             }
             instructionsFromEdges.finish();
