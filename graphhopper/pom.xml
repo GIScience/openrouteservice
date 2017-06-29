@@ -76,10 +76,10 @@
     <modules>
         <module>core</module>
         <module>reader-osm</module>
-        <module>reader-gtfs</module>
-        <module>reader-json</module>
-        <module>tools</module>
-        <module>web</module>
+        <!--<module>reader-gtfs</module>-->
+        <!--<module>reader-json</module>-->
+        <!--<module>tools</module>-->
+        <!--<module>web</module>-->
     </modules>
     <build>
         <plugins>
@@ -191,7 +191,7 @@
             <modules>                
                 <!-- See https://github.com/graphhopper/graphhopper/pull/874#issuecomment-261231518
                 Currently works for jdk8 only -->
-                <module>reader-shp</module>
+                <!--<module>reader-shp</module>-->
             </modules>
             <build>
                 <plugins>
@@ -270,7 +270,7 @@
             <modules>                
                 <!-- See https://github.com/graphhopper/graphhopper/pull/874#issuecomment-261231518
                 Currently works for jdk8 only -->
-                <module>reader-shp</module>
+                <!--<module>reader-shp</module>-->
             </modules>
             <build>
                 <plugins>
