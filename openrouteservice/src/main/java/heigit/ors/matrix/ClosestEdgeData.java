@@ -4,9 +4,12 @@ import com.graphhopper.util.EdgeIteratorState;
 
 public class ClosestEdgeData
 {
-	public double distanceToNode;
-	public double distanceFromNode;
 	public int nodeId;
 	public EdgeIteratorState edgeState;
+	
+	public EdgeIteratorState getEdge(int from, int to)
+	{
+		return null;
+	}
 }
 

@@ -1,7 +1,6 @@
 package heigit.ors.matrix;
 
 import com.carrotsearch.hppc.IntObjectMap;
-import com.graphhopper.routing.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
@@ -57,7 +56,7 @@ public class PathMetricsExtractor {
 	public void calcValues(int sourceIndex, IntObjectMap<SPTEntry> targets, MatrixSearchData srcData, MatrixSearchData dstData, float[] times, float[] distances, float[] weights) throws Exception
 	{
 		if (targets == null)
-			throw new IllegalStateException("Target destinations not set");
+			throw new IllegalStateException("Target destinations not set"); 
 
 		int index = sourceIndex* dstData.size();
 		double time = 0.0;
@@ -72,27 +71,29 @@ public class PathMetricsExtractor {
 		
 		for (int target : targetNodes) {
 			SPTEntry goalEdge = targets.get(target);
+			SPTEntry prevEdge = null;
 			time = 0.0;
 			distance = 0.0;
 			weight = 0.0;
 
 			if (goalEdge != null) {
-				// correct values if snapped point is in the middle of the edge
+				// correct values for the last edge
 				if (EdgeIterator.Edge.isValid(goalEdge.edge))
 				{
-					/*ClosestEdgeData closestEdge = dstData.getNearestEdge(targetIndex);
-					if (goalEdge.adjNode == closestEdge.nodeId || (goalEdge.parent != null && goalEdge.parent.adjNode == closestEdge.nodeId))
+					if (goalEdge.parent != null && goalEdge.parent.adjNode != EdgeIterator.NO_EDGE)
 					{
-						double dist = goalEdge.adjNode == closestEdge.nodeId ?  closestEdge.distanceFromNode : closestEdge.distanceFromNode + closestEdge.distanceToNode;
-
-						if (calcDistance)
-							distance += (_distUnits == DistanceUnit.Meters) ? dist: DistanceUnitUtil.convert(dist, DistanceUnit.Meters, _distUnits);
-						if (calcTime)
+						ClosestEdgeData closestEdge = dstData.getClosestEdge(targetIndex);
+						EdgeIteratorState iter = closestEdge.getEdge(goalEdge.adjNode, goalEdge.parent.adjNode);
+						if (iter != null)
 						{
-							//VirtualEdgeIteratorState iter = new VirtualEdgeIteratorState(originalTraversalKey, edgeId, originalEdgeId, baseNode, adjNode, distance, flags, name, pointList)
-							// TODO
+							if (calcDistance)
+								distance += (_distUnits == DistanceUnit.Meters) ? iter.getDistance() : DistanceUnitUtil.convert(iter.getDistance(), DistanceUnit.Meters, _distUnits);
+							if (calcTime)
+								time += _timeWeighting.calcMillis(iter, false, EdgeIterator.NO_EDGE) / 1000.0;
+							if (calcWeight)
+								weight += _weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
 						}
-					}*/
+					}
 				}
 				
 				while (EdgeIterator.Edge.isValid(goalEdge.edge)) {
@@ -138,11 +139,29 @@ public class PathMetricsExtractor {
 							weight += _weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
 					}
 
+					prevEdge = goalEdge;
 					goalEdge = goalEdge.parent;
 				}
 				
-				// correct values if snapped point is in the middle of the edge
-				// TODO
+				// correct values for the first edge
+				if (prevEdge != null && EdgeIterator.Edge.isValid(prevEdge.edge))
+				{
+					if (goalEdge.adjNode != EdgeIterator.NO_EDGE)
+					{
+						ClosestEdgeData closestEdge = srcData.getClosestEdge(sourceIndex);
+						EdgeIteratorState iter = closestEdge.getEdge(prevEdge.adjNode, goalEdge.adjNode);
+						if (iter != null)
+						{
+							if (calcDistance)
+								distance += (_distUnits == DistanceUnit.Meters) ? iter.getDistance() : DistanceUnitUtil.convert(iter.getDistance(), DistanceUnit.Meters, _distUnits);
+							if (calcTime)
+								time += _timeWeighting.calcMillis(iter, false, EdgeIterator.NO_EDGE) / 1000.0;
+
+							if (calcWeight)
+								weight += _weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
+						}
+					}
+				}
 			}
 			else
 			{
@@ -223,21 +242,22 @@ public class PathMetricsExtractor {
 				edgeState = (CHEdgeIteratorState) _chGraph.getEdgeIteratorState(skippedEdge2, from);
 
 			expandEdge(edgeState, true);
-		}  else
-		 {
-			 CHEdgeIteratorState iter = (CHEdgeIteratorState) _chGraph.getEdgeIteratorState(skippedEdge1, from);
-			 boolean empty = iter == null;
-			 if (empty)
-				 iter = (CHEdgeIteratorState) _chGraph.getEdgeIteratorState(skippedEdge2, from);
+		} 
+		else
+		{
+			CHEdgeIteratorState iter = (CHEdgeIteratorState) _chGraph.getEdgeIteratorState(skippedEdge1, from);
+			boolean empty = iter == null;
+			if (empty)
+				iter = (CHEdgeIteratorState) _chGraph.getEdgeIteratorState(skippedEdge2, from);
 
-			 expandEdge(iter, true);
+			expandEdge(iter, true);
 
-			 if (empty)
-				 iter = (CHEdgeIteratorState) _chGraph.getEdgeIteratorState(skippedEdge1, to);
-			 else
-				 iter = (CHEdgeIteratorState) _chGraph.getEdgeIteratorState(skippedEdge2, to);
+			if (empty)
+				iter = (CHEdgeIteratorState) _chGraph.getEdgeIteratorState(skippedEdge1, to);
+			else
+				iter = (CHEdgeIteratorState) _chGraph.getEdgeIteratorState(skippedEdge2, to);
 
-			 expandEdge(iter, false);
-		 } 
+			expandEdge(iter, false);
+		} 
 	}
 }

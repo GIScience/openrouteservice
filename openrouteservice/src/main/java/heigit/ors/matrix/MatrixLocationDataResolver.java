@@ -79,9 +79,6 @@ public class MatrixLocationDataResolver {
 						continue;
 					}
 
-					double distToNode = 0.0;
-					double totalDist = 0.0;
-
 					int base = closestEdge.getBaseNode();
 					// Force the identical direction for all closest edges.
 					// It is important to sort multiple results for the same edge by its wayIndex
@@ -96,10 +93,9 @@ public class MatrixLocationDataResolver {
 					if (doReverse) 
 						closestEdge = closestEdge.detach(true);
 
-					PointList pointList = closestEdge.fetchWayGeometry(3, _buffer);
-					
 					if (qr.getSnappedPosition() != QueryResult.Position.PILLAR)
 					{
+						PointList pointList = closestEdge.fetchWayGeometry(3, _buffer);
 						int len = pointList.getSize();
 
 						double lat1, lon1, lat0 = pointList.getLat(0), lon0 = pointList.getLon(0);
@@ -107,8 +103,10 @@ public class MatrixLocationDataResolver {
 						double qLat = qr.getSnappedPoint().getLat();
 
 						double distToSnappedPoint = distCalc.calcDist(lat0, lon0, qLat, qLon);
+						double distToNode = 0.0;
 						distToNode = distToSnappedPoint;
-
+						double totalDist = 0.0;
+						
 						for (int pointIndex = 1; pointIndex < len; pointIndex++) {
 							lat1 = pointList.getLatitude(pointIndex);
 							lon1 = pointList.getLongitude(pointIndex);
@@ -124,21 +122,17 @@ public class MatrixLocationDataResolver {
 							lon0 = lon1;
 							lat0 = lat1;
 						}
-					}
-					else
-					{
-						totalDist = pointList.calcDistance(distCalc);
+						
+						// create VirtualEdgeIteratorState
 					}
 					
 					ClosestEdgeData ned = new ClosestEdgeData();
 					ned.edgeState = closestEdge;
-					ned.distanceFromNode = distToNode;
-					ned.distanceToNode = totalDist - distToNode;
 					ned.nodeId = qr.getClosestNode();
 
 					GHPoint3D pt = qr.getSnappedPoint();
 					ld.nodeId = qr.getClosestNode();
-					ld.location = new MatrixLocation(new Coordinate(pt.getLon(), pt.getLat()), _resolveNames? qr.getClosestEdge().getName(): null, qr.getQueryDistance());
+					ld.location = new MatrixLocation(new Coordinate(pt.getLon(), pt.getLat()), _resolveNames ? qr.getClosestEdge().getName(): null, qr.getQueryDistance());
 					ld.edge = ned;
 				}
 				else

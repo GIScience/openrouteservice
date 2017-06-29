@@ -78,12 +78,12 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
 		int sourceId = -1;
 		
-		for (int source = 0; source < srcData.size(); source++) {
-			sourceId = srcData.getNodeId(source);
+		for (int srcIndex = 0; srcIndex < srcData.size(); srcIndex++) {
+			sourceId = srcData.getNodeId(srcIndex);
 			
 			if (sourceId == -1)
 			{
-				_pathMetricsExtractor.setEmptyValues(source, srcData, dstData, times, distances, weights);
+				_pathMetricsExtractor.setEmptyValues(srcIndex, srcData, dstData, times, distances, weights);
 			}
 			else
 			{
@@ -95,7 +95,7 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 				
 				targets.get(sourceId).edge = EdgeIterator.NO_EDGE;
 
-				_pathMetricsExtractor.calcValues(source, targets, srcData, dstData, times, distances, weights);
+				_pathMetricsExtractor.calcValues(srcIndex, targets, srcData, dstData, times, distances, weights);
 			}
 		}
 

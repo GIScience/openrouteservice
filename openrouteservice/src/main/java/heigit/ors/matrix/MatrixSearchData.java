@@ -43,7 +43,7 @@ public class MatrixSearchData {
 		return _nodeIds[index];
 	}
 	
-	public ClosestEdgeData getNearestEdge(int index)
+	public ClosestEdgeData getClosestEdge(int index)
 	{
 		return _edges[index];
 	}
