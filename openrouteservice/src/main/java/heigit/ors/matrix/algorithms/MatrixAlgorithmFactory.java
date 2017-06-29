@@ -15,6 +15,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.FlagEncoder;
 
 import heigit.ors.matrix.MatrixRequest;
+import heigit.ors.matrix.algorithms.dijkstra.DijkstraMatrixAlgorithm;
 import heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 
 public class MatrixAlgorithmFactory 
@@ -23,14 +24,13 @@ public class MatrixAlgorithmFactory
     {
     	MatrixAlgorithm alg = null;
     	
-    	/*if (false)
+    	if (true)
     	{   
     		//if (req.getProfileType())
         	// check if there are any dynamic weights
     		alg = new DijkstraMatrixAlgorithm();
     	}
-    	else*/ 
-    	if (gh.isCHEnabled())
+    	else if (gh.isCHEnabled())
     	{
     		alg = new RPHASTMatrixAlgorithm();
     	}

@@ -26,18 +26,17 @@ import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class MatrixLocationDataResolver {
-	private Map<Coordinate, LocationData> _locationCache;
+	private Map<Coordinate, LocationEntry> _locationCache;
 	private boolean _resolveNames;
 	private LocationIndex _locIndex;
 	private EdgeFilter _edgeFilter;
 	private ByteArrayBuffer _buffer;
 
-	class LocationData
+	class LocationEntry
 	{
-		public Coordinate coordinate;
 		public int nodeId;
-		public String name;
-		public double distanceToNode;
+		public MatrixLocation location;
+		public ClosestEdgeData edge;
 	}
 
 	public MatrixLocationDataResolver(LocationIndex index, EdgeFilter edgeFilter, ByteArrayBuffer buffer, boolean resolveNames)
@@ -48,64 +47,65 @@ public class MatrixLocationDataResolver {
 		_resolveNames = resolveNames;
 	}
 
-	public MatrixLocationData resolve(Coordinate[] coords)
+	public MatrixSearchData resolve(Coordinate[] coords)
 	{
 		if (_locationCache == null)
-			_locationCache = new HashMap<Coordinate, LocationData>();
+			_locationCache = new HashMap<Coordinate, LocationEntry>();
 
-		MatrixLocationData mld = new MatrixLocationData(coords.length, _resolveNames);
+		MatrixSearchData mld = new MatrixSearchData(coords.length, _resolveNames);
 
 		DistanceCalc distCalc = Helper.DIST_EARTH;
 		Coordinate p = null;
+		
 		for (int i = 0; i < coords.length; i++)
 		{
 			p = coords[i];
 
-			LocationData ld = _locationCache.get(p);
+			LocationEntry ld = _locationCache.get(p);
 			if (ld != null)
-				mld.setData(i, ld.coordinate, ld.nodeId, ld.distanceToNode, ld.name);
+				mld.setData(i, ld.nodeId, ld.location, ld.edge);
 			else
 			{  
-				ld = new LocationData();
+				ld = new LocationEntry();
 
 				QueryResult qr = _locIndex.findClosest(p.y, p.x, _edgeFilter, _buffer);
+				
 				if (qr.isValid())
 				{
 					EdgeIteratorState closestEdge = qr.getClosestEdge();
 					if (closestEdge == null)
 					{
 						ld.nodeId = -1;
-						ld.coordinate = null;
 						continue;
 					}
 
 					double distToNode = 0.0;
+					double totalDist = 0.0;
 
-					// compute distance from snapped point to nearest node
+					int base = closestEdge.getBaseNode();
+					// Force the identical direction for all closest edges.
+					// It is important to sort multiple results for the same edge by its wayIndex
+					boolean doReverse = base > closestEdge.getAdjNode();
+					if (base == closestEdge.getAdjNode()) {
+						// check for special case #162 where adj == base and force direction via latitude comparison
+						PointList pl = closestEdge.fetchWayGeometry(0, _buffer);
+						if (pl.size() > 1)
+							doReverse = pl.getLatitude(0) > pl.getLatitude(pl.size() - 1);
+					}
+
+					if (doReverse) 
+						closestEdge = closestEdge.detach(true);
+
+					PointList pointList = closestEdge.fetchWayGeometry(3, _buffer);
+					
 					if (qr.getSnappedPosition() != QueryResult.Position.PILLAR)
 					{
-						int base = closestEdge.getBaseNode();
-						// Force the identical direction for all closest edges.
-						// It is important to sort multiple results for the same edge by its wayIndex
-						boolean doReverse = base > closestEdge.getAdjNode();
-						if (base == closestEdge.getAdjNode()) {
-							// check for special case #162 where adj == base and force direction via latitude comparison
-							PointList pl = closestEdge.fetchWayGeometry(0, _buffer);
-							if (pl.size() > 1)
-								doReverse = pl.getLatitude(0) > pl.getLatitude(pl.size() - 1);
-						}
-
-						if (doReverse) 
-							closestEdge = closestEdge.detach(true);
-
-						PointList pointList = closestEdge.fetchWayGeometry(3, _buffer);
 						int len = pointList.getSize();
 
 						double lat1, lon1, lat0 = pointList.getLat(0), lon0 = pointList.getLon(0);
 						double qLon = qr.getSnappedPoint().getLon();
 						double qLat = qr.getSnappedPoint().getLat();
 
-						double totalDist = 0.0;
 						double distToSnappedPoint = distCalc.calcDist(lat0, lon0, qLat, qLon);
 						distToNode = distToSnappedPoint;
 
@@ -124,24 +124,31 @@ public class MatrixLocationDataResolver {
 							lon0 = lon1;
 							lat0 = lat1;
 						}
-
 					}
+					else
+					{
+						totalDist = pointList.calcDistance(distCalc);
+					}
+					
+					ClosestEdgeData ned = new ClosestEdgeData();
+					ned.edgeState = closestEdge;
+					ned.distanceFromNode = distToNode;
+					ned.distanceToNode = totalDist - distToNode;
+					ned.nodeId = qr.getClosestNode();
 
-					ld.nodeId = qr.getClosestNode();
 					GHPoint3D pt = qr.getSnappedPoint();
-					ld.coordinate = new Coordinate(pt.getLon(), pt.getLat());
-					if (_resolveNames)
-						ld.name = qr.getClosestEdge().getName();
-					ld.distanceToNode = distToNode;
+					ld.nodeId = qr.getClosestNode();
+					ld.location = new MatrixLocation(new Coordinate(pt.getLon(), pt.getLat()), _resolveNames? qr.getClosestEdge().getName(): null, qr.getQueryDistance());
+					ld.edge = ned;
 				}
 				else
 				{
 					ld.nodeId = -1;
-					ld.coordinate = null;
 				}
 
 				_locationCache.put(p, ld);
-				mld.setData(i, ld.coordinate, ld.nodeId, ld.distanceToNode, ld.name);
+				
+				mld.setData(i, ld.nodeId, ld.location, ld.edge);
 			}
 		}
 

@@ -26,6 +26,7 @@ import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
 import heigit.ors.matrix.MatrixErrorCodes;
+import heigit.ors.matrix.MatrixLocation;
 import heigit.ors.matrix.MatrixMetricsType;
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.routing.RoutingProfileType;
@@ -83,8 +84,8 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor
 		if (MatrixMetricsType.isSet(request.getMetrics(), MatrixMetricsType.Weight))
 			jResp.put("weights", createTable(mtxResult.getTable(MatrixMetricsType.Weight), request.getSources().length, request.getDestinations().length));		
 
-		jResp.put("destinations", createLocations(mtxResult.getDestinations(), request.getResolveLocations() ? mtxResult.getDestinationNames() : null));
-		jResp.put("sources", createLocations(mtxResult.getSources(), request.getResolveLocations() ? mtxResult.getSourceNames() : null));
+		jResp.put("destinations", createLocations(mtxResult.getDestinations(), request.getResolveLocations()));
+		jResp.put("sources", createLocations(mtxResult.getSources(), request.getResolveLocations()));
 		
 		JSONObject jInfo = new JSONObject(true);
 		jInfo.put("service", "matrix");
@@ -112,21 +113,30 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor
 		ServletUtility.write(response, jResp);
 	}
 	
-	private JSONArray createLocations(Coordinate[] locations, String[] names)
+	private JSONArray createLocations(MatrixLocation[] locations, boolean includeLocationNames)
 	{
 		JSONArray jLocations = new JSONArray(locations.length);
 		
 		for (int i = 0; i < locations.length; i++)
 		{
-			Coordinate c = locations[i];
 			JSONObject jLoc = new JSONObject(true);
-			JSONArray jCoord = new JSONArray(2);
-			jCoord.put(FormatUtility.roundToDecimals(c.x, 6));
-			jCoord.put(FormatUtility.roundToDecimals(c.y, 6));
-			jLoc.put("location", jCoord);
-			
-			if (names != null)
-				jLoc.put("name", names[i]);
+
+			MatrixLocation loc = locations[i];
+			Coordinate c = locations[i].getCoordinate();
+			if (c != null)
+			{
+				JSONArray jCoord = new JSONArray(2);
+				jCoord.put(FormatUtility.roundToDecimals(c.x, 6));
+				jCoord.put(FormatUtility.roundToDecimals(c.y, 6));
+				jLoc.put("location", jCoord);
+
+				if (includeLocationNames && loc.getName() != null)
+					jLoc.put("name", loc.getName());
+
+				jLoc.put("snapped_distance",FormatUtility.roundToDecimals( loc.getSnappedDistance(), 2));
+			}
+			else
+				jLoc.put("location", "null");
 			
 			jLocations.put(jLoc);
 		}
@@ -143,7 +153,7 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor
 			int rowOffset = i*clms;
 			JSONArray jRow = new JSONArray(clms);
 			for (int j = 0; j < clms; j++)
-				jRow.put(FormatUtility.roundToDecimals(values[rowOffset + j], 1));
+				jRow.put(FormatUtility.roundToDecimals(values[rowOffset + j], 2));
 			jMatrix.put(jRow);
 		}
 		

@@ -14,12 +14,12 @@ package heigit.ors.matrix.algorithms;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.FlagEncoder;
 
-import heigit.ors.matrix.MatrixLocationData;
+import heigit.ors.matrix.MatrixSearchData;
 import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
 
 public interface MatrixAlgorithm {
   public void init(MatrixRequest req, GraphHopper gh, FlagEncoder encoder);
   
-  public MatrixResult compute(MatrixLocationData srcData, MatrixLocationData dstData, int metrics);
+  public MatrixResult compute(MatrixSearchData srcData, MatrixSearchData dstData, int metrics) throws Exception;
 }

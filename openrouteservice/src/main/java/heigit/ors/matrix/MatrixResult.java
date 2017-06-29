@@ -11,18 +11,16 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.matrix;
 
-import com.vividsolutions.jts.geom.Coordinate;
-
 public class MatrixResult {
   private float[][] _tables;
-  private Coordinate[] _destinations;
-  private String[] _destinationNames;
-  private Coordinate[] _sources;
-  private String[] _sourceNames;
-    
-  public MatrixResult()
+  private MatrixLocation[] _destinations;
+  private MatrixLocation[] _sources;
+  
+  public MatrixResult(MatrixLocation[] sources, MatrixLocation[] destinations)
   {
 	  _tables = new float[6][];
+	  _sources = sources;
+	  _destinations = destinations;
   }
   
   public void setTable(int metric, float[] values)
@@ -35,43 +33,23 @@ public class MatrixResult {
 	  return _tables[metric];
   }
 
-  public Coordinate[] getDestinations()
+  public MatrixLocation[] getDestinations()
   {
 	  return _destinations;
   }
   
-  public void setDestinations(Coordinate[] coords)
+  public void setDestinations(MatrixLocation[] locations)
   {
-	  _destinations = coords;
+	  _destinations = locations;
   }
   
-  public String[] getDestinationNames()
-  {
-	  return _destinationNames;
-  }
-  
-  public void setDestinationNames(String[] names)
-  {
-	  _destinationNames = names;
-  } 
-  
-  public Coordinate[] getSources()
+  public MatrixLocation[] getSources()
   {
 	  return _sources;
   }
   
-  public void setSources(Coordinate[] coords)
+  public void setSources(MatrixLocation[] locations)
   {
-	  _sources = coords;
+	  _sources = locations;
   }
-  
-  public String[] getSourceNames()
-  {
-	  return _sourceNames;
-  }
-  
-  public void setSourceNames(String[] names)
-  {
-	  _sourceNames = names;
-  } 
 }

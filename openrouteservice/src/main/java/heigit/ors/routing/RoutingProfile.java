@@ -46,13 +46,12 @@ import heigit.ors.mapmatching.MapMatcher;
 import heigit.ors.mapmatching.RouteSegmentInfo;
 import heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
 import heigit.ors.matrix.MatrixErrorCodes;
-import heigit.ors.matrix.MatrixLocationData;
+import heigit.ors.matrix.MatrixSearchData;
 import heigit.ors.matrix.MatrixLocationDataResolver;
 import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
 import heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
-import heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
 import heigit.ors.routing.traffic.TrafficEdgeAnnotator;
@@ -72,7 +71,6 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.storage.StorableProperties;
-import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.ByteArrayBuffer;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.EdgeIteratorState;
@@ -454,14 +452,14 @@ public class RoutingProfile
 
 			 MatrixLocationDataResolver locResolver = new MatrixLocationDataResolver(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), new ByteArrayBuffer(), req.getResolveLocations());
 			 
-			 MatrixLocationData srcData = locResolver.resolve(req.getSources());
-			 MatrixLocationData dstData = locResolver.resolve(req.getDestinations()); 
+			 MatrixSearchData srcData = locResolver.resolve(req.getSources());
+			 MatrixSearchData dstData = locResolver.resolve(req.getDestinations()); 
 
 			 mtxResult = alg.compute(srcData, dstData, req.getMetrics());
 		 }
 		 catch(Exception ex)
 		 {
-			 throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute distance/duration matrix.");
+			 throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute distance/duration matrix. " + ex.getMessage());
 		 }
 		 
 		 return mtxResult;

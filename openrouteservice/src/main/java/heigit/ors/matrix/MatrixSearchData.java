@@ -11,28 +11,21 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.matrix;
 
-import com.graphhopper.storage.index.QueryResult;
-import com.vividsolutions.jts.geom.Coordinate;
-
-public class MatrixLocationData {
+public class MatrixSearchData {
 	private int[] _nodeIds;
-	private String[] _names;
-	private Coordinate[] _coords;
-	private double[] _distanceToNodes;
-	private QueryResult[] _queryResults;
+	private MatrixLocation[] _locations;
+	private ClosestEdgeData[] _edges;
 
-	public MatrixLocationData(int size, boolean resolveNames)
+	public MatrixSearchData(int size, boolean resolveNames)
 	{
 		_nodeIds = new int[size];
-		_distanceToNodes = new double[size];
-		_coords = new Coordinate[size];
-		if (resolveNames)
-			_names = new String[size];
+		_locations = new MatrixLocation[size];
+		_edges = new ClosestEdgeData[size];
 	}
-	
-	public double getDistanceToNode(int index)
+
+	public MatrixLocation[] getLocations()
 	{
-		return _distanceToNodes[index];
+		return _locations;
 	}
 	
 	public int size()
@@ -49,24 +42,16 @@ public class MatrixLocationData {
 	{
 		return _nodeIds[index];
 	}
-
-	public String[] getNames()
-	{
-		return _names;
-	}
-
-	public Coordinate[] getCoordinates()
-	{
-		return _coords;
-	}
 	
-	public void setData(int index, Coordinate coord, int nodeId, double distance, String name)
+	public ClosestEdgeData getNearestEdge(int index)
+	{
+		return _edges[index];
+	}
+
+	public void setData(int index, int nodeId, MatrixLocation location, ClosestEdgeData edge)
 	{
 		_nodeIds[index] = nodeId;
-		_coords[index] = coord;
-		_distanceToNodes[index] = distance;
-		
-		if (_names != null)
-			_names[index] = name; 
+		_locations[index] = location;
+		_edges[index] = edge;
 	}
 }

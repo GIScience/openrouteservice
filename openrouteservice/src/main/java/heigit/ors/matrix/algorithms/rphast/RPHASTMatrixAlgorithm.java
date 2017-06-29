@@ -22,7 +22,7 @@ import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.Helper;
 
-import heigit.ors.matrix.MatrixLocationData;
+import heigit.ors.matrix.MatrixSearchData;
 import heigit.ors.matrix.MatrixMetricsType;
 import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
@@ -44,18 +44,13 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 		_prepareCH = _graphHopper.getCHFactoryDecorator().getPreparations().get(0);
 		HintsMap hintsMap = new HintsMap();
 		hintsMap.setWeighting(Helper.isEmpty(req.getWeightingMethod()) ? "fastest" : req.getWeightingMethod());
-		Weighting _weighting = new ORSWeightingFactory(RealTrafficDataProvider.getInstance()).createWeighting(hintsMap, encoder, _chGraph, null, null);
-		_pathMetricsExtractor = new PathMetricsExtractor(req.getMetrics(), _graphHopper.getGraphHopperStorage(), _encoder, _weighting);
+		Weighting weighting = new ORSWeightingFactory(RealTrafficDataProvider.getInstance()).createWeighting(hintsMap, encoder, _chGraph, null, null);
+		_pathMetricsExtractor = new PathMetricsExtractor(req.getMetrics(), _chGraph, _encoder, weighting, req.getUnits());
 	}
 
 	@Override
-	public MatrixResult compute(MatrixLocationData srcData, MatrixLocationData dstData, int metrics) {
-		MatrixResult mtxResult = new MatrixResult();
-
-		mtxResult.setSources(srcData.getCoordinates());
-		mtxResult.setSourceNames(srcData.getNames());
-		mtxResult.setDestinations(dstData.getCoordinates());
-		mtxResult.setDestinationNames(dstData.getNames());
+	public MatrixResult compute(MatrixSearchData srcData, MatrixSearchData dstData, int metrics) throws Exception {
+		MatrixResult mtxResult = new MatrixResult(srcData.getLocations(), dstData.getLocations());
 
 		float[] times = new float[srcData.size() * dstData.size()];
 		float[] distances = null; 
@@ -72,17 +67,19 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 		DijkstraBidirectionCHRPHAST algorithm = _prepareCH.createRPHAST(_chGraph, _encoder);
 		// Compute target tree only once as it is the same for every source
 		IntObjectMap<SPTEntry> tree = algorithm.createTargetTree(dstData.getNodeIds());
-
+        int sourceId = -1;
+        
 		for (int source = 0; source < srcData.size(); source++) {
-			if (srcData.getNodeId(source) == -1)
+			sourceId = srcData.getNodeId(source);
+			if (sourceId == -1)
 			{
-				_pathMetricsExtractor.setEmptyValues(source * dstData.size(), srcData, dstData, times, distances, weights);
+				_pathMetricsExtractor.setEmptyValues(source, srcData, dstData, times, distances, weights);
 			}
 			else
 			{
 				algorithm = _prepareCH.createRPHAST(_chGraph, _encoder);
-				IntObjectMap<SPTEntry> destinationTree = algorithm.calcMatrix(srcData.getNodeId(source), dstData.getNodeIds(), tree, source * dstData.size());
-				_pathMetricsExtractor.calcValues(source * dstData.size(), destinationTree, srcData, dstData, times, distances, weights);
+				IntObjectMap<SPTEntry> destinationTree = algorithm.calcMatrix(sourceId, dstData.getNodeIds(), tree, source * dstData.size());
+				_pathMetricsExtractor.calcValues(source , destinationTree, srcData, dstData, times, distances, weights);
 			}
 		}
 

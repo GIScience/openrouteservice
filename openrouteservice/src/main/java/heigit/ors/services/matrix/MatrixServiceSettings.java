@@ -16,6 +16,7 @@ import heigit.ors.config.AppConfig;
 public class MatrixServiceSettings 
 {
 	private static int maximumLocations = 100;
+	private static int maximumVisitedNodes = 100000;
 	private static boolean allowResolveLocations = true;
 	private static String attribution = "";
 	private static boolean enabled = true;
@@ -28,6 +29,9 @@ public class MatrixServiceSettings
 		value = AppConfig.Global().getServiceParameter("matrix", "maximum_locations");
 		if (value != null)
 			maximumLocations = Math.max(1, Integer.parseInt(value));
+		value = AppConfig.Global().getServiceParameter("matrix", "maximum_visited_nodes");
+		if (value != null)
+			maximumVisitedNodes = Math.max(1, Integer.parseInt(value));
 		value = AppConfig.Global().getServiceParameter("matrix", " allow_resolve_locations");
 		if (value != null)
 			allowResolveLocations = Boolean.parseBoolean(value);
@@ -42,6 +46,10 @@ public class MatrixServiceSettings
 
 	public static boolean getAllowResolveLocations() {
 		return allowResolveLocations;
+	}
+	
+	public static int getMaximumVisitedNodes() {
+		return maximumVisitedNodes;
 	}
 	
 	public static int getMaximumLocations() {
