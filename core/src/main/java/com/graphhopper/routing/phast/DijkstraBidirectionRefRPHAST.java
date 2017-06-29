@@ -151,7 +151,7 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 		IntObjectMap<SPTEntry> targets = new GHIntObjectHashMap<SPTEntry>(targetNodes.length);
 		for (int i = 0; i < targetNodes.length; i++) {
 			SPTEntry target = this.createSPTEntry(targetNodes[i], 0);
-			targets.put(targetNodes[i], target);
+			targets.put(target.adjNode, target);
 		}
 		return createTargetTree(targets);
 	}
