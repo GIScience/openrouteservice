@@ -224,7 +224,7 @@ shop	boutique	431
 shop	brewing_supplies	432							
 shop	business_machines	433							
 shop	butcher	434							
-shop	caf?	435							
+shop	cafe	435							
 shop	camera	436							
 shop	candles	437							
 shop	car	438							

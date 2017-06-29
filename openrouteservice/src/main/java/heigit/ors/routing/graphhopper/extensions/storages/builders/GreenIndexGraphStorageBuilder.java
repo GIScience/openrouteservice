@@ -33,6 +33,7 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private GreenIndexGraphStorage _storage;
     private Map<Long, Double> _greenIndices = new HashMap<>();
     private static int TOTAL_LEVEL = 64;
+    private static int DEFAULT_LEVEL = TOTAL_LEVEL - 1;
     private Map<Byte, SlotRange> _slots = new HashMap<>(TOTAL_LEVEL);
 
     public GreenIndexGraphStorageBuilder() {
@@ -139,14 +140,16 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
         // No such @id key in the _greenIndices, or the value of it is null
         // We set its green level to TOTAL_LEVEL/2 indicating the middle value for such cases
+        // TODO this DEFAULT_LEVEL should be put in the app.config file and
+        // injected back in the code
         if (gi == null)
-            return (byte) (TOTAL_LEVEL / 2);
+            return (byte) (DEFAULT_LEVEL);
 
         for (Map.Entry<Byte, SlotRange> s : _slots.entrySet()) {
             if (s.getValue().within(gi))
                 return s.getKey();
         }
-        return (byte) (TOTAL_LEVEL - 1);
+        return (byte) (DEFAULT_LEVEL);
     }
 
     @Override

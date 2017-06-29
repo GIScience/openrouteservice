@@ -84,7 +84,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(602))
+		.body("error.code", is(601))
 		.statusCode(400);
 	}
 	
