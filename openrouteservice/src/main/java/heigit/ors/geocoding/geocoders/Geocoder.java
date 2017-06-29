@@ -14,11 +14,9 @@ package heigit.ors.geocoding.geocoders;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import com.vividsolutions.jts.geom.Envelope;
-
-public interface Geocoder {
+public interface Geocoder 
+{
+	public GeocodingResult[] geocode(String address, String languages, SearchBoundary boundary, int limit) throws UnsupportedEncodingException, IOException;
 	
-	public GeocodingResult[] geocode(String address, String languages, int limit, Envelope bbox) throws UnsupportedEncodingException, IOException;
-	
-	public GeocodingResult[] reverseGeocode(double lat, double lon, int limit, Envelope bbox) throws IOException;
+	public GeocodingResult[] reverseGeocode(double lat, double lon, int limit) throws IOException;
 }

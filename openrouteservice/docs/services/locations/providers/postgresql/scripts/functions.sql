@@ -161,7 +161,7 @@ BEGIN
           --SELECT category, COUNT(category) FROM %s WHERE (%s) GROUP BY category ORDER BY category
         query := 'SELECT category, COUNT(category) AS count FROM ' || table_name ||' WHERE (' || condition || ') AND ST_DWithin(location, $1 , $2) GROUP BY category ORDER BY category';
 
-	FOR rec IN EXECUTE format(query) USING geog_feature, distance LOOP
+	FOR rec IN EXECUTE query USING geog_feature, distance LOOP
 	    RETURN NEXT rec;
         END LOOP;
         
@@ -175,7 +175,7 @@ BEGIN
 
 	query := 'SELECT category, COUNT(category) AS count FROM ' || table_name ||' WHERE (' || condition || ') AND ST_DWithin(geom, $1 , $2) AND ST_DWithin(location, ST_Transform(ST_ClosestPoint($1, geom), 4326)::geography, $3) GROUP BY category ORDER BY category';
 
-	FOR rec IN EXECUTE format(query) USING geom_feature, factor*distance, distance LOOP
+	FOR rec IN EXECUTE query USING geom_feature, factor*distance, distance LOOP
 	    RETURN NEXT rec;
         END LOOP;
 
@@ -184,7 +184,7 @@ BEGIN
         
         query := 'SELECT category, COUNT(category) FROM ' || table_name ||' WHERE (' || condition || ') AND ST_Within(geom, $1) GROUP BY category ORDER BY category';
 
-        FOR rec IN EXECUTE format(query) USING geom_feature LOOP
+        FOR rec IN EXECUTE query USING geom_feature LOOP
             RETURN NEXT rec;
         END LOOP;
         

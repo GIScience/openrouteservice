@@ -8,11 +8,15 @@ openrouteservice/Program FilesApache Software FoundationTomcat 7.0webappsopenrou
 .idea/
 *.iml
 .DS_Store
+nohup.out
+.python-version
 
 .project
 openrouteservice/WebContent/WEB-INF/app.config
 app.config.local
-.python-version
-nohup.out
 cgiar_provider/
 graphs/
+target/
+.python-version
+nohup.out
+build/

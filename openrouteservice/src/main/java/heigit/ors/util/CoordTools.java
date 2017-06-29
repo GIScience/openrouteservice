@@ -11,6 +11,10 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 
+import heigit.ors.common.StatusCode;
+import heigit.ors.exceptions.StatusCodeException;
+import heigit.ors.isochrones.IsochronesErrorCodes;
+
 /**
  * <p>
  * <b>Title: CoordTools</b>
@@ -485,5 +489,32 @@ public class CoordTools {
 		//
 		// System.out.println("q check "+Math.sqrt(a2 - (h*h)));
 		// System.out.println("p check "+Math.sqrt(b2 - (h*h)));
+	}
+	
+	public static Coordinate[] parse(String value, String separator, boolean is3D, boolean inverseXY)
+	{
+		String[] coordValues = value.split(separator);
+		Coordinate[] coords = new Coordinate[coordValues.length];
+
+		for (int i = 0; i < coordValues.length; i++)
+		{
+			String[] locations = coordValues[i].split(",");
+			if (inverseXY)
+			{
+				if (is3D && locations.length == 3)
+					coords[i] = new Coordinate(Double.parseDouble(locations[1]), Double.parseDouble(locations[0]), Double.parseDouble(locations[2]));
+				else
+					coords[i] = new Coordinate(Double.parseDouble(locations[1]), Double.parseDouble(locations[0]));
+			}
+			else
+			{
+				if (is3D && locations.length == 3)
+					coords[i] = new Coordinate(Double.parseDouble(locations[0]), Double.parseDouble(locations[1]), Double.parseDouble(locations[2]));
+				else
+					coords[i] = new Coordinate(Double.parseDouble(locations[0]), Double.parseDouble(locations[1]));
+			}
+		}
+
+		return coords;
 	}
 }

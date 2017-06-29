@@ -11,8 +11,8 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.services.isochrones;
 
+import heigit.ors.common.TravelRangeType;
 import heigit.ors.isochrones.IsochroneSearchParameters;
-import heigit.ors.isochrones.IsochronesRangeType;
 import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.services.ServiceRequest;
 
@@ -28,7 +28,7 @@ public class IsochroneRequest extends ServiceRequest
 	private double[] _ranges;
 	private double _maxRange;
 	private String[] _attributes;
-	private IsochronesRangeType _rangeType = IsochronesRangeType.Time;
+	private TravelRangeType _rangeType = TravelRangeType.Time;
 	private Boolean _includeIntersections = false;
 
 	public IsochroneRequest()
@@ -90,11 +90,11 @@ public class IsochroneRequest extends ServiceRequest
 		_ranges[nRanges - 1]= range;
 	}
 
-	public IsochronesRangeType getRangeType() {
+	public TravelRangeType getRangeType() {
 		return _rangeType;
 	}
 
-	public void setRangeType(IsochronesRangeType rangeType) {
+	public void setRangeType(TravelRangeType rangeType) {
 		_rangeType = rangeType;
 	}
 
@@ -115,7 +115,7 @@ public class IsochroneRequest extends ServiceRequest
 		if (_attributes == null || attr == null)
 			return false;
 
-		for (int i = 0; i< _attributes.length; i++)
+		for (int i = 0; i < _attributes.length; i++)
 			if (attr.equalsIgnoreCase(_attributes[i]))
 				return true;
 
@@ -156,7 +156,7 @@ public class IsochroneRequest extends ServiceRequest
 		if (!(_units == null || "m".equalsIgnoreCase(_units)))
 		{
 			double scale = 1.0;
-			if (_rangeType == IsochronesRangeType.Distance)
+			if (_rangeType == TravelRangeType.Distance)
 			{
 				switch(_units)
 				{

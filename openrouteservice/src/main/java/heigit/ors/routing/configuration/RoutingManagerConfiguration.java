@@ -122,7 +122,27 @@ public class RoutingManagerConfiguration
 
 							profile.getExtStorages().put(storageEntry.getKey(), storageParams);
 						}
-						//
+						break;
+					case "graph_processors":
+						@SuppressWarnings("unchecked") 
+						Map<String, Object> storageList2 = (Map<String, Object>)paramItem.getValue();
+
+						for(Map.Entry<String, Object> storageEntry : storageList2.entrySet())
+						{
+							@SuppressWarnings("unchecked")
+							Map<String, Object> entryValue = (Map<String, Object>)storageEntry.getValue();
+							Map<String, String> storageParams = new HashMap<String, String>();
+
+							if (storageParams != null)		
+							{		
+								for(Map.Entry<String, Object> entry : entryValue.entrySet())
+								{	
+									storageParams.put(entry.getKey(), entry.getValue().toString());
+								}
+							}
+
+							profile.getGraphBuilders().put(storageEntry.getKey(), storageParams);
+						}
 						break;
 					case "traffic":
 						profile.setUseTrafficInformation(Boolean.parseBoolean(paramItem.getValue().toString()));
@@ -165,11 +185,13 @@ public class RoutingManagerConfiguration
 		// Read traffic settings
 		TrafficInformationConfiguration tic = new TrafficInformationConfiguration();
 		tic.Enabled = Boolean.parseBoolean(RoutingServiceSettings.getParameter("traffic.enabled"));
-		tic.LocationCodesPath = RoutingServiceSettings.getParameter("traffic.location_codes_path");
-		tic.MessagesDatasource = RoutingServiceSettings.getParameter("traffic.source");
-		tic.OutputDirectory = RoutingServiceSettings.getParameter("traffic.output_directory");
-		tic.UpdateInterval = Integer.parseInt(RoutingServiceSettings.getParameter("traffic.update_interval"));
-
+		if (tic.Enabled)
+		{
+			tic.LocationCodesPath = RoutingServiceSettings.getParameter("traffic.location_codes_path");
+			tic.MessagesDatasource = RoutingServiceSettings.getParameter("traffic.source");
+			tic.OutputDirectory = RoutingServiceSettings.getParameter("traffic.output_directory");
+			tic.UpdateInterval = Integer.parseInt(RoutingServiceSettings.getParameter("traffic.update_interval"));
+		}
 		gc.TrafficInfoConfig = tic;
 
 		return gc;

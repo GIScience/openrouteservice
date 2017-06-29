@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import heigit.ors.exceptions.MissingParameterException;
@@ -107,7 +109,10 @@ public class LocationsCategoryClassifier
 			_categoryGroups  = groups.toArray(new LocationsCategoryGroup[groups.size()]);
 			_categoryIdToGroupIndex = new int[totalMaxId + 1];
 			
-			JSONObject jCategories = new JSONObject(true);
+			for (int i = 0; i < _categoryIdToGroupIndex.length; i++)
+				_categoryIdToGroupIndex[i] = -1;
+			
+		    Map<String, JSONObject> map = new TreeMap<String, JSONObject>(); 
 			int j = 0;
 			for(LocationsCategoryGroup group : _categoryGroups)
 			{
@@ -126,10 +131,15 @@ public class LocationsCategoryClassifier
 				jGroup.put("id", group.getId());
 				jGroup.put("values", jValues);
 				
-				jCategories.put(group.getName(), jGroup);
+				map.put(group.getName(), jGroup);
 				
 				j++;
 			}
+			
+			JSONObject jCategories = new JSONObject(true);
+			for (Map.Entry<String, JSONObject> entry : map.entrySet())
+				jCategories.put(entry.getKey(), entry.getValue());
+			
 			_categoriesJSON = jCategories;
 		}
 		catch(Exception ex)
@@ -138,14 +148,20 @@ public class LocationsCategoryClassifier
 			logger.error(ex);
 		}
 	}
+	
 	public static int getGroupsCount()
 	{
 		return _categoryGroups.length;
 	}
+	
 	public static int getGroupIndex(int categoryId)
 	{
-		return _categoryIdToGroupIndex[categoryId];
+		if (categoryId >=0 && categoryId < _categoryIdToGroupIndex.length)
+			return _categoryIdToGroupIndex[categoryId];
+		else
+			return -1;
 	}
+	
 	public static String getGroupName(int groupIndex)
 	{
 		if (_categoryGroups != null && groupIndex >=0 && groupIndex < _categoryGroups.length)
@@ -153,6 +169,7 @@ public class LocationsCategoryClassifier
 		else
 			return null;
 	}
+	
 	public static int getGroupId(int groupIndex)
 	{
 		if (_categoryGroups != null && groupIndex >=0 && groupIndex < _categoryGroups.length)
@@ -160,6 +177,7 @@ public class LocationsCategoryClassifier
 		else
 			return -1;
 	}
+	
 	public static LocationsCategoryGroup getGroupById(int groupId)
 	{
 		return _groupsMap.get(groupId);

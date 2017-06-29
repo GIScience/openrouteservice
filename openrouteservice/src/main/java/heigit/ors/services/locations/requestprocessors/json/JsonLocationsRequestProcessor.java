@@ -32,6 +32,7 @@ import heigit.ors.services.locations.requestprocessors.json.JsonLocationsRequest
 import heigit.ors.services.locations.LocationsServiceSettings;
 import heigit.ors.locations.providers.LocationsDataProvider;
 import heigit.ors.locations.providers.LocationsDataProviderFactory;
+import heigit.ors.locations.LocationRequestType;
 import heigit.ors.locations.LocationsCategory;
 import heigit.ors.locations.LocationsCategoryClassifier;
 import heigit.ors.locations.LocationsErrorCodes;
@@ -68,37 +69,39 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 		}
 
 		if (req == null)
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, "LocationRequest object is null.");
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, LocationsErrorCodes.UNKNOWN, "LocationRequest object is null.");
 
 		if (!req.isValid())
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, "Location request parameters are missing or invalid.");
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, LocationsErrorCodes.UNKNOWN, "Location request parameters are missing or invalid.");
 
-		LocationsDataProvider provider = LocationsDataProviderFactory.getProvider(LocationsServiceSettings.getProviderName(), LocationsServiceSettings.getProviderParameters());
-
+		LocationsDataProvider provider = null;
+		
 		switch(req.getType())
 		{
-		case  POIS:
+		case POIS:
+			provider = LocationsDataProviderFactory.getProvider(LocationsServiceSettings.getProviderName(), LocationsServiceSettings.getProviderParameters());
 			writeLocationsResponse(response, req, provider.findLocations(req));			
 			break;
 		case CATEGORY_STATS:
+			provider = LocationsDataProviderFactory.getProvider(LocationsServiceSettings.getProviderName(), LocationsServiceSettings.getProviderParameters());
 			writeCategoriesResponse(response, req, provider.findCategories(req));
 			break;
 		case CATEGORY_LIST:
-			writeCategoriesListResponse(response);
+			writeCategoriesListResponse(response, req);
 			break;
 		case UNKNOWN:
 			throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "request", "");
 		}
 	}
 	
-	private void writeCategoriesListResponse(HttpServletResponse response) throws Exception
+	private void writeCategoriesListResponse(HttpServletResponse response, LocationsRequest request) throws Exception
 	{
 		JSONObject jResp = new JSONObject();
 		
 		jResp.put("categories", LocationsCategoryClassifier.getCategoriesList());
 		
-		writeInfoSection(jResp, null);
-		
+		writeInfoSection(jResp, request);
+		 
 		ServletUtility.write(response, jResp);
 	}
 	
@@ -122,9 +125,7 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 				JSONObject jValues = new JSONObject(true, cat.getStats().size());
 				
 				for(Map.Entry<Integer, Long> stats : cat.getStats().entrySet())
-				{
 					jValues.put(stats.getKey().toString(), stats.getValue());
-				}
 				
 				jCategory.put("name", cat.getCategoryName());
 				jCategory.put("categories", jValues);
@@ -182,13 +183,13 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 
 				feature.put("geometry", point);
 
-				Map<String, String> props = lr.getProperties();
+				Map<String, Object> props = lr.getProperties();
 
 				JSONObject properties = new JSONObject(true, props.size());
 
 				if (props.size() > 0)
 				{
-					for(Map.Entry<String, String> entry : props.entrySet())
+					for(Map.Entry<String, Object> entry : props.entrySet())
 						properties.put(entry.getKey(), entry.getValue());
 				}
 
@@ -232,14 +233,18 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 		{
 			JSONObject jQuery = new JSONObject(true);
 
-			writeFilterSection(jQuery, request.getSearchFilter());
+			if (request.getType() == LocationRequestType.POIS || request.getType() == LocationRequestType.CATEGORY_STATS)
+			{
+				writeFilterSection(jQuery, request.getSearchFilter());
 
-			if (request.getRadius() > 0)
-				jQuery.put("radius", request.getRadius());
-			if (request.getLimit() > 0)
-				jQuery.put("limit", request.getLimit());
-			if (!Helper.isEmpty(request.getLanguage()))
-				jQuery.put("lang", request.getLanguage());
+				if (request.getRadius() > 0)
+					jQuery.put("radius", request.getRadius());
+				if (request.getLimit() > 0)
+					jQuery.put("limit", request.getLimit());
+				if (!Helper.isEmpty(request.getLanguage()))
+					jQuery.put("lang", request.getLanguage());
+			}
+			
 			if (request.getId() != null)
 				jQuery.put("id", request.getId());
 

@@ -18,7 +18,9 @@ import com.graphhopper.reader.OSMWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 
-public interface GraphStorageBuilder 
+import heigit.ors.plugins.Plugin;
+
+public interface GraphStorageBuilder extends Plugin
 {
 	public abstract GraphExtension init(GraphHopper graphhopper) throws Exception;
 

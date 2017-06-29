@@ -77,8 +77,8 @@
     </issueManagement>
     <modules>
         <module>core</module>
-        <module>tools</module>
-        <module>web</module>
+        <!--<module>tools</module>-->
+        <!--<module>web</module>-->
     </modules>
         
     <build>        

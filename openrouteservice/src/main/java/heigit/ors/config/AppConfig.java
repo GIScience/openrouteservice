@@ -23,7 +23,7 @@ import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
 
-import heigit.ors.services.shortenlink.ShortenLinkServlet;
+import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.util.StringUtility;
 
 public class AppConfig {
@@ -38,7 +38,7 @@ public class AppConfig {
 	}
 	
 	public AppConfig()	{
-    	URL url = ShortenLinkServlet.class.getClassLoader().getResource("../app.config");
+    	URL url = RoutingProfileManager.class.getClassLoader().getResource("../app.config");
     	
     	File file = new File(url.getPath());
 		_config = ConfigFactory.parseFile(file);

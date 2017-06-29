@@ -17,5 +17,5 @@ public class GeocodingErrorCodes {
    public static int INVALID_PARAMETER_FORMAT = 102;
    public static int INVALID_PARAMETER_VALUE = 103;
    public static int PARAMETER_VALUE_EXCEEDS_MAXIMUM = 104;
-   public static int UKNOWN = 199;
+   public static int UNKNOWN = 199;
 }

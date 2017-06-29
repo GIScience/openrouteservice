@@ -72,4 +72,17 @@ public class LocationsSearchFilter {
 	public void setFee(Boolean value) {
 		_fee = value;
 	}
+	
+	public LocationsSearchFilter clone()
+	{
+		LocationsSearchFilter filter = new LocationsSearchFilter();
+		filter._category_group_ids = _category_group_ids;
+		filter._category_ids = _category_ids;
+	    filter._fee = _fee;
+	    filter._name = _name;
+	    filter._smoking = _smoking;
+	    filter._wheelchair = _wheelchair;
+	    
+	    return filter;
+	}
 }

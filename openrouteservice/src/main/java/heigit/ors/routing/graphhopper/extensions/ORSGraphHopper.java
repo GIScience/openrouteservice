@@ -27,7 +27,6 @@ import java.util.List;
 
 import heigit.ors.mapmatching.RouteSegmentInfo;
 import heigit.ors.routing.RoutingProfile;
-import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
@@ -40,22 +39,19 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 public class ORSGraphHopper extends GraphHopper {
 
-	private Envelope _bbox;
-	private List<GraphStorageBuilder> _storageBuilders;
+	private GraphProcessContext _procCntx;
 	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds; // one osm id can correspond to multiple edges 
 	private HashMap<Integer, Long> tmcEdges;
 	
 	// A route profile for referencing which is used to extract names of adjacent streets and other objects.
 	private RoutingProfile refRouteProfile;
 
-	public ORSGraphHopper(Envelope bbox, List<GraphStorageBuilder> storageBuilders, boolean useTmc, RoutingProfile refProfile) {
-		this._bbox = bbox;
-		this._storageBuilders = storageBuilders;
+	public ORSGraphHopper(GraphProcessContext procCntx, boolean useTmc, RoutingProfile refProfile) {
+		_procCntx = procCntx;
 		this.refRouteProfile= refProfile;
 		this.setSimplifyResponse(false);
 		
@@ -63,10 +59,12 @@ public class ORSGraphHopper extends GraphHopper {
 			tmcEdges = new HashMap<Integer, Long>(); 
 			osmId2EdgeIds = new HashMap<Long, ArrayList<Integer>>();
 		}
+		_procCntx.init(this);
 	}
 	
 	protected DataReader createReader(GraphHopperStorage tmpGraph) {
-		return initOSMReader(new ORSOSMReader(tmpGraph, _bbox, _storageBuilders, tmcEdges, osmId2EdgeIds, refRouteProfile));
+
+		return initOSMReader(new ORSOSMReader(tmpGraph, _procCntx, tmcEdges, osmId2EdgeIds, refRouteProfile));
 	}
 	
 	public boolean load( String graphHopperFolder )
@@ -76,7 +74,6 @@ public class ORSGraphHopper extends GraphHopper {
 		
 		return res;
     }
-	
     
 	protected void flush()
 	{

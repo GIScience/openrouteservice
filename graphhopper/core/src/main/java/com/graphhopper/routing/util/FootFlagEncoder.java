@@ -259,8 +259,8 @@ public class FootFlagEncoder extends AbstractFlagEncoder
             return 0;
 
         // do not accept railways (sometimes incorrectly mapped!)
-        if (way.hasTag("railway") && !way.hasTag("railway", acceptedRailways))
-            return 0;
+        //if (way.hasTag("railway") && !way.hasTag("railway", acceptedRailways))
+         //   return 0;
 
         return acceptBit;
     }
@@ -375,12 +375,22 @@ public class FootFlagEncoder extends AbstractFlagEncoder
             }
         } else if (maxSpeed > 50 || avoidHighwayTags.contains(highway))
         {
-            if (way.hasTag("sidewalk", "no"))
-                weightToPrioMap.put(45d, WORST.getValue());
-            else if (way.hasTag("sidewalk", "yes")) // Runge
-            	weightToPrioMap.put(45d, REACH_DEST.getValue());
-            else
-                weightToPrioMap.put(45d, AVOID_AT_ALL_COSTS.getValue());
+        	if (maxSpeed > 0 && maxSpeed <= 30) // Runge
+        	{
+        		if (way.hasTag("sidewalk", "both") || way.hasTag("sidewalk", "yes"))
+        			weightToPrioMap.put(40d, PREFER.getValue());
+        		else
+        			weightToPrioMap.put(40d, UNCHANGED.getValue());
+        	}
+        	else
+        	{
+        		if (way.hasTag("sidewalk", "no"))
+        			weightToPrioMap.put(45d, WORST.getValue());
+        		else if (way.hasTag("sidewalk", "yes") || way.hasTag("sidewalk", "both")) // Runge
+        			weightToPrioMap.put(45d, REACH_DEST.getValue());
+        		else
+        			weightToPrioMap.put(45d, AVOID_AT_ALL_COSTS.getValue());
+        	}
         }
 
         if (way.hasTag("bicycle", "official") || way.hasTag("bicycle", "designated"))

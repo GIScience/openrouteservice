@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
-import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import heigit.ors.routing.RoutingProfile;
 
 import com.graphhopper.reader.OSMNode;
@@ -30,36 +29,30 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
-import com.vividsolutions.jts.geom.Envelope;
+
+import gnu.trove.list.TLongList;
 
 public class ORSOSMReader extends OSMReader {
 
 	private static Logger LOGGER = Logger.getLogger(ORSOSMReader.class.getName());
 
-	private Envelope bbox;
+	private GraphProcessContext _procCntx;
 	private HashMap<Integer, Long> tmcEdges;
 	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds;
 	private RoutingProfile refProfile;
 	private boolean enrichInstructions;
 
-	private GraphStorageBuilder[] _storageBuilders;
-
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
 			"primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential" };
 
-	public ORSOSMReader(GraphHopperStorage storage, Envelope bbox,  List<GraphStorageBuilder> storageBuilders, HashMap<Integer, Long> tmcEdges,  HashMap<Long, ArrayList<Integer>> osmId2EdgeIds, RoutingProfile refProfile) {
+	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx, HashMap<Integer, Long> tmcEdges,  HashMap<Long, ArrayList<Integer>> osmId2EdgeIds, RoutingProfile refProfile) {
 		super(storage);
 
-		if (storageBuilders != null && storageBuilders.size() > 0)
-		{
-			_storageBuilders = new GraphStorageBuilder[storageBuilders.size()];
-			_storageBuilders = storageBuilders.toArray(_storageBuilders);
-		}
-		this.bbox = bbox;
+		this._procCntx = procCntx;
 		this.tmcEdges = tmcEdges;
 		this.osmId2EdgeIds = osmId2EdgeIds;
 		this.refProfile = refProfile;
-
+		
 		enrichInstructions = (refProfile != null) && (storage.getEncodingManager().supports("foot")
 				|| storage.getEncodingManager().supports("bike")  
 				|| storage.getEncodingManager().supports("MTB")
@@ -79,11 +72,8 @@ public class ORSOSMReader extends OSMReader {
 
 	@Override
 	protected boolean isInBounds(OSMNode node) {
-		if (bbox != null) {
-			double x = node.getLon();
-			double y = node.getLat();
-
-			return bbox.contains(x, y);
+		if (_procCntx != null) {
+			return _procCntx.isValidPoint(node.getLon(), node.getLat());
 		}
 
 		return super.isInBounds(node);
@@ -91,49 +81,7 @@ public class ORSOSMReader extends OSMReader {
 
 	@Override
 	public void onProcessWay(OSMWay way) {
-		try
-		{
-			if (_storageBuilders != null)
-			{
-				int nStorages = _storageBuilders.length;
-				if (nStorages > 0)
-				{
-					if (nStorages == 1)
-					{
-						_storageBuilders[0].processWay(way);
-					}
-					else if (nStorages == 2)
-					{
-						_storageBuilders[0].processWay(way);
-						_storageBuilders[1].processWay(way);
-					}
-					else if (nStorages == 3)
-					{
-						_storageBuilders[0].processWay(way);
-						_storageBuilders[1].processWay(way);
-						_storageBuilders[2].processWay(way);
-					}
-					else  if (nStorages == 4)
-					{
-						_storageBuilders[0].processWay(way);
-						_storageBuilders[1].processWay(way);
-						_storageBuilders[2].processWay(way);
-						_storageBuilders[3].processWay(way);
-					}
-					else
-					{		
-						for (int i = 0; i < nStorages; ++i)
-						{
-							_storageBuilders[i].processWay(way);
-						}
-					}
-				}
-			}
-		}
-		catch(Exception ex)
-		{
-			LOGGER.warning(ex.getMessage() + ". Way id = " + way.getId());
-		}
+		_procCntx.processWay(way);
 	}
 
 	protected void onProcessEdge(OSMWay way, EdgeIteratorState edge) {
@@ -189,62 +137,33 @@ public class ORSOSMReader extends OSMReader {
 					}
 				}
 			}
-
-			if (_storageBuilders != null)
-			{
-				int nStorages = _storageBuilders.length;
-				if (nStorages > 0)
-				{
-					if (nStorages == 1)
-					{
-						_storageBuilders[0].processEdge(way, edge);
-					}
-					else if (nStorages == 2)
-					{
-						_storageBuilders[0].processEdge(way, edge);
-						_storageBuilders[1].processEdge(way, edge);
-					}
-					else if (nStorages == 3)
-					{
-						_storageBuilders[0].processEdge(way, edge);
-						_storageBuilders[1].processEdge(way, edge);
-						_storageBuilders[2].processEdge(way, edge);
-					}
-					else  if (nStorages == 4)
-					{
-						_storageBuilders[0].processEdge(way, edge);
-						_storageBuilders[1].processEdge(way, edge);
-						_storageBuilders[2].processEdge(way, edge);
-						_storageBuilders[3].processEdge(way, edge);
-					}
-					else
-					{		
-						for (int i = 0; i < nStorages; ++i)
-						{
-							_storageBuilders[i].processEdge(way, edge);
-						}
-					}
-				}
-			}
+		
+			_procCntx.processEdge(way, edge);
 		} catch (Exception ex) {
 			LOGGER.warning(ex.getMessage() + ". Way id = " + way.getId());
 		}
 	}
+	
+	@Override 
+    protected boolean onCreateEdges(OSMWay way, TLongList osmNodeIds, long wayFlags, List<EdgeIteratorState> createdEdges)
+    {
+		try
+		{
+			return _procCntx.createEdges(this, way, osmNodeIds, wayFlags, createdEdges);
+		}
+		catch (Exception ex) {
+			LOGGER.warning(ex.getMessage() + ". Way id = " + way.getId());
+		}
+		
+		return false;
+    }
 
 	@Override 
 	protected void finishedReading() {
 
 		// System.out.println("----------  ORSOSMReader.finishedReading()");
 		super.finishedReading();
-
-		if (_storageBuilders != null)
-		{
-			int nStorages = _storageBuilders.length;
-			if (nStorages > 0)
-			{
-				for (int i = 0; i < nStorages; ++i)
-					_storageBuilders[i].finish();
-			}
-		}
+		
+		_procCntx.finish();
 	}
 }

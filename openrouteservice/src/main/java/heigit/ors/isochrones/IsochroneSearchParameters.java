@@ -13,13 +13,13 @@ package heigit.ors.isochrones;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import heigit.ors.isochrones.IsochronesRangeType;
+import heigit.ors.common.TravelRangeType;
 import heigit.ors.routing.RouteSearchParameters;
 
 public class IsochroneSearchParameters {
 	private Coordinate _location;
 	private Boolean _reverseDirection = false;
-	private IsochronesRangeType _rangeType = IsochronesRangeType.Time;
+	private TravelRangeType _rangeType = TravelRangeType.Time;
 	private double[] _ranges;
 	private RouteSearchParameters _parameters;
 	private String _calcMethod;
@@ -49,12 +49,12 @@ public class IsochroneSearchParameters {
 		_reverseDirection = value;
 	}
 
-	public void setRangeType(IsochronesRangeType rangeType)
+	public void setRangeType(TravelRangeType rangeType)
 	{
 		_rangeType = rangeType;
 	}
 
-	public IsochronesRangeType getRangeType()
+	public TravelRangeType getRangeType()
 	{
 		return _rangeType;
 	}

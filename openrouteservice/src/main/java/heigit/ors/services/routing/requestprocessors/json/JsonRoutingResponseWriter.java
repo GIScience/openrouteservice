@@ -33,6 +33,7 @@ import heigit.ors.routing.WeightingMethod;
 import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
+import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.PolylineEncoder;
 
@@ -41,7 +42,67 @@ public class JsonRoutingResponseWriter {
 	public static JSONObject toJson(RoutingRequest request, RouteResult[] routeResult) throws Exception
 	{
 		JSONObject jResp = new JSONObject(true, 1);
+		BBox bbox = new BBox(0, 0, 0, 0);
+		JSONArray jRoutes = toJsonArray(request, routeResult, bbox);
+		jResp.put("routes", jRoutes);
 
+
+		// *************** bbox ***************
+
+		if (bbox != null)
+			jResp.put("bbox", GeometryJSON.toJSON(bbox.minLon, bbox.minLat, bbox.maxLon, bbox.maxLat));
+
+		// *************** info ***************
+
+		JSONObject jInfo = new JSONObject(3);
+		jInfo.put("service", "routing");
+		jInfo.put("version", AppInfo.VERSION);
+		if (!Helper.isEmpty(RoutingServiceSettings.getAttribution()))
+			jInfo.put("attribution", RoutingServiceSettings.getAttribution());
+		jInfo.put("timestamp", System.currentTimeMillis());
+
+		JSONObject jQuery = new JSONObject(true);
+
+		jQuery.put("profile", RoutingProfileType.getName(request.getSearchParameters().getProfileType()));
+
+		jQuery.put("preference", WeightingMethod.getName(request.getSearchParameters().getWeightingMethod()));
+
+		jQuery.put("coordinates", GeometryJSON.toJSON(request.getCoordinates(), request.getIncludeElevation()));
+
+		if (request.getLanguage() != null)
+			jQuery.put("language", request.getLanguage());
+
+		if (request.getUnits() != null)
+			jQuery.put("units", DistanceUnitUtil.toString(request.getUnits()));
+
+		jQuery.put("geometry", request.getIncludeGeometry());
+		if (request.getIncludeGeometry())
+		{
+			jQuery.put("geometry_format", Helper.isEmpty(request.getGeometryFormat()) ? "encodedpolyline" : request.getGeometryFormat());
+			jQuery.put("geometry_simplify", request.getSimplifyGeometry());
+
+			if (request.getIncludeInstructions())
+				jQuery.put("instructions_format", request.getInstructionsFormat().toString().toLowerCase());
+
+			jQuery.put("instructions", request.getIncludeInstructions());
+			jQuery.put("elevation", request.getIncludeElevation());
+		}
+
+		if (!Helper.isEmpty(request.getSearchParameters().getOptions()))
+			jQuery.put("options", new JSONObject(request.getSearchParameters().getOptions()));
+
+		if (!Helper.isEmpty(request.getId()))
+			jQuery.put("id", request.getId());
+
+		jInfo.put("query", jQuery);
+
+		jResp.put("info", jInfo);
+
+		return jResp;
+	}
+
+	public static JSONArray toJsonArray(RoutingRequest request, RouteResult[] routeResult, BBox bbox) throws Exception
+	{
 		StringBuffer buffer = new StringBuffer();
 		// *************** routes ***************
 
@@ -51,10 +112,6 @@ public class JsonRoutingResponseWriter {
 		int nRoutes = routeResult.length;
 
 		JSONArray jRoutes = new JSONArray(nRoutes);
-
-		jResp.put("routes", jRoutes);
-
-		BBox bboxResp = null;
 
 		for (int i = 0; i < nRoutes; ++i)
 		{
@@ -100,7 +157,7 @@ public class JsonRoutingResponseWriter {
 
 						jSegment.put("distance", seg.getDistance());
 						jSegment.put("duration", seg.getDuration());
-						
+
 						if (request.getIncludeElevation() && (seg.getAscent() !=0.0 || seg.getDescent() != 0.0))
 						{
 							jSegment.put("ascent", seg.getAscent());
@@ -148,6 +205,9 @@ public class JsonRoutingResponseWriter {
 
 					jRoute.put("segments", jSegments);
 				}
+				
+				//if (route.getLocationIndex() >= 0)
+				//	jRoute.put("location_index", route.getLocationIndex());
 
 				if (route.getWayPointsIndices() != null)
 					jRoute.put("way_points", new JSONArray(route.getWayPointsIndices()));
@@ -187,11 +247,11 @@ public class JsonRoutingResponseWriter {
 							// ---------- summary ---------- 
 
 							Map<String, Map<String, Object>> summary = extraInfo.getSummary(request.getUnits());
-							
+
 							if (summary.size() > 0)
 							{
 								JSONArray jExtraItemSummary = new JSONArray(summary.size());
-								
+
 								for (Map.Entry<String, Map<String, Object>> kv : summary.entrySet())
 								{
 									JSONObject jExtraItemSummaryType = new JSONObject(true);
@@ -202,14 +262,14 @@ public class JsonRoutingResponseWriter {
 
 									jExtraItemSummary.put(jExtraItemSummaryType);
 								}
-								
+
 								jExtraItem.put("summary", jExtraItemSummary);
 							}
 
 							jExtras.put(extraInfo.getName(), jExtraItem);
 						}
 					}
-					
+
 					jRoute.put("extras", jExtras);
 				}
 			}
@@ -219,72 +279,24 @@ public class JsonRoutingResponseWriter {
 			if (bboxRoute != null)
 			{
 				jRoute.put("bbox", GeometryJSON.toJSON(bboxRoute.minLon, bboxRoute.minLat, bboxRoute.maxLon, bboxRoute.maxLat));
-
-				if (bboxResp == null)
-					bboxResp = bboxRoute.clone();
+				if (!bbox.isValid())
+				{
+					bbox.minLat = bboxRoute.minLat;
+					bbox.maxLat = bboxRoute.maxLat;
+					bbox.minLon = bboxRoute.minLon;
+					bbox.maxLon = bboxRoute.maxLon;
+				}
 				else
 				{
-					bboxResp.update(bboxRoute.minLat, bboxRoute.minLon);
-					bboxResp.update(bboxRoute.maxLat, bboxRoute.maxLon);
+					bbox.update(bboxRoute.minLat, bboxRoute.minLon);
+					bbox.update(bboxRoute.maxLat, bboxRoute.maxLon);
 				}
 			}
 
 			jRoutes.put(jRoute);
 		}
 
-
-		// *************** bbox ***************
-
-		if (bboxResp != null)
-			jResp.put("bbox", GeometryJSON.toJSON(bboxResp.minLon, bboxResp.minLat, bboxResp.maxLon, bboxResp.maxLat));
-
-		// *************** info ***************
-
-		JSONObject jInfo = new JSONObject(3);
-		jInfo.put("service", "routing");
-		jInfo.put("version", AppInfo.VERSION);
-		if (!Helper.isEmpty(RoutingServiceSettings.getAttribution()))
-			jInfo.put("attribution", RoutingServiceSettings.getAttribution());
-		jInfo.put("timestamp", System.currentTimeMillis());
-
-		JSONObject jQuery = new JSONObject(true);
-
-		jQuery.put("profile", RoutingProfileType.getName(request.getSearchParameters().getProfileType()));
-
-		jQuery.put("preference", WeightingMethod.getName(request.getSearchParameters().getWeightingMethod()));
-
-		jQuery.put("coordinates", GeometryJSON.toJSON(request.getCoordinates(), request.getIncludeElevation()));
-
-		if (request.getLanguage() != null)
-			jQuery.put("language", request.getLanguage());
-
-		if (request.getUnits() != null)
-			jQuery.put("units", request.getUnits().toString().toLowerCase());
-
-		jQuery.put("geometry", request.getIncludeGeometry());
-		if (request.getIncludeGeometry())
-		{
-			jQuery.put("geometry_format", Helper.isEmpty(request.getGeometryFormat()) ? "encodedpolyline" : request.getGeometryFormat());
-			jQuery.put("geometry_simplify", request.getSimplifyGeometry());
-
-			if (request.getIncludeInstructions())
-				jQuery.put("instructions_format", request.getInstructionsFormat().toString().toLowerCase());
-
-			jQuery.put("instructions", request.getIncludeInstructions());
-			jQuery.put("elevation", request.getIncludeElevation());
-		}
-		
-		if (!Helper.isEmpty(request.getSearchParameters().getOptions()))
-			jQuery.put("options", new JSONObject(request.getSearchParameters().getOptions()));
-		
-		if (!Helper.isEmpty(request.getId()))
-			jQuery.put("id", request.getId());
-
-		jInfo.put("query", jQuery);
-
-		jResp.put("info", jInfo);
-
-		return jResp;
+		return jRoutes;
 	}  
 
 	private static Object getGeometry(Coordinate[] points, boolean includeElevation, String format, StringBuffer buffer)

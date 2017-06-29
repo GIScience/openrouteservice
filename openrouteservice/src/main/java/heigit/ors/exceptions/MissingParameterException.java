@@ -8,7 +8,7 @@ public class MissingParameterException extends StatusCodeException
 
    public MissingParameterException(int errorCode, String paramName)
    {
-	   super(StatusCode.BAD_REQUEST, errorCode, "'" + paramName + "' parameter is missing.");
+	   super(StatusCode.BAD_REQUEST, errorCode, "Parameter '" + paramName + "' is missing.");
    }
    
    public MissingParameterException(String paramName)

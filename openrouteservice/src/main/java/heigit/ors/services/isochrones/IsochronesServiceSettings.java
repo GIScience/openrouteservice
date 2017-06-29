@@ -12,7 +12,7 @@
 package heigit.ors.services.isochrones;
 
 import heigit.ors.config.AppConfig;
-import heigit.ors.isochrones.IsochronesRangeType;
+import heigit.ors.common.TravelRangeType;
 
 public class IsochronesServiceSettings {
 	private static boolean enabled = true;
@@ -60,7 +60,7 @@ public class IsochronesServiceSettings {
 		return maximumLocations;
 	}
 
-	public static int getMaximumRange(IsochronesRangeType range) {
+	public static int getMaximumRange(TravelRangeType range) {
 		switch(range)
 		{
 		case Distance:

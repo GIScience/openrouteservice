@@ -37,8 +37,8 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import heigit.ors.locations.providers.LocationsDataProvider;
 import heigit.ors.util.ArraysUtility;
-import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.InternalServerException;
+import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.jts.JTS;
 import heigit.ors.locations.LocationDetailsType;
 import heigit.ors.locations.LocationsCategory;
@@ -54,7 +54,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 {
 	private static final Logger LOGGER = Logger.getLogger(PostgreSQLLocationsDataProvider.class.getName());
 
-	private static QueryColumnsInfo[] COLUMNS_INFO;
+	private static Map<Integer, QueryColumnsInfo> COLUMNS_INFO;
 	 
 	private String _tableName = null;
 	private int _geomColumnIndex = 3;
@@ -62,42 +62,84 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 	
 	static
 	{
-		COLUMNS_INFO = new QueryColumnsInfo[8];
-		COLUMNS_INFO[0] = new QueryColumnsInfo(new String[] { "osm_id", "category", "name", "geom", "distance" });
-		
-		for (int i = 0; i< 8;i++)
-			COLUMNS_INFO[i] = new QueryColumnsInfo(getColumnNames(i)); 
+		COLUMNS_INFO = new HashMap<Integer, QueryColumnsInfo>();
 	}
 	
-	private static String[] getColumnNames(int details)
+	private static ColumnDescription[] getColumnsDescription(int details)
 	{
-		List<String> res = new ArrayList<String>();
+		List<ColumnDescription> res = new ArrayList<ColumnDescription>();
 		
-		res.add("osm_id");
-		res.add("category"); 
-	    res.add("name");
-	    res.add("geom");
+		res.add(new ColumnDescription("osm_id", Long.class));
+		res.add(new ColumnDescription("category", Integer.class)); 
+	    res.add(new ColumnDescription("name", String.class));
+	    res.add(new ColumnDescription("geom", Geometry.class));
 	    
 	    if (LocationDetailsType.isSet(details, LocationDetailsType.ADDRESS))
-	    	res.add("address");
+	    	res.add(new ColumnDescription("address", String.class));
 	    
 	    if (LocationDetailsType.isSet(details, LocationDetailsType.CONTACT))
 	    {
-	    	res.add("phone");
-	    	res.add("website");
+	    	res.add(new ColumnDescription("phone", String.class));
+	    	res.add(new ColumnDescription("website", String.class));
 	    }
 		
 	    if (LocationDetailsType.isSet(details, LocationDetailsType.ATTRIBUTES))
 	    {
-	    	res.add("opening_hours");
-	    	res.add("wheelchair");
-	    	res.add("smoking");
-	    	res.add("fee");
+	    	res.add(new ColumnDescription("opening_hours", String.class));
+	    	res.add(new ColumnDescription("wheelchair", String.class));
+	    	res.add(new ColumnDescription("smoking", String.class));
+	    	res.add(new ColumnDescription("fee", String.class));
+	    }
+	    else
+	    {
+	    	if ((details & 16) == 16)
+	    		res.add(new ColumnDescription("wheelchair", String.class));
+	    	if ((details & 32) == 32)
+	    		res.add(new ColumnDescription("smoking", String.class));
+	    	if ((details & 64) == 64)
+	    		res.add(new ColumnDescription("fee", String.class));
 	    }
 	    
-	    res.add("distance");
+	    res.add(new ColumnDescription("distance", Double.class));
 	    
-		return  res.toArray(new String[res.size()]);
+		return  res.toArray(new ColumnDescription[res.size()]);
+	}
+	
+	private static QueryColumnsInfo getQueryColumnsInfo(LocationsRequest request)
+	{
+		int details = request.getDetails();
+		LocationsSearchFilter filter = request.getSearchFilter();
+		
+		int hash = details;
+		if (!Helper.isEmpty(filter.getWheelchair()))
+			hash |= 16;
+		
+		if (!Helper.isEmpty(filter.getSmoking()))
+			hash |= 32; 
+
+		if (!Helper.isEmpty(filter.getSmoking()))
+			hash |= 64; 
+
+		synchronized(COLUMNS_INFO)
+		{
+			QueryColumnsInfo res = COLUMNS_INFO.get(hash);
+			if (res == null)
+			{
+				List<String> ignoreColumns = null;
+				if (!LocationDetailsType.isSet(details, LocationDetailsType.ATTRIBUTES) && hash >= 16)
+				{
+					ignoreColumns = new ArrayList<String>(3);
+					ignoreColumns.add("wheelchair");
+					ignoreColumns.add("smoking");
+					ignoreColumns.add("fee");
+				}
+				
+				res = new QueryColumnsInfo(getColumnsDescription(hash), ignoreColumns);
+				COLUMNS_INFO.put(hash, res);
+			}
+			
+			return res;
+		}
 	}
 
 	public void init(Map<String, Object> parameters) throws Exception
@@ -155,13 +197,14 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 			}
 
 			ResultSet resSet = null;
+			QueryColumnsInfo queryColumns = getQueryColumnsInfo(request);
 
 			if (LOGGER.isDebugEnabled())
 			{
 				StopWatch sw2 = new StopWatch();
 				sw2.start();
 
-				statement = createLocationsStatement(request, connection);
+				statement = createLocationsStatement(request, connection, queryColumns);
 
 				sw2.stop();
 
@@ -175,12 +218,11 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 			}
 			else
 			{
-				statement = createLocationsStatement(request, connection);
+				statement = createLocationsStatement(request, connection, queryColumns);
 				resSet = statement.executeQuery();
 			}
 
-			QueryColumnsInfo queryColumns = COLUMNS_INFO[request.getDetails()];
-			int nColumns = queryColumns.getCount();
+			int nColumns = queryColumns.getReturnColumnsCount();
 			if (request.getGeometry() instanceof Polygon || request.getGeometry() == null)
 				nColumns--; // skip distance column for polygons
 			
@@ -191,13 +233,13 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 				try {
 					LocationsResult lr = new LocationsResult();
 
-					for(int i = 0; i < nColumns; i++)
+					for(int i = 1; i <= nColumns; i++)
 					{
-						if (i != _geomColumnIndex)
+						if (i - 1 != _geomColumnIndex)
 						{
-							String value = resSet.getString(i+1);
-							if (!Helper.isEmpty(value))
-								lr.addProperty(queryColumns.getName(i), value);
+							Object value =  queryColumns.getType(i - 1, resSet);
+							if (value != null)
+								lr.addProperty(queryColumns.getName(i - 1), value);
 						}
 						else
 						{
@@ -254,7 +296,12 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 				cmdText = addConditions(cmdText, "(" + buildCategoryIdsFilter(filter.getCategoryIds()) + ")");
 
 			if (filter.getName() != null)
-				cmdText = addConditions(cmdText, "(name = ''" + filter.getName() + "'')");
+			{
+				if (filter.getName().contains("*"))
+					cmdText = addConditions(cmdText, "(name IS NOT NULL AND (lower(name) LIKE ''" + filter.getName().replace("*", "%%").toLowerCase() + "''))");
+				else
+					cmdText = addConditions(cmdText, "(lower(name) = ''" + filter.getName().toLowerCase() + "'')");
+			}
 
 			if (!Helper.isEmpty(filter.getWheelchair()))
 			{
@@ -277,7 +324,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 
 		return cmdText;
 	}
-	
+
 	private String addConditions(String condition1, String condition2)
 	{
 		if (!Helper.isEmpty(condition1))
@@ -286,20 +333,23 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 			return condition2;
 	}
 
-	private PreparedStatement createLocationsStatement(LocationsRequest request, Connection conn) throws Exception
+	private PreparedStatement createLocationsStatement(LocationsRequest request, Connection conn, QueryColumnsInfo queryInfo) throws Exception
 	{
 		Geometry geom = request.getGeometry();
 		Envelope bbox = request.getBBox();
 
 		byte[] geomBytes = geometryToWKB(geom, bbox);
 
-		QueryColumnsInfo ci = COLUMNS_INFO[request.getDetails()];
 		// at the end, we add virtual column to store the exact distance. 
-		String query = "SELECT " + ci.getQuery1Columns() +" FROM " + _tableName;
-		if (bbox != null)
-			query += " WHERE " + buildBboxFilter(bbox);
-
-		String stateText = String.format("SELECT %s FROM ORS_FindLocations('(%s) as tmp', '%s', ?, %.3f, %d) AS %s", ci.getQuery2Columns(), query,  buildSearchFilter(request.getSearchFilter()), request.getRadius(), request.getLimit(), ci.getReturnTable());
+		String query = "SELECT " + queryInfo.getQuery1Columns() + " FROM " + _tableName;
+		
+		String whereCondition = "";
+		
+		String searchCondition = buildSearchFilter(request.getSearchFilter());
+		if (!Helper.isEmpty(searchCondition))
+			whereCondition += searchCondition;
+		
+		String stateText = String.format("SELECT %s FROM ORS_FindLocations('(%s) as tmp', '%s', ?, %.3f, %d) AS %s", queryInfo.getQuery2Columns(), query, whereCondition, request.getRadius(), request.getLimit(), queryInfo.getReturnTable());
 
 		if (request.getSortType() != LocationsResultSortType.NONE)
 		{
@@ -434,9 +484,9 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 			return "";
 
 		if (ids.length == 1)
-			return " category = " + ids[0];
+			return "category = " + ids[0];
 		else
-			return " category IN (" + ArraysUtility.toString(ids, ", ") + ")";
+			return "category IN (" + ArraysUtility.toString(ids, ", ") + ")";
 	}
 
 	private String buildCategoryGroupIdsFilter(int[] ids) throws Exception
@@ -455,7 +505,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 				int groupId = ids[i];
 				LocationsCategoryGroup group = LocationsCategoryClassifier.getGroupById(groupId);
 				if (group == null)
-					throw new InternalServerException(StatusCode.BAD_REQUEST, "Unknown group id '" + groupId + "'.");
+					throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "category_group_id", Integer.toString(groupId));
 
 				result += "("+ group.getMinCategoryId() + " <= category AND category <= " + group.getMaxCategoryId() + ")";
 
@@ -471,7 +521,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 
 			LocationsCategoryGroup group = LocationsCategoryClassifier.getGroupById(groupId);
 			if (group == null)
-				throw new InternalServerException(StatusCode.BAD_REQUEST, "Unknown group id '" + groupId + "'.");
+				throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "category_group_id", Integer.toString(groupId));
 
 			result = group.getMinCategoryId() + " <= category AND category <= " + group.getMaxCategoryId(); 
 		}
@@ -489,7 +539,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 			int nValues = values.length;
 			for(int i = 0; i < nValues; i++)
 			{
-				result += '\''+ values[i].trim()+'\'';
+				result += "''" + values[i].trim() + "''";
 				if (i < nValues - 1)
 					result += ",";
 			}
@@ -501,7 +551,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 			if (value.indexOf('\'') > 0)
 				return value;
 			else
-				return '\''+ value+'\'';
+				return "''"+ value+"''";
 		}
 	}
 	

@@ -45,11 +45,33 @@
 		<url-pattern>/locations</url-pattern>
 	</servlet-mapping>
 	
+	<!-- ACCESSIBILITY SERVICE -->
+	<servlet>
+		<servlet-name>accessibility</servlet-name>
+		<servlet-class>heigit.ors.services.accessibility.AccessibilityServiceServlet</servlet-class>
+		<load-on-startup>5</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>accessibility</servlet-name>
+		<url-pattern>/accessibility</url-pattern>
+	</servlet-mapping>
+	
+    <!-- MATRIX SERVICE -->
+	<servlet>
+		<servlet-name>matrix</servlet-name>
+		<servlet-class>heigit.ors.services.matrix.MatrixServiceServlet</servlet-class>
+		<load-on-startup>5</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>matrix</servlet-name>
+		<url-pattern>/matrix</url-pattern>
+	</servlet-mapping>
+	
 	<!-- ShortenLink SERVICE -->
 	<servlet>
 		<servlet-name>shortenlink</servlet-name>
 		<servlet-class>heigit.ors.services.shortenlink.ShortenLinkServlet</servlet-class>
-		<load-on-startup>5</load-on-startup>
+		<load-on-startup>7</load-on-startup>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>shortenlink</servlet-name>

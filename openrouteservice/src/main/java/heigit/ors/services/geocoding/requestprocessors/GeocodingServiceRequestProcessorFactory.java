@@ -17,6 +17,7 @@ import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
+import heigit.ors.geocoding.geocoders.GeocodingErrorCodes;
 import heigit.ors.services.geocoding.GeocodingServiceSettings;
 import heigit.ors.services.geocoding.requestprocessors.json.JsonGeocodingRequestProcessor;
 
@@ -27,7 +28,7 @@ public class GeocodingServiceRequestProcessorFactory {
 	public static AbstractHttpRequestProcessor createProcessor(HttpServletRequest request) throws Exception  
 	{
 		if (!GeocodingServiceSettings.getEnabled())
-			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, "Geocoding service is not enabled.");
+			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, GeocodingErrorCodes.UNKNOWN, "Geocoding service is not enabled.");
 		
 		String formatParam = request.getParameter("format");
 
@@ -39,6 +40,6 @@ public class GeocodingServiceRequestProcessorFactory {
 	/*	else if (formatParam.equalsIgnoreCase("xml"))
 			return new XmlGeocodingRequestProcessor(request);*/
 		else 
-			throw new UnknownParameterValueException("format", formatParam);
+			throw new UnknownParameterValueException(GeocodingErrorCodes.INVALID_PARAMETER_VALUE, "format", formatParam);
 	}
 }

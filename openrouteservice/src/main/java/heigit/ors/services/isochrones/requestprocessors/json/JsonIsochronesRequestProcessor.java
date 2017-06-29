@@ -28,10 +28,8 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import heigit.ors.common.Pair;
 import heigit.ors.common.StatusCode;
-import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
@@ -41,7 +39,7 @@ import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.isochrones.IsochroneUtility;
 import heigit.ors.isochrones.IsochronesErrorCodes;
 import heigit.ors.isochrones.IsochronesIntersection;
-import heigit.ors.isochrones.IsochronesRangeType;
+import heigit.ors.common.TravelRangeType;
 import heigit.ors.isochrones.Isochrone;
 import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.isochrones.IsochroneMapCollection;
@@ -54,7 +52,6 @@ import heigit.ors.util.StringUtility;
 
 public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor 
 {
-
 	public JsonIsochronesRequestProcessor(HttpServletRequest request) throws Exception
 	{
 		super(request);
@@ -71,30 +68,21 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 		case "GET":
 			req = JsonIsochroneRequestParser.parseFromRequestParams(_request);
 			break;
-		case "POST":
-			req = JsonIsochroneRequestParser.parseFromStream(_request.getInputStream());  
-			break;
+		///case "POST":  needs to be implemented
+		//	req = JsonIsochroneRequestParser.parseFromStream(_request.getInputStream());  
+		//	break;
 		default:
 			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED);
 		}
 
 		if (req == null)
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, "IsochronesRequest object is null.");
-
-		if (req.getRouteSearchParameters().getProfileType() == RoutingProfileType.UNKNOWN)
-		{
-			String profileName = _request.getParameter("profile");
-			if (Helper.isEmpty(profileName))
-				throw new MissingParameterException(IsochronesErrorCodes.MISSING_PARAMETER, "profile");
-			else
-				throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "profile", profileName);
-		}
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.UNKNOWN, "IsochronesRequest object is null.");
 
 		if (!req.isValid())
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, "IsochronesRequest is not valid.");
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.UNKNOWN, "IsochronesRequest is not valid.");
 
 		if (IsochronesServiceSettings.getAllowComputeArea() == false && req.hasAttribute("area"))
-			throw new StatusCodeException(IsochronesErrorCodes.FEATURE_NOT_SUPPORTED, "Area computation is not enabled.");
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.FEATURE_NOT_SUPPORTED, "Area computation is not enabled.");
 
 		if (req.getLocations().length > IsochronesServiceSettings.getMaximumLocations())
 			throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations", Integer.toString(req.getLocations().length), Integer.toString(IsochronesServiceSettings.getMaximumLocations()));
@@ -142,7 +130,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
 		int groupIndex = 0;
 		boolean includeArea = request.hasAttribute("area");
-		boolean includeReachFactor = request.getRangeType() == IsochronesRangeType.Time && request.hasAttribute("reachfactor");
+		boolean includeReachFactor = request.getRangeType() == TravelRangeType.Time && request.hasAttribute("reachfactor");
 		String units = request.getUnits() != null ? request.getUnits().toLowerCase() : null;
 
 		for (IsochroneMap isoMap : isochroneMaps.getIsochroneMaps())

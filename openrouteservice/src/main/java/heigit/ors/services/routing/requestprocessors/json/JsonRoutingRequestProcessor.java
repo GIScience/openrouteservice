@@ -36,6 +36,7 @@ public class JsonRoutingRequestProcessor extends AbstractHttpRequestProcessor {
 		RouteResult result = RoutingProfileManager.getInstance().getRoute(rreq);
 		
 		JSONObject json = JsonRoutingResponseWriter.toJson(rreq, new RouteResult[] { result });
+		
 		ServletUtility.write(response, json, "UTF-8");
 	}
 }

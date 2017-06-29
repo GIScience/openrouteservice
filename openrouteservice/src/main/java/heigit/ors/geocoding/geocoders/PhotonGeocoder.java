@@ -20,7 +20,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.graphhopper.util.Helper;
-import com.vividsolutions.jts.geom.Envelope;
 
 import heigit.ors.util.HTTPUtility;
 
@@ -41,7 +40,7 @@ public class PhotonGeocoder extends AbstractGeocoder {
 		super(geocodingURL, reverseGeocodingURL, userAgent);
 	}
 
-    public GeocodingResult[] geocode(String address, String languages, int limit, Envelope bbox) throws IOException
+    public GeocodingResult[] geocode(String address, String languages, SearchBoundary boundary, int limit) throws IOException
     {
     	String code = (languages == null) ? "en" : languages.toLowerCase();
     	
@@ -53,25 +52,25 @@ public class PhotonGeocoder extends AbstractGeocoder {
 		
 		if (!Helper.isEmpty(respContent) && !respContent.equals("[]")) {
 	    	
-			return getGeocodeResults(respContent, bbox);
+			return getGeocodeResults(respContent, boundary);
 		}
 		
 		return null;
     }
 	
-	public GeocodingResult[] reverseGeocode(double lon, double lat, int limit, Envelope bbox) throws IOException
+	public GeocodingResult[] reverseGeocode(double lon, double lat, int limit) throws IOException
 	{
 		String reqParams = "?lat=" + lat  + "&lon=" + lon + "&limit=" + limit;
 		String respContent = HTTPUtility.getResponse(reverseGeocodingURL + reqParams, 5000, userAgent, "UTF-8");
 
 		if (!Helper.isEmpty(respContent) && !respContent.equals("[]")) {
-			return getGeocodeResults(respContent, bbox);
+			return getGeocodeResults(respContent, null);
 		}
 
 		return null;
 	}
 	
-	private GeocodingResult[] getGeocodeResults(String respContent, Envelope bbox)
+	private GeocodingResult[] getGeocodeResults(String respContent, SearchBoundary boundary)
 	{
 		JSONObject features = new JSONObject(respContent);
 		JSONArray arr = (JSONArray)features.get("features");
@@ -86,7 +85,7 @@ public class PhotonGeocoder extends AbstractGeocoder {
 			double lon = Double.parseDouble(coordsObj.get(0).toString());
 			double lat = Double.parseDouble(coordsObj.get(1).toString());
 			
-			if (bbox != null && !bbox.contains(lon, lat))
+			if (boundary != null && !boundary.contains(lon, lat))
 				continue;		
 
 			JSONObject props = feature.getJSONObject("properties");

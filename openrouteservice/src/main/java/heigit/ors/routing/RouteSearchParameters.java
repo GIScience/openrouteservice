@@ -1,5 +1,7 @@
 package heigit.ors.routing;
 
+import java.text.ParseException;
+
 import org.json.JSONObject;
 
 import com.graphhopper.util.Helper;
@@ -8,6 +10,9 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
+import heigit.ors.common.StatusCode;
+import heigit.ors.exceptions.ParameterValueException;
+import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
@@ -102,8 +107,8 @@ public class RouteSearchParameters {
 		return _vehicleType;
 	}
 
-	public void setVehicleType(int _vehicleType) {
-		this._vehicleType = _vehicleType;
+	public void setVehicleType(int vehicleType) {
+		this._vehicleType = vehicleType;
 	}
 
 	public String getOptions()
@@ -123,10 +128,27 @@ public class RouteSearchParameters {
 //		_options = "{\"profile_params\":{\"green_routing\":true}}"
 		//////////////
 
-		JSONObject json = new JSONObject(_options);
+		JSONObject json = null;
+		try
+		{
+			json =	new JSONObject(_options);
+		}
+		catch(Exception ex)
+		{
+			throw new ParseException(ex.getMessage(), 0);
+		}
 
 		if (json.has("maximum_speed"))
-			_maxSpeed = json.getDouble("maximum_speed");
+		{
+			try
+			{
+			   _maxSpeed = json.getDouble("maximum_speed");
+			}
+			catch(Exception ex)
+			{
+				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "maximum_speed", json.getString("maximum_speed"));
+			}
+		}
 
 		if (json.has("avoid_features"))
 		{
@@ -144,12 +166,14 @@ public class RouteSearchParameters {
 						{
 							int flag = AvoidFeatureFlags.getFromString(featName);
 							if (flag == 0)
-								throw new UnknownParameterValueException("avoid_features", featName);
+								throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", featName);
 
+							if (!AvoidFeatureFlags.isValid(_profileType, flag))
+								throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", featName);
+							
 							flags |= flag;
 						}
 					}
-
 
 					if (flags != 0)
 						_avoidFeaturesTypes = flags;
@@ -250,7 +274,15 @@ public class RouteSearchParameters {
 		{
 			JSONObject jFeature = (JSONObject)json.get("avoid_polygons");
 
-			Geometry geom = GeometryJSON.parse(jFeature); 
+			Geometry geom = null;
+			try
+			{
+			   geom = GeometryJSON.parse(jFeature);
+			}
+			catch(Exception ex)
+			{
+				throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, "avoid_polygons");
+			}
 
 			if (geom instanceof Polygon)
 			{
@@ -262,6 +294,10 @@ public class RouteSearchParameters {
 				_avoidAreas = new Polygon[multiPoly.getNumGeometries()];
 				for (int i = 0; i < multiPoly.getNumGeometries(); i++)
 					_avoidAreas[i] = (Polygon)multiPoly.getGeometryN(i);
+			}
+			else
+			{
+				throw new Exception("Not supported geometry type in avoid_polygons.");
 			}
 		}
 	}

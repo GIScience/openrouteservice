@@ -35,6 +35,11 @@ import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.isochrones.IsochroneSearchParameters;
+import heigit.ors.matrix.MatrixLocationData;
+import heigit.ors.matrix.MatrixRequest;
+import heigit.ors.matrix.MatrixResult;
+import heigit.ors.matrix.algorithms.MatrixAlgorithm;
+import heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.ServerLimitExceededException;
 import heigit.ors.isochrones.IsochroneMap;
@@ -46,10 +51,17 @@ import heigit.ors.util.RuntimeUtility;
 import heigit.ors.util.TimeUtility;
 
 import com.graphhopper.GHResponse;
+import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.BikeCommonFlagEncoder;
+import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.storage.RAMDataAccess;
+import com.graphhopper.storage.index.LocationIndex;
+import com.graphhopper.storage.index.QueryResult;
+import com.graphhopper.util.ArrayBuffer;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalc3D;
 import com.graphhopper.util.Helper;
@@ -217,7 +229,7 @@ public class RoutingProfileManager {
 						_profileUpdater.start();
 					}
 				}
-				
+
 				RoutingProfileManagerStatus.setReady(true);
 			}
 		} catch (Exception ex) {
@@ -260,14 +272,72 @@ public class RoutingProfileManager {
 		return _profileUpdater == null ? null : _profileUpdater.getStatus();
 	}
 
+	public List<RouteResult> getRoutes(RoutingRequest req, boolean invertFlow, boolean oneToMany) throws Exception
+	{
+		if (req.getCoordinates().length <= 1)
+			throw new Exception("Number of coordinates must be greater than 1.");
+
+		List<RouteResult> routes = new ArrayList<RouteResult>(req.getCoordinates().length - 1);
+
+		RoutingProfile rp = getRouteProfile(req, true);
+		RouteSearchParameters searchParams = req.getSearchParameters();
+		PathProcessor pathProcessor = null;
+
+		if (req.getExtraInfo() > 0)
+		{
+			// do not allow geometry simplification when extras are requested
+			req.setSimplifyGeometry(false);
+			pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req.getExtraInfo());
+		}
+		else
+		{ 
+			if (req.getIncludeElevation())
+				pathProcessor = new ElevationSmoothPathProcessor();
+		}
+
+		Coordinate[] coords = req.getCoordinates();
+		Coordinate c0 = coords[0];
+		int nSegments = coords.length - 1;
+		RouteProcessContext routeProcCntx = new RouteProcessContext(pathProcessor);
+		RouteResultBuilder routeBuilder = new RouteResultBuilder();
+		List<GHResponse> resp =  new ArrayList<GHResponse>(); 
+
+		for(int i = 1; i <= nSegments; ++i)
+		{
+			if (pathProcessor != null)
+				pathProcessor.setSegmentIndex(i - 1, nSegments);
+
+			Coordinate c1 = coords[i];
+			GHResponse gr = null;
+			if (invertFlow)
+				gr = rp.getRoute(c0.y, c0.x, c1.y, c1.x, false, searchParams, req.getSimplifyGeometry(), routeProcCntx);
+			else
+				gr = rp.getRoute(c1.y, c1.x, c0.y, c0.x, false, searchParams, req.getSimplifyGeometry(), routeProcCntx);
+
+			//if (gr.hasErrors())
+			//	throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
+
+			if (!gr.hasErrors())
+			{
+				resp.clear();
+				resp.add(gr);
+				RouteResult route = routeBuilder.createRouteResult(resp, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor)pathProcessor).getExtras(): null);
+				route.setLocationIndex(req.getLocationIndex());
+				routes.add(route);
+			}
+			else
+				routes.add(null);
+		}
+
+		return routes;
+	}
+
 	public RouteResult getRoute(RoutingRequest req) throws Exception
 	{
 		List<GHResponse> routes = new ArrayList<GHResponse>();
 
-		RoutingProfile rp = getRouteProfile(req);
-
+		RoutingProfile rp = getRouteProfile(req, false);
 		RouteSearchParameters searchParams = req.getSearchParameters();
-
 		PathProcessor pathProcessor = null;
 
 		if (req.getExtraInfo() > 0)
@@ -307,11 +377,11 @@ public class RoutingProfileManager {
 		return new RouteResultBuilder().createRouteResult(routes, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor)pathProcessor).getExtras(): null);
 	}
 
-	public RoutingProfile getRouteProfile(RoutingRequest req) throws Exception {
+	public RoutingProfile getRouteProfile(RoutingRequest req, boolean oneToMany) throws Exception {
 		RouteSearchParameters searchParams = req.getSearchParameters();
 		int profileType = searchParams.getProfileType();
 
-		boolean dynamicWeights = (searchParams.hasAvoidAreas() || searchParams.hasAvoidFeatures() || searchParams.getMaximumSpeed() > 0 || (RoutingProfileType.isDriving(profileType) && (searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
+		boolean dynamicWeights = (searchParams.hasAvoidAreas() || searchParams.hasAvoidFeatures() || searchParams.getMaximumSpeed() > 0 || (RoutingProfileType.isDriving(profileType) && ((RoutingProfileType.isHeavyVehicle(profileType) && searchParams.getVehicleType() > 0) ||  searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
 
 		RoutingProfile rp = _routeProfiles.getRouteProfile(profileType, !dynamicWeights);
 
@@ -329,41 +399,55 @@ public class RoutingProfileManager {
 			int nCoords = coords.length;
 			if (config.getMaximumWayPoints() > 0)
 			{
-				if (nCoords > config.getMaximumWayPoints())
+				if (!oneToMany && nCoords > config.getMaximumWayPoints())
 					throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The specified number of waypoints must not be greater than " + Integer.toString(config.getMaximumWayPoints()) + ".");
 			}
 
 			if (config.getMaximumDistance() > 0 || (dynamicWeights && config.getMaximumSegmentDistanceWithDynamicWeights() > 0))
 			{
-				double totalDist =  0.0;
 				double longestSegmentDist = 0.0;
 				DistanceCalc distCalc = Helper.DIST_EARTH;
 
 				Coordinate c0 = coords[0], c1 = null;
+				double totalDist =  0.0;
 
-				if (nCoords == 2)
+				if (oneToMany)
 				{
-					c1 = coords[1];
-					totalDist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
-					longestSegmentDist = totalDist;
-				}
-				else
-				{
-					double dist = 0;
 					for(int i = 1; i < nCoords; i++)
 					{
 						c1 = coords[i];
-						dist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
-						totalDist += dist;
-						if (dist > longestSegmentDist)
-							longestSegmentDist = dist;
+						totalDist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
+						if (totalDist > longestSegmentDist)
+							longestSegmentDist = totalDist;
+					}
+				}
+				else
+				{
+					if (nCoords == 2)
+					{
+						c1 = coords[1];
+						totalDist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
+						longestSegmentDist = totalDist;
+					}
+					else
+					{
+						double dist = 0;
+						for(int i = 1; i < nCoords; i++)
+						{
+							c1 = coords[i];
+							dist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
+							totalDist += dist;
+							if (dist > longestSegmentDist)
+								longestSegmentDist = dist;
 
-						c0 = c1;
+							c0 = c1;
+						}
 					}
 				}
 
 				if (config.getMaximumDistance() > 0 && totalDist > config.getMaximumDistance())
 					throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The approximated route distance must not be greater than " + Double.toString(config.getMaximumDistance()) + " meters.");
+
 				if (dynamicWeights && config.getMaximumSegmentDistanceWithDynamicWeights() > 0 && longestSegmentDist > config.getMaximumSegmentDistanceWithDynamicWeights())
 					throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "By dynamic weighting, the approximated distance of a route segment must not be greater than " + Double.toString(config.getMaximumSegmentDistanceWithDynamicWeights()) + " meters.");
 			}
@@ -378,5 +462,29 @@ public class RoutingProfileManager {
 		RoutingProfile rp = _routeProfiles.getRouteProfile(profileType, false);
 
 		return rp.buildIsochrone(parameters);
+	}
+	
+	public MatrixResult computeMatrix(MatrixRequest req) throws Exception
+	{
+		 RoutingProfile rp = _routeProfiles.getRouteProfile(req.getProfileType(), true);
+		 
+		 if (rp == null)
+			 throw new Exception("Unable to find an appropriate routing profile.");
+		 
+		 GraphHopper gh = rp.getGraphhopper();
+ 		 String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
+		 FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
+		 EdgeFilter filter = new DefaultEdgeFilter(flagEncoder);
+		 LocationIndex locIndex = gh.getLocationIndex();
+		 ArrayBuffer buffer = new ArrayBuffer();
+
+		 MatrixAlgorithm alg = new RPHASTMatrixAlgorithm();
+
+		 MatrixLocationData srcData = MatrixLocationData.createData(locIndex, req.getSources(), filter, buffer, req.getResolveLocations());
+		 MatrixLocationData dstData = MatrixLocationData.createData(locIndex, req.getDestinations(), filter, buffer, req.getResolveLocations());
+
+		 MatrixResult mtxResult = alg.compute(gh, srcData, dstData, req.getMetrics());
+		 
+		 return mtxResult;
 	}
 }

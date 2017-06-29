@@ -25,6 +25,7 @@ public class RouteResult
 	private List<RouteSegment> _segments;
 	private List<RouteExtraInfo> _extraInfo;
 	private int[] _wayPointsIndices = null;
+	private int _locationIndex = 0;
 
 	public RouteResult(int routeExtras) throws Exception
 	{
@@ -122,5 +123,13 @@ public class RouteResult
 
 	public void setWayPointsIndices(int[] wayPointsIndices) {
 		_wayPointsIndices = wayPointsIndices;
+	}
+
+	public int getLocationIndex() {
+		return _locationIndex;
+	}
+
+	public void setLocationIndex(int locationIndex) {
+		_locationIndex = locationIndex;
 	}
 }

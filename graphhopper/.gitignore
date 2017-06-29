@@ -17,7 +17,6 @@ android/libs/graphhopper-*-android.jar
 .idea/
 *iml
 debug.sh
-*.pbf
 *.dem
 *.log
 core/TODO*.txt
