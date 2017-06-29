@@ -23,6 +23,7 @@ public class MatrixRequest extends ServiceRequest
     private Coordinate[] _sources;
     private Coordinate[] _destinations;
     private int _metrics =  MatrixMetricsType.Duration;
+    private String _weightingMethod; 
 	private DistanceUnit _units = DistanceUnit.Meters;
     private boolean _resolveLocations = false;
     
@@ -86,5 +87,13 @@ public class MatrixRequest extends ServiceRequest
 	public int getTotalNumberOfLocations()
 	{
 		return _destinations.length * _sources.length;
+	}
+
+	public String getWeightingMethod() {
+		return _weightingMethod;
+	}
+
+	public void setWeightingMethod(String weighting) {
+		_weightingMethod = weighting;
 	}
 }

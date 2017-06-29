@@ -11,10 +11,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 
-import heigit.ors.common.StatusCode;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.isochrones.IsochronesErrorCodes;
-
 /**
  * <p>
  * <b>Title: CoordTools</b>

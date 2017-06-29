@@ -1,4 +1,4 @@
-package com.graphhopper.routing.phast;
+package heigit.ors.matrix;
 
 /*
  *		t0		t1		t2 

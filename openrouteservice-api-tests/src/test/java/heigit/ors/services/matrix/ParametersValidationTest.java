@@ -32,8 +32,9 @@ public class ParametersValidationTest extends ServiceTest {
 	public void missingProfileFormatTest() {
 		given()
 		.param("profile2", "driving-car")
-		.param("sources", "8.5,48.7|8.6,49.1")
-		.param("destinations", "10.5,48.7")
+		.param("locations", "8.5,48.7|8.6,49.1")
+		.param("sources", "all")
+		.param("destinations", "all")
 		.when()
 		.get(getEndPointName())
 		.then()
@@ -43,11 +44,12 @@ public class ParametersValidationTest extends ServiceTest {
 	}
 	
 	@Test
-	public void sourcesEmptyTest() {
+	public void locationsEmptyTest() {
 		given()
 		.param("profile", "driving-car")
-		.param("sources", "")
-		.param("destinations", "10.5,48.7")
+		.param("locations", "")
+		.param("sources", "all")
+		.param("destinations", "all")
 		.when()
 		.get(getEndPointName())
 		.then()
@@ -57,11 +59,12 @@ public class ParametersValidationTest extends ServiceTest {
 	}
 	
 	@Test
-	public void sourcesFormatTest() {
+	public void locationsFormatTest() {
 		given()
 		.param("profile", "driving-car")
-		.param("sources", "8.5,48.7|8.6,49.1b")
-		.param("destinations", "10.5,48.7")
+		.param("locations", "8.5,48.7|8.6,49.1b")
+		.param("sources", "all")
+		.param("destinations", "all")
 		.when()
 		.get(getEndPointName())
 		.then()
@@ -74,8 +77,54 @@ public class ParametersValidationTest extends ServiceTest {
 	public void destinationsFormatTest() {
 		given()
 		.param("profile", "driving-car")
-		.param("sources", "8.5,48.7|8.6,49.1b")
-		.param("destinations", "10.5,48.7k|8.6,51.132")
+		.param("locations", "8.5,48.7|8.6,49.1")
+		.param("sources", "all")
+		.param("destinations", "0b,1")
+		.when()
+		.get(getEndPointName())
+		.then()
+		.assertThat()
+		.body("error.code", is(602))
+		.statusCode(400);
+	}
+	
+	@Test
+	public void sourcesFormatTest() {
+		given()
+		.param("profile", "driving-car")
+		.param("locations", "8.5,48.7|8.6,49.1")
+		.param("sources", "0,1c")
+		.param("destinations", "0")
+		.when()
+		.get(getEndPointName())
+		.then()
+		.assertThat()
+		.body("error.code", is(602))
+		.statusCode(400);
+	}
+	
+	@Test
+	public void sourcesOutOfRangeTest() {
+		given()
+		.param("profile", "driving-car")
+		.param("locations", "8.5,48.7|8.6,49.1")
+		.param("sources", "0,3")
+		.param("destinations", "0")
+		.when()
+		.get(getEndPointName())
+		.then()
+		.assertThat()
+		.body("error.code", is(602))
+		.statusCode(400);
+	}
+	
+	@Test
+	public void destinationsOutOfRangeTest() {
+		given()
+		.param("profile", "driving-car")
+		.param("locations", "8.5,48.7|8.6,49.1")
+		.param("sources", "0,1")
+		.param("destinations", "-1")
 		.when()
 		.get(getEndPointName())
 		.then()
@@ -88,14 +137,31 @@ public class ParametersValidationTest extends ServiceTest {
 	public void metricsUnknownValueTest() {
 		given()
 		.param("profile", "driving-car")
-		.param("sources", "8.5,48.7|8.6,49.1")
-		.param("destinations", "10.5,48.7|8.6,51.132")
+		.param("locations", "8.5,48.7|8.6,49.1")
+		.param("sources", "all")
+		.param("destinations", "all")
 		.param("metrics", "time|durationO")
 		.when()
 		.get(getEndPointName())
 		.then()
 		.assertThat()
 		.body("error.code", is(603))
+		.statusCode(400);
+	}
+	
+	@Test
+	public void resolveLocationsFormatTest() {
+		given()
+		.param("profile", "driving-car")
+		.param("locations", "8.5,48.7|8.6,49.1")
+		.param("sources", "all")
+		.param("destinations", "all")
+		.param("resolve_locations", "trues")
+		.when()
+		.get(getEndPointName())
+		.then()
+		.assertThat()
+		.body("error.code", is(602))
 		.statusCode(400);
 	}
 }

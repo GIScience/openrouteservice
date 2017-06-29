@@ -14,12 +14,27 @@ package heigit.ors.matrix.algorithms;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.FlagEncoder;
 
-import heigit.ors.matrix.MatrixLocationData;
 import heigit.ors.matrix.MatrixRequest;
-import heigit.ors.matrix.MatrixResult;
+import heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 
-public interface MatrixAlgorithm {
-  public void init(MatrixRequest req, GraphHopper gh, FlagEncoder encoder);
-  
-  public MatrixResult compute(MatrixLocationData srcData, MatrixLocationData dstData, int metrics);
+public class MatrixAlgorithmFactory 
+{
+    public static MatrixAlgorithm createAlgorithm(MatrixRequest req, GraphHopper gh, FlagEncoder encoder)
+    {
+    	MatrixAlgorithm alg = null;
+    	
+    	/*if (false)
+    	{   
+    		//if (req.getProfileType())
+        	// check if there are any dynamic weights
+    		alg = new DijkstraMatrixAlgorithm();
+    	}
+    	else*/ 
+    	if (gh.isCHEnabled())
+    	{
+    		alg = new RPHASTMatrixAlgorithm();
+    	}
+    	
+    	return alg;
+    }
 }

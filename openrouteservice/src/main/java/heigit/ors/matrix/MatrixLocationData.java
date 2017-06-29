@@ -11,22 +11,31 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.matrix;
 
+import com.graphhopper.storage.index.QueryResult;
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class MatrixLocationData {
 	private int[] _nodeIds;
 	private String[] _names;
 	private Coordinate[] _coords;
+	private double[] _distanceToNodes;
+	private QueryResult[] _queryResults;
 
 	public MatrixLocationData(int size, boolean resolveNames)
 	{
 		_nodeIds = new int[size];
+		_distanceToNodes = new double[size];
 		_coords = new Coordinate[size];
 		if (resolveNames)
 			_names = new String[size];
 	}
 	
-	public int getSize()
+	public double getDistanceToNode(int index)
+	{
+		return _distanceToNodes[index];
+	}
+	
+	public int size()
 	{
 		return _nodeIds.length;
 	}
@@ -34,6 +43,11 @@ public class MatrixLocationData {
 	public int[] getNodeIds()
 	{
 		return _nodeIds;
+	}
+	
+	public int getNodeId(int index)
+	{
+		return _nodeIds[index];
 	}
 
 	public String[] getNames()
@@ -46,10 +60,11 @@ public class MatrixLocationData {
 		return _coords;
 	}
 	
-	public void setData(int index, Coordinate coord, int nodeId, String name)
+	public void setData(int index, Coordinate coord, int nodeId, double distance, String name)
 	{
 		_nodeIds[index] = nodeId;
 		_coords[index] = coord;
+		_distanceToNodes[index] = distance;
 		
 		if (_names != null)
 			_names[index] = name; 

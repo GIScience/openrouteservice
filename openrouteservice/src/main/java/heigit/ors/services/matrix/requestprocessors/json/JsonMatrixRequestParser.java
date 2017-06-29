@@ -2,7 +2,7 @@
  *|														Heidelberg University
  *|	  _____ _____  _____      _                     	Department of Geography		
  *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
- *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2016
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2017
  *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
  *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
  *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
@@ -20,6 +20,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.MissingParameterException;
+import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
@@ -27,6 +28,8 @@ import heigit.ors.matrix.MatrixErrorCodes;
 import heigit.ors.matrix.MatrixMetricsType;
 import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.routing.RoutingProfileType;
+import heigit.ors.routing.WeightingMethod;
+import heigit.ors.util.ArraysUtility;
 import heigit.ors.util.CoordTools;
 import heigit.ors.util.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
@@ -55,41 +58,39 @@ public class JsonMatrixRequestParser {
 			throw new MissingParameterException(MatrixErrorCodes.MISSING_PARAMETER, "profile");
 		}
 		
-		value = request.getParameter("sources");
+		Coordinate[] locations = null;
+		
+		value = request.getParameter("locations");
 		if (!Helper.isEmpty(value))
 		{
 			try
 			{
-				Coordinate[] coords = CoordTools.parse(value, "\\|", false, false);						
-				req.setSources(coords);
+				locations = CoordTools.parse(value, "\\|", false, false);		
+				if (locations.length < 2)
+					throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "locations");
 			}
 			catch(NumberFormatException nfex)
 			{
-				throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "sources");
+				throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "locations");
 			}
 		}
 		else
 		{
-			throw new MissingParameterException(MatrixErrorCodes.MISSING_PARAMETER, "sources");
+			throw new MissingParameterException(MatrixErrorCodes.MISSING_PARAMETER, "locations");
 		}
-
-		value = request.getParameter("destinations");
+		
+		value = request.getParameter("preference");
 		if (!Helper.isEmpty(value))
 		{
-			try
-			{
-				Coordinate[] coords = CoordTools.parse(value, "\\|", false, false);						
-				req.setDestinations(coords);
-			}
-			catch(NumberFormatException nfex)
-			{
-				throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "destinations");
-			}
+			int weightingMethod = WeightingMethod.getFromString(value);
+			if (weightingMethod == WeightingMethod.UNKNOWN)
+				throw new UnknownParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "preference", value);
+			
+		  req.setWeightingMethod(value);
 		}
-		else
-		{
-			throw new MissingParameterException(MatrixErrorCodes.MISSING_PARAMETER, "destinations");
-		}
+		
+		req.setSources(getLocations(locations, request.getParameter("sources"), "sources"));
+		req.setDestinations(getLocations(locations, request.getParameter("destinations"), "destinations"));
 
 		value = request.getParameter("metrics");
 		if (!Helper.isEmpty(value))
@@ -121,11 +122,14 @@ public class JsonMatrixRequestParser {
 		{
 		   try
 		   {
-			   req.setResolveLocations(Boolean.parseBoolean(value));
+			   Boolean b = Boolean.parseBoolean(value);
+			   if (!b && !value.equalsIgnoreCase("false"))
+				   throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "resolve_locations");
+			   req.setResolveLocations(b);
 		   }
 		   catch(Exception ex)
 		   {
-			   throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "resolve_locations");
+			   throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "resolve_locations");
 		   }
 		}
 		
@@ -134,5 +138,25 @@ public class JsonMatrixRequestParser {
 			req.setId(value);
 
 		return req;
+	}
+	
+	private static Coordinate[] getLocations(Coordinate[] locations, String strIndex, String elemName) throws Exception
+	{
+		if (Helper.isEmpty(strIndex) || "all".equalsIgnoreCase(strIndex))
+			return locations;
+		
+		int[] index = ArraysUtility.parseIntArray(strIndex, elemName, MatrixErrorCodes.INVALID_PARAMETER_FORMAT);
+		
+		Coordinate[] res = new Coordinate[index.length];
+		for (int i = 0; i < index.length; i++)
+		{
+			int idx = index[i];
+			if (idx < 0 || idx >= locations.length)
+				throw new ParameterOutOfRangeException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, elemName, Integer.toString(idx), Integer.toString(locations.length));
+			
+			res[i] = locations[idx];
+		}
+			
+		return res;
 	}
 }

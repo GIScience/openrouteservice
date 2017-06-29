@@ -19,10 +19,10 @@ public class MatrixResult {
   private String[] _destinationNames;
   private Coordinate[] _sources;
   private String[] _sourceNames;
-  
+    
   public MatrixResult()
   {
-	  _tables = new float[4][];
+	  _tables = new float[6][];
   }
   
   public void setTable(int metric, float[] values)

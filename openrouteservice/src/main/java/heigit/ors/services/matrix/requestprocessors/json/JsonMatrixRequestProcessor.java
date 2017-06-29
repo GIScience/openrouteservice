@@ -99,6 +99,9 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor
 
 		if (request.getUnits() != null)
 			jQuery.put("units", DistanceUnitUtil.toString(request.getUnits()));
+		
+		if (request.getWeightingMethod() != null)
+			jQuery.put("preferenec", request.getWeightingMethod());
 
 		if (request.getId() != null)
 			jQuery.put("id", request.getId());

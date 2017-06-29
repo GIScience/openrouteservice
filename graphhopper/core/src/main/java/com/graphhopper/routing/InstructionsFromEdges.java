@@ -277,6 +277,13 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
 
         // there is no other turn possible
         if (nrOfPossibleTurns <= 1) {
+        	// Runge
+            if (!forceInstruction)
+            {
+            	if (!Helper.isEmpty(name) && !InstructionsHelper.isNameSimilar(name, prevName))
+            		forceInstruction = true;
+            }
+            
             return returnForcedInstructionOrIgnore(forceInstruction, sign);
         }
 
@@ -355,6 +362,13 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
                 return sign;
 
             }
+        }
+        
+        // Runge
+        if (!forceInstruction)
+        {
+        	if (!Helper.isEmpty(name) && !InstructionsHelper.isNameSimilar(name, prevName))
+        		forceInstruction = true;
         }
 
         return returnForcedInstructionOrIgnore(forceInstruction, sign);

@@ -122,14 +122,6 @@ public class RealTrafficDataProvider {
 			return m_edges;
 		}
 
-		public HashMap<Integer, Integer> getEdgeIdsMap() {
-			return m_edgeIdsMap;
-		}
-
-		public void setEdgeIdsMap(HashMap<Integer, Integer> edgeIdsMap) {
-			m_edgeIdsMap = edgeIdsMap;
-		}
-
 		public void update(HashMap<Integer, EdgeInfo> edges, HashMap<Integer, AvoidEdgeInfo> avoidEdges,
 				List<Integer> blockedEdges, List<Integer> blockedEdges_hv) {
 			m_avoidEdges = avoidEdges;
@@ -139,9 +131,7 @@ public class RealTrafficDataProvider {
 		}
 		
 		public void setMapEddgeId2trafficFeature(HashMap<Integer, TrafficFeatureInfo> m_edgeId2trafficFeature){
-			
 			this.m_edgeId2trafficFeature = m_edgeId2trafficFeature;
-			
 		}
 	}
 
@@ -232,7 +222,7 @@ public class RealTrafficDataProvider {
 				RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
 				
 				for (RoutingProfile rp : profiles.getCarProfiles()) {
-					if (rp.useTrafficInformation() && !rp.isCHEnabled()) {
+					if (rp.useTrafficInformation()) {
 						if (rpc == null) {
 							rpc = new RouteProfileConfiguration();
 							rpc.setEnabled(true);
@@ -319,7 +309,7 @@ public class RealTrafficDataProvider {
 					FileInputStream fis = new FileInputStream(filePath.toString());
 					ObjectInputStream ois = new ObjectInputStream(fis);
 					tmcGraphData = (List<TmcSegment>) ois.readObject();
-					ois.close();
+					ois.close();	
 					fis.close();
 				} catch (IOException ioe) {
 					ioe.printStackTrace();

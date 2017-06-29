@@ -51,6 +51,7 @@ import heigit.ors.matrix.MatrixLocationDataResolver;
 import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
 import heigit.ors.matrix.algorithms.MatrixAlgorithm;
+import heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
 import heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
@@ -138,7 +139,6 @@ public class RoutingProfile
 		ORSGraphHopper gh = (ORSGraphHopper) new ORSGraphHopper(gpc, config.getUseTrafficInformation(), refProfile);
 
 		ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
-		gh.setFlagEncoderFactory(flagEncoderFactory);
 		gh.setFlagEncoderFactory(flagEncoderFactory);
 
 		gh.init(args);
@@ -238,6 +238,11 @@ public class RoutingProfile
 					}
 				}
 			}
+		}
+		else
+		{
+			args.put("prepare.ch.weightings", "no");
+			args.put("prepare.lm.weightings", "no");
 		}
 
 		if (config.getExecutionOpts() != null)
@@ -440,17 +445,14 @@ public class RoutingProfile
 			 GraphHopper gh = getGraphhopper();
 			 String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
 			 FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
-			 EdgeFilter filter = new DefaultEdgeFilter(flagEncoder);
-			 LocationIndex locIndex = gh.getLocationIndex();
-			 ByteArrayBuffer buffer = new ByteArrayBuffer();
 
-			 MatrixAlgorithm alg = null;
-			 //if (gh.getCHFactoryDecorator()..getPreparations().get(0).)
-			 // TODO implement MatrixAlgorithmFactory
-			 alg = new RPHASTMatrixAlgorithm();
-			 alg.init(gh, flagEncoder);
+			 MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(req, gh, flagEncoder);
+			 if (alg == null)
+				 throw new Exception("Unable to create an algorithm to distance/duration matrix.");
+			 
+			 alg.init(req, gh, flagEncoder);
 
-			 MatrixLocationDataResolver locResolver = new MatrixLocationDataResolver(locIndex, filter, buffer, req.getResolveLocations());
+			 MatrixLocationDataResolver locResolver = new MatrixLocationDataResolver(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), new ByteArrayBuffer(), req.getResolveLocations());
 			 
 			 MatrixLocationData srcData = locResolver.resolve(req.getSources());
 			 MatrixLocationData dstData = locResolver.resolve(req.getDestinations()); 
@@ -648,7 +650,7 @@ public class RoutingProfile
 			boolean flexibleMode = false;
 			GHRequest req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
 			req.setVehicle(searchCntx.getEncoder().toString());
-			req.setAlgorithm("dijkstrabi");
+			//req.setAlgorithm("dijkstrabi");
 			req.setMaxSpeed(searchParams.getMaximumSpeed());
 			req.setSimplifyGeometry(simplifyGeometry);
 
@@ -694,6 +696,8 @@ public class RoutingProfile
 			
 			if (useDynamicWeights(searchParams) || flexibleMode)
 				req.getHints().put("ch.disable", true);
+			else
+				req.getHints().put("lm.disable", true);
 			
 			/*if (directedSegment)
 				resp = mGraphHopper.directRoute(req); NOTE IMPLEMENTED!!!

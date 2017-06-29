@@ -8,17 +8,12 @@ import javax.servlet.http.HttpServletResponseWrapper;
 
 // suppress calls to sendError() and just setStatus() instead
 // do NOT use sendError() otherwise per servlet spec the container will send an html error page
-@SuppressWarnings({ "unused", "unchecked", "deprecation" })
 public class StatusCodeCaptureWrapper extends HttpServletResponseWrapper 
 {
     private Integer statusCode;
-    private HttpServletRequest request;
-    private HttpServletResponse response;
 
     public StatusCodeCaptureWrapper(HttpServletRequest request, HttpServletResponse response) {
         super(response);
-        this.request = request;
-        this.response = response;
     }
 
     public Integer getStatusCode() {

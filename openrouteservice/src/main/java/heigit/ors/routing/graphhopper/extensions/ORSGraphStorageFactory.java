@@ -62,7 +62,7 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 				geTurnCosts =  new TurnCostExtension();
 		}
 
-		if (_graphStorageBuilders.size() > 0)
+		if (_graphStorageBuilders != null && _graphStorageBuilders.size() > 0)
 		{
 			for(GraphStorageBuilder builder : _graphStorageBuilders)
 			{

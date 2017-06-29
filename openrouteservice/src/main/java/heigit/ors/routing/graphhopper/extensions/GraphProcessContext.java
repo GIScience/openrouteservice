@@ -17,31 +17,38 @@ import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageB
 
 public class GraphProcessContext {
 	private static Logger LOGGER = Logger.getLogger(GraphProcessContext.class.getName());
-	
+
 	private Envelope _bbox;
 	private List<GraphBuilder> _graphBuilders;
 	private GraphBuilder[] _arrGraphBuilders;
 	private List<GraphStorageBuilder> _storageBuilders;
 	private GraphStorageBuilder[] _arrStorageBuilders;
-	
+
 	public GraphProcessContext(RouteProfileConfiguration config) throws Exception
 	{
 		_bbox = config.getExtent();
-		 PluginManager<GraphStorageBuilder> mgrGraphStorageBuilders = PluginManager.getPluginManager(GraphStorageBuilder.class);
-		_storageBuilders = mgrGraphStorageBuilders.createInstances(config.getExtStorages());
+		PluginManager<GraphStorageBuilder> mgrGraphStorageBuilders = PluginManager.getPluginManager(GraphStorageBuilder.class);
 
-		if (_storageBuilders != null && _storageBuilders.size() > 0)
+		if (config.getExtStorages() != null)
 		{
-			_arrStorageBuilders = new GraphStorageBuilder[_storageBuilders.size()];
-			_arrStorageBuilders = _storageBuilders.toArray(_arrStorageBuilders);
+			_storageBuilders = mgrGraphStorageBuilders.createInstances(config.getExtStorages());
+
+			if (_storageBuilders != null && _storageBuilders.size() > 0)
+			{
+				_arrStorageBuilders = new GraphStorageBuilder[_storageBuilders.size()];
+				_arrStorageBuilders = _storageBuilders.toArray(_arrStorageBuilders);
+			}
 		}
-		
-		 PluginManager<GraphBuilder> mgrGraphBuilders = PluginManager.getPluginManager(GraphBuilder.class);
-		_graphBuilders  = mgrGraphBuilders.createInstances(config.getGraphBuilders());
-		if (_graphBuilders != null && _graphBuilders.size() > 0)
+
+		PluginManager<GraphBuilder> mgrGraphBuilders = PluginManager.getPluginManager(GraphBuilder.class);
+		if (config.getGraphBuilders() != null)
 		{
-			_arrGraphBuilders = new GraphBuilder[_graphBuilders.size()];
-			_arrGraphBuilders = _graphBuilders.toArray(_arrGraphBuilders);
+			_graphBuilders  = mgrGraphBuilders.createInstances(config.getGraphBuilders());
+			if (_graphBuilders != null && _graphBuilders.size() > 0)
+			{
+				_arrGraphBuilders = new GraphBuilder[_graphBuilders.size()];
+				_arrGraphBuilders = _graphBuilders.toArray(_arrGraphBuilders);
+			}
 		}
 	}
 
@@ -62,12 +69,12 @@ public class GraphProcessContext {
 			}
 		}
 	}
-	
+
 	public List<GraphStorageBuilder> getStorageBuilders()
 	{
 		return _storageBuilders;
 	}
-	
+
 	public void processWay(ReaderWay way) 
 	{
 		try
@@ -114,7 +121,7 @@ public class GraphProcessContext {
 			LOGGER.warning(ex.getMessage() + ". Way id = " + way.getId());
 		}
 	}
-	
+
 	public void processEdge(ReaderWay way, EdgeIteratorState edge)
 	{
 		if (_arrStorageBuilders != null)
@@ -154,9 +161,9 @@ public class GraphProcessContext {
 			}
 		}
 	}
-	
+
 	public boolean createEdges(DataReaderContext readerCntx, ReaderWay way, LongArrayList osmNodeIds, long wayFlags, List<EdgeIteratorState> createdEdges) throws Exception
-    {
+	{
 		if (_arrGraphBuilders != null)
 		{
 			int nBuilders = _arrGraphBuilders.length;
@@ -183,14 +190,14 @@ public class GraphProcessContext {
 							res = res2;
 					}
 				}
-				
+
 				return res;
 			}
 		}
-		
-    	return false;
-    }
-	
+
+		return false;
+	}
+
 	public boolean isValidPoint(double x, double y)
 	{
 		if (_bbox == null)
@@ -198,7 +205,7 @@ public class GraphProcessContext {
 		else
 			return _bbox.contains(x, y);
 	}
-	
+
 	public void finish()
 	{
 		if (_arrStorageBuilders != null)

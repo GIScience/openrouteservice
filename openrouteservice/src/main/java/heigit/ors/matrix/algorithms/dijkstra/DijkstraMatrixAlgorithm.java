@@ -9,17 +9,17 @@
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-package heigit.ors.matrix.algorithms;
-
-import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.util.FlagEncoder;
+package heigit.ors.matrix.algorithms.dijkstra;
 
 import heigit.ors.matrix.MatrixLocationData;
-import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
+import heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
 
-public interface MatrixAlgorithm {
-  public void init(MatrixRequest req, GraphHopper gh, FlagEncoder encoder);
-  
-  public MatrixResult compute(MatrixLocationData srcData, MatrixLocationData dstData, int metrics);
+public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
+
+	@Override
+	public MatrixResult compute(MatrixLocationData srcData, MatrixLocationData dstData, int metrics) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

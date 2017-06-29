@@ -58,7 +58,7 @@ public class MatrixMetricsType {
         		res |= Distance;
         		break;
         	case "weight":
-        		res |= Distance;
+        		res |= Weight;
         		break;
        		default:
         		return Unknown;
