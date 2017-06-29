@@ -33,7 +33,7 @@ public class ResultsValidationTest extends ServiceTest {
 		JSONObject jResponse = new JSONObject(response.body().asString());
 		checkTableDimensions(jResponse, "distances", 3, 3);
 	}
-/*	
+/*	 
 	@Test
 	public void emptyLocationEntryTest() {
 		Response response = given()
