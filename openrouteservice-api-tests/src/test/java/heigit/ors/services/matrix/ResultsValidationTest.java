@@ -41,7 +41,7 @@ public class ResultsValidationTest extends ServiceTest {
 				.param("sources", "0")
 				.param("destinations", "1")
 				.param("metrics", "duration|distance")
-				.param("profile", "driving-car")
+				.param("profile", "driving-car") 
 				.when()
 				.get(getEndPointName());
 
