@@ -131,7 +131,11 @@ public class RouteResultBuilder
                         lat1 = routePoints.getLat(routePoints.getSize() - 1);
                         lon1 = routePoints.getLon(routePoints.getSize() - 1);
                         
-						seg.setDetourFactor(FormatUtility.roundToDecimals(_distCalc.calcDist(lat0, lon0, lat1, lon1)/ path.getDistance(), 2));
+                        double dist = _distCalc.calcDist(lat0, lon0, lat1, lon1);
+                        if (dist == 0)
+                        	seg.setDetourFactor(0);
+                        else
+                        	seg.setDetourFactor(FormatUtility.roundToDecimals(path.getDistance()/dist, 2));
 					}
 					
 					RouteStep prevStep = null;

@@ -113,7 +113,7 @@
 						profiles: "driving-car,driving-hgv,driving-motorcycle",
 						parameters: {
 						    encoder_flags_size: 8,
-						    encoder_options : "turnCosts=true|blockFords=false,turnCosts=true|blockFords=false,turnCosts=true|blockFords=false",
+						    encoder_options : "turn_costs=true|block_fords=false,turn_costs=true|block_fords=false,turn_costs=true|block_fords=false",
                             maximum_distance: 100000,
                             elevation: true, 
 							preparation:
@@ -169,7 +169,7 @@
 						profiles: "cycling-regular, cycling-mountain, cycling-road",
 						parameters: {
 						    # extent: [5.866240, 15.042050, 47.270210, 55.058140], #
-         					encoder_options :"considerElevation=true|turnCosts=true|blockFords=false,considerElevation=true|turnCosts=true|blockFords=false,considerElevation=true|turnCosts=true|blockFords=false", 
+         					encoder_options :"consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false", 
   				            elevation: true, 
 						    ext_storages: {
                                 WayCategory: {
@@ -185,7 +185,7 @@
 					profile-bike2: {
 						profiles: "cycling-safe,cycling-tour, cycling-electric",
 						parameters: {
-         					encoder_options: "considerElevation=true|turnCosts=true|blockFords=false,considerElevation=true|turnCosts=true|blockFords=false,considerElevation=true|turnCosts=true|blockFords=false", 
+         					encoder_options: "consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false", 
 					        elevation: true, 
 					 	    ext_storages: {
                                 WayCategory: {
@@ -200,7 +200,7 @@
 					profile-pedestrian: {
 						profiles: "foot-walking,foot-hiking",
 						parameters: {
-						    encoder_options: "blockFords=false,blockFords=false",
+						    encoder_options: "block_fords=false,block_fords=false",
 						    elevation: true, 
                             ext_storages: {
                                 #GreenIndex_: {
