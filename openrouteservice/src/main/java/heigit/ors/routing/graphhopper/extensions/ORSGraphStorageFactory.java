@@ -46,8 +46,6 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 	@Override
 	public GraphHopperStorage createStorage(GHDirectory dir, GraphHopper gh) {
 		EncodingManager encodingManager = gh.getEncodingManager();
-		GraphHopperStorage graph = null;
-
 		GraphExtension geTurnCosts = null;
 		ArrayList<GraphExtension> graphExtensions = new ArrayList<GraphExtension>();
 		
@@ -78,34 +76,38 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 				}
 			}
 		}
-	
-		if (gh.isCHEnabled())
-		{
-			gh.initCHAlgoFactoryDecorator();
-			//LMAlgoFactoryDecorator getLMFactoryDecorator()  TODO
-            return new GraphHopperStorage(gh.getCHFactoryDecorator().getWeightings(), dir, encodingManager, gh.hasElevation(), getExtension(graphExtensions));
-		}
+
+		GraphExtension graphExtension = null;
 		
 		if (geTurnCosts == null && graphExtensions.size() == 0)
-			graph = new GraphHopperStorage(dir, encodingManager, gh.hasElevation(), new GraphExtension.NoOpExtension());
+			graphExtension =  new GraphExtension.NoOpExtension();
 		else if (geTurnCosts != null && graphExtensions.size() > 0)
 		{
 			ArrayList<GraphExtension> seq = new ArrayList<GraphExtension>();
 			seq.add(geTurnCosts);
 			seq.addAll(graphExtensions);
 			
-			graph = new GraphHopperStorage(dir, encodingManager, gh.hasElevation(), getExtension(seq));
+			graphExtension = getExtension(seq);
 		} 
 		else if (geTurnCosts != null)
 		{
-			graph = new GraphHopperStorage(dir, encodingManager, gh.hasElevation(), geTurnCosts);
+			graphExtension = geTurnCosts;
 		}
 		else if (graphExtensions.size() > 0)
 		{
-			graph = new GraphHopperStorage(dir, encodingManager, gh.hasElevation(), getExtension(graphExtensions));
+			graphExtension = getExtension(graphExtensions);
 		}
+		
+	    if (gh.getLMFactoryDecorator().isEnabled())
+          	gh.initLMAlgoFactoryDecorator();
 
-		return graph;
+	    if (gh.getCHFactoryDecorator().isEnabled()) 
+            gh.initCHAlgoFactoryDecorator();
+	     
+		if (gh.isCHEnabled())
+            return new GraphHopperStorage(gh.getCHFactoryDecorator().getWeightings(), dir, encodingManager, gh.hasElevation(), graphExtension);
+		else
+			return new GraphHopperStorage(dir, encodingManager, gh.hasElevation(), graphExtension);
 	}
 	
 	private GraphExtension getExtension(ArrayList<GraphExtension> graphExtensions)

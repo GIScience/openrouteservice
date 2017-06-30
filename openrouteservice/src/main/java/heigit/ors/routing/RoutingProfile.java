@@ -196,6 +196,9 @@ public class RoutingProfile
 			args.put("graph.elevation.dataaccess", config.getElevationDataAccess());
 		}
 
+		boolean prepareCH = false;
+		boolean prepareLM = false;
+		
 		if (config.getPreparationOpts() != null)
 		{
 			Config opts = config.getPreparationOpts();
@@ -209,39 +212,39 @@ public class RoutingProfile
 				if (opts.hasPath("methods.ch"))
 				{
 					Config chOpts = opts.getConfig("methods.ch");
-					if (!chOpts.hasPath("enabled") || chOpts.getBoolean("enabled"))
+					if (chOpts.hasPath("enabled") || chOpts.getBoolean("enabled"))
 					{
 						if (chOpts.hasPath("threads"))
    							args.put("prepare.ch.threads", chOpts.getInt("threads"));
 						if (chOpts.hasPath("weightings"))
-   							args.put("prepare.ch.weightings", chOpts.getString("weightings"));
-						else
-							args.put("prepare.ch.weightings", "no");
+   							args.put("prepare.ch.weightings", chOpts.getString("weightings").replace("|", ","));
+						
+						prepareCH = true;
 					}
 				}
 				
 				if (opts.hasPath("methods.lm"))
 				{
 					Config lmOpts = opts.getConfig("methods.lm");
-					if (!lmOpts.hasPath("enabled") || lmOpts.getBoolean("enabled"))
+					if (lmOpts.hasPath("enabled") || lmOpts.getBoolean("enabled"))
 					{
 						if (lmOpts.hasPath("threads"))
    							args.put("prepare.lm.threads", lmOpts.getInt("threads"));
 						if (lmOpts.hasPath("weightings"))
-   							args.put("prepare.lm.weightings", lmOpts.getString("weightings"));
-						else
-							args.put("prepare.lm.weightings", "no");
+   							args.put("prepare.lm.weightings", lmOpts.getString("weightings").replace("|", ","));
 						if (lmOpts.hasPath("landmarks"))
-   							args.put("prepare.lm.landmarks", lmOpts.getInt("landmarks"));	
+   							args.put("prepare.lm.landmarks", lmOpts.getInt("landmarks"));
+						
+						prepareLM = true;
 					}
 				}
 			}
 		}
-		else
-		{
+		
+		if (prepareCH == false)
 			args.put("prepare.ch.weightings", "no");
+		if (prepareLM == false)
 			args.put("prepare.lm.weightings", "no");
-		}
 
 		if (config.getExecutionOpts() != null)
 		{
@@ -648,7 +651,6 @@ public class RoutingProfile
 			boolean flexibleMode = false;
 			GHRequest req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
 			req.setVehicle(searchCntx.getEncoder().toString());
-			//req.setAlgorithm("dijkstrabi");
 			req.setMaxSpeed(searchParams.getMaximumSpeed());
 			req.setSimplifyGeometry(simplifyGeometry);
 
@@ -658,28 +660,35 @@ public class RoutingProfile
 
 			if (supportWeightingMethod(profileType)) {
 				if (weightingMethod == WeightingMethod.FASTEST)
+				{
 					req.setWeighting("fastest");
+					req.getHints().put("weighting_method", "fastest");
+				}
 				else if (weightingMethod == WeightingMethod.SHORTEST)
 				{
 					req.setWeighting("shortest");
+					req.getHints().put("weighting_method", "shortest");
 					flexibleMode = true;
 				}
 				else if (weightingMethod == WeightingMethod.RECOMMENDED)
 				{
-					req.setWeighting("recommended");
+					req.setWeighting("fastest");
+					req.getHints().put("weighting_method", "recommended");
 					flexibleMode = true;
 				}
 			} 
 
 			if ((profileType == RoutingProfileType.CYCLING_TOUR || profileType == RoutingProfileType.CYCLING_MOUNTAIN)
 					&& weightingMethod == WeightingMethod.FASTEST) {
-				req.setWeighting("recommended");
+				req.setWeighting("fastest");
+				req.getHints().put("weighting_method", "recommended");
 				flexibleMode = true;
 			}
 
 			if ((profileType == RoutingProfileType.CYCLING_TOUR || (profileType == RoutingProfileType.DRIVING_HGV && HeavyVehicleAttributes.HGV == searchParams
 					.getVehicleType())) && weightingMethod == WeightingMethod.RECOMMENDED) {
-				req.setWeighting("recommended_pref");
+				req.setWeighting("fastest");
+				req.getHints().put("weighting_method", "recommended_pref");
 				flexibleMode = true;
 			}
 
@@ -693,15 +702,24 @@ public class RoutingProfile
 				req.setPathProcessor(routeProcCntx.getPathProcessor());
 			
 			if (useDynamicWeights(searchParams) || flexibleMode)
-				req.getHints().put("ch.disable", true);
+			{
+			    req.getHints().put("ch.disable", true);
+				if (mGraphHopper.isCHEnabled())
+  				  req.getHints().put("lm.disable", false);
+			}
 			else
-				req.getHints().put("lm.disable", true);
-			
+			{
+				if (mGraphHopper.isCHEnabled())
+					req.getHints().put("lm.disable", true);
+				else
+					req.getHints().put("ch.disable", true);
+			}
+			 
 			/*if (directedSegment)
 				resp = mGraphHopper.directRoute(req); NOTE IMPLEMENTED!!!
 			else */
 				resp = mGraphHopper.route(req, routeProcCntx.getArrayBuffer());
-
+				
 			endUseGH();
 		} catch (Exception ex) {
 			endUseGH();
@@ -771,7 +789,7 @@ public class RoutingProfile
 	}
 
 	private static boolean supportWeightingMethod(int profileType) {
-		if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType) || profileType == RoutingProfileType.FOOT_WALKING || profileType == RoutingProfileType.WHEELCHAIR)
+		if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType) ||  RoutingProfileType.isWalking(profileType) || profileType == RoutingProfileType.WHEELCHAIR)
 			return true;
 		else
 			return false;

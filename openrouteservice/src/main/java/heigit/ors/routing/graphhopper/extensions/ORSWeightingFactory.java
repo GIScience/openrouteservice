@@ -35,6 +35,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.storage.TurnCostExtension;
 import com.graphhopper.storage.index.LocationIndex;
+import com.graphhopper.util.Helper;
 
 public class ORSWeightingFactory extends DefaultWeightingFactory {
 
@@ -48,11 +49,12 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 	}
 	
 	public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph graph, LocationIndex locationIndex, Object userState) {
-	    String weighting = hintsMap.getWeighting().toLowerCase();
-		// System.out.println("ORSWeightingFactory.createWeighting(), weighting="+weighting);
-		    
+	    String weighting = hintsMap.get("weighting_method", "").toLowerCase();
+	    if (Helper.isEmpty(weighting))
+	    	weighting = hintsMap.getWeighting();
+	    
 		Weighting result = null;
-		
+		 
 		GraphHopperStorage graphStorage = null;
 		if (userState instanceof GraphHopperStorage)
 		{
@@ -61,8 +63,13 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 		
         if ("shortest".equalsIgnoreCase(weighting))
         {
-            result = new ShortestWeighting(encoder);
-        } else //if ("fastest".equalsIgnoreCase(weighting))
+            result = new ShortestWeighting(encoder); 
+        }
+        else if ("fastest".equalsIgnoreCase(weighting))
+        {
+        	result = new FastestWeighting(encoder, hintsMap);
+        }
+        else //if ("fastest".equalsIgnoreCase(weighting))
         {
             if (encoder.supports(PriorityWeighting.class))
             {
@@ -115,24 +122,6 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 			}
 		}
 
-		if (result != null)
-			return result;
-
-		return super.createWeighting(hintsMap, encoder, graph, locationIndex, userState);
-	}
-	
-	private Weighting createWeighting(Weighting w1, Weighting seq) {
-		if (seq != null && seq instanceof WeightingSequence) {
-			WeightingSequence seqWeighting = (WeightingSequence) seq;
-			seqWeighting.addWeighting(w1);
-			return seqWeighting;
-		} else {
-			ArrayList<Weighting> list = new ArrayList<Weighting>();
-			list.add(w1);
-			if (seq != null)
-				list.add(seq);
-			WeightingSequence seqWeighting = new WeightingSequence(list);
-			return seqWeighting;
-		}
+		return result;
 	}
 }

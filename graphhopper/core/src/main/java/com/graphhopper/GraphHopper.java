@@ -740,22 +740,21 @@ public class GraphHopper implements GraphHopperAPI {
             dataAccessType = DAType.MMAP_RO;
 
         GHDirectory dir = new GHDirectory(ghLocation, dataAccessType);
-        GraphExtension ext = encodingManager.needsTurnCostsSupport()
-                ? new TurnCostExtension() : new GraphExtension.NoOpExtension();
 
         if (graphStorageFactory != null) // Runge
-        {
         	ghStorage = graphStorageFactory.createStorage(dir, this);
-        }
 
-        if (lmFactoryDecorator.isEnabled())
-            initLMAlgoFactoryDecorator();
+        if (ghStorage == null) // Runge: default behaviour 
+        {
+            GraphExtension ext = encodingManager.needsTurnCostsSupport()
+                    ? new TurnCostExtension() : new GraphExtension.NoOpExtension();
 
-    	if (chFactoryDecorator.isEnabled()) 
-    		initCHAlgoFactoryDecorator();
+            if (lmFactoryDecorator.isEnabled())
+              	initLMAlgoFactoryDecorator();
 
-        if (ghStorage == null) // Runge 
-        { 
+            if (chFactoryDecorator.isEnabled()) 
+               	initCHAlgoFactoryDecorator();
+
         	if (chFactoryDecorator.isEnabled()) {
         		ghStorage = new GraphHopperStorage(chFactoryDecorator.getWeightings(), dir, encodingManager, hasElevation(), ext);
         	} else {

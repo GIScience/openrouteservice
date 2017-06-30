@@ -69,7 +69,7 @@ public class AvoidFeatureFlags {
 		}
 		else if (RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType))
 		{
-			if (value == Highways || value == Tollways || value == Tunnels)
+			if (value == Highways || value == Tunnels)
 				return false;
 		}
 		
