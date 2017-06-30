@@ -65,4 +65,4 @@ ors-deploy-chia:
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
     - ssh-add <(echo "$STAGING_PRIVATE_KEY")
-    - ssh -p22 ubuntu@129.206.7.188 "curl 'https://gitlab.gistools.geog.uni-heidelberg.de/giscience/openrouteservice/core-deployment/raw/master/bootstrap.sh?private_token=$ORS_CI_DEPLOY_TOKEN' | bash -s $ORS_DEPLOY_USER $ORS_DEPLOY_USER_PWD /home/ubuntu/webfrastructure/tomcat/data/ development development 3g"
+    - ssh -p22 ubuntu@129.206.7.188 "curl 'https://gitlab.gistools.geog.uni-heidelberg.de/giscience/openrouteservice/core-deployment/raw/master/bootstrap.sh?private_token=$ORS_CI_DEPLOY_TOKEN' | bash -s $ORS_DEPLOY_USER $ORS_DEPLOY_USER_PWD /home/ubuntu/webfrastructure/tomcat/data/ development development 6g"
