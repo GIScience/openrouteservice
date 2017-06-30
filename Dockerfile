@@ -20,4 +20,4 @@ RUN mvn -f ./graphhopper/pom.xml install
 # Build and install openrouteservice
 RUN mvn -f ./openrouteservice/pom.xml package
 
-CMD cp /ors-core/openrouteservice/target/openrouteservice-4.0.0.war /ors-core/build/ors.war
+CMD cp /ors-core/openrouteservice/target/openrouteservice-4.2.0.war /ors-core/build/ors.war
