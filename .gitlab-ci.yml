@@ -1,3 +1,5 @@
+# CI for ORS development
+
 #image: docker:latest
 image: maven:3-jdk-8
 
