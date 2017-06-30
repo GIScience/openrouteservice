@@ -18,6 +18,7 @@
 	    	}			
         	matrix: {
                 maximum_locations: 200,
+				maximum_visited_nodes: 100000,
                	allow_resolve_locations: true,
                 attribution: "openrouteservice.org, OpenStreetMap contributors"
             }
@@ -69,7 +70,7 @@
 				attribution: "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
 				distance_approximation: true,
 				profiles: {
-					active: ["vehicles", "vehicles-ch", "bike", "bike2", "pedestrian"],
+					active: ["vehicles", "bike", "bike2", "pedestrian"],
 					default_params: {
 						encoder_flags_size: 8, 
 						graphs_root_path: "graphs", 
@@ -79,6 +80,34 @@
  	          		    maximum_distance: 100000,
  	          		    maximum_segment_distance_with_dynamic_weights: 50000,
  	          		    maximum_waypoints: 50
+						
+						preparation:
+						{  
+							min_network_size: 200,
+							min_one_way_network_size: 200,
+							
+							methods:
+							{
+								lm:
+								{
+									enabled: true,
+									threads: 1,
+									weightings: "fastest|shortest",
+									landmarks: 16
+								}
+							}
+						}
+						execution:
+						{
+							methods:
+							{
+								lm:
+								{
+									disabling_allowed: true,
+									active_landmarks: 8
+								}
+							}
+						}
 					},
 					profile-vehicles: {
 						profiles: "driving-car,driving-hgv,driving-motorcycle",
@@ -87,6 +116,43 @@
 						    encoder_options : "turnCosts=true|blockFords=false,turnCosts=true|blockFords=false,turnCosts=true|blockFords=false",
                             maximum_distance: 100000,
                             elevation: true, 
+							preparation:
+							{  
+								min_network_size: 200,
+								min_one_way_network_size: 200,
+							
+								methods:
+								{
+									ch:
+									{
+										enabled: true,
+										threads: 1,
+										weightings: "fastest"
+									},
+									lm:
+									{
+										enabled: true,
+										threads: 1,
+										weightings: "fastest|shortest",
+										landmarks: 16
+									}
+								}
+							}
+							execution:
+							{
+								methods:
+								{
+									ch:
+									{
+										disabling_allowed: true
+									},
+									lm:
+									{
+										disabling_allowed: true,
+										active_landmarks: 8
+									}
+								}
+							}
 						    ext_storages: {
                                 WayCategory: {
                                 },								
@@ -98,23 +164,6 @@
 						    }
 						    traffic: false
 					    }
-					}
-					profile-vehicles-ch: {
-						profiles: "driving-car,driving-hgv",
-						parameters: {
-						    encoder_flags_size: 4,
-						    encoder_options : "",
-                            ch_weighting: fastest,
-                            elevation: true, 
-							ext_storages: {
-                                WayCategory: {
-                                },								
-								WaySurfaceType: {
-								},
-								HillIndex: {
-								}
-						    }
-						}
 					}
 					profile-bike: {
 						profiles: "cycling-regular, cycling-mountain, cycling-road",
