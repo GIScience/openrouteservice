@@ -15,9 +15,11 @@ COPY openrouteservice-api-tests /ors-core/openrouteservice-api-tests
 
 WORKDIR /ors-core
 
+# Get ORS core version number
+ENV ORS_VER=$(mvn -f ./openrouteservice/pom.xml -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec)
 # Build and install graphhopper
-RUN mvn -f ./graphhopper/pom.xml install
+RUN mvn -f ./graphhopper/pom.xml install -DskipTests 
 # Build and install openrouteservice
-RUN mvn -f ./openrouteservice/pom.xml package
+RUN mvn -f ./openrouteservice/pom.xml package -DskipTests 
 
-CMD cp /ors-core/openrouteservice/target/openrouteservice-4.2.0.war /ors-core/build/ors.war
+CMD cp /ors-core/openrouteservice/target/openrouteservice-$ORS_VER.war /ors-core/build/ors.war
