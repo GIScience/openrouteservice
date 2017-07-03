@@ -71,12 +71,7 @@ public class PathMerger {
         // Runge
         PathProcessor pathProcessor = procCntx.getPathProcessor();
         if (pathProcessor != null)
-        {
-        	if (paths.size() > 0)
-        		pathProcessor.start(paths.get(0).getEncoder());
-        	else 
-        		pathProcessor.start(null);
-        }
+        		pathProcessor.init(procCntx);
 
         InstructionList fullInstructions = new InstructionList(procCntx.getTranslation());
         PointList fullPoints = PointList.EMPTY;
