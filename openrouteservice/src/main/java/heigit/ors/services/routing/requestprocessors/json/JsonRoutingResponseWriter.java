@@ -137,6 +137,9 @@ public class JsonRoutingResponseWriter {
 				jSummary.put("ascent", rSummary.getAscent());
 				jSummary.put("descent", rSummary.getDescent());
 			}
+			
+			if (attrAvgSpeed)
+				jSummary.put("avgspeed", rSummary.getAverageSpeed());
 
 			jRoute.put("summary", jSummary);
 

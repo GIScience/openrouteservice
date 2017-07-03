@@ -20,6 +20,7 @@ public class RouteSummary
 	private double _duration;
 	private double _ascent;
 	private double _descent;
+	private double _avgSpeed;
 	private BBox _bbox;
 
 	public double getDistance() {
@@ -70,5 +71,13 @@ public class RouteSummary
 
 	public void setDistanceActual(double distanceActual) {
 		_distanceActual = distanceActual;
+	}
+
+	public double getAverageSpeed() {
+		return _avgSpeed;
+	}
+
+	public void setAverageSpeed(double avgSpeed) {
+		_avgSpeed = avgSpeed;
 	}
 }

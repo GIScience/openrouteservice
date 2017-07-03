@@ -286,25 +286,25 @@ public class RouteResultBuilder
 				ascent += path.getAscend();
 				descent += path.getDescend();
 			}
+			
 			durationTraffic += path.getRouteWeight();
 		}
 
-		result.getSummary().setDistance(FormatUtility.roundToDecimals(distance, unitDecimals));
-		result.getSummary().setDistanceActual(FormatUtility.roundToDecimals(distanceActual, unitDecimals));
-		result.getSummary().setAscent(FormatUtility.roundToDecimals(ascent, 1));
-		result.getSummary().setDescent(FormatUtility.roundToDecimals(descent, 1));
+		RouteSummary routeSummary = result.getSummary();
 		
-		if (request.getSearchParameters().getConsiderTraffic())
-			result.getSummary().setDuration(durationTraffic);
-		 else
-			result.getSummary().setDuration(duration);
-		
+		routeSummary.setDuration(request.getSearchParameters().getConsiderTraffic() ? durationTraffic : duration);
+		routeSummary.setDistance(FormatUtility.roundToDecimals(distance, unitDecimals));
+		routeSummary.setDistanceActual(FormatUtility.roundToDecimals(distanceActual, unitDecimals));
+		routeSummary.setAverageSpeed(FormatUtility.roundToDecimals(distance/(units == DistanceUnit.Meters ? 1000 : 1)/(routeSummary.getDuration() / 3600), 1));
+		routeSummary.setAscent(FormatUtility.roundToDecimals(ascent, 1));
+		routeSummary.setDescent(FormatUtility.roundToDecimals(descent, 1));
 
+		
 		if (routeWayPoints != null)
 			result.setWayPointsIndices(routeWayPoints);
 
 		if (bbox != null)
-			result.getSummary().setBBox(bbox);
+			routeSummary.setBBox(bbox);
 
 		return result;
 	}
