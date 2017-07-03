@@ -1,5 +1,6 @@
 package heigit.ors.routing.pathprocessors;
 
+import com.graphhopper.routing.PathProcessingContext;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.util.EdgeIteratorState;
@@ -14,7 +15,7 @@ public class ElevationSmoothPathProcessor extends PathProcessor {
 	}
 
 	@Override
-	public void start(FlagEncoder encoder) {
+	public void init(PathProcessingContext cntx) {
 		// TODO Auto-generated method stub
 
 	}

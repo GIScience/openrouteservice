@@ -689,6 +689,8 @@ public class RoutingProfile
 					.getVehicleType())) && weightingMethod == WeightingMethod.RECOMMENDED) {
 				req.setWeighting("fastest");
 				req.getHints().put("weighting_method", "recommended_pref");
+				req.setAlgorithm("dijkstrabi");
+
 				flexibleMode = true;
 			}
 
@@ -700,16 +702,15 @@ public class RoutingProfile
 
 			if (routeProcCntx.getPathProcessor() != null)
 				req.setPathProcessor(routeProcCntx.getPathProcessor());
-			
+
 			if (useDynamicWeights(searchParams) || flexibleMode)
 			{
 			    req.getHints().put("ch.disable", true);
-				if (mGraphHopper.isCHEnabled())
-  				  req.getHints().put("lm.disable", false);
+				req.getHints().put("lm.disable", false);
 			}
 			else
 			{
-				if (mGraphHopper.isCHEnabled())
+				if (mGraphHopper.isCHEnabled())  
 					req.getHints().put("lm.disable", true);
 				else
 					req.getHints().put("ch.disable", true);
@@ -718,7 +719,7 @@ public class RoutingProfile
 			/*if (directedSegment)
 				resp = mGraphHopper.directRoute(req); NOTE IMPLEMENTED!!!
 			else */
-				resp = mGraphHopper.route(req, routeProcCntx.getArrayBuffer());
+			resp = mGraphHopper.route(req, routeProcCntx.getArrayBuffer());
 				
 			endUseGH();
 		} catch (Exception ex) {

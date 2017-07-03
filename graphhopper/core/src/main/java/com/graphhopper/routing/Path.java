@@ -379,7 +379,7 @@ public class Path {
     }
 
     public InstructionList calcInstructions(final Translation tr) {
-    	PathProcessingContext pathProcCntx = new PathProcessingContext(tr, null, null, null);
+    	PathProcessingContext pathProcCntx = new PathProcessingContext(null, null, tr, null, null, null);
     	return calcInstructions(pathProcCntx);	
     }
     

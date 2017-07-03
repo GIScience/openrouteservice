@@ -14,6 +14,7 @@ package heigit.ors.routing.pathprocessors;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.graphhopper.routing.PathProcessingContext;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.util.PriorityCode;
@@ -35,6 +36,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 	private WaySurfaceTypeGraphStorage extWaySurface;
 	private WayCategoryGraphStorage extWayCategory;
 	private GreenIndexGraphStorage extGreenIndex;
+	private NoiseIndexGraphStorage extNoiseIndex;
 	
 	private RouteExtraInfo _surfaceInfo;
 	private RouteExtraInfoBuilder _surfaceInfoBuilder;
@@ -53,6 +55,12 @@ public class ExtraInfoProcessor extends PathProcessor {
 
 	private RouteExtraInfo _greenInfo;
 	private RouteExtraInfoBuilder _greenInfoBuilder;
+	
+	private RouteExtraInfo _noiseInfo;
+	private RouteExtraInfoBuilder _noiseInfoBuilder;
+	
+	private RouteExtraInfo _avgSpeedInfo;
+	private RouteExtraInfoBuilder _avgSpeedInfoBuilder;
 	
 	private FlagEncoder _encoder;
 	private boolean _encoderWithPriority = false;
@@ -102,6 +110,12 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_waySuitabilityInfo = new RouteExtraInfo("suitability");
 			_waySuitabilityInfoBuilder = new SimpleRouteExtraInfoBuilder(_waySuitabilityInfo);
 		}
+		
+		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.AvgSpeed))
+		{
+			_avgSpeedInfo = new RouteExtraInfo("avgspeed");
+			_avgSpeedInfoBuilder = new SimpleRouteExtraInfoBuilder(_avgSpeedInfo);
+		}
 
 		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Green)) {
 			extGreenIndex = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), GreenIndexGraphStorage.class);
@@ -112,6 +126,16 @@ public class ExtraInfoProcessor extends PathProcessor {
 			// Should be changed to "green" in the future
 			_greenInfo = new RouteExtraInfo("green");
 			_greenInfoBuilder = new SimpleRouteExtraInfoBuilder(_greenInfo);
+		}
+
+		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Noise)) {
+
+			extNoiseIndex = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), NoiseIndexGraphStorage.class);
+
+			if (extNoiseIndex == null)
+				throw new Exception("NoiseIndex storage is not found.");
+			_noiseInfo = new RouteExtraInfo("noise");
+			_noiseInfoBuilder = new SimpleRouteExtraInfoBuilder(_noiseInfo);
 		}
 
 		buffer = new byte[1];
@@ -136,8 +160,12 @@ public class ExtraInfoProcessor extends PathProcessor {
 			extras.add(_waySuitabilityInfo);
 		if (_wayCategoryInfo != null)
 			extras.add(_wayCategoryInfo);
+		if (_avgSpeedInfo != null)
+			extras.add(_avgSpeedInfo);
 		if (_greenInfo != null)
 			extras.add(_greenInfo);
+		if (_noiseInfo != null)
+			extras.add(_noiseInfo);
 
 		return extras;
 	}
@@ -161,6 +189,12 @@ public class ExtraInfoProcessor extends PathProcessor {
 		{
 			int value = extWayCategory.getEdgeValue(edge.getOriginalEdge(), buffer);
 			_wayCategoryInfoBuilder.addSegment(value, value, geom, dist, lastEdge && _lastSegment);
+		}
+		
+		if (_avgSpeedInfoBuilder != null)
+		{
+		    double speed = _encoder.getSpeed(edge.getFlags(_encoder.getIndex()));
+		    _avgSpeedInfoBuilder.addSegment(speed, (int)Math.round(speed*10), geom, dist, lastEdge && _lastSegment);
 		}
 
 		if (_waySuitabilityInfoBuilder != null)
@@ -199,6 +233,16 @@ public class ExtraInfoProcessor extends PathProcessor {
 			int clientVal = MIN_CLIENT_VAL + value * (MAX_CLIENT_VAL - MIN_CLIENT_VAL + 1) / 64;
 			_greenInfoBuilder.addSegment(value, clientVal, geom, dist, lastEdge && _lastSegment);
 		}
+		
+		if (_noiseInfoBuilder != null) {
+			int noise_level = extNoiseIndex.getEdgeValue(edge.getOriginalEdge(), buffer);
+			// convert the noise level (from 0 to 3) to the values (from 7 to 10) for the client
+			if (noise_level > 3)
+				noise_level = 3; 
+			
+			int client_noise_level = noise_level + 7;
+			_noiseInfoBuilder.addSegment(noise_level, client_noise_level, geom, dist, lastEdge && _lastSegment);
+		}
 	}
 
 	@Override
@@ -224,8 +268,8 @@ public class ExtraInfoProcessor extends PathProcessor {
 	}
 
 	@Override
-	public void start(FlagEncoder encoder) {
-		_encoder = encoder;
-		_encoderWithPriority = encoder.supports(PriorityWeighting.class);
+	public void init(PathProcessingContext cntx) {
+		_encoder = cntx.getEncoder();
+		_encoderWithPriority = _encoder.supports(PriorityWeighting.class);
 	}
 }

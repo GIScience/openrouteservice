@@ -455,7 +455,7 @@ public final class GraphHopperGtfs implements GraphHopperAPI {
             return result;
         } else {
             InstructionList instructions = new InstructionList(tr);
-            PathProcessingContext pathProcCntx = new PathProcessingContext(tr, null, null, null);
+            PathProcessingContext pathProcCntx = new PathProcessingContext(tr);
             InstructionsFromEdges instructionsFromEdges = new InstructionsFromEdges(path.get(1).edge.edgeIteratorState.getBaseNode(), graph, weighting, weighting.getFlagEncoder(), graph.getNodeAccess(), pathProcCntx, instructions);
             int prevEdgeId = -1;
             for (int i=1; i<path.size(); i++) {

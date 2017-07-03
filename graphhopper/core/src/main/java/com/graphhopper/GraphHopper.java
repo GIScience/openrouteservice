@@ -1097,7 +1097,7 @@ public class GraphHopper implements GraphHopperAPI {
                         setEnableInstructions(tmpEnableInstructions).
                         setSimplifyResponse(simplifyResponse && wayPointMaxDistance > 0);
 
-                PathProcessingContext pathProcCntx = new PathProcessingContext(tr, request.getEdgeAnnotator(), request.getPathProcessor(), byteBuffer);
+                PathProcessingContext pathProcCntx = new PathProcessingContext(encoder, weighting, tr, request.getEdgeAnnotator(), request.getPathProcessor(), byteBuffer);
                 if (routingTemplate.isReady(pathMerger, pathProcCntx))
                     break;
             }

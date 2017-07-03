@@ -8,6 +8,7 @@ import com.graphhopper.util.PMap;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.CarTmcFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.CycleTourBikeFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.ElectroBikeFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.EmergencyFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.HeavyVehicleFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.HikingFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.SafetyBikeFlagEncoder;
@@ -21,6 +22,7 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
 	 private static final String WHEELCHAIR = "wheelchair";
 	 private static final String HEAVYVEHICLE = "heavyvehicle";
 	 private static final String CARTMC = "cartmc";
+	 private static final String EMERGENCY = "emergency";
     
     @Override
     public FlagEncoder createFlagEncoder(String name, PMap configuration) {
@@ -44,6 +46,9 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
 
     	if (name.equals(CARTMC))
             return new CarTmcFlagEncoder(configuration);
+    	
+    	if (name.equals(EMERGENCY))
+            return new EmergencyFlagEncoder(configuration);
 
     	return super.createFlagEncoder(name, configuration);
     }

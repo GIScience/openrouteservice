@@ -13,10 +13,10 @@ import com.graphhopper.util.PMap;
  */
 public class PreferencePriorityWeighting extends FastestWeighting
 {
-	private Double THRESHOLD_AVOID_IF_POSSIBLE = (double) (PriorityCode.AVOID_IF_POSSIBLE.getValue() / (double)PriorityCode.BEST
+	private static final Double THRESHOLD_AVOID_IF_POSSIBLE = (double) (PriorityCode.AVOID_IF_POSSIBLE.getValue() / (double)PriorityCode.BEST
 			.getValue());
 	
-	private Double THRESHOLD_REACH_DEST = (double) (PriorityCode.REACH_DEST.getValue() / (double)PriorityCode.BEST
+	private static final Double THRESHOLD_REACH_DEST = (double) (PriorityCode.REACH_DEST.getValue() / (double)PriorityCode.BEST
 			.getValue());
 
 	private Double THRESHOLD_VERY_NICE = (double) (PriorityCode.VERY_NICE.getValue() / (double)PriorityCode.BEST
@@ -37,12 +37,12 @@ public class PreferencePriorityWeighting extends FastestWeighting
     @Override
     public double calcWeight( EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId )
     {
-    	double priority = getFlagEncoder().getDouble(edgeState.getFlags(encoderIndex), KEY);
-
     	double weight = super.calcWeight(edgeState, reverse, prevOrNextEdgeId);
 		if (Double.isInfinite(weight))
-			weight = 0.0;
-		
+			weight = 0.0; 
+
+    	double priority = getFlagEncoder().getDouble(edgeState.getFlags(encoderIndex), KEY);
+
 		if (priority <= THRESHOLD_REACH_DEST)
 			priority /= 2.0;
 		else if (priority <= THRESHOLD_AVOID_IF_POSSIBLE)
@@ -53,4 +53,9 @@ public class PreferencePriorityWeighting extends FastestWeighting
 		 return weight / (0.5 + priority);
 		//return weight/10000.0 + 1.0/(0.5 + priority);
     }
+    
+    @Override
+    public String getName() {
+        return "priority";
+    } 
 }

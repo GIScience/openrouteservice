@@ -20,6 +20,7 @@ public class RoutingProfileType {
 	public static final int DRIVING_MOTORCYCLE = 4;
 	public static final int DRIVING_OFFROAD = 5; // not supported
 	public static final int DRIVING_SEGWAY = 6; // not supported
+	public static final int DRIVING_EMERGENCY = 7; 
 	
 	public static final int DRIVING_TRAFFIC = 9;
 
@@ -37,19 +38,17 @@ public class RoutingProfileType {
 
 	public static final int WHEELCHAIR = 30;
 	
-	
-
 	public static boolean isDriving(int routePref) {
 		if (routePref == DRIVING_CAR
 				|| routePref == DRIVING_HGV || routePref == DRIVING_ELECTRIC_CAR
-				|| routePref == DRIVING_MOTORCYCLE || routePref == DRIVING_OFFROAD)
+				|| routePref == DRIVING_MOTORCYCLE || routePref == DRIVING_OFFROAD || routePref == DRIVING_EMERGENCY)
 			return true;
 		else
 			return false;
 	}
 
 	public static boolean isHeavyVehicle(int routePref) {
-		if (routePref == DRIVING_HGV || routePref == DRIVING_OFFROAD)
+		if (routePref == DRIVING_HGV || routePref == DRIVING_OFFROAD || routePref == DRIVING_EMERGENCY)
 			return true;
 		else
 			return false;
@@ -85,6 +84,8 @@ public class RoutingProfileType {
 			return "driving-ecar";
 		case DRIVING_MOTORCYCLE:
 			return "driving-motorcycle";
+		case DRIVING_EMERGENCY:
+			return "driving-emergency";
 
 		case CYCLING_REGULAR:
 			return "cycling-regular";
@@ -122,6 +123,8 @@ public class RoutingProfileType {
 			return DRIVING_HGV;
 		else if ("driving-motorcycle".equalsIgnoreCase(profileType)) 
 			return DRIVING_MOTORCYCLE;
+		else if ("driving-emergency".equalsIgnoreCase(profileType)) 
+			return DRIVING_EMERGENCY;
 		else if ("driving-traffic".equalsIgnoreCase(profileType)) 
 			return DRIVING_TRAFFIC;
 
@@ -161,6 +164,8 @@ public class RoutingProfileType {
 			return "evehicle";
 		else if (routePref == RoutingProfileType.DRIVING_HGV)  
 			return "heavyvehicle";
+		else if (routePref == RoutingProfileType.DRIVING_EMERGENCY)  
+			return "emergency";
 		else if (routePref == RoutingProfileType.DRIVING_OFFROAD)  
 			return "x_4_wd";
 		else if (routePref == RoutingProfileType.FOOT_WALKING)

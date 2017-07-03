@@ -31,7 +31,6 @@ import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.storage.TurnCostExtension;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.Helper;
@@ -68,13 +67,20 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
         {
         	result = new FastestWeighting(encoder, hintsMap);
         }
-        else //if ("fastest".equalsIgnoreCase(weighting))
+        else  if ("priority".equalsIgnoreCase(weighting))
+        {
+        	result = new PreferencePriorityWeighting(encoder, hintsMap);
+        } 
+        else 
         {
             if (encoder.supports(PriorityWeighting.class))
             {
             	if ("recommended_pref".equalsIgnoreCase(weighting))
+            	{
                     result = new PreferencePriorityWeighting(encoder, hintsMap);
+            	}
             	else if ("recommended".equalsIgnoreCase(weighting))
+            		
                     result = new OptimizedPriorityWeighting(encoder, hintsMap);
             	else
             		result = new FastestSafeWeighting(encoder, hintsMap);
@@ -87,7 +93,7 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 			 result = new SteepnessDifficultyWeighting(result, encoder, hintsMap, graphStorage);
 	    }
 		else if (hintsMap.getBool("weighting_avoid_hills", false)) {
-			 result = new AvoidHillsWeighting(result, encoder, hintsMap, (GraphStorage)userState);
+			 result = new AvoidHillsWeighting(result, encoder, hintsMap, graphStorage);
 		}
 		
 		if (hintsMap.getBool("weighting_traffic_block", false))

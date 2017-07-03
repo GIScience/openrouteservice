@@ -7,9 +7,9 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 
 public class OptimizedPriorityWeighting extends FastestWeighting {
-	private Double THRESHOLD_AVOID_IF_POSSIBLE = (double) (PriorityCode.AVOID_IF_POSSIBLE.getValue() / (double)PriorityCode.BEST
+	private static final Double THRESHOLD_AVOID_IF_POSSIBLE = (double) (PriorityCode.AVOID_IF_POSSIBLE.getValue() / (double)PriorityCode.BEST
 			.getValue());
-	private Double THRESHOLD_REACH_DEST = (double) (PriorityCode.REACH_DEST.getValue() / (double)PriorityCode.BEST
+	private  static final Double THRESHOLD_REACH_DEST = (double) (PriorityCode.REACH_DEST.getValue() / (double)PriorityCode.BEST
 			.getValue());
 	
 	/**
@@ -25,11 +25,11 @@ public class OptimizedPriorityWeighting extends FastestWeighting {
 
 	@Override
 	public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-		double priority = getFlagEncoder().getDouble(edgeState.getFlags(encoderIndex), KEY);
-
 		double weight = super.calcWeight(edgeState, reverse, prevOrNextEdgeId);
 		if (Double.isInfinite(weight))
 			return Double.POSITIVE_INFINITY;
+
+		double priority = getFlagEncoder().getDouble(edgeState.getFlags(encoderIndex), KEY);
 
 		if (priority <= THRESHOLD_REACH_DEST)
 			weight *= 1.25;
