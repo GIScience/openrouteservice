@@ -503,8 +503,6 @@ public class RoutingProfile
 			}
 		}
 
-		boolean bSteepness = false;
-
 		if (searchParams.hasAvoidFeatures() ) {
 			if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)
 					|| profileType == RoutingProfileType.FOOT_WALKING || profileType == RoutingProfileType.FOOT_HIKING
@@ -521,16 +519,13 @@ public class RoutingProfile
 				{
 					if ((searchParams.getAvoidFeatureTypes() & AvoidFeatureFlags.Hills) == AvoidFeatureFlags.Hills)
 					{
-						props.put("AvoidHills", true);
+						props.put("weighting_avoid_hills", true);
 
 						if (searchParams.hasParameters(CyclingParameters.class))
 						{
 							CyclingParameters cyclingParams = (CyclingParameters)searchParams.getProfileParameters();
-
-							props.put("SteepnessMaximum", cyclingParams.getMaximumGradient());
+							props.put("steepness_maximum", cyclingParams.getMaximumGradient());
 						}
-
-						bSteepness = true;
 					}
 				}
 			}
@@ -546,10 +541,9 @@ public class RoutingProfile
 				{
 					if (mode == RouteSearchMode.Routing)
 					{
-						props.put("SteepnessDifficulty", true);
-						props.put("SteepnessDifficultyLevel", cyclingParams.getDifficultyLevel());
-						props.put("SteepnessMaximum", cyclingParams.getMaximumGradient());
-						bSteepness = true;
+						props.put("steepness_difficulty", true);
+						props.put("steepness_difficulty_level", cyclingParams.getDifficultyLevel());
+						props.put("steepness_maximum", cyclingParams.getMaximumGradient());
 					}
 					else
 					{
@@ -563,17 +557,23 @@ public class RoutingProfile
 		if (searchParams.hasParameters(WalkingParameters.class)) {
 			WalkingParameters walkingParams = (WalkingParameters)searchParams.getProfileParameters();
 			if (walkingParams.getGreenRouting() && mode == RouteSearchMode.Routing) {
-				props.put("GreenRouting", true);
+				props.put("weighting_green", true);
+				props.put("green_weighting_factor", walkingParams.getGreenWeightingFactor());
 			}
 		}
-
-		/*	if (bSteepness)
-			algorithm = "dijkstra";*/
+		
+		if (searchParams.hasParameters(WalkingParameters.class)) {
+			WalkingParameters walkingParams = (WalkingParameters)searchParams.getProfileParameters();
+			if (walkingParams.getQuietRouting() && mode == RouteSearchMode.Routing) {
+				props.put("weighting_quiet", true);
+				props.put("quiet_weighting_factor", walkingParams.getQuietWeightingFactor());
+			}
+		}
 
 		if (searchParams.getConsiderTraffic()/* && mHasDynamicWeights */) {
 			if (RoutingProfileType.isDriving(profileType) && weightingMethod != WeightingMethod.SHORTEST
 					&& RealTrafficDataProvider.getInstance().isInitialized()) {
-				props.put("TrafficBlockWeighting", true);
+				props.put("weighting_traffic_block", true);
 
 				EdgeFilter ef = new BlockedEdgesEdgeFilter(flagEncoder, RealTrafficDataProvider.getInstance()
 						.getBlockedEdges(mGraphHopper.getGraphHopperStorage()), RealTrafficDataProvider.getInstance()

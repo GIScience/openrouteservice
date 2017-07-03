@@ -200,10 +200,16 @@ public class RouteSearchParameters {
 			    JSONObject walkingProfileParams = json.getJSONObject("profile_params");
 			    if (walkingProfileParams.has("green_routing"))
 			    	walkingParams.setGreenRouting(walkingProfileParams.getBoolean("green_routing"));
+			    if (walkingProfileParams.has("quiet_routing"))
+			    	walkingParams.setQuietRouting(walkingProfileParams.getBoolean("quiet_routing"));
 			    if (walkingProfileParams.has("difficulty_level"))
 			    	walkingParams.setDifficultyLevel(walkingProfileParams.getInt("difficulty_level"));
 			    if (walkingProfileParams.has("maximum_gradient"))
 			    	walkingParams.setMaximumGradient(walkingProfileParams.getInt("maximum_gradient"));
+			    if (walkingProfileParams.has("green_weighting_factor"))
+			    	walkingParams.setGreenWeightingFactor(walkingProfileParams.getDouble("green_weighting_factor"));
+			    if (walkingProfileParams.has("quiet_weighting_factor"))
+			    	walkingParams.setQuietWeightingFactor(walkingProfileParams.getDouble("quiet_weighting_factor"));
 
 			    _profileParams = walkingParams;
 			}

@@ -25,13 +25,14 @@ public class AvoidHillsWeighting extends FastestWeighting
 	private static double[] PENALTY_FACTOR = {1.0, 1.0, 1.1, 1.5, 1.7, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.2, 3.5, 3.7, 3.9, 4.2};
 	//private static double[] PENALTY_FACTOR = {1.0, 1.0, 1.1, 1.5, 2.0, 2.1, 2.3, 2.4, 2.5, 2.7, 2.9, 3.1, 3.3, 3.6, 3.8, 4.5};
 
-    public AvoidHillsWeighting(Weighting superWeighting, FlagEncoder encoder, PMap map, GraphStorage graphStorage, double maxSteepness)
+    public AvoidHillsWeighting(Weighting superWeighting, FlagEncoder encoder, PMap map, GraphStorage graphStorage)
     {
         super(encoder, map);
         
         this.superWeighting = superWeighting;
         buffer = new byte[1];
-        this.maxSteepness = maxSteepness;
+        this.maxSteepness = map.getDouble("steepness_maximum", -1);
+
 
         gsHillIndex = GraphStorageUtils.getGraphExtension(graphStorage, HillIndexGraphStorage.class);
     }

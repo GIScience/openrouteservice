@@ -1,6 +1,4 @@
-package heigit.ors.routing;
-
-import heigit.ors.routing.parameters.ProfileParameters;
+package heigit.ors.routing.parameters;
 
 public class WheelchairParameters extends ProfileParameters 
 {

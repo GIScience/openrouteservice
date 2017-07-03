@@ -14,7 +14,6 @@ package heigit.ors.routing.graphhopper.extensions;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -84,25 +83,25 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
                 result = new FastestWeighting(encoder, hintsMap);
         } 
 		
-		if (hintsMap.getBool("SteepnessDifficulty", false)) {
-			 int difficultyLevel = hintsMap.getInt("SteepnessDifficultyLevel", -1);
-			 double maxSteepness = hintsMap.getDouble("SteepnessMaximum", -1);
-			 result = new SteepnessDifficultyWeighting(result, encoder, hintsMap, graphStorage, difficultyLevel, maxSteepness);
+		if (hintsMap.getBool("steepness_difficulty", false)) {
+			 result = new SteepnessDifficultyWeighting(result, encoder, hintsMap, graphStorage);
 	    }
-		else if (hintsMap.getBool("AvoidHills", false)) {
-			 double maxSteepness = hintsMap.getDouble("SteepnessMaximum", -1);
-			 result = new AvoidHillsWeighting(result, encoder, hintsMap, (GraphStorage)userState, maxSteepness);
+		else if (hintsMap.getBool("weighting_avoid_hills", false)) {
+			 result = new AvoidHillsWeighting(result, encoder, hintsMap, (GraphStorage)userState);
 		}
 		
-		if (hintsMap.getBool("TrafficBlockWeighting", false))
+		if (hintsMap.getBool("weighting_traffic_block", false))
 		{
 			//String strPref = weighting.substring(weighting.indexOf("-") + 1);
 			result = new TrafficAvoidWeighting(result, encoder, m_trafficDataProvider.getAvoidEdges(graphStorage));
 		}
-
-		if (hintsMap.getBool("GreenRouting", false)) {
+		if (hintsMap.getBool("weighting_green", false)) {
 			result = new GreenWeighting(result, encoder, hintsMap, graphStorage);
 		}
+		
+		if (hintsMap.getBool("weighting_quiet", false)) 
+			result = new QuietWeighting(result, encoder, hintsMap, graphStorage);
+
 
 		if (encoder.supports(TurnWeighting.class) && !(encoder instanceof FootFlagEncoder) && graphStorage != null) {
 			Path path = Paths.get(graphStorage.getDirectory().getLocation(), "turn_costs");

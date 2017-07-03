@@ -16,8 +16,11 @@ package heigit.ors.routing.parameters;
  */
 public class WalkingParameters extends ProfileParameters {
     private boolean _enabledGreenRouting = false;
+    private boolean _enabledQuietRouting = false;
     private int _difficultyLevel = -1;
     private int _maximumGradient = -1;
+    private double _greenWeightingFactor = 1.0; 
+    private double _quietWeightingFactor = 1.0; 
 
     public boolean getGreenRouting() {
         return _enabledGreenRouting;
@@ -26,7 +29,15 @@ public class WalkingParameters extends ProfileParameters {
     public void setGreenRouting(boolean isEnabled) {
         this._enabledGreenRouting = isEnabled;
     }
+        
+    public boolean getQuietRouting() {
+        return _enabledQuietRouting;
+    }
 
+    public void setQuietRouting(boolean isEnabled) {
+        this._enabledQuietRouting = isEnabled;
+    }    
+    
     public int getDifficultyLevel() {
         return _difficultyLevel;
     }
@@ -41,5 +52,21 @@ public class WalkingParameters extends ProfileParameters {
 
     public void setMaximumGradient(int maximumGradient) {
         this._maximumGradient = maximumGradient;
+    }
+    
+    public double getGreenWeightingFactor(){
+    	return _greenWeightingFactor;
+    }
+    
+    public void setGreenWeightingFactor(double greenWeightingFactor){
+    	_greenWeightingFactor = greenWeightingFactor;
+    }
+    
+    public double getQuietWeightingFactor(){
+    	return _quietWeightingFactor;
+    }
+    
+    public void setQuietWeightingFactor(double quietWeightingFactor){
+    	_quietWeightingFactor = quietWeightingFactor;
     }
 }

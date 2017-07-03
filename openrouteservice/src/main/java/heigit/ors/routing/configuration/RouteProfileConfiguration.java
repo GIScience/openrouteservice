@@ -20,8 +20,9 @@ public class RouteProfileConfiguration
 	private Double _maximumDistance = 0.0;
 	private Double _maximumSegmentDistanceWithDynamicWeights = 0.0;
 	private Integer _maximumWayPoints = 0;
-	private Boolean _useTrafficInformation = false;
-	private Boolean _instructions = true;
+	private boolean _useTrafficInformation = false;
+	private boolean _instructions = true;
+	private boolean _optimize = false;
 	
 	private int _encoderFlagsSize = 4;
 	private String _encoderOptions = null;
@@ -74,7 +75,7 @@ public class RouteProfileConfiguration
 		rpc._maximumSegmentDistanceWithDynamicWeights = this._maximumSegmentDistanceWithDynamicWeights;
 		rpc._maximumWayPoints = this._maximumWayPoints;
 		rpc._useTrafficInformation = this._useTrafficInformation;
-		
+		rpc._optimize = this._optimize;
 		rpc._instructions = this._instructions;
 		
 		rpc._encoderFlagsSize = this._encoderFlagsSize;
@@ -289,5 +290,13 @@ public class RouteProfileConfiguration
 
 	public void setExecutionOpts(Config executionOpts) {
 		this._executionOpts = executionOpts;
+	}
+
+	public boolean getOptimize() {
+		return _optimize;
+	}
+
+	public void setOptimize(boolean optimize) {
+		this._optimize = optimize;
 	}
 }

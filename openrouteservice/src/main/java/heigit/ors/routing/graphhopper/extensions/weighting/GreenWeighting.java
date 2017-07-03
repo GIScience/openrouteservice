@@ -24,6 +24,7 @@ public class GreenWeighting extends FastestWeighting {
         this._superWeighting = superWeighting;
         _buffer = new byte[1];
         _gsGreenIndex = GraphStorageUtils.getGraphExtension(graphStorage, GreenIndexGraphStorage.class);
+        // TODO 			double greenWeightingFactor = hintsMap.getDouble("green_weighting_factor", 1);
     }
 
     private double calcGreenWeightFactor(int level) {

@@ -183,12 +183,14 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
 		}
 	}
 
-    public SteepnessDifficultyWeighting(Weighting superWeighting, FlagEncoder encoder, PMap map, GraphStorage graphStorage, int difficultyLevel, double maxSteepness)
+    public SteepnessDifficultyWeighting(Weighting superWeighting, FlagEncoder encoder, PMap map, GraphStorage graphStorage)
     {
         super(encoder, map);
         
         this.superWeighting = superWeighting;
         buffer = new byte[1];
+
+	    int difficultyLevel = map.getInt("steepness_difficulty_level", -1);
 
         gsHillIndex = GraphStorageUtils.getGraphExtension(graphStorage, HillIndexGraphStorage.class);
         
@@ -204,7 +206,7 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
         	}
         }
         
-        this.maxSteepness = maxSteepness; 
+        this.maxSteepness = map.getDouble("steepness_maximum", -1);
     }
     
     @Override

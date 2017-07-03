@@ -207,6 +207,10 @@
                                 #GreenIndex_: {
                                 #    filepath: "PATH/TO/THE_GREEN_INDEX_CSV_FILE"
                                 #},
+                                #NoiseIndex: {
+                                #	 filepath: "PATH/TO/THE_NOISE_INDEX_CSV_FILE"
+                                #},
+                                
                                 WayCategory: {
                                 },								
 								WaySurfaceType: {

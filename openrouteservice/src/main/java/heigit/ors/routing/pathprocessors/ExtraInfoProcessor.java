@@ -199,7 +199,6 @@ public class ExtraInfoProcessor extends PathProcessor {
 			int clientVal = MIN_CLIENT_VAL + value * (MAX_CLIENT_VAL - MIN_CLIENT_VAL + 1) / 64;
 			_greenInfoBuilder.addSegment(value, clientVal, geom, dist, lastEdge && _lastSegment);
 		}
-
 	}
 
 	@Override

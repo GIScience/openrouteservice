@@ -243,7 +243,6 @@ public class RouteResultBuilder
 						startWayPointIndex += instr.getPoints().size();
 						//step.setMode // walking, cycling, etc. for multimodal routing
 
-
 						if (instrAnnotation != null && instrAnnotation.getWayType() != 1) // Ferry, Steps as pushing sections
 							distanceActual += stepDistance;
 

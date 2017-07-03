@@ -9,6 +9,7 @@ public class RouteExtraInfoFlag {
     public static final int WayCategory = 8;
     public static final int Suitability = 16;
     public static final int Green = 32;
+    public static final int Noise = 64;
 
     public static boolean isSet(int extraInfo, int value) {
         return (extraInfo & value) == value;
@@ -40,6 +41,9 @@ public class RouteExtraInfoFlag {
                     break;
                 case "green":
                     res |= Green;
+                    break;
+                case "noise":
+                    res |= Noise;
                     break;
             }
         }

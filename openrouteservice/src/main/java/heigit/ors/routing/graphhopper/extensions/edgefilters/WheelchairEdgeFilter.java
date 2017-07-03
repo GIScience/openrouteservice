@@ -3,7 +3,7 @@ package heigit.ors.routing.graphhopper.extensions.edgefilters;
 import heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
-import heigit.ors.routing.WheelchairParameters;
+import heigit.ors.routing.parameters.WheelchairParameters;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
