@@ -891,6 +891,11 @@ public class GraphHopper implements GraphHopperAPI {
                     + "tunnel interpolation " + (int) tunnel + "s");
         }
     }
+    
+    // runge
+    public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph graph) {
+       return createWeighting(hintsMap, encoder, graph, null);
+    }
 
     /**
      * Based on the hintsMap and the specified encoder a Weighting instance can be
@@ -904,7 +909,7 @@ public class GraphHopper implements GraphHopperAPI {
      * @return the weighting to be used for route calculation
      * @see HintsMap
      */
-    public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph graph) {
+    public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph graph, GraphStorage graphStorage) {
 		// Runge
 		if (weightingFactory != null)
 		{
@@ -1066,7 +1071,7 @@ public class GraphHopper implements GraphHopperAPI {
                     checkNonChMaxWaypointDistance(points);
                     queryGraph = new QueryGraph(ghStorage);
                     queryGraph.lookup(qResults, byteBuffer);
-                    weighting = createWeighting(hints, encoder, queryGraph);
+                    weighting = createWeighting(hints, encoder, queryGraph, ghStorage);
                     ghRsp.addDebugInfo("tmode:" + tMode.toString());
                 }
 

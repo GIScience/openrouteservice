@@ -52,7 +52,7 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 	    	weighting = hintsMap.getWeighting();
 	    
 		Weighting result = null;
-		 
+
 		GraphHopperStorage graphStorage = null;
 		if (userState instanceof GraphHopperStorage)
 		{
