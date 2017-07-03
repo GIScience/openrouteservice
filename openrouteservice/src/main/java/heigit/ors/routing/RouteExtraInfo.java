@@ -12,8 +12,8 @@
 package heigit.ors.routing;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,12 +52,16 @@ public class RouteExtraInfo
 		return _segments;
 	}
 	
-	public Map<String, Map<String, Object>> getSummary(DistanceUnit units) throws Exception
+	public List<ExtraSummaryItem> getSummary(DistanceUnit units, boolean sort) throws Exception
 	{
-		Map<String, Map<String, Object>> summary = new HashMap<String, Map<String, Object>>();
+		List<ExtraSummaryItem> summary = new ArrayList<ExtraSummaryItem>();
 		
 		if (_segments.size() > 0)
 		{
+			Comparator<ExtraSummaryItem> comp = (ExtraSummaryItem a, ExtraSummaryItem b) -> {
+			    return Double.compare(b.getAmount(), a.getAmount());
+			};
+
 			double totalDist = 0.0;
 
 			Map<Integer, Double> stats = new HashMap<Integer, Double>();
@@ -83,13 +87,16 @@ public class RouteExtraInfo
 				
 				for (Map.Entry<Integer, Double> entry : stats.entrySet())
 				{
-					Map<String, Object> valueSummary = new LinkedHashMap<String, Object>();
-					valueSummary.put("value",  entry.getKey());
-					valueSummary.put("distance", FormatUtility.roundToDecimals(DistanceUnitUtil.convert(entry.getValue(), DistanceUnit.Meters, units), unitDecimals));
-					valueSummary.put("amount",  FormatUtility.roundToDecimals(entry.getValue() * 100.0 / totalDist, 2));
+					ExtraSummaryItem esi = new ExtraSummaryItem(entry.getKey(),
+							FormatUtility.roundToDecimals(DistanceUnitUtil.convert(entry.getValue(), DistanceUnit.Meters, units), unitDecimals),
+							FormatUtility.roundToDecimals(entry.getValue() * 100.0 / totalDist, 2)
+							);
 					
-					summary.put(entry.getKey().toString(), valueSummary);
+					summary.add(esi);
 				}
+				
+				if (sort)
+					summary.sort(comp);
 			}
 		}
 

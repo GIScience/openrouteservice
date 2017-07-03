@@ -12,7 +12,6 @@
 package heigit.ors.services.routing.requestprocessors.json;
 
 import java.util.List;
-import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,6 +21,7 @@ import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import heigit.ors.geojson.GeometryJSON;
+import heigit.ors.routing.ExtraSummaryItem;
 import heigit.ors.routing.RouteExtraInfo;
 import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RouteSegment;
@@ -33,6 +33,7 @@ import heigit.ors.routing.WeightingMethod;
 import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
+import heigit.ors.util.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.PolylineEncoder;
@@ -108,7 +109,8 @@ public class JsonRoutingResponseWriter {
 
 		boolean attrDetourFactor = request.hasAttribute("detourfactor");
 		boolean attrPercentage = request.hasAttribute("percentage");
-
+		boolean attrAvgSpeed = request.hasAttribute("avgspeed");
+		
 		int nRoutes = routeResult.length;
 
 		JSONArray jRoutes = new JSONArray(nRoutes);
@@ -149,7 +151,8 @@ public class JsonRoutingResponseWriter {
 				{
 					int nSegments = route.getSegments().size();
 					JSONArray jSegments = new JSONArray(nSegments);
-					for (int j = 0; j < route.getSegments().size(); ++j)
+					
+					for (int j = 0; j < nSegments; ++j)
 					{
 						JSONObject jSegment = new JSONObject(true);
 
@@ -168,6 +171,11 @@ public class JsonRoutingResponseWriter {
 							jSegment.put("detour_factor", seg.getDetourFactor());
 						if (attrPercentage)
 							jSegment.put("percentage", FormatUtility.roundToDecimals(seg.getDistance() * 100 / route.getSummary().getDistance(), 2));
+						if (attrAvgSpeed)
+						{
+							double distFactor = request.getUnits() == DistanceUnit.Meters ? 1000 : 1;
+							jSegment.put("avgspeed", FormatUtility.roundToDecimals(seg.getDistance() / distFactor / (seg.getDuration() / 3600) , 2));
+						}
 
 						int nSteps = seg.getSteps().size();
 						JSONArray jSteps = new JSONArray(nSteps);
@@ -246,19 +254,19 @@ public class JsonRoutingResponseWriter {
 
 							// ---------- summary ---------- 
 
-							Map<String, Map<String, Object>> summary = extraInfo.getSummary(request.getUnits());
+							List<ExtraSummaryItem> summaryItems = extraInfo.getSummary(request.getUnits(), true);
 
-							if (summary.size() > 0)
+							if (summaryItems.size() > 0)
 							{
-								JSONArray jExtraItemSummary = new JSONArray(summary.size());
+								JSONArray jExtraItemSummary = new JSONArray(summaryItems.size());
 
-								for (Map.Entry<String, Map<String, Object>> kv : summary.entrySet())
+								for (ExtraSummaryItem esi : summaryItems)
 								{
 									JSONObject jExtraItemSummaryType = new JSONObject(true);
-									for (Map.Entry<String, Object> kv2 : kv.getValue().entrySet())
-									{
-										jExtraItemSummaryType.put(kv2.getKey(), kv2.getValue());
-									}
+									
+									jExtraItemSummaryType.put("value", esi.getValue());
+									jExtraItemSummaryType.put("distance", esi.getDistance());
+									jExtraItemSummaryType.put("amount", esi.getAmount());
 
 									jExtraItemSummary.put(jExtraItemSummaryType);
 								}
