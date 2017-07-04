@@ -894,7 +894,7 @@ public class GraphHopper implements GraphHopperAPI {
     
     // runge
     public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph graph) {
-       return createWeighting(hintsMap, encoder, graph, null);
+       return createWeighting(hintsMap, encoder, graph, ghStorage);
     }
 
     /**
@@ -909,11 +909,11 @@ public class GraphHopper implements GraphHopperAPI {
      * @return the weighting to be used for route calculation
      * @see HintsMap
      */
-    public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph graph, GraphStorage graphStorage) {
+    public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph graph,  GraphHopperStorage graphStorage) {
 		// Runge
 		if (weightingFactory != null)
 		{
-			return weightingFactory.createWeighting(hintsMap, encoder, graph, locationIndex, null);
+			return weightingFactory.createWeighting(hintsMap, encoder, graph, locationIndex, graphStorage);
 		}
     	
         String weightingStr = hintsMap.getWeighting().toLowerCase();
