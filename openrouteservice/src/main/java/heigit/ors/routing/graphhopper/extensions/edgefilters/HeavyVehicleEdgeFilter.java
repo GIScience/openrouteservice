@@ -37,7 +37,7 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
 
-public abstract class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
+public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 
 	public class CustomDijkstra extends Dijkstra
 	{
@@ -81,7 +81,7 @@ public abstract class HeavyVehicleEdgeFilter implements DestinationDependentEdge
 	 */
 	public HeavyVehicleEdgeFilter(FlagEncoder encoder, boolean in, boolean out, int vehicleType,
 			VehicleParameters vehicleParams, GraphStorage graphStorage) {
-		this.encoder = (HeavyVehicleFlagEncoder)encoder;
+		this.encoder = encoder;
 		this.in = in;
 		this.out = out;
 

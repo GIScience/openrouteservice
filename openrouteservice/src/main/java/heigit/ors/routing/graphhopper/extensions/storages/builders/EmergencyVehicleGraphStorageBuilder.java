@@ -35,7 +35,6 @@ public class EmergencyVehicleGraphStorageBuilder extends AbstractGraphStorageBui
 	private boolean _includeRestrictions = true;
 	private EmergencyVehicleAttributesGraphStorage _storage;
 	private int _hgvType = 0;
-	private int _hgvDestination = 0;
 	private boolean _hasRestrictionValues;
 	private double[] _restrictionValues = new double[VehicleRestrictionCodes.Count];
 	private List<String> _motorVehicleRestrictions = new ArrayList<String>(5);
@@ -74,7 +73,6 @@ public class EmergencyVehicleGraphStorageBuilder extends AbstractGraphStorageBui
 	public void processWay(ReaderWay way) {
 		
 		_hgvType = 0;
-		_hgvDestination = 0;
 		
 		if (_hasRestrictionValues) {
 			_restrictionValues[0] = 0.0;
@@ -303,7 +301,7 @@ public class EmergencyVehicleGraphStorageBuilder extends AbstractGraphStorageBui
 	@Override
 	public void processEdge(ReaderWay way, EdgeIteratorState edge) 
 	{
-		if (_hgvType > HeavyVehicleAttributes.UNKNOWN || _hgvDestination > 0 || _hasRestrictionValues) 
+		//if (_hgvType > HeavyVehicleAttributes.UNKNOWN || _hgvDestination > 0 || _hasRestrictionValues) 
 		{
 			if (_hasRestrictionValues)
 				_storage.setEdgeValue(edge.getEdge(), _hgvType, 0, _restrictionValues);

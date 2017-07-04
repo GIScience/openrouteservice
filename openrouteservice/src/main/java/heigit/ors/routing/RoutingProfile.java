@@ -140,7 +140,7 @@ public class RoutingProfile
 		gh.setFlagEncoderFactory(flagEncoderFactory);
 
 		gh.init(args);
-		
+
 		gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
 		gh.setWeightingFactory(new ORSWeightingFactory(RealTrafficDataProvider.getInstance()));
 
@@ -198,7 +198,7 @@ public class RoutingProfile
 
 		boolean prepareCH = false;
 		boolean prepareLM = false;
-		
+
 		if (config.getPreparationOpts() != null)
 		{
 			Config opts = config.getPreparationOpts();
@@ -206,7 +206,7 @@ public class RoutingProfile
 				args.put("prepare.min_network_size", opts.getInt("min_network_size"));
 			if (opts.hasPath("min_one_way_network_size"))
 				args.put("prepare.min_one_way_network_size", opts.getInt("min_one_way_network_size"));
-			
+
 			if (opts.hasPath("methods"))
 			{
 				if (opts.hasPath("methods.ch"))
@@ -215,32 +215,32 @@ public class RoutingProfile
 					if (chOpts.hasPath("enabled") || chOpts.getBoolean("enabled"))
 					{
 						if (chOpts.hasPath("threads"))
-   							args.put("prepare.ch.threads", chOpts.getInt("threads"));
+							args.put("prepare.ch.threads", chOpts.getInt("threads"));
 						if (chOpts.hasPath("weightings"))
-   							args.put("prepare.ch.weightings", chOpts.getString("weightings").replace("|", ","));
-						
+							args.put("prepare.ch.weightings", chOpts.getString("weightings").replace("|", ","));
+
 						prepareCH = true;
 					}
 				}
-				
+
 				if (opts.hasPath("methods.lm"))
 				{
 					Config lmOpts = opts.getConfig("methods.lm");
 					if (lmOpts.hasPath("enabled") || lmOpts.getBoolean("enabled"))
 					{
 						if (lmOpts.hasPath("threads"))
-   							args.put("prepare.lm.threads", lmOpts.getInt("threads"));
+							args.put("prepare.lm.threads", lmOpts.getInt("threads"));
 						if (lmOpts.hasPath("weightings"))
-   							args.put("prepare.lm.weightings", lmOpts.getString("weightings").replace("|", ","));
+							args.put("prepare.lm.weightings", lmOpts.getString("weightings").replace("|", ","));
 						if (lmOpts.hasPath("landmarks"))
-   							args.put("prepare.lm.landmarks", lmOpts.getInt("landmarks"));
-						
+							args.put("prepare.lm.landmarks", lmOpts.getInt("landmarks"));
+
 						prepareLM = true;
 					}
 				}
 			}
 		}
-		
+
 		if (prepareCH == false)
 			args.put("prepare.ch.weightings", "no");
 		if (prepareLM == false)
@@ -260,12 +260,12 @@ public class RoutingProfile
 				Config lmOpts = opts.getConfig("methods.lm");
 				if (lmOpts.hasPath("disabling_allowed"))
 					args.put("routing.lm.disabling_allowed", lmOpts.getBoolean("disabling_allowed"));
-				
+
 				if (lmOpts.hasPath("active_landmarks"))
 					args.put("routing.lm.active_landmarks", lmOpts.getInt("active_landmarks"));
 			}
 		}
-		
+
 		String flagEncoders = "";
 		String[] encoderOpts = !Helper.isEmpty(config.getEncoderOptions()) ? config.getEncoderOptions().split(",") : null;
 		Integer[] profiles = config.getProfilesTypes();
@@ -437,35 +437,35 @@ public class RoutingProfile
 
 		return result;
 	}
-	
+
 	public MatrixResult computeMatrix(MatrixRequest req) throws Exception
 	{
-		 MatrixResult mtxResult = null;
-		 try
-		 {
-			 GraphHopper gh = getGraphhopper();
-			 String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
-			 FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
+		MatrixResult mtxResult = null;
+		try
+		{
+			GraphHopper gh = getGraphhopper();
+			String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
+			FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
 
-			 MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(req, gh, flagEncoder);
-			 if (alg == null)
-				 throw new Exception("Unable to create an algorithm to distance/duration matrix.");
-			 
-			 alg.init(req, gh, flagEncoder);
+			MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(req, gh, flagEncoder);
+			if (alg == null)
+				throw new Exception("Unable to create an algorithm to distance/duration matrix.");
 
-			 MatrixLocationDataResolver locResolver = new MatrixLocationDataResolver(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), new ByteArrayBuffer(), req.getResolveLocations());
-			 
-			 MatrixSearchData srcData = locResolver.resolve(req.getSources());
-			 MatrixSearchData dstData = locResolver.resolve(req.getDestinations()); 
+			alg.init(req, gh, flagEncoder);
 
-			 mtxResult = alg.compute(srcData, dstData, req.getMetrics()); 
-		 }
-		 catch(Exception ex)
-		 {
-			 throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute distance/duration matrix. " + ex.getMessage());
-		 }
-		 
-		 return mtxResult;
+			MatrixLocationDataResolver locResolver = new MatrixLocationDataResolver(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), new ByteArrayBuffer(), req.getResolveLocations());
+
+			MatrixSearchData srcData = locResolver.resolve(req.getSources());
+			MatrixSearchData dstData = locResolver.resolve(req.getDestinations()); 
+
+			mtxResult = alg.compute(srcData, dstData, req.getMetrics()); 
+		}
+		catch(Exception ex)
+		{
+			throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute distance/duration matrix. " + ex.getMessage());
+		}
+
+		return mtxResult;
 	}
 
 	private RouteSearchContext createSearchContext(RouteSearchParameters searchParams, RouteSearchMode mode) throws Exception
@@ -561,7 +561,7 @@ public class RoutingProfile
 				props.put("green_weighting_factor", walkingParams.getGreenWeightingFactor());
 			}
 		}
-		
+
 		if (searchParams.hasParameters(WalkingParameters.class)) {
 			WalkingParameters walkingParams = (WalkingParameters)searchParams.getProfileParameters();
 			if (walkingParams.getQuietRouting() && mode == RouteSearchMode.Routing) {
@@ -630,10 +630,10 @@ public class RoutingProfile
 	public boolean canProcessRequest(double totalDistance, double longestSegmentDistance, int wayPoints) {
 		double maxDistance = (_config.getMaximumDistance() > 0) ? _config.getMaximumDistance(): Double.MAX_VALUE;
 		int maxWayPoints = (_config.getMaximumWayPoints() > 0) ? _config.getMaximumWayPoints(): Integer.MAX_VALUE;
-		
-    	return totalDistance <= maxDistance && wayPoints <= maxWayPoints;
+
+		return totalDistance <= maxDistance && wayPoints <= maxWayPoints;
 	}
-	
+
 	public GHResponse getRoute(double lat0, double lon0, double lat1, double lon1, boolean directedSegment, RouteSearchParameters searchParams, boolean simplifyGeometry, RouteProcessContext routeProcCntx)
 			throws Exception {
 
@@ -705,7 +705,7 @@ public class RoutingProfile
 
 			if (useDynamicWeights(searchParams) || flexibleMode)
 			{
-			    req.getHints().put("ch.disable", true);
+				req.getHints().put("ch.disable", true);
 				req.getHints().put("lm.disable", false);
 			}
 			else
@@ -715,24 +715,24 @@ public class RoutingProfile
 				else
 					req.getHints().put("ch.disable", true);
 			}
-			 
+
 			/*if (directedSegment)
 				resp = mGraphHopper.directRoute(req); NOTE IMPLEMENTED!!!
 			else */
 			resp = mGraphHopper.route(req, routeProcCntx.getArrayBuffer());
-				
+
 			endUseGH();
 		} catch (Exception ex) {
 			endUseGH();
 
 			LOGGER.error(ex);
-			
+
 			throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to compute a route between coordinates %s-%s", Double.toString(lon0) + ", " + Double.toString(lat0),  Double.toString(lon1) + ", " + Double.toString(lat1)));
 		}
 
 		return resp;
 	}
-	
+
 	private boolean useDynamicWeights(RouteSearchParameters searchParams)
 	{
 		boolean dynamicWeights = (searchParams.hasAvoidAreas() || searchParams.hasAvoidFeatures() || searchParams.getMaximumSpeed() > 0 || (RoutingProfileType.isDriving(searchParams.getProfileType()) && (searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
@@ -781,8 +781,14 @@ public class RoutingProfile
 
 			if (vehicleParams.hasAttributes())
 			{
-				EdgeFilter ef = new HeavyVehicleEdgeFilter(flagEncoder, vehicleType, vehicleParams, gs) {	};
-				edgeFilter = createEdgeFilter(ef, edgeFilter);
+				EdgeFilter ef = null;
+				if (searchParams.getProfileType() == RoutingProfileType.DRIVING_HGV)
+					ef = new HeavyVehicleEdgeFilter(flagEncoder, vehicleType, vehicleParams, gs);
+				else if (searchParams.getProfileType() == RoutingProfileType.DRIVING_EMERGENCY)
+					ef = new EmergencyVehicleEdgeFilter(flagEncoder, vehicleParams, gs);
+				
+				if (ef != null)
+				  edgeFilter = createEdgeFilter(ef, edgeFilter);
 			}
 		}
 

@@ -5,3 +5,4 @@ heigit.ors.routing.graphhopper.extensions.storages.builders.HillIndexGraphStorag
 heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGraphStorageBuilder
 heigit.ors.routing.graphhopper.extensions.storages.builders.GreenIndexGraphStorageBuilder
 heigit.ors.routing.graphhopper.extensions.storages.builders.NoiseIndexGraphStorageBuilder
+heigit.ors.routing.graphhopper.extensions.storages.builders.EmergencyVehicleGraphStorageBuilder
