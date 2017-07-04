@@ -13,7 +13,6 @@ package heigit.ors.services.geocoding.requestprocessors;
 
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 
 import heigit.ors.geocoding.geocoders.SearchBoundary;
 import heigit.ors.services.ServiceRequest;

@@ -35,6 +35,11 @@ public class StatusCodeHandlerFilter implements Filter {
 		} catch (Throwable e) { // NOSONAR this is an UnhandledExceptionHandler - we need to catch this
 			exception = e;
 		}
+		
+		if (exception != null)
+		{
+			// Add further exception processing if needed
+		}
 
 		// 	flush to prevent servlet container to add anymore  headers or content
 		response.flushBuffer();

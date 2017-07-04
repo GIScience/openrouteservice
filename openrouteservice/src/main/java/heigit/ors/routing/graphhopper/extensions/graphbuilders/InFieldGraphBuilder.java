@@ -48,7 +48,6 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 	private List<Weighting> weightings;
 	private EncodingManager encodingManager;
 
-	@SuppressWarnings("resource")
 	@Override
 	public void init(GraphHopper graphhopper) throws Exception {
 		// create local network taken from        
@@ -86,6 +85,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 		}
 
 		DistanceCalc distCalc = Helper.DIST_EARTH;
+		@SuppressWarnings("resource")
 		GraphHopperStorage graphStorage = new GraphHopperStorage(weightings,  new RAMDirectory(), encodingManager, false,  new GraphExtension.NoOpExtension()).create(20);
 
 		for (int j = 0; j < osmNodeIds.size() - 1; j++) {                 

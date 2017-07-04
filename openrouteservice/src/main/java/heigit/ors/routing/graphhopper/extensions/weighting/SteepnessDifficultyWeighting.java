@@ -29,17 +29,17 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
 	private double maxSteepness;
 	
 	private static double BIKE_DIFFICULTY_MATRIX[][];
-	private static double HIKE_DIFFICULTY_MATRIX[][];
+	//private static double HIKE_DIFFICULTY_MATRIX[][];
 	
 	static 
 	{
 		BIKE_DIFFICULTY_MATRIX = new double[4][20];
-		HIKE_DIFFICULTY_MATRIX = new double[4][20];
+		//HIKE_DIFFICULTY_MATRIX = new double[4][20];
 		
 		for (int d = 0; d <= 3; d++)
 		{
 			double[] bikeDifficultyWeights = BIKE_DIFFICULTY_MATRIX[d];
-			double[] hikeDifficultyWeights = HIKE_DIFFICULTY_MATRIX[d];
+			//double[] hikeDifficultyWeights = HIKE_DIFFICULTY_MATRIX[d];
 
 			for (int i = 0; i < 20; i++)
 			{
@@ -179,7 +179,7 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
 			}
 			
 			// TODO create its own weights for hike/pedestrian profiles
-			hikeDifficultyWeights = bikeDifficultyWeights;
+			//hikeDifficultyWeights = bikeDifficultyWeights;
 		}
 	}
 
@@ -198,7 +198,7 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
         {
         	if (difficultyLevel >= 0)
         	{
-        		String name = encoder.toString();
+        		//String name = encoder.toString();
         		/*if (name.equals("hike") || name.equals("hike2") || name.equals("foot"))
         			difficultyWeights = HIKE_DIFFICULTY_MATRIX[difficultyLevel];
         		else*/

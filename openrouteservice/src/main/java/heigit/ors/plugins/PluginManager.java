@@ -72,6 +72,7 @@ public class PluginManager<T extends Plugin> {
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
 	public T createInstance(String name, Map<String, String> params)
 	{
 		T instance = null;

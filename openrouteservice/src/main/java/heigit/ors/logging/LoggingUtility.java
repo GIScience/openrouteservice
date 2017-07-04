@@ -52,14 +52,15 @@ public class LoggingUtility {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	private static void initInternal(File configFile, String outputPath, boolean stdOut) throws IOException
 	{
 		List<Appender> appenders = new ArrayList<Appender>();
 
 		// Retrieve all existing appenders
-		Enumeration<Appender>  apps = LogManager.getRootLogger().getAllAppenders();
+		Enumeration apps = LogManager.getRootLogger().getAllAppenders();
 		while(apps.hasMoreElements()) {
-			Appender appender = apps.nextElement();
+			Appender appender = (Appender)apps.nextElement();
 			if (!(appender instanceof ConsoleAppender || appender instanceof FileAppender)) 
 				appenders.add( appender );
 		}
@@ -74,9 +75,9 @@ public class LoggingUtility {
 		PropertyConfigurator.configure(lprops);
 
 		if (!stdOut) {
-            apps = (Enumeration<Appender>)org.apache.log4j.Logger.getRootLogger().getAllAppenders();
+            apps = org.apache.log4j.Logger.getRootLogger().getAllAppenders();
             while (apps.hasMoreElements()) {
-            	Appender appender = apps.nextElement();
+            	Appender appender = (Appender)apps.nextElement();
                 if (appender instanceof org.apache.log4j.ConsoleAppender) {
                     org.apache.log4j.Logger.getRootLogger().removeAppender(appender);
                 }
