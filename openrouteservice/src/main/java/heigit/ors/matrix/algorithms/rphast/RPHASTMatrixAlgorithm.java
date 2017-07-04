@@ -44,7 +44,7 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 		_prepareCH = _graphHopper.getCHFactoryDecorator().getPreparations().get(0);
 		HintsMap hintsMap = new HintsMap();
 		hintsMap.setWeighting(Helper.isEmpty(req.getWeightingMethod()) ? "fastest" : req.getWeightingMethod());
-		Weighting weighting = new ORSWeightingFactory(RealTrafficDataProvider.getInstance()).createWeighting(hintsMap, encoder, _chGraph, null, null);
+		Weighting weighting = new ORSWeightingFactory(RealTrafficDataProvider.getInstance()).createWeighting(hintsMap, encoder, _chGraph, null, gh.getGraphHopperStorage());
 		_pathMetricsExtractor = new PathMetricsExtractor(req.getMetrics(), _chGraph, _encoder, weighting, req.getUnits());
 	}
 

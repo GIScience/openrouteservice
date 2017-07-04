@@ -46,19 +46,13 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 		m_turnCostExtensions = new HashMap<Object, TurnCostExtension>();
 	}
 	
-	public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph graph, LocationIndex locationIndex, Object userState) {
+	public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph graph, LocationIndex locationIndex, GraphHopperStorage graphStorage) {
 	    String weighting = hintsMap.get("weighting_method", "").toLowerCase();
 	    if (Helper.isEmpty(weighting))
 	    	weighting = hintsMap.getWeighting();
 	    
 		Weighting result = null;
 
-		GraphHopperStorage graphStorage = null;
-		if (userState instanceof GraphHopperStorage)
-		{
-			graphStorage = (GraphHopperStorage) userState;
-		}
-		
         if ("shortest".equalsIgnoreCase(weighting))
         {
             result = new ShortestWeighting(encoder); 
