@@ -203,9 +203,12 @@
 						    encoder_options: "block_fords=false,block_fords=false",
 						    elevation: true, 
                             ext_storages: {
-                                #GreenIndex_: {
-                                #    filepath: "PATH/TO/THE_GREEN_INDEX_CSV_FILE"
-                                #},
+                                GreenIndex: {
+                                    filepath: "openrouteservice-api-tests/data/green_streets_hd.csv"
+                                },
+                                NoiseIndex: {
+                                    filepath: "openrouteservice-api-tests/data/noise_data_hd.csv"
+                                },
                                 WayCategory: {
                                 },								
 								WaySurfaceType: {
