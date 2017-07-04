@@ -82,8 +82,7 @@ public class RoutingManagerConfiguration
 						profile.setEncoderOptions(paramItem.getValue().toString());
 						break;
 					case "optimize":
-						// TODO here we might use graph.sort option or anything similar
-						profile.setOptimize(false);
+						profile.setOptimize(Boolean.parseBoolean(paramItem.getValue().toString()));
 						break;
 					case "encoder_flags_size":
 						profile.setEncoderFlagsSize(Integer.parseInt(paramItem.getValue().toString()));

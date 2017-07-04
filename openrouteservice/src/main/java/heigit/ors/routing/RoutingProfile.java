@@ -265,6 +265,10 @@ public class RoutingProfile
 					args.put("routing.lm.active_landmarks", lmOpts.getInt("active_landmarks"));
 			}
 		}
+		
+		
+		if (config.getOptimize() && !prepareCH)
+			args.put("graph.do_sort", true);
 
 		String flagEncoders = "";
 		String[] encoderOpts = !Helper.isEmpty(config.getEncoderOptions()) ? config.getEncoderOptions().split(",") : null;
