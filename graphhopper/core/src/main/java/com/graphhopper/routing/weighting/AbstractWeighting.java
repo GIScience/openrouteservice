@@ -59,6 +59,12 @@ public abstract class AbstractWeighting implements Weighting {
         return getName().equals(reqMap.getWeighting())
                 && flagEncoder.toString().equals(reqMap.getVehicle());
     }
+    
+    @Override
+    public double getMaxWeight() // runge
+    {
+    	return 1;
+    }
 
     @Override
     public FlagEncoder getFlagEncoder() {

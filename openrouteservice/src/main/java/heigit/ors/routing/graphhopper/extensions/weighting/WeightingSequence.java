@@ -46,6 +46,19 @@ public class WeightingSequence implements Weighting {
 		weightings.add(w);
 		weightingsCount++;
 	}
+	
+	@Override
+    public double getMaxWeight() {
+		double maxValue = Double.MIN_VALUE;
+		
+		for (int i = 0; i < weightingsCount; i++) {
+			double w = weightings.get(i).getMaxWeight();
+			if (w > maxValue)
+				maxValue = w;
+		}
+ 
+		return maxValue;
+    }
 
 	@Override
 	public double getMinWeight(double distance) {

@@ -738,6 +738,12 @@ public abstract class AbstractRoutingAlgorithmTester {
             }
 
             @Override
+            public final double getMaxWeight()
+            {
+            	return 1;
+            }
+            
+            @Override
             public double getMinWeight(double distance) {
                 return 0.8 * distance;
             }

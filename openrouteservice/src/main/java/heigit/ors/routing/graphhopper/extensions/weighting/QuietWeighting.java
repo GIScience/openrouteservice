@@ -1,7 +1,17 @@
+/*|----------------------------------------------------------------------------------------------
+ *|														Heidelberg University
+ *|	  _____ _____  _____      _                     	Department of Geography		
+ *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2017
+ *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
+ *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
+ *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
+ *|	        	                                       	http://www.giscience.uni-hd.de
+ *|								
+ *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.routing.graphhopper.extensions.weighting;
 
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
@@ -14,14 +24,12 @@ import heigit.ors.routing.graphhopper.extensions.storages.NoiseIndexGraphStorage
  * Created by ZWang on 14/06/2017.
  */
 public class QuietWeighting extends FastestWeighting {
-    private Weighting _superWeighting;
     private NoiseIndexGraphStorage _gsNoiseIndex;
     private byte[] _buffer;
     private double _weightingFactor = 1;
 
-    public QuietWeighting(Weighting superWeighting, FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
+    public QuietWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
         super(encoder, map);
-        this._superWeighting = superWeighting;
         _buffer = new byte[1];
         _gsNoiseIndex = GraphStorageUtils.getGraphExtension(graphStorage, NoiseIndexGraphStorage.class);
         _weightingFactor = map.getDouble("quiet_weighting_factor", 1);
@@ -44,9 +52,9 @@ public class QuietWeighting extends FastestWeighting {
     public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
         if (_gsNoiseIndex != null) {
             int noiseLevel = _gsNoiseIndex.getEdgeValue(edgeState.getOriginalEdge(), _buffer);
-            return _superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId) * calcNoiseWeightFactor(noiseLevel);
+            return calcNoiseWeightFactor(noiseLevel);
         }
 
-        return _superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
+        return 1.0;
     }
 }

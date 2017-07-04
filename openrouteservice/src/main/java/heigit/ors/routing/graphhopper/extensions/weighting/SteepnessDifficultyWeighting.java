@@ -5,7 +5,6 @@ import heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStorage;
 
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
-import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
@@ -22,7 +21,6 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
      */
     public static final int KEY = 101;
     
-    private Weighting superWeighting;
 	private HillIndexGraphStorage gsHillIndex;
 	private byte[] buffer;
 	private double[] difficultyWeights;
@@ -183,11 +181,10 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
 		}
 	}
 
-    public SteepnessDifficultyWeighting(Weighting superWeighting, FlagEncoder encoder, PMap map, GraphStorage graphStorage)
+    public SteepnessDifficultyWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage)
     {
         super(encoder, map);
         
-        this.superWeighting = superWeighting;
         buffer = new byte[1];
 
 	    int difficultyLevel = map.getInt("steepness_difficulty_level", -1);
@@ -221,9 +218,9 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
     			return Double.POSITIVE_INFINITY;
 
     		if (difficultyWeights != null)
-    			return superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId)*difficultyWeights[hillIndex];
+    			return difficultyWeights[hillIndex];
     	}
 
-   		return superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
+   		return 1.0;
     }
 }
