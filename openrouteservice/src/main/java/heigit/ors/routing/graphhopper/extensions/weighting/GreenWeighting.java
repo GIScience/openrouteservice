@@ -17,6 +17,7 @@ public class GreenWeighting extends FastestWeighting {
     private Weighting _superWeighting;
     private GreenIndexGraphStorage _gsGreenIndex;
     private int _totalLevel = 64;
+    private double _weightingFactor = 0.4;
     private byte[] _buffer;
 
     public GreenWeighting(Weighting superWeighting, FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
@@ -24,15 +25,21 @@ public class GreenWeighting extends FastestWeighting {
         this._superWeighting = superWeighting;
         _buffer = new byte[1];
         _gsGreenIndex = GraphStorageUtils.getGraphExtension(graphStorage, GreenIndexGraphStorage.class);
-        // TODO 			double greenWeightingFactor = hintsMap.getDouble("green_weighting_factor", 1);
+        _weightingFactor = map.getDouble("green_weighting_factor", 1);
+        _weightingFactor = 0.9;
     }
 
     private double calcGreenWeightFactor(int level) {
         // There is an implicit convention here:
-        // the level range is [0, total - 1].
+        // the green level range is [0, total - 1].
         // And the @level will be transformed to a float number
         // falling in (0, 2] linearly
-        return (double) (level + 1) * 2.0 / _totalLevel;
+        // However, for the final green weighting,
+        // a weighting factor will be taken into account
+        // to control the impact of the "green consideration"
+        // just like an amplifier
+        double wf = (double) (level + 1) * 2.0 / _totalLevel;
+        return 1.0 - (1.0 - wf) * _weightingFactor;
     }
 
     @Override
