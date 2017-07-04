@@ -204,7 +204,7 @@
 						    encoder_options: "block_fords=false,block_fords=false",
 						    elevation: true, 
                             ext_storages: {
-                                #GreenIndex_: {
+                                #GreenIndex: {
                                 #    filepath: "PATH/TO/THE_GREEN_INDEX_CSV_FILE"
                                 #},
                                 #NoiseIndex: {
