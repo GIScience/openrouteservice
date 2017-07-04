@@ -67,15 +67,18 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
     private void readGreenIndicesFromCSV(String csvFile) throws IOException {
         BufferedReader csvBuffer = null;
+        
         try {
             String row;
             csvBuffer = new BufferedReader(new FileReader(csvFile));
             // Jump the header line
-            csvBuffer.readLine();
-            String[] rowValues = new String[2]; 
+            row = csvBuffer.readLine();
+            char separator = row.contains(";") ? ';': ',';
+            String[] rowValues = new String[2];
+            
             while ((row = csvBuffer.readLine()) != null) 
             {
-                if (!parseCSVrow(row, rowValues)) 
+                if (!parseCSVrow(row, separator, rowValues)) 
                 	continue;
                 
                 _greenIndices.put(Long.parseLong(rowValues[0]), Double.parseDouble(rowValues[1]));
@@ -90,11 +93,11 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
         }
     }
 
-    private boolean parseCSVrow(String row,  String[] rowValues) {
+    private boolean parseCSVrow(String row, char separator,  String[] rowValues) {
         if (Helper.isEmpty(row))
         	return false;
         
-        int pos = row.indexOf(',');
+        int pos = row.indexOf(separator);
         if (pos > 0)
         {
         	rowValues[0] = row.substring(0, pos).trim();

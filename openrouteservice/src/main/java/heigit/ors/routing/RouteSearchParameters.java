@@ -301,7 +301,7 @@ public class RouteSearchParameters {
 			}
 			else
 			{
-				throw new Exception("Not supported geometry type in avoid_polygons.");
+				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_polygons");
 			}
 		}
 	}
