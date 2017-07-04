@@ -122,8 +122,6 @@ public class ExtraInfoProcessor extends PathProcessor {
 
 			if (extGreenIndex == null)
 				throw new Exception("GreenIndex storage is not found.");
-			// FIXME use "suitability" RouteExtraInfo for green routing for the moment
-			// Should be changed to "green" in the future
 			_greenInfo = new RouteExtraInfo("green");
 			_greenInfoBuilder = new SimpleRouteExtraInfoBuilder(_greenInfo);
 		}
