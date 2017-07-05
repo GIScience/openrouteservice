@@ -55,9 +55,9 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor
 		case "GET":
 			req = JsonMatrixRequestParser.parseFromRequestParams(_request);
 			break;
-		///case "POST":  needs to be implemented
-		//	req = JsonMatrixRequestParser.parseFromStream(_request.getInputStream());  
-		//	break;
+		case "POST": 
+			req = JsonMatrixRequestParser.parseFromStream(_request.getInputStream());  
+			break;
 		default:
 			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED);
 		}

@@ -15,6 +15,10 @@ import java.io.InputStream;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -33,12 +37,159 @@ import heigit.ors.util.ArraysUtility;
 import heigit.ors.util.CoordTools;
 import heigit.ors.util.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
+import heigit.ors.util.JsonUtility;
+import heigit.ors.util.StreamUtility;
 
 public class JsonMatrixRequestParser {
 
 	public static MatrixRequest parseFromStream(InputStream stream) throws Exception 
 	{
-		throw new StatusCodeException(StatusCode.BAD_REQUEST, MatrixErrorCodes.INVALID_JSON_FORMAT, "Unable to parse JSON document.");
+		String body = StreamUtility.readStream(stream);
+
+		if (Helper.isEmpty(body))
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, MatrixErrorCodes.INVALID_JSON_FORMAT, "Unable to parse JSON document.");
+
+		JSONObject json = null;
+		
+		try
+		{
+			json = new JSONObject(body);
+		}
+		catch(Exception ex)
+		{
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, MatrixErrorCodes.INVALID_JSON_FORMAT, "Unable to parse JSON document." + ex.getMessage());
+		}
+
+		MatrixRequest req = new MatrixRequest();
+		
+		String value = json.optString("profile");
+		
+		if (!Helper.isEmpty(value))
+		{
+			int profileType = RoutingProfileType.getFromString(value);
+			if (profileType == RoutingProfileType.UNKNOWN)
+				throw new UnknownParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "profile", value);
+			req.setProfileType(profileType);
+		}
+		else
+		{
+			throw new MissingParameterException(MatrixErrorCodes.MISSING_PARAMETER, "profile");
+		}
+
+		JSONArray jLocations = json.optJSONArray("locations");
+		Coordinate[] locations = null;
+		
+		if (jLocations != null)
+		{
+			try
+			{
+				int nLocations = jLocations.length();
+				if (nLocations < 2)
+					throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "locations");
+				
+				locations = new Coordinate[nLocations];
+				
+				for (int i = 0; i < nLocations; i++)
+				{
+					JSONArray jCoordinate = jLocations.getJSONArray(i);
+					
+					if (jCoordinate.length() < 2)
+						throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "locations");
+					
+					locations[i] = new Coordinate(jCoordinate.getDouble(0), jCoordinate.getDouble(1));
+				}
+			}
+			catch(NumberFormatException nfex)
+			{
+				throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "locations");
+			}
+			catch(JSONException jex)
+			{
+				throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "locations");
+			}
+		}
+		else
+		{
+			throw new MissingParameterException(MatrixErrorCodes.MISSING_PARAMETER, "locations");
+		}
+		
+		if (json.has("sources"))
+		{
+			JSONArray jSources = json.optJSONArray("sources");
+			
+			if (jSources != null)
+			{
+                 int[] index =  JsonUtility.parseIntArray(jSources, "sources", MatrixErrorCodes.INVALID_PARAMETER_FORMAT);
+                 req.setSources(getLocations(locations, index, "sources"));
+			}
+			else
+				req.setSources(getLocations(locations, json.getString("sources"), "sources"));
+		}
+		else
+   		   req.setSources(locations);
+		
+		if (json.has("destinations"))
+		{
+			JSONArray jDestinations = json.optJSONArray("destinations");
+			
+			if (jDestinations != null)
+			{
+                 int[] index =  JsonUtility.parseIntArray(jDestinations, "destinations", MatrixErrorCodes.INVALID_PARAMETER_FORMAT);
+                 req.setDestinations(getLocations(locations, index, "destinations"));
+			}
+			else
+				req.setDestinations(getLocations(locations, json.getString("destinations"), "destinations"));
+		}
+		else
+   		   req.setDestinations(locations);
+		
+		
+		value = json.optString("metrics");
+		if (!Helper.isEmpty(value))
+		{
+		   int metrics =  MatrixMetricsType.getFromString(value);
+		   
+		   if (metrics == MatrixMetricsType.Unknown)
+			 throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "metrics");
+		   
+		   req.setMetrics(metrics);
+		}
+
+		if (MatrixMetricsType.isSet(req.getMetrics(), MatrixMetricsType.Distance))
+		{
+			value = json.optString("units");
+			if (!Helper.isEmpty(value))
+			{
+				DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.Unknown);
+
+				if (units == DistanceUnit.Unknown)
+					throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "units");
+
+				req.setUnits(units);
+			}
+		}
+	
+		value = json.optString("resolve_locations");
+		if (!Helper.isEmpty(value))
+		{
+		   try
+		   {
+			   Boolean b = Boolean.parseBoolean(value);
+			   if (!b && !value.equalsIgnoreCase("false"))
+				   throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "resolve_locations");
+			   req.setResolveLocations(b);
+		   }
+		   catch(Exception ex)
+		   {
+			   throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "resolve_locations");
+		   }
+		}
+		
+		value = json.optString("id");
+		if (!Helper.isEmpty(value))
+			req.setId(value);
+		
+		return req;
 	}
 
 	public static MatrixRequest parseFromRequestParams(HttpServletRequest request) throws Exception
@@ -146,7 +297,12 @@ public class JsonMatrixRequestParser {
 			return locations;
 		
 		int[] index = ArraysUtility.parseIntArray(strIndex, elemName, MatrixErrorCodes.INVALID_PARAMETER_FORMAT);
-		
+
+		return getLocations(locations, index, elemName);
+	}
+	
+	private static Coordinate[] getLocations(Coordinate[] locations, int[] index, String elemName) throws Exception
+	{
 		Coordinate[] res = new Coordinate[index.length];
 		for (int i = 0; i < index.length; i++)
 		{
