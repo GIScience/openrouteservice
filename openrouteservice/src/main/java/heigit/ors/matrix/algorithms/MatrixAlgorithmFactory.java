@@ -24,7 +24,7 @@ public class MatrixAlgorithmFactory
     {
     	MatrixAlgorithm alg = null;
     	
-    	if (true)
+    	if (false)
     	{   
     		//if (req.getProfileType())
         	// check if there are any dynamic weights

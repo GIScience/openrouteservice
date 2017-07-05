@@ -23,7 +23,7 @@ public class PathMetricsExtractor {
 	private double _edgeWeight;
 	private double _edgeTime;
 	private DistanceUnit _distUnits;
-	private boolean reverseOrder = true;
+	private boolean _reverseOrder = true;
 
 	public PathMetricsExtractor(int metrics, Graph graph, FlagEncoder encoder, Weighting weighting, DistanceUnit units)
 	{
@@ -106,21 +106,24 @@ public class PathMetricsExtractor {
 
 						if (calcWeight || calcTime)
 						{
-							if (iter.isShortcut() && _chGraph.getLevel(iter.getBaseNode()) > _chGraph.getLevel(iter.getAdjNode()))
+							if (iter.isShortcut())
 							{
-								reverseOrder = true;//_chGraph.getLevel(iter.getBaseNode())  > _chGraph.getLevel(iter.getAdjNode());
-								//reverseOrder = iter.getBaseNode() > iter.getAdjNode();//iter.isBackward(_encoder);//iter.getBaseNode() > iter.getAdjNode();
-								extractEdgeValues(iter, false);
+								if (_chGraph.getLevel(iter.getBaseNode()) > _chGraph.getLevel(iter.getAdjNode()))
+								{
+									_reverseOrder = true;
+									extractEdgeValues(iter, false);
+								}
+								else
+								{
+									_reverseOrder = false;
+									extractEdgeValues(iter, true);
+								}
 							}
 							else
 							{
-								_edgeTime = 0;
-								_edgeWeight = 0; 
-								//reverseOrder = true;
-								//extractEdgeValues(iter, true);
+								extractEdgeValues(iter, false);
 							}
 							
-							//System.out.print(Integer.toString(iter.getEdge()) + ",");
 							time += _edgeTime;
 							weight += _edgeWeight;
 						}
@@ -128,7 +131,8 @@ public class PathMetricsExtractor {
 					else
 					{
 						EdgeIteratorState iter = _graph.getEdgeIteratorState(goalEdge.edge, goalEdge.adjNode);
-
+						//System.out.print(Integer.toString(iter.getEdge()) + ",");
+						
 						if (calcDistance)
 							distance += (_distUnits == DistanceUnit.Meters) ? iter.getDistance(): DistanceUnitUtil.convert(iter.getDistance(), DistanceUnit.Meters, _distUnits);
 
@@ -186,15 +190,15 @@ public class PathMetricsExtractor {
 
 	private void extractEdgeValues(CHEdgeIteratorState iterState, boolean reverse)
 	{
-		_edgeTime = 0.0;
-		_edgeWeight = 0.0;
-		
 		if (iterState.isShortcut())
 		{
-			expandEdge(iterState, reverse);
-			//_edgeWeight = iterState.getWeight();
-			//_edgeTime = iterState.getWeight();
-			//System.out.print(Double.toString(iterState.getDistance()) + ",");
+			_edgeTime = 0.0;
+			_edgeWeight = 0.0;
+
+			if ((_chGraph.getLevel(iterState.getBaseNode()) <= _chGraph.getLevel(iterState.getAdjNode())))
+				reverse = !reverse; 
+			
+			expandEdge(iterState, reverse);  
 		}
 		else
 		{
@@ -207,7 +211,7 @@ public class PathMetricsExtractor {
 
 	private void expandEdge(CHEdgeIteratorState mainEdgeState, boolean reverse) {
 		if (!mainEdgeState.isShortcut()) {
-			System.out.print(Integer.toString(mainEdgeState.getEdge()) + ",");
+			//System.out.print(Integer.toString(mainEdgeState.getEdge()) + ",");
 
 			if (MatrixMetricsType.isSet(_metrics, MatrixMetricsType.Duration))
 				_edgeTime += _weighting.calcMillis(mainEdgeState, reverse, EdgeIterator.NO_EDGE) / 1000.0;
@@ -228,7 +232,7 @@ public class PathMetricsExtractor {
 		}
 
 		// getEdgeProps could possibly return an empty edge if the shortcut is available for both directions
-		if (reverseOrder) {
+		if (_reverseOrder) {
 			CHEdgeIteratorState edgeState = (CHEdgeIteratorState) _chGraph.getEdgeIteratorState(skippedEdge1, to);
 			boolean empty = edgeState == null;
 			if (empty)

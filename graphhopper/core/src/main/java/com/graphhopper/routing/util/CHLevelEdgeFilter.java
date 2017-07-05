@@ -50,7 +50,7 @@ public class CHLevelEdgeFilter implements CHEdgeFilter {
 
 		// if (edgeIterState.isShortcut())
 		// return !(graph.getLevel(base) <= graph.getLevel(adj)) ? false : true;
-		return !(graph.getLevel(base) <= graph.getLevel(adj)) ? false : true;
+		return !(graph.getLevel(base) <= graph.getLevel(adj)) ? false : edgeIterState.isForward(encoder);
 	}
 
 	@Override
