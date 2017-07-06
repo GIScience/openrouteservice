@@ -67,6 +67,17 @@
 		<url-pattern>/matrix</url-pattern>
 	</servlet-mapping>
 	
+	 <!-- OPTIMIZATION SERVICE -->
+	<servlet>
+		<servlet-name>optimization</servlet-name>
+		<servlet-class>heigit.ors.services.optimization.OptimizationServiceServlet</servlet-class>
+		<load-on-startup>6</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>optimization</servlet-name>
+		<url-pattern>/optimized_routes</url-pattern>
+	</servlet-mapping>
+	
 	<!-- ShortenLink SERVICE -->
 	<servlet>
 		<servlet-name>shortenlink</servlet-name>

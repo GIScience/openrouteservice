@@ -1,8 +1,18 @@
 package heigit.ors.isochrones.builders.grid;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import com.graphhopper.GraphHopper;
+import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.MMapDirectory;
+import com.graphhopper.storage.index.Location2IDQuadtree;
+import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.ByteArrayBuffer;
@@ -13,6 +23,13 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
+import heigit.ors.matrix.MatrixLocationDataResolver;
+import heigit.ors.matrix.MatrixMetricsType;
+import heigit.ors.matrix.MatrixRequest;
+import heigit.ors.matrix.MatrixResult;
+import heigit.ors.matrix.MatrixSearchData;
+import heigit.ors.matrix.algorithms.MatrixAlgorithm;
+import heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
 import heigit.ors.routing.RouteSearchContext;
 
 public class GridBasedIsochroneMapBuilder extends AbstractIsochroneMapBuilder 
@@ -22,13 +39,14 @@ public class GridBasedIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 	private GeometryFactory _geomFactory;
 	private RouteSearchContext _searchContext;
 	
+	private static LocationIndex _gridIndex;
+	
 	private double _grdiStep = 500; // measured in meters
 
 	public GridBasedIsochroneMapBuilder() 
 	{
 		
 	}
-
 
 	@Override
 	public void initialize(RouteSearchContext searchContext) 
@@ -39,8 +57,9 @@ public class GridBasedIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 	@Override
 	public IsochroneMap compute(IsochroneSearchParameters parameters) throws Exception {
-		StopWatch	swTotal = null;
+		StopWatch swTotal = null;
 		StopWatch sw = null;
+		
 		if (LOGGER.isDebugEnabled())
 		{
 			swTotal = new StopWatch();
@@ -49,17 +68,24 @@ public class GridBasedIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			sw.start();
 		}
 
+		FlagEncoder encoder = _searchContext.getEncoder();
 		// 1. Find all graph edges for a given cost.
-		double maxSpeed = _searchContext.getEncoder().getMaxSpeed();
+		double maxSpeed = encoder.getMaxSpeed();
 
 		Coordinate loc = parameters.getLocation();
 		GraphHopper gh = _searchContext.getGraphHopper();
 		//LocationIndexMatch index = new LocationIndexMatch(gh.getGraphHopperStorage(),(LocationIndexTree)gh.getLocationIndex()); 
-		LocationIndexTree index = (LocationIndexTree)gh.getLocationIndex();
+		//gh.getGraphHopperStorage().getBounds()
 		//index.setGpxAccuracy(500);
      	//index.setMinResolutionInMeter(200);
 		
-		int gridSizeMeters = 400;
+		if (_gridIndex == null)
+		{
+			_gridIndex = new Location2IDQuadtree(gh.getGraphHopperStorage().getGraph(Graph.class), new MMapDirectory(gh.getGraphHopperLocation() + "grid_loc2idIndex").create()).
+	                setResolution(500).prepareIndex();
+		}
+		
+		int gridSizeMeters = 500;
 		int[] gridValues = new int[gridSizeMeters*gridSizeMeters];
 		double cx = loc.x;
 		double cy = loc.y;
@@ -67,6 +93,7 @@ public class GridBasedIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		double gridSizeX = gridSizeY / Math.cos(Math.toRadians(cx));
 		double halfN = gridSizeMeters/2;
 		ByteArrayBuffer arrayBuffer = new ByteArrayBuffer(50);
+		List<Coordinate> gridLocations = new ArrayList<Coordinate>(gridValues.length);
 		
 		for (int xi = 0; xi < gridSizeMeters; xi++)
 		{
@@ -78,16 +105,39 @@ public class GridBasedIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 				
 				int p = xi + yi*gridSizeMeters;
 
-				QueryResult res = index.findClosest(cy + dy, cx + dx, _searchContext.getEdgeFilter(), arrayBuffer);
+				QueryResult res = _gridIndex.findClosest(cy + dy, cx + dx, EdgeFilter.ALL_EDGES , arrayBuffer);
 				if (res.isValid())
 					gridValues[p] = res.getClosestNode();
 				else
 					gridValues[p] = -1;
+				
+				gridLocations.add(new Coordinate(cx + dx, cy + dy));
 			}
 		}
 		
 		
+		MatrixRequest mtxReq = new MatrixRequest();
+		mtxReq.setMetrics(MatrixMetricsType.Distance);
+		mtxReq.setFlexibleMode(true);
+		mtxReq.setSources(new Coordinate[] { parameters.getLocation() });
+        Coordinate[] destinations = new Coordinate[gridLocations.size()];
+        gridLocations.toArray(destinations);
+		mtxReq.setDestinations(destinations); 
+
+		MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(mtxReq, gh, encoder);
 		
+		if (alg == null)
+			throw new Exception("Unable to create an algorithm to distance/duration matrix.");
+
+		alg.init(mtxReq, gh, _searchContext.getEncoder());
+
+		MatrixLocationDataResolver locResolver = new MatrixLocationDataResolver(gh.getLocationIndex(), new DefaultEdgeFilter(encoder), new ByteArrayBuffer(), mtxReq.getResolveLocations(), 2000);
+
+	/*	MatrixSearchData srcData = locResolver.resolve(mtxReq.getSources());
+		MatrixSearchData dstData = locResolver.resolve(mtxReq.getDestinations()); 
+
+		MatrixResult mtxResult = alg.compute(srcData, dstData, mtxReq.getMetrics()); 
+		*/
 		IsochroneMap isochroneMap = new IsochroneMap(loc);
 
 		//AccessibilityMap edgeMap = GraphEdgeMapFinder.findEdgeMap(_searchContext, parameters);

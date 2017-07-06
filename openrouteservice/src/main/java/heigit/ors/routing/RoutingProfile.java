@@ -52,6 +52,11 @@ import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
 import heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
+import heigit.ors.optimization.OptimizationErrorCodes;
+import heigit.ors.optimization.RouteOptimizationRequest;
+import heigit.ors.optimization.RouteOptimizationResult;
+import heigit.ors.optimization.solvers.OptimizationProblemSolver;
+import heigit.ors.optimization.solvers.OptimizationProblemSolverFactory;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
 import heigit.ors.routing.traffic.TrafficEdgeAnnotator;
@@ -266,8 +271,8 @@ public class RoutingProfile
 					args.put("routing.lm.active_landmarks", lmOpts.getInt("active_landmarks"));
 			}
 		}
-		
-		
+
+
 		if (config.getOptimize() && !prepareCH)
 			args.put("graph.do_sort", true);
 
@@ -446,18 +451,19 @@ public class RoutingProfile
 	public MatrixResult computeMatrix(MatrixRequest req) throws Exception
 	{
 		MatrixResult mtxResult = null;
+
+		GraphHopper gh = getGraphhopper();
+		String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
+		FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
+
+		MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(req, gh, flagEncoder);
+		if (alg == null)
+			throw new Exception("Unable to create an algorithm to for computing distance/duration matrix.");
+
+		alg.init(req, gh, flagEncoder);
+
 		try
 		{
-			GraphHopper gh = getGraphhopper();
-			String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
-			FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
-
-			MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(req, gh, flagEncoder);
-			if (alg == null)
-				throw new Exception("Unable to create an algorithm to distance/duration matrix.");
-
-			alg.init(req, gh, flagEncoder);
-
 			MatrixLocationDataResolver locResolver = new MatrixLocationDataResolver(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), new ByteArrayBuffer(), req.getResolveLocations(), MatrixServiceSettings.getMaximumSearchRadius());
 
 			MatrixSearchData srcData = locResolver.resolve(req.getSources());
@@ -467,10 +473,60 @@ public class RoutingProfile
 		}
 		catch(Exception ex)
 		{
-			throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute distance/duration matrix.");
+			throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix.");
 		}
 
 		return mtxResult;
+	}
+
+	public RouteOptimizationResult getOptimizedRoutes(RouteOptimizationRequest req) throws Exception
+	{
+		RouteOptimizationResult optResult = null;
+
+		GraphHopper gh = getGraphhopper();
+		String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
+		FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
+
+		// Compute matrix values
+		MatrixRequest mtxReq = new MatrixRequest();
+		mtxReq.setMetrics(req.getMetric());
+		MatrixResult mtxResult = null;
+		
+		try
+		{
+			MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(mtxReq, gh, flagEncoder);
+			if (alg == null)
+				throw new Exception("Unable to create an algorithm to compute distance/duration matrix.");
+
+			alg.init(mtxReq, gh, flagEncoder);
+
+			MatrixLocationDataResolver locResolver = new MatrixLocationDataResolver(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), new ByteArrayBuffer(), mtxReq.getResolveLocations(), MatrixServiceSettings.getMaximumSearchRadius());
+			MatrixSearchData srcData = locResolver.resolve(null);
+			MatrixSearchData dstData = locResolver.resolve(null);
+			
+			mtxResult = alg.compute(srcData, dstData, mtxReq.getMetrics()); 
+		}
+		catch(Exception ex)
+		{
+			throw new InternalServerException(OptimizationErrorCodes.UNKNOWN, "Unable to compute an optimized route.");
+		}
+		
+		OptimizationProblemSolver solver = OptimizationProblemSolverFactory.createSolver("");
+
+		if (solver == null)
+			throw new Exception("Unable to create an algorithm to distance/duration matrix.");
+
+		try
+		{
+			float[] costs = mtxResult.getTable(req.getMetric());
+			costs[0] = 0; // TODO
+		}
+		catch(Exception ex)
+		{
+			throw new InternalServerException(OptimizationErrorCodes.UNKNOWN, "Unable to find an optimized route.");
+		}
+
+		return optResult;
 	}
 
 	private RouteSearchContext createSearchContext(RouteSearchParameters searchParams, RouteSearchMode mode) throws Exception
@@ -791,9 +847,9 @@ public class RoutingProfile
 					ef = new HeavyVehicleEdgeFilter(flagEncoder, vehicleType, vehicleParams, gs);
 				else if (searchParams.getProfileType() == RoutingProfileType.DRIVING_EMERGENCY)
 					ef = new EmergencyVehicleEdgeFilter(flagEncoder, vehicleParams, gs);
-				
+
 				if (ef != null)
-				  edgeFilter = createEdgeFilter(ef, edgeFilter);
+					edgeFilter = createEdgeFilter(ef, edgeFilter);
 			}
 		}
 

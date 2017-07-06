@@ -23,6 +23,10 @@
                 allow_resolve_locations: true,
                 attribution: "openrouteservice.org, OpenStreetMap contributors"
             }
+            optimization: {
+                maximum_locations: 200,
+                attribution: "openrouteservice.org, OpenStreetMap contributors"
+            }
 			isochrones: {
 				enabled: true,
 				maximum_range_distance: 100000,

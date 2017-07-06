@@ -37,6 +37,9 @@ import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.matrix.MatrixErrorCodes;
 import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
+import heigit.ors.optimization.OptimizationErrorCodes;
+import heigit.ors.optimization.RouteOptimizationRequest;
+import heigit.ors.optimization.RouteOptimizationResult;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.ServerLimitExceededException;
 import heigit.ors.isochrones.IsochroneMap;
@@ -443,5 +446,15 @@ public class RoutingProfileManager {
 			 throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
 		 
 		return rp.computeMatrix(req);
+	}
+	
+	public RouteOptimizationResult getOptimizedRoutes(RouteOptimizationRequest req) throws Exception
+	{
+		RoutingProfile rp = _routeProfiles.getRouteProfile(req.getProfileType(), true);
+		 
+		 if (rp == null)
+			 throw new InternalServerException(OptimizationErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
+		 
+		 return rp.getOptimizedRoutes(req);
 	}
 }
