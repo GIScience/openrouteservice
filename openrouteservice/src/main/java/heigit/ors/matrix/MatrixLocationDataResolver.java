@@ -31,6 +31,7 @@ public class MatrixLocationDataResolver {
 	private LocationIndex _locIndex;
 	private EdgeFilter _edgeFilter;
 	private ByteArrayBuffer _buffer;
+	private double _maxSearchRadius = -1;
 
 	class LocationEntry
 	{
@@ -39,12 +40,13 @@ public class MatrixLocationDataResolver {
 		public ClosestEdgeData edge;
 	}
 
-	public MatrixLocationDataResolver(LocationIndex index, EdgeFilter edgeFilter, ByteArrayBuffer buffer, boolean resolveNames)
+	public MatrixLocationDataResolver(LocationIndex index, EdgeFilter edgeFilter, ByteArrayBuffer buffer, boolean resolveNames, double searchRadius)
 	{
 		_locIndex = index;
 		_edgeFilter = edgeFilter;
 		_buffer = buffer;
 		_resolveNames = resolveNames;
+		_maxSearchRadius = searchRadius; 
 	}
 
 	public MatrixSearchData resolve(Coordinate[] coords)
@@ -70,7 +72,7 @@ public class MatrixLocationDataResolver {
 
 				QueryResult qr = _locIndex.findClosest(p.y, p.x, _edgeFilter, _buffer);
 				
-				if (qr.isValid())
+				if (qr.isValid() && qr.getQueryDistance() < _maxSearchRadius)
 				{
 					EdgeIteratorState closestEdge = qr.getClosestEdge();
 					if (closestEdge == null)

@@ -18,6 +18,7 @@
 	    	}			
         	matrix: {
                 maximum_locations: 200,
+                maximum_search_radius: 5000,
                 maximum_visited_nodes: 100000,
                 allow_resolve_locations: true,
                 attribution: "openrouteservice.org, OpenStreetMap contributors"

@@ -194,9 +194,9 @@ public class PathMetricsExtractor {
 		{
 			_edgeTime = 0.0;
 			_edgeWeight = 0.0;
-
+			
 			if ((_chGraph.getLevel(iterState.getBaseNode()) <= _chGraph.getLevel(iterState.getAdjNode())))
-				reverse = !reverse; 
+				reverse = !reverse;
 			
 			expandEdge(iterState, reverse);  
 		}

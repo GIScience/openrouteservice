@@ -122,9 +122,9 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor
 			JSONObject jLoc = new JSONObject(true);
 
 			MatrixLocation loc = locations[i];
-			Coordinate c = locations[i].getCoordinate();
-			if (c != null)
+			if (loc != null)
 			{
+				Coordinate c = locations[i].getCoordinate();
 				JSONArray jCoord = new JSONArray(2);
 				jCoord.put(FormatUtility.roundToDecimals(c.x, 6));
 				jCoord.put(FormatUtility.roundToDecimals(c.y, 6));
@@ -136,7 +136,7 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor
 				jLoc.put("snapped_distance",FormatUtility.roundToDecimals( loc.getSnappedDistance(), 2));
 			}
 			else
-				jLoc.put("location", "null");
+				jLoc.put("location", JSONObject.NULL);
 			
 			jLocations.put(jLoc);
 		}
@@ -148,12 +148,23 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor
 	{
 		JSONArray jMatrix = new JSONArray(rows);
 		
-		for (int i = 0; i < rows; i++)
+		int rowOffset = 0;
+		float value = 0;
+		
+		for (int i = 0; i < rows; ++i)
 		{
-			int rowOffset = i*clms;
 			JSONArray jRow = new JSONArray(clms);
-			for (int j = 0; j < clms; j++)
-				jRow.put(FormatUtility.roundToDecimals(values[rowOffset + j], 2));
+			rowOffset = i*clms;
+			
+			for (int j = 0; j < clms; ++j)
+			{
+				value = values[rowOffset + j];
+				if (value == -1)
+					jRow.put(JSONObject.NULL);
+				else
+					jRow.put(FormatUtility.roundToDecimals(value, 2));
+			}
+			
 			jMatrix.put(jRow);
 		}
 		

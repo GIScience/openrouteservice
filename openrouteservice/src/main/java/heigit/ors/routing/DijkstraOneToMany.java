@@ -46,6 +46,7 @@ public class DijkstraOneToMany extends AbstractRoutingAlgorithm {
     
     private int targetsFound = 0;
     private IntObjectMap<SPTEntry> targets;
+    private int targetsCount = 0;
 
     public DijkstraOneToMany(Graph graph, Weighting weighting, TraversalMode tMode) {
       this(graph, weighting, tMode, -1);
@@ -79,15 +80,25 @@ public class DijkstraOneToMany extends AbstractRoutingAlgorithm {
     	return targetsFound;
     }
     
+    public int getTargetsCount()
+    {
+    	return targetsCount;	
+    }
+    
     @Override
     public Path calcPath(int from, int to) {
        // checkAlreadyRun();
- 
-        currEdge = createSPTEntry(from, 0);
-        if (!traversalMode.isEdgeBased()) {
-            fromMap.put(from, currEdge);
-        }
-        runAlgo();
+    	targetsCount = targets.containsKey(from) ? targets.size() - 1 : targets.size();
+    	
+    	if (targetsCount > 0)
+    	{
+    		currEdge = createSPTEntry(from, 0);
+    		if (!traversalMode.isEdgeBased()) {
+    			fromMap.put(from, currEdge);
+    		}
+    		runAlgo();
+    	}
+    	
         return null;
     }
 
@@ -151,10 +162,8 @@ public class DijkstraOneToMany extends AbstractRoutingAlgorithm {
     			targetsFound++;
     		}
     	}
-    	else
-    		targetsFound++;
     	
-    	return targetsFound == targets.size();
+    	return targetsFound == targetsCount;
     }
 
     @Override

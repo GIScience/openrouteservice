@@ -26,6 +26,7 @@ public class MatrixRequest extends ServiceRequest
 	private String _weightingMethod; 
 	private DistanceUnit _units = DistanceUnit.Meters;
 	private boolean _resolveLocations = false;
+	private boolean _flexibleMode = true;
 
 	public MatrixRequest()
 	{
@@ -98,5 +99,13 @@ public class MatrixRequest extends ServiceRequest
 
 	public void setWeightingMethod(String weighting) {
 		_weightingMethod = weighting;
+	}
+
+	public boolean getFlexibleMode() {
+		return _flexibleMode;
+	}
+
+	public void setFlexibleMode(boolean flexibleMode) {
+		this._flexibleMode = flexibleMode;
 	}
 }

@@ -17,6 +17,7 @@ public class MatrixServiceSettings
 {
 	private static int maximumLocations = 100;
 	private static int maximumVisitedNodes = 100000;
+	private static double maximumSearchRadius = 2000;
 	private static boolean allowResolveLocations = true;
 	private static String attribution = "";
 	private static boolean enabled = true;
@@ -29,6 +30,9 @@ public class MatrixServiceSettings
 		value = AppConfig.Global().getServiceParameter("matrix", "maximum_locations");
 		if (value != null)
 			maximumLocations = Math.max(1, Integer.parseInt(value));
+		value = AppConfig.Global().getServiceParameter("matrix", "maximum_search_radius");
+		if (value != null)
+			maximumSearchRadius = Math.max(1, Double.parseDouble(value));
 		value = AppConfig.Global().getServiceParameter("matrix", "maximum_visited_nodes");
 		if (value != null)
 			maximumVisitedNodes = Math.max(1, Integer.parseInt(value));
@@ -54,6 +58,10 @@ public class MatrixServiceSettings
 	
 	public static int getMaximumLocations() {
 		return maximumLocations;
+	}
+	
+	public static double getMaximumSearchRadius() {
+		return maximumSearchRadius;
 	}
 	
 	public static String getAttribution() {

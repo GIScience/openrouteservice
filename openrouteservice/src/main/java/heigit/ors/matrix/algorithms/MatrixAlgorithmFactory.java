@@ -23,17 +23,11 @@ public class MatrixAlgorithmFactory
     public static MatrixAlgorithm createAlgorithm(MatrixRequest req, GraphHopper gh, FlagEncoder encoder)
     {
     	MatrixAlgorithm alg = null;
-    	
-    	if (true)
-    	{   
-    		//if (req.getProfileType())
-        	// check if there are any dynamic weights
-    		alg = new DijkstraMatrixAlgorithm();
-    	}
-    	else if (gh.isCHEnabled())
-    	{
+
+    	if (!req.getFlexibleMode() && gh.isCHEnabled())
     		alg = new RPHASTMatrixAlgorithm();
-    	}
+    	else
+    		alg = new DijkstraMatrixAlgorithm();
     	
     	return alg;
     }

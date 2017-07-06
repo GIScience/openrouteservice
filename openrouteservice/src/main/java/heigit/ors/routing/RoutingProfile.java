@@ -55,6 +55,7 @@ import heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
 import heigit.ors.routing.traffic.TrafficEdgeAnnotator;
+import heigit.ors.services.matrix.MatrixServiceSettings;
 import heigit.ors.util.RuntimeUtility;
 import heigit.ors.util.TimeUtility;
 
@@ -457,7 +458,7 @@ public class RoutingProfile
 
 			alg.init(req, gh, flagEncoder);
 
-			MatrixLocationDataResolver locResolver = new MatrixLocationDataResolver(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), new ByteArrayBuffer(), req.getResolveLocations());
+			MatrixLocationDataResolver locResolver = new MatrixLocationDataResolver(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), new ByteArrayBuffer(), req.getResolveLocations(), MatrixServiceSettings.getMaximumSearchRadius());
 
 			MatrixSearchData srcData = locResolver.resolve(req.getSources());
 			MatrixSearchData dstData = locResolver.resolve(req.getDestinations()); 
@@ -466,7 +467,7 @@ public class RoutingProfile
 		}
 		catch(Exception ex)
 		{
-			throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute distance/duration matrix. " + ex.getMessage());
+			throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute distance/duration matrix.");
 		}
 
 		return mtxResult;

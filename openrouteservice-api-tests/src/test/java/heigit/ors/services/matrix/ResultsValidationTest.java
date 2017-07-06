@@ -18,6 +18,7 @@ public class ResultsValidationTest extends ServiceTest {
 		addParameter("locations", "8.690733,49.387283|8.692771,49.385118|8.686409,49.426272");
 		addParameter("sources1", "0,1");
 		addParameter("destinations1", "2");
+		addParameter("destinations2", "2,3");
 	}
 
 	@Test
@@ -32,6 +33,24 @@ public class ResultsValidationTest extends ServiceTest {
 		Assert.assertEquals(response.getStatusCode(), 200);
 		JSONObject jResponse = new JSONObject(response.body().asString());
 		checkTableDimensions(jResponse, "distances", 3, 3);
+	}
+	
+	@Test
+	public void nonExistingLocationEntryTest() {
+		Response response = given()
+				.param("locations", "8.690733,49.387283|8.686409,49.426272|18.686409,49.426272")
+				.param("sources", "0")
+				.param("destinations", "1,2")
+				.param("metrics", "distance")
+				.param("profile", "driving-car") 
+				.when()
+				.get(getEndPointName());
+
+		Assert.assertEquals(response.getStatusCode(), 200);
+		JSONObject jResponse = new JSONObject(response.body().asString());
+		checkTableDimensions(jResponse, "distances", 1, 2);
+		JSONArray jDistances = jResponse.getJSONArray("distances").getJSONArray(0);
+		Assert.assertEquals(jDistances.get(1), JSONObject.NULL);
 	}
 /*	 
 	@Test
