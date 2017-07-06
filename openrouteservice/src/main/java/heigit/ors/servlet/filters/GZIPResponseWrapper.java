@@ -37,7 +37,7 @@ class GZIPResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	public void flushBuffer() throws IOException {
-		if (!_stream.isClosed())
+		if (_stream != null && !_stream.isClosed())
 			_stream.flush();
 	}
 

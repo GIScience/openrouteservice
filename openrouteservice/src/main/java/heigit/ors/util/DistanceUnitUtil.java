@@ -1,5 +1,7 @@
 package heigit.ors.util;
 
+import heigit.ors.common.DistanceUnit;
+
 public class DistanceUnitUtil
 {
 	public static DistanceUnit getFromString(String value, DistanceUnit defaultValue)

@@ -11,6 +11,11 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.optimization.solvers;
 
+import java.util.Map;
+
 public interface OptimizationProblemSolver {
-     public void solve();
+	
+	 public void init(Map<String, Object> options);
+	 
+     public OptimizationSolution solve();
 }

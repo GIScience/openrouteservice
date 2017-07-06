@@ -22,6 +22,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
 import heigit.ors.accessibility.AccessibilityErrorCodes;
+import heigit.ors.common.DistanceUnit;
 import heigit.ors.common.StatusCode;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.exceptions.MissingParameterException;
@@ -45,7 +46,6 @@ import heigit.ors.services.routing.RouteInstructionsFormat;
 import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.util.ArraysUtility;
 import heigit.ors.util.CoordTools;
-import heigit.ors.util.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
 
 public class JsonAccessibilityRequestParser {

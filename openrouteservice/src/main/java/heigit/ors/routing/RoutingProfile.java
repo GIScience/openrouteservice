@@ -57,10 +57,12 @@ import heigit.ors.optimization.RouteOptimizationRequest;
 import heigit.ors.optimization.RouteOptimizationResult;
 import heigit.ors.optimization.solvers.OptimizationProblemSolver;
 import heigit.ors.optimization.solvers.OptimizationProblemSolverFactory;
+import heigit.ors.optimization.solvers.OptimizationSolution;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
 import heigit.ors.routing.traffic.TrafficEdgeAnnotator;
 import heigit.ors.services.matrix.MatrixServiceSettings;
+import heigit.ors.services.optimization.OptimizationServiceSettings;
 import heigit.ors.util.RuntimeUtility;
 import heigit.ors.util.TimeUtility;
 
@@ -479,30 +481,29 @@ public class RoutingProfile
 		return mtxResult;
 	}
 
-	public RouteOptimizationResult getOptimizedRoutes(RouteOptimizationRequest req) throws Exception
+	public RouteOptimizationResult computeOptimizedRoutes(RouteOptimizationRequest req) throws Exception
 	{
 		RouteOptimizationResult optResult = null;
 
 		GraphHopper gh = getGraphhopper();
 		String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
 		FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
+		RouteProcessContext routeProcCntx = new RouteProcessContext(null);
 
-		// Compute matrix values
-		MatrixRequest mtxReq = new MatrixRequest();
-		mtxReq.setMetrics(req.getMetric());
 		MatrixResult mtxResult = null;
 		
 		try
 		{
+			MatrixRequest mtxReq = req.createMatrixRequest();
 			MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(mtxReq, gh, flagEncoder);
 			if (alg == null)
 				throw new Exception("Unable to create an algorithm to compute distance/duration matrix.");
 
 			alg.init(mtxReq, gh, flagEncoder);
 
-			MatrixLocationDataResolver locResolver = new MatrixLocationDataResolver(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), new ByteArrayBuffer(), mtxReq.getResolveLocations(), MatrixServiceSettings.getMaximumSearchRadius());
-			MatrixSearchData srcData = locResolver.resolve(null);
-			MatrixSearchData dstData = locResolver.resolve(null);
+			MatrixLocationDataResolver locResolver = new MatrixLocationDataResolver(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), routeProcCntx.getArrayBuffer(), mtxReq.getResolveLocations(), MatrixServiceSettings.getMaximumSearchRadius());
+			MatrixSearchData srcData = locResolver.resolve(mtxReq.getSources());
+			MatrixSearchData dstData = locResolver.resolve(mtxReq.getDestinations());
 			
 			mtxResult = alg.compute(srcData, dstData, mtxReq.getMetrics()); 
 		}
@@ -511,20 +512,39 @@ public class RoutingProfile
 			throw new InternalServerException(OptimizationErrorCodes.UNKNOWN, "Unable to compute an optimized route.");
 		}
 		
-		OptimizationProblemSolver solver = OptimizationProblemSolverFactory.createSolver("");
+		OptimizationProblemSolver solver = OptimizationProblemSolverFactory.createSolver(OptimizationServiceSettings.getSolverName(), OptimizationServiceSettings.getSolverOptions());
 
 		if (solver == null)
 			throw new Exception("Unable to create an algorithm to distance/duration matrix.");
 
+		OptimizationSolution solution = null;
+		
 		try
 		{
 			float[] costs = mtxResult.getTable(req.getMetric());
 			costs[0] = 0; // TODO
+			
+			solution = solver.solve();
 		}
 		catch(Exception ex)
 		{
-			throw new InternalServerException(OptimizationErrorCodes.UNKNOWN, "Unable to find an optimized route.");
+			LOGGER.error(ex);
+			
+			throw new InternalServerException(OptimizationErrorCodes.UNKNOWN, "Optimization problem solver threw an exception.");
 		}
+		
+		if (!solution.isValid())
+			throw new InternalServerException(OptimizationErrorCodes.UNKNOWN, "Optimization problem solver was unable to find an appropriate solution.");
+		
+		//RouteSearchParameters searchParams = new RouteSearchParameters();
+
+		optResult = new RouteOptimizationResult();
+
+
+		//getRoute(lat0, lon0, lat1, lon1, false, searchParams, req.getSimplifyGeometry(), routeProcCntx);
+		// compute final route
+		//optResult.setRouteResult(routeResult);
+
 
 		return optResult;
 	}

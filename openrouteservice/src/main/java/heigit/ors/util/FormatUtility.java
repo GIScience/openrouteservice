@@ -18,6 +18,8 @@ import java.util.Locale;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
+import heigit.ors.common.DistanceUnit;
+
 /**
  * <p>
  * <b>Title: ConvertUtility</b>

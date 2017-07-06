@@ -13,9 +13,9 @@ package heigit.ors.matrix;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
+import heigit.ors.common.DistanceUnit;
 import heigit.ors.matrix.MatrixMetricsType;
 import heigit.ors.services.ServiceRequest;
-import heigit.ors.util.DistanceUnit;
 
 public class MatrixRequest extends ServiceRequest
 {

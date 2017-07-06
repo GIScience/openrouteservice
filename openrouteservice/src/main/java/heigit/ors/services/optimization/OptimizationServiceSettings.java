@@ -11,11 +11,15 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.services.optimization;
 
+import java.util.Map;
+
 import heigit.ors.config.AppConfig;
 
 public class OptimizationServiceSettings {
-	private static Boolean enabled  = true;
+	private static boolean enabled  = true;
 	private static int maximumLocations = 100;
+	private static String solverName = "default";
+	private static Map<String, Object> solverOptions;
 	private static String attribution = "";
 	private static AppConfig _config;
 	
@@ -42,16 +46,33 @@ public class OptimizationServiceSettings {
 		if (value != null)
 			maximumLocations = Math.max(1, Integer.parseInt(value));
 		
+		value = AppConfig.Global().getServiceParameter("optimization", "solver_name");
+		if (value != null)
+			solverName = value;
+		
+		value = AppConfig.Global().getServiceParameter("optimization", "solver_options");
+		if (value != null)
+			solverOptions = _config.getServiceParametersMap("optimization", "solver_options");
+		
 		value = config.getServiceParameter("optimization", "attribution");
 		if (value != null)
 			attribution = value;
 	}
 	
-	public static Boolean getEnabled()
+	public static boolean getEnabled()
 	{
 		return enabled;
 	}
 
+	public static String getSolverName() {
+		return solverName;
+	}
+	
+	public static Map<String, Object> getSolverOptions()
+	{
+		return solverOptions;
+	}
+	
 	public static int getMaximumLocations() {
 		return maximumLocations;
 	}

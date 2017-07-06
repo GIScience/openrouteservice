@@ -20,6 +20,7 @@ import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import heigit.ors.common.DistanceUnit;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.ExtraSummaryItem;
 import heigit.ors.routing.RouteExtraInfo;
@@ -33,7 +34,6 @@ import heigit.ors.routing.WeightingMethod;
 import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
-import heigit.ors.util.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.PolylineEncoder;

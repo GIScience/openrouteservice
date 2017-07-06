@@ -9,7 +9,7 @@
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-package heigit.ors.util;
+package heigit.ors.common;
 
 public enum DistanceUnit {
    Meters,

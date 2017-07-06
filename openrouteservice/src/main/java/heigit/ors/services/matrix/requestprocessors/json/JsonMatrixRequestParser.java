@@ -22,6 +22,7 @@ import org.json.JSONObject;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import heigit.ors.common.DistanceUnit;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
@@ -35,7 +36,6 @@ import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.WeightingMethod;
 import heigit.ors.util.ArraysUtility;
 import heigit.ors.util.CoordTools;
-import heigit.ors.util.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.JsonUtility;
 import heigit.ors.util.StreamUtility;

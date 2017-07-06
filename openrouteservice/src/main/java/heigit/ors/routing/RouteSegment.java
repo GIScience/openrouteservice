@@ -17,7 +17,7 @@ import java.util.List;
 import com.graphhopper.PathWrapper;
 import com.graphhopper.util.shapes.BBox;
 
-import heigit.ors.util.DistanceUnit;
+import heigit.ors.common.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
 

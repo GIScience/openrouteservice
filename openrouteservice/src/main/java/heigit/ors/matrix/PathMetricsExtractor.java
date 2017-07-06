@@ -11,7 +11,7 @@ import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 
-import heigit.ors.util.DistanceUnit;
+import heigit.ors.common.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
 
 public class PathMetricsExtractor {

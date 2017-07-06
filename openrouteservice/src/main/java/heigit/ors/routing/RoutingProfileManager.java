@@ -448,13 +448,13 @@ public class RoutingProfileManager {
 		return rp.computeMatrix(req);
 	}
 	
-	public RouteOptimizationResult getOptimizedRoutes(RouteOptimizationRequest req) throws Exception
+	public RouteOptimizationResult computeOptimizedRoutes(RouteOptimizationRequest req) throws Exception
 	{
 		RoutingProfile rp = _routeProfiles.getRouteProfile(req.getProfileType(), true);
 		 
 		 if (rp == null)
 			 throw new InternalServerException(OptimizationErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
 		 
-		 return rp.getOptimizedRoutes(req);
+		 return rp.computeOptimizedRoutes(req);
 	}
 }

@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import heigit.ors.common.DistanceUnit;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.ParameterValueException;
@@ -32,7 +33,6 @@ import heigit.ors.routing.WeightingMethod;
 import heigit.ors.services.routing.RouteInstructionsFormat;
 import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.util.CoordTools;
-import heigit.ors.util.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
 
 public class JsonRoutingRequestParser 

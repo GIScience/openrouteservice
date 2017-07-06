@@ -26,6 +26,7 @@ import com.graphhopper.util.PointList;
 import com.graphhopper.util.RoundaboutInstruction;
 import com.graphhopper.util.shapes.BBox;
 
+import heigit.ors.common.DistanceUnit;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.localization.LocalizationManager;
 import heigit.ors.routing.instructions.InstructionTranslator;
@@ -34,7 +35,6 @@ import heigit.ors.routing.instructions.InstructionType;
 import heigit.ors.services.routing.RouteInstructionsFormat;
 import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.util.CardinalDirection;
-import heigit.ors.util.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.StringUtility;

@@ -20,17 +20,19 @@ import org.json.JSONObject;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import heigit.ors.common.DistanceUnit;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
+import heigit.ors.localization.LocalizationManager;
 import heigit.ors.matrix.MatrixMetricsType;
 import heigit.ors.optimization.OptimizationErrorCodes;
 import heigit.ors.optimization.RouteOptimizationRequest;
 import heigit.ors.routing.RoutingProfileType;
+import heigit.ors.services.routing.RouteInstructionsFormat;
 import heigit.ors.util.CoordTools;
-import heigit.ors.util.DistanceUnit;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.StreamUtility;
 
@@ -92,6 +94,8 @@ public class JsonOptimizationRequestParser {
 				locations = CoordTools.parse(value, "\\|", false, false);		
 				if (locations.length < 2)
 					throw new ParameterValueException(OptimizationErrorCodes.INVALID_PARAMETER_VALUE, "locations");
+				
+				req.setLocations(locations);
 			}
 			catch(NumberFormatException nfex)
 			{
@@ -111,21 +115,49 @@ public class JsonOptimizationRequestParser {
 			try
 			{
 				String paramSource = request.getParameter("source");
-				//if (paramSource)
+				if ("any".equalsIgnoreCase(paramSource))
+					sourceIndex = -1;
+				else
+					sourceIndex = Integer.parseInt(paramSource);
 			}
-			catch(Exception ex)
+			catch(NumberFormatException ex)
 			{
-				
+				throw new ParameterValueException(OptimizationErrorCodes.INVALID_PARAMETER_FORMAT, "source");
 			}
-			
+
+			if (sourceIndex >= locations.length)
+				throw new ParameterValueException(OptimizationErrorCodes.INVALID_PARAMETER_VALUE, "source");
+
 			req.setSourceIndex(sourceIndex);
 		}
+		else
+			req.setSourceIndex(-1);
 		
 		value = request.getParameter("destination");
 		if (!Helper.isEmpty(value))
 		{
+			int destIndex = locations.length - 1;
 			
+			try
+			{
+				String paramSource = request.getParameter("destination");
+				if ("any".equalsIgnoreCase(paramSource))
+					destIndex = -1;
+				else
+					destIndex = Integer.parseInt(paramSource);
+			}
+			catch(NumberFormatException ex)
+			{
+				throw new ParameterValueException(OptimizationErrorCodes.INVALID_PARAMETER_FORMAT, "destination");
+			}
+
+			if (destIndex >= locations.length)
+				throw new ParameterValueException(OptimizationErrorCodes.INVALID_PARAMETER_VALUE, "destination");
+			
+			req.setDestinationIndex(destIndex);
 		}
+		else
+			req.setDestinationIndex(-1);
 		
 		value = request.getParameter("roundtrip");
 		if (!Helper.isEmpty(value))
@@ -139,7 +171,7 @@ public class JsonOptimizationRequestParser {
 		   }
 		   catch(Exception ex)
 		   {
-			   throw new ParameterValueException(OptimizationErrorCodes.INVALID_PARAMETER_FORMAT, "roundtrip");
+			   throw new ParameterValueException(OptimizationErrorCodes.INVALID_PARAMETER_FORMAT, "roundtrip", value);
 		   }
 		}
 		
@@ -152,7 +184,7 @@ public class JsonOptimizationRequestParser {
 		   int metrics =  MatrixMetricsType.getFromString(value);
 		   
 		   if (metrics == MatrixMetricsType.Unknown)
-			 throw new ParameterValueException(OptimizationErrorCodes.INVALID_PARAMETER_VALUE, "metric");
+			 throw new ParameterValueException(OptimizationErrorCodes.INVALID_PARAMETER_VALUE, "metric", value);
 		   
 		   req.setMetric(metrics);
 		}
@@ -163,11 +195,55 @@ public class JsonOptimizationRequestParser {
 			DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.Unknown);
 
 			if (units == DistanceUnit.Unknown)
-				throw new ParameterValueException(OptimizationErrorCodes.INVALID_PARAMETER_VALUE, "units");
+				throw new ParameterValueException(OptimizationErrorCodes.INVALID_PARAMETER_VALUE, "units", value);
 
 			req.setUnits(units);
 		}
 	 
+		value = request.getParameter("language");
+		if (!Helper.isEmpty(value))
+		{
+			if(!LocalizationManager.getInstance().isLanguageSupported(value))
+				throw new StatusCodeException(StatusCode.BAD_REQUEST, OptimizationErrorCodes.INVALID_PARAMETER_VALUE, "Specified language '" +  value + "' is not supported.");
+
+			req.setLanguage(value);
+		}
+
+		value = request.getParameter("geometry");
+		if (!Helper.isEmpty(value))
+			req.setIncludeGeometry(Boolean.parseBoolean(value));
+
+		value = request.getParameter("geometry_format");
+		if (!Helper.isEmpty(value))
+		{
+			if (!("geojson".equalsIgnoreCase(value) || "polyline".equalsIgnoreCase(value) || "encodedpolyline".equalsIgnoreCase(value)))
+				throw new UnknownParameterValueException(OptimizationErrorCodes.INVALID_PARAMETER_VALUE, "geometry_format", value);
+
+			req.setGeometryFormat(value);
+		}
+
+		value = request.getParameter("geometry_simplify");
+		if (!Helper.isEmpty(value))
+			req.setSimplifyGeometry(Boolean.parseBoolean(value));
+
+		value = request.getParameter("instructions");
+		if (!Helper.isEmpty(value))
+			req.setIncludeInstructions(Boolean.parseBoolean(value));
+
+		value = request.getParameter("elevation");
+		if (!Helper.isEmpty(value))
+			req.setIncludeElevation(Boolean.parseBoolean(value));
+
+		value = request.getParameter("instructions_format");
+		if (!Helper.isEmpty(value))
+		{
+			RouteInstructionsFormat instrFormat = RouteInstructionsFormat.fromString(value);
+			if (instrFormat == RouteInstructionsFormat.UNKNOWN)
+				throw new UnknownParameterValueException(OptimizationErrorCodes.INVALID_PARAMETER_VALUE, "instructions_format", value);
+			
+			req.setInstructionsFormat(instrFormat);
+		}
+		
 		value = request.getParameter("id");
 		if (!Helper.isEmpty(value))
 			req.setId(value);

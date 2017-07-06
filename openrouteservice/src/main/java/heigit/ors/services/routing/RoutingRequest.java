@@ -13,9 +13,9 @@ package heigit.ors.services.routing;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
+import heigit.ors.common.DistanceUnit;
 import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.services.ServiceRequest;
-import heigit.ors.util.DistanceUnit;
 
 public class RoutingRequest extends ServiceRequest
 {
