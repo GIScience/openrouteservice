@@ -459,6 +459,7 @@ public class RoutingProfile
 		FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
 
 		MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(req, gh, flagEncoder);
+		
 		if (alg == null)
 			throw new Exception("Unable to create an algorithm to for computing distance/duration matrix.");
 
@@ -475,7 +476,8 @@ public class RoutingProfile
 		}
 		catch(Exception ex)
 		{
-			throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix.");
+			LOGGER.error(ex);
+			throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix." + ex.getMessage());
 		}
 
 		return mtxResult;
@@ -509,6 +511,7 @@ public class RoutingProfile
 		}
 		catch(Exception ex)
 		{
+			LOGGER.error(ex);
 			throw new InternalServerException(OptimizationErrorCodes.UNKNOWN, "Unable to compute an optimized route.");
 		}
 		
