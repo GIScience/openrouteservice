@@ -27,8 +27,10 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.CHGraphImpl.CHEdgeIteratorImpl;
+import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.CHEdgeExplorer;
+import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.Parameters;
 
 /**
@@ -52,10 +54,14 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 	PriorityQueue<SPTEntry> openSetTo;
 	PriorityQueue<SPTEntry> openSetTargets;
 	IntObjectMap<SPTEntry> targetTree;
+	
+	private CHGraph chGraph;
 
-	public DijkstraBidirectionRefRPHAST(CHGraph chGraph, Weighting weighting, TraversalMode tMode) {
-		super(chGraph, weighting, tMode);
+	public DijkstraBidirectionRefRPHAST(Graph graph, Weighting weighting, TraversalMode tMode) {
+		super(graph, weighting, tMode);
 		int size = Math.min(Math.max(200, graph.getNodes() / 10), 150_000);
+		
+		chGraph = getCHGraph(graph);
 		initCollections(size);
 	}
 
@@ -123,12 +129,14 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 		}
 		while (!openSetTargets.isEmpty()) {
 			currTarget = openSetTargets.poll();
+			int traversalId = 0;
 			CHEdgeIteratorImpl iter = (CHEdgeIteratorImpl) targetEdgeExplorer.setBaseNode(currTarget.adjNode);
+		
 			while (iter.next()) {
 				if (!additionalEdgeFilter.accept(iter))
 					continue;
 
-				int traversalId = traversalMode.createTraversalId(iter, false);
+				traversalId = traversalMode.createTraversalId(iter, false);
 				double tmpWeight = weighting.calcWeight(iter, false, currTarget.edge) + currTarget.weight;
 
 				SPTEntry ee = targetTree.get(traversalId);
@@ -216,8 +224,9 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 			SPTEntry ee = shortestWeightMap.get(traversalId);
 
 			// Keep track of the currently found highest CH level node
-			if (graph.getLevel(additionalEdgeFilter.getHighestNode()) < graph.getLevel(iter.getAdjNode()))
+			if (chGraph.getLevel(additionalEdgeFilter.getHighestNode()) < chGraph.getLevel(iter.getAdjNode()))
 				additionalEdgeFilter.setHighestNode(iter.getAdjNode());
+			
 			if (ee == null) {
 				ee = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
 				ee.parent = currEdge;
