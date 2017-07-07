@@ -20,9 +20,7 @@ package com.graphhopper.routing.phast;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
-import com.graphhopper.routing.AbstractRoutingAlgorithmCH;
 import com.graphhopper.routing.Path;
-import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.RPHASTEdgeFilter;
 import com.graphhopper.routing.util.TraversalMode;
@@ -37,17 +35,15 @@ import com.graphhopper.util.EdgeIteratorState;
  *
  * @author Peter Karich
  */
-public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmCH {
+public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmPHAST {
 	protected boolean finishedFrom;
 	protected boolean finishedTo;
 	int visitedCountFrom;
 	int visitedCountTo;
-	CHGraph chGraph;
 	FlagEncoder encoder;
 
 	public AbstractBidirAlgoRPHAST(CHGraph chGraph, Weighting weighting, TraversalMode tMode) {
 		super(chGraph, weighting, tMode, true);
-		this.chGraph = chGraph;
 	}
 
 	abstract IntObjectMap<SPTEntry> init(int from, double dist);
@@ -77,7 +73,7 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmCH
 		IntObjectMap<SPTEntry> tree = createTargetTree(targetMap);
 		initDownwardPHAST(additionalEdgeFilter.getHighestNode(),
 				bestWeightMapFrom.get(additionalEdgeFilter.getHighestNode()).weight);
-		RPHASTEdgeFilter rphastEdgeFilter = new RPHASTEdgeFilter(chGraph, encoder).setTargetTree(tree);
+		RPHASTEdgeFilter rphastEdgeFilter = new RPHASTEdgeFilter(graph, encoder).setTargetTree(tree);
 		this.setEdgeFilter(rphastEdgeFilter);
 		rphastEdgeFilter.setHighestNode(additionalEdgeFilter.getHighestNode());
 		runDownwardsAlgo();
@@ -98,7 +94,7 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmCH
 		IntObjectMap<SPTEntry> tree = createTargetTree(intTargetMap);
 		initDownwardPHAST(additionalEdgeFilter.getHighestNode(),
 				bestWeightMapFrom.get(additionalEdgeFilter.getHighestNode()).weight);
-		RPHASTEdgeFilter rphastEdgeFilter = new RPHASTEdgeFilter(chGraph, encoder).setTargetTree(tree);
+		RPHASTEdgeFilter rphastEdgeFilter = new RPHASTEdgeFilter(graph, encoder).setTargetTree(tree);
 		this.setEdgeFilter(rphastEdgeFilter);
 		rphastEdgeFilter.setHighestNode(additionalEdgeFilter.getHighestNode());
 		runDownwardsAlgo();
@@ -131,19 +127,21 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmCH
 		runAlgo();
 		initDownwardPHAST(additionalEdgeFilter.getHighestNode(),
 				bestWeightMapFrom.get(additionalEdgeFilter.getHighestNode()).weight);
-		RPHASTEdgeFilter rphastEdgeFilter = new RPHASTEdgeFilter(chGraph, encoder).setTargetTree(tree);
+		RPHASTEdgeFilter rphastEdgeFilter = new RPHASTEdgeFilter(graph, encoder).setTargetTree(tree);
 		this.setEdgeFilter(rphastEdgeFilter);
 		rphastEdgeFilter.setHighestNode(additionalEdgeFilter.getHighestNode());
 		runDownwardsAlgo();
 		// From all checked nodes extract only the ones requested via targetMap
 		// and set their weight
-		
-		//int i = 0;
+
+		// int i = 0;
 		for (int target : intTargetMap) {
 			targetMap.put(target, bestWeightMapFrom.get(target));
- 		  // Runge: we can compute times later together with distances and weights.
-			//times[pos + i] = (float) (bestWeightMapFrom.get(target) == null ? -1 : bestWeightMapFrom.get(target).weight);
-		//	i++;
+			// Runge: we can compute times later together with distances and
+			// weights.
+			// times[pos + i] = (float) (bestWeightMapFrom.get(target) == null ?
+			// -1 : bestWeightMapFrom.get(target).weight);
+			// i++;
 		}
 		return targetMap;
 	}
