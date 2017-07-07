@@ -21,11 +21,13 @@ import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.Path;
+import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.RPHASTEdgeFilter;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
+import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeIteratorState;
 
@@ -42,7 +44,7 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmPH
 	int visitedCountTo;
 	FlagEncoder encoder;
 
-	public AbstractBidirAlgoRPHAST(CHGraph chGraph, Weighting weighting, TraversalMode tMode) {
+	public AbstractBidirAlgoRPHAST(Graph chGraph, Weighting weighting, TraversalMode tMode) {
 		super(chGraph, weighting, tMode, true);
 	}
 
@@ -64,7 +66,7 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmPH
 	public Path calcPath(int from, int to) {
 		throw new IllegalStateException("No single path defined for RPHAST");
 	}
-
+/*
 	public IntObjectMap<SPTEntry> calcMatrix(int from, IntObjectMap<SPTEntry> targetMap) {
 		checkAlreadyRun();
 		IntObjectMap<SPTEntry> bestWeightMapFrom = init(from, 0);
@@ -108,7 +110,7 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmPH
 			i++;
 		}
 		return targetMap;
-	}
+	}*/
 
 	/**
 	 * Calculate Matrix using existing targetTree
@@ -127,7 +129,17 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmPH
 		runAlgo();
 		initDownwardPHAST(additionalEdgeFilter.getHighestNode(),
 				bestWeightMapFrom.get(additionalEdgeFilter.getHighestNode()).weight);
-		RPHASTEdgeFilter rphastEdgeFilter = new RPHASTEdgeFilter(graph, encoder).setTargetTree(tree);
+		
+		CHGraph chGraph = null;
+		if (graph instanceof CHGraph)
+			chGraph = (CHGraph)graph;
+		else if (graph instanceof QueryGraph)
+		{
+			QueryGraph qGraph = (QueryGraph)graph;
+			chGraph = (CHGraph)qGraph.getMainGraph();
+		}
+		
+		RPHASTEdgeFilter rphastEdgeFilter = new RPHASTEdgeFilter(chGraph, encoder).setTargetTree(tree);
 		this.setEdgeFilter(rphastEdgeFilter);
 		rphastEdgeFilter.setHighestNode(additionalEdgeFilter.getHighestNode());
 		runDownwardsAlgo();

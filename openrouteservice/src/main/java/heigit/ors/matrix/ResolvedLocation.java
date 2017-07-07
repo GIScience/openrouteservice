@@ -2,12 +2,12 @@ package heigit.ors.matrix;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-public class MatrixLocation {
+public class ResolvedLocation {
    private Coordinate _coordinate;
    private String _name;
    private double _snappedDistance;
    
-   public MatrixLocation(Coordinate coord, String name, double snappedDistance)
+   public ResolvedLocation(Coordinate coord, String name, double snappedDistance)
    {
 	   _coordinate = coord;
 	   _name = name;

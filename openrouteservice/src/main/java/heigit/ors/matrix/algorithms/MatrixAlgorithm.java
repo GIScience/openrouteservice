@@ -13,13 +13,15 @@ package heigit.ors.matrix.algorithms;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.storage.Graph;
 
-import heigit.ors.matrix.MatrixSearchData;
+import heigit.ors.matrix.MatrixLocations;
 import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
 
 public interface MatrixAlgorithm {
-  public void init(MatrixRequest req, GraphHopper gh, FlagEncoder encoder);
+  public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting);
   
-  public MatrixResult compute(MatrixSearchData srcData, MatrixSearchData dstData, int metrics) throws Exception;
+  public MatrixResult compute(MatrixLocations srcData, MatrixLocations dstData, int metrics) throws Exception;
 }

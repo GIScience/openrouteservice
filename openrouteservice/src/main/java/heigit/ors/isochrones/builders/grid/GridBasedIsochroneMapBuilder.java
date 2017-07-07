@@ -23,11 +23,10 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
-import heigit.ors.matrix.MatrixLocationDataResolver;
 import heigit.ors.matrix.MatrixMetricsType;
 import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
-import heigit.ors.matrix.MatrixSearchData;
+import heigit.ors.matrix.MatrixLocations;
 import heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
 import heigit.ors.routing.RouteSearchContext;
@@ -129,9 +128,9 @@ public class GridBasedIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		if (alg == null)
 			throw new Exception("Unable to create an algorithm to distance/duration matrix.");
 
-		alg.init(mtxReq, gh, _searchContext.getEncoder());
+		//alg.init(mtxReq, gh, _searchContext.getEncoder());
 
-		MatrixLocationDataResolver locResolver = new MatrixLocationDataResolver(gh.getLocationIndex(), new DefaultEdgeFilter(encoder), new ByteArrayBuffer(), mtxReq.getResolveLocations(), 2000);
+		//MatrixLocationDataResolver locResolver = new MatrixLocationDataResolver(gh.getLocationIndex(), new DefaultEdgeFilter(encoder), new ByteArrayBuffer(), mtxReq.getResolveLocations(), 2000);
 
 	/*	MatrixSearchData srcData = locResolver.resolve(mtxReq.getSources());
 		MatrixSearchData dstData = locResolver.resolve(mtxReq.getDestinations()); 

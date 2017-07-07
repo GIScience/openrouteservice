@@ -13,10 +13,10 @@ package heigit.ors.matrix;
 
 public class MatrixResult {
   private float[][] _tables;
-  private MatrixLocation[] _destinations;
-  private MatrixLocation[] _sources;
+  private ResolvedLocation[] _destinations;
+  private ResolvedLocation[] _sources;
   
-  public MatrixResult(MatrixLocation[] sources, MatrixLocation[] destinations)
+  public MatrixResult(ResolvedLocation[] sources, ResolvedLocation[] destinations)
   {
 	  _tables = new float[6][];
 	  _sources = sources;
@@ -33,22 +33,22 @@ public class MatrixResult {
 	  return _tables[metric];
   }
 
-  public MatrixLocation[] getDestinations()
+  public ResolvedLocation[] getDestinations()
   {
 	  return _destinations;
   }
   
-  public void setDestinations(MatrixLocation[] locations)
+  public void setDestinations(ResolvedLocation[] locations)
   {
 	  _destinations = locations;
   }
   
-  public MatrixLocation[] getSources()
+  public ResolvedLocation[] getSources()
   {
 	  return _sources;
   }
   
-  public void setSources(MatrixLocation[] locations)
+  public void setSources(ResolvedLocation[] locations)
   {
 	  _sources = locations;
   }

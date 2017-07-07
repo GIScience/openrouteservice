@@ -11,19 +11,17 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.matrix;
 
-public class MatrixSearchData {
+public class MatrixLocations {
 	private int[] _nodeIds;
-	private MatrixLocation[] _locations;
-	private ClosestEdgeData[] _edges;
+	private ResolvedLocation[] _locations;
 
-	public MatrixSearchData(int size, boolean resolveNames)
+	public MatrixLocations(int size, boolean resolveNames)
 	{
 		_nodeIds = new int[size];
-		_locations = new MatrixLocation[size];
-		_edges = new ClosestEdgeData[size];
+		_locations = new ResolvedLocation[size];
 	}
 
-	public MatrixLocation[] getLocations()
+	public ResolvedLocation[] getLocations()
 	{
 		return _locations;
 	}
@@ -43,15 +41,9 @@ public class MatrixSearchData {
 		return _nodeIds[index];
 	}
 	
-	public ClosestEdgeData getClosestEdge(int index)
-	{
-		return _edges[index];
-	}
-
-	public void setData(int index, int nodeId, MatrixLocation location, ClosestEdgeData edge)
+	public void setData(int index, int nodeId, ResolvedLocation location)
 	{
 		_nodeIds[index] = nodeId;
 		_locations[index] = location;
-		_edges[index] = edge;
 	}
 }

@@ -26,6 +26,7 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.CHGraphImpl.CHEdgeIteratorImpl;
+import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.CHEdgeExplorer;
 import com.graphhopper.util.Parameters;
@@ -48,10 +49,13 @@ public class DijkstraBidirectionRefPHAST extends AbstractBidirAlgoPHAST {
 	protected PathBidirRef bestPath;
 	PriorityQueue<SPTEntry> openSetFrom;
 	PriorityQueue<SPTEntry> openSetTo;
+	
+	private CHGraph chGraph;
 
-	public DijkstraBidirectionRefPHAST(CHGraph chGraph, Weighting weighting, TraversalMode tMode) {
-		super(chGraph, weighting, tMode);
+	public DijkstraBidirectionRefPHAST(Graph graph, Weighting weighting, TraversalMode tMode) {
+		super(graph, weighting, tMode);
 		int size = Math.min(Math.max(200, graph.getNodes() / 10), 150_000);
+		chGraph = getCHGraph(graph);
 		initCollections(size);
 	}
 
@@ -154,8 +158,9 @@ public class DijkstraBidirectionRefPHAST extends AbstractBidirAlgoPHAST {
 				continue;
 			}
 			// Keep track of the currently found highest CH level node
-			if (graph.getLevel(additionalEdgeFilter.getHighestNode()) < graph.getLevel(iter.getAdjNode()))
+			if (chGraph.getLevel(additionalEdgeFilter.getHighestNode()) < chGraph.getLevel(iter.getAdjNode()))
 				additionalEdgeFilter.setHighestNode(iter.getAdjNode());
+			
 			SPTEntry ee = shortestWeightMap.get(traversalId);
 			if (ee == null) {
 				ee = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);

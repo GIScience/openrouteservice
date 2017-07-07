@@ -263,6 +263,9 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 						double dz = distances[xi.measuredPointIndex]; // distCalcEarth.calcDist(zt.lat, zt.lon, zt1.lat, zt1.lon);
 				
 						GHRequest req = new GHRequest(xi.lat, xi.lon, xj.lat, xj.lon);
+						req.getHints().put("ch.disable", true);
+						req.getHints().put("lm.disable", true);
+						req.setAlgorithm("dijkstrabi"); 
 						
 						try
 						{

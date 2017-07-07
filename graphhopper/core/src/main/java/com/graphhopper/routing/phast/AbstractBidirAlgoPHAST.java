@@ -19,11 +19,13 @@ package com.graphhopper.routing.phast;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.routing.Path;
+import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.util.DownLevelEdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
+import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 
 /**
@@ -39,8 +41,8 @@ public abstract class AbstractBidirAlgoPHAST extends AbstractRoutingAlgorithmPHA
 	int visitedCountTo;
 	FlagEncoder encoder;
 
-	public AbstractBidirAlgoPHAST(CHGraph chGraph, Weighting weighting, TraversalMode tMode) {
-		super(chGraph, weighting, tMode, true);
+	public AbstractBidirAlgoPHAST(Graph graph, Weighting weighting, TraversalMode tMode) {
+		super(graph, weighting, tMode, true);
 	}
 
 	abstract IntObjectMap<SPTEntry> init(int from, double dist);
@@ -68,7 +70,9 @@ public abstract class AbstractBidirAlgoPHAST extends AbstractRoutingAlgorithmPHA
 				bestWeightMapFrom.get(additionalEdgeFilter.getHighestNode()).weight);
 		System.out.println("Highest node: " + additionalEdgeFilter.getHighestNode() + ", weight: "
 				+ bestWeightMapFrom.get(additionalEdgeFilter.getHighestNode()).weight);
-		DownLevelEdgeFilter downFilter = new DownLevelEdgeFilter(graph, encoder);
+		
+		CHGraph chGraph = getCHGraph(graph);
+		DownLevelEdgeFilter downFilter = new DownLevelEdgeFilter(chGraph, encoder);
 		downFilter.setHighestNode(additionalEdgeFilter.getHighestNode());
 		this.setEdgeFilter(downFilter);
 		runDownwardsAlgo();

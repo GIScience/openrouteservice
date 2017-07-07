@@ -15,43 +15,33 @@ import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeIterator;
-import com.graphhopper.util.Helper;
 
 import heigit.ors.matrix.MatrixMetricsType;
 import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
-import heigit.ors.matrix.MatrixSearchData;
+import heigit.ors.matrix.MatrixLocations;
 import heigit.ors.matrix.PathMetricsExtractor;
 import heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
 import heigit.ors.routing.DijkstraOneToMany;
-import heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
-import heigit.ors.routing.traffic.RealTrafficDataProvider;
 import heigit.ors.services.matrix.MatrixServiceSettings;
 
 public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
-	private Graph _graph;
-	private Weighting _weighting;
 	private PathMetricsExtractor _pathMetricsExtractor;
 	
-	public void init(MatrixRequest req, GraphHopper gh, FlagEncoder encoder)
+	public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting)
 	{
-		super.init(req, gh, encoder);
+		super.init(req, gh, graph, encoder, weighting);
 
-		_graph = gh.getGraphHopperStorage().getBaseGraph();
-		HintsMap hintsMap = new HintsMap();
-		hintsMap.setWeighting(Helper.isEmpty(req.getWeightingMethod()) ? "fastest" : req.getWeightingMethod());
-		_weighting = new ORSWeightingFactory(RealTrafficDataProvider.getInstance()).createWeighting(hintsMap, encoder, _graph, null, null);
 		_pathMetricsExtractor = new PathMetricsExtractor(req.getMetrics(), _graph, _encoder, _weighting, req.getUnits());
 	}
 
 	@Override
-	public MatrixResult compute(MatrixSearchData srcData, MatrixSearchData dstData, int metrics) throws Exception {
+	public MatrixResult compute(MatrixLocations srcData, MatrixLocations dstData, int metrics) throws Exception {
 		MatrixResult mtxResult = new MatrixResult(srcData.getLocations(), dstData.getLocations());
 
 		float[] times = new float[srcData.size() * dstData.size()];
@@ -68,7 +58,7 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
 		DijkstraOneToMany algorithm = new DijkstraOneToMany(_graph, _weighting, TraversalMode.NODE_BASED);
 		algorithm.setMaxVisitedNodes(MatrixServiceSettings.getMaximumVisitedNodes());
-		IntObjectMap<SPTEntry> targets =  new GHIntObjectHashMap<SPTEntry>(dstData.size());
+		IntObjectMap<SPTEntry> targets = new GHIntObjectHashMap<SPTEntry>(dstData.size());
 		for (int nodeId : dstData.getNodeIds())
 		{
 			if (nodeId != -1)

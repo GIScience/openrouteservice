@@ -374,6 +374,11 @@ public class QueryGraph implements Graph {
         // directly after normal edge ids which is ugly as we limit virtual edges to N edges and waste memory or make everything more complex.
         return baseGraph;
     }
+    
+    public Graph getMainGraph()
+    {
+    	return mainGraph;
+    }
 
     public EdgeIteratorState getOriginalEdgeFromVirtNode(int nodeId) {
         return queryResults.get(nodeId - mainNodes).getClosestEdge();

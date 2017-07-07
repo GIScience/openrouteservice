@@ -25,8 +25,8 @@ import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
+import heigit.ors.matrix.ResolvedLocation;
 import heigit.ors.matrix.MatrixErrorCodes;
-import heigit.ors.matrix.MatrixLocation;
 import heigit.ors.matrix.MatrixMetricsType;
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.routing.RoutingProfileType;
@@ -113,7 +113,7 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor
 		ServletUtility.write(response, jResp);
 	}
 	
-	private JSONArray createLocations(MatrixLocation[] locations, boolean includeLocationNames)
+	private JSONArray createLocations(ResolvedLocation[] locations, boolean includeLocationNames)
 	{
 		JSONArray jLocations = new JSONArray(locations.length);
 		
@@ -121,7 +121,7 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor
 		{
 			JSONObject jLoc = new JSONObject(true);
 
-			MatrixLocation loc = locations[i];
+			ResolvedLocation loc = locations[i];
 			if (loc != null)
 			{
 				Coordinate c = locations[i].getCoordinate();

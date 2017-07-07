@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.graphhopper.routing.Path;
+import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.RoutingAlgorithm;
 import com.graphhopper.routing.util.CHEdgeFilter;
 import com.graphhopper.routing.util.CHLevelEdgeFilter;
@@ -42,7 +43,7 @@ import com.graphhopper.util.EdgeIteratorState;
  * @author Peter Karich
  */
 public abstract class AbstractRoutingAlgorithmPHAST implements RoutingAlgorithm {
-	protected final CHGraph graph;
+	protected final Graph graph;
 	protected final Weighting weighting;
 	protected final FlagEncoder flagEncoder;
 	protected final TraversalMode traversalMode;
@@ -68,23 +69,40 @@ public abstract class AbstractRoutingAlgorithmPHAST implements RoutingAlgorithm 
 	public AbstractRoutingAlgorithmPHAST(Graph graph, Weighting weighting, TraversalMode traversalMode,
 			boolean downwardSearchAllowed) {
 
-		if (!(graph.getClass() == CHGraph.class || graph.getClass() == CHGraphImpl.class))
-			throw new IllegalArgumentException("Initialize PHAST with CHGraph");
 		this.weighting = weighting;
 		this.flagEncoder = weighting.getFlagEncoder();
 		this.traversalMode = traversalMode;
-		this.graph = (CHGraphImpl) graph;
+		this.graph = graph;
 		this.nodeAccess = this.graph.getNodeAccess();
 
+		/*		if (!(graph.getClass() == CHGraph.class || graph.getClass() == CHGraphImpl.class))
+			throw new IllegalArgumentException("Initialize PHAST with CHGraph");
+*/
+
+		CHGraph chGraph = getCHGraph(graph);
+		
 		if (!downwardSearchAllowed) {
-			outEdgeExplorer = this.graph.createEdgeExplorer();
-			inEdgeExplorer = this.graph.createEdgeExplorer();
-			targetEdgeExplorer = this.graph.createEdgeExplorer();
+			outEdgeExplorer = chGraph.createEdgeExplorer();
+			inEdgeExplorer = chGraph.createEdgeExplorer();
+			targetEdgeExplorer = chGraph.createEdgeExplorer();
 		} else {
-			outEdgeExplorer = this.graph.createEdgeExplorer(EdgeFilter.ALL_EDGES, true);
-			inEdgeExplorer = this.graph.createEdgeExplorer(EdgeFilter.ALL_EDGES, true);
-			targetEdgeExplorer = this.graph.createEdgeExplorer(EdgeFilter.ALL_EDGES, true);
+			outEdgeExplorer = chGraph.createEdgeExplorer(EdgeFilter.ALL_EDGES, true);
+			inEdgeExplorer = chGraph.createEdgeExplorer(EdgeFilter.ALL_EDGES, true);
+			targetEdgeExplorer = chGraph.createEdgeExplorer(EdgeFilter.ALL_EDGES, true);
 		}
+	}
+	
+	public CHGraph getCHGraph(Graph graph)
+	{
+		CHGraph chGraph = null;
+		if (graph instanceof CHGraph)
+			chGraph = (CHGraph)graph;
+		else if (graph instanceof QueryGraph)
+		{
+			QueryGraph qGraph = (QueryGraph)graph;
+			chGraph = (CHGraph)qGraph.getMainGraph();
+		}
+		return chGraph;
 	}
 
 	@Override

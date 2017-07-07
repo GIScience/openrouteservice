@@ -37,7 +37,7 @@ public class PathMetricsExtractor {
 			_chGraph = (CHGraph)_graph;
 	}
 	
-	public void setEmptyValues(int sourceIndex, MatrixSearchData srcData, MatrixSearchData dstData, float[] times, float[] distances, float[] weights)
+	public void setEmptyValues(int sourceIndex, MatrixLocations srcData, MatrixLocations dstData, float[] times, float[] distances, float[] weights)
 	{
 		int i = sourceIndex * dstData.size();
 		int[] targetNodes = dstData.getNodeIds();
@@ -53,12 +53,12 @@ public class PathMetricsExtractor {
 		}
 	}
 	
-	public void calcValues(int sourceIndex, IntObjectMap<SPTEntry> targets, MatrixSearchData srcData, MatrixSearchData dstData, float[] times, float[] distances, float[] weights) throws Exception
+	public void calcValues(int sourceIndex, IntObjectMap<SPTEntry> targets, MatrixLocations srcData, MatrixLocations dstData, float[] times, float[] distances, float[] weights) throws Exception
 	{
 		if (targets == null)
 			throw new IllegalStateException("Target destinations not set"); 
 
-		int index = sourceIndex* dstData.size();
+		int index = sourceIndex * dstData.size();
 		double time = 0.0;
 		double distance = 0.0;
 		double weight = 0.0;
@@ -66,18 +66,16 @@ public class PathMetricsExtractor {
 		boolean calcDistance = MatrixMetricsType.isSet(_metrics, MatrixMetricsType.Distance);
 		boolean calcWeight = MatrixMetricsType.isSet(_metrics, MatrixMetricsType.Weight);
 		
-		int targetIndex = 0;
 		int[] targetNodes = dstData.getNodeIds();
 		
 		for (int target : targetNodes) {
 			SPTEntry goalEdge = targets.get(target);
-			SPTEntry prevEdge = null;
 			time = 0.0;
 			distance = 0.0;
 			weight = 0.0;
 
 			if (goalEdge != null) {
-				// correct values for the last edge
+				/*// correct values for the last edge
 				if (EdgeIterator.Edge.isValid(goalEdge.edge))
 				{
 					if (goalEdge.parent != null && goalEdge.parent.adjNode != EdgeIterator.NO_EDGE)
@@ -95,7 +93,7 @@ public class PathMetricsExtractor {
 						}
 					}
 				}
-				
+				*/
 				while (EdgeIterator.Edge.isValid(goalEdge.edge)) {
 					if (_chGraph != null)
 					{
@@ -143,10 +141,9 @@ public class PathMetricsExtractor {
 							weight += _weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
 					}
 
-					prevEdge = goalEdge;
 					goalEdge = goalEdge.parent;
 				}
-				
+				/*
 				// correct values for the first edge
 				if (prevEdge != null && EdgeIterator.Edge.isValid(prevEdge.edge))
 				{
@@ -165,7 +162,7 @@ public class PathMetricsExtractor {
 								weight += _weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
 						}
 					}
-				}
+				}*/
 			}
 			else
 			{
@@ -184,7 +181,6 @@ public class PathMetricsExtractor {
 				weights[index] = (float)weight;
 
 			index++;
-			targetIndex++;
 		}
 	}
 

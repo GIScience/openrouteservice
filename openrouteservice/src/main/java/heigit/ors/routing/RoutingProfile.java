@@ -46,10 +46,10 @@ import heigit.ors.mapmatching.MapMatcher;
 import heigit.ors.mapmatching.RouteSegmentInfo;
 import heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
 import heigit.ors.matrix.MatrixErrorCodes;
-import heigit.ors.matrix.MatrixSearchData;
-import heigit.ors.matrix.MatrixLocationDataResolver;
 import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
+import heigit.ors.matrix.MatrixSearchContext;
+import heigit.ors.matrix.MatrixSearchContextBuilder;
 import heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
 import heigit.ors.optimization.OptimizationErrorCodes;
@@ -75,7 +75,10 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EdgeFilterSequence;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
-
+import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.storage.CHGraph;
+import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.storage.StorableProperties;
@@ -463,16 +466,25 @@ public class RoutingProfile
 		if (alg == null)
 			throw new Exception("Unable to create an algorithm to for computing distance/duration matrix.");
 
-		alg.init(req, gh, flagEncoder);
-
 		try
-		{
-			MatrixLocationDataResolver locResolver = new MatrixLocationDataResolver(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), new ByteArrayBuffer(), req.getResolveLocations(), MatrixServiceSettings.getMaximumSearchRadius());
+		{ 
+			String weightingStr =  Helper.isEmpty(req.getWeightingMethod()) ? "fastest" : req.getWeightingMethod();
+			Graph graph = null;
+			 if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getWeightingsAsStrings().contains(weightingStr)) 
+				 graph = gh.getGraphHopperStorage().getGraph(CHGraph.class);
+			 else
+				 graph = gh.getGraphHopperStorage().getBaseGraph();
 
-			MatrixSearchData srcData = locResolver.resolve(req.getSources());
-			MatrixSearchData dstData = locResolver.resolve(req.getDestinations()); 
+			MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), new ByteArrayBuffer(), req.getResolveLocations());
+			MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 
-			mtxResult = alg.compute(srcData, dstData, req.getMetrics()); 
+			HintsMap hintsMap = new HintsMap();
+			hintsMap.setWeighting(weightingStr);
+			Weighting weighting = new ORSWeightingFactory(RealTrafficDataProvider.getInstance()).createWeighting(hintsMap, flagEncoder, graph, null, gh.getGraphHopperStorage());
+
+			alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
+			
+			mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics()); 
 		}
 		catch(Exception ex)
 		{
@@ -487,27 +499,14 @@ public class RoutingProfile
 	{
 		RouteOptimizationResult optResult = null;
 
-		GraphHopper gh = getGraphhopper();
-		String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
-		FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
-		RouteProcessContext routeProcCntx = new RouteProcessContext(null);
+		//RouteProcessContext routeProcCntx = new RouteProcessContext(null);
 
 		MatrixResult mtxResult = null;
 		
 		try
 		{
 			MatrixRequest mtxReq = req.createMatrixRequest();
-			MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(mtxReq, gh, flagEncoder);
-			if (alg == null)
-				throw new Exception("Unable to create an algorithm to compute distance/duration matrix.");
-
-			alg.init(mtxReq, gh, flagEncoder);
-
-			MatrixLocationDataResolver locResolver = new MatrixLocationDataResolver(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), routeProcCntx.getArrayBuffer(), mtxReq.getResolveLocations(), MatrixServiceSettings.getMaximumSearchRadius());
-			MatrixSearchData srcData = locResolver.resolve(mtxReq.getSources());
-			MatrixSearchData dstData = locResolver.resolve(mtxReq.getDestinations());
-			
-			mtxResult = alg.compute(srcData, dstData, mtxReq.getMetrics()); 
+			mtxResult = computeMatrix(mtxReq);
 		}
 		catch(Exception ex)
 		{
