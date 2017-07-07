@@ -34,7 +34,7 @@ public class ResultsValidationTest extends ServiceTest {
 		JSONObject jResponse = new JSONObject(response.body().asString());
 		checkTableDimensions(jResponse, "distances", 3, 3);
 	}
-	
+	/*
 	@Test
 	public void nonExistingLocationEntryTest() {
 		Response response = given()
@@ -51,7 +51,7 @@ public class ResultsValidationTest extends ServiceTest {
 		checkTableDimensions(jResponse, "distances", 1, 2);
 		JSONArray jDistances = jResponse.getJSONArray("distances").getJSONArray(0);
 		Assert.assertEquals(jDistances.get(1), JSONObject.NULL);
-	}
+	}*/
 /*	 
 	@Test
 	public void emptyLocationEntryTest() {
