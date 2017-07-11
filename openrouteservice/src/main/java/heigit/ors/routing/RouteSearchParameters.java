@@ -12,7 +12,6 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
@@ -29,7 +28,7 @@ public class RouteSearchParameters {
 	private double _maxSpeed = -1;
 	private Polygon[] _avoidAreas;
 	private int _avoidFeaturesTypes;
-	private int _vehicleType = HeavyVehicleAttributes.GOODS;
+	private int _vehicleType = HeavyVehicleAttributes.UNKNOWN; 
 	private ProfileParameters _profileParams;
 
 	private String _options;
