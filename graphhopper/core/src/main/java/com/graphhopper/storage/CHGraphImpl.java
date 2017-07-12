@@ -190,9 +190,9 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
 		return iter;
 	}
 
-    public CHEdgeExplorer createEdgeExplorer(EdgeFilter filter, boolean downwardScanAllowed)
+    public CHEdgeExplorer createEdgeExplorer(EdgeFilter filter, PMap props)
     {
-    	if (downwardScanAllowed)
+    	if (props != null && props.getBool("allow_downward_search", false))
     		return new PHASTEdgeIteratorImpl(baseGraph, chEdgeAccess, filter);
     	else
     		return new CHEdgeIteratorImpl(baseGraph, chEdgeAccess, filter);

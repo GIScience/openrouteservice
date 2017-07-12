@@ -44,17 +44,16 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 	public MatrixResult compute(MatrixLocations srcData, MatrixLocations dstData, int metrics) throws Exception {
 		MatrixResult mtxResult = new MatrixResult(srcData.getLocations(), dstData.getLocations());
 
-		float[] times = new float[srcData.size() * dstData.size()];
+		float[] times = null; 
 		float[] distances = null; 
 		float[] weights = null;
 
-		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Distance) || MatrixMetricsType.isSet(metrics, MatrixMetricsType.Weight))
-		{
-			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Distance)) 
-				distances = new float[srcData.size() * dstData.size()];
-			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Weight))
-				weights = new float[srcData.size() * dstData.size()];
-		}
+		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Duration))
+			times = new float[srcData.size() * dstData.size()];
+		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Distance)) 
+			distances = new float[srcData.size() * dstData.size()];
+		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Weight))
+			weights = new float[srcData.size() * dstData.size()];
 
 		DijkstraOneToMany algorithm = new DijkstraOneToMany(_graph, _weighting, TraversalMode.NODE_BASED);
 		algorithm.setMaxVisitedNodes(MatrixServiceSettings.getMaximumVisitedNodes());

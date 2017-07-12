@@ -19,6 +19,7 @@ package com.graphhopper.routing.util;
 
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.util.CHEdgeIteratorState;
+import com.graphhopper.util.EdgeIteratorState;
 
 /**
  * Only certain nodes are accepted and therefore the others are ignored.
@@ -31,26 +32,27 @@ public class CHLevelEdgeFilter implements CHEdgeFilter {
 	private final int maxNodes;
 	public int highestNode = -1;
 	private FlagEncoder encoder;
-
+	
 	public CHLevelEdgeFilter(CHGraph g, FlagEncoder encoder) {
 		graph = g;
-		maxNodes = g.getNodes();
+		maxNodes = g.getNodes(); 
 		this.encoder = encoder;
 	}
 
 	@Override
-	public boolean accept(CHEdgeIteratorState edgeIterState) {
+	public boolean accept(EdgeIteratorState edgeIterState) {
 		int base = edgeIterState.getBaseNode();
-		int adj = edgeIterState.getAdjNode();
+		int adj = edgeIterState.getAdjNode(); 
 		// always accept virtual edges, see #288
 		if (base >= maxNodes || adj >= maxNodes)
-			return true;
+			return true; 
 		if (highestNode == -1)
-			highestNode = adj;
+			highestNode = adj; 
 
 		// if (edgeIterState.isShortcut())
 		// return !(graph.getLevel(base) <= graph.getLevel(adj)) ? false : true;
-		return !(graph.getLevel(base) <= graph.getLevel(adj)) ? false : edgeIterState.isForward(encoder); 
+		
+		return (graph.getLevel(base) < graph.getLevel(adj)) ? edgeIterState.isForward(encoder) : false;
 	}
 
 	@Override
@@ -59,7 +61,19 @@ public class CHLevelEdgeFilter implements CHEdgeFilter {
 	}
 
 	@Override
-	public void setHighestNode(int highestNode) {
-		this.highestNode = highestNode;
+	public void setHighestNode(int node)
+	{
+		highestNode = node;
+	}
+	
+	@Override
+	public void updateHighestNode(EdgeIteratorState edgeIterState) {
+		
+		int ajdNode = edgeIterState.getAdjNode();
+		if (ajdNode < maxNodes)
+		{
+			if (highestNode == -1 || graph.getLevel(highestNode) < graph.getLevel(ajdNode))
+				this.highestNode =  ajdNode;
+		}
 	}
 }

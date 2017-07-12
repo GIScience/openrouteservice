@@ -28,7 +28,7 @@ import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.CHGraphImpl.CHEdgeIteratorImpl;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
-import com.graphhopper.util.CHEdgeExplorer;
+import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.Parameters;
 
 /**
@@ -55,7 +55,6 @@ public class DijkstraBidirectionRefPHAST extends AbstractBidirAlgoPHAST {
 	public DijkstraBidirectionRefPHAST(Graph graph, Weighting weighting, TraversalMode tMode) {
 		super(graph, weighting, tMode);
 		int size = Math.min(Math.max(200, graph.getNodes() / 10), 150_000);
-		chGraph = getCHGraph(graph);
 		initCollections(size);
 	}
 
@@ -143,7 +142,7 @@ public class DijkstraBidirectionRefPHAST extends AbstractBidirAlgoPHAST {
 	}
 
 	void fillEdges(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<SPTEntry> shortestWeightMap,
-			CHEdgeExplorer explorer, boolean reverse) {
+			EdgeExplorer explorer, boolean reverse) {
 		CHEdgeIteratorImpl iter = (CHEdgeIteratorImpl) explorer.setBaseNode(currEdge.adjNode);
 
 		while (iter.next()) {
@@ -180,7 +179,7 @@ public class DijkstraBidirectionRefPHAST extends AbstractBidirAlgoPHAST {
 	}
 
 	void fillEdgesDownwards(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue,
-			IntObjectMap<SPTEntry> shortestWeightMap, CHEdgeExplorer explorer, boolean reverse) {
+			IntObjectMap<SPTEntry> shortestWeightMap, EdgeExplorer explorer, boolean reverse) {
 		CHEdgeIteratorImpl iter = (CHEdgeIteratorImpl) explorer.setBaseNode(currEdge.adjNode);
 
 		while (iter.next()) {

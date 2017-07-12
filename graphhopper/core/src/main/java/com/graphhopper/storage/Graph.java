@@ -21,6 +21,7 @@ import com.graphhopper.routing.util.AllEdgesIterator;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.PMap;
 import com.graphhopper.util.shapes.BBox;
 
 /**
@@ -94,6 +95,8 @@ public interface Graph {
      * @see Graph#createEdgeExplorer()
      */
     EdgeExplorer createEdgeExplorer(EdgeFilter filter);
+    
+    EdgeExplorer createEdgeExplorer(EdgeFilter filter, PMap props);
 
     /**
      * @see Graph#createEdgeExplorer(com.graphhopper.routing.util.EdgeFilter)

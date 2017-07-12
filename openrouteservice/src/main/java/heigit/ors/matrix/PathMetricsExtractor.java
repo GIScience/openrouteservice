@@ -1,6 +1,7 @@
 package heigit.ors.matrix;
 
 import com.carrotsearch.hppc.IntObjectMap;
+import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
@@ -20,10 +21,12 @@ public class PathMetricsExtractor {
 	private CHGraph _chGraph;
 	private Weighting _weighting;
 	private Weighting _timeWeighting;
+	private double _edgeDistance;
 	private double _edgeWeight;
 	private double _edgeTime;
 	private DistanceUnit _distUnits;
 	private boolean _reverseOrder = true;
+	private boolean _unpackDistance = true;
 
 	public PathMetricsExtractor(int metrics, Graph graph, FlagEncoder encoder, Weighting weighting, DistanceUnit units)
 	{
@@ -34,7 +37,14 @@ public class PathMetricsExtractor {
 		_distUnits = units;
 		
 		if (graph instanceof CHGraph)
-			_chGraph = (CHGraph)_graph;
+			_chGraph = (CHGraph)graph;
+		else if (graph instanceof QueryGraph)
+		{
+			QueryGraph qGraph = (QueryGraph)graph;
+			Graph mainGraph = qGraph.getMainGraph();
+			if (mainGraph instanceof CHGraph)
+				_chGraph = (CHGraph)mainGraph;
+		}
 	}
 	
 	public void setEmptyValues(int sourceIndex, MatrixLocations srcData, MatrixLocations dstData, float[] times, float[] distances, float[] weights)
@@ -73,64 +83,47 @@ public class PathMetricsExtractor {
 			time = 0.0;
 			distance = 0.0;
 			weight = 0.0;
-
+ 
 			if (goalEdge != null) {
-				/*// correct values for the last edge
-				if (EdgeIterator.Edge.isValid(goalEdge.edge))
-				{
-					if (goalEdge.parent != null && goalEdge.parent.adjNode != EdgeIterator.NO_EDGE)
-					{
-						ClosestEdgeData closestEdge = dstData.getClosestEdge(targetIndex);
-						EdgeIteratorState iter = closestEdge.getEdge(goalEdge.adjNode, goalEdge.parent.adjNode);
-						if (iter != null)
-						{
-							if (calcDistance)
-								distance += (_distUnits == DistanceUnit.Meters) ? iter.getDistance() : DistanceUnitUtil.convert(iter.getDistance(), DistanceUnit.Meters, _distUnits);
-							if (calcTime)
-								time += _timeWeighting.calcMillis(iter, false, EdgeIterator.NO_EDGE) / 1000.0;
-							if (calcWeight)
-								weight += _weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
-						}
-					}
-				}
-				*/
 				while (EdgeIterator.Edge.isValid(goalEdge.edge)) {
 					if (_chGraph != null)
-					{
-						CHEdgeIteratorState iter = _chGraph.getEdgeIteratorState(goalEdge.edge, goalEdge.adjNode);
-
-						if (calcDistance)
-							distance += (_distUnits == DistanceUnit.Meters) ? iter.getDistance(): DistanceUnitUtil.convert(iter.getDistance(), DistanceUnit.Meters, _distUnits);
-
-						if (calcWeight || calcTime)
+					{ 
+						CHEdgeIteratorState iterState = (CHEdgeIteratorState)_graph.getEdgeIteratorState(goalEdge.edge, goalEdge.adjNode);
+  
+						if (!_unpackDistance && calcDistance)
+							distance += (_distUnits == DistanceUnit.Meters) ? iterState.getDistance(): DistanceUnitUtil.convert(iterState.getDistance(), DistanceUnit.Meters, _distUnits);
+ 
+						if (calcWeight || calcTime || _unpackDistance)
 						{
-							if (iter.isShortcut())
+							if (iterState.isShortcut())
 							{
-								if (_chGraph.getLevel(iter.getBaseNode()) > _chGraph.getLevel(iter.getAdjNode()))
+								if (_chGraph.getLevel(iterState.getBaseNode()) > _chGraph.getLevel(iterState.getAdjNode()))
 								{
 									_reverseOrder = true;
-									extractEdgeValues(iter, false);
+									extractEdgeValues(iterState, false);
 								}
 								else
 								{
 									_reverseOrder = false;
-									extractEdgeValues(iter, true);
+									extractEdgeValues(iterState, true);
 								}
 							}
 							else
 							{
-								extractEdgeValues(iter, false);
+								extractEdgeValues(iterState, false);
 							}
+							
+							if (_unpackDistance)
+								distance += (_distUnits == DistanceUnit.Meters) ? _edgeDistance : DistanceUnitUtil.convert(_edgeDistance, DistanceUnit.Meters, _distUnits);
 							
 							time += _edgeTime;
 							weight += _edgeWeight;
 						}
 					}
 					else
-					{
+					{ 
 						EdgeIteratorState iter = _graph.getEdgeIteratorState(goalEdge.edge, goalEdge.adjNode);
-						//System.out.print(Integer.toString(iter.getEdge()) + ",");
-						
+						//System.out.println(iter.getName() + " "+iter.getDistance());
 						if (calcDistance)
 							distance += (_distUnits == DistanceUnit.Meters) ? iter.getDistance(): DistanceUnitUtil.convert(iter.getDistance(), DistanceUnit.Meters, _distUnits);
 
@@ -143,26 +136,6 @@ public class PathMetricsExtractor {
 
 					goalEdge = goalEdge.parent;
 				}
-				/*
-				// correct values for the first edge
-				if (prevEdge != null && EdgeIterator.Edge.isValid(prevEdge.edge))
-				{
-					if (goalEdge.adjNode != EdgeIterator.NO_EDGE)
-					{
-						ClosestEdgeData closestEdge = srcData.getClosestEdge(sourceIndex);
-						EdgeIteratorState iter = closestEdge.getEdge(prevEdge.adjNode, goalEdge.adjNode);
-						if (iter != null)
-						{
-							if (calcDistance)
-								distance += (_distUnits == DistanceUnit.Meters) ? iter.getDistance() : DistanceUnitUtil.convert(iter.getDistance(), DistanceUnit.Meters, _distUnits);
-							if (calcTime)
-								time += _timeWeighting.calcMillis(iter, false, EdgeIterator.NO_EDGE) / 1000.0;
-
-							if (calcWeight)
-								weight += _weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
-						}
-					}
-				}*/
 			}
 			else
 			{
@@ -188,16 +161,20 @@ public class PathMetricsExtractor {
 	{
 		if (iterState.isShortcut())
 		{
+			_edgeDistance = 0.0;
 			_edgeTime = 0.0;
 			_edgeWeight = 0.0;
 			
-			if ((_chGraph.getLevel(iterState.getBaseNode()) <= _chGraph.getLevel(iterState.getAdjNode())))
+			if ((_chGraph.getLevel(iterState.getBaseNode()) < _chGraph.getLevel(iterState.getAdjNode())))
 				reverse = !reverse;
 			
 			expandEdge(iterState, reverse);  
 		}
 		else
 		{
+			//System.out.println(iterState.getName() + " "+iterState.getDistance());
+			if (MatrixMetricsType.isSet(_metrics, MatrixMetricsType.Distance))
+				_edgeDistance = iterState.getDistance();
 			if (MatrixMetricsType.isSet(_metrics, MatrixMetricsType.Duration))
 				_edgeTime = _weighting.calcMillis(iterState, reverse, EdgeIterator.NO_EDGE) / 1000.0;
 			if (MatrixMetricsType.isSet(_metrics, MatrixMetricsType.Weight))
@@ -205,20 +182,21 @@ public class PathMetricsExtractor {
 		}
 	}
 
-	private void expandEdge(CHEdgeIteratorState mainEdgeState, boolean reverse) {
-		if (!mainEdgeState.isShortcut()) {
-			//System.out.print(Integer.toString(mainEdgeState.getEdge()) + ",");
-
+	private void expandEdge(CHEdgeIteratorState iterState, boolean reverse) {
+		if (!iterState.isShortcut()) {
+			//System.out.println(iterState.getName() + " "+iterState.getDistance());
+			if (MatrixMetricsType.isSet(_metrics, MatrixMetricsType.Distance))
+				_edgeDistance += iterState.getDistance();
 			if (MatrixMetricsType.isSet(_metrics, MatrixMetricsType.Duration))
-				_edgeTime += _weighting.calcMillis(mainEdgeState, reverse, EdgeIterator.NO_EDGE) / 1000.0;
+				_edgeTime += _weighting.calcMillis(iterState, reverse, EdgeIterator.NO_EDGE) / 1000.0;
 			if (MatrixMetricsType.isSet(_metrics, MatrixMetricsType.Weight))
-				_edgeWeight +=_weighting.calcWeight(mainEdgeState, reverse, EdgeIterator.NO_EDGE);
+				_edgeWeight +=_weighting.calcWeight(iterState, reverse, EdgeIterator.NO_EDGE);
 			return;
 		}
 	
-		int skippedEdge1 = mainEdgeState.getSkippedEdge1();
-		int skippedEdge2 = mainEdgeState.getSkippedEdge2();
-		int from = mainEdgeState.getBaseNode(), to = mainEdgeState.getAdjNode();
+		int skippedEdge1 = iterState.getSkippedEdge1();
+		int skippedEdge2 = iterState.getSkippedEdge2();
+		int from = iterState.getBaseNode(), to = iterState.getAdjNode();
 
 		// get properties like speed of the edge in the correct direction
 		if (reverse) {

@@ -17,13 +17,12 @@ package com.graphhopper.routing.util;
  *  limitations under the License.
  */
 
-import java.util.HashSet;
-
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
+import com.graphhopper.coll.GHIntHashSet;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.SPTEntry;
-import com.graphhopper.util.CHEdgeIteratorState;
+import com.graphhopper.util.EdgeIteratorState;
 
 /**
  * Accepts nodes that are contained in the target tree and have the correct
@@ -37,7 +36,7 @@ public class RPHASTEdgeFilter implements CHEdgeFilter {
 	private final int maxNodes;
 	public int highestNode = -1;
 	private FlagEncoder encoder;
-	private HashSet<Integer> targetTree;
+	private GHIntHashSet targetTree;
 
 	public RPHASTEdgeFilter(CHGraph g, FlagEncoder encoder) {
 		graph = g;
@@ -46,7 +45,7 @@ public class RPHASTEdgeFilter implements CHEdgeFilter {
 	}
 
 	@Override
-	public boolean accept(CHEdgeIteratorState edgeIterState) {
+	public boolean accept(EdgeIteratorState edgeIterState) {
 		int base = edgeIterState.getBaseNode();
 		int adj = edgeIterState.getAdjNode();
 		// always accept virtual edges, see #288
@@ -61,13 +60,16 @@ public class RPHASTEdgeFilter implements CHEdgeFilter {
 		// System.out.println("New highest node: " + highestNode);
 		// }
 		// }
-		// }
-		if (!(graph.getLevel(base) > graph.getLevel(adj))) {
+		// }       
+		
+		if (graph.getLevel(base) < graph.getLevel(adj)) {
 			return false;
 		} else if (targetTree.contains(adj)) {
-			return edgeIterState.isForward(encoder);
+			return edgeIterState.isForward(encoder); // true
 		} else
-			return false;
+		{
+				return false;
+		}
 	}
 
 	@Override
@@ -76,12 +78,17 @@ public class RPHASTEdgeFilter implements CHEdgeFilter {
 	}
 
 	@Override
-	public void setHighestNode(int highestNode) {
-		this.highestNode = highestNode;
+	public void setHighestNode(int node) {
+		highestNode = node;
+	}
+
+	@Override
+	public void updateHighestNode(EdgeIteratorState iter) {
+		this.highestNode = iter.getAdjNode();
 	}
 
 	public RPHASTEdgeFilter setTargetTree(IntObjectMap<SPTEntry> targets) {
-		targetTree = new HashSet<Integer>(targets.size(), 1);
+		targetTree = new GHIntHashSet(targets.size()); 
 		for (IntObjectCursor<SPTEntry> target : targets) {
 			targetTree.add(target.value.adjNode);
 		}

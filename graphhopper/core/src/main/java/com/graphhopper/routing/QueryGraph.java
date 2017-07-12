@@ -583,42 +583,48 @@ public class QueryGraph implements Graph {
 
         return edgeId;
     }
+    
+    @Override
+    public EdgeExplorer createEdgeExplorer(final EdgeFilter edgeFilter, PMap props) {
+    
+    	   if (!isInitialized())
+               throw new IllegalStateException("Call lookup before using this graph");
+
+           if (useEdgeExplorerCache) {
+               int counter = -1;
+               if (edgeFilter instanceof DefaultEdgeFilter) {
+                   DefaultEdgeFilter dee = (DefaultEdgeFilter) edgeFilter;
+                   counter = 0;
+                   if (dee.acceptsBackward())
+                       counter = 1;
+                   if (dee.acceptsForward())
+                       counter += 2;
+
+                   if (counter == 0)
+                       throw new IllegalStateException("You tried to use an edge filter blocking every access");
+
+               } else if (edgeFilter == EdgeFilter.ALL_EDGES) {
+                   counter = 4;
+               }
+
+               if (counter >= 0) {
+                   EdgeExplorer cached = cacheMap.get(counter);
+                   if (cached == null) {
+                       cached = createUncachedEdgeExplorer(edgeFilter, props);
+                       cacheMap.put(counter, cached);
+                   }
+                   return cached;
+               }
+           }
+           return createUncachedEdgeExplorer(edgeFilter, props);
+    }
 
     @Override
     public EdgeExplorer createEdgeExplorer(final EdgeFilter edgeFilter) {
-        if (!isInitialized())
-            throw new IllegalStateException("Call lookup before using this graph");
-
-        if (useEdgeExplorerCache) {
-            int counter = -1;
-            if (edgeFilter instanceof DefaultEdgeFilter) {
-                DefaultEdgeFilter dee = (DefaultEdgeFilter) edgeFilter;
-                counter = 0;
-                if (dee.acceptsBackward())
-                    counter = 1;
-                if (dee.acceptsForward())
-                    counter += 2;
-
-                if (counter == 0)
-                    throw new IllegalStateException("You tried to use an edge filter blocking every access");
-
-            } else if (edgeFilter == EdgeFilter.ALL_EDGES) {
-                counter = 4;
-            }
-
-            if (counter >= 0) {
-                EdgeExplorer cached = cacheMap.get(counter);
-                if (cached == null) {
-                    cached = createUncachedEdgeExplorer(edgeFilter);
-                    cacheMap.put(counter, cached);
-                }
-                return cached;
-            }
-        }
-        return createUncachedEdgeExplorer(edgeFilter);
+     return createEdgeExplorer(edgeFilter, null);
     }
 
-    private EdgeExplorer createUncachedEdgeExplorer(EdgeFilter edgeFilter) {
+    private EdgeExplorer createUncachedEdgeExplorer(EdgeFilter edgeFilter, PMap props) {
         // Iteration over virtual nodes needs to be thread safe if done from different explorer
         // so we need to create the mapping on EVERY call!
         // This needs to be a HashMap (and cannot be an array) as we also need to tweak edges for some mainNodes!
@@ -626,7 +632,7 @@ public class QueryGraph implements Graph {
         final IntObjectMap<VirtualEdgeIterator> node2EdgeMap
                 = new GHIntObjectHashMap<VirtualEdgeIterator>(queryResults.size() * 3);
 
-        final EdgeExplorer mainExplorer = mainGraph.createEdgeExplorer(edgeFilter);
+        final EdgeExplorer mainExplorer = props == null ? mainGraph.createEdgeExplorer(edgeFilter): mainGraph.createEdgeExplorer(edgeFilter, props);
         final GHIntHashSet towerNodesToChange = new GHIntHashSet(queryResults.size());
 
         // 1. virtualEdges should also get fresh EdgeIterators on every createEdgeExplorer call!

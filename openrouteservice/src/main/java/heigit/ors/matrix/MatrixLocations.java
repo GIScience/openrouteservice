@@ -46,4 +46,9 @@ public class MatrixLocations {
 		_nodeIds[index] = nodeId;
 		_locations[index] = location;
 	}
+	
+	public void updateNodeId(int index, int nodeId)
+	{
+		_nodeIds[index] = nodeId;
+	}
 }

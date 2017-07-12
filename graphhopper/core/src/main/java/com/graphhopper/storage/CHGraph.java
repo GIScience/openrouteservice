@@ -58,8 +58,6 @@ public interface CHGraph extends Graph {
     @Override
     CHEdgeExplorer createEdgeExplorer(EdgeFilter filter);
 
-    CHEdgeExplorer createEdgeExplorer(EdgeFilter filter, boolean downwardSearchAllowed);
-
     @Override
     AllCHEdgesIterator getAllEdges();
 }

@@ -36,6 +36,7 @@ public class MatrixSearchContextBuilder {
 	{
 		public int nodeId;
 		public ResolvedLocation location;
+		public QueryResult queryResult;
 	}
 
 	public MatrixSearchContextBuilder(LocationIndex index, EdgeFilter edgeFilter, ByteArrayBuffer buffer, boolean resolveNames)
@@ -46,26 +47,29 @@ public class MatrixSearchContextBuilder {
 		_resolveNames = resolveNames;
 	}
 
-	public MatrixSearchContext create(Graph graph, Coordinate[] sources, Coordinate[] destinations, double maxSearchRadius)
+	public MatrixSearchContext create(Graph graph, Coordinate[] sources, Coordinate[] destinations, double maxSearchRadius) throws Exception
 	{
 		if (_locationCache == null)
 			_locationCache = new HashMap<Coordinate, LocationEntry>();
+		else
+			_locationCache.clear();
 	
 		QueryGraph queryGraph = new QueryGraph(graph);
 		List<QueryResult> queryResults = new ArrayList<QueryResult>(sources.length + destinations.length);
 		
-		MatrixLocations mlSources = createLocations(sources, queryResults, maxSearchRadius);
-		MatrixLocations mlDestinations = createLocations(destinations, queryResults, maxSearchRadius);
+		resolveLocations(sources, queryResults, maxSearchRadius);
+		resolveLocations(destinations, queryResults, maxSearchRadius);
 
 		queryGraph.lookup(queryResults, _buffer);
+		
+		MatrixLocations mlSources = createLocations(sources);
+		MatrixLocations mlDestinations = createLocations(destinations);
 		
 		return new  MatrixSearchContext(queryGraph, mlSources, mlDestinations);
 	}
 	
-	private MatrixLocations createLocations(Coordinate[] coords, List<QueryResult> queryResults, double maxSearchRadius)
+	private void resolveLocations(Coordinate[] coords, List<QueryResult> queryResults, double maxSearchRadius)
 	{
-		MatrixLocations mlRes = new MatrixLocations(coords.length, _resolveNames);
-		
 		Coordinate p = null;
 		
 		for (int i = 0; i < coords.length; i++)
@@ -73,13 +77,12 @@ public class MatrixSearchContextBuilder {
 			p = coords[i];
 
 			LocationEntry ld = _locationCache.get(p);
-			if (ld != null)
-				mlRes.setData(i, ld.nodeId, ld.location);
-			else
+			if (ld == null)
 			{  
-				ld = new LocationEntry();
-
 				QueryResult qr = _locIndex.findClosest(p.y, p.x, _edgeFilter, _buffer);
+				
+				ld = new LocationEntry();
+				ld.queryResult = qr;
 				
 				if (qr.isValid() && qr.getQueryDistance() < maxSearchRadius)
 				{
@@ -93,8 +96,28 @@ public class MatrixSearchContextBuilder {
 				}
 
 				_locationCache.put(p, ld);
-				
-				mlRes.setData(i, ld.nodeId, ld.location);
+
+				queryResults.add(qr);
+			}
+		}
+	}
+ 	
+	private MatrixLocations createLocations(Coordinate[] coords) throws Exception
+	{
+		MatrixLocations mlRes = new MatrixLocations(coords.length, _resolveNames);
+		
+		Coordinate p = null;
+		
+		for (int i = 0; i < coords.length; i++)
+		{
+			p = coords[i];
+
+			LocationEntry ld = _locationCache.get(p);
+			if (ld != null)
+				mlRes.setData(i, ld.nodeId == -1 ? -1 : ld.queryResult.getClosestNode(), ld.location);
+			else
+			{  
+				throw new Exception("Oops!");
 			}
 		}
 		

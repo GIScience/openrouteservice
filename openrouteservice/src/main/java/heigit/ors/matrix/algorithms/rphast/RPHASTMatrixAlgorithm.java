@@ -17,7 +17,6 @@ import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies.DijkstraBidirectionCHRPHAST;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 
@@ -29,7 +28,6 @@ import heigit.ors.matrix.PathMetricsExtractor;
 import heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
 
 public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
-	private CHGraph _chGraph;
 	private PrepareContractionHierarchies _prepareCH;
 	private PathMetricsExtractor _pathMetricsExtractor;
 	
@@ -37,31 +35,30 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 	{
 		super.init(req, gh, graph, encoder, weighting);
 
-		_chGraph = (CHGraph)gh.getGraphHopperStorage().getGraph(CHGraph.class /* "fastest"*/);
 		_prepareCH = _graphHopper.getCHFactoryDecorator().getPreparations().get(0);
-		_pathMetricsExtractor = new PathMetricsExtractor(req.getMetrics(), _chGraph, _encoder, weighting, req.getUnits());
+		_pathMetricsExtractor = new PathMetricsExtractor(req.getMetrics(), graph, _encoder, weighting, req.getUnits());
 	}
 
 	@Override
 	public MatrixResult compute(MatrixLocations srcData, MatrixLocations dstData, int metrics) throws Exception {
 		MatrixResult mtxResult = new MatrixResult(srcData.getLocations(), dstData.getLocations());
 
-		float[] times = new float[srcData.size() * dstData.size()];
+		float[] times = null; 
 		float[] distances = null; 
 		float[] weights = null;
+ 
+		int tableSize = srcData.size() * dstData.size();
+		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Duration))
+			times = new float[tableSize];
+		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Distance)) 
+			distances = new float[tableSize];
+		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Weight))
+			weights = new float[tableSize];
 
-		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Distance) || MatrixMetricsType.isSet(metrics, MatrixMetricsType.Weight))
-		{
-			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Distance)) 
-				distances = new float[srcData.size() * dstData.size()];
-			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Weight))
-				weights = new float[srcData.size() * dstData.size()];
-		}
-
-		DijkstraBidirectionCHRPHAST algorithm = _prepareCH.createRPHAST(_chGraph, _encoder);
+		DijkstraBidirectionCHRPHAST algorithm = _prepareCH.createRPHAST(_graph, _encoder); 
 		// Compute target tree only once as it is the same for every source
 		IntObjectMap<SPTEntry> tree = algorithm.createTargetTree(dstData.getNodeIds());
-        int sourceId = -1;
+        int sourceId = -1; 
         
 		for (int srcIndex = 0; srcIndex < srcData.size(); srcIndex++) {
 			sourceId = srcData.getNodeId(srcIndex);
@@ -70,10 +67,10 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 				_pathMetricsExtractor.setEmptyValues(srcIndex, srcData, dstData, times, distances, weights);
 			}
 			else
-			{
-				algorithm = _prepareCH.createRPHAST(_chGraph, _encoder);
+			{ 
+				algorithm = _prepareCH.createRPHAST(_graph, _encoder);
 				IntObjectMap<SPTEntry> destinationTree = algorithm.calcMatrix(sourceId, dstData.getNodeIds(), tree, srcIndex * dstData.size());
-				_pathMetricsExtractor.calcValues(srcIndex , destinationTree, srcData, dstData, times, distances, weights);
+				_pathMetricsExtractor.calcValues(srcIndex , destinationTree, srcData, dstData, times, distances, weights); 
 			}
 		}
 

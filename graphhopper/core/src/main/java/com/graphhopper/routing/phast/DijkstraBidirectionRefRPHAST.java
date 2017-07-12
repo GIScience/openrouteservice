@@ -23,13 +23,12 @@ import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.PathBidirRef;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.CHGraph;
-import com.graphhopper.storage.CHGraphImpl.CHEdgeIteratorImpl;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
-import com.graphhopper.util.CHEdgeExplorer;
+import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.Parameters;
 
@@ -55,13 +54,10 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 	PriorityQueue<SPTEntry> openSetTargets;
 	IntObjectMap<SPTEntry> targetTree;
 	
-	private CHGraph chGraph;
-
-	public DijkstraBidirectionRefRPHAST(Graph graph, Weighting weighting, TraversalMode tMode) {
-		super(graph, weighting, tMode);
+	public DijkstraBidirectionRefRPHAST(Graph graph, FlagEncoder encoder, Weighting weighting, TraversalMode tMode) {
+		super(graph, encoder, weighting, tMode);
 		int size = Math.min(Math.max(200, graph.getNodes() / 10), 150_000);
 		
-		chGraph = getCHGraph(graph);
 		initCollections(size);
 	}
 
@@ -130,12 +126,12 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 		while (!openSetTargets.isEmpty()) {
 			currTarget = openSetTargets.poll();
 			int traversalId = 0;
-			CHEdgeIteratorImpl iter = (CHEdgeIteratorImpl) targetEdgeExplorer.setBaseNode(currTarget.adjNode);
+			EdgeIterator iter = targetEdgeExplorer.setBaseNode(currTarget.adjNode);
 		
 			while (iter.next()) {
 				if (!additionalEdgeFilter.accept(iter))
 					continue;
-
+ 
 				traversalId = traversalMode.createTraversalId(iter, false);
 				double tmpWeight = weighting.calcWeight(iter, false, currTarget.edge) + currTarget.weight;
 
@@ -182,6 +178,7 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 			return false;
 		}
 		currTo = openSetTo.poll();
+
 		fillEdgesDownwards(currTo, openSetTo, bestWeightMapFrom, outEdgeExplorer, false);
 		visitedCountTo++;
 
@@ -203,8 +200,8 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 	}
 
 	void fillEdges(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<SPTEntry> shortestWeightMap,
-			CHEdgeExplorer explorer, boolean reverse) {
-		CHEdgeIteratorImpl iter = (CHEdgeIteratorImpl) explorer.setBaseNode(currEdge.adjNode);
+			EdgeExplorer explorer, boolean reverse) {
+		EdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
 
 		while (iter.next()) {
 			if (!additionalEdgeFilter.accept(iter)) {
@@ -220,12 +217,14 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 			// sake)
 			// int traversalId = traversalMode.createTraversalId(iter, reverse);
 			// SPTEntry ee = shortestWeightMap.get(traversalId);
-			int traversalId = iter.getAdjNode();
+			int traversalId = traversalMode.createTraversalId(iter, reverse);// iter.getAdjNode();
 			SPTEntry ee = shortestWeightMap.get(traversalId);
 
 			// Keep track of the currently found highest CH level node
-			if (chGraph.getLevel(additionalEdgeFilter.getHighestNode()) < chGraph.getLevel(iter.getAdjNode()))
-				additionalEdgeFilter.setHighestNode(iter.getAdjNode());
+			
+			//if (graph.getLevel(additionalEdgeFilter.getHighestNode()) < graph.getLevel(iter.getAdjNode()))
+			//	additionalEdgeFilter.setHighestNode(iter.getAdjNode());
+			additionalEdgeFilter.updateHighestNode(iter);
 			
 			if (ee == null) {
 				ee = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
@@ -245,13 +244,12 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 	}
 
 	void fillEdgesDownwards(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue,
-			IntObjectMap<SPTEntry> shortestWeightMap, CHEdgeExplorer explorer, boolean reverse) {
-		CHEdgeIteratorImpl iter = (CHEdgeIteratorImpl) explorer.setBaseNode(currEdge.adjNode);
-
+			IntObjectMap<SPTEntry> shortestWeightMap, EdgeExplorer explorer, boolean reverse) {
+		EdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
+ 
 		while (iter.next()) {
-			if (!additionalEdgeFilter.accept(iter)) {
+			if (!additionalEdgeFilter.accept(iter)) 
 				continue;
-			}
 
 			double tmpWeight = weighting.calcWeight(iter, reverse, currEdge.edge) + currEdge.weight;
 			if (Double.isInfinite(tmpWeight))
@@ -261,7 +259,7 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 			// sake)
 			// int traversalId = traversalMode.createTraversalId(iter, reverse);
 			// SPTEntry ee = shortestWeightMap.get(traversalId);
-			int traversalId = iter.getAdjNode();
+			int traversalId =  traversalMode.createTraversalId(iter, reverse); // iter.getAdjNode();
 			SPTEntry ee = shortestWeightMap.get(traversalId);
 
 			if (ee == null) {

@@ -21,23 +21,20 @@ import java.util.Collections;
 import java.util.List;
 
 import com.graphhopper.routing.Path;
-import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.RoutingAlgorithm;
 import com.graphhopper.routing.util.CHEdgeFilter;
 import com.graphhopper.routing.util.CHLevelEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.CHGraph;
-import com.graphhopper.storage.CHGraphImpl;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.storage.SPTEntry;
-import com.graphhopper.util.CHEdgeExplorer;
 import com.graphhopper.util.CHEdgeIterator;
+import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.PMap;
 
 /**
  * @author Peter Karich
@@ -45,12 +42,11 @@ import com.graphhopper.util.EdgeIteratorState;
 public abstract class AbstractRoutingAlgorithmPHAST implements RoutingAlgorithm {
 	protected final Graph graph;
 	protected final Weighting weighting;
-	protected final FlagEncoder flagEncoder;
 	protected final TraversalMode traversalMode;
 	protected NodeAccess nodeAccess;
-	protected CHEdgeExplorer inEdgeExplorer;
-	protected CHEdgeExplorer outEdgeExplorer;
-	protected CHEdgeExplorer targetEdgeExplorer;
+	protected EdgeExplorer inEdgeExplorer;
+	protected EdgeExplorer outEdgeExplorer;
+	protected EdgeExplorer targetEdgeExplorer;
 	protected int maxVisitedNodes = Integer.MAX_VALUE;
 	protected CHEdgeFilter additionalEdgeFilter;
 	protected CHLevelEdgeFilter targetEdgeFilter;
@@ -70,41 +66,24 @@ public abstract class AbstractRoutingAlgorithmPHAST implements RoutingAlgorithm 
 			boolean downwardSearchAllowed) {
 
 		this.weighting = weighting;
-		this.flagEncoder = weighting.getFlagEncoder();
 		this.traversalMode = traversalMode;
 		this.graph = graph;
 		this.nodeAccess = this.graph.getNodeAccess();
 
-		/*		if (!(graph.getClass() == CHGraph.class || graph.getClass() == CHGraphImpl.class))
-			throw new IllegalArgumentException("Initialize PHAST with CHGraph");
-*/
-
-		CHGraph chGraph = getCHGraph(graph);
-		
 		if (!downwardSearchAllowed) {
-			outEdgeExplorer = chGraph.createEdgeExplorer();
-			inEdgeExplorer = chGraph.createEdgeExplorer();
-			targetEdgeExplorer = chGraph.createEdgeExplorer();
+			outEdgeExplorer = graph.createEdgeExplorer();
+			inEdgeExplorer = graph.createEdgeExplorer();
+			targetEdgeExplorer = graph.createEdgeExplorer();
 		} else {
-			outEdgeExplorer = chGraph.createEdgeExplorer(EdgeFilter.ALL_EDGES, true);
-			inEdgeExplorer = chGraph.createEdgeExplorer(EdgeFilter.ALL_EDGES, true);
-			targetEdgeExplorer = chGraph.createEdgeExplorer(EdgeFilter.ALL_EDGES, true);
+			PMap props = new PMap();
+			props.put("allow_downward_search", true);
+			
+			outEdgeExplorer = graph.createEdgeExplorer(EdgeFilter.ALL_EDGES, props);
+			inEdgeExplorer = graph.createEdgeExplorer(EdgeFilter.ALL_EDGES, props);
+			targetEdgeExplorer = graph.createEdgeExplorer(EdgeFilter.ALL_EDGES, props);
 		}
 	}
 	
-	public CHGraph getCHGraph(Graph graph)
-	{
-		CHGraph chGraph = null;
-		if (graph instanceof CHGraph)
-			chGraph = (CHGraph)graph;
-		else if (graph instanceof QueryGraph)
-		{
-			QueryGraph qGraph = (QueryGraph)graph;
-			chGraph = (CHGraph)qGraph.getMainGraph();
-		}
-		return chGraph;
-	}
-
 	@Override
 	public void setMaxVisitedNodes(int numberOfNodes) {
 		this.maxVisitedNodes = numberOfNodes;
@@ -123,7 +102,6 @@ public abstract class AbstractRoutingAlgorithmPHAST implements RoutingAlgorithm 
 	protected boolean accept(CHEdgeIterator iter, int prevOrNextEdgeId) {
 		if (!traversalMode.hasUTurnSupport() && iter.getEdge() == prevOrNextEdgeId)
 			return false;
-		// return false;
 
 		return additionalEdgeFilter == null || additionalEdgeFilter.accept(iter);
 	}
