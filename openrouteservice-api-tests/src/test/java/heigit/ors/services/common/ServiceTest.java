@@ -43,7 +43,7 @@ public abstract class ServiceTest {
 
 		String basePath = System.getProperty("server.base");
 		if (basePath == null) 
-			basePath = "/openrouteservice-4.2.0/";
+			basePath = "/openrouteservice-" + Utils.getORSVersion() + "/";
 		
 		RestAssured.basePath = basePath;
 
