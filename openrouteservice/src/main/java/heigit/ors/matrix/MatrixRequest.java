@@ -26,7 +26,7 @@ public class MatrixRequest extends ServiceRequest
 	private String _weightingMethod; 
 	private DistanceUnit _units = DistanceUnit.Meters;
 	private boolean _resolveLocations = false;
-	private boolean _flexibleMode = false;
+	private boolean _flexibleMode = true;
 
 	public MatrixRequest()
 	{

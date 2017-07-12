@@ -49,7 +49,7 @@ public class ResultsValidationTest extends ServiceTest {
         Assert.assertEquals(jAddrProperties.get("state"), "Baden-Württemberg");
         Assert.assertEquals(jAddrProperties.get("city"), "Heidelberg");
         Assert.assertEquals(jAddrProperties.get("name"), "Ruprecht-Karls-Universität");
-        Assert.assertEquals(jAddrProperties.get("distance"), 4.61);
+        Assert.assertEquals(jAddrProperties.get("distance"), 4.34);
         Assert.assertEquals(jAddrProperties.get("confidence"), 0.9);
         
         JSONArray jAddrLocation = jAddress.getJSONObject("geometry").getJSONArray("coordinates");

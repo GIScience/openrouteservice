@@ -31,11 +31,11 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.body("any { it.key == 'type' }", is(true))
 				.body("any { it.key == 'features' }", is(true))
-				.body("features[0].geometry.coordinates[0].size()", is(26))
+				.body("features[0].geometry.coordinates[0].size()", is(25))
 				.body("features[0].properties.center.size()", is(2))
 				.body("features[0].properties.center[0]", is(8.684177f))
 				.body("features[0].properties.center[1]", is(49.423034f))
-				.body("bbox", hasItems(8.664518f, 49.409863f, 8.695978f, 49.439163f))
+				.body("bbox", hasItems(8.664102f, 49.409695f, 8.695979f, 49.43919f))
 				.body("features[0].type", is("Feature"))
 				.body("features[0].geometry.type", is("Polygon"))
 				.body("features[0].properties.group_index", is(0))
@@ -88,11 +88,9 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.body("any { it.key == 'type' }", is(true))
 				.body("any { it.key == 'features' }", is(true))
-				.body("features[0].properties.area", is(1.3092241E7f))
-				.body("features[0].properties.reachfactor", is(0.135f))
+				.body("features[0].properties.area", is(1.3429376E7f))
+				.body("features[0].properties.reachfactor", is(0.1385f))
 				.statusCode(200);
-		
-		
 	}
 
 	@Test
@@ -116,10 +114,10 @@ public class ResultTest extends ServiceTest {
 				.body("features[1].geometry.type", is("Polygon"))
 				.body("features[2].type", is("Feature"))
 				.body("features[2].geometry.type", is("Polygon"))
-				.body("features[2].geometry.coordinates[0].size()", is(25))
+				.body("features[2].geometry.coordinates[0].size()", is(24))
 				.body("features[2].properties.contours.size()", is(2))
 				.body("features[2].properties.containsKey('area')", is(true))
-				.body("features[2].properties.area", is(4903199.0f))
+				.body("features[2].properties.area", is(5188845.0f))
 				.body("features[2].properties.contours[0][0]", is(0))
 				.body("features[2].properties.contours[0][1]", is(0))
 				.body("features[2].properties.contours[1][0]", is(1))

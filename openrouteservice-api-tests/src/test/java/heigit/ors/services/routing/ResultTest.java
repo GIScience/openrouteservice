@@ -79,10 +79,10 @@ public class ResultTest extends ServiceTest {
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('segments')", is(true))
 				.body("routes[0].segments.size()", is(2))
-				.body("routes[0].summary.distance", is(13583.9f))
-				.body("routes[0].summary.duration", is(5587.6f))
+				.body("routes[0].summary.distance", is(13350.9f))
+				.body("routes[0].summary.duration", is(5500))
 				.body("routes[0].summary.ascent", is(342.4f))
-				.body("routes[0].summary.descent", is(333))
+				.body("routes[0].summary.descent", is(333.1f))
 				.statusCode(200);
 	}
 
@@ -101,10 +101,10 @@ public class ResultTest extends ServiceTest {
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('segments')", is(true))
 				.body("routes[0].segments.size()", is(2))
-				.body("routes[0].segments[0].distance", is(7236.2f))
-				.body("routes[0].segments[0].duration", is(3922.8f))
-				.body("routes[0].segments[1].distance", is(6347.7f))
-				.body("routes[0].segments[1].duration", is(1664.8f))
+				.body("routes[0].segments[0].distance", is(7112.5f))
+				.body("routes[0].segments[0].duration", is(3856.6f))
+				.body("routes[0].segments[1].distance", is(6238.4f))
+				.body("routes[0].segments[1].duration", is(1643.4f))
 				.statusCode(200);
 	}
 
@@ -118,6 +118,7 @@ public class ResultTest extends ServiceTest {
 				.param("profile", getParameter("bikeProfile"))
 				.param("elevation", "true")
 				.when()
+				.log().all()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -125,7 +126,7 @@ public class ResultTest extends ServiceTest {
 				.body(
 						"routes[0].geometry",
 						is(
-								"yrqlHkn~s@sqT\\jG}IVrHpE@bInLKpD~@SdCgAYpB]S|@NIALBi@NBkBb@@mDHI}C]G[ICoABQeA?Q@?Ak@BEiA^Ck@RCk@RAQ?Gw@yAgEX}X?BcBBpAyFDlB{O?F]Bj@?Ep@@?JD?d@F?Rh@?Fh@?Tn@PAn@xAKvIzA?tOx@@pEvIS|Sd@A~@dAEeAZAq@F?s@X?u@pACoFR@kAJ?mAN@oA@@oAH?sAPEuAB?wABCyALKuAFGoAVAw@zFKqBdAA?rACq@N?SD?SNHSVBSr@?g@V?SJAeAZAeATEeAFAeAPEeA\\MeAf@QkCLG?PKD^UVh@e@v@VU\\A^RlAwApEPGxAdBcBzOBMRASRdAsA`ERo@fAh@sAt@vB}C`@n@[?vAyB\\ZEf@nAyCdCpDwFsFRc@a@@[[BGUNi@QPm@QRs@gAHc@o@DQk@?]k@F_@i@Fm@gABUcAAUcAASaAC]aAMo@s@EOs@GMq@QgC}I_@mIeFC[IC]IAIIAQIAKIMyBg@?QG?GG?GE?QEB@CD?CBCCDCA?CA@CA@G??I?AG??QH[YRWQRKKRSQROGRw@Uz@u@Sf@MEHDQHBO?@E?BG?x@yB]?CS@CSHQSBEq@FEq@ROq@BEq@JIm@NOk@RSg@HIg@ROg@pAo@{ENKeALKcBh@q@kHHIcBBCcB~Ay@uMTa@kBVu@oDHe@oAH[eAJ[gERWeFJI{ETQ{EPM}DNU}D\\_A{JNo@_IF}@wRAoBwp@?]aM?YqMH{BkbAByCsoA?u@_b@@o@mL?[mL@GmL@GaKD]gHNc@{FT[qEVUqE@?qE@SkDFSgCx@{AqP`@cAoIx@eDyZZw@eRr@}Agh@V_Am[BKaMFE{HFGwG@KwG?mAoPNi@aI@oAuQ[gCmg@GQgJIMgJCOgJa@qEgu@_@qBw[Ws@cKSWuFUEiFaAa@kS]GkC[DkCE@kCGCoCy@w@sVcAq@ed@aBmAsx@QOgGCGkFuAqBma@i@m@}AGEsFUSyFaCeCyv@iDuCebBc@x@eSU`@gJKNiJSHkJi@F{UE@oJi@k@sUc@e@_REGgG[RqFQNyFEHcFGEmEECwDCEcCM_@mBg@kBjMI_@~Cn@E`@DA]TOa@Ga@g@MgA}B]qC{JIcAeHIaDyX@GuC@Iu@@If@BIiDBEiDn@i@}NLKaDBGyCDEqCHUiCEGaCDC_BDGaCHK_Db@c@yKZ[yFj@_@oPbAWuRbAOmBdAG{@fABoAj@HtAzE~@dCpADuHh@CgEZA}A@GyABCwAvDiAyo@\\OqEFCcED?sDz@G{LhAQoPfCi@_NlGk@bJmGj@f@gCh@gBiAP}A{@FwAE?_@GB]]N_@wDhAzQCBjCAFjC[@jCi@BzGqAEhV{E_Aju@k@IbEgAC`JeAFbCcANAcAViAk@^_A[Za@c@b@mAIJk@EFREBRDFRITREDRCFRMJRo@h@lBCDdACHvGAHvGAHvGAFvGH`Dt\\HbA~E\\pC`WLfArIF`@hDBPhDR`AXTz@z@JTz@DFxAb@d@~Eh@j@xFPNdA^f@rBv@nAw@^x@tFb@fApLf@v@hDjAbBlG`@t@xKv@nCpm@~@nCzJNnAlLLfC~\\G`A|GI`@|AWl@tM[`@bQaBdAdu@q@n@jYY\\jFg@t@vJUh@jCUx@hNS~@`KcBvMbrA?F`C?DfE@DlGBF|FFLlFIL|Ei@f@jKw@h@`VaCrAxl@aAT`K{@FfJm@@nFg@GfJ{@[rI_Ae@pEgAu@bQm@q@xFwCiEhN[Up@m@U`Jk@KhIeA@pOGA`H?LvGbAXtWj@h@~MLN`FJJXT\\fDHd@~CD`AjHEhA`F@PbBHl@bBPn@fEApAjJBZpEPj@pELTpEHNpEHLtMEBtMM?tME?rSOC|Nw@Mp^QMrDYe@lTo@iBvq@SYzEECzEKGzEYIzE]BzEODrDo@d@nZ@D|IV?rLFDjODL`RPjAfRAJ?KRjHCDjHCHjHQx@b[Cy@pYAMdKEAdKKpAjRCTjCGZjCE\\jC?z@fOA@`MA?vQ[kBja@??dAC@?GHdAuBvAni@OJfEm@d@~HI@f@SBp@OLp@Bd@xA?L`CH`CzT?BhDG@jCI@pB}@ZdD_DbAqJKD{@KDq@{C~@jCoHhB`s@K?~ASCvAGBnAO@hAUJdACB`AEB|@oIxAfDE@Sk@H_CG?kA[BkAU@kAG^gACBiAqADiIqAFuIK?sAI@qAgA?{H{@ByAO?][@]o@Bg@iCHMO@HC?Hk@@Xm@Hd@ODR]VRgAlAnD_AfAfEURp@EDp@C?p@Q?p@OBRE@RqBn@xCA@RSHHOJ]ELg@CDg@gAb@_Dq@\\wBmAt@{@y@f@q@y@X{@eBt@XYJ?E@?_@LSmA`@Bc@NR{C`Av@_DfAf@uAf@{BMHYKJWG@WGCUINSCGSI?SKBQ"))
+								"yrqlHkn~s@sqT\\jG}IVrHpE@bInLKpD~@SdCy@YpBi@S|@JIAJBi@LBkBb@@mDNI}C]G[ICoABQeA?Q@?Ak@BEiA^Ck@RCk@RAQ?Gw@yAgEX}X?BcBBpAyFDlB{O?F]Bj@?Ep@@?JD?d@F?Rh@?Fh@?Tn@PAn@xAKvIzA?tOx@@pEvIS|Sd@A~@dAEeAZAq@F?s@X?u@pACoFR@kAJ?mAN@oA@@oAH?sAPEuAB?wABCyALKuAFGoAVAw@zFKqBdAA?rACq@N?SD?SNHSVBSr@?g@V?SJAeAZAeATEeAFAeAPEeA\\MeAf@QkCLG?PKD^UVh@e@v@VU\\A^RlAwApEPGxAdBcBzOBMRASRdAsAbDRo@`Ah@sA`AvB}Cd@n@[?vAyBp@ZEf@nAyCdCpDwFsFRc@a@@[[BGUNi@QPm@QRs@gAHc@o@DQk@?]k@F_@i@Fm@gABUcAAUcAASaAC]aAMo@s@EOs@GMq@QgCwG_@mIuHC[?C]IAIIAQIAKIMyBg@?QG?GG?GE?QEB@CD?CBCCDCA?CA@CA@G??I?AG??QH[YRWQRKKRSQROGRw@Uz@u@Sf@MEHDQHBO?@E?BG?x@yB]?CS@CSHQSBEq@FEq@ROq@BEq@JIm@NOk@RSg@HIg@ROg@pAo@{ENKeALKcBh@q@gEHIcBBCcB~Ay@sNTa@mBVu@mDHe@oAH[oAJ[qERWoFJIeFTQ{EPM{ENU}D\\_A{JNo@_IF}@wRAoBwp@?]aM?YqMH{BkbAByCsoA?u@_b@@o@mL?[mL@GmL@GaKD]gHNc@{FT[qEVUqE@?qE@SkDFSgCx@{AqP`@cAoIx@eDyZZw@eRr@}Agh@V_Am[BKaMFE{HFGwG@KwG?mAoPNi@aI@oAuQ[gCmg@GQgJIMgJCOgJa@qEgu@_@qBw[Ws@cKSWuFUEiFaAa@kS]GkC[DkCE@kCGCoCy@w@sVcAq@ed@aBmAsx@QOgGCGkFuAqBma@i@m@}AGEsFUSyFaCeCyv@iDuCebBc@x@eSU`@gJKNiJSHkJi@F{UE@oJi@k@sUc@e@_REGgG[RqFQNyFEHcFGEmEECwDCEcCM_@mBg@kBjMI_@~Cn@E`@DA]TOa@Ga@g@MgA}B]qC{JIcAeHIaDyX@GuC@Iu@@If@BIiDBEiDn@i@}NLKaDBGyCDEqCHUiCEGaCDC_BDGaCHK_Db@c@yKZ[yFj@_@oPbAWuRbAOmBdAG{@fABoAj@HtAzE~@dCpADuHh@CgEZA}A@GyABCwAvDiAyo@\\OqEFCcED?sDz@G{LhAQoPfCi@_NlGk@bJmGj@f@gCh@gBiAP}A{@FwAE?_@GB]]N_@wDhAzQCBjCAFjC[@jCi@BzGqAEhV{E_Aju@k@IbEgAC`JeAFbCcANAcAViAk@^_A[Za@c@b@mAIJk@EFREBRDFRITREDRCFRMJRo@h@lBCDdACHvGAHvGAHvGAFvGH`Dt\\HbA~E\\pC`WLfArIF`@hDBPhDR`AXTz@z@JTz@DFxAb@d@~Eh@j@xFPNdA^f@rBv@nAw@^x@tFb@fApLf@v@bBjAbBdF`@t@xKv@nCtn@~@nCdMNnAlLLfCl[G`AjGI`@vAWl@bM[`@zPaBdAju@q@n@xZY\\bGg@t@nKUh@jCUx@hNS~@`KcBvMbrA?F`C?DfE@DlGBF|FFLlFIL|Ei@f@jKw@h@`VaCrAxl@aAT`K{@FfJm@@nFg@GfJ{@[rI_Ae@pEgAu@bQm@q@xFwCiEhN[Up@m@U`Jk@KhIeA@pOGA`H?LvGbAXtWj@h@~MLN`FJJXT\\fDHd@~CD`AjHEhA`F@PbBHl@bBPn@fEApAjJBZpEPj@pELTpEHNpEHLtMEBtMM?tME?rSOC|Nw@Mp^QMrDYe@lTo@iBvq@SYzEECzEKGzEYIzE]BzEODrDo@d@fR@D|IV?|IFDrLDLjOPjA`WAJxCKRjHCDjHCHjHQx@hXCy@pYAMdKEAdKKpA`WCT`FGZjCE\\jC?z@fOA@jHA?`M[kBvj@??jCC@dAGH?uBvAni@OJfEm@d@~HI@f@SBp@OLp@Bd@xA?L`CH`CzT?BhDG@jCI@pB}@ZdD_DbAqJKD{@KDq@{C~@zBoHhBls@K?`BSCxAGBnAO@hAUJdACB`AEB|@oIxApDE@Sk@HaCG?mA[BkAU@kAG^iACBiAqADkIqAFwIK?sAI@qAgA?{H{@ByAO?][@]o@Bg@iCHMO@HC?Hk@@Xm@Hd@ODR]VRgAlAnD_AfAfEURp@EDp@C?p@Q?p@OBRE@RqBn@xCA@RSHHOJ]ELg@CDg@gAb@_Dq@\\wBmAt@{@y@f@q@y@X{@eBt@XYJ?E@?_@LSmA`@Bc@NR{C`Av@_DfAf@uAf@{BMHYKJWG@WGCUINSCGSI?SKBQ"))
 				.statusCode(200);
 	}
 
@@ -202,7 +203,7 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].extras.surface.values.size()", is(37))
 				.body("routes[0].extras.surface.values[34][1]", is(525))
 				.body("routes[0].extras.suitability.values[30][0]", is(447))
-				.body("routes[0].extras.steepness.values[11][1]", is(358))
+				.body("routes[0].extras.steepness.values[11][1]", is(334))
 
 				.statusCode(200);
 	}
@@ -244,12 +245,12 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].segments[1].containsKey('steps')", is(true))
 				.body("routes[0].segments[0].steps.size()", is(45))
 				.body("routes[0].segments[1].steps.size()", is(27))
-				.body("routes[0].segments[0].steps[0].distance", is(513.3f))
-				.body("routes[0].segments[0].steps[0].duration", is(231))
+				.body("routes[0].segments[0].steps[0].distance", is(511.4f))
+				.body("routes[0].segments[0].steps[0].duration", is(230.1f))
 				.body("routes[0].segments[0].steps[0].type", is(6))
 				.body("routes[0].segments[0].steps[0].instruction", is("Head west"))
-				.body("routes[0].segments[0].steps[10].distance", is(305.7f))
-				.body("routes[0].segments[0].steps[10].duration", is(61.1f))
+				.body("routes[0].segments[0].steps[10].distance", is(303.2f))
+				.body("routes[0].segments[0].steps[10].duration", is(60.6f))
 				.body("routes[0].segments[0].steps[10].type", is(5))
 				.body("routes[0].segments[0].steps[10].instruction", is("Turn slight right onto Mittermaierstraße"))
 				.statusCode(200);
