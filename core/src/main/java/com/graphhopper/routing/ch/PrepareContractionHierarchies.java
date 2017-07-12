@@ -664,31 +664,25 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     }
     
 	public DijkstraBidirectionCHPHAST createPHAST(CHGraph chGraph, FlagEncoder encoder) {
-		DijkstraBidirectionCHPHAST algo = new DijkstraBidirectionCHPHAST(chGraph, prepareWeighting, traversalMode);
-		algo.setEncoder(encoder);
+		DijkstraBidirectionCHPHAST algo = new DijkstraBidirectionCHPHAST(chGraph, encoder, prepareWeighting, traversalMode);
 
 		algo.setMaxVisitedNodes(Integer.MAX_VALUE);
 		algo.setEdgeFilter(new com.graphhopper.routing.util.CHLevelEdgeFilter(chGraph, encoder));
 		return algo;
 	}
 
-	// public DijkstraBidirectionCHPHAST createPHAST(CHGraph chGraph,
-	// FlagEncoder encoder,
-	// RPHASTEdgeFilter rphastEdgeFilter) {
-	// AbstractBidirAlgoPHAST algo;
-	// algo = new DijkstraBidirectionCHPHAST(chGraph, prepareWeighting,
-	// traversalMode);
-	// algo.setEncoder(encoder);
-	//
-	// algo.setMaxVisitedNodes(Integer.MAX_VALUE);
-	// algo.setEdgeFilter(rphastEdgeFilter);
-	// return (DijkstraBidirectionCHPHAST) algo;
-	// }
-
-	public DijkstraBidirectionCHRPHAST createRPHAST(CHGraph chGraph, FlagEncoder encoder) {
-		DijkstraBidirectionCHRPHAST algo = new DijkstraBidirectionCHRPHAST(chGraph, prepareWeighting, traversalMode);
-		algo.setEncoder(encoder);
-
+	public DijkstraBidirectionCHRPHAST createRPHAST(Graph graph, FlagEncoder encoder) {
+		DijkstraBidirectionCHRPHAST algo = new DijkstraBidirectionCHRPHAST(graph, encoder, prepareWeighting, traversalMode);
+		
+		CHGraph chGraph = null;
+		if (graph instanceof CHGraph)
+			chGraph = (CHGraph)graph;
+		else if (graph instanceof QueryGraph)
+		{
+			QueryGraph qGraph = (QueryGraph)graph;
+			chGraph = (CHGraph)qGraph.getMainGraph();
+		}
+					
 		algo.setMaxVisitedNodes(Integer.MAX_VALUE);
 		algo.setEdgeFilter(new com.graphhopper.routing.util.CHLevelEdgeFilter(chGraph, encoder));
 		algo.setTargetEdgeFilter(new com.graphhopper.routing.util.CHLevelEdgeFilter(chGraph, encoder));
@@ -770,7 +764,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     }
 
 	public static class DijkstraBidirectionCHPHAST extends DijkstraBidirectionRefPHAST {
-		public DijkstraBidirectionCHPHAST(CHGraph chGraph, Weighting weighting, TraversalMode traversalMode) {
+		public DijkstraBidirectionCHPHAST(CHGraph chGraph, FlagEncoder encoder, Weighting weighting, TraversalMode traversalMode) {
 			super(chGraph, weighting, traversalMode);
 		}
 
@@ -801,8 +795,8 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
 	}
 
 	public static class DijkstraBidirectionCHRPHAST extends DijkstraBidirectionRefRPHAST {
-		public DijkstraBidirectionCHRPHAST(CHGraph chGraph, Weighting weighting, TraversalMode traversalMode) {
-			super(chGraph, weighting, traversalMode);
+		public DijkstraBidirectionCHRPHAST(Graph graph, FlagEncoder encoder, Weighting weighting, TraversalMode traversalMode) {
+			super(graph, encoder, weighting, traversalMode);
 		}
 
 		@Override

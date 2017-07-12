@@ -40,7 +40,6 @@ public class DistanceCalcEarth implements DistanceCalc {
     public final static double C = 2 * PI * R;
     public final static double KM_MILE = 1.609344;
 
-	public static boolean ASIN_APPROXIMATION = false; // Runge 
 	private final static double R_2 = 2 * R;
     /**
      * Calculates distance of (from, to) in meter.
@@ -52,18 +51,12 @@ public class DistanceCalcEarth implements DistanceCalc {
     public double calcDist(double fromLat, double fromLon, double toLat, double toLon) {
         double normedDist = calcNormalizedDist(fromLat, fromLon, toLat, toLon);
         
-		if (ASIN_APPROXIMATION)
-			return R_2 * MathEx.asin(sqrt(normedDist));
-		else
-			return R_2 * asin(sqrt(normedDist));
+		return R_2 * asin(sqrt(normedDist));
     }
 
     @Override
     public double calcDenormalizedDist(double normedDist) {
-		if (ASIN_APPROXIMATION)
-			return R_2 * MathEx.asin(sqrt(normedDist));
-		else
-			return R_2 * asin(sqrt(normedDist));
+		return R_2 * asin(sqrt(normedDist));
     }
 
     /**

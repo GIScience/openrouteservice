@@ -1218,4 +1218,9 @@ class BaseGraph implements Graph {
             return getEdge() + " " + getBaseNode() + "-" + getAdjNode();
         }
     }
+
+	@Override
+	public EdgeExplorer createEdgeExplorer(EdgeFilter filter, PMap props) {
+       return createEdgeExplorer(filter);
+	}
 }

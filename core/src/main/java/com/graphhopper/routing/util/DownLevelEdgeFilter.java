@@ -1,7 +1,7 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.storage.CHGraph;
-import com.graphhopper.util.CHEdgeIteratorState;
+import com.graphhopper.util.EdgeIteratorState;
 
 public class DownLevelEdgeFilter implements CHEdgeFilter {
 	private final CHGraph graph;
@@ -16,7 +16,7 @@ public class DownLevelEdgeFilter implements CHEdgeFilter {
 	}
 
 	@Override
-	public boolean accept(CHEdgeIteratorState edgeIterState) {
+	public boolean accept(EdgeIteratorState edgeIterState) {
 		int base = edgeIterState.getBaseNode();
 		int adj = edgeIterState.getAdjNode();
 		// always accept virtual edges, see #288
@@ -42,9 +42,14 @@ public class DownLevelEdgeFilter implements CHEdgeFilter {
 	public int getHighestNode() {
 		return 0;
 	}
+	
+	@Override
+	public void setHighestNode(int node) {
+		highestNode = node;
+	}
 
 	@Override
-	public void setHighestNode(int i) {
-		this.highestNode = i;
+	public void updateHighestNode(EdgeIteratorState iter) {
+		this.highestNode = iter.getAdjNode();
 	}
 }

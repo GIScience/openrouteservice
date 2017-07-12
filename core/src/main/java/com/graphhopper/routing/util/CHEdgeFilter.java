@@ -17,7 +17,7 @@
  */
 package com.graphhopper.routing.util;
 
-import com.graphhopper.util.CHEdgeIteratorState;
+import com.graphhopper.util.EdgeIteratorState;
 
 /**
  * Class used to traverse a graph.
@@ -28,7 +28,7 @@ import com.graphhopper.util.CHEdgeIteratorState;
 public interface CHEdgeFilter {
 	static final CHEdgeFilter ALL_EDGES = new CHEdgeFilter() {
 		@Override
-		public final boolean accept(CHEdgeIteratorState edgeState) {
+		public final boolean accept(EdgeIteratorState edgeState) {
 			return true;
 		}
 
@@ -37,9 +37,15 @@ public interface CHEdgeFilter {
 			// TODO Auto-generated method stub
 			return -1;
 		}
+		
+		@Override
+		public void setHighestNode(int node)
+		{
+			
+		}
 
 		@Override
-		public void setHighestNode(int highestNode) {
+		public void updateHighestNode(EdgeIteratorState edgeState) {
 			// TODO Auto-generated method stub
 
 		}
@@ -48,9 +54,11 @@ public interface CHEdgeFilter {
 	/**
 	 * @return true if the current edge should be processed and false otherwise.
 	 */
-	boolean accept(CHEdgeIteratorState edgeState);
+	boolean accept(EdgeIteratorState edgeState);
 
 	int getHighestNode();
+	
+	void setHighestNode(int node);
 
-	void setHighestNode(int highestNode);
+	void updateHighestNode(EdgeIteratorState edgeState);
 }

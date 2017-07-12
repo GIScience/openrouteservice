@@ -71,7 +71,15 @@ public abstract class AbstractBidirAlgoPHAST extends AbstractRoutingAlgorithmPHA
 		System.out.println("Highest node: " + additionalEdgeFilter.getHighestNode() + ", weight: "
 				+ bestWeightMapFrom.get(additionalEdgeFilter.getHighestNode()).weight);
 		
-		CHGraph chGraph = getCHGraph(graph);
+		CHGraph chGraph = null;
+		if (graph instanceof CHGraph)
+			chGraph = (CHGraph)graph;
+		else if (graph instanceof QueryGraph)
+		{
+			QueryGraph qGraph = (QueryGraph)graph;
+			chGraph = (CHGraph)qGraph;
+		}
+		
 		DownLevelEdgeFilter downFilter = new DownLevelEdgeFilter(chGraph, encoder);
 		downFilter.setHighestNode(additionalEdgeFilter.getHighestNode());
 		this.setEdgeFilter(downFilter);

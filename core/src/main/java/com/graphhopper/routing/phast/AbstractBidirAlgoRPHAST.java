@@ -18,7 +18,6 @@
 package com.graphhopper.routing.phast;
 
 import com.carrotsearch.hppc.IntObjectMap;
-import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.QueryGraph;
@@ -43,9 +42,23 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmPH
 	int visitedCountFrom;
 	int visitedCountTo;
 	FlagEncoder encoder;
+	RPHASTEdgeFilter rphastEdgeFilter;
 
-	public AbstractBidirAlgoRPHAST(Graph chGraph, Weighting weighting, TraversalMode tMode) {
-		super(chGraph, weighting, tMode, true);
+	public AbstractBidirAlgoRPHAST(Graph graph, FlagEncoder encoder, Weighting weighting, TraversalMode tMode) {
+		super(graph, weighting, tMode, true);
+		
+		this.encoder = encoder;
+		
+		CHGraph chGraph = null;
+		if (graph instanceof CHGraph)
+			chGraph = (CHGraph)graph;
+		else if (graph instanceof QueryGraph)
+		{
+			QueryGraph qGraph = (QueryGraph)graph;
+			chGraph = (CHGraph)qGraph.getMainGraph();
+		}
+		
+		rphastEdgeFilter = new RPHASTEdgeFilter(chGraph, encoder);
 	}
 
 	abstract IntObjectMap<SPTEntry> init(int from, double dist);
@@ -66,51 +79,6 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmPH
 	public Path calcPath(int from, int to) {
 		throw new IllegalStateException("No single path defined for RPHAST");
 	}
-/*
-	public IntObjectMap<SPTEntry> calcMatrix(int from, IntObjectMap<SPTEntry> targetMap) {
-		checkAlreadyRun();
-		IntObjectMap<SPTEntry> bestWeightMapFrom = init(from, 0);
-
-		runAlgo();
-		IntObjectMap<SPTEntry> tree = createTargetTree(targetMap);
-		initDownwardPHAST(additionalEdgeFilter.getHighestNode(),
-				bestWeightMapFrom.get(additionalEdgeFilter.getHighestNode()).weight);
-		RPHASTEdgeFilter rphastEdgeFilter = new RPHASTEdgeFilter(graph, encoder).setTargetTree(tree);
-		this.setEdgeFilter(rphastEdgeFilter);
-		rphastEdgeFilter.setHighestNode(additionalEdgeFilter.getHighestNode());
-		runDownwardsAlgo();
-		// From all checked nodes extract only the ones requested via targetMap
-		// and set their weight
-		for (IntObjectCursor<SPTEntry> target : targetMap) {
-			targetMap.put(target.key, bestWeightMapFrom.get(target.key));
-		}
-		return targetMap;
-	}
-
-	public IntObjectMap<SPTEntry> calcMatrix(int from, int[] intTargetMap, float[] times, int pos) {
-		checkAlreadyRun();
-		IntObjectMap<SPTEntry> bestWeightMapFrom = init(from, 0);
-		IntObjectMap<SPTEntry> targetMap = new GHIntObjectHashMap<SPTEntry>(intTargetMap.length);
-
-		runAlgo();
-		IntObjectMap<SPTEntry> tree = createTargetTree(intTargetMap);
-		initDownwardPHAST(additionalEdgeFilter.getHighestNode(),
-				bestWeightMapFrom.get(additionalEdgeFilter.getHighestNode()).weight);
-		RPHASTEdgeFilter rphastEdgeFilter = new RPHASTEdgeFilter(graph, encoder).setTargetTree(tree);
-		this.setEdgeFilter(rphastEdgeFilter);
-		rphastEdgeFilter.setHighestNode(additionalEdgeFilter.getHighestNode());
-		runDownwardsAlgo();
-		// From all checked nodes extract only the ones requested via targetMap
-		// and set their weight
-		int i = 0;
-		for (int target : intTargetMap) {
-			targetMap.put(target, bestWeightMapFrom.get(target));
-			times[pos
-					+ i] = (float) (bestWeightMapFrom.get(target) == null ? -1 : bestWeightMapFrom.get(target).weight);
-			i++;
-		}
-		return targetMap;
-	}*/
 
 	/**
 	 * Calculate Matrix using existing targetTree
@@ -125,36 +93,20 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmPH
 		checkAlreadyRun();
 		IntObjectMap<SPTEntry> bestWeightMapFrom = init(from, 0);
 		IntObjectMap<SPTEntry> targetMap = new GHIntObjectHashMap<SPTEntry>(intTargetMap.length);
-
-		runAlgo();
-		initDownwardPHAST(additionalEdgeFilter.getHighestNode(),
-				bestWeightMapFrom.get(additionalEdgeFilter.getHighestNode()).weight);
-		
-		CHGraph chGraph = null;
-		if (graph instanceof CHGraph)
-			chGraph = (CHGraph)graph;
-		else if (graph instanceof QueryGraph)
-		{
-			QueryGraph qGraph = (QueryGraph)graph;
-			chGraph = (CHGraph)qGraph.getMainGraph();
-		}
-		
-		RPHASTEdgeFilter rphastEdgeFilter = new RPHASTEdgeFilter(chGraph, encoder).setTargetTree(tree);
-		this.setEdgeFilter(rphastEdgeFilter);
+		runAlgo(); 
+		initDownwardPHAST(additionalEdgeFilter.getHighestNode(), bestWeightMapFrom.get(additionalEdgeFilter.getHighestNode()).weight);
+  
+		rphastEdgeFilter.setTargetTree(tree);
 		rphastEdgeFilter.setHighestNode(additionalEdgeFilter.getHighestNode());
+		this.setEdgeFilter(rphastEdgeFilter);
+ 
 		runDownwardsAlgo();
 		// From all checked nodes extract only the ones requested via targetMap
 		// and set their weight
-
-		// int i = 0;
-		for (int target : intTargetMap) {
+ 
+		for (int target : intTargetMap) 
 			targetMap.put(target, bestWeightMapFrom.get(target));
-			// Runge: we can compute times later together with distances and
-			// weights.
-			// times[pos + i] = (float) (bestWeightMapFrom.get(target) == null ?
-			// -1 : bestWeightMapFrom.get(target).weight);
-			// i++;
-		}
+		
 		return targetMap;
 	}
 

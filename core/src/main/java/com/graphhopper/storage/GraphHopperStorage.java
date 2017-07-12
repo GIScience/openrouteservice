@@ -23,6 +23,7 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.PMap;
 import com.graphhopper.util.shapes.BBox;
 
 import java.util.ArrayList;
@@ -378,6 +379,12 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
     public EdgeExplorer createEdgeExplorer(EdgeFilter filter) {
         return baseGraph.createEdgeExplorer(filter);
     }
+    
+    @Override
+    public EdgeExplorer createEdgeExplorer(EdgeFilter filter, PMap props) {
+        return baseGraph.createEdgeExplorer(filter, props);
+    }
+    
 
     @Override
     public EdgeExplorer createEdgeExplorer() {
