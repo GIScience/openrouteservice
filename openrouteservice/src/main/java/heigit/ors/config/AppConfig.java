@@ -76,6 +76,18 @@ public class AppConfig {
 		return null;
 	}
 	
+	public List<? extends ConfigObject> getObjectList(String serviceName, String paramName)
+	{
+		try
+		{
+			return _config.getObjectList("ors.services." + serviceName + "." + paramName);
+		}
+		catch(ConfigException ex)
+		{}
+		
+		return null;
+	}
+	
 	public List<Double> getDoubleList(String serviceName, String paramName) 
 	{
 		try

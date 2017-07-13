@@ -24,8 +24,17 @@
             }
 			isochrones: {
 				enabled: true,
-				maximum_range_distance: 100000,
-				maximum_range_time: 3600,
+				# possible values for maximum_range_distance and maximum_range_time are an integer or a list of values specifically defined for each profile
+				maximum_range_distance: 
+				[ 
+				   { profiles: "any", value: 50000 }
+				   { profiles: "driving-car, driving-hgv", value: 100000 }
+				],
+				maximum_range_time: 
+				[ 
+				   { profiles: "any", value: 18000 }
+				   { profiles: "driving-car, driving-hgv", value: 3600 }
+				],
 				maximum_intervals: 10,
 				maximum_locations: 2,
 				allow_compute_area: true,

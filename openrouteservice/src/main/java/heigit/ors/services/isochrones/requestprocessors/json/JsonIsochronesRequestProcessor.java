@@ -87,8 +87,9 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 		if (req.getLocations().length > IsochronesServiceSettings.getMaximumLocations())
 			throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations", Integer.toString(req.getLocations().length), Integer.toString(IsochronesServiceSettings.getMaximumLocations()));
 
-		if (req.getMaximumRange() > IsochronesServiceSettings.getMaximumRange(req.getRangeType()))
-			throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(IsochronesServiceSettings.getMaximumRange(req.getRangeType())), Double.toString(req.getMaximumRange()));
+		int maxAllowedRange = IsochronesServiceSettings.getMaximumRange(req.getRouteSearchParameters().getProfileType(), req.getRangeType());
+		if (req.getMaximumRange() > maxAllowedRange)
+			throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(maxAllowedRange), Double.toString(req.getMaximumRange()));
 
 		if (IsochronesServiceSettings.getMaximumIntervals() > 0)
 		{

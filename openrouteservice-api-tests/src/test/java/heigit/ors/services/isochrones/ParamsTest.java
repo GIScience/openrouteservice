@@ -263,7 +263,7 @@ public class ParamsTest extends ServiceTest {
 		given()
 				.param("locations", getParameter("location"))
 				.param("profile", getParameter("profile"))
-				.param("range", "3700")
+				.param("range", "23700")
 				.param("range_type", "time")
 				.when()
 				.get(getEndPointName())

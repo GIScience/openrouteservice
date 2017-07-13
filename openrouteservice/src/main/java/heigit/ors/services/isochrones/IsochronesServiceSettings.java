@@ -12,13 +12,23 @@
 package heigit.ors.services.isochrones;
 
 import heigit.ors.config.AppConfig;
+import heigit.ors.routing.RoutingProfileType;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.typesafe.config.ConfigObject;
+
 import heigit.ors.common.TravelRangeType;
 
 public class IsochronesServiceSettings {
 	private static boolean enabled = true;
 	private static int maximumLocations = 1;
 	private static int maximumRangeDistance = 100000; //  in meters
+	private static Map<Integer, Integer> profileMaxRangeDistances;
 	private static int maximumRangeTime = 3600; // in seconds
+	private static Map<Integer, Integer> profileMaxRangeTimes;
 	private static int maximumIntervals = 1;
 	private static boolean allowComputeArea = true;
 	private static String attribution = "";
@@ -34,9 +44,31 @@ public class IsochronesServiceSettings {
 		value = AppConfig.Global().getServiceParameter("isochrones", "maximum_range_distance");
 		if (value != null)
 			maximumRangeDistance = Integer.parseInt(value);
+		else
+		{
+			List<? extends ConfigObject> params = AppConfig.Global().getObjectList("isochrones", "maximum_range_distance");
+		    if (params != null)
+		    {
+		    	profileMaxRangeDistances = getParameters(params);
+		    	if (profileMaxRangeDistances.containsKey(-1))
+		    		maximumRangeDistance = profileMaxRangeDistances.get(-1);
+		    }
+		}
+				
 		value = AppConfig.Global().getServiceParameter("isochrones", "maximum_range_time");
 		if (value != null)
 			maximumRangeTime = Integer.parseInt(value);
+		else
+		{
+			List<? extends ConfigObject> params = AppConfig.Global().getObjectList("isochrones", "maximum_range_time");
+		    if (params != null)
+		    {
+		    	profileMaxRangeTimes = getParameters(params);
+		    	if (profileMaxRangeTimes.containsKey(-1))
+		    		maximumRangeTime = profileMaxRangeTimes.get(-1);
+		    }
+		}
+		
 		value = AppConfig.Global().getServiceParameter("isochrones", "maximum_intervals");
 		if (value != null)
 			maximumIntervals = Integer.parseInt(value);
@@ -46,6 +78,28 @@ public class IsochronesServiceSettings {
 		value = AppConfig.Global().getServiceParameter("isochrones", "attribution");
 		if (value != null)
 			attribution = value;
+	}
+	
+	private static Map<Integer, Integer> getParameters(List<? extends ConfigObject> params)
+	{
+		Map<Integer, Integer> result = new HashMap<Integer, Integer>();
+		
+		for(ConfigObject cfgObj : params)
+    	{
+    		if (cfgObj.containsKey("profiles") && cfgObj.containsKey("value"))
+    		{
+    		   String[] profiles = cfgObj.toConfig().getString("profiles").split(",");
+    		   for (String profileStr : profiles)
+    		   {
+    			   profileStr = profileStr.trim();
+    			   Integer profile = ("any".equalsIgnoreCase(profileStr)) ? -1 : RoutingProfileType.getFromString(profileStr);
+    			   if (profile != RoutingProfileType.UNKNOWN)
+    				   result.put(profile, cfgObj.toConfig().getInt("value"));
+    		   }
+    		}
+    	}
+		
+		return result;
 	}
 	
 	public static boolean getEnabled() {
@@ -60,16 +114,24 @@ public class IsochronesServiceSettings {
 		return maximumLocations;
 	}
 
-	public static int getMaximumRange(TravelRangeType range) {
+	public static int getMaximumRange(int profileType, TravelRangeType range) {
+		Integer res = 0;
+		
 		switch(range)
 		{
 		case Distance:
-			return maximumRangeDistance;
+			res = profileMaxRangeDistances.get(profileType);
+			if (res == null)
+				res = maximumRangeDistance;
+			break;
 		case Time:
-			return maximumRangeTime;
+			res = profileMaxRangeTimes.get(profileType);
+			if (res == null)
+				res = maximumRangeTime;
+			 break;
 		}
 
-		return 0;
+		return res;
 	}
 
 	public static int getMaximumIntervals()	{
