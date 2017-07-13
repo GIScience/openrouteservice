@@ -34,7 +34,7 @@ public class GreenWeighting extends FastestWeighting {
         super(encoder, map);
         
         _gsGreenIndex = GraphStorageUtils.getGraphExtension(graphStorage, GreenIndexGraphStorage.class);
-        double factor = map.getDouble("green_weighting_factor", 1);
+        double factor = map.getDouble("factor", 1);
         
         for (int i = 0; i < totalLevel; i++)
         	_factors[i] = calcGreenWeightFactor(i, factor);

@@ -1,7 +1,9 @@
 package heigit.ors.routing;
 
 import java.text.ParseException;
+import java.util.Iterator;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.graphhopper.util.Helper;
@@ -123,7 +125,7 @@ public class RouteSearchParameters {
 		//////////////
 		// FIXME Only for debugging!!
 		// This option for green routing should be constructed by the client
-//		_options = "{\"profile_params\":{\"green_routing\":true}}"
+		//		_options = "{\"profile_params\":{\"green_routing\":true}}"
 		//////////////
 
 		JSONObject json = null;
@@ -140,7 +142,7 @@ public class RouteSearchParameters {
 		{
 			try
 			{
-			   _maxSpeed = json.getDouble("maximum_speed");
+				_maxSpeed = json.getDouble("maximum_speed");
 			}
 			catch(Exception ex)
 			{
@@ -168,7 +170,7 @@ public class RouteSearchParameters {
 
 							if (!AvoidFeatureFlags.isValid(_profileType, flag, featName))
 								throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", featName);
-							
+
 							flags |= flag;
 						}
 					}
@@ -182,36 +184,44 @@ public class RouteSearchParameters {
 
 		if (json.has("profile_params"))
 		{
+			JSONObject jProfileParams = json.getJSONObject("profile_params");
+
 			if (RoutingProfileType.isCycling(_profileType))
 			{
 				CyclingParameters cyclingParams = new CyclingParameters();
 
-				JSONObject jFitnessParams = json.getJSONObject("profile_params");
-
-				if (jFitnessParams.has("difficulty_level"))
-					cyclingParams.setDifficultyLevel(jFitnessParams.getInt("difficulty_level"));
-				if (jFitnessParams.has("maximum_gradient"))
-					cyclingParams.setMaximumGradient(jFitnessParams.getInt("maximum_gradient"));
+				// To make the new API compatible with a new one, we create 'weightings' element.
+				if (!jProfileParams.has("weightings") && (jProfileParams.has("difficulty_level") || jProfileParams.has("maximum_gradient")))
+				{
+					JSONObject jWeightings = new JSONObject();
+					
+					if (jProfileParams.has("difficulty_level"))
+						jWeightings.put("difficulty_level", jProfileParams.get("difficulty_level"));
+					else if	(jProfileParams.has("maximum_gradient"))
+						jWeightings.put("maximum_gradient", jProfileParams.get("maximum_gradient"));
+						
+					jProfileParams.put("weightings", jWeightings);
+				}
 
 				_profileParams = cyclingParams;
 			}
 			else if (RoutingProfileType.isWalking(_profileType)) {
-			    WalkingParameters walkingParams = new WalkingParameters();
-			    JSONObject walkingProfileParams = json.getJSONObject("profile_params");
-			    if (walkingProfileParams.has("green_routing"))
-			    	walkingParams.setGreenRouting(walkingProfileParams.getBoolean("green_routing"));
-			    if (walkingProfileParams.has("quiet_routing"))
-			    	walkingParams.setQuietRouting(walkingProfileParams.getBoolean("quiet_routing"));
-			    if (walkingProfileParams.has("difficulty_level"))
-			    	walkingParams.setDifficultyLevel(walkingProfileParams.getInt("difficulty_level"));
-			    if (walkingProfileParams.has("maximum_gradient"))
-			    	walkingParams.setMaximumGradient(walkingProfileParams.getInt("maximum_gradient"));
-			    if (walkingProfileParams.has("green_weighting_factor"))
-			    	walkingParams.setGreenWeightingFactor(walkingProfileParams.getDouble("green_weighting_factor"));
-			    if (walkingProfileParams.has("quiet_weighting_factor"))
-			    	walkingParams.setQuietWeightingFactor(walkingProfileParams.getDouble("quiet_weighting_factor"));
+				WalkingParameters walkingParams = new WalkingParameters();
 
-			    _profileParams = walkingParams;
+				// To make the new API compatible with a new one, we create 'weightings' element.
+				if (!jProfileParams.has("weightings") && (jProfileParams.has("difficulty_level") || jProfileParams.has("maximum_gradient")))
+				{
+					JSONObject jWeightings = new JSONObject();
+					
+					if (jProfileParams.has("difficulty_level"))
+						jWeightings.put("difficulty_level", jProfileParams.get("difficulty_level"));
+					else if	(jProfileParams.has("maximum_gradient"))
+						jWeightings.put("maximum_gradient", jProfileParams.get("maximum_gradient"));
+
+					jProfileParams.put("weightings", jWeightings);
+				}
+
+				_profileParams = walkingParams;
 			}
 			else if (RoutingProfileType.isHeavyVehicle(_profileType) == true)
 			{
@@ -222,25 +232,29 @@ public class RouteSearchParameters {
 					String vehicleType = json.getString("vehicle_type");
 					_vehicleType =  HeavyVehicleAttributes.getFromString(vehicleType);
 
-					JSONObject jVehicleParams = json.getJSONObject("profile_params");
+					JSONObject jRestrictions = jProfileParams;
 
-					if (jVehicleParams.has("length"))
-						vehicleParams.setLength(jVehicleParams.getDouble("length"));
+					// Since 4.2, all restrictions are packed in its own element
+					if (jProfileParams.has("restrictions"))
+						jRestrictions = jProfileParams.getJSONObject("restrictions");
 
-					if (jVehicleParams.has("width"))
-						vehicleParams.setWidth(jVehicleParams.getDouble("width"));
+					if (jRestrictions.has("length"))
+						vehicleParams.setLength(jRestrictions.getDouble("length"));
 
-					if (jVehicleParams.has("height"))
-						vehicleParams.setHeight(jVehicleParams.getDouble("height"));
+					if (jRestrictions.has("width"))
+						vehicleParams.setWidth(jRestrictions.getDouble("width"));
 
-					if (jVehicleParams.has("weight"))
-						vehicleParams.setWeight(jVehicleParams.getDouble("weight"));
+					if (jRestrictions.has("height"))
+						vehicleParams.setHeight(jRestrictions.getDouble("height"));
 
-					if (jVehicleParams.has("axleload"))
-						vehicleParams.setAxleload(jVehicleParams.getDouble("axleload"));
+					if (jRestrictions.has("weight"))
+						vehicleParams.setWeight(jRestrictions.getDouble("weight"));
+
+					if (jRestrictions.has("axleload"))
+						vehicleParams.setAxleload(jRestrictions.getDouble("axleload"));
 
 					int loadCharacteristics = 0;
-					if (jVehicleParams.has("hazmat") && jVehicleParams.getBoolean("hazmat") == true)
+					if (jRestrictions.has("hazmat") && jRestrictions.getBoolean("hazmat") == true)
 						loadCharacteristics |= VehicleLoadCharacteristicsFlags.HAZMAT;
 
 					if (loadCharacteristics != 0)
@@ -252,26 +266,30 @@ public class RouteSearchParameters {
 			else if (_profileType == RoutingProfileType.WHEELCHAIR)
 			{
 				WheelchairParameters wheelchairParams = new WheelchairParameters();
+				JSONObject jRestrictions = jProfileParams;
+				// Since 4.2, all restrictions are packed in its own element
+				if (jProfileParams.has("restrictions"))
+					jRestrictions = jProfileParams.getJSONObject("restrictions");
 
-				JSONObject jWheelchairParams = json.getJSONObject("profile_params");
+				if (jRestrictions.has("surface_type"))
+					wheelchairParams.setSurfaceType(WheelchairTypesEncoder.getSurfaceType(jRestrictions.getString("surface_type")));
 
-				if (jWheelchairParams.has("surface_type"))
-					wheelchairParams.setSurfaceType(WheelchairTypesEncoder.getSurfaceType(jWheelchairParams.getString("surface_type")));
+				if (jRestrictions.has("track_type"))
+					wheelchairParams.setTrackType(WheelchairTypesEncoder.getTrackType(jRestrictions.getString("track_type")));
 
-				if (jWheelchairParams.has("track_type"))
-					wheelchairParams.setTrackType(WheelchairTypesEncoder.getTrackType(jWheelchairParams.getString("track_type")));
+				if (jRestrictions.has("smoothness_type"))
+					wheelchairParams.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(jRestrictions.getString("smoothness_type")));
 
-				if (jWheelchairParams.has("smoothness_type"))
-					wheelchairParams.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(jWheelchairParams.getString("smoothness_type")));
+				if (jRestrictions.has("maximum_sloped_curb"))
+					wheelchairParams.setMaximumSlopedCurb((float)jRestrictions.getDouble("maximum_sloped_curb"));
 
-				if (jWheelchairParams.has("maximum_sloped_curb"))
-					wheelchairParams.setMaximumSlopedCurb((float)jWheelchairParams.getDouble("maximum_sloped_curb"));
-
-				if (jWheelchairParams.has("maximum_incline"))
-					wheelchairParams.setMaximumIncline((float)jWheelchairParams.getDouble("maximum_incline"));
+				if (jRestrictions.has("maximum_incline"))
+					wheelchairParams.setMaximumIncline((float)jRestrictions.getDouble("maximum_incline"));
 
 				_profileParams = wheelchairParams;
 			}
+
+			processWeightings(jProfileParams, _profileParams);
 		}
 
 		if (json.has("avoid_polygons"))
@@ -281,7 +299,7 @@ public class RouteSearchParameters {
 			Geometry geom = null;
 			try
 			{
-			   geom = GeometryJSON.parse(jFeature);
+				geom = GeometryJSON.parse(jFeature);
 			}
 			catch(Exception ex)
 			{
@@ -302,6 +320,31 @@ public class RouteSearchParameters {
 			else
 			{
 				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_polygons");
+			}
+		}
+	}
+
+	private void processWeightings(JSONObject json, ProfileParameters profileParams) throws Exception
+	{
+		if (json != null && json.has("weightings"))
+		{
+			JSONObject jWeightings = json.getJSONObject("weightings");
+			JSONArray jNames = jWeightings.names();
+			
+			for (int i = 0; i < jNames.length(); i++)
+			{
+				String name  = jNames.getString(i);
+                ProfileWeighting pw = new ProfileWeighting(name);
+                
+                JSONObject jw = jWeightings.getJSONObject(name);
+                Iterator<String> keys = jw.keys();
+                while(keys.hasNext())
+                { 
+                	String key = keys.next();
+                	pw.addParameter(key, jw.optString(key));
+                }
+                
+                profileParams.add(pw);
 			}
 		}
 	}

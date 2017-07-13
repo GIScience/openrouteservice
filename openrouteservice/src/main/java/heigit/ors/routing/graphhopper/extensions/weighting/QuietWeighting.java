@@ -20,9 +20,6 @@ import com.graphhopper.util.PMap;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.graphhopper.extensions.storages.NoiseIndexGraphStorage;
 
-/**
- * Created by ZWang on 14/06/2017.
- */
 public class QuietWeighting extends FastestWeighting {
     private NoiseIndexGraphStorage _gsNoiseIndex;
     private byte[] _buffer;
@@ -32,7 +29,7 @@ public class QuietWeighting extends FastestWeighting {
         super(encoder, map);
         _buffer = new byte[1];
         _gsNoiseIndex = GraphStorageUtils.getGraphExtension(graphStorage, NoiseIndexGraphStorage.class);
-        _weightingFactor = map.getDouble("quiet_weighting_factor", 1);
+        _weightingFactor = map.getDouble("factor", 1);
     }
 
     private double calcNoiseWeightFactor(int level) {

@@ -9,6 +9,29 @@ public class StringUtility {
         return str == null || str.trim().length() == 0;
     }
 	
+	public static String substring(String str, char pattern)
+	{
+		int pos1 = -1, pos2 = -1;
+		for (int j = 0; j < str.length(); j++)
+		{
+			if (str.charAt(j) == pattern) 
+			{
+				if (pos1 == -1)
+					pos1 = j;
+				else
+				{
+					pos2 = j;
+					break;
+				}
+			}
+		}
+		
+		if (pos1 != -1 && pos2 != -1)
+			return str.substring(pos1 + 1, pos2);
+		else
+			return null;
+	}
+	
 	public static boolean containsDigit(String s) {
 		boolean containsDigit = false;
 

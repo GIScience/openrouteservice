@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import heigit.ors.routing.ProfileWeighting;
 import heigit.ors.routing.graphhopper.extensions.weighting.*;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
 
@@ -36,54 +37,55 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.TurnCostExtension;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.Helper;
+import com.graphhopper.util.PMap;
 
 public class ORSWeightingFactory extends DefaultWeightingFactory {
 
 	private RealTrafficDataProvider m_trafficDataProvider;
 	private Map<Object, TurnCostExtension> m_turnCostExtensions;
-	
+
 	public ORSWeightingFactory(RealTrafficDataProvider trafficProvider)
 	{
 		m_trafficDataProvider = trafficProvider;
 		m_turnCostExtensions = new HashMap<Object, TurnCostExtension>();
 	}
-	
+
 	public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph graph, LocationIndex locationIndex, GraphHopperStorage graphStorage) {
-	    String weighting = hintsMap.get("weighting_method", "").toLowerCase();
-	    if (Helper.isEmpty(weighting))
-	    	weighting = hintsMap.getWeighting();
-	    
+		String weighting = hintsMap.get("weighting_method", "").toLowerCase();
+		if (Helper.isEmpty(weighting))
+			weighting = hintsMap.getWeighting();
+
 		Weighting result = null;
 
-        if ("shortest".equalsIgnoreCase(weighting))
-        {
-            result = new ShortestWeighting(encoder); 
-        }
-        else if ("fastest".equalsIgnoreCase(weighting))
-        {
-        	result = new FastestWeighting(encoder, hintsMap);
-        }
-        else  if ("priority".equalsIgnoreCase(weighting))
-        {
-        	result = new PreferencePriorityWeighting(encoder, hintsMap);
-        } 
-        else 
-        {
-            if (encoder.supports(PriorityWeighting.class))
-            {
-            	if ("recommended_pref".equalsIgnoreCase(weighting))
-            	{
-                    result = new PreferencePriorityWeighting(encoder, hintsMap);
-            	}
-            	else if ("recommended".equalsIgnoreCase(weighting))
-            		
-                    result = new OptimizedPriorityWeighting(encoder, hintsMap);
-            	else
-            		result = new FastestSafeWeighting(encoder, hintsMap);
-            }
-            else
-                result = new FastestWeighting(encoder, hintsMap);
-        } 
+		if ("shortest".equalsIgnoreCase(weighting))
+		{
+			result = new ShortestWeighting(encoder); 
+		}
+		else if ("fastest".equalsIgnoreCase(weighting))
+		{
+			result = new FastestWeighting(encoder, hintsMap);
+		}
+		else  if ("priority".equalsIgnoreCase(weighting))
+		{
+			result = new PreferencePriorityWeighting(encoder, hintsMap);
+		} 
+		else 
+		{
+			if (encoder.supports(PriorityWeighting.class))
+			{
+				if ("recommended_pref".equalsIgnoreCase(weighting))
+				{
+					result = new PreferencePriorityWeighting(encoder, hintsMap);
+				}
+				else if ("recommended".equalsIgnoreCase(weighting))
+
+					result = new OptimizedPriorityWeighting(encoder, hintsMap);
+				else
+					result = new FastestSafeWeighting(encoder, hintsMap);
+			}
+			else
+				result = new FastestWeighting(encoder, hintsMap);
+		} 
 
 		if (hintsMap.getBool("weighting_traffic_block", false))
 		{
@@ -110,26 +112,67 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 		}
 
 		// Apply soft weightings
-		List<Weighting> softWeightings = new ArrayList<Weighting>();
-		
-		if (hintsMap.getBool("steepness_difficulty", false)) 
-			softWeightings.add(new SteepnessDifficultyWeighting(encoder, hintsMap, graphStorage));
-		else if (hintsMap.getBool("weighting_avoid_hills", false)) 
-			softWeightings.add(new AvoidHillsWeighting(encoder, hintsMap, graphStorage));
-		
-		if (hintsMap.getBool("weighting_green", false)) 
-			softWeightings.add(new GreenWeighting(encoder, hintsMap, graphStorage));
-		
-		if (hintsMap.getBool("weighting_quiet", false)) 
-			softWeightings.add(new QuietWeighting(encoder, hintsMap, graphStorage));
-		
-        if (softWeightings.size() > 0)
-        {
-        	Weighting[] arrWeightings = new Weighting[softWeightings.size()];
-        	arrWeightings = softWeightings.toArray(arrWeightings);
-    	    result = new AdditionWeighting(arrWeightings, result, encoder, hintsMap, graphStorage);
-        }
-        
+		if (hintsMap.getBool("custom_weightings", false))
+		{
+			Map<String, String> map = hintsMap.getMap();
+
+			List<String> weightingNames = new ArrayList<String>();
+			for (Map.Entry<String, String> kv : map.entrySet())
+			{
+				String name = ProfileWeighting.decodeName(kv.getKey());
+				if (name != null && !weightingNames.contains(name))
+					weightingNames.add(name);
+			}
+
+			List<Weighting> softWeightings = new ArrayList<Weighting>();
+
+			for (int i = 0; i < weightingNames.size(); i++)
+			{
+				String weightingName = weightingNames.get(i);
+
+				switch(weightingName)
+				{
+				case "steepness_difficulty":
+					softWeightings.add(new SteepnessDifficultyWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
+					break;
+				case "avoid_hills":
+					softWeightings.add(new AvoidHillsWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
+					break;
+				case "green":
+					softWeightings.add(new GreenWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
+					break;
+				case "quiet":
+					softWeightings.add(new QuietWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
+					break;
+				}
+			}
+
+			if (softWeightings.size() > 0)
+			{
+				Weighting[] arrWeightings = new Weighting[softWeightings.size()];
+				arrWeightings = softWeightings.toArray(arrWeightings);
+				result = new AdditionWeighting(arrWeightings, result, encoder, hintsMap, graphStorage);
+			}
+		}
+
 		return result;
+	}
+
+	private PMap getWeightingProps(String weightingName, Map<String, String> map)
+	{
+		PMap res = new PMap();
+
+		String prefix = "weighting_#" + weightingName;
+		int n = prefix.length();
+		
+		for (Map.Entry<String, String> kv : map.entrySet())
+		{
+			String name = kv.getKey();
+		    int p = name.indexOf(prefix);
+		    if (p >= 0)
+		    	res.put(name.substring(p + n + 1, name.length()), kv.getValue());
+		}
+		
+		return res;
 	}
 }

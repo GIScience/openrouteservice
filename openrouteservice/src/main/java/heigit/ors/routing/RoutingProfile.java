@@ -20,6 +20,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -602,9 +604,10 @@ public class RoutingProfile
 				{
 					if ((searchParams.getAvoidFeatureTypes() & AvoidFeatureFlags.Hills) == AvoidFeatureFlags.Hills)
 					{
-						props.put("weighting_avoid_hills", true);
+						props.put("custom_weightings", true);
+						props.put(ProfileWeighting.encodeName("avoid_hills"), true);
 
-						if (searchParams.hasParameters(CyclingParameters.class))
+						if (searchParams.hasParameters(CyclingParameters.class)) // FIXME: have no idea what this line was meant for.
 						{
 							CyclingParameters cyclingParams = (CyclingParameters)searchParams.getProfileParameters();
 							props.put("steepness_maximum", cyclingParams.getMaximumGradient());
@@ -620,39 +623,30 @@ public class RoutingProfile
 			{
 				CyclingParameters cyclingParams = (CyclingParameters)searchParams.getProfileParameters();
 
-				if (cyclingParams.getDifficultyLevel() >= 0 || cyclingParams.getMaximumGradient() > 0)
+				if (cyclingParams.getMaximumGradient() > 0)
 				{
-					if (mode == RouteSearchMode.Routing)
-					{
-						props.put("steepness_difficulty", true);
-						props.put("steepness_difficulty_level", cyclingParams.getDifficultyLevel());
-						props.put("steepness_maximum", cyclingParams.getMaximumGradient());
-					}
-					else
-					{
-						EdgeFilter ef = new AvoidSteepnessEdgeFilter(flagEncoder, mGraphHopper.getGraphHopperStorage(), cyclingParams.getMaximumGradient());
-						edgeFilter = createEdgeFilter(ef, edgeFilter);
-					}
+					EdgeFilter ef = new AvoidSteepnessEdgeFilter(flagEncoder, mGraphHopper.getGraphHopperStorage(), cyclingParams.getMaximumGradient());
+					edgeFilter = createEdgeFilter(ef, edgeFilter);
 				}
 			}
 		}
 
-		if (searchParams.hasParameters(WalkingParameters.class)) {
-			WalkingParameters walkingParams = (WalkingParameters)searchParams.getProfileParameters();
-			if (walkingParams.getGreenRouting() && mode == RouteSearchMode.Routing) {
-				props.put("weighting_green", true);
-				props.put("green_weighting_factor", walkingParams.getGreenWeightingFactor());
+		ProfileParameters profileParams = searchParams.getProfileParameters();
+		if (profileParams != null && profileParams.hasWeightings())
+		{
+			props.put("custom_weightings", true);
+			Iterator<ProfileWeighting> iterator = profileParams.getWeightings().getIterator();
+			while(iterator.hasNext()){
+				ProfileWeighting weighting = iterator.next();
+				if (!weighting.getParameters().isEmpty())
+				{
+					String name = ProfileWeighting.encodeName(weighting.getName());
+					for(Map.Entry<String, String> kv : weighting.getParameters().getMap().entrySet())
+						props.put(name + kv.getKey(), kv.getValue());
+				}
 			}
 		}
-
-		if (searchParams.hasParameters(WalkingParameters.class)) {
-			WalkingParameters walkingParams = (WalkingParameters)searchParams.getProfileParameters();
-			if (walkingParams.getQuietRouting() && mode == RouteSearchMode.Routing) {
-				props.put("weighting_quiet", true);
-				props.put("quiet_weighting_factor", walkingParams.getQuietWeightingFactor());
-			}
-		}
-
+	
 		if (searchParams.getConsiderTraffic()/* && mHasDynamicWeights */) {
 			if (RoutingProfileType.isDriving(profileType) && weightingMethod != WeightingMethod.SHORTEST
 					&& RealTrafficDataProvider.getInstance().isInitialized()) {
