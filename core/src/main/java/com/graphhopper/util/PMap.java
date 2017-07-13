@@ -160,7 +160,7 @@ public class PMap {
         return new HashMap<>(map);
     }
 
-    private Map<String, String> getMap() {
+    public Map<String, String> getMap() {
         return map;
     }
 
