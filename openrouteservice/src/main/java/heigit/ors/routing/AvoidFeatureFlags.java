@@ -60,12 +60,12 @@ public class AvoidFeatureFlags {
 		return 0;
 	}
 	
-	public static boolean isValid(int profileType, int value)
+	public static boolean isValid(int profileType, int value, String featName)
 	{
 		if (RoutingProfileType.isDriving(profileType))
 		{
 			if (value == Steps)
-				return false;
+				return "steps".equalsIgnoreCase(featName) ? false : true;
 		}
 		else if (RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType))
 		{

@@ -166,7 +166,7 @@ public class RouteSearchParameters {
 							if (flag == 0)
 								throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", featName);
 
-							if (!AvoidFeatureFlags.isValid(_profileType, flag))
+							if (!AvoidFeatureFlags.isValid(_profileType, flag, featName))
 								throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", featName);
 							
 							flags |= flag;
