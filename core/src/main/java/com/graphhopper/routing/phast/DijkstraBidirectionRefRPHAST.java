@@ -118,11 +118,12 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 	@Override
 	public IntObjectMap<SPTEntry> createTargetTree(IntObjectMap<SPTEntry> targets) {
 		// At the start, the targetTree and the prioQueue both equal the given
-		// targets
-		targetTree.putAll(targets);
+		// targets 
+		targetTree.putAll(targets); 
 		for (IntObjectCursor<SPTEntry> c : targets) {
 			openSetTargets.add(c.value);
 		}
+		
 		while (!openSetTargets.isEmpty()) {
 			currTarget = openSetTargets.poll();
 			int traversalId = 0;
@@ -138,11 +139,10 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 				SPTEntry ee = targetTree.get(traversalId);
 				if (ee == null) {
 					ee = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
-					// ee.parent = null;
-					targetTree.put(traversalId, ee);
+					ee.parent = currTarget;
+					targetTree.put(traversalId, ee); 
 					openSetTargets.add(ee);
-				} else
-					continue;
+				}
 			}
 		}
 
@@ -157,6 +157,8 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 			SPTEntry target = this.createSPTEntry(targetNodes[i], 0);
 			targets.put(target.adjNode, target);
 		}
+		
+		setEdgeFilter(targetEdgeFilter);
 		return createTargetTree(targets);
 	}
 
@@ -204,10 +206,11 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 		EdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
 
 		while (iter.next()) {
+		
 			if (!additionalEdgeFilter.accept(iter)) {
 				continue;
 			}
-
+ 
 			double tmpWeight = weighting.calcWeight(iter, reverse, currEdge.edge) + currEdge.weight;
 
 			if (Double.isInfinite(tmpWeight)) {
@@ -237,9 +240,7 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 				ee.weight = tmpWeight;
 				ee.parent = currEdge;
 				prioQueue.add(ee);
-			} else
-				continue;
-
+			} 
 		}
 	}
 
@@ -251,7 +252,7 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 			if (!additionalEdgeFilter.accept(iter)) 
 				continue;
 
-			double tmpWeight = weighting.calcWeight(iter, reverse, currEdge.edge) + currEdge.weight;
+			double tmpWeight = weighting.calcWeight(iter, false, currEdge.edge) + currEdge.weight;
 			if (Double.isInfinite(tmpWeight))
 				continue;
 
@@ -259,15 +260,15 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 			// sake)
 			// int traversalId = traversalMode.createTraversalId(iter, reverse);
 			// SPTEntry ee = shortestWeightMap.get(traversalId);
-			int traversalId =  traversalMode.createTraversalId(iter, reverse); // iter.getAdjNode();
+			int traversalId =  traversalMode.createTraversalId(iter, reverse);  
 			SPTEntry ee = shortestWeightMap.get(traversalId);
-
+			
 			if (ee == null) {
 				ee = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
 				ee.parent = currEdge;
 				shortestWeightMap.put(traversalId, ee);
 				prioQueue.add(ee);
-			} else if (ee.weight > tmpWeight) {
+			} else if (ee.weight >= tmpWeight) {
 				prioQueue.remove(ee);
 				ee.edge = iter.getEdge();
 				ee.weight = tmpWeight;
@@ -283,8 +284,7 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 				//
 				prioQueue.add(ee);
 				ee.visited = true;
-			} else
-				continue;
+			}
 		}
 	}
 

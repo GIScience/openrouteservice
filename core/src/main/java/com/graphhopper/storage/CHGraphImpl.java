@@ -607,8 +607,6 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
 		public AllCHEdgesIteratorImpl(BaseGraph baseGraph) {
 			super(baseGraph);
 		}
- 		 
-		
   
 		@Override
 		protected final boolean checkRange() {

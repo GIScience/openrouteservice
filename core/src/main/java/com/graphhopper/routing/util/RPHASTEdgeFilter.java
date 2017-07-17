@@ -51,24 +51,18 @@ public class RPHASTEdgeFilter implements CHEdgeFilter {
 		// always accept virtual edges, see #288
 		if (base >= maxNodes || adj >= maxNodes)
 			return true;
+
 		if (highestNode == -1)
 			highestNode = adj;
-		// if (graph.getLevel(base) < graph.getLevel(adj)) {
-		// if (graph.getLevel(highestNode) < graph.getLevel(adj)) {
-		// if (adj > 0) {
-		// highestNode = adj;
-		// System.out.println("New highest node: " + highestNode);
-		// }
-		// }
-		// }       
-		
-		if (graph.getLevel(base) < graph.getLevel(adj)) {
+ 
+		if (graph.getLevel(base) <= graph.getLevel(adj)) {
 			return false;
-		} else if (targetTree.contains(adj)) {
-			return edgeIterState.isForward(encoder); // true
-		} else
+		} else 
 		{
-				return false;
+			if (targetTree.contains(adj)) 
+				return edgeIterState.isForward(encoder);
+			else
+				 return false;
 		}
 	}
 
