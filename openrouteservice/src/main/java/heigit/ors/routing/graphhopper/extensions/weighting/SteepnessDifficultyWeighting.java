@@ -187,7 +187,7 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
         
         buffer = new byte[1];
 
-	    int difficultyLevel = map.getInt("steepness_difficulty_level", -1);
+	    int difficultyLevel = map.getInt("difficulty_level", -1);
 
         gsHillIndex = GraphStorageUtils.getGraphExtension(graphStorage, HillIndexGraphStorage.class);
         
@@ -203,7 +203,7 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
         	}
         }
         
-        this.maxSteepness = map.getDouble("steepness_maximum", -1);
+        this.maxSteepness = map.getDouble("maximum_gradient", -1);
     }
     
     @Override
