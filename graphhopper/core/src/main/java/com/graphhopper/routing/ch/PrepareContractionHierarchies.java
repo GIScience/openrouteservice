@@ -684,8 +684,12 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
 		}
 					
 		algo.setMaxVisitedNodes(Integer.MAX_VALUE);
-		algo.setEdgeFilter(new com.graphhopper.routing.util.CHLevelEdgeFilter(chGraph, encoder));
-		algo.setTargetEdgeFilter(new com.graphhopper.routing.util.CHLevelEdgeFilter(chGraph, encoder));
+		algo.setEdgeFilter(new CHLevelEdgeFilter(chGraph, encoder));
+		
+		CHLevelEdgeFilter targetEdgeFilter = new CHLevelEdgeFilter(chGraph, encoder);
+		targetEdgeFilter.setBackwardSearch(true);
+		algo.setTargetEdgeFilter(targetEdgeFilter);
+		
 		return algo;
 	}
 

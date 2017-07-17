@@ -48,12 +48,13 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 		float[] distances = null; 
 		float[] weights = null;
 
+		int tableSize = srcData.size() * dstData.size();
 		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Duration))
-			times = new float[srcData.size() * dstData.size()];
+			times = new float[tableSize];
 		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Distance)) 
-			distances = new float[srcData.size() * dstData.size()];
+			distances = new float[tableSize];
 		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Weight))
-			weights = new float[srcData.size() * dstData.size()];
+			weights = new float[tableSize];
 
 		DijkstraOneToMany algorithm = new DijkstraOneToMany(_graph, _weighting, TraversalMode.NODE_BASED);
 		algorithm.setMaxVisitedNodes(MatrixServiceSettings.getMaximumVisitedNodes());

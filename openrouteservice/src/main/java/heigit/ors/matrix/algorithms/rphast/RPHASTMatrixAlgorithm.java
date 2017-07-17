@@ -67,7 +67,7 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 				_pathMetricsExtractor.setEmptyValues(srcIndex, srcData, dstData, times, distances, weights);
 			}
 			else
-			{ 
+			{  
 				algorithm = _prepareCH.createRPHAST(_graph, _encoder);
 				IntObjectMap<SPTEntry> destinationTree = algorithm.calcMatrix(sourceId, dstData.getNodeIds(), tree, srcIndex * dstData.size());
 				_pathMetricsExtractor.calcValues(srcIndex , destinationTree, srcData, dstData, times, distances, weights); 

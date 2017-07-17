@@ -17,10 +17,15 @@
  */
 package com.graphhopper.routing.phast;
 
+import java.util.Iterator;
+
 import com.carrotsearch.hppc.IntObjectMap;
+import com.carrotsearch.hppc.cursors.IntObjectCursor;
+import com.carrotsearch.hppc.procedures.IntObjectProcedure;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.QueryGraph;
+import com.graphhopper.routing.util.CHLevelEdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.RPHASTEdgeFilter;
 import com.graphhopper.routing.util.TraversalMode;
@@ -93,13 +98,16 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmPH
 		checkAlreadyRun();
 		IntObjectMap<SPTEntry> bestWeightMapFrom = init(from, 0);
 		IntObjectMap<SPTEntry> targetMap = new GHIntObjectHashMap<SPTEntry>(intTargetMap.length);
+		
+		setEdgeFilter(additionalEdgeFilter);
+		
 		runAlgo(); 
 		initDownwardPHAST(additionalEdgeFilter.getHighestNode(), bestWeightMapFrom.get(additionalEdgeFilter.getHighestNode()).weight);
   
 		rphastEdgeFilter.setTargetTree(tree);
 		rphastEdgeFilter.setHighestNode(additionalEdgeFilter.getHighestNode());
 		this.setEdgeFilter(rphastEdgeFilter);
- 
+	
 		runDownwardsAlgo();
 		// From all checked nodes extract only the ones requested via targetMap
 		// and set their weight

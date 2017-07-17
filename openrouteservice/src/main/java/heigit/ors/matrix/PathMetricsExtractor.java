@@ -92,7 +92,7 @@ public class PathMetricsExtractor {
   
 						if (!_unpackDistance && calcDistance)
 							distance += (_distUnits == DistanceUnit.Meters) ? iterState.getDistance(): DistanceUnitUtil.convert(iterState.getDistance(), DistanceUnit.Meters, _distUnits);
- 
+
 						if (calcWeight || calcTime || _unpackDistance)
 						{
 							if (iterState.isShortcut())
@@ -123,7 +123,7 @@ public class PathMetricsExtractor {
 					else
 					{ 
 						EdgeIteratorState iter = _graph.getEdgeIteratorState(goalEdge.edge, goalEdge.adjNode);
-						//System.out.println(iter.getName() + " "+iter.getDistance());
+						 
 						if (calcDistance)
 							distance += (_distUnits == DistanceUnit.Meters) ? iter.getDistance(): DistanceUnitUtil.convert(iter.getDistance(), DistanceUnit.Meters, _distUnits);
 

@@ -98,6 +98,11 @@ public abstract class AbstractRoutingAlgorithmPHAST implements RoutingAlgorithm 
 		this.targetEdgeFilter = edgeFilter;
 		return this;
 	}
+	
+	public CHLevelEdgeFilter getTargetEdgeFilter()
+	{
+		return this.targetEdgeFilter;
+	}
 
 	protected boolean accept(CHEdgeIterator iter, int prevOrNextEdgeId) {
 		if (!traversalMode.hasUTurnSupport() && iter.getEdge() == prevOrNextEdgeId)

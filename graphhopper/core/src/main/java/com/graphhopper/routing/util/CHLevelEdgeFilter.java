@@ -18,7 +18,6 @@ package com.graphhopper.routing.util;
  */
 
 import com.graphhopper.storage.CHGraph;
-import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeIteratorState;
 
 /**
@@ -32,6 +31,7 @@ public class CHLevelEdgeFilter implements CHEdgeFilter {
 	private final int maxNodes;
 	public int highestNode = -1;
 	private FlagEncoder encoder;
+	private boolean backwardSearch = false;
 	
 	public CHLevelEdgeFilter(CHGraph g, FlagEncoder encoder) {
 		graph = g;
@@ -45,14 +45,17 @@ public class CHLevelEdgeFilter implements CHEdgeFilter {
 		int adj = edgeIterState.getAdjNode(); 
 		// always accept virtual edges, see #288
 		if (base >= maxNodes || adj >= maxNodes)
-			return true; 
+			return true;
+		
 		if (highestNode == -1)
 			highestNode = adj; 
-
-		// if (edgeIterState.isShortcut())
-		// return !(graph.getLevel(base) <= graph.getLevel(adj)) ? false : true;
-		
-		return (graph.getLevel(base) < graph.getLevel(adj)) ? edgeIterState.isForward(encoder) : false;
+ 
+		return (graph.getLevel(base) <= graph.getLevel(adj)) ?  (backwardSearch ? edgeIterState.isBackward(encoder) : edgeIterState.isForward(encoder)) : false;
+	}
+	
+	public void setBackwardSearch(boolean value)
+	{
+		backwardSearch = true;
 	}
 
 	@Override

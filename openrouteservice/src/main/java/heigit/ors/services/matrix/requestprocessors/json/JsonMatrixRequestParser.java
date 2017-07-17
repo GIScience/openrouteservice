@@ -185,6 +185,23 @@ public class JsonMatrixRequestParser {
 		   }
 		}
 		
+		value = json.optString("optimized");
+		if (!Helper.isEmpty(value))
+		{
+		   try
+		   {
+			   Boolean b = Boolean.parseBoolean(value);
+			   if (!b && !value.equalsIgnoreCase("false"))
+				   throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "resolve_locations");
+			   
+			   req.setFlexibleMode(!b);
+		   }
+		   catch(Exception ex)
+		   {
+			   throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "resolve_locations");
+		   }
+		}
+		
 		value = json.optString("id");
 		if (!Helper.isEmpty(value))
 			req.setId(value);
@@ -277,6 +294,23 @@ public class JsonMatrixRequestParser {
 			   if (!b && !value.equalsIgnoreCase("false"))
 				   throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "resolve_locations");
 			   req.setResolveLocations(b);
+		   }
+		   catch(Exception ex)
+		   {
+			   throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "resolve_locations");
+		   }
+		}
+		
+		value = request.getParameter("optimized");
+		if (!Helper.isEmpty(value))
+		{
+		   try
+		   {
+			   Boolean b = Boolean.parseBoolean(value);
+			   if (!b && !value.equalsIgnoreCase("false"))
+				   throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "resolve_locations");
+			   
+			   req.setFlexibleMode(!b);
 		   }
 		   catch(Exception ex)
 		   {
