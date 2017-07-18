@@ -23,6 +23,7 @@ import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.PathBidirRef;
+import com.graphhopper.routing.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
@@ -245,8 +246,9 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 
 	void fillEdgesDownwards(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue,
 			IntObjectMap<SPTEntry> shortestWeightMap, EdgeExplorer explorer, boolean reverse) {
+		
 		EdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
- 
+		
 		while (iter.next()) {
 			if (!additionalEdgeFilter.accept(iter)) 
 				continue;
@@ -267,6 +269,7 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 				ee.parent = currEdge;
 				shortestWeightMap.put(traversalId, ee);
 				prioQueue.add(ee);
+				ee.visited = true;
 			} else if (ee.weight >= tmpWeight) {
 				prioQueue.remove(ee);
 				ee.edge = iter.getEdge();
@@ -282,6 +285,7 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 				// prioQueue.remove(ee);
 				//
 				prioQueue.add(ee);
+				System.out.println(prioQueue.size());
 				ee.visited = true;
 			}
 		}
