@@ -285,7 +285,7 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 				// prioQueue.remove(ee);
 				//
 				prioQueue.add(ee);
-				System.out.println(prioQueue.size());
+				//System.out.println(prioQueue.size());
 				ee.visited = true;
 			}
 		}
