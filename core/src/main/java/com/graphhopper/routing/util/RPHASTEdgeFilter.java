@@ -34,7 +34,7 @@ import com.graphhopper.util.EdgeIteratorState;
 public class RPHASTEdgeFilter implements CHEdgeFilter {
 	private final CHGraph graph;
 	private final int maxNodes;
-	public int highestNode = -1;
+	public int highestNodeLevel = -1;
 	private FlagEncoder encoder;
 	private GHIntHashSet targetTree;
 
@@ -52,10 +52,7 @@ public class RPHASTEdgeFilter implements CHEdgeFilter {
 		if (base >= maxNodes || adj >= maxNodes)
 			return true;
 
-		if (highestNode == -1)
-			highestNode = adj;
- 
-		if (graph.getLevel(base) <= graph.getLevel(adj)) {
+		if (highestNodeLevel <= graph.getLevel(adj)) {
 			return false;
 		} else 
 		{
@@ -66,19 +63,10 @@ public class RPHASTEdgeFilter implements CHEdgeFilter {
 		}
 	}
 
-	@Override
-	public int getHighestNode() {
-		return highestNode;
-	}
 
 	@Override
 	public void setHighestNode(int node) {
-		highestNode = node;
-	}
-
-	@Override
-	public void updateHighestNode(EdgeIteratorState iter) {
-		this.highestNode = iter.getAdjNode();
+		highestNodeLevel = graph.getLevel(node);
 	}
 
 	public RPHASTEdgeFilter setTargetTree(IntObjectMap<SPTEntry> targets) {
@@ -88,5 +76,17 @@ public class RPHASTEdgeFilter implements CHEdgeFilter {
 		}
 		// System.out.println(targetTree.toString());
 		return this;
+	}
+
+	@Override
+	public int getHighestNode() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void updateHighestNode(EdgeIteratorState edgeState) {
+		// TODO Auto-generated method stub
+		
 	}
 }
