@@ -56,7 +56,7 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 	
 	public DijkstraBidirectionRefRPHAST(Graph graph, FlagEncoder encoder, Weighting weighting, TraversalMode tMode) {
 		super(graph, encoder, weighting, tMode);
-		int size = Math.min(Math.max(200, graph.getNodes() / 10), 150_000);
+		int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
 		
 		initCollections(size);
 	}
@@ -204,9 +204,8 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 	void fillEdges(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<SPTEntry> shortestWeightMap,
 			EdgeExplorer explorer, boolean reverse) {
 		EdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
-
+ 
 		while (iter.next()) {
-		
 			if (!additionalEdgeFilter.accept(iter)) {
 				continue;
 			}
