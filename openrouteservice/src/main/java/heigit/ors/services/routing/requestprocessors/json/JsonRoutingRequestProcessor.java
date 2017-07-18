@@ -33,7 +33,7 @@ public class JsonRoutingRequestProcessor extends AbstractHttpRequestProcessor {
 	public void process(HttpServletResponse response) throws Exception {
 		RoutingRequest rreq = JsonRoutingRequestParser.parseFromRequestParams(_request);
 		
-		RouteResult result = RoutingProfileManager.getInstance().getRoute(rreq);
+		RouteResult result = RoutingProfileManager.getInstance().computeRoute(rreq);
 		
 		JSONObject json = JsonRoutingResponseWriter.toJson(rreq, new RouteResult[] { result });
 		

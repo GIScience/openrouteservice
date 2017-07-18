@@ -65,6 +65,7 @@ import heigit.ors.routing.traffic.RealTrafficDataProvider;
 import heigit.ors.routing.traffic.TrafficEdgeAnnotator;
 import heigit.ors.services.matrix.MatrixServiceSettings;
 import heigit.ors.services.optimization.OptimizationServiceSettings;
+import heigit.ors.util.DebugUtility;
 import heigit.ors.util.RuntimeUtility;
 import heigit.ors.util.TimeUtility;
 
@@ -111,7 +112,9 @@ public class RoutingProfile
 	private MapMatcher mMapMatcher;
 
 	private RouteProfileConfiguration _config;
-
+	private String _astarApproximation;
+	private Double _astarEpsilon; 
+	
 	public RoutingProfile(String osmFile, RouteProfileConfiguration rpc, RoutingProfilesCollection profiles, RoutingProfileLoadContext loadCntx) throws Exception {
 		mRoutePrefs = rpc.getProfilesTypes();
 		mUseCounter = 0;
@@ -120,6 +123,15 @@ public class RoutingProfile
 		mGraphHopper = initGraphHopper(osmFile, rpc, profiles, loadCntx);
 
 		_config = rpc;
+
+		Config optsExecute = _config.getExecutionOpts();
+		if (optsExecute != null)
+		{
+			if (optsExecute.hasPath("methods.astar.approximation"))
+				_astarApproximation = optsExecute.getString("methods.astar.approximation");
+			if (optsExecute.hasPath("methods.astar.epsilon"))
+				_astarEpsilon = Double.parseDouble(optsExecute.getString("methods.astar.epsilon"));
+		}
 	}
 
 	public static ORSGraphHopper initGraphHopper(String osmFile, RouteProfileConfiguration config, RoutingProfilesCollection profiles, RoutingProfileLoadContext loadCntx) throws Exception {
@@ -711,7 +723,7 @@ public class RoutingProfile
 		return totalDistance <= maxDistance && wayPoints <= maxWayPoints;
 	}
 
-	public GHResponse getRoute(double lat0, double lon0, double lat1, double lon1, boolean directedSegment, RouteSearchParameters searchParams, boolean simplifyGeometry, RouteProcessContext routeProcCntx)
+	public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, boolean directedSegment, RouteSearchParameters searchParams, boolean simplifyGeometry, RouteProcessContext routeProcCntx)
 			throws Exception {
 
 		GHResponse resp = null; 
@@ -774,11 +786,8 @@ public class RoutingProfile
 			if (RoutingProfileType.isDriving(profileType) && RealTrafficDataProvider.getInstance().isInitialized())
 				req.setEdgeAnnotator(new TrafficEdgeAnnotator(mGraphHopper.getGraphHopperStorage()));
 
-			if (searchCntx.getEdgeFilter() != null) 
-				req.setEdgeFilter(searchCntx.getEdgeFilter());
-
-			if (routeProcCntx.getPathProcessor() != null)
-				req.setPathProcessor(routeProcCntx.getPathProcessor());
+			req.setEdgeFilter(searchCntx.getEdgeFilter());
+			req.setPathProcessor(routeProcCntx.getPathProcessor());
 
 			if (useDynamicWeights(searchParams) || flexibleMode)
 			{
@@ -792,11 +801,21 @@ public class RoutingProfile
 				else
 					req.getHints().put("ch.disable", true);
 			}
+			
+			if (_astarEpsilon != null)
+			  req.getHints().put("astarbi.epsilon", _astarEpsilon);
+			if (_astarApproximation != null)
+				req.getHints().put("astarbi.approximation", _astarApproximation);
 
 			/*if (directedSegment)
 				resp = mGraphHopper.directRoute(req); NOTE IMPLEMENTED!!!
 			else */
 			resp = mGraphHopper.route(req, routeProcCntx.getArrayBuffer());
+			
+			if (DebugUtility.isDebug())
+			{
+				System.out.println("visited_nodes.average - " + resp.getHints().get("visited_nodes.average", ""));
+			}
 
 			endUseGH();
 		} catch (Exception ex) {
@@ -804,7 +823,7 @@ public class RoutingProfile
 
 			LOGGER.error(ex);
 
-			throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to compute a route between coordinates %s-%s", Double.toString(lon0) + ", " + Double.toString(lat0),  Double.toString(lon1) + ", " + Double.toString(lat1)));
+			throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to compute a route");
 		}
 
 		return resp;

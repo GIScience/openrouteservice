@@ -87,17 +87,21 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
     }
 
     @Override
-    public List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts, ByteArrayBuffer byteBuffer) {
+    public List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts,  PathProcessingContext pathProcCntx) {
         long visitedNodesSum = 0L;
         boolean viaTurnPenalty = ghRequest.getHints().getBool(Routing.PASS_THROUGH, false);
         int pointCounts = ghRequest.getPoints().size();
         pathList = new ArrayList<>(pointCounts - 1);
         QueryResult fromQResult = queryResults.get(0);
         StopWatch sw;
+        
+        // Runge
+        PathProcessor pathProcessor = pathProcCntx.getPathProcessor();
+        
         for (int placeIndex = 1; placeIndex < pointCounts; placeIndex++) {
             if (placeIndex == 1) {
                 // enforce start direction
-                queryGraph.enforceHeading(fromQResult.getClosestNode(), ghRequest.getFavoredHeading(0), false, byteBuffer);
+                queryGraph.enforceHeading(fromQResult.getClosestNode(), ghRequest.getFavoredHeading(0), false, pathProcCntx.getByteBuffer());
             } else if (viaTurnPenalty) {
                 // enforce straight start after via stop
                 Path prevRoute = pathList.get(placeIndex - 2);
@@ -106,11 +110,11 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
                     queryGraph.unfavorVirtualEdgePair(fromQResult.getClosestNode(), incomingVirtualEdge.getEdge());
                 }
             }
-
+            
             QueryResult toQResult = queryResults.get(placeIndex);
 
             // enforce end direction
-            queryGraph.enforceHeading(toQResult.getClosestNode(), ghRequest.getFavoredHeading(placeIndex), true, byteBuffer);
+            queryGraph.enforceHeading(toQResult.getClosestNode(), ghRequest.getFavoredHeading(placeIndex), true, pathProcCntx.getByteBuffer());
 
             sw = new StopWatch().start();
             RoutingAlgorithm algo = algoFactory.createAlgo(queryGraph, algoOpts);

@@ -331,6 +331,9 @@ public class RouteSearchParameters {
 			JSONObject jWeightings = json.getJSONObject("weightings");
 			JSONArray jNames = jWeightings.names();
 			
+			if (jNames == null)
+				return;
+			
 			for (int i = 0; i < jNames.length(); i++)
 			{
 				String name  = jNames.getString(i);

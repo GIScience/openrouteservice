@@ -93,7 +93,7 @@ public class AccessibilityAnalyzer {
 							reqRouting.setCoordinates(coords);
 							reqRouting.setLocationIndex(j);
 							
-							List<RouteResult> routesToLocation = RoutingProfileManager.getInstance().getRoutes(reqRouting, "destination".equalsIgnoreCase(req.getLocationType()), true);
+							List<RouteResult> routesToLocation = RoutingProfileManager.getInstance().computeRoutes(reqRouting, "destination".equalsIgnoreCase(req.getLocationType()), true);
 							routes.addAll(routesToLocation);
 						}
 					

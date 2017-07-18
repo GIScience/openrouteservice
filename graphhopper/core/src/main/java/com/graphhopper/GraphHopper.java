@@ -1090,7 +1090,9 @@ public class GraphHopper implements GraphHopperAPI {
                 if (request.getEdgeFilter() != null)
                 	algoOpts.setEdgeFilter(request.getEdgeFilter());
 
-                altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts,  byteBuffer);
+                PathProcessingContext pathProcCntx = new PathProcessingContext(encoder, weighting, tr, request.getEdgeAnnotator(), request.getPathProcessor(), byteBuffer);
+
+                altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts,  pathProcCntx);
 
                 boolean tmpEnableInstructions = hints.getBool(Routing.INSTRUCTIONS, enableInstructions);
                 boolean tmpCalcPoints = hints.getBool(Routing.CALC_POINTS, calcPoints);
@@ -1102,7 +1104,6 @@ public class GraphHopper implements GraphHopperAPI {
                         setEnableInstructions(tmpEnableInstructions).
                         setSimplifyResponse(simplifyResponse && wayPointMaxDistance > 0);
 
-                PathProcessingContext pathProcCntx = new PathProcessingContext(encoder, weighting, tr, request.getEdgeAnnotator(), request.getPathProcessor(), byteBuffer);
                 if (routingTemplate.isReady(pathMerger, pathProcCntx))
                     break;
             }

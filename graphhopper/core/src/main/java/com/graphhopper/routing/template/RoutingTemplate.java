@@ -26,7 +26,7 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.ByteArrayBuffer;
 import com.graphhopper.util.PathMerger;
-import com.graphhopper.util.Translation;
+
 import com.graphhopper.util.shapes.GHPoint;
 
 import java.util.List;
@@ -47,7 +47,7 @@ public interface RoutingTemplate {
      * This method returns a list of Path objects which then can be merged to serve one route with
      * via points or multiple alternative paths.
      */
-    List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts, ByteArrayBuffer byteBuffer);
+    List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts,  PathProcessingContext pathProcCntx);
 
     /**
      * This method merges the returned paths appropriately e.g. all paths from the list into one

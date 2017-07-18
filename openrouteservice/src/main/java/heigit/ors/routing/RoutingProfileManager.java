@@ -51,6 +51,7 @@ import heigit.ors.util.RuntimeUtility;
 import heigit.ors.util.TimeUtility;
 
 import com.graphhopper.GHResponse;
+import com.graphhopper.PathWrapper;
 import com.graphhopper.routing.util.BikeCommonFlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.storage.RAMDataAccess;
@@ -244,7 +245,7 @@ public class RoutingProfileManager {
 		return _profileUpdater == null ? null : _profileUpdater.getStatus();
 	}
 
-	public List<RouteResult> getRoutes(RoutingRequest req, boolean invertFlow, boolean oneToMany) throws Exception
+	public List<RouteResult> computeRoutes(RoutingRequest req, boolean invertFlow, boolean oneToMany) throws Exception
 	{
 		if (req.getCoordinates().length <= 1)
 			throw new Exception("Number of coordinates must be greater than 1.");
@@ -282,9 +283,9 @@ public class RoutingProfileManager {
 			Coordinate c1 = coords[i];
 			GHResponse gr = null;
 			if (invertFlow)
-				gr = rp.getRoute(c0.y, c0.x, c1.y, c1.x, false, searchParams, req.getSimplifyGeometry(), routeProcCntx);
+				gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, false, searchParams, req.getSimplifyGeometry(), routeProcCntx);
 			else
-				gr = rp.getRoute(c1.y, c1.x, c0.y, c0.x, false, searchParams, req.getSimplifyGeometry(), routeProcCntx);
+				gr = rp.computeRoute(c1.y, c1.x, c0.y, c0.x, false, searchParams, req.getSimplifyGeometry(), routeProcCntx);
 
 			//if (gr.hasErrors())
 			//	throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
@@ -304,7 +305,7 @@ public class RoutingProfileManager {
 		return routes;
 	}
 
-	public RouteResult getRoute(RoutingRequest req) throws Exception
+	public RouteResult computeRoute(RoutingRequest req) throws Exception
 	{
 		List<GHResponse> routes = new ArrayList<GHResponse>();
 
@@ -333,11 +334,12 @@ public class RoutingProfileManager {
 
 		for(int i = 1; i <= nSegments; ++i)
 		{
+			c1 = coords[i];
+			
 			if (pathProcessor != null)
 				pathProcessor.setSegmentIndex(i - 1, nSegments);
 
-			c1 = coords[i];
-			GHResponse gr = rp.getRoute(c0.y, c0.x, c1.y, c1.x, c0.z == 1.0, searchParams, req.getSimplifyGeometry(), routeProcCntx);
+			GHResponse gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, c0.z == 1.0, searchParams, req.getSimplifyGeometry(), routeProcCntx);
 
 			if (gr.hasErrors())
 				throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
@@ -348,6 +350,7 @@ public class RoutingProfileManager {
 
 		return new RouteResultBuilder().createRouteResult(routes, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor)pathProcessor).getExtras(): null);
 	}
+
 
 	public RoutingProfile getRouteProfile(RoutingRequest req, boolean oneToMany) throws Exception {
 		RouteSearchParameters searchParams = req.getSearchParameters();
