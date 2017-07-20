@@ -17,20 +17,13 @@
  */
 package com.graphhopper.routing.phast;
 
-import java.util.Iterator;
-
 import com.carrotsearch.hppc.IntObjectMap;
-import com.carrotsearch.hppc.cursors.IntObjectCursor;
-import com.carrotsearch.hppc.procedures.IntObjectProcedure;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.Path;
-import com.graphhopper.routing.QueryGraph;
-import com.graphhopper.routing.util.CHLevelEdgeFilter;
+import com.graphhopper.routing.util.CHEdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.RPHASTEdgeFilter;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeIteratorState;
@@ -46,39 +39,22 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmPH
 	protected boolean finishedTo;
 	int visitedCountFrom;
 	int visitedCountTo;
-	FlagEncoder encoder;
-	RPHASTEdgeFilter rphastEdgeFilter;
 
 	public AbstractBidirAlgoRPHAST(Graph graph, FlagEncoder encoder, Weighting weighting, TraversalMode tMode) {
 		super(graph, weighting, tMode, true);
-		
-		this.encoder = encoder;
-		
-		CHGraph chGraph = null;
-		if (graph instanceof CHGraph)
-			chGraph = (CHGraph)graph;
-		else if (graph instanceof QueryGraph)
-		{
-			QueryGraph qGraph = (QueryGraph)graph;
-			chGraph = (CHGraph)qGraph.getMainGraph();
-		}
-		
-		rphastEdgeFilter = new RPHASTEdgeFilter(chGraph, encoder);
 	}
 
 	abstract IntObjectMap<SPTEntry> init(int from, double dist);
 
-	abstract void initDownwardPHAST(int from, double dist);
+	abstract void initDownwardSearch(int from);
 
-	abstract IntObjectMap<SPTEntry> createTargetTree(IntObjectMap<SPTEntry> targets);
-
-	abstract IntObjectMap<SPTEntry> createTargetTree(int[] targets);
+	abstract SubGraph createTargetGraph(int[] targets);
 
 	protected abstract double getCurrentFromWeight();
 
 	abstract boolean fillEdgesFrom();
 
-	abstract boolean downwardPHAST();
+	abstract boolean downwardSearch();
 
 	@Override
 	public Path calcPath(int from, int to) {
@@ -94,7 +70,7 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmPH
 	 * @param pos
 	 * @return
 	 */
-	public IntObjectMap<SPTEntry> calcMatrix(int from, int[] intTargetMap, IntObjectMap<SPTEntry> tree, int pos) {
+	public IntObjectMap<SPTEntry> calcMatrix(int from, int[] intTargetMap, SubGraph targetGraph, int pos) {
 		checkAlreadyRun();
 		IntObjectMap<SPTEntry> bestWeightMapFrom = init(from, 0);
 		IntObjectMap<SPTEntry> targetMap = new GHIntObjectHashMap<SPTEntry>(intTargetMap.length);
@@ -102,16 +78,14 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmPH
 		setEdgeFilter(additionalEdgeFilter);
 		
 		runAlgo(); 
-		initDownwardPHAST(additionalEdgeFilter.getHighestNode(), bestWeightMapFrom.get(additionalEdgeFilter.getHighestNode()).weight);
+		initDownwardSearch(additionalEdgeFilter.getHighestNode());
   
-		rphastEdgeFilter.setTargetTree(tree);
-		rphastEdgeFilter.setHighestNode(additionalEdgeFilter.getHighestNode());
-		this.setEdgeFilter(rphastEdgeFilter);
+		this.setEdgeFilter(CHEdgeFilter.ALL_EDGES);
 	
-		runDownwardsAlgo();
-		// From all checked nodes extract only the ones requested via targetMap
-		// and set their weight
- 
+		outEdgeExplorer = targetGraph.createExplorer();
+		
+		runDownwardSearch();
+
 		for (int target : intTargetMap) 
 			targetMap.put(target, bestWeightMapFrom.get(target));
 		
@@ -123,12 +97,11 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmPH
 			if (!finishedFrom)
 				finishedFrom = !fillEdgesFrom();
 		}
-
 	}
 
-	protected void runDownwardsAlgo() {
+	protected void runDownwardSearch() {
 		while (!finishedTo) {
-			finishedTo = !downwardPHAST();
+			finishedTo = !downwardSearch();
 		}
 	}
 
@@ -137,13 +110,8 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmPH
 		return visitedCountFrom + visitedCountTo;
 	}
 
-	public void setEncoder(FlagEncoder encoder) {
-		this.encoder = encoder;
-	}
-
 	@Override
 	protected void updateBestPath(EdgeIteratorState edgeState, SPTEntry entryCurrent, int traversalId) {
 		throw new IllegalStateException("No path defined for RPHAST");
 	}
-
 }

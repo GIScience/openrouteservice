@@ -15,6 +15,7 @@ import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies.DijkstraBidirectionCHRPHAST;
+import com.graphhopper.routing.phast.SubGraph;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
@@ -57,7 +58,7 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
 		DijkstraBidirectionCHRPHAST algorithm = _prepareCH.createRPHAST(_graph, _encoder); 
 		// Compute target tree only once as it is the same for every source
-		IntObjectMap<SPTEntry> tree = algorithm.createTargetTree(dstData.getNodeIds());
+		SubGraph targetGraph = algorithm.createTargetGraph(dstData.getNodeIds());
         int sourceId = -1; 
         
 		for (int srcIndex = 0; srcIndex < srcData.size(); srcIndex++) {
@@ -69,7 +70,7 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 			else
 			{  
 				algorithm = _prepareCH.createRPHAST(_graph, _encoder);
-				IntObjectMap<SPTEntry> destinationTree = algorithm.calcMatrix(sourceId, dstData.getNodeIds(), tree, srcIndex * dstData.size());
+				IntObjectMap<SPTEntry> destinationTree = algorithm.calcMatrix(sourceId, dstData.getNodeIds(), targetGraph, srcIndex * dstData.size());
 				_pathMetricsExtractor.calcValues(srcIndex , destinationTree, srcData, dstData, times, distances, weights); 
 			}
 		}

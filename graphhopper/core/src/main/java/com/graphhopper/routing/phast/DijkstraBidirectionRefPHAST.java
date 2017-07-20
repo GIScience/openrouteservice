@@ -83,7 +83,7 @@ public class DijkstraBidirectionRefPHAST extends AbstractBidirAlgoPHAST {
 	}
 
 	@Override
-	public void initDownwardPHAST(int to, double weight) {
+	public void initDownwardSearch(int to, double weight) {
 		currTo = createSPTEntry(to, weight);
 		openSetTo.add(currTo);
 		if (!traversalMode.isEdgeBased()) {
@@ -115,7 +115,7 @@ public class DijkstraBidirectionRefPHAST extends AbstractBidirAlgoPHAST {
 	}
 
 	@Override
-	public boolean downwardPHAST() {
+	public boolean downwardSearch() {
 		if (openSetTo.isEmpty()) {
 
 			return false;
