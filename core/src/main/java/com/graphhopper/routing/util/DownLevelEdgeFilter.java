@@ -6,13 +6,11 @@ import com.graphhopper.util.EdgeIteratorState;
 public class DownLevelEdgeFilter implements CHEdgeFilter {
 	private final CHGraph graph;
 	private final int maxNodes;
-	private FlagEncoder encoder;
 	public int highestNode = -1;
 
 	public DownLevelEdgeFilter(CHGraph g, FlagEncoder encoder) {
 		graph = g;
 		maxNodes = g.getNodes();
-		this.encoder = encoder;
 	}
 
 	@Override

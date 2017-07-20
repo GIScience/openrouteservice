@@ -47,13 +47,13 @@ public abstract class AbstractBidirAlgoPHAST extends AbstractRoutingAlgorithmPHA
 
 	abstract IntObjectMap<SPTEntry> init(int from, double dist);
 
-	abstract void initDownwardPHAST(int from, double dist);
+	abstract void initDownwardSearch(int from, double dist);
 
 	protected abstract double getCurrentFromWeight();
 
 	abstract boolean fillEdgesFrom();
 
-	abstract boolean downwardPHAST();
+	abstract boolean downwardSearch();
 
 	@Override
 	public Path calcPath(int from, int to) {
@@ -66,7 +66,7 @@ public abstract class AbstractBidirAlgoPHAST extends AbstractRoutingAlgorithmPHA
 
 		runAlgo();
 
-		initDownwardPHAST(additionalEdgeFilter.getHighestNode(),
+		initDownwardSearch(additionalEdgeFilter.getHighestNode(),
 				bestWeightMapFrom.get(additionalEdgeFilter.getHighestNode()).weight);
 		System.out.println("Highest node: " + additionalEdgeFilter.getHighestNode() + ", weight: "
 				+ bestWeightMapFrom.get(additionalEdgeFilter.getHighestNode()).weight);
@@ -83,7 +83,7 @@ public abstract class AbstractBidirAlgoPHAST extends AbstractRoutingAlgorithmPHA
 		DownLevelEdgeFilter downFilter = new DownLevelEdgeFilter(chGraph, encoder);
 		downFilter.setHighestNode(additionalEdgeFilter.getHighestNode());
 		this.setEdgeFilter(downFilter);
-		runDownwardsAlgo();
+		runDownwardSearch();
 		return bestWeightMapFrom;
 	}
 
@@ -95,9 +95,9 @@ public abstract class AbstractBidirAlgoPHAST extends AbstractRoutingAlgorithmPHA
 
 	}
 
-	protected void runDownwardsAlgo() {
+	protected void runDownwardSearch() {
 		while (!finishedTo) {
-			finishedTo = !downwardPHAST();
+			finishedTo = !downwardSearch();
 		}
 	}
 

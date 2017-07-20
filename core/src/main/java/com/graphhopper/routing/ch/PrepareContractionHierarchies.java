@@ -674,22 +674,6 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
 	public DijkstraBidirectionCHRPHAST createRPHAST(Graph graph, FlagEncoder encoder) {
 		DijkstraBidirectionCHRPHAST algo = new DijkstraBidirectionCHRPHAST(graph, encoder, prepareWeighting, traversalMode);
 		
-		CHGraph chGraph = null;
-		if (graph instanceof CHGraph)
-			chGraph = (CHGraph)graph;
-		else if (graph instanceof QueryGraph)
-		{
-			QueryGraph qGraph = (QueryGraph)graph;
-			chGraph = (CHGraph)qGraph.getMainGraph();
-		}
-					
-		algo.setMaxVisitedNodes(Integer.MAX_VALUE);
-		algo.setEdgeFilter(new CHLevelEdgeFilter(chGraph, encoder));
-		
-		CHLevelEdgeFilter targetEdgeFilter = new CHLevelEdgeFilter(chGraph, encoder);
-		targetEdgeFilter.setBackwardSearch(true);
-		algo.setTargetEdgeFilter(targetEdgeFilter);
-		
 		return algo;
 	}
 
