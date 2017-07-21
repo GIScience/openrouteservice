@@ -109,7 +109,7 @@ public class DijkstraBidirectionRefPHAST extends AbstractBidirAlgoPHAST {
 			return false;
 		}
 		currFrom = openSetFrom.poll();
-		fillEdges(currFrom, openSetFrom, bestWeightMapFrom, outEdgeExplorer, false);
+		fillEdgesUpward(currFrom, openSetFrom, bestWeightMapFrom, outEdgeExplorer, false);
 		visitedCountFrom++;
 		return true;
 	}
@@ -121,7 +121,7 @@ public class DijkstraBidirectionRefPHAST extends AbstractBidirAlgoPHAST {
 			return false;
 		}
 		currTo = openSetTo.poll();
-		fillEdgesDownwards(currTo, openSetTo, bestWeightMapFrom, inEdgeExplorer, false);
+		fillEdgesDownward(currTo, openSetTo, bestWeightMapFrom, inEdgeExplorer, false);
 		visitedCountTo++;
 
 		return true;
@@ -141,7 +141,7 @@ public class DijkstraBidirectionRefPHAST extends AbstractBidirAlgoPHAST {
 		// return currFrom.weight + currTo.weight >= bestPath.getWeight();
 	}
 
-	void fillEdges(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<SPTEntry> shortestWeightMap,
+	void fillEdgesUpward(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<SPTEntry> shortestWeightMap,
 			EdgeExplorer explorer, boolean reverse) {
 		CHEdgeIteratorImpl iter = (CHEdgeIteratorImpl) explorer.setBaseNode(currEdge.adjNode);
 
@@ -178,7 +178,7 @@ public class DijkstraBidirectionRefPHAST extends AbstractBidirAlgoPHAST {
 		}
 	}
 
-	void fillEdgesDownwards(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue,
+	void fillEdgesDownward(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue,
 			IntObjectMap<SPTEntry> shortestWeightMap, EdgeExplorer explorer, boolean reverse) {
 		CHEdgeIteratorImpl iter = (CHEdgeIteratorImpl) explorer.setBaseNode(currEdge.adjNode);
 

@@ -46,9 +46,6 @@ public class CHLevelEdgeFilter implements CHEdgeFilter {
 		// always accept virtual edges, see #288
 		if (base >= maxNodes || adj >= maxNodes)
 			return true;
-		
-		if (highestNode == -1)
-			highestNode = adj; 
  
 		return (graph.getLevel(base) <= graph.getLevel(adj)) ?  (backwardSearch ? edgeIterState.isBackward(encoder) : edgeIterState.isForward(encoder)) : false;
 	}

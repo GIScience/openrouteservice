@@ -61,11 +61,18 @@ public class DijkstraOneToMany extends AbstractRoutingAlgorithm {
     protected void initCollections(int size) {
         fromHeap = new PriorityQueue<SPTEntry>(size);
         fromMap = new GHIntObjectHashMap<SPTEntry>(size);
+        targets = new GHIntObjectHashMap<SPTEntry>();
     }
     
-    public void setTargets(IntObjectMap<SPTEntry> targets)
+    public void setTargets(SPTEntry[] targets)
     {
-    	this.targets = targets;
+    	this.targets.clear();
+    	
+    	for (int i = 0; i < targets.length; ++i)
+    	{
+    		SPTEntry e = targets[i];
+    		this.targets.put(e.adjNode, e);
+    	}
     }
     
     public void reset()

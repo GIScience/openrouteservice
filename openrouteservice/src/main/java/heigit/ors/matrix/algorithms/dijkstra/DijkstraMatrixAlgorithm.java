@@ -11,9 +11,7 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.matrix.algorithms.dijkstra;
 
-import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.GraphHopper;
-import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
@@ -58,11 +56,14 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
 		DijkstraOneToMany algorithm = new DijkstraOneToMany(_graph, _weighting, TraversalMode.NODE_BASED);
 		algorithm.setMaxVisitedNodes(MatrixServiceSettings.getMaximumVisitedNodes());
-		IntObjectMap<SPTEntry> targets = new GHIntObjectHashMap<SPTEntry>(dstData.size());
-		for (int nodeId : dstData.getNodeIds())
+		SPTEntry[] targets = new SPTEntry[dstData.size()];
+		for (int i = 0; i < dstData.getNodeIds().length; ++i)
 		{
+			int nodeId = dstData.getNodeId(i);
+			
 			if (nodeId != -1)
-				targets.put(nodeId, new SPTEntry(EdgeIterator.NO_EDGE, 1, 1));
+				targets[i] = new SPTEntry(EdgeIterator.NO_EDGE, nodeId, 1);
+				
 		}
 		algorithm.setTargets(targets);
 
@@ -83,11 +84,15 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 				if (algorithm.getFoundTargets() != algorithm.getTargetsCount())
 					throw new Exception("Search exceeds the limit of visited nodes.");
 
-				SPTEntry entry = targets.get(sourceId);
+				SPTEntry entry = targets[srcIndex];
+				
 				if (entry != null)
-					 entry.edge = EdgeIterator.NO_EDGE;
+				{
+					if (entry != null)
+						entry.edge = EdgeIterator.NO_EDGE;
 
-				_pathMetricsExtractor.calcValues(srcIndex, targets, srcData, dstData, times, distances, weights);
+					_pathMetricsExtractor.calcValues(srcIndex, targets, srcData, dstData, times, distances, weights);
+				}
 			}
 		}
 

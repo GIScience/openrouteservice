@@ -11,7 +11,6 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.matrix.algorithms.rphast;
 
-import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies.DijkstraBidirectionCHRPHAST;
@@ -70,8 +69,8 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 			else
 			{  
 				algorithm = _prepareCH.createRPHAST(_graph, _encoder);
-				IntObjectMap<SPTEntry> destinationTree = algorithm.calcMatrix(sourceId, dstData.getNodeIds(), targetGraph, srcIndex * dstData.size());
-				_pathMetricsExtractor.calcValues(srcIndex , destinationTree, srcData, dstData, times, distances, weights); 
+				SPTEntry[] destTrees = algorithm.calcPaths(sourceId, dstData.getNodeIds(), targetGraph);
+				_pathMetricsExtractor.calcValues(srcIndex, destTrees, srcData, dstData, times, distances, weights); 
 			}
 		}
 

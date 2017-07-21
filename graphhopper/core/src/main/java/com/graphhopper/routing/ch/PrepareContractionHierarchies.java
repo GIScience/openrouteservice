@@ -327,7 +327,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
                 }
 
                  // Hendrik: PHAST algorithm does not work properly with removed shortcuts
-                 //	prepareGraph.disconnect(vehicleAllTmpExplorer, iter); 
+                 prepareGraph.disconnect(vehicleAllTmpExplorer, iter);  
             }
         }
 
@@ -799,7 +799,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
 				return true;
 
 			// changed also the final finish condition for CH
-			return currFrom.weight >= bestPath.getWeight() && currTo.weight >= bestPath.getWeight();
+			return false;
 		}
 
 		@Override

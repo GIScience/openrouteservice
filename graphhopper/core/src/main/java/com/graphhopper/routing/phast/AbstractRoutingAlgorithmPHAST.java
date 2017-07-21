@@ -28,12 +28,10 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.CHEdgeIterator;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
-import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 
 /**
@@ -43,7 +41,6 @@ public abstract class AbstractRoutingAlgorithmPHAST implements RoutingAlgorithm 
 	protected final Graph graph;
 	protected final Weighting weighting;
 	protected final TraversalMode traversalMode;
-	protected NodeAccess nodeAccess;
 	protected EdgeExplorer inEdgeExplorer;
 	protected EdgeExplorer outEdgeExplorer;
 	protected EdgeExplorer targetEdgeExplorer;
@@ -68,7 +65,6 @@ public abstract class AbstractRoutingAlgorithmPHAST implements RoutingAlgorithm 
 		this.weighting = weighting;
 		this.traversalMode = traversalMode;
 		this.graph = graph;
-		this.nodeAccess = this.graph.getNodeAccess();
 
 		if (!downwardSearchAllowed) {
 			outEdgeExplorer = graph.createEdgeExplorer();
@@ -99,9 +95,6 @@ public abstract class AbstractRoutingAlgorithmPHAST implements RoutingAlgorithm 
 			return false;
 
 		return additionalEdgeFilter == null || additionalEdgeFilter.accept(iter);
-	}
-
-	protected void updateBestPath(EdgeIteratorState edgeState, SPTEntry bestSPTEntry, int traversalId) {
 	}
 
 	protected void checkAlreadyRun() {

@@ -446,8 +446,8 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
 						+ adjNode + ", edge pointer: " + edgePointer + ", edge: " + edgeId);
 
 				if (filter.accept(this)) {
-					if (isShortcut() && getLevel(baseNode) > getLevel(adjNode))
-						continue;
+				//	if (isShortcut() && getLevel(baseNode) > getLevel(adjNode))
+				//		continue;
 					return true;
 				}
 

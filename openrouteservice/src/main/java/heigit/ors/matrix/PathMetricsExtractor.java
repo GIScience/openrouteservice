@@ -1,6 +1,5 @@
 package heigit.ors.matrix;
 
-import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
@@ -63,7 +62,7 @@ public class PathMetricsExtractor {
 		}
 	}
 	
-	public void calcValues(int sourceIndex, IntObjectMap<SPTEntry> targets, MatrixLocations srcData, MatrixLocations dstData, float[] times, float[] distances, float[] weights) throws Exception
+	public void calcValues(int sourceIndex, SPTEntry[] targets, MatrixLocations srcData, MatrixLocations dstData, float[] times, float[] distances, float[] weights) throws Exception
 	{
 		if (targets == null)
 			throw new IllegalStateException("Target destinations not set"); 
@@ -76,10 +75,8 @@ public class PathMetricsExtractor {
 		boolean calcDistance = MatrixMetricsType.isSet(_metrics, MatrixMetricsType.Distance);
 		boolean calcWeight = MatrixMetricsType.isSet(_metrics, MatrixMetricsType.Weight);
 		
-		int[] targetNodes = dstData.getNodeIds();
-		
-		for (int target : targetNodes) {
-			SPTEntry goalEdge = targets.get(target);
+		for (int i = 0; i < targets.length; ++i) {
+			SPTEntry goalEdge = targets[i];
 			time = 0.0;
 			distance = 0.0;
 			weight = 0.0;

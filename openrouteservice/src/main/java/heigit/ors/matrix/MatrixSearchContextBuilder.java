@@ -89,6 +89,8 @@ public class MatrixSearchContextBuilder {
 					GHPoint3D pt = qr.getSnappedPoint();
 					ld.nodeId = qr.getClosestNode();
 					ld.location = new ResolvedLocation(new Coordinate(pt.getLon(), pt.getLat()), _resolveNames ? qr.getClosestEdge().getName(): null, qr.getQueryDistance());
+
+					queryResults.add(qr);
 				}
 				else
 				{
@@ -96,8 +98,6 @@ public class MatrixSearchContextBuilder {
 				}
 
 				_locationCache.put(p, ld);
-
-				queryResults.add(qr);
 			}
 		}
 	}

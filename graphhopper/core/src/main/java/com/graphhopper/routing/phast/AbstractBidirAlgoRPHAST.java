@@ -18,7 +18,6 @@
 package com.graphhopper.routing.phast;
 
 import com.carrotsearch.hppc.IntObjectMap;
-import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.util.CHEdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -26,7 +25,6 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
-import com.graphhopper.util.EdgeIteratorState;
 
 /**
  * Common subclass for bidirectional restricted PHAST.
@@ -50,9 +48,7 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmPH
 
 	abstract SubGraph createTargetGraph(int[] targets);
 
-	protected abstract double getCurrentFromWeight();
-
-	abstract boolean fillEdgesFrom();
+	abstract boolean upwardSearch();
 
 	abstract boolean downwardSearch();
 
@@ -67,13 +63,11 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmPH
 	 * @param from
 	 * @param intTargetMap
 	 * @param times
-	 * @param pos
 	 * @return
 	 */
-	public IntObjectMap<SPTEntry> calcMatrix(int from, int[] intTargetMap, SubGraph targetGraph, int pos) {
+	public SPTEntry[] calcPaths(int from, int[] to, SubGraph targetGraph) {
 		checkAlreadyRun();
 		IntObjectMap<SPTEntry> bestWeightMapFrom = init(from, 0);
-		IntObjectMap<SPTEntry> targetMap = new GHIntObjectHashMap<SPTEntry>(intTargetMap.length);
 		
 		setEdgeFilter(additionalEdgeFilter);
 		
@@ -86,16 +80,18 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmPH
 		
 		runDownwardSearch();
 
-		for (int target : intTargetMap) 
-			targetMap.put(target, bestWeightMapFrom.get(target));
+		SPTEntry[] targets = new SPTEntry[to.length];
+
+		for (int i = 0; i < to.length; i++)
+			targets[i] = bestWeightMapFrom.get(to[i]);
 		
-		return targetMap;
+		return targets;
 	}
 
 	protected void runAlgo() {
 		while (!isMaxVisitedNodesExceeded() && !finishedFrom) {
 			if (!finishedFrom)
-				finishedFrom = !fillEdgesFrom();
+				finishedFrom = !upwardSearch();
 		}
 	}
 
@@ -108,10 +104,5 @@ public abstract class AbstractBidirAlgoRPHAST extends AbstractRoutingAlgorithmPH
 	@Override
 	public int getVisitedNodes() {
 		return visitedCountFrom + visitedCountTo;
-	}
-
-	@Override
-	protected void updateBestPath(EdgeIteratorState edgeState, SPTEntry entryCurrent, int traversalId) {
-		throw new IllegalStateException("No path defined for RPHAST");
 	}
 }
