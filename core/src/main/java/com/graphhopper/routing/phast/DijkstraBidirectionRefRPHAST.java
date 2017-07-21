@@ -55,7 +55,6 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 
 		initCollections(size);
 		
-		
 		CHGraph chGraph = null;
 		if (graph instanceof CHGraph)
 			chGraph = (CHGraph)graph;
