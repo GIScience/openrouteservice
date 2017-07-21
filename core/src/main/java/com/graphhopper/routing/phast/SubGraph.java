@@ -2,6 +2,7 @@ package com.graphhopper.routing.phast;
 
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.storage.Graph;
 import com.graphhopper.util.ByteArrayBuffer;
 import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeExplorer;
@@ -11,11 +12,12 @@ import com.graphhopper.util.PointList;
 
 public class SubGraph {
 	private GHIntObjectHashMap<EdgeIteratorLink> _node2edgesMap;
-
+    private Graph _baseGraph;
+    
 	class EdgeIteratorLink  {
 		public EdgeIteratorState state;
 		public EdgeIteratorLink next;
-
+ 
 
 		public EdgeIteratorLink(EdgeIteratorState iterState)
 		{
@@ -211,32 +213,42 @@ public class SubGraph {
 		}
 	};
 
-	public SubGraph()
+	public SubGraph(Graph graph)
 	{
-		_node2edgesMap = new GHIntObjectHashMap<EdgeIteratorLink>(100);
+		_baseGraph = graph;
+		_node2edgesMap = new GHIntObjectHashMap<EdgeIteratorLink>(Math.min(Math.max(200, graph.getNodes() / 10), 2000));
 	}
 
-	public void addEdge(EdgeIteratorState iter, int adjNode)
+	/**
+	* Returns true/false depending on whether node is already in the graph or not.
+	*/
+	public boolean addEdge(int adjNode, EdgeIteratorState iter)
 	{
 		if (iter == null)
 		{
 			_node2edgesMap.put(adjNode, null);
-			return;
+			return true;
 		}
+		
+		EdgeIteratorState iterState = _baseGraph.getEdgeIteratorState(iter.getEdge(), adjNode);
+		adjNode = iter.getAdjNode();
 
 		EdgeIteratorLink link = _node2edgesMap.get(adjNode);
 		if (link == null)
 		{
-			link = new EdgeIteratorLink(iter);
+			link = new EdgeIteratorLink(iterState);
 
 			_node2edgesMap.put(adjNode, link);
+			return true;
 		}
 		else
 		{
 			while (link.next != null)
 				link = link.next;
 
-			link.next = new EdgeIteratorLink(iter);
+			link.next = new EdgeIteratorLink(iterState);
+
+			return false;
 		}
 	}
 

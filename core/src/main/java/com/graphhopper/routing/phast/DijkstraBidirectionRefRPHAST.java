@@ -21,7 +21,6 @@ import java.util.PriorityQueue;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
-import com.graphhopper.routing.PathBidirRef;
 import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.util.CHLevelEdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -32,7 +31,6 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
-import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Parameters;
 
 /**
@@ -46,13 +44,10 @@ import com.graphhopper.util.Parameters;
  */
 public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 	public IntObjectMap<SPTEntry> bestWeightMapFrom;
-	public IntObjectMap<SPTEntry> bestWeightMapOther;
 
 	protected SPTEntry currFrom;
 	protected SPTEntry currTo;
-	protected PathBidirRef bestPath;
-	PriorityQueue<SPTEntry> openSetFrom;
-	PriorityQueue<SPTEntry> openSetTo;
+	private PriorityQueue<SPTEntry> prioQueue;
 
 	public DijkstraBidirectionRefRPHAST(Graph graph, FlagEncoder encoder, Weighting weighting, TraversalMode tMode) {
 		super(graph, encoder, weighting, tMode);
@@ -78,16 +73,15 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 	}
 
 	protected void initCollections(int size) {
-		openSetFrom = new PriorityQueue<SPTEntry>(size);
+		prioQueue = new PriorityQueue<SPTEntry>(size);
 		bestWeightMapFrom = new GHIntObjectHashMap<SPTEntry>(size);
-		openSetTo = new PriorityQueue<SPTEntry>(size);
 	}
 
 	@Override
 	public IntObjectMap<SPTEntry> init(int from, double weight) {
 		currFrom = createSPTEntry(from, weight);
 		currFrom.visited = true;
-		openSetFrom.add(currFrom);
+		prioQueue.add(currFrom);
 
 		if (!traversalMode.isEdgeBased()) {
 			bestWeightMapFrom.put(from, currFrom);
@@ -107,9 +101,9 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 		// downwards pass. Keep parent refs for future use in distance
 		// extraction.
 		currTo = bestWeightMapFrom.get(to);
-		// currTo = createSPTEntry(to, weight);
 		currTo.visited = true;
-		openSetTo.add(currTo);
+		prioQueue.clear();
+		prioQueue.add(currTo);
 		if (!traversalMode.isEdgeBased()) {
 			bestWeightMapFrom.put(to, currTo);
 		} else if (currFrom != null && currFrom.adjNode == to) {
@@ -121,15 +115,10 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 		}
 	}
 
-	@Override
-	protected double getCurrentFromWeight() {
-		return currFrom.weight;
-	}
-
 	// Create target SubGraph from node ids
 	@Override
 	public SubGraph createTargetGraph(int[] targetNodes) {
-		SubGraph targetGraph = new SubGraph();
+		SubGraph targetGraph = new SubGraph(graph);
 		
 		PriorityQueue<Integer> prioQueue = new PriorityQueue<>(200);
 
@@ -141,13 +130,11 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 			int nodeId = targetNodes[i];
 			if (nodeId > 0)
 			{
-				targetGraph.addEdge(null, nodeId);
+				targetGraph.addEdge(nodeId, null);
 				prioQueue.add(nodeId);
 			}
 		}
 
-		setEdgeFilter(targetEdgeFilter);
-		 
      	while (!prioQueue.isEmpty()) {
 			int adjNode = prioQueue.poll();
 			EdgeIterator iter = targetEdgeExplorer.setBaseNode(adjNode);
@@ -156,11 +143,8 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 				if (!targetEdgeFilter.accept(iter))
 					continue;
 
-				if (!targetGraph.containsNode(iter.getAdjNode())) 
+				if (targetGraph.addEdge(adjNode, iter))
 					prioQueue.add(iter.getAdjNode());
-				
-				EdgeIteratorState st1 =	graph.getEdgeIteratorState(iter.getEdge(),  adjNode);
-				targetGraph.addEdge(st1, iter.getAdjNode());
 			}
 		}
 
@@ -168,12 +152,12 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 	}
 
 	@Override
-	public boolean fillEdgesFrom() {
-		if (openSetFrom.isEmpty()) {
+	public boolean upwardSearch() {
+		if (prioQueue.isEmpty()) {
 			return false;
 		}
-		currFrom = openSetFrom.poll();
-		fillEdges(currFrom, openSetFrom, bestWeightMapFrom, outEdgeExplorer, false);
+		currFrom = prioQueue.poll();
+		fillEdgesUpward(currFrom, prioQueue, bestWeightMapFrom, outEdgeExplorer, false);
 		visitedCountFrom++;
 
 		return true;
@@ -181,14 +165,12 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 
 	@Override
 	public boolean downwardSearch() {
-		if (openSetTo.isEmpty()) {
+		if (prioQueue.isEmpty()) {
 			return false;
 		}
 		 
-		currTo = openSetTo.poll();
-	
-		fillEdgesDownwards(currTo , openSetTo, bestWeightMapFrom, outEdgeExplorer, false);
-
+		currTo = prioQueue.poll();
+		fillEdgesDownward(currTo , prioQueue, bestWeightMapFrom, outEdgeExplorer, false);
 		visitedCountTo++;
 
 		return true;
@@ -205,10 +187,10 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 			return true;
 		}
 
-		return currFrom.weight + currTo.weight >= bestPath.getWeight();
+		return false;
 	}
-
-	private void fillEdges(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<SPTEntry> shortestWeightMap,
+	
+	private void fillEdgesUpward(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<SPTEntry> shortestWeightMap,
 			EdgeExplorer explorer, boolean reverse) {
 		EdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
 
@@ -241,7 +223,7 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 		}
 	}
 
-	private void fillEdgesDownwards(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue,
+	private void fillEdgesDownward(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue,
 			IntObjectMap<SPTEntry> shortestWeightMap, EdgeExplorer explorer, boolean reverse) {
 
 		EdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
@@ -285,14 +267,6 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 				ee.visited = true;
 			}
 		}
-	}
-
-	IntObjectMap<SPTEntry> getBestFromMap() {
-		return bestWeightMapFrom;
-	}
-
-	void setBestOtherMap(IntObjectMap<SPTEntry> other) {
-		bestWeightMapOther = other;
 	}
 
 	@Override
