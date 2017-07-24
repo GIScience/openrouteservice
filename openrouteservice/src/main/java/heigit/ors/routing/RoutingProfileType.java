@@ -18,7 +18,7 @@ public class RoutingProfileType {
 	public static final int DRIVING_ELECTRIC_CAR = 2;
 	public static final int DRIVING_HGV = 3;
 	public static final int DRIVING_MOTORCYCLE = 4;
-	public static final int DRIVING_OFFROAD = 5; // not supported
+	public static final int DRIVING_CAROFFROAD = 5; // not supported
 	public static final int DRIVING_SEGWAY = 6; // not supported
 	public static final int DRIVING_EMERGENCY = 7; 
 	
@@ -38,17 +38,19 @@ public class RoutingProfileType {
 
 	public static final int WHEELCHAIR = 30;
 	
+	
+
 	public static boolean isDriving(int routePref) {
 		if (routePref == DRIVING_CAR
-				|| routePref == DRIVING_HGV || routePref == DRIVING_ELECTRIC_CAR
-				|| routePref == DRIVING_MOTORCYCLE || routePref == DRIVING_OFFROAD || routePref == DRIVING_EMERGENCY)
+				|| routePref == DRIVING_HGV || routePref == DRIVING_ELECTRIC_CAR || routePref == DRIVING_EMERGENCY
+				|| routePref == DRIVING_MOTORCYCLE || routePref == DRIVING_CAROFFROAD)
 			return true;
 		else
 			return false;
 	}
 
 	public static boolean isHeavyVehicle(int routePref) {
-		if (routePref == DRIVING_HGV || routePref == DRIVING_OFFROAD || routePref == DRIVING_EMERGENCY)
+		if (routePref == DRIVING_HGV || routePref == DRIVING_CAROFFROAD || routePref  == DRIVING_EMERGENCY)
 			return true;
 		else
 			return false;
@@ -123,10 +125,10 @@ public class RoutingProfileType {
 			return DRIVING_HGV;
 		else if ("driving-motorcycle".equalsIgnoreCase(profileType)) 
 			return DRIVING_MOTORCYCLE;
-		else if ("driving-emergency".equalsIgnoreCase(profileType)) 
-			return DRIVING_EMERGENCY;
 		else if ("driving-traffic".equalsIgnoreCase(profileType)) 
 			return DRIVING_TRAFFIC;
+		else if ("driving-emergency".equalsIgnoreCase(profileType)) 
+			return DRIVING_EMERGENCY;
 
 		else if ("cycling-regular".equalsIgnoreCase(profileType)) 
 			return CYCLING_REGULAR;
@@ -155,41 +157,39 @@ public class RoutingProfileType {
 
 	public static String getEncoderName(int routePref) {
 		if (routePref == RoutingProfileType.DRIVING_CAR)
-			return "car";
+			return "CAR";
 		else if (routePref == RoutingProfileType.DRIVING_TRAFFIC)
-			return "cartmc";
+			return "CARTMC";
 		else if (routePref == RoutingProfileType.DRIVING_MOTORCYCLE) 
-			return "motorcycle";
+			return "MOTORCYCLE";
 		else if (routePref == RoutingProfileType.DRIVING_ELECTRIC_CAR)  
-			return "evehicle";
+			return "EVEHICLE";
 		else if (routePref == RoutingProfileType.DRIVING_HGV)  
-			return "heavyvehicle";
-		else if (routePref == RoutingProfileType.DRIVING_EMERGENCY)  
-			return "emergency";
-		else if (routePref == RoutingProfileType.DRIVING_OFFROAD)  
-			return "x_4_wd";
+			return "HEAVYVEHICLE";
+		else if (routePref == RoutingProfileType.DRIVING_CAROFFROAD)  
+			return "CAROFFROAD";
 		else if (routePref == RoutingProfileType.FOOT_WALKING)
-			return "foot";
+			return "FOOT";
 		else if (routePref == RoutingProfileType.FOOT_HIKING)
-			return "hiking";
+			return "HIKING";
 		else if (routePref == RoutingProfileType.FOOT_HIKING)
-			return "running";
+			return "RUNNING";
 		else if (routePref == RoutingProfileType.CYCLING_REGULAR)
-			return "bike";
+			return "BIKE";
 		else if (routePref == RoutingProfileType.CYCLING_MOUNTAIN)
-			return "mtb";
+			return "MTB";
 		else if (routePref == RoutingProfileType.CYCLING_ROAD)
-			return "racingbike";
+			return "RACINGBIKE";
 		else if (routePref == RoutingProfileType.CYCLING_TOUR) // custom
-			return "cycletourbike";
+			return "CYCLETOURBIKE";
 		else if (routePref == RoutingProfileType.CYCLING_SAFE) // custom
-			return "safetybike";
+			return "SAFETYBIKE";
 		else if (routePref == RoutingProfileType.CYCLING_ELECTRIC) // custom
-			return "electrobike";
+			return "ELECTROBIKE";
 		else if (routePref == RoutingProfileType.WHEELCHAIR) // custom
-			return "wheelchair";
+			return "WHEELCHAIR";
 
-		return "unknown";
+		return "UNKNOWN";
 	}
 	
 	public static int getFromEncoderName(String encoder) {
@@ -203,8 +203,8 @@ public class RoutingProfileType {
 			return RoutingProfileType.DRIVING_ELECTRIC_CAR;
 		else if ("HEAVYVEHICLE".equalsIgnoreCase(encoder))
 			return RoutingProfileType.DRIVING_HGV;
-		else if ("X_4_WD".equalsIgnoreCase(encoder))
-			return RoutingProfileType.DRIVING_OFFROAD;
+		else if ("CAROFFROAD".equalsIgnoreCase(encoder))
+			return RoutingProfileType.DRIVING_CAROFFROAD;
 		else if ("FOOT".equalsIgnoreCase(encoder))
 			return RoutingProfileType.FOOT_WALKING;
 		else if ("HIKING".equalsIgnoreCase(encoder))

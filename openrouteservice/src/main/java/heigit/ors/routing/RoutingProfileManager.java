@@ -51,7 +51,6 @@ import heigit.ors.util.RuntimeUtility;
 import heigit.ors.util.TimeUtility;
 
 import com.graphhopper.GHResponse;
-import com.graphhopper.PathWrapper;
 import com.graphhopper.routing.util.BikeCommonFlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.storage.RAMDataAccess;
