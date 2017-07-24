@@ -46,6 +46,8 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
      * http://wiki.openstreetmap.org/wiki/OSM_tags_for_routing/Maxspeed
      */
     protected final Map<String, Integer> defaultSpeedMap = new HashMap<String, Integer>();
+    
+    protected int maxTrackGradeLevel = 3;
 
     public CarFlagEncoder() {
         this(5, 5, 0);
@@ -58,6 +60,8 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
         this.properties = properties;
         this.setBlockFords(properties.getBool("block_fords", true));
         this.setBlockByDefault(properties.getBool("block_barriers", true));
+        
+        maxTrackGradeLevel = properties.getInt("maximum_grade_level", 3);
     }
 
     public CarFlagEncoder(String propertiesStr) {
@@ -213,8 +217,13 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
 
         if ("track".equals(highwayValue)) {
             String tt = way.getTag("tracktype");
-            if (tt != null && !tt.equals("grade1") && !tt.equals("grade2") && !tt.equals("grade3"))
-                return 0;
+            //if (tt != null && !tt.equals("grade1") && !tt.equals("grade2") && !tt.equals("grade3"))
+            if (tt != null)
+            {
+            	int grade = getTrackGradeLevel(tt);
+            	if (grade > maxTrackGradeLevel)
+            		return 0;
+            }
         }
 
         if (!defaultSpeedMap.containsKey(highwayValue))
@@ -255,6 +264,25 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
             return 0;
         else
             return acceptBit;
+    }
+    
+    protected int getTrackGradeLevel(String grade)
+    {
+    	switch(grade)
+    	{
+    	case "grade1":
+    		return 1;
+    	case "grade2":
+    		return 2;
+    	case "grade3":
+    		return 3;
+    	case "grade4":
+    		return 4;
+    	case "grade5":
+    		return 5;
+    	}
+
+    	return 0;
     }
 
     @Override
