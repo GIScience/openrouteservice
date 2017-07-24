@@ -42,7 +42,7 @@ public class LocationsServiceSettings
 		if (value != null)
 			providerName = value;
 		
-		providerParameters = AppConfig.Global().getServiceParametersMap("locations", "provider_parameters");
+		providerParameters = AppConfig.Global().getServiceParametersMap("locations", "provider_parameters", false);
 
 		value = AppConfig.Global().getServiceParameter("locations", "maximum_categories");
 		if (value != null)

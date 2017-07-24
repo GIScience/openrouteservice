@@ -113,7 +113,7 @@ public class AppConfig {
 	}
 	
 
-	public Map<String,Object> getServiceParametersMap(String serviceName, String paramName)
+	public Map<String,Object> getServiceParametersMap(String serviceName, String paramName, boolean quotedStrings)
 	{
 		Map<String,Object> result = null;
 		
@@ -135,14 +135,17 @@ public class AppConfig {
 					value = paramValue.unwrapped();
 					break;
 				case OBJECT:
-					Map<String,Object> map = getServiceParametersMap(serviceName, paramName + "." + key);
+					Map<String,Object> map = getServiceParametersMap(serviceName, paramName + "." + key, quotedStrings);
 					value = map;
 					break;
 				case LIST:
 					value = paramValue.unwrapped();
 					break;
 				case STRING:
-					value = StringUtility.trim(paramValue.render(), '"');
+					if (quotedStrings)
+						value = paramValue.render();
+					else
+						value = StringUtility.trim(paramValue.render(), '"');
 					break;
 				case BOOLEAN:
 					value = paramValue.unwrapped();

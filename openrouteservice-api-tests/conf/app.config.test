@@ -101,7 +101,7 @@
 								{
 									enabled: true,
 									threads: 1,
-									weightings: "fastest|shortest",
+									weightings: "fastest,shortest",
 									landmarks: 16
 								}
 							}
@@ -142,7 +142,7 @@
 									{
 										enabled: true,
 										threads: 1,
-										weightings: "fastest|shortest",
+										weightings: "fastest,shortest",
 										landmarks: 16
 									}
 								}

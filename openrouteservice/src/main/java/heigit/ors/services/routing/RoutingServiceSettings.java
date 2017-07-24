@@ -119,9 +119,9 @@ public class RoutingServiceSettings {
 	   return _config.getDoubleList("routing", paramName);	
 	}
 	
-	public static Map<String, Object> getParametersMap(String paramName) 
+	public static Map<String, Object> getParametersMap(String paramName, boolean quotedStrings) 
 	{
-	   return _config.getServiceParametersMap("routing", paramName);	
+	   return _config.getServiceParametersMap("routing", paramName, quotedStrings);	
 	}
 	
  	public static String getAttribution() {

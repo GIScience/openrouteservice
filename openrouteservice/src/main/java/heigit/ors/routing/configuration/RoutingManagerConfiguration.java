@@ -13,6 +13,7 @@ import com.vividsolutions.jts.geom.Envelope;
 
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.FileUtility;
+import heigit.ors.util.StringUtility;
 
 public class RoutingManagerConfiguration 
 {
@@ -30,8 +31,8 @@ public class RoutingManagerConfiguration
 		// Read profile settings
 		List<RouteProfileConfiguration> profiles = new ArrayList<RouteProfileConfiguration>();
 		List<String> profileList = RoutingServiceSettings.getParametersList("profiles.active");
-		Map<String,Object> defaultParams = RoutingServiceSettings.getParametersMap("profiles.default_params");
-		String rootGraphsPath = (defaultParams != null && defaultParams.containsKey("graphs_root_path")) ? defaultParams.get("graphs_root_path").toString() : null;
+		Map<String,Object> defaultParams = RoutingServiceSettings.getParametersMap("profiles.default_params", true);
+		String rootGraphsPath = (defaultParams != null && defaultParams.containsKey("graphs_root_path")) ? StringUtility.trim(defaultParams.get("graphs_root_path").toString(), '"') : null;
 
 		for(String item : profileList)
 		{
@@ -53,7 +54,7 @@ public class RoutingManagerConfiguration
 
 			profile.setGraphPath(graphPath);
 
-			Map<String, Object> profileParams = RoutingServiceSettings.getParametersMap(profileRef + ".parameters");
+			Map<String, Object> profileParams = RoutingServiceSettings.getParametersMap(profileRef + ".parameters", true);
 
 			if (profileParams == null)
 				profileParams = defaultParams;

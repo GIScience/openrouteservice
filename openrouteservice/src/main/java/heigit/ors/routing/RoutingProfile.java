@@ -242,8 +242,8 @@ public class RoutingProfile
 						if (chOpts.hasPath("threads"))
 							args.put("prepare.ch.threads", chOpts.getInt("threads"));
 						if (chOpts.hasPath("weightings"))
-							args.put("prepare.ch.weightings", chOpts.getString("weightings").replace("|", ","));
-
+							args.put("prepare.ch.weightings", chOpts.getString("weightings"));
+						
 						prepareCH = true;
 					}
 				}
@@ -256,7 +256,7 @@ public class RoutingProfile
 						if (lmOpts.hasPath("threads"))
 							args.put("prepare.lm.threads", lmOpts.getInt("threads"));
 						if (lmOpts.hasPath("weightings"))
-							args.put("prepare.lm.weightings", lmOpts.getString("weightings").replace("|", ","));
+							args.put("prepare.lm.weightings", lmOpts.getString("weightings"));
 						if (lmOpts.hasPath("landmarks"))
 							args.put("prepare.lm.landmarks", lmOpts.getInt("landmarks"));
 

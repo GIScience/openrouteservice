@@ -52,7 +52,7 @@ public class OptimizationServiceSettings {
 		
 		value = AppConfig.Global().getServiceParameter("optimization", "solver_options");
 		if (value != null)
-			solverOptions = _config.getServiceParametersMap("optimization", "solver_options");
+			solverOptions = _config.getServiceParametersMap("optimization", "solver_options", false);
 		
 		value = config.getServiceParameter("optimization", "attribution");
 		if (value != null)
