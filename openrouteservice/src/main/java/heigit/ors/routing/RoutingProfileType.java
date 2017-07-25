@@ -168,6 +168,8 @@ public class RoutingProfileType {
 			return "HEAVYVEHICLE";
 		else if (routePref == RoutingProfileType.DRIVING_CAROFFROAD)  
 			return "CAROFFROAD";
+		else if (routePref == RoutingProfileType.DRIVING_EMERGENCY)  
+			return "EMERGENCY";
 		else if (routePref == RoutingProfileType.FOOT_WALKING)
 			return "FOOT";
 		else if (routePref == RoutingProfileType.FOOT_HIKING)

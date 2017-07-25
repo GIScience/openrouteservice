@@ -80,7 +80,7 @@ public class RoutingManagerConfiguration
 						profile.setExecutionOpts(ConfigFactory.parseString(paramItem.getValue().toString()));
 						break;
 					case "encoder_options":
-						profile.setEncoderOptions(paramItem.getValue().toString());
+						profile.setEncoderOptions(StringUtility.trimQuotes(paramItem.getValue().toString()));
 						break;
 					case "optimize":
 						profile.setOptimize(Boolean.parseBoolean(paramItem.getValue().toString()));
@@ -121,7 +121,7 @@ public class RoutingManagerConfiguration
 							{		
 								for(Map.Entry<String, Object> entry : entryValue.entrySet())
 								{	
-									storageParams.put(entry.getKey(), entry.getValue().toString());
+									storageParams.put(entry.getKey(), StringUtility.trimQuotes(entry.getValue().toString()));
 								}
 							}
 
@@ -142,7 +142,7 @@ public class RoutingManagerConfiguration
 							{		
 								for(Map.Entry<String, Object> entry : entryValue.entrySet())
 								{	
-									storageParams.put(entry.getKey(), entry.getValue().toString());
+									storageParams.put(entry.getKey(), StringUtility.trimQuotes(entry.getValue().toString()));
 								}
 							}
 

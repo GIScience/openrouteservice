@@ -46,6 +46,11 @@ public class StringUtility {
 		return containsDigit;
 	}
 	
+	public static String trimQuotes(String str)
+	{
+		return trim(str, '"');  
+	}
+	
 	public static String trim(String str, char ch) {
 		if (str == null)
 			return null;
