@@ -13,9 +13,8 @@ package heigit.ors.matrix.algorithms.rphast;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
-import com.graphhopper.routing.ch.PrepareContractionHierarchies.DijkstraBidirectionCHRPHAST;
-import com.graphhopper.routing.phast.SubGraph;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
@@ -26,6 +25,7 @@ import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
 import heigit.ors.matrix.PathMetricsExtractor;
 import heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
+import heigit.ors.routing.algorithms.RPHASTAlgorithm;
 
 public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 	private PrepareContractionHierarchies _prepareCH;
@@ -54,23 +54,32 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 			distances = new float[tableSize];
 		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Weight))
 			weights = new float[tableSize];
-
-		DijkstraBidirectionCHRPHAST algorithm = _prepareCH.createRPHAST(_graph, _encoder); 
-		// Compute target tree only once as it is the same for every source
-		SubGraph targetGraph = algorithm.createTargetGraph(dstData.getNodeIds());
-        int sourceId = -1; 
-        
-		for (int srcIndex = 0; srcIndex < srcData.size(); srcIndex++) {
-			sourceId = srcData.getNodeId(srcIndex);
-			if (sourceId == -1)
-			{
+ 
+		if (!srcData.hasValidNodes() || !dstData.hasValidNodes())
+		{
+			for (int srcIndex = 0; srcIndex < srcData.size(); srcIndex++) 
 				_pathMetricsExtractor.setEmptyValues(srcIndex, srcData, dstData, times, distances, weights);
-			}
-			else
-			{  
-				algorithm = _prepareCH.createRPHAST(_graph, _encoder);
-				SPTEntry[] destTrees = algorithm.calcPaths(sourceId, dstData.getNodeIds(), targetGraph);
-				_pathMetricsExtractor.calcValues(srcIndex, destTrees, srcData, dstData, times, distances, weights); 
+		}
+		else
+		{
+			RPHASTAlgorithm algorithm = new RPHASTAlgorithm(_graph, _prepareCH.getPrepareWeighting(), TraversalMode.NODE_BASED);
+			// Compute target tree only once as it is the same for every source
+			algorithm.prepare(srcData.getNodeIds(), dstData.getNodeIds());
+			
+			int sourceId = -1; 
+
+			for (int srcIndex = 0; srcIndex < srcData.size(); srcIndex++) {
+				sourceId = srcData.getNodeId(srcIndex);
+				if (sourceId == -1)
+				{
+					_pathMetricsExtractor.setEmptyValues(srcIndex, srcData, dstData, times, distances, weights);
+				}
+				else
+				{  
+					algorithm.reset();
+					SPTEntry[] destTrees = algorithm.calcPaths(sourceId, dstData.getNodeIds());
+					_pathMetricsExtractor.calcValues(srcIndex, destTrees, srcData, dstData, times, distances, weights); 
+				}
 			}
 		}
 

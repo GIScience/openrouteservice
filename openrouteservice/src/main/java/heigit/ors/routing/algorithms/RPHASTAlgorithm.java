@@ -1,21 +1,4 @@
-/*
- *  Licensed to GraphHopper GmbH under one or more contributor
- *  license agreements. See the NOTICE file distributed with this work for 
- *  additional information regarding copyright ownership.
- * 
- *  GraphHopper GmbH licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in 
- *  compliance with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
-package com.graphhopper.routing.phast;
+package heigit.ors.routing.algorithms;
 
 import java.util.PriorityQueue;
 
@@ -31,26 +14,24 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
-import com.graphhopper.util.Parameters;
 
-/**
- * Calculates distances one-to-many.
- * <p>
- * 'Ref' stands for reference implementation and is using the normal
- * Java-'reference'-way.
- * <p>
- *
- * @author Peter Karich, Hendrik Leuschner
- */
-public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
-	public IntObjectMap<SPTEntry> bestWeightMapFrom;
-
+public class RPHASTAlgorithm extends AbstractOneToManyRoutingAlgorithm {
+	private IntObjectMap<SPTEntry> bestWeightMapFrom;
 	protected SPTEntry currFrom;
 	protected SPTEntry currTo;
-	private PriorityQueue<SPTEntry> prioQueue;
-
-	public DijkstraBidirectionRefRPHAST(Graph graph, FlagEncoder encoder, Weighting weighting, TraversalMode tMode) {
-		super(graph, encoder, weighting, tMode);
+	protected PriorityQueue<SPTEntry> prioQueue;
+	protected CHLevelEdgeFilter upwardEdgeFilter;
+	protected CHLevelEdgeFilter downwardEdgeFilter;
+	protected SubGraph targetGraph;
+	
+	protected boolean finishedFrom;
+	protected boolean finishedTo;
+	protected int visitedCountFrom;
+	protected int visitedCountTo;
+	
+	public RPHASTAlgorithm(Graph graph, Weighting weighting, TraversalMode traversalMode) {
+		super(graph, weighting, traversalMode);
+		
 		int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
 
 		initCollections(size);
@@ -65,19 +46,134 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 		}
 					
 		setMaxVisitedNodes(Integer.MAX_VALUE);
-		setEdgeFilter(new CHLevelEdgeFilter(chGraph, encoder));
+		FlagEncoder encoder = weighting.getFlagEncoder();
 		
-		targetEdgeFilter = new CHLevelEdgeFilter(chGraph, encoder);
-		targetEdgeFilter.setBackwardSearch(true);
+		upwardEdgeFilter = new CHLevelEdgeFilter(chGraph, encoder);
+		downwardEdgeFilter = new CHLevelEdgeFilter(chGraph, encoder);
+		downwardEdgeFilter.setBackwardSearch(true);
+		
+		inEdgeExplorer = graph.createEdgeExplorer();
+		outEdgeExplorer =  graph.createEdgeExplorer();
 	}
 
 	protected void initCollections(int size) {
 		prioQueue = new PriorityQueue<SPTEntry>(size);
 		bestWeightMapFrom = new GHIntObjectHashMap<SPTEntry>(size);
 	}
+	
+	@Override
+	public void reset()
+	{
+		finishedFrom = false;
+		finishedTo = false;
+		prioQueue.clear();
+		bestWeightMapFrom.clear();
+	}
 
 	@Override
-	public IntObjectMap<SPTEntry> init(int from, double weight) {
+	public void prepare(int[] sources, int[] targets) {
+		targetGraph = new SubGraph(graph);
+		
+		PriorityQueue<Integer> prioQueue = new PriorityQueue<>(200);
+
+		addNodes(targetGraph, prioQueue, targets);
+
+     	while (!prioQueue.isEmpty()) {
+			int adjNode = prioQueue.poll();
+			EdgeIterator iter = outEdgeExplorer.setBaseNode(adjNode);
+			 
+			while (iter.next()) {
+				if (!downwardEdgeFilter.accept(iter))
+					continue;
+
+				if (targetGraph.addEdge(adjNode, iter, true))
+					prioQueue.add(iter.getAdjNode());
+			}
+		}
+     	
+     	addNodes(null, prioQueue, sources);
+  
+     	targetGraph.print();
+	}
+	
+	private void addNodes(SubGraph graph, PriorityQueue<Integer> prioQueue, int[] nodes)
+	{
+		for (int i = 0; i < nodes.length; i++) 
+		{
+			int nodeId = nodes[i];
+			if (nodeId >= 0)
+			{
+				if (graph != null)
+					graph.addEdge(nodeId, null, true);
+				prioQueue.add(nodeId);
+			}
+		}
+	}
+
+	protected void runUpwardSearch() {
+		while (!isMaxVisitedNodesExceeded() && !finishedFrom) {
+				finishedFrom = !upwardSearch();
+		}
+	}
+
+	protected void runDownwardSearch() {
+		while (!finishedTo) {
+			finishedTo = !downwardSearch();
+		}
+	}
+
+	@Override
+	public int getVisitedNodes() {
+		return visitedCountFrom + visitedCountTo;
+	}
+
+	private boolean upwardSearch() {
+		if (prioQueue.isEmpty()) {
+
+			return false;
+		}
+		currFrom = prioQueue.poll();
+		fillEdgesUpward(currFrom, prioQueue, bestWeightMapFrom, outEdgeExplorer, false);
+		visitedCountFrom++;
+		return true;
+	}
+
+	private boolean downwardSearch() {
+		if (prioQueue.isEmpty()) {
+
+			return false;
+		}
+		currTo = prioQueue.poll();
+		fillEdgesDownward(currTo, prioQueue, bestWeightMapFrom, inEdgeExplorer, false);
+		visitedCountTo++;
+
+		return true;
+	}
+	
+	@Override
+	public SPTEntry[] calcPaths(int from, int[] to) {
+		initUpwardSearch(from, 0);
+		
+		runUpwardSearch(); 
+		
+		initDownwardSearch(upwardEdgeFilter.getHighestNode());
+  
+		EdgeExplorer tmpExplorer = inEdgeExplorer;
+		inEdgeExplorer = targetGraph.createExplorer();
+		
+		runDownwardSearch();
+		
+		inEdgeExplorer = tmpExplorer;
+
+		SPTEntry[] targets = new SPTEntry[to.length];
+
+		for (int i = 0; i < to.length; i++)
+			targets[i] = bestWeightMapFrom.get(to[i]);
+		
+		return targets;
+	}
+	
+	public void initUpwardSearch(int from, double weight) {
 		currFrom = createSPTEntry(from, weight);
 		currFrom.visited = true;
 		prioQueue.add(currFrom);
@@ -91,11 +187,9 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 			finishedFrom = true;
 			finishedTo = true;
 		}
-		return bestWeightMapFrom;
 	}
-
-	@Override
-	public void initDownwardSearch(int to) {
+	
+	private void initDownwardSearch(int to) {
 		// Set the highest node from the upwards pass as the start node for the
 		// downwards pass. Keep parent refs for future use in distance
 		// extraction.
@@ -114,87 +208,15 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 		}
 	}
 
-	// Create target SubGraph from node ids
-	@Override
-	public SubGraph createTargetGraph(int[] targetNodes) {
-		SubGraph targetGraph = new SubGraph(graph);
-		
-		PriorityQueue<Integer> prioQueue = new PriorityQueue<>(200);
-
-		// At the start, the targetGraph and the prioQueue both equal the given
-		// targets 
-
-		for (int i = 0; i < targetNodes.length; i++) 
-		{
-			int nodeId = targetNodes[i];
-			if (nodeId > 0)
-			{
-				targetGraph.addEdge(nodeId, null);
-				prioQueue.add(nodeId);
-			}
-		}
-
-     	while (!prioQueue.isEmpty()) {
-			int adjNode = prioQueue.poll();
-			EdgeIterator iter = targetEdgeExplorer.setBaseNode(adjNode);
-			 
-			while (iter.next()) {
-				if (!targetEdgeFilter.accept(iter))
-					continue;
-
-				if (targetGraph.addEdge(adjNode, iter))
-					prioQueue.add(iter.getAdjNode());
-			}
-		}
-
-		return targetGraph;
-	}
-
-	@Override
-	public boolean upwardSearch() {
-		if (prioQueue.isEmpty()) {
-			return false;
-		}
-		currFrom = prioQueue.poll();
-		fillEdgesUpward(currFrom, prioQueue, bestWeightMapFrom, outEdgeExplorer, false);
-		visitedCountFrom++;
-
-		return true;
-	}
-
-	@Override
-	public boolean downwardSearch() {
-		if (prioQueue.isEmpty()) {
-			return false;
-		}
-		 
-		currTo = prioQueue.poll();
-		fillEdgesDownward(currTo , prioQueue, bestWeightMapFrom, outEdgeExplorer, false);
-		visitedCountTo++;
-
-		return true;
-	}
-
-	// http://www.cs.princeton.edu/courses/archive/spr06/cos423/Handouts/EPP%20shortest%20path%20algorithms.pdf
-	// a node from overlap may not be on the best path!
-	// => when scanning an arc (v, w) in the forward search and w is scanned in
-	// the reverseOrder
-	// search, update extractPath = μ if df (v) + (v, w) + dr (w) < μ
-	@Override
-	public boolean finished() {
-		if (finishedFrom) {
-			return true;
-		}
-
-		return false;
-	}
-	
 	private void fillEdgesUpward(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<SPTEntry> shortestWeightMap,
 			EdgeExplorer explorer, boolean reverse) {
 		EdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
 
+		if (iter == null) // we reach one of the target nodes
+			return;
+		
 		while (iter.next()) {
-			if (!additionalEdgeFilter.accept(iter)) 
+			if (!upwardEdgeFilter.accept(iter)) 
 				continue;
 
 			double tmpWeight = weighting.calcWeight(iter, reverse, currEdge.edge) + currEdge.weight;
@@ -203,7 +225,7 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 				continue;
 
 			// Keep track of the currently found highest CH level node
-			additionalEdgeFilter.updateHighestNode(iter);
+			upwardEdgeFilter.updateHighestNode(iter);
 
 			SPTEntry ee = shortestWeightMap.get(iter.getAdjNode());
 
@@ -266,10 +288,5 @@ public class DijkstraBidirectionRefRPHAST extends AbstractBidirAlgoRPHAST {
 				ee.visited = true;
 			}
 		}
-	}
-
-	@Override
-	public String getName() {
-		return Parameters.Algorithms.DIJKSTRA_BI;
 	}
 }

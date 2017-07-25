@@ -1,5 +1,9 @@
-package com.graphhopper.routing.phast;
+package heigit.ors.routing.algorithms;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.Graph;
@@ -11,13 +15,15 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
 
 public class SubGraph {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
 	private GHIntObjectHashMap<EdgeIteratorLink> _node2edgesMap;
-    private Graph _baseGraph;
-    
+	private Graph _baseGraph;
+
 	class EdgeIteratorLink  {
 		public EdgeIteratorState state;
 		public EdgeIteratorLink next;
- 
+
 
 		public EdgeIteratorLink(EdgeIteratorState iterState)
 		{
@@ -220,18 +226,19 @@ public class SubGraph {
 	}
 
 	/**
-	* Returns true/false depending on whether node is already in the graph or not.
-	*/
-	public boolean addEdge(int adjNode, EdgeIteratorState iter)
+	 * Returns true/false depending on whether node is already in the graph or not.
+	 */
+	public boolean addEdge(int adjNode, EdgeIteratorState iter, boolean reverse)
 	{
 		if (iter == null)
 		{
 			_node2edgesMap.put(adjNode, null);
 			return true;
 		}
-		
+
 		EdgeIteratorState iterState = _baseGraph.getEdgeIteratorState(iter.getEdge(), adjNode);
-		adjNode = iter.getAdjNode();
+		if (reverse)
+			adjNode = iter.getAdjNode();
 
 		EdgeIteratorLink link = _node2edgesMap.get(adjNode);
 		if (link == null)
@@ -266,5 +273,26 @@ public class SubGraph {
 	public EdgeExplorer createExplorer()
 	{
 		return new SubGraphEdgeExplorer(this);
+	}
+
+	public void print()
+	{
+		int edgesCount = 0;
+
+		EdgeExplorer explorer = createExplorer();
+
+		for (IntObjectCursor<?> node : _node2edgesMap) {
+			EdgeIterator iter = explorer.setBaseNode(node.key);
+
+			if (iter != null)
+			{
+				while (iter.next())
+				{
+					edgesCount++;
+				}
+			}
+		}
+
+		logger.info("SubGraph: nodes - " + _node2edgesMap.size() + "; edges - " + edgesCount);
 	}
 }

@@ -205,7 +205,7 @@ public class RoutingProfile
 		return graph.getCapacity() + GraphStorageUtils.getCapacity(graph.getExtension());
 	}
 
-	private static CmdArgs createGHSettings(String sourceFile, RouteProfileConfiguration config)
+	private static CmdArgs createGHSettings(String sourceFile, RouteProfileConfiguration config)  
 	{
 		CmdArgs args = new CmdArgs();
 		args.put("graph.dataaccess", "RAM_STORE");
@@ -299,6 +299,7 @@ public class RoutingProfile
 		String flagEncoders = "";
 		String[] encoderOpts = !Helper.isEmpty(config.getEncoderOptions()) ? config.getEncoderOptions().split(",") : null;
 		Integer[] profiles = config.getProfilesTypes();
+		
 		for (int i = 0; i < profiles.length; i++)
 		{
 			if (encoderOpts == null)

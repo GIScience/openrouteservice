@@ -2,7 +2,7 @@
  *|														Heidelberg University
  *|	  _____ _____  _____      _                     	Department of Geography		
  *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
- *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2016
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2017
  *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
  *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
  *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
@@ -13,6 +13,7 @@ package heigit.ors.services.accessibility;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
+import heigit.ors.common.NamedLocation;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.locations.LocationsRequest;
 import heigit.ors.services.ServiceRequest;
@@ -20,8 +21,11 @@ import heigit.ors.services.routing.RoutingRequest;
 
 public class AccessibilityRequest extends ServiceRequest
 {
-	private LocationsRequest _locationsRequest;
 	private RoutingRequest _routingRequest;
+    // Destination points specified either by a user defined locations or by POI search filter
+	private LocationsRequest _locationsRequest;
+	private NamedLocation[] _userLocations;
+	// Starting points of accessibility analysis
 	private Coordinate[] _locations;
 	private String _locationType = "start"; // either start or destination
 	private double _range;
@@ -93,5 +97,13 @@ public class AccessibilityRequest extends ServiceRequest
 
 	public void setRoutesFormat(String routesFormat) {
 		_routesFormat = routesFormat;
+	}
+
+	public NamedLocation[] getUserLocations() {
+		return _userLocations;
+	}
+
+	public void setUserLocations(NamedLocation[] userLocations) {
+		_userLocations = userLocations;
 	}
 }

@@ -25,7 +25,7 @@ public class PathMetricsExtractor {
 	private double _edgeTime;
 	private DistanceUnit _distUnits;
 	private boolean _reverseOrder = true;
-	private boolean _unpackDistance = true;
+	private boolean _unpackDistance = false;
 
 	public PathMetricsExtractor(int metrics, Graph graph, FlagEncoder encoder, Weighting weighting, DistanceUnit units)
 	{
@@ -80,7 +80,7 @@ public class PathMetricsExtractor {
 			time = 0.0;
 			distance = 0.0;
 			weight = 0.0;
- 
+			
 			if (goalEdge != null) {
 				while (EdgeIterator.Edge.isValid(goalEdge.edge)) {
 					if (_chGraph != null)
@@ -88,7 +88,7 @@ public class PathMetricsExtractor {
 						CHEdgeIteratorState iterState = (CHEdgeIteratorState)_graph.getEdgeIteratorState(goalEdge.edge, goalEdge.adjNode);
   
 						if (!_unpackDistance && calcDistance)
-							distance += (_distUnits == DistanceUnit.Meters) ? iterState.getDistance(): DistanceUnitUtil.convert(iterState.getDistance(), DistanceUnit.Meters, _distUnits);
+							distance += (_distUnits == DistanceUnit.Meters) ? iterState.getDistance() : DistanceUnitUtil.convert(iterState.getDistance(), DistanceUnit.Meters, _distUnits);
 
 						if (calcWeight || calcTime || _unpackDistance)
 						{
