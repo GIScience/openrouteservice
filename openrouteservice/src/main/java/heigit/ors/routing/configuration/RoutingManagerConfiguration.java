@@ -94,14 +94,14 @@ public class RoutingManagerConfiguration
 					case "elevation":
 						if (Boolean.parseBoolean(paramItem.getValue().toString()))
 						{
-							profile.setElevationProvider(profileParams.get("elevation_provider").toString());
+							profile.setElevationProvider(StringUtility.trimQuotes(profileParams.get("elevation_provider").toString()));
 							if (profileParams.get("elevation_data_access") != null)
-								profile.setElevationDataAccess(profileParams.get("elevation_data_access").toString());
-							profile.setElevationCachePath(profileParams.get("elevation_cache_path").toString());
+								profile.setElevationDataAccess( StringUtility.trimQuotes(profileParams.get("elevation_data_access").toString()));
+							profile.setElevationCachePath( StringUtility.trimQuotes(profileParams.get("elevation_cache_path").toString()));
 
 							if (profileParams.get("elevation_cache_clear") != null)
 							{
-								String clearCache = profileParams.get("elevation_cache_clear").toString();
+								String clearCache =  StringUtility.trimQuotes(profileParams.get("elevation_cache_clear").toString());
 								if (!Helper.isEmpty(clearCache))
 									profile.setElevationCacheClear(Boolean.parseBoolean(clearCache));
 							}

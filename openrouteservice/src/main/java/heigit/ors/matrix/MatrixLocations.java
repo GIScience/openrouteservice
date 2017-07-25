@@ -14,6 +14,7 @@ package heigit.ors.matrix;
 public class MatrixLocations {
 	private int[] _nodeIds;
 	private ResolvedLocation[] _locations;
+	private boolean _hasValidNodes = false;
 
 	public MatrixLocations(int size, boolean resolveNames)
 	{
@@ -45,10 +46,13 @@ public class MatrixLocations {
 	{
 		_nodeIds[index] = nodeId;
 		_locations[index] = location;
+		
+		if (nodeId >= 0 && !_hasValidNodes)
+			_hasValidNodes = true;
 	}
 	
-	public void updateNodeId(int index, int nodeId)
+	public boolean hasValidNodes()
 	{
-		_nodeIds[index] = nodeId;
+		return _hasValidNodes;
 	}
 }

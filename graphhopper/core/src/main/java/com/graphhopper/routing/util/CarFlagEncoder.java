@@ -268,8 +268,32 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
     
     protected int getTrackGradeLevel(String grade)
     {
+    	if (grade == null)
+    		return 0; 
+    	 
+    	if (grade.contains(";")) // grade3;grade2
+    	{
+    		int maxGrade = 0; 
+    		
+    		try
+    		{
+    			String[] values = grade.split(";"); 
+    			for(String v : values)
+    			{
+    		       int iv = Integer.parseInt(v.replace("grade","").trim());
+    		       if (iv > maxGrade)
+    		    	   maxGrade = iv;
+    			}
+    			
+    			return maxGrade;
+    		}
+    		catch(Exception ex)
+    		{}
+    	}
+
     	switch(grade)
     	{
+    	case "grade":
     	case "grade1":
     		return 1;
     	case "grade2":
@@ -280,9 +304,11 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
     		return 4;
     	case "grade5":
     		return 5;
+    	case "grade6":
+    		return 6;
     	}
-
-    	return 0;
+    	
+    	return 10;
     }
 
     @Override

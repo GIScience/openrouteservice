@@ -67,6 +67,7 @@ import heigit.ors.services.matrix.MatrixServiceSettings;
 import heigit.ors.services.optimization.OptimizationServiceSettings;
 import heigit.ors.util.DebugUtility;
 import heigit.ors.util.RuntimeUtility;
+import heigit.ors.util.StringUtility;
 import heigit.ors.util.TimeUtility;
 
 import com.graphhopper.GHRequest;
@@ -216,9 +217,9 @@ public class RoutingProfile
 			args.put("instructions", false);
 		if (config.getElevationProvider() != null&& config.getElevationCachePath() != null)
 		{
-			args.put("graph.elevation.provider", config.getElevationProvider());
-			args.put("graph.elevation.cache_dir", config.getElevationCachePath());
-			args.put("graph.elevation.dataaccess", config.getElevationDataAccess());
+			args.put("graph.elevation.provider", StringUtility.trimQuotes(config.getElevationProvider()));
+			args.put("graph.elevation.cache_dir", StringUtility.trimQuotes(config.getElevationCachePath()));
+			args.put("graph.elevation.dataaccess", StringUtility.trimQuotes(config.getElevationDataAccess()));
 		}
 
 		boolean prepareCH = false;
@@ -242,7 +243,7 @@ public class RoutingProfile
 						if (chOpts.hasPath("threads"))
 							args.put("prepare.ch.threads", chOpts.getInt("threads"));
 						if (chOpts.hasPath("weightings"))
-							args.put("prepare.ch.weightings", chOpts.getString("weightings"));
+							args.put("prepare.ch.weightings", StringUtility.trimQuotes(chOpts.getString("weightings")));
 						
 						prepareCH = true;
 					}
@@ -256,7 +257,7 @@ public class RoutingProfile
 						if (lmOpts.hasPath("threads"))
 							args.put("prepare.lm.threads", lmOpts.getInt("threads"));
 						if (lmOpts.hasPath("weightings"))
-							args.put("prepare.lm.weightings", lmOpts.getString("weightings"));
+							args.put("prepare.lm.weightings", StringUtility.trimQuotes(lmOpts.getString("weightings")));
 						if (lmOpts.hasPath("landmarks"))
 							args.put("prepare.lm.landmarks", lmOpts.getInt("landmarks"));
 
@@ -479,7 +480,7 @@ public class RoutingProfile
 		
 		if (alg == null)
 			throw new Exception("Unable to create an algorithm to for computing distance/duration matrix.");
-
+		
 		try
 		{ 
 			String weightingStr =  Helper.isEmpty(req.getWeightingMethod()) ? "fastest" : req.getWeightingMethod();
