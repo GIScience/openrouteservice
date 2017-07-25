@@ -19,8 +19,6 @@ package com.graphhopper.routing.ch;
 
 import com.graphhopper.coll.GHTreeMapComposed;
 import com.graphhopper.routing.*;
-import com.graphhopper.routing.phast.DijkstraBidirectionRefPHAST;
-import com.graphhopper.routing.phast.DijkstraBidirectionRefRPHAST;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.Weighting;
@@ -375,6 +373,11 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     public Weighting getWeighting() {
         return prepareGraph.getWeighting();
     }
+    
+    public Weighting getPrepareWeighting()
+    {
+    	return prepareWeighting;
+    }
 
     public void close() {
         prepareAlgo.close();
@@ -662,20 +665,6 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
         algo.setEdgeFilter(levelFilter);
         return algo;
     }
-    
-	public DijkstraBidirectionCHPHAST createPHAST(CHGraph chGraph, FlagEncoder encoder) {
-		DijkstraBidirectionCHPHAST algo = new DijkstraBidirectionCHPHAST(chGraph, encoder, prepareWeighting, traversalMode);
-
-		algo.setMaxVisitedNodes(Integer.MAX_VALUE);
-		algo.setEdgeFilter(new com.graphhopper.routing.util.CHLevelEdgeFilter(chGraph, encoder));
-		return algo;
-	}
-
-	public DijkstraBidirectionCHRPHAST createRPHAST(Graph graph, FlagEncoder encoder) {
-		DijkstraBidirectionCHRPHAST algo = new DijkstraBidirectionCHRPHAST(graph, encoder, prepareWeighting, traversalMode);
-		
-		return algo;
-	}
 
     public static class AStarBidirectionCH extends AStarBidirection {
         public AStarBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode, double maxSpeed) {
@@ -750,68 +739,6 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
             return getName() + "|" + weighting;
         }
     }
-
-	public static class DijkstraBidirectionCHPHAST extends DijkstraBidirectionRefPHAST {
-		public DijkstraBidirectionCHPHAST(CHGraph chGraph, FlagEncoder encoder, Weighting weighting, TraversalMode traversalMode) {
-			super(chGraph, weighting, traversalMode);
-		}
-
-		@Override
-		protected void initCollections(int size) {
-			super.initCollections(Math.min(size, 2000));
-		}
-
-		@Override
-		public boolean finished() {
-			// we need to finish BOTH searches for CH!
-			if (finishedFrom && finishedTo)
-				return true;
-
-			// changed also the final finish condition for CH
-			return currFrom.weight >= bestPath.getWeight() && currTo.weight >= bestPath.getWeight();
-		}
-
-		@Override
-		public String getName() {
-			return "PHAST|one to all|ch";
-		}
-
-		@Override
-		public String toString() {
-			return getName() + "|" + weighting;
-		}
-	}
-
-	public static class DijkstraBidirectionCHRPHAST extends DijkstraBidirectionRefRPHAST {
-		public DijkstraBidirectionCHRPHAST(Graph graph, FlagEncoder encoder, Weighting weighting, TraversalMode traversalMode) {
-			super(graph, encoder, weighting, traversalMode);
-		}
-
-		@Override
-		protected void initCollections(int size) {
-			super.initCollections(Math.min(size, 2000));
-		}
-
-		@Override
-		public boolean finished() {
-			// we need to finish BOTH searches for CH!
-			if (finishedFrom && finishedTo)
-				return true;
-
-			// changed also the final finish condition for CH
-			return false;
-		}
-
-		@Override
-		public String getName() {
-			return "RPHAST|one to many|ch";
-		}
-
-		@Override
-		public String toString() {
-			return getName() + "|" + weighting;
-		}
-	}
 
     @Override
     public String toString() {
