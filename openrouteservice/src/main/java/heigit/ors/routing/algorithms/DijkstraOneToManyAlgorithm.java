@@ -26,7 +26,7 @@ import java.util.PriorityQueue;
 public class DijkstraOneToManyAlgorithm extends AbstractOneToManyRoutingAlgorithm {
     protected IntObjectMap<SPTEntry> _fromMap;
     protected PriorityQueue<SPTEntry> _fromHeap;
-    protected SPTEntry currEdge;
+    protected SPTEntry _currEdge;
     private int _visitedNodes;
     
     private int _targetsFound = 0;
@@ -80,9 +80,9 @@ public class DijkstraOneToManyAlgorithm extends AbstractOneToManyRoutingAlgorith
     	
     	if (_targetsCount > 0)
     	{
-    		currEdge = createSPTEntry(from, 0);
+    		_currEdge = createSPTEntry(from, 0);
     		if (!traversalMode.isEdgeBased()) {
-    			_fromMap.put(from, currEdge);
+    			_fromMap.put(from, _currEdge);
     		}
     		
     		runAlgo();
@@ -107,54 +107,52 @@ public class DijkstraOneToManyAlgorithm extends AbstractOneToManyRoutingAlgorith
             if (isMaxVisitedNodesExceeded() || finished())
                 break;
 
-            int startNode = currEdge.adjNode;
+            int startNode = _currEdge.adjNode;
             EdgeIterator iter = explorer.setBaseNode(startNode);
             while (iter.next()) {
-                if (!accept(iter, currEdge.edge))
+                if (!accept(iter, _currEdge.edge))
                     continue;
 
                 int traversalId = traversalMode.createTraversalId(iter, false);
-                double tmpWeight = weighting.calcWeight(iter, false, currEdge.edge) + currEdge.weight;
+                double tmpWeight = weighting.calcWeight(iter, false, _currEdge.edge) + _currEdge.weight;
                 if (Double.isInfinite(tmpWeight))
                     continue;
 
                 SPTEntry nEdge = _fromMap.get(traversalId);
                 if (nEdge == null) {
                     nEdge = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
-                    nEdge.parent = currEdge;
+                    nEdge.parent = _currEdge;
                     _fromMap.put(traversalId, nEdge);
                     _fromHeap.add(nEdge);
                 } else if (nEdge.weight > tmpWeight) {
                     _fromHeap.remove(nEdge);
                     nEdge.edge = iter.getEdge();
                     nEdge.weight = tmpWeight;
-                    nEdge.parent = currEdge;
+                    nEdge.parent = _currEdge;
                     _fromHeap.add(nEdge);
                 } else
                     continue;
-
-                //updateBestPath(iter, nEdge, traversalId);
             }
 
             if (_fromHeap.isEmpty())
                 break;
 
-            currEdge = _fromHeap.poll();
-            if (currEdge == null)
+            _currEdge = _fromHeap.poll();
+            if (_currEdge == null)
                 throw new AssertionError("Empty edge cannot happen");
         }
     }
 
     private boolean finished() {
-    	if (currEdge.edge != -1)
+    	if (_currEdge.edge != -1)
     	{
-    		SPTEntry entry = _targets.get(currEdge.adjNode);
+    		SPTEntry entry = _targets.get(_currEdge.adjNode);
     		if (entry != null)
     		{
-    			entry.adjNode = currEdge.adjNode;
-    			entry.weight = currEdge.weight;
-    			entry.edge = currEdge.edge;
-    			entry.parent = currEdge.parent;
+    			entry.adjNode = _currEdge.adjNode;
+    			entry.weight = _currEdge.weight;
+    			entry.edge = _currEdge.edge;
+    			entry.parent = _currEdge.parent;
     			entry.visited = entry.visited;
     			_targetsFound++;
     		}

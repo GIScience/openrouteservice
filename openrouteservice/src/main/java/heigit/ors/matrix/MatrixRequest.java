@@ -27,6 +27,7 @@ public class MatrixRequest extends ServiceRequest
 	private DistanceUnit _units = DistanceUnit.Meters;
 	private boolean _resolveLocations = false;
 	private boolean _flexibleMode = false;
+	private String _algorithm;
 
 	public MatrixRequest()
 	{
@@ -107,5 +108,13 @@ public class MatrixRequest extends ServiceRequest
 
 	public void setFlexibleMode(boolean flexibleMode) {
 		this._flexibleMode = flexibleMode;
+	}
+
+	public String getAlgorithm() {
+		return _algorithm;
+	}
+
+	public void setAlgorithm(String _algorithm) {
+		this._algorithm = _algorithm;
 	}
 }

@@ -14,6 +14,7 @@ package heigit.ors.routing.algorithms;
 import java.util.PriorityQueue;
 
 import com.carrotsearch.hppc.IntObjectMap;
+import com.graphhopper.coll.GHIntHashSet;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.util.CHLevelEdgeFilter;
@@ -26,26 +27,29 @@ import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 
-public class RPHASTAlgorithm extends AbstractOneToManyRoutingAlgorithm {
+import heigit.ors.util.DebugUtility;
+
+public class RPHASTAlgorithm3 extends AbstractOneToManyRoutingAlgorithm {
 	private IntObjectMap<SPTEntry> _bestWeightMapFrom;
 	private SPTEntry _currFrom;
 	private SPTEntry _currTo;
 	private PriorityQueue<SPTEntry> _prioQueue;
 	private CHLevelEdgeFilter _upwardEdgeFilter;
 	private CHLevelEdgeFilter _downwardEdgeFilter;
+	private SubGraph _sourceGraph;
 	private SubGraph _targetGraph;
 	private boolean _finishedFrom;
 	private boolean _finishedTo;
 	private int _visitedCountFrom;
 	private int _visitedCountTo;
-	
-	public RPHASTAlgorithm(Graph graph, Weighting weighting, TraversalMode traversalMode) {
+
+	public RPHASTAlgorithm3(Graph graph, Weighting weighting, TraversalMode traversalMode) {
 		super(graph, weighting, traversalMode);
-		
+
 		int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
 
 		initCollections(size);
-		
+
 		CHGraph chGraph = null;
 		if (graph instanceof CHGraph)
 			chGraph = (CHGraph)graph;
@@ -54,14 +58,14 @@ public class RPHASTAlgorithm extends AbstractOneToManyRoutingAlgorithm {
 			QueryGraph qGraph = (QueryGraph)graph;
 			chGraph = (CHGraph)qGraph.getMainGraph();
 		}
-					
+
 		setMaxVisitedNodes(Integer.MAX_VALUE);
 		FlagEncoder encoder = weighting.getFlagEncoder();
-		
+
 		_upwardEdgeFilter = new CHLevelEdgeFilter(chGraph, encoder);
 		_downwardEdgeFilter = new CHLevelEdgeFilter(chGraph, encoder);
 		_downwardEdgeFilter.setBackwardSearch(true);
-		
+
 		inEdgeExplorer = graph.createEdgeExplorer();
 		outEdgeExplorer =  graph.createEdgeExplorer();
 	}
@@ -70,7 +74,7 @@ public class RPHASTAlgorithm extends AbstractOneToManyRoutingAlgorithm {
 		_prioQueue = new PriorityQueue<SPTEntry>(size);
 		_bestWeightMapFrom = new GHIntObjectHashMap<SPTEntry>(size);
 	}
-	
+
 	@Override
 	public void reset()
 	{
@@ -82,30 +86,65 @@ public class RPHASTAlgorithm extends AbstractOneToManyRoutingAlgorithm {
 
 	@Override
 	public void prepare(int[] sources, int[] targets) {
+		PriorityQueue<Integer> prioQueue = new PriorityQueue<>(100);
+
+		// Phase I: build shortest path tree from all target nodes to the highest node
 		_targetGraph = new SubGraph(graph);
-		
-		PriorityQueue<Integer> prioQueue = new PriorityQueue<>(200);
 
 		addNodes(_targetGraph, prioQueue, targets);
 
-     	while (!prioQueue.isEmpty()) {
+		while (!prioQueue.isEmpty()) {
 			int adjNode = prioQueue.poll();
 			EdgeIterator iter = outEdgeExplorer.setBaseNode(adjNode);
-			 
+
 			while (iter.next()) {
 				if (!_downwardEdgeFilter.accept(iter))
 					continue;
 
+				_downwardEdgeFilter.updateHighestNode(iter);
+
 				if (_targetGraph.addEdge(adjNode, iter, true))
 					prioQueue.add(iter.getAdjNode());
 			}
-		}
-     	
-     	addNodes(null, prioQueue, sources);
-  
-     	_targetGraph.print();
+		} 
+
+		if (DebugUtility.isDebug())
+			_targetGraph.print();
+
+		// Phase II: build a graph from all source nodes to the highest node
+		_sourceGraph = new SubGraph(graph);
+		GHIntHashSet nodesSkip = new GHIntHashSet();
+		/*nodesSkip.add(sources[0]);
+		nodesSkip.add(sources[1]);
+		nodesSkip.add(sources[2]);
+		nodesSkip.add(sources[3]);*/
+
+		addNodes(_sourceGraph, prioQueue, sources);
+
+		while (!prioQueue.isEmpty()) {
+			int adjNode = prioQueue.poll();
+			EdgeIterator iter = outEdgeExplorer.setBaseNode(adjNode);
+
+			while (iter.next()) {
+				if (!_upwardEdgeFilter.accept(iter))
+					continue;
+
+				_upwardEdgeFilter.updateHighestNode(iter);
+
+				_sourceGraph.addEdge(adjNode, iter, false);
+
+				if (!nodesSkip.contains(iter.getAdjNode()))
+				{
+					nodesSkip.add(iter.getAdjNode());
+					prioQueue.add(iter.getAdjNode());
+				}
+			}
+		} 
+
+		if (DebugUtility.isDebug())
+			_sourceGraph.print();
 	}
-	
+
 	private void addNodes(SubGraph graph, PriorityQueue<Integer> prioQueue, int[] nodes)
 	{
 		for (int i = 0; i < nodes.length; i++) 
@@ -122,7 +161,7 @@ public class RPHASTAlgorithm extends AbstractOneToManyRoutingAlgorithm {
 
 	protected void runUpwardSearch() {
 		while (!isMaxVisitedNodesExceeded() && !_finishedFrom) {
-				_finishedFrom = !upwardSearch();
+			_finishedFrom = !upwardSearch();
 		}
 	}
 
@@ -138,104 +177,64 @@ public class RPHASTAlgorithm extends AbstractOneToManyRoutingAlgorithm {
 	}
 
 	private boolean upwardSearch() {
-		if (_prioQueue.isEmpty()) {
-
+		if (_prioQueue.isEmpty()) 
 			return false;
-		}
+		
 		_currFrom = _prioQueue.poll();
-		fillEdgesUpward(_currFrom, _prioQueue, _bestWeightMapFrom, outEdgeExplorer, false);
+		fillEdgesUpward(_currFrom, _prioQueue, _bestWeightMapFrom, outEdgeExplorer);
 		_visitedCountFrom++;
+
 		return true;
 	}
 
 	private boolean downwardSearch() {
-		if (_prioQueue.isEmpty()) {
-
+		if (_prioQueue.isEmpty()) 
 			return false;
-		}
+		
 		_currTo = _prioQueue.poll();
-		fillEdgesDownward(_currTo, _prioQueue, _bestWeightMapFrom, inEdgeExplorer, false);
+		fillEdgesDownward(_currTo, _prioQueue, _bestWeightMapFrom, outEdgeExplorer);
 		_visitedCountTo++;
 
 		return true;
 	}
-	
+
 	@Override
 	public SPTEntry[] calcPaths(int from, int[] to) {
-		initUpwardSearch(from, 0);
-		
-		runUpwardSearch(); 
-		
-		initDownwardSearch(_upwardEdgeFilter.getHighestNode());
-  
-		EdgeExplorer tmpExplorer = inEdgeExplorer;
-		inEdgeExplorer = _targetGraph.createExplorer();
-		
+		SPTEntry entry = createSPTEntry(from, 0.0);
+		entry.visited = true;
+		_prioQueue.add(entry);
+		_bestWeightMapFrom.put(from, entry);
+		outEdgeExplorer = _sourceGraph.createExplorer();
+
+		runUpwardSearch();
+
+		entry = _bestWeightMapFrom.get(_upwardEdgeFilter.getHighestNode());
+		entry.visited = true;
+		_prioQueue.add(entry);
+		outEdgeExplorer = _targetGraph.createExplorer();
+
 		runDownwardSearch();
-		
-		inEdgeExplorer = tmpExplorer;
 
 		SPTEntry[] targets = new SPTEntry[to.length];
 
 		for (int i = 0; i < to.length; i++)
 			targets[i] = _bestWeightMapFrom.get(to[i]);
-		
-		return targets;
-	}
-	
-	public void initUpwardSearch(int from, double weight) {
-		_currFrom = createSPTEntry(from, weight);
-		_currFrom.visited = true;
-		_prioQueue.add(_currFrom);
 
-		if (!traversalMode.isEdgeBased()) {
-			_bestWeightMapFrom.put(from, _currFrom);
-		} else if (_currTo != null && _currTo.adjNode == from) {
-			// special case of identical start and end
-			// bestPath.sptEntry = currFrom;
-			// bestPath.edgeTo = currTo;
-			_finishedFrom = true;
-			_finishedTo = true;
-		} 
-	}
-	
-	private void initDownwardSearch(int to) {
-		// Set the highest node from the upwards pass as the start node for the
-		// downwards pass. Keep parent refs for future use in distance
-		// extraction.
-		_currTo = _bestWeightMapFrom.get(to);
-		_currTo.visited = true;
-		_prioQueue.clear();
-		_prioQueue.add(_currTo);
-		if (!traversalMode.isEdgeBased()) {
-			_bestWeightMapFrom.put(to, _currTo);
-		} else if (_currFrom != null && _currFrom.adjNode == to) {
-			// special case of identical start and end
-			// bestPath.sptEntry = currFrom;
-			// bestPath.edgeTo = currTo;
-			_finishedFrom = true;
-			_finishedTo = true;
-		}
+		return targets; 
 	}
 
 	private void fillEdgesUpward(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<SPTEntry> shortestWeightMap,
-			EdgeExplorer explorer, boolean reverse) {
+			EdgeExplorer explorer) {
 		EdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
 
 		if (iter == null) // we reach one of the target nodes
 			return;
-		 
-		while (iter.next()) {
-			if (!_upwardEdgeFilter.accept(iter)) 
-				continue;
 
-			double tmpWeight = weighting.calcWeight(iter, reverse, currEdge.edge) + currEdge.weight;
+		while (iter.next()) {
+			double tmpWeight = weighting.calcWeight(iter, false, currEdge.edge) + currEdge.weight;
 
 			if (Double.isInfinite(tmpWeight)) 
 				continue;
-
-			// Keep track of the currently found highest CH level node
-			_upwardEdgeFilter.updateHighestNode(iter);
 
 			SPTEntry ee = shortestWeightMap.get(iter.getAdjNode());
 
@@ -255,23 +254,19 @@ public class RPHASTAlgorithm extends AbstractOneToManyRoutingAlgorithm {
 	}
 
 	private void fillEdgesDownward(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue,
-			IntObjectMap<SPTEntry> shortestWeightMap, EdgeExplorer explorer, boolean reverse) {
+			IntObjectMap<SPTEntry> shortestWeightMap, EdgeExplorer explorer) {
 
 		EdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
-		
-		if (iter == null) // we reach one of the target nodes
+
+		if (iter == null)
 			return;
 
 		while (iter.next())
 		{
-			// no need in filter, since all edges in targetGraph are valid and acceptable
-			//if (!additionalEdgeFilter.accept(iter)) 
-			//	continue;
-			
 			double tmpWeight = weighting.calcWeight(iter, false, currEdge.edge) + currEdge.weight;
 			if (Double.isInfinite(tmpWeight))
 				continue;
-			
+
 			SPTEntry ee = shortestWeightMap.get(iter.getAdjNode());
 
 			if (ee == null) {
@@ -280,13 +275,14 @@ public class RPHASTAlgorithm extends AbstractOneToManyRoutingAlgorithm {
 				shortestWeightMap.put(iter.getAdjNode(), ee);
 				prioQueue.add(ee);
 				ee.visited = true; 
-			} else if (ee.weight >= tmpWeight) {
+			} else if (ee.weight > tmpWeight) {
 				prioQueue.remove(ee);
 				ee.edge = iter.getEdge();
 				ee.weight = tmpWeight;
 				ee.parent = currEdge; 
 				prioQueue.add(ee);
-			} else if (ee.visited == false) {
+			}
+			else if (ee.visited == false) {
 				// // This is the case if the node has been assigned a weight in
 				// // the upwards pass (fillEdges). We need to use it in the
 				// // downwards pass to access lower level nodes, though the
@@ -296,7 +292,7 @@ public class RPHASTAlgorithm extends AbstractOneToManyRoutingAlgorithm {
 				//
 				prioQueue.add(ee);
 				ee.visited = true;
-			}
+			} 
 		}
 	}
 }

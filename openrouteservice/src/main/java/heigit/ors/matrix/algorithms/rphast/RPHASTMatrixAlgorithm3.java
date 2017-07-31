@@ -25,9 +25,9 @@ import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
 import heigit.ors.matrix.PathMetricsExtractor;
 import heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
-import heigit.ors.routing.algorithms.RPHASTAlgorithm;
+import heigit.ors.routing.algorithms.RPHASTAlgorithm3;
 
-public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
+public class RPHASTMatrixAlgorithm3 extends AbstractMatrixAlgorithm {
 	private PrepareContractionHierarchies _prepareCH;
 	private PathMetricsExtractor _pathMetricsExtractor;
 	
@@ -62,7 +62,7 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 		}
 		else
 		{
-			RPHASTAlgorithm algorithm = new RPHASTAlgorithm(_graph, _prepareCH.getPrepareWeighting(), TraversalMode.NODE_BASED);
+			RPHASTAlgorithm3 algorithm = new RPHASTAlgorithm3(_graph, _prepareCH.getPrepareWeighting(), TraversalMode.NODE_BASED);
 			algorithm.prepare(srcData.getNodeIds(), dstData.getNodeIds());
 			
 			int sourceId = -1;  

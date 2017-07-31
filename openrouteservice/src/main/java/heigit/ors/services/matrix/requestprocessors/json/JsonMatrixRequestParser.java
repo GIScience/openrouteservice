@@ -321,6 +321,9 @@ public class JsonMatrixRequestParser {
 		value = request.getParameter("id");
 		if (!Helper.isEmpty(value))
 			req.setId(value);
+		
+		// REMOVE
+		req.setAlgorithm(request.getParameter("algorithm"));
 
 		return req;
 	}

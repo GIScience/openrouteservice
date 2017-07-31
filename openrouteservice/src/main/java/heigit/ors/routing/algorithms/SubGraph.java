@@ -154,7 +154,7 @@ public class SubGraph {
 
 		@Override
 		public EdgeIteratorState detach(boolean reverse) {
-			return null;
+			return _currState.detach(reverse);
 		}
 
 		@Override
@@ -200,7 +200,10 @@ public class SubGraph {
 
 		@Override
 		public boolean isShortcut() {
-			return (((CHEdgeIteratorState) _currState).isShortcut());
+			if (_currState instanceof CHEdgeIteratorState)
+				return (((CHEdgeIteratorState) _currState).isShortcut());
+			else 
+				return false;
 		}
 
 		@Override
@@ -236,9 +239,17 @@ public class SubGraph {
 			return true;
 		}
 
-		EdgeIteratorState iterState = _baseGraph.getEdgeIteratorState(iter.getEdge(), adjNode);
+		EdgeIteratorState iterState = null;
 		if (reverse)
+		{
+			iterState =  _baseGraph.getEdgeIteratorState(iter.getEdge(), adjNode);
 			adjNode = iter.getAdjNode();
+		}
+		else
+		{
+			iterState =  _baseGraph.getEdgeIteratorState(iter.getEdge(), iter.getAdjNode());
+			adjNode = iter.getBaseNode();
+		}
 
 		EdgeIteratorLink link = _node2edgesMap.get(adjNode);
 		if (link == null)
@@ -249,7 +260,7 @@ public class SubGraph {
 			return true;
 		}
 		else
-		{
+		{ 
 			while (link.next != null)
 				link = link.next;
 

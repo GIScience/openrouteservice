@@ -17,6 +17,7 @@ import com.graphhopper.routing.util.FlagEncoder;
 import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.algorithms.dijkstra.DijkstraMatrixAlgorithm;
 import heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
+import heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm3;
 
 public class MatrixAlgorithmFactory 
 {
@@ -28,6 +29,20 @@ public class MatrixAlgorithmFactory
     		alg = new RPHASTMatrixAlgorithm();
     	else
     		alg = new DijkstraMatrixAlgorithm();
+    	
+    	if (req.getAlgorithm() != null)
+    	{
+    		switch (req.getAlgorithm().toLowerCase()) {
+			case "phast":
+				alg = new RPHASTMatrixAlgorithm();
+				break;
+			case "phast3":
+				alg = new RPHASTMatrixAlgorithm3();
+				break;
+			default:
+				break;
+			}
+    	}
     	
     	return alg;
     }

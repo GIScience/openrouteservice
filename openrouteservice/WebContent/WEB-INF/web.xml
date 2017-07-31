@@ -60,7 +60,7 @@
 	<servlet>
 		<servlet-name>matrix</servlet-name>
 		<servlet-class>heigit.ors.services.matrix.MatrixServiceServlet</servlet-class>
-		<load-on-startup>5</load-on-startup>
+		<load-on-startup>6</load-on-startup>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>matrix</servlet-name>
@@ -71,7 +71,7 @@
 	<servlet>
 		<servlet-name>optimization</servlet-name>
 		<servlet-class>heigit.ors.services.optimization.OptimizationServiceServlet</servlet-class>
-		<load-on-startup>6</load-on-startup>
+		<load-on-startup>7</load-on-startup>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>optimization</servlet-name>
@@ -82,7 +82,7 @@
 	<servlet>
 		<servlet-name>shortenlink</servlet-name>
 		<servlet-class>heigit.ors.services.shortenlink.ShortenLinkServlet</servlet-class>
-		<load-on-startup>7</load-on-startup>
+		<load-on-startup>8</load-on-startup>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>shortenlink</servlet-name>
