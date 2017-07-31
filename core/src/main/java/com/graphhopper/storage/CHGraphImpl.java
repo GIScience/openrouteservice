@@ -192,9 +192,9 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
 
     public CHEdgeExplorer createEdgeExplorer(EdgeFilter filter, PMap props)
     {
-    	if (props != null && props.getBool("allow_downward_search", false))
+    	/*if (props != null && props.getBool("allow_downward_search", false))
     		return new PHASTEdgeIteratorImpl(baseGraph, chEdgeAccess, filter);
-    	else
+    	else*/
     		return new CHEdgeIteratorImpl(baseGraph, chEdgeAccess, filter);
     }
     
@@ -448,7 +448,7 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
 				if (filter.accept(this)) {
 				//	if (isShortcut() && getLevel(baseNode) > getLevel(adjNode))
 				//		continue;
-					return true;
+					return true; 
 				}
 
 			}
@@ -571,35 +571,6 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
 		@Override
 		public int getMergeStatus(long flags) {
 			return PrepareEncoder.getScMergeStatus(getDirectFlags(-1), flags);
-		}
-	}
-	
-	public class PHASTEdgeIteratorImpl extends CHEdgeIteratorImpl {
-
-		public PHASTEdgeIteratorImpl(BaseGraph baseGraph, EdgeAccess edgeAccess, EdgeFilter filter) {
-			super(baseGraph, edgeAccess, filter);
-		}
-	 
-		@Override
-		public final boolean next() {
-			while (true) {
-				if (nextEdgeId == EdgeIterator.NO_EDGE)
-					return false;
-				selectEdgeAccess();
-				edgePointer = edgeAccess.toPointer(nextEdgeId);
-				edgeId = nextEdgeId;
-				adjNode = edgeAccess.getOtherNode(baseNode, edgePointer);
-				reverse = baseNode > adjNode;
-				freshFlags = false;
-
-				// position to next edge
-				nextEdgeId = edgeAccess.getEdgeRef(baseNode, adjNode, edgePointer);
-				assert nextEdgeId != edgeId : ("endless loop detected for base node: " + baseNode + ", adj node: "
-						+ adjNode + ", edge pointer: " + edgePointer + ", edge: " + edgeId);
-
-				if (filter.accept(this)) 
-					return true;
-			}
 		}
 	}
 
