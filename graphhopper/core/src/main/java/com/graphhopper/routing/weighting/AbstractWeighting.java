@@ -20,6 +20,7 @@ package com.graphhopper.routing.weighting;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.PMap;
 
 /**
  * @author Peter Karich
@@ -27,14 +28,23 @@ import com.graphhopper.util.EdgeIteratorState;
 public abstract class AbstractWeighting implements Weighting {
     protected final FlagEncoder flagEncoder;
     protected final int encoderIndex;
+    protected double userMaxSpeed = -1;
 
     protected AbstractWeighting(FlagEncoder encoder) {
+    	this(encoder, null);	
+    }
+    
+    protected AbstractWeighting(FlagEncoder encoder, PMap map) {
         this.flagEncoder = encoder;
         if (!flagEncoder.isRegistered())
             throw new IllegalStateException("Make sure you add the FlagEncoder " + flagEncoder + " to an EncodingManager before using it elsewhere");
         if (!isValidName(getName()))
             throw new IllegalStateException("Not a valid name for a Weighting: " + getName());
         encoderIndex = encoder.getIndex(); // runge
+        if (map != null)
+        {
+        	userMaxSpeed = map.getDouble("max_speed", -1);
+        }
     }
 
     @Override
@@ -51,6 +61,12 @@ public abstract class AbstractWeighting implements Weighting {
         if (speed == 0)
             throw new IllegalStateException("Speed cannot be 0 for unblocked edge, use access properties to mark edge blocked! Should only occur for shortest path calculation. See #242.");
 
+        if (userMaxSpeed > 0)
+        {
+        	if (speed > userMaxSpeed)
+        		speed = userMaxSpeed;
+        }
+        
         return (long) (edgeState.getDistance() * 3600 / speed);
     }
 

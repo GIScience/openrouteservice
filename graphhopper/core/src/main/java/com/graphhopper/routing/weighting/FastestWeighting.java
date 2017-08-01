@@ -40,16 +40,11 @@ public class FastestWeighting extends AbstractWeighting {
     private final long headingPenaltyMillis;
     private final double maxSpeed;
 
-    private double userMaxSpeed = -1;
-    private int encoderIndex = -1;
-
     public FastestWeighting(FlagEncoder encoder, PMap map) {
-        super(encoder);
+        super(encoder, map);
         headingPenalty = map.getDouble(Routing.HEADING_PENALTY, Routing.DEFAULT_HEADING_PENALTY);
         headingPenaltyMillis = Math.round(headingPenalty * 1000);
         maxSpeed = encoder.getMaxSpeed() / SPEED_CONV;
-        userMaxSpeed = map.getDouble("max_speed", -1);
-        encoderIndex = encoder.getIndex();
     }
 
     public FastestWeighting(FlagEncoder encoder) {

@@ -20,7 +20,7 @@ public class DefaultWeightingFactory implements WeightingFactory {
         if (encoder.supports(GenericWeighting.class)) {
             weighting = new GenericWeighting((com.graphhopper.routing.util.DataFlagEncoder) encoder, hintsMap);
         } else if ("shortest".equalsIgnoreCase(weightingStr)) {
-            weighting = new ShortestWeighting(encoder);
+            weighting = new ShortestWeighting(encoder, hintsMap);
         } else if ("fastest".equalsIgnoreCase(weightingStr) || weightingStr.isEmpty()) {
             if (encoder.supports(PriorityWeighting.class))
                 weighting = new PriorityWeighting(encoder, hintsMap);
