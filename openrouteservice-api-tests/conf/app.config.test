@@ -52,7 +52,7 @@
 				enabled: true,
 				provider_name: postgresql,
 				provider_parameters: {
-					host: "129.206.7.206",
+					host: "129.206.7.103",
 					port: 5432,
 					db_name: "gis",
 					user: "admin", 
