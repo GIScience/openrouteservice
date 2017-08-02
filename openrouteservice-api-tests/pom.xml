@@ -27,8 +27,6 @@
       </plugins>
   </build>
 	<dependencies>
-
-
 		<!-- https://mvnrepository.com/artifact/io.rest-assured/rest-assured -->
 		<dependency>
 			<groupId>io.rest-assured</groupId>
@@ -52,8 +50,5 @@
 			<version>20140107</version>
 			<scope>test</scope>
 		</dependency>
-
-
-
 	</dependencies>
 </project>

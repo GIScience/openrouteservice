@@ -22,13 +22,19 @@ public class CompressionFilter implements Filter
 			String acceptEncoding = request.getHeader("accept-encoding");
 			
 			if (acceptEncoding != null) {
-				if (acceptEncoding.indexOf("gzip") != -1) {
+				if (acceptEncoding.indexOf(ContentEncodingType.BROTLI) != -1) {
+					BrotliResponseWrapper wrappedResponse = new BrotliResponseWrapper(response);
+					chain.doFilter(req, wrappedResponse);
+					wrappedResponse.finishResponse();
+					return;
+				}
+				else if(acceptEncoding.indexOf(ContentEncodingType.GZIP) != -1) {
 					GZIPResponseWrapper wrappedResponse = new GZIPResponseWrapper(response);
 					chain.doFilter(req, wrappedResponse);
 					wrappedResponse.finishResponse();
 					return;
 				}
-				else if (acceptEncoding.indexOf("deflate") != -1) {
+				else if (acceptEncoding.indexOf(ContentEncodingType.DEFLATE) != -1) {
                    // todo
 				}
 			}

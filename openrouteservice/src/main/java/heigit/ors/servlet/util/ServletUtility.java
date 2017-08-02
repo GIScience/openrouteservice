@@ -74,6 +74,8 @@ public class ServletUtility
 		response.setContentLength(bytes.length);
 		response.setCharacterEncoding(encoding);
 		response.setContentType(contentType);
+		response.addHeader("Vary", "Accept-Encoding");
+
 		if (statusCode != StatusCode.OK)
 			response.setStatus(statusCode);
 		outStream.write(bytes);

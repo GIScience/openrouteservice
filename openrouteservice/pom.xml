@@ -12,7 +12,7 @@
     <inceptionYear>2017</inceptionYear>
     <issueManagement>
         <system>GitLab</system>
-        <url>https://github.com/graphhopper/graphhopper/issues</url>
+        <url>https://gitlab.gistools.geog.uni-heidelberg.de/giscience/openrouteservice/core/issues</url>
     </issueManagement>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -29,7 +29,6 @@
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>
     <resources>
-    
        <resource>
          <directory>src/main/resources</directory>
          <includes>
@@ -111,13 +110,12 @@
 			<name>OpenGeo Maven Repository</name>
 			<url>http://repo.opengeo.org</url>
 		</repository>
-	<!--	
-	    <repository>
-			<id>jena-repo</id>
-			<url>http://openjena.org/repo</url>
-		</repository>
-		-->
-	</repositories>
+		<repository>
+      		<id>bintray-nitram509-jbrotli</id>
+      		<name>bintray</name>
+      		<url>http://dl.bintray.com/nitram509/jbrotli</url>
+    	</repository>
+    </repositories>
 	
 <dependencies>
 	<dependency>
@@ -213,7 +211,13 @@
      	<version>3.0.3</version>
      	<scope>test</scope>
 	</dependency>
-    
+
+   	<dependency>
+      	<groupId>org.meteogroup.jbrotli</groupId>
+      	<artifactId>jbrotli</artifactId>
+      	<version>0.5.0</version>
+   	</dependency>
+  	    
 	<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
 <!-- <dependency>
     	<groupId>mysql</groupId>

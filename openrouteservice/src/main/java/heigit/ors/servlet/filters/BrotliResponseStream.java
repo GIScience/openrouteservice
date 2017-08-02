@@ -1,41 +1,47 @@
 package heigit.ors.servlet.filters;
 
 import java.io.IOException;
-import java.util.zip.GZIPOutputStream;
-
 import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletResponse;
 
+import org.meteogroup.jbrotli.io.BrotliOutputStream;
+import org.meteogroup.jbrotli.libloader.BrotliLibraryLoader;
+
 import heigit.ors.io.ByteArrayOutputStreamEx;
 
-class GZIPResponseStream extends ServletOutputStream { 
+class BrotliResponseStream extends ServletOutputStream { 
 	private ByteArrayOutputStreamEx _bufferStream = null;
-	private GZIPOutputStream _gzipstream = null;
+	private BrotliOutputStream _brotliStream = null;
 	private ServletOutputStream _outputStream = null;
 	private boolean _closed = false;
 	private HttpServletResponse _response = null;
+	
+	static 
+	{
+		 BrotliLibraryLoader.loadBrotli();
+	}
 
-	public GZIPResponseStream(HttpServletResponse response) throws IOException {
+	public BrotliResponseStream(HttpServletResponse response) throws IOException {
 		super();
 		
 		this._response = response;
 		this._outputStream = response.getOutputStream();
 		_bufferStream = new ByteArrayOutputStreamEx();
-		_gzipstream = new GZIPOutputStream(_bufferStream);
+		_brotliStream = new BrotliOutputStream(_bufferStream);
 	}
 
 	public void close() throws IOException {
 		if (_closed) 
 			throw new IOException("This output stream has already been closed");
-		
-		_gzipstream.finish();
 
 		byte[] bytes = _bufferStream.getBuffer();
 		int bytesLength = _bufferStream.size();
-				
+
+		_brotliStream.close();
+
 		_response.setContentLength(bytesLength); 
-        _response.addHeader("Content-Encoding", ContentEncodingType.GZIP);
+        _response.addHeader("Content-Encoding", ContentEncodingType.BROTLI);
 
         _outputStream.write(bytes, 0, bytesLength);
         _outputStream.close();
@@ -50,14 +56,14 @@ class GZIPResponseStream extends ServletOutputStream {
 		if (_closed) 
 			throw new IOException("Cannot flush a closed output stream");
 		
-		_gzipstream.flush();
+		_brotliStream.flush();
 	}
 
 	public void write(int b) throws IOException {
 		if (_closed) 
 			throw new IOException("Cannot write to a closed output stream");
 		
-		_gzipstream.write((byte)b);
+		_brotliStream.write((byte)b);
 	}
 
 	public void write(byte b[]) throws IOException {
@@ -68,7 +74,7 @@ class GZIPResponseStream extends ServletOutputStream {
 		if (_closed) 
 			throw new IOException("Cannot write to a closed output stream");
 		
-		_gzipstream.write(b, off, len);
+		_brotliStream.write(b, off, len);
 	}
 
 	public void reset() {
