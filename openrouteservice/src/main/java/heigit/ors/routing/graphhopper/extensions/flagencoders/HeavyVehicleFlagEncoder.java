@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import com.graphhopper.reader.ReaderRelation;
@@ -23,102 +22,23 @@ import com.graphhopper.util.PMap;
 
 import java.util.*;
 
-import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
-
 public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 {
-	private class HeavyVehicleEncodedValue extends EncodedValue
-	{
-		private int vehicleType = -1;
-		
-		public HeavyVehicleEncodedValue(int shift) {
-			super("VehicleDirection", shift, 2*HeavyVehicleAttributes.getVehiclesCount(), 1, 0, 1);
-		}
-		
-		public long setValue(int vehicleType, long flags, long direction)
-		{
-			checkValue(direction);
-	        // scale value
-	        //value /= factor; factor is always 1
-			// vehicle mask contains of pairs such as  00 00 00 00 00 00 where each group defines forbidden directions for each vehicle type (bf bf bf bf bf bf).
-
-			long value = 1 << ((shift + ((vehicleType - HeavyVehicleAttributes.GOODS) >> 1)) + direction);
-
-	        // clear value bits
-	        flags &= ~mask;
-
-	        // set value
-	        return flags | value;
-		}
-		
-		public long getValue(int vehicleType, long flags, long direction)
-	    {
-	        flags &= mask;
-	        return ((flags >> ((shift + ((vehicleType - HeavyVehicleAttributes.GOODS) >> 1)) + direction)) & 1); 
-	    }
-		
-		public long reverseFlags(long flags)
-		{
-			if (vehicleType == -1)
-			{
-				// reverse flags for all vehicle types.
-				long bit = (shift + ((0) >> 1));
-				flags ^= 1 << bit;
-				flags ^= 1 << (bit+1);
-				
-				bit += 2;
-				flags ^= 1 << bit;
-				flags ^= 1 << (bit+1);
-				
-				bit += 2;
-				flags ^= 1 << bit;
-				flags ^= 1 << (bit+1);
-				
-				bit += 2;
-				flags ^= 1 << bit;
-				flags ^= 1 << (bit+1);
-				
-				bit += 2;
-				flags ^= 1 << bit;
-				flags ^= 1 << (bit+1);
-				
-				bit += 2;
-				flags ^= 1 << bit;
-				flags ^= 1 << (bit+1);
-			}
-			else
-			{
-				long bit = (shift + ((vehicleType) >> 1));
-				flags ^= 1 << bit;
-				flags ^= 1 << (bit+1);
-			}
-			
-			return flags;
-		}
-		
-		public void setVehicleType(int vt)
-		{
-			vehicleType = vt - HeavyVehicleAttributes.GOODS;
-		}
-	}
-	
-    protected final Map<String, Integer> trackTypeSpeedMap = new HashMap<String, Integer>();
-    protected final Set<String> badSurfaceSpeedMap = new HashSet<String>();
-    
     protected final HashSet<String> forwardKeys = new HashSet<String>(5);
     protected final HashSet<String> backwardKeys = new HashSet<String>(5);
     protected final HashSet<String> noValues = new HashSet<String>(5);
     protected final HashSet<String> yesValues = new HashSet<String>(5);
     protected final List<String> hgvAccess = new ArrayList<String>(5);
     
+    protected final SpeedLimitHandler _speedLimitHandler;
+    protected int maxTrackGradeLevel = 3;
+    
     /**
      * A map which associates string to speed. Get some impression:
      * http://www.itoworld.com/map/124#fullscreen
      * http://wiki.openstreetmap.org/wiki/OSM_tags_for_routing/Maxspeed
      */
-    protected final Map<String, Integer> defaultSpeedMap = new HashMap<String, Integer>();
 	private EncodedValue preferWayEncoder;
-	private HeavyVehicleEncodedValue vehicleDirectionEncoder; // hgv:forward
 	
     /**
      * Should be only instantied via EncodingManager
@@ -135,6 +55,8 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
         		properties.getBool("turn_costs", false) ? 3 : 0);
         
         setBlockFords(false);
+        
+        maxTrackGradeLevel = properties.getInt("maximum_grade_level", 1);
     }
 
     public HeavyVehicleFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts )
@@ -165,21 +87,47 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
         absoluteBarriers.add("motorcycle_barrier");
         absoluteBarriers.add("block");
 
+    	
+        Map<String, Integer> trackTypeSpeedMap = new HashMap<String, Integer>();
         trackTypeSpeedMap.put("grade1", 20); // paved
         trackTypeSpeedMap.put("grade2", 15); // now unpaved - gravel mixed with ...
         trackTypeSpeedMap.put("grade3", 10); // ... hard and soft materials
         trackTypeSpeedMap.put("grade4", 5); // ... some hard or compressed materials
         trackTypeSpeedMap.put("grade5", 5); // ... no hard materials. soil/sand/grass
 
-        badSurfaceSpeedMap.add("cobblestone");
-        badSurfaceSpeedMap.add("grass_paver");
-        badSurfaceSpeedMap.add("gravel");
-        badSurfaceSpeedMap.add("sand");
-        badSurfaceSpeedMap.add("paving_stones");
-        badSurfaceSpeedMap.add("dirt");
-        badSurfaceSpeedMap.add("ground");
-        badSurfaceSpeedMap.add("grass");
+        Map<String, Integer> badSurfaceSpeedMap =  new HashMap<String, Integer>();
 
+        badSurfaceSpeedMap.put("asphalt", -1); 
+        badSurfaceSpeedMap.put("concrete", -1);
+        badSurfaceSpeedMap.put("concrete:plates", -1);
+        badSurfaceSpeedMap.put("concrete:lanes", -1);
+        badSurfaceSpeedMap.put("paved", -1);
+        badSurfaceSpeedMap.put("cement", 80);
+        badSurfaceSpeedMap.put("compacted", 80);
+        badSurfaceSpeedMap.put("fine_gravel", 60);
+        badSurfaceSpeedMap.put("paving_stones", 40);
+        badSurfaceSpeedMap.put("metal", 40);
+        badSurfaceSpeedMap.put("bricks", 40);
+        badSurfaceSpeedMap.put("grass", 30);
+        badSurfaceSpeedMap.put("wood", 30);
+        badSurfaceSpeedMap.put("sett", 30);
+        badSurfaceSpeedMap.put("grass_paver", 30);
+        badSurfaceSpeedMap.put("gravel", 30);
+        badSurfaceSpeedMap.put("unpaved", 30);
+        badSurfaceSpeedMap.put("ground", 30);
+        badSurfaceSpeedMap.put("dirt", 30);
+        badSurfaceSpeedMap.put("pebblestone", 30);
+        badSurfaceSpeedMap.put("tartan", 30);
+        badSurfaceSpeedMap.put("cobblestone", 20);
+        badSurfaceSpeedMap.put("clay", 20);
+        badSurfaceSpeedMap.put("earth", 15);
+        badSurfaceSpeedMap.put("stone", 15);
+        badSurfaceSpeedMap.put("rocky", 15);
+        badSurfaceSpeedMap.put("sand", 15);
+        badSurfaceSpeedMap.put("mud", 10);
+        badSurfaceSpeedMap.put("unknown", 30);
+
+        Map<String, Integer> defaultSpeedMap = new HashMap<String, Integer>();
         // autobahn
         defaultSpeedMap.put("motorway", 80);
         defaultSpeedMap.put("motorway_link", 50);
@@ -206,6 +154,8 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
         // forestry stuff
         defaultSpeedMap.put("track", 15);
         
+        _speedLimitHandler = new SpeedLimitHandler(this.toString(), defaultSpeedMap, badSurfaceSpeedMap, trackTypeSpeedMap);
+        
         forwardKeys.add("goods:forward");
         forwardKeys.add("hgv:forward");
         forwardKeys.add("bus:forward");
@@ -225,6 +175,8 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
         
         yesValues.add("yes");
         yesValues.add("1");
+        
+        init();
     }
     
 	public double getDefaultMaxSpeed()
@@ -240,7 +192,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
     {
         // first two bits are reserved for route handling in superclass
         shift = super.defineWayBits(index, shift);
-        speedEncoder = new EncodedDoubleValue("Speed", shift, speedBits, speedFactor, defaultSpeedMap.get("secondary"), defaultSpeedMap.get("motorway"));
+        speedEncoder = new EncodedDoubleValue("Speed", shift, speedBits, speedFactor, _speedLimitHandler.getSpeed("secondary"), _speedLimitHandler.getSpeed("motorway"));
         shift += speedEncoder.getBits();
 
         preferWayEncoder = new EncodedValue("PreferWay", shift, 3, 1, 0, 7);
@@ -288,7 +240,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 
 		if (bCheckMaxSpeed)
 		{
-			double defaultSpeed = defaultSpeedMap.get(way.getTag("highway"));
+			double defaultSpeed = _speedLimitHandler.getSpeed(way.getTag("highway"));
 			if (defaultSpeed < maxSpeed)
 				maxSpeed = defaultSpeed;
 		}
@@ -296,10 +248,54 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 		return maxSpeed;
 	}
 	
+	protected int getTrackGradeLevel(String grade)
+    {
+    	if (grade == null)
+    		return 0; 
+    	 
+    	if (grade.contains(";")) // grade3;grade2
+    	{
+    		int maxGrade = 0; 
+    		
+    		try
+    		{
+    			String[] values = grade.split(";"); 
+    			for(String v : values)
+    			{
+    		       int iv = Integer.parseInt(v.replace("grade","").trim());
+    		       if (iv > maxGrade)
+    		    	   maxGrade = iv;
+    			}
+    			
+    			return maxGrade;
+    		}
+    		catch(Exception ex)
+    		{}
+    	}
+
+    	switch(grade)
+    	{
+    	case "grade":
+    	case "grade1":
+    		return 1;
+    	case "grade2":
+    		return 2;
+    	case "grade3":
+    		return 3;
+    	case "grade4":
+    		return 4;
+    	case "grade5":
+    		return 5;
+    	case "grade6":
+    		return 6;
+    	}
+    	
+    	return 10;
+    }
     protected double getSpeed(ReaderWay way )
     {
         String highwayValue = way.getTag("highway");
-        Integer speed = defaultSpeedMap.get(highwayValue);
+        Integer speed = _speedLimitHandler.getSpeed(highwayValue);
         if (speed == null)
             throw new IllegalStateException(toString() + ", no speed found for:" + highwayValue);
 
@@ -308,8 +304,8 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
             String tt = way.getTag("tracktype");
             if (!Helper.isEmpty(tt))
             {
-                Integer tInt = trackTypeSpeedMap.get(tt);
-                if (tInt != null)
+                Integer tInt = _speedLimitHandler.getTrackTypeSpeed(tt);
+                if (tInt != null && tInt != -1)
                     speed = tInt;
             }
         }
@@ -345,16 +341,17 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
     {
         String highwayValue = way.getTag("highway");
         
+        String firstValue = way.getFirstPriorityTag(restrictions);
         if (highwayValue == null)
         {
             if (way.hasTag("route", ferries))
             {
-                String motorcarTag = way.getTag("motorcar");
-                if (motorcarTag == null)
-                    motorcarTag = way.getTag("motor_vehicle");
-
-                if (motorcarTag == null && !way.hasTag("foot") && !way.hasTag("bicycle") || "yes".equals(motorcarTag))
-                    return acceptBit | ferryBit;
+            	 if (restrictedValues.contains(firstValue))
+                     return 0;
+                 if (intendedValues.contains(firstValue) ||
+                         // implied default is allowed only if foot and bicycle is not specified:
+                         firstValue.isEmpty() && !way.hasTag("foot") && !way.hasTag("bicycle"))
+                     return acceptBit | ferryBit;
             }
             return 0;
         }
@@ -362,19 +359,28 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
         if ("track".equals(highwayValue))
         {
             String tt = way.getTag("tracktype");
-            if (tt != null && !tt.equals("grade1")) // TODO allow higher grade values for forestry and agriculture
-            	return 0;
-            	
-            if (tt != null && !trackTypeSpeedMap.containsKey(tt))
-                return 0;
+            if (tt != null)
+            {
+            	int grade = getTrackGradeLevel(tt);
+            	if (grade > maxTrackGradeLevel)
+            		return 0;
+            }
         }
 
-        if (!defaultSpeedMap.containsKey(highwayValue))
+        if (!_speedLimitHandler.hasSpeedValue(highwayValue))
             return 0;
 
         if (way.hasTag("impassable", "yes") || way.hasTag("status", "impassable"))
             return 0;
 
+        // multiple restrictions needs special handling compared to foot and bike, see also motorcycle
+        if (!firstValue.isEmpty()) {
+            if (restrictedValues.contains(firstValue) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
+                return 0;
+            if (intendedValues.contains(firstValue))
+                return acceptBit;
+        }
+        
         // do not drive street cars into fords
         boolean carsAllowed = way.hasTag(restrictions, intendedValues);
         if (isBlockFords() && ("ford".equals(highwayValue) || way.hasTag("ford")) && !carsAllowed)
@@ -387,20 +393,26 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
         	if (!way.hasTag(hgvAccess, intendedValues))
         		return 0;
         }
-
-        // do not drive cars over railways (sometimes incorrectly mapped!)
-    /*    if (way.hasTag("railway") && !way.hasTag("railway", acceptedRailways))
-        {
-      	  // Runge, see http://www.openstreetmap.org/way/36106092
-      	    String motorcarTag = way.getTag("motorcar");
-            if (motorcarTag == null)
-                motorcarTag = way.getTag("motor_vehicle");
-
-            if (motorcarTag == null || "no".equals(motorcarTag))
-          	  return 0;
-        }*/
         
-        return acceptBit;
+        String maxwidth = way.getTag("maxwidth"); // Runge added on 23.02.2016
+        if (maxwidth != null)
+        {
+        	try
+            {
+        		double mwv = Double.parseDouble(maxwidth);
+        		if (mwv < 2.0)
+        			return 0;
+            }
+        	catch(Exception ex)
+            {
+            	
+            }
+        }
+       
+        if (getConditionalTagInspector().isPermittedWayConditionallyRestricted(way))
+            return 0;
+        else
+            return acceptBit;
     }
 
     @Override
@@ -435,37 +447,68 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
         if (!isAccept(allowed))
             return 0;
 
-        long encoded = 0;
+        long flags = 0;
         if (!isFerry(allowed))
         {
-        	encoded = setLong(encoded, PriorityWeighting.KEY, handlePriority(way));
-        	
-            // get assumed speed from highway type
             double speed = getSpeed(way);
-            
-            // runge
-            // every road type except motorways and trunks might have traffic lights, so we make an actual speed a bit lower 
-            /*String highway = way.getTag("highway");
-            if ("motorway".equals(highway) || "motorway_link".equals(highway) || "trunk".equals(highway) || "trunk_link".equals(highway))
-				speed = applyMaxSpeed(way, speed, false);
-            else
-            	speed = applyMaxSpeed(way, speed, true);
-            */
             speed = applyMaxSpeed(way, speed);
-            // limit speed to max 30 km/h if bad surface
-            if (speed > 30 && way.hasTag("surface", badSurfaceSpeedMap))
-                speed = 30;
             
-			encoded = handleSpeed(way, speed, encoded);
+            String surface = way.getTag("surface");
+        	if (surface != null)
+        	{
+        		Integer surfaceSpeed = _speedLimitHandler.getSurfaceSpeed(surface);
+        		if (speed > surfaceSpeed && surfaceSpeed != -1)
+        			speed = surfaceSpeed;
+        	}
+        	
+        	 boolean isRoundabout = way.hasTag("junction", "roundabout");
 
+             if (isRoundabout) // Runge
+             {
+             	//http://www.sidrasolutions.com/Documents/OArndt_Speed%20Control%20at%20Roundabouts_23rdARRBConf.pdf
+             	if (way.hasTag("highway", "mini_roundabout"))
+             		speed = speed < 25 ? speed : 25;
+             	
+             	if (way.hasTag("lanes"))
+             	{
+             		try
+             		{
+             			// The following line throws exceptions when it tries to parse a value "3; 2"
+             			int lanes = Integer.parseInt(way.getTag("lanes"));
+             			if (lanes >= 2)
+             				speed  = speed < 40 ? speed : 40;
+             			else
+             				speed  = speed < 35 ? speed : 35;
+             		}
+             		catch(Exception ex)
+             		{}
+             	}
+             }
+            
+             flags = setSpeed(flags, speed);
+
+             if (isRoundabout)
+             {
+                 flags = setBool(flags, K_ROUNDABOUT, true);
+             }
+
+
+             if (isOneway(way) || isRoundabout) {
+                 if (isBackwardOneway(way))
+                     flags |= backwardBit;
+
+                 if (isForwardOneway(way))
+                     flags |= forwardBit;
+             } else
+                 flags |= directionBitMask;
         } else
         {
-        	double ferrySpeed = getFerrySpeed(way, defaultSpeedMap.get("living_street"), defaultSpeedMap.get("service"), defaultSpeedMap.get("residential"));
-        	encoded = setSpeed(encoded, ferrySpeed);
-        	encoded |= directionBitMask;
+        	 double ferrySpeed = getFerrySpeed(way, _speedLimitHandler.getSpeed("living_street"), _speedLimitHandler.getSpeed("service"), _speedLimitHandler.getSpeed("residential"));
+             flags = setSpeed(flags, ferrySpeed);
+             flags |= directionBitMask;
         }
 
-        return encoded;
+        return flags;
     }
     
     protected int handlePriority(ReaderWay way) {
@@ -529,93 +572,14 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 		}
 	}
     
-    private long handleSpeed(ReaderWay way, double speed, long encoded) 
-    {
-    	encoded = setSpeed(encoded, speed);
-
-        boolean isRoundabout = way.hasTag("junction", "roundabout");
-        if (isRoundabout)
-            encoded = setBool(encoded, K_ROUNDABOUT, true);
-
-        if (way.hasTag("oneway", oneways) || isRoundabout)
-        {
-            if (way.hasTag("oneway", "-1"))
-                encoded |= backwardBit;
-            else
-                encoded |= forwardBit;
-        } else
-        {
-        	/*
-        	for(Entry<String, Object> entry : way.getTags().entrySet())
-        	{
-        		if (backwardKeys.contains(entry.getKey()))
-        		{
-        			//if (noValues.contains(entry.getValue()))
-        			//	encoded = setVehicleDirection(entry.getKey(), encoded, FlagEncoder.K_BACKWARD); // 1 is backward
-        			//else if (yesValues.contains(entry.getValue()))
-        			//	encoded = setVehicleDirection(entry.getKey(), encoded, 1);
-        		}
-        		else if (forwardKeys.contains(entry.getKey()))
-        		{
-        			//if (noValues.contains(entry.getValue()))
-        			//	encoded = setVehicleDirection(entry.getKey(), encoded, FlagEncoder.K_FORWARD);
-        			//else if (yesValues.contains(entry.getValue()))
-        			//	encoded = setVehicleDirection(entry.getKey(), encoded, 1);
-        		}
-        	}*/
-        		
-       		encoded |= directionBitMask;
-        }
-        
-        return encoded;
-    }
-    
-    private long setVehicleDirection(String hvKey, long flags, long direction)
-    {
-    	if (vehicleDirectionEncoder != null)
-    	{
-    		int hvType = HeavyVehicleAttributes.getFromString(hvKey.split(":")[0]);
-    	
-    		long res = vehicleDirectionEncoder.setValue(hvType, flags, direction);
-    	
-    		long v = vehicleDirectionEncoder.getValue(hvType, res, direction);
-    	
-    		return res;
-    	}
-    	else
-    		return flags;
-    }
-    
-    public boolean isBool(int vehicleType, long flags, int direction)
-    {
-    	if (vehicleDirectionEncoder != null)
-    	{
-    		long value = vehicleDirectionEncoder.getValue(vehicleType, flags, direction);
-    	
-    		return value == 0;
-    	}
-    	else
-    		return false;
-    }
-    
     @Override
     public long reverseFlags( long flags )
     {
         // swap access
         flags = super.reverseFlags(flags);
-
-        if (vehicleDirectionEncoder != null)
-        	return vehicleDirectionEncoder.reverseFlags(flags);
-        else
-        	return flags;
+       	return flags;
     }
-    
-    public void setVehicleType(int vt)
-	{
-    	if (vehicleDirectionEncoder != null)
-    		vehicleDirectionEncoder.setVehicleType(vt);
-	}
-
+ 
     public String getWayInfo( ReaderWay way )
     {
         String str = "";
@@ -648,6 +612,34 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
         else
             return "destination: " + str;
     }
+    
+
+    /**
+     * make sure that isOneway is called before
+     */
+    protected boolean isBackwardOneway(ReaderWay way) {
+        return way.hasTag("oneway", "-1")
+                || way.hasTag("vehicle:forward", "no")
+                || way.hasTag("motor_vehicle:forward", "no");
+    }
+
+    /**
+     * make sure that isOneway is called before
+     */
+    protected boolean isForwardOneway(ReaderWay way) {
+        return !way.hasTag("oneway", "-1")
+                && !way.hasTag("vehicle:forward", "no")
+                && !way.hasTag("motor_vehicle:forward", "no");
+    }
+
+    protected boolean isOneway(ReaderWay way) {
+        return way.hasTag("oneway", oneways)
+                || way.hasTag("vehicle:backward")
+                || way.hasTag("vehicle:forward")
+                || way.hasTag("motor_vehicle:backward")
+                || way.hasTag("motor_vehicle:forward");
+    }
+
 
     public boolean supports(Class<?> feature) {
 		if (super.supports(feature))

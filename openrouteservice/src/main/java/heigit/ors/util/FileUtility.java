@@ -2,7 +2,7 @@
  *|														Heidelberg University
  *|	  _____ _____  _____      _                     	Department of Geography		
  *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
- *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2016
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2017
  *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
  *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
  *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
@@ -27,12 +27,20 @@ import java.security.MessageDigest;
 import org.apache.commons.io.FileUtils;
 
 public class FileUtility {
+	public static Path getResourcesPath()
+	{
+		File classFile = new File(FileUtility.class.getProtectionDomain().getCodeSource().getLocation().getFile());
+		String classPath = classFile.getAbsolutePath();
+		String classesPath = classPath.substring(0, classPath.indexOf("classes") + "classes".length());
+		return Paths.get(classesPath, "resources");
+	}
+
 	public static Boolean isAbsolutePath(String path)
 	{
 		Path path2 = Paths.get(path);
 		return path2.isAbsolute();
 	}
-	
+
 	public static String readFile(String fileName, int bufferSize) throws IOException {
 		File file = new File(fileName);
 		FileInputStream fis = new FileInputStream(file);
@@ -67,7 +75,7 @@ public class FileUtility {
 		out.flush();
 		out.close();
 	}
-	
+
 	public static String readFile(String fileName) throws IOException {
 		return readFile(fileName, 8192);
 	}
@@ -75,7 +83,7 @@ public class FileUtility {
 	public static String readFile(String fileName, String encoding) throws IOException {
 		return readFile(fileName, 8192, encoding);
 	}
-	
+
 	public static String combinePaths(String[] paths) {
 		if (paths.length == 0) {
 			return "";
@@ -105,37 +113,37 @@ public class FileUtility {
 				throw new Exception("Unable to create directory - " + directory);
 		}
 	}
-	
+
 	public static String getMd5OfFile(String filePath)
 	{
-	    String returnVal = "";
-	    try 
-	    {
-	        InputStream   input   = new FileInputStream(filePath); 
-	        byte[]        buffer  = new byte[1024];
-	        MessageDigest md5Hash = MessageDigest.getInstance("MD5");
-	        int           numRead = 0;
-	        while (numRead != -1)
-	        {
-	            numRead = input.read(buffer);
-	            if (numRead > 0)
-	            {
-	                md5Hash.update(buffer, 0, numRead);
-	            }
-	        }
-	        input.close();
+		String returnVal = "";
+		try 
+		{
+			InputStream   input   = new FileInputStream(filePath); 
+			byte[]        buffer  = new byte[1024];
+			MessageDigest md5Hash = MessageDigest.getInstance("MD5");
+			int           numRead = 0;
+			while (numRead != -1)
+			{
+				numRead = input.read(buffer);
+				if (numRead > 0)
+				{
+					md5Hash.update(buffer, 0, numRead);
+				}
+			}
+			input.close();
 
-	        byte [] md5Bytes = md5Hash.digest();
-	        for (int i=0; i < md5Bytes.length; i++)
-	        {
-	            returnVal += Integer.toString( ( md5Bytes[i] & 0xff ) + 0x100, 16).substring( 1 );
-	        }
-	    } 
-	    catch(Throwable t) {t.printStackTrace();}
-	    
-	    return returnVal.toUpperCase();
+			byte [] md5Bytes = md5Hash.digest();
+			for (int i=0; i < md5Bytes.length; i++)
+			{
+				returnVal += Integer.toString( ( md5Bytes[i] & 0xff ) + 0x100, 16).substring( 1 );
+			}
+		} 
+		catch(Throwable t) {t.printStackTrace();}
+
+		return returnVal.toUpperCase();
 	}
-	
+
 	public static String getExtension(String fileName)
 	{
 		String extension = "";
@@ -144,9 +152,9 @@ public class FileUtility {
 		int p = Math.max(fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
 
 		if (i > p) {
-		    extension = fileName.substring(i);
+			extension = fileName.substring(i);
 		}
-		
+
 		return extension;
 	}
 

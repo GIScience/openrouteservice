@@ -5,6 +5,7 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.FlagEncoderFactory;
 import com.graphhopper.util.PMap;
 
+import heigit.ors.routing.graphhopper.extensions.flagencoders.CarFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.CarOffRoadFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.CarTmcFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.CycleTourBikeFlagEncoder;
@@ -16,6 +17,7 @@ import heigit.ors.routing.graphhopper.extensions.flagencoders.SafetyBikeFlagEnco
 import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 
 public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory implements FlagEncoderFactory {
+	 private static final String CAR = "car";
 	 private static final String CAROFFROAD = "caroffroad";
 	 private static final String SAFETYBIKE = "safetybike";
 	 private static final String ELECTROBIKE = "electrobike";
@@ -45,6 +47,9 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
     	
     	if (name.equals(HEAVYVEHICLE))
             return new HeavyVehicleFlagEncoder(configuration);
+    	
+    	if (name.equals(CAR))
+            return new CarFlagEncoder(configuration);
 
     	if (name.equals(CAROFFROAD))
             return new CarOffRoadFlagEncoder(configuration);

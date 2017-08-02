@@ -26,6 +26,7 @@ import java.util.TreeMap;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import heigit.ors.exceptions.MissingParameterException;
+import heigit.ors.util.FileUtility;
 public class LocationsCategoryClassifier 
 {
 	private static int[] _categoryIdToGroupIndex;
@@ -38,10 +39,7 @@ public class LocationsCategoryClassifier
 	{
 		try
 		{
-			File classFile = new File(LocationsCategoryClassifier.class.getProtectionDomain().getCodeSource().getLocation().getFile());
-			String classPath = classFile.getAbsolutePath();
-			String classesPath = classPath.substring(0, classPath.indexOf("classes") + "classes".length());
-			Path categoriesPath = Paths.get(classesPath, "resources", "services", "locations", "categories.txt");
+			Path categoriesPath = Paths.get(FileUtility.getResourcesPath().toString(), "services", "locations", "categories.txt");
 			File categoriesFile = categoriesPath.toFile();
 			if (!categoriesFile.exists())
 				throw new MissingParameterException("File 'categories.txt' is missing.");
