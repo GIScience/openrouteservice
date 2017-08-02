@@ -156,12 +156,29 @@ public class JsonRoutingRequestParser
 			}
 			catch(ParseException ex)
 			{
-				throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_JSON_FORMAT, "Unable to parse 'options' value." + ex.getMessage());
+				throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, "Unable to parse 'options' value." + ex.getMessage());
 			}
 			catch(StatusCodeException scex)
 			{
 				throw scex;
 			}
+		}
+		
+		value = request.getParameter("optimized");
+		if (!Helper.isEmpty(value))
+		{
+		   try
+		   {
+			   Boolean b = Boolean.parseBoolean(value);
+			   if (!b && !value.equalsIgnoreCase("false"))
+				   throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "optimized");
+			   
+			   searchParams.setFlexibleMode(!b);
+		   }
+		   catch(Exception ex)
+		   {
+			   throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "optimized");
+		   }
 		}
 
 		value = request.getParameter("id");

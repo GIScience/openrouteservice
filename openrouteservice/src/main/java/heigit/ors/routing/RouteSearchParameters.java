@@ -31,6 +31,7 @@ public class RouteSearchParameters {
 	private int _avoidFeaturesTypes;
 	private int _vehicleType = HeavyVehicleAttributes.UNKNOWN;
 	private ProfileParameters _profileParams;
+	private boolean _flexibleMode = false;
 
 	private String _options;
 
@@ -363,5 +364,13 @@ public class RouteSearchParameters {
 	public ProfileParameters getProfileParameters()
 	{
 		return _profileParams;
+	}
+
+	public boolean getFlexibleMode() {
+		return _flexibleMode;
+	}
+
+	public void setFlexibleMode(boolean _flexibleMode) {
+		this._flexibleMode = _flexibleMode;
 	}
 }

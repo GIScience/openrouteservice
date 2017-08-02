@@ -739,7 +739,7 @@ public class RoutingProfile
 			int weightingMethod = searchParams.getWeightingMethod();
 			RouteSearchContext searchCntx = createSearchContext(searchParams, RouteSearchMode.Routing);
 
-			boolean flexibleMode = false;
+			boolean flexibleMode = searchParams.getFlexibleMode();
 			GHRequest req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
 			req.setVehicle(searchCntx.getEncoder().toString());
 			req.setMaxSpeed(searchParams.getMaximumSpeed());
