@@ -18,7 +18,7 @@ import java.util.List;
 import heigit.ors.routing.parameters.VehicleParameters;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
-import heigit.ors.routing.graphhopper.extensions.VehicleRestrictionCodes;
+import heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.HeavyVehicleFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
@@ -87,17 +87,17 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 
 		this.hasHazmat = VehicleLoadCharacteristicsFlags.isSet(vehicleParams.getLoadCharacteristics(), VehicleLoadCharacteristicsFlags.HAZMAT);
 
-		float[] vehicleAttrs = new float[VehicleRestrictionCodes.Count];
+		float[] vehicleAttrs = new float[VehicleDimensionRestrictions.Count];
 
-		vehicleAttrs[VehicleRestrictionCodes.MaxHeight] = (float)vehicleParams.getHeight();
-		vehicleAttrs[VehicleRestrictionCodes.MaxWidth] = (float)vehicleParams.getWidth();
-		vehicleAttrs[VehicleRestrictionCodes.MaxWeight] = (float)vehicleParams.getWeight();
-		vehicleAttrs[VehicleRestrictionCodes.MaxLength] = (float)vehicleParams.getLength();
-		vehicleAttrs[VehicleRestrictionCodes.MaxAxleLoad] = (float)vehicleParams.getAxleload();
+		vehicleAttrs[VehicleDimensionRestrictions.MaxHeight] = (float)vehicleParams.getHeight();
+		vehicleAttrs[VehicleDimensionRestrictions.MaxWidth] = (float)vehicleParams.getWidth();
+		vehicleAttrs[VehicleDimensionRestrictions.MaxWeight] = (float)vehicleParams.getWeight();
+		vehicleAttrs[VehicleDimensionRestrictions.MaxLength] = (float)vehicleParams.getLength();
+		vehicleAttrs[VehicleDimensionRestrictions.MaxAxleLoad] = (float)vehicleParams.getAxleload();
 
 		ArrayList<Integer> idx = new ArrayList<Integer>();
 
-		for (int i = 0; i < VehicleRestrictionCodes.Count; i++) {
+		for (int i = 0; i < VehicleDimensionRestrictions.Count; i++) {
 			float value = vehicleAttrs[i];
 			if (value > 0) {
 				idx.add(i);
