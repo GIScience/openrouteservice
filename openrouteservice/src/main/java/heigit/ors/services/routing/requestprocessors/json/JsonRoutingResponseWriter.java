@@ -101,6 +101,12 @@ public class JsonRoutingResponseWriter {
 
 		return jResp;
 	}
+	
+	public static JSONObject toGeoJson(RoutingRequest request, RouteResult[] routeResult) throws Exception
+	{
+		// TODO
+		return null;
+	}
 
 	public static JSONArray toJsonArray(RoutingRequest request, RouteResult[] routeResult, BBox bbox) throws Exception
 	{
