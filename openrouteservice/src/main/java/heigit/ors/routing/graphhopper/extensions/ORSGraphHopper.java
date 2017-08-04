@@ -142,6 +142,7 @@ public class ORSGraphHopper extends GraphHopper {
 		req.setVehicle(vehicle);
 		req.setAlgorithm("dijkstrabi");
 		req.setWeighting("fastest");
+		// TODO add limit of maximum visited nodes
 
 		if (edgeFilter != null)
 			req.setEdgeFilter(edgeFilter);

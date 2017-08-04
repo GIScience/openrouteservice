@@ -30,10 +30,10 @@ import heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import heigit.ors.routing.configuration.RoutingManagerConfiguration;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
-import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.isochrones.IsochroneSearchParameters;
+import heigit.ors.mapmatching.MapMatchingRequest;
 import heigit.ors.matrix.MatrixErrorCodes;
 import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
@@ -302,6 +302,13 @@ public class RoutingProfileManager {
 		}
 
 		return routes;
+	}
+	
+	public RouteResult matchTrack(MapMatchingRequest req) throws Exception
+	{
+		//RoutingProfile rp = getRouteProfile(req, false);
+		
+		return null;
 	}
 
 	public RouteResult computeRoute(RoutingRequest req) throws Exception

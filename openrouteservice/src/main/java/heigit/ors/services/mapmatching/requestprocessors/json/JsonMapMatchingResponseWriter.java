@@ -9,7 +9,7 @@
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-package heigit.ors.services.routing.requestprocessors.json;
+package heigit.ors.services.mapmatching.requestprocessors.json;
 
 import java.util.List;
 
@@ -32,13 +32,14 @@ import heigit.ors.routing.RouteSummary;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.RoutingRequest;
 import heigit.ors.routing.WeightingMethod;
+import heigit.ors.services.mapmatching.MapMatchingServiceSettings;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.PolylineEncoder;
 
-public class JsonRoutingResponseWriter {
+public class JsonMapMatchingResponseWriter {
 
 	public static JSONObject toJson(RoutingRequest request, RouteResult[] routeResult) throws Exception
 	{
@@ -58,7 +59,7 @@ public class JsonRoutingResponseWriter {
 		JSONObject jInfo = new JSONObject(3);
 		jInfo.put("service", "routing");
 		jInfo.put("version", AppInfo.VERSION);
-		if (!Helper.isEmpty(RoutingServiceSettings.getAttribution()))
+		if (!Helper.isEmpty(MapMatchingServiceSettings.getAttribution()))
 			jInfo.put("attribution", RoutingServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());
 

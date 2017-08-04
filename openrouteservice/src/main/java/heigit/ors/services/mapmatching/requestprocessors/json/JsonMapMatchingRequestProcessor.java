@@ -9,7 +9,7 @@
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-package heigit.ors.services.routing.requestprocessors.json;
+package heigit.ors.services.mapmatching.requestprocessors.json;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,32 +18,45 @@ import org.json.JSONObject;
 
 import com.graphhopper.util.Helper;
 
+import heigit.ors.common.StatusCode;
+import heigit.ors.exceptions.ParameterOutOfRangeException;
+import heigit.ors.exceptions.StatusCodeException;
+import heigit.ors.mapmatching.MapMatchingErrorCodes;
+import heigit.ors.mapmatching.MapMatchingRequest;
 import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RoutingProfileManager;
-import heigit.ors.routing.RoutingRequest;
+import heigit.ors.services.mapmatching.MapMatchingServiceSettings;
+import heigit.ors.services.matrix.MatrixServiceSettings;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
 
-public class JsonRoutingRequestProcessor extends AbstractHttpRequestProcessor {
+public class JsonMapMatchingRequestProcessor extends AbstractHttpRequestProcessor {
 
-	public JsonRoutingRequestProcessor(HttpServletRequest request) throws Exception 
+	public JsonMapMatchingRequestProcessor(HttpServletRequest request) throws Exception 
 	{
 		super(request);
 	}
 
 	@Override
 	public void process(HttpServletResponse response) throws Exception {
-		RoutingRequest rreq = JsonRoutingRequestParser.parseFromRequestParams(_request);
+		MapMatchingRequest req = JsonMapMatchingRequestParser.parseFromRequestParams(_request);
 		
-		RouteResult result = RoutingProfileManager.getInstance().computeRoute(rreq);
+		if (req == null)
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, MapMatchingErrorCodes.UNKNOWN, "MapMatchingRequest object is null.");
+		
+		if (MapMatchingServiceSettings.getMaximumLocations() > 0 && req.getCoordinates().length > MatrixServiceSettings.getMaximumLocations())
+			throw new ParameterOutOfRangeException(MapMatchingErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "sources/destinations", Integer.toString(req.getCoordinates().length), Integer.toString(MapMatchingServiceSettings.getMaximumLocations()));
+
+		
+		RouteResult result = RoutingProfileManager.getInstance().matchTrack(req);
 		
 		JSONObject json = null;
 		
 		String respFormat = _request.getParameter("format");
 		if (Helper.isEmpty(respFormat) || "json".equalsIgnoreCase(respFormat))
-			json = JsonRoutingResponseWriter.toJson(rreq, new RouteResult[] { result });
+			json = JsonMapMatchingResponseWriter.toJson(req, new RouteResult[] { result });
 		else if ("geojson".equalsIgnoreCase(respFormat))
-			json = JsonRoutingResponseWriter.toGeoJson(rreq, new RouteResult[] { result });
+			json = JsonMapMatchingResponseWriter.toGeoJson(req, new RouteResult[] { result });
 		
 		ServletUtility.write(response, json, "UTF-8");
 	}

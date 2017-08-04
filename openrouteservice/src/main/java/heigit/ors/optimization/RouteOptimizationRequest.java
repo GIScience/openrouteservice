@@ -16,9 +16,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.matrix.MatrixMetricsType;
 import heigit.ors.matrix.MatrixRequest;
+import heigit.ors.routing.RouteInstructionsFormat;
+import heigit.ors.routing.RoutingRequest;
 import heigit.ors.services.ServiceRequest;
-import heigit.ors.services.routing.RouteInstructionsFormat;
-import heigit.ors.services.routing.RoutingRequest;
 
 public class RouteOptimizationRequest extends ServiceRequest {
 	private int _profileType;

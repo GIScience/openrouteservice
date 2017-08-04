@@ -265,7 +265,10 @@ public class TrafficUtility {
 				if (!((startID == from && endID == to) || (startID == to && endID == from)))
 					return null;
 			}*/
-			
+			Coordinate[] locations = new Coordinate[2];
+            locations[0] = startCoordinate;
+            locations[1] = endCoordinate;
+            
 			double segmentDist = distCalc.calcDist(startCoordinate.y, startCoordinate.x, endCoordinate.y,
 					endCoordinate.x);
 			
@@ -286,8 +289,7 @@ public class TrafficUtility {
 					threshold = 0.45;
 				}
 
-				rsiArray = rp.getMatchedSegments(startCoordinate.y, startCoordinate.x,
-						endCoordinate.y, endCoordinate.x, searchRadius, true);
+				rsiArray = rp.getMatchedSegments(locations, searchRadius, true);
 
 				if (rsiArray != null) {
 					if (Math.abs(rsiArray[0].getDistance() - segmentDist) / segmentDist > threshold)

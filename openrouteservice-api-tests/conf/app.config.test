@@ -17,11 +17,20 @@
 	        	attribution: "openrouteservice.org, OpenStreetMap contributors"
 	    	}			
         	matrix: {
+        	    enabled: true,
                 maximum_locations: 200,
 				maximum_visited_nodes: 100000,
                	allow_resolve_locations: true,
                 attribution: "openrouteservice.org, OpenStreetMap contributors"
             }
+            mapmatching: {
+        	    enabled: true,
+                maximum_locations: 100,
+                maximum_search_radius: 200,
+                maximum_visited_nodes: 10000,
+                attribution: "openrouteservice.org, OpenStreetMap contributors"
+            }
+            
 			isochrones: {
 				enabled: true,
 				# possible values for maximum_range_distance and maximum_range_time are an integer or a list of values specifically defined for each profile
@@ -41,6 +50,7 @@
 				attribution: "openrouteservice.org, OpenStreetMap contributors"
 			}
 			geocoding: {
+            	enabled: true,
             	geocoder_name: pelias,
                 geocoding_url: "http://129.206.7.154:3100/v1/search",
                 reverse_geocoding_url: "http://129.206.7.154:3100/v1/reverse",
