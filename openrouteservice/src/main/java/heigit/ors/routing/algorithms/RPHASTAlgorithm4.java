@@ -309,9 +309,7 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 				int[] edgeIds = new int[numTrees];
 				Arrays.fill(edgeIds, EdgeIterator.NO_EDGE);
 				ee = new MultiTreeSPEntry(edgeIds, iter.getAdjNode(), numTrees);
-				// ee.parent = currEdge;
 				ee.visited = true;
-				// double edgeWeight = weighting.calcWeight(iter, false, -1);
 				double tmpWeight;
 				for (int i = 0; i < numTrees; i++) {
 					if (currEdge.weights[i] == -1)
@@ -359,7 +357,6 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 					prioQueue.add(ee);
 				}
 				if (addToQ) {
-					// prioQueue.remove(ee);
 
 					ee.visited = true;
 					prioQueue.add(ee);
