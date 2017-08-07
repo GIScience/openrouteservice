@@ -25,7 +25,7 @@ public class EmergencyFlagEncoder extends ORSAbstractFlagEncoder
     protected final HashSet<String> yesValues = new HashSet<String>(5);
     protected final List<String> hgvAccess = new ArrayList<String>(5);
     
- // This value determines the maximal possible on roads with bad surfaces
+    // This value determines the maximal possible on roads with bad surfaces
     protected int badSurfaceSpeed;
 
     // This value determines the speed for roads with access=destination
