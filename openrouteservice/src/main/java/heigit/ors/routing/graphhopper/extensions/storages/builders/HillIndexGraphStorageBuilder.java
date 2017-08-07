@@ -2,7 +2,7 @@
  *|														Heidelberg University
  *|	  _____ _____  _____      _                     	Department of Geography		
  *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
- *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2017
  *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
  *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
  *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
@@ -39,7 +39,7 @@ public class HillIndexGraphStorageBuilder extends AbstractGraphStorageBuilder
 		_arrayBuffer = new ByteArrayBuffer();
 		if (graphhopper.hasElevation())
 		{
-			_storage = new HillIndexGraphStorage();
+			_storage = new HillIndexGraphStorage(_parameters);
 			_hillIndexCalc = new HillIndexCalculator();
 			
 			return _storage;
@@ -49,7 +49,7 @@ public class HillIndexGraphStorageBuilder extends AbstractGraphStorageBuilder
 	}
 
 	public void processWay(ReaderWay way) {
-		// TODO Auto-generated method stub		
+		
 	}
 
 	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
