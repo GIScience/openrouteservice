@@ -79,7 +79,7 @@ public class JsonRoutingRequestParser
 			}
 
 			if (coords.length < 2)
-				throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, "coordinates parameter must contain at least two locations");
+				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "coordinates parameter must contain at least two locations");
 
 			req.setCoordinates(coords);
 		}		

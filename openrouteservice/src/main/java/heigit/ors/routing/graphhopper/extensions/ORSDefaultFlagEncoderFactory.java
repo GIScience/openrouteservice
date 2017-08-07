@@ -5,6 +5,7 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.FlagEncoderFactory;
 import com.graphhopper.util.PMap;
 
+import heigit.ors.routing.graphhopper.extensions.flagencoders.BikeFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.CarFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.CarOffRoadFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.CarTmcFlagEncoder;
@@ -13,12 +14,17 @@ import heigit.ors.routing.graphhopper.extensions.flagencoders.ElectroBikeFlagEnc
 import heigit.ors.routing.graphhopper.extensions.flagencoders.EmergencyFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.HeavyVehicleFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.HikingFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.MountainBikeFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.RacingBikeFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.SafetyBikeFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 
 public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory implements FlagEncoderFactory {
 	 private static final String CAR = "car";
 	 private static final String CAROFFROAD = "caroffroad";
+	 private static final String BIKE = "bike";
+	 private static final String MTB = "bike";
+	 private static final String RACINGBIKE = "racingbike";
 	 private static final String SAFETYBIKE = "safetybike";
 	 private static final String ELECTROBIKE = "electrobike";
 	 private static final String CYCLETOURBIKE = "cycletourbike";
@@ -30,12 +36,16 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
     
     @Override
     public FlagEncoder createFlagEncoder(String name, PMap configuration) {
+    	if (name.equals(BIKE))
+            return new BikeFlagEncoder(configuration);
+    	if (name.equals(MTB))
+            return new MountainBikeFlagEncoder(configuration);
+    	if (name.equals(RACINGBIKE))
+            return new RacingBikeFlagEncoder(configuration);
     	if (name.equals(SAFETYBIKE))
             return new SafetyBikeFlagEncoder(configuration);
-    	
     	if (name.equals(ELECTROBIKE))
             return new ElectroBikeFlagEncoder(configuration);
-
      	if (name.equals(CYCLETOURBIKE))
             return new CycleTourBikeFlagEncoder(configuration);
      	

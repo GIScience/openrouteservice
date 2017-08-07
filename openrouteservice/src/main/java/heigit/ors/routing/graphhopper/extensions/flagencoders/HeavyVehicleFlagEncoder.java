@@ -12,7 +12,6 @@ import java.util.TreeMap;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodedDoubleValue;
 import com.graphhopper.routing.util.EncodedValue;
 import com.graphhopper.routing.util.PriorityCode;
@@ -22,7 +21,7 @@ import com.graphhopper.util.PMap;
 
 import java.util.*;
 
-public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
+public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
 {
     protected final HashSet<String> forwardKeys = new HashSet<String>(5);
     protected final HashSet<String> backwardKeys = new HashSet<String>(5);
@@ -30,7 +29,6 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
     protected final HashSet<String> yesValues = new HashSet<String>(5);
     protected final List<String> hgvAccess = new ArrayList<String>(5);
     
-    protected final SpeedLimitHandler _speedLimitHandler;
     protected int maxTrackGradeLevel = 3;
     
     /**
@@ -197,10 +195,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 
         preferWayEncoder = new EncodedValue("PreferWay", shift, 3, 1, 0, 7);
 		shift += preferWayEncoder.getBits();
-		
-		//vehicleDirectionEncoder = new HeavyVehicleEncodedValue(shift);
-		//shift += vehicleDirectionEncoder.getBits();
-		
+
 		return shift;
     }
 
@@ -218,7 +213,7 @@ public class HeavyVehicleFlagEncoder extends AbstractFlagEncoder
 	}
 	
 	@Override
-	protected double getMaxSpeed( ReaderWay way ) // runge
+	public double getMaxSpeed( ReaderWay way ) // runge
 	{
 		boolean bCheckMaxSpeed = false;
 		String maxspeedTag = way.getTag("maxspeed:hgv");
