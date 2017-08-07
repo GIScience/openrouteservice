@@ -6,12 +6,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodedDoubleValue;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.util.Helper;
@@ -19,18 +17,15 @@ import com.graphhopper.util.PMap;
 
 import java.util.*;
 
-public class EmergencyFlagEncoder extends AbstractFlagEncoder
+public class EmergencyFlagEncoder extends ORSAbstractFlagEncoder
 {
-    protected final Map<String, Integer> trackTypeSpeedMap = new HashMap<String, Integer>();
-    protected final Set<String> badSurfaceSpeedMap = new HashSet<String>();
-    
     protected final HashSet<String> forwardKeys = new HashSet<String>(5);
     protected final HashSet<String> backwardKeys = new HashSet<String>(5);
     protected final HashSet<String> noValues = new HashSet<String>(5);
     protected final HashSet<String> yesValues = new HashSet<String>(5);
     protected final List<String> hgvAccess = new ArrayList<String>(5);
     
- // This value determines the maximal possible on roads with bad surfaces
+    // This value determines the maximal possible on roads with bad surfaces
     protected int badSurfaceSpeed;
 
     // This value determines the speed for roads with access=destination
@@ -41,7 +36,6 @@ public class EmergencyFlagEncoder extends AbstractFlagEncoder
      * http://www.itoworld.com/map/124#fullscreen
      * http://wiki.openstreetmap.org/wiki/OSM_tags_for_routing/Maxspeed
      */
-    protected final Map<String, Integer> defaultSpeedMap = new HashMap<String, Integer>();
 	
     /**
      * Should be only instantied via EncodingManager
@@ -88,20 +82,43 @@ public class EmergencyFlagEncoder extends AbstractFlagEncoder
         absoluteBarriers.add("motorcycle_barrier");
         absoluteBarriers.add("block");
 
+        Map<String, Integer> trackTypeSpeedMap = new HashMap<String, Integer>();
         trackTypeSpeedMap.put("grade1", 25); // paved
         trackTypeSpeedMap.put("grade2", 15); // now unpaved - gravel mixed with ...
         trackTypeSpeedMap.put("grade3", 15); // ... hard and soft materials
         trackTypeSpeedMap.put("grade4", 10); // ... some hard or compressed materials
         trackTypeSpeedMap.put("grade5", 5); // ... no hard materials. soil/sand/grass
 
-        badSurfaceSpeedMap.add("cobblestone");
-        badSurfaceSpeedMap.add("grass_paver");
-        badSurfaceSpeedMap.add("gravel");
-        badSurfaceSpeedMap.add("sand");
-        badSurfaceSpeedMap.add("paving_stones");
-        badSurfaceSpeedMap.add("dirt");
-        badSurfaceSpeedMap.add("ground");
-        badSurfaceSpeedMap.add("grass");
+        Map<String, Integer> badSurfaceSpeedMap = new HashMap<String, Integer>();
+        badSurfaceSpeedMap.put("asphalt", -1); 
+        badSurfaceSpeedMap.put("concrete", -1);
+        badSurfaceSpeedMap.put("concrete:plates", -1);
+        badSurfaceSpeedMap.put("concrete:lanes", -1);
+        badSurfaceSpeedMap.put("paved", -1);
+        badSurfaceSpeedMap.put("cement", 80);
+        badSurfaceSpeedMap.put("compacted", 80);
+        badSurfaceSpeedMap.put("fine_gravel", 60);
+        badSurfaceSpeedMap.put("paving_stones", 40);
+        badSurfaceSpeedMap.put("metal", 40);
+        badSurfaceSpeedMap.put("bricks", 40);
+        badSurfaceSpeedMap.put("grass", 30);
+        badSurfaceSpeedMap.put("wood", 30);
+        badSurfaceSpeedMap.put("sett", 30);
+        badSurfaceSpeedMap.put("grass_paver", 30);
+        badSurfaceSpeedMap.put("gravel", 30);
+        badSurfaceSpeedMap.put("unpaved", 30);
+        badSurfaceSpeedMap.put("ground", 30);
+        badSurfaceSpeedMap.put("dirt", 30);
+        badSurfaceSpeedMap.put("pebblestone", 30);
+        badSurfaceSpeedMap.put("tartan", 30);
+        badSurfaceSpeedMap.put("cobblestone", 20);
+        badSurfaceSpeedMap.put("clay", 20);
+        badSurfaceSpeedMap.put("earth", 15);
+        badSurfaceSpeedMap.put("stone", 15);
+        badSurfaceSpeedMap.put("rocky", 15);
+        badSurfaceSpeedMap.put("sand", 15);
+        badSurfaceSpeedMap.put("mud", 10);
+        badSurfaceSpeedMap.put("unknown", 30);
         
      // limit speed on bad surfaces to 30 km/h
         badSurfaceSpeed = 30;
@@ -110,6 +127,7 @@ public class EmergencyFlagEncoder extends AbstractFlagEncoder
 
         maxPossibleSpeed = 140;
 
+        Map<String, Integer> defaultSpeedMap = new HashMap<String, Integer>();
         // autobahn
         defaultSpeedMap.put("motorway", 130);
         defaultSpeedMap.put("motorway_link", 50);
@@ -143,6 +161,8 @@ public class EmergencyFlagEncoder extends AbstractFlagEncoder
         defaultSpeedMap.put("aeroway=taxilane", 100);
         
         // FIXME: allow highway=footway, pedestrian
+        
+        _speedLimitHandler = new SpeedLimitHandler(this.toString(), defaultSpeedMap, badSurfaceSpeedMap, trackTypeSpeedMap);
 
         forwardKeys.add("goods:forward");
         forwardKeys.add("hgv:forward");
@@ -180,7 +200,7 @@ public class EmergencyFlagEncoder extends AbstractFlagEncoder
     {
         // first two bits are reserved for route handling in superclass
         shift = super.defineWayBits(index, shift);
-        speedEncoder = new EncodedDoubleValue("Speed", shift, speedBits, speedFactor, defaultSpeedMap.get("secondary"), maxPossibleSpeed);
+        speedEncoder = new EncodedDoubleValue("Speed", shift, speedBits, speedFactor, _speedLimitHandler.getSpeed("secondary"), maxPossibleSpeed);
         shift += speedEncoder.getBits();
 	
 		return shift;
@@ -198,7 +218,7 @@ public class EmergencyFlagEncoder extends AbstractFlagEncoder
 
 	
 	@Override
-	protected double getMaxSpeed(ReaderWay way ) // runge
+	public double getMaxSpeed(ReaderWay way ) // runge
 	{
 		boolean bCheckMaxSpeed = true;
 /*
@@ -225,7 +245,7 @@ public class EmergencyFlagEncoder extends AbstractFlagEncoder
 		if (bCheckMaxSpeed)
 		{
 			String highway = way.getTag("highway");
-			double defaultSpeed = defaultSpeedMap.get(highway);
+			double defaultSpeed = _speedLimitHandler.getSpeed(highway);
 			if (defaultSpeed < maxSpeed) // TODO
 				maxSpeed = defaultSpeed;
 		}
@@ -248,15 +268,15 @@ public class EmergencyFlagEncoder extends AbstractFlagEncoder
                  && highwayValue != "motorway" && highwayValue != "motorway_link") {
              highwayValue = "motorroad";
          }
-         Integer speed = defaultSpeedMap.get(highwayValue);
+         Integer speed = _speedLimitHandler.getSpeed(highwayValue);
          if (speed == null)
              throw new IllegalStateException(toString() + ", no speed found for: " + highwayValue + ", tags: " + way);
 
          if (highwayValue.equals("track")) {
              String tt = way.getTag("tracktype");
              if (!Helper.isEmpty(tt)) {
-                 Integer tInt = trackTypeSpeedMap.get(tt); // FIXME
-                 if (tInt != null)
+                 Integer tInt = _speedLimitHandler.getTrackTypeSpeed(tt); // FIXME
+                 if (tInt != null && tInt != -1)
                      speed = tInt;
              }
          }
@@ -300,7 +320,7 @@ public class EmergencyFlagEncoder extends AbstractFlagEncoder
         //         return 0;
         // }
 
-        if (!defaultSpeedMap.containsKey(highwayValue))
+        if (!_speedLimitHandler.hasSpeedValue(highwayValue))
             return 0;
 
         if (way.hasTag("impassable", "yes") || way.hasTag("status", "impassable"))
@@ -377,7 +397,7 @@ public class EmergencyFlagEncoder extends AbstractFlagEncoder
                 flags |= directionBitMask;
 
         } else {
-            double ferrySpeed = getFerrySpeed(way, defaultSpeedMap.get("living_street"), defaultSpeedMap.get("service"), defaultSpeedMap.get("residential"));
+            double ferrySpeed = getFerrySpeed(way, _speedLimitHandler.getSpeed("living_street"), _speedLimitHandler.getSpeed("service"), _speedLimitHandler.getSpeed("residential"));
             flags = setSpeed(flags, ferrySpeed);
             flags |= directionBitMask;
         }
@@ -400,8 +420,15 @@ public class EmergencyFlagEncoder extends AbstractFlagEncoder
      */
     protected double applyBadSurfaceSpeed(ReaderWay way, double speed) {
         // limit speed if bad surface
-        if (badSurfaceSpeed > 0 && speed > badSurfaceSpeed && way.hasTag("surface", badSurfaceSpeedMap))
-            speed = badSurfaceSpeed;
+       // if (badSurfaceSpeed > 0 && speed > badSurfaceSpeed && way.hasTag("surface", badSurfaceSpeedMap))
+       //     speed = badSurfaceSpeed;
+    	String surface = way.getTag("surface");
+    	if (surface != null)
+    	{
+    		Integer surfaceSpeed = _speedLimitHandler.getSurfaceSpeed(surface);
+    		if (speed > surfaceSpeed && surfaceSpeed != -1)
+    		   return surfaceSpeed;
+    	}
         return speed;
     }
     

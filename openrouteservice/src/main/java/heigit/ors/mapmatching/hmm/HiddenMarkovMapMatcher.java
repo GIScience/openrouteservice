@@ -31,6 +31,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /*
  * This class presents an implementation of a map matching algorithm based on a paper "Hidden Markov Map Matching Through Noise and Sparseness" written by Paul Newson and John Krumm  
@@ -55,7 +56,8 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 	private double[] latitudes = new double[2];
 
 	
-	private class MatchPoint extends Point {
+	@SuppressWarnings("serial")
+	private class MatchPoint extends Coordinate {
 		public int segmentId;
 		public double distance;
 		public int measuredPointIndex;
@@ -65,44 +67,34 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 		}
 	}
 
-	private class Point {
-		public double lat;
-		public double lon;
-
-		public Point(double lat, double lon) {
-			this.lat = lat;
-			this.lon = lon;
-		}
-	}
-	
 	public void setSearchRadius(double radius)
 	{
-		mSearchRadius = radius;
+		_searchRadius = radius;
 		if (locationIndex != null)
 			locationIndex.setGpxAccuracy(radius);
 	}
 
 	public void setGraphHopper(GraphHopper gh) {
-		mGraphHopper = gh;
+		_graphHopper = gh;
 
 		encoder = gh.getEncodingManager().fetchEdgeEncoders().get(0);
 		GraphHopperStorage graph = gh.getGraphHopperStorage();
 		locationIndex = new LocationIndexMatch(graph,
-				(com.graphhopper.storage.index.LocationIndexTree) gh.getLocationIndex(), (int)mSearchRadius);
+				(com.graphhopper.storage.index.LocationIndexTree) gh.getLocationIndex(), (int)_searchRadius);
 	}
 
 	@Override
-	public RouteSegmentInfo[] match(double lat0, double lon0, double lat1, double lon1, boolean bothDirections) {
-		EdgeFilter edgeFilter = mEdgeFilter == null ? new DefaultEdgeFilter(encoder) : mEdgeFilter;
+	public RouteSegmentInfo[] match(Coordinate[] locations, boolean bothDirections) {
+		EdgeFilter edgeFilter = _edgeFilter == null ? new DefaultEdgeFilter(encoder) : _edgeFilter;
 
 		boolean bPreciseMode = false;
-		int nPoints = 2;
-		Point[] inputPoints = new Point[nPoints];
-		inputPoints[0] = new Point(lat0, lon0);
+		int nPoints = locations.length;
+		//Point[] inputPoints = new Point[nPoints];
+		//inputPoints[0] = new Point(lat0, lon0);
 		//inputPoints[1] = new Point((lat0 + lat1)/2.0, (lon0+lon1)/2.0); // extension
 		//inputPoints[2] = new Point(lat1, lon1);
-		inputPoints[1] = new Point(lat1, lon1);
-		Point[] z = inputPoints;
+		//inputPoints[1] = new Point(lat1, lon1);
+		Coordinate[] z = locations;
 		int Nz = z.length;
 		int Nr = 0;
 		matchPoints.clear();
@@ -110,13 +102,13 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 		
 		// Phase I: We are looking for the nearest road segments
 		MatchPoint[][] x = new MatchPoint[Nz][];
-		double searchRadius = mSearchRadius;
+		double searchRadius = _searchRadius;
 		
 		for (int i = 0; i < nPoints; i++) {
-			Point zt = z[i];
-			mSearchRadius = (bPreciseMode && i == 1) ? 50 : searchRadius;
+			Coordinate zt = z[i];
+			_searchRadius = (bPreciseMode && i == 1) ? 50 : searchRadius;
 				
-			MatchPoint[] xi = findNearestPoints(zt.lat, zt.lon, i, edgeFilter, matchPoints, roadSegments);
+			MatchPoint[] xi = findNearestPoints(zt.y, zt.x, i, edgeFilter, matchPoints, roadSegments);
 
 			if (xi == null)
 				return null;
@@ -124,7 +116,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 			x[i] = xi;
 		}
 		
-		mSearchRadius = searchRadius;
+		_searchRadius = searchRadius;
 
 		Nr += roadSegments.size();
 
@@ -143,7 +135,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 			startProbs = new double[Nr];
 
 			for (int i = 0; i < Nz / 2; i++) {
-				Point tempZ = z[i];
+				Coordinate tempZ = z[i];
 				z[i] = z[Nz - i - 1];
 				z[Nz - i - 1] = tempZ;
 
@@ -193,12 +185,12 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 		return result;
 	}
 
-	private RouteSegmentInfo findRouteSegments(Point[] z, MatchPoint[][] x, int Nr, int Nz, double[] startProbs, double[][] emissionProbs, double[][] transProbs, EdgeFilter edgeFilter)
+	private RouteSegmentInfo findRouteSegments(Coordinate[] z, MatchPoint[][] x, int Nr, int Nz, double[] startProbs, double[][] emissionProbs, double[][] transProbs, EdgeFilter edgeFilter)
 	{
 		// Phase II: Compute distances, probabilities, etc.
 
 		double v, dist;
-		Point z0 = z[0];
+		Coordinate z0 = z[0];
 		
 		double defaultProbability = 0.0;
 		double distThreshold = 250;
@@ -219,7 +211,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
 				if (startProbs[ri] == 0.0)
 				{
-					dist = distCalcEarth.calcDist(z0.lat, z0.lon, xi.lat, xi.lon) / sigma_z;
+					dist = distCalcEarth.calcDist(z0.y, z0.x, xi.y, xi.x) / sigma_z;
 					if (dist > distThreshold || xi.measuredPointIndex != 0)
 						startProbs[ri] = defaultProbability;
 					else {
@@ -235,9 +227,9 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 		
 		for (int i = 0; i < z.length - 1 ; i++)
 		{
-			Point zt = z[i];
-			Point zt1 = z[i+1];
-			distances[i] = distCalcEarth.calcDist(zt.lat, zt.lon, zt1.lat, zt1.lon);
+			Coordinate zt = z[i];
+			Coordinate zt1 = z[i+1];
+			distances[i] = distCalcEarth.calcDist(zt.y, zt.x, zt1.y, zt1.x);
 		}
 		
 		distances[z.length - 1] = distances[0];
@@ -262,14 +254,14 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 						//Point zt1 = z[xj.measuredPointIndex];
 						double dz = distances[xi.measuredPointIndex]; // distCalcEarth.calcDist(zt.lat, zt.lon, zt1.lat, zt1.lon);
 				
-						GHRequest req = new GHRequest(xi.lat, xi.lon, xj.lat, xj.lon);
+						GHRequest req = new GHRequest(xi.y, xi.x, xj.y, xj.x);
 						req.getHints().put("ch.disable", true);
 						req.getHints().put("lm.disable", true);
 						req.setAlgorithm("dijkstrabi"); 
 						
 						try
 						{
-							GHResponse resp = mGraphHopper.route(req);
+							GHResponse resp = _graphHopper.route(req);
 						
 							if (!resp.hasErrors())
 							{
@@ -307,7 +299,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 		ViterbiSolver viterbiSolver = new ViterbiSolver();
 		int[] bestPath = viterbiSolver.findPath(startProbs, transProbs, emissionProbs, true);
 
-		ORSGraphHopper gh = (ORSGraphHopper)mGraphHopper;
+		ORSGraphHopper gh = (ORSGraphHopper)_graphHopper;
 		
 		RouteSegmentInfo res = null;
 
@@ -322,16 +314,16 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 			for (int i = 0; i < Nz; i++)
 			{
 				MatchPoint mp = matchPoints.get(bestPath[i]);
-				latitudes[i] = mp.lat;
-				longitudes[i] = mp.lon;
+				latitudes[i] = mp.y;
+				longitudes[i] = mp.x;
 			}
 		}
 		else
 		{
 			for (int i = 0; i < Nz; i++)
 			{
-				latitudes[i] = z[i].lat;
-				longitudes[i] = z[i].lon;
+				latitudes[i] = z[i].y;
+				longitudes[i] = z[i].x;
 			}
 		}
 
@@ -360,7 +352,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 			double distance = distCalcEarth.calcDist(qr.getQueryPoint().getLat(), qr.getQueryPoint().getLon(), spLat,
 					spLon);
 
-			if (distance <= mSearchRadius) {
+			if (distance <= _searchRadius) {
 				
 				int edgeId = qr.getClosestEdge().getOriginalEdge();
 

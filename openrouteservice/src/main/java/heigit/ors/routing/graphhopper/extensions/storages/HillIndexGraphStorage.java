@@ -2,17 +2,16 @@
  *|														Heidelberg University
  *|	  _____ _____  _____      _                     	Department of Geography		
  *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
- *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2017
  *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
  *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
  *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-
-// Authors: M. Rylov 
-
 package heigit.ors.routing.graphhopper.extensions.storages;
+
+import java.util.Map;
 
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
@@ -20,23 +19,27 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
 
 public class HillIndexGraphStorage implements GraphExtension {
-	/* pointer for no entry */
 	protected final int NO_ENTRY = -1;
-	protected final int EF_HILLINDEX;//, EF_RESTRICTION, EF_PASSABILITY;
+	protected final int EF_HILLINDEX;
 
 	protected DataAccess orsEdges;
 	protected int edgeEntryIndex = 0;
 	protected int edgeEntryBytes;
 	protected int edgesCount; // number of edges with custom values
 
+	protected int _maxHillIndex = 15;
+
 	private byte[] byteValues;
 
-	public HillIndexGraphStorage() {
+	public HillIndexGraphStorage(Map<String, String> parameters) {
 		EF_HILLINDEX = 0;
-	
-		edgeEntryBytes = edgeEntryIndex + 1;
+
+		if (parameters.containsKey("maximum_slope"))
+			_maxHillIndex = (int)Double.parseDouble(parameters.get("maximum_slope"));
+
+		edgeEntryBytes = edgeEntryIndex + (_maxHillIndex > 15 ? 2 : 1);
 		edgesCount = 0;
-		byteValues = new byte[1];
+		byteValues = new byte[2];
 	}
 
 	public void init(Graph graph, Directory dir) {
@@ -85,34 +88,56 @@ public class HillIndexGraphStorage implements GraphExtension {
 	void ensureEdgesIndex(int edgeIndex) {
 		orsEdges.ensureCapacity(((long) edgeIndex + 1) * edgeEntryBytes);
 	}
-	
+
 	private int getHillIndex(int value)
 	{
-		return value > 15 ? 15: value;
+		return value > _maxHillIndex ? _maxHillIndex : value;
 	}
 
 	public void setEdgeValue(int edgeId, int hillIndex, int reverseHillIndex) {
 		edgesCount++;
 		ensureEdgesIndex(edgeId);
 
-		// add entry
-		long edgePointer = (long) edgeId * edgeEntryBytes;
-		byteValues[0] = (byte)(getHillIndex(hillIndex) << 4 | (0x0F & getHillIndex(reverseHillIndex))); //hillIndex | (reverseHillIndex << 4));
-		orsEdges.setBytes(edgePointer + EF_HILLINDEX, byteValues, 1);
+		if (hillIndex != 0 || reverseHillIndex != 0)
+		{
+			// add entry
+			long edgePointer = (long) edgeId * edgeEntryBytes;
+			if (_maxHillIndex <= 15)
+			{
+				byteValues[0] = (byte)(getHillIndex(hillIndex) << 4 | (0x0F & getHillIndex(reverseHillIndex))); //hillIndex | (reverseHillIndex << 4));
+				orsEdges.setBytes(edgePointer + EF_HILLINDEX, byteValues, 1);
+			}
+			else
+			{
+				byteValues[0] = (byte)getHillIndex(hillIndex);
+				byteValues[1] = (byte)getHillIndex(reverseHillIndex);
+				orsEdges.setBytes(edgePointer + EF_HILLINDEX, byteValues, 2);
+			}
+		}
 	}
 
 	public int getEdgeValue(int edgeId, boolean reverse, byte[] buffer) {
 		long edgePointer = (long) edgeId * edgeEntryBytes;
-		orsEdges.getBytes(edgePointer + EF_HILLINDEX, buffer, 1);
-		
-		int value = buffer[0];
-		if (value < 0)
-			value = 256 + value;
-		
-	    if (reverse)
-		   return (value >> 4) & 0xF;
-	    else
-	    	return value & 0xF;
+
+		if (_maxHillIndex <= 15)
+		{
+			orsEdges.getBytes(edgePointer + EF_HILLINDEX, buffer, 1);
+
+			int value = buffer[0];
+			if (value < 0)
+				value = 256 + value;
+
+			if (reverse)
+				return (value >> 4) & 0xF;
+			else
+				return value & 0xF;
+		}
+		else
+		{
+			orsEdges.getBytes(edgePointer + EF_HILLINDEX, buffer, 2);
+
+			return reverse ? buffer[1] : buffer[0];
+		}
 	}
 
 	public boolean isRequireNodeField() {

@@ -1,10 +1,12 @@
 package heigit.ors.servlet.filters;
 
 import java.io.IOException;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletResponse;
 
+import org.meteogroup.jbrotli.Brotli;
 import org.meteogroup.jbrotli.io.BrotliOutputStream;
 import org.meteogroup.jbrotli.libloader.BrotliLibraryLoader;
 
@@ -14,8 +16,8 @@ class BrotliResponseStream extends ServletOutputStream {
 	private ByteArrayOutputStreamEx _bufferStream = null;
 	private BrotliOutputStream _brotliStream = null;
 	private ServletOutputStream _outputStream = null;
-	private boolean _closed = false;
 	private HttpServletResponse _response = null;
+	private boolean _closed = false;
 	
 	static 
 	{
@@ -25,25 +27,27 @@ class BrotliResponseStream extends ServletOutputStream {
 	public BrotliResponseStream(HttpServletResponse response) throws IOException {
 		super();
 		
-		this._response = response;
-		this._outputStream = response.getOutputStream();
+		_response = response;
+		_outputStream = response.getOutputStream();
 		_bufferStream = new ByteArrayOutputStreamEx();
-		_brotliStream = new BrotliOutputStream(_bufferStream);
+		_brotliStream = new BrotliOutputStream(_bufferStream, Brotli.DEFAULT_PARAMETER);
 	}
 
-	public void close() throws IOException {
+	public void close() throws IOException { 
 		if (_closed) 
 			throw new IOException("This output stream has already been closed");
 
+		_brotliStream.flush();
+		
 		byte[] bytes = _bufferStream.getBuffer();
-		int bytesLength = _bufferStream.size();
-
-		_brotliStream.close();
+		int bytesLength = _bufferStream.size() - 1;
 
 		_response.setContentLength(bytesLength); 
         _response.addHeader("Content-Encoding", ContentEncodingType.BROTLI);
 
-        _outputStream.write(bytes, 0, bytesLength);
+        _outputStream.write(bytes, 0, bytesLength); 
+
+		_brotliStream.close();
         _outputStream.close();
 		_closed = true;
 	}
@@ -83,13 +87,10 @@ class BrotliResponseStream extends ServletOutputStream {
 
 	@Override
 	public boolean isReady() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void setWriteListener(WriteListener arg0) {
-		// TODO Auto-generated method stub
-
 	}
 }

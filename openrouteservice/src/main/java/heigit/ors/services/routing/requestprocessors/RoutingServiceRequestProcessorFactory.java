@@ -34,7 +34,7 @@ public class RoutingServiceRequestProcessorFactory {
 
 		if (!RoutingProfileManagerStatus.isReady())
 			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, RoutingErrorCodes.UNKNOWN, "Routing service is not ready yet.");
-		
+
 		String requestParam = request.getParameter("request");
 
 		if (Helper.isEmpty(requestParam))
@@ -48,13 +48,20 @@ public class RoutingServiceRequestProcessorFactory {
 			String formatParam = request.getParameter("format");
 			if (Helper.isEmpty(formatParam))
 				formatParam = "json";
+			else
+				formatParam = formatParam.toLowerCase();
 
-			if (formatParam.equalsIgnoreCase("json"))
-				return new JsonRoutingRequestProcessor(request);
-			//else if (formatParam.equalsIgnoreCase("xml"))
-			//	return new XmlRouteRequestProcessor(request);
-			else 
-				throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "format", formatParam);
+			switch(formatParam)
+			{
+				case "json":
+				case "geojson":
+					return new JsonRoutingRequestProcessor(request);
+				//case "xml":
+				//	return new XmlRouteRequestProcessor(request);
+				default:
+					throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "format", formatParam);	
+			}
+
 		default:
 			throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "request", requestParam);		
 		}

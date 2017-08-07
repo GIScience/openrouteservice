@@ -33,6 +33,13 @@
                 }
                 attribution: "openrouteservice.org, OpenStreetMap contributors"
             }
+            mapmatching: {
+        	    enabled: true,
+                maximum_locations: 100,
+                maximum_search_radius: 200,
+                maximum_visited_nodes: 10000,
+                attribution: "openrouteservice.org, OpenStreetMap contributors"
+            }
 			isochrones: {
 				enabled: true,
 				# possible values for maximum_range_distance and maximum_range_time are an integer or a list of values specifically defined for each profile

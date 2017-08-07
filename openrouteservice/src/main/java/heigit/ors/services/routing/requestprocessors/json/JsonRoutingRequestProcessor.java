@@ -16,9 +16,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
+import com.graphhopper.util.Helper;
+
 import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RoutingProfileManager;
-import heigit.ors.services.routing.RoutingRequest;
+import heigit.ors.routing.RoutingRequest;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
 
@@ -35,7 +37,13 @@ public class JsonRoutingRequestProcessor extends AbstractHttpRequestProcessor {
 		
 		RouteResult result = RoutingProfileManager.getInstance().computeRoute(rreq);
 		
-		JSONObject json = JsonRoutingResponseWriter.toJson(rreq, new RouteResult[] { result });
+		JSONObject json = null;
+		
+		String respFormat = _request.getParameter("format");
+		if (Helper.isEmpty(respFormat) || "json".equalsIgnoreCase(respFormat))
+			json = JsonRoutingResponseWriter.toJson(rreq, new RouteResult[] { result });
+		else if ("geojson".equalsIgnoreCase(respFormat))
+			json = JsonRoutingResponseWriter.toGeoJson(rreq, new RouteResult[] { result });
 		
 		ServletUtility.write(response, json, "UTF-8");
 	}

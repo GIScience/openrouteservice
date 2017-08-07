@@ -2,7 +2,7 @@
  *|														Heidelberg University
  *|	  _____ _____  _____      _                     	Department of Geography		
  *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
- *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2017
  *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
  *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
  *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
@@ -33,6 +33,8 @@ import heigit.ors.services.accessibility.AccessibilityServiceSettings;
 import heigit.ors.services.geocoding.GeocodingServiceSettings;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.services.locations.LocationsServiceSettings;
+import heigit.ors.services.mapmatching.MapMatchingServiceSettings;
+import heigit.ors.services.matrix.MatrixServiceSettings;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 
@@ -68,6 +70,10 @@ public class ORSServicesUtils {
 					list.add("accessibility");
 				if (LocationsServiceSettings.getEnabled())
 					list.add("locations");
+				if (MatrixServiceSettings.getEnabled())
+					list.add("matrix");
+				if (MapMatchingServiceSettings.getEnabled())
+					list.add("mapmatching");
 				jInfo.put("services", list);
 				jInfo.put("languages", LocalizationManager.getInstance().getLanguages());
 

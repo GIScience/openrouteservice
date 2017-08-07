@@ -31,10 +31,10 @@ import heigit.ors.locations.providers.LocationsDataProvider;
 import heigit.ors.locations.providers.LocationsDataProviderFactory;
 import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RoutingProfileManager;
+import heigit.ors.routing.RoutingRequest;
 import heigit.ors.services.accessibility.AccessibilityRequest;
 import heigit.ors.services.isochrones.IsochroneRequest;
 import heigit.ors.services.locations.LocationsServiceSettings;
-import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.util.GeomUtility;
 
 public class AccessibilityAnalyzer {

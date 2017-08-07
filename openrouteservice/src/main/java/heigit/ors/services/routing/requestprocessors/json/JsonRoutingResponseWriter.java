@@ -30,8 +30,8 @@ import heigit.ors.routing.RouteSegmentItem;
 import heigit.ors.routing.RouteStep;
 import heigit.ors.routing.RouteSummary;
 import heigit.ors.routing.RoutingProfileType;
+import heigit.ors.routing.RoutingRequest;
 import heigit.ors.routing.WeightingMethod;
-import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.DistanceUnitUtil;
@@ -100,6 +100,12 @@ public class JsonRoutingResponseWriter {
 		jResp.put("info", jInfo);
 
 		return jResp;
+	}
+	
+	public static JSONObject toGeoJson(RoutingRequest request, RouteResult[] routeResult) throws Exception
+	{
+		// TODO
+		return null;
 	}
 
 	public static JSONArray toJsonArray(RoutingRequest request, RouteResult[] routeResult, BBox bbox) throws Exception

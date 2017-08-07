@@ -16,8 +16,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.common.NamedLocation;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.locations.LocationsRequest;
+import heigit.ors.routing.RoutingRequest;
 import heigit.ors.services.ServiceRequest;
-import heigit.ors.services.routing.RoutingRequest;
 
 public class AccessibilityRequest extends ServiceRequest
 {

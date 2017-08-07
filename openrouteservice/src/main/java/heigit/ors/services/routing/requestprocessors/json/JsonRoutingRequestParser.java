@@ -26,12 +26,12 @@ import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.localization.LocalizationManager;
 import heigit.ors.routing.RouteExtraInfoFlag;
+import heigit.ors.routing.RouteInstructionsFormat;
 import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.routing.RoutingErrorCodes;
 import heigit.ors.routing.RoutingProfileType;
+import heigit.ors.routing.RoutingRequest;
 import heigit.ors.routing.WeightingMethod;
-import heigit.ors.services.routing.RouteInstructionsFormat;
-import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.util.CoordTools;
 import heigit.ors.util.DistanceUnitUtil;
 
@@ -79,7 +79,7 @@ public class JsonRoutingRequestParser
 			}
 
 			if (coords.length < 2)
-				throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, "coordinates parameter must contain at least two locations");
+				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "coordinates parameter must contain at least two locations");
 
 			req.setCoordinates(coords);
 		}		

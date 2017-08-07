@@ -16,23 +16,23 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.EdgeFilter;
 
 public abstract class AbstractMapMatcher implements MapMatcher {
-	protected double mSearchRadius = 50;
-	protected EdgeFilter mEdgeFilter;
-	protected GraphHopper mGraphHopper;
+	protected double _searchRadius = 50;
+	protected EdgeFilter _edgeFilter;
+	protected GraphHopper _graphHopper;
 	
 	public void setSearchRadius(double radius)
 	{
-		mSearchRadius = radius;
+		_searchRadius = radius;
 	}
 	
 	public void setEdgeFilter(EdgeFilter edgeFilter)
 	{
-		mEdgeFilter = edgeFilter;
+		_edgeFilter = edgeFilter;
 	}
 	
 	public void setGraphHopper(GraphHopper gh)
 	{
-		mGraphHopper = gh;
+		_graphHopper = gh;
 	}
 	
 	public RouteSegmentInfo match(double lat0, double lon0, double lat1, double lon1)

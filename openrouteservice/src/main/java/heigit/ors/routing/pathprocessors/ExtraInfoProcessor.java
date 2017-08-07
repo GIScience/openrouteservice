@@ -33,10 +33,11 @@ import heigit.ors.routing.util.extrainfobuilders.SimpleRouteExtraInfoBuilder;
 import heigit.ors.routing.util.extrainfobuilders.SteepnessExtraInfoBuilder;
 
 public class ExtraInfoProcessor extends PathProcessor {
-	private WaySurfaceTypeGraphStorage extWaySurface;
-	private WayCategoryGraphStorage extWayCategory;
-	private GreenIndexGraphStorage extGreenIndex;
-	private NoiseIndexGraphStorage extNoiseIndex;
+	private WaySurfaceTypeGraphStorage _extWaySurface;
+	private WayCategoryGraphStorage _extWayCategory;
+	private GreenIndexGraphStorage _extGreenIndex;
+	private NoiseIndexGraphStorage _extNoiseIndex;
+	private TollwaysGraphStorage _extTollways;
 	
 	private RouteExtraInfo _surfaceInfo;
 	private RouteExtraInfoBuilder _surfaceInfoBuilder;
@@ -62,6 +63,9 @@ public class ExtraInfoProcessor extends PathProcessor {
 	private RouteExtraInfo _avgSpeedInfo;
 	private RouteExtraInfoBuilder _avgSpeedInfoBuilder;
 	
+	private RouteExtraInfo _tollwaysInfo;
+	private RouteExtraInfoBuilder _tollwaysInfoBuilder;
+	
 	private FlagEncoder _encoder;
 	private boolean _encoderWithPriority = false;
 	private byte[] buffer;
@@ -71,9 +75,9 @@ public class ExtraInfoProcessor extends PathProcessor {
 		
 		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.WayCategory))
 		{
-			extWayCategory = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), WayCategoryGraphStorage.class);
+			_extWayCategory = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), WayCategoryGraphStorage.class);
 			
-			if (extWayCategory == null)
+			if (_extWayCategory == null)
 				throw new Exception("WayCategory storage is not found.");
 			
 			_wayCategoryInfo = new RouteExtraInfo("waycategory");
@@ -82,9 +86,9 @@ public class ExtraInfoProcessor extends PathProcessor {
 		
 		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Surface) || RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.WayType))
 		{
-			extWaySurface = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), WaySurfaceTypeGraphStorage.class);
+			_extWaySurface = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), WaySurfaceTypeGraphStorage.class);
 			
-			if (extWaySurface == null)
+			if (_extWaySurface == null)
 				throw new Exception("WaySurfaceType storage is not found.");
 
 			if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Surface))
@@ -116,11 +120,22 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_avgSpeedInfo = new RouteExtraInfo("avgspeed");
 			_avgSpeedInfoBuilder = new SimpleRouteExtraInfoBuilder(_avgSpeedInfo);
 		}
+		
+		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Tollways))
+		{
+			_extTollways = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), TollwaysGraphStorage.class);
+
+			if (_extTollways == null)
+				throw new Exception("Tollways storage is not found.");
+			
+			_tollwaysInfo = new RouteExtraInfo("tollways");
+			_tollwaysInfoBuilder = new SimpleRouteExtraInfoBuilder(_tollwaysInfo);
+		}
 
 		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Green)) {
-			extGreenIndex = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), GreenIndexGraphStorage.class);
+			_extGreenIndex = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), GreenIndexGraphStorage.class);
 
-			if (extGreenIndex == null)
+			if (_extGreenIndex == null)
 				throw new Exception("GreenIndex storage is not found.");
 			_greenInfo = new RouteExtraInfo("green");
 			_greenInfoBuilder = new SimpleRouteExtraInfoBuilder(_greenInfo);
@@ -128,15 +143,15 @@ public class ExtraInfoProcessor extends PathProcessor {
 
 		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Noise)) {
 
-			extNoiseIndex = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), NoiseIndexGraphStorage.class);
+			_extNoiseIndex = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), NoiseIndexGraphStorage.class);
 
-			if (extNoiseIndex == null)
+			if (_extNoiseIndex == null)
 				throw new Exception("NoiseIndex storage is not found.");
 			_noiseInfo = new RouteExtraInfo("noise");
 			_noiseInfoBuilder = new SimpleRouteExtraInfoBuilder(_noiseInfo);
 		}
 
-		buffer = new byte[1];
+		buffer = new byte[4];
 	}
 
 	public void setSegmentIndex(int index, int count)
@@ -164,6 +179,8 @@ public class ExtraInfoProcessor extends PathProcessor {
 			extras.add(_greenInfo);
 		if (_noiseInfo != null)
 			extras.add(_noiseInfo);
+		if (_tollwaysInfo != null)
+			extras.add(_tollwaysInfo);		
 
 		return extras;
 	}
@@ -172,9 +189,9 @@ public class ExtraInfoProcessor extends PathProcessor {
 	public void processEdge(int pathIndex, EdgeIteratorState edge, boolean lastEdge, PointList geom) {
 		double dist = edge.getDistance();
 
-		if (extWaySurface != null && _wayTypeInfo != null || _surfaceInfo != null)
+		if (_extWaySurface != null && _wayTypeInfo != null || _surfaceInfo != null)
 		{
-			WaySurfaceDescription wsd = extWaySurface.getEdgeValue(edge.getOriginalEdge(), buffer);
+			WaySurfaceDescription wsd = _extWaySurface.getEdgeValue(edge.getOriginalEdge(), buffer);
 
 			if (_surfaceInfoBuilder != null)
 				_surfaceInfoBuilder.addSegment(wsd.SurfaceType, wsd.SurfaceType, geom, dist, lastEdge && _lastSegment);
@@ -185,7 +202,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 		
 		if (_wayCategoryInfoBuilder != null)
 		{
-			int value = extWayCategory.getEdgeValue(edge.getOriginalEdge(), buffer);
+			int value = _extWayCategory.getEdgeValue(edge.getOriginalEdge(), buffer);
 			_wayCategoryInfoBuilder.addSegment(value, value, geom, dist, lastEdge && _lastSegment);
 		}
 		
@@ -193,6 +210,12 @@ public class ExtraInfoProcessor extends PathProcessor {
 		{
 		    double speed = _encoder.getSpeed(edge.getFlags(_encoder.getIndex()));
 		    _avgSpeedInfoBuilder.addSegment(speed, (int)Math.round(speed*10), geom, dist, lastEdge && _lastSegment);
+		}
+		
+		if (_tollwaysInfoBuilder != null)
+		{
+			int value = _extTollways.getEdgeValue(edge.getOriginalEdge(), buffer);
+		    _tollwaysInfoBuilder.addSegment(value, value, geom, dist, lastEdge && _lastSegment);
 		}
 
 		if (_waySuitabilityInfoBuilder != null)
@@ -223,7 +246,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 		}
 
 		if (_greenInfoBuilder != null) {
-			int value = extGreenIndex.getEdgeValue(edge.getOriginalEdge(), buffer);
+			int value = _extGreenIndex.getEdgeValue(edge.getOriginalEdge(), buffer);
 			// This number is how many levels client can display in the stats bar
 			// FIXME should be changed when the specific bar legend for green routing is finished
 			int MIN_CLIENT_VAL = 3;
@@ -233,7 +256,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 		}
 		
 		if (_noiseInfoBuilder != null) {
-			int noise_level = extNoiseIndex.getEdgeValue(edge.getOriginalEdge(), buffer);
+			int noise_level = _extNoiseIndex.getEdgeValue(edge.getOriginalEdge(), buffer);
 			// convert the noise level (from 0 to 3) to the values (from 7 to 10) for the client
 			if (noise_level > 3)
 				noise_level = 3; 

@@ -683,7 +683,7 @@ public class RoutingProfile
 		return searchCntx;		
 	}
 
-	public RouteSegmentInfo[] getMatchedSegments(double lat0, double lon0, double lat1, double lon1, double searchRadius, boolean bothDirections)
+	public RouteSegmentInfo[] getMatchedSegments(Coordinate[] locations, double searchRadius, boolean bothDirections)
 			throws Exception {
 		RouteSegmentInfo[] rsi = null;
 
@@ -692,7 +692,7 @@ public class RoutingProfile
 		beginUseGH();
 
 		try {
-			rsi = getMatchedSegmentsInternal(lat0, lon0, lat1, lon1, searchRadius, null, bothDirections);
+			rsi = getMatchedSegmentsInternal(locations, searchRadius, null, bothDirections);
 
 			endUseGH();
 		} catch (Exception ex) {
@@ -704,7 +704,7 @@ public class RoutingProfile
 		return rsi;
 	}
 
-	private RouteSegmentInfo[] getMatchedSegmentsInternal(double lat0, double lon0, double lat1, double lon1,
+	private RouteSegmentInfo[] getMatchedSegmentsInternal(Coordinate[] locations,
 			double searchRadius, EdgeFilter edgeFilter, boolean bothDirections) {
 		if (mMapMatcher ==  null)
 		{
@@ -715,7 +715,7 @@ public class RoutingProfile
 		mMapMatcher.setSearchRadius(searchRadius);
 		mMapMatcher.setEdgeFilter(edgeFilter);
 
-		return mMapMatcher.match(lat0, lon0, lat1, lon1, bothDirections);
+		return mMapMatcher.match(locations, bothDirections);
 	}
 
 	public boolean canProcessRequest(double totalDistance, double longestSegmentDistance, int wayPoints) {

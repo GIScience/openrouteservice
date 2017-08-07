@@ -13,8 +13,8 @@ class GZIPResponseStream extends ServletOutputStream {
 	private ByteArrayOutputStreamEx _bufferStream = null;
 	private GZIPOutputStream _gzipstream = null;
 	private ServletOutputStream _outputStream = null;
-	private boolean _closed = false;
 	private HttpServletResponse _response = null;
+	private boolean _closed = false;
 
 	public GZIPResponseStream(HttpServletResponse response) throws IOException {
 		super();
@@ -77,13 +77,10 @@ class GZIPResponseStream extends ServletOutputStream {
 
 	@Override
 	public boolean isReady() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void setWriteListener(WriteListener arg0) {
-		// TODO Auto-generated method stub
-
 	}
 }

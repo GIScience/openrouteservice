@@ -35,13 +35,13 @@ public class HillIndexCalculator {
 			{
 				double vc = split.VerticalClimb*3.28084;
 				totalVerticalClimb += vc;
-				gradient = Math.min(split.Gradient, 20);
+				gradient = Math.min(split.Gradient, 30);
 			}
 			totalDistance += split.Length*0.000621371;
 		}
 
 		int hillIndex = (int)(100*(totalVerticalClimb + excessSteepClimb)/(5280*totalDistance));
 
-		return (hillIndex >= 20) ? 20 : (byte)hillIndex;
+		return (hillIndex >= 35) ? 35 : (byte)hillIndex;
 	}
 }

@@ -19,7 +19,6 @@ package heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodedDoubleValue;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
@@ -33,7 +32,7 @@ import java.util.*;
  * @author Peter Karich
  * @author Nop
  */
-public class CarFlagEncoder extends AbstractFlagEncoder {
+public class CarFlagEncoder extends ORSAbstractFlagEncoder {
     // This value determines the maximal possible on roads with bad surfaces
     protected int badSurfaceSpeed;
 
@@ -44,7 +43,6 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
      * http://www.itoworld.com/map/124#fullscreen
      * http://wiki.openstreetmap.org/wiki/OSM_tags_for_routing/Maxspeed
      */
-    protected final SpeedLimitHandler _speedLimitHandler;
     protected int maxTrackGradeLevel = 3;
 
     public CarFlagEncoder() {
@@ -359,7 +357,7 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
             double speed = getSpeed(way);
             speed = applyMaxSpeed(way, speed);
 
-            speed = applyBadSurfaceSpeed(way, speed);
+            speed = getSurfaceSpeed(way, speed);
             
             boolean isRoundabout = way.hasTag("junction", "roundabout");
 
@@ -477,7 +475,7 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
      * @param speed: speed guessed e.g. from the road type or other tags
      * @return The assumed speed
      */
-    protected double applyBadSurfaceSpeed(ReaderWay way, double speed) {
+    protected double getSurfaceSpeed(ReaderWay way, double speed) {
         // limit speed if bad surface
         //if (badSurfaceSpeed > 0 && speed > badSurfaceSpeed && way.hasTag("surface", badSurfaceSpeedMap))
         //    speed = badSurfaceSpeed;

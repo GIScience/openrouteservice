@@ -32,8 +32,6 @@ import heigit.ors.localization.LocalizationManager;
 import heigit.ors.routing.instructions.InstructionTranslator;
 import heigit.ors.routing.instructions.InstructionTranslatorsCache;
 import heigit.ors.routing.instructions.InstructionType;
-import heigit.ors.services.routing.RouteInstructionsFormat;
-import heigit.ors.services.routing.RoutingRequest;
 import heigit.ors.util.CardinalDirection;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;

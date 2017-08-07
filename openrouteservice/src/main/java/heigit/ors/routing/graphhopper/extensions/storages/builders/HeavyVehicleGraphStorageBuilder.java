@@ -28,7 +28,7 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
-import heigit.ors.routing.graphhopper.extensions.VehicleRestrictionCodes;
+import heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
 import heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 
 public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
@@ -38,7 +38,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 	private int _hgvType = 0;
 	private int _hgvDestination = 0;
 	private boolean _hasRestrictionValues;
-	private double[] _restrictionValues = new double[VehicleRestrictionCodes.Count];
+	private double[] _restrictionValues = new double[VehicleDimensionRestrictions.Count];
 	private List<String> _motorVehicleRestrictions = new ArrayList<String>(5);
 	private Set<String> _motorVehicleRestrictedValues = new HashSet<String>(5);
 	private Pattern _patternHeight;
@@ -132,24 +132,24 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 							int valueIndex = -1;
 
 							if (key.equals("maxheight")) {
-								valueIndex = VehicleRestrictionCodes.MaxHeight;
+								valueIndex = VehicleDimensionRestrictions.MaxHeight;
 							} else if (key.equals("maxweight")) {
-								valueIndex = VehicleRestrictionCodes.MaxWeight;
+								valueIndex = VehicleDimensionRestrictions.MaxWeight;
 							} else if (key.equals("maxweight:hgv")) {
-							    valueIndex = VehicleRestrictionCodes.MaxWeight;
+							    valueIndex = VehicleDimensionRestrictions.MaxWeight;
 						    }	else if (key.equals("maxwidth")) {
-								valueIndex = VehicleRestrictionCodes.MaxWidth;
+								valueIndex = VehicleDimensionRestrictions.MaxWidth;
 							} else if (key.equals("maxlength")) {
-								valueIndex = VehicleRestrictionCodes.MaxLength;
+								valueIndex = VehicleDimensionRestrictions.MaxLength;
 							} else if (key.equals("maxlength:hgv")) {
-								valueIndex = VehicleRestrictionCodes.MaxLength;
+								valueIndex = VehicleDimensionRestrictions.MaxLength;
 							}
 							else if (key.equals("maxaxleload")) {
-								valueIndex = VehicleRestrictionCodes.MaxAxleLoad;
+								valueIndex = VehicleDimensionRestrictions.MaxAxleLoad;
 							}
 
 							if (valueIndex >= 0 && !("none".equals(value) || "default".equals(value))) {
-								if (valueIndex == VehicleRestrictionCodes.MaxWeight || valueIndex == VehicleRestrictionCodes.MaxAxleLoad) {
+								if (valueIndex == VehicleDimensionRestrictions.MaxWeight || valueIndex == VehicleDimensionRestrictions.MaxAxleLoad) {
 									if (value.contains("t")) {
 										value = value.replace('t', ' ');
 									} else if (value.contains("lbs")) {
