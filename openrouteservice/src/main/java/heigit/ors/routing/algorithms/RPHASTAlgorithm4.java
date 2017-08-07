@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.PriorityQueue;
 
 import com.carrotsearch.hppc.IntObjectMap;
-import com.graphhopper.coll.GHIntHashSet;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.util.CHLevelEdgeFilter;
@@ -37,7 +36,6 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 	private PriorityQueue<MultiTreeSPEntry> _prioQueue;
 	private CHLevelEdgeFilter _upwardEdgeFilter;
 	private CHLevelEdgeFilter _downwardEdgeFilter;
-	private SubGraph _sourceGraph;
 	private SubGraph _targetGraph;
 	private boolean _finishedFrom;
 	private boolean _finishedTo;
@@ -112,39 +110,6 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 
 		if (DebugUtility.isDebug())
 			_targetGraph.print();
-
-		// Phase II: build a graph from all source nodes to the highest node
-		_sourceGraph = new SubGraph(graph);
-		GHIntHashSet nodesSkip = new GHIntHashSet();
-		/*
-		 * nodesSkip.add(sources[0]); nodesSkip.add(sources[1]);
-		 * nodesSkip.add(sources[2]); nodesSkip.add(sources[3]);
-		 */
-
-		addNodes(_sourceGraph, prioQueue, sources);
-
-		while (!prioQueue.isEmpty()) {
-			int adjNode = prioQueue.poll();
-			EdgeIterator iter = outEdgeExplorer.setBaseNode(adjNode);
-
-			while (iter.next()) {
-				if (!_upwardEdgeFilter.accept(iter))
-					continue;
-
-				_upwardEdgeFilter.updateHighestNode(iter);
-
-				_sourceGraph.addEdge(adjNode, iter, false);
-
-				if (!nodesSkip.contains(iter.getAdjNode())) {
-					nodesSkip.add(iter.getAdjNode());
-					prioQueue.add(iter.getAdjNode());
-				}
-			}
-		}
-
-		if (DebugUtility.isDebug())
-			_sourceGraph.print();
-
 	}
 
 	private void addNodes(SubGraph graph, PriorityQueue<Integer> prioQueue, int[] nodes) {
@@ -217,7 +182,7 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 
 		}
 
-		outEdgeExplorer = _sourceGraph.createExplorer();
+		outEdgeExplorer = graph.createEdgeExplorer();
 
 		runUpwardSearch();
 		_currFrom = _bestWeightMapFrom.get(_upwardEdgeFilter.getHighestNode());
@@ -245,6 +210,10 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 			return;
 
 		while (iter.next()) {
+			if (!_upwardEdgeFilter.accept(iter))
+				continue;
+
+			_upwardEdgeFilter.updateHighestNode(iter);
 
 			MultiTreeSPEntry ee = shortestWeightMap.get(iter.getAdjNode());
 			if (ee == null) {
