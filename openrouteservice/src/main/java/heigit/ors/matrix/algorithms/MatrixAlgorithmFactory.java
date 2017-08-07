@@ -18,32 +18,32 @@ import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.algorithms.dijkstra.DijkstraMatrixAlgorithm;
 import heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 import heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm3;
+import heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm4;
 
-public class MatrixAlgorithmFactory 
-{
-    public static MatrixAlgorithm createAlgorithm(MatrixRequest req, GraphHopper gh, FlagEncoder encoder)
-    {
-    	MatrixAlgorithm alg = null;
+public class MatrixAlgorithmFactory {
+	public static MatrixAlgorithm createAlgorithm(MatrixRequest req, GraphHopper gh, FlagEncoder encoder) {
+		MatrixAlgorithm alg = null;
 
-    	if (!req.getFlexibleMode() && gh.isCHEnabled())
-    		alg = new RPHASTMatrixAlgorithm();
-    	else
-    		alg = new DijkstraMatrixAlgorithm();
-    	
-    	if (req.getAlgorithm() != null)
-    	{
-    		switch (req.getAlgorithm().toLowerCase()) {
+		if (!req.getFlexibleMode() && gh.isCHEnabled())
+			alg = new RPHASTMatrixAlgorithm();
+		else
+			alg = new DijkstraMatrixAlgorithm();
+
+		if (req.getAlgorithm() != null) {
+			switch (req.getAlgorithm().toLowerCase()) {
 			case "phast":
 				alg = new RPHASTMatrixAlgorithm();
 				break;
 			case "phast3":
 				alg = new RPHASTMatrixAlgorithm3();
 				break;
+			case "phast4":
+				alg = new RPHASTMatrixAlgorithm4();
 			default:
 				break;
 			}
-    	}
-    	
-    	return alg;
-    }
+		}
+
+		return alg;
+	}
 }
