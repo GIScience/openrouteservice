@@ -419,7 +419,7 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
     /**
      * @return -1 if no maxspeed found
      */
-    protected double getMaxSpeed(ReaderWay way) {
+    public double getMaxSpeed(ReaderWay way) {
         double maxSpeed = parseSpeed(way.getTag("maxspeed"));
         double fwdSpeed = parseSpeed(way.getTag("maxspeed:forward"));
         if (fwdSpeed >= 0 && (maxSpeed < 0 || fwdSpeed < maxSpeed))
