@@ -1,5 +1,6 @@
 package heigit.ors.matrix;
 
+import com.graphhopper.coll.GHLongObjectHashMap;
 import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
@@ -15,6 +16,12 @@ import heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
 import heigit.ors.util.DistanceUnitUtil;
 
 public class MultiTreeMetricsExtractor {
+	private class MetricsItem {
+		public double time;
+		public double distance;
+		public double weight;
+	}
+
 	private int _metrics;
 	private Graph _graph;
 	private CHGraph _chGraph;
@@ -26,6 +33,7 @@ public class MultiTreeMetricsExtractor {
 	private DistanceUnit _distUnits;
 	private boolean _reverseOrder = true;
 	private boolean _unpackDistance = true;
+	private GHLongObjectHashMap<MetricsItem> _edgeMetrics;
 
 	public MultiTreeMetricsExtractor(int metrics, Graph graph, FlagEncoder encoder, Weighting weighting,
 			DistanceUnit units) {
@@ -34,6 +42,7 @@ public class MultiTreeMetricsExtractor {
 		_weighting = weighting;
 		_timeWeighting = new FastestWeighting(encoder);
 		_distUnits = units;
+		_edgeMetrics = new GHLongObjectHashMap<MetricsItem>();
 
 		if (graph instanceof CHGraph)
 			_chGraph = (CHGraph) graph;
@@ -69,85 +78,120 @@ public class MultiTreeMetricsExtractor {
 
 		// int index = sourceIndex * dstData.size();
 		int index = 0;
-		double time = 0.0;
-		double distance = 0.0;
-		double weight = 0.0;
+		double pathTime = 0.0, pathDistance = 0.0, pathWeight = 0.0;
+		long entryHash = 0;
 		boolean calcTime = MatrixMetricsType.isSet(_metrics, MatrixMetricsType.Duration);
 		boolean calcDistance = MatrixMetricsType.isSet(_metrics, MatrixMetricsType.Distance);
 		boolean calcWeight = MatrixMetricsType.isSet(_metrics, MatrixMetricsType.Weight);
+		MetricsItem edgeMetricsItem = null;
 		for (int i = 0; i < targets.length; ++i) {
 			// index = i * dstData.size();
 			for (int j = 0; j < srcData.size(); ++j) {
 				MultiTreeSPEntry goalEdge = targets[i];
-				time = 0.0;
-				distance = 0.0;
-				weight = 0.0;
+				pathTime = 0.0;
+				pathDistance = 0.0;
+				pathWeight = 0.0;
 				index = j * dstData.size() + i;
 				if (goalEdge != null && goalEdge.parent[j] != null) {
 					while (EdgeIterator.Edge.isValid(goalEdge.edge[j]) && goalEdge.parent[j] != null) {
-						if (_chGraph != null) {
-							CHEdgeIteratorState iterState = (CHEdgeIteratorState) _graph
-									.getEdgeIteratorState(goalEdge.edge[j], goalEdge.adjNode);
 
-							if (!_unpackDistance && calcDistance)
-								distance += (_distUnits == DistanceUnit.Meters) ? iterState.getDistance()
-										: DistanceUnitUtil.convert(iterState.getDistance(), DistanceUnit.Meters,
-												_distUnits);
+						edgeMetricsItem = null;
+						if (_edgeMetrics != null) {
+							entryHash = getMultiTreeSPEntryHash(goalEdge, j);
+							edgeMetricsItem = _edgeMetrics.get(entryHash);
+						}
 
-							if (calcWeight || calcTime || _unpackDistance) {
-								if (iterState.isShortcut()) {
-									if (_chGraph.getLevel(iterState.getBaseNode()) > _chGraph
-											.getLevel(iterState.getAdjNode())) {
-										_reverseOrder = true;
-										extractEdgeValues(iterState, false);
+						if (edgeMetricsItem == null) {
+							if (_chGraph != null) {
+								CHEdgeIteratorState iterState = (CHEdgeIteratorState) _graph
+										.getEdgeIteratorState(goalEdge.edge[j], goalEdge.adjNode);
+
+								if (calcWeight || calcTime || _unpackDistance) {
+									if (iterState.isShortcut()) {
+										if (_chGraph.getLevel(iterState.getBaseNode()) > _chGraph
+												.getLevel(iterState.getAdjNode())) {
+											_reverseOrder = true;
+											extractEdgeValues(iterState, false);
+										} else {
+											_reverseOrder = false;
+											extractEdgeValues(iterState, true);
+										}
 									} else {
-										_reverseOrder = false;
-										extractEdgeValues(iterState, true);
+										extractEdgeValues(iterState, false);
 									}
-								} else {
-									extractEdgeValues(iterState, false);
+
+									if (_unpackDistance)
+										_edgeDistance = (_distUnits == DistanceUnit.Meters) ? _edgeDistance
+												: DistanceUnitUtil.convert(_edgeDistance, DistanceUnit.Meters,
+														_distUnits);
 								}
 
-								if (_unpackDistance)
-									distance += (_distUnits == DistanceUnit.Meters) ? _edgeDistance
-											: DistanceUnitUtil.convert(_edgeDistance, DistanceUnit.Meters, _distUnits);
+								if (!_unpackDistance && calcDistance)
+									_edgeDistance = (_distUnits == DistanceUnit.Meters) ? iterState.getDistance()
+											: DistanceUnitUtil.convert(iterState.getDistance(), DistanceUnit.Meters,
+													_distUnits);
+							} else {
+								EdgeIteratorState iter = _graph.getEdgeIteratorState(goalEdge.edge[j],
+										goalEdge.adjNode);
 
-								time += _edgeTime;
-								weight += _edgeWeight;
+								if (calcDistance)
+									_edgeDistance = (_distUnits == DistanceUnit.Meters) ? iter.getDistance()
+											: DistanceUnitUtil.convert(iter.getDistance(), DistanceUnit.Meters,
+													_distUnits);
+
+								if (calcTime)
+									_edgeTime = _timeWeighting.calcMillis(iter, false, EdgeIterator.NO_EDGE) / 1000.0;
+
+								if (calcWeight)
+									_edgeWeight = _weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
 							}
+
+							if (_edgeMetrics != null) {
+								edgeMetricsItem = new MetricsItem();
+								edgeMetricsItem.distance = _edgeDistance;
+								edgeMetricsItem.time = _edgeTime;
+								edgeMetricsItem.weight = _edgeWeight;
+								_edgeMetrics.put(entryHash, edgeMetricsItem);
+							}
+
+							pathDistance += _edgeDistance;
+							pathTime += _edgeTime;
+							pathWeight += _edgeWeight;
 						} else {
-							EdgeIteratorState iter = _graph.getEdgeIteratorState(goalEdge.edge[j], goalEdge.adjNode);
-
 							if (calcDistance)
-								distance += (_distUnits == DistanceUnit.Meters) ? iter.getDistance()
-										: DistanceUnitUtil.convert(iter.getDistance(), DistanceUnit.Meters, _distUnits);
-
+								pathDistance += edgeMetricsItem.distance;
 							if (calcTime)
-								time += _timeWeighting.calcMillis(iter, false, EdgeIterator.NO_EDGE) / 1000.0;
-
+								pathTime += edgeMetricsItem.time;
 							if (calcWeight)
-								weight += _weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
+								pathWeight += edgeMetricsItem.weight;
 						}
+
 						goalEdge = goalEdge.parent[j];
+
+						if (goalEdge == null)
+							break;
 					}
 				} else {
-					time = -1;
-					distance = -1;
-					weight = -1;
+					pathTime = -1;
+					pathDistance= -1;
+					pathWeight = -1;
 				}
 
 				if (calcTime)
-					times[index] = (float) time;
+					times[index] = (float)pathTime;
 
 				if (calcDistance)
-					distances[index] = (float) distance;
+					distances[index] = (float)pathDistance;
 
 				if (calcWeight)
-					weights[index] = (float) weight;
-
+					weights[index] = (float)pathWeight;
 				index++;
 			}
 		}
+	}
+
+	private long getMultiTreeSPEntryHash(MultiTreeSPEntry entry, int sptEntry) {
+		return entry.adjNode + entry.edge[sptEntry];
 	}
 
 	private void extractEdgeValues(CHEdgeIteratorState iterState, boolean reverse) {

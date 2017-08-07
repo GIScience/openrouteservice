@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.PriorityQueue;
 
 import com.carrotsearch.hppc.IntObjectMap;
+import com.graphhopper.coll.GHIntHashSet;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.util.CHLevelEdgeFilter;
@@ -27,6 +28,7 @@ import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 
 import heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
+import heigit.ors.util.DebugUtility;
 
 public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 	private IntObjectMap<MultiTreeSPEntry> _bestWeightMapFrom;
@@ -84,9 +86,12 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 
 	@Override
 	public void prepare(int[] sources, int[] targets) {
-		_targetGraph = new SubGraph(graph);
+		PriorityQueue<Integer> prioQueue = new PriorityQueue<>(100);
 		this.numTrees = sources.length;
-		PriorityQueue<Integer> prioQueue = new PriorityQueue<>(200);
+
+		// Phase I: build shortest path tree from all target nodes to the
+		// highest node
+		_targetGraph = new SubGraph(graph);
 
 		addNodes(_targetGraph, prioQueue, targets);
 
@@ -98,14 +103,47 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 				if (!_downwardEdgeFilter.accept(iter))
 					continue;
 
+				_downwardEdgeFilter.updateHighestNode(iter);
+
 				if (_targetGraph.addEdge(adjNode, iter, true))
 					prioQueue.add(iter.getAdjNode());
 			}
 		}
 
-		addNodes(null, prioQueue, sources);
+		if (DebugUtility.isDebug())
+			_targetGraph.print();
 
-		_targetGraph.print();
+		// Phase II: build a graph from all source nodes to the highest node
+		_sourceGraph = new SubGraph(graph);
+		GHIntHashSet nodesSkip = new GHIntHashSet();
+		/*
+		 * nodesSkip.add(sources[0]); nodesSkip.add(sources[1]);
+		 * nodesSkip.add(sources[2]); nodesSkip.add(sources[3]);
+		 */
+
+		addNodes(_sourceGraph, prioQueue, sources);
+
+		while (!prioQueue.isEmpty()) {
+			int adjNode = prioQueue.poll();
+			EdgeIterator iter = outEdgeExplorer.setBaseNode(adjNode);
+
+			while (iter.next()) {
+				if (!_upwardEdgeFilter.accept(iter))
+					continue;
+
+				_upwardEdgeFilter.updateHighestNode(iter);
+
+				_sourceGraph.addEdge(adjNode, iter, false);
+
+				if (!nodesSkip.contains(iter.getAdjNode())) {
+					nodesSkip.add(iter.getAdjNode());
+					prioQueue.add(iter.getAdjNode());
+				}
+			}
+		}
+
+		if (DebugUtility.isDebug())
+			_sourceGraph.print();
 
 	}
 
@@ -161,29 +199,6 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 
 	@Override
 	public MultiTreeSPEntry[] calcPaths(int[] from, int[] to) {
-		init(from, new double[to.length]);
-
-		// outEdgeExplorer = _sourceGraph.createExplorer();
-
-		runUpwardSearch();
-		initDownwardSearch(_upwardEdgeFilter.getHighestNode());
-		// MultiTreeSPEntry entry =
-		// _bestWeightMapFrom.get(_upwardEdgeFilter.getHighestNode());
-		// entry.visited = true;
-		// _prioQueue.add(entry);
-		outEdgeExplorer = _targetGraph.createExplorer();
-
-		runDownwardSearch();
-
-		MultiTreeSPEntry[] targets = new MultiTreeSPEntry[to.length];
-
-		for (int i = 0; i < to.length; i++)
-			targets[i] = _bestWeightMapFrom.get(to[i]);
-
-		return targets;
-	}
-
-	public IntObjectMap<MultiTreeSPEntry> init(int[] from, double[] weights) {
 		int[] edgeIds = new int[from.length];
 		Arrays.fill(edgeIds, EdgeIterator.NO_EDGE);
 
@@ -201,27 +216,25 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 				throw new IllegalStateException("Edge-based behavior not supported");
 
 		}
-		return _bestWeightMapFrom;
 
-	}
+		outEdgeExplorer = _sourceGraph.createExplorer();
 
-	private void initDownwardSearch(int to) {
-		// Set the highest node from the upwards pass as the start node for the
-		// downwards pass. Keep parent refs for future use in distance
-		// extraction.
-		_currTo = _bestWeightMapFrom.get(to);
-		_currTo.visited = true;
+		runUpwardSearch();
+		_currFrom = _bestWeightMapFrom.get(_upwardEdgeFilter.getHighestNode());
+		_currFrom.visited = true;
 		_prioQueue.clear();
-		_prioQueue.add(_currTo);
-		if (!traversalMode.isEdgeBased()) {
-			_bestWeightMapFrom.put(to, _currTo);
-		} else if (_currFrom != null && _currFrom.adjNode == to) {
-			// special case of identical start and end
-			// bestPath.sptEntry = currFrom;
-			// bestPath.edgeTo = currTo;
-			_finishedFrom = true;
-			_finishedTo = true;
-		}
+		_prioQueue.add(_currFrom);
+
+		outEdgeExplorer = _targetGraph.createExplorer();
+
+		runDownwardSearch();
+
+		MultiTreeSPEntry[] targets = new MultiTreeSPEntry[to.length];
+
+		for (int i = 0; i < to.length; i++)
+			targets[i] = _bestWeightMapFrom.get(to[i]);
+
+		return targets;
 	}
 
 	private void fillEdgesUpward(MultiTreeSPEntry currEdge, PriorityQueue<MultiTreeSPEntry> prioQueue,
@@ -232,22 +245,12 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 			return;
 
 		while (iter.next()) {
-			if (!_upwardEdgeFilter.accept(iter))
-				continue;
-			// if (!additionalEdgeFilter.accept(iter))
-			// continue;
-			// Keep track of the currently found highest CH level node
-			// additionalEdgeFilter.updateHighestNode(iter);
-			_upwardEdgeFilter.updateHighestNode(iter);
 
 			MultiTreeSPEntry ee = shortestWeightMap.get(iter.getAdjNode());
 			if (ee == null) {
 				int[] edgeIds = new int[numTrees];
 				Arrays.fill(edgeIds, EdgeIterator.NO_EDGE);
 				ee = new MultiTreeSPEntry(edgeIds, iter.getAdjNode(), numTrees);
-				// double edgeWeight = weighting.calcWeight(iter, reverse,
-				// currEdge.edge);
-				// double edgeWeight = weighting.calcWeight(iter, false, -1);
 				double tmpWeight;
 				for (int i = 0; i < numTrees; i++) {
 					if (currEdge.weights[i] == -1)
@@ -264,9 +267,6 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 				prioQueue.add(ee);
 
 			} else {
-				// double edgeWeight = weighting.calcWeight(iter, reverse,
-				// currEdge.edge);
-				double edgeWeight = weighting.calcWeight(iter, false, -1);
 				double tmpWeight;
 
 				boolean addToQ = false;
@@ -286,10 +286,6 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 
 				}
 				if (addToQ) {
-					prioQueue.remove(ee);
-					// ee.edge = iter.getEdge();
-					// TODO: One parent pointer for each start point?
-					// ee.parent = currEdge;
 					prioQueue.add(ee);
 				}
 
@@ -307,11 +303,6 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 			return;
 
 		while (iter.next()) {
-			// no need in filter, since all edges in targetGraph are valid and
-			// acceptable
-			// if (!additionalEdgeFilter.accept(iter))
-			// continue;
-
 			MultiTreeSPEntry ee = shortestWeightMap.get(iter.getAdjNode());
 
 			if (ee == null) {
@@ -320,7 +311,7 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 				ee = new MultiTreeSPEntry(edgeIds, iter.getAdjNode(), numTrees);
 				// ee.parent = currEdge;
 				ee.visited = true;
-				double edgeWeight = weighting.calcWeight(iter, false, -1);
+				// double edgeWeight = weighting.calcWeight(iter, false, -1);
 				double tmpWeight;
 				for (int i = 0; i < numTrees; i++) {
 					if (currEdge.weights[i] == -1)
@@ -338,11 +329,8 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 
 				prioQueue.add(ee);
 			} else {
-				// double edgeWeight = weighting.calcWeight(iter, false, -1);
 				double tmpWeight;
-
 				boolean addToQ = false;
-
 				for (int i = 0; i < numTrees; i++) {
 					if (currEdge.weights[i] == -1)
 						continue;
@@ -366,17 +354,13 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 					// // downwards pass to access lower level nodes, though
 					// the
 					// weight
-					// // does not have to be reset necessarily
-					// prioQueue.remove(ee);
-					//
+					// // does not have to be reset necessarily //
 					ee.visited = true;
 					prioQueue.add(ee);
 				}
 				if (addToQ) {
-					prioQueue.remove(ee);
-					// ee.edge = iter.getEdge();
-					// TODO: One parent pointer for each start point?
-					// ee.parent = currEdge;
+					// prioQueue.remove(ee);
+
 					ee.visited = true;
 					prioQueue.add(ee);
 
