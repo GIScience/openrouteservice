@@ -11,9 +11,6 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.geocoding.geocoders;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
 public abstract class AbstractGeocoder implements Geocoder {
 
 	protected String geocodingURL;
@@ -27,7 +24,9 @@ public abstract class AbstractGeocoder implements Geocoder {
 		this.userAgent = userAgent;
 	}
 	
-	public abstract GeocodingResult[] geocode(String address, String languages, SearchBoundary searchBoundary, int limit) throws UnsupportedEncodingException, IOException;
+	public abstract GeocodingResult[] geocode(String address, String languages, SearchBoundary searchBoundary, int limit) throws Exception;
 	
-	public abstract GeocodingResult[] reverseGeocode(double lon, double lat, int limit) throws IOException;
+	public abstract GeocodingResult[] geocode(Address address, String languages, SearchBoundary boundary, int limit) throws Exception;
+	
+	public abstract GeocodingResult[] reverseGeocode(double lon, double lat, int limit) throws Exception;
 }

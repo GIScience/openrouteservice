@@ -11,7 +11,6 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.geocoding.geocoders;
 
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
@@ -47,8 +46,13 @@ public class NominatimGeocoder extends AbstractGeocoder {
 		super(geocodingURL, reverseGeocodingURL, userAgent);
 		// TODO Auto-generated constructor stub
 	}
+	
+	public GeocodingResult[] geocode(Address address, String languages, SearchBoundary boundary, int limit) throws Exception
+	{
+		throw new Exception("Structured geocoding is not supported.");
+	}
 
-    public GeocodingResult[] geocode(String address, String languages, SearchBoundary boundary, int limit) throws IOException
+    public GeocodingResult[] geocode(String address, String languages, SearchBoundary boundary, int limit) throws Exception
     {
 		ArrayList<GeocodingResult> res = new ArrayList<GeocodingResult>();
 
@@ -166,7 +170,7 @@ public class NominatimGeocoder extends AbstractGeocoder {
 		return res.toArray(new GeocodingResult[res.size()]);
     }
     
-	private String getResponseFromNominatim(String service, String service2, String reqParams) throws IOException
+	private String getResponseFromNominatim(String service, String service2, String reqParams) throws Exception
 	{
 		String result = null;
 		
@@ -211,7 +215,7 @@ public class NominatimGeocoder extends AbstractGeocoder {
 		return null;
 	}
 	
-	public GeocodingResult[] reverseGeocode(double lon, double lat, int limit) throws IOException
+	public GeocodingResult[] reverseGeocode(double lon, double lat, int limit) throws Exception
 	{
 		GeocodingResult gr = new GeocodingResult();		
 
