@@ -11,8 +11,6 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.geocoding.geocoders;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Arrays;
 
@@ -29,10 +27,17 @@ public class PeliasGeocoder extends AbstractGeocoder
 	public PeliasGeocoder(String geocodingURL, String reverseGeocodingURL, String userAgent) {
 		super(geocodingURL, reverseGeocodingURL, userAgent);
 	}
+	
+	@Override
+	public GeocodingResult[] geocode(Address address, String languages, SearchBoundary searchBoundary, int limit)
+	{
+		// TODO
+		return null;
+	}
 
 	@Override
 	public GeocodingResult[] geocode(String address, String languages, SearchBoundary searchBoundary, int limit)
-			throws UnsupportedEncodingException, IOException {
+			throws Exception {
 		String lang = Helper.isEmpty(languages) ? "en": languages;
 		String reqParams = "?text=" + URLEncoder.encode(GeocodingUtils.sanitizeAddress(address), "UTF-8") + "&size=" + limit + "&lang=" + lang; 
 		if (searchBoundary != null)
@@ -60,7 +65,7 @@ public class PeliasGeocoder extends AbstractGeocoder
 	}
 
 	@Override
-	public GeocodingResult[] reverseGeocode(double lon, double lat, int limit) throws IOException {
+	public GeocodingResult[] reverseGeocode(double lon, double lat, int limit) throws Exception {
 		String reqParams = "?point.lat=" + lat  + "&point.lon=" + lon + "&size=" + limit;
 		String respContent = HTTPUtility.getResponse(reverseGeocodingURL + reqParams, 10000, userAgent, "UTF-8");
 

@@ -14,16 +14,18 @@ package heigit.ors.services.geocoding.requestprocessors;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import heigit.ors.geocoding.geocoders.Address;
 import heigit.ors.geocoding.geocoders.SearchBoundary;
 import heigit.ors.services.ServiceRequest;
 import heigit.ors.services.geocoding.GeocodingServiceSettings;
 
 public class GeocodingRequest extends ServiceRequest
 {
-	private String _query;
 	private int _limit = 5;
 	private String _language;
 	private SearchBoundary _boundary;
+	private String _queryString;
+	private Address _queryAddress;
 	
 	// reverse geocoding parameter
 	private Coordinate _location;
@@ -33,12 +35,20 @@ public class GeocodingRequest extends ServiceRequest
 		
 	}
 
-	public String getQuery() {
-		return _query;
+	public String getQueryString() {
+		return _queryString;
 	}
 
-	public void setQuery(String query) {
-		_query = query;
+	public void setQueryString(String query) {
+		_queryString = query;
+	}
+	
+	public Address getQueryAddress() {
+		return _queryAddress;
+	}
+
+	public void setQueryAddress(Address query) {
+		_queryAddress = query;
 	}
 
 	public int getLimit() {
@@ -67,7 +77,7 @@ public class GeocodingRequest extends ServiceRequest
 	
 	public boolean isValid()
 	{
-		return !Helper.isEmpty(_query) || _location != null;
+		return !Helper.isEmpty(_queryString) || _queryAddress != null || _location != null;
 	}
 
 	public SearchBoundary getBoundary() {

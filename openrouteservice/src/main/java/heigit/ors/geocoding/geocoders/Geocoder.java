@@ -11,12 +11,11 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.geocoding.geocoders;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
 public interface Geocoder 
 {
-	public GeocodingResult[] geocode(String address, String languages, SearchBoundary boundary, int limit) throws UnsupportedEncodingException, IOException;
+	public GeocodingResult[] geocode(String address, String languages, SearchBoundary boundary, int limit) throws Exception;
 	
-	public GeocodingResult[] reverseGeocode(double lat, double lon, int limit) throws IOException;
+	public GeocodingResult[] geocode(Address address, String languages, SearchBoundary boundary, int limit) throws Exception;
+	
+	public GeocodingResult[] reverseGeocode(double lat, double lon, int limit) throws Exception;
 }

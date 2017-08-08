@@ -40,6 +40,11 @@ public class PhotonGeocoder extends AbstractGeocoder {
 		super(geocodingURL, reverseGeocodingURL, userAgent);
 	}
 
+	public GeocodingResult[] geocode(Address address, String languages, SearchBoundary boundary, int limit) throws Exception
+	{
+		throw new Exception("Structured geocoding is not supported.");
+	}
+
     public GeocodingResult[] geocode(String address, String languages, SearchBoundary boundary, int limit) throws IOException
     {
     	String code = (languages == null) ? "en" : languages.toLowerCase();
