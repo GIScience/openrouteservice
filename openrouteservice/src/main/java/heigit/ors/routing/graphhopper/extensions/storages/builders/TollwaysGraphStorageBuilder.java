@@ -118,7 +118,6 @@ public class TollwaysGraphStorageBuilder extends AbstractGraphStorageBuilder
 
 	public void processEdge(ReaderWay way, EdgeIteratorState edge)
 	{
-		if (_tollways != 0) System.out.println(way.getId() + " " + edge.getEdge() + " " + _tollways);
 		_storage.setEdgeValue(edge.getEdge(), _tollways);
 	}
 
