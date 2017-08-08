@@ -174,11 +174,9 @@
 							}
 						    ext_storages: {
                                 WayCategory: { },								
-                                HeavyVehicle: {
-								    restrictions: true
-                                },								
+                                HeavyVehicle: { restrictions: true },								
 								WaySurfaceType: { },
-								Tollways: { },
+								Tollways: { }
 						    }
 						    traffic: false
 					    }
