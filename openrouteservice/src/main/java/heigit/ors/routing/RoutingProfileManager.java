@@ -52,6 +52,7 @@ import heigit.ors.util.TimeUtility;
 
 import com.graphhopper.GHResponse;
 import com.graphhopper.routing.util.BikeCommonFlagEncoder;
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.storage.RAMDataAccess;
 import com.graphhopper.util.DistanceCalc;
@@ -272,6 +273,7 @@ public class RoutingProfileManager {
 		int nSegments = coords.length - 1;
 		RouteProcessContext routeProcCntx = new RouteProcessContext(pathProcessor);
 		RouteResultBuilder routeBuilder = new RouteResultBuilder();
+		EdgeFilter customEdgeFilter = rp.createAccessRestrictionFilter(coords);
 		List<GHResponse> resp =  new ArrayList<GHResponse>(); 
 
 		for(int i = 1; i <= nSegments; ++i)
@@ -282,9 +284,9 @@ public class RoutingProfileManager {
 			Coordinate c1 = coords[i];
 			GHResponse gr = null;
 			if (invertFlow)
-				gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, false, searchParams, req.getSimplifyGeometry(), routeProcCntx);
+				gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, false, searchParams, customEdgeFilter, req.getSimplifyGeometry(), routeProcCntx);
 			else
-				gr = rp.computeRoute(c1.y, c1.x, c0.y, c0.x, false, searchParams, req.getSimplifyGeometry(), routeProcCntx);
+				gr = rp.computeRoute(c1.y, c1.x, c0.y, c0.x, false, searchParams, customEdgeFilter, req.getSimplifyGeometry(), routeProcCntx);
 
 			//if (gr.hasErrors())
 			//	throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
@@ -337,6 +339,7 @@ public class RoutingProfileManager {
 		Coordinate c1;
 		int nSegments = coords.length - 1;
 		RouteProcessContext routeProcCntx = new RouteProcessContext(pathProcessor);
+		EdgeFilter customEdgeFilter = rp.createAccessRestrictionFilter(coords);
 
 		for(int i = 1; i <= nSegments; ++i)
 		{
@@ -345,7 +348,7 @@ public class RoutingProfileManager {
 			if (pathProcessor != null)
 				pathProcessor.setSegmentIndex(i - 1, nSegments);
 
-			GHResponse gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, c0.z == 1.0, searchParams, req.getSimplifyGeometry(), routeProcCntx);
+			GHResponse gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, c0.z == 1.0, searchParams, customEdgeFilter,  req.getSimplifyGeometry(), routeProcCntx);
 
 			if (gr.hasErrors())
 				throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
@@ -356,8 +359,7 @@ public class RoutingProfileManager {
 
 		return new RouteResultBuilder().createRouteResult(routes, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor)pathProcessor).getExtras(): null);
 	}
-
-
+	
 	public RoutingProfile getRouteProfile(RoutingRequest req, boolean oneToMany) throws Exception {
 		RouteSearchParameters searchParams = req.getSearchParameters();
 		int profileType = searchParams.getProfileType();

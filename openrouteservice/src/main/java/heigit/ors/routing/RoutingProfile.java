@@ -452,7 +452,7 @@ public class RoutingProfile
 		beginUseGH();
 
 		try {
-			RouteSearchContext searchCntx = createSearchContext(parameters.getRouteParameters(), RouteSearchMode.Isochrones);
+			RouteSearchContext searchCntx = createSearchContext(parameters.getRouteParameters(), RouteSearchMode.Isochrones, null);
 
 			IsochroneMapBuilderFactory isochroneMapBuilderFactory = new IsochroneMapBuilderFactory(searchCntx);
 			result = isochroneMapBuilderFactory.buildMap(parameters);
@@ -567,7 +567,7 @@ public class RoutingProfile
 		return optResult;
 	}
 
-	private RouteSearchContext createSearchContext(RouteSearchParameters searchParams, RouteSearchMode mode) throws Exception
+	private RouteSearchContext createSearchContext(RouteSearchParameters searchParams, RouteSearchMode mode, EdgeFilter customEdgeFilter) throws Exception
 	{
 		int profileType = searchParams.getProfileType();
 		int weightingMethod = searchParams.getWeightingMethod();
@@ -725,7 +725,7 @@ public class RoutingProfile
 		return totalDistance <= maxDistance && wayPoints <= maxWayPoints;
 	}
 
-	public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, boolean directedSegment, RouteSearchParameters searchParams, boolean simplifyGeometry, RouteProcessContext routeProcCntx)
+	public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, boolean directedSegment, RouteSearchParameters searchParams, EdgeFilter customEdgeFilter, boolean simplifyGeometry, RouteProcessContext routeProcCntx)
 			throws Exception {
 
 		GHResponse resp = null; 
@@ -737,7 +737,7 @@ public class RoutingProfile
 		try {
 			int profileType = searchParams.getProfileType();
 			int weightingMethod = searchParams.getWeightingMethod();
-			RouteSearchContext searchCntx = createSearchContext(searchParams, RouteSearchMode.Routing);
+			RouteSearchContext searchCntx = createSearchContext(searchParams, RouteSearchMode.Routing, customEdgeFilter);
 
 			boolean flexibleMode = searchParams.getFlexibleMode();
 			GHRequest req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
@@ -918,6 +918,12 @@ public class RoutingProfile
 			} 		
 			return new GeometryFactory().createLineString(coords); 		} 	
 		return null; 
+	}
+	
+	public EdgeFilter createAccessRestrictionFilter(Coordinate[] wayPoints)
+	{
+		//rp.getGraphhopper()
+		return null;
 	}
 
 	public int hashCode()

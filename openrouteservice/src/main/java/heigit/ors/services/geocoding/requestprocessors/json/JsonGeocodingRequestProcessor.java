@@ -30,6 +30,7 @@ import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
+import heigit.ors.geocoding.geocoders.Address;
 import heigit.ors.geocoding.geocoders.CircleSearchBoundary;
 import heigit.ors.geocoding.geocoders.Geocoder;
 import heigit.ors.geocoding.geocoders.GeocoderFactory;
@@ -62,7 +63,23 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 			String value = _request.getParameter("query");
 
 			if (!Helper.isEmpty(value))
-				req.setQuery(value);
+			{
+				if (value.contains("{"))
+				{
+					// we expect structured query with json
+					try
+					{
+						JSONObject jAddress = new JSONObject(value);
+						req.setQueryAddress(Address.fromJson(jAddress));
+					}
+					catch(Exception ex)
+					{
+						throw new ParameterValueException(GeocodingErrorCodes.INVALID_PARAMETER_FORMAT, "query");
+					}
+				}
+				else
+					req.setQueryString(value);
+			}
 
 			req.setLanguage(_request.getParameter("lang"));
 
@@ -96,7 +113,7 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 				req.setLanguage(null);
 				req.setLimit(1);
 			}
-			else if (Helper.isEmpty(req.getQuery()))
+			else if (Helper.isEmpty(req.getQueryString()) && req.getQueryAddress() == null)
 			{
 				throw new MissingParameterException(GeocodingErrorCodes.MISSING_PARAMETER, "query/location");
 			}
@@ -202,10 +219,17 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 			}
 			else
 			{
-				if (Helper.isEmpty(req.getQuery()))
+				if (Helper.isEmpty(req.getQueryString()) && req.getQueryAddress() == null)
 					throw new MissingParameterException(GeocodingErrorCodes.MISSING_PARAMETER, "query");
 				
-				GeocodingResult[] gresults = geocoder.geocode(req.getQuery(), req.getLanguage(), req.getBoundary(), req.getLimit());
+				
+				GeocodingResult[] gresults = null;
+				
+				if (req.getQueryAddress() != null)
+					gresults = geocoder.geocode(req.getQueryAddress(), req.getLanguage(), req.getBoundary(), req.getLimit());
+				else
+					gresults = geocoder.geocode(req.getQueryString(), req.getLanguage(), req.getBoundary(), req.getLimit());
+				
 				writeGeocodingResponse(response, req, gresults);			
 			}
 		}
@@ -323,7 +347,11 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 		info.put("timestamp", System.currentTimeMillis());
 
 		JSONObject query = new JSONObject();
-		query.put("query", request.getQuery());
+		if (request.getQueryAddress() != null)
+			query.put("query", request.getQueryAddress().toString());
+		else
+			query.put("query", request.getQueryString());
+		
 		if (request.getLimit() > 0)
 			query.put("limit", request.getLimit());
 		if (request.getLanguage() != null)

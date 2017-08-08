@@ -27,11 +27,11 @@ public class TollwaysGraphStorageBuilder extends AbstractGraphStorageBuilder
 {
 	private TollwaysGraphStorage _storage;
 	private int _tollways;
-	private List<String> _tollTags = new ArrayList<String>(5);
+	private List<String> _tollTags = new ArrayList<String>(7);
 	
 	public TollwaysGraphStorageBuilder()
 	{
-		_tollTags.addAll(Arrays.asList("toll","toll:hgv", "toll:N1", "toll:N2", "toll:N3",  "toll:class", "toll:hgv:class"));
+		_tollTags.addAll(Arrays.asList("toll", "toll:hgv", "toll:N1", "toll:N2", "toll:N3",  "toll:class", "toll:hgv:class"));
 	}
 
 	public GraphExtension init(GraphHopper graphhopper) throws Exception {
