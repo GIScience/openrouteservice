@@ -225,7 +225,7 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].containsKey('extras')", is(true))
 				.body("routes[0].extras.tollways.values.size()", is(3))
 				.body("routes[0].extras.tollways.values[0][0]", is(0))
-				.body("routes[0].extras.tollways.values[0][1]", is(55))
+				.body("routes[0].extras.tollways.values[0][1]", is(52))
 				.body("routes[0].extras.tollways.values[0][2]", is(0))
 				.body("routes[0].extras.tollways.values[1][0]", is(55))
 				.body("routes[0].extras.tollways.values[1][1]", is(69))
