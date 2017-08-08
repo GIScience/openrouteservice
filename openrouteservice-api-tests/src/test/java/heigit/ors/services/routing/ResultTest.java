@@ -230,7 +230,6 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].extras.tollways.values[1][0]", is(55))
 				.body("routes[0].extras.tollways.values[1][1]", is(69))
 				.body("routes[0].extras.tollways.values[1][2]", is(2048))
-
 				.statusCode(200);
 	}
 
