@@ -13,11 +13,11 @@ package heigit.ors.services.geocoding.requestprocessors;
 
 import javax.servlet.http.HttpServletRequest;
 
-import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.geocoding.geocoders.GeocodingErrorCodes;
+import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.services.geocoding.GeocodingServiceSettings;
 import heigit.ors.services.geocoding.requestprocessors.json.JsonGeocodingRequestProcessor;
 
