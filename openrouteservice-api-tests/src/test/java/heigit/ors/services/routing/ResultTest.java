@@ -228,8 +228,11 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].extras.tollways.values[0][1]", is(52))
 				.body("routes[0].extras.tollways.values[0][2]", is(0))
 				.body("routes[0].extras.tollways.values[1][0]", is(52))
-				.body("routes[0].extras.tollways.values[1][1]", is(69))
+				.body("routes[0].extras.tollways.values[1][1]", is(66))
 				.body("routes[0].extras.tollways.values[1][2]", is(2048))
+				.body("routes[0].extras.tollways.values[2][0]", is(66))
+				.body("routes[0].extras.tollways.values[2][1]", is(101))
+				.body("routes[0].extras.tollways.values[2][2]", is(0))
 				.statusCode(200);
 	}
 
