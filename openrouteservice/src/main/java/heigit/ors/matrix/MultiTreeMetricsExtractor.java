@@ -176,7 +176,7 @@ public class MultiTreeMetricsExtractor {
 					pathDistance= -1;
 					pathWeight = -1;
 				}
-
+ 
 				if (calcTime)
 					times[index] = (float)pathTime;
 

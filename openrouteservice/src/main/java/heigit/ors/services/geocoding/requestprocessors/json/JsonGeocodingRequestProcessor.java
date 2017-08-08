@@ -76,6 +76,9 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 					{
 						throw new ParameterValueException(GeocodingErrorCodes.INVALID_PARAMETER_FORMAT, "query");
 					}
+					
+					if (!req.getQueryAddress().isValid())
+						throw new ParameterValueException(GeocodingErrorCodes.INVALID_PARAMETER_VALUE, "query");						
 				}
 				else
 					req.setQueryString(value);
@@ -113,7 +116,7 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 				req.setLanguage(null);
 				req.setLimit(1);
 			}
-			else if (Helper.isEmpty(req.getQueryString()) && req.getQueryAddress() == null)
+			else if (Helper.isEmpty(req.getQueryString()) && (req.getQueryAddress() == null || !req.getQueryAddress().isValid()))
 			{
 				throw new MissingParameterException(GeocodingErrorCodes.MISSING_PARAMETER, "query/location");
 			}
@@ -221,7 +224,6 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 			{
 				if (Helper.isEmpty(req.getQueryString()) && req.getQueryAddress() == null)
 					throw new MissingParameterException(GeocodingErrorCodes.MISSING_PARAMETER, "query");
-				
 				
 				GeocodingResult[] gresults = null;
 				
