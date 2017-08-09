@@ -47,28 +47,28 @@ public class IsochronesServiceSettings {
 		else
 		{
 			List<? extends ConfigObject> params = AppConfig.Global().getObjectList("isochrones", "maximum_range_distance");
-		    if (params != null)
-		    {
-		    	profileMaxRangeDistances = getParameters(params);
-		    	if (profileMaxRangeDistances.containsKey(-1))
-		    		maximumRangeDistance = profileMaxRangeDistances.get(-1);
-		    }
+			if (params != null)
+			{
+				profileMaxRangeDistances = getParameters(params);
+				if (profileMaxRangeDistances.containsKey(-1))
+					maximumRangeDistance = profileMaxRangeDistances.get(-1);
+			}
 		}
-				
+
 		value = AppConfig.Global().getServiceParameter("isochrones", "maximum_range_time");
 		if (value != null)
 			maximumRangeTime = Integer.parseInt(value);
 		else
 		{
 			List<? extends ConfigObject> params = AppConfig.Global().getObjectList("isochrones", "maximum_range_time");
-		    if (params != null)
-		    {
-		    	profileMaxRangeTimes = getParameters(params);
-		    	if (profileMaxRangeTimes.containsKey(-1))
-		    		maximumRangeTime = profileMaxRangeTimes.get(-1);
-		    }
+			if (params != null)
+			{
+				profileMaxRangeTimes = getParameters(params);
+				if (profileMaxRangeTimes.containsKey(-1))
+					maximumRangeTime = profileMaxRangeTimes.get(-1);
+			}
 		}
-		
+
 		value = AppConfig.Global().getServiceParameter("isochrones", "maximum_intervals");
 		if (value != null)
 			maximumIntervals = Integer.parseInt(value);
@@ -79,29 +79,29 @@ public class IsochronesServiceSettings {
 		if (value != null)
 			attribution = value;
 	}
-	
+
 	private static Map<Integer, Integer> getParameters(List<? extends ConfigObject> params)
 	{
 		Map<Integer, Integer> result = new HashMap<Integer, Integer>();
-		
+
 		for(ConfigObject cfgObj : params)
-    	{
-    		if (cfgObj.containsKey("profiles") && cfgObj.containsKey("value"))
-    		{
-    		   String[] profiles = cfgObj.toConfig().getString("profiles").split(",");
-    		   for (String profileStr : profiles)
-    		   {
-    			   profileStr = profileStr.trim();
-    			   Integer profile = ("any".equalsIgnoreCase(profileStr)) ? -1 : RoutingProfileType.getFromString(profileStr);
-    			   if (profile != RoutingProfileType.UNKNOWN)
-    				   result.put(profile, cfgObj.toConfig().getInt("value"));
-    		   }
-    		}
-    	}
-		
+		{
+			if (cfgObj.containsKey("profiles") && cfgObj.containsKey("value"))
+			{
+				String[] profiles = cfgObj.toConfig().getString("profiles").split(",");
+				for (String profileStr : profiles)
+				{
+					profileStr = profileStr.trim();
+					Integer profile = ("any".equalsIgnoreCase(profileStr)) ? -1 : RoutingProfileType.getFromString(profileStr);
+					if (profile != RoutingProfileType.UNKNOWN)
+						result.put(profile, cfgObj.toConfig().getInt("value"));
+				}
+			}
+		}
+
 		return result;
 	}
-	
+
 	public static boolean getEnabled() {
 		return enabled;
 	}
@@ -116,19 +116,25 @@ public class IsochronesServiceSettings {
 
 	public static int getMaximumRange(int profileType, TravelRangeType range) {
 		Integer res = 0;
-		
+
 		switch(range)
 		{
 		case Distance:
-			res = profileMaxRangeDistances.get(profileType);
-			if (res == null)
-				res = maximumRangeDistance;
+			res = maximumRangeDistance;
+			
+			if (profileMaxRangeDistances != null && profileMaxRangeDistances.containsKey(profileType))
+			{
+				res = profileMaxRangeDistances.get(profileType);
+			}
 			break;
 		case Time:
-			res = profileMaxRangeTimes.get(profileType);
-			if (res == null)
-				res = maximumRangeTime;
-			 break;
+			res = maximumRangeTime;
+			
+			if (profileMaxRangeTimes != null && profileMaxRangeTimes.containsKey(profileType))
+			{
+				res = profileMaxRangeTimes.get(profileType);
+			}
+			break;
 		}
 
 		return res;
