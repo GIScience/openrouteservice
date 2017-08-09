@@ -192,13 +192,12 @@ public class MultiTreeMetricsExtractor {
 
 				if (calcWeight)
 					weights[index] = (float)pathWeight;
-				index++;
 			}
 		}
 	}
 
 	private long getMultiTreeSPEntryHash(MultiTreeSPEntry entry, int sptEntry) {
-		return entry.adjNode + entry.edge[sptEntry];
+		return entry.adjNode * 31 + entry.edge[sptEntry];
 	}
 
 	private void extractEdgeValues(CHEdgeIteratorState iterState, boolean reverse) {
@@ -212,8 +211,6 @@ public class MultiTreeMetricsExtractor {
 
 			expandEdge(iterState, reverse);
 		} else {
-			// System.out.println(iterState.getName() + "
-			// "+iterState.getDistance());
 			if (MatrixMetricsType.isSet(_metrics, MatrixMetricsType.Distance))
 				_edgeDistance = iterState.getDistance();
 			if (MatrixMetricsType.isSet(_metrics, MatrixMetricsType.Duration))
@@ -225,8 +222,6 @@ public class MultiTreeMetricsExtractor {
 
 	private void expandEdge(CHEdgeIteratorState iterState, boolean reverse) {
 		if (!iterState.isShortcut()) {
-			// System.out.println(iterState.getName() + "
-			// "+iterState.getDistance());
 			if (MatrixMetricsType.isSet(_metrics, MatrixMetricsType.Distance))
 				_edgeDistance += iterState.getDistance();
 			if (MatrixMetricsType.isSet(_metrics, MatrixMetricsType.Duration))

@@ -24,6 +24,7 @@ import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
+import com.graphhopper.util.StopWatch;
 
 import heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
 import heigit.ors.util.DebugUtility;
@@ -176,26 +177,26 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 		}
 
 		outEdgeExplorer = graph.createEdgeExplorer();
-		//StopWatch sw = new StopWatch();
-		//sw.start();
+		StopWatch sw = new StopWatch();
+		sw.start();
 
 		runUpwardSearch();
 
-		//sw.stop();
-		//System.out.println(sw.getTime());
+		sw.stop();
+		System.out.println(sw.getTime());
 		_currFrom = _bestWeightMapFrom.get(_upwardEdgeFilter.getHighestNode());
 		_currFrom.visited = true;
 		_prioQueue.clear();
 		_prioQueue.add(_currFrom);
 
 		outEdgeExplorer = _targetGraph.createExplorer();
-		//sw = new StopWatch();
-		//sw.start();
+		sw = new StopWatch();
+		sw.start();
 		runDownwardSearch();
-		//sw.stop();
-		//System.out.println(sw.getTime());
+		sw.stop();
+		System.out.println(sw.getTime());
 
-		//System.out.print(upwardIters + " " + downwardIters);
+		System.out.print(upwardIters + " " + downwardIters);
 
 		MultiTreeSPEntry[] targets = new MultiTreeSPEntry[to.length];
 
@@ -205,8 +206,8 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 		return targets;
 	}
 
-	//private int downwardIters = 0;
-	//private int upwardIters = 0;
+	private int downwardIters = 0;
+	private int upwardIters = 0;
 
 	private void fillEdgesUpward(MultiTreeSPEntry currEdge, PriorityQueue<MultiTreeSPEntry> prioQueue,
 			IntObjectMap<MultiTreeSPEntry> shortestWeightMap, EdgeExplorer explorer) {
@@ -233,17 +234,17 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 
 				if (ee == null) {
 					ee = new MultiTreeSPEntry(iter.getAdjNode(), _treeEntrySize);
-
+					
 					for (int i = 0; i < _treeEntrySize; i++) {
 						entryWeight = currEdge.weights[i];
 						if (entryWeight == 0.0)
 							continue;
 
-						ee.weights[i] = edgeWeight + entryWeight;;
+						ee.weights[i] = edgeWeight + entryWeight;
 						ee.parent[i] = currEdge;
 						ee.edge[i] = iter.getEdge();
 					}
-
+					
 					shortestWeightMap.put(iter.getAdjNode(), ee);
 					prioQueue.add(ee);
 				} else {
@@ -278,7 +279,7 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 				}
 			}
 
-			//upwardIters++;
+			upwardIters++;
 		}
 
 		if (canMergeTrees)
@@ -360,7 +361,7 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 				}
 			}
 
-			//downwardIters++;
+			downwardIters++;
 		}
 	}
 }
