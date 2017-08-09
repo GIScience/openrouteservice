@@ -59,20 +59,13 @@ public class RPHASTMatrixAlgorithm4 extends AbstractMatrixAlgorithm {
 				TraversalMode.NODE_BASED);
 		// Compute target tree only once as it is the same for every source
 		algorithm.prepare(srcData.getNodeIds(), dstData.getNodeIds());
-		// SubGraph targetGraph =
-		// algorithm.createTargetGraph(dstData.getNodeIds());
 
 		for (int srcIndex = 0; srcIndex < srcData.size(); srcIndex++) {
 			if (srcData.getNodeId(srcIndex) == -1) {
 				_pathMetricsExtractor.setEmptyValues(srcIndex, srcData, dstData, times, distances, weights);
-				// } else {
-				// algorithm = _prepareCH.createRPHAST(_graph, _encoder);
-				// SPTEntry[] destTrees = algorithm.calcPaths(sourceId,
-				// dstData.getNodeIds(), targetGraph);
-				// _pathMetricsExtractor.calcValues(srcIndex, destTrees,
-				// srcData, dstData, times, distances, weights);
 			}
 		}
+
 		MultiTreeSPEntry[] destTrees = algorithm.calcPaths(srcData.getNodeIds(), dstData.getNodeIds());
 		_pathMetricsExtractor.calcValues(0, destTrees, srcData, dstData, times, distances, weights);
 		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Duration))

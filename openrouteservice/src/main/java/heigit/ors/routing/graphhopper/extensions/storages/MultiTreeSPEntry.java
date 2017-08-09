@@ -1,29 +1,9 @@
-/*
- *  Licensed to GraphHopper GmbH under one or more contributor
- *  license agreements. See the NOTICE file distributed with this work for 
- *  additional information regarding copyright ownership.
- * 
- *  GraphHopper GmbH licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in 
- *  compliance with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
 package heigit.ors.routing.graphhopper.extensions.storages;
-
-import java.util.Arrays;
 
 /**
  * This class is used to create the shortest-path-tree from linked entities.
  * <p>
  *
- * @author Peter Karich
  */
 public class MultiTreeSPEntry implements Cloneable, Comparable<MultiTreeSPEntry> {
 	public int[] edge;
@@ -32,19 +12,11 @@ public class MultiTreeSPEntry implements Cloneable, Comparable<MultiTreeSPEntry>
 	public MultiTreeSPEntry[] parent;
 	public boolean visited = false;
 
-	public MultiTreeSPEntry(int[] edgeId, int adjNode, double[] weights) {
-		this.edge = edgeId;
-		this.adjNode = adjNode;
-		this.weights = weights;
-		this.parent = new MultiTreeSPEntry[weights.length];
-	}
-
-	public MultiTreeSPEntry(int[] edgeId, int adjNode, int numTrees) {
-		this.edge = edgeId;
+	public MultiTreeSPEntry(int adjNode, int numTrees) {
+		this.edge = new int[numTrees];
 		this.adjNode = adjNode;
 		this.weights = new double[numTrees];
 		this.parent = new MultiTreeSPEntry[numTrees];
-		Arrays.fill(this.weights, -1);
 	}
 
 	/**
@@ -59,7 +31,16 @@ public class MultiTreeSPEntry implements Cloneable, Comparable<MultiTreeSPEntry>
 
 	@Override
 	public MultiTreeSPEntry clone() {
-		return new MultiTreeSPEntry(edge, adjNode, weights);
+		MultiTreeSPEntry res = new MultiTreeSPEntry(adjNode, edge.length);
+		
+		for (int i = 0; i < edge.length; i++)
+		{
+			res.edge[i] = edge[i];
+			res.weights[i] = weights[i];
+			res.parent[i] = parent[i];
+		}
+		
+		return res;
 	}
 
 	public MultiTreeSPEntry cloneFull() {

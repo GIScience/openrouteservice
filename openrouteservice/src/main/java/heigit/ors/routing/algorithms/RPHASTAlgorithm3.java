@@ -204,15 +204,17 @@ public class RPHASTAlgorithm3 extends AbstractOneToManyRoutingAlgorithm {
 		entry.visited = true;
 		_prioQueue.add(entry);
 		_bestWeightMapFrom.put(from, entry);
+
 		outEdgeExplorer = _sourceGraph.createExplorer();
-
+		
 		runUpwardSearch();
-
+		
 		entry = _bestWeightMapFrom.get(_upwardEdgeFilter.getHighestNode());
 		entry.visited = true;
 		_prioQueue.add(entry);
+		
 		outEdgeExplorer = _targetGraph.createExplorer();
-
+		
 		runDownwardSearch();
 
 		SPTEntry[] targets = new SPTEntry[to.length];
