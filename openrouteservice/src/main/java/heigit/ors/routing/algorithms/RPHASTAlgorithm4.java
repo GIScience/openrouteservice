@@ -184,6 +184,8 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 
 		sw.stop();
 		System.out.println(sw.getTime());
+		System.out.println("HN: " + _upwardEdgeFilter.getHighestNode());
+
 		_currFrom = _bestWeightMapFrom.get(_upwardEdgeFilter.getHighestNode());
 		_currFrom.visited = true;
 		_prioQueue.clear();
@@ -196,7 +198,7 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 		sw.stop();
 		System.out.println(sw.getTime());
 
-		System.out.print(upwardIters + " " + downwardIters);
+		System.out.println(upwardIters + " " + downwardIters);
 
 		MultiTreeSPEntry[] targets = new MultiTreeSPEntry[to.length];
 
@@ -223,9 +225,9 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 		while (iter.next()) {
 			if (!_upwardEdgeFilter.accept(iter))
 				continue;
-
-			_upwardEdgeFilter.updateHighestNode(iter);
-
+			
+			//_upwardEdgeFilter.updateHighestNode(iter);
+			
 			edgeWeight = weighting.calcWeight(iter, false, 0);
 
 			if (!Double.isInfinite(edgeWeight))
@@ -275,7 +277,10 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 					}
 					
 					if (nonEmptyValues == _treeEntrySize && _targetGraph.containsNode(iter.getAdjNode()))
+					{
+						_upwardEdgeFilter.updateHighestNode(iter);
 						canMergeTrees = true;
+					}
 				}
 			}
 
@@ -353,7 +358,6 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 						prioQueue.add(ee);
 					}
 					else if (addToQ) {
-
 						ee.visited = true;
 						prioQueue.remove(ee);
 						prioQueue.add(ee);

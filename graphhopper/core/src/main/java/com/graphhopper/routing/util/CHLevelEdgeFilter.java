@@ -75,5 +75,10 @@ public class CHLevelEdgeFilter implements CHEdgeFilter {
 			if (highestNode == -1 || graph.getLevel(highestNode) < graph.getLevel(ajdNode))
 				this.highestNode =  ajdNode;
 		}
+		else
+		{
+			if (highestNode == -1)
+				this.highestNode =  ajdNode;
+		}
 	}
 }
