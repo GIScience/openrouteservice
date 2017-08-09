@@ -71,7 +71,7 @@ public class MultiTreeMetricsExtractor {
 		}
 	}
 
-	public void calcValues(int sourceIndex, MultiTreeSPEntry[] targets, MatrixLocations srcData,
+	public void calcValues(MultiTreeSPEntry[] targets, MatrixLocations srcData,
 			MatrixLocations dstData, float[] times, float[] distances, float[] weights) throws Exception {
 		if (targets == null)
 			throw new IllegalStateException("Target destinations not set");

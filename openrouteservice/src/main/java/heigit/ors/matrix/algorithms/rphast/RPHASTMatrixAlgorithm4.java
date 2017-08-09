@@ -68,7 +68,7 @@ public class RPHASTMatrixAlgorithm4 extends AbstractMatrixAlgorithm {
 			algorithm.prepare(srcData.getNodeIds(), dstData.getNodeIds());
 
 			MultiTreeSPEntry[] destTrees = algorithm.calcPaths(srcData.getNodeIds(), dstData.getNodeIds());
-			_pathMetricsExtractor.calcValues(0, destTrees, srcData, dstData, times, distances, weights);
+			_pathMetricsExtractor.calcValues(destTrees, srcData, dstData, times, distances, weights);
 		}
 
 		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Duration))
