@@ -40,7 +40,7 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 	private boolean _finishedTo;
 	private int _visitedCountFrom;
 	private int _visitedCountTo;
-	private int numTrees;
+	private int _treeEntrySize;
 
 	public RPHASTAlgorithm4(Graph graph, Weighting weighting, TraversalMode traversalMode) {
 		super(graph, weighting, traversalMode);
@@ -84,7 +84,7 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 	@Override
 	public void prepare(int[] sources, int[] targets) {
 		PriorityQueue<Integer> prioQueue = new PriorityQueue<>(100);
-		this.numTrees = sources.length;
+		this._treeEntrySize = sources.length;
 
 		// Phase I: build shortest path tree from all target nodes to the
 		// highest node
@@ -165,7 +165,7 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 	public MultiTreeSPEntry[] calcPaths(int[] from, int[] to) {
 		for (int i = 0; i < from.length; i++) {
 			_currFrom = new MultiTreeSPEntry(from[i], from.length);
-			_currFrom.weights[i] = 0.001;
+			_currFrom.weights[i] = 0.0001;
 			_currFrom.visited = true;
 			_prioQueue.add(_currFrom);
 
@@ -220,7 +220,7 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 		double edgeWeight, entryWeight, tmpWeight;
 
 		while (iter.next()) {
-			if (!_upwardEdgeFilter.accept(iter) || !_targetGraph.containsNode(iter.getAdjNode()))
+			if (!_upwardEdgeFilter.accept(iter))
 				continue;
 
 			_upwardEdgeFilter.updateHighestNode(iter);
@@ -229,13 +229,12 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 
 			if (!Double.isInfinite(edgeWeight))
 			{
-
 				MultiTreeSPEntry ee = shortestWeightMap.get(iter.getAdjNode());
 
 				if (ee == null) {
-					ee = new MultiTreeSPEntry(iter.getAdjNode(), numTrees);
+					ee = new MultiTreeSPEntry(iter.getAdjNode(), _treeEntrySize);
 
-					for (int i = 0; i < numTrees; i++) {
+					for (int i = 0; i < _treeEntrySize; i++) {
 						entryWeight = currEdge.weights[i];
 						if (entryWeight == 0.0)
 							continue;
@@ -251,7 +250,7 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 					addToQ = false;
 					nonEmptyValues = 0;
 
-					for (int i = 0; i < numTrees; i++) {
+					for (int i = 0; i < _treeEntrySize; i++) {
 						entryWeight = currEdge.weights[i];
 						if (entryWeight == 0.0)
 							continue;
@@ -274,7 +273,7 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 						prioQueue.add(ee);
 					}
 					
-					if (nonEmptyValues == numTrees)
+					if (nonEmptyValues == _treeEntrySize && _targetGraph.containsNode(iter.getAdjNode()))
 						canMergeTrees = true;
 				}
 			}
@@ -305,10 +304,10 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 				MultiTreeSPEntry ee = shortestWeightMap.get(iter.getAdjNode());
 
 				if (ee == null) {
-					ee = new MultiTreeSPEntry(iter.getAdjNode(), numTrees);
+					ee = new MultiTreeSPEntry(iter.getAdjNode(), _treeEntrySize);
 					ee.visited = true;
 
-					for (int i = 0; i < numTrees; ++i) {
+					for (int i = 0; i < _treeEntrySize; ++i) {
 						entryWeight = currEdge.weights[i];
 						if (entryWeight == 0.0)
 							continue;
@@ -324,7 +323,7 @@ public class RPHASTAlgorithm4 extends AbstractManyToManyRoutingAlgorithm {
 				else {
 					addToQ = false;
 
-					for (int i = 0; i < numTrees; ++i) {
+					for (int i = 0; i < _treeEntrySize; ++i) {
 						entryWeight = currEdge.weights[i];
 						if (entryWeight == 0.0) 
 							continue;

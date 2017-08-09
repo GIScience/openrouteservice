@@ -37,7 +37,6 @@ public class AppInfo
 	    public static final String VERSION;
 	    public static final String BUILD_DATE;
 	    public static final boolean SNAPSHOT;
-
  
 	    static
 	    {
