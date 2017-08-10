@@ -58,7 +58,7 @@ public class JsonMapMatchingResponseWriter {
 
 		JSONObject jInfo = new JSONObject(3);
 		jInfo.put("service", "routing");
-		jInfo.put("version", AppInfo.VERSION);
+		jInfo.put("engine", AppInfo.getEngineInfo());
 		if (!Helper.isEmpty(MapMatchingServiceSettings.getAttribution()))
 			jInfo.put("attribution", RoutingServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());

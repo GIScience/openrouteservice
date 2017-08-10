@@ -343,7 +343,7 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 
 		JSONObject info = new JSONObject();
 		info.put("service", "geocoding");
-		info.put("version", AppInfo.VERSION);
+		info.put("engine", AppInfo.getEngineInfo());
 		if (!Helper.isEmpty( GeocodingServiceSettings.getAttribution()))
 			info.put("attribution", GeocodingServiceSettings.getAttribution());
 		info.put("timestamp", System.currentTimeMillis());

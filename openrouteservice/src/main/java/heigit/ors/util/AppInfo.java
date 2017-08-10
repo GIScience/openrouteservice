@@ -4,6 +4,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
+import org.json.JSONObject;
+
 public class AppInfo
 {
 	    /**
@@ -37,7 +39,7 @@ public class AppInfo
 	    public static final String VERSION;
 	    public static final String BUILD_DATE;
 	    public static final boolean SNAPSHOT;
- 
+	    
 	    static
 	    {
 	        String version = "0.0";
@@ -94,6 +96,16 @@ public class AppInfo
 	        } catch (Exception ex)
 	        {
 	        }
+	        
 	        BUILD_DATE = buildDate;
+	    }
+	    
+	    public static JSONObject getEngineInfo()
+	    {
+	    	JSONObject json = new JSONObject(true);
+	    	json.put("version", VERSION);
+	    	json.put("build_date", BUILD_DATE);
+	    	
+	    	return json;
 	    }
 }

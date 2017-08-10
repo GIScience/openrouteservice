@@ -46,7 +46,7 @@ public class BaseHttpServlet extends HttpServlet
 			json.put("error", jError);
 			
 			JSONObject jInfo = new JSONObject();
-			jInfo.put("version", AppInfo.VERSION);
+			jInfo.put("engine", AppInfo.getEngineInfo());
 			jInfo.put("timestamp", System.currentTimeMillis());
 			json.put("info", jInfo);
 

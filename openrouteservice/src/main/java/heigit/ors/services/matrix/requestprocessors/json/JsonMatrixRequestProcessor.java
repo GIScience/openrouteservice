@@ -89,7 +89,7 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor
 		
 		JSONObject jInfo = new JSONObject(true);
 		jInfo.put("service", "matrix");
-		jInfo.put("version", AppInfo.VERSION);
+		jInfo.put("engine", AppInfo.getEngineInfo());
 		if (!Helper.isEmpty(MatrixServiceSettings.getAttribution()))
 			jInfo.put("attribution", MatrixServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());

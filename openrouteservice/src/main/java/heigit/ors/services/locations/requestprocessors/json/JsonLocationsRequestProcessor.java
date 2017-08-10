@@ -224,7 +224,7 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 	{
 		JSONObject jInfo = new JSONObject(true);
 		jInfo.put("service", "locations");
-		jInfo.put("version", AppInfo.VERSION);
+		jInfo.put("engine", AppInfo.getEngineInfo());
 		if (!Helper.isEmpty(LocationsServiceSettings.getAttribution()))
 			jInfo.put("attribution", LocationsServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());
