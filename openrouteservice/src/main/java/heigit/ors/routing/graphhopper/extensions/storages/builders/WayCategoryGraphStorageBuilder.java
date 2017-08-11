@@ -70,8 +70,8 @@ public class WayCategoryGraphStorageBuilder extends AbstractGraphStorageBuilder
 					}
 					else if ("track".equals(value)) {
 						String tracktype = way.getTag("tracktype");
-						if (tracktype != null
-								&& (tracktype.equals("grade1") || tracktype.equals("grade2")
+						if (tracktype == null
+								|| (tracktype.equals("grade1") || tracktype.equals("grade2")
 										|| tracktype.equals("grade3") || tracktype.equals("grade4") || tracktype
 											.equals("grade5"))) {
 						
