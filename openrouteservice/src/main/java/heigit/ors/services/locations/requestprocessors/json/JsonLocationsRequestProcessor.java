@@ -17,6 +17,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -25,6 +26,7 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 import heigit.ors.common.StatusCode;
+import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.geojson.GeometryJSON;
@@ -45,6 +47,8 @@ import heigit.ors.util.AppInfo;
 
 public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 {
+	private static final Logger LOGGER = Logger.getLogger(JsonLocationsRequestProcessor.class.getName());
+	
 	public JsonLocationsRequestProcessor(HttpServletRequest request) throws Exception 
 	{
 		super(request);
@@ -74,37 +78,46 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 		if (!req.isValid())
 			throw new StatusCodeException(StatusCode.BAD_REQUEST, LocationsErrorCodes.UNKNOWN, "Location request parameters are missing or invalid.");
 
-		LocationsDataProvider provider = null;
-		
-		switch(req.getType())
+		try
 		{
-		case POIS:
-			provider = LocationsDataProviderFactory.getProvider(LocationsServiceSettings.getProviderName(), LocationsServiceSettings.getProviderParameters());
-			writeLocationsResponse(response, req, provider.findLocations(req));			
-			break;
-		case CATEGORY_STATS:
-			provider = LocationsDataProviderFactory.getProvider(LocationsServiceSettings.getProviderName(), LocationsServiceSettings.getProviderParameters());
-			writeCategoriesResponse(response, req, provider.findCategories(req));
-			break;
-		case CATEGORY_LIST:
-			writeCategoriesListResponse(response, req);
-			break;
-		case UNKNOWN:
-			throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "request", "");
+			LocationsDataProvider provider = null;
+
+			switch(req.getType())
+			{
+			case POIS:
+				provider = LocationsDataProviderFactory.getProvider(LocationsServiceSettings.getProviderName(), LocationsServiceSettings.getProviderParameters());
+				writeLocationsResponse(response, req, provider.findLocations(req));			
+				break;
+			case CATEGORY_STATS:
+				provider = LocationsDataProviderFactory.getProvider(LocationsServiceSettings.getProviderName(), LocationsServiceSettings.getProviderParameters());
+				writeCategoriesResponse(response, req, provider.findCategories(req));
+				break;
+			case CATEGORY_LIST:
+				writeCategoriesListResponse(response, req);
+				break;
+			case UNKNOWN:
+				throw new UnknownParameterValueException(LocationsErrorCodes.INVALID_PARAMETER_VALUE, "request", "");
+			}
+		}
+		catch(Exception ex)
+		{
+			LOGGER.error(ex);
+			
+			throw new InternalServerException(LocationsErrorCodes.UNKNOWN);
 		}
 	}
-	
+
 	private void writeCategoriesListResponse(HttpServletResponse response, LocationsRequest request) throws Exception
 	{
 		JSONObject jResp = new JSONObject();
-		
+
 		jResp.put("categories", LocationsCategoryClassifier.getCategoriesList());
-		
+
 		writeInfoSection(jResp, request);
-		 
+
 		ServletUtility.write(response, jResp);
 	}
-	
+
 	private void writeCategoriesResponse(HttpServletResponse response, LocationsRequest request, List<LocationsCategory> categories) throws Exception
 	{
 		JSONObject resp = new JSONObject(1);
@@ -119,23 +132,23 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 			for (int j = 0; j < categories.size(); j++) 
 			{
 				JSONObject jCategory = new JSONObject(true);
-				
+
 				LocationsCategory cat = categories.get(j);
-				
+
 				JSONObject jValues = new JSONObject(true, cat.getStats().size());
-				
+
 				for(Map.Entry<Integer, Long> stats : cat.getStats().entrySet())
 					jValues.put(stats.getKey().toString(), stats.getValue());
-				
+
 				jCategory.put("name", cat.getCategoryName());
 				jCategory.put("categories", jValues);
 				jCategory.put("total_count", cat.getTotalCount());
-				
+
 				jLocations.put(Integer.toString(cat.getCategoryId()), jCategory);
-				
+
 				totalCount += cat.getTotalCount(); 
 			}
-			
+
 			jLocations.put("total_count", totalCount);
 		}
 
@@ -219,7 +232,7 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 
 		ServletUtility.write(response, jResp);
 	}
-	
+
 	private void writeInfoSection(JSONObject jResponse, LocationsRequest request)
 	{
 		JSONObject jInfo = new JSONObject(true);
@@ -244,7 +257,7 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 				if (!Helper.isEmpty(request.getLanguage()))
 					jQuery.put("lang", request.getLanguage());
 			}
-			
+
 			if (request.getId() != null)
 				jQuery.put("id", request.getId());
 
@@ -253,7 +266,7 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 
 		jResponse.put("info", jInfo);
 	}
-	
+
 	private void writeFilterSection(JSONObject jQuery, LocationsSearchFilter query)
 	{
 		JSONObject jFilter = new JSONObject(true);
@@ -269,7 +282,7 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 			jFilter.put("smoking", query.getSmoking());
 		if (query.getFee() != null)
 			jFilter.put("fee", query.getFee());
-		
+
 		if (jFilter.length() > 0)
 			jQuery.put("filter", jFilter);
 	}
