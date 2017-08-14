@@ -233,6 +233,10 @@ public class JsonAccessibilityRequestParser {
 			if (!Helper.isEmpty(value))
 				reqRouting.setIncludeInstructions(Boolean.parseBoolean(value));
 
+			value = request.getParameter("maneuvers");
+			if (!Helper.isEmpty(value))
+				reqRouting.setIncludeManeuvers(Boolean.parseBoolean(value));
+			
 			value = request.getParameter("elevation");
 			if (!Helper.isEmpty(value))
 				reqRouting.setIncludeElevation(Boolean.parseBoolean(value));

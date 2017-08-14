@@ -22,7 +22,8 @@ public class RouteStep
 	private int _exitNumber = -1;
 	private int _type;
 	private int[] _wayPoints;
-
+    private RouteStepManeuver _maneuver;
+    
 	public double getDuration() {
 		return _duration;
 	}
@@ -93,5 +94,13 @@ public class RouteStep
 
 	public void setMessageType(int messageType) {
 		_messageType = messageType;
+	}
+
+	public RouteStepManeuver getManeuver() {
+		return _maneuver;
+	}
+
+	public void setManeuver(RouteStepManeuver maneuver) {
+		_maneuver = maneuver;
 	}
 }

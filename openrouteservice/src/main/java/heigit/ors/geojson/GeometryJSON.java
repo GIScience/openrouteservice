@@ -20,7 +20,7 @@ import heigit.ors.util.FormatUtility;
 
 public class GeometryJSON {
 
-	private static int COORDINATE_PRECISION = 6;
+	private final static int COORDINATE_PRECISION = 6;
 	private final static GeometryFactory factory = new GeometryFactory();
 
 	public static JSONArray toJSON(Geometry geom, StringBuffer buffer) throws Exception
