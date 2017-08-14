@@ -148,7 +148,7 @@ public class NominatimGeocoder extends AbstractGeocoder {
 				// is available
 				if (country != null || state != null || state_district != null || city != null || road != null) {
 					GeocodingResult gr = new GeocodingResult();
-					gr.city = city;
+					gr.locality = city;
 					gr.country = country;
 					gr.countryCode = country_code;
 					gr.county = county;
@@ -243,17 +243,17 @@ public class NominatimGeocoder extends AbstractGeocoder {
 		gr.state = getJSONValue(address, "state");
 		gr.stateDistrict = getJSONValue(address, "state_district");
 		//String boundary = getJSONValue(address, "boundary");
-		gr.city = getJSONValue(address, "city");
+		gr.locality = getJSONValue(address, "city");
 
-		if (Helper.isEmpty(gr.city)) {
-			gr.city = getJSONValue(address, "town");
+		if (Helper.isEmpty(gr.locality)) {
+			gr.locality = getJSONValue(address, "town");
 		}
 
-		if (Helper.isEmpty(gr.city)) {
-			gr.city = getJSONValue(address, "village");
+		if (Helper.isEmpty(gr.locality)) {
+			gr.locality = getJSONValue(address, "village");
 		}
-		if (Helper.isEmpty(gr.city)) {
-			gr.city = getJSONValue(address, "hamlet");
+		if (Helper.isEmpty(gr.locality)) {
+			gr.locality = getJSONValue(address, "hamlet");
 		}
 		gr.neighbourhood = getJSONValue(address, "suburb");
 		gr.street = getJSONValue(address, "road");

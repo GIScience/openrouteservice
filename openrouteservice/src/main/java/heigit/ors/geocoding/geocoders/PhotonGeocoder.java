@@ -116,7 +116,7 @@ public class PhotonGeocoder extends AbstractGeocoder {
 
 			if (state != null || city != null || street != null) {
 				GeocodingResult gr = new GeocodingResult();
-				gr.city = city;
+				gr.locality = city;
 				gr.country = country;
 				gr.state = state;
 				gr.stateDistrict = state_district;
