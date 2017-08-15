@@ -105,14 +105,8 @@ public class ResultsValidationTest extends ServiceTest {
 	
 	@Test
 	public void addressPostCodeTest() {
-		String query = "";
-		try {
-			query = URLEncoder.encode("{\"postalcode\":\"69120\"}", "UTF-8");
-		} catch (Exception e) {
-			Assert.assertEquals(true, false);
-		}
 		Response response = given()
-		.param("query", query)
+		.param("query", "{\"postalcode\":\"69120\"}")
 		.param("limit",  "10")
 		.when()
 		.get(getEndPointName());
@@ -125,33 +119,21 @@ public class ResultsValidationTest extends ServiceTest {
 	
 	@Test 
 	public void addressStructuredCombinedTest() {
-		String query = "";
-		try {
-			query = URLEncoder.encode("{\"locality\":\"Mannheim\",\"country\":\"Germany\"}", "UTF-8");
-		} catch (Exception e) {
-			Assert.assertEquals(true, false);
-		}
 		Response response = given()
-		.param("query", query)
+		.param("query", "{\"locality\":\"Mannheim\",\"country\":\"Germany\"}")
 		.param("limit",  "10")
 		.when()
 		.get(getEndPointName());
 				
 		Assert.assertEquals(200, response.getStatusCode());
 		JSONObject jResponse = new JSONObject(response.body().asString());
-		Assert.assertEquals(jResponse.getJSONArray("features").length(), 1);
+		Assert.assertEquals(1, jResponse.getJSONArray("features").length());
 	}
 	
 	@Test
 	public void addressStructuredSingleParameterTest() {
-		String query = "";
-		try {
-			query = URLEncoder.encode("{\"locality\":\"Heidelberg\"}", "UTF-8");
-		} catch (Exception e) {
-			Assert.assertEquals(true, false);
-		}
 		Response response = given()
-		.param("query", query)
+		.param("query", "{\"locality\":\"Heidelberg\"}")
 		.param("limit",  "10")
 		.when()
 		.get(getEndPointName());

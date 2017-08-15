@@ -170,14 +170,8 @@ public class ParametersValidationTest extends ServiceTest {
 	
 	@Test
 	public void addressNoValidParametersTest() {
-		String query = "";
-		try {
-			query = URLEncoder.encode("{}", "UTF-8");
-		} catch (Exception e) {
-			Assert.assertEquals(true, false);
-		}
 		given()
-		.param("query", query)
+		.param("query", "{}")
 		.when()
 		.get(getEndPointName())
 		.then()
@@ -185,13 +179,8 @@ public class ParametersValidationTest extends ServiceTest {
 		.body("error.code", is(103))
 		.statusCode(400);
 		
-		try {
-			query = URLEncoder.encode("{\"address2\":\"Berliner Straße\"}", "UTF-8");
-		} catch (Exception e) {
-			Assert.assertEquals(true, false);
-		}
 		given()
-		.param("query", query)
+		.param("query", "{\"address2\":\"Berliner Straße\"}")
 		.when()
 		.get(getEndPointName())
 		.then()
