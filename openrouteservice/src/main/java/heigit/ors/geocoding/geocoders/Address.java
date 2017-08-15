@@ -12,6 +12,9 @@
 
 package heigit.ors.geocoding.geocoders;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.json.JSONObject;
 
 public class Address 
@@ -78,5 +81,29 @@ public class Address
 			json.put("country", _country);
 		
 		return json.toString();
+	}
+	
+	public Map<String, String> toMap()
+	{
+		Map<String, String> map = new HashMap<String, String>();
+		
+		if (_address != null)
+			map.put("address", _address);
+		if (_neighbourhood != null)
+			map.put("neighbourhood", _neighbourhood);
+		if (_borough != null)
+			map.put("borough", _borough);
+		if (_locality != null)
+			map.put("locality", _locality);
+		if (_county != null)
+			map.put("county", _county);
+		if (_region != null)
+			map.put("region", _region);
+		if (_postalcode != null)
+			map.put("postalcode", _postalcode);
+		if (_country != null)
+			map.put("country", _country);
+		
+		return map;
 	}
 }

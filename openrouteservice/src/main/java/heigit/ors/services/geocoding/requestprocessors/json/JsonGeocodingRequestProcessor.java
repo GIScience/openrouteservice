@@ -61,7 +61,7 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 		{
 		case "GET":
 			req = new GeocodingRequest();
-
+			   
 			String value = _request.getParameter("query");
 
 			if (!Helper.isEmpty(value))
