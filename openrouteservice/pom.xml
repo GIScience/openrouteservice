@@ -70,6 +70,7 @@
                  <addContextWarDependencies>true</addContextWarDependencies>
                  <addWarDependenciesInClassloader>true</addWarDependenciesInClassloader>
                  <warSourceDirectory>${project.build.directory}/${project.build.finalName}/</warSourceDirectory>
+                 <uriEncoding>utf-8</uriEncoding>
             </configuration>
       </plugin>
        <plugin><!-- clean up from war:inplace  -->
