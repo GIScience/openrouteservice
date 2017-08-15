@@ -12,7 +12,9 @@
 package heigit.ors.geocoding.geocoders;
 
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,18 +22,55 @@ import org.json.JSONObject;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Envelope;
 
+import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.util.HTTPUtility;
 
 public class PeliasGeocoder extends AbstractGeocoder
-{
+{	
 	public PeliasGeocoder(String geocodingURL, String reverseGeocodingURL, String userAgent) {
 		super(geocodingURL, reverseGeocodingURL, userAgent);
 	}
 	
 	@Override
 	public GeocodingResult[] geocode(Address address, String languages, SearchBoundary searchBoundary, int limit)
-	{
-		// TODO
+			throws Exception {
+		String lang = Helper.isEmpty(languages) ? "en" : languages;
+		String reqParams = "/structured?";
+		ArrayList<String> addrQueryList = new ArrayList<String>();
+		// Now look at the address element and get the properties from it
+		JSONObject json = new JSONObject(address.toString());
+		Map<String, Object> addrMap = json.toMap();
+		for(Map.Entry<String, Object> el : addrMap.entrySet()) {
+			if(el.getKey() != null && el.getValue() != null) {
+				addrQueryList.add(el.getKey() + "=" + URLEncoder.encode(GeocodingUtils.sanitizeAddress(el.getValue().toString()), "UTF-8"));
+			}
+		}
+		if(addrQueryList.size() > 0)
+			reqParams = reqParams + String.join("&", addrQueryList) + "&size=" + limit + "&lang=" + lang;
+		else
+			throw new MissingParameterException(GeocodingErrorCodes.INVALID_PARAMETER_VALUE, "address, neighbourhood, borough, locality, county, region, postalcode or country");
+		
+		// Add search boundary
+		if (searchBoundary != null)
+		{
+			if (searchBoundary instanceof RectSearchBoundary)
+			{
+				RectSearchBoundary rsb = (RectSearchBoundary)searchBoundary;
+				Envelope env = rsb.getRectangle();
+				reqParams += "&boundary.rect.min_lat=" + env.getMinY() + "&boundary.rect.min_lon=" + env.getMinX() + "&boundary.rect.max_lat=" + env.getMaxY() + "&boundary.rect.max_lon=" + env.getMaxX();
+			}
+			else if (searchBoundary instanceof CircleSearchBoundary)
+			{
+				CircleSearchBoundary csb = (CircleSearchBoundary)searchBoundary;
+				reqParams += "&boundary.circle.lat=" + csb.getLatitude() + "&boundary.circle.lon=" + csb.getLongitude() + "&boundary.circle.radius=" + csb.getRadius();
+			}
+		}
+		String respContent = HTTPUtility.getResponse(geocodingURL + reqParams, 10000, userAgent, "UTF-8");
+		if (!Helper.isEmpty(respContent) && !respContent.equals("[]")) {
+
+			return getGeocodeResults(respContent, searchBoundary);
+		}
+		
 		return null;
 	}
 

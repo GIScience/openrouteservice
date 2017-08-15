@@ -2,6 +2,8 @@ package heigit.ors.services.geocoding;
 
 import static io.restassured.RestAssured.*;
 
+import java.net.URLEncoder;
+
 import org.junit.Test;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -99,5 +101,45 @@ public class ResultsValidationTest extends ServiceTest {
 		Assert.assertEquals(response.getStatusCode(), 200);
         JSONObject jResponse = new JSONObject(response.body().asString());
         Assert.assertEquals(jResponse.getJSONObject("info").getJSONObject("query").get("id"), "829723410");
+	}
+	
+	@Test
+	public void addressPostCodeTest() {
+		Response response = given()
+		.param("query", "{\"postalcode\":\"69120\"}")
+		.param("limit",  "10")
+		.when()
+		.get(getEndPointName());
+		
+		Assert.assertEquals(200, response.getStatusCode());
+		JSONObject jResponse = new JSONObject(response.body().asString());
+		Assert.assertTrue(jResponse.getJSONArray("features").length() > 0);
+
+	}
+	
+	@Test 
+	public void addressStructuredCombinedTest() {
+		Response response = given()
+		.param("query", "{\"locality\":\"Mannheim\",\"country\":\"Germany\"}")
+		.param("limit",  "10")
+		.when()
+		.get(getEndPointName());
+				
+		Assert.assertEquals(200, response.getStatusCode());
+		JSONObject jResponse = new JSONObject(response.body().asString());
+		Assert.assertEquals(1, jResponse.getJSONArray("features").length());
+	}
+	
+	@Test
+	public void addressStructuredSingleParameterTest() {
+		Response response = given()
+		.param("query", "{\"locality\":\"Heidelberg\"}")
+		.param("limit",  "10")
+		.when()
+		.get(getEndPointName());
+				
+		Assert.assertEquals(200, response.getStatusCode());
+		JSONObject jResponse = new JSONObject(response.body().asString());
+		Assert.assertTrue(jResponse.getJSONArray("features").length() > 1);
 	}
 }
