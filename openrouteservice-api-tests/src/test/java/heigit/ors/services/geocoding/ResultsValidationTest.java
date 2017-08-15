@@ -2,6 +2,8 @@ package heigit.ors.services.geocoding;
 
 import static io.restassured.RestAssured.*;
 
+import java.net.URLEncoder;
+
 import org.junit.Test;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -99,5 +101,63 @@ public class ResultsValidationTest extends ServiceTest {
 		Assert.assertEquals(response.getStatusCode(), 200);
         JSONObject jResponse = new JSONObject(response.body().asString());
         Assert.assertEquals(jResponse.getJSONObject("info").getJSONObject("query").get("id"), "829723410");
+	}
+	
+	@Test
+	public void addressPostCodeTest() {
+		String query = "";
+		try {
+			query = URLEncoder.encode("{\"postalcode\":\"69120\"}", "UTF-8");
+		} catch (Exception e) {
+			Assert.assertEquals(true, false);
+		}
+		Response response = given()
+		.param("query", query)
+		.param("limit",  "10")
+		.when()
+		.get(getEndPointName());
+		
+		Assert.assertEquals(200, response.getStatusCode());
+		JSONObject jResponse = new JSONObject(response.body().asString());
+		Assert.assertTrue(jResponse.getJSONArray("features").length() > 0);
+
+	}
+	
+	@Test 
+	public void addressStructuredCombinedTest() {
+		String query = "";
+		try {
+			query = URLEncoder.encode("{\"locality\":\"Mannheim\",\"country\":\"Germany\"}", "UTF-8");
+		} catch (Exception e) {
+			Assert.assertEquals(true, false);
+		}
+		Response response = given()
+		.param("query", query)
+		.param("limit",  "10")
+		.when()
+		.get(getEndPointName());
+				
+		Assert.assertEquals(200, response.getStatusCode());
+		JSONObject jResponse = new JSONObject(response.body().asString());
+		Assert.assertEquals(jResponse.getJSONArray("features").length(), 1);
+	}
+	
+	@Test
+	public void addressStructuredSingleParameterTest() {
+		String query = "";
+		try {
+			query = URLEncoder.encode("{\"locality\":\"Heidelberg\"}", "UTF-8");
+		} catch (Exception e) {
+			Assert.assertEquals(true, false);
+		}
+		Response response = given()
+		.param("query", query)
+		.param("limit",  "10")
+		.when()
+		.get(getEndPointName());
+				
+		Assert.assertEquals(200, response.getStatusCode());
+		JSONObject jResponse = new JSONObject(response.body().asString());
+		Assert.assertTrue(jResponse.getJSONArray("features").length() > 1);
 	}
 }

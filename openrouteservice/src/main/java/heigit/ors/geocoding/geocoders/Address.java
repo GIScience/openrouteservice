@@ -37,21 +37,21 @@ public class Address
 	{
 		Address addr = new Address();
 		if (json.has("address"))
-			addr._address = json.getString("address");
+			addr._address = json.get("address").toString();
 		if (json.has("neighbourhood"))
-			addr._neighbourhood = json.getString("neighbourhood");
+			addr._neighbourhood = json.get("neighbourhood").toString();
 		if (json.has("borough"))
-			addr._borough = json.getString("borough");
+			addr._borough = json.get("borough").toString();
 		if (json.has("locality"))
-			addr._locality = json.getString("locality");
+			addr._locality = json.get("locality").toString();
 		if (json.has("county"))
-			addr._county = json.getString("county");
+			addr._county = json.get("county").toString();
 		if (json.has("region"))
-			addr._region = json.getString("region");
+			addr._region = json.get("region").toString();
 		if (json.has("postalcode"))
-			addr._postalcode = json.getString("postalcode");
+			addr._postalcode = json.get("postalcode").toString();
 		if (json.has("country"))
-			addr._country = json.getString("country");
+			addr._country = json.get("country").toString();
 		
 		return addr;
 	}

@@ -3,10 +3,13 @@ package heigit.ors.services.geocoding;
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 
+import java.net.URLEncoder;
+
 import org.junit.Test;
 
 import heigit.ors.services.common.EndPointAnnotation;
 import heigit.ors.services.common.ServiceTest;
+import junit.framework.Assert;
 
 @EndPointAnnotation(name="geocode")
 public class ParametersValidationTest extends ServiceTest {
@@ -163,5 +166,37 @@ public class ParametersValidationTest extends ServiceTest {
 		.assertThat()
 		.body("error.code", is(102))
 		.statusCode(400);
+	}
+	
+	@Test
+	public void addressNoValidParametersTest() {
+		String query = "";
+		try {
+			query = URLEncoder.encode("{}", "UTF-8");
+		} catch (Exception e) {
+			Assert.assertEquals(true, false);
+		}
+		given()
+		.param("query", query)
+		.when()
+		.get(getEndPointName())
+		.then()
+		.assertThat()
+		.body("error.code", is(103))
+		.statusCode(400);
+		
+		try {
+			query = URLEncoder.encode("{\"address2\":\"Berliner Straße\"}", "UTF-8");
+		} catch (Exception e) {
+			Assert.assertEquals(true, false);
+		}
+		given()
+		.param("query", query)
+		.when()
+		.get(getEndPointName())
+		.then()
+		.assertThat()
+		.body("error.code", is(103))
+		.statusCode(400);		
 	}
 }
