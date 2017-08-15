@@ -300,7 +300,10 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 		// use the way if it is tagged for bikes
 		if (way.hasTag("bicycle", intendedValues) ||
 				way.hasTag("bicycle", "dismount") ||
-				way.hasTag("highway", "cycleway"))
+				way.hasTag("highway", "cycleway") ||
+				// Runge: http://www.openstreetmap.org/way/1700503
+				way.hasTag("bicycle_road", "yes")
+				)
 			return acceptBit;
 
 		// accept only if explicitly tagged for bike usage
@@ -584,7 +587,7 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 	protected void collect(ReaderWay way, double wayTypeSpeed, TreeMap<Double, Integer> weightToPrioMap) {
 		String service = way.getTag("service");
 		String highway = way.getTag("highway");
-		if (way.hasTag("bicycle", "designated") || way.hasTag("bicycle", "official")) {
+		if (way.hasTag("bicycle", "designated") || way.hasTag("bicycle", "official") || way.hasTag("bicycle_road", "yes")) {
 			if ("path".equals(highway))
 				weightToPrioMap.put(100d, VERY_NICE.getValue());
 			else
@@ -1049,7 +1052,7 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 				|| way.hasTag("vehicle:forward")
 				|| way.hasTag("bicycle:forward");
 
-		if ((isOneway || way.hasTag("junction", "roundabout"))
+		if (!way.hasTag("bicycle_road", "yes") && (isOneway || way.hasTag("junction", "roundabout"))
 				&& !way.hasTag("oneway:bicycle", "no")
 				&& !way.hasTag("bicycle:backward")
 				&& !way.hasTag("cycleway", oppositeLanes)
