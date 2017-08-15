@@ -55,19 +55,22 @@ public class RPHASTMatrixAlgorithm4 extends AbstractMatrixAlgorithm {
 		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Weight))
 			weights = new float[tableSize];
 
-		RPHASTAlgorithm4 algorithm = new RPHASTAlgorithm4(_graph, _prepareCH.getPrepareWeighting(),
-				TraversalMode.NODE_BASED);
-		// Compute target tree only once as it is the same for every source
-		algorithm.prepare(srcData.getNodeIds(), dstData.getNodeIds());
-
-		for (int srcIndex = 0; srcIndex < srcData.size(); srcIndex++) {
-			if (srcData.getNodeId(srcIndex) == -1) {
+		if (!srcData.hasValidNodes() || !dstData.hasValidNodes())
+		{
+			for (int srcIndex = 0; srcIndex < srcData.size(); srcIndex++) 
 				_pathMetricsExtractor.setEmptyValues(srcIndex, srcData, dstData, times, distances, weights);
-			}
+		}
+		else
+		{
+			RPHASTAlgorithm4 algorithm = new RPHASTAlgorithm4(_graph, _prepareCH.getPrepareWeighting(),
+					TraversalMode.NODE_BASED);
+
+			algorithm.prepare(srcData.getNodeIds(), dstData.getNodeIds());
+
+			MultiTreeSPEntry[] destTrees = algorithm.calcPaths(srcData.getNodeIds(), dstData.getNodeIds());
+			_pathMetricsExtractor.calcValues(destTrees, srcData, dstData, times, distances, weights);
 		}
 
-		MultiTreeSPEntry[] destTrees = algorithm.calcPaths(srcData.getNodeIds(), dstData.getNodeIds());
-		_pathMetricsExtractor.calcValues(0, destTrees, srcData, dstData, times, distances, weights);
 		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Duration))
 			mtxResult.setTable(MatrixMetricsType.Duration, times);
 		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Distance))

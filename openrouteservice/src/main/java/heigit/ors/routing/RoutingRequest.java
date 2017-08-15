@@ -27,6 +27,7 @@ public class RoutingRequest extends ServiceRequest
 	private Boolean _includeInstructions = true;
 	private Boolean _includeElevation = false;
 	private Boolean _includeGeometry = true;
+	private Boolean _includeManeuvers = false;
 	private Boolean _simplifyGeometry = false;
 	private String[] _attributes = null;
     private int _extraInfo;
@@ -113,8 +114,8 @@ public class RoutingRequest extends ServiceRequest
 		return _includeGeometry;
 	}
 
-	public void setIncludeGeometry(Boolean _includeGeometry) {
-		this._includeGeometry = _includeGeometry;
+	public void setIncludeGeometry(Boolean includeGeometry) {
+		this._includeGeometry = includeGeometry;
 	}
 
 	public String[] getAttributes() {
@@ -155,5 +156,13 @@ public class RoutingRequest extends ServiceRequest
 
 	public void setLocationIndex(int locationIndex) {
 		_locationIndex = locationIndex;
+	}
+
+	public Boolean getIncludeManeuvers() {
+		return _includeManeuvers;
+	}
+
+	public void setIncludeManeuvers(Boolean includeManeuvers) {
+		_includeManeuvers = includeManeuvers;
 	}
 }

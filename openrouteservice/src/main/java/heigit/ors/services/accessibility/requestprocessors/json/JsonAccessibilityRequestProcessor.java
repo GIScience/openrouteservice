@@ -254,7 +254,7 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 	{
 		JSONObject jInfo = new JSONObject(true);
 		jInfo.put("service", "accessibility");
-		jInfo.put("version", AppInfo.VERSION);
+		jInfo.put("engine", AppInfo.getEngineInfo());
 		if (!Helper.isEmpty(LocationsServiceSettings.getAttribution()))
 			jInfo.put("attribution", LocationsServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());

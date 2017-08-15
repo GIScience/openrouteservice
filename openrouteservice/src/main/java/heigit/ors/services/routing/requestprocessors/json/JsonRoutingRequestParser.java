@@ -124,6 +124,10 @@ public class JsonRoutingRequestParser
 		value = request.getParameter("instructions");
 		if (!Helper.isEmpty(value))
 			req.setIncludeInstructions(Boolean.parseBoolean(value));
+		
+		value = request.getParameter("maneuvers");
+		if (!Helper.isEmpty(value))
+			req.setIncludeManeuvers(Boolean.parseBoolean(value));
 
 		value = request.getParameter("elevation");
 		if (!Helper.isEmpty(value))

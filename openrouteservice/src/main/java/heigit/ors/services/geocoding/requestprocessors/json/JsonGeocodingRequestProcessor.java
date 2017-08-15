@@ -14,6 +14,7 @@ package heigit.ors.services.geocoding.requestprocessors.json;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -45,7 +46,8 @@ import heigit.ors.util.FormatUtility;
 import heigit.ors.util.AppInfo; 
 
 public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor {
-
+	private static final Logger LOGGER = Logger.getLogger(JsonGeocodingRequestProcessor.class.getName());
+	
 	public JsonGeocodingRequestProcessor(HttpServletRequest request) throws Exception {
 		super(request);
 	}
@@ -237,6 +239,7 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 		}
 		catch(Exception ex)
 		{
+			LOGGER.error(ex);
 			throw new InternalServerException(GeocodingErrorCodes.UNKNOWN);
 		}
 	}
@@ -286,21 +289,27 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 			if (!Helper.isEmpty(gr.county))
 				properties.put("county", gr.county);
 
+			if (!Helper.isEmpty(gr.municipality))
+				properties.put("municipality", gr.municipality);
+
 			if (!Helper.isEmpty(gr.state))
 				properties.put("state", gr.state);
 
 			if (!Helper.isEmpty(gr.stateDistrict))
 				properties.put("state_district", gr.stateDistrict);
-
-			if (!Helper.isEmpty(gr.city))
-				properties.put("city", gr.city);
-
-			if (!Helper.isEmpty(gr.city))
-				properties.put("city", gr.city);
+			
+			if (!Helper.isEmpty(gr.locality))
+				properties.put("locality", gr.locality);
 
 			if (!Helper.isEmpty(gr.postalCode))
 				properties.put("postal_code", gr.postalCode);
 
+			if (!Helper.isEmpty(gr.borough))
+				properties.put("borough", gr.borough);
+
+			if (!Helper.isEmpty(gr.neighbourhood))
+				properties.put("neighbourhood", gr.neighbourhood);
+			
 			if (!Helper.isEmpty(gr.street))
 				properties.put("street", gr.street);
 
@@ -343,7 +352,7 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 
 		JSONObject info = new JSONObject();
 		info.put("service", "geocoding");
-		info.put("version", AppInfo.VERSION);
+		info.put("engine", AppInfo.getEngineInfo());
 		if (!Helper.isEmpty( GeocodingServiceSettings.getAttribution()))
 			info.put("attribution", GeocodingServiceSettings.getAttribution());
 		info.put("timestamp", System.currentTimeMillis());

@@ -25,6 +25,7 @@ import com.graphhopper.util.InstructionList;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.RoundaboutInstruction;
 import com.graphhopper.util.shapes.BBox;
+import com.vividsolutions.jts.geom.Coordinate;
 
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.exceptions.InternalServerException;
@@ -76,7 +77,7 @@ public class RouteResultBuilder
 		boolean includeElev = request.getIncludeElevation();
 		DistanceUnit units = request.getUnits();
 		int unitDecimals = FormatUtility.getUnitDecimals(units);
-		
+
 		BBox bbox = null; 
 		int[] routeWayPoints = null;
 
@@ -85,7 +86,7 @@ public class RouteResultBuilder
 			routeWayPoints = new int[nRoutes + 1]; 
 			routeWayPoints[0] = 0;
 		}
-		
+
 		if (extras != null)
 			result.addExtraInfo(extras);
 
@@ -120,22 +121,19 @@ public class RouteResultBuilder
 					Instruction instr, prevInstr = null;
 					InstructionType instrType, prevInstrType = InstructionType.UNKNOWN;
 					RouteSegment seg = new RouteSegment(path, units);
-					
+
 					if (includeDetourFactor)
 					{
-                        lat0 = routePoints.getLat(0);
-                        lon0 = routePoints.getLon(0);
-                        
-                        lat1 = routePoints.getLat(routePoints.getSize() - 1);
-                        lon1 = routePoints.getLon(routePoints.getSize() - 1);
-                        
-                        double dist = _distCalc.calcDist(lat0, lon0, lat1, lon1);
-                        if (dist == 0)
-                        	seg.setDetourFactor(0);
-                        else
-                        	seg.setDetourFactor(FormatUtility.roundToDecimals(path.getDistance()/dist, 2));
+						lat0 = routePoints.getLat(0);
+						lon0 = routePoints.getLon(0);
+
+						lat1 = routePoints.getLat(routePoints.getSize() - 1);
+						lon1 = routePoints.getLon(routePoints.getSize() - 1);
+
+						double dist = _distCalc.calcDist(lat0, lon0, lat1, lon1);
+						seg.setDetourFactor((dist == 0) ? 0 : FormatUtility.roundToDecimals(path.getDistance()/dist, 2));
 					}
-					
+
 					RouteStep prevStep = null;
 					String instrText = "";
 					double stepDistance, stepDuration;
@@ -146,6 +144,7 @@ public class RouteResultBuilder
 						InstructionAnnotation instrAnnotation = instr.getAnnotation();
 						instrType = getInstructionType(instr);
 						PointList segPoints = instr.getPoints();
+						PointList nextSegPoints = (ii + 1 < nInstructions) ? instructions.get(ii+1).getPoints() : null;
 						String roadName = formatInstructions && !Helper.isEmpty(instr.getName()) ? "<b>" + instr.getName() + "</b>" : instr.getName();
 						instrText = "";
 
@@ -158,24 +157,23 @@ public class RouteResultBuilder
 						{
 							if (segPoints.size() == 1)
 							{
-                                if (ii + 1 < nInstructions)
-                                {
-                                	PointList nextSegPoints = instructions.get(ii+1).getPoints();
-                                	lat1 = nextSegPoints.getLat(0);
-    								lon1 = nextSegPoints.getLon(0);
-                                }
-                                else
-                                {
-                                	lat1 = segPoints.getLat(ii);
-                                	lon1 = segPoints.getLon(ii);
-                                }
+								if (ii + 1 < nInstructions)
+								{
+									lat1 = nextSegPoints.getLat(0);
+									lon1 = nextSegPoints.getLon(0);
+								}
+								else
+								{
+									lat1 = segPoints.getLat(ii);
+									lon1 = segPoints.getLon(ii);
+								}
 							}
 							else
 							{
 								lat1 = segPoints.getLat(ii+1);
 								lon1 = segPoints.getLon(ii+1);
 							}
-							
+
 							CardinalDirection dir = calcDirection(segPoints.getLat(ii), segPoints.getLon(ii), lat1, lon1);
 							instrText = instrTranslator.getDepart(dir, roadName);
 						}
@@ -203,21 +201,24 @@ public class RouteResultBuilder
 						// example: http://localhost:8082/openrouteservice-4.0.0/routes?profile=driving-car&coordinates=8.690614,49.38365|8.7007,49.411699|8.7107,49.4516&prettify_instructions=true
 						if (prevStep != null &&  instrType == InstructionType.CONTINUE && instrType == prevInstrType && canMergeInstructions(instr.getName(), prevInstr.getName()))
 						{
-							roadName = mergeInstructions(instr.getName(), prevInstr.getName());
+							String mergedRoadName = mergeInstructions(instr.getName(), prevInstr.getName());
 							if (nameAppendix != null)
-								roadName += " ("+ nameAppendix + ")";
+								mergedRoadName += " ("+ nameAppendix + ")";
 							if (formatInstructions)
-								roadName = "<b>" + roadName + "</b>";
+								mergedRoadName = "<b>" + mergedRoadName + "</b>";
 
 							int[] wayPoints = prevStep.getWayPoints();
 							wayPoints[1] = wayPoints[1] + instr.getPoints().size();
 
-							
 							stepDuration = FormatUtility.roundToDecimals(instr.getTime()/1000.0, 1); 
 
 							prevStep.setDistance(FormatUtility.roundToDecimals(DistanceUnitUtil.convert(prevStep.getDistance() +  stepDistance, DistanceUnit.Meters, units), unitDecimals));
 							prevStep.setDuration(FormatUtility.roundToDecimals(prevStep.getDuration() +  stepDuration, 1));
-							prevStep.setInstruction(instrTranslator.getContinue(instrType, roadName));
+							prevStep.setInstruction(instrTranslator.getContinue(instrType, mergedRoadName));
+							prevStep.setName(mergedRoadName);
+
+							if (request.getIncludeManeuvers())
+								prevStep.setManeuver(computeManeuver(segPoints, nextSegPoints));
 						}
 						else
 						{
@@ -226,9 +227,12 @@ public class RouteResultBuilder
 							step.setDistance(stepDistance);
 							step.setDuration(stepDuration);
 							step.setInstruction(instrText);
-							//step.setName(instr.getName());
+							step.setName(instr.getName());
 							step.setType(instrType.ordinal());
 							step.setWayPoints(new int[] { startWayPointIndex, startWayPointIndex + instr.getPoints().size()});
+
+							if (request.getIncludeManeuvers())
+								step.setManeuver(computeManeuver(segPoints, nextSegPoints));
 
 							seg.addStep(step);
 
@@ -284,12 +288,12 @@ public class RouteResultBuilder
 				ascent += path.getAscend();
 				descent += path.getDescend();
 			}
-			
+
 			durationTraffic += path.getRouteWeight();
 		}
 
 		RouteSummary routeSummary = result.getSummary();
-		
+
 		routeSummary.setDuration(request.getSearchParameters().getConsiderTraffic() ? durationTraffic : duration);
 		routeSummary.setDistance(FormatUtility.roundToDecimals(distance, unitDecimals));
 		routeSummary.setDistanceActual(FormatUtility.roundToDecimals(distanceActual, unitDecimals));
@@ -297,7 +301,6 @@ public class RouteResultBuilder
 		routeSummary.setAscent(FormatUtility.roundToDecimals(ascent, 1));
 		routeSummary.setDescent(FormatUtility.roundToDecimals(descent, 1));
 
-		
 		if (routeWayPoints != null)
 			result.setWayPointsIndices(routeWayPoints);
 
@@ -305,6 +308,25 @@ public class RouteResultBuilder
 			routeSummary.setBBox(bbox);
 
 		return result;
+	}
+
+	private RouteStepManeuver computeManeuver(PointList segPoints, PointList nextSegPoints)
+	{
+		RouteStepManeuver maneuver = new RouteStepManeuver();
+		if (segPoints.size() >= 2 && nextSegPoints.size() >= 2)
+		{
+			int locIndex = segPoints.size() - 1;
+			double lon0 = segPoints.getLon(locIndex - 1);
+			double lat0 = segPoints.getLat(locIndex - 1);
+			double lon1  = segPoints.getLon(locIndex);
+			double lat1  = segPoints.getLat(locIndex);
+			double lon2 = nextSegPoints.getLon(1);
+			double lat2 = nextSegPoints.getLat(1);
+			
+			maneuver.setLocation(new Coordinate(lon1, lat1));
+		}
+		
+		return maneuver;
 	}
 
 	private boolean canMergeInstructions(String name, String prevName)

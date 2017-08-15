@@ -28,6 +28,7 @@ import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RouteSegment;
 import heigit.ors.routing.RouteSegmentItem;
 import heigit.ors.routing.RouteStep;
+import heigit.ors.routing.RouteStepManeuver;
 import heigit.ors.routing.RouteSummary;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.RoutingRequest;
@@ -57,7 +58,7 @@ public class JsonRoutingResponseWriter {
 
 		JSONObject jInfo = new JSONObject(3);
 		jInfo.put("service", "routing");
-		jInfo.put("version", AppInfo.VERSION);
+		jInfo.put("engine", AppInfo.getEngineInfo());
 		if (!Helper.isEmpty(RoutingServiceSettings.getAttribution()))
 			jInfo.put("attribution", RoutingServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());
@@ -101,7 +102,7 @@ public class JsonRoutingResponseWriter {
 
 		return jResp;
 	}
-	
+
 	public static JSONObject toGeoJson(RoutingRequest request, RouteResult[] routeResult) throws Exception
 	{
 		// TODO
@@ -116,7 +117,7 @@ public class JsonRoutingResponseWriter {
 		boolean attrDetourFactor = request.hasAttribute("detourfactor");
 		boolean attrPercentage = request.hasAttribute("percentage");
 		boolean attrAvgSpeed = request.hasAttribute("avgspeed");
-		
+
 		int nRoutes = routeResult.length;
 
 		JSONArray jRoutes = new JSONArray(nRoutes);
@@ -143,7 +144,7 @@ public class JsonRoutingResponseWriter {
 				jSummary.put("ascent", rSummary.getAscent());
 				jSummary.put("descent", rSummary.getDescent());
 			}
-			
+
 			if (attrAvgSpeed)
 				jSummary.put("avgspeed", rSummary.getAverageSpeed());
 
@@ -160,7 +161,7 @@ public class JsonRoutingResponseWriter {
 				{
 					int nSegments = route.getSegments().size();
 					JSONArray jSegments = new JSONArray(nSegments);
-					
+
 					for (int j = 0; j < nSegments; ++j)
 					{
 						JSONObject jSegment = new JSONObject(true);
@@ -209,6 +210,21 @@ public class JsonRoutingResponseWriter {
 							if (step.getExitNumber() != -1)
 								jStep.put("exit_number", step.getExitNumber());
 
+							if (request.getIncludeManeuvers())
+							{
+								RouteStepManeuver maneuver = step.getManeuver();
+								if (maneuver != null)
+								{
+									JSONObject jManeuver = new JSONObject(true);
+									jManeuver.put("bearing_before", maneuver.getBearingBefore());
+									jManeuver.put("bearing_after", maneuver.getBearingAfter());
+									if (maneuver.getLocation() != null)
+										jManeuver.put("location", GeometryJSON.toJSON(maneuver.getLocation()));
+
+									jStep.put("maneuver", jManeuver);
+								}
+							}
+
 							// add mode: driving, cycling, etc.
 
 							jStep.put("way_points", new JSONArray(step.getWayPoints()));
@@ -222,7 +238,7 @@ public class JsonRoutingResponseWriter {
 
 					jRoute.put("segments", jSegments);
 				}
-				
+
 				//if (route.getLocationIndex() >= 0)
 				//	jRoute.put("location_index", route.getLocationIndex());
 
@@ -272,7 +288,7 @@ public class JsonRoutingResponseWriter {
 								for (ExtraSummaryItem esi : summaryItems)
 								{
 									JSONObject jExtraItemSummaryType = new JSONObject(true);
-									
+
 									jExtraItemSummaryType.put("value", esi.getValue());
 									jExtraItemSummaryType.put("distance", esi.getDistance());
 									jExtraItemSummaryType.put("amount", esi.getAmount());

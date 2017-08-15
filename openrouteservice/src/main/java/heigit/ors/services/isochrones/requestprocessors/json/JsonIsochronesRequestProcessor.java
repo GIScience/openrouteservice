@@ -233,7 +233,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
 		JSONObject jInfo = new JSONObject();
 		jInfo.put("service", "isochrones");
-		jInfo.put("version", AppInfo.VERSION);
+		jInfo.put("engine", AppInfo.getEngineInfo());
 		if (!Helper.isEmpty(IsochronesServiceSettings.getAttribution()))
 			jInfo.put("attribution", IsochronesServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());

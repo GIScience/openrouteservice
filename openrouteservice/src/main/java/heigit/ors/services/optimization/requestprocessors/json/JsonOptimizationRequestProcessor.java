@@ -107,7 +107,7 @@ public class JsonOptimizationRequestProcessor extends AbstractHttpRequestProcess
 
 		JSONObject jInfo = new JSONObject(true);
 		jInfo.put("service", "optimization");
-		jInfo.put("version", AppInfo.VERSION);
+		jInfo.put("engine", AppInfo.getEngineInfo());
 		if (!Helper.isEmpty(OptimizationServiceSettings.getAttribution()))
 			jInfo.put("attribution", OptimizationServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());

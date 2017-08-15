@@ -224,6 +224,9 @@ public class RoutingProfile
 
 		boolean prepareCH = false;
 		boolean prepareLM = false;
+		
+		args.put("prepare.ch.weightings", "no");
+		args.put("prepare.lm.weightings", "no");
 
 		if (config.getPreparationOpts() != null)
 		{
@@ -237,22 +240,39 @@ public class RoutingProfile
 			{
 				if (opts.hasPath("methods.ch"))
 				{
+					prepareCH = true;
 					Config chOpts = opts.getConfig("methods.ch");
+					
 					if (chOpts.hasPath("enabled") || chOpts.getBoolean("enabled"))
+					{
+						prepareCH = chOpts.getBoolean("enabled");
+						if (prepareCH == false)
+							args.put("prepare.ch.weightings", "no");
+					}
+
+					
+					if (prepareCH)
 					{
 						if (chOpts.hasPath("threads"))
 							args.put("prepare.ch.threads", chOpts.getInt("threads"));
 						if (chOpts.hasPath("weightings"))
 							args.put("prepare.ch.weightings", StringUtility.trimQuotes(chOpts.getString("weightings")));
-						
-						prepareCH = true;
 					}
 				}
 
 				if (opts.hasPath("methods.lm"))
 				{
+					prepareLM = true;
 					Config lmOpts = opts.getConfig("methods.lm");
+					
 					if (lmOpts.hasPath("enabled") || lmOpts.getBoolean("enabled"))
+					{
+						prepareLM = lmOpts.getBoolean("enabled");
+						if (prepareLM == false)
+							args.put("prepare.lm.weightings", "no");
+					}
+					
+					if (prepareLM)
 					{
 						if (lmOpts.hasPath("threads"))
 							args.put("prepare.lm.threads", lmOpts.getInt("threads"));
@@ -260,17 +280,10 @@ public class RoutingProfile
 							args.put("prepare.lm.weightings", StringUtility.trimQuotes(lmOpts.getString("weightings")));
 						if (lmOpts.hasPath("landmarks"))
 							args.put("prepare.lm.landmarks", lmOpts.getInt("landmarks"));
-
-						prepareLM = true;
 					}
 				}
 			}
 		}
-
-		if (prepareCH == false)
-			args.put("prepare.ch.weightings", "no");
-		if (prepareLM == false)
-			args.put("prepare.lm.weightings", "no");
 
 		if (config.getExecutionOpts() != null)
 		{
@@ -793,7 +806,8 @@ public class RoutingProfile
 
 			if (useDynamicWeights(searchParams) || flexibleMode)
 			{
-				req.getHints().put("ch.disable", true);
+				if (mGraphHopper.isCHEnabled())  
+					req.getHints().put("ch.disable", true);
 				req.getHints().put("lm.disable", false);
 			}
 			else

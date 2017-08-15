@@ -135,18 +135,31 @@ public class PeliasGeocoder extends AbstractGeocoder
 
 			JSONObject props = feature.getJSONObject("properties");
 			
-			String country = props.optString("country");
-			String state = props.optString("region");
-			String county = props.optString("county");
+			String country = props.optString("country"); // places that issue passports, nations, nation-states
+			String state = props.optString("region");   //states and provinces
+			String county = props.optString("county"); // official governmental area; usually bigger than a locality, almost always smaller than a region
+			String municipality = props.optString("localadmin");  // localadmin 	local administrative boundaries
 			String street = props.optString("street");
-			String city = props.optString("locality");
+			String locality = props.optString("locality");
 			
+			if (!Helper.isEmpty(state) && Helper.isEmpty(county) && props.has("macroregion")) // a related group of regions. Mostly in Europe
+			{
+				county = state;
+				state = props.optString("macroregion");
+			}
+			
+			if (locality != null && locality.equals(county))
+			{
+				county = props.optString("macrocounty");
+			}
+	
 			float accuracy = (float)props.getDouble("confidence");
 			
-			if (state != null || county != null || city != null || street != null)
+			if (state != null || county != null || locality != null || street != null)
             {
 				GeocodingResult gr = new GeocodingResult();
-				gr.city = city;
+				gr.locality = locality;
+				gr.municipality = municipality;
 				gr.country = country;
 				gr.countryCode = props.optString("country_a");
 				gr.state = state;
@@ -154,7 +167,8 @@ public class PeliasGeocoder extends AbstractGeocoder
 				gr.county = county;
 				gr.postalCode = props.optString("postalcode");
 				gr.street = street;
-				gr.neighbourhood = props.optString("neighbourhood");
+				gr.neighbourhood = props.optString("neighbourhood");  // social communities, neighbourhoods
+				gr.borough = props.optString("borough"); // a local administrative boundary, currently only used for New York City. also in Berlin
 				gr.name = props.optString("name");
 				gr.houseNumber = props.optString("housenumber");
 				gr.longitude = lon;

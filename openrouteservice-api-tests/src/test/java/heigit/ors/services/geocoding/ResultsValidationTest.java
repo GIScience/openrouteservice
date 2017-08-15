@@ -47,9 +47,9 @@ public class ResultsValidationTest extends ServiceTest {
         JSONObject jAddress = jResponse.getJSONArray("features").getJSONObject(0);
         JSONObject jAddrProperties = jAddress.getJSONObject("properties");
         Assert.assertEquals(jAddrProperties.get("country"), "Germany");
-        Assert.assertEquals(jAddrProperties.get("county"), "Heidelberg");
+        Assert.assertEquals(jAddrProperties.get("county"), "Karlsruhe");
         Assert.assertEquals(jAddrProperties.get("state"), "Baden-Württemberg");
-        Assert.assertEquals(jAddrProperties.get("city"), "Heidelberg");
+        Assert.assertEquals(jAddrProperties.get("locality"), "Heidelberg");
         Assert.assertEquals(jAddrProperties.get("name"), "Ruprecht-Karls-Universität");
         Assert.assertEquals(jAddrProperties.get("distance"), 4.34);
         Assert.assertEquals(jAddrProperties.get("confidence"), 0.9);

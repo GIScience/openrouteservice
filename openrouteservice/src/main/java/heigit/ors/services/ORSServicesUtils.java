@@ -48,10 +48,7 @@ public class ORSServicesUtils {
 
 		JSONObject jInfo = new JSONObject(true);
 
-		JSONObject appInfo = new JSONObject(true);
-		appInfo.put("version", AppInfo.VERSION);
-		appInfo.put("build_date", AppInfo.BUILD_DATE);
-		jInfo.put("app_info", appInfo);
+		jInfo.put("engine", AppInfo.getEngineInfo());
 
 		if (RoutingProfileManagerStatus.isReady())
 		{
