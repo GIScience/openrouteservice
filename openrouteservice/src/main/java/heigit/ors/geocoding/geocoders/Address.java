@@ -106,4 +106,13 @@ public class Address
 		
 		return map;
 	}
+	
+	public String getAddress() 			{ return _address; }
+	public String getNeighbourhood() 	{ return _neighbourhood; }
+	public String getBorough() 			{ return _borough; } 
+	public String getLocality()			{ return _locality; }
+	public String getCounty()			{ return _county; }
+	public String getRegion()			{ return _region; }
+	public String getPostalcode()		{ return _postalcode; }
+	public String getCountry()			{ return _country; }
 }

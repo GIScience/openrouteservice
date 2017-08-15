@@ -37,16 +37,49 @@ public class PeliasGeocoder extends AbstractGeocoder
 		String lang = Helper.isEmpty(languages) ? "en" : languages;
 		String reqParams = "/structured?";
 		// Now look at the address element and get the properties from it
-		Map<String, String> addrMap = address.toMap();
-		ArrayList<String> addrQueryList = new ArrayList<String>(addrMap.size());
-		for(Map.Entry<String, String> el : addrMap.entrySet()) {
-			if(el.getKey() != null && el.getValue() != null) {
-				addrQueryList.add(el.getKey() + "=" + URLEncoder.encode(GeocodingUtils.sanitizeAddress(el.getValue()), "UTF-8"));
-			}
-		}
+		String addrCriteria = "";
 		
-		if(addrQueryList.size() > 0)
-			reqParams = reqParams + String.join("&", addrQueryList) + "&size=" + limit + "&lang=" + lang;
+		// Get the parts so we dont have to call the address object multiple times for each
+		String addAddress = address.getAddress();
+		String addNeighb = address.getNeighbourhood();
+		String addBorough = address.getBorough();
+		String addLocality = address.getLocality();
+		String addCounty = address.getCounty();
+		String addRegion = address.getRegion();
+		String addPostal = address.getPostalcode();
+		String addCountry = address.getCountry();
+		
+		if(!Helper.isEmpty(addAddress))
+			addrCriteria = "address="
+				.concat(URLEncoder.encode(GeocodingUtils.sanitizeAddress(addAddress), "UTF-8"));
+		if(!Helper.isEmpty(addNeighb))
+			addrCriteria = addrCriteria.concat("&neighbourhood=")
+				.concat(URLEncoder.encode(GeocodingUtils.sanitizeAddress(addNeighb), "UTF-8"));
+		if(!Helper.isEmpty(addBorough))
+			addrCriteria = addrCriteria.concat("&borough=")
+				.concat(URLEncoder.encode(GeocodingUtils.sanitizeAddress(addBorough), "UTF-8"));
+		if(!Helper.isEmpty(addLocality))
+			addrCriteria = addrCriteria.concat("&locality=")
+				.concat(URLEncoder.encode(GeocodingUtils.sanitizeAddress(addLocality), "UTF-8"));
+		if(!Helper.isEmpty(addCounty))
+			addrCriteria = addrCriteria.concat("&county=")
+				.concat(URLEncoder.encode(GeocodingUtils.sanitizeAddress(addCounty), "UTF-8"));
+		if(!Helper.isEmpty(addRegion))
+			addrCriteria = addrCriteria.concat("&region=")
+				.concat(URLEncoder.encode(GeocodingUtils.sanitizeAddress(addRegion), "UTF-8"));
+		if(!Helper.isEmpty(addPostal))
+			addrCriteria = addrCriteria.concat("&postalcode=")
+				.concat(URLEncoder.encode(GeocodingUtils.sanitizeAddress(addPostal), "UTF-8"));
+		if(!Helper.isEmpty(addCountry))
+			addrCriteria = addrCriteria.concat("&country=")
+				.concat(URLEncoder.encode(GeocodingUtils.sanitizeAddress(addCountry), "UTF-8"));
+		
+		// remove the leading &
+		if(addrCriteria.startsWith("&"))
+			addrCriteria = addrCriteria.substring(1);
+		
+		if(!addrCriteria.isEmpty() && addrCriteria != "")
+			reqParams = reqParams + addrCriteria + "&size=" + limit + "&lang=" + lang;
 		else
 			throw new MissingParameterException(GeocodingErrorCodes.INVALID_PARAMETER_VALUE, "address, neighbourhood, borough, locality, county, region, postalcode or country");
 		 
