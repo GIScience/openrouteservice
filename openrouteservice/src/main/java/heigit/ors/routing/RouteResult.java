@@ -35,6 +35,11 @@ public class RouteResult
 		if (routeExtras != 0)
 			_extraInfo = new ArrayList<RouteExtraInfo>();
 	}
+	
+	public void addSegment(RouteSegment seg)
+	{
+		_segments.add(seg);
+	}
 
 	public List<RouteSegment> getSegments()
 	{

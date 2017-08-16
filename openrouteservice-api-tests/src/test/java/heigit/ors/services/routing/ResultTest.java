@@ -165,6 +165,30 @@ public class ResultTest extends ServiceTest {
 	}
 
 	@Test
+	public void testManeuver() {
+
+		given()
+				.param("coordinates", getParameter("coordinatesLong"))
+				.param("instructions", "true")
+				.param("preference", getParameter("preference"))
+				.param("profile", getParameter("bikeProfile"))
+				.param("maneuvers", "true")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].bbox", hasItems(8.687794f, 49.393274f, 8.714833f, 49.424601f))
+				.body("routes[0].segments[0].steps[0].maneuver.bearing_before", is(0))
+				.body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(260))
+				.body("routes[0].segments[0].steps[0].maneuver.containsKey('location')", is(true))
+				.body("routes[0].segments[0].steps[1].maneuver.bearing_before", is(298))
+				.body("routes[0].segments[0].steps[1].maneuver.bearing_after", is(4))
+				.body("routes[0].segments[0].steps[1].maneuver.location", hasItems(8.673925f, 49.411283f))
+				.statusCode(200);
+	}
+	
+	@Test
 	public void testExtras() {
 
 		given()
@@ -251,8 +275,8 @@ public class ResultTest extends ServiceTest {
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].segments[0].containsKey('steps')", is(true))
 				.body("routes[0].segments[1].containsKey('steps')", is(true))
-				.body("routes[0].segments[0].steps.size()", is(45))
-				.body("routes[0].segments[1].steps.size()", is(29))
+				.body("routes[0].segments[0].steps.size()", is(46))
+				.body("routes[0].segments[1].steps.size()", is(31))
 				.statusCode(200);
 	}
 
@@ -271,11 +295,11 @@ public class ResultTest extends ServiceTest {
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].segments[0].containsKey('steps')", is(true))
 				.body("routes[0].segments[1].containsKey('steps')", is(true))
-				.body("routes[0].segments[0].steps.size()", is(45))
-				.body("routes[0].segments[1].steps.size()", is(29))
+				.body("routes[0].segments[0].steps.size()", is(46))
+				.body("routes[0].segments[1].steps.size()", is(31))
 				.body("routes[0].segments[0].steps[0].distance", is(511.4f))
 				.body("routes[0].segments[0].steps[0].duration", is(230.1f))
-				.body("routes[0].segments[0].steps[0].type", is(6))
+				.body("routes[0].segments[0].steps[0].type", is(11))
 				.body("routes[0].segments[0].steps[0].instruction", is("Head west"))
 				.body("routes[0].segments[0].steps[10].distance", is(303.2f))
 				.body("routes[0].segments[0].steps[10].duration", is(60.6f))

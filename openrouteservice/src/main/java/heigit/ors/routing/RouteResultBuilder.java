@@ -33,6 +33,7 @@ import heigit.ors.localization.LocalizationManager;
 import heigit.ors.routing.instructions.InstructionTranslator;
 import heigit.ors.routing.instructions.InstructionTranslatorsCache;
 import heigit.ors.routing.instructions.InstructionType;
+import heigit.ors.util.ArrivalDirection;
 import heigit.ors.util.CardinalDirection;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
@@ -42,7 +43,7 @@ public class RouteResultBuilder
 {
 	private AngleCalc _angleCalc;
 	private DistanceCalc _distCalc;
-	private String nameAppendix;
+	private String _nameAppendix;
 	private static final CardinalDirection _directions[] = {CardinalDirection.North, CardinalDirection.NorthEast, CardinalDirection.East, CardinalDirection.SouthEast, CardinalDirection.South, CardinalDirection.SouthWest, CardinalDirection.West, CardinalDirection.NorthWest};
 
 	public RouteResultBuilder()
@@ -77,6 +78,7 @@ public class RouteResultBuilder
 		boolean includeElev = request.getIncludeElevation();
 		DistanceUnit units = request.getUnits();
 		int unitDecimals = FormatUtility.getUnitDecimals(units);
+		PointList prevSegPoints = null, segPoints, nextSegPoints;
 
 		BBox bbox = null; 
 		int[] routeWayPoints = null;
@@ -115,8 +117,8 @@ public class RouteResultBuilder
 					InstructionList instructions = path.getInstructions();
 					int startWayPointIndex = routeWayPoints[ri];
 					int nInstructions = instructions.size(); 
-					if (nInstructions > 1) // last is finishinstruction
-						nInstructions -= 1;
+					//if (nInstructions > 1) // last is finishinstruction
+					//	nInstructions -= 1;
 
 					Instruction instr, prevInstr = null;
 					InstructionType instrType, prevInstrType = InstructionType.UNKNOWN;
@@ -142,9 +144,10 @@ public class RouteResultBuilder
 					{
 						instr = instructions.get(ii);
 						InstructionAnnotation instrAnnotation = instr.getAnnotation();
-						instrType = getInstructionType(instr);
-						PointList segPoints = instr.getPoints();
-						PointList nextSegPoints = (ii + 1 < nInstructions) ? instructions.get(ii+1).getPoints() : null;
+						instrType = getInstructionType(ii == 0, instr); 
+						segPoints = instr.getPoints();
+						nextSegPoints = (ii + 1 < nInstructions) ? instructions.get(ii + 1).getPoints() : getNextSegPoints(routes, ri + 1, 0);
+						
 						String roadName = formatInstructions && !Helper.isEmpty(instr.getName()) ? "<b>" + instr.getName() + "</b>" : instr.getName();
 						instrText = "";
 
@@ -191,6 +194,10 @@ public class RouteResultBuilder
 									instrText = instrTranslator.getTurn(instrType, roadName);
 								else if (instrType == InstructionType.CONTINUE)
 									instrText = instrTranslator.getContinue(instrType, roadName);
+								else if (instrType == InstructionType.FINISH)
+								{
+									instrText = instrTranslator.getArrive(getArrivalDirection(routePoints, request.getDestination()), prevInstr.getName());
+								}
 								else
 									instrText = "Oops! Fix me";
 							}
@@ -202,13 +209,13 @@ public class RouteResultBuilder
 						if (prevStep != null &&  instrType == InstructionType.CONTINUE && instrType == prevInstrType && canMergeInstructions(instr.getName(), prevInstr.getName()))
 						{
 							String mergedRoadName = mergeInstructions(instr.getName(), prevInstr.getName());
-							if (nameAppendix != null)
-								mergedRoadName += " ("+ nameAppendix + ")";
+							if (_nameAppendix != null)
+								mergedRoadName += " ("+ _nameAppendix + ")";
 							if (formatInstructions)
 								mergedRoadName = "<b>" + mergedRoadName + "</b>";
 
 							int[] wayPoints = prevStep.getWayPoints();
-							wayPoints[1] = wayPoints[1] + instr.getPoints().size();
+							wayPoints[1] =  wayPoints[1] + instr.getPoints().size();
 
 							stepDuration = FormatUtility.roundToDecimals(instr.getTime()/1000.0, 1); 
 
@@ -217,22 +224,22 @@ public class RouteResultBuilder
 							prevStep.setInstruction(instrTranslator.getContinue(instrType, mergedRoadName));
 							prevStep.setName(mergedRoadName);
 
-							if (request.getIncludeManeuvers())
-								prevStep.setManeuver(computeManeuver(segPoints, nextSegPoints));
+							//if (request.getIncludeManeuvers())
+							//	prevStep.setManeuver(computeManeuver(prevSegPoints, segPoints));
 						}
 						else
 						{
-							nameAppendix = null;
+							_nameAppendix = null;
 
 							step.setDistance(stepDistance);
 							step.setDuration(stepDuration);
 							step.setInstruction(instrText);
 							step.setName(instr.getName());
 							step.setType(instrType.ordinal());
-							step.setWayPoints(new int[] { startWayPointIndex, startWayPointIndex + instr.getPoints().size()});
+							step.setWayPoints(new int[] { startWayPointIndex, getWayPointEndIndex(startWayPointIndex, instrType, instr)});
 
 							if (request.getIncludeManeuvers())
-								step.setManeuver(computeManeuver(segPoints, nextSegPoints));
+								step.setManeuver(calcManeuver(instrType, prevSegPoints, segPoints, nextSegPoints));
 
 							seg.addStep(step);
 
@@ -250,9 +257,10 @@ public class RouteResultBuilder
 
 						prevInstr = instr;
 						prevInstrType = instrType;
+						prevSegPoints = segPoints;
 					}
 
-					result.getSegments().add(seg);
+					result.addSegment(seg);
 
 					distance += seg.getDistance();
 					duration += seg.getDuration();
@@ -310,22 +318,119 @@ public class RouteResultBuilder
 		return result;
 	}
 
-	private RouteStepManeuver computeManeuver(PointList segPoints, PointList nextSegPoints)
+	private ArrivalDirection getArrivalDirection(PointList points, Coordinate destination)
+	{
+		if (points.size() < 2)
+			return ArrivalDirection.Unknown;
+
+		int lastIndex = points.size() - 1;
+		double lon0 = points.getLon(lastIndex - 1);
+		double lat0 = points.getLat(lastIndex - 1);
+		double lon1 = points.getLon(lastIndex);
+		double lat1 = points.getLat(lastIndex);
+
+		double dist = _distCalc.calcDist(lat1, lon1, destination.y, destination.x);
+
+		if (dist < 1)
+			return ArrivalDirection.StraightAhead; 
+		else
+		{
+			double sign = Math.signum((lon1 - lon0) * (destination.y - lat0) - (lat1 - lat0) * (destination.x - lon0));
+			if (sign == 0)
+				return ArrivalDirection.StraightAhead;
+			else if (sign == 1)
+				return ArrivalDirection.Left;
+			else
+				return ArrivalDirection.Right;
+		}
+	}
+
+	private int getWayPointEndIndex(int startIndex, InstructionType instrType, Instruction instr)
+	{
+		if (instrType == InstructionType.FINISH)
+			return startIndex;
+		else
+			return startIndex + instr.getPoints().size();
+	}
+
+	private PointList getNextSegPoints(List<GHResponse> routes, int routeIndex, int segIndex)
+	{
+		if (routeIndex >= 0 && routeIndex < routes.size())
+		{
+			GHResponse resp = routes.get(routeIndex);
+			InstructionList instructions = resp.getBest().getInstructions();
+			if (segIndex < instructions.size())
+				return instructions.get(segIndex).getPoints();
+		}
+
+		return null;
+	}
+
+	private RouteStepManeuver calcManeuver(InstructionType instrType, PointList prevSegPoints, PointList segPoints, PointList nextSegPoints)
 	{
 		RouteStepManeuver maneuver = new RouteStepManeuver();
-		if (segPoints.size() >= 2 && nextSegPoints.size() >= 2)
+		int bearingBefore = 0;
+		int bearingAfter = 0;
+
+		if (nextSegPoints != null)
 		{
-			int locIndex = segPoints.size() - 1;
-			double lon0 = segPoints.getLon(locIndex - 1);
-			double lat0 = segPoints.getLat(locIndex - 1);
-			double lon1  = segPoints.getLon(locIndex);
-			double lat1  = segPoints.getLat(locIndex);
-			double lon2 = nextSegPoints.getLon(1);
-			double lat2 = nextSegPoints.getLat(1);
-			
-			maneuver.setLocation(new Coordinate(lon1, lat1));
+			if (instrType == InstructionType.DEPART)
+			{
+				double lon0 = segPoints.getLon(0);
+				double lat0 = segPoints.getLat(0);
+				double lon1, lat1;
+				maneuver.setLocation(new Coordinate(lon0, lat0));
+
+				if (segPoints.size() == 1)
+				{
+					lon1  = nextSegPoints.getLon(0);
+					lat1  = nextSegPoints.getLat(0);
+				}				
+				else
+				{
+					lon1  = segPoints.getLon(1);
+					lat1  = segPoints.getLat(1);
+				}
+
+				bearingAfter = (int)Math.round(_angleCalc.calcAzimuth(lat0, lon0, lat1, lon1));
+			}
+			else
+			{
+				int locIndex = prevSegPoints.size() - 1;
+				double lon0 = prevSegPoints.getLon(locIndex);
+				double lat0 = prevSegPoints.getLat(locIndex);
+				double lon1 = segPoints.getLon(0);
+				double lat1 = segPoints.getLat(0);
+
+				if (instrType != InstructionType.FINISH)
+				{
+					if (segPoints.size() == 1)
+					{ 
+						if (nextSegPoints != null)
+						{
+							double lon2 = nextSegPoints.getLon(0);
+							double lat2 = nextSegPoints.getLat(0);
+
+							bearingAfter = (int)Math.round(_angleCalc.calcAzimuth(lat1, lon1, lat2, lon2));
+						}
+					}
+					else
+					{
+						double lon2 = segPoints.getLon(1);
+						double lat2 = segPoints.getLat(1);
+
+						bearingAfter = (int)Math.round(_angleCalc.calcAzimuth(lat1, lon1, lat2, lon2));
+					}
+				}
+
+				bearingBefore  = (int)Math.round(_angleCalc.calcAzimuth(lat0, lon0, lat1, lon1));
+				maneuver.setLocation(new Coordinate(lon1, lat1));
+			}
 		}
-		
+
+		maneuver.setBearingBefore(bearingBefore);
+		maneuver.setBearingAfter(bearingAfter);
+
 		return maneuver;
 	}
 
@@ -367,12 +472,12 @@ public class RouteResultBuilder
 
 				if (isValidAppendix(appendix))
 				{
-					if (nameAppendix != null)
-						nameAppendix += ", ";
+					if (_nameAppendix != null)
+						_nameAppendix += ", ";
 					else
-						nameAppendix = "";
+						_nameAppendix = "";
 
-					nameAppendix += appendix;
+					_nameAppendix += appendix;
 				}
 
 				return prevName;
@@ -395,10 +500,10 @@ public class RouteResultBuilder
 		if (name == null)
 			return false;
 
-		if (nameAppendix == null)
+		if (_nameAppendix == null)
 			return StringUtility.containsDigit(name);
 		else
-			return nameAppendix.indexOf(name) == -1 && StringUtility.containsDigit(name);   
+			return _nameAppendix.indexOf(name) == -1 && StringUtility.containsDigit(name);   
 	}
 
 
@@ -411,8 +516,11 @@ public class RouteResultBuilder
 			return false;
 	}
 
-	private InstructionType getInstructionType(Instruction instr)
+	private InstructionType getInstructionType(boolean isDepart, Instruction instr)
 	{
+		if (isDepart)
+			return InstructionType.DEPART;
+
 		int sign = instr.getSign();
 		if (sign == Instruction.CONTINUE_ON_STREET)
 			return InstructionType.CONTINUE;
@@ -435,7 +543,7 @@ public class RouteResultBuilder
 		else if (sign == Instruction.LEAVE_ROUNDABOUT)
 			return InstructionType.EXIT_ROUNDABOUT;
 		else if (sign == Instruction.FINISH)
-			return InstructionType.FINISH;			
+			return InstructionType.FINISH;
 
 		return InstructionType.CONTINUE;
 	}

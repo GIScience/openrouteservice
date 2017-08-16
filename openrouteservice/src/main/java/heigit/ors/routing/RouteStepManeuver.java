@@ -5,8 +5,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class RouteStepManeuver {
 	private Coordinate _location;
-	private int _bearingBefore;
-	private int _bearingAfter;
+	private int _bearingBefore = 0;
+	private int _bearingAfter = 0;
 	
 	public RouteStepManeuver()
 	{}

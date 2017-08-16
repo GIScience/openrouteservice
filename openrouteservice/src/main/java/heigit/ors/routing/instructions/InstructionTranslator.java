@@ -14,6 +14,7 @@ package heigit.ors.routing.instructions;
 import com.graphhopper.util.Helper;
 
 import heigit.ors.localization.LanguageResources;
+import heigit.ors.util.ArrivalDirection;
 import heigit.ors.util.CardinalDirection;
 
 public class InstructionTranslator 
@@ -23,6 +24,8 @@ public class InstructionTranslator
 	private String[] _directions;
 	private String _actionDepartDefault;
 	private String _actionDepartName;
+	private String[] _actionArriveDefault;	
+	private String[] _actionArriveName;
 	private String _actionRoundaboutDefault;
 	private String _actionRoundaboutName;
 	private String _actionContinueDefault;
@@ -68,6 +71,17 @@ public class InstructionTranslator
 		_actionTurnName = _resources.getTranslation("instructions.actions.turn.default.name");
 		_actionRoundaboutDefault = _resources.getTranslation("instructions.actions.roundabout.default.exit.default");
 		_actionRoundaboutName = _resources.getTranslation("instructions.actions.roundabout.default.exit.name");
+		
+		_actionArriveDefault = new String[4];
+		_actionArriveName = new String[4];
+		_actionArriveDefault[0] = _resources.getTranslation("instructions.actions.arrive.default.default");
+		_actionArriveDefault[1] = _resources.getTranslation("instructions.actions.arrive.left.default");
+		_actionArriveDefault[2] = _resources.getTranslation("instructions.actions.arrive.right.default");
+		_actionArriveDefault[3] = _resources.getTranslation("instructions.actions.arrive.straight.default");
+		_actionArriveName[0] = _resources.getTranslation("instructions.actions.arrive.default.name");
+		_actionArriveName[1] = _resources.getTranslation("instructions.actions.arrive.left.name");
+		_actionArriveName[2] = _resources.getTranslation("instructions.actions.arrive.right.name");
+		_actionArriveName[3] = _resources.getTranslation("instructions.actions.arrive.straight.name");
 	}
 
 	public String getContinue(InstructionType type, String wayName)
@@ -112,6 +126,18 @@ public class InstructionTranslator
 			return str.replace("{direction}", _directions[direction.ordinal()]);
 		else 
 			return str.replace("{direction}", _directions[direction.ordinal()]).replace("{way_name}", wayName);
+	}
+	
+	public String getArrive(ArrivalDirection direction, String wayName) throws Exception
+	{
+		boolean isWayNull = Helper.isEmpty(wayName);
+		
+		String str = isWayNull ? _actionArriveDefault[direction.ordinal()]: _actionArriveName[direction.ordinal()];
+		
+		if (isWayNull)
+			return str;
+		else 
+			return str.replace("{way_name}", wayName);
 	}
 
 	private int getTurnManeuver(InstructionType type)

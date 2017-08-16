@@ -41,6 +41,11 @@ public class RoutingRequest extends ServiceRequest
 	public Coordinate[] getCoordinates() {
 		return _coordinates;
 	}
+	
+	public Coordinate getDestination()
+	{
+		return _coordinates[_coordinates.length - 1];
+	}
 
 	public void setCoordinates(Coordinate[] _coordinates) {
 		this._coordinates = _coordinates;
@@ -141,8 +146,8 @@ public class RoutingRequest extends ServiceRequest
 		return _simplifyGeometry;
 	}
 
-	public void setSimplifyGeometry(Boolean _simplifyGeometry) {
-		this._simplifyGeometry = _simplifyGeometry;
+	public void setSimplifyGeometry(Boolean simplifyGeometry) {
+		_simplifyGeometry = simplifyGeometry;
 	}
 	
 	public boolean getConsiderTraffic(){

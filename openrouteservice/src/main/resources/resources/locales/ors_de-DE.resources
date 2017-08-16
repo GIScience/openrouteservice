@@ -33,6 +33,24 @@
 			"uturn": "Kehrtwendung"
 		},
 		"actions": {
+			"arrive": {
+           		 	"default": {
+		                "default": "Ziel erreicht",
+						"name": "Sie erreichen {way_name}"
+                	},
+					"left": {
+						"default": "Ziel erreicht (links)",
+						"name": "Sie erreichen {way_name} (links)"
+					},
+					"right": {
+						"default": "Ziel erreicht (rechts)",
+						"name": "Sie erreichen {way_name} (rechts)"
+					},
+					"straight": {
+						"default": "Ziel erreicht (geradeaus)",
+						"name": "Sie erreichen {way_name} (geradeaus)"
+					}
+			},        
 			"depart": {
 				"default": {
 					"default": "Weiter {direction}",

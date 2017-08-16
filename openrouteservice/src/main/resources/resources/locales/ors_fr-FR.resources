@@ -33,6 +33,24 @@
             "uturn": "demi-tour"
         },
         "actions": {
+			"arrive": {
+           		 	"default": {
+		                	"default": "Arrive at your destination",
+							"name": "Arrive at {way_name}"
+                	},
+					"left": {
+						"default": "Arrive at your destination, on the left",
+						"name": "Arrive at {way_name}, on the left"
+					},
+					"right": {
+						"default": "Arrive at your destination, on the right",
+						"name": "Arrive at {way_name}, on the right"
+					},
+					"straight": {
+						"default": "Arrive at your destination, straight ahead",
+						"name": "Arrive at {way_name}, straight ahead"
+					}
+			},          
             "depart": {
                 "default": {
                     "default": "{direction}",

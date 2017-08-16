@@ -13,5 +13,6 @@ public enum InstructionType
     EXIT_ROUNDABOUT,
     UTURN,
     FINISH,
+	DEPART,
     UNKNOWN
 }
