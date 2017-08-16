@@ -1,4 +1,4 @@
-package heigit.ors.routing.graphhopper.extensions;
+package heigit.ors.routing.algorithms;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.routing.Dijkstra;

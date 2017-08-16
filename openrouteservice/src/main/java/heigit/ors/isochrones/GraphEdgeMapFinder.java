@@ -16,9 +16,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.isochrones.IsochroneSearchParameters;
-import heigit.ors.routing.graphhopper.extensions.DijkstraCostCondition;
 import heigit.ors.routing.RouteSearchContext;
 import heigit.ors.routing.RouteSearchParameters;
+import heigit.ors.routing.algorithms.DijkstraCostCondition;
 import heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
 import heigit.ors.routing.graphhopper.extensions.weighting.DistanceWeighting;
 

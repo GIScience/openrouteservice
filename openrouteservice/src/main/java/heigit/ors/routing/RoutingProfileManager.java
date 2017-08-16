@@ -260,7 +260,7 @@ public class RoutingProfileManager {
 		{
 			// do not allow geometry simplification when extras are requested
 			req.setSimplifyGeometry(false);
-			pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req.getExtraInfo());
+			pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req);
 		}
 		else
 		{ 
@@ -326,7 +326,7 @@ public class RoutingProfileManager {
 			// do not allow geometry simplification when extras are requested
 			req.setSimplifyGeometry(false);
 
-			pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req.getExtraInfo());
+			pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req);
 		}
 		else
 		{ 

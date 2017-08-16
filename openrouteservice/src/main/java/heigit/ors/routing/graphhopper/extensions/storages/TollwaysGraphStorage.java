@@ -17,8 +17,6 @@ import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
 
-import heigit.ors.routing.graphhopper.extensions.TollwayType;
-
 public class TollwaysGraphStorage implements GraphExtension {
 	/* pointer for no entry */
 	protected final int NO_ENTRY = -1;
@@ -32,11 +30,11 @@ public class TollwaysGraphStorage implements GraphExtension {
 
 	public TollwaysGraphStorage() 
 	{
-		EF_TOLLWAYS = nextBlockEntryIndex (2);
+		EF_TOLLWAYS = nextBlockEntryIndex (4);
 
 		edgeEntryBytes = edgeEntryIndex;
 		edgesCount = 0;
-		byteValues = new byte[2];
+		byteValues = new byte[4];
 	}
 
 	public void init(Graph graph, Directory dir) {
@@ -97,25 +95,21 @@ public class TollwaysGraphStorage implements GraphExtension {
 		ensureEdgesIndex(edgeId);
 
 		long edgePointer = (long) edgeId * edgeEntryBytes;
-
-		byteValues[0] = (byte)(value & 0xff);
-		byteValues[1] = (byte)((value >> 8) & 0xff);
+ 
+		byteValues[0] = (byte)(value >> 24);
+		byteValues[1] = (byte)(value >> 16);
+		byteValues[2] = (byte)(value >> 8);
+		byteValues[3] = (byte)(value & 0xff);
 		
-		edges.setBytes(edgePointer + EF_TOLLWAYS, byteValues, 2);
+		edges.setBytes(edgePointer + EF_TOLLWAYS, byteValues, 4);
 	}
 
 	public int getEdgeValue(int edgeId, byte[] buffer) {
 		long edgeBase = (long) edgeId * edgeEntryBytes;
 		
-		edges.getBytes(edgeBase + EF_TOLLWAYS, buffer, 2);
+		edges.getBytes(edgeBase + EF_TOLLWAYS, buffer, 4);
 		
-		byte hi = buffer[1];
-		byte lo = buffer[0];
-		
-		if (hi == 0 && lo == 0)
-			return TollwayType.None;
-		else
-			return (int)(hi << 8 | lo);
+		return buffer[0] << 24 | (buffer[1] & 0xFF) << 16 | (buffer[2] & 0xFF) << 8 | (buffer[3] & 0xFF);
 	}
 
 	public boolean isRequireNodeField() {

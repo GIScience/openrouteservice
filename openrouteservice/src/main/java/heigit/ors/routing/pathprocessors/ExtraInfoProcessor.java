@@ -2,7 +2,7 @@
  *|														Heidelberg University
  *|	  _____ _____  _____      _                     	Department of Geography		
  *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
- *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2017
  *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
  *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
  *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
@@ -25,6 +25,7 @@ import com.graphhopper.util.PointList;
 
 import heigit.ors.routing.RouteExtraInfo;
 import heigit.ors.routing.RouteExtraInfoFlag;
+import heigit.ors.routing.RoutingRequest;
 import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import heigit.ors.routing.graphhopper.extensions.storages.*;
 import heigit.ors.routing.util.ElevationSmoother;
@@ -65,14 +66,16 @@ public class ExtraInfoProcessor extends PathProcessor {
 	
 	private RouteExtraInfo _tollwaysInfo;
 	private RouteExtraInfoBuilder _tollwaysInfoBuilder;
+	private TollwayExtractor _tollwayExtractor;
 	
 	private FlagEncoder _encoder;
 	private boolean _encoderWithPriority = false;
 	private byte[] buffer;
 	private boolean _lastSegment;
 
-	public ExtraInfoProcessor(ORSGraphHopper graphHopper, int extraInfo) throws Exception {
+	public ExtraInfoProcessor(ORSGraphHopper graphHopper, RoutingRequest req) throws Exception {
 		
+		int extraInfo = req.getExtraInfo();
 		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.WayCategory))
 		{
 			_extWayCategory = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), WayCategoryGraphStorage.class);
@@ -130,6 +133,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 			
 			_tollwaysInfo = new RouteExtraInfo("tollways");
 			_tollwaysInfoBuilder = new SimpleRouteExtraInfoBuilder(_tollwaysInfo);
+			_tollwayExtractor = new TollwayExtractor(_extTollways, req.getSearchParameters().getVehicleType(), req.getSearchParameters().getProfileParameters());
 		}
 
 		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Green)) {
@@ -214,7 +218,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 		
 		if (_tollwaysInfoBuilder != null)
 		{
-			int value = _extTollways.getEdgeValue(edge.getOriginalEdge(), buffer);
+			int value = _tollwayExtractor.getValue(edge.getOriginalEdge());
 		    _tollwaysInfoBuilder.addSegment(value, value, geom, dist, lastEdge && _lastSegment);
 		}
 

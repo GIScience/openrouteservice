@@ -30,18 +30,47 @@ public class TollwayType {
 	public static final int M2 = 1024;
 	public static final int M3 = 2048;
 	
-	public  static final int N = 256;
-	public static final int N1 = 512;
-	public static final int N2 = 1024;
-	public static final int N3 = 2048;
+	public  static final int N = 4096;
+	public static final int N1 = 8192;
+	public static final int N2 = 16384;
+	public static final int N3 = 32768;
 	
-	public static final int O = 4096;
-	public static final int O1 = 8192;
-	public static final int O2 = 16384;
-	public static final int O3 = 32768;
-	public static final int O4 = 65536;
+	public static final int O = 65536;
+	public static final int O1 = 131072;
+	public static final int O2 = 262144;
+	public static final int O3 = 524288;
+	public static final int O4 = 1048576;
 	
 	public static final int General = M;
+	
+	public static boolean isLType(int flag)
+	{
+		return TollwayType.isSet(flag, TollwayType.L) || TollwayType.isSet(flag, TollwayType.L1) || TollwayType.isSet(flag, TollwayType.L2) ||
+				TollwayType.isSet(flag, TollwayType.L3) || TollwayType.isSet(flag, TollwayType.L4) || TollwayType.isSet(flag, TollwayType.L5) ||
+				TollwayType.isSet(flag, TollwayType.L6) || TollwayType.isSet(flag, TollwayType.L7);
+	}
+	
+	public static boolean isMType(int flag)
+	{
+		return TollwayType.isSet(flag, TollwayType.M) || TollwayType.isSet(flag, TollwayType.M1) || TollwayType.isSet(flag, TollwayType.M2) ||
+				TollwayType.isSet(flag, TollwayType.M3);
+	}
+	
+	public static boolean isNType(int flag)
+	{
+		return TollwayType.isSet(flag, TollwayType.N) || TollwayType.isSet(flag, TollwayType.N1) || TollwayType.isSet(flag, TollwayType.N2) ||
+				TollwayType.isSet(flag, TollwayType.N3);
+	}
+	
+	public static boolean isOType(int flag)
+	{
+		return TollwayType.isSet(flag, TollwayType.O) || TollwayType.isSet(flag, TollwayType.O1) || TollwayType.isSet(flag, TollwayType.O2) ||
+				TollwayType.isSet(flag, TollwayType.O3) || TollwayType.isSet(flag, TollwayType.O4);
+	}
+	
+    public static boolean isSet(int flag, int value) {
+        return (flag & value) == value;
+    }
 
 	public static int getFromString(String value)
 	{
