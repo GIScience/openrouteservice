@@ -2,22 +2,21 @@
  *|														Heidelberg University
  *|	  _____ _____  _____      _                     	Department of Geography		
  *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
- *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2017
  *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
  *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
  *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-
-// Authors: M. Rylov 
-
 package heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import heigit.ors.routing.AvoidFeatureFlags;
+import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.routing.RoutingProfileCategory;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.graphhopper.extensions.storages.*;
+import heigit.ors.routing.pathprocessors.TollwayExtractor;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -26,13 +25,14 @@ import com.graphhopper.util.EdgeIteratorState;
 
 public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 
-	private final boolean in;
-	private final boolean out;
-	protected final FlagEncoder encoder;
-	private int avoidFeatureType;
-	private byte[] buffer;
-	private WayCategoryGraphStorage gsWayCategory;
-	private int profileCategory; 
+	private final boolean _in;
+	private final boolean _out;
+	protected final FlagEncoder _encoder;
+	private byte[] _buffer;
+	private WayCategoryGraphStorage _extWayCategory;
+	private TollwayExtractor _tollwayExtractor;
+	private int _avoidFeatureType;
+	private int _profileCategory; 
 
 	private static final int HIGHWAYS = AvoidFeatureFlags.Highways;
 	private static final int TOLLWAYS = AvoidFeatureFlags.Tollways;
@@ -46,146 +46,154 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 	private static final int BRIDGES = AvoidFeatureFlags.Bridges;
 	private static final int FORDS = AvoidFeatureFlags.Fords;
 
-	public AvoidFeaturesEdgeFilter(FlagEncoder encoder, int avoidFeatureType, GraphStorage graphStorage) {
-		this(encoder, true, true, avoidFeatureType, graphStorage);
+	public AvoidFeaturesEdgeFilter(FlagEncoder encoder, RouteSearchParameters searchParams, GraphStorage graphStorage) {
+		this(encoder, true, true, searchParams, graphStorage);
 	}
 
-	public AvoidFeaturesEdgeFilter(FlagEncoder encoder, boolean in, boolean out, int avoidFeatureType,
+	public AvoidFeaturesEdgeFilter(FlagEncoder encoder, boolean in, boolean out, RouteSearchParameters searchParams,
 			GraphStorage graphStorage) {
-		this.in = in;
-		this.out = out;
+		this._in = in;
+		this._out = out;
 
-		this.encoder = encoder;
-		this.avoidFeatureType = avoidFeatureType;
-		this.buffer = new byte[10];
+		this._encoder = encoder;
+		this._avoidFeatureType = searchParams.getAvoidFeatureTypes();
+		this._buffer = new byte[10];
 
-		profileCategory = RoutingProfileCategory.getFromRouteProfile(RoutingProfileType.getFromEncoderName(encoder.toString()));
+		_profileCategory = RoutingProfileCategory.getFromRouteProfile(RoutingProfileType.getFromEncoderName(encoder.toString()));
 
-		gsWayCategory = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
+		_extWayCategory = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
+		TollwaysGraphStorage extTollways = GraphStorageUtils.getGraphExtension(graphStorage, TollwaysGraphStorage.class);
+		if (extTollways != null)
+			_tollwayExtractor = new TollwayExtractor(extTollways, searchParams.getVehicleType(), searchParams.getProfileParameters());
 	}
 
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {
 
-		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder)) {
-			if (avoidFeatureType != 0) {
+		if (_out && iter.isForward(_encoder) || _in && iter.isBackward(_encoder)) {
+			if (_avoidFeatureType != 0) {
 				int edgeFeatType = 0;
-				if (gsWayCategory != null) {
-					edgeFeatType = gsWayCategory.getEdgeValue(iter.getEdge(), buffer);
+				if (_extWayCategory != null) {
+					edgeFeatType = _extWayCategory.getEdgeValue(iter.getEdge(), _buffer);
 
 					if (edgeFeatType > 0) {
 
-						if (profileCategory == RoutingProfileCategory.DRIVING)
+						if (_profileCategory == RoutingProfileCategory.DRIVING)
 						{
-							if ((avoidFeatureType & HIGHWAYS) == HIGHWAYS) {
+							if ((_avoidFeatureType & HIGHWAYS) == HIGHWAYS) {
 								if ((edgeFeatType & HIGHWAYS) == HIGHWAYS) {
 									return false;
 								}
 							}
 
-							if ((avoidFeatureType & TOLLWAYS) == TOLLWAYS) {
+							if ((_avoidFeatureType & TOLLWAYS) == TOLLWAYS) {
 								if ((edgeFeatType & TOLLWAYS) == TOLLWAYS) {
-									return false;
+									if (_tollwayExtractor != null)
+									{
+										int value = _tollwayExtractor.getValue(iter.getEdge());
+										if (value != 0)
+											return false;
+									}
 								}
 							} 
 
-							if ((avoidFeatureType & FERRIES) == FERRIES) {
+							if ((_avoidFeatureType & FERRIES) == FERRIES) {
 								if ((edgeFeatType & FERRIES) == FERRIES) {
 									return false;
 								}
 							} 
 
-							if ((avoidFeatureType & UNPAVEDROADS) == UNPAVEDROADS) {
+							if ((_avoidFeatureType & UNPAVEDROADS) == UNPAVEDROADS) {
 								if ((edgeFeatType & UNPAVEDROADS) == UNPAVEDROADS) {
 									return false;
 								}
 							}
 
-							if ((avoidFeatureType & TRACKS) == TRACKS) {
+							if ((_avoidFeatureType & TRACKS) == TRACKS) {
 								if ((edgeFeatType & TRACKS) == TRACKS) {
 									return false;
 								}
 							} 
 
-							if ((avoidFeatureType & BORDERS) == BORDERS) {
+							if ((_avoidFeatureType & BORDERS) == BORDERS) {
 								if ((edgeFeatType & BORDERS) == BORDERS) {
 									return false;
 								}
 							} 
 
-							if ((avoidFeatureType & TUNNELS) == TUNNELS) {
+							if ((_avoidFeatureType & TUNNELS) == TUNNELS) {
 								if ((edgeFeatType & TUNNELS) == TUNNELS) {
 									return false;
 								}
 							} 
 
-							if ((avoidFeatureType & BRIDGES) == BRIDGES) {
+							if ((_avoidFeatureType & BRIDGES) == BRIDGES) {
 								if ((edgeFeatType & BRIDGES) == BRIDGES) {
 									return false;
 								}
 							} 
 
-							if ((avoidFeatureType & FORDS) == FORDS) {
+							if ((_avoidFeatureType & FORDS) == FORDS) {
 								if ((edgeFeatType & FORDS) == FORDS) {
 									return false;
 								}
 							}
 						}
-						else if (profileCategory == RoutingProfileCategory.CYCLING)
+						else if (_profileCategory == RoutingProfileCategory.CYCLING)
 						{
-							if ((avoidFeatureType & FERRIES) == FERRIES) {
+							if ((_avoidFeatureType & FERRIES) == FERRIES) {
 								if ((edgeFeatType & FERRIES) == FERRIES) {
 									return false;
 								}
 							}
 
-							if ((avoidFeatureType & UNPAVEDROADS) == UNPAVEDROADS) {
+							if ((_avoidFeatureType & UNPAVEDROADS) == UNPAVEDROADS) {
 								if ((edgeFeatType & UNPAVEDROADS) == UNPAVEDROADS) {
 									return false;
 								}
 							}
 
-							if ((avoidFeatureType & PAVEDROADS) == PAVEDROADS) {
+							if ((_avoidFeatureType & PAVEDROADS) == PAVEDROADS) {
 								if ((edgeFeatType & PAVEDROADS) == PAVEDROADS) {
 									return false;
 								}
 							}
 
-							if ((avoidFeatureType & STEPS) == STEPS) {
+							if ((_avoidFeatureType & STEPS) == STEPS) {
 								if ((edgeFeatType & STEPS) == STEPS) {
 									return false;
 								}
 							}
 
-							if ((avoidFeatureType & FORDS) == FORDS) {
+							if ((_avoidFeatureType & FORDS) == FORDS) {
 								if ((edgeFeatType & FORDS) == FORDS) {
 									return false;
 								}
 							}
 						}
-						else if (profileCategory == RoutingProfileCategory.WALKING)
+						else if (_profileCategory == RoutingProfileCategory.WALKING)
 						{
-							if ((avoidFeatureType & FERRIES) == FERRIES) {
+							if ((_avoidFeatureType & FERRIES) == FERRIES) {
 								if ((edgeFeatType & FERRIES) == FERRIES) {
 									return false;
 								}
 							}
 
-							if ((avoidFeatureType & STEPS) == STEPS) {
+							if ((_avoidFeatureType & STEPS) == STEPS) {
 								if ((edgeFeatType & STEPS) == STEPS) {
 									return false;
 								}
 							}
 
-							if ((avoidFeatureType & FORDS) == FORDS) {
+							if ((_avoidFeatureType & FORDS) == FORDS) {
 								if ((edgeFeatType & FORDS) == FORDS) {
 									return false;
 								}
 							}
 						}
-						else if (profileCategory == RoutingProfileCategory.WHEELCHAIR)
+						else if (_profileCategory == RoutingProfileCategory.WHEELCHAIR)
 						{
-							if ((avoidFeatureType & FERRIES) == FERRIES) {
+							if ((_avoidFeatureType & FERRIES) == FERRIES) {
 								if ((edgeFeatType & FERRIES) == FERRIES) {
 									return false;
 								}
@@ -204,6 +212,6 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 
 	@Override
 	public String toString() {
-		return "AVOIDFEATURES|" + encoder;
+		return "AVOIDFEATURES|" + _encoder;
 	}
 }

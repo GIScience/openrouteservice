@@ -79,11 +79,9 @@ public class WayCategoryGraphStorageBuilder extends AbstractGraphStorageBuilder
 						}
 					}
 
-				} else if (key.equals("toll") && value.equals("yes")) 
+				} else if (value.equals("yes") && key.startsWith("toll")) 
 					_wayType |= AvoidFeatureFlags.Tollways;
-				/*} else if (gsHeavyVehicleAttrs != null && key.equals("toll:hgv") && value.equals("yes")) {
-					wayFlags[1]  |= AvoidFeatureFlags.Tollways;
-				*/ else if (key.equals("route") && isFerryRoute) 
+				else if (key.equals("route") && isFerryRoute) 
 					_wayType |= AvoidFeatureFlags.Ferries;
 				else if (key.equals("tunnel") && value.equals("yes")) 
 					_wayType |= AvoidFeatureFlags.Tunnels;
@@ -114,7 +112,7 @@ public class WayCategoryGraphStorageBuilder extends AbstractGraphStorageBuilder
 			}
 		}
 	}
-
+	
 	public void processEdge(ReaderWay way, EdgeIteratorState edge)
 	{
 		if (_wayType > 0) 

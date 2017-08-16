@@ -234,12 +234,50 @@ public class ResultTest extends ServiceTest {
 	
 	@Test
 	public void testTollwaysExtraDetails() {
-/*
+
+		// 
 		given()
 				.param("coordinates", "8.676281,49.414715|8.6483,49.413291")
 				.param("instructions", "true")
 				.param("preference", "fastest")
 				.param("profile", "driving-car")
+				.param("extra_info", "suitability|tollways")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].containsKey('extras')", is(true))
+				.body("routes[0].extras.tollways.values.size()", is(1))
+				.body("routes[0].extras.tollways.values[0][0]", is(0))
+				.body("routes[0].extras.tollways.values[0][1]", is(101))
+				.body("routes[0].extras.tollways.values[0][2]", is(0))
+				.statusCode(200);
+		
+		given()
+				.param("coordinates", "8.676281,49.414715|8.6483,49.413291")
+				.param("instructions", "true")
+				.param("preference", "fastest")
+				.param("profile", "driving-hgv")
+				.param("extra_info", "suitability|tollways")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].containsKey('extras')", is(true))
+				.body("routes[0].extras.tollways.values.size()", is(1))
+				.body("routes[0].extras.tollways.values[0][0]", is(0))
+				.body("routes[0].extras.tollways.values[0][1]", is(86))
+				.body("routes[0].extras.tollways.values[0][2]", is(0))
+				.statusCode(200);
+		
+		 given()
+				.param("coordinates", "8.676281,49.414715|8.6483,49.413291")
+				.param("instructions", "true")
+				.param("preference", "fastest")
+				.param("profile", "driving-hgv")
+				.param("options", "{\"profile_params\":{\"width\":\"2\",\"height\":\"2\",\"weight\":\"14\"},\"vehicle_type\":\"hgv\"}")
 				.param("extra_info", "suitability|tollways")
 				.when()
 				.get(getEndPointName())
@@ -253,11 +291,11 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].extras.tollways.values[0][2]", is(0))
 				.body("routes[0].extras.tollways.values[1][0]", is(52))
 				.body("routes[0].extras.tollways.values[1][1]", is(66))
-				.body("routes[0].extras.tollways.values[1][2]", is(2048))
+				.body("routes[0].extras.tollways.values[1][2]", is(1))
 				.body("routes[0].extras.tollways.values[2][0]", is(66))
-				.body("routes[0].extras.tollways.values[2][1]", is(101))
+				.body("routes[0].extras.tollways.values[2][1]", is(86))
 				.body("routes[0].extras.tollways.values[2][2]", is(0))
-				.statusCode(200);*/
+				.statusCode(200);
 	}
 
 	@Test

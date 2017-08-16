@@ -17,7 +17,8 @@ import heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStorage;
 import heigit.ors.routing.parameters.ProfileParameters;
 import heigit.ors.routing.parameters.VehicleParameters;
 
-public class TollwayExtractor {
+public class TollwayExtractor 
+{
 	private VehicleParameters _vehicleParams;
 	private int _vehicleType;
 	private TollwaysGraphStorage _storage;

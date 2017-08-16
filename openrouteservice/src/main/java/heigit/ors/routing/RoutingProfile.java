@@ -622,7 +622,7 @@ public class RoutingProfile
 
 				if (searchParams.getAvoidFeatureTypes() != AvoidFeatureFlags.Hills)
 				{
-					EdgeFilter ef = new AvoidFeaturesEdgeFilter(flagEncoder, searchParams.getAvoidFeatureTypes(),
+					EdgeFilter ef = new AvoidFeaturesEdgeFilter(flagEncoder, searchParams,
 							mGraphHopper.getGraphHopperStorage());
 					edgeFilter = createEdgeFilter(ef, edgeFilter);
 				}
