@@ -12,9 +12,7 @@
 package heigit.ors.geocoding.geocoders;
 
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
