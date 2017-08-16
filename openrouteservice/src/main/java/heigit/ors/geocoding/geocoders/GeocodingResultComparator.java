@@ -34,6 +34,8 @@ public class GeocodingResultComparator implements Comparator<GeocodingResult> {
 						return 1;
 				}
 			}
+			else
+				return Float.compare(gr2.accuracy, gr1.accuracy);
 		}
 		
 		return 0;
