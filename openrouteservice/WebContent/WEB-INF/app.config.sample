@@ -199,13 +199,10 @@
          					encoder_options :"consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false", 
   				            elevation: true, 
 						    ext_storages: {
-                                WayCategory: {
-								  
-                                },								
-								WaySurfaceType: {
-								},
-								HillIndex: {
-								}
+                                WayCategory: {  },								
+								WaySurfaceType: { },
+								HillIndex: { },
+								TrailDifficulty: { }
 						    }
 						}
 					}
@@ -215,12 +212,10 @@
          					encoder_options: "consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false", 
 					        elevation: true, 
 					 	    ext_storages: {
-                                WayCategory: {
-                                },								
-								WaySurfaceType: {
-								},
-								HillIndex: {
-								}
+                                WayCategory: { },								
+								WaySurfaceType: { },
+								HillIndex: { },
+								TrailDifficulty: { }
 						    }
 						}
 					}
@@ -237,12 +232,10 @@
                                 #	 filepath: "PATH/TO/THE_NOISE_INDEX_CSV_FILE"
                                 #},
                                 
-                                WayCategory: {
-                                },								
-								WaySurfaceType: {
-								},
-								HillIndex: {
-								}
+                                WayCategory: { },								
+								WaySurfaceType: { },
+								HillIndex: { },
+								TrailDifficulty: { }
 						    } 						
 						}
 					}

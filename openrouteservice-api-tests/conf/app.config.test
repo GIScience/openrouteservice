@@ -188,28 +188,23 @@
          					encoder_options :"consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false", 
   				            elevation: true, 
 						    ext_storages: {
-                                WayCategory: {
-								  
-                                },								
-								WaySurfaceType: {
-								},
-								HillIndex: {
-								}
+                                WayCategory: { },								
+								WaySurfaceType: { },
+								HillIndex: { },
+								TrailDifficulty: { }
 						    }
 						}
 					}
-					profile-bike2: {
+					profile-bike2: { 
 						profiles: "cycling-safe,cycling-tour, cycling-electric",
 						parameters: {
          					encoder_options: "consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false", 
 					        elevation: true, 
 					 	    ext_storages: {
-                                WayCategory: {
-                                },								
-								WaySurfaceType: {
-								},
-								HillIndex: {
-								}
+                                WayCategory: { },								
+								WaySurfaceType: { },
+								HillIndex: { },
+								TrailDifficulty: { }
 						    }
 						}
 					}
@@ -225,12 +220,10 @@
                                 NoiseIndex: {
                                     filepath: "openrouteservice-api-tests/data/noise_data_hd.csv"
                                 },
-                                WayCategory: {
-                                },								
-								WaySurfaceType: {
-								},
-								HillIndex: {
-								}
+                                WayCategory: { },								
+								WaySurfaceType: { },
+								HillIndex: { },
+								TrailDifficulty: { }
 						    } 						
 						}
 					}

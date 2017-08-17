@@ -270,7 +270,11 @@ public class JsonRoutingResponseWriter {
 								JSONArray jExtraItemValue = new JSONArray(3);
 								jExtraItemValue.put(segExtra.getFrom());
 								jExtraItemValue.put(segExtra.getTo());
-								jExtraItemValue.put(segExtra.getValue());
+								
+								if (extraInfo.getFactor() == 1.0)
+									jExtraItemValue.put(segExtra.getValue());
+								else
+									jExtraItemValue.put(FormatUtility.roundToDecimals(segExtra.getValue()/extraInfo.getFactor(), 1));
 
 								jExtraItemValues.put(jExtraItemValue);
 							}

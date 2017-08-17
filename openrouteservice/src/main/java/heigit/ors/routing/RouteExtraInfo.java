@@ -25,6 +25,7 @@ public class RouteExtraInfo
 {
     private String _name;
     private List<RouteSegmentItem> _segments;
+    private double _factor = 1.0;
     
     public RouteExtraInfo(String name)
     {
@@ -101,5 +102,13 @@ public class RouteExtraInfo
 		}
 
 		return summary;
+	}
+
+	public double getFactor() {
+		return _factor;
+	}
+
+	public void setFactor(double _factor) {
+		this._factor = _factor;
 	}
 }

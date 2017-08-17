@@ -8,3 +8,4 @@ heigit.ors.routing.graphhopper.extensions.storages.builders.NoiseIndexGraphStora
 heigit.ors.routing.graphhopper.extensions.storages.builders.EmergencyVehicleGraphStorageBuilder
 heigit.ors.routing.graphhopper.extensions.storages.builders.AccessRestrictionsGraphStorageBuilder
 heigit.ors.routing.graphhopper.extensions.storages.builders.TollwaysGraphStorageBuilder
+heigit.ors.routing.graphhopper.extensions.storages.builders.TrailDifficultyScaleGraphStorageBuilder

@@ -25,6 +25,7 @@ import com.graphhopper.util.PointList;
 
 import heigit.ors.routing.RouteExtraInfo;
 import heigit.ors.routing.RouteExtraInfoFlag;
+import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.RoutingRequest;
 import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import heigit.ors.routing.graphhopper.extensions.storages.*;
@@ -39,6 +40,8 @@ public class ExtraInfoProcessor extends PathProcessor {
 	private GreenIndexGraphStorage _extGreenIndex;
 	private NoiseIndexGraphStorage _extNoiseIndex;
 	private TollwaysGraphStorage _extTollways;
+	private TrailDifficultyScaleGraphStorage _extTrailDifficulty;
+	private HillIndexGraphStorage _extHillIndex;
 	
 	private RouteExtraInfo _surfaceInfo;
 	private RouteExtraInfoBuilder _surfaceInfoBuilder;
@@ -68,14 +71,20 @@ public class ExtraInfoProcessor extends PathProcessor {
 	private RouteExtraInfoBuilder _tollwaysInfoBuilder;
 	private TollwayExtractor _tollwayExtractor;
 	
+	private RouteExtraInfo _trailDifficultyInfo;
+	private RouteExtraInfoBuilder _trailDifficultyInfoBuilder;
+	
+	private int _profileType = RoutingProfileType.UNKNOWN;
 	private FlagEncoder _encoder;
 	private boolean _encoderWithPriority = false;
 	private byte[] buffer;
 	private boolean _lastSegment;
 
-	public ExtraInfoProcessor(ORSGraphHopper graphHopper, RoutingRequest req) throws Exception {
-		
+	public ExtraInfoProcessor(ORSGraphHopper graphHopper, RoutingRequest req) throws Exception 
+	{
+		_profileType = req.getSearchParameters().getProfileType();
 		int extraInfo = req.getExtraInfo();
+		
 		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.WayCategory))
 		{
 			_extWayCategory = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), WayCategoryGraphStorage.class);
@@ -121,6 +130,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.AvgSpeed))
 		{
 			_avgSpeedInfo = new RouteExtraInfo("avgspeed");
+			_avgSpeedInfo.setFactor(10);
 			_avgSpeedInfoBuilder = new SimpleRouteExtraInfoBuilder(_avgSpeedInfo);
 		}
 		
@@ -134,6 +144,15 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_tollwaysInfo = new RouteExtraInfo("tollways");
 			_tollwaysInfoBuilder = new SimpleRouteExtraInfoBuilder(_tollwaysInfo);
 			_tollwayExtractor = new TollwayExtractor(_extTollways, req.getSearchParameters().getVehicleType(), req.getSearchParameters().getProfileParameters());
+		}
+
+		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.TrailDifficulty))
+		{
+			_extTrailDifficulty  = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), TrailDifficultyScaleGraphStorage.class);
+			_extHillIndex = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), HillIndexGraphStorage.class);
+			
+			_trailDifficultyInfo = new RouteExtraInfo("traildifficulty");
+			_trailDifficultyInfoBuilder = new SimpleRouteExtraInfoBuilder(_trailDifficultyInfo);
 		}
 
 		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Green)) {
@@ -184,7 +203,9 @@ public class ExtraInfoProcessor extends PathProcessor {
 		if (_noiseInfo != null)
 			extras.add(_noiseInfo);
 		if (_tollwaysInfo != null)
-			extras.add(_tollwaysInfo);		
+			extras.add(_tollwaysInfo);
+		if (_trailDifficultyInfo != null)
+			extras.add(_trailDifficultyInfo);
 
 		return extras;
 	}
@@ -210,10 +231,32 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_wayCategoryInfoBuilder.addSegment(value, value, geom, dist, lastEdge && _lastSegment);
 		}
 		
+		if (_trailDifficultyInfoBuilder != null)
+		{
+			int value = 0;
+			if (RoutingProfileType.isCycling(_profileType))
+			{
+				boolean uphill = false;
+				if (_extHillIndex != null)
+				{
+					boolean revert = edge.getBaseNode() < edge.getAdjNode();
+					int hillIndex = _extHillIndex.getEdgeValue(edge.getOriginalEdge(), revert, buffer);
+					if (hillIndex > 0)
+						uphill = true;
+				}
+				
+				value = _extTrailDifficulty.getMtbScale(edge.getOriginalEdge(), buffer, uphill);
+			}
+			else if (RoutingProfileType.isWalking(_profileType))
+				value = _extTrailDifficulty.getHikingScale(edge.getOriginalEdge(), buffer);
+			
+			_trailDifficultyInfoBuilder.addSegment(value, value, geom, dist, lastEdge && _lastSegment);
+		}
+		
 		if (_avgSpeedInfoBuilder != null)
 		{
 		    double speed = _encoder.getSpeed(edge.getFlags(_encoder.getIndex()));
-		    _avgSpeedInfoBuilder.addSegment(speed, (int)Math.round(speed*10), geom, dist, lastEdge && _lastSegment);
+		    _avgSpeedInfoBuilder.addSegment(speed, (int)Math.round(speed*_avgSpeedInfo.getFactor()), geom, dist, lastEdge && _lastSegment);
 		}
 		
 		if (_tollwaysInfoBuilder != null)
