@@ -11,10 +11,20 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.routing.parameters;
 
-public class CyclingParameters extends ProfileParameters {
-
+public class CyclingParameters extends ProfileParameters 
+{
+	private int _maximumTrailDifficulty = Integer.MAX_VALUE;
+	
 	public CyclingParameters()
 	{
 
+	}
+
+	public int getMaximumTrailDifficulty() {
+		return _maximumTrailDifficulty;
+	}
+
+	public void setMaximumTrailDifficulty(int value) {
+		_maximumTrailDifficulty = value;
 	}
 }

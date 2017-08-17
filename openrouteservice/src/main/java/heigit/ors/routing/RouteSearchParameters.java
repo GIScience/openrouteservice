@@ -186,6 +186,10 @@ public class RouteSearchParameters {
 		if (json.has("profile_params"))
 		{
 			JSONObject jProfileParams = json.getJSONObject("profile_params");
+			JSONObject jRestrictions = null;
+
+			if (jProfileParams.has("restrictions"))
+				jRestrictions = jProfileParams.getJSONObject("restrictions");
 
 			if (RoutingProfileType.isCycling(_profileType))
 			{
@@ -195,13 +199,22 @@ public class RouteSearchParameters {
 				if (!jProfileParams.has("weightings") && (jProfileParams.has("difficulty_level") || jProfileParams.has("maximum_gradient")))
 				{
 					JSONObject jWeightings = new JSONObject();
-					
+
 					if (jProfileParams.has("difficulty_level"))
 						jWeightings.put("difficulty_level", jProfileParams.get("difficulty_level"));
 					else if	(jProfileParams.has("maximum_gradient"))
 						jWeightings.put("maximum_gradient", jProfileParams.get("maximum_gradient"));
-						
+
 					jProfileParams.put("weightings", jWeightings);
+				}
+
+				if (jRestrictions != null)
+				{
+					if (jRestrictions.has("gradient"))
+						cyclingParams.setMaximumGradient(jRestrictions.getInt("gradient"));
+					
+					if (jRestrictions.has("trail_difficulty"))
+						cyclingParams.setMaximumTrailDifficulty(jRestrictions.getInt("trail_difficulty"));
 				}
 
 				_profileParams = cyclingParams;
@@ -213,7 +226,7 @@ public class RouteSearchParameters {
 				if (!jProfileParams.has("weightings") && (jProfileParams.has("difficulty_level") || jProfileParams.has("maximum_gradient")))
 				{
 					JSONObject jWeightings = new JSONObject();
-					
+
 					if (jProfileParams.has("difficulty_level"))
 						jWeightings.put("difficulty_level", jProfileParams.get("difficulty_level"));
 					else if	(jProfileParams.has("maximum_gradient"))
@@ -222,6 +235,15 @@ public class RouteSearchParameters {
 					jProfileParams.put("weightings", jWeightings);
 				}
 
+				if (jRestrictions != null)
+				{
+					if (jRestrictions.has("gradient"))
+						walkingParams.setMaximumGradient(jRestrictions.getInt("gradient"));	
+
+					if (jRestrictions.has("trail_difficulty"))
+						walkingParams.setMaximumTrailDifficulty(jRestrictions.getInt("trail_difficulty"));
+				}
+				
 				_profileParams = walkingParams;
 			}
 			else if (RoutingProfileType.isHeavyVehicle(_profileType) == true)
@@ -233,11 +255,9 @@ public class RouteSearchParameters {
 					String vehicleType = json.getString("vehicle_type");
 					_vehicleType =  HeavyVehicleAttributes.getFromString(vehicleType);
 
-					JSONObject jRestrictions = jProfileParams;
-
 					// Since 4.2, all restrictions are packed in its own element
-					if (jProfileParams.has("restrictions"))
-						jRestrictions = jProfileParams.getJSONObject("restrictions");
+					if (jRestrictions == null)
+						jRestrictions = jProfileParams;
 
 					if (jRestrictions.has("length"))
 						vehicleParams.setLength(jRestrictions.getDouble("length"));
@@ -267,10 +287,10 @@ public class RouteSearchParameters {
 			else if (_profileType == RoutingProfileType.WHEELCHAIR)
 			{
 				WheelchairParameters wheelchairParams = new WheelchairParameters();
-				JSONObject jRestrictions = jProfileParams;
+
 				// Since 4.2, all restrictions are packed in its own element
-				if (jProfileParams.has("restrictions"))
-					jRestrictions = jProfileParams.getJSONObject("restrictions");
+				if (jRestrictions == null)
+					jRestrictions = jProfileParams;
 
 				if (jRestrictions.has("surface_type"))
 					wheelchairParams.setSurfaceType(WheelchairTypesEncoder.getSurfaceType(jRestrictions.getString("surface_type")));
@@ -331,24 +351,24 @@ public class RouteSearchParameters {
 		{
 			JSONObject jWeightings = json.getJSONObject("weightings");
 			JSONArray jNames = jWeightings.names();
-			
+
 			if (jNames == null)
 				return;
-			
+
 			for (int i = 0; i < jNames.length(); i++)
 			{
 				String name  = jNames.getString(i);
-                ProfileWeighting pw = new ProfileWeighting(name);
-                
-                JSONObject jw = jWeightings.getJSONObject(name);
-                Iterator<String> keys = jw.keys();
-                while(keys.hasNext())
-                { 
-                	String key = keys.next();
-                	pw.addParameter(key, jw.optString(key));
-                }
-                
-                profileParams.add(pw);
+				ProfileWeighting pw = new ProfileWeighting(name);
+
+				JSONObject jw = jWeightings.getJSONObject(name);
+				Iterator<String> keys = jw.keys();
+				while(keys.hasNext())
+				{ 
+					String key = keys.next();
+					pw.addParameter(key, jw.optString(key));
+				}
+
+				profileParams.add(pw);
 			}
 		}
 	}

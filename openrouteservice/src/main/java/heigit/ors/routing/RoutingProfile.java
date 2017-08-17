@@ -644,20 +644,39 @@ public class RoutingProfile
 			}
 		}
 
-		if (!((searchParams.getAvoidFeatureTypes() & AvoidFeatureFlags.Hills) == AvoidFeatureFlags.Hills))
+		if (searchParams.hasParameters(CyclingParameters.class))
 		{
-			if (searchParams.hasParameters(CyclingParameters.class))
-			{
-				CyclingParameters cyclingParams = (CyclingParameters)searchParams.getProfileParameters();
+			CyclingParameters cyclingParams = (CyclingParameters)searchParams.getProfileParameters();
 
-				if (cyclingParams.getMaximumGradient() > 0)
-				{
-					EdgeFilter ef = new AvoidSteepnessEdgeFilter(flagEncoder, mGraphHopper.getGraphHopperStorage(), cyclingParams.getMaximumGradient());
-					edgeFilter = createEdgeFilter(ef, edgeFilter);
-				}
+			if (cyclingParams.getMaximumGradient() > 0)
+			{
+				EdgeFilter ef = new AvoidSteepnessEdgeFilter(flagEncoder, mGraphHopper.getGraphHopperStorage(), cyclingParams.getMaximumGradient());
+				edgeFilter = createEdgeFilter(ef, edgeFilter);
+			}
+			
+			if (cyclingParams.getMaximumTrailDifficulty() > 0)
+			{
+				EdgeFilter ef = new TrailDifficultyEdgeFilter(flagEncoder, mGraphHopper.getGraphHopperStorage(), cyclingParams.getMaximumTrailDifficulty());
+				edgeFilter = createEdgeFilter(ef, edgeFilter);
 			}
 		}
+		else if (searchParams.hasParameters(WalkingParameters.class))
+		{
+			WalkingParameters walkingParams = (WalkingParameters)searchParams.getProfileParameters();
 
+			if (walkingParams.getMaximumGradient() > 0)
+			{
+				EdgeFilter ef = new AvoidSteepnessEdgeFilter(flagEncoder, mGraphHopper.getGraphHopperStorage(), walkingParams.getMaximumGradient());
+				edgeFilter = createEdgeFilter(ef, edgeFilter);
+			}
+			
+			if (walkingParams.getMaximumTrailDifficulty() > 0)
+			{
+				EdgeFilter ef = new TrailDifficultyEdgeFilter(flagEncoder, mGraphHopper.getGraphHopperStorage(), walkingParams.getMaximumTrailDifficulty());
+				edgeFilter = createEdgeFilter(ef, edgeFilter);
+			}
+		}
+		
 		ProfileParameters profileParams = searchParams.getProfileParameters();
 		if (profileParams != null && profileParams.hasWeightings())
 		{
