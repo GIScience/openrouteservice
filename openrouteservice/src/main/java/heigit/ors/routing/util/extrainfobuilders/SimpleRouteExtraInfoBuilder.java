@@ -35,16 +35,33 @@ public class SimpleRouteExtraInfoBuilder extends RouteExtraInfoBuilder {
 		{
 			RouteSegmentItem item = null;
 			if (lastEdge)
-				item = new RouteSegmentItem(_prevIndex, _prevIndex + _segmentLength + nPoints, valueIndex, _segmentDist + dist);
+			{
+				if (value != _prevValue)
+				{
+					if (_prevValueIndex != -1)
+					{
+						item = new RouteSegmentItem(_prevIndex, _prevIndex + _segmentLength, _prevValueIndex, _segmentDist);
+						_extraInfo.add(item);
+					}
+					
+					item = new RouteSegmentItem(_prevIndex + _segmentLength, _prevIndex + _segmentLength + nPoints, valueIndex, dist);
+					_extraInfo.add(item);
+				}
+				else
+				{
+					item = new RouteSegmentItem(_prevIndex, _prevIndex + _segmentLength + nPoints, valueIndex, _segmentDist + dist);
+					_extraInfo.add(item);
+				}
+			}
 			else
 			{
 				item = new RouteSegmentItem(_prevIndex, _prevIndex + _segmentLength, _prevValueIndex, _segmentDist);
 				_prevIndex +=_segmentLength;
 				_segmentDist = dist;
 				_segmentLength = nPoints;
+				
+				_extraInfo.add(item);
 			}
-			
-			_extraInfo.add(item);
 		}
 		else
 		{

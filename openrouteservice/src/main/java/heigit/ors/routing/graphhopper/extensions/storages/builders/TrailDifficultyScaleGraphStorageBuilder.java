@@ -2,7 +2,7 @@
  *|														Heidelberg University
  *|	  _____ _____  _____      _                     	Department of Geography		
  *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
- *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2017
  *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
  *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
  *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
@@ -45,6 +45,8 @@ public class TrailDifficultyScaleGraphStorageBuilder extends AbstractGraphStorag
 		if (_mtbScale == 0)
 			_mtbScale = getMtbScale(way.getTag("mtb:scale:imba"));
 		_mtbUphillScale = getMtbScale(way.getTag("mtb:scale:uphill"));
+		if (_mtbUphillScale == 0)
+			_mtbUphillScale = _mtbScale;
 	}
 
 	private int getSacScale(String value)
@@ -77,7 +79,7 @@ public class TrailDifficultyScaleGraphStorageBuilder extends AbstractGraphStorag
 		{
 			try
 			{
-				return Integer.parseInt(value);
+				return Integer.parseInt(value) + 1;
 			}
 			catch(Exception ex)
 			{}

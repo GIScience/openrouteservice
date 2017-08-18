@@ -231,11 +231,85 @@ public class ResultTest extends ServiceTest {
 
 				.statusCode(200);
 	}
+
+	@Test
+	public void testAvoidTrailDifficulty() {
+		given()
+				.param("coordinates", "8.711343,49.401186|8.738122,49.402275")
+				.param("instructions", "true")
+				.param("preference", "fastest")
+				.param("profile", "cycling-mountain")
+				.param("extra_info", "traildifficulty")
+				.param("options", "{\"profile_params\":{\"restrictions\":{\"trail_difficulty\":1}}}")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].containsKey('extras')", is(true))
+				.body("routes[0].segments[0].steps.size()", is(15))
+				.body("routes[0].segments[0].distance", is(3633.8f))
+				.body("routes[0].segments[0].duration", is(2019.4f))
+				.body("routes[0].extras.traildifficulty.values.size()", is(2))
+				.body("routes[0].extras.traildifficulty.values[0][0]", is(0))
+				.body("routes[0].extras.traildifficulty.values[0][1]", is(109))
+				.body("routes[0].extras.traildifficulty.values[0][2]", is(0))
+				.body("routes[0].extras.traildifficulty.values[1][0]", is(109))
+				.body("routes[0].extras.traildifficulty.values[1][1]", is(141))
+				.body("routes[0].extras.traildifficulty.values[1][2]", is(1))
+				.statusCode(200);
+	}
+	
+	@Test
+	public void testTrailDifficultyExtraDetails() {
+		given()
+				.param("coordinates", "8.763442,49.388882|8.762927,49.397541")
+				.param("instructions", "true")
+				.param("preference", "fastest")
+				.param("profile", "cycling-regular")
+				.param("extra_info", "suitability|traildifficulty")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].containsKey('extras')", is(true))
+				.body("routes[0].extras.traildifficulty.values.size()", is(2))
+				.body("routes[0].extras.traildifficulty.values[0][0]", is(0))
+				.body("routes[0].extras.traildifficulty.values[0][1]", is(16))
+				.body("routes[0].extras.traildifficulty.values[0][2]", is(2))
+				.body("routes[0].extras.traildifficulty.values[1][0]", is(16))
+				.body("routes[0].extras.traildifficulty.values[1][1]", is(31))
+				.body("routes[0].extras.traildifficulty.values[1][2]", is(0))
+				.statusCode(200);
+		
+		given()
+			.param("coordinates", "8.724174,49.390223|8.716536,49.399622")
+			.param("instructions", "true")
+			.param("preference", "fastest")
+			.param("profile", "foot-hiking")
+			.param("extra_info", "traildifficulty")
+			.when()
+			.get(getEndPointName())
+			.then()
+			.assertThat()
+			.body("any { it.key == 'routes' }", is(true))
+			.body("routes[0].containsKey('extras')", is(true))
+			.body("routes[0].extras.traildifficulty.values.size()", is(3))
+			.body("routes[0].extras.traildifficulty.values[0][0]", is(0))
+			.body("routes[0].extras.traildifficulty.values[0][1]", is(12))
+			.body("routes[0].extras.traildifficulty.values[0][2]", is(0))
+			.body("routes[0].extras.traildifficulty.values[1][0]", is(12))
+			.body("routes[0].extras.traildifficulty.values[1][1]", is(27))
+			.body("routes[0].extras.traildifficulty.values[1][2]", is(1))
+			.body("routes[0].extras.traildifficulty.values[2][0]", is(27))
+			.body("routes[0].extras.traildifficulty.values[2][1]", is(30))
+			.body("routes[0].extras.traildifficulty.values[2][2]", is(0))
+			.statusCode(200);
+	}
 	
 	@Test
 	public void testTollwaysExtraDetails() {
-
-		// 
 		given()
 				.param("coordinates", "8.676281,49.414715|8.6483,49.413291")
 				.param("instructions", "true")

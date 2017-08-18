@@ -239,7 +239,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 				boolean uphill = false;
 				if (_extHillIndex != null)
 				{
-					boolean revert = edge.getBaseNode() < edge.getAdjNode();
+					boolean revert = edge.getBaseNode() > edge.getAdjNode();
 					int hillIndex = _extHillIndex.getEdgeValue(edge.getOriginalEdge(), revert, buffer);
 					if (hillIndex > 0)
 						uphill = true;
