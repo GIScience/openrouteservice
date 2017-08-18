@@ -320,6 +320,9 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 				properties.put("name", gr.objectName);
 			else if (!Helper.isEmpty(gr.name))
 				properties.put("name", gr.name);
+			
+			if (!Helper.isEmpty(gr.layer))
+				properties.put("layer", gr.layer);
 
 			if (pos != null)
 			{
