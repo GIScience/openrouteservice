@@ -51,6 +51,9 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder
 		int nPoints = geom.getSize() - 1;
 		if (nPoints == 0)
 			return;		
+		
+		if (_prevSegmentItem != null)
+			_startIndex = _prevSegmentItem.getTo();
 
 		int j0 = 0;
 		
@@ -169,6 +172,7 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder
 			{
 				RouteSegmentItem item = new RouteSegmentItem(_startIndex, iEnd, _prevGradientCat, _splitLength);
 				_extraInfo.add(item);
+				_prevSegmentItem = item;
 			}
 		}
 	}
