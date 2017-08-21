@@ -203,7 +203,18 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 				if (props.size() > 0)
 				{
 					for(Map.Entry<String, Object> entry : props.entrySet())
-						properties.put(entry.getKey(), entry.getValue());
+					{
+						String propName = entry.getKey();
+						if (entry.getValue() != null)
+						{
+							if ("address".equals(propName))
+							{
+								properties.put(propName, new JSONObject((String)entry.getValue()));
+							}
+							else
+								properties.put(propName, entry.getValue());
+						}
+					}
 				}
 
 				feature.put("properties", properties);

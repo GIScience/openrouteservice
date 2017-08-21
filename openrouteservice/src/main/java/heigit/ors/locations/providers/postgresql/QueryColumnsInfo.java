@@ -67,6 +67,8 @@ public class QueryColumnsInfo
 		{
 		case"osm_id":
 			return "bigint";
+		case "osm_type":
+			return "smallint";
 		case "category":
 			return "smallint";
 		case "name":
@@ -113,6 +115,10 @@ public class QueryColumnsInfo
 		else if (type == Integer.class)
 		{
 			return resultSet.getInt(index + 1);
+		}
+		else if (type == Short.class)
+		{
+			return resultSet.getShort(index + 1);
 		}
 		else if (type == Long.class)
 		{

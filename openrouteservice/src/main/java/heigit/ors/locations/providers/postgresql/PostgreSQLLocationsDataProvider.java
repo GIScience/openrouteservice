@@ -57,7 +57,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 	private static Map<Integer, QueryColumnsInfo> COLUMNS_INFO;
 	 
 	private String _tableName = null;
-	private int _geomColumnIndex = 3;
+	private int _geomColumnIndex = 4;
 	private HikariDataSource  _dataSource;
 	
 	static
@@ -70,6 +70,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 		List<ColumnDescription> res = new ArrayList<ColumnDescription>();
 		
 		res.add(new ColumnDescription("osm_id", Long.class));
+		res.add(new ColumnDescription("osm_type", Short.class));
 		res.add(new ColumnDescription("category", Integer.class)); 
 	    res.add(new ColumnDescription("name", String.class));
 	    res.add(new ColumnDescription("geom", Geometry.class));
@@ -194,7 +195,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 			{
 				sw = new StopWatch();
 				sw.start();
-			}
+			} 
 
 			ResultSet resSet = null;
 			QueryColumnsInfo queryColumns = getQueryColumnsInfo(request);
