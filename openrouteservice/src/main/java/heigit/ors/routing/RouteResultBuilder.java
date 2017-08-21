@@ -206,13 +206,9 @@ public class RouteResultBuilder
 
 						// merge route steps with similar names 
 						// example: http://localhost:8082/openrouteservice-4.0.0/routes?profile=driving-car&coordinates=8.690614,49.38365|8.7007,49.411699|8.7107,49.4516&prettify_instructions=true
-						if (prevStep != null &&  instrType == InstructionType.CONTINUE && instrType == prevInstrType && canMergeInstructions(instr.getName(), prevInstr.getName()))
+						if (prevStep != null && instrType == prevInstrType && canMergeInstructions(instr.getName(), prevInstr.getName()))
 						{
 							String mergedRoadName = mergeInstructions(instr.getName(), prevInstr.getName());
-							if (_nameAppendix != null)
-								mergedRoadName += " ("+ _nameAppendix + ")";
-							if (formatInstructions)
-								mergedRoadName = "<b>" + mergedRoadName + "</b>";
 
 							int[] wayPoints = prevStep.getWayPoints();
 							wayPoints[1] =  wayPoints[1] + instr.getPoints().size();
@@ -221,8 +217,14 @@ public class RouteResultBuilder
 
 							prevStep.setDistance(FormatUtility.roundToDecimals(DistanceUnitUtil.convert(prevStep.getDistance() +  stepDistance, DistanceUnit.Meters, units), unitDecimals));
 							prevStep.setDuration(FormatUtility.roundToDecimals(prevStep.getDuration() +  stepDuration, 1));
-							prevStep.setInstruction(instrTranslator.getContinue(instrType, mergedRoadName));
 							prevStep.setName(mergedRoadName);
+							
+							if (_nameAppendix != null)
+								mergedRoadName += " ("+ _nameAppendix + ")";
+							if (formatInstructions)
+								mergedRoadName = "<b>" + mergedRoadName + "</b>";
+
+							prevStep.setInstruction(instrTranslator.getContinue(instrType, mergedRoadName));
 
 							//if (request.getIncludeManeuvers())
 							//	prevStep.setManeuver(computeManeuver(prevSegPoints, segPoints));

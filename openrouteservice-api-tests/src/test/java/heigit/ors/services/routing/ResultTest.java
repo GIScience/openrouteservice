@@ -227,7 +227,7 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].extras.surface.values.size()", is(35))
 				.body("routes[0].extras.surface.values[34][1]", is(533))
 				.body("routes[0].extras.suitability.values[30][0]", is(452))
-				.body("routes[0].extras.steepness.values[11][1]", is(339))
+				.body("routes[0].extras.steepness.values[11][1]", is(346))
 
 				.statusCode(200);
 	}
@@ -388,7 +388,7 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].segments[0].containsKey('steps')", is(true))
 				.body("routes[0].segments[1].containsKey('steps')", is(true))
 				.body("routes[0].segments[0].steps.size()", is(46))
-				.body("routes[0].segments[1].steps.size()", is(31))
+				.body("routes[0].segments[1].steps.size()", is(30))
 				.statusCode(200);
 	}
 
@@ -408,7 +408,7 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].segments[0].containsKey('steps')", is(true))
 				.body("routes[0].segments[1].containsKey('steps')", is(true))
 				.body("routes[0].segments[0].steps.size()", is(46))
-				.body("routes[0].segments[1].steps.size()", is(31))
+				.body("routes[0].segments[1].steps.size()", is(30))
 				.body("routes[0].segments[0].steps[0].distance", is(511.4f))
 				.body("routes[0].segments[0].steps[0].duration", is(230.1f))
 				.body("routes[0].segments[0].steps[0].type", is(11))

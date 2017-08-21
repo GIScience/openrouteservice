@@ -13,7 +13,7 @@ package heigit.ors.routing.util.extrainfobuilders;
 
 import com.graphhopper.routing.util.SteepnessUtil;
 import com.graphhopper.util.DistanceCalc;
-import com.graphhopper.util.DistanceCalcEarth;
+import com.graphhopper.util.Helper;
 import com.graphhopper.util.PointList;
 
 import heigit.ors.routing.RouteExtraInfo;
@@ -34,16 +34,17 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder
 	private int _pointsCount = 0;
 	private RouteSegmentItem _prevSegmentItem;
 	private DistanceCalc _distCalc;
+	private boolean _lastEdge = false;
 	
     public SteepnessExtraInfoBuilder(RouteExtraInfo extraInfo) 
     {
 		super(extraInfo);
-		_distCalc = new DistanceCalcEarth();
+		_distCalc = Helper.DIST_EARTH;
 	}
 
 	public void addSegment(double value, int valueIndex, PointList geom, double dist, boolean lastEdge)
     {
-
+       _lastEdge = lastEdge;
     }
 	
 	public void addPoints(PointList geom)
@@ -121,8 +122,7 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder
 				if (bApply)
 				{
 					int gradientCat = SteepnessUtil.getCategory(gradient);
-					
-					int iEnd = _pointsCount - 1;
+					int iEnd = _startIndex + _pointsCount;
 
 					if (_prevGradientCat == gradientCat && _prevSegmentItem != null)
 					{
@@ -131,13 +131,14 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder
 					}
 					else
 					{
-						RouteSegmentItem item = new RouteSegmentItem(_startIndex, iEnd, gradientCat, _splitLength);
+						RouteSegmentItem item = new RouteSegmentItem(_startIndex,  iEnd, gradientCat, _splitLength);
 						_extraInfo.add(item);
 						_prevSegmentItem = item;
 					}
 					
-					_prevGradientCat = gradientCat;
+					_pointsCount = 0;
 					_startIndex = iEnd;
+					_prevGradientCat = gradientCat;
 					_minAltitude = Math.min(_z0, _z1);
 					_maxAltitude = Math.max(_z0, _z1);
 					_splitLength = 0.0;
@@ -157,22 +158,23 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder
 		
 		if (_splitLength > 0)
 		{
-			int iEnd = _pointsCount;
 			_elevDiff = _maxAltitude - _minAltitude;
 			if (_extraInfo.isEmpty() && _splitLength < 50 && _elevDiff < SteepnessUtil.ELEVATION_THRESHOLD)
 				_elevDiff = 0;
 			
 			double gradient = (_cumElevation > 0 ? 1: -1)*100*_elevDiff / _splitLength;
-			int gc = SteepnessUtil.getCategory(gradient);
-			if (_prevSegmentItem != null && (_prevGradientCat == gc || _splitLength < 30))
+			int gradientCat = SteepnessUtil.getCategory(gradient);
+			if (_prevSegmentItem != null && (_prevGradientCat == gradientCat || _splitLength < 30))
 			{
-				_prevSegmentItem.setTo(iEnd);
+				_prevSegmentItem.setTo(_startIndex + _pointsCount);
 			}
 			else
 			{
-				RouteSegmentItem item = new RouteSegmentItem(_startIndex, iEnd, _prevGradientCat, _splitLength);
+				RouteSegmentItem item = new RouteSegmentItem(_startIndex, _startIndex + _pointsCount, gradientCat, _splitLength);
 				_extraInfo.add(item);
 				_prevSegmentItem = item;
+				_prevGradientCat = gradientCat;
+				_pointsCount = 0;
 			}
 		}
 	}

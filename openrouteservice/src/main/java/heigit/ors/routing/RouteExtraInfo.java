@@ -88,9 +88,10 @@ public class RouteExtraInfo
 				
 				for (Map.Entry<Integer, Double> entry : stats.entrySet())
 				{
+					Double value = entry.getValue()/_factor;
 					ExtraSummaryItem esi = new ExtraSummaryItem(entry.getKey(),
-							FormatUtility.roundToDecimals(DistanceUnitUtil.convert(entry.getValue(), DistanceUnit.Meters, units), unitDecimals),
-							FormatUtility.roundToDecimals(entry.getValue() * 100.0 / totalDist, 2)
+							FormatUtility.roundToDecimals(DistanceUnitUtil.convert(value, DistanceUnit.Meters, units), unitDecimals),
+							FormatUtility.roundToDecimals(value * 100.0 / totalDist, 2)
 							);
 					
 					summary.add(esi);
