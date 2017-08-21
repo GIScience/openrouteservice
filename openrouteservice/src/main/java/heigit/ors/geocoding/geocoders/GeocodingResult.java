@@ -14,14 +14,13 @@ package heigit.ors.geocoding.geocoders;
 public class GeocodingResult  {
 	public String country;
 	public String countryCode;
-	public String postalCode;
-	public String state;
-	public String stateDistrict;
+	public String region;
 	public String county;
 	public String municipality;
 	public String locality;
 	public String borough;
 	public String neighbourhood;
+	public String postalCode;
 	public String street;
 	public String name;
 	public String houseNumber;

@@ -97,9 +97,8 @@ public class PhotonGeocoder extends AbstractGeocoder {
 
 			String country = props.optString("country");
 			String state = props.optString("state");
-			String state_district = null;
 			String postal_code = props.optString("postcode");
-			String city = props.optString("city");
+			String locality = props.optString("city");
 			String street = props.optString("street");
 			String house_number = props.optString("housenumber");
 			String name = props.optString("name");
@@ -109,17 +108,19 @@ public class PhotonGeocoder extends AbstractGeocoder {
 			{
 				String osm_key = props.optString("osm_key");
 				if (osm_value.equals("district"))
-					state_district = osm_key;
+				{
+					//state_district = osm_key;
+				}
 				else if (osm_value.equals("state") && osm_key.equals("place"))
 					state = name;
 			}
 
-			if (state != null || city != null || street != null) {
+			if (state != null || locality != null || street != null) {
 				GeocodingResult gr = new GeocodingResult();
-				gr.locality = city;
+				gr.locality = locality;
 				gr.country = country;
-				gr.state = state;
-				gr.stateDistrict = state_district;
+				gr.region = state;
+				//gr.stateDistrict = state_district;
 				gr.postalCode = postal_code;
 				gr.street = street;
 				gr.name = house;

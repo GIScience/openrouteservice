@@ -3,13 +3,10 @@ package heigit.ors.services.geocoding;
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 
-import java.net.URLEncoder;
-
 import org.junit.Test;
 
 import heigit.ors.services.common.EndPointAnnotation;
 import heigit.ors.services.common.ServiceTest;
-import junit.framework.Assert;
 
 @EndPointAnnotation(name="geocode")
 public class ParametersValidationTest extends ServiceTest {

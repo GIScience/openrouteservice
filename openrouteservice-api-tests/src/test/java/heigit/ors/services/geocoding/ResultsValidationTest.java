@@ -2,8 +2,6 @@ package heigit.ors.services.geocoding;
 
 import static io.restassured.RestAssured.*;
 
-import java.net.URLEncoder;
-
 import org.junit.Test;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -48,7 +46,7 @@ public class ResultsValidationTest extends ServiceTest {
         JSONObject jAddrProperties = jAddress.getJSONObject("properties");
         Assert.assertEquals(jAddrProperties.get("country"), "Germany");
         Assert.assertEquals(jAddrProperties.get("county"), "Karlsruhe");
-        Assert.assertEquals(jAddrProperties.get("state"), "Baden-Württemberg");
+        Assert.assertEquals(jAddrProperties.get("region"), "Baden-Württemberg");
         Assert.assertEquals(jAddrProperties.get("locality"), "Heidelberg");
         Assert.assertEquals(jAddrProperties.get("name"), "Ruprecht-Karls-Universität");
         Assert.assertEquals(jAddrProperties.get("distance"), 4.34);

@@ -96,22 +96,22 @@ public class NominatimGeocoder extends AbstractGeocoder {
 				String country_code = getJSONValue(addressObj, "country_code");
 				String country = getJSONValue(addressObj, "country");
 				String county = getJSONValue(addressObj, "county");
-				String state = getJSONValue(addressObj, "state");
+				String region = getJSONValue(addressObj, "state");
 				String state_district = getJSONValue(addressObj, "state_district");
 				// String boundary = null;
 				// if(address.containsKey("boundary")){ boundary =
 				// address.get("boundary").toString(); }
 				String postal_code = getJSONValue(addressObj, "postcode");
-				String city = getJSONValue(addressObj, "city");
+				String locality = getJSONValue(addressObj, "city");
 				
-				if (Helper.isEmpty(city)) {
-					city = getJSONValue(addressObj, "town");
+				if (Helper.isEmpty(locality)) {
+					locality = getJSONValue(addressObj, "town");
 				}
-				if (Helper.isEmpty(city)) {
-					city = getJSONValue(addressObj, "village");
+				if (Helper.isEmpty(locality)) {
+					locality = getJSONValue(addressObj, "village");
 				}
-				if (Helper.isEmpty(city)) {
-					city = getJSONValue(addressObj, "hamlet");
+				if (Helper.isEmpty(locality)) {
+					locality = getJSONValue(addressObj, "hamlet");
 				} 
 				//String suburb = getJSONValue(addressObj, "suburb");
 				String road = getJSONValue(addressObj, "road");
@@ -146,14 +146,14 @@ public class NominatimGeocoder extends AbstractGeocoder {
 				}
 				// Only return the address, if a city or street name
 				// is available
-				if (country != null || state != null || state_district != null || city != null || road != null) {
+				if (country != null || region != null || state_district != null || locality != null || road != null) {
 					GeocodingResult gr = new GeocodingResult();
-					gr.locality = city;
+					gr.locality = locality;
 					gr.country = country;
 					gr.countryCode = country_code;
 					gr.county = county;
-					gr.state = state;
-					gr.stateDistrict = state_district;
+					gr.region = region;
+					//gr.stateDistrict = state_district;
 					gr.postalCode = postal_code;
 					gr.street = road;
 					gr.name = house;
@@ -240,8 +240,8 @@ public class NominatimGeocoder extends AbstractGeocoder {
 		gr.country = getJSONValue(address, "country");
 		gr.postalCode = getJSONValue(address, "postcode");
 		gr.county = getJSONValue(address, "county");
-		gr.state = getJSONValue(address, "state");
-		gr.stateDistrict = getJSONValue(address, "state_district");
+		gr.region = getJSONValue(address, "state");
+		//gr.stateDistrict = getJSONValue(address, "state_district");
 		//String boundary = getJSONValue(address, "boundary");
 		gr.locality = getJSONValue(address, "city");
 

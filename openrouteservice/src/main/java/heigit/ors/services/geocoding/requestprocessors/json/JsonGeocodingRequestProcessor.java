@@ -289,15 +289,12 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 			if (!Helper.isEmpty(gr.county))
 				properties.put("county", gr.county);
 
+			if (!Helper.isEmpty(gr.region))
+				properties.put("region", gr.region);
+			
 			if (!Helper.isEmpty(gr.municipality))
 				properties.put("municipality", gr.municipality);
 
-			if (!Helper.isEmpty(gr.state))
-				properties.put("state", gr.state);
-
-			if (!Helper.isEmpty(gr.stateDistrict))
-				properties.put("state_district", gr.stateDistrict);
-			
 			if (!Helper.isEmpty(gr.locality))
 				properties.put("locality", gr.locality);
 

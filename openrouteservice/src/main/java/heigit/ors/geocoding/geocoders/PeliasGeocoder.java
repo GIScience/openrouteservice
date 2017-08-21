@@ -216,16 +216,16 @@ public class PeliasGeocoder extends AbstractGeocoder
 			JSONObject props = feature.getJSONObject("properties");
 
 			String country = props.optString("country"); // places that issue passports, nations, nation-states
-			String state = props.optString("region");   //states and provinces
+			String region = props.optString("region");   //states and provinces
 			String county = props.optString("county"); // official governmental area; usually bigger than a locality, almost always smaller than a region
 			String municipality = props.optString("localadmin");  // localadmin 	local administrative boundaries
 			String street = props.optString("street");
 			String locality = props.optString("locality");
 
-			if (!Helper.isEmpty(state) && Helper.isEmpty(county) && props.has("macroregion")) // a related group of regions. Mostly in Europe
+			if (!Helper.isEmpty(region) && Helper.isEmpty(county) && props.has("macroregion")) // a related group of regions. Mostly in Europe
 			{
-				county = state;
-				state = props.optString("macroregion");
+				county = region;
+				region = props.optString("macroregion");
 			}
 
 			if (locality != null && locality.equals(county))
@@ -233,15 +233,14 @@ public class PeliasGeocoder extends AbstractGeocoder
 
 			float accuracy = (float)props.getDouble("confidence");
 
-			if (state != null || county != null || locality != null || street != null)
+			if (region != null || county != null || locality != null || street != null)
 			{
 				GeocodingResult gr = new GeocodingResult();
 				gr.locality = locality;
 				gr.municipality = municipality;
 				gr.country = country;
 				gr.countryCode = LocaleUtility.getISO2CountryFromISO3(props.optString("country_a"));
-				gr.state = state;
-				//gr.stateDistrict = state_district;
+				gr.region = region;
 				gr.county = county;
 				gr.postalCode = props.optString("postalcode");
 				gr.street = street;
