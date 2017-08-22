@@ -3,11 +3,14 @@ package heigit.ors.services.routing;
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
 import heigit.ors.services.common.EndPointAnnotation;
 import heigit.ors.services.common.ServiceTest;
+import io.restassured.response.Response;
+import junit.framework.Assert;
 
 @EndPointAnnotation(name = "routes")
 public class ResultTest extends ServiceTest {
@@ -227,9 +230,70 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].extras.surface.values.size()", is(35))
 				.body("routes[0].extras.surface.values[34][1]", is(533))
 				.body("routes[0].extras.suitability.values[30][0]", is(452))
-				.body("routes[0].extras.steepness.values[11][1]", is(346))
+				.body("routes[0].extras.steepness.values[11][1]", is(362))
 
 				.statusCode(200);
+	}
+	
+	@Test
+	public void testExtrasConsistency() {
+
+		Response response = given()
+				.param("coordinates", getParameter("coordinatesLong"))
+				.param("instructions", "true")
+				.param("preference", getParameter("preference"))
+				.param("profile", getParameter("bikeProfile"))
+				.param("extra_info", "surface|suitability|avgspeed|steepness")
+				.when()
+				.get(getEndPointName());
+		
+		Assert.assertEquals(response.getStatusCode(), 200);
+        JSONObject jResponse = new JSONObject(response.body().asString());
+        
+        JSONObject jRoute = (jResponse.getJSONArray("routes")).getJSONObject(0);
+        double routeDistance = jRoute.getJSONObject("summary").getDouble("distance");
+        JSONObject jExtras = (jResponse.getJSONArray("routes")).getJSONObject(0).getJSONObject("extras");
+        
+        JSONArray jExtraNames = jExtras.names();
+        for(int i = 0; i < jExtraNames.length(); i++)
+        {
+        	String name = jExtraNames.getString(i);
+        	JSONArray jExtraValues = jExtras.getJSONObject(name).getJSONArray("values");
+
+        	JSONArray jValues = jExtraValues.getJSONArray(0);
+        	int fromValue = jValues.getInt(0);
+        	int toValue = jValues.getInt(1);
+        	Assert.assertEquals(fromValue < toValue, true);
+        	
+        	for(int j = 1; j < jExtraNames.length(); j++)
+        	{
+        		jValues = jExtraValues.getJSONArray(j);
+        		int fromValue1 = jValues.getInt(0);
+        		int toValue1 = jValues.getInt(1);
+            	
+            	Assert.assertEquals(fromValue1 < toValue1, true);
+            	Assert.assertEquals(fromValue1 == toValue, true);
+            	
+            	fromValue = fromValue1;
+            	toValue = toValue1;
+        	}
+        	
+        	
+        	JSONArray jSummary = jExtras.getJSONObject(name).getJSONArray("summary");
+    		double distance = 0.0;
+    		double amount = 0.0;
+        	
+        	for(int j = 0; j < jSummary.length(); j++)
+        	{
+        		JSONObject jSummaryValues = jSummary.getJSONObject(j);
+        		distance += jSummaryValues.getDouble("distance");
+        		amount += jSummaryValues.getDouble("amount");
+        	}
+        	
+       		Assert.assertEquals(Math.abs(routeDistance - distance) < 0.5, true);
+        	
+        	Assert.assertEquals(Math.abs(amount - 100.0) < 0.1, true);
+        }
 	}
 
 	@Test

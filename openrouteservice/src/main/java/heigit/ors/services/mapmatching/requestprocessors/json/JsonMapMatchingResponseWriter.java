@@ -264,7 +264,7 @@ public class JsonMapMatchingResponseWriter {
 
 							// ---------- summary ---------- 
 
-							List<ExtraSummaryItem> summaryItems = extraInfo.getSummary(request.getUnits(), true);
+							List<ExtraSummaryItem> summaryItems = extraInfo.getSummary(request.getUnits(), rSummary.getDistance(), true);
 
 							if (summaryItems.size() > 0)
 							{

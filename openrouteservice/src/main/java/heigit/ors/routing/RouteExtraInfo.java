@@ -53,7 +53,7 @@ public class RouteExtraInfo
 		return _segments;
 	}
 	
-	public List<ExtraSummaryItem> getSummary(DistanceUnit units, boolean sort) throws Exception
+	public List<ExtraSummaryItem> getSummary(DistanceUnit units, double routeDistance, boolean sort) throws Exception
 	{
 		List<ExtraSummaryItem> summary = new ArrayList<ExtraSummaryItem>();
 		
@@ -65,18 +65,19 @@ public class RouteExtraInfo
 
 			double totalDist = 0.0;
 
-			Map<Integer, Double> stats = new HashMap<Integer, Double>();
+			Map<Double, Double> stats = new HashMap<Double, Double>();
 			
 			for (RouteSegmentItem seg : _segments) 
 			{
-				Double value = stats.get(seg.getValue());
+				Double scaledValue = seg.getValue()/_factor;
+				Double value = stats.get(scaledValue);
 				
 				if (value == null)
-					stats.put(seg.getValue(), seg.getDistance());
+					stats.put(scaledValue, seg.getDistance());
 				else
 				{
 					value += seg.getDistance();
-					stats.put(seg.getValue(), value);
+					stats.put(scaledValue, value);
 				}
 				 
 				totalDist += seg.getDistance();
@@ -85,13 +86,16 @@ public class RouteExtraInfo
 			if (totalDist != 0.0)
 			{
 				int unitDecimals = FormatUtility.getUnitDecimals(units);
+				// Some extras such as steepness might provide inconsistent distance values caused by multiple rounding. 
+				// Therefore, we try to scale distance so that their sum equals to the whole distance of a route  
+				double distScale = totalDist/routeDistance;
 				
-				for (Map.Entry<Integer, Double> entry : stats.entrySet())
+				for (Map.Entry<Double, Double> entry : stats.entrySet())
 				{
-					Double value = entry.getValue()/_factor;
+					double scaledValue = entry.getValue()/distScale;
 					ExtraSummaryItem esi = new ExtraSummaryItem(entry.getKey(),
-							FormatUtility.roundToDecimals(DistanceUnitUtil.convert(value, DistanceUnit.Meters, units), unitDecimals),
-							FormatUtility.roundToDecimals(value * 100.0 / totalDist, 2)
+							FormatUtility.roundToDecimals(DistanceUnitUtil.convert(scaledValue, DistanceUnit.Meters, units), unitDecimals),
+							FormatUtility.roundToDecimals(scaledValue * 100.0 / routeDistance, 2)
 							);
 					
 					summary.add(esi);

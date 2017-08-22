@@ -12,18 +12,18 @@
 package heigit.ors.routing;
 
 public class ExtraSummaryItem {
-   private int value;
+   private double value;
    private double distance;
    private double amount;
    
-   public ExtraSummaryItem(int value, double distance, double amount)
+   public ExtraSummaryItem(double value, double distance, double amount)
    {
 	   this.value = value;
 	   this.distance = distance;
 	   this.amount = amount;
    }
    
-   public int getValue()
+   public double getValue()
    {
 	   return value;
    }

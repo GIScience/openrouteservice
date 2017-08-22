@@ -12,7 +12,7 @@
 package heigit.ors.routing.util.extrainfobuilders;
 
 import com.graphhopper.routing.util.SteepnessUtil;
-import com.graphhopper.util.DistanceCalc;
+import com.graphhopper.util.DistanceCalc3D;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PointList;
 
@@ -33,18 +33,17 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder
 	private int _startIndex;
 	private int _pointsCount = 0;
 	private RouteSegmentItem _prevSegmentItem;
-	private DistanceCalc _distCalc;
-	private boolean _lastEdge = false;
+	private DistanceCalc3D _distCalc;
 	
     public SteepnessExtraInfoBuilder(RouteExtraInfo extraInfo) 
     {
 		super(extraInfo);
-		_distCalc = Helper.DIST_EARTH;
+		_distCalc = Helper.DIST_3D;
 	}
 
 	public void addSegment(double value, int valueIndex, PointList geom, double dist, boolean lastEdge)
     {
-       _lastEdge = lastEdge;
+
     }
 	
 	public void addPoints(PointList geom)
@@ -80,7 +79,7 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder
 			
 			_elevDiff = _z1 - _z0;
 			_cumElevation += _elevDiff;
-			double segLength = _distCalc.calcDist(_y0, _x0, _y1, _x1);
+			double segLength = _distCalc.calcDist(_y0, _x0, _z0, _y1, _x1, _z1);
 
 			_prevMinAltitude = _minAltitude;
 			_prevMaxAltitude = _maxAltitude;
@@ -148,7 +147,7 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder
 			}
 			
 			_splitLength += segLength;
-
+			
 			_x0 = _x1;
 			_y0 = _y1;
 			_z0 = _z1;
