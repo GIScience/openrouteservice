@@ -26,6 +26,7 @@ public class GeocodingRequest extends ServiceRequest
 	private SearchBoundary _boundary;
 	private String _queryString;
 	private Address _queryAddress;
+	private float _minimumConfidence = 0.0f;
 	
 	// reverse geocoding parameter
 	private Coordinate _location;
@@ -86,5 +87,13 @@ public class GeocodingRequest extends ServiceRequest
 
 	public void setBoundary(SearchBoundary boundary) {
 		this._boundary = boundary;
+	}
+
+	public float getMinimumConfidence() {
+		return _minimumConfidence;
+	}
+
+	public void setMinimumConfidence(float minimumConfidence) {
+		_minimumConfidence = minimumConfidence;
 	}
 }

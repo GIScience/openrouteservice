@@ -18,7 +18,6 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -37,7 +36,6 @@ import heigit.ors.geocoding.geocoders.Geocoder;
 import heigit.ors.geocoding.geocoders.GeocoderFactory;
 import heigit.ors.geocoding.geocoders.GeocodingErrorCodes;
 import heigit.ors.geocoding.geocoders.GeocodingResult;
-import heigit.ors.geocoding.geocoders.GeocodingUtils;
 import heigit.ors.geocoding.geocoders.RectSearchBoundary;
 import heigit.ors.services.geocoding.requestprocessors.GeocodingRequest;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
@@ -198,7 +196,20 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 					throw new ParameterValueException(GeocodingErrorCodes.INVALID_PARAMETER_VALUE, "boundary_type");
 				}
 			}
-
+			
+			value = _request.getParameter("minimum_confidence");
+			if (!Helper.isEmpty(value))
+			{
+				try
+				{
+					req.setMinimumConfidence(Float.parseFloat(value));
+				}
+				catch(NumberFormatException nfex)
+				{
+					throw new ParameterValueException(GeocodingErrorCodes.INVALID_PARAMETER_FORMAT, "minimum_confidence");
+				}
+			}
+			
 			value = _request.getParameter("id");
 			if (!Helper.isEmpty(value))
 				req.setId(value);
@@ -258,17 +269,15 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 		double maxY = Double.MIN_VALUE;
 
 		Coordinate pos = request.getLocation();
-		DistanceCalc dc = (pos != null) ? new com.graphhopper.util.DistanceCalcEarth() : null;
-
 		int nResults = 0;
 
 		for (int j = 0; j < result.length; j++) 
 		{
 			GeocodingResult gr = result[j];
 
-			if (gr == null)
+			if (gr == null || gr.confidence < request.getMinimumConfidence())
 				continue;
-
+			
 			JSONObject feature = new JSONObject(true);
 			feature.put("type", "Feature");
 
@@ -321,18 +330,13 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 			else if (!Helper.isEmpty(gr.name))
 				properties.put("name", gr.name);
 			
-			if (!Helper.isEmpty(gr.layer))
-				properties.put("layer", gr.layer);
+			if (!Helper.isEmpty(gr.placeType))
+				properties.put("place_type", gr.placeType);
 
 			if (pos != null)
-			{
-				Coordinate loc = request.getLocation();
-				double dist = dc.calcDist(gr.latitude, gr.longitude, loc.y, loc.x);
-				properties.put("distance", FormatUtility.roundToDecimals(dist, 2));
-				properties.put("confidence", GeocodingUtils.getDistanceAccuracyScore(dist)); 
-			}
-			else 
-				properties.put("confidence", FormatUtility.roundToDecimals(gr.accuracy, 2));
+				properties.put("distance", FormatUtility.roundToDecimals(gr.distance, 2));
+
+			properties.put("confidence", FormatUtility.roundToDecimals(gr.confidence, 2));
 
 			feature.put("properties", properties);
 

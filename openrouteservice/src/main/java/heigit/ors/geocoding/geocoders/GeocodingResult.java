@@ -25,10 +25,12 @@ public class GeocodingResult  {
 	public String name;
 	public String houseNumber;
 	public String objectName;
-	public String layer;
+	public String placeType;
 	
 	public double latitude;
 	public double longitude;
 	
-	public float accuracy = 0.5F;
+	public double distance = 0.0;
+	
+	public float confidence = 0.5F;
 }

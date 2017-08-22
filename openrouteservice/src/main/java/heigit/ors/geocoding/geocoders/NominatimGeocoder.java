@@ -260,6 +260,9 @@ public class NominatimGeocoder extends AbstractGeocoder {
 		gr.houseNumber = getJSONValue(address, "house_number");
 		gr.name = getJSONValue(address, "house");
 		gr.objectName = getJSONValue(address, OSM_TAGS);
+		
+		double dist = Helper.DIST_EARTH.calcDist(lat, lon, gr.latitude, gr.longitude);
+		gr.confidence = (float)GeocodingUtils.getDistanceAccuracyScore(dist);
 
 		return new GeocodingResult[] { gr };
 	}

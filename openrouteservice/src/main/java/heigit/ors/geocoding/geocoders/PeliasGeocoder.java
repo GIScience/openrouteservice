@@ -19,6 +19,7 @@ import org.json.JSONObject;
 
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.Helper;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
 import heigit.ors.exceptions.MissingParameterException;
@@ -90,7 +91,7 @@ public class PeliasGeocoder extends AbstractGeocoder
 
 		String respContent = HTTPUtility.getResponse(geocodingURL + reqParams, RESPONSE_TIMEOUT, userAgent);
 		if (!Helper.isEmpty(respContent) && !respContent.equals("[]")) 
-			return getGeocodeResults(respContent, searchBoundary);
+			return getGeocodeResults(respContent, searchBoundary, null);
 		else
 			return null;
 	}
@@ -107,13 +108,13 @@ public class PeliasGeocoder extends AbstractGeocoder
 
 		String respContent = HTTPUtility.getResponse(geocodingURL + reqParams, RESPONSE_TIMEOUT, userAgent);
 		if (!Helper.isEmpty(respContent) && !respContent.equals("[]")) 
-			result = getGeocodeResults(respContent, searchBoundary);
+			result = getGeocodeResults(respContent, searchBoundary, null);
 
 		if (result != null && result.length > 0)
 		{ 
 			// if the result of a request with all layers is quite poor, we try to narrow down the search by specifying layers
 			// Example: http://localhost:8082/openrouteservice-4.2.0/geocode?lang=en&limit=20&query=Hauptwasen,+Balingen
-			if (result[0].accuracy <= 0.75)
+			if (result[0].confidence <= 0.75)
 			{
 				boolean hasNumbers = StringUtility.containsDigit(address);
 
@@ -124,11 +125,11 @@ public class PeliasGeocoder extends AbstractGeocoder
 
 				respContent = HTTPUtility.getResponse(geocodingURL + reqParams + "&layers=" + layers, RESPONSE_TIMEOUT, userAgent, "UTF-8");
 				if (!Helper.isEmpty(respContent) && !respContent.equals("[]")) 
-					result2 = getGeocodeResults(respContent, searchBoundary);
+					result2 = getGeocodeResults(respContent, searchBoundary, null);
 
 				if (result2 != null && result2.length > 0)
 				{
-					if (result[0].accuracy < result2[0].accuracy)
+					if (result[0].confidence < result2[0].confidence)
 					{
 						String locality = result[0].locality;
 						String postalCode = result[0].postalCode;
@@ -190,18 +191,18 @@ public class PeliasGeocoder extends AbstractGeocoder
 		String respContent = HTTPUtility.getResponse(reverseGeocodingURL + reqParams, RESPONSE_TIMEOUT, userAgent);
 
 		if (!Helper.isEmpty(respContent) && !respContent.equals("[]")) 
-			return getGeocodeResults(respContent, null);
+			return getGeocodeResults(respContent, null, new Coordinate(lon, lat));
 		else
 			return null;
 	}
 
-	private GeocodingResult[] getGeocodeResults(String respContent, SearchBoundary searchBoundary)
+	private GeocodingResult[] getGeocodeResults(String respContent, SearchBoundary searchBoundary, Coordinate loc)
 	{
 		JSONObject features = new JSONObject(respContent);
 		JSONArray arr = (JSONArray)features.get("features");
 
 		GeocodingResult[] results = new GeocodingResult[arr.length()];
-
+		int k = 0;
 		for (int j = 0; j < arr.length(); j++) 
 		{
 			JSONObject feature = arr.getJSONObject(j);
@@ -231,11 +232,18 @@ public class PeliasGeocoder extends AbstractGeocoder
 			if (locality != null && locality.equals(county))
 				county = props.optString("macrocounty");
 
-			float accuracy = (float)props.getDouble("confidence");
-
 			if (region != null || county != null || locality != null || street != null)
 			{
 				GeocodingResult gr = new GeocodingResult();
+
+				gr.confidence = (float)props.getDouble("confidence");
+				
+				if (loc != null)
+				{
+					gr.distance = Helper.DIST_EARTH.calcDist(lat, lon, loc.y, loc.x);
+					gr.confidence = (float)GeocodingUtils.getDistanceAccuracyScore(gr.distance);
+				}
+
 				gr.locality = locality;
 				gr.municipality = municipality;
 				gr.country = country;
@@ -250,11 +258,12 @@ public class PeliasGeocoder extends AbstractGeocoder
 				gr.houseNumber = props.optString("housenumber");
 				gr.longitude = lon;
 				gr.latitude = lat;
-				gr.accuracy = accuracy;
-				gr.layer = props.optString("layer");
+				gr.placeType = props.optString("layer");
 
-				results[j] = gr;
+				results[k] = gr;
 			}
+			
+			k++;
 		}
 
 		Arrays.sort(results, new GeocodingResultComparator());

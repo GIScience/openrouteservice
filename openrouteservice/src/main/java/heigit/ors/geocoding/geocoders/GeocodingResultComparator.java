@@ -21,7 +21,7 @@ public class GeocodingResultComparator implements Comparator<GeocodingResult> {
 		if (gr1 != null && gr2 != null)
 		{
 			// compare results with the same accuracy value
-			if (gr1.accuracy == gr2.accuracy)
+			if (gr1.confidence == gr2.confidence)
 			{
 				boolean gr1HasHouseNumber = !Helper.isEmpty(gr1.houseNumber) && !Helper.isEmpty(gr1.street);
 				boolean gr2HasHouseNumber = !Helper.isEmpty(gr2.houseNumber) && !Helper.isEmpty(gr2.street);
@@ -35,7 +35,7 @@ public class GeocodingResultComparator implements Comparator<GeocodingResult> {
 				}
 			}
 			else
-				return Float.compare(gr2.accuracy, gr1.accuracy);
+				return Float.compare(gr2.confidence, gr1.confidence);
 		}
 		
 		return 0;
