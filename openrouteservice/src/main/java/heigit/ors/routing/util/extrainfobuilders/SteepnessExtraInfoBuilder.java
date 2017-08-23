@@ -30,10 +30,10 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder
 	private double _prevMinAltitude, _prevMaxAltitude;
 	private double _splitLength = 0.0;
 	private int _prevGradientCat = 0;
-	private int _startIndex;
 	private int _pointsCount = 0;
 	private RouteSegmentItem _prevSegmentItem;
 	private DistanceCalc3D _distCalc;
+	private boolean _lastEdge;
 	
     public SteepnessExtraInfoBuilder(RouteExtraInfo extraInfo) 
     {
@@ -43,7 +43,7 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder
 
 	public void addSegment(double value, int valueIndex, PointList geom, double dist, boolean lastEdge)
     {
-
+		_lastEdge = lastEdge;
     }
 	
 	public void addPoints(PointList geom)
@@ -52,9 +52,6 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder
 		if (nPoints == 0)
 			return;		
 		
-		if (_prevSegmentItem != null)
-			_startIndex = _prevSegmentItem.getTo();
-
 		int j0 = 0;
 		
 		if (_firstSegment)
@@ -121,22 +118,22 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder
 				if (bApply)
 				{
 					int gradientCat = SteepnessUtil.getCategory(gradient);
-					int iEnd = _startIndex + _pointsCount;
+					int startIndex = _prevSegmentItem != null ? _prevSegmentItem.getTo() : 0;
 
 					if (_prevGradientCat == gradientCat && _prevSegmentItem != null)
 					{
-						_prevSegmentItem.setTo(iEnd);
+						_prevSegmentItem.setTo(_prevSegmentItem.getTo() + _pointsCount);
 						_prevSegmentItem.setDistance(_prevSegmentItem.getDistance() + _splitLength);
 					}
 					else
 					{
-						RouteSegmentItem item = new RouteSegmentItem(_startIndex,  iEnd, gradientCat, _splitLength);
+
+						RouteSegmentItem item = new RouteSegmentItem(startIndex, startIndex + _pointsCount, gradientCat, _splitLength);
 						_extraInfo.add(item);
 						_prevSegmentItem = item;
 					}
 					
 					_pointsCount = 0;
-					_startIndex = iEnd;
 					_prevGradientCat = gradientCat;
 					_minAltitude = Math.min(_z0, _z1);
 					_maxAltitude = Math.max(_z0, _z1);
@@ -155,7 +152,7 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder
 			_pointsCount++;
 		}
 		
-		if (_splitLength > 0)
+		if (_lastEdge && _splitLength > 0)
 		{
 			_elevDiff = _maxAltitude - _minAltitude;
 			if (_extraInfo.isEmpty() && _splitLength < 50 && _elevDiff < SteepnessUtil.ELEVATION_THRESHOLD)
@@ -163,14 +160,18 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder
 			
 			double gradient = (_cumElevation > 0 ? 1: -1)*100*_elevDiff / _splitLength;
 			int gradientCat = SteepnessUtil.getCategory(gradient);
+			
 			if (_prevSegmentItem != null && (_prevGradientCat == gradientCat || _splitLength < 30))
 			{
-				_prevSegmentItem.setTo(_startIndex + _pointsCount);
+				_prevSegmentItem.setTo(_prevSegmentItem.getTo() + _pointsCount);
 			}
 			else
 			{
-				RouteSegmentItem item = new RouteSegmentItem(_startIndex, _startIndex + _pointsCount, gradientCat, _splitLength);
+				int startIndex = _prevSegmentItem != null ? _prevSegmentItem.getTo() : 0;
+				
+				RouteSegmentItem item = new RouteSegmentItem(startIndex, startIndex + _pointsCount, gradientCat, _splitLength);
 				_extraInfo.add(item);
+				
 				_prevSegmentItem = item;
 				_prevGradientCat = gradientCat;
 				_pointsCount = 0;

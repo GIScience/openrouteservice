@@ -152,7 +152,8 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder {
         String highway = way.getTag("highway");
         if ("service".equals(highway)) {
             weightToPrioMap.put(40d, UNCHANGED.getValue());
-        } else if ("track".equals(highway)) {
+        }  else if ("track".equals(highway) || "path".equals(highway) ) // Runge, see http://www.openstreetmap.org/way/157482832 
+        {
             String trackType = way.getTag("tracktype");
             if ("grade1".equals(trackType))
                 weightToPrioMap.put(110d, PREFER.getValue());

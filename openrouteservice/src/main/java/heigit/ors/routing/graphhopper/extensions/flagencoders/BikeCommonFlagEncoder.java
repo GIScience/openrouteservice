@@ -177,7 +177,7 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 		badSurfaceSpeedMap.put("wood", 6);
 
 		Map<String, Integer> highwaySpeeds = new HashMap<String, Integer>();
-		highwaySpeeds.put("living_street", 6);
+		highwaySpeeds.put("living_street", 12);
 		highwaySpeeds.put("steps", PUSHING_SECTION_SPEED / 2);
 
 		final int CYCLEWAY_SPEED = 18;  // Make sure cycleway and path use same speed value, see #634
@@ -414,8 +414,29 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 		// Under certain conditions we need to increase the speed of pushing sections to the speed of a "highway=cycleway"
 		if (way.hasTag("highway", pushingSectionsHighways)
 				&& ((way.hasTag("foot", "yes") && way.hasTag("segregated", "yes"))
-						|| way.hasTag("bicycle", "designated") || way.hasTag("bicycle", "official")))
+						|| way.hasTag("bicycle", "designated") || way.hasTag("bicycle", "official") || way.hasTag("bicycle", "yes")))
 			highwaySpeed = _speedLimitHandler.getSpeed("cycleway");
+
+		// Until now we assumed that the way is no pushing section
+		// Now we check that, but only in case that our speed is bigger compared to the PUSHING_SECTION_SPEED
+		if (speed > PUSHING_SECTION_SPEED
+				&& (way.hasTag("highway", pushingSectionsHighways) || way.hasTag("bicycle", "dismount"))) {
+			if (!way.hasTag("bicycle", intendedValues)) {
+				// Here we set the speed for pushing sections and set speed for steps as even lower:
+				if (way.hasTag("highway", "steps"))
+					speed = PUSHING_SECTION_SPEED / 2;
+				else
+					speed = PUSHING_SECTION_SPEED;
+			} else if (way.hasTag("bicycle", "designated") || way.hasTag("bicycle", "official") || way.hasTag("bicycle", "yes")) {
+				// Here we handle the cases where the OSM tagging results in something similar to "highway=cycleway"
+				speed = _speedLimitHandler.getSpeed("cycleway");
+			} else {
+				speed = PUSHING_SECTION_SPEED;
+			}
+			// Increase speed in case of segregated
+			if (speed <= PUSHING_SECTION_SPEED && way.hasTag("segregated", "yes"))
+				speed = PUSHING_SECTION_SPEED * 2;
+		}
 
 		String s = way.getTag("surface");
 		if (!Helper.isEmpty(s)) {
@@ -459,28 +480,6 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 					speed = _speedLimitHandler.getSpeed("living_street");
 			}
 		}
-
-		// Until now we assumed that the way is no pushing section
-		// Now we check that, but only in case that our speed is bigger compared to the PUSHING_SECTION_SPEED
-		if (speed > PUSHING_SECTION_SPEED
-				&& (way.hasTag("highway", pushingSectionsHighways) || way.hasTag("bicycle", "dismount"))) {
-			if (!way.hasTag("bicycle", intendedValues)) {
-				// Here we set the speed for pushing sections and set speed for steps as even lower:
-				if (way.hasTag("highway", "steps"))
-					speed = PUSHING_SECTION_SPEED / 2;
-				else
-					speed = PUSHING_SECTION_SPEED;
-			} else if (way.hasTag("bicycle", "designated") || way.hasTag("bicycle", "official")) {
-				// Here we handle the cases where the OSM tagging results in something similar to "highway=cycleway"
-				speed = _speedLimitHandler.getSpeed("cycleway");
-			} else {
-				speed = PUSHING_SECTION_SPEED;
-			}
-			// Increase speed in case of segregated
-			if (speed <= PUSHING_SECTION_SPEED && way.hasTag("segregated", "yes"))
-				speed = PUSHING_SECTION_SPEED * 2;
-		}
-
 		return speed;
 	}
 
@@ -618,13 +617,17 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 				weightToPrioMap.put(50d, REACH_DEST.getValue());
 		}
 
-		if (preferHighwayTags.contains(highway) || maxSpeed > 0 && maxSpeed <= 30) {
-			if (maxSpeed < avoidSpeedLimit) {
+		if (preferHighwayTags.contains(highway) || (maxSpeed > 0 && maxSpeed <= 30)) {
+			if (maxSpeed >= avoidSpeedLimit) // Runge
+				weightToPrioMap.put(55d, PriorityCode.REACH_DEST.getValue());
+			else if (maxSpeed >= 50 && avoidSpeedLimit <= 70) // Runge racingbike
+				weightToPrioMap.put(40d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
+			else
 				weightToPrioMap.put(40d, PREFER.getValue());
-				if (way.hasTag("tunnel", intendedValues))
-					weightToPrioMap.put(40d, UNCHANGED.getValue());
-			}
-		} else if (avoidHighwayTags.contains(highway) || maxSpeed >= avoidSpeedLimit && !"track".equals(highway)) {
+
+			if (way.hasTag("tunnel", intendedValues))
+				weightToPrioMap.put(40d, UNCHANGED.getValue());
+		} else if (avoidHighwayTags.contains(highway) || (maxSpeed >= avoidSpeedLimit && !"track".equals(highway))) {
 			Integer value = REACH_DEST.getValue();
 
 			String surface = way.getTag("surface");
@@ -645,7 +648,7 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 			}
 
 			weightToPrioMap.put(50d, value);
-			if (way.hasTag("tunnel", intendedValues))
+			if (way.hasTag("tunnel", intendedValues) || maxSpeed >= avoidSpeedLimit + 10) // Runge
 				weightToPrioMap.put(50d, AVOID_AT_ALL_COSTS.getValue());
 		}
 

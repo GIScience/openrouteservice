@@ -25,13 +25,14 @@ import heigit.ors.routing.traffic.RealTrafficDataProvider;
 
 import com.graphhopper.routing.weighting.DefaultWeightingFactory;
 import com.graphhopper.routing.weighting.FastestWeighting;
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.FootFlagEncoder;
-import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.FootFlagEncoder;
+import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.TurnCostExtension;
@@ -50,22 +51,25 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 		m_turnCostExtensions = new HashMap<Object, TurnCostExtension>();
 	}
 
-	public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph graph, LocationIndex locationIndex, GraphHopperStorage graphStorage) {
-		String weighting = hintsMap.get("weighting_method", "").toLowerCase();
-		if (Helper.isEmpty(weighting))
-			weighting = hintsMap.getWeighting();
+	public Weighting createWeighting(HintsMap hintsMap, TraversalMode tMode, FlagEncoder encoder, Graph graph, LocationIndex locationIndex, GraphHopperStorage graphStorage) {
+		String strWeighting = hintsMap.get("weighting_method", "").toLowerCase();
+		if (Helper.isEmpty(strWeighting))
+			strWeighting = hintsMap.getWeighting();
 
 		Weighting result = null;
 
-		if ("shortest".equalsIgnoreCase(weighting))
+		if ("shortest".equalsIgnoreCase(strWeighting))
 		{
 			result = new ShortestWeighting(encoder); 
 		}
-		else if ("fastest".equalsIgnoreCase(weighting))
+		else if ("fastest".equalsIgnoreCase(strWeighting)) 
 		{
-			result = new FastestWeighting(encoder, hintsMap);
+			if (encoder.supports(PriorityWeighting.class))
+				result = new PriorityWeighting(encoder, hintsMap);
+	         else
+	        	 result = new FastestWeighting(encoder, hintsMap);
 		}
-		else  if ("priority".equalsIgnoreCase(weighting))
+		else  if ("priority".equalsIgnoreCase(strWeighting))
 		{
 			result = new PreferencePriorityWeighting(encoder, hintsMap);
 		} 
@@ -73,12 +77,11 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 		{
 			if (encoder.supports(PriorityWeighting.class))
 			{
-				if ("recommended_pref".equalsIgnoreCase(weighting))
+				if ("recommended_pref".equalsIgnoreCase(strWeighting))
 				{
 					result = new PreferencePriorityWeighting(encoder, hintsMap);
 				}
-				else if ("recommended".equalsIgnoreCase(weighting))
-
+				else if ("recommended".equalsIgnoreCase(strWeighting))
 					result = new OptimizedPriorityWeighting(encoder, hintsMap);
 				else
 					result = new FastestSafeWeighting(encoder, hintsMap);
@@ -93,7 +96,7 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 			result = new TrafficAvoidWeighting(result, encoder, m_trafficDataProvider.getAvoidEdges(graphStorage));
 		}
 
-		if (encoder.supports(TurnWeighting.class) && !(encoder instanceof FootFlagEncoder) && graphStorage != null) {
+		if (encoder.supports(TurnWeighting.class) && !(encoder instanceof FootFlagEncoder) && graphStorage != null && !tMode.equals(TraversalMode.NODE_BASED)) {
 			Path path = Paths.get(graphStorage.getDirectory().getLocation(), "turn_costs");
 			File file = path.toFile();
 			if (file.exists()) {

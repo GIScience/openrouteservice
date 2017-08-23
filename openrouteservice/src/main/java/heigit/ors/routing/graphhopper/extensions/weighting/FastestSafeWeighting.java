@@ -32,7 +32,7 @@ public class FastestSafeWeighting extends FastestWeighting {
 		if (Double.isInfinite(weight))
 			return Double.POSITIVE_INFINITY;
 
-		double priority = getFlagEncoder().getDouble(edgeState.getFlags(), KEY);
+		double priority = flagEncoder.getDouble(edgeState.getFlags(), KEY);
 
 		if (priority <= THRESHOLD_AVOID_AT_ALL_COSTS)
 			weight *= 2;
