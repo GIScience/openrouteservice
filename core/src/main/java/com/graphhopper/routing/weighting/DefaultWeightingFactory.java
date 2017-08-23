@@ -3,6 +3,7 @@ package com.graphhopper.routing.weighting;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphEdgeIdFinder;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -12,7 +13,7 @@ import com.graphhopper.util.Parameters.Routing;
 
 public class DefaultWeightingFactory implements WeightingFactory {
 	
-	public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph gh, LocationIndex locationIndex, GraphHopperStorage graphStorage)
+	public Weighting createWeighting(HintsMap hintsMap, TraversalMode tMode, FlagEncoder encoder, Graph gh, LocationIndex locationIndex, GraphHopperStorage graphStorage)
     {
         String weightingStr = hintsMap.getWeighting().toLowerCase();
         Weighting weighting = null;

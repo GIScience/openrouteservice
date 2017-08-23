@@ -816,7 +816,7 @@ public class GraphHopper implements GraphHopperAPI {
             for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
                 for (String chWeightingStr : chFactoryDecorator.getWeightingsAsStrings()) {
                     // ghStorage is null at this point
-                    Weighting weighting = createWeighting(new HintsMap(chWeightingStr), encoder, null);
+                    Weighting weighting = createWeighting(new HintsMap(chWeightingStr), traversalMode, encoder, null);
                     chFactoryDecorator.addWeighting(weighting);
                 }
             }
@@ -833,7 +833,7 @@ public class GraphHopper implements GraphHopperAPI {
 
         for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
             for (String lmWeightingStr : lmFactoryDecorator.getWeightingsAsStrings()) {
-                Weighting weighting = createWeighting(new HintsMap(lmWeightingStr), encoder, null);
+                Weighting weighting = createWeighting(new HintsMap(lmWeightingStr), traversalMode, encoder, null);
                 lmFactoryDecorator.addWeighting(weighting);
             }
         }
@@ -893,8 +893,8 @@ public class GraphHopper implements GraphHopperAPI {
     }
     
     // runge
-    public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph graph) {
-       return createWeighting(hintsMap, encoder, graph, ghStorage);
+    public Weighting createWeighting(HintsMap hintsMap, TraversalMode tMode, FlagEncoder encoder, Graph graph) {
+       return createWeighting(hintsMap, tMode, encoder, graph, ghStorage);
     }
 
     /**
@@ -909,11 +909,11 @@ public class GraphHopper implements GraphHopperAPI {
      * @return the weighting to be used for route calculation
      * @see HintsMap
      */
-    public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph graph,  GraphHopperStorage graphStorage) {
+    public Weighting createWeighting(HintsMap hintsMap, TraversalMode tMode, FlagEncoder encoder, Graph graph,  GraphHopperStorage graphStorage) {
 		// Runge
 		if (weightingFactory != null)
 		{
-			return weightingFactory.createWeighting(hintsMap, encoder, graph, locationIndex, graphStorage);
+			return weightingFactory.createWeighting(hintsMap, tMode, encoder, graph, locationIndex, graphStorage);
 		}
     	
         String weightingStr = hintsMap.getWeighting().toLowerCase();
@@ -1071,7 +1071,7 @@ public class GraphHopper implements GraphHopperAPI {
                     checkNonChMaxWaypointDistance(points);
                     queryGraph = new QueryGraph(ghStorage);
                     queryGraph.lookup(qResults, byteBuffer);
-                    weighting = createWeighting(hints, encoder, queryGraph, ghStorage);
+                    weighting = createWeighting(hints, tMode, encoder, queryGraph, ghStorage);
                     ghRsp.addDebugInfo("tmode:" + tMode.toString());
                 }
 
@@ -1079,7 +1079,7 @@ public class GraphHopper implements GraphHopperAPI {
                 if (maxVisitedNodesForRequest > maxVisitedNodes)
                     throw new IllegalArgumentException("The max_visited_nodes parameter has to be below or equal to:" + maxVisitedNodes);
 
-                weighting = createTurnWeighting(queryGraph, weighting, tMode);
+                //weighting = createTurnWeighting(queryGraph, weighting, tMode); / create 
 
                 AlgorithmOptions algoOpts = AlgorithmOptions.start().
                         algorithm(algoStr).traversalMode(tMode).weighting(weighting).
