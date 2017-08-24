@@ -38,6 +38,7 @@ import heigit.ors.services.routing.requestprocessors.json.JsonRoutingResponseWri
 import heigit.ors.locations.LocationsResult;
 import heigit.ors.locations.LocationsSearchFilter;
 import heigit.ors.routing.RouteResult;
+import heigit.ors.routing.RoutingRequest;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
 import heigit.ors.util.AppInfo;
@@ -58,10 +59,11 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 		switch (_request.getMethod())
 		{
 		case "GET":
-			req = JsonAccessibilityRequestParser.parseFromRequestParams(_request);
-			break;
-		default:
 			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED);
+			//req = JsonAccessibilityRequestParser.parseFromRequestParams(_request);
+		default:
+			req = JsonAccessibilityRequestParser.parseFromStream(_request.getInputStream());
+			break;
 		}
 
 		if (req == null)
@@ -81,6 +83,11 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 
 		if (nResults > 0)
 		{
+			RoutingRequest reqRouting = new RoutingRequest();
+			reqRouting.setIncludeElevation(request.getIncludeElevation());
+			reqRouting.setIncludeGeometry(request.getIncludeGeometry());
+			reqRouting.setGeometryFormat(request.getGeometryFormat());
+			
 			StringBuffer buffer = new StringBuffer();
 
 			List<LocationsResult> locations = result.getLocations();
@@ -214,7 +221,7 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 						}
 						
 						BBox bbox = new BBox(0,0,0,0);
-						JSONArray jRoute = JsonRoutingResponseWriter.toJsonArray(request.getRoutingRequest(), new RouteResult[] { route }, bbox);
+						JSONArray jRoute = JsonRoutingResponseWriter.toJsonArray(reqRouting, new RouteResult[] { route }, bbox);
 						jRouteForLocIndex.put(jRoute.get(0));
 
 						if (minX > bbox.minLon)

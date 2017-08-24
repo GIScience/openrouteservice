@@ -1,12 +1,10 @@
 package heigit.ors.services.isochrones;
 
 import static io.restassured.RestAssured.*;
-//import static io.restassured.matcher.RestAssuredMatchers.*;
 import static org.hamcrest.Matchers.*;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-//import java.util.Arrays;
 import org.junit.Test;
 
 import heigit.ors.services.common.EndPointAnnotation;

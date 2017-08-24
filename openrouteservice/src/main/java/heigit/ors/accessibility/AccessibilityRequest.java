@@ -11,48 +11,45 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.accessibility;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import java.util.ArrayList;
+import java.util.List;
 
-import heigit.ors.common.DistanceUnit;
 import heigit.ors.common.NamedLocation;
 import heigit.ors.common.TravelRangeType;
+import heigit.ors.common.TravellerInfo;
+import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.locations.LocationsRequest;
-import heigit.ors.routing.RoutingRequest;
 import heigit.ors.services.ServiceRequest;
 import heigit.ors.services.accessibility.AccessibilityServiceSettings;
 
 public class AccessibilityRequest extends ServiceRequest
 {
+	private List<TravellerInfo> _travellers;
+
     // Destination points specified either by a user defined locations or by POI search filter
 	private LocationsRequest _locationsRequest;
 	private NamedLocation[] _userLocations;
     // common parameters for all locations
 	private String _routesFormat = "detailed";
-	private DistanceUnit _units = DistanceUnit.Meters;
+	private String _units = "m";
 	private int _limit = 5;
-    // location specific parameters
-	private RoutingRequest _routingRequest;
-	// Starting points of accessibility analysis
-	private Coordinate[] _locations;
-	private String _locationType = "start"; // either start or destination
-	private double _range;
-	private TravelRangeType _rangeType = TravelRangeType.Time;
-	
-	
+	private boolean _includeElevation = false;
+	private boolean _includeGeometry = false;
+	private String _geometryFormat = "encodedpolyline";
+
 	public AccessibilityRequest()
 	{
-		_locationsRequest = new LocationsRequest();
-		_routingRequest = new RoutingRequest();
+		_travellers = new ArrayList<TravellerInfo>();
 	}
 	
-	public RoutingRequest getRoutingRequest()
-	{
-		return _routingRequest;
-	}
-
 	public LocationsRequest getLocationsRequest()
 	{
 		return _locationsRequest;
+	}
+
+	public void setLocationsRequest(LocationsRequest locRequest)
+	{
+		_locationsRequest = locRequest;
 	}
 
 	public int getLimit() {
@@ -61,40 +58,9 @@ public class AccessibilityRequest extends ServiceRequest
 
 	public void setLimit(int limit) {
 		_limit = Math.min(limit, AccessibilityServiceSettings.getResponseLimit());
-		_locationsRequest.setLimit(_limit);
-	}
-
-	public String getLocationType() {
-		return _locationType;
-	}
-
-	public void setLocationType(String locationType) {
-		_locationType = locationType;
-	}
-
-	public double getRange() {
-		return _range;
-	}
-
-	public void setRange(double range) {
-		_range = range;
-	}
-
-	public TravelRangeType getRangeType() {
-		return _rangeType;
-	}
-
-	public void setRangeType(TravelRangeType rangeType) {
-		_rangeType = rangeType;
-	}
-
-	public Coordinate[] getLocations() {
-		return _locations;
-	}
-
-	public void setLocations(Coordinate[] locations) {
-		_locations = locations;
-		_routingRequest.setCoordinates(locations);
+		
+		if (_locationsRequest != null)
+			_locationsRequest.setLimit(_limit);
 	}
 
 	public String getRoutesFormat() {
@@ -113,11 +79,85 @@ public class AccessibilityRequest extends ServiceRequest
 		_userLocations = userLocations;
 	}
 
-	public DistanceUnit getUnits() {
+	public String getUnits() {
 		return _units;
 	}
 
-	public void setUnits(DistanceUnit _units) {
-		this._units = _units;
+	public void setUnits(String units) {
+		_units = units;
+	}
+
+	public List<TravellerInfo> getTravellers() {
+		return _travellers;
+	}
+
+	public void addTraveller(TravellerInfo travellerInfo) {
+		_travellers.add(travellerInfo);
+	}
+
+	public boolean getIncludeElevation() {
+		return _includeElevation;
+	}
+
+	public void setIncludeElevation(boolean includeElevation) {
+		_includeElevation = includeElevation;
+	}
+
+	public boolean getIncludeGeometry() {
+		return _includeGeometry;
+	}
+
+	public void setIncludeGeometry(boolean includeGeometry) {
+		_includeGeometry = includeGeometry;
+	}
+
+	public String getGeometryFormat() {
+		return _geometryFormat;
+	}
+
+	public void setGeometryFormat(String geometryFormat) {
+		_geometryFormat = geometryFormat;
+	}
+	
+	public IsochroneSearchParameters getIsochroneSearchParameters(int travellerIndex)
+	{
+		TravellerInfo traveller = _travellers.get(travellerIndex);
+		double[] ranges = traveller.getRanges();
+
+		// convert ranges in units to meters or seconds
+		if (!(_units == null || "m".equalsIgnoreCase(_units)))
+		{
+			double scale = 1.0;
+			if (traveller.getRangeType() == TravelRangeType.Distance)
+			{
+				switch(_units)
+				{
+				case "m":
+					break;
+				case "km":
+					scale = 1000;
+					break;
+				case "mi":
+					scale = 1609.34;
+					break;
+				}
+			}
+
+			if (scale != 1.0)
+			{
+				for (int i = 0; i < ranges.length; i++)
+					ranges[i] = ranges[i]*scale;
+			}
+		}
+
+		IsochroneSearchParameters parameters = new IsochroneSearchParameters(travellerIndex, traveller.getLocation(), ranges);
+		parameters.setLocation(traveller.getLocation());
+		parameters.setRangeType(traveller.getRangeType() );
+		parameters.setCalcMethod("default");
+		parameters.setRouteParameters(traveller.getRouteSearchParameters());
+		if ("destination".equalsIgnoreCase(traveller.getLocationType()))
+			parameters.setReverseDirection(true);
+
+		return parameters;
 	}
 }

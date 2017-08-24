@@ -21,10 +21,10 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 import heigit.ors.common.NamedLocation;
+import heigit.ors.common.TravellerInfo;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.isochrones.IsochroneMapCollection;
-import heigit.ors.isochrones.IsochroneRequest;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.locations.LocationsRequest;
 import heigit.ors.locations.LocationsResult;
@@ -39,26 +39,17 @@ import heigit.ors.util.GeomUtility;
 public class AccessibilityAnalyzer 
 {
 	public static AccessibilityResult computeAccessibility(AccessibilityRequest req) throws IOException, Exception
-	{/*
+	{
 		try
 		{
 			AccessibilityResult accesibilityResult = new AccessibilityResult();
 
 			// Phase I: compute isochrone that includes all possible POIs or user-defined locations.
-			IsochroneRequest reqIsochrone = new IsochroneRequest();
-			reqIsochrone.setLocationType(req.getLocationType());
-			reqIsochrone.setLocations(req.getLocations());
-			reqIsochrone.setRangeType(req.getRangeType());
-			reqIsochrone.setRanges(new double[] {req.getRange()});
-			reqIsochrone.setRouteSearchParameters(req.getRoutingRequest().getSearchParameters());
-
 			IsochroneMapCollection isoMaps = new IsochroneMapCollection();
 
-			IsochroneSearchParameters searchParams = reqIsochrone.getSearchParameters(req.getLocations()[0]);
-			searchParams.setRouteParameters(reqIsochrone.getRouteSearchParameters());
-
-			for (int i = 0;i < req.getLocations().length; ++i){
-				searchParams.setLocation(req.getLocations()[i]);
+			List<TravellerInfo> travellers = req.getTravellers();
+			for (int i = 0;i < travellers.size(); ++i){
+				IsochroneSearchParameters searchParams =  req.getIsochroneSearchParameters(i);
 				IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams);
 				isoMaps.add(isochroneMap);
 			}
@@ -134,18 +125,18 @@ public class AccessibilityAnalyzer
 					// Phase III: compute routes from start point to all found places
 					if (arrDestLocations != null)
 					{
-						List<RouteResult> routes = new ArrayList<RouteResult>(2*req.getLocations().length);
+						List<RouteResult> routes = new ArrayList<RouteResult>(2*req.getTravellers().size());
 						
-						RoutingRequest reqRouting = req.getRoutingRequest();
-						reqRouting.setCoordinates(arrDestLocations);
-
-						for (int j = 0; j < req.getLocations().length; j++)
+						for (int j = 0; j < req.getTravellers().size(); j++)
 						{
-							arrDestLocations[0] = req.getLocations()[j];
+							TravellerInfo traveller = req.getTravellers().get(j);
+							arrDestLocations[0] = traveller.getLocation();
+
+							RoutingRequest reqRouting = new RoutingRequest();
 							reqRouting.setCoordinates(arrDestLocations);
 							reqRouting.setLocationIndex(j);
 							
-							List<RouteResult> routesToLocation = RoutingProfileManager.getInstance().computeRoutes(reqRouting, "destination".equalsIgnoreCase(req.getLocationType()), true);
+							List<RouteResult> routesToLocation = RoutingProfileManager.getInstance().computeRoutes(reqRouting, "destination".equalsIgnoreCase(traveller.getLocationType()), true);
 							routes.addAll(routesToLocation);
 						}
 					
@@ -159,7 +150,6 @@ public class AccessibilityAnalyzer
 		catch(Exception ex)
 		{
 			throw new InternalServerException(AccessibilityErrorCodes.UNKNOWN, ex.getMessage());
-		}*/
-		return null;
+		}
 	}
 }

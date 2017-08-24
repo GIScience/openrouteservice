@@ -12,352 +12,207 @@
 package heigit.ors.services.accessibility.requestprocessors.json;
 
 import java.io.InputStream;
-import java.text.ParseException;
 
-import javax.servlet.http.HttpServletRequest;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.graphhopper.util.Helper;
-
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 
 import heigit.ors.accessibility.AccessibilityErrorCodes;
 import heigit.ors.accessibility.AccessibilityRequest;
-import heigit.ors.common.DistanceUnit;
+import heigit.ors.common.NamedLocation;
 import heigit.ors.common.StatusCode;
 import heigit.ors.common.TravelRangeType;
+import heigit.ors.common.TravellerInfo;
 import heigit.ors.exceptions.MissingParameterException;
-import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
-import heigit.ors.localization.LocalizationManager;
-import heigit.ors.locations.LocationDetailsType;
-import heigit.ors.locations.LocationRequestType;
 import heigit.ors.locations.LocationsRequest;
-import heigit.ors.locations.LocationsResultSortType;
-import heigit.ors.locations.LocationsSearchFilter;
-import heigit.ors.routing.RouteExtraInfoFlag;
-import heigit.ors.routing.RouteInstructionsFormat;
-import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.RoutingRequest;
-import heigit.ors.routing.WeightingMethod;
 import heigit.ors.services.accessibility.AccessibilityServiceSettings;
-import heigit.ors.util.ArraysUtility;
-import heigit.ors.util.CoordTools;
-import heigit.ors.util.DistanceUnitUtil;
+import heigit.ors.util.StreamUtility;
 
 public class JsonAccessibilityRequestParser {
 	public static AccessibilityRequest parseFromStream(InputStream stream) throws Exception 
 	{
-		return null;
-	}
-
-	public static AccessibilityRequest parseFromRequestParams(HttpServletRequest request) throws Exception
-	{
+		JSONObject json = null;
+		try {
+			String body = StreamUtility.readStream(stream);
+			json = new JSONObject(body);
+		} catch (Exception ex) {
+			throw new StatusCodeException(StatusCode.BAD_REQUEST, AccessibilityErrorCodes.INVALID_JSON_FORMAT, "Unable to parse JSON document.");
+		}
+		
 		AccessibilityRequest req = new AccessibilityRequest();
-
-		Coordinate[] locations = null;
-
-		String value = request.getParameter("id");
-		if (!Helper.isEmpty(value))
-			req.setId(value);
-
-		// ************ Parsing LocationsRequest parameters ************
-
-		LocationsRequest reqLocations = req.getLocationsRequest();
-		reqLocations.setType(LocationRequestType.POIS);
-
-		LocationsSearchFilter query = reqLocations.getSearchFilter();
-
-		value = request.getParameter("category_group_ids");
-		if (!Helper.isEmpty(value))
-			query.setCategoryGroupIds(ArraysUtility.parseIntArray(value, "category_group_ids", AccessibilityErrorCodes.INVALID_PARAMETER_FORMAT));
-		else
+		
+		String value = null;
+		
+		if (json.has("places"))
 		{
-			value = request.getParameter("category_ids");
-			if (!Helper.isEmpty(value))
-				query.setCategoryIds(ArraysUtility.parseIntArray(value, "category_ids", AccessibilityErrorCodes.INVALID_PARAMETER_FORMAT));
-		}
-
-		if (query.getCategoryGroupIds() == null && query.getCategoryIds() == null)
-			throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "category_ids/category_group_ids");
-
-		value = request.getParameter("name");
-		if (!Helper.isEmpty(value))
-			query.setName(value);
-
-		value = request.getParameter("wheelchair");
-		if (!Helper.isEmpty(value))
-			query.setWheelchair(value);
-
-		value = request.getParameter("smoking");
-		if (!Helper.isEmpty(value))
-			query.setSmoking(value);
-
-		value = request.getParameter("fee");
-		if (!Helper.isEmpty(value))
-			query.setFee(parseBooleanFlag(value));
-
-		reqLocations.setLanguage(request.getParameter("lang"));
-
-		value = request.getParameter("bbox");
-		if (!Helper.isEmpty(value))
-		{
-			String[] coords = value.split(",");
-			if (coords == null || coords.length != 4)
-				throw new StatusCodeException(StatusCode.BAD_REQUEST, AccessibilityErrorCodes.INVALID_PARAMETER_FORMAT, "BBox parameter is either empty or has wrong number of values.");
-
-			Envelope bbox = null;
-			try
+			JSONObject jPlaces = json.getJSONObject("places");
+			
+			if (jPlaces.has("pois"))
 			{
-				bbox = new Envelope(Double.parseDouble(coords[0]),  Double.parseDouble(coords[2]), Double.parseDouble(coords[1]), Double.parseDouble(coords[3]));
+				JSONObject jPoiSearch = jPlaces.getJSONObject("pois");
+				LocationsRequest locRequest = parseLocationRequest(jPoiSearch);
+				
+                req.setLocationsRequest(locRequest);
 			}
-			catch(NumberFormatException ex)
+			else if (jPlaces.has("custom"))
 			{
-				throw new StatusCodeException(StatusCode.BAD_REQUEST, AccessibilityErrorCodes.INVALID_PARAMETER_FORMAT, "Unable to parse bbox value.");
+				JSONObject jCustomPoints = jPlaces.getJSONObject("custom");
+				NamedLocation[] userLocations = parsedUserPoints(jCustomPoints);
+				
+				if (userLocations.length == 0)
+					throw new MissingParameterException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "places->custom is empty.");
+				
+				req.setUserLocations(userLocations);
 			}
-
-			reqLocations.setBBox(bbox);
-		}
-
-		// skip radius as it is overwritten by range property in AccessibilityRequest
-		/*value = request.getParameter("radius");
-		if (!Helper.isEmpty(value))
-		{
-			double dvalue = Double.parseDouble(value);
-			checkSearchRadius(reqLocations.getGeometry(), dvalue);
-			reqLocations.setRadius(dvalue);
-		}
-		 */
-
-		value = request.getParameter("limit");
-		if (!Helper.isEmpty(value))
-		{
-			int ivalue = Integer.parseInt(value);
-			if (AccessibilityServiceSettings.getResponseLimit() > 0 && AccessibilityServiceSettings.getResponseLimit() < ivalue)
-				throw new ParameterOutOfRangeException(AccessibilityErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "limit", value, Integer.toString(AccessibilityServiceSettings.getResponseLimit()));
-
-			req.setLimit(ivalue);
-		}
-
-		value = request.getParameter("sortby");
-		if (!Helper.isEmpty(value))
-		{
-			LocationsResultSortType sortType = LocationsResultSortType.fromString(value);
-			if (sortType == LocationsResultSortType.NONE)
-				throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "sortby", value);
-
-			reqLocations.setSortType(sortType);
-		}
-
-		value = request.getParameter("details");
-		if (!Helper.isEmpty(value))
-		{
-			int detailsType = LocationDetailsType.fromString(value);
-
-			if (detailsType == LocationDetailsType.NONE)
-				throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "details", value);
-
-			reqLocations.setDetails(detailsType);
-		}
-
-		// ************ Parsing RoutingRequest parameters ************
-		RoutingRequest reqRouting = req.getRoutingRequest();
-
-		RouteSearchParameters searchParams = reqRouting.getSearchParameters();
-
-		value = request.getParameter("profile");
-		if (!Helper.isEmpty(value))
-		{
-			int profileType = RoutingProfileType.getFromString(value);
-
-			if (profileType == RoutingProfileType.UNKNOWN)
-				throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "profile", value);
-			searchParams.setProfileType(profileType);
+			else
+				throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "pois/custom");
 		}
 		else
-			throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "profile");
-
-		value = request.getParameter("preference");
-		if (!Helper.isEmpty(value))
+			throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "travellers");
+		
+		if (json.has("travellers"))
 		{
-			int weightingMethod = WeightingMethod.getFromString(value);
-			if (weightingMethod == WeightingMethod.UNKNOWN)
-				throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "preference", value);
-
-			searchParams.setWeightingMethod(weightingMethod);
-		}
-
-		value = request.getParameter("units");
-		if (!Helper.isEmpty(value))
-		{
-			DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.Unknown);
+			JSONArray jTravellers = json.getJSONArray("travellers");
 			
-			if (units == DistanceUnit.Unknown)
-				throw new ParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "units");
+			if (jTravellers.length() == 0)
+				throw new MissingParameterException(AccessibilityErrorCodes.INVALID_JSON_FORMAT, "'travellers' array is empty.");
 			
-			reqRouting.setUnits(units);
-		}
+			for (int j = 0; j < jTravellers.length(); ++j)
+			{
+				JSONObject jTraveller = jTravellers.getJSONObject(j);
+				
+				TravellerInfo travellerInfo = new TravellerInfo();
+				
+				value = jTraveller.optString("profile");
+				if (!Helper.isEmpty(value))
+				{
+					int profileType = RoutingProfileType.getFromString(value);
+					if (profileType == RoutingProfileType.UNKNOWN)
+						throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "profile", value);
+					travellerInfo.getRouteSearchParameters().setProfileType(profileType);
+				}
+				else
+				{
+					throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "profile");
+				}
+				
+				if (jTraveller.has("location"))
+				{
+					try
+					{
+						JSONArray jLocation = jTraveller.getJSONArray("location");
+						travellerInfo.setLocation(new Coordinate(jLocation.getDouble(0), jLocation.getDouble(1)));						
+					}
+					catch(Exception nfex)
+					{
+						throw new ParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_FORMAT, "location");
+					}
+				}
+				else
+				{
+					throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "location");
+				}
 
+				value = jTraveller.optString("location_type");
+				if (!Helper.isEmpty(value))
+				{
+					if (!"start".equalsIgnoreCase(value) && !"destination".equalsIgnoreCase(value))
+						throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "location_type", value);
+
+					travellerInfo.setLocationType(value);
+				}
+				
+				value = json.optString("range");
+				if (!Helper.isEmpty(value))
+				{
+					try
+					{
+						double range = Double.parseDouble(value);
+						travellerInfo.setRanges(new double[] { range });
+					}
+					catch(NumberFormatException ex)
+					{
+						throw new ParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_FORMAT, "range");
+					}
+				}
+				else
+					throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "range");
+				
+				value = jTraveller.optString("range_type");
+				if (!Helper.isEmpty(value))
+				{
+					switch (value.toLowerCase())
+					{
+					case "distance":
+						travellerInfo.setRangeType(TravelRangeType.Distance);
+						break;
+					case "time":
+						travellerInfo.setRangeType(TravelRangeType.Time);
+						break;
+					default:
+						throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "range_type", value);
+					}
+				}
+				
+				value = jTraveller.optString("options");
+				if (!Helper.isEmpty(value))
+				{
+					try
+					{
+						travellerInfo.getRouteSearchParameters().setOptions(value);
+					}
+					catch(Exception ex)
+					{
+						throw new ParameterValueException(AccessibilityErrorCodes.INVALID_JSON_FORMAT, "options", value);
+					}
+				}
+				
+				req.addTraveller(travellerInfo);
+			}
+		}
+		else
+			throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "travellers");
+		
 		if (AccessibilityServiceSettings.getRouteDetailsAllowed())
 		{
-			value = request.getParameter("language");
+			value = json.optString("geometry");
 			if (!Helper.isEmpty(value))
-			{
-				if(!LocalizationManager.getInstance().isLanguageSupported(value))
-					throw new StatusCodeException(StatusCode.BAD_REQUEST, AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "Specified language '" +  value + "' is not supported.");
+				req.setIncludeGeometry(Boolean.parseBoolean(value));
 
-				reqRouting.setLanguage(value);
-			}
-
-			value = request.getParameter("geometry");
-			if (!Helper.isEmpty(value))
-				reqRouting.setIncludeGeometry(Boolean.parseBoolean(value));
-
-			value = request.getParameter("geometry_format");
+			value = json.optString("geometry_format");
 			if (!Helper.isEmpty(value))
 			{
 				if (!("geojson".equalsIgnoreCase(value) || "polyline".equalsIgnoreCase(value) || "encodedpolyline".equalsIgnoreCase(value)))
 					throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "geometry_format", value);
 
-				reqRouting.setGeometryFormat(value);
+				req.setGeometryFormat(value);
 			}
-
-			value = request.getParameter("geometry_simplify");
-			if (!Helper.isEmpty(value))
-				reqRouting.setSimplifyGeometry(Boolean.parseBoolean(value));
-
-			value = request.getParameter("instructions");
-			if (!Helper.isEmpty(value))
-				reqRouting.setIncludeInstructions(Boolean.parseBoolean(value));
-
-			value = request.getParameter("maneuvers");
-			if (!Helper.isEmpty(value))
-				reqRouting.setIncludeManeuvers(Boolean.parseBoolean(value));
 			
-			value = request.getParameter("elevation");
+			value = json.optString("elevation");
 			if (!Helper.isEmpty(value))
-				reqRouting.setIncludeElevation(Boolean.parseBoolean(value));
-
-			value = request.getParameter("instructions_format");
-			if (!Helper.isEmpty(value))
-			{
-				RouteInstructionsFormat instrFormat = RouteInstructionsFormat.fromString(value);
-				if (instrFormat == RouteInstructionsFormat.UNKNOWN)
-					throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "instructions_format", value);
-
-				reqRouting.setInstructionsFormat(instrFormat);
-			}
-
-			value = request.getParameter("extra_info");
-			if (!Helper.isEmpty(value))
-				reqRouting.setExtraInfo(RouteExtraInfoFlag.getFromString(value));
-
-			value = request.getParameter("attributes");
-			if (!Helper.isEmpty(value))
-				reqRouting.setAttributes(value.split("\\|"));
-			
-			req.setRoutesFormat(request.getParameter("routes_format"));
+				req.setIncludeElevation(Boolean.parseBoolean(value));
 		}
-		else
-		{
-			reqRouting.setIncludeGeometry(false);
-			reqRouting.setIncludeInstructions(false);
-			req.setRoutesFormat("simple");
-		}
-
-		value = request.getParameter("options");
+		
+		value = json.optString("id");
 		if (!Helper.isEmpty(value))
-		{
-			try
-			{
-				searchParams.setOptions(value);
-			}
-			catch(ParseException ex)
-			{
-				throw new StatusCodeException(StatusCode.BAD_REQUEST, AccessibilityErrorCodes.INVALID_JSON_FORMAT, "Unable to parse 'options' value." + ex.getMessage());
-			}
-			catch(StatusCodeException scex)
-			{
-				throw scex;
-			}
-		}
-
-		// ************ Parsing other search parameters ************
-
-		value = request.getParameter("locations");
-		if (!Helper.isEmpty(value))
-		{
-			try
-			{
-				locations = CoordTools.parse(value, "\\|", false, false);	
-			}
-			catch(NumberFormatException ex)
-			{
-				throw new StatusCodeException(StatusCode.BAD_REQUEST, AccessibilityErrorCodes.INVALID_PARAMETER_FORMAT, "Unable to parse coordinates value.");
-			}
-
-			if (AccessibilityServiceSettings.getMaximumLocations() > 0 && locations.length > AccessibilityServiceSettings.getMaximumLocations())
-				throw new ParameterOutOfRangeException(AccessibilityErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations", Integer.toString(locations.length), Integer.toString(AccessibilityServiceSettings.getMaximumLocations()));
-
-			req.setLocations(locations);
-		}
-		else
-		{
-			throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "locations");
-		}
-
-		value = request.getParameter("location_type");
-		if (!Helper.isEmpty(value))
-		{
-			if (!"start".equalsIgnoreCase(value) && !"destination".equalsIgnoreCase(value))
-				throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "location_type", value);
-
-			req.setLocationType(value);
-		}
-
-		value = request.getParameter("range_type");
-		if (!Helper.isEmpty(value))
-		{
-			switch (value.toLowerCase())
-			{
-			case "distance":
-				req.setRangeType(TravelRangeType.Distance);
-				break;
-			case "time":
-				req.setRangeType(TravelRangeType.Time);
-				break;
-			default:
-				throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "range_type", value);
-			}
-		}
-
-		value = request.getParameter("range");
-		if (!Helper.isEmpty(value))
-		{
-			req.setRange(Double.parseDouble(value));
-
-			if (req.getRange() > AccessibilityServiceSettings.getMaximumRange(req.getRangeType()))
-				throw new ParameterOutOfRangeException(AccessibilityErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(AccessibilityServiceSettings.getMaximumRange(req.getRangeType())), Double.toString(req.getRange()));
-		}
-		else
-			throw new MissingParameterException(AccessibilityErrorCodes.MISSING_PARAMETER, "range");
+			req.setId(value);
 
 		return req;
 	}
-
-	private static Boolean parseBooleanFlag(String value)
+	
+	private static LocationsRequest parseLocationRequest(JSONObject jsonObj)
 	{
-		if (value == null)
-			return null;
-
-		if ("yes".equalsIgnoreCase(value))
-			return true;
-		else if ("no".equalsIgnoreCase(value))
-			return false;
-
+		return null;
+	}
+	
+	private static NamedLocation[] parsedUserPoints(JSONObject jsonObj)
+	{
 		return null;
 	}
 }
