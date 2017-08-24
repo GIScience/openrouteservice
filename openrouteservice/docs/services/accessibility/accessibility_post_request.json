@@ -16,30 +16,29 @@
 		}        
    },
    "travellers":
-   {
-		0:{	 
-			id: "one",
-			profile: "driving-car",
-		    location: [12,32],
-			range: 100,
-			range_type: "time",
-			routing_options: { }
-		  },
-		1:{	 
-			id: "two",
-			profile: "cycling-regular",
-		    location: [14,32.5],
-			range: 100,
-			range_type: "time",
-			routing_options: { }
-		  },
-   }
-   //"routes_format": "detailed";
-   "instructions": "true",
+   [
+	    {
+			"profile": "driving-car",
+			"location": [8.682289,49.386172],
+			"location_type": "start",
+			"range": 300,
+			"range_type": "time",
+			"options": {}
+		},
+		{
+			"profile": "cycling-regular",
+			"location": [8.673362,49.420130],
+			"location_type": "start",
+			"range": 300,
+			"range_type": "time",
+			"options": {}
+		}
+	],
+//   "instructions": "true",
    "elevation": true,
    "geometry_format": "geojson",
    "geometry": "true",
-   "language": "en-us",
+//   "language": "en-us",
    "units": "meters",
    "limit":  10
 }
