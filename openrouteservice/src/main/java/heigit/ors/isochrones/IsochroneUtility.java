@@ -118,7 +118,7 @@ public class IsochroneUtility {
 					{
 						Geometry geomIntersection =  isoGeometry.intersection(isoLine2.getGeometry());
 
-						if (geomIntersection != null)
+						if (geomIntersection != null && geomIntersection.isEmpty() == false)
 						{
 							if (result == null)
 								result = new ArrayList<IsochronesIntersection>();

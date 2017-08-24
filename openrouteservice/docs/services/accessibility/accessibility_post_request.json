@@ -1,0 +1,45 @@
+{
+   "places":
+   {
+	    "pois":
+	    {
+			category_ids: [356],   
+			category_group_ids: [420,620],
+			name: "*rewe",
+			wheelchair: "yes",
+			smoking: "yes",
+			fee: ""
+	    },
+  		"custom":// geojson feature
+		{
+		  
+		}        
+   },
+   "travellers":
+   {
+		0:{	 
+			id: "one",
+			profile: "driving-car",
+		    location: [12,32],
+			range: 100,
+			range_type: "time",
+			routing_options: { }
+		  },
+		1:{	 
+			id: "two",
+			profile: "cycling-regular",
+		    location: [14,32.5],
+			range: 100,
+			range_type: "time",
+			routing_options: { }
+		  },
+   }
+   //"routes_format": "detailed";
+   "instructions": "true",
+   "elevation": true,
+   "geometry_format": "geojson",
+   "geometry": "true",
+   "language": "en-us",
+   "units": "meters",
+   "limit":  10
+}

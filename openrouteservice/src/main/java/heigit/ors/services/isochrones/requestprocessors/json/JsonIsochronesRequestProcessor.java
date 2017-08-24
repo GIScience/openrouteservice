@@ -20,7 +20,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.graphhopper.util.Helper;
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
@@ -34,15 +33,16 @@ import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.services.isochrones.requestprocessors.json.JsonIsochroneRequestParser;
-import heigit.ors.services.isochrones.IsochroneRequest;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.isochrones.IsochroneUtility;
 import heigit.ors.isochrones.IsochronesErrorCodes;
 import heigit.ors.isochrones.IsochronesIntersection;
 import heigit.ors.common.TravelRangeType;
+import heigit.ors.common.TravellerInfo;
 import heigit.ors.isochrones.Isochrone;
 import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.isochrones.IsochroneMapCollection;
+import heigit.ors.isochrones.IsochroneRequest;
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
@@ -68,9 +68,9 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 		case "GET":
 			req = JsonIsochroneRequestParser.parseFromRequestParams(_request);
 			break;
-		///case "POST":  needs to be implemented
-		//	req = JsonIsochroneRequestParser.parseFromStream(_request.getInputStream());  
-		//	break;
+		case "POST":  
+			req = JsonIsochroneRequestParser.parseFromStream(_request.getInputStream());  
+			break;
 		default:
 			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, IsochronesErrorCodes.UNKNOWN);
 		}
@@ -81,32 +81,34 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 		if (!req.isValid())
 			throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.UNKNOWN, "IsochronesRequest is not valid.");
 
+		List<TravellerInfo> travellers = req.getTravellers();
+		 
 		if (IsochronesServiceSettings.getAllowComputeArea() == false && req.hasAttribute("area"))
 			throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.FEATURE_NOT_SUPPORTED, "Area computation is not enabled.");
 
-		if (req.getLocations().length > IsochronesServiceSettings.getMaximumLocations())
-			throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations", Integer.toString(req.getLocations().length), Integer.toString(IsochronesServiceSettings.getMaximumLocations()));
+		if (travellers.size() > IsochronesServiceSettings.getMaximumLocations())
+			throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations", Integer.toString(travellers.size()), Integer.toString(IsochronesServiceSettings.getMaximumLocations()));
 
-		int maxAllowedRange = IsochronesServiceSettings.getMaximumRange(req.getRouteSearchParameters().getProfileType(), req.getRangeType());
-		if (req.getMaximumRange() > maxAllowedRange)
-			throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(maxAllowedRange), Double.toString(req.getMaximumRange()));
+		for (int i = 0;i < travellers.size(); ++i){
+			TravellerInfo traveller = travellers.get(i);
+			int maxAllowedRange = IsochronesServiceSettings.getMaximumRange(traveller.getRouteSearchParameters().getProfileType(), traveller.getRangeType());
+			double maxRange = traveller.getMaximumRange();
+			if (maxRange > maxAllowedRange)
+				throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(maxAllowedRange), Double.toString(maxRange));
 
-		if (IsochronesServiceSettings.getMaximumIntervals() > 0)
-		{
-			if (IsochronesServiceSettings.getMaximumIntervals() < req.getRanges().length)
-				throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(req.getRanges().length), Integer.toString(IsochronesServiceSettings.getMaximumIntervals()));
+			if (IsochronesServiceSettings.getMaximumIntervals() > 0)
+			{
+				if (IsochronesServiceSettings.getMaximumIntervals() < traveller.getRanges().length)
+					throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(traveller.getRanges().length), Integer.toString(IsochronesServiceSettings.getMaximumIntervals()));
+			}
 		}
 
-		Coordinate[] coords = req.getLocations();
-		if (coords != null)
+		if (travellers.size() > 0)
 		{
 			IsochroneMapCollection isoMaps = new IsochroneMapCollection();
 
-			IsochroneSearchParameters searchParams = req.getSearchParameters(coords[0]);
-			searchParams.setRouteParameters(req.getRouteSearchParameters());
-
-			for (int i = 0;i < coords.length; ++i){
-				searchParams.setLocation(coords[i]);
+			for (int i = 0;i < travellers.size(); ++i){
+				IsochroneSearchParameters searchParams = req.getSearchParameters(i);
 				IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams);
 				isoMaps.add(isochroneMap);
 			}
@@ -129,13 +131,16 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 		double maxX = Double.MIN_VALUE;
 		double maxY = Double.MIN_VALUE;
 
+		TravellerInfo traveller = null;
 		int groupIndex = 0;
 		boolean includeArea = request.hasAttribute("area");
-		boolean includeReachFactor = request.getRangeType() == TravelRangeType.Time && request.hasAttribute("reachfactor");
+		boolean includeReachFactor = request.hasAttribute("reachfactor");
 		String units = request.getUnits() != null ? request.getUnits().toLowerCase() : null;
 
 		for (IsochroneMap isoMap : isochroneMaps.getIsochroneMaps())
 		{
+			traveller = request.getTravellers().get(isoMap.getTravellerId());
+			
 			for (Isochrone isoLine : isoMap.getIsochrones()) 
 			{
 				Polygon isoPoly = (Polygon)isoLine.getGeometry();
@@ -162,7 +167,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 					double area = isoLine.getArea(units);
 					if (includeArea)
 						jProperties.put("area", FormatUtility.roundToDecimals(area, 4));
-					if (includeReachFactor)
+					if (includeReachFactor && traveller.getRangeType() == TravelRangeType.Time)
 					{
 						double r  = isoLine.getMaxRadius(units);
 						double maxArea = Math.PI * r * r;
@@ -231,6 +236,8 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
 		jResp.put("bbox", GeometryJSON.toJSON(minX, minY, maxX, maxY));
 
+		traveller = request.getTravellers().get(0);
+		
 		JSONObject jInfo = new JSONObject();
 		jInfo.put("service", "isochrones");
 		jInfo.put("engine", AppInfo.getEngineInfo());
@@ -240,20 +247,20 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
 		JSONObject jQuery = new JSONObject();
 
-		jQuery.put("profile", RoutingProfileType.getName(request.getRouteSearchParameters().getProfileType()));
+		jQuery.put("profile", RoutingProfileType.getName(traveller.getRouteSearchParameters().getProfileType()));
 
-		if (request.getRangeType() != null)
-			jQuery.put("range_type", request.getRangeType().toString().toLowerCase());
+		if (traveller.getRangeType() != null)
+			jQuery.put("range_type", traveller.getRangeType().toString().toLowerCase());
 
-		jQuery.put("ranges", StringUtility.arrayToString(request.getRanges(), ","));
+		jQuery.put("ranges", StringUtility.arrayToString(traveller.getRanges(), ","));
 
 		jQuery.put("locations", GeometryJSON.toJSON(request.getLocations(), false));
 
 		if (request.getUnits() != null)
 			jQuery.put("units", request.getUnits());
 
-		if (request.getLocationType() != null)
-			jQuery.put("location_type", request.getLocationType());
+		if (traveller.getLocationType() != null)
+			jQuery.put("location_type", traveller.getLocationType());
 
 		if (request.getAttributes() != null)
 			jQuery.put("attributes", StringUtility.combine(request.getAttributes(), "|"));
@@ -261,8 +268,8 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 		if (request.getCalcMethod() != null)
 			jQuery.put("calc_method", request.getCalcMethod());
 
-		if (!Helper.isEmpty(request.getRouteSearchParameters().getOptions()))
-			jQuery.put("options", new JSONObject(request.getRouteSearchParameters().getOptions()));
+		if (!Helper.isEmpty(traveller.getRouteSearchParameters().getOptions()))
+			jQuery.put("options", new JSONObject(traveller.getRouteSearchParameters().getOptions()));
 
 		if (request.getId() != null)
 			jQuery.put("id", request.getId());

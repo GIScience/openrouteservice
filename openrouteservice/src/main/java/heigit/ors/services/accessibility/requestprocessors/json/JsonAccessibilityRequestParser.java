@@ -22,6 +22,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
 import heigit.ors.accessibility.AccessibilityErrorCodes;
+import heigit.ors.accessibility.AccessibilityRequest;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.common.StatusCode;
 import heigit.ors.common.TravelRangeType;
@@ -42,7 +43,6 @@ import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.RoutingRequest;
 import heigit.ors.routing.WeightingMethod;
-import heigit.ors.services.accessibility.AccessibilityRequest;
 import heigit.ors.services.accessibility.AccessibilityServiceSettings;
 import heigit.ors.util.ArraysUtility;
 import heigit.ors.util.CoordTools;

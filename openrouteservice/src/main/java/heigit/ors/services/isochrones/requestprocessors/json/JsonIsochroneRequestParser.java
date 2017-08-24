@@ -2,7 +2,7 @@
  *|														Heidelberg University
  *|	  _____ _____  _____      _                     	Department of Geography		
  *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
- *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2016
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2017
  *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
  *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
  *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
@@ -16,31 +16,197 @@ import java.util.Arrays;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import heigit.ors.common.StatusCode;
 import heigit.ors.common.TravelRangeType;
+import heigit.ors.common.TravellerInfo;
 import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
+import heigit.ors.isochrones.IsochroneRequest;
 import heigit.ors.isochrones.IsochronesErrorCodes;
 import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.services.isochrones.IsochroneRequest;
 import heigit.ors.util.CoordTools;
+import heigit.ors.util.StreamUtility;
 
 public class JsonIsochroneRequestParser {
 
 	public static IsochroneRequest parseFromStream(InputStream stream) throws Exception 
 	{
-		IsochroneRequest req = null;
-
+		JSONObject json = null;
 		try {
-
+			String body = StreamUtility.readStream(stream);
+			json = new JSONObject(body);
 		} catch (Exception ex) {
 			throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.INVALID_JSON_FORMAT, "Unable to parse JSON document.");
 		}
+
+		IsochroneRequest req = new IsochroneRequest();
+		
+		String value = null;
+		
+		if (json.has("travellers"))
+		{
+			JSONArray jTravellers = json.getJSONArray("travellers");
+			
+			if (jTravellers.length() == 0)
+				throw new MissingParameterException(IsochronesErrorCodes.INVALID_JSON_FORMAT, "'travellers' array is empty.");
+			
+			for (int j = 0; j < jTravellers.length(); ++j)
+			{
+				JSONObject jTraveller = jTravellers.getJSONObject(j);
+				
+				TravellerInfo travellerInfo = new TravellerInfo();
+				
+				value = jTraveller.optString("profile");
+				if (!Helper.isEmpty(value))
+				{
+					int profileType = RoutingProfileType.getFromString(value);
+					if (profileType == RoutingProfileType.UNKNOWN)
+						throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "profile", value);
+					travellerInfo.getRouteSearchParameters().setProfileType(profileType);
+				}
+				else
+				{
+					throw new MissingParameterException(IsochronesErrorCodes.MISSING_PARAMETER, "profile");
+				}
+				
+				if (jTraveller.has("location"))
+				{
+					try
+					{
+						JSONArray jLocation = jTraveller.getJSONArray("location");
+						travellerInfo.setLocation(new Coordinate(jLocation.getDouble(0), jLocation.getDouble(1)));						
+					}
+					catch(Exception nfex)
+					{
+						throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "location");
+					}
+				}
+				else
+				{
+					throw new MissingParameterException(IsochronesErrorCodes.MISSING_PARAMETER, "location");
+				}
+
+				value = jTraveller.optString("location_type");
+				if (!Helper.isEmpty(value))
+				{
+					if (!"start".equalsIgnoreCase(value) && !"destination".equalsIgnoreCase(value))
+						throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "location_type", value);
+
+					travellerInfo.setLocationType(value);
+				}
+				
+				if (jTraveller.has("range"))
+				{
+					JSONArray jRanges = jTraveller.getJSONArray("range");
+					
+					if (jRanges.length() == 0)
+						throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "range");
+
+					double[] ranges = new double[jRanges.length()];
+
+					try
+					{
+						for (int i = 0; i < ranges.length; i++)
+							ranges[i] = jRanges.getDouble(i);
+					}
+					catch(Exception ex)
+					{
+						throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "range");
+					}
+
+					Arrays.sort(ranges);
+
+					travellerInfo.setRanges(ranges);
+				}
+				else
+					throw new MissingParameterException(IsochronesErrorCodes.MISSING_PARAMETER, "range");
+				
+				value = jTraveller.optString("range_type");
+				if (!Helper.isEmpty(value))
+				{
+					switch (value.toLowerCase())
+					{
+					case "distance":
+						travellerInfo.setRangeType(TravelRangeType.Distance);
+						break;
+					case "time":
+						travellerInfo.setRangeType(TravelRangeType.Time);
+						break;
+					default:
+						throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "range_type", value);
+					}
+				}
+				
+				value = jTraveller.optString("options");
+				if (!Helper.isEmpty(value))
+				{
+					try
+					{
+						travellerInfo.getRouteSearchParameters().setOptions(value);
+					}
+					catch(Exception ex)
+					{
+						throw new ParameterValueException(IsochronesErrorCodes.INVALID_JSON_FORMAT, "options", value);
+					}
+				}
+				
+				req.addTraveller(travellerInfo);
+			}
+		}
+		else
+			throw new MissingParameterException(IsochronesErrorCodes.MISSING_PARAMETER, "travellers");
+		
+		value = json.optString("units");
+		if (!Helper.isEmpty(value))
+		{
+			if (!("m".equals(value) || "km".equals(value) || "mi".equals(value)))
+					throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "units", value);
+
+			req.setUnits(value.toLowerCase());
+		}
+		
+		value = json.optString("calc_method");
+		if (!Helper.isEmpty(value))
+			req.setCalcMethod(value);
+
+		value = json.optString("attributes");
+		if (!Helper.isEmpty(value))
+		{
+			String[] values = value.split("\\|");
+			for (int i = 0; i < values.length; i++)
+			{
+				String attr = values[i];
+				if (!(attr.equalsIgnoreCase("area") || attr.equalsIgnoreCase("reachfactor")))
+					throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "attributes", attr);
+			}
+			
+			req.setAttributes(values);
+		}
+
+		value = json.optString("intersections");
+		if (!Helper.isEmpty(value))
+		{
+			try
+			{
+				req.setIncludeIntersections(Boolean.parseBoolean(value));
+			}
+			catch(Exception ex)
+			{
+				throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "intersections", value);
+			}
+		}
+		
+		value = json.optString("id");
+		if (!Helper.isEmpty(value))
+			req.setId(value);
 
 		return req;
 	}
@@ -49,13 +215,15 @@ public class JsonIsochroneRequestParser {
 	{
 		IsochroneRequest req = new IsochroneRequest();
 
+		TravellerInfo travellerInfo = new TravellerInfo();
+		
 		String value = request.getParameter("profile");
 		if (!Helper.isEmpty(value))
 		{
 			int profileType = RoutingProfileType.getFromString(value);
 			if (profileType == RoutingProfileType.UNKNOWN)
 				throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "profile", value);
-			req.getRouteSearchParameters().setProfileType(profileType);
+			travellerInfo.getRouteSearchParameters().setProfileType(profileType);
 		}
 		else
 		{
@@ -76,8 +244,7 @@ public class JsonIsochroneRequestParser {
 				try
 				{
 					rangeValue = Double.parseDouble(value);
-					req.setRanges(new double[] { rangeValue});
-					req.setMaximumRange(rangeValue);
+					travellerInfo.setRanges(new double[] { rangeValue});
 				}
 				catch(NumberFormatException ex)
 				{
@@ -98,8 +265,7 @@ public class JsonIsochroneRequestParser {
 
 				Arrays.sort(ranges);
 
-				req.setRanges(ranges);
-				req.setMaximumRange(maxRange);
+				travellerInfo.setRanges(ranges);
 				
 				skipInterval = true;
 			}
@@ -112,8 +278,7 @@ public class JsonIsochroneRequestParser {
 			{
 				if (rangeValue != -1)
 				{
-					req.setRanges(rangeValue, Double.parseDouble(value));
-					req.setMaximumRange(rangeValue);
+					travellerInfo.setRanges(rangeValue, Double.parseDouble(value));
 				}
 			}
 		}
@@ -124,10 +289,10 @@ public class JsonIsochroneRequestParser {
 			switch (value.toLowerCase())
 			{
 			case "distance":
-				req.setRangeType(TravelRangeType.Distance);
+				travellerInfo.setRangeType(TravelRangeType.Distance);
 				break;
 			case "time":
-				req.setRangeType(TravelRangeType.Time);
+				travellerInfo.setRangeType(TravelRangeType.Time);
 				break;
 			default:
 				throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "range_type", value);
@@ -137,7 +302,7 @@ public class JsonIsochroneRequestParser {
 		value = request.getParameter("units");
 		if (!Helper.isEmpty(value))
 		{
-			if (req.getRangeType() == TravelRangeType.Distance)
+			if (travellerInfo.getRangeType() == TravelRangeType.Distance)
 			{
 				if (!("m".equals(value) || "km".equals(value) || "mi".equals(value)))
 					throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "units", value);
@@ -159,12 +324,12 @@ public class JsonIsochroneRequestParser {
 			inverseXY = true;
 		}
 
+		Coordinate[] coords = null;
 		if (!Helper.isEmpty(value))
 		{
 			try
 			{
-				Coordinate[] coords = CoordTools.parse(value, "\\|", false, inverseXY);						
-				req.setLocations(coords);
+				coords = CoordTools.parse(value, "\\|", false, inverseXY);						
 			}
 			catch(NumberFormatException nfex)
 			{
@@ -182,7 +347,7 @@ public class JsonIsochroneRequestParser {
 			if (!"start".equalsIgnoreCase(value) && !"destination".equalsIgnoreCase(value))
 				throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "location_type", value);
 
-			req.setLocationType(value);
+			travellerInfo.setLocationType(value);
 		}
 
 		value = request.getParameter("calc_method");
@@ -221,11 +386,29 @@ public class JsonIsochroneRequestParser {
 		{
 			try
 			{
-				req.getRouteSearchParameters().setOptions(value);
+				travellerInfo.getRouteSearchParameters().setOptions(value);
 			}
 			catch(Exception ex)
 			{
 				throw new ParameterValueException(IsochronesErrorCodes.INVALID_JSON_FORMAT, "options", value);
+			}
+		}
+		
+		if (coords.length == 1)
+		{
+			travellerInfo.setLocation(coords[0]);
+			req.addTraveller(travellerInfo);
+		}
+		else
+		{
+			travellerInfo.setLocation(coords[0]);
+			req.addTraveller(travellerInfo);
+
+			for (int i = 1; i < coords.length; i++)
+			{
+				TravellerInfo ti = travellerInfo.clone();
+				ti.setLocation(coords[i]);
+				req.addTraveller(ti);
 			}
 		}
 

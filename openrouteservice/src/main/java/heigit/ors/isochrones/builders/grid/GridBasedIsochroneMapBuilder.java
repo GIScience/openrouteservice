@@ -137,7 +137,7 @@ public class GridBasedIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 		MatrixResult mtxResult = alg.compute(srcData, dstData, mtxReq.getMetrics()); 
 		*/
-		IsochroneMap isochroneMap = new IsochroneMap(loc);
+		IsochroneMap isochroneMap = new IsochroneMap(0, loc);
 
 		//AccessibilityMap edgeMap = GraphEdgeMapFinder.findEdgeMap(_searchContext, parameters);
 

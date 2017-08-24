@@ -17,6 +17,7 @@ import heigit.ors.common.TravelRangeType;
 import heigit.ors.routing.RouteSearchParameters;
 
 public class IsochroneSearchParameters {
+	private int _travellerId;
 	private Coordinate _location;
 	private Boolean _reverseDirection = false;
 	private TravelRangeType _rangeType = TravelRangeType.Time;
@@ -24,9 +25,15 @@ public class IsochroneSearchParameters {
 	private RouteSearchParameters _parameters;
 	private String _calcMethod;
 
-	public IsochroneSearchParameters(Coordinate location, double[] ranges) {
+	public IsochroneSearchParameters(int travellerId, Coordinate location, double[] ranges) {
+		_travellerId = travellerId;
 		_location = location;   
 		_ranges = ranges;
+	}
+	
+	public int getTravellerId()
+	{
+		return _travellerId;
 	}
 
 	public Coordinate getLocation()

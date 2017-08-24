@@ -27,11 +27,11 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 import heigit.ors.accessibility.AccessibilityAnalyzer;
+import heigit.ors.accessibility.AccessibilityRequest;
 import heigit.ors.accessibility.AccessibilityResult;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.geojson.GeometryJSON;
-import heigit.ors.services.accessibility.AccessibilityRequest;
 import heigit.ors.services.accessibility.AccessibilityServiceSettings;
 import heigit.ors.services.locations.LocationsServiceSettings;
 import heigit.ors.services.routing.requestprocessors.json.JsonRoutingResponseWriter;

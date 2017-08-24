@@ -9,29 +9,35 @@
  *|	        	                                       	http://www.giscience.uni-hd.de
  *|								
  *|----------------------------------------------------------------------------------------------*/
-package heigit.ors.services.accessibility;
+package heigit.ors.accessibility;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
+import heigit.ors.common.DistanceUnit;
 import heigit.ors.common.NamedLocation;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.locations.LocationsRequest;
 import heigit.ors.routing.RoutingRequest;
 import heigit.ors.services.ServiceRequest;
+import heigit.ors.services.accessibility.AccessibilityServiceSettings;
 
 public class AccessibilityRequest extends ServiceRequest
 {
-	private RoutingRequest _routingRequest;
     // Destination points specified either by a user defined locations or by POI search filter
 	private LocationsRequest _locationsRequest;
 	private NamedLocation[] _userLocations;
+    // common parameters for all locations
+	private String _routesFormat = "detailed";
+	private DistanceUnit _units = DistanceUnit.Meters;
+	private int _limit = 5;
+    // location specific parameters
+	private RoutingRequest _routingRequest;
 	// Starting points of accessibility analysis
 	private Coordinate[] _locations;
 	private String _locationType = "start"; // either start or destination
 	private double _range;
 	private TravelRangeType _rangeType = TravelRangeType.Time;
-	private String _routesFormat = "detailed";
-	private int _limit = 5;
+	
 	
 	public AccessibilityRequest()
 	{
@@ -105,5 +111,13 @@ public class AccessibilityRequest extends ServiceRequest
 
 	public void setUserLocations(NamedLocation[] userLocations) {
 		_userLocations = userLocations;
+	}
+
+	public DistanceUnit getUnits() {
+		return _units;
+	}
+
+	public void setUnits(DistanceUnit _units) {
+		this._units = _units;
 	}
 }

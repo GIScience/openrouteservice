@@ -3,6 +3,9 @@ package heigit.ors.services.isochrones;
 import static io.restassured.RestAssured.*;
 //import static io.restassured.matcher.RestAssuredMatchers.*;
 import static org.hamcrest.Matchers.*;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 //import java.util.Arrays;
 import org.junit.Test;
 
@@ -288,17 +291,167 @@ public class ParamsTest extends ServiceTest {
 	}
 
 	@Test
-	public void testPostMethod() {
-
+	public void testTravellers_POST() {
+		JSONObject json = new JSONObject();
+		json.put("travellers1", new JSONArray());
+		
+		// check incorrect name 'travellers'
 		given()
-				.param("locations", getParameter("location"))
-				.param("profile", getParameter("profile"))
-				.param("range", "11000")
-				.param("range_type", "distance")
+				.body(json.toString())
 				.when()
 				.post(getEndPointName())
 				.then()
-				.statusCode(405);
+				.body("error.code", is(301))
+				.statusCode(400);
+	}
+	
+	@Test
+	public void testProfile_POST() {
+		JSONObject json = new JSONObject();
+		JSONArray jTravellers = new JSONArray();
+		json.put("travellers", jTravellers);
+		JSONObject jTraveller = new JSONObject();
+		jTraveller.put("profile", "driving-car2");
+		jTravellers.put(jTraveller);
+		
+		given()
+			.body(json.toString())
+			.when()
+			.post(getEndPointName())
+			.then()
+			.body("error.code", is(303))
+			.statusCode(400);
+	}
+	
+	@Test
+	public void testLocation_POST() {
+		JSONObject json = new JSONObject();
+		JSONArray jTravellers = new JSONArray();
+		json.put("travellers", jTravellers);
+		JSONObject jTraveller = new JSONObject();
+		jTraveller.put("profile", "driving-car");
+		jTravellers.put(jTraveller);
+		jTraveller.put("location", new JSONArray().put(8.7).put("18.7j"));
+		
+		given()
+			.body(json.toString())
+			.when()
+			.post(getEndPointName())
+			.then()
+			.body("error.code", is(302))
+			.statusCode(400);
+	}
+	
+	@Test
+	public void testLocationType_POST() {
+		JSONObject json = new JSONObject();
+		JSONArray jTravellers = new JSONArray();
+		json.put("travellers", jTravellers);
+		JSONObject jTraveller = new JSONObject();
+		jTraveller.put("profile", "driving-car");
+		jTravellers.put(jTraveller);
+		jTraveller.put("location", new JSONArray().put(8.7).put("18.7"));
+		jTraveller.put("location_type", "start1");
+		
+		given()
+			.body(json.toString())
+			.when()
+			.post(getEndPointName())
+			.then()
+			.body("error.code", is(303))
+			.statusCode(400);
+	}
+	
+	@Test
+	public void testRange_POST() {
+		JSONObject json = new JSONObject();
+		JSONArray jTravellers = new JSONArray();
+		json.put("travellers", jTravellers);
+		JSONObject jTraveller = new JSONObject();
+		jTraveller.put("profile", "driving-car");
+		jTravellers.put(jTraveller);
+		jTraveller.put("location", new JSONArray().put(8.7).put("18.7"));
+		jTraveller.put("location_type", "start");
+		jTraveller.put("range", new JSONArray().put(120).put("200l"));
+		
+		given()
+			.body(json.toString())
+			.when()
+			.post(getEndPointName())
+			.then()
+			.body("error.code", is(302))
+			.statusCode(400);
+	}
+	
+	@Test
+	public void testRangeType_POST() {
+		JSONObject json = new JSONObject();
+		JSONArray jTravellers = new JSONArray();
+		json.put("travellers", jTravellers);
+		JSONObject jTraveller = new JSONObject();
+		jTraveller.put("profile", "driving-car");
+		jTravellers.put(jTraveller);
+		jTraveller.put("location", new JSONArray().put(8.7).put("18.7"));
+		jTraveller.put("location_type", "start");
+		jTraveller.put("range", new JSONArray().put(120).put(200));
+		jTraveller.put("range_type", "timee");
+		
+		given()
+			.body(json.toString())
+			.when()
+			.post(getEndPointName())
+			.then()
+			.body("error.code", is(303))
+			.statusCode(400);
+	}
+	
+	@Test
+	public void testUnits_POST() {
+		JSONObject json = new JSONObject();
+		JSONArray jTravellers = new JSONArray();
+		json.put("travellers", jTravellers);
+		JSONObject jTraveller = new JSONObject();
+		jTraveller.put("profile", "driving-car");
+		jTravellers.put(jTraveller);
+		jTraveller.put("location", new JSONArray().put(8.7).put("18.7"));
+		jTraveller.put("location_type", "start");
+		jTraveller.put("range", new JSONArray().put(120).put(200));
+		jTraveller.put("range_type", "time");
+		
+		json.put("units", "mm");
+		
+		given()
+			.body(json.toString())
+			.when()
+			.post(getEndPointName())
+			.then()
+			.body("error.code", is(303))
+			.statusCode(400);
+	}
+
+	@Test
+	public void testAttributes_POST() {
+		JSONObject json = new JSONObject();
+		JSONArray jTravellers = new JSONArray();
+		json.put("travellers", jTravellers);
+		JSONObject jTraveller = new JSONObject();
+		jTraveller.put("profile", "driving-car");
+		jTravellers.put(jTraveller);
+		jTraveller.put("location", new JSONArray().put(8.7).put("18.7"));
+		jTraveller.put("location_type", "start");
+		jTraveller.put("range", new JSONArray().put(120).put(200));
+		jTraveller.put("range_type", "time");
+		
+		json.put("units", "m");
+		json.put("attributes", "area|reachfactorrr");
+		
+		given()
+			.body(json.toString())
+			.when()
+			.post(getEndPointName())
+			.then()
+			.body("error.code", is(303))
+			.statusCode(400);
 	}
 
 	@Test

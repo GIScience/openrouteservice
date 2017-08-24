@@ -2,7 +2,7 @@
  *|														Heidelberg University
  *|	  _____ _____  _____      _                     	Department of Geography		
  *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
- *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2017
  *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
  *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
  *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
@@ -18,15 +18,22 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
 public class IsochroneMap {
+	private int _travellerId;
 	private Envelope _envelope;
 	private List<Isochrone> _isochrones;
 	private Coordinate _center;
 	
-	public IsochroneMap(Coordinate center)
+	public IsochroneMap(int travellerId, Coordinate center)
 	{
-		this._center = center;
-		this._isochrones = new ArrayList<Isochrone>();
-		this._envelope = new Envelope();
+		_travellerId = travellerId;
+		_center = center;
+		_isochrones = new ArrayList<Isochrone>();
+		_envelope = new Envelope();
+	}
+	
+	public int getTravellerId()
+	{
+		return _travellerId;
 	}
 
 	public boolean isEmpty()

@@ -2,7 +2,7 @@
  *|														Heidelberg University
  *|	  _____ _____  _____      _                     	Department of Geography		
  *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
- *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2016
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2017
  *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
  *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
  *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
@@ -24,6 +24,7 @@ import heigit.ors.common.NamedLocation;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.isochrones.IsochroneMapCollection;
+import heigit.ors.isochrones.IsochroneRequest;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.locations.LocationsRequest;
 import heigit.ors.locations.LocationsResult;
@@ -32,14 +33,13 @@ import heigit.ors.locations.providers.LocationsDataProviderFactory;
 import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.routing.RoutingRequest;
-import heigit.ors.services.accessibility.AccessibilityRequest;
-import heigit.ors.services.isochrones.IsochroneRequest;
 import heigit.ors.services.locations.LocationsServiceSettings;
 import heigit.ors.util.GeomUtility;
 
-public class AccessibilityAnalyzer {
+public class AccessibilityAnalyzer 
+{
 	public static AccessibilityResult computeAccessibility(AccessibilityRequest req) throws IOException, Exception
-	{
+	{/*
 		try
 		{
 			AccessibilityResult accesibilityResult = new AccessibilityResult();
@@ -159,6 +159,7 @@ public class AccessibilityAnalyzer {
 		catch(Exception ex)
 		{
 			throw new InternalServerException(AccessibilityErrorCodes.UNKNOWN, ex.getMessage());
-		}
+		}*/
+		return null;
 	}
 }

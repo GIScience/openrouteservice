@@ -85,7 +85,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		double maxSpeed = _searchContext.getEncoder().getMaxSpeed();
 
 		Coordinate loc = parameters.getLocation();
-		IsochroneMap isochroneMap = new IsochroneMap(loc);
+		IsochroneMap isochroneMap = new IsochroneMap(parameters.getTravellerId(), loc);
 		ByteArrayBuffer arrayBuffer = new ByteArrayBuffer();
 
 		AccessibilityMap edgeMap = GraphEdgeMapFinder.findEdgeMap(_searchContext, parameters, arrayBuffer);
