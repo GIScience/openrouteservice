@@ -129,10 +129,10 @@
 						}
 					},
 					profile-vehicles: {
-						profiles: "driving-car,driving-hgv,driving-motorcycle",
+						profiles: "driving-car,driving-hgv",
 						parameters: {
-						    encoder_flags_size: 8,
-						    encoder_options : "turn_costs=true|block_fords=false|maximum_grade_level=1,turn_costs=true|block_fords=false,turn_costs=true|block_fords=false",
+						    encoder_flags_size: 4,
+						    encoder_options : "turn_costs=true|block_fords=false|maximum_grade_level=1,turn_costs=true|block_fords=false",
                             maximum_distance: 100000,
                             elevation: true, 
 							preparation:
