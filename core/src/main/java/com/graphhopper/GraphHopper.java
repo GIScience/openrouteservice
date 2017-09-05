@@ -24,6 +24,7 @@ import com.graphhopper.routing.*;
 import com.graphhopper.routing.ch.CHAlgoFactoryDecorator;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.lm.LMAlgoFactoryDecorator;
+import com.graphhopper.routing.lm.PrepareLandmarks;
 import com.graphhopper.routing.subnetwork.PrepareRoutingSubnetworks;
 import com.graphhopper.routing.template.AlternativeRoutingTemplate;
 import com.graphhopper.routing.template.RoundTripRoutingTemplate;
@@ -454,6 +455,22 @@ public class GraphHopper implements GraphHopperAPI {
             throw new IllegalStateException("GraphHopper storage not initialized");
 
         return ghStorage;
+    }
+    
+    // Runge
+    public long getCapacity()
+    {
+    	long lmCapacity = 0;
+		if (getLMFactoryDecorator().isEnabled())
+		{
+			List<PrepareLandmarks> preparations = getLMFactoryDecorator().getPreparations();
+			for(PrepareLandmarks pl : preparations)
+			{
+				lmCapacity += pl.getLandmarkStorage().getCapacity();
+			}
+		}
+		
+		return getGraphHopperStorage().getCapacity() + lmCapacity;
     }
 
     public void setGraphHopperStorage(GraphHopperStorage ghStorage) {

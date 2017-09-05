@@ -444,13 +444,10 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
 				nextEdgeId = edgeAccess.getEdgeRef(baseNode, adjNode, edgePointer);
 				assert nextEdgeId != edgeId : ("endless loop detected for base node: " + baseNode + ", adj node: "
 						+ adjNode + ", edge pointer: " + edgePointer + ", edge: " + edgeId);
-
+ 
 				if (filter.accept(this)) {
-				//	if (isShortcut() && getLevel(baseNode) > getLevel(adjNode))
-				//		continue;
 					return true; 
 				}
-
 			}
 		}
 

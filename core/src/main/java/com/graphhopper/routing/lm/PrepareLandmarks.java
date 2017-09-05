@@ -108,7 +108,7 @@ public class PrepareLandmarks extends AbstractAlgoPreparation {
         return this;
     }
 
-    LandmarkStorage getLandmarkStorage() {
+    public LandmarkStorage getLandmarkStorage() {
         return lms;
     }
 
