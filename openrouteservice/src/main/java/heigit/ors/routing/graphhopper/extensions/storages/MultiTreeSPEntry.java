@@ -9,6 +9,7 @@ public class MultiTreeSPEntry implements Cloneable, Comparable<MultiTreeSPEntry>
 	public int[] edge;
 	public int adjNode;
 	public double[] weights;
+	public boolean[] update;
 	public MultiTreeSPEntry[] parent;
 	public boolean visited = false;
 
@@ -16,6 +17,7 @@ public class MultiTreeSPEntry implements Cloneable, Comparable<MultiTreeSPEntry>
 		this.edge = new int[numTrees];
 		this.adjNode = adjNode;
 		this.weights = new double[numTrees];
+		this.update = new boolean[numTrees];
 		this.parent = new MultiTreeSPEntry[numTrees];
 	}
 
@@ -32,14 +34,13 @@ public class MultiTreeSPEntry implements Cloneable, Comparable<MultiTreeSPEntry>
 	@Override
 	public MultiTreeSPEntry clone() {
 		MultiTreeSPEntry res = new MultiTreeSPEntry(adjNode, edge.length);
-		
-		for (int i = 0; i < edge.length; i++)
-		{
+
+		for (int i = 0; i < edge.length; i++) {
 			res.edge[i] = edge[i];
 			res.weights[i] = weights[i];
 			res.parent[i] = parent[i];
 		}
-		
+
 		return res;
 	}
 

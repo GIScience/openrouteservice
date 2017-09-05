@@ -152,8 +152,6 @@ public class RoutingProfileManager {
 						if (!rpc.getEnabled())
 							continue;
 
-						LOGGER.info(String.format("[%d] Profiles: '%s', location: '%s'.", j, rpc.getProfiles(), rpc.getGraphPath()));
-
 						Integer[] routeProfiles = rpc.getProfilesTypes();
 
 						if (routeProfiles != null) {

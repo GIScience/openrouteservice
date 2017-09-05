@@ -16,7 +16,6 @@ import java.util.PriorityQueue;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.QueryGraph;
-import com.graphhopper.routing.util.CHLevelEdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
@@ -26,13 +25,16 @@ import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 
+import heigit.ors.routing.graphhopper.extensions.edgefilters.DownwardSearchEdgeFilter;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.UpwardSearchEdgeFilter;
+
 public class RPHASTAlgorithm extends AbstractOneToManyRoutingAlgorithm {
 	private IntObjectMap<SPTEntry> _bestWeightMapFrom;
 	private SPTEntry _currFrom;
 	private SPTEntry _currTo;
 	private PriorityQueue<SPTEntry> _prioQueue;
-	private CHLevelEdgeFilter _upwardEdgeFilter;
-	private CHLevelEdgeFilter _downwardEdgeFilter;
+	private UpwardSearchEdgeFilter _upwardEdgeFilter;
+	private DownwardSearchEdgeFilter _downwardEdgeFilter;
 	private SubGraph _targetGraph;
 	private boolean _finishedFrom;
 	private boolean _finishedTo;
@@ -58,9 +60,8 @@ public class RPHASTAlgorithm extends AbstractOneToManyRoutingAlgorithm {
 		setMaxVisitedNodes(Integer.MAX_VALUE);
 		FlagEncoder encoder = weighting.getFlagEncoder();
 		
-		_upwardEdgeFilter = new CHLevelEdgeFilter(chGraph, encoder);
-		_downwardEdgeFilter = new CHLevelEdgeFilter(chGraph, encoder);
-		_downwardEdgeFilter.setBackwardSearch(true);
+		_upwardEdgeFilter = new UpwardSearchEdgeFilter(chGraph, encoder);
+		_downwardEdgeFilter = new DownwardSearchEdgeFilter(chGraph, encoder);
 		
 		inEdgeExplorer = graph.createEdgeExplorer();
 		outEdgeExplorer =  graph.createEdgeExplorer();

@@ -1,4 +1,4 @@
-package com.graphhopper.routing.util;
+package heigit.ors.routing.graphhopper.extensions.edgefilters;
 /*
  *  Licensed to GraphHopper GmbH under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
@@ -17,6 +17,8 @@ package com.graphhopper.routing.util;
  *  limitations under the License.
  */
 
+import com.graphhopper.routing.util.CHEdgeFilter;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.util.EdgeIteratorState;
 
@@ -26,12 +28,11 @@ import com.graphhopper.util.EdgeIteratorState;
  *
  * @author Peter Karich
  */
-public class CHLevelEdgeFilter implements CHEdgeFilter {
-	private final CHGraph graph;
-	private final int maxNodes;
-	public int highestNode = -1;
-	private FlagEncoder encoder;
-	private boolean backwardSearch = false;
+public abstract class CHLevelEdgeFilter implements CHEdgeFilter {
+	protected final CHGraph graph;
+	protected final int maxNodes;
+	protected int highestNode = -1;
+	protected FlagEncoder encoder;
 	
 	public CHLevelEdgeFilter(CHGraph g, FlagEncoder encoder) {
 		graph = g;
@@ -41,32 +42,13 @@ public class CHLevelEdgeFilter implements CHEdgeFilter {
 
 	@Override
 	public boolean accept(EdgeIteratorState edgeIterState) {
-		int base = edgeIterState.getBaseNode();
-		int adj = edgeIterState.getAdjNode(); 
-		// always accept virtual edges, see #288
-		if (base >= maxNodes || adj >= maxNodes)
-			return true;
- 
-		return (graph.getLevel(base) <= graph.getLevel(adj)) ?  (backwardSearch ? edgeIterState.isBackward(encoder) : edgeIterState.isForward(encoder)) : false;
+		return false;
 	}
 	
-	public void setBackwardSearch(boolean value)
-	{
-		backwardSearch = true;
-	}
-
-	@Override
 	public int getHighestNode() {
 		return highestNode;
 	}
 
-	@Override
-	public void setHighestNode(int node)
-	{
-		highestNode = node;
-	}
-	
-	@Override
 	public void updateHighestNode(EdgeIteratorState edgeIterState) {
 		
 		int ajdNode = edgeIterState.getAdjNode();

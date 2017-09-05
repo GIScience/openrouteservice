@@ -264,7 +264,14 @@ public interface GraphExtension extends Storable<GraphExtension> {
         @Override
         public long getCapacity()
         {
-        	return extensions[0].getCapacity();
+        	long capacity = 0;
+        	
+			for (int i = 0; i < extensions.length; i++)
+			{
+				capacity += extensions[i].getCapacity();
+			}
+			
+        	return capacity;
         }
 
         @Override

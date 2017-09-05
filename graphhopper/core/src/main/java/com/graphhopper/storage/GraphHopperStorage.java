@@ -344,6 +344,10 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
     public int getNodes() {
         return baseGraph.getNodes();
     }
+    
+    public int getEdges() {
+        return baseGraph.edgeCount;
+    }
 
     @Override
     public NodeAccess getNodeAccess() {

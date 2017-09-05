@@ -156,7 +156,9 @@ public class RoutingProfile
 		long startTime = System.currentTimeMillis();
 
 		if (LOGGER.isInfoEnabled())
-			LOGGER.info(String.format("[%d] Building/loading graphs....", profileId));
+		{
+			LOGGER.info(String.format("[%d] Profiles: '%s', location: '%s'.", profileId, config.getProfiles(), config.getGraphPath()));
+		}
 
 		GraphProcessContext gpc = new GraphProcessContext(config);
 
@@ -181,9 +183,9 @@ public class RoutingProfile
 		if (LOGGER.isInfoEnabled())
 		{
 			EncodingManager encodingMgr = gh.getEncodingManager();
+			GraphHopperStorage ghStorage = gh.getGraphHopperStorage();
 			LOGGER.info(String.format("[%d] FlagEncoders: %s, bits used %d/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getUsedBitsForFlags(), encodingMgr.getBytesForFlags()*8));
-			GraphHopperStorage graph = gh.getGraphHopperStorage();
-			LOGGER.info(String.format("[%d] Capacity: main - %s, ext. storages - %s.", profileId, RuntimeUtility.getMemorySize(graph.getCapacity()), RuntimeUtility.getMemorySize(GraphStorageUtils.getCapacity(graph.getExtension()))));
+			LOGGER.info(String.format("[%d] Capacity:  %s. (edges - %s, nodes - %s)", profileId, RuntimeUtility.getMemorySize(gh.getCapacity()), ghStorage.getEdges(), ghStorage.getNodes()));
 			LOGGER.info(String.format("[%d] Total time: %s.", profileId, TimeUtility.getElapsedTime(startTime, true)));
 			LOGGER.info(String.format("[%d] Finished at: %s.", profileId, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
 			LOGGER.info("                              ");
@@ -776,6 +778,7 @@ public class RoutingProfile
 			req.setVehicle(searchCntx.getEncoder().toString());
 			req.setMaxSpeed(searchParams.getMaximumSpeed());
 			req.setSimplifyGeometry(simplifyGeometry);
+			req.setAlgorithm("dijkstrabi");
 
 			PMap props = searchCntx.getProperties();
 			if (props != null && props.size() > 0)
@@ -812,7 +815,6 @@ public class RoutingProfile
 					.getVehicleType())) && weightingMethod == WeightingMethod.RECOMMENDED) {
 				req.setWeighting("fastest");
 				req.getHints().put("weighting_method", "recommended_pref");
-				req.setAlgorithm("dijkstrabi");
 
 				flexibleMode = true;
 			}
@@ -827,8 +829,10 @@ public class RoutingProfile
 			{
 				if (mGraphHopper.isCHEnabled())  
 					req.getHints().put("ch.disable", true);
+				if (mGraphHopper.getLMFactoryDecorator().isEnabled())
+					req.setAlgorithm("astarbi");
 				req.getHints().put("lm.disable", false);
-			}
+			} 
 			else
 			{
 				if (mGraphHopper.isCHEnabled())  

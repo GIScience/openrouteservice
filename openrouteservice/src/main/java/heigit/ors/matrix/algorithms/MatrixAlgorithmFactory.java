@@ -19,6 +19,7 @@ import heigit.ors.matrix.algorithms.dijkstra.DijkstraMatrixAlgorithm;
 import heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 import heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm3;
 import heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm4;
+import heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm5;
 
 public class MatrixAlgorithmFactory {
 	public static MatrixAlgorithm createAlgorithm(MatrixRequest req, GraphHopper gh, FlagEncoder encoder) {
@@ -39,6 +40,10 @@ public class MatrixAlgorithmFactory {
 				break;
 			case "phast4":
 				alg = new RPHASTMatrixAlgorithm4();
+				break;
+			case "phast5":
+				alg = new RPHASTMatrixAlgorithm5();
+				break;
 			default:
 				break;
 			}

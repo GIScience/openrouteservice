@@ -31,34 +31,10 @@ public interface CHEdgeFilter {
 		public final boolean accept(EdgeIteratorState edgeState) {
 			return true;
 		}
-
-		@Override
-		public int getHighestNode() {
-			// TODO Auto-generated method stub
-			return -1;
-		}
-		
-		@Override
-		public void setHighestNode(int node)
-		{
-			
-		}
-
-		@Override
-		public void updateHighestNode(EdgeIteratorState edgeState) {
-			// TODO Auto-generated method stub
-
-		}
 	};
 
 	/**
 	 * @return true if the current edge should be processed and false otherwise.
 	 */
 	boolean accept(EdgeIteratorState edgeState);
-
-	int getHighestNode();
-	
-	void setHighestNode(int node);
-
-	void updateHighestNode(EdgeIteratorState edgeState);
 }
