@@ -6,65 +6,94 @@ package heigit.ors.routing.graphhopper.extensions.storages;
  *
  */
 public class MultiTreeSPEntry implements Cloneable, Comparable<MultiTreeSPEntry> {
-	public int[] edge;
 	public int adjNode;
-	public double[] weights;
-	public boolean[] update;
-	public MultiTreeSPEntry[] parent;
 	public boolean visited = false;
+	private MultiTreeSPEntryItem[] items;
+	private double totalWeight = 0.0;
 
-	public MultiTreeSPEntry(int adjNode, int numTrees) {
-		this.edge = new int[numTrees];
+	public MultiTreeSPEntry(int adjNode, int edgeId, double edgeWeight, boolean updated, MultiTreeSPEntry parent, int numTrees) {
 		this.adjNode = adjNode;
-		this.weights = new double[numTrees];
-		this.update = new boolean[numTrees];
-		this.parent = new MultiTreeSPEntry[numTrees];
+		this.items = new MultiTreeSPEntryItem[numTrees];
+		double entryWeight;
+		
+		for (int i = 0; i < numTrees; ++i)
+		{
+			MultiTreeSPEntryItem item = new MultiTreeSPEntryItem();
+			items[i] = item;
+
+			entryWeight = parent == null ? 0.0 : parent.items[i].weight;
+			if (entryWeight == 0.0 && parent != null)
+				continue;
+
+			item.weight = edgeWeight + entryWeight;
+			item.parent = parent;
+			item.edge = edgeId;
+			item.update = updated;
+			totalWeight += item.weight;
+		}
+	}
+	
+	private MultiTreeSPEntry(MultiTreeSPEntry entry) {
+		int numTrees = entry.items.length;
+		this.items = new MultiTreeSPEntryItem[numTrees];
+		
+		for (int i = 0; i < numTrees; ++i)
+		{
+			MultiTreeSPEntryItem item = new MultiTreeSPEntryItem();
+			entry.items[i].assignFrom(item);
+			items[i] = item;
+		}
+		
+		totalWeight = entry.totalWeight;
 	}
 
-	/**
-	 * This method returns the weight to the origin e.g. to the start for the
-	 * forward SPT and to the destination for the backward SPT. Where the
-	 * variable 'weight' is used to let heap select smallest *full* weight (from
-	 * start to destination).
-	 */
-	public double[] getWeightOfVisitedPath() {
-		return weights;
+	public int getSize()
+	{
+		return items.length;
+	}
+
+	public MultiTreeSPEntryItem getItem(int index)
+	{
+		return items[index];
+	}
+
+	public void resetUpdate(boolean value)
+	{
+		for (int i = 0; i < items.length; i++) {
+			items[i].update = value;
+		}
 	}
 
 	@Override
 	public MultiTreeSPEntry clone() {
-		MultiTreeSPEntry res = new MultiTreeSPEntry(adjNode, edge.length);
-
-		for (int i = 0; i < edge.length; i++) {
-			res.edge[i] = edge[i];
-			res.weights[i] = weights[i];
-			res.parent[i] = parent[i];
-		}
-
+		MultiTreeSPEntry res = new MultiTreeSPEntry(this);
 		return res;
 	}
 
 	public MultiTreeSPEntry cloneFull() {
 		throw new UnsupportedOperationException("cloneFull not supported");
 	}
+	
+	public void updateWeights()
+	{
+		totalWeight = 0.0;
+		
+		for (int i = 0; i < items.length; i++) {
+			totalWeight += items[i].weight;
+		}
+	}
 
 	@Override
 	public int compareTo(MultiTreeSPEntry o) {
-		double s1 = 0;
-		double s2 = 0;
-		for (int i = 0; i < weights.length; i++) {
-			s1 += weights[i];
-			s2 += o.weights[i];
-		}
-		if (s1 < s2)
+		if (totalWeight < o.totalWeight)
 			return -1;
 
 		// assumption no NaN and no -0
-		return s1 > s2 ? 1 : 0;
+		return totalWeight > o.totalWeight ? 1 : 0;
 	}
 
 	@Override
 	public String toString() {
-		return adjNode + " (" + edge + ") weight: " + weights;
+		return adjNode + " (" + 0 + ") weights: " + totalWeight; // TODO
 	}
 }

@@ -17,44 +17,44 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.SPTEntry;
 
 import heigit.ors.matrix.MatrixLocations;
 import heigit.ors.matrix.MatrixMetricsType;
 import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
-import heigit.ors.matrix.PathMetricsExtractor;
+import heigit.ors.matrix.MultiTreeMetricsExtractor;
 import heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
 import heigit.ors.routing.algorithms.RPHASTAlgorithm;
+import heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
 
 public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 	private PrepareContractionHierarchies _prepareCH;
-	private PathMetricsExtractor _pathMetricsExtractor;
-	
-	public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting)
-	{
+	private MultiTreeMetricsExtractor _pathMetricsExtractor;
+
+	public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting) {
 		super.init(req, gh, graph, encoder, weighting);
 
 		_prepareCH = _graphHopper.getCHFactoryDecorator().getPreparations().get(0);
-		_pathMetricsExtractor = new PathMetricsExtractor(req.getMetrics(), graph, _encoder, weighting, req.getUnits());
+		_pathMetricsExtractor = new MultiTreeMetricsExtractor(req.getMetrics(), graph, _encoder, weighting,
+				req.getUnits());
 	}
 
 	@Override
 	public MatrixResult compute(MatrixLocations srcData, MatrixLocations dstData, int metrics) throws Exception {
 		MatrixResult mtxResult = new MatrixResult(srcData.getLocations(), dstData.getLocations());
 
-		float[] times = null; 
-		float[] distances = null; 
+		float[] times = null;
+		float[] distances = null;
 		float[] weights = null;
- 
+
 		int tableSize = srcData.size() * dstData.size();
 		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Duration))
 			times = new float[tableSize];
-		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Distance)) 
+		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Distance))
 			distances = new float[tableSize];
 		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Weight))
 			weights = new float[tableSize];
- 
+
 		if (!srcData.hasValidNodes() || !dstData.hasValidNodes())
 		{
 			for (int srcIndex = 0; srcIndex < srcData.size(); srcIndex++) 
@@ -62,24 +62,13 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 		}
 		else
 		{
-			RPHASTAlgorithm algorithm = new RPHASTAlgorithm(_graph, _prepareCH.getPrepareWeighting(), TraversalMode.NODE_BASED);
-			algorithm.prepare(srcData.getNodeIds(), dstData.getNodeIds());
-			
-			int sourceId = -1;  
+			RPHASTAlgorithm algorithm = new RPHASTAlgorithm(_graph, _prepareCH.getPrepareWeighting(),
+					TraversalMode.NODE_BASED);
 
-			for (int srcIndex = 0; srcIndex < srcData.size(); srcIndex++) {
-				sourceId = srcData.getNodeId(srcIndex);
-				if (sourceId == -1)
-				{
-					_pathMetricsExtractor.setEmptyValues(srcIndex, srcData, dstData, times, distances, weights);
-				}
-				else
-				{  
-					algorithm.reset();
-					SPTEntry[] destTrees = algorithm.calcPaths(sourceId, dstData.getNodeIds());
-					_pathMetricsExtractor.calcValues(srcIndex, destTrees, srcData, dstData, times, distances, weights); 
-				}
-			}
+			algorithm.prepare(srcData.getNodeIds(), dstData.getNodeIds());
+
+			MultiTreeSPEntry[] destTrees = algorithm.calcPaths(srcData.getNodeIds(), dstData.getNodeIds());
+			_pathMetricsExtractor.calcValues(destTrees, srcData, dstData, times, distances, weights);
 		}
 
 		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Duration))

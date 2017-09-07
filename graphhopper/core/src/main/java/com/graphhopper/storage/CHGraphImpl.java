@@ -430,6 +430,9 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
 		
 		@Override
 		public boolean next() {
+			if (nextEdgeId == EdgeIterator.NO_EDGE)
+				return false;
+
 			while (true) {
 				if (nextEdgeId == EdgeIterator.NO_EDGE)
 					return false;
