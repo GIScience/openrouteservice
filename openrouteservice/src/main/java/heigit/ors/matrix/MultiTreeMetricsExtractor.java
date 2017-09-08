@@ -101,11 +101,12 @@ public class MultiTreeMetricsExtractor {
 				if (srcData.getNodeId(j) != -1)
 				{
 					MultiTreeSPEntry targetEntry = targets[i];
-					pathTime = 0.0;
-					pathDistance = 0.0;
-					pathWeight = 0.0;
 
-					if (targetEntry != null) { 
+					if (targetEntry != null) {
+						pathTime = 0.0;
+						pathDistance = 0.0;
+						pathWeight = 0.0;
+
 						sptItem = targetEntry.getItem(j);
 						
 						if (sptItem.parent != null) {

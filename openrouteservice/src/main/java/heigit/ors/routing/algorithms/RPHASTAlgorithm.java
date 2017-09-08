@@ -13,9 +13,6 @@ package heigit.ors.routing.algorithms;
 
 import java.util.PriorityQueue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.QueryGraph;
@@ -26,7 +23,6 @@ import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
-import com.graphhopper.util.StopWatch;
 
 import heigit.ors.routing.graphhopper.extensions.edgefilters.DownwardSearchEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.UpwardSearchEdgeFilter;
@@ -34,7 +30,7 @@ import heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
 import heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
 
 public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	//private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private IntObjectMap<MultiTreeSPEntry> _bestWeightMapFrom;
 	private MultiTreeSPEntry _currFrom;
@@ -114,8 +110,8 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 			}
 		}
 
-		if (logger.isInfoEnabled())
-			_targetGraph.print();
+		//if (logger.isInfoEnabled())
+		//	_targetGraph.print();
 	}
 
 	private void addNodes(SubGraph graph, PriorityQueue<Integer> prioQueue, int[] nodes) {
@@ -171,6 +167,9 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 	@Override
 	public MultiTreeSPEntry[] calcPaths(int[] from, int[] to) {
 		for (int i = 0; i < from.length; i++) {
+			if (from[i] == -1)
+			  continue;
+			
 			_currFrom = new MultiTreeSPEntry(from[i], EdgeIterator.NO_EDGE, 0.0, true, null, from.length);
 			_currFrom.getItem(i).weight = 0.0001;
 			_currFrom.visited = true;
@@ -183,18 +182,18 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 		}
  
 		outEdgeExplorer = graph.createEdgeExplorer();
-		StopWatch sw = new StopWatch();
-		sw.start();
+	//	StopWatch sw = new StopWatch();
+	//	sw.start();
 
 		runUpwardSearch();
 
-		sw.stop();
+	//	sw.stop();
 		
-		if (logger.isInfoEnabled())
-		{
-			logger.info(Long.toString(sw.getTime()));
-			logger.info("HN: " + Integer.toString(_upwardEdgeFilter.getHighestNode()));
-		}
+	//	if (logger.isInfoEnabled())
+	//	{
+	//		logger.info(Long.toString(sw.getTime()));
+	//		logger.info("HN: " + Integer.toString(_upwardEdgeFilter.getHighestNode()));
+	//	}
 
 		_currFrom = _bestWeightMapFrom.get(_upwardEdgeFilter.getHighestNode());
 		_currFrom.visited = true;
@@ -203,19 +202,19 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 		_prioQueue.add(_currFrom);
 
 		outEdgeExplorer = _targetGraph.createExplorer();
-		sw = new StopWatch();
-		sw.start();
+	//	sw = new StopWatch();
+	//	sw.start();
 		runDownwardSearch();
-		sw.stop();
+	//	sw.stop();
 		
-		if (logger.isInfoEnabled())
-		{
-			logger.info(Long.toString(sw.getTime()));
+	//	if (logger.isInfoEnabled())
+	//	{
+	//		logger.info(Long.toString(sw.getTime()));
 			
-			logger.info("Iters: " + upwardIters + " " + downwardIters);
-			logger.info("Total: " + upwardItersTotal + " " + downwardItersTotal);
-			logger.info("Skipped: " + upwardItersSkipped + " " + downwardItersSkipped);
-		}
+	//		logger.info("Iters: " + upwardIters + " " + downwardIters);
+	//		logger.info("Total: " + upwardItersTotal + " " + downwardItersTotal);
+	//		logger.info("Skipped: " + upwardItersSkipped + " " + downwardItersSkipped);
+	//	}
 		
 		MultiTreeSPEntry[] targets = new MultiTreeSPEntry[to.length];
 
@@ -225,12 +224,12 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 		return targets;
 	}
 
-	private int downwardIters = 0;
+/*	private int downwardIters = 0;
 	private int upwardIters = 0;
 	private int downwardItersTotal = 0;
 	private int upwardItersTotal = 0;
 	private int downwardItersSkipped = 0;
-	private int upwardItersSkipped = 0;
+	private int upwardItersSkipped = 0;*/
 
 	private void fillEdgesUpward(MultiTreeSPEntry currEdge, PriorityQueue<MultiTreeSPEntry> prioQueue,
 			IntObjectMap<MultiTreeSPEntry> shortestWeightMap, EdgeExplorer explorer) {
@@ -276,7 +275,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 						MultiTreeSPEntryItem eeItem = ee.getItem(i);
 
 						if (edgeItem.update == false) {
-							upwardItersSkipped++;
+		//					upwardItersSkipped++;
 							continue;
 						}
 						
@@ -289,10 +288,10 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 							eeItem.update = true;
 							
 							addToQ = true;
-							upwardIters++;
+		//					upwardIters++;
 
-						} else
-							upwardItersTotal++;
+						} //else
+		//					upwardItersTotal++;
 						
 						nonEmptyValues++;
 					}
@@ -350,7 +349,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 							continue;
 
 						if (edgeItem.update == false) {
-							downwardItersSkipped++;
+		//					downwardItersSkipped++;
 							continue;
 						}
 
@@ -365,9 +364,9 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 							eeItem.update = true;
 							
 							addToQ = true;
-							downwardIters++;
-						} else
-							downwardItersTotal++;
+		//					downwardIters++;
+						} //else
+						//	downwardItersTotal++;
 					}
 					
 					ee.updateWeights();
