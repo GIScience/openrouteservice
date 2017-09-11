@@ -2,7 +2,7 @@
  *|														Heidelberg University
  *|	  _____ _____  _____      _                     	Department of Geography		
  *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
- *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2016
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014-2017
  *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
  *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
  *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
@@ -476,7 +476,7 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 
 	private String buildBboxFilter(Envelope bbox)
 	{
-		return  String.format(" (geom && ST_Transform(ST_MakeEnvelope(%.7f,%.7f,%.7f,%.7f,4326), 900913))", bbox.getMinX(), bbox.getMinY(), bbox.getMaxX(), bbox.getMaxY());
+		return String.format(" (geom && ST_Transform(ST_MakeEnvelope(%.7f,%.7f,%.7f,%.7f,4326), 900913))", bbox.getMinX(), bbox.getMinY(), bbox.getMaxX(), bbox.getMaxY());
 	}
 
 	private String buildCategoryIdsFilter(int[] ids)
@@ -486,8 +486,10 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 
 		if (ids.length == 1)
 			return "category = " + ids[0];
+			//return "(categories && '{" + ids[0]+ "}'::smallint[])"; // TODO
 		else
 			return "category IN (" + ArraysUtility.toString(ids, ", ") + ")";
+			//return "(categories && '{" + ArraysUtility.toString(ids, ", ")+ "}'::smallint[])";
 	}
 
 	private String buildCategoryGroupIdsFilter(int[] ids) throws Exception

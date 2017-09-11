@@ -615,7 +615,7 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 				weightToPrioMap.put(50d, AVOID_IF_POSSIBLE.getValue());
 			else if (maxSpeed >= AVOID_AT_ALL_COSTS.getValue())
 				weightToPrioMap.put(50d, REACH_DEST.getValue());
-		}
+		} 
 
 		if (preferHighwayTags.contains(highway) || (maxSpeed > 0 && maxSpeed <= 30)) {
 			if (maxSpeed >= avoidSpeedLimit) // Runge
@@ -623,7 +623,12 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 			else if (maxSpeed >= 50 && avoidSpeedLimit <= 70) // Runge racingbike
 				weightToPrioMap.put(40d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
 			else
-				weightToPrioMap.put(40d, PREFER.getValue());
+			{
+				if (maxSpeed >= 50)
+					weightToPrioMap.put(40d, UNCHANGED.getValue());
+				else
+					weightToPrioMap.put(40d, PREFER.getValue());
+			}
 
 			if (way.hasTag("tunnel", intendedValues))
 				weightToPrioMap.put(40d, UNCHANGED.getValue());
@@ -789,7 +794,7 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 					}
 					else
 						SteepnessUtil.computeRouteSplits(pl, false, distCalc, splits);
-
+ 
 					prevEdgeId = edge.getOriginalEdge();
 				}
 

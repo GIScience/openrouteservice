@@ -78,18 +78,22 @@ public class SteepnessUtil {
 			double length = dc.calcDist(y0, x0, y1, x1);
 			cumElev += elevDiff;
 			
+			splitLength += length;
+			
 			prevMinAltitude = minAltitude;
 			prevMaxAltitude = maxAltitude;
 			if (z1 > maxAltitude)
 				maxAltitude = z1;
 			if (z1 < minAltitude)
 				minAltitude = z1;
-			
+			 
 			if (maxAltitude - z1 > ELEVATION_THRESHOLD || z1 - minAltitude > ELEVATION_THRESHOLD)
 			{
 				boolean bApply = true;
 				int elevSign = cumElev > 0 ? 1 : -1;
 				double gradient = elevSign*100*(prevMaxAltitude - prevMinAltitude) / splitLength;
+				if (Double.isNaN(gradient) || Math.abs(gradient) > 30) // possibly noise
+					gradient = 0.0;
 				
 				if (prevGC != 0 )
 				{
@@ -101,7 +105,6 @@ public class SteepnessUtil {
 							zn = points.getEle(jj + 1);
 					}
 					else
-
 					{
 						if (jj - 1 >= 0)
 							zn = points.getEle(jj - 1);
@@ -159,8 +162,6 @@ public class SteepnessUtil {
 				}
 			}
 			
-			splitLength += length;
-			
 			x0 = x1;
 			y0 = y1;
 			z0 = z1;
@@ -174,6 +175,9 @@ public class SteepnessUtil {
 			if (splits.size() == 0 && splitLength < 50 && elevDiff < ELEVATION_THRESHOLD)
 				elevDiff = 0;
 			double gradient = (cumElev > 0 ? 1: -1)*100*elevDiff / splitLength;
+			if (Math.abs(gradient) > 7 && maxAltitude < 100 && splitLength < 120)
+				gradient = 0.0; //  noise
+				
 			int gc = getCategory(gradient);
 			if (prevSplit != null && (prevSplit.Value == gc || splitLength < 25))
 			{

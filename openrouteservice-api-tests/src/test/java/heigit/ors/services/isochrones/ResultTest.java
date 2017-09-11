@@ -19,7 +19,6 @@ public class ResultTest extends ServiceTest {
 		addParameter("locations", "8.684177,49.423034|8.684177,49.411034");
 		addParameter("preference", "fastest");
 		addParameter("profile", "cycling-regular");
-
 	}
 
 	@Test
@@ -34,7 +33,7 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.body("any { it.key == 'type' }", is(true))
 				.body("any { it.key == 'features' }", is(true))
-				.body("features[0].geometry.coordinates[0].size()", is(31))
+				.body("features[0].geometry.coordinates[0].size()", is(29))
 				.body("features[0].properties.center.size()", is(2))
 				.body("features[0].properties.center[0]", is(8.684177f))
 				.body("features[0].properties.center[1]", is(49.423034f))
@@ -91,8 +90,8 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.body("any { it.key == 'type' }", is(true))
 				.body("any { it.key == 'features' }", is(true))
-				.body("features[0].properties.area", is(1.4704981E7f))
-				.body("features[0].properties.reachfactor", is(0.1517f))
+				.body("features[0].properties.area", is(1.4872687E7f))
+				.body("features[0].properties.reachfactor", is(0.1534f))
 				.statusCode(200);
 	}
 
@@ -117,10 +116,10 @@ public class ResultTest extends ServiceTest {
 				.body("features[1].geometry.type", is("Polygon"))
 				.body("features[2].type", is("Feature"))
 				.body("features[2].geometry.type", is("Polygon"))
-				.body("features[2].geometry.coordinates[0].size()", is(28))
+				.body("features[2].geometry.coordinates[0].size()", is(25))
 				.body("features[2].properties.contours.size()", is(2))
 				.body("features[2].properties.containsKey('area')", is(true))
-				.body("features[2].properties.area", is(5846232.5f))
+				.body("features[2].properties.area", is(6059915.0f))
 				.body("features[2].properties.contours[0][0]", is(0))
 				.body("features[2].properties.contours[0][1]", is(0))
 				.body("features[2].properties.contours[1][0]", is(1))

@@ -18,6 +18,9 @@ public class PreferencePriorityWeighting extends FastestWeighting
 	
 	private static final Double THRESHOLD_REACH_DEST = (double) (PriorityCode.REACH_DEST.getValue() / (double)PriorityCode.BEST
 			.getValue());
+	
+	private Double THRESHOLD_PREFER = (double) (PriorityCode.PREFER.getValue() / (double)PriorityCode.BEST
+			.getValue());
 
 	private Double THRESHOLD_VERY_NICE = (double) (PriorityCode.VERY_NICE.getValue() / (double)PriorityCode.BEST
 			.getValue());
@@ -35,7 +38,7 @@ public class PreferencePriorityWeighting extends FastestWeighting
     }
 
     @Override
-    public double calcWeight( EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId )
+    public double calcWeight( EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId)
     {
     	double weight = super.calcWeight(edgeState, reverse, prevOrNextEdgeId);
 		if (Double.isInfinite(weight))
@@ -44,14 +47,15 @@ public class PreferencePriorityWeighting extends FastestWeighting
     	double priority = getFlagEncoder().getDouble(edgeState.getFlags(encoderIndex), KEY);
 
 		if (priority <= THRESHOLD_REACH_DEST)
-			priority /= 2.0;
-		else if (priority <= THRESHOLD_AVOID_IF_POSSIBLE)
 			priority /= 1.5;
+		else if (priority <= THRESHOLD_AVOID_IF_POSSIBLE)
+			priority /= 1.25;
+		else if (priority == THRESHOLD_PREFER)
+			priority *= 1.5;
 		else if (priority >= THRESHOLD_VERY_NICE)
-			priority *= 3.0;
+			priority *= 2.2;
 		
 		 return weight / (0.5 + priority);
-		//return weight/10000.0 + 1.0/(0.5 + priority);
     }
     
     @Override

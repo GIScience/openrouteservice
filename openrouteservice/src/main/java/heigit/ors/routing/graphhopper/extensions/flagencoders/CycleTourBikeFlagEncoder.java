@@ -21,12 +21,12 @@ public class CycleTourBikeFlagEncoder extends BikeCommonFlagEncoder {
 
 	public CycleTourBikeFlagEncoder(PMap configuration) {
 		super(configuration.getInt("speed_bits", 4) + (configuration.getBool("consider_elevation", false) ? 1 : 0),
-			    configuration.getDouble("speed_factor", 2),
+				configuration.getDouble("speed_factor", 2),
 				configuration.getBool("turn_costs", false) ? 3 : 0, 
-				configuration.getBool("consider_elevation", false));
+						configuration.getBool("consider_elevation", false));
 
 		setBlockFords(false);
-        this.setBlockFords(configuration.getBool("block_fords", true));
+		this.setBlockFords(configuration.getBool("block_fords", true));
 
 		setCyclingNetworkPreference("icn", BEST.getValue());
 		setCyclingNetworkPreference("ncn", BEST.getValue());
@@ -60,7 +60,7 @@ public class CycleTourBikeFlagEncoder extends BikeCommonFlagEncoder {
 		setAvoidSpeedLimit(61);
 
 		setSpecificClassBicycle("touring");
-		
+
 		init();
 	}
 
@@ -80,9 +80,9 @@ public class CycleTourBikeFlagEncoder extends BikeCommonFlagEncoder {
 			weightToPrioMap.put(100d, VERY_NICE.getValue());
 		if ("cycleway".equals(highway))
 			weightToPrioMap.put(100d, BEST.getValue());
-		
+
 		double maxSpeed = getMaxSpeed(way);
-		
+
 		String cycleway = getCycleway(way); // Runge
 		if (!Helper.isEmpty(cycleway) && (cycleway.equals("track") || cycleway.equals("lane")))
 		{
@@ -93,7 +93,7 @@ public class CycleTourBikeFlagEncoder extends BikeCommonFlagEncoder {
 			else if (maxSpeed >= AVOID_AT_ALL_COSTS.getValue())
 				weightToPrioMap.put(50d, REACH_DEST.getValue());
 		}
-		
+
 		if (preferHighwayTags.contains(highway) || maxSpeed > 0 && maxSpeed <= 30) {
 			if (maxSpeed >= avoidSpeedLimit) // Runge
 				weightToPrioMap.put(55d, AVOID_AT_ALL_COSTS.getValue());
@@ -104,9 +104,14 @@ public class CycleTourBikeFlagEncoder extends BikeCommonFlagEncoder {
 				if ("path".equals(highway))
 					weightToPrioMap.put(40d, AVOID_IF_POSSIBLE.getValue());
 				else
-					weightToPrioMap.put(40d, PREFER.getValue());
+				{
+					if (maxSpeed >= 50)
+						weightToPrioMap.put(40d, UNCHANGED.getValue());
+					else
+						weightToPrioMap.put(40d, PREFER.getValue());
+				}
 			}
- 
+
 			if (way.hasTag("tunnel", intendedValues))
 				weightToPrioMap.put(40d, AVOID_IF_POSSIBLE.getValue());
 		} else {
@@ -147,13 +152,13 @@ public class CycleTourBikeFlagEncoder extends BikeCommonFlagEncoder {
 			}
 		}
 	}
-	
-	@Override
-    public int getVersion() {
-        return 2;
-    }
 
-    @Override
+	@Override
+	public int getVersion() {
+		return 2;
+	}
+
+	@Override
 	protected double getDownhillMaxSpeed()
 	{
 		return 50;
