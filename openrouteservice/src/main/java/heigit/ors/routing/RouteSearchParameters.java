@@ -196,7 +196,7 @@ public class RouteSearchParameters {
 				CyclingParameters cyclingParams = new CyclingParameters();
 
 				// To make the new API compatible with a new one, we create 'weightings' element.
-				if (!jProfileParams.has("weightings") && (jProfileParams.has("difficulty_level") || jProfileParams.has("maximum_gradient")))
+				/*if (!jProfileParams.has("weightings") && (jProfileParams.has("difficulty_level") || jProfileParams.has("maximum_gradient")))
 				{
 					JSONObject jWeightings = new JSONObject();
 
@@ -206,13 +206,13 @@ public class RouteSearchParameters {
 						jWeightings.put("maximum_gradient", jProfileParams.get("maximum_gradient"));
 
 					jProfileParams.put("weightings", jWeightings);
-				}
+				}*/
 
 				if (jRestrictions != null)
 				{
 					if (jRestrictions.has("gradient"))
 						cyclingParams.setMaximumGradient(jRestrictions.getInt("gradient"));
-					
+
 					if (jRestrictions.has("trail_difficulty"))
 						cyclingParams.setMaximumTrailDifficulty(jRestrictions.getInt("trail_difficulty"));
 				}
@@ -223,7 +223,7 @@ public class RouteSearchParameters {
 				WalkingParameters walkingParams = new WalkingParameters();
 
 				// To make the new API compatible with a new one, we create 'weightings' element.
-				if (!jProfileParams.has("weightings") && (jProfileParams.has("difficulty_level") || jProfileParams.has("maximum_gradient")))
+				/*if (!jProfileParams.has("weightings") && (jProfileParams.has("difficulty_level") || jProfileParams.has("maximum_gradient")))
 				{
 					JSONObject jWeightings = new JSONObject();
 
@@ -233,7 +233,7 @@ public class RouteSearchParameters {
 						jWeightings.put("maximum_gradient", jProfileParams.get("maximum_gradient"));
 
 					jProfileParams.put("weightings", jWeightings);
-				}
+				}*/
 
 				if (jRestrictions != null)
 				{
@@ -243,7 +243,7 @@ public class RouteSearchParameters {
 					if (jRestrictions.has("trail_difficulty"))
 						walkingParams.setMaximumTrailDifficulty(jRestrictions.getInt("trail_difficulty"));
 				}
-				
+
 				_profileParams = walkingParams;
 			}
 			else if (RoutingProfileType.isHeavyVehicle(_profileType) == true)
@@ -390,7 +390,7 @@ public class RouteSearchParameters {
 		return _flexibleMode;
 	}
 
-	public void setFlexibleMode(boolean _flexibleMode) {
-		this._flexibleMode = _flexibleMode;
+	public void setFlexibleMode(boolean flexibleMode) {
+		_flexibleMode = flexibleMode;
 	}
 }
