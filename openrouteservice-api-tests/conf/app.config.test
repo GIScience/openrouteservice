@@ -67,7 +67,7 @@
 					db_name: "gis",
 					user: "admin", 
 					password : "gZwe5Nj", 
-					table_name : "planet_osm_pois_test"
+					table_name : "planet_osm_pois_42"
 				},
 				response_limit: 1000,
 				maximum_categories: 5,
