@@ -26,14 +26,14 @@ stages:
 maven-gh-install: 
   stage: gh-install
   only: 
-    - master
+    - development
   script: 
     - mvn -f ./graphhopper/pom.xml install -B
 
 maven-ors-install:
   stage: ors-install
   only:
-    - master
+    - development
   script: 
     - mvn -f ./openrouteservice/pom.xml install -B
   artifacts:
@@ -43,7 +43,7 @@ maven-ors-install:
 maven-ors-api-test:
   stage: ors-api-test
   only:
-    - master  
+    - development  
   before_script:
     - cp ./openrouteservice-api-tests/conf/app.config.test ./openrouteservice/WebContent/WEB-INF/app.config
     - mvn -f ./openrouteservice/pom.xml install -B
@@ -55,7 +55,7 @@ maven-ors-api-test:
 ors-deploy-chia:
   stage: ors-deploy-chia
   only:
-    - master
+    - development
   before_script:
     - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
     - mkdir -p ~/.ssh
