@@ -68,7 +68,7 @@ public class TrailDifficultyEdgeFilter implements EdgeFilter {
 				boolean uphill = false;
 				if (_extHillIndex != null)
 				{
-					boolean revert = iter.getBaseNode() > iter.getAdjNode();
+					boolean revert = iter.getBaseNode() < iter.getAdjNode();
 					int hillIndex = _extHillIndex.getEdgeValue(iter.getOriginalEdge(), revert, _buffer);
 					if (hillIndex > 0)
 						uphill = true;

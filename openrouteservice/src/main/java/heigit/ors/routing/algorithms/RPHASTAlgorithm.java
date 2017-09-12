@@ -44,7 +44,8 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 	private int _visitedCountFrom;
 	private int _visitedCountTo;
 	private int _treeEntrySize;
-
+	private int _targetsSize;
+	
 	public RPHASTAlgorithm(Graph graph, Weighting weighting, TraversalMode traversalMode) {
 		super(graph, weighting, traversalMode);
 
@@ -87,6 +88,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 	public void prepare(int[] sources, int[] targets) {
 		PriorityQueue<Integer> prioQueue = new PriorityQueue<>(100);
 		_treeEntrySize = sources.length;
+		_targetsSize = targets.length; 
 
 		// Phase I: build shortest path tree from all target nodes to the
 		// highest node
@@ -302,16 +304,16 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 						prioQueue.add(ee);
 					}
 
-					if (nonEmptyValues == _treeEntrySize && _targetGraph.containsNode(iter.getAdjNode())) 
-						canMergeTrees = true;
+					/*if (//_targetsSize > 1 && //nonEmptyValues == _targetsSize && _targetGraph.containsNode(iter.getAdjNode())) 
+						canMergeTrees = true;*/
 				}
 			}
 		}
 		
 		currEdge.resetUpdate(false);
 		
-		if (canMergeTrees)
-			prioQueue.clear();
+		/*if (canMergeTrees)
+			prioQueue.clear();*/
 	}
 
 	private void fillEdgesDownward(MultiTreeSPEntry currEdge, PriorityQueue<MultiTreeSPEntry> prioQueue,

@@ -13,7 +13,7 @@ package heigit.ors.routing.parameters;
 
 public class CyclingParameters extends ProfileParameters 
 {
-	private int _maximumTrailDifficulty = Integer.MAX_VALUE;
+	private int _maximumTrailDifficulty = -1;
 	
 	public CyclingParameters()
 	{

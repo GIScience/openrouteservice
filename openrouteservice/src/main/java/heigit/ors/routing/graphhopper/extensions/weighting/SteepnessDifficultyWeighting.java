@@ -24,7 +24,6 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
 	private HillIndexGraphStorage gsHillIndex;
 	private byte[] buffer;
 	private double[] difficultyWeights;
-	private double maxSteepness;
 	
 	private static double BIKE_DIFFICULTY_MATRIX[][];
 	//private static double HIKE_DIFFICULTY_MATRIX[][];
@@ -202,8 +201,6 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
         			difficultyWeights = BIKE_DIFFICULTY_MATRIX[difficultyLevel];
         	}
         }
-        
-        this.maxSteepness = map.getDouble("maximum_gradient", -1);
     }
     
     @Override
@@ -213,9 +210,6 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
     	{
     		boolean revert = edgeState.getBaseNode() < edgeState.getAdjNode();
     		int hillIndex = gsHillIndex.getEdgeValue(edgeState.getOriginalEdge(), revert, buffer);
-    		
-    		if (maxSteepness > 0 && hillIndex > maxSteepness)
-    			return Double.POSITIVE_INFINITY;
 
     		if (difficultyWeights != null)
     			return difficultyWeights[hillIndex];
