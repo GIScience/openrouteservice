@@ -62,7 +62,7 @@ public class TrailDifficultyEdgeFilter implements EdgeFilter {
 				int value = _extTrailDifficulty.getHikingScale(iter.getOriginalEdge(), _buffer);
 				if (value > _maximumScale)
 					return false;
-			}
+			} 
 			else
 			{
 				boolean uphill = false;
