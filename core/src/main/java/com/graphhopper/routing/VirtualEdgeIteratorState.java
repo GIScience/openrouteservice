@@ -18,6 +18,10 @@
 package com.graphhopper.routing;
 
 import com.graphhopper.routing.util.FlagEncoder;
+<<<<<<< HEAD
+=======
+import com.graphhopper.util.ByteArrayBuffer;
+>>>>>>> ors/master
 import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.GHUtility;
@@ -32,6 +36,10 @@ import com.graphhopper.util.PointList;
 public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIteratorState {
     private final PointList pointList;
     private final int edgeId;
+<<<<<<< HEAD
+=======
+    private final int originalEdgeId; 
+>>>>>>> ors/master
     private final int baseNode;
     private final int adjNode;
     private final int originalTraversalKey;
@@ -42,9 +50,16 @@ public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIterat
     private boolean unfavored;
     private EdgeIteratorState reverseEdge;
 
+<<<<<<< HEAD
     public VirtualEdgeIteratorState(int originalTraversalKey, int edgeId, int baseNode, int adjNode, double distance, long flags, String name, PointList pointList) {
         this.originalTraversalKey = originalTraversalKey;
         this.edgeId = edgeId;
+=======
+    public VirtualEdgeIteratorState(int originalTraversalKey, int edgeId, int originalEdgeId, int baseNode, int adjNode, double distance, long flags, String name, PointList pointList) {
+        this.originalTraversalKey = originalTraversalKey;
+        this.edgeId = edgeId;
+        this.originalEdgeId = originalEdgeId;
+>>>>>>> ors/master
         this.baseNode = baseNode;
         this.adjNode = adjNode;
         this.distance = distance;
@@ -68,6 +83,14 @@ public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIterat
     public int getEdge() {
         return edgeId;
     }
+<<<<<<< HEAD
+=======
+    
+	@Override
+	public int getOriginalEdge() {
+		return originalEdgeId;
+	}
+>>>>>>> ors/master
 
     @Override
     public int getBaseNode() {
@@ -80,6 +103,15 @@ public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIterat
     }
 
     @Override
+<<<<<<< HEAD
+=======
+    public PointList fetchWayGeometry( int mode, ByteArrayBuffer buffer )
+    {
+    	return fetchWayGeometry(mode);
+    }
+
+    @Override
+>>>>>>> ors/master
     public PointList fetchWayGeometry(int mode) {
         if (pointList.getSize() == 0)
             return PointList.EMPTY;
@@ -120,6 +152,14 @@ public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIterat
     }
 
     @Override
+<<<<<<< HEAD
+=======
+    public long getFlags(int encoderIndex) {
+        return flags;
+    }
+    
+    @Override
+>>>>>>> ors/master
     public EdgeIteratorState setFlags(long flags) {
         this.flags = flags;
         return this;

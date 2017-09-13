@@ -35,6 +35,11 @@ public interface EdgeIteratorState {
      * values, except that for an implementation it is recommended that they'll be contiguous.
      */
     int getEdge();
+<<<<<<< HEAD
+=======
+    
+    int getOriginalEdge(); // Runge
+>>>>>>> ors/master
 
     /**
      * Returns the node used to instantiate the EdgeIterator. Example: "EdgeIterator iter =
@@ -67,6 +72,11 @@ public interface EdgeIteratorState {
      * @return pillar nodes
      */
     PointList fetchWayGeometry(int mode);
+<<<<<<< HEAD
+=======
+    
+    PointList fetchWayGeometry( int mode, ByteArrayBuffer buffer);
+>>>>>>> ors/master
 
     /**
      * @param list is a sorted collection of nodes between the baseNode and the current adjacent
@@ -82,6 +92,11 @@ public interface EdgeIteratorState {
     EdgeIteratorState setDistance(double dist);
 
     long getFlags();
+<<<<<<< HEAD
+=======
+    
+    long getFlags(int encoderIndex);
+>>>>>>> ors/master
 
     EdgeIteratorState setFlags(long flags);
 

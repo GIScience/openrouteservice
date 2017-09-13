@@ -18,7 +18,13 @@
 package com.graphhopper.routing;
 
 import com.graphhopper.routing.util.DefaultEdgeFilter;
+<<<<<<< HEAD
 import com.graphhopper.routing.util.FlagEncoder;
+=======
+import com.graphhopper.routing.util.EdgeAnnotator;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.PathProcessor;
+>>>>>>> ors/master
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
@@ -38,7 +44,10 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
     private final FlagEncoder encoder;
     private final NodeAccess nodeAccess;
 
+<<<<<<< HEAD
     private final Translation tr;
+=======
+>>>>>>> ors/master
     private final InstructionList ways;
     /*
      * We need three points to make directions
@@ -72,12 +81,22 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
     private InstructionAnnotation prevAnnotation;
     private EdgeExplorer outEdgeExplorer;
     private EdgeExplorer crossingExplorer;
+<<<<<<< HEAD
 
     public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder, NodeAccess nodeAccess, Translation tr, InstructionList ways) {
         this.weighting = weighting;
         this.encoder = encoder;
         this.nodeAccess = nodeAccess;
         this.tr = tr;
+=======
+    private PathProcessingContext pathProcCntx;
+    
+    public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder, NodeAccess nodeAccess, PathProcessingContext pathProcCntx, InstructionList ways) {
+        this.weighting = weighting;
+        this.encoder = encoder;
+        this.nodeAccess = nodeAccess;
+        this.pathProcCntx = pathProcCntx;
+>>>>>>> ors/master
         this.ways = ways;
         prevLat = this.nodeAccess.getLatitude(tmpNode);
         prevLon = this.nodeAccess.getLongitude(tmpNode);
@@ -88,9 +107,14 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         crossingExplorer = graph.createEdgeExplorer(new DefaultEdgeFilter(encoder, true, true));
     }
 
+<<<<<<< HEAD
 
     @Override
     public void next(EdgeIteratorState edge, int index, int prevEdgeId) {
+=======
+    @Override
+    public void next(EdgeIteratorState edge, int index, int count, int prevEdgeId) {
+>>>>>>> ors/master
         // baseNode is the current node and adjNode is the next
         int adjNode = edge.getAdjNode();
         int baseNode = edge.getBaseNode();
@@ -99,7 +123,11 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         double adjLon = nodeAccess.getLongitude(adjNode);
         double latitude, longitude;
 
+<<<<<<< HEAD
         PointList wayGeo = edge.fetchWayGeometry(3);
+=======
+        PointList wayGeo = edge.fetchWayGeometry(3, pathProcCntx.getByteBuffer());
+>>>>>>> ors/master
         boolean isRoundabout = encoder.isBool(flags, FlagEncoder.K_ROUNDABOUT);
 
         if (wayGeo.getSize() <= 2) {
@@ -113,7 +141,24 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         }
 
         String name = edge.getName();
+<<<<<<< HEAD
         InstructionAnnotation annotation = encoder.getAnnotation(flags, tr);
+=======
+        InstructionAnnotation annotation = encoder.getAnnotation(flags, pathProcCntx.getTranslation());
+
+        // Runge
+		if (pathProcCntx.getEdgeAnnotator() != null) {
+			/*String annotationMessage = pathProcCntx.getEdgeAnnotator().getAnnotation(edge.getOriginalEdge());
+			if (!Helper.isEmpty(annotationMessage))
+			{
+				if (!annotationMessage.equals(prevAnnotationMessage))
+				{
+					prevAnnotationMessage = annotationMessage;
+					annotation = new InstructionAnnotation(0, annotationMessage, -1);
+				}
+			}*/
+		}
+>>>>>>> ors/master
 
         if ((prevName == null) && (!isRoundabout)) // very first instruction (if not in Roundabout)
         {
@@ -224,7 +269,17 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         prevLat = adjLat;
         prevLon = adjLon;
         prevEdge = edge;
+<<<<<<< HEAD
     }
+=======
+        
+        boolean lastEdge = index == count - 1;
+
+        // Runge
+		if (pathProcCntx.getPathProcessor() != null)
+			pathProcCntx.getPathProcessor().processEdge(pathProcCntx.getPathIndex(), edge, lastEdge, wayGeo);
+   }
+>>>>>>> ors/master
 
     @Override
     public void finish() {
@@ -257,6 +312,16 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
 
         // there is no other turn possible
         if (nrOfPossibleTurns <= 1) {
+<<<<<<< HEAD
+=======
+        	// Runge
+            if (!forceInstruction)
+            {
+            	if (!Helper.isEmpty(name) && !InstructionsHelper.isNameSimilar(name, prevName))
+            		forceInstruction = true;
+            }
+            
+>>>>>>> ors/master
             return returnForcedInstructionOrIgnore(forceInstruction, sign);
         }
 
@@ -336,6 +401,16 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
 
             }
         }
+<<<<<<< HEAD
+=======
+        
+        // Runge
+        if (!forceInstruction)
+        {
+        	if (!Helper.isEmpty(name) && !InstructionsHelper.isNameSimilar(name, prevName))
+        		forceInstruction = true;
+        }
+>>>>>>> ors/master
 
         return returnForcedInstructionOrIgnore(forceInstruction, sign);
     }

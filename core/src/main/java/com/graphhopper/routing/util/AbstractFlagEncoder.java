@@ -84,6 +84,13 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
     private boolean registered;
 
     private ConditionalTagInspector conditionalTagInspector;
+<<<<<<< HEAD
+=======
+    
+    private boolean considerElevation = false; // Runge
+    private int mgrIndex = -1;
+    protected EncodedDoubleValue reverseSpeedEncoder; // Runge
+>>>>>>> ors/master
 
     public AbstractFlagEncoder(PMap properties) {
         throw new RuntimeException("This method must be overridden in derived classes");
@@ -112,6 +119,19 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
         ferries.add("shuttle_train");
         ferries.add("ferry");
     }
+<<<<<<< HEAD
+=======
+    
+    public void setIndex(int index)
+    {
+    	this.mgrIndex = index;
+    }
+    
+    public int getIndex()
+    {
+    	return mgrIndex;
+    }
+>>>>>>> ors/master
 
     // should be called as last method in constructor, move out of the flag encoder somehow
     protected void init() {
@@ -128,12 +148,33 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
         this.registered = registered;
     }
 
+<<<<<<< HEAD
+=======
+    public void setConsiderElevation(boolean considerElevation)
+    {
+    	this.considerElevation = considerElevation;
+    }
+
+    public boolean isConsiderElevation()
+    {
+        return considerElevation;
+    }
+
+>>>>>>> ors/master
     /**
      * Should potential barriers block when no access limits are given?
      */
     public void setBlockByDefault(boolean blockByDefault) {
         this.blockByDefault = blockByDefault;
     }
+<<<<<<< HEAD
+=======
+    
+    public boolean isBlockByDefault()
+    {
+        return blockByDefault;
+    }
+>>>>>>> ors/master
 
     public boolean isBlockFords() {
         return blockFords;
@@ -268,19 +309,62 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
      * mind that this method is performance critical!
      */
     public long reverseFlags(long flags) {
+<<<<<<< HEAD
         long dir = flags & directionBitMask;
         if (dir == directionBitMask || dir == 0)
             return flags;
 
         return flags ^ directionBitMask;
+=======
+    	// Runge
+    	if (considerElevation)
+    	{
+    		long dir = flags & directionBitMask;
+    		if (dir == directionBitMask || dir == 0)
+    		{
+    			
+    		}
+    		else
+    			flags = flags ^ directionBitMask;
+
+    		// swap speeds 
+    		double otherValue = reverseSpeedEncoder.getDoubleValue(flags);
+    		flags = setReverseSpeed(flags, speedEncoder.getDoubleValue(flags));
+    		return setSpeed(flags, otherValue);
+    	}
+    	else
+    	{
+    		long dir = flags & directionBitMask;
+    		if (dir == directionBitMask || dir == 0)
+    			return flags;
+
+    		return flags ^ directionBitMask;
+    	}
+>>>>>>> ors/master
     }
 
     /**
      * Sets default flags with specified access.
      */
     public long flagsDefault(boolean forward, boolean backward) {
+<<<<<<< HEAD
         long flags = speedEncoder.setDefaultValue(0);
         return setAccess(flags, forward, backward);
+=======
+    	//Runge
+    	if (isConsiderElevation() && backward)
+    	{
+    		long flags = speedEncoder.setDefaultValue(0);
+    		flags = setAccess(flags, forward, backward);
+
+  			return reverseSpeedEncoder.setDefaultValue(flags);
+    	}
+    	else
+    	{
+    		long flags = speedEncoder.setDefaultValue(0);
+    		return setAccess(flags, forward, backward);
+    	}
+>>>>>>> ors/master
     }
 
     @Override
@@ -304,6 +388,12 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
     }
 
     protected long setLowSpeed(long flags, double speed, boolean reverse) {
+<<<<<<< HEAD
+=======
+    	if (reverse && isConsiderElevation())
+    		return setBool(reverseSpeedEncoder.setDoubleValue(flags, 0), K_BACKWARD, false);
+
+>>>>>>> ors/master
         return setAccess(speedEncoder.setDoubleValue(flags, 0), false, false);
     }
 
@@ -318,12 +408,38 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
 
     @Override
     public long setReverseSpeed(long flags, double speed) {
+<<<<<<< HEAD
         return setSpeed(flags, speed);
+=======
+    	if (considerElevation)
+    	{ 
+    		if (speed < 0 || Double.isNaN(speed))
+    			throw new IllegalArgumentException("Speed cannot be negative: " + speed + ", flags:" + BitUtil.LITTLE.toBitString(flags));
+
+    		if (speed < speedEncoder.factor / 2)
+    			return setLowSpeed(flags, speed, true);
+
+    		if (speed > getMaxSpeed())
+    			speed = getMaxSpeed();
+
+    		return reverseSpeedEncoder.setDoubleValue(flags, speed);
+    	}
+
+   		return setSpeed(flags, speed);
+>>>>>>> ors/master
     }
 
     @Override
     public double getReverseSpeed(long flags) {
+<<<<<<< HEAD
         return getSpeed(flags);
+=======
+    	// Runge
+    	if (considerElevation)
+ 		    return reverseSpeedEncoder.getDoubleValue(flags);
+    	else
+    		return getSpeed(flags);
+>>>>>>> ors/master
     }
 
     @Override
@@ -339,7 +455,11 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
     /**
      * @return -1 if no maxspeed found
      */
+<<<<<<< HEAD
     protected double getMaxSpeed(ReaderWay way) {
+=======
+    public double getMaxSpeed(ReaderWay way) {
+>>>>>>> ors/master
         double maxSpeed = parseSpeed(way.getTag("maxspeed"));
         double fwdSpeed = parseSpeed(way.getTag("maxspeed:forward"));
         if (fwdSpeed >= 0 && (maxSpeed < 0 || fwdSpeed < maxSpeed))

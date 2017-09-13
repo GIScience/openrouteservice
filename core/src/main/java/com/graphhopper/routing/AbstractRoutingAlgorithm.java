@@ -46,13 +46,21 @@ public abstract class AbstractRoutingAlgorithm implements RoutingAlgorithm {
     protected int maxVisitedNodes = Integer.MAX_VALUE;
     private EdgeFilter additionalEdgeFilter;
     private boolean alreadyRun;
+<<<<<<< HEAD
+=======
+    protected double maxSpeed = -1;
+>>>>>>> ors/master
 
     /**
      * @param graph         specifies the graph where this algorithm will run on
      * @param weighting     set the used weight calculation (e.g. fastest, shortest).
      * @param traversalMode how the graph is traversed e.g. if via nodes or edges.
      */
+<<<<<<< HEAD
     public AbstractRoutingAlgorithm(Graph graph, Weighting weighting, TraversalMode traversalMode) {
+=======
+    public AbstractRoutingAlgorithm(Graph graph, Weighting weighting, TraversalMode traversalMode, double maxSpeed) {
+>>>>>>> ors/master
         this.weighting = weighting;
         this.flagEncoder = weighting.getFlagEncoder();
         this.traversalMode = traversalMode;
@@ -60,6 +68,15 @@ public abstract class AbstractRoutingAlgorithm implements RoutingAlgorithm {
         this.nodeAccess = graph.getNodeAccess();
         outEdgeExplorer = graph.createEdgeExplorer(new DefaultEdgeFilter(flagEncoder, false, true));
         inEdgeExplorer = graph.createEdgeExplorer(new DefaultEdgeFilter(flagEncoder, true, false));
+<<<<<<< HEAD
+=======
+        this.maxSpeed = maxSpeed;
+    }
+    
+    public void setMaxSpeed(double maxSpeed)
+    {
+    	this.maxSpeed = maxSpeed;
+>>>>>>> ors/master
     }
 
     @Override
@@ -117,7 +134,11 @@ public abstract class AbstractRoutingAlgorithm implements RoutingAlgorithm {
     }
 
     protected Path createEmptyPath() {
+<<<<<<< HEAD
         return new Path(graph, weighting);
+=======
+        return new Path(graph, weighting, -1);
+>>>>>>> ors/master
     }
 
     @Override

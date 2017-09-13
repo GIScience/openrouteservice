@@ -23,6 +23,10 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIteratorState;
+<<<<<<< HEAD
+=======
+import com.graphhopper.util.PMap;
+>>>>>>> ors/master
 import com.graphhopper.util.shapes.BBox;
 
 import java.util.ArrayList;
@@ -343,6 +347,13 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
     public int getNodes() {
         return baseGraph.getNodes();
     }
+<<<<<<< HEAD
+=======
+    
+    public int getEdges() {
+        return baseGraph.edgeCount;
+    }
+>>>>>>> ors/master
 
     @Override
     public NodeAccess getNodeAccess() {
@@ -378,6 +389,15 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
     public EdgeExplorer createEdgeExplorer(EdgeFilter filter) {
         return baseGraph.createEdgeExplorer(filter);
     }
+<<<<<<< HEAD
+=======
+    
+    @Override
+    public EdgeExplorer createEdgeExplorer(EdgeFilter filter, PMap props) {
+        return baseGraph.createEdgeExplorer(filter, props);
+    }
+    
+>>>>>>> ors/master
 
     @Override
     public EdgeExplorer createEdgeExplorer() {

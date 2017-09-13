@@ -49,7 +49,11 @@ public class TestAlgoCollector {
                                             OneRun oneRun) {
         List<Path> altPaths = new ArrayList<>();
         QueryGraph queryGraph = new QueryGraph(algoEntry.getForQueryGraph());
+<<<<<<< HEAD
         queryGraph.lookup(queryList);
+=======
+        queryGraph.lookup(queryList, null);
+>>>>>>> ors/master
         AlgorithmOptions opts = algoEntry.getAlgorithmOptions();
         FlagEncoder encoder = opts.getWeighting().getFlagEncoder();
         if (encoder.supports(TurnWeighting.class)) {
@@ -78,7 +82,13 @@ public class TestAlgoCollector {
                 setSimplifyResponse(false).
                 setEnableInstructions(true);
         PathWrapper rsp = new PathWrapper();
+<<<<<<< HEAD
         pathMerger.doWork(rsp, altPaths, trMap.getWithFallBack(Locale.US));
+=======
+        ByteArrayBuffer buffer = new ByteArrayBuffer();
+        PathProcessingContext pathProcCntx = new PathProcessingContext(encoder, null, trMap.getWithFallBack(Locale.US), null, null, new ByteArrayBuffer()); // runge
+        pathMerger.doWork(rsp, altPaths, pathProcCntx);
+>>>>>>> ors/master
 
         if (rsp.hasErrors()) {
             errors.add("response for " + algoEntry + " contains errors. Expected distance: " + oneRun.getDistance()

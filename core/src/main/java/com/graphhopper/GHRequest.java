@@ -17,7 +17,14 @@
  */
 package com.graphhopper;
 
+<<<<<<< HEAD
 import com.graphhopper.routing.util.HintsMap;
+=======
+import com.graphhopper.routing.util.EdgeAnnotator;
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.util.PathProcessor;
+>>>>>>> ors/master
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.GHPoint;
 
@@ -42,6 +49,17 @@ public class GHRequest {
     private String algo = "";
     private boolean possibleToAdd = false;
     private Locale locale = Locale.US;
+<<<<<<< HEAD
+=======
+    
+    // Runge
+    private EdgeAnnotator edgeAnnotator;
+    private PathProcessor pathProcessor;
+    private EdgeFilter edgeFilter; 
+    private double maxSpeed = -1; 
+    private double maxSearchDistance;
+    private Boolean simplifyGeometry = true;
+>>>>>>> ors/master
 
     public GHRequest() {
         this(5);
@@ -252,6 +270,77 @@ public class GHRequest {
     public boolean hasPointHints() {
         return pointHints.size() == points.size();
     }
+<<<<<<< HEAD
+=======
+    
+    // Runge
+    public EdgeFilter getEdgeFilter()
+    {
+    	return edgeFilter;
+    }
+    
+    public EdgeAnnotator getEdgeAnnotator()
+    {
+    	return edgeAnnotator;
+    }
+    
+    public void setEdgeAnnotator(EdgeAnnotator edgeAnnotator)
+    {
+    	this.edgeAnnotator = edgeAnnotator; 
+    }
+    
+    public PathProcessor getPathProcessor()	
+    {
+    	return this.pathProcessor;
+    }
+    
+    public void setPathProcessor(PathProcessor pathProcessor)
+    {
+    	this.pathProcessor = pathProcessor;
+    }
+    
+    public double getMaxSearchDistance() // Runge
+    {
+    	return maxSearchDistance;
+    }
+    
+    public void setMaxSearchDistance(double dist)
+    {
+    	maxSearchDistance = dist;
+    }
+    
+    public double getMaxSpeed() // Runge
+    {
+    	return maxSpeed;
+    }
+    
+    public void setMaxSpeed(double speed)
+    {
+    	if (speed > 0)
+    		hints.put("max_speed", speed);
+    	
+    	maxSpeed = speed;
+    }
+
+    public GHRequest setEdgeFilter(EdgeFilter edgeFilter) // Runge
+    {
+    	if (edgeFilter != null)
+    		this.edgeFilter = edgeFilter;
+    	
+    	return this;
+    }
+
+    public Boolean getSimplifyGeometry()
+    {
+    	return simplifyGeometry;
+    }
+    
+    public void setSimplifyGeometry(Boolean value)
+    {
+    	simplifyGeometry = value;
+    }
+
+>>>>>>> ors/master
 
     @Override
     public String toString() {

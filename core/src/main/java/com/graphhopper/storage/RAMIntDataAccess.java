@@ -23,6 +23,13 @@ import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
+<<<<<<< HEAD
+=======
+import net.jpountz.lz4.LZ4Compressor;
+import net.jpountz.lz4.LZ4Factory;
+import net.jpountz.lz4.LZ4FastDecompressor;
+
+>>>>>>> ors/master
 /**
  * This is an in-memory data structure based on an integer array. With the possibility to be stored
  * on flush().
@@ -142,6 +149,7 @@ class RAMIntDataAccess extends AbstractDataAccess {
                     segmentCount++;
 
                 segments = new int[segmentCount][];
+<<<<<<< HEAD
                 for (int s = 0; s < segmentCount; s++) {
                     int read = raFile.read(bytes) / 4;
                     int area[] = new int[read];
@@ -150,6 +158,47 @@ class RAMIntDataAccess extends AbstractDataAccess {
                     }
                     segments[s] = area;
                 }
+=======
+                
+                
+				if (RAMDataAccess.LZ4_COMPRESSION_ENABLED)
+				{
+					LZ4Factory factory = LZ4Factory.fastestInstance();
+					LZ4FastDecompressor decompressor = factory.fastDecompressor();
+					byte[] compressed = new byte[segmentSizeInBytes];
+					
+					for (int s = 0; s < segmentCount; s++)
+					{
+						int compressedLength = raFile.readInt();
+						int read = raFile.read(compressed, 0, compressedLength);
+						if (read <= 0)
+							throw new IllegalStateException("segment " + s + " is empty? " + toString());
+
+						int compressedLength2 = decompressor.decompress(compressed, 0, bytes, 0, segmentSizeInBytes);
+
+						int size = bytes.length / 4;
+						int area[] = new int[size];
+
+						for (int j = 0; j < size; j++) {
+							area[j] = bitUtil.toInt(bytes, j * 4);
+						}
+
+						segments[s] = area;
+					}
+				}
+				else
+				{
+					for (int s = 0; s < segmentCount; s++) {
+						int read = raFile.read(bytes) / 4;
+						int area[] = new int[read];
+						for (int j = 0; j < read; j++) {
+							area[j] = bitUtil.toInt(bytes, j * 4);
+						}
+						segments[s] = area;
+					}
+				}
+
+>>>>>>> ors/master
                 return true;
             } finally {
                 raFile.close();
@@ -174,6 +223,7 @@ class RAMIntDataAccess extends AbstractDataAccess {
                 writeHeader(raFile, len, segmentSizeInBytes);
                 raFile.seek(HEADER_OFFSET);
                 // raFile.writeInt() <- too slow, so copy into byte array
+<<<<<<< HEAD
                 for (int s = 0; s < segments.length; s++) {
                     int area[] = segments[s];
                     int intLen = area.length;
@@ -183,6 +233,45 @@ class RAMIntDataAccess extends AbstractDataAccess {
                     }
                     raFile.write(byteArea);
                 }
+=======
+                
+				if (RAMDataAccess.LZ4_COMPRESSION_ENABLED)
+				{
+					LZ4Factory factory = LZ4Factory.fastestInstance();
+					LZ4Compressor compressor = factory.fastCompressor();
+					int maxCompressedLength = compressor.maxCompressedLength(segmentSizeInBytes);
+					byte[] compressed = new byte[maxCompressedLength];
+					for (int s = 0; s < segments.length; s++)
+					{
+						int area[] = segments[s];
+						int intLen = area.length;
+						byte[] byteArea = new byte[intLen * 4];
+						for (int i = 0; i < intLen; i++)
+						{
+							bitUtil.fromInt(byteArea, area[i], i * 4);
+						}
+
+						int compressedLength = compressor.compress(byteArea, 0, segmentSizeInBytes, compressed, 0, maxCompressedLength);
+						raFile.writeInt(compressedLength);
+						raFile.write(compressed, 0, compressedLength);
+					}
+				}
+				else
+				{
+					for (int s = 0; s < segments.length; s++)
+					{
+						int area[] = segments[s];
+						int intLen = area.length;
+						byte[] byteArea = new byte[intLen * 4];
+						for (int i = 0; i < intLen; i++)
+						{
+							bitUtil.fromInt(byteArea, area[i], i * 4);
+						}
+						raFile.write(byteArea);
+					}
+				}
+
+>>>>>>> ors/master
             } finally {
                 raFile.close();
             }

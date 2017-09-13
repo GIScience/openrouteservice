@@ -46,6 +46,11 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
      * http://wiki.openstreetmap.org/wiki/OSM_tags_for_routing/Maxspeed
      */
     protected final Map<String, Integer> defaultSpeedMap = new HashMap<String, Integer>();
+<<<<<<< HEAD
+=======
+    
+    protected int maxTrackGradeLevel = 3;
+>>>>>>> ors/master
 
     public CarFlagEncoder() {
         this(5, 5, 0);
@@ -58,6 +63,11 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
         this.properties = properties;
         this.setBlockFords(properties.getBool("block_fords", true));
         this.setBlockByDefault(properties.getBool("block_barriers", true));
+<<<<<<< HEAD
+=======
+        
+        maxTrackGradeLevel = properties.getInt("maximum_grade_level", 3);
+>>>>>>> ors/master
     }
 
     public CarFlagEncoder(String propertiesStr) {
@@ -168,6 +178,13 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
             highwayValue = "motorroad";
         }
         Integer speed = defaultSpeedMap.get(highwayValue);
+<<<<<<< HEAD
+=======
+        int maxSpeed = (int) Math.round(getMaxSpeed(way)); // Runge
+        if (maxSpeed > 0)
+        	speed = maxSpeed;	
+
+>>>>>>> ors/master
         if (speed == null)
             throw new IllegalStateException(toString() + ", no speed found for: " + highwayValue + ", tags: " + way);
 
@@ -180,6 +197,16 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
             }
         }
 
+<<<<<<< HEAD
+=======
+        if (way.hasTag("access")) // Runge  //https://www.openstreetmap.org/way/132312559
+        {
+        	String accessTag = way.getTag("access");
+        	if ("destination".equals(accessTag))
+        		return 1; 
+        }
+
+>>>>>>> ors/master
         return speed;
     }
 
@@ -202,8 +229,18 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
 
         if ("track".equals(highwayValue)) {
             String tt = way.getTag("tracktype");
+<<<<<<< HEAD
             if (tt != null && !tt.equals("grade1") && !tt.equals("grade2") && !tt.equals("grade3"))
                 return 0;
+=======
+            //if (tt != null && !tt.equals("grade1") && !tt.equals("grade2") && !tt.equals("grade3"))
+            if (tt != null)
+            {
+            	int grade = getTrackGradeLevel(tt);
+            	if (grade > maxTrackGradeLevel)
+            		return 0;
+            }
+>>>>>>> ors/master
         }
 
         if (!defaultSpeedMap.containsKey(highwayValue))
@@ -223,12 +260,79 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
         // do not drive street cars into fords
         if (isBlockFords() && ("ford".equals(highwayValue) || way.hasTag("ford")))
             return 0;
+<<<<<<< HEAD
+=======
+        
+        
+        String maxwidth = way.getTag("maxwidth"); // Runge added on 23.02.2016
+        if (maxwidth != null)
+        {
+        	try
+            {
+        		double mwv = Double.parseDouble(maxwidth);
+        		if (mwv < 2.0)
+        			return 0;
+            }
+        	catch(Exception ex)
+            {
+            	
+            }
+        }
+>>>>>>> ors/master
 
         if (getConditionalTagInspector().isPermittedWayConditionallyRestricted(way))
             return 0;
         else
             return acceptBit;
     }
+<<<<<<< HEAD
+=======
+    
+    protected int getTrackGradeLevel(String grade)
+    {
+    	if (grade == null)
+    		return 0; 
+    	 
+    	if (grade.contains(";")) // grade3;grade2
+    	{
+    		int maxGrade = 0; 
+    		
+    		try
+    		{
+    			String[] values = grade.split(";"); 
+    			for(String v : values)
+    			{
+    		       int iv = Integer.parseInt(v.replace("grade","").trim());
+    		       if (iv > maxGrade)
+    		    	   maxGrade = iv;
+    			}
+    			
+    			return maxGrade;
+    		}
+    		catch(Exception ex)
+    		{}
+    	}
+
+    	switch(grade)
+    	{
+    	case "grade":
+    	case "grade1":
+    		return 1;
+    	case "grade2":
+    		return 2;
+    	case "grade3":
+    		return 3;
+    	case "grade4":
+    		return 4;
+    	case "grade5":
+    		return 5;
+    	case "grade6":
+    		return 6;
+    	}
+    	
+    	return 10;
+    }
+>>>>>>> ors/master
 
     @Override
     public long handleRelationTags(ReaderRelation relation, long oldRelationFlags) {
@@ -247,12 +351,46 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
             speed = applyMaxSpeed(way, speed);
 
             speed = applyBadSurfaceSpeed(way, speed);
+<<<<<<< HEAD
 
             flags = setSpeed(flags, speed);
 
             boolean isRoundabout = way.hasTag("junction", "roundabout");
             if (isRoundabout)
                 flags = setBool(flags, K_ROUNDABOUT, true);
+=======
+            
+            boolean isRoundabout = way.hasTag("junction", "roundabout");
+
+            if (isRoundabout) // Runge
+            {
+            	//http://www.sidrasolutions.com/Documents/OArndt_Speed%20Control%20at%20Roundabouts_23rdARRBConf.pdf
+            	if (way.hasTag("highway", "mini_roundabout"))
+            		speed = speed < 25 ? speed : 25;
+            	
+            	if (way.hasTag("lanes"))
+            	{
+            		try
+            		{
+            			// The following line throws exceptions when it tries to parse a value "3; 2"
+            			int lanes = Integer.parseInt(way.getTag("lanes"));
+            			if (lanes >= 2)
+            				speed  = speed < 40 ? speed : 40;
+            			else
+            				speed  = speed < 35 ? speed : 35;
+            		}
+            		catch(Exception ex)
+            		{}
+            	}
+            }
+
+            flags = setSpeed(flags, speed);
+
+            if (isRoundabout)
+            {
+                flags = setBool(flags, K_ROUNDABOUT, true);
+            }
+>>>>>>> ors/master
 
             if (isOneway(way) || isRoundabout) {
                 if (isBackwardOneway(way))

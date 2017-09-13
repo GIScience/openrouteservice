@@ -52,7 +52,11 @@ public class FastestWeightingTest {
     public void testWeightWrongHeading() {
         Weighting instance = new FastestWeighting(encoder, new PMap().
                 put(Parameters.Routing.HEADING_PENALTY, "100"));
+<<<<<<< HEAD
         VirtualEdgeIteratorState virtEdge = new VirtualEdgeIteratorState(0, 1, 1, 2, 10,
+=======
+        VirtualEdgeIteratorState virtEdge = new VirtualEdgeIteratorState(0, 1, 1, 1, 2, 10,
+>>>>>>> ors/master
                 encoder.setProperties(10, true, true), "test", Helper.createPointList(51, 0, 51, 1));
         double time = instance.calcWeight(virtEdge, false, 0);
 

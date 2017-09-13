@@ -31,8 +31,13 @@ public class PathNative extends Path {
     private final int[] parentNodes;
     private final int[] parentEdges;
 
+<<<<<<< HEAD
     public PathNative(Graph g, Weighting weighting, int[] parentNodes, int[] parentEdges) {
         super(g, weighting);
+=======
+    public PathNative(Graph g, Weighting weighting,  double maxSpeed, int[] parentNodes, int[] parentEdges) {
+        super(g, weighting, maxSpeed);
+>>>>>>> ors/master
         this.parentNodes = parentNodes;
         this.parentEdges = parentEdges;
     }

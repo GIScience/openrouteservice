@@ -20,24 +20,51 @@ package com.graphhopper.routing.weighting;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.util.EdgeIteratorState;
+<<<<<<< HEAD
+=======
+import com.graphhopper.util.PMap;
+>>>>>>> ors/master
 
 /**
  * @author Peter Karich
  */
 public abstract class AbstractWeighting implements Weighting {
     protected final FlagEncoder flagEncoder;
+<<<<<<< HEAD
 
     protected AbstractWeighting(FlagEncoder encoder) {
+=======
+    protected final int encoderIndex;
+    protected double userMaxSpeed = -1;
+
+    protected AbstractWeighting(FlagEncoder encoder) {
+    	this(encoder, null);	
+    }
+    
+    protected AbstractWeighting(FlagEncoder encoder, PMap map) {
+>>>>>>> ors/master
         this.flagEncoder = encoder;
         if (!flagEncoder.isRegistered())
             throw new IllegalStateException("Make sure you add the FlagEncoder " + flagEncoder + " to an EncodingManager before using it elsewhere");
         if (!isValidName(getName()))
             throw new IllegalStateException("Not a valid name for a Weighting: " + getName());
+<<<<<<< HEAD
+=======
+        encoderIndex = encoder.getIndex(); // runge
+        if (map != null)
+        {
+        	userMaxSpeed = map.getDouble("max_speed", -1);
+        }
+>>>>>>> ors/master
     }
 
     @Override
     public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+<<<<<<< HEAD
         long flags = edgeState.getFlags();
+=======
+        long flags = edgeState.getFlags(encoderIndex);
+>>>>>>> ors/master
         if (reverse && !flagEncoder.isBackward(flags)
                 || !reverse && !flagEncoder.isForward(flags))
             throw new IllegalStateException("Calculating time should not require to read speed from edge in wrong direction. "
@@ -49,6 +76,15 @@ public abstract class AbstractWeighting implements Weighting {
         if (speed == 0)
             throw new IllegalStateException("Speed cannot be 0 for unblocked edge, use access properties to mark edge blocked! Should only occur for shortest path calculation. See #242.");
 
+<<<<<<< HEAD
+=======
+        if (userMaxSpeed > 0)
+        {
+        	if (speed > userMaxSpeed)
+        		speed = userMaxSpeed;
+        }
+        
+>>>>>>> ors/master
         return (long) (edgeState.getDistance() * 3600 / speed);
     }
 
@@ -57,6 +93,15 @@ public abstract class AbstractWeighting implements Weighting {
         return getName().equals(reqMap.getWeighting())
                 && flagEncoder.toString().equals(reqMap.getVehicle());
     }
+<<<<<<< HEAD
+=======
+    
+    @Override
+    public double getMaxWeight() // runge
+    {
+    	return 1;
+    }
+>>>>>>> ors/master
 
     @Override
     public FlagEncoder getFlagEncoder() {

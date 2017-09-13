@@ -46,8 +46,13 @@ public class Bike2WeightFlagEncoder extends BikeFlagEncoder {
         super(properties);
     }
 
+<<<<<<< HEAD
     public Bike2WeightFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
         super(speedBits, speedFactor, maxTurnCosts);
+=======
+    public Bike2WeightFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
+        super(speedBits, speedFactor, maxTurnCosts, considerElevation);
+>>>>>>> ors/master
     }
 
     @Override

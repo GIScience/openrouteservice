@@ -76,7 +76,15 @@ public class AStarBidirection extends AbstractBidirAlgo implements Recalculation
     private boolean updateBestPath = true;
 
     public AStarBidirection(Graph graph, Weighting weighting, TraversalMode tMode) {
+<<<<<<< HEAD
         super(graph, weighting, tMode);
+=======
+    	this(graph, weighting, tMode, -1);
+    }
+    
+    public AStarBidirection(Graph graph, Weighting weighting, TraversalMode tMode, double maxSpeed) {
+        super(graph, weighting, tMode, maxSpeed);
+>>>>>>> ors/master
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 150_000);
         initCollections(size);
         BeelineWeightApproximator defaultApprox = new BeelineWeightApproximator(nodeAccess, weighting);
@@ -162,8 +170,14 @@ public class AStarBidirection extends AbstractBidirAlgo implements Recalculation
     }
 
     @Override
+<<<<<<< HEAD
     protected Path createAndInitPath() {
         bestPath = new PathBidirRef(graph, weighting);
+=======
+    protected Path createAndInitPath()
+    {
+        bestPath = new PathBidirRef(graph, weighting, maxSpeed);
+>>>>>>> ors/master
         return bestPath;
     }
 

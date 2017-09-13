@@ -29,6 +29,10 @@ import com.graphhopper.routing.util.tour.TourStrategy;
 import com.graphhopper.routing.weighting.AvoidEdgesWeighting;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.QueryResult;
+<<<<<<< HEAD
+=======
+import com.graphhopper.util.ByteArrayBuffer;
+>>>>>>> ors/master
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.Parameters;
 import com.graphhopper.util.Parameters.Algorithms;
@@ -66,7 +70,11 @@ public class RoundTripRoutingTemplate extends AbstractRoutingTemplate implements
     }
 
     @Override
+<<<<<<< HEAD
     public List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder) {
+=======
+    public List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder, ByteArrayBuffer byteBuffer) {
+>>>>>>> ors/master
         if (points.isEmpty())
             throw new IllegalStateException("For round trip calculation one point is required");
         final double distanceInMeter = ghRequest.getHints().getDouble(RoundTrip.DISTANCE, 10000);
@@ -78,7 +86,11 @@ public class RoundTripRoutingTemplate extends AbstractRoutingTemplate implements
         TourStrategy strategy = new MultiPointTour(new Random(seed), distanceInMeter, roundTripPointCount, initialHeading);
         queryResults = new ArrayList<>(2 + strategy.getNumberOfGeneratedPoints());
         EdgeFilter edgeFilter = new DefaultEdgeFilter(encoder);
+<<<<<<< HEAD
         QueryResult startQR = locationIndex.findClosest(start.lat, start.lon, edgeFilter);
+=======
+        QueryResult startQR = locationIndex.findClosest(start.lat, start.lon, edgeFilter, byteBuffer);
+>>>>>>> ors/master
         if (!startQR.isValid())
             throw new PointNotFoundException("Cannot find point 0: " + start, 0);
 
@@ -105,7 +117,11 @@ public class RoundTripRoutingTemplate extends AbstractRoutingTemplate implements
     }
 
     @Override
+<<<<<<< HEAD
     public List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts) {
+=======
+    public List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts,  PathProcessingContext pathProcCntx) {
+>>>>>>> ors/master
         pathList = new ArrayList<>(queryResults.size() - 1);
 
         AvoidEdgesWeighting avoidPathWeighting = new AvoidEdgesWeighting(algoOpts.getWeighting());
@@ -147,11 +163,19 @@ public class RoundTripRoutingTemplate extends AbstractRoutingTemplate implements
     }
 
     @Override
+<<<<<<< HEAD
     public boolean isReady(PathMerger pathMerger, Translation tr) {
         altResponse = new PathWrapper();
         altResponse.setWaypoints(getWaypoints());
         ghResponse.add(altResponse);
         pathMerger.doWork(altResponse, pathList, tr);
+=======
+    public boolean isReady(PathMerger pathMerger, PathProcessingContext pathProcCntx) {
+        altResponse = new PathWrapper();
+        altResponse.setWaypoints(getWaypoints());
+        ghResponse.add(altResponse);
+        pathMerger.doWork(altResponse, pathList, pathProcCntx);
+>>>>>>> ors/master
         // with potentially retrying, including generating new route points, for now disabled
         return true;
     }

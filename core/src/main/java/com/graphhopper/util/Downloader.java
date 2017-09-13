@@ -121,7 +121,16 @@ public class Downloader {
             while ((numRead = in.read(buffer)) != -1) {
                 writer.write(buffer, 0, numRead);
             }
+<<<<<<< HEAD
         } finally {
+=======
+        }
+        catch(Exception ex)
+        {
+        	throw new IOException(ex.getMessage()); // Runge
+        }
+        finally {
+>>>>>>> ors/master
             Helper.close(iStream);
             Helper.close(writer);
             Helper.close(in);

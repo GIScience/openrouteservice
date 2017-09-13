@@ -50,7 +50,11 @@ public class DijkstraOneToMany extends AbstractRoutingAlgorithm {
     private double weightLimit = Double.MAX_VALUE;
 
     public DijkstraOneToMany(Graph graph, Weighting weighting, TraversalMode tMode) {
+<<<<<<< HEAD
         super(graph, weighting, tMode);
+=======
+        super(graph, weighting, tMode, -1);
+>>>>>>> ors/master
 
         parents = new int[graph.getNodes()];
         Arrays.fill(parents, EMPTY_PARENT);
@@ -75,7 +79,11 @@ public class DijkstraOneToMany extends AbstractRoutingAlgorithm {
 
     @Override
     public Path extractPath() {
+<<<<<<< HEAD
         PathNative p = new PathNative(graph, weighting, parents, edgeIds);
+=======
+        PathNative p = new PathNative(graph, weighting, -1, parents, edgeIds);
+>>>>>>> ors/master
         if (endNode >= 0)
             p.setWeight(weights[endNode]);
         p.setFromNode(fromNode);

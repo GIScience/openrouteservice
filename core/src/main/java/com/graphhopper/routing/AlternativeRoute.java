@@ -80,6 +80,10 @@ public class AlternativeRoute implements RoutingAlgorithm {
     private double minPlateauFactor = 0.2;
     private int maxPaths = 2;
     private WeightApproximator weightApproximator;
+<<<<<<< HEAD
+=======
+    private double maxSpeed = -1;
+>>>>>>> ors/master
 
     public AlternativeRoute(Graph graph, Weighting weighting, TraversalMode traversalMode) {
         this.graph = graph;
@@ -87,6 +91,16 @@ public class AlternativeRoute implements RoutingAlgorithm {
         this.traversalMode = traversalMode;
     }
 
+<<<<<<< HEAD
+=======
+    public AlternativeRoute(Graph graph, Weighting weighting, TraversalMode traversalMode, double maxSpeed) {
+        this.graph = graph;
+        this.weighting = weighting;
+        this.traversalMode = traversalMode;
+        this.maxSpeed = maxSpeed;
+    }
+
+>>>>>>> ors/master
     /**
      * This method sets the approximation used for the internal bidirectional A*.
      */
@@ -169,7 +183,11 @@ public class AlternativeRoute implements RoutingAlgorithm {
      */
     public List<AlternativeInfo> calcAlternatives(int from, int to) {
         AlternativeBidirSearch altBidirDijktra = new AlternativeBidirSearch(
+<<<<<<< HEAD
                 graph, weighting, traversalMode, maxExplorationFactor * 2);
+=======
+                graph, weighting, traversalMode, maxExplorationFactor * 2, this.maxSpeed);
+>>>>>>> ors/master
         altBidirDijktra.setMaxVisitedNodes(maxVisitedNodes);
         if (weightApproximator != null) {
             altBidirDijktra.setApproximation(weightApproximator);
@@ -179,7 +197,11 @@ public class AlternativeRoute implements RoutingAlgorithm {
         visitedNodes = altBidirDijktra.getVisitedNodes();
 
         List<AlternativeInfo> alternatives = altBidirDijktra.
+<<<<<<< HEAD
                 calcAlternatives(maxPaths, maxWeightFactor, 7, maxShareFactor, 0.8, minPlateauFactor, -0.2);
+=======
+                calcAlternatives(maxPaths, maxWeightFactor, 7, maxShareFactor, 0.8, minPlateauFactor, -0.2, maxSpeed);
+>>>>>>> ors/master
         return alternatives;
     }
 
@@ -258,10 +280,22 @@ public class AlternativeRoute implements RoutingAlgorithm {
      */
     public static class AlternativeBidirSearch extends AStarBidirection {
         private final double explorationFactor;
+<<<<<<< HEAD
 
         public AlternativeBidirSearch(Graph graph, Weighting weighting, TraversalMode tMode,
                                       double explorationFactor) {
             super(graph, weighting, tMode);
+=======
+        
+        public AlternativeBidirSearch(Graph graph, Weighting weighting, TraversalMode tMode,
+                double explorationFactor) {
+          this(graph, weighting, tMode, explorationFactor, -1);
+        }
+
+        public AlternativeBidirSearch(Graph graph, Weighting weighting, TraversalMode tMode,
+                                      double explorationFactor, double maxSpeed) {
+            super(graph, weighting, tMode, maxSpeed);
+>>>>>>> ors/master
             this.explorationFactor = explorationFactor;
         }
 
@@ -309,7 +343,11 @@ public class AlternativeRoute implements RoutingAlgorithm {
         public List<AlternativeInfo> calcAlternatives(final int maxPaths,
                                                       double maxWeightFactor, final double weightInfluence,
                                                       final double maxShareFactor, final double shareInfluence,
+<<<<<<< HEAD
                                                       final double minPlateauFactor, final double plateauInfluence) {
+=======
+                                                      final double minPlateauFactor, final double plateauInfluence, final double maxSpeed) {
+>>>>>>> ors/master
             final double maxWeight = maxWeightFactor * bestPath.getWeight();
             final GHIntObjectHashMap<IntSet> traversalIDMap = new GHIntObjectHashMap<IntSet>();
             final AtomicInteger startTID = addToMap(traversalIDMap, bestPath);
@@ -432,7 +470,11 @@ public class AlternativeRoute implements RoutingAlgorithm {
 
                         // plateaus.add(new PlateauInfo(altName, plateauEdges));
                         if (sortBy < worstSortBy || alternatives.size() < maxPaths) {
+<<<<<<< HEAD
                             Path path = new PathBidirRef(graph, weighting).
+=======
+                            Path path = new PathBidirRef(graph, weighting, maxSpeed).
+>>>>>>> ors/master
                                     setSPTEntryTo(toSPTEntry).setSPTEntry(fromSPTEntry).
                                     setWeight(weight);
                             path.extract();

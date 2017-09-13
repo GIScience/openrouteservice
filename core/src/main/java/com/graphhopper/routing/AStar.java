@@ -47,9 +47,19 @@ public class AStar extends AbstractRoutingAlgorithm {
     private PriorityQueue<AStarEntry> prioQueueOpenSet;
     private AStarEntry currEdge;
     private int to1 = -1;
+<<<<<<< HEAD
 
     public AStar(Graph graph, Weighting weighting, TraversalMode tMode) {
         super(graph, weighting, tMode);
+=======
+    
+    public AStar(Graph graph, Weighting weighting, TraversalMode tMode) {
+        this(graph, weighting, tMode, -1);
+     }
+
+    public AStar(Graph graph, Weighting weighting, TraversalMode tMode, double maxSpeed) {
+        super(graph, weighting, tMode, maxSpeed);
+>>>>>>> ors/master
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
         initCollections(size);
         BeelineWeightApproximator defaultApprox = new BeelineWeightApproximator(nodeAccess, weighting);
@@ -146,7 +156,11 @@ public class AStar extends AbstractRoutingAlgorithm {
 
     @Override
     protected Path extractPath() {
+<<<<<<< HEAD
         return new Path(graph, weighting).
+=======
+        return new Path(graph, weighting, maxSpeed).
+>>>>>>> ors/master
                 setWeight(currEdge.weight).setSPTEntry(currEdge).extract();
     }
 

@@ -17,6 +17,10 @@
  */
 package com.graphhopper.routing;
 
+<<<<<<< HEAD
+=======
+import com.graphhopper.routing.util.EdgeFilter;
+>>>>>>> ors/master
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.PMap;
@@ -40,6 +44,11 @@ public class AlgorithmOptions {
     private Weighting weighting;
     private TraversalMode traversalMode = TraversalMode.NODE_BASED;
     private int maxVisitedNodes = Integer.MAX_VALUE;
+<<<<<<< HEAD
+=======
+    private double maxSpeed = -1; // runge
+    private EdgeFilter edgeFilter;
+>>>>>>> ors/master
 
     private AlgorithmOptions() {
     }
@@ -51,11 +60,24 @@ public class AlgorithmOptions {
         this.algorithm = algorithm;
         this.weighting = weighting;
     }
+<<<<<<< HEAD
 
     public AlgorithmOptions(String algorithm, Weighting weighting, TraversalMode tMode) {
         this.algorithm = algorithm;
         this.weighting = weighting;
         this.traversalMode = tMode;
+=======
+    
+    public AlgorithmOptions(String algorithm, Weighting weighting, TraversalMode tMode) {
+    	this(algorithm, weighting, tMode, -1);
+    }
+
+    public AlgorithmOptions(String algorithm, Weighting weighting, TraversalMode tMode, double maxSpeed) {
+        this.algorithm = algorithm;
+        this.weighting = weighting;
+        this.traversalMode = tMode;
+        this.maxSpeed = maxSpeed;
+>>>>>>> ors/master
     }
 
     /**
@@ -114,6 +136,14 @@ public class AlgorithmOptions {
         return hints;
     }
 
+<<<<<<< HEAD
+=======
+    public double getMaxSpeed()
+    {
+    	return maxSpeed;
+    }
+    
+>>>>>>> ors/master
     private void assertNotNull(Object optionValue, String optionName) {
         if (optionValue == null)
             throw new NullPointerException("Option '" + optionName + "' must NOT be null");
@@ -124,7 +154,19 @@ public class AlgorithmOptions {
         return algorithm + ", " + weighting + ", " + traversalMode;
     }
 
+<<<<<<< HEAD
     public static class Builder {
+=======
+    public EdgeFilter getEdgeFilter() {
+		return edgeFilter;
+	}
+
+	public void setEdgeFilter(EdgeFilter edgeFilter) {
+		this.edgeFilter = edgeFilter;
+	}
+
+	public static class Builder {
+>>>>>>> ors/master
         private AlgorithmOptions opts = new AlgorithmOptions();
         private boolean buildCalled;
 

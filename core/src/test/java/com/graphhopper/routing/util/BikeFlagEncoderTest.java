@@ -284,7 +284,12 @@ public class BikeFlagEncoderTest extends AbstractBikeFlagEncoderTester {
 
         way.setTag("tracktype", "grade2");
         wayType = getWayTypeFromFlags(way);
+<<<<<<< HEAD
         assertEquals("get off the bike, unpaved", wayType);
+=======
+        //assertEquals("get off the bike, unpaved", wayType); Runge
+        assertEquals("small way, unpaved", wayType); 
+>>>>>>> ors/master
 
         way.clearTags();
         way.setTag("junction", "roundabout");
@@ -585,7 +590,11 @@ public class BikeFlagEncoderTest extends AbstractBikeFlagEncoderTester {
 
     @Test
     public void testTurnFlagEncoding_withCosts() {
+<<<<<<< HEAD
         encoder = new BikeFlagEncoder(4, 2, 127);
+=======
+        encoder = new BikeFlagEncoder(4, 2, 127, false);
+>>>>>>> ors/master
         new EncodingManager(encoder);
 
         long flags_r0 = encoder.getTurnFlags(true, 0);

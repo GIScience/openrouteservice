@@ -51,6 +51,10 @@ public class EncodingManager {
     private int nextTurnBit = 0;
     private boolean enableInstructions = true;
     private String preferredLanguage = "";
+<<<<<<< HEAD
+=======
+    private int totalUsedBits = 0; // Runge
+>>>>>>> ors/master
 
     /**
      * Instantiate manager with the given list of encoders. The manager knows several default
@@ -103,6 +107,14 @@ public class EncodingManager {
         if (edgeEncoders.isEmpty())
             throw new IllegalStateException("No vehicles found");
     }
+<<<<<<< HEAD
+=======
+    
+    public int getUsedBitsForFlags()
+    {
+    	return totalUsedBits;
+    }
+>>>>>>> ors/master
 
     static List<FlagEncoder> parseEncoderString(FlagEncoderFactory factory, String encoderList) {
         if (encoderList.contains(":"))
@@ -187,18 +199,30 @@ public class EncodingManager {
         int usedBits = encoder.defineNodeBits(encoderCount, nextNodeBit);
         if (usedBits > bitsForEdgeFlags)
             throw new IllegalArgumentException(String.format(ERR, usedBits, bitsForEdgeFlags, "node"));
+<<<<<<< HEAD
+=======
+     	totalUsedBits += usedBits - nextNodeBit;
+>>>>>>> ors/master
         encoder.setNodeBitMask(usedBits - nextNodeBit, nextNodeBit);
         nextNodeBit = usedBits;
 
         usedBits = encoder.defineWayBits(encoderCount, nextWayBit);
         if (usedBits > bitsForEdgeFlags)
             throw new IllegalArgumentException(String.format(ERR, usedBits, bitsForEdgeFlags, "way") + WAY_ERR);
+<<<<<<< HEAD
+=======
+    	totalUsedBits += usedBits - nextWayBit;
+>>>>>>> ors/master
         encoder.setWayBitMask(usedBits - nextWayBit, nextWayBit);
         nextWayBit = usedBits;
 
         usedBits = encoder.defineRelationBits(encoderCount, nextRelBit);
         if (usedBits > bitsForEdgeFlags)
             throw new IllegalArgumentException(String.format(ERR, usedBits, bitsForEdgeFlags, "relation"));
+<<<<<<< HEAD
+=======
+    	totalUsedBits += usedBits - nextRelBit;
+>>>>>>> ors/master
         encoder.setRelBitMask(usedBits - nextRelBit, nextRelBit);
         nextRelBit = usedBits;
 
@@ -208,6 +232,10 @@ public class EncodingManager {
             throw new IllegalArgumentException(String.format(ERR, usedBits, bitsForTurnFlags, "turn"));
         nextTurnBit = usedBits;
 
+<<<<<<< HEAD
+=======
+        encoder.setIndex(edgeEncoders.size());
+>>>>>>> ors/master
         edgeEncoders.add(encoder);
     }
 
@@ -310,7 +338,14 @@ public class EncodingManager {
     /**
      * Reverse flags, to do so all encoders are called.
      */
+<<<<<<< HEAD
     public long reverseFlags(long flags) {
+=======
+    public long reverseFlags(long flags, int encoderIndex) {
+    	if (encoderIndex != -1) // Runge
+    		return edgeEncoders.get(encoderIndex).reverseFlags(flags);
+
+>>>>>>> ors/master
         // performance critical
         int len = edgeEncoders.size();
         for (int i = 0; i < len; i++) {

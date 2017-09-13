@@ -22,11 +22,19 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.PathWrapper;
 import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.routing.Path;
+<<<<<<< HEAD
+=======
+import com.graphhopper.routing.PathProcessingContext;
+>>>>>>> ors/master
 import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.RoutingAlgorithmFactory;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.QueryResult;
+<<<<<<< HEAD
+=======
+import com.graphhopper.util.ByteArrayBuffer;
+>>>>>>> ors/master
 import com.graphhopper.util.Parameters.Routing;
 import com.graphhopper.util.PathMerger;
 import com.graphhopper.util.PointList;
@@ -50,6 +58,7 @@ final public class AlternativeRoutingTemplate extends ViaRoutingTemplate {
     }
 
     @Override
+<<<<<<< HEAD
     public List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder) {
         if (points.size() > 2)
             throw new IllegalArgumentException("Currently alternative routes work only with start and end point. You tried to use: " + points.size() + " points");
@@ -59,15 +68,34 @@ final public class AlternativeRoutingTemplate extends ViaRoutingTemplate {
 
     @Override
     public List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts) {
+=======
+    public List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder, ByteArrayBuffer byteBuffer) {
+        if (points.size() > 2)
+            throw new IllegalArgumentException("Currently alternative routes work only with start and end point. You tried to use: " + points.size() + " points");
+
+        return super.lookup(points, encoder, byteBuffer);
+    }
+
+    @Override
+    public List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts,  PathProcessingContext pathProcCntx) {
+>>>>>>> ors/master
         boolean withViaTurnPenalty = ghRequest.getHints().getBool(Routing.PASS_THROUGH, false);
         if (withViaTurnPenalty)
             throw new IllegalArgumentException("Alternative paths and " + PASS_THROUGH + " at the same time is currently not supported");
 
+<<<<<<< HEAD
         return super.calcPaths(queryGraph, algoFactory, algoOpts);
     }
 
     @Override
     public boolean isReady(PathMerger pathMerger, Translation tr) {
+=======
+        return super.calcPaths(queryGraph, algoFactory, algoOpts, pathProcCntx);
+    }
+
+    @Override
+    public boolean isReady(PathMerger pathMerger, PathProcessingContext pathProcCntx) {
+>>>>>>> ors/master
         if (pathList.isEmpty())
             throw new RuntimeException("Empty paths for alternative route calculation not expected");
 
@@ -75,12 +103,20 @@ final public class AlternativeRoutingTemplate extends ViaRoutingTemplate {
         PointList wpList = getWaypoints();
         altResponse.setWaypoints(wpList);
         ghResponse.add(altResponse);
+<<<<<<< HEAD
         pathMerger.doWork(altResponse, Collections.singletonList(pathList.get(0)), tr);
+=======
+        pathMerger.doWork(altResponse, Collections.singletonList(pathList.get(0)), pathProcCntx);
+>>>>>>> ors/master
         for (int index = 1; index < pathList.size(); index++) {
             PathWrapper tmpAltRsp = new PathWrapper();
             tmpAltRsp.setWaypoints(wpList);
             ghResponse.add(tmpAltRsp);
+<<<<<<< HEAD
             pathMerger.doWork(tmpAltRsp, Collections.singletonList(pathList.get(index)), tr);
+=======
+            pathMerger.doWork(tmpAltRsp, Collections.singletonList(pathList.get(index)), pathProcCntx);
+>>>>>>> ors/master
         }
         return true;
     }

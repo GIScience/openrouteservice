@@ -49,7 +49,11 @@ public class GenericWeighting extends AbstractWeighting {
     protected final double width;
 
     public GenericWeighting(DataFlagEncoder encoder, PMap hintsMap) {
+<<<<<<< HEAD
         super(encoder);
+=======
+        super(encoder, hintsMap);
+>>>>>>> ors/master
         gEncoder = encoder;
         headingPenalty = hintsMap.getDouble(Routing.HEADING_PENALTY, Routing.DEFAULT_HEADING_PENALTY);
         headingPenaltyMillis = Math.round(headingPenalty * 1000);

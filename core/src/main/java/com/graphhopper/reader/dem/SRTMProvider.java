@@ -121,12 +121,73 @@ public class SRTMProvider implements ElevationProvider {
         }
     }
 
+<<<<<<< HEAD
+=======
+	public HeightTile getTile(int key)
+	{
+		HeightTile demProvider = cacheData.get(key);
+		return demProvider;
+	}
+
+	//Runge
+	public HeightTile loadTile(double lat, double lon)
+	{
+		lat = (int) (lat * precision) / precision;
+		lon = (int) (lon * precision) / precision;
+		int intKey = getTileKey(lat, lon);
+
+		HeightTile demProvider = cacheData.get(intKey);
+		if (demProvider != null)
+			return demProvider;
+		if (!cacheDir.exists())
+			cacheDir.mkdirs();
+
+		String fileDetails = getFileString(lat, lon);
+		if (fileDetails == null)
+			return null;
+
+		DataAccess heights = getDirectory().find("dem" + intKey);
+		boolean loadExisting = false;
+		try
+		{
+			loadExisting = heights.loadExisting();
+		} catch (Exception ex)
+		{
+			logger.warn("cannot load dem" + intKey + ", error:" + ex.getMessage());
+		}
+
+		if (!loadExisting)
+			updateHeightsFromZipFile(fileDetails, heights);
+
+		int width = (int) (Math.sqrt(heights.getHeader(WIDTH_BYTE_INDEX)) + 0.5);
+		if (width == 0)
+			width = DEFAULT_WIDTH;
+
+		demProvider = new HeightTile(down(lat), down(lon), width, precision, 1);
+		demProvider.setCalcMean(calcMean);
+		cacheData.put(intKey, demProvider);
+		demProvider.setHeights(heights);
+		
+		return demProvider;
+	} 
+
+>>>>>>> ors/master
     // use int key instead of string for lower memory usage
     private int calcIntKey(double lat, double lon) {
         // we could use LinearKeyAlgo but this is simpler as we only need integer precision:
         return (down(lat) + 90) * 1000 + down(lon) + 180;
     }
 
+<<<<<<< HEAD
+=======
+	// use int key instead of string for lower memory usage
+	public int getTileKey( double lat, double lon )
+	{
+		// we could use LinearKeyAlgo but this is simpler as we only need integer precision:
+		return calcIntKey(lat, lon);
+	}
+
+>>>>>>> ors/master
     public void setDownloader(Downloader downloader) {
         this.downloader = downloader;
     }
@@ -199,6 +260,7 @@ public class SRTMProvider implements ElevationProvider {
 
     @Override
     public double getEle(double lat, double lon) {
+<<<<<<< HEAD
         lat = (int) (lat * precision) / precision;
         lon = (int) (lon * precision) / precision;
         int intKey = calcIntKey(lat, lon);
@@ -233,6 +295,19 @@ public class SRTMProvider implements ElevationProvider {
         demProvider.setCalcMean(calcMean);
         demProvider.setHeights(heights);
         return demProvider.getHeight(lat, lon);
+=======
+		int key = getTileKey(lat, lon);
+		
+		HeightTile demProvider = getTile(key);
+		
+		if (demProvider == null)
+			demProvider = loadTile(lat, lon);
+		
+        if (demProvider == null)
+        	return 0;
+		
+		return demProvider.getHeight(lat, lon);
+>>>>>>> ors/master
     }
 
     private void updateHeightsFromZipFile(String fileDetails, DataAccess heights) throws RuntimeException {

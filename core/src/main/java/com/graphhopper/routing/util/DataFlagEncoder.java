@@ -760,7 +760,11 @@ public class DataFlagEncoder extends AbstractFlagEncoder {
     }
 
     @Override
+<<<<<<< HEAD
     protected double getMaxSpeed(ReaderWay way) {
+=======
+    public double getMaxSpeed(ReaderWay way) {
+>>>>>>> ors/master
         throw new RuntimeException("do not call getMaxSpeed(ReaderWay)");
     }
 

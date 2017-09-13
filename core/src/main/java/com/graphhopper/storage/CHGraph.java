@@ -54,7 +54,11 @@ public interface CHGraph extends Graph {
 
     @Override
     CHEdgeExplorer createEdgeExplorer();
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> ors/master
     @Override
     CHEdgeExplorer createEdgeExplorer(EdgeFilter filter);
 

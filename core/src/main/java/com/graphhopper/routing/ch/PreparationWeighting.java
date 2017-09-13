@@ -43,6 +43,15 @@ public class PreparationWeighting implements Weighting {
     }
 
     @Override
+<<<<<<< HEAD
+=======
+    public final double getMaxWeight() // runge
+    {
+    	return userWeighting.getMaxWeight();
+    }
+    
+    @Override
+>>>>>>> ors/master
     public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
         CHEdgeIteratorState tmp = (CHEdgeIteratorState) edgeState;
         if (tmp.isShortcut())

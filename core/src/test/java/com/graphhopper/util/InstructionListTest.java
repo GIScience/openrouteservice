@@ -112,8 +112,15 @@ public class InstructionListTest {
         Path p = new Dijkstra(g, new ShortestWeighting(carEncoder), tMode).calcPath(0, 10);
         InstructionList wayList = p.calcInstructions(usTR);
         List<String> tmpList = pick("text", wayList.createJson());
+<<<<<<< HEAD
         assertEquals(Arrays.asList("Continue onto 0-1", "Turn right onto 1-4", "Turn left onto 7-8", "Arrive at destination"),
                 tmpList);
+=======
+        return; // Runge
+     /*   assertEquals(Arrays.asList("Continue onto 0-1", "Turn right onto 1-4", "Turn left onto 7-8", "Arrive at destination"), tmpList); Runge
+        //assertEquals(Arrays.asList("Continue onto 0-1, Turn right onto 1-4, Turn left onto 7-8, Continue onto 8-9, Arrive at destination"), tmpList);
+        
+>>>>>>> ors/master
 
         wayList = p.calcInstructions(trMap.getWithFallBack(Locale.GERMAN));
         tmpList = pick("text", wayList.createJson());
@@ -152,7 +159,11 @@ public class InstructionListTest {
         p = new Dijkstra(g, new ShortestWeighting(carEncoder), tMode).calcPath(0, 0);
         wayList = p.calcInstructions(usTR);
         assertEquals(1, wayList.size());
+<<<<<<< HEAD
         assertEquals("arrive at destination", wayList.get(0).getTurnDescription(usTR));
+=======
+        assertEquals("arrive at destination", wayList.get(0).getTurnDescription(usTR));*/
+>>>>>>> ors/master
     }
 
     List<String> pick(String key, List<Map<String, Object>> instructionJson) {
@@ -294,7 +305,11 @@ public class InstructionListTest {
 
         Path p = new Dijkstra(g, new ShortestWeighting(carEncoder), tMode).calcPath(1, 5);
         InstructionList wayList = p.calcInstructions(usTR);
+<<<<<<< HEAD
         assertEquals(4, wayList.size());
+=======
+        //assertEquals(4, wayList.size()); Runge
+>>>>>>> ors/master
 
         List<GPXEntry> gpxList = wayList.createGPXList();
         assertEquals(34000, p.getDistance(), 1e-1);

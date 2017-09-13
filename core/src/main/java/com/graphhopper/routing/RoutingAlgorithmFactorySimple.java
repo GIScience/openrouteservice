@@ -38,6 +38,7 @@ public class RoutingAlgorithmFactorySimple implements RoutingAlgorithmFactory {
         RoutingAlgorithm ra;
         String algoStr = opts.getAlgorithm();
         if (DIJKSTRA_BI.equalsIgnoreCase(algoStr)) {
+<<<<<<< HEAD
             ra = new DijkstraBidirectionRef(g, opts.getWeighting(), opts.getTraversalMode());
         } else if (DIJKSTRA.equalsIgnoreCase(algoStr)) {
             ra = new Dijkstra(g, opts.getWeighting(), opts.getTraversalMode());
@@ -45,6 +46,15 @@ public class RoutingAlgorithmFactorySimple implements RoutingAlgorithmFactory {
         } else if (ASTAR_BI.equalsIgnoreCase(algoStr)) {
             AStarBidirection aStarBi = new AStarBidirection(g, opts.getWeighting(),
                     opts.getTraversalMode());
+=======
+            ra = new DijkstraBidirectionRef(g, opts.getWeighting(), opts.getTraversalMode(), opts.getMaxSpeed());
+        } else if (DIJKSTRA.equalsIgnoreCase(algoStr)) {
+            ra = new Dijkstra(g, opts.getWeighting(), opts.getTraversalMode(), opts.getMaxSpeed());
+
+        } else if (ASTAR_BI.equalsIgnoreCase(algoStr)) {
+            AStarBidirection aStarBi = new AStarBidirection(g, opts.getWeighting(),
+                    opts.getTraversalMode(), opts.getMaxSpeed());
+>>>>>>> ors/master
             aStarBi.setApproximation(getApproximation(ASTAR_BI, opts, g.getNodeAccess()));
             ra = aStarBi;
 
@@ -52,12 +62,20 @@ public class RoutingAlgorithmFactorySimple implements RoutingAlgorithmFactory {
             ra = new DijkstraOneToMany(g, opts.getWeighting(), opts.getTraversalMode());
 
         } else if (ASTAR.equalsIgnoreCase(algoStr)) {
+<<<<<<< HEAD
             AStar aStar = new AStar(g, opts.getWeighting(), opts.getTraversalMode());
+=======
+            AStar aStar = new AStar(g, opts.getWeighting(), opts.getTraversalMode(), opts.getMaxSpeed());
+>>>>>>> ors/master
             aStar.setApproximation(getApproximation(ASTAR, opts, g.getNodeAccess()));
             ra = aStar;
 
         } else if (ALT_ROUTE.equalsIgnoreCase(algoStr)) {
+<<<<<<< HEAD
             AlternativeRoute altRouteAlgo = new AlternativeRoute(g, opts.getWeighting(), opts.getTraversalMode());
+=======
+            AlternativeRoute altRouteAlgo = new AlternativeRoute(g, opts.getWeighting(), opts.getTraversalMode(), opts.getMaxSpeed());
+>>>>>>> ors/master
             altRouteAlgo.setMaxPaths(opts.getHints().getInt(MAX_PATHS, 2));
             altRouteAlgo.setMaxWeightFactor(opts.getHints().getDouble(MAX_WEIGHT, 1.4));
             altRouteAlgo.setMaxShareFactor(opts.getHints().getDouble(MAX_SHARE, 0.6));
@@ -70,6 +88,17 @@ public class RoutingAlgorithmFactorySimple implements RoutingAlgorithmFactory {
         }
 
         ra.setMaxVisitedNodes(opts.getMaxVisitedNodes());
+<<<<<<< HEAD
+=======
+        
+        //Runge
+        if (ra instanceof AbstractRoutingAlgorithm && opts.getEdgeFilter() != null)
+        {
+        	AbstractRoutingAlgorithm ara = (AbstractRoutingAlgorithm)ra;
+        	ara.setEdgeFilter(opts.getEdgeFilter());
+        }
+        
+>>>>>>> ors/master
         return ra;
     }
 

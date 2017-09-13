@@ -40,6 +40,10 @@ public class DistanceCalcEarth implements DistanceCalc {
     public final static double C = 2 * PI * R;
     public final static double KM_MILE = 1.609344;
 
+<<<<<<< HEAD
+=======
+	private final static double R_2 = 2 * R;
+>>>>>>> ors/master
     /**
      * Calculates distance of (from, to) in meter.
      * <p>
@@ -49,12 +53,21 @@ public class DistanceCalcEarth implements DistanceCalc {
     @Override
     public double calcDist(double fromLat, double fromLon, double toLat, double toLon) {
         double normedDist = calcNormalizedDist(fromLat, fromLon, toLat, toLon);
+<<<<<<< HEAD
         return R * 2 * asin(sqrt(normedDist));
+=======
+        
+		return R_2 * asin(sqrt(normedDist));
+>>>>>>> ors/master
     }
 
     @Override
     public double calcDenormalizedDist(double normedDist) {
+<<<<<<< HEAD
         return R * 2 * asin(sqrt(normedDist));
+=======
+		return R_2 * asin(sqrt(normedDist));
+>>>>>>> ors/master
     }
 
     /**

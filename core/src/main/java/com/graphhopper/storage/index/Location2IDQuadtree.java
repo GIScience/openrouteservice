@@ -24,6 +24,10 @@ import com.graphhopper.geohash.KeyAlgo;
 import com.graphhopper.geohash.LinearKeyAlgo;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.*;
+<<<<<<< HEAD
+=======
+import com.graphhopper.util.ByteArrayBuffer;
+>>>>>>> ors/master
 import com.graphhopper.util.BreadthFirstSearch;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.Helper;
@@ -46,7 +50,11 @@ import java.util.Arrays;
  * implementation of LocationIndex.
  * <p>
  */
+<<<<<<< HEAD
 class Location2IDQuadtree implements LocationIndex {
+=======
+public class Location2IDQuadtree implements LocationIndex {
+>>>>>>> ors/master
     private final static int MAGIC_INT = Integer.MAX_VALUE / 12306;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final DataAccess index;
@@ -277,8 +285,20 @@ class Location2IDQuadtree implements LocationIndex {
     }
 
     @Override
+<<<<<<< HEAD
     public QueryResult findClosest(final double queryLat, final double queryLon,
                                    final EdgeFilter edgeFilter) {
+=======
+    public QueryResult findClosest( final double queryLat, final double queryLon,
+                                    final EdgeFilter edgeFilter )
+    {
+    	return findClosest(queryLat, queryLon, edgeFilter, null);
+    }
+
+    @Override
+    public QueryResult findClosest(final double queryLat, final double queryLon,
+                                   final EdgeFilter edgeFilter, ByteArrayBuffer buffer) {
+>>>>>>> ors/master
         if (isClosed())
             throw new IllegalStateException("You need to create a new LocationIndex instance as it is already closed");
 

@@ -41,7 +41,11 @@ public class FastestWeighting extends AbstractWeighting {
     private final double maxSpeed;
 
     public FastestWeighting(FlagEncoder encoder, PMap map) {
+<<<<<<< HEAD
         super(encoder);
+=======
+        super(encoder, map);
+>>>>>>> ors/master
         headingPenalty = map.getDouble(Routing.HEADING_PENALTY, Routing.DEFAULT_HEADING_PENALTY);
         headingPenaltyMillis = Math.round(headingPenalty * 1000);
         maxSpeed = encoder.getMaxSpeed() / SPEED_CONV;
@@ -58,10 +62,27 @@ public class FastestWeighting extends AbstractWeighting {
 
     @Override
     public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId) {
+<<<<<<< HEAD
         double speed = reverse ? flagEncoder.getReverseSpeed(edge.getFlags()) : flagEncoder.getSpeed(edge.getFlags());
         if (speed == 0)
             return Double.POSITIVE_INFINITY;
 
+=======
+        double speed = reverse ? flagEncoder.getReverseSpeed(edge.getFlags(encoderIndex)) : flagEncoder.getSpeed(edge.getFlags(encoderIndex));
+        if (speed == 0)
+            return Double.POSITIVE_INFINITY;
+
+        if (userMaxSpeed > 0)
+        {
+        	if (speed > userMaxSpeed) // Runge
+        		speed = userMaxSpeed;
+        	else if (speed == maxSpeed && userMaxSpeed > speed)
+        	{
+        		speed = userMaxSpeed;
+        	}
+        }
+
+>>>>>>> ors/master
         double time = edge.getDistance() / speed * SPEED_CONV;
 
         // add direction penalties at start/stop/via points

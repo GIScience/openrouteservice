@@ -18,6 +18,10 @@
 package com.graphhopper.reader;
 
 import java.util.HashMap;
+<<<<<<< HEAD
+=======
+import java.util.Iterator;
+>>>>>>> ors/master
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -67,7 +71,11 @@ public abstract class ReaderElement {
         return tagTxt.toString();
     }
 
+<<<<<<< HEAD
     protected Map<String, Object> getTags() {
+=======
+    public Map<String, Object> getTags() {
+>>>>>>> ors/master
         return properties;
     }
 
@@ -99,6 +107,19 @@ public abstract class ReaderElement {
         properties.put(name, value);
     }
 
+<<<<<<< HEAD
+=======
+    public boolean hasTag(String key) // Runge
+    {
+    	return properties.containsKey(key);
+    }
+    
+    public Iterator<Entry<String, Object>> getProperties() // Runge
+    {
+    	return properties.entrySet().iterator();
+    }
+
+>>>>>>> ors/master
     /**
      * Check that the object has a given tag with a given value.
      */

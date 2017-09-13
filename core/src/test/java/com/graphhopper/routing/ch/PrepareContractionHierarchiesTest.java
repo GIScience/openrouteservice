@@ -20,6 +20,10 @@ package com.graphhopper.routing.ch;
 import com.carrotsearch.hppc.IntIndexedContainer;
 import com.graphhopper.routing.*;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies.Shortcut;
+<<<<<<< HEAD
+=======
+import com.graphhopper.routing.util.AllCHEdgesIterator;
+>>>>>>> ors/master
 import com.graphhopper.routing.util.BikeFlagEncoder;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
@@ -224,7 +228,11 @@ public class PrepareContractionHierarchiesTest {
         PrepareContractionHierarchies prepare = new PrepareContractionHierarchies(dir, g, lg, weighting, tMode);
         prepare.doWork();
         assertEquals(oldCount, g.getAllEdges().getMaxId());
+<<<<<<< HEAD
         assertEquals(oldCount + 7, lg.getAllEdges().getMaxId());
+=======
+        assertEquals(oldCount + 7, lg.getAllEdges().getMaxId()); 
+>>>>>>> ors/master
     }
 
     @Test
@@ -252,15 +260,23 @@ public class PrepareContractionHierarchiesTest {
 
     @Test
     public void testDirectedGraph2() {
+<<<<<<< HEAD
         GraphHopperStorage g = createGHStorage();
+=======
+    	GraphHopperStorage g = createGHStorage();
+>>>>>>> ors/master
         CHGraph lg = g.getGraph(CHGraph.class);
         initDirected2(g);
         int oldCount = GHUtility.count(g.getAllEdges());
         assertEquals(19, oldCount);
         PrepareContractionHierarchies prepare = new PrepareContractionHierarchies(dir, g, lg, weighting, tMode);
         prepare.doWork();
+<<<<<<< HEAD
         // PrepareTowerNodesShortcutsTest.printEdges(g);
         assertEquals(oldCount, g.getAllEdges().getMaxId());
+=======
+        // ertEquals(oldCount, g.getAllEdges().getMaxId());
+>>>>>>> ors/master
         assertEquals(oldCount, GHUtility.count(g.getAllEdges()));
 
         assertEquals(9, prepare.getShortcuts());
@@ -609,7 +625,11 @@ public class PrepareContractionHierarchiesTest {
         ghStorage.freeze();
 
         for (Weighting w : chWeightings) {
+<<<<<<< HEAD
             checkPath(ghStorage, w, 7, 5, Helper.createTList(3, 9, 14, 16, 13, 12));
+=======
+            checkPath(ghStorage, w, 7, 5, Helper.createTList(3, 9, 14, 16, 13, 12)); // changed from 7 to 8 because of PHAST
+>>>>>>> ors/master
         }
     }
 
@@ -630,7 +650,11 @@ public class PrepareContractionHierarchiesTest {
 
         ghStorage.freeze();
 
+<<<<<<< HEAD
         checkPath(ghStorage, carWeighting, 7, 5, Helper.createTList(3, 9, 14, 16, 13, 12));
+=======
+        checkPath(ghStorage, carWeighting, 7, 5, Helper.createTList(3, 9, 14, 16, 13, 12)); // Runge changed 7 to 8 because of PHAST modifications
+>>>>>>> ors/master
         // detour around blocked 9,14
         checkPath(ghStorage, bikeWeighting, 9, 5, Helper.createTList(3, 10, 14, 16, 13, 12));
     }

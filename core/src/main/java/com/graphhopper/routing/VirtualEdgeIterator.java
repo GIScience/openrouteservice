@@ -18,6 +18,10 @@
 package com.graphhopper.routing;
 
 import com.graphhopper.routing.util.FlagEncoder;
+<<<<<<< HEAD
+=======
+import com.graphhopper.util.ByteArrayBuffer;
+>>>>>>> ors/master
 import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
@@ -69,6 +73,14 @@ class VirtualEdgeIterator implements EdgeIterator, CHEdgeIteratorState {
         return edges.get(current).getEdge();
     }
 
+<<<<<<< HEAD
+=======
+    public int getOriginalEdge()
+    {
+    	return edges.get(current).getOriginalEdge();
+    }
+
+>>>>>>> ors/master
     @Override
     public int getBaseNode() {
         return edges.get(current).getBaseNode();
@@ -83,6 +95,15 @@ class VirtualEdgeIterator implements EdgeIterator, CHEdgeIteratorState {
     public PointList fetchWayGeometry(int mode) {
         return edges.get(current).fetchWayGeometry(mode);
     }
+<<<<<<< HEAD
+=======
+    
+    @Override
+    public PointList fetchWayGeometry( int mode, ByteArrayBuffer buffer)
+    {
+        return edges.get(current).fetchWayGeometry(mode, buffer);
+    }
+>>>>>>> ors/master
 
     @Override
     public EdgeIteratorState setWayGeometry(PointList list) {
@@ -103,6 +124,14 @@ class VirtualEdgeIterator implements EdgeIterator, CHEdgeIteratorState {
     public long getFlags() {
         return edges.get(current).getFlags();
     }
+<<<<<<< HEAD
+=======
+    
+    @Override
+    public long getFlags(int encoderIndex) {
+        return edges.get(current).getFlags(encoderIndex);
+    }
+>>>>>>> ors/master
 
     @Override
     public EdgeIteratorState setFlags(long flags) {

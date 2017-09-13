@@ -39,8 +39,13 @@ public class HikeFlagEncoder extends FootFlagEncoder {
     }
 
     public HikeFlagEncoder(PMap properties) {
+<<<<<<< HEAD
         this((int) properties.getLong("speedBits", 4),
                 properties.getDouble("speedFactor", 1));
+=======
+        this((int) properties.getLong("speed_bits", 4),
+                properties.getDouble("speed_factor", 1));
+>>>>>>> ors/master
         this.properties = properties;
         this.setBlockFords(properties.getBool("block_fords", false));
     }
@@ -112,7 +117,11 @@ public class HikeFlagEncoder extends FootFlagEncoder {
     }
 
     @Override
+<<<<<<< HEAD
     void collect(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
+=======
+    protected void collect(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
+>>>>>>> ors/master
         String highway = way.getTag("highway");
         if (way.hasTag("foot", "designated"))
             weightToPrioMap.put(100d, PREFER.getValue());

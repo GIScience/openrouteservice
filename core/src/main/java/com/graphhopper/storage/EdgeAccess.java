@@ -56,7 +56,11 @@ abstract class EdgeAccess {
 
     abstract boolean isInBounds(int edgeOrShortcutId);
 
+<<<<<<< HEAD
     abstract long reverseFlags(long edgePointer, long flags);
+=======
+    abstract long reverseFlags(long edgePointer, long flags, int encoderIndex);
+>>>>>>> ors/master
 
     abstract int getEdgeRef(int nodeId);
 
@@ -94,7 +98,11 @@ abstract class EdgeAccess {
         return val / INT_DIST_FACTOR;
     }
 
+<<<<<<< HEAD
     final long getFlags_(long edgePointer, boolean reverse) {
+=======
+    final long getFlags_(long edgePointer, boolean reverse, int encoderIndex) {
+>>>>>>> ors/master
         int low = edges.getInt(edgePointer + E_FLAGS);
         long resFlags = low;
         if (flagsSizeIsLong) {
@@ -102,14 +110,24 @@ abstract class EdgeAccess {
             resFlags = bitUtil.combineIntsToLong(low, high);
         }
         if (reverse)
+<<<<<<< HEAD
             resFlags = reverseFlags(edgePointer, resFlags);
+=======
+            resFlags = reverseFlags(edgePointer, resFlags, encoderIndex);
+>>>>>>> ors/master
 
         return resFlags;
     }
 
+<<<<<<< HEAD
     final long setFlags_(long edgePointer, boolean reverse, long flags) {
         if (reverse)
             flags = reverseFlags(edgePointer, flags);
+=======
+    final long setFlags_(long edgePointer, boolean reverse, long flags, int encoderIndex) {
+        if (reverse)
+            flags = reverseFlags(edgePointer, flags, encoderIndex);
+>>>>>>> ors/master
 
         edges.setInt(edgePointer + E_FLAGS, bitUtil.getIntLow(flags));
 
@@ -201,7 +219,11 @@ abstract class EdgeAccess {
         }
         return edgeToRemovePointer;
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> ors/master
     final EdgeIteratorState getEdgeProps(int edgeId, int adjNode) {
         if (edgeId <= EdgeIterator.NO_EDGE)
             throw new IllegalStateException("edgeId invalid " + edgeId + ", " + this);

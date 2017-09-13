@@ -723,7 +723,11 @@ public class LandmarkStorage implements Storable<LandmarkStorage> {
         private final LandmarkStorage lms;
 
         public LandmarkExplorer(Graph g, LandmarkStorage lms, Weighting weighting, TraversalMode tMode) {
+<<<<<<< HEAD
             super(g, weighting, tMode);
+=======
+            super(g, weighting, tMode, -1);
+>>>>>>> ors/master
             this.lms = lms;
         }
 

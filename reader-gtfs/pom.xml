@@ -5,14 +5,22 @@
 
     <groupId>com.graphhopper</groupId>
     <artifactId>graphhopper-reader-gtfs</artifactId>
+<<<<<<< HEAD
     <version>0.9.0</version>
+=======
+    <version>0.10-SNAPSHOT</version>
+>>>>>>> ors/master
     <packaging>jar</packaging>
     <name>GraphHopper Reader for Gtfs Data</name>
 
     <parent>
         <groupId>com.graphhopper</groupId>
         <artifactId>graphhopper-parent</artifactId>    	
+<<<<<<< HEAD
         <version>0.9.0</version>
+=======
+        <version>0.10-SNAPSHOT</version>
+>>>>>>> ors/master
     </parent>
 
     <dependencies>

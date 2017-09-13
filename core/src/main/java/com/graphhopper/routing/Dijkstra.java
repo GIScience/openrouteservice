@@ -42,9 +42,21 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
     protected SPTEntry currEdge;
     private int visitedNodes;
     private int to = -1;
+<<<<<<< HEAD
 
     public Dijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
         super(graph, weighting, tMode);
+=======
+    
+    protected Boolean reverseDirection = false; // Runge
+
+    public Dijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
+      this(graph, weighting, tMode, -1);
+    }
+    
+    public Dijkstra(Graph graph, Weighting weighting, TraversalMode tMode, double maxSpeed) {
+        super(graph, weighting, tMode, maxSpeed);
+>>>>>>> ors/master
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
         initCollections(size);
     }
@@ -53,6 +65,15 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
         fromHeap = new PriorityQueue<SPTEntry>(size);
         fromMap = new GHIntObjectHashMap<SPTEntry>(size);
     }
+<<<<<<< HEAD
+=======
+    
+    // Runge: this flag has been update to support reverse direction in isochrones
+    public void setReverseDirection(Boolean reverse)
+    {
+    	reverseDirection = reverse;	
+    }
+>>>>>>> ors/master
 
     @Override
     public Path calcPath(int from, int to) {
@@ -80,7 +101,11 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
                     continue;
 
                 int traversalId = traversalMode.createTraversalId(iter, false);
+<<<<<<< HEAD
                 double tmpWeight = weighting.calcWeight(iter, false, currEdge.edge) + currEdge.weight;
+=======
+                double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.edge) + currEdge.weight;
+>>>>>>> ors/master
                 if (Double.isInfinite(tmpWeight))
                     continue;
 
@@ -121,7 +146,11 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
         if (currEdge == null || !finished())
             return createEmptyPath();
 
+<<<<<<< HEAD
         return new Path(graph, weighting).
+=======
+        return new Path(graph, weighting, maxSpeed).
+>>>>>>> ors/master
                 setWeight(currEdge.weight).setSPTEntry(currEdge).extract();
     }
 

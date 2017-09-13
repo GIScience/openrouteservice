@@ -306,6 +306,14 @@ public class GHUtility {
             }
 
             @Override
+<<<<<<< HEAD
+=======
+            public long getFlags(int encoderIndex) {
+                return flags;
+            }
+            
+            @Override
+>>>>>>> ors/master
             public boolean getBool(int key, boolean _default) {
                 return _default;
             }
@@ -391,6 +399,15 @@ public class GHUtility {
         }
 
         @Override
+<<<<<<< HEAD
+=======
+        public int getOriginalEdge()
+        {
+            throw new UnsupportedOperationException("Not supported. Edge is empty.");
+        }
+
+        @Override
+>>>>>>> ors/master
         public int getBaseNode() {
             throw new UnsupportedOperationException("Not supported. Edge is empty.");
         }
@@ -411,9 +428,26 @@ public class GHUtility {
         }
 
         @Override
+<<<<<<< HEAD
         public PointList fetchWayGeometry(int type) {
             throw new UnsupportedOperationException("Not supported. Edge is empty.");
         }
+=======
+        public long getFlags(int encoderIndex) {
+            throw new UnsupportedOperationException("Not supported. Edge is empty.");
+        }
+        
+        @Override
+        public PointList fetchWayGeometry(int type) {
+            throw new UnsupportedOperationException("Not supported. Edge is empty.");
+        }
+        
+        @Override
+        public PointList fetchWayGeometry( int type, ByteArrayBuffer buffer)
+        {
+            throw new UnsupportedOperationException("Not supported. Edge is empty.");
+        }
+>>>>>>> ors/master
 
         @Override
         public EdgeIteratorState setWayGeometry(PointList list) {

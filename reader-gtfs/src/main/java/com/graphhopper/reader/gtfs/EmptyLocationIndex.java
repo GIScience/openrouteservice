@@ -21,6 +21,10 @@ package com.graphhopper.reader.gtfs;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.QueryResult;
+<<<<<<< HEAD
+=======
+import com.graphhopper.util.ByteArrayBuffer;
+>>>>>>> ors/master
 
 class EmptyLocationIndex implements LocationIndex {
     @Override
@@ -37,6 +41,15 @@ class EmptyLocationIndex implements LocationIndex {
     public QueryResult findClosest(double lat, double lon, EdgeFilter edgeFilter) {
         return new QueryResult(lat, lon);
     }
+<<<<<<< HEAD
+=======
+    
+    @Override
+    public QueryResult findClosest(double lat, double lon, EdgeFilter edgeFilter, ByteArrayBuffer arrayBuffer)
+    {
+    	return new QueryResult(lat, lon);
+    }
+>>>>>>> ors/master
 
     @Override
     public LocationIndex setApproximation(boolean approxDist) {

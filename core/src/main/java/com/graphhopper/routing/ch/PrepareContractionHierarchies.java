@@ -84,6 +84,10 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     private double lazyTime;
     private double neighborTime;
     private int maxEdgesCount;
+<<<<<<< HEAD
+=======
+    
+>>>>>>> ors/master
 
     public PrepareContractionHierarchies(Directory dir, GraphHopperStorage ghStorage, CHGraph chGraph,
                                          Weighting weighting, TraversalMode traversalMode) {
@@ -323,7 +327,12 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
                     neighborSW.stop();
                 }
 
+<<<<<<< HEAD
                 prepareGraph.disconnect(vehicleAllTmpExplorer, iter);
+=======
+                 // Hendrik: PHAST algorithm does not work properly with removed shortcuts
+                 prepareGraph.disconnect(vehicleAllTmpExplorer, iter);  
+>>>>>>> ors/master
             }
         }
 
@@ -371,6 +380,14 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     public Weighting getWeighting() {
         return prepareGraph.getWeighting();
     }
+<<<<<<< HEAD
+=======
+    
+    public Weighting getPrepareWeighting()
+    {
+    	return prepareWeighting;
+    }
+>>>>>>> ors/master
 
     public void close() {
         prepareAlgo.close();
@@ -644,12 +661,20 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     public RoutingAlgorithm createAlgo(Graph graph, AlgorithmOptions opts) {
         AbstractBidirAlgo algo;
         if (ASTAR_BI.equals(opts.getAlgorithm())) {
+<<<<<<< HEAD
             AStarBidirection tmpAlgo = new AStarBidirectionCH(graph, prepareWeighting, traversalMode);
+=======
+            AStarBidirection tmpAlgo = new AStarBidirectionCH(graph, prepareWeighting, traversalMode, opts.getMaxSpeed());
+>>>>>>> ors/master
             tmpAlgo.setApproximation(RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts, graph.getNodeAccess()));
             algo = tmpAlgo;
 
         } else if (DIJKSTRA_BI.equals(opts.getAlgorithm())) {
+<<<<<<< HEAD
             algo = new DijkstraBidirectionCH(graph, prepareWeighting, traversalMode);
+=======
+            algo = new DijkstraBidirectionCH(graph, prepareWeighting, traversalMode, opts.getMaxSpeed());
+>>>>>>> ors/master
         } else {
             throw new IllegalArgumentException("Algorithm " + opts.getAlgorithm() + " not supported for Contraction Hierarchies. Try with ch.disable=true");
         }
@@ -660,8 +685,13 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     }
 
     public static class AStarBidirectionCH extends AStarBidirection {
+<<<<<<< HEAD
         public AStarBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode) {
             super(graph, weighting, traversalMode);
+=======
+        public AStarBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode, double maxSpeed) {
+            super(graph, weighting, traversalMode, maxSpeed);
+>>>>>>> ors/master
         }
 
         @Override
@@ -681,7 +711,11 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
 
         @Override
         protected Path createAndInitPath() {
+<<<<<<< HEAD
             bestPath = new Path4CH(graph, graph.getBaseGraph(), weighting);
+=======
+            bestPath = new Path4CH(graph, graph.getBaseGraph(), weighting, maxSpeed);
+>>>>>>> ors/master
             return bestPath;
         }
 
@@ -697,8 +731,13 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     }
 
     public static class DijkstraBidirectionCH extends DijkstraBidirectionRef {
+<<<<<<< HEAD
         public DijkstraBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode) {
             super(graph, weighting, traversalMode);
+=======
+        public DijkstraBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode, double maxSpeed) {
+            super(graph, weighting, traversalMode, maxSpeed);
+>>>>>>> ors/master
         }
 
         @Override
@@ -718,7 +757,11 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
 
         @Override
         protected Path createAndInitPath() {
+<<<<<<< HEAD
             bestPath = new Path4CH(graph, graph.getBaseGraph(), weighting);
+=======
+            bestPath = new Path4CH(graph, graph.getBaseGraph(), weighting, maxSpeed);
+>>>>>>> ors/master
             return bestPath;
         }
 

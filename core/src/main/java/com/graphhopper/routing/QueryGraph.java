@@ -184,11 +184,19 @@ public class QueryGraph implements Graph {
         mainEdges = superQueryGraph.mainEdges;
     }
 
+<<<<<<< HEAD
+=======
+    public QueryGraph lookup(QueryResult fromRes, QueryResult toRes) {
+    	return lookup(fromRes, toRes, null);
+    }
+    
+>>>>>>> ors/master
     /**
      * Convenient method to initialize this QueryGraph with the two specified query results.
      *
      * @see #lookup(List)
      */
+<<<<<<< HEAD
     public QueryGraph lookup(QueryResult fromRes, QueryResult toRes) {
         List<QueryResult> results = new ArrayList<QueryResult>(2);
         results.add(fromRes);
@@ -197,6 +205,20 @@ public class QueryGraph implements Graph {
         return this;
     }
 
+=======
+    public QueryGraph lookup(QueryResult fromRes, QueryResult toRes, final ByteArrayBuffer byteBuffer) {
+        List<QueryResult> results = new ArrayList<QueryResult>(2);
+        results.add(fromRes);
+        results.add(toRes);
+        lookup(results, byteBuffer);
+        return this;
+    }
+
+    public void lookup(List<QueryResult> resList) {
+    	lookup(resList, null);
+    }
+    
+>>>>>>> ors/master
     /**
      * For all specified query results calculate snapped point and if necessary set closest node
      * to a virtual one and reverse closest edge. Additionally the wayIndex can change if an edge is
@@ -204,7 +226,11 @@ public class QueryGraph implements Graph {
      *
      * @see QueryGraph
      */
+<<<<<<< HEAD
     public void lookup(List<QueryResult> resList) {
+=======
+    public void lookup(List<QueryResult> resList, final ByteArrayBuffer byteBuffer) {
+>>>>>>> ors/master
         if (isInitialized())
             throw new IllegalStateException("Call lookup only once. Otherwise you'll have problems for queries sharing the same edge.");
 
@@ -236,14 +262,22 @@ public class QueryGraph implements Graph {
             boolean doReverse = base > closestEdge.getAdjNode();
             if (base == closestEdge.getAdjNode()) {
                 // check for special case #162 where adj == base and force direction via latitude comparison
+<<<<<<< HEAD
                 PointList pl = closestEdge.fetchWayGeometry(0);
+=======
+                PointList pl = closestEdge.fetchWayGeometry(0, byteBuffer);
+>>>>>>> ors/master
                 if (pl.size() > 1)
                     doReverse = pl.getLatitude(0) > pl.getLatitude(pl.size() - 1);
             }
 
             if (doReverse) {
                 closestEdge = closestEdge.detach(true);
+<<<<<<< HEAD
                 PointList fullPL = closestEdge.fetchWayGeometry(3);
+=======
+                PointList fullPL = closestEdge.fetchWayGeometry(3, byteBuffer);
+>>>>>>> ors/master
                 res.setClosestEdge(closestEdge);
                 if (res.getSnappedPosition() == QueryResult.Position.PILLAR)
                     // ON pillar node
@@ -274,7 +308,11 @@ public class QueryGraph implements Graph {
             public boolean apply(int edgeId, List<QueryResult> results) {
                 // we can expect at least one entry in the results
                 EdgeIteratorState closestEdge = results.get(0).getClosestEdge();
+<<<<<<< HEAD
                 final PointList fullPL = closestEdge.fetchWayGeometry(3);
+=======
+                final PointList fullPL = closestEdge.fetchWayGeometry(3, byteBuffer);
+>>>>>>> ors/master
                 int baseNode = closestEdge.getBaseNode();
                 // sort results on the same edge by the wayIndex and if equal by distance to pillar node
                 Collections.sort(results, new Comparator<QueryResult>() {
@@ -366,6 +404,14 @@ public class QueryGraph implements Graph {
         // directly after normal edge ids which is ugly as we limit virtual edges to N edges and waste memory or make everything more complex.
         return baseGraph;
     }
+<<<<<<< HEAD
+=======
+    
+    public Graph getMainGraph()
+    {
+    	return mainGraph;
+    }
+>>>>>>> ors/master
 
     public EdgeIteratorState getOriginalEdgeFromVirtNode(int nodeId) {
         return queryResults.get(nodeId - mainNodes).getClosestEdge();
@@ -412,15 +458,27 @@ public class QueryGraph implements Graph {
 
         // edges between base and snapped point
         VirtualEdgeIteratorState baseEdge = new VirtualEdgeIteratorState(origTraversalKey,
+<<<<<<< HEAD
                 virtEdgeId, prevNodeId, nodeId, baseDistance, closestEdge.getFlags(), closestEdge.getName(), basePoints);
         VirtualEdgeIteratorState baseReverseEdge = new VirtualEdgeIteratorState(origRevTraversalKey,
                 virtEdgeId, nodeId, prevNodeId, baseDistance, reverseFlags, closestEdge.getName(), baseReversePoints);
+=======
+                virtEdgeId, closestEdge.getEdge(), prevNodeId, nodeId, baseDistance, closestEdge.getFlags(), closestEdge.getName(), basePoints);
+        VirtualEdgeIteratorState baseReverseEdge = new VirtualEdgeIteratorState(origRevTraversalKey,
+                virtEdgeId, closestEdge.getEdge(), nodeId, prevNodeId, baseDistance, reverseFlags, closestEdge.getName(), baseReversePoints);
+>>>>>>> ors/master
         baseEdge.setReverseEdge(baseReverseEdge);
         baseReverseEdge.setReverseEdge(baseEdge);
         virtualEdges.add(baseEdge);
         virtualEdges.add(baseReverseEdge);
     }
 
+<<<<<<< HEAD
+=======
+    public boolean enforceHeading(int nodeId, double favoredHeading, boolean incoming) {
+    	return enforceHeading(nodeId, favoredHeading, incoming, null);
+    }
+>>>>>>> ors/master
     /**
      * Set those edges at the virtual node (nodeId) to 'unfavored' that require at least a turn of
      * 100° from favoredHeading.
@@ -431,7 +489,11 @@ public class QueryGraph implements Graph {
      * @param incoming       if true, incoming edges are unfavored, else outgoing edges
      * @return boolean indicating if enforcement took place
      */
+<<<<<<< HEAD
     public boolean enforceHeading(int nodeId, double favoredHeading, boolean incoming) {
+=======
+    public boolean enforceHeading(int nodeId, double favoredHeading, boolean incoming, ByteArrayBuffer byteBuffer) {
+>>>>>>> ors/master
         if (!isInitialized())
             throw new IllegalStateException("QueryGraph.lookup has to be called in before heading enforcement");
 
@@ -450,7 +512,11 @@ public class QueryGraph implements Graph {
         for (int edgePos : edgePositions) {
             VirtualEdgeIteratorState edge = virtualEdges.get(virtNodeIDintern * 4 + edgePos);
 
+<<<<<<< HEAD
             PointList wayGeo = edge.fetchWayGeometry(3);
+=======
+            PointList wayGeo = edge.fetchWayGeometry(3, byteBuffer);
+>>>>>>> ors/master
             double edgeOrientation;
             if (incoming) {
                 int numWayPoints = wayGeo.getSize();
@@ -567,6 +633,7 @@ public class QueryGraph implements Graph {
 
         return edgeId;
     }
+<<<<<<< HEAD
 
     @Override
     public EdgeExplorer createEdgeExplorer(final EdgeFilter edgeFilter) {
@@ -603,6 +670,50 @@ public class QueryGraph implements Graph {
     }
 
     private EdgeExplorer createUncachedEdgeExplorer(EdgeFilter edgeFilter) {
+=======
+    
+    @Override
+    public EdgeExplorer createEdgeExplorer(final EdgeFilter edgeFilter, PMap props) {
+    
+    	   if (!isInitialized())
+               throw new IllegalStateException("Call lookup before using this graph");
+
+           if (useEdgeExplorerCache) {
+               int counter = -1;
+               if (edgeFilter instanceof DefaultEdgeFilter) {
+                   DefaultEdgeFilter dee = (DefaultEdgeFilter) edgeFilter;
+                   counter = 0;
+                   if (dee.acceptsBackward())
+                       counter = 1;
+                   if (dee.acceptsForward())
+                       counter += 2;
+
+                   if (counter == 0)
+                       throw new IllegalStateException("You tried to use an edge filter blocking every access");
+
+               } else if (edgeFilter == EdgeFilter.ALL_EDGES) {
+                   counter = 4;
+               }
+
+               if (counter >= 0) {
+                   EdgeExplorer cached = cacheMap.get(counter);
+                   if (cached == null) {
+                       cached = createUncachedEdgeExplorer(edgeFilter, props);
+                       cacheMap.put(counter, cached);
+                   }
+                   return cached;
+               }
+           }
+           return createUncachedEdgeExplorer(edgeFilter, props);
+    }
+
+    @Override
+    public EdgeExplorer createEdgeExplorer(final EdgeFilter edgeFilter) {
+     return createEdgeExplorer(edgeFilter, null);
+    }
+
+    private EdgeExplorer createUncachedEdgeExplorer(EdgeFilter edgeFilter, PMap props) {
+>>>>>>> ors/master
         // Iteration over virtual nodes needs to be thread safe if done from different explorer
         // so we need to create the mapping on EVERY call!
         // This needs to be a HashMap (and cannot be an array) as we also need to tweak edges for some mainNodes!
@@ -610,7 +721,11 @@ public class QueryGraph implements Graph {
         final IntObjectMap<VirtualEdgeIterator> node2EdgeMap
                 = new GHIntObjectHashMap<VirtualEdgeIterator>(queryResults.size() * 3);
 
+<<<<<<< HEAD
         final EdgeExplorer mainExplorer = mainGraph.createEdgeExplorer(edgeFilter);
+=======
+        final EdgeExplorer mainExplorer = props == null ? mainGraph.createEdgeExplorer(edgeFilter): mainGraph.createEdgeExplorer(edgeFilter, props);
+>>>>>>> ors/master
         final GHIntHashSet towerNodesToChange = new GHIntHashSet(queryResults.size());
 
         // 1. virtualEdges should also get fresh EdgeIterators on every createEdgeExplorer call!
