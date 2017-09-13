@@ -11,6 +11,9 @@
  *|----------------------------------------------------------------------------------------------*/
 package heigit.ors.matrix.algorithms.rphast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -64,11 +67,27 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 		{
 			RPHASTAlgorithm algorithm = new RPHASTAlgorithm(_graph, _prepareCH.getPrepareWeighting(),
 					TraversalMode.NODE_BASED);
+			
+			int[] srcIds = getValidNodeIds(srcData.getNodeIds());
+			int[] destIds = getValidNodeIds(dstData.getNodeIds());
+			
+			algorithm.prepare(srcIds, destIds);
 
-			algorithm.prepare(srcData.getNodeIds(), dstData.getNodeIds());
+			MultiTreeSPEntry[] destTrees = algorithm.calcPaths(srcIds, destIds);
 
-			MultiTreeSPEntry[] destTrees = algorithm.calcPaths(srcData.getNodeIds(), dstData.getNodeIds());
-			_pathMetricsExtractor.calcValues(destTrees, srcData, dstData, times, distances, weights);
+			MultiTreeSPEntry[] originalDestTrees = new MultiTreeSPEntry[dstData.size()];
+			
+			int j = 0;
+			for (int i = 0; i < dstData.size(); i++) {
+				if (dstData.getNodeIds()[i] != -1) {
+					originalDestTrees[i] = destTrees[j];
+					++j;
+				} else {
+					originalDestTrees[i] = null;
+				}
+			}
+
+			_pathMetricsExtractor.calcValues(originalDestTrees, srcData, dstData, times, distances, weights);
 		}
 
 		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Duration))
@@ -79,5 +98,21 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 			mtxResult.setTable(MatrixMetricsType.Weight, weights);
 
 		return mtxResult;
+	}
+	
+	private int[] getValidNodeIds(int[] nodeIds)
+	{
+		List<Integer> nodeList = new ArrayList<Integer>();
+		for (int dst : nodeIds) {
+			if (dst != -1)
+				nodeList.add(dst);
+
+		}
+		
+		int[] res = new int[nodeList.size()];
+		for (int i = 0; i < nodeList.size(); i++) 
+			res[i] = nodeList.get(i);
+		
+		return res;
 	}
 }

@@ -72,8 +72,8 @@ public class MultiTreeMetricsExtractor {
 		}
 	}
 
-	public void calcValues(MultiTreeSPEntry[] targets, MatrixLocations srcData,
-			MatrixLocations dstData, float[] times, float[] distances, float[] weights) throws Exception {
+	public void calcValues(MultiTreeSPEntry[] targets, MatrixLocations srcData, MatrixLocations dstData, float[] times,
+			float[] distances, float[] weights) throws Exception {
 		if (targets == null)
 			throw new IllegalStateException("Target destinations not set");
 
@@ -87,19 +87,17 @@ public class MultiTreeMetricsExtractor {
 		MetricsItem edgeMetricsItem = null;
 		MultiTreeSPEntryItem sptItem = null;
 
-		for (int i = 0; i < targets.length; ++i)
-		{
+		for (int i = 0; i < targets.length; ++i) {
 			// index = i * dstData.size();
-			for (int j = 0; j < srcData.size(); ++j) 
-			{
+			int srcNode = 0;
+			for (int j = 0; j < srcData.size(); ++j) {
 				pathTime = -1;
-				pathDistance= -1;
+				pathDistance = -1;
 				pathWeight = -1;
 
 				index = j * dstData.size() + i;
 
-				if (srcData.getNodeId(j) != -1)
-				{
+				if (srcData.getNodeId(j) != -1) {
 					MultiTreeSPEntry targetEntry = targets[i];
 
 					if (targetEntry != null) {
@@ -107,13 +105,13 @@ public class MultiTreeMetricsExtractor {
 						pathDistance = 0.0;
 						pathWeight = 0.0;
 
-						sptItem = targetEntry.getItem(j);
-						
+						sptItem = targetEntry.getItem(srcNode);
+
 						if (sptItem.parent != null) {
 							while (EdgeIterator.Edge.isValid(sptItem.edge)) {
 								edgeMetricsItem = null;
 								if (_edgeMetrics != null) {
-									entryHash = getMultiTreeSPEntryHash(targetEntry, j);
+									entryHash = getMultiTreeSPEntryHash(targetEntry, srcNode);
 									edgeMetricsItem = _edgeMetrics.get(entryHash);
 								}
 
@@ -143,9 +141,10 @@ public class MultiTreeMetricsExtractor {
 										}
 
 										if (!_unpackDistance && calcDistance)
-											_edgeDistance = (_distUnits == DistanceUnit.Meters) ? iterState.getDistance()
-													: DistanceUnitUtil.convert(iterState.getDistance(), DistanceUnit.Meters,
-															_distUnits);
+											_edgeDistance = (_distUnits == DistanceUnit.Meters)
+													? iterState.getDistance()
+													: DistanceUnitUtil.convert(iterState.getDistance(),
+															DistanceUnit.Meters, _distUnits);
 									} else {
 										EdgeIteratorState iter = _graph.getEdgeIteratorState(sptItem.edge,
 												targetEntry.adjNode);
@@ -155,11 +154,12 @@ public class MultiTreeMetricsExtractor {
 													: DistanceUnitUtil.convert(iter.getDistance(), DistanceUnit.Meters,
 															_distUnits);
 
-											if (calcTime)
-												_edgeTime = _timeWeighting.calcMillis(iter, false, EdgeIterator.NO_EDGE) / 1000.0;
+										if (calcTime)
+											_edgeTime = _timeWeighting.calcMillis(iter, false, EdgeIterator.NO_EDGE)
+													/ 1000.0;
 
-											if (calcWeight)
-												_edgeWeight = _weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
+										if (calcWeight)
+											_edgeWeight = _weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
 									}
 
 									if (_edgeMetrics != null) {
@@ -183,24 +183,25 @@ public class MultiTreeMetricsExtractor {
 								}
 
 								targetEntry = sptItem.parent;
-								
+
 								if (targetEntry == null)
 									break;
-								
-								sptItem = targetEntry.getItem(j);
+
+								sptItem = targetEntry.getItem(srcNode);
 							}
-						} 
+						}
 					}
+					srcNode++;
 				}
 
 				if (calcTime)
-					times[index] = (float)pathTime;
+					times[index] = (float) pathTime;
 
 				if (calcDistance)
-					distances[index] = (float)pathDistance;
+					distances[index] = (float) pathDistance;
 
 				if (calcWeight)
-					weights[index] = (float)pathWeight;
+					weights[index] = (float) pathWeight;
 			}
 		}
 	}

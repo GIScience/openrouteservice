@@ -146,7 +146,7 @@ public class RoutingProfileManager {
 					ExecutorCompletionService<RoutingProfile> compService = new ExecutorCompletionService<RoutingProfile>(executor);
 
 					int nTotalTasks = 0;
-					int j = 1; 
+					
 					for (int i = 0; i < nRouteInstances; i++) {
 						RouteProfileConfiguration rpc = rmc.Profiles[i];
 						if (!rpc.getEnabled())
@@ -160,8 +160,6 @@ public class RoutingProfileManager {
 							compService.submit(task);
 							nTotalTasks++;
 						}
-
-						j++;
 					}
 
 					LOGGER.info("               ");
