@@ -1,0 +1,25 @@
+{
+	"travellers": [
+	    {
+			"profile": "driving-car",
+			"location": [8.682289,49.386172],
+			"location_type": "start",
+			"range": [300, 600],
+			"range_type": "time",
+			"options": {}
+		},
+		{
+			"profile": "cycling-regular",
+			"location": [8.673362,49.420130],
+			"location_type": "start",
+			"range": [300, 600],
+			"range_type": "time",
+			"options": {}
+		}
+	],
+	"id": "4234sa",
+	"intersections": true,
+	"calc_method": "default",
+	"attributes": "reachfactor|area",
+	"units": "m"
+}

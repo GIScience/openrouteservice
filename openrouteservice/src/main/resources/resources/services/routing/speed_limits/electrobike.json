@@ -1,0 +1,66 @@
+{
+	default: 
+	{
+		"motorway": 21,
+		"motorway_link": 21,
+		"trunk": 21,
+		"trunk_link": 21,
+		"primary": 21,
+		"primary_link": 21,
+		"secondary": 21,
+		"secondary_link": 21,
+		"tertiary": 21,
+		"tertiary_link": 21,
+		"unclassified": 18,
+		"residential": 21,
+		"living_street": 12,
+                "cycleway": 21,
+                "path": 13,
+		"service": 15,
+		"road": 14,
+		"track": 13,
+		"footway": 6,
+		"pedestrian": 6,
+		"steps": 2
+	},
+	surface:
+	{
+		"asphalt": 21, 
+		"cobblestone": 9,
+		"cobblestone:flattened": 11,
+		"concrete": 21,
+		"concrete:plates": 18,
+		"concrete:lanes": 18,
+		"cement": 6,
+		"clay": 6,
+		"compacted": 17,
+		"dirt": 11,
+		"earth": 13,
+		"fine_gravel": 19,
+		"grass": 9,
+		"grass_paver": 9,
+		"gravel": 13,
+		"ground": 13,
+		"ice":  2,
+		"metal": 11, 
+		"mud":  11,
+		"paved": 21,
+		"paving_stones": 13,
+		"paving_stones:30": 13,
+		"pebblestone": 18,
+		"sand": 7,
+		"salt": 7,
+		"sett": 11,
+		"unpaved": 15,
+		"unknown" : 6,
+		"wood": 7
+	},
+	tracktype:
+	{
+		"grade1": 21,
+		"grade2": 15,
+		"grade3": 9,
+		"grade4": 7,
+		"grade5": 4
+	}
+}

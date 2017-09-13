@@ -1,0 +1,7 @@
+target/
+*~
+TODO.txt
+.settings/
+.classpath
+.project
+#/WebContent/WEB-INF/app.config

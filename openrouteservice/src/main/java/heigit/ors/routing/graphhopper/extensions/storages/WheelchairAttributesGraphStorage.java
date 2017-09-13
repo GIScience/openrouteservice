@@ -1,0 +1,250 @@
+/*|----------------------------------------------------------------------------------------------
+ *|														Heidelberg University
+ *|	  _____ _____  _____      _                     	Department of Geography		
+ *|	 / ____|_   _|/ ____|    (_)                    	Chair of GIScience
+ *|	| |  __  | | | (___   ___ _  ___ _ __   ___ ___ 	(C) 2014
+ *|	| | |_ | | |  \___ \ / __| |/ _ \ '_ \ / __/ _ \	
+ *|	| |__| |_| |_ ____) | (__| |  __/ | | | (_|  __/	Berliner Strasse 48								
+ *|	 \_____|_____|_____/ \___|_|\___|_| |_|\___\___|	D-69120 Heidelberg, Germany	
+ *|	        	                                       	http://www.giscience.uni-hd.de
+ *|								
+ *|----------------------------------------------------------------------------------------------*/
+
+// Authors: M. Rylov 
+
+package heigit.ors.routing.graphhopper.extensions.storages;
+
+import heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
+
+import com.graphhopper.routing.util.EncodedDoubleValue;
+import com.graphhopper.routing.util.EncodedValue;
+import com.graphhopper.storage.DataAccess;
+import com.graphhopper.storage.Directory;
+import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphExtension;
+
+public class WheelchairAttributesGraphStorage implements GraphExtension
+{
+	/* pointer for no entry */
+	protected final int NO_ENTRY = -1;
+	protected final int EF_WHEELCHAIR_ATTRIBUTES;
+
+	protected DataAccess orsEdges;
+	protected int edgeEntryIndex = 0;
+	protected int edgeEntryBytes;
+	protected int edgesCount; // number of edges with custom values
+
+	private byte[] _buffer;
+
+	// bit encoders
+	private EncodedValue _surfaceEncoder;
+	private EncodedValue _smoothnessEncoder;
+	private EncodedValue _trackTypeEncoder;
+	private EncodedDoubleValue _curbHeightEncoder;
+	private EncodedDoubleValue _inclineEncoder; 
+	
+	private static int BYTE_COUNT = 3;
+
+	public WheelchairAttributesGraphStorage() 
+	{
+		_buffer = new byte[BYTE_COUNT];
+		EF_WHEELCHAIR_ATTRIBUTES = 0;
+
+		edgeEntryBytes = edgeEntryIndex + BYTE_COUNT;
+		edgesCount = 0;
+
+		int shift = 1;
+		_surfaceEncoder = new EncodedValue("surface", shift, 5, 1, 0, 30);
+		shift += _surfaceEncoder.getBits();
+		_smoothnessEncoder = new EncodedValue("smoothness", shift, 4, 1, 0, 8);
+		shift += _smoothnessEncoder.getBits();
+		_trackTypeEncoder = new EncodedValue("tracktype", shift, 3, 1, 0, 5);
+		shift += _trackTypeEncoder.getBits();
+		_inclineEncoder = new EncodedDoubleValue("incline", shift, 6, 0.5, 0, 30);
+		shift += _inclineEncoder.getBits();
+		_curbHeightEncoder = new EncodedDoubleValue("curbHeight", shift, 4, 1, 0, 15);
+	}
+
+	public void init(Graph graph, Directory dir) {
+		if (edgesCount > 0)
+			throw new AssertionError("The ORS storage must be initialized only once.");
+
+		this.orsEdges = dir.find("ext_wheelchair");
+	}
+
+	public void setSegmentSize(int bytes) {
+		orsEdges.setSegmentSize(bytes);
+	}
+
+	public GraphExtension create(long initBytes) {
+		orsEdges.create((long) initBytes * edgeEntryBytes);
+		return this;
+	}
+
+	public void flush() {
+		orsEdges.setHeader(0, edgeEntryBytes);
+		orsEdges.setHeader(1 * 4, edgesCount);
+		orsEdges.flush();
+	}
+
+	public void close() {
+		orsEdges.close();
+	}
+
+	public long getCapacity() {
+		return orsEdges.getCapacity();
+	}
+
+	public int entries() {
+		return edgesCount;
+	}
+
+	public boolean loadExisting() {
+		if (!orsEdges.loadExisting())
+			throw new IllegalStateException("Unable to load storage 'ext_wheelchair'. corrupt file or directory? " );
+
+		edgeEntryBytes = orsEdges.getHeader(0);
+		edgesCount = orsEdges.getHeader(4);
+		return true;
+	}
+
+	void ensureEdgesIndex(int edgeIndex) {
+		orsEdges.ensureCapacity(((long) edgeIndex + 1) * edgeEntryBytes);
+	}
+
+	public void setEdgeValues(int edgeId, WheelchairAttributes attrs) {
+
+		edgesCount++;
+		ensureEdgesIndex(edgeId);
+
+		long edgePointer = (long) edgeId * edgeEntryBytes;
+
+		encodeAttributes(attrs, _buffer);
+
+		orsEdges.setBytes(edgePointer + EF_WHEELCHAIR_ATTRIBUTES, _buffer, BYTE_COUNT);
+	}
+
+	private void encodeAttributes(WheelchairAttributes attrs, byte[] buffer)
+	{
+		/*
+		 *       | flag  | surface | smoothness | tracktype | curbHeight | incline |
+		 * lsb-> | 1 bit | 5 bits  |  4 bits    | 3 bits    | 6 bits     | 4 bits  |   23 bits in total which can fit into 3 bytes
+		 * 	
+		 * 
+		 */
+
+		if (attrs.hasValues())
+		{
+			long encodedValue = 0;
+			// set first bit to 1 to mark that we have wheelchair specific attributes for this edge
+			encodedValue |= (1L << 0);
+
+			if (attrs.getSurfaceType() > 0)
+				encodedValue = _surfaceEncoder.setValue(encodedValue, attrs.getSurfaceType());
+
+			if (attrs.getSmoothnessType() > 0)
+				encodedValue = _smoothnessEncoder.setValue(encodedValue, attrs.getSmoothnessType());
+
+			if (attrs.getTrackType() > 0)
+				encodedValue = _trackTypeEncoder.setValue(encodedValue, attrs.getTrackType());
+
+			encodedValue = _inclineEncoder.setDoubleValue(encodedValue, 15 + attrs.getIncline());
+
+			if (attrs.getSlopedCurbHeight() > 0.0)
+				encodedValue = _curbHeightEncoder.setDoubleValue(encodedValue, attrs.getSlopedCurbHeight()*100);
+
+			buffer[2] = (byte) ((encodedValue >> 16) & 0xFF);
+			buffer[1] = (byte) ((encodedValue >> 8) & 0xFF);
+			buffer[0] = (byte) ((encodedValue) & 0xFF);
+		}
+		else
+		{
+			buffer[0] = 0;
+			buffer[1] = 0;
+			buffer[2] = 0;
+		}
+  /*
+		WheelchairAttributes attr2 = new WheelchairAttributes();
+		decodeAttributes(attr2, buffer);
+		if (attrs.hasValues() && !attrs.equals(attr2))
+			attr2 = null;*/
+	
+	}	
+
+	private void decodeAttributes(WheelchairAttributes attrs, byte[] buffer)
+	{
+		attrs.reset();
+
+		if (buffer[0] == 0)
+			return;
+
+		long encodedValue = ((buffer[0] & 0xFF) | (buffer[1] & 0xFF) << 8 |	(buffer[2] & 0xFF) << 16);
+
+		if ((1 & (encodedValue >> 0)) != 0)
+		{
+			long iValue = _surfaceEncoder.getValue(encodedValue);
+			if (iValue != 0)
+				attrs.setSurfaceType((int)iValue);
+
+			iValue = _smoothnessEncoder.getValue(encodedValue);
+			if (iValue != 0)
+				attrs.setSmoothnessType((int)iValue);
+
+			iValue = _trackTypeEncoder.getValue(encodedValue);
+			if (iValue != 0)
+				attrs.setTrackType((int)iValue);
+
+			double dValue = _inclineEncoder.getDoubleValue(encodedValue) - 15.0;
+			if (dValue != 0.0)
+				attrs.setIncline((float)(dValue));
+
+			dValue = _curbHeightEncoder.getDoubleValue(encodedValue);
+			if (dValue != 0.0)
+				attrs.setSlopedCurbHeight((float)(dValue/100.0));
+		}
+	}
+
+	public void getEdgeValues(int edgeId, WheelchairAttributes attrs, byte[] buffer) {
+		long edgePointer = (long) edgeId * (long) edgeEntryBytes;
+		orsEdges.getBytes(edgePointer + EF_WHEELCHAIR_ATTRIBUTES, buffer, BYTE_COUNT);
+
+		decodeAttributes(attrs, buffer);
+	}
+
+	public boolean isRequireNodeField() {
+		return false;
+	}
+
+	public boolean isRequireEdgeField() {
+		// we require the additional field in the graph to point to the first
+		// entry in the node table
+		return true;
+	}
+
+	public int getDefaultNodeFieldValue() {
+		throw new UnsupportedOperationException("Not supported by this storage");
+	}
+
+	public int getDefaultEdgeFieldValue() {
+		return -1;
+	}
+
+	public GraphExtension copyTo(GraphExtension clonedStorage) {
+		if (!(clonedStorage instanceof WheelchairAttributesGraphStorage)) {
+			throw new IllegalStateException("the extended storage to clone must be the same");
+		}
+
+		WheelchairAttributesGraphStorage clonedTC = (WheelchairAttributesGraphStorage) clonedStorage;
+
+		orsEdges.copyTo(clonedTC.orsEdges);
+		clonedTC.edgesCount = edgesCount;
+
+		return clonedStorage;
+	}
+
+	@Override
+	public boolean isClosed() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+}

@@ -1,0 +1,90 @@
+{
+	instructions {
+		"numerals": {
+			"1": "1ος",
+			"2": "2ος",
+			"3": "3ος",
+			"4": "4ος",
+			"5": "5ος",
+			"6": "6ος",
+			"7": "7ος",
+			"8": "8ος",
+			"9": "9ος",
+			"10": "10ος"
+		},
+		"directions": {
+			"north": "βόρεια",
+			"northeast": "βορειοανατολικά",
+			"east": "ανατολικά",
+			"southeast": "νοτιοανατολικά",
+			"south": "νότια",
+			"southwest": "νοτιοδυτικά",
+			"west": "δυτικά",
+			"northwest": "βορειοδυτικά"
+		},
+		"turn_maneuvers": {
+			"left": "αριστερά",
+			"right": "δεξιά",
+			"sharp_left": "απότομα αριστερά",
+			"sharp_right": "απότομα δεξιά",
+			"slight_left": "ελαφρά αριστερά",
+			"slight_right": "ελαφρά δεξιά",
+			"straight": "ευθεία",
+			"uturn": "αναστροφή"
+		},
+		"actions": {
+			"arrive": {
+           		 	"default": {
+		                "default": "Arrive at your destination",
+						"name": "Arrive at {way_name}"
+                	},
+					"left": {
+						"default": "Arrive at your destination, on the left",
+						"name": "Arrive at {way_name}, on the left"
+					},
+					"right": {
+						"default": "Arrive at your destination, on the right",
+						"name": "Arrive at {way_name}, on the right"
+					},
+					"straight": {
+						"default": "Arrive at your destination, straight ahead"
+						"name": "Arrive at {way_name}, straight ahead"
+					}
+			},          
+			"depart": {
+				"default": {
+					"default": "Head {direction}",
+					"name": "Συνεχίστε ευθεία {direction} στην οδό {way_name}"
+				}
+			},
+			"roundabout": {
+				"default": {
+					"exit": {
+						"default": "Enter the roundabout and take the {exit_number} exit",
+						"name": "Μπείτε στον κυκλικό κόμβο και στη συνέχεια ακολουθείστε την έξοδο {exit_number} και συνεχίστε στην οδό {way_name}"
+					},
+					"default": {
+						"default": "Enter the roundabout",
+						"name": "Μπείτε στον κυκλικό κόμβο και συνεχίστε στην οδό {way_name}"
+					}
+				}
+			},
+			"turn": {
+				"default": {
+					"default": "Turn {turn_maneuver}",
+					"name": "Στρίψτε {turn_maneuver} στην οδό {way_name}",
+				},
+			},
+			"continue": {
+				"default": {
+					"default": "Continue {turn_maneuver}",
+					"name": "Συνεχίστε {turn_maneuver} στην οδό {way_name}"
+				},
+				"uturn": {
+					"default": "Make a U-turn",
+					"name": "Κάντε αναστροφή στην οδό {way_name}"
+				}
+			}
+		}
+	}
+}
