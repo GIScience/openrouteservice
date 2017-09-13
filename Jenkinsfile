@@ -5,7 +5,6 @@ node {
    stage('Preparation') { // for display purposes
         deleteDir()
         git branch: 'development', url: 'https://github.com/GIScience/openrouteservice.git'
-        //sh(script: 'git clone https://lh131:PvAWPUy1740Q@gitlab.gistools.geog.uni-heidelberg.de/giscience/openrouteservice/core.git')
         // Get the Maven tool.
         // NOTE: This 'M3' Maven tool must be configured
         //        in the global configuration.           
