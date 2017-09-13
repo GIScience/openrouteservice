@@ -345,7 +345,7 @@ public class JsonMatrixRequestParser {
 		{
 			int idx = index[i];
 			if (idx < 0 || idx >= locations.length)
-				throw new ParameterOutOfRangeException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, elemName, Integer.toString(idx), Integer.toString(locations.length));
+				throw new ParameterOutOfRangeException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, elemName, Integer.toString(idx), Integer.toString(locations.length - 1));
 			
 			res[i] = locations[idx];
 		}
