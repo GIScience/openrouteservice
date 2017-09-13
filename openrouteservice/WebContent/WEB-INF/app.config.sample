@@ -92,7 +92,7 @@
 			routing: {
 				enabled: true,
 				mode: "normal",
-				sources: ["openrouteservice/src/main/files/heidelberg.osm"],
+				sources: ["openrouteservice/src/main/files/heidelberg.osm.gz"],
 				init_threads: 2,
 				attribution: "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
 				profiles: {
