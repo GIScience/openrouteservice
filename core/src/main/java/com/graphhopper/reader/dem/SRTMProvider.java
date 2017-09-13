@@ -97,7 +97,7 @@ public class SRTMProvider implements ElevationProvider {
      */
     private SRTMProvider init() {
         try {
-            String strs[] = {"Africa", "Australia", "Eurasia", "Islands", "North_America", "South_America"};
+            String strs[] = { "Africa", "Australia", "Eurasia", "Islands", "North_America", "South_America" };
             for (String str : strs) {
                 InputStream is = getClass().getResourceAsStream(str + "_names.txt");
                 for (String line : Helper.readFile(new InputStreamReader(is, Helper.UTF_CS))) {
@@ -112,7 +112,8 @@ public class SRTMProvider implements ElevationProvider {
                     int intKey = calcIntKey(lat, lon);
                     String key = areas.put(intKey, str);
                     if (key != null)
-                        throw new IllegalStateException("do not overwrite existing! key " + intKey + " " + key + " vs. " + str);
+                        throw new IllegalStateException(
+                                "do not overwrite existing! key " + intKey + " " + key + " vs. " + str);
                 }
             }
             return this;
@@ -121,73 +122,62 @@ public class SRTMProvider implements ElevationProvider {
         }
     }
 
-<<<<<<< HEAD
-=======
-	public HeightTile getTile(int key)
-	{
-		HeightTile demProvider = cacheData.get(key);
-		return demProvider;
-	}
+    public HeightTile getTile(int key) {
+        HeightTile demProvider = cacheData.get(key);
+        return demProvider;
+    }
 
-	//Runge
-	public HeightTile loadTile(double lat, double lon)
-	{
-		lat = (int) (lat * precision) / precision;
-		lon = (int) (lon * precision) / precision;
-		int intKey = getTileKey(lat, lon);
+    //Runge
+    public HeightTile loadTile(double lat, double lon) {
+        lat = (int) (lat * precision) / precision;
+        lon = (int) (lon * precision) / precision;
+        int intKey = getTileKey(lat, lon);
 
-		HeightTile demProvider = cacheData.get(intKey);
-		if (demProvider != null)
-			return demProvider;
-		if (!cacheDir.exists())
-			cacheDir.mkdirs();
+        HeightTile demProvider = cacheData.get(intKey);
+        if (demProvider != null)
+            return demProvider;
+        if (!cacheDir.exists())
+            cacheDir.mkdirs();
 
-		String fileDetails = getFileString(lat, lon);
-		if (fileDetails == null)
-			return null;
+        String fileDetails = getFileString(lat, lon);
+        if (fileDetails == null)
+            return null;
 
-		DataAccess heights = getDirectory().find("dem" + intKey);
-		boolean loadExisting = false;
-		try
-		{
-			loadExisting = heights.loadExisting();
-		} catch (Exception ex)
-		{
-			logger.warn("cannot load dem" + intKey + ", error:" + ex.getMessage());
-		}
+        DataAccess heights = getDirectory().find("dem" + intKey);
+        boolean loadExisting = false;
+        try {
+            loadExisting = heights.loadExisting();
+        } catch (Exception ex) {
+            logger.warn("cannot load dem" + intKey + ", error:" + ex.getMessage());
+        }
 
-		if (!loadExisting)
-			updateHeightsFromZipFile(fileDetails, heights);
+        if (!loadExisting)
+            updateHeightsFromZipFile(fileDetails, heights);
 
-		int width = (int) (Math.sqrt(heights.getHeader(WIDTH_BYTE_INDEX)) + 0.5);
-		if (width == 0)
-			width = DEFAULT_WIDTH;
+        int width = (int) (Math.sqrt(heights.getHeader(WIDTH_BYTE_INDEX)) + 0.5);
+        if (width == 0)
+            width = DEFAULT_WIDTH;
 
-		demProvider = new HeightTile(down(lat), down(lon), width, precision, 1);
-		demProvider.setCalcMean(calcMean);
-		cacheData.put(intKey, demProvider);
-		demProvider.setHeights(heights);
-		
-		return demProvider;
-	} 
+        demProvider = new HeightTile(down(lat), down(lon), width, precision, 1);
+        demProvider.setCalcMean(calcMean);
+        cacheData.put(intKey, demProvider);
+        demProvider.setHeights(heights);
 
->>>>>>> ors/master
+        return demProvider;
+    }
+
     // use int key instead of string for lower memory usage
     private int calcIntKey(double lat, double lon) {
         // we could use LinearKeyAlgo but this is simpler as we only need integer precision:
         return (down(lat) + 90) * 1000 + down(lon) + 180;
     }
 
-<<<<<<< HEAD
-=======
-	// use int key instead of string for lower memory usage
-	public int getTileKey( double lat, double lon )
-	{
-		// we could use LinearKeyAlgo but this is simpler as we only need integer precision:
-		return calcIntKey(lat, lon);
-	}
+    // use int key instead of string for lower memory usage
+    public int getTileKey(double lat, double lon) {
+        // we could use LinearKeyAlgo but this is simpler as we only need integer precision:
+        return calcIntKey(lat, lon);
+    }
 
->>>>>>> ors/master
     public void setDownloader(Downloader downloader) {
         this.downloader = downloader;
     }
@@ -260,54 +250,17 @@ public class SRTMProvider implements ElevationProvider {
 
     @Override
     public double getEle(double lat, double lon) {
-<<<<<<< HEAD
-        lat = (int) (lat * precision) / precision;
-        lon = (int) (lon * precision) / precision;
-        int intKey = calcIntKey(lat, lon);
-        HeightTile demProvider = cacheData.get(intKey);
-        if (demProvider != null)
-            return demProvider.getHeight(lat, lon);
+        int key = getTileKey(lat, lon);
 
-        if (!cacheDir.exists())
-            cacheDir.mkdirs();
+        HeightTile demProvider = getTile(key);
 
-        String fileDetails = getFileString(lat, lon);
-        if (fileDetails == null)
+        if (demProvider == null)
+            demProvider = loadTile(lat, lon);
+
+        if (demProvider == null)
             return 0;
 
-        DataAccess heights = getDirectory().find("dem" + intKey);
-        boolean loadExisting = false;
-        try {
-            loadExisting = heights.loadExisting();
-        } catch (Exception ex) {
-            logger.warn("cannot load dem" + intKey + ", error:" + ex.getMessage());
-        }
-
-        if (!loadExisting)
-            updateHeightsFromZipFile(fileDetails, heights);
-
-        int width = (int) (Math.sqrt(heights.getHeader(WIDTH_BYTE_INDEX)) + 0.5);
-        if (width == 0)
-            width = DEFAULT_WIDTH;
-
-        demProvider = new HeightTile(down(lat), down(lon), width, precision, 1);
-        cacheData.put(intKey, demProvider);
-        demProvider.setCalcMean(calcMean);
-        demProvider.setHeights(heights);
         return demProvider.getHeight(lat, lon);
-=======
-		int key = getTileKey(lat, lon);
-		
-		HeightTile demProvider = getTile(key);
-		
-		if (demProvider == null)
-			demProvider = loadTile(lat, lon);
-		
-        if (demProvider == null)
-        	return 0;
-		
-		return demProvider.getHeight(lat, lon);
->>>>>>> ors/master
     }
 
     private void updateHeightsFromZipFile(String fileDetails, DataAccess heights) throws RuntimeException {
@@ -329,7 +282,8 @@ public class SRTMProvider implements ElevationProvider {
         }
     }
 
-    private byte[] getByteArrayFromZipFile(String fileDetails) throws InterruptedException, FileNotFoundException, IOException {
+    private byte[] getByteArrayFromZipFile(String fileDetails)
+            throws InterruptedException, FileNotFoundException, IOException {
         String zippedURL = baseUrl + "/" + fileDetails + ".hgt.zip";
         File file = new File(cacheDir, new File(zippedURL).getName());
         InputStream is;
@@ -379,7 +333,8 @@ public class SRTMProvider implements ElevationProvider {
         if (dir != null)
             return dir;
 
-        logger.info(this.toString() + " Elevation Provider, from: " + baseUrl + ", to: " + cacheDir + ", as: " + daType);
+        logger.info(
+                this.toString() + " Elevation Provider, from: " + baseUrl + ", to: " + cacheDir + ", as: " + daType);
         return dir = new GHDirectory(cacheDir.getAbsolutePath(), daType);
     }
 }

@@ -80,10 +80,7 @@ public class AlternativeRoute implements RoutingAlgorithm {
     private double minPlateauFactor = 0.2;
     private int maxPaths = 2;
     private WeightApproximator weightApproximator;
-<<<<<<< HEAD
-=======
     private double maxSpeed = -1;
->>>>>>> ors/master
 
     public AlternativeRoute(Graph graph, Weighting weighting, TraversalMode traversalMode) {
         this.graph = graph;
@@ -91,8 +88,6 @@ public class AlternativeRoute implements RoutingAlgorithm {
         this.traversalMode = traversalMode;
     }
 
-<<<<<<< HEAD
-=======
     public AlternativeRoute(Graph graph, Weighting weighting, TraversalMode traversalMode, double maxSpeed) {
         this.graph = graph;
         this.weighting = weighting;
@@ -100,7 +95,6 @@ public class AlternativeRoute implements RoutingAlgorithm {
         this.maxSpeed = maxSpeed;
     }
 
->>>>>>> ors/master
     /**
      * This method sets the approximation used for the internal bidirectional A*.
      */
@@ -123,9 +117,8 @@ public class AlternativeRoute implements RoutingAlgorithm {
         return Collections.singletonList(str);
     }
 
-    static double calcSortBy(double weightInfluence, double weight,
-                             double shareInfluence, double shareWeight,
-                             double plateauInfluence, double plateauWeight) {
+    static double calcSortBy(double weightInfluence, double weight, double shareInfluence, double shareWeight,
+            double plateauInfluence, double plateauWeight) {
         return weightInfluence * weight + shareInfluence * shareWeight + plateauInfluence * plateauWeight;
     }
 
@@ -173,7 +166,8 @@ public class AlternativeRoute implements RoutingAlgorithm {
     public void setMaxPaths(int maxPaths) {
         this.maxPaths = maxPaths;
         if (this.maxPaths < 2)
-            throw new IllegalStateException("Use normal algorithm with less overhead instead if no alternatives are required");
+            throw new IllegalStateException(
+                    "Use normal algorithm with less overhead instead if no alternatives are required");
     }
 
     /**
@@ -182,12 +176,8 @@ public class AlternativeRoute implements RoutingAlgorithm {
      * the best path.
      */
     public List<AlternativeInfo> calcAlternatives(int from, int to) {
-        AlternativeBidirSearch altBidirDijktra = new AlternativeBidirSearch(
-<<<<<<< HEAD
-                graph, weighting, traversalMode, maxExplorationFactor * 2);
-=======
-                graph, weighting, traversalMode, maxExplorationFactor * 2, this.maxSpeed);
->>>>>>> ors/master
+        AlternativeBidirSearch altBidirDijktra = new AlternativeBidirSearch(graph, weighting, traversalMode,
+                maxExplorationFactor * 2, this.maxSpeed);
         altBidirDijktra.setMaxVisitedNodes(maxVisitedNodes);
         if (weightApproximator != null) {
             altBidirDijktra.setApproximation(weightApproximator);
@@ -196,12 +186,8 @@ public class AlternativeRoute implements RoutingAlgorithm {
         altBidirDijktra.searchBest(from, to);
         visitedNodes = altBidirDijktra.getVisitedNodes();
 
-        List<AlternativeInfo> alternatives = altBidirDijktra.
-<<<<<<< HEAD
-                calcAlternatives(maxPaths, maxWeightFactor, 7, maxShareFactor, 0.8, minPlateauFactor, -0.2);
-=======
-                calcAlternatives(maxPaths, maxWeightFactor, 7, maxShareFactor, 0.8, minPlateauFactor, -0.2, maxSpeed);
->>>>>>> ors/master
+        List<AlternativeInfo> alternatives = altBidirDijktra.calcAlternatives(maxPaths, maxWeightFactor, 7,
+                maxShareFactor, 0.8, minPlateauFactor, -0.2, maxSpeed);
         return alternatives;
     }
 
@@ -238,8 +224,8 @@ public class AlternativeRoute implements RoutingAlgorithm {
         private final double shareWeight;
         private final List<String> names;
 
-        public AlternativeInfo(double sortBy, Path path, SPTEntry shareStart, SPTEntry shareEnd,
-                               double shareWeight, List<String> altNames) {
+        public AlternativeInfo(double sortBy, Path path, SPTEntry shareStart, SPTEntry shareEnd, double shareWeight,
+                List<String> altNames) {
             this.names = altNames;
             this.sortBy = sortBy;
             this.path = path;
@@ -280,22 +266,14 @@ public class AlternativeRoute implements RoutingAlgorithm {
      */
     public static class AlternativeBidirSearch extends AStarBidirection {
         private final double explorationFactor;
-<<<<<<< HEAD
 
-        public AlternativeBidirSearch(Graph graph, Weighting weighting, TraversalMode tMode,
-                                      double explorationFactor) {
-            super(graph, weighting, tMode);
-=======
-        
-        public AlternativeBidirSearch(Graph graph, Weighting weighting, TraversalMode tMode,
-                double explorationFactor) {
-          this(graph, weighting, tMode, explorationFactor, -1);
+        public AlternativeBidirSearch(Graph graph, Weighting weighting, TraversalMode tMode, double explorationFactor) {
+            this(graph, weighting, tMode, explorationFactor, -1);
         }
 
-        public AlternativeBidirSearch(Graph graph, Weighting weighting, TraversalMode tMode,
-                                      double explorationFactor, double maxSpeed) {
+        public AlternativeBidirSearch(Graph graph, Weighting weighting, TraversalMode tMode, double explorationFactor,
+                double maxSpeed) {
             super(graph, weighting, tMode, maxSpeed);
->>>>>>> ors/master
             this.explorationFactor = explorationFactor;
         }
 
@@ -340,14 +318,9 @@ public class AlternativeRoute implements RoutingAlgorithm {
          * @return the information necessary to handle alternative paths. Note that the paths are
          * not yet extracted.
          */
-        public List<AlternativeInfo> calcAlternatives(final int maxPaths,
-                                                      double maxWeightFactor, final double weightInfluence,
-                                                      final double maxShareFactor, final double shareInfluence,
-<<<<<<< HEAD
-                                                      final double minPlateauFactor, final double plateauInfluence) {
-=======
-                                                      final double minPlateauFactor, final double plateauInfluence, final double maxSpeed) {
->>>>>>> ors/master
+        public List<AlternativeInfo> calcAlternatives(final int maxPaths, double maxWeightFactor,
+                final double weightInfluence, final double maxShareFactor, final double shareInfluence,
+                final double minPlateauFactor, final double plateauInfluence, final double maxSpeed) {
             final double maxWeight = maxWeightFactor * bestPath.getWeight();
             final GHIntObjectHashMap<IntSet> traversalIDMap = new GHIntObjectHashMap<IntSet>();
             final AtomicInteger startTID = addToMap(traversalIDMap, bestPath);
@@ -359,12 +332,11 @@ public class AlternativeRoute implements RoutingAlgorithm {
 
             double bestPlateau = bestPath.getWeight();
             double bestShare = 0;
-            double sortBy = calcSortBy(weightInfluence, bestPath.getWeight(),
-                    shareInfluence, bestShare,
+            double sortBy = calcSortBy(weightInfluence, bestPath.getWeight(), shareInfluence, bestShare,
                     plateauInfluence, bestPlateau);
 
-            final AlternativeInfo bestAlt = new AlternativeInfo(sortBy, bestPath,
-                    bestPath.sptEntry, bestPath.edgeTo, bestShare, getAltNames(graph, bestPath.sptEntry));
+            final AlternativeInfo bestAlt = new AlternativeInfo(sortBy, bestPath, bestPath.sptEntry, bestPath.edgeTo,
+                    bestShare, getAltNames(graph, bestPath.sptEntry));
             alternatives.add(bestAlt);
             final List<SPTEntry> bestPathEntries = new ArrayList<SPTEntry>(2);
 
@@ -384,8 +356,8 @@ public class AlternativeRoute implements RoutingAlgorithm {
                         // TODO else if fromSPTEntry.parent != null fromSPTEntry = fromSPTEntry.parent;
 
                     } else // The alternative path is suboptimal when both entries are parallel
-                        if (fromSPTEntry.edge == toSPTEntry.edge)
-                            return true;
+                    if (fromSPTEntry.edge == toSPTEntry.edge)
+                        return true;
 
                     // (1) skip too long paths
                     final double weight = fromSPTEntry.getWeightOfVisitedPath() + toSPTEntry.getWeightOfVisitedPath();
@@ -434,8 +406,8 @@ public class AlternativeRoute implements RoutingAlgorithm {
                     SPTEntry prevToSPTEntry = toSPTEntry;
                     // List<Integer> plateauEdges = new ArrayList<Integer>();
                     while (prevToSPTEntry.parent != null) {
-                        int nextFromTraversalId = traversalMode.createTraversalId(prevToSPTEntry.adjNode, prevToSPTEntry.parent.adjNode,
-                                prevToSPTEntry.edge, false);
+                        int nextFromTraversalId = traversalMode.createTraversalId(prevToSPTEntry.adjNode,
+                                prevToSPTEntry.parent.adjNode, prevToSPTEntry.edge, false);
 
                         SPTEntry nextFromSPTEntry = bestWeightMapFrom.get(nextFromTraversalId);
                         // end of a plateau
@@ -447,7 +419,8 @@ public class AlternativeRoute implements RoutingAlgorithm {
                             break;
 
                         // plateauEdges.add(prevToSPTEntry.edge);
-                        plateauWeight += (prevToSPTEntry.getWeightOfVisitedPath() - prevToSPTEntry.parent.getWeightOfVisitedPath());
+                        plateauWeight += (prevToSPTEntry.getWeightOfVisitedPath()
+                                - prevToSPTEntry.parent.getWeightOfVisitedPath());
                         prevToSPTEntry = prevToSPTEntry.parent;
                     }
 
@@ -455,7 +428,8 @@ public class AlternativeRoute implements RoutingAlgorithm {
                         return true;
 
                     if (fromSPTEntry.parent == null)
-                        throw new IllegalStateException("not implemented yet. in case of an edge based traversal the parent of fromSPTEntry could be null");
+                        throw new IllegalStateException(
+                                "not implemented yet. in case of an edge based traversal the parent of fromSPTEntry could be null");
 
                     // (3b) calculate share
                     SPTEntry fromEE = getFirstShareEE(fromSPTEntry.parent, true);
@@ -465,18 +439,14 @@ public class AlternativeRoute implements RoutingAlgorithm {
                     if (smallShare) {
                         List<String> altNames = getAltNames(graph, fromSPTEntry);
 
-                        double sortBy = calcSortBy(weightInfluence, weight, shareInfluence, shareWeight, plateauInfluence, plateauWeight);
+                        double sortBy = calcSortBy(weightInfluence, weight, shareInfluence, shareWeight,
+                                plateauInfluence, plateauWeight);
                         double worstSortBy = getWorstSortBy();
 
                         // plateaus.add(new PlateauInfo(altName, plateauEdges));
                         if (sortBy < worstSortBy || alternatives.size() < maxPaths) {
-<<<<<<< HEAD
-                            Path path = new PathBidirRef(graph, weighting).
-=======
-                            Path path = new PathBidirRef(graph, weighting, maxSpeed).
->>>>>>> ors/master
-                                    setSPTEntryTo(toSPTEntry).setSPTEntry(fromSPTEntry).
-                                    setWeight(weight);
+                            Path path = new PathBidirRef(graph, weighting, maxSpeed).setSPTEntryTo(toSPTEntry)
+                                    .setSPTEntry(fromSPTEntry).setWeight(weight);
                             path.extract();
 
                             // for now do not add alternatives to set, if we do we need to remove then on alternatives.clear too (see below)
@@ -502,7 +472,8 @@ public class AlternativeRoute implements RoutingAlgorithm {
                 SPTEntry getFirstShareEE(SPTEntry startEE, boolean reverse) {
                     while (startEE.parent != null) {
                         // TODO we could make use of traversal ID directly if stored in SPTEntry
-                        int tid = traversalMode.createTraversalId(startEE.adjNode, startEE.parent.adjNode, startEE.edge, reverse);
+                        int tid = traversalMode.createTraversalId(startEE.adjNode, startEE.parent.adjNode, startEE.edge,
+                                reverse);
                         if (isAlreadyExisting(tid))
                             return startEE;
 
@@ -546,7 +517,8 @@ public class AlternativeRoute implements RoutingAlgorithm {
                     if (traversalMode.isEdgeBased()) {
                         if (GHUtility.getEdgeFromEdgeKey(startTID.get()) == fromSPTEntry.edge) {
                             if (fromSPTEntry.parent == null)
-                                throw new IllegalStateException("best path must have no parent but was non-null: " + fromSPTEntry);
+                                throw new IllegalStateException(
+                                        "best path must have no parent but was non-null: " + fromSPTEntry);
 
                             return true;
                         }
@@ -558,7 +530,8 @@ public class AlternativeRoute implements RoutingAlgorithm {
 
                         if (startTID.get() != fromSPTEntry.adjNode)
                             throw new IllegalStateException("Start traversal ID has to be identical to root edge entry "
-                                    + "which is the plateau start of the best path but was: " + startTID + " vs. adjNode: " + fromSPTEntry.adjNode);
+                                    + "which is the plateau start of the best path but was: " + startTID
+                                    + " vs. adjNode: " + fromSPTEntry.adjNode);
 
                         return true;
                     }

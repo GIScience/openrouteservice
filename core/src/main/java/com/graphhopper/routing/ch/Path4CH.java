@@ -34,13 +34,8 @@ import com.graphhopper.util.EdgeIterator;
 public class Path4CH extends PathBidirRef {
     private final Graph routingGraph;
 
-<<<<<<< HEAD
-    public Path4CH(Graph routingGraph, Graph baseGraph, Weighting weighting) {
-        super(baseGraph, weighting);
-=======
     public Path4CH(Graph routingGraph, Graph baseGraph, Weighting weighting, double maxSpeed) {
         super(baseGraph, weighting, maxSpeed);
->>>>>>> ors/master
         this.routingGraph = routingGraph;
     }
 
@@ -56,11 +51,8 @@ public class Path4CH extends PathBidirRef {
             distance += mainEdgeState.getDistance();
             time += weighting.calcMillis(mainEdgeState, reverse, EdgeIterator.NO_EDGE);
             addEdge(mainEdgeState.getEdge());
-<<<<<<< HEAD
-=======
             //System.out.print(Integer.toString(mainEdgeState.getEdge()) + ","); 
 
->>>>>>> ors/master
             return;
         }
 

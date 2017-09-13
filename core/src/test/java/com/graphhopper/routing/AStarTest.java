@@ -44,12 +44,8 @@ public class AStarTest extends AbstractRoutingAlgorithmTester {
     @Parameters(name = "{0}")
 
     public static Collection<Object[]> configs() {
-        return Arrays.asList(new Object[][]{
-                {TraversalMode.NODE_BASED},
-                {TraversalMode.EDGE_BASED_1DIR},
-                {TraversalMode.EDGE_BASED_2DIR},
-                {TraversalMode.EDGE_BASED_2DIR_UTURN}
-        });
+        return Arrays.asList(new Object[][] { { TraversalMode.NODE_BASED }, { TraversalMode.EDGE_BASED_1DIR },
+                { TraversalMode.EDGE_BASED_2DIR }, { TraversalMode.EDGE_BASED_2DIR_UTURN } });
     }
 
     @Override
@@ -57,11 +53,7 @@ public class AStarTest extends AbstractRoutingAlgorithmTester {
         return new RoutingAlgorithmFactory() {
             @Override
             public RoutingAlgorithm createAlgo(Graph g, AlgorithmOptions opts) {
-<<<<<<< HEAD
-                return new AStar(g, opts.getWeighting(), traversalMode);
-=======
                 return new AStar(g, opts.getWeighting(), traversalMode, -1);
->>>>>>> ors/master
             }
         };
     }

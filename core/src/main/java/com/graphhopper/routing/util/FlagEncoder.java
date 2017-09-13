@@ -39,12 +39,9 @@ public interface FlagEncoder extends TurnCostEncoder {
      */
     int getVersion();
 
-<<<<<<< HEAD
-=======
     // Runge     
     int getIndex();
 
->>>>>>> ors/master
     /**
      * @return the maximum speed in km/h
      */

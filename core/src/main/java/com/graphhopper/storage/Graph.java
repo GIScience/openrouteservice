@@ -21,10 +21,7 @@ import com.graphhopper.routing.util.AllEdgesIterator;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIteratorState;
-<<<<<<< HEAD
-=======
 import com.graphhopper.util.PMap;
->>>>>>> ors/master
 import com.graphhopper.util.shapes.BBox;
 
 /**
@@ -98,11 +95,8 @@ public interface Graph {
      * @see Graph#createEdgeExplorer()
      */
     EdgeExplorer createEdgeExplorer(EdgeFilter filter);
-<<<<<<< HEAD
-=======
-    
+
     EdgeExplorer createEdgeExplorer(EdgeFilter filter, PMap props);
->>>>>>> ors/master
 
     /**
      * @see Graph#createEdgeExplorer(com.graphhopper.routing.util.EdgeFilter)

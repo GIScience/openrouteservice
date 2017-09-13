@@ -32,13 +32,8 @@ public class PathBidirRef extends Path {
     protected SPTEntry edgeTo;
     private boolean switchFromAndToSPTEntry = false;
 
-<<<<<<< HEAD
-    public PathBidirRef(Graph g, Weighting weighting) {
-        super(g, weighting);
-=======
     public PathBidirRef(Graph g, Weighting weighting, double maxSpeed) {
         super(g, weighting, maxSpeed);
->>>>>>> ors/master
     }
 
     PathBidirRef(PathBidirRef p) {
@@ -66,7 +61,8 @@ public class PathBidirRef extends Path {
             return this;
 
         if (sptEntry.adjNode != edgeTo.adjNode)
-            throw new IllegalStateException("Locations of the 'to'- and 'from'-Edge has to be the same." + toString() + ", fromEntry:" + sptEntry + ", toEntry:" + edgeTo);
+            throw new IllegalStateException("Locations of the 'to'- and 'from'-Edge has to be the same." + toString()
+                    + ", fromEntry:" + sptEntry + ", toEntry:" + edgeTo);
 
         extractSW.start();
         if (switchFromAndToSPTEntry) {

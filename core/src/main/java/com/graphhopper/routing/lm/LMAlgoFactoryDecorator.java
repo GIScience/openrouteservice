@@ -24,10 +24,6 @@ import com.graphhopper.routing.RoutingAlgorithm;
 import com.graphhopper.routing.RoutingAlgorithmFactory;
 import com.graphhopper.routing.RoutingAlgorithmFactoryDecorator;
 import com.graphhopper.routing.util.HintsMap;
-<<<<<<< HEAD
-import com.graphhopper.routing.util.TraversalMode;
-=======
->>>>>>> ors/master
 import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
@@ -47,12 +43,6 @@ import java.util.*;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
-<<<<<<< HEAD
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.graphhopper.util.Parameters.Landmark.DISABLE;
-=======
->>>>>>> ors/master
 
 /**
  * This class implements the A*, landmark and triangulation (ALT) decorator.
@@ -96,11 +86,7 @@ public class LMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorator 
                 lmSuggestionsLocations.add(loc.trim());
         }
         String lmWeightingsStr = args.get(Landmark.PREPARE + "weightings", "");
-<<<<<<< HEAD
-        if (!lmWeightingsStr.isEmpty()) {
-=======
         if (!lmWeightingsStr.isEmpty() && !lmWeightingsStr.equalsIgnoreCase("no")) {
->>>>>>> ors/master
             List<String> tmpLMWeightingList = Arrays.asList(lmWeightingsStr.split(","));
             setWeightingsAsStrings(tmpLMWeightingList);
         }
@@ -206,8 +192,9 @@ public class LMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorator 
                     + ". Call add(Weighting) before");
 
         if (preparations.get(lastIndex).getWeighting() != weightings.get(lastIndex))
-            throw new IllegalArgumentException("Weighting of PrepareContractionHierarchies " + preparations.get(lastIndex).getWeighting()
-                    + " needs to be identical to previously added " + weightings.get(lastIndex));
+            throw new IllegalArgumentException(
+                    "Weighting of PrepareContractionHierarchies " + preparations.get(lastIndex).getWeighting()
+                            + " needs to be identical to previously added " + weightings.get(lastIndex));
         return this;
     }
 
@@ -232,16 +219,12 @@ public class LMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorator 
     }
 
     @Override
-    public RoutingAlgorithmFactory getDecoratedAlgorithmFactory(RoutingAlgorithmFactory defaultAlgoFactory, HintsMap map) {
-<<<<<<< HEAD
-        boolean disableLM = map.getBool(DISABLE, false);
-        if (!isEnabled() || disablingAllowed && disableLM)
-=======
+    public RoutingAlgorithmFactory getDecoratedAlgorithmFactory(RoutingAlgorithmFactory defaultAlgoFactory,
+            HintsMap map) {
         // for now do not allow mixing CH&LM #1082
         boolean disableCH = map.getBool(Parameters.CH.DISABLE, false);
         boolean disableLM = map.getBool(Parameters.Landmark.DISABLE, false);
         if (!isEnabled() || disablingAllowed && disableLM || !disableCH)
->>>>>>> ors/master
             return defaultAlgoFactory;
 
         if (preparations.isEmpty())
@@ -252,11 +235,7 @@ public class LMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorator 
                 return new LMRAFactory(p, defaultAlgoFactory);
         }
 
-<<<<<<< HEAD
-        // if the initial encoder&weighting has certain properies we could cross query it but for now avoid this
-=======
         // if the initial encoder&weighting has certain properties we could cross query it but for now avoid this
->>>>>>> ors/master
         return defaultAlgoFactory;
     }
 
@@ -305,7 +284,8 @@ public class LMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorator 
                     if (plm.loadExisting())
                         return;
 
-                    LOGGER.info(tmpCounter + "/" + getPreparations().size() + " calling LM prepare.doWork for " + plm.getWeighting() + " ... (" + Helper.getMemInfo() + ")");
+                    LOGGER.info(tmpCounter + "/" + getPreparations().size() + " calling LM prepare.doWork for "
+                            + plm.getWeighting() + " ... (" + Helper.getMemInfo() + ")");
                     prepared.set(true);
                     Thread.currentThread().setName(name);
                     plm.doWork();
@@ -350,14 +330,12 @@ public class LMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorator 
         for (Weighting weighting : getWeightings()) {
             Double maximumWeight = maximumWeights.get(weighting.getName());
             if (maximumWeight == null)
-                throw new IllegalStateException("maximumWeight cannot be null. Default should be just negative. " +
-                        "Couldn't find " + weighting.getName() + " in " + maximumWeights);
+                throw new IllegalStateException("maximumWeight cannot be null. Default should be just negative. "
+                        + "Couldn't find " + weighting.getName() + " in " + maximumWeights);
 
-            PrepareLandmarks tmpPrepareLM = new PrepareLandmarks(ghStorage.getDirectory(), ghStorage,
-                    weighting, landmarkCount, activeLandmarkCount).
-                    setLandmarkSuggestions(lmSuggestions).
-                    setMaximumWeight(maximumWeight).
-                    setLogDetails(logDetails);
+            PrepareLandmarks tmpPrepareLM = new PrepareLandmarks(ghStorage.getDirectory(), ghStorage, weighting,
+                    landmarkCount, activeLandmarkCount).setLandmarkSuggestions(lmSuggestions)
+                            .setMaximumWeight(maximumWeight).setLogDetails(logDetails);
             if (minNodes > 1)
                 tmpPrepareLM.setMinimumNodes(minNodes);
             addPreparation(tmpPrepareLM);

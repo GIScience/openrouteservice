@@ -49,11 +49,7 @@ public class GenericWeighting extends AbstractWeighting {
     protected final double width;
 
     public GenericWeighting(DataFlagEncoder encoder, PMap hintsMap) {
-<<<<<<< HEAD
-        super(encoder);
-=======
         super(encoder, hintsMap);
->>>>>>> ors/master
         gEncoder = encoder;
         headingPenalty = hintsMap.getDouble(Routing.HEADING_PENALTY, Routing.DEFAULT_HEADING_PENALTY);
         headingPenaltyMillis = Math.round(headingPenalty * 1000);
@@ -61,7 +57,8 @@ public class GenericWeighting extends AbstractWeighting {
         weightingConfig = encoder.createWeightingConfig(hintsMap);
         double maxSpecifiedSpeed = weightingConfig.getMaxSpecifiedSpeed();
         if (maxSpecifiedSpeed > encoder.getMaxPossibleSpeed())
-            throw new IllegalArgumentException("Some specified speed value bigger than maximum possible speed: " + maxSpecifiedSpeed + " > " + encoder.getMaxPossibleSpeed());
+            throw new IllegalArgumentException("Some specified speed value bigger than maximum possible speed: "
+                    + maxSpecifiedSpeed + " > " + encoder.getMaxPossibleSpeed());
 
         this.maxSpeed = maxSpecifiedSpeed / SPEED_CONV;
         accessType = gEncoder.getAccessType("motor_vehicle");
@@ -95,10 +92,10 @@ public class GenericWeighting extends AbstractWeighting {
             return Double.POSITIVE_INFINITY;
 
         switch (gEncoder.getAccessValue(edgeState.getFlags())) {
-            case NOT_ACCESSIBLE:
-                return Double.POSITIVE_INFINITY;
-            case EVENTUALLY_ACCESSIBLE:
-                time = time * uncertainAccessiblePenalty;
+        case NOT_ACCESSIBLE:
+            return Double.POSITIVE_INFINITY;
+        case EVENTUALLY_ACCESSIBLE:
+            time = time * uncertainAccessiblePenalty;
         }
 
         return time;
@@ -137,8 +134,8 @@ public class GenericWeighting extends AbstractWeighting {
         // TODO surfaces can reduce average speed
         // TODO prefer or avoid bike and hike routes
         if (timeInMillis < 0)
-            throw new IllegalStateException("Some problem with weight calculation: time:"
-                    + timeInMillis + ", speed:" + speed);
+            throw new IllegalStateException(
+                    "Some problem with weight calculation: time:" + timeInMillis + ", speed:" + speed);
 
         return timeInMillis;
     }

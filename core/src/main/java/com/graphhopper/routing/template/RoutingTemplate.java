@@ -19,22 +19,14 @@ package com.graphhopper.routing.template;
 
 import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.routing.Path;
-<<<<<<< HEAD
-=======
 import com.graphhopper.routing.PathProcessingContext;
->>>>>>> ors/master
 import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.RoutingAlgorithmFactory;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.index.QueryResult;
-<<<<<<< HEAD
-import com.graphhopper.util.PathMerger;
-import com.graphhopper.util.Translation;
-=======
 import com.graphhopper.util.ByteArrayBuffer;
 import com.graphhopper.util.PathMerger;
 
->>>>>>> ors/master
 import com.graphhopper.util.shapes.GHPoint;
 
 import java.util.List;
@@ -49,31 +41,20 @@ public interface RoutingTemplate {
     /**
      * This method takes the query points and returns the looked up QueryResults.
      */
-<<<<<<< HEAD
-    List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder);
-=======
     List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder, ByteArrayBuffer byteBuffer);
->>>>>>> ors/master
 
     /**
      * This method returns a list of Path objects which then can be merged to serve one route with
      * via points or multiple alternative paths.
      */
-<<<<<<< HEAD
-    List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts);
-=======
-    List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts,  PathProcessingContext pathProcCntx);
->>>>>>> ors/master
+    List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts,
+            PathProcessingContext pathProcCntx);
 
     /**
      * This method merges the returned paths appropriately e.g. all paths from the list into one
      * PathWrapper of GHResponse or multiple (via / round trip).
      */
-<<<<<<< HEAD
-    boolean isReady(PathMerger pathMerger, Translation tr);
-=======
     boolean isReady(PathMerger pathMerger, PathProcessingContext pathProcCntx);
->>>>>>> ors/master
 
     /**
      * This method returns the maximum number of full retries of these 3 steps

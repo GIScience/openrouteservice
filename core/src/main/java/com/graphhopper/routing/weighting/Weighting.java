@@ -36,11 +36,8 @@ public interface Weighting {
      * way the return value is 'distance/max_velocity'
      */
     double getMinWeight(double distance);
-<<<<<<< HEAD
-=======
-    
+
     double getMaxWeight(); // runge
->>>>>>> ors/master
 
     /**
      * This method calculates the weighting a certain edgeState should be associated. E.g. a high

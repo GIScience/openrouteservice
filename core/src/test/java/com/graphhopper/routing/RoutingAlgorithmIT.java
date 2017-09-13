@@ -51,7 +51,8 @@ import static org.junit.Assert.assertTrue;
  * @author Peter Karich
  */
 public class RoutingAlgorithmIT {
-    public static List<AlgoHelperEntry> createAlgos(final GraphHopper hopper, final HintsMap hints, TraversalMode tMode) {
+    public static List<AlgoHelperEntry> createAlgos(final GraphHopper hopper, final HintsMap hints,
+            TraversalMode tMode) {
         GraphHopperStorage ghStorage = hopper.getGraphHopperStorage();
         LocationIndex idx = hopper.getLocationIndex();
 
@@ -60,20 +61,20 @@ public class RoutingAlgorithmIT {
             addStr = "turn|";
 
         FlagEncoder encoder = hopper.getEncodingManager().getEncoder(hints.getVehicle());
-<<<<<<< HEAD
-        Weighting weighting = hopper.createWeighting(hints, encoder, hopper.getGraphHopperStorage());
-=======
-        Weighting weighting = hopper.createWeighting(hints, hopper.getTraversalMode(), encoder, hopper.getGraphHopperStorage());
->>>>>>> ors/master
+        Weighting weighting = hopper.createWeighting(hints, hopper.getTraversalMode(), encoder,
+                hopper.getGraphHopperStorage());
 
         HintsMap defaultHints = new HintsMap().put(Parameters.CH.DISABLE, true).put(Parameters.Landmark.DISABLE, true)
                 .setVehicle(hints.getVehicle()).setWeighting(hints.getWeighting());
 
-        AlgorithmOptions defaultOpts = AlgorithmOptions.start(new AlgorithmOptions("", weighting, tMode)).hints(defaultHints).build();
+        AlgorithmOptions defaultOpts = AlgorithmOptions.start(new AlgorithmOptions("", weighting, tMode))
+                .hints(defaultHints).build();
         List<AlgoHelperEntry> prepare = new ArrayList<>();
-        prepare.add(new AlgoHelperEntry(ghStorage, AlgorithmOptions.start(defaultOpts).algorithm(ASTAR).build(), idx, "astar|beeline|" + addStr + weighting));
+        prepare.add(new AlgoHelperEntry(ghStorage, AlgorithmOptions.start(defaultOpts).algorithm(ASTAR).build(), idx,
+                "astar|beeline|" + addStr + weighting));
         // later: include dijkstraOneToMany
-        prepare.add(new AlgoHelperEntry(ghStorage, AlgorithmOptions.start(defaultOpts).algorithm(DIJKSTRA).build(), idx, "dijkstra|" + addStr + weighting));
+        prepare.add(new AlgoHelperEntry(ghStorage, AlgorithmOptions.start(defaultOpts).algorithm(DIJKSTRA).build(), idx,
+                "dijkstra|" + addStr + weighting));
 
         AlgorithmOptions astarbiOpts = AlgorithmOptions.start(defaultOpts).algorithm(ASTAR_BI).build();
         astarbiOpts.getHints().put(ASTAR_BI + ".approximation", "BeelineSimplification");
@@ -84,7 +85,8 @@ public class RoutingAlgorithmIT {
         // add additional preparations if CH and LM preparation are enabled
         if (hopper.getLMFactoryDecorator().isEnabled()) {
             final HintsMap lmHints = new HintsMap(defaultHints).put(Parameters.Landmark.DISABLE, false);
-            prepare.add(new AlgoHelperEntry(ghStorage, AlgorithmOptions.start(astarbiOpts).hints(lmHints).build(), idx, "astarbi|landmarks|" + weighting) {
+            prepare.add(new AlgoHelperEntry(ghStorage, AlgorithmOptions.start(astarbiOpts).hints(lmHints).build(), idx,
+                    "astarbi|landmarks|" + weighting) {
                 @Override
                 public RoutingAlgorithmFactory createRoutingFactory() {
                     return hopper.getAlgorithmFactory(lmHints);
@@ -102,10 +104,12 @@ public class RoutingAlgorithmIT {
                 }
             }
             if (pickedWeighting == null)
-                throw new IllegalStateException("Didn't find weighting " + hints.getWeighting() + " in " + hopper.getCHFactoryDecorator().getWeightings());
+                throw new IllegalStateException("Didn't find weighting " + hints.getWeighting() + " in "
+                        + hopper.getCHFactoryDecorator().getWeightings());
 
             prepare.add(new AlgoHelperEntry(ghStorage.getGraph(CHGraph.class, pickedWeighting),
-                    AlgorithmOptions.start(dijkstrabiOpts).hints(chHints).build(), idx, "dijkstrabi|ch|prepare|" + hints.getWeighting()) {
+                    AlgorithmOptions.start(dijkstrabiOpts).hints(chHints).build(), idx,
+                    "dijkstrabi|ch|prepare|" + hints.getWeighting()) {
                 @Override
                 public RoutingAlgorithmFactory createRoutingFactory() {
                     return hopper.getAlgorithmFactory(chHints);
@@ -113,7 +117,8 @@ public class RoutingAlgorithmIT {
             });
 
             prepare.add(new AlgoHelperEntry(ghStorage.getGraph(CHGraph.class, pickedWeighting),
-                    AlgorithmOptions.start(astarbiOpts).hints(chHints).build(), idx, "astarbi|ch|prepare|" + hints.getWeighting()) {
+                    AlgorithmOptions.start(astarbiOpts).hints(chHints).build(), idx,
+                    "astarbi|ch|prepare|" + hints.getWeighting()) {
                 @Override
                 public RoutingAlgorithmFactory createRoutingFactory() {
                     return hopper.getAlgorithmFactory(chHints);
@@ -134,7 +139,8 @@ public class RoutingAlgorithmIT {
         final GraphHopperStorage graph = new GraphBuilder(eManager).create();
 
         String bigFile = "10000EWD.txt.gz";
-        new PrinctonReader(graph).setStream(new GZIPInputStream(PrinctonReader.class.getResourceAsStream(bigFile))).read();
+        new PrinctonReader(graph).setStream(new GZIPInputStream(PrinctonReader.class.getResourceAsStream(bigFile)))
+                .read();
         GraphHopper hopper = new GraphHopper() {
             {
                 setCHEnabled(false);
@@ -148,7 +154,8 @@ public class RoutingAlgorithmIT {
             }
         };
 
-        Collection<AlgoHelperEntry> prepares = createAlgos(hopper, new HintsMap().setWeighting("shortest").setVehicle("car"), TraversalMode.NODE_BASED);
+        Collection<AlgoHelperEntry> prepares = createAlgos(hopper,
+                new HintsMap().setWeighting("shortest").setVehicle("car"), TraversalMode.NODE_BASED);
 
         for (AlgoHelperEntry entry : prepares) {
             StopWatch sw = new StopWatch();
@@ -168,8 +175,8 @@ public class RoutingAlgorithmIT {
             }
 
             float perRun = sw.stop().getSeconds() / ((float) (N - noJvmWarming));
-            System.out.println("# " + getClass().getSimpleName() + " " + entry
-                    + ":" + sw.stop().getSeconds() + ", per run:" + perRun);
+            System.out.println("# " + getClass().getSimpleName() + " " + entry + ":" + sw.stop().getSeconds()
+                    + ", per run:" + perRun);
             assertTrue("speed to low!? " + perRun + " per run", perRun < 0.08);
         }
     }

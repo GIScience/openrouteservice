@@ -32,11 +32,7 @@ public class BeelineWeightApproximator implements WeightApproximator {
     private final Weighting weighting;
     private DistanceCalc distanceCalc = Helper.DIST_EARTH;
     private double toLat, toLon;
-<<<<<<< HEAD
-    private double epsilon = 1;
-=======
     private double epsilon = 1.0;
->>>>>>> ors/master
 
     public BeelineWeightApproximator(NodeAccess nodeAccess, Weighting weighting) {
         this.nodeAccess = nodeAccess;

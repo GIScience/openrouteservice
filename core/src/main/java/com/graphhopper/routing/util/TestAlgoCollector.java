@@ -45,15 +45,10 @@ public class TestAlgoCollector {
         this.name = name;
     }
 
-    public TestAlgoCollector assertDistance(AlgoHelperEntry algoEntry, List<QueryResult> queryList,
-                                            OneRun oneRun) {
+    public TestAlgoCollector assertDistance(AlgoHelperEntry algoEntry, List<QueryResult> queryList, OneRun oneRun) {
         List<Path> altPaths = new ArrayList<>();
         QueryGraph queryGraph = new QueryGraph(algoEntry.getForQueryGraph());
-<<<<<<< HEAD
-        queryGraph.lookup(queryList);
-=======
         queryGraph.lookup(queryList, null);
->>>>>>> ors/master
         AlgorithmOptions opts = algoEntry.getAlgorithmOptions();
         FlagEncoder encoder = opts.getWeighting().getFlagEncoder();
         if (encoder.supports(TurnWeighting.class)) {
@@ -61,34 +56,31 @@ public class TestAlgoCollector {
                 errors.add("Cannot use TurnWeighting with a node based traversal");
                 return this;
             }
-            algoEntry.setAlgorithmOptions(AlgorithmOptions.start(opts).weighting(new TurnWeighting(opts.getWeighting(), (TurnCostExtension) queryGraph.getExtension())).build());
+            algoEntry.setAlgorithmOptions(AlgorithmOptions.start(opts)
+                    .weighting(new TurnWeighting(opts.getWeighting(), (TurnCostExtension) queryGraph.getExtension()))
+                    .build());
         }
 
         RoutingAlgorithmFactory factory = algoEntry.createRoutingFactory();
         for (int i = 0; i < queryList.size() - 1; i++) {
             RoutingAlgorithm algo = factory.createAlgo(queryGraph, algoEntry.getAlgorithmOptions());
 
-//            if (!algoEntry.getExpectedAlgo().equals(algo.toString())) {
-//                errors.add("Algorithm expected " + algoEntry.getExpectedAlgo() + " but was " + algo.toString());
-//                return this;
-//            }
+            //            if (!algoEntry.getExpectedAlgo().equals(algo.toString())) {
+            //                errors.add("Algorithm expected " + algoEntry.getExpectedAlgo() + " but was " + algo.toString());
+            //                return this;
+            //            }
 
             Path path = algo.calcPath(queryList.get(i).getClosestNode(), queryList.get(i + 1).getClosestNode());
             altPaths.add(path);
         }
 
-        PathMerger pathMerger = new PathMerger().
-                setCalcPoints(true).
-                setSimplifyResponse(false).
-                setEnableInstructions(true);
+        PathMerger pathMerger = new PathMerger().setCalcPoints(true).setSimplifyResponse(false)
+                .setEnableInstructions(true);
         PathWrapper rsp = new PathWrapper();
-<<<<<<< HEAD
-        pathMerger.doWork(rsp, altPaths, trMap.getWithFallBack(Locale.US));
-=======
         ByteArrayBuffer buffer = new ByteArrayBuffer();
-        PathProcessingContext pathProcCntx = new PathProcessingContext(encoder, null, trMap.getWithFallBack(Locale.US), null, null, new ByteArrayBuffer()); // runge
+        PathProcessingContext pathProcCntx = new PathProcessingContext(encoder, null, trMap.getWithFallBack(Locale.US),
+                null, null, new ByteArrayBuffer()); // runge
         pathMerger.doWork(rsp, altPaths, pathProcCntx);
->>>>>>> ors/master
 
         if (rsp.hasErrors()) {
             errors.add("response for " + algoEntry + " contains errors. Expected distance: " + oneRun.getDistance()
@@ -99,15 +91,15 @@ public class TestAlgoCollector {
         PointList pointList = rsp.getPoints();
         double tmpDist = pointList.calcDistance(distCalc);
         if (Math.abs(rsp.getDistance() - tmpDist) > 2) {
-            errors.add(algoEntry + " path.getDistance was  " + rsp.getDistance()
-                    + "\t pointList.calcDistance was " + tmpDist + "\t (expected points " + oneRun.getLocs()
-                    + ", expected distance " + oneRun.getDistance() + ") " + queryList);
+            errors.add(algoEntry + " path.getDistance was  " + rsp.getDistance() + "\t pointList.calcDistance was "
+                    + tmpDist + "\t (expected points " + oneRun.getLocs() + ", expected distance "
+                    + oneRun.getDistance() + ") " + queryList);
         }
 
         if (Math.abs(rsp.getDistance() - oneRun.getDistance()) > 2) {
             errors.add(algoEntry + " returns path not matching the expected distance of " + oneRun.getDistance()
-                    + "\t Returned was " + rsp.getDistance() + "\t (expected points " + oneRun.getLocs()
-                    + ", was " + pointList.getSize() + ") " + queryList);
+                    + "\t Returned was " + rsp.getDistance() + "\t (expected points " + oneRun.getLocs() + ", was "
+                    + pointList.getSize() + ") " + queryList);
         }
 
         // There are real world instances where A-B-C is identical to A-C (in meter precision).
@@ -129,9 +121,8 @@ public class TestAlgoCollector {
         GHPoint found = res.getSnappedPoint();
         double dist = distCalc.calcDist(lat, lon, found.lat, found.lon);
         if (Math.abs(dist - expectedDist) > .1) {
-            errors.add("queried lat,lon=" + (float) lat + "," + (float) lon
-                    + " (found: " + (float) found.lat + "," + (float) found.lon + ")"
-                    + "\n   expected distance:" + expectedDist + ", but was:" + dist);
+            errors.add("queried lat,lon=" + (float) lat + "," + (float) lon + " (found: " + (float) found.lat + ","
+                    + (float) found.lon + ")" + "\n   expected distance:" + expectedDist + ", but was:" + dist);
         }
     }
 

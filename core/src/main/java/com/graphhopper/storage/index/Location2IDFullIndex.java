@@ -21,10 +21,7 @@ import com.graphhopper.routing.util.AllEdgesIterator;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
-<<<<<<< HEAD
-=======
 import com.graphhopper.util.ByteArrayBuffer;
->>>>>>> ors/master
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.Circle;
@@ -70,21 +67,14 @@ public class Location2IDFullIndex implements LocationIndex {
     public LocationIndex prepareIndex() {
         return this;
     }
-<<<<<<< HEAD
 
     @Override
     public QueryResult findClosest(double queryLat, double queryLon, EdgeFilter edgeFilter) {
-=======
-    
-    @Override
-    public QueryResult findClosest( double queryLat, double queryLon, EdgeFilter edgeFilter )
-    {
-     return findClosest(queryLat, queryLon, edgeFilter, null);
+        return findClosest(queryLat, queryLon, edgeFilter, null);
     }
 
     @Override
     public QueryResult findClosest(double queryLat, double queryLon, EdgeFilter edgeFilter, ByteArrayBuffer buffer) {
->>>>>>> ors/master
         if (isClosed())
             throw new IllegalStateException("You need to create a new LocationIndex instance as it is already closed");
 

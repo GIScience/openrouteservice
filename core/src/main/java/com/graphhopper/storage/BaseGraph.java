@@ -87,7 +87,7 @@ class BaseGraph implements Graph {
     private boolean frozen = false;
 
     public BaseGraph(Directory dir, final EncodingManager encodingManager, boolean withElevation,
-                     InternalGraphEventListener listener, GraphExtension extendedStorage) {
+            InternalGraphEventListener listener, GraphExtension extendedStorage) {
         this.dir = dir;
         this.encodingManager = encodingManager;
         this.bitUtil = BitUtil.get(dir.getByteOrder());
@@ -129,13 +129,8 @@ class BaseGraph implements Graph {
             }
 
             @Override
-<<<<<<< HEAD
-            final long reverseFlags(long edgePointer, long flags) {
-                return encodingManager.reverseFlags(flags);
-=======
             final long reverseFlags(long edgePointer, long flags, int encoderIndex) {
                 return encodingManager.reverseFlags(flags, encoderIndex);
->>>>>>> ors/master
             }
 
             @Override
@@ -228,13 +223,8 @@ class BaseGraph implements Graph {
         edgeEntryIndex = 0;
         nodeEntryIndex = 0;
         boolean flagsSizeIsLong = encodingManager.getBytesForFlags() == 8;
-        edgeAccess.init(nextEdgeEntryIndex(4),
-                nextEdgeEntryIndex(4),
-                nextEdgeEntryIndex(4),
-                nextEdgeEntryIndex(4),
-                nextEdgeEntryIndex(4),
-                nextEdgeEntryIndex(encodingManager.getBytesForFlags()),
-                flagsSizeIsLong);
+        edgeAccess.init(nextEdgeEntryIndex(4), nextEdgeEntryIndex(4), nextEdgeEntryIndex(4), nextEdgeEntryIndex(4),
+                nextEdgeEntryIndex(4), nextEdgeEntryIndex(encodingManager.getBytesForFlags()), flagsSizeIsLong);
 
         E_GEO = nextEdgeEntryIndex(4);
         E_NAME = nextEdgeEntryIndex(4);
@@ -374,11 +364,10 @@ class BaseGraph implements Graph {
     }
 
     String toDetailsString() {
-        return "edges:" + nf(edgeCount) + "(" + edges.getCapacity() / Helper.MB + "MB), "
-                + "nodes:" + nf(getNodes()) + "(" + nodes.getCapacity() / Helper.MB + "MB), "
-                + "name:(" + nameIndex.getCapacity() / Helper.MB + "MB), "
-                + "geo:" + nf(maxGeoRef) + "(" + wayGeometry.getCapacity() / Helper.MB + "MB), "
-                + "bounds:" + bounds;
+        return "edges:" + nf(edgeCount) + "(" + edges.getCapacity() / Helper.MB + "MB), " + "nodes:" + nf(getNodes())
+                + "(" + nodes.getCapacity() / Helper.MB + "MB), " + "name:(" + nameIndex.getCapacity() / Helper.MB
+                + "MB), " + "geo:" + nf(maxGeoRef) + "(" + wayGeometry.getCapacity() / Helper.MB + "MB), " + "bounds:"
+                + bounds;
     }
 
     void flush() {
@@ -402,8 +391,8 @@ class BaseGraph implements Graph {
     }
 
     long getCapacity() {
-        return edges.getCapacity() + nodes.getCapacity() + nameIndex.getCapacity()
-                + wayGeometry.getCapacity() + extStorage.getCapacity();
+        return edges.getCapacity() + nodes.getCapacity() + nameIndex.getCapacity() + wayGeometry.getCapacity()
+                + extStorage.getCapacity();
     }
 
     long getMaxGeoRef() {
@@ -443,14 +432,8 @@ class BaseGraph implements Graph {
      * @return to
      */
     EdgeIteratorState copyProperties(CommonEdgeIterator from, EdgeIteratorState to) {
-        to.setDistance(from.getDistance()).
-                setName(from.getName()).
-<<<<<<< HEAD
-                setFlags(from.getDirectFlags()).
-=======
-                setFlags(from.getDirectFlags(-1)).
->>>>>>> ors/master
-                setWayGeometry(from.fetchWayGeometry(0));
+        to.setDistance(from.getDistance()).setName(from.getName()).setFlags(from.getDirectFlags(-1))
+                .setWayGeometry(from.fetchWayGeometry(0));
 
         if (E_ADDITIONAL >= 0)
             to.setAdditionalField(from.getAdditionalField());
@@ -541,16 +524,16 @@ class BaseGraph implements Graph {
 
     void _copyTo(BaseGraph clonedG) {
         if (clonedG.edgeEntryBytes != edgeEntryBytes)
-            throw new IllegalStateException("edgeEntryBytes cannot be different for cloned graph. "
-                    + "Cloned: " + clonedG.edgeEntryBytes + " vs " + edgeEntryBytes);
+            throw new IllegalStateException("edgeEntryBytes cannot be different for cloned graph. " + "Cloned: "
+                    + clonedG.edgeEntryBytes + " vs " + edgeEntryBytes);
 
         if (clonedG.nodeEntryBytes != nodeEntryBytes)
-            throw new IllegalStateException("nodeEntryBytes cannot be different for cloned graph. "
-                    + "Cloned: " + clonedG.nodeEntryBytes + " vs " + nodeEntryBytes);
+            throw new IllegalStateException("nodeEntryBytes cannot be different for cloned graph. " + "Cloned: "
+                    + clonedG.nodeEntryBytes + " vs " + nodeEntryBytes);
 
         if (clonedG.nodeAccess.getDimension() != nodeAccess.getDimension())
-            throw new IllegalStateException("dimension cannot be different for cloned graph. "
-                    + "Cloned: " + clonedG.nodeAccess.getDimension() + " vs " + nodeAccess.getDimension());
+            throw new IllegalStateException("dimension cannot be different for cloned graph. " + "Cloned: "
+                    + clonedG.nodeAccess.getDimension() + " vs " + nodeAccess.getDimension());
 
         // nodes
         setNodesHeader();
@@ -582,8 +565,8 @@ class BaseGraph implements Graph {
     protected void trimToSize() {
         long nodeCap = (long) nodeCount * nodeEntryBytes;
         nodes.trimTo(nodeCap);
-//        long edgeCap = (long) (edgeCount + 1) * edgeEntrySize;
-//        edges.trimTo(edgeCap * 4);
+        //        long edgeCap = (long) (edgeCount + 1) * edgeEntrySize;
+        //        edges.trimTo(edgeCap * 4);
     }
 
     /**
@@ -592,10 +575,7 @@ class BaseGraph implements Graph {
      * edge.
      */
     void inPlaceNodeRemove(int removeNodeCount) {
-<<<<<<< HEAD
-=======
-    	ByteArrayBuffer byteBuffer = new ByteArrayBuffer(200);
->>>>>>> ors/master
+        ByteArrayBuffer byteBuffer = new ByteArrayBuffer(200);
         // Prepare edge-update of nodes which are connected to deleted nodes
         int toMoveNodes = getNodes();
         int itemsToMove = 0;
@@ -607,14 +587,12 @@ class BaseGraph implements Graph {
 
         Logger logger = LoggerFactory.getLogger(getClass());
         if (removeNodeCount > getNodes() / 2.0)
-            logger.warn("More than a half of the network should be removed!? "
-                    + "Nodes:" + getNodes() + ", remove:" + removeNodeCount);
+            logger.warn("More than a half of the network should be removed!? " + "Nodes:" + getNodes() + ", remove:"
+                    + removeNodeCount);
 
         EdgeExplorer delExplorer = createEdgeExplorer();
         // create map of old node ids pointing to new ids
-        for (int removeNode = removedNodes.next(0);
-             removeNode >= 0;
-             removeNode = removedNodes.next(removeNode + 1)) {
+        for (int removeNode = removedNodes.next(0); removeNode >= 0; removeNode = removedNodes.next(removeNode + 1)) {
             EdgeIterator delEdgesIter = delExplorer.setBaseNode(removeNode);
             while (delEdgesIter.next()) {
                 toRemoveSet.add(delEdgesIter.getAdjNode());
@@ -635,9 +613,7 @@ class BaseGraph implements Graph {
         EdgeIterable adjNodesToDelIter = (EdgeIterable) createEdgeExplorer();
         // now similar process to disconnectEdges but only for specific nodes
         // all deleted nodes could be connected to existing. remove the connections
-        for (int removeNode = toRemoveSet.next(0);
-             removeNode >= 0;
-             removeNode = toRemoveSet.next(removeNode + 1)) {
+        for (int removeNode = toRemoveSet.next(0); removeNode >= 0; removeNode = toRemoveSet.next(removeNode + 1)) {
             // remove all edges connected to the deleted nodes
             adjNodesToDelIter.setBaseNode(removeNode);
             long prev = EdgeIterator.NO_EDGE;
@@ -667,8 +643,8 @@ class BaseGraph implements Graph {
                     continue;
 
                 if (removedNodes.contains(nodeId))
-                    throw new IllegalStateException("shouldn't happen the edge to the node "
-                            + nodeId + " should be already deleted. " + oldI);
+                    throw new IllegalStateException(
+                            "shouldn't happen the edge to the node " + nodeId + " should be already deleted. " + oldI);
 
                 toMoveSet.add(nodeId);
             }
@@ -709,19 +685,11 @@ class BaseGraph implements Graph {
             long edgePointer = edgeAccess.toPointer(edgeId);
             int linkA = edgeAccess.getEdgeRef(nodeA, nodeB, edgePointer);
             int linkB = edgeAccess.getEdgeRef(nodeB, nodeA, edgePointer);
-<<<<<<< HEAD
-            long flags = edgeAccess.getFlags_(edgePointer, false);
-            edgeAccess.writeEdge(edgeId, updatedA, updatedB, linkA, linkB);
-            edgeAccess.setFlags_(edgePointer, updatedA > updatedB, flags);
-            if (updatedA < updatedB != nodeA < nodeB)
-                setWayGeometry_(fetchWayGeometry_(edgePointer, true, 0, -1, -1), edgePointer, false);
-=======
             long flags = edgeAccess.getFlags_(edgePointer, false, -1);
             edgeAccess.writeEdge(edgeId, updatedA, updatedB, linkA, linkB);
             edgeAccess.setFlags_(edgePointer, updatedA > updatedB, flags, -1);
             if (updatedA < updatedB != nodeA < nodeB)
                 setWayGeometry_(fetchWayGeometry_(edgePointer, true, 0, -1, -1, byteBuffer), edgePointer, false);
->>>>>>> ors/master
         }
 
         if (removeNodeCount >= nodeCount)
@@ -737,11 +705,9 @@ class BaseGraph implements Graph {
             while (iter.next()) {
                 int base = iter.getBaseNode();
                 int adj = iter.getAdjNode();
-                String str = iter.getEdge()
-                        + ", r.contains(" + base + "):" + removedNodes.contains(base)
-                        + ", r.contains(" + adj + "):" + removedNodes.contains(adj)
-                        + ", tr.contains(" + base + "):" + toRemoveSet.contains(base)
-                        + ", tr.contains(" + adj + "):" + toRemoveSet.contains(adj)
+                String str = iter.getEdge() + ", r.contains(" + base + "):" + removedNodes.contains(base)
+                        + ", r.contains(" + adj + "):" + removedNodes.contains(adj) + ", tr.contains(" + base + "):"
+                        + toRemoveSet.contains(base) + ", tr.contains(" + adj + "):" + toRemoveSet.contains(adj)
                         + ", base:" + base + ", adj:" + adj + ", nodeCount:" + nodeCount;
                 if (adj >= nodeCount)
                     throw new RuntimeException("Adj.node problem with edge " + str);
@@ -840,11 +806,8 @@ class BaseGraph implements Graph {
         return bytes;
     }
 
-<<<<<<< HEAD
-    private PointList fetchWayGeometry_(long edgePointer, boolean reverse, int mode, int baseNode, int adjNode) {
-=======
-    private PointList fetchWayGeometry_(long edgePointer, boolean reverse, int mode, int baseNode, int adjNode, ByteArrayBuffer buffer) {
->>>>>>> ors/master
+    private PointList fetchWayGeometry_(long edgePointer, boolean reverse, int mode, int baseNode, int adjNode,
+            ByteArrayBuffer buffer) {
         long geoRef = Helper.toUnsignedLong(edges.getInt(edgePointer + E_GEO));
         int count = 0;
         byte[] bytes = null;
@@ -853,25 +816,17 @@ class BaseGraph implements Graph {
             count = wayGeometry.getInt(geoRef);
 
             geoRef += 4L;
-<<<<<<< HEAD
-            bytes = new byte[count * nodeAccess.getDimension() * 4];
-            wayGeometry.getBytes(geoRef, bytes, bytes.length);
-=======
 
-			int arraySize = count * nodeAccess.getDimension() * 4;
-			if (buffer == null)
-			{
-				bytes = new byte[arraySize]; 
-			}
-			else
-			{
-				// Runge
-				buffer.ensureCapacity(arraySize);
-				bytes = buffer.array();
-			}
+            int arraySize = count * nodeAccess.getDimension() * 4;
+            if (buffer == null) {
+                bytes = new byte[arraySize];
+            } else {
+                // Runge
+                buffer.ensureCapacity(arraySize);
+                bytes = buffer.array();
+            }
 
             wayGeometry.getBytes(geoRef, bytes, arraySize);
->>>>>>> ors/master
         } else if (mode == 0)
             return PointList.EMPTY;
 
@@ -947,11 +902,7 @@ class BaseGraph implements Graph {
             this.filter = filter;
         }
 
-<<<<<<< HEAD
-        final void setEdgeId(int edgeId) {
-=======
         protected void setEdgeId(int edgeId) {
->>>>>>> ors/master
             this.nextEdgeId = this.edgeId = edgeId;
         }
 
@@ -965,7 +916,8 @@ class BaseGraph implements Graph {
             // expect only edgePointer is properly initialized via setEdgeId            
             baseNode = edgeAccess.edges.getInt(edgePointer + edgeAccess.E_NODEA);
             if (baseNode == EdgeAccess.NO_NODE)
-                throw new IllegalStateException("content of edgeId " + edgeId + " is marked as invalid - ie. the edge is already removed!");
+                throw new IllegalStateException(
+                        "content of edgeId " + edgeId + " is marked as invalid - ie. the edge is already removed!");
 
             adjNode = edgeAccess.edges.getInt(edgePointer + edgeAccess.E_NODEB);
             // a next() call should return false
@@ -998,11 +950,7 @@ class BaseGraph implements Graph {
         }
 
         @Override
-<<<<<<< HEAD
-        public final boolean next() {
-=======
         public /*final  // Runge: FIX*/boolean next() {
->>>>>>> ors/master
             while (true) {
                 if (nextEdgeId == EdgeIterator.NO_EDGE)
                     return false;
@@ -1016,8 +964,8 @@ class BaseGraph implements Graph {
 
                 // position to next edge                
                 nextEdgeId = edgeAccess.getEdgeRef(baseNode, adjNode, edgePointer);
-                assert nextEdgeId != edgeId : ("endless loop detected for base node: " + baseNode + ", adj node: " + adjNode
-                        + ", edge pointer: " + edgePointer + ", edge: " + edgeId);
+                assert nextEdgeId != edgeId : ("endless loop detected for base node: " + baseNode + ", adj node: "
+                        + adjNode + ", edge pointer: " + edgePointer + ", edge: " + edgeId);
 
                 if (filter.accept(this))
                     return true;
@@ -1027,7 +975,8 @@ class BaseGraph implements Graph {
         @Override
         public EdgeIteratorState detach(boolean reverseArg) {
             if (edgeId == nextEdgeId || edgeId == EdgeIterator.NO_EDGE)
-                throw new IllegalStateException("call next before detaching or setEdgeId (edgeId:" + edgeId + " vs. next " + nextEdgeId + ")");
+                throw new IllegalStateException(
+                        "call next before detaching or setEdgeId (edgeId:" + edgeId + " vs. next " + nextEdgeId + ")");
 
             EdgeIterable iter = edgeAccess.createSingleEdge(filter);
             boolean ret;
@@ -1147,26 +1096,14 @@ class BaseGraph implements Graph {
             return this;
         }
 
-<<<<<<< HEAD
-        final long getDirectFlags() {
-            if (!freshFlags) {
-                cachedFlags = edgeAccess.getFlags_(edgePointer, reverse);
-=======
         final long getDirectFlags(int encoderIndex) {
             if (!freshFlags) {
                 cachedFlags = edgeAccess.getFlags_(edgePointer, reverse, encoderIndex);
->>>>>>> ors/master
                 freshFlags = true;
             }
             return cachedFlags;
         }
-<<<<<<< HEAD
 
-        @Override
-        public long getFlags() {
-            return getDirectFlags();
-=======
-        
         @Override
         public long getFlags() {
             return getDirectFlags(-1);
@@ -1175,16 +1112,11 @@ class BaseGraph implements Graph {
         @Override
         public long getFlags(int encoderIndex) {
             return getDirectFlags(encoderIndex);
->>>>>>> ors/master
         }
 
         @Override
         public final EdgeIteratorState setFlags(long fl) {
-<<<<<<< HEAD
-            edgeAccess.setFlags_(edgePointer, reverse, fl);
-=======
             edgeAccess.setFlags_(edgePointer, reverse, fl, -1);
->>>>>>> ors/master
             cachedFlags = fl;
             freshFlags = true;
             return this;
@@ -1211,11 +1143,7 @@ class BaseGraph implements Graph {
          */
         @Override
         public boolean isForward(FlagEncoder encoder) {
-<<<<<<< HEAD
-            return encoder.isForward(getDirectFlags());
-=======
             return encoder.isForward(getDirectFlags(encoder.getIndex()));
->>>>>>> ors/master
         }
 
         /**
@@ -1223,11 +1151,7 @@ class BaseGraph implements Graph {
          */
         @Override
         public boolean isBackward(FlagEncoder encoder) {
-<<<<<<< HEAD
-            return encoder.isBackward(getDirectFlags());
-=======
             return encoder.isBackward(getDirectFlags(encoder.getIndex()));
->>>>>>> ors/master
         }
 
         @Override
@@ -1238,33 +1162,23 @@ class BaseGraph implements Graph {
 
         @Override
         public PointList fetchWayGeometry(int mode) {
-<<<<<<< HEAD
-            return baseGraph.fetchWayGeometry_(edgePointer, reverse, mode, getBaseNode(), getAdjNode());
-        }
-
-=======
             return baseGraph.fetchWayGeometry_(edgePointer, reverse, mode, getBaseNode(), getAdjNode(), null);
         }
 
-		@Override
-		public PointList fetchWayGeometry( int mode, ByteArrayBuffer buffer)
-		{
-			return baseGraph.fetchWayGeometry_(edgePointer, reverse, mode, getBaseNode(), getAdjNode(), buffer);
-		}
+        @Override
+        public PointList fetchWayGeometry(int mode, ByteArrayBuffer buffer) {
+            return baseGraph.fetchWayGeometry_(edgePointer, reverse, mode, getBaseNode(), getAdjNode(), buffer);
+        }
 
->>>>>>> ors/master
         @Override
         public int getEdge() {
             return edgeId;
         }
-<<<<<<< HEAD
-=======
-        
-		@Override
-		public int getOriginalEdge() {
-			return edgeId;
-		}
->>>>>>> ors/master
+
+        @Override
+        public int getOriginalEdge() {
+            return edgeId;
+        }
 
         @Override
         public String getName() {
@@ -1289,12 +1203,9 @@ class BaseGraph implements Graph {
             return getEdge() + " " + getBaseNode() + "-" + getAdjNode();
         }
     }
-<<<<<<< HEAD
-=======
 
-	@Override
-	public EdgeExplorer createEdgeExplorer(EdgeFilter filter, PMap props) {
-       return createEdgeExplorer(filter);
-	}
->>>>>>> ors/master
+    @Override
+    public EdgeExplorer createEdgeExplorer(EdgeFilter filter, PMap props) {
+        return createEdgeExplorer(filter);
+    }
 }

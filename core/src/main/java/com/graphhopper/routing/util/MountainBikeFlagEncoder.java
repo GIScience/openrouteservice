@@ -34,26 +34,13 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  */
 public class MountainBikeFlagEncoder extends BikeCommonFlagEncoder {
     public MountainBikeFlagEncoder() {
-<<<<<<< HEAD
-        this(4, 2, 0);
-=======
         this(4, 2, 0, false);
->>>>>>> ors/master
     }
 
     public MountainBikeFlagEncoder(PMap properties) {
-        this(
-<<<<<<< HEAD
-                (int) properties.getLong("speed_bits", 4),
-                properties.getDouble("speed_factor", 2),
-                properties.getBool("turn_costs", false) ? 1 : 0
-=======
-                properties.getInt("speed_bits", 4) + (properties.getBool("consider_elevation", false) ? 1 : 0),
-                properties.getDouble("speed_factor", 2),
-                properties.getBool("turn_costs", false) ? 1 : 0,
-                properties.getBool("consider_elevation", false)
->>>>>>> ors/master
-        );
+        this(properties.getInt("speed_bits", 4) + (properties.getBool("consider_elevation", false) ? 1 : 0),
+                properties.getDouble("speed_factor", 2), properties.getBool("turn_costs", false) ? 1 : 0,
+                properties.getBool("consider_elevation", false));
         this.properties = properties;
         this.setBlockFords(properties.getBool("block_fords", true));
     }
@@ -62,13 +49,8 @@ public class MountainBikeFlagEncoder extends BikeCommonFlagEncoder {
         this(new PMap(propertiesStr));
     }
 
-<<<<<<< HEAD
-    public MountainBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
-        super(speedBits, speedFactor, maxTurnCosts);
-=======
     public MountainBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
         super(speedBits, speedFactor, maxTurnCosts, considerElevation);
->>>>>>> ors/master
         setTrackTypeSpeed("grade1", 18); // paved
         setTrackTypeSpeed("grade2", 16); // now unpaved ...
         setTrackTypeSpeed("grade3", 12);
@@ -160,11 +142,7 @@ public class MountainBikeFlagEncoder extends BikeCommonFlagEncoder {
     }
 
     @Override
-<<<<<<< HEAD
-    void collect(ReaderWay way, double wayTypeSpeed, TreeMap<Double, Integer> weightToPrioMap) {
-=======
     protected void collect(ReaderWay way, double wayTypeSpeed, TreeMap<Double, Integer> weightToPrioMap) {
->>>>>>> ors/master
         super.collect(way, wayTypeSpeed, weightToPrioMap);
 
         String highway = way.getTag("highway");
@@ -200,15 +178,11 @@ public class MountainBikeFlagEncoder extends BikeCommonFlagEncoder {
     }
 
     @Override
-<<<<<<< HEAD
-=======
-	protected double getDownhillMaxSpeed()
-	{
-		return 60;
-	}
+    protected double getDownhillMaxSpeed() {
+        return 60;
+    }
 
     @Override
->>>>>>> ors/master
     public String toString() {
         return "mtb";
     }

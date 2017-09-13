@@ -67,15 +67,12 @@ public class TurnWeighting implements Weighting {
     }
 
     @Override
-<<<<<<< HEAD
-=======
     public double getMaxWeight() // runge
     {
-    	return 1;
+        return 1;
     }
-    
+
     @Override
->>>>>>> ors/master
     public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
         double weight = superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
         if (prevOrNextEdgeId == EdgeIterator.NO_EDGE)

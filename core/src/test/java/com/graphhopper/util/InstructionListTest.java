@@ -112,58 +112,49 @@ public class InstructionListTest {
         Path p = new Dijkstra(g, new ShortestWeighting(carEncoder), tMode).calcPath(0, 10);
         InstructionList wayList = p.calcInstructions(usTR);
         List<String> tmpList = pick("text", wayList.createJson());
-<<<<<<< HEAD
-        assertEquals(Arrays.asList("Continue onto 0-1", "Turn right onto 1-4", "Turn left onto 7-8", "Arrive at destination"),
-                tmpList);
-=======
         return; // Runge
-     /*   assertEquals(Arrays.asList("Continue onto 0-1", "Turn right onto 1-4", "Turn left onto 7-8", "Arrive at destination"), tmpList); Runge
+        /*   assertEquals(Arrays.asList("Continue onto 0-1", "Turn right onto 1-4", "Turn left onto 7-8", "Arrive at destination"), tmpList); Runge
         //assertEquals(Arrays.asList("Continue onto 0-1, Turn right onto 1-4, Turn left onto 7-8, Continue onto 8-9, Arrive at destination"), tmpList);
         
->>>>>>> ors/master
-
+        
         wayList = p.calcInstructions(trMap.getWithFallBack(Locale.GERMAN));
         tmpList = pick("text", wayList.createJson());
         assertEquals(Arrays.asList("Dem Straßenverlauf von 0-1 folgen", "Rechts abbiegen auf 1-4", "Links abbiegen auf 7-8", "Ziel erreicht"),
                 tmpList);
-
+        
         assertEquals(70000.0, sumDistances(wayList), 1e-1);
-
+        
         List<GPXEntry> gpxes = wayList.createGPXList();
         assertEquals(10, gpxes.size());
         // check order of tower nodes        
         assertEquals(1, gpxes.get(0).getLon(), 1e-6);
         assertEquals(1.4, gpxes.get(gpxes.size() - 1).getLon(), 1e-6);
-
+        
         // check order of pillar nodes        
         assertEquals(1.15, gpxes.get(4).getLon(), 1e-6);
         assertEquals(1.16, gpxes.get(5).getLon(), 1e-6);
         assertEquals(1.16, gpxes.get(5).getLon(), 1e-6);
-
+        
         compare(Arrays.asList(asL(1.2d, 1.0d), asL(1.2d, 1.1), asL(1.0, 1.1), asL(1.1, 1.4)),
                 wayList.createStartPoints());
-
+        
         p = new Dijkstra(g, new ShortestWeighting(carEncoder), tMode).calcPath(6, 2);
         assertEquals(42000, p.getDistance(), 1e-2);
         assertEquals(Helper.createTList(6, 7, 8, 5, 2), p.calcNodes());
-
+        
         wayList = p.calcInstructions(usTR);
         tmpList = pick("text", wayList.createJson());
         assertEquals(Arrays.asList("Continue onto 6-7", "Turn left onto 5-8", "Arrive at destination"),
                 tmpList);
-
+        
         compare(Arrays.asList(asL(1d, 1d), asL(1d, 1.2), asL(1.2, 1.2)),
                 wayList.createStartPoints());
-
+        
         // special case of identical start and end
         p = new Dijkstra(g, new ShortestWeighting(carEncoder), tMode).calcPath(0, 0);
         wayList = p.calcInstructions(usTR);
         assertEquals(1, wayList.size());
-<<<<<<< HEAD
-        assertEquals("arrive at destination", wayList.get(0).getTurnDescription(usTR));
-=======
         assertEquals("arrive at destination", wayList.get(0).getTurnDescription(usTR));*/
->>>>>>> ors/master
     }
 
     List<String> pick(String key, List<Map<String, Object>> instructionJson) {
@@ -191,10 +182,8 @@ public class InstructionListTest {
             List<Double> e = expected.get(i);
             List<Double> wasE = actual.get(i);
             for (int j = 0; j < e.size(); j++) {
-                assertEquals("at index " + i + " value index " + j + " and value " + e + " vs " + wasE + "\n" + "Expected: " + expected + "\n" + "Actual: " + actual
-                        , e.get(j),
-                        wasE.get(j),
-                        1e-5d);
+                assertEquals("at index " + i + " value index " + j + " and value " + e + " vs " + wasE + "\n"
+                        + "Expected: " + expected + "\n" + "Actual: " + actual, e.get(j), wasE.get(j), 1e-5d);
             }
         }
     }
@@ -305,11 +294,7 @@ public class InstructionListTest {
 
         Path p = new Dijkstra(g, new ShortestWeighting(carEncoder), tMode).calcPath(1, 5);
         InstructionList wayList = p.calcInstructions(usTR);
-<<<<<<< HEAD
-        assertEquals(4, wayList.size());
-=======
         //assertEquals(4, wayList.size()); Runge
->>>>>>> ors/master
 
         List<GPXEntry> gpxList = wayList.createGPXList();
         assertEquals(34000, p.getDistance(), 1e-1);
@@ -355,11 +340,8 @@ public class InstructionListTest {
         pl.add(52.5135, 13.35);
         pl.add(52.514, 13.351);
         RoundaboutInstruction instr = new RoundaboutInstruction(Instruction.USE_ROUNDABOUT, "streetname",
-                new InstructionAnnotation(0, ""), pl)
-                .setDirOfRotation(-0.1)
-                .setRadian(-Math.PI + 1)
-                .setExitNumber(2)
-                .setExited();
+                new InstructionAnnotation(0, ""), pl).setDirOfRotation(-0.1).setRadian(-Math.PI + 1).setExitNumber(2)
+                        .setExited();
         il.add(instr);
 
         Map<String, Object> json = il.createJson().get(0);
@@ -389,10 +371,7 @@ public class InstructionListTest {
         pl.add(52.5135, 13.35);
         pl.add(52.514, 13.351);
         RoundaboutInstruction instr = new RoundaboutInstruction(Instruction.USE_ROUNDABOUT, "streetname",
-                new InstructionAnnotation(0, ""), pl)
-                .setRadian(-Math.PI + 1)
-                .setExitNumber(2)
-                .setExited();
+                new InstructionAnnotation(0, ""), pl).setRadian(-Math.PI + 1).setExitNumber(2).setExited();
         il.add(instr);
 
         Map<String, Object> json = il.createJson().get(0);
@@ -434,7 +413,8 @@ public class InstructionListTest {
         PointList pl = new PointList();
         pl.add(49.942576, 11.580384);
         pl.add(49.941858, 11.582422);
-        instructions.add(new Instruction(Instruction.CONTINUE_ON_STREET, "temp", ea, pl).setDistance(240).setTime(15000));
+        instructions
+                .add(new Instruction(Instruction.CONTINUE_ON_STREET, "temp", ea, pl).setDistance(240).setTime(15000));
 
         pl = new PointList();
         pl.add(49.941575, 11.583501);
@@ -482,7 +462,8 @@ public class InstructionListTest {
 
             // using more schemas: http://stackoverflow.com/q/1094893/194609
         } catch (SAXException e1) {
-            throw new IllegalStateException("There was a problem with the schema supplied for validation. Message:" + e1.getMessage());
+            throw new IllegalStateException(
+                    "There was a problem with the schema supplied for validation. Message:" + e1.getMessage());
         }
         Validator validator = schema.newValidator();
         try {

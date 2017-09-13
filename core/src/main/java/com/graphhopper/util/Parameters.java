@@ -120,13 +120,8 @@ public class Parameters {
         public static final double DEFAULT_HEADING_PENALTY = 300;
         public static final String HEADING_PENALTY = "heading_penalty";
         /**
-<<<<<<< HEAD
-         * block road access via a point lat,lon or an area defined from a circle lat,lon,radius or
-         * a rectangular lat1,lon1,lat2,lon2
-=======
          * block road access via a point in the format lat,lon or an area defined by a circle lat,lon,radius or
          * a rectangle lat1,lon1,lat2,lon2
->>>>>>> ors/master
          */
         public static final String BLOCK_AREA = "block_area";
     }
@@ -188,7 +183,8 @@ public class Parameters {
         /**
          * Describes the maximum allowed distance between two consecutive waypoints of a non-CH request. Distance is in meter.
          */
-        public static final String MAX_NON_CH_POINT_DISTANCE = ROUTING_INIT_PREFIX + NON_CH_PREFIX + "max_waypoint_distance";
+        public static final String MAX_NON_CH_POINT_DISTANCE = ROUTING_INIT_PREFIX + NON_CH_PREFIX
+                + "max_waypoint_distance";
     }
 
     public static final class PT {

@@ -51,10 +51,7 @@ public class EncodingManager {
     private int nextTurnBit = 0;
     private boolean enableInstructions = true;
     private String preferredLanguage = "";
-<<<<<<< HEAD
-=======
     private int totalUsedBits = 0; // Runge
->>>>>>> ors/master
 
     /**
      * Instantiate manager with the given list of encoders. The manager knows several default
@@ -107,21 +104,19 @@ public class EncodingManager {
         if (edgeEncoders.isEmpty())
             throw new IllegalStateException("No vehicles found");
     }
-<<<<<<< HEAD
-=======
-    
-    public int getUsedBitsForFlags()
-    {
-    	return totalUsedBits;
+
+    public int getUsedBitsForFlags() {
+        return totalUsedBits;
     }
->>>>>>> ors/master
 
     static List<FlagEncoder> parseEncoderString(FlagEncoderFactory factory, String encoderList) {
         if (encoderList.contains(":"))
-            throw new IllegalArgumentException("EncodingManager does no longer use reflection instantiate encoders directly.");
+            throw new IllegalArgumentException(
+                    "EncodingManager does no longer use reflection instantiate encoders directly.");
 
         if (!encoderList.equals(encoderList.toLowerCase()))
-            throw new IllegalArgumentException("Since 0.7 EncodingManager does no longer accept upper case profiles: " + encoderList);
+            throw new IllegalArgumentException(
+                    "Since 0.7 EncodingManager does no longer accept upper case profiles: " + encoderList);
 
         String[] entries = encoderList.split(",");
         List<FlagEncoder> resultEncoders = new ArrayList<FlagEncoder>();
@@ -163,16 +158,16 @@ public class EncodingManager {
         Directory dir = new RAMDirectory(ghLoc, true);
         StorableProperties properties = new StorableProperties(dir);
         if (!properties.loadExisting())
-            throw new IllegalStateException("Cannot load properties to fetch EncodingManager configuration at: "
-                    + dir.getLocation());
+            throw new IllegalStateException(
+                    "Cannot load properties to fetch EncodingManager configuration at: " + dir.getLocation());
 
         // check encoding for compatibility
         properties.checkVersions(false);
         String acceptStr = properties.get("graph.flag_encoders");
 
         if (acceptStr.isEmpty())
-            throw new IllegalStateException("EncodingManager was not configured. And no one was found in the graph: "
-                    + dir.getLocation());
+            throw new IllegalStateException(
+                    "EncodingManager was not configured. And no one was found in the graph: " + dir.getLocation());
 
         int bytesForFlags = 4;
         if ("8".equals(properties.get("graph.bytes_for_flags")))
@@ -190,7 +185,8 @@ public class EncodingManager {
 
         for (FlagEncoder fe : edgeEncoders) {
             if (fe.toString().equals(encoder.toString()))
-                throw new IllegalArgumentException("Cannot register edge encoder. Name already exists: " + fe.toString());
+                throw new IllegalArgumentException(
+                        "Cannot register edge encoder. Name already exists: " + fe.toString());
         }
 
         encoder.setRegistered(true);
@@ -199,30 +195,21 @@ public class EncodingManager {
         int usedBits = encoder.defineNodeBits(encoderCount, nextNodeBit);
         if (usedBits > bitsForEdgeFlags)
             throw new IllegalArgumentException(String.format(ERR, usedBits, bitsForEdgeFlags, "node"));
-<<<<<<< HEAD
-=======
-     	totalUsedBits += usedBits - nextNodeBit;
->>>>>>> ors/master
+        totalUsedBits += usedBits - nextNodeBit;
         encoder.setNodeBitMask(usedBits - nextNodeBit, nextNodeBit);
         nextNodeBit = usedBits;
 
         usedBits = encoder.defineWayBits(encoderCount, nextWayBit);
         if (usedBits > bitsForEdgeFlags)
             throw new IllegalArgumentException(String.format(ERR, usedBits, bitsForEdgeFlags, "way") + WAY_ERR);
-<<<<<<< HEAD
-=======
-    	totalUsedBits += usedBits - nextWayBit;
->>>>>>> ors/master
+        totalUsedBits += usedBits - nextWayBit;
         encoder.setWayBitMask(usedBits - nextWayBit, nextWayBit);
         nextWayBit = usedBits;
 
         usedBits = encoder.defineRelationBits(encoderCount, nextRelBit);
         if (usedBits > bitsForEdgeFlags)
             throw new IllegalArgumentException(String.format(ERR, usedBits, bitsForEdgeFlags, "relation"));
-<<<<<<< HEAD
-=======
-    	totalUsedBits += usedBits - nextRelBit;
->>>>>>> ors/master
+        totalUsedBits += usedBits - nextRelBit;
         encoder.setRelBitMask(usedBits - nextRelBit, nextRelBit);
         nextRelBit = usedBits;
 
@@ -232,10 +219,7 @@ public class EncodingManager {
             throw new IllegalArgumentException(String.format(ERR, usedBits, bitsForTurnFlags, "turn"));
         nextTurnBit = usedBits;
 
-<<<<<<< HEAD
-=======
         encoder.setIndex(edgeEncoders.size());
->>>>>>> ors/master
         edgeEncoders.add(encoder);
     }
 
@@ -317,10 +301,7 @@ public class EncodingManager {
             if (str.length() > 0)
                 str.append(",");
 
-            str.append(encoder.toString())
-                    .append("|")
-                    .append(encoder.getPropertiesString())
-                    .append("|version=")
+            str.append(encoder.toString()).append("|").append(encoder.getPropertiesString()).append("|version=")
                     .append(encoder.getVersion());
         }
 
@@ -338,14 +319,10 @@ public class EncodingManager {
     /**
      * Reverse flags, to do so all encoders are called.
      */
-<<<<<<< HEAD
-    public long reverseFlags(long flags) {
-=======
     public long reverseFlags(long flags, int encoderIndex) {
-    	if (encoderIndex != -1) // Runge
-    		return edgeEncoders.get(encoderIndex).reverseFlags(flags);
+        if (encoderIndex != -1) // Runge
+            return edgeEncoders.get(encoderIndex).reverseFlags(flags);
 
->>>>>>> ors/master
         // performance critical
         int len = edgeEncoders.size();
         for (int i = 0; i < len; i++) {

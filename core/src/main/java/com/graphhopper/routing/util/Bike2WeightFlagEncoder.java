@@ -46,13 +46,8 @@ public class Bike2WeightFlagEncoder extends BikeFlagEncoder {
         super(properties);
     }
 
-<<<<<<< HEAD
-    public Bike2WeightFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
-        super(speedBits, speedFactor, maxTurnCosts);
-=======
     public Bike2WeightFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
         super(speedBits, speedFactor, maxTurnCosts, considerElevation);
->>>>>>> ors/master
     }
 
     @Override
@@ -77,7 +72,8 @@ public class Bike2WeightFlagEncoder extends BikeFlagEncoder {
     @Override
     public long setReverseSpeed(long flags, double speed) {
         if (speed < 0)
-            throw new IllegalArgumentException("Speed cannot be negative: " + speed + ", flags:" + BitUtil.LITTLE.toBitString(flags));
+            throw new IllegalArgumentException(
+                    "Speed cannot be negative: " + speed + ", flags:" + BitUtil.LITTLE.toBitString(flags));
 
         if (speed < speedEncoder.factor / 2)
             return setLowSpeed(flags, speed, true);
@@ -142,7 +138,8 @@ public class Bike2WeightFlagEncoder extends BikeFlagEncoder {
     public void applyWayTags(ReaderWay way, EdgeIteratorState edge) {
         PointList pl = edge.fetchWayGeometry(3);
         if (!pl.is3D())
-            throw new IllegalStateException("To support speed calculation based on elevation data it is necessary to enable import of it.");
+            throw new IllegalStateException(
+                    "To support speed calculation based on elevation data it is necessary to enable import of it.");
 
         long flags = edge.getFlags();
 
@@ -160,7 +157,8 @@ public class Bike2WeightFlagEncoder extends BikeFlagEncoder {
             double fullDist2D = edge.getDistance();
 
             if (Double.isInfinite(fullDist2D))
-                throw new IllegalStateException("Infinite distance should not happen due to #435. way ID=" + way.getId());
+                throw new IllegalStateException(
+                        "Infinite distance should not happen due to #435. way ID=" + way.getId());
 
             // for short edges an incline makes no sense and for 0 distances could lead to NaN values for speed, see #432
             if (fullDist2D < 1)
@@ -175,28 +173,28 @@ public class Bike2WeightFlagEncoder extends BikeFlagEncoder {
                 decDist2DSum = fullDist2D;
             }
 
-//            // get a more detailed elevation information, but due to bad SRTM data this does not make sense now.
-//            for (int i = 1; i < pl.size(); i++)
-//            {
-//                double lat = pl.getLatitude(i);
-//                double lon = pl.getLongitude(i);
-//                double ele = pl.getElevation(i);
-//                double eleDelta = ele - prevEle;
-//                double dist2D = distCalc.calcDist(prevLat, prevLon, lat, lon);
-//                if (eleDelta > 0.1)
-//                {
-//                    incEleSum += eleDelta;
-//                    incDist2DSum += dist2D;
-//                } else if (eleDelta < -0.1)
-//                {
-//                    decEleSum += -eleDelta;
-//                    decDist2DSum += dist2D;
-//                }
-//                fullDist2D += dist2D;
-//                prevLat = lat;
-//                prevLon = lon;
-//                prevEle = ele;
-//            }
+            //            // get a more detailed elevation information, but due to bad SRTM data this does not make sense now.
+            //            for (int i = 1; i < pl.size(); i++)
+            //            {
+            //                double lat = pl.getLatitude(i);
+            //                double lon = pl.getLongitude(i);
+            //                double ele = pl.getElevation(i);
+            //                double eleDelta = ele - prevEle;
+            //                double dist2D = distCalc.calcDist(prevLat, prevLon, lat, lon);
+            //                if (eleDelta > 0.1)
+            //                {
+            //                    incEleSum += eleDelta;
+            //                    incDist2DSum += dist2D;
+            //                } else if (eleDelta < -0.1)
+            //                {
+            //                    decEleSum += -eleDelta;
+            //                    decDist2DSum += dist2D;
+            //                }
+            //                fullDist2D += dist2D;
+            //                prevLat = lat;
+            //                prevLon = lon;
+            //                prevEle = ele;
+            //            }
             // Calculate slop via tan(asin(height/distance)) but for rather smallish angles where we can assume tan a=a and sin a=a.
             // Then calculate a factor which decreases or increases the speed.
             // Do this via a simple quadratic equation where y(0)=1 and y(0.3)=1/4 for incline and y(0.3)=2 for decline        
@@ -221,7 +219,8 @@ public class Bike2WeightFlagEncoder extends BikeFlagEncoder {
                 bwFaster = bwFaster * bwFaster;
                 double bwSlower = 1 - 5 * keepIn(fwdDecline, 0, 0.2);
                 bwSlower = bwSlower * bwSlower;
-                speedReverse = speedReverse * (bwFaster * incDist2DSum + bwSlower * decDist2DSum + 1 * restDist2D) / fullDist2D;
+                speedReverse = speedReverse * (bwFaster * incDist2DSum + bwSlower * decDist2DSum + 1 * restDist2D)
+                        / fullDist2D;
                 flags = this.setReverseSpeed(flags, keepIn(speedReverse, PUSHING_SECTION_SPEED / 2, maxSpeed));
             }
         }

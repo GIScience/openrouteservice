@@ -21,10 +21,7 @@ import com.graphhopper.routing.util.AllEdgesIterator;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
-<<<<<<< HEAD
-=======
 import com.graphhopper.util.ByteArrayBuffer;
->>>>>>> ors/master
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.Helper;
 
@@ -71,17 +68,12 @@ public class Location2IDFullWithEdgesIndex implements LocationIndex {
     }
 
     @Override
-<<<<<<< HEAD
     public QueryResult findClosest(double queryLat, double queryLon, EdgeFilter filter) {
-=======
-    public QueryResult findClosest( double queryLat, double queryLon, EdgeFilter filter)
-    {
-    	return findClosest(queryLat, queryLon, filter, null);
+        return findClosest(queryLat, queryLon, filter, null);
     }
 
     @Override
     public QueryResult findClosest(double queryLat, double queryLon, EdgeFilter filter, ByteArrayBuffer buffer) {
->>>>>>> ors/master
         if (isClosed())
             throw new IllegalStateException("You need to create a new LocationIndex instance as it is already closed");
 
@@ -120,10 +112,9 @@ public class Location2IDFullWithEdgesIndex implements LocationIndex {
                 double toLat = nodeAccess.getLatitude(toNode);
                 double toLon = nodeAccess.getLongitude(toNode);
 
-                if (calc.validEdgeDistance(queryLat, queryLon,
-                        fromLat, fromLon, toLat, toLon)) {
-                    double distEdge = calc.calcDenormalizedDist(calc.calcNormalizedEdgeDistance(queryLat, queryLon,
-                            fromLat, fromLon, toLat, toLon));
+                if (calc.validEdgeDistance(queryLat, queryLon, fromLat, fromLon, toLat, toLon)) {
+                    double distEdge = calc.calcDenormalizedDist(
+                            calc.calcNormalizedEdgeDistance(queryLat, queryLon, fromLat, fromLon, toLat, toLon));
                     if (distEdge < foundDist) {
                         res.setQueryDistance(distEdge);
                         res.setClosestNode(node);

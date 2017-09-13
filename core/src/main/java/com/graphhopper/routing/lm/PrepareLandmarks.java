@@ -50,8 +50,8 @@ public class PrepareLandmarks extends AbstractAlgoPreparation {
     private final Weighting weighting;
     private int defaultActiveLandmarks;
 
-    public PrepareLandmarks(Directory dir, GraphHopperStorage graph, Weighting weighting,
-                            int landmarks, int activeLandmarks) {
+    public PrepareLandmarks(Directory dir, GraphHopperStorage graph, Weighting weighting, int landmarks,
+            int activeLandmarks) {
         if (activeLandmarks > landmarks)
             throw new IllegalArgumentException("Default value for active landmarks " + activeLandmarks
                     + " should be less or equal to landmark count of " + landmarks);
@@ -108,11 +108,7 @@ public class PrepareLandmarks extends AbstractAlgoPreparation {
         return this;
     }
 
-<<<<<<< HEAD
-    LandmarkStorage getLandmarkStorage() {
-=======
     public LandmarkStorage getLandmarkStorage() {
->>>>>>> ors/master
         return lms;
     }
 
@@ -139,9 +135,9 @@ public class PrepareLandmarks extends AbstractAlgoPreparation {
         lms.createLandmarks();
         lms.flush();
 
-        LOGGER.info("Calculating landmarks for " + (lms.getSubnetworksWithLandmarks() - 1) + " subnetworks took:" + sw.stop().getSeconds() + " => "
-                + lms.getLandmarksAsGeoJSON() + ", stored weights:" + lms.getLandmarkCount()
-                + ", nodes:" + graph.getNodes() + ", " + Helper.getMemInfo());
+        LOGGER.info("Calculating landmarks for " + (lms.getSubnetworksWithLandmarks() - 1) + " subnetworks took:"
+                + sw.stop().getSeconds() + " => " + lms.getLandmarksAsGeoJSON() + ", stored weights:"
+                + lms.getLandmarkCount() + ", nodes:" + graph.getNodes() + ", " + Helper.getMemInfo());
     }
 
     public RoutingAlgorithm getDecoratedAlgorithm(Graph qGraph, RoutingAlgorithm algo, AlgorithmOptions opts) {
@@ -152,8 +148,9 @@ public class PrepareLandmarks extends AbstractAlgoPreparation {
 
             double epsilon = opts.getHints().getDouble(Parameters.Algorithms.ASTAR + ".epsilon", 1);
             AStar astar = (AStar) algo;
-            astar.setApproximation(new LMApproximator(qGraph, this.graph.getNodes(), lms, activeLM, lms.getFactor(), false).
-                    setEpsilon(epsilon));
+            astar.setApproximation(
+                    new LMApproximator(qGraph, this.graph.getNodes(), lms, activeLM, lms.getFactor(), false)
+                            .setEpsilon(epsilon));
             return algo;
         } else if (algo instanceof AStarBidirection) {
             if (!lms.isInitialized())
@@ -161,8 +158,9 @@ public class PrepareLandmarks extends AbstractAlgoPreparation {
 
             double epsilon = opts.getHints().getDouble(Parameters.Algorithms.ASTAR_BI + ".epsilon", 1);
             AStarBidirection astarbi = (AStarBidirection) algo;
-            astarbi.setApproximation(new LMApproximator(qGraph, this.graph.getNodes(), lms, activeLM, lms.getFactor(), false).
-                    setEpsilon(epsilon));
+            astarbi.setApproximation(
+                    new LMApproximator(qGraph, this.graph.getNodes(), lms, activeLM, lms.getFactor(), false)
+                            .setEpsilon(epsilon));
             return algo;
         } else if (algo instanceof AlternativeRoute) {
             if (!lms.isInitialized())
@@ -170,8 +168,9 @@ public class PrepareLandmarks extends AbstractAlgoPreparation {
 
             double epsilon = opts.getHints().getDouble(Parameters.Algorithms.ASTAR_BI + ".epsilon", 1);
             AlternativeRoute altRoute = (AlternativeRoute) algo;
-            altRoute.setApproximation(new LMApproximator(qGraph, this.graph.getNodes(), lms, activeLM, lms.getFactor(), false).
-                    setEpsilon(epsilon));
+            altRoute.setApproximation(
+                    new LMApproximator(qGraph, this.graph.getNodes(), lms, activeLM, lms.getFactor(), false)
+                            .setEpsilon(epsilon));
             // landmark algorithm follows good compromise between fast response and exploring 'interesting' paths so we
             // can decrease this exploration factor further (1->dijkstra, 0.8->bidir. A*)
             altRoute.setMaxExplorationFactor(0.6);

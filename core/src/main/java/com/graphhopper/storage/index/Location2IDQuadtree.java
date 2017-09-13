@@ -24,10 +24,7 @@ import com.graphhopper.geohash.KeyAlgo;
 import com.graphhopper.geohash.LinearKeyAlgo;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.*;
-<<<<<<< HEAD
-=======
 import com.graphhopper.util.ByteArrayBuffer;
->>>>>>> ors/master
 import com.graphhopper.util.BreadthFirstSearch;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.Helper;
@@ -50,11 +47,7 @@ import java.util.Arrays;
  * implementation of LocationIndex.
  * <p>
  */
-<<<<<<< HEAD
-class Location2IDQuadtree implements LocationIndex {
-=======
 public class Location2IDQuadtree implements LocationIndex {
->>>>>>> ors/master
     private final static int MAGIC_INT = Integer.MAX_VALUE / 12306;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final DataAccess index;
@@ -106,8 +99,8 @@ public class Location2IDQuadtree implements LocationIndex {
         int lon = index.getHeader(2 * 4);
         int checksum = index.getHeader(3 * 4);
         if (checksum != graph.getNodes())
-            throw new IllegalStateException("index was created from a different graph with "
-                    + checksum + ". Current nodes:" + graph.getNodes());
+            throw new IllegalStateException("index was created from a different graph with " + checksum
+                    + ". Current nodes:" + graph.getNodes());
 
         initAlgo(lat, lon);
         return true;
@@ -141,8 +134,8 @@ public class Location2IDQuadtree implements LocationIndex {
         sw = new StopWatch().start();
         int counter = fillEmptyIndices(filledIndices);
         float fillEmpty = sw.stop().getSeconds();
-        logger.info("filled quadtree index array in " + res1 + "s. size is " + getCapacity()
-                + " (" + fillQT + "). filled empty " + counter + " in " + fillEmpty + "s");
+        logger.info("filled quadtree index array in " + res1 + "s. size is " + getCapacity() + " (" + fillQT
+                + "). filled empty " + counter + " in " + fillEmpty + "s");
         flush();
         return this;
     }
@@ -224,7 +217,8 @@ public class Location2IDQuadtree implements LocationIndex {
             takenFrom[i] = i;
         }
         if (initializedCounter == 0) {
-            throw new IllegalStateException("at least one entry has to be != null, which should have happened in initIndex");
+            throw new IllegalStateException(
+                    "at least one entry has to be != null, which should have happened in initIndex");
         }
         int tmp = initializedCounter;
         while (initializedCounter < len) {
@@ -245,20 +239,19 @@ public class Location2IDQuadtree implements LocationIndex {
                         to = i + lonSize;
                     }
                 } else // check change "empty to initialized"
-                    if ((i + 1) % lonSize != 0 && indicesCopy.contains(i + 1)) {
-                        // set from right
-                        from = i + 1;
-                        to = i;
-                    } else if (i + lonSize < len && indicesCopy.contains(i + lonSize)) {
-                        // set from below
-                        from = i + lonSize;
-                        to = i;
-                    }
+                if ((i + 1) % lonSize != 0 && indicesCopy.contains(i + 1)) {
+                    // set from right
+                    from = i + 1;
+                    to = i;
+                } else if (i + lonSize < len && indicesCopy.contains(i + lonSize)) {
+                    // set from below
+                    from = i + lonSize;
+                    to = i;
+                }
                 if (to >= 0) {
                     if (takenFrom[to] >= 0) {
                         // takenFrom[to] == to -> special case for normedDist == 0
-                        if (takenFrom[to] == to
-                                || getNormedDist(from, to) >= getNormedDist(takenFrom[to], to)) {
+                        if (takenFrom[to] == to || getNormedDist(from, to) >= getNormedDist(takenFrom[to], to)) {
                             continue;
                         }
                     }
@@ -285,25 +278,19 @@ public class Location2IDQuadtree implements LocationIndex {
     }
 
     @Override
-<<<<<<< HEAD
-    public QueryResult findClosest(final double queryLat, final double queryLon,
-                                   final EdgeFilter edgeFilter) {
-=======
-    public QueryResult findClosest( final double queryLat, final double queryLon,
-                                    final EdgeFilter edgeFilter )
-    {
-    	return findClosest(queryLat, queryLon, edgeFilter, null);
+    public QueryResult findClosest(final double queryLat, final double queryLon, final EdgeFilter edgeFilter) {
+        return findClosest(queryLat, queryLon, edgeFilter, null);
     }
 
     @Override
-    public QueryResult findClosest(final double queryLat, final double queryLon,
-                                   final EdgeFilter edgeFilter, ByteArrayBuffer buffer) {
->>>>>>> ors/master
+    public QueryResult findClosest(final double queryLat, final double queryLon, final EdgeFilter edgeFilter,
+            ByteArrayBuffer buffer) {
         if (isClosed())
             throw new IllegalStateException("You need to create a new LocationIndex instance as it is already closed");
 
         if (edgeFilter != EdgeFilter.ALL_EDGES)
-            throw new UnsupportedOperationException("edge filters are not yet implemented for " + Location2IDQuadtree.class.getSimpleName());
+            throw new UnsupportedOperationException(
+                    "edge filters are not yet implemented for " + Location2IDQuadtree.class.getSimpleName());
 
         // The following cases (e.g. dead ends or motorways crossing a normal way) could be problematic:
         // |     |

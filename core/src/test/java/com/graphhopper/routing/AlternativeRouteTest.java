@@ -55,14 +55,12 @@ public class AlternativeRouteTest {
      */
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> configs() {
-        return Arrays.asList(new Object[][]{
-                {TraversalMode.NODE_BASED},
-                {TraversalMode.EDGE_BASED_2DIR}
-        });
+        return Arrays.asList(new Object[][] { { TraversalMode.NODE_BASED }, { TraversalMode.EDGE_BASED_2DIR } });
     }
 
     public GraphHopperStorage createTestGraph(boolean fullGraph, EncodingManager tmpEM) {
-        GraphHopperStorage graph = new GraphHopperStorage(new RAMDirectory(), tmpEM, false, new GraphExtension.NoOpExtension());
+        GraphHopperStorage graph = new GraphHopperStorage(new RAMDirectory(), tmpEM, false,
+                new GraphExtension.NoOpExtension());
         graph.create(1000);
 
         /* 9
@@ -114,11 +112,7 @@ public class AlternativeRouteTest {
         checkAlternatives(pathInfos);
         assertEquals(2, pathInfos.size());
 
-<<<<<<< HEAD
-        DijkstraBidirectionRef dijkstra = new DijkstraBidirectionRef(g, weighting, traversalMode);
-=======
         DijkstraBidirectionRef dijkstra = new DijkstraBidirectionRef(g, weighting, traversalMode, -1);
->>>>>>> ors/master
         Path bestPath = dijkstra.calcPath(5, 4);
 
         Path bestAlt = pathInfos.get(0).getPath();
@@ -167,8 +161,7 @@ public class AlternativeRouteTest {
             if (a.getPath().getWeight() < bestInfo.getPath().getWeight())
                 assertTrue("alternative is not longer -> " + a + " vs " + bestInfo, false);
 
-            if (a.getShareWeight() > bestInfo.getPath().getWeight()
-                    || a.getShareWeight() > a.getPath().getWeight())
+            if (a.getShareWeight() > bestInfo.getPath().getWeight() || a.getShareWeight() > a.getPath().getWeight())
                 assertTrue("share or sortby incorrect -> " + a + " vs " + bestInfo, false);
         }
     }

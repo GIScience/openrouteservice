@@ -45,18 +45,14 @@ public class FastestWeightingTest {
     public void testMinWeightHasSameUnitAs_getWeight() {
         Weighting instance = new FastestWeighting(encoder);
         long flags = encoder.setProperties(encoder.getMaxSpeed(), true, true);
-        assertEquals(instance.getMinWeight(10), instance.calcWeight(createMockedEdgeIteratorState(10, flags), false, EdgeIterator.NO_EDGE), 1e-8);
+        assertEquals(instance.getMinWeight(10),
+                instance.calcWeight(createMockedEdgeIteratorState(10, flags), false, EdgeIterator.NO_EDGE), 1e-8);
     }
 
     @Test
     public void testWeightWrongHeading() {
-        Weighting instance = new FastestWeighting(encoder, new PMap().
-                put(Parameters.Routing.HEADING_PENALTY, "100"));
-<<<<<<< HEAD
-        VirtualEdgeIteratorState virtEdge = new VirtualEdgeIteratorState(0, 1, 1, 2, 10,
-=======
+        Weighting instance = new FastestWeighting(encoder, new PMap().put(Parameters.Routing.HEADING_PENALTY, "100"));
         VirtualEdgeIteratorState virtEdge = new VirtualEdgeIteratorState(0, 1, 1, 1, 2, 10,
->>>>>>> ors/master
                 encoder.setProperties(10, true, true), "test", Helper.createPointList(51, 0, 51, 1));
         double time = instance.calcWeight(virtEdge, false, 0);
 
@@ -80,10 +76,16 @@ public class FastestWeightingTest {
     public void testSpeed0() {
         Weighting instance = new FastestWeighting(encoder);
 
-        assertEquals(1.0 / 0, instance.calcWeight(createMockedEdgeIteratorState(10, encoder.setProperties(0, true, true)), false, EdgeIterator.NO_EDGE), 1e-8);
+        assertEquals(1.0 / 0,
+                instance.calcWeight(createMockedEdgeIteratorState(10, encoder.setProperties(0, true, true)), false,
+                        EdgeIterator.NO_EDGE),
+                1e-8);
 
         // 0 / 0 returns NaN but calcWeight should not return NaN!
-        assertEquals(1.0 / 0, instance.calcWeight(createMockedEdgeIteratorState(0, encoder.setProperties(0, true, true)), false, EdgeIterator.NO_EDGE), 1e-8);
+        assertEquals(1.0 / 0,
+                instance.calcWeight(createMockedEdgeIteratorState(0, encoder.setProperties(0, true, true)), false,
+                        EdgeIterator.NO_EDGE),
+                1e-8);
     }
 
     @Test

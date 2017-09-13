@@ -76,15 +76,11 @@ public class AStarBidirection extends AbstractBidirAlgo implements Recalculation
     private boolean updateBestPath = true;
 
     public AStarBidirection(Graph graph, Weighting weighting, TraversalMode tMode) {
-<<<<<<< HEAD
-        super(graph, weighting, tMode);
-=======
-    	this(graph, weighting, tMode, -1);
+        this(graph, weighting, tMode, -1);
     }
-    
+
     public AStarBidirection(Graph graph, Weighting weighting, TraversalMode tMode, double maxSpeed) {
         super(graph, weighting, tMode, maxSpeed);
->>>>>>> ors/master
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 150_000);
         initCollections(size);
         BeelineWeightApproximator defaultApprox = new BeelineWeightApproximator(nodeAccess, weighting);
@@ -170,14 +166,8 @@ public class AStarBidirection extends AbstractBidirAlgo implements Recalculation
     }
 
     @Override
-<<<<<<< HEAD
     protected Path createAndInitPath() {
-        bestPath = new PathBidirRef(graph, weighting);
-=======
-    protected Path createAndInitPath()
-    {
         bestPath = new PathBidirRef(graph, weighting, maxSpeed);
->>>>>>> ors/master
         return bestPath;
     }
 
@@ -233,8 +223,8 @@ public class AStarBidirection extends AbstractBidirAlgo implements Recalculation
     }
 
     private void fillEdges(AStarEntry currEdge, PriorityQueue<AStarEntry> prioQueueOpenSet,
-                           IntObjectMap<AStarEntry> bestWeightMap, IntHashSet ignoreExploration,
-                           EdgeExplorer explorer, boolean reverse) {
+            IntObjectMap<AStarEntry> bestWeightMap, IntHashSet ignoreExploration, EdgeExplorer explorer,
+            boolean reverse) {
 
         int currNode = currEdge.adjNode;
         EdgeIterator iter = explorer.setBaseNode(currNode);
@@ -262,9 +252,9 @@ public class AStarBidirection extends AbstractBidirAlgo implements Recalculation
                     ase = new AStarEntry(iter.getEdge(), neighborNode, estimationFullWeight, alreadyVisitedWeight);
                     bestWeightMap.put(traversalId, ase);
                 } else {
-//                    assert (ase.weight > 0.999999 * estimationFullWeight) : "Inconsistent distance estimate "
-//                            + ase.weight + " vs " + estimationFullWeight + " (" + ase.weight / estimationFullWeight + "), and:"
-//                            + ase.getWeightOfVisitedPath() + " vs " + alreadyVisitedWeight + " (" + ase.getWeightOfVisitedPath() / alreadyVisitedWeight + ")";
+                    //                    assert (ase.weight > 0.999999 * estimationFullWeight) : "Inconsistent distance estimate "
+                    //                            + ase.weight + " vs " + estimationFullWeight + " (" + ase.weight / estimationFullWeight + "), and:"
+                    //                            + ase.getWeightOfVisitedPath() + " vs " + alreadyVisitedWeight + " (" + ase.getWeightOfVisitedPath() / alreadyVisitedWeight + ")";
                     prioQueueOpenSet.remove(ase);
                     ase.edge = iter.getEdge();
                     ase.weight = estimationFullWeight;

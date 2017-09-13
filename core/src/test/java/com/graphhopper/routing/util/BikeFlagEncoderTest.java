@@ -284,12 +284,8 @@ public class BikeFlagEncoderTest extends AbstractBikeFlagEncoderTester {
 
         way.setTag("tracktype", "grade2");
         wayType = getWayTypeFromFlags(way);
-<<<<<<< HEAD
-        assertEquals("get off the bike, unpaved", wayType);
-=======
         //assertEquals("get off the bike, unpaved", wayType); Runge
-        assertEquals("small way, unpaved", wayType); 
->>>>>>> ors/master
+        assertEquals("small way, unpaved", wayType);
 
         way.clearTags();
         way.setTag("junction", "roundabout");
@@ -530,7 +526,8 @@ public class BikeFlagEncoderTest extends AbstractBikeFlagEncoderTester {
         osmWay = new ReaderWay(1);
         osmWay.setTag("highway", "somethingelse");
         flags = encoder.handleWayTags(osmWay, allowed, 0);
-        assertEquals((double) UNCHANGED.getValue() / BEST.getValue(), encoder.getDouble(flags, PriorityWeighting.KEY), 1e-3);
+        assertEquals((double) UNCHANGED.getValue() / BEST.getValue(), encoder.getDouble(flags, PriorityWeighting.KEY),
+                1e-3);
     }
 
     @Test
@@ -590,11 +587,7 @@ public class BikeFlagEncoderTest extends AbstractBikeFlagEncoderTester {
 
     @Test
     public void testTurnFlagEncoding_withCosts() {
-<<<<<<< HEAD
-        encoder = new BikeFlagEncoder(4, 2, 127);
-=======
         encoder = new BikeFlagEncoder(4, 2, 127, false);
->>>>>>> ors/master
         new EncodingManager(encoder);
 
         long flags_r0 = encoder.getTurnFlags(true, 0);

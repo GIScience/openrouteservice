@@ -46,13 +46,8 @@ public class DijkstraBidirectionRef extends AbstractBidirAlgo {
     private PriorityQueue<SPTEntry> pqOpenSetTo;
     private boolean updateBestPath = true;
 
-<<<<<<< HEAD
-    public DijkstraBidirectionRef(Graph graph, Weighting weighting, TraversalMode tMode) {
-        super(graph, weighting, tMode);
-=======
     public DijkstraBidirectionRef(Graph graph, Weighting weighting, TraversalMode tMode, double maxSpeed) {
         super(graph, weighting, tMode, maxSpeed);
->>>>>>> ors/master
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 150_000);
         initCollections(size);
     }
@@ -105,11 +100,7 @@ public class DijkstraBidirectionRef extends AbstractBidirAlgo {
 
     @Override
     protected Path createAndInitPath() {
-<<<<<<< HEAD
-        bestPath = new PathBidirRef(graph, weighting);
-=======
         bestPath = new PathBidirRef(graph, weighting, maxSpeed);
->>>>>>> ors/master
         return bestPath;
     }
 
@@ -166,8 +157,8 @@ public class DijkstraBidirectionRef extends AbstractBidirAlgo {
         return currFrom.weight + currTo.weight >= bestPath.getWeight();
     }
 
-    void fillEdges(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue,
-                   IntObjectMap<SPTEntry> bestWeightMap, EdgeExplorer explorer, boolean reverse) {
+    void fillEdges(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<SPTEntry> bestWeightMap,
+            EdgeExplorer explorer, boolean reverse) {
         EdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
         while (iter.next()) {
             if (!accept(iter, currEdge.edge))
@@ -180,10 +171,7 @@ public class DijkstraBidirectionRef extends AbstractBidirAlgo {
             SPTEntry ee = bestWeightMap.get(traversalId);
             if (ee == null) {
                 ee = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
-<<<<<<< HEAD
-=======
-                ee.originalEdge = iter.getOriginalEdge();  // Runge
->>>>>>> ors/master
+                ee.originalEdge = iter.getOriginalEdge(); // Runge
                 ee.parent = currEdge;
                 bestWeightMap.put(traversalId, ee);
                 prioQueue.add(ee);

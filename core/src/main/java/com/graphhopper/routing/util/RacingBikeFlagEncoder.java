@@ -18,10 +18,7 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderWay;
-<<<<<<< HEAD
-=======
 import com.graphhopper.util.Helper;
->>>>>>> ors/master
 import com.graphhopper.util.PMap;
 
 import java.util.TreeMap;
@@ -37,24 +34,12 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  */
 public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder {
     public RacingBikeFlagEncoder() {
-<<<<<<< HEAD
-        this(4, 2, 0);
-=======
         this(4, 2, 0, false);
->>>>>>> ors/master
     }
 
     public RacingBikeFlagEncoder(PMap properties) {
-        this(
-                (int) properties.getLong("speed_bits", 4),
-                properties.getDouble("speed_factor", 2),
-<<<<<<< HEAD
-                properties.getBool("turn_costs", false) ? 1 : 0
-=======
-                properties.getBool("turn_costs", false) ? 1 : 0, 
-                properties.getBool("consider_elevation", false)
->>>>>>> ors/master
-        );
+        this((int) properties.getLong("speed_bits", 4), properties.getDouble("speed_factor", 2),
+                properties.getBool("turn_costs", false) ? 1 : 0, properties.getBool("consider_elevation", false));
         this.properties = properties;
         this.setBlockFords(properties.getBool("block_fords", true));
     }
@@ -63,13 +48,8 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder {
         this(new PMap(propertiesStr));
     }
 
-<<<<<<< HEAD
-    public RacingBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
-        super(speedBits, speedFactor, maxTurnCosts);
-=======
     public RacingBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
         super(speedBits, speedFactor, maxTurnCosts, considerElevation);
->>>>>>> ors/master
         preferHighwayTags.add("road");
         preferHighwayTags.add("secondary");
         preferHighwayTags.add("secondary_link");
@@ -154,11 +134,7 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder {
     }
 
     @Override
-<<<<<<< HEAD
-    void collect(ReaderWay way, double wayTypeSpeed, TreeMap<Double, Integer> weightToPrioMap) {
-=======
     protected void collect(ReaderWay way, double wayTypeSpeed, TreeMap<Double, Integer> weightToPrioMap) {
->>>>>>> ors/master
         super.collect(way, wayTypeSpeed, weightToPrioMap);
 
         String highway = way.getTag("highway");
@@ -174,43 +150,29 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder {
     }
 
     @Override
-<<<<<<< HEAD
-    boolean isPushingSection(ReaderWay way) {
-        String highway = way.getTag("highway");
-        String trackType = way.getTag("tracktype");
-        return way.hasTag("highway", pushingSectionsHighways)
-                || way.hasTag("railway", "platform")
-                || way.hasTag("bicycle", "dismount")
-                || "track".equals(highway) && trackType != null && !"grade1".equals(trackType);
-=======
     protected boolean isPushingSection(ReaderWay way) {
         String highway = way.getTag("highway");
         String trackType = way.getTag("tracktype");
-        
+
         // Runge
-        boolean isPushing =  way.hasTag("highway", pushingSectionsHighways)
-                || way.hasTag("railway", "platform")  || way.hasTag("route", ferries)   || way.hasTag("bicycle", "dismount")
+        boolean isPushing = way.hasTag("highway", pushingSectionsHighways) || way.hasTag("railway", "platform")
+                || way.hasTag("route", ferries) || way.hasTag("bicycle", "dismount")
                 || "track".equals(highway) && trackType != null && !"grade1".equals(trackType);
-        
-        if (isPushing)
-        {
-        	if ("track".equals(highway) && trackType != null && "grade1".equals(trackType))
-        	{
-        		String surface = way.getTag("surface"); // Runge
-        	    if (!Helper.isEmpty(surface))
-        	    {
-        	    	Integer surfaceSpeed = surfaceSpeeds.get(surface);
-        	    	if (surfaceSpeed != null)
-        	    	{
-        	    		if (surfaceSpeed >= PUSHING_SECTION_SPEED)
-        	    			isPushing = false;
-        	    	}
-        	    }
-        	}
+
+        if (isPushing) {
+            if ("track".equals(highway) && trackType != null && "grade1".equals(trackType)) {
+                String surface = way.getTag("surface"); // Runge
+                if (!Helper.isEmpty(surface)) {
+                    Integer surfaceSpeed = surfaceSpeeds.get(surface);
+                    if (surfaceSpeed != null) {
+                        if (surfaceSpeed >= PUSHING_SECTION_SPEED)
+                            isPushing = false;
+                    }
+                }
+            }
         }
-        
+
         return isPushing;
->>>>>>> ors/master
     }
 
     @Override

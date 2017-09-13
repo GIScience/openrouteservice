@@ -83,14 +83,10 @@ public class PMap {
         // query accepts camelCase and under_score
         return map.containsKey(Helper.camelCaseToUnderScore(key));
     }
-<<<<<<< HEAD
-=======
-    
-    public int size()
-    {
-    	return map.size();
+
+    public int size() {
+        return map.size();
     }
->>>>>>> ors/master
 
     public long getLong(String key, long _default) {
         String str = get(key);
@@ -163,11 +159,7 @@ public class PMap {
         return new HashMap<>(map);
     }
 
-<<<<<<< HEAD
-    private Map<String, String> getMap() {
-=======
     public Map<String, String> getMap() {
->>>>>>> ors/master
         return map;
     }
 

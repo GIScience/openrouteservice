@@ -19,11 +19,8 @@ package com.graphhopper.util;
 
 import com.graphhopper.PathWrapper;
 import com.graphhopper.routing.Path;
-<<<<<<< HEAD
-=======
 import com.graphhopper.routing.PathProcessingContext;
 import com.graphhopper.routing.util.PathProcessor;
->>>>>>> ors/master
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 
 import java.util.ArrayList;
@@ -64,45 +61,30 @@ public class PathMerger {
         return this;
     }
 
-<<<<<<< HEAD
-    public void doWork(PathWrapper altRsp, List<Path> paths, Translation tr) {
-=======
     public void doWork(PathWrapper altRsp, List<Path> paths, PathProcessingContext procCntx) {
->>>>>>> ors/master
         int origPoints = 0;
         long fullTimeInMillis = 0;
         double fullWeight = 0;
         double fullDistance = 0;
         boolean allFound = true;
 
-<<<<<<< HEAD
-        InstructionList fullInstructions = new InstructionList(tr);
-=======
         // Runge
         PathProcessor pathProcessor = procCntx.getPathProcessor();
         if (pathProcessor != null)
-        		pathProcessor.init(procCntx);
+            pathProcessor.init(procCntx);
 
         InstructionList fullInstructions = new InstructionList(procCntx.getTranslation());
->>>>>>> ors/master
         PointList fullPoints = PointList.EMPTY;
         List<String> description = new ArrayList<String>();
         for (int pathIndex = 0; pathIndex < paths.size(); pathIndex++) {
             Path path = paths.get(pathIndex);
-<<<<<<< HEAD
-=======
             procCntx.setPathIndex(pathIndex); // Runge
->>>>>>> ors/master
             description.addAll(path.getDescription());
             fullTimeInMillis += path.getTime();
             fullDistance += path.getDistance();
             fullWeight += path.getWeight();
             if (enableInstructions) {
-<<<<<<< HEAD
-                InstructionList il = path.calcInstructions(tr);
-=======
                 InstructionList il = path.calcInstructions(procCntx);
->>>>>>> ors/master
 
                 if (!il.isEmpty()) {
                     if (fullPoints.isEmpty()) {
@@ -143,18 +125,14 @@ public class PathMerger {
             allFound = allFound && path.isFound();
         }
 
-<<<<<<< HEAD
-        if (!fullPoints.isEmpty()) {
-=======
         // Runge
         if (pathProcessor != null)
-        	pathProcessor.finish();
+            pathProcessor.finish();
 
         if (!fullPoints.isEmpty()) {
-        	if (pathProcessor != null)
-           	 fullPoints = pathProcessor.processPoints(fullPoints);
+            if (pathProcessor != null)
+                fullPoints = pathProcessor.processPoints(fullPoints);
 
->>>>>>> ors/master
             String debug = altRsp.getDebugInfo() + ", simplify (" + origPoints + "->" + fullPoints.getSize() + ")";
             altRsp.addDebugInfo(debug);
             if (fullPoints.is3D)
@@ -165,13 +143,11 @@ public class PathMerger {
             altRsp.setInstructions(fullInstructions);
 
         if (!allFound)
-            altRsp.addError(new ConnectionNotFoundException("Connection between locations not found", Collections.<String, Object>emptyMap()));
+            altRsp.addError(new ConnectionNotFoundException("Connection between locations not found",
+                    Collections.<String, Object>emptyMap()));
 
-        altRsp.setDescription(description).
-                setPoints(fullPoints).
-                setRouteWeight(fullWeight).
-                setDistance(fullDistance).
-                setTime(fullTimeInMillis);
+        altRsp.setDescription(description).setPoints(fullPoints).setRouteWeight(fullWeight).setDistance(fullDistance)
+                .setTime(fullTimeInMillis);
     }
 
     private void calcAscendDescend(final PathWrapper rsp, final PointList pointList) {

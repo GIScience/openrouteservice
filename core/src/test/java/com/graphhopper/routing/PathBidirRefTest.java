@@ -36,57 +36,49 @@ import static org.junit.Assert.assertEquals;
  * @author Peter Karich
  */
 public class PathBidirRefTest {
-    private final EncodingManager encodingManager = new EncodingManager("car");
-    private FlagEncoder carEncoder = encodingManager.getEncoder("car");
-    private EdgeFilter carOutEdges = new DefaultEdgeFilter(carEncoder, false, true);
+        private final EncodingManager encodingManager = new EncodingManager("car");
+        private FlagEncoder carEncoder = encodingManager.getEncoder("car");
+        private EdgeFilter carOutEdges = new DefaultEdgeFilter(carEncoder, false, true);
 
-    Graph createGraph() {
-        return new GraphBuilder(encodingManager).create();
-    }
+        Graph createGraph() {
+                return new GraphBuilder(encodingManager).create();
+        }
 
-    @Test
-    public void testExtract() {
-        Graph g = createGraph();
-        g.edge(1, 2, 10, true);
-<<<<<<< HEAD
-        PathBidirRef pw = new PathBidirRef(g, new FastestWeighting(carEncoder));
-=======
-        PathBidirRef pw = new PathBidirRef(g, new FastestWeighting(carEncoder), -1);
->>>>>>> ors/master
-        EdgeExplorer explorer = g.createEdgeExplorer(carOutEdges);
-        EdgeIterator iter = explorer.setBaseNode(1);
-        iter.next();
-        pw.sptEntry = new SPTEntry(iter.getEdge(), 2, 0);
-        pw.sptEntry.parent = new SPTEntry(EdgeIterator.NO_EDGE, 1, 10);
-        pw.edgeTo = new SPTEntry(EdgeIterator.NO_EDGE, 2, 0);
-        Path p = pw.extract();
-        assertEquals(Helper.createTList(1, 2), p.calcNodes());
-        assertEquals(10, p.getDistance(), 1e-4);
-    }
+        @Test
+        public void testExtract() {
+                Graph g = createGraph();
+                g.edge(1, 2, 10, true);
+                PathBidirRef pw = new PathBidirRef(g, new FastestWeighting(carEncoder), -1);
+                EdgeExplorer explorer = g.createEdgeExplorer(carOutEdges);
+                EdgeIterator iter = explorer.setBaseNode(1);
+                iter.next();
+                pw.sptEntry = new SPTEntry(iter.getEdge(), 2, 0);
+                pw.sptEntry.parent = new SPTEntry(EdgeIterator.NO_EDGE, 1, 10);
+                pw.edgeTo = new SPTEntry(EdgeIterator.NO_EDGE, 2, 0);
+                Path p = pw.extract();
+                assertEquals(Helper.createTList(1, 2), p.calcNodes());
+                assertEquals(10, p.getDistance(), 1e-4);
+        }
 
-    @Test
-    public void testExtract2() {
-        Graph g = createGraph();
-        g.edge(1, 2, 10, false);
-        g.edge(2, 3, 20, false);
-        EdgeExplorer explorer = g.createEdgeExplorer(carOutEdges);
-        EdgeIterator iter = explorer.setBaseNode(1);
-        iter.next();
-<<<<<<< HEAD
-        PathBidirRef pw = new PathBidirRef(g, new FastestWeighting(carEncoder));
-=======
-        PathBidirRef pw = new PathBidirRef(g, new FastestWeighting(carEncoder), -1);
->>>>>>> ors/master
-        pw.sptEntry = new SPTEntry(iter.getEdge(), 2, 10);
-        pw.sptEntry.parent = new SPTEntry(EdgeIterator.NO_EDGE, 1, 0);
+        @Test
+        public void testExtract2() {
+                Graph g = createGraph();
+                g.edge(1, 2, 10, false);
+                g.edge(2, 3, 20, false);
+                EdgeExplorer explorer = g.createEdgeExplorer(carOutEdges);
+                EdgeIterator iter = explorer.setBaseNode(1);
+                iter.next();
+                PathBidirRef pw = new PathBidirRef(g, new FastestWeighting(carEncoder), -1);
+                pw.sptEntry = new SPTEntry(iter.getEdge(), 2, 10);
+                pw.sptEntry.parent = new SPTEntry(EdgeIterator.NO_EDGE, 1, 0);
 
-        explorer = g.createEdgeExplorer(new DefaultEdgeFilter(carEncoder, true, false));
-        iter = explorer.setBaseNode(3);
-        iter.next();
-        pw.edgeTo = new SPTEntry(iter.getEdge(), 2, 20);
-        pw.edgeTo.parent = new SPTEntry(EdgeIterator.NO_EDGE, 3, 0);
-        Path p = pw.extract();
-        assertEquals(Helper.createTList(1, 2, 3), p.calcNodes());
-        assertEquals(30, p.getDistance(), 1e-4);
-    }
+                explorer = g.createEdgeExplorer(new DefaultEdgeFilter(carEncoder, true, false));
+                iter = explorer.setBaseNode(3);
+                iter.next();
+                pw.edgeTo = new SPTEntry(iter.getEdge(), 2, 20);
+                pw.edgeTo.parent = new SPTEntry(EdgeIterator.NO_EDGE, 3, 0);
+                Path p = pw.extract();
+                assertEquals(Helper.createTList(1, 2, 3), p.calcNodes());
+                assertEquals(30, p.getDistance(), 1e-4);
+        }
 }

@@ -19,12 +19,9 @@ package com.graphhopper.util;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntIndexedContainer;
-<<<<<<< HEAD
-=======
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphExtension.ExtendedStorageSequence;
 import com.graphhopper.storage.TurnCostExtension;
->>>>>>> ors/master
 import com.graphhopper.util.shapes.BBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -272,8 +269,8 @@ public class Helper {
         if (!graphBounds.isValid())
             throw new IllegalArgumentException("Bounding box is not valid to calculate index size: " + graphBounds);
 
-        double dist = DIST_EARTH.calcDist(graphBounds.maxLat, graphBounds.minLon,
-                graphBounds.minLat, graphBounds.maxLon);
+        double dist = DIST_EARTH.calcDist(graphBounds.maxLat, graphBounds.minLon, graphBounds.minLat,
+                graphBounds.maxLon);
         // convert to km and maximum is 50000km => 1GB
         dist = Math.min(dist / 1000, 50000);
         return Math.max(2000, (int) (dist * dist));
@@ -397,7 +394,8 @@ public class Helper {
 
                     if (buffer.getClass().getSimpleName().equals("MappedByteBufferAdapter")) {
                         if (!Constants.ANDROID)
-                            throw new RuntimeException("MappedByteBufferAdapter only supported for Android at the moment");
+                            throw new RuntimeException(
+                                    "MappedByteBufferAdapter only supported for Android at the moment");
 
                         // For Android 4.1 call ((MappedByteBufferAdapter)buffer).free() see #914
                         Class<?> directByteBufferClass = Class.forName("java.nio.MappedByteBufferAdapter");
@@ -564,25 +562,20 @@ public class Helper {
 
         return sb.toString();
     }
-<<<<<<< HEAD
-=======
-    
+
     public static TurnCostExtension getTurnCostExtensions(GraphExtension extendedStorage) // Runge
     {
-    	if (extendedStorage instanceof TurnCostExtension)
-    		return (TurnCostExtension) extendedStorage;
-    	else if (extendedStorage instanceof ExtendedStorageSequence)
-    	{
-    		ExtendedStorageSequence ess = (ExtendedStorageSequence)extendedStorage;
-    		GraphExtension[] exts = ess.getExtensions(); 
-    		for (int i = 0; i< exts.length; i++ )
-    		{
-    			if  (exts[i] instanceof TurnCostExtension)
-    				return (TurnCostExtension) exts[i];
-    		}
-    	}
-    	
-    	return null;
+        if (extendedStorage instanceof TurnCostExtension)
+            return (TurnCostExtension) extendedStorage;
+        else if (extendedStorage instanceof ExtendedStorageSequence) {
+            ExtendedStorageSequence ess = (ExtendedStorageSequence) extendedStorage;
+            GraphExtension[] exts = ess.getExtensions();
+            for (int i = 0; i < exts.length; i++) {
+                if (exts[i] instanceof TurnCostExtension)
+                    return (TurnCostExtension) exts[i];
+            }
+        }
+
+        return null;
     }
->>>>>>> ors/master
 }

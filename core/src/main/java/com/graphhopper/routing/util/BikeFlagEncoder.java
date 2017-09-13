@@ -29,11 +29,7 @@ import com.graphhopper.util.PMap;
  */
 public class BikeFlagEncoder extends BikeCommonFlagEncoder {
     public BikeFlagEncoder() {
-<<<<<<< HEAD
-        this(4, 2, 0);
-=======
         this(4, 2, 0, false);
->>>>>>> ors/master
     }
 
     public BikeFlagEncoder(String propertiesString) {
@@ -41,31 +37,19 @@ public class BikeFlagEncoder extends BikeCommonFlagEncoder {
     }
 
     public BikeFlagEncoder(PMap properties) {
-<<<<<<< HEAD
-        this((int) properties.getLong("speed_bits", 4),
-                properties.getLong("speed_factor", 2),
-                properties.getBool("turn_costs", false) ? 1 : 0);
+        this((int) properties.getLong("speed_bits", 4) + (properties.getBool("consider_elevation", false) ? 1 : 0),
+                properties.getLong("speed_factor", 2), properties.getBool("turn_costs", false) ? 1 : 0,
+                properties.getBool("consider_elevation", false));
         this.properties = properties;
         this.setBlockFords(properties.getBool("block_fords", true));
     }
 
     public BikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
-        super(speedBits, speedFactor, maxTurnCosts);
-=======
-        this((int) properties.getLong("speed_bits", 4) + (properties.getBool("consider_elevation", false) ? 1 : 0),
-                properties.getLong("speed_factor", 2),
-                properties.getBool("turn_costs", false) ? 1 : 0, properties.getBool("consider_elevation", false));
-        this.properties = properties;
-        this.setBlockFords(properties.getBool("block_fords", true));
-    }
-    
-    public BikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
         this(speedBits, speedFactor, maxTurnCosts, false);
     }
-    
+
     public BikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
         super(speedBits, speedFactor, maxTurnCosts, considerElevation);
->>>>>>> ors/master
         addPushingSection("path");
         addPushingSection("footway");
         addPushingSection("pedestrian");
@@ -97,31 +81,19 @@ public class BikeFlagEncoder extends BikeCommonFlagEncoder {
     }
 
     @Override
-<<<<<<< HEAD
-    boolean isPushingSection(ReaderWay way) {
+    protected boolean isPushingSection(ReaderWay way) {
         String highway = way.getTag("highway");
         String trackType = way.getTag("tracktype");
-        return super.isPushingSection(way) || "track".equals(highway) && trackType != null && !"grade1".equals(trackType);
+        return super.isPushingSection(way) || "track".equals(highway) && trackType != null
+                && !("grade1".equals(trackType) || "grade2".equals(trackType) || "grade3".equals(trackType)); // Runge
     }
 
     @Override
-=======
-	protected
-    boolean isPushingSection(ReaderWay way) {
-        String highway = way.getTag("highway");
-        String trackType = way.getTag("tracktype");
-        return super.isPushingSection(way) || "track".equals(highway) && trackType != null 
-            	&&  !("grade1".equals(trackType) || "grade2".equals(trackType) || "grade3".equals(trackType)); // Runge
+    protected double getDownhillMaxSpeed() {
+        return 50;
     }
 
     @Override
-	protected double getDownhillMaxSpeed()
-	{
-		return 50;
-	}
-
-    @Override
->>>>>>> ors/master
     public String toString() {
         return "bike";
     }

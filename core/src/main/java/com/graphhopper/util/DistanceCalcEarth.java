@@ -40,10 +40,8 @@ public class DistanceCalcEarth implements DistanceCalc {
     public final static double C = 2 * PI * R;
     public final static double KM_MILE = 1.609344;
 
-<<<<<<< HEAD
-=======
-	private final static double R_2 = 2 * R;
->>>>>>> ors/master
+    private final static double R_2 = 2 * R;
+
     /**
      * Calculates distance of (from, to) in meter.
      * <p>
@@ -53,21 +51,13 @@ public class DistanceCalcEarth implements DistanceCalc {
     @Override
     public double calcDist(double fromLat, double fromLon, double toLat, double toLon) {
         double normedDist = calcNormalizedDist(fromLat, fromLon, toLat, toLon);
-<<<<<<< HEAD
-        return R * 2 * asin(sqrt(normedDist));
-=======
-        
-		return R_2 * asin(sqrt(normedDist));
->>>>>>> ors/master
+
+        return R_2 * asin(sqrt(normedDist));
     }
 
     @Override
     public double calcDenormalizedDist(double normedDist) {
-<<<<<<< HEAD
-        return R * 2 * asin(sqrt(normedDist));
-=======
-		return R_2 * asin(sqrt(normedDist));
->>>>>>> ors/master
+        return R_2 * asin(sqrt(normedDist));
     }
 
     /**
@@ -83,8 +73,7 @@ public class DistanceCalcEarth implements DistanceCalc {
     public double calcNormalizedDist(double fromLat, double fromLon, double toLat, double toLon) {
         double sinDeltaLat = sin(toRadians(toLat - fromLat) / 2);
         double sinDeltaLon = sin(toRadians(toLon - fromLon) / 2);
-        return sinDeltaLat * sinDeltaLat
-                + sinDeltaLon * sinDeltaLon * cos(toRadians(fromLat)) * cos(toRadians(toLat));
+        return sinDeltaLat * sinDeltaLat + sinDeltaLon * sinDeltaLon * cos(toRadians(fromLat)) * cos(toRadians(toLat));
     }
 
     /**
@@ -101,7 +90,8 @@ public class DistanceCalcEarth implements DistanceCalc {
     @Override
     public BBox createBBox(double lat, double lon, double radiusInMeter) {
         if (radiusInMeter <= 0)
-            throw new IllegalArgumentException("Distance must not be zero or negative! " + radiusInMeter + " lat,lon:" + lat + "," + lon);
+            throw new IllegalArgumentException(
+                    "Distance must not be zero or negative! " + radiusInMeter + " lat,lon:" + lat + "," + lon);
 
         // length of a circle at specified lat / dist
         double dLon = (360 / (calcCircumference(lat) / radiusInMeter));
@@ -114,9 +104,8 @@ public class DistanceCalcEarth implements DistanceCalc {
     }
 
     @Override
-    public double calcNormalizedEdgeDistance(double r_lat_deg, double r_lon_deg,
-                                             double a_lat_deg, double a_lon_deg,
-                                             double b_lat_deg, double b_lon_deg) {
+    public double calcNormalizedEdgeDistance(double r_lat_deg, double r_lon_deg, double a_lat_deg, double a_lon_deg,
+            double b_lat_deg, double b_lon_deg) {
         return calcNormalizedEdgeDistanceNew(r_lat_deg, r_lon_deg, a_lat_deg, a_lon_deg, b_lat_deg, b_lon_deg, false);
     }
 
@@ -127,9 +116,8 @@ public class DistanceCalcEarth implements DistanceCalc {
      * @return the normalized distance of the query point "r" to the project point "c" onto the line
      * segment a-b
      */
-    public double calcNormalizedEdgeDistanceNew(double r_lat_deg, double r_lon_deg,
-                                                double a_lat_deg, double a_lon_deg,
-                                                double b_lat_deg, double b_lon_deg, boolean reduceToSegment) {
+    public double calcNormalizedEdgeDistanceNew(double r_lat_deg, double r_lon_deg, double a_lat_deg, double a_lon_deg,
+            double b_lat_deg, double b_lon_deg, boolean reduceToSegment) {
         double shrinkFactor = calcShrinkFactor(a_lat_deg, b_lat_deg);
 
         double a_lat = a_lat_deg;
@@ -173,9 +161,8 @@ public class DistanceCalcEarth implements DistanceCalc {
     }
 
     @Override
-    public GHPoint calcCrossingPointToEdge(double r_lat_deg, double r_lon_deg,
-                                           double a_lat_deg, double a_lon_deg,
-                                           double b_lat_deg, double b_lon_deg) {
+    public GHPoint calcCrossingPointToEdge(double r_lat_deg, double r_lon_deg, double a_lat_deg, double a_lon_deg,
+            double b_lat_deg, double b_lon_deg) {
         double shrinkFactor = calcShrinkFactor(a_lat_deg, b_lat_deg);
         double a_lat = a_lat_deg;
         double a_lon = a_lon_deg * shrinkFactor;
@@ -207,9 +194,8 @@ public class DistanceCalcEarth implements DistanceCalc {
     }
 
     @Override
-    public boolean validEdgeDistance(double r_lat_deg, double r_lon_deg,
-                                     double a_lat_deg, double a_lon_deg,
-                                     double b_lat_deg, double b_lon_deg) {
+    public boolean validEdgeDistance(double r_lat_deg, double r_lon_deg, double a_lat_deg, double a_lon_deg,
+            double b_lat_deg, double b_lon_deg) {
         double shrinkFactor = calcShrinkFactor(a_lat_deg, b_lat_deg);
         double a_lat = a_lat_deg;
         double a_lon = a_lon_deg * shrinkFactor;
@@ -238,7 +224,8 @@ public class DistanceCalcEarth implements DistanceCalc {
     }
 
     @Override
-    public GHPoint projectCoordinate(double latInDeg, double lonInDeg, double distanceInMeter, double headingClockwiseFromNorth) {
+    public GHPoint projectCoordinate(double latInDeg, double lonInDeg, double distanceInMeter,
+            double headingClockwiseFromNorth) {
         double angularDistance = distanceInMeter / R;
 
         double latInRadians = Math.toRadians(latInDeg);
@@ -251,8 +238,9 @@ public class DistanceCalcEarth implements DistanceCalc {
         // lon2 = λ1 + atan2( sin θ ⋅ sin δ ⋅ cos φ1, cos δ − sin φ1 ⋅ sin φ2 )
         double projectedLat = Math.asin(Math.sin(latInRadians) * Math.cos(angularDistance)
                 + Math.cos(latInRadians) * Math.sin(angularDistance) * Math.cos(headingInRadians));
-        double projectedLon = lonInRadians + Math.atan2(Math.sin(headingInRadians) * Math.sin(angularDistance) * Math.cos(latInRadians),
-                Math.cos(angularDistance) - Math.sin(latInRadians) * Math.sin(projectedLat));
+        double projectedLon = lonInRadians
+                + Math.atan2(Math.sin(headingInRadians) * Math.sin(angularDistance) * Math.cos(latInRadians),
+                        Math.cos(angularDistance) - Math.sin(latInRadians) * Math.sin(projectedLat));
 
         projectedLon = (projectedLon + 3 * Math.PI) % (2 * Math.PI) - Math.PI; // normalise to -180..+180°
 

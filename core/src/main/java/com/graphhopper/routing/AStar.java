@@ -47,19 +47,13 @@ public class AStar extends AbstractRoutingAlgorithm {
     private PriorityQueue<AStarEntry> prioQueueOpenSet;
     private AStarEntry currEdge;
     private int to1 = -1;
-<<<<<<< HEAD
 
     public AStar(Graph graph, Weighting weighting, TraversalMode tMode) {
-        super(graph, weighting, tMode);
-=======
-    
-    public AStar(Graph graph, Weighting weighting, TraversalMode tMode) {
         this(graph, weighting, tMode, -1);
-     }
+    }
 
     public AStar(Graph graph, Weighting weighting, TraversalMode tMode, double maxSpeed) {
         super(graph, weighting, tMode, maxSpeed);
->>>>>>> ors/master
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
         initCollections(size);
         BeelineWeightApproximator defaultApprox = new BeelineWeightApproximator(nodeAccess, weighting);
@@ -126,9 +120,9 @@ public class AStar extends AbstractRoutingAlgorithm {
                         ase = new AStarEntry(iter.getEdge(), neighborNode, estimationFullWeight, alreadyVisitedWeight);
                         fromMap.put(traversalId, ase);
                     } else {
-//                        assert (ase.weight > 0.9999999 * estimationFullWeight) : "Inconsistent distance estimate. It is expected weight >= estimationFullWeight but was "
-//                                + ase.weight + " < " + estimationFullWeight + " (" + ase.weight / estimationFullWeight + "), and weightOfVisitedPath:"
-//                                + ase.weightOfVisitedPath + " vs. alreadyVisitedWeight:" + alreadyVisitedWeight + " (" + ase.weightOfVisitedPath / alreadyVisitedWeight + ")";
+                        //                        assert (ase.weight > 0.9999999 * estimationFullWeight) : "Inconsistent distance estimate. It is expected weight >= estimationFullWeight but was "
+                        //                                + ase.weight + " < " + estimationFullWeight + " (" + ase.weight / estimationFullWeight + "), and weightOfVisitedPath:"
+                        //                                + ase.weightOfVisitedPath + " vs. alreadyVisitedWeight:" + alreadyVisitedWeight + " (" + ase.weightOfVisitedPath / alreadyVisitedWeight + ")";
 
                         prioQueueOpenSet.remove(ase);
                         ase.edge = iter.getEdge();
@@ -156,12 +150,7 @@ public class AStar extends AbstractRoutingAlgorithm {
 
     @Override
     protected Path extractPath() {
-<<<<<<< HEAD
-        return new Path(graph, weighting).
-=======
-        return new Path(graph, weighting, maxSpeed).
->>>>>>> ors/master
-                setWeight(currEdge.weight).setSPTEntry(currEdge).extract();
+        return new Path(graph, weighting, maxSpeed).setWeight(currEdge.weight).setSPTEntry(currEdge).extract();
     }
 
     @Override

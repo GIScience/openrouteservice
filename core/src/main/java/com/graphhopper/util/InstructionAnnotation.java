@@ -25,35 +25,24 @@ public class InstructionAnnotation {
     private boolean empty;
     private int importance;
     private String message;
-<<<<<<< HEAD
-=======
     private int wayType; // Runge
->>>>>>> ors/master
 
     private InstructionAnnotation() {
         setEmpty();
     }
 
-<<<<<<< HEAD
     public InstructionAnnotation(int importance, String message) {
-=======
-    public InstructionAnnotation( int importance, String message )
-    {
-      this(importance, message, -1);
+        this(importance, message, -1);
     }
 
-    public InstructionAnnotation(int importance, String message, int wayType ) {
->>>>>>> ors/master
+    public InstructionAnnotation(int importance, String message, int wayType) {
         if (message.isEmpty() && importance == 0) {
             setEmpty();
         } else {
             this.empty = false;
             this.importance = importance;
             this.message = message;
-<<<<<<< HEAD
-=======
             this.wayType = wayType;
->>>>>>> ors/master
         }
     }
 
@@ -63,14 +52,10 @@ public class InstructionAnnotation {
         this.message = "";
     }
 
-<<<<<<< HEAD
-=======
-    public int getWayType()
-    {
+    public int getWayType() {
         return wayType;
     }
 
->>>>>>> ors/master
     public boolean isEmpty() {
         return empty;
     }

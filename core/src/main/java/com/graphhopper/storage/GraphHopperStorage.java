@@ -23,10 +23,7 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIteratorState;
-<<<<<<< HEAD
-=======
 import com.graphhopper.util.PMap;
->>>>>>> ors/master
 import com.graphhopper.util.shapes.BBox;
 
 import java.util.ArrayList;
@@ -53,17 +50,19 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
     // same flush order etc
     private final Collection<CHGraphImpl> chGraphs = new ArrayList<CHGraphImpl>(5);
 
-    public GraphHopperStorage(Directory dir, EncodingManager encodingManager, boolean withElevation, GraphExtension extendedStorage) {
+    public GraphHopperStorage(Directory dir, EncodingManager encodingManager, boolean withElevation,
+            GraphExtension extendedStorage) {
         this(Collections.<Weighting>emptyList(), dir, encodingManager, withElevation, extendedStorage);
     }
 
-    public GraphHopperStorage(List<? extends Weighting> chWeightings, Directory dir, final EncodingManager encodingManager,
-                              boolean withElevation, GraphExtension extendedStorage) {
+    public GraphHopperStorage(List<? extends Weighting> chWeightings, Directory dir,
+            final EncodingManager encodingManager, boolean withElevation, GraphExtension extendedStorage) {
         if (extendedStorage == null)
             throw new IllegalArgumentException("GraphExtension cannot be null, use NoOpExtension");
 
         if (encodingManager == null)
-            throw new IllegalArgumentException("EncodingManager needs to be non-null since 0.7. Create one using new EncodingManager or EncodingManager.create(flagEncoderFactory, ghLocation)");
+            throw new IllegalArgumentException(
+                    "EncodingManager needs to be non-null since 0.7. Create one using new EncodingManager or EncodingManager.create(flagEncoderFactory, ghLocation)");
 
         this.encodingManager = encodingManager;
         this.dir = dir;
@@ -112,7 +111,8 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
             existing.add(cg.getWeighting());
         }
 
-        throw new IllegalStateException("Cannot find CHGraph for specified weighting: " + weighting + ", existing:" + existing);
+        throw new IllegalStateException(
+                "Cannot find CHGraph for specified weighting: " + weighting + ", existing:" + existing);
     }
 
     public <T extends Graph> T getGraph(Class<T> clazz) {
@@ -235,17 +235,20 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
             String flagEncodersStr = properties.get("graph.flag_encoders");
 
             if (!flagEncodersStr.isEmpty() && !encodingManager.toDetailsString().equalsIgnoreCase(flagEncodersStr)) {
-                throw new IllegalStateException("Encoding does not match:\nGraphhopper config: " + encodingManager.toDetailsString()
-                        + "\nGraph: " + flagEncodersStr + ", dir:" + dir.getLocation());
+                throw new IllegalStateException(
+                        "Encoding does not match:\nGraphhopper config: " + encodingManager.toDetailsString()
+                                + "\nGraph: " + flagEncodersStr + ", dir:" + dir.getLocation());
             }
 
             String byteOrder = properties.get("graph.byte_order");
             if (!byteOrder.equalsIgnoreCase("" + dir.getByteOrder()))
-                throw new IllegalStateException("Configured graph.byte_order (" + dir.getByteOrder() + ") is not equal to loaded " + byteOrder + "");
+                throw new IllegalStateException("Configured graph.byte_order (" + dir.getByteOrder()
+                        + ") is not equal to loaded " + byteOrder + "");
 
             String bytesForFlags = properties.get("graph.bytes_for_flags");
             if (!bytesForFlags.equalsIgnoreCase("" + encodingManager.getBytesForFlags()))
-                throw new IllegalStateException("Configured graph.bytes_for_flags (" + encodingManager.getBytesForFlags() + ") is not equal to loaded " + bytesForFlags);
+                throw new IllegalStateException("Configured graph.bytes_for_flags ("
+                        + encodingManager.getBytesForFlags() + ") is not equal to loaded " + bytesForFlags);
 
             String dim = properties.get("graph.dimension");
             baseGraph.loadExisting(dim);
@@ -253,7 +256,8 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
             String loadedCHWeightings = properties.get("graph.ch.weightings");
             String configuredCHWeightings = getCHWeightings().toString();
             if (!loadedCHWeightings.equals(configuredCHWeightings))
-                throw new IllegalStateException("Configured graph.ch.weightings: " + configuredCHWeightings + " is not equal to loaded " + loadedCHWeightings);
+                throw new IllegalStateException("Configured graph.ch.weightings: " + configuredCHWeightings
+                        + " is not equal to loaded " + loadedCHWeightings);
 
             for (CHGraphImpl cg : chGraphs) {
                 if (!cg.loadExisting())
@@ -326,12 +330,9 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
 
     @Override
     public String toString() {
-        return (isCHPossible() ? "CH|" : "")
-                + encodingManager
-                + "|" + getDirectory().getDefaultType()
-                + "|" + baseGraph.nodeAccess.getDimension() + "D"
-                + "|" + baseGraph.extStorage
-                + "|" + getProperties().versionsToString();
+        return (isCHPossible() ? "CH|" : "") + encodingManager + "|" + getDirectory().getDefaultType() + "|"
+                + baseGraph.nodeAccess.getDimension() + "D" + "|" + baseGraph.extStorage + "|"
+                + getProperties().versionsToString();
     }
 
     // now all delegation graph method to avoid ugly programming flow ala
@@ -347,13 +348,10 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
     public int getNodes() {
         return baseGraph.getNodes();
     }
-<<<<<<< HEAD
-=======
-    
+
     public int getEdges() {
         return baseGraph.edgeCount;
     }
->>>>>>> ors/master
 
     @Override
     public NodeAccess getNodeAccess() {
@@ -389,15 +387,11 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
     public EdgeExplorer createEdgeExplorer(EdgeFilter filter) {
         return baseGraph.createEdgeExplorer(filter);
     }
-<<<<<<< HEAD
-=======
-    
+
     @Override
     public EdgeExplorer createEdgeExplorer(EdgeFilter filter, PMap props) {
         return baseGraph.createEdgeExplorer(filter, props);
     }
-    
->>>>>>> ors/master
 
     @Override
     public EdgeExplorer createEdgeExplorer() {

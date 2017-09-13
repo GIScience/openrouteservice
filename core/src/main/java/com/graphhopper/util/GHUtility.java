@@ -62,7 +62,8 @@ public class GHUtility {
                 EdgeIterator iter = explorer.setBaseNode(nodeIndex);
                 while (iter.next()) {
                     if (iter.getAdjNode() >= nodes) {
-                        problems.add("edge of " + nodeIndex + " has a node " + iter.getAdjNode() + " greater or equal to getNodes");
+                        problems.add("edge of " + nodeIndex + " has a node " + iter.getAdjNode()
+                                + " greater or equal to getNodes");
                     }
                     if (iter.getAdjNode() < 0) {
                         problems.add("edge of " + nodeIndex + " has a negative node " + iter.getAdjNode());
@@ -73,9 +74,9 @@ public class GHUtility {
             throw new RuntimeException("problem with node " + nodeIndex, ex);
         }
 
-//        for (int i = 0; i < nodes; i++) {
-//            new BreadthFirstSearch().start(g, i);
-//        }
+        //        for (int i = 0; i < nodes; i++) {
+        //            new BreadthFirstSearch().start(g, i);
+        //        }
         return problems;
     }
 
@@ -163,8 +164,8 @@ public class GHUtility {
         String str = nodeId + ":" + na.getLatitude(nodeId) + "," + na.getLongitude(nodeId) + "\n";
         while (iter.next()) {
             str += "  ->" + iter.getAdjNode() + " (" + iter.getDistance() + ") pillars:"
-                    + iter.fetchWayGeometry(0).getSize() + ", edgeId:" + iter.getEdge()
-                    + "\t" + BitUtil.BIG.toBitString(iter.getFlags(), 8) + "\n";
+                    + iter.fetchWayGeometry(0).getSize() + ", edgeId:" + iter.getEdge() + "\t"
+                    + BitUtil.BIG.toBitString(iter.getFlags(), 8) + "\n";
         }
         return str;
     }
@@ -191,8 +192,7 @@ public class GHUtility {
         final GHBitSetImpl bitset = new GHBitSetImpl(nodes);
         final AtomicInteger ref = new AtomicInteger(-1);
         EdgeExplorer explorer = g.createEdgeExplorer();
-        for (int startNode = 0; startNode >= 0 && startNode < nodes;
-             startNode = bitset.nextClear(startNode + 1)) {
+        for (int startNode = 0; startNode >= 0 && startNode < nodes; startNode = bitset.nextClear(startNode + 1)) {
             new DepthFirstSearch() {
                 @Override
                 protected GHBitSet createBitSet() {
@@ -265,7 +265,8 @@ public class GHUtility {
         String location = store.getDirectory().getLocation();
         Directory outdir;
         if (store.getDirectory() instanceof MMapDirectory) {
-            throw new IllegalStateException("not supported yet: mmap will overwrite existing storage at the same location");
+            throw new IllegalStateException(
+                    "not supported yet: mmap will overwrite existing storage at the same location");
         } else {
             boolean isStoring = ((GHDirectory) store.getDirectory()).isStoring();
             outdir = new RAMDirectory(location, isStoring);
@@ -280,9 +281,8 @@ public class GHUtility {
         Directory outdir = guessDirectory(store);
         boolean is3D = store.getNodeAccess().is3D();
 
-        return new GraphHopperStorage(store.getCHWeightings(), outdir, store.getEncodingManager(),
-                is3D, store.getExtension()).
-                create(store.getNodes());
+        return new GraphHopperStorage(store.getCHWeightings(), outdir, store.getEncodingManager(), is3D,
+                store.getExtension()).create(store.getNodes());
     }
 
     public static int getAdjNode(Graph g, int edge, int adjNode) {
@@ -306,14 +306,11 @@ public class GHUtility {
             }
 
             @Override
-<<<<<<< HEAD
-=======
             public long getFlags(int encoderIndex) {
                 return flags;
             }
-            
+
             @Override
->>>>>>> ors/master
             public boolean getBool(int key, boolean _default) {
                 return _default;
             }
@@ -399,15 +396,11 @@ public class GHUtility {
         }
 
         @Override
-<<<<<<< HEAD
-=======
-        public int getOriginalEdge()
-        {
+        public int getOriginalEdge() {
             throw new UnsupportedOperationException("Not supported. Edge is empty.");
         }
 
         @Override
->>>>>>> ors/master
         public int getBaseNode() {
             throw new UnsupportedOperationException("Not supported. Edge is empty.");
         }
@@ -428,26 +421,19 @@ public class GHUtility {
         }
 
         @Override
-<<<<<<< HEAD
-        public PointList fetchWayGeometry(int type) {
-            throw new UnsupportedOperationException("Not supported. Edge is empty.");
-        }
-=======
         public long getFlags(int encoderIndex) {
             throw new UnsupportedOperationException("Not supported. Edge is empty.");
         }
-        
+
         @Override
         public PointList fetchWayGeometry(int type) {
             throw new UnsupportedOperationException("Not supported. Edge is empty.");
         }
-        
+
         @Override
-        public PointList fetchWayGeometry( int type, ByteArrayBuffer buffer)
-        {
+        public PointList fetchWayGeometry(int type, ByteArrayBuffer buffer) {
             throw new UnsupportedOperationException("Not supported. Edge is empty.");
         }
->>>>>>> ors/master
 
         @Override
         public EdgeIteratorState setWayGeometry(PointList list) {

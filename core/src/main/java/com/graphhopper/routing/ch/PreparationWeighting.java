@@ -43,15 +43,12 @@ public class PreparationWeighting implements Weighting {
     }
 
     @Override
-<<<<<<< HEAD
-=======
     public final double getMaxWeight() // runge
     {
-    	return userWeighting.getMaxWeight();
+        return userWeighting.getMaxWeight();
     }
-    
+
     @Override
->>>>>>> ors/master
     public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
         CHEdgeIteratorState tmp = (CHEdgeIteratorState) edgeState;
         if (tmp.isShortcut())
@@ -73,7 +70,8 @@ public class PreparationWeighting implements Weighting {
 
     @Override
     public boolean matches(HintsMap map) {
-        return getName().equals(map.getWeighting()) && userWeighting.getFlagEncoder().toString().equals(map.getVehicle());
+        return getName().equals(map.getWeighting())
+                && userWeighting.getFlagEncoder().toString().equals(map.getVehicle());
     }
 
     @Override

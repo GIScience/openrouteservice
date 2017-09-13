@@ -23,13 +23,9 @@ import com.graphhopper.coll.GHIntArrayList;
 import com.graphhopper.debatty.java.stringsimilarity.JaroWinkler;
 import com.graphhopper.routing.util.DataFlagEncoder;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
-<<<<<<< HEAD
-import com.graphhopper.routing.util.FlagEncoder;
-=======
 import com.graphhopper.routing.util.EdgeAnnotator;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
->>>>>>> ors/master
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
@@ -75,55 +71,39 @@ public class Path {
     private GHIntArrayList edgeIds;
     private double weight;
     private NodeAccess nodeAccess;
-<<<<<<< HEAD
 
-    public Path(Graph graph, Weighting weighting) {
-=======
-    
     // Runge
-	private double maxSpeed = -1;
+    private double maxSpeed = -1;
     private int encoderIndex = -1;
-    
+
     public Path(Graph graph, Weighting weighting) {
         this(graph, weighting, -1);
     }
 
     public Path(Graph graph, Weighting weighting, double maxSpeed) {
->>>>>>> ors/master
         this.weight = Double.MAX_VALUE;
         this.graph = graph;
         this.nodeAccess = graph.getNodeAccess();
         this.weighting = weighting;
         this.encoder = weighting.getFlagEncoder();
         this.edgeIds = new GHIntArrayList();
-<<<<<<< HEAD
-=======
         this.maxSpeed = maxSpeed;
         this.encoderIndex = this.encoder.getIndex();
->>>>>>> ors/master
     }
 
     /**
      * Populates an unextracted path instances from the specified path p.
      */
     Path(Path p) {
-<<<<<<< HEAD
-        this(p.graph, p.weighting);
-=======
         this(p.graph, p.weighting, -1);
->>>>>>> ors/master
         weight = p.weight;
         edgeIds = new GHIntArrayList(p.edgeIds);
         sptEntry = p.sptEntry;
     }
-<<<<<<< HEAD
-=======
-    
-    public FlagEncoder getEncoder()
-    {
-    	return encoder;
+
+    public FlagEncoder getEncoder() {
+        return encoder;
     }
->>>>>>> ors/master
 
     /**
      * @return the description of this route alternative to make it meaningful for the user e.g. it
@@ -296,17 +276,13 @@ public class Path {
         for (int i = 0; i < len; i++) {
             EdgeIteratorState edgeBase = graph.getEdgeIteratorState(edgeIds.get(i), tmpNode);
             if (edgeBase == null)
-                throw new IllegalStateException("Edge " + edgeIds.get(i) + " was empty when requested with node " + tmpNode
-                        + ", array index:" + i + ", edges:" + edgeIds.size());
+                throw new IllegalStateException("Edge " + edgeIds.get(i) + " was empty when requested with node "
+                        + tmpNode + ", array index:" + i + ", edges:" + edgeIds.size());
 
             tmpNode = edgeBase.getBaseNode();
             // more efficient swap, currently not implemented for virtual edges: visitor.next(edgeBase.detach(true), i);
             edgeBase = graph.getEdgeIteratorState(edgeBase.getEdge(), tmpNode);
-<<<<<<< HEAD
-            visitor.next(edgeBase, i, prevEdgeId);
-=======
             visitor.next(edgeBase, i, len, prevEdgeId);
->>>>>>> ors/master
 
             prevEdgeId = edgeBase.getEdge();
         }
@@ -323,11 +299,7 @@ public class Path {
 
         forEveryEdge(new EdgeVisitor() {
             @Override
-<<<<<<< HEAD
-            public void next(EdgeIteratorState eb, int index, int prevEdgeId) {
-=======
             public void next(EdgeIteratorState eb, int index, int len, int prevEdgeId) {
->>>>>>> ors/master
                 edges.add(eb);
             }
 
@@ -355,11 +327,7 @@ public class Path {
         nodes.add(tmpNode);
         forEveryEdge(new EdgeVisitor() {
             @Override
-<<<<<<< HEAD
-            public void next(EdgeIteratorState eb, int index, int prevEdgeId) {
-=======
             public void next(EdgeIteratorState eb, int index, int len, int prevEdgeId) {
->>>>>>> ors/master
                 nodes.add(eb.getAdjNode());
             }
 
@@ -371,24 +339,17 @@ public class Path {
         return nodes;
     }
 
-<<<<<<< HEAD
-=======
     public PointList calcPoints() {
-      return calcPoints(null);
+        return calcPoints(null);
     }
-    
->>>>>>> ors/master
+
     /**
      * This method calculated a list of points for this path
      * <p>
      *
      * @return this path its geometry
      */
-<<<<<<< HEAD
-    public PointList calcPoints() {
-=======
     public PointList calcPoints(final ByteArrayBuffer byteBuffer) {
->>>>>>> ors/master
         final PointList points = new PointList(edgeIds.size() + 1, nodeAccess.is3D());
         if (edgeIds.isEmpty()) {
             if (isFound()) {
@@ -401,13 +362,8 @@ public class Path {
         points.add(nodeAccess, tmpNode);
         forEveryEdge(new EdgeVisitor() {
             @Override
-<<<<<<< HEAD
-            public void next(EdgeIteratorState eb, int index, int prevEdgeId) {
-                PointList pl = eb.fetchWayGeometry(2);
-=======
             public void next(EdgeIteratorState eb, int index, int len, int prevEdgeId) {
                 PointList pl = eb.fetchWayGeometry(2, byteBuffer);
->>>>>>> ors/master
                 for (int j = 0; j < pl.getSize(); j++) {
                     points.add(pl, j);
                 }
@@ -421,35 +377,23 @@ public class Path {
         return points;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return the list of instructions for this path.
-     */
     public InstructionList calcInstructions(final Translation tr) {
-        final InstructionList ways = new InstructionList(edgeIds.size() / 4, tr);
-=======
-    public InstructionList calcInstructions(final Translation tr) {
-    	PathProcessingContext pathProcCntx = new PathProcessingContext(null, null, tr, null, null, null);
-    	return calcInstructions(pathProcCntx);	
+        PathProcessingContext pathProcCntx = new PathProcessingContext(null, null, tr, null, null, null);
+        return calcInstructions(pathProcCntx);
     }
-    
+
     /**
      * @return the list of instructions for this path.
      */
     public InstructionList calcInstructions(PathProcessingContext procCntx) {
         final InstructionList ways = new InstructionList(edgeIds.size() / 4, procCntx.getTranslation());
->>>>>>> ors/master
         if (edgeIds.isEmpty()) {
             if (isFound()) {
                 ways.add(new FinishInstruction(nodeAccess, endNode));
             }
             return ways;
         }
-<<<<<<< HEAD
-        forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, nodeAccess, tr, ways));
-=======
         forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, nodeAccess, procCntx, ways));
->>>>>>> ors/master
         return ways;
     }
 
@@ -473,11 +417,8 @@ public class Path {
      * The callback used in forEveryEdge.
      */
     public interface EdgeVisitor {
-<<<<<<< HEAD
-        void next(EdgeIteratorState edge, int index, int prevEdgeId);
-=======
         void next(EdgeIteratorState edge, int index, int count, int prevEdgeId); // Runge: added argument "count"
->>>>>>> ors/master
+
         void finish();
     }
 }

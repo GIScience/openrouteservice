@@ -26,22 +26,15 @@ import com.carrotsearch.hppc.LongArrayList;
  * @author Nop
  */
 public class ReaderWay extends ReaderElement {
-<<<<<<< HEAD
-    protected final LongArrayList nodes = new LongArrayList(5);
-
-    public ReaderWay(long id) {
-        super(id, WAY);
-=======
     protected final LongArrayList nodes;
 
     public ReaderWay(long id) {
-    	this(id, 5);
+        this(id, 5);
     }
-    
+
     public ReaderWay(long id, int size) {
         super(id, WAY);
         nodes = new LongArrayList(size);
->>>>>>> ors/master
     }
 
     public LongArrayList getNodes() {

@@ -48,12 +48,8 @@ public class AStarBidirectionTest extends AbstractRoutingAlgorithmTester {
      */
     @Parameters(name = "{0}")
     public static Collection<Object[]> configs() {
-        return Arrays.asList(new Object[][]{
-                {TraversalMode.NODE_BASED},
-                {TraversalMode.EDGE_BASED_1DIR},
-                {TraversalMode.EDGE_BASED_2DIR},
-                {TraversalMode.EDGE_BASED_2DIR_UTURN}
-        });
+        return Arrays.asList(new Object[][] { { TraversalMode.NODE_BASED }, { TraversalMode.EDGE_BASED_1DIR },
+                { TraversalMode.EDGE_BASED_2DIR }, { TraversalMode.EDGE_BASED_2DIR_UTURN } });
     }
 
     @Override
@@ -61,11 +57,7 @@ public class AStarBidirectionTest extends AbstractRoutingAlgorithmTester {
         return new RoutingAlgorithmFactory() {
             @Override
             public RoutingAlgorithm createAlgo(Graph g, AlgorithmOptions opts) {
-<<<<<<< HEAD
-                return new AStarBidirection(g, opts.getWeighting(), traversalMode);
-=======
                 return new AStarBidirection(g, opts.getWeighting(), traversalMode, -1);
->>>>>>> ors/master
             }
         };
     }
@@ -79,11 +71,7 @@ public class AStarBidirectionTest extends AbstractRoutingAlgorithmTester {
 
         final AtomicReference<AStar.AStarEntry> fromRef = new AtomicReference<AStar.AStarEntry>();
         final AtomicReference<AStar.AStarEntry> toRef = new AtomicReference<AStar.AStarEntry>();
-<<<<<<< HEAD
-        AStarBidirection astar = new AStarBidirection(g, new ShortestWeighting(carEncoder), traversalMode) {
-=======
         AStarBidirection astar = new AStarBidirection(g, new ShortestWeighting(carEncoder), traversalMode, -1) {
->>>>>>> ors/master
             @Override
             public void initFrom(int from, double weight) {
                 super.initFrom(from, weight);

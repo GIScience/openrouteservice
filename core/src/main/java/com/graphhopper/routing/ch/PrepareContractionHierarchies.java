@@ -84,13 +84,9 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     private double lazyTime;
     private double neighborTime;
     private int maxEdgesCount;
-<<<<<<< HEAD
-=======
-    
->>>>>>> ors/master
 
     public PrepareContractionHierarchies(Directory dir, GraphHopperStorage ghStorage, CHGraph chGraph,
-                                         Weighting weighting, TraversalMode traversalMode) {
+            Weighting weighting, TraversalMode traversalMode) {
         this.ghStorage = ghStorage;
         this.prepareGraph = (CHGraphImpl) chGraph;
         this.traversalMode = traversalMode;
@@ -256,7 +252,8 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
                 periodSW.stop();
                 updateCounter++;
                 if (sortedNodes.isEmpty())
-                    throw new IllegalStateException("Cannot prepare as no unprepared nodes where found. Called preparation twice?");
+                    throw new IllegalStateException(
+                            "Cannot prepare as no unprepared nodes where found. Called preparation twice?");
             }
 
             if (counter % logSize == 0) {
@@ -265,14 +262,10 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
                 lazyTime += lazySW.getSeconds();
                 neighborTime += neighborSW.getSeconds();
 
-                logger.info(Helper.nf(counter) + ", updates:" + updateCounter
-                        + ", nodes: " + Helper.nf(sortedNodes.getSize())
-                        + ", shortcuts:" + Helper.nf(newShortcuts)
-                        + ", dijkstras:" + Helper.nf(dijkstraCount)
-                        + ", " + getTimesAsString()
-                        + ", meanDegree:" + (long) meanDegree
-                        + ", algo:" + prepareAlgo.getMemoryUsageAsString()
-                        + ", " + Helper.getMemInfo());
+                logger.info(Helper.nf(counter) + ", updates:" + updateCounter + ", nodes: "
+                        + Helper.nf(sortedNodes.getSize()) + ", shortcuts:" + Helper.nf(newShortcuts) + ", dijkstras:"
+                        + Helper.nf(dijkstraCount) + ", " + getTimesAsString() + ", meanDegree:" + (long) meanDegree
+                        + ", algo:" + prepareAlgo.getMemoryUsageAsString() + ", " + Helper.getMemInfo());
 
                 dijkstraSW = new StopWatch();
                 periodSW = new StopWatch();
@@ -309,7 +302,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
             CHEdgeIterator iter = vehicleAllExplorer.setBaseNode(polledNode);
             while (iter.next()) {
 
-                if(Thread.currentThread().isInterrupted()){
+                if (Thread.currentThread().isInterrupted()) {
                     throw new RuntimeException("Thread was interrupted");
                 }
 
@@ -327,12 +320,8 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
                     neighborSW.stop();
                 }
 
-<<<<<<< HEAD
+                // Hendrik: PHAST algorithm does not work properly with removed shortcuts
                 prepareGraph.disconnect(vehicleAllTmpExplorer, iter);
-=======
-                 // Hendrik: PHAST algorithm does not work properly with removed shortcuts
-                 prepareGraph.disconnect(vehicleAllTmpExplorer, iter);  
->>>>>>> ors/master
             }
         }
 
@@ -344,17 +333,11 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
         periodTime += periodSW.getSeconds();
         lazyTime += lazySW.getSeconds();
         neighborTime += neighborSW.getSeconds();
-        logger.info("took:" + (int) allSW.stop().getSeconds()
-                + ", new shortcuts: " + Helper.nf(newShortcuts)
-                + ", " + prepareWeighting
-                + ", dijkstras:" + dijkstraCount
-                + ", " + getTimesAsString()
-                + ", meanDegree:" + (long) meanDegree
-                + ", initSize:" + initSize
-                + ", periodic:" + periodicUpdatesPercentage
-                + ", lazy:" + lastNodesLazyUpdatePercentage
-                + ", neighbor:" + neighborUpdatePercentage
-                + ", " + Helper.getMemInfo());
+        logger.info("took:" + (int) allSW.stop().getSeconds() + ", new shortcuts: " + Helper.nf(newShortcuts) + ", "
+                + prepareWeighting + ", dijkstras:" + dijkstraCount + ", " + getTimesAsString() + ", meanDegree:"
+                + (long) meanDegree + ", initSize:" + initSize + ", periodic:" + periodicUpdatesPercentage + ", lazy:"
+                + lastNodesLazyUpdatePercentage + ", neighbor:" + neighborUpdatePercentage + ", "
+                + Helper.getMemInfo());
     }
 
     public long getDijkstraCount() {
@@ -380,14 +363,10 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     public Weighting getWeighting() {
         return prepareGraph.getWeighting();
     }
-<<<<<<< HEAD
-=======
-    
-    public Weighting getPrepareWeighting()
-    {
-    	return prepareWeighting;
+
+    public Weighting getPrepareWeighting() {
+        return prepareWeighting;
     }
->>>>>>> ors/master
 
     public void close() {
         prepareAlgo.close();
@@ -397,10 +376,8 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     }
 
     private String getTimesAsString() {
-        return "t(dijk):" + Helper.round2(dijkstraTime)
-                + ", t(period):" + Helper.round2(periodTime)
-                + ", t(lazy):" + Helper.round2(lazyTime)
-                + ", t(neighbor):" + Helper.round2(neighborTime);
+        return "t(dijk):" + Helper.round2(dijkstraTime) + ", t(period):" + Helper.round2(periodTime) + ", t(lazy):"
+                + Helper.round2(lazyTime) + ", t(neighbor):" + Helper.round2(neighborTime);
     }
 
     Set<Shortcut> testFindShortcuts(int node) {
@@ -418,7 +395,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
         // set of shortcuts that would be added if adjNode v would be contracted next.
         findShortcuts(calcScHandler.setNode(v));
 
-//        System.out.println(v + "\t " + tmpShortcuts);
+        //        System.out.println(v + "\t " + tmpShortcuts);
         // # huge influence: the bigger the less shortcuts gets created and the faster is the preparation
         //
         // every adjNode has an 'original edge' number associated. initially it is r=1
@@ -426,9 +403,9 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
         // r(u,w)=r(u,v)+r(v,w) now we can define
         // originalEdgesCount = σ(v) := sum_{ (u,w) ∈ shortcuts(v) } of r(u, w)
         int originalEdgesCount = calcScHandler.originalEdgesCount;
-//        for (Shortcut sc : tmpShortcuts) {
-//            originalEdgesCount += sc.originalEdges;
-//        }
+        //        for (Shortcut sc : tmpShortcuts) {
+        //            originalEdgesCount += sc.originalEdges;
+        //        }
 
         // # lowest influence on preparation speed or shortcut creation count
         // (but according to paper should speed up queries)
@@ -487,10 +464,11 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
                 // Limit weight as ferries or forbidden edges can increase local search too much.
                 // If we decrease the correct weight we only explore less and introduce more shortcuts.
                 // I.e. no change to accuracy is made.
-                double existingDirectWeight = v_u_weight + prepareWeighting.calcWeight(outgoingEdges, false, incomingEdges.getEdge());
+                double existingDirectWeight = v_u_weight
+                        + prepareWeighting.calcWeight(outgoingEdges, false, incomingEdges.getEdge());
                 if (Double.isNaN(existingDirectWeight))
-                    throw new IllegalStateException("Weighting should never return NaN values"
-                            + ", in:" + getCoords(incomingEdges, prepareGraph) + ", out:" + getCoords(outgoingEdges, prepareGraph)
+                    throw new IllegalStateException("Weighting should never return NaN values" + ", in:"
+                            + getCoords(incomingEdges, prepareGraph) + ", out:" + getCoords(outgoingEdges, prepareGraph)
                             + ", dist:" + outgoingEdges.getDistance());
 
                 if (Double.isInfinite(existingDirectWeight))
@@ -511,9 +489,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
                     // FOUND witness path, so do not add shortcut
                     continue;
 
-                sch.foundShortcut(u_fromNode, w_toNode,
-                        existingDirectWeight, existingDistSum,
-                        outgoingEdges,
+                sch.foundShortcut(u_fromNode, w_toNode, existingDirectWeight, existingDistSum, outgoingEdges,
                         skippedEdge1, incomingEdgeOrigCount);
             }
         }
@@ -529,8 +505,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
      */
     int addShortcuts(Collection<Shortcut> tmpShortcuts) {
         int tmpNewShortcuts = 0;
-        NEXT_SC:
-        for (Shortcut sc : tmpShortcuts) {
+        NEXT_SC: for (Shortcut sc : tmpShortcuts) {
             boolean updatedInGraph = false;
             // check if we need to update some existing shortcut in the graph
             CHEdgeIterator iter = vehicleOutExplorer.setBaseNode(sc.from);
@@ -551,11 +526,11 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
 
                     if (iter.getEdge() == sc.skippedEdge1 || iter.getEdge() == sc.skippedEdge2) {
                         throw new IllegalStateException("Shortcut cannot update itself! " + iter.getEdge()
-                                + ", skipEdge1:" + sc.skippedEdge1 + ", skipEdge2:" + sc.skippedEdge2
-                                + ", edge " + iter + ":" + getCoords(iter, prepareGraph)
-                                + ", sc:" + sc
-                                + ", skippedEdge1: " + getCoords(prepareGraph.getEdgeIteratorState(sc.skippedEdge1, sc.from), prepareGraph)
-                                + ", skippedEdge2: " + getCoords(prepareGraph.getEdgeIteratorState(sc.skippedEdge2, sc.to), prepareGraph)
+                                + ", skipEdge1:" + sc.skippedEdge1 + ", skipEdge2:" + sc.skippedEdge2 + ", edge " + iter
+                                + ":" + getCoords(iter, prepareGraph) + ", sc:" + sc + ", skippedEdge1: "
+                                + getCoords(prepareGraph.getEdgeIteratorState(sc.skippedEdge1, sc.from), prepareGraph)
+                                + ", skippedEdge2: "
+                                + getCoords(prepareGraph.getEdgeIteratorState(sc.skippedEdge2, sc.to), prepareGraph)
                                 + ", neighbors:" + GHUtility.getNeighbors(iter));
                     }
 
@@ -588,8 +563,8 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
         NodeAccess na = g.getNodeAccess();
         int base = e.getBaseNode();
         int adj = e.getAdjNode();
-        return base + "->" + adj + " (" + e.getEdge() + "); "
-                + na.getLat(base) + "," + na.getLon(base) + " -> " + na.getLat(adj) + "," + na.getLon(adj);
+        return base + "->" + adj + " (" + e.getEdge() + "); " + na.getLat(base) + "," + na.getLon(base) + " -> "
+                + na.getLat(adj) + "," + na.getLon(adj);
     }
 
     PrepareContractionHierarchies initFromGraph() {
@@ -637,8 +612,9 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
         if (edgeId < 0) {
             // ignore setting as every normal edge has original edge count of 1
             if (value != 1)
-                throw new IllegalStateException("Trying to set original edge count for normal edge to a value = " + value
-                        + ", edge:" + (edgeId + maxEdgesCount) + ", max:" + maxEdgesCount + ", graph.max:" + ghStorage.getAllEdges().getMaxId());
+                throw new IllegalStateException("Trying to set original edge count for normal edge to a value = "
+                        + value + ", edge:" + (edgeId + maxEdgesCount) + ", max:" + maxEdgesCount + ", graph.max:"
+                        + ghStorage.getAllEdges().getMaxId());
             return;
         }
 
@@ -661,22 +637,17 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     public RoutingAlgorithm createAlgo(Graph graph, AlgorithmOptions opts) {
         AbstractBidirAlgo algo;
         if (ASTAR_BI.equals(opts.getAlgorithm())) {
-<<<<<<< HEAD
-            AStarBidirection tmpAlgo = new AStarBidirectionCH(graph, prepareWeighting, traversalMode);
-=======
-            AStarBidirection tmpAlgo = new AStarBidirectionCH(graph, prepareWeighting, traversalMode, opts.getMaxSpeed());
->>>>>>> ors/master
-            tmpAlgo.setApproximation(RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts, graph.getNodeAccess()));
+            AStarBidirection tmpAlgo = new AStarBidirectionCH(graph, prepareWeighting, traversalMode,
+                    opts.getMaxSpeed());
+            tmpAlgo.setApproximation(
+                    RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts, graph.getNodeAccess()));
             algo = tmpAlgo;
 
         } else if (DIJKSTRA_BI.equals(opts.getAlgorithm())) {
-<<<<<<< HEAD
-            algo = new DijkstraBidirectionCH(graph, prepareWeighting, traversalMode);
-=======
             algo = new DijkstraBidirectionCH(graph, prepareWeighting, traversalMode, opts.getMaxSpeed());
->>>>>>> ors/master
         } else {
-            throw new IllegalArgumentException("Algorithm " + opts.getAlgorithm() + " not supported for Contraction Hierarchies. Try with ch.disable=true");
+            throw new IllegalArgumentException("Algorithm " + opts.getAlgorithm()
+                    + " not supported for Contraction Hierarchies. Try with ch.disable=true");
         }
 
         algo.setMaxVisitedNodes(opts.getMaxVisitedNodes());
@@ -685,13 +656,8 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     }
 
     public static class AStarBidirectionCH extends AStarBidirection {
-<<<<<<< HEAD
-        public AStarBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode) {
-            super(graph, weighting, traversalMode);
-=======
         public AStarBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode, double maxSpeed) {
             super(graph, weighting, traversalMode, maxSpeed);
->>>>>>> ors/master
         }
 
         @Override
@@ -711,11 +677,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
 
         @Override
         protected Path createAndInitPath() {
-<<<<<<< HEAD
-            bestPath = new Path4CH(graph, graph.getBaseGraph(), weighting);
-=======
             bestPath = new Path4CH(graph, graph.getBaseGraph(), weighting, maxSpeed);
->>>>>>> ors/master
             return bestPath;
         }
 
@@ -731,13 +693,8 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     }
 
     public static class DijkstraBidirectionCH extends DijkstraBidirectionRef {
-<<<<<<< HEAD
-        public DijkstraBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode) {
-            super(graph, weighting, traversalMode);
-=======
         public DijkstraBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode, double maxSpeed) {
             super(graph, weighting, traversalMode, maxSpeed);
->>>>>>> ors/master
         }
 
         @Override
@@ -757,11 +714,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
 
         @Override
         protected Path createAndInitPath() {
-<<<<<<< HEAD
-            bestPath = new Path4CH(graph, graph.getBaseGraph(), weighting);
-=======
             bestPath = new Path4CH(graph, graph.getBaseGraph(), weighting, maxSpeed);
->>>>>>> ors/master
             return bestPath;
         }
 
@@ -782,10 +735,8 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     }
 
     interface ShortcutHandler {
-        void foundShortcut(int u_fromNode, int w_toNode,
-                           double existingDirectWeight, double distance,
-                           EdgeIterator outgoingEdges,
-                           int skippedEdge1, int incomingEdgeOrigCount);
+        void foundShortcut(int u_fromNode, int w_toNode, double existingDirectWeight, double distance,
+                EdgeIterator outgoingEdges, int skippedEdge1, int incomingEdgeOrigCount);
 
         int getNode();
     }
@@ -881,10 +832,8 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
         }
 
         @Override
-        public void foundShortcut(int u_fromNode, int w_toNode,
-                                  double existingDirectWeight, double distance,
-                                  EdgeIterator outgoingEdges,
-                                  int skippedEdge1, int incomingEdgeOrigCount) {
+        public void foundShortcut(int u_fromNode, int w_toNode, double existingDirectWeight, double distance,
+                EdgeIterator outgoingEdges, int skippedEdge1, int incomingEdgeOrigCount) {
             shortcuts++;
             originalEdgesCount += incomingEdgeOrigCount + getOrigEdgeCount(outgoingEdges.getEdge());
         }
@@ -908,10 +857,8 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
         }
 
         @Override
-        public void foundShortcut(int u_fromNode, int w_toNode,
-                                  double existingDirectWeight, double existingDistSum,
-                                  EdgeIterator outgoingEdges,
-                                  int skippedEdge1, int incomingEdgeOrigCount) {
+        public void foundShortcut(int u_fromNode, int w_toNode, double existingDirectWeight, double existingDistSum,
+                EdgeIterator outgoingEdges, int skippedEdge1, int incomingEdgeOrigCount) {
             // FOUND shortcut
             // but be sure that it is the only shortcut in the collection
             // and also in the graph for u->w. If existing AND identical weight => update setProperties.
@@ -933,7 +880,8 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
 
             Shortcut old = shortcuts.put(sc, sc);
             if (old != null)
-                throw new IllegalStateException("Shortcut did not exist (" + sc + ") but was overwriting another one? " + old);
+                throw new IllegalStateException(
+                        "Shortcut did not exist (" + sc + ") but was overwriting another one? " + old);
 
             sc.skippedEdge1 = skippedEdge1;
             sc.skippedEdge2 = outgoingEdges.getEdge();

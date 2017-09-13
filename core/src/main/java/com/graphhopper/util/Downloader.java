@@ -38,7 +38,8 @@ public class Downloader {
     }
 
     public static void main(String[] args) throws IOException {
-        new Downloader("GraphHopper Downloader").downloadAndUnzip("http://graphhopper.com/public/maps/0.1/europe_germany_berlin.ghz", "somefolder",
+        new Downloader("GraphHopper Downloader").downloadAndUnzip(
+                "http://graphhopper.com/public/maps/0.1/europe_germany_berlin.ghz", "somefolder",
                 new ProgressListener() {
                     @Override
                     public void update(long val) {
@@ -121,23 +122,17 @@ public class Downloader {
             while ((numRead = in.read(buffer)) != -1) {
                 writer.write(buffer, 0, numRead);
             }
-<<<<<<< HEAD
+        } catch (Exception ex) {
+            throw new IOException(ex.getMessage()); // Runge
         } finally {
-=======
-        }
-        catch(Exception ex)
-        {
-        	throw new IOException(ex.getMessage()); // Runge
-        }
-        finally {
->>>>>>> ors/master
             Helper.close(iStream);
             Helper.close(writer);
             Helper.close(in);
         }
     }
 
-    public void downloadAndUnzip(String url, String toFolder, final ProgressListener progressListener) throws IOException {
+    public void downloadAndUnzip(String url, String toFolder, final ProgressListener progressListener)
+            throws IOException {
         HttpURLConnection conn = createConnection(url);
         final int length = conn.getContentLength();
         InputStream iStream = fetch(conn, false);

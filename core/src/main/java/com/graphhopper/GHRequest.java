@@ -17,14 +17,10 @@
  */
 package com.graphhopper;
 
-<<<<<<< HEAD
-import com.graphhopper.routing.util.HintsMap;
-=======
 import com.graphhopper.routing.util.EdgeAnnotator;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.util.PathProcessor;
->>>>>>> ors/master
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.GHPoint;
 
@@ -49,17 +45,14 @@ public class GHRequest {
     private String algo = "";
     private boolean possibleToAdd = false;
     private Locale locale = Locale.US;
-<<<<<<< HEAD
-=======
-    
+
     // Runge
     private EdgeAnnotator edgeAnnotator;
     private PathProcessor pathProcessor;
-    private EdgeFilter edgeFilter; 
-    private double maxSpeed = -1; 
+    private EdgeFilter edgeFilter;
+    private double maxSpeed = -1;
     private double maxSearchDistance;
     private Boolean simplifyGeometry = true;
->>>>>>> ors/master
 
     public GHRequest() {
         this(5);
@@ -76,8 +69,8 @@ public class GHRequest {
      * with a preferred start and end heading. Headings are north based azimuth (clockwise) in (0,
      * 360) or NaN for equal preference.
      */
-    public GHRequest(double fromLat, double fromLon, double toLat, double toLon,
-                     double startHeading, double endHeading) {
+    public GHRequest(double fromLat, double fromLon, double toLat, double toLon, double startHeading,
+            double endHeading) {
         this(new GHPoint(fromLat, fromLon), new GHPoint(toLat, toLon), startHeading, endHeading);
     }
 
@@ -270,77 +263,64 @@ public class GHRequest {
     public boolean hasPointHints() {
         return pointHints.size() == points.size();
     }
-<<<<<<< HEAD
-=======
-    
+
     // Runge
-    public EdgeFilter getEdgeFilter()
-    {
-    	return edgeFilter;
+    public EdgeFilter getEdgeFilter() {
+        return edgeFilter;
     }
-    
-    public EdgeAnnotator getEdgeAnnotator()
-    {
-    	return edgeAnnotator;
+
+    public EdgeAnnotator getEdgeAnnotator() {
+        return edgeAnnotator;
     }
-    
-    public void setEdgeAnnotator(EdgeAnnotator edgeAnnotator)
-    {
-    	this.edgeAnnotator = edgeAnnotator; 
+
+    public void setEdgeAnnotator(EdgeAnnotator edgeAnnotator) {
+        this.edgeAnnotator = edgeAnnotator;
     }
-    
-    public PathProcessor getPathProcessor()	
-    {
-    	return this.pathProcessor;
+
+    public PathProcessor getPathProcessor() {
+        return this.pathProcessor;
     }
-    
-    public void setPathProcessor(PathProcessor pathProcessor)
-    {
-    	this.pathProcessor = pathProcessor;
+
+    public void setPathProcessor(PathProcessor pathProcessor) {
+        this.pathProcessor = pathProcessor;
     }
-    
+
     public double getMaxSearchDistance() // Runge
     {
-    	return maxSearchDistance;
+        return maxSearchDistance;
     }
-    
-    public void setMaxSearchDistance(double dist)
-    {
-    	maxSearchDistance = dist;
+
+    public void setMaxSearchDistance(double dist) {
+        maxSearchDistance = dist;
     }
-    
+
     public double getMaxSpeed() // Runge
     {
-    	return maxSpeed;
+        return maxSpeed;
     }
-    
-    public void setMaxSpeed(double speed)
-    {
-    	if (speed > 0)
-    		hints.put("max_speed", speed);
-    	
-    	maxSpeed = speed;
+
+    public void setMaxSpeed(double speed) {
+        if (speed > 0)
+            hints.put("max_speed", speed);
+
+        maxSpeed = speed;
     }
 
     public GHRequest setEdgeFilter(EdgeFilter edgeFilter) // Runge
     {
-    	if (edgeFilter != null)
-    		this.edgeFilter = edgeFilter;
-    	
-    	return this;
+        if (edgeFilter != null)
+            this.edgeFilter = edgeFilter;
+
+        return this;
     }
 
-    public Boolean getSimplifyGeometry()
-    {
-    	return simplifyGeometry;
-    }
-    
-    public void setSimplifyGeometry(Boolean value)
-    {
-    	simplifyGeometry = value;
+    public Boolean getSimplifyGeometry() {
+        return simplifyGeometry;
     }
 
->>>>>>> ors/master
+    public void setSimplifyGeometry(Boolean value) {
+        simplifyGeometry = value;
+    }
 
     @Override
     public String toString() {

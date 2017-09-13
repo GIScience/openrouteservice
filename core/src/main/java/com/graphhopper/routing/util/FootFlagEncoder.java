@@ -40,19 +40,11 @@ public class FootFlagEncoder extends AbstractFlagEncoder {
     static final int SLOW_SPEED = 2;
     static final int MEAN_SPEED = 5;
     static final int FERRY_SPEED = 10;
-<<<<<<< HEAD
-    final Set<String> safeHighwayTags = new HashSet<String>();
-    final Set<String> allowedHighwayTags = new HashSet<String>();
-    final Set<String> avoidHighwayTags = new HashSet<String>();
-    // convert network tag of hiking routes into a way route code
-    final Map<String, Integer> hikingNetworkToCode = new HashMap<String, Integer>();
-=======
     protected final Set<String> safeHighwayTags = new HashSet<String>();
     protected final Set<String> allowedHighwayTags = new HashSet<String>();
     protected final Set<String> avoidHighwayTags = new HashSet<String>();
     // convert network tag of hiking routes into a way route code
     protected final Map<String, Integer> hikingNetworkToCode = new HashMap<String, Integer>();
->>>>>>> ors/master
     protected HashSet<String> sidewalkValues = new HashSet<String>(5);
     protected HashSet<String> sidewalksNoValues = new HashSet<String>(5);
     private EncodedValue priorityWayEncoder;
@@ -66,13 +58,7 @@ public class FootFlagEncoder extends AbstractFlagEncoder {
     }
 
     public FootFlagEncoder(PMap properties) {
-<<<<<<< HEAD
-        this((int) properties.getLong("speedBits", 4),
-                properties.getDouble("speedFactor", 1));
-=======
-        this((int) properties.getLong("speed_bits", 4),
-                properties.getDouble("speed_factor", 1));
->>>>>>> ors/master
+        this((int) properties.getLong("speed_bits", 4), properties.getDouble("speed_factor", 1));
         this.properties = properties;
         this.setBlockFords(properties.getBool("block_fords", true));
     }
@@ -237,9 +223,10 @@ public class FootFlagEncoder extends AbstractFlagEncoder {
         // no need to evaluate ferries or fords - already included here
         if (way.hasTag("foot", intendedValues))
             return acceptBit;
-        
+
         // check access restrictions
-        if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
+        if (way.hasTag(restrictions, restrictedValues)
+                && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
             return 0;
 
         if (way.hasTag("sidewalk", sidewalkValues))
@@ -319,10 +306,10 @@ public class FootFlagEncoder extends AbstractFlagEncoder {
     @Override
     public double getDouble(long flags, int key) {
         switch (key) {
-            case PriorityWeighting.KEY:
-                return (double) priorityWayEncoder.getValue(flags) / BEST.getValue();
-            default:
-                return super.getDouble(flags, key);
+        case PriorityWeighting.KEY:
+            return (double) priorityWayEncoder.getValue(flags) / BEST.getValue();
+        default:
+            return super.getDouble(flags, key);
         }
     }
 
@@ -343,11 +330,7 @@ public class FootFlagEncoder extends AbstractFlagEncoder {
      * @param weightToPrioMap associate a weight with every priority. This sorted map allows
      *                        subclasses to 'insert' more important priorities as well as overwrite determined priorities.
      */
-<<<<<<< HEAD
-    void collect(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
-=======
     protected void collect(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
->>>>>>> ors/master
         String highway = way.getTag("highway");
         if (way.hasTag("foot", "designated"))
             weightToPrioMap.put(100d, PREFER.getValue());
