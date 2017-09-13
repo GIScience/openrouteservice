@@ -116,6 +116,10 @@
       		<name>bintray</name>
       		<url>http://dl.bintray.com/nitram509/jbrotli</url>
     	</repository>
+    	<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
     </repositories>
 	
 <dependencies>
@@ -175,17 +179,17 @@
 	</dependency>        
 
 	<dependency>
-	 	<groupId>com.graphhopper</groupId>
-		<artifactId>graphhopper-core</artifactId>
-	   	<version>0.10-SNAPSHOT</version>
+	 	<groupId>com.github.tumluliu</groupId>
+		<artifactId>graphhopper</artifactId>
+	   	<version>v0.9.1</version>
 	</dependency>
 
 
-	<dependency>
-	 	<groupId>com.graphhopper</groupId>
-	   <artifactId>graphhopper-reader-osm</artifactId>
-	   	<version>0.10-SNAPSHOT</version>
-	</dependency>
+	<!--<dependency>-->
+		 <!--<groupId>com.graphhopper</groupId>-->
+	   <!--<artifactId>graphhopper-reader-osm</artifactId>-->
+		   <!--<version>0.10-SNAPSHOT</version>-->
+	<!--</dependency>-->
     
 	<dependency>
     	<groupId>com.typesafe</groupId>
