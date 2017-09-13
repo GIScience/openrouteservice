@@ -9,14 +9,11 @@ ENV MAVEN_OPTS="-Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.o
 ENV MAVEN_CLI_OPTS="--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
 
 RUN mkdir -p /ors-core/build
-COPY graphhopper /ors-core/graphhopper
 COPY openrouteservice /ors-core/openrouteservice
 COPY openrouteservice-api-tests /ors-core/openrouteservice-api-tests
 
 WORKDIR /ors-core
 
-# Build and install graphhopper
-RUN mvn -f ./graphhopper/pom.xml install -DskipTests 
 # Build and install openrouteservice
 RUN mvn -f ./openrouteservice/pom.xml package -DskipTests 
 
