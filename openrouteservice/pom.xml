@@ -179,18 +179,11 @@
 	</dependency>        
 
 	<dependency>
-	 	<groupId>com.github.tumluliu</groupId>
+	 	<groupId>com.github.GIScience</groupId>
 		<artifactId>graphhopper</artifactId>
-	   	<version>v0.9.1</version>
+	   	<version>v0.9.2</version>
 	</dependency>
 
-
-	<!--<dependency>-->
-		 <!--<groupId>com.graphhopper</groupId>-->
-	   <!--<artifactId>graphhopper-reader-osm</artifactId>-->
-		   <!--<version>0.10-SNAPSHOT</version>-->
-	<!--</dependency>-->
-    
 	<dependency>
     	<groupId>com.typesafe</groupId>
 	    <artifactId>config</artifactId>
