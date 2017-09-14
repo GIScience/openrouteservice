@@ -36,14 +36,14 @@ import com.graphhopper.util.RoundaboutInstruction;
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import heigit.ors.common.ArrivalDirection;
+import heigit.ors.common.CardinalDirection;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.localization.LocalizationManager;
 import heigit.ors.routing.instructions.InstructionTranslator;
 import heigit.ors.routing.instructions.InstructionTranslatorsCache;
 import heigit.ors.routing.instructions.InstructionType;
-import heigit.ors.util.ArrivalDirection;
-import heigit.ors.util.CardinalDirection;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.StringUtility;

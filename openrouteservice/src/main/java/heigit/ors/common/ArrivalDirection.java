@@ -1,8 +1,8 @@
 /*
  *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
+ *   	 http://www.giscience.uni-hd.de
+ *   	 http://www.heigit.org
  *
  *  under one or more contributor license agreements. See the NOTICE file 
  *  distributed with this work for additional information regarding copyright 
@@ -18,16 +18,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.services;
+package heigit.ors.common;
 
-public class ServiceRequest {
-	private String _id;
-
-	public String getId() {
-		return _id;
-	}
-
-	public void setId(String id) {
-		_id = id;
-	}
+public enum ArrivalDirection {
+   Unknown,
+   Left,
+   Right,
+   StraightAhead
 }
