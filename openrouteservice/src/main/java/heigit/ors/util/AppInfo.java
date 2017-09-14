@@ -1,8 +1,8 @@
 /*
  *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
  *
- *   	http://www.giscience.uni-hd.de
- *   	http://www.heigit.org
+ *   	 http://www.giscience.uni-hd.de
+ *   	 http://www.heigit.org
  *
  *  under one or more contributor license agreements. See the NOTICE file 
  *  distributed with this work for additional information regarding copyright 
