@@ -100,8 +100,9 @@ public class ConcaveHull {
      * @param geometries
      * @param threshold
      */
+    // Modification by Maxim Rylov: Added convertGeometryCollection parameter 
     public ConcaveHull(GeometryCollection geometries, double threshold, boolean convertGeometryCollection) {
-        this.geometries = convertGeometryCollection ? transformIntoPointGeometryCollection(geometries): geometries; // runge
+        this.geometries = convertGeometryCollection ? transformIntoPointGeometryCollection(geometries): geometries; 
         this.threshold = threshold;
         this.geomFactory = geometries.getFactory();
     }
@@ -226,7 +227,7 @@ public class ConcaveHull {
             qes.delete(qe);
         }
 
-        HashMap<QuadEdge, Double> qeDistances = new HashMap<QuadEdge, Double>(quadEdges.size()); // Runge
+        HashMap<QuadEdge, Double> qeDistances = new HashMap<QuadEdge, Double>(quadEdges.size()); //  Modification by Maxim Rylov: Make use of a constructor with capacity parameter 
         for (QuadEdge qe : quadEdges) {
             qeDistances.put(qe, qe.toLineSegment().getLength());
         }

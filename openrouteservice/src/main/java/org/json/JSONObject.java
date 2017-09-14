@@ -867,7 +867,7 @@ public class JSONObject {
 
         String string = number.toString();
         //if (string.indexOf('.') > 0 && string.indexOf('e') < 0
-//                && string.indexOf('E') < 0) // Runge
+//                && string.indexOf('E') < 0) //  Modification by Maxim Rylov: The line has been commented out to speedup conversion.  
         if ((number instanceof Double || number instanceof Float) && isFloatNumber(string))
         {
         	while (string.endsWith("0")) {
@@ -1692,7 +1692,7 @@ public class JSONObject {
         if (names == null || names.length() == 0) {
             return null;
         }
-        JSONArray ja = new JSONArray(names.length()); // Runge
+        JSONArray ja = new JSONArray(names.length()); // Modification by Maxim Rylov: Make use of a constructor with capacity parameter.
         for (int i = 0; i < names.length(); i += 1) {
             ja.put(this.opt(names.getString(i)));
         }

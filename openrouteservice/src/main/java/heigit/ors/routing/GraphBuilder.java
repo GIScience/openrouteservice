@@ -29,7 +29,6 @@ public class GraphBuilder {
 		{
 			RoutingProfileManager rpm = new RoutingProfileManager();
 			rpm.prepareGraphs(args[0]);
-		//	rpm.prepareGraphs("C:\\Users\\Runge\\workspace\\openrouteserviceGH\\target\\openrouteservice-0.0.1-SNAPSHOT\\WEB-INF\\GraphGH.properties.xml");
 		}
 	}
 }
