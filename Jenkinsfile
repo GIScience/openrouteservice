@@ -1,7 +1,9 @@
 //properties([pipelineTriggers([githubPush()])])
 
 node {
+   
    def mvnHome
+   
    stage('Preparation') { // for display purposes
         deleteDir()
         git branch: 'development', url: 'https://github.com/GIScience/openrouteservice.git'
@@ -10,7 +12,7 @@ node {
         //        in the global configuration.           
         mvnHome = tool 'mvn-3.5'
     }
-    
+ 
     stage('build-ors') {
         sh "cp ${WORKSPACE}/openrouteservice-api-tests/conf/app.config.test ${WORKSPACE}/openrouteservice/WebContent/WEB-INF/app.config"
         sh "'${mvnHome}/bin/mvn' -f ${WORKSPACE}/openrouteservice/pom.xml install -B"
