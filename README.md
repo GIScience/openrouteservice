@@ -7,7 +7,7 @@ The following services are available via a RESTful Tomcat interface.
 - **Isochrones** - Obtains areas of reachability from given locations.
 - **Matrix** - Computes one-to-many, many-to-one or many-to-many routes for any mode of transport provided by OpenRouteService.
 - **Geocoding** - Resolves input coordinates to addresses and vice versa (**NOTE:** OpenRouteService acts as a wrapper and connects to either [Photon](https://github.com/komoot/photon), [Nominatim](https://github.com/openstreetmap/Nominatim) or [Pelias](https://github.com/pelias/pelias). One of these services must be installed additionally).
-- **Places** - Search for points of interest around points or in geometries (**NOTE:** you will have to set up a locations database, for this please refer to [openrouteservice-tools](https://github.com/GIScience/openrouteservice-tools).
+- **Places** - Search for points of interest around points or in geometries (**NOTE:** you will have to set up a locations database, for this please refer to [OpenRouteService-Tools](https://github.com/GIScience/openrouteservice-tools).
 
 To play around with OpenRouteService you may use our [demonstration server](https://www.openrouteservice.org) which comes with both the backend and a [frontend](https://github.com/GIScience/openrouteservice-app). Or simply sign up for an API key and fire your requests against the API directly via [swagger hub](https://app.swaggerhub.com/apis/OpenRouteService/ors-api/).
 
