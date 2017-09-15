@@ -5,8 +5,8 @@ The **OpenRouteService API** provides global spatial services by consuming user-
 The following services are available via a RESTful Tomcat interface.
 - **Directions** - Returns a route between two or a set of locations for a selected profile with customizable additional settings and instructions.
 - **Isochrones** - Obtains areas of reachability from given locations.
-- **Matrix** - Computes one-to-many, many-to-one or many-to-many routes for any mode of transport provided by openrouteservice.
-- **Geocoding** - Resolves input coordinates to addresses and vice versa (**NOTE:** openrouteservice acts as a wrapper and connects to either [Photon](https://github.com/komoot/photon), [Nominatim](https://github.com/openstreetmap/Nominatim) or [Pelias](https://github.com/pelias/pelias). One of these services must be installed additionally).
+- **Matrix** - Computes one-to-many, many-to-one or many-to-many routes for any mode of transport provided by OpenRouteService.
+- **Geocoding** - Resolves input coordinates to addresses and vice versa (**NOTE:** OpenRouteService acts as a wrapper and connects to either [Photon](https://github.com/komoot/photon), [Nominatim](https://github.com/openstreetmap/Nominatim) or [Pelias](https://github.com/pelias/pelias). One of these services must be installed additionally).
 - **Places** - Search for points of interest around points or in geometries (**NOTE:** you will have to set up a locations database, for this please refer to [openrouteservice-tools](https://github.com/GIScience/openrouteservice-tools).
 
 To play around with OpenRouteService you may use our [demonstration server](https://www.openrouteservice.org) which comes with both the backend and a [frontend](https://github.com/GIScience/openrouteservice-app). Or simply sign up for an API key and fire your requests against the API directly via [swagger hub](https://app.swaggerhub.com/apis/OpenRouteService/ors-api/).
@@ -27,7 +27,7 @@ We appreciate any kind of contribution - bug reports, new feature suggestion or 
 
 If you want to do contribute your improvements, please follow these steps:
 
-  1. [Fork the openrouteservice project](https://help.github.com/articles/fork-a-repo)
+  1. [Fork the OpenRouteService project](https://help.github.com/articles/fork-a-repo)
 
   2. Add your contribution in the development branch of your fork.
   
@@ -36,7 +36,7 @@ If you want to do contribute your improvements, please follow these steps:
 
 ## Installation
 
-Instructions on how to install openrouteservice will follow soon.
+Instructions on how to install OpenRouteService will follow soon.
 
 
 ## API Documentation
