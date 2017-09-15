@@ -14,7 +14,9 @@ node {
     stage('build-ors') {
         sh "cp ${WORKSPACE}/openrouteservice-api-tests/conf/app.config.test ${WORKSPACE}/openrouteservice/WebContent/WEB-INF/app.config"
         sh "'${mvnHome}/bin/mvn' -f ${WORKSPACE}/openrouteservice/pom.xml install -B"
-        archive "${WORKSPACE}/openrouteservice/target/*.war" 
+        //archive "${WORKSPACE}/openrouteservice/target/*.war" 
+        archiveArtifacts artifacts: '*.war', fingerprint: true
+
     }
     
     stage('test-ors') {
