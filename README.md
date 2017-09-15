@@ -1,4 +1,4 @@
-# Openrouteservice
+# OpenRouteService
 
 The **openrouteservice API** provides global spatial services by consuming user-generated and collaboratively collected free geographic data directly from [OpenStreetMap](http://www.openstreetmap.org). It is highly customizable, performant and written in Java.
 
