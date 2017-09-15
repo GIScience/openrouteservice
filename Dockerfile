@@ -7,7 +7,7 @@ ENV MAVEN_OPTS="-Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.o
 # when running from the command line.
 # `installAtEnd` and `deployAtEnd`are only effective with recent version of the corresponding plugins.
 ENV MAVEN_CLI_OPTS="--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
-ARG APP_CONFIG=./conf/app.config.sample
+ARG APP_CONFIG=docker/conf/app.config.sample
 
 RUN mkdir -p /ors-core/build
 COPY openrouteservice /ors-core/openrouteservice
