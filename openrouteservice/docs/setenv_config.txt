@@ -1,6 +1,0 @@
-v1. JAVA_OPTS="-Djava.awt.headless=true -server -Xconcurrentio -XX:NewSize=6g -XX:MaxNewSize=6g -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=2 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -Xms165g -Xmx200g -XX:MaxMetaspaceSize=500m -XX:CMSInitiatingOccupancyFraction=80 -XX:+UseCMSInitiatingOccupancyOnly -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.local.only=false -Djava.rmi.server.hostname=129.206.228.76"
-v2. JAVA_OPTS="-Djava.awt.headless=true -server -Xconcurrentio -XX:NewSize=6g -XX:MaxNewSize=8g -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=2 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -Xms165g -Xmx200g -XX:MaxMetaspaceSize=500m -XX:+UnlockDiagnosticVMOptions -XX:ParGCCardsPerStrideChunk=32768 -XX:+AlwaysPreTouch -XX:CMSInitiatingOccupancyFraction=80 -XX:+UseCMSInitiatingOccupancyOnly -XX:OnOutOfMemoryError='./restart %p' -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.local.only=false -Djava.rmi.server.hostname=129.206.228.76"
-
-
-
-
