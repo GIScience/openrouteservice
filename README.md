@@ -28,10 +28,10 @@ We appreciate any kind of contribution - bug reports, new feature suggestion or 
 If you want to do contribute your improvements, please follow these steps:
 
   1. [Fork the OpenRouteService project](https://help.github.com/articles/fork-a-repo)
-
-  2. Add your contribution in the development branch of your fork.
   
-  3. Create a [pull request](https://help.github.com/articles/using-pull-requests) to our development branch, so we can review your changes before applying them. Please write your pull request description similar to [this](http://api.coala.io/en/latest/Developers/Writing_Good_Commits.html) standard. Also please make sure to reference your pull request to the corresponding issue, for changes regarding multiple issues please create different pullrequests.
+  2. Create a branch for the improvement from the development branch on your fork and add your contributions there.
+  
+  3. Create a [pull request](https://help.github.com/articles/using-pull-requests) to our development branch, so we can review your changes before applying them. Please write your pull request description similar to [this](http://api.coala.io/en/latest/Developers/Writing_Good_Commits.html) standard. Also please make sure to reference your pull request to the corresponding issue, for changes regarding multiple issues please create different pullrequests using different branches in your fork.
 
 
 ## Installation
