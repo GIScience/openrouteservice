@@ -6,10 +6,10 @@ The following services are available via a RESTful Tomcat interface.
 - **Directions** - Returns a route between two or a set of locations for a selected profile with customizable additional settings and instructions.
 - **Isochrones** - Obtains areas of reachability from given locations.
 - **Matrix** - Compute one-to-many, many-to-one or many-to-many routes for any mode of transport provided by openrouteservice.
-- **Geocoding** - Resolves input coordinates to addresses and vice versa (**NOTE:** openrouteservice acts as a wrapper and connects to either photon, nominatim or pelias. One of these services must be installed additionally).
+- **Geocoding** - Resolves input coordinates to addresses and vice versa (**NOTE:** openrouteservice acts as a wrapper and connects to either [Photon](https://github.com/komoot/photon), [Nominatim](https://github.com/openstreetmap/Nominatim) or [Pelias](https://github.com/pelias/pelias). One of these services must be installed additionally).
 - **Places** - Search for points of interest around points or in geometries (**NOTE:** you will have to set up a locations database, for this please refer to [openrouteservice-tools](https://github.com/GIScience/openrouteservice-tools).
 
-To play around with openrouteservice you may use our [demonstration server](https://www.openrouteservice.org) which comes with both the backend and a frontend. Or simply sign up for an API key and fire your requests against the API directly via [swagger hub](https://app.swaggerhub.com/apis/OpenRouteService/ors-api/).
+To play around with openrouteservice you may use our [demonstration server](https://www.openrouteservice.org) which comes with both the backend and a [frontend](https://github.com/GIScience/openrouteservice-app). Or simply sign up for an API key and fire your requests against the API directly via [swagger hub](https://app.swaggerhub.com/apis/OpenRouteService/ors-api/).
 
 Please note that openrouteservice uses a forked and edited version of [graphhopper 0.9](https://github.com/GIScience/graphhopper) which can be found [here](https://github.com/GIScience/graphhopper).
 
