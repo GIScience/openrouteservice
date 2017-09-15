@@ -94,7 +94,7 @@ public class JSONArray implements Iterable<Object> {
         this.myArrayList = new ArrayList<Object>();
     }
 
-    // Runge
+    // Modification by Maxim Rylov: Added a constructor with capacity parameter. 
     public JSONArray(int capacity) {
         this.myArrayList = new ArrayList<Object>(capacity);
     }
