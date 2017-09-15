@@ -632,7 +632,7 @@ public class PrepareContractionHierarchiesTest {
 
         ghStorage.freeze();
 
-        checkPath(ghStorage, carWeighting, 7, 5, Helper.createTList(3, 9, 14, 16, 13, 12)); // Runge changed 7 to 8 because of PHAST modifications
+        checkPath(ghStorage, carWeighting, 7, 5, Helper.createTList(3, 9, 14, 16, 13, 12)); 
         // detour around blocked 9,14
         checkPath(ghStorage, bikeWeighting, 9, 5, Helper.createTList(3, 10, 14, 16, 13, 12));
     }

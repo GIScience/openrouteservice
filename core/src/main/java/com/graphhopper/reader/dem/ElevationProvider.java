@@ -70,14 +70,13 @@ public interface ElevationProvider {
         }
     };
 
-    // Runge
+    // Modification by Maxim Rylov: Added new methods.
     int getTileKey(double lat, double lon);
 
     HeightTile getTile(int key);
 
     HeightTile loadTile(double lat, double lon);
-
-    //***************************
+    //*******************************************
 
     /**
      * @return returns the height in meters or Double.NaN if invalid

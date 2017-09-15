@@ -171,7 +171,7 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
             highwayValue = "motorroad";
         }
         Integer speed = defaultSpeedMap.get(highwayValue);
-        int maxSpeed = (int) Math.round(getMaxSpeed(way)); // Runge
+        int maxSpeed = (int) Math.round(getMaxSpeed(way)); // Modification by Maxim Rylov
         if (maxSpeed > 0)
             speed = maxSpeed;
 
@@ -187,7 +187,7 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
             }
         }
 
-        if (way.hasTag("access")) // Runge  //https://www.openstreetmap.org/way/132312559
+        if (way.hasTag("access")) // // Modification by Maxim Rylov: see https://www.openstreetmap.org/way/132312559
         {
             String accessTag = way.getTag("access");
             if ("destination".equals(accessTag))
@@ -243,7 +243,7 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
         if (isBlockFords() && ("ford".equals(highwayValue) || way.hasTag("ford")))
             return 0;
 
-        String maxwidth = way.getTag("maxwidth"); // Runge added on 23.02.2016
+        String maxwidth = way.getTag("maxwidth"); // Modification by Maxim Rylov
         if (maxwidth != null) {
             try {
                 double mwv = Double.parseDouble(maxwidth);
@@ -320,7 +320,7 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
 
             boolean isRoundabout = way.hasTag("junction", "roundabout");
 
-            if (isRoundabout) // Runge
+            if (isRoundabout) // Modification by Maxim Rylov
             {
                 //http://www.sidrasolutions.com/Documents/OArndt_Speed%20Control%20at%20Roundabouts_23rdARRBConf.pdf
                 if (way.hasTag("highway", "mini_roundabout"))

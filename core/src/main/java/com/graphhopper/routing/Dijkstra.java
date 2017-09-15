@@ -43,7 +43,8 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
     private int visitedNodes;
     private int to = -1;
 
-    protected Boolean reverseDirection = false; // Runge
+    // Modification by Maxim Rylov: Added a new class variable used for computing isochrones.
+    protected Boolean reverseDirection = false; 
 
     public Dijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
         this(graph, weighting, tMode, -1);
@@ -60,7 +61,7 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
         fromMap = new GHIntObjectHashMap<SPTEntry>(size);
     }
 
-    // Runge: this flag has been update to support reverse direction in isochrones
+    // Modification by Maxim Rylov: Added a new method.
     public void setReverseDirection(Boolean reverse) {
         reverseDirection = reverse;
     }

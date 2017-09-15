@@ -127,7 +127,7 @@ public class SRTMProvider implements ElevationProvider {
         return demProvider;
     }
 
-    //Runge
+    // Modification by Maxim Rylov
     public HeightTile loadTile(double lat, double lon) {
         lat = (int) (lat * precision) / precision;
         lon = (int) (lon * precision) / precision;

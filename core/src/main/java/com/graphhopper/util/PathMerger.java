@@ -61,6 +61,7 @@ public class PathMerger {
         return this;
     }
 
+    // Modification by Maxim Rylov: Added procCntx parameter.
     public void doWork(PathWrapper altRsp, List<Path> paths, PathProcessingContext procCntx) {
         int origPoints = 0;
         long fullTimeInMillis = 0;
@@ -68,17 +69,18 @@ public class PathMerger {
         double fullDistance = 0;
         boolean allFound = true;
 
-        // Runge
+        // Modification by Maxim Rylov
         PathProcessor pathProcessor = procCntx.getPathProcessor();
         if (pathProcessor != null)
             pathProcessor.init(procCntx);
-
+        //******************************
+        
         InstructionList fullInstructions = new InstructionList(procCntx.getTranslation());
         PointList fullPoints = PointList.EMPTY;
         List<String> description = new ArrayList<String>();
         for (int pathIndex = 0; pathIndex < paths.size(); pathIndex++) {
             Path path = paths.get(pathIndex);
-            procCntx.setPathIndex(pathIndex); // Runge
+            procCntx.setPathIndex(pathIndex); // Modification by Maxim Rylov
             description.addAll(path.getDescription());
             fullTimeInMillis += path.getTime();
             fullDistance += path.getDistance();
@@ -125,9 +127,10 @@ public class PathMerger {
             allFound = allFound && path.isFound();
         }
 
-        // Runge
+        // Modification by Maxim Rylov
         if (pathProcessor != null)
             pathProcessor.finish();
+        //****************************
 
         if (!fullPoints.isEmpty()) {
             if (pathProcessor != null)

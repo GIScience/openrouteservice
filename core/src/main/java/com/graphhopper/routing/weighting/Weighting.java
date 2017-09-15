@@ -37,7 +37,8 @@ public interface Weighting {
      */
     double getMinWeight(double distance);
 
-    double getMaxWeight(); // runge
+    // Modification by Maxim Rylov: Added getMaxWeight method. 
+    double getMaxWeight(); 
 
     /**
      * This method calculates the weighting a certain edgeState should be associated. E.g. a high

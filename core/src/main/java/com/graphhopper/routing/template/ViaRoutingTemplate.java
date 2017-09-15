@@ -60,8 +60,8 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
         if (points.size() < 2)
             throw new IllegalArgumentException("At least 2 points have to be specified, but was:" + points.size());
 
-        // runge
-        EdgeFilter edgeFilter = ghRequest.getEdgeFilter(); //Runge
+        // Modification by Maxim Rylov: Added custom EdgeFilter
+        EdgeFilter edgeFilter = ghRequest.getEdgeFilter(); 
         if (edgeFilter == null)
             edgeFilter = new DefaultEdgeFilter(encoder);
 
@@ -98,7 +98,7 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
         QueryResult fromQResult = queryResults.get(0);
         StopWatch sw;
 
-        // Runge
+        // Modification by Maxim Rylov: Added an overloaded function.
         PathProcessor pathProcessor = pathProcCntx.getPathProcessor();
 
         for (int placeIndex = 1; placeIndex < pointCounts; placeIndex++) {

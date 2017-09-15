@@ -65,9 +65,10 @@ public class TurnWeighting implements Weighting {
     public double getMinWeight(double distance) {
         return superWeighting.getMinWeight(distance);
     }
-
+    
+    // Modification by Maxim Rylov: Added overloaded function.
     @Override
-    public double getMaxWeight() // runge
+    public double getMaxWeight() 
     {
         return 1;
     }

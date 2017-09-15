@@ -27,6 +27,8 @@ import com.graphhopper.util.PMap;
  */
 public abstract class AbstractWeighting implements Weighting {
     protected final FlagEncoder flagEncoder;
+    
+    // Modification by Maxim Rylov: Added class variables.
     protected final int encoderIndex;
     protected double userMaxSpeed = -1;
 
@@ -41,7 +43,7 @@ public abstract class AbstractWeighting implements Weighting {
                     + " to an EncodingManager before using it elsewhere");
         if (!isValidName(getName()))
             throw new IllegalStateException("Not a valid name for a Weighting: " + getName());
-        encoderIndex = encoder.getIndex(); // runge
+        encoderIndex = encoder.getIndex(); 
         if (map != null) {
             userMaxSpeed = map.getDouble("max_speed", -1);
         }
@@ -49,6 +51,7 @@ public abstract class AbstractWeighting implements Weighting {
 
     @Override
     public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+        // Modification by Maxim Rylov: getFlags() changed to getFlags(encoderIndex). 
         long flags = edgeState.getFlags(encoderIndex);
         if (reverse && !flagEncoder.isBackward(flags) || !reverse && !flagEncoder.isForward(flags))
             throw new IllegalStateException(
@@ -76,8 +79,9 @@ public abstract class AbstractWeighting implements Weighting {
         return getName().equals(reqMap.getWeighting()) && flagEncoder.toString().equals(reqMap.getVehicle());
     }
 
+    // Modification by Maxim Rylov: Added overloaded method.
     @Override
-    public double getMaxWeight() // runge
+    public double getMaxWeight() 
     {
         return 1;
     }

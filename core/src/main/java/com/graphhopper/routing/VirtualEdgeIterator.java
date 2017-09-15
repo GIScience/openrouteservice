@@ -114,6 +114,7 @@ class VirtualEdgeIterator implements EdgeIterator, CHEdgeIteratorState {
         return edges.get(current).getFlags();
     }
 
+    // Modification by Maxim Rylov: Added overloaded method. 
     @Override
     public long getFlags(int encoderIndex) {
         return edges.get(current).getFlags(encoderIndex);

@@ -58,13 +58,15 @@ public class FastestWeighting extends AbstractWeighting {
 
     @Override
     public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId) {
+        // Modification by Maxim Rylov: getFlags() changed to getFlags(encoderIndex). 
         double speed = reverse ? flagEncoder.getReverseSpeed(edge.getFlags(encoderIndex))
                 : flagEncoder.getSpeed(edge.getFlags(encoderIndex));
         if (speed == 0)
             return Double.POSITIVE_INFINITY;
 
+        // Modification by Maxim Rylov: Consider maximum speed defined by a user.
         if (userMaxSpeed > 0) {
-            if (speed > userMaxSpeed) // Runge
+            if (speed > userMaxSpeed) 
                 speed = userMaxSpeed;
             else if (speed == maxSpeed && userMaxSpeed > speed) {
                 speed = userMaxSpeed;

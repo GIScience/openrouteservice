@@ -112,8 +112,10 @@ public class InstructionListTest {
         Path p = new Dijkstra(g, new ShortestWeighting(carEncoder), tMode).calcPath(0, 10);
         InstructionList wayList = p.calcInstructions(usTR);
         List<String> tmpList = pick("text", wayList.createJson());
-        return; // Runge
-        /*   assertEquals(Arrays.asList("Continue onto 0-1", "Turn right onto 1-4", "Turn left onto 7-8", "Arrive at destination"), tmpList); Runge
+        return; 
+        
+        // Modification by Maxim Rylov: Due to changes in processing instructions.
+        /*   assertEquals(Arrays.asList("Continue onto 0-1", "Turn right onto 1-4", "Turn left onto 7-8", "Arrive at destination"), tmpList); 
         //assertEquals(Arrays.asList("Continue onto 0-1, Turn right onto 1-4, Turn left onto 7-8, Continue onto 8-9, Arrive at destination"), tmpList);
         
         
@@ -294,7 +296,7 @@ public class InstructionListTest {
 
         Path p = new Dijkstra(g, new ShortestWeighting(carEncoder), tMode).calcPath(1, 5);
         InstructionList wayList = p.calcInstructions(usTR);
-        //assertEquals(4, wayList.size()); Runge
+        assertEquals(5, wayList.size()); // Modification by Maxim Rylov: Due to changes in processing instructions, value 4 has been changed to 5.
 
         List<GPXEntry> gpxList = wayList.createGPXList();
         assertEquals(34000, p.getDistance(), 1e-1);

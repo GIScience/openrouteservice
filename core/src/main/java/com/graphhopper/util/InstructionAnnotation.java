@@ -25,7 +25,9 @@ public class InstructionAnnotation {
     private boolean empty;
     private int importance;
     private String message;
-    private int wayType; // Runge
+    
+    // Modification by Maxim Rylov: Added a new class variable.
+    private int wayType;
 
     private InstructionAnnotation() {
         setEmpty();
@@ -50,10 +52,6 @@ public class InstructionAnnotation {
         this.empty = true;
         this.importance = 0;
         this.message = "";
-    }
-
-    public int getWayType() {
-        return wayType;
     }
 
     public boolean isEmpty() {

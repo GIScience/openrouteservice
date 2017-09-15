@@ -171,10 +171,9 @@ public class CGIARProvider implements ElevationProvider {
         return hashCode;
     }
 
-    //Runge
+    // Modification by Maxim Rylov
     public HeightTile loadTile(double lat, double lon) {
         //String name = getFileName(lat, lon);
-        //Runge 
         int key = getTileKey(lat, lon);
         HeightTile demProvider = cacheData.get(key);
         if (demProvider == null) {

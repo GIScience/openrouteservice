@@ -85,7 +85,7 @@ public class BikeFlagEncoder extends BikeCommonFlagEncoder {
         String highway = way.getTag("highway");
         String trackType = way.getTag("tracktype");
         return super.isPushingSection(way) || "track".equals(highway) && trackType != null
-                && !("grade1".equals(trackType) || "grade2".equals(trackType) || "grade3".equals(trackType)); // Runge
+                && !("grade1".equals(trackType) || "grade2".equals(trackType) || "grade3".equals(trackType)); // Modification by Maxim Rylov
     }
 
     @Override

@@ -41,12 +41,14 @@ public interface RoutingTemplate {
     /**
      * This method takes the query points and returns the looked up QueryResults.
      */
-    List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder, ByteArrayBuffer byteBuffer);
+    // Modification by Maxim Rylov: Added byteBuffer parameter.
+	List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder, ByteArrayBuffer byteBuffer);
 
     /**
      * This method returns a list of Path objects which then can be merged to serve one route with
      * via points or multiple alternative paths.
      */
+    // Modification by Maxim Rylov: Added pathProcCntx parameter.
     List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts,
             PathProcessingContext pathProcCntx);
 
@@ -54,6 +56,7 @@ public interface RoutingTemplate {
      * This method merges the returned paths appropriately e.g. all paths from the list into one
      * PathWrapper of GHResponse or multiple (via / round trip).
      */
+ // Modification by Maxim Rylov: Added pathProcCntx parameter.
     boolean isReady(PathMerger pathMerger, PathProcessingContext pathProcCntx);
 
     /**

@@ -123,7 +123,7 @@ public class Downloader {
                 writer.write(buffer, 0, numRead);
             }
         } catch (Exception ex) {
-            throw new IOException(ex.getMessage()); // Runge
+            throw new IOException(ex.getMessage()); // Modification by Maxim Rylov: Throw an exception with textual message.
         } finally {
             Helper.close(iStream);
             Helper.close(writer);

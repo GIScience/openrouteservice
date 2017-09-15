@@ -51,7 +51,8 @@ public class EncodingManager {
     private int nextTurnBit = 0;
     private boolean enableInstructions = true;
     private String preferredLanguage = "";
-    private int totalUsedBits = 0; // Runge
+    // Modification by Maxim Rylov: Added a new class variable.
+    private int totalUsedBits = 0; 
 
     /**
      * Instantiate manager with the given list of encoders. The manager knows several default
@@ -319,10 +320,12 @@ public class EncodingManager {
     /**
      * Reverse flags, to do so all encoders are called.
      */
+    // Modification by Maxim Rylov: Added encoderIndex parameter.
     public long reverseFlags(long flags, int encoderIndex) {
-        if (encoderIndex != -1) // Runge
+    	// Modification by Maxim Rylov
+        if (encoderIndex != -1) 
             return edgeEncoders.get(encoderIndex).reverseFlags(flags);
-
+        // ********************************************* 
         // performance critical
         int len = edgeEncoders.size();
         for (int i = 0; i < len; i++) {

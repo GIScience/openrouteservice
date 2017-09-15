@@ -46,7 +46,7 @@ public class GHRequest {
     private boolean possibleToAdd = false;
     private Locale locale = Locale.US;
 
-    // Runge
+    // Modification by Maxim Rylov: Added class members 
     private EdgeAnnotator edgeAnnotator;
     private PathProcessor pathProcessor;
     private EdgeFilter edgeFilter;
@@ -264,7 +264,7 @@ public class GHRequest {
         return pointHints.size() == points.size();
     }
 
-    // Runge
+    // Modification by Maxim Rylov: Added getEdgeFilter method.
     public EdgeFilter getEdgeFilter() {
         return edgeFilter;
     }
@@ -285,20 +285,24 @@ public class GHRequest {
         this.pathProcessor = pathProcessor;
     }
 
-    public double getMaxSearchDistance() // Runge
+    // Modification by Maxim Rylov: Added getMaxSearchDistance method.
+    public double getMaxSearchDistance()
     {
         return maxSearchDistance;
     }
 
+    // Modification by Maxim Rylov: Added setMaxSearchDistance method.
     public void setMaxSearchDistance(double dist) {
         maxSearchDistance = dist;
     }
 
-    public double getMaxSpeed() // Runge
+    // Modification by Maxim Rylov: Added getMaxSpeed method.
+    public double getMaxSpeed() 
     {
         return maxSpeed;
     }
 
+    // Modification by Maxim Rylov: Added setMaxSpeed method.
     public void setMaxSpeed(double speed) {
         if (speed > 0)
             hints.put("max_speed", speed);
@@ -306,7 +310,8 @@ public class GHRequest {
         maxSpeed = speed;
     }
 
-    public GHRequest setEdgeFilter(EdgeFilter edgeFilter) // Runge
+    // Modification by Maxim Rylov: Added setEdgeFilter method.
+    public GHRequest setEdgeFilter(EdgeFilter edgeFilter) 
     {
         if (edgeFilter != null)
             this.edgeFilter = edgeFilter;
@@ -314,10 +319,12 @@ public class GHRequest {
         return this;
     }
 
+    // Modification by Maxim Rylov: Added getSimplifyGeometry method.
     public Boolean getSimplifyGeometry() {
         return simplifyGeometry;
     }
 
+    // Modification by Maxim Rylov: Added setSimplifyGeometry method.
     public void setSimplifyGeometry(Boolean value) {
         simplifyGeometry = value;
     }

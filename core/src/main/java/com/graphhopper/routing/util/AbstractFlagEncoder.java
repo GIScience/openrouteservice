@@ -85,9 +85,10 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
 
     private ConditionalTagInspector conditionalTagInspector;
 
-    private boolean considerElevation = false; // Runge
+    // Modification by Maxim Rylov: Added new class members.
+    private boolean considerElevation = false; 
     private int mgrIndex = -1;
-    protected EncodedDoubleValue reverseSpeedEncoder; // Runge
+    protected EncodedDoubleValue reverseSpeedEncoder; 
 
     public AbstractFlagEncoder(PMap properties) {
         throw new RuntimeException("This method must be overridden in derived classes");
@@ -291,7 +292,7 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
      * mind that this method is performance critical!
      */
     public long reverseFlags(long flags) {
-        // Runge
+        // Modification by Maxim Rylov
         if (considerElevation) {
             long dir = flags & directionBitMask;
             if (dir == directionBitMask || dir == 0) {
@@ -316,7 +317,7 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
      * Sets default flags with specified access.
      */
     public long flagsDefault(boolean forward, boolean backward) {
-        //Runge
+        // Modification by Maxim Rylov
         if (isConsiderElevation() && backward) {
             long flags = speedEncoder.setDefaultValue(0);
             flags = setAccess(flags, forward, backward);
@@ -385,7 +386,7 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
 
     @Override
     public double getReverseSpeed(long flags) {
-        // Runge
+        // Modification by Maxim Rylov
         if (considerElevation)
             return reverseSpeedEncoder.getDoubleValue(flags);
         else

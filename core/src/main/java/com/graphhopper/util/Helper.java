@@ -562,20 +562,23 @@ public class Helper {
 
         return sb.toString();
     }
-
-    public static TurnCostExtension getTurnCostExtensions(GraphExtension extendedStorage) // Runge
+    
+    // Modification by Maxim Rylov: Added getTurnCostExtensions method to extract TurnCostExtension 
+    public static TurnCostExtension getTurnCostExtensions(GraphExtension extendedStorage) 
     {
-        if (extendedStorage instanceof TurnCostExtension)
-            return (TurnCostExtension) extendedStorage;
-        else if (extendedStorage instanceof ExtendedStorageSequence) {
-            ExtendedStorageSequence ess = (ExtendedStorageSequence) extendedStorage;
-            GraphExtension[] exts = ess.getExtensions();
-            for (int i = 0; i < exts.length; i++) {
-                if (exts[i] instanceof TurnCostExtension)
-                    return (TurnCostExtension) exts[i];
-            }
-        }
-
-        return null;
+    	if (extendedStorage instanceof TurnCostExtension)
+    		return (TurnCostExtension) extendedStorage;
+    	else if (extendedStorage instanceof ExtendedStorageSequence)
+    	{
+    		ExtendedStorageSequence ess = (ExtendedStorageSequence)extendedStorage;
+    		GraphExtension[] exts = ess.getExtensions(); 
+    		for (int i = 0; i< exts.length; i++ )
+    		{
+    			if  (exts[i] instanceof TurnCostExtension)
+    				return (TurnCostExtension) exts[i];
+    		}
+    	}
+    	
+    	return null;
     }
 }

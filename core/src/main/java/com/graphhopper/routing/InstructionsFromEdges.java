@@ -18,9 +18,7 @@
 package com.graphhopper.routing;
 
 import com.graphhopper.routing.util.DefaultEdgeFilter;
-import com.graphhopper.routing.util.EdgeAnnotator;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
@@ -91,6 +89,7 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         crossingExplorer = graph.createEdgeExplorer(new DefaultEdgeFilter(encoder, true, true));
     }
 
+    // Modification by Maxim Rylov: Added count parameter.
     @Override
     public void next(EdgeIteratorState edge, int index, int count, int prevEdgeId) {
         // baseNode is the current node and adjNode is the next
@@ -116,19 +115,6 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
 
         String name = edge.getName();
         InstructionAnnotation annotation = encoder.getAnnotation(flags, pathProcCntx.getTranslation());
-
-        // Runge
-        if (pathProcCntx.getEdgeAnnotator() != null) {
-            /*String annotationMessage = pathProcCntx.getEdgeAnnotator().getAnnotation(edge.getOriginalEdge());
-            if (!Helper.isEmpty(annotationMessage))
-            {
-            	if (!annotationMessage.equals(prevAnnotationMessage))
-            	{
-            		prevAnnotationMessage = annotationMessage;
-            		annotation = new InstructionAnnotation(0, annotationMessage, -1);
-            	}
-            }*/
-        }
 
         if ((prevName == null) && (!isRoundabout)) // very first instruction (if not in Roundabout)
         {
@@ -241,7 +227,7 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
 
         boolean lastEdge = index == count - 1;
 
-        // Runge
+        // Modification by Maxim Rylov
         if (pathProcCntx.getPathProcessor() != null)
             pathProcCntx.getPathProcessor().processEdge(pathProcCntx.getPathIndex(), edge, lastEdge, wayGeo);
     }
@@ -279,7 +265,7 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
 
         // there is no other turn possible
         if (nrOfPossibleTurns <= 1) {
-            // Runge
+            // Modification by Maxim Rylov
             if (!forceInstruction) {
                 if (!Helper.isEmpty(name) && !InstructionsHelper.isNameSimilar(name, prevName))
                     forceInstruction = true;
@@ -364,7 +350,7 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
             }
         }
 
-        // Runge
+        // Modification by Maxim Rylov
         if (!forceInstruction) {
             if (!Helper.isEmpty(name) && !InstructionsHelper.isNameSimilar(name, prevName))
                 forceInstruction = true;

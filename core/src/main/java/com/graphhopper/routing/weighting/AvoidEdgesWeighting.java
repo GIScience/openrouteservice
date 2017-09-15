@@ -58,8 +58,9 @@ public class AvoidEdgesWeighting extends AbstractAdjustedWeighting {
         return superWeighting.getMinWeight(distance);
     }
 
+    // Modification by Maxim Rylov: Added a new method.
     @Override
-    public double getMaxWeight() // runge
+    public double getMaxWeight() 
     {
         return superWeighting.getMaxWeight() * edgePenaltyFactor;
     }

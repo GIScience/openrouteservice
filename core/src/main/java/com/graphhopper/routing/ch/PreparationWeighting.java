@@ -42,8 +42,9 @@ public class PreparationWeighting implements Weighting {
         return userWeighting.getMinWeight(distance);
     }
 
+    // Modification by Maxim Rylov: Added getMaxWeight method. 
     @Override
-    public final double getMaxWeight() // runge
+    public final double getMaxWeight() 
     {
         return userWeighting.getMaxWeight();
     }

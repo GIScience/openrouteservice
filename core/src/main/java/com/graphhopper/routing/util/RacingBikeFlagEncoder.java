@@ -154,14 +154,14 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder {
         String highway = way.getTag("highway");
         String trackType = way.getTag("tracktype");
 
-        // Runge
+        // Modification by Maxim Rylov
         boolean isPushing = way.hasTag("highway", pushingSectionsHighways) || way.hasTag("railway", "platform")
                 || way.hasTag("route", ferries) || way.hasTag("bicycle", "dismount")
                 || "track".equals(highway) && trackType != null && !"grade1".equals(trackType);
 
         if (isPushing) {
             if ("track".equals(highway) && trackType != null && "grade1".equals(trackType)) {
-                String surface = way.getTag("surface"); // Runge
+                String surface = way.getTag("surface"); // Modification by Maxim Rylov
                 if (!Helper.isEmpty(surface)) {
                     Integer surfaceSpeed = surfaceSpeeds.get(surface);
                     if (surfaceSpeed != null) {

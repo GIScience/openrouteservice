@@ -284,7 +284,7 @@ public class BikeFlagEncoderTest extends AbstractBikeFlagEncoderTester {
 
         way.setTag("tracktype", "grade2");
         wayType = getWayTypeFromFlags(way);
-        //assertEquals("get off the bike, unpaved", wayType); Runge
+        //assertEquals("get off the bike, unpaved", wayType); // Modification by Maxim Rylov: Due to changes in processing instructions.
         assertEquals("small way, unpaved", wayType);
 
         way.clearTags();

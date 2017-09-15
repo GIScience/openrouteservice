@@ -36,7 +36,8 @@ public interface EdgeIteratorState {
      */
     int getEdge();
 
-    int getOriginalEdge(); // Runge
+    // Modification by Maxim Rylov: Added a new method that returns the original edge id.
+    int getOriginalEdge(); 
 
     /**
      * Returns the node used to instantiate the EdgeIterator. Example: "EdgeIterator iter =
@@ -70,6 +71,7 @@ public interface EdgeIteratorState {
      */
     PointList fetchWayGeometry(int mode);
 
+    // Modification by Maxim Rylov: Added an overloaded function.
     PointList fetchWayGeometry(int mode, ByteArrayBuffer buffer);
 
     /**
@@ -87,6 +89,7 @@ public interface EdgeIteratorState {
 
     long getFlags();
 
+    // Modification by Maxim Rylov: Added overloaded method. 
     long getFlags(int encoderIndex);
 
     EdgeIteratorState setFlags(long flags);

@@ -39,7 +39,7 @@ public interface FlagEncoder extends TurnCostEncoder {
      */
     int getVersion();
 
-    // Runge     
+    // Modification by Maxim Rylov: Added a new method.     
     int getIndex();
 
     /**

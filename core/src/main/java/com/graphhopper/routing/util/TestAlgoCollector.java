@@ -77,9 +77,11 @@ public class TestAlgoCollector {
         PathMerger pathMerger = new PathMerger().setCalcPoints(true).setSimplifyResponse(false)
                 .setEnableInstructions(true);
         PathWrapper rsp = new PathWrapper();
+        // Modification by Maxim Rylov  
         ByteArrayBuffer buffer = new ByteArrayBuffer();
         PathProcessingContext pathProcCntx = new PathProcessingContext(encoder, null, trMap.getWithFallBack(Locale.US),
-                null, null, new ByteArrayBuffer()); // runge
+                null, null, new ByteArrayBuffer());
+        //*******************************************
         pathMerger.doWork(rsp, altPaths, pathProcCntx);
 
         if (rsp.hasErrors()) {

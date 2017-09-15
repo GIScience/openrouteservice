@@ -147,6 +147,7 @@ class RAMIntDataAccess extends AbstractDataAccess {
 
                 segments = new int[segmentCount][];
 
+                // Modification by Maxim Rylov: LZ4 compression
                 if (RAMDataAccess.LZ4_COMPRESSION_ENABLED) {
                     LZ4Factory factory = LZ4Factory.fastestInstance();
                     LZ4FastDecompressor decompressor = factory.fastDecompressor();

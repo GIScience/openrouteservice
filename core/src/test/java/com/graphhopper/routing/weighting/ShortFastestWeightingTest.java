@@ -66,8 +66,9 @@ public class ShortFastestWeightingTest {
                 return flags;
             }
 
+            // Modification by Maxim Rylov: Added an overloaded function.
             @Override
-            public long getFlags(int encoderIndex) { // Runge
+            public long getFlags(int encoderIndex) { 
                 return flags;
             }
 

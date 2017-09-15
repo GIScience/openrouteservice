@@ -69,7 +69,7 @@ abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
     // This is the specific bicycle class
     protected String classBicycleKey;
 
-    //Runge
+    // Modification by Maxim Rylov: Added new class members.
     private DistanceCalc distCalc = new DistanceCalc3D();
     private List<RouteSplit> splits = new ArrayList<RouteSplit>();
     private int prevEdgeId = Integer.MAX_VALUE;
@@ -274,7 +274,7 @@ abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
             return 0;
         }
 
-        if (!highwaySpeeds.containsKey(highwayValue) && !"bridleway".equals(highwayValue)) // Runge: exclude bridleways, see http://www.openstreetmap.org/way/24064837
+        if (!highwaySpeeds.containsKey(highwayValue) && !"bridleway".equals(highwayValue)) // // Modification by Maxim Rylov: exclude bridleways, see http://www.openstreetmap.org/way/24064837
             return 0;
 
         String sacScale = way.getTag("sac_scale");
@@ -409,11 +409,11 @@ abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
                 if (highwaySpeed != null) {
                     if (surfaceSpeed > highwaySpeed) {
                         // Avoid boosting if pushing section
-                        if (pushingSectionsHighways.contains(highwayTag) && /* Runge */!highwayTag.equals("track"))
+                        if (pushingSectionsHighways.contains(highwayTag) && !highwayTag.equals("track")) // Modification by Maxim Rylov
                             speed = highwaySpeed;
                         else
                             speed = surfaceSpeed;
-                    } else // runge
+                    } else // Modification by Maxim Rylov
                     {
                         String cyclewayTag = way.getTag("cycleway");
                         if (cyclewayTag != null && "track".equals(cyclewayTag)) {
@@ -469,8 +469,8 @@ abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
         if (isBool(flags, K_UNPAVED))
             paveType = 1; // unpaved        
 
-        if (SKIP_WAY_TYPE_INFO) // Runge. We don't use this information
-            return new InstructionAnnotation(0, "", 0/*Runge*/);
+        if (SKIP_WAY_TYPE_INFO) // // Modification by Maxim Rylov. We don't use this information
+            return new InstructionAnnotation(0, "", 0);
         else {
             int wayType = (int) wayTypeEncoder.getValue(flags);
             String wayName = getWayName(paveType, wayType, tr);
@@ -581,7 +581,7 @@ abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
 
         double maxSpeed = getMaxSpeed(way);
 
-        String cycleway = getCycleway(way); // Runge
+        String cycleway = getCycleway(way); // Modification by Maxim Rylov
 
         if (!Helper.isEmpty(cycleway) && (cycleway.equals("track") || cycleway.equals("lane"))) {
             // http://www.openstreetmap.org/way/30606187 cycleway=track
@@ -683,7 +683,7 @@ abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
 
     @Override
     public void applyWayTags(ReaderWay way, EdgeIteratorState edge) {
-        // Runge
+        // Modification by Maxim Rylov
         if (isConsiderElevation()) {
             PointList pl = edge.fetchWayGeometry(3, arrayBuffer);
             if (!pl.is3D())
@@ -959,13 +959,13 @@ abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
 
     protected boolean isPushingSection(ReaderWay way) {
         return way.hasTag("highway", pushingSectionsHighways) || way.hasTag("railway", "platform")
-                || way.hasTag("bicycle", "dismount") || way.hasTag("route", ferries); // Runge
+                || way.hasTag("bicycle", "dismount") || way.hasTag("route", ferries); // Modification by Maxim Rylov
     }
 
     protected long handleSpeed(ReaderWay way, double speed, long encoded) {
         encoded = setSpeed(encoded, speed);
 
-        // Runge
+        // Modification by Maxim Rylov
         if (isConsiderElevation())
             encoded = setReverseSpeed(encoded, speed);
 

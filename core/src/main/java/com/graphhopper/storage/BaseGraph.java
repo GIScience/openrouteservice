@@ -806,6 +806,7 @@ class BaseGraph implements Graph {
         return bytes;
     }
 
+    // Modification by Maxim Rylov: Added new argument ByteArrayBuffer buffer and changed the workflow of the method. 
     private PointList fetchWayGeometry_(long edgePointer, boolean reverse, int mode, int baseNode, int adjNode,
             ByteArrayBuffer buffer) {
         long geoRef = Helper.toUnsignedLong(edges.getInt(edgePointer + E_GEO));
@@ -821,7 +822,7 @@ class BaseGraph implements Graph {
             if (buffer == null) {
                 bytes = new byte[arraySize];
             } else {
-                // Runge
+                // Modification by Maxim Rylov
                 buffer.ensureCapacity(arraySize);
                 bytes = buffer.array();
             }
@@ -950,7 +951,7 @@ class BaseGraph implements Graph {
         }
 
         @Override
-        public /*final  // Runge: FIX*/boolean next() {
+        public final boolean next() {
             while (true) {
                 if (nextEdgeId == EdgeIterator.NO_EDGE)
                     return false;

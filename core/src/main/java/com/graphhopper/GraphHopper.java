@@ -115,7 +115,7 @@ public class GraphHopper implements GraphHopperAPI {
     private FlagEncoderFactory flagEncoderFactory = FlagEncoderFactory.DEFAULT;
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
-    // Runge
+    // Modification by Maxim Rylov: Added new class variables. 
     private WeightingFactory weightingFactory;
     private GraphStorageFactory graphStorageFactory;
 
@@ -148,11 +148,13 @@ public class GraphHopper implements GraphHopperAPI {
         return encodingManager.fetchEdgeEncoders().get(0);
     }
 
-    public void setWeightingFactory(WeightingFactory weightingFactory) { // Runge
+    // Modification by Maxim Rylov: Added new method.
+    public void setWeightingFactory(WeightingFactory weightingFactory) { 
         this.weightingFactory = weightingFactory;
     }
 
-    public void setGraphStorageFactory(GraphStorageFactory graphStorageFactory) { // Runge
+    // Modification by Maxim Rylov: Added new method.
+    public void setGraphStorageFactory(GraphStorageFactory graphStorageFactory) { 
         this.graphStorageFactory = graphStorageFactory;
     }
 
@@ -457,7 +459,7 @@ public class GraphHopper implements GraphHopperAPI {
         return ghStorage;
     }
 
-    // Runge
+    // Modification by Maxim Rylov: Added a new method.
     public long getCapacity() {
         long lmCapacity = 0;
         if (getLMFactoryDecorator().isEnabled()) {
@@ -632,7 +634,7 @@ public class GraphHopper implements GraphHopperAPI {
     private void printInfo() {
         //logger.info("version " + Constants.VERSION + "|" + Constants.BUILD_DATE + " (" + Constants.getVersions() + ")");
         //if (ghStorage != null)
-        //    logger.info("graph " + ghStorage.toString() + ", details:" + ghStorage.toDetailsString()); //runge
+        //    logger.info("graph " + ghStorage.toString() + ", details:" + ghStorage.toDetailsString());    // Modification by Maxim Rylov: commented out, as ORS has its own detailed logging.
     }
 
     /**
@@ -698,7 +700,7 @@ public class GraphHopper implements GraphHopperAPI {
         encodingManager.setEnableInstructions(enableInstructions);
         encodingManager.setPreferredLanguage(preferredLanguage);
         DataReader reader = createReader(ghStorage);
-        //logger.info("using " + ghStorage.toString() + ", memory:" + Helper.getMemInfo()); // runge
+        //logger.info("using " + ghStorage.toString() + ", memory:" + Helper.getMemInfo());     // Modification by Maxim Rylov: comment out.
         reader.readGraph();
         return reader;
     }
@@ -760,10 +762,11 @@ public class GraphHopper implements GraphHopperAPI {
 
         GHDirectory dir = new GHDirectory(ghLocation, dataAccessType);
 
-        if (graphStorageFactory != null) // Runge
+        // Modification by Maxim Rylov
+        if (graphStorageFactory != null)
             ghStorage = graphStorageFactory.createStorage(dir, this);
 
-        if (ghStorage == null) // Runge: default behaviour 
+        if (ghStorage == null) // Modification by Maxim Rylov: fallback to the default behaviour. 
         {
             GraphExtension ext = encodingManager.needsTurnCostsSupport() ? new TurnCostExtension()
                     : new GraphExtension.NoOpExtension();
@@ -914,7 +917,7 @@ public class GraphHopper implements GraphHopperAPI {
         }
     }
 
-    // runge
+    // Modification by Maxim Rylov: new method
     public Weighting createWeighting(HintsMap hintsMap, TraversalMode tMode, FlagEncoder encoder, Graph graph) {
         return createWeighting(hintsMap, tMode, encoder, graph, ghStorage);
     }
@@ -933,7 +936,7 @@ public class GraphHopper implements GraphHopperAPI {
      */
     public Weighting createWeighting(HintsMap hintsMap, TraversalMode tMode, FlagEncoder encoder, Graph graph,
             GraphHopperStorage graphStorage) {
-        // Runge
+        // Modification by Maxim Rylov
         if (weightingFactory != null) {
             return weightingFactory.createWeighting(hintsMap, tMode, encoder, graph, locationIndex, graphStorage);
         }
@@ -978,6 +981,7 @@ public class GraphHopper implements GraphHopperAPI {
         if (!(weighting instanceof TurnWeighting)) {
             FlagEncoder encoder = weighting.getFlagEncoder();
             if (encoder.supports(TurnWeighting.class) && !tMode.equals(TraversalMode.NODE_BASED))
+            	// Modification by Maxim Rylov: Use a generic function to retrieve  TurnCostExtension form GraphExtensions 
                 return new TurnWeighting(weighting, /*(TurnCostExtension) graph.getExtension()*/ Helper
                         .getTurnCostExtensions(graph.getExtension()));
         }

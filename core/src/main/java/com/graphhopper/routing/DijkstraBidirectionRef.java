@@ -171,7 +171,7 @@ public class DijkstraBidirectionRef extends AbstractBidirAlgo {
             SPTEntry ee = bestWeightMap.get(traversalId);
             if (ee == null) {
                 ee = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
-                ee.originalEdge = iter.getOriginalEdge(); // Runge
+                ee.originalEdge = iter.getOriginalEdge();   // Modification by Maxim Rylov: Assign the original edge id.
                 ee.parent = currEdge;
                 bestWeightMap.put(traversalId, ee);
                 prioQueue.add(ee);

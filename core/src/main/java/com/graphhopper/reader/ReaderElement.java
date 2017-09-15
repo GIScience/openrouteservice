@@ -100,12 +100,14 @@ public abstract class ReaderElement {
         properties.put(name, value);
     }
 
-    public boolean hasTag(String key) // Runge
+    // Modification by Maxim Rylov: A new method has been added.
+    public boolean hasTag(String key) 
     {
         return properties.containsKey(key);
     }
 
-    public Iterator<Entry<String, Object>> getProperties() // Runge
+    // Modification by Maxim Rylov: A new method has been added.
+    public Iterator<Entry<String, Object>> getProperties() 
     {
         return properties.entrySet().iterator();
     }

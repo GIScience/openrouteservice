@@ -41,7 +41,9 @@ public class AlgorithmOptions {
     private Weighting weighting;
     private TraversalMode traversalMode = TraversalMode.NODE_BASED;
     private int maxVisitedNodes = Integer.MAX_VALUE;
-    private double maxSpeed = -1; // runge
+    
+    // Modification by Maxim Rylov: Added additional class variables
+    private double maxSpeed = -1;   
     private EdgeFilter edgeFilter;
 
     private AlgorithmOptions() {
@@ -59,6 +61,7 @@ public class AlgorithmOptions {
         this(algorithm, weighting, tMode, -1);
     }
 
+    // Modification by Maxim Rylov: Added a constructor with maxSpeed parameter.
     public AlgorithmOptions(String algorithm, Weighting weighting, TraversalMode tMode, double maxSpeed) {
         this.algorithm = algorithm;
         this.weighting = weighting;
@@ -122,6 +125,7 @@ public class AlgorithmOptions {
         return hints;
     }
 
+    // Modification by Maxim Rylov: Added getMaxSpeed method.
     public double getMaxSpeed() {
         return maxSpeed;
     }
@@ -136,10 +140,12 @@ public class AlgorithmOptions {
         return algorithm + ", " + weighting + ", " + traversalMode;
     }
 
+    // Modification by Maxim Rylov: Added getEdgeFilter method.
     public EdgeFilter getEdgeFilter() {
         return edgeFilter;
     }
 
+    // Modification by Maxim Rylov: Added setEdgeFilter method.
     public void setEdgeFilter(EdgeFilter edgeFilter) {
         this.edgeFilter = edgeFilter;
     }

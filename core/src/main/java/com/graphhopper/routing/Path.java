@@ -72,7 +72,7 @@ public class Path {
     private double weight;
     private NodeAccess nodeAccess;
 
-    // Runge
+    // Modification by Maxim Rylov: Added new class variables.
     private double maxSpeed = -1;
     private int encoderIndex = -1;
 
@@ -417,7 +417,8 @@ public class Path {
      * The callback used in forEveryEdge.
      */
     public interface EdgeVisitor {
-        void next(EdgeIteratorState edge, int index, int count, int prevEdgeId); // Runge: added argument "count"
+    	// Modification by Maxim Rylov: Added count parameter.
+        void next(EdgeIteratorState edge, int index, int count, int prevEdgeId);
 
         void finish();
     }
