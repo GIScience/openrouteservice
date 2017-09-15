@@ -1,6 +1,6 @@
 # Install and Run OpenRouteService Backend via Docker
 
-It's possible and easy to install and launch the OpenRouteService backend service with Docker. Please note that the [../Dockerfile](Dockerfile) under the repository root directory is only for building the [WAR file](https://www.wikiwand.com/en/WAR_(file_format)).
+It's possible and easy to install and launch the OpenRouteService backend service with Docker. Please note that the [Dockerfile](../Dockerfile) under the repository root directory is only for building the [WAR file](https://www.wikiwand.com/en/WAR_(file_format)).
 
 ## Short version
 
