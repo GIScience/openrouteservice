@@ -1,6 +1,6 @@
 # Install and Run OpenRouteService Backend via Docker
 
-It's possible and easy to install and launch the OpenRouteService backend service with Docker. Please note that the [Dockerfile](Dockerfile) under the repository root directory is only for building the [WAR file](https://www.wikiwand.com/en/WAR_(file_format)).
+It's possible and easy to install and launch the OpenRouteService backend service with Docker. Please note that the [../Dockerfile](Dockerfile) under the repository root directory is only for building the [WAR file](https://www.wikiwand.com/en/WAR_(file_format)).
 
 ## Short version
 
@@ -48,6 +48,6 @@ will get everything done with the sample Heidelberg dataset.
 
 ### Run with your own OSM dataset
 
-Prepare the OSM dataset (formats support `.osm`, `.osm.gz`, `.osm.zip`, `.pbf`) in the `docker/data/` directory. Make your own `app.config` (check the sample with detailed comments [here](openrouteservice/WebContent/WEB-INF/app.config.sample) for reference) and change the `APP_CONFIG` variable in `docker-compose.yml` to let it point to your customized `app.config`. Then, run `docker-compose up`.
+Prepare the OSM dataset (formats support `.osm`, `.osm.gz`, `.osm.zip`, `.pbf`) in the `docker/data/` directory. Make your own `app.config` (check the sample with detailed comments [here](../openrouteservice/WebContent/WEB-INF/app.config.sample) for reference) and change the `APP_CONFIG` variable in `docker-compose.yml` to let it point to your customized `app.config`. Then, run `docker-compose up`.
 
 It should be noticed that if your dataset is very big, please adjust the `-Xmx` parameter of `JAVA_OPTS` in `docker-compose.yml`. According to our experiences, it should be at least `180g` for the whole globe.
