@@ -38,6 +38,9 @@ If you want to do contribute your improvements, please follow these steps:
 
 Instructions on how to install openrouteservice will follow soon.
 
+## Usage
+
+Instructions on how to use the endpoints of the running tomcat container will follow soon.
 
 ## API Documentation
 
