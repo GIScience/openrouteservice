@@ -1,30 +1,45 @@
 {
 	ors {
+	    # The topmost element for parameterization of ORS end-points such as Routing, Geocoding, Isochrones, etc.
 		services: {
+            # An end-point used to shorten links. 
 			shortenlink: {
+			    # Enables or disables (true/false) the end-point. Default value is true.
 				enabled: true,
 				user_name: YOUR_USER,
 				user_password: YOUR_PASSWORD,
 				api_key: YOUR_API_KEY,
-				attribution: "openrouteservice.org, OpenStreetMap contributors"
 			}
+			# Accessibility API end-point parameters
+			# NOTE: not ready for production yet.
 			accessibility: {
+			    # Enables or disables (true/false) the end-point. Default value is true.
 	        	enabled: true,
 	        	maximum_range_distance: 120000,
 	        	maximum_range_time: 3600,
 	        	maximum_locations: 2,
 	        	route_details_allowed: true,
 	        	attribution: "openrouteservice.org, OpenStreetMap contributors"
-	    	}			
+	    	}		
+			# Matrix API end-point parameters			
         	matrix: {
+			    # Enables or disables (true/false) the end-point. Default value is true.
         	    enabled: true,
-                maximum_locations: 200,
+				# Maximum dimension of the result matrix. In other words, the maximum possible length of a row or a column in the matrix.
+				# Default value is 100.
+                maximum_locations: 100,
+				# Maximum allowed distance between the requested coordinate and a point on the nearest road. The value is measured in meters.
                 maximum_search_radius: 5000,
+				# Maximum allowed number of visited nodes in shortest path computation. This threshold is applied only for Dijkstra algorithm. 
                 maximum_visited_nodes: 100000,
+				# Specifies whether the name of a neares street to the location can be resolved or not. Default value is true.
                 allow_resolve_locations: true,
                 attribution: "openrouteservice.org, OpenStreetMap contributors"
             }
+			# Optimization API end-point parameters
+			# NOTE: not ready for production yet.
             optimization: {
+			    # Enables or disables (true/false) the end-point. Default value is true.
                 enabled: true,
                 maximum_locations: 200,
                 solver_name: "default",
@@ -33,16 +48,20 @@
                 }
                 attribution: "openrouteservice.org, OpenStreetMap contributors"
             }
+			# MapMatching API end-point parameters
+			# NOTE: not implemented yet.
             mapmatching: {
+			    # Enables or disables (true/false) the end-point. Default value is true.
         	    enabled: true,
                 maximum_locations: 100,
                 maximum_search_radius: 200,
                 maximum_visited_nodes: 10000,
                 attribution: "openrouteservice.org, OpenStreetMap contributors"
             }
+			# Isochrones API end-point parameters
 			isochrones: {
-				enabled: true,
-				# possible values for maximum_range_distance and maximum_range_time are an integer or a list of values specifically defined for each profile
+			    # Enables or disables (true/false) the end-point.
+				# Possible values for maximum_range_distance and maximum_range_time are an integer or a list of values specifically defined for each profile.
 				maximum_range_distance: 
 				[ 
 				   { profiles: "any", value: 50000 }
@@ -58,24 +77,28 @@
 				allow_compute_area: true,
 				attribution: "openrouteservice.org, OpenStreetMap contributors"
 			}
+			# Geocoding API end-point parameters
 			geocoding: {
+				# Enables or disables (true/false) the end-point. Default value is true.
             	geocoder_name: pelias,
-                geocoding_url: "http://129.206.7.154:3100/v1/search",
-                reverse_geocoding_url: "http://129.206.7.154:3100/v1/reverse",
+                geocoding_url: "http://YOUR_ADDRESS/v1/search",
+                reverse_geocoding_url: "http://YOUR_ADDRESS/v1/reverse",
                 response_limit: 20,
-                user_agent: openrouteservice.org,
+                user_agent: OpenRouteService,
                 attribution: "openrouteservice.org, OpenStreetMap contributors"
             }
+			# Locations API end-point parameters
 			locations: {
+				# Enables or disables (true/false) the end-point. Default value is true.
 				enabled: true,
 				provider_name: postgresql,
 				provider_parameters: {
-					host: "129.206.7.206",
+					host: "YOUR_HOST",
 					port: 5432,
-					db_name: "gis",
-					user: "admin", 
-					password : "gZwe5Nj", 
-					table_name : "planet_osm_pois_42"
+					db_name: "YOUR_DATABASE",
+					user: "YOUR_USER", 
+					password : "YOUR_PASSWORD", 
+					table_name : "YOUR_TABLE"
 				},
 				response_limit: 1000,
 				maximum_categories: 5,
@@ -89,12 +112,14 @@
 				maximum_search_radius_for_polygons: 1000,
 				attribution: "openrouteservice.org, OpenStreetMap contributors"
 			}
+			# Routing API end-point parameters
 			routing: {
+				# Enables or disables (true/false) the end-point. Default value is true.
 				enabled: true,
 				mode: "normal",
 				sources: ["openrouteservice/src/main/files/heidelberg.osm.gz"],
 				init_threads: 2,
-				attribution: "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
+				attribution: "openrouteservice.org, OpenStreetMap contributors",
 				profiles: {
 					active: ["vehicles", "bike", "bike2", "pedestrian"],
 					default_params: {
@@ -142,7 +167,7 @@
 						    encoder_options : "turn_costs=true|block_fords=false,turn_costs=true|block_fords=false,turn_costs=true|block_fords=false",
                             maximum_distance: 100000,
                             elevation: true, 
-                            
+                            # parameters for the pre-processing stage
                             preparation:
 							{  
 							    min_network_size: 200,
@@ -165,14 +190,17 @@
 									}
 								}
 							}
+							# parameters for pre-processing the execution stage
 							execution:
 							{
 						    	methods:
 								{
+								    # Contraction hierachies
 									ch:
 									{
 										disabling_allowed: true
 									},
+									# Landmarks
 									lm:
 									{
 										disabling_allowed: true,
@@ -181,14 +209,13 @@
 								}
 							}
 						    ext_storages: {
-                                WayCategory: {
-                                },								
+                                WayCategory: { },								
                                 HeavyVehicle: {
-								    restrictions: true
+									restrictions: true
                                 },								
-								WaySurfaceType: {
-								}
+								WaySurfaceType: { }
 						    }
+							# Traffic feature is not ready for production.
 						    traffic: false
 					    }
 					}
@@ -231,7 +258,6 @@
                                 #NoiseIndex: {
                                 #	 filepath: "PATH/TO/THE_NOISE_INDEX_CSV_FILE"
                                 #},
-                                
                                 WayCategory: { },								
 								WaySurfaceType: { },
 								HillIndex: { },
@@ -247,10 +273,9 @@
 					extent: "",
 					working_directory: "./update_graphs"
 				}
-
 				traffic: {
 					enabled: false,
-					source: "type=ftp;server=viznrwftp.gewi.com;user=cacc016;password=4)Zn3450;file=viznrw.xml",
+					source: "type=ftp;server=YOUR_SERVER;user=cacc016;password=4)Zn3450;file=viznrw.xml",
 					location_codes_path: "PATH/TO/TMC_LCL_LIST",
 					update_interval: 300000,
 					output_directory: "Temp"
