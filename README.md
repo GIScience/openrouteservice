@@ -36,7 +36,7 @@ If you want to do contribute your improvements, please follow these steps:
 
 ## Installation
 
-We suggest using docker to install and launch OpenRouteService backend. In short, run the following command under the source code tree will get everything done.
+We suggest using docker to install and launch openrouteservice backend. In short, run the following command under the source code tree will get everything done.
 
 ```bash
 cd docker && docker-compose up
