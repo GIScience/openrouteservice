@@ -81,7 +81,8 @@
 			# Isochrones API end-point parameters
 			# ********************************************************************************************************************
 			isochrones: {
-			        # Enables or disables (true/false) the end-point.
+			        # Enables or disables (true/false) the end-point. Default value is true.
+        	                enabled: true,
 				# Possible values for maximum_range_distance and maximum_range_time are an integer or a list of values specifically defined for each profile.
 				maximum_range_distance: 
 				[ 
@@ -93,8 +94,11 @@
 				   { profiles: "any", value: 18000 }
 				   { profiles: "driving-car, driving-hgv", value: 3600 }
 				],
+				# Maximum number of intervals/isochrones computed for each location.
 				maximum_intervals: 10,
+				# Maximum number of locations in one request.
 				maximum_locations: 2,
+				# Speficies whether area computation by setting "attributes=area" is allowed or not.
 				allow_compute_area: true,
 				attribution: "openrouteservice.org, OpenStreetMap contributors"
 			}
