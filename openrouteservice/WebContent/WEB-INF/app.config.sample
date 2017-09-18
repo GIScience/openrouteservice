@@ -29,7 +29,7 @@
 			# Matrix API end-point parameters			
 			# ********************************************************************************************************************
         	        matrix: {
-			        # Enables or disables (true/false) the end-point. Default value is true.
+				# Enables or disables (true/false) the end-point. Default value is true.
         	                enabled: true,
 				# Maximum dimension of the result matrix. In other words, the maximum possible length of a row or a column in the matrix.
 				# Default value is 100.
@@ -175,26 +175,22 @@
 					profile-vehicles: {
 						profiles: "driving-car,driving-hgv,driving-motorcycle",
 						parameters: {
-						    encoder_flags_size: 8,
-						    encoder_options : "turn_costs=true|block_fords=false,turn_costs=true|block_fords=false,turn_costs=true|block_fords=false",
-                            maximum_distance: 100000,
-                            elevation: true, 
-                            # parameters for the pre-processing stage
-                            preparation:
-							{  
-							    min_network_size: 200,
-                            	min_one_way_network_size: 200,
-							
-						    	methods:
-								{
-									ch:
-									{
+							encoder_flags_size: 8,
+							encoder_options : "turn_costs=true|block_fords=false,turn_costs=true|block_fords=false,turn_costs=true|block_fords=false",
+                            				maximum_distance: 100000,
+                            				elevation: true, 
+                            				# parameters for the pre-processing stage
+                            				preparation: {  
+					        		min_network_size: 200,
+                            	                        	min_one_way_network_size: 200,
+								
+						    		methods: {
+									ch: {
 										enabled: true,
 										threads: 1,
 										weightings: "fastest"
 									},
-									lm:
-									{
+									lm: {
 										enabled: true,
 										threads: 1,
 										weightings: "fastest|shortest",
@@ -203,78 +199,74 @@
 								}
 							}
 							# parameters for pre-processing the execution stage
-							execution:
-							{
-						    	methods:
-								{
-								    # Contraction hierachies
-									ch:
-									{
+							execution: {
+								methods: {
+									# Contraction hierachies
+									ch: {
 										disabling_allowed: true
 									},
 									# Landmarks
-									lm:
-									{
+									lm: {
 										disabling_allowed: true,
 										active_landmarks: 8
 									}
 								}
 							}
-						    ext_storages: {
-                                WayCategory: { },								
-                                HeavyVehicle: {
+							ext_storages: {
+                                				WayCategory: { },								
+                                				HeavyVehicle: {
 									restrictions: true
-                                },								
+                                				},								
 								WaySurfaceType: { }
-						    }
+							}
 							# Traffic feature is not ready for production.
-						    traffic: false
-					    }
+							traffic: false
+					    	}
 					}
 					profile-bike: {
 						profiles: "cycling-regular, cycling-mountain, cycling-road",
 						parameters: {
-						    # extent: [5.866240, 15.042050, 47.270210, 55.058140], #
-         					encoder_options :"consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false", 
-  				            elevation: true, 
-						    ext_storages: {
-                                WayCategory: {  },								
+							# extent: [5.866240, 15.042050, 47.270210, 55.058140], #
+         						encoder_options :"consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false", 
+  				            		elevation: true, 
+						    	ext_storages: {
+                                				WayCategory: {  },								
 								WaySurfaceType: { },
 								HillIndex: { },
 								TrailDifficulty: { }
-						    }
+						    	}
 						}
 					}
 					profile-bike2: {
 						profiles: "cycling-safe,cycling-tour, cycling-electric",
 						parameters: {
-         					encoder_options: "consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false", 
-					        elevation: true, 
-					 	    ext_storages: {
-                                WayCategory: { },								
+         						encoder_options: "consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false,consider_elevation=true|turn_costs=true|block_fords=false", 
+					        	elevation: true, 
+					 	    	ext_storages: {
+                                				WayCategory: { },								
 								WaySurfaceType: { },
 								HillIndex: { },
 								TrailDifficulty: { }
-						    }
+						    	}
 						}
 					}
 					profile-pedestrian: {
 						profiles: "foot-walking,foot-hiking",
 						parameters: {
-						    encoder_options: "block_fords=false,block_fords=false",
-						    elevation: true, 
-                            ext_storages: {
-                                #GreenIndex: {
-                                #    filepath: "PATH/TO/THE_GREEN_INDEX_CSV_FILE"
-                                #},
-                                #NoiseIndex: {
-                                #	 filepath: "PATH/TO/THE_NOISE_INDEX_CSV_FILE"
-                                #},
-                                WayCategory: { },								
+							encoder_options: "block_fords=false,block_fords=false",
+						    	elevation: true, 
+                            				ext_storages: {
+                                				#GreenIndex: {
+                                				#    filepath: "PATH/TO/THE_GREEN_INDEX_CSV_FILE"
+                                				#},
+                                				#NoiseIndex: {
+                                				#	 filepath: "PATH/TO/THE_NOISE_INDEX_CSV_FILE"
+                                				#},
+                                				WayCategory: { },								
 								WaySurfaceType: { },
 								HillIndex: { },
 								TrailDifficulty: { }
-						    } 						
+						    	} 						
 						}
 					}
 				}
