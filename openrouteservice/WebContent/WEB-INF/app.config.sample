@@ -19,8 +19,17 @@
 			accessibility: {
 			        # Enables or disables (true/false) the end-point. Default value is true.
 	        	        enabled: true,
-	        	        maximum_range_distance: 120000,
-	        	        maximum_range_time: 3600,
+	        	        # Possible values for maximum_range_distance and maximum_range_time are an integer or a list of values specifically defined for each profile.
+				maximum_range_distance: 
+				[ 
+				   { profiles: "any", value: 50000 }
+				   { profiles: "driving-car, driving-hgv", value: 100000 }
+				],
+				maximum_range_time: 
+				[ 
+				   { profiles: "any", value: 18000 }
+				   { profiles: "driving-car, driving-hgv", value: 3600 }
+				],
 	        	        maximum_locations: 2,
 	        	        route_details_allowed: true,
 	        	        attribution: "openrouteservice.org, OpenStreetMap contributors"
@@ -94,10 +103,16 @@
 			# ********************************************************************************************************************
 			geocoding: {
 				# Enables or disables (true/false) the end-point. Default value is true.
+				enabled: true,
+				# Name of the geocoder. Possible values are nomimatim, pelias or photon.
             	                geocoder_name: pelias,
+				# URL for forward geocoding.
                                 geocoding_url: "http://YOUR_ADDRESS/v1/search",
+				# URL for reverse geocoding.
                                 reverse_geocoding_url: "http://YOUR_ADDRESS/v1/reverse",
+				# The maximum allowed number of returned results.
                                 response_limit: 20,
+				#  Sets the value of the User-agent HTTP header set to a backend.
                                 user_agent: OpenRouteService,
                                 attribution: "openrouteservice.org, OpenStreetMap contributors"
                         }
@@ -107,7 +122,9 @@
 			locations: {
 				# Enables or disables (true/false) the end-point. Default value is true.
 				enabled: true,
+				# Defines the provider name of the Locations API backend. Possible values are postgreql, memsql (not finished).
 				provider_name: postgresql,
+				# Connection parameters of the provider.
 				provider_parameters: {
 					host: "YOUR_HOST",
 					port: 5432,
@@ -116,13 +133,15 @@
 					password : "YOUR_PASSWORD", 
 					table_name : "YOUR_TABLE"
 				},
+				# The maximum allowed number of returned results.
 				response_limit: 1000,
+				# The maximum allowed number of categories specifed in a request.
 				maximum_categories: 5,
-				# maximum allowed length of a linestring, measured in meters
+				# The maximum allowed length of a linestring, measured in meters.
 				maximum_feature_length: 10000000,
-				# maximum allowed area of a polygon, measured in square meters
+				# The maximum allowed area of a polygon, measured in square meters
 				maximum_feature_area: -1, 
-				# maximum allowed search radius 
+				# The maximum allowed search radius, measured in meters.
 				maximum_search_radius_for_points: 50000,
 				maximum_search_radius_for_linestrings: 2000,
 				maximum_search_radius_for_polygons: 1000,
@@ -135,11 +154,16 @@
 				# Enables or disables (true/false) the end-point. Default value is true.
 				enabled: true,
 				mode: "normal",
+				# The path to an OpenStreetMap data file.
 				sources: ["openrouteservice/src/main/files/heidelberg.osm.gz"],
+				# The number of threads used to initialize (build/load) graphs.
 				init_threads: 2,
 				attribution: "openrouteservice.org, OpenStreetMap contributors",
+				# Defines a set of routing profiles.
 				profiles: {
+				        # Defines a list of active routing profiles. The element name XXX must correspond to notation "profile-XXX", which is used int the following sections.
 					active: ["vehicles", "bike", "bike2", "pedestrian"],
+					# Set parameters that is applied to every profile by default.
 					default_params: {
 						encoder_flags_size: 8, 
 						graphs_root_path: "graphs", 
@@ -172,6 +196,7 @@
 							}
 						}
 					},
+					# A group of vehicle-based profiles.
 					profile-vehicles: {
 						profiles: "driving-car,driving-hgv,driving-motorcycle",
 						parameters: {
