@@ -167,27 +167,41 @@
 					default_params: {
 					        # The number of bytes used for FlagEncoders.
 						encoder_flags_size: 8, 
+						# The root path to a directory for storing graphs.
 						graphs_root_path: "graphs", 
+						# The name of an elevation provider. Possible values are cgiar and srtm.
 						elevation_provider: cgiar,
+						# The path to a directory in which SRTM tiles will be stored. 
 						elevation_cache_path: "cgiar_provider",
+						# Specifies whether way names will be stored during the import or not.
  	          		                instructions: true,
+						# The maximum allowed total distance of a route.
  	          		                maximum_distance: 100000,
+						# The maximum allowed distance between two way points when dynamic weights are used.
  	          		                maximum_segment_distance_with_dynamic_weights: 50000,
+						# The maximum number of way points in a request.
  	          		                maximum_waypoints: 50,
- 	          		    
+						
+ 	          		                # The parameters for the pre-processing stage.
  	          		                preparation: {  
 							min_network_size: 200,
                             	                        min_one_way_network_size: 200,
 							
 						    	methods: {
+							        # Landmarks
 								lm: {
+								        # Enables or disables landmarks features.
 									enabled: true,
+									# The number of threads used to compute landmarks.
 									threads: 1,
+									# A pipe (|) separated list of weightings used for Landmarks.
 									weightings: "fastest|shortest",
+									# The number of landmarks.
 									landmarks: 16
 								}
 							}
 						}
+						# The parameters for the execution stage.
 						execution: {
 						    	methods: {
 								lm: {
@@ -204,11 +218,11 @@
 						profiles: "driving-car,driving-hgv,driving-motorcycle",
 						parameters: {
 							encoder_flags_size: 8,
+							# List of options used by FlagEncoders.
 							encoder_options : "turn_costs=true|block_fords=false,turn_costs=true|block_fords=false,turn_costs=true|block_fords=false",
                             				maximum_distance: 100000,
                             				elevation: true, 
-                            				# The parameters for the pre-processing stage.
-                            				preparation: {  
+                                			preparation: {  
 					        		min_network_size: 200,
                             	                        	min_one_way_network_size: 200,
 								
@@ -226,7 +240,6 @@
 									}
 								}
 							}
-							# parameters for pre-processing the execution stage
 							execution: {
 								methods: {
 									# Contraction hierachies
@@ -240,6 +253,7 @@
 									}
 								}
 							}
+							# The list of custom storages that store additional attribtues for graph edges.
 							ext_storages: {
                                 				WayCategory: { },								
                                 				HeavyVehicle: {
