@@ -1,6 +1,6 @@
 {
 	ors {
-	        # The topmost element for parameterization of ORS end-points such as Routing, Geocoding, Isochrones, etc.
+	        # The topmost element for parameterization of the ORS end-points such as Routing, Geocoding, Isochrones, etc.
 		services: {
 		        # ********************************************************************************************************************
             		# An end-point used to shorten links. 
