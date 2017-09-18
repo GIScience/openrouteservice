@@ -197,7 +197,9 @@
 							}
 						}
 					},
-					# A group of vehicle-based profiles.
+					# ====================================================================================================================
+					# Vehicle profiles
+					# ====================================================================================================================
 					profile-vehicles: {
 						profiles: "driving-car,driving-hgv,driving-motorcycle",
 						parameters: {
@@ -249,6 +251,9 @@
 							traffic: false
 					    	}
 					}
+					# ====================================================================================================================
+					# Cycling profiles
+					# ====================================================================================================================
 					profile-bike: {
 						profiles: "cycling-regular, cycling-mountain, cycling-road",
 						parameters: {
@@ -263,6 +268,9 @@
 						    	}
 						}
 					}
+					# ====================================================================================================================
+					# Cycling profiles
+					# ====================================================================================================================
 					profile-bike2: {
 						profiles: "cycling-safe,cycling-tour, cycling-electric",
 						parameters: {
@@ -276,6 +284,9 @@
 						    	}
 						}
 					}
+					# ====================================================================================================================
+					# Walking profiles
+					# ====================================================================================================================
 					profile-pedestrian: {
 						profiles: "foot-walking,foot-hiking",
 						parameters: {
@@ -312,10 +323,15 @@
 				}
 			}
 		}
+		# Logging configuration
 		logging: {
+		        # Enables or disables logging. Default value is true.
 			enabled: true,
+			# The path to a file containing logging parameters.
 			level_file: "DEBUG_LOGGING.properties",
+			# The path to a directory to which logs will be written.
 			location: "./logs",
+			# Enables/disables writing logs to STDOUT.
 			stdout: true
 		}
 	}
