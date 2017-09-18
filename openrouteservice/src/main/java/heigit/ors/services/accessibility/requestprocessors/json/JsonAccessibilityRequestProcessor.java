@@ -36,9 +36,12 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 import heigit.ors.accessibility.AccessibilityAnalyzer;
+import heigit.ors.accessibility.AccessibilityErrorCodes;
 import heigit.ors.accessibility.AccessibilityRequest;
 import heigit.ors.accessibility.AccessibilityResult;
 import heigit.ors.common.StatusCode;
+import heigit.ors.common.TravellerInfo;
+import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.services.accessibility.AccessibilityServiceSettings;
@@ -77,6 +80,20 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 
 		if (req == null)
 			throw new StatusCodeException(StatusCode.BAD_REQUEST, "AccessibilityRequest object is null.");
+		
+ 		List<TravellerInfo> travellers = req.getTravellers();
+		
+		if (travellers.size() > AccessibilityServiceSettings.getMaximumLocations())
+			throw new ParameterOutOfRangeException(AccessibilityErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations", Integer.toString(travellers.size()), Integer.toString(AccessibilityServiceSettings.getMaximumLocations()));
+
+		for (int i = 0;i < travellers.size(); ++i){
+			TravellerInfo traveller = travellers.get(i);
+			int maxAllowedRange = AccessibilityServiceSettings.getMaximumRange(traveller.getRouteSearchParameters().getProfileType(), traveller.getRangeType());
+			double maxRange = traveller.getMaximumRange();
+			if (maxRange > maxAllowedRange)
+				throw new ParameterOutOfRangeException(AccessibilityErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(maxAllowedRange), Double.toString(maxRange));
+		}
+
 
 		AccessibilityResult accesibilityResult = AccessibilityAnalyzer.computeAccessibility(req);
 

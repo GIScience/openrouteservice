@@ -20,14 +20,23 @@
  */
 package heigit.ors.services.accessibility;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.typesafe.config.ConfigObject;
+
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.config.AppConfig;
+import heigit.ors.routing.RoutingProfileType;
 
 public class AccessibilityServiceSettings 
 {
 	private static int maximumLocations = 1;
 	private static int maximumRangeDistance = 100000; //  in meters
+	private static Map<Integer, Integer> profileMaxRangeDistances;
 	private static int maximumRangeTime = 3600; // in seconds
+	private static Map<Integer, Integer> profileMaxRangeTimes;
 	private static boolean routeDetailsAllowed = false;
 	private static int responseLimit = 50; 
 	private static String attribution = "";
@@ -44,9 +53,30 @@ public class AccessibilityServiceSettings
 		value = AppConfig.Global().getServiceParameter("accessibility", "maximum_range_distance");
 		if (value != null)
 			maximumRangeDistance = Integer.parseInt(value);
+		else
+		{
+			List<? extends ConfigObject> params = AppConfig.Global().getObjectList("accessibility", "maximum_range_distance");
+			if (params != null)
+			{
+				profileMaxRangeDistances = getParameters(params);
+				if (profileMaxRangeDistances.containsKey(-1))
+					maximumRangeDistance = profileMaxRangeDistances.get(-1);
+			}
+		}
+
 		value = AppConfig.Global().getServiceParameter("accessibility", "maximum_range_time");
 		if (value != null)
 			maximumRangeTime = Integer.parseInt(value);
+		else
+		{
+			List<? extends ConfigObject> params = AppConfig.Global().getObjectList("accessibility", "maximum_range_time");
+			if (params != null)
+			{
+				profileMaxRangeTimes = getParameters(params);
+				if (profileMaxRangeTimes.containsKey(-1))
+					maximumRangeTime = profileMaxRangeTimes.get(-1);
+			}
+		}
 		value = AppConfig.Global().getServiceParameter("accessibility", "route_details_allowed");
 		if (value != null)
 			routeDetailsAllowed = Boolean.parseBoolean(value);
@@ -56,6 +86,28 @@ public class AccessibilityServiceSettings
 		value = AppConfig.Global().getServiceParameter("accessibility", "attribution");
 		if (value != null)
 			attribution = value;
+	}
+	
+	private static Map<Integer, Integer> getParameters(List<? extends ConfigObject> params)
+	{
+		Map<Integer, Integer> result = new HashMap<Integer, Integer>();
+
+		for(ConfigObject cfgObj : params)
+		{
+			if (cfgObj.containsKey("profiles") && cfgObj.containsKey("value"))
+			{
+				String[] profiles = cfgObj.toConfig().getString("profiles").split(",");
+				for (String profileStr : profiles)
+				{
+					profileStr = profileStr.trim();
+					Integer profile = ("any".equalsIgnoreCase(profileStr)) ? -1 : RoutingProfileType.getFromString(profileStr);
+					if (profile != RoutingProfileType.UNKNOWN)
+						result.put(profile, cfgObj.toConfig().getInt("value"));
+				}
+			}
+		}
+
+		return result;
 	}
 	
 	public static Boolean getEnabled() {
@@ -70,16 +122,30 @@ public class AccessibilityServiceSettings
 		return maximumLocations;
 	}
 	
-	public static int getMaximumRange(TravelRangeType range) {
+	public static int getMaximumRange(int profileType, TravelRangeType range) {
+		Integer res = 0;
+
 		switch(range)
 		{
 		case Distance:
-			return maximumRangeDistance;
+			res = maximumRangeDistance;
+			
+			if (profileMaxRangeDistances != null && profileMaxRangeDistances.containsKey(profileType))
+			{
+				res = profileMaxRangeDistances.get(profileType);
+			}
+			break;
 		case Time:
-			return maximumRangeTime;
+			res = maximumRangeTime;
+			
+			if (profileMaxRangeTimes != null && profileMaxRangeTimes.containsKey(profileType))
+			{
+				res = profileMaxRangeTimes.get(profileType);
+			}
+			break;
 		}
 
-		return 0;
+		return res;
 	}
 	
 	public static boolean getRouteDetailsAllowed()
