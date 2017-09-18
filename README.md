@@ -46,8 +46,18 @@ For more details, check the [docker installation guide](docker/README.md).
 
 ## Usage
 
-Instructions on how to use the endpoints of the running tomcat container will follow soon.
+Openrouteservice offers a set of endpoints for different spatial purposes. They are served with the help of [Tomcat in a java servlet container](https://github.com/GIScience/openrouteservice/blob/master/openrouteservice/WebContent/WEB-INF/web.xml). By default you will be able to query the services with these addresses:
 
+- `http://localhost:8080/name_of_war_archive/routes`
+- `http://localhost:8080/name_of_war_archive/isochrones`
+- `http://localhost:8080/name_of_war_archive/matrix`
+
+Both `/locations` and `/geocoding` need additional setup steps for usage.
+- `http://localhost:8080/name_of_war_archive/locations` | You will have to set up a locations database, for this please refer to [openrouteservice-tools](https://github.com/GIScience/openrouteservice-tools).
+- `http://localhost:8080/name_of_war_archive/geocoding` | You can either use [Photon](https://github.com/komoot/photon), [Nominatim](https://github.com/openstreetmap/Nominatim) or [Pelias](https://github.com/pelias/pelias). One of these services must be installed in addition to the openrouteservice and configured in `app.config`.
+
+Please find a detailed description of the api architecture on https://app.swaggerhub.com/apis/OpenRouteService/ors-api/.
+	
 ## API Documentation
 
 For an easy and interactive way to test the api, visit our [documentation](https://app.swaggerhub.com/apis/openrouteservice/ors-api/) at swaggerhub. After obtaining your key you can try out the different endpoints instantly and start firing requests.
