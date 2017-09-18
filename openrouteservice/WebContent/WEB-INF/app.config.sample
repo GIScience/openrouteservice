@@ -1,6 +1,6 @@
 {
 	ors {
-	    # The topmost element for parameterization of ORS end-points such as Routing, Geocoding, Isochrones, etc.
+	        # The topmost element for parameterization of ORS end-points such as Routing, Geocoding, Isochrones, etc.
 		services: {
 		        # ********************************************************************************************************************
             		# An end-point used to shorten links. 
@@ -104,7 +104,7 @@
 			geocoding: {
 				# Enables or disables (true/false) the end-point. Default value is true.
 				enabled: true,
-				# Name of the geocoder. Possible values are nomimatim, pelias or photon.
+				# The name of a geocoder. Possible values are nomimatim, pelias or photon. 
             	                geocoder_name: pelias,
 				# URL for forward geocoding.
                                 geocoding_url: "http://YOUR_ADDRESS/v1/search",
@@ -112,7 +112,7 @@
                                 reverse_geocoding_url: "http://YOUR_ADDRESS/v1/reverse",
 				# The maximum allowed number of returned results.
                                 response_limit: 20,
-				#  Sets the value of the User-agent HTTP header set to a backend.
+				#  Sets the value of the User-agent HTTP header sent to a backend.
                                 user_agent: OpenRouteService,
                                 attribution: "openrouteservice.org, OpenStreetMap contributors"
                         }
@@ -156,15 +156,16 @@
 				mode: "normal",
 				# The path to an OpenStreetMap data file.
 				sources: ["openrouteservice/src/main/files/heidelberg.osm.gz"],
-				# The number of threads used to initialize (build/load) graphs.
+				# The number of threads used to initialize (build/load) graphs. Higher numbers requires more RAM.
 				init_threads: 2,
 				attribution: "openrouteservice.org, OpenStreetMap contributors",
 				# Defines a set of routing profiles.
 				profiles: {
-				        # Defines a list of active routing profiles. The element name XXX must correspond to notation "profile-XXX", which is used int the following sections.
+				        # Defines a list of active routing profiles. The element name XXX must correspond to a notation "profile-XXX", which is used in the following sections.
 					active: ["vehicles", "bike", "bike2", "pedestrian"],
 					# Set parameters that is applied to every profile by default.
 					default_params: {
+					        # The number of bytes used for FlagEncoders.
 						encoder_flags_size: 8, 
 						graphs_root_path: "graphs", 
 						elevation_provider: cgiar,
@@ -204,7 +205,7 @@
 							encoder_options : "turn_costs=true|block_fords=false,turn_costs=true|block_fords=false,turn_costs=true|block_fords=false",
                             				maximum_distance: 100000,
                             				elevation: true, 
-                            				# parameters for the pre-processing stage
+                            				# The parameters for the pre-processing stage.
                             				preparation: {  
 					        		min_network_size: 200,
                             	                        	min_one_way_network_size: 200,
