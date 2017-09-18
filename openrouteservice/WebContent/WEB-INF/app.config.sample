@@ -2,55 +2,61 @@
 	ors {
 	    # The topmost element for parameterization of ORS end-points such as Routing, Geocoding, Isochrones, etc.
 		services: {
-            # An end-point used to shorten links. 
+		        # ********************************************************************************************************************
+            		# An end-point used to shorten links. 
+			# ********************************************************************************************************************
 			shortenlink: {
-			    # Enables or disables (true/false) the end-point. Default value is true.
+			        # Enables or disables (true/false) the end-point. Default value is true.
 				enabled: true,
 				user_name: YOUR_USER,
 				user_password: YOUR_PASSWORD,
 				api_key: YOUR_API_KEY,
 			}
+			# ********************************************************************************************************************
 			# Accessibility API end-point parameters
 			# NOTE: not ready for production yet.
+			# ********************************************************************************************************************
 			accessibility: {
-			    # Enables or disables (true/false) the end-point. Default value is true.
-	        	enabled: true,
-	        	maximum_range_distance: 120000,
-	        	maximum_range_time: 3600,
-	        	maximum_locations: 2,
-	        	route_details_allowed: true,
-	        	attribution: "openrouteservice.org, OpenStreetMap contributors"
-	    	}		
+			        # Enables or disables (true/false) the end-point. Default value is true.
+	        	        enabled: true,
+	        	        maximum_range_distance: 120000,
+	        	        maximum_range_time: 3600,
+	        	        maximum_locations: 2,
+	        	        route_details_allowed: true,
+	        	        attribution: "openrouteservice.org, OpenStreetMap contributors"
+	    	        }
+			# ********************************************************************************************************************
 			# Matrix API end-point parameters			
-        	matrix: {
-			    # Enables or disables (true/false) the end-point. Default value is true.
-        	    enabled: true,
+			# ********************************************************************************************************************
+        	        matrix: {
+			        # Enables or disables (true/false) the end-point. Default value is true.
+        	                enabled: true,
 				# Maximum dimension of the result matrix. In other words, the maximum possible length of a row or a column in the matrix.
 				# Default value is 100.
-                maximum_locations: 100,
+                                maximum_locations: 100,
 				# Maximum allowed distance between the requested coordinate and a point on the nearest road. The value is measured in meters.
-                maximum_search_radius: 5000,
+                                maximum_search_radius: 5000,
 				# Maximum allowed number of visited nodes in shortest path computation. This threshold is applied only for Dijkstra algorithm. 
-                maximum_visited_nodes: 100000,
+                                maximum_visited_nodes: 100000,
 				# Specifies whether the name of a neares street to the location can be resolved or not. Default value is true.
-                allow_resolve_locations: true,
-                attribution: "openrouteservice.org, OpenStreetMap contributors"
-            }
+                                allow_resolve_locations: true,
+                                attribution: "openrouteservice.org, OpenStreetMap contributors"
+                        }
 			# Optimization API end-point parameters
 			# NOTE: not ready for production yet.
-            optimization: {
-			    # Enables or disables (true/false) the end-point. Default value is true.
-                enabled: true,
-                maximum_locations: 200,
-                solver_name: "default",
-                solver_options: 
-                { 
-                }
-                attribution: "openrouteservice.org, OpenStreetMap contributors"
-            }
+                        optimization: {
+			        # Enables or disables (true/false) the end-point. Default value is true.
+                                enabled: true,
+                                maximum_locations: 200,
+                                solver_name: "default",
+                                solver_options: 
+                                { 
+                                },
+                                attribution: "openrouteservice.org, OpenStreetMap contributors"
+                        }
 			# MapMatching API end-point parameters
 			# NOTE: not implemented yet.
-            mapmatching: {
+                        mapmatching: {
 			    # Enables or disables (true/false) the end-point. Default value is true.
         	    enabled: true,
                 maximum_locations: 100,
