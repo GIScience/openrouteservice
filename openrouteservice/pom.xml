@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>heigit.ors</groupId>
     <artifactId>openrouteservice</artifactId>
-    <version>4.3.1</version>
+    <version>4.3.0</version>
     <packaging>war</packaging>
     <name>OpenRouteService</name>
     <url>openrouteservice.org</url>
@@ -178,12 +178,12 @@
     	<version>3.0.3</version>
 	</dependency>        
 
-	<dependency>
+ 	<dependency>
 	 	<groupId>com.github.GIScience</groupId>
 		<artifactId>graphhopper</artifactId>
 	   	<version>v0.9.3</version>
 	</dependency>
-
+  
 	<dependency>
     	<groupId>com.typesafe</groupId>
 	    <artifactId>config</artifactId>
