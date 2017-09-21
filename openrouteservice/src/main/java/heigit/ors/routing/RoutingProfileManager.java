@@ -66,6 +66,7 @@ import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.storage.RAMDataAccess;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.Helper;
+import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class RoutingProfileManager {
@@ -289,9 +290,9 @@ public class RoutingProfileManager {
 			Coordinate c1 = coords[i];
 			GHResponse gr = null;
 			if (invertFlow)
-				gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, false, searchParams, customEdgeFilter, req.getSimplifyGeometry(), routeProcCntx);
+				gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, 0.0, false, searchParams, customEdgeFilter, req.getSimplifyGeometry(), routeProcCntx);
 			else
-				gr = rp.computeRoute(c1.y, c1.x, c0.y, c0.x, false, searchParams, customEdgeFilter, req.getSimplifyGeometry(), routeProcCntx);
+				gr = rp.computeRoute(c1.y, c1.x, c0.y, c0.x, 0.0, false, searchParams, customEdgeFilter, req.getSimplifyGeometry(), routeProcCntx);
 
 			//if (gr.hasErrors())
 			//	throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
@@ -345,7 +346,8 @@ public class RoutingProfileManager {
 		int nSegments = coords.length - 1;
 		RouteProcessContext routeProcCntx = new RouteProcessContext(pathProcessor);
 		EdgeFilter customEdgeFilter = rp.createAccessRestrictionFilter(coords);
-
+		GHResponse prevResp = null;
+		
 		for(int i = 1; i <= nSegments; ++i)
 		{
 			c1 = coords[i];
@@ -353,16 +355,37 @@ public class RoutingProfileManager {
 			if (pathProcessor != null)
 				pathProcessor.setSegmentIndex(i - 1, nSegments);
 
-			GHResponse gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, c0.z == 1.0, searchParams, customEdgeFilter,  req.getSimplifyGeometry(), routeProcCntx);
-
+			double heading = Double.MIN_VALUE;
+			if (i > 1 && req.getContinueStraight())
+				heading = getHeadingDirection(prevResp);
+			
+			GHResponse gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, heading, c0.z == 1.0, searchParams, customEdgeFilter,  req.getSimplifyGeometry(), routeProcCntx);
+			
 			if (gr.hasErrors())
 				throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
 
+			prevResp = gr;
 			routes.add(gr);
 			c0 = c1;
 		}
 
 		return new RouteResultBuilder().createRouteResult(routes, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor)pathProcessor).getExtras(): null);
+	}
+	
+	private double getHeadingDirection(GHResponse resp)
+	{
+		PointList points = resp.getBest().getPoints();
+		int nPoints = points.size();
+		if (nPoints > 1)
+		{
+			double lon1 = points.getLon(nPoints - 2);
+			double lat1 = points.getLat(nPoints - 2);
+			double lon2 = points.getLon(nPoints - 1);
+			double lat2 = points.getLat(nPoints - 1);
+			return Helper.ANGLE_CALC.calcAzimuth(lat1, lon1, lat2, lon2);
+		}
+		else
+			return 0;
 	}
 	
 	public RoutingProfile getRouteProfile(RoutingRequest req, boolean oneToMany) throws Exception {

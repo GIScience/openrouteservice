@@ -84,7 +84,6 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.dem.ElevationProvider;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.EdgeFilterSequence;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
@@ -767,7 +766,7 @@ public class RoutingProfile
 		return totalDistance <= maxDistance && wayPoints <= maxWayPoints;
 	}
 
-	public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, boolean directedSegment, RouteSearchParameters searchParams, EdgeFilter customEdgeFilter, boolean simplifyGeometry, RouteProcessContext routeProcCntx)
+	public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, double heading, boolean directedSegment, RouteSearchParameters searchParams, EdgeFilter customEdgeFilter, boolean simplifyGeometry, RouteProcessContext routeProcCntx)
 			throws Exception {
 
 		GHResponse resp = null; 
@@ -782,12 +781,17 @@ public class RoutingProfile
 			RouteSearchContext searchCntx = createSearchContext(searchParams, RouteSearchMode.Routing, customEdgeFilter);
 
 			boolean flexibleMode = searchParams.getFlexibleMode();
-			GHRequest req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
+			GHRequest req = null;
+			if (heading == Double.MIN_VALUE)
+				req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
+			else
+				req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), heading, Double.NaN);
+			
 			req.setVehicle(searchCntx.getEncoder().toString());
 			req.setMaxSpeed(searchParams.getMaximumSpeed());
 			req.setSimplifyGeometry(simplifyGeometry);
 			req.setAlgorithm("dijkstrabi");
-
+			
 			PMap props = searchCntx.getProperties();
 			if (props != null && props.size() > 0)
 				req.getHints().merge(props);
@@ -826,7 +830,7 @@ public class RoutingProfile
 
 				flexibleMode = true;
 			}
-
+			
 			if (RoutingProfileType.isDriving(profileType) && RealTrafficDataProvider.getInstance().isInitialized())
 				req.setEdgeAnnotator(new TrafficEdgeAnnotator(mGraphHopper.getGraphHopperStorage()));
 
@@ -849,6 +853,13 @@ public class RoutingProfile
 					req.getHints().put("ch.disable", true);
 			}
 			
+			if (profileType == RoutingProfileType.DRIVING_EMERGENCY)
+			{
+				req.getHints().put("custom_weightings", true);
+				req.getHints().put("weighting_#acceleration#", true);
+				req.getHints().put("lm.disable", true); // REMOVE
+			}
+
 			if (_astarEpsilon != null)
 			  req.getHints().put("astarbi.epsilon", _astarEpsilon);
 			if (_astarApproximation != null)

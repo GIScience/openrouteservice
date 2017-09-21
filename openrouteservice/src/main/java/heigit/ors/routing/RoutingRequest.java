@@ -37,10 +37,12 @@ public class RoutingRequest extends ServiceRequest
 	private Boolean _includeElevation = false;
 	private Boolean _includeGeometry = true;
 	private Boolean _includeManeuvers = false;
+    private boolean _includeRoundaboutExits = false;
 	private Boolean _simplifyGeometry = false;
 	private String[] _attributes = null;
     private int _extraInfo;
     private int _locationIndex = -1;
+    private boolean _continueStraight = true;
 	
 	public RoutingRequest()
 	{
@@ -178,5 +180,21 @@ public class RoutingRequest extends ServiceRequest
 
 	public void setIncludeManeuvers(Boolean includeManeuvers) {
 		_includeManeuvers = includeManeuvers;
+	}
+
+	public boolean getContinueStraight() {
+		return _continueStraight;
+	}
+
+	public void setContinueStraight(boolean continueStraight) {
+		_continueStraight = continueStraight;
+	}
+
+	public boolean getIncludeRoundaboutExits() {
+		return _includeRoundaboutExits;
+	}
+
+	public void setIncludeRoundaboutExits(boolean includeRoundaboutExits) {
+		_includeRoundaboutExits = includeRoundaboutExits;
 	}
 }

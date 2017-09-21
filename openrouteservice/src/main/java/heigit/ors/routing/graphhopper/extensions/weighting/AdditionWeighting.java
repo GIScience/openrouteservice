@@ -51,6 +51,8 @@ public class AdditionWeighting extends AbstractWeighting {
     public abstract class WeightCalc
     {
     	public abstract double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId);
+    	
+    	public abstract long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId);
     }
     
     public class OneWeightCalc extends WeightCalc
@@ -65,6 +67,11 @@ public class AdditionWeighting extends AbstractWeighting {
     	public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId)
     	{
     		return _weighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
+    	}
+    	
+    	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId)
+    	{
+    		return _weighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
     	}
     }
     
@@ -82,6 +89,11 @@ public class AdditionWeighting extends AbstractWeighting {
     	{
     		return super.calcWeight(edgeState, reverse, prevOrNextEdgeId) + _weighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
     	}
+    	
+    	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId)
+    	{
+    		return super.calcMillis(edgeState, reverse, prevOrNextEdgeId) + _weighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
+    	}
     }
     
     public class ThreeWeightCalc extends TwoWeightCalc
@@ -97,6 +109,11 @@ public class AdditionWeighting extends AbstractWeighting {
     	public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId)
     	{
     		return super.calcWeight(edgeState, reverse, prevOrNextEdgeId) + _weighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
+    	}
+    	
+    	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId)
+    	{
+    		return super.calcMillis(edgeState, reverse, prevOrNextEdgeId) + _weighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
     	}
     }
     
@@ -114,6 +131,11 @@ public class AdditionWeighting extends AbstractWeighting {
     	{
     		return super.calcWeight(edgeState, reverse, prevOrNextEdgeId) + _weighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
     	}
+    	
+    	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId)
+    	{
+    		return super.calcMillis(edgeState, reverse, prevOrNextEdgeId) + _weighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
+    	}
     }
     
     public class FiveWeightCalc extends FourWeightCalc
@@ -130,6 +152,11 @@ public class AdditionWeighting extends AbstractWeighting {
     	{
     		return super.calcWeight(edgeState, reverse, prevOrNextEdgeId) + _weighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
     	}
+    	
+    	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId)
+    	{
+    		return super.calcMillis(edgeState, reverse, prevOrNextEdgeId) + _weighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
+    	}
     }
 
     @Override
@@ -141,6 +168,11 @@ public class AdditionWeighting extends AbstractWeighting {
 	@Override
 	public double getMinWeight(double distance) {
 		return 0;
+	}
+	
+	@Override
+	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+		return _superWeighting.calcMillis(edgeState, reverse, prevOrNextEdgeId) + _weightCalc.calcMillis(edgeState, reverse, prevOrNextEdgeId);
 	}
 
 	@Override

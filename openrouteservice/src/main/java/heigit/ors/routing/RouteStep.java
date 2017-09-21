@@ -32,6 +32,7 @@ public class RouteStep
 	private int _type;
 	private int[] _wayPoints;
     private RouteStepManeuver _maneuver;
+    private int[] _roundaboutExitBearings;
     
 	public double getDuration() {
 		return _duration;
@@ -111,5 +112,13 @@ public class RouteStep
 
 	public void setManeuver(RouteStepManeuver maneuver) {
 		_maneuver = maneuver;
+	}
+
+	public int[] getRoundaboutExitBearings() {
+		return _roundaboutExitBearings;
+	}
+
+	public void setRoundaboutExitBearings(int[] roundaboutExitBearings) {
+		_roundaboutExitBearings = roundaboutExitBearings;
 	}
 }

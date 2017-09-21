@@ -196,6 +196,10 @@ public class RouteResultBuilder
 								RoundaboutInstruction raInstr = (RoundaboutInstruction)instr;
 								step.setExitNumber(raInstr.getExitNumber());
 								instrText = instrTranslator.getRoundabout(raInstr.getExitNumber(), roadName);
+								if (raInstr.getRoundaboutExitBearings() != null)
+								{
+									step.setRoundaboutExitBearings(raInstr.getRoundaboutExitBearings());
+								}
 							}
 							else
 							{
