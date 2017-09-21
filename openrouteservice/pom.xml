@@ -181,7 +181,7 @@
 	<dependency>
 	 	<groupId>com.github.GIScience</groupId>
 		<artifactId>graphhopper</artifactId>
-	   	<version>v0.9.2</version>
+	   	<version>v0.9.3</version>
 	</dependency>
 
 	<dependency>
