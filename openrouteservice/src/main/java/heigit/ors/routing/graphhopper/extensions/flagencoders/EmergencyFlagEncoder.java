@@ -258,7 +258,9 @@ public class EmergencyFlagEncoder extends ORSAbstractFlagEncoder
 		if (backSpeed >= 0 && (maxSpeed < 0 || backSpeed < maxSpeed))
 			maxSpeed = backSpeed;
 */
-		String maxspeedTag = way.getTag("maxspeed");
+		String maxspeedTag = way.getTag("maxspeed:hgv");
+		if (Helper.isEmpty(maxspeedTag))
+			maxspeedTag = way.getTag("maxspeed");
 		double maxSpeed = parseSpeed(maxspeedTag);
 		
 		if (bCheckMaxSpeed)
