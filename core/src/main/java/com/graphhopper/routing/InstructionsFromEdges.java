@@ -17,6 +17,9 @@
  */
 package com.graphhopper.routing;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
@@ -71,7 +74,9 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
     private InstructionAnnotation prevAnnotation;
     private EdgeExplorer outEdgeExplorer;
     private EdgeExplorer crossingExplorer;
+    
     private PathProcessingContext pathProcCntx;
+    private List<Integer> exitBearings = new ArrayList<Integer>();
 
     public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder,
             NodeAccess nodeAccess, PathProcessingContext pathProcCntx, InstructionList ways) {
@@ -128,6 +133,8 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
             // remark: names and annotations within roundabout are ignored
             if (!prevInRoundabout) //just entered roundabout
             {
+            	// Modification by Maxim Rylov
+            	exitBearings.clear();
                 int sign = Instruction.USE_ROUNDABOUT;
                 RoundaboutInstruction roundaboutInstruction = new RoundaboutInstruction(sign, name, annotation,
                         new PointList(10, nodeAccess.is3D()));
@@ -151,7 +158,9 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
                     orientation = Helper.ANGLE_CALC.alignOrientation(prevOrientation, orientation);
                     double delta = (orientation - prevOrientation);
                     roundaboutInstruction.setDirOfRotation(delta);
-
+                    
+                    // Modified by Maxim Rylov
+                    exitBearings.add((int)Helper.ANGLE_CALC.calcAzimuth(Helper.ANGLE_CALC.calcOrientation(prevLat, prevLon, doublePrevLat, doublePrevLon)));
                 } else // first instructions is roundabout instruction
                 {
                     prevOrientation = Helper.ANGLE_CALC.calcOrientation(prevLat, prevLon, latitude, longitude);
@@ -165,16 +174,21 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
             // Add passed exits to instruction. A node is counted if there is at least one outgoing edge
             // out of the roundabout
             EdgeIterator edgeIter = outEdgeExplorer.setBaseNode(edge.getAdjNode());
+            
             while (edgeIter.next()) {
                 if (!encoder.isBool(edgeIter.getFlags(), FlagEncoder.K_ROUNDABOUT)) {
                     ((RoundaboutInstruction) prevInstruction).increaseExitNumber();
+                    
+                    // Modified by Maxim Rylov
+                    PointList points = edgeIter.fetchWayGeometry(3, pathProcCntx.getByteBuffer());
+                    double orientation = Helper.ANGLE_CALC.calcOrientation(points.getLat(0), points.getLon(0), points.getLat(1), points.getLon(1));
+                    exitBearings.add((int)Helper.ANGLE_CALC.calcAzimuth(orientation));
+                    // *********************************************************************
                     break;
                 }
             }
-
         } else if (prevInRoundabout) //previously in roundabout but not anymore
         {
-
             prevInstruction.setName(name);
 
             // calc angle between roundabout entrance and exit
@@ -191,6 +205,9 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
 
             prevInstruction = ((RoundaboutInstruction) prevInstruction).setRadian(deltaInOut).setDirOfRotation(deltaOut)
                     .setExited();
+            
+            // Modification by Maxim Rylov
+            setRoundaboutExitBearings();
 
             prevName = name;
             prevAnnotation = annotation;
@@ -232,6 +249,19 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
             pathProcCntx.getPathProcessor().processEdge(pathProcCntx.getPathIndex(), edge, lastEdge, wayGeo);
     }
 
+    // Modification by Maxim Rylov
+    private void setRoundaboutExitBearings()
+    {
+        if (exitBearings.size() > 1)
+        {
+        	int[] bearings = new int[exitBearings.size()];
+        	for (int i = 0; i < exitBearings.size(); i++)
+        		bearings[i] = exitBearings.get(i);
+		
+        	((RoundaboutInstruction) prevInstruction).setRoundaboutExitBearings(bearings);
+        }
+    }
+
     @Override
     public void finish() {
         if (prevInRoundabout) {
@@ -240,7 +270,8 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
             orientation = Helper.ANGLE_CALC.alignOrientation(prevOrientation, orientation);
             double delta = (orientation - prevOrientation);
             ((RoundaboutInstruction) prevInstruction).setRadian(delta);
-
+            
+            setRoundaboutExitBearings();
         }
         ways.add(new FinishInstruction(nodeAccess, prevEdge.getAdjNode()));
     }

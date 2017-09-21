@@ -47,6 +47,11 @@ public class InstructionAnnotation {
             this.wayType = wayType;
         }
     }
+    
+    public int getWayType()
+    {
+    	return wayType;
+    }
 
     private void setEmpty() {
         this.empty = true;

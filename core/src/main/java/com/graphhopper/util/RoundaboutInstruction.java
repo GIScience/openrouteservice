@@ -29,6 +29,9 @@ public class RoundaboutInstruction extends Instruction {
     private int clockwise = 0;
     private boolean exited = false;
     private double radian = Double.NaN;
+    
+    // Modified by Maxim Rylov: Added new member
+    private int[] roundaboutExitBearings;
 
     public RoundaboutInstruction(int sign, String name, InstructionAnnotation ia, PointList pl) {
         super(sign, name, ia, pl);
@@ -128,4 +131,12 @@ public class RoundaboutInstruction extends Instruction {
         }
         return str;
     }
+
+	public int[] getRoundaboutExitBearings() {
+		return roundaboutExitBearings;
+	}
+
+	public void setRoundaboutExitBearings(int[] bearings) {
+		this.roundaboutExitBearings = bearings;
+	}
 }
