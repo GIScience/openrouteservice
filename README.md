@@ -9,7 +9,7 @@ The following services are available via a RESTful interface running over Tomcat
 - **Geocoding** - Resolves input coordinates to addresses and vice versa (**NOTE:** openrouteservice acts as a wrapper and connects to either [Photon](https://github.com/komoot/photon), [Nominatim](https://github.com/openstreetmap/Nominatim) or [Pelias](https://github.com/pelias/pelias). One of these services must be installed in addition to the openrouteservice).
 - **Places** - Search for points of interest around points or in geometries (**NOTE:** you will have to set up a locations database, for this please refer to [openrouteservice-tools](https://github.com/GIScience/openrouteservice-tools)).
 
-To play around with openrouteservice you may use our [demonstration server](https://www.openrouteservice.org) which comes with both the backend and a [frontend](https://github.com/GIScience/openrouteservice-app). Or simply sign up for an API key and fire your requests against the API directly via [swagger hub](https://app.swaggerhub.com/apis/openrouteservice/ors-api/).
+To play around with openrouteservice you may use our [demonstration server](https://www.openrouteservice.org) which comes with both the backend and a [frontend](https://github.com/GIScience/openrouteservice-app). Or simply sign up for an API key and fire your requests against the API directly via [swagger hub](https://app.swaggerhub.com/apis/OpenRouteService/ors-api/).
 
 Please note that openrouteservice uses a forked and edited version of [graphhopper 0.9](https://github.com/GIScience/graphhopper) which can be found [here](https://github.com/GIScience/graphhopper).
 
