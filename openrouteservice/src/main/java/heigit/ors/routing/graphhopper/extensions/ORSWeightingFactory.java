@@ -156,6 +156,9 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 				case "quiet":
 					softWeightings.add(new QuietWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
 					break;
+				case "acceleration":
+					softWeightings.add(new AccelerationWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
+					break;
 				}
 			}
 

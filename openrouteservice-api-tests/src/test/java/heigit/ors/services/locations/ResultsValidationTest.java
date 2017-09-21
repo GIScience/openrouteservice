@@ -73,7 +73,7 @@ public class ResultsValidationTest extends ServiceTest {
 	    Assert.assertEquals(jResponse.getJSONArray("features").length(), 8);
 	}
 
-	@Test
+	/**@Test
 	public void pointSearchWithoutNameFilterTest() {
 		Response response = given()
 		.param("request", "pois")
@@ -95,9 +95,9 @@ public class ResultsValidationTest extends ServiceTest {
 	    Assert.assertEquals(true, jBbox.getDouble(1) == 49.377332);
 	    Assert.assertEquals(true, jBbox.getDouble(2) == 8.710422);
 	    Assert.assertEquals(true, jBbox.getDouble(3) == 49.454217);
-	}
+	}*/
 	
-	@Test
+	/**@Test
 	public void pointSearchWithNameFilterTest() {
 		Response response = given()
 		.param("request", "pois")
@@ -113,9 +113,9 @@ public class ResultsValidationTest extends ServiceTest {
 		JSONObject jResponse = new JSONObject(response.body().asString());
 		
 	    Assert.assertEquals(jResponse.getJSONArray("features").length(), 9);
-	}
+	}*/
 
-	@Test
+	/**@Test
 	public void linestringSearchWithNameFilterTest() {
 		Response response = given()
 				.param("request", "pois")
@@ -130,7 +130,7 @@ public class ResultsValidationTest extends ServiceTest {
 		Assert.assertEquals(response.getStatusCode(), 200);
 		JSONObject jResponse = new JSONObject(response.body().asString());
 		Assert.assertEquals(jResponse.getJSONArray("features").length(), 2);
-	}
+	}*/
 	
 	@Test
 	public void detailsTest() {

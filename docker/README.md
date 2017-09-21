@@ -1,22 +1,22 @@
-# Install and Run OpenRouteService Backend via Docker
+# Install and run openrouteservice with docker
 
-It's possible and easy to install and launch the OpenRouteService backend service with Docker. Please note that the [Dockerfile](../Dockerfile) under the repository root directory is only for building the [WAR file](https://www.wikiwand.com/en/WAR_(file_format)).
+Installing the openrouteservice backend service with **Docker** is quite straightforward. Please note that the [Dockerfile](../Dockerfile) located in the repository root directory is merely for building the [WAR file](https://www.wikiwand.com/en/WAR_(file_format)).
 
 ## Short version
 
-run the following command within this `docker/` directory:
+Run the following command within this `docker/` directory:
 
 ```bash
-docker-compose up
+sudo docker-compose up -d
 ```
 
-It will:
+This will:
 
-1. build and test the OpenRouteService core from the local codebase with the `docker/conf/app.config.sample` as the config and the dataset for Heidelberg under `docker/data/` as sample data;
-2. generate the built `ors.war` file and expose it to `docker/build/` directory;
-3. launch the OpenRouteService backend service on port `8080`.
+1. Build and test the openrouteservice core from the local codebase with the `docker/conf/app.config.sample` as the config file and the OpenStreetMap dataset for Heidelberg under `docker/data/` as sample data.
+2. Generate the built `ors.war` file and expose it to `docker/build/` directory.
+3. Launch the openrouteservice service on port `8080` within a tomcat container.
 
-The service status is queryable via `http://localhost:8080/ors/health` endpoint. When the service is ready, go to `http://localhost:8080/ors/status` and it will show more detailed information. A URL for test can be `http://localhost:8080/ors/routes?profile=foot-walking&coordinates=8.676581,49.418204|8.692803,49.409465`. It should be able to provide the recommanded walking path in JSON format.
+By default the service status is queryable via the `http://localhost:8080/ors/health` endpoint. When the service is ready, you will be able to request `http://localhost:8080/ors/status` for further information on the running services. If you use the default dataset you will be able to request `http://localhost:8080/ors/routes?profile=foot-walking&coordinates=8.676581,49.418204|8.692803,49.409465` for test purposes. 
 
 ## Long version
 
@@ -34,20 +34,20 @@ or
 docker-compose up ors-build
 ```
 
-If everything goes fine, the built `ors.war` file can be found under the host directory, e.g. `/Users/user/build` in the above `docker run` command or `./build/` in the `docker-compose` command.
+If everything goes fine, the built `ors.war` archive can be found under the shared host directory, e.g. `/Users/user/build` for the above `docker run` command or `./build/` for the `docker-compose` command.
 
-### Run OpenRouteService
+### Run openrouteservice
 
-No matter whether the WAR file has been built or not, run
+No matter whether the WAR file has been built or not, simply run:
 
 ```bash
-docker-compose up
+sudo docker-compose up
 ```
 
-will get everything done with the sample Heidelberg dataset.
+will take care of all steps with the sample Heidelberg dataset.
 
-### Run with your own OSM dataset
+### Run with your own OpenStreetMap dataset
 
-Prepare the OSM dataset (formats support `.osm`, `.osm.gz`, `.osm.zip`, `.pbf`) in the `docker/data/` directory. Make your own `app.config` (check the sample with detailed comments [here](../openrouteservice/WebContent/WEB-INF/app.config.sample) for reference) and change the `APP_CONFIG` variable in `docker-compose.yml` to let it point to your customized `app.config`. Then, run `docker-compose up`.
+Prepare the OSM dataset (formats supported are `.osm`, `.osm.gz`, `.osm.zip` and `.pbf`) in the `docker/data/` directory. Adapt your own `app.config` (check the sample with detailed comments [here](../openrouteservice/WebContent/WEB-INF/app.config.sample) for reference) and change the `APP_CONFIG` variable in `docker-compose.yml` to let it point to your customized `app.config`. Then, run `docker-compose up`.
 
-It should be noticed that if your dataset is very big, please adjust the `-Xmx` parameter of `JAVA_OPTS` in `docker-compose.yml`. According to our experiences, it should be at least `180g` for the whole globe.
+It should be mentioned that if your dataset is very large, please adjust the `-Xmx` parameter of `JAVA_OPTS` in `docker-compose.yml`. According to our experience, this should be at least `180g` for the whole globe if you are planning to use 3 or more modes of transport.

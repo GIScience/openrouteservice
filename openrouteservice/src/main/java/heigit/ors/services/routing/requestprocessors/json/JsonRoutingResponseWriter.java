@@ -233,6 +233,11 @@ public class JsonRoutingResponseWriter {
 									jStep.put("maneuver", jManeuver);
 								}
 							}
+							
+							if (request.getIncludeRoundaboutExits() && step.getRoundaboutExitBearings() != null)
+							{
+								jStep.put("exit_bearings", new JSONArray(step.getRoundaboutExitBearings()));
+							}
 
 							// add mode: driving, cycling, etc.
 

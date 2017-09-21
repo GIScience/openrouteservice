@@ -141,6 +141,14 @@ public class JsonRoutingRequestParser
 		value = request.getParameter("elevation");
 		if (!Helper.isEmpty(value))
 			req.setIncludeElevation(Boolean.parseBoolean(value));
+		
+		value = request.getParameter("continue_straight");
+		if (!Helper.isEmpty(value))
+			req.setContinueStraight(Boolean.parseBoolean(value));
+		
+		value = request.getParameter("roundabout_exits");
+		if (!Helper.isEmpty(value))
+			req.setIncludeRoundaboutExits(Boolean.parseBoolean(value));
 
 		value = request.getParameter("instructions_format");
 		if (!Helper.isEmpty(value))

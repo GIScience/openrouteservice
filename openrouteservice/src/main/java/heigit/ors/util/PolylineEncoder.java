@@ -52,7 +52,7 @@ public class PolylineEncoder {
 	    
 	    return buffer.toString();
 	}
-	
+		
 	private static void encode(long v, StringBuffer buffer) {
 	    v = v < 0 ? ~(v << 1) : v << 1;
 	    

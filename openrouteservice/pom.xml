@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>heigit.ors</groupId>
     <artifactId>openrouteservice</artifactId>
-    <version>4.2.2</version>
+    <version>4.3.0</version>
     <packaging>war</packaging>
     <name>OpenRouteService</name>
     <url>openrouteservice.org</url>
     <inceptionYear>2017</inceptionYear>
     <issueManagement>
-        <system>GitLab</system>
-        <url>https://gitlab.gistools.geog.uni-heidelberg.de/giscience/openrouteservice/core/issues</url>
+        <system>GitHub</system>
+        <url>https://github.com/GIScience/openrouteservice/issues</url>
     </issueManagement>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -178,12 +178,12 @@
     	<version>3.0.3</version>
 	</dependency>        
 
-	<dependency>
+ 	<dependency>
 	 	<groupId>com.github.GIScience</groupId>
 		<artifactId>graphhopper</artifactId>
-	   	<version>v0.9.2</version>
+	   	<version>v0.9.3</version>
 	</dependency>
-
+  
 	<dependency>
     	<groupId>com.typesafe</groupId>
 	    <artifactId>config</artifactId>
