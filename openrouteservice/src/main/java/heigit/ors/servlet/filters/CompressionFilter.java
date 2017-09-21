@@ -42,13 +42,16 @@ public class CompressionFilter implements Filter
 			String acceptEncoding = request.getHeader("accept-encoding");
 			
 			if (acceptEncoding != null) {
-				if (acceptEncoding.indexOf(ContentEncodingType.BROTLI) != -1) {
+				/* Commented out as jBrotli library crashes the server.
+				 * Java frames: (J=compiled Java code, j=interpreted, Vv=VM code)
+                 *J 4868  org.meteogroup.jbrotli.BrotliStreamCompressor.freeNativeResources()I 
+				 * if (acceptEncoding.indexOf(ContentEncodingType.BROTLI) != -1) {
 					BrotliResponseWrapper wrappedResponse = new BrotliResponseWrapper(response);
 					chain.doFilter(req, wrappedResponse);
 					wrappedResponse.finishResponse();
 					return;
 				}
-				else if(acceptEncoding.indexOf(ContentEncodingType.GZIP) != -1) {
+				else*/ if(acceptEncoding.indexOf(ContentEncodingType.GZIP) != -1) {
 					GZIPResponseWrapper wrappedResponse = new GZIPResponseWrapper(response);
 					chain.doFilter(req, wrappedResponse);
 					wrappedResponse.finishResponse();
