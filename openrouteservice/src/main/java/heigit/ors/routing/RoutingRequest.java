@@ -42,7 +42,7 @@ public class RoutingRequest extends ServiceRequest
 	private String[] _attributes = null;
     private int _extraInfo;
     private int _locationIndex = -1;
-    private boolean _continueStraight = true;
+    private boolean _continueStraight = false;
 	
 	public RoutingRequest()
 	{
