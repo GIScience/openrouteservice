@@ -103,7 +103,7 @@ public class ResultTest extends ServiceTest {
 		.body("routes[0].containsKey('segments')", is(true))
 		.body("routes[0].segments.size()", is(2))
 		.body("routes[0].summary.distance", is(14132.5f))
-		.body("routes[0].summary.duration", is(4115.6f))
+		.body("routes[0].summary.duration", is(3815.6f))
 		.body("routes[0].summary.ascent", is(349.4f))
 		.body("routes[0].summary.descent", is(340))
 		.statusCode(200);
@@ -127,7 +127,7 @@ public class ResultTest extends ServiceTest {
 		.body("routes[0].segments[0].distance", is(7199.4f))
 		.body("routes[0].segments[0].duration", is(2597.4f))
 		.body("routes[0].segments[1].distance", is(6933.1f))
-		.body("routes[0].segments[1].duration", is(1518.2f))
+		.body("routes[0].segments[1].duration", is(1218.2f))
 		.statusCode(200);
 	}
 
