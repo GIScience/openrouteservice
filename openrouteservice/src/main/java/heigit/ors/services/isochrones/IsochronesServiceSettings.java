@@ -21,6 +21,7 @@
 package heigit.ors.services.isochrones;
 
 import heigit.ors.config.AppConfig;
+import heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
 import heigit.ors.routing.RoutingProfileType;
 
 import java.util.HashMap;
@@ -40,6 +41,7 @@ public class IsochronesServiceSettings {
 	private static Map<Integer, Integer> profileMaxRangeTimes;
 	private static int maximumIntervals = 1;
 	private static boolean allowComputeArea = true;
+	private static Map<String, StatisticsProviderConfiguration> statsProviders;
 	private static String attribution = "";
 
 	static 
@@ -84,6 +86,40 @@ public class IsochronesServiceSettings {
 		value = AppConfig.Global().getServiceParameter("isochrones", "allow_compute_area");
 		if (value != null)
 			allowComputeArea = Boolean.parseBoolean(value);
+		
+		statsProviders = new HashMap<String, StatisticsProviderConfiguration>();
+		
+		Map<String, Object> providers = AppConfig.Global().getServiceParametersMap("isochrones", "statistics_providers", false);
+		if (providers != null)
+		{
+			for (Map.Entry<String, Object> entry : providers.entrySet())
+			{
+				if (!statsProviders.containsKey(entry.getKey()))
+				{
+					Map<String, Object> provider = AppConfig.Global().getServiceParametersMap("isochrones", "statistics_providers." + entry.getKey(), false);
+					
+					if (provider.containsKey("provider_name") && provider.containsKey("provider_parameters") && provider.containsKey("property_mapping"))
+					{
+						String provName = provider.get("provider_name").toString();
+						
+						Map<String, Object> providerParams = AppConfig.Global().getServiceParametersMap("isochrones", "statistics_providers." + entry.getKey() +".provider_parameters", false);
+						Map<String, Object> map = AppConfig.Global().getServiceParametersMap("isochrones", "statistics_providers." + entry.getKey() +".property_mapping", false);
+						Map<String, String> propMapping = new HashMap<String, String>();
+						
+						for (Map.Entry<String, Object> propEntry : map.entrySet())
+							propMapping.put(propEntry.getKey(), propEntry.getValue().toString());
+						
+						String attribution = null;
+						if (provider.containsKey("attribution"))
+							attribution = provider.get("attribution").toString();
+						
+						StatisticsProviderConfiguration provConfig = new StatisticsProviderConfiguration(provName, providerParams, propMapping, attribution);
+						statsProviders.put("provName", provConfig);
+					}
+				}
+			}
+		}
+		
 		value = AppConfig.Global().getServiceParameter("isochrones", "attribution");
 		if (value != null)
 			attribution = value;
@@ -151,6 +187,10 @@ public class IsochronesServiceSettings {
 
 	public static int getMaximumIntervals()	{
 		return maximumIntervals;
+	}
+	
+	public static Map<String, StatisticsProviderConfiguration> getStatsProviders() {
+		return statsProviders;
 	}
 
 	public static String getAttribution() {

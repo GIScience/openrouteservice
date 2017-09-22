@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.routing.RoutingProfileManagerStatus;
+import heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import heigit.ors.locations.providers.LocationsDataProviderFactory;
 
 public class ORSInitContextListener implements ServletContextListener
@@ -60,6 +61,7 @@ public class ORSInitContextListener implements ServletContextListener
 				RoutingProfileManager.getInstance().destroy();
 
 			LocationsDataProviderFactory.releaseProviders();
+			StatisticsProviderFactory.releaseProviders();
 			
 			LogFactory.release(Thread.currentThread().getContextClassLoader());
 
