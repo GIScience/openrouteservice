@@ -20,9 +20,13 @@
  */
 package heigit.ors.isochrones;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
+import heigit.ors.common.AttributeValue;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.GeomUtility;
 import heigit.ors.util.UnitsConverter;
@@ -33,6 +37,7 @@ public class Isochrone {
 	private double area = 0.0;
 	private double maxRadius;
 	private Envelope envelope;
+	private List<AttributeValue> _attributes;
 
 	public Isochrone(Geometry geometry, double value, double maxRadius) {
 		this.geometry = geometry;
@@ -99,5 +104,20 @@ public class Isochrone {
 			envelope = geometry.getEnvelopeInternal();
 
 		return envelope;
+	}
+
+	public List<AttributeValue> getAttributes() {
+		return _attributes;
+	}
+
+	public void setAttributes(List<String> statNames, double[] statValues, String source) {
+		if (statNames == null)
+			return;
+
+		if (_attributes == null)
+			_attributes = new ArrayList<AttributeValue>();
+
+		for (int i = 0; i < statNames.size(); i++)
+			_attributes.add(new AttributeValue(statNames.get(i), statValues[i], source));
 	}
 }

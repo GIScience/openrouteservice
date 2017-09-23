@@ -27,6 +27,7 @@ import heigit.ors.routing.RoutingProfileType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.typesafe.config.ConfigObject;
 
@@ -86,40 +87,43 @@ public class IsochronesServiceSettings {
 		value = AppConfig.Global().getServiceParameter("isochrones", "allow_compute_area");
 		if (value != null)
 			allowComputeArea = Boolean.parseBoolean(value);
-		
+
 		statsProviders = new HashMap<String, StatisticsProviderConfiguration>();
-		
+
 		Map<String, Object> providers = AppConfig.Global().getServiceParametersMap("isochrones", "statistics_providers", false);
 		if (providers != null)
 		{
+			int id = 0;
 			for (Map.Entry<String, Object> entry : providers.entrySet())
 			{
-				if (!statsProviders.containsKey(entry.getKey()))
+				Map<String, Object> provider = AppConfig.Global().getServiceParametersMap("isochrones", "statistics_providers." + entry.getKey(), false);
+
+				if (provider.containsKey("provider_name") && provider.containsKey("provider_parameters") && provider.containsKey("property_mapping"))
 				{
-					Map<String, Object> provider = AppConfig.Global().getServiceParametersMap("isochrones", "statistics_providers." + entry.getKey(), false);
-					
-					if (provider.containsKey("provider_name") && provider.containsKey("provider_parameters") && provider.containsKey("property_mapping"))
+					String provName = provider.get("provider_name").toString();
+
+					Map<String, Object> providerParams = AppConfig.Global().getServiceParametersMap("isochrones", "statistics_providers." + entry.getKey() +".provider_parameters", false);
+					Map<String, Object> map = AppConfig.Global().getServiceParametersMap("isochrones", "statistics_providers." + entry.getKey() +".property_mapping", false);
+					Map<String, String> propMapping = new HashMap<String, String>();
+
+					for (Map.Entry<String, Object> propEntry : map.entrySet())
+						propMapping.put(propEntry.getValue().toString(), propEntry.getKey());
+
+					if (propMapping.size() > 0)
 					{
-						String provName = provider.get("provider_name").toString();
-						
-						Map<String, Object> providerParams = AppConfig.Global().getServiceParametersMap("isochrones", "statistics_providers." + entry.getKey() +".provider_parameters", false);
-						Map<String, Object> map = AppConfig.Global().getServiceParametersMap("isochrones", "statistics_providers." + entry.getKey() +".property_mapping", false);
-						Map<String, String> propMapping = new HashMap<String, String>();
-						
-						for (Map.Entry<String, Object> propEntry : map.entrySet())
-							propMapping.put(propEntry.getKey(), propEntry.getValue().toString());
-						
 						String attribution = null;
 						if (provider.containsKey("attribution"))
 							attribution = provider.get("attribution").toString();
-						
-						StatisticsProviderConfiguration provConfig = new StatisticsProviderConfiguration(provName, providerParams, propMapping, attribution);
-						statsProviders.put("provName", provConfig);
+
+						id++;
+						StatisticsProviderConfiguration provConfig = new StatisticsProviderConfiguration(id, provName, providerParams, propMapping, attribution);
+						for (Entry<String, String> property : propMapping.entrySet())
+							statsProviders.put(property.getKey().toLowerCase(), provConfig);
 					}
 				}
 			}
 		}
-		
+
 		value = AppConfig.Global().getServiceParameter("isochrones", "attribution");
 		if (value != null)
 			attribution = value;
@@ -166,7 +170,7 @@ public class IsochronesServiceSettings {
 		{
 		case Distance:
 			res = maximumRangeDistance;
-			
+
 			if (profileMaxRangeDistances != null && profileMaxRangeDistances.containsKey(profileType))
 			{
 				res = profileMaxRangeDistances.get(profileType);
@@ -174,7 +178,7 @@ public class IsochronesServiceSettings {
 			break;
 		case Time:
 			res = maximumRangeTime;
-			
+
 			if (profileMaxRangeTimes != null && profileMaxRangeTimes.containsKey(profileType))
 			{
 				res = profileMaxRangeTimes.get(profileType);
@@ -188,9 +192,17 @@ public class IsochronesServiceSettings {
 	public static int getMaximumIntervals()	{
 		return maximumIntervals;
 	}
-	
+
 	public static Map<String, StatisticsProviderConfiguration> getStatsProviders() {
 		return statsProviders;
+	}
+
+	public static boolean isStatsAttributeSupported(String attrName)
+	{
+		if (statsProviders == null || attrName == null)
+			return false;
+
+		return statsProviders.containsKey(attrName.toLowerCase());
 	}
 
 	public static String getAttribution() {

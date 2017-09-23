@@ -41,6 +41,7 @@ import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.isochrones.IsochroneRequest;
 import heigit.ors.isochrones.IsochronesErrorCodes;
 import heigit.ors.routing.RoutingProfileType;
+import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.util.CoordTools;
 import heigit.ors.util.StreamUtility;
 
@@ -193,7 +194,7 @@ public class JsonIsochroneRequestParser {
 			for (int i = 0; i < values.length; i++)
 			{
 				String attr = values[i];
-				if (!(attr.equalsIgnoreCase("area") || attr.equalsIgnoreCase("reachfactor")))
+				if (!(attr.equalsIgnoreCase("area") || attr.equalsIgnoreCase("reachfactor") || IsochronesServiceSettings.isStatsAttributeSupported(attr)))
 					throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "attributes", attr);
 			}
 			
@@ -370,7 +371,7 @@ public class JsonIsochroneRequestParser {
 			for (int i = 0; i < values.length; i++)
 			{
 				String attr = values[i];
-				if (!(attr.equalsIgnoreCase("area") || attr.equalsIgnoreCase("reachfactor")))
+				if (!(attr.equalsIgnoreCase("area") || attr.equalsIgnoreCase("reachfactor") || IsochronesServiceSettings.isStatsAttributeSupported(attr)))
 					throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "attributes", attr);
 			}
 			

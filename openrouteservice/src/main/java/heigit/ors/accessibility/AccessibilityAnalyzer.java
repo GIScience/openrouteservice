@@ -59,7 +59,7 @@ public class AccessibilityAnalyzer
 			List<TravellerInfo> travellers = req.getTravellers();
 			for (int i = 0;i < travellers.size(); ++i){
 				IsochroneSearchParameters searchParams =  req.getIsochroneSearchParameters(i);
-				IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams);
+				IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams, null);
 				isoMaps.add(isochroneMap);
 			}
 

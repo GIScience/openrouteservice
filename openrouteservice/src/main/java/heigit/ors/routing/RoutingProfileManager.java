@@ -467,12 +467,12 @@ public class RoutingProfileManager {
 		return rp;
 	}
 
-	public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters) throws Exception
+	public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters, String[] attributes) throws Exception
 	{
 		int profileType = parameters.getRouteParameters().getProfileType();
 		RoutingProfile rp = _routeProfiles.getRouteProfile(profileType, false);
 
-		return rp.buildIsochrone(parameters);
+		return rp.buildIsochrone(parameters, attributes);
 	}
 	
 	public MatrixResult computeMatrix(MatrixRequest req) throws Exception
