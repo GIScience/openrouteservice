@@ -225,7 +225,7 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
             prevName = name;
         }
 
-        updatePointsAndInstruction(edge, wayGeo);
+        updatePointsAndInstruction(edge, wayGeo,prevEdgeId);
 
         if (wayGeo.getSize() <= 2) {
             doublePrevLat = prevLat;
@@ -396,7 +396,7 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         return Instruction.IGNORE;
     }
 
-    private void updatePointsAndInstruction(EdgeIteratorState edge, PointList pl) {
+    private void updatePointsAndInstruction(EdgeIteratorState edge, PointList pl, int prevEdgeId) {
         // skip adjNode
         int len = pl.size() - 1;
         for (int i = 0; i < len; i++) {
@@ -404,7 +404,7 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         }
         double newDist = edge.getDistance();
         prevInstruction.setDistance(newDist + prevInstruction.getDistance());
-        prevInstruction.setTime(weighting.calcMillis(edge, false, EdgeIterator.NO_EDGE) + prevInstruction.getTime());
+        prevInstruction.setTime(weighting.calcMillis(edge, false, /*EdgeIterator.NO_EDGE*/prevEdgeId) + prevInstruction.getTime());
     }
 
 }
