@@ -181,10 +181,10 @@
  	<dependency>
 	 	<groupId>com.github.GIScience</groupId>
 		<artifactId>graphhopper</artifactId>
-	   	<version>v0.9.4</version>
+	   	<version>v0.9.6</version>
 	</dependency>
   
-<!-- remove the comment to enable debugging
+<!-- remove the comment to enable debugging 
  
 	<dependency>
 	 	<groupId>com.graphhopper</groupId>
@@ -197,8 +197,8 @@
 	   <artifactId>graphhopper-reader-osm</artifactId>
 	   	<version>0.10-SNAPSHOT</version>
 	</dependency>
+ 
   -->
-  
 	<dependency>
     	<groupId>com.typesafe</groupId>
 	    <artifactId>config</artifactId>
