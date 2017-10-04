@@ -432,6 +432,23 @@ public class ResultTest extends ServiceTest {
 		
 		checkExtraConsistency(response);
 	}
+	
+	@Test
+	public void testOptimizedAndTurnRestrictions() {
+		given()
+		.param("coordinates", "8.684081,49.398155|8.684703,49.397359")
+		.param("instructions", "true")
+		.param("preference", getParameter("preference"))
+		.param("profile", "driving-car")
+		.param("optimized", "false")
+		.when()
+		.get(getEndPointName())
+		.then()
+		.assertThat()
+		.body("any { it.key == 'routes' }", is(true))
+		.body("routes[0].summary.distance", is(694.1f))
+		.statusCode(200);
+	}
 
 	@Test
 	public void testSteps() {
