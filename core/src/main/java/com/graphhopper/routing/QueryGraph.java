@@ -156,7 +156,9 @@ public class QueryGraph implements Graph {
         mainNodes = graph.getNodes();
         mainEdges = graph.getAllEdges().getMaxId();
 
-        if (mainGraph.getExtension() instanceof TurnCostExtension)
+        // Modification by Maxim Rylov
+        // if (mainGraph.getExtension() instanceof TurnCostExtension)
+        if (Helper.getTurnCostExtensions(mainGraph.getExtension()) != null)
             wrappedExtension = new QueryGraphTurnExt();
         else
             wrappedExtension = mainGraph.getExtension();
@@ -775,7 +777,9 @@ public class QueryGraph implements Graph {
         private final TurnCostExtension mainTurnExtension;
 
         public QueryGraphTurnExt() {
-            this.mainTurnExtension = (TurnCostExtension) mainGraph.getExtension();
+        	// Modification by Maxim Rylov
+            //this.mainTurnExtension = (TurnCostExtension) mainGraph.getExtension();
+        	this.mainTurnExtension = Helper.getTurnCostExtensions(mainGraph.getExtension());
         }
 
         @Override
