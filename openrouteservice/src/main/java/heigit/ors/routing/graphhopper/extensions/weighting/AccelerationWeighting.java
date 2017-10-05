@@ -20,6 +20,7 @@
  */
 package heigit.ors.routing.graphhopper.extensions.weighting;
 
+import com.graphhopper.routing.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -72,7 +73,10 @@ public class AccelerationWeighting extends FastestWeighting {
 
 	@Override
 	public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-		if (prevOrNextEdgeId == -1 || edgeState.getEdge() >= _maxEdges || prevOrNextEdgeId >= _maxEdges)
+		if (prevOrNextEdgeId == -1 )
+			return 1.0;
+		
+		if (edgeState instanceof VirtualEdgeIteratorState || prevOrNextEdgeId >= _maxEdges || edgeState.getEdge() >= _maxEdges)
 		{
 			//TODO
 			return 1.0;
@@ -95,7 +99,7 @@ public class AccelerationWeighting extends FastestWeighting {
 		if (isFullTurn(turnAngle))
 		{
 			// TODO
-			return 1.1;
+			return 1.0;
 		}
 
 		return 1.0;
@@ -108,10 +112,13 @@ public class AccelerationWeighting extends FastestWeighting {
 
 	@Override
 	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-		if (prevOrNextEdgeId == -1 || edgeState.getEdge() >= _maxEdges || prevOrNextEdgeId >= _maxEdges)
+		if (prevOrNextEdgeId == -1 )
+			return 0;
+		
+		if (edgeState instanceof VirtualEdgeIteratorState || prevOrNextEdgeId >= _maxEdges || edgeState.getEdge() >= _maxEdges)
 		{
 			// compute acceleration for departure and finish edges.
-			return (long)(0);
+			return 10000;
 		}
 
 		PointList currEdgeGeom, prevEdgeGeom;
