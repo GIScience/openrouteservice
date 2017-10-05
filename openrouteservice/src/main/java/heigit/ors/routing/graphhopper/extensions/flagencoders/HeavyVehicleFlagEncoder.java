@@ -385,7 +385,7 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
         if (!_speedLimitHandler.hasSpeedValue(highwayValue))
             return 0;
 
-        if (way.hasTag("impassable", "yes") || way.hasTag("status", "impassable"))
+        if (way.hasTag("impassable", "yes") || way.hasTag("status", "impassable") || way.hasTag("smoothness", "impassable"))
             return 0;
 
         // multiple restrictions needs special handling compared to foot and bike, see also motorcycle
