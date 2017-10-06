@@ -92,7 +92,8 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
                     continue;
 
                 int traversalId = traversalMode.createTraversalId(iter, false);
-                double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.edge) + currEdge.weight;
+                // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
+                double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight;
                 if (Double.isInfinite(tmpWeight))
                     continue;
 
@@ -100,11 +101,14 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
                 if (nEdge == null) {
                     nEdge = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
                     nEdge.parent = currEdge;
+                    // Modification by Maxim Rylov: Assign the original edge id.
+                    nEdge.originalEdge = iter.getOriginalEdge();   
                     fromMap.put(traversalId, nEdge);
                     fromHeap.add(nEdge);
                 } else if (nEdge.weight > tmpWeight) {
                     fromHeap.remove(nEdge);
                     nEdge.edge = iter.getEdge();
+                    nEdge.originalEdge = iter.getOriginalEdge();
                     nEdge.weight = tmpWeight;
                     nEdge.parent = currEdge;
                     fromHeap.add(nEdge);
