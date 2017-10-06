@@ -113,7 +113,7 @@ public class JsonRoutingRequestParser
 					if (value.contains(","))
 					{
 						String[] bd = value.split("\\,");
-						if (bd.length > 2)
+						if (bd.length >= 2)
 							bearings[i] = new WayPointBearing(Double.parseDouble(bd[0]), Double.parseDouble(bd[1]));
 						else
 							bearings[i] = new WayPointBearing(Double.parseDouble(bd[0]), Double.NaN);
