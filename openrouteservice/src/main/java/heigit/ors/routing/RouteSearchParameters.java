@@ -51,6 +51,8 @@ public class RouteSearchParameters {
 	private int _avoidFeaturesTypes;
 	private int _vehicleType = HeavyVehicleAttributes.UNKNOWN;
 	private ProfileParameters _profileParams;
+	private WayPointBearing[] _bearings = null;
+	private double[] _maxRadiuses;
 	private boolean _flexibleMode = false;
 
 	private String _options;
@@ -412,5 +414,21 @@ public class RouteSearchParameters {
 
 	public void setFlexibleMode(boolean flexibleMode) {
 		_flexibleMode = flexibleMode;
+	}
+
+	public double[] getMaximumRadiuses() {
+		return _maxRadiuses;
+	}
+
+	public void setMaximumRadiuses(double[] maxRadiuses) {
+		_maxRadiuses = maxRadiuses;
+	}
+	
+	public WayPointBearing[] getBearings() {
+		return _bearings;
+	}
+
+	public void setBearings(WayPointBearing[] bearings) {
+		_bearings = bearings;
 	}
 }

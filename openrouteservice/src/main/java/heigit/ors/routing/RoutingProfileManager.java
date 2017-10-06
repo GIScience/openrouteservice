@@ -290,9 +290,9 @@ public class RoutingProfileManager {
 			Coordinate c1 = coords[i];
 			GHResponse gr = null;
 			if (invertFlow)
-				gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, 0.0, false, searchParams, customEdgeFilter, req.getSimplifyGeometry(), routeProcCntx);
+				gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, null, null, false, searchParams, customEdgeFilter, req.getSimplifyGeometry(), routeProcCntx);
 			else
-				gr = rp.computeRoute(c1.y, c1.x, c0.y, c0.x, 0.0, false, searchParams, customEdgeFilter, req.getSimplifyGeometry(), routeProcCntx);
+				gr = rp.computeRoute(c1.y, c1.x, c0.y, c0.x, null, null, false, searchParams, customEdgeFilter, req.getSimplifyGeometry(), routeProcCntx);
 
 			//if (gr.hasErrors())
 			//	throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
@@ -347,6 +347,8 @@ public class RoutingProfileManager {
 		RouteProcessContext routeProcCntx = new RouteProcessContext(pathProcessor);
 		EdgeFilter customEdgeFilter = rp.createAccessRestrictionFilter(coords);
 		GHResponse prevResp = null;
+		WayPointBearing[] bearings = (req.getContinueStraight() || searchParams.getBearings() != null) ? new WayPointBearing[2] : null;
+		double[] radiuses = searchParams.getMaximumRadiuses() != null ? new double[2] : null;		
 		
 		for(int i = 1; i <= nSegments; ++i)
 		{
@@ -355,14 +357,36 @@ public class RoutingProfileManager {
 			if (pathProcessor != null)
 				pathProcessor.setSegmentIndex(i - 1, nSegments);
 
-			double heading = Double.MIN_VALUE;
-			if (i > 1 && req.getContinueStraight())
-				heading = getHeadingDirection(prevResp);
+			if (bearings != null)
+			{
+				bearings[0] = null;
+				if (i > 1 && req.getContinueStraight())
+				{
+					bearings[0] = new WayPointBearing(getHeadingDirection(prevResp), Double.NaN);
+				}
+				
+				if (searchParams.getBearings() != null)
+				{
+					bearings[0] = searchParams.getBearings()[i - 1];
+					bearings[1] = searchParams.getBearings()[i];
+				}
+			}
 			
-			GHResponse gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, heading, c0.z == 1.0, searchParams, customEdgeFilter,  req.getSimplifyGeometry(), routeProcCntx);
+			if (searchParams.getMaximumRadiuses() != null)
+			{
+				radiuses[0] = searchParams.getMaximumRadiuses()[i - 1];
+				radiuses[1] = searchParams.getMaximumRadiuses()[i];
+			}
+			
+			GHResponse gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, c0.z == 1.0, searchParams, customEdgeFilter,  req.getSimplifyGeometry(), routeProcCntx);
 			
 			if (gr.hasErrors())
-				throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
+			{
+				if (gr.getErrors().size() > 0)
+					throw new InternalServerException(RoutingErrorCodes.UNKNOWN,  gr.getErrors().get(0).getMessage());
+				else				
+					throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s).", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
+			}
 
 			prevResp = gr;
 			routes.add(gr);

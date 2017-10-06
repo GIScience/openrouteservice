@@ -818,7 +818,7 @@ public class RoutingProfile
 		return totalDistance <= maxDistance && wayPoints <= maxWayPoints;
 	}
 
-	public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, double heading, boolean directedSegment, RouteSearchParameters searchParams, EdgeFilter customEdgeFilter, boolean simplifyGeometry, RouteProcessContext routeProcCntx)
+	public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings, double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, EdgeFilter customEdgeFilter, boolean simplifyGeometry, RouteProcessContext routeProcCntx)
 			throws Exception {
 
 		GHResponse resp = null; 
@@ -834,15 +834,18 @@ public class RoutingProfile
 
 			boolean flexibleMode = searchParams.getFlexibleMode();
 			GHRequest req = null;
-			if (heading == Double.MIN_VALUE)
+			if (bearings == null || bearings[0] == null)
 				req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
 			else
-				req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), heading, Double.NaN);
+				req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), bearings[0].getDeviation(), bearings[1].getValue(), bearings[1].getDeviation());
 
 			req.setVehicle(searchCntx.getEncoder().toString());
 			req.setMaxSpeed(searchParams.getMaximumSpeed());
 			req.setSimplifyGeometry(simplifyGeometry);
 			req.setAlgorithm("dijkstrabi");
+			
+			if (radiuses != null)
+				req.setMaxSearchDistance(radiuses);
 
 			PMap props = searchCntx.getProperties();
 			if (props != null && props.size() > 0)
