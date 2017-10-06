@@ -29,7 +29,6 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Parameters.Routing;
 import com.graphhopper.util.PathMerger;
 import com.graphhopper.util.StopWatch;
-import com.graphhopper.util.Translation;
 import com.graphhopper.util.exceptions.PointNotFoundException;
 import com.graphhopper.util.shapes.GHPoint;
 
@@ -56,7 +55,7 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
     }
 
     @Override
-    public List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder, ByteArrayBuffer byteBuffer) {
+    public List<QueryResult> lookup(List<GHPoint> points, double[] radiuses, FlagEncoder encoder, ByteArrayBuffer byteBuffer) {
         if (points.size() < 2)
             throw new IllegalArgumentException("At least 2 points have to be specified, but was:" + points.size());
 
@@ -81,6 +80,10 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
             if (!res.isValid())
                 ghResponse.addError(
                         new PointNotFoundException("Cannot find point " + placeIndex + ": " + point, placeIndex));
+            
+            if (radiuses != null && res.getQueryDistance() > radiuses[placeIndex] && radiuses[placeIndex] != -1.0)
+            	ghResponse.addError(
+            	new PointNotFoundException("Cannot find point " + placeIndex + ": " + point + " within a radius of " + radiuses[placeIndex] + " meters.", placeIndex));
 
             queryResults.add(res);
         }
@@ -98,13 +101,10 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
         QueryResult fromQResult = queryResults.get(0);
         StopWatch sw;
 
-        // Modification by Maxim Rylov: Added an overloaded function.
-        PathProcessor pathProcessor = pathProcCntx.getPathProcessor();
-
         for (int placeIndex = 1; placeIndex < pointCounts; placeIndex++) {
             if (placeIndex == 1) {
                 // enforce start direction
-                queryGraph.enforceHeading(fromQResult.getClosestNode(), ghRequest.getFavoredHeading(0), false,
+                queryGraph.enforceHeading(fromQResult.getClosestNode(), ghRequest.getFavoredHeading(0), ghRequest.getFavoredHeadingDeviation(0), false,
                         pathProcCntx.getByteBuffer());
             } else if (viaTurnPenalty) {
                 // enforce straight start after via stop
@@ -118,7 +118,7 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
             QueryResult toQResult = queryResults.get(placeIndex);
 
             // enforce end direction
-            queryGraph.enforceHeading(toQResult.getClosestNode(), ghRequest.getFavoredHeading(placeIndex), true,
+            queryGraph.enforceHeading(toQResult.getClosestNode(), ghRequest.getFavoredHeading(placeIndex), ghRequest.getFavoredHeadingDeviation(placeIndex), true,
                     pathProcCntx.getByteBuffer());
 
             sw = new StopWatch().start();

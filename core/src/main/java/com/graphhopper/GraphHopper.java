@@ -1071,7 +1071,7 @@ public class GraphHopper implements GraphHopperAPI {
             Translation tr = trMap.getWithFallBack(locale);
             for (int i = 0; i < maxRetries; i++) {
                 StopWatch sw = new StopWatch().start();
-                List<QueryResult> qResults = routingTemplate.lookup(points, encoder, byteBuffer);
+                List<QueryResult> qResults = routingTemplate.lookup(points, request.getMaxSearchDistances(), encoder, byteBuffer);
                 ghRsp.addDebugInfo("idLookup:" + sw.stop().getSeconds() + "s");
                 if (ghRsp.hasErrors())
                     return Collections.emptyList();

@@ -404,6 +404,7 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         }
         double newDist = edge.getDistance();
         prevInstruction.setDistance(newDist + prevInstruction.getDistance());
+        // Modification by Maxim Rylov: pass prevEdgeId value
         prevInstruction.setTime(weighting.calcMillis(edge, false, /*EdgeIterator.NO_EDGE*/prevEdgeId) + prevInstruction.getTime());
     }
 

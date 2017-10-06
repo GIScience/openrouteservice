@@ -563,7 +563,7 @@ public class QueryGraphTest {
         queryGraph.lookup(Arrays.asList(qr));
 
         // enforce going out north
-        queryGraph.enforceHeading(qr.getClosestNode(), 0., false);
+        queryGraph.enforceHeading(qr.getClosestNode(), 0., Double.NaN, false);
         // test penalized south
         boolean expect = true;
         assertEquals(expect, isAvoidEdge(queryGraph, QueryGraph.VE_BASE_REV, !expect));
@@ -576,7 +576,7 @@ public class QueryGraphTest {
         assertEquals(expect, isAvoidEdge(queryGraph, QueryGraph.VE_BASE, !expect));
 
         // enforce coming in north
-        queryGraph.enforceHeading(qr.getClosestNode(), 180., true);
+        queryGraph.enforceHeading(qr.getClosestNode(), 180., Double.NaN, true);
         // test penalized south
         expect = true;
         assertEquals(expect, isAvoidEdge(queryGraph, QueryGraph.VE_BASE_REV, !expect));
@@ -588,7 +588,7 @@ public class QueryGraphTest {
         queryGraph.lookup(Arrays.asList(qr));
 
         // enforce going north
-        queryGraph.enforceHeading(qr.getClosestNode(), 0., false);
+        queryGraph.enforceHeading(qr.getClosestNode(), 0., Double.NaN, false);
         // test penalized south
         expect = true;
         assertEquals(expect, isAvoidEdge(queryGraph, QueryGraph.VE_ADJ, !expect));
@@ -596,7 +596,7 @@ public class QueryGraphTest {
 
         queryGraph.clearUnfavoredStatus();
         // enforce coming in north
-        queryGraph.enforceHeading(qr.getClosestNode(), 180., true);
+        queryGraph.enforceHeading(qr.getClosestNode(), 180., Double.NaN, true);
         // test penalized south
         expect = true;
         assertEquals(expect, isAvoidEdge(queryGraph, QueryGraph.VE_ADJ, !expect));

@@ -436,8 +436,9 @@ public class QueryGraph implements Graph {
         virtualEdges.add(baseReverseEdge);
     }
 
-    public boolean enforceHeading(int nodeId, double favoredHeading, boolean incoming) {
-        return enforceHeading(nodeId, favoredHeading, incoming, null);
+    // Modification by Maxim Rylov: Added favoredHeadingDeviation parameter.
+    public boolean enforceHeading(int nodeId, double favoredHeading, double favoredHeadingDeviation,  boolean incoming) {
+        return enforceHeading(nodeId, favoredHeading, favoredHeadingDeviation, incoming, null);
     }
 
     /**
@@ -450,7 +451,8 @@ public class QueryGraph implements Graph {
      * @param incoming       if true, incoming edges are unfavored, else outgoing edges
      * @return boolean indicating if enforcement took place
      */
-    public boolean enforceHeading(int nodeId, double favoredHeading, boolean incoming, ByteArrayBuffer byteBuffer) {
+    // Modification by Maxim Rylov: Added favouredHeadingDeviation parameter.
+    public boolean enforceHeading(int nodeId, double favoredHeading, double favouredHeadingDeviation,  boolean incoming, ByteArrayBuffer byteBuffer) {
         if (!isInitialized())
             throw new IllegalStateException("QueryGraph.lookup has to be called in before heading enforcement");
 
@@ -462,7 +464,13 @@ public class QueryGraph implements Graph {
 
         int virtNodeIDintern = nodeId - mainNodes;
         favoredHeading = AC.convertAzimuth2xaxisAngle(favoredHeading);
-
+        // Modification by Maxim Rylov
+        if (Double.isNaN(favouredHeadingDeviation))
+        	favouredHeadingDeviation = 1.74;
+        else
+        	favouredHeadingDeviation = Math.toRadians(Math.abs(favouredHeadingDeviation));
+        //*******************************************
+        
         // either penalize incoming or outgoing edges
         List<Integer> edgePositions = incoming ? Arrays.asList(VE_BASE, VE_ADJ_REV)
                 : Arrays.asList(VE_BASE_REV, VE_ADJ);
@@ -483,8 +491,8 @@ public class QueryGraph implements Graph {
 
             edgeOrientation = AC.alignOrientation(favoredHeading, edgeOrientation);
             double delta = (edgeOrientation - favoredHeading);
-
-            if (Math.abs(delta) > 1.74) // penalize if a turn of more than 100°
+            
+            if (Math.abs(delta) > favouredHeadingDeviation) // penalize if a turn of more than 100°
             {
                 edge.setUnfavored(true);
                 unfavoredEdges.add(edge);

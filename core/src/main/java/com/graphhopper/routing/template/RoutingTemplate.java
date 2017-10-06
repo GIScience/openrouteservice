@@ -42,7 +42,7 @@ public interface RoutingTemplate {
      * This method takes the query points and returns the looked up QueryResults.
      */
     // Modification by Maxim Rylov: Added byteBuffer parameter.
-	List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder, ByteArrayBuffer byteBuffer);
+	List<QueryResult> lookup(List<GHPoint> points, double[] radiuses, FlagEncoder encoder, ByteArrayBuffer byteBuffer);
 
     /**
      * This method returns a list of Path objects which then can be merged to serve one route with
