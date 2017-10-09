@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>heigit.ors</groupId>
     <artifactId>openrouteservice</artifactId>
-    <version>4.3.0</version>
+    <version>4.4.0</version>
     <packaging>war</packaging>
     <name>OpenRouteService</name>
     <url>openrouteservice.org</url>
@@ -181,8 +181,9 @@
  	<dependency>
 	 	<groupId>com.github.GIScience</groupId>
 		<artifactId>graphhopper</artifactId>
-	   	<version>v0.9.7</version>
+	   	<version>v0.9.8</version>
 	</dependency>
+ 
  
 <!-- remove the comment to enable debugging    
  	<dependency>
@@ -196,8 +197,7 @@
 	   <artifactId>graphhopper-reader-osm</artifactId>
 	   	<version>0.10-SNAPSHOT</version>
 	</dependency>
-   -->  
-
+ -->
 	<dependency>
     	<groupId>com.typesafe</groupId>
 	    <artifactId>config</artifactId>
