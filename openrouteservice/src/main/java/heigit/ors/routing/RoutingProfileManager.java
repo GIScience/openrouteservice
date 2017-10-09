@@ -501,7 +501,7 @@ public class RoutingProfileManager {
 	
 	public MatrixResult computeMatrix(MatrixRequest req) throws Exception
 	{
-		 RoutingProfile rp = _routeProfiles.getRouteProfile(req.getProfileType(), true);
+		 RoutingProfile rp = _routeProfiles.getRouteProfile(req.getProfileType(), !req.getFlexibleMode());
 		 
 		 if (rp == null)
 			 throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
