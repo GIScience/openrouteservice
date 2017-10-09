@@ -28,5 +28,5 @@ public abstract class AbstractStatisticsProvider implements StatisticsProvider {
 	 public abstract void init(Map<String, Object> parameters) throws Exception;	 
 	 public abstract void close() throws Exception;	
 	 
-	 public abstract double getStatistics(Isochrone isochrone, String property);
+	 public abstract double[] getStatistics(Isochrone isochrone, String[] properties) throws Exception;
 }

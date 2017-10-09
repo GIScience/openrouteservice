@@ -40,7 +40,9 @@ import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.routing.RoutingErrorCodes;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.RoutingRequest;
+import heigit.ors.routing.WayPointBearing;
 import heigit.ors.routing.WeightingMethod;
+import heigit.ors.util.ArraysUtility;
 import heigit.ors.util.CoordTools;
 import heigit.ors.util.DistanceUnitUtil;
 
@@ -91,8 +93,57 @@ public class JsonRoutingRequestParser
 				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "coordinates parameter must contain at least two locations");
 
 			req.setCoordinates(coords);
-		}		
+		}	
+		else
+			throw new MissingParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "coordinates");
+		
+		value = request.getParameter("bearings");
+		if (!Helper.isEmpty(value))
+		{
+			WayPointBearing[] bearings = null;
 
+			try
+			{
+				String[] array = value.split("\\|");
+				bearings = new WayPointBearing[array.length];
+				
+				for (int i = 0; i < array.length; i++)
+				{
+					value = array[i].trim();
+					if (value.contains(","))
+					{
+						String[] bd = value.split("\\,");
+						if (bd.length >= 2)
+							bearings[i] = new WayPointBearing(Double.parseDouble(bd[0]), Double.parseDouble(bd[1]));
+						else
+							bearings[i] = new WayPointBearing(Double.parseDouble(bd[0]), Double.NaN);
+					}
+					else
+						bearings[i] = new WayPointBearing(Double.parseDouble(value), 0.0);
+				}
+			}
+			catch(Exception ex)
+			{
+				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "bearings", value);
+			}
+			
+			if (bearings == null || bearings.length != req.getCoordinates().length)
+				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "bearings", value);
+
+			req.getSearchParameters().setBearings(bearings);
+		}
+		
+		value = request.getParameter("radiuses");
+		if (!Helper.isEmpty(value))
+		{
+			double[] radiuses = ArraysUtility.parseDoubleArray(value, "radiuses", "\\|", RoutingErrorCodes.INVALID_PARAMETER_VALUE);
+			
+			if (radiuses == null || radiuses.length != req.getCoordinates().length)
+				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "radiuses", value);
+	
+			req.getSearchParameters().setMaximumRadiuses(radiuses);
+		}
+		
 		value = request.getParameter("units");
 		if (!Helper.isEmpty(value))
 		{

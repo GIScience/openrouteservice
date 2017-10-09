@@ -20,6 +20,7 @@
  */
 package heigit.ors.services.isochrones.requestprocessors.json;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +35,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
 
+import heigit.ors.common.AttributeValue;
 import heigit.ors.common.Pair;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
@@ -114,11 +116,13 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
 		if (travellers.size() > 0)
 		{
+			String[] nonDefaultAttrs = req.getNonDefaultAttributes();
+			
 			IsochroneMapCollection isoMaps = new IsochroneMapCollection();
 
 			for (int i = 0;i < travellers.size(); ++i){
 				IsochroneSearchParameters searchParams = req.getSearchParameters(i);
-				IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams);
+				IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams, nonDefaultAttrs);
 				isoMaps.add(isochroneMap);
 			}
 
@@ -142,9 +146,12 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
 		TravellerInfo traveller = null;
 		int groupIndex = 0;
+		boolean hasAttributes = request.getAttributes() != null;
 		boolean includeArea = request.hasAttribute("area");
 		boolean includeReachFactor = request.hasAttribute("reachfactor");
 		String units = request.getUnits() != null ? request.getUnits().toLowerCase() : null;
+		String sourceAttribution = IsochronesServiceSettings.getAttribution();
+		List<String> attributeSources = null;
 
 		for (IsochroneMap isoMap : isochroneMaps.getIsochroneMaps())
 		{
@@ -182,6 +189,26 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 						double maxArea = Math.PI * r * r;
 
 						jProperties.put("reachfactor", FormatUtility.roundToDecimals(area/maxArea, 4));
+					}
+				}
+				
+				if (hasAttributes && isoLine.getAttributes() != null)
+				{
+					List<AttributeValue> attrStats = isoLine.getAttributes();
+					for(AttributeValue attrValue : attrStats)
+					{
+						jProperties.put(attrValue.getName(), FormatUtility.roundToDecimals(attrValue.getValue(), 4));
+						
+						if (attrValue.getSource() != null)
+						{
+							if (attributeSources == null)
+								attributeSources = new ArrayList<String>();
+							if (!attributeSources.contains(attrValue.getSource()))
+							{
+								attributeSources.add(attrValue.getSource());
+								sourceAttribution += " | " + attrValue.getSource();
+							}
+						}
 					}
 				}
 
@@ -250,8 +277,8 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 		JSONObject jInfo = new JSONObject();
 		jInfo.put("service", "isochrones");
 		jInfo.put("engine", AppInfo.getEngineInfo());
-		if (!Helper.isEmpty(IsochronesServiceSettings.getAttribution()))
-			jInfo.put("attribution", IsochronesServiceSettings.getAttribution());
+		if (!Helper.isEmpty(sourceAttribution))
+			jInfo.put("attribution", sourceAttribution);
 		jInfo.put("timestamp", System.currentTimeMillis());
 
 		JSONObject jQuery = new JSONObject();

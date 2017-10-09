@@ -117,8 +117,6 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 				if (!_downwardEdgeFilter.accept(iter))
 					continue;
 
-				_downwardEdgeFilter.updateHighestNode(iter);
-
 				if (_targetGraph.addEdge(adjNode, iter, true))
 					prioQueue.add(iter.getAdjNode());
 			}

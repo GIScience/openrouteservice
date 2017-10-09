@@ -29,5 +29,5 @@ public interface StatisticsProvider {
 	public void close() throws Exception;
 	public String getName();
 	
-    public double getStatistics(Isochrone isochrone, String property);
+    public double[] getStatistics(Isochrone isochrone, String[] properties) throws Exception;
 }

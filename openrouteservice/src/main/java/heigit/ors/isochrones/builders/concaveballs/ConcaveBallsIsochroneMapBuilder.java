@@ -325,20 +325,21 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			defaulPointWidth = 0.005;
 			defaultVisitorThreshold = 0.0025;  
 		}
+		
+		int nodeId, edgeId;
 
 		for (IntObjectCursor<SPTEntry> entry : map) {
-			int nodeId = entry.key;
-
-			if (nodeId == -1 || nodeId > maxNodeId)
-				continue;
-
 			goalEdge = entry.value;
-
-			int edgeId = goalEdge.originalEdge;
+			edgeId = goalEdge.originalEdge;
 
 			if (edgeId == -1)
 				continue;
 
+			nodeId = goalEdge.adjNode;
+
+			if (nodeId == -1 || nodeId > maxNodeId)
+				continue;
+			
 			EdgeIteratorState iter = graph.getEdgeIteratorState(edgeId, nodeId);
 
 			float maxCost = (float) (goalEdge.weight);

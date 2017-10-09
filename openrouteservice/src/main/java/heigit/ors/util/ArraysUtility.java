@@ -67,4 +67,29 @@ public class ArraysUtility {
 			throw new ParameterValueException(errorCode, elemName, value);
 		}
 	}
+	
+	public static double[] parseDoubleArray(String strArray, String elemName, String separator, int errorCode) throws Exception
+	{
+		if (Helper.isEmpty(strArray))
+			return null;
+
+		String value = null;
+		
+		try
+		{
+			String[] array = strArray.split(separator);
+			double[] res = new double[array.length];
+			for (int i = 0; i < array.length; i++)
+			{
+				value = array[i].trim();
+				res[i] = Double.parseDouble(value);
+			}
+
+			return res;
+		}
+		catch(Exception ex)
+		{
+			throw new ParameterValueException(errorCode, elemName, value);
+		}
+	}
 }

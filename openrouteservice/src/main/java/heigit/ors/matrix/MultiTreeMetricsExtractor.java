@@ -55,6 +55,7 @@ public class MultiTreeMetricsExtractor {
 	private boolean _reverseOrder = true;
 	private boolean _unpackDistance = true;
 	private GHLongObjectHashMap<MetricsItem> _edgeMetrics;
+	private long _maxEdgeId = 0;
 
 	public MultiTreeMetricsExtractor(int metrics, Graph graph, FlagEncoder encoder, Weighting weighting,
 			DistanceUnit units) {
@@ -73,6 +74,8 @@ public class MultiTreeMetricsExtractor {
 			if (mainGraph instanceof CHGraph)
 				_chGraph = (CHGraph) mainGraph;
 		}
+		
+		_maxEdgeId = _chGraph.getAllEdges().getMaxId();
 	}
 
 	public void setEmptyValues(int sourceIndex, MatrixLocations srcData, MatrixLocations dstData, float[] times,
@@ -227,7 +230,7 @@ public class MultiTreeMetricsExtractor {
 	}
 
 	private long getMultiTreeSPEntryHash(MultiTreeSPEntry entry, int sptEntry) {
-		return entry.adjNode * 31 + entry.getItem(sptEntry).edge;
+		return entry.adjNode * _maxEdgeId  + entry.getItem(sptEntry).edge;
 	}
 
 	private void extractEdgeValues(CHEdgeIteratorState iterState, boolean reverse) {

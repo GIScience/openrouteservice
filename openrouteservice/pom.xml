@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>heigit.ors</groupId>
     <artifactId>openrouteservice</artifactId>
-    <version>4.3.0</version>
+    <version>4.4.0</version>
     <packaging>war</packaging>
     <name>OpenRouteService</name>
     <url>openrouteservice.org</url>
@@ -181,9 +181,23 @@
  	<dependency>
 	 	<groupId>com.github.GIScience</groupId>
 		<artifactId>graphhopper</artifactId>
-	   	<version>v0.9.3</version>
+	   	<version>v0.9.8</version>
+	</dependency>
+ 
+ 
+<!-- remove the comment to enable debugging    
+ 	<dependency>
+	 	<groupId>com.graphhopper</groupId>
+		<artifactId>graphhopper-core</artifactId>
+	   	<version>0.10-SNAPSHOT</version>
 	</dependency>
   
+  	<dependency>
+	 	<groupId>com.graphhopper</groupId>
+	   <artifactId>graphhopper-reader-osm</artifactId>
+	   	<version>0.10-SNAPSHOT</version>
+	</dependency>
+ -->
 	<dependency>
     	<groupId>com.typesafe</groupId>
 	    <artifactId>config</artifactId>
@@ -202,14 +216,7 @@
     	<artifactId>postgresql</artifactId>
     	<version>9.4.1212</version>
 	</dependency>
-	
-	<dependency>
-     	<groupId>io.rest-assured</groupId>
-     	<artifactId>rest-assured</artifactId>
-     	<version>3.0.3</version>
-     	<scope>test</scope>
-	</dependency>
- 
+
    	<dependency>
       	<groupId>org.meteogroup.jbrotli</groupId>
       	<artifactId>jbrotli</artifactId>

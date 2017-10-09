@@ -33,11 +33,8 @@ public class UpwardSearchEdgeFilter extends CHLevelEdgeFilter {
 	@Override
 	public boolean accept(EdgeIteratorState edgeIterState) {
 		int adj = edgeIterState.getAdjNode(); 
-		// always accept virtual edges, see #288
-		if (baseNode >= maxNodes || adj >= maxNodes)
-			return true;
- 
-		if (baseNodeLevel <= graph.getLevel(adj))
+
+		if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel <= graph.getLevel(adj))
 			return edgeIterState.isForward(encoder);
 		else
 			return false;

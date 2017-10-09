@@ -59,7 +59,7 @@ public class IsochroneRequest extends ServiceRequest
 	public void setUnits(String units) {
 		_units = units;
 	}
-	
+
 	public boolean isValid()
 	{
 		return _travellers.size() >= 1;
@@ -69,8 +69,32 @@ public class IsochroneRequest extends ServiceRequest
 		return _attributes;
 	}
 
-	public void setAttributes(String[] _attributes) {
-		this._attributes = _attributes;
+	public void setAttributes(String[] attributes) {
+		_attributes = attributes;
+	}
+
+	public String[] getNonDefaultAttributes()
+	{
+		if (_attributes == null || _attributes.length ==0)
+			return null;
+
+		List<String> list = null;
+		
+		for(String attr : _attributes)
+		{
+			if (! (attr ==null || "area".equalsIgnoreCase(attr) || "reachfactor".equalsIgnoreCase(attr)))
+			{
+				if (list == null)
+					list = new ArrayList<String>();
+				
+				list.add(attr);
+			}
+		}
+
+		if (list == null || list.size() == 0)
+			return null;
+		
+		return list.toArray(new String[list.size()]);
 	}
 
 	public boolean hasAttribute(String attr) {
@@ -93,16 +117,16 @@ public class IsochroneRequest extends ServiceRequest
 	{
 		_includeIntersections = value;
 	}
-	
+
 	public Coordinate[] getLocations()
 	{
 		Coordinate[] locations = new Coordinate[_travellers.size()];
-		
+
 		for(int i = 0; i < _travellers.size(); i++)
 		{
 			locations[i] = _travellers.get(i).getLocation();
 		}
-		  
+
 		return locations;
 	}
 
@@ -151,12 +175,12 @@ public class IsochroneRequest extends ServiceRequest
 	public List<TravellerInfo> getTravellers() {
 		return _travellers;
 	}
-	
+
 	public void addTraveller(TravellerInfo traveller) throws Exception
 	{
 		if (traveller == null)
 			throw new Exception("'traveller' argument is null.");
-		
+
 		_travellers.add(traveller);
 	}
 }

@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
@@ -46,7 +47,11 @@ import heigit.ors.routing.parameters.*;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.*;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.isochrones.IsochronesErrorCodes;
+import heigit.ors.isochrones.statistics.StatisticsProvider;
+import heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
+import heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import heigit.ors.exceptions.InternalServerException;
+import heigit.ors.isochrones.Isochrone;
 import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.isochrones.IsochroneMapBuilderFactory;
 import heigit.ors.routing.RouteSearchParameters;
@@ -71,6 +76,7 @@ import heigit.ors.optimization.solvers.OptimizationSolution;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
 import heigit.ors.routing.traffic.TrafficEdgeAnnotator;
+import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.services.matrix.MatrixServiceSettings;
 import heigit.ors.services.optimization.OptimizationServiceSettings;
 import heigit.ors.util.DebugUtility;
@@ -122,7 +128,7 @@ public class RoutingProfile
 	private RouteProfileConfiguration _config;
 	private String _astarApproximation;
 	private Double _astarEpsilon; 
-	
+
 	public RoutingProfile(String osmFile, RouteProfileConfiguration rpc, RoutingProfilesCollection profiles, RoutingProfileLoadContext loadCntx) throws Exception {
 		mRoutePrefs = rpc.getProfilesTypes();
 		mUseCounter = 0;
@@ -233,7 +239,7 @@ public class RoutingProfile
 
 		boolean prepareCH = false;
 		boolean prepareLM = false;
-		
+
 		args.put("prepare.ch.weightings", "no");
 		args.put("prepare.lm.weightings", "no");
 
@@ -251,7 +257,7 @@ public class RoutingProfile
 				{
 					prepareCH = true;
 					Config chOpts = opts.getConfig("methods.ch");
-					
+
 					if (chOpts.hasPath("enabled") || chOpts.getBoolean("enabled"))
 					{
 						prepareCH = chOpts.getBoolean("enabled");
@@ -259,7 +265,7 @@ public class RoutingProfile
 							args.put("prepare.ch.weightings", "no");
 					}
 
-					
+
 					if (prepareCH)
 					{
 						if (chOpts.hasPath("threads"))
@@ -273,14 +279,14 @@ public class RoutingProfile
 				{
 					prepareLM = true;
 					Config lmOpts = opts.getConfig("methods.lm");
-					
+
 					if (lmOpts.hasPath("enabled") || lmOpts.getBoolean("enabled"))
 					{
 						prepareLM = lmOpts.getBoolean("enabled");
 						if (prepareLM == false)
 							args.put("prepare.lm.weightings", "no");
 					}
-					
+
 					if (prepareLM)
 					{
 						if (lmOpts.hasPath("threads"))
@@ -321,7 +327,7 @@ public class RoutingProfile
 		String flagEncoders = "";
 		String[] encoderOpts = !Helper.isEmpty(config.getEncoderOptions()) ? config.getEncoderOptions().split(",") : null;
 		Integer[] profiles = config.getProfilesTypes();
-		
+
 		for (int i = 0; i < profiles.length; i++)
 		{
 			if (encoderOpts == null)
@@ -466,7 +472,7 @@ public class RoutingProfile
 		}
 	}
 
-	public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters) throws Exception {
+	public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters, String[] attributes) throws Exception {
 		IsochroneMap result = null;
 
 		waitForUpdateCompletion();
@@ -488,6 +494,52 @@ public class RoutingProfile
 			throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to build an isochrone map.");
 		}
 
+		if (attributes != null && result.getIsochronesCount() > 0)
+		{
+			try
+			{
+				Map<StatisticsProviderConfiguration, List<String>> mapProviderToAttrs = new HashMap<StatisticsProviderConfiguration, List<String>>();
+				for(String attr : attributes)
+				{
+					StatisticsProviderConfiguration provConfig = IsochronesServiceSettings.getStatsProviders().get(attr);
+
+					if (provConfig != null)
+					{
+						if (mapProviderToAttrs.containsKey(provConfig))
+						{
+							List<String> attrList = mapProviderToAttrs.get(provConfig);
+							attrList.add(attr);
+						}
+						else
+						{
+							List<String> attrList = new ArrayList<String>();
+							attrList.add(attr);
+							mapProviderToAttrs.put(provConfig, attrList);
+						}
+					}
+				}
+
+				for(Map.Entry<StatisticsProviderConfiguration, List<String>> entry : mapProviderToAttrs.entrySet())
+				{
+					StatisticsProviderConfiguration provConfig = entry.getKey();
+					StatisticsProvider provider = StatisticsProviderFactory.getProvider(provConfig.getName(), provConfig.getParameters());
+					String[] provAttrs = provConfig.getMappedProperties(entry.getValue());
+					
+					for(Isochrone isochrone : result.getIsochrones())
+					{
+						double[] attrValues = provider.getStatistics(isochrone, provAttrs);
+						isochrone.setAttributes(entry.getValue(), attrValues, provConfig.getAttribution());
+					}
+				}
+
+			}
+			catch (Exception ex) {
+				LOGGER.error(ex);
+
+				throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to compute isochrone attributes.");
+			}
+		}
+
 		return result;
 	}
 
@@ -500,18 +552,18 @@ public class RoutingProfile
 		FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
 
 		MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(req, gh, flagEncoder);
-		
+
 		if (alg == null)
 			throw new Exception("Unable to create an algorithm to for computing distance/duration matrix.");
-		
+
 		try
 		{ 
 			String weightingStr =  Helper.isEmpty(req.getWeightingMethod()) ? "fastest" : req.getWeightingMethod();
 			Graph graph = null;
-			 if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getWeightingsAsStrings().contains(weightingStr)) 
-				 graph = gh.getGraphHopperStorage().getGraph(CHGraph.class);
-			 else
-				 graph = gh.getGraphHopperStorage().getBaseGraph();
+			if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getWeightingsAsStrings().contains(weightingStr)) 
+				graph = gh.getGraphHopperStorage().getGraph(CHGraph.class);
+			else
+				graph = gh.getGraphHopperStorage().getBaseGraph();
 
 			MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), new ByteArrayBuffer(), req.getResolveLocations());
 			MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
@@ -521,7 +573,7 @@ public class RoutingProfile
 			Weighting weighting = new ORSWeightingFactory(RealTrafficDataProvider.getInstance()).createWeighting(hintsMap, gh.getTraversalMode(), flagEncoder, graph, null, gh.getGraphHopperStorage());
 
 			alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
-			
+
 			mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics()); 
 		}
 		catch(Exception ex)
@@ -540,7 +592,7 @@ public class RoutingProfile
 		//RouteProcessContext routeProcCntx = new RouteProcessContext(null);
 
 		MatrixResult mtxResult = null;
-		
+
 		try
 		{
 			MatrixRequest mtxReq = req.createMatrixRequest();
@@ -551,31 +603,31 @@ public class RoutingProfile
 			LOGGER.error(ex);
 			throw new InternalServerException(OptimizationErrorCodes.UNKNOWN, "Unable to compute an optimized route.");
 		}
-		
+
 		OptimizationProblemSolver solver = OptimizationProblemSolverFactory.createSolver(OptimizationServiceSettings.getSolverName(), OptimizationServiceSettings.getSolverOptions());
 
 		if (solver == null)
 			throw new Exception("Unable to create an algorithm to distance/duration matrix.");
 
 		OptimizationSolution solution = null;
-		
+
 		try
 		{
 			float[] costs = mtxResult.getTable(req.getMetric());
 			costs[0] = 0; // TODO
-			
+
 			solution = solver.solve();
 		}
 		catch(Exception ex)
 		{
 			LOGGER.error(ex);
-			
+
 			throw new InternalServerException(OptimizationErrorCodes.UNKNOWN, "Optimization problem solver threw an exception.");
 		}
-		
+
 		if (!solution.isValid())
 			throw new InternalServerException(OptimizationErrorCodes.UNKNOWN, "Optimization problem solver was unable to find an appropriate solution.");
-		
+
 		//RouteSearchParameters searchParams = new RouteSearchParameters();
 
 		optResult = new RouteOptimizationResult();
@@ -662,7 +714,7 @@ public class RoutingProfile
 				EdgeFilter ef = new AvoidSteepnessEdgeFilter(flagEncoder, mGraphHopper.getGraphHopperStorage(), cyclingParams.getMaximumGradient());
 				edgeFilter = createEdgeFilter(ef, edgeFilter);
 			}
-			
+
 			if (cyclingParams.getMaximumTrailDifficulty() > 0)
 			{
 				EdgeFilter ef = new TrailDifficultyEdgeFilter(flagEncoder, mGraphHopper.getGraphHopperStorage(), cyclingParams.getMaximumTrailDifficulty());
@@ -678,14 +730,14 @@ public class RoutingProfile
 				EdgeFilter ef = new AvoidSteepnessEdgeFilter(flagEncoder, mGraphHopper.getGraphHopperStorage(), walkingParams.getMaximumGradient());
 				edgeFilter = createEdgeFilter(ef, edgeFilter);
 			}
-			
+
 			if (walkingParams.getMaximumTrailDifficulty() > 0)
 			{
 				EdgeFilter ef = new TrailDifficultyEdgeFilter(flagEncoder, mGraphHopper.getGraphHopperStorage(), walkingParams.getMaximumTrailDifficulty());
 				edgeFilter = createEdgeFilter(ef, edgeFilter);
 			}
 		}
-		
+
 		ProfileParameters profileParams = searchParams.getProfileParameters();
 		if (profileParams != null && profileParams.hasWeightings())
 		{
@@ -701,7 +753,7 @@ public class RoutingProfile
 				}
 			}
 		}
-	
+
 		if (searchParams.getConsiderTraffic()/* && mHasDynamicWeights */) {
 			if (RoutingProfileType.isDriving(profileType) && weightingMethod != WeightingMethod.SHORTEST
 					&& RealTrafficDataProvider.getInstance().isInitialized()) {
@@ -766,7 +818,7 @@ public class RoutingProfile
 		return totalDistance <= maxDistance && wayPoints <= maxWayPoints;
 	}
 
-	public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, double heading, boolean directedSegment, RouteSearchParameters searchParams, EdgeFilter customEdgeFilter, boolean simplifyGeometry, RouteProcessContext routeProcCntx)
+	public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings, double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, EdgeFilter customEdgeFilter, boolean simplifyGeometry, RouteProcessContext routeProcCntx)
 			throws Exception {
 
 		GHResponse resp = null; 
@@ -782,16 +834,19 @@ public class RoutingProfile
 
 			boolean flexibleMode = searchParams.getFlexibleMode();
 			GHRequest req = null;
-			if (heading == Double.MIN_VALUE)
+			if (bearings == null || bearings[0] == null)
 				req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
 			else
-				req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), heading, Double.NaN);
-			
+				req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), bearings[0].getDeviation(), bearings[1].getValue(), bearings[1].getDeviation());
+
 			req.setVehicle(searchCntx.getEncoder().toString());
 			req.setMaxSpeed(searchParams.getMaximumSpeed());
 			req.setSimplifyGeometry(simplifyGeometry);
 			req.setAlgorithm("dijkstrabi");
 			
+			if (radiuses != null)
+				req.setMaxSearchDistance(radiuses);
+
 			PMap props = searchCntx.getProperties();
 			if (props != null && props.size() > 0)
 				req.getHints().merge(props);
@@ -830,7 +885,7 @@ public class RoutingProfile
 
 				flexibleMode = true;
 			}
-			
+
 			if (RoutingProfileType.isDriving(profileType) && RealTrafficDataProvider.getInstance().isInitialized())
 				req.setEdgeAnnotator(new TrafficEdgeAnnotator(mGraphHopper.getGraphHopperStorage()));
 
@@ -852,7 +907,7 @@ public class RoutingProfile
 				else
 					req.getHints().put("ch.disable", true);
 			}
-			
+
 			if (profileType == RoutingProfileType.DRIVING_EMERGENCY)
 			{
 				req.getHints().put("custom_weightings", true);
@@ -861,7 +916,7 @@ public class RoutingProfile
 			}
 
 			if (_astarEpsilon != null)
-			  req.getHints().put("astarbi.epsilon", _astarEpsilon);
+				req.getHints().put("astarbi.epsilon", _astarEpsilon);
 			if (_astarApproximation != null)
 				req.getHints().put("astarbi.approximation", _astarApproximation);
 
@@ -869,7 +924,7 @@ public class RoutingProfile
 				resp = mGraphHopper.directRoute(req); NOTE IMPLEMENTED!!!
 			else */
 			resp = mGraphHopper.route(req, routeProcCntx.getArrayBuffer());
-			
+
 			if (DebugUtility.isDebug())
 			{
 				System.out.println("visited_nodes.average - " + resp.getHints().get("visited_nodes.average", ""));
@@ -975,7 +1030,7 @@ public class RoutingProfile
 			return new GeometryFactory().createLineString(coords); 		} 	
 		return null; 
 	}
-	
+
 	public EdgeFilter createAccessRestrictionFilter(Coordinate[] wayPoints)
 	{
 		//rp.getGraphhopper()

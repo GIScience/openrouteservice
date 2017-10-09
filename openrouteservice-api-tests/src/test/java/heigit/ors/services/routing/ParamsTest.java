@@ -587,7 +587,79 @@ public class ParamsTest extends ServiceTest {
 				.statusCode(400);
 	}
 	
+	@Test
+	public void expectBearingsFormatError() {
+		given()
+				.param("coordinates", getParameter("coordinatesShort"))
+				.param("preference", getParameter("preference"))
+				.param("geometry", "true")
+				.param("profile", getParameter("carProfile"))
+				.param("bearings", "50,50|50,50|100,100")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("error.code", is(203))
+				.statusCode(400);
+		
+		given()
+		.param("coordinates", getParameter("coordinatesShort"))
+		.param("preference", getParameter("preference"))
+		.param("geometry", "true")
+		.param("profile", getParameter("carProfile"))
+		.param("bearings", "50k,50|50,50")
+		.when()
+		.get(getEndPointName())
+		.then()
+		.assertThat()
+		.body("error.code", is(203))
+		.statusCode(400);
+	}
 	
+	@Test
+	public void expectRadiusesFormatError() {
+		given()
+				.param("coordinates", getParameter("coordinatesShort"))
+				.param("preference", getParameter("preference"))
+				.param("geometry", "true")
+				.param("profile", getParameter("carProfile"))
+				.param("radiuses", "50|50|100")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("error.code", is(203))
+				.statusCode(400);
+		
+		given()
+		.param("coordinates", getParameter("coordinatesShort"))
+		.param("preference", getParameter("preference"))
+		.param("geometry", "true")
+		.param("profile", getParameter("carProfile"))
+		.param("radiuses", "h50|50")
+		.when()
+		.get(getEndPointName())
+		.then()
+		.assertThat()
+		.body("error.code", is(203))
+		.statusCode(400);
+	}
+	
+	@Test
+	public void expectNoNearestEdge() {
+		given()
+				.param("coordinates", "8.689585,49.399733|8.686495,49.40349")
+				.param("preference", "fastest")
+				.param("geometry", "true")
+				.param("profile", "cycling-regular")
+				.param("radiuses", "5|150")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("error.code", is(299))
+				.statusCode(500);
+	}
 	@Test
 	public void expectUnknownUnits() {
 

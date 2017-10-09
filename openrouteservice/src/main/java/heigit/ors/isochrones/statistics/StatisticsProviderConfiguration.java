@@ -20,20 +20,40 @@
  */
 package heigit.ors.isochrones.statistics;
 
+import java.util.List;
 import java.util.Map;
 
 public class StatisticsProviderConfiguration {
+	private int _id;
 	private String _name;
 	private Map<String, Object> _parameters;
 	private Map<String, String> _mapping;
 	private String _attribution;
 	
-	public StatisticsProviderConfiguration(String name, Map<String, Object> parameters, Map<String, String> mapping, String attribution)
+	public StatisticsProviderConfiguration(int id, String name, Map<String, Object> parameters, Map<String, String> mapping, String attribution)
 	{
+		_id = id;
 		_name = name;
 		_parameters = parameters;
 		_mapping = mapping;
 		_attribution = attribution;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return _id;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		return _id == ((StatisticsProviderConfiguration)obj)._id;
+	}
+
+	public int getId()
+	{
+		return _id;
 	}
 	
 	public String getName() {
@@ -47,8 +67,16 @@ public class StatisticsProviderConfiguration {
 	public Map<String, Object> getParameters() {
 		return _parameters;
 	}
-
-	public Map<String, String> getPropertyMapping() {
-		return _mapping;
+	
+	public String[] getMappedProperties(List<String> props)
+	{
+		String[] res = new String[props.size()];
+		
+		for (int i = 0; i < props.size(); i++)
+		{
+			res[i] = _mapping.get(props.get(i));			
+		}
+		
+		return res;
 	}
 }

@@ -103,7 +103,7 @@ public class ResultTest extends ServiceTest {
 		.body("routes[0].containsKey('segments')", is(true))
 		.body("routes[0].segments.size()", is(2))
 		.body("routes[0].summary.distance", is(14132.5f))
-		.body("routes[0].summary.duration", is(4115.6f))
+		.body("routes[0].summary.duration", is(3815.6f))
 		.body("routes[0].summary.ascent", is(349.4f))
 		.body("routes[0].summary.descent", is(340))
 		.statusCode(200);
@@ -127,7 +127,7 @@ public class ResultTest extends ServiceTest {
 		.body("routes[0].segments[0].distance", is(7199.4f))
 		.body("routes[0].segments[0].duration", is(2597.4f))
 		.body("routes[0].segments[1].distance", is(6933.1f))
-		.body("routes[0].segments[1].duration", is(1518.2f))
+		.body("routes[0].segments[1].duration", is(1218.2f))
 		.statusCode(200);
 	}
 
@@ -432,7 +432,73 @@ public class ResultTest extends ServiceTest {
 		
 		checkExtraConsistency(response);
 	}
+	
+	@Test
+	public void testOptimizedAndTurnRestrictions() {
+		given()
+		.param("coordinates", "8.684081,49.398155|8.684703,49.397359")
+		.param("instructions", "true")
+		.param("preference", getParameter("preference"))
+		.param("profile", "driving-car")
+		.param("optimized", "false")
+		.when()
+		.get(getEndPointName())
+		.then()
+		.assertThat()
+		.body("any { it.key == 'routes' }", is(true))
+		.body("routes[0].summary.distance", is(694.1f))
+		.statusCode(200);
+	}
 
+	@Test
+	public void testNoBearings() {
+		given()
+		.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
+		.param("preference", "fastest")
+		.param("geometry", "true")
+		.param("profile", "cycling-regular")
+		.when()
+		.get(getEndPointName())
+		.then()
+		.assertThat()
+		.body("any { it.key == 'routes' }", is(true))
+		.body("routes[0].summary.distance", is(620.5f))
+		.statusCode(200);
+	}
+
+	@Test
+	public void testBearingsForStartPoint() {
+		given()
+		.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
+		.param("preference", "fastest")
+		.param("geometry", "true")
+		.param("profile", "cycling-regular")
+		.when()
+		.get(getEndPointName())
+		.then()
+		.assertThat()
+		.body("any { it.key == 'routes' }", is(true))
+		.body("routes[0].summary.distance", is(620.5f))
+		.statusCode(200);
+	}
+	
+	@Test
+	public void testBearingsForStartAndEndPoints() {
+		given()
+		.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
+		.param("preference", "fastest")
+		.param("geometry", "true")
+		.param("profile", "cycling-regular")
+		.param("bearings", "25,30|90,20")
+		.when()
+		.get(getEndPointName())
+		.then()
+		.assertThat()
+		.body("any { it.key == 'routes' }", is(true))
+		.body("routes[0].summary.distance", is(805.6f))
+		.statusCode(200);
+	}
+	
 	@Test
 	public void testSteps() {
 
