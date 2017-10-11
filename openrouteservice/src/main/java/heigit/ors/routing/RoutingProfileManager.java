@@ -95,6 +95,7 @@ public class RoutingProfileManager {
 
 		try
 		{
+			/* 
 			RoutingManagerConfiguration rmc = RoutingManagerConfiguration.loadFromFile(graphProps);
 			RoutingProfilesCollection coll = new RoutingProfilesCollection();
 			RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
@@ -116,6 +117,59 @@ public class RoutingProfileManager {
 
 			loadCntx.release();
 
+			*/
+			
+			RoutingManagerConfiguration rmc = RoutingManagerConfiguration.loadFromFile(graphProps);
+			
+			_routeProfiles = new RoutingProfilesCollection();
+			int nRouteInstances = rmc.Profiles.length;
+
+			RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext(RoutingServiceSettings.getInitializationThreads());
+			ExecutorService executor = Executors.newFixedThreadPool(RoutingServiceSettings.getInitializationThreads());
+			ExecutorCompletionService<RoutingProfile> compService = new ExecutorCompletionService<RoutingProfile>(executor);
+
+			int nTotalTasks = 0;
+			
+			for (int i = 0; i < nRouteInstances; i++) {
+				RouteProfileConfiguration rpc = rmc.Profiles[i];
+				if (!rpc.getEnabled())
+					continue;
+
+				Integer[] routeProfiles = rpc.getProfilesTypes();
+
+				if (routeProfiles != null) {
+					Callable<RoutingProfile> task = new RoutingProfileLoader(RoutingServiceSettings.getSourceFile(), rpc,
+							_routeProfiles, loadCntx);
+					compService.submit(task);
+					nTotalTasks++;
+				}
+			}
+
+			LOGGER.info("               ");
+
+			int nCompletedTasks = 0;
+			while (nCompletedTasks < nTotalTasks)
+			{
+				Future<RoutingProfile> future = compService.take();
+
+				try {
+					RoutingProfile rp = future.get();
+					nCompletedTasks ++;
+					rp.close();
+					LOGGER.info("Graph preparation done.");
+				} catch (InterruptedException e) {
+					LOGGER.error(e);
+					e.printStackTrace();
+				} catch (ExecutionException e) {
+					LOGGER.error(e);
+					e.printStackTrace();
+				}
+			}
+
+			executor.shutdown();
+			loadCntx.release();
+			
+			
 			LOGGER.info("Graphs were prepaired in " + TimeUtility.getElapsedTime(startTime, true) + ".");
 		}
 		catch(Exception ex)
@@ -145,7 +199,7 @@ public class RoutingProfileManager {
 				RAMDataAccess.LZ4_COMPRESSION_ENABLED = "LZ4".equalsIgnoreCase(RoutingServiceSettings.getStorageFormat());	
 				BikeCommonFlagEncoder.SKIP_WAY_TYPE_INFO = true;
 
-				if ("PrepareGraphs".equalsIgnoreCase(RoutingServiceSettings.getWorkingMode())) {
+				if ("preparation".equalsIgnoreCase(RoutingServiceSettings.getWorkingMode())) {
 					prepareGraphs(graphProps);
 				} else {
 					_routeProfiles = new RoutingProfilesCollection();
@@ -364,14 +418,14 @@ public class RoutingProfileManager {
 				{
 					bearings[0] = new WayPointBearing(getHeadingDirection(prevResp), Double.NaN);
 				}
-				
+
 				if (searchParams.getBearings() != null)
 				{
 					bearings[0] = searchParams.getBearings()[i - 1];
-					bearings[1] = searchParams.getBearings()[i];
+					bearings[1] = (i == nSegments && searchParams.getBearings().length != nSegments + 1) ? new WayPointBearing(Double.NaN, Double.NaN) : searchParams.getBearings()[i];
 				}
 			}
-			
+
 			if (searchParams.getMaximumRadiuses() != null)
 			{
 				radiuses[0] = searchParams.getMaximumRadiuses()[i - 1];
