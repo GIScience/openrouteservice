@@ -52,7 +52,7 @@ public class ORSOSMReader extends OSMReader {
 	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx, HashMap<Integer, Long> tmcEdges,  HashMap<Long, ArrayList<Integer>> osmId2EdgeIds, RoutingProfile refProfile) {
 		super(storage);
 
-		setCalcDistance3D(true); // TODO
+		setCalcDistance3D(true); // TODO set to false
 		this._procCntx = procCntx;
 		this._readerCntx = new OSMDataReaderContext(this);
 		this.tmcEdges = tmcEdges;
