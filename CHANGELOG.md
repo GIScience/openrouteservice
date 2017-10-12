@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [4.4.1] - 2017-10-10
+## [4.4.1] - 2017-10-12
 
 ### Added
 - Ability to compute and flush graphs without holding them in memory.
