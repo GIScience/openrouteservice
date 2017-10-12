@@ -118,16 +118,22 @@ public class JsonRoutingRequestParser
 						else
 							bearings[i] = new WayPointBearing(Double.parseDouble(bd[0]), Double.NaN);
 					}
-					else
-						bearings[i] = new WayPointBearing(Double.parseDouble(value), 0.0);
+					else {
+						if (Helper.isEmpty(value)) 
+							bearings[i] = new WayPointBearing(Double.NaN, Double.NaN);
+						else 
+							bearings[i] = new WayPointBearing(Double.parseDouble(value), 0.0);
+						
+					}
+						
 				}
 			}
 			catch(Exception ex)
 			{
 				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "bearings", value);
 			}
-			
-			if (bearings == null || bearings.length != req.getCoordinates().length)
+
+			if (bearings == null || bearings.length < req.getCoordinates().length - 1 || bearings.length > req.getCoordinates().length)
 				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "bearings", value);
 
 			req.getSearchParameters().setBearings(bearings);

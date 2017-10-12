@@ -192,7 +192,7 @@ public class RoutingProfile
 		}
 
 		gh.importOrLoad();
-
+		
 		if (LOGGER.isInfoEnabled())
 		{
 			EncodingManager encodingMgr = gh.getEncodingManager();

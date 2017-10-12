@@ -465,22 +465,6 @@ public class ResultTest extends ServiceTest {
 		.body("routes[0].summary.distance", is(620.5f))
 		.statusCode(200);
 	}
-
-	@Test
-	public void testBearingsForStartPoint() {
-		given()
-		.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
-		.param("preference", "fastest")
-		.param("geometry", "true")
-		.param("profile", "cycling-regular")
-		.when()
-		.get(getEndPointName())
-		.then()
-		.assertThat()
-		.body("any { it.key == 'routes' }", is(true))
-		.body("routes[0].summary.distance", is(620.5f))
-		.statusCode(200);
-	}
 	
 	@Test
 	public void testBearingsForStartAndEndPoints() {
@@ -496,6 +480,40 @@ public class ResultTest extends ServiceTest {
 		.assertThat()
 		.body("any { it.key == 'routes' }", is(true))
 		.body("routes[0].summary.distance", is(805.6f))
+		.statusCode(200);
+	}
+	
+	@Test
+	public void testBearingsExceptLastPoint() {
+		given()
+		.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
+		.param("preference", "fastest")
+		.param("geometry", "true")
+		.param("profile", "cycling-regular")
+		.param("bearings", "25,30")
+		.when()
+		.get(getEndPointName())
+		.then()
+		.assertThat()
+		.body("any { it.key == 'routes' }", is(true))
+		.body("routes[0].summary.distance", is(647.3f))
+		.statusCode(200);
+	}
+	
+	@Test
+	public void testBearingsSkipwaypoint() {
+		given()
+		.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
+		.param("preference", "fastest")
+		.param("geometry", "true")
+		.param("profile", "cycling-regular")
+		.param("bearings", "|90,20")
+		.when()
+		.get(getEndPointName())
+		.then()
+		.assertThat()
+		.body("any { it.key == 'routes' }", is(true))
+		.body("routes[0].summary.distance", is(715.6f))
 		.statusCode(200);
 	}
 	
