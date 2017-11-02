@@ -20,13 +20,6 @@
  */
 package heigit.ors.routing.graphhopper.extensions;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.logging.Logger;
-
-import heigit.ors.routing.RoutingProfile;
-
 import com.carrotsearch.hppc.LongArrayList;
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
@@ -34,6 +27,12 @@ import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
+import heigit.ors.routing.RoutingProfile;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Logger;
 
 public class ORSOSMReader extends OSMReader {
 
@@ -52,7 +51,7 @@ public class ORSOSMReader extends OSMReader {
 	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx, HashMap<Integer, Long> tmcEdges,  HashMap<Long, ArrayList<Integer>> osmId2EdgeIds, RoutingProfile refProfile) {
 		super(storage);
 
-		setCalcDistance3D(true); // TODO set to false, update tests
+		setCalcDistance3D(false);
 		this._procCntx = procCntx;
 		this._readerCntx = new OSMDataReaderContext(this);
 		this.tmcEdges = tmcEdges;
