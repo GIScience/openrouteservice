@@ -635,13 +635,13 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(292.5f))
-				.body("routes[0].summary.duration", is(105.3f))
+				.body("routes[0].summary.distance", is(292.8f))
+				.body("routes[0].summary.duration", is(210.8f))
 				.statusCode(200);
 
 		// Option 1 signifies that the route should not cross any borders
 		given()
-				.param("coordinates", "8.693668,49.409545|8.693349,49.413912")
+				.param("coordinates", "8.688301,49.404454|8.684266,49.404223")
 				.param("instructions", "false")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
@@ -651,13 +651,13 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(1255.1))
-				.body("routes[0].summary.duration", is(180.3f))
+				.body("routes[0].summary.distance", is(1255.5f))
+				.body("routes[0].summary.duration", is(360.9f))
 				.statusCode(200);
 
 		// Option 0 signifies that no borders are taken into account when routing, so the route can cross any borders
 		given()
-				.param("coordinates", "8.693668,49.409545|8.693349,49.413912")
+				.param("coordinates", "8.688301,49.404454|8.684266,49.404223")
 				.param("instructions", "false")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
@@ -667,8 +667,8 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(292.5f))
-				.body("routes[0].summary.duration", is(105.3f))
+				.body("routes[0].summary.distance", is(292.8f))
+				.body("routes[0].summary.duration", is(210.8f))
 				.statusCode(200);
 
 	}
