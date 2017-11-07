@@ -203,6 +203,7 @@
                                 WayCategory: { },								
                                 HeavyVehicle: { restrictions: true },								
 								WaySurfaceType: { },
+								Borders: { filepath: "src/main/files/border_crossings_hd.csv" },
 								Tollways: { }
 						    }
 						    traffic: false
