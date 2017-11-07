@@ -214,11 +214,13 @@ public class RouteSearchParameters {
 				jRestrictions = jProfileParams.getJSONObject("restrictions");
 
 			if (RoutingProfileType.isDriving(_profileType)) {
+				// This includes all driving vehicles, which are then over-ridden later on if needed
 				VehicleParameters vehicleParams = new VehicleParameters();
 
 				_profileParams = vehicleParams;
 			}
-			else if (RoutingProfileType.isCycling(_profileType))
+
+			if (RoutingProfileType.isCycling(_profileType))
 			{
 				CyclingParameters cyclingParams = new CyclingParameters();
 
