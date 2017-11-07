@@ -58,6 +58,14 @@
           <warSourceDirectory>WebContent</warSourceDirectory>
            <webXml>WebContent/WEB-INF/web.xml</webXml>
           <failOnMissingWebXml>false</failOnMissingWebXml>
+          <!-- <attachClasses>true</attachClasses>
+          <classesClassifier>classes</classesClassifier> -->
+          <!-- <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>ors.heigit.routing.GraphBuilder</mainClass>
+            </manifest>
+          </archive>-->
         </configuration>
       </plugin>
       <plugin>

@@ -20,15 +20,15 @@
  */
 package heigit.ors.services.isochrones;
 
-import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.*;
-
+import heigit.ors.services.common.EndPointAnnotation;
+import heigit.ors.services.common.ServiceTest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
-import heigit.ors.services.common.EndPointAnnotation;
-import heigit.ors.services.common.ServiceTest;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
 
 @EndPointAnnotation(name = "isochrones")
 public class ResultTest extends ServiceTest {
@@ -53,11 +53,11 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.body("any { it.key == 'type' }", is(true))
 				.body("any { it.key == 'features' }", is(true))
-				.body("features[0].geometry.coordinates[0].size()", is(28))
+				.body("features[0].geometry.coordinates[0].size()", is(27))
 				.body("features[0].properties.center.size()", is(2))
 				.body("features[0].properties.center[0]", is(8.684177f))
 				.body("features[0].properties.center[1]", is(49.423034f))
-				.body("bbox", hasItems(8.662622f, 49.409115f, 8.695995f, 49.440483f))
+				.body("bbox", hasItems(8.662622f, 49.40911f, 8.695994f, 49.440487f))
 				.body("features[0].type", is("Feature"))
 				.body("features[0].geometry.type", is("Polygon"))
 				.body("features[0].properties.group_index", is(0))
@@ -110,8 +110,8 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.body("any { it.key == 'type' }", is(true))
 				.body("any { it.key == 'features' }", is(true))
-				.body("features[0].properties.area", is(1.4874319E7f))
-				.body("features[0].properties.reachfactor", is(0.1534f))
+				.body("features[0].properties.area", is(1.46161E7f))
+				.body("features[0].properties.reachfactor", is(0.1507f))
 				.statusCode(200);
 	}
 
@@ -139,7 +139,7 @@ public class ResultTest extends ServiceTest {
 				.body("features[2].geometry.coordinates[0].size()", is(25))
 				.body("features[2].properties.contours.size()", is(2))
 				.body("features[2].properties.containsKey('area')", is(true))
-				.body("features[2].properties.area", is(6059915.0f))
+				.body("features[2].properties.area", is(5815279.5f))
 				.body("features[2].properties.contours[0][0]", is(0))
 				.body("features[2].properties.contours[0][1]", is(0))
 				.body("features[2].properties.contours[1][0]", is(1))
@@ -182,14 +182,14 @@ public class ResultTest extends ServiceTest {
 			.body("features.size()", is(6))
 			.body("features[0].type", is("Feature"))
 			.body("features[0].geometry.type", is("Polygon"))
-			.body("features[0].geometry.coordinates[0].size", is(32))
+			.body("features[0].geometry.coordinates[0].size", is(30))
 			.body("features[0].properties.containsKey('area')", is(true))
 			.body("features[1].type", is("Feature"))
 			.body("features[1].geometry.type", is("Polygon"))
-			.body("features[1].geometry.coordinates[0].size", is(78))
+			.body("features[1].geometry.coordinates[0].size", is(80))
 			.body("features[2].type", is("Feature"))
 			.body("features[2].geometry.type", is("Polygon"))
-			.body("features[2].geometry.coordinates[0].size", is(26))
+			.body("features[2].geometry.coordinates[0].size", is(25))
 			.body("features[3].type", is("Feature"))
 			.body("features[3].geometry.type", is("Polygon"))
 			.body("features[3].geometry.coordinates[0].size", is(33))

@@ -20,13 +20,12 @@
  */
 package heigit.ors.services.geocoding;
 
-import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.*;
-
-import org.junit.Test;
-
 import heigit.ors.services.common.EndPointAnnotation;
 import heigit.ors.services.common.ServiceTest;
+import org.junit.Test;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.is;
 
 @EndPointAnnotation(name = "geocode")
 public class ParametersValidationTest extends ServiceTest {
