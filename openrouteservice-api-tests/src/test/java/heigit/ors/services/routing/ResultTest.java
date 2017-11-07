@@ -617,4 +617,60 @@ public class ResultTest extends ServiceTest {
 
 	// test fitness params bike..
 
+
+	@Test
+	public void testBorders() {
+		// Test that border crossings work. Hard borders (1) are those that are closed/controlled, and soft borders (2) are those that are open
+
+		// Uses dummy data that give some ways in Heidelberg hard borders and some soft borders
+		// With option 2, the route can cross soft borders, but not hard borders
+		given()
+				.param("coordinates", "8.688301,49.404454|8.684266,49.404223")
+				.param("instructions", "false")
+				.param("preference", getParameter("preference"))
+				.param("profile", getParameter("carProfile"))
+				.param("options", "{\"profile_params\":{\"weightings\":{\"borders\":{\"level\":2}}}}")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(292.5f))
+				.body("routes[0].summary.duration", is(105.3f))
+				.statusCode(200);
+
+		// Option 1 signifies that the route should not cross any borders
+		given()
+				.param("coordinates", "8.693668,49.409545|8.693349,49.413912")
+				.param("instructions", "false")
+				.param("preference", getParameter("preference"))
+				.param("profile", getParameter("carProfile"))
+				.param("options", "{\"profile_params\":{\"weightings\":{\"borders\":{\"level\":1}}}}")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(1255.1))
+				.body("routes[0].summary.duration", is(180.3f))
+				.statusCode(200);
+
+		// Option 0 signifies that no borders are taken into account when routing, so the route can cross any borders
+		given()
+				.param("coordinates", "8.693668,49.409545|8.693349,49.413912")
+				.param("instructions", "false")
+				.param("preference", getParameter("preference"))
+				.param("profile", getParameter("carProfile"))
+				.param("options", "{\"profile_params\":{\"weightings\":{\"borders\":{\"level\":0}}}}")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(292.5f))
+				.body("routes[0].summary.duration", is(105.3f))
+				.statusCode(200);
+
+	}
+
 }
