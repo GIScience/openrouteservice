@@ -915,6 +915,12 @@ public class RoutingProfile
 				req.getHints().put("lm.disable", true); // REMOVE
 			}
 
+			if (profileType == RoutingProfileType.DRIVING_CAR || profileType == RoutingProfileType.DRIVING_HGV || profileType == RoutingProfileType.DRIVING_ELECTRIC_CAR || profileType == RoutingProfileType.DRIVING_MOTORCYCLE)
+			{
+				req.getHints().put("custom_weightings", true);
+				req.getHints().put("weighting_#borders#", true);
+			}
+
 			if (_astarEpsilon != null)
 				req.getHints().put("astarbi.epsilon", _astarEpsilon);
 			if (_astarApproximation != null)

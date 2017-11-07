@@ -213,7 +213,12 @@ public class RouteSearchParameters {
 			if (jProfileParams.has("restrictions"))
 				jRestrictions = jProfileParams.getJSONObject("restrictions");
 
-			if (RoutingProfileType.isCycling(_profileType))
+			if (RoutingProfileType.isDriving(_profileType)) {
+				VehicleParameters vehicleParams = new VehicleParameters();
+
+				_profileParams = vehicleParams;
+			}
+			else if (RoutingProfileType.isCycling(_profileType))
 			{
 				CyclingParameters cyclingParams = new CyclingParameters();
 
