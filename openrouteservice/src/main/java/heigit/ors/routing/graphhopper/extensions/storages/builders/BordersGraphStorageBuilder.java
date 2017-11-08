@@ -40,7 +40,7 @@ import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
  */
 public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	private BordersGraphStorage _storage;
-	private Map<Long, Byte> _borders = new HashMap<>();
+	private Map<Long, Byte[]> _borders = new HashMap<>();
 	private byte DEFAULT_BORDER_TYPE = 0;
 
 	public BordersGraphStorageBuilder() {
@@ -56,7 +56,6 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		String csvFile = _parameters.get("filepath");
 		readBorderWaysFromCSV(csvFile);
 		_storage = new BordersGraphStorage();
-
 		return _storage;
 	}
 
@@ -79,7 +78,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
 				if (!parseCSVrow(row, separator, rowValues))
 					continue;
 
-				_borders.put(Long.parseLong(rowValues[0]),  Byte.parseByte(rowValues[3]));
+				_borders.put(Long.parseLong(rowValues[0]),  new Byte[] {Byte.parseByte(rowValues[3]), Byte.parseByte(rowValues[1]), Byte.parseByte(rowValues[2])});
 			}
 
 		} catch (IOException openFileEx) {
@@ -119,19 +118,41 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
 	@Override
 	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
-		_storage.setEdgeValue(edge.getEdge(), calcBorderCrossing(way.getId()));
+		_storage.setEdgeValue(edge.getEdge(),
+				calcBorderCrossing(way.getId(), BordersGraphStorage.Property.TYPE),
+				calcBorderCrossing(way.getId(), BordersGraphStorage.Property.START),
+				calcBorderCrossing(way.getId(), BordersGraphStorage.Property.END)
+				);
 	}
 
-	private byte calcBorderCrossing(long id) {
-		// return a byte value based on the border type (none, hard or soft)
+	private byte calcBorderCrossing(long id, BordersGraphStorage.Property prop) {
 
-		Byte borderType = _borders.get(id);
+		Byte[] border = _borders.get(id);
+		if(border != null) {
+			// determine the property we are obtaining
+			switch (prop) {
+				case TYPE:
+					if (border[0] == null)
+						return DEFAULT_BORDER_TYPE;
+					else {
+						return border[0];
+					}
+				case START:
+					if (border[1] == null)
+						return 0;
+					else {
+						return border[1];
+					}
+				case END:
+					if (border[2] == null)
+						return 0;
+					else {
+						return border[2];
+					}
+			}
+		}
 
-		if (borderType == null)
-			return DEFAULT_BORDER_TYPE;
-		else
-			return borderType;
-
+		return 0;
 	}
 
 	@Override

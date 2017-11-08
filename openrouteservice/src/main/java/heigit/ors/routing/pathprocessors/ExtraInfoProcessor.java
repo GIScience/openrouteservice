@@ -343,11 +343,11 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_noiseInfoBuilder.addSegment(noise_level, client_noise_level, geom, dist, lastEdge && _lastSegment);
 		}
 
-		if(_bordersInfoBuilder != null) {
+		/*if(_bordersInfoBuilder != null) {
 			int value = _extBorders.getEdgeValue(edge.getOriginalEdge(), buffer);
 			_bordersInfoBuilder.addSegment(value, value, geom, dist, lastEdge && _lastSegment);
 
-		}
+		}*/
 	}
 
 	@Override
