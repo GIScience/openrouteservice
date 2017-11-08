@@ -47,9 +47,9 @@ public class BordersWeighting extends FastestWeighting {
 
         _gsBorders = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
         level = map.getInt("level", 0);
-        int ct = map.getInt("country", 0);
-        if(ct != 0)
-            avoidCountries.add(ct);
+        String ctstr = map.get("country", "");
+        if(!ctstr.isEmpty())
+            processCountries(ctstr);
     }
 
     @Override
@@ -90,5 +90,28 @@ public class BordersWeighting extends FastestWeighting {
         }
 
         return weighting;
+    }
+
+    /**
+     * Takes a string representing country id(s) and adds them to the avoid countries list
+     *
+     * @param countryString     String with a single integer or a piped list of integers representing country ids
+     */
+    private void processCountries(String countryString) {
+        String[] countries = countryString.split("\\|");
+
+        for(String country : countries) {
+            System.out.println("country: " + country);
+            int countryId = 0;
+            try {
+                countryId = Integer.parseInt(country);
+            } catch (NumberFormatException nfe) {
+                continue;
+            }
+
+            if(countryId > 0) {
+                avoidCountries.add(countryId);
+            }
+        }
     }
 }
