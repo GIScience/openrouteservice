@@ -394,6 +394,9 @@ public class RouteSearchParameters {
 				while(keys.hasNext())
 				{ 
 					String key = keys.next();
+					// The borders parameter should not be allowed the level - this is done via the avoid_feature parameter
+					if(name.equals("borders") && key.equals("level"))
+						throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "borders - level");
 					pw.addParameter(key, jw.optString(key));
 				}
 

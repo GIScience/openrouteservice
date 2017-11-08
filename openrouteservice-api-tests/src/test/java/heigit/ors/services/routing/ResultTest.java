@@ -617,7 +617,7 @@ public class ResultTest extends ServiceTest {
 
 	// test fitness params bike..
 
-
+/*
 	@Test
 	public void testBordersWeight() {
 		// Test that border crossings work. Hard borders (1) are those that are closed/controlled, and soft borders (2) are those that are open
@@ -635,8 +635,8 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(292.8f))
-				.body("routes[0].summary.duration", is(210.8f))
+				.body("routes[0].summary.distance", is(1255.5f))
+				.body("routes[0].summary.duration", is(360.9f))
 				.statusCode(200);
 
 		// Option 1 signifies that the route should not cross any borders
@@ -651,8 +651,8 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(1255.5f))
-				.body("routes[0].summary.duration", is(360.9f))
+				.body("routes[0].summary.distance", is(1560.1f))
+				.body("routes[0].summary.duration", is(396.5f))
 				.statusCode(200);
 
 		// Option 0 signifies that no borders are taken into account when routing, so the route can cross any borders
@@ -671,7 +671,7 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].summary.duration", is(210.8f))
 				.statusCode(200);
 
-	}
+	}*/
 
 	@Test
 	public void testBordersAvoid() {
@@ -687,8 +687,8 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(292.8f))
-				.body("routes[0].summary.duration", is(210.8f))
+				.body("routes[0].summary.distance", is(1255.5f))
+				.body("routes[0].summary.duration", is(360.9f))
 				.statusCode(200);
 
 		// Option 1 signifies that the route should not cross any borders
@@ -703,8 +703,8 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(1255.5f))
-				.body("routes[0].summary.duration", is(360.9f))
+				.body("routes[0].summary.distance", is(1560.1f))
+				.body("routes[0].summary.duration", is(396.5f))
 				.statusCode(200);
 	}
 
@@ -731,7 +731,7 @@ public class ResultTest extends ServiceTest {
 				.param("instructions", "false")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
-				.param("options", "{\"profile_params\":{\"weightings\":{\"borders\":{\"country\":2}}}}")
+				.param("options", "{\"profile_params\":{\"weightings\":{\"borders\":{\"country\":1}}}}")
 				.when()
 				.get(getEndPointName())
 				.then()
@@ -743,4 +743,22 @@ public class ResultTest extends ServiceTest {
 
 	}
 
+	@Test
+	public void testBordersAndCountry() {
+		// Test that routing avoids crossing into borders specified
+		given()
+				.param("coordinates", "8.688301,49.404454|8.684266,49.404223")
+				.param("instructions", "false")
+				.param("preference", getParameter("preference"))
+				.param("profile", getParameter("carProfile"))
+				.param("options", "{\"profile_params\":{\"weightings\":{\"borders\":{\"country\":120}}},\"avoid_features\":\"controlledborders\"}")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(1560.1f))
+				.body("routes[0].summary.duration", is(396.5f))
+				.statusCode(200);
+	}
 }

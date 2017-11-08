@@ -54,17 +54,26 @@ public class BordersWeighting extends FastestWeighting {
 
     @Override
     public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+        double weighting = 1.0;
+
         if (_gsBorders != null) {
-            // Check if we are looking at restricting by country or by border type
-            if(level > 0) {
-                // Looking at the type of border
+            // First check that we need to do an evaluation
+            if(avoidCountries.size() > 0 || level > 0) {
                 int borderLevel = _gsBorders.getEdgeValue(edgeState.getOriginalEdge(), _buffer, BordersGraphStorage.Property.TYPE);
+                int start = _gsBorders.getEdgeValue(edgeState.getOriginalEdge(), _buffer, BordersGraphStorage.Property.START);
+                int end = _gsBorders.getEdgeValue(edgeState.getOriginalEdge(), _buffer, BordersGraphStorage.Property.END);
+
                 if(borderLevel > 0) {
-                    // Now check for the corresponding level
-                    // 0 = cross any border
-                    // 1 = cross no borders
-                    // 2 = only cross "soft" borders (i.e. Shengen borders)
-                    double weighting = 1.0;
+                    // Only evaluate edges with border crossings
+                    if(start > 0 || end > 0) {
+                        for(Integer i : avoidCountries) {
+                            if(i == start || i == end) {
+                                weighting = Double.MAX_VALUE;
+                                break;
+                            }
+                        }
+                    }
+
                     switch(level) {
                         case 0:
                             break;
@@ -76,28 +85,10 @@ public class BordersWeighting extends FastestWeighting {
                                 weighting = Double.MAX_VALUE;
                             break;
                     }
-
-                    return weighting;
                 }
-            } else if(avoidCountries.size() > 0) {
-                // Looking at avoiding specific countires, so we need to work with the start and end points of the ways
-                // if either are the avoid country then we do not use them
-                int start = _gsBorders.getEdgeValue(edgeState.getOriginalEdge(), _buffer, BordersGraphStorage.Property.START);
-                int end = _gsBorders.getEdgeValue(edgeState.getOriginalEdge(), _buffer, BordersGraphStorage.Property.END);
-
-                double weighting = 1.0;
-
-                for(Integer i : avoidCountries) {
-                    if(i == start || i == end) {
-                        weighting = Double.MAX_VALUE;
-                        break;
-                    }
-                }
-
-                return weighting;
             }
         }
 
-        return 1.0;
+        return weighting;
     }
 }
