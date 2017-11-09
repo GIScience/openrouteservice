@@ -59,8 +59,7 @@ public class BordersGraphStorage implements GraphExtension {
 	 * @param start			ID of the country that the edge starts in
 	 * @param end			ID of the country that the edge ends in
 	 */
-	public void setEdgeValue(int edgeId, byte borderType, byte start, byte end) {
-		// TODO: Update to pass shorts rather than bytes
+	public void setEdgeValue(int edgeId, short borderType, short start, short end) {
 		edgesCount++;
 		ensureEdgesIndex(edgeId);
 
@@ -80,13 +79,11 @@ public class BordersGraphStorage implements GraphExtension {
 	 * The method takes an identifier to the edge and then gets the requested value for the edge from the storage
 	 *
 	 * @param edgeId	Internal ID of the edge to get values for
-	 * @param buffer	Not used
 	 * @param prop		The property of the edge to get (TYPE - border type (0,1,2), START - the ID of the country
 	 *                  the edge starts in, END - the ID of the country the edge ends in.
 	 * @return			The value of the requested property
 	 */
-	public int getEdgeValue(int edgeId, byte[] buffer, Property prop) {
-		// TODO: return a short rather than int and remove the buffer[] as it is not needed
+	public short getEdgeValue(int edgeId, Property prop) {
 		long edgePointer = (long) edgeId * edgeEntryBytes;
 		short border = 0, start = 0, end = 0;
 		border = orsEdges.getShort(edgePointer + EF_BORDER);
@@ -112,7 +109,6 @@ public class BordersGraphStorage implements GraphExtension {
 	 */
 	@Override
 	public boolean isRequireNodeField() {
-		// TODO I don't know what's this method for, just refer to that in the HillIndex class
 		return true;
 	}
 
@@ -121,7 +117,6 @@ public class BordersGraphStorage implements GraphExtension {
 	 */
 	@Override
 	public boolean isRequireEdgeField() {
-		// TODO I don't know what's this method for, just refer to that in the HillIndex class
 		return true;
 	}
 
@@ -130,7 +125,6 @@ public class BordersGraphStorage implements GraphExtension {
 	 */
 	@Override
 	public int getDefaultNodeFieldValue() {
-		// TODO I don't know what's this method for, just refer to that in the HillIndex class
 		return -1;
 	}
 
@@ -139,7 +133,6 @@ public class BordersGraphStorage implements GraphExtension {
 	 */
 	@Override
 	public int getDefaultEdgeFieldValue() {
-		// TODO I don't know what's this method for, just refer to that in the HillIndex class
 		return -1;
 	}
 

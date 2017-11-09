@@ -37,7 +37,6 @@ import java.util.ArrayList;
  */
 public class BordersWeighting extends FastestWeighting {
     private BordersGraphStorage _gsBorders;
-    private byte[] _buffer = new byte[1];
     private int level = 0;
 
     private ArrayList<Integer> avoidCountries = new ArrayList<>();
@@ -84,9 +83,9 @@ public class BordersWeighting extends FastestWeighting {
         if (_gsBorders != null) {
             // First check that we need to do an evaluation
             if(avoidCountries.size() > 0 || level > 0) {
-                int borderLevel = _gsBorders.getEdgeValue(edgeState.getOriginalEdge(), _buffer, BordersGraphStorage.Property.TYPE);
-                int start = _gsBorders.getEdgeValue(edgeState.getOriginalEdge(), _buffer, BordersGraphStorage.Property.START);
-                int end = _gsBorders.getEdgeValue(edgeState.getOriginalEdge(), _buffer, BordersGraphStorage.Property.END);
+                int borderLevel = _gsBorders.getEdgeValue(edgeState.getOriginalEdge(), BordersGraphStorage.Property.TYPE);
+                int start = _gsBorders.getEdgeValue(edgeState.getOriginalEdge(), BordersGraphStorage.Property.START);
+                int end = _gsBorders.getEdgeValue(edgeState.getOriginalEdge(), BordersGraphStorage.Property.END);
 
                 if(borderLevel > 0) {
                     // Only evaluate edges with border crossings
@@ -126,7 +125,6 @@ public class BordersWeighting extends FastestWeighting {
         String[] countries = countryString.split("\\|");
 
         for(String country : countries) {
-            System.out.println("country: " + country);
             int countryId = 0;
             try {
                 countryId = Integer.parseInt(country);

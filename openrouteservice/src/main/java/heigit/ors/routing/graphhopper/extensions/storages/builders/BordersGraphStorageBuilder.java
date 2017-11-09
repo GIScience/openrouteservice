@@ -63,7 +63,6 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		if (_storage != null)
 			throw new Exception("GraphStorageBuilder has been already initialized.");
 
-		// TODO Check if the _greenIndexFile exists
 		String csvFile = _parameters.get("filepath");
 		readBorderWaysFromCSV(csvFile);
 		_storage = new BordersGraphStorage();
