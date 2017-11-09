@@ -25,6 +25,9 @@ import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
 
+/**
+ * Graph storage class for the Border Restriction routing
+ */
 public class BordersGraphStorage implements GraphExtension {
 	public enum Property { TYPE, START, END };
 	/* pointer for no entry */
@@ -41,11 +44,23 @@ public class BordersGraphStorage implements GraphExtension {
 		//EF_BORDER = 0;
 
 		int edgeEntryIndex = 0;
-		edgeEntryBytes = edgeEntryIndex + 6;
+		edgeEntryBytes = edgeEntryIndex + 6;	// item uses 3 short values which are 2 bytes length each
 		edgesCount = 0;
 	}
 
+	/**
+	 * Set values to the edge based on the border type and countries<br/><br/>
+	 *
+	 * This method takes the internal ID of the edge and adds the information obtained from the Borders CSV file to it
+	 * so that the values can be taken into account when generating a route.
+	 *
+	 * @param edgeId		Internal ID of the graph edge
+	 * @param borderType	Level of border crossing (0 - No border, 1 - controlled border, 2 - open border=
+	 * @param start			ID of the country that the edge starts in
+	 * @param end			ID of the country that the edge ends in
+	 */
 	public void setEdgeValue(int edgeId, byte borderType, byte start, byte end) {
+		// TODO: Update to pass shorts rather than bytes
 		edgesCount++;
 		ensureEdgesIndex(edgeId);
 
@@ -59,8 +74,19 @@ public class BordersGraphStorage implements GraphExtension {
 
 	private void ensureEdgesIndex(int edgeId) { orsEdges.ensureCapacity(((long) edgeId + 1) * edgeEntryBytes); }
 
+	/**
+	 * Get the specified custom value of the edge that was assigned to it in the setValueEdge method<br/><br/>
+	 *
+	 * The method takes an identifier to the edge and then gets the requested value for the edge from the storage
+	 *
+	 * @param edgeId	Internal ID of the edge to get values for
+	 * @param buffer	Not used
+	 * @param prop		The property of the edge to get (TYPE - border type (0,1,2), START - the ID of the country
+	 *                  the edge starts in, END - the ID of the country the edge ends in.
+	 * @return			The value of the requested property
+	 */
 	public int getEdgeValue(int edgeId, byte[] buffer, Property prop) {
-		// TODO this needs further checking when implementing the Weighting classes/functions
+		// TODO: return a short rather than int and remove the buffer[] as it is not needed
 		long edgePointer = (long) edgeId * edgeEntryBytes;
 		short border = 0, start = 0, end = 0;
 		border = orsEdges.getShort(edgePointer + EF_BORDER);

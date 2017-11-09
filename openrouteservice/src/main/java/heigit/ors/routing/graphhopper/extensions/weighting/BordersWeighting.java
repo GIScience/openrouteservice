@@ -42,6 +42,13 @@ public class BordersWeighting extends FastestWeighting {
 
     private ArrayList<Integer> avoidCountries = new ArrayList<>();
 
+    /**
+     * Constructor for the BordersWeighting class.
+     *
+     * @param encoder
+     * @param map               The parameters passed through to the extension
+     * @param graphStorage
+     */
     public BordersWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
         super(encoder, map);
 
@@ -52,6 +59,24 @@ public class BordersWeighting extends FastestWeighting {
             processCountries(ctstr);
     }
 
+    /**
+     * Method for calculating the weighting to be given to individual edges. <br/><br/>
+     *
+     * It checks to see what type of restriction is being used based on the PMap sent to the constructor and then gives
+     * maximum weighting to the edge if the method type says that it should not be crossed.<br/><br/>
+     *
+     * The different methods are:
+     * <ul>
+     *     <li>Restrict by country/countries - Do not allow routes to cross a border of the countries specified.</li>
+     *     <li>Restrict by border type - Do not allow routes to cross any border, or limit allowed border crossings
+     *     to only open borders (i.e. Schengen).</li>
+     * </ul>
+     *
+     * @param edgeState
+     * @param reverse
+     * @param prevOrNextEdgeId
+     * @return                      A weighting for the edge - 1.0 if the edge can be traversed or Double.MAX if not.
+     */
     @Override
     public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
         double weighting = 1.0;
