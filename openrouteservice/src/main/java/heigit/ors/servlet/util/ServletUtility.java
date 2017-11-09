@@ -59,7 +59,8 @@ public class ServletUtility
 	{
 	  write(response, json, "UTF-8", statusCode);
 	}
-	
+
+	// TODO
 	public static void write(HttpServletResponse response, JSONObject json, String encoding, int statusCode) throws IOException
 	{
 		byte[] bytes = json.toString().getBytes(encoding);
