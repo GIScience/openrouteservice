@@ -79,7 +79,7 @@
             </executions>
             <configuration>
                 <dateFormat>yyyMMdd-HHmmss</dateFormat>
-                <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                <dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
                 <generateGitPropertiesFile>false</generateGitPropertiesFile>
                 <injectAllReactorProjects>true</injectAllReactorProjects>
             </configuration>
