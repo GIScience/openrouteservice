@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import io.jenetics.jpx.GPX;
 import org.json.JSONObject;
 
 import heigit.ors.common.StatusCode;
@@ -43,7 +44,15 @@ public class ServletUtility
 		
 		return strDecoded;
 	}
-	
+
+    public static void write(HttpServletResponse response, String gpx, String encoding) throws IOException{
+        write(response,gpx, "UTF-8");
+	}
+    public static void write(HttpServletResponse response, GPX gpx, String encoding) throws IOException{
+        byte[] bytes = gpx.toString().getBytes(encoding);
+        write(response, bytes, "application/gpx", encoding);
+    }
+
 	public static void write(HttpServletResponse response, JSONObject json) throws IOException
 	{
 	  write(response, json, "UTF-8");
@@ -79,6 +88,8 @@ public class ServletUtility
 	
 	public static void write(HttpServletResponse response, byte[] bytes, String contentType, String encoding, int statusCode) throws IOException
 	{
+
+	    //TODO Add content type
 		OutputStream outStream = response.getOutputStream();
 		response.setHeader("Content-Type", contentType);
 		response.setContentLength(bytes.length);
@@ -91,4 +102,6 @@ public class ServletUtility
 		outStream.write(bytes);
 		outStream.close();
 	}
+
+
 }
