@@ -23,7 +23,10 @@ package heigit.ors.services.routing.requestprocessors.json;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import heigit.ors.exceptions.EmptyElementException;
+import heigit.ors.routing.RoutingErrorCodes;
 import heigit.ors.services.routing.requestprocessors.gpx.GpxRoutingResponseWriter;
+import io.jenetics.jpx.GPX;
 import org.json.JSONObject;
 
 import com.graphhopper.util.Helper;
@@ -36,32 +39,39 @@ import heigit.ors.servlet.util.ServletUtility;
 
 public class JsonRoutingRequestProcessor extends AbstractHttpRequestProcessor {
 
-	public JsonRoutingRequestProcessor(HttpServletRequest request) throws Exception 
-	{
-		super(request);
-	}
-	// TODO e.g. at this point the respFormat should be gpx and go through a third loop
-	@Override
-	public void process(HttpServletResponse response) throws Exception {
-		RoutingRequest rreq = JsonRoutingRequestParser.parseFromRequestParams(_request);
+    public JsonRoutingRequestProcessor(HttpServletRequest request) throws Exception {
+        super(request);
+    }
 
-		RouteResult result = RoutingProfileManager.getInstance().computeRoute(rreq);
-		
-		JSONObject json = null;
-        String gpx = null;
-		
-		String respFormat = _request.getParameter("format");
-		if (Helper.isEmpty(respFormat) || "json".equalsIgnoreCase(respFormat))
-			json = JsonRoutingResponseWriter.toJson(rreq, new RouteResult[] { result });
-		else if ("geojson".equalsIgnoreCase(respFormat))
-			json = JsonRoutingResponseWriter.toGeoJson(rreq, new RouteResult[] { result });
-		else if  ("gpx".equalsIgnoreCase(respFormat)){
-            // The Route is accessible through "RouteResult[]" as: "_geometry". "_summary": holds meta data. Could be added to GPX?!
-            gpx = GpxRoutingResponseWriter.toGpx(new RouteResult[] { result });
-            // Example Routing: http://localhost:8082/openrouteservice-4.4.0/routes?api_key=58d904a497c67e00015b45fc689ff6d2c8a04c6755f1de0e40b87dfa&coordinates=8.672676%2C%2049.451918|8.667977%2C%2049.449156&profile=driving-car
-			// TODO: Integrate a ServletUtility.write() for gpx. It should just return a blank unformatted string that can be manually parsed by the recipient
-		}
-		// TODO: Decide how to handle two different write servlets. E.g. integrate them seperately in the if loop above.
-		ServletUtility.write(response, json, "UTF-8");
-	}
+    // TODO e.g. at this point the respFormat should be gpx and go through a third loop
+    @Override
+    public void process(HttpServletResponse response) throws Exception {
+        RoutingRequest rreq = JsonRoutingRequestParser.parseFromRequestParams(_request);
+
+        RouteResult result = RoutingProfileManager.getInstance().computeRoute(rreq);
+
+        JSONObject json = null;
+        GPX gpx;
+
+        String respFormat = _request.getParameter("format");
+        if (Helper.isEmpty(respFormat) || "json".equalsIgnoreCase(respFormat)) {
+            json = JsonRoutingResponseWriter.toJson(rreq, new RouteResult[]{result});
+        } else if ("geojson".equalsIgnoreCase(respFormat)) {
+            json = JsonRoutingResponseWriter.toGeoJson(rreq, new RouteResult[]{result});
+        } else if ("gpx".equalsIgnoreCase(respFormat)) {
+            json = JsonRoutingResponseWriter.toGeoJson(rreq, new RouteResult[]{result});
+            gpx = GpxRoutingResponseWriter.toGPX(rreq, new RouteResult[] {result}, json);
+            String gpxToString;
+            if (gpx != null) {
+                gpxToString = gpx.toString();
+            } else{
+                throw new EmptyElementException(RoutingErrorCodes.EMPTY_ELEMENT, "GPX was empty and therefore could not be converted.");
+            }
+
+            ServletUtility.write(response, gpxToString, "UTF-8");
+        }
+
+        // TODO: Decide how to handle two different write servlets. E.g. integrate them seperately in the if loop above.
+        ServletUtility.write(response, json, "UTF-8");
+    }
 }

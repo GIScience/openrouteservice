@@ -44,7 +44,7 @@ public class GeocodingServiceRequestProcessorFactory {
 		if (Helper.isEmpty(formatParam))
 			formatParam = "json";
 
-		if (formatParam.equalsIgnoreCase("json"))
+		if (formatParam.equalsIgnoreCase("json") || formatParam.equalsIgnoreCase("gpx"))
 			return new JsonGeocodingRequestProcessor(request);
 	/*	else if (formatParam.equalsIgnoreCase("xml"))
 			return new XmlGeocodingRequestProcessor(request);*/

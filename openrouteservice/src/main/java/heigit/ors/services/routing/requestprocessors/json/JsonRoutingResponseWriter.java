@@ -22,6 +22,7 @@ package heigit.ors.services.routing.requestprocessors.json;
 
 import java.util.List;
 
+import io.jenetics.jpx.GPX;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -118,10 +119,7 @@ public class JsonRoutingResponseWriter {
 		// TODO
 		return null;
 	}
-    public static String toGPX(RoutingRequest rreq, RouteResult[] routeResults) {
-	    // TODO Do the magic here
-    return null;
-	}
+
 	public static JSONArray toJsonArray(RoutingRequest request, RouteResult[] routeResult, BBox bbox) throws Exception
 	{
 		StringBuffer buffer = new StringBuffer();

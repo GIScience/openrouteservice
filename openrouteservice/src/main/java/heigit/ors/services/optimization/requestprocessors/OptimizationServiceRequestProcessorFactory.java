@@ -49,7 +49,7 @@ public class OptimizationServiceRequestProcessorFactory {
 		if (Helper.isEmpty(formatParam))
 			formatParam = "json";
 
-		if (formatParam.equalsIgnoreCase("json"))
+		if (formatParam.equalsIgnoreCase("json") || formatParam.equalsIgnoreCase("gpx"))
 			return new JsonOptimizationRequestProcessor(request);
 		else 
 			throw new UnknownParameterValueException(OptimizationErrorCodes.INVALID_PARAMETER_VALUE, "format", formatParam);

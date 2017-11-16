@@ -48,7 +48,7 @@ public class MatrixServiceRequestProcessorFactory {
 		if (Helper.isEmpty(formatParam))
 			formatParam = "json";
 
-		if (formatParam.equalsIgnoreCase("json"))
+		if (formatParam.equalsIgnoreCase("json") || formatParam.equalsIgnoreCase("gpx"))
 			return new JsonMatrixRequestProcessor(request);
 		else 
 			throw new UnknownParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "format", formatParam);

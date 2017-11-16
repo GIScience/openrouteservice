@@ -22,21 +22,11 @@ package heigit.ors.exceptions;
 
 import heigit.ors.common.StatusCode;
 
-public class InternalServerException extends StatusCodeException 
+public class EmptyElementException extends StatusCodeException
 {
-	private static final long serialVersionUID = -1504840251219099113L;
+	private static final long serialVersionUID = -2004840251219099113L; // Whats the purpose?
 
-	public InternalServerException()
-	{
-	  this(1);
-	}
-	
-	public InternalServerException(int errorCode)
-	{
-		super(StatusCode.INTERNAL_SERVER_ERROR, errorCode, "Unknown internal server error has occurred.");
-	}
-	
-	public InternalServerException(int errorCode, String message)
+	public EmptyElementException(int errorCode, String message)
 	{
 		super(StatusCode.INTERNAL_SERVER_ERROR, errorCode, message);
 	}

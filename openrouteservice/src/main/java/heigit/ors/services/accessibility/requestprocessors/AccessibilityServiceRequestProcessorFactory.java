@@ -48,7 +48,7 @@ public class AccessibilityServiceRequestProcessorFactory {
 		if (Helper.isEmpty(formatParam))
 			formatParam = "json";
 
-		if (formatParam.equalsIgnoreCase("json"))
+		if (formatParam.equalsIgnoreCase("json") || formatParam.equalsIgnoreCase("gpx"))
 			return new JsonAccessibilityRequestProcessor(request);
 		else 
 			throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "format", formatParam);

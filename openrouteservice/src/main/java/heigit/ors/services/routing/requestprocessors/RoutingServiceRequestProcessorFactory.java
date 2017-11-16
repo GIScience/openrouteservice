@@ -64,6 +64,7 @@ public class RoutingServiceRequestProcessorFactory {
 			{
 				case "json":
 				case "geojson":
+				case"gpx":
 					return new JsonRoutingRequestProcessor(request);
 				//case "xml":
 				//	return new XmlRouteRequestProcessor(request);
