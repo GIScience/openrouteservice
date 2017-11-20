@@ -82,6 +82,8 @@ public class ORSOSMReader extends OSMReader {
 	@Override
 	protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge) {
 
+		System.out.println( "here" );
+
 		if (enrichInstructions && Helper.isEmpty(way.getTag("name")) && Helper.isEmpty(way.getTag("ref"))) {
 			try {
 				/*	if (way.getId() != prevMatchedWayId)

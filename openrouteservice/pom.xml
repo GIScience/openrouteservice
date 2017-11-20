@@ -184,29 +184,31 @@
     	<groupId>net.sf.trove4j</groupId>
     	<artifactId>trove4j</artifactId>
     	<version>3.0.3</version>
-	</dependency>        
+	</dependency>
 
- 	<dependency>
-	 	<groupId>com.github.GIScience</groupId>
-		<artifactId>graphhopper</artifactId>
-	   	<version>v0.9.9</version>
-	</dependency>
- 
- 
-<!-- remove the comment to enable debugging    
- 	<dependency>
-	 	<groupId>com.graphhopper</groupId>
-		<artifactId>graphhopper-core</artifactId>
-	   	<version>0.10-SNAPSHOT</version>
-	</dependency>
-  
-  	<dependency>
-	 	<groupId>com.graphhopper</groupId>
-	   <artifactId>graphhopper-reader-osm</artifactId>
-	   	<version>0.10-SNAPSHOT</version>
-	</dependency>
- -->
-	<dependency>
+    <!--
+    <dependency>
+             <groupId>com.github.GIScience</groupId>
+            <artifactId>graphhopper</artifactId>
+               <version>v0.9.9</version>
+     </dependency>
+     -->
+
+    <!-- remove the comment to enable debugging -->
+     <dependency>
+         <groupId>com.graphhopper</groupId>
+        <artifactId>graphhopper-core</artifactId>
+           <version>0.10-SNAPSHOT</version>
+    </dependency>
+
+      <dependency>
+         <groupId>com.graphhopper</groupId>
+       <artifactId>graphhopper-reader-osm</artifactId>
+           <version>0.10-SNAPSHOT</version>
+    </dependency>
+    <!-- end -->
+
+    <dependency>
     	<groupId>com.typesafe</groupId>
 	    <artifactId>config</artifactId>
 	    <version>1.3.1</version>
