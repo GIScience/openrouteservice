@@ -645,7 +645,9 @@ public class RoutingProfile
 					|| profileType == RoutingProfileType.FOOT_WALKING || profileType == RoutingProfileType.FOOT_HIKING
 					|| profileType == RoutingProfileType.WHEELCHAIR) { 
 
-				if (searchParams.getAvoidFeatureTypes() != AvoidFeatureFlags.Hills)
+				if (searchParams.getAvoidFeatureTypes() != AvoidFeatureFlags.Hills
+						&& searchParams.getAvoidFeatureTypes() != AvoidFeatureFlags.Borders
+						&& searchParams.getAvoidFeatureTypes() != AvoidFeatureFlags.ControlledBorders)
 				{
 					EdgeFilter ef = new AvoidFeaturesEdgeFilter(flagEncoder, searchParams,
 							mGraphHopper.getGraphHopperStorage());
@@ -664,6 +666,17 @@ public class RoutingProfile
 							CyclingParameters cyclingParams = (CyclingParameters)searchParams.getProfileParameters();
 							props.put("steepness_maximum", cyclingParams.getMaximumGradient());
 						}
+					}
+
+					// if we are provided the avoid_features:borders parameter, then we want to avoid all border crossings
+					if((searchParams.getAvoidFeatureTypes() & AvoidFeatureFlags.Borders) == AvoidFeatureFlags.Borders) {
+						props.put("custom_weightings", true);
+						props.put(ProfileWeighting.encodeName("borders") + "level", 1);
+					}
+					// if we are provided the avoid_features:controlledborders parameter, then we want to avoid non-open border crossings
+					if((searchParams.getAvoidFeatureTypes() & AvoidFeatureFlags.ControlledBorders) == AvoidFeatureFlags.ControlledBorders) {
+						props.put("custom_weightings", true);
+						props.put(ProfileWeighting.encodeName("borders") + "level", 2);
 					}
 				}
 			}

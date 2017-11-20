@@ -10,6 +10,8 @@ ENV MAVEN_CLI_OPTS="--batch-mode --errors --fail-at-end --show-version -Dinstall
 ARG APP_CONFIG=docker/conf/app.config.sample
 
 RUN mkdir -p /ors-core/build
+
+COPY .git /ors-core/.git
 COPY openrouteservice /ors-core/openrouteservice
 COPY $APP_CONFIG /ors-core/openrouteservice/WebContent/WEB-INF/app.config
 

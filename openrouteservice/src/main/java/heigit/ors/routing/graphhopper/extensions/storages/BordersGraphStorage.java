@@ -25,49 +25,83 @@ import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
 
+/**
+ * Graph storage class for the Border Restriction routing
+ */
 public class BordersGraphStorage implements GraphExtension {
+	public enum Property { TYPE, START, END };
 	/* pointer for no entry */
 	protected final int NO_ENTRY = -1;
-	private final int EF_BORDER;
+	private final int EF_BORDER = 0;		// byte location of border type
+	private final int EF_START = 2;			// byte location of the start country id
+	private final int EF_END = 4;			// byte location of the end country id
 
 	private DataAccess orsEdges;
 	private int edgeEntryBytes;
 	private int edgesCount; // number of edges with custom values
 
-	private byte[] byteValues;
-
 	public BordersGraphStorage() {
-		EF_BORDER = 0;
+		//EF_BORDER = 0;
 
 		int edgeEntryIndex = 0;
-		edgeEntryBytes = edgeEntryIndex + 1;
+		edgeEntryBytes = edgeEntryIndex + 6;	// item uses 3 short values which are 2 bytes length each
 		edgesCount = 0;
-		byteValues = new byte[1];
 	}
 
-	public void setEdgeValue(int edgeId, byte borderType) {
+	/**
+	 * Set values to the edge based on the border type and countries<br/><br/>
+	 *
+	 * This method takes the internal ID of the edge and adds the information obtained from the Borders CSV file to it
+	 * so that the values can be taken into account when generating a route.
+	 *
+	 * @param edgeId		Internal ID of the graph edge
+	 * @param borderType	Level of border crossing (0 - No border, 1 - controlled border, 2 - open border=
+	 * @param start			ID of the country that the edge starts in
+	 * @param end			ID of the country that the edge ends in
+	 */
+	public void setEdgeValue(int edgeId, short borderType, short start, short end) {
 		edgesCount++;
 		ensureEdgesIndex(edgeId);
 
 		// add entry
 		long edgePointer = (long) edgeId * edgeEntryBytes;
-		if(borderType != 0) {
-			//System.out.println(borderType);
-		}
-		byteValues[0] = borderType;
-		orsEdges.setBytes(edgePointer + EF_BORDER, byteValues, 1);
+
+		orsEdges.setShort(edgePointer + EF_BORDER, borderType);
+		orsEdges.setShort(edgePointer + EF_START, start);
+		orsEdges.setShort(edgePointer + EF_END, end);
 	}
 
-	private void ensureEdgesIndex(int edgeId) {
-		orsEdges.ensureCapacity(((long) edgeId + 1) * edgeEntryBytes);
-	}
+	private void ensureEdgesIndex(int edgeId) { orsEdges.ensureCapacity(((long) edgeId + 1) * edgeEntryBytes); }
 
-	public int getEdgeValue(int edgeId, byte[] buffer) {
-		// TODO this needs further checking when implementing the Weighting classes/functions
+	/**
+	 * Get the specified custom value of the edge that was assigned to it in the setValueEdge method<br/><br/>
+	 *
+	 * The method takes an identifier to the edge and then gets the requested value for the edge from the storage
+	 *
+	 * @param edgeId	Internal ID of the edge to get values for
+	 * @param prop		The property of the edge to get (TYPE - border type (0,1,2), START - the ID of the country
+	 *                  the edge starts in, END - the ID of the country the edge ends in.
+	 * @return			The value of the requested property
+	 */
+	public short getEdgeValue(int edgeId, Property prop) {
 		long edgePointer = (long) edgeId * edgeEntryBytes;
-		orsEdges.getBytes(edgePointer + EF_BORDER, buffer, 1);
+		short border = 0, start = 0, end = 0;
+		border = orsEdges.getShort(edgePointer + EF_BORDER);
+		start = orsEdges.getShort(edgePointer + EF_START);
+		end = orsEdges.getShort(edgePointer + EF_END);
 
-		return buffer[0];
+		switch (prop) {
+			case TYPE:
+
+				return border;
+			case START:
+				return start;
+			case END:
+				return end;
+			default:
+				return 0;
+		}
+
 	}
 
 	/**
@@ -75,7 +109,6 @@ public class BordersGraphStorage implements GraphExtension {
 	 */
 	@Override
 	public boolean isRequireNodeField() {
-		// TODO I don't know what's this method for, just refer to that in the HillIndex class
 		return true;
 	}
 
@@ -84,7 +117,6 @@ public class BordersGraphStorage implements GraphExtension {
 	 */
 	@Override
 	public boolean isRequireEdgeField() {
-		// TODO I don't know what's this method for, just refer to that in the HillIndex class
 		return true;
 	}
 
@@ -93,7 +125,6 @@ public class BordersGraphStorage implements GraphExtension {
 	 */
 	@Override
 	public int getDefaultNodeFieldValue() {
-		// TODO I don't know what's this method for, just refer to that in the HillIndex class
 		return -1;
 	}
 
@@ -102,7 +133,6 @@ public class BordersGraphStorage implements GraphExtension {
 	 */
 	@Override
 	public int getDefaultEdgeFieldValue() {
-		// TODO I don't know what's this method for, just refer to that in the HillIndex class
 		return -1;
 	}
 

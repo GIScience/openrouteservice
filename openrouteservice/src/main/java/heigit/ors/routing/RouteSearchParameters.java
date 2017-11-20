@@ -374,6 +374,18 @@ public class RouteSearchParameters {
 		}
 	}
 
+	/**
+	 * Enable and add various custom weightings to the profile parameters.<br/><br/>
+	 *
+	 * This method goes through the JSON parameters provided to the API and identifies the custom weightings that
+	 * were passed. These weightings comprise of the name of the custom weighting and any parameters needed (i.e.
+	 * telling the engine to add weightings based on the green index and telling it what factor to use -
+	 * "profile_params":{"weightings":{"green_index":{"factor":1.0}}}
+	 *
+	 * @param json				A JSON object indicating the custom weighting info obtained from the API
+	 * @param profileParams		The Profile Params object that the custom weighting identifiers should be written to
+	 * @throws Exception
+	 */
 	private void processWeightings(JSONObject json, ProfileParameters profileParams) throws Exception
 	{
 		if (json != null && json.has("weightings"))
@@ -394,6 +406,9 @@ public class RouteSearchParameters {
 				while(keys.hasNext())
 				{ 
 					String key = keys.next();
+					// The borders parameter should not be allowed the level - this is done via the avoid_feature parameter
+					if(name.equals("borders") && key.equals("level"))
+						throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "borders - level");
 					pw.addParameter(key, jw.optString(key));
 				}
 

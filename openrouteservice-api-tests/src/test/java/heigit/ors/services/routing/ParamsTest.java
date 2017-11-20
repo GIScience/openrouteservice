@@ -677,4 +677,20 @@ public class ParamsTest extends ServiceTest {
 				.statusCode(400);
 	}
 
+	@Test
+	public void noBorderLevelWeighting() {
+		// Passing a level property for border in weightings should result in an error
+		given()
+				.param("coordinates", getParameter("coordinatesShort"))
+				.param("preference", getParameter("preference"))
+				.param("geometry", "true")
+				.param("profile", getParameter("carProfile"))
+				.param("options", "{\"profile_params\":{\"weightings\":{\"borders\":{\"level\":1}}}}")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("error.code", is(203))
+				.statusCode(400);
+	}
 }
