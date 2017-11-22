@@ -1,5 +1,6 @@
 package heigit.ors.services.routing.requestprocessors.gpx.beans;
 
+import javax.lang.model.element.TypeElement;
 import java.util.List;
 
 public class GPX {
@@ -57,9 +58,5 @@ public class GPX {
 
     public void addRoute(Route route) {
         this._routes.add(route);
-    }
-
-    public String write() {
-        return null;
     }
 }

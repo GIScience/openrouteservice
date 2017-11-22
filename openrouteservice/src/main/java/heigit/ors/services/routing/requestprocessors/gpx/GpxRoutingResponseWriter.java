@@ -73,16 +73,14 @@ public class GpxRoutingResponseWriter {
                 }
                 Route finalRoute = new Route();
                 finalRoute.setWayPointList(wayPointList);
-                Bounds bounds = new Bounds(route);
-                BigDecimal[] start = bounds.getStart();
-                BigDecimal[] stop = bounds.getStop();
+                //Bounds bounds = new Bounds(route);
+                //BigDecimal[] start = bounds.getStart();
+                //BigDecimal[] stop = bounds.getStop();
                 // BigDecimal wayPoint1 = finalRoute.getWayPoint(0).getLat();
                 GPX gpx = new GPX();
                 gpx.addRoute(finalRoute);
-                gpx.write();
-                Builder gpxBuilder = new Builder(gpx);
-                String gpxString = gpxBuilder.write();
-
+                Builder gpxBuilder = new Builder().write(gpx);
+                return gpxBuilder.toString();
             }
             int year = Calendar.getInstance().get(Calendar.YEAR);
             gpx = GPX.builder().addRoute(gpxRoute).creator("openrouteservice.org | OpenStreetMap contributors ".concat(String.valueOf(year))).build();
