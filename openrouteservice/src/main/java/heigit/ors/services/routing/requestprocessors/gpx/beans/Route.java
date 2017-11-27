@@ -4,13 +4,18 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
-public final class Route implements Iterable<WayPoint>, Serializable {
-    private  String name;
-    private  String comment;
-    private  String description;
-    private  String source;
-    private  String type;
-    private  List<WayPoint> wayPointList;
+public class Route implements Iterable<WayPoint>, Serializable {
+    private String name;
+    private String comment;
+    private String description;
+    private String source;
+    private String type;
+    private List<WayPoint> wayPointList;
+    private Extensions extensions;
+
+    public Route(List<WayPoint> wayPointList) {
+        this.wayPointList = wayPointList;
+    }
 
 
     public String getName() {
@@ -54,11 +59,19 @@ public final class Route implements Iterable<WayPoint>, Serializable {
     }
 
     public List<WayPoint> getWayPointList() {
-        return null;
+        return wayPointList;
     }
 
-    public void setWayPointList(List<WayPoint> wayPointList) {
-        this.wayPointList = wayPointList;
+    public void setExtensions() {
+        this.extensions = null;
+    }
+
+    public Object getExtension(String key) {
+        return extensions.getValue(key);
+    }
+
+    public void addExtension(String key, Object value) {
+        extensions.addValue(key, value);
     }
 
     @Override
@@ -66,3 +79,4 @@ public final class Route implements Iterable<WayPoint>, Serializable {
         return null;
     }
 }
+

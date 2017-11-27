@@ -1,96 +1,92 @@
 package heigit.ors.services.routing.requestprocessors.gpx.beans;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-public class WayPoint{
-    private BigDecimal lon;
-    private BigDecimal lat;
-    private Double ele;
-    private double distance;
-    private double duration;
-    private String instruction;
-    private String name;
-    private int type;
-    private String wayPoints;
-    private String comment;
+public class WayPoint {
+    private Double _lon;
+    private Double _lat;
+    private double _ele;
+    private final String _dateTime;
+    private String _name;
+    private String _comment;
+    private String _description;
+    private String _source;
+    private Extensions _extensions;
 
-    public void setLon(BigDecimal lon) {
-        this.lon = lon;
+    public WayPoint(double lon, double lat) {
+        this._lon = lon;
+        this._lat = lat;
+        this._dateTime = new DateTime().getTime();
     }
 
-    public BigDecimal getLon() {
-        return lon;
+    public WayPoint(double _lon, double _lat, double _ele) {
+        this._lon = _lon;
+        this._lat = _lat;
+        this._ele = _ele;
+        this._dateTime = new DateTime().getTime();
     }
 
-    public void setLat(BigDecimal lat) {
-        this.lat = lat;
+    public Double get_lon() {
+        return _lon;
     }
 
-    public BigDecimal getLat() {
-        return lat;
+    public Double get_lat() {
+        return _lat;
     }
 
-    public void setEle(Double ele) {
-        this.ele = ele;
+    public double get_ele() {
+        return _ele;
     }
 
-    public Double getEle() {
-        return ele;
+    public String get_dateTime() {
+        return _dateTime;
     }
 
-    public void setDistance(double distance) {
-        this.distance = distance;
+    public String get_name() {
+        return _name;
     }
 
-    public double getDistance() {
-        return distance;
+    public void set_name(String _name) {
+        this._name = _name;
     }
 
-    public void setDuration(double duration) {
-        this.duration = duration;
+    public String get_comment() {
+        return _comment;
     }
 
-    public double getDuration() {
-        return duration;
+    public void set_comment(String _comment) {
+        this._comment = _comment;
     }
 
-    public void setInstruction(String instruction) {
-        this.instruction = instruction;
+    public String get_description() {
+        return _description;
     }
 
-    public String getInstruction() {
-        return instruction;
+    public void set_description(String _description) {
+        this._description = _description;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String get_source() {
+        return _source;
     }
 
-    public String getName() {
-        return name;
+    public void set_source(String _source) {
+        this._source = _source;
     }
 
-    public void setType(int type) {
-        this.type = type;
+    public void createExtSet() {
+        this._extensions = null;
     }
 
-    public int getType() {
-        return type;
+    public Object get_extension(String key) {
+        return _extensions.getValue(key);
     }
 
-    public void setWayPointIdentifier(String wayPoints) {
-        this.wayPoints = wayPoints;
+    public void add_extension(String key, Object value) {
+        _extensions.addValue(key, value);
     }
 
-    public String getWayPointIdentifier() {
-        return wayPoints;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
-    public String getComment() {
-        return comment;
-    }
 }
