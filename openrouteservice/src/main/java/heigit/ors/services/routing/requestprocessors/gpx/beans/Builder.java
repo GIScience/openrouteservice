@@ -3,33 +3,23 @@ package heigit.ors.services.routing.requestprocessors.gpx.beans;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
-import org.openstreetmap.osmosis.osmbinary.Osmformat;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.List;
 
-public class Builder extends GPX {
+public class Builder {
 
 
-    // Not implemented types --> Have not been needed so far.
-    // Element track = new Element("trk");
-    // Element trackExtensions = new Element("extensions");
-    public Builder() {
-
-
-        // https://stackoverflow.com/questions/7373567/how-to-read-and-write-xml-files
-        // Hiermit die einzelnen Elemente bauen
-
-    }
 
     public String build(GPX gpx) throws JAXBException {
         // TODO finish
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        // End 28.11.2017: Maybe change xml lib to https://stackoverflow.com/questions/8449316/how-to-create-attribute-xmlnsxsd-to-xml-node-in-java
+
+
         Element gpxRoot = new Element("gpx");
         Document xml = new Document();
         int year = Calendar.getInstance().get(Calendar.YEAR);

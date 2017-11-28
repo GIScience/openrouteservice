@@ -1,15 +1,16 @@
 package heigit.ors.services.routing.requestprocessors.gpx.beans;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
 class Extensions {
 
-    private Map<String, Object> keyValueList;
+    private HashMap<String, Object> keyValueList;
 
 
     Extensions() {
-        this.keyValueList = null;
+        keyValueList = new HashMap<>();
     }
 
     public void addValue(String key, Object value) {

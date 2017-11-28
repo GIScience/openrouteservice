@@ -4,29 +4,33 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class WayPoint {
-    private Double _lon;
     private Double _lat;
+    private Double _lon;
     private double _ele;
     private final String _dateTime;
     private String _name;
     private String _comment;
     private String _description;
     private String _source;
-    private Extensions _extensions;
+    private Extensions _extensions = new Extensions();
 
-    public WayPoint(double lon, double lat) {
-        this._lon = lon;
-        this._lat = lat;
+    public WayPoint(double _lat, double _lon) {
+        this._lon = _lon;
+        this._lat = _lat;
         this._dateTime = new DateTime().getTime();
+
     }
 
-    public WayPoint(double _lon, double _lat, double _ele) {
+    public WayPoint(double _lat, double _lon, double _ele) {
         this._lon = _lon;
         this._lat = _lat;
         this._ele = _ele;
         this._dateTime = new DateTime().getTime();
+
     }
 
     public Double get_lon() {
@@ -75,10 +79,6 @@ public class WayPoint {
 
     public void set_source(String _source) {
         this._source = _source;
-    }
-
-    public void createExtSet() {
-        this._extensions = null;
     }
 
     public Object get_extension(String key) {

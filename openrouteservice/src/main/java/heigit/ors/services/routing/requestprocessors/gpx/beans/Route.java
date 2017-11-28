@@ -5,13 +5,13 @@ import java.util.Iterator;
 import java.util.List;
 
 public class Route implements Iterable<WayPoint>, Serializable {
+    private List<WayPoint> wayPointList;
     private String name;
     private String comment;
     private String description;
     private String source;
     private String type;
-    private List<WayPoint> wayPointList;
-    private Extensions extensions;
+    private Extensions extensions = new Extensions();
 
     public Route(List<WayPoint> wayPointList) {
         this.wayPointList = wayPointList;
@@ -60,10 +60,6 @@ public class Route implements Iterable<WayPoint>, Serializable {
 
     public List<WayPoint> getWayPointList() {
         return wayPointList;
-    }
-
-    public void setExtensions() {
-        this.extensions = null;
     }
 
     public Object getExtension(String key) {

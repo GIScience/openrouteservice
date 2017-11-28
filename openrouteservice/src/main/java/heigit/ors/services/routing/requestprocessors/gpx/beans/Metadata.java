@@ -19,6 +19,7 @@ public class Metadata {
         author = new Person();
         copyright = new Copyright();
         _dateTime = new DateTime().getTime();
+        extensions = new Extensions();
     }
 
 
@@ -56,10 +57,6 @@ public class Metadata {
 
     public String get_dateTime() {
         return _dateTime;
-    }
-
-    public void setExtensions() {
-        this.extensions = null;
     }
 
     public Object getExtension(String key) {

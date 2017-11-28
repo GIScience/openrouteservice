@@ -1,6 +1,7 @@
 package heigit.ors.services.routing.requestprocessors.gpx;
 
 
+import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 
@@ -15,9 +16,7 @@ import heigit.ors.util.GeomUtility;
 import org.json.JSONObject;
 
 import javax.xml.bind.JAXBException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class GpxRoutingResponseWriter {
@@ -27,65 +26,69 @@ public class GpxRoutingResponseWriter {
         // TODO migrate own gpx solution
         // example: WayPoint.builder().extSpeed(20)
         GPX gpx = new GPX();
-
+        BBox bbox = null;
 
         for (RouteResult routeResult : routeResults) {
             LineString routeGeom = GeomUtility.createLinestring(routeResult.getGeometry());
             //TODO get the Bounding "box" or the Bounds parameters here for the gpx
             for (RouteSegment segment : routeResult.getSegments()) {
+                bbox = segment.getBBox();
                 List<RouteStep> routeSteps = segment.getSteps();
                 List<WayPoint> wayPointList = new ArrayList<>();
-                for (int i = 0; i < routeGeom.getLength(); i++) {
-                    RouteStep routeStep = null;
-                    for (RouteStep element : routeSteps) {
-                        int[] wayPoints = element.getWayPoints();
-                        if (i < wayPoints[0] || i > wayPoints[1]) {
-                            routeStep = element;
-                            break;
-                        }
+                for (RouteStep routestep : routeSteps) {
+                    // Get the id of the coordinates to look for them inside routeGeom and assign them to the WayPoint
+                    int[] wayPointNumber = routestep.getWayPoints();
+                    // get start coordinate to look for in routeGeom
+                    int startPoint = wayPointNumber[0];
+                    // get end coordinate to look for in routeGeom
+                    int endPoint = wayPointNumber[1];
+                    // Get the x coordinate pair from routeGeom according to wayPointNumber
+                    for (int j = startPoint; j <= endPoint; j++) {
 
-
-                        // Get Point for Geometry
-                        Point point = routeGeom.getPointN(i);
-                        WayPoint wayPoint = null;
+                        // Get geometry of the actual Point
+                        Point point = routeGeom.getPointN(j);
                         double longitude = point.getCoordinate().x;
                         double latitude = point.getCoordinate().y;
                         double elevation = point.getCoordinate().z;
-                        // TODO check if the routeStep should be integrated
-                        // String stepWayPoints = routeStep != null ? Arrays.toString(routeStep.getWayPoints()) : null;
-                        // Normal values
-                        if (!Double.valueOf(point.getCoordinate().z).isNaN()) {
-                            wayPoint = new WayPoint(longitude, latitude, elevation);
+                        // Create waypoint to start adding point geometries
+                        WayPoint wayPoint;
+                        if (!Double.isNaN(elevation)) {
+                            wayPoint = new WayPoint(latitude, longitude, elevation);
+                        } else {
+                            wayPoint = new WayPoint(latitude, longitude);
                         }
-                        else{
-                            wayPoint = new WayPoint(longitude, latitude);
-                        }
-
-                        wayPoint.set_name(routeStep != null ? routeStep.getName() : "");
-                        wayPoint.set_description(routeStep != null ? routeStep.getInstruction() : "");
+                        // add additional information to point
+                        wayPoint.set_name(routestep.getName());
+                        wayPoint.set_description(routestep.getInstruction());
                         // Create set for Extensions and add them
-                        wayPoint.createExtSet();
-                        wayPoint.add_extension("distance", routeStep != null ? routeStep.getDistance() : 0);
-                        wayPoint.add_extension("duration", routeStep != null ? routeStep.getDuration() : 0);
-                        wayPoint.add_extension("type", routeStep != null ? routeStep.getType() : 0);
+                        wayPoint.add_extension("distance", routestep.getDistance());
+                        wayPoint.add_extension("duration", routestep.getDuration());
+                        wayPoint.add_extension("type", routestep.getType());
+                        wayPoint.add_extension("step", j);
                         //Add WayPoint to list
                         wayPointList.add(wayPoint);
+
+
                     }
                 }
 
                 Route route = new Route(wayPointList);
-
+                route.addExtension("distance", segment.getDistance());
+                route.addExtension("duration", segment.getDuration());
+                route.addExtension("ascent", segment.getAscent());
+                route.addExtension("descent", segment.getDescent());
+                route.addExtension("detourFactor", segment.getDetourFactor());
                 // TODO add Bounds when everything runs!
-                //Bounds bounds = new Bounds(route);
-                //BigDecimal[] start = bounds.getStart();
-                //BigDecimal[] stop = bounds.getStop();
-                // BigDecimal wayPoint1 = finalRoute.getWayPoint(0).getLat();
                 gpx.addRoute(route);
 
             }
             // int year = Calendar.getInstance().get(Calendar.YEAR);
             // gpx = GPX.builder().addRoute(gpxRoute).creator("openrouteservice.org | OpenStreetMap contributors ".concat(String.valueOf(year))).build();
         }
+        Bounds bounds = new Bounds(bbox.minLat, bbox.minLon, bbox.maxLat, bbox.maxLon);
+        Metadata metadata = new Metadata();
+        metadata.setBounds(bounds);
+        gpx.setMetadata(metadata);
         return new Builder().build(gpx);
         //return gpx.toBuilder().creator("openrouteservice.org | OpenStreetMap contributors ".concat(String.valueOf(year))).build();
         // http://www.topografix.com/GPX/1/1/#SchemaProperties

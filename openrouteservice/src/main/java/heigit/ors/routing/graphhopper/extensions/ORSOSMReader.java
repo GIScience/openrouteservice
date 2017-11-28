@@ -87,7 +87,7 @@ public class ORSOSMReader extends OSMReader {
 				/*	if (way.getId() != prevMatchedWayId)
 				{
 					prevMatchedWayId = way.getId();
-					PointList pl = getWayPointIdentifier(way);
+					PointList pl = getWayPoints(way);
 					matchedEdgeName = null;
 					RouteSegmentInfo rsi = refProfile.getMatchedSegment(pl, 15.0);
 

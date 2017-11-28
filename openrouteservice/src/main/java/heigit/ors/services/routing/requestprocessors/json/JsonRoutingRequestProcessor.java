@@ -51,7 +51,7 @@ public class JsonRoutingRequestProcessor extends AbstractHttpRequestProcessor {
         RouteResult result = RoutingProfileManager.getInstance().computeRoute(rreq);
 
         JSONObject json = null;
-        GPX gpx;
+        String gpx;
 
         String respFormat = _request.getParameter("format");
         if (Helper.isEmpty(respFormat) || "json".equalsIgnoreCase(respFormat)) {
@@ -63,7 +63,7 @@ public class JsonRoutingRequestProcessor extends AbstractHttpRequestProcessor {
             gpx = GpxRoutingResponseWriter.toGPX(rreq, new RouteResult[] {result}, json);
             String gpxToString;
             if (gpx != null) {
-                gpxToString = gpx.toString();
+                gpxToString = gpx;
             } else{
                 throw new EmptyElementException(RoutingErrorCodes.EMPTY_ELEMENT, "GPX was empty and therefore could not be converted.");
             }
