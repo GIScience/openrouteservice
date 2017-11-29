@@ -61,14 +61,13 @@ public class JsonRoutingRequestProcessor extends AbstractHttpRequestProcessor {
         } else if ("gpx".equalsIgnoreCase(respFormat)) {
             json = JsonRoutingResponseWriter.toGeoJson(rreq, new RouteResult[]{result});
             gpx = GpxRoutingResponseWriter.toGPX(rreq, new RouteResult[] {result}, json);
-            String gpxToString;
             if (gpx != null) {
-                gpxToString = gpx;
+                ServletUtility.write(response, gpx, "UTF-8");
+
             } else{
                 throw new EmptyElementException(RoutingErrorCodes.EMPTY_ELEMENT, "GPX was empty and therefore could not be converted.");
             }
 
-            ServletUtility.write(response, gpxToString, "UTF-8");
         }
 
         // TODO: Decide how to handle two different write servlets. E.g. integrate them seperately in the if loop above.

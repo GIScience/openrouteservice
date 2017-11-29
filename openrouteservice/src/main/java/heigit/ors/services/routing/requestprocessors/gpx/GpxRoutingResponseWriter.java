@@ -4,37 +4,47 @@ package heigit.ors.services.routing.requestprocessors.gpx;
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
-
 import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RouteSegment;
 import heigit.ors.routing.RouteStep;
 import heigit.ors.routing.RoutingRequest;
 import heigit.ors.services.routing.requestprocessors.gpx.beans.*;
 import heigit.ors.util.GeomUtility;
-
-
 import org.json.JSONObject;
 
 import javax.xml.bind.JAXBException;
-import java.util.ArrayList;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 
 public class GpxRoutingResponseWriter {
     /* There will be no LineString check for now.
     All calculations that reach this point will anyway be only LineStrings */
-    public static String toGPX(RoutingRequest request, RouteResult[] routeResults, JSONObject json) throws JAXBException {
+    public static String toGPX(RoutingRequest request, RouteResult[] routeResults, JSONObject json) throws JAXBException, DatatypeConfigurationException {
         // TODO migrate own gpx solution
         // example: WayPoint.builder().extSpeed(20)
-        GPX gpx = new GPX();
-        BBox bbox = null;
 
+        GpxType gpx = new GpxType();
+        BBox bbox = null;
+        // Get current date to insert into Waypoint, Route and GPX
+        Date date = new Date();
+        GregorianCalendar c = new GregorianCalendar();
+        c.setTime(date);
+        XMLGregorianCalendar cal = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
         for (RouteResult routeResult : routeResults) {
+            bbox = routeResult.getSummary().getBBox();
+            RteType route = new RteType();
             LineString routeGeom = GeomUtility.createLinestring(routeResult.getGeometry());
             //TODO get the Bounding "box" or the Bounds parameters here for the gpx
             for (RouteSegment segment : routeResult.getSegments()) {
-                bbox = segment.getBBox();
+
                 List<RouteStep> routeSteps = segment.getSteps();
-                List<WayPoint> wayPointList = new ArrayList<>();
+
                 for (RouteStep routestep : routeSteps) {
                     // Get the id of the coordinates to look for them inside routeGeom and assign them to the WayPoint
                     int[] wayPointNumber = routestep.getWayPoints();
@@ -47,52 +57,92 @@ public class GpxRoutingResponseWriter {
 
                         // Get geometry of the actual Point
                         Point point = routeGeom.getPointN(j);
-                        double longitude = point.getCoordinate().x;
-                        double latitude = point.getCoordinate().y;
-                        double elevation = point.getCoordinate().z;
+                        BigDecimal longitude = BigDecimal.valueOf(point.getCoordinate().x);
+                        BigDecimal latitude = BigDecimal.valueOf(point.getCoordinate().y);
+                        double elevationCheck = point.getCoordinate().z;
                         // Create waypoint to start adding point geometries
-                        WayPoint wayPoint;
-                        if (!Double.isNaN(elevation)) {
-                            wayPoint = new WayPoint(latitude, longitude, elevation);
+                        WptType wayPoint = new WptType();
+                        if (!Double.isNaN(elevationCheck)) {
+                            BigDecimal elevation = BigDecimal.valueOf(point.getCoordinate().z);
+                            wayPoint.setLat(latitude);
+                            wayPoint.setLon(longitude);
+                            wayPoint.setEle(elevation);
                         } else {
-                            wayPoint = new WayPoint(latitude, longitude);
+                            wayPoint.setLat(latitude);
+                            wayPoint.setLon(longitude);
                         }
-                        // add additional information to point
-                        wayPoint.set_name(routestep.getName());
-                        wayPoint.set_description(routestep.getInstruction());
+                        // add additional information to point;
+                        wayPoint.setName(routestep.getName());
+                        wayPoint.setDesc(routestep.getInstruction());
+                        wayPoint.setTime(cal);
                         // Create set for Extensions and add them
-                        wayPoint.add_extension("distance", routestep.getDistance());
-                        wayPoint.add_extension("duration", routestep.getDuration());
-                        wayPoint.add_extension("type", routestep.getType());
-                        wayPoint.add_extension("step", j);
+                        ExtensionsType wayPointExt = new ExtensionsType();
+                        HashMap<String, Object> extensionList = new HashMap<>();
+                        extensionList.put("distance", routestep.getDistance());
+                        extensionList.put("duration", routestep.getDuration());
+                        extensionList.put("type", routestep.getType());
+                        extensionList.put("step", j);
                         //Add WayPoint to list
-                        wayPointList.add(wayPoint);
+                        wayPointExt.getAny().add(extensionList);
+                        wayPoint.setExtensions(wayPointExt);
+                        route.getRtept().add(wayPoint);
 
 
                     }
                 }
 
-                Route route = new Route(wayPointList);
-                route.addExtension("distance", segment.getDistance());
-                route.addExtension("duration", segment.getDuration());
-                route.addExtension("ascent", segment.getAscent());
-                route.addExtension("descent", segment.getDescent());
-                route.addExtension("detourFactor", segment.getDetourFactor());
-                // TODO add Bounds when everything runs!
-                gpx.addRoute(route);
-
             }
-            // int year = Calendar.getInstance().get(Calendar.YEAR);
-            // gpx = GPX.builder().addRoute(gpxRoute).creator("openrouteservice.org | OpenStreetMap contributors ".concat(String.valueOf(year))).build();
+            ExtensionsType routeExtensions = new ExtensionsType();
+            HashMap<String, Object> extensionsList = new HashMap<>();
+            extensionsList.put("distance", routeResult.getSummary().getDistance());
+            extensionsList.put("distanceActual", routeResult.getSummary().getDistanceActual());
+            extensionsList.put("duration", routeResult.getSummary().getDuration());
+            extensionsList.put("ascent", routeResult.getSummary().getAscent());
+            extensionsList.put("descent", routeResult.getSummary().getDescent());
+            extensionsList.put("avgSpeed", routeResult.getSummary().getAverageSpeed());
+            routeExtensions.getAny().add(extensionsList);
+            route.setExtensions(routeExtensions);
+            gpx.getRte().add(route);
         }
-        Bounds bounds = new Bounds(bbox.minLat, bbox.minLon, bbox.maxLat, bbox.maxLon);
-        Metadata metadata = new Metadata();
+//        route.setCmt();
+//        route.setDesc();
+//        route.setExtensions();
+//        route.setName();
+
+        BoundsType bounds = new BoundsType();
+        bounds.setMinlat(BigDecimal.valueOf(bbox.minLat));
+        bounds.setMinlon(BigDecimal.valueOf(bbox.minLon));
+        bounds.setMaxlat(BigDecimal.valueOf(bbox.maxLat));
+        bounds.setMaxlon(BigDecimal.valueOf(bbox.maxLon));
+        MetadataType metadata = new MetadataType();
         metadata.setBounds(bounds);
+        PersonType orsPerson = new PersonType();
+        EmailType orsMail = new EmailType();
+        orsMail.setDomain("@openrouteservice.org");
+        orsMail.setId("support");
+        orsPerson.setEmail(orsMail);
+        LinkType orsLink = new LinkType();
+        orsLink.setHref("https://www.openrouteservice.org/");
+        orsLink.setText("https://www.openrouteservice.org/");
+        orsLink.setType("text/html");
+        orsPerson.setLink(orsLink);
+        orsPerson.setName("OpenRouteService");
+        metadata.setAuthor(orsPerson);
+        CopyrightType copyright = new CopyrightType();
+        copyright.setAuthor("OpenStreetMap contributor");
+        copyright.setLicense("CC BY-SA");
+        copyright.setYear(cal);
+        metadata.setCopyright(copyright);
+        metadata.setDesc("This is a GPX routing file from OpenRouteService");
+        metadata.setName("OpenRouteService Routing");
+
+        metadata.setTime(cal);
         gpx.setMetadata(metadata);
-        return new Builder().build(gpx);
+
         //return gpx.toBuilder().creator("openrouteservice.org | OpenStreetMap contributors ".concat(String.valueOf(year))).build();
         // http://www.topografix.com/GPX/1/1/#SchemaProperties
-
+        XMLBuilder builder = new XMLBuilder();
+        return builder.Build(gpx);
     }
 
 
