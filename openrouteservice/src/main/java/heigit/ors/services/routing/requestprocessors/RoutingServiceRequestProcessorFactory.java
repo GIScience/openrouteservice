@@ -22,14 +22,12 @@ package heigit.ors.services.routing.requestprocessors;
 
 import javax.servlet.http.HttpServletRequest;
 
-import heigit.ors.services.routing.requestprocessors.json.JsonRoutingRequestProcessor;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.routing.RoutingErrorCodes;
 import heigit.ors.routing.RoutingProfileManagerStatus;
 import heigit.ors.services.routing.RoutingServiceSettings;
-import heigit.ors.services.routing.requestprocessors.TmcInformationRequestProcessor;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 
 import com.graphhopper.util.Helper;
@@ -45,7 +43,7 @@ public class RoutingServiceRequestProcessorFactory {
 			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, RoutingErrorCodes.UNKNOWN, "Routing service is not ready yet.");
 
 		String requestParam = request.getParameter("request");
-
+ 		// Example request: http://localhost:8082/openrouteservice-4.4.0/routes?profile=driving-car&coordinates=8.690614,49.38365|8.7007,49.411699|8.7107,49.4516&prettify_instructions=true&format=gpx
 		if (Helper.isEmpty(requestParam))
 			requestParam = "route";
 
@@ -65,9 +63,7 @@ public class RoutingServiceRequestProcessorFactory {
 				case "json":
 				case "geojson":
 				case"gpx":
-					return new JsonRoutingRequestProcessor(request);
-				//case "xml":
-				//	return new XmlRouteRequestProcessor(request);
+					return new RoutingRequestProcessor(request);
 				default:
 					throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "format", formatParam);	
 			}

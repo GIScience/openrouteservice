@@ -101,7 +101,7 @@ public class WptType {
     protected BigDecimal ageofdgpsdata;
     @XmlSchemaType(name = "integer")
     protected Integer dgpsid;
-    protected ExtensionsType extensions;
+    protected WptTypeExtensions extensions;
     @XmlAttribute(name = "lat", required = true)
     protected BigDecimal lat;
     @XmlAttribute(name = "lon", required = true)
@@ -478,9 +478,9 @@ public class WptType {
      * Ruft den Wert der extensions-Eigenschaft ab.
      *
      * @return possible object is
-     * {@link ExtensionsType }
+     * {@link WptTypeExtensions }
      */
-    public ExtensionsType getExtensions() {
+    public WptTypeExtensions getExtensions() {
         return extensions;
     }
 
@@ -488,9 +488,9 @@ public class WptType {
      * Legt den Wert der extensions-Eigenschaft fest.
      *
      * @param value allowed object is
-     *              {@link ExtensionsType }
+     *              {@link WptTypeExtensions }
      */
-    public void setExtensions(ExtensionsType value) {
+    public void setExtensions(WptTypeExtensions value) {
         this.extensions = value;
     }
 

@@ -47,7 +47,7 @@ import javax.xml.bind.annotation.XmlType;
 public class TrksegType {
 
     protected List<WptType> trkpt;
-    protected ExtensionsType extensions;
+    protected TrksegTypeExtensions extensions;
 
     /**
      * Gets the value of the trkpt property.
@@ -83,10 +83,10 @@ public class TrksegType {
      * 
      * @return
      *     possible object is
-     *     {@link ExtensionsType }
+     *     {@link TrksegTypeExtensions }
      *     
      */
-    public ExtensionsType getExtensions() {
+    public TrksegTypeExtensions getExtensions() {
         return extensions;
     }
 
@@ -95,10 +95,10 @@ public class TrksegType {
      * 
      * @param value
      *     allowed object is
-     *     {@link ExtensionsType }
+     *     {@link TrksegTypeExtensions }
      *     
      */
-    public void setExtensions(ExtensionsType value) {
+    public void setExtensions(TrksegTypeExtensions value) {
         this.extensions = value;
     }
 

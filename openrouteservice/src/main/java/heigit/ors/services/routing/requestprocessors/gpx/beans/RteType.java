@@ -16,7 +16,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * rte represents route - an ordered list of waypoints representing a series of turn points leading to a destination.
  * <p>
@@ -54,8 +53,8 @@ import java.util.List;
         "link",
         "number",
         "type",
-        "extensions",
-        "rtept"
+        "rtept",
+        "extensions"
 })
 public class RteType {
 
@@ -67,7 +66,7 @@ public class RteType {
     @XmlSchemaType(name = "nonNegativeInteger")
     protected BigInteger number;
     protected String type;
-    protected ExtensionsType extensions;
+    protected RteTypeExtensions extensions;
     protected List<WptType> rtept;
 
     /**
@@ -221,9 +220,9 @@ public class RteType {
      * Ruft den Wert der extensions-Eigenschaft ab.
      *
      * @return possible object is
-     * {@link ExtensionsType }
+     * {@link RteTypeExtensions }
      */
-    public ExtensionsType getExtensions() {
+    public RteTypeExtensions getExtensions() {
         return extensions;
     }
 
@@ -231,9 +230,9 @@ public class RteType {
      * Legt den Wert der extensions-Eigenschaft fest.
      *
      * @param value allowed object is
-     *              {@link ExtensionsType }
+     *              {@link RteTypeExtensions }
      */
-    public void setExtensions(ExtensionsType value) {
+    public void setExtensions(RteTypeExtensions value) {
         this.extensions = value;
     }
 
@@ -265,3 +264,4 @@ public class RteType {
     }
 
 }
+

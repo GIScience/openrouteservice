@@ -41,11 +41,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GpxType }
+     * Create an instance of {@link Gpx }
      * 
      */
-    public GpxType createGpxType() {
-        return new GpxType();
+    public Gpx createGpxType() {
+        return new Gpx();
     }
 
     /**
@@ -153,12 +153,12 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link GpxType }{@code >}}
+     * Create an instance of {@link JAXBElement }{@code <}{@link Gpx }{@code >}}
      * 
      */
     @XmlElementDecl(namespace = "http://www.topografix.com/GPX/1/1", name = "gpx")
-    public JAXBElement<GpxType> createGpx(GpxType value) {
-        return new JAXBElement<GpxType>(_Gpx_QNAME, GpxType.class, null, value);
+    public JAXBElement<Gpx> createGpx(Gpx value) {
+        return new JAXBElement<Gpx>(_Gpx_QNAME, Gpx.class, null, value);
     }
 
 }

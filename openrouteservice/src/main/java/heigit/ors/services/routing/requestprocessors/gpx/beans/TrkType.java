@@ -70,7 +70,7 @@ public class TrkType {
     @XmlSchemaType(name = "nonNegativeInteger")
     protected BigInteger number;
     protected String type;
-    protected ExtensionsType extensions;
+    protected TrkTypeExtensions extensions;
     protected List<TrksegType> trkseg;
 
     /**
@@ -251,10 +251,10 @@ public class TrkType {
      * 
      * @return
      *     possible object is
-     *     {@link ExtensionsType }
+     *     {@link TrkTypeExtensions }
      *     
      */
-    public ExtensionsType getExtensions() {
+    public TrkTypeExtensions getExtensions() {
         return extensions;
     }
 
@@ -263,10 +263,10 @@ public class TrkType {
      * 
      * @param value
      *     allowed object is
-     *     {@link ExtensionsType }
+     *     {@link TrkTypeExtensions }
      *     
      */
-    public void setExtensions(ExtensionsType value) {
+    public void setExtensions(TrkTypeExtensions value) {
         this.extensions = value;
     }
 

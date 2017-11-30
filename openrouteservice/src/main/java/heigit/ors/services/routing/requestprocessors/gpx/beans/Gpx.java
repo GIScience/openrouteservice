@@ -8,10 +8,7 @@
 
 package heigit.ors.services.routing.requestprocessors.gpx.beans;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,12 +18,12 @@ import java.util.List;
  * to the extensions section of the GPX document.
  * <p>
  * <p>
- * <p>Java-Klasse f�r gpxType complex type.
+ * <p>Java-Klasse f�r gpx complex type.
  * <p>
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * <p>
  * <pre>
- * &lt;complexType name="gpxType">
+ * &lt;complexType name="gpx">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
@@ -43,25 +40,29 @@ import java.util.List;
  * &lt;/complexType>
  * </pre>
  */
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "gpxType", propOrder = {
+@XmlType(name = "gpx", propOrder = {
         "metadata",
         "wpt",
         "rte",
         "trk",
         "extensions"
 })
-public class GpxType {
+public class Gpx {
+
 
     protected MetadataType metadata;
     protected List<WptType> wpt;
     protected List<RteType> rte;
     protected List<TrkType> trk;
-    protected ExtensionsType extensions;
+    protected GpxExtensions extensions;
     @XmlAttribute(name = "version", required = true)
     protected String version;
     @XmlAttribute(name = "creator", required = true)
     protected String creator;
+
+
 
     /**
      * Ruft den Wert der metadata-Eigenschaft ab.
@@ -168,9 +169,9 @@ public class GpxType {
      * Ruft den Wert der extensions-Eigenschaft ab.
      *
      * @return possible object is
-     * {@link ExtensionsType }
+     * {@link GpxExtensions }
      */
-    public ExtensionsType getExtensions() {
+    public GpxExtensions getExtensions() {
         return extensions;
     }
 
@@ -178,9 +179,9 @@ public class GpxType {
      * Legt den Wert der extensions-Eigenschaft fest.
      *
      * @param value allowed object is
-     *              {@link ExtensionsType }
+     *              {@link GpxExtensions }
      */
-    public void setExtensions(ExtensionsType value) {
+    public void setExtensions(GpxExtensions value) {
         this.extensions = value;
     }
 

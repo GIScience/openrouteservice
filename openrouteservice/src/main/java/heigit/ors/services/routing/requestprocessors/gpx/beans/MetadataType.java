@@ -72,7 +72,7 @@ public class MetadataType {
     protected XMLGregorianCalendar time;
     protected String keywords;
     protected BoundsType bounds;
-    protected ExtensionsType extensions;
+    protected MetadataTypeExtensions extensions;
 
     /**
      * Ruft den Wert der name-Eigenschaft ab.
@@ -276,10 +276,10 @@ public class MetadataType {
      * 
      * @return
      *     possible object is
-     *     {@link ExtensionsType }
+     *     {@link TrksegTypeExtensions }
      *     
      */
-    public ExtensionsType getExtensions() {
+    public MetadataTypeExtensions getExtensions() {
         return extensions;
     }
 
@@ -288,10 +288,10 @@ public class MetadataType {
      * 
      * @param value
      *     allowed object is
-     *     {@link ExtensionsType }
+     *     {@link MetadataTypeExtensions }
      *     
      */
-    public void setExtensions(ExtensionsType value) {
+    public void setExtensions(MetadataTypeExtensions value) {
         this.extensions = value;
     }
 

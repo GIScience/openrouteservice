@@ -45,12 +45,12 @@ public class ServletUtility
 		return strDecoded;
 	}
 
-    public static void write(HttpServletResponse response, String gpx, String encoding) throws IOException{
-        write(response,gpx, "UTF-8");
+    public static void write(HttpServletResponse response, String gpx) throws IOException{
+		write(response,gpx, "UTF-8");
 	}
-    public static void write(HttpServletResponse response, GPX gpx, String encoding) throws IOException{
-        byte[] bytes = gpx.toString().getBytes(encoding);
-        write(response, bytes, "application/gpx", encoding);
+    public static void write(HttpServletResponse response, String gpx, String encoding) throws IOException{
+        byte[] bytes = gpx.getBytes(encoding);
+        write(response, bytes, "application/xml", encoding);
     }
 
 	public static void write(HttpServletResponse response, JSONObject json) throws IOException

@@ -7,10 +7,8 @@ import com.vividsolutions.jts.geom.Point;
 import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RouteSegment;
 import heigit.ors.routing.RouteStep;
-import heigit.ors.routing.RoutingRequest;
 import heigit.ors.services.routing.requestprocessors.gpx.beans.*;
 import heigit.ors.util.GeomUtility;
-import org.json.JSONObject;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -19,17 +17,23 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 
+/**
+ * {@link GpxRoutingResponseWriter} provides function(s) to convert OpenRouteService {@link RouteResult} to GPX.
+ */
 public class GpxRoutingResponseWriter {
-    /* There will be no LineString check for now.
-    All calculations that reach this point will anyway be only LineStrings */
-    public static String toGPX(RoutingRequest request, RouteResult[] routeResults, JSONObject json) throws JAXBException, DatatypeConfigurationException {
+    /**
+     * @param routeResults The function needs a {@link RouteResult} as input.
+     * @return It returns a XML string representation of the generated GPX
+     * @throws JAXBException
+     * @throws DatatypeConfigurationException
+     */
+    public static String toGPX(RouteResult[] routeResults) throws JAXBException, DatatypeConfigurationException {
         // TODO migrate own gpx solution
         // example: WayPoint.builder().extSpeed(20)
 
-        GpxType gpx = new GpxType();
+        Gpx gpx = new Gpx();
         BBox bbox = null;
         // Get current date to insert into Waypoint, Route and GPX
         Date date = new Date();
@@ -52,8 +56,8 @@ public class GpxRoutingResponseWriter {
                     int startPoint = wayPointNumber[0];
                     // get end coordinate to look for in routeGeom
                     int endPoint = wayPointNumber[1];
-                    // Get the x coordinate pair from routeGeom according to wayPointNumber
-                    for (int j = startPoint; j <= endPoint; j++) {
+                    // Get the coordinate pair from routeGeom according to wayPointNumber. But stop at one before the endPoint to prevent duplicity
+                    for (int j = startPoint; j < endPoint; j++) {
 
                         // Get geometry of the actual Point
                         Point point = routeGeom.getPointN(j);
@@ -74,17 +78,13 @@ public class GpxRoutingResponseWriter {
                         // add additional information to point;
                         wayPoint.setName(routestep.getName());
                         wayPoint.setDesc(routestep.getInstruction());
-                        wayPoint.setTime(cal);
-                        // Create set for Extensions and add them
-                        ExtensionsType wayPointExt = new ExtensionsType();
-                        HashMap<String, Object> extensionList = new HashMap<>();
-                        extensionList.put("distance", routestep.getDistance());
-                        extensionList.put("duration", routestep.getDuration());
-                        extensionList.put("type", routestep.getType());
-                        extensionList.put("step", j);
-                        //Add WayPoint to list
-                        wayPointExt.getAny().add(extensionList);
-                        wayPoint.setExtensions(wayPointExt);
+                        //wayPoint.setTime(cal);
+                        WptTypeExtensions wptExtensions = new WptTypeExtensions();
+                        wptExtensions.setDistance(routestep.getDistance());
+                        wptExtensions.setDuration(routestep.getDuration());
+                        wptExtensions.setType(routestep.getType());
+                        wptExtensions.setStep(j);
+                        wayPoint.setExtensions(wptExtensions);
                         route.getRtept().add(wayPoint);
 
 
@@ -92,22 +92,16 @@ public class GpxRoutingResponseWriter {
                 }
 
             }
-            ExtensionsType routeExtensions = new ExtensionsType();
-            HashMap<String, Object> extensionsList = new HashMap<>();
-            extensionsList.put("distance", routeResult.getSummary().getDistance());
-            extensionsList.put("distanceActual", routeResult.getSummary().getDistanceActual());
-            extensionsList.put("duration", routeResult.getSummary().getDuration());
-            extensionsList.put("ascent", routeResult.getSummary().getAscent());
-            extensionsList.put("descent", routeResult.getSummary().getDescent());
-            extensionsList.put("avgSpeed", routeResult.getSummary().getAverageSpeed());
-            routeExtensions.getAny().add(extensionsList);
-            route.setExtensions(routeExtensions);
+            RteTypeExtensions extensions = new RteTypeExtensions();
+            extensions.setDistance(routeResult.getSummary().getDistance());
+            extensions.setDistanceActual(routeResult.getSummary().getDistanceActual());
+            extensions.setDuration(routeResult.getSummary().getDuration());
+            extensions.setAscent(routeResult.getSummary().getAscent());
+            extensions.setDescent(routeResult.getSummary().getDescent());
+            extensions.setAvgSpeed(routeResult.getSummary().getAverageSpeed());
+            route.setExtensions(extensions);
             gpx.getRte().add(route);
         }
-//        route.setCmt();
-//        route.setDesc();
-//        route.setExtensions();
-//        route.setName();
 
         BoundsType bounds = new BoundsType();
         bounds.setMinlat(BigDecimal.valueOf(bbox.minLat));
@@ -135,12 +129,13 @@ public class GpxRoutingResponseWriter {
         metadata.setCopyright(copyright);
         metadata.setDesc("This is a GPX routing file from OpenRouteService");
         metadata.setName("OpenRouteService Routing");
-
         metadata.setTime(cal);
         gpx.setMetadata(metadata);
-
-        //return gpx.toBuilder().creator("openrouteservice.org | OpenStreetMap contributors ".concat(String.valueOf(year))).build();
-        // http://www.topografix.com/GPX/1/1/#SchemaProperties
+        gpx.setCreator("OpenRouteService");
+        gpx.setVersion("1.1");
+        //TODO: Link in Metadata?
+        //TODO: keywords?
+        //TODO: Extensions?
         XMLBuilder builder = new XMLBuilder();
         return builder.Build(gpx);
     }
