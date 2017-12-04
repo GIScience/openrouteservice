@@ -2,12 +2,13 @@ package heigit.ors.services.routing.requestprocessors.gpx;
 
 
 import com.graphhopper.util.shapes.BBox;
+
+import com.openrouteservice.orsgpx.*;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RouteSegment;
 import heigit.ors.routing.RouteStep;
-import heigit.ors.services.routing.requestprocessors.gpx.beans.*;
 import heigit.ors.util.GeomUtility;
 
 import javax.xml.bind.JAXBException;
@@ -54,11 +55,16 @@ public class GpxRoutingResponseWriter {
                     int[] wayPointNumber = routestep.getWayPoints();
                     // get start coordinate to look for in routeGeom
                     int startPoint = wayPointNumber[0];
+                    // the start and end points always cross with the points from the routesteps before and after
+                    // to avoid duplicity the startpoint is raised by one if not zero or just one point ine the routestep
+                    if (startPoint != 0 || wayPointNumber.length == 1) {
+                        startPoint += 1;
+                    }
                     // get end coordinate to look for in routeGeom
                     int endPoint = wayPointNumber[1];
+                    // create a counter to avoid double entries
                     // Get the coordinate pair from routeGeom according to wayPointNumber. But stop at one before the endPoint to prevent duplicity
-                    for (int j = startPoint; j < endPoint; j++) {
-
+                    for (int j = startPoint; j <= endPoint; j++) {
                         // Get geometry of the actual Point
                         Point point = routeGeom.getPointN(j);
                         BigDecimal longitude = BigDecimal.valueOf(point.getCoordinate().x);
@@ -87,7 +93,6 @@ public class GpxRoutingResponseWriter {
                         wayPoint.setExtensions(wptExtensions);
                         route.getRtept().add(wayPoint);
 
-
                     }
                 }
 
@@ -104,10 +109,10 @@ public class GpxRoutingResponseWriter {
         }
 
         BoundsType bounds = new BoundsType();
-        bounds.setMinlat(BigDecimal.valueOf(bbox.minLat));
-        bounds.setMinlon(BigDecimal.valueOf(bbox.minLon));
-        bounds.setMaxlat(BigDecimal.valueOf(bbox.maxLat));
-        bounds.setMaxlon(BigDecimal.valueOf(bbox.maxLon));
+        bounds.setMinlat(BigDecimal.valueOf(bbox != null ? bbox.minLat : 0));
+        bounds.setMinlon(BigDecimal.valueOf(bbox != null ? bbox.minLon : 0));
+        bounds.setMaxlat(BigDecimal.valueOf(bbox != null ? bbox.maxLat : 0));
+        bounds.setMaxlon(BigDecimal.valueOf(bbox != null ? bbox.maxLon : 0));
         MetadataType metadata = new MetadataType();
         metadata.setBounds(bounds);
         PersonType orsPerson = new PersonType();
@@ -136,8 +141,7 @@ public class GpxRoutingResponseWriter {
         //TODO: Link in Metadata?
         //TODO: keywords?
         //TODO: Extensions?
-        XMLBuilder builder = new XMLBuilder();
-        return builder.Build(gpx);
+        return gpx.build();
     }
 
 

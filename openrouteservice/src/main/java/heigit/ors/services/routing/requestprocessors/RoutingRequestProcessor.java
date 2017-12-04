@@ -25,10 +25,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import heigit.ors.exceptions.EmptyElementException;
 import heigit.ors.routing.RoutingErrorCodes;
+
 import heigit.ors.services.routing.requestprocessors.gpx.GpxRoutingResponseWriter;
 import heigit.ors.services.routing.requestprocessors.json.JsonRoutingRequestParser;
 import heigit.ors.services.routing.requestprocessors.json.JsonRoutingResponseWriter;
-import io.jenetics.jpx.GPX;
 import org.json.JSONObject;
 
 import com.graphhopper.util.Helper;

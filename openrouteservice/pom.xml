@@ -237,7 +237,13 @@
         <artifactId>jpx</artifactId>
         <version>1.2.0</version>
     </dependency>
-
+    <dependency>
+        <groupId>com.openrouteservice</groupId>
+        <artifactId>orsgpx</artifactId>
+        <version>1.0</version>
+        <scope>system</scope>
+        <systemPath>/home/julian/Workspace/heigit/orsgpx/out/artifacts/orsgpx_jar/orsgpx.jar</systemPath>
+    </dependency>
 
     <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
 <!-- <dependency>
