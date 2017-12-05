@@ -45,7 +45,6 @@ public class GpxRoutingResponseWriter {
             bbox = routeResult.getSummary().getBBox();
             RteType route = new RteType();
             LineString routeGeom = GeomUtility.createLinestring(routeResult.getGeometry());
-            //TODO get the Bounding "box" or the Bounds parameters here for the gpx
             for (RouteSegment segment : routeResult.getSegments()) {
 
                 List<RouteStep> routeSteps = segment.getSteps();
