@@ -6,9 +6,10 @@ import com.graphhopper.util.shapes.BBox;
 import com.openrouteservice.orsgpx.*;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
-import heigit.ors.routing.RouteResult;
-import heigit.ors.routing.RouteSegment;
-import heigit.ors.routing.RouteStep;
+import heigit.ors.config.AppConfig;
+import heigit.ors.routing.*;
+import heigit.ors.services.routing.RoutingServiceSettings;
+import heigit.ors.util.AppInfo;
 import heigit.ors.util.GeomUtility;
 
 import javax.xml.bind.JAXBException;
@@ -18,128 +19,151 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 
 /**
  * {@link GpxRoutingResponseWriter} provides function(s) to convert OpenRouteService {@link RouteResult} to GPX.
  */
 public class GpxRoutingResponseWriter {
     /**
+     * @param rreq         The {@link RoutingRequest} object holds route specific information like language...
      * @param routeResults The function needs a {@link RouteResult} as input.
-     * @return It returns a XML string representation of the generated GPX
+     * @return It returns a XML {@link String} representation of the generated GPX
      * @throws JAXBException
      * @throws DatatypeConfigurationException
      */
-    public static String toGPX(RouteResult[] routeResults) throws JAXBException, DatatypeConfigurationException {
-        // TODO migrate own gpx solution
-        // example: WayPoint.builder().extSpeed(20)
-
+    public static String toGPX(RoutingRequest rreq, RouteResult[] routeResults) throws JAXBException, DatatypeConfigurationException {
+        boolean includeElevation = rreq.getIncludeElevation();
         Gpx gpx = new Gpx();
         BBox bbox = null;
-        // Get current date to insert into Waypoint, Route and GPX
-        Date date = new Date();
-        GregorianCalendar c = new GregorianCalendar();
-        c.setTime(date);
-        XMLGregorianCalendar cal = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
-        for (RouteResult routeResult : routeResults) {
-            bbox = routeResult.getSummary().getBBox();
-            RteType route = new RteType();
-            LineString routeGeom = GeomUtility.createLinestring(routeResult.getGeometry());
-            for (RouteSegment segment : routeResult.getSegments()) {
+        // Access routeresults
+        if (routeResults != null) {
+            for (RouteResult routeResult : routeResults) {
+                bbox = routeResult.getSummary().getBBox();
+                RteType route = new RteType();
+                // Access segments
+                if (routeResult.getSegments().size() > 0) {
+                    LineString routeGeom = GeomUtility.createLinestring(routeResult.getGeometry());
 
-                List<RouteStep> routeSteps = segment.getSteps();
+                    for (RouteSegment segment : routeResult.getSegments()) {
 
-                for (RouteStep routestep : routeSteps) {
-                    // Get the id of the coordinates to look for them inside routeGeom and assign them to the WayPoint
-                    int[] wayPointNumber = routestep.getWayPoints();
-                    // get start coordinate to look for in routeGeom
-                    int startPoint = wayPointNumber[0];
-                    // the start and end points always cross with the points from the routesteps before and after
-                    // to avoid duplicity the startpoint is raised by one if not zero or just one point ine the routestep
-                    if (startPoint != 0 || wayPointNumber.length == 1) {
-                        startPoint += 1;
-                    }
-                    // get end coordinate to look for in routeGeom
-                    int endPoint = wayPointNumber[1];
-                    // create a counter to avoid double entries
-                    // Get the coordinate pair from routeGeom according to wayPointNumber. But stop at one before the endPoint to prevent duplicity
-                    for (int j = startPoint; j <= endPoint; j++) {
-                        // Get geometry of the actual Point
-                        Point point = routeGeom.getPointN(j);
-                        BigDecimal longitude = BigDecimal.valueOf(point.getCoordinate().x);
-                        BigDecimal latitude = BigDecimal.valueOf(point.getCoordinate().y);
-                        double elevationCheck = point.getCoordinate().z;
-                        // Create waypoint to start adding point geometries
-                        WptType wayPoint = new WptType();
-                        if (!Double.isNaN(elevationCheck)) {
-                            BigDecimal elevation = BigDecimal.valueOf(point.getCoordinate().z);
-                            wayPoint.setLat(latitude);
-                            wayPoint.setLon(longitude);
-                            wayPoint.setEle(elevation);
-                        } else {
-                            wayPoint.setLat(latitude);
-                            wayPoint.setLon(longitude);
+                        for (RouteStep routestep : segment.getSteps()) {
+                            // Get the id of the coordinates to look for them inside routeGeom and assign them to the WayPoint
+                            int[] wayPointNumber = routestep.getWayPoints();
+                            // get start coordinate to look for in routeGeom
+                            int startPoint = wayPointNumber[0];
+                            // the start and end points always cross with the points from the routesteps before and after
+                            // to avoid duplicity the startpoint is raised by one if not zero or just one point ine the routestep
+                            if (startPoint != 0 || wayPointNumber.length == 1) {
+                                startPoint += 1;
+                            }
+                            // get end coordinate to look for in routeGeom
+                            int endPoint = wayPointNumber[1];
+                            // create a counter to avoid double entries
+                            // Get the coordinate pair from routeGeom according to wayPointNumber. But stop at one before the endPoint to prevent duplicity
+                            for (int j = startPoint; j <= endPoint; j++) {
+                                // Get geometry of the actual Point
+                                Point point = routeGeom.getPointN(j);
+                                BigDecimal longitude = BigDecimal.valueOf(point.getCoordinate().x);
+                                BigDecimal latitude = BigDecimal.valueOf(point.getCoordinate().y);
+                                // Create waypoint
+                                WptType wayPoint = new WptType();
+                                // look for elevation
+                                if (includeElevation) {
+                                    // add coordinates to waypoint
+                                    BigDecimal elevation = BigDecimal.valueOf(point.getCoordinate().z);
+                                    wayPoint.setLat(latitude);
+                                    wayPoint.setLon(longitude);
+                                    wayPoint.setEle(elevation);
+                                } else {
+                                    // add coordinates to waypoint
+                                    wayPoint.setLat(latitude);
+                                    wayPoint.setLon(longitude);
+                                }
+
+                                // add additional information to waypoint;
+                                wayPoint.setName(routestep.getName());
+                                wayPoint.setDesc(routestep.getInstruction());
+                                // add extensions to waypoint
+                                WptTypeExtensions wptExtensions = new WptTypeExtensions();
+                                wptExtensions.setDistance(routestep.getDistance());
+                                wptExtensions.setDuration(routestep.getDuration());
+                                wptExtensions.setType(routestep.getType());
+                                wptExtensions.setStep(j);
+                                wayPoint.setExtensions(wptExtensions);
+                                // add waypoint the the routepoint list
+                                route.getRtept().add(wayPoint);
+
+                            }
                         }
-                        // add additional information to point;
-                        wayPoint.setName(routestep.getName());
-                        wayPoint.setDesc(routestep.getInstruction());
-                        //wayPoint.setTime(cal);
-                        WptTypeExtensions wptExtensions = new WptTypeExtensions();
-                        wptExtensions.setDistance(routestep.getDistance());
-                        wptExtensions.setDuration(routestep.getDuration());
-                        wptExtensions.setType(routestep.getType());
-                        wptExtensions.setStep(j);
-                        wayPoint.setExtensions(wptExtensions);
-                        route.getRtept().add(wayPoint);
 
                     }
+                    // create and add extensions to the route
+                    RteTypeExtensions extensions = new RteTypeExtensions();
+                    extensions.setDistance(routeResult.getSummary().getDistance());
+                    extensions.setDistanceActual(routeResult.getSummary().getDistanceActual());
+                    extensions.setDuration(routeResult.getSummary().getDuration());
+                    extensions.setAscent(routeResult.getSummary().getAscent());
+                    extensions.setDescent(routeResult.getSummary().getDescent());
+                    extensions.setAvgSpeed(routeResult.getSummary().getAverageSpeed());
+                    route.setExtensions(extensions);
+                    // add the finished route to the gpx
+                    gpx.getRte().add(route);
                 }
-
             }
-            RteTypeExtensions extensions = new RteTypeExtensions();
-            extensions.setDistance(routeResult.getSummary().getDistance());
-            extensions.setDistanceActual(routeResult.getSummary().getDistanceActual());
-            extensions.setDuration(routeResult.getSummary().getDuration());
-            extensions.setAscent(routeResult.getSummary().getAscent());
-            extensions.setDescent(routeResult.getSummary().getDescent());
-            extensions.setAvgSpeed(routeResult.getSummary().getAverageSpeed());
-            route.setExtensions(extensions);
-            gpx.getRte().add(route);
         }
-
+        // Create and set boundaries
         BoundsType bounds = new BoundsType();
         bounds.setMinlat(BigDecimal.valueOf(bbox != null ? bbox.minLat : 0));
         bounds.setMinlon(BigDecimal.valueOf(bbox != null ? bbox.minLon : 0));
         bounds.setMaxlat(BigDecimal.valueOf(bbox != null ? bbox.maxLat : 0));
         bounds.setMaxlon(BigDecimal.valueOf(bbox != null ? bbox.maxLon : 0));
+        // create and set gpx metadata
         MetadataType metadata = new MetadataType();
         metadata.setBounds(bounds);
         PersonType orsPerson = new PersonType();
         EmailType orsMail = new EmailType();
-        orsMail.setDomain("@openrouteservice.org");
-        orsMail.setId("support");
+        orsMail.setDomain("@" + AppConfig.Global().getParameter("info", "mail_domain"));
+        orsMail.setId(AppConfig.Global().getParameter("info", "support_mail"));
         orsPerson.setEmail(orsMail);
         LinkType orsLink = new LinkType();
-        orsLink.setHref("https://www.openrouteservice.org/");
-        orsLink.setText("https://www.openrouteservice.org/");
+        orsLink.setHref(AppConfig.Global().getParameter("info", "base_url"));
+        orsLink.setText(AppConfig.Global().getParameter("info", "base_url"));
         orsLink.setType("text/html");
         orsPerson.setLink(orsLink);
-        orsPerson.setName("OpenRouteService");
+        orsPerson.setName(AppConfig.Global().getParameter("info", "author_tag"));
         metadata.setAuthor(orsPerson);
+        // create and set copyright
         CopyrightType copyright = new CopyrightType();
-        copyright.setAuthor("OpenStreetMap contributor");
-        copyright.setLicense("CC BY-SA");
+        copyright.setAuthor(RoutingServiceSettings.getAttribution());
+        copyright.setLicense(AppConfig.Global().getParameter("info", "content_licence"));
+        // create and set current date as XMLGregorianCalendar element
+        Date date = new Date();
+        GregorianCalendar c = new GregorianCalendar();
+        c.setTime(date);
+        XMLGregorianCalendar cal = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
         copyright.setYear(cal);
         metadata.setCopyright(copyright);
-        metadata.setDesc("This is a GPX routing file from OpenRouteService");
-        metadata.setName("OpenRouteService Routing");
+        metadata.setDesc(RoutingServiceSettings.getParameter("routing_description"));
+        metadata.setName(RoutingServiceSettings.getParameter("routing_name"));
         metadata.setTime(cal);
         gpx.setMetadata(metadata);
-        gpx.setCreator("OpenRouteService");
-        gpx.setVersion("1.1");
+        gpx.setCreator(AppConfig.Global().getParameter("info", "author_tag"));
+        // set gpx extensions
+        GpxExtensions gpxExtensions = new GpxExtensions();
+        gpxExtensions.setAttribution(RoutingServiceSettings.getAttribution());
+        gpxExtensions.setElevation(String.valueOf(includeElevation));
+        gpxExtensions.setEngine(AppInfo.VERSION);
+        gpxExtensions.setBuild_date(AppInfo.BUILD_DATE);
+        gpxExtensions.setInstructions(String.valueOf(rreq.getIncludeInstructions()));
+        gpxExtensions.setLanguage(rreq.getLanguage());
+        gpxExtensions.setPreference(RoutingProfileType.getName(rreq.getSearchParameters().getWeightingMethod()));
+        gpxExtensions.setProfile(WeightingMethod.getName(rreq.getSearchParameters().getProfileType()));
+        gpxExtensions.setUnits(rreq.getUnits().name());
+        gpx.setExtensions(gpxExtensions);
         //TODO: Link in Metadata?
         //TODO: keywords?
         //TODO: Extensions?
+        // return the gpx alement as a finished XML element in string representation
         return gpx.build();
     }
 

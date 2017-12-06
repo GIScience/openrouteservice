@@ -18,7 +18,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.services.routing.requestprocessors.json;
+package heigit.ors.services.routing.requestprocessors;
 
 import java.text.ParseException;
 
@@ -46,7 +46,7 @@ import heigit.ors.util.ArraysUtility;
 import heigit.ors.util.CoordTools;
 import heigit.ors.util.DistanceUnitUtil;
 
-public class JsonRoutingRequestParser 
+public class RoutingRequestParser
 {
 	public static RoutingRequest parseFromRequestParams(HttpServletRequest request) throws Exception
 	{

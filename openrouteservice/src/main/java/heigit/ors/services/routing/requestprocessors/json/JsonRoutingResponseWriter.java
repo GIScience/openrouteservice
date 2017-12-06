@@ -116,7 +116,6 @@ public class JsonRoutingResponseWriter {
 
 	public static JSONObject toGeoJson(RoutingRequest request, RouteResult[] routeResult) throws Exception
 	{
-		// TODO
 		return null;
 	}
 

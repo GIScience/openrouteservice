@@ -27,7 +27,6 @@ import heigit.ors.exceptions.EmptyElementException;
 import heigit.ors.routing.RoutingErrorCodes;
 
 import heigit.ors.services.routing.requestprocessors.gpx.GpxRoutingResponseWriter;
-import heigit.ors.services.routing.requestprocessors.json.JsonRoutingRequestParser;
 import heigit.ors.services.routing.requestprocessors.json.JsonRoutingResponseWriter;
 import org.json.JSONObject;
 
@@ -47,7 +46,7 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
 
     @Override
     public void process(HttpServletResponse response) throws Exception {
-        RoutingRequest rreq = JsonRoutingRequestParser.parseFromRequestParams(_request);
+        RoutingRequest rreq = RoutingRequestParser.parseFromRequestParams(_request);
 
         RouteResult result = RoutingProfileManager.getInstance().computeRoute(rreq);
 
@@ -71,7 +70,7 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
                 throw new EmptyElementException(RoutingErrorCodes.EMPTY_ELEMENT, "GEOJSON was empty and therefore could not be created.");
             }
         } else if ("gpx".equalsIgnoreCase(respFormat)) {
-            gpx = GpxRoutingResponseWriter.toGPX(new RouteResult[] {result});
+            gpx = GpxRoutingResponseWriter.toGPX(rreq, new RouteResult[] {result});
             if (gpx != null) {
                 ServletUtility.write(response, gpx);
             } else{
