@@ -122,8 +122,10 @@ public class GpxRoutingResponseWriter {
         metadata.setBounds(bounds);
         PersonType orsPerson = new PersonType();
         EmailType orsMail = new EmailType();
-        orsMail.setDomain("@" + AppConfig.Global().getParameter("info", "mail_domain"));
-        orsMail.setId(AppConfig.Global().getParameter("info", "support_mail"));
+        //TODO in appconfig integrieren
+        String[] mail = AppConfig.Global().getParameter("info", "mail_domain").split("@");
+        orsMail.setDomain("@" + mail[1]);
+        orsMail.setId(mail[0]);
         orsPerson.setEmail(orsMail);
         LinkType orsLink = new LinkType();
         orsLink.setHref(AppConfig.Global().getParameter("info", "base_url"));
@@ -158,7 +160,7 @@ public class GpxRoutingResponseWriter {
         gpxExtensions.setLanguage(rreq.getLanguage());
         gpxExtensions.setPreference(RoutingProfileType.getName(rreq.getSearchParameters().getWeightingMethod()));
         gpxExtensions.setProfile(WeightingMethod.getName(rreq.getSearchParameters().getProfileType()));
-        gpxExtensions.setUnits(rreq.getUnits().name());
+        gpxExtensions.setDistance_units(rreq.getUnits().name());
         gpx.setExtensions(gpxExtensions);
         //TODO: Link in Metadata?
         //TODO: keywords?

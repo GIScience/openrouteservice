@@ -185,7 +185,7 @@
     	<groupId>net.sf.trove4j</groupId>
     	<artifactId>trove4j</artifactId>
     	<version>3.0.3</version>
-	</dependency>        
+	</dependency>
 
  	<dependency>
 	 	<groupId>com.github.GIScience</groupId>
@@ -237,14 +237,18 @@
         <artifactId>jpx</artifactId>
         <version>1.2.0</version>
     </dependency>
-    <dependency>
+ <dependency>
         <groupId>com.openrouteservice</groupId>
         <artifactId>orsgpx</artifactId>
         <version>1.0</version>
         <scope>system</scope>
+        <!-- Windows Path -->
+        <systemPath>C:/Users/Julian/Documents/Workspace/orsgpx/out/artifacts/orsgpx/orsgpx.jar</systemPath>
+        <!-- Linux Path -->
+        <!--
         <systemPath>/home/julian/Workspace/heigit/orsgpx/out/artifacts/orsgpx_jar/orsgpx.jar</systemPath>
+        -->
     </dependency>
-
     <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
 <!-- <dependency>
     	<groupId>mysql</groupId>
