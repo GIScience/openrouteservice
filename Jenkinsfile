@@ -2,7 +2,7 @@ node {
    def mvnHome
    stage('Preparation') { // for display purposes
         
-        rocketSend channel: 'ors-core', message: 'Preparing build...', rawMessage: true
+        rocketSend channel: 'ors-jenkins', message: 'Preparing build...', rawMessage: true
         
         deleteDir()
         git branch: 'development', url: 'https://github.com/GIScience/openrouteservice.git'
@@ -14,31 +14,31 @@ node {
     
     stage('build-ors') {
         
-        rocketSend channel: 'ors-core', message: 'Starting to build ORS development...', rawMessage: true 
+        rocketSend channel: 'ors-jenkins', message: 'Starting to build ORS development...', rawMessage: true 
 
         sh "cp ${WORKSPACE}/openrouteservice-api-tests/conf/app.config.test ${WORKSPACE}/openrouteservice/WebContent/WEB-INF/app.config"
         sh "'${mvnHome}/bin/mvn' -f ${WORKSPACE}/openrouteservice/pom.xml install -B"
         archiveArtifacts artifacts: '**/*.war', fingerprint: true
        
-        rocketSend channel: 'ors-core', message: 'Built ORS development...', rawMessage: true
+        rocketSend channel: 'ors-jenkins', message: 'Built ORS development...', rawMessage: true
    
     }
     
     stage('test-ors') {
         
-        rocketSend channel: 'ors-core', message: 'Starting to test ORS...', rawMessage: true 
+        rocketSend channel: 'ors-jenkins', message: 'Starting to test ORS...', rawMessage: true 
        
         sh "nohup '${mvnHome}/bin/mvn' -f ${WORKSPACE}/openrouteservice/pom.xml tomcat7:run &"
         sh "sleep 5m"
         sh "'${mvnHome}/bin/mvn' -f ${WORKSPACE}/openrouteservice-api-tests/pom.xml test"
        
-        rocketSend channel: 'ors-core', message: 'Tests passed!', rawMessage: true 
+        rocketSend channel: 'ors-jenkins', message: 'Tests passed!', rawMessage: true 
        
     }
     
     stage('Clean') {
        
-        rocketSend channel: 'ors-core', message: 'Cleaning directory...', rawMessage: true
+        rocketSend channel: 'ors-jenkins', message: 'Cleaning directory...', rawMessage: true
        
         deleteDir()
     }
