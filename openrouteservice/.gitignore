@@ -5,3 +5,5 @@ TODO.txt
 .classpath
 .project
 #/WebContent/WEB-INF/app.config
+*.iws
+*.ipr

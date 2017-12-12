@@ -446,7 +446,7 @@ public class ResultTest extends ServiceTest {
 		.then()
 		.assertThat()
 		.body("any { it.key == 'routes' }", is(true))
-		.body("routes[0].summary.distance", is(693.8f))
+		.body("routes[0].summary.distance", is(872.9f))
 		.statusCode(200);
 	}
 
@@ -688,7 +688,7 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(1255.5f))
-				.body("routes[0].summary.duration", is(360.9f))
+				.body("routes[0].summary.duration", is(469.1f))
 				.statusCode(200);
 
 		// Option 1 signifies that the route should not cross any borders
@@ -704,7 +704,7 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(1560.1f))
-				.body("routes[0].summary.duration", is(396.5f))
+				.body("routes[0].summary.duration", is(486.9f))
 				.statusCode(200);
 	}
 
@@ -722,7 +722,7 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(1255.5f))
-				.body("routes[0].summary.duration", is(360.9f))
+				.body("routes[0].summary.duration", is(469.1f))
 				.statusCode(200);
 
 		given()
@@ -737,7 +737,7 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(1560.1f))
-				.body("routes[0].summary.duration", is(396.5f))
+				.body("routes[0].summary.duration", is(486.9f))
 				.statusCode(200);
 
 	}
@@ -757,7 +757,7 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(1560.1f))
-				.body("routes[0].summary.duration", is(396.5f))
+				.body("routes[0].summary.duration", is(486.9f))
 				.statusCode(200);
 	}
 }
