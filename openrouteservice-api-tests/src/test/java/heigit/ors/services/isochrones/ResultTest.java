@@ -171,7 +171,7 @@ public class ResultTest extends ServiceTest {
 		json.put("units", "m");
 		json.put("attributes", "area|reachfactor");
 		json.put("intersections", true);
-		
+
 		given()
 			.body(json.toString())
 			.when()
@@ -182,7 +182,7 @@ public class ResultTest extends ServiceTest {
 			.body("features.size()", is(6))
 			.body("features[0].type", is("Feature"))
 			.body("features[0].geometry.type", is("Polygon"))
-			.body("features[0].geometry.coordinates[0].size", is(30))
+			.body("features[0].geometry.coordinates[0].size", is(21))
 			.body("features[0].properties.containsKey('area')", is(true))
 			.body("features[1].type", is("Feature"))
 			.body("features[1].geometry.type", is("Polygon"))
