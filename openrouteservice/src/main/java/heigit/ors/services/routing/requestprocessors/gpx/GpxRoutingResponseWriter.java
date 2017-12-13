@@ -3,7 +3,7 @@ package heigit.ors.services.routing.requestprocessors.gpx;
 
 import com.graphhopper.util.shapes.BBox;
 
-import com.openrouteservice.orsgpx.*;
+import heigit.ors.util.gpxUtil.*;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import heigit.ors.config.AppConfig;
@@ -12,8 +12,6 @@ import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.GeomUtility;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
@@ -21,17 +19,16 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 /**
- * {@link GpxRoutingResponseWriter} provides function(s) to convert OpenRouteService {@link RouteResult} to GPX.
+ * {@link GpxRoutingResponseWriter} converts OpenRouteService {@link RouteResult} to GPX in a well formatted xml string representation.
  */
 public class GpxRoutingResponseWriter {
     /**
-     * @param rreq         The {@link RoutingRequest} object holds route specific information like language...
+     * @param rreq The {@link RoutingRequest} object holds route specific information like language...
      * @param routeResults The function needs a {@link RouteResult} as input.
      * @return It returns a XML {@link String} representation of the generated GPX
-     * @throws JAXBException
-     * @throws DatatypeConfigurationException
+     * @throws Exception The class throws Exception cases
      */
-    public static String toGPX(RoutingRequest rreq, RouteResult[] routeResults) throws JAXBException, DatatypeConfigurationException {
+    public static String toGPX(RoutingRequest rreq, RouteResult[] routeResults) throws Exception {
         boolean includeElevation = rreq.getIncludeElevation();
         Gpx gpx = new Gpx();
         BBox bbox = null;
@@ -121,12 +118,12 @@ public class GpxRoutingResponseWriter {
         MetadataType metadata = new MetadataType();
         metadata.setBounds(bounds);
         PersonType orsPerson = new PersonType();
-//        EmailType orsMail = new EmailType();
-//        //TODO in appconfig integrieren
-//        String[] mail = AppConfig.Global().getParameter("info", "mail_domain").split("@");
-//        orsMail.setDomain("@" + mail[1]);
-//        orsMail.setId(mail[0]);
-//        orsPerson.setEmail(orsMail);
+        EmailType orsMail = new EmailType();
+        //TODO in appconfig integrieren
+        String[] mail = AppConfig.Global().getParameter("info", "support_mail").split("@");
+        orsMail.setDomain("@" + mail[1]);
+        orsMail.setId(mail[0]);
+        orsPerson.setEmail(orsMail);
         LinkType orsLink = new LinkType();
         orsLink.setHref(AppConfig.Global().getParameter("info", "base_url"));
         orsLink.setText(AppConfig.Global().getParameter("info", "base_url"));
@@ -144,6 +141,7 @@ public class GpxRoutingResponseWriter {
         c.setTime(date);
         XMLGregorianCalendar cal = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
         copyright.setYear(cal);
+        // Set the metadata information
         metadata.setCopyright(copyright);
         metadata.setDesc(RoutingServiceSettings.getParameter("routing_description"));
         metadata.setName(RoutingServiceSettings.getParameter("routing_name"));
@@ -161,13 +159,8 @@ public class GpxRoutingResponseWriter {
         gpxExtensions.setPreference(RoutingProfileType.getName(rreq.getSearchParameters().getWeightingMethod()));
         gpxExtensions.setProfile(WeightingMethod.getName(rreq.getSearchParameters().getProfileType()));
         gpxExtensions.setDistance_units(rreq.getUnits().name());
-        // TODO duration_units in seconds? --> Should be
-
         gpx.setExtensions(gpxExtensions);
-        //TODO: Link in Metadata?
-        //TODO: keywords?
-        //TODO: Extensions?
-        // return the gpx alement as a finished XML element in string representation
+        // return the gpx element as a finished XML element in string representation
         return gpx.build();
     }
 
