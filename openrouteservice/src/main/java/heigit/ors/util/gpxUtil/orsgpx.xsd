@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://www.go.openrouteservice.org/GPX/1/orsgpx.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="gpx">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="metadata">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="name"/>
+              <xs:element type="xs:string" name="desc"/>
+              <xs:element name="author">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:string" name="name"/>
+                    <xs:element name="email">
+                      <xs:complexType>
+                        <xs:simpleContent>
+                          <xs:extension base="xs:string">
+                            <xs:attribute type="xs:string" name="id"/>
+                            <xs:attribute type="xs:string" name="domain"/>
+                          </xs:extension>
+                        </xs:simpleContent>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="link">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:string" name="text"/>
+                          <xs:element type="xs:string" name="type"/>
+                        </xs:sequence>
+                        <xs:attribute type="xs:string" name="href"/>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="copyright">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:string" name="year"/>
+                    <xs:element type="xs:string" name="license"/>
+                  </xs:sequence>
+                  <xs:attribute type="xs:string" name="author"/>
+                </xs:complexType>
+              </xs:element>
+              <xs:element type="xs:string" name="time"/>
+              <xs:element name="bounds">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:string" name="minlat"/>
+                      <xs:attribute type="xs:string" name="minlon"/>
+                      <xs:attribute type="xs:string" name="maxlat"/>
+                      <xs:attribute type="xs:string" name="maxlon"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="rte">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="rtept" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:string" name="name"/>
+                    <xs:element type="xs:string" name="desc"/>
+                    <xs:element name="extensions">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:string" name="distance"/>
+                          <xs:element type="xs:string" name="duration"/>
+                          <xs:element name="type">
+                            <xs:simpleType>
+                              <xs:restriction base="xs:string">
+                                <xs:enumeration value="11"/>
+                                <xs:enumeration value="0"/>
+                                <xs:enumeration value="1"/>
+                                <xs:enumeration value="6"/>
+                                <xs:enumeration value="5"/>
+                                <xs:enumeration value="7"/>
+                                <xs:enumeration value="4"/>
+                                <xs:enumeration value="3"/>
+                              </xs:restriction>
+                            </xs:simpleType>
+                          </xs:element>
+                          <xs:element type="xs:string" name="step"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute type="xs:string" name="lat" use="optional"/>
+                  <xs:attribute type="xs:string" name="lon" use="optional"/>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="extensions">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:string" name="distance"/>
+                    <xs:element type="xs:string" name="duration"/>
+                    <xs:element type="xs:string" name="distanceActual"/>
+                    <xs:element type="xs:string" name="ascent"/>
+                    <xs:element type="xs:string" name="descent"/>
+                    <xs:element type="xs:string" name="avgSpeed"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="extensions">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="attribution"/>
+              <xs:element type="xs:string" name="engine"/>
+              <xs:element type="xs:string" name="build_date"/>
+              <xs:element type="xs:string" name="profile"/>
+              <xs:element type="xs:string" name="preference"/>
+              <xs:element type="xs:string" name="language"/>
+              <xs:element type="xs:string" name="distance-units"/>
+              <xs:element type="xs:string" name="instructions"/>
+              <xs:element type="xs:string" name="elevation"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute type="xs:string" name="version"/>
+      <xs:attribute type="xs:string" name="creator"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
