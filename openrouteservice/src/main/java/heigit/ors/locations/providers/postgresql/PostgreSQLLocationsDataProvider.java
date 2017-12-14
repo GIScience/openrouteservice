@@ -20,19 +20,6 @@
  */
 package heigit.ors.locations.providers.postgresql;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.log4j.Logger;
-import org.postgresql.ds.PGSimpleDataSource;
-
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.StopWatch;
 import com.vividsolutions.jts.geom.Envelope;
@@ -43,21 +30,24 @@ import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKBWriter;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
-import heigit.ors.locations.providers.LocationsDataProvider;
-import heigit.ors.util.ArraysUtility;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.jts.JTS;
-import heigit.ors.locations.LocationDetailsType;
-import heigit.ors.locations.LocationsCategory;
-import heigit.ors.locations.LocationsCategoryClassifier;
-import heigit.ors.locations.LocationsCategoryGroup;
-import heigit.ors.locations.LocationsErrorCodes;
-import heigit.ors.locations.LocationsRequest;
-import heigit.ors.locations.LocationsResult;
-import heigit.ors.locations.LocationsResultSortType;
-import heigit.ors.locations.LocationsSearchFilter;
+import heigit.ors.locations.*;
+import heigit.ors.locations.providers.LocationsDataProvider;
+import heigit.ors.util.ArraysUtility;
+import org.apache.log4j.Logger;
+import org.postgresql.ds.PGSimpleDataSource;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PostgreSQLLocationsDataProvider implements LocationsDataProvider 
 {
@@ -180,8 +170,9 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 		config.addDataSourceProperty("portNumber", parameters.get("port"));
 		if (parameters.containsKey("max_pool_size"))
 			config.setMaximumPoolSize((Integer)parameters.get("max_pool_size"));
-		config.setMinimumIdle(1);
+		//config.setMinimumIdle(1);
 		config.setConnectionTestQuery("SELECT 1");
+		config.setLeakDetectionThreshold(10000);
 
 		_dataSource = new HikariDataSource(config);
 	}
