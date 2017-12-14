@@ -170,10 +170,8 @@ public class PostgreSQLLocationsDataProvider implements LocationsDataProvider
 		config.addDataSourceProperty("portNumber", parameters.get("port"));
 		if (parameters.containsKey("max_pool_size"))
 			config.setMaximumPoolSize((Integer)parameters.get("max_pool_size"));
-
-		config.setMinimumIdle(1);
+		//config.setMinimumIdle(1);
 		config.setConnectionTestQuery("SELECT 1");
-
 		config.setLeakDetectionThreshold(10000);
 
 		_dataSource = new HikariDataSource(config);
