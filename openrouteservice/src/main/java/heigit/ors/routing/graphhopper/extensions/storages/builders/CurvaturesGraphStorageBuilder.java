@@ -31,7 +31,7 @@ import heigit.ors.routing.graphhopper.extensions.storages.CurvaturesGraphStorage
 
 public class CurvaturesGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private CurvaturesGraphStorage _storage;
-    private double _sinousity;
+    private double _sinuosity;
     private PointList pl;
     private double distance;
     private double startLat;
@@ -58,7 +58,7 @@ public class CurvaturesGraphStorageBuilder extends AbstractGraphStorageBuilder {
     }
 
     /**
-     * Returns the sinousity factor determined from
+     * Returns the sinuosity factor determined from
      * flight distance divided distance of the way
      * <p>
      * This method always returns between 0 and 1 with
@@ -66,18 +66,24 @@ public class CurvaturesGraphStorageBuilder extends AbstractGraphStorageBuilder {
      * higher values indicating straight ways
      *
      * @param edge edge object from originating from EdgeIteratorState
-     * @return the sinousity factor
+     * @return the sinuosity factor
      */
-    private double computeSinousity(EdgeIteratorState edge) {
+    private double computeSinuosity(EdgeIteratorState edge) {
 
-        distance = edge.getDistance();
+        // distance of the edge
+        distance = edge.getDistance();      // what happens if start and end point are the same, division by zero??
+        // create pointlist of points on the edge
         pl = edge.fetchWayGeometry(3);
+        // get latitude and longitude of starting point of the edge (first element in the pointlist)
         startLat = pl.getLat(0);
         startLng = pl.getLon(0);
+        // get latitude and longitude of end point of the edge (last element in the pointlist)
         endLat = pl.getLat(pl.getSize() - 1);
         endLng = pl.getLon(pl.getSize() - 1);
+        // calculate flight distance from start and end point of the edge
         flightDistance = distCalc.calcDist(startLat, startLng, endLat, endLng);
 
+        // return sinuosity of the edge
         return flightDistance / distance;
 
 
@@ -88,9 +94,11 @@ public class CurvaturesGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
         //edge.getEdge();
 
-        _sinousity = computeSinousity(edge);
+        // calculate sinuosity of edge
+        _sinuosity = computeSinuosity(edge);
 
-        _storage.setEdgeValue(edge.getEdge(), _sinousity);
+        // push sinuosity value to storage
+        _storage.setEdgeValue(edge.getEdge(), _sinuosity);
     }
 
     @Override

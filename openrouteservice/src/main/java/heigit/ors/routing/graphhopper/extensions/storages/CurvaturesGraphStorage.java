@@ -24,19 +24,22 @@ public class CurvaturesGraphStorage implements GraphExtension {
         byteValues = new byte[1];
     }
 
-    public void setEdgeValue(int edgeId, double sinousity) {
+    public void setEdgeValue(int edgeId, double sinuosity) {
         edgesCount++;
         ensureEdgesIndex(edgeId);
 
         // add entry
         long edgePointer = (long) edgeId * edgeEntryBytes;
-        // multiply double by byte range, result is still double
-        sinousity *= 128;
-        // cast to int
-        int intSinousity = (int) sinousity;
-        // cast to byte
-        byteValues[0] = (byte) intSinousity;
-        orsEdges.setBytes(edgePointer + EF_CURVATURE, byteValues, 1);
+        // multiply double by byte range (2⁷=128) to get a 1byte=8bit accuracy of the sinuosity when cast to int
+        // 1 bit used for the sign, 7 bits for the mantissa
+        // result is still double
+        sinuosity *= 128;   // why 128 instead of 127?
+                            // with 7bit we can only represent 128 different numbers, either 1-128 or 0-127
+        // cast to int, intSinuosity is between 0(=127*0) and 1111111(=127*1) in binary representation
+        int intSinuosity = (int) sinuosity;
+        // cast to byte, possible cause intSinuosity only requires 1 byte storage
+        byteValues[0] = (byte) intSinuosity;
+        orsEdges.setBytes(edgePointer + EF_CURVATURE, byteValues, 1); //add sinuosity value to edge
     }
 
     private void ensureEdgesIndex(int edgeId) {
