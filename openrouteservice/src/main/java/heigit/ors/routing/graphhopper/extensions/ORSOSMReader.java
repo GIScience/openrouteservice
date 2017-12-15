@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class ORSOSMReader extends OSMReader {
 
@@ -78,6 +80,37 @@ public class ORSOSMReader extends OSMReader {
 	public void onProcessWay(ReaderWay way) {
 		_procCntx.processWay(way);
 	}
+
+
+	/**
+	 * Applies tags of nodes that lie on a way onto the way itself so that they are
+	 * regarded in the following storage building process. E.g. a maxheight tag on a node will
+	 * be treated like a maxheight tag on the way the node belongs to.
+	 *
+	 * @param  map  a map that projects node ids onto a property map
+	 * @param  way	the way to process
+	 */
+
+	@Override
+	public void applyNodeTagsToWay(HashMap<Long, Map<String, Object>> map, ReaderWay way){
+		LongArrayList osmNodeIds = way.getNodes();
+		int size = osmNodeIds.size();
+		if (size > 2) {
+			for (int i = 1; i < size - 1; i++) {
+				long nodeId = osmNodeIds.get(i);
+				if (map.containsKey(nodeId)) {
+					java.util.Iterator<Entry<String, Object>> it = map.get(nodeId).entrySet().iterator();
+					while (it.hasNext()) {
+						Map.Entry<String, Object> pairs = it.next();
+						String key = pairs.getKey();
+						String value = pairs.getValue().toString();
+						way.setTag(key, value);
+					}
+				}
+			}
+		}
+	}
+
 
 	@Override
 	protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge) {
