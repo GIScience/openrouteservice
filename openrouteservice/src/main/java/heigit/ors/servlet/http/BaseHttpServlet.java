@@ -82,7 +82,7 @@ public class BaseHttpServlet extends HttpServlet
 			else
 				writeError(res, statusCode, json);
 			
-			LOGGER.error(ex);
+			LOGGER.error("Exception", ex);
 		} catch (JSONException e) {
 			LOGGER.error(e);
 		}
