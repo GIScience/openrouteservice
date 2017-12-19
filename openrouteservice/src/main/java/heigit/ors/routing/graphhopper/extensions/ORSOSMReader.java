@@ -111,7 +111,7 @@ public class ORSOSMReader extends OSMReader {
 				}
 			}
 		}
-	}/*
+	}*/
 
 
 	@Override
