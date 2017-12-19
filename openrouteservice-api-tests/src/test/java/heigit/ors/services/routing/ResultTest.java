@@ -673,7 +673,7 @@ public class ResultTest extends ServiceTest {
 
 	}*/
 
-	@Test
+	/*@Test
 	public void testBordersAvoid() {
 		// Test that providing border control in avoid_features works
 		given()
@@ -760,4 +760,5 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].summary.duration", is(486.9f))
 				.statusCode(200);
 	}
+	*/
 }
