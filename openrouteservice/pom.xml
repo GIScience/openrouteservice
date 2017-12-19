@@ -230,7 +230,7 @@
         <dependency>
             <groupId>com.github.GIScience</groupId>
             <artifactId>graphhopper</artifactId>
-            <version>v0.9.9</version>
+            <version>v0.9.10</version>
         </dependency>
 
 
