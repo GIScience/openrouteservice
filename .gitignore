@@ -21,4 +21,4 @@ target/
 nohup.out
 build/
 
-JenkinsFile
+Jenkinsfile
