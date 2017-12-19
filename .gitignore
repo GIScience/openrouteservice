@@ -20,5 +20,3 @@ target/
 .python-version
 nohup.out
 build/
-
-Jenkinsfile
