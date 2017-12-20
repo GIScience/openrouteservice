@@ -22,11 +22,11 @@
         <!-- The following line might show up as an error in IntelliJ IDE... it is not an error but a bug in IntelliJ so don't worry! -->
         <build.version>${git.commit.time}.${git.commit.id.abbrev}</build.version>
     </properties>
-  <scm>
+     <scm>
   	<url>git@gitlab.com:giscience/openrouteservice/ORS_backend.git</url>
    	<connection>scm:git:git@gitlab.com:giscience/openrouteservice/ORS_backend.git</connection>
    	<developerConnection>scm:git:git@gitlab.com:giscience/openrouteservice/ORS_backend.git</developerConnection>
-  </scm>
+     </scm>
 
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>
