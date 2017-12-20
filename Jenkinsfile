@@ -39,7 +39,6 @@ node {
     stage('Clean') {
        
         rocketSend channel: 'ors-jenkins', message: 'Cleaning directory...', rawMessage: true
-       
         deleteDir()
        
     }
