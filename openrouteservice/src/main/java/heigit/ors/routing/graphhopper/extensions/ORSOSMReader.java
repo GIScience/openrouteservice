@@ -31,6 +31,9 @@ import heigit.ors.routing.RoutingProfile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.Map;
@@ -49,6 +52,9 @@ public class ORSOSMReader extends OSMReader {
 
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
 			"primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential" };
+
+	public static final String[] HGV_VALUES = new String[] { "maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload" };
+	public static final Set<String> hgv_tags = new HashSet<>(Arrays.asList(HGV_VALUES));
 
 	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx, HashMap<Integer, Long> tmcEdges,  HashMap<Long, ArrayList<Integer>> osmId2EdgeIds, RoutingProfile refProfile) {
 		super(storage);
@@ -91,9 +97,8 @@ public class ORSOSMReader extends OSMReader {
 	 * @param  way	the way to process
 	 */
 
-	//*********** COMMENTED OUT AS TESTS DO NOT PASS!!!!! *****************//
-	
-	/*@Override
+
+	@Override
 	public void applyNodeTagsToWay(HashMap<Long, Map<String, Object>> map, ReaderWay way){
 		LongArrayList osmNodeIds = way.getNodes();
 		int size = osmNodeIds.size();
@@ -106,12 +111,13 @@ public class ORSOSMReader extends OSMReader {
 						Map.Entry<String, Object> pairs = it.next();
 						String key = pairs.getKey();
 						String value = pairs.getValue().toString();
-						way.setTag(key, value);
+						System.out.println(key);
+						if(hgv_tags.contains(key)) way.setTag(key, value);
 					}
 				}
 			}
 		}
-	}*/
+	}
 
 
 	@Override
