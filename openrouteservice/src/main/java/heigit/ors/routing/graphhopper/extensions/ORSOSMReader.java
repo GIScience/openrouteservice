@@ -111,7 +111,7 @@ public class ORSOSMReader extends OSMReader {
 						Map.Entry<String, Object> pairs = it.next();
 						String key = pairs.getKey();
 						String value = pairs.getValue().toString();
-						System.out.println(key);
+						//System.out.println(key);
 						if(hgv_tags.contains(key)) way.setTag(key, value);
 					}
 				}
