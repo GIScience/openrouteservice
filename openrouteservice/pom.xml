@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+	
     <modelVersion>4.0.0</modelVersion>
     <groupId>heigit.ors</groupId>
     <artifactId>openrouteservice</artifactId>
@@ -22,11 +22,11 @@
         <!-- The following line might show up as an error in IntelliJ IDE... it is not an error but a bug in IntelliJ so don't worry! -->
         <build.version>${git.commit.time}.${git.commit.id.abbrev}</build.version>
     </properties>
-  <scm>
+     <scm>
   	<url>git@gitlab.com:giscience/openrouteservice/ORS_backend.git</url>
    	<connection>scm:git:git@gitlab.com:giscience/openrouteservice/ORS_backend.git</connection>
    	<developerConnection>scm:git:git@gitlab.com:giscience/openrouteservice/ORS_backend.git</developerConnection>
-  </scm>
+     </scm>
 
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>
@@ -45,7 +45,6 @@
      </resources>
 
     <plugins>
-
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
@@ -233,11 +232,11 @@
 	   	<version>v0.9.10</version>
 	</dependency>
 
-    <dependency>
-        <groupId>com.github.GIScience.graphhopper</groupId>
-        <artifactId>graphhopper-reader-osm</artifactId>
-        <version>v0.9.10</version>
-    </dependency>
+        <dependency>
+		<groupId>com.github.GIScience.graphhopper</groupId>
+		<artifactId>graphhopper-reader-osm</artifactId>
+		<version>v0.9.10</version>
+        </dependency>
 
 
     <!-- remove the comment to enable debugging
