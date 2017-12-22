@@ -1,16 +1,5 @@
-//
-// Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
-// Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
-// �nderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2017.11.29 um 04:11:24 PM CET 
-//
-
 
 package heigit.ors.util.gpxUtil;
-
-import heigit.ors.util.gpxUtil.LinkType;
-import heigit.ors.util.gpxUtil.RteTypeExtensions;
-import heigit.ors.util.gpxUtil.WptType;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -20,14 +9,16 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
- * rte represents route - an ordered list of waypoints representing a series of turn points leading to a destination.
- * <p>
- * <p>
- * <p>Java-Klasse f�r rteType complex type.
- * <p>
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
- * <p>
+ *
+ * 		rte represents route - an ordered list of waypoints representing a series of turn points leading to a destination.
+ *
+ *
+ * <p>Java class for rteType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
  * <pre>
  * &lt;complexType name="rteType">
  *   &lt;complexContent>
@@ -47,6 +38,8 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
+ *
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "rteType", propOrder = {
@@ -74,80 +67,96 @@ public class RteType {
     protected List<WptType> rtept;
 
     /**
-     * Ruft den Wert der name-Eigenschaft ab.
+     * Gets the value of the name property.
      *
-     * @return possible object is
-     * {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Legt den Wert der name-Eigenschaft fest.
+     * Sets the value of the name property.
      *
-     * @param value allowed object is
-     *              {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setName(String value) {
         this.name = value;
     }
 
     /**
-     * Ruft den Wert der cmt-Eigenschaft ab.
+     * Gets the value of the cmt property.
      *
-     * @return possible object is
-     * {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getCmt() {
         return cmt;
     }
 
     /**
-     * Legt den Wert der cmt-Eigenschaft fest.
+     * Sets the value of the cmt property.
      *
-     * @param value allowed object is
-     *              {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setCmt(String value) {
         this.cmt = value;
     }
 
     /**
-     * Ruft den Wert der desc-Eigenschaft ab.
+     * Gets the value of the desc property.
      *
-     * @return possible object is
-     * {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getDesc() {
         return desc;
     }
 
     /**
-     * Legt den Wert der desc-Eigenschaft fest.
+     * Sets the value of the desc property.
      *
-     * @param value allowed object is
-     *              {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setDesc(String value) {
         this.desc = value;
     }
 
     /**
-     * Ruft den Wert der src-Eigenschaft ab.
+     * Gets the value of the src property.
      *
-     * @return possible object is
-     * {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getSrc() {
         return src;
     }
 
     /**
-     * Legt den Wert der src-Eigenschaft fest.
+     * Sets the value of the src property.
      *
-     * @param value allowed object is
-     *              {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setSrc(String value) {
         this.src = value;
@@ -155,23 +164,25 @@ public class RteType {
 
     /**
      * Gets the value of the link property.
-     * <p>
+     * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the link property.
-     * <p>
+     * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getLink().add(newItem);
      * </pre>
-     * <p>
-     * <p>
+     *
+     * 
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link LinkType }
+     *
+     * 
      */
     public List<LinkType> getLink() {
         if (link == null) {
@@ -181,60 +192,72 @@ public class RteType {
     }
 
     /**
-     * Ruft den Wert der number-Eigenschaft ab.
+     * Gets the value of the number property.
      *
-     * @return possible object is
-     * {@link BigInteger }
+     * @return
+     *     possible object is
+     *     {@link BigInteger }
+     *     
      */
     public BigInteger getNumber() {
         return number;
     }
 
     /**
-     * Legt den Wert der number-Eigenschaft fest.
+     * Sets the value of the number property.
      *
-     * @param value allowed object is
-     *              {@link BigInteger }
+     * @param value
+     *     allowed object is
+     *     {@link BigInteger }
+     *     
      */
     public void setNumber(BigInteger value) {
         this.number = value;
     }
 
     /**
-     * Ruft den Wert der type-Eigenschaft ab.
+     * Gets the value of the type property.
      *
-     * @return possible object is
-     * {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getType() {
         return type;
     }
 
     /**
-     * Legt den Wert der type-Eigenschaft fest.
+     * Sets the value of the type property.
      *
-     * @param value allowed object is
-     *              {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setType(String value) {
         this.type = value;
     }
 
     /**
-     * Ruft den Wert der extensions-Eigenschaft ab.
+     * Gets the value of the extensions property.
      *
-     * @return possible object is
-     * {@link RteTypeExtensions }
+     * @return
+     *     possible object is
+     *     {@link RteTypeExtensions }
+     *     
      */
     public RteTypeExtensions getExtensions() {
         return extensions;
     }
 
     /**
-     * Legt den Wert der extensions-Eigenschaft fest.
+     * Sets the value of the extensions property.
      *
-     * @param value allowed object is
-     *              {@link RteTypeExtensions }
+     * @param value
+     *     allowed object is
+     *     {@link RteTypeExtensions }
+     *
      */
     public void setExtensions(RteTypeExtensions value) {
         this.extensions = value;
@@ -242,23 +265,25 @@ public class RteType {
 
     /**
      * Gets the value of the rtept property.
-     * <p>
+     * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the rtept property.
-     * <p>
+     * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getRtept().add(newItem);
      * </pre>
-     * <p>
-     * <p>
+     *
+     * 
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link WptType }
+     *
+     * 
      */
     public List<WptType> getRtept() {
         if (rtept == null) {
@@ -268,4 +293,3 @@ public class RteType {
     }
 
 }
-

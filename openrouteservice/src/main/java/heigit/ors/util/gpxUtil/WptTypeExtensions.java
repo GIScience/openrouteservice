@@ -1,14 +1,11 @@
 package heigit.ors.util.gpxUtil;
 
-import heigit.ors.util.gpxUtil.ExtensionsType;
-import heigit.ors.util.gpxUtil.WptType;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * {@link heigit.ors.util.gpxUtil.WptTypeExtensions} represents a class to process the Extensions for {@link WptType}
+ * {@link WptTypeExtensions} represents a class to process the Extensions for {@link WptType}
  * Can be manually extended if needed
  */
 

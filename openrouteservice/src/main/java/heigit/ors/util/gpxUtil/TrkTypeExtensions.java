@@ -1,14 +1,11 @@
 package heigit.ors.util.gpxUtil;
 
-import heigit.ors.util.gpxUtil.ExtensionsType;
-import heigit.ors.util.gpxUtil.TrkType;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * {@link heigit.ors.util.gpxUtil.TrkTypeExtensions} represents the extensions for {@link TrkType}
+ * {@link TrkTypeExtensions} represents the extensions for {@link TrkType}
  * Can be manually extended
  */
 @XmlAccessorType(XmlAccessType.FIELD)

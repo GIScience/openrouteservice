@@ -1,17 +1,5 @@
-//
-// Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
-// Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
-// �nderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2017.11.29 um 04:11:24 PM CET 
-//
-
 
 package heigit.ors.util.gpxUtil;
-
-import heigit.ors.util.gpxUtil.BoundsType;
-import heigit.ors.util.gpxUtil.LinkType;
-import heigit.ors.util.gpxUtil.MetadataTypeExtensions;
-import heigit.ors.util.gpxUtil.PersonType;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -26,11 +14,11 @@ import java.util.List;
  * 
  * 		Information about the GPX file, author, and copyright restrictions goes in the metadata section.  Providing rich,
  * 		meaningful information about your GPX files allows others to search for and use your GPS data.
- * 	  
- * 
- * <p>Java-Klasse f�r metadataType complex type.
- * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ *
+ *
+ * <p>Java class for metadataType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="metadataType">
@@ -80,96 +68,96 @@ public class MetadataType {
     protected MetadataTypeExtensions extensions;
 
     /**
-     * Ruft den Wert der name-Eigenschaft ab.
-     *
+     * Gets the value of the name property.
+     * 
      * @return
      *     possible object is
      *     {@link String }
-     *
+     *     
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Legt den Wert der name-Eigenschaft fest.
-     *
+     * Sets the value of the name property.
+     * 
      * @param value
      *     allowed object is
      *     {@link String }
-     *
+     *     
      */
     public void setName(String value) {
         this.name = value;
     }
 
     /**
-     * Ruft den Wert der desc-Eigenschaft ab.
-     *
+     * Gets the value of the desc property.
+     * 
      * @return
      *     possible object is
      *     {@link String }
-     *
+     *     
      */
     public String getDesc() {
         return desc;
     }
 
     /**
-     * Legt den Wert der desc-Eigenschaft fest.
-     *
+     * Sets the value of the desc property.
+     * 
      * @param value
      *     allowed object is
      *     {@link String }
-     *
+     *     
      */
     public void setDesc(String value) {
         this.desc = value;
     }
 
     /**
-     * Ruft den Wert der author-Eigenschaft ab.
-     *
+     * Gets the value of the author property.
+     * 
      * @return
      *     possible object is
      *     {@link PersonType }
-     *
+     *     
      */
     public PersonType getAuthor() {
         return author;
     }
 
     /**
-     * Legt den Wert der author-Eigenschaft fest.
-     *
+     * Sets the value of the author property.
+     * 
      * @param value
      *     allowed object is
      *     {@link PersonType }
-     *
+     *     
      */
     public void setAuthor(PersonType value) {
         this.author = value;
     }
 
     /**
-     * Ruft den Wert der copyright-Eigenschaft ab.
-     *
+     * Gets the value of the copyright property.
+     * 
      * @return
      *     possible object is
      *     {@link CopyrightType }
-     *
+     *     
      */
     public CopyrightType getCopyright() {
         return copyright;
     }
 
     /**
-     * Legt den Wert der copyright-Eigenschaft fest.
-     *
+     * Sets the value of the copyright property.
+     * 
      * @param value
      *     allowed object is
      *     {@link CopyrightType }
-     *
+     *     
      */
     public void setCopyright(CopyrightType value) {
         this.copyright = value;
@@ -177,25 +165,25 @@ public class MetadataType {
 
     /**
      * Gets the value of the link property.
-     *
+     * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the link property.
-     *
+     * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getLink().add(newItem);
      * </pre>
      *
-     *
+     * 
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link LinkType }
      *
-     *
+     * 
      */
     public List<LinkType> getLink() {
         if (link == null) {
@@ -213,92 +201,92 @@ public class MetadataType {
     }
 
     /**
-     * Ruft den Wert der time-Eigenschaft ab.
-     *
+     * Gets the value of the time property.
+     * 
      * @return
      *     possible object is
      *     {@link XMLGregorianCalendar }
-     *
+     *     
      */
     public XMLGregorianCalendar getTime() {
         return time;
     }
 
     /**
-     * Legt den Wert der time-Eigenschaft fest.
-     *
+     * Sets the value of the time property.
+     * 
      * @param value
      *     allowed object is
      *     {@link XMLGregorianCalendar }
-     *
+     *     
      */
     public void setTime(XMLGregorianCalendar value) {
         this.time = value;
     }
 
     /**
-     * Ruft den Wert der keywords-Eigenschaft ab.
-     *
+     * Gets the value of the keywords property.
+     * 
      * @return
      *     possible object is
      *     {@link String }
-     *
+     *     
      */
     public String getKeywords() {
         return keywords;
     }
 
     /**
-     * Legt den Wert der keywords-Eigenschaft fest.
-     *
+     * Sets the value of the keywords property.
+     * 
      * @param value
      *     allowed object is
      *     {@link String }
-     *
+     *     
      */
     public void setKeywords(String value) {
         this.keywords = value;
     }
 
     /**
-     * Ruft den Wert der bounds-Eigenschaft ab.
-     *
+     * Gets the value of the bounds property.
+     * 
      * @return
      *     possible object is
      *     {@link BoundsType }
-     *
+     *     
      */
     public BoundsType getBounds() {
         return bounds;
     }
 
     /**
-     * Legt den Wert der bounds-Eigenschaft fest.
-     *
+     * Sets the value of the bounds property.
+     * 
      * @param value
      *     allowed object is
      *     {@link BoundsType }
-     *
+     *     
      */
     public void setBounds(BoundsType value) {
         this.bounds = value;
     }
 
     /**
-     * Ruft den Wert der extensions-Eigenschaft ab.
-     *
+     * Gets the value of the extensions property.
+     * 
      * @return
      *     possible object is
-     *     {@link TrksegTypeExtensions }
-     *
+     *     {@link MetadataTypeExtensions }
+     *     
      */
     public MetadataTypeExtensions getExtensions() {
         return extensions;
     }
 
     /**
-     * Legt den Wert der extensions-Eigenschaft fest.
-     *
+     * Sets the value of the extensions property.
+     * 
      * @param value
      *     allowed object is
      *     {@link MetadataTypeExtensions }

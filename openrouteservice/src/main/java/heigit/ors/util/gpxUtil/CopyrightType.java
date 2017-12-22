@@ -1,10 +1,3 @@
-//
-// Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
-// Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
-// �nderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2017.11.29 um 04:11:24 PM CET 
-//
-
 
 package heigit.ors.util.gpxUtil;
 
@@ -16,11 +9,11 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * 
  * 	 Information about the copyright holder and any license governing use of this file.  By linking to an appropriate license,
  * 	 you may place your data into the public domain or grant additional usage rights.
- *     
- * 
- * <p>Java-Klasse f�r copyrightType complex type.
- * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ *
+ *
+ * <p>Java class for copyrightType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="copyrightType">
@@ -53,7 +46,7 @@ public class CopyrightType {
     protected String author;
 
     /**
-     * Ruft den Wert der year-Eigenschaft ab.
+     * Gets the value of the year property.
      * 
      * @return
      *     possible object is
@@ -65,7 +58,7 @@ public class CopyrightType {
     }
 
     /**
-     * Legt den Wert der year-Eigenschaft fest.
+     * Sets the value of the year property.
      * 
      * @param value
      *     allowed object is
@@ -77,7 +70,7 @@ public class CopyrightType {
     }
 
     /**
-     * Ruft den Wert der license-Eigenschaft ab.
+     * Gets the value of the license property.
      * 
      * @return
      *     possible object is
@@ -89,7 +82,7 @@ public class CopyrightType {
     }
 
     /**
-     * Legt den Wert der license-Eigenschaft fest.
+     * Sets the value of the license property.
      * 
      * @param value
      *     allowed object is
@@ -101,7 +94,7 @@ public class CopyrightType {
     }
 
     /**
-     * Ruft den Wert der author-Eigenschaft ab.
+     * Gets the value of the author property.
      * 
      * @return
      *     possible object is
@@ -113,7 +106,7 @@ public class CopyrightType {
     }
 
     /**
-     * Legt den Wert der author-Eigenschaft fest.
+     * Sets the value of the author property.
      * 
      * @param value
      *     allowed object is

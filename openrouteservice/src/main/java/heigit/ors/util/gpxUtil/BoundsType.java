@@ -1,10 +1,3 @@
-//
-// Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
-// Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
-// �nderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2017.11.29 um 04:11:24 PM CET 
-//
-
 
 package heigit.ors.util.gpxUtil;
 
@@ -18,11 +11,11 @@ import java.math.BigDecimal;
 /**
  * 
  * 	 Two lat/lon pairs defining the extent of an element.
- *     
- * 
- * <p>Java-Klasse f�r boundsType complex type.
- * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ *
+ *
+ * <p>Java class for boundsType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="boundsType">
@@ -53,7 +46,7 @@ public class BoundsType {
     protected BigDecimal maxlon;
 
     /**
-     * Ruft den Wert der minlat-Eigenschaft ab.
+     * Gets the value of the minlat property.
      * 
      * @return
      *     possible object is
@@ -65,7 +58,7 @@ public class BoundsType {
     }
 
     /**
-     * Legt den Wert der minlat-Eigenschaft fest.
+     * Sets the value of the minlat property.
      * 
      * @param value
      *     allowed object is
@@ -77,7 +70,7 @@ public class BoundsType {
     }
 
     /**
-     * Ruft den Wert der minlon-Eigenschaft ab.
+     * Gets the value of the minlon property.
      * 
      * @return
      *     possible object is
@@ -89,7 +82,7 @@ public class BoundsType {
     }
 
     /**
-     * Legt den Wert der minlon-Eigenschaft fest.
+     * Sets the value of the minlon property.
      * 
      * @param value
      *     allowed object is
@@ -101,7 +94,7 @@ public class BoundsType {
     }
 
     /**
-     * Ruft den Wert der maxlat-Eigenschaft ab.
+     * Gets the value of the maxlat property.
      * 
      * @return
      *     possible object is
@@ -113,7 +106,7 @@ public class BoundsType {
     }
 
     /**
-     * Legt den Wert der maxlat-Eigenschaft fest.
+     * Sets the value of the maxlat property.
      * 
      * @param value
      *     allowed object is
@@ -125,7 +118,7 @@ public class BoundsType {
     }
 
     /**
-     * Ruft den Wert der maxlon-Eigenschaft ab.
+     * Gets the value of the maxlon property.
      * 
      * @return
      *     possible object is
@@ -137,7 +130,7 @@ public class BoundsType {
     }
 
     /**
-     * Legt den Wert der maxlon-Eigenschaft fest.
+     * Sets the value of the maxlon property.
      * 
      * @param value
      *     allowed object is

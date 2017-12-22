@@ -1,15 +1,5 @@
-//
-// Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
-// Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
-// �nderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2017.11.29 um 04:11:24 PM CET 
-//
-
 
 package heigit.ors.util.gpxUtil;
-
-import heigit.ors.util.gpxUtil.TrksegTypeExtensions;
-import heigit.ors.util.gpxUtil.WptType;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -21,11 +11,11 @@ import java.util.List;
 /**
  * 
  *  	 A Track Segment holds a list of Track Points which are logically connected in order. To represent a single GPS track where GPS reception was lost, or the GPS receiver was turned off, start a new Track Segment for each continuous span of track data.
- *     
- * 
- * <p>Java-Klasse f�r trksegType complex type.
- * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ *
+ *
+ * <p>Java class for trksegType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="trksegType">
@@ -82,7 +72,7 @@ public class TrksegType {
     }
 
     /**
-     * Ruft den Wert der extensions-Eigenschaft ab.
+     * Gets the value of the extensions property.
      * 
      * @return
      *     possible object is
@@ -94,7 +84,7 @@ public class TrksegType {
     }
 
     /**
-     * Legt den Wert der extensions-Eigenschaft fest.
+     * Sets the value of the extensions property.
      * 
      * @param value
      *     allowed object is

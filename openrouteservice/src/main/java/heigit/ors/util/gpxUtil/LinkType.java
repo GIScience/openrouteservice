@@ -1,25 +1,17 @@
-//
-// Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
-// Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
-// �nderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2017.11.29 um 04:11:24 PM CET 
-//
-
 
 package heigit.ors.util.gpxUtil;
 
 import javax.xml.bind.annotation.*;
 
-
 /**
- * 
+ *
  * 	 A link to an external resource (Web page, digital photo, video clip, etc) with additional information.
- *     
- * 
- * <p>Java-Klasse f�r linkType complex type.
- * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
- * 
+ *
+ *
+ * <p>Java class for linkType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="linkType">
  *   &lt;complexContent>
@@ -33,8 +25,8 @@ import javax.xml.bind.annotation.*;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "linkType", propOrder = {
@@ -50,72 +42,72 @@ public class LinkType {
     protected String href;
 
     /**
-     * Ruft den Wert der text-Eigenschaft ab.
-     * 
+     * Gets the value of the text property.
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getText() {
         return text;
     }
 
     /**
-     * Legt den Wert der text-Eigenschaft fest.
-     * 
+     * Sets the value of the text property.
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setText(String value) {
         this.text = value;
     }
 
     /**
-     * Ruft den Wert der type-Eigenschaft ab.
-     * 
+     * Gets the value of the type property.
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getType() {
         return type;
     }
 
     /**
-     * Legt den Wert der type-Eigenschaft fest.
-     * 
+     * Sets the value of the type property.
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setType(String value) {
         this.type = value;
     }
 
     /**
-     * Ruft den Wert der href-Eigenschaft ab.
-     * 
+     * Gets the value of the href property.
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getHref() {
         return href;
     }
 
     /**
-     * Legt den Wert der href-Eigenschaft fest.
-     * 
+     * Sets the value of the href property.
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setHref(String value) {
         this.href = value;

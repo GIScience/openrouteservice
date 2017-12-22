@@ -1,10 +1,3 @@
-//
-// Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
-// Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
-// �nderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2017.11.29 um 04:11:24 PM CET 
-//
-
 
 package heigit.ors.util.gpxUtil;
 
@@ -16,11 +9,11 @@ import java.math.BigDecimal;
 /**
  * 
  * 	 A geographic point with optional elevation and time.  Available for use by other schemas.
- *     
- * 
- * <p>Java-Klasse f�r ptType complex type.
- * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ *
+ *
+ * <p>Java class for ptType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ptType">
@@ -55,7 +48,7 @@ public class PtType {
     protected BigDecimal lon;
 
     /**
-     * Ruft den Wert der ele-Eigenschaft ab.
+     * Gets the value of the ele property.
      * 
      * @return
      *     possible object is
@@ -67,7 +60,7 @@ public class PtType {
     }
 
     /**
-     * Legt den Wert der ele-Eigenschaft fest.
+     * Sets the value of the ele property.
      * 
      * @param value
      *     allowed object is
@@ -79,7 +72,7 @@ public class PtType {
     }
 
     /**
-     * Ruft den Wert der time-Eigenschaft ab.
+     * Gets the value of the time property.
      * 
      * @return
      *     possible object is
@@ -91,7 +84,7 @@ public class PtType {
     }
 
     /**
-     * Legt den Wert der time-Eigenschaft fest.
+     * Sets the value of the time property.
      * 
      * @param value
      *     allowed object is
@@ -103,7 +96,7 @@ public class PtType {
     }
 
     /**
-     * Ruft den Wert der lat-Eigenschaft ab.
+     * Gets the value of the lat property.
      * 
      * @return
      *     possible object is
@@ -115,7 +108,7 @@ public class PtType {
     }
 
     /**
-     * Legt den Wert der lat-Eigenschaft fest.
+     * Sets the value of the lat property.
      * 
      * @param value
      *     allowed object is
@@ -127,7 +120,7 @@ public class PtType {
     }
 
     /**
-     * Ruft den Wert der lon-Eigenschaft ab.
+     * Gets the value of the lon property.
      * 
      * @return
      *     possible object is
@@ -139,7 +132,7 @@ public class PtType {
     }
 
     /**
-     * Legt den Wert der lon-Eigenschaft fest.
+     * Sets the value of the lon property.
      * 
      * @param value
      *     allowed object is

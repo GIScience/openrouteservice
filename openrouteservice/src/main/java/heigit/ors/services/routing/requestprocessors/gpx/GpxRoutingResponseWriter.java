@@ -2,8 +2,6 @@ package heigit.ors.services.routing.requestprocessors.gpx;
 
 
 import com.graphhopper.util.shapes.BBox;
-
-import heigit.ors.util.gpxUtil.*;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import heigit.ors.config.AppConfig;
@@ -11,6 +9,7 @@ import heigit.ors.routing.*;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.GeomUtility;
+import heigit.ors.util.gpxUtil.*;
 
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;

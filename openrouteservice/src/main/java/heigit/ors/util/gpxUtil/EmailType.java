@@ -1,10 +1,3 @@
-//
-// Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
-// Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
-// �nderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2017.11.29 um 04:11:24 PM CET 
-//
-
 
 package heigit.ors.util.gpxUtil;
 
@@ -17,11 +10,11 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * 
  * 	 An email address.  Broken into two parts (id and domain) to help prevent email harvesting.
- *     
- * 
- * <p>Java-Klasse f�r emailType complex type.
- * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ *
+ *
+ * <p>Java class for emailType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="emailType">
@@ -46,7 +39,7 @@ public class EmailType {
     protected String domain;
 
     /**
-     * Ruft den Wert der id-Eigenschaft ab.
+     * Gets the value of the id property.
      * 
      * @return
      *     possible object is
@@ -58,7 +51,7 @@ public class EmailType {
     }
 
     /**
-     * Legt den Wert der id-Eigenschaft fest.
+     * Sets the value of the id property.
      * 
      * @param value
      *     allowed object is
@@ -70,7 +63,7 @@ public class EmailType {
     }
 
     /**
-     * Ruft den Wert der domain-Eigenschaft ab.
+     * Gets the value of the domain property.
      * 
      * @return
      *     possible object is
@@ -82,7 +75,7 @@ public class EmailType {
     }
 
     /**
-     * Legt den Wert der domain-Eigenschaft fest.
+     * Sets the value of the domain property.
      * 
      * @param value
      *     allowed object is

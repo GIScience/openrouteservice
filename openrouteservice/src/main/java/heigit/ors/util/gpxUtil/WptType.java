@@ -1,15 +1,5 @@
-//
-// Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
-// Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
-// �nderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2017.11.29 um 04:11:24 PM CET 
-//
-
 
 package heigit.ors.util.gpxUtil;
-
-import heigit.ors.util.gpxUtil.LinkType;
-import heigit.ors.util.gpxUtil.WptTypeExtensions;
 
 import javax.xml.bind.annotation.*;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -20,13 +10,14 @@ import java.util.List;
 
 
 /**
- * wpt represents a waypoint, point of interest, or named feature on a map.
- * <p>
- * <p>
- * <p>Java-Klasse f�r wptType complex type.
- * <p>
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
- * <p>
+ *
+ * 		wpt represents a waypoint, point of interest, or named feature on a map.
+ *
+ *
+ * <p>Java class for wptType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
  * <pre>
  * &lt;complexType name="wptType">
  *   &lt;complexContent>
@@ -58,6 +49,8 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
+ *
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "wptType", propOrder = {
@@ -111,160 +104,192 @@ public class WptType {
     protected BigDecimal lon;
 
     /**
-     * Ruft den Wert der ele-Eigenschaft ab.
+     * Gets the value of the ele property.
      *
-     * @return possible object is
-     * {@link BigDecimal }
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getEle() {
         return ele;
     }
 
     /**
-     * Legt den Wert der ele-Eigenschaft fest.
+     * Sets the value of the ele property.
      *
-     * @param value allowed object is
-     *              {@link BigDecimal }
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
      */
     public void setEle(BigDecimal value) {
         this.ele = value;
     }
 
     /**
-     * Ruft den Wert der time-Eigenschaft ab.
+     * Gets the value of the time property.
      *
-     * @return possible object is
-     * {@link XMLGregorianCalendar }
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public XMLGregorianCalendar getTime() {
         return time;
     }
 
     /**
-     * Legt den Wert der time-Eigenschaft fest.
+     * Sets the value of the time property.
      *
-     * @param value allowed object is
-     *              {@link XMLGregorianCalendar }
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public void setTime(XMLGregorianCalendar value) {
         this.time = value;
     }
 
     /**
-     * Ruft den Wert der magvar-Eigenschaft ab.
+     * Gets the value of the magvar property.
      *
-     * @return possible object is
-     * {@link BigDecimal }
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getMagvar() {
         return magvar;
     }
 
     /**
-     * Legt den Wert der magvar-Eigenschaft fest.
+     * Sets the value of the magvar property.
      *
-     * @param value allowed object is
-     *              {@link BigDecimal }
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
      */
     public void setMagvar(BigDecimal value) {
         this.magvar = value;
     }
 
     /**
-     * Ruft den Wert der geoidheight-Eigenschaft ab.
+     * Gets the value of the geoidheight property.
      *
-     * @return possible object is
-     * {@link BigDecimal }
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getGeoidheight() {
         return geoidheight;
     }
 
     /**
-     * Legt den Wert der geoidheight-Eigenschaft fest.
+     * Sets the value of the geoidheight property.
      *
-     * @param value allowed object is
-     *              {@link BigDecimal }
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
      */
     public void setGeoidheight(BigDecimal value) {
         this.geoidheight = value;
     }
 
     /**
-     * Ruft den Wert der name-Eigenschaft ab.
+     * Gets the value of the name property.
      *
-     * @return possible object is
-     * {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Legt den Wert der name-Eigenschaft fest.
+     * Sets the value of the name property.
      *
-     * @param value allowed object is
-     *              {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setName(String value) {
         this.name = value;
     }
 
     /**
-     * Ruft den Wert der cmt-Eigenschaft ab.
+     * Gets the value of the cmt property.
      *
-     * @return possible object is
-     * {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getCmt() {
         return cmt;
     }
 
     /**
-     * Legt den Wert der cmt-Eigenschaft fest.
+     * Sets the value of the cmt property.
      *
-     * @param value allowed object is
-     *              {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setCmt(String value) {
         this.cmt = value;
     }
 
     /**
-     * Ruft den Wert der desc-Eigenschaft ab.
+     * Gets the value of the desc property.
      *
-     * @return possible object is
-     * {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getDesc() {
         return desc;
     }
 
     /**
-     * Legt den Wert der desc-Eigenschaft fest.
+     * Sets the value of the desc property.
      *
-     * @param value allowed object is
-     *              {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setDesc(String value) {
         this.desc = value;
     }
 
     /**
-     * Ruft den Wert der src-Eigenschaft ab.
+     * Gets the value of the src property.
      *
-     * @return possible object is
-     * {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getSrc() {
         return src;
     }
 
     /**
-     * Legt den Wert der src-Eigenschaft fest.
+     * Sets the value of the src property.
      *
-     * @param value allowed object is
-     *              {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setSrc(String value) {
         this.src = value;
@@ -272,23 +297,25 @@ public class WptType {
 
     /**
      * Gets the value of the link property.
-     * <p>
+     * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the link property.
-     * <p>
+     * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getLink().add(newItem);
      * </pre>
-     * <p>
-     * <p>
+     *
+     * 
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link LinkType }
+     *
+     * 
      */
     public List<LinkType> getLink() {
         if (link == null) {
@@ -298,240 +325,288 @@ public class WptType {
     }
 
     /**
-     * Ruft den Wert der sym-Eigenschaft ab.
+     * Gets the value of the sym property.
      *
-     * @return possible object is
-     * {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getSym() {
         return sym;
     }
 
     /**
-     * Legt den Wert der sym-Eigenschaft fest.
+     * Sets the value of the sym property.
      *
-     * @param value allowed object is
-     *              {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setSym(String value) {
         this.sym = value;
     }
 
     /**
-     * Ruft den Wert der type-Eigenschaft ab.
+     * Gets the value of the type property.
      *
-     * @return possible object is
-     * {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getType() {
         return type;
     }
 
     /**
-     * Legt den Wert der type-Eigenschaft fest.
+     * Sets the value of the type property.
      *
-     * @param value allowed object is
-     *              {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setType(String value) {
         this.type = value;
     }
 
     /**
-     * Ruft den Wert der fix-Eigenschaft ab.
+     * Gets the value of the fix property.
      *
-     * @return possible object is
-     * {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getFix() {
         return fix;
     }
 
     /**
-     * Legt den Wert der fix-Eigenschaft fest.
+     * Sets the value of the fix property.
      *
-     * @param value allowed object is
-     *              {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setFix(String value) {
         this.fix = value;
     }
 
     /**
-     * Ruft den Wert der sat-Eigenschaft ab.
+     * Gets the value of the sat property.
      *
-     * @return possible object is
-     * {@link BigInteger }
+     * @return
+     *     possible object is
+     *     {@link BigInteger }
+     *     
      */
     public BigInteger getSat() {
         return sat;
     }
 
     /**
-     * Legt den Wert der sat-Eigenschaft fest.
+     * Sets the value of the sat property.
      *
-     * @param value allowed object is
-     *              {@link BigInteger }
+     * @param value
+     *     allowed object is
+     *     {@link BigInteger }
+     *     
      */
     public void setSat(BigInteger value) {
         this.sat = value;
     }
 
     /**
-     * Ruft den Wert der hdop-Eigenschaft ab.
+     * Gets the value of the hdop property.
      *
-     * @return possible object is
-     * {@link BigDecimal }
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getHdop() {
         return hdop;
     }
 
     /**
-     * Legt den Wert der hdop-Eigenschaft fest.
+     * Sets the value of the hdop property.
      *
-     * @param value allowed object is
-     *              {@link BigDecimal }
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
      */
     public void setHdop(BigDecimal value) {
         this.hdop = value;
     }
 
     /**
-     * Ruft den Wert der vdop-Eigenschaft ab.
+     * Gets the value of the vdop property.
      *
-     * @return possible object is
-     * {@link BigDecimal }
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getVdop() {
         return vdop;
     }
 
     /**
-     * Legt den Wert der vdop-Eigenschaft fest.
+     * Sets the value of the vdop property.
      *
-     * @param value allowed object is
-     *              {@link BigDecimal }
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
      */
     public void setVdop(BigDecimal value) {
         this.vdop = value;
     }
 
     /**
-     * Ruft den Wert der pdop-Eigenschaft ab.
+     * Gets the value of the pdop property.
      *
-     * @return possible object is
-     * {@link BigDecimal }
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getPdop() {
         return pdop;
     }
 
     /**
-     * Legt den Wert der pdop-Eigenschaft fest.
+     * Sets the value of the pdop property.
      *
-     * @param value allowed object is
-     *              {@link BigDecimal }
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
      */
     public void setPdop(BigDecimal value) {
         this.pdop = value;
     }
 
     /**
-     * Ruft den Wert der ageofdgpsdata-Eigenschaft ab.
+     * Gets the value of the ageofdgpsdata property.
      *
-     * @return possible object is
-     * {@link BigDecimal }
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getAgeofdgpsdata() {
         return ageofdgpsdata;
     }
 
     /**
-     * Legt den Wert der ageofdgpsdata-Eigenschaft fest.
+     * Sets the value of the ageofdgpsdata property.
      *
-     * @param value allowed object is
-     *              {@link BigDecimal }
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
      */
     public void setAgeofdgpsdata(BigDecimal value) {
         this.ageofdgpsdata = value;
     }
 
     /**
-     * Ruft den Wert der dgpsid-Eigenschaft ab.
+     * Gets the value of the dgpsid property.
      *
-     * @return possible object is
-     * {@link Integer }
+     * @return
+     *     possible object is
+     *     {@link Integer }
+     *     
      */
     public Integer getDgpsid() {
         return dgpsid;
     }
 
     /**
-     * Legt den Wert der dgpsid-Eigenschaft fest.
+     * Sets the value of the dgpsid property.
      *
-     * @param value allowed object is
-     *              {@link Integer }
+     * @param value
+     *     allowed object is
+     *     {@link Integer }
+     *     
      */
     public void setDgpsid(Integer value) {
         this.dgpsid = value;
     }
 
     /**
-     * Ruft den Wert der extensions-Eigenschaft ab.
+     * Gets the value of the extensions property.
      *
-     * @return possible object is
-     * {@link WptTypeExtensions }
+     * @return
+     *     possible object is
+     *     {@link WptTypeExtensions }
+     *     
      */
     public WptTypeExtensions getExtensions() {
         return extensions;
     }
 
     /**
-     * Legt den Wert der extensions-Eigenschaft fest.
+     * Sets the value of the extensions property.
      *
-     * @param value allowed object is
-     *              {@link WptTypeExtensions }
+     * @param value
+     *     allowed object is
+     *     {@link WptTypeExtensions }
+     *     
      */
     public void setExtensions(WptTypeExtensions value) {
         this.extensions = value;
     }
 
     /**
-     * Ruft den Wert der lat-Eigenschaft ab.
+     * Gets the value of the lat property.
      *
-     * @return possible object is
-     * {@link BigDecimal }
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getLat() {
         return lat;
     }
 
     /**
-     * Legt den Wert der lat-Eigenschaft fest.
+     * Sets the value of the lat property.
      *
-     * @param value allowed object is
-     *              {@link BigDecimal }
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
      */
     public void setLat(BigDecimal value) {
         this.lat = value;
     }
 
     /**
-     * Ruft den Wert der lon-Eigenschaft ab.
+     * Gets the value of the lon property.
      *
-     * @return possible object is
-     * {@link BigDecimal }
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getLon() {
         return lon;
     }
 
     /**
-     * Legt den Wert der lon-Eigenschaft fest.
+     * Sets the value of the lon property.
      *
-     * @param value allowed object is
-     *              {@link BigDecimal }
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
      */
     public void setLon(BigDecimal value) {
         this.lon = value;

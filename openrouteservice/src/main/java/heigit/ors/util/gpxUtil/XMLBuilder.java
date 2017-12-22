@@ -26,7 +26,8 @@ class XMLBuilder {
      * @return Returns the GPX as a well formatted XML
      * @throws JAXBException
      */
-    String Build(Gpx gpx) throws JAXBException {
+
+    public String Build(Gpx gpx) throws JAXBException {
         JAXBContext context = JAXBContext.newInstance(Gpx.class);
         Marshaller m = context.createMarshaller();
         m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);

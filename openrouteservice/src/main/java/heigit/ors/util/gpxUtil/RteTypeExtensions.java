@@ -1,14 +1,12 @@
 package heigit.ors.util.gpxUtil;
 
-import heigit.ors.util.gpxUtil.ExtensionsType;
-import heigit.ors.util.gpxUtil.RteType;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * {@link heigit.ors.util.gpxUtil.RteTypeExtensions} represents a class that extends {@link RteType}
+ * {@link RteTypeExtensions} represents a class that extends {@link RteType}
  * Can be manually extended
  */
 @XmlAccessorType(XmlAccessType.FIELD)

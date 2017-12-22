@@ -1,18 +1,4 @@
-//
-// Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
-// Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
-// �nderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2017.11.29 um 04:11:24 PM CET 
-//
-
-
 package heigit.ors.util.gpxUtil;
-
-import heigit.ors.util.gpxUtil.GpxExtensions;
-import heigit.ors.util.gpxUtil.MetadataType;
-import heigit.ors.util.gpxUtil.RteType;
-import heigit.ors.util.gpxUtil.TrkType;
-import heigit.ors.util.gpxUtil.WptType;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.*;
@@ -21,16 +7,17 @@ import java.util.List;
 
 
 /**
- * GPX documents contain a metadata header, followed by waypoints, routes, and tracks.  You can add your own elements
- * to the extensions section of the GPX document.
- * <p>
- * <p>
- * <p>Java-Klasse f�r gpx complex type.
- * <p>
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
- * <p>
+ *
+ * 		GPX documents contain a metadata header, followed by waypoints, routes, and tracks.  You can add your own elements
+ * 		to the extensions section of the GPX document.
+ *
+ *
+ * <p>Java class for gpxType complex type.
+ *
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
  * <pre>
- * &lt;complexType name="gpx">
+ * &lt;complexType name="gpxType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
@@ -49,7 +36,7 @@ import java.util.List;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "com/openrouteservice/orsgpx", propOrder = {
+@XmlType(name = "gpxType", propOrder = {
         "metadata",
         "wpt",
         "rte",
@@ -57,7 +44,6 @@ import java.util.List;
         "extensions"
 })
 public class Gpx {
-
 
     protected MetadataType metadata;
     protected List<WptType> wpt;
@@ -70,23 +56,25 @@ public class Gpx {
     @XmlAttribute(name = "creator", required = true)
     protected String creator;
 
-
-
     /**
-     * Ruft den Wert der metadata-Eigenschaft ab.
+     * Gets the value of the metadata property.
      *
-     * @return possible object is
-     * {@link MetadataType }
+     * @return
+     *     possible object is
+     *     {@link MetadataType }
+     *     
      */
     public MetadataType getMetadata() {
         return metadata;
     }
 
     /**
-     * Legt den Wert der metadata-Eigenschaft fest.
+     * Sets the value of the metadata property.
      *
-     * @param value allowed object is
-     *              {@link MetadataType }
+     * @param value
+     *     allowed object is
+     *     {@link MetadataType }
+     *     
      */
     public void setMetadata(MetadataType value) {
         this.metadata = value;
@@ -94,23 +82,25 @@ public class Gpx {
 
     /**
      * Gets the value of the wpt property.
-     * <p>
+     * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the wpt property.
-     * <p>
+     * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getWpt().add(newItem);
      * </pre>
-     * <p>
-     * <p>
+     *
+     * 
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link WptType }
+     *
+     * 
      */
     public List<WptType> getWpt() {
         if (wpt == null) {
@@ -121,23 +111,25 @@ public class Gpx {
 
     /**
      * Gets the value of the rte property.
-     * <p>
+     * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the rte property.
-     * <p>
+     * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getRte().add(newItem);
      * </pre>
-     * <p>
-     * <p>
+     *
+     * 
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link RteType }
+     *
+     * 
      */
     public List<RteType> getRte() {
         if (rte == null) {
@@ -148,23 +140,25 @@ public class Gpx {
 
     /**
      * Gets the value of the trk property.
-     * <p>
+     * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the trk property.
-     * <p>
+     * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getTrk().add(newItem);
      * </pre>
-     * <p>
-     * <p>
+     *
+     * 
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link TrkType }
+     *
+     * 
      */
     public List<TrkType> getTrk() {
         if (trk == null) {
@@ -174,30 +168,36 @@ public class Gpx {
     }
 
     /**
-     * Ruft den Wert der extensions-Eigenschaft ab.
+     * Gets the value of the extensions property.
      *
-     * @return possible object is
-     * {@link GpxExtensions }
+     * @return
+     *     possible object is
+     *     {@link GpxExtensions }
+     *     
      */
     public GpxExtensions getExtensions() {
         return extensions;
     }
 
     /**
-     * Legt den Wert der extensions-Eigenschaft fest.
+     * Sets the value of the extensions property.
      *
-     * @param value allowed object is
-     *              {@link GpxExtensions }
+     * @param value
+     *     allowed object is
+     *     {@link MetadataTypeExtensions }
+     *     
      */
     public void setExtensions(GpxExtensions value) {
         this.extensions = value;
     }
 
     /**
-     * Ruft den Wert der version-Eigenschaft ab.
+     * Gets the value of the version property.
      *
-     * @return possible object is
-     * {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getVersion() {
         if (version == null) {
@@ -208,31 +208,37 @@ public class Gpx {
     }
 
     /**
-     * Legt den Wert der version-Eigenschaft fest.
+     * Sets the value of the version property.
      *
-     * @param value allowed object is
-     *              {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    private String setVersion(String value) {
+    public String setVersion(String value) {
         this.version = value;
         return value;
     }
 
     /**
-     * Ruft den Wert der creator-Eigenschaft ab.
+     * Gets the value of the creator property.
      *
-     * @return possible object is
-     * {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getCreator() {
         return creator;
     }
 
     /**
-     * Legt den Wert der creator-Eigenschaft fest.
+     * Sets the value of the creator property.
      *
-     * @param value allowed object is
-     *              {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setCreator(String value) {
         this.creator = value;
