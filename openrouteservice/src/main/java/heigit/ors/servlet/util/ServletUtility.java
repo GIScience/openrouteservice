@@ -20,19 +20,16 @@
  */
 package heigit.ors.servlet.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import io.jenetics.jpx.GPX;
-import org.json.JSONObject;
-
 import heigit.ors.common.StatusCode;
 import heigit.ors.util.StreamUtility;
 import heigit.ors.util.StringUtility;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
  
 public class ServletUtility
 {
@@ -69,7 +66,6 @@ public class ServletUtility
 	  write(response, json, "UTF-8", statusCode);
 	}
 
-	// TODO: julian
 	public static void write(HttpServletResponse response, JSONObject json, String encoding, int statusCode) throws IOException
 	{
 		byte[] bytes = json.toString().getBytes(encoding);

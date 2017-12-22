@@ -20,23 +20,20 @@
  */
 package heigit.ors.services.routing.requestprocessors;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import heigit.ors.exceptions.EmptyElementException;
-import heigit.ors.routing.RoutingErrorCodes;
-
-import heigit.ors.services.routing.requestprocessors.gpx.GpxRoutingResponseWriter;
-import heigit.ors.services.routing.requestprocessors.json.JsonRoutingResponseWriter;
-import org.json.JSONObject;
-
 import com.graphhopper.util.Helper;
-
+import heigit.ors.exceptions.EmptyElementException;
 import heigit.ors.routing.RouteResult;
+import heigit.ors.routing.RoutingErrorCodes;
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.routing.RoutingRequest;
+import heigit.ors.services.routing.requestprocessors.gpx.GpxRoutingResponseWriter;
+import heigit.ors.services.routing.requestprocessors.json.JsonRoutingResponseWriter;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
 
@@ -77,7 +74,6 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
                 throw new EmptyElementException(RoutingErrorCodes.EMPTY_ELEMENT, "GPX was empty and therefore could not be created.");
             }
         }
-        // TODO: Decide how to handle two different write servlets. E.g. integrate them seperately in the if loop above.
 
     }
 }

@@ -118,7 +118,6 @@ public class GpxRoutingResponseWriter {
         metadata.setBounds(bounds);
         PersonType orsPerson = new PersonType();
         EmailType orsMail = new EmailType();
-        //TODO in appconfig integrieren
         String[] mail = AppConfig.Global().getParameter("info", "support_mail").split("@");
         orsMail.setDomain("@" + mail[1]);
         orsMail.setId(mail[0]);

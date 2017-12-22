@@ -20,33 +20,22 @@
  */
 package heigit.ors.services.mapmatching.requestprocessors.json;
 
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Coordinate;
-
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.geojson.GeometryJSON;
-import heigit.ors.routing.ExtraSummaryItem;
-import heigit.ors.routing.RouteExtraInfo;
-import heigit.ors.routing.RouteResult;
-import heigit.ors.routing.RouteSegment;
-import heigit.ors.routing.RouteSegmentItem;
-import heigit.ors.routing.RouteStep;
-import heigit.ors.routing.RouteSummary;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.RoutingRequest;
-import heigit.ors.routing.WeightingMethod;
+import heigit.ors.routing.*;
 import heigit.ors.services.mapmatching.MapMatchingServiceSettings;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.PolylineEncoder;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.List;
 
 public class JsonMapMatchingResponseWriter {
 
@@ -111,10 +100,8 @@ public class JsonMapMatchingResponseWriter {
 
 		return jResp;
 	}
-	
-	public static JSONObject toGeoJson(RoutingRequest request, RouteResult[] routeResult) throws Exception
-	{
-		// TODO: julian
+
+    public static JSONObject toGeoJson(RoutingRequest request, RouteResult[] routeResult) {
 		return null;
 	}
 

@@ -20,8 +20,7 @@
  */
 package heigit.ors.services.routing.requestprocessors;
 
-import javax.servlet.http.HttpServletRequest;
-
+import com.graphhopper.util.Helper;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
@@ -30,10 +29,9 @@ import heigit.ors.routing.RoutingProfileManagerStatus;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 
-import com.graphhopper.util.Helper;
+import javax.servlet.http.HttpServletRequest;
 
 public class RoutingServiceRequestProcessorFactory {
-	// TODO: julian
 	public static AbstractHttpRequestProcessor createProcessor(HttpServletRequest request) throws Exception  
 	{
 		if (!RoutingServiceSettings.getEnabled())
