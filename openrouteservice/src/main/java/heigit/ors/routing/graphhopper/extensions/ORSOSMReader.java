@@ -53,8 +53,7 @@ public class ORSOSMReader extends OSMReader {
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
 			"primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential" };
 
-	public static final String[] HGV_VALUES = new String[] { "maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload" };
-	public static final Set<String> hgv_tags = new HashSet<>(Arrays.asList(HGV_VALUES));
+
 
 	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx, HashMap<Integer, Long> tmcEdges,  HashMap<Long, ArrayList<Integer>> osmId2EdgeIds, RoutingProfile refProfile) {
 		super(storage);
@@ -111,8 +110,7 @@ public class ORSOSMReader extends OSMReader {
 						Map.Entry<String, Object> pairs = it.next();
 						String key = pairs.getKey();
 						String value = pairs.getValue().toString();
-						System.out.println(key);
-						if(hgv_tags.contains(key)) way.setTag(key, value);
+						way.setTag(key, value);
 					}
 				}
 			}
