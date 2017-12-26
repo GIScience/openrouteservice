@@ -1,5 +1,5 @@
 pipeline {
-  agent  label:'openrouteservice'
+  agent any
   
   when {
     branch 'development'
