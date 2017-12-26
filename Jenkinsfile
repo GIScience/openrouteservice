@@ -1,16 +1,12 @@
 pipeline {
   agent any
-  
-  
-     
+    
   environment {
     GIT_COMMITTER_NAME = "jenkins"
     GIT_COMMITTER_EMAIL = "support@openrouteservice.org"
     mvnHome = tool 'mvn-3.5'
   }
-     
-  //def mvnHome
-     
+        
   stages {
     stage("Preparation") {
       when {
@@ -19,19 +15,22 @@ pipeline {
       steps {
         deleteDir()
         git branch: 'development', url: 'https://github.com/GIScience/openrouteservice.git'
-       // mvnHome = tool 'mvn-3.5'
-        //sh 'mvn clean install -Dmaven.test.failure.ignore=true'
       }
     }
     stage("Build") {
+      when {
+        branch 'development'
+      }
       steps {
         sh "cp ${WORKSPACE}/openrouteservice-api-tests/conf/app.config.test ${WORKSPACE}/openrouteservice/WebContent/WEB-INF/app.config"
         sh "'${mvnHome}/bin/mvn' -f ${WORKSPACE}/openrouteservice/pom.xml install -B"
         archiveArtifacts artifacts: '**/*.war', fingerprint: true
-        //sh 'mvn clean install -Dmaven.test.failure.ignore=true'
       }
     }
     stage("Test") {
+      when {
+        branch 'development'
+      }
       steps {
         sh "nohup '${mvnHome}/bin/mvn' -f ${WORKSPACE}/openrouteservice/pom.xml tomcat7:run &"
         sh "sleep 5m"
