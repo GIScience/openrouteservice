@@ -1,19 +1,21 @@
 pipeline {
   agent any
   
-  when {
-    branch 'development'
-  }
+  
      
   environment {
     GIT_COMMITTER_NAME = "jenkins"
     GIT_COMMITTER_EMAIL = "support@openrouteservice.org"
+    mvnHome = tool 'mvn-3.5'
   }
      
-  def mvnHome
+  //def mvnHome
      
   stages {
     stage("Preparation") {
+      when {
+        branch 'development'
+      }
       steps {
         deleteDir()
         git branch: 'development', url: 'https://github.com/GIScience/openrouteservice.git'
