@@ -3,10 +3,6 @@ node {
    def mvnHome
    stage('Preparation') { // for display purposes
       
-      when {
-         branch 'development'
-      }
-      
       rocketSend channel: 'ors-jenkins', message: 'Preparing build...', rawMessage: true
         
       deleteDir()
