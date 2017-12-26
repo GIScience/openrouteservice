@@ -19,7 +19,7 @@ pipeline {
       steps {
         deleteDir()
         git branch: 'development', url: 'https://github.com/GIScience/openrouteservice.git'
-        mvnHome = tool 'mvn-3.5'
+       // mvnHome = tool 'mvn-3.5'
         //sh 'mvn clean install -Dmaven.test.failure.ignore=true'
       }
     }
