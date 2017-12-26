@@ -1,11 +1,11 @@
 node {
-   
-   when {
-      branch 'development'
-   }
-   
+     
    def mvnHome
    stage('Preparation') { // for display purposes
+      
+      when {
+         branch 'development'
+      }
       
       rocketSend channel: 'ors-jenkins', message: 'Preparing build...', rawMessage: true
         
@@ -18,7 +18,11 @@ node {
     }
     
    stage('build-ors') {
-        
+      
+      when {
+         branch 'development'
+      }
+      
       rocketSend channel: 'ors-jenkins', message: 'Starting to build ORS development...', rawMessage: true 
 
       sh "cp ${WORKSPACE}/openrouteservice-api-tests/conf/app.config.test ${WORKSPACE}/openrouteservice/WebContent/WEB-INF/app.config"
@@ -30,6 +34,10 @@ node {
    }
     
    stage('test-ors') {
+      
+      when {
+         branch 'development'
+      }
         
       rocketSend channel: 'ors-jenkins', message: 'Starting to test ORS...', rawMessage: true 
 
@@ -42,6 +50,10 @@ node {
     }
     
     stage('Clean') {
+       
+      when {
+         branch 'development'
+      }
        
       rocketSend channel: 'ors-jenkins', message: 'Cleaning directory...', rawMessage: true
       deleteDir()
