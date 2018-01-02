@@ -20,6 +20,7 @@
  */
 package heigit.ors.services.routing.requestprocessors.json;
 
+
 import java.util.List;
 import java.io.File;
 import java.io.FileFilter;
@@ -29,7 +30,6 @@ import org.json.JSONObject;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Coordinate;
-
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.ExtraSummaryItem;
@@ -49,6 +49,7 @@ import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.PolylineEncoder;
 import heigit.ors.util.FileUtility;
+
 
 public class JsonRoutingResponseWriter {
 
@@ -123,9 +124,9 @@ public class JsonRoutingResponseWriter {
 		return jResp;
 	}
 
+
 	public static JSONObject toGeoJson(RoutingRequest request, RouteResult[] routeResult) throws Exception
 	{
-		// TODO
 		return null;
 	}
 
@@ -244,7 +245,7 @@ public class JsonRoutingResponseWriter {
 									jStep.put("maneuver", jManeuver);
 								}
 							}
-							
+
 							if (request.getIncludeRoundaboutExits() && step.getRoundaboutExitBearings() != null)
 							{
 								jStep.put("exit_bearings", new JSONArray(step.getRoundaboutExitBearings()));
@@ -284,18 +285,18 @@ public class JsonRoutingResponseWriter {
 						{
 							JSONObject jExtraItem = new JSONObject(true);
 
-							// ---------- values ---------- 
+							// ---------- values ----------
 							int nExtraValues = extraInfo.getSegments().size();
 							JSONArray jExtraItemValues = new JSONArray(nExtraValues);
 
 							for (int k = 0; k < nExtraValues; ++k)
 							{
-								RouteSegmentItem segExtra = extraInfo.getSegments().get(k); 
+								RouteSegmentItem segExtra = extraInfo.getSegments().get(k);
 
 								JSONArray jExtraItemValue = new JSONArray(3);
 								jExtraItemValue.put(segExtra.getFrom());
 								jExtraItemValue.put(segExtra.getTo());
-								
+
 								if (extraInfo.getFactor() == 1.0)
 									jExtraItemValue.put(segExtra.getValue());
 								else
@@ -306,7 +307,7 @@ public class JsonRoutingResponseWriter {
 
 							jExtraItem.put("values", jExtraItemValues);
 
-							// ---------- summary ---------- 
+							// ---------- summary ----------
 
 							List<ExtraSummaryItem> summaryItems = extraInfo.getSummary(request.getUnits(), rSummary.getDistance(), true);
 
@@ -359,7 +360,7 @@ public class JsonRoutingResponseWriter {
 		}
 
 		return jRoutes;
-	}  
+	}
 
 	private static Object getGeometry(Coordinate[] points, boolean includeElevation, String format, StringBuffer buffer)
 	{
@@ -392,4 +393,6 @@ public class JsonRoutingResponseWriter {
 
 		return "";
 	}
+
+
 }

@@ -18,15 +18,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.services.routing.requestprocessors.json;
-
-import java.text.ParseException;
-
-import javax.servlet.http.HttpServletRequest;
+package heigit.ors.services.routing.requestprocessors;
 
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
-
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.MissingParameterException;
@@ -46,7 +41,10 @@ import heigit.ors.util.ArraysUtility;
 import heigit.ors.util.CoordTools;
 import heigit.ors.util.DistanceUnitUtil;
 
-public class JsonRoutingRequestParser 
+import javax.servlet.http.HttpServletRequest;
+import java.text.ParseException;
+
+public class RoutingRequestParser
 {
 	public static RoutingRequest parseFromRequestParams(HttpServletRequest request) throws Exception
 	{
@@ -82,7 +80,7 @@ public class JsonRoutingRequestParser
 
 			try
 			{
-				coords = CoordTools.parse(value, "\\|", true, false);		
+				coords = CoordTools.parse(value, "\\|", true, false);
 			}
 			catch(NumberFormatException ex)
 			{
@@ -119,7 +117,7 @@ public class JsonRoutingRequestParser
 							bearings[i] = new WayPointBearing(Double.parseDouble(bd[0]), Double.NaN);
 					}
 					else {
-						if (Helper.isEmpty(value)) 
+						if (Helper.isEmpty(value))
 							bearings[i] = new WayPointBearing(Double.NaN, Double.NaN);
 						else 
 							bearings[i] = new WayPointBearing(Double.parseDouble(value), 0.0);
