@@ -18,6 +18,7 @@ import java.util.List;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
+ * {@code
  * <complexType name="trksegType">
  *   <complexContent>
  *     <restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
@@ -28,6 +29,7 @@ import java.util.List;
  *     </restriction>
  *   </complexContent>
  * </complexType>
+ * }
  * </pre>
  * 
  * 
