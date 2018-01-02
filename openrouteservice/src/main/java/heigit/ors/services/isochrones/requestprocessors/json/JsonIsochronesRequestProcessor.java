@@ -22,6 +22,8 @@ package heigit.ors.services.isochrones.requestprocessors.json;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.File;
+import java.io.FileFilter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -60,6 +62,8 @@ import heigit.ors.servlet.util.ServletUtility;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.StringUtility;
+import heigit.ors.util.FileUtility;
+
 
 public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor 
 {
@@ -280,6 +284,15 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 		if (!Helper.isEmpty(sourceAttribution))
 			jInfo.put("attribution", sourceAttribution);
 		jInfo.put("timestamp", System.currentTimeMillis());
+
+		File graphsDir = new File("graphs");
+		File[] md5Files = graphsDir.listFiles(new FileFilter() {
+			public boolean accept(File pathname) {
+				return pathname.getName().endsWith(".md5");
+			}
+		});
+		if (md5Files.length == 1)
+			jInfo.put("osm_file_md5_hash", FileUtility.readFile(md5Files[0].toString()).trim());
 
 		JSONObject jQuery = new JSONObject();
 

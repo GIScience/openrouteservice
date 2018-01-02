@@ -22,6 +22,8 @@ package heigit.ors.services.matrix.requestprocessors.json;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileFilter;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -45,6 +47,7 @@ import heigit.ors.servlet.util.ServletUtility;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
+import heigit.ors.util.FileUtility;
 
 public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor 
 {
@@ -102,7 +105,16 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor
 		if (!Helper.isEmpty(MatrixServiceSettings.getAttribution()))
 			jInfo.put("attribution", MatrixServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());
-		
+
+		File graphsDir = new File("graphs");
+		File[] md5Files = graphsDir.listFiles(new FileFilter() {
+			public boolean accept(File pathname) {
+				return pathname.getName().endsWith(".md5");
+			}
+		});
+		if (md5Files.length == 1)
+			jInfo.put("osm_file_md5_hash", FileUtility.readFile(md5Files[0].toString()).trim());
+
 		JSONObject jQuery = new JSONObject();
 
 		jQuery.put("profile", RoutingProfileType.getName(request.getProfileType()));

@@ -21,7 +21,8 @@
 package heigit.ors.services.routing.requestprocessors.json;
 
 import java.util.List;
-
+import java.io.File;
+import java.io.FileFilter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -47,6 +48,7 @@ import heigit.ors.util.AppInfo;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.PolylineEncoder;
+import heigit.ors.util.FileUtility;
 
 public class JsonRoutingResponseWriter {
 
@@ -71,6 +73,15 @@ public class JsonRoutingResponseWriter {
 		if (!Helper.isEmpty(RoutingServiceSettings.getAttribution()))
 			jInfo.put("attribution", RoutingServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());
+
+		File graphsDir = new File("graphs");
+		File[] md5Files = graphsDir.listFiles(new FileFilter() {
+			public boolean accept(File pathname) {
+				return pathname.getName().endsWith(".md5");
+			}
+		});
+		if (md5Files.length == 1)
+			jInfo.put("osm_file_md5_hash", FileUtility.readFile(md5Files[0].toString()).trim());
 
 		JSONObject jQuery = new JSONObject(true);
 
