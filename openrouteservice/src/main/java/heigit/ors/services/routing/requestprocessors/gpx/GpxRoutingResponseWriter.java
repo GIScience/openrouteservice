@@ -5,11 +5,27 @@ import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import heigit.ors.config.AppConfig;
-import heigit.ors.routing.*;
+import heigit.ors.routing.RouteResult;
+import heigit.ors.routing.RouteSegment;
+import heigit.ors.routing.RouteStep;
+import heigit.ors.routing.RoutingProfileType;
+import heigit.ors.routing.RoutingRequest;
+import heigit.ors.routing.WeightingMethod;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.GeomUtility;
-import heigit.ors.util.gpxUtil.*;
+import heigit.ors.util.gpxUtil.BoundsType;
+import heigit.ors.util.gpxUtil.CopyrightType;
+import heigit.ors.util.gpxUtil.EmailType;
+import heigit.ors.util.gpxUtil.Gpx;
+import heigit.ors.util.gpxUtil.GpxExtensions;
+import heigit.ors.util.gpxUtil.LinkType;
+import heigit.ors.util.gpxUtil.MetadataType;
+import heigit.ors.util.gpxUtil.PersonType;
+import heigit.ors.util.gpxUtil.RteType;
+import heigit.ors.util.gpxUtil.RteTypeExtensions;
+import heigit.ors.util.gpxUtil.WptType;
+import heigit.ors.util.gpxUtil.WptTypeExtensions;
 
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -22,7 +38,7 @@ import java.util.GregorianCalendar;
  */
 public class GpxRoutingResponseWriter {
     /**
-     * @param rreq The {@link RoutingRequest} object holds route specific information like language...
+     * @param rreq         The {@link RoutingRequest} object holds route specific information like language...
      * @param routeResults The function needs a {@link RouteResult} as input.
      * @return It returns a XML {@link String} representation of the generated GPX
      * @throws Exception The class throws Exception cases

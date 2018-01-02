@@ -18,16 +18,16 @@ import java.math.BigDecimal;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="boundsType">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="minlat" use="required" type="{http://www.topografix.com/GPX/1/1}latitudeType" />
- *       &lt;attribute name="minlon" use="required" type="{http://www.topografix.com/GPX/1/1}longitudeType" />
- *       &lt;attribute name="maxlat" use="required" type="{http://www.topografix.com/GPX/1/1}latitudeType" />
- *       &lt;attribute name="maxlon" use="required" type="{http://www.topografix.com/GPX/1/1}longitudeType" />
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
+ * <complexType name="boundsType">
+ *   <complexContent>
+ *     <restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       <attribute name="minlat" use="required" type="{http://www.topografix.com/GPX/1/1}latitudeType" />
+ *       <attribute name="minlon" use="required" type="{http://www.topografix.com/GPX/1/1}longitudeType" />
+ *       <attribute name="maxlat" use="required" type="{http://www.topografix.com/GPX/1/1}latitudeType" />
+ *       <attribute name="maxlon" use="required" type="{http://www.topografix.com/GPX/1/1}longitudeType" />
+ *     </restriction>
+ *   </complexContent>
+ * </complexType>
  * </pre>
  * 
  * 
