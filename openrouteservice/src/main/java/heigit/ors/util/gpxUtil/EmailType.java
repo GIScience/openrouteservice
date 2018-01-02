@@ -17,14 +17,14 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * <complexType name="emailType">
- *   <complexContent>
- *     <restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       <attribute name="id" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       <attribute name="domain" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *     </restriction>
- *   </complexContent>
- * </complexType>
+ * &lt;complexType name="emailType">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;attribute name="id" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="domain" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
  * </pre>
  * 
  * 
