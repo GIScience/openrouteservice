@@ -34,6 +34,8 @@ import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
 
+import org.apache.log4j.Logger;
+
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.util.StringUtility;
 import heigit.ors.util.FileUtility;
@@ -43,7 +45,8 @@ public class AppConfig {
 	private Config _config;
 	private static AppConfig _global;
 	private static String osm_md5_hash = null;
-	
+	private static final Logger LOGGER = Logger.getLogger(AppConfig.class.getName());
+
 	public AppConfig(String path)
 	{
 		File file = new File(path);
@@ -68,7 +71,7 @@ public class AppConfig {
 				osm_md5_hash = FileUtility.readFile(md5Files[0].toString()).trim();
 			}
 			catch (IOException e)
-			{}
+			{LOGGER.error(e);}
 		}
 	}
 	
