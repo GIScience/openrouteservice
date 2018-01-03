@@ -66,7 +66,7 @@ public class AppConfig {
 				return pathname.getName().endsWith(".md5");
 			}
 		});
-		if (md5Files.length == 1){
+		if (md5Files != null && md5Files.length == 1){
 			try{
 				osm_md5_hash = FileUtility.readFile(md5Files[0].toString()).trim();
 			}
