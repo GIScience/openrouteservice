@@ -18,15 +18,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing;
+package heigit.ors.exceptions;
 
-public class RoutingErrorCodes 
+import heigit.ors.common.StatusCode;
+
+public class EmptyElementException extends StatusCodeException
 {
-	public static int INVALID_JSON_FORMAT = 200;
-	public static int MISSING_PARAMETER = 201;
-	public static int INVALID_PARAMETER_FORMAT = 202;
-	public static int INVALID_PARAMETER_VALUE = 203;
-	public static int REQUEST_EXCEEDS_SERVER_LIMIT = 204;
-	public static int EMPTY_ELEMENT = 205;
-	public static int UNKNOWN = 299;
+	private static final long serialVersionUID = -2004840251219099113L; // Whats the purpose?
+
+	public EmptyElementException(int errorCode, String message)
+	{
+		super(StatusCode.INTERNAL_SERVER_ERROR, errorCode, message);
+	}
 }

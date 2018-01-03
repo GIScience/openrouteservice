@@ -1,9 +1,16 @@
 {
 	ors {
-	        # The topmost element for parameterization of the ORS end-points such as Routing, Geocoding, Isochrones, etc.
+	        # The topmost element to provide basic information about the service for signing and information purposes
+	    info: {
+            base_url: "https://go.openrouteservice.org/",
+            support_mail: "support@openrouteservice.org",
+            author_tag: "openrouteservice",
+            content_licence: "Apache License 2.0"
+	    }
+	        # The element for parameterization of the ORS end-points such as Routing, Geocoding, Isochrones, etc.
 		services: {
-		        # ********************************************************************************************************************
-            		# An end-point used to shorten links. 
+		    # ********************************************************************************************************************
+            #		# An end-point used to shorten links.
 			# ********************************************************************************************************************
 			shortenlink: {
 			        # Enables or disables (true/false) the end-point. Default value is true.
@@ -158,6 +165,9 @@
 				# Enables or disables (true/false) the end-point. Default value is true.
 				enabled: true,
 				mode: "normal",
+				# routing_description and routing_name provide basic information to sign and name routing exports
+				routing_description: "This is a routing file from openrouteservice",
+				routing_name: "openrouteservice routing",
 				# The path to an OpenStreetMap data file.
 				sources: ["openrouteservice/src/main/files/heidelberg.osm.gz"],
 				# The number of threads used to initialize (build/load) graphs. Higher numbers requires more RAM.
