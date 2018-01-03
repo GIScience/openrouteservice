@@ -23,9 +23,6 @@ package heigit.ors.services.accessibility.requestprocessors.json;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,6 +41,7 @@ import heigit.ors.accessibility.AccessibilityRequest;
 import heigit.ors.accessibility.AccessibilityResult;
 import heigit.ors.common.StatusCode;
 import heigit.ors.common.TravellerInfo;
+import heigit.ors.config.AppConfig;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.geojson.GeometryJSON;
@@ -58,7 +56,6 @@ import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.GeomUtility;
-import heigit.ors.util.FileUtility;
 
 
 public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProcessor {
@@ -275,18 +272,8 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
             jInfo.put("attribution", LocationsServiceSettings.getAttribution());
         jInfo.put("timestamp", System.currentTimeMillis());
 
-        File graphsDir = new File("graphs");
-        File[] md5Files = graphsDir.listFiles(new FileFilter() {
-            public boolean accept(File pathname) {
-                return pathname.getName().endsWith(".md5");
-            }
-        });
-        if (md5Files.length == 1) {
-            try {
-                jInfo.put("osm_file_md5_hash", FileUtility.readFile(md5Files[0].toString()).trim());
-            } catch (IOException e) {
-            }
-        }
+        if (AppConfig.hasValidMD5Hash())
+            jInfo.put("osm_file_md5_hash", AppConfig.getMD5Hash());
 
         if (request != null) {
             JSONObject jQuery = new JSONObject(true);

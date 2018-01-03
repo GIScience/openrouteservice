@@ -22,8 +22,6 @@ package heigit.ors.services.isochrones.requestprocessors.json;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.io.File;
-import java.io.FileFilter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,6 +38,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import heigit.ors.common.AttributeValue;
 import heigit.ors.common.Pair;
 import heigit.ors.common.StatusCode;
+import heigit.ors.config.AppConfig;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.geojson.GeometryJSON;
@@ -62,8 +61,6 @@ import heigit.ors.servlet.util.ServletUtility;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.StringUtility;
-import heigit.ors.util.FileUtility;
-
 
 public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor 
 {
@@ -285,14 +282,8 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 			jInfo.put("attribution", sourceAttribution);
 		jInfo.put("timestamp", System.currentTimeMillis());
 
-		File graphsDir = new File("graphs");
-		File[] md5Files = graphsDir.listFiles(new FileFilter() {
-			public boolean accept(File pathname) {
-				return pathname.getName().endsWith(".md5");
-			}
-		});
-		if (md5Files.length == 1)
-			jInfo.put("osm_file_md5_hash", FileUtility.readFile(md5Files[0].toString()).trim());
+		if (AppConfig.hasValidMD5Hash())
+			jInfo.put("osm_file_md5_hash", AppConfig.getMD5Hash());
 
 		JSONObject jQuery = new JSONObject();
 

@@ -22,8 +22,6 @@ package heigit.ors.services.geocoding.requestprocessors.json;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileFilter;
 
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -34,6 +32,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
 import heigit.ors.geojson.GeometryJSON;
+import heigit.ors.config.AppConfig;
 import heigit.ors.services.geocoding.GeocodingServiceSettings;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.InternalServerException;
@@ -53,7 +52,6 @@ import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.AppInfo;
-import heigit.ors.util.FileUtility;
 
 
 public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor {
@@ -377,14 +375,8 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 			info.put("attribution", GeocodingServiceSettings.getAttribution());
 		info.put("timestamp", System.currentTimeMillis());
 
-		File graphsDir = new File("graphs");
-		File[] md5Files = graphsDir.listFiles(new FileFilter() {
-			public boolean accept(File pathname) {
-				return pathname.getName().endsWith(".md5");
-			}
-		});
-		if (md5Files.length == 1)
-			info.put("osm_file_md5_hash", FileUtility.readFile(md5Files[0].toString()).trim());
+		if (AppConfig.hasValidMD5Hash())
+			info.put("osm_file_md5_hash", AppConfig.getMD5Hash());
 
 		JSONObject query = new JSONObject();
 		if (request.getQueryAddress() != null)

@@ -22,8 +22,6 @@ package heigit.ors.services.optimization.requestprocessors.json;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileFilter;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -32,6 +30,7 @@ import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.BBox;
 
 import heigit.ors.common.StatusCode;
+import heigit.ors.config.AppConfig;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.geojson.GeometryJSON;
@@ -125,15 +124,8 @@ public class JsonOptimizationRequestProcessor extends AbstractHttpRequestProcess
 			jInfo.put("attribution", OptimizationServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());
 
-		File graphsDir = new File("graphs");
-		File[] md5Files = graphsDir.listFiles(new FileFilter() {
-			public boolean accept(File pathname) {
-				return pathname.getName().endsWith(".md5");
-			}
-		});
-		if (md5Files.length == 1)
-			jInfo.put("osm_file_md5_hash", FileUtility.readFile(md5Files[0].toString()).trim());
-
+		if (AppConfig.hasValidMD5Hash())
+			jInfo.put("osm_file_md5_hash", AppConfig.getMD5Hash());
 
 		jInfo.put("query", jQuery);
 		jResp.put("info", jInfo);
