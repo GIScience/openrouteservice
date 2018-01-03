@@ -20,10 +20,16 @@
  */
 package heigit.ors.services.routing.requestprocessors.json;
 
+
+import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.common.DistanceUnit;
+import heigit.ors.config.AppConfig;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.ExtraSummaryItem;
 import heigit.ors.routing.RouteExtraInfo;
@@ -41,10 +47,7 @@ import heigit.ors.util.AppInfo;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.PolylineEncoder;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
-import java.util.List;
 
 public class JsonRoutingResponseWriter {
 
@@ -69,6 +72,9 @@ public class JsonRoutingResponseWriter {
 		if (!Helper.isEmpty(RoutingServiceSettings.getAttribution()))
 			jInfo.put("attribution", RoutingServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());
+
+		if (AppConfig.hasValidMD5Hash())
+			jInfo.put("osm_file_md5_hash", AppConfig.getMD5Hash());
 
 		JSONObject jQuery = new JSONObject(true);
 

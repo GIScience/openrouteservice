@@ -30,6 +30,7 @@ import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import heigit.ors.common.StatusCode;
+import heigit.ors.config.AppConfig;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.matrix.MatrixRequest;
@@ -102,7 +103,10 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor
 		if (!Helper.isEmpty(MatrixServiceSettings.getAttribution()))
 			jInfo.put("attribution", MatrixServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());
-		
+
+		if (AppConfig.hasValidMD5Hash())
+			jInfo.put("osm_file_md5_hash", AppConfig.getMD5Hash());
+
 		JSONObject jQuery = new JSONObject();
 
 		jQuery.put("profile", RoutingProfileType.getName(request.getProfileType()));

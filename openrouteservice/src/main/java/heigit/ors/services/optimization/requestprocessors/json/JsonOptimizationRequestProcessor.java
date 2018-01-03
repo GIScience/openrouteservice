@@ -30,6 +30,7 @@ import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.BBox;
 
 import heigit.ors.common.StatusCode;
+import heigit.ors.config.AppConfig;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.geojson.GeometryJSON;
@@ -46,6 +47,8 @@ import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.DistanceUnitUtil;
+import heigit.ors.util.FileUtility;
+
 
 public class JsonOptimizationRequestProcessor extends AbstractHttpRequestProcessor 
 {
@@ -120,7 +123,10 @@ public class JsonOptimizationRequestProcessor extends AbstractHttpRequestProcess
 		if (!Helper.isEmpty(OptimizationServiceSettings.getAttribution()))
 			jInfo.put("attribution", OptimizationServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());
-		
+
+		if (AppConfig.hasValidMD5Hash())
+			jInfo.put("osm_file_md5_hash", AppConfig.getMD5Hash());
+
 		jInfo.put("query", jQuery);
 		jResp.put("info", jInfo);
 		

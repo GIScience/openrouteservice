@@ -30,6 +30,7 @@ import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import heigit.ors.common.DistanceUnit;
+import heigit.ors.config.AppConfig;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.ExtraSummaryItem;
 import heigit.ors.routing.RouteExtraInfo;
@@ -71,6 +72,9 @@ public class JsonMapMatchingResponseWriter {
 		if (!Helper.isEmpty(MapMatchingServiceSettings.getAttribution()))
 			jInfo.put("attribution", RoutingServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());
+
+		if (AppConfig.hasValidMD5Hash())
+			jInfo.put("osm_file_md5_hash", AppConfig.getMD5Hash());
 
 		JSONObject jQuery = new JSONObject(true);
 

@@ -32,6 +32,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
 import heigit.ors.geojson.GeometryJSON;
+import heigit.ors.config.AppConfig;
 import heigit.ors.services.geocoding.GeocodingServiceSettings;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.InternalServerException;
@@ -50,7 +51,8 @@ import heigit.ors.services.geocoding.requestprocessors.GeocodingRequest;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
 import heigit.ors.util.FormatUtility;
-import heigit.ors.util.AppInfo; 
+import heigit.ors.util.AppInfo;
+
 
 public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor {
 	private static final Logger LOGGER = Logger.getLogger(JsonGeocodingRequestProcessor.class.getName());
@@ -372,6 +374,9 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 		if (!Helper.isEmpty( GeocodingServiceSettings.getAttribution()))
 			info.put("attribution", GeocodingServiceSettings.getAttribution());
 		info.put("timestamp", System.currentTimeMillis());
+
+		if (AppConfig.hasValidMD5Hash())
+			info.put("osm_file_md5_hash", AppConfig.getMD5Hash());
 
 		JSONObject query = new JSONObject();
 		if (request.getQueryAddress() != null)

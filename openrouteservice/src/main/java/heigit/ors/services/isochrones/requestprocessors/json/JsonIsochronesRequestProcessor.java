@@ -38,6 +38,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import heigit.ors.common.AttributeValue;
 import heigit.ors.common.Pair;
 import heigit.ors.common.StatusCode;
+import heigit.ors.config.AppConfig;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.geojson.GeometryJSON;
@@ -280,6 +281,9 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 		if (!Helper.isEmpty(sourceAttribution))
 			jInfo.put("attribution", sourceAttribution);
 		jInfo.put("timestamp", System.currentTimeMillis());
+
+		if (AppConfig.hasValidMD5Hash())
+			jInfo.put("osm_file_md5_hash", AppConfig.getMD5Hash());
 
 		JSONObject jQuery = new JSONObject();
 
