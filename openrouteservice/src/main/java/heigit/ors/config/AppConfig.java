@@ -60,7 +60,7 @@ public class AppConfig {
 		_config = ConfigFactory.parseFile(file);
 
 		//Modification by H Leuschner: Save md5 hash of map file in static String for access with every request
-		File graphsDir = new File("graphs");
+		File graphsDir = new File(getServiceParameter("routing.profiles.default_params", "graphs_root_path"));
 		File[] md5Files = graphsDir.listFiles(new FileFilter() {
 			public boolean accept(File pathname) {
 				return pathname.getName().endsWith(".md5");
