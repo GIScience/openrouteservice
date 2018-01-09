@@ -35,6 +35,7 @@ public class AvoidFeatureFlags {
 	public static final int Borders = 512; 
 	public static final int Hills = 1024;
 	public static final int ControlledBorders = 2048;
+	public static final int SpecificCountries = 4096;
 	
 	public static int getFromString(String value)
 	{
@@ -64,6 +65,8 @@ public class AvoidFeatureFlags {
 				return Borders;
 			case "controlledborders":
 				return ControlledBorders;
+			case "specificcountries":
+				return SpecificCountries;
 			case "hills":
 				return Hills;
 		}

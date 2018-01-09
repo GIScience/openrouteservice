@@ -55,6 +55,8 @@ public class RouteSearchParameters {
 	private double[] _maxRadiuses;
 	private boolean _flexibleMode = false;
 
+	private int[] _avoidCountries = null;
+
 	private String _options;
 
 	public int getProfileType() {
@@ -117,6 +119,12 @@ public class RouteSearchParameters {
 	{
 		return  _avoidFeaturesTypes > 0;
 	}
+
+	public int[] getAvoidCountries() { return _avoidCountries; }
+
+	public void setAvoidCountries(int[] avoidCountries) { _avoidCountries = avoidCountries; }
+
+	public boolean hasAvoidCountries() { return _avoidCountries != null && _avoidCountries.length > 0; }
 
 	public Boolean getConsiderTurnRestrictions() {
 		return _considerTurnRestrictions;
@@ -201,6 +209,23 @@ public class RouteSearchParameters {
 					if (flags != 0)
 						_avoidFeaturesTypes = flags;
 
+				}
+			}
+		}
+
+		if (json.has("avoid_countries")) {
+			String keyValue = json.getString("avoid_countries");
+			if(!Helper.isEmpty(keyValue)) {
+				String[] avoidCountries = keyValue.split("\\|");
+				if(avoidCountries != null && avoidCountries.length > 0) {
+					_avoidCountries = new int[avoidCountries.length];
+					for(int i=0; i<avoidCountries.length; i++) {
+						try {
+							_avoidCountries[i] = Integer.parseInt(avoidCountries[i]);
+						} catch (NumberFormatException nfe) {
+							throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_countries", avoidCountries[i]);
+						}
+					}
 				}
 			}
 		}

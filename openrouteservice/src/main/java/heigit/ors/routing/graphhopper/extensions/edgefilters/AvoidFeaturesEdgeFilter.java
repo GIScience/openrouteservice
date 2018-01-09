@@ -25,15 +25,17 @@ import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.routing.RoutingProfileCategory;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.graphhopper.extensions.storages.*;
+import heigit.ors.routing.pathprocessors.BordersExtractor;
 import heigit.ors.routing.pathprocessors.TollwayExtractor;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
+import org.apache.log4j.Logger;
 
 public class AvoidFeaturesEdgeFilter implements EdgeFilter {
-
+	private static Logger LOGGER = Logger.getLogger(AvoidFeaturesEdgeFilter.class);
 	private final boolean _in;
 	private final boolean _out;
 	protected final FlagEncoder _encoder;
@@ -41,7 +43,9 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 	private WayCategoryGraphStorage _extWayCategory;
 	private TollwayExtractor _tollwayExtractor;
 	private int _avoidFeatureType;
-	private int _profileCategory; 
+	private int _profileCategory;
+
+	private BordersExtractor _bordersExtractor;
 
 	private static final int HIGHWAYS = AvoidFeatureFlags.Highways;
 	private static final int TOLLWAYS = AvoidFeatureFlags.Tollways;
@@ -51,6 +55,8 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 	private static final int TRACKS = AvoidFeatureFlags.Tracks;
 	private static final int STEPS = AvoidFeatureFlags.Steps;
 	private static final int BORDERS = AvoidFeatureFlags.Borders;
+	private static final int CONTROLLED_BORDERS = AvoidFeatureFlags.ControlledBorders;
+	private static final int SPECIFIC_COUNTRIES = AvoidFeatureFlags.SpecificCountries;
 	private static final int TUNNELS = AvoidFeatureFlags.Tunnels;
 	private static final int BRIDGES = AvoidFeatureFlags.Bridges;
 	private static final int FORDS = AvoidFeatureFlags.Fords;
@@ -74,6 +80,17 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 		TollwaysGraphStorage extTollways = GraphStorageUtils.getGraphExtension(graphStorage, TollwaysGraphStorage.class);
 		if (extTollways != null)
 			_tollwayExtractor = new TollwayExtractor(extTollways, searchParams.getVehicleType(), searchParams.getProfileParameters());
+
+		BordersGraphStorage extBorders = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
+		if(extBorders != null) {
+			int[] avoidCountries;
+			if(searchParams.hasAvoidCountries())
+				avoidCountries = searchParams.getAvoidCountries();
+			else
+				avoidCountries = new int[0];
+
+			_bordersExtractor = new BordersExtractor(extBorders, searchParams.getProfileParameters(), avoidCountries);
+		}
 	}
 
 	@Override
@@ -89,6 +106,7 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 
 						if (_profileCategory == RoutingProfileCategory.DRIVING)
 						{
+
 							if ((_avoidFeatureType & HIGHWAYS) == HIGHWAYS) {
 								if ((edgeFeatType & HIGHWAYS) == HIGHWAYS) {
 									return false;
@@ -104,7 +122,28 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 											return false;
 									}
 								}
-							} 
+							}
+
+							if ((_avoidFeatureType & BORDERS) == BORDERS) {
+                                if(_bordersExtractor.getValue(iter.getEdge()) > 0) {
+                                	// It is a border, and we want to avoid all borders
+									return false;
+								}
+                            }
+
+							if ((_avoidFeatureType & CONTROLLED_BORDERS) == CONTROLLED_BORDERS) {
+								if(_bordersExtractor.getValue(iter.getEdge()) == 1) {
+									// We want to only avoid controlled borders
+									return false;
+								}
+							}
+
+							if ((_avoidFeatureType & SPECIFIC_COUNTRIES) == SPECIFIC_COUNTRIES) {
+								// avoid countries passed
+								if(_bordersExtractor.restrictedCountry(iter.getEdge())) {
+									return false;
+								}
+							}
 
 							if ((_avoidFeatureType & FERRIES) == FERRIES) {
 								if ((edgeFeatType & FERRIES) == FERRIES) {
@@ -122,13 +161,7 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 								if ((edgeFeatType & TRACKS) == TRACKS) {
 									return false;
 								}
-							} 
-
-							if ((_avoidFeatureType & BORDERS) == BORDERS) {
-								if ((edgeFeatType & BORDERS) == BORDERS) {
-									return false;
-								}
-							} 
+							}
 
 							if ((_avoidFeatureType & TUNNELS) == TUNNELS) {
 								if ((edgeFeatType & TUNNELS) == TUNNELS) {
