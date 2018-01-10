@@ -51,7 +51,6 @@ public class ExtraInfoProcessor extends PathProcessor {
 	private TollwaysGraphStorage _extTollways;
 	private TrailDifficultyScaleGraphStorage _extTrailDifficulty;
 	private HillIndexGraphStorage _extHillIndex;
-	private BordersGraphStorage _extBorders;
 	
 	private RouteExtraInfo _surfaceInfo;
 	private RouteExtraInfoBuilder _surfaceInfoBuilder;
@@ -83,9 +82,6 @@ public class ExtraInfoProcessor extends PathProcessor {
 	
 	private RouteExtraInfo _trailDifficultyInfo;
 	private RouteExtraInfoBuilder _trailDifficultyInfoBuilder;
-
-	private RouteExtraInfo _bordersInfo;
-	private RouteExtraInfoBuilder _bordersInfoBuilder;
 	
 	private int _profileType = RoutingProfileType.UNKNOWN;
 	private FlagEncoder _encoder;
@@ -189,18 +185,6 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_noiseInfoBuilder = new SimpleRouteExtraInfoBuilder(_noiseInfo);
 		}
 
-		if(RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Borders)) {
-
-			_extBorders = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), BordersGraphStorage.class);
-
-			if(_extBorders == null) {
-				throw new Exception("Borders storage is not found");
-			}
-
-			_bordersInfo = new RouteExtraInfo("borders");
-			_bordersInfoBuilder = new SimpleRouteExtraInfoBuilder(_bordersInfo);
-		}
-
 		buffer = new byte[4];
 	}
 
@@ -233,8 +217,6 @@ public class ExtraInfoProcessor extends PathProcessor {
 			extras.add(_tollwaysInfo);
 		if (_trailDifficultyInfo != null)
 			extras.add(_trailDifficultyInfo);
-		if(_bordersInfo != null)
-			extras.add(_bordersInfo);
 
 		return extras;
 	}
@@ -342,7 +324,6 @@ public class ExtraInfoProcessor extends PathProcessor {
 			int client_noise_level = noise_level + 7;
 			_noiseInfoBuilder.addSegment(noise_level, client_noise_level, geom, dist, lastEdge && _lastSegment);
 		}
-
 	}
 
 	@Override
