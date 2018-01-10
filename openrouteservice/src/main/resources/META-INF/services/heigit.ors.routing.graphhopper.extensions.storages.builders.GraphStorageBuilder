@@ -9,4 +9,3 @@ heigit.ors.routing.graphhopper.extensions.storages.builders.EmergencyVehicleGrap
 heigit.ors.routing.graphhopper.extensions.storages.builders.AccessRestrictionsGraphStorageBuilder
 heigit.ors.routing.graphhopper.extensions.storages.builders.TollwaysGraphStorageBuilder
 heigit.ors.routing.graphhopper.extensions.storages.builders.TrailDifficultyScaleGraphStorageBuilder
-heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder

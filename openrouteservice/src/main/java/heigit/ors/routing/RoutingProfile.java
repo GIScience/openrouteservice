@@ -645,9 +645,7 @@ public class RoutingProfile
 					|| profileType == RoutingProfileType.FOOT_WALKING || profileType == RoutingProfileType.FOOT_HIKING
 					|| profileType == RoutingProfileType.WHEELCHAIR) { 
 
-				if (searchParams.getAvoidFeatureTypes() != AvoidFeatureFlags.Hills
-						&& searchParams.getAvoidFeatureTypes() != AvoidFeatureFlags.Borders
-						&& searchParams.getAvoidFeatureTypes() != AvoidFeatureFlags.ControlledBorders)
+				if (searchParams.getAvoidFeatureTypes() != AvoidFeatureFlags.Hills)
 				{
 					EdgeFilter ef = new AvoidFeaturesEdgeFilter(flagEncoder, searchParams,
 							mGraphHopper.getGraphHopperStorage());
