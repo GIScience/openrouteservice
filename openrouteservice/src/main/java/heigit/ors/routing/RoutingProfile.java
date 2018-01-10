@@ -667,17 +667,6 @@ public class RoutingProfile
 							props.put("steepness_maximum", cyclingParams.getMaximumGradient());
 						}
 					}
-
-					// if we are provided the avoid_features:borders parameter, then we want to avoid all border crossings
-					if((searchParams.getAvoidFeatureTypes() & AvoidFeatureFlags.Borders) == AvoidFeatureFlags.Borders) {
-						props.put("custom_weightings", true);
-						props.put(ProfileWeighting.encodeName("borders") + "level", 1);
-					}
-					// if we are provided the avoid_features:controlledborders parameter, then we want to avoid non-open border crossings
-					if((searchParams.getAvoidFeatureTypes() & AvoidFeatureFlags.ControlledBorders) == AvoidFeatureFlags.ControlledBorders) {
-						props.put("custom_weightings", true);
-						props.put(ProfileWeighting.encodeName("borders") + "level", 2);
-					}
 				}
 			}
 		}
@@ -890,12 +879,6 @@ public class RoutingProfile
 				req.getHints().put("custom_weightings", true);
 				req.getHints().put("weighting_#acceleration#", true);
 				req.getHints().put("lm.disable", true); // REMOVE
-			}
-
-			if (profileType == RoutingProfileType.DRIVING_CAR || profileType == RoutingProfileType.DRIVING_HGV || profileType == RoutingProfileType.DRIVING_ELECTRIC_CAR || profileType == RoutingProfileType.DRIVING_MOTORCYCLE)
-			{
-				req.getHints().put("custom_weightings", true);
-				req.getHints().put("weighting_#borders#", true);
 			}
 
 			if (_astarEpsilon != null)
