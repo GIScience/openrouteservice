@@ -125,14 +125,14 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 							}
 
 							if ((_avoidFeatureType & BORDERS) == BORDERS) {
-                                if(_bordersExtractor.getValue(iter.getEdge()) > 0) {
+								if(_bordersExtractor.isBorder(iter.getEdge())) {
                                 	// It is a border, and we want to avoid all borders
 									return false;
 								}
                             }
 
 							if ((_avoidFeatureType & CONTROLLED_BORDERS) == CONTROLLED_BORDERS) {
-								if(_bordersExtractor.getValue(iter.getEdge()) == 1) {
+								if(_bordersExtractor.isControlledBorder(iter.getEdge())) {
 									// We want to only avoid controlled borders
 									return false;
 								}

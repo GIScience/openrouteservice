@@ -4,6 +4,7 @@ import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import heigit.ors.routing.parameters.ProfileParameters;
 import heigit.ors.routing.parameters.VehicleParameters;
 
+
 public class BordersExtractor {
     private VehicleParameters _vehicleParams;
     private BordersGraphStorage _storage;
@@ -23,6 +24,20 @@ public class BordersExtractor {
     {
         // Get the type of border
         return _storage.getEdgeValue(edgeId, BordersGraphStorage.Property.TYPE);
+    }
+
+    public boolean isBorder(int edgeId) {
+        int type = _storage.getEdgeValue(edgeId, BordersGraphStorage.Property.TYPE);
+
+        return (type == BordersGraphStorage.OPEN_BORDER || type == BordersGraphStorage.CONTROLLED_BORDER);
+    }
+
+    public boolean isControlledBorder(int edgeId) {
+        return _storage.getEdgeValue(edgeId, BordersGraphStorage.Property.TYPE) == BordersGraphStorage.CONTROLLED_BORDER;
+    }
+
+    public boolean isOpenBorder(int edgeId) {
+        return _storage.getEdgeValue(edgeId, BordersGraphStorage.Property.TYPE) == BordersGraphStorage.OPEN_BORDER;
     }
 
     public boolean restrictedCountry(int edgeId) {
