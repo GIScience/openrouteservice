@@ -203,7 +203,6 @@
                                 WayCategory: { },								
                                 HeavyVehicle: { restrictions: true },								
 								WaySurfaceType: { },
-								Borders: { filepath: "openrouteservice-api-tests/data/border_crossings_hd.csv" },
 								Tollways: { }
 						    }
 						    traffic: false
