@@ -37,9 +37,9 @@ public class BordersGraphStorage implements GraphExtension {
 	private final int EF_END = 4;			// byte location of the end country id
 
 	// border types
-	public static final int NO_BORDER = 0;
-	public static final int OPEN_BORDER = 2;
-	public static final int CONTROLLED_BORDER = 1;
+	public static final short NO_BORDER = 0;
+	public static final short OPEN_BORDER = 2;
+	public static final short CONTROLLED_BORDER = 1;
 
 	private DataAccess orsEdges;
 	private int edgeEntryBytes;
