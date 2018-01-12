@@ -617,63 +617,7 @@ public class ResultTest extends ServiceTest {
 
 	// test fitness params bike..
 
-/*
 	@Test
-	public void testBordersWeight() {
-		// Test that border crossings work. Hard borders (1) are those that are closed/controlled, and soft borders (2) are those that are open
-
-		// Uses dummy data that give some ways in Heidelberg hard borders and some soft borders
-		// With option 2, the route can cross soft borders, but not hard borders
-		given()
-				.param("coordinates", "8.688301,49.404454|8.684266,49.404223")
-				.param("instructions", "false")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("carProfile"))
-				.param("options", "{\"profile_params\":{\"weightings\":{\"borders\":{\"level\":2}}}}")
-				.when()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(1255.5f))
-				.body("routes[0].summary.duration", is(360.9f))
-				.statusCode(200);
-
-		// Option 1 signifies that the route should not cross any borders
-		given()
-				.param("coordinates", "8.688301,49.404454|8.684266,49.404223")
-				.param("instructions", "false")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("carProfile"))
-				.param("options", "{\"profile_params\":{\"weightings\":{\"borders\":{\"level\":1}}}}")
-				.when()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(1560.1f))
-				.body("routes[0].summary.duration", is(396.5f))
-				.statusCode(200);
-
-		// Option 0 signifies that no borders are taken into account when routing, so the route can cross any borders
-		given()
-				.param("coordinates", "8.688301,49.404454|8.684266,49.404223")
-				.param("instructions", "false")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("carProfile"))
-				.param("options", "{\"profile_params\":{\"weightings\":{\"borders\":{\"level\":0}}}}")
-				.when()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(292.8f))
-				.body("routes[0].summary.duration", is(210.8f))
-				.statusCode(200);
-
-	}*/
-
-	/*@Test
 	public void testBordersAvoid() {
 		// Test that providing border control in avoid_features works
 		given()
@@ -681,14 +625,14 @@ public class ResultTest extends ServiceTest {
 				.param("instructions", "false")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
-				.param("options", "{\"avoid_features\":\"controlledborders\"}")
+				.param("options", "{\"avoid_borders\":\"controlled\"}")
 				.when()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(1255.5f))
-				.body("routes[0].summary.duration", is(469.1f))
+				.body("routes[0].summary.duration", is(234.6f))
 				.statusCode(200);
 
 		// Option 1 signifies that the route should not cross any borders
@@ -697,14 +641,14 @@ public class ResultTest extends ServiceTest {
 				.param("instructions", "false")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
-				.param("options", "{\"avoid_features\":\"borders\"}")
+				.param("options", "{\"avoid_borders\":\"all\"}")
 				.when()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(1560.1f))
-				.body("routes[0].summary.duration", is(486.9f))
+				.body("routes[0].summary.duration", is(243.5f))
 				.statusCode(200);
 	}
 
@@ -715,14 +659,14 @@ public class ResultTest extends ServiceTest {
 				.param("instructions", "false")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
-				.param("options", "{\"profile_params\":{\"weightings\":{\"borders\":{\"country\":\"1\"}}}}")
+				.param("options", "{\"avoid_countries\":\"1\"}")
 				.when()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(1255.5f))
-				.body("routes[0].summary.duration", is(469.1f))
+				.body("routes[0].summary.duration", is(234.6f))
 				.statusCode(200);
 
 		given()
@@ -730,14 +674,14 @@ public class ResultTest extends ServiceTest {
 				.param("instructions", "false")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
-				.param("options", "{\"profile_params\":{\"weightings\":{\"borders\":{\"country\":\"1|214\"}}}}")
+				.param("options", "{\"avoid_countries\":\"1|214\"}")
 				.when()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(1560.1f))
-				.body("routes[0].summary.duration", is(486.9f))
+				.body("routes[0].summary.duration", is(243.5f))
 				.statusCode(200);
 
 	}
@@ -750,15 +694,14 @@ public class ResultTest extends ServiceTest {
 				.param("instructions", "false")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
-				.param("options", "{\"profile_params\":{\"weightings\":{\"borders\":{\"country\":214}}},\"avoid_features\":\"controlledborders\"}")
+				.param("options", "{\"avoid_borders\":\"controlled\",\"avoid_countries\":\"214\"}")
 				.when()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(1560.1f))
-				.body("routes[0].summary.duration", is(486.9f))
+				.body("routes[0].summary.duration", is(243.5f))
 				.statusCode(200);
 	}
-	*/
 }
