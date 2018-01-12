@@ -1,4 +1,4 @@
-package heigit.ors.routing.grahhopper.extensions.edgefilters;
+package heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import com.graphhopper.routing.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.EncodingManager;
@@ -7,7 +7,6 @@ import com.graphhopper.storage.DAType;
 import com.graphhopper.storage.GHDirectory;
 import com.graphhopper.util.Helper;
 import heigit.ors.routing.RouteSearchParameters;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidBordersEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.junit.Test;
