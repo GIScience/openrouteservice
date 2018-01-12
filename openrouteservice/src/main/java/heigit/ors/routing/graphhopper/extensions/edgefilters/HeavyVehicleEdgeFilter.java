@@ -70,6 +70,7 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 	private float[] restrictionValues;
 	private double[] retValues;
 	private Integer[] indexValues;
+	private Integer[] indexLocs;
 	private int restCount;
 	private int mode = MODE_CLOSEST_EDGE;
 	private	List<Integer> destinationEdges;
@@ -104,20 +105,24 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 		vehicleAttrs[VehicleDimensionRestrictions.MaxAxleLoad] = (float)vehicleParams.getAxleload();
 
 		ArrayList<Integer> idx = new ArrayList<Integer>();
+		ArrayList<Integer> idxl = new ArrayList<Integer>();
 
 		for (int i = 0; i < VehicleDimensionRestrictions.Count; i++) {
 			float value = vehicleAttrs[i];
 			if (value > 0) {
 				idx.add(i);
+				idxl.add(i);
 			}
 		}
 
 		retValues = new double[5];
 		Integer[] indexValues = idx.toArray(new Integer[idx.size()]);
+		Integer[] indexLocs = idxl.toArray(new Integer[idxl.size()]);
 
 		this.restrictionValues = vehicleAttrs;
 		this.restCount = indexValues == null ? 0 : indexValues.length;
 		this.indexValues = indexValues;
+		this.indexLocs = indexLocs;
 
 		this.vehicleType = vehicleType;
 		this.buffer = new byte[10];
@@ -271,37 +276,18 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 			if (restCount != 0) {
 				if (restCount == 1) {
 					double value = gsHeavyVehicles.getEdgeRestrictionValue(edgeId, indexValues[0], buffer);
-					if (value > 0 && value < restrictionValues[0])
+					if (value > 0 && value < restrictionValues[indexLocs[0]])
 						return false;
 					else
 						return true;
 				} else {
 					if (gsHeavyVehicles.getEdgeRestrictionValues(edgeId, buffer, retValues))
 					{
-						double value = retValues[0];
-						if (value > 0.0f && value < restrictionValues[0])
-							return false;
-
-						value = retValues[1];
-						if (value > 0.0f && value < restrictionValues[1])
-							return false;
-
-						if (restCount >= 3) {
-							value = retValues[2];
-							if (value > 0.0f && value < restrictionValues[2])
+						for(int i=0; i<restCount; i++) {
+							double value = retValues[indexLocs[i]];
+							if(value > 0.0f && value < restrictionValues[indexLocs[i]]) {
 								return false;
-						}
-
-						if (restCount >= 4) {
-							value = retValues[3];
-							if (value > 0.0f && value < restrictionValues[3])
-								return false;
-						}
-
-						if (restCount == 5) {
-							value = retValues[4];
-							if (value > 0.0f && value < restrictionValues[4])
-								return false;
+							}
 						}
 					}
 				}
