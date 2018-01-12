@@ -6,6 +6,7 @@ import heigit.ors.routing.parameters.VehicleParameters;
 
 
 public class BordersExtractor {
+    public enum Avoid { CONTROLLED, NONE, ALL };
     private VehicleParameters _vehicleParams;
     private BordersGraphStorage _storage;
     private int[] _avoidCountries;

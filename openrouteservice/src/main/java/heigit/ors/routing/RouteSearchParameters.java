@@ -23,6 +23,8 @@ package heigit.ors.routing;
 import java.text.ParseException;
 import java.util.Iterator;
 
+import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
+import heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -56,6 +58,7 @@ public class RouteSearchParameters {
 	private boolean _flexibleMode = false;
 
 	private int[] _avoidCountries = null;
+	private BordersExtractor.Avoid _avoidBorders = BordersExtractor.Avoid.NONE;
 
 	private String _options;
 
@@ -125,6 +128,10 @@ public class RouteSearchParameters {
 	public void setAvoidCountries(int[] avoidCountries) { _avoidCountries = avoidCountries; }
 
 	public boolean hasAvoidCountries() { return _avoidCountries != null && _avoidCountries.length > 0; }
+
+	public boolean hasAvoidBorders() { return _avoidBorders != BordersExtractor.Avoid.NONE; }
+
+	public BordersExtractor.Avoid getAvoidBorders() { return _avoidBorders; }
 
 	public Boolean getConsiderTurnRestrictions() {
 		return _considerTurnRestrictions;
@@ -225,6 +232,22 @@ public class RouteSearchParameters {
 						} catch (NumberFormatException nfe) {
 							throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_countries", avoidCountries[i]);
 						}
+					}
+				}
+			}
+		}
+
+		if (json.has("avoid_borders")) {
+			String keyValue = json.getString("avoid_borders");
+			if(!Helper.isEmpty(keyValue)) {
+				String borderType = keyValue;
+				if(borderType != null) {
+					if(borderType.equals("controlled")) {
+						_avoidBorders = BordersExtractor.Avoid.CONTROLLED;
+					} else if(borderType.equals("all")) {
+						_avoidBorders = BordersExtractor.Avoid.ALL;
+					} else {
+						throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_borders", borderType);
 					}
 				}
 			}
