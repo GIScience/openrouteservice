@@ -23,7 +23,6 @@ package heigit.ors.routing;
 import java.text.ParseException;
 import java.util.Iterator;
 
-import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -130,6 +129,8 @@ public class RouteSearchParameters {
 	public boolean hasAvoidCountries() { return _avoidCountries != null && _avoidCountries.length > 0; }
 
 	public boolean hasAvoidBorders() { return _avoidBorders != BordersExtractor.Avoid.NONE; }
+
+	public void setAvoidBorders(BordersExtractor.Avoid avoidBorders) { _avoidBorders = avoidBorders; }
 
 	public BordersExtractor.Avoid getAvoidBorders() { return _avoidBorders; }
 

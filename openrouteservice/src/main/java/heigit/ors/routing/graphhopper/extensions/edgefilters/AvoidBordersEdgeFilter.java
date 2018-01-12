@@ -28,13 +28,29 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
 
     public AvoidBordersEdgeFilter(FlagEncoder encoder, boolean in, boolean out, RouteSearchParameters searchParams,
                                    GraphStorage graphStorage) {
+        this(encoder, in, out);
+        BordersGraphStorage extBorders = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
+        init(searchParams, extBorders);
+    }
+
+    public AvoidBordersEdgeFilter(FlagEncoder encoder, RouteSearchParameters searchParams, BordersGraphStorage graphStorage) {
+        this(encoder, true, true, searchParams, graphStorage);
+    }
+
+    public AvoidBordersEdgeFilter(FlagEncoder encoder, boolean in, boolean out, RouteSearchParameters searchParams, BordersGraphStorage graphStorage) {
+        this(encoder, in, out);
+        init(searchParams, graphStorage);
+    }
+
+    private AvoidBordersEdgeFilter(FlagEncoder encoder, boolean in, boolean out) {
         this._in = in;
         this._out = out;
 
         this._encoder = encoder;
+    }
 
-        BordersGraphStorage extBorders = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
-
+    private void init(RouteSearchParameters searchParams, BordersGraphStorage extBorders) {
+        // Init the graph storage
         if(extBorders != null) {
             int[] avoidCountries;
             if(searchParams.hasAvoidCountries())
@@ -70,6 +86,7 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
                             // We want to only avoid controlled borders
                             return false;
                         }
+                        break;
                 }
             }
 
@@ -83,11 +100,6 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
         }
 
         return false;
-    }
-
-    @Override
-    public String toString() {
-        return "AVOIDBORDERS|" + _encoder;
     }
 
 }
