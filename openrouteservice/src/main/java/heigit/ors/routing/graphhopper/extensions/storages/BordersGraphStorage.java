@@ -24,6 +24,7 @@ import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.storage.RAMDirectory;
 
 /**
  * Graph storage class for the Border Restriction routing
@@ -155,6 +156,16 @@ public class BordersGraphStorage implements GraphExtension {
 		this.orsEdges = dir.find("ext_borders");
 	}
 
+	/**
+	 * initializes the extended storage to be empty - required for testing purposes as the ext_storage aren't created
+	 * at the time tests are run
+	 */
+	public void init() {
+		if(edgesCount > 0)
+			throw new AssertionError("The ORS storage must be initialized only once.");
+		Directory d = new RAMDirectory();
+		this.orsEdges = d.find("");
+	}
 	/**
 	 * sets the segment size in all additional data storages
 	 *
