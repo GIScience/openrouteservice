@@ -1,5 +1,5 @@
 
-package heigit.ors.util.gpxUtil;
+package heigit.ors.util.GlobalExportWriter.gpxUtil.beans;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -11,17 +11,17 @@ import java.util.List;
 
 
 /**
- * 
- * 		trk represents a track - an ordered list of points describing a path.
+ *
+ * 		rte represents route - an ordered list of waypoints representing a series of turn points leading to a destination.
  *
  *
- * <p>Java class for trkType complex type.
+ * <p>Java class for rteType complex type.
  *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * {@code
- * <complexType name="trkType">
+ * <complexType name="rteType">
  *   <complexContent>
  *     <restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       <sequence>
@@ -33,29 +33,29 @@ import java.util.List;
  *         <element name="number" type="{http://www.w3.org/2001/XMLSchema}nonNegativeInteger" minOccurs="0"/>
  *         <element name="type" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         <element name="extensions" type="{http://www.topografix.com/GPX/1/1}extensionsType" minOccurs="0"/>
- *         <element name="trkseg" type="{http://www.topografix.com/GPX/1/1}trksegType" maxOccurs="unbounded" minOccurs="0"/>
+ *         <element name="rtept" type="{http://www.topografix.com/GPX/1/1}wptType" maxOccurs="unbounded" minOccurs="0"/>
  *       </sequence>
  *     </restriction>
  *   </complexContent>
  * </complexType>
  * }
  * </pre>
- * 
+ *
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "trkType", propOrder = {
-    "name",
-    "cmt",
-    "desc",
-    "src",
-    "link",
-    "number",
-    "type",
-    "extensions",
-    "trkseg"
+@XmlType(name = "rteType", propOrder = {
+        "name",
+        "cmt",
+        "desc",
+        "src",
+        "link",
+        "number",
+        "type",
+        "rtept",
+        "extensions"
 })
-public class TrkType {
+public class RteType {
 
     protected String name;
     protected String cmt;
@@ -65,12 +65,12 @@ public class TrkType {
     @XmlSchemaType(name = "nonNegativeInteger")
     protected BigInteger number;
     protected String type;
-    protected TrkTypeExtensions extensions;
-    protected List<TrksegType> trkseg;
+    protected RteTypeExtensions extensions;
+    protected List<WptType> rtept;
 
     /**
      * Gets the value of the name property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
@@ -82,7 +82,7 @@ public class TrkType {
 
     /**
      * Sets the value of the name property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
@@ -94,7 +94,7 @@ public class TrkType {
 
     /**
      * Gets the value of the cmt property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
@@ -106,7 +106,7 @@ public class TrkType {
 
     /**
      * Sets the value of the cmt property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
@@ -118,7 +118,7 @@ public class TrkType {
 
     /**
      * Gets the value of the desc property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
@@ -130,7 +130,7 @@ public class TrkType {
 
     /**
      * Sets the value of the desc property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
@@ -142,7 +142,7 @@ public class TrkType {
 
     /**
      * Gets the value of the src property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
@@ -154,7 +154,7 @@ public class TrkType {
 
     /**
      * Sets the value of the src property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
@@ -195,7 +195,7 @@ public class TrkType {
 
     /**
      * Gets the value of the number property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link BigInteger }
@@ -207,7 +207,7 @@ public class TrkType {
 
     /**
      * Sets the value of the number property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link BigInteger }
@@ -219,7 +219,7 @@ public class TrkType {
 
     /**
      * Gets the value of the type property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
@@ -231,7 +231,7 @@ public class TrkType {
 
     /**
      * Sets the value of the type property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
@@ -243,55 +243,55 @@ public class TrkType {
 
     /**
      * Gets the value of the extensions property.
-     * 
+     *
      * @return
      *     possible object is
-     *     {@link TrkTypeExtensions }
+     *     {@link RteTypeExtensions }
      *     
      */
-    public TrkTypeExtensions getExtensions() {
+    public RteTypeExtensions getExtensions() {
         return extensions;
     }
 
     /**
      * Sets the value of the extensions property.
-     * 
+     *
      * @param value
      *     allowed object is
-     *     {@link TrkTypeExtensions }
-     *     
+     *     {@link RteTypeExtensions }
+     *
      */
-    public void setExtensions(TrkTypeExtensions value) {
+    public void setExtensions(RteTypeExtensions value) {
         this.extensions = value;
     }
 
     /**
-     * Gets the value of the trkseg property.
+     * Gets the value of the rtept property.
      * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the trkseg property.
+     * This is why there is not a <CODE>set</CODE> method for the rtept property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
-     *    getTrkseg().add(newItem);
+     *    getRtept().add(newItem);
      * </pre>
-     * 
+     *
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link TrksegType }
-     * 
+     * {@link WptType }
+     *
      * 
      */
-    public List<TrksegType> getTrkseg() {
-        if (trkseg == null) {
-            trkseg = new ArrayList<>();
+    public List<WptType> getRtept() {
+        if (rtept == null) {
+            rtept = new ArrayList<>();
         }
-        return this.trkseg;
+        return this.rtept;
     }
 
 }

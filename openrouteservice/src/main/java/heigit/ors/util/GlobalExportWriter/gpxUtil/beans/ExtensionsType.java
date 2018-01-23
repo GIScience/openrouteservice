@@ -1,4 +1,4 @@
-package heigit.ors.util.gpxUtil;
+package heigit.ors.util.GlobalExportWriter.gpxUtil.beans;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlSeeAlso;

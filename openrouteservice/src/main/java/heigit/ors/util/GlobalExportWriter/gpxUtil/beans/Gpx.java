@@ -1,4 +1,4 @@
-package heigit.ors.util.gpxUtil;
+package heigit.ors.util.GlobalExportWriter.gpxUtil.beans;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -249,7 +249,7 @@ public class Gpx {
     }
 
     public String build() throws JAXBException {
-        heigit.ors.util.gpxUtil.XMLBuilder builder = new heigit.ors.util.gpxUtil.XMLBuilder();
+        XMLBuilder builder = new XMLBuilder();
         return builder.Build(this);
     }
 }
