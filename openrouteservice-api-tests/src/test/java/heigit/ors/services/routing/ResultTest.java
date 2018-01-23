@@ -615,6 +615,94 @@ public class ResultTest extends ServiceTest {
 		}
 	}
 
+	@Test
+	public void testHGVWidthRestriction() {
+		given()
+				.param("coordinates", "8.690915,49.430117|8.68834,49.427758")
+				.param("instructions", "false")
+				.param("preference", "shortest")
+				.param("profile", "driving-hgv")
+				.param("options", "{\"profile_params\":{\"restrictions\":{\"width\":\"3\"}},\"vehicle_type\":\"hgv\"}")
+				.param("units", "m")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(809.3f))
+				.body("routes[0].summary.duration", is(197.2f))
+				.statusCode(200);
+
+		given()
+				.param("coordinates", "8.690915,49.430117|8.68834,49.427758")
+				.param("instructions", "false")
+				.param("preference", "shortest")
+				.param("profile", "driving-hgv")
+				.param("options", "{\"profile_params\":{\"restrictions\":{\"width\":\"2\"}},\"vehicle_type\":\"hgv\"}")
+				.param("units", "m")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(379.5f))
+				.body("routes[0].summary.duration", is(135.5f))
+				.statusCode(200);
+	}
+
+	@Test
+	public void testHGVHeightRestriction() {
+		given()
+				.param("coordinates", "8.687992,49.426312|8.691315,49.425962")
+				.param("instructions", "false")
+				.param("preference", "shortest")
+				.param("profile", "driving-hgv")
+				.param("options", "{\"profile_params\":{\"restrictions\":{\"height\":\"4\"}},\"vehicle_type\":\"hgv\"}")
+				.param("units", "m")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(549))
+				.body("routes[0].summary.duration", is(135.7f))
+				.statusCode(200);
+
+		given()
+				.param("coordinates", "8.687992,49.426312|8.691315,49.425962")
+				.param("instructions", "false")
+				.param("preference", "shortest")
+				.param("profile", "driving-hgv")
+				.param("options", "{\"profile_params\":{\"restrictions\":{\"height\":\"2\"}},\"vehicle_type\":\"hgv\"}")
+				.param("units", "m")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(376.5f))
+				.body("routes[0].summary.duration", is(125.5f))
+				.statusCode(200);
+	}
+
+	@Test
+	public void testCarDistanceAndDuration() {
+		// Generic test to ensure that the distance and duration dont get changed
+		given()
+				.param("coordinates", "8.690915,49.430117|8.68834,49.427758")
+				.param("instructions", "false")
+				.param("preference", "shortest")
+				.param("profile", getParameter("carProfile"))
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(379.5f))
+				.body("routes[0].summary.duration", is(270))
+				.statusCode(200);
+	}
+
 	// test fitness params bike..
 
 	@Test
