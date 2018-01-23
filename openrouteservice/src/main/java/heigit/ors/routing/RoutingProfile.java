@@ -645,8 +645,7 @@ public class RoutingProfile
 					|| profileType == RoutingProfileType.FOOT_WALKING || profileType == RoutingProfileType.FOOT_HIKING
 					|| profileType == RoutingProfileType.WHEELCHAIR) { 
 
-				if (searchParams.getAvoidFeatureTypes() != AvoidFeatureFlags.Hills)
-				{
+				if (searchParams.getAvoidFeatureTypes() != AvoidFeatureFlags.Hills) {
 					EdgeFilter ef = new AvoidFeaturesEdgeFilter(flagEncoder, searchParams,
 							mGraphHopper.getGraphHopperStorage());
 					edgeFilter = createEdgeFilter(ef, edgeFilter);
@@ -666,6 +665,14 @@ public class RoutingProfile
 						}
 					}
 				}
+			}
+		}
+
+		if (searchParams.hasAvoidBorders() || searchParams.hasAvoidCountries()) {
+			// We want to avoid borders of some form
+			if(RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)) {
+				EdgeFilter ef = new AvoidBordersEdgeFilter(flagEncoder, searchParams, mGraphHopper.getGraphHopperStorage());
+				edgeFilter = createEdgeFilter(ef, edgeFilter);
 			}
 		}
 
@@ -908,7 +915,7 @@ public class RoutingProfile
 
 	private boolean useDynamicWeights(RouteSearchParameters searchParams)
 	{
-		boolean dynamicWeights = (searchParams.hasAvoidAreas() || searchParams.hasAvoidFeatures() || searchParams.getMaximumSpeed() > 0 || (RoutingProfileType.isDriving(searchParams.getProfileType()) && (searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
+		boolean dynamicWeights = (searchParams.hasAvoidAreas() || searchParams.hasAvoidFeatures()  || searchParams.hasAvoidCountries() || searchParams.hasAvoidBorders() || searchParams.getMaximumSpeed() > 0 || (RoutingProfileType.isDriving(searchParams.getProfileType()) && (searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
 
 		return dynamicWeights;
 	}
