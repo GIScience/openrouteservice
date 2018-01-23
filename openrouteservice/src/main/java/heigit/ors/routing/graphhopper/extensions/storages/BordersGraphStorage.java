@@ -156,7 +156,10 @@ public class BordersGraphStorage implements GraphExtension {
 		this.orsEdges = dir.find("ext_borders");
 	}
 
-
+	/**
+	 * initializes the extended storage to be empty - required for testing purposes as the ext_storage aren't created
+	 * at the time tests are run
+	 */
 	public void init() {
 		if(edgesCount > 0)
 			throw new AssertionError("The ORS storage must be initialized only once.");
