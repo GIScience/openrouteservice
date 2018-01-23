@@ -10,6 +10,7 @@ public class BordersGraphStorageTest {
 
     public BordersGraphStorageTest() {
         _storage = new BordersGraphStorage();
+        _storage.init();
         _storage.create(1);
     }
 
