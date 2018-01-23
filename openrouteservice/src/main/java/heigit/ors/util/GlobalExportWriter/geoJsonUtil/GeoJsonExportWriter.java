@@ -2,6 +2,7 @@ package heigit.ors.util.GlobalExportWriter.geoJsonUtil;
 
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
+import org.geotools.geojson.GeoJSON;
 import org.json.JSONObject;
 
 import java.io.StringWriter;
@@ -29,8 +30,8 @@ public class GeoJsonExportWriter {
     public static JSONObject toGeoJSON(LineString lineString) throws Exception {
         // Create StringWriter to catch output of GeoJsonExportWriter
         Writer output = new StringWriter();
-        org.geotools.geojson.GeoJSON.write(lineString, output);
-        org.geotools.geojson.GeoJSON.write(lineString, new StringWriter());
+        GeoJSON.write(lineString, output);
+        GeoJSON.write(lineString, new StringWriter());
         return new JSONObject(output.toString());
     }
     // TODO: Integrate all geometry features into the class

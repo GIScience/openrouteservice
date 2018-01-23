@@ -21,19 +21,45 @@
 package heigit.ors.services.routing.requestprocessors;
 
 import com.graphhopper.util.Helper;
+
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
 import heigit.ors.exceptions.EmptyElementException;
+
+
 import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RoutingErrorCodes;
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.routing.RoutingRequest;
+import heigit.ors.services.routing.requestprocessors.geojson.GeoJsonResponseWriter;
 import heigit.ors.services.routing.requestprocessors.gpx.GpxRoutingResponseWriter;
 import heigit.ors.services.routing.requestprocessors.json.JsonRoutingResponseWriter;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
+
+import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.feature.simple.SimpleFeatureTypeImpl;
+import org.geotools.geojson.GeoJSON;
+import org.geotools.geojson.feature.FeatureHandler;
+import org.geotools.geojson.feature.FeatureJSON;
+import org.json.JSONArray;
 import org.json.JSONObject;
+
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import heigit.ors.geojson.GeometryJSON;
+import org.opengis.feature.Feature;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+
 
 public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
 
@@ -49,28 +75,34 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
 
         JSONObject json = null;
         String gpx;
-
+        String geojson;
         String respFormat = _request.getParameter("format");
         if (Helper.isEmpty(respFormat) || "json".equalsIgnoreCase(respFormat)) {
             json = JsonRoutingResponseWriter.toJson(rreq, new RouteResult[]{result});
-            if (json != null){
+            if (json != null) {
                 ServletUtility.write(response, json, "UTF-8");
 
-            }else{
+            } else {
                 throw new EmptyElementException(RoutingErrorCodes.EMPTY_ELEMENT, "JSON was empty and therefore could not be created.");
             }
         } else if ("geojson".equalsIgnoreCase(respFormat)) {
-            json = JsonRoutingResponseWriter.toGeoJson(rreq, new RouteResult[]{result});
-            if (json != null){
-            ServletUtility.write(response, json, "UTF-8");}
-            else{
-                throw new EmptyElementException(RoutingErrorCodes.EMPTY_ELEMENT, "GEOJSON was empty and therefore could not be created.");
+            // If the response format is set to geojson the geometry_format parameter from the api call must be manually
+            // set to geojson. Else the response will eventually be an encoded polyline
+            String geometryFormat = _request.getParameter("geometry_format").toLowerCase();
+            if (Helper.isEmpty(geometryFormat) || !geometryFormat.equals("geojson")) {
+                rreq.setGeometryFormat("geojson");
             }
+            // TODO create a json response first and parse it to the related global export class method and let this return the export to this method
+            // TODO use the logics from FeatureParser and GeoJsonResponseWriter!!!
+            geojson = GeoJsonResponseWriter.toGeoJson(rreq, new RouteResult[]{result});
+
+
         } else if ("gpx".equalsIgnoreCase(respFormat)) {
-            gpx = GpxRoutingResponseWriter.toGPX(rreq, new RouteResult[] {result});
+            // TODO integrate gpx when the global export is done
+            gpx = GpxRoutingResponseWriter.toGPX(rreq, new RouteResult[]{result});
             if (gpx != null) {
                 ServletUtility.write(response, gpx);
-            } else{
+            } else {
                 throw new EmptyElementException(RoutingErrorCodes.EMPTY_ELEMENT, "GPX was empty and therefore could not be created.");
             }
         }
