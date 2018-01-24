@@ -836,6 +836,8 @@ public class RoutingProfile
 			GHRequest req = null;
 			if (bearings == null || bearings[0] == null)
 				req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
+			else if(bearings[1] == null)
+				req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), bearings[0].getDeviation(), Double.NaN, Double.NaN);
 			else
 				req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), bearings[0].getDeviation(), bearings[1].getValue(), bearings[1].getDeviation());
 
