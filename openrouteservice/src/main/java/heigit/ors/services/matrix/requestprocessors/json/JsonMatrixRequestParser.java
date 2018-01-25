@@ -24,6 +24,7 @@ import java.io.InputStream;
 
 import javax.servlet.http.HttpServletRequest;
 
+import heigit.ors.routing.RoutingProfile;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -202,8 +203,11 @@ public class JsonMatrixRequestParser {
 			   Boolean b = Boolean.parseBoolean(value);
 			   if (!b && !value.equalsIgnoreCase("false"))
 				   throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "resolve_locations");
-			   
-			   req.setFlexibleMode(!b);
+			   //Contraction Hierarchies currently only supported for CAR and HGV
+			   if(req.getProfileType() != RoutingProfileType.DRIVING_CAR || req.getProfileType() != RoutingProfileType.DRIVING_HGV) {
+			   	req.setFlexibleMode(true);
+			   }
+			   else req.setFlexibleMode(!b);
 		   }
 		   catch(Exception ex)
 		   {
@@ -318,8 +322,10 @@ public class JsonMatrixRequestParser {
 			   Boolean b = Boolean.parseBoolean(value);
 			   if (!b && !value.equalsIgnoreCase("false"))
 				   throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "resolve_locations");
-			   
-			   req.setFlexibleMode(!b);
+			   if(req.getProfileType() != RoutingProfileType.DRIVING_CAR || req.getProfileType() != RoutingProfileType.DRIVING_HGV) {
+				   req.setFlexibleMode(true);
+			   }
+			   else req.setFlexibleMode(!b);
 		   }
 		   catch(Exception ex)
 		   {
