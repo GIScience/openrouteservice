@@ -41,11 +41,10 @@ import org.apache.log4j.Logger;
  * {@link GpxRoutingResponseWriter} converts OpenRouteService {@link RouteResult} to GPX in a well formatted xml string representation.
  */
 public class GpxRoutingResponseWriter {
-    private static final Logger LOGGER = Logger.getLogger(GpxRoutingResponseWriter.class.getName());
 
     /**
-     * toGPX can be use to convert a  {@link RoutingRequest} and {@link RouteResult[]} to a gpx.
-     * Specific values should be set in the App.config. If not, the process continues with empty values and a log4j warning.
+     * toGPX can be used to convert a  {@link RoutingRequest} and {@link RouteResult[]} to a gpx.
+     * Specific values should be set in the App.config. If not, the process continues with empty values and a log4j error raised through {@link MissingConfigParameterException}.
      *
      * @param rreq         The {@link RoutingRequest} object holds route specific information like language...
      * @param routeResults The function needs a {@link RouteResult} as input.
@@ -154,13 +153,13 @@ public class GpxRoutingResponseWriter {
                 orsMail.setDomain("");
                 orsMail.setId("");
                 orsPerson.setEmail(orsMail);
-                new MissingConfigParameterException(LOGGER, "support_mail", "The parameter seems to be malformed");
+                new MissingConfigParameterException(GpxRoutingResponseWriter.class, "support_mail", "The parameter seems to be malformed");
             }
         } else {
             orsMail.setDomain("");
             orsMail.setId("");
             orsPerson.setEmail(orsMail);
-            new MissingConfigParameterException(LOGGER, "support_mail");
+            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "support_mail");
         }
 
         LinkType orsLink = new LinkType();
@@ -175,7 +174,7 @@ public class GpxRoutingResponseWriter {
             orsLink.setText("");
             orsLink.setType("text/html");
             orsPerson.setLink(orsLink);
-            new MissingConfigParameterException(LOGGER, "base_url");
+            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "base_url");
         }
 
         // set author_tag
@@ -183,7 +182,7 @@ public class GpxRoutingResponseWriter {
             orsPerson.setName(AppConfig.Global().getParameter("info", "author_tag"));
         } else {
             orsPerson.setName("");
-            new MissingConfigParameterException(LOGGER, "author_tag");
+            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "author_tag");
         }
         metadata.setAuthor(orsPerson);
 
@@ -194,14 +193,14 @@ public class GpxRoutingResponseWriter {
 
         } else {
             copyright.setAuthor("");
-            new MissingConfigParameterException(LOGGER, "attribution");
+            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "attribution");
         }
         // set content_licence
         if (AppConfig.Global().getParameter("info", "content_licence") != null) {
             copyright.setLicense(AppConfig.Global().getParameter("info", "content_licence"));
         } else {
             copyright.setLicense("");
-            new MissingConfigParameterException(LOGGER, "content_licence");
+            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "content_licence");
         }
         // create and set current date as XMLGregorianCalendar element
         Date date = new Date();
@@ -216,7 +215,7 @@ public class GpxRoutingResponseWriter {
             metadata.setDesc(RoutingServiceSettings.getParameter("routing_description"));
         } else {
             metadata.setDesc("");
-            new MissingConfigParameterException(LOGGER, "routung_description");
+            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "routung_description");
         }
         // set routing_name
         if (RoutingServiceSettings.getParameter("routing_name") != null) {
@@ -224,7 +223,7 @@ public class GpxRoutingResponseWriter {
             metadata.setName(RoutingServiceSettings.getParameter("routing_name"));
         } else {
             metadata.setName("");
-            new MissingConfigParameterException(LOGGER, "routing_name");
+            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "routing_name");
         }
         metadata.setTime(cal);
         gpx.setMetadata(metadata);
@@ -233,7 +232,7 @@ public class GpxRoutingResponseWriter {
             gpx.setCreator(AppConfig.Global().getParameter("info", "author_tag"));
         } else {
             gpx.setCreator("");
-            new MissingConfigParameterException(LOGGER, "author_tag");
+            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "author_tag");
         }
 
         // set gpx extensions

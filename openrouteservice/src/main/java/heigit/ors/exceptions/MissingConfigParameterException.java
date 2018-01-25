@@ -1,5 +1,6 @@
 package heigit.ors.exceptions;
 
+import heigit.ors.services.routing.requestprocessors.gpx.GpxRoutingResponseWriter;
 import org.apache.log4j.Logger;
 
 
@@ -9,25 +10,25 @@ import org.apache.log4j.Logger;
 public class MissingConfigParameterException {
 
     /**
-     * The constructor raises an Logger.info using log4j with an unique message attached.
-     * Input example: "new MissingConfigParameterException(LOGGER, "support_mail");"
+     * The constructor raises an Logger.error using log4j with an unique message attached.
+     * Input example: "new MissingConfigParameterException(this.getClass(), "support_mail");"
      *
-     * @param logger                 A {@link Logger} object containing the related class.
+     * @param originalClass                 A {@link Class} object containing the related class.
      * @param missingConfigParameter The parameter should represent the App.config parameter that raised an access error
      */
-    public MissingConfigParameterException(Logger logger, String missingConfigParameter) {
-        logger.info("Missing config parameter " + missingConfigParameter);
+    public MissingConfigParameterException(Class originalClass, String missingConfigParameter) {
+        final Logger logger = Logger.getLogger(originalClass.getName());
+        logger.error("Missing config parameter " + missingConfigParameter);
     }
 
     /**
      * The constructor raises an Logger.error using log4j with a unique message attached.
-     * Input example: "new MissingConfigParameterException(LOGGER, "support_mail", "Support_mail seems to be malformed");"
-     *
-     * @param logger                 A {@link Logger} object containing the related class.
+     * Input example: "new MissingConfigParameterException(this.getClass(), "support_mail", "The parameter seems to be malformed");"
+     * @param originalClass                 A {@link Class} object containing the related class.
      * @param missingConfigParameter The parameter should represent the App.config parameter that raised an access error
-     * @param message                The parameter can be a unique error message that is not or too unique to be integrated as its own error class/method
      */
-    public MissingConfigParameterException(Logger logger, String missingConfigParameter, String message) {
+    public MissingConfigParameterException(Class originalClass, String missingConfigParameter, String message) {
+        final Logger logger = Logger.getLogger(originalClass.getName());
         logger.error("The config parameter " + missingConfigParameter + " raised an error with the following message: " + message);
     }
 }
