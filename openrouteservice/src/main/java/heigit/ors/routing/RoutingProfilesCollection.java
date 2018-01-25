@@ -124,12 +124,15 @@ public class RoutingProfilesCollection {
 
 	public RoutingProfile getRouteProfile(int routePref, boolean chEnabled) throws Exception {
 		int routePrefKey = getRoutePreferenceKey(routePref, chEnabled);
-		if (!m_routeProfiles.containsKey(routePrefKey))
-			return null;
-		else {
-			RoutingProfile rp = m_routeProfiles.get(routePrefKey);
-			return rp;
+		//Fall back to non-CH version if CH routing profile does not exist
+		if (!m_routeProfiles.containsKey(routePrefKey)){
+			routePrefKey = getRoutePreferenceKey(routePref, false);
+			if (!m_routeProfiles.containsKey(routePrefKey))
+				return null;
 		}
+		RoutingProfile rp = m_routeProfiles.get(routePrefKey);
+		return rp;
+
 	}
 	
 	public RoutingProfile getRouteProfile(int routePref) throws Exception
