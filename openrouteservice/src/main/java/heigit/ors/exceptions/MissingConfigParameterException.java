@@ -1,6 +1,5 @@
 package heigit.ors.exceptions;
 
-import heigit.ors.services.routing.requestprocessors.gpx.GpxRoutingResponseWriter;
 import org.apache.log4j.Logger;
 
 
