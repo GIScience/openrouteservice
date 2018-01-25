@@ -5,6 +5,7 @@ import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import heigit.ors.config.AppConfig;
+import heigit.ors.exceptions.MissingConfigParameterException;
 import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RouteSegment;
 import heigit.ors.routing.RouteStep;
@@ -33,11 +34,16 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+
 /**
  * {@link GpxRoutingResponseWriter} converts OpenRouteService {@link RouteResult} to GPX in a well formatted xml string representation.
  */
 public class GpxRoutingResponseWriter {
+
     /**
+     * toGPX can be used to convert a  {@link RoutingRequest} and {@link RouteResult[]} to a gpx.
+     * Specific values should be set in the App.config. If not, the process continues with empty values and a log4j error raised through {@link MissingConfigParameterException}.
+     *
      * @param rreq         The {@link RoutingRequest} object holds route specific information like language...
      * @param routeResults The function needs a {@link RouteResult} as input.
      * @return It returns a XML {@link String} representation of the generated GPX
@@ -129,26 +135,71 @@ public class GpxRoutingResponseWriter {
         bounds.setMinlon(BigDecimal.valueOf(bbox != null ? bbox.minLon : 0));
         bounds.setMaxlat(BigDecimal.valueOf(bbox != null ? bbox.maxLat : 0));
         bounds.setMaxlon(BigDecimal.valueOf(bbox != null ? bbox.maxLon : 0));
-        // create and set gpx metadata
+        // create and set gpx metadata in a if and else check process to avoid interruption
         MetadataType metadata = new MetadataType();
         metadata.setBounds(bounds);
         PersonType orsPerson = new PersonType();
         EmailType orsMail = new EmailType();
-        String[] mail = AppConfig.Global().getParameter("info", "support_mail").split("@");
-        orsMail.setDomain("@" + mail[1]);
-        orsMail.setId(mail[0]);
-        orsPerson.setEmail(orsMail);
+        // set support_mail
+        if (AppConfig.Global().getParameter("info", "support_mail") != null) {
+            try {
+                String[] mail = AppConfig.Global().getParameter("info", "support_mail").split("@");
+                orsMail.setDomain("@" + mail[1]);
+                orsMail.setId(mail[0]);
+                orsPerson.setEmail(orsMail);
+            } catch (Exception ex) {
+                orsMail.setDomain("");
+                orsMail.setId("");
+                orsPerson.setEmail(orsMail);
+                new MissingConfigParameterException(GpxRoutingResponseWriter.class, "support_mail", "The parameter seems to be malformed");
+            }
+        } else {
+            orsMail.setDomain("");
+            orsMail.setId("");
+            orsPerson.setEmail(orsMail);
+            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "support_mail");
+        }
+
         LinkType orsLink = new LinkType();
-        orsLink.setHref(AppConfig.Global().getParameter("info", "base_url"));
-        orsLink.setText(AppConfig.Global().getParameter("info", "base_url"));
-        orsLink.setType("text/html");
-        orsPerson.setLink(orsLink);
-        orsPerson.setName(AppConfig.Global().getParameter("info", "author_tag"));
+        // set base_url
+        if (AppConfig.Global().getParameter("info", "base_url") != null) {
+            orsLink.setHref(AppConfig.Global().getParameter("info", "base_url"));
+            orsLink.setText(AppConfig.Global().getParameter("info", "base_url"));
+            orsLink.setType("text/html");
+            orsPerson.setLink(orsLink);
+        } else {
+            orsLink.setHref("");
+            orsLink.setText("");
+            orsLink.setType("text/html");
+            orsPerson.setLink(orsLink);
+            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "base_url");
+        }
+
+        // set author_tag
+        if (AppConfig.Global().getParameter("info", "author_tag") != null) {
+            orsPerson.setName(AppConfig.Global().getParameter("info", "author_tag"));
+        } else {
+            orsPerson.setName("");
+            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "author_tag");
+        }
         metadata.setAuthor(orsPerson);
-        // create and set copyright
+
+        // set copyright
         CopyrightType copyright = new CopyrightType();
-        copyright.setAuthor(RoutingServiceSettings.getAttribution());
-        copyright.setLicense(AppConfig.Global().getParameter("info", "content_licence"));
+        if (RoutingServiceSettings.getAttribution() != null) {
+            copyright.setAuthor(RoutingServiceSettings.getAttribution());
+
+        } else {
+            copyright.setAuthor("");
+            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "attribution");
+        }
+        // set content_licence
+        if (AppConfig.Global().getParameter("info", "content_licence") != null) {
+            copyright.setLicense(AppConfig.Global().getParameter("info", "content_licence"));
+        } else {
+            copyright.setLicense("");
+            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "content_licence");
+        }
         // create and set current date as XMLGregorianCalendar element
         Date date = new Date();
         GregorianCalendar c = new GregorianCalendar();
@@ -157,11 +208,31 @@ public class GpxRoutingResponseWriter {
         copyright.setYear(cal);
         // Set the metadata information
         metadata.setCopyright(copyright);
-        metadata.setDesc(RoutingServiceSettings.getParameter("routing_description"));
-        metadata.setName(RoutingServiceSettings.getParameter("routing_name"));
+        if (RoutingServiceSettings.getParameter("routing_description") != null) {
+
+            metadata.setDesc(RoutingServiceSettings.getParameter("routing_description"));
+        } else {
+            metadata.setDesc("");
+            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "routung_description");
+        }
+        // set routing_name
+        if (RoutingServiceSettings.getParameter("routing_name") != null) {
+
+            metadata.setName(RoutingServiceSettings.getParameter("routing_name"));
+        } else {
+            metadata.setName("");
+            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "routing_name");
+        }
         metadata.setTime(cal);
         gpx.setMetadata(metadata);
-        gpx.setCreator(AppConfig.Global().getParameter("info", "author_tag"));
+        // set author_tag
+        if (AppConfig.Global().getParameter("info", "author_tag") != null) {
+            gpx.setCreator(AppConfig.Global().getParameter("info", "author_tag"));
+        } else {
+            gpx.setCreator("");
+            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "author_tag");
+        }
+
         // set gpx extensions
         GpxExtensions gpxExtensions = new GpxExtensions();
         gpxExtensions.setAttribution(RoutingServiceSettings.getAttribution());
