@@ -301,7 +301,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 						
 						_tmpWeight = _edgeWeight + _entryWeight;
 
-						if (_msptSubItem.weight > _tmpWeight || _msptSubItem.weight == Double.POSITIVE_INFINITY) {
+						if (_msptSubItem.weight > _tmpWeight) {
 							_msptSubItem.weight = _tmpWeight;
 							_msptSubItem.edge = iter.getEdge();
 							_msptSubItem.parent = currEdge;
@@ -365,7 +365,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 
 						MultiTreeSPEntryItem eeItem = ee.getItem(i);
 
-						if (eeItem.weight > _tmpWeight || eeItem.weight == Double.POSITIVE_INFINITY) {
+						if (eeItem.weight > _tmpWeight) {
 							eeItem.weight = _tmpWeight;
 							eeItem.edge = iter.getEdge();
 							eeItem.parent = currEdge;
