@@ -460,6 +460,11 @@ public class RoutingProfileManager {
 			double lat1 = points.getLat(nPoints - 2);
 			double lon2 = points.getLon(nPoints - 1);
 			double lat2 = points.getLat(nPoints - 1);
+			// For some reason, GH may return a response where the last two points are identical
+			if(lon1 == lon2 && lat1 == lat2 && nPoints > 2) {
+				lon1 = points.getLon(nPoints - 3);
+				lat1 = points.getLat(nPoints - 3);
+			}
 			return Helper.ANGLE_CALC.calcAzimuth(lat1, lon1, lat2, lon2);
 		}
 		else
