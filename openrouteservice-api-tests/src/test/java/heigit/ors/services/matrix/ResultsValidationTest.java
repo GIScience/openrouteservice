@@ -212,9 +212,15 @@ public class ResultsValidationTest extends ServiceTest {
         Assert.assertEquals(jTable.length(), rows);
         Assert.assertEquals(jTable.getJSONArray(0).length(), columns);
     }
-
+    /**
+     * Queries the matrix API with 12x12 symmetrical matrix. Queries the routing API
+     * with the same 12x12 single queries. Compares results. If results are within .2m of
+     * each other, test passes. This way the result of the matrix API is bound to be
+     * the same as the routing API
+     */
     @Test
     public void distanceTest() {
+        //Query Matrix API
         Response response = given()
                 .param("locations", getParameter("manyLocations"))
                 .param("sources", "all")
@@ -226,11 +232,11 @@ public class ResultsValidationTest extends ServiceTest {
                 .get(getEndPointName());
 
         String[] locations = (String[]) getParameter("manyLocationsArray");
-
-
+        
         Assert.assertEquals(response.getStatusCode(), 200);
         JSONObject jResponse = new JSONObject(response.body().asString());
         JSONArray jDistances = jResponse.getJSONArray("distances");
+        //Query Routing API 12x12 times
         for(int i = 0; i < 12; i++) {
             for (int j = 0; j < 12; j++) {
                 Response response2 = given()
@@ -244,16 +250,10 @@ public class ResultsValidationTest extends ServiceTest {
                 JSONObject jResponseRouting = new JSONObject(response2.body().asString());
                 JSONObject jRoute = (jResponseRouting.getJSONArray("routes")).getJSONObject(0);
                 double routeDistance = jRoute.getJSONObject("summary").getDouble("distance");
-//                double matrixDistance;
-
                 double matrixDistance = jDistances.getJSONArray(i).getDouble(j);
                 Assert.assertTrue( matrixDistance - .1 < routeDistance);
                 Assert.assertTrue( matrixDistance + .1 > routeDistance);
-//                        .assertThat()
-//                        .body("any { it.key == 'routes' }", is(true))
-//                        .body("routes[0].summary.distance", greaterThan(1f))
-//                        //(float)((double)(((JSONArray)jDistances.get(i*12)).get(j))) -
-//                        .statusCode(200);
+
             }
         }
     }
