@@ -21,7 +21,6 @@
 package heigit.ors.services.matrix;
 
 import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
 
@@ -33,7 +32,6 @@ import heigit.ors.services.common.ServiceTest;
 import io.restassured.response.Response;
 import junit.framework.Assert;
 
-import java.math.BigDecimal;
 
 @EndPointAnnotation(name = "matrix")
 public class ResultsValidationTest extends ServiceTest {
@@ -232,7 +230,7 @@ public class ResultsValidationTest extends ServiceTest {
                 .get(getEndPointName());
 
         String[] locations = (String[]) getParameter("manyLocationsArray");
-        
+
         Assert.assertEquals(response.getStatusCode(), 200);
         JSONObject jResponse = new JSONObject(response.body().asString());
         JSONArray jDistances = jResponse.getJSONArray("distances");
