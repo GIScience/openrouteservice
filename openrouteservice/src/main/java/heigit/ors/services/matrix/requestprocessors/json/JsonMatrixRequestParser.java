@@ -202,7 +202,6 @@ public class JsonMatrixRequestParser {
 			   Boolean b = Boolean.parseBoolean(value);
 			   if (!b && !value.equalsIgnoreCase("false"))
 				   throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "resolve_locations");
-			   
 			   req.setFlexibleMode(!b);
 		   }
 		   catch(Exception ex)
@@ -318,7 +317,6 @@ public class JsonMatrixRequestParser {
 			   Boolean b = Boolean.parseBoolean(value);
 			   if (!b && !value.equalsIgnoreCase("false"))
 				   throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "resolve_locations");
-			   
 			   req.setFlexibleMode(!b);
 		   }
 		   catch(Exception ex)
