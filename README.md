@@ -9,7 +9,7 @@ The following services are available via a RESTful interface served by Tomcat.
 - **Geocoding** - Resolves input coordinates to addresses and vice versa (**NOTE:** openrouteservice acts as a wrapper and connects to either [Photon](https://github.com/komoot/photon), [Nominatim](https://github.com/openstreetmap/Nominatim) or [Pelias](https://github.com/pelias/pelias). One of these services must be installed in addition to the openrouteservice).
 - **Places** - Search for points of interest around points or in geometries (**NOTE:** you will have to set up a locations database, for this please refer to [openrouteservice-tools](https://github.com/GIScience/openrouteservice-tools)).
 
-To play around with openrouteservice you may use our [demonstration server](https://www.openrouteservice.org) which comes with both the backend and a [frontend](https://github.com/GIScience/openrouteservice-app). Or simply sign up for an API key and fire your requests against the API directly via [swagger hub](https://app.swaggerhub.com/apis/OpenRouteService/ors-api/).
+To play around with openrouteservice you may use our [demonstration server](https://www.openrouteservice.org) which comes with both the backend and a [frontend](https://github.com/GIScience/openrouteservice-app). Or simply sign up for an API key and fire your requests against the API directly via [apiary](https://openrouteservice.docs.apiary.io/).
 
 Please note that openrouteservice uses a forked and edited version of [graphhopper 0.9](https://github.com/GIScience/graphhopper) which can be found [here](https://github.com/GIScience/graphhopper).
 
@@ -56,11 +56,11 @@ Both `/locations` and `/geocoding` need additional setup steps for usage.
 - `http://localhost:8080/name_of_war_archive/locations` | You will have to set up a locations database, for this please refer to [openrouteservice-tools](https://github.com/GIScience/openrouteservice-tools).
 - `http://localhost:8080/name_of_war_archive/geocoding` | You can either use [Photon](https://github.com/komoot/photon), [Nominatim](https://github.com/openstreetmap/Nominatim) or [Pelias](https://github.com/pelias/pelias). One of these services must be installed in addition to the openrouteservice and configured in `app.config`.
 
-Please find a detailed description of the api architecture on https://app.swaggerhub.com/apis/OpenRouteService/ors-api/.
+Please find a detailed description of the api architecture on https://openrouteservice.docs.apiary.io/.
 	
 ## API Documentation
 
-For an easy and interactive way to test the api, visit our [documentation](https://app.swaggerhub.com/apis/openrouteservice/ors-api/) at swaggerhub. After obtaining your key you can try out the different endpoints instantly and start firing requests.
+For an easy and interactive way to test the api, visit our [documentation](https://openrouteservice.docs.apiary.io/) at apiary. After obtaining your key you can try out the different endpoints instantly and start firing requests.
 
 ## Questions
 
