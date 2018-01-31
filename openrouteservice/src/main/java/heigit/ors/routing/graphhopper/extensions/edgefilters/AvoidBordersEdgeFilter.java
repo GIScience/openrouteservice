@@ -69,6 +69,12 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
         this._encoder = encoder;
     }
 
+    /**
+     * Initialise the edge filter object based on the type of borders to filter
+     *
+     * @param searchParams      The search parameters passed into the request
+     * @param extBorders        The extended borders graph storage to use
+     */
     private void init(RouteSearchParameters searchParams, BordersGraphStorage extBorders) {
         // Init the graph storage
         if(extBorders != null) {
@@ -88,6 +94,13 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
         }
     }
 
+    /**
+     * Determine whether the edge should be accepted for processing or reject. Depending on whether the request was to
+     * not cross any border or not cross controlled borders determines the type of border to reject.
+     *
+     * @param iter      An iterator to the edges that need to be filtered
+     * @return
+     */
     @Override
     public final boolean accept(EdgeIteratorState iter) {
 
