@@ -41,8 +41,8 @@ public class MultiTreeSPEntry implements Cloneable, Comparable<MultiTreeSPEntry>
 			MultiTreeSPEntryItem item = new MultiTreeSPEntryItem();
 			items[i] = item;
 
-			entryWeight = parent == null ? 0.0 : parent.items[i].weight;
-			if (entryWeight == 0.0 && parent != null)
+			entryWeight = parent == null ? Double.POSITIVE_INFINITY : parent.items[i].weight;
+			if (entryWeight == Double.POSITIVE_INFINITY && parent != null)
 				continue;
 
 			item.weight = edgeWeight + entryWeight;
@@ -99,6 +99,7 @@ public class MultiTreeSPEntry implements Cloneable, Comparable<MultiTreeSPEntry>
 		totalWeight = 0.0;
 		
 		for (int i = 0; i < items.length; i++) {
+			if(items[i].weight == Double.POSITIVE_INFINITY) continue;
 			totalWeight += items[i].weight;
 		}
 	}

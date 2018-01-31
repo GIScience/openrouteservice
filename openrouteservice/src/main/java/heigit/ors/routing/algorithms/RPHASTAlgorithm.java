@@ -181,11 +181,18 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 		for (int i = 0; i < from.length; i++) {
 			if (from[i] == -1)
 			  continue;
+
+			//If two queried points are on the same node, this case can occur
+			MultiTreeSPEntry existing = _bestWeightMapFrom.get(from[i]);
+			if (existing != null) {
+				existing.getItem(i).weight = 0.0;
+				continue;
+			}
 			
 			_currFrom = new MultiTreeSPEntry(from[i], EdgeIterator.NO_EDGE, 0.0, true, null, from.length);
-			_currFrom.getItem(i).weight = 0.0001;
+			_currFrom.getItem(i).weight = 0.0;
 			_currFrom.visited = true;
-			_prioQueue.add(_currFrom);
+				_prioQueue.add(_currFrom);
 
 			if (!_traversalMode.isEdgeBased()) 
 				_bestWeightMapFrom.put(from[i], _currFrom);
@@ -207,11 +214,19 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 	//		logger.info("HN: " + Integer.toString(_upwardEdgeFilter.getHighestNode()));
 	//	}
 
+
 		_currFrom = _bestWeightMapFrom.get(_upwardEdgeFilter.getHighestNode());
 		_currFrom.visited = true;
 		_currFrom.resetUpdate(true);
 		_prioQueue.clear();
 		_prioQueue.add(_currFrom);
+
+		for (int i = 0; i < from.length; i++) {
+			int sourceNode = from[i];
+			MultiTreeSPEntry mspTree = _bestWeightMapFrom.get(sourceNode);
+			mspTree.getItem(i).update = true;
+			_prioQueue.add(mspTree);
+		}
 
 		_outEdgeExplorer = _targetGraph.createExplorer();
 	//	sw = new StopWatch();
@@ -275,19 +290,18 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 						_msptItem = currEdge.getItem(i);
 						_entryWeight = _msptItem.weight;
 						
-						if (_entryWeight == 0.0)
+						if (_entryWeight == Double.POSITIVE_INFINITY)
 							continue;
-
-						_msptSubItem = ee.getItem(i);
 
 						if (_msptItem.update == false) {
-		//					upwardItersSkipped++;
+							//					upwardItersSkipped++;
 							continue;
 						}
+						_msptSubItem = ee.getItem(i);
 						
 						_tmpWeight = _edgeWeight + _entryWeight;
 
-						if (_msptSubItem.weight > _tmpWeight || _msptSubItem.weight == 0.0) {
+						if (_msptSubItem.weight > _tmpWeight) {
 							_msptSubItem.weight = _tmpWeight;
 							_msptSubItem.edge = iter.getEdge();
 							_msptSubItem.parent = currEdge;
@@ -309,7 +323,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 			}
 		}
 		
-		currEdge.resetUpdate(false);
+		if(!_targetGraph.containsNode(currEdge.adjNode)) currEdge.resetUpdate(false);
 	}
 
 	private void fillEdgesDownward(MultiTreeSPEntry currEdge, PriorityQueue<MultiTreeSPEntry> prioQueue,
@@ -339,19 +353,19 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 						_msptItem = currEdge.getItem(i);
 						_entryWeight = _msptItem.weight;
 						
-						if (_entryWeight == 0.0)
+						if (_entryWeight == Double.POSITIVE_INFINITY)
 							continue;
 
-						if (_msptItem.update == false) {
-		//					downwardItersSkipped++;
-							continue;
-						}
+//						if (_msptItem.update == false) {
+//		//					downwardItersSkipped++;
+//							continue;
+//						}
 
 						_tmpWeight = _edgeWeight + _entryWeight;
 
 						MultiTreeSPEntryItem eeItem = ee.getItem(i);
 
-						if (eeItem.weight > _tmpWeight || eeItem.weight == 0.0) {
+						if (eeItem.weight > _tmpWeight) {
 							eeItem.weight = _tmpWeight;
 							eeItem.edge = iter.getEdge();
 							eeItem.parent = currEdge;
@@ -375,7 +389,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 						// weight
 						// // does not have to be reset necessarily //
 						ee.visited = true;
-						ee.resetUpdate(true);
+//						ee.resetUpdate(true);
 						prioQueue.add(ee);
 					} else if (_addToQueue) {
 						ee.visited = true;
@@ -386,6 +400,6 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 			}
 		}
 		
-		currEdge.resetUpdate(false);
+//		currEdge.resetUpdate(false);
 	}
 }
