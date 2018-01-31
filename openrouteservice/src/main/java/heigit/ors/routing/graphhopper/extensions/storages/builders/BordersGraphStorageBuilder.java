@@ -45,7 +45,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private CountryBordersReader cbReader;
 
     public BordersGraphStorageBuilder() {
-        _storage = new BordersGraphStorage();
+
     }
 
     /**
@@ -62,15 +62,18 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
         if (_storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        // Read the border shapes from the file
-        String bordersFile = _parameters.get("boundaries");
-        String countryIdsFile = _parameters.get("ids");
-        String openBordersFile = _parameters.get("openborders");
-        // Read the file containing all of the country border polygons
-        this.cbReader = new CountryBordersReader(bordersFile, countryIdsFile, openBordersFile);
+        if(this.cbReader == null) {
+            // Read the border shapes from the file
+            String bordersFile = _parameters.get("boundaries");
+            String countryIdsFile = _parameters.get("ids");
+            String openBordersFile = _parameters.get("openborders");
+            // Read the file containing all of the country border polygons
+            this.cbReader = new CountryBordersReader(bordersFile, countryIdsFile, openBordersFile);
+        }
 
         _storage = new BordersGraphStorage();
         return _storage;
+
     }
 
     /**

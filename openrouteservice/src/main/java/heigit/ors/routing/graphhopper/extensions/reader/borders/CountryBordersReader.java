@@ -185,10 +185,9 @@ public class CountryBordersReader {
                 Geometry geom = GeometryJSON.parse(obj.getJSONObject("geometry"));
                 // Also need the id of the country and its hierarchy id
                 String id = obj.getJSONObject("properties").getString(ID_FIELD);
-                Long hId = obj.getJSONObject("properties").getLong(HIERARCHY_ID_FIELD);
-
-                if(hId == null)
-                    hId = 1l;
+                Long hId = 1l;
+                if(obj.getJSONObject("properties").has(HIERARCHY_ID_FIELD))
+                    hId = obj.getJSONObject("properties").getLong(HIERARCHY_ID_FIELD);
 
                 // Create the borders object
                 CountryBordersPolygon c = new CountryBordersPolygon(id, geom);

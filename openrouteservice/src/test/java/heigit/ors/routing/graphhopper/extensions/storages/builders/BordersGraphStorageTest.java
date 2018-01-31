@@ -74,6 +74,12 @@ public class BordersGraphStorageTest {
 
         _cbr.addHierarchy(1l, h);
         _builder.setBordersBuilder(_cbr);
+
+        try {
+            _builder.init(null);
+        } catch (Exception e) {
+
+        }
     }
 
     /**
