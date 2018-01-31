@@ -30,6 +30,7 @@ import com.graphhopper.util.EdgeIteratorState;
 
 import com.vividsolutions.jts.geom.Envelope;
 
+import com.vividsolutions.jts.geom.LineString;
 import heigit.ors.plugins.PluginManager;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.graphhopper.extensions.graphbuilders.GraphBuilder;
@@ -133,6 +134,34 @@ public class GraphProcessContext {
 							_arrStorageBuilders[i].processWay(way);
 						}
 					}
+				}
+			}
+		}
+		catch(Exception ex)
+		{
+			LOGGER.warning(ex.getMessage() + ". Way id = " + way.getId());
+		}
+	}
+
+	/**
+	 * Pass the way read along with its geometry (a LineString) to the graph storage builders.
+	 *
+	 * @param way		The OSM data for the way (including tags)
+	 * @param ls		The geometry of the way (not present in ReaderWay objects
+	 */
+	public void processWay(ReaderWay way, LineString ls) {
+		try
+		{
+			if (_arrStorageBuilders != null)
+			{
+				int nStorages = _arrStorageBuilders.length;
+				if (nStorages > 0)
+				{
+					for (int i = 0; i < nStorages; ++i)
+					{
+						_arrStorageBuilders[i].processWay(way, ls);
+					}
+
 				}
 			}
 		}

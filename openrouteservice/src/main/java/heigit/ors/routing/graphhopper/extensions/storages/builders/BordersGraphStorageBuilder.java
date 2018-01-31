@@ -24,14 +24,14 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.Helper;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
+import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
+import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
+import org.apache.log4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 
 /**
  * Class for building the Borders graph extension that allows restricting routes regarding border crossings
@@ -39,19 +39,19 @@ import java.util.Map;
  * @author Adam Rousell
  */
 public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
+    final static Logger LOGGER = Logger.getLogger(BordersGraphStorageBuilder.class.getName());
+
     private BordersGraphStorage _storage;
-    private Map<Long, Short[]> _borders = new HashMap<>();
-    private short DEFAULT_BORDER_TYPE = 0;
+    private CountryBordersReader cbReader;
 
     public BordersGraphStorageBuilder() {
-
+        _storage = new BordersGraphStorage();
     }
 
     /**
      * Initialize the Borders graph extension <br/><br/>
-     * <p>
-     * If the storage has not yet been initialized, it reads the Borders CSV file and stores the information ready
-     * for generating the graph
+     * Files required for the process are obtained from the app.config and passed to a CountryBordersReader object
+     * which stores information required for the process (i.e. country geometries and border types)
      *
      * @param graphhopper
      * @return
@@ -62,144 +62,79 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
         if (_storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        String csvFile = _parameters.get("filepath");
-        readBorderWaysFromCSV(csvFile);
+        // Read the border shapes from the file
+        String bordersFile = _parameters.get("boundaries");
+        String countryIdsFile = _parameters.get("ids");
+        String openBordersFile = _parameters.get("openborders");
+        // Read the file containing all of the country border polygons
+        this.cbReader = new CountryBordersReader(bordersFile, countryIdsFile, openBordersFile);
+
         _storage = new BordersGraphStorage();
         return _storage;
     }
 
     /**
-     * Read information from the Borders CSV file.<br/><br/>
-     * <p>
-     * This method reads the information from the Borders CSV file (path specified in app.config) and stores the
-     * border crossings contained in a map to be used when building the graph.
+     * COverwrite the current reader with a custom built CountryBordersReader.
      *
-     * @param csvFile The path to the CSV file containing the border crossing info.
-     * @throws IOException
+     * @param cbr       The CountryBordersReader object to be used
      */
-    private void readBorderWaysFromCSV(String csvFile) throws IOException {
-        BufferedReader csvBuffer = null;
-
-        // The csv data should be as follows:
-        // osm id (long), border type (hard, soft)
-
-        try {
-            String row;
-            csvBuffer = new BufferedReader(new FileReader(csvFile));
-            // Jump the header line
-            row = csvBuffer.readLine();
-            char separator = row.contains(";") ? ';' : ',';
-            String[] rowValues = new String[4];
-
-            while ((row = csvBuffer.readLine()) != null) {
-                if (!parseCSVrow(row, separator, rowValues))
-                    continue;
-
-                _borders.put(Long.parseLong(rowValues[0]), new Short[]{Short.parseShort(rowValues[3]), Short.parseShort(rowValues[1]), Short.parseShort(rowValues[2])});
-            }
-
-        } catch (IOException openFileEx) {
-            openFileEx.printStackTrace();
-            throw openFileEx;
-        } finally {
-            if (csvBuffer != null)
-                csvBuffer.close();
-        }
-    }
-
-    /**
-     * Parse a row of the CSV data and add the information to the passed String array
-     *
-     * @param row       The complete row read from the CSV
-     * @param separator The seperator value used by the CSV to seperate columns
-     * @param rowValues The array that obtained values should be written to
-     * @return A boolean signifying whether the row is valid
-     */
-    private boolean parseCSVrow(String row, char separator, String[] rowValues) {
-        if (Helper.isEmpty(row))
-            return false;
-
-        String[] split = row.split(Character.toString(separator));
-        // check to see how many columns - its should be the same length as the rowValues array
-        if (split.length != rowValues.length) {
-            return false;
-        }
-
-        // We have the same length of columns as expected, so now match to the rowValues
-        for (int i = 0; i < rowValues.length; i++) {
-            rowValues[i] = split[i].trim().replace("\"", "");
-            if (Helper.isEmpty(rowValues[i]))
-                return false;
-        }
-
-        // If we got this far, then it is ok
-        return true;
+    public void setBordersBuilder(CountryBordersReader cbr) {
+        this.cbReader = cbr;
     }
 
     @Override
     public void processWay(ReaderWay way) {
-
+        LOGGER.warn("Borders requires geometry for the way!");
     }
 
     /**
+     * Process a way read from the reader and determine whether it crosses a country border. If it does, then country
+     * names are stored which identify the countries it crosses.
+     *
+     * @param way
+     * @param ls
+     */
+    @Override
+    public void processWay(ReaderWay way, LineString ls) {
+        // Process the way using the geometry provided
+        String[] countries = findBorderCrossing(ls);
+
+        // If we find that the length of countries is more than one, then it does cross a border
+        if(countries.length > 1) {
+            way.setTag("country1", countries[0]);
+            way.setTag("country2", countries[1]);
+        }
+    }
+
+     /**
      * Method to process the edge and store it in the graph.<br/><br/>
      * <p>
-     * It uses the OSM way ID to obtain data from the border crossings data read previously and calls the setEdgeValues
-     * method within the BordersGraphStorage object.
+     * It checks the way to see if it has start and end country tags (introduced in the processWay method) and then
+      * determines the type of border crossing (1 for controlled and 2 for open)
      *
      * @param way  The OSM way obtained from the OSM reader. This way corresponds to the edge to be processed
      * @param edge The graph edge to be process
      */
     @Override
     public void processEdge(ReaderWay way, EdgeIteratorState edge) {
-        _storage.setEdgeValue(edge.getEdge(),
-                calcBorderCrossing(way.getId(), BordersGraphStorage.Property.TYPE),
-                calcBorderCrossing(way.getId(), BordersGraphStorage.Property.START),
-                calcBorderCrossing(way.getId(), BordersGraphStorage.Property.END)
-        );
-    }
+        // If there is no border crossing then we set the edge value to be 0
 
-    /**
-     * Method to calculate the values of the edge which should be stored in the graph ready for usage when determining
-     * dynamic weights.<br/><br/>
-     * <p>
-     * The method takes an OSM way ID (that corresponds to the edge of the graph) and obtians the corresponding data
-     * from the border data read during initialisation of the StorageBuilder.<br/><br/>
-     * <p>
-     * If there is no corresponding way in the border crossing data, then the vlaue is set to 0.
-     *
-     * @param id   OSM Way ID of the edge
-     * @param prop The property to be obtained from the border array (TYPE, START, END)
-     * @return The corresponding value obtained from the border data
-     */
-    private short calcBorderCrossing(long id, BordersGraphStorage.Property prop) {
-        //TODO: Change to short
-        Short[] border = _borders.get(id);
-        if (border != null) {
-            // determine the property we are obtaining
-            switch (prop) {
-                case TYPE:
-                    if (border[0] == null)
-                        return DEFAULT_BORDER_TYPE;
-                    else {
-                        return border[0];
-                    }
-                case START:
-                    if (border[1] == null)
-                        return 0;
-                    else {
-                        return border[1];
-                    }
-                case END:
-                    if (border[2] == null)
-                        return 0;
-                    else {
-                        return border[2];
-                    }
-            }
+        // First get the start and end countries - if either of these is empty, then there is no crossing
+        if(way.hasTag("country1") && way.hasTag("country2")) {
+            String startVal = way.getTag("country1");
+            String endVal = way.getTag("country2");
+
+            // Lookup values
+            short start = Short.parseShort(cbReader.getId(startVal));
+            short end = Short.parseShort(cbReader.getId(endVal));
+
+            short type = (cbReader.isOpen(cbReader.getEngName(startVal), cbReader.getEngName(endVal))) ? (short)2 : (short)1;
+
+            _storage.setEdgeValue(edge.getEdge(), type, start, end);
         }
-
-        return 0;
+        else {
+            _storage.setEdgeValue(edge.getEdge(), (short)0, (short)0, (short)0);
+        }
     }
 
     /**
@@ -210,5 +145,87 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
     @Override
     public String getName() {
         return "Borders";
+    }
+
+    /**
+     * Method to identify the countries that a way is found in. basically iterates over the country boundaries read from
+     * the file adn then does geometric calculations to identify wheich country each node of the way is in.
+     *
+     * @param ls        LineString representing the way
+     * @return          An array of strings representing the countries that nodes are found in. If the way is only
+     *                  found in one country, then only one name is returned.
+     */
+    public String[] findBorderCrossing(LineString ls) {
+
+        ArrayList<CountryBordersPolygon> countries = new ArrayList<>();
+
+        // Go through the points of the linestring and check what country they are in
+        int lsLen = ls.getNumPoints();
+        if(lsLen > 1) {
+            for(int i=0; i<lsLen; i++) {
+                Point p = ls.getPointN(i);
+                // Make sure that it is a valid point
+
+                if(!Double.isNaN(p.getCoordinate().x) && !Double.isNaN(p.getCoordinate().y)) {
+                    CountryBordersPolygon[] cnts = cbReader.getCandidateCountry(p);
+                    for (CountryBordersPolygon cbp : cnts) {
+                        // This check is for the bbox as that is quickest for detecting if there is the possibility of a
+                        // crossing
+                        if (!countries.contains(cbp)) {
+                            countries.add(cbp);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Now get the definite ones that are contained - though this involves another iteration, it will be quicker
+        // than the linestring check in the next stage
+        if(countries.size() > 1) {
+            ArrayList<CountryBordersPolygon> temp = new ArrayList<>();
+            for(CountryBordersPolygon cbp : countries) {
+                for(int i=0; i<lsLen; i++) {
+                    Point p = ls.getPointN(i);
+                    if(!Double.isNaN(p.getCoordinate().x) && !Double.isNaN(p.getCoordinate().y)) {
+                        if (cbp.inArea(ls.getPointN(i).getCoordinate()) && !temp.contains(cbp)) {
+                            temp.add(cbp);
+                        }
+                    }
+                }
+            }
+
+            // Replace the arraylist
+            countries = temp;
+        }
+
+
+        // Now we have a list of all the countries that the nodes are in - if this is more than one it is likely it is
+        // crossing a border, but not certain as in some disputed areas, countries overlap and so it may not cross any
+        // border
+        if(countries.size() > 1) {
+            boolean crosses = false;
+            // Check for actually crossing a border
+            for(CountryBordersPolygon cp : countries) {
+                if(cp.crossesBoundary(ls)) {
+                    // it crosses a border
+                    crosses = true;
+                    break;
+                }
+            }
+
+            if(!crosses) {
+                // We want to indicate that it is in the same country, so to do that we only pass one country back
+                CountryBordersPolygon cp = countries.get(0);
+                countries.clear();
+                countries.add(cp);
+            }
+        }
+
+        // Now get the names of the countries
+        String[] names = new String[countries.size()];
+        for(int i=0; i<countries.size(); i++) {
+            names[i] = countries.get(i).getName();
+        }
+        return names;
     }
 }
