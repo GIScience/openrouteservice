@@ -21,6 +21,8 @@
 package heigit.ors.config;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -32,14 +34,19 @@ import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
 
+import org.apache.log4j.Logger;
+
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.util.StringUtility;
+import heigit.ors.util.FileUtility;
 
 public class AppConfig {
 
 	private Config _config;
 	private static AppConfig _global;
-	
+	private static String osm_md5_hash = null;
+	private static final Logger LOGGER = Logger.getLogger(AppConfig.class.getName());
+
 	public AppConfig(String path)
 	{
 		File file = new File(path);
@@ -51,6 +58,21 @@ public class AppConfig {
     	
     	File file = new File(url.getPath());
 		_config = ConfigFactory.parseFile(file);
+
+		//Modification by H Leuschner: Save md5 hash of map file in static String for access with every request
+		File graphsDir = new File(getServiceParameter("routing.profiles.default_params", "graphs_root_path"));
+		File[] md5Files = graphsDir.listFiles(new FileFilter() {
+			public boolean accept(File pathname) {
+				return pathname.getName().endsWith(".md5");
+			}
+		});
+		if (md5Files != null && md5Files.length == 1){
+			try{
+				osm_md5_hash = FileUtility.readFile(md5Files[0].toString()).trim();
+			}
+			catch (IOException e)
+			{LOGGER.error(e);}
+		}
 	}
 	
 	public static AppConfig Global()
@@ -120,7 +142,16 @@ public class AppConfig {
 		
 		return null;
 	}
-	
+
+	public static boolean hasValidMD5Hash()
+	{
+		return osm_md5_hash != null;
+	}
+
+	public static String getMD5Hash()
+	{
+		return osm_md5_hash;
+	}
 
 	public Map<String,Object> getServiceParametersMap(String serviceName, String paramName, boolean quotedStrings)
 	{

@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+	
     <modelVersion>4.0.0</modelVersion>
     <groupId>heigit.ors</groupId>
     <artifactId>openrouteservice</artifactId>
@@ -19,13 +19,15 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.timestamp>${maven.build.timestamp}</project.timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
+        <!-- The following line might show up as an error in IntelliJ IDE... it is not an error but a bug in IntelliJ so don't worry! -->
+        <build.version>${git.commit.time}.${git.commit.id.abbrev}</build.version>
     </properties>
-  <scm>
+     <scm>
   	<url>git@gitlab.com:giscience/openrouteservice/ORS_backend.git</url>
    	<connection>scm:git:git@gitlab.com:giscience/openrouteservice/ORS_backend.git</connection>
    	<developerConnection>scm:git:git@gitlab.com:giscience/openrouteservice/ORS_backend.git</developerConnection>
-  </scm>
-    
+     </scm>
+
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>
     <resources>
@@ -41,8 +43,46 @@
          <filtering>true</filtering>
        </resource>
      </resources>
-    
+
     <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.8</version>
+            <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>run</goal>
+                    </goals>
+                    <configuration>
+                        <tasks>
+                            <echo>Creating version file</echo>
+                            <copy file="${basedir}/target/${project.artifactId}-${project.version}/WEB-INF/classes/resources/version.properties" tofile="${basedir}/target/version.properties" />
+                        </tasks>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+        <plugin>
+            <groupId>pl.project13.maven</groupId>
+            <artifactId>git-commit-id-plugin</artifactId>
+            <version>2.2.1</version>
+            <executions>
+                <execution>
+                    <phase>validate</phase>
+                    <goals>
+                        <goal>revision</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <dateFormat>yyyMMdd-HHmmss</dateFormat>
+                <dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
+                <generateGitPropertiesFile>false</generateGitPropertiesFile>
+                <injectAllReactorProjects>true</injectAllReactorProjects>
+            </configuration>
+        </plugin>
      <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.3</version>
@@ -58,6 +98,14 @@
           <warSourceDirectory>WebContent</warSourceDirectory>
            <webXml>WebContent/WEB-INF/web.xml</webXml>
           <failOnMissingWebXml>false</failOnMissingWebXml>
+          <!-- <attachClasses>true</attachClasses>
+          <classesClassifier>classes</classesClassifier> -->
+          <!-- <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>ors.heigit.routing.GraphBuilder</mainClass>
+            </manifest>
+          </archive>-->
         </configuration>
       </plugin>
       <plugin>
@@ -91,7 +139,7 @@
       </plugin>
       </plugins>
   </build>
-  
+
   <repositories>
 		<repository>
 			<id>maven2-repository.dev.java.net</id>
@@ -121,7 +169,7 @@
 		    <url>https://jitpack.io</url>
 		</repository>
     </repositories>
-	
+
 <dependencies>
 	<dependency>
 		<groupId>com.vividsolutions</groupId>
@@ -146,7 +194,7 @@
     	<artifactId>gt-epsg-hsql</artifactId>
     	<version>16.1</version>
 	</dependency>
- 
+
 	<dependency>
 		<groupId>log4j</groupId>
 		<artifactId>log4j</artifactId>
@@ -176,33 +224,39 @@
     	<groupId>net.sf.trove4j</groupId>
     	<artifactId>trove4j</artifactId>
     	<version>3.0.3</version>
-	</dependency>        
+	</dependency>
 
  	<dependency>
-	 	<groupId>com.github.GIScience</groupId>
-		<artifactId>graphhopper</artifactId>
-	   	<version>v0.9.9</version>
-	</dependency>
- 
- 
-<!-- remove the comment to enable debugging    
- 	<dependency>
-	 	<groupId>com.graphhopper</groupId>
+	 	<groupId>com.github.GIScience.graphhopper</groupId>
 		<artifactId>graphhopper-core</artifactId>
-	   	<version>0.10-SNAPSHOT</version>
+	   	<version>v0.9.11</version>
 	</dependency>
-  
-  	<dependency>
-	 	<groupId>com.graphhopper</groupId>
-	   <artifactId>graphhopper-reader-osm</artifactId>
-	   	<version>0.10-SNAPSHOT</version>
-	</dependency>
- -->
+
+        <dependency>
+		<groupId>com.github.GIScience.graphhopper</groupId>
+		<artifactId>graphhopper-reader-osm</artifactId>
+		<version>v0.9.11</version>
+        </dependency>
+
+
+    <!-- remove the comment to enable debugging
+         <dependency>
+             <groupId>com.graphhopper</groupId>
+            <artifactId>graphhopper-core</artifactId>
+               <version>0.10-SNAPSHOT</version>
+        </dependency>
+
+          <dependency>
+             <groupId>com.graphhopper</groupId>
+           <artifactId>graphhopper-reader-osm</artifactId>
+               <version>0.10-SNAPSHOT</version>
+        </dependency>
+     -->
 	<dependency>
     	<groupId>com.typesafe</groupId>
 	    <artifactId>config</artifactId>
 	    <version>1.3.1</version>
-	</dependency>        
+	</dependency>
 
 	<dependency>
     	<groupId>com.zaxxer</groupId>
@@ -222,14 +276,19 @@
       	<artifactId>jbrotli</artifactId>
       	<version>0.5.0</version>
    	</dependency>
-   
-	<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.4</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
 <!-- <dependency>
     	<groupId>mysql</groupId>
     	<artifactId>mysql-connector-java</artifactId>
     	<version>6.0.5</version>
 	</dependency>
- -->            
+ -->
 </dependencies>
 
     <!-- mvn deploy -DperformRelease=true -->

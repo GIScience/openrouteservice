@@ -358,6 +358,23 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
             speed = applyMaxSpeed(way, speed);
 
             speed = getSurfaceSpeed(way, speed);
+
+            // Assume that in residential areas we will travel slower if the segment is short
+            if(way.hasTag("highway","residential")) {
+                // Check length
+                if(way.hasTag("estimated_distance")) {
+                    double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
+                    // take into account number of nodes to get an average distance between nodes
+                    double interimDistance = estDist;
+                    int interimNodes = way.getNodes().size() - 2;
+                    if(interimNodes > 0) {
+                        interimDistance = estDist/(interimNodes+1);
+                    }
+                    if(interimDistance < 100) {
+                        speed = speed * 0.5;
+                    }
+                }
+            }
             
             boolean isRoundabout = way.hasTag("junction", "roundabout");
 

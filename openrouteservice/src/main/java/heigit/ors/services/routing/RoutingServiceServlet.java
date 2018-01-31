@@ -20,8 +20,9 @@
  */
 package heigit.ors.services.routing;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import heigit.ors.services.routing.requestprocessors.RoutingServiceRequestProcessorFactory;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;

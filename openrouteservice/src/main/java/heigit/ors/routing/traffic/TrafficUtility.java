@@ -62,7 +62,8 @@ import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.operation.linemerge.LineMerger;
 import com.vividsolutions.jts.operation.linemerge.LineSequencer;
 
-import sun.misc.BASE64Encoder;
+import java.util.Base64;
+
 
 @SuppressWarnings("restriction")
 public class TrafficUtility {
@@ -431,9 +432,8 @@ public class TrafficUtility {
 		try {
 			URL url = new URL(address);
 			URLConnection con = url.openConnection();
-			byte[] encodedPassword = "doof:letmein2011".getBytes();
-			BASE64Encoder encoder = new BASE64Encoder();
-			con.setRequestProperty("Authorization", "Basic " + encoder.encode(encodedPassword));
+			byte[] encodedPassword = Base64.getEncoder().encode("doof:letmein2011".getBytes());
+			con.setRequestProperty("Authorization", "Basic " + encodedPassword);
 			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 			String inputLine;
 			while ((inputLine = in.readLine()) != null) {

@@ -35,6 +35,7 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 import heigit.ors.common.StatusCode;
+import heigit.ors.config.AppConfig;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
@@ -261,6 +262,9 @@ public class JsonLocationsRequestProcessor extends AbstractHttpRequestProcessor
 		if (!Helper.isEmpty(LocationsServiceSettings.getAttribution()))
 			jInfo.put("attribution", LocationsServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());
+
+		if (AppConfig.hasValidMD5Hash())
+			jInfo.put("osm_file_md5_hash", AppConfig.getMD5Hash());
 
 		if (request != null)
 		{

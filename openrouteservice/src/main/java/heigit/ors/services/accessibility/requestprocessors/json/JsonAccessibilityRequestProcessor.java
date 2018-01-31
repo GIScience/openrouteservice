@@ -41,6 +41,7 @@ import heigit.ors.accessibility.AccessibilityRequest;
 import heigit.ors.accessibility.AccessibilityResult;
 import heigit.ors.common.StatusCode;
 import heigit.ors.common.TravellerInfo;
+import heigit.ors.config.AppConfig;
 import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.geojson.GeometryJSON;
@@ -56,249 +57,230 @@ import heigit.ors.servlet.util.ServletUtility;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.GeomUtility;
 
-public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProcessor
-{
-	public JsonAccessibilityRequestProcessor(HttpServletRequest request) throws Exception 
-	{
-		super(request);
-	}
 
-	@Override
-	public void process(HttpServletResponse response) throws Exception
-	{
-		AccessibilityRequest req = null;
+public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProcessor {
+    public JsonAccessibilityRequestProcessor(HttpServletRequest request) throws Exception {
+        super(request);
+    }
 
-		switch (_request.getMethod())
-		{
-		case "GET":
-			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED);
-			//req = JsonAccessibilityRequestParser.parseFromRequestParams(_request);
-		default:
-			req = JsonAccessibilityRequestParser.parseFromStream(_request.getInputStream());
-			break;
-		}
+    @Override
+    public void process(HttpServletResponse response) throws Exception {
+        AccessibilityRequest req = null;
 
-		if (req == null)
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, "AccessibilityRequest object is null.");
-		
- 		List<TravellerInfo> travellers = req.getTravellers();
-		
-		if (travellers.size() > AccessibilityServiceSettings.getMaximumLocations())
-			throw new ParameterOutOfRangeException(AccessibilityErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations", Integer.toString(travellers.size()), Integer.toString(AccessibilityServiceSettings.getMaximumLocations()));
+        switch (_request.getMethod()) {
+            case "GET":
+                throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED);
+                //req = JsonAccessibilityRequestParser.parseFromRequestParams(_request);
+            default:
+                req = JsonAccessibilityRequestParser.parseFromStream(_request.getInputStream());
+                break;
+        }
 
-		for (int i = 0;i < travellers.size(); ++i){
-			TravellerInfo traveller = travellers.get(i);
-			int maxAllowedRange = AccessibilityServiceSettings.getMaximumRange(traveller.getRouteSearchParameters().getProfileType(), traveller.getRangeType());
-			double maxRange = traveller.getMaximumRange();
-			if (maxRange > maxAllowedRange)
-				throw new ParameterOutOfRangeException(AccessibilityErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(maxAllowedRange), Double.toString(maxRange));
-		}
+        if (req == null)
+            throw new StatusCodeException(StatusCode.BAD_REQUEST, "AccessibilityRequest object is null.");
+
+        List<TravellerInfo> travellers = req.getTravellers();
+
+        if (travellers.size() > AccessibilityServiceSettings.getMaximumLocations())
+            throw new ParameterOutOfRangeException(AccessibilityErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations", Integer.toString(travellers.size()), Integer.toString(AccessibilityServiceSettings.getMaximumLocations()));
+
+        for (int i = 0; i < travellers.size(); ++i) {
+            TravellerInfo traveller = travellers.get(i);
+            int maxAllowedRange = AccessibilityServiceSettings.getMaximumRange(traveller.getRouteSearchParameters().getProfileType(), traveller.getRangeType());
+            double maxRange = traveller.getMaximumRange();
+            if (maxRange > maxAllowedRange)
+                throw new ParameterOutOfRangeException(AccessibilityErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(maxAllowedRange), Double.toString(maxRange));
+        }
 
 
-		AccessibilityResult accesibilityResult = AccessibilityAnalyzer.computeAccessibility(req);
+        AccessibilityResult accesibilityResult = AccessibilityAnalyzer.computeAccessibility(req);
 
-		writeAccessibilityResponse(response, req, accesibilityResult);
-	}
+        writeAccessibilityResponse(response, req, accesibilityResult);
+    }
 
-	private void writeAccessibilityResponse(HttpServletResponse response, AccessibilityRequest request, AccessibilityResult result) throws Exception
-	{
-		JSONObject jResp = new JSONObject(4);
+    private void writeAccessibilityResponse(HttpServletResponse response, AccessibilityRequest request, AccessibilityResult result) throws Exception {
+        JSONObject jResp = new JSONObject(4);
 
-		int nResults = result.getLocations().size();
-		boolean geoJsonFormat = AccessibilityServiceSettings.getRouteDetailsAllowed() &&  request.getRoutesFormat() != null && "geojson".equalsIgnoreCase(request.getRoutesFormat());
+        int nResults = result.getLocations().size();
+        boolean geoJsonFormat = AccessibilityServiceSettings.getRouteDetailsAllowed() && request.getRoutesFormat() != null && "geojson".equalsIgnoreCase(request.getRoutesFormat());
 
-		if (nResults > 0)
-		{
-			RoutingRequest reqRouting = new RoutingRequest();
-			reqRouting.setIncludeElevation(request.getIncludeElevation());
-			reqRouting.setIncludeGeometry(request.getIncludeGeometry());
-			reqRouting.setGeometryFormat(request.getGeometryFormat());
-			
-			StringBuffer buffer = new StringBuffer();
+        if (nResults > 0) {
+            RoutingRequest reqRouting = new RoutingRequest();
+            reqRouting.setIncludeElevation(request.getIncludeElevation());
+            reqRouting.setIncludeGeometry(request.getIncludeGeometry());
+            reqRouting.setGeometryFormat(request.getGeometryFormat());
 
-			List<LocationsResult> locations = result.getLocations();
-			List<RouteResult> routes = result.getRoutes();
+            StringBuffer buffer = new StringBuffer();
 
-			double minX = Double.MAX_VALUE;
-			double minY = Double.MAX_VALUE;
-			double maxX = Double.MIN_VALUE;
-			double maxY = Double.MIN_VALUE;
+            List<LocationsResult> locations = result.getLocations();
+            List<RouteResult> routes = result.getRoutes();
 
-			// **************** Locations **********************
+            double minX = Double.MAX_VALUE;
+            double minY = Double.MAX_VALUE;
+            double maxX = Double.MIN_VALUE;
+            double maxY = Double.MIN_VALUE;
 
-			JSONObject jLocations = new JSONObject(true, nResults);
-			jResp.put("places", jLocations);
+            // **************** Locations **********************
 
-			JSONArray jLocationFeatures = new JSONArray(nResults);
-			jLocations.put("type", "FeatureCollection");        
-			jLocations.put("features", jLocationFeatures);
+            JSONObject jLocations = new JSONObject(true, nResults);
+            jResp.put("places", jLocations);
 
-			for (int j = 0; j < nResults; j++) 
-			{
-				LocationsResult lr = locations.get(j);
+            JSONArray jLocationFeatures = new JSONArray(nResults);
+            jLocations.put("type", "FeatureCollection");
+            jLocations.put("features", jLocationFeatures);
 
-				// skip locations that don't have routes
-				if (routes.get(j) == null)
-					continue;
+            for (int j = 0; j < nResults; j++) {
+                LocationsResult lr = locations.get(j);
 
-				Geometry geom = lr.getGeometry();
+                // skip locations that don't have routes
+                if (routes.get(j) == null)
+                    continue;
 
-				JSONObject feature = new JSONObject(true, 3);
-				feature.put("type", "Feature");
+                Geometry geom = lr.getGeometry();
 
-				JSONObject point = new JSONObject(true);
-				point.put("type", geom.getClass().getSimpleName());
-				point.put("coordinates", GeometryJSON.toJSON(geom, buffer));
+                JSONObject feature = new JSONObject(true, 3);
+                feature.put("type", "Feature");
 
-				feature.put("geometry", point);
+                JSONObject point = new JSONObject(true);
+                point.put("type", geom.getClass().getSimpleName());
+                point.put("coordinates", GeometryJSON.toJSON(geom, buffer));
 
-				Map<String, Object> props = lr.getProperties();
+                feature.put("geometry", point);
 
-				JSONObject properties = new JSONObject(true, props.size());
+                Map<String, Object> props = lr.getProperties();
 
-				if (props.size() > 0)
-				{
-					for(Map.Entry<String, Object> entry : props.entrySet())
-						properties.put(entry.getKey(), entry.getValue());
-				}
+                JSONObject properties = new JSONObject(true, props.size());
 
-				feature.put("properties", properties);
-				jLocationFeatures.put(feature);
-			}
+                if (props.size() > 0) {
+                    for (Map.Entry<String, Object> entry : props.entrySet())
+                        properties.put(entry.getKey(), entry.getValue());
+                }
+
+                feature.put("properties", properties);
+                jLocationFeatures.put(feature);
+            }
 
 
-			// **************** Routes **********************
-			JSONArray jRoutes = new JSONArray();
-			jResp.put("routes", jRoutes);
+            // **************** Routes **********************
+            JSONArray jRoutes = new JSONArray();
+            jResp.put("routes", jRoutes);
 
-			if (geoJsonFormat)
-			{
-				Map<Integer, JSONObject> routesByLocationIndex = new LinkedHashMap<Integer, JSONObject>();
+            if (geoJsonFormat) {
+                Map<Integer, JSONObject> routesByLocationIndex = new LinkedHashMap<Integer, JSONObject>();
 
-				for (int i = 0; i < result.getRoutes().size(); ++i)
-				{
-					RouteResult route = result.getRoutes().get(i);
-					if (route != null)
-					{
-						JSONObject feature = new JSONObject(true, 3);
-						feature.put("type", "Feature");
+                for (int i = 0; i < result.getRoutes().size(); ++i) {
+                    RouteResult route = result.getRoutes().get(i);
+                    if (route != null) {
+                        JSONObject feature = new JSONObject(true, 3);
+                        feature.put("type", "Feature");
 
-						Geometry geom = GeomUtility.createLinestring(route.getGeometry());
+                        Geometry geom = GeomUtility.createLinestring(route.getGeometry());
 
-						JSONObject jGeometry = new JSONObject(true);
-						jGeometry.put("type", geom.getClass().getSimpleName());
-						jGeometry.put("coordinates", GeometryJSON.toJSON(geom, buffer));
-						feature.put("geometry", jGeometry);
+                        JSONObject jGeometry = new JSONObject(true);
+                        jGeometry.put("type", geom.getClass().getSimpleName());
+                        jGeometry.put("coordinates", GeometryJSON.toJSON(geom, buffer));
+                        feature.put("geometry", jGeometry);
 
-						JSONObject properties = new JSONObject(true, 3);
-						properties.put("duration", route.getSummary().getDuration());
-						properties.put("distance", route.getSummary().getDistance());
-						feature.put("properties", properties);
+                        JSONObject properties = new JSONObject(true, 3);
+                        properties.put("duration", route.getSummary().getDuration());
+                        properties.put("distance", route.getSummary().getDistance());
+                        feature.put("properties", properties);
 
-						JSONArray jRouteFeatures = null;
-						JSONObject jRouteForLocIndex = routesByLocationIndex.get(route.getLocationIndex());
-						if (jRouteForLocIndex == null)
-						{
-							jRouteForLocIndex = new JSONObject(true);
-							jRouteForLocIndex.put("type", "FeatureCollection");
+                        JSONArray jRouteFeatures = null;
+                        JSONObject jRouteForLocIndex = routesByLocationIndex.get(route.getLocationIndex());
+                        if (jRouteForLocIndex == null) {
+                            jRouteForLocIndex = new JSONObject(true);
+                            jRouteForLocIndex.put("type", "FeatureCollection");
 
-							jRouteFeatures = new JSONArray();
-							jRouteForLocIndex.put("features", jRouteFeatures);
+                            jRouteFeatures = new JSONArray();
+                            jRouteForLocIndex.put("features", jRouteFeatures);
 
-							routesByLocationIndex.put(route.getLocationIndex(), jRouteForLocIndex);
-						}
-						else
-						{
-							jRouteFeatures = jRouteForLocIndex.getJSONArray("features");
-						}
+                            routesByLocationIndex.put(route.getLocationIndex(), jRouteForLocIndex);
+                        } else {
+                            jRouteFeatures = jRouteForLocIndex.getJSONArray("features");
+                        }
 
-						jRouteFeatures.put(feature);
+                        jRouteFeatures.put(feature);
 
-						Envelope env = geom.getEnvelopeInternal();
+                        Envelope env = geom.getEnvelopeInternal();
 
-						if (minX > env.getMinX())
-							minX =  env.getMinX();
-						if (minY > env.getMinY())
-							minY = env.getMinY();
-						if (maxX < env.getMaxX())
-							maxX = env.getMaxX();
-						if (maxY < env.getMaxY())
-							maxY = env.getMaxY();
-					}
-				}
-				
-				for (Map.Entry<Integer, JSONObject> entry : routesByLocationIndex.entrySet()) 
-					jRoutes.put(entry.getValue());
-			}
-			else
-			{
-				Map<Integer, JSONArray> routesByLocationIndex = new LinkedHashMap<Integer, JSONArray>();
+                        if (minX > env.getMinX())
+                            minX = env.getMinX();
+                        if (minY > env.getMinY())
+                            minY = env.getMinY();
+                        if (maxX < env.getMaxX())
+                            maxX = env.getMaxX();
+                        if (maxY < env.getMaxY())
+                            maxY = env.getMaxY();
+                    }
+                }
 
-				for (int i = 0; i< nResults; ++i)
-				{
-					RouteResult route = result.getRoutes().get(i);
-					if (route != null)
-					{
-						JSONArray jRouteForLocIndex = routesByLocationIndex.get(route.getLocationIndex());
-						if (jRouteForLocIndex == null)
-						{
-							jRouteForLocIndex = new JSONArray();
-							routesByLocationIndex.put(route.getLocationIndex(), jRouteForLocIndex);
-						}
-						
-						BBox bbox = new BBox(0,0,0,0);
-						JSONArray jRoute = JsonRoutingResponseWriter.toJsonArray(reqRouting, new RouteResult[] { route }, bbox);
-						jRouteForLocIndex.put(jRoute.get(0));
+                for (Map.Entry<Integer, JSONObject> entry : routesByLocationIndex.entrySet())
+                    jRoutes.put(entry.getValue());
+            } else {
+                Map<Integer, JSONArray> routesByLocationIndex = new LinkedHashMap<Integer, JSONArray>();
 
-						if (minX > bbox.minLon)
-							minX =  bbox.minLon;
-						if (minY > bbox.minLat)
-							minY = bbox.minLat;
-						if (maxX < bbox.maxLon)
-							maxX = bbox.maxLon;
-						if (maxY < bbox.maxLat)
-							maxY = bbox.maxLat;
-					}
-				}
-				
-				for (Map.Entry<Integer, JSONArray> entry : routesByLocationIndex.entrySet()) 
-					jRoutes.put(entry.getValue());
-			}
+                for (int i = 0; i < nResults; ++i) {
+                    RouteResult route = result.getRoutes().get(i);
+                    if (route != null) {
+                        JSONArray jRouteForLocIndex = routesByLocationIndex.get(route.getLocationIndex());
+                        if (jRouteForLocIndex == null) {
+                            jRouteForLocIndex = new JSONArray();
+                            routesByLocationIndex.put(route.getLocationIndex(), jRouteForLocIndex);
+                        }
 
-			jResp.put("bbox", GeometryJSON.toJSON(minX, minY, maxX, maxY));
-		}
-		else
-		{
-			JSONObject jLocations = new JSONObject(true);
-			jResp.put("places", jLocations);
+                        BBox bbox = new BBox(0, 0, 0, 0);
+                        JSONArray jRoute = JsonRoutingResponseWriter.toJsonArray(reqRouting, new RouteResult[]{route}, bbox);
+                        jRouteForLocIndex.put(jRoute.get(0));
 
-			JSONObject jRoutes = new JSONObject(true);
-			jResp.put("routes", jRoutes);
-		}
+                        if (minX > bbox.minLon)
+                            minX = bbox.minLon;
+                        if (minY > bbox.minLat)
+                            minY = bbox.minLat;
+                        if (maxX < bbox.maxLon)
+                            maxX = bbox.maxLon;
+                        if (maxY < bbox.maxLat)
+                            maxY = bbox.maxLat;
+                    }
+                }
 
-		// **************************************************
+                for (Map.Entry<Integer, JSONArray> entry : routesByLocationIndex.entrySet())
+                    jRoutes.put(entry.getValue());
+            }
 
-		writeInfoSection(jResp, request);
+            jResp.put("bbox", GeometryJSON.toJSON(minX, minY, maxX, maxY));
+        } else {
+            JSONObject jLocations = new JSONObject(true);
+            jResp.put("places", jLocations);
 
-		ServletUtility.write(response, jResp);
-	}
+            JSONObject jRoutes = new JSONObject(true);
+            jResp.put("routes", jRoutes);
+        }
 
-	private void writeInfoSection(JSONObject jResponse, AccessibilityRequest request)
-	{
-		JSONObject jInfo = new JSONObject(true);
-		jInfo.put("service", "accessibility");
-		jInfo.put("engine", AppInfo.getEngineInfo());
-		if (!Helper.isEmpty(LocationsServiceSettings.getAttribution()))
-			jInfo.put("attribution", LocationsServiceSettings.getAttribution());
-		jInfo.put("timestamp", System.currentTimeMillis());
+        // **************************************************
 
-		if (request != null)
-		{
-			JSONObject jQuery = new JSONObject(true);
+        writeInfoSection(jResp, request);
+
+        ServletUtility.write(response, jResp);
+    }
+
+    private void writeInfoSection(JSONObject jResponse, AccessibilityRequest request) {
+        JSONObject jInfo = new JSONObject(true);
+        jInfo.put("service", "accessibility");
+        jInfo.put("engine", AppInfo.getEngineInfo());
+        if (!Helper.isEmpty(LocationsServiceSettings.getAttribution()))
+            jInfo.put("attribution", LocationsServiceSettings.getAttribution());
+        jInfo.put("timestamp", System.currentTimeMillis());
+
+        if (AppConfig.hasValidMD5Hash())
+            jInfo.put("osm_file_md5_hash", AppConfig.getMD5Hash());
+
+        if (request != null) {
+            JSONObject jQuery = new JSONObject(true);
 
 
-			writeFilterSection(jQuery, request.getLocationsRequest().getSearchFilter());
-			/*
+            writeFilterSection(jQuery, request.getLocationsRequest().getSearchFilter());
+            /*
 			if (request.getRadius() > 0)
 				jQuery.put("radius", request.getRadius());
 			if (request.getLimit() > 0)
@@ -307,33 +289,32 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 				jQuery.put("lang", request.getLanguage());
 			jQuery.put("locations", value) */
 
-			if (request.getId() != null)
-				jQuery.put("id", request.getId());
+            if (request.getId() != null)
+                jQuery.put("id", request.getId());
 
 
-			jInfo.put("query", jQuery);
-		}
+            jInfo.put("query", jQuery);
+        }
 
-		jResponse.put("info", jInfo);
-	}
+        jResponse.put("info", jInfo);
+    }
 
-	private void writeFilterSection(JSONObject jQuery, LocationsSearchFilter query)
-	{
-		JSONObject jFilter = new JSONObject(true);
-		if (query.getCategoryGroupIds() != null)
-			jFilter.put("category_group_ids", new JSONArray(query.getCategoryGroupIds()));
-		if (query.getCategoryIds() != null)
-			jFilter.put("category_ids", new JSONArray(query.getCategoryIds()));
-		if (!Helper.isEmpty(query.getName()))
-			jFilter.put("name", query.getName());
-		if (!Helper.isEmpty(query.getWheelchair()))
-			jFilter.put("wheelchair", query.getWheelchair());
-		if (!Helper.isEmpty(query.getSmoking()))
-			jFilter.put("smoking", query.getSmoking());
-		if (query.getFee() != null)
-			jFilter.put("fee", query.getFee());
+    private void writeFilterSection(JSONObject jQuery, LocationsSearchFilter query) {
+        JSONObject jFilter = new JSONObject(true);
+        if (query.getCategoryGroupIds() != null)
+            jFilter.put("category_group_ids", new JSONArray(query.getCategoryGroupIds()));
+        if (query.getCategoryIds() != null)
+            jFilter.put("category_ids", new JSONArray(query.getCategoryIds()));
+        if (!Helper.isEmpty(query.getName()))
+            jFilter.put("name", query.getName());
+        if (!Helper.isEmpty(query.getWheelchair()))
+            jFilter.put("wheelchair", query.getWheelchair());
+        if (!Helper.isEmpty(query.getSmoking()))
+            jFilter.put("smoking", query.getSmoking());
+        if (query.getFee() != null)
+            jFilter.put("fee", query.getFee());
 
-		if (jFilter.length() > 0)
-			jQuery.put("filter", jFilter);
-	}
+        if (jFilter.length() > 0)
+            jQuery.put("filter", jFilter);
+    }
 }

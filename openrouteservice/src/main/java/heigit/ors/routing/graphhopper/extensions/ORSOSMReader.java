@@ -20,13 +20,6 @@
  */
 package heigit.ors.routing.graphhopper.extensions;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.logging.Logger;
-
-import heigit.ors.routing.RoutingProfile;
-
 import com.carrotsearch.hppc.LongArrayList;
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
@@ -34,6 +27,17 @@ import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
+import heigit.ors.routing.RoutingProfile;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.logging.Logger;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class ORSOSMReader extends OSMReader {
 
@@ -49,9 +53,12 @@ public class ORSOSMReader extends OSMReader {
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
 			"primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential" };
 
+
+
 	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx, HashMap<Integer, Long> tmcEdges,  HashMap<Long, ArrayList<Integer>> osmId2EdgeIds, RoutingProfile refProfile) {
 		super(storage);
 
+		setCalcDistance3D(false);
 		this._procCntx = procCntx;
 		this._readerCntx = new OSMDataReaderContext(this);
 		this.tmcEdges = tmcEdges;
@@ -78,6 +85,38 @@ public class ORSOSMReader extends OSMReader {
 	public void onProcessWay(ReaderWay way) {
 		_procCntx.processWay(way);
 	}
+
+
+	/**
+	 * Applies tags of nodes that lie on a way onto the way itself so that they are
+	 * regarded in the following storage building process. E.g. a maxheight tag on a node will
+	 * be treated like a maxheight tag on the way the node belongs to.
+	 *
+	 * @param  map  a map that projects node ids onto a property map
+	 * @param  way	the way to process
+	 */
+
+
+	@Override
+	public void applyNodeTagsToWay(HashMap<Long, Map<String, Object>> map, ReaderWay way){
+		LongArrayList osmNodeIds = way.getNodes();
+		int size = osmNodeIds.size();
+		if (size > 2) {
+			for (int i = 1; i < size - 1; i++) {
+				long nodeId = osmNodeIds.get(i);
+				if (map.containsKey(nodeId)) {
+					java.util.Iterator<Entry<String, Object>> it = map.get(nodeId).entrySet().iterator();
+					while (it.hasNext()) {
+						Map.Entry<String, Object> pairs = it.next();
+						String key = pairs.getKey();
+						String value = pairs.getValue().toString();
+						way.setTag(key, value);
+					}
+				}
+			}
+		}
+	}
+
 
 	@Override
 	protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge) {

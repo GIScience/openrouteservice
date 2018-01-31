@@ -20,51 +20,29 @@
  */
 package heigit.ors.routing;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
-
-import heigit.ors.routing.graphhopper.extensions.GraphProcessContext;
-import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
-import heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
-import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
-import heigit.ors.routing.graphhopper.extensions.ORSGraphStorageFactory;
-import heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
-import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import heigit.ors.routing.parameters.*;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.*;
-import heigit.ors.isochrones.IsochroneSearchParameters;
-import heigit.ors.isochrones.IsochronesErrorCodes;
+import com.graphhopper.GHRequest;
+import com.graphhopper.GHResponse;
+import com.graphhopper.GraphHopper;
+import com.graphhopper.reader.dem.ElevationProvider;
+import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.storage.*;
+import com.graphhopper.util.*;
+import com.graphhopper.util.shapes.BBox;
+import com.graphhopper.util.shapes.GHPoint;
+import com.typesafe.config.Config;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import heigit.ors.exceptions.InternalServerException;
+import heigit.ors.isochrones.*;
 import heigit.ors.isochrones.statistics.StatisticsProvider;
 import heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
 import heigit.ors.isochrones.statistics.StatisticsProviderFactory;
-import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.isochrones.Isochrone;
-import heigit.ors.isochrones.IsochroneMap;
-import heigit.ors.isochrones.IsochroneMapBuilderFactory;
-import heigit.ors.routing.RouteSearchParameters;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.WeightingMethod;
 import heigit.ors.mapmatching.MapMatcher;
 import heigit.ors.mapmatching.RouteSegmentInfo;
 import heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
-import heigit.ors.matrix.MatrixErrorCodes;
-import heigit.ors.matrix.MatrixRequest;
-import heigit.ors.matrix.MatrixResult;
-import heigit.ors.matrix.MatrixSearchContext;
-import heigit.ors.matrix.MatrixSearchContextBuilder;
+import heigit.ors.matrix.*;
 import heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
 import heigit.ors.optimization.OptimizationErrorCodes;
@@ -74,6 +52,11 @@ import heigit.ors.optimization.solvers.OptimizationProblemSolver;
 import heigit.ors.optimization.solvers.OptimizationProblemSolverFactory;
 import heigit.ors.optimization.solvers.OptimizationSolution;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
+import heigit.ors.routing.graphhopper.extensions.*;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.*;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import heigit.ors.routing.parameters.*;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
 import heigit.ors.routing.traffic.TrafficEdgeAnnotator;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
@@ -83,34 +66,15 @@ import heigit.ors.util.DebugUtility;
 import heigit.ors.util.RuntimeUtility;
 import heigit.ors.util.StringUtility;
 import heigit.ors.util.TimeUtility;
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 
-import com.graphhopper.GHRequest;
-import com.graphhopper.GHResponse;
-import com.graphhopper.GraphHopper;
-import com.graphhopper.reader.dem.ElevationProvider;
-import com.graphhopper.routing.util.DefaultEdgeFilter;
-import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.HintsMap;
-import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.CHGraph;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.GraphStorage;
-import com.graphhopper.storage.StorableProperties;
-import com.graphhopper.util.ByteArrayBuffer;
-import com.graphhopper.util.CmdArgs;
-import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.Helper;
-import com.graphhopper.util.shapes.BBox;
-import com.graphhopper.util.shapes.GHPoint;
-import com.typesafe.config.Config;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.graphhopper.util.PMap;
-import com.graphhopper.util.PointList;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class RoutingProfile 
 {
@@ -681,8 +645,7 @@ public class RoutingProfile
 					|| profileType == RoutingProfileType.FOOT_WALKING || profileType == RoutingProfileType.FOOT_HIKING
 					|| profileType == RoutingProfileType.WHEELCHAIR) { 
 
-				if (searchParams.getAvoidFeatureTypes() != AvoidFeatureFlags.Hills)
-				{
+				if (searchParams.getAvoidFeatureTypes() != AvoidFeatureFlags.Hills) {
 					EdgeFilter ef = new AvoidFeaturesEdgeFilter(flagEncoder, searchParams,
 							mGraphHopper.getGraphHopperStorage());
 					edgeFilter = createEdgeFilter(ef, edgeFilter);
@@ -702,6 +665,14 @@ public class RoutingProfile
 						}
 					}
 				}
+			}
+		}
+
+		if (searchParams.hasAvoidBorders() || searchParams.hasAvoidCountries()) {
+			// We want to avoid borders of some form
+			if(RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)) {
+				EdgeFilter ef = new AvoidBordersEdgeFilter(flagEncoder, searchParams, mGraphHopper.getGraphHopperStorage());
+				edgeFilter = createEdgeFilter(ef, edgeFilter);
 			}
 		}
 
@@ -946,7 +917,7 @@ public class RoutingProfile
 
 	private boolean useDynamicWeights(RouteSearchParameters searchParams)
 	{
-		boolean dynamicWeights = (searchParams.hasAvoidAreas() || searchParams.hasAvoidFeatures() || searchParams.getMaximumSpeed() > 0 || (RoutingProfileType.isDriving(searchParams.getProfileType()) && (searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
+		boolean dynamicWeights = (searchParams.hasAvoidAreas() || searchParams.hasAvoidFeatures()  || searchParams.hasAvoidCountries() || searchParams.hasAvoidBorders() || searchParams.getMaximumSpeed() > 0 || (RoutingProfileType.isDriving(searchParams.getProfileType()) && (searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
 
 		return dynamicWeights;
 	}

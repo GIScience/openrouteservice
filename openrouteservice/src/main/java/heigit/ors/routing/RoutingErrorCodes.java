@@ -27,5 +27,6 @@ public class RoutingErrorCodes
 	public static int INVALID_PARAMETER_FORMAT = 202;
 	public static int INVALID_PARAMETER_VALUE = 203;
 	public static int REQUEST_EXCEEDS_SERVER_LIMIT = 204;
+	public static int EMPTY_ELEMENT = 205;
 	public static int UNKNOWN = 299;
 }
