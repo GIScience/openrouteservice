@@ -35,8 +35,11 @@ import java.util.*;
 public class CountryBordersReader {
     private static final Logger LOGGER = Logger.getLogger(CountryBordersReader.class);
 
+    public static final String INTERNATIONAL_NAME = "INTERNATIONAL";
+    public static final String INTERNATIONAL_ID = "-1";
+
     private final String BORDER_FILE;
-    private final String ID_FIELD;
+    private final String NAME_FIELD;
     private final String HIERARCHY_ID_FIELD;
 
     private final String IDS_PATH;
@@ -52,8 +55,8 @@ public class CountryBordersReader {
      */
     public CountryBordersReader() {
         BORDER_FILE = "";
-        ID_FIELD = "name";
-        HIERARCHY_ID_FIELD = "id_2";
+        NAME_FIELD = "name";
+        HIERARCHY_ID_FIELD = "hierarchy";
         IDS_PATH = "";
         OPEN_PATH = "";
     }
@@ -65,22 +68,30 @@ public class CountryBordersReader {
      * @param idsPath       Path to a csv file containing numeric identifiers for countries (and english name)
      * @param openPath      Path to a csv file containing pairs of country names which have open borders
      */
-    public CountryBordersReader(String filepath, String idsPath, String openPath) {
+    public CountryBordersReader(String filepath, String idsPath, String openPath) throws IOException {
         BORDER_FILE = filepath;
-        ID_FIELD = "name";
-        HIERARCHY_ID_FIELD = "id_2";
+        NAME_FIELD = "name";
+        HIERARCHY_ID_FIELD = "hierarchy";
 
         IDS_PATH = idsPath;
         OPEN_PATH = openPath;
 
-        JSONObject data = readBordersData();
-        LOGGER.info("Border geometries read");
-        createGeometries(data);
+        try {
+            JSONObject data = readBordersData();
+            LOGGER.info("Border geometries read");
 
-        readIds();
-        LOGGER.info("Border ids data read");
-        readOpenBorders();
-        LOGGER.info("Border openness data read");
+            createGeometries(data);
+
+            readIds();
+            LOGGER.info("Border ids data read");
+
+            readOpenBorders();
+            LOGGER.info("Border openness data read");
+        } catch (IOException ioe) {
+            // Problem with reading the data
+            LOGGER.error("Could not access file(s) required for border crossing analysis");
+            throw ioe;
+        }
     }
 
     public void addHierarchy(Long id, CountryBordersHierarchy hierarchy) {
@@ -131,7 +142,7 @@ public class CountryBordersReader {
      *
      * @return      A (Geo)JSON object representing the contents of the file
      */
-    private JSONObject readBordersData() {
+    private JSONObject readBordersData() throws IOException {
         String data = "";
 
         InputStream is = null;
@@ -151,12 +162,16 @@ public class CountryBordersReader {
 
         } catch (IOException ioe) {
             LOGGER.warn("Cannot access borders file!");
+            throw ioe;
         } finally {
             try {
                 is.close();
                 buf.close();
             } catch (IOException ioe) {
                 LOGGER.warn("Error closing file reader buffers!");
+            } catch (NullPointerException npe) {
+                // This can happen if the file itself wasn't available
+                throw new IOException("Borders file " + BORDER_FILE + " not found!");
             }
         }
 
@@ -183,9 +198,13 @@ public class CountryBordersReader {
             try {
                 JSONObject obj = features.getJSONObject(i);
                 Geometry geom = GeometryJSON.parse(obj.getJSONObject("geometry"));
+
                 // Also need the id of the country and its hierarchy id
-                String id = obj.getJSONObject("properties").getString(ID_FIELD);
+                String id = obj.getJSONObject("properties").getString(NAME_FIELD);
+
                 Long hId = 1l;
+
+                // If there is no hierarchy info, then we set the id of the hierarchy to be a default of 1
                 if(obj.getJSONObject("properties").has(HIERARCHY_ID_FIELD))
                     hId = obj.getJSONObject("properties").getLong(HIERARCHY_ID_FIELD);
 
@@ -276,6 +295,9 @@ public class CountryBordersReader {
      * @return          The unique identifier
      */
     public String getId(String name) {
+        if(name.equals(INTERNATIONAL_NAME))
+            return INTERNATIONAL_ID;
+
         if(ids.containsKey(name))
             return ids.get(name).id;
         else
@@ -289,6 +311,9 @@ public class CountryBordersReader {
      * @return          The English name of the country
      */
     public String getEngName(String name) {
+        if(name.equals(INTERNATIONAL_NAME))
+            return INTERNATIONAL_NAME;
+
         if(ids.containsKey(name))
             return ids.get(name).nameEng;
         else

@@ -26,12 +26,14 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
+import heigit.ors.exceptions.MissingConfigParameterException;
 import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
 import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.MissingResourceException;
 
 /**
  * Class for building the Borders graph extension that allows restricting routes regarding border crossings
@@ -64,9 +66,27 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
         if(this.cbReader == null) {
             // Read the border shapes from the file
-            String bordersFile = _parameters.get("boundaries");
-            String countryIdsFile = _parameters.get("ids");
-            String openBordersFile = _parameters.get("openborders");
+            // First check if parameters are present
+            String bordersFile = "", countryIdsFile = "", openBordersFile = "";
+
+            if(_parameters.containsKey("boundaries"))
+                bordersFile = _parameters.get("boundaries");
+            else {
+                new MissingConfigParameterException(BordersGraphStorageBuilder.class, "boundaries");
+                // We cannot continue without the information
+                throw new MissingResourceException("A boundary geometry file is needed to use the borders extended storage!", BordersGraphStorage.class.getName(), "boundaries");
+            }
+
+            if(_parameters.containsKey("ids"))
+                countryIdsFile = _parameters.get("ids");
+            else
+                new MissingConfigParameterException(BordersGraphStorageBuilder.class, "ids");
+
+            if(_parameters.containsKey("openborders"))
+                openBordersFile = _parameters.get("openborders");
+            else
+                new MissingConfigParameterException(BordersGraphStorageBuilder.class, "openborders");
+
             // Read the file containing all of the country border polygons
             this.cbReader = new CountryBordersReader(bordersFile, countryIdsFile, openBordersFile);
         }
@@ -100,12 +120,15 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
     @Override
     public void processWay(ReaderWay way, LineString ls) {
         // Process the way using the geometry provided
-        String[] countries = findBorderCrossing(ls);
+        // if we don't have the reader object, then we can't do anything
+        if(cbReader != null) {
+            String[] countries = findBorderCrossing(ls);
 
-        // If we find that the length of countries is more than one, then it does cross a border
-        if(countries.length > 1) {
-            way.setTag("country1", countries[0]);
-            way.setTag("country2", countries[1]);
+            // If we find that the length of countries is more than one, then it does cross a border
+            if (countries.length > 1) {
+                way.setTag("country1", countries[0]);
+                way.setTag("country2", countries[1]);
+            }
         }
     }
 
@@ -120,23 +143,31 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
      */
     @Override
     public void processEdge(ReaderWay way, EdgeIteratorState edge) {
-        // If there is no border crossing then we set the edge value to be 0
+        // Make sure we actually have the storage initialised - if there were errors accessing the data then this could be the case
+        if(_storage != null) {
+            // If there is no border crossing then we set the edge value to be 0
 
-        // First get the start and end countries - if either of these is empty, then there is no crossing
-        if(way.hasTag("country1") && way.hasTag("country2")) {
-            String startVal = way.getTag("country1");
-            String endVal = way.getTag("country2");
+            // First get the start and end countries - if either of these is empty, then there is no crossing
+            if (way.hasTag("country1") && way.hasTag("country2")) {
+                String startVal = way.getTag("country1");
+                String endVal = way.getTag("country2");
 
-            // Lookup values
-            short start = Short.parseShort(cbReader.getId(startVal));
-            short end = Short.parseShort(cbReader.getId(endVal));
+                // Lookup values
+                short start = 0, end = 0;
 
-            short type = (cbReader.isOpen(cbReader.getEngName(startVal), cbReader.getEngName(endVal))) ? (short)2 : (short)1;
+                try {
+                    start = Short.parseShort(cbReader.getId(startVal));
+                    end = Short.parseShort(cbReader.getId(endVal));
+                } catch (NumberFormatException nfe) {
+                    LOGGER.error("Error in lookup for ids " + startVal + " and " + endVal);
+                }
 
-            _storage.setEdgeValue(edge.getEdge(), type, start, end);
-        }
-        else {
-            _storage.setEdgeValue(edge.getEdge(), (short)0, (short)0, (short)0);
+                short type = (cbReader.isOpen(cbReader.getEngName(startVal), cbReader.getEngName(endVal))) ? (short) 2 : (short) 1;
+
+                _storage.setEdgeValue(edge.getEdge(), type, start, end);
+            } else {
+                _storage.setEdgeValue(edge.getEdge(), (short) 0, (short) 0, (short) 0);
+            }
         }
     }
 
@@ -162,6 +193,8 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
         ArrayList<CountryBordersPolygon> countries = new ArrayList<>();
 
+        boolean hasInternational = false;
+
         // Go through the points of the linestring and check what country they are in
         int lsLen = ls.getNumPoints();
         if(lsLen > 1) {
@@ -178,6 +211,11 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
                             countries.add(cbp);
                         }
                     }
+
+                    // If we ended up with no candidates for the point, then we indicate that at least one point is
+                    // in international territory
+                    if(cnts.length == 0)
+                        hasInternational = true;
                 }
             }
         }
@@ -186,21 +224,29 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
         // than the linestring check in the next stage
         if(countries.size() > 1) {
             ArrayList<CountryBordersPolygon> temp = new ArrayList<>();
-            for(CountryBordersPolygon cbp : countries) {
-                for(int i=0; i<lsLen; i++) {
-                    Point p = ls.getPointN(i);
-                    if(!Double.isNaN(p.getCoordinate().x) && !Double.isNaN(p.getCoordinate().y)) {
-                        if (cbp.inArea(ls.getPointN(i).getCoordinate()) && !temp.contains(cbp)) {
-                            temp.add(cbp);
+            for(int i=0; i<lsLen; i++) {
+                Point p = ls.getPointN(i);
+                if(!Double.isNaN(p.getCoordinate().x) && !Double.isNaN(p.getCoordinate().y)) {
+                    // Check each country candidate
+                    boolean found = false;
+                    for(CountryBordersPolygon cbp : countries) {
+                        if (cbp.inArea(ls.getPointN(i).getCoordinate())) {
+                            found = true;
+                            if(!temp.contains(cbp)) {
+                                temp.add(cbp);
+                            }
                         }
                     }
+
+                    if(!found)
+                        hasInternational = true;
                 }
             }
+
 
             // Replace the arraylist
             countries = temp;
         }
-
 
         // Now we have a list of all the countries that the nodes are in - if this is more than one it is likely it is
         // crossing a border, but not certain as in some disputed areas, countries overlap and so it may not cross any
@@ -225,10 +271,16 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
         }
 
         // Now get the names of the countries
-        String[] names = new String[countries.size()];
+        ArrayList<String> names = new ArrayList<>();
         for(int i=0; i<countries.size(); i++) {
-            names[i] = countries.get(i).getName();
+            names.add(countries.get(i).getName());
         }
-        return names;
+
+        // If there is an international point and at least one country name, then we know it is a border
+        if(hasInternational && countries.size() > 0) {
+            names.add(CountryBordersReader.INTERNATIONAL_NAME);
+        }
+
+        return names.toArray(new String[names.size()]);
     }
 }
