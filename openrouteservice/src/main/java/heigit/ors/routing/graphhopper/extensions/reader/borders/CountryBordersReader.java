@@ -25,7 +25,6 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.util.CSVUtility;
-import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
@@ -143,6 +142,9 @@ public class CountryBordersReader {
     /**
      * Method to read the geometries from a GeoJSON file that represent the boundaries of different countries. Ideally
      * it should be written using many small objects split into hierarchies.
+     *
+     * If the file is a .tar.gz format, it will decompress it and then store the reulting data to be read into the
+     * JSON object.
      *
      * @return      A (Geo)JSON object representing the contents of the file
      */
