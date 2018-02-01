@@ -25,6 +25,10 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.util.CSVUtility;
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -149,24 +153,50 @@ public class CountryBordersReader {
         BufferedReader buf = null;
         try {
             is = new FileInputStream(BORDER_FILE);
-            buf = new BufferedReader(new InputStreamReader(is));
 
-            String line = "";
-            StringBuilder sb = new StringBuilder();
+            if(BORDER_FILE.endsWith(".tar.gz")) {
+                // We are working with a compressed file
+                TarArchiveInputStream tis = new TarArchiveInputStream(
+                        new GzipCompressorInputStream(
+                                new BufferedInputStream(is)
+                        )
+                );
 
-            while((line = buf.readLine()) != null ) {
-                sb.append(line);
+                TarArchiveEntry entry;
+                StringBuilder sb = new StringBuilder();
+
+                while((entry = tis.getNextTarEntry()) != null) {
+                    if(!entry.isDirectory()) {
+                        byte[] bytes = new byte[(int) entry.getSize()];
+                        tis.read(bytes);
+                        String str = new String(bytes);
+                        sb.append(str);
+                    }
+                }
+                data = sb.toString();
+            } else {
+                // Assume a normal file so read line by line
+
+                buf = new BufferedReader(new InputStreamReader(is));
+
+                String line = "";
+                StringBuilder sb = new StringBuilder();
+
+                while ((line = buf.readLine()) != null) {
+                    sb.append(line);
+                }
+
+                data = sb.toString();
             }
-
-            data = sb.toString();
-
         } catch (IOException ioe) {
             LOGGER.warn("Cannot access borders file!");
             throw ioe;
         } finally {
             try {
-                is.close();
-                buf.close();
+                if(is != null)
+                    is.close();
+                if(buf != null)
+                    buf.close();
             } catch (IOException ioe) {
                 LOGGER.warn("Error closing file reader buffers!");
             } catch (NullPointerException npe) {
