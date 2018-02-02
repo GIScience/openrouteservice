@@ -10,16 +10,20 @@ pipeline {
   stages {
     stage("Preparation") {
       when {
-        branch 'development'
+	      expression {
+		      return BRANCH == 'master' || BRANCH == 'development';
+        }
       }
       steps {
         deleteDir()
-        git branch: 'development', url: 'https://github.com/GIScience/openrouteservice.git'
+        git branch: BRANCH, url: 'https://github.com/GIScience/openrouteservice.git'
       }
     }
     stage("Build") {
       when {
-        branch 'development'
+	      expression {
+		      return BRANCH == 'master' || BRANCH == 'development';
+        }
       }
       steps {
         sh "cp ${WORKSPACE}/openrouteservice-api-tests/conf/app.config.test ${WORKSPACE}/openrouteservice/WebContent/WEB-INF/app.config"
@@ -29,7 +33,9 @@ pipeline {
     }
     stage("Test") {
       when {
-        branch 'development'
+	      expression {
+		      return BRANCH == 'master' || BRANCH == 'development';
+        }
       }
       steps {
         sh "nohup '${mvnHome}/bin/mvn' -f ${WORKSPACE}/openrouteservice/pom.xml tomcat7:run &"
