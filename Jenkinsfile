@@ -11,7 +11,7 @@ pipeline {
     stage("Preparation") {
       when {
 	      expression {
-		      return BRANCH == 'master' || BRANCH == 'development';
+		      return env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'development';
         }
       }
       steps {
@@ -22,7 +22,7 @@ pipeline {
     stage("Build") {
       when {
 	      expression {
-		      return BRANCH == 'master' || BRANCH == 'development';
+		      return env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'development';
         }
       }
       steps {
@@ -34,7 +34,7 @@ pipeline {
     stage("Test") {
       when {
 	      expression {
-		      return BRANCH == 'master' || BRANCH == 'development';
+		      return env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'development';
         }
       }
       steps {
