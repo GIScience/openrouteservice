@@ -16,7 +16,7 @@ pipeline {
       }
       steps {
         deleteDir()
-        git branch: BRANCH, url: 'https://github.com/GIScience/openrouteservice.git'
+        git branch: env.BRANCH_NAME, url: 'https://github.com/GIScience/openrouteservice.git'
       }
     }
     stage("Build") {
