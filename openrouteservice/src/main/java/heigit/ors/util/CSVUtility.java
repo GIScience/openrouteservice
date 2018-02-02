@@ -138,7 +138,7 @@ public class CSVUtility {
 
                     inQuotes = true;
 
-                    if (chars[0] != '"' && customQuote == '\"') {
+                    if (chars[0] != '"' && customQuote != '\"') {
                         curVal.append('"');
                     }
 
