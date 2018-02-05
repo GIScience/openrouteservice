@@ -117,6 +117,8 @@ public class ORSOSMReader extends OSMReader {
 						double lat = getLatitudeOfNode(id);
 						double lon = getLongitudeOfNode(id);
 						// Add the point to the line
+						// Check that we have a tower node
+						if(!(lat == 0 || lon == 0 || Double.isNaN(lat) || Double.isNaN(lon)))
 						if (lat != 0 || lon != 0)
 							coords.add(new Coordinate(lon, lat));
 					} catch (Exception e) {
@@ -148,6 +150,7 @@ public class ORSOSMReader extends OSMReader {
 	 * @return
 	 */
 	private double getLatitudeOfNode(int id) {
+		// for speed, we only want to handle the geometry of tower nodes (those at junctions)
 		if (id == EMPTY_NODE)
 			return Double.NaN;
 		if (id < TOWER_NODE) {
@@ -156,8 +159,7 @@ public class ORSOSMReader extends OSMReader {
 			return nodeAccess.getLatitude(id);
 		} else if (id > -TOWER_NODE) {
 			// pillar node
-			id = id - 3;
-			return pillarInfo.getLatitude(id);
+			return Double.NaN;
 		} else
 			// e.g. if id is not handled from preparse (e.g. was ignored via isInBounds)
 			return Double.NaN;
@@ -179,8 +181,7 @@ public class ORSOSMReader extends OSMReader {
 			return nodeAccess.getLongitude(id);
 		} else if (id > -TOWER_NODE) {
 			// pillar node
-			id = id - 3;
-			return pillarInfo.getLon(id);
+			return Double.NaN;
 		} else
 			// e.g. if id is not handled from preparse (e.g. was ignored via isInBounds)
 			return Double.NaN;
