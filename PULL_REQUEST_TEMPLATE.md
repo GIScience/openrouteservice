@@ -1,4 +1,4 @@
-## Pull Request Checklist
+### Pull Request Checklist
 <!--- Please make sure you have completed the following items BEFORE submitting a pull request (put an x in each box when you have checked you have done them): -->
 - [ ] 1. I have merged the latest version of the development branch into my feature branch and all conflicts have been resolved
 - [ ] 2. I have added information about the change/addition to functionality to the CHANGELOG.md file under the [Unreleased] heading
@@ -10,4 +10,14 @@
 - [ ] 8. I have built graphs with my code of the Heidelberg.osm.gz file and run the api-tests with all test passing
 - [ ] 9. I have referenced the Issue Number in the Pull Request (if the changes were from an issue)
 - [ ] 10. For new features involving building of graphs, I have tested on a larger dataset (at least Germany) and the graphs build without problems (i.e. no out-of-memory errors)
-- [ ] 11. I have written in the Pull Request inforamtion about the changes made including their intended usage and why the change was needed.
+- [ ] 11. I have written in the Pull Request information about the changes made including their intended usage and why the change was needed.
+
+Fixes # .
+
+### Information about the changes
+- Key functionality added:
+- Reason for change: 
+
+### Required changes to app.config (if applicable)
+- 
+
