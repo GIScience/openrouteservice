@@ -26,6 +26,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 
 public abstract class AbstractGraphStorageBuilder implements GraphStorageBuilder
@@ -36,7 +37,7 @@ public abstract class AbstractGraphStorageBuilder implements GraphStorageBuilder
 
 	public abstract void processWay(ReaderWay way);
 
-	public void processWay(ReaderWay way, LineString ls) { processWay(way);}
+	public void processWay(ReaderWay way, Coordinate[] coords) { processWay(way);}
 	
 	public abstract void processEdge(ReaderWay way, EdgeIteratorState edge);
 	

@@ -95,8 +95,8 @@ public class CountryBordersReaderTest {
      */
     @Test
     public void TestGetCountry() {
-        Point p = gf.createPoint(new Coordinate(0.5, 0.5));
-        CountryBordersPolygon[] polys = _reader.getCountry(p);
+        Coordinate c = new Coordinate(0.5, 0.5);
+        CountryBordersPolygon[] polys = _reader.getCountry(c);
 
         assertEquals(1, polys.length);
         assertEquals("country1", polys[0].getName());
@@ -107,8 +107,8 @@ public class CountryBordersReaderTest {
      */
     @Test
     public void TestGetCandidateCountry() {
-        Point p = gf.createPoint(new Coordinate(-0.25, -0.25));
-        CountryBordersPolygon[] polys = _reader.getCandidateCountry(p);
+        Coordinate c = new Coordinate(-0.25, -0.25);
+        CountryBordersPolygon[] polys = _reader.getCandidateCountry(c);
 
         assertEquals(1, polys.length);
         assertEquals("country3", polys[0].getName());

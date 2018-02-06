@@ -28,6 +28,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.EdgeIteratorState;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
 import com.vividsolutions.jts.geom.LineString;
@@ -147,9 +148,9 @@ public class GraphProcessContext {
 	 * Pass the way read along with its geometry (a LineString) to the graph storage builders.
 	 *
 	 * @param way		The OSM data for the way (including tags)
-	 * @param ls		The geometry of the way (not present in ReaderWay objects
+	 * @param coords	Coordinates of the linestring
 	 */
-	public void processWay(ReaderWay way, LineString ls) {
+	public void processWay(ReaderWay way, Coordinate[] coords) {
 		try
 		{
 			if (_arrStorageBuilders != null)
@@ -159,7 +160,7 @@ public class GraphProcessContext {
 				{
 					for (int i = 0; i < nStorages; ++i)
 					{
-						_arrStorageBuilders[i].processWay(way, ls);
+						_arrStorageBuilders[i].processWay(way, coords);
 					}
 
 				}

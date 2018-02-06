@@ -128,9 +128,9 @@ public class ORSOSMReader extends OSMReader {
 
 				// Only process valid ways (with more than 1 valid node)
                 if(coords.size() > 1) {
-                    LineString ls = gf.createLineString(coords.toArray(new Coordinate[coords.size()]));
+                    //LineString ls = gf.createLineString(coords.toArray(new Coordinate[coords.size()]));
 
-                    _procCntx.processWay(way, ls);
+                    _procCntx.processWay(way, coords.toArray(new Coordinate[coords.size()]));
                 }
 			}
 

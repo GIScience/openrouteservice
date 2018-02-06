@@ -266,12 +266,11 @@ public class CountryBordersReader {
      * Method for getting a list of country objects that the given point can be found within. This could be more than
      * one if the point is found in overlapping regions.
      *
-     * @param p     The point that you want to know which country is in
+     * @param c     The point that you want to know which country is in
      * @return      An array of CountryBorderPolygons that the point is within the geometry of.
      */
-    public CountryBordersPolygon[] getCountry(Point p) {
+    public CountryBordersPolygon[] getCountry(Coordinate c) {
         ArrayList<CountryBordersPolygon> countries = new ArrayList<>();
-        Coordinate c = p.getCoordinate();
         Iterator it = hierarchies.entrySet().iterator();
         while(it.hasNext()) {
             Map.Entry<Long, CountryBordersHierarchy> pair = (Map.Entry)it.next();
@@ -296,12 +295,11 @@ public class CountryBordersReader {
      * returned may not actually surround the point. The method should be used to get a quick approximation as to
      * whether the country is a candidate for containing the point.
      *
-     * @param p     The point that you want to know which country is in
+     * @param c     The point that you want to know which country is in
      * @return      An array of CountryBorderPolygons that the point is within the geometry of.
      */
-    public CountryBordersPolygon[] getCandidateCountry(Point p) {
+    public CountryBordersPolygon[] getCandidateCountry(Coordinate c) {
         ArrayList<CountryBordersPolygon> countries = new ArrayList<>();
-        Coordinate c = p.getCoordinate();
         Iterator it = hierarchies.entrySet().iterator();
         while(it.hasNext()) {
             Map.Entry<Long, CountryBordersHierarchy> pair = (Map.Entry)it.next();

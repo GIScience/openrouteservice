@@ -27,6 +27,7 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 import heigit.ors.plugins.Plugin;
 
@@ -36,7 +37,7 @@ public interface GraphStorageBuilder extends Plugin
 
 	public abstract void processWay(ReaderWay way);
 
-	public abstract void processWay(ReaderWay way, LineString ls);
+	public abstract void processWay(ReaderWay way, Coordinate[] coords);
 	
 	public abstract void processEdge(ReaderWay way, EdgeIteratorState edge);
 

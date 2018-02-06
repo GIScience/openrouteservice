@@ -24,6 +24,8 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import heigit.ors.exceptions.MissingConfigParameterException;
@@ -46,8 +48,10 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private BordersGraphStorage _storage;
     private CountryBordersReader cbReader;
 
-    public BordersGraphStorageBuilder() {
+    private GeometryFactory gf;
 
+    public BordersGraphStorageBuilder() {
+        gf = new GeometryFactory();
     }
 
     /**
@@ -115,14 +119,14 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
      * names are stored which identify the countries it crosses.
      *
      * @param way
-     * @param ls
+     * @param coords
      */
     @Override
-    public void processWay(ReaderWay way, LineString ls) {
+    public void processWay(ReaderWay way, Coordinate[] coords) {
         // Process the way using the geometry provided
         // if we don't have the reader object, then we can't do anything
         if(cbReader != null) {
-            String[] countries = findBorderCrossing(ls);
+            String[] countries = findBorderCrossing(coords);
 
             // If we find that the length of countries is more than one, then it does cross a border
             if (countries.length > 1) {
@@ -185,25 +189,25 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
      * Method to identify the countries that a way is found in. basically iterates over the country boundaries read from
      * the file adn then does geometric calculations to identify wheich country each node of the way is in.
      *
-     * @param ls        LineString representing the way
+     * @param coords    Coordinates of the way
      * @return          An array of strings representing the countries that nodes are found in. If the way is only
      *                  found in one country, then only one name is returned.
      */
-    public String[] findBorderCrossing(LineString ls) {
+    public String[] findBorderCrossing(Coordinate[] coords) {
 
         ArrayList<CountryBordersPolygon> countries = new ArrayList<>();
 
         boolean hasInternational = false;
+        boolean overlap = false;
 
         // Go through the points of the linestring and check what country they are in
-        int lsLen = ls.getNumPoints();
+        int lsLen = coords.length;
         if(lsLen > 1) {
             for(int i=0; i<lsLen; i++) {
-                Point p = ls.getPointN(i);
                 // Make sure that it is a valid point
-
-                if(!Double.isNaN(p.getCoordinate().x) && !Double.isNaN(p.getCoordinate().y)) {
-                    CountryBordersPolygon[] cnts = cbReader.getCandidateCountry(p);
+                Coordinate c = coords[i];
+                if(!Double.isNaN(c.x) && !Double.isNaN(c.y)) {
+                    CountryBordersPolygon[] cnts = cbReader.getCandidateCountry(c);
                     for (CountryBordersPolygon cbp : cnts) {
                         // This check is for the bbox as that is quickest for detecting if there is the possibility of a
                         // crossing
@@ -224,22 +228,33 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
         // than the linestring check in the next stage
         if(countries.size() > 1) {
             ArrayList<CountryBordersPolygon> temp = new ArrayList<>();
+
             for(int i=0; i<lsLen; i++) {
-                Point p = ls.getPointN(i);
-                if(!Double.isNaN(p.getCoordinate().x) && !Double.isNaN(p.getCoordinate().y)) {
+                // Loop through each point of the line and check whcih countries it is in. This should only be 1 unless
+                // there is an overlap
+                Coordinate c = coords[i];
+                if(!Double.isNaN(c.x) && !Double.isNaN(c.y)) {
                     // Check each country candidate
                     boolean found = false;
+                    int countriesFound = 0;
+
                     for(CountryBordersPolygon cbp : countries) {
-                        if (cbp.inArea(ls.getPointN(i).getCoordinate())) {
+                        if (cbp.inArea(c)) {
                             found = true;
+                            countriesFound++;
                             if(!temp.contains(cbp)) {
                                 temp.add(cbp);
                             }
                         }
                     }
 
-                    if(!found)
+                    if(countriesFound > 1) {
+                        overlap = true;
+                    }
+
+                    if(!found) {
                         hasInternational = true;
+                    }
                 }
             }
 
@@ -247,15 +262,18 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             // Replace the arraylist
             countries = temp;
         }
-
         // Now we have a list of all the countries that the nodes are in - if this is more than one it is likely it is
         // crossing a border, but not certain as in some disputed areas, countries overlap and so it may not cross any
-        // border
-        if(countries.size() > 1) {
+        // border.
+        if(countries.size() > 1 && overlap) {
             boolean crosses = false;
-            // Check for actually crossing a border
-            for(CountryBordersPolygon cp : countries) {
-                if(cp.crossesBoundary(ls)) {
+            // Construct the linesting
+            LineString ls = gf.createLineString(coords);
+            // Check for actually crossing a border, though we only want to do this for overlapping polygons
+            for (CountryBordersPolygon cp : countries) {
+                // We only want to do this check in the case where all points are in two countrie as this signifies an
+                // overlap
+                if (cp.crossesBoundary(ls)) {
                     // it crosses a border
                     crosses = true;
                     break;
@@ -280,6 +298,9 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
         if(hasInternational && countries.size() > 0) {
             names.add(CountryBordersReader.INTERNATIONAL_NAME);
         }
+
+        for(int i=0; i<names.size(); i++)
+            System.out.println(i + " - " + names.get(i));
 
         return names.toArray(new String[names.size()]);
     }
