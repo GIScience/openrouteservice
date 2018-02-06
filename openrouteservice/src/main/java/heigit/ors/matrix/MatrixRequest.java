@@ -126,4 +126,8 @@ public class MatrixRequest extends ServiceRequest
 	public void setAlgorithm(String _algorithm) {
 		this._algorithm = _algorithm;
 	}
+
+	public boolean isValid(){
+		return !(_sources == null && _destinations == null);
+	}
 }

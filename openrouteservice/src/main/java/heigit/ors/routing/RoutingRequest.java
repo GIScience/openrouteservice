@@ -197,4 +197,8 @@ public class RoutingRequest extends ServiceRequest
 	public void setIncludeRoundaboutExits(boolean includeRoundaboutExits) {
 		_includeRoundaboutExits = includeRoundaboutExits;
 	}
+
+	public boolean isValid() {
+		return !(_coordinates == null);
+	}
 }

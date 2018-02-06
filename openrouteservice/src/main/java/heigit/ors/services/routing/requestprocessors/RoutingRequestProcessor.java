@@ -22,9 +22,6 @@ package heigit.ors.services.routing.requestprocessors;
 
 import com.graphhopper.util.Helper;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
 import heigit.ors.exceptions.EmptyElementException;
 
 
@@ -32,33 +29,18 @@ import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RoutingErrorCodes;
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.routing.RoutingRequest;
-import heigit.ors.services.routing.requestprocessors.geojson.GeoJsonResponseWriter;
+import heigit.ors.util.GlobalResponseProcessor.GlobalResponseProcessor;
+import heigit.ors.util.GlobalResponseProcessor.geoJsonUtil.GeoJsonResponseWriter;
 import heigit.ors.services.routing.requestprocessors.gpx.GpxRoutingResponseWriter;
 import heigit.ors.services.routing.requestprocessors.json.JsonRoutingResponseWriter;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
 
-import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.feature.simple.SimpleFeatureTypeImpl;
-import org.geotools.geojson.GeoJSON;
-import org.geotools.geojson.feature.FeatureHandler;
-import org.geotools.geojson.feature.FeatureJSON;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import heigit.ors.geojson.GeometryJSON;
-import org.opengis.feature.Feature;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
 
 
 public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
@@ -74,9 +56,11 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
         RouteResult result = RoutingProfileManager.getInstance().computeRoute(rreq);
 
         JSONObject json = null;
+        JSONObject geojson = null;
         String gpx;
-        String geojson;
         String respFormat = _request.getParameter("format");
+
+
         if (Helper.isEmpty(respFormat) || "json".equalsIgnoreCase(respFormat)) {
             json = JsonRoutingResponseWriter.toJson(rreq, new RouteResult[]{result});
             if (json != null) {
@@ -92,8 +76,11 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
             if (Helper.isEmpty(geometryFormat) || !geometryFormat.equals("geojson")) {
                 rreq.setGeometryFormat("geojson");
             }
+
             // TODO create a json response first and parse it to the related global export class method and let this return the export to this method
-            // TODO use the logics from FeatureParser and GeoJsonResponseWriter!!!
+            // TODO use the logics from FeatureTypes and GeoJsonResponseWriter!!!
+            geojson = new GlobalResponseProcessor(response, rreq, new RouteResult[]{result}).toGeoJson();
+            // geojson = GlobalResponseProcessor.toGeoJson(response,rreq, new RouteResult[]{result});
             geojson = GeoJsonResponseWriter.toGeoJson(rreq, new RouteResult[]{result});
 
 

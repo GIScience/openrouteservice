@@ -2,7 +2,7 @@ package heigit.ors.util.gpxUtil;
 
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import heigit.ors.util.GlobalExportWriter.gpxUtil.beans.*;
+import heigit.ors.util.GlobalResponseProcessor.gpxUtil.beans.*;
 import org.junit.Assert;
 import org.junit.Test;
 
