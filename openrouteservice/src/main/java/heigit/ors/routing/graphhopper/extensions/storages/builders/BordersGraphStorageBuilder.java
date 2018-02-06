@@ -299,9 +299,6 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             names.add(CountryBordersReader.INTERNATIONAL_NAME);
         }
 
-        for(int i=0; i<names.size(); i++)
-            System.out.println(i + " - " + names.get(i));
-
         return names.toArray(new String[names.size()]);
     }
 }
