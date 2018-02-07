@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - RPHAST performance optimisations (Issue #64)
 - Updated duration calculations for urban areas (Issue #44)
 - Increase hikari pool size for db connections (PR #52)
+- Fix exception when roundabout exit is not correctly found (Issue #89)
 
 ## [4.4.1] - 2017-10-12
 
