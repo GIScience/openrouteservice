@@ -29,9 +29,7 @@ import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RoutingErrorCodes;
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.routing.RoutingRequest;
-import heigit.ors.util.GlobalResponseProcessor.GlobalResponseProcessor;
-import heigit.ors.util.GlobalResponseProcessor.geoJsonUtil.GeoJsonResponseWriter;
-import heigit.ors.services.routing.requestprocessors.gpx.GpxRoutingResponseWriter;
+import heigit.ors.GlobalResponseProcessor.GlobalResponseProcessor;
 import heigit.ors.services.routing.requestprocessors.json.JsonRoutingResponseWriter;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
@@ -67,8 +65,9 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
                 ServletUtility.write(response, json, "UTF-8");
 
             } else {
-                throw new EmptyElementException(RoutingErrorCodes.EMPTY_ELEMENT, "JSON was empty and therefore could not be created.");
+                throw new EmptyElementException(RoutingErrorCodes.EMPTY_ELEMENT, "JSON was empty and therefore could not be exported.");
             }
+
         } else if ("geojson".equalsIgnoreCase(respFormat)) {
             // If the response format is set to geojson the geometry_format parameter from the api call must be manually
             // set to geojson. Else the response will eventually be an encoded polyline
@@ -76,17 +75,24 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
             if (Helper.isEmpty(geometryFormat) || !geometryFormat.equals("geojson")) {
                 rreq.setGeometryFormat("geojson");
             }
-
-            // TODO create a json response first and parse it to the related global export class method and let this return the export to this method
-            // TODO use the logics from FeatureTypes and GeoJsonResponseWriter!!!
             geojson = new GlobalResponseProcessor(response, rreq, new RouteResult[]{result}).toGeoJson();
-            // geojson = GlobalResponseProcessor.toGeoJson(response,rreq, new RouteResult[]{result});
-            geojson = GeoJsonResponseWriter.toGeoJson(rreq, new RouteResult[]{result});
+            if (geojson != null) {
+                ServletUtility.write(response, geojson, "UTF-8");
+            } else {
+                throw new EmptyElementException(RoutingErrorCodes.EMPTY_ELEMENT, "GeoJSON was empty and therefore could not be exported.");
+            }
 
 
         } else if ("gpx".equalsIgnoreCase(respFormat)) {
             // TODO integrate gpx when the global export is done
-            gpx = GpxRoutingResponseWriter.toGPX(rreq, new RouteResult[]{result});
+            // If the response format is set to geojson the geometry_format parameter from the api call must be manually
+            // set to geojson. Else the response will eventually be an encoded polyline
+            String geometryFormat = _request.getParameter("geometry_format").toLowerCase();
+            if (Helper.isEmpty(geometryFormat) || !geometryFormat.equals("geojson")) {
+                rreq.setGeometryFormat("geojson");
+            }
+            gpx = new GlobalResponseProcessor(response, rreq, new RouteResult[]{result}).toGPX();
+            //gpx = GpxResponseWriter.toGPX(rreq, new RouteResult[]{result});
             if (gpx != null) {
                 ServletUtility.write(response, gpx);
             } else {

@@ -1,4 +1,4 @@
-package heigit.ors.util.GlobalResponseProcessor.geoJsonUtil;
+package heigit.ors.GlobalResponseProcessor.geoJsonUtil;
 
 
 import com.vividsolutions.jts.geom.LineString;

@@ -1,4 +1,4 @@
-package heigit.ors.services.routing.requestprocessors.gpx;
+package heigit.ors.GlobalResponseProcessor.gpxUtil;
 
 
 import com.graphhopper.util.shapes.BBox;
@@ -15,18 +15,18 @@ import heigit.ors.routing.WeightingMethod;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.GeomUtility;
-import heigit.ors.util.GlobalResponseProcessor.gpxUtil.beans.BoundsType;
-import heigit.ors.util.GlobalResponseProcessor.gpxUtil.beans.CopyrightType;
-import heigit.ors.util.GlobalResponseProcessor.gpxUtil.beans.EmailType;
-import heigit.ors.util.GlobalResponseProcessor.gpxUtil.beans.Gpx;
-import heigit.ors.util.GlobalResponseProcessor.gpxUtil.beans.GpxExtensions;
-import heigit.ors.util.GlobalResponseProcessor.gpxUtil.beans.LinkType;
-import heigit.ors.util.GlobalResponseProcessor.gpxUtil.beans.MetadataType;
-import heigit.ors.util.GlobalResponseProcessor.gpxUtil.beans.PersonType;
-import heigit.ors.util.GlobalResponseProcessor.gpxUtil.beans.RteType;
-import heigit.ors.util.GlobalResponseProcessor.gpxUtil.beans.RteTypeExtensions;
-import heigit.ors.util.GlobalResponseProcessor.gpxUtil.beans.WptType;
-import heigit.ors.util.GlobalResponseProcessor.gpxUtil.beans.WptTypeExtensions;
+import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.BoundsType;
+import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.CopyrightType;
+import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.EmailType;
+import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.Gpx;
+import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.GpxExtensions;
+import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.LinkType;
+import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.MetadataType;
+import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.PersonType;
+import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.RteType;
+import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.RteTypeExtensions;
+import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.WptType;
+import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.WptTypeExtensions;
 
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -36,9 +36,9 @@ import java.util.GregorianCalendar;
 
 
 /**
- * {@link GpxRoutingResponseWriter} converts OpenRouteService {@link RouteResult} to GPX in a well formatted xml string representation.
+ * {@link GpxResponseWriter} converts OpenRouteService {@link RouteResult} to GPX in a well formatted xml string representation.
  */
-public class GpxRoutingResponseWriter {
+public class GpxResponseWriter {
 
     /**
      * toGPX can be used to convert a  {@link RoutingRequest} and {@link RouteResult[]} to a gpx.
@@ -151,13 +151,13 @@ public class GpxRoutingResponseWriter {
                 orsMail.setDomain("");
                 orsMail.setId("");
                 orsPerson.setEmail(orsMail);
-                new MissingConfigParameterException(GpxRoutingResponseWriter.class, "support_mail", "The parameter seems to be malformed");
+                new MissingConfigParameterException(GpxResponseWriter.class, "support_mail", "The parameter seems to be malformed");
             }
         } else {
             orsMail.setDomain("");
             orsMail.setId("");
             orsPerson.setEmail(orsMail);
-            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "support_mail");
+            new MissingConfigParameterException(GpxResponseWriter.class, "support_mail");
         }
 
         LinkType orsLink = new LinkType();
@@ -172,7 +172,7 @@ public class GpxRoutingResponseWriter {
             orsLink.setText("");
             orsLink.setType("text/html");
             orsPerson.setLink(orsLink);
-            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "base_url");
+            new MissingConfigParameterException(GpxResponseWriter.class, "base_url");
         }
 
         // set author_tag
@@ -180,7 +180,7 @@ public class GpxRoutingResponseWriter {
             orsPerson.setName(AppConfig.Global().getParameter("info", "author_tag"));
         } else {
             orsPerson.setName("");
-            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "author_tag");
+            new MissingConfigParameterException(GpxResponseWriter.class, "author_tag");
         }
         metadata.setAuthor(orsPerson);
 
@@ -191,14 +191,14 @@ public class GpxRoutingResponseWriter {
 
         } else {
             copyright.setAuthor("");
-            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "attribution");
+            new MissingConfigParameterException(GpxResponseWriter.class, "attribution");
         }
         // set content_licence
         if (AppConfig.Global().getParameter("info", "content_licence") != null) {
             copyright.setLicense(AppConfig.Global().getParameter("info", "content_licence"));
         } else {
             copyright.setLicense("");
-            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "content_licence");
+            new MissingConfigParameterException(GpxResponseWriter.class, "content_licence");
         }
         // create and set current date as XMLGregorianCalendar element
         Date date = new Date();
@@ -213,7 +213,7 @@ public class GpxRoutingResponseWriter {
             metadata.setDesc(RoutingServiceSettings.getParameter("routing_description"));
         } else {
             metadata.setDesc("");
-            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "routung_description");
+            new MissingConfigParameterException(GpxResponseWriter.class, "routung_description");
         }
         // set routing_name
         if (RoutingServiceSettings.getParameter("routing_name") != null) {
@@ -221,7 +221,7 @@ public class GpxRoutingResponseWriter {
             metadata.setName(RoutingServiceSettings.getParameter("routing_name"));
         } else {
             metadata.setName("");
-            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "routing_name");
+            new MissingConfigParameterException(GpxResponseWriter.class, "routing_name");
         }
         metadata.setTime(cal);
         gpx.setMetadata(metadata);
@@ -230,7 +230,7 @@ public class GpxRoutingResponseWriter {
             gpx.setCreator(AppConfig.Global().getParameter("info", "author_tag"));
         } else {
             gpx.setCreator("");
-            new MissingConfigParameterException(GpxRoutingResponseWriter.class, "author_tag");
+            new MissingConfigParameterException(GpxResponseWriter.class, "author_tag");
         }
 
         // set gpx extensions

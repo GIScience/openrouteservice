@@ -1,5 +1,6 @@
-package heigit.ors.util.GlobalResponseProcessor;
+package heigit.ors.GlobalResponseProcessor;
 
+import heigit.ors.exceptions.UnsupportedExportException;
 import heigit.ors.geocoding.geocoders.GeocodingResult;
 import heigit.ors.isochrones.IsochroneMapCollection;
 import heigit.ors.isochrones.IsochroneRequest;
@@ -12,7 +13,9 @@ import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RoutingRequest;
 import heigit.ors.services.ServiceRequest;
 import heigit.ors.services.geocoding.requestprocessors.GeocodingRequest;
-import heigit.ors.util.GlobalResponseProcessor.geoJsonUtil.GeoJsonResponseWriter;
+import heigit.ors.servlet.util.ServletUtility;
+import heigit.ors.GlobalResponseProcessor.geoJsonUtil.GeoJsonResponseWriter;
+import heigit.ors.GlobalResponseProcessor.gpxUtil.GpxResponseWriter;
 import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletResponse;
@@ -84,32 +87,35 @@ public class GlobalResponseProcessor {
      * The function works as a distribution class that is/will be able to process any kind of request result combination as an input.
      * If the function doesn't provide a specific Export for a specific {@link ServiceRequest} yet, the {@link JSONObject} will be returned empty.
      *
-     * @return The method returns a GeoJson as a {@link JSONObject} that can be directly imported into {@link heigit.ors.servlet.util.ServletUtility}'s write function. If a specific {@link ServiceRequest} isn't integrated yet, the {@link JSONObject} will be empty.
-     * @throws Exception There will be no specific Exceptions here. The reason is, that this class shouldn't process any variable parameters from the {@link javax.servlet.http.HttpServletRequest}. So the content will always
+     * @return The method returns a GeoJson as a {@link JSONObject} that can be directly imported into {@link ServletUtility}'s write function. If a specific {@link ServiceRequest} isn't integrated yet, the {@link JSONObject} will be empty.
+     * @throws Exception An error will be raised using {@link UnsupportedExportException} with {@link org.apache.log4j.Logger}.
      */
 
     public JSONObject toGeoJson() throws Exception {
-        // Create an empty JSONObject to store the export result later or return it as it is.
-        JSONObject geojson = new JSONObject();
         // Check for the correct ServiceRequest and chose the right export function
         // TODO Integrate all exports here by time
         if (!(this.geocodingRequest == null)) {
-            if (geocodingResult != null) {
+            new UnsupportedExportException(this.getClass(), geocodingRequest.getClass(), "GeoJSON");
+            if (!(geocodingResult == null)) {
                 // TODO Do export
             }
         } else if (!(this.isochroneRequest == null)) {
+            new UnsupportedExportException(this.getClass(), isochroneRequest.getClass(), "GeoJSON");
             if (this.isochroneMapCollection.size() > 0) {
                 // TODO Do export
             }
         } else if (!(this.locationsRequest == null)) {
+            new UnsupportedExportException(this.getClass(), locationsRequest.getClass(), "GeoJSON");
             if (locationsResult.getGeometry().getLength() > 0) {
                 // TODO Do export
             }
         } else if (!(this.mapMatchingRequest == null)) {
+            new UnsupportedExportException(this.getClass(), mapMatchingRequest.getClass(), "GeoJSON");
             if (this.isochroneMapCollection.size() > 0) {
                 // TODO Do export
             }
         } else if (!(this.matrixRequest == null)) {
+            new UnsupportedExportException(this.getClass(), matrixRequest.getClass(), "GeoJSON");
             if (this.matrixResult.getSources().length > 0 && this.matrixResult.getDestinations().length > 0) {
                 // TODO Do export
             }
@@ -117,12 +123,52 @@ public class GlobalResponseProcessor {
             if (this.routeResult.length > 0)
                 return GeoJsonResponseWriter.toGeoJson(routingRequest, routeResult);
         } else {
-            return geojson;
+            return null;
         }
-        return geojson;
+        return null;
     }
 
+    /**
+     * The function works as a distribution class that is/will be able to process any kind of request result combination as an input.
+     * If the function doesn't provide a specific Export for a specific {@link ServiceRequest} yet, the {@link JSONObject} will be returned empty.
+     *
+     * @return The method returns a GPX as a {@link String} that can be directly imported into {@link ServletUtility}'s write function. If a specific {@link ServiceRequest} isn't integrated yet, the {@link String} will be empty.
+     * @throws Exception An error will be raised using {@link UnsupportedExportException} with {@link org.apache.log4j.Logger}.
+     */
     public String toGPX() throws Exception {
+        // Check for the correct ServiceRequest and chose the right export function
+        // TODO Integrate all exports here by time
+        if (!(this.geocodingRequest == null)) {
+            new UnsupportedExportException(this.getClass(), geocodingRequest.getClass(), "toGPX");
+            if (!(geocodingResult == null)) {
+                // TODO Do export
+            }
+        } else if (!(this.isochroneRequest == null)) {
+            new UnsupportedExportException(this.getClass(), isochroneRequest.getClass(), "toGPX");
+            if (this.isochroneMapCollection.size() > 0) {
+                // TODO Do export
+            }
+        } else if (!(this.locationsRequest == null)) {
+            new UnsupportedExportException(this.getClass(), locationsRequest.getClass(), "toGPX");
+            if (locationsResult.getGeometry().getLength() > 0) {
+                // TODO Do export
+            }
+        } else if (!(this.mapMatchingRequest == null)) {
+            new UnsupportedExportException(this.getClass(), mapMatchingRequest.getClass(), "toGPX");
+            if (this.isochroneMapCollection.size() > 0) {
+                // TODO Do export
+            }
+        } else if (!(this.matrixRequest == null)) {
+            new UnsupportedExportException(this.getClass(), matrixRequest.getClass(), "toGPX");
+            if (this.matrixResult.getSources().length > 0 && this.matrixResult.getDestinations().length > 0) {
+                // TODO Do export
+            }
+        } else if (!(this.routingRequest == null)) {
+            if (this.routeResult.length > 0)
+                return GpxResponseWriter.toGPX(routingRequest, routeResult);
+        } else {
+            return null;
+        }
         return null;
     }
 
