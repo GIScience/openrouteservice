@@ -69,7 +69,7 @@ public class InstructionTranslator
 		_turnManeuvers[7] = _resources.getTranslation("instructions.turn_maneuvers.uturn");
 
 		_numerals = new String[11];
-		for (int i = 1; i<=10; i++)
+		for (int i = 0; i<=10; i++)
 			_numerals[i] = _resources.getTranslation("instructions.numerals."+Integer.toString(i));
 
 		_actionDepartDefault = _resources.getTranslation("instructions.actions.depart.default.default");
@@ -119,11 +119,17 @@ public class InstructionTranslator
 	{
 		boolean isWayNull = Helper.isEmpty(wayName);
 		String str = isWayNull ? _actionRoundaboutDefault: _actionRoundaboutName;
+		boolean isExitNull = (exitNumber == 0);
 
+		//If there was an error in finding the exit number, return "UNKNOWN". If there is no way name, don't return a way name
+		if(isExitNull)
+			str = str.replace("{exit_number}",  "UNKNOWN");
+		else
+			str = str.replace("{exit_number}",  _numerals[exitNumber]);
 		if (isWayNull)
-			return str.replace("{exit_number}",  _numerals[exitNumber]);
+			return str;
 		else 
-			return str.replace("{exit_number}", _numerals[exitNumber]).replace("{way_name}", wayName);
+			return str.replace("{way_name}", wayName);
 	}
 
 	public String getDepart(CardinalDirection direction, String wayName) throws Exception
