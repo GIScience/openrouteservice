@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [4.4.2] - 2018-01-31
+### Added
+- Ability to get routes in GPX format (Issue #8)
+- Ability to read HGV tags from OSM Nodes (Issue #49)
+- No need to add optimisation parameter in request (PR #87)
+- Option to respond md5 of osm file used for graph generation (Issue #48)
+
+### Fixed
+- Updated code to not use empty bearings when continue_straight=true is set (Issue #51)
+- Fixed problem with HGV restrictions only being taken into account if less than three provided (Issue #75)
+- RPHAST performance optimisations (Issue #64)
+- Updated duration calculations for urban areas (Issue #44)
+- Increase hikari pool size for db connections (PR #52)
+
 ## [4.4.1] - 2017-10-12
 
 ### Added
