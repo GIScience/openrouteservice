@@ -1,12 +1,18 @@
-package heigit.ors.util.GlobalResponseProcessor.geoJsonUtil.beans;
+package heigit.ors.util.GlobalResponseProcessor.geoJsonUtil;
+
 
 import com.vividsolutions.jts.geom.LineString;
 import heigit.ors.services.routing.RoutingServiceSettings;
-import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-public class FeatureTypes {
+/**
+ * {@link SimpleFeatureTypes} defines {@link SimpleFeatureType} for each Request that will be exported as GeoJSON.
+ * The class is only accessible through classes in the same package.
+ *
+ * @author Julian Psotta
+ */
+class SimpleFeatureTypes {
     // TODO implement all the different kind of SimpleFeatureTypes here!
     public static SimpleFeatureType createRouteFeatureType() throws Exception {
         // make routeResults and request accessible class wide
@@ -18,10 +24,7 @@ public class FeatureTypes {
         return builder.buildFeatureType();
     }
 
-    public static SimpleFeatureCollection creatureRouteFeatureCollection(SimpleFeatureType feature) {
-        //featureBuilder.add("info", JSONObject.class);
-        //featureBuilder.add("extras", JSONObject.class);
-
+    public static SimpleFeatureType createIsoChronesFeatureType() throws Exception {
         return null;
     }
 }

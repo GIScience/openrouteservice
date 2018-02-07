@@ -24,6 +24,8 @@ import javax.servlet.http.HttpServletResponse;
  * <p>
  * The {@link GlobalResponseProcessor} doesn't include the {@link heigit.ors.servlet.util.ServletUtility} function to write the output.
  * So {@link heigit.ors.servlet.util.ServletUtility} must be called separately with the returned {@link JSONObject}.
+ *
+ * @author Julian Psotta
  */
 public class GlobalResponseProcessor {
     private HttpServletResponse response;
@@ -40,6 +42,8 @@ public class GlobalResponseProcessor {
     private RouteResult[] routeResult;
 
     // TODO The constructors still need refinement with their inputs
+    // TODO add try and catch errors to all subclasses
+    // TODO finish commenting
     public GlobalResponseProcessor(HttpServletResponse response, GeocodingRequest geocodingRequest, GeocodingResult geocodingResult) {
         this.response = response;
         this.geocodingRequest = geocodingRequest;
@@ -79,11 +83,6 @@ public class GlobalResponseProcessor {
     /**
      * The function works as a distribution class that is/will be able to process any kind of request result combination as an input.
      * If the function doesn't provide a specific Export for a specific {@link ServiceRequest} yet, the {@link JSONObject} will be returned empty.
-     * <p>
-     * TODO remove these @param comments if not used in the end
-     * //* @param response The input should be {@link HttpServletResponse}
-     * //* @param request  The input should be of class {@link ServiceRequest} e.g. {@link RoutingRequest}
-     * //* @param result   It should be one of the following MapMatchingRes {@link heigit.ors.geocoding.geocoders.GeocodingResult}, {@link heigit.ors.isochrones.IsochroneMapCollection}, {@link heigit.ors.locations.LocationsResult}, {@link heigit.ors.matrix.MatrixResult}, {@link RouteResult}
      *
      * @return The method returns a GeoJson as a {@link JSONObject} that can be directly imported into {@link heigit.ors.servlet.util.ServletUtility}'s write function. If a specific {@link ServiceRequest} isn't integrated yet, the {@link JSONObject} will be empty.
      * @throws Exception There will be no specific Exceptions here. The reason is, that this class shouldn't process any variable parameters from the {@link javax.servlet.http.HttpServletRequest}. So the content will always
@@ -103,15 +102,15 @@ public class GlobalResponseProcessor {
                 // TODO Do export
             }
         } else if (!(this.locationsRequest == null)) {
-            if (locationsResult.getGeometry().getLength() > 0){
+            if (locationsResult.getGeometry().getLength() > 0) {
                 // TODO Do export
             }
         } else if (!(this.mapMatchingRequest == null)) {
-            if (this.isochroneMapCollection.size() > 0){
+            if (this.isochroneMapCollection.size() > 0) {
                 // TODO Do export
             }
         } else if (!(this.matrixRequest == null)) {
-            if (this.matrixResult.getSources().length > 0 && this.matrixResult.getDestinations().length > 0){
+            if (this.matrixResult.getSources().length > 0 && this.matrixResult.getDestinations().length > 0) {
                 // TODO Do export
             }
         } else if (!(this.routingRequest == null)) {
@@ -123,5 +122,8 @@ public class GlobalResponseProcessor {
         return geojson;
     }
 
+    public String toGPX() throws Exception {
+        return null;
+    }
 
 }
