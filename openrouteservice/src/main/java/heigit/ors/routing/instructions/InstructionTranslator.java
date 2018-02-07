@@ -69,7 +69,7 @@ public class InstructionTranslator
 		_turnManeuvers[7] = _resources.getTranslation("instructions.turn_maneuvers.uturn");
 
 		_numerals = new String[11];
-		for (int i = 0; i<=10; i++)
+		for (int i = 1; i<=10; i++)
 			_numerals[i] = _resources.getTranslation("instructions.numerals."+Integer.toString(i));
 
 		_actionDepartDefault = _resources.getTranslation("instructions.actions.depart.default.default");
