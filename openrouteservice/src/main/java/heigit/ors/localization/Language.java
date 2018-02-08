@@ -46,14 +46,9 @@ public class Language {
 		return _nativeName; 
 	} 
 
-	public Locale getLocale() { 
-		if (_locale != null) { 
-			return _locale; 
-		} 
-		synchronized (this) { 
-			if (_locale == null){ 
-				_locale = new Locale(_langCode); 
-			} 
+	public synchronized Locale getLocale() { 
+		if (_locale == null) { 
+			_locale = new Locale(_langCode); 
 		} 
 		return _locale; 
 	} 
