@@ -20,7 +20,6 @@
  */
 package heigit.ors.routing;
 
-
 /**
  * This Class handles the error Codes as described in the error_codes.md
  *
@@ -28,13 +27,13 @@ package heigit.ors.routing;
  * @author Julian Psotta, julian@openrouteservice.org
  */
 public class RoutingErrorCodes {
-    public static int INVALID_JSON_FORMAT = 200;
-    public static int MISSING_PARAMETER = 201;
-    public static int INVALID_PARAMETER_FORMAT = 202;
-    public static int INVALID_PARAMETER_VALUE = 203;
-    public static int REQUEST_EXCEEDS_SERVER_LIMIT = 204;
-    public static int EXPORT_HANDLER_ERROR = 206;
-    public static int UNSUPPORTED_EXPORT_FORMAT = 207;
-    public static int EMPTY_ELEMENT = 208;
-    public static int UNKNOWN = 299;
+    public static int INVALID_JSON_FORMAT = 2000;
+    public static int MISSING_PARAMETER = 2001;
+    public static int INVALID_PARAMETER_FORMAT = 2002;
+    public static int INVALID_PARAMETER_VALUE = 2003;
+    public static int REQUEST_EXCEEDS_SERVER_LIMIT = 2004;
+    public static int EXPORT_HANDLER_ERROR = 2006;
+    public static int UNSUPPORTED_EXPORT_FORMAT = 2007;
+    public static int EMPTY_ELEMENT = 2008;
+    public static int UNKNOWN = 2099;
 }

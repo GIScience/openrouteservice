@@ -20,7 +20,6 @@
  */
 package heigit.ors.matrix;
 
-
 /**
  * This Class handles the error Codes as described in the error_codes.md
  *
@@ -28,13 +27,13 @@ package heigit.ors.matrix;
  * @author Julian Psotta, julian@openrouteservice.org
  */
 public class MatrixErrorCodes {
-    public static int INVALID_JSON_FORMAT = 600;
-    public static int MISSING_PARAMETER = 601;
-    public static int INVALID_PARAMETER_FORMAT = 602;
-    public static int INVALID_PARAMETER_VALUE = 603;
-    public static int PARAMETER_VALUE_EXCEEDS_MAXIMUM = 604;
-    public static int EXPORT_HANDLER_ERROR = 606;
-    public static int UNSUPPORTED_EXPORT_FORMAT = 607;
-    public static int EMPTY_ELEMENT = 608;
-    public static int UNKNOWN = 699;
+    public static int INVALID_JSON_FORMAT = 6000;
+    public static int MISSING_PARAMETER = 6001;
+    public static int INVALID_PARAMETER_FORMAT = 6002;
+    public static int INVALID_PARAMETER_VALUE = 6003;
+    public static int PARAMETER_VALUE_EXCEEDS_MAXIMUM = 6004;
+    public static int EXPORT_HANDLER_ERROR = 6006;
+    public static int UNSUPPORTED_EXPORT_FORMAT = 6007;
+    public static int EMPTY_ELEMENT = 6008;
+    public static int UNKNOWN = 6099;
 }

@@ -27,13 +27,13 @@ package heigit.ors.locations;
  * @author Julian Psotta, julian@openrouteservice.org
  */
 public class LocationsErrorCodes {
-    public static int INVALID_JSON_FORMAT = 400;
-    public static int MISSING_PARAMETER = 401;
-    public static int INVALID_PARAMETER_FORMAT = 402;
-    public static int INVALID_PARAMETER_VALUE = 403;
-    public static int PARAMETER_VALUE_EXCEEDS_MAXIMUM = 404;
-    public static int EXPORT_HANDLER_ERROR = 406;
-    public static int UNSUPPORTED_EXPORT_FORMAT = 407;
-    public static int EMPTY_ELEMENT = 408;
-    public static int UNKNOWN = 499;
+    public static int INVALID_JSON_FORMAT = 4000;
+    public static int MISSING_PARAMETER = 4001;
+    public static int INVALID_PARAMETER_FORMAT = 4002;
+    public static int INVALID_PARAMETER_VALUE = 4003;
+    public static int PARAMETER_VALUE_EXCEEDS_MAXIMUM = 4004;
+    public static int EXPORT_HANDLER_ERROR = 4006;
+    public static int UNSUPPORTED_EXPORT_FORMAT = 4007;
+    public static int EMPTY_ELEMENT = 4008;
+    public static int UNKNOWN = 4099;
 }

@@ -18,7 +18,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package heigit.ors.isochrones;
 
 /**
@@ -27,16 +26,15 @@ package heigit.ors.isochrones;
  * @author OpenRouteServiceTeam
  * @author Julian Psotta, julian@openrouteservice.org
  */
-
 public class IsochronesErrorCodes {
-    public static int INVALID_JSON_FORMAT = 300;
-    public static int MISSING_PARAMETER = 301;
-    public static int INVALID_PARAMETER_FORMAT = 302;
-    public static int INVALID_PARAMETER_VALUE = 303;
-    public static int PARAMETER_VALUE_EXCEEDS_MAXIMUM = 304;
+    public static int INVALID_JSON_FORMAT = 3000;
+    public static int MISSING_PARAMETER = 3001;
+    public static int INVALID_PARAMETER_FORMAT = 3002;
+    public static int INVALID_PARAMETER_VALUE = 3003;
+    public static int PARAMETER_VALUE_EXCEEDS_MAXIMUM = 3004;
     public static int FEATURE_NOT_SUPPORTED = 305;
-    public static int EXPORT_HANDLER_ERROR = 206;
-    public static int UNSUPPORTED_EXPORT_FORMAT = 207;
-    public static int EMPTY_ELEMENT = 208;
-    public static int UNKNOWN = 399;
+    public static int EXPORT_HANDLER_ERROR = 2006;
+    public static int UNSUPPORTED_EXPORT_FORMAT = 2007;
+    public static int EMPTY_ELEMENT = 2008;
+    public static int UNKNOWN = 3099;
 }
