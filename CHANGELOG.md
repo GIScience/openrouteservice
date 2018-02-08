@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Option to specify maximum locations for matrix request when using non-standard weightings (Issue #94)
 
 ## [4.4.2] - 2018-01-31
 ### Added
