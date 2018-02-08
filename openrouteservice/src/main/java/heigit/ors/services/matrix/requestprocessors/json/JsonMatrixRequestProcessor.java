@@ -23,6 +23,7 @@ package heigit.ors.services.matrix.requestprocessors.json;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import heigit.ors.routing.RoutingProfilesCollection;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -74,9 +75,9 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor
 
 		if (req == null)
 			throw new StatusCodeException(StatusCode.BAD_REQUEST, MatrixErrorCodes.UNKNOWN, "MatrixRequest object is null.");
-		
-		if (MatrixServiceSettings.getMaximumLocations() > 0 && req.getTotalNumberOfLocations() > MatrixServiceSettings.getMaximumLocations())
-			throw new ParameterOutOfRangeException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "sources/destinations", Integer.toString(req.getTotalNumberOfLocations()), Integer.toString(MatrixServiceSettings.getMaximumLocations()));
+		boolean flexibleMode = req.getFlexibleMode() ? true : !RoutingProfileManager.getInstance().getProfiles().isCHProfileAvailable(req.getProfileType());
+		if (MatrixServiceSettings.getMaximumLocations(flexibleMode) > 0 && req.getTotalNumberOfLocations() > MatrixServiceSettings.getMaximumLocations(flexibleMode))
+			throw new ParameterOutOfRangeException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "sources/destinations", Integer.toString(req.getTotalNumberOfLocations()), Integer.toString(MatrixServiceSettings.getMaximumLocations(flexibleMode)));
 		
 		MatrixResult mtxResult = RoutingProfileManager.getInstance().computeMatrix(req);
 		
