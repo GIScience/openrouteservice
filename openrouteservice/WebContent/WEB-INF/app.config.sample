@@ -50,6 +50,9 @@
 				# Maximum dimension of the result matrix. In other words, the maximum possible length of a row or a column in the matrix.
 				# Default value is 100.
                                 maximum_locations: 100,
+                # Maximum dimension of the result matrix when using custom profiles that do not support Contraction Hierarchies. Usually everything
+                # that is not pure car or hgv profile. Default value is 25.
+                                maximum_locations_flexible: 25,
 				# Maximum allowed distance between the requested coordinate and a point on the nearest road. The value is measured in meters.
                                 maximum_search_radius: 5000,
 				# Maximum allowed number of visited nodes in shortest path computation. This threshold is applied only for Dijkstra algorithm. 
