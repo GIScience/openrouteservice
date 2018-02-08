@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - Fix exception when roundabout exit is not correctly found (Issue #89)
+- Option to specify maximum locations for matrix request when using non-standard weightings (Issue #94)
 
 ## [4.4.2] - 2018-01-31
 ### Added
@@ -16,7 +17,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Ability to read HGV tags from OSM Nodes (Issue #49)
 - No need to add optimisation parameter in request (PR #87)
 - Option to respond md5 of osm file used for graph generation (Issue #48)
-- Option to specify maximum locations for matrix request when using non-standard weightings (Issue #94)
 
 ### Fixed
 - Updated code to not use empty bearings when continue_straight=true is set (Issue #51)
