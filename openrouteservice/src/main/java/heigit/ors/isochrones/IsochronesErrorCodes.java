@@ -4,29 +4,39 @@
  *   http://www.giscience.uni-hd.de
  *   http://www.heigit.org
  *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
+ *  under one or more contributor license agreements. See the NOTICE file
+ *  distributed with this work for additional information regarding copyright
+ *  ownership. The GIScience licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in compliance
  *  with the License. You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package heigit.ors.isochrones;
 
-public class IsochronesErrorCodes 
-{
-	public static int INVALID_JSON_FORMAT = 300;
-	public static int MISSING_PARAMETER = 301;
-	public static int INVALID_PARAMETER_FORMAT = 302;
-	public static int INVALID_PARAMETER_VALUE = 303;
-	public static int PARAMETER_VALUE_EXCEEDS_MAXIMUM = 304;
-	public static int FEATURE_NOT_SUPPORTED = 305;
-	public static int UNKNOWN = 399;
+/**
+ * This Class handles the error Codes as described in the error_codes.md
+ *
+ * @author OpenRouteServiceTeam
+ * @author Julian Psotta, julian@openrouteservice.org
+ */
+
+public class IsochronesErrorCodes {
+    public static int INVALID_JSON_FORMAT = 300;
+    public static int MISSING_PARAMETER = 301;
+    public static int INVALID_PARAMETER_FORMAT = 302;
+    public static int INVALID_PARAMETER_VALUE = 303;
+    public static int PARAMETER_VALUE_EXCEEDS_MAXIMUM = 304;
+    public static int FEATURE_NOT_SUPPORTED = 305;
+    public static int EXPORT_HANDLER_ERROR = 206;
+    public static int UNSUPPORTED_EXPORT_FORMAT = 207;
+    public static int EMPTY_ELEMENT = 208;
+    public static int UNKNOWN = 399;
 }

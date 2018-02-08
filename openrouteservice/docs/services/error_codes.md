@@ -25,6 +25,9 @@ The following sections describes the list of possible internal error codes that 
 | 102 |  Invalid parameter format. |
 | 103 |  Invalid parameter value. |
 | 104 |  Parameter value exceeds the maximum allowed limit. |
+| 106 |  Unable to parse the request to the export handler. |
+| 107 |  Unsupported export format. |
+| 108 |  Empty Element. |
 | 199 |  Unknown internal error. |
 
 ## Routing API
@@ -35,8 +38,10 @@ The following sections describes the list of possible internal error codes that 
 | 202 |  Invalid parameter format. |
 | 203 |  Invalid parameter value. |
 | 204 |  Parameter value exceeds the maximum allowed limit. |
+| 206 |  Unable to parse the request to the export handler. |
+| 207 |  Unsupported export format. |
+| 208 |  Empty Element. |
 | 299 |  Unknown internal error. |
-
 
 ## Isochrones API
 | Error Code   |  Description |
@@ -47,6 +52,9 @@ The following sections describes the list of possible internal error codes that 
 | 303 |  Invalid parameter value. |
 | 304 |  Parameter value exceeds the maximum allowed limit. |
 | 305 |  Requested feature is not supported. |
+| 306 |  Unable to parse the request to the export handler. |
+| 307 |  Unsupported export format. |
+| 308 |  Empty Element. |
 | 399 |  Unknown internal error. |
 
 ## Locations API
@@ -57,4 +65,20 @@ The following sections describes the list of possible internal error codes that 
 | 402 |  Invalid parameter format. |
 | 403 |  Invalid parameter value. |
 | 404 |  Parameter value exceeds the maximum allowed limit. |
+| 406 |  Unable to parse the request to the export handler. |
+| 407 |  Unsupported export format. |
+| 408 |  Empty Element. |
 | 499 |  Unknown internal error. |
+
+## Matrix API
+| Error Code   |  Description |
+|----------|-------------|
+| 600 |  Unable to parse JSON request. |
+| 601 |  Required parameter is missing. |
+| 602 |  Invalid parameter format. |
+| 603 |  Invalid parameter value. |
+| 604 |  Parameter value exceeds the maximum allowed limit. |
+| 606 |  Unable to parse the request to the export handler. |
+| 607 |  Unsupported export format. |
+| 608 |  Empty Element. |
+| 699 |  Unknown internal error. |

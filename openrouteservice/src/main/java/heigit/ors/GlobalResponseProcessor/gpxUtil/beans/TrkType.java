@@ -11,14 +11,13 @@ import java.util.List;
 
 
 /**
- * 
- * 		trk represents a track - an ordered list of points describing a path.
- *
- *
+ * trk represents a track - an ordered list of points describing a path.
+ * <p>
+ * <p>
  * <p>Java class for trkType complex type.
- *
+ * <p>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
  * <pre>
  * {@code
  * <complexType name="trkType">
@@ -40,20 +39,20 @@ import java.util.List;
  * </complexType>
  * }
  * </pre>
- * 
- * 
+ *
+ * @author Julian Psotta, julian@openrouteservice.org
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "trkType", propOrder = {
-    "name",
-    "cmt",
-    "desc",
-    "src",
-    "link",
-    "number",
-    "type",
-    "extensions",
-    "trkseg"
+        "name",
+        "cmt",
+        "desc",
+        "src",
+        "link",
+        "number",
+        "type",
+        "extensions",
+        "trkseg"
 })
 public class TrkType {
 
@@ -70,11 +69,9 @@ public class TrkType {
 
     /**
      * Gets the value of the name property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is
+     * {@link String }
      */
     public String getName() {
         return name;
@@ -82,11 +79,9 @@ public class TrkType {
 
     /**
      * Sets the value of the name property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setName(String value) {
         this.name = value;
@@ -94,11 +89,9 @@ public class TrkType {
 
     /**
      * Gets the value of the cmt property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is
+     * {@link String }
      */
     public String getCmt() {
         return cmt;
@@ -106,11 +99,9 @@ public class TrkType {
 
     /**
      * Sets the value of the cmt property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setCmt(String value) {
         this.cmt = value;
@@ -118,11 +109,9 @@ public class TrkType {
 
     /**
      * Gets the value of the desc property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is
+     * {@link String }
      */
     public String getDesc() {
         return desc;
@@ -130,11 +119,9 @@ public class TrkType {
 
     /**
      * Sets the value of the desc property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setDesc(String value) {
         this.desc = value;
@@ -142,11 +129,9 @@ public class TrkType {
 
     /**
      * Gets the value of the src property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is
+     * {@link String }
      */
     public String getSrc() {
         return src;
@@ -154,11 +139,9 @@ public class TrkType {
 
     /**
      * Sets the value of the src property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setSrc(String value) {
         this.src = value;
@@ -166,25 +149,23 @@ public class TrkType {
 
     /**
      * Gets the value of the link property.
-     * 
+     * <p>
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the link property.
-     * 
+     * <p>
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getLink().add(newItem);
      * </pre>
-     *
-     * 
+     * <p>
+     * <p>
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link LinkType }
-     *
-     * 
      */
     public List<LinkType> getLink() {
         if (link == null) {
@@ -195,11 +176,9 @@ public class TrkType {
 
     /**
      * Gets the value of the number property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
+     *
+     * @return possible object is
+     * {@link BigInteger }
      */
     public BigInteger getNumber() {
         return number;
@@ -207,11 +186,9 @@ public class TrkType {
 
     /**
      * Sets the value of the number property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link BigInteger }
      */
     public void setNumber(BigInteger value) {
         this.number = value;
@@ -219,11 +196,9 @@ public class TrkType {
 
     /**
      * Gets the value of the type property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is
+     * {@link String }
      */
     public String getType() {
         return type;
@@ -231,11 +206,9 @@ public class TrkType {
 
     /**
      * Sets the value of the type property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setType(String value) {
         this.type = value;
@@ -243,11 +216,9 @@ public class TrkType {
 
     /**
      * Gets the value of the extensions property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link TrkTypeExtensions }
-     *     
+     *
+     * @return possible object is
+     * {@link TrkTypeExtensions }
      */
     public TrkTypeExtensions getExtensions() {
         return extensions;
@@ -255,11 +226,9 @@ public class TrkType {
 
     /**
      * Sets the value of the extensions property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link TrkTypeExtensions }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link TrkTypeExtensions }
      */
     public void setExtensions(TrkTypeExtensions value) {
         this.extensions = value;
@@ -267,25 +236,23 @@ public class TrkType {
 
     /**
      * Gets the value of the trkseg property.
-     * 
+     * <p>
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the trkseg property.
-     * 
+     * <p>
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getTrkseg().add(newItem);
      * </pre>
-     * 
-     * 
+     * <p>
+     * <p>
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link TrksegType }
-     * 
-     * 
      */
     public List<TrksegType> getTrkseg() {
         if (trkseg == null) {

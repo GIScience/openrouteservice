@@ -8,14 +8,13 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * 
- * 	 An email address.  Broken into two parts (id and domain) to help prevent email harvesting.
- *
- *
+ * An email address.  Broken into two parts (id and domain) to help prevent email harvesting.
+ * <p>
+ * <p>
  * <p>Java class for emailType complex type.
- *
+ * <p>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
  * <pre>
  * {@code
  * <complexType name="emailType">
@@ -28,8 +27,8 @@ import javax.xml.bind.annotation.XmlType;
  * </complexType>
  * }
  * </pre>
- * 
- * 
+ *
+ * @author Julian Psotta, julian@openrouteservice.org
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "emailType")
@@ -42,11 +41,9 @@ public class EmailType {
 
     /**
      * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is
+     * {@link String }
      */
     public String getId() {
         return id;
@@ -54,11 +51,9 @@ public class EmailType {
 
     /**
      * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setId(String value) {
         this.id = value;
@@ -66,11 +61,9 @@ public class EmailType {
 
     /**
      * Gets the value of the domain property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is
+     * {@link String }
      */
     public String getDomain() {
         return domain;
@@ -78,11 +71,9 @@ public class EmailType {
 
     /**
      * Sets the value of the domain property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setDomain(String value) {
         this.domain = value;

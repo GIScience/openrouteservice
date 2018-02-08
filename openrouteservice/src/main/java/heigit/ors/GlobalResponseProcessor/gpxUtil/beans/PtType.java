@@ -11,14 +11,13 @@ import java.math.BigDecimal;
 
 
 /**
- * 
- * 	 A geographic point with optional elevation and time.  Available for use by other schemas.
- *
- *
+ * A geographic point with optional elevation and time.  Available for use by other schemas.
+ * <p>
+ * <p>
  * <p>Java class for ptType complex type.
- *
+ * <p>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
  * <pre>
  * {@code
  * <complexType name="ptType">
@@ -35,13 +34,13 @@ import java.math.BigDecimal;
  * </complexType>
  * }
  * </pre>
- * 
- * 
+ *
+ * @author Julian Psotta, julian@openrouteservice.org
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ptType", propOrder = {
-    "ele",
-    "time"
+        "ele",
+        "time"
 })
 public class PtType {
 
@@ -55,11 +54,9 @@ public class PtType {
 
     /**
      * Gets the value of the ele property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
+     *
+     * @return possible object is
+     * {@link BigDecimal }
      */
     public BigDecimal getEle() {
         return ele;
@@ -67,11 +64,9 @@ public class PtType {
 
     /**
      * Sets the value of the ele property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link BigDecimal }
      */
     public void setEle(BigDecimal value) {
         this.ele = value;
@@ -79,11 +74,9 @@ public class PtType {
 
     /**
      * Gets the value of the time property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     *
+     * @return possible object is
+     * {@link XMLGregorianCalendar }
      */
     public XMLGregorianCalendar getTime() {
         return time;
@@ -91,11 +84,9 @@ public class PtType {
 
     /**
      * Sets the value of the time property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link XMLGregorianCalendar }
      */
     public void setTime(XMLGregorianCalendar value) {
         this.time = value;
@@ -103,11 +94,9 @@ public class PtType {
 
     /**
      * Gets the value of the lat property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
+     *
+     * @return possible object is
+     * {@link BigDecimal }
      */
     public BigDecimal getLat() {
         return lat;
@@ -115,11 +104,9 @@ public class PtType {
 
     /**
      * Sets the value of the lat property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link BigDecimal }
      */
     public void setLat(BigDecimal value) {
         this.lat = value;
@@ -127,11 +114,9 @@ public class PtType {
 
     /**
      * Gets the value of the lon property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
+     *
+     * @return possible object is
+     * {@link BigDecimal }
      */
     public BigDecimal getLon() {
         return lon;
@@ -139,11 +124,9 @@ public class PtType {
 
     /**
      * Sets the value of the lon property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link BigDecimal }
      */
     public void setLon(BigDecimal value) {
         this.lon = value;

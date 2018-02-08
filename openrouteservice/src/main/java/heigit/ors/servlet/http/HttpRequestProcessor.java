@@ -20,8 +20,6 @@
  */
 package heigit.ors.servlet.http;
 
-import heigit.ors.exceptions.UnsupportedExportException;
-
 import javax.servlet.http.HttpServletResponse;
 
 public interface HttpRequestProcessor {

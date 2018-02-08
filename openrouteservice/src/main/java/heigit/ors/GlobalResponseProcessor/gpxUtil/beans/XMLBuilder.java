@@ -6,9 +6,9 @@ import javax.xml.bind.Marshaller;
 import java.io.StringWriter;
 
 /**
- * @author Julian
  * This classs generates the xml representation of the gpx file as a formatted string.
  * The JAXB Marshaller goes recursively through all the classes.
+ * @author Julian Psotta, julian@openrouteservice.org
  */
 public class XMLBuilder {
 

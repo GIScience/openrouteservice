@@ -37,6 +37,7 @@ import java.util.GregorianCalendar;
 
 /**
  * {@link GpxResponseWriter} converts OpenRouteService {@link RouteResult} to GPX in a well formatted xml string representation.
+ * @author Julian Psotta, julian@openrouteservice.org
  */
 public class GpxResponseWriter {
 
@@ -220,7 +221,7 @@ public class GpxResponseWriter {
 
             metadata.setName(RoutingServiceSettings.getParameter("routing_name"));
         } else {
-            metadata.setName("");
+            metadata.setName("ORSRoutingFile");
             new MissingConfigParameterException(GpxResponseWriter.class, "routing_name");
         }
         metadata.setTime(cal);

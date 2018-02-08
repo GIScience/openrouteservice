@@ -9,6 +9,8 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * {@link GpxExtensions} represents the extensions for {@link Gpx}
  * Can be manually extended
+ *
+ * @author Julian Psotta, julian@openrouteservice.org
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = {
@@ -26,7 +28,7 @@ import javax.xml.bind.annotation.XmlType;
         // always add new variables here! and below
 })
 
-public class GpxExtensions extends ExtensionsType{
+public class GpxExtensions extends ExtensionsType {
 
     protected String attribution;
     protected String engine;

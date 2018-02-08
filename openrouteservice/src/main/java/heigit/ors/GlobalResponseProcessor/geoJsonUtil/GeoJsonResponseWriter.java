@@ -24,15 +24,13 @@ import java.util.HashMap;
  * "homegrown" export solutions, that anyway use the same export ideas, can be combined this way.
  * The general access to this class should be through a toGeoJson function that does the magic.
  *
- * @author Julian Psotta
- * @version 1.0
+ * @author Julian Psotta, julian@openrouteservice.org
  */
 public class GeoJsonResponseWriter {
 
     /**
      * The function transforms {@link RouteResult}'s in a ready-to-be-shipped {@link DefaultFeatureCollection} enriched with ORS specific information
-     * The return value will always be a {@link DefaultFeatureCollection}.
-     * The reason is that it is the only way additional information can be added, that shouldn't go into the single {@link SimpleFeature}.
+     * The return value is an unstructured {@link JSONObject} per definition. Don't expect good readability.
      *
      * @param rreq         A {@link RoutingRequest} holding the initial Request.
      * @param routeResults A {@link RouteResult[]}.
@@ -41,8 +39,7 @@ public class GeoJsonResponseWriter {
      */
     public static JSONObject toGeoJson(RoutingRequest rreq, RouteResult[] routeResults) throws Exception {
 
-        // The GEOJSON Tool cant handle the JSONArray's properly and malformes them
-        // Create HashMap of Hashmaps to store properties for individual Features in separated HashMaps, accessible through unique identifiers
+        // Create HashMap of HashMaps to store properties for individual Features in it, accessible through unique identifiers
         HashMap<String, HashMap<String, JSONArray>> featurePropertiesMap = new HashMap<>();
         // Create HashMap to store FeatureCollection properties. No identifier necessary because there will be just one FeatureCollection at a time
         HashMap<String, Object> defaultFeatureCollectionProperties = new HashMap<>();
@@ -51,8 +48,11 @@ public class GeoJsonResponseWriter {
         // Create a new SimpleFeatureType to create a SimpleFeature from it
         // its written capital because a custom SimpleFeatureType is a static and immutable object once created
         SimpleFeatureType ROUTINGFEATURETYPE = SimpleFeatureTypes.createRouteFeatureType();
+        // Create DefaultFeatureCollection to store the SimpleFeature
         DefaultFeatureCollection defaultFeatureCollection = new DefaultFeatureCollection("routing", ROUTINGFEATURETYPE);
-        JSONObject temporaryJsonRoute = JsonRoutingResponseWriter.toJson(rreq, routeResults);
+        // Calculate a route to extract the JSONObject's from it
+        JSONObject jRoute = JsonRoutingResponseWriter.toJson(rreq, routeResults);
+        // Create a SimpleFeature for GEOJSON export preparation
         SimpleFeature routingFeature = null;
         // SimpleFeature routingFeature2 = null;
         for (RouteResult route : routeResults) {
@@ -61,30 +61,25 @@ public class GeoJsonResponseWriter {
             LineString lineString = geometryFactory.createLineString(route.getGeometry());
             // Create a SimpleFeature from the ROUTINGFEATURETYPE template
             SimpleFeatureBuilder routingFeatureBuilder = new SimpleFeatureBuilder(ROUTINGFEATURETYPE);
-            // SimpleFeatureBuilder routingFeatureBuilder2 = new SimpleFeatureBuilder(ROUTINGFEATURETYPE);
-            // Add content to the SimpleFeature
-            //Geometry
+            // Add Geometry
             routingFeatureBuilder.set("geometry", lineString);
-            // routingFeatureBuilder2.set("geometry", lineString);
-            // BBox
-            featureProperties.put("bbox", temporaryJsonRoute.getJSONArray("routes").getJSONObject(0).getJSONArray("bbox"));
-            //Way Points
-            featureProperties.put("way_points", temporaryJsonRoute.getJSONArray("routes").getJSONObject(0).getJSONArray("way_points"));
-            // Segments
-            featureProperties.put("segments", temporaryJsonRoute.getJSONArray("routes").getJSONObject(0).getJSONArray("segments"));
-            // send the feature to builder
+            // Add BBox
+            featureProperties.put("bbox", jRoute.getJSONArray("routes").getJSONObject(0).getJSONArray("bbox"));
+            // Add Way_Points
+            featureProperties.put("way_points", jRoute.getJSONArray("routes").getJSONObject(0).getJSONArray("way_points"));
+            // Add Segments
+            featureProperties.put("segments", jRoute.getJSONArray("routes").getJSONObject(0).getJSONArray("segments"));
+            // Build the SimpleFeature
             routingFeature = routingFeatureBuilder.buildFeature(null);
-            // routingFeature2 = routingFeatureBuilder2.buildFeature(null);
             defaultFeatureCollection.add(routingFeature);
-            // defaultFeatureCollection.add(routingFeature2);
             featurePropertiesMap.put(routingFeature.getID(), featureProperties);
         }
 
         // Add the feature properties through a generalized class
         // TODO Add general addProperties here that does all the magic itseld and just returns the ready to use JSONObject
         //JSONObject geoJSON2 = addProperties(routingFeature, featurePropertiesMap);
-        defaultFeatureCollectionProperties.put("bbox", temporaryJsonRoute.get("bbox"));
-        defaultFeatureCollectionProperties.put("info", temporaryJsonRoute.get("info"));
+        defaultFeatureCollectionProperties.put("bbox", jRoute.get("bbox"));
+        defaultFeatureCollectionProperties.put("info", jRoute.get("info"));
         //System.out.print(featureCollectionAsJSON);
 
         // LineString lineString = jsonTest.readLine(reader);

@@ -11,15 +11,14 @@ import java.util.List;
 
 
 /**
- * 
- * 		Information about the GPX file, author, and copyright restrictions goes in the metadata section.  Providing rich,
- * 		meaningful information about your GPX files allows others to search for and use your GPS data.
- *
- *
+ * Information about the GPX file, author, and copyright restrictions goes in the metadata section.  Providing rich,
+ * meaningful information about your GPX files allows others to search for and use your GPS data.
+ * <p>
+ * <p>
  * <p>Java class for metadataType complex type.
- *
+ * <p>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
  * <pre>
  * {@code
  * <complexType name="metadataType">
@@ -41,20 +40,20 @@ import java.util.List;
  * </complexType>
  * }
  * </pre>
- * 
- * 
+ *
+ * @author Julian Psotta, julian@openrouteservice.org
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "metadataType", propOrder = {
-    "name",
-    "desc",
-    "author",
-    "copyright",
-    "link",
-    "time",
-    "keywords",
-    "bounds",
-    "extensions"
+        "name",
+        "desc",
+        "author",
+        "copyright",
+        "link",
+        "time",
+        "keywords",
+        "bounds",
+        "extensions"
 })
 public class MetadataType {
 
@@ -71,11 +70,9 @@ public class MetadataType {
 
     /**
      * Gets the value of the name property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is
+     * {@link String }
      */
     public String getName() {
         return name;
@@ -83,11 +80,9 @@ public class MetadataType {
 
     /**
      * Sets the value of the name property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setName(String value) {
         this.name = value;
@@ -95,11 +90,9 @@ public class MetadataType {
 
     /**
      * Gets the value of the desc property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is
+     * {@link String }
      */
     public String getDesc() {
         return desc;
@@ -107,11 +100,9 @@ public class MetadataType {
 
     /**
      * Sets the value of the desc property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setDesc(String value) {
         this.desc = value;
@@ -119,11 +110,9 @@ public class MetadataType {
 
     /**
      * Gets the value of the author property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link PersonType }
-     *     
+     *
+     * @return possible object is
+     * {@link PersonType }
      */
     public PersonType getAuthor() {
         return author;
@@ -131,11 +120,9 @@ public class MetadataType {
 
     /**
      * Sets the value of the author property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link PersonType }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link PersonType }
      */
     public void setAuthor(PersonType value) {
         this.author = value;
@@ -143,11 +130,9 @@ public class MetadataType {
 
     /**
      * Gets the value of the copyright property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link CopyrightType }
-     *     
+     *
+     * @return possible object is
+     * {@link CopyrightType }
      */
     public CopyrightType getCopyright() {
         return copyright;
@@ -155,11 +140,9 @@ public class MetadataType {
 
     /**
      * Sets the value of the copyright property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link CopyrightType }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link CopyrightType }
      */
     public void setCopyright(CopyrightType value) {
         this.copyright = value;
@@ -167,25 +150,23 @@ public class MetadataType {
 
     /**
      * Gets the value of the link property.
-     * 
+     * <p>
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the link property.
-     * 
+     * <p>
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getLink().add(newItem);
      * </pre>
-     *
-     * 
+     * <p>
+     * <p>
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link LinkType }
-     *
-     * 
      */
     public List<LinkType> getLink() {
         if (link == null) {
@@ -196,6 +177,7 @@ public class MetadataType {
 
     /**
      * Sets the link value
+     *
      * @param link needs a List<LinkType> as input
      */
     public void setLink(List<LinkType> link) {
@@ -204,11 +186,9 @@ public class MetadataType {
 
     /**
      * Gets the value of the time property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     *
+     * @return possible object is
+     * {@link XMLGregorianCalendar }
      */
     public XMLGregorianCalendar getTime() {
         return time;
@@ -216,11 +196,9 @@ public class MetadataType {
 
     /**
      * Sets the value of the time property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link XMLGregorianCalendar }
      */
     public void setTime(XMLGregorianCalendar value) {
         this.time = value;
@@ -228,11 +206,9 @@ public class MetadataType {
 
     /**
      * Gets the value of the keywords property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is
+     * {@link String }
      */
     public String getKeywords() {
         return keywords;
@@ -240,11 +216,9 @@ public class MetadataType {
 
     /**
      * Sets the value of the keywords property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setKeywords(String value) {
         this.keywords = value;
@@ -252,11 +226,9 @@ public class MetadataType {
 
     /**
      * Gets the value of the bounds property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BoundsType }
-     *     
+     *
+     * @return possible object is
+     * {@link BoundsType }
      */
     public BoundsType getBounds() {
         return bounds;
@@ -264,11 +236,9 @@ public class MetadataType {
 
     /**
      * Sets the value of the bounds property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BoundsType }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link BoundsType }
      */
     public void setBounds(BoundsType value) {
         this.bounds = value;
@@ -276,11 +246,9 @@ public class MetadataType {
 
     /**
      * Gets the value of the extensions property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link MetadataTypeExtensions }
-     *     
+     *
+     * @return possible object is
+     * {@link MetadataTypeExtensions }
      */
     public MetadataTypeExtensions getExtensions() {
         return extensions;
@@ -288,11 +256,9 @@ public class MetadataType {
 
     /**
      * Sets the value of the extensions property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link MetadataTypeExtensions }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link MetadataTypeExtensions }
      */
     public void setExtensions(MetadataTypeExtensions value) {
         this.extensions = value;

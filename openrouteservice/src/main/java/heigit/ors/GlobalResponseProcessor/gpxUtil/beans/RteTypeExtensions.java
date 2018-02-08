@@ -8,6 +8,8 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * {@link RteTypeExtensions} represents a class that extends {@link RteType}
  * Can be manually extended
+ *
+ * @author Julian Psotta, julian@openrouteservice.org
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = {

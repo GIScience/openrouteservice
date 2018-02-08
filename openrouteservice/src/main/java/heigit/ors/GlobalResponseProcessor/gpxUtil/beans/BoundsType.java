@@ -9,14 +9,13 @@ import java.math.BigDecimal;
 
 
 /**
- * 
- * 	 Two lat/lon pairs defining the extent of an element.
- *
- *
+ * Two lat/lon pairs defining the extent of an element.
+ * <p>
+ * <p>
  * <p>Java class for boundsType complex type.
- *
+ * <p>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
  * <pre>
  * {@code
  * <complexType name="boundsType">
@@ -31,8 +30,8 @@ import java.math.BigDecimal;
  * </complexType>
  * }
  * </pre>
- * 
- * 
+ *
+ * @author Julian Psotta, julian@openrouteservice.org
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "boundsType")
@@ -49,11 +48,9 @@ public class BoundsType {
 
     /**
      * Gets the value of the minlat property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
+     *
+     * @return possible object is
+     * {@link BigDecimal }
      */
     public BigDecimal getMinlat() {
         return minlat;
@@ -61,11 +58,9 @@ public class BoundsType {
 
     /**
      * Sets the value of the minlat property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link BigDecimal }
      */
     public void setMinlat(BigDecimal value) {
         this.minlat = value;
@@ -73,11 +68,9 @@ public class BoundsType {
 
     /**
      * Gets the value of the minlon property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
+     *
+     * @return possible object is
+     * {@link BigDecimal }
      */
     public BigDecimal getMinlon() {
         return minlon;
@@ -85,11 +78,9 @@ public class BoundsType {
 
     /**
      * Sets the value of the minlon property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link BigDecimal }
      */
     public void setMinlon(BigDecimal value) {
         this.minlon = value;
@@ -97,11 +88,9 @@ public class BoundsType {
 
     /**
      * Gets the value of the maxlat property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
+     *
+     * @return possible object is
+     * {@link BigDecimal }
      */
     public BigDecimal getMaxlat() {
         return maxlat;
@@ -109,11 +98,9 @@ public class BoundsType {
 
     /**
      * Sets the value of the maxlat property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link BigDecimal }
      */
     public void setMaxlat(BigDecimal value) {
         this.maxlat = value;
@@ -121,11 +108,9 @@ public class BoundsType {
 
     /**
      * Gets the value of the maxlon property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
+     *
+     * @return possible object is
+     * {@link BigDecimal }
      */
     public BigDecimal getMaxlon() {
         return maxlon;
@@ -133,11 +118,9 @@ public class BoundsType {
 
     /**
      * Sets the value of the maxlon property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link BigDecimal }
      */
     public void setMaxlon(BigDecimal value) {
         this.maxlon = value;

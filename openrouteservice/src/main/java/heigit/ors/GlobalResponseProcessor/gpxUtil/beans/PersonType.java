@@ -7,14 +7,13 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * 
- * 	 A person or organization.
- *
- *
+ * A person or organization.
+ * <p>
+ * <p>
  * <p>Java class for personType complex type.
- *
+ * <p>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
  * <pre>
  * {@code
  * <complexType name="personType">
@@ -30,14 +29,14 @@ import javax.xml.bind.annotation.XmlType;
  * </complexType>
  * }
  * </pre>
- * 
- * 
+ *
+ * @author Julian Psotta, julian@openrouteservice.org
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "personType", propOrder = {
-    "name",
-    "email",
-    "link"
+        "name",
+        "email",
+        "link"
 })
 public class PersonType {
 
@@ -47,11 +46,9 @@ public class PersonType {
 
     /**
      * Gets the value of the name property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is
+     * {@link String }
      */
     public String getName() {
         return name;
@@ -59,11 +56,9 @@ public class PersonType {
 
     /**
      * Sets the value of the name property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setName(String value) {
         this.name = value;
@@ -71,11 +66,9 @@ public class PersonType {
 
     /**
      * Gets the value of the email property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EmailType }
-     *     
+     *
+     * @return possible object is
+     * {@link EmailType }
      */
     public EmailType getEmail() {
         return email;
@@ -83,11 +76,9 @@ public class PersonType {
 
     /**
      * Sets the value of the email property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EmailType }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link EmailType }
      */
     public void setEmail(EmailType value) {
         this.email = value;
@@ -95,11 +86,9 @@ public class PersonType {
 
     /**
      * Gets the value of the link property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link LinkType }
-     *     
+     *
+     * @return possible object is
+     * {@link LinkType }
      */
     public LinkType getLink() {
         return link;
@@ -107,11 +96,9 @@ public class PersonType {
 
     /**
      * Sets the value of the link property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link LinkType }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link LinkType }
      */
     public void setLink(LinkType value) {
         this.link = value;

@@ -20,11 +20,20 @@
  */
 package heigit.ors.geocoding.geocoders;
 
+/**
+ * This Class handles the error Codes as described in the error_codes.md
+ *
+ * @author OpenRouteServiceTeam
+ * @author Julian Psotta, julian@openrouteservice.org
+ */
 public class GeocodingErrorCodes {
    public static int INVALID_JSON_FORMAT = 100; 
    public static int MISSING_PARAMETER = 101;
    public static int INVALID_PARAMETER_FORMAT = 102;
    public static int INVALID_PARAMETER_VALUE = 103;
    public static int PARAMETER_VALUE_EXCEEDS_MAXIMUM = 104;
+   public static int EXPORT_HANDLER_ERROR = 106;
+   public static int UNSUPPORTED_EXPORT_FORMAT = 107;
+   public static int EMPTY_ELEMENT = 108;
    public static int UNKNOWN = 199;
 }

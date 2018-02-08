@@ -5,9 +5,9 @@ import org.apache.log4j.Logger;
 
 /**
  * {@link MissingConfigParameterException} provides two Constructors to print access errors with the app.config using {@link Logger}.
- * @author Julian Psotta
+ * @author Julian Psotta, julian@openrouteservice.org
  */
-public class MissingConfigParameterException extends Throwable{
+public class MissingConfigParameterException {
 
     /**
      * The constructor raises an Logger.error using log4j with an unique message attached.

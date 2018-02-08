@@ -7,6 +7,8 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * {@link MetadataTypeExtensions} represents the extensions the {@link MetadataType}
  * Can be manually extended
+ *
+ * @author Julian Psotta, julian@openrouteservice.org
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = {

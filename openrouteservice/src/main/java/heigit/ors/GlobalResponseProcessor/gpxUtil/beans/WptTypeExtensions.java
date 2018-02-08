@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * {@link WptTypeExtensions} represents a class to process the Extensions for {@link WptType}
  * Can be manually extended if needed
+ * @author Julian Psotta, julian@openrouteservice.org
  */
 
 @XmlAccessorType(XmlAccessType.FIELD)

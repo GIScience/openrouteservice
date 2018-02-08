@@ -7,6 +7,8 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * {@link TrksegTypeExtensions} represents the extensions for {@link TrksegType}
  * Can be manually extended
+ *
+ * @author Julian Psotta, julian@openrouteservice.org
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = {

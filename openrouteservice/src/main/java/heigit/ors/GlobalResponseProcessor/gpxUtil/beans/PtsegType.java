@@ -9,14 +9,13 @@ import java.util.List;
 
 
 /**
- * 
- * 	 An ordered sequence of points.  (for polygons or polylines, e.g.)
- *
- *
+ * An ordered sequence of points.  (for polygons or polylines, e.g.)
+ * <p>
+ * <p>
  * <p>Java class for ptsegType complex type.
- *
+ * <p>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
  * <pre>
  * {@code
  * <complexType name="ptsegType">
@@ -30,12 +29,12 @@ import java.util.List;
  * </complexType>
  * }
  * </pre>
- * 
- * 
+ *
+ * @author Julian Psotta, julian@openrouteservice.org
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ptsegType", propOrder = {
-    "pt"
+        "pt"
 })
 public class PtsegType {
 
@@ -43,25 +42,23 @@ public class PtsegType {
 
     /**
      * Gets the value of the pt property.
-     * 
+     * <p>
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the pt property.
-     * 
+     * <p>
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getPt().add(newItem);
      * </pre>
-     * 
-     * 
+     * <p>
+     * <p>
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link PtType }
-     * 
-     * 
      */
     public List<PtType> getPt() {
         if (pt == null) {
