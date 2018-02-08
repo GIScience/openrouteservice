@@ -31,6 +31,7 @@ public class CountryBordersPolygon {
     private MultiPolygon boundary;
     private Geometry boundaryLine;
     private double area = 0;
+    private long hierarchyId;
     private double minLat = 180f, minLon = 180f, maxLat = -180f, maxLon = -180f;
 
     /**
@@ -40,8 +41,9 @@ public class CountryBordersPolygon {
      * @param boundary                  Geometry representing the boundary of the region
      * @throws InvalidObjectException
      */
-    public CountryBordersPolygon(String name, Geometry boundary) throws InvalidObjectException {
+    public CountryBordersPolygon(String name, Geometry boundary, long hierarchyId) throws InvalidObjectException {
         this.name = name;
+        this.hierarchyId = hierarchyId;
         GeometryFactory gf = new GeometryFactory();
 
         if(boundary.getGeometryType().equals("Polygon"))
@@ -108,13 +110,5 @@ public class CountryBordersPolygon {
         return this.area;
     }
 
-    @Override
-    public boolean equals(Object other) {
-        if(!(other instanceof CountryBordersPolygon)) {
-            return false;
-        }
-
-        CountryBordersPolygon cp = (CountryBordersPolygon) other;
-        return this.name.equals(cp.name);
-    }
+    public long getHierarchyId() { return this.hierarchyId; }
 }

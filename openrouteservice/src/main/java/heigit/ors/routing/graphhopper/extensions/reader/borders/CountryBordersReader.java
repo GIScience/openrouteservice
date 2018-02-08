@@ -234,14 +234,14 @@ public class CountryBordersReader {
                 // Also need the id of the country and its hierarchy id
                 String id = obj.getJSONObject("properties").getString(NAME_FIELD);
 
-                Long hId = 1l;
+                Long hId = -1l;
 
                 // If there is no hierarchy info, then we set the id of the hierarchy to be a default of 1
                 if(obj.getJSONObject("properties").has(HIERARCHY_ID_FIELD))
                     hId = obj.getJSONObject("properties").getLong(HIERARCHY_ID_FIELD);
 
                 // Create the borders object
-                CountryBordersPolygon c = new CountryBordersPolygon(id, geom);
+                CountryBordersPolygon c = new CountryBordersPolygon(id, geom, hId);
 
                 // add to the hierarchy
                 if(c != null) {

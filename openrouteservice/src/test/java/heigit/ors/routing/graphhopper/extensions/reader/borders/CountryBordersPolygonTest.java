@@ -44,7 +44,7 @@ public class CountryBordersPolygonTest {
 
     public CountryBordersPolygonTest() {
         try {
-            cbp = new CountryBordersPolygon("name", gf.createPolygon(country1Geom));
+            cbp = new CountryBordersPolygon("name", gf.createPolygon(country1Geom),-1);
         } catch (Exception e) {
             System.out.println(e.toString());
         }

@@ -129,7 +129,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             String[] countries = findBorderCrossing(coords);
 
             // If we find that the length of countries is more than one, then it does cross a border
-            if (countries.length > 1) {
+            if (countries.length > 1 && !countries[0].equals(countries[1])) {
                 way.setTag("country1", countries[0]);
                 way.setTag("country2", countries[1]);
             }
@@ -223,7 +223,6 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
                 }
             }
         }
-
         // Now get the definite ones that are contained - though this involves another iteration, it will be quicker
         // than the linestring check in the next stage
         if(countries.size() > 1) {
@@ -243,6 +242,8 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
                             found = true;
                             countriesFound++;
                             if(!temp.contains(cbp)) {
+                                // At this point we only want to add countries that are not present. Basically, if a
+                                // boundary polygon of the same name is in the list, don't add the country again
                                 temp.add(cbp);
                             }
                         }
