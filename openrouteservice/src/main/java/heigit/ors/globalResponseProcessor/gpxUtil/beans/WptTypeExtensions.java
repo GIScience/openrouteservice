@@ -1,4 +1,4 @@
-package heigit.ors.GlobalResponseProcessor.gpxUtil.beans;
+package heigit.ors.globalResponseProcessor.gpxUtil.beans;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

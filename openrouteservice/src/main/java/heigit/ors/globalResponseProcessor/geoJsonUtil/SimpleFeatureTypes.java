@@ -1,8 +1,8 @@
-package heigit.ors.GlobalResponseProcessor.geoJsonUtil;
+package heigit.ors.globalResponseProcessor.geoJsonUtil;
 
 
 import com.vividsolutions.jts.geom.LineString;
-import heigit.ors.GlobalResponseProcessor.gpxUtil.GpxResponseWriter;
+import heigit.ors.globalResponseProcessor.gpxUtil.GpxResponseWriter;
 import heigit.ors.exceptions.MissingConfigParameterException;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;

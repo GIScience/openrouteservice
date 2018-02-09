@@ -1,4 +1,4 @@
-package heigit.ors.GlobalResponseProcessor.gpxUtil;
+package heigit.ors.globalResponseProcessor.gpxUtil;
 
 
 import com.graphhopper.util.shapes.BBox;
@@ -15,18 +15,18 @@ import heigit.ors.routing.WeightingMethod;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.GeomUtility;
-import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.BoundsType;
-import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.CopyrightType;
-import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.EmailType;
-import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.Gpx;
-import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.GpxExtensions;
-import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.LinkType;
-import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.MetadataType;
-import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.PersonType;
-import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.RteType;
-import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.RteTypeExtensions;
-import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.WptType;
-import heigit.ors.GlobalResponseProcessor.gpxUtil.beans.WptTypeExtensions;
+import heigit.ors.globalResponseProcessor.gpxUtil.beans.BoundsType;
+import heigit.ors.globalResponseProcessor.gpxUtil.beans.CopyrightType;
+import heigit.ors.globalResponseProcessor.gpxUtil.beans.EmailType;
+import heigit.ors.globalResponseProcessor.gpxUtil.beans.Gpx;
+import heigit.ors.globalResponseProcessor.gpxUtil.beans.GpxExtensions;
+import heigit.ors.globalResponseProcessor.gpxUtil.beans.LinkType;
+import heigit.ors.globalResponseProcessor.gpxUtil.beans.MetadataType;
+import heigit.ors.globalResponseProcessor.gpxUtil.beans.PersonType;
+import heigit.ors.globalResponseProcessor.gpxUtil.beans.RteType;
+import heigit.ors.globalResponseProcessor.gpxUtil.beans.RteTypeExtensions;
+import heigit.ors.globalResponseProcessor.gpxUtil.beans.WptType;
+import heigit.ors.globalResponseProcessor.gpxUtil.beans.WptTypeExtensions;
 
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;

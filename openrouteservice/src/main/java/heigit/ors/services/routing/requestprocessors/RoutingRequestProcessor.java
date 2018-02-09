@@ -29,7 +29,7 @@ import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RoutingErrorCodes;
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.routing.RoutingRequest;
-import heigit.ors.GlobalResponseProcessor.GlobalResponseProcessor;
+import heigit.ors.globalResponseProcessor.GlobalResponseProcessor;
 import heigit.ors.services.routing.requestprocessors.json.JsonRoutingResponseWriter;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.util.ServletUtility;
@@ -75,7 +75,7 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
             if (Helper.isEmpty(geometryFormat) || !geometryFormat.equals("geojson")) {
                 rreq.setGeometryFormat("geojson");
             }
-            geojson = new GlobalResponseProcessor(response, rreq, new RouteResult[]{result}).toGeoJson();
+            geojson = new GlobalResponseProcessor(rreq, new RouteResult[]{result}).toGeoJson();
             if (geojson != null) {
                 ServletUtility.write(response, geojson, "UTF-8");
             } else {
@@ -91,7 +91,7 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
             if (Helper.isEmpty(geometryFormat) || !geometryFormat.equals("geojson")) {
                 rreq.setGeometryFormat("geojson");
             }
-            gpx = new GlobalResponseProcessor(response, rreq, new RouteResult[]{result}).toGPX();
+            gpx = new GlobalResponseProcessor(rreq, new RouteResult[]{result}).toGPX();
             //gpx = GpxResponseWriter.toGPX(rreq, new RouteResult[]{result});
             if (gpx != null) {
                 ServletUtility.write(response, gpx);

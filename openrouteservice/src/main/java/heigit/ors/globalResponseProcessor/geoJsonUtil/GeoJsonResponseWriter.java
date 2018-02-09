@@ -1,4 +1,4 @@
-package heigit.ors.GlobalResponseProcessor.geoJsonUtil;
+package heigit.ors.globalResponseProcessor.geoJsonUtil;
 
 
 import com.vividsolutions.jts.geom.GeometryFactory;

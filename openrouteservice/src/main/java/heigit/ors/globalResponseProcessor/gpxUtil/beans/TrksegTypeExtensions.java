@@ -1,11 +1,11 @@
-package heigit.ors.GlobalResponseProcessor.gpxUtil.beans;
+package heigit.ors.globalResponseProcessor.gpxUtil.beans;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * {@link MetadataTypeExtensions} represents the extensions the {@link MetadataType}
+ * {@link TrksegTypeExtensions} represents the extensions for {@link TrksegType}
  * Can be manually extended
  *
  * @author Julian Psotta, julian@openrouteservice.org
@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlType;
         // always add new variables here! and below
 })
 
-public class MetadataTypeExtensions extends ExtensionsType {
+public class TrksegTypeExtensions extends ExtensionsType {
 
     protected double example1;
 
