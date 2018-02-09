@@ -35,7 +35,7 @@ public class AppInfo
 	    /**
 	     * The value of <tt>System.getProperty("os.name")</tt>. *
 	     */
-	    public static final String OS_NAME = System.getProperty("os.name");
+	    public static final String OS_NAME = System.getProperty("os.name", "unknown");
 	    /**
 	     * True iff running on Linux.
 	     */

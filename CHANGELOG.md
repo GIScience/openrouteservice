@@ -5,7 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
 - Functionality has been added to restrict routes so that they do not cross all borders, controlled borders, or the borders of specific countries (Issue #41)
+
+### Fixed
+- Fix exception when roundabout exit is not correctly found (Issue #89)
+- Option to specify maximum locations for matrix request when using non-standard weightings (Issue #94)
 
 ## [4.4.2] - 2018-01-31
 ### Added

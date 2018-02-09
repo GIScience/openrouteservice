@@ -12,8 +12,11 @@ nohup.out
 .python-version
 
 .project
+
+# Ignore all app.config files except for the .sample one
 openrouteservice/WebContent/WEB-INF/app.config*
 !openrouteservice/WebContent/WEB-INF/app.config.sample
+
 app.config.local
 cgiar_provider/
 graphs/
