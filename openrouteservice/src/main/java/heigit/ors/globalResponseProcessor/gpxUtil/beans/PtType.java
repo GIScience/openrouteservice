@@ -45,6 +45,7 @@ import java.math.BigDecimal;
 public class PtType {
 
     protected BigDecimal ele;
+    @SuppressWarnings("WeakerAccess")
     @XmlSchemaType(name = "dateTime")
     protected XMLGregorianCalendar time;
     @XmlAttribute(name = "lat", required = true)

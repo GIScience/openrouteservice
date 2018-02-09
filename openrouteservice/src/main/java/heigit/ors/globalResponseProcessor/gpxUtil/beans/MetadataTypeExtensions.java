@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlType;
  *
  * @author Julian Psotta, julian@openrouteservice.org
  */
+@SuppressWarnings("WeakerAccess")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = {
         "example1"

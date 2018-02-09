@@ -48,8 +48,6 @@ import heigit.ors.globalResponseProcessor.geoJsonUtil.GeoJsonResponseWriter;
 import heigit.ors.globalResponseProcessor.gpxUtil.GpxResponseWriter;
 import org.json.JSONObject;
 
-import javax.servlet.http.HttpServletResponse;
-
 /**
  * The {@link GlobalResponseProcessor} works as a global Class to process all export functions in one place.
  * The class will assure, that the exports will mostly look the same or at least will reuse parts of it, so integrating new exports will result in minimal adjusting with already existing processions of ors exports.
@@ -60,6 +58,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Julian Psotta, julian@openrouteservice.com
  */
+@SuppressWarnings("FieldCanBeLocal")
 public class GlobalResponseProcessor {
     private GeocodingRequest geocodingRequest;
     private GeocodingResult geocodingResult;

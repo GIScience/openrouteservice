@@ -16,7 +16,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
  */
 class SimpleFeatureTypes {
     // TODO implement all the different kind of SimpleFeatureTypes here!
-    public static SimpleFeatureType createRouteFeatureType() throws Exception {
+    public static SimpleFeatureType createRouteFeatureType() {
         // make routeResults and request accessible class wide
         // create SimpleFeatureType template
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
@@ -34,7 +34,7 @@ class SimpleFeatureTypes {
         return builder.buildFeatureType();
     }
 
-    public static SimpleFeatureType createIsoChronesFeatureType() throws Exception {
+    public static SimpleFeatureType createIsoChronesFeatureType() {
         return null;
     }
 }

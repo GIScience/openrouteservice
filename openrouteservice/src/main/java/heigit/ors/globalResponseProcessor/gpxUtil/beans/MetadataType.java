@@ -60,12 +60,14 @@ public class MetadataType {
     protected String name;
     protected String desc;
     protected PersonType author;
+    @SuppressWarnings("WeakerAccess")
     protected CopyrightType copyright;
     protected List<LinkType> link;
     @XmlSchemaType(name = "dateTime")
     protected XMLGregorianCalendar time;
     protected String keywords;
     protected BoundsType bounds;
+    @SuppressWarnings("WeakerAccess")
     protected MetadataTypeExtensions extensions;
 
     /**

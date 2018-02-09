@@ -42,6 +42,7 @@ public class PersonType {
 
     protected String name;
     protected EmailType email;
+    @SuppressWarnings("WeakerAccess")
     protected LinkType link;
 
     /**

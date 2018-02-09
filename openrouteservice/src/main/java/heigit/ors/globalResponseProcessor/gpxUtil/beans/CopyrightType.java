@@ -48,6 +48,7 @@ public class CopyrightType {
     protected XMLGregorianCalendar year;
     @XmlSchemaType(name = "anyURI")
     protected String license;
+    @SuppressWarnings("WeakerAccess")
     @XmlAttribute(name = "author", required = true)
     protected String author;
 

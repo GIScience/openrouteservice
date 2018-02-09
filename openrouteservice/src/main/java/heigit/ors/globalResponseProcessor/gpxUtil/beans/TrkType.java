@@ -60,6 +60,7 @@ public class TrkType {
     protected String cmt;
     protected String desc;
     protected String src;
+    @SuppressWarnings("WeakerAccess")
     protected List<LinkType> link;
     @XmlSchemaType(name = "nonNegativeInteger")
     protected BigInteger number;

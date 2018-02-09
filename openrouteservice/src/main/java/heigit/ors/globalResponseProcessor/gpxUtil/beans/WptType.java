@@ -57,6 +57,7 @@ import java.util.List;
  *
  * @author Julian Psotta, julian@openrouteservice.org
  */
+@SuppressWarnings("WeakerAccess")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "wptType", propOrder = {
         "ele",

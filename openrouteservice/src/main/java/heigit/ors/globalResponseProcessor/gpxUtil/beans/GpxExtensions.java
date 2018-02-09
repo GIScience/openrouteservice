@@ -40,6 +40,7 @@ public class GpxExtensions extends ExtensionsType {
     protected String distance_units;
     @XmlElement(name = "duration-units")
     protected String duration_units;
+    @SuppressWarnings("WeakerAccess")
     protected String instructions;
     protected String elevation;
 
