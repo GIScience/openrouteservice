@@ -134,6 +134,18 @@ public class RoutingProfilesCollection {
 		return rp;
 
 	}
+
+	/**
+	 	 * Check if the CH graph of the specified profile has been built.
+	 	 *
+	 	 * @param routePref				The chosen routing profile
+	 	 */
+
+	public boolean isCHProfileAvailable(int routePref) throws Exception {
+		int routePrefKey = getRoutePreferenceKey(routePref, true);
+		if (!m_routeProfiles.containsKey(routePrefKey)) return false;
+		return true;
+	}
 	
 	public RoutingProfile getRouteProfile(int routePref) throws Exception
 	{
