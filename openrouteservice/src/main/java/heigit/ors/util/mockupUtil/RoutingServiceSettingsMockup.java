@@ -34,15 +34,15 @@ import heigit.ors.services.routing.RoutingServiceSettings;
  * @author Julian Psotta, julian@openrouteservice.org
  */
 public class RoutingServiceSettingsMockup {
+    private static RoutingServiceSettings routingServiceSettingsMockup = new RoutingServiceSettings();
     // Create a RoutingServiceSettings mockup
-    private RoutingServiceSettings routingServiceSettingsMockup = RoutingServiceSettings.loadFromFile("");
 
     public RoutingServiceSettingsMockup() {
-        this.routingServiceSettingsMockup = new RoutingServiceSettings();
+        routingServiceSettingsMockup = new RoutingServiceSettings();
     }
 
-    public RoutingServiceSettings create(){
-        RoutingServiceSettings.loadFromFile();
-        return null;
+    public RoutingServiceSettings create() {
+        RoutingServiceSettings.loadFromFile(RoutingServiceSettings.getSourceFile());
+        return routingServiceSettingsMockup;
     }
 }

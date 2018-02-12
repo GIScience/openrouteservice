@@ -25,26 +25,22 @@
 
 package heigit.ors.globalResponseProcessor.geoJson;
 
+import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 
-class SimpleFeatureTypesTest {
+public class SimpleFeatureTypesTest {
+    private static SimpleFeatureType simpleFeatureType;
 
     @BeforeClass
     public static void setUp() {
-    }
-
-    @AfterEach
-    void tearDown() {
+        simpleFeatureType = SimpleFeatureTypes.createRouteFeatureType();
     }
 
     @Test
-    void testCreateRouteFeatureType() {
-    }
-
-    @Test
-    void testCreateIsoChronesFeatureType() {
+    public void testCreateRouteFeatureType() {
+        Assert.assertEquals("SimpleFeatureTypeImpl http://www.opengis.net/gml:ORSRoutingFile identified extends Feature(geometry:geometry)", simpleFeatureType.toString());
     }
 }

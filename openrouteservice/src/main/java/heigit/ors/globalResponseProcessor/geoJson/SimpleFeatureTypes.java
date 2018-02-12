@@ -27,6 +27,7 @@ package heigit.ors.globalResponseProcessor.geoJson;
 
 
 import com.vividsolutions.jts.geom.LineString;
+import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.globalResponseProcessor.gpx.GpxResponseWriter;
 import heigit.ors.exceptions.MissingConfigParameterException;
 import heigit.ors.services.routing.RoutingServiceSettings;
@@ -46,18 +47,23 @@ class SimpleFeatureTypes {
         // create SimpleFeatureType template
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
         // set the name --> The result looks weird but a name is required!! result -->  https://go.openrouteservice.org/:openrouteservice routing
-        if (!(RoutingServiceSettings.getParameter("routing_name") == null)) {
-            builder.setName(RoutingServiceSettings.getParameter("routing_name"));
+        try {
+            if (!(RoutingServiceSettings.getParameter("routing_name") == null)) {
+                builder.setName(RoutingServiceSettings.getParameter("routing_name"));
 
-        } else {
-            builder.setName("ORSRoutingFile");
-            new MissingConfigParameterException(GpxResponseWriter.class, "routing_name");
+            } else {
+                builder.setName("ORSRoutingFile");
+                new MissingConfigParameterException(GpxResponseWriter.class, "routing_name");
+            }
+        } finally {
+            if (builder.getName() == null) {
+                builder.setName("ORSRoutingFile");
+            }
+            builder.add("geometry", LineString.class);
+            return builder.buildFeatureType();
         }
-
-
-        builder.add("geometry", LineString.class);
-        return builder.buildFeatureType();
     }
+
 
     public static SimpleFeatureType createIsoChronesFeatureType() {
         return null;

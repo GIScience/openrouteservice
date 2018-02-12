@@ -25,10 +25,8 @@
 
 package heigit.ors.globalResponseProcessor.gpx.beans;
 
-
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

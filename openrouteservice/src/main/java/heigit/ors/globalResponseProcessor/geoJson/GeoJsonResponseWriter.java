@@ -73,15 +73,13 @@ public class GeoJsonResponseWriter {
         HashMap<String, Object> defaultFeatureCollectionProperties = new HashMap<>();
         // Create GeometryFactory for reuse purposes
         GeometryFactory geometryFactory = new GeometryFactory();
-        // Create a new SimpleFeatureType to create a SimpleFeature from it
-        // its written capital because a custom SimpleFeatureType is a static and immutable object once created
+        // Create a new SimpleFeatureType to create a SimpleFeature from it.
+        // The variable is written capital, because a custom SimpleFeatureType is a static and immutable object once created.
         SimpleFeatureType ROUTINGFEATURETYPE = SimpleFeatureTypes.createRouteFeatureType();
         // Create DefaultFeatureCollection to store the SimpleFeature
         DefaultFeatureCollection defaultFeatureCollection = new DefaultFeatureCollection("routing", ROUTINGFEATURETYPE);
         // Create a SimpleFeature for GEOJSON export preparation
         SimpleFeature routingFeature = null;
-        // SimpleFeature routingFeature2 = null;
-        // TODO misleading thought to access the RouteResult instead of the JsonRoute!!!
         // Calculate a route to extract the JSONObject's from it
         JSONObject jRoutes = JsonRoutingResponseWriter.toJson(rreq, routeResult);
         for (int i = 0; i < routeResult.length; i++) {
@@ -107,18 +105,8 @@ public class GeoJsonResponseWriter {
         }
 
         // Add the feature properties through a generalized class
-        // TODO Add general addProperties here that does all the magic itseld and just returns the ready to use JSONObject
-        //JSONObject geoJSON2 = addProperties(routingFeature, featurePropertiesMap);
         defaultFeatureCollectionProperties.put("bbox", jRoutes.get("bbox"));
         defaultFeatureCollectionProperties.put("info", jRoutes.get("info"));
-        //System.out.print(featureCollectionAsJSON);
-
-        // LineString lineString = jsonTest.readLine(reader);
-        // Integrate creation of GeoJSONs into GeometryJSON.class. Can be done for each object to provide generified conversions
-        // JSONObject internalGeoJson = GeometryJSON.toGeoJSON(lineString);
-
-        //
-        // TODO: Write function to add "properties" to the geojson as an optional route feature that is only available for routes
         return addProperties(defaultFeatureCollection, featurePropertiesMap, defaultFeatureCollectionProperties);
 
     }
@@ -130,7 +118,7 @@ public class GeoJsonResponseWriter {
      * @param routeResults A {@link RouteResult}.
      * @return It will always return a {@link DefaultFeatureCollection} in a {@link JSONObject} representation.
      */
-    protected JSONObject toGeoJson(IsochroneRequest rreq, RouteResult[] routeResults) {
+    public JSONObject toGeoJson(IsochroneRequest rreq, RouteResult[] routeResults) {
         return null;
     }
 
@@ -142,7 +130,7 @@ public class GeoJsonResponseWriter {
      * @return A complete {@link SimpleFeature} in a {@link JSONObject} representation with all necessary information will be returned
      * @throws IOException Throws an {@link IOException} if the {@link FeatureJSON} could not be processed.
      */
-    private static JSONObject addProperties(SimpleFeature simpleFeature, HashMap<String, HashMap<String, JSONArray>> featurePropertiesMap) throws IOException {
+    public static JSONObject addProperties(SimpleFeature simpleFeature, HashMap<String, HashMap<String, JSONArray>> featurePropertiesMap) throws IOException {
         FeatureJSON fjson = new FeatureJSON();
         StringWriter stringWriter = new StringWriter();
         fjson.writeFeature(simpleFeature, stringWriter);
@@ -162,7 +150,7 @@ public class GeoJsonResponseWriter {
      * @return A complete {@link DefaultFeatureCollection} in a {@link JSONObject} representation with all necessary information will be returned
      * @throws Exception
      */
-    private static JSONObject addProperties(DefaultFeatureCollection defaultFeatureCollection, HashMap<String, HashMap<String, JSONArray>> featurePropertiesMap, HashMap<String, Object> defaultFeatureCollectionProperties) throws Exception {
+    public static JSONObject addProperties(DefaultFeatureCollection defaultFeatureCollection, HashMap<String, HashMap<String, JSONArray>> featurePropertiesMap, HashMap<String, Object> defaultFeatureCollectionProperties) throws Exception {
         // Create feature JSON
         FeatureJSON fjson = new FeatureJSON();
         // Create the StringWriter to catch the JSON output
