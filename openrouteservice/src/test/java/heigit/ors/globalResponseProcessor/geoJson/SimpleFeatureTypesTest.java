@@ -25,18 +25,21 @@
 
 package heigit.ors.globalResponseProcessor.geoJson;
 
+import heigit.ors.exceptions.InternalServerException;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+import static heigit.ors.globalResponseProcessor.geoJson.SimpleFeatureTypes.*;
+
 
 public class SimpleFeatureTypesTest {
-    private static SimpleFeatureType simpleFeatureType;
+    private SimpleFeatureType simpleFeatureType;
 
     @BeforeClass
-    public static void setUp() {
-        simpleFeatureType = SimpleFeatureTypes.createRouteFeatureType();
+    public void setUp() {
+        this.simpleFeatureType = new SimpleFeatureTypes(RouteFeatureType.routeFeature).create();
     }
 
     @Test

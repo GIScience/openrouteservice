@@ -75,7 +75,7 @@ public class GeoJsonResponseWriter {
         GeometryFactory geometryFactory = new GeometryFactory();
         // Create a new SimpleFeatureType to create a SimpleFeature from it.
         // The variable is written capital, because a custom SimpleFeatureType is a static and immutable object once created.
-        SimpleFeatureType ROUTINGFEATURETYPE = SimpleFeatureTypes.createRouteFeatureType();
+        SimpleFeatureType ROUTINGFEATURETYPE = new SimpleFeatureTypes(SimpleFeatureTypes.RouteFeatureType.routeFeature).create();
         // Create DefaultFeatureCollection to store the SimpleFeature
         DefaultFeatureCollection defaultFeatureCollection = new DefaultFeatureCollection("routing", ROUTINGFEATURETYPE);
         // Create a SimpleFeature for GEOJSON export preparation

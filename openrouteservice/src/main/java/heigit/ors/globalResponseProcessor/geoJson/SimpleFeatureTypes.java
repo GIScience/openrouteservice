@@ -42,30 +42,52 @@ import org.opengis.feature.simple.SimpleFeatureType;
  */
 class SimpleFeatureTypes {
     // TODO implement all the different kind of SimpleFeatureTypes here!
-    public static SimpleFeatureType createRouteFeatureType() {
-        // make routeResults and request accessible class wide
-        // create SimpleFeatureType template
-        SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
-        // set the name --> The result looks weird but a name is required!! result -->  https://go.openrouteservice.org/:openrouteservice routing
-        try {
-            if (!(RoutingServiceSettings.getParameter("routing_name") == null)) {
-                builder.setName(RoutingServiceSettings.getParameter("routing_name"));
+    private RouteFeatureType type;
 
-            } else {
-                builder.setName("ORSRoutingFile");
-                new MissingConfigParameterException(GpxResponseWriter.class, "routing_name");
-            }
-        } finally {
-            if (builder.getName() == null) {
-                builder.setName("ORSRoutingFile");
-            }
-            builder.add("geometry", LineString.class);
-            return builder.buildFeatureType();
-        }
+    public enum RouteFeatureType {
+        routeFeature
     }
 
+    /**
+     * The constructor itself only sets the {@link RouteFeatureType} according to the given "type" parameter.
+     *
+     * @param type The input must be a {@link RouteFeatureType} according to the enum.
+     */
+    SimpleFeatureTypes(RouteFeatureType type) {
+        this.type = type;
+    }
 
-    public static SimpleFeatureType createIsoChronesFeatureType() {
+    /**
+     * The function creates a {@link SimpleFeatureType} according to the given {@link RouteFeatureType}.
+     *
+     * @return The return is a {@link SimpleFeatureType}.
+     * @throws InternalServerException Returns an {@link InternalServerException} if the {@link RoutingServiceSettings} couldn't be assessed.
+     */
+    public SimpleFeatureType create() {
+        if (type == RouteFeatureType.routeFeature) {
+            // create SimpleFeatureType template
+            SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
+            // set the name --> The result looks weird but a name is required!! result -->  https://go.openrouteservice.org/:openrouteservice routing
+            try {
+                if (!(RoutingServiceSettings.getParameter("routing_name") == null)) {
+                    builder.setName(RoutingServiceSettings.getParameter("routing_name"));
+
+                } else {
+                    builder.setName("ORSRoutingFile");
+                    new MissingConfigParameterException(GpxResponseWriter.class, "routing_name");
+                }
+            } finally {
+                if (builder.getName() == null) {
+                    builder.setName("ORSRoutingFile");
+                }
+                builder.add("geometry", LineString.class);
+                return builder.buildFeatureType();
+            }
+        }
         return null;
     }
 }
+
+
+
+

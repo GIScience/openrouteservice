@@ -28,17 +28,23 @@ package heigit.ors.globalResponseProcessor.geoJson;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import heigit.ors.exceptions.InternalServerException;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.json.JSONArray;
 
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.util.HashMap;
+
+import static heigit.ors.globalResponseProcessor.geoJson.SimpleFeatureTypes.*;
 
 /**
  * This class tests the methods of {@link GeoJsonResponseWriter}.
@@ -48,8 +54,6 @@ import java.util.HashMap;
  * @author Julian Psotta, julian@openrouteservice.org
  */
 public class GeoJsonResponseWriterTest {
-    // private static RoutingRequest routingRequest;
-    // private static RouteResult[] routeResult;
     private static HashMap<String, HashMap<String, JSONArray>> featurePropertiesMap;
     private static HashMap<String, Object> defaultFeatureCollectionProperties;
     private static DefaultFeatureCollection defaultFeatureCollection;
@@ -58,8 +62,6 @@ public class GeoJsonResponseWriterTest {
 
     /**
      * This method sets up the test environment.
-     *
-     * @throws Exception If something goes wrong, the function will raise an {@link Exception}.
      */
     @BeforeClass
     public static void setUp() {
@@ -68,9 +70,9 @@ public class GeoJsonResponseWriterTest {
         // Create Line coordinate
         Coordinate[] coords2d = new Coordinate[3];
         // Fill the two-dimensional coordinate
-        coords2d[0] = new Coordinate(Double.parseDouble("0.0"), Double.parseDouble("0.0"));
-        coords2d[1] = new Coordinate(Double.parseDouble("0.0"), Double.parseDouble("0.0"));
-        coords2d[2] = new Coordinate(Double.parseDouble("0.0"), Double.parseDouble("0.0"));
+        coords2d[0] = new Coordinate(Double.parseDouble("1"), Double.parseDouble("1"));
+        coords2d[1] = new Coordinate(Double.parseDouble("1"), Double.parseDouble("1"));
+        coords2d[2] = new Coordinate(Double.parseDouble("1"), Double.parseDouble("1"));
         // Create HashMap of HashMaps to store properties for individual Features in it, accessible through unique identifiers
         featurePropertiesMap = new HashMap<>();
         // Create HashMap to store FeatureCollection properties. No identifier necessary because there will be just one FeatureCollection at a time
@@ -79,7 +81,7 @@ public class GeoJsonResponseWriterTest {
         GeometryFactory geometryFactory = new GeometryFactory();
         // Create a new SimpleFeatureType to create a SimpleFeature from it
         // its written capital because a custom SimpleFeatureType is a static and immutable object once created
-        SimpleFeatureType ROUTINGFEATURETYPE = SimpleFeatureTypes.createRouteFeatureType();
+        SimpleFeatureType ROUTINGFEATURETYPE = new SimpleFeatureTypes(RouteFeatureType.routeFeature).create();
         // Create DefaultFeatureCollection to store the SimpleFeature
         defaultFeatureCollection = new DefaultFeatureCollection("routing", ROUTINGFEATURETYPE);
         // Create a HashMap for the individual feature properties
@@ -91,11 +93,11 @@ public class GeoJsonResponseWriterTest {
         // Add route specific Geometry
         routingFeatureBuilder.set("geometry", lineString);
         // Add route specific BBox
-        featureProperties.put("bbox", new JSONArray().put(0.0).put(0.0).put(0.0).put(0.0));
+        featureProperties.put("bbox", new JSONArray().put(1).put(1).put(1).put(1));
         // Add route specific Way_Points
-        featureProperties.put("way_points", new JSONArray().put(0.0).put(0.0));
+        featureProperties.put("way_points", new JSONArray().put(1).put(1));
         // Add route specific Segments
-        featureProperties.put("segments", new JSONArray().put(0.0));
+        featureProperties.put("segments", new JSONArray().put(1));
         // Build the SimpleFeature
         routingFeature = routingFeatureBuilder.buildFeature(null);
         routingFeatureID = routingFeature.getID();
@@ -104,8 +106,8 @@ public class GeoJsonResponseWriterTest {
 
 
         // Add the feature properties through a generalized class
-        defaultFeatureCollectionProperties.put("bbox", new JSONArray().put(0.0).put(0.0).put(0.0).put(0.0));
-        defaultFeatureCollectionProperties.put("info", new JSONArray().put(0));
+        defaultFeatureCollectionProperties.put("bbox", new JSONArray().put(1).put(1).put(1).put(1));
+        defaultFeatureCollectionProperties.put("info", new JSONArray().put(1));
     }
 
     /**
@@ -115,8 +117,9 @@ public class GeoJsonResponseWriterTest {
      */
     @Test
     public void testAddProperties() throws Exception {
-        // JSONObject addProperties = GeoJsonResponseWriter.addProperties(routingFeature, featurePropertiesMap);
-        Assert.assertEquals("{\"geometry\":{\"coordinates\":[[0,0],[0,0],[0,0]],\"type\":\"LineString\"},\"id\":\"" + routingFeatureID + "\",\"type\":\"Feature\",\"properties\":{\"bbox\":[0,0,0,0],\"way_points\":[0,0],\"segments\":[0]}}", GeoJsonResponseWriter.addProperties(routingFeature, featurePropertiesMap).toString());
+        JSONObject expectedJSON = new JSONObject("{\"geometry\":{\"coordinates\":[[1,1],[1,1],[1,1]],\"type\":\"LineString\"},\"id\":\"" + routingFeatureID + "\",\"type\":\"Feature\",\"properties\":{\"bbox\":[1,1,1,1],\"way_points\":[1,1],\"segments\":[1]}}");
+        JSONObject resultJSON = GeoJsonResponseWriter.addProperties(routingFeature, featurePropertiesMap);
+        JSONAssert.assertEquals(expectedJSON, resultJSON, JSONCompareMode.NON_EXTENSIBLE);
     }
 
     /**
@@ -127,6 +130,8 @@ public class GeoJsonResponseWriterTest {
     @Test
     public void testAddProperties1() throws Exception {
         // JSONObject addProperties = GeoJsonResponseWriter.addProperties(defaultFeatureCollection, featurePropertiesMap, defaultFeatureCollectionProperties);
-        Assert.assertEquals("{\"features\":[{\"geometry\":{\"coordinates\":[[0,0],[0,0],[0,0]],\"type\":\"LineString\"},\"id\":\"" + routingFeatureID + "\",\"type\":\"Feature\",\"properties\":{\"bbox\":[0,0,0,0],\"way_points\":[0,0],\"segments\":[0]}}],\"bbox\":[0,0,0,0],\"type\":\"FeatureCollection\",\"info\":[0]}", GeoJsonResponseWriter.addProperties(defaultFeatureCollection, featurePropertiesMap, defaultFeatureCollectionProperties).toString());
+        JSONObject expectedJSON = new JSONObject("{\"features\":[{\"geometry\":{\"coordinates\":[[1,1],[1,1],[1,1]],\"type\":\"LineString\"},\"id\":\"" + routingFeatureID + "\",\"type\":\"Feature\",\"properties\":{\"bbox\":[1,1,1,1],\"way_points\":[1,1],\"segments\":[1]}}],\"bbox\":[1,1,1,1],\"type\":\"FeatureCollection\",\"info\":[1]}");
+        JSONObject resultJSON = GeoJsonResponseWriter.addProperties(defaultFeatureCollection, featurePropertiesMap, defaultFeatureCollectionProperties);
+        JSONAssert.assertEquals(expectedJSON, resultJSON, JSONCompareMode.NON_EXTENSIBLE);
     }
 }

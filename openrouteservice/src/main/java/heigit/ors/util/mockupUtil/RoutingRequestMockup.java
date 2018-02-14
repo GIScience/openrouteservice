@@ -44,6 +44,7 @@ public class RoutingRequestMockup {
 
     private static RoutingRequest routingRequestMockup;
 
+
     // For now only two profiles are integrated. Both referring to a Heidelberg graph!
     public enum routeProfile {
         standardHeidelberg2d, standardHeidelberg3d
@@ -118,6 +119,7 @@ public class RoutingRequestMockup {
             // the search parameters are only accessible through local access.
             setRouteSearchParameters(searchParamProfile.standardCarSearchProfile);
             routingRequestMockup.setId(null);
+            return routingRequestMockup;
         }
         return null;
 
