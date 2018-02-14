@@ -61,7 +61,6 @@ class SimpleFeatureTypes {
      * The function creates a {@link SimpleFeatureType} according to the given {@link RouteFeatureType}.
      *
      * @return The return is a {@link SimpleFeatureType}.
-     * @throws InternalServerException Returns an {@link InternalServerException} if the {@link RoutingServiceSettings} couldn't be assessed.
      */
     public SimpleFeatureType create() {
         if (type == RouteFeatureType.routeFeature) {
