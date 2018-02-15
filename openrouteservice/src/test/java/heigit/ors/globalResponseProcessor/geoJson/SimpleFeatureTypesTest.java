@@ -25,7 +25,6 @@
 
 package heigit.ors.globalResponseProcessor.geoJson;
 
-import heigit.ors.exceptions.InternalServerException;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -37,6 +36,9 @@ import static heigit.ors.globalResponseProcessor.geoJson.SimpleFeatureTypes.*;
 public class SimpleFeatureTypesTest {
     private SimpleFeatureType simpleFeatureType;
 
+    /**
+     *
+     */
     @BeforeClass
     public void setUp() {
         this.simpleFeatureType = new SimpleFeatureTypes(RouteFeatureType.routeFeature).create();

@@ -35,10 +35,12 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 
 public class XMLBuilderTest {
-    private XMLBuilder xMLBuilder = new XMLBuilder();
     // Setup Gpx feature
     private static Gpx gpx = new Gpx();
 
+    /**
+     * This class initializes the dummy Gpx.class object
+     */
     @BeforeClass
     public static void setUp() {
         // Time Element
@@ -143,6 +145,7 @@ public class XMLBuilderTest {
 
     @Test
     public void testBuild() throws JAXBException {
+        XMLBuilder xMLBuilder = new XMLBuilder();
         String result = xMLBuilder.build(gpx);
         Assert.assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
                 "<gpx version=\"1.0\" xmlns=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v1/ors-gpx.xsd\">\n" +

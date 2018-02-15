@@ -28,13 +28,11 @@ package heigit.ors.globalResponseProcessor.geoJson;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
-import heigit.ors.exceptions.InternalServerException;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.json.JSONArray;
 
 import org.json.JSONObject;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
@@ -129,7 +127,6 @@ public class GeoJsonResponseWriterTest {
      */
     @Test
     public void testAddProperties1() throws Exception {
-        // JSONObject addProperties = GeoJsonResponseWriter.addProperties(defaultFeatureCollection, featurePropertiesMap, defaultFeatureCollectionProperties);
         JSONObject expectedJSON = new JSONObject("{\"features\":[{\"geometry\":{\"coordinates\":[[1,1],[1,1],[1,1]],\"type\":\"LineString\"},\"id\":\"" + routingFeatureID + "\",\"type\":\"Feature\",\"properties\":{\"bbox\":[1,1,1,1],\"way_points\":[1,1],\"segments\":[1]}}],\"bbox\":[1,1,1,1],\"type\":\"FeatureCollection\",\"info\":[1]}");
         JSONObject resultJSON = GeoJsonResponseWriter.addProperties(defaultFeatureCollection, featurePropertiesMap, defaultFeatureCollectionProperties);
         JSONAssert.assertEquals(expectedJSON, resultJSON, JSONCompareMode.NON_EXTENSIBLE);
