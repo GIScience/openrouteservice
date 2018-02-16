@@ -187,6 +187,7 @@ public class PostgresSQLStatisticsProvider extends AbstractStatisticsProvider {
 
     }
 
+
     @Deprecated
     public double[] getStatisticsOld(Isochrone isochrone, String[] properties) throws Exception {
         int nProperties = properties.length;
