@@ -58,7 +58,7 @@ public class WheelchairEdgeFilter implements EdgeFilter
 		
 		_params = params;
 		_attributes = new WheelchairAttributes();
-		_buffer = new byte[3];
+		_buffer = new byte[WheelchairAttributesGraphStorage.BYTE_COUNT];
 	}
 
 	@Override
@@ -97,6 +97,11 @@ public class WheelchairEdgeFilter implements EdgeFilter
 				if (_params.getMaximumSlopedCurb() > 0.0)
 				{
 					if (_params.getMaximumSlopedCurb() < _attributes.getSlopedCurbHeight())
+						return false;
+				}
+
+				if (_params.getMinimumWidth() > 0.0) {
+					if(_params.getMinimumWidth() > _attributes.getWidth())
 						return false;
 				}
 			}

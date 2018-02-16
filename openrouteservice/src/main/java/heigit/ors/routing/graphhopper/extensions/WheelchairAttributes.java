@@ -23,9 +23,10 @@ package heigit.ors.routing.graphhopper.extensions;
 public class WheelchairAttributes {
 	private float _incline = 0.0F;
 	private float _slopedCurbHeight  = 0.0F;
-	private int _surfaceType;
-	private int _trackType;
-	private int _smoothnessType;
+	private float _width = 0.0F;
+	private int _surfaceType = -1;
+	private int _trackType = -1;
+	private int _smoothnessType = -1;
 
 	private boolean _hasAttributes = false;
 
@@ -44,9 +45,10 @@ public class WheelchairAttributes {
 		_hasAttributes = false;
 		_incline = 0.0F;
 		_slopedCurbHeight  = 0.0F;
-		_surfaceType = 0;
-		_trackType= 0;
-		_smoothnessType = 0;
+		_width = 0.0F;
+		_surfaceType = -1;
+		_trackType= -1;
+		_smoothnessType = -1;
 	}
 
 	public float getIncline() {
@@ -93,9 +95,29 @@ public class WheelchairAttributes {
 		_smoothnessType = smoothnessType;
 		_hasAttributes = true;
 	}
+
+	public float getWidth() { return _width; }
+
+	public void setWidth(float width)  {
+		_width = width;
+		_hasAttributes = true;
+	}
 	
 	public boolean equals(WheelchairAttributes attrs)
 	{
-		return _surfaceType == attrs._surfaceType && _smoothnessType == attrs._smoothnessType && _trackType == attrs._trackType && _slopedCurbHeight == attrs._slopedCurbHeight && _incline == attrs._incline;
+		return _surfaceType == attrs._surfaceType && _smoothnessType == attrs._smoothnessType && _trackType == attrs._trackType && _slopedCurbHeight == attrs._slopedCurbHeight && _incline == attrs._incline && _width == attrs._width;
+	}
+
+	public WheelchairAttributes copy() {
+		WheelchairAttributes at = new WheelchairAttributes();
+		at._hasAttributes = this._hasAttributes;
+		at._incline = this._incline;
+		at._width = this._width;
+		at._surfaceType = this._surfaceType;
+		at._smoothnessType = this._smoothnessType;
+		at._trackType = this._trackType;
+		at._slopedCurbHeight = this._slopedCurbHeight;
+
+		return at;
 	}
 }

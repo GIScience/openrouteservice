@@ -22,23 +22,57 @@ package heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.VirtualEdgeIteratorState;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.util.ByteArrayBuffer;
 import com.graphhopper.util.EdgeIteratorState;
 
+import com.graphhopper.util.PointList;
 import heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
+import org.apache.log4j.Logger;
+import org.opensphere.geometry.triangulation.model.Edge;
+
+import java.util.Arrays;
 
 public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder 
 {
+	private static Logger LOGGER = Logger.getLogger(WheelchairGraphStorageBuilder.class.getName());
+	private enum Side {LEFT, RIGHT, BOTH};
+
 	private WheelchairAttributesGraphStorage _storage;
 	private WheelchairAttributes _wheelchairAttributes;
+	private WheelchairAttributes _wheelchairAttributesLeft;
+	private WheelchairAttributes _wheelchairAttributesRight;
+
+	private boolean _isSeparate = false;
+	private boolean _hasLeft = false;
+	private boolean _hasRight = false;
+
+	private int _seperateCount = 0;
+	private int _leftOnlyCount = 0;
+	private int _rightOnlyCount = 0;
+	private int _bothCount = 0;
+	private int _separateAndTaggedCount = 0;
 
 	public WheelchairGraphStorageBuilder()
 	{
 		_wheelchairAttributes = new WheelchairAttributes();
+		_wheelchairAttributesLeft = new WheelchairAttributes();
+		_wheelchairAttributesRight = new WheelchairAttributes();
 	}
 
+	private final String[] _pedestrianTypes = {
+			"living_street",
+			"pedestrian",
+			"footway",
+			"path",
+			"crossing"
+	};
+
+	@Override
 	public GraphExtension init(GraphHopper graphhopper) throws Exception 
 	{
 		if (!graphhopper.getEncodingManager().supports("wheelchair"))
@@ -51,18 +85,150 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		return _storage;
 	}
 
+	@Override
 	public void processWay(ReaderWay way) 
 	{
+
 		_wheelchairAttributes.reset();
 
-		if (way.hasTag("surface")) 
+		_wheelchairAttributesLeft.reset();
+
+		_wheelchairAttributesRight.reset();
+
+		_isSeparate = false;
+		_hasRight = false;
+		_hasLeft = false;
+
+		// When we read a way there are four possibilities:
+		/*
+			1. We are looking at a separated pedestrian way (i.e. footpath) - use way properties
+			2. We are looking at a road with sidewalks tagged to it	- use sidewalk properties
+			3. We are looking at a pedestrian way with sidewalks tagged to it - use sidewalk and way properties
+			5. We are just looking at a road - use no properties
+		 */
+
+
+		if(isSeparateFootway(way)) {
+			// We have a separate footway feature
+			// work with _wheelchairAttributes
+			processSeparate(way);
+
+		}
+
+		// always process the way as attached to get any sidewalks
+		processAttached(way);
+
+
+
+
+
+		// sloped_curb
+		// ===========
+		// http://wiki.openstreetmap.org/wiki/Wheelchair_routing#Curb_heights
+		// http://wiki.openstreetmap.org/wiki/DE:Wheelchair_routing#B.C3.BCrgersteige
+		// http://wiki.openstreetmap.org/wiki/DE:Wheelchair_routing#B.C3.BCrgersteige_und_Eigenschaften
+		// http://wiki.openstreetmap.org/wiki/Key:sloped_curb
+
+		// only use sloped_curb|kerb|curb values on ways that are crossing. there are cases (e.g. platform) where these tags are also used but in fact indicate wheelchair accessibility (e.g. platform=yes, kerb=raised)
+		/*if ((way.hasTag("sloped_curb") || way.hasTag("kerb") || way.hasTag("curb")) && (way.hasTag("footway", "crossing") || way.hasTag("cycleway", "crossing") || way.hasTag("highway", "crossing") || way.hasTag("crossing"))) {
+			
+			double curbHeight = getCurbHeight(way);
+			if (curbHeight != 0.0)
+				_wheelchairAttributes.setSlopedCurbHeight((float)curbHeight);
+		}*/
+
+
+	}
+
+	private void processAttached(ReaderWay way) {
+		String[] values;
+
+		// check if there is an explicit tag
+		if(way.hasTag("sidewalk")) {
+			String sw = way.getTag("sidewalk");
+			switch(sw) {
+				case "left":
+					_hasLeft = true;
+				case "right":
+					_hasRight = true;
+				case "both":
+					_hasLeft = true;
+					_hasRight = true;
+			}
+		}
+
+		values = getCompoundValue(way, "surface");
+		if(values[0] != null && !values[0].isEmpty()) {
+			_hasLeft = true;
+			_wheelchairAttributesLeft.setSurfaceType(WheelchairTypesEncoder.getSurfaceType(values[0].toLowerCase()));
+		}
+		if(values[1] != null && !values[1].isEmpty()) {
+			_hasRight = true;
+			_wheelchairAttributesRight.setSurfaceType(WheelchairTypesEncoder.getSurfaceType(values[1].toLowerCase()));
+		}
+
+		values = getCompoundValue(way, "smoothness");
+		if(values[0] != null && !values[0].isEmpty()) {
+			_hasLeft = true;
+			_wheelchairAttributesLeft.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(values[0].toLowerCase()));
+
+		}
+		if(values[1] != null && !values[1].isEmpty()) {
+			_hasRight = true;
+			_wheelchairAttributesRight.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(values[1].toLowerCase()));
+		}
+
+		values = getCompoundValue(way, "tracktype");
+		if(values[0] != null && !values[0].isEmpty()) {
+			_hasLeft = true;
+			_wheelchairAttributesLeft.setTrackType(WheelchairTypesEncoder.getTrackType(values[0].toLowerCase()));
+		}
+		if(values[1] != null && values[0] != null && !values[1].isEmpty()) {
+			_hasRight = true;
+			_wheelchairAttributesRight.setTrackType(WheelchairTypesEncoder.getTrackType(values[1].toLowerCase()));
+		}
+
+		values = getCompoundValue(way, "width");
+		if(values[0] != null && !values[0].isEmpty()) {
+			_hasLeft = true;
+			_wheelchairAttributesLeft.setWidth((float)convertWidth(values[0].toLowerCase()));
+		}
+		if(values[1] != null && !values[1].isEmpty()) {
+			_hasRight = true;
+			_wheelchairAttributesRight.setWidth((float)convertWidth(values[1].toLowerCase()));
+		}
+
+		if (way.hasTag("incline"))
+		{
+			double incline = getIncline(way);
+			if (incline != 0.0)
+			{
+				_wheelchairAttributesLeft.setIncline((float)incline);
+				_wheelchairAttributesRight.setIncline((float)incline);
+			}
+		}
+		values = getCompoundValue(way, "incline");
+		if(values[0] != null && !values[0].isEmpty()) {
+			_hasLeft = true;
+			_wheelchairAttributesLeft.setWidth((float)convertIncline(values[0].toLowerCase()));
+		}
+		if(values[1] != null && !values[1].isEmpty()) {
+			_hasRight = true;
+			_wheelchairAttributesRight.setWidth((float)convertIncline(values[1].toLowerCase()));
+		}
+	}
+
+	private void processSeparate(ReaderWay way) {
+		_isSeparate = true;
+
+		if (way.hasTag("surface"))
 		{
 			int value = WheelchairTypesEncoder.getSurfaceType(way.getTag("surface").toLowerCase());
 			if (value > 0)
 				_wheelchairAttributes.setSurfaceType(value);
 		}
 
-		if (way.hasTag("smoothness")) 
+		if (way.hasTag("smoothness"))
 		{
 			int value = WheelchairTypesEncoder.getSmoothnessType(way.getTag("smoothness").toLowerCase());
 			if (value > 0)
@@ -75,27 +241,27 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 				_wheelchairAttributes.setTrackType(value);
 		}
 
-		// sloped_curb
-		// ===========
-		// http://wiki.openstreetmap.org/wiki/Wheelchair_routing#Curb_heights
-		// http://wiki.openstreetmap.org/wiki/DE:Wheelchair_routing#B.C3.BCrgersteige
-		// http://wiki.openstreetmap.org/wiki/DE:Wheelchair_routing#B.C3.BCrgersteige_und_Eigenschaften
-		// http://wiki.openstreetmap.org/wiki/Key:sloped_curb
-
-		// only use sloped_curb|kerb|curb values on ways that are crossing. there are cases (e.g. platform) where these tags are also used but in fact indicate wheelchair accessibility (e.g. platform=yes, kerb=raised)
-		if ((way.hasTag("sloped_curb") || way.hasTag("kerb") || way.hasTag("curb")) && (way.hasTag("footway", "crossing") || way.hasTag("cycleway", "crossing") || way.hasTag("highway", "crossing") || way.hasTag("crossing"))) {
-			
-			double curbHeight = getCurbHeight(way);
-			if (curbHeight != 0.0)
-				_wheelchairAttributes.setSlopedCurbHeight((float)curbHeight);
+		if(way.hasTag("width")) {
+			double width = convertWidth(way.getTag("width"));
+			_wheelchairAttributes.setWidth((float)width);
 		}
+
+		// kerb height is only valid on separated ways
+		if(way.hasTag("curb"))
+			_wheelchairAttributes.setSlopedCurbHeight((float)convertKerb("curb", way.getTag("curb")));
+		if(way.hasTag("kerb"))
+			_wheelchairAttributes.setSlopedCurbHeight((float)convertKerb("kerb", way.getTag("kerb")));
+		if(way.hasTag("sloped_curb"))
+			_wheelchairAttributes.setSlopedCurbHeight((float)convertKerb("sloped_curb", way.getTag("sloped_curb")));
+		if(way.hasTag("kerb:height"))
+			_wheelchairAttributes.setSlopedCurbHeight((float)convertKerb("kerb:height", way.getTag("kerb:height")));
 
 		// incline
 		// =======
 		// http://wiki.openstreetmap.org/wiki/Key:incline
 		// http://wiki.openstreetmap.org/wiki/Wheelchair_routing#Path_properties.2C_in_general
 		// http://wiki.openstreetmap.org/wiki/DE:Wheelchair_routing#Weg_Eigenschaften_allgemein
-		if (way.hasTag("incline")) 
+		if (way.hasTag("incline"))
 		{
 			double incline = getIncline(way);
 			if (incline != 0.0)
@@ -105,9 +271,114 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		}
 	}
 
+	private <T> T getWorse(String attr, Class<T> type) {
+		switch(attr) {
+			case "surface":
+				return type.cast(Math.max(Math.max(_wheelchairAttributesLeft.getSurfaceType(), _wheelchairAttributesRight.getSurfaceType()),
+						_wheelchairAttributes.getSurfaceType()));
+			case "smoothness":
+				return type.cast(Math.max(Math.max(_wheelchairAttributesLeft.getSmoothnessType(), _wheelchairAttributesRight.getSmoothnessType()),
+						_wheelchairAttributes.getSmoothnessType()));
+			case "slopedKerb":
+				return type.cast(Math.max(Math.max(_wheelchairAttributesLeft.getSlopedCurbHeight(), _wheelchairAttributesRight.getSlopedCurbHeight()),
+						_wheelchairAttributes.getSlopedCurbHeight()));
+			case "width":
+				// default value is 0, but this will always be returned so we need to do a check
+				float l = _wheelchairAttributesLeft.getWidth(),
+						r = _wheelchairAttributesRight.getWidth(),
+						w = _wheelchairAttributes.getWidth();
+				if (l == 0) l = Float.MAX_VALUE;
+				if (r == 0) r = Float.MAX_VALUE;
+				if (w == 0) w = Float.MAX_VALUE;
+
+				float ret = Math.min(Math.min(l,r),w);
+				if (ret == Float.MAX_VALUE) ret = 0;
+
+				return type.cast(ret);
+			case "track":
+				return type.cast(Math.max(Math.max(_wheelchairAttributesLeft.getTrackType(), _wheelchairAttributesRight.getTrackType()),
+						_wheelchairAttributes.getTrackType()));
+			case "incline":
+				return type.cast(Math.max(Math.max(_wheelchairAttributesLeft.getIncline(), _wheelchairAttributesRight.getIncline()),
+						_wheelchairAttributes.getIncline()));
+
+				default:
+					return null;
+		}
+	}
+
+	@Override
 	public void processEdge(ReaderWay way, EdgeIteratorState edge) 
 	{
-		_storage.setEdgeValues(edge.getEdge(), _wheelchairAttributes);
+		WheelchairAttributes at = new WheelchairAttributes();
+		at.reset();
+
+		//
+		if(_isSeparate) {
+			// we have a seperate way so we also need to look at the attributes of the way itself
+			at = _wheelchairAttributes.copy();
+		}
+
+		// if we have sidewalks attached, then we should also look at those
+		if(_hasRight || _hasLeft) {
+			int tr = getWorse("track", Integer.class);
+			if (tr > 0) at.setTrackType(tr);
+
+			int su = getWorse("surface", Integer.class);
+			if (su > 0) at.setSurfaceType(su);
+
+			int sm = getWorse("smoothness", Integer.class);
+			if (sm > 0) at.setSmoothnessType(sm);
+
+			float sl = getWorse("slopedKerb", Float.class);
+			if (sl > 0) at.setSlopedCurbHeight(sl);
+
+			float wi = getWorse("width", Float.class);
+			if (wi > 0) at.setWidth(wi);
+
+			float in = getWorse("incline", Float.class);
+			if (in > 0) at.setIncline(in);
+		}
+
+		_storage.setEdgeValues(edge.getEdge(), at);
+
+	}
+
+	private double convertKerb(String tag, String value) {
+		double height = -1d;
+
+		if(tag.equals("sloped_curb") || tag.equals("curb") || tag.equals("kerb")) {
+			// THE TAGS sloped_curb AND curb SHOULD NOT BE USED
+			// also, many of the values are not recognised as proper OSM tags, but they still exist
+			switch(value) {
+				case "yes":
+				case "both":
+				case "low":
+				case "lowered":
+				case "dropped":
+				case "sloped":
+					height = 0.03d;
+					break;
+				case "no":
+				case "none":
+				case "one":
+				case "rolled":
+				case "regular":
+					height = 0.15d;
+					break;
+				case "at_grade":
+				case "flush":
+					height = 0d;
+					break;
+			}
+		}
+		if(tag.equals("kerb:height")) {
+			// we need to also check for the measurement unit
+			// we can use the same unit conversion as width
+			height = convertWidth(value);
+		}
+
+		return height;
 	}
 
 	private double getCurbHeight(ReaderWay way) {
@@ -138,10 +409,10 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 				str = str.replace("yes", "0.03");
 				str = str.replace("flush", "0.0");
 				str = str.replace("unknown", "0.03");
+				str = str.replace("none", "0.15");
 				str = str.replace("no", "0.15");
 				str = str.replace("dropped", "0.03");
 				str = str.replace("rolled", "0.03");
-				str = str.replace("none", "0.15");
 			}
 		}
        
@@ -187,10 +458,34 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		return res;
 	}
 
+	private String[] getCompoundValue(ReaderWay way, String property) {
+		String[] values = new String[2];
+
+		// Left side
+		if(way.hasTag("sidewalk:left:" + property))
+			values[0] = way.getTag("sidewalk:left:" + property);
+		// Right side
+		if(way.hasTag("sidewalk:right:" + property))
+			values[1] = way.getTag("sidewalk:right:" + property);
+
+		// Both
+		if(way.hasTag("sidewalk:both:" + property)) {
+			values[0] = way.getTag("sidewalk:both:" + property);
+			values[1] = way.getTag("sidewalk:both:" + property);
+		}
+
+		return values;
+	}
+
 	private double getIncline(ReaderWay way)
 	{
 		String inclineValue = way.getTag("incline");
-		if (inclineValue != null) 
+		return convertIncline(inclineValue);
+	}
+
+	private double convertIncline(String inclineValue) {
+
+		if (inclineValue != null)
 		{
 			double v = 0d;
 			boolean isDegree = false;
@@ -234,6 +529,96 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		}
 
 		return 0;
+	}
+
+	private double convertWidth(String widthStr) {
+		double width = -1d;
+
+		// Valid values are:
+		/*
+		width=x (default metres)
+		width=x m		(metre)
+		width=x km		(kilometre)
+		width=x mi		(mile)
+		width=x nmi		(nautical mile)
+		width=x'y"		(feet and inches)
+		 */
+
+		if (widthStr.contains(" ")) {
+			// we are working with a specified unit
+			String split[] = widthStr.split(" ");
+			if(split.length == 2) {
+				try {
+					width = Double.parseDouble(split[0]);
+
+					switch(split[1]) {
+						case "m":
+							// do nothing as already in metres
+							break;
+						case "km":
+							width = width * 0.001;
+							break;
+						case "mi":
+							width = width * 0.000621371;
+							break;
+						case "nmi":
+							width = width * 0.000539957;
+							break;
+						default:
+							// Invalid unit
+							width = -1d;
+					}
+				} catch (Exception e) {
+					width = -1d;
+				}
+			}
+		} else if (widthStr.contains("'") && widthStr.contains("\"")) {
+			// Working with feet and inches
+			String[] split = widthStr.split("'");
+			if(split.length == 2) {
+				split[1] = split[1].replace("\"", "");
+				try {
+					width = Double.parseDouble(split[0]) * 12d; // 12 inches to a foot
+					width += Double.parseDouble(split[1]);
+
+					// convert to metres
+					width = width * 0.0254;
+
+				} catch (Exception e) {
+					width = -1d;
+				}
+			}
+		} else {
+			// Try and read a number and assume it is in metres
+			try {
+				width = Double.parseDouble(widthStr);
+			} catch (Exception e) {
+				width = -1d;
+			}
+		}
+
+		// If it is more than three we don't really care, and any more means more bits needed to store
+		if(width > 3)
+			width = 3;
+
+		return width;
+	}
+
+	private boolean isSeparateFootway(ReaderWay way) {
+		String type = way.getTag("highway", "");
+
+		// Check if it is a footpath or pedestrian
+		if(!type.isEmpty()) {
+			if (Arrays.asList(_pedestrianTypes).contains(type)) {
+				// We are looking at a separate footpath
+				return true;
+			} else {
+				// we are looking at a road feature so any footway would be attached to it as a tag
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	@Override

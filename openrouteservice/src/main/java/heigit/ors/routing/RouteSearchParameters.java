@@ -378,6 +378,9 @@ public class RouteSearchParameters {
 				if (jRestrictions.has("maximum_incline"))
 					wheelchairParams.setMaximumIncline((float)jRestrictions.getDouble("maximum_incline"));
 
+				if (jRestrictions.has("minimum_width"))
+					wheelchairParams.setMinimumWidth((float)jRestrictions.getDouble("minimum_width"));
+
 				_profileParams = wheelchairParams;
 			}
 

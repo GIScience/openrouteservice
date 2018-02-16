@@ -27,6 +27,7 @@ public class WheelchairParameters extends ProfileParameters
 	private int _surfaceType;
 	private int _trackType;
 	private int _smoothnessType;
+	private float _minWidth = 0.0f;
 
 	public WheelchairParameters()
 	{
@@ -72,4 +73,8 @@ public class WheelchairParameters extends ProfileParameters
 	public void setSmoothnessType(int smoothnessType) {
 		_smoothnessType = smoothnessType;
 	}
+
+	public float getMinimumWidth() { return _minWidth; }
+
+	public void setMinimumWidth(float width) { _minWidth = width; }
 }
