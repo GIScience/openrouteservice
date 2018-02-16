@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- Add population data for isochrones (Issue #106)
 
 ### Fixed
 - Fix exception when roundabout exit is not correctly found (Issue #89)
@@ -51,10 +52,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Consider turn restrictions if optimized=false is passed.
 
 ### Changed
-- 
+- RoutingProfile was changed to make sure whenever pop_total or pop_area is queried, both are present in the attributes (Issue #108)
 
 ### Removed
 - 
 
 ### Deprecated
--
+- getStatisticsOld | Connected to the old statistics library (Issue #108)
+- geometryToWKB | Connected to the old statistics library (Issue #108)
