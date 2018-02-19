@@ -6,12 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- Add population data for isochrones (Issue #106)
 
 ### Fixed
 - Fix exception when roundabout exit is not correctly found (Issue #89)
 - Option to specify maximum locations for matrix request when using non-standard weightings (Issue #94)
-
+- Correct querying of population statistics data for isochrones (Issue #106)
 ## [4.4.2] - 2018-01-31
 ### Added
 - Ability to get routes in GPX format (Issue #8)
@@ -52,11 +51,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Consider turn restrictions if optimized=false is passed.
 
 ### Changed
-- RoutingProfile was changed to make sure whenever pop_total or pop_area is queried, both are present in the attributes (Issue #108)
+- RoutingProfile was changed to make sure whenever pop_total or pop_area is queried, both are present in the attributes (Issue #106)
 
 ### Removed
 - 
 
 ### Deprecated
-- getStatisticsOld | Connected to the old statistics library (Issue #108)
-- geometryToWKB | Connected to the old statistics library (Issue #108)
+- getStatisticsOld | Connected to the old statistics library (Issue #106)
+- geometryToWKB | Connected to the old statistics library (Issue #106)
