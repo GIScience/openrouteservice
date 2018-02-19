@@ -27,7 +27,6 @@ package heigit.ors.globalResponseProcessor.geoJson;
 
 
 import com.vividsolutions.jts.geom.LineString;
-import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.globalResponseProcessor.gpx.GpxResponseWriter;
 import heigit.ors.exceptions.MissingConfigParameterException;
 import heigit.ors.services.routing.RoutingServiceSettings;
