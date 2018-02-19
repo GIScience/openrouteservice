@@ -34,14 +34,14 @@ import static heigit.ors.globalResponseProcessor.geoJson.SimpleFeatureTypes.*;
 
 
 public class SimpleFeatureTypesTest {
-    private SimpleFeatureType simpleFeatureType;
+    private static SimpleFeatureType simpleFeatureType;
 
     /**
      *
      */
     @BeforeClass
-    public void setUp() {
-        this.simpleFeatureType = new SimpleFeatureTypes(RouteFeatureType.routeFeature).create();
+    public static void setUp() {
+        simpleFeatureType = new SimpleFeatureTypes(RouteFeatureType.routeFeature).create();
     }
 
     @Test
