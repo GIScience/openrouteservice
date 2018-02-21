@@ -320,7 +320,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(203))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
 	}
 
@@ -335,7 +335,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(201))
+				.body("error.code", is(RoutingErrorCodes.MISSING_PARAMETER))
 				.statusCode(400);
 	}
 
@@ -351,7 +351,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(202))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_FORMAT))
 				.statusCode(400);
 	}
 
@@ -368,7 +368,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(203))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
 	}
 
@@ -384,7 +384,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(204))
+				.body("error.code", is(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT))
 				.statusCode(400);
 	}
 
@@ -425,7 +425,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(203))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
 	}
 
@@ -481,7 +481,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(200))
+				.body("error.code", is(RoutingErrorCodes.INVALID_JSON_FORMAT))
 				.statusCode(400);
 	}
 
@@ -509,7 +509,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(200))
+				.body("error.code", is(RoutingErrorCodes.INVALID_JSON_FORMAT))
 				.statusCode(400);
 	}
 
@@ -539,7 +539,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(203))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
 	}
 
@@ -562,7 +562,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(203))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
 	}
 
@@ -583,7 +583,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(202))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_FORMAT))
 				.statusCode(400);
 	}
 	
@@ -599,7 +599,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(203))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
 		
 		given()
@@ -612,7 +612,7 @@ public class ParamsTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(203))
+		.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 		.statusCode(400);
 	}
 	
@@ -628,7 +628,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(203))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
 		
 		given()
@@ -641,7 +641,7 @@ public class ParamsTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(203))
+		.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 		.statusCode(400);
 	}
 	
@@ -657,7 +657,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(299))
+				.body("error.code", is(RoutingErrorCodes.UNKNOWN))
 				.statusCode(500);
 	}
 	@Test
@@ -673,7 +673,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(203))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
 	}
 }

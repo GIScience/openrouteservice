@@ -43,7 +43,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(403))
+		.body("error.code", is(LocationsErrorCodes.INVALID_PARAMETER_VALUE))
 		.statusCode(400);
 	}
 	
@@ -59,7 +59,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.then()
 		.log().all()
 		.assertThat()
-		.body("error.code", is(402))
+		.body("error.code", is(LocationsErrorCodes.INVALID_PARAMETER_FORMAT))
 		.statusCode(400);
 	}
 	
@@ -72,7 +72,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(401))
+		.body("error.code", is(LocationsErrorCodes.MISSING_PARAMETER))
 		.statusCode(400);
 	}
 	
@@ -86,7 +86,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(404))
+		.body("error.code", is(LocationsErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM))
 		.statusCode(400);
 	}
 	
@@ -101,7 +101,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(402))
+		.body("error.code", is(LocationsErrorCodes.INVALID_PARAMETER_FORMAT))
 		.statusCode(400);
 		
 		given()
@@ -113,7 +113,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(403))
+		.body("error.code", is(LocationsErrorCodes.INVALID_PARAMETER_VALUE))
 		.statusCode(400);
 	}
 	
@@ -128,7 +128,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(403))
+		.body("error.code", is(LocationsErrorCodes.INVALID_PARAMETER_VALUE))
 		.statusCode(400);
 	}
 	
@@ -143,7 +143,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(401))
+		.body("error.code", is(LocationsErrorCodes.MISSING_PARAMETER))
 		.statusCode(400);
 	}
 	
@@ -159,7 +159,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(403))
+		.body("error.code", is(LocationsErrorCodes.INVALID_PARAMETER_VALUE))
 		.statusCode(400);
 	}
 	
@@ -176,7 +176,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(403))
+		.body("error.code", is(LocationsErrorCodes.INVALID_PARAMETER_VALUE))
 		.statusCode(400);
 	}
 	
@@ -193,7 +193,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(402))
+		.body("error.code", is(LocationsErrorCodes.INVALID_PARAMETER_FORMAT))
 		.statusCode(400);
 		
 		given()
@@ -207,7 +207,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(402))
+		.body("error.code", is(LocationsErrorCodes.INVALID_PARAMETER_FORMAT))
 		.statusCode(400);
 	}
 	
@@ -219,7 +219,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.post(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(400))
+		.body("error.code", is(LocationsErrorCodes.INVALID_JSON_FORMAT))
 		.statusCode(400); 
 	}
 	
@@ -241,7 +241,7 @@ public class ParametersValidationTest extends ServiceTest {
 				.post(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(401))
+				.body("error.code", is(LocationsErrorCodes.MISSING_PARAMETER))
 				.statusCode(400);
 	}
 }

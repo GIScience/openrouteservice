@@ -4,14 +4,14 @@
  *   	 http://www.giscience.uni-hd.de
  *   	 http://www.heigit.org
  *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
+ *  under one or more contributor license agreements. See the NOTICE file
+ *  distributed with this work for additional information regarding copyright
+ *  ownership. The GIScience licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in compliance
  *  with the License. You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -94,7 +94,7 @@ public class ResultTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.statusCode(500)
-				.body("error.code", is(399));
+				.body("error.code", is(IsochronesErrorCodes.UNKNOWN));
 	}
 
 	@Test
@@ -159,7 +159,7 @@ public class ResultTest extends ServiceTest {
 		jTraveller.put("location_type", "start");
 		jTraveller.put("range", new JSONArray().put(300).put(600));
 		jTraveller.put("range_type", "time");
-		
+
 		jTraveller = new JSONObject();
 		jTravellers.put(jTraveller);
 		jTraveller.put("profile", "cycling-regular");
@@ -167,7 +167,7 @@ public class ResultTest extends ServiceTest {
 		jTraveller.put("location_type", "start");
 		jTraveller.put("range", new JSONArray().put(300).put(600));
 		jTraveller.put("range_type", "time");
-		
+
 		json.put("units", "m");
 		json.put("attributes", "area|reachfactor");
 		json.put("intersections", true);
@@ -195,7 +195,7 @@ public class ResultTest extends ServiceTest {
 			.body("features[3].geometry.coordinates[0].size", is(33))
 			.body("features[4].properties.contours.size", is(2))
 			.body("features[5].properties.contours.size", is(2))
-			
+
 			.statusCode(200);
 	}
 }
