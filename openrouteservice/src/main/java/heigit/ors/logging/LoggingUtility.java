@@ -75,7 +75,9 @@ public class LoggingUtility {
 		}
 
 		Properties lprops = new Properties();
-		lprops.load(new FileInputStream(configFile));
+		try (FileInputStream in = new FileInputStream(configFile)) {;
+		  lprops.load(in);
+		}
 		LogManager.resetConfiguration();
 		
 		if (lprops.getProperty("log4j.appender.orslogfile.File") == null)
