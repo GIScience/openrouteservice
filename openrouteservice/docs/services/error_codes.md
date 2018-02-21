@@ -20,65 +20,41 @@ The following sections describes the list of possible internal error codes that 
 ## Geocoding API
 | Error Code   |  Description |
 |----------|-------------|
-| 1000 |  Unable to parse JSON request. |
-| 1001 |  Required parameter is missing. |
-| 1002 |  Invalid parameter format. |
-| 1003 |  Invalid parameter value. |
-| 1004 |  Parameter value exceeds the maximum allowed limit. |
-| 1006 |  Unable to parse the request to the export handler. |
-| 1007 |  Unsupported export format. |
-| 1008 |  Empty Element. |
-| 1099 |  Unknown internal error. |
+| 100 |  Unable to parse JSON request. |
+| 101 |  Required parameter is missing. |
+| 102 |  Invalid parameter format. |
+| 103 |  Invalid parameter value. |
+| 104 |  Parameter value exceeds the maximum allowed limit. |
+| 199 |  Unknown internal error. |
 
 ## Routing API
 | Error Code   |  Description |
 |----------|-------------|
-| 2000 |  Unable to parse JSON request. |
-| 2001 |  Required parameter is missing. |
-| 2002 |  Invalid parameter format. |
-| 2003 |  Invalid parameter value. |
-| 2004 |  Parameter value exceeds the maximum allowed limit. |
-| 2006 |  Unable to parse the request to the export handler. |
-| 2007 |  Unsupported export format. |
-| 2008 |  Empty Element. |
-| 2099 |  Unknown internal error. |
+| 200 |  Unable to parse JSON request. |
+| 201 |  Required parameter is missing. |
+| 202 |  Invalid parameter format. |
+| 203 |  Invalid parameter value. |
+| 204 |  Parameter value exceeds the maximum allowed limit. |
+| 299 |  Unknown internal error. |
+
 
 ## Isochrones API
 | Error Code   |  Description |
 |----------|-------------|
-| 3000 |  Unable to parse JSON request. |
-| 3001 |  Required parameter is missing. |
-| 3002 |  Invalid parameter format. |
-| 3003 |  Invalid parameter value. |
-| 3004 |  Parameter value exceeds the maximum allowed limit. |
-| 3005 |  Requested feature is not supported. |
-| 3006 |  Unable to parse the request to the export handler. |
-| 3007 |  Unsupported export format. |
-| 3008 |  Empty Element. |
-| 3099 |  Unknown internal error. |
+| 300 |  Unable to parse JSON request. |
+| 301 |  Required parameter is missing. |
+| 302 |  Invalid parameter format. |
+| 303 |  Invalid parameter value. |
+| 304 |  Parameter value exceeds the maximum allowed limit. |
+| 305 |  Requested feature is not supported. |
+| 399 |  Unknown internal error. |
 
 ## Locations API
 | Error Code   |  Description |
 |----------|-------------|
-| 4000 |  Unable to parse JSON request. |
-| 4001 |  Required parameter is missing. |
-| 4002 |  Invalid parameter format. |
-| 4003 |  Invalid parameter value. |
-| 4004 |  Parameter value exceeds the maximum allowed limit. |
-| 4006 |  Unable to parse the request to the export handler. |
-| 4007 |  Unsupported export format. |
-| 4008 |  Empty Element. |
-| 4099 |  Unknown internal error. |
-
-## Matrix API
-| Error Code   |  Description |
-|----------|-------------|
-| 6000 |  Unable to parse JSON request. |
-| 6001 |  Required parameter is missing. |
-| 6002 |  Invalid parameter format. |
-| 6003 |  Invalid parameter value. |
-| 6004 |  Parameter value exceeds the maximum allowed limit. |
-| 6006 |  Unable to parse the request to the export handler. |
-| 6007 |  Unsupported export format. |
-| 6008 |  Empty Element. |
-| 6099 |  Unknown internal error. |
+| 400 |  Unable to parse JSON request. |
+| 401 |  Required parameter is missing. |
+| 402 |  Invalid parameter format. |
+| 403 |  Invalid parameter value. |
+| 404 |  Parameter value exceeds the maximum allowed limit. |
+| 499 |  Unknown internal error. |
