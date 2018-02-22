@@ -66,7 +66,7 @@ public class ParamsTest extends ServiceTest {
 				.when()
 				.get(getEndPointName())
 				.then()
-				.body("error.code", is(301))
+				.body("error.code", is(IsochronesErrorCodes.MISSING_PARAMETER))
 				.statusCode(400);
 	}
 
@@ -80,7 +80,7 @@ public class ParamsTest extends ServiceTest {
 				.when()
 				.get(getEndPointName())
 				.then()
-				.body("error.code", is(301))
+				.body("error.code", is(IsochronesErrorCodes.MISSING_PARAMETER))
 				.statusCode(400);
 	}
 
@@ -94,7 +94,7 @@ public class ParamsTest extends ServiceTest {
 				.when()
 				.get(getEndPointName())
 				.then()
-				.body("error.code", is(302))
+				.body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT))
 				.statusCode(400);
 	}
 
@@ -111,7 +111,7 @@ public class ParamsTest extends ServiceTest {
 				.when()
 				.get(getEndPointName())
 				.then()
-				.body("error.code", is(303))
+				.body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
 	}
 
@@ -128,7 +128,7 @@ public class ParamsTest extends ServiceTest {
 				.when()
 				.get(getEndPointName())
 				.then()
-				.body("error.code", is(304))
+				.body("error.code", is(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM))
 				.statusCode(400);
 	}
 
@@ -145,7 +145,7 @@ public class ParamsTest extends ServiceTest {
 				.when()
 				.get(getEndPointName())
 				.then()
-				.body("error.code", is(304))
+				.body("error.code", is(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM))
 				.statusCode(400);
 	}
 
@@ -163,7 +163,7 @@ public class ParamsTest extends ServiceTest {
 				.when()
 				.get(getEndPointName())
 				.then()
-				.body("error.code", is(303))
+				.body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
 	}
 
@@ -290,7 +290,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.statusCode(400)
-				.body("error.code", is(304));
+				.body("error.code", is(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM));
 	}
 
 	@Test
@@ -305,7 +305,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.statusCode(400)
-				.body("error.code", is(304));
+				.body("error.code", is(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM));
 	}
 
 	@Test
@@ -319,7 +319,7 @@ public class ParamsTest extends ServiceTest {
 				.when()
 				.post(getEndPointName())
 				.then()
-				.body("error.code", is(301))
+				.body("error.code", is(IsochronesErrorCodes.MISSING_PARAMETER))
 				.statusCode(400);
 	}
 	
@@ -337,7 +337,7 @@ public class ParamsTest extends ServiceTest {
 			.when()
 			.post(getEndPointName())
 			.then()
-			.body("error.code", is(303))
+			.body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
 			.statusCode(400);
 	}
 	
@@ -356,7 +356,7 @@ public class ParamsTest extends ServiceTest {
 			.when()
 			.post(getEndPointName())
 			.then()
-			.body("error.code", is(302))
+			.body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT))
 			.statusCode(400);
 	}
 	
@@ -376,7 +376,7 @@ public class ParamsTest extends ServiceTest {
 			.when()
 			.post(getEndPointName())
 			.then()
-			.body("error.code", is(303))
+			.body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
 			.statusCode(400);
 	}
 	
@@ -397,7 +397,7 @@ public class ParamsTest extends ServiceTest {
 			.when()
 			.post(getEndPointName())
 			.then()
-			.body("error.code", is(302))
+			.body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT))
 			.statusCode(400);
 	}
 	
@@ -419,7 +419,7 @@ public class ParamsTest extends ServiceTest {
 			.when()
 			.post(getEndPointName())
 			.then()
-			.body("error.code", is(303))
+			.body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
 			.statusCode(400);
 	}
 	
@@ -443,7 +443,7 @@ public class ParamsTest extends ServiceTest {
 			.when()
 			.post(getEndPointName())
 			.then()
-			.body("error.code", is(303))
+			.body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
 			.statusCode(400);
 	}
 
@@ -468,7 +468,7 @@ public class ParamsTest extends ServiceTest {
 			.when()
 			.post(getEndPointName())
 			.then()
-			.body("error.code", is(303))
+			.body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
 			.statusCode(400);
 	}
 
@@ -507,7 +507,7 @@ public class ParamsTest extends ServiceTest {
 				.log()
 				.all()
 				.statusCode(400)
-				.body("error.code", is(303));
+				.body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE));
 	}
 
 }

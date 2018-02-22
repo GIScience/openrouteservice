@@ -46,7 +46,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(603))
+		.body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_VALUE))
 		.statusCode(400);
 	}
 	
@@ -65,7 +65,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.post(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(603))
+		.body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_VALUE))
 		.statusCode(400);
 	}
 
@@ -80,7 +80,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(601))
+		.body("error.code", is(MatrixErrorCodes.MISSING_PARAMETER))
 		.statusCode(400);
 	}
 	
@@ -99,7 +99,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.post(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(601))
+		.body("error.code", is(MatrixErrorCodes.MISSING_PARAMETER))
 		.statusCode(400);
 	}
 	
@@ -114,7 +114,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(601))
+		.body("error.code", is(MatrixErrorCodes.MISSING_PARAMETER))
 		.statusCode(400);
 	}
 	
@@ -132,7 +132,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(601))
+		.body("error.code", is(MatrixErrorCodes.MISSING_PARAMETER))
 		.statusCode(400);
 		
 		jRequest = new JSONObject();
@@ -145,7 +145,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(601))
+		.body("error.code", is(MatrixErrorCodes.MISSING_PARAMETER))
 		.statusCode(400);
 	}
 	
@@ -160,7 +160,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(602))
+		.body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_FORMAT))
 		.statusCode(400);
 	}
 	
@@ -182,7 +182,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.post(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(602))
+		.body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_FORMAT))
 		.statusCode(400);
 	}
 	
@@ -197,7 +197,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(602))
+		.body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_FORMAT))
 		.statusCode(400);
 	}
 	
@@ -222,7 +222,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.post(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(602))
+		.body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_FORMAT))
 		.statusCode(400);
 	}
 	
@@ -237,7 +237,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(602))
+		.body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_FORMAT))
 		.statusCode(400);
 	}
 	
@@ -262,7 +262,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.post(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(602))
+		.body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_FORMAT))
 		.statusCode(400);
 	}
 	
@@ -277,7 +277,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(602))
+		.body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_FORMAT))
 		.statusCode(400);
 	}
 	
@@ -302,7 +302,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.post(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(602))
+		.body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_FORMAT))
 		.statusCode(400);
 	}
 	
@@ -317,7 +317,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(602))
+		.body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_FORMAT))
 		.statusCode(400);
 	}
 
@@ -333,7 +333,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(603))
+		.body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_VALUE))
 		.statusCode(400);
 	}
 
@@ -356,7 +356,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.post(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(603))
+		.body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_VALUE))
 		.statusCode(400);
 	}
 
@@ -372,7 +372,7 @@ public class ParametersValidationTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(602))
+		.body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_FORMAT))
 		.statusCode(400);
 	}
 }
