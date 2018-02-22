@@ -59,3 +59,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Deprecated
 - getStatisticsOld | Connected to the old statistics library (Issue #106)
 - geometryToWKB | Connected to the old statistics library (Issue #106)
+
