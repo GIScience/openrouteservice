@@ -32,9 +32,9 @@ public class IsochronesErrorCodes {
     public static int INVALID_PARAMETER_FORMAT = 3002;
     public static int INVALID_PARAMETER_VALUE = 3003;
     public static int PARAMETER_VALUE_EXCEEDS_MAXIMUM = 3004;
-    public static int FEATURE_NOT_SUPPORTED = 305;
-    public static int EXPORT_HANDLER_ERROR = 2006;
-    public static int UNSUPPORTED_EXPORT_FORMAT = 2007;
-    public static int EMPTY_ELEMENT = 2008;
+    public static int FEATURE_NOT_SUPPORTED = 3005;
+    public static int EXPORT_HANDLER_ERROR = 3006;
+    public static int UNSUPPORTED_EXPORT_FORMAT = 3007;
+    public static int EMPTY_ELEMENT = 3008;
     public static int UNKNOWN = 3099;
 }
