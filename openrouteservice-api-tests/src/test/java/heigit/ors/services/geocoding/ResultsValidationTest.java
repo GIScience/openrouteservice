@@ -160,4 +160,20 @@ public class ResultsValidationTest extends ServiceTest {
 		JSONObject jResponse = new JSONObject(response.body().asString());
 		Assert.assertTrue(jResponse.getJSONArray("features").length() > 1);
 	}
+
+	/**
+	 * Test for making sure that when a location is searched and no address is found, a suitable error response is returned
+	 */
+	@Test
+	public void noAddressFoundTest() {
+		Response response = given()
+				.param("location","3.779297,55.147488")
+				.param("limit","1")
+				.when()
+				.get(getEndPointName());
+
+		Assert.assertEquals(404, response.getStatusCode());
+		JSONObject jResponse = new JSONObject(response.body().asString());
+		Assert.assertTrue(jResponse.getJSONArray("features").length() == 0);
+	}
 }
