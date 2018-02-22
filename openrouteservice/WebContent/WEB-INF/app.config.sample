@@ -110,7 +110,26 @@
 				maximum_locations: 2,
 				# Speficies whether area computation by setting "attributes=area" is allowed or not.
 				allow_compute_area: true,
-				attribution: "openrouteservice.org, OpenStreetMap contributors"
+				# Add your statistics settings here
+				statistics_providers:
+                {
+                    provider1:	{
+                        enabled: true,
+                        provider_name: postgresql,
+                        provider_parameters: {
+                            host: "YOUR_HOST",
+                            port: 5432,
+                            db_name: "YOUR_DATABASE",
+                            user: "YOUR_USER",
+                            password : "YOUR_PASSWORD",
+                            table_name : "YOUR_TABLE",
+                            geometry_column: "YOUR_GEOM_COLUMN"
+                        },
+                        property_mapping: {
+                            "YOUR_MAPPING":"YOUR_MAPPING"
+                        },
+				    attribution: "openrouteservice.org, OpenStreetMap contributors"
+			        }
 			}
 			# ********************************************************************************************************************
 			# Geocoding API end-point parameters

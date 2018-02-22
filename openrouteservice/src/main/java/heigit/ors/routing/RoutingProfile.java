@@ -437,7 +437,7 @@ public class RoutingProfile {
     public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters, String[] attributes) throws Exception {
         // Checkup for pop_total. If the value is set, pop_area must always be set here, if not already done so by the user.
         String[] tempAttributes;
-        if (Arrays.toString(attributes).contains("pop_total".toLowerCase()) && !(Arrays.toString(attributes).contains("pop_area".toLowerCase()))) {
+        if (Arrays.toString(attributes).contains("total_pop".toLowerCase()) && !(Arrays.toString(attributes).contains("total_area_km".toLowerCase()))) {
             tempAttributes = new String[attributes.length + 1];
             int i = 0;
             while (i < attributes.length) {
@@ -445,8 +445,8 @@ public class RoutingProfile {
                 tempAttributes[i] = attribute;
                 i++;
             }
-            tempAttributes[i] = "pop_area";
-        } else if ((Arrays.toString(attributes).contains("pop_area".toLowerCase())) && (!Arrays.toString(attributes).contains("pop_total".toLowerCase()))) {
+            tempAttributes[i] = "total_area_km";
+        } else if ((Arrays.toString(attributes).contains("total_area_km".toLowerCase())) && (!Arrays.toString(attributes).contains("total_pop".toLowerCase()))) {
             tempAttributes = new String[attributes.length + 1];
             int i = 0;
             while (i < attributes.length) {
@@ -454,7 +454,7 @@ public class RoutingProfile {
                 tempAttributes[i] = attribute;
                 i++;
             }
-            tempAttributes[i] = "pop_total";
+            tempAttributes[i] = "total_pop";
         } else {
             tempAttributes = attributes;
         }

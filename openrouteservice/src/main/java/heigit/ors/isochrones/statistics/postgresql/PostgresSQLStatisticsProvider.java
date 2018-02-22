@@ -139,9 +139,9 @@ public class PostgresSQLStatisticsProvider extends AbstractStatisticsProvider {
             for (String property : properties) {
                 String polyGeom = isochrone.getGeometry().toText();
                 switch (property) {
-                    case "area":
-                    case "pop_total":
-                        sql = "SELECT ROUND(ST_Area(poly)/1000000) as area, ROUND(SUM((ST_SummaryStats(ST_Clip(" + _geomColumn + ",poly))).sum)) as pop_total FROM " + _tableName + ", ST_Transform(ST_GeomFromText( '" + polyGeom + "', 4326), 954009) as poly WHERE ST_Intersects(poly," + _geomColumn + ")GROUP BY poly;";
+                    case "total_area_km":
+                    case "total_pop":
+                        sql = "SELECT ST_Area(poly) / 1000000 AS total_area_km, ROUND(SUM((ST_SummaryStats(ST_Clip(" + _geomColumn + ", poly))).sum)) AS total_pop FROM " + _tableName + ", ST_Simplify(ST_Transform(ST_GeomFromText('" + polyGeom + "', 4326), 954009), 125) AS poly WHERE ST_Intersects(poly, " + _geomColumn + ") GROUP BY poly;";
                         break;
                     default:
                         break;
