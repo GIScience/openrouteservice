@@ -74,13 +74,7 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
         JSONObject json = null;
         JSONObject geojson = null;
         String gpx;
-        String respFormat;
-        // Try to access the format parameter. Format is crucial for the output hence if it is not set or it is malformed, an ParameterValueException is raised.
-        try {
-            respFormat = _request.getParameter("format").toLowerCase();
-        } catch (Exception e) {
-            throw new ParameterValueException(2003, "format");
-        }
+        String respFormat = _request.getParameter("format");
         String geometryFormat = rreq.getGeometryFormat();
 
         if (Helper.isEmpty(respFormat) || "json".equalsIgnoreCase(respFormat)) {
