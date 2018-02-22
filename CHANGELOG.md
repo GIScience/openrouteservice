@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Fix exception when roundabout exit is not correctly found (Issue #89)
 - Option to specify maximum locations for matrix request when using non-standard weightings (Issue #94)
+- Geocoder now returns a 404 response if no address is found for reverse geocoding (Issue #113)
+- Fixed error codes (Issue #109)
 - Correct querying of population statistics data for isochrones (Issue #106)
 ## [4.4.2] - 2018-01-31
 ### Added
