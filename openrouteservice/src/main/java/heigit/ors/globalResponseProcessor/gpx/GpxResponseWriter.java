@@ -169,7 +169,6 @@ public class GpxResponseWriter {
         metadata.setBounds(bounds);
         PersonType orsPerson = new PersonType();
         EmailType orsMail = new EmailType();
-        // set support_mail TODO change in try catch finally!!!
         if (AppConfig.Global().getParameter("info", "support_mail") != null) {
             try {
                 String[] mail = AppConfig.Global().getParameter("info", "support_mail").split("@");
