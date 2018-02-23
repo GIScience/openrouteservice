@@ -25,7 +25,7 @@ import heigit.ors.routing.RoutingRequest;
 public class MapMatchingRequest extends RoutingRequest
 {
 	private double _accuracy = 50;
-	
+
 	public MapMatchingRequest()
 	{
 		getSearchParameters().setFlexibleMode(true);
@@ -37,5 +37,9 @@ public class MapMatchingRequest extends RoutingRequest
 
 	public void setAccuracy(double accuracy) {
 		_accuracy = accuracy;
+	}
+
+	public boolean isValid() {
+		return !(this.getId() == null && this.getCoordinates() == null);
 	}
 }

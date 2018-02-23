@@ -22,6 +22,8 @@ package heigit.ors.services.routing.requestprocessors.json;
 
 
 import java.util.List;
+
+import heigit.ors.exceptions.StatusCodeException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -51,8 +53,7 @@ import heigit.ors.util.PolylineEncoder;
 
 public class JsonRoutingResponseWriter {
 
-	public static JSONObject toJson(RoutingRequest request, RouteResult[] routeResult) throws Exception
-	{
+	public static JSONObject toJson(RoutingRequest request, RouteResult[] routeResult) throws StatusCodeException {
 		JSONObject jResp = new JSONObject(true, 1);
 		BBox bbox = new BBox(0, 0, 0, 0);
 		JSONArray jRoutes = toJsonArray(request, routeResult, bbox);
@@ -116,14 +117,7 @@ public class JsonRoutingResponseWriter {
 		return jResp;
 	}
 
-
-	public static JSONObject toGeoJson(RoutingRequest request, RouteResult[] routeResult) throws Exception
-	{
-		return null;
-	}
-
-	public static JSONArray toJsonArray(RoutingRequest request, RouteResult[] routeResult, BBox bbox) throws Exception
-	{
+	public static JSONArray toJsonArray(RoutingRequest request, RouteResult[] routeResult, BBox bbox) throws StatusCodeException {
 		StringBuffer buffer = new StringBuffer();
 		// *************** routes ***************
 
