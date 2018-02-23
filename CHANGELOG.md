@@ -14,8 +14,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed error codes (Issue #109)
 - Correct querying of population statistics data for isochrones (Issue #106)
 
-## Changed
+### Changed
 - RoutingProfile was changed to make sure whenever pop_total or pop_area is queried, both are present in the attributes (Issue #106)
+
+### Deprecated
+- getStatisticsOld | Connected to the old statistics library (Issue #106)
+- geometryToWKB | Connected to the old statistics library (Issue #106)
 
 ## [4.4.2] - 2018-01-31
 ### Added
@@ -63,6 +67,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - 
 
 ### Deprecated
-- getStatisticsOld | Connected to the old statistics library (Issue #106)
-- geometryToWKB | Connected to the old statistics library (Issue #106)
+- 
 
