@@ -21,6 +21,7 @@
 package heigit.ors.util;
 
 import heigit.ors.common.DistanceUnit;
+import heigit.ors.exceptions.StatusCodeException;
 
 public class DistanceUnitUtil
 {
@@ -63,8 +64,7 @@ public class DistanceUnitUtil
 	}
 
 
-	public static double convert(double value, DistanceUnit unitsFrom, DistanceUnit unitsTo) throws Exception
-	{
+	public static double convert(double value, DistanceUnit unitsFrom, DistanceUnit unitsTo) throws StatusCodeException {
 		if (unitsFrom == DistanceUnit.Meters)
 		{
 			switch(unitsTo)
@@ -81,6 +81,6 @@ public class DistanceUnitUtil
 			return value;
 		}
 		else
-			throw new Exception("Not implemented");
+			throw new StatusCodeException(501, "Conversion not implemented.");
 	}
 }

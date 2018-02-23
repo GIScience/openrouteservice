@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import heigit.ors.common.DistanceUnit;
+import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
 
@@ -62,8 +63,7 @@ public class RouteExtraInfo
 		return _segments;
 	}
 	
-	public List<ExtraSummaryItem> getSummary(DistanceUnit units, double routeDistance, boolean sort) throws Exception
-	{
+	public List<ExtraSummaryItem> getSummary(DistanceUnit units, double routeDistance, boolean sort) throws StatusCodeException {
 		List<ExtraSummaryItem> summary = new ArrayList<ExtraSummaryItem>();
 		
 		if (_segments.size() > 0)

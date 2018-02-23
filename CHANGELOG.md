@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- Added GeoJson export for routing exports (Issue #54)
+- Added global export class to combine all exports there (Issue #123)
 
 ### Fixed
 - Fix exception when roundabout exit is not correctly found (Issue #89)
@@ -53,7 +55,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Consider turn restrictions if optimized=false is passed.
 
 ### Changed
-- 
+- Changed the gpx export to the new global export processor (Issue #123)
 
 ### Removed
 - 
