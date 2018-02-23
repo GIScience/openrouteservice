@@ -191,7 +191,7 @@ public class JsonMapMatchingResponseWriter {
 						}
 
 						if (attrDetourFactor)
-							jSegment.put("detour_factor", seg.getDetourFactor());
+							jSegment.put("detourfactor", seg.getDetourFactor());
 						if (attrPercentage)
 							jSegment.put("percentage", FormatUtility.roundToDecimals(seg.getDistance() * 100 / route.getSummary().getDistance(), 2));
 						if (attrAvgSpeed)
