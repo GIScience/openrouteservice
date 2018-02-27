@@ -296,7 +296,14 @@
                                 				HeavyVehicle: {
 									restrictions: true
                                 				},								
-								WaySurfaceType: { }
+								WaySurfaceType: { },
+								# Borders allows the restriction of routes to not cross country borders
+								#
+								# Borders {
+								#   boundaries: "...",  - The path to a file containing geojson data representing the borders of countries
+                                #   ids: "...",         - Path to a csv file containing a unique id for each country, its local name and its english name
+                                #   openborders: "..."  - Path to a csv file contianing pairs of countries where the borders are open (i.e. Schengen borders)
+								# }
 							}
 							# Traffic feature is not ready for production.
 							traffic: false
