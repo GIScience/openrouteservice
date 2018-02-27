@@ -27,15 +27,16 @@ import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
+import com.vividsolutions.jts.geom.*;
 import heigit.ors.routing.RoutingProfile;
+import heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
+import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.logging.Logger;
+
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -49,6 +50,9 @@ public class ORSOSMReader extends OSMReader {
 	private RoutingProfile refProfile;
 	private boolean enrichInstructions;
 	private OSMDataReaderContext _readerCntx;
+	private GeometryFactory gf = new GeometryFactory();
+
+	private boolean processGeom = false;
 
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
 			"primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential" };
@@ -64,12 +68,20 @@ public class ORSOSMReader extends OSMReader {
 		this.tmcEdges = tmcEdges;
 		this.osmId2EdgeIds = osmId2EdgeIds;
 		this.refProfile = refProfile;
-		
+
 		enrichInstructions = (refProfile != null) && (storage.getEncodingManager().supports("foot")
 				|| storage.getEncodingManager().supports("bike")  
 				|| storage.getEncodingManager().supports("MTB")
 				|| storage.getEncodingManager().supports("RACINGBIKE")
 				|| storage.getEncodingManager().supports("SAFETYBIKE"));
+
+		// Look if we should do border processing - if so then we have to process the geometry
+		for(GraphStorageBuilder b : this._procCntx.getStorageBuilders()) {
+			if ( b instanceof BordersGraphStorageBuilder) {
+				this.processGeom = true;
+			}
+		}
+
 	}
 
 	@Override
@@ -81,11 +93,99 @@ public class ORSOSMReader extends OSMReader {
 		return super.isInBounds(node);
 	}
 
+	/**
+	 * Method to be run against each way obtained from the data. If one of the storage builders needs geometry
+	 * determined in the constructor then we need to get the geometry as well as the tags.
+	 *
+	 * @param way		The way object read from the OSM data (not including geometry)
+	 */
 	@Override
 	public void onProcessWay(ReaderWay way) {
-		_procCntx.processWay(way);
+		if(processGeom) {
+			// We need to pass the geometry of the way aswell as the ReaderWay object
+			// This is slower so should only be done when needed
+
+			// First we need to generate the geometry
+			LongArrayList osmNodeIds = way.getNodes();
+
+			ArrayList<Coordinate> coords = new ArrayList<>();
+
+			if(osmNodeIds.size() > 1) {
+				for (int i=0; i<osmNodeIds.size(); i++) {
+					int id = getNodeMap().get(osmNodeIds.get(i));
+					try {
+						double lat = getLatitudeOfNode(id);
+						double lon = getLongitudeOfNode(id);
+						// Add the point to the line
+						// Check that we have a tower node
+						if(!(lat == 0 || lon == 0 || Double.isNaN(lat) || Double.isNaN(lon)))
+						if (lat != 0 || lon != 0)
+							coords.add(new Coordinate(lon, lat));
+					} catch (Exception e) {
+						LOGGER.error("Could not process node " + osmNodeIds.get(i) );
+					}
+				}
+
+				// Only process valid ways (with more than 1 valid node)
+                if(coords.size() > 1) {
+                    //LineString ls = gf.createLineString(coords.toArray(new Coordinate[coords.size()]));
+
+                    _procCntx.processWay(way, coords.toArray(new Coordinate[coords.size()]));
+                }
+			}
+
+		} else {
+			_procCntx.processWay(way);
+		}
 	}
 
+	/* The following two methods are not ideal, but due to a preprocessing stage of GH they are required if you want
+	 * the geometry of the whole way. */
+
+	/**
+	 * Find the latitude of the node with the given ID. It checks to see what type of node it is and then finds the
+	 * latitude from the correct storage location.
+	 *
+	 * @param id		Internal ID of the OSM node
+	 * @return
+	 */
+	private double getLatitudeOfNode(int id) {
+		// for speed, we only want to handle the geometry of tower nodes (those at junctions)
+		if (id == EMPTY_NODE)
+			return Double.NaN;
+		if (id < TOWER_NODE) {
+			// tower node
+			id = -id - 3;
+			return nodeAccess.getLatitude(id);
+		} else if (id > -TOWER_NODE) {
+			// pillar node
+			return Double.NaN;
+		} else
+			// e.g. if id is not handled from preparse (e.g. was ignored via isInBounds)
+			return Double.NaN;
+	}
+
+	/**
+	 * Find the longitude of the node with the given ID. It checks to see what type of node it is and then finds the
+	 * longitude from the correct storage location.
+	 *
+	 * @param id		Internal ID of the OSM node
+	 * @return
+	 */
+	private double getLongitudeOfNode(int id) {
+		if (id == EMPTY_NODE)
+			return Double.NaN;
+		if (id < TOWER_NODE) {
+			// tower node
+			id = -id - 3;
+			return nodeAccess.getLongitude(id);
+		} else if (id > -TOWER_NODE) {
+			// pillar node
+			return Double.NaN;
+		} else
+			// e.g. if id is not handled from preparse (e.g. was ignored via isInBounds)
+			return Double.NaN;
+	}
 
 	/**
 	 * Applies tags of nodes that lie on a way onto the way itself so that they are
@@ -95,8 +195,6 @@ public class ORSOSMReader extends OSMReader {
 	 * @param  map  a map that projects node ids onto a property map
 	 * @param  way	the way to process
 	 */
-
-
 	@Override
 	public void applyNodeTagsToWay(HashMap<Long, Map<String, Object>> map, ReaderWay way){
 		LongArrayList osmNodeIds = way.getNodes();
@@ -175,7 +273,7 @@ public class ORSOSMReader extends OSMReader {
 		
 			_procCntx.processEdge(way, edge);
 		} catch (Exception ex) {
-			LOGGER.warning(ex.getMessage() + ". Way id = " + way.getId());
+			LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
 		}
 	}
 	
@@ -187,7 +285,7 @@ public class ORSOSMReader extends OSMReader {
 			return _procCntx.createEdges(_readerCntx, way, osmNodeIds, wayFlags, createdEdges);
 		}
 		catch (Exception ex) {
-			LOGGER.warning(ex.getMessage() + ". Way id = " + way.getId());
+			LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
 		}
 		
 		return false;
@@ -201,4 +299,6 @@ public class ORSOSMReader extends OSMReader {
 		
 		_procCntx.finish();
 	}
+
+
 }

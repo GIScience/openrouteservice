@@ -204,7 +204,11 @@
                                 HeavyVehicle: { restrictions: true },								
 								WaySurfaceType: { },
 								Tollways: { },
-								Borders: { filepath: "openrouteservice-api-tests/data/border_crossings_hd.csv" }
+								Borders: {
+                                    boundaries: "openrouteservice-api-tests/data/borders/borders.geojson",
+                                    ids: "openrouteservice-api-tests/data/borders/ids.csv",
+                                    openborders: "openrouteservice-api-tests/data/borders/openborders.csv"
+                                }
 						    }
 						    traffic: false
 					    }

@@ -8,6 +8,28 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Option to specify maximum locations for matrix request when using non-standard weightings (Issue #94)
 
+## [4.5] - 2018-02-27
+### Added
+- Functionality has been added to restrict routes so that they do not cross all borders, controlled borders, or the borders of specific countries (Issue #41)
+- Added GeoJson export for routing exports (Issue #54)
+- Added global export class to combine all exports there (Issue #123)
+
+### Fixed
+- Fix exception when roundabout exit is not correctly found (Issue #89)
+- Option to specify maximum locations for matrix request when using non-standard weightings (Issue #94)
+- Geocoder now returns a 404 response if no address is found for reverse geocoding (Issue #113)
+- Fixed error codes (Issue #109)
+- Correct querying of population statistics data for isochrones (Issue #106)
+
+### Changed
+- RoutingProfile was changed to make sure whenever pop_total or pop_area is queried, both are present in the attributes (Issue #106)
+- Response with a detour factor now uses "detourfactor" rather than "detour_factor" (Issue #61)
+- Changed the gpx export to the new global export processor (Issue #123)
+
+### Deprecated
+- getStatisticsOld | Connected to the old statistics library (Issue #106)
+- geometryToWKB | Connected to the old statistics library (Issue #106)
+
 ## [4.4.2] - 2018-01-31
 ### Added
 - Ability to get routes in GPX format (Issue #8)
@@ -54,4 +76,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - 
 
 ### Deprecated
--
+- 
+
