@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - RoutingProfile was changed to make sure whenever pop_total or pop_area is queried, both are present in the attributes (Issue #106)
 - Response with a detour factor now uses "detourfactor" rather than "detour_factor" (Issue #61)
+- Changed the gpx export to the new global export processor (Issue #123)
 
 ### Deprecated
 - getStatisticsOld | Connected to the old statistics library (Issue #106)
@@ -67,7 +68,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Consider turn restrictions if optimized=false is passed.
 
 ### Changed
-- Changed the gpx export to the new global export processor (Issue #123)
+- 
 
 ### Removed
 - 
