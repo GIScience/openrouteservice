@@ -786,4 +786,21 @@ public class ResultTest extends ServiceTest {
 				.body("error.code", is(2099))
 				.statusCode(500);
 	}
+
+	@Test
+	public void testDetourFactor() {
+		// Test that a detourfactor is returned when requested
+		given()
+				.param("coordinates",getParameter("coordinatesShort"))
+				.param("preference",getParameter("preference"))
+				.param("profile", getParameter("carProfile"))
+				.param("attributes", "detourfactor")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].segments[0].detourfactor", is(1.62f))
+				.statusCode(200);
+	}
 }
