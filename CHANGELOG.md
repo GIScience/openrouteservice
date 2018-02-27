@@ -6,13 +6,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- Option to specify maximum locations for matrix request when using non-standard weightings (Issue #94)
+- 
+
+### Fixed
+- 
+
+### Changed
+-
+
+### Depricated
+- 
 
 ## [4.5] - 2018-02-27
 ### Added
 - Functionality has been added to restrict routes so that they do not cross all borders, controlled borders, or the borders of specific countries (Issue #41)
 - Added GeoJson export for routing exports (Issue #54)
 - Added global export class to combine all exports there (Issue #123)
+- Option to specify maximum locations for matrix request when using non-standard weightings (Issue #94)
 
 ### Fixed
 - Fix exception when roundabout exit is not correctly found (Issue #89)
