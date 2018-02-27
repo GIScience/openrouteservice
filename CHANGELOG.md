@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - 
 
 ### Fixed
-- 
+- Fixed the parameters being the wrong way around in isochrones request when maximum range has been exceeded (Issue #126)
 
 ### Changed
 -
