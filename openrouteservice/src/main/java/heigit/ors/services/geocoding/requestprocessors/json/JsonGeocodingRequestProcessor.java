@@ -397,6 +397,11 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 
 		resp.put("info", info);
 
-		ServletUtility.write(response, resp);
+		// Check if there were problems
+		if(nResults == 0) {
+			ServletUtility.write(response, resp, HttpServletResponse.SC_NOT_FOUND);
+		} else {
+			ServletUtility.write(response, resp);
+		}
 	}
 }

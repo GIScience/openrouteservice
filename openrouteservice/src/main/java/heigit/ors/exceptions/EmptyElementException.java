@@ -24,7 +24,7 @@ import heigit.ors.common.StatusCode;
 
 public class EmptyElementException extends StatusCodeException
 {
-	private static final long serialVersionUID = -2004840251219099113L; // Whats the purpose?
+	private static final long serialVersionUID = -2004840251219099113L;
 
 	public EmptyElementException(int errorCode, String message)
 	{

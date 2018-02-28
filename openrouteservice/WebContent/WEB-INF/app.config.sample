@@ -50,6 +50,9 @@
 				# Maximum dimension of the result matrix. In other words, the maximum possible length of a row or a column in the matrix.
 				# Default value is 100.
                                 maximum_locations: 100,
+                # Maximum dimension of the result matrix when using custom profiles that do not support Contraction Hierarchies. Usually everything
+                # that is not pure car or hgv profile. Default value is 25.
+                                maximum_locations_flexible: 25,
 				# Maximum allowed distance between the requested coordinate and a point on the nearest road. The value is measured in meters.
                                 maximum_search_radius: 5000,
 				# Maximum allowed number of visited nodes in shortest path computation. This threshold is applied only for Dijkstra algorithm. 
@@ -107,7 +110,27 @@
 				maximum_locations: 2,
 				# Speficies whether area computation by setting "attributes=area" is allowed or not.
 				allow_compute_area: true,
-				attribution: "openrouteservice.org, OpenStreetMap contributors"
+				# Add your statistics settings here
+				statistics_providers:
+                {
+                    provider1:	{
+                        enabled: true,
+                        provider_name: postgresql,
+                        provider_parameters: {
+                            host: "YOUR_HOST",
+                            port: 5432,
+                            db_name: "YOUR_DATABASE",
+                            user: "YOUR_USER",
+                            password : "YOUR_PASSWORD",
+                            table_name : "YOUR_TABLE",
+                            geometry_column: "YOUR_GEOM_COLUMN"
+                        },
+                        # The mapping is hardcoded at the moment. See the PostgresSQLStatisticsProvider.class and RoutingProfile.class to adapt to your needs.
+                        property_mapping: {
+                            "total_pop":"total_pop", "total_area_km":"total_area_km", "YOUR_MAPPING":"YOUR_MAPPING"
+                        },
+				    attribution: "openrouteservice.org, OpenStreetMap contributors"
+			        }
 			}
 			# ********************************************************************************************************************
 			# Geocoding API end-point parameters
@@ -273,7 +296,14 @@
                                 				HeavyVehicle: {
 									restrictions: true
                                 				},								
-								WaySurfaceType: { }
+								WaySurfaceType: { },
+								# Borders allows the restriction of routes to not cross country borders
+								#
+								# Borders {
+								#   boundaries: "...",  - The path to a file containing geojson data representing the borders of countries
+                                #   ids: "...",         - Path to a csv file containing a unique id for each country, its local name and its english name
+                                #   openborders: "..."  - Path to a csv file contianing pairs of countries where the borders are open (i.e. Schengen borders)
+								# }
 							}
 							# Traffic feature is not ready for production.
 							traffic: false
