@@ -633,6 +633,11 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
         		encoded |= directionBitMask;
         	}
         }
+
+        if(node.hasTag("kerb")) {
+            // We do not know if the kerb is a barrier as this is defined by the user
+            encoded |= directionBitMask;
+        }
       
         /*
         // https://github.com/species/osrm-wheelchair-profiles/blob/master/wheelchair-normal.lua
@@ -681,19 +686,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
     }
     
     
-    /**
-     * Checks whether the value encoded by <code>flags</code> and <code>encoderName</code> <= <code>value</code> 
-     * 
-     * @param flags
-     * @param encoderName
-     * @param restriction a restriction value to be checked
-     * @return <code>true</code> if <code>value</code> >= encoded value, <code>false</code> otherwise
-     */
-    /*
-    public boolean checkRestriction(long flags, String encoderName, int restriction) throws IllegalArgumentException {
-    	return getValueEncoder(encoderName).getValue(flags) <= restriction;
-    }
-    */
+
     
     
     @Override

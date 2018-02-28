@@ -48,6 +48,7 @@ public class ORSOSMReader extends OSMReader {
 	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds;
 	private RoutingProfile refProfile;
 	private boolean enrichInstructions;
+	private boolean processNodeTags;
 	private OSMDataReaderContext _readerCntx;
 
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
@@ -70,6 +71,8 @@ public class ORSOSMReader extends OSMReader {
 				|| storage.getEncodingManager().supports("MTB")
 				|| storage.getEncodingManager().supports("RACINGBIKE")
 				|| storage.getEncodingManager().supports("SAFETYBIKE"));
+
+		this.processNodeTags = (storage.getEncodingManager().supports("wheelchair"));
 	}
 
 	@Override
@@ -83,6 +86,19 @@ public class ORSOSMReader extends OSMReader {
 
 	@Override
 	public void onProcessWay(ReaderWay way) {
+
+		// Pass through any nodes and their tags for processing
+		if(processNodeTags) {
+			LongArrayList osmNodeIds = way.getNodes();
+			int size = osmNodeIds.size();
+			HashMap<Long, HashMap<String, String>> nodeTags = new HashMap<>();
+			for(int i=0; i<size; i++) {
+
+				// find the node
+
+			}
+		}
+
 		_procCntx.processWay(way);
 	}
 

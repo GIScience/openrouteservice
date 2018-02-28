@@ -21,6 +21,7 @@
 package heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.GraphHopper;
+import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.FlagEncoder;
