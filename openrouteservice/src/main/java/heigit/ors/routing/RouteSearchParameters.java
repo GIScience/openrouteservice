@@ -364,8 +364,8 @@ public class RouteSearchParameters {
                 if (jRestrictions.has("smoothness_type"))
                     wheelchairParams.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(jRestrictions.getString("smoothness_type")));
 
-                if (jRestrictions.has("maximum_sloped_curb"))
-                    wheelchairParams.setMaximumSlopedCurb((float) jRestrictions.getDouble("maximum_sloped_curb"));
+                if (jRestrictions.has("maximum_sloped_kerb"))
+                    wheelchairParams.setMaximumSlopedKerb((float) jRestrictions.getDouble("maximum_sloped_kerb"));
 
                 if (jRestrictions.has("maximum_incline"))
                     wheelchairParams.setMaximumIncline((float) jRestrictions.getDouble("maximum_incline"));

@@ -221,6 +221,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
         accessibilityRelatedAttributes.add("tracktype");
         accessibilityRelatedAttributes.add("incline");
         accessibilityRelatedAttributes.add("sloped_curb");
+        accessibilityRelatedAttributes.add("sloped_kerb");
 
         // prefer international, national, regional or local hiking routes
         hikingNetworkToCode.put("iwn", BEST.getValue());

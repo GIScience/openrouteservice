@@ -52,7 +52,7 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 	private EncodedValue _surfaceEncoder;
 	private EncodedValue _smoothnessEncoder;
 	private EncodedValue _trackTypeEncoder;
-	private EncodedDoubleValue _curbHeightEncoder;
+	private EncodedDoubleValue _kerbHeightEncoder;
 	private EncodedDoubleValue _inclineEncoder;
 	private EncodedDoubleValue _widthEncoder;
 	
@@ -75,8 +75,8 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 		shift += _trackTypeEncoder.getBits();
 		_inclineEncoder = new EncodedDoubleValue("incline", shift, 6, 0.5, 0, INCLINE_MAX_VALUE);
 		shift += _inclineEncoder.getBits();
-		_curbHeightEncoder = new EncodedDoubleValue("curbHeight", shift, 4, 1, 0, KERB_MAX_VALUE);
-		shift += _curbHeightEncoder.getBits();
+		_kerbHeightEncoder = new EncodedDoubleValue("kerbHeight", shift, 4, 1, 0, KERB_MAX_VALUE);
+		shift += _kerbHeightEncoder.getBits();
 		_widthEncoder = new EncodedDoubleValue("width", shift,5,0.1,0, WIDTH_MAX_VALUE);
 	}
 
@@ -142,7 +142,7 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 	private void encodeAttributes(WheelchairAttributes attrs, byte[] buffer)
 	{
 		/*
-		 *       | flag  | surface | smoothness | tracktype | curbHeight | incline | width  |
+		 *       | flag  | surface | smoothness | tracktype | kerbHeight | incline | width  |
 		 * lsb-> | 1 bit | 5 bits  |  4 bits    | 3 bits    | 6 bits     | 4 bits  | 6 bits | 29 bits in total which can fit into 4 bytes
 		 * 	
 		 * 
@@ -164,8 +164,8 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 
 			encodedValue = _inclineEncoder.setDoubleValue(encodedValue, 15 + attrs.getIncline());
 
-			if (attrs.getSlopedCurbHeight() > 0.0)
-				encodedValue = _curbHeightEncoder.setDoubleValue(encodedValue, attrs.getSlopedCurbHeight()*100);
+			if (attrs.getSlopedKerbHeight() > 0.0)
+				encodedValue = _kerbHeightEncoder.setDoubleValue(encodedValue, attrs.getSlopedKerbHeight()*100);
 
 			if (attrs.getWidth() > 0.0)
 				encodedValue = _widthEncoder.setDoubleValue(encodedValue, attrs.getWidth());
@@ -217,9 +217,9 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 			if (dValue != 0.0)
 				attrs.setIncline((float) (dValue));
 
-			dValue = _curbHeightEncoder.getDoubleValue(encodedValue);
+			dValue = _kerbHeightEncoder.getDoubleValue(encodedValue);
 			if (dValue != 0.0)
-				attrs.setSlopedCurbHeight((float) (dValue / 100.0));
+				attrs.setSlopedKerbHeight((float) (dValue / 100.0));
 
 			dValue = _widthEncoder.getDoubleValue(encodedValue);
 			if (dValue != 0.0)

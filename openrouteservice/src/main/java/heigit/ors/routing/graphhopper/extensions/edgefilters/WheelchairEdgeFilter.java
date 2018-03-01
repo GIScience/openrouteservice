@@ -94,9 +94,9 @@ public class WheelchairEdgeFilter implements EdgeFilter
 						return false;
 				}
 
-				if (_params.getMaximumSlopedCurb() > 0.0)
+				if (_params.getMaximumSlopedKerb() > 0.0)
 				{
-					if (_params.getMaximumSlopedCurb() < _attributes.getSlopedCurbHeight())
+					if (_params.getMaximumSlopedKerb() < _attributes.getSlopedKerbHeight())
 						return false;
 				}
 

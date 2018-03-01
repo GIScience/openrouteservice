@@ -251,13 +251,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 
 		// kerb height is only valid on separated ways
 		if(way.hasTag("curb"))
-			_wheelchairAttributes.setSlopedCurbHeight((float)convertKerb("curb", way.getTag("curb")));
+			_wheelchairAttributes.setSlopedKerbHeight((float)convertKerb("curb", way.getTag("curb")));
 		if(way.hasTag("kerb"))
-			_wheelchairAttributes.setSlopedCurbHeight((float)convertKerb("kerb", way.getTag("kerb")));
+			_wheelchairAttributes.setSlopedKerbHeight((float)convertKerb("kerb", way.getTag("kerb")));
 		if(way.hasTag("sloped_curb"))
-			_wheelchairAttributes.setSlopedCurbHeight((float)convertKerb("sloped_curb", way.getTag("sloped_curb")));
+			_wheelchairAttributes.setSlopedKerbHeight((float)convertKerb("sloped_curb", way.getTag("sloped_curb")));
 		if(way.hasTag("kerb:height"))
-			_wheelchairAttributes.setSlopedCurbHeight((float)convertKerb("kerb:height", way.getTag("kerb:height")));
+			_wheelchairAttributes.setSlopedKerbHeight((float)convertKerb("kerb:height", way.getTag("kerb:height")));
 
 		// incline
 		// =======
@@ -283,8 +283,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 				return type.cast(Math.max(Math.max(_wheelchairAttributesLeft.getSmoothnessType(), _wheelchairAttributesRight.getSmoothnessType()),
 						_wheelchairAttributes.getSmoothnessType()));
 			case "slopedKerb":
-				return type.cast(Math.max(Math.max(_wheelchairAttributesLeft.getSlopedCurbHeight(), _wheelchairAttributesRight.getSlopedCurbHeight()),
-						_wheelchairAttributes.getSlopedCurbHeight()));
+				return type.cast(Math.max(Math.max(_wheelchairAttributesLeft.getSlopedKerbHeight(), _wheelchairAttributesRight.getSlopedKerbHeight()),
+						_wheelchairAttributes.getSlopedKerbHeight()));
 			case "width":
 				// default value is 0, but this will always be returned so we need to do a check
 				float l = _wheelchairAttributesLeft.getWidth(),
@@ -340,7 +340,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 					case "kerb":
 					case "sloped_kerb":
 					case "kerb:height":
-						at.setSlopedCurbHeight((float)convertKerb(tag, tags.get(tag)));
+						at.setSlopedKerbHeight((float)convertKerb(tag, tags.get(tag)));
 						hasKerb = true;
 						break;
 				}
@@ -365,7 +365,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 			if (sm > 0) at.setSmoothnessType(sm);
 
 			float sl = getWorse("slopedKerb", Float.class);
-			if (sl > 0) at.setSlopedCurbHeight(sl);
+			if (sl > 0) at.setSlopedKerbHeight(sl);
 
 			float wi = getWorse("width", Float.class);
 			if (wi > 0) at.setWidth(wi);
@@ -415,7 +415,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		return height;
 	}
 
-	private double getCurbHeight(ReaderWay way) {
+	private double getKerbHeight(ReaderWay way) {
 		// http://taginfo.openstreetmap.org/keys/kerb#overview: 80% nodes, 20% ways
 		// http://taginfo.openstreetmap.org/keys/kerb#values
 		double res = 0d;
