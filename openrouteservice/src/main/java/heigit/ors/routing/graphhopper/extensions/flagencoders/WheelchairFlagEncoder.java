@@ -55,6 +55,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
     
     private EncodedValue priorityWayEncoder;
     private EncodedValue relationCodeEncoder;
+
     private final Set<String> usableSidewalkValues = new HashSet<String>();
     private final Set<String> noSidewalkValues = new HashSet<String>();
     // convert network tag of hiking routes into a way route code
@@ -246,6 +247,14 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
 
         priorityWayEncoder = new EncodedValue("PreferWay", shift, 3, 1, 0, 7);
         shift += priorityWayEncoder.getBits();
+
+        return shift;
+    }
+
+    @Override
+    public int defineNodeBits(int index, int shift) {
+        shift = super.defineNodeBits(index, shift);
+
         return shift;
     }
     
@@ -582,7 +591,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
     public long handleNodeTags(ReaderNode node)
     {
     	long encoded = 0;
-    	
+
         // absolute barriers always block
         if (node.hasTag("barrier", absoluteBarriers)) {
         	// barrier is not passable

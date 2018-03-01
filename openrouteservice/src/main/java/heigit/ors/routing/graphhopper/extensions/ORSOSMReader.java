@@ -54,6 +54,8 @@ public class ORSOSMReader extends OSMReader {
 	private OSMDataReaderContext _readerCntx;
 	private GeometryFactory gf = new GeometryFactory();
 
+	private HashMap<Long, HashMap<String, String>> nodeTags = new HashMap<>();
+
 	private boolean processGeom = false;
 
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
@@ -98,6 +100,25 @@ public class ORSOSMReader extends OSMReader {
 		return super.isInBounds(node);
 	}
 
+	@Override
+	public ReaderNode onProcessNode(ReaderNode node) {
+		if(processNodeTags) {
+			if(!nodeTags.containsKey(node.getId()) && node.hasTags()) {
+				nodeTags.put(node.getId(), new HashMap<>());
+			}
+
+			Map<String, Object> srcTags = node.getTags();
+			HashMap<String, String> tags = nodeTags.get(node.getId());
+
+			for(String key : srcTags.keySet()) {
+				if(!tags.containsKey(key)) {
+					tags.put(key, srcTags.get(key).toString());
+				}
+			}
+		}
+		return node;
+	}
+
 	/**
 	 * Method to be run against each way obtained from the data. If one of the storage builders needs geometry
 	 * determined in the constructor then we need to get the geometry as well as the tags.
@@ -107,14 +128,20 @@ public class ORSOSMReader extends OSMReader {
 	@Override
 	public void onProcessWay(ReaderWay way) {
 		// Pass through any nodes and their tags for processing
+		HashMap<Integer, HashMap<String,String>> tags = new HashMap<>();
+		ArrayList<Coordinate> coords = new ArrayList<>();
+
 		if(processNodeTags) {
 			LongArrayList osmNodeIds = way.getNodes();
 			int size = osmNodeIds.size();
-			HashMap<Long, HashMap<String, String>> nodeTags = new HashMap<>();
+
 			for(int i=0; i<size; i++) {
-
 				// find the node
+				long id = osmNodeIds.get(i);
+				// replace the osm id with the internal id
+				int internalId = getInternalNodeIdOfOsmNode(id);
 
+				tags.put(internalId, nodeTags.get(id));
 			}
 		}
 
@@ -124,8 +151,6 @@ public class ORSOSMReader extends OSMReader {
 
 			// First we need to generate the geometry
 			LongArrayList osmNodeIds = way.getNodes();
-
-			ArrayList<Coordinate> coords = new ArrayList<>();
 
 			if(osmNodeIds.size() > 1) {
 				for (int i=0; i<osmNodeIds.size(); i++) {
@@ -142,15 +167,11 @@ public class ORSOSMReader extends OSMReader {
 						LOGGER.error("Could not process node " + osmNodeIds.get(i) );
 					}
 				}
-
-				// Only process valid ways (with more than 1 valid node)
-                if(coords.size() > 1) {
-                    //LineString ls = gf.createLineString(coords.toArray(new Coordinate[coords.size()]));
-
-                    _procCntx.processWay(way, coords.toArray(new Coordinate[coords.size()]));
-                }
 			}
 
+		}
+		if(tags.size() > 0 || coords.size() > 1) {
+			_procCntx.processWay(way, coords.toArray(new Coordinate[coords.size()]), tags);
 		} else {
 			_procCntx.processWay(way);
 		}

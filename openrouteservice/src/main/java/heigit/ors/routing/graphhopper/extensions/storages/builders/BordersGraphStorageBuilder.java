@@ -35,6 +35,7 @@ import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.MissingResourceException;
 
 /**
@@ -122,7 +123,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
      * @param coords
      */
     @Override
-    public void processWay(ReaderWay way, Coordinate[] coords) {
+    public void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String,String>> nodeTags) {
         // Process the way using the geometry provided
         // if we don't have the reader object, then we can't do anything
         if(cbReader != null) {

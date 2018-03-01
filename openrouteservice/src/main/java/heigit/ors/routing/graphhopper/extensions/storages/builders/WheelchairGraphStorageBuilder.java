@@ -21,22 +21,19 @@
 package heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.GraphHopper;
-import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.VirtualEdgeIteratorState;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphExtension;
-import com.graphhopper.util.ByteArrayBuffer;
 import com.graphhopper.util.EdgeIteratorState;
 
-import com.graphhopper.util.PointList;
+import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
 import org.apache.log4j.Logger;
-import org.opensphere.geometry.triangulation.model.Edge;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder 
 {
@@ -48,21 +45,20 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 	private WheelchairAttributes _wheelchairAttributesLeft;
 	private WheelchairAttributes _wheelchairAttributesRight;
 
+	private WheelchairFlagEncoder wheelchairFlagEncoder;
+
+	private HashMap<Integer, HashMap<String,String>> nodeTags;
+
 	private boolean _isSeparate = false;
 	private boolean _hasLeft = false;
 	private boolean _hasRight = false;
-
-	private int _seperateCount = 0;
-	private int _leftOnlyCount = 0;
-	private int _rightOnlyCount = 0;
-	private int _bothCount = 0;
-	private int _separateAndTaggedCount = 0;
 
 	public WheelchairGraphStorageBuilder()
 	{
 		_wheelchairAttributes = new WheelchairAttributes();
 		_wheelchairAttributesLeft = new WheelchairAttributes();
 		_wheelchairAttributesRight = new WheelchairAttributes();
+		nodeTags = new HashMap<>();
 	}
 
 	private final String[] _pedestrianTypes = {
@@ -82,12 +78,21 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		if (_storage != null)
 			throw new Exception("GraphStorageBuilder has been already initialized.");
 
+
+		wheelchairFlagEncoder = new WheelchairFlagEncoder();
+		wheelchairFlagEncoder.defineWayBits(0,0);
+
 		_storage = new WheelchairAttributesGraphStorage();
 		return _storage;
 	}
 
 	@Override
-	public void processWay(ReaderWay way) 
+	public void processWay(ReaderWay way) {
+
+	}
+
+	@Override
+	public void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String,String>> nodeTags)
 	{
 
 		_wheelchairAttributes.reset();
@@ -95,6 +100,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		_wheelchairAttributesLeft.reset();
 
 		_wheelchairAttributesRight.reset();
+
+		this.nodeTags = nodeTags;
 
 		_isSeparate = false;
 		_hasRight = false;
@@ -113,15 +120,10 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 			// We have a separate footway feature
 			// work with _wheelchairAttributes
 			processSeparate(way);
-
 		}
 
 		// always process the way as attached to get any sidewalks
 		processAttached(way);
-
-
-
-
 
 		// sloped_curb
 		// ===========
@@ -314,10 +316,41 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		WheelchairAttributes at = new WheelchairAttributes();
 		at.reset();
 
+
 		//
 		if(_isSeparate) {
 			// we have a seperate way so we also need to look at the attributes of the way itself
 			at = _wheelchairAttributes.copy();
+		}
+
+		// Look to see if it is a barrier edge (i.e. a node that has signified a potential barrier
+		if(edge.getDistance() == 0) {
+			// We need to get the tags from the node
+			boolean hasKerb = false;
+
+			HashMap<String, String> tags;
+			tags = nodeTags.get(edge.getBaseNode());
+			if(tags == null)
+				tags = nodeTags.get(edge.getAdjNode());
+
+			for(String tag : tags.keySet()) {
+				switch(tag) {
+					case "sloped_curb":
+					case "curb":
+					case "kerb":
+					case "sloped_kerb":
+					case "kerb:height":
+						at.setSlopedCurbHeight((float)convertKerb(tag, tags.get(tag)));
+						hasKerb = true;
+						break;
+				}
+			}
+			// Say that we can traverse the edge normally... As this was created as a barrier, it is automatically
+			// marked as not traversible in both directions, so we need to undo that in the case of kerbs
+			if(hasKerb) {
+				edge.setFlags(wheelchairFlagEncoder.setBool(edge.getFlags(), 0, true));
+				edge.setFlags(wheelchairFlagEncoder.setBool(edge.getFlags(), 1, true));
+			}
 		}
 
 		// if we have sidewalks attached, then we should also look at those
@@ -543,6 +576,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		width=x mi		(mile)
 		width=x nmi		(nautical mile)
 		width=x'y"		(feet and inches)
+
+		However, many people omit the space, even though they shouldn't
 		 */
 
 		if (widthStr.contains(" ")) {
@@ -557,13 +592,16 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 							// do nothing as already in metres
 							break;
 						case "km":
-							width = width * 0.001;
+							width = width / 0.001;
+							break;
+						case "cm":
+							width = width / 100.0;
 							break;
 						case "mi":
-							width = width * 0.000621371;
+							width = width / 0.000621371;
 							break;
 						case "nmi":
-							width = width * 0.000539957;
+							width = width / 0.000539957;
 							break;
 						default:
 							// Invalid unit
@@ -595,6 +633,41 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 				width = Double.parseDouble(widthStr);
 			} catch (Exception e) {
 				width = -1d;
+			}
+		}
+
+		// If the width is still -1, then it could be that they have used an invalid tag, so just try and parse the most common
+		if(width == -1d) {
+			// Be careful of the order as 3cm ends in both cm and m, so we should check for cm first
+			try {
+				if (widthStr.endsWith("cm")) {
+					String[] split = widthStr.split("cm");
+					if (split.length == 2) {
+						width = Double.parseDouble(split[0]) / 100f;
+					}
+				} else if (widthStr.endsWith("km")) {
+					String[] split = widthStr.split("km");
+					if (split.length == 2) {
+						width = Double.parseDouble(split[0]) / 0.001f;
+					}
+				}else if (widthStr.endsWith("nmi")) {
+					String[] split = widthStr.split("nmi");
+					if (split.length == 2) {
+						width = Double.parseDouble(split[0]) / 0.000539957;
+					}
+				} else if (widthStr.endsWith("mi")) {
+					String[] split = widthStr.split("mi");
+					if (split.length == 2) {
+						width = Double.parseDouble(split[0]) / 0.000621371;
+					}
+				} else if (widthStr.endsWith("m")) {
+					String[] split = widthStr.split("m");
+					if (split.length == 2) {
+						width = Double.parseDouble(split[0]);
+					}
+				}
+			} catch (NumberFormatException nfe) {
+				// There was an invalid number, so just ignore it
 			}
 		}
 

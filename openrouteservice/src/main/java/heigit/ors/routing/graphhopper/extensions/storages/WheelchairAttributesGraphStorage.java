@@ -56,7 +56,7 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 	private EncodedDoubleValue _inclineEncoder;
 	private EncodedDoubleValue _widthEncoder;
 	
-	public static int BYTE_COUNT = 6;
+	public static int BYTE_COUNT = 4;
 
 	public WheelchairAttributesGraphStorage() 
 	{
@@ -142,8 +142,8 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 	private void encodeAttributes(WheelchairAttributes attrs, byte[] buffer)
 	{
 		/*
-		 *       | flag  | surface | smoothness | tracktype | curbHeight | incline | width  | side    |
-		 * lsb-> | 1 bit | 5 bits  |  4 bits    | 3 bits    | 6 bits     | 4 bits  | 6 bits | 12 bits | 41 bits in total which can fit into 6 bytes
+		 *       | flag  | surface | smoothness | tracktype | curbHeight | incline | width  |
+		 * lsb-> | 1 bit | 5 bits  |  4 bits    | 3 bits    | 6 bits     | 4 bits  | 6 bits | 29 bits in total which can fit into 4 bytes
 		 * 	
 		 * 
 		 */

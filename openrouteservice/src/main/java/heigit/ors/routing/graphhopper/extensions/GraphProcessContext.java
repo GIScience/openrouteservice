@@ -20,6 +20,7 @@
  */
 package heigit.ors.routing.graphhopper.extensions;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -149,8 +150,9 @@ public class GraphProcessContext {
 	 *
 	 * @param way		The OSM data for the way (including tags)
 	 * @param coords	Coordinates of the linestring
+	 * @param nodeTags  Tags for nodes found on the way
 	 */
-	public void processWay(ReaderWay way, Coordinate[] coords) {
+	public void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String, String>> nodeTags) {
 		try
 		{
 			if (_arrStorageBuilders != null)
@@ -160,7 +162,7 @@ public class GraphProcessContext {
 				{
 					for (int i = 0; i < nStorages; ++i)
 					{
-						_arrStorageBuilders[i].processWay(way, coords);
+						_arrStorageBuilders[i].processWay(way, coords, nodeTags);
 					}
 
 				}
