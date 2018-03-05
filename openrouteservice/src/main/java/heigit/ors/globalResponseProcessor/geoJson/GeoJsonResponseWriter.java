@@ -101,12 +101,19 @@ public class GeoJsonResponseWriter {
             featureProperties.put("bbox", jRoutes.getJSONArray("routes").getJSONObject(i).getJSONArray("bbox"));
             // Add route specific Way_Points
             featureProperties.put("way_points", jRoutes.getJSONArray("routes").getJSONObject(i).getJSONArray("way_points"));
-            // Add route specific Segments
-            featureProperties.put("segments", jRoutes.getJSONArray("routes").getJSONObject(i).getJSONArray("segments"));
-            // Build the SimpleFeature
-            routingFeature = routingFeatureBuilder.buildFeature(null);
-            defaultFeatureCollection.add(routingFeature);
-            featurePropertiesMap.put(routingFeature.getID(), featureProperties);
+            // Add route specific Segments. Segments are optional, so it is handled through a try-catch.
+            try {
+                featureProperties.put("segments", jRoutes.getJSONArray("routes").getJSONObject(i).getJSONArray("segments"));
+                // Build the SimpleFeature with segments
+                routingFeature = routingFeatureBuilder.buildFeature(null);
+                defaultFeatureCollection.add(routingFeature);
+                featurePropertiesMap.put(routingFeature.getID(), featureProperties);
+            } catch (Exception e){
+                // Build the SimpleFeature without segments
+                routingFeature = routingFeatureBuilder.buildFeature(null);
+                defaultFeatureCollection.add(routingFeature);
+                featurePropertiesMap.put(routingFeature.getID(), featureProperties);
+            }
         }
 
         // Add the feature properties through a generalized class
