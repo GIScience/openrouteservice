@@ -95,6 +95,8 @@ public class GeoJsonResponseWriter {
             SimpleFeatureBuilder routingFeatureBuilder = new SimpleFeatureBuilder(ROUTINGFEATURETYPE);
             // Add route specific Geometry
             routingFeatureBuilder.set("geometry", lineString);
+            // Add route specific Summary
+            featureProperties.put("summary", new JSONArray().put(jRoutes.getJSONArray("routes").getJSONObject(i).getJSONObject("summary")));
             // Add route specific BBox
             featureProperties.put("bbox", jRoutes.getJSONArray("routes").getJSONObject(i).getJSONArray("bbox"));
             // Add route specific Way_Points
