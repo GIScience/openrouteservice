@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - fix the coordinate precision in the geojson export from 4 to 6 decimals (Issue #136)
+- fixed missing summary in the geojson output (Issue #139) 
 
 ### Changed
 -
