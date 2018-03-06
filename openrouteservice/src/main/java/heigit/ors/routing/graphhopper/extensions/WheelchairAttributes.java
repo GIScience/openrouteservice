@@ -21,12 +21,17 @@
 package heigit.ors.routing.graphhopper.extensions;
 
 public class WheelchairAttributes {
-	private float _incline = 0.0F;
-	private float _slopedKerbHeight = 0.0F;
-	private float _width = 0.0F;
-	private int _surfaceType = -1;
-	private int _trackType = -1;
-	private int _smoothnessType = -1;
+    private static final int EMPTY_INT = -1;
+    private static final float EMPTY_FLOAT = 0.0F;
+
+	private float _incline = EMPTY_FLOAT;
+	private float _slopedKerbHeight = EMPTY_FLOAT;
+	private float _width = EMPTY_FLOAT;
+	private int _surfaceType = EMPTY_INT;
+	private int _trackType = EMPTY_INT;
+	private int _smoothnessType = EMPTY_INT;
+
+
 
 	private boolean _hasAttributes = false;
 
@@ -43,12 +48,12 @@ public class WheelchairAttributes {
 	public void reset()
 	{
 		_hasAttributes = false;
-		_incline = 0.0F;
-		_slopedKerbHeight = 0.0F;
-		_width = 0.0F;
-		_surfaceType = -1;
-		_trackType= -1;
-		_smoothnessType = -1;
+		_incline = EMPTY_FLOAT;
+		_slopedKerbHeight = EMPTY_FLOAT;
+		_width = EMPTY_FLOAT;
+		_surfaceType = EMPTY_INT;
+		_trackType= EMPTY_INT;
+		_smoothnessType = EMPTY_INT;
 	}
 
 	public float getIncline() {
@@ -107,6 +112,28 @@ public class WheelchairAttributes {
 	{
 		return _surfaceType == attrs._surfaceType && _smoothnessType == attrs._smoothnessType && _trackType == attrs._trackType && _slopedKerbHeight == attrs._slopedKerbHeight && _incline == attrs._incline && _width == attrs._width;
 	}
+
+	public WheelchairAttributes merge(WheelchairAttributes src) {
+	    WheelchairAttributes at = this.copy();
+
+	    if(src._hasAttributes)
+	        at._hasAttributes = true;
+
+	    if(src._incline != EMPTY_FLOAT)
+	        at._incline = src._incline;
+	    if(src._slopedKerbHeight != EMPTY_FLOAT)
+	        at._slopedKerbHeight = src._slopedKerbHeight;
+	    if(src._width != EMPTY_FLOAT)
+	        at._width = src._width;
+	    if(src._surfaceType != EMPTY_INT)
+	        at._surfaceType = src._surfaceType;
+	    if(src._trackType != EMPTY_INT)
+	        at._trackType = src._trackType;
+	    if(src._smoothnessType != EMPTY_INT)
+	        at._smoothnessType = src._smoothnessType;
+
+	    return at;
+    }
 
 	public WheelchairAttributes copy() {
 		WheelchairAttributes at = new WheelchairAttributes();

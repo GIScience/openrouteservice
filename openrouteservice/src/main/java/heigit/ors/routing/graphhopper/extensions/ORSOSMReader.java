@@ -34,11 +34,8 @@ import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageB
 import heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGraphStorageBuilder;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
-import java.util.Map;
 import java.util.Map.Entry;
 
 public class ORSOSMReader extends OSMReader {
@@ -57,6 +54,7 @@ public class ORSOSMReader extends OSMReader {
 	private HashMap<Long, HashMap<String, String>> nodeTags = new HashMap<>();
 
 	private boolean processGeom = false;
+	private boolean splitSidewalks = false;
 
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
 			"primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential" };
@@ -87,6 +85,7 @@ public class ORSOSMReader extends OSMReader {
 
 			if ( b instanceof WheelchairGraphStorageBuilder) {
 				this.processNodeTags = true;
+				this.splitSidewalks = true;
 			}
 		}
 	}
@@ -117,6 +116,75 @@ public class ORSOSMReader extends OSMReader {
 			}
 		}
 		return node;
+	}
+
+	@Override
+	protected void processWay(ReaderWay way) {
+		// As a first step we need to check to see if we should try to split the way
+		if(this.splitSidewalks) {
+			// First see if there are sidewalk tags
+			Set<String> keys = way.getTags().keySet();
+			Set<String> sidewalkKeys = new HashSet<>();
+
+			boolean hasSidewalkInfo = false;
+			for(String k : keys) {
+				if(k.startsWith("sidewalk")) {
+					sidewalkKeys.add(k);
+					hasSidewalkInfo = true;
+				}
+			}
+
+			if(hasSidewalkInfo) {
+				// Look at the tags to see which sides we are working with
+				boolean markerLeft = false, markerRight = false, markerBoth = false, markerNone = false;
+				if(way.hasTag("sidewalk")) {
+					String side = way.getTag("sidewalk");
+					switch(side) {
+						case "left": markerLeft = true;
+						case "right": markerRight = true;
+						case "both": markerBoth = true;
+						case "no": markerNone = true;
+						case "none": markerNone = true;
+					}
+				}
+
+				// Now check for property tags
+				for(String key : sidewalkKeys) {
+					if(key.startsWith("sidewalk:left")) markerLeft = true;
+					if(key.startsWith("sidewalk:right")) markerRight = true;
+					if(key.startsWith("sidewalk:both")) markerBoth = true;
+				}
+
+				// Finally process the ways depending on what was found
+				if(markerLeft) {
+					// Process left side
+					way.setTag("ors-sidewalk-side", "left");
+					super.processWay(way);
+					return;
+				}
+				if(markerRight) {
+					// Process right side
+					way.setTag("ors-sidewalk-side", "right");
+					super.processWay(way);
+					return;
+				}
+				if(markerBoth) {
+					// Process both sides, so process the way twice
+					way.setTag("ors-sidewalk-side", "left");
+					super.processWay(way);
+					way.setTag("ors-sidewalk-side", "right");
+					super.processWay(way);
+					return;
+				}
+				if(markerNone) {
+					// Do not process any
+					return;
+				}
+			}
+		}
+
+		// Normal processing
+		super.processWay(way);
 	}
 
 	/**

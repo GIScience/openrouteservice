@@ -313,15 +313,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 	@Override
 	public void processEdge(ReaderWay way, EdgeIteratorState edge) 
 	{
-		WheelchairAttributes at = new WheelchairAttributes();
-		at.reset();
+		WheelchairAttributes at = _wheelchairAttributes.copy();
+		/*at.reset();
 
-
-		//
 		if(_isSeparate) {
 			// we have a seperate way so we also need to look at the attributes of the way itself
 			at = _wheelchairAttributes.copy();
-		}
+		}*/
 
 		// Look to see if it is a barrier edge (i.e. a node that has signified a potential barrier
 		if(edge.getDistance() == 0) {
@@ -353,29 +351,57 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 			}
 		}
 
-		// if we have sidewalks attached, then we should also look at those
-		if(_hasRight || _hasLeft) {
-			int tr = getWorse("track", Integer.class);
-			if (tr > 0) at.setTrackType(tr);
+		// Check for if we have specified which side the processing is for
+        if(way.hasTag("ors-sidewalk-side")) {
+		    String side = way.getTag("ors-sidewalk-side");
+		    if(side.equals("left")) {
+				// Only get the attributes for the left side
+				at = getAttributes("left");
+            }
+            if(side.equals("right")) {
+		    	at = getAttributes("right");
+			}
+        } else {
+			// if we have sidewalks attached, then we should also look at those
+			if (_hasRight || _hasLeft) {
+				int tr = getWorse("track", Integer.class);
+				if (tr > 0) at.setTrackType(tr);
 
-			int su = getWorse("surface", Integer.class);
-			if (su > 0) at.setSurfaceType(su);
+				int su = getWorse("surface", Integer.class);
+				if (su > 0) at.setSurfaceType(su);
 
-			int sm = getWorse("smoothness", Integer.class);
-			if (sm > 0) at.setSmoothnessType(sm);
+				int sm = getWorse("smoothness", Integer.class);
+				if (sm > 0) at.setSmoothnessType(sm);
 
-			float sl = getWorse("slopedKerb", Float.class);
-			if (sl > 0) at.setSlopedKerbHeight(sl);
+				float sl = getWorse("slopedKerb", Float.class);
+				if (sl > 0) at.setSlopedKerbHeight(sl);
 
-			float wi = getWorse("width", Float.class);
-			if (wi > 0) at.setWidth(wi);
+				float wi = getWorse("width", Float.class);
+				if (wi > 0) at.setWidth(wi);
 
-			float in = getWorse("incline", Float.class);
-			if (in > 0) at.setIncline(in);
+				float in = getWorse("incline", Float.class);
+				if (in > 0) at.setIncline(in);
+			}
 		}
 
 		_storage.setEdgeValues(edge.getEdge(), at);
 
+	}
+
+	private WheelchairAttributes getAttributes(String side) {
+		WheelchairAttributes at = _wheelchairAttributes.copy();
+
+		// Now get the specific items
+		switch(side) {
+			case "left":
+				at = at.merge(_wheelchairAttributesLeft);
+				break;
+			case "right":
+				at = at.merge(_wheelchairAttributesRight);
+				break;
+		}
+
+		return at;
 	}
 
 	private double convertKerb(String tag, String value) {
