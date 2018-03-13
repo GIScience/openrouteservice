@@ -45,6 +45,41 @@ public class ResultTest extends ServiceTest {
 		addParameter("carProfile", "driving-car");
 	}
 
+	/**
+	 * The function validates the whole GeoJson export except segments.
+	 * Segments hold the instructions and are not necessary for our valid GeoJson-export.
+	 */
+	@Test
+	public void testGeoJsonExport(){
+		given()
+				.param("coordinates", getParameter("coordinatesShort"))
+				.param("preference", getParameter("preference"))
+				.param("profile", getParameter("carProfile"))
+				.param("format", "geojson")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'features' }", is(true))
+				.body("any { it.key == 'bbox' }", is(true))
+				.body("any { it.key == 'type' }", is(true))
+				.body("any { it.key == 'info' }", is(true))
+				.body("features[0].containsKey('geometry')", is(true))
+				.body("features[0].containsKey('type')", is(true))
+				.body("features[0].containsKey('properties')", is(true))
+				.body("features[0].properties.containsKey('summary')", is(true))
+				.body("features[0].properties.containsKey('bbox')", is(true))
+				.body("features[0].properties.containsKey('way_points')", is(true))
+				.body("features[0].properties.containsKey('segments')", is(true))
+				.body("features[0].geometry.containsKey('coordinates')", is(true))
+				.body("features[0].geometry.containsKey('type')", is(true))
+				.body("features[0].geometry.type", is("LineString"))
+				.body("features[0].type", is("Feature"))
+				.body("type", is("FeatureCollection"))
+
+				.statusCode(200);
+	}
+
 	@Test
 	public void expectCarToRejectBikeParams() {
 
