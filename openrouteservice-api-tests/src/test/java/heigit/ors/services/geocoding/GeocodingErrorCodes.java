@@ -37,5 +37,6 @@ public class GeocodingErrorCodes {
    public static int EXPORT_HANDLER_ERROR = 1006;
    public static int UNSUPPORTED_EXPORT_FORMAT = 1007;
    public static int EMPTY_ELEMENT = 1008;
+   public static int ADDRESS_NOT_FOUND = 1009;
    public static int UNKNOWN = 1099;
 }
