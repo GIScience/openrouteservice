@@ -23,6 +23,7 @@ package heigit.ors.servlet.http;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
 
+import heigit.ors.config.AppConfig;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -81,8 +82,14 @@ public class BaseHttpServlet extends HttpServlet
 			}					
 			else
 				writeError(res, statusCode, json);
-			
-			LOGGER.error("Exception", ex);
+
+			if(LOGGER.isDebugEnabled()) {
+				// Log also the stack trace
+				LOGGER.error("Exception", ex);
+			} else {
+				// Log only the error message
+				LOGGER.error(ex);
+			}
 		} catch (JSONException e) {
 			LOGGER.error(e);
 		}
