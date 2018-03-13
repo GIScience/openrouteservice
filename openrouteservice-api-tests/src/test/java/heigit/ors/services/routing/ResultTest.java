@@ -766,8 +766,8 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(false))
-				.body("error.code", is(2099))
-				.statusCode(500);
+				.body("error.code", is(RoutingErrorCodes.ROUTE_NOT_FOUND))
+				.statusCode(404);
 	}
 
 	@Test
@@ -818,8 +818,8 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(false))
-				.body("error.code", is(2099))
-				.statusCode(500);
+				.body("error.code", is(RoutingErrorCodes.ROUTE_NOT_FOUND))
+				.statusCode(404);
 	}
 
 	@Test

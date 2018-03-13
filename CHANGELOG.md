@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed missing summary in the geojson output (Issue #139) 
 
 ### Changed
--
+- Updated error response code for routing when no route can be found between locations (Issue #144)
 
 ### Depricated
 - 

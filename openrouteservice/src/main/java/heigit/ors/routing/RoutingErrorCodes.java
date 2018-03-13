@@ -35,5 +35,6 @@ public class RoutingErrorCodes {
     public static int EXPORT_HANDLER_ERROR = 2006;
     public static int UNSUPPORTED_EXPORT_FORMAT = 2007;
     public static int EMPTY_ELEMENT = 2008;
+    public static int ROUTE_NOT_FOUND = 2009;
     public static int UNKNOWN = 2099;
 }
