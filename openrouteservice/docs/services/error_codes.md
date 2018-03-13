@@ -6,6 +6,7 @@ The following table describes the supported HTTP status codes.
 |----------|--------------|
 | 200 |  Standard response for successfully processed requests.  |
 | 400 |  The request is incorrect and therefore can not be processed. |
+| 404 |  The end point is not available, or a given request completed successfully but found no results.  |
 | 405 |  The specified HTTP method is not supported. For more details, refer to the EndPoint documentation.   |
 | 413 |  The request is larger than the server is able to process, the data provided in the request exceeds the capacity limit. |
 | 500 |  An unexpected error was encountered and more detailed internal error code is provided (see **Internal Error Codes**). |
@@ -28,6 +29,7 @@ The following sections describes the list of possible internal error codes that 
 | 1006 |  Unable to parse the request to the export handler. |
 | 1007 |  Unsupported export format. |
 | 1008 |  Empty Element. |
+| 1009 |  Address not found for location. |
 | 1099 |  Unknown internal error. |
 
 ## Routing API
