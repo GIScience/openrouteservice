@@ -23,7 +23,6 @@ package heigit.ors.servlet.http;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
 
-import heigit.ors.config.AppConfig;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
