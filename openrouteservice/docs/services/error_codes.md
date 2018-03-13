@@ -43,6 +43,7 @@ The following sections describes the list of possible internal error codes that 
 | 2006 |  Unable to parse the request to the export handler. |
 | 2007 |  Unsupported export format. |
 | 2008 |  Empty Element. |
+| 2009 |  Route could not be found between locations. |
 | 2099 |  Unknown internal error. |
 
 ## Isochrones API
