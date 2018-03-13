@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed the parameters being the wrong way around in isochrones request when maximum range has been exceeded (Issue #126)
 - Fixed the coordinate precision in the geojson export from 4 to 6 decimals (Issue #136)
 - Fixed the instructions='false' error when exporting as geojson (Issue #138)
-- Fixed missing summary in the geojson output (Issue #139) 
+- Fixed missing summary in the geojson output (Issue #139)
 
 ### Changed
 - Updated logging so that stack traces are only output when debug logging is enabled (Issue #148)
+- Updated the error response for geocding when no address found (Issue #134)
 
 ### Depricated
 - 

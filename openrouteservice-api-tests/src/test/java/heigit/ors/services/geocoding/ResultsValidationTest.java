@@ -32,6 +32,7 @@ import heigit.ors.services.common.EndPointAnnotation;
 import heigit.ors.services.common.ServiceTest;
 import io.restassured.response.Response;
 import junit.framework.Assert;
+import static org.hamcrest.Matchers.is;
 
 @EndPointAnnotation(name="geocode")
 public class ResultsValidationTest extends ServiceTest {
@@ -168,14 +169,15 @@ public class ResultsValidationTest extends ServiceTest {
 	 */
 	@Test
 	public void noAddressFoundTest() {
-		Response response = given()
+		given()
 				.param("location","3.779297,55.147488")
 				.param("limit","1")
 				.when()
-				.get(getEndPointName());
-
-		Assert.assertEquals(404, response.getStatusCode());
-		JSONObject jResponse = new JSONObject(response.body().asString());
-		Assert.assertTrue(jResponse.getJSONArray("features").length() == 0);
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(false))
+				.body("error.code", is(1009))
+				.statusCode(404);
 	}
 }
