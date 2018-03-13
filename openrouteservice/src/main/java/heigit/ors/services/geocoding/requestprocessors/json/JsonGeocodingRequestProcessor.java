@@ -259,6 +259,10 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 				writeGeocodingResponse(response, req, gresults);			
 			}
 		}
+		catch(StatusCodeException sce) {
+			// Do not log, just throw
+			throw sce;
+		}
 		catch(Exception ex)
 		{
 			LOGGER.error(ex);
@@ -399,7 +403,7 @@ public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor 
 
 		// Check if there were problems
 		if(nResults == 0) {
-			ServletUtility.write(response, resp, HttpServletResponse.SC_NOT_FOUND);
+			throw new StatusCodeException(StatusCode.NOT_FOUND, GeocodingErrorCodes.ADDRESS_NOT_FOUND, "No address found.");
 		} else {
 			ServletUtility.write(response, resp);
 		}
