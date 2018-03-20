@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed the coordinate precision in the geojson export from 4 to 6 decimals (Issue #136)
 - Fixed the instructions='false' error when exporting as geojson (Issue #138)
 - Fixed missing summary in the geojson output (Issue #139)
+- Fixed error when a high exit number for a roundabout is used in instructions (Issue #145)
 
 ### Changed
 - Updated error response code for routing when no route can be found between locations (Issue #144)
