@@ -26,14 +26,14 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import heigit.ors.config.AppConfig;
 import heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
 import org.apache.log4j.Logger;
 
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 
 public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder 
 {
@@ -52,6 +52,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 	private boolean _isSeparate = false;
 	private boolean _hasLeft = false;
 	private boolean _hasRight = false;
+	private boolean kerbOnCrossing = false;
 
 	public WheelchairGraphStorageBuilder()
 	{
@@ -82,6 +83,9 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		wheelchairFlagEncoder = new WheelchairFlagEncoder();
 		wheelchairFlagEncoder.defineWayBits(0,0);
 
+		if(_parameters.containsKey("KerbsOnCrossings")) {
+			kerbOnCrossing = Boolean.parseBoolean(_parameters.get("KerbsOnCrossings"));
+		}
 		_storage = new WheelchairAttributesGraphStorage();
 		return _storage;
 	}
@@ -322,7 +326,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		}*/
 
 		// Look to see if it is a barrier edge (i.e. a node that has signified a potential barrier
-		if(edge.getDistance() == 0) {
+
+		/*if(edge.getDistance() == 0) {
 			// We need to get the tags from the node
 			boolean hasKerb = false;
 
@@ -338,8 +343,11 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 					case "kerb":
 					case "sloped_kerb":
 					case "kerb:height":
-						at.setSlopedKerbHeight((float)convertKerb(tag, tags.get(tag)));
-						hasKerb = true;
+						// Only apply if the edge is also a crossing if we have told it to do so.
+						if(!kerbOnCrossing || (kerbOnCrossing && way.hasTag("footway") && way.getTag("footway").equals("crossing"))) {
+							at.setSlopedKerbHeight((float) convertKerb(tag, tags.get(tag)));
+							hasKerb = true;
+						}
 						break;
 				}
 			}
@@ -349,6 +357,44 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 				edge.setFlags(wheelchairFlagEncoder.setBool(edge.getFlags(), 0, true));
 				edge.setFlags(wheelchairFlagEncoder.setBool(edge.getFlags(), 1, true));
 			}
+		}*/
+
+		// First check if it is a crossing - if so we should get any kerb height tags
+		if(kerbOnCrossing) {
+			if(way.hasTag("footway") && way.getTag("footway").equals("crossing")) {
+				// Look for kerb information
+				List<Float> kerbHeights = new ArrayList<>();
+				for(int id : nodeTags.keySet()) {
+					HashMap<String, String> tags = nodeTags.get(id);
+					for(String key : tags.keySet()) {
+						switch(key) {
+							case "sloped_curb":
+							case "curb":
+							case "kerb":
+							case "sloped_kerb":
+							case "kerb:height":
+								kerbHeights.add((float)convertKerb(key, tags.get(key)));
+								break;
+						}
+					}
+				}
+				if(kerbHeights.size() > 0) {
+					// If we have multiple kerb heights, we need to apply the largest to the edge as this is the worst
+					if(kerbHeights.size() > 1) {
+						java.util.Collections.sort(kerbHeights, new Comparator<Float>() {
+							@Override
+							public int compare(Float v1, Float v2) {
+								return (v1 > v2) ? 1 : -1;
+							}
+						});
+					}
+					at.setSlopedKerbHeight(kerbHeights.get(0));
+				}
+			}
+
+		} else {
+			// if there is a curb, attach to the whole edge
+
 		}
 
 		// Check for if we have specified which side the processing is for

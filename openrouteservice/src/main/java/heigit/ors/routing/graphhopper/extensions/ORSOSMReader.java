@@ -59,7 +59,7 @@ public class ORSOSMReader extends OSMReader {
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
 			"primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential" };
 
-
+	private HashSet<String> extraTagKeys;
 
 	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx, HashMap<Integer, Long> tmcEdges,  HashMap<Long, ArrayList<Integer>> osmId2EdgeIds, RoutingProfile refProfile) {
 		super(storage);
@@ -77,6 +77,7 @@ public class ORSOSMReader extends OSMReader {
 				|| storage.getEncodingManager().supports("RACINGBIKE")
 				|| storage.getEncodingManager().supports("SAFETYBIKE"));
 
+		extraTagKeys = new HashSet<>();
 		// Look if we should do border processing - if so then we have to process the geometry
 		for(GraphStorageBuilder b : this._procCntx.getStorageBuilders()) {
 			if ( b instanceof BordersGraphStorageBuilder) {
@@ -86,6 +87,10 @@ public class ORSOSMReader extends OSMReader {
 			if ( b instanceof WheelchairGraphStorageBuilder) {
 				this.processNodeTags = true;
 				this.splitSidewalks = true;
+				this.addNodeTag("kerb");
+				this.addNodeTag("kerb:height");
+				extraTagKeys.add("kerb");
+				extraTagKeys.add("kerb:height");
 			}
 		}
 	}
@@ -101,8 +106,28 @@ public class ORSOSMReader extends OSMReader {
 
 	@Override
 	public ReaderNode onProcessNode(ReaderNode node) {
-		if(processNodeTags) {
+		// On OSM, nodes are seperate entities which are used to make up ways. So basically, a node is read before a
+		// way and if it has some properties that could affect routing, these properties need to be stored so that they
+		// can be accessed when it comes to using ways
+		if(processNodeTags && node.hasTags()) {
+			// Check each node and store the tags that are required
+			HashMap<String, String> tagValues = new HashMap<>();
+			Set<String> nodeKeys = node.getTags().keySet();
+			for(String key : nodeKeys) {
+				if(extraTagKeys.contains(key)) {
+					tagValues.put(key, node.getTag(key));
+				}
+			}
+
+			// Now if we have tag data, we need to store it
+			if(tagValues.size() > 0) {
+				nodeTags.put(node.getId(), tagValues);
+			}
+
+			/*
+
 			if(!nodeTags.containsKey(node.getId()) && node.hasTags()) {
+				// Only create if it has a tag of importance
 				nodeTags.put(node.getId(), new HashMap<>());
 			}
 
@@ -113,7 +138,7 @@ public class ORSOSMReader extends OSMReader {
 				if(!tags.containsKey(key)) {
 					tags.put(key, srcTags.get(key).toString());
 				}
-			}
+			}*/
 		}
 		return node;
 	}
@@ -122,6 +147,11 @@ public class ORSOSMReader extends OSMReader {
 	protected void processWay(ReaderWay way) {
 		// As a first step we need to check to see if we should try to split the way
 		if(this.splitSidewalks) {
+			// If we are requesting to split sidewalks, then we need to create multiple ways from a single road
+			// For example, if a road way has been tagged as having sidewalks on both sides (sidewalk=both), then we
+			// need to create two ways - one for the left sidewalk and one for the right. The Graph Builder would then
+			// process these ways separately so that additional edges are created in the graph.
+
 			// First see if there are sidewalk tags
 			Set<String> keys = way.getTags().keySet();
 			Set<String> sidewalkKeys = new HashSet<>();
@@ -195,11 +225,14 @@ public class ORSOSMReader extends OSMReader {
 	 */
 	@Override
 	public void onProcessWay(ReaderWay way) {
-		// Pass through any nodes and their tags for processing
+
 		HashMap<Integer, HashMap<String,String>> tags = new HashMap<>();
 		ArrayList<Coordinate> coords = new ArrayList<>();
 
 		if(processNodeTags) {
+			// If we are processing the node tags then we need to obtain the tags for nodes that are on the way. We
+			// should store the internal node id though rather than the osm node as during the edge processing, we
+			// do not know the osm node id
 			LongArrayList osmNodeIds = way.getNodes();
 			int size = osmNodeIds.size();
 
@@ -208,8 +241,11 @@ public class ORSOSMReader extends OSMReader {
 				long id = osmNodeIds.get(i);
 				// replace the osm id with the internal id
 				int internalId = getInternalNodeIdOfOsmNode(id);
+				HashMap<String, String> tagsForNode = nodeTags.get(id);
 
-				tags.put(internalId, nodeTags.get(id));
+				if(tagsForNode != null) {
+					tags.put(internalId, nodeTags.get(id));
+				}
 			}
 		}
 
@@ -238,7 +274,9 @@ public class ORSOSMReader extends OSMReader {
 			}
 
 		}
+
 		if(tags.size() > 0 || coords.size() > 1) {
+			// Use an overloaded method that allows the passing of parameters from this reader
 			_procCntx.processWay(way, coords.toArray(new Coordinate[coords.size()]), tags);
 		} else {
 			_procCntx.processWay(way);
@@ -306,7 +344,8 @@ public class ORSOSMReader extends OSMReader {
 		LongArrayList osmNodeIds = way.getNodes();
 		int size = osmNodeIds.size();
 		if (size > 2) {
-			for (int i = 1; i < size - 1; i++) {
+		    // If it is a crossing then we need to apply any kerb tags to the way, but we need to make sure we keep the "worse" one
+			for (int i = 1; i < size-1; i++) {
 				long nodeId = osmNodeIds.get(i);
 				if (map.containsKey(nodeId)) {
 					java.util.Iterator<Entry<String, Object>> it = map.get(nodeId).entrySet().iterator();

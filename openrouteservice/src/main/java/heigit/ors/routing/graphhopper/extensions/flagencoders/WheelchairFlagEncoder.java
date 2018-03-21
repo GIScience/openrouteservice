@@ -644,10 +644,10 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
         	}
         }
 
-        if(node.hasTag("kerb")) {
+        /*if(node.hasTag("kerb") || node.hasTag("kerb:height")) {
             // We do not know if the kerb is a barrier as this is defined by the user
             encoded |= directionBitMask;
-        }
+        }*/
       
         /*
         // https://github.com/species/osrm-wheelchair-profiles/blob/master/wheelchair-normal.lua

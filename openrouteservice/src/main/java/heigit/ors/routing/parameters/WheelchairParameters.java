@@ -23,7 +23,7 @@ package heigit.ors.routing.parameters;
 public class WheelchairParameters extends ProfileParameters 
 {
 	private float _maxIncline = 0.0F;
-	private float _maxSlopedKerb;
+	private float _maxSlopedKerb = -1.0F;
 	private int _surfaceType;
 	private int _trackType;
 	private int _smoothnessType;
