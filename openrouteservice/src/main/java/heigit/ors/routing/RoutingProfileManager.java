@@ -32,6 +32,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import heigit.ors.exceptions.RouteNotFoundException;
 import org.apache.log4j.Logger;
 
 import heigit.ors.routing.parameters.VehicleParameters;
@@ -406,10 +407,31 @@ public class RoutingProfileManager {
             GHResponse gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, c0.z == 1.0, searchParams, customEdgeFilter, req.getSimplifyGeometry(), routeProcCntx);
 
             if (gr.hasErrors()) {
-                if (gr.getErrors().size() > 0)
-                    throw new InternalServerException(RoutingErrorCodes.UNKNOWN, gr.getErrors().get(0).getMessage());
-                else
-                    throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s).", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
+                if (gr.getErrors().size() > 0) {
+                    if(gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.ConnectionNotFoundException) {
+                        throw new RouteNotFoundException(
+                                RoutingErrorCodes.ROUTE_NOT_FOUND,
+                                String.format("Unable to find a route between points %d (%s) and %d (%s).",
+                                        i,
+                                        FormatUtility.formatCoordinate(c0),
+                                        i + 1,
+                                        FormatUtility.formatCoordinate(c1))
+                        );
+                    } else {
+                        throw new InternalServerException(RoutingErrorCodes.UNKNOWN, gr.getErrors().get(0).getMessage());
+                    }
+                } else {
+                    // If there are no errors stored but there is indication that there are errors, something strange
+                    // has happened, so return that a route could not be found
+                    throw new RouteNotFoundException(
+                            RoutingErrorCodes.ROUTE_NOT_FOUND,
+                            String.format("Unable to find a route between points %d (%s) and %d (%s).",
+                                    i,
+                                    FormatUtility.formatCoordinate(c0),
+                                    i + 1,
+                                    FormatUtility.formatCoordinate(c1))
+                    );
+                }
             }
 
             prevResp = gr;
