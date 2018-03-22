@@ -98,7 +98,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 	@Override
 	public void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String,String>> nodeTags)
 	{
-
+		// Start by resetting storage variables
 		_wheelchairAttributes.reset();
 
 		_wheelchairAttributesLeft.reset();
@@ -111,42 +111,27 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		_hasRight = false;
 		_hasLeft = false;
 
-		// When we read a way there are four possibilities:
-		/*
-			1. We are looking at a separated pedestrian way (i.e. footpath) - use way properties
-			2. We are looking at a road with sidewalks tagged to it	- use sidewalk properties
-			3. We are looking at a pedestrian way with sidewalks tagged to it - use sidewalk and way properties
-			5. We are just looking at a road - use no properties
-		 */
-
+		// Now we need to process the way specific to whether it is a separate feature (i.e. footway) or is attached
+		// to a road feature (i.e. with the tag sidewalk=left)
 
 		if(isSeparateFootway(way)) {
 			// We have a separate footway feature
-			// work with _wheelchairAttributes
 			processSeparate(way);
 		}
 
-		// always process the way as attached to get any sidewalks
+		// We still need to always process the way itself even if it separate so that we can get sidewalk info (a
+		// separate footway can still ahve sidewalk tags...)
 		processAttached(way);
-
-		// sloped_curb
-		// ===========
-		// http://wiki.openstreetmap.org/wiki/Wheelchair_routing#Curb_heights
-		// http://wiki.openstreetmap.org/wiki/DE:Wheelchair_routing#B.C3.BCrgersteige
-		// http://wiki.openstreetmap.org/wiki/DE:Wheelchair_routing#B.C3.BCrgersteige_und_Eigenschaften
-		// http://wiki.openstreetmap.org/wiki/Key:sloped_curb
-
-		// only use sloped_curb|kerb|curb values on ways that are crossing. there are cases (e.g. platform) where these tags are also used but in fact indicate wheelchair accessibility (e.g. platform=yes, kerb=raised)
-		/*if ((way.hasTag("sloped_curb") || way.hasTag("kerb") || way.hasTag("curb")) && (way.hasTag("footway", "crossing") || way.hasTag("cycleway", "crossing") || way.hasTag("highway", "crossing") || way.hasTag("crossing"))) {
-			
-			double curbHeight = getCurbHeight(way);
-			if (curbHeight != 0.0)
-				_wheelchairAttributes.setSlopedCurbHeight((float)curbHeight);
-		}*/
-
-
 	}
 
+	/**
+	 * Process footways that are attached to an OSM way via the sidewalk tags. It looks for parameters important for
+	 * wheelchair routing such as width, smoothness and kerb height and then stores these in the attributes object
+	 * ready for use when the edge(s) are processed. It also detects which side of the base way that the sidewalks
+	 * have been created for and stores the information appropriately.
+	 *
+	 * @param way		The way to be processed
+	 */
 	private void processAttached(ReaderWay way) {
 		String[] values;
 
@@ -164,6 +149,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 			}
 		}
 
+		// get surface type (asphalt, sand etc.)
 		values = getCompoundValue(way, "surface");
 		if(values[0] != null && !values[0].isEmpty()) {
 			_hasLeft = true;
@@ -174,6 +160,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 			_wheelchairAttributesRight.setSurfaceType(WheelchairTypesEncoder.getSurfaceType(values[1].toLowerCase()));
 		}
 
+		// get smoothness value (good, terrible etc.)
 		values = getCompoundValue(way, "smoothness");
 		if(values[0] != null && !values[0].isEmpty()) {
 			_hasLeft = true;
@@ -185,6 +172,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 			_wheelchairAttributesRight.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(values[1].toLowerCase()));
 		}
 
+		// Get the track type (grade1, grade4 etc.)
 		values = getCompoundValue(way, "tracktype");
 		if(values[0] != null && !values[0].isEmpty()) {
 			_hasLeft = true;
@@ -195,6 +183,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 			_wheelchairAttributesRight.setTrackType(WheelchairTypesEncoder.getTrackType(values[1].toLowerCase()));
 		}
 
+		// Get the width of the way (2, 0.1 etc.)
 		values = getCompoundValue(way, "width");
 		if(values[0] != null && !values[0].isEmpty()) {
 			_hasLeft = true;
@@ -205,6 +194,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 			_wheelchairAttributesRight.setWidth((float)convertWidth(values[1].toLowerCase()));
 		}
 
+		// Get the incline of the way (10%, 6% etc.)
 		if (way.hasTag("incline"))
 		{
 			double incline = getIncline(way);
@@ -223,8 +213,74 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 			_hasRight = true;
 			_wheelchairAttributesRight.setWidth((float)convertIncline(values[1].toLowerCase()));
 		}
+
+		// Assess any kerb height attached directly to the way
+		if(way.hasTag("curb")) {
+			double height = convertKerb("curb", way.getTag("curb"));
+			_wheelchairAttributesLeft.setSlopedKerbHeight((float) height);
+			_wheelchairAttributesRight.setSlopedKerbHeight((float) height);
+		}
+		if(way.hasTag("kerb")) {
+			double height = convertKerb("kerb", way.getTag("kerb"));
+			_wheelchairAttributesLeft.setSlopedKerbHeight((float) height);
+			_wheelchairAttributesRight.setSlopedKerbHeight((float) height);
+		}
+		if(way.hasTag("sloped_curb")) {
+			double height = convertKerb("sloped_curb", way.getTag("sloped_curb"));
+			_wheelchairAttributesLeft.setSlopedKerbHeight((float) height);
+			_wheelchairAttributesRight.setSlopedKerbHeight((float) height);
+		}
+		if(way.hasTag("kerb:height")) {
+			double height = convertKerb("kerb:height", way.getTag("kerb:height"));
+			_wheelchairAttributesLeft.setSlopedKerbHeight((float) height);
+			_wheelchairAttributesRight.setSlopedKerbHeight((float) height);
+		}
+
+		// Also check if they have been marked for specific sides
+		values = getCompoundValue(way, "curb");
+		if(values[0] != null && !values[0].isEmpty()) {
+			_hasLeft = true;
+			_wheelchairAttributesLeft.setSlopedKerbHeight((float)convertKerb("curb", values[0].toLowerCase()));
+		}
+		if(values[1] != null && !values[1].isEmpty()) {
+			_hasRight = true;
+			_wheelchairAttributesRight.setSlopedKerbHeight((float)convertKerb("curb", values[0].toLowerCase()));
+		}
+		values = getCompoundValue(way, "kerb");
+		if(values[0] != null && !values[0].isEmpty()) {
+			_hasLeft = true;
+			_wheelchairAttributesLeft.setSlopedKerbHeight((float)convertKerb("kerb", values[0].toLowerCase()));
+		}https://imgur.com/a/zAxdN
+		if(values[1] != null && !values[1].isEmpty()) {
+			_hasRight = true;
+			_wheelchairAttributesRight.setSlopedKerbHeight((float)convertKerb("kerb", values[0].toLowerCase()));
+		}
+		values = getCompoundValue(way, "sloped_curb");
+		if(values[0] != null && !values[0].isEmpty()) {
+			_hasLeft = true;
+			_wheelchairAttributesLeft.setSlopedKerbHeight((float)convertKerb("sloped_curb", values[0].toLowerCase()));
+		}
+		if(values[1] != null && !values[1].isEmpty()) {
+			_hasRight = true;
+			_wheelchairAttributesRight.setSlopedKerbHeight((float)convertKerb("sloped_curb", values[0].toLowerCase()));
+		}
+		values = getCompoundValue(way, "kerb:height");
+		if(values[0] != null && !values[0].isEmpty()) {
+			_hasLeft = true;
+			_wheelchairAttributesLeft.setSlopedKerbHeight((float)convertKerb("kerb:height", values[0].toLowerCase()));
+		}
+		if(values[1] != null && !values[1].isEmpty()) {
+			_hasRight = true;
+			_wheelchairAttributesRight.setSlopedKerbHeight((float)convertKerb("kerb:height", values[0].toLowerCase()));
+		}
 	}
 
+	/**
+	 * Process a footway that has been stored in OSM as a separate feature, such as a crossing, footpath or pedestrian
+	 * way. The same as the attached processing, it looks for the different attributes as tags that are important for
+	 * wheelchair routing and stores them against the generic wheechair storage object
+	 * @param way
+	 */
 	private void processSeparate(ReaderWay way) {
 		_isSeparate = true;
 
@@ -278,6 +334,18 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		}
 	}
 
+	/**
+	 * Compare the attributes gained for the given property between the sidewalks on the left and the right hand side
+	 * of the feature and identify which is worse. This is useful if for some reason the sidewalks can not be created
+	 * as separate edges from the feature, in which case you would avoid the whole way if an attribute was seen as
+	 * impassible.
+	 *
+	 * @param attr		The attribute to be assessed (surface, smoothness etc.)
+	 * @param type		The object type (i.e. Integer, Float)
+	 * @param <T>		The return type
+	 *
+	 * @return			The value that is seen as being the worst
+	 */
 	private <T> T getWorse(String attr, Class<T> type) {
 		switch(attr) {
 			case "surface":
@@ -318,83 +386,44 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 	public void processEdge(ReaderWay way, EdgeIteratorState edge) 
 	{
 		WheelchairAttributes at = _wheelchairAttributes.copy();
-		/*at.reset();
 
-		if(_isSeparate) {
-			// we have a seperate way so we also need to look at the attributes of the way itself
-			at = _wheelchairAttributes.copy();
-		}*/
-
-		// Look to see if it is a barrier edge (i.e. a node that has signified a potential barrier
-
-		/*if(edge.getDistance() == 0) {
-			// We need to get the tags from the node
-			boolean hasKerb = false;
-
-			HashMap<String, String> tags;
-			tags = nodeTags.get(edge.getBaseNode());
-			if(tags == null)
-				tags = nodeTags.get(edge.getAdjNode());
-
-			for(String tag : tags.keySet()) {
-				switch(tag) {
-					case "sloped_curb":
-					case "curb":
-					case "kerb":
-					case "sloped_kerb":
-					case "kerb:height":
-						// Only apply if the edge is also a crossing if we have told it to do so.
-						if(!kerbOnCrossing || (kerbOnCrossing && way.hasTag("footway") && way.getTag("footway").equals("crossing"))) {
-							at.setSlopedKerbHeight((float) convertKerb(tag, tags.get(tag)));
-							hasKerb = true;
-						}
-						break;
-				}
-			}
-			// Say that we can traverse the edge normally... As this was created as a barrier, it is automatically
-			// marked as not traversible in both directions, so we need to undo that in the case of kerbs
-			if(hasKerb) {
-				edge.setFlags(wheelchairFlagEncoder.setBool(edge.getFlags(), 0, true));
-				edge.setFlags(wheelchairFlagEncoder.setBool(edge.getFlags(), 1, true));
-			}
-		}*/
-
-		// First check if it is a crossing - if so we should get any kerb height tags
-		if(kerbOnCrossing) {
-			if(way.hasTag("footway") && way.getTag("footway").equals("crossing")) {
-				// Look for kerb information
-				List<Float> kerbHeights = new ArrayList<>();
-				for(int id : nodeTags.keySet()) {
+		// If we are only dealing with kerbs on crossings, then we need ot check that the way is a crossing, else work
+		// with all ways
+        // This is only applicable if the kerb height is stored on a node rather than on the way itself. If that is the
+        // case, then the kerb height has already been stored in the attributes.
+		if((kerbOnCrossing && way.hasTag("footway") && way.getTag("footway").equals("crossing"))
+				|| !kerbOnCrossing) {
+			// Look for kerb information
+			List<Float> kerbHeights = new ArrayList<>();
+			for(int id : nodeTags.keySet()) {
+				// We only want to add the kerb height to the edge that is actually connected to it
+				if(id == edge.getAdjNode() || id == edge.getBaseNode()) {
 					HashMap<String, String> tags = nodeTags.get(id);
-					for(String key : tags.keySet()) {
-						switch(key) {
+					for (String key : tags.keySet()) {
+						switch (key) {
 							case "sloped_curb":
 							case "curb":
 							case "kerb":
 							case "sloped_kerb":
 							case "kerb:height":
-								kerbHeights.add((float)convertKerb(key, tags.get(key)));
+								kerbHeights.add((float) convertKerb(key, tags.get(key)));
 								break;
 						}
 					}
 				}
-				if(kerbHeights.size() > 0) {
-					// If we have multiple kerb heights, we need to apply the largest to the edge as this is the worst
-					if(kerbHeights.size() > 1) {
-						java.util.Collections.sort(kerbHeights, new Comparator<Float>() {
-							@Override
-							public int compare(Float v1, Float v2) {
-								return (v1 > v2) ? 1 : -1;
-							}
-						});
-					}
-					at.setSlopedKerbHeight(kerbHeights.get(0));
-				}
 			}
-
-		} else {
-			// if there is a curb, attach to the whole edge
-
+			if(kerbHeights.size() > 0) {
+				// If we have multiple kerb heights, we need to apply the largest to the edge as this is the worst
+				if(kerbHeights.size() > 1) {
+					java.util.Collections.sort(kerbHeights, new Comparator<Float>() {
+						@Override
+						public int compare(Float v1, Float v2) {
+								return (v1 < v2) ? 1 : -1;
+							}
+					});
+				}
+				at.setSlopedKerbHeight(kerbHeights.get(0));
+			}
 		}
 
 		// Check for if we have specified which side the processing is for
@@ -408,7 +437,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		    	at = getAttributes("right");
 			}
         } else {
-			// if we have sidewalks attached, then we should also look at those
+			// if we have sidewalks attached, then we should also look at those. We should only hit this point if
+			// the preprocessing hasn't detected that there are sidewalks even though there are...
 			if (_hasRight || _hasLeft) {
 				int tr = getWorse("track", Integer.class);
 				if (tr > 0) at.setTrackType(tr);
@@ -434,6 +464,14 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 
 	}
 
+	/**
+	 * Get the attibutes of a sidewalk on the specified side of the road
+	 *
+	 * @param side	The side you want the attributes for
+	 *
+	 * @return		A WheelchairAttributes object for the side requested. If there are no attributes for the specified
+	 * 				side, then the overall attributes for the way are returned
+	 */
 	private WheelchairAttributes getAttributes(String side) {
 		WheelchairAttributes at = _wheelchairAttributes.copy();
 
@@ -450,6 +488,14 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		return at;
 	}
 
+	/**
+	 * Converts a kerb height value to a numerical height (in metres). A kerb could be stored as an explicit height or
+	 * as an indicator as to whether the kerb is lowered or not.
+	 *
+	 * @param tag		The key (tag) that was obtained describing the kerb information
+	 * @param value		The value of the tag
+	 * @return			The presumed height of the kerb in metres
+	 */
 	private double convertKerb(String tag, String value) {
 		double height = -1d;
 
@@ -564,6 +610,18 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		return res;
 	}
 
+	/**
+	 * Get the values obtained from a way for a specific sidewalk property. Fotr example, providing the property
+	 * "surface" would check the way for the surface tag stored against attached sidewalks using the keys
+	 * sidewalk:left:surface, sidewalk:right:surface, and sidewalk:both:surface. The obtained values are then returned
+	 * in an array.
+	 *
+	 * @param way			The way object to extract the properties from
+	 * @param property		The property to be extracted
+	 *
+	 * @return				A String array containing two values - the first is the property for the left sidewalk and
+	 * 						the second is the property value for the right sidewalk.
+	 */
 	private String[] getCompoundValue(ReaderWay way, String property) {
 		String[] values = new String[2];
 
@@ -589,6 +647,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		return convertIncline(inclineValue);
 	}
 
+	/**
+	 * Convert the String representation of an incline into a %age incline value. in OSM the tag value could already
+	 * be a %age value, or it could be written as "up", "down", "steep" etc. in which case an incline value is assumed
+	 *
+	 * @param inclineValue		The value obtained from the incline tag
+	 * @return					a percentage incline value
+	 */
 	private double convertIncline(String inclineValue) {
 
 		if (inclineValue != null)
@@ -637,6 +702,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		return 0;
 	}
 
+	/**
+	 * Convert a OSM width value to a decimal value in metres. In osm the width could be stored in many different units
+	 * and so this method attempts to convert them all to metres.
+	 *
+	 * @param widthStr		The obtained width tag value
+	 * @return				The width value converted to metres
+	 */
 	private double convertWidth(String widthStr) {
 		double width = -1d;
 
@@ -750,6 +822,12 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		return width;
 	}
 
+	/**
+	 * Determine if the way is a separate footway object or a road feature.
+	 *
+	 * @param way		The OSM way object to be assessed
+	 * @return			Whether the way is seen as a separately drawn footway (true) or a road (false)
+	 */
 	private boolean isSeparateFootway(ReaderWay way) {
 		String type = way.getTag("highway", "");
 

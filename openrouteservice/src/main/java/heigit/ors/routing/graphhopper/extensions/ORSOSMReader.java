@@ -123,22 +123,6 @@ public class ORSOSMReader extends OSMReader {
 			if(tagValues.size() > 0) {
 				nodeTags.put(node.getId(), tagValues);
 			}
-
-			/*
-
-			if(!nodeTags.containsKey(node.getId()) && node.hasTags()) {
-				// Only create if it has a tag of importance
-				nodeTags.put(node.getId(), new HashMap<>());
-			}
-
-			Map<String, Object> srcTags = node.getTags();
-			HashMap<String, String> tags = nodeTags.get(node.getId());
-
-			for(String key : srcTags.keySet()) {
-				if(!tags.containsKey(key)) {
-					tags.put(key, srcTags.get(key).toString());
-				}
-			}*/
 		}
 		return node;
 	}
@@ -174,6 +158,9 @@ public class ORSOSMReader extends OSMReader {
 						case "right": markerRight = true;
 						case "both": markerBoth = true;
 						case "no": markerNone = true;
+						case "separate": markerNone = true;
+						case "seperate": markerNone = true;
+						case "detached": markerNone = true;
 						case "none": markerNone = true;
 					}
 				}
@@ -210,6 +197,20 @@ public class ORSOSMReader extends OSMReader {
 					// Do not process any
 					return;
 				}
+			} else {
+				// we should only process ways that are possible to walk along
+				if(way.hasTag("highway")) {
+					String highwayType = way.getTag("highway");
+					switch (highwayType) {
+						case "footway":
+						case "living_street":
+						case "pedestrian":
+						case "path":
+						case "track":
+							super.processWay(way);
+					}
+					return;
+				}
 			}
 		}
 
@@ -220,6 +221,8 @@ public class ORSOSMReader extends OSMReader {
 	/**
 	 * Method to be run against each way obtained from the data. If one of the storage builders needs geometry
 	 * determined in the constructor then we need to get the geometry as well as the tags.
+	 * Also we need to pass through any important tag values obtained from nodes through to the processing stage so
+	 * that they can be evaluated.
 	 *
 	 * @param way		The way object read from the OSM data (not including geometry)
 	 */
