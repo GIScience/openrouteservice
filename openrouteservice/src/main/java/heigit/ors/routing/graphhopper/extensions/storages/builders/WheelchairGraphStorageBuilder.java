@@ -33,6 +33,7 @@ import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEnco
 import heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
 import org.apache.log4j.Logger;
 
+import javax.servlet.ServletException;
 import java.util.*;
 
 public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder 
@@ -48,6 +49,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 	private WheelchairFlagEncoder wheelchairFlagEncoder;
 
 	private HashMap<Integer, HashMap<String,String>> nodeTags;
+	private HashMap<String, Object> cleanedTags;
 
 	private boolean _isSeparate = false;
 	private boolean _hasLeft = false;
@@ -60,6 +62,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		_wheelchairAttributesLeft = new WheelchairAttributes();
 		_wheelchairAttributesRight = new WheelchairAttributes();
 		nodeTags = new HashMap<>();
+		cleanedTags = new HashMap<>();
 	}
 
 	private final String[] _pedestrianTypes = {
@@ -92,7 +95,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 
 	@Override
 	public void processWay(ReaderWay way) {
-
+		this.processWay(way, new Coordinate[0], new HashMap<>());
 	}
 
 	@Override
@@ -111,9 +114,17 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		_hasRight = false;
 		_hasLeft = false;
 
+		// Annoyingly, it seems often to be the case that rather than using ":" to seperate tag parts, "." is used, so
+		// we need to take this into account
+		cleanedTags.clear();
+		Map<String, Object> dirtyTags = way.getTags();
+		for(String key : dirtyTags.keySet()) {
+			String cleanKey = key.replace(".", ":");
+			cleanedTags.put(cleanKey, dirtyTags.get(key));
+		}
+
 		// Now we need to process the way specific to whether it is a separate feature (i.e. footway) or is attached
 		// to a road feature (i.e. with the tag sidewalk=left)
-
 		if(isSeparateFootway(way)) {
 			// We have a separate footway feature
 			processSeparate(way);
@@ -237,7 +248,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		}
 
 		// Also check if they have been marked for specific sides
-		values = getCompoundValue(way, "curb");
+		values = getCompoundKerb(way, "curb");
 		if(values[0] != null && !values[0].isEmpty()) {
 			_hasLeft = true;
 			_wheelchairAttributesLeft.setSlopedKerbHeight((float)convertKerb("curb", values[0].toLowerCase()));
@@ -246,7 +257,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 			_hasRight = true;
 			_wheelchairAttributesRight.setSlopedKerbHeight((float)convertKerb("curb", values[0].toLowerCase()));
 		}
-		values = getCompoundValue(way, "kerb");
+		values = getCompoundKerb(way, "kerb");
 		if(values[0] != null && !values[0].isEmpty()) {
 			_hasLeft = true;
 			_wheelchairAttributesLeft.setSlopedKerbHeight((float)convertKerb("kerb", values[0].toLowerCase()));
@@ -255,7 +266,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 			_hasRight = true;
 			_wheelchairAttributesRight.setSlopedKerbHeight((float)convertKerb("kerb", values[0].toLowerCase()));
 		}
-		values = getCompoundValue(way, "sloped_curb");
+		values = getCompoundKerb(way, "sloped_curb");
 		if(values[0] != null && !values[0].isEmpty()) {
 			_hasLeft = true;
 			_wheelchairAttributesLeft.setSlopedKerbHeight((float)convertKerb("sloped_curb", values[0].toLowerCase()));
@@ -264,7 +275,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 			_hasRight = true;
 			_wheelchairAttributesRight.setSlopedKerbHeight((float)convertKerb("sloped_curb", values[0].toLowerCase()));
 		}
-		values = getCompoundValue(way, "kerb:height");
+		values = getCompoundKerb(way, "kerb:height");
 		if(values[0] != null && !values[0].isEmpty()) {
 			_hasLeft = true;
 			_wheelchairAttributesLeft.setSlopedKerbHeight((float)convertKerb("kerb:height", values[0].toLowerCase()));
@@ -273,6 +284,57 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 			_hasRight = true;
 			_wheelchairAttributesRight.setSlopedKerbHeight((float)convertKerb("kerb:height", values[0].toLowerCase()));
 		}
+	}
+
+	private String[] getCompoundKerb(ReaderWay way, String key) {
+		// If we are looking at the kerbs, sometimes the start and end of a way is marked as having different kerb
+		// heights using the ...:start and ...:end tags. For now, we just want to get the worse of these values (the
+		// highest)
+		double leftStart = -1, leftEnd = -1, rightStart = -1, rightEnd = -1, leftNorm = -1, rightNorm = -1;
+
+		String[] endValues = getCompoundValue(way, key + ":end");
+		// Convert
+		if(endValues[0] != null && !endValues[0].isEmpty()) {
+			leftEnd = convertKerb(key, endValues[0]);
+		}
+		if(endValues[1] != null && !endValues[1].isEmpty()) {
+			rightEnd = convertKerb(key, endValues[1]);
+		}
+		String[] startValues = getCompoundValue(way, key + ":start");
+		// Convert
+		if(startValues[0] != null && !startValues[0].isEmpty()) {
+			leftStart = convertKerb(key, startValues[0]);
+		}
+		if(startValues[1] != null && !startValues[1].isEmpty()) {
+			rightStart = convertKerb(key, startValues[1]);
+		}
+
+		String[] normValues = getCompoundValue(way, key);
+		// Convert
+		if(normValues[0] != null && !normValues[0].isEmpty()) {
+			leftNorm = convertKerb(key, normValues[0]);
+		}
+		if(normValues[1] != null && !normValues[1].isEmpty()) {
+			rightNorm = convertKerb(key, normValues[1]);
+		}
+
+		// Now compare to find the worst
+		String[] values = new String[2];
+		if(leftEnd > leftStart && leftEnd > leftNorm)
+			values[0] = endValues[0];
+		else if(leftStart > leftEnd && leftStart > leftNorm)
+			values[0] = startValues[0];
+		else
+			values[0] = normValues[0];
+
+		if(rightEnd > rightStart && rightEnd > rightNorm)
+			values[1] = endValues[1];
+		else if(rightStart > rightEnd && rightStart > rightNorm)
+			values[1] = startValues[1];
+		else
+			values[1] = normValues[1];
+
+		return values;
 	}
 
 	/**
@@ -522,6 +584,10 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 				case "flush":
 					height = 0d;
 					break;
+				default:
+					// May be that it is already numeric (though it shouldn't be)
+					height = convertWidth(value);
+					break;
 			}
 		}
 		if(tag.equals("kerb:height")) {
@@ -626,16 +692,24 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		String[] values = new String[2];
 
 		// Left side
-		if(way.hasTag("sidewalk:left:" + property))
-			values[0] = way.getTag("sidewalk:left:" + property);
+		if(cleanedTags.containsKey("sidewalk:left:" + property))
+			values[0] = (String) cleanedTags.get("sidewalk:left:" + property);
+		else if(cleanedTags.containsKey("footway:left:" +property))
+			values[0] = (String) cleanedTags.get("footway:left:" + property);
 		// Right side
-		if(way.hasTag("sidewalk:right:" + property))
-			values[1] = way.getTag("sidewalk:right:" + property);
+		if(cleanedTags.containsKey("sidewalk:right:" + property))
+			values[1] = (String) cleanedTags.get("sidewalk:right:" + property);
+		else if(cleanedTags.containsKey("footway:right:" +property))
+			values[1] = (String) cleanedTags.get("footway:right:" + property);
 
 		// Both
-		if(way.hasTag("sidewalk:both:" + property)) {
-			values[0] = way.getTag("sidewalk:both:" + property);
-			values[1] = way.getTag("sidewalk:both:" + property);
+		if(cleanedTags.containsKey("sidewalk:both:" + property)) {
+			values[0] = (String) cleanedTags.get("sidewalk:both:" + property);
+			values[1] = (String) cleanedTags.get("sidewalk:both:" + property);
+		}
+		else if(cleanedTags.containsKey("footway:both:" +property)) {
+			values[0] = (String) cleanedTags.get("footway:both:" + property);
+			values[1] = (String) cleanedTags.get("footway:both:" + property);
 		}
 
 		return values;

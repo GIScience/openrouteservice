@@ -102,7 +102,8 @@ public class WheelchairEdgeFilter implements EdgeFilter
 
 				if (_params.getMinimumWidth() > 0.0) {
 				    // We should use >= as the process rounds to 10cm, so 2.95m width on the way is stored as 3
-					if(_params.getMinimumWidth() >= _attributes.getWidth())
+					// if the attribute value is 0 though, this signifies that no data is available
+					if(_attributes.getWidth() > 0.0 && _params.getMinimumWidth() >= _attributes.getWidth())
 						return false;
 				}
 			}

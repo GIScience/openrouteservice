@@ -142,7 +142,7 @@ public class ORSOSMReader extends OSMReader {
 
 			boolean hasSidewalkInfo = false;
 			for(String k : keys) {
-				if(k.startsWith("sidewalk")) {
+				if(k.startsWith("sidewalk") || k.startsWith("footway")) {
 					sidewalkKeys.add(k);
 					hasSidewalkInfo = true;
 				}
@@ -167,10 +167,23 @@ public class ORSOSMReader extends OSMReader {
 
 				// Now check for property tags
 				for(String key : sidewalkKeys) {
-					if(key.startsWith("sidewalk:left")) markerLeft = true;
-					if(key.startsWith("sidewalk:right")) markerRight = true;
-					if(key.startsWith("sidewalk:both")) markerBoth = true;
+					if(key.startsWith("sidewalk:left") || key.startsWith("footway:left")) markerLeft = true;
+					if(key.startsWith("sidewalk:right") || key.startsWith("footway:right")) markerRight = true;
+					if(key.startsWith("sidewalk:both") || key.startsWith("footway:both")) markerBoth = true;
 				}
+
+				if(markerLeft && markerRight) {
+                    markerBoth = true;
+                }
+
+                if(markerBoth) {
+                    // Process both sides, so process the way twice
+                    way.setTag("ors-sidewalk-side", "left");
+                    super.processWay(way);
+                    way.setTag("ors-sidewalk-side", "right");
+                    super.processWay(way);
+                    return;
+                }
 
 				// Finally process the ways depending on what was found
 				if(markerLeft) {
@@ -181,14 +194,6 @@ public class ORSOSMReader extends OSMReader {
 				}
 				if(markerRight) {
 					// Process right side
-					way.setTag("ors-sidewalk-side", "right");
-					super.processWay(way);
-					return;
-				}
-				if(markerBoth) {
-					// Process both sides, so process the way twice
-					way.setTag("ors-sidewalk-side", "left");
-					super.processWay(way);
 					way.setTag("ors-sidewalk-side", "right");
 					super.processWay(way);
 					return;
