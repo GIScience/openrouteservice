@@ -20,7 +20,7 @@
  */
 package heigit.ors.common;
 
-public class StatusCode 
+public class StatusCode
 {
     /**
      * Status code (200) indicating the request succeeded normally.
@@ -55,4 +55,10 @@ public class StatusCode
     * temporarily overloaded, and unable to handle the request.
     */
    public static int SERVICE_UNAVAILABLE =  javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
+
+   /**
+    * Status code (404) indicating that the request was processed but
+    * no information was found (i.e. a geocoding request that did not find a corresponding address)
+    */
+   public static  int NOT_FOUND = javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 }

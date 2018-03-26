@@ -120,12 +120,28 @@ public class InstructionTranslator
 		boolean isWayNull = Helper.isEmpty(wayName);
 		String str = isWayNull ? _actionRoundaboutDefault: _actionRoundaboutName;
 		boolean isExitNull = (exitNumber == 0);
+		boolean highNumber = false;
+
+		// We need to check if the exit number is greater than 10, as that is the most we have in the n-th representation
+		highNumber = (exitNumber > _numerals.length-1);
 
 		//If there was an error in finding the exit number, return "UNKNOWN". If there is no way name, don't return a way name
 		if(isExitNull)
 			str = str.replace("{exit_number}",  "UNKNOWN");
-		else
-			str = str.replace("{exit_number}",  _numerals[exitNumber]);
+		else {
+			String numeral = "";
+			if(highNumber) {
+				// if it is a high number which is very rare, then we dont use the numeral representation, just the
+				// number itself
+				// Converting to the th is too complicated due to exceptions and the position of the "th"
+
+				numeral = Integer.toString(exitNumber);
+			} else {
+				numeral = _numerals[exitNumber];
+			}
+
+			str = str.replace("{exit_number}", numeral);
+		}
 		if (isWayNull)
 			return str;
 		else 
