@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Updated logging so that stack traces are only output when debug logging is enabled (Issue #148)
 - Updated the error response for geocding when no address found (Issue #134)
 
+
 ## [4.5] - 2018-02-27
 ### Added
 - Functionality has been added to restrict routes so that they do not cross all borders, controlled borders, or the borders of specific countries (Issue #41)
