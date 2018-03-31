@@ -131,6 +131,7 @@
                         },
 				    attribution: "openrouteservice.org, OpenStreetMap contributors"
 			        }
+			    }    
 			}
 			# ********************************************************************************************************************
 			# Geocoding API end-point parameters
