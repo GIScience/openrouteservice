@@ -23,6 +23,7 @@ package heigit.ors.routing.graphhopper.extensions;
 public class WheelchairAttributes {
     private static final int EMPTY_INT = -1;
     private static final float EMPTY_FLOAT = 0.0F;
+    public enum Side { LEFT, RIGHT, UNKNOWN};
 
 	private float _incline = EMPTY_FLOAT;
 	private float _slopedKerbHeight = EMPTY_FLOAT;
@@ -30,7 +31,7 @@ public class WheelchairAttributes {
 	private int _surfaceType = EMPTY_INT;
 	private int _trackType = EMPTY_INT;
 	private int _smoothnessType = EMPTY_INT;
-
+	private Side _side = Side.UNKNOWN;
 
 
 	private boolean _hasAttributes = false;
@@ -54,6 +55,7 @@ public class WheelchairAttributes {
 		_surfaceType = EMPTY_INT;
 		_trackType= EMPTY_INT;
 		_smoothnessType = EMPTY_INT;
+		_side = Side.UNKNOWN;
 	}
 
 	public float getIncline() {
@@ -107,10 +109,20 @@ public class WheelchairAttributes {
 		_width = width;
 		_hasAttributes = true;
 	}
+
+	public Side getSide() {
+		return _side;
+	}
+
+	public void setSide(Side side) {
+		this._side = side;
+	}
 	
 	public boolean equals(WheelchairAttributes attrs)
 	{
-		return _surfaceType == attrs._surfaceType && _smoothnessType == attrs._smoothnessType && _trackType == attrs._trackType && _slopedKerbHeight == attrs._slopedKerbHeight && _incline == attrs._incline && _width == attrs._width;
+		return _surfaceType == attrs._surfaceType && _smoothnessType == attrs._smoothnessType
+				&& _trackType == attrs._trackType && _slopedKerbHeight == attrs._slopedKerbHeight
+				&& _incline == attrs._incline && _width == attrs._width && _side == attrs._side;
 	}
 
 	public WheelchairAttributes merge(WheelchairAttributes src) {
@@ -131,7 +143,8 @@ public class WheelchairAttributes {
 	        at._trackType = src._trackType;
 	    if(src._smoothnessType != EMPTY_INT)
 	        at._smoothnessType = src._smoothnessType;
-
+		if(src._side != Side.UNKNOWN)
+			at._side = src._side;
 	    return at;
     }
 
@@ -144,6 +157,7 @@ public class WheelchairAttributes {
 		at._smoothnessType = this._smoothnessType;
 		at._trackType = this._trackType;
 		at._slopedKerbHeight = this._slopedKerbHeight;
+		at._side = this._side;
 
 		return at;
 	}

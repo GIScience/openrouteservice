@@ -52,6 +52,7 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 	private EncodedValue _surfaceEncoder;
 	private EncodedValue _smoothnessEncoder;
 	private EncodedValue _trackTypeEncoder;
+	private EncodedValue _sideFlagEncoder;
 	private EncodedDoubleValue _kerbHeightEncoder;
 	private EncodedDoubleValue _inclineEncoder;
 	private EncodedDoubleValue _widthEncoder;
@@ -78,6 +79,8 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 		_kerbHeightEncoder = new EncodedDoubleValue("kerbHeight", shift, 4, 1, 0, KERB_MAX_VALUE);
 		shift += _kerbHeightEncoder.getBits();
 		_widthEncoder = new EncodedDoubleValue("width", shift,5,0.1,0, WIDTH_MAX_VALUE);
+		shift += _widthEncoder.getBits();
+		_sideFlagEncoder = new EncodedValue("northFacing", shift, 2, 1,0,2);
 	}
 
 	public void init(Graph graph, Directory dir) {
@@ -142,8 +145,8 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 	private void encodeAttributes(WheelchairAttributes attrs, byte[] buffer)
 	{
 		/*
-		 *       | flag  | surface | smoothness | tracktype | kerbHeight | incline | width  |
-		 * lsb-> | 1 bit | 5 bits  |  4 bits    | 3 bits    | 6 bits     | 4 bits  | 6 bits | 29 bits in total which can fit into 4 bytes
+		 *       | flag  | surface | smoothness | tracktype | kerbHeight | incline | width  | northFacing |
+		 * lsb-> | 1 bit | 5 bits  |  4 bits    | 3 bits    | 6 bits     | 4 bits  | 6 bits | 2 bit 	  | 31 bits in total which can fit into 4 bytes
 		 * 	
 		 * 
 		 */
@@ -169,6 +172,14 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 
 			if (attrs.getWidth() > 0.0)
 				encodedValue = _widthEncoder.setDoubleValue(encodedValue, attrs.getWidth());
+
+			switch(attrs.getSide()) {
+				case LEFT:
+					encodedValue = _sideFlagEncoder.setValue(encodedValue, 1);
+				case RIGHT:
+					encodedValue = _sideFlagEncoder.setValue(encodedValue, 2);
+			}
+
 
 			buffer[3] = (byte) ((encodedValue >> 24) & 0xFF);
 			buffer[2] = (byte) ((encodedValue >> 16) & 0xFF);
@@ -225,6 +236,17 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 			if (dValue != 0.0)
 				attrs.setWidth((float) (dValue));
 
+			iValue = _sideFlagEncoder.getValue(encodedValue);
+			switch((int) iValue) {
+				case 1:
+					attrs.setSide(WheelchairAttributes.Side.LEFT);
+					break;
+				case 2:
+					attrs.setSide(WheelchairAttributes.Side.RIGHT);
+					break;
+				default:
+					attrs.setSide(WheelchairAttributes.Side.UNKNOWN);
+			}
 		}
 	}
 

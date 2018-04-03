@@ -214,6 +214,15 @@ public class GraphProcessContext {
 		}
 	}
 
+	public void processEdge(ReaderWay way, EdgeIteratorState edge, Coordinate[] coords) {
+		if(_arrStorageBuilders != null) {
+			int nStorages = _arrStorageBuilders.length;
+			for(int i=0; i<nStorages; i++) {
+				_arrStorageBuilders[i].processEdge(way, edge, coords);
+			}
+		}
+	}
+
 	public boolean createEdges(DataReaderContext readerCntx, ReaderWay way, LongArrayList osmNodeIds, long wayFlags, List<EdgeIteratorState> createdEdges) throws Exception
 	{
 		if (_arrGraphBuilders != null)

@@ -42,6 +42,8 @@ public interface GraphStorageBuilder extends Plugin
 	
 	public abstract void processEdge(ReaderWay way, EdgeIteratorState edge);
 
+	public abstract void processEdge(ReaderWay way, EdgeIteratorState edge, Coordinate[] coords);
+
 	public abstract void setParameters(Map<String, String> parameters);
 
 	public abstract String getName();

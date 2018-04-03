@@ -31,6 +31,7 @@ import heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
+import heigit.ors.util.GeomUtility;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
@@ -55,6 +56,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 	private boolean _hasLeft = false;
 	private boolean _hasRight = false;
 	private boolean kerbOnCrossing = false;
+	private boolean wayEastToWest = false;
 
 	public WheelchairGraphStorageBuilder()
 	{
@@ -114,6 +116,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		_hasRight = false;
 		_hasLeft = false;
 
+
+
 		// Annoyingly, it seems often to be the case that rather than using ":" to seperate tag parts, "." is used, so
 		// we need to take this into account
 		cleanedTags.clear();
@@ -133,6 +137,14 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		// We still need to always process the way itself even if it separate so that we can get sidewalk info (a
 		// separate footway can still ahve sidewalk tags...)
 		processAttached(way);
+
+		// We need to know which direction the way was drawn in so we can determine which side to attach sidewalks to
+		// on edges
+		// To do that, we need to look at the points to get a direction - but really we just want to know if it goes
+		// from east to west as that is enough
+		if(coords.length > 1) {
+			wayEastToWest = coords[0].x < coords[1].x;
+		}
 	}
 
 	/**
@@ -261,7 +273,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		if(values[0] != null && !values[0].isEmpty()) {
 			_hasLeft = true;
 			_wheelchairAttributesLeft.setSlopedKerbHeight((float)convertKerb("kerb", values[0].toLowerCase()));
-		}https://imgur.com/a/zAxdN
+		}
 		if(values[1] != null && !values[1].isEmpty()) {
 			_hasRight = true;
 			_wheelchairAttributesRight.setSlopedKerbHeight((float)convertKerb("kerb", values[0].toLowerCase()));
@@ -445,7 +457,12 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 	}
 
 	@Override
-	public void processEdge(ReaderWay way, EdgeIteratorState edge) 
+	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
+
+	}
+
+	@Override
+	public void processEdge(ReaderWay way, EdgeIteratorState edge, Coordinate[] coords)
 	{
 		WheelchairAttributes at = _wheelchairAttributes.copy();
 
@@ -490,13 +507,31 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 
 		// Check for if we have specified which side the processing is for
         if(way.hasTag("ors-sidewalk-side")) {
+			// Look at which way the edge goes
+			boolean eastToWest = false;
+			if(coords.length > 1) {
+				eastToWest = coords[0].x <= coords[coords.length-1].x;
+			}
+
 		    String side = way.getTag("ors-sidewalk-side");
 		    if(side.equals("left")) {
 				// Only get the attributes for the left side
 				at = getAttributes("left");
+				// Check which direction we are travelling in
+				// if we are travelling the same direction as the way, then use the same as marked, else the opposite
+				if(eastToWest == wayEastToWest)
+					at.setSide(WheelchairAttributes.Side.LEFT);
+				else
+					at.setSide(WheelchairAttributes.Side.RIGHT);
             }
             if(side.equals("right")) {
 		    	at = getAttributes("right");
+				// Check which direction we are travelling in
+				// if we are travelling the same direction as the way, then use the same as marked, else the opposite
+				if(eastToWest == wayEastToWest)
+					at.setSide(WheelchairAttributes.Side.RIGHT);
+				else
+					at.setSide(WheelchairAttributes.Side.LEFT);
 			}
         } else {
 			// if we have sidewalks attached, then we should also look at those. We should only hit this point if

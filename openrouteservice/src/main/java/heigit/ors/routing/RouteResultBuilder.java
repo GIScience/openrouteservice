@@ -156,7 +156,7 @@ public class RouteResultBuilder
 						instrType = getInstructionType(ii == 0, instr); 
 						segPoints = instr.getPoints();
 						nextSegPoints = (ii + 1 < nInstructions) ? instructions.get(ii + 1).getPoints() : getNextSegPoints(routes, ri + 1, 0);
-						
+
 						String roadName = formatInstructions && !Helper.isEmpty(instr.getName()) ? "<b>" + instr.getName() + "</b>" : instr.getName();
 						instrText = "";
 

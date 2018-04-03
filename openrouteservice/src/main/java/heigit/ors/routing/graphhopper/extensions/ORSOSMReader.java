@@ -54,6 +54,7 @@ public class ORSOSMReader extends OSMReader {
 	private HashMap<Long, HashMap<String, String>> nodeTags = new HashMap<>();
 
 	private boolean processGeom = false;
+	private boolean processSimpleGeom = false;
 	private boolean splitSidewalks = false;
 
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
@@ -87,6 +88,7 @@ public class ORSOSMReader extends OSMReader {
 			if ( b instanceof WheelchairGraphStorageBuilder) {
 				this.processNodeTags = true;
 				this.splitSidewalks = true;
+				this.processSimpleGeom = true;
 				this.addNodeTag("kerb");
 				this.addNodeTag("kerb:height");
 				extraTagKeys.add("kerb");
@@ -257,19 +259,32 @@ public class ORSOSMReader extends OSMReader {
 			}
 		}
 
-		if(processGeom) {
+		if(processGeom || processSimpleGeom) {
 			// We need to pass the geometry of the way aswell as the ReaderWay object
 			// This is slower so should only be done when needed
 
 			// First we need to generate the geometry
-			LongArrayList osmNodeIds = way.getNodes();
+			LongArrayList osmNodeIds = new LongArrayList();
+			LongArrayList allOsmNodes = way.getNodes();
+
+			if(allOsmNodes.size() > 1) {
+				if (processSimpleGeom) {
+					// We only want the start and end nodes
+					osmNodeIds.add(allOsmNodes.get(0));
+					osmNodeIds.add(allOsmNodes.get(allOsmNodes.size()-1));
+				} else {
+					// Process all nodes
+					osmNodeIds = allOsmNodes;
+				}
+			}
 
 			if(osmNodeIds.size() > 1) {
+
 				for (int i=0; i<osmNodeIds.size(); i++) {
 					int id = getNodeMap().get(osmNodeIds.get(i));
 					try {
-						double lat = getLatitudeOfNode(id);
-						double lon = getLongitudeOfNode(id);
+						double lat = getLatitudeOfNode(id, true);
+						double lon = getLongitudeOfNode(id, true);
 						// Add the point to the line
 						// Check that we have a tower node
 						if(!(lat == 0 || lon == 0 || Double.isNaN(lat) || Double.isNaN(lon)))
@@ -301,7 +316,7 @@ public class ORSOSMReader extends OSMReader {
 	 * @param id		Internal ID of the OSM node
 	 * @return
 	 */
-	private double getLatitudeOfNode(int id) {
+	private double getLatitudeOfNode(int id, boolean onlyTower) {
 		// for speed, we only want to handle the geometry of tower nodes (those at junctions)
 		if (id == EMPTY_NODE)
 			return Double.NaN;
@@ -311,7 +326,12 @@ public class ORSOSMReader extends OSMReader {
 			return nodeAccess.getLatitude(id);
 		} else if (id > -TOWER_NODE) {
 			// pillar node
-			return Double.NaN;
+			// Do we want to return it if it is not a tower node?
+			if(onlyTower) {
+				return Double.NaN;
+			} else {
+				return pillarInfo.getLatitude(id);
+			}
 		} else
 			// e.g. if id is not handled from preparse (e.g. was ignored via isInBounds)
 			return Double.NaN;
@@ -324,7 +344,7 @@ public class ORSOSMReader extends OSMReader {
 	 * @param id		Internal ID of the OSM node
 	 * @return
 	 */
-	private double getLongitudeOfNode(int id) {
+	private double getLongitudeOfNode(int id, boolean onlyTower) {
 		if (id == EMPTY_NODE)
 			return Double.NaN;
 		if (id < TOWER_NODE) {
@@ -333,7 +353,12 @@ public class ORSOSMReader extends OSMReader {
 			return nodeAccess.getLongitude(id);
 		} else if (id > -TOWER_NODE) {
 			// pillar node
-			return Double.NaN;
+			// Do we want to return it if it is not a tower node?
+			if(onlyTower) {
+				return Double.NaN;
+			} else {
+				return pillarInfo.getLatitude(id);
+			}
 		} else
 			// e.g. if id is not handled from preparse (e.g. was ignored via isInBounds)
 			return Double.NaN;
@@ -423,8 +448,18 @@ public class ORSOSMReader extends OSMReader {
 					}
 				}
 			}
-		
-			_procCntx.processEdge(way, edge);
+
+			// Pass through the coordinates of the graph nodes
+			Coordinate baseCoord = new Coordinate(
+					getLongitudeOfNode(edge.getBaseNode(), false),
+					getLatitudeOfNode(edge.getBaseNode(), false)
+			);
+			Coordinate adjCoordinate = new Coordinate(
+					getLongitudeOfNode(edge.getAdjNode(), false),
+					getLatitudeOfNode(edge.getAdjNode(), false)
+			);
+
+			_procCntx.processEdge(way, edge, new Coordinate[] {baseCoord, adjCoordinate});
 		} catch (Exception ex) {
 			LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
 		}
