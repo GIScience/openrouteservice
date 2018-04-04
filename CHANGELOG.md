@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -
 
 ### Fixed
--
+- Fixed problem with avoid polygons excluding ways that should have been accepted (Issue #95)
 
 ### Changed
 -
