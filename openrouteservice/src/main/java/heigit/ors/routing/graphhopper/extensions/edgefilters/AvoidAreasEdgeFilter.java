@@ -131,6 +131,8 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 
 			if (inEnv || !(eMinX > env.getMaxX() || eMaxX < env.getMinX() || eMinY > env.getMaxY() || eMaxY < env.getMinY()))
 			{
+				// We have to reset the coordinate sequence else for some reason the envelopes for the edge are wrong
+				coordSequence = new DefaultCoordinateSequence(new Coordinate[1], 1);
 				if (size >= 2)
 				{
 					// resize sequence if needed
