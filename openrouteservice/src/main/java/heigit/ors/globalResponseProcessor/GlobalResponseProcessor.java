@@ -30,12 +30,11 @@ import heigit.ors.exceptions.ExportException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.geocoding.geocoders.GeocodingErrorCodes;
 import heigit.ors.geocoding.geocoders.GeocodingResult;
+import heigit.ors.globalResponseProcessor.geoJson.GeoJsonResponseWriter;
+import heigit.ors.globalResponseProcessor.gpx.GpxResponseWriter;
 import heigit.ors.isochrones.IsochroneMapCollection;
 import heigit.ors.isochrones.IsochroneRequest;
 import heigit.ors.isochrones.IsochronesErrorCodes;
-import heigit.ors.locations.LocationsErrorCodes;
-import heigit.ors.locations.LocationsRequest;
-import heigit.ors.locations.LocationsResult;
 import heigit.ors.mapmatching.MapMatchingRequest;
 import heigit.ors.matrix.MatrixErrorCodes;
 import heigit.ors.matrix.MatrixRequest;
@@ -46,8 +45,6 @@ import heigit.ors.routing.RoutingRequest;
 import heigit.ors.services.ServiceRequest;
 import heigit.ors.services.geocoding.requestprocessors.GeocodingRequest;
 import heigit.ors.servlet.util.ServletUtility;
-import heigit.ors.globalResponseProcessor.geoJson.GeoJsonResponseWriter;
-import heigit.ors.globalResponseProcessor.gpx.GpxResponseWriter;
 import org.json.JSONObject;
 
 /**
@@ -66,8 +63,6 @@ public class GlobalResponseProcessor {
     private GeocodingResult geocodingResult;
     private IsochroneRequest isochroneRequest;
     private IsochroneMapCollection isochroneMapCollection; // The result type for Isochrones!!!
-    private LocationsRequest locationsRequest;
-    private LocationsResult locationsResult;
     private MapMatchingRequest mapMatchingRequest;
     private MatrixRequest matrixRequest;
     private MatrixResult matrixResult;
@@ -100,18 +95,6 @@ public class GlobalResponseProcessor {
 
         this.isochroneRequest = isochroneRequest;
         this.isochroneMapCollection = isochroneMapCollection;
-    }
-
-    /**
-     * Constructor to ensure the correct creation and processing of the desired export.
-     *
-     * @param locationsRequest {@link LocationsRequest} holding the initial {@link ServiceRequest}.
-     * @param locationsResult  {@link LocationsResult} holding the already processed result.
-     */
-    public GlobalResponseProcessor(LocationsRequest locationsRequest, LocationsResult locationsResult) {
-
-        this.locationsRequest = locationsRequest;
-        this.locationsResult = locationsResult;
     }
 
     /**
@@ -169,11 +152,6 @@ public class GlobalResponseProcessor {
 //            if (this.isochroneMapCollection.size() > 0) {
 //                // TODO Do export
 //            }
-        } else if (!(this.locationsRequest == null)) {
-            throw new ExportException(LocationsErrorCodes.UNSUPPORTED_EXPORT_FORMAT, this.getClass(), locationsRequest.getClass(), "GeoJSON");
-//            if (locationsResult.getGeometry().getLength() > 0) {
-//                // TODO Do export
-//            }
         } else if (!(this.mapMatchingRequest == null)) {
             throw new StatusCodeException(StatusCode.NOT_IMPLEMENTED);
 //            if (this.isochroneMapCollection.size() > 0) {
@@ -213,11 +191,6 @@ public class GlobalResponseProcessor {
         } else if (!(this.isochroneRequest == null)) {
             throw new ExportException(IsochronesErrorCodes.UNSUPPORTED_EXPORT_FORMAT, this.getClass(), isochroneRequest.getClass(), "GPX");
             /*if (this.isochroneMapCollection.size() > 0) {
-                // TODO Do export
-            }*/
-        } else if (!(this.locationsRequest == null)) {
-            throw new ExportException(LocationsErrorCodes.UNSUPPORTED_EXPORT_FORMAT, this.getClass(), locationsRequest.getClass(), "GPX");
-           /* if (locationsResult.getGeometry().getLength() > 0) {
                 // TODO Do export
             }*/
         } else if (!(this.mapMatchingRequest == null)) {

@@ -20,27 +20,25 @@
  */
 package heigit.ors.isochrones.statistics.postgresql;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.Map;
-
-import org.apache.log4j.Logger;
-import org.postgresql.ds.PGSimpleDataSource;
-
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.OutputStreamOutStream;
 import com.vividsolutions.jts.io.WKBWriter;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.isochrones.Isochrone;
+import heigit.ors.isochrones.IsochronesErrorCodes;
 import heigit.ors.isochrones.statistics.AbstractStatisticsProvider;
-import heigit.ors.locations.LocationsErrorCodes;
+import org.apache.log4j.Logger;
+import org.postgresql.ds.PGSimpleDataSource;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.Map;
 
 /**
  * This class handles the population statistic queries. It generates internal api calls to SQL statements that are
@@ -71,13 +69,13 @@ public class PostgresSQLStatisticsProvider extends AbstractStatisticsProvider {
 
         String value = (String) parameters.get("table_name");
         if (Helper.isEmpty(value))
-            throw new InternalServerException(LocationsErrorCodes.UNKNOWN, "'table_name' parameter can not be null or empty.");
+            throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "'table_name' parameter can not be null or empty.");
         else
             _tableName = value;
 
         value = (String) parameters.get("geometry_column");
         if (Helper.isEmpty(value))
-            throw new InternalServerException(LocationsErrorCodes.UNKNOWN, "'geometry_column' parameter can not be null or empty.");
+            throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "'geometry_column' parameter can not be null or empty.");
         else
             _geomColumn = value;
 
@@ -173,7 +171,7 @@ public class PostgresSQLStatisticsProvider extends AbstractStatisticsProvider {
             }
         } catch (Exception ex) {
             LOGGER.error(ex);
-            throw new InternalServerException(LocationsErrorCodes.UNKNOWN, "Unable to retrieve data from the data source.");
+            throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to retrieve data from the data source.");
         } finally {
             if (preparedStatement != null) {
                 preparedStatement.close();
@@ -231,7 +229,7 @@ public class PostgresSQLStatisticsProvider extends AbstractStatisticsProvider {
             }
         } catch (Exception ex) {
             LOGGER.error(ex);
-            exception = new InternalServerException(LocationsErrorCodes.UNKNOWN, "Unable to retrieve data from the data source.");
+            exception = new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to retrieve data from the data source.");
         } finally {
             if (statement != null)
                 statement.close();
