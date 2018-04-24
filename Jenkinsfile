@@ -38,7 +38,7 @@ pipeline {
         }
       }
       steps {
-        sh "nohup '${mvnHome}/bin/mvn' -f ${WORKSPACE}/openrouteservice/pom.xml tomcat7:run &"
+        sh "nohup '${mvnHome}/bin/mvn' -f ${WORKSPACE}/openrouteservice/pom.xml tomcat7:run & > ${WORKSPACE}/build_graphs.out&"
         sh "sleep 5m"
         sh "'${mvnHome}/bin/mvn' -f ${WORKSPACE}/openrouteservice-api-tests/pom.xml test"
       }

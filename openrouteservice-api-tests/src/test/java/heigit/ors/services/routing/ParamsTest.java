@@ -4,14 +4,14 @@
  *   	 http://www.giscience.uni-hd.de
  *   	 http://www.heigit.org
  *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
+ *  under one or more contributor license agreements. See the NOTICE file
+ *  distributed with this work for additional information regarding copyright
+ *  ownership. The GIScience licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in compliance
  *  with the License. You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -161,6 +161,10 @@ public class ParamsTest extends ServiceTest {
 				.statusCode(200);
 	}
 
+	/**
+	 * Expects the typical json response with geojson and addtitional elements in it.
+     * The difference to expectGeoJsonExport is, that it validates the typical json export.
+	 */
 	@Test
 	public void expectGeometryGeojson() {
 
@@ -179,6 +183,47 @@ public class ParamsTest extends ServiceTest {
 				.body("routes[0].geometry_format", is("geojson"))
 				.body("routes[0].geometry.type", is("LineString"))
 				.statusCode(200);
+	}
+
+    /**
+     * This test validates the GeoJson-Export Parameter, together with and without instructions.
+     * The difference to expectGeometryGeojson is, that it validates the proper geojson export.
+     */
+	@Test
+	public void expectGeoJsonExportInstructions(){
+		given()
+				.param("coordinates", getParameter("coordinatesShort"))
+				.param("preference", getParameter("preference"))
+				.param("profile", getParameter("profile"))
+				.param("format", "geojson")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'features' }", is(true))
+				.body("any { it.key == 'bbox' }", is(true))
+				.body("any { it.key == 'type' }", is(true))
+				.body("any { it.key == 'info' }", is(true))
+				.body("features[0].containsKey('properties')", is(true))
+				.body("features[0].properties.containsKey('segments')", is(true))
+				.statusCode(200);
+        given()
+                .param("coordinates", getParameter("coordinatesShort"))
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("profile"))
+                .param("instructions", "false")
+                .param("format", "geojson")
+                .when()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+				.body("any { it.key == 'features' }", is(true))
+				.body("any { it.key == 'bbox' }", is(true))
+				.body("any { it.key == 'type' }", is(true))
+				.body("any { it.key == 'info' }", is(true))
+				.body("features[0].containsKey('properties')", is(true))
+				.body("features[0].properties.containsKey('segments')", is(false))
+                .statusCode(200);
 	}
 
 	@Test
@@ -289,7 +334,7 @@ public class ParamsTest extends ServiceTest {
 				.body("routes[0].extras.containsKey('steepness')", is(true))
 				.statusCode(200);
 	}
-	
+
 	@Test
 	public void expectNoExtrainfo() {
 
@@ -320,7 +365,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(203))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
 	}
 
@@ -335,7 +380,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(201))
+				.body("error.code", is(RoutingErrorCodes.MISSING_PARAMETER))
 				.statusCode(400);
 	}
 
@@ -351,7 +396,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(202))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_FORMAT))
 				.statusCode(400);
 	}
 
@@ -368,7 +413,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(203))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
 	}
 
@@ -384,7 +429,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(204))
+				.body("error.code", is(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT))
 				.statusCode(400);
 	}
 
@@ -425,7 +470,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(203))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
 	}
 
@@ -481,7 +526,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(200))
+				.body("error.code", is(RoutingErrorCodes.INVALID_JSON_FORMAT))
 				.statusCode(400);
 	}
 
@@ -509,7 +554,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(200))
+				.body("error.code", is(RoutingErrorCodes.INVALID_JSON_FORMAT))
 				.statusCode(400);
 	}
 
@@ -539,7 +584,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(203))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
 	}
 
@@ -562,7 +607,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(203))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
 	}
 
@@ -572,7 +617,7 @@ public class ParamsTest extends ServiceTest {
 		// options for cycling profiles
 		JSONObject options = new JSONObject();
 		options.put("maximum_speed", "25fgf");
-		
+
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
@@ -583,10 +628,10 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(202))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_FORMAT))
 				.statusCode(400);
 	}
-	
+
 	@Test
 	public void expectBearingsFormatError() {
 		given()
@@ -599,9 +644,9 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(203))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
-		
+
 		given()
 		.param("coordinates", getParameter("coordinatesShort"))
 		.param("preference", getParameter("preference"))
@@ -612,10 +657,10 @@ public class ParamsTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(203))
+		.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 		.statusCode(400);
 	}
-	
+
 	@Test
 	public void expectRadiusesFormatError() {
 		given()
@@ -628,9 +673,9 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(203))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
-		
+
 		given()
 		.param("coordinates", getParameter("coordinatesShort"))
 		.param("preference", getParameter("preference"))
@@ -641,10 +686,10 @@ public class ParamsTest extends ServiceTest {
 		.get(getEndPointName())
 		.then()
 		.assertThat()
-		.body("error.code", is(203))
+		.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 		.statusCode(400);
 	}
-	
+
 	@Test
 	public void expectNoNearestEdge() {
 		given()
@@ -657,7 +702,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(299))
+				.body("error.code", is(RoutingErrorCodes.UNKNOWN))
 				.statusCode(500);
 	}
 	@Test
@@ -673,7 +718,7 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(203))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
 	}
 }

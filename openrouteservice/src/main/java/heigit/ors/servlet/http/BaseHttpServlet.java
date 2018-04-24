@@ -81,8 +81,14 @@ public class BaseHttpServlet extends HttpServlet
 			}					
 			else
 				writeError(res, statusCode, json);
-			
-			LOGGER.error("Exception", ex);
+
+			if(LOGGER.isDebugEnabled()) {
+				// Log also the stack trace
+				LOGGER.error("Exception", ex);
+			} else {
+				// Log only the error message
+				LOGGER.error(ex);
+			}
 		} catch (JSONException e) {
 			LOGGER.error(e);
 		}
