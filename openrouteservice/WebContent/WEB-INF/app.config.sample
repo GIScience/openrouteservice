@@ -364,6 +364,25 @@
 						    	} 						
 						}
 					}
+					# ====================================================================================================================
+                    # Wheelchair profiles
+                    # ====================================================================================================================
+                    profile-wheelchair: {
+                    	profiles: "wheelchair",
+                    	parameters: {
+                            encoder_options: "block_fords=true",
+                            elevation: true,
+                            ext_storages: {
+                                WayCategory: {},
+                                WaySurfaceType: {},
+                                Wheelchair: {
+                                    # The KerbsOnCrossings option tells the builder whether kerb heights should only be attached to ways
+                                    # marked as crossings ("true"), or to any way they fall on ("false")
+                                    KerbsOnCrossings: "true"
+                                }
+                            }
+                        }
+                    }
 				}
 				update: {
 					enabled: false,

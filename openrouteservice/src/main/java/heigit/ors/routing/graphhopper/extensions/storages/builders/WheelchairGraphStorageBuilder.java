@@ -470,6 +470,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		// with all ways
         // This is only applicable if the kerb height is stored on a node rather than on the way itself. If that is the
         // case, then the kerb height has already been stored in the attributes.
+
 		if((kerbOnCrossing && way.hasTag("footway") && way.getTag("footway").equals("crossing"))
 				|| !kerbOnCrossing) {
 			// Look for kerb information

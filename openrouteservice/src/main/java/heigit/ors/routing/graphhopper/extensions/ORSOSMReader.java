@@ -89,8 +89,6 @@ public class ORSOSMReader extends OSMReader {
 				this.processNodeTags = true;
 				this.splitSidewalks = true;
 				this.processSimpleGeom = true;
-				this.addNodeTag("kerb");
-				this.addNodeTag("kerb:height");
 				extraTagKeys.add("kerb");
 				extraTagKeys.add("kerb:height");
 			}
