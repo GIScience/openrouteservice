@@ -26,21 +26,22 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.config.AppConfig;
 import heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
-import heigit.ors.util.GeomUtility;
 import org.apache.log4j.Logger;
 
-import javax.servlet.ServletException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Arrays;
 
 public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder 
 {
 	private static Logger LOGGER = Logger.getLogger(WheelchairGraphStorageBuilder.class.getName());
-	private enum Side {LEFT, RIGHT, BOTH};
 
 	private WheelchairAttributesGraphStorage _storage;
 	private WheelchairAttributes _wheelchairAttributes;
@@ -52,7 +53,6 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 	private HashMap<Integer, HashMap<String,String>> nodeTags;
 	private HashMap<String, Object> cleanedTags;
 
-	private boolean _isSeparate = false;
 	private boolean _hasLeft = false;
 	private boolean _hasRight = false;
 	private boolean kerbOnCrossing = false;
@@ -112,7 +112,6 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 
 		this.nodeTags = nodeTags;
 
-		_isSeparate = false;
 		_hasRight = false;
 		_hasLeft = false;
 
@@ -210,17 +209,17 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		values = getCompoundValue(way, "width");
 		if(values[0] != null && !values[0].isEmpty()) {
 			_hasLeft = true;
-			_wheelchairAttributesLeft.setWidth((float)convertWidth(values[0].toLowerCase()));
+			_wheelchairAttributesLeft.setWidth((float) convertLinearValueToMetres(values[0].toLowerCase()));
 		}
 		if(values[1] != null && !values[1].isEmpty()) {
 			_hasRight = true;
-			_wheelchairAttributesRight.setWidth((float)convertWidth(values[1].toLowerCase()));
+			_wheelchairAttributesRight.setWidth((float) convertLinearValueToMetres(values[1].toLowerCase()));
 		}
 
 		// Get the incline of the way (10%, 6% etc.)
 		if (way.hasTag("incline"))
 		{
-			double incline = getIncline(way);
+			double incline = getInclineValueFromWay(way);
 			if (incline != 0.0)
 			{
 				_wheelchairAttributesLeft.setIncline((float)incline);
@@ -230,31 +229,31 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		values = getCompoundValue(way, "incline");
 		if(values[0] != null && !values[0].isEmpty()) {
 			_hasLeft = true;
-			_wheelchairAttributesLeft.setWidth((float)convertIncline(values[0].toLowerCase()));
+			_wheelchairAttributesLeft.setWidth((float) convertInclineValueToPercentage(values[0].toLowerCase()));
 		}
 		if(values[1] != null && !values[1].isEmpty()) {
 			_hasRight = true;
-			_wheelchairAttributesRight.setWidth((float)convertIncline(values[1].toLowerCase()));
+			_wheelchairAttributesRight.setWidth((float) convertInclineValueToPercentage(values[1].toLowerCase()));
 		}
 
 		// Assess any kerb height attached directly to the way
 		if(way.hasTag("curb")) {
-			double height = convertKerb("curb", way.getTag("curb"));
+			double height = convertKerbTagToHeight("curb", way.getTag("curb"));
 			_wheelchairAttributesLeft.setSlopedKerbHeight((float) height);
 			_wheelchairAttributesRight.setSlopedKerbHeight((float) height);
 		}
 		if(way.hasTag("kerb")) {
-			double height = convertKerb("kerb", way.getTag("kerb"));
+			double height = convertKerbTagToHeight("kerb", way.getTag("kerb"));
 			_wheelchairAttributesLeft.setSlopedKerbHeight((float) height);
 			_wheelchairAttributesRight.setSlopedKerbHeight((float) height);
 		}
 		if(way.hasTag("sloped_curb")) {
-			double height = convertKerb("sloped_curb", way.getTag("sloped_curb"));
+			double height = convertKerbTagToHeight("sloped_curb", way.getTag("sloped_curb"));
 			_wheelchairAttributesLeft.setSlopedKerbHeight((float) height);
 			_wheelchairAttributesRight.setSlopedKerbHeight((float) height);
 		}
 		if(way.hasTag("kerb:height")) {
-			double height = convertKerb("kerb:height", way.getTag("kerb:height"));
+			double height = convertKerbTagToHeight("kerb:height", way.getTag("kerb:height"));
 			_wheelchairAttributesLeft.setSlopedKerbHeight((float) height);
 			_wheelchairAttributesRight.setSlopedKerbHeight((float) height);
 		}
@@ -263,38 +262,38 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		values = getCompoundKerb(way, "curb");
 		if(values[0] != null && !values[0].isEmpty()) {
 			_hasLeft = true;
-			_wheelchairAttributesLeft.setSlopedKerbHeight((float)convertKerb("curb", values[0].toLowerCase()));
+			_wheelchairAttributesLeft.setSlopedKerbHeight((float) convertKerbTagToHeight("curb", values[0].toLowerCase()));
 		}
 		if(values[1] != null && !values[1].isEmpty()) {
 			_hasRight = true;
-			_wheelchairAttributesRight.setSlopedKerbHeight((float)convertKerb("curb", values[0].toLowerCase()));
+			_wheelchairAttributesRight.setSlopedKerbHeight((float) convertKerbTagToHeight("curb", values[0].toLowerCase()));
 		}
 		values = getCompoundKerb(way, "kerb");
 		if(values[0] != null && !values[0].isEmpty()) {
 			_hasLeft = true;
-			_wheelchairAttributesLeft.setSlopedKerbHeight((float)convertKerb("kerb", values[0].toLowerCase()));
+			_wheelchairAttributesLeft.setSlopedKerbHeight((float) convertKerbTagToHeight("kerb", values[0].toLowerCase()));
 		}
 		if(values[1] != null && !values[1].isEmpty()) {
 			_hasRight = true;
-			_wheelchairAttributesRight.setSlopedKerbHeight((float)convertKerb("kerb", values[0].toLowerCase()));
+			_wheelchairAttributesRight.setSlopedKerbHeight((float) convertKerbTagToHeight("kerb", values[0].toLowerCase()));
 		}
 		values = getCompoundKerb(way, "sloped_curb");
 		if(values[0] != null && !values[0].isEmpty()) {
 			_hasLeft = true;
-			_wheelchairAttributesLeft.setSlopedKerbHeight((float)convertKerb("sloped_curb", values[0].toLowerCase()));
+			_wheelchairAttributesLeft.setSlopedKerbHeight((float) convertKerbTagToHeight("sloped_curb", values[0].toLowerCase()));
 		}
 		if(values[1] != null && !values[1].isEmpty()) {
 			_hasRight = true;
-			_wheelchairAttributesRight.setSlopedKerbHeight((float)convertKerb("sloped_curb", values[0].toLowerCase()));
+			_wheelchairAttributesRight.setSlopedKerbHeight((float) convertKerbTagToHeight("sloped_curb", values[0].toLowerCase()));
 		}
 		values = getCompoundKerb(way, "kerb:height");
 		if(values[0] != null && !values[0].isEmpty()) {
 			_hasLeft = true;
-			_wheelchairAttributesLeft.setSlopedKerbHeight((float)convertKerb("kerb:height", values[0].toLowerCase()));
+			_wheelchairAttributesLeft.setSlopedKerbHeight((float) convertKerbTagToHeight("kerb:height", values[0].toLowerCase()));
 		}
 		if(values[1] != null && !values[1].isEmpty()) {
 			_hasRight = true;
-			_wheelchairAttributesRight.setSlopedKerbHeight((float)convertKerb("kerb:height", values[0].toLowerCase()));
+			_wheelchairAttributesRight.setSlopedKerbHeight((float) convertKerbTagToHeight("kerb:height", values[0].toLowerCase()));
 		}
 	}
 
@@ -307,27 +306,27 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		String[] endValues = getCompoundValue(way, key + ":end");
 		// Convert
 		if(endValues[0] != null && !endValues[0].isEmpty()) {
-			leftEnd = convertKerb(key, endValues[0]);
+			leftEnd = convertKerbTagToHeight(key, endValues[0]);
 		}
 		if(endValues[1] != null && !endValues[1].isEmpty()) {
-			rightEnd = convertKerb(key, endValues[1]);
+			rightEnd = convertKerbTagToHeight(key, endValues[1]);
 		}
 		String[] startValues = getCompoundValue(way, key + ":start");
 		// Convert
 		if(startValues[0] != null && !startValues[0].isEmpty()) {
-			leftStart = convertKerb(key, startValues[0]);
+			leftStart = convertKerbTagToHeight(key, startValues[0]);
 		}
 		if(startValues[1] != null && !startValues[1].isEmpty()) {
-			rightStart = convertKerb(key, startValues[1]);
+			rightStart = convertKerbTagToHeight(key, startValues[1]);
 		}
 
 		String[] normValues = getCompoundValue(way, key);
 		// Convert
 		if(normValues[0] != null && !normValues[0].isEmpty()) {
-			leftNorm = convertKerb(key, normValues[0]);
+			leftNorm = convertKerbTagToHeight(key, normValues[0]);
 		}
 		if(normValues[1] != null && !normValues[1].isEmpty()) {
-			rightNorm = convertKerb(key, normValues[1]);
+			rightNorm = convertKerbTagToHeight(key, normValues[1]);
 		}
 
 		// Now compare to find the worst
@@ -356,7 +355,6 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 	 * @param way
 	 */
 	private void processSeparate(ReaderWay way) {
-		_isSeparate = true;
 
 		if (way.hasTag("surface"))
 		{
@@ -379,19 +377,19 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		}
 
 		if(way.hasTag("width")) {
-			double width = convertWidth(way.getTag("width"));
+			double width = convertLinearValueToMetres(way.getTag("width"));
 			_wheelchairAttributes.setWidth((float)width);
 		}
 
 		// kerb height is only valid on separated ways
 		if(way.hasTag("curb"))
-			_wheelchairAttributes.setSlopedKerbHeight((float)convertKerb("curb", way.getTag("curb")));
+			_wheelchairAttributes.setSlopedKerbHeight((float) convertKerbTagToHeight("curb", way.getTag("curb")));
 		if(way.hasTag("kerb"))
-			_wheelchairAttributes.setSlopedKerbHeight((float)convertKerb("kerb", way.getTag("kerb")));
+			_wheelchairAttributes.setSlopedKerbHeight((float) convertKerbTagToHeight("kerb", way.getTag("kerb")));
 		if(way.hasTag("sloped_curb"))
-			_wheelchairAttributes.setSlopedKerbHeight((float)convertKerb("sloped_curb", way.getTag("sloped_curb")));
+			_wheelchairAttributes.setSlopedKerbHeight((float) convertKerbTagToHeight("sloped_curb", way.getTag("sloped_curb")));
 		if(way.hasTag("kerb:height"))
-			_wheelchairAttributes.setSlopedKerbHeight((float)convertKerb("kerb:height", way.getTag("kerb:height")));
+			_wheelchairAttributes.setSlopedKerbHeight((float) convertKerbTagToHeight("kerb:height", way.getTag("kerb:height")));
 
 		// incline
 		// =======
@@ -400,7 +398,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		// http://wiki.openstreetmap.org/wiki/DE:Wheelchair_routing#Weg_Eigenschaften_allgemein
 		if (way.hasTag("incline"))
 		{
-			double incline = getIncline(way);
+			double incline = getInclineValueFromWay(way);
 			if (incline != 0.0)
 			{
 				_wheelchairAttributes.setIncline((float)incline);
@@ -486,7 +484,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 							case "kerb":
 							case "sloped_kerb":
 							case "kerb:height":
-								kerbHeights.add((float) convertKerb(key, tags.get(key)));
+								kerbHeights.add((float) convertKerbTagToHeight(key, tags.get(key)));
 								break;
 						}
 					}
@@ -594,7 +592,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 	 * @param value		The value of the tag
 	 * @return			The presumed height of the kerb in metres
 	 */
-	private double convertKerb(String tag, String value) {
+	private double convertKerbTagToHeight(String tag, String value) {
 		double height = -1d;
 
 		if(tag.equals("sloped_curb") || tag.equals("curb") || tag.equals("kerb")) {
@@ -622,94 +620,17 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 					break;
 				default:
 					// May be that it is already numeric (though it shouldn't be)
-					height = convertWidth(value);
+					height = convertLinearValueToMetres(value);
 					break;
 			}
 		}
 		if(tag.equals("kerb:height")) {
 			// we need to also check for the measurement unit
 			// we can use the same unit conversion as width
-			height = convertWidth(value);
+			height = convertLinearValueToMetres(value);
 		}
 
 		return height;
-	}
-
-	private double getKerbHeight(ReaderWay way) {
-		// http://taginfo.openstreetmap.org/keys/kerb#overview: 80% nodes, 20% ways
-		// http://taginfo.openstreetmap.org/keys/kerb#values
-		double res = 0d;
-		String str = null;
-		// http://taginfo.openstreetmap.org/keys/sloped_curb#overview: 90% nodes, 10% ways
-		// http://taginfo.openstreetmap.org/keys/sloped_curb#values
-		if (way.hasTag("sloped_curb")) {
-			str = way.getTag("sloped_curb").toLowerCase();
-			str = str.replace("yes", "0.03");
-			str = str.replace("both", "0.03");
-			str = str.replace("no", "0.15");
-			str = str.replace("one", "0.15");
-			str = str.replace("at_grade", "0.0");
-			str = str.replace("flush", "0.0");
-			str = str.replace("low", "0.03");
-		}
-		else if (way.hasTag("kerb")) {
-			if (way.hasTag("kerb:height")) {
-				str = way.getTag("kerb:height").toLowerCase();
-			}
-			else {
-				str = way.getTag("kerb").toLowerCase();
-				str = str.replace("lowered", "0.03");
-				str = str.replace("raised", "0.15");
-				str = str.replace("yes", "0.03");
-				str = str.replace("flush", "0.0");
-				str = str.replace("unknown", "0.03");
-				str = str.replace("none", "0.15");
-				str = str.replace("no", "0.15");
-				str = str.replace("dropped", "0.03");
-				str = str.replace("rolled", "0.03");
-			}
-		}
-       
-		// http://taginfo.openstreetmap.org/keys/curb#overview: 70% nodes, 30% ways
-		// http://taginfo.openstreetmap.org/keys/curb#values
-		else if (way.hasTag("curb")) {
-			str = way.getTag("curb").toLowerCase();
-			str = str.replace("lowered", "0.03");
-			str = str.replace("regular", "0.15");
-			str = str.replace("flush;lowered", "0.0");
-			str = str.replace("sloped", "0.03");
-			str = str.replace("lowered_and_sloped", "0.03");
-			str = str.replace("flush", "0.0");
-			str = str.replace("none", "0.15");
-			str = str.replace("flush_and_lowered", "0.0");
-		}
-
-		if (str != null) {
-			boolean isCm = false;
-			try {
-				if (str.contains("c")) {
-					isCm = true;
-				}
-				res = Double.parseDouble(str.replace("%", "").replace(",", ".").replace("m", "").replace("c", ""));
-				if (isCm) {
-					res /= 100d;
-				}
-			}
-			catch (Exception ex) {
-				//	logger.warning("Error parsing value for Tag kerb from this String: " + stringValue + ". Exception:" + ex.getMessage());
-			}
-		}
-
-		// check if the value makes sense (i.e. maximum 0.3m/30cm)
-		if (-0.15 < res && res < 0.15) {
-			res = Math.abs(res);
-		}
-		else {
-			// doubleValue = Double.NaN;
-			res = 0.15;
-		}
-		
-		return res;
 	}
 
 	/**
@@ -751,40 +672,41 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		return values;
 	}
 
-	private double getIncline(ReaderWay way)
+	private double getInclineValueFromWay(ReaderWay way)
 	{
 		String inclineValue = way.getTag("incline");
-		return convertIncline(inclineValue);
+		return convertInclineValueToPercentage(inclineValue);
 	}
 
 	/**
 	 * Convert the String representation of an incline into a %age incline value. in OSM the tag value could already
 	 * be a %age value, or it could be written as "up", "down", "steep" etc. in which case an incline value is assumed
 	 *
-	 * @param inclineValue		The value obtained from the incline tag
+	 * @param unprocessedInclineValue		The value obtained from the incline tag
 	 * @return					a percentage incline value
 	 */
-	private double convertIncline(String inclineValue) {
+	private double convertInclineValueToPercentage(String unprocessedInclineValue) {
 
-		if (inclineValue != null)
+		if (unprocessedInclineValue != null)
 		{
 			double v = 0d;
 			boolean isDegree = false;
 			try {
-				inclineValue = inclineValue.replace("%", "");
-				inclineValue = inclineValue.replace(",", ".");
-				if (inclineValue.contains("°")) {
-					inclineValue = inclineValue.replace("°", "");
+				unprocessedInclineValue = unprocessedInclineValue.replace("%", "");
+				unprocessedInclineValue = unprocessedInclineValue.replace(",", ".");
+				if (unprocessedInclineValue.contains("°")) {
+					unprocessedInclineValue = unprocessedInclineValue.replace("°", "");
 					isDegree = true;
 				}
-				// TODO: the following lines are assumptions - can they be validated?
-				inclineValue = inclineValue.replace("up", "10");
-				inclineValue = inclineValue.replace("down", "10");
-				inclineValue = inclineValue.replace("yes", "10");
-				inclineValue = inclineValue.replace("steep", "15");
-				inclineValue = inclineValue.replace("no", "0");
-				inclineValue = inclineValue.replace("+/-0", "0");
-				v = Double.parseDouble(inclineValue);
+
+				// Replace textual descriptions with assumed values
+				unprocessedInclineValue = unprocessedInclineValue.replace("up", "10");
+				unprocessedInclineValue = unprocessedInclineValue.replace("down", "10");
+				unprocessedInclineValue = unprocessedInclineValue.replace("yes", "10");
+				unprocessedInclineValue = unprocessedInclineValue.replace("steep", "15");
+				unprocessedInclineValue = unprocessedInclineValue.replace("no", "0");
+				unprocessedInclineValue = unprocessedInclineValue.replace("+/-0", "0");
+				v = Double.parseDouble(unprocessedInclineValue);
 				if (isDegree) {
 					v = Math.tan(v) * 100;
 				}
@@ -792,16 +714,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 			catch (Exception ex) {
 
 			}
-			// Fist check if the value makes sense
-			// http://wiki.openstreetmap.org/wiki/DE:Key:incline
-			// TODO: deal with negative incline (indicates the direction of the incline => might not be important for use wheelchair user as too much incline is an exclusion criterion in both directions?)
-			if (-50 < v && v < 50) {
-				// value seems to be okay
-			}
-			else {
-				// v = Double.NaN;
-				v = 15;
-			}
+
+			// If the value seems too extreme, then we should limit
 			if (Math.abs(v) > 15) {
 				v = 15;
 			}
@@ -816,120 +730,121 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 	 * Convert a OSM width value to a decimal value in metres. In osm the width could be stored in many different units
 	 * and so this method attempts to convert them all to metres.
 	 *
-	 * @param widthStr		The obtained width tag value
+	 * @param unprocessedLinearValue		The obtained width tag value
 	 * @return				The width value converted to metres
 	 */
-	private double convertWidth(String widthStr) {
-		double width = -1d;
+	private double convertLinearValueToMetres(String unprocessedLinearValue) {
+		double processedLinearValue = -1d;
 
 		// Valid values are:
 		/*
-		width=x (default metres)
-		width=x m		(metre)
-		width=x km		(kilometre)
-		width=x mi		(mile)
-		width=x nmi		(nautical mile)
-		width=x'y"		(feet and inches)
+		processedLinearValue=x (default metres)
+		processedLinearValue=x m		(metre)
+		processedLinearValue=x km		(kilometre)
+		processedLinearValue=x mi		(mile)
+		processedLinearValue=x nmi		(nautical mile)
+		processedLinearValue=x'y"		(feet and inches)
 
 		However, many people omit the space, even though they shouldn't
 		 */
 
-		if (widthStr.contains(" ")) {
+		if (unprocessedLinearValue.contains(" ")) {
 			// we are working with a specified unit
-			String split[] = widthStr.split(" ");
+			String split[] = unprocessedLinearValue.split(" ");
 			if(split.length == 2) {
 				try {
-					width = Double.parseDouble(split[0]);
+					processedLinearValue = Double.parseDouble(split[0]);
 
 					switch(split[1]) {
 						case "m":
 							// do nothing as already in metres
 							break;
 						case "km":
-							width = width / 0.001;
+							processedLinearValue = processedLinearValue / 0.001;
 							break;
 						case "cm":
-							width = width / 100.0;
+							processedLinearValue = processedLinearValue / 100.0;
 							break;
 						case "mi":
-							width = width / 0.000621371;
+							processedLinearValue = processedLinearValue / 0.000621371;
 							break;
 						case "nmi":
-							width = width / 0.000539957;
+							processedLinearValue = processedLinearValue / 0.000539957;
 							break;
 						default:
 							// Invalid unit
-							width = -1d;
+							processedLinearValue = -1d;
 					}
 				} catch (Exception e) {
-					width = -1d;
+					processedLinearValue = -1d;
 				}
 			}
-		} else if (widthStr.contains("'") && widthStr.contains("\"")) {
+		} else if (unprocessedLinearValue.contains("'") && unprocessedLinearValue.contains("\"")) {
 			// Working with feet and inches
-			String[] split = widthStr.split("'");
+			String[] split = unprocessedLinearValue.split("'");
 			if(split.length == 2) {
 				split[1] = split[1].replace("\"", "");
 				try {
-					width = Double.parseDouble(split[0]) * 12d; // 12 inches to a foot
-					width += Double.parseDouble(split[1]);
+					processedLinearValue = Double.parseDouble(split[0]) * 12d; // 12 inches to a foot
+					processedLinearValue += Double.parseDouble(split[1]);
 
 					// convert to metres
-					width = width * 0.0254;
+					processedLinearValue = processedLinearValue * 0.0254;
 
 				} catch (Exception e) {
-					width = -1d;
+					processedLinearValue = -1d;
 				}
 			}
 		} else {
 			// Try and read a number and assume it is in metres
 			try {
-				width = Double.parseDouble(widthStr);
+				processedLinearValue = Double.parseDouble(unprocessedLinearValue);
 			} catch (Exception e) {
-				width = -1d;
+				processedLinearValue = -1d;
 			}
 		}
 
-		// If the width is still -1, then it could be that they have used an invalid tag, so just try and parse the most common
-		if(width == -1d) {
+		// If the processedLinearValue is still -1, then it could be that they have used an invalid tag, so just try and parse the most common mistakes
+		if(processedLinearValue == -1d) {
 			// Be careful of the order as 3cm ends in both cm and m, so we should check for cm first
 			try {
-				if (widthStr.endsWith("cm")) {
-					String[] split = widthStr.split("cm");
+				if (unprocessedLinearValue.endsWith("cm")) {
+					String[] split = unprocessedLinearValue.split("cm");
 					if (split.length == 2) {
-						width = Double.parseDouble(split[0]) / 100f;
+						processedLinearValue = Double.parseDouble(split[0]) / 100f;
 					}
-				} else if (widthStr.endsWith("km")) {
-					String[] split = widthStr.split("km");
+				} else if (unprocessedLinearValue.endsWith("km")) {
+					String[] split = unprocessedLinearValue.split("km");
 					if (split.length == 2) {
-						width = Double.parseDouble(split[0]) / 0.001f;
+						processedLinearValue = Double.parseDouble(split[0]) / 0.001f;
 					}
-				}else if (widthStr.endsWith("nmi")) {
-					String[] split = widthStr.split("nmi");
+				}else if (unprocessedLinearValue.endsWith("nmi")) {
+					String[] split = unprocessedLinearValue.split("nmi");
 					if (split.length == 2) {
-						width = Double.parseDouble(split[0]) / 0.000539957;
+						processedLinearValue = Double.parseDouble(split[0]) / 0.000539957;
 					}
-				} else if (widthStr.endsWith("mi")) {
-					String[] split = widthStr.split("mi");
+				} else if (unprocessedLinearValue.endsWith("mi")) {
+					String[] split = unprocessedLinearValue.split("mi");
 					if (split.length == 2) {
-						width = Double.parseDouble(split[0]) / 0.000621371;
+						processedLinearValue = Double.parseDouble(split[0]) / 0.000621371;
 					}
-				} else if (widthStr.endsWith("m")) {
-					String[] split = widthStr.split("m");
+				} else if (unprocessedLinearValue.endsWith("m")) {
+					String[] split = unprocessedLinearValue.split("m");
 					if (split.length == 2) {
-						width = Double.parseDouble(split[0]);
+						processedLinearValue = Double.parseDouble(split[0]);
 					}
 				}
 			} catch (NumberFormatException nfe) {
-				// There was an invalid number, so just ignore it
+				// There was an invalid number, so just set it to be the "invalid" value
+                processedLinearValue = -1d;
 			}
 		}
 
-		// If it is more than three we don't really care, and any more means more bits needed to store
-		if(width > 3)
-			width = 3;
+		// If the value is more than three, we need more bits in the encoder to store it, so we can just cap to 3
+		if(processedLinearValue > 3)
+			processedLinearValue = 3;
 
-		return width;
+		return processedLinearValue;
 	}
 
 	/**
