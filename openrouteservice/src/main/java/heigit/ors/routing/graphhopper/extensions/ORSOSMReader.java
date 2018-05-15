@@ -219,8 +219,13 @@ public class ORSOSMReader extends OSMReader {
 						case "path":
 						case "track":
 							super.processWay(way);
+							break;
 					}
 					return;
+				} else if(way.hasTag("foot")) {
+					if(way.getTag("foot").equalsIgnoreCase("designated")) {
+						super.processWay(way);
+					}
 				}
 			}
 		}
