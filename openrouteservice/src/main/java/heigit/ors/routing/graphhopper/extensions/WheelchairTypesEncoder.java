@@ -149,6 +149,16 @@ public final class WheelchairTypesEncoder {
     	else
     		return SURFACE_MAP.getOrDefault(value, -1);
     }
+
+    public static int getEncodedType(WheelchairAttributes.Attribute attribute, String value) throws Exception {
+        switch(attribute) {
+            case SMOOTHNESS: return getSmoothnessType(value);
+            case SURFACE: return getSurfaceType(value);
+            case TRACK: return getTrackType(value);
+
+            default: throw new Exception("Attribute is not a recognised encoded type");
+        }
+    }
     
     public static int getSmoothnessType(String value)
     {

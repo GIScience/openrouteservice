@@ -23,7 +23,17 @@ package heigit.ors.routing.graphhopper.extensions;
 public class WheelchairAttributes {
     private static final int EMPTY_INT = -1;
     private static final float EMPTY_FLOAT = 0.0F;
-    public enum Side { LEFT, RIGHT, UNKNOWN};
+
+    public enum Side { LEFT, RIGHT, UNKNOWN}
+
+    public enum Attribute {
+    	INCLINE,
+		KERB,
+		WIDTH,
+		SURFACE,
+		TRACK,
+		SMOOTHNESS
+	}
 
 	private float _incline = EMPTY_FLOAT;
 	private float _slopedKerbHeight = EMPTY_FLOAT;
@@ -116,6 +126,23 @@ public class WheelchairAttributes {
 
 	public void setSide(Side side) {
 		this._side = side;
+	}
+
+	public void setAttribute(Attribute attribute, String valueAsText) {
+		switch(attribute) {
+			case INCLINE: setIncline(Float.parseFloat(valueAsText));
+			    break;
+			case KERB: setSlopedKerbHeight(Float.parseFloat(valueAsText));
+                break;
+			case SMOOTHNESS: setSmoothnessType(Integer.parseInt(valueAsText));
+                break;
+			case SURFACE: setSurfaceType(Integer.parseInt(valueAsText));
+                break;
+			case WIDTH: setWidth(Float.parseFloat(valueAsText));
+                break;
+			case TRACK: setTrackType(Integer.parseInt(valueAsText));
+                break;
+		}
 	}
 	
 	public boolean equals(WheelchairAttributes attrs)

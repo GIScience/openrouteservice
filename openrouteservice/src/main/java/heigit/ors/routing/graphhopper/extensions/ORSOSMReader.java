@@ -90,7 +90,13 @@ public class ORSOSMReader extends OSMReader {
 				this.splitSidewalks = true;
 				this.processSimpleGeom = true;
 				extraTagKeys.add("kerb");
+				extraTagKeys.add("kerb:both");
+                extraTagKeys.add("kerb:left");
+                extraTagKeys.add("kerb:right");
 				extraTagKeys.add("kerb:height");
+                extraTagKeys.add("kerb:both:height");
+                extraTagKeys.add("kerb:left:height");
+                extraTagKeys.add("kerb:right:height");
 			}
 		}
 	}
