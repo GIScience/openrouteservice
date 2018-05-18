@@ -29,11 +29,14 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.*;
 import heigit.ors.routing.RoutingProfile;
+import heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
+import heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.WheelchairWayFilter;
 import heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGraphStorageBuilder;
 import org.apache.log4j.Logger;
 
+import java.io.InvalidObjectException;
 import java.util.*;
 
 import java.util.Map.Entry;
@@ -49,13 +52,14 @@ public class ORSOSMReader extends OSMReader {
 	private boolean enrichInstructions;
 	private boolean processNodeTags;
 	private OSMDataReaderContext _readerCntx;
-	private GeometryFactory gf = new GeometryFactory();
 
 	private HashMap<Long, HashMap<String, String>> nodeTags = new HashMap<>();
 
 	private boolean processGeom = false;
 	private boolean processSimpleGeom = false;
-	private boolean splitSidewalks = false;
+	private boolean detachSidewalksFromRoad = false;
+
+	private List<OSMFeatureFilter> filtersToApply = new ArrayList<>();
 
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
 			"primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential" };
@@ -86,8 +90,9 @@ public class ORSOSMReader extends OSMReader {
 			}
 
 			if ( b instanceof WheelchairGraphStorageBuilder) {
+				filtersToApply.add(new WheelchairWayFilter());
 				this.processNodeTags = true;
-				this.splitSidewalks = true;
+				this.detachSidewalksFromRoad = true;
 				this.processSimpleGeom = true;
 				extraTagKeys.add("kerb");
 				extraTagKeys.add("kerb:both");
@@ -136,105 +141,30 @@ public class ORSOSMReader extends OSMReader {
 	@Override
 	protected void processWay(ReaderWay way) {
 		// As a first step we need to check to see if we should try to split the way
-		if(this.splitSidewalks) {
+		if(this.detachSidewalksFromRoad) {
 			// If we are requesting to split sidewalks, then we need to create multiple ways from a single road
 			// For example, if a road way has been tagged as having sidewalks on both sides (sidewalk=both), then we
 			// need to create two ways - one for the left sidewalk and one for the right. The Graph Builder would then
 			// process these ways separately so that additional edges are created in the graph.
 
-			// First see if there are sidewalk tags
-			Set<String> keys = way.getTags().keySet();
-			Set<String> sidewalkKeys = new HashSet<>();
-
-			boolean hasSidewalkInfo = false;
-			for(String k : keys) {
-				if(k.startsWith("sidewalk") || k.startsWith("footway")) {
-					sidewalkKeys.add(k);
-					hasSidewalkInfo = true;
-				}
-			}
-
-			if(hasSidewalkInfo) {
-				// Look at the tags to see which sides we are working with
-				boolean markerLeft = false, markerRight = false, markerBoth = false, markerNone = false;
-				if(way.hasTag("sidewalk")) {
-					String side = way.getTag("sidewalk");
-					switch(side) {
-						case "left": markerLeft = true;
-						case "right": markerRight = true;
-						case "both": markerBoth = true;
-						case "no": markerNone = true;
-						case "separate": markerNone = true;
-						case "seperate": markerNone = true;
-						case "detached": markerNone = true;
-						case "none": markerNone = true;
-					}
+			for(OSMFeatureFilter filter : filtersToApply) {
+				try {
+					filter.assignFeatureForFiltering(way);
+				} catch (InvalidObjectException ioe) {
+					LOGGER.error("Invalid object for filtering - " + ioe.getMessage());
 				}
 
-				// Now check for property tags
-				for(String key : sidewalkKeys) {
-					if(key.startsWith("sidewalk:left") || key.startsWith("footway:left")) markerLeft = true;
-					if(key.startsWith("sidewalk:right") || key.startsWith("footway:right")) markerRight = true;
-					if(key.startsWith("sidewalk:both") || key.startsWith("footway:both")) markerBoth = true;
-				}
-
-				if(markerLeft && markerRight) {
-                    markerBoth = true;
-                }
-
-                if(markerBoth) {
-                    // Process both sides, so process the way twice
-                    way.setTag("ors-sidewalk-side", "left");
-                    super.processWay(way);
-                    way.setTag("ors-sidewalk-side", "right");
-                    super.processWay(way);
-                    return;
-                }
-
-				// Finally process the ways depending on what was found
-				if(markerLeft) {
-					// Process left side
-					way.setTag("ors-sidewalk-side", "left");
-					super.processWay(way);
-					return;
-				}
-				if(markerRight) {
-					// Process right side
-					way.setTag("ors-sidewalk-side", "right");
-					super.processWay(way);
-					return;
-				}
-				if(markerNone) {
-					// Do not process any
-					return;
-				}
-			} else {
-				// we should only process ways that are possible to walk along
-				if(way.hasTag("highway")) {
-					String highwayType = way.getTag("highway");
-					switch (highwayType) {
-						case "footway":
-						case "living_street":
-						case "pedestrian":
-						case "path":
-						case "track":
-							super.processWay(way);
-							break;
-						case "cycleway":
-							if(way.hasTag("foot") && way.getTag("foot").equalsIgnoreCase("designated")) {
-								super.processWay(way);
-							}
-							break;
-					}
-					return;
-				}
-				if(way.hasTag("foot")) {
-					if(way.getTag("foot").equalsIgnoreCase("designated")) {
+				if(filter.accept()) {
+					// We can only perform the processing of the ways here and so we cannot delegate it to another object.
+					while (!filter.isWayProcessingComplete()) {
+						filter.prepareForProcessing();
 						super.processWay(way);
-						return;
 					}
 				}
 			}
+
+			return;
+
 		}
 
 		// Normal processing
