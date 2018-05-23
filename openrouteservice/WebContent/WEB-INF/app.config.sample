@@ -152,37 +152,6 @@
                                 attribution: "openrouteservice.org, OpenStreetMap contributors"
                         }
 			# ********************************************************************************************************************
-			# Locations API end-point parameters
-			# ********************************************************************************************************************
-			locations: {
-				# Enables or disables (true/false) the end-point. Default value is true.
-				enabled: true,
-				# Defines the provider name of the Locations API backend. Possible values are postgreql, memsql (not finished).
-				provider_name: postgresql,
-				# Connection parameters of the provider.
-				provider_parameters: {
-					host: "YOUR_HOST",
-					port: 5432,
-					db_name: "YOUR_DATABASE",
-					user: "YOUR_USER", 
-					password : "YOUR_PASSWORD", 
-					table_name : "YOUR_TABLE"
-				},
-				# The maximum allowed number of returned results.
-				response_limit: 1000,
-				# The maximum allowed number of categories specifed in a request.
-				maximum_categories: 5,
-				# The maximum allowed length of a linestring, measured in meters.
-				maximum_feature_length: 10000000,
-				# The maximum allowed area of a polygon, measured in square meters
-				maximum_feature_area: -1, 
-				# The maximum allowed search radius, measured in meters.
-				maximum_search_radius_for_points: 50000,
-				maximum_search_radius_for_linestrings: 2000,
-				maximum_search_radius_for_polygons: 1000,
-				attribution: "openrouteservice.org, OpenStreetMap contributors"
-			}
-			# ********************************************************************************************************************
 			# Routing API end-point parameters
 			# ********************************************************************************************************************
 			routing: {

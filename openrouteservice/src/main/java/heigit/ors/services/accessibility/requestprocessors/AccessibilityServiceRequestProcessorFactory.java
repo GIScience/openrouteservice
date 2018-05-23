@@ -17,7 +17,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- */
+ *//*
+
 package heigit.ors.services.accessibility.requestprocessors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -54,3 +55,4 @@ public class AccessibilityServiceRequestProcessorFactory {
 			throw new UnknownParameterValueException(AccessibilityErrorCodes.INVALID_PARAMETER_VALUE, "format", formatParam);
 	}
 }
+*/

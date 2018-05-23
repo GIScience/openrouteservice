@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
--
+- Removed locations code as this will be handled by openpoiservice in the future (Issue #120)
+- Removed Geocoding code as this will be handled by the geocoder service rather than within ORS
 
 ### Fixed
 - Fixed problem with avoid polygons excluding ways that should have been accepted (Issue #95)
@@ -14,7 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 -
 
-### Depricated
+### Deprecated
 -
 
 ## [4.5.1] - 2018-03-20

@@ -17,7 +17,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- */
+ *//*
+
 package heigit.ors.services.accessibility;
 
 import javax.servlet.*;
@@ -28,7 +29,9 @@ import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.http.BaseHttpServlet;
 
 public class AccessibilityServiceServlet extends BaseHttpServlet {
-	/** Serial Version UID */
+	*/
+/** Serial Version UID *//*
+
 	private static final long serialVersionUID = 1298348952345L;
 
 	public void init() throws ServletException {
@@ -62,3 +65,4 @@ public class AccessibilityServiceServlet extends BaseHttpServlet {
 		}
 	}
 }
+*/

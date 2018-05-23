@@ -60,19 +60,6 @@ The following sections describes the list of possible internal error codes that 
 | 3008 |  Empty Element. |
 | 3099 |  Unknown internal error. |
 
-## Locations API
-| Error Code   |  Description |
-|----------|-------------|
-| 4000 |  Unable to parse JSON request. |
-| 4001 |  Required parameter is missing. |
-| 4002 |  Invalid parameter format. |
-| 4003 |  Invalid parameter value. |
-| 4004 |  Parameter value exceeds the maximum allowed limit. |
-| 4006 |  Unable to parse the request to the export handler. |
-| 4007 |  Unsupported export format. |
-| 4008 |  Empty Element. |
-| 4099 |  Unknown internal error. |
-
 ## Matrix API
 | Error Code   |  Description |
 |----------|-------------|
