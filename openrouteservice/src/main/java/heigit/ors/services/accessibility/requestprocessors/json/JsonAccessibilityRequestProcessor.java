@@ -18,6 +18,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+/*
+
 package heigit.ors.services.accessibility.requestprocessors.json;
 
 import java.util.LinkedHashMap;
@@ -280,14 +282,16 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 
 
             writeFilterSection(jQuery, request.getLocationsRequest().getSearchFilter());
-            /*
+            */
+/*
 			if (request.getRadius() > 0)
 				jQuery.put("radius", request.getRadius());
 			if (request.getLimit() > 0)
 				jQuery.put("limit", request.getLimit());
 			if (!Helper.isEmpty(request.getLanguage()))
 				jQuery.put("lang", request.getLanguage());
-			jQuery.put("locations", value) */
+			jQuery.put("locations", value) *//*
+
 
             if (request.getId() != null)
                 jQuery.put("id", request.getId());
@@ -318,3 +322,4 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
             jQuery.put("filter", jFilter);
     }
 }
+*/

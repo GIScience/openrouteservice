@@ -20,17 +20,15 @@
  */
 package heigit.ors.servlet.listeners;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-
+import heigit.ors.isochrones.statistics.StatisticsProviderFactory;
+import heigit.ors.routing.RoutingProfileManager;
+import heigit.ors.routing.RoutingProfileManagerStatus;
 import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import heigit.ors.routing.RoutingProfileManager;
-import heigit.ors.routing.RoutingProfileManagerStatus;
-import heigit.ors.isochrones.statistics.StatisticsProviderFactory;
-import heigit.ors.locations.providers.LocationsDataProviderFactory;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 
 public class ORSInitContextListener implements ServletContextListener
 {
@@ -60,7 +58,6 @@ public class ORSInitContextListener implements ServletContextListener
 			if (RoutingProfileManagerStatus.isReady())
 				RoutingProfileManager.getInstance().destroy();
 
-			LocationsDataProviderFactory.releaseProviders();
 			StatisticsProviderFactory.releaseProviders();
 			
 			LogFactory.release(Thread.currentThread().getContextClassLoader());

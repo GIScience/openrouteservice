@@ -6,8 +6,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- 
+- Removed locations code as this will be handled by openpoiservice in the future (Issue #120)
+- Removed Geocoding code as this will be handled by the geocoder service rather than within ORS
 
+### Fixed
+- Fixed problem with avoid polygons excluding ways that should have been accepted (Issue #95)
+
+### Changed
+-
+
+### Deprecated
+-
+
+## [4.5.1] - 2018-03-20
 ### Fixed
 - Fixed the parameters being the wrong way around in isochrones request when maximum range has been exceeded (Issue #126)
 - Fixed the coordinate precision in the geojson export from 4 to 6 decimals (Issue #136)
@@ -20,8 +31,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Updated logging so that stack traces are only output when debug logging is enabled (Issue #148)
 - Updated the error response for geocding when no address found (Issue #134)
 
-### Depricated
-- 
 
 ## [4.5] - 2018-02-27
 ### Added

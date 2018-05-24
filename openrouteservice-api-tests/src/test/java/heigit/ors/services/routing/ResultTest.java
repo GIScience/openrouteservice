@@ -840,6 +840,24 @@ public class ResultTest extends ServiceTest {
 	}
 
 	@Test
+	public void testAvoidArea() {
+		given()
+				.param("coordinates", getParameter("coordinatesShort"))
+				.param("preference", getParameter("preference"))
+				.param("profile", getParameter("carProfile"))
+				.param("options", "{\"avoid_polygons\":{\"type\":\"Polygon\",\"coordinates\":[[[\"8.675\",\"49.419\"],[\"8.677\",\"49.419\"],[\"8.675\",\"49.418\"],[\"8.675\",\"49.419\"]]]}}")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(2722.6f))
+				.body("routes[0].summary.duration", is(273.2f))
+				.statusCode(200);
+	}
+
+
+	@Test
 	public void testWheelchairWidthRestriction() {
 		given()
 				.param("coordinates", "8.708605,49.410688|8.709844,49.411160")
