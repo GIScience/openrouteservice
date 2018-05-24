@@ -539,13 +539,15 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 			at.setSlopedKerbHeight(kerbHeight);
 		}
 
+		// Look at which way the edge goes
+		boolean eastToWest = false;
+		if(coords.length > 1) {
+			eastToWest = coords[0].x <= coords[coords.length-1].x;
+		}
+
 		// Check for if we have specified which side the processing is for
         if(way.hasTag("ors-sidewalk-side")) {
-			// Look at which way the edge goes
-			boolean eastToWest = false;
-			if(coords.length > 1) {
-				eastToWest = coords[0].x <= coords[coords.length-1].x;
-			}
+
 
 		    String side = way.getTag("ors-sidewalk-side");
 		    if(side.equals("left")) {
@@ -809,6 +811,10 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 			if (Math.abs(v) > 15) {
 				v = 15;
 			}
+
+			if(v < 0) {
+			    v = v * -1.0;
+            }
 
 			return v;
 		}

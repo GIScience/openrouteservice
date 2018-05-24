@@ -88,7 +88,7 @@ public class WheelchairEdgeFilter implements EdgeFilter
 						return false;
 				}
 
-				if (_params.getMaximumIncline() != 0.0)
+				if (_params.getMaximumIncline() > (Float.MAX_VALUE * -1.0f))
 				{
 					if (_params.getMaximumIncline() < _attributes.getIncline())
 						return false;
@@ -101,10 +101,12 @@ public class WheelchairEdgeFilter implements EdgeFilter
 				}
 
 				if (_params.getMinimumWidth() > 0.0) {
-				    // We should use >= as the process rounds to 10cm, so 2.95m width on the way is stored as 3
-					// if the attribute value is 0 though, this signifies that no data is available
-					if(_attributes.getWidth() > 0.0 && _params.getMinimumWidth() >= _attributes.getWidth())
-						return false;
+					// if the attribute value is 0, this signifies that no data is available
+					if(_attributes.getWidth() > 0.0) {
+						if(_params.getMinimumWidth() > _attributes.getWidth()) {
+							return false;
+						}
+					}
 				}
 			}
 		}
