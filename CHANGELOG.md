@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed problem with avoid polygons excluding ways that should have been accepted (Issue #95)
 
 ### Changed
--
+- Updated the wheelchair profile to better handle restrictions such as width, kerb heights and instances where sidewalks are attached to roads. (Issue #162)
 
 ### Deprecated
 -
