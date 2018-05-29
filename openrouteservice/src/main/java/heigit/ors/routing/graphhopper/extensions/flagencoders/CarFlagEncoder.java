@@ -22,6 +22,7 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodedDoubleValue;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 
@@ -33,6 +34,9 @@ import java.util.*;
  * @author Nop
  */
 public class CarFlagEncoder extends ORSAbstractFlagEncoder {
+
+    private static Logger LOGGER = Logger.getLogger(CarFlagEncoder.class);
+
     // This value determines the maximal possible on roads with bad surfaces
     protected int badSurfaceSpeed;
 
@@ -187,6 +191,11 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
         speedEncoder = new EncodedDoubleValue("Speed", shift, speedBits, speedFactor, _speedLimitHandler.getSpeed("secondary"),
                 maxPossibleSpeed);
         return shift + speedEncoder.getBits();
+    }
+
+    @Override
+    double secondsTo100KmpH() {
+        return 20;
     }
 
     protected double getSpeed(ReaderWay way) {
@@ -359,23 +368,11 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
 
             speed = getSurfaceSpeed(way, speed);
 
-            // Assume that in residential areas we will travel slower if the segment is short
-            if(way.hasTag("highway","residential")) {
-                // Check length
-                if(way.hasTag("estimated_distance")) {
-                    double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
-                    // take into account number of nodes to get an average distance between nodes
-                    double interimDistance = estDist;
-                    int interimNodes = way.getNodes().size() - 2;
-                    if(interimNodes > 0) {
-                        interimDistance = estDist/(interimNodes+1);
-                    }
-                    if(interimDistance < 100) {
-                        speed = speed * 0.5;
-                    }
-                }
+            if(way.hasTag("estimated_distance")) {
+                double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
+                speed = Math.max(adjustSpeedForAcceleration(estDist, speed), speedFactor);
             }
-            
+
             boolean isRoundabout = way.hasTag("junction", "roundabout");
 
             if (isRoundabout) // Runge
