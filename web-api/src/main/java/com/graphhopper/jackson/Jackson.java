@@ -15,22 +15,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.graphhopper.json.geo;
+package com.graphhopper.jackson;
 
-import java.util.List;
+import com.bedatadriven.jackson.datatype.jts.JtsModule;
+import com.fasterxml.jackson.databind.*;
 
-/**
- * @author Peter Karich
- */
-public class JsonFeatureCollection {
-    String type;
-    List<JsonFeature> features;
-
-    public String getType() {
-        return type;
-    }
-
-    public List<JsonFeature> getFeatures() {
-        return features;
+public class Jackson {
+    public static ObjectMapper newObjectMapper() {
+        ObjectMapper objectMapper = io.dropwizard.jackson.Jackson.newObjectMapper();
+        objectMapper.registerModule(new GraphHopperModule());
+        objectMapper.registerModule(new JtsModule());
+        return objectMapper;
     }
 }
