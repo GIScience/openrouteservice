@@ -52,12 +52,11 @@ public class ResultTest extends ServiceTest {
 	@Test
 	public void testGeoJsonExport(){
 		given()
-				.log().uri()
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
 				.param("format", "geojson")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -92,13 +91,12 @@ public class ResultTest extends ServiceTest {
 		options.put("profile_params", profileParams);
 
 		given()
-				.log().uri()
 				.param("coordinates", getParameter("coordinatesShort"))
 				.param("preference", getParameter("preference"))
 				.param("geometry", "true")
 				.param("profile", getParameter("carProfile"))
 				.param("options", options.toString())
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -109,12 +107,11 @@ public class ResultTest extends ServiceTest {
 	public void expectSegmentsToMatchCoordinates() {
 
 		given()
-				.log().uri()
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -128,13 +125,12 @@ public class ResultTest extends ServiceTest {
 	public void testSummary() {
 
 		given()
-				.log().uri()
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
 				.param("elevation", "true")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -152,12 +148,11 @@ public class ResultTest extends ServiceTest {
 	public void testSegmentDistances() {
 
 		given()
-				.log().uri()
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -175,14 +170,12 @@ public class ResultTest extends ServiceTest {
 	public void testEncodedPolyline() {
 
 		given()
-				.log().uri()
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
 				.param("elevation", "true")
-				.when()
-				.log().all()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -198,12 +191,11 @@ public class ResultTest extends ServiceTest {
 	public void testWaypoints() {
 
 		given()
-				.log().uri()
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -216,12 +208,11 @@ public class ResultTest extends ServiceTest {
 	public void testBbox() {
 
 		given()
-				.log().uri()
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -234,13 +225,12 @@ public class ResultTest extends ServiceTest {
 	public void testManeuver() {
 
 		given()
-				.log().uri()
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
 				.param("maneuvers", "true")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -259,13 +249,12 @@ public class ResultTest extends ServiceTest {
 	public void testExtras() {
 
 		given()
-				.log().uri()
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
 				.param("extra_info", getParameter("extra_info"))
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -281,13 +270,12 @@ public class ResultTest extends ServiceTest {
 	public void testExtrasDetails() {
 
 		Response response = given()
-				.log().uri()
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
 				.param("extra_info", getParameter("extra_info"))
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName());
 
 		response.then()
@@ -307,13 +295,12 @@ public class ResultTest extends ServiceTest {
 	public void testExtrasConsistency() {
 
 		Response response = given()
-				.log().uri()
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
 				.param("extra_info", "surface|suitability|avgspeed|steepness")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName());
 
 		Assert.assertEquals(response.getStatusCode(), 200);
@@ -324,14 +311,13 @@ public class ResultTest extends ServiceTest {
 	@Test
 	public void testAvoidTrailDifficulty() {
 		Response response = given()
-				.log().uri()
 				.param("coordinates", "8.711343,49.401186|8.738122,49.402275")
 				.param("instructions", "true")
 				.param("preference", "fastest")
 				.param("profile", "cycling-mountain")
 				.param("extra_info", "traildifficulty")
 				.param("options", "{\"profile_params\":{\"restrictions\":{\"trail_difficulty\":1}}}")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName());
 
 		response.then()
@@ -356,14 +342,12 @@ public class ResultTest extends ServiceTest {
 	@Test
 	public void testTrailDifficultyExtraDetails() {
 		Response response = given()
-				.log().uri()
 				.param("coordinates", "8.763442,49.388882|8.762927,49.397541")
 				.param("instructions", "true")
 				.param("preference", "fastest")
 				.param("profile", "cycling-regular")
 				.param("extra_info", "suitability|traildifficulty")
-				.when()
-				.log().all()
+				.when().log().ifValidationFails()
 				.get(getEndPointName());
 
 		response.then()
@@ -382,13 +366,12 @@ public class ResultTest extends ServiceTest {
 		checkExtraConsistency(response);
 
 		response = given()
-				.log().uri()
 				.param("coordinates", "8.724174,49.390223|8.716536,49.399622")
 				.param("instructions", "true")
 				.param("preference", "fastest")
 				.param("profile", "foot-hiking")
 				.param("extra_info", "traildifficulty")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName());
 
 		response.then()
@@ -413,13 +396,12 @@ public class ResultTest extends ServiceTest {
 	@Test
 	public void testTollwaysExtraDetails() {
 		Response response = given()
-				.log().uri()
 				.param("coordinates", "8.676281,49.414715|8.6483,49.413291")
 				.param("instructions", "true")
 				.param("preference", "fastest")
 				.param("profile", "driving-car")
 				.param("extra_info", "suitability|tollways")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName());
 
 		response.then()
@@ -435,13 +417,12 @@ public class ResultTest extends ServiceTest {
 		checkExtraConsistency(response);
 
 		response = given()
-				.log().uri()
 				.param("coordinates", "8.676281,49.414715|8.6483,49.413291")
 				.param("instructions", "true")
 				.param("preference", "fastest")
 				.param("profile", "driving-hgv")
 				.param("extra_info", "suitability|tollways")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName());
 
 		response.then()
@@ -457,7 +438,6 @@ public class ResultTest extends ServiceTest {
 		checkExtraConsistency(response);
 
 		response = given()
-				.log().uri()
 				.param("coordinates", "8.676281,49.414715|8.6483,49.413291")
 				.param("instructions", "true")
 				.param("preference", "fastest")
@@ -465,7 +445,7 @@ public class ResultTest extends ServiceTest {
 				.param("continue_straight", "false")
 				.param("options", "{\"profile_params\":{\"width\":\"2\",\"height\":\"2\",\"weight\":\"14\"},\"vehicle_type\":\"hgv\"}")
 				.param("extra_info", "suitability|tollways")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName());
 
 		response.then()
@@ -490,13 +470,12 @@ public class ResultTest extends ServiceTest {
 	@Test
 	public void testOptimizedAndTurnRestrictions() {
 		given()
-				.log().uri()
 				.param("coordinates", "8.684081,49.398155|8.684703,49.397359")
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", "driving-car")
 				.param("optimized", "false")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -508,12 +487,11 @@ public class ResultTest extends ServiceTest {
 	@Test
 	public void testNoBearings() {
 		given()
-				.log().uri()
 				.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
 				.param("preference", "fastest")
 				.param("geometry", "true")
 				.param("profile", "cycling-regular")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -525,13 +503,12 @@ public class ResultTest extends ServiceTest {
 	@Test
 	public void testBearingsForStartAndEndPoints() {
 		given()
-				.log().uri()
 				.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
 				.param("preference", "fastest")
 				.param("geometry", "true")
 				.param("profile", "cycling-regular")
 				.param("bearings", "25,30|90,20")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -543,13 +520,12 @@ public class ResultTest extends ServiceTest {
 	@Test
 	public void testBearingsExceptLastPoint() {
 		given()
-				.log().uri()
 				.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
 				.param("preference", "fastest")
 				.param("geometry", "true")
 				.param("profile", "cycling-regular")
 				.param("bearings", "25,30")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -561,13 +537,12 @@ public class ResultTest extends ServiceTest {
 	@Test
 	public void testBearingsSkipwaypoint() {
 		given()
-				.log().uri()
 				.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
 				.param("preference", "fastest")
 				.param("geometry", "true")
 				.param("profile", "cycling-regular")
 				.param("bearings", "|90,20")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -579,12 +554,11 @@ public class ResultTest extends ServiceTest {
 	@Test
 	public void testSteps() {
 		given()
-				.log().uri()
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -600,12 +574,11 @@ public class ResultTest extends ServiceTest {
 	public void testStepsDetails() {
 
 		given()
-				.log().uri()
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -674,14 +647,13 @@ public class ResultTest extends ServiceTest {
 	@Test
 	public void testHGVWidthRestriction() {
 		given()
-				.log().uri()
 				.param("coordinates", "8.690915,49.430117|8.68834,49.427758")
 				.param("instructions", "false")
 				.param("preference", "shortest")
 				.param("profile", "driving-hgv")
 				.param("options", "{\"profile_params\":{\"restrictions\":{\"width\":\"3\"}},\"vehicle_type\":\"hgv\"}")
 				.param("units", "m")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -691,14 +663,13 @@ public class ResultTest extends ServiceTest {
 				.statusCode(200);
 
 		given()
-				.log().uri()
 				.param("coordinates", "8.690915,49.430117|8.68834,49.427758")
 				.param("instructions", "false")
 				.param("preference", "shortest")
 				.param("profile", "driving-hgv")
 				.param("options", "{\"profile_params\":{\"restrictions\":{\"width\":\"2\"}},\"vehicle_type\":\"hgv\"}")
 				.param("units", "m")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -711,14 +682,13 @@ public class ResultTest extends ServiceTest {
 	@Test
 	public void testHGVHeightRestriction() {
 		given()
-				.log().uri()
 				.param("coordinates", "8.687992,49.426312|8.691315,49.425962")
 				.param("instructions", "false")
 				.param("preference", "shortest")
 				.param("profile", "driving-hgv")
 				.param("options", "{\"profile_params\":{\"restrictions\":{\"height\":\"4\"}},\"vehicle_type\":\"hgv\"}")
 				.param("units", "m")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -728,14 +698,13 @@ public class ResultTest extends ServiceTest {
 				.statusCode(200);
 
 		given()
-				.log().uri()
 				.param("coordinates", "8.687992,49.426312|8.691315,49.425962")
 				.param("instructions", "false")
 				.param("preference", "shortest")
 				.param("profile", "driving-hgv")
 				.param("options", "{\"profile_params\":{\"restrictions\":{\"height\":\"2\"}},\"vehicle_type\":\"hgv\"}")
 				.param("units", "m")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -749,12 +718,11 @@ public class ResultTest extends ServiceTest {
 	public void testCarDistanceAndDuration() {
 		// Generic test to ensure that the distance and duration dont get changed
 		given()
-				.log().uri()
 				.param("coordinates", "8.690915,49.430117|8.68834,49.427758")
 				.param("instructions", "false")
 				.param("preference", "shortest")
 				.param("profile", getParameter("carProfile"))
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -770,13 +738,12 @@ public class ResultTest extends ServiceTest {
 	public void testBordersAvoid() {
 		// Test that providing border control in avoid_features works
 		given()
-				.log().uri()
 				.param("coordinates", "8.684682,49.401961|8.690518,49.405326")
 				.param("instructions", "false")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
 				.param("options", "{\"avoid_borders\":\"controlled\"}")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -787,13 +754,12 @@ public class ResultTest extends ServiceTest {
 
 		// Option 1 signifies that the route should not cross any borders
 		given()
-				.log().uri()
 				.param("coordinates", "8.684682,49.401961|8.690518,49.405326")
 				.param("instructions", "false")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
 				.param("options", "{\"avoid_borders\":\"all\"}")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -805,13 +771,12 @@ public class ResultTest extends ServiceTest {
 	@Test
 	public void testCountryExclusion() {
 		given()
-				.log().uri()
 				.param("coordinates", "8.684682,49.401961|8.690518,49.405326")
 				.param("instructions", "false")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
 				.param("options", "{\"avoid_countries\":\"3\"}")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -821,13 +786,12 @@ public class ResultTest extends ServiceTest {
 				.statusCode(200);
 
 		given()
-				.log().uri()
 				.param("coordinates", "8.684682,49.401961|8.690518,49.405326")
 				.param("instructions", "false")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
 				.param("options", "{\"avoid_countries\":\"1|3\"}")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -842,13 +806,12 @@ public class ResultTest extends ServiceTest {
 	public void testBordersAndCountry() {
 		// Test that routing avoids crossing into borders specified
 		given()
-				.log().uri()
 				.param("coordinates", "8.684682,49.401961|8.690518,49.405326")
 				.param("instructions", "false")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
 				.param("options", "{\"avoid_borders\":\"controlled\",\"avoid_countries\":\"1\"}")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -861,12 +824,11 @@ public class ResultTest extends ServiceTest {
 	public void testDetourFactor() {
 		// Test that a detourfactor is returned when requested
 		given()
-				.log().uri()
 				.param("coordinates",getParameter("coordinatesShort"))
 				.param("preference",getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
 				.param("attributes", "detourfactor")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
