@@ -395,6 +395,8 @@ public class ResultTest extends ServiceTest {
 
 	@Test
 	public void testTollwaysExtraDetails() {
+		// Test that the response indicates that the whole route is tollway free. The first two tests check that the waypoint ids
+		// in the extras.tollways.values match the final waypoint of the route
 		Response response = given()
 				.param("coordinates", "8.676281,49.414715|8.6483,49.413291")
 				.param("instructions", "true")
@@ -410,7 +412,7 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].containsKey('extras')", is(true))
 				.body("routes[0].extras.tollways.values.size()", is(1))
 				.body("routes[0].extras.tollways.values[0][0]", is(0))
-				.body("routes[0].extras.tollways.values[0][1]", is(101))
+				.body("routes[0].extras.tollways.values[0][1]", is(95))
 				.body("routes[0].extras.tollways.values[0][2]", is(0))
 				.statusCode(200);
 
@@ -431,7 +433,7 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].containsKey('extras')", is(true))
 				.body("routes[0].extras.tollways.values.size()", is(1))
 				.body("routes[0].extras.tollways.values[0][0]", is(0))
-				.body("routes[0].extras.tollways.values[0][1]", is(86))
+				.body("routes[0].extras.tollways.values[0][1]", is(80))
 				.body("routes[0].extras.tollways.values[0][2]", is(0))
 				.statusCode(200);
 
@@ -469,6 +471,7 @@ public class ResultTest extends ServiceTest {
 
 	@Test
 	public void testOptimizedAndTurnRestrictions() {
+		// Test that the "right turn only" restriction at the juntion is taken into account
 		given()
 				.param("coordinates", "8.684081,49.398155|8.684703,49.397359")
 				.param("instructions", "true")
@@ -480,7 +483,7 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(872.9f))
+				.body("routes[0].summary.distance", is(693.8f))
 				.statusCode(200);
 	}
 
@@ -659,7 +662,7 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(809.3f))
-				.body("routes[0].summary.duration", is(197.2f))
+				.body("routes[0].summary.duration", is(215.8f))
 				.statusCode(200);
 
 		given()
@@ -710,7 +713,7 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(376.5f))
-				.body("routes[0].summary.duration", is(125.5f))
+				.body("routes[0].summary.duration", is(128.7f))
 				.statusCode(200);
 	}
 
@@ -728,7 +731,7 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(379.5f))
-				.body("routes[0].summary.duration", is(270))
+				.body("routes[0].summary.duration", is(269.5f))
 				.statusCode(200);
 	}
 
@@ -740,7 +743,7 @@ public class ResultTest extends ServiceTest {
 		given()
 				.param("coordinates", "8.684682,49.401961|8.690518,49.405326")
 				.param("instructions", "false")
-				.param("preference", getParameter("preference"))
+				.param("preference", "shortest")
 				.param("profile", getParameter("carProfile"))
 				.param("options", "{\"avoid_borders\":\"controlled\"}")
 				.when().log().ifValidationFails()
@@ -748,8 +751,7 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(1581.9f))
-				.body("routes[0].summary.duration", is(282.2f))
+				.body("routes[0].summary.distance", is(1404))
 				.statusCode(200);
 
 		// Option 1 signifies that the route should not cross any borders
@@ -773,7 +775,7 @@ public class ResultTest extends ServiceTest {
 		given()
 				.param("coordinates", "8.684682,49.401961|8.690518,49.405326")
 				.param("instructions", "false")
-				.param("preference", getParameter("preference"))
+				.param("preference", "shortest")
 				.param("profile", getParameter("carProfile"))
 				.param("options", "{\"avoid_countries\":\"3\"}")
 				.when().log().ifValidationFails()
@@ -781,14 +783,13 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(1581.9f))
-				.body("routes[0].summary.duration", is(282.2f))
+				.body("routes[0].summary.distance", is(1156.6f))
 				.statusCode(200);
 
 		given()
 				.param("coordinates", "8.684682,49.401961|8.690518,49.405326")
 				.param("instructions", "false")
-				.param("preference", getParameter("preference"))
+				.param("preference", "shortest")
 				.param("profile", getParameter("carProfile"))
 				.param("options", "{\"avoid_countries\":\"1|3\"}")
 				.when().log().ifValidationFails()
@@ -797,7 +798,6 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(3172.3f))
-                .body("routes[0].summary.duration", is(402.8f))
                 .statusCode(200);
 
 	}
@@ -825,7 +825,7 @@ public class ResultTest extends ServiceTest {
 		// Test that a detourfactor is returned when requested
 		given()
 				.param("coordinates",getParameter("coordinatesShort"))
-				.param("preference",getParameter("preference"))
+				.param("preference", "shortest")
 				.param("profile", getParameter("carProfile"))
 				.param("attributes", "detourfactor")
 				.when().log().ifValidationFails()
@@ -833,7 +833,7 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].segments[0].detourfactor", is(1.62f))
+				.body("routes[0].segments[0].detourfactor", is(1.32f))
 				.statusCode(200);
 	}
 
