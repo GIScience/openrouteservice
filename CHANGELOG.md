@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Fixed problem with avoid polygons excluding ways that should have been accepted (Issue #95)
 - Updated code to remove merging of instructions as this resulted in missing important turn instructions (Issue #177)
+- Added missing translations for arrival instructions (Issue #171)
 
 ### Changed
 -
