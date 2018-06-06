@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -
 
 ### Deprecated
--
+- Removed references to locations and accessibilty services from web.xml (Issue #186)
 
 ## [4.5.1] - 2018-03-20
 ### Fixed
