@@ -840,17 +840,17 @@ public class ResultTest extends ServiceTest {
 	@Test
 	public void testAvoidArea() {
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
+				.param("coordinates",getParameter("coordinatesShort"))
+				.param("preference", "shortest")
 				.param("profile", getParameter("carProfile"))
-				.param("options", "{\"avoid_polygons\":{\"type\":\"Polygon\",\"coordinates\":[[[\"8.675\",\"49.419\"],[\"8.677\",\"49.419\"],[\"8.675\",\"49.418\"],[\"8.675\",\"49.419\"]]]}}")
-				.when()
+				.param("options", "{\"avoid_polygons\":{\"type\":\"Polygon\",\"coordinates\":[[[\"8.680\",\"49.421\"],[\"8.687\",\"49.421\"],[\"8.687\",\"49.418\"],[\"8.680\",\"49.418\"],[\"8.680\",\"49.421\"]]]}}")
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(2722.6f))
-				.body("routes[0].summary.duration", is(273.2f))
+				.body("routes[0].summary.distance", is(2133.7f))
+				.body("routes[0].summary.duration", is(315.6f))
 				.statusCode(200);
 	}
 
