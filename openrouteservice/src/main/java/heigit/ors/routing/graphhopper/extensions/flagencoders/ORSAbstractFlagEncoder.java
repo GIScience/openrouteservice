@@ -40,7 +40,7 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 
 	double adjustSpeedForAcceleration(double distance, double maximumSpeedInKmph) {
 		// We only want to perform the adjustment if the road is a slower speed - main roads shouldnt be affected as much due to less junctions and changes in direction
-		if(maximumSpeedInKmph < 100) {
+		if(maximumSpeedInKmph < 80) {
 			if (distance <= 0) {
 				return maximumSpeedInKmph;
 			}
