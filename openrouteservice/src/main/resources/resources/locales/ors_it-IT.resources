@@ -44,7 +44,7 @@
 					},
 					"right": {
 						"default": "Arrivo a destinazione, sulla destra",
-						"name": Arrivo a {way_name}, sulla destra"
+						"name": "Arrivo a {way_name}, sulla destra"
 					},
 					"straight": {
 						"default": "Arrivo a destinazione, dritto",

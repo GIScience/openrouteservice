@@ -47,7 +47,7 @@
 						"name": "Megérkezik a {way_name}, a jobb oldalon"
 					},
 					"straight": {
-						"default": "Érkezés a célállomásra, egyenesen előre,
+						"default": "Érkezés a célállomásra, egyenesen előre",
 						"name": "Érkezzen {way_name}, egyenesen előre"
 					}
 			},          
