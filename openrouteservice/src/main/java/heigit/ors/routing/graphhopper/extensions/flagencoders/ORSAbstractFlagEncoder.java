@@ -45,6 +45,8 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 				return maximumSpeedInKmph;
 			}
 
+
+
 			double timeToMaxSpeed = durationToMaxSpeed(0, maximumSpeedInKmph);
 
 			// We need to calculate how much distance is travelled in acceleration/deceleration phases
@@ -63,8 +65,17 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 				averageSpeed = convertMpsToKmph(averageSpeedMps);
 			}
 
+            // There is an issue to do with a number of roads in OSM being made up of several very short segments.
+            double modifier = (Math.log(distance) / Math.log(20)) - 1;// Math.log10(distance) - 1;
+			if(modifier < 1) {
+				if (modifier < 0)
+					modifier = 0;
+				// we want less of an impact from acceleration at small roads (where modifier would now be approaching 0)
+				averageSpeed = maximumSpeedInKmph - ((maximumSpeedInKmph - averageSpeed) * modifier);
+			}
+
 			return averageSpeed;
-		} else {;
+		} else {
 			return maximumSpeedInKmph;
 		}
 	}
