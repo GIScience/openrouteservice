@@ -70,6 +70,8 @@ public final class WheelchairTypesEncoder {
         put("paving_stones", SURFACE_PAVING_STONES);
         put("concrete:plates", SURFACE_CONCRETE_PLATES);
         put("cobblestone:flattened", SURFACE_COBBLESTONE_FLATTENED);
+        put("sett", SURFACE_COBBLESTONE_FLATTENED);
+        put("unhewn_cobblestone", SURFACE_COBBLESTONE_FLATTENED);
         put("concrete:lanes", SURFACE_CONCRETE_LANES);
         put("cobblestone", SURFACE_COBBLESTONE);
         put("unpaved", SURFACE_UNPAVED);
