@@ -283,8 +283,8 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('extras')", is(true))
-				.body("routes[0].extras.surface.values.size()", is(55))
-				.body("routes[0].extras.surface.values[34][1]", is(261))
+				.body("routes[0].extras.surface.values.size()", is(56))
+				.body("routes[0].extras.surface.values[35][1]", is(261))
 				.body("routes[0].extras.suitability.values[30][0]", is(357))
 				.body("routes[0].extras.steepness.values[11][1]", is(317))
 				.statusCode(200);
@@ -976,7 +976,7 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(336.0f))
+				.body("routes[0].summary.distance", is(336))
 				.body("routes[0].summary.duration", is(302.4f))
 				.statusCode(200);
 	}
