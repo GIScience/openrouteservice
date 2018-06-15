@@ -568,7 +568,7 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].segments[0].containsKey('steps')", is(true))
 				.body("routes[0].segments[1].containsKey('steps')", is(true))
 				.body("routes[0].segments[0].steps.size()", is(55))
-				.body("routes[0].segments[1].steps.size()", is(31))
+				.body("routes[0].segments[1].steps.size()", is(33))
 				.statusCode(200);
 	}
 
@@ -588,7 +588,7 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].segments[0].containsKey('steps')", is(true))
 				.body("routes[0].segments[1].containsKey('steps')", is(true))
 				.body("routes[0].segments[0].steps.size()", is(55))
-				.body("routes[0].segments[1].steps.size()", is(31))
+				.body("routes[0].segments[1].steps.size()", is(33))
 				.body("routes[0].segments[0].steps[0].distance", is(511.4f))
 				.body("routes[0].segments[0].steps[0].duration", is(230.1f))
 				.body("routes[0].segments[0].steps[0].type", is(11))

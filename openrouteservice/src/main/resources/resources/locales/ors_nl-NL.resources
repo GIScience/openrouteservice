@@ -35,20 +35,20 @@
 		"actions": {
 			"arrive": {
            		 	"default": {
-		                "default": "Arrive at your destination",
-						"name": "Arrive at {way_name}"
+		                "default": "Aankomst op uw bestemming",
+						"name": "Aankomen op {way_name}"
                 	},
 					"left": {
-						"default": "Arrive at your destination, on the left",
-						"name": "Arrive at {way_name}, on the left"
+						"default": "Aankomst op uw bestemming, links",
+						"name": "Aankomen op {way_name}, links"
 					},
 					"right": {
-						"default": "Arrive at your destination, on the right",
-						"name": "Arrive at {way_name}, on the right"
+						"default": "Aankomst op uw bestemming, aan de rechterkant",
+						"name": "Aankomen op {way_name}, rechts"
 					},
 					"straight": {
-						"default": "Arrive at your destination, straight ahead",
-						"name": "Arrive at {way_name}, straight ahead"
+						"default": "Aankomst op uw bestemming, rechtdoor",
+						"name": "Aankomen op {way_name}, rechtdoor"
 					}
 			},        
 			"depart": {

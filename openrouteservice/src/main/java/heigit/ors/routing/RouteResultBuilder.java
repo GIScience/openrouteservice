@@ -130,7 +130,7 @@ public class RouteResultBuilder
 					//	nInstructions -= 1;
 
 					Instruction instr, prevInstr = null;
-					InstructionType instrType, prevInstrType = InstructionType.UNKNOWN;
+					InstructionType instrType = InstructionType.UNKNOWN;
 					RouteSegment seg = new RouteSegment(path, units);
 
 					if (includeDetourFactor)
@@ -145,7 +145,6 @@ public class RouteResultBuilder
 						seg.setDetourFactor((dist == 0) ? 0 : FormatUtility.roundToDecimals(path.getDistance()/dist, 2));
 					}
 
-					RouteStep prevStep = null;
 					String instrText = "";
 					double stepDistance, stepDuration;
 
@@ -217,49 +216,19 @@ public class RouteResultBuilder
 						}
 
 
-						// merge route steps with similar names 
-						// example: http://localhost:8082/openrouteservice-4.0.0/routes?profile=driving-car&coordinates=8.690614,49.38365|8.7007,49.411699|8.7107,49.4516&prettify_instructions=true
-						if (prevStep != null && instrType == prevInstrType && canMergeInstructions(instr.getName(), prevInstr.getName()))
-						{
-							String mergedRoadName = mergeInstructions(instr.getName(), prevInstr.getName());
+						_nameAppendix = null;
 
-							int[] wayPoints = prevStep.getWayPoints();
-							wayPoints[1] =  wayPoints[1] + instr.getPoints().size();
+						step.setDistance(stepDistance);
+						step.setDuration(stepDuration);
+						step.setInstruction(instrText);
+						step.setName(instr.getName());
+						step.setType(instrType.ordinal());
+						step.setWayPoints(new int[] { startWayPointIndex, getWayPointEndIndex(startWayPointIndex, instrType, instr)});
 
-							stepDuration = FormatUtility.roundToDecimals(instr.getTime()/1000.0, 1); 
+						if (request.getIncludeManeuvers())
+							step.setManeuver(calcManeuver(instrType, prevSegPoints, segPoints, nextSegPoints));
 
-							prevStep.setDistance(FormatUtility.roundToDecimals(DistanceUnitUtil.convert(prevStep.getDistance() +  stepDistance, DistanceUnit.Meters, units), unitDecimals));
-							prevStep.setDuration(FormatUtility.roundToDecimals(prevStep.getDuration() +  stepDuration, 1));
-							prevStep.setName(mergedRoadName);
-							
-							if (_nameAppendix != null)
-								mergedRoadName += " ("+ _nameAppendix + ")";
-							if (formatInstructions)
-								mergedRoadName = "<b>" + mergedRoadName + "</b>";
-
-							prevStep.setInstruction(instrTranslator.getContinue(instrType, mergedRoadName));
-
-							//if (request.getIncludeManeuvers())
-							//	prevStep.setManeuver(computeManeuver(prevSegPoints, segPoints));
-						}
-						else
-						{
-							_nameAppendix = null;
-
-							step.setDistance(stepDistance);
-							step.setDuration(stepDuration);
-							step.setInstruction(instrText);
-							step.setName(instr.getName());
-							step.setType(instrType.ordinal());
-							step.setWayPoints(new int[] { startWayPointIndex, getWayPointEndIndex(startWayPointIndex, instrType, instr)});
-
-							if (request.getIncludeManeuvers())
-								step.setManeuver(calcManeuver(instrType, prevSegPoints, segPoints, nextSegPoints));
-
-							seg.addStep(step);
-
-							prevStep = step;
-						}
+						seg.addStep(step);
 
 						// step.setMessage(message);
 						// add message and message type
@@ -271,7 +240,6 @@ public class RouteResultBuilder
 							distanceActual += stepDistance;
 
 						prevInstr = instr;
-						prevInstrType = instrType;
 						prevSegPoints = segPoints;
 					}
 
@@ -447,67 +415,6 @@ public class RouteResultBuilder
 		maneuver.setBearingAfter(bearingAfter);
 
 		return maneuver;
-	}
-
-	private boolean canMergeInstructions(String name, String prevName)
-	{
-		if (prevName == null)
-			return false;
-
-		if (name.length() > prevName.length())
-		{
-			int pos = name.indexOf(prevName);
-			if (pos >= 0 && !Helper.isEmpty(prevName))
-				return true;
-		}
-		else
-		{
-			int pos = prevName.indexOf(name);
-			if (pos >= 0 && !Helper.isEmpty(name))
-				return true;
-		}
-
-		return false;
-	}
-
-	private String mergeInstructionsOrdered(String name, String prevName)
-	{
-		int pos = name.indexOf(prevName);
-		if (pos >= 0)
-		{
-			pos = pos + prevName.length() + 1;
-			if (pos < name.length())
-			{
-				String appendix = name.substring(pos, name.length());
-
-				if (appendix.length() > 1 && appendix.startsWith(","))
-					appendix = appendix.substring(1);
-
-				appendix = appendix.trim();
-
-				if (isValidAppendix(appendix))
-				{
-					if (_nameAppendix != null)
-						_nameAppendix += ", ";
-					else
-						_nameAppendix = "";
-
-					_nameAppendix += appendix;
-				}
-
-				return prevName;
-			}
-		}
-
-		return name;
-	}
-
-	private String mergeInstructions(String name, String prevName)
-	{
-		if (name.length() > prevName.length())
-			return mergeInstructionsOrdered(name, prevName);
-		else
-			return mergeInstructionsOrdered(prevName, name);
 	}
 
 	private boolean isValidAppendix(String name)
