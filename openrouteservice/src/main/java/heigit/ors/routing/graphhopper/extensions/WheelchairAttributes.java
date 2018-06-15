@@ -152,6 +152,13 @@ public class WheelchairAttributes {
 				&& _incline == attrs._incline && _width == attrs._width && _side == attrs._side;
 	}
 
+	/**
+	 * Merge the passed WheelchairAttributes object into this one. The merge only takes place if there is no value for
+	 * that attribute in this object.
+	 *
+	 * @param src
+	 * @return
+	 */
 	public WheelchairAttributes merge(WheelchairAttributes src) {
 	    WheelchairAttributes at = this.copy();
 

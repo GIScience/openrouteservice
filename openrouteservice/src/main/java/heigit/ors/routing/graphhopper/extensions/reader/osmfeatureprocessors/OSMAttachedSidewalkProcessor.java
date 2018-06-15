@@ -12,6 +12,12 @@ public class OSMAttachedSidewalkProcessor {
         return identifySidesWhereSidewalkIsPresent(way) != Side.NONE;
     }
 
+    /**
+     * Get the keys that represent sidewalk information
+     *
+     * @param way
+     * @return
+     */
     protected Set<String> getSidewalkKeys(ReaderWay way) {
         Set<String> sidewalkInfoKeys = new HashSet<>();
 
@@ -25,6 +31,12 @@ public class OSMAttachedSidewalkProcessor {
         return sidewalkInfoKeys;
     }
 
+    /**
+     * Identify if the specified key could contain sidewalk information
+     *
+     * @param osmTagKey
+     * @return
+     */
     private boolean isSidewalkInfoKey(String osmTagKey) {
         if(osmTagKey.startsWith("sidewalk:") || osmTagKey.startsWith("footway:")) {
             return true;
@@ -33,8 +45,13 @@ public class OSMAttachedSidewalkProcessor {
         return false;
     }
 
-
-
+    /**
+     * Add a tag to the way which signifies which side of the road the sidewalk needs to be processed for
+     *
+     * @param way
+     * @param side
+     * @return
+     */
     public ReaderWay attachSidewalkTag(ReaderWay way, Side side) {
         switch(side) {
             case LEFT:
@@ -61,6 +78,12 @@ public class OSMAttachedSidewalkProcessor {
         return way;
     }
 
+    /**
+     * Determine which sidewalk side is to be processed based on the tag that was attached.
+     *
+     * @param way
+     * @return
+     */
     public Side getPreparedSide(ReaderWay way) {
         if(way.hasTag("ors-sidewalk-side")) {
             String preparedSide = way.getTag("ors-sidewalk-side");
@@ -75,6 +98,12 @@ public class OSMAttachedSidewalkProcessor {
         return Side.NONE;
     }
 
+    /**
+     * Identify which side there is a sidealk present on the road based on the tags assigned in OSM
+     *
+     * @param osmWay
+     * @return
+     */
     protected Side identifySidesWhereSidewalkIsPresent(ReaderWay osmWay) {
         boolean sidewalkOnLeftSide = false;
         boolean sidewalkOnRightSide = false;

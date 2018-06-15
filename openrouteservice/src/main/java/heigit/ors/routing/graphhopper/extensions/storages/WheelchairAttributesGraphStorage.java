@@ -193,12 +193,6 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 			buffer[2] = 0;
 			buffer[3] = 0;
 		}
-  /*
-		WheelchairAttributes attr2 = new WheelchairAttributes();
-		decodeAttributes(attr2, buffer);
-		if (attrs.hasValues() && !attrs.equals(attr2))
-			attr2 = null;*/
-	
 	}	
 
 	private void decodeAttributes(WheelchairAttributes attrs, byte[] buffer)

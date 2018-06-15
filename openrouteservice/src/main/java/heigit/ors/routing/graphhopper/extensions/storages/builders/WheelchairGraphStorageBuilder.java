@@ -69,6 +69,10 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		cleanedTags = new HashMap<>();
 	}
 
+	/**
+	 * Constructor
+	 * @param onlyAttachKerbsToCrossings	Only attach kerb heights to crossings?
+	 */
 	public WheelchairGraphStorageBuilder(boolean onlyAttachKerbsToCrossings) {
 		this();
 		kerbOnCrossing = onlyAttachKerbsToCrossings;
@@ -163,6 +167,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		}
 	}
 
+	/**
+	 * Go through tags and attempt to remove any invalid keys (i.e. when compound keys have been entered using a '.' rather than ':'
+	 *
+	 * @param dirtyTags		The OSM tag collection that needs to be cleaned
+	 *
+	 * @return
+	 */
 	private HashMap<String, Object> cleanTags(Map<String, Object> dirtyTags) {
 		HashMap<String, Object> cleanedTags = new HashMap<>();
 		for(String key : dirtyTags.keySet()) {
@@ -177,6 +188,12 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		return textToReplace.replace(".",":");
 	}
 
+	/**
+	 * Determine if the way has been drawn as going from east to west.
+	 *
+	 * @param coordinatesOfWay
+	 * @return
+	 */
 	private boolean isWayEastToWest(Coordinate[] coordinatesOfWay) {
 		boolean wayEastToWest = false;
 
@@ -282,6 +299,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		}
 	}
 
+	/**
+	 * Transform (if needed) a value into an encoded value using the correct encoder.
+	 *
+	 * @param attribute		The attribute the value is for
+	 * @param value			The string value stored in the tag
+	 * @return				The correctly encoded value
+	 */
 	private String getEncodedAttributeValueAsString(WheelchairAttributes.Attribute attribute, String value) {
 		switch(attribute) {
 			case SMOOTHNESS:
@@ -302,6 +326,12 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		}
 	}
 
+	/**
+	 * Get the kerb height value from a set of tags. The method takes into account different ways of spelling and representing the kerb height and then adds the kerb information
+	 * to the wheelchair attribute objects
+	 *
+	 * @param way
+	 */
 	private void processKerbTags(ReaderWay way) {
 		double height = -1;
 
@@ -362,6 +392,14 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		}
 	}
 
+	/**
+	 * Look at way and try to find the correct kerb heights for it. In some cases when the kerbs are attached directly to a way they are
+	 * marked as start and end and so we need to look through the various tags to try and find these.
+	 *
+	 * @param way
+	 * @param key
+	 * @return
+	 */
 	private String[] getCompoundKerb(ReaderWay way, String key) {
 		// If we are looking at the kerbs, sometimes the start and end of a way is marked as having different kerb
 		// heights using the ...:start and ...:end tags. For now, we just want to get the worse of these values (the
@@ -593,6 +631,14 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		return kerbHeight;
 	}
 
+	/**
+	 * Look through the way tags stored for this instance and find the corresponding kerb heights for the start and end
+	 * points.
+	 *
+	 * @param startNodeId
+	 * @param endNodeId
+	 * @return
+	 */
 	float getKerbHeightForWayFromNodeTags(int startNodeId, int endNodeId) {
 		List<Float> kerbHeights = new ArrayList<>();
 		for(int id : nodeTags.keySet()) {
@@ -628,6 +674,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		}
 	}
 
+	/**
+	 * When sidewalks are tagged on both sides for a way and we do not want to process them as separate items then we need
+	 * to get the "worst" for each attribute and use that.
+	 *
+	 * @param attributes
+	 * @return
+	 */
 	public WheelchairAttributes combineAttributesOfWayWhenBothSidesPresent(WheelchairAttributes attributes) {
 		WheelchairAttributes at = attributes;
 
