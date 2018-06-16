@@ -55,6 +55,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
     
     private EncodedValue priorityWayEncoder;
     private EncodedValue relationCodeEncoder;
+
     private final Set<String> usableSidewalkValues = new HashSet<String>();
     private final Set<String> noSidewalkValues = new HashSet<String>();
     // convert network tag of hiking routes into a way route code
@@ -220,6 +221,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
         accessibilityRelatedAttributes.add("tracktype");
         accessibilityRelatedAttributes.add("incline");
         accessibilityRelatedAttributes.add("sloped_curb");
+        accessibilityRelatedAttributes.add("sloped_kerb");
 
         // prefer international, national, regional or local hiking routes
         hikingNetworkToCode.put("iwn", BEST.getValue());
@@ -246,6 +248,14 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
 
         priorityWayEncoder = new EncodedValue("PreferWay", shift, 3, 1, 0, 7);
         shift += priorityWayEncoder.getBits();
+
+        return shift;
+    }
+
+    @Override
+    public int defineNodeBits(int index, int shift) {
+        shift = super.defineNodeBits(index, shift);
+
         return shift;
     }
     
@@ -582,7 +592,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
     public long handleNodeTags(ReaderNode node)
     {
     	long encoded = 0;
-    	
+
         // absolute barriers always block
         if (node.hasTag("barrier", absoluteBarriers)) {
         	// barrier is not passable
@@ -633,6 +643,11 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
         		encoded |= directionBitMask;
         	}
         }
+
+        /*if(node.hasTag("kerb") || node.hasTag("kerb:height")) {
+            // We do not know if the kerb is a barrier as this is defined by the user
+            encoded |= directionBitMask;
+        }*/
       
         /*
         // https://github.com/species/osrm-wheelchair-profiles/blob/master/wheelchair-normal.lua
@@ -681,19 +696,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
     }
     
     
-    /**
-     * Checks whether the value encoded by <code>flags</code> and <code>encoderName</code> <= <code>value</code> 
-     * 
-     * @param flags
-     * @param encoderName
-     * @param restriction a restriction value to be checked
-     * @return <code>true</code> if <code>value</code> >= encoded value, <code>false</code> otherwise
-     */
-    /*
-    public boolean checkRestriction(long flags, String encoderName, int restriction) throws IllegalArgumentException {
-    	return getValueEncoder(encoderName).getValue(flags) <= restriction;
-    }
-    */
+
     
     
     @Override

@@ -283,8 +283,8 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('extras')", is(true))
-				.body("routes[0].extras.surface.values.size()", is(55))
-				.body("routes[0].extras.surface.values[34][1]", is(261))
+				.body("routes[0].extras.surface.values.size()", is(56))
+				.body("routes[0].extras.surface.values[35][1]", is(261))
 				.body("routes[0].extras.suitability.values[30][0]", is(357))
 				.body("routes[0].extras.steepness.values[11][1]", is(317))
 				.statusCode(200);
@@ -842,8 +842,8 @@ public class ResultTest extends ServiceTest {
 	@Test
 	public void testAvoidArea() {
 		given()
-				.param("coordinates",getParameter("coordinatesShort"))
-				.param("preference",getParameter("preference"))
+				.param("coordinates", getParameter("coordinatesShort"))
+				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
 				.param("options", "{\"avoid_polygons\":{\"type\":\"Polygon\",\"coordinates\":[[[\"8.675\",\"49.419\"],[\"8.677\",\"49.419\"],[\"8.675\",\"49.418\"],[\"8.675\",\"49.419\"]]]}}")
 				.when()
@@ -853,6 +853,162 @@ public class ResultTest extends ServiceTest {
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(2722.6f))
 				.body("routes[0].summary.duration", is(273.2f))
+				.statusCode(200);
+	}
+
+
+	@Test
+	public void testWheelchairWidthRestriction() {
+		given()
+				.param("coordinates", "8.708605,49.410688|8.709844,49.411160")
+				.param("preference", "shortest")
+				.param("profile", "wheelchair")
+				.param("options", "{\"profile_params\":{\"minimum_width\":\"2.0\"}}")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(129.6f))
+				.body("routes[0].summary.duration", is(93.3f))
+				.statusCode(200);
+
+		given()
+				.param("coordinates", "8.708605,49.410688|8.709844,49.411160")
+				.param("preference", "shortest")
+				.param("profile", "wheelchair")
+				.param("options", "{\"profile_params\":{\"minimum_width\":\"2.1\"}}")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(158.7f))
+				.body("routes[0].summary.duration", is(114.3f))
+				.statusCode(200);
+	}
+
+	@Test
+	public void testWheelchairInclineRestriction() {
+		given()
+				.param("coordinates", "8.670290,49.418041|8.667490,49.418376")
+				.param("preference", "shortest")
+				.param("profile", "wheelchair")
+				.param("options", "{\"profile_params\":{\"maximum_incline\":\"0.0\"}}")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(594.4f))
+				.body("routes[0].summary.duration", is(493.8f))
+				.statusCode(200);
+
+		given()
+				.param("coordinates", "8.670290,49.418041|8.667490,49.418376")
+				.param("preference", "shortest")
+				.param("profile", "wheelchair")
+				.param("options", "{\"profile_params\":{\"maximum_incline\":\"2\"}}")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(230.5f))
+				.body("routes[0].summary.duration", is(172.5f))
+				.statusCode(200);
+	}
+
+	@Test
+	public void testWheelchairKerbRestriction() {
+		/*given()
+				.param("coordinates", "8.708605,49.410688|8.709844,49.411160")
+				.param("preference", "shortest")
+				.param("profile", "wheelchair")
+				.param("options", "{\"profile_params\":{\"maximum_sloped_kerb\":\"2.0\"}}")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(129.6f))
+				.body("routes[0].summary.duration", is(93.3f))
+				.statusCode(200);
+
+		given()
+				.param("coordinates", "8.708605,49.410688|8.709844,49.411160")
+				.param("preference", "shortest")
+				.param("profile", "wheelchair")
+				.param("options", "{\"profile_params\":{\"maximum_sloped_kerb\":\"2.1\"}}")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(158.7f))
+				.body("routes[0].summary.duration", is(114.3f))
+				.statusCode(200);*/
+	}
+
+	@Test
+	public void testWheelchairSurfaceRestriction() {
+		given()
+				.param("coordinates", "8.686388,49.412449|8.690858,49.413009")
+				.param("preference", "shortest")
+				.param("profile", "wheelchair")
+				.param("options", "{\"profile_params\":{\"surface_type\":\"cobblestone\"}}")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(333.7f))
+				.body("routes[0].summary.duration", is(240.3f))
+				.statusCode(200);
+
+		given()
+				.param("coordinates", "8.686388,49.412449|8.690858,49.413009")
+				.param("preference", "shortest")
+				.param("profile", "wheelchair")
+				.param("options", "{\"profile_params\":{\"surface_type\":\"paved\"}}")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(336))
+				.body("routes[0].summary.duration", is(302.4f))
+				.statusCode(200);
+	}
+
+	@Test
+	public void testWheelchairSmoothnessRestriction() {
+		given()
+				.param("coordinates", "8.676730,49.421513|8.678545,49.421117")
+				.param("preference", "shortest")
+				.param("profile", "wheelchair")
+				.param("options", "{\"profile_params\":{\"smoothness_type\":\"excellent\"}}")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(748.4f))
+				.body("routes[0].summary.duration", is(593.3f))
+				.statusCode(200);
+
+		given()
+				.param("coordinates", "8.676730,49.421513|8.678545,49.421117")
+				.param("preference", "shortest")
+				.param("profile", "wheelchair")
+				.param("options", "{\"profile_params\":{\"smoothness_type\":\"bad\"}}")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(172.1f))
+				.body("routes[0].summary.duration", is(129.2f))
 				.statusCode(200);
 	}
 }

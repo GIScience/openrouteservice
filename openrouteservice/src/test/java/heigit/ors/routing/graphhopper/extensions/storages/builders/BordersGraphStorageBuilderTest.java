@@ -112,7 +112,7 @@ public class BordersGraphStorageBuilderTest {
                 new Coordinate(1.5,0.5)
         };
 
-        _builder.processWay(rw, cs);
+        _builder.processWay(rw, cs, null);
 
         Assert.assertEquals("c1", rw.getTag("country1"));
         Assert.assertEquals("c2", rw.getTag("country2"));
@@ -123,7 +123,7 @@ public class BordersGraphStorageBuilderTest {
                 new Coordinate(0.75,0.5)
         };
 
-        _builder.processWay(rw2, cs2);
+        _builder.processWay(rw2, cs2, null);
 
         Assert.assertFalse(rw2.hasTag("country1"));
         Assert.assertFalse(rw2.hasTag("country2"));

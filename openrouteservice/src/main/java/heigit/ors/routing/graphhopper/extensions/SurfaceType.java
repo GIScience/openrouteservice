@@ -35,7 +35,7 @@ public class SurfaceType {
 	public static final int Dirt = 11;
 	public static final int Ground = 12;
 	public static final int Ice = 13;
-	public static final int Salt = 14;
+	public static final int PavingStone = 14;
 	public static final int Sand = 15;
 	public static final int Woodchips = 16;
 	public static final int Grass = 17;
@@ -55,10 +55,14 @@ public class SurfaceType {
 		} else if ("concrete".equalsIgnoreCase(surface) || "concrete:lanes".equalsIgnoreCase(surface)
 				|| "concrete:plates".equalsIgnoreCase(surface)) {
 			return SurfaceType.Concrete;
-		} else if ("cobblestone".equalsIgnoreCase(surface) || "cobblestone:flattened".equalsIgnoreCase(surface)
-				|| "sett".equalsIgnoreCase(surface) || "paving_stones".equalsIgnoreCase(surface) || "paving_stones:20".equalsIgnoreCase(surface) || "paving_stones:30".equalsIgnoreCase(surface) || "paving_stones:50".equalsIgnoreCase(surface) || "paved_stones".equalsIgnoreCase(surface)) {
+		} else if ("paving_stones".equalsIgnoreCase(surface) || "paving_stones:20".equalsIgnoreCase(surface) || "paving_stones:30".equalsIgnoreCase(surface) || "paving_stones:50".equalsIgnoreCase(surface) || "paved_stones".equalsIgnoreCase(surface)) {
+			return SurfaceType.PavingStone;
+		} else if ("cobblestone:flattened".equalsIgnoreCase(surface)
+				|| "sett".equalsIgnoreCase(surface)) {
+			return SurfaceType.PavingStone;
+		} else if ("cobblestone".equalsIgnoreCase(surface)) {
 			return SurfaceType.Cobblestone;
-		} else if ("metal".equalsIgnoreCase(surface)) {
+		}  else if ("metal".equalsIgnoreCase(surface)) {
 			return SurfaceType.Metal;
 		} else if ("wood".equalsIgnoreCase(surface)) {
 			return SurfaceType.Wood;
@@ -77,8 +81,6 @@ public class SurfaceType {
 			return SurfaceType.Ice;
 		} else if ("sand".equalsIgnoreCase(surface)) {
 			return SurfaceType.Sand;
-		} else if ("salt".equalsIgnoreCase(surface)) {
-			return SurfaceType.Salt;
 		} else if ("woodchips".equalsIgnoreCase(surface)) {
 			return SurfaceType.Woodchips;
 		} else if ("grass".equalsIgnoreCase(surface)) {

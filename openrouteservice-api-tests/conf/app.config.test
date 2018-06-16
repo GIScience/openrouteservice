@@ -258,7 +258,21 @@
 								TrailDifficulty: { }
 						    } 						
 						}
-					}
+					},
+					profile-wheelchair: {
+                        profiles: "wheelchair",
+                        parameters: {
+                            encoder_options: "block_fords=true",
+                            elevation: true,
+                            ext_storages: {
+                                Wheelchair: {
+                                    KerbsOnCrossings: "true"
+                                },
+                                WaySurfaceType: { },
+                                WayCategory: { }
+                            }
+                        }
+                    }
 				}
 				update: {
 					enabled: false,

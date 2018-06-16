@@ -15,7 +15,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added missing translations for arrival instructions (Issue #171)
 
 ### Changed
--
+- Updated the wheelchair profile to better handle restrictions such as width, kerb heights and instances where sidewalks are attached to roads. (Issue #162)
+- Replaced "Sand" surface encoding with "Paving stone"
 
 ### Deprecated
 - Removed references to locations and accessibilty services from web.xml (Issue #186)
