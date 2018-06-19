@@ -4,14 +4,14 @@
  *   http://www.giscience.uni-hd.de
  *   http://www.heigit.org
  *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
+ *  under one or more contributor license agreements. See the NOTICE file
+ *  distributed with this work for additional information regarding copyright
+ *  ownership. The GIScience licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in compliance
  *  with the License. You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,14 +25,10 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import heigit.ors.routing.AvoidFeatureFlags;
-import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.routing.RoutingProfileCategory;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStorage;
 import heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
-import heigit.ors.routing.pathprocessors.TollwayExtractor;
-import org.apache.log4j.Logger;
 
 public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
 	private final boolean _in;

@@ -54,14 +54,14 @@ public class HeavyVehicleCoreEdgeFilter implements EdgeFilter {
 	@Override
 	public boolean accept(EdgeIteratorState iter) {
 		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder)) {
-            int edgeId = iter.getOriginalEdge();
+			int edgeId = iter.getOriginalEdge();
 
-            int vt = gsHeavyVehicles.getEdgeVehicleType(edgeId, buffer);
+			int vt = gsHeavyVehicles.getEdgeVehicleType(edgeId, buffer);
 
-            // true if edge has no restrictions
-            return (vt == HeavyVehicleAttributes.UNKNOWN);
-        }
-        return false;
+			// true if edge has no restrictions
+			return (vt == HeavyVehicleAttributes.UNKNOWN);
+		}
+		return false;
 	}
 
 }
