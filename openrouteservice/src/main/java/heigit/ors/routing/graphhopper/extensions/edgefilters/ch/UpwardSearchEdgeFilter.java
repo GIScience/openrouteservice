@@ -18,58 +18,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.edgefilters;
+package heigit.ors.routing.graphhopper.extensions.edgefilters.ch;
 
-import com.graphhopper.routing.util.CHEdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.util.EdgeIteratorState;
 
-public abstract class CHLevelEdgeFilter implements CHEdgeFilter {
-	protected final FlagEncoder encoder;
-	protected final CHGraph graph;
-	protected final int maxNodes;
-	protected int highestNode = -1;
-	protected int highestNodeLevel = -1;
-	protected int baseNode;
-	protected int baseNodeLevel = -1;
+public class UpwardSearchEdgeFilter extends CHLevelEdgeFilter {
 
-	public CHLevelEdgeFilter(CHGraph g, FlagEncoder encoder) {
-		graph = g;
-		maxNodes = g.getNodes(); 
-		this.encoder = encoder;
-	}
-
-	@Override
-	public boolean accept(EdgeIteratorState edgeIterState) {
-		return false;
+	public UpwardSearchEdgeFilter(CHGraph g, FlagEncoder encoder) {
+		super(g, encoder);
 	}
 	
-	public int getHighestNode() {
-		return highestNode;
-	}
+	@Override
+	public boolean accept(EdgeIteratorState edgeIterState) {
+		int adj = edgeIterState.getAdjNode(); 
 
-	public void setBaseNode(int nodeId) {
-		baseNode = nodeId;
-		if (nodeId < maxNodes)
-		  baseNodeLevel = graph.getLevel(nodeId);
-	}
-
-	public void updateHighestNode(EdgeIteratorState edgeIterState) {
-		int adjNode = edgeIterState.getAdjNode();
-		
-		if (adjNode < maxNodes)
-		{
-			if (highestNode == -1 || highestNodeLevel < graph.getLevel(adjNode))
-			{
-				highestNode =  adjNode;
-				highestNodeLevel = graph.getLevel(highestNode);
-			}
-		}
+		if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel <= graph.getLevel(adj))
+			return edgeIterState.isForward(encoder);
 		else
-		{
-			if (highestNode == -1)
-				highestNode =  adjNode;
-		}
+			return false;
 	}
 }

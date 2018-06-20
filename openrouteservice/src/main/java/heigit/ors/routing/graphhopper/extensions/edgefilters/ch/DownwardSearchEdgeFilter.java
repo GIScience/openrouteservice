@@ -18,24 +18,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.edgefilters;
+package heigit.ors.routing.graphhopper.extensions.edgefilters.ch;
 
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.util.EdgeIteratorState;
 
-public class UpwardSearchEdgeFilter extends CHLevelEdgeFilter {
+public class DownwardSearchEdgeFilter extends CHLevelEdgeFilter {
 
-	public UpwardSearchEdgeFilter(CHGraph g, FlagEncoder encoder) {
+	public DownwardSearchEdgeFilter(CHGraph g, FlagEncoder encoder) {
 		super(g, encoder);
 	}
-	
+
 	@Override
 	public boolean accept(EdgeIteratorState edgeIterState) {
 		int adj = edgeIterState.getAdjNode(); 
 
 		if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel <= graph.getLevel(adj))
-			return edgeIterState.isForward(encoder);
+			return edgeIterState.isBackward(encoder);
 		else
 			return false;
 	}
