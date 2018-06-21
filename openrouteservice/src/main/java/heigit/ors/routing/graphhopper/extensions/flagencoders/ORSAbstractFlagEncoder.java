@@ -64,7 +64,6 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 
 				averageSpeed = convertMpsToKmph(averageSpeedMps);
 			}
-
 			return averageSpeed;
 		} else {
 			return maximumSpeedInKmph;
