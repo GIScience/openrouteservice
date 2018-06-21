@@ -27,40 +27,22 @@ import com.graphhopper.util.EdgeIteratorState;
 import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 
-public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
-    private final boolean _in;
-    private final boolean _out;
-    protected final FlagEncoder _encoder;
+public class AvoidBordersCoreEdgeFilter extends EdgeFilterSeq {
     private BordersGraphStorage _extBorders;
 
-    public AvoidBordersCoreEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage) {
-        this(encoder, true, true, graphStorage);
-    }
-
-    public AvoidBordersCoreEdgeFilter(FlagEncoder encoder, boolean in, boolean out, GraphStorage graphStorage) {
-        this._in = in;
-        this._out = out;
-        this._encoder = encoder;
+    public AvoidBordersCoreEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage, EdgeFilter prevFilter) {
+        super(encoder, true, true, prevFilter);
         this._extBorders = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
     }
 
-    /**
-     * Determine whether the edge should be accepted for processing or reject. Depending on whether the request was to
-     * not cross any border or not cross controlled borders determines the type of border to reject.
-     *
-     * @param iter      An iterator to the edges that need to be filtered
-     * @return
-     */
     @Override
-    public final boolean accept(EdgeIteratorState iter) {
+    protected final boolean check(EdgeIteratorState iter) {
 
         if (_out && iter.isForward(_encoder) || _in && iter.isBackward(_encoder)) {
             // accept if an edge does not cross a border
             return _extBorders.getEdgeValue(iter.getEdge(), BordersGraphStorage.Property.TYPE) == BordersGraphStorage.NO_BORDER;
-
         }
 
         return false;
     }
-
 }

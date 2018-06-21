@@ -28,22 +28,13 @@ import heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
 
-public class WheelchairCoreEdgeFilter implements EdgeFilter {
-	private final boolean in;
-	private final boolean out;
-	private FlagEncoder encoder;
+public final class WheelchairCoreEdgeFilter extends EdgeFilterSeq {
 	private byte[] _buffer;
 	private WheelchairAttributesGraphStorage _storage;
 	private WheelchairAttributes _attributes;
 
-	public WheelchairCoreEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage) throws Exception {
-		this(encoder, true, true, graphStorage);
-	}
-
-	public WheelchairCoreEdgeFilter(FlagEncoder encoder, boolean in, boolean out, GraphStorage graphStorage) throws Exception {
-		this.encoder = encoder;
-		this.in = in;
-		this.out = out;
+	public WheelchairCoreEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage, EdgeFilter prevFilter) throws Exception {
+		super(encoder, true, true, prevFilter);
 
 		_storage = GraphStorageUtils.getGraphExtension(graphStorage, WheelchairAttributesGraphStorage.class);
 
@@ -55,8 +46,8 @@ public class WheelchairCoreEdgeFilter implements EdgeFilter {
 	}
 
 	@Override
-	public boolean accept(EdgeIteratorState iter) {
-		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder)) {
+	public boolean check(EdgeIteratorState iter) {
+		if (_out && iter.isForward(_encoder) || _in && iter.isBackward(_encoder)) {
 			_storage.getEdgeValues(iter.getEdge(), _attributes, _buffer);
 			
 			return !_attributes.hasValues();

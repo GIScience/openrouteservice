@@ -30,10 +30,7 @@ import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
 
-public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
-	private final boolean _in;
-	private final boolean _out;
-	protected final FlagEncoder _encoder;
+public class AvoidFeaturesCoreEdgeFilter extends EdgeFilterSeq {
 	private byte[] _buffer;
 	private WayCategoryGraphStorage _extWayCategory;
 	private int _profileCategory;
@@ -55,24 +52,16 @@ public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
 	private static final int WALKING_FEATURES = FERRIES | STEPS | FORDS;
 	private static final int WHEELCHAIR_FEATURES = FERRIES;
 
-	public AvoidFeaturesCoreEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage) {
-		this(encoder, true, true, graphStorage);
-	}
 
-	public AvoidFeaturesCoreEdgeFilter(FlagEncoder encoder, boolean in, boolean out, GraphStorage graphStorage) {
-		this._in = in;
-		this._out = out;
-
-		this._encoder = encoder;
+	public AvoidFeaturesCoreEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage, EdgeFilter prevFilter) {
+		super(encoder, true, true, prevFilter);
 		this._buffer = new byte[10];
-
 		_profileCategory = RoutingProfileCategory.getFromRouteProfile(RoutingProfileType.getFromEncoderName(encoder.toString()));
-
 		_extWayCategory = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
 	}
 
 	@Override
-	public final boolean accept(EdgeIteratorState iter) {
+	public final boolean check(EdgeIteratorState iter) {
 		if (_out && iter.isForward(_encoder) || _in && iter.isBackward(_encoder)) {
 			if (_extWayCategory != null) {
 				int edgeFeatType = _extWayCategory.getEdgeValue(iter.getEdge(), _buffer);
@@ -93,8 +82,4 @@ public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
 		return false;
 	}
 
-	@Override
-	public String toString() {
-		return "AVOIDFEATURES|" + _encoder;
-	}
 }

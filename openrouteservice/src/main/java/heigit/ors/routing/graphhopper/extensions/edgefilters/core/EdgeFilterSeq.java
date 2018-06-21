@@ -22,34 +22,40 @@ package heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
-import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
-import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 
+public class EdgeFilterSeq implements EdgeFilter {
+	protected final boolean _in;
+	protected final boolean _out;
+	protected final FlagEncoder _encoder;
+	private EdgeFilter _prevFilter;
 
-public class HeavyVehicleCoreEdgeFilter extends EdgeFilterSeq {
-	private HeavyVehicleAttributesGraphStorage _gsHeavyVehicles;
-	private byte[] _buffer;
+	protected EdgeFilterSeq(FlagEncoder encoder, boolean in, boolean out, EdgeFilter prevFilter) {
+		_encoder = encoder;
+		_in = in;
+		_out = out;
+		_prevFilter = prevFilter;
+	}
 
-	public HeavyVehicleCoreEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage, EdgeFilter prevFilter) {
-		super(encoder, true, true, prevFilter);
-		this._buffer = new byte[10];
-		this._gsHeavyVehicles = GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class);
+	public final void setPrevFilter(EdgeFilter prevFilter) {
+		_prevFilter = prevFilter;
+	}
+
+	public final EdgeFilter getPrevFilter() {
+		return _prevFilter;
 	}
 
 	@Override
-	public boolean check(EdgeIteratorState iter) {
-		if (_out && iter.isForward(_encoder) || _in && iter.isBackward(_encoder)) {
-			int edgeId = iter.getOriginalEdge();
-
-			int vt = _gsHeavyVehicles.getEdgeVehicleType(edgeId, _buffer);
-
-			// true if edge has no restrictions
-			return (vt == HeavyVehicleAttributes.UNKNOWN);
+	public final boolean accept(EdgeIteratorState iter) {
+		if (_prevFilter.accept(iter)) {
+			return check(iter);
+		} else {
+			return false;
 		}
-		return false;
+	}
+
+	protected boolean check(EdgeIteratorState iter) {
+		return true;
 	}
 
 }
