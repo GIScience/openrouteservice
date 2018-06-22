@@ -610,9 +610,8 @@ public class RoutingProfile {
         int profileType = searchParams.getProfileType();
         int weightingMethod = searchParams.getWeightingMethod();
         String encoderName = RoutingProfileType.getEncoderName(profileType);
-        EdgeFilter edgeFilter = null;
         FlagEncoder flagEncoder = mGraphHopper.getEncodingManager().getEncoder(encoderName);
-        //String algorithm = null;
+        EdgeFilter edgeFilter = new DefaultEdgeFilter(flagEncoder);
         PMap props = new PMap();
 
         if (searchParams.hasAvoidAreas()) {
@@ -623,8 +622,7 @@ public class RoutingProfile {
                 throw new IllegalArgumentException("Vehicle " + encoderName + " unsupported. " + "Supported are: "
                         + mGraphHopper.getEncodingManager());
             }
-
-            edgeFilter = new AvoidAreasEdgeFilter(flagEncoder, searchParams.getAvoidAreas());
+            edgeFilter = createEdgeFilter(new AvoidAreasEdgeFilter(searchParams.getAvoidAreas()), edgeFilter);
         }
 
         if (RoutingProfileType.isDriving(profileType)) {
@@ -669,7 +667,7 @@ public class RoutingProfile {
         if (searchParams.hasAvoidBorders() || searchParams.hasAvoidCountries()) {
             // We want to avoid borders of some form
             if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)) {
-                EdgeFilter ef = new AvoidBordersEdgeFilter(flagEncoder, searchParams, mGraphHopper.getGraphHopperStorage());
+                EdgeFilter ef = new AvoidBordersEdgeFilter(searchParams, mGraphHopper.getGraphHopperStorage());
                 edgeFilter = createEdgeFilter(ef, edgeFilter);
             }
         }
@@ -678,7 +676,7 @@ public class RoutingProfile {
             CyclingParameters cyclingParams = (CyclingParameters) searchParams.getProfileParameters();
 
             if (cyclingParams.getMaximumGradient() > 0) {
-                EdgeFilter ef = new AvoidSteepnessEdgeFilter(flagEncoder, mGraphHopper.getGraphHopperStorage(), cyclingParams.getMaximumGradient());
+                EdgeFilter ef = new AvoidSteepnessEdgeFilter(mGraphHopper.getGraphHopperStorage(), cyclingParams.getMaximumGradient());
                 edgeFilter = createEdgeFilter(ef, edgeFilter);
             }
 
@@ -690,7 +688,7 @@ public class RoutingProfile {
             WalkingParameters walkingParams = (WalkingParameters) searchParams.getProfileParameters();
 
             if (walkingParams.getMaximumGradient() > 0) {
-                EdgeFilter ef = new AvoidSteepnessEdgeFilter(flagEncoder, mGraphHopper.getGraphHopperStorage(), walkingParams.getMaximumGradient());
+                EdgeFilter ef = new AvoidSteepnessEdgeFilter(mGraphHopper.getGraphHopperStorage(), walkingParams.getMaximumGradient());
                 edgeFilter = createEdgeFilter(ef, edgeFilter);
             }
 
@@ -727,8 +725,10 @@ public class RoutingProfile {
             }
         }
 
+        /*
         if (edgeFilter == null)
             edgeFilter = new DefaultEdgeFilter(flagEncoder);
+        */
 
         RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, edgeFilter, flagEncoder);
         searchCntx.setProperties(props);
@@ -921,7 +921,7 @@ public class RoutingProfile {
         if (searchParams.hasParameters(WheelchairParameters.class)) {
             EdgeFilter ef = null;
             GraphStorage gs = mGraphHopper.getGraphHopperStorage();
-            ef = new WheelchairEdgeFilter((WheelchairParameters) searchParams.getProfileParameters(), (WheelchairFlagEncoder) flagEncoder, gs);
+            ef = new WheelchairEdgeFilter((WheelchairParameters) searchParams.getProfileParameters(), gs);
             edgeFilter = createEdgeFilter(ef, edgeFilter);
         }
         return edgeFilter;
@@ -940,7 +940,7 @@ public class RoutingProfile {
                 if (searchParams.getProfileType() == RoutingProfileType.DRIVING_HGV)
                     ef = new HeavyVehicleEdgeFilter(flagEncoder, vehicleType, vehicleParams, gs);
                 else if (searchParams.getProfileType() == RoutingProfileType.DRIVING_EMERGENCY)
-                    ef = new EmergencyVehicleEdgeFilter(flagEncoder, vehicleParams, gs);
+                    ef = new EmergencyVehicleEdgeFilter(vehicleParams, gs);
 
                 if (ef != null)
                     edgeFilter = createEdgeFilter(ef, edgeFilter);
