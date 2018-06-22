@@ -18,7 +18,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.edgefilters;
+package heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -29,39 +29,27 @@ import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 
 
-public class HeavyVehicleCoreEdgeFilter implements EdgeFilter {
-	private HeavyVehicleAttributesGraphStorage gsHeavyVehicles;
-	private final boolean in;
-	private final boolean out;
-	private FlagEncoder encoder;
-	private byte[] buffer;
+public class HeavyVehicleCoreEdgeFilter extends EdgeFilterSeq {
+	private HeavyVehicleAttributesGraphStorage _gsHeavyVehicles;
+	private byte[] _buffer;
 
-	public HeavyVehicleCoreEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage) {
-		this(encoder, true, true, graphStorage);
-	}
-
-	/**
-	 * Creates an core edge filter which accepts both directions.
-	 */
-	public HeavyVehicleCoreEdgeFilter(FlagEncoder encoder, boolean in, boolean out, GraphStorage graphStorage) {
-		this.encoder = encoder;
-		this.in = in;
-		this.out = out;
-		this.buffer = new byte[10];
-		this.gsHeavyVehicles = GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class);
+	public HeavyVehicleCoreEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage, EdgeFilter prevFilter) {
+		super(encoder, true, true, prevFilter);
+		this._buffer = new byte[10];
+		this._gsHeavyVehicles = GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class);
 	}
 
 	@Override
-	public boolean accept(EdgeIteratorState iter) {
-		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder)) {
-            int edgeId = iter.getOriginalEdge();
+	public boolean check(EdgeIteratorState iter) {
+		if (_out && iter.isForward(_encoder) || _in && iter.isBackward(_encoder)) {
+			int edgeId = iter.getOriginalEdge();
 
-            int vt = gsHeavyVehicles.getEdgeVehicleType(edgeId, buffer);
+			int vt = _gsHeavyVehicles.getEdgeVehicleType(edgeId, _buffer);
 
-            // true if edge has no restrictions
-            return (vt == HeavyVehicleAttributes.UNKNOWN);
-        }
-        return false;
+			// true if edge has no restrictions
+			return (vt == HeavyVehicleAttributes.UNKNOWN);
+		}
+		return false;
 	}
 
 }
