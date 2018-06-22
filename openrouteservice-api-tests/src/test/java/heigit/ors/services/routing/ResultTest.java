@@ -412,7 +412,7 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].containsKey('extras')", is(true))
 				.body("routes[0].extras.tollways.values.size()", is(1))
 				.body("routes[0].extras.tollways.values[0][0]", is(0))
-				.body("routes[0].extras.tollways.values[0][1]", is(95))
+				.body("routes[0].extras.tollways.values[0][1]", is(101))
 				.body("routes[0].extras.tollways.values[0][2]", is(0))
 				.statusCode(200);
 
@@ -662,7 +662,7 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(809.3f))
-				.body("routes[0].summary.duration", is(215.8f))
+				.body("routes[0].summary.duration", is(225.1f))
 				.statusCode(200);
 
 		given()
@@ -678,7 +678,7 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(379.5f))
-				.body("routes[0].summary.duration", is(135.5f))
+				.body("routes[0].summary.duration", is(135.7f))
 				.statusCode(200);
 	}
 
@@ -697,7 +697,7 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(549))
-				.body("routes[0].summary.duration", is(135.7f))
+				.body("routes[0].summary.duration", is(141.1f))
 				.statusCode(200);
 
 		given()
@@ -850,7 +850,7 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(2133.7f))
-				.body("routes[0].summary.duration", is(315.6f))
+				.body("routes[0].summary.duration", is(290.8f))
 				.statusCode(200);
 	}
 
