@@ -24,14 +24,20 @@ import com.graphhopper.routing.util.AbstractFlagEncoder;
 
 public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 
+	private final double ACCELERATION_SPEED_CUTOFF_MAX = 80.0;
+	private final double ACCELERATION_SPEED_CUTOFF_MIN = 20.0;
     protected SpeedLimitHandler _speedLimitHandler;
+
+    private double accelerationModifier = 0.0;
 
 	protected ORSAbstractFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
 		super(speedBits, speedFactor, maxTurnCosts);
 	}
 
+	double averageSecondsTo100KmpH() { return 10; }
+
 	double secondsTo100KmpH() {
-	    return 20;
+	    return averageSecondsTo100KmpH() + (accelerationModifier * averageSecondsTo100KmpH());
     }
 
     double accelerationKmpHpS() {
@@ -40,12 +46,20 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 
 	double adjustSpeedForAcceleration(double distance, double maximumSpeedInKmph) {
 		// We only want to perform the adjustment if the road is a slower speed - main roads shouldnt be affected as much due to less junctions and changes in direction
-		if(maximumSpeedInKmph < 80) {
+		if(maximumSpeedInKmph < ACCELERATION_SPEED_CUTOFF_MAX) {
 			if (distance <= 0) {
 				return maximumSpeedInKmph;
 			}
 
+			// slower roads can be assumed to have slower acceleration...
 
+			double normalisedSpeed = maximumSpeedInKmph;
+			if(normalisedSpeed < ACCELERATION_SPEED_CUTOFF_MIN)
+				normalisedSpeed = ACCELERATION_SPEED_CUTOFF_MIN;
+
+			normalisedSpeed = (normalisedSpeed -ACCELERATION_SPEED_CUTOFF_MIN) / (ACCELERATION_SPEED_CUTOFF_MAX-ACCELERATION_SPEED_CUTOFF_MIN);
+
+			accelerationModifier = Math.pow(0.01, normalisedSpeed);
 
 			double timeToMaxSpeed = durationToMaxSpeed(0, maximumSpeedInKmph);
 
@@ -64,6 +78,7 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 
 				averageSpeed = convertMpsToKmph(averageSpeedMps);
 			}
+
 			return averageSpeed;
 		} else {
 			return maximumSpeedInKmph;

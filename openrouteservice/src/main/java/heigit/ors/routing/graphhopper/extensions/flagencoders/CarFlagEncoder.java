@@ -194,8 +194,8 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     @Override
-    double secondsTo100KmpH() {
-        return 20;
+    double averageSecondsTo100KmpH() {
+        return 10;
     }
 
     protected double getSpeed(ReaderWay way) {

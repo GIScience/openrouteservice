@@ -264,8 +264,8 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
 	}
 
     @Override
-    double secondsTo100KmpH() {
-        return 30;
+    double averageSecondsTo100KmpH() {
+        return 20;
     }
 	
 	protected int getTrackGradeLevel(String grade)
