@@ -59,13 +59,11 @@ import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.parameters.*;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
 import heigit.ors.routing.traffic.TrafficEdgeAnnotator;
+import heigit.ors.routing.util.RouteProcessContext;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.services.matrix.MatrixServiceSettings;
 import heigit.ors.services.optimization.OptimizationServiceSettings;
-import heigit.ors.util.DebugUtility;
-import heigit.ors.util.RuntimeUtility;
-import heigit.ors.util.StringUtility;
-import heigit.ors.util.TimeUtility;
+import heigit.ors.util.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
@@ -150,6 +148,9 @@ public class RoutingProfile {
         gh.setFlagEncoderFactory(flagEncoderFactory);
 
         gh.init(args);
+        //TODO
+        //TODO gh.init creates the Encodingmanager. The Encodingmanager contains references to all TagParsers that will be used
+        //So we need to do something like gh.getEncodingManager().add(ORSTagparsers) right here.
 
         gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
         gh.setWeightingFactory(new ORSWeightingFactory(RealTrafficDataProvider.getInstance()));
@@ -647,7 +648,7 @@ public class RoutingProfile {
 
                 if (searchParams.getAvoidFeatureTypes() != AvoidFeatureFlags.Hills) {
                     EdgeFilter ef = new AvoidFeaturesEdgeFilter(flagEncoder, searchParams,
-                            mGraphHopper.getGraphHopperStorage());
+                            mGraphHopper);
                     edgeFilter = createEdgeFilter(ef, edgeFilter);
                 }
 

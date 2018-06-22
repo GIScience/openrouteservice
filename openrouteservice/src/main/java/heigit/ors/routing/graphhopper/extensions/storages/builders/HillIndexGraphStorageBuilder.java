@@ -23,7 +23,7 @@ package heigit.ors.routing.graphhopper.extensions.storages.builders;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
-import com.graphhopper.util.ByteArrayBuffer;
+import heigit.ors.util.ByteArrayBuffer;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
 

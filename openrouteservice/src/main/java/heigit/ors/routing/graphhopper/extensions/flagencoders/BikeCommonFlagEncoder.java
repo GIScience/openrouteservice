@@ -25,7 +25,7 @@ import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.util.RouteSplit;
 import com.graphhopper.routing.util.SteepnessUtil;
 import com.graphhopper.routing.weighting.PriorityWeighting;
-import com.graphhopper.util.ByteArrayBuffer;
+import heigit.ors.util.ByteArrayBuffer;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalc3D;
 import com.graphhopper.util.EdgeIteratorState;

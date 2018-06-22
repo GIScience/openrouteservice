@@ -31,6 +31,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.util.*;
 import heigit.ors.mapmatching.RouteSegmentInfo;
 import heigit.ors.routing.RoutingProfile;
 
@@ -41,11 +46,12 @@ import com.graphhopper.reader.DataReader;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesCoreEdgeFilter;
+import heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 
 public class ORSGraphHopper extends GraphHopper {
 
@@ -56,10 +62,16 @@ public class ORSGraphHopper extends GraphHopper {
 	// A route profile for referencing which is used to extract names of adjacent streets and other objects.
 	private RoutingProfile refRouteProfile;
 
+	private final CoreAlgoFactoryDecorator coreFactoryDecorator = new CoreAlgoFactoryDecorator();
+
+
 	public ORSGraphHopper(GraphProcessContext procCntx, boolean useTmc, RoutingProfile refProfile) {
 		_procCntx = procCntx;
 		this.refRouteProfile= refProfile;
 		this.forDesktop();
+
+		coreFactoryDecorator.setEnabled(true);
+		algoDecorators.add(coreFactoryDecorator);
 		
 		if (useTmc){
 			tmcEdges = new HashMap<Integer, Long>(); 
@@ -207,5 +219,69 @@ public class ORSGraphHopper extends GraphHopper {
 	
 	public HashMap<Long, ArrayList<Integer>> getOsmId2EdgeIds() {		
 		return osmId2EdgeIds;
+	}
+
+
+	/**
+	 * Does the preparation and creates the location index
+	 */
+	@Override
+	public void postProcessing() {
+		super.postProcessing();
+
+		//TODO
+		EdgeFilter coreEdgeFilter = new AvoidFeaturesCoreEdgeFilter();
+
+		if(coreFactoryDecorator.isEnabled())
+			coreFactoryDecorator.createPreparations(ghStorage, traversalMode, coreEdgeFilter);
+		if (!isCorePrepared())
+			prepareCore();
+
+
+
+	}
+	/**
+	 * Enables or disables core calculation.
+	 */
+	public GraphHopper setCoreEnabled(boolean enable) {
+		ensureNotLoaded();
+		coreFactoryDecorator.setEnabled(enable);
+		return this;
+	}
+
+	public final boolean isCoreEnabled() {
+		return coreFactoryDecorator.isEnabled();
+	}
+
+	public void initCoreAlgoFactoryDecorator() {
+		if (!coreFactoryDecorator.hasWeightings()) {
+			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
+				for (String coreWeightingStr : coreFactoryDecorator.getWeightingsAsStrings()) {
+					// ghStorage is null at this point
+					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), traversalMode, encoder, null);
+					coreFactoryDecorator.addWeighting(weighting);
+				}
+			}
+		}
+	}
+	public final CoreAlgoFactoryDecorator getCoreFactoryDecorator() {
+		return coreFactoryDecorator;
+	}
+
+	protected void prepareCore() {
+		boolean tmpPrepare = coreFactoryDecorator.isEnabled();
+		if (tmpPrepare) {
+			ensureWriteAccess();
+
+			ghStorage.freeze();
+			coreFactoryDecorator.prepare(ghStorage.getProperties());
+			ghStorage.getProperties().put(ORSParameters.Core.PREPARE + "done", true);
+		}
+	}
+
+	private boolean isCorePrepared() {
+		return "true".equals(ghStorage.getProperties().get(ORSParameters.Core.PREPARE + "done"))
+				// remove old property in >0.9
+				|| "true".equals(ghStorage.getProperties().get("prepare.done"));
 	}
 }

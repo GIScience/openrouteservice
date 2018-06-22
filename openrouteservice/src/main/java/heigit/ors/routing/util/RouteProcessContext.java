@@ -18,10 +18,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing;
+package heigit.ors.routing.util;
 
-import com.graphhopper.routing.util.PathProcessor;
-import com.graphhopper.util.ByteArrayBuffer;
+import heigit.ors.util.ByteArrayBuffer;
 
 public class RouteProcessContext {
 	private PathProcessor _pathProcessor;
