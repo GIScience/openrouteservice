@@ -15,7 +15,7 @@
 	        		maximum_locations: 2,
 	        		route_details_allowed: true,
 	        		attribution: "openrouteservice.org, OpenStreetMap contributors"
-	    		}			
+	    		}
                		matrix: {
         	    		enabled: true,
                     		maximum_locations: 200,
@@ -29,24 +29,24 @@
                 		maximum_search_radius: 200,
                 		maximum_visited_nodes: 10000,
                 		attribution: "openrouteservice.org, OpenStreetMap contributors"
-            		}            
+            		}
 			isochrones: {
 				enabled: true,
 				# possible values for maximum_range_distance and maximum_range_time are an integer or a list of values specifically defined for each profile
-				maximum_range_distance: 
-				[ 
+				maximum_range_distance:
+				[
 				   { profiles: "any", value: 50000 }
 				   { profiles: "driving-car, driving-hgv", value: 100000 }
 				],
-				maximum_range_time: 
-				[ 
+				maximum_range_time:
+				[
 				   { profiles: "any", value: 18000 }
 				   { profiles: "driving-car, driving-hgv", value: 3600 }
 				],
 				maximum_intervals: 10,
 				maximum_locations: 2,
 				allow_compute_area: true,
-			
+
 				statistics_providers:
 				{
 				    provider1: 	{
@@ -56,19 +56,19 @@
 						host: "129.206.7.103",
 						port: 5432,
 						db_name: "gis",
-						user: "admin", 
-						password : "gZwe5Nj", 
+						user: "admin",
+						password : "gZwe5Nj",
 						table_name : "geostat_grd_2016_ageclasses_nuts",
-                                                geometry_column: "geog"						
+                                                geometry_column: "geog"
                                         },
 					property_mapping: {
 						    "t_a-total":"pop_total", "t_a-lt5":"pop_lt5", "t_a-5_9":"pop_5-9", "t_a-10_14":"pop_10-14", "t_a-15_19":"pop_15-19", "t_a-20_24":"pop_20-24", "t_a-25_29":"pop_25-29", "t_a-30_34":"pop_30-34", "t_a-35_39":"pop_35-39", "t_a-40_44":"pop_40-44",
 							"t_a-45_49":"pop_45-49", "t_a-50_54":"pop_50-54", "t_a-55_59":"pop_55-59", "t_a-60_64":"pop_60-64", "t_a-65_69":"pop_65-69", "t_a-70_74":"pop_70-74", "t_a-75_79":"pop_75-79", "t_a-80_84":"pop_80-84", "t_a-85_89":"pop_85-89", "t_a-ge85":"pop_ge85",
 							"t_a-ge90":"pop_ge90", "m_a-total":"pop_male_total", "m_a-lt5":"pop_male_lt5", "m_a-5_9":"pop_male_5-9", "m_a-10_14":"pop_male_10-14", "m_a-15_19":"pop_male_15-19", "m_a-20_24":"pop_male_20-24", "m_a-25_29":"pop_male_25-29", "m_a-30_34":"pop_male_30-34",
 							"m_a-35_39":"pop_male_35-39", "m_a-40_44":"pop_male_40-44", "m_a-45_49":"pop_male_45-49", "m_a-50_54":"pop_male_50-54", "m_a-55_59":"pop_male_55-59", "m_a-60_64":"pop_male_60-64", "m_a-65_69":"pop_male_65-69", "m_a-70_74":"pop_male_70-74", "m_a-75_79":"pop_male_75-79",
-							"m_a-80_84":"pop_male_80-84", "m_a-85_89":"pop_male_85-89", "m_a-ge85":"pop_male_ge85", "m_a-ge90":"pop_male_ge90", "f_a-total":"pop_female_total", "f_a-lt5":"pop_female_lt5", "f_a-5_9":"pop_female_5-9", "f_a-10_14":"pop_female_10-14", "f_a-15_19":"pop_female_15-19", 
-							"f_a-20_24":"pop_female_20-24", "f_a-25_29":"pop_female_25-29", "f_a-30_34":"pop_female_30-34", "f_a-35_39":"pop_female_35-39", "f_a-40_44":"pop_female_40-44", "f_a-45_49":"pop_female_45-49", "f_a-50_54":"pop_female_50-54", "f_a-55_59":"pop_female_55-59", 
-							"f_a-60_64":"pop_female_60-64", "f_a-65_69":"pop_female_65-69", "f_a-70_74":"pop_female_70-74", "f_a-75_79":"pop_female_75-79", "f_a-80_84":"pop_female_80-84", "f_a-85_89":"pop_female_85-89", "f_a-ge85":"pop_female_ge85", "f_a-ge90":"pop_female_ge90"						
+							"m_a-80_84":"pop_male_80-84", "m_a-85_89":"pop_male_85-89", "m_a-ge85":"pop_male_ge85", "m_a-ge90":"pop_male_ge90", "f_a-total":"pop_female_total", "f_a-lt5":"pop_female_lt5", "f_a-5_9":"pop_female_5-9", "f_a-10_14":"pop_female_10-14", "f_a-15_19":"pop_female_15-19",
+							"f_a-20_24":"pop_female_20-24", "f_a-25_29":"pop_female_25-29", "f_a-30_34":"pop_female_30-34", "f_a-35_39":"pop_female_35-39", "f_a-40_44":"pop_female_40-44", "f_a-45_49":"pop_female_45-49", "f_a-50_54":"pop_female_50-54", "f_a-55_59":"pop_female_55-59",
+							"f_a-60_64":"pop_female_60-64", "f_a-65_69":"pop_female_65-69", "f_a-70_74":"pop_female_70-74", "f_a-75_79":"pop_female_75-79", "f_a-80_84":"pop_female_80-84", "f_a-85_89":"pop_female_85-89", "f_a-ge85":"pop_female_ge85", "f_a-ge90":"pop_female_ge90"
 					},
 					attribution: "FIXME"
 				    }
@@ -92,8 +92,8 @@
 					host: "129.206.7.103",
 					port: 5432,
 					db_name: "gis",
-					user: "admin", 
-					password : "gZwe5Nj", 
+					user: "admin",
+					password : "gZwe5Nj",
 					table_name : "planet_osm_pois_42"
 				},
 				response_limit: 1000,
@@ -101,8 +101,8 @@
 				# maximum allowed length of a linestring, measured in meters
 				maximum_feature_length: 10000000,
 				# maximum allowed area of a polygon, measured in square meters
-				maximum_feature_area: -1, 
-				# maximum allowed search radius 
+				maximum_feature_area: -1,
+				# maximum allowed search radius
 				maximum_search_radius_for_points: 50000,
 				maximum_search_radius_for_linestrings: 2000,
 				maximum_search_radius_for_polygons: 1000,
@@ -112,15 +112,14 @@
 				enabled: true,
 				mode: "normal",
 				sources: ["openrouteservice-api-tests/data/heidelberg.osm.gz"],
-				#sources: ["openrouteservice/heidelberg.osm.gz"],
-				init_threads: 1,
+				init_threads: 2,
 				attribution: "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
 				distance_approximation: true,
 				profiles: {
 					active: ["vehicles0", "vehicles1", "bike0", "bike1", "bike2", "bike3", "bike4", "bike5", "pedestrian0", "pedestrian1"],
 					#active: ["vehicles0"],
 					default_params: {
-						encoder_flags_size: 8, 
+						encoder_flags_size: 8,
 						graphs_root_path: "graphs/tests.osm",
 						elevation_provider: cgiar,
 						elevation_cache_path: "cgiar_provider",
@@ -128,12 +127,12 @@
  	          		    maximum_distance: 100000,
  	          		    maximum_segment_distance_with_dynamic_weights: 50000,
  	          		    maximum_waypoints: 50
-						
+
 						preparation:
-						{  
+						{
 							min_network_size: 200,
 							min_one_way_network_size: 200,
-							
+
 							methods:
 							{
 								lm:
@@ -164,12 +163,12 @@
 						    encoder_flags_size: 4,
 						    encoder_options : "turn_costs=true|block_fords=false|maximum_grade_level=1",
                             maximum_distance: 100000,
-                            elevation: true, 
+                            elevation: true,
 							preparation:
-							{  
+							{
 								min_network_size: 200,
 								min_one_way_network_size: 200,
-							
+
 								methods:
 								{
 									ch:
@@ -203,8 +202,8 @@
 								}
 							}
 						    ext_storages: {
-                                WayCategory: { },								
-                                HeavyVehicle: { restrictions: true },								
+                                WayCategory: { },
+                                HeavyVehicle: { restrictions: true },
 								WaySurfaceType: { },
 								Tollways: { },
 								Borders: {
@@ -279,9 +278,9 @@
 						parameters: {
 						    # extent: [5.866240, 15.042050, 47.270210, 55.058140], #
          					encoder_options :"consider_elevation=true|turn_costs=true|block_fords=false",
-  				            elevation: true, 
+  				            elevation: true,
 						    ext_storages: {
-                                WayCategory: { },								
+                                WayCategory: { },
 								WaySurfaceType: { },
 								HillIndex: { },
 								TrailDifficulty: { }
@@ -320,9 +319,9 @@
 						profiles: "cycling-safe",
 						parameters: {
          					encoder_options: "consider_elevation=true|turn_costs=true|block_fords=false",
-					        elevation: true, 
+					        elevation: true,
 					 	    ext_storages: {
-                                WayCategory: { },								
+                                WayCategory: { },
 								WaySurfaceType: { },
 								HillIndex: { },
 								TrailDifficulty: { }
@@ -359,7 +358,7 @@
 						profiles: "foot-hiking",
 						parameters: {
 						    encoder_options: "block_fords=false",
-						    elevation: true, 
+						    elevation: true,
                             ext_storages: {
                                 GreenIndex: {
                                     filepath: "openrouteservice-api-tests/data/green_streets_hd.csv"
@@ -367,11 +366,11 @@
                                 NoiseIndex: {
                                     filepath: "openrouteservice-api-tests/data/noise_data_hd.csv"
                                 },
-                                WayCategory: { },								
+                                WayCategory: { },
 								WaySurfaceType: { },
 								HillIndex: { },
 								TrailDifficulty: { }
-						    } 						
+						    }
 						}
 				}
 					profile-pedestrian1: {
