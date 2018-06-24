@@ -19,20 +19,9 @@ package heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.EncodedDoubleValue;
-import com.graphhopper.routing.util.EncodedValue;
-import com.graphhopper.routing.util.PriorityCode;
-import com.graphhopper.routing.util.RouteSplit;
-import com.graphhopper.routing.util.SteepnessUtil;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.PriorityWeighting;
-import com.graphhopper.util.ByteArrayBuffer;
-import com.graphhopper.util.DistanceCalc;
-import com.graphhopper.util.DistanceCalc3D;
-import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.Helper;
-import com.graphhopper.util.InstructionAnnotation;
-import com.graphhopper.util.PointList;
-import com.graphhopper.util.Translation;
+import com.graphhopper.util.*;
 
 import java.util.*;
 
@@ -76,7 +65,6 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 	private List<RouteSplit> splits = new ArrayList<RouteSplit>();
 	private int prevEdgeId = Integer.MAX_VALUE;
 	public static boolean SKIP_WAY_TYPE_INFO = false;
-	private ByteArrayBuffer arrayBuffer =  new ByteArrayBuffer(100);
 	private CarFlagEncoder _carFlagEncoder = new CarFlagEncoder();
 
 	protected BikeCommonFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
@@ -739,7 +727,7 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 		// Runge
 		if (isConsiderElevation())
 		{
-			PointList pl = edge.fetchWayGeometry(3, arrayBuffer);
+			PointList pl = edge.fetchWayGeometry(3);
 			if (!pl.is3D())
 				throw new IllegalStateException("To support speed calculation based on elevation data it is necessary to enable import of it.");
 

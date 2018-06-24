@@ -539,7 +539,7 @@ public class RoutingProfile {
             else
                 graph = gh.getGraphHopperStorage().getBaseGraph();
 
-            MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), new ByteArrayBuffer(), req.getResolveLocations());
+            MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), req.getResolveLocations());
             MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 
             HintsMap hintsMap = new HintsMap();
@@ -875,7 +875,7 @@ public class RoutingProfile {
 			/*if (directedSegment)
 				resp = mGraphHopper.directRoute(req); NOTE IMPLEMENTED!!!
 			else */
-            resp = mGraphHopper.route(req, routeProcCntx.getArrayBuffer());
+            resp = mGraphHopper.route(req);
 
             if (DebugUtility.isDebug()) {
                 System.out.println("visited_nodes.average - " + resp.getHints().get("visited_nodes.average", ""));

@@ -28,14 +28,12 @@ import com.graphhopper.util.PMap;
 public class DistanceWeighting extends AbstractWeighting
 {
     protected final FlagEncoder flagEncoder;
-    private int encoderIndex = -1;
-    
+
     public DistanceWeighting( FlagEncoder encoder, PMap pMap )
     {
         super(encoder);
 
         this.flagEncoder = encoder;
-        this.encoderIndex = encoder.getIndex();
     }
 
     public DistanceWeighting( FlagEncoder encoder )
@@ -51,7 +49,7 @@ public class DistanceWeighting extends AbstractWeighting
     @Override
     public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId)
     {
-        double speed = reverse ? flagEncoder.getReverseSpeed(edge.getFlags(encoderIndex)) : flagEncoder.getSpeed(edge.getFlags(encoderIndex));
+        double speed = reverse ? flagEncoder.getReverseSpeed(edge.getFlags()) : flagEncoder.getSpeed(edge.getFlags());
         if (speed == 0)
             return Double.POSITIVE_INFINITY;
 

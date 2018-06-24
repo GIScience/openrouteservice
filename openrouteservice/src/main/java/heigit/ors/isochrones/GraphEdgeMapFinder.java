@@ -22,20 +22,17 @@ package heigit.ors.isochrones;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.storage.index.QueryResult;
-import com.graphhopper.util.ByteArrayBuffer;
 import com.vividsolutions.jts.geom.Coordinate;
-
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.routing.RouteSearchContext;
 import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.routing.algorithms.DijkstraCostCondition;
@@ -44,13 +41,13 @@ import heigit.ors.routing.graphhopper.extensions.weighting.DistanceWeighting;
 
 public class GraphEdgeMapFinder {
 	
-   public static AccessibilityMap findEdgeMap(RouteSearchContext searchCntx, IsochroneSearchParameters parameters, ByteArrayBuffer arrayBuffer) throws Exception {
+   public static AccessibilityMap findEdgeMap(RouteSearchContext searchCntx, IsochroneSearchParameters parameters) throws Exception {
 		GraphHopper gh = searchCntx.getGraphHopper();
 	    FlagEncoder encoder = searchCntx.getEncoder();
 		GraphHopperStorage graph = gh.getGraphHopperStorage();
 
 		Coordinate loc = parameters.getLocation();
-		QueryResult res = gh.getLocationIndex().findClosest(loc.y, loc.x, searchCntx.getEdgeFilter(), arrayBuffer);
+		QueryResult res = gh.getLocationIndex().findClosest(loc.y, loc.x, searchCntx.getEdgeFilter());
 		int fromId = res.getClosestNode();
 
 		if (fromId == -1)
