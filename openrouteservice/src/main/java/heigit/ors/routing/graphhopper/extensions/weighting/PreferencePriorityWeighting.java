@@ -20,9 +20,9 @@
  */
 package heigit.ors.routing.graphhopper.extensions.weighting;
 
-import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PriorityCode;
+import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 
@@ -44,12 +44,10 @@ public class PreferencePriorityWeighting extends FastestWeighting
      * For now used only in BikeCommonFlagEncoder and MotorcycleFlagEncoder
      */
     public static final int KEY = 101;
-    private int encoderIndex = -1;
 
     public PreferencePriorityWeighting(FlagEncoder encoder, PMap map)
     {
         super(encoder, map);
-        encoderIndex = encoder.getIndex();
     }
 
     @Override
@@ -59,7 +57,7 @@ public class PreferencePriorityWeighting extends FastestWeighting
 		if (Double.isInfinite(weight))
 			weight = 0.0; 
 
-    	double priority = getFlagEncoder().getDouble(edgeState.getFlags(encoderIndex), KEY);
+    	double priority = getFlagEncoder().getDouble(edgeState.getFlags(), KEY);
 
 		if (priority <= THRESHOLD_REACH_DEST)
 			priority /= 1.5;
