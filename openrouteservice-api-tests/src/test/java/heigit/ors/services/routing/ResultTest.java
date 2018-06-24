@@ -638,6 +638,19 @@ public class ResultTest extends ServiceTest {
 
 	@Test
 	public void testAvoidTrailDifficulty() {
+/*
+http://localhost:8080/ors-osm/routes?
+&coordinates=8.711343,49.401186%7C8.738122,49.402275
+&elevation=true
+&extra_info=traildifficulty%7Csteepness%7Cwaytype%7Csurface
+&geometry=true
+&geometry_format=geojson
+&instructions=true
+&instructions_format=html
+&options=%7B%22profile_params%22%3A%7B%22restrictions%22%3A%7B%22trail_difficulty%22%3A1%7D%7D%7D
+&preference=fastest
+&profile=cycling-mountain
+*/
 		Response response = given()
 				.param("coordinates", "8.711343,49.401186|8.738122,49.402275")
 				.param("instructions", "true")
@@ -652,7 +665,7 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('extras')", is(true))
-				.body("routes[0].segments[0].steps.size()", is(18))
+				.body("routes[0].segments[0].steps.size()", is(17))
 				.body("routes[0].segments[0].distance", is(4310.5f))
 				.body("routes[0].segments[0].duration", is(1628.5f))
 				.body("routes[0].extras.traildifficulty.values.size()", is(4))
@@ -896,8 +909,8 @@ public class ResultTest extends ServiceTest {
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].segments[0].containsKey('steps')", is(true))
 				.body("routes[0].segments[1].containsKey('steps')", is(true))
-				.body("routes[0].segments[0].steps.size()", is(55))
-				.body("routes[0].segments[1].steps.size()", is(33))
+				.body("routes[0].segments[0].steps.size()", is(53))
+				.body("routes[0].segments[1].steps.size()", is(28))
 				.statusCode(200);
 	}
 
@@ -916,8 +929,8 @@ public class ResultTest extends ServiceTest {
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].segments[0].containsKey('steps')", is(true))
 				.body("routes[0].segments[1].containsKey('steps')", is(true))
-				.body("routes[0].segments[0].steps.size()", is(55))
-				.body("routes[0].segments[1].steps.size()", is(33))
+				.body("routes[0].segments[0].steps.size()", is(53))
+				.body("routes[0].segments[1].steps.size()", is(28))
 				.body("routes[0].segments[0].steps[0].distance", is(511.4f))
 				.body("routes[0].segments[0].steps[0].duration", is(230.1f))
 				.body("routes[0].segments[0].steps[0].type", is(11))
