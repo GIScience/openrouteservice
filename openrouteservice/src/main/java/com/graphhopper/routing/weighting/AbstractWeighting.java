@@ -51,12 +51,6 @@ public abstract class AbstractWeighting implements Weighting {
     }
     // MARQ24 MOD END
 
-    // MARQ24 - Modification by Maxim Rylov: Added overloaded method.
-    @Override
-    public double getMaxWeight() {
-        return 1;
-    }
-
     @Override
     public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
         long flags = edgeState.getFlags();

@@ -40,16 +40,6 @@ public class TurnWeighting implements Weighting {
     private final Weighting superWeighting;
     private double defaultUTurnCost = 40;
 
-
-    // MARQ24 MOD START
-    // Modification by Maxim Rylov: Added overloaded function.
-    @Override
-    public double getMaxWeight()
-    {
-        return 1;
-    }
-    // MARQ24 MOD END
-
     /**
      * @param turnCostExt the turn cost storage to be used
      */
