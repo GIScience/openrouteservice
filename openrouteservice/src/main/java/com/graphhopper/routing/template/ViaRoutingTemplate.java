@@ -57,8 +57,10 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
     }
 
     @Override
+    // MARQ24 MOD START
     //public List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder) {
     public List<QueryResult> lookup(List<GHPoint> points, double[] radiuses, FlagEncoder encoder) {
+    // MARQ24 MOD END
         if (points.size() < 2) {
             throw new IllegalArgumentException("At least 2 points have to be specified, but was:" + points.size());
         }
@@ -100,9 +102,7 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
     }
 
     @Override
-    // MARQ24 MOD START
-    //public List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts) {
-    public List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts, PathProcessingContext pathProcCntx) {
+    public List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts) {
         long visitedNodesSum = 0L;
         boolean viaTurnPenalty = ghRequest.getHints().getBool(Routing.PASS_THROUGH, false);
         int pointCounts = ghRequest.getPoints().size();
@@ -169,6 +169,7 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
     // MARQ24 MOD START
     //public boolean isReady(PathMerger pathMerger, Translation tr) {
     public boolean isReady(PathMerger pathMerger, PathProcessingContext pathProcCntx) {
+    // MARQ24 MOD END
         if (ghRequest.getPoints().size() - 1 != pathList.size())
             throw new RuntimeException("There should be exactly one more points than paths. points:" + ghRequest.getPoints().size() + ", paths:" + pathList.size());
 
