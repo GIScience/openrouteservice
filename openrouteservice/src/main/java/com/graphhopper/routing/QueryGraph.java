@@ -159,7 +159,7 @@ public class QueryGraph implements Graph {
         // MARQ24 MOD START
         // ORG CODE
         //if (mainGraph.getExtension() instanceof TurnCostExtension) {
-        if (HelperTCE.getTurnCostExtensions(mainGraph.getExtension()) != null){
+        if (HelperOSM.getTurnCostExtensions(mainGraph.getExtension()) != null){
         // MOD END
             wrappedExtension = new QueryGraphTurnExt();
         }else {
@@ -770,7 +770,7 @@ public class QueryGraph implements Graph {
             // ORG CODE START
             //this.mainTurnExtension = (TurnCostExtension) mainGraph.getExtension();
             //ORG CODE END
-            this.mainTurnExtension = HelperTCE.getTurnCostExtensions(mainGraph.getExtension());
+            this.mainTurnExtension = HelperOSM.getTurnCostExtensions(mainGraph.getExtension());
             // MARQ24 MOD END
         }
 
