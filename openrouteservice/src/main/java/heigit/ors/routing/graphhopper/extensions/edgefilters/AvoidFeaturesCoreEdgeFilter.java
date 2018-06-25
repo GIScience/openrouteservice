@@ -4,33 +4,40 @@
  *   http://www.giscience.uni-hd.de
  *   http://www.heigit.org
  *
- *  under one or more contributor license agreements. See the NOTICE file
- *  distributed with this work for additional information regarding copyright
- *  ownership. The GIScience licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except in compliance
+ *  under one or more contributor license agreements. See the NOTICE file 
+ *  distributed with this work for additional information regarding copyright 
+ *  ownership. The GIScience licenses this file to you under the Apache License, 
+ *  Version 2.0 (the "License"); you may not use this file except in compliance 
  *  with the License. You may obtain a copy of the License at
- *
+ * 
  *       http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.edgefilters.core;
+package heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import heigit.ors.routing.AvoidFeatureFlags;
+import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.routing.RoutingProfileCategory;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStorage;
 import heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
+import heigit.ors.routing.pathprocessors.TollwayExtractor;
+import org.apache.log4j.Logger;
 
-public class AvoidFeaturesCoreEdgeFilter extends EdgeFilterSeq {
+public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
+	private final boolean _in;
+	private final boolean _out;
+	protected final FlagEncoder _encoder;
 	private byte[] _buffer;
 	private WayCategoryGraphStorage _extWayCategory;
 	private int _profileCategory;
@@ -52,16 +59,24 @@ public class AvoidFeaturesCoreEdgeFilter extends EdgeFilterSeq {
 	private static final int WALKING_FEATURES = FERRIES | STEPS | FORDS;
 	private static final int WHEELCHAIR_FEATURES = FERRIES;
 
+	public AvoidFeaturesCoreEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage) {
+		this(encoder, true, true, graphStorage);
+	}
 
-	public AvoidFeaturesCoreEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage, EdgeFilter prevFilter) {
-		super(encoder, true, true, prevFilter);
+	public AvoidFeaturesCoreEdgeFilter(FlagEncoder encoder, boolean in, boolean out, GraphStorage graphStorage) {
+		this._in = in;
+		this._out = out;
+
+		this._encoder = encoder;
 		this._buffer = new byte[10];
+
 		_profileCategory = RoutingProfileCategory.getFromRouteProfile(RoutingProfileType.getFromEncoderName(encoder.toString()));
+
 		_extWayCategory = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
 	}
 
 	@Override
-	public final boolean check(EdgeIteratorState iter) {
+	public final boolean accept(EdgeIteratorState iter) {
 		if (_out && iter.isForward(_encoder) || _in && iter.isBackward(_encoder)) {
 			if (_extWayCategory != null) {
 				int edgeFeatType = _extWayCategory.getEdgeValue(iter.getEdge(), _buffer);
@@ -82,4 +97,8 @@ public class AvoidFeaturesCoreEdgeFilter extends EdgeFilterSeq {
 		return false;
 	}
 
+	@Override
+	public String toString() {
+		return "AVOIDFEATURES|" + _encoder;
+	}
 }
