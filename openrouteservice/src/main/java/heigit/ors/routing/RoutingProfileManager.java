@@ -22,6 +22,7 @@ package heigit.ors.routing;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -31,7 +32,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import heigit.ors.routing.util.RouteProcessContext;
 import heigit.ors.exceptions.RouteNotFoundException;
 import org.apache.log4j.Logger;
 
@@ -54,13 +54,17 @@ import heigit.ors.optimization.RouteOptimizationResult;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.ServerLimitExceededException;
 import heigit.ors.isochrones.IsochroneMap;
+import heigit.ors.routing.RoutingProfilesCollection;
+import heigit.ors.routing.RouteSearchParameters;
+import heigit.ors.routing.RoutingProfileType;
+import heigit.ors.routing.WeightingMethod;
 import heigit.ors.util.RuntimeUtility;
 import heigit.ors.util.TimeUtility;
 
 import com.graphhopper.GHResponse;
 import com.graphhopper.routing.util.BikeCommonFlagEncoder;
 import com.graphhopper.routing.util.EdgeFilter;
-import heigit.ors.routing.util.PathProcessor;
+import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.storage.RAMDataAccess;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.Helper;

@@ -44,7 +44,7 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 	private static Logger LOGGER = Logger.getLogger(ORSGraphStorageFactory.class.getName());
 	
 	private List<GraphStorageBuilder> _graphStorageBuilders;
-
+	
 	public ORSGraphStorageFactory(List<GraphStorageBuilder> graphStorageBuilders) {
 		_graphStorageBuilders = graphStorageBuilders;
 	}
@@ -103,11 +103,6 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 		{
 			graphExtension = getExtension(graphExtensions);
 		}
-
-		if(gh instanceof ORSGraphHopper) {
-			if (((ORSGraphHopper) gh).isCoreEnabled())
-				((ORSGraphHopper) gh).initCoreAlgoFactoryDecorator();
-		}
 		
 	    if (gh.getLMFactoryDecorator().isEnabled())
           	gh.initLMAlgoFactoryDecorator();
@@ -117,13 +112,6 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 	     
 		if (gh.isCHEnabled())
             return new GraphHopperStorage(gh.getCHFactoryDecorator().getWeightings(), dir, encodingManager, gh.hasElevation(), graphExtension);
-		else if (((ORSGraphHopper) gh).isCoreEnabled()){
-			return new GraphHopperStorage(((ORSGraphHopper) gh).getCoreFactoryDecorator().getWeightings(),
-					dir,
-					encodingManager,
-					gh.hasElevation(),
-					graphExtension);
-		}
 		else
 			return new GraphHopperStorage(dir, encodingManager, gh.hasElevation(), graphExtension);
 	}

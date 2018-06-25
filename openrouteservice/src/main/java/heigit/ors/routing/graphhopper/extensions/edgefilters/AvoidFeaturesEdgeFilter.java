@@ -24,7 +24,6 @@ import heigit.ors.routing.AvoidFeatureFlags;
 import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.routing.RoutingProfileCategory;
 import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import heigit.ors.routing.graphhopper.extensions.storages.*;
 import heigit.ors.routing.pathprocessors.BordersExtractor;
 import heigit.ors.routing.pathprocessors.TollwayExtractor;
@@ -58,12 +57,12 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 	private static final int BRIDGES = AvoidFeatureFlags.Bridges;
 	private static final int FORDS = AvoidFeatureFlags.Fords;
 
-	public AvoidFeaturesEdgeFilter(FlagEncoder encoder, RouteSearchParameters searchParams, ORSGraphHopper orsGH) {
-		this(encoder, true, true, searchParams, orsGH);
+	public AvoidFeaturesEdgeFilter(FlagEncoder encoder, RouteSearchParameters searchParams, GraphStorage graphStorage) {
+		this(encoder, true, true, searchParams, graphStorage);
 	}
 
 	public AvoidFeaturesEdgeFilter(FlagEncoder encoder, boolean in, boolean out, RouteSearchParameters searchParams,
-			ORSGraphHopper orsGH) {
+			GraphStorage graphStorage) {
 		this._in = in;
 		this._out = out;
 
@@ -73,10 +72,10 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 
 		_profileCategory = RoutingProfileCategory.getFromRouteProfile(RoutingProfileType.getFromEncoderName(encoder.toString()));
 
-		_extWayCategory = GraphStorageUtils.getGraphExtension(orsGH.getGraphHopperStorage(), WayCategoryGraphStorage.class);
-		TollwaysGraphStorage extTollways = GraphStorageUtils.getGraphExtension(orsGH.getGraphHopperStorage(), TollwaysGraphStorage.class);
+		_extWayCategory = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
+		TollwaysGraphStorage extTollways = GraphStorageUtils.getGraphExtension(graphStorage, TollwaysGraphStorage.class);
 		if (extTollways != null)
-			_tollwayExtractor = new TollwayExtractor(extTollways, searchParams.getVehicleType(), searchParams.getProfileParameters(), orsGH.getEncodingManager());
+			_tollwayExtractor = new TollwayExtractor(extTollways, searchParams.getVehicleType(), searchParams.getProfileParameters());
 	}
 
 	@Override
@@ -103,7 +102,7 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 								if ((edgeFeatType & TOLLWAYS) == TOLLWAYS) {
 									if (_tollwayExtractor != null)
 									{
-										int value = _tollwayExtractor.getValue(iter);
+										int value = _tollwayExtractor.getValue(iter.getEdge());
 										if (value != 0)
 											return false;
 									}

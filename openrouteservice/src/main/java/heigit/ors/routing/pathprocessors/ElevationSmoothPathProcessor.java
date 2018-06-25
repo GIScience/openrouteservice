@@ -21,7 +21,7 @@
 package heigit.ors.routing.pathprocessors;
 
 import com.graphhopper.routing.PathProcessingContext;
-import heigit.ors.routing.util.PathProcessor;
+import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
 

@@ -25,7 +25,7 @@ import java.util.List;
 
 import com.graphhopper.routing.PathProcessingContext;
 import com.graphhopper.routing.util.FlagEncoder;
-import heigit.ors.routing.util.PathProcessor;
+import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.routing.util.WaySurfaceDescription;
@@ -154,7 +154,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 			
 			_tollwaysInfo = new RouteExtraInfo("tollways");
 			_tollwaysInfoBuilder = new SimpleRouteExtraInfoBuilder(_tollwaysInfo);
-			_tollwayExtractor = new TollwayExtractor(_extTollways, req.getSearchParameters().getVehicleType(), req.getSearchParameters().getProfileParameters(), graphHopper.getEncodingManager());
+			_tollwayExtractor = new TollwayExtractor(_extTollways, req.getSearchParameters().getVehicleType(), req.getSearchParameters().getProfileParameters());
 		}
 
 		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.TrailDifficulty))
@@ -274,7 +274,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 		
 		if (_tollwaysInfoBuilder != null)
 		{
-			int value = _tollwayExtractor.getValue(edge);
+			int value = _tollwayExtractor.getValue(edge.getOriginalEdge());
 		    _tollwaysInfoBuilder.addSegment(value, value, geom, dist, lastEdge && _lastSegment);
 		}
 

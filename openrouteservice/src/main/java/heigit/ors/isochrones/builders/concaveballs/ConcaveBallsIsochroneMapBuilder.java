@@ -30,7 +30,7 @@ import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.storage.SPTEntry;
-import heigit.ors.util.ByteArrayBuffer;
+import com.graphhopper.util.ByteArrayBuffer;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistancePlaneProjection;
 import com.graphhopper.util.EdgeIteratorState;

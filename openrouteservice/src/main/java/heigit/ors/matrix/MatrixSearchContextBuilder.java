@@ -30,7 +30,7 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.QueryResult;
-import heigit.ors.util.ByteArrayBuffer;
+import com.graphhopper.util.ByteArrayBuffer;
 import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
 

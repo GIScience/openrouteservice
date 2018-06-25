@@ -30,11 +30,12 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.QueryResult;
-import heigit.ors.util.ByteArrayBuffer;
+import com.graphhopper.util.ByteArrayBuffer;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.exceptions.InternalServerException;
+import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.routing.RouteSearchContext;
 import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.routing.algorithms.DijkstraCostCondition;

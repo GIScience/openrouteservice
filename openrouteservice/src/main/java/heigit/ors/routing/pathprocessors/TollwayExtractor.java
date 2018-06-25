@@ -20,10 +20,6 @@
  */
 package heigit.ors.routing.pathprocessors;
 
-import com.graphhopper.routing.profiles.StringEncodedValue;
-import com.graphhopper.routing.profiles.TagParserFactory;
-import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.util.EdgeIteratorState;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.TollwayType;
 import heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStorage;
@@ -34,13 +30,11 @@ public class TollwayExtractor {
 	private VehicleParameters _vehicleParams;
 	private int _vehicleType;
 	private TollwaysGraphStorage _storage;
-	private StringEncodedValue _tollways;
 	private byte[] _buffer = new byte[4];
 
-	public TollwayExtractor(TollwaysGraphStorage storage, int vehicleType, ProfileParameters vehicleParams, EncodingManager em) {
+	public TollwayExtractor(TollwaysGraphStorage storage, int vehicleType, ProfileParameters vehicleParams) {
 		_storage = storage;
 		_vehicleType = vehicleType;
-		_tollways = em.getStringEncodedValue(TagParserFactory.TOLLWAYS);
 		if (vehicleParams instanceof VehicleParameters)
 			_vehicleParams = (VehicleParameters) vehicleParams;
 	}
@@ -48,12 +42,11 @@ public class TollwayExtractor {
 	 * return if a way is a tollway for the configured vehicle. If _vehicleType != 0, it is a heavy vehicle.
 	 * If it is a heavy vehicle and weight parameter is provided, return the toll attribute based on the weight
 	 *
-	 * @param edge				The edge for which toll should be checked
+	 * @param edgeId				The edgeId for which toll should be checked
 	 * @see HeavyVehicleAttributes
 	 */
-	public int getValue(EdgeIteratorState edge) {
-		int value = TollwayType.getFromString(edge.get(_tollways));
-//		int value = _storage.getEdgeValue(edgeId, _buffer);
+	public int getValue(int edgeId) {
+		int value = _storage.getEdgeValue(edgeId, _buffer);
 
 		if (value != TollwayType.None) {
 

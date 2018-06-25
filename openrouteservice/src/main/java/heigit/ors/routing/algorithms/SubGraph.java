@@ -27,7 +27,7 @@ import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.Graph;
-import heigit.ors.util.ByteArrayBuffer;
+import com.graphhopper.util.ByteArrayBuffer;
 import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
