@@ -44,7 +44,6 @@ public class AlgorithmOptions {
 
     // MARQ24 MOD START
     // Modification by Maxim Rylov: Added additional class variables
-    private double maxSpeed = -1;
     private EdgeFilter edgeFilter;
 
     // Modification by Maxim Rylov: Added getEdgeFilter method.
@@ -55,11 +54,6 @@ public class AlgorithmOptions {
     // Modification by Maxim Rylov: Added setEdgeFilter method.
     public void setEdgeFilter(EdgeFilter edgeFilter) {
         this.edgeFilter = edgeFilter;
-    }
-
-    // Modification by Maxim Rylov: Added getMaxSpeed method.
-    public double getMaxSpeed() {
-        return maxSpeed;
     }
     // MARQ24 MOD END
 
@@ -75,23 +69,10 @@ public class AlgorithmOptions {
     }
 
     public AlgorithmOptions(String algorithm, Weighting weighting, TraversalMode tMode) {
-        // MARQ24 MOD STARt
-        //this.algorithm = algorithm;
-        //this.weighting = weighting;
-        //this.traversalMode = tMode;
-        this(algorithm, weighting, tMode, -1);
-        // MARQ24 MOD END
-    }
-
-    // MARQ24 MOD STARt
-    // Modification by Maxim Rylov: Added a constructor with maxSpeed parameter.
-    public AlgorithmOptions(String algorithm, Weighting weighting, TraversalMode tMode, double maxSpeed) {
         this.algorithm = algorithm;
         this.weighting = weighting;
         this.traversalMode = tMode;
-        this.maxSpeed = maxSpeed;
     }
-    // MARQ24 MOD END
 
     /**
      * This method starts the building process for AlgorithmOptions.
