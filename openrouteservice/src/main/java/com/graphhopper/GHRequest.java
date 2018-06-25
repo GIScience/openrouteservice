@@ -54,7 +54,6 @@ public class GHRequest {
     private EdgeAnnotator edgeAnnotator;
     private PathProcessor pathProcessor;
     private EdgeFilter edgeFilter;
-    private double maxSpeed = -1;
     private double[] maxSearchDistances;
     private Boolean simplifyGeometry = true;
 
@@ -375,18 +374,11 @@ public class GHRequest {
         maxSearchDistances = distances;
     }
 
-    // Modification by Maxim Rylov: Added getMaxSpeed method.
-    public double getMaxSpeed()
-    {
-        return maxSpeed;
-    }
-
     // Modification by Maxim Rylov: Added setMaxSpeed method.
     public void setMaxSpeed(double speed) {
-        if (speed > 0)
+        if (speed > 0) {
             hints.put("max_speed", speed);
-
-        maxSpeed = speed;
+        }
     }
 
     // Modification by Maxim Rylov: Added setEdgeFilter method.
