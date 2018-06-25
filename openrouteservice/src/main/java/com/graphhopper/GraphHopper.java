@@ -24,7 +24,6 @@ import com.graphhopper.routing.*;
 import com.graphhopper.routing.ch.CHAlgoFactoryDecorator;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.lm.LMAlgoFactoryDecorator;
-import com.graphhopper.routing.lm.PrepareLandmarks;
 import com.graphhopper.routing.subnetwork.PrepareRoutingSubnetworks;
 import com.graphhopper.routing.template.AlternativeRoutingTemplate;
 import com.graphhopper.routing.template.RoundTripRoutingTemplate;
@@ -1330,6 +1329,10 @@ public class GraphHopper implements GraphHopperAPI {
     }
 
     // Modification by Maxim Rylov: Added a new method.
+    /* REMOVED BY MARQ24 ->
+    // this getCapacity() Method was/is only used by some LOGGING function in the heigit.ors.routing.RoutingProfile
+    // -> AND it would require a copy of com.graphhopper.routing.lm.PrepareLandmarks class just to make
+    // getLandmarkStorage() externally accessible.
     public long getCapacity() {
         long lmCapacity = 0;
         if (getLMFactoryDecorator().isEnabled()) {
@@ -1341,5 +1344,6 @@ public class GraphHopper implements GraphHopperAPI {
 
         return getGraphHopperStorage().getCapacity() + lmCapacity;
     }
+    */
     // MARQ24 MOD END
 }

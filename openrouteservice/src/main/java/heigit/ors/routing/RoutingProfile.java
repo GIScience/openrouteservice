@@ -165,7 +165,13 @@ public class RoutingProfile {
             EncodingManager encodingMgr = gh.getEncodingManager();
             GraphHopperStorage ghStorage = gh.getGraphHopperStorage();
             LOGGER.info(String.format("[%d] FlagEncoders: %s, bits used %d/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getUsedBitsForFlags(), encodingMgr.getBytesForFlags() * 8));
-            LOGGER.info(String.format("[%d] Capacity:  %s. (edges - %s, nodes - %s)", profileId, RuntimeUtility.getMemorySize(gh.getCapacity()), ghStorage.getEdges(), ghStorage.getNodes()));
+            // MARQ24 MOD START
+            // the 'getCapacity()' impl is the root cause of having a copy of the gh 'com.graphhopper.routing.lm.PrepareLandmarks'
+            // class (to make the store) accessible (getLandmarkStorage()) - IMHO this is not worth it!
+            // so gh.getCapacity() will be removed!
+            //LOGGER.info(String.format("[%d] Capacity:  %s. (edges - %s, nodes - %s)", profileId, RuntimeUtility.getMemorySize(gh.getCapacity()), ghStorage.getEdges(), ghStorage.getNodes()));
+            LOGGER.info(String.format("[%d] Capacity: [UNKNOWN]. (edges - %s, nodes - %s)", profileId, ghStorage.getEdges(), ghStorage.getNodes()));
+            // MARQ24 MOD END
             LOGGER.info(String.format("[%d] Total time: %s.", profileId, TimeUtility.getElapsedTime(startTime, true)));
             LOGGER.info(String.format("[%d] Finished at: %s.", profileId, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
             LOGGER.info("                              ");
