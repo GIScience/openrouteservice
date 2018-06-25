@@ -651,19 +651,11 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     public RoutingAlgorithm createAlgo(Graph graph, AlgorithmOptions opts) {
         AbstractBidirAlgo algo;
         if (ASTAR_BI.equals(opts.getAlgorithm())) {
-
-            // MARQ24 MOD START
-            //AStarBidirection tmpAlgo = new AStarBidirectionCH(graph, prepareWeighting, traversalMode);
-            AStarBidirection tmpAlgo = new AStarBidirectionCH(graph, prepareWeighting, traversalMode, opts.getMaxSpeed());
-            // MARQ24 MOD END
-
+            AStarBidirection tmpAlgo = new AStarBidirectionCH(graph, prepareWeighting, traversalMode);
             tmpAlgo.setApproximation(RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts, graph.getNodeAccess()));
             algo = tmpAlgo;
         } else if (DIJKSTRA_BI.equals(opts.getAlgorithm())) {
-            // MARQ24 MOD START
-            //algo = new DijkstraBidirectionCH(graph, prepareWeighting, traversalMode);
-            algo = new DijkstraBidirectionCH(graph, prepareWeighting, traversalMode, opts.getMaxSpeed());
-            // MARQ24 MOD END
+            algo = new DijkstraBidirectionCH(graph, prepareWeighting, traversalMode);
         } else {
             throw new IllegalArgumentException("Algorithm " + opts.getAlgorithm() + " not supported for Contraction Hierarchies. Try with ch.disable=true");
         }
@@ -673,12 +665,8 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     }
 
     public static class AStarBidirectionCH extends AStarBidirection {
-        // MARQ24 MOD START
-        //public AStarBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode) {
-        public AStarBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode, double maxSpeed) {
-            //super(graph, weighting, traversalMode);
-            super(graph, weighting, traversalMode, maxSpeed);
-        // MARQ24 MOD END
+        public AStarBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode) {
+            super(graph, weighting, traversalMode);
         }
 
         @Override
@@ -698,10 +686,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
 
         @Override
         protected Path createAndInitPath() {
-            // MARQ24 MOD START
-            //bestPath = new Path4CH(graph, graph.getBaseGraph(), weighting);
-            bestPath = new Path4CH(graph, graph.getBaseGraph(), weighting, maxSpeed);
-            // MARQ24 MOD END
+            bestPath = new Path4CH(graph, graph.getBaseGraph(), weighting);
             return bestPath;
         }
 
@@ -717,12 +702,8 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     }
 
     public static class DijkstraBidirectionCH extends DijkstraBidirectionRef {
-        // MARQ24 MOD START
-        //public DijkstraBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode) {
-        public DijkstraBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode, double maxSpeed) {
-            //super(graph, weighting, traversalMode);
-            super(graph, weighting, traversalMode, maxSpeed);
-        // MARQ24 MOD END
+        public DijkstraBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode) {
+            super(graph, weighting, traversalMode);
         }
 
         @Override
@@ -742,10 +723,7 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
 
         @Override
         protected Path createAndInitPath() {
-            // MARQ24 MOD START
-            //bestPath = new Path4CH(graph, graph.getBaseGraph(), weighting);
-            bestPath = new Path4CH(graph, graph.getBaseGraph(), weighting, maxSpeed);
-            // MARQ24 MOD END
+            bestPath = new Path4CH(graph, graph.getBaseGraph(), weighting);
             return bestPath;
         }
 

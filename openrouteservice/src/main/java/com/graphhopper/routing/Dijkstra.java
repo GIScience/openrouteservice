@@ -43,20 +43,15 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
     private int visitedNodes;
     private int to = -1;
 
-    // MARQ24 Modification by Maxim Rylov: Added a new class variable used for computing isochrones.
+    // MARQ24 MOD START Modification by Maxim Rylov: Added a new class variable used for computing isochrones.
     protected Boolean reverseDirection = false;
+    // MARQ24 MOD END
 
-    // MARQ24 MOD START
     public Dijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
-        this(graph, weighting, tMode, -1);
-    }
-
-    public Dijkstra(Graph graph, Weighting weighting, TraversalMode tMode, double maxSpeed) {
-        super(graph, weighting, tMode, maxSpeed);
+        super(graph, weighting, tMode);
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
         initCollections(size);
     }
-    // MARQ24 MOD END
 
     protected void initCollections(int size) {
         fromHeap = new PriorityQueue<SPTEntry>(size);
