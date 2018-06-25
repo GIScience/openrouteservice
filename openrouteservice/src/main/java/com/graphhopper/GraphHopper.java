@@ -959,7 +959,7 @@ public class GraphHopper implements GraphHopperAPI {
                 // MARQ24 MOD START
                 // ORG CODE
                 //return new TurnWeighting(weighting, (TurnCostExtension) graph.getExtension());
-                return new TurnWeighting(weighting, HelperTCE.getTurnCostExtensions(graph.getExtension()));
+                return new TurnWeighting(weighting, HelperOSM.getTurnCostExtensions(graph.getExtension()));
                 // MOD END
             }
         // MARQ24 MOD START
