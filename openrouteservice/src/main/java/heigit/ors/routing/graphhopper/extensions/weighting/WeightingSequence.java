@@ -20,12 +20,12 @@
  */
 package heigit.ors.routing.graphhopper.extensions.weighting;
 
-import java.util.ArrayList;
-
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
+
+import java.util.ArrayList;
 
 public class WeightingSequence implements Weighting {
 	private ArrayList<Weighting> weightings;
@@ -53,19 +53,6 @@ public class WeightingSequence implements Weighting {
 		weightingsCount++;
 	}
 	
-	@Override
-    public double getMaxWeight() {
-		double maxValue = Double.MIN_VALUE;
-		
-		for (int i = 0; i < weightingsCount; i++) {
-			double w = weightings.get(i).getMaxWeight();
-			if (w > maxValue)
-				maxValue = w;
-		}
- 
-		return maxValue;
-    }
-
 	@Override
 	public double getMinWeight(double distance) {
 		
