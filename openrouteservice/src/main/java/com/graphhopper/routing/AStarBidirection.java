@@ -72,16 +72,8 @@ public class AStarBidirection extends AbstractBidirAlgo implements Recalculation
     private IntHashSet ignoreExplorationTo = new IntHashSet();
     private boolean updateBestPath = true;
 
-    // MARQ24 MOD START
     public AStarBidirection(Graph graph, Weighting weighting, TraversalMode tMode) {
-        this(graph, weighting, tMode, -1);
-    }
-
-    public AStarBidirection(Graph graph, Weighting weighting, TraversalMode tMode, double maxSpeed) {
-    //public AStarBidirection(Graph graph, Weighting weighting, TraversalMode tMode) {
-        //super(graph, weighting, tMode);
-        super(graph, weighting, tMode, maxSpeed);
-    // MARQ24 MOD END
+        super(graph, weighting, tMode);
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 150_000);
         initCollections(size);
         BeelineWeightApproximator defaultApprox = new BeelineWeightApproximator(nodeAccess, weighting);
@@ -168,10 +160,7 @@ public class AStarBidirection extends AbstractBidirAlgo implements Recalculation
 
     @Override
     protected Path createAndInitPath() {
-        // MARQ24 MOD START
-        //bestPath = new PathBidirRef(graph, weighting);
-        bestPath = new PathBidirRef(graph, weighting, maxSpeed);
-        // MARQ24 MOD END
+        bestPath = new PathBidirRef(graph, weighting);
         return bestPath;
     }
 

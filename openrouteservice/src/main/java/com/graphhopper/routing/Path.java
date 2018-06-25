@@ -66,35 +66,20 @@ public class Path {
     private double weight;
     private NodeAccess nodeAccess;
 
-    // MARQ24 MOD START
-    // Modification by Maxim Rylov: Added new class variables.
-    private double maxSpeed = -1;
-
     public Path(Graph graph, Weighting weighting) {
-        this(graph, weighting, -1);
-    }
-
-    public Path(Graph graph, Weighting weighting, double maxSpeed) {
-    // MARQ24 MOD END
         this.weight = Double.MAX_VALUE;
         this.graph = graph;
         this.nodeAccess = graph.getNodeAccess();
         this.weighting = weighting;
         this.encoder = weighting.getFlagEncoder();
         this.edgeIds = new GHIntArrayList();
-        // MARQ24 MOD START
-        this.maxSpeed = maxSpeed;
-        // MARQ24 MOD END
     }
 
     /**
      * Populates an unextracted path instances from the specified path p.
      */
     Path(Path p) {
-        // MARQ24 MOD START
-        //this(p.graph, p.weighting);
-        this(p.graph, p.weighting, -1);
-        // MARQ24 MOD END
+        this(p.graph, p.weighting);
         weight = p.weight;
         edgeIds = new GHIntArrayList(p.edgeIds);
         sptEntry = p.sptEntry;

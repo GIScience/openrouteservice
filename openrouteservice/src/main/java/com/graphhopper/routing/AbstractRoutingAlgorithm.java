@@ -46,18 +46,13 @@ public abstract class AbstractRoutingAlgorithm implements RoutingAlgorithm {
     protected int maxVisitedNodes = Integer.MAX_VALUE;
     private EdgeFilter additionalEdgeFilter;
     private boolean alreadyRun;
-    // MARQ24 MOD START
-    protected double maxSpeed = -1;
-    // MARQ24 MOD END
+
     /**
      * @param graph         specifies the graph where this algorithm will run on
      * @param weighting     set the used weight calculation (e.g. fastest, shortest).
      * @param traversalMode how the graph is traversed e.g. if via nodes or edges.
      */
-    // MARQ24 MOD START
-    //public AbstractRoutingAlgorithm(Graph graph, Weighting weighting, TraversalMode traversalMode) {
-    public AbstractRoutingAlgorithm(Graph graph, Weighting weighting, TraversalMode traversalMode, double maxSpeed) {
-    // MARQ24 MOD END
+    public AbstractRoutingAlgorithm(Graph graph, Weighting weighting, TraversalMode traversalMode) {
         this.weighting = weighting;
         this.flagEncoder = weighting.getFlagEncoder();
         this.traversalMode = traversalMode;
@@ -65,16 +60,7 @@ public abstract class AbstractRoutingAlgorithm implements RoutingAlgorithm {
         this.nodeAccess = graph.getNodeAccess();
         outEdgeExplorer = graph.createEdgeExplorer(new DefaultEdgeFilter(flagEncoder, false, true));
         inEdgeExplorer = graph.createEdgeExplorer(new DefaultEdgeFilter(flagEncoder, true, false));
-        // MARQ24 MOD START
-        this.maxSpeed = maxSpeed;
-        // MARQ24 MOD END
     }
-
-    // MARQ24 MOD START
-    public void setMaxSpeed(double maxSpeed) {
-        this.maxSpeed = maxSpeed;
-    }
-    // MARQ24 MOD END
 
     @Override
     public void setMaxVisitedNodes(int numberOfNodes) {
@@ -131,10 +117,7 @@ public abstract class AbstractRoutingAlgorithm implements RoutingAlgorithm {
     }
 
     protected Path createEmptyPath() {
-        // MARQ24 MOD STARt
-        //return new Path(graph, weighting);
-        return new Path(graph, weighting, -1);
-        // MARQ24 MOD END
+        return new Path(graph, weighting);
     }
 
     @Override

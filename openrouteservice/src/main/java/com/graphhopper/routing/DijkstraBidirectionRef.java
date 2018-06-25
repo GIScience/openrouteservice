@@ -46,11 +46,8 @@ public class DijkstraBidirectionRef extends AbstractBidirAlgo {
     private PriorityQueue<SPTEntry> pqOpenSetTo;
     private boolean updateBestPath = true;
 
-    // MARQ24 MOD START
-    public DijkstraBidirectionRef(Graph graph, Weighting weighting, TraversalMode tMode, double maxSpeed) {
-        //super(graph, weighting, tMode);
-        super(graph, weighting, tMode, maxSpeed);
-    // MARQ24 MOD END
+    public DijkstraBidirectionRef(Graph graph, Weighting weighting, TraversalMode tMode) {
+        super(graph, weighting, tMode);
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 150_000);
         initCollections(size);
     }
@@ -103,10 +100,7 @@ public class DijkstraBidirectionRef extends AbstractBidirAlgo {
 
     @Override
     protected Path createAndInitPath() {
-        // MARQ24 MOD START
-        //bestPath = new PathBidirRef(graph, weighting);
-        bestPath = new PathBidirRef(graph, weighting, maxSpeed);
-        // MARQ24 MOD END
+        bestPath = new PathBidirRef(graph, weighting);
         return bestPath;
     }
 
