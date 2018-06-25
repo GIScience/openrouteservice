@@ -165,10 +165,7 @@ public class RoutingProfile {
             EncodingManager encodingMgr = gh.getEncodingManager();
             GraphHopperStorage ghStorage = gh.getGraphHopperStorage();
             LOGGER.info(String.format("[%d] FlagEncoders: %s, bits used %d/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getUsedBitsForFlags(), encodingMgr.getBytesForFlags() * 8));
-            // MARQ24 MOD START - removed the 'Capacity' info since this require public access to members in origanal
-            // GH classes - IMHO it's not worth it "just for logging"
-            //LOGGER.info(String.format("[%d] Capacity:  %s. (edges - %s, nodes - %s)", profileId, RuntimeUtility.getMemorySize(gh.getCapacity()), ghStorage.getEdges(), ghStorage.getNodes()));
-            // MARQ24 MOD END
+            LOGGER.info(String.format("[%d] Capacity:  %s. (edges - %s, nodes - %s)", profileId, RuntimeUtility.getMemorySize(gh.getCapacity()), ghStorage.getEdges(), ghStorage.getNodes()));
             LOGGER.info(String.format("[%d] Total time: %s.", profileId, TimeUtility.getElapsedTime(startTime, true)));
             LOGGER.info(String.format("[%d] Finished at: %s.", profileId, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
             LOGGER.info("                              ");
