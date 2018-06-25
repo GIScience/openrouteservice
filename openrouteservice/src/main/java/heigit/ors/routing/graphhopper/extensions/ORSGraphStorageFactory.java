@@ -20,24 +20,17 @@
  */
 package heigit.ors.routing.graphhopper.extensions;
 
+import com.graphhopper.GraphHopper;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.storage.*;
+import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import org.apache.log4j.Logger;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.log4j.Logger;
-
-import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
-
-import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.storage.GHDirectory;
-import com.graphhopper.storage.GraphExtension;
-import com.graphhopper.storage.GraphExtension.ExtendedStorageSequence;
-import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.GraphStorageFactory;
-import com.graphhopper.storage.TurnCostExtension;
 
 public class ORSGraphStorageFactory implements GraphStorageFactory {
 
@@ -122,7 +115,7 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 	    {
 	    	ArrayList<GraphExtension> seq = new ArrayList<GraphExtension>();
 	    	seq.addAll(graphExtensions);
-	    	return new ExtendedStorageSequence(seq); 
+	    	return new ExtendedStorageSequence(seq);
 	    }
 	    else
 	    	return graphExtensions.size() == 0 ? new GraphExtension.NoOpExtension() : graphExtensions.get(0);
