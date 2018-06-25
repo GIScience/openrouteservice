@@ -24,16 +24,15 @@ import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.routing.Dijkstra;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.SPTEntry;
 
 public class DijkstraCostCondition extends Dijkstra
 {
 	private double weightLimit = -1;
     public DijkstraCostCondition(Graph g, Weighting weighting, double maxCost, boolean reverseDirection, TraversalMode tMode)
     {
-        super(g, weighting, tMode, -1);
-
+        super(g, weighting, tMode);
         initCollections(1000);
         this.weightLimit = maxCost;
         setReverseDirection(reverseDirection);
