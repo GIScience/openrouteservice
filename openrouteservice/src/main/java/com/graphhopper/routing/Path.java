@@ -85,12 +85,6 @@ public class Path {
         sptEntry = p.sptEntry;
     }
 
-    // MARQ24 MOD START
-    public FlagEncoder getEncoder() {
-        return encoder;
-    }
-    // MARQ24 MOD END
-
     /**
      * @return the description of this route alternative to make it meaningful for the user e.g. it
      * displays one or two main roads of the route.
@@ -389,11 +383,6 @@ public class Path {
         forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, nodeAccess, tr, ways));
         return ways;
     } ORG CODE END*/
-
-    public InstructionList calcInstructions(final Translation tr) {
-        PathProcessingContext pathProcCntx = new PathProcessingContext(null, null, tr, null, null);
-        return calcInstructions(pathProcCntx);
-    }
 
     /**
      * @return the list of instructions for this path.

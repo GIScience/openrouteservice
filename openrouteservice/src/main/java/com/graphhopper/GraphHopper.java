@@ -1098,11 +1098,10 @@ public class GraphHopper implements GraphHopperAPI {
                 if (request.getEdgeFilter() != null) {
                     algoOpts.setEdgeFilter(request.getEdgeFilter());
                 }
-                PathProcessingContext pathProcCntx = new PathProcessingContext(encoder, weighting, tr, request.getEdgeAnnotator(), request.getPathProcessor());
-                // ORG CODE
-                //altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts);
-                altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts, pathProcCntx);
+                PathProcessingContext pathProcCntx = new PathProcessingContext(encoder, weighting, tr, request.getPathProcessor());
                 // MARQ24 MOD END
+
+                altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts);
 
                 boolean tmpEnableInstructions = hints.getBool(Routing.INSTRUCTIONS, enableInstructions);
                 boolean tmpCalcPoints = hints.getBool(Routing.CALC_POINTS, calcPoints);
