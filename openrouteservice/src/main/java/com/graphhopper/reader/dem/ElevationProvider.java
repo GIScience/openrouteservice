@@ -54,7 +54,7 @@ public interface ElevationProvider {
         public void setCalcMean(boolean eleCalcMean) {
         }
 
-        // MARQ24 - MOD START
+        // MARQ24 MOD START
         @Override
         public int getTileKey(double lat, double lon) {
             return -1;
@@ -69,19 +69,18 @@ public interface ElevationProvider {
         public HeightTile loadTile(double lat, double lon) {
             return null;
         }
-        // MOD END
+        // MARQ24 MOD END
 
     };
 
-    // MARQ24 - Modification by Maxim Rylov: Added new methods.
-    // MOD START
+    // MARQ24 MOD START - Modification by Maxim Rylov: Added new methods.
     int getTileKey(double lat, double lon);
 
     HeightTile getTile(int key);
 
     HeightTile loadTile(double lat, double lon);
     //*******************************************
-    // MOD END
+    // MARQ24 MOD END
 
     /**
      * @return returns the height in meters or Double.NaN if invalid

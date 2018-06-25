@@ -238,7 +238,7 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
                     return 0;
                 }
             }
-            //MARQ24 MOD END
+            // MARQ24 MOD END
         }
 
         if (!defaultSpeedMap.containsKey(highwayValue))

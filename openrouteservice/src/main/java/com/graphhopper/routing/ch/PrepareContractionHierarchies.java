@@ -373,11 +373,11 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
         return prepareGraph.getWeighting();
     }
 
-    //MARQ24 MOD START ADDED (exposed prepareWeighting)
+    // MARQ24 MOD START ADDED (exposed prepareWeighting)
     public Weighting getPrepareWeighting() {
         return prepareWeighting;
     }
-    //MARQ24 MOD END
+    // MARQ24 MOD END
 
     public void close() {
         prepareAlgo.close();

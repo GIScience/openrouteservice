@@ -85,11 +85,10 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
 
     private ConditionalTagInspector conditionalTagInspector;
 
-    // MARQ24 Modification by Maxim Rylov: Added new class members.
-    // MOD START
+    // MARQ24 MOD START - Modification by Maxim Rylov: Added new class members.
     private boolean considerElevation = false;
     protected EncodedDoubleValue reverseSpeedEncoder;
-    // MOD END
+    // MARQ24 MOD END
 
     public AbstractFlagEncoder(PMap properties) {
         throw new RuntimeException("This method must be overridden in derived classes");
