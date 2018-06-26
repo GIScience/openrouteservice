@@ -1,0 +1,1442 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<gpx version="1.0" creator="openrouteservice">
+    <metadata>
+        <name>openrouteservice routing</name>
+        <desc>This is a routing file from openrouteservice</desc>
+        <author>
+            <name>openrouteservice</name>
+            <email id="support" domain="@openrouteservice.org"/>
+            <link href="https://go.openrouteservice.org/">
+                <text>https://go.openrouteservice.org/</text>
+                <type>text/html</type>
+            </link>
+        </author>
+        <copyright author="openrouteservice.org, OpenStreetMap contributors">
+            <year>2018+02:00</year>
+            <license>Apache License 2.0</license>
+        </copyright>
+        <time>2018-06-26T18:40:58.210+02:00</time>
+        <bounds minlat="49.405174175308545" minlon="8.685613662204766" maxlat="49.428246637735455" maxlon="8.694326885662829"/>
+    </metadata>
+    <rte>
+        <rtept lat="49.405174175308545" lon="8.685613662204766">
+            <ele>115.5</ele>
+            <name>Bahnhofstraße</name>
+            <desc>Head east on Bahnhofstraße</desc>
+            <extensions>
+                <distance>112.8</distance>
+                <duration>40.6</duration>
+                <type>11</type>
+                <step>0</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40527489942182" lon="8.686198674578936">
+            <ele>115.25</ele>
+            <name>Bahnhofstraße</name>
+            <desc>Head east on Bahnhofstraße</desc>
+            <extensions>
+                <distance>112.8</distance>
+                <duration>40.6</duration>
+                <type>11</type>
+                <step>1</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40543359679208" lon="8.687121056477451">
+            <ele>115.11363636363636</ele>
+            <name>Bahnhofstraße</name>
+            <desc>Head east on Bahnhofstraße</desc>
+            <extensions>
+                <distance>112.8</distance>
+                <duration>40.6</duration>
+                <type>11</type>
+                <step>2</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40564314437605" lon="8.68711304710313">
+            <ele>115.09615384615384</ele>
+            <name>Kleinschmidtstraße</name>
+            <desc>Turn left onto Kleinschmidtstraße</desc>
+            <extensions>
+                <distance>84.6</distance>
+                <duration>30.5</duration>
+                <type>0</type>
+                <step>3</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.406125942009524" lon="8.68709479318026">
+            <ele>115.56944444444444</ele>
+            <name>Kleinschmidtstraße</name>
+            <desc>Turn left onto Kleinschmidtstraße</desc>
+            <extensions>
+                <distance>84.6</distance>
+                <duration>30.5</duration>
+                <type>0</type>
+                <step>4</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40614028437749" lon="8.687094234386702">
+            <ele>115.69736842105263</ele>
+            <name>Kleinschmidtstraße</name>
+            <desc>Turn left onto Kleinschmidtstraße</desc>
+            <extensions>
+                <distance>84.6</distance>
+                <duration>30.5</duration>
+                <type>0</type>
+                <step>5</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.406194114823506" lon="8.687092185476994">
+            <ele>115.8125</ele>
+            <name>Kleinschmidtstraße</name>
+            <desc>Turn left onto Kleinschmidtstraße</desc>
+            <extensions>
+                <distance>84.6</distance>
+                <duration>30.5</duration>
+                <type>0</type>
+                <step>6</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40627513988931" lon="8.687563248445763">
+            <ele>116.20625</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>7</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40634070500003" lon="8.68793670880653">
+            <ele>116.5</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>8</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40636063530357" lon="8.688050516427692">
+            <ele>116.65</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>9</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40639062389114" lon="8.68822839904342">
+            <ele>116.8</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>10</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40645339503408" lon="8.688592359913715">
+            <ele>116.875</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>11</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.406487853970106" lon="8.688786447542602">
+            <ele>116.875</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>12</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40651225462211" lon="8.688935645422392">
+            <ele>116.875</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>13</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40654932126141" lon="8.689154878761356">
+            <ele>116.875</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>14</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40659104451368" lon="8.68938845446829">
+            <ele>116.975</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>15</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40661507263664" lon="8.689515486870308">
+            <ele>117.045</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>16</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40665605083084" lon="8.689713672318614">
+            <ele>117.08500000000001</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>17</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40667337343112" lon="8.689797491352204">
+            <ele>117.19500000000001</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>18</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.406920173918905" lon="8.69121719951668">
+            <ele>116.625</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>19</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40693582013851" lon="8.691334918692743">
+            <ele>116.475</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>20</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40700175777827" lon="8.691865586307621">
+            <ele>116.4</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>21</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.407007904507395" lon="8.691926494805362">
+            <ele>116.4</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>22</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.4070323051594" lon="8.692162305686525">
+            <ele>116.4</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>23</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40703826562401" lon="8.69222265539071">
+            <ele>116.3</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>24</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40704441235314" lon="8.692299210108054">
+            <ele>116.2</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>25</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40705335305005" lon="8.69266093580412">
+            <ele>116.125</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>26</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40705018655323" lon="8.692725569592243">
+            <ele>116.095</ele>
+            <name>Kurfürsten-Anlage</name>
+            <desc>Turn right onto Kurfürsten-Anlage</desc>
+            <extensions>
+                <distance>419.6</distance>
+                <duration>33.6</duration>
+                <type>1</type>
+                <step>27</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40703938321112" lon="8.692818888116305">
+            <ele>116.08500000000001</ele>
+            <name>Adenauerplatz, B 3</name>
+            <desc>Continue straight onto Adenauerplatz, B 3</desc>
+            <extensions>
+                <distance>85.0</distance>
+                <duration>6.8</duration>
+                <type>6</type>
+                <step>28</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40701162979778" lon="8.692982242099545">
+            <ele>116.095</ele>
+            <name>Adenauerplatz, B 3</name>
+            <desc>Continue straight onto Adenauerplatz, B 3</desc>
+            <extensions>
+                <distance>85.0</distance>
+                <duration>6.8</duration>
+                <type>6</type>
+                <step>29</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40699784622337" lon="8.693067364984767">
+            <ele>116.125</ele>
+            <name>Adenauerplatz, B 3</name>
+            <desc>Continue straight onto Adenauerplatz, B 3</desc>
+            <extensions>
+                <distance>85.0</distance>
+                <duration>6.8</duration>
+                <type>6</type>
+                <step>30</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40696431860993" lon="8.693255305884525">
+            <ele>116.175</ele>
+            <name>Adenauerplatz, B 3</name>
+            <desc>Continue straight onto Adenauerplatz, B 3</desc>
+            <extensions>
+                <distance>85.0</distance>
+                <duration>6.8</duration>
+                <type>6</type>
+                <step>31</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.406936378932066" lon="8.693457589152253">
+            <ele>116.19500000000001</ele>
+            <name>Adenauerplatz, B 3</name>
+            <desc>Continue straight onto Adenauerplatz, B 3</desc>
+            <extensions>
+                <distance>85.0</distance>
+                <duration>6.8</duration>
+                <type>6</type>
+                <step>32</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40693023220294" lon="8.69352110535326">
+            <ele>116.23500000000001</ele>
+            <name>Adenauerplatz, B 3</name>
+            <desc>Continue straight onto Adenauerplatz, B 3</desc>
+            <extensions>
+                <distance>85.0</distance>
+                <duration>6.8</duration>
+                <type>6</type>
+                <step>33</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40690992937036" lon="8.693814471970821">
+            <ele>116.375</ele>
+            <name>Adenauerplatz, B 3</name>
+            <desc>Continue straight onto Adenauerplatz, B 3</desc>
+            <extensions>
+                <distance>85.0</distance>
+                <duration>6.8</duration>
+                <type>6</type>
+                <step>34</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.4069054590219" lon="8.693876684320196">
+            <ele>116.475</ele>
+            <name>Adenauerplatz, B 3</name>
+            <desc>Continue straight onto Adenauerplatz, B 3</desc>
+            <extensions>
+                <distance>85.0</distance>
+                <duration>6.8</duration>
+                <type>6</type>
+                <step>35</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40697139666165" lon="8.694083624200902">
+            <ele>116.575</ele>
+            <name>Adenauerplatz, B 3</name>
+            <desc>Turn slight left onto Adenauerplatz, B 3</desc>
+            <extensions>
+                <distance>90.5</distance>
+                <duration>7.2</duration>
+                <type>4</type>
+                <step>36</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40702559963671" lon="8.694197245557545">
+            <ele>116.675</ele>
+            <name>Adenauerplatz, B 3</name>
+            <desc>Turn slight left onto Adenauerplatz, B 3</desc>
+            <extensions>
+                <distance>90.5</distance>
+                <duration>7.2</duration>
+                <type>4</type>
+                <step>37</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.407093958715215" lon="8.694252379855195">
+            <ele>116.775</ele>
+            <name>Adenauerplatz, B 3</name>
+            <desc>Turn slight left onto Adenauerplatz, B 3</desc>
+            <extensions>
+                <distance>90.5</distance>
+                <duration>7.2</duration>
+                <type>4</type>
+                <step>38</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.407166601877655" lon="8.694278456887867">
+            <ele>116.875</ele>
+            <name>Adenauerplatz, B 3</name>
+            <desc>Turn slight left onto Adenauerplatz, B 3</desc>
+            <extensions>
+                <distance>90.5</distance>
+                <duration>7.2</duration>
+                <type>4</type>
+                <step>39</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40724762694346" lon="8.6942963382817">
+            <ele>116.975</ele>
+            <name>Adenauerplatz, B 3</name>
+            <desc>Turn slight left onto Adenauerplatz, B 3</desc>
+            <extensions>
+                <distance>90.5</distance>
+                <duration>7.2</duration>
+                <type>4</type>
+                <step>40</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40748138891492" lon="8.694320925198218">
+            <ele>117.175</ele>
+            <name>Adenauerplatz, B 3</name>
+            <desc>Turn slight left onto Adenauerplatz, B 3</desc>
+            <extensions>
+                <distance>90.5</distance>
+                <duration>7.2</duration>
+                <type>4</type>
+                <step>41</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40758588331012" lon="8.694326885662829">
+            <ele>117.575</ele>
+            <name>Adenauerplatz, B 3</name>
+            <desc>Turn slight left onto Adenauerplatz, B 3</desc>
+            <extensions>
+                <distance>90.5</distance>
+                <duration>7.2</duration>
+                <type>4</type>
+                <step>42</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40773433613183" lon="8.694280505797577">
+            <ele>117.9</ele>
+            <name>Sofienstraße, B 3</name>
+            <desc>Turn slight left onto Sofienstraße, B 3</desc>
+            <extensions>
+                <distance>411.5</distance>
+                <duration>59.2</duration>
+                <type>4</type>
+                <step>43</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40789321976661" lon="8.694227047880599">
+            <ele>118.15</ele>
+            <name>Sofienstraße, B 3</name>
+            <desc>Turn slight left onto Sofienstraße, B 3</desc>
+            <extensions>
+                <distance>411.5</distance>
+                <duration>59.2</duration>
+                <type>4</type>
+                <step>44</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40797908770991" lon="8.69419203015101">
+            <ele>118.4</ele>
+            <name>Sofienstraße, B 3</name>
+            <desc>Turn slight left onto Sofienstraße, B 3</desc>
+            <extensions>
+                <distance>411.5</distance>
+                <duration>59.2</duration>
+                <type>4</type>
+                <step>45</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.408263886159595" lon="8.694069468097451">
+            <ele>118.95</ele>
+            <name>Sofienstraße, B 3</name>
+            <desc>Turn slight left onto Sofienstraße, B 3</desc>
+            <extensions>
+                <distance>411.5</distance>
+                <duration>59.2</duration>
+                <type>4</type>
+                <step>46</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40876810421276" lon="8.693860665571556">
+            <ele>120.5</ele>
+            <name>Sofienstraße, B 3</name>
+            <desc>Turn slight left onto Sofienstraße, B 3</desc>
+            <extensions>
+                <distance>411.5</distance>
+                <duration>59.2</duration>
+                <type>4</type>
+                <step>47</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40900484641652" lon="8.693776846537967">
+            <ele>121.3</ele>
+            <name>Sofienstraße, B 3</name>
+            <desc>Turn slight left onto Sofienstraße, B 3</desc>
+            <extensions>
+                <distance>411.5</distance>
+                <duration>59.2</duration>
+                <type>4</type>
+                <step>48</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40936154297057" lon="8.693650559194026">
+            <ele>122.025</ele>
+            <name>Sofienstraße, B 3</name>
+            <desc>Turn slight left onto Sofienstraße, B 3</desc>
+            <extensions>
+                <distance>411.5</distance>
+                <duration>59.2</duration>
+                <type>4</type>
+                <step>49</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.40960405937442" lon="8.693558544521597">
+            <ele>122.125</ele>
+            <name>Sofienstraße, B 3</name>
+            <desc>Turn slight left onto Sofienstraße, B 3</desc>
+            <extensions>
+                <distance>411.5</distance>
+                <duration>59.2</duration>
+                <type>4</type>
+                <step>50</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.410023713335924" lon="8.693390161396342">
+            <ele>121.25</ele>
+            <name>Sofienstraße, B 3</name>
+            <desc>Turn slight left onto Sofienstraße, B 3</desc>
+            <extensions>
+                <distance>411.5</distance>
+                <duration>59.2</duration>
+                <type>4</type>
+                <step>51</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41010827742759" lon="8.693358496428099">
+            <ele>121.08333333333333</ele>
+            <name>Sofienstraße, B 3</name>
+            <desc>Turn slight left onto Sofienstraße, B 3</desc>
+            <extensions>
+                <distance>411.5</distance>
+                <duration>59.2</duration>
+                <type>4</type>
+                <step>52</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.410213144351836" lon="8.69331938087909">
+            <ele>120.85</ele>
+            <name>Sofienstraße, B 3</name>
+            <desc>Turn slight left onto Sofienstraße, B 3</desc>
+            <extensions>
+                <distance>411.5</distance>
+                <duration>59.2</duration>
+                <type>4</type>
+                <step>53</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41070972555972" lon="8.693120636637225">
+            <ele>119.45</ele>
+            <name>Sofienstraße, B 3</name>
+            <desc>Turn slight left onto Sofienstraße, B 3</desc>
+            <extensions>
+                <distance>411.5</distance>
+                <duration>59.2</duration>
+                <type>4</type>
+                <step>54</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.411013150461315" lon="8.692988388828674">
+            <ele>117.55</ele>
+            <name>Sofienstraße, B 3</name>
+            <desc>Turn slight left onto Sofienstraße, B 3</desc>
+            <extensions>
+                <distance>411.5</distance>
+                <duration>59.2</duration>
+                <type>4</type>
+                <step>55</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41117073024446" lon="8.692920402279206">
+            <ele>116.8875</ele>
+            <name>Sofienstraße, B 3</name>
+            <desc>Turn slight left onto Sofienstraße, B 3</desc>
+            <extensions>
+                <distance>411.5</distance>
+                <duration>59.2</duration>
+                <type>4</type>
+                <step>56</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41122754092278" lon="8.692903265943452">
+            <ele>116.3125</ele>
+            <name>Sofienstraße, B 3</name>
+            <desc>Continue straight onto Sofienstraße, B 3</desc>
+            <extensions>
+                <distance>23.7</distance>
+                <duration>3.4</duration>
+                <type>6</type>
+                <step>57</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41131285007252" lon="8.692889668633558">
+            <ele>115.825</ele>
+            <name>Sofienstraße, B 3</name>
+            <desc>Continue straight onto Sofienstraße, B 3</desc>
+            <extensions>
+                <distance>23.7</distance>
+                <duration>3.4</duration>
+                <type>6</type>
+                <step>58</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.411381954209105" lon="8.692883335639909">
+            <ele>115.425</ele>
+            <name>Sofienstraße, B 3</name>
+            <desc>Continue straight onto Sofienstraße, B 3</desc>
+            <extensions>
+                <distance>23.7</distance>
+                <duration>3.4</duration>
+                <type>6</type>
+                <step>59</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41150749649497" lon="8.692869924594534">
+            <ele>115.025</ele>
+            <name>Theodor-Heuss-Brücke, B 3</name>
+            <desc>Continue straight onto Theodor-Heuss-Brücke, B 3</desc>
+            <extensions>
+                <distance>238.1</distance>
+                <duration>20.1</duration>
+                <type>6</type>
+                <step>60</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.411525564153315" lon="8.692869552065497">
+            <ele>114.625</ele>
+            <name>Theodor-Heuss-Brücke, B 3</name>
+            <desc>Continue straight onto Theodor-Heuss-Brücke, B 3</desc>
+            <extensions>
+                <distance>238.1</distance>
+                <duration>20.1</duration>
+                <type>6</type>
+                <step>61</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.411666938923304" lon="8.692845896471573">
+            <ele>114.1625</ele>
+            <name>Theodor-Heuss-Brücke, B 3</name>
+            <desc>Continue straight onto Theodor-Heuss-Brücke, B 3</desc>
+            <extensions>
+                <distance>238.1</distance>
+                <duration>20.1</duration>
+                <type>6</type>
+                <step>62</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41349531144266" lon="8.692359559812237">
+            <ele>113.725</ele>
+            <name>Theodor-Heuss-Brücke, B 3</name>
+            <desc>Continue straight onto Theodor-Heuss-Brücke, B 3</desc>
+            <extensions>
+                <distance>238.1</distance>
+                <duration>20.1</duration>
+                <type>6</type>
+                <step>63</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41368735016184" lon="8.692257486855778">
+            <ele>114.5575</ele>
+            <name>Brückenstraße, B 3</name>
+            <desc>Continue straight onto Brückenstraße, B 3</desc>
+            <extensions>
+                <distance>407.3</distance>
+                <duration>56.6</duration>
+                <type>6</type>
+                <step>64</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.4137680026986" lon="8.692221351539075">
+            <ele>114.94000000000001</ele>
+            <name>Brückenstraße, B 3</name>
+            <desc>Continue straight onto Brückenstraße, B 3</desc>
+            <extensions>
+                <distance>407.3</distance>
+                <duration>56.6</duration>
+                <type>6</type>
+                <step>65</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41384865523536" lon="8.692217998777732">
+            <ele>115.3</ele>
+            <name>Brückenstraße, B 3</name>
+            <desc>Continue straight onto Brückenstraße, B 3</desc>
+            <extensions>
+                <distance>407.3</distance>
+                <duration>56.6</duration>
+                <type>6</type>
+                <step>66</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.4142617899387" lon="8.692188755248235">
+            <ele>116.76500000000001</ele>
+            <name>Brückenstraße, B 3</name>
+            <desc>Continue straight onto Brückenstraße, B 3</desc>
+            <extensions>
+                <distance>407.3</distance>
+                <duration>56.6</duration>
+                <type>6</type>
+                <step>67</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.414670081764534" lon="8.69215112981538">
+            <ele>118.02000000000001</ele>
+            <name>Brückenstraße, B 3</name>
+            <desc>Continue straight onto Brückenstraße, B 3</desc>
+            <extensions>
+                <distance>407.3</distance>
+                <duration>56.6</duration>
+                <type>6</type>
+                <step>68</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.414727264971894" lon="8.69214703199596">
+            <ele>118.2775</ele>
+            <name>Brückenstraße, B 3</name>
+            <desc>Continue straight onto Brückenstraße, B 3</desc>
+            <extensions>
+                <distance>407.3</distance>
+                <duration>56.6</duration>
+                <type>6</type>
+                <step>69</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41477774265657" lon="8.692144796821731">
+            <ele>118.5125</ele>
+            <name>Brückenstraße, B 3</name>
+            <desc>Continue straight onto Brückenstraße, B 3</desc>
+            <extensions>
+                <distance>407.3</distance>
+                <duration>56.6</duration>
+                <type>6</type>
+                <step>70</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41514226232042" lon="8.692138277563563">
+            <ele>119.3525</ele>
+            <name>Brückenstraße, B 3</name>
+            <desc>Continue straight onto Brückenstraße, B 3</desc>
+            <extensions>
+                <distance>407.3</distance>
+                <duration>56.6</duration>
+                <type>6</type>
+                <step>71</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41543954049288" lon="8.692123562666556">
+            <ele>119.825</ele>
+            <name>Brückenstraße, B 3</name>
+            <desc>Continue straight onto Brückenstraße, B 3</desc>
+            <extensions>
+                <distance>407.3</distance>
+                <duration>56.6</duration>
+                <type>6</type>
+                <step>72</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41566138153512" lon="8.692106985124356">
+            <ele>120.125</ele>
+            <name>Brückenstraße, B 3</name>
+            <desc>Continue straight onto Brückenstraße, B 3</desc>
+            <extensions>
+                <distance>407.3</distance>
+                <duration>56.6</duration>
+                <type>6</type>
+                <step>73</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41590110397118" lon="8.692087799878891">
+            <ele>120.325</ele>
+            <name>Brückenstraße, B 3</name>
+            <desc>Continue straight onto Brückenstraße, B 3</desc>
+            <extensions>
+                <distance>407.3</distance>
+                <duration>56.6</duration>
+                <type>6</type>
+                <step>74</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41658860631112" lon="8.692038439781333">
+            <ele>120.4</ele>
+            <name>Brückenstraße, B 3</name>
+            <desc>Continue straight onto Brückenstraße, B 3</desc>
+            <extensions>
+                <distance>407.3</distance>
+                <duration>56.6</duration>
+                <type>6</type>
+                <step>75</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.416674101725384" lon="8.692032479316723">
+            <ele>120.35</ele>
+            <name>Brückenstraße, B 3</name>
+            <desc>Continue straight onto Brückenstraße, B 3</desc>
+            <extensions>
+                <distance>407.3</distance>
+                <duration>56.6</duration>
+                <type>6</type>
+                <step>76</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.416686395183646" lon="8.69202875402634">
+            <ele>120.3</ele>
+            <name>Brückenstraße, B 3</name>
+            <desc>Continue straight onto Brückenstraße, B 3</desc>
+            <extensions>
+                <distance>407.3</distance>
+                <duration>56.6</duration>
+                <type>6</type>
+                <step>77</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.4169123340453" lon="8.692016088039043">
+            <ele>120.1625</ele>
+            <name>Brückenstraße, B 3</name>
+            <desc>Continue straight onto Brückenstraße, B 3</desc>
+            <extensions>
+                <distance>407.3</distance>
+                <duration>56.6</duration>
+                <type>6</type>
+                <step>78</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41713901796503" lon="8.691974923580325">
+            <ele>119.975</ele>
+            <name>Brückenstraße, B 3</name>
+            <desc>Continue straight onto Brückenstraße, B 3</desc>
+            <extensions>
+                <distance>407.3</distance>
+                <duration>56.6</duration>
+                <type>6</type>
+                <step>79</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41722004303083" lon="8.69194102343785">
+            <ele>119.875</ele>
+            <name>Handschuhsheimer Landstraße, B 3</name>
+            <desc>Continue straight onto Handschuhsheimer Landstraße, B 3</desc>
+            <extensions>
+                <distance>139.4</distance>
+                <duration>11.1</duration>
+                <type>6</type>
+                <step>80</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41736886838158" lon="8.691816971268139">
+            <ele>119.775</ele>
+            <name>Handschuhsheimer Landstraße, B 3</name>
+            <desc>Continue straight onto Handschuhsheimer Landstraße, B 3</desc>
+            <extensions>
+                <distance>139.4</distance>
+                <duration>11.1</duration>
+                <type>6</type>
+                <step>81</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41772575120015" lon="8.691427492158729">
+            <ele>118.9</ele>
+            <name>Handschuhsheimer Landstraße, B 3</name>
+            <desc>Continue straight onto Handschuhsheimer Landstraße, B 3</desc>
+            <extensions>
+                <distance>139.4</distance>
+                <duration>11.1</duration>
+                <type>6</type>
+                <step>82</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41805115531499" lon="8.69107247198535">
+            <ele>117.9</ele>
+            <name>Handschuhsheimer Landstraße, B 3</name>
+            <desc>Continue straight onto Handschuhsheimer Landstraße, B 3</desc>
+            <extensions>
+                <distance>139.4</distance>
+                <duration>11.1</duration>
+                <type>6</type>
+                <step>83</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41815807114895" lon="8.690967977590143">
+            <ele>117.65</ele>
+            <name>Handschuhsheimer Landstraße, B 3</name>
+            <desc>Continue straight onto Handschuhsheimer Landstraße, B 3</desc>
+            <extensions>
+                <distance>139.4</distance>
+                <duration>11.1</duration>
+                <type>6</type>
+                <step>84</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.418187687207485" lon="8.690935753828342">
+            <ele>117.4</ele>
+            <name>Handschuhsheimer Landstraße, B 3</name>
+            <desc>Continue straight onto Handschuhsheimer Landstraße, B 3</desc>
+            <extensions>
+                <distance>139.4</distance>
+                <duration>11.1</duration>
+                <type>6</type>
+                <step>85</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41820799004007" lon="8.690938920325166">
+            <ele>117.15</ele>
+            <name>B 3</name>
+            <desc>Turn slight right onto B 3</desc>
+            <extensions>
+                <distance>122.9</distance>
+                <duration>9.8</duration>
+                <type>5</type>
+                <step>86</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41829572062856" lon="8.690938547796128">
+            <ele>116.9</ele>
+            <name>B 3</name>
+            <desc>Turn slight right onto B 3</desc>
+            <extensions>
+                <distance>122.9</distance>
+                <duration>9.8</duration>
+                <type>5</type>
+                <step>87</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41837823581051" lon="8.690920293873257">
+            <ele>116.8</ele>
+            <name>B 3</name>
+            <desc>Turn slight right onto B 3</desc>
+            <extensions>
+                <distance>122.9</distance>
+                <duration>9.8</duration>
+                <type>5</type>
+                <step>88</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41841083210135" lon="8.69091153944086">
+            <ele>116.7</ele>
+            <name>B 3</name>
+            <desc>Turn slight right onto B 3</desc>
+            <extensions>
+                <distance>122.9</distance>
+                <duration>9.8</duration>
+                <type>5</type>
+                <step>89</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41898117405879" lon="8.690669768095086">
+            <ele>115.925</ele>
+            <name>B 3</name>
+            <desc>Turn slight right onto B 3</desc>
+            <extensions>
+                <distance>122.9</distance>
+                <duration>9.8</duration>
+                <type>5</type>
+                <step>90</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.4189919774009" lon="8.690663993894994">
+            <ele>115.825</ele>
+            <name>B 3</name>
+            <desc>Turn slight right onto B 3</desc>
+            <extensions>
+                <distance>122.9</distance>
+                <duration>9.8</duration>
+                <type>5</type>
+                <step>91</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41909311903476" lon="8.690614075003879">
+            <ele>115.775</ele>
+            <name>B 3</name>
+            <desc>Turn slight right onto B 3</desc>
+            <extensions>
+                <distance>122.9</distance>
+                <duration>9.8</duration>
+                <type>5</type>
+                <step>92</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.419173957836044" lon="8.690546833512489">
+            <ele>115.925</ele>
+            <name>B 3</name>
+            <desc>Turn slight right onto B 3</desc>
+            <extensions>
+                <distance>122.9</distance>
+                <duration>9.8</duration>
+                <type>5</type>
+                <step>93</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.4192037601591" lon="8.69047921949206">
+            <ele>116.125</ele>
+            <name>B 3</name>
+            <desc>Turn slight right onto B 3</desc>
+            <extensions>
+                <distance>122.9</distance>
+                <duration>9.8</duration>
+                <type>5</type>
+                <step>94</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.419218475056105" lon="8.690446250672181">
+            <ele>116.325</ele>
+            <name>B 3</name>
+            <desc>Turn slight right onto B 3</desc>
+            <extensions>
+                <distance>122.9</distance>
+                <duration>9.8</duration>
+                <type>5</type>
+                <step>95</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41957703425535" lon="8.690274514785584">
+            <ele>117.125</ele>
+            <name>Handschuhsheimer Landstraße, B 3</name>
+            <desc>Turn slight right onto Handschuhsheimer Landstraße, B 3</desc>
+            <extensions>
+                <distance>248.7</distance>
+                <duration>19.9</duration>
+                <type>5</type>
+                <step>96</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.41983296170457" lon="8.69012252293801">
+            <ele>117.725</ele>
+            <name>Handschuhsheimer Landstraße, B 3</name>
+            <desc>Turn slight right onto Handschuhsheimer Landstraße, B 3</desc>
+            <extensions>
+                <distance>248.7</distance>
+                <duration>19.9</duration>
+                <type>5</type>
+                <step>97</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.420216480349374" lon="8.689854115766007">
+            <ele>118.025</ele>
+            <name>Handschuhsheimer Landstraße, B 3</name>
+            <desc>Turn slight right onto Handschuhsheimer Landstraße, B 3</desc>
+            <extensions>
+                <distance>248.7</distance>
+                <duration>19.9</duration>
+                <type>5</type>
+                <step>98</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.420513758521835" lon="8.689652391291835">
+            <ele>118.275</ele>
+            <name>Handschuhsheimer Landstraße, B 3</name>
+            <desc>Turn slight right onto Handschuhsheimer Landstraße, B 3</desc>
+            <extensions>
+                <distance>248.7</distance>
+                <duration>19.9</duration>
+                <type>5</type>
+                <step>99</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.420795390474694" lon="8.689516231928383">
+            <ele>118.575</ele>
+            <name>Handschuhsheimer Landstraße, B 3</name>
+            <desc>Turn slight right onto Handschuhsheimer Landstraße, B 3</desc>
+            <extensions>
+                <distance>248.7</distance>
+                <duration>19.9</duration>
+                <type>5</type>
+                <step>100</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.42131301957323" lon="8.689251550046762">
+            <ele>118.45</ele>
+            <name>Handschuhsheimer Landstraße, B 3</name>
+            <desc>Turn slight right onto Handschuhsheimer Landstraße, B 3</desc>
+            <extensions>
+                <distance>248.7</distance>
+                <duration>19.9</duration>
+                <type>5</type>
+                <step>101</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.421438934388135" lon="8.689193249252288">
+            <ele>118.45</ele>
+            <name>Steubenstraße, B 3</name>
+            <desc>Turn slight left onto Steubenstraße, B 3</desc>
+            <extensions>
+                <distance>351.8</distance>
+                <duration>28.1</duration>
+                <type>4</type>
+                <step>102</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.422016726926344" lon="8.688938625654696">
+            <ele>118.175</ele>
+            <name>Steubenstraße, B 3</name>
+            <desc>Turn slight left onto Steubenstraße, B 3</desc>
+            <extensions>
+                <distance>351.8</distance>
+                <duration>28.1</duration>
+                <type>4</type>
+                <step>103</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.4222007562712" lon="8.688856110472742">
+            <ele>118.075</ele>
+            <name>Steubenstraße, B 3</name>
+            <desc>Turn slight left onto Steubenstraße, B 3</desc>
+            <extensions>
+                <distance>351.8</distance>
+                <duration>28.1</duration>
+                <type>4</type>
+                <step>104</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.4229834397804" lon="8.688528843712707">
+            <ele>117.79166666666667</ele>
+            <name>Steubenstraße, B 3</name>
+            <desc>Turn slight left onto Steubenstraße, B 3</desc>
+            <extensions>
+                <distance>351.8</distance>
+                <duration>28.1</duration>
+                <type>4</type>
+                <step>105</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.42378027939305" lon="8.688174941126443">
+            <ele>117.95</ele>
+            <name>Steubenstraße, B 3</name>
+            <desc>Turn slight left onto Steubenstraße, B 3</desc>
+            <extensions>
+                <distance>351.8</distance>
+                <duration>28.1</duration>
+                <type>4</type>
+                <step>106</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.424211854283776" lon="8.68797135400708">
+            <ele>118.56666666666665</ele>
+            <name>Steubenstraße, B 3</name>
+            <desc>Turn slight left onto Steubenstraße, B 3</desc>
+            <extensions>
+                <distance>351.8</distance>
+                <duration>28.1</duration>
+                <type>4</type>
+                <step>107</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.424283938652664" lon="8.687916964767508">
+            <ele>118.69444444444443</ele>
+            <name>Steubenstraße, B 3</name>
+            <desc>Turn slight left onto Steubenstraße, B 3</desc>
+            <extensions>
+                <distance>351.8</distance>
+                <duration>28.1</duration>
+                <type>4</type>
+                <step>108</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.4243409355955" lon="8.687862575527934">
+            <ele>118.81666666666665</ele>
+            <name>Steubenstraße, B 3</name>
+            <desc>Turn slight left onto Steubenstraße, B 3</desc>
+            <extensions>
+                <distance>351.8</distance>
+                <duration>28.1</duration>
+                <type>4</type>
+                <step>109</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.42443425411957" lon="8.687742062384086">
+            <ele>118.93333333333332</ele>
+            <name>Rottmannstraße, B 3</name>
+            <desc>Continue straight onto Rottmannstraße, B 3</desc>
+            <extensions>
+                <distance>13.6</distance>
+                <duration>1.1</duration>
+                <type>6</type>
+                <step>110</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.424456605861856" lon="8.687772237236178">
+            <ele>119.04444444444444</ele>
+            <name>Steubenstraße</name>
+            <desc>Turn right onto Steubenstraße</desc>
+            <extensions>
+                <distance>9.1</distance>
+                <duration>2.2</duration>
+                <type>1</type>
+                <step>111</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.424473928462135" lon="8.68779384392039">
+            <ele>119.15</ele>
+            <name>Steubenstraße</name>
+            <desc>Turn right onto Steubenstraße</desc>
+            <extensions>
+                <distance>9.1</distance>
+                <duration>2.2</duration>
+                <type>1</type>
+                <step>112</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.42449423129471" lon="8.68782681274027">
+            <ele>119.25</ele>
+            <name>Steubenstraße</name>
+            <desc>Turn right onto Steubenstraße</desc>
+            <extensions>
+                <distance>9.1</distance>
+                <duration>2.2</duration>
+                <type>1</type>
+                <step>113</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.42454154248256" lon="8.687827744062865">
+            <ele>119.34444444444443</ele>
+            <name>Steubenstraße</name>
+            <desc>Turn left onto Steubenstraße</desc>
+            <extensions>
+                <distance>381.4</distance>
+                <duration>91.5</duration>
+                <type>0</type>
+                <step>114</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.42478238250574" lon="8.687752493197154">
+            <ele>119.51666666666665</ele>
+            <name>Steubenstraße</name>
+            <desc>Turn left onto Steubenstraße</desc>
+            <extensions>
+                <distance>381.4</distance>
+                <duration>91.5</duration>
+                <type>0</type>
+                <step>115</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.42613689808854" lon="8.687117703716108">
+            <ele>119.6</ele>
+            <name>Steubenstraße</name>
+            <desc>Turn left onto Steubenstraße</desc>
+            <extensions>
+                <distance>381.4</distance>
+                <duration>91.5</duration>
+                <type>0</type>
+                <step>116</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.42631347685263" lon="8.687045246818183">
+            <ele>119.5</ele>
+            <name>Steubenstraße</name>
+            <desc>Turn left onto Steubenstraße</desc>
+            <extensions>
+                <distance>381.4</distance>
+                <duration>91.5</duration>
+                <type>0</type>
+                <step>117</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.426854202751535" lon="8.686782241317234">
+            <ele>119.39499999999998</ele>
+            <name>Steubenstraße</name>
+            <desc>Turn left onto Steubenstraße</desc>
+            <extensions>
+                <distance>381.4</distance>
+                <duration>91.5</duration>
+                <type>0</type>
+                <step>118</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.426876181964786" lon="8.68677274182676">
+            <ele>119.40833333333333</ele>
+            <name>Steubenstraße</name>
+            <desc>Turn left onto Steubenstraße</desc>
+            <extensions>
+                <distance>381.4</distance>
+                <duration>91.5</duration>
+                <type>0</type>
+                <step>119</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.42738542915997" lon="8.686576419023643">
+            <ele>119.225</ele>
+            <name>Steubenstraße</name>
+            <desc>Turn left onto Steubenstraße</desc>
+            <extensions>
+                <distance>381.4</distance>
+                <duration>91.5</duration>
+                <type>0</type>
+                <step>120</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.427439445870505" lon="8.686547361758665">
+            <ele>119.15833333333333</ele>
+            <name>Steubenstraße</name>
+            <desc>Turn left onto Steubenstraße</desc>
+            <extensions>
+                <distance>381.4</distance>
+                <duration>91.5</duration>
+                <type>0</type>
+                <step>121</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.42771679373943" lon="8.686386988007731">
+            <ele>119.27833333333334</ele>
+            <name>Steubenstraße</name>
+            <desc>Turn left onto Steubenstraße</desc>
+            <extensions>
+                <distance>381.4</distance>
+                <duration>91.5</duration>
+                <type>0</type>
+                <step>122</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.427782917643704" lon="8.686352156542663">
+            <ele>119.375</ele>
+            <name>Steubenstraße</name>
+            <desc>Turn left onto Steubenstraße</desc>
+            <extensions>
+                <distance>381.4</distance>
+                <duration>91.5</duration>
+                <type>0</type>
+                <step>123</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.4278823828969" lon="8.686741449387553">
+            <ele>119.875</ele>
+            <name>Dossenheimer Landstraße</name>
+            <desc>Turn right onto Dossenheimer Landstraße</desc>
+            <extensions>
+                <distance>30.2</distance>
+                <duration>7.3</duration>
+                <type>1</type>
+                <step>124</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.427997121840654" lon="8.68669916734172">
+            <ele>120.06666666666668</ele>
+            <name>An der Tiefburg</name>
+            <desc>Turn left onto An der Tiefburg</desc>
+            <extensions>
+                <distance>42.0</distance>
+                <duration>10.1</duration>
+                <type>0</type>
+                <step>125</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.42816233846908" lon="8.686640494018208">
+            <ele>120.15</ele>
+            <name>An der Tiefburg</name>
+            <desc>Turn left onto An der Tiefburg</desc>
+            <extensions>
+                <distance>42.0</distance>
+                <duration>10.1</duration>
+                <type>0</type>
+                <step>126</step>
+            </extensions>
+        </rtept>
+        <rtept lat="49.428246637735455" lon="8.686602090062333">
+            <ele>120.3</ele>
+            <name>An der Tiefburg</name>
+            <desc>Turn left onto An der Tiefburg</desc>
+            <extensions>
+                <distance>42.0</distance>
+                <duration>10.1</duration>
+                <type>0</type>
+                <step>127</step>
+            </extensions>
+        </rtept>
+    </rte>
+    <extensions>
+        <attribution>openrouteservice.org, OpenStreetMap contributors</attribution>
+        <engine>4.5.0</engine>
+        <build_date>2018-06-26T16:34:40Z</build_date>
+        <profile>fastest</profile>
+        <preference>driving-ecar</preference>
+        <language>en</language>
+        <distance-units>Meters</distance-units>
+        <instructions>true</instructions>
+        <elevation>true</elevation>
+    </extensions>
+</gpx>

@@ -27,6 +27,7 @@ package heigit.ors.globalResponseProcessor.gpx;
 
 
 import com.graphhopper.util.shapes.BBox;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import heigit.ors.config.AppConfig;
@@ -58,6 +59,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -87,195 +90,175 @@ public class GpxResponseWriter {
         if (routeResults != null) {
             for (RouteResult route : routeResults) {
                 RteType routeType = new RteType();
-                // Access segments
-                if (route.getSegments().size() > 0) {
-                    LineString routeGeom = GeomUtility.createLinestring(route.getGeometry());
-
-                    for (RouteSegment segment : route.getSegments()) {
-                        // Access routesteps
-                        for (RouteStep routestep : segment.getSteps()) {
-                            // Get the id of the coordinates to look for them inside routeGeom and assign them to the WayPoint
-                            int[] wayPointNumber = routestep.getWayPoints();
-                            // get start coordinate to look for in routeGeom
-                            int startPoint = wayPointNumber[0];
-                            // the start and end points always cross with the points from the routesteps before and after
-                            // to avoid duplicity the startpoint is raised by one if not zero or just one point ine the routestep
-                            if (startPoint != 0 || wayPointNumber.length == 1) {
-                                startPoint += 1;
-                            }
-                            // get end coordinate to look for in routeGeom
-                            int endPoint = wayPointNumber[1];
-                            // create a counter to avoid double entries
-                            // Get the coordinate pair from routeGeom according to wayPointNumber. But stop at one before the endPoint to prevent duplicity
-                            for (int j = startPoint; j <= endPoint; j++) {
-                                // Get geometry of the actual Point
-                                Point point = routeGeom.getPointN(j);
-                                BigDecimal longitude = BigDecimal.valueOf(point.getCoordinate().x);
-                                BigDecimal latitude = BigDecimal.valueOf(point.getCoordinate().y);
-                                // Create waypoint
-                                WptType wayPoint = new WptType();
-                                // look for elevation
-                                if (includeElevation) {
-                                    // add coordinates to waypoint
-                                    BigDecimal elevation = BigDecimal.valueOf(point.getCoordinate().z);
-                                    wayPoint.setLat(latitude);
-                                    wayPoint.setLon(longitude);
-                                    wayPoint.setEle(elevation);
-                                } else {
-                                    // add coordinates to waypoint
-                                    wayPoint.setLat(latitude);
-                                    wayPoint.setLon(longitude);
+                List<RouteSegment> route_segments = null;
+                LineString routeGeom;
+                if (route.getGeometry() != null) {
+                    routeGeom = GeomUtility.createLinestring(route.getGeometry());
+                    int number_points = routeGeom.getNumPoints();
+                    if (route.getSegments().size() > 0) {
+                        route_segments = route.getSegments();
+                    }
+                    for (int i = 0; i < number_points; i++) {
+                        Point point = routeGeom.getPointN(i);
+                        BigDecimal longitude = BigDecimal.valueOf(point.getCoordinate().x);
+                        BigDecimal latitude = BigDecimal.valueOf(point.getCoordinate().y);
+                        WptType wayPoint = new WptType();
+                        if (includeElevation) {
+                            BigDecimal elevation = BigDecimal.valueOf(point.getCoordinate().z);
+                            wayPoint.setLat(latitude);
+                            wayPoint.setLon(longitude);
+                            wayPoint.setEle(elevation);
+                        } else {
+                            wayPoint.setLat(latitude);
+                            wayPoint.setLon(longitude);
+                        }
+                        if (route_segments != null) {
+                            for (RouteStep routeStep : route_segments.get(0).getSteps()) {
+                                int[] wayPointNumber = routeStep.getWayPoints();
+                                int startPoint = wayPointNumber[0];
+                                // the start and end points always cross with the points from the routesteps before and after
+                                // to avoid duplicity the startpoint is raised by one if not zero or just one point ine the routestep
+                                if (startPoint != 0 || wayPointNumber.length == 1) {
+                                    startPoint += 1;
                                 }
+                                int endPoint = wayPointNumber[1];
 
-                                // add additional information to waypoint;
-                                wayPoint.setName(routestep.getName());
-                                wayPoint.setDesc(routestep.getInstruction());
-                                // add extensions to waypoint
-                                WptTypeExtensions wptExtensions = new WptTypeExtensions();
-                                wptExtensions.setDistance(routestep.getDistance());
-                                wptExtensions.setDuration(routestep.getDuration());
-                                wptExtensions.setType(routestep.getType());
-                                wptExtensions.setStep(j);
-                                wayPoint.setExtensions(wptExtensions);
-                                // add waypoint the the routepoint list
-                                routeType.getRtept().add(wayPoint);
-
+                                if (i >= startPoint && i <= endPoint) {
+                                    wayPoint.setName(routeStep.getName());
+                                    wayPoint.setDesc(routeStep.getInstruction());
+                                    // add extensions to waypoint
+                                    WptTypeExtensions wptExtensions = new WptTypeExtensions();
+                                    wptExtensions.setDistance(routeStep.getDistance());
+                                    wptExtensions.setDuration(routeStep.getDuration());
+                                    wptExtensions.setType(routeStep.getType());
+                                    wptExtensions.setStep(i);
+                                    wayPoint.setExtensions(wptExtensions);
+                                }
                             }
                         }
-
+                        routeType.getRtept().add(wayPoint);
                     }
-                    // create and add extensions to the routeType
-                    RteTypeExtensions extensions = new RteTypeExtensions();
-                    extensions.setDistance(route.getSummary().getDistance());
-                    extensions.setDistanceActual(route.getSummary().getDistanceActual());
-                    extensions.setDuration(route.getSummary().getDuration());
-                    extensions.setAscent(route.getSummary().getAscent());
-                    extensions.setDescent(route.getSummary().getDescent());
-                    extensions.setAvgSpeed(route.getSummary().getAverageSpeed());
-                    routeType.setExtensions(extensions);
-                    // add the finished routeType to the gpx
-                    gpx.getRte().add(routeType);
                 }
+
+                // Create and set boundaries
+                BoundsType bounds = new BoundsType();
+                bounds.setMinlat(BigDecimal.valueOf(bbox != null ? bbox.minLat : 0));
+                bounds.setMinlon(BigDecimal.valueOf(bbox != null ? bbox.minLon : 0));
+                bounds.setMaxlat(BigDecimal.valueOf(bbox != null ? bbox.maxLat : 0));
+                bounds.setMaxlon(BigDecimal.valueOf(bbox != null ? bbox.maxLon : 0));
+                // create and set gpx metadata in a if and else check process to avoid interruption
+                MetadataType metadata = new MetadataType();
+                metadata.setBounds(bounds);
+                PersonType orsPerson = new PersonType();
+                EmailType orsMail = new EmailType();
+                if (AppConfig.Global().getParameter("info", "support_mail") != null) {
+                    try {
+                        String[] mail = AppConfig.Global().getParameter("info", "support_mail").split("@");
+                        orsMail.setDomain("@" + mail[1]);
+                        orsMail.setId(mail[0]);
+                        orsPerson.setEmail(orsMail);
+                    } catch (Exception ex) {
+                        orsMail.setDomain("");
+                        orsMail.setId("");
+                        orsPerson.setEmail(orsMail);
+                        new MissingConfigParameterException(GpxResponseWriter.class, "support_mail", "The parameter seems to be malformed");
+                    }
+                } else {
+                    orsMail.setDomain("");
+                    orsMail.setId("");
+                    orsPerson.setEmail(orsMail);
+                    new MissingConfigParameterException(GpxResponseWriter.class, "support_mail");
+                }
+
+                LinkType orsLink = new LinkType();
+                // set base_url
+                if (AppConfig.Global().getParameter("info", "base_url") != null) {
+                    orsLink.setHref(AppConfig.Global().getParameter("info", "base_url"));
+                    orsLink.setText(AppConfig.Global().getParameter("info", "base_url"));
+                    orsLink.setType("text/html");
+                    orsPerson.setLink(orsLink);
+                } else {
+                    orsLink.setHref("");
+                    orsLink.setText("");
+                    orsLink.setType("text/html");
+                    orsPerson.setLink(orsLink);
+                    new MissingConfigParameterException(GpxResponseWriter.class, "base_url");
+                }
+
+                // set author_tag
+                if (AppConfig.Global().getParameter("info", "author_tag") != null) {
+                    orsPerson.setName(AppConfig.Global().getParameter("info", "author_tag"));
+                } else {
+                    orsPerson.setName("");
+                    new MissingConfigParameterException(GpxResponseWriter.class, "author_tag");
+                }
+                metadata.setAuthor(orsPerson);
+
+                // set copyright
+                CopyrightType copyright = new CopyrightType();
+                if (RoutingServiceSettings.getAttribution() != null) {
+                    copyright.setAuthor(RoutingServiceSettings.getAttribution());
+
+                } else {
+                    copyright.setAuthor("");
+                    new MissingConfigParameterException(GpxResponseWriter.class, "attribution");
+                }
+                // set content_licence
+                if (AppConfig.Global().getParameter("info", "content_licence") != null) {
+                    copyright.setLicense(AppConfig.Global().getParameter("info", "content_licence"));
+                } else {
+                    copyright.setLicense("");
+                    new MissingConfigParameterException(GpxResponseWriter.class, "content_licence");
+                }
+                // create and set current date as XMLGregorianCalendar element
+                Date date = new Date();
+                GregorianCalendar c = new GregorianCalendar();
+                c.setTime(date);
+                XMLGregorianCalendar cal = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
+                copyright.setYear(cal);
+                // Set the metadata information
+                metadata.setCopyright(copyright);
+                if (RoutingServiceSettings.getParameter("routing_description") != null) {
+
+                    metadata.setDesc(RoutingServiceSettings.getParameter("routing_description"));
+                } else {
+                    metadata.setDesc("");
+                    new MissingConfigParameterException(GpxResponseWriter.class, "routing_description");
+                }
+                // set routing_name
+                if (RoutingServiceSettings.getParameter("routing_name") != null) {
+
+                    metadata.setName(RoutingServiceSettings.getParameter("routing_name"));
+                } else {
+                    metadata.setName("ORSRoutingFile");
+                    new MissingConfigParameterException(GpxResponseWriter.class, "routing_name");
+                }
+                metadata.setTime(cal);
+                gpx.setMetadata(metadata);
+                // set author_tag
+                if (AppConfig.Global().getParameter("info", "author_tag") != null) {
+                    gpx.setCreator(AppConfig.Global().getParameter("info", "author_tag"));
+                } else {
+                    gpx.setCreator("");
+                    new MissingConfigParameterException(GpxResponseWriter.class, "author_tag");
+                }
+
+                // set gpx extensions
+                GpxExtensions gpxExtensions = new GpxExtensions();
+                gpxExtensions.setAttribution(RoutingServiceSettings.getAttribution());
+                gpxExtensions.setElevation(String.valueOf(includeElevation));
+                gpxExtensions.setEngine(AppInfo.VERSION);
+                gpxExtensions.setBuild_date(AppInfo.BUILD_DATE);
+                gpxExtensions.setInstructions(String.valueOf(rreq.getIncludeInstructions()));
+                gpxExtensions.setLanguage(rreq.getLanguage());
+                gpxExtensions.setPreference(RoutingProfileType.getName(rreq.getSearchParameters().getWeightingMethod()));
+                gpxExtensions.setProfile(WeightingMethod.getName(rreq.getSearchParameters().getProfileType()));
+                gpxExtensions.setDistance_units(rreq.getUnits().name());
+                gpx.setExtensions(gpxExtensions);
+                gpx.getRte().add(routeType);
+
             }
         }
-        // Create and set boundaries
-        BoundsType bounds = new BoundsType();
-        bounds.setMinlat(BigDecimal.valueOf(bbox != null ? bbox.minLat : 0));
-        bounds.setMinlon(BigDecimal.valueOf(bbox != null ? bbox.minLon : 0));
-        bounds.setMaxlat(BigDecimal.valueOf(bbox != null ? bbox.maxLat : 0));
-        bounds.setMaxlon(BigDecimal.valueOf(bbox != null ? bbox.maxLon : 0));
-        // create and set gpx metadata in a if and else check process to avoid interruption
-        MetadataType metadata = new MetadataType();
-        metadata.setBounds(bounds);
-        PersonType orsPerson = new PersonType();
-        EmailType orsMail = new EmailType();
-        if (AppConfig.Global().getParameter("info", "support_mail") != null) {
-            try {
-                String[] mail = AppConfig.Global().getParameter("info", "support_mail").split("@");
-                orsMail.setDomain("@" + mail[1]);
-                orsMail.setId(mail[0]);
-                orsPerson.setEmail(orsMail);
-            } catch (Exception ex) {
-                orsMail.setDomain("");
-                orsMail.setId("");
-                orsPerson.setEmail(orsMail);
-                new MissingConfigParameterException(GpxResponseWriter.class, "support_mail", "The parameter seems to be malformed");
-            }
-        } else {
-            orsMail.setDomain("");
-            orsMail.setId("");
-            orsPerson.setEmail(orsMail);
-            new MissingConfigParameterException(GpxResponseWriter.class, "support_mail");
-        }
-
-        LinkType orsLink = new LinkType();
-        // set base_url
-        if (AppConfig.Global().getParameter("info", "base_url") != null) {
-            orsLink.setHref(AppConfig.Global().getParameter("info", "base_url"));
-            orsLink.setText(AppConfig.Global().getParameter("info", "base_url"));
-            orsLink.setType("text/html");
-            orsPerson.setLink(orsLink);
-        } else {
-            orsLink.setHref("");
-            orsLink.setText("");
-            orsLink.setType("text/html");
-            orsPerson.setLink(orsLink);
-            new MissingConfigParameterException(GpxResponseWriter.class, "base_url");
-        }
-
-        // set author_tag
-        if (AppConfig.Global().getParameter("info", "author_tag") != null) {
-            orsPerson.setName(AppConfig.Global().getParameter("info", "author_tag"));
-        } else {
-            orsPerson.setName("");
-            new MissingConfigParameterException(GpxResponseWriter.class, "author_tag");
-        }
-        metadata.setAuthor(orsPerson);
-
-        // set copyright
-        CopyrightType copyright = new CopyrightType();
-        if (RoutingServiceSettings.getAttribution() != null) {
-            copyright.setAuthor(RoutingServiceSettings.getAttribution());
-
-        } else {
-            copyright.setAuthor("");
-            new MissingConfigParameterException(GpxResponseWriter.class, "attribution");
-        }
-        // set content_licence
-        if (AppConfig.Global().getParameter("info", "content_licence") != null) {
-            copyright.setLicense(AppConfig.Global().getParameter("info", "content_licence"));
-        } else {
-            copyright.setLicense("");
-            new MissingConfigParameterException(GpxResponseWriter.class, "content_licence");
-        }
-        // create and set current date as XMLGregorianCalendar element
-        Date date = new Date();
-        GregorianCalendar c = new GregorianCalendar();
-        c.setTime(date);
-        XMLGregorianCalendar cal = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
-        copyright.setYear(cal);
-        // Set the metadata information
-        metadata.setCopyright(copyright);
-        if (RoutingServiceSettings.getParameter("routing_description") != null) {
-
-            metadata.setDesc(RoutingServiceSettings.getParameter("routing_description"));
-        } else {
-            metadata.setDesc("");
-            new MissingConfigParameterException(GpxResponseWriter.class, "routing_description");
-        }
-        // set routing_name
-        if (RoutingServiceSettings.getParameter("routing_name") != null) {
-
-            metadata.setName(RoutingServiceSettings.getParameter("routing_name"));
-        } else {
-            metadata.setName("ORSRoutingFile");
-            new MissingConfigParameterException(GpxResponseWriter.class, "routing_name");
-        }
-        metadata.setTime(cal);
-        gpx.setMetadata(metadata);
-        // set author_tag
-        if (AppConfig.Global().getParameter("info", "author_tag") != null) {
-            gpx.setCreator(AppConfig.Global().getParameter("info", "author_tag"));
-        } else {
-            gpx.setCreator("");
-            new MissingConfigParameterException(GpxResponseWriter.class, "author_tag");
-        }
-
-        // set gpx extensions
-        GpxExtensions gpxExtensions = new GpxExtensions();
-        gpxExtensions.setAttribution(RoutingServiceSettings.getAttribution());
-        gpxExtensions.setElevation(String.valueOf(includeElevation));
-        gpxExtensions.setEngine(AppInfo.VERSION);
-        gpxExtensions.setBuild_date(AppInfo.BUILD_DATE);
-        gpxExtensions.setInstructions(String.valueOf(rreq.getIncludeInstructions()));
-        gpxExtensions.setLanguage(rreq.getLanguage());
-        gpxExtensions.setPreference(RoutingProfileType.getName(rreq.getSearchParameters().getWeightingMethod()));
-        gpxExtensions.setProfile(WeightingMethod.getName(rreq.getSearchParameters().getProfileType()));
-        gpxExtensions.setDistance_units(rreq.getUnits().name());
-        gpx.setExtensions(gpxExtensions);
-        // return the gpx element as a finished XML element in string representation
         return gpx.build();
     }
-
-
 }
