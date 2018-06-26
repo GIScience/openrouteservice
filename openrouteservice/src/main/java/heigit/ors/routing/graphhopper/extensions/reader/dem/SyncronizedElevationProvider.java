@@ -23,7 +23,6 @@ package heigit.ors.routing.graphhopper.extensions.reader.dem;
 import com.graphhopper.reader.dem.ElevationProvider;
 import com.graphhopper.storage.DAType;
 
-import java.io.File;
 import java.util.concurrent.locks.StampedLock;
 
 public class SyncronizedElevationProvider implements ElevationProvider 
@@ -60,12 +59,6 @@ public class SyncronizedElevationProvider implements ElevationProvider
 	}
 
 	@Override
-	public ElevationProvider setCacheDir(File cacheDir) {
-
-		return _elevProvider.setCacheDir(cacheDir);
-	}
-
-	@Override
 	public ElevationProvider setDAType(DAType daType) {
 		return _elevProvider.setDAType(daType);
 	}
@@ -79,7 +72,12 @@ public class SyncronizedElevationProvider implements ElevationProvider
 	  if (disposeInternal)
 		  _elevProvider.release();
 	}
-	
+
+    @Override
+    public void setAutoRemoveTemporaryFiles(boolean autoRemoveTemporary) {
+        _elevProvider.setAutoRemoveTemporaryFiles(autoRemoveTemporary);
+    }
+
 	@Override
 	public void release() {
 		// omit calling release method of the internal provider since it is used by OSMReader

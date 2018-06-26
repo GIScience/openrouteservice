@@ -20,17 +20,15 @@
  */
 package heigit.ors.routing.graphhopper.extensions.reader.dem;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.graphhopper.reader.dem.CGIARProvider;
 import com.graphhopper.reader.dem.ElevationProvider;
 import com.graphhopper.reader.dem.SRTMProvider;
 import com.graphhopper.storage.DAType;
 import com.graphhopper.util.Helper;
-
 import heigit.ors.util.HashUtility;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ElevationProviderCache 
 {
@@ -67,7 +65,8 @@ public class ElevationProviderCache
 					provider = cgiarProvider;
 				}
 
-				provider.setCacheDir(new File(cacheDir));
+				// MARQ24 UPDATE to gh 0.10.1 - method not present anylonger
+				//provider.setCacheDir(new File(cacheDir));
 				if (!Helper.isEmpty(dataAccessType))
 					provider.setDAType(DAType.fromString(dataAccessType));
 				

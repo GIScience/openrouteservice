@@ -47,8 +47,9 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
      */
     protected final Map<String, Integer> defaultSpeedMap = new HashMap<String, Integer>();
 
-    // MARQ24 ADDED
+    // MARQ24 MOD START
     protected int maxTrackGradeLevel = 3;
+    // MARQ24 MOD END
 
     public CarFlagEncoder() {
         this(5, 5, 0);
@@ -203,7 +204,6 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
                 return 1;
         }
         // MARQ24 MOD END
-
         return speed;
     }
 
@@ -227,11 +227,8 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
         if ("track".equals(highwayValue)) {
             String tt = way.getTag("tracktype");
             // MARQ24 MOD START
-            // ORG START
-            /*if (tt != null && !tt.equals("grade1") && !tt.equals("grade2") && !tt.equals("grade3")) {
-                return 0;
-            }*/
-            //ORG END
+            //if (tt != null && !tt.equals("grade1") && !tt.equals("grade2") && !tt.equals("grade3"))
+            //    return 0;
             if (tt != null) {
                 int grade = getTrackGradeLevel(tt);
                 if (grade > maxTrackGradeLevel) {
@@ -278,7 +275,6 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
             return acceptBit;
     }
 
-
     @Override
     public long handleRelationTags(ReaderRelation relation, long oldRelationFlags) {
         return oldRelationFlags;
@@ -298,13 +294,12 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
             speed = applyBadSurfaceSpeed(way, speed);
 
             // MARQ24 MOD START
-            // ORG CODE START
             //flags = setSpeed(flags, speed);
-            //boolean isRoundabout = way.hasTag("junction", "roundabout");
-            // ORG CODE END
-            boolean isRoundabout = way.hasTag("junction", "roundabout");
+            // MARQ24 MOD END
+            boolean isRoundabout = way.hasTag("junction", "roundabout") || way.hasTag("junction", "circular");
 
-            if (isRoundabout){
+            if (isRoundabout) {
+                // MARQ24 MOD START
                 //http://www.sidrasolutions.com/Documents/OArndt_Speed%20Control%20at%20Roundabouts_23rdARRBConf.pdf
                 if (way.hasTag("highway", "mini_roundabout"))
                     speed = speed < 25 ? speed : 25;
@@ -320,13 +315,12 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
                         }
                     } catch (Exception ex) { }
                 }
-            }
-            flags = setSpeed(flags, speed);
-            // MARQ24 MOD END
-
-            if (isRoundabout) {
+                // MARQ24 MOD END
                 flags = setBool(flags, K_ROUNDABOUT, true);
             }
+            // MARQ24 MOD START
+            flags = setSpeed(flags, speed);
+            // MARQ24 MOD END
 
             if (isOneway(way) || isRoundabout) {
                 if (isBackwardOneway(way))
@@ -338,7 +332,7 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
                 flags |= directionBitMask;
 
         } else {
-            double ferrySpeed = getFerrySpeed(way, defaultSpeedMap.get("living_street"), defaultSpeedMap.get("service"), defaultSpeedMap.get("residential"));
+            double ferrySpeed = getFerrySpeed(way);
             flags = setSpeed(flags, ferrySpeed);
             flags |= directionBitMask;
         }
@@ -346,7 +340,7 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
         for (String restriction : restrictions) {
             if (way.hasTag(restriction, "destination")) {
                 // This is problematic as Speed != Time
-                flags = this.speedEncoder.setDoubleValue(flags, destinationSpeed);
+                flags = setSpeed(flags, destinationSpeed);
             }
         }
 
@@ -409,8 +403,8 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
     }
 
     /**
-     * @param way:   needed to retrieve tags
-     * @param speed: speed guessed e.g. from the road type or other tags
+     * @param way   needed to retrieve tags
+     * @param speed speed guessed e.g. from the road type or other tags
      * @return The assumed speed
      */
     protected double applyBadSurfaceSpeed(ReaderWay way, double speed) {

@@ -20,22 +20,11 @@
  */
 package heigit.ors.routing;
 
-import java.util.List;
-
 import com.graphhopper.GHResponse;
 import com.graphhopper.PathWrapper;
-import com.graphhopper.util.AngleCalc;
-import com.graphhopper.util.DistanceCalc;
-import com.graphhopper.util.DistanceCalcEarth;
-import com.graphhopper.util.Helper;
-import com.graphhopper.util.Instruction;
-import com.graphhopper.util.InstructionAnnotation;
-import com.graphhopper.util.InstructionList;
-import com.graphhopper.util.PointList;
-import com.graphhopper.util.RoundaboutInstruction;
+import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Coordinate;
-
 import heigit.ors.common.ArrivalDirection;
 import heigit.ors.common.CardinalDirection;
 import heigit.ors.common.DistanceUnit;
@@ -47,6 +36,8 @@ import heigit.ors.routing.instructions.InstructionType;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.StringUtility;
+
+import java.util.List;
 
 public class RouteResultBuilder 
 {
@@ -195,10 +186,6 @@ public class RouteResultBuilder
 								RoundaboutInstruction raInstr = (RoundaboutInstruction)instr;
 								step.setExitNumber(raInstr.getExitNumber());
 								instrText = instrTranslator.getRoundabout(raInstr.getExitNumber(), roadName);
-								if (raInstr.getRoundaboutExitBearings() != null)
-								{
-									step.setRoundaboutExitBearings(raInstr.getRoundaboutExitBearings());
-								}
 							}
 							else
 							{

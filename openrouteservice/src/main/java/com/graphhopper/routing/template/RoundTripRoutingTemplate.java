@@ -67,15 +67,15 @@ public class RoundTripRoutingTemplate extends AbstractRoutingTemplate implements
     // MARQ24 MOD START
     //public List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder) {
     public List<QueryResult> lookup(List<GHPoint> points, double[] distances, FlagEncoder encoder) {
-    // MARQ24 MOD END
-        if (points.isEmpty()) {
-            throw new IllegalStateException("For round trip calculation one point is required");
-        }
+        // MARQ24 MOD END
+        if (points.size() != 1 || ghRequest.getPoints().size() != 1)
+            throw new IllegalArgumentException("For round trip calculation exactly one point is required");
+
         final double distanceInMeter = ghRequest.getHints().getDouble(RoundTrip.DISTANCE, 10000);
         final long seed = ghRequest.getHints().getLong(RoundTrip.SEED, 0L);
-        final double initialHeading = ghRequest.getHints().getDouble(RoundTrip.HEADING, Double.NaN);
-        final int roundTripPointCount = Math.min(20, ghRequest.getHints().getInt(Algorithms.ROUND_TRIP + ".points", 2 + (int) (distanceInMeter / 50000)));
-        final GHPoint start = ghRequest.getPoints().get(0);
+        double initialHeading = ghRequest.getFavoredHeading(0);
+        final int roundTripPointCount = Math.min(20, ghRequest.getHints().getInt(RoundTrip.POINTS, 2 + (int) (distanceInMeter / 50000)));
+        final GHPoint start = points.get(0);
 
         TourStrategy strategy = new MultiPointTour(new Random(seed), distanceInMeter, roundTripPointCount, initialHeading);
         queryResults = new ArrayList<>(2 + strategy.getNumberOfGeneratedPoints());
@@ -86,7 +86,7 @@ public class RoundTripRoutingTemplate extends AbstractRoutingTemplate implements
 
         queryResults.add(startQR);
 
-        GHPoint last = points.get(0);
+        GHPoint last = start;
         for (int i = 0; i < strategy.getNumberOfGeneratedPoints(); i++) {
             double heading = strategy.getHeadingForIteration(i);
             QueryResult result = generateValidPoint(last, strategy.getDistanceForIteration(i), heading, edgeFilter);
@@ -115,7 +115,7 @@ public class RoundTripRoutingTemplate extends AbstractRoutingTemplate implements
         algoOpts = AlgorithmOptions.start(algoOpts).
                 algorithm(Algorithms.ASTAR_BI).
                 weighting(avoidPathWeighting).build();
-        algoOpts.getHints().put(Algorithms.ASTAR_BI + ".epsilon", 2);
+        algoOpts.getHints().put(Algorithms.AStarBi.EPSILON, 2);
 
         long visitedNodesSum = 0L;
         QueryResult start = queryResults.get(0);

@@ -338,7 +338,7 @@ http://localhost:8080/ors-osm/routes?
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('extras')", is(true))
-				.body("routes[0].segments[0].steps.size()", is(18))
+				.body("routes[0].segments[0].steps.size()", is(17))
 				.body("routes[0].segments[0].distance", is(4310.5f))
 				.body("routes[0].segments[0].duration", is(1628.5f))
 				.body("routes[0].extras.traildifficulty.values.size()", is(4))
@@ -581,7 +581,7 @@ http://localhost:8080/ors-osm/routes?
 				.body("routes[0].segments[0].containsKey('steps')", is(true))
 				.body("routes[0].segments[1].containsKey('steps')", is(true))
 				.body("routes[0].segments[0].steps.size()", is(55))
-				.body("routes[0].segments[1].steps.size()", is(33))
+				.body("routes[0].segments[1].steps.size()", is(28))
 				.statusCode(200);
 	}
 
@@ -601,7 +601,7 @@ http://localhost:8080/ors-osm/routes?
 				.body("routes[0].segments[0].containsKey('steps')", is(true))
 				.body("routes[0].segments[1].containsKey('steps')", is(true))
 				.body("routes[0].segments[0].steps.size()", is(55))
-				.body("routes[0].segments[1].steps.size()", is(33))
+				.body("routes[0].segments[1].steps.size()", is(28))
 				.body("routes[0].segments[0].steps[0].distance", is(511.4f))
 				.body("routes[0].segments[0].steps[0].duration", is(230.1f))
 				.body("routes[0].segments[0].steps[0].type", is(11))

@@ -26,12 +26,14 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.*;
+import com.graphhopper.util.details.PathDetail;
+import com.graphhopper.util.details.PathDetailsBuilder;
+import com.graphhopper.util.details.PathDetailsBuilderFactory;
+import com.graphhopper.util.details.PathDetailsFromEdges;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Stores the nodes for the found path of an algorithm. It additionally needs the edgeIds to make
@@ -262,7 +264,6 @@ public class Path {
             tmpNode = edgeBase.getBaseNode();
             // more efficient swap, currently not implemented for virtual edges: visitor.next(edgeBase.detach(true), i);
             edgeBase = graph.getEdgeIteratorState(edgeBase.getEdge(), tmpNode);
-
             // MARQ24 MOD START
             //visitor.next(edgeBase, i, prevEdgeId);
             visitor.next(edgeBase, i, len, prevEdgeId);
@@ -289,6 +290,7 @@ public class Path {
             // MARQ24 MOD END
                 edges.add(eb);
             }
+
             @Override
             public void finish() {
 
@@ -365,40 +367,53 @@ public class Path {
         return points;
     }
 
-
+    /**
+     * @return the list of instructions for this path.
+     */
     // MARQ24 MOD START
-    /**
-     * @return the list of instructions for this path.
-     */
-    // ORG CODE START
-    /*
-    public InstructionList calcInstructions(final Translation tr) {
-        final InstructionList ways = new InstructionList(edgeIds.size() / 4, tr);
-        if (edgeIds.isEmpty()) {
-            if (isFound()) {
-                ways.add(new FinishInstruction(nodeAccess, endNode));
-            }
-            return ways;
-        }
-        forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, nodeAccess, tr, ways));
-        return ways;
-    } ORG CODE END*/
-
-    /**
-     * @return the list of instructions for this path.
-     */
-    public InstructionList calcInstructions(PathProcessingContext procCntx) {
+    //public InstructionList calcInstructions(final Translation tr) {
+    public InstructionList calcInstructions(final PathProcessingContext procCntx) {
+        //final InstructionList ways = new InstructionList(edgeIds.size() / 4, tr);
         final InstructionList ways = new InstructionList(edgeIds.size() / 4, procCntx.getTranslation());
+        // MARQ24 MOD END
         if (edgeIds.isEmpty()) {
             if (isFound()) {
                 ways.add(new FinishInstruction(nodeAccess, endNode));
             }
             return ways;
         }
+        // MARQ24 MOD START
+        //forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, nodeAccess, tr, ways));
         forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, nodeAccess, procCntx, ways));
+        // MARQ24 MOD END
         return ways;
     }
-    // MARQ24 MOD END
+
+    /**
+     * Calculates the PathDetails for this Path. This method will return fast, if there are no calculators.
+     *
+     * @param pathBuilderFactory Generates the relevant PathBuilders
+     * @return List of PathDetails for this Path
+     */
+    public Map<String, List<PathDetail>> calcDetails(List<String> requestedPathDetails, PathDetailsBuilderFactory pathBuilderFactory, int previousIndex) {
+        if (!isFound() || requestedPathDetails.isEmpty())
+            return Collections.EMPTY_MAP;
+        List<PathDetailsBuilder> pathBuilders = pathBuilderFactory.createPathDetailsBuilders(requestedPathDetails, encoder, weighting);
+        if (pathBuilders.isEmpty())
+            return Collections.EMPTY_MAP;
+
+        forEveryEdge(new PathDetailsFromEdges(pathBuilders, previousIndex));
+
+        Map<String, List<PathDetail>> pathDetails = new HashMap<>(pathBuilders.size());
+        for (PathDetailsBuilder builder : pathBuilders) {
+            Map.Entry<String, List<PathDetail>> entry = builder.build();
+            List<PathDetail> existing = pathDetails.put(entry.getKey(), entry.getValue());
+            if (existing != null)
+                throw new IllegalStateException("Some PathDetailsBuilders use duplicate key: " + entry.getKey());
+        }
+
+        return pathDetails;
+    }
 
     @Override
     public String toString() {

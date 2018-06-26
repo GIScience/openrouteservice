@@ -39,7 +39,7 @@ import static com.graphhopper.routing.util.PriorityCode.*;
 public class FootFlagEncoder extends AbstractFlagEncoder {
     static final int SLOW_SPEED = 2;
     static final int MEAN_SPEED = 5;
-    static final int FERRY_SPEED = 10;
+    static final int FERRY_SPEED = 15;
 
     // MARQ24 MOD START
     // added 'protected'
@@ -140,7 +140,7 @@ public class FootFlagEncoder extends AbstractFlagEncoder {
 
     @Override
     public int getVersion() {
-        return 3;
+        return 4;
     }
 
     @Override
@@ -205,15 +205,26 @@ public class FootFlagEncoder extends AbstractFlagEncoder {
     public long acceptWay(ReaderWay way) {
         String highwayValue = way.getTag("highway");
         if (highwayValue == null) {
+            long acceptPotentially = 0;
+
             if (way.hasTag("route", ferries)) {
                 String footTag = way.getTag("foot");
                 if (footTag == null || "yes".equals(footTag))
-                    return acceptBit | ferryBit;
+                    acceptPotentially = acceptBit | ferryBit;
             }
 
             // special case not for all acceptedRailways, only platform
             if (way.hasTag("railway", "platform"))
-                return acceptBit;
+                acceptPotentially = acceptBit;
+
+            if (way.hasTag("man_made", "pier"))
+                acceptPotentially = acceptBit;
+
+            if (acceptPotentially != 0) {
+                if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
+                    return 0;
+                return acceptPotentially;
+            }
 
             return 0;
         }
@@ -229,7 +240,7 @@ public class FootFlagEncoder extends AbstractFlagEncoder {
         // no need to evaluate ferries or fords - already included here
         if (way.hasTag("foot", intendedValues))
             return acceptBit;
-        
+
         // check access restrictions
         if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
             return 0;
@@ -290,12 +301,12 @@ public class FootFlagEncoder extends AbstractFlagEncoder {
             }
             flags |= directionBitMask;
 
-            boolean isRoundabout = way.hasTag("junction", "roundabout");
+            boolean isRoundabout = way.hasTag("junction", "roundabout") || way.hasTag("junction", "circular");
             if (isRoundabout)
                 flags = setBool(flags, K_ROUNDABOUT, true);
 
         } else {
-            double ferrySpeed = getFerrySpeed(way, SLOW_SPEED, MEAN_SPEED, FERRY_SPEED);
+            double ferrySpeed = getFerrySpeed(way);
             flags = setSpeed(flags, ferrySpeed);
             flags |= directionBitMask;
         }
@@ -338,6 +349,7 @@ public class FootFlagEncoder extends AbstractFlagEncoder {
     // MARQ24 MOD START(added modifier protected)
     //void collect(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
     protected void collect(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
+    // MARQ24 MOD END
         String highway = way.getTag("highway");
         if (way.hasTag("foot", "designated"))
             weightToPrioMap.put(100d, PREFER.getValue());
@@ -371,5 +383,18 @@ public class FootFlagEncoder extends AbstractFlagEncoder {
     @Override
     public String toString() {
         return "foot";
+    }
+
+    /*
+     * This method is a current hack, to allow ferries to be actually faster than our current storable maxSpeed.
+     */
+    @Override
+    public double getSpeed(long flags) {
+        double speed = super.getSpeed(flags);
+        if (speed == getMaxSpeed()) {
+            // We cannot be sure if it was a long or a short trip
+            return SHORT_TRIP_FERRY_SPEED;
+        }
+        return speed;
     }
 }

@@ -164,8 +164,9 @@ public class RoutingProfile {
         if (LOGGER.isInfoEnabled()) {
             EncodingManager encodingMgr = gh.getEncodingManager();
             GraphHopperStorage ghStorage = gh.getGraphHopperStorage();
-            LOGGER.info(String.format("[%d] FlagEncoders: %s, bits used %d/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getUsedBitsForFlags(), encodingMgr.getBytesForFlags() * 8));
             // MARQ24 MOD START
+            //LOGGER.info(String.format("[%d] FlagEncoders: %s, bits used %d/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getUsedBitsForFlags(), encodingMgr.getBytesForFlags() * 8));
+            LOGGER.info(String.format("[%d] FlagEncoders: [UNKNOWN], bits used %d/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getBytesForFlags() * 8));
             // the 'getCapacity()' impl is the root cause of having a copy of the gh 'com.graphhopper.routing.lm.PrepareLandmarks'
             // class (to make the store) accessible (getLandmarkStorage()) - IMHO this is not worth it!
             // so gh.getCapacity() will be removed!

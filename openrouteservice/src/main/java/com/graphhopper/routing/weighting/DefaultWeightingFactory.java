@@ -8,7 +8,6 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphEdgeIdFinder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.LocationIndex;
-import com.graphhopper.util.Parameters;
 import com.graphhopper.util.Parameters.Routing;
 
 public class DefaultWeightingFactory implements WeightingFactory {
@@ -39,12 +38,17 @@ public class DefaultWeightingFactory implements WeightingFactory {
             throw new IllegalArgumentException("weighting " + weighting + " not supported");
 
         if (hintsMap.has(Routing.BLOCK_AREA)) {
-            String blockAreaStr = hintsMap.get(Parameters.Routing.BLOCK_AREA, "");
+            String blockAreaStr = hintsMap.get(Routing.BLOCK_AREA, "");
             GraphEdgeIdFinder.BlockArea blockArea = new GraphEdgeIdFinder(gh, locationIndex).
-                    parseBlockArea(blockAreaStr, new DefaultEdgeFilter(encoder));
+                    // MARQ24 MOD START
+                    // ORG ORS0.9IMPL
+                    //parseBlockArea(blockAreaStr, new DefaultEdgeFilter(encoder));
+                    // copied the new code from the com.graphhopper.GraphHopper class
+                    // see GraphHopper.createWeighting(...)
+                    parseBlockArea(blockAreaStr, new DefaultEdgeFilter(encoder), hintsMap.getDouble("block_area.edge_id_max_area", 1000 * 1000));
+                    // MARQ24 MOD END
             return new BlockAreaWeighting(weighting, blockArea);
         }
-
         return weighting;
     }
 }
