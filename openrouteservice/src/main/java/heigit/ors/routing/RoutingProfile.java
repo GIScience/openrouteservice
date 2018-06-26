@@ -611,7 +611,8 @@ public class RoutingProfile {
         int weightingMethod = searchParams.getWeightingMethod();
         String encoderName = RoutingProfileType.getEncoderName(profileType);
         FlagEncoder flagEncoder = mGraphHopper.getEncodingManager().getEncoder(encoderName);
-        EdgeFilter edgeFilter = new DefaultEdgeFilter(flagEncoder);
+        EdgeFilterSequence edgeFilters = new EdgeFilterSequence();
+        edgeFilters.add(new DefaultEdgeFilter(flagEncoder));
         PMap props = new PMap();
 
         if (searchParams.hasAvoidAreas()) {
@@ -622,19 +623,37 @@ public class RoutingProfile {
                 throw new IllegalArgumentException("Vehicle " + encoderName + " unsupported. " + "Supported are: "
                         + mGraphHopper.getEncodingManager());
             }
-            edgeFilter = createEdgeFilter(new AvoidAreasEdgeFilter(searchParams.getAvoidAreas()), edgeFilter);
+            edgeFilters.add(new AvoidAreasEdgeFilter(searchParams.getAvoidAreas()));
         }
 
         if (RoutingProfileType.isDriving(profileType)) {
             if (RoutingProfileType.isHeavyVehicle(profileType)) {
-                edgeFilter = createHeavyVehicleEdgeFilter(searchParams, flagEncoder, edgeFilter);
+                if (searchParams.hasParameters(VehicleParameters.class)) {
+                    GraphStorage gs = mGraphHopper.getGraphHopperStorage();
+
+                    int vehicleType = searchParams.getVehicleType();
+                    VehicleParameters vehicleParams = (VehicleParameters) searchParams.getProfileParameters();
+
+                    if (vehicleParams.hasAttributes()) {
+                        EdgeFilter ef = null;
+                        if (searchParams.getProfileType() == RoutingProfileType.DRIVING_HGV)
+                            ef = new HeavyVehicleEdgeFilter(flagEncoder, vehicleType, vehicleParams, gs);
+                        else if (searchParams.getProfileType() == RoutingProfileType.DRIVING_EMERGENCY)
+                            ef = new EmergencyVehicleEdgeFilter(vehicleParams, gs);
+
+                        if (ef != null)
+                            edgeFilters.add(ef);
+                    }
+                }
             } else if (searchParams.hasParameters(VehicleParameters.class)) {
                 //edgeFilter = createWayRestrictionsEdgeFilter(searchParams, flagEncoder, edgeFilter);
             }
         } else if (profileType == RoutingProfileType.WHEELCHAIR) {
             if (searchParams.hasParameters(WheelchairParameters.class)) {
-                edgeFilter = createWheelchairRestrictionsEdgeFilter(searchParams, flagEncoder,
-                        edgeFilter);
+                if (searchParams.hasParameters(WheelchairParameters.class)) {
+                    GraphStorage gs = mGraphHopper.getGraphHopperStorage();
+                    edgeFilters.add(new WheelchairEdgeFilter((WheelchairParameters) searchParams.getProfileParameters(), gs));
+                }
             }
         }
 
@@ -644,9 +663,7 @@ public class RoutingProfile {
                     || profileType == RoutingProfileType.WHEELCHAIR) {
 
                 if (searchParams.getAvoidFeatureTypes() != AvoidFeatureFlags.Hills) {
-                    EdgeFilter ef = new AvoidFeaturesEdgeFilter(flagEncoder, searchParams,
-                            mGraphHopper.getGraphHopperStorage());
-                    edgeFilter = createEdgeFilter(ef, edgeFilter);
+                    edgeFilters.add(new AvoidFeaturesEdgeFilter(flagEncoder, searchParams, mGraphHopper.getGraphHopperStorage()));
                 }
 
                 if (mode == RouteSearchMode.Routing) {
@@ -667,8 +684,7 @@ public class RoutingProfile {
         if (searchParams.hasAvoidBorders() || searchParams.hasAvoidCountries()) {
             // We want to avoid borders of some form
             if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)) {
-                EdgeFilter ef = new AvoidBordersEdgeFilter(searchParams, mGraphHopper.getGraphHopperStorage());
-                edgeFilter = createEdgeFilter(ef, edgeFilter);
+                edgeFilters.add(new AvoidBordersEdgeFilter(searchParams, mGraphHopper.getGraphHopperStorage()));
             }
         }
 
@@ -676,25 +692,21 @@ public class RoutingProfile {
             CyclingParameters cyclingParams = (CyclingParameters) searchParams.getProfileParameters();
 
             if (cyclingParams.getMaximumGradient() > 0) {
-                EdgeFilter ef = new AvoidSteepnessEdgeFilter(mGraphHopper.getGraphHopperStorage(), cyclingParams.getMaximumGradient());
-                edgeFilter = createEdgeFilter(ef, edgeFilter);
+                edgeFilters.add(new AvoidSteepnessEdgeFilter(mGraphHopper.getGraphHopperStorage(), cyclingParams.getMaximumGradient()));
             }
 
             if (cyclingParams.getMaximumTrailDifficulty() > 0) {
-                EdgeFilter ef = new TrailDifficultyEdgeFilter(flagEncoder, mGraphHopper.getGraphHopperStorage(), cyclingParams.getMaximumTrailDifficulty());
-                edgeFilter = createEdgeFilter(ef, edgeFilter);
+                edgeFilters.add(new TrailDifficultyEdgeFilter(flagEncoder, mGraphHopper.getGraphHopperStorage(), cyclingParams.getMaximumTrailDifficulty()));
             }
         } else if (searchParams.hasParameters(WalkingParameters.class)) {
             WalkingParameters walkingParams = (WalkingParameters) searchParams.getProfileParameters();
 
             if (walkingParams.getMaximumGradient() > 0) {
-                EdgeFilter ef = new AvoidSteepnessEdgeFilter(mGraphHopper.getGraphHopperStorage(), walkingParams.getMaximumGradient());
-                edgeFilter = createEdgeFilter(ef, edgeFilter);
+                edgeFilters.add(new AvoidSteepnessEdgeFilter(mGraphHopper.getGraphHopperStorage(), walkingParams.getMaximumGradient()));
             }
 
             if (walkingParams.getMaximumTrailDifficulty() > 0) {
-                EdgeFilter ef = new TrailDifficultyEdgeFilter(flagEncoder, mGraphHopper.getGraphHopperStorage(), walkingParams.getMaximumTrailDifficulty());
-                edgeFilter = createEdgeFilter(ef, edgeFilter);
+                edgeFilters.add(new TrailDifficultyEdgeFilter(flagEncoder, mGraphHopper.getGraphHopperStorage(), walkingParams.getMaximumTrailDifficulty()));
             }
         }
 
@@ -721,16 +733,11 @@ public class RoutingProfile {
                         .getBlockedEdges(mGraphHopper.getGraphHopperStorage()), RealTrafficDataProvider.getInstance()
                         .getHeavyVehicleBlockedEdges(mGraphHopper.getGraphHopperStorage()));
 
-                edgeFilter = createEdgeFilter(ef, edgeFilter);
+                edgeFilters.add(ef);
             }
         }
 
-        /*
-        if (edgeFilter == null)
-            edgeFilter = new DefaultEdgeFilter(flagEncoder);
-        */
-
-        RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, edgeFilter, flagEncoder);
+        RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, edgeFilters, flagEncoder);
         searchCntx.setProperties(props);
 
         return searchCntx;
@@ -897,57 +904,6 @@ public class RoutingProfile {
         boolean dynamicWeights = (searchParams.hasAvoidAreas() || searchParams.hasAvoidFeatures() || searchParams.hasAvoidCountries() || searchParams.hasAvoidBorders() || searchParams.getMaximumSpeed() > 0 || (RoutingProfileType.isDriving(searchParams.getProfileType()) && (searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
 
         return dynamicWeights;
-    }
-
-    private EdgeFilter createEdgeFilter(EdgeFilter edgeFilter, EdgeFilter seq) {
-        if (seq != null && seq instanceof EdgeFilterSequence) {
-            EdgeFilterSequence seqFilter = (EdgeFilterSequence) seq;
-            seqFilter.addFilter(edgeFilter);
-            return seqFilter;
-        } else {
-            ArrayList<EdgeFilter> edgeFilters = new ArrayList<EdgeFilter>();
-            edgeFilters.add(edgeFilter);
-            if (seq != null)
-                edgeFilters.add(seq);
-            else
-                return edgeFilter;
-            EdgeFilterSequence seqFilter = new EdgeFilterSequence(edgeFilters);
-            return seqFilter;
-        }
-    }
-
-    private EdgeFilter createWheelchairRestrictionsEdgeFilter(RouteSearchParameters searchParams,
-                                                              FlagEncoder flagEncoder, EdgeFilter edgeFilter) throws Exception {
-        if (searchParams.hasParameters(WheelchairParameters.class)) {
-            EdgeFilter ef = null;
-            GraphStorage gs = mGraphHopper.getGraphHopperStorage();
-            ef = new WheelchairEdgeFilter((WheelchairParameters) searchParams.getProfileParameters(), gs);
-            edgeFilter = createEdgeFilter(ef, edgeFilter);
-        }
-        return edgeFilter;
-    }
-
-    private EdgeFilter createHeavyVehicleEdgeFilter(RouteSearchParameters searchParams, FlagEncoder flagEncoder,
-                                                    EdgeFilter edgeFilter) {
-        if (searchParams.hasParameters(VehicleParameters.class)) {
-            GraphStorage gs = mGraphHopper.getGraphHopperStorage();
-
-            int vehicleType = searchParams.getVehicleType();
-            VehicleParameters vehicleParams = (VehicleParameters) searchParams.getProfileParameters();
-
-            if (vehicleParams.hasAttributes()) {
-                EdgeFilter ef = null;
-                if (searchParams.getProfileType() == RoutingProfileType.DRIVING_HGV)
-                    ef = new HeavyVehicleEdgeFilter(flagEncoder, vehicleType, vehicleParams, gs);
-                else if (searchParams.getProfileType() == RoutingProfileType.DRIVING_EMERGENCY)
-                    ef = new EmergencyVehicleEdgeFilter(vehicleParams, gs);
-
-                if (ef != null)
-                    edgeFilter = createEdgeFilter(ef, edgeFilter);
-            }
-        }
-
-        return edgeFilter;
     }
 
     private static boolean supportWeightingMethod(int profileType) {
