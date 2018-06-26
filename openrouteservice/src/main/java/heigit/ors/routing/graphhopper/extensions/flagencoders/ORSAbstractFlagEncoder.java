@@ -36,14 +36,33 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 
 	double averageSecondsTo100KmpH() { return 10; }
 
+	/**
+	 * Returns how many seconds it is assumed that this vehicle would reach 100 km/h taking into acocunt the acceleration modifier
+	 *
+	 * @return
+	 */
 	double secondsTo100KmpH() {
 	    return averageSecondsTo100KmpH() + (accelerationModifier * averageSecondsTo100KmpH());
     }
 
-    double accelerationKmpHpS() {
+	/**
+	 * Returns the acceleration in KM per hour per second.
+	 *
+	 * @return
+	 */
+	double accelerationKmpHpS() {
 	    return 100.0 / secondsTo100KmpH();
     }
 
+	/**
+	 * Adjust the maximum speed taking into account supposed acceleration on the segment. The method looks at acceleration
+	 * along the way (assuming starting from 0km/h) and then uses the length to travel and the supposed maximum speed
+	 * to determine an average speed for travelling along the whole segment.
+	 *
+	 * @param distance				How long the segment to travel along is
+	 * @param maximumSpeedInKmph	The maximum speed that a vehicle can travel along this segment (usually the speed limit)
+	 * @return
+	 */
 	double adjustSpeedForAcceleration(double distance, double maximumSpeedInKmph) {
 		// We only want to perform the adjustment if the road is a slower speed - main roads shouldnt be affected as much due to less junctions and changes in direction
 		if(maximumSpeedInKmph < ACCELERATION_SPEED_CUTOFF_MAX) {
@@ -85,10 +104,26 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 		}
 	}
 
+	/**
+	 * How many seconds does it take to reach maximum speed based on initial speed and acceleration.
+	 *
+	 * @param initialSpeedInKmph	How fast the vehicle is travelling at the start of the calculation
+	 * @param maxSpeedInKmph		The target speed to be reached
+	 * @return						How long it takes to reach the speed in seconds
+	 */
 	private double durationToMaxSpeed(double initialSpeedInKmph, double maxSpeedInKmph) {
 		return  (maxSpeedInKmph - initialSpeedInKmph) / accelerationKmpHpS();
 	}
 
+	/**
+	 * How long in seconds does it take to reach the intended distance based on the initial travelling speed and the
+	 * maximum speed that can be travelled.
+	 *
+	 * @param initialSpeedInKmph	The speed of the vehicle when starting the calculation
+	 * @param maxSpeedInKmph		The maximum speed the vehicle can travel at
+	 * @param distanceInM			The target distance to be travelled
+	 * @return						How long it takes in seconds to reach the target distance
+	 */
 	private double durationToTravelDistance(double initialSpeedInKmph, double maxSpeedInKmph, double distanceInM) {
 		double secondsTravelled = 0;
 		double distanceTravelled = 0;
@@ -110,6 +145,14 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 		return secondsTravelled;
 	}
 
+	/**
+	 * How far can the vehicle travel in the specified time frame
+	 *
+	 * @param initialSpeedInKmph	The starting speed of the vehicle
+	 * @param maxSpeedInKmph		The maximum travel speed
+	 * @param duration				How long is the vehicle travelling for
+	 * @return						The distance in metres that the vehicle travels in the specified time
+	 */
 	private double distanceTravelledInDuration(double initialSpeedInKmph, double maxSpeedInKmph, double duration) {
 		double secondsTravelled = 0;
 		double distanceTravelled = 0;
@@ -130,10 +173,22 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 		return distanceTravelled;
 	}
 
+	/**
+	 * Convert kilometres per hour to metres per second
+	 *
+	 * @param speedInKmph	The speed to be converted in km per hour
+	 * @return				The speed in metres per second
+	 */
 	private double convertKmphToMps(double speedInKmph) {
 		return (speedInKmph * 1000) / 3600;
 	}
 
+	/**
+	 * Convert metres per second to kilometres per hour
+	 *
+	 * @param speedInMps	The speed in metres per second
+	 * @return				The speed in kilometres per hour
+	 */
 	private double convertMpsToKmph(double speedInMps) {
 		return (3600 * speedInMps) / 1000;
 	}
