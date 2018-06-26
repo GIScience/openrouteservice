@@ -26,9 +26,6 @@ import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.restassured.config.LogConfig;
-import io.restassured.config.RestAssuredConfig;
-import io.restassured.filter.log.LogDetail;
 import org.junit.BeforeClass;
 
 public abstract class ServiceTest {
