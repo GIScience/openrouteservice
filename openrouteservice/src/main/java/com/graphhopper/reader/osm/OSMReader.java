@@ -526,7 +526,7 @@ public class OSMReader implements DataReader {
                 //MARQ24 MOD START
                 // ORG CODE
                 //GraphExtension extendedStorage = graph.getExtension();
-                GraphExtension extendedStorage = HelperTCE.getTurnCostExtensions(graph.getExtension());
+                GraphExtension extendedStorage = HelperOSM.getTurnCostExtensions(graph.getExtension());
                 //MARQ24 MOD END
                 if (extendedStorage instanceof TurnCostExtension) {
                     TurnCostExtension tcs = (TurnCostExtension) extendedStorage;

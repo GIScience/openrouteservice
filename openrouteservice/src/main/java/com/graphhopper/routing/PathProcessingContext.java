@@ -1,6 +1,5 @@
 package com.graphhopper.routing;
 
-import com.graphhopper.routing.util.EdgeAnnotator;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.weighting.Weighting;
@@ -9,17 +8,15 @@ import com.graphhopper.util.Translation;
 public class PathProcessingContext {
 	private FlagEncoder _encoder;
 	private Translation _translation;
-	private EdgeAnnotator _edgeAnnotator;
 	private PathProcessor _pathProcessor;
 	private Weighting _weighting;
 	private int _pathIndex = 0;
 	
-	public PathProcessingContext(FlagEncoder encoder, Weighting weighting, Translation tr, EdgeAnnotator annotator, PathProcessor pathProcessor)
+	public PathProcessingContext(FlagEncoder encoder, Weighting weighting, Translation tr, PathProcessor pathProcessor)
 	{
 		_encoder = encoder;
 		_weighting = weighting;
 		_translation = tr;
-		_edgeAnnotator = annotator;
 		_pathProcessor = pathProcessor;
 	}
 	
@@ -36,11 +33,6 @@ public class PathProcessingContext {
 	public Translation getTranslation()
 	{
 		return _translation;
-	}
-	
-	public EdgeAnnotator getEdgeAnnotator()
-	{
-		return _edgeAnnotator;
 	}
 	
 	public PathProcessor getPathProcessor()

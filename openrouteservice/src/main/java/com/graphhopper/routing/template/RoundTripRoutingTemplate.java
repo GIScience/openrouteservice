@@ -64,8 +64,10 @@ public class RoundTripRoutingTemplate extends AbstractRoutingTemplate implements
     }
 
     @Override
+    // MARQ24 MOD START
     //public List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder) {
     public List<QueryResult> lookup(List<GHPoint> points, double[] distances, FlagEncoder encoder) {
+    // MARQ24 MOD END
         if (points.isEmpty()) {
             throw new IllegalStateException("For round trip calculation one point is required");
         }
@@ -105,9 +107,7 @@ public class RoundTripRoutingTemplate extends AbstractRoutingTemplate implements
     }
 
     @Override
-    // MARQ24 MOD START
-    //public List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts) {
-    public List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts, PathProcessingContext pathProcCntx) {
+    public List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts) {
         pathList = new ArrayList<>(queryResults.size() - 1);
 
         AvoidEdgesWeighting avoidPathWeighting = new AvoidEdgesWeighting(algoOpts.getWeighting());
@@ -152,11 +152,16 @@ public class RoundTripRoutingTemplate extends AbstractRoutingTemplate implements
     // MARQ24 MOD START
     //public boolean isReady(PathMerger pathMerger, Translation tr) {
     public boolean isReady(PathMerger pathMerger, PathProcessingContext pathProcCntx) {
+    // MARQ24 MOD END
         altResponse = new PathWrapper();
         altResponse.setWaypoints(getWaypoints());
         ghResponse.add(altResponse);
+
+        // MARQ24 MOD START
         //pathMerger.doWork(altResponse, pathList, tr);
         pathMerger.doWork(altResponse, pathList, pathProcCntx);
+        // MARQ24 MOD END
+
         // with potentially retrying, including generating new route points, for now disabled
         return true;
     }

@@ -44,11 +44,7 @@ public interface RoutingTemplate {
      * This method returns a list of Path objects which then can be merged to serve one route with
      * via points or multiple alternative paths.
      */
-    // MARQ24 MOD START
-    // List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts);
-    List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts, PathProcessingContext pathProcCntx);
-    // MARQ24 MOD END
-
+    List<Path> calcPaths(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts);
 
     /**
      * This method merges the returned paths appropriately e.g. all paths from the list into one
