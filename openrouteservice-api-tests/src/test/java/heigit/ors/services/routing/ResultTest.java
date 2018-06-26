@@ -56,6 +56,7 @@ public class ResultTest extends ServiceTest {
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
 				.param("format", "geojson")
+				.param("extra_info", getParameter("extra_info"))
 				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
