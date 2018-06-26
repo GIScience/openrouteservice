@@ -31,6 +31,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.util.*;
 import heigit.ors.mapmatching.RouteSegmentInfo;
 import heigit.ors.routing.RoutingProfile;
 
@@ -41,62 +46,69 @@ import com.graphhopper.reader.DataReader;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesCoreEdgeFilter;
+import heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 
 public class ORSGraphHopper extends GraphHopper {
 
 	private GraphProcessContext _procCntx;
-	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds; // one osm id can correspond to multiple edges 
+	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds; // one osm id can correspond to multiple edges
 	private HashMap<Integer, Long> tmcEdges;
-	
+
 	// A route profile for referencing which is used to extract names of adjacent streets and other objects.
 	private RoutingProfile refRouteProfile;
+
+	private final CoreAlgoFactoryDecorator coreFactoryDecorator = new CoreAlgoFactoryDecorator();
+
 
 	public ORSGraphHopper(GraphProcessContext procCntx, boolean useTmc, RoutingProfile refProfile) {
 		_procCntx = procCntx;
 		this.refRouteProfile= refProfile;
 		this.forDesktop();
-		
+
+		coreFactoryDecorator.setEnabled(true);
+		algoDecorators.add(coreFactoryDecorator);
+
 		if (useTmc){
-			tmcEdges = new HashMap<Integer, Long>(); 
+			tmcEdges = new HashMap<Integer, Long>();
 			osmId2EdgeIds = new HashMap<Long, ArrayList<Integer>>();
 		}
 		_procCntx.init(this);
 	}
-	
-    protected DataReader createReader(GraphHopperStorage tmpGraph) {
+
+	protected DataReader createReader(GraphHopperStorage tmpGraph) {
 
 		return initDataReader(new ORSOSMReader(tmpGraph, _procCntx, tmcEdges, osmId2EdgeIds, refRouteProfile));
 	}
-	
+
 	public boolean load( String graphHopperFolder )
-    {
+	{
 		boolean res = super.load(graphHopperFolder);
-		
-		
+
+
 		return res;
-    }
-    
+	}
+
 	protected void flush()
 	{
-        super.flush();
+		super.flush();
 	}
 
 	@SuppressWarnings("unchecked")
 	public GraphHopper importOrLoad() {
 		GraphHopper gh = super.importOrLoad();
-		
+
 
 		if ((tmcEdges != null) && (osmId2EdgeIds !=null)) {
 			java.nio.file.Path path = Paths.get(gh.getGraphHopperLocation(), "edges_ors_traffic");
 
 			if ((tmcEdges.size() == 0) || (osmId2EdgeIds.size()==0)) {
 				// try to load TMC edges from file.
-				
+
 				try {
 					File file = path.toFile();
 
@@ -105,7 +117,7 @@ public class ORSGraphHopper extends GraphHopper {
 						FileInputStream fis = new FileInputStream(path.toString());
 						ObjectInputStream ois = new ObjectInputStream(fis);
 						tmcEdges = (HashMap<Integer, Long>)ois.readObject();
-						osmId2EdgeIds = (HashMap<Long, ArrayList<Integer>>)ois.readObject();	
+						osmId2EdgeIds = (HashMap<Long, ArrayList<Integer>>)ois.readObject();
 						ois.close();
 						fis.close();
 						System.out.printf("Serialized HashMap data is saved in trafficEdges");
@@ -114,10 +126,10 @@ public class ORSGraphHopper extends GraphHopper {
 					ioe.printStackTrace();
 				}
 				catch(ClassNotFoundException c)
-			      {
-			         System.out.println("Class not found");
-			         c.printStackTrace();
-			      }
+				{
+					System.out.println("Class not found");
+					c.printStackTrace();
+				}
 			} else {
 				// save TMC edges if needed.
 				try {
@@ -136,9 +148,9 @@ public class ORSGraphHopper extends GraphHopper {
 
 		return gh;
 	}
-	
+
 	public RouteSegmentInfo getRouteSegment(double[] latitudes, double[] longitudes, String vehicle,
-			EdgeFilter edgeFilter) {
+											EdgeFilter edgeFilter) {
 		RouteSegmentInfo result = null;
 
 		GHRequest req = new GHRequest();
@@ -166,10 +178,10 @@ public class ORSGraphHopper extends GraphHopper {
 			double distance = 0;
 			for (int pathIndex = 0; pathIndex < paths.size(); pathIndex++) {
 				Path path = paths.get(pathIndex);
-                time += path.getTime();
-                
+				time += path.getTime();
+
 				for (EdgeIteratorState edge : path.calcEdges()) {
-				//	fullEdges.add(edge.getEdge());
+					//	fullEdges.add(edge.getEdge());
 					fullEdges.add(edge);
 					edgeNames.add(edge.getName());
 				}
@@ -180,7 +192,7 @@ public class ORSGraphHopper extends GraphHopper {
 					fullPoints = new PointList(tmpPoints.size(), tmpPoints.is3D());
 
 				fullPoints.add(tmpPoints);
-				
+
 				distance += path.getDistance();
 			}
 
@@ -204,8 +216,72 @@ public class ORSGraphHopper extends GraphHopper {
 	public HashMap<Integer, Long> getTmcGraphEdges() {
 		return tmcEdges;
 	}
-	
-	public HashMap<Long, ArrayList<Integer>> getOsmId2EdgeIds() {		
+
+	public HashMap<Long, ArrayList<Integer>> getOsmId2EdgeIds() {
 		return osmId2EdgeIds;
+	}
+
+
+	/**
+	 * Does the preparation and creates the location index
+	 */
+	@Override
+	public void postProcessing() {
+		super.postProcessing();
+
+		//TODO
+		EdgeFilter coreEdgeFilter = new AvoidFeaturesCoreEdgeFilter();
+
+		if(coreFactoryDecorator.isEnabled())
+			coreFactoryDecorator.createPreparations(ghStorage, traversalMode, coreEdgeFilter);
+		if (!isCorePrepared())
+			prepareCore();
+
+
+
+	}
+	/**
+	 * Enables or disables core calculation.
+	 */
+	public GraphHopper setCoreEnabled(boolean enable) {
+		ensureNotLoaded();
+		coreFactoryDecorator.setEnabled(enable);
+		return this;
+	}
+
+	public final boolean isCoreEnabled() {
+		return coreFactoryDecorator.isEnabled();
+	}
+
+	public void initCoreAlgoFactoryDecorator() {
+		if (!coreFactoryDecorator.hasWeightings()) {
+			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
+				for (String coreWeightingStr : coreFactoryDecorator.getWeightingsAsStrings()) {
+					// ghStorage is null at this point
+					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), traversalMode, encoder, null);
+					coreFactoryDecorator.addWeighting(weighting);
+				}
+			}
+		}
+	}
+	public final CoreAlgoFactoryDecorator getCoreFactoryDecorator() {
+		return coreFactoryDecorator;
+	}
+
+	protected void prepareCore() {
+		boolean tmpPrepare = coreFactoryDecorator.isEnabled();
+		if (tmpPrepare) {
+			ensureWriteAccess();
+
+			ghStorage.freeze();
+			coreFactoryDecorator.prepare(ghStorage.getProperties());
+			ghStorage.getProperties().put(ORSParameters.Core.PREPARE + "done", true);
+		}
+	}
+
+	private boolean isCorePrepared() {
+		return "true".equals(ghStorage.getProperties().get(ORSParameters.Core.PREPARE + "done"))
+				// remove old property in >0.9
+				|| "true".equals(ghStorage.getProperties().get("prepare.done"));
 	}
 }

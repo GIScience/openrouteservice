@@ -42,9 +42,9 @@ import com.graphhopper.storage.TurnCostExtension;
 public class ORSGraphStorageFactory implements GraphStorageFactory {
 
 	private static Logger LOGGER = Logger.getLogger(ORSGraphStorageFactory.class.getName());
-	
+
 	private List<GraphStorageBuilder> _graphStorageBuilders;
-	
+
 	public ORSGraphStorageFactory(List<GraphStorageBuilder> graphStorageBuilders) {
 		_graphStorageBuilders = graphStorageBuilders;
 	}
@@ -54,13 +54,13 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 		EncodingManager encodingManager = gh.getEncodingManager();
 		GraphExtension geTurnCosts = null;
 		ArrayList<GraphExtension> graphExtensions = new ArrayList<GraphExtension>();
-		
+
 		if (encodingManager.needsTurnCostsSupport())
 		{
 			Path path = Paths.get(dir.getLocation(), "turn_costs");
 			File fileEdges  = Paths.get(dir.getLocation(), "edges").toFile();
 			File fileTurnCosts = path.toFile();
-			
+
 			// First we need to check if turncosts are available. This check is required when we introduce a new feature, but an existing graph does not have it yet.
 			if ((!hasGraph(gh) && !fileEdges.exists()) || (fileEdges.exists() && fileTurnCosts.exists()))
 				geTurnCosts =  new TurnCostExtension();
@@ -84,7 +84,7 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 		}
 
 		GraphExtension graphExtension = null;
-		
+
 		if (geTurnCosts == null && graphExtensions.size() == 0)
 			graphExtension =  new GraphExtension.NoOpExtension();
 		else if (geTurnCosts != null && graphExtensions.size() > 0)
@@ -92,9 +92,9 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 			ArrayList<GraphExtension> seq = new ArrayList<GraphExtension>();
 			seq.add(geTurnCosts);
 			seq.addAll(graphExtensions);
-			
+
 			graphExtension = getExtension(seq);
-		} 
+		}
 		else if (geTurnCosts != null)
 		{
 			graphExtension = geTurnCosts;
@@ -103,31 +103,43 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 		{
 			graphExtension = getExtension(graphExtensions);
 		}
-		
-	    if (gh.getLMFactoryDecorator().isEnabled())
-          	gh.initLMAlgoFactoryDecorator();
 
-	    if (gh.getCHFactoryDecorator().isEnabled()) 
-            gh.initCHAlgoFactoryDecorator();
-	     
+		if(gh instanceof ORSGraphHopper) {
+			if (((ORSGraphHopper) gh).isCoreEnabled())
+				((ORSGraphHopper) gh).initCoreAlgoFactoryDecorator();
+		}
+
+		if (gh.getLMFactoryDecorator().isEnabled())
+			gh.initLMAlgoFactoryDecorator();
+
+		if (gh.getCHFactoryDecorator().isEnabled())
+			gh.initCHAlgoFactoryDecorator();
+
 		if (gh.isCHEnabled())
-            return new GraphHopperStorage(gh.getCHFactoryDecorator().getWeightings(), dir, encodingManager, gh.hasElevation(), graphExtension);
+			return new GraphHopperStorage(gh.getCHFactoryDecorator().getWeightings(), dir, encodingManager, gh.hasElevation(), graphExtension);
+		else if (((ORSGraphHopper) gh).isCoreEnabled()){
+			return new GraphHopperStorage(((ORSGraphHopper) gh).getCoreFactoryDecorator().getWeightings(),
+					dir,
+					encodingManager,
+					gh.hasElevation(),
+					graphExtension);
+		}
 		else
 			return new GraphHopperStorage(dir, encodingManager, gh.hasElevation(), graphExtension);
 	}
-	
+
 	private GraphExtension getExtension(ArrayList<GraphExtension> graphExtensions)
 	{
 		if (graphExtensions.size() > 1)
-	    {
-	    	ArrayList<GraphExtension> seq = new ArrayList<GraphExtension>();
-	    	seq.addAll(graphExtensions);
-	    	return new ExtendedStorageSequence(seq); 
-	    }
-	    else
-	    	return graphExtensions.size() == 0 ? new GraphExtension.NoOpExtension() : graphExtensions.get(0);
+		{
+			ArrayList<GraphExtension> seq = new ArrayList<GraphExtension>();
+			seq.addAll(graphExtensions);
+			return new ExtendedStorageSequence(seq);
+		}
+		else
+			return graphExtensions.size() == 0 ? new GraphExtension.NoOpExtension() : graphExtensions.get(0);
 	}
-	
+
 	private boolean hasGraph(GraphHopper gh)
 	{
 		try
@@ -137,7 +149,7 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 		}
 		catch(Exception ex)
 		{}
-		
+
 		return false;
 	}
 }
