@@ -47,15 +47,13 @@ public abstract class ReaderElement {
     }
 
     // MARQ24 MOD START
-    // MARQ24: Modification by Maxim Rylov: A new method has been added.
-    public boolean hasTag(String key)
-    {
+    // Modification by Maxim Rylov: A new method has been added.
+    public boolean hasTag(String key) {
         return properties.containsKey(key);
     }
 
-    // MARQ24: Modification by Maxim Rylov: A new method has been added.
-    public Iterator<Entry<String, Object>> getProperties()
-    {
+    // Modification by Maxim Rylov: A new method has been added.
+    public Iterator<Entry<String, Object>> getProperties() {
         return properties.entrySet().iterator();
     }
     // MARQ24 MOD END
@@ -78,9 +76,10 @@ public abstract class ReaderElement {
         return tagTxt.toString();
     }
 
-    // MARQ24: MOD made 'public' from 'protected'
+    // MARQ24 MOD START
     //protected Map<String, Object> getTags()
     public Map<String, Object> getTags() {
+    // MARQ24 MOD END
         return properties;
     }
 

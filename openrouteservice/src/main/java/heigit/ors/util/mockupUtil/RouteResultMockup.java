@@ -29,7 +29,9 @@ import com.graphhopper.PathWrapper;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.BBox;
 import heigit.ors.common.DistanceUnit;
-import heigit.ors.routing.*;
+import heigit.ors.routing.RouteResult;
+import heigit.ors.routing.RouteSegment;
+import heigit.ors.routing.RouteStep;
 
 import java.math.BigDecimal;
 
@@ -85,7 +87,8 @@ public class RouteResultMockup {
             pathWrapper.setDescend(0.0);
             pathWrapper.setDescription(null);
             pathWrapper.setFare(BigDecimal.ZERO);
-            pathWrapper.setFirstPtLegDeparture(0);
+            // MARQ24 UPDATE to gh 0.10.1 - method not present anylonger
+            //pathWrapper.setFirstPtLegDeparture(0);
             pathWrapper.setNumChanges(2);
             pathWrapper.setRouteWeight(0.0);
             pathWrapper.setPoints(pointList);

@@ -22,6 +22,7 @@ import com.graphhopper.coll.*;
 import com.graphhopper.coll.LongIntMap;
 import com.graphhopper.reader.*;
 import com.graphhopper.reader.dem.ElevationProvider;
+import com.graphhopper.reader.dem.GraphElevationSmoothing;
 import com.graphhopper.reader.osm.OSMTurnRelation.TurnCostTableEntry;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
@@ -44,12 +45,12 @@ import static com.graphhopper.util.Helper.nf;
  * This class parses an OSM xml or pbf file and creates a graph from it. It does so in a two phase
  * parsing processes in order to reduce memory usage compared to a single parsing processing.
  * <p>
- * 1. a) Reads ways from OSM file and stores all associated node ids in osmNodeIdToIndexMap. If a
+ * 1. a) Reads ways from OSM file and stores all associated node ids in {@link #osmNodeIdToInternalNodeMap}. If a
  * node occurs once it is a pillar node and if more it is a tower node, otherwise
- * osmNodeIdToIndexMap returns EMPTY.
+ * {@link #osmNodeIdToInternalNodeMap} returns EMPTY.
  * <p>
  * 1. b) Reads relations from OSM file. In case that the relation is a route relation, it stores
- * specific relation attributes required for routing into osmWayIdToRouteWeigthMap for all the ways
+ * specific relation attributes required for routing into {@link #osmWayIdToRouteWeightMap} for all the ways
  * of the relation.
  * <p>
  * 2.a) Reads nodes from OSM file and stores lat+lon information either into the intermediate
@@ -57,7 +58,7 @@ import static com.graphhopper.util.Helper.nf;
  * graphStorage via setLatitude/setLongitude. It can also happen that a pillar node needs to be
  * transformed into a tower node e.g. via barriers or different speed values for one way.
  * <p>
- * 2.b) Reads ways OSM file and creates edges while calculating the speed etc from the OSM tags.
+ * 2.b) Reads ways from OSM file and creates edges while calculating the speed etc from the OSM tags.
  * When creating an edge the pillar node information from the intermediate data structure will be
  * stored in the way geometry of that edge.
  * <p>
@@ -76,10 +77,12 @@ public class OSMReader implements DataReader {
     // MARQ24 MOD
     //private final NodeAccess nodeAccess;
     protected final NodeAccess nodeAccess;
+    // MARQ24 END
     private final LongIndexedContainer barrierNodeIds = new LongArrayList();
     private final DistanceCalc distCalc = Helper.DIST_EARTH;
     private final DistanceCalc3D distCalc3D = Helper.DIST_3D;
     private final DouglasPeucker simplifyAlgo = new DouglasPeucker();
+    private boolean smoothElevation = false;
     private final boolean exitOnlyPillarNodeException = true;
     private final Map<FlagEncoder, EdgeExplorer> outExplorerMap = new HashMap<FlagEncoder, EdgeExplorer>();
     private final Map<FlagEncoder, EdgeExplorer> inExplorerMap = new HashMap<FlagEncoder, EdgeExplorer>();
@@ -102,8 +105,9 @@ public class OSMReader implements DataReader {
     private GHLongLongHashMap osmNodeIdToNodeFlagsMap;
     private GHLongLongHashMap osmWayIdToRouteWeightMap;
 
-    // MARQ24 MOD ADDED
+    // MARQ24 MOD START
     private HashMap<Long, Map<String, Object>> osmNodeIdToReaderNodeMap;
+    // MARQ24 MOD END
 
     // stores osm way ids used by relations to identify which edge ids needs to be mapped later
     private GHLongHashSet osmWayIdSet = new GHLongHashSet();
@@ -116,10 +120,9 @@ public class OSMReader implements DataReader {
     private ElevationProvider eleProvider = ElevationProvider.NOOP;
     private File osmFile;
     private Date osmDataDate;
-    private boolean dontCreateStorage = false;
+    private boolean createStorage = true;
 
-    // MARQ24 - Modification by Maxim Rylov
-    // MARQ24 MOD START
+    // MARQ24 MOD START - Modification by Maxim Rylov
     private boolean calcDistance3D = true;
     private Set<String> nodeTags = new HashSet<>();     // Storage for tags that should be extracted on OSM nodes
     public static final String[] HGV_VALUES = new String[] { "maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload" };
@@ -331,9 +334,9 @@ public class OSMReader implements DataReader {
     private void writeOsm2Graph(File osmFile) {
         int tmp = (int) Math.max(getNodeMap().getSize() / 50, 100);
         LOGGER.info("creating graph. Found nodes (pillar+tower):" + nf(getNodeMap().getSize()) + ", " + Helper.getMemInfo());
-        if (!dontCreateStorage) {
+        if (createStorage)
             ghStorage.create(tmp);
-        }
+
         long wayStart = -1;
         long relationStart = -1;
         long counter = 1;
@@ -344,7 +347,7 @@ public class OSMReader implements DataReader {
             while ((item = in.getNext()) != null) {
                 switch (item.getType()) {
                     case ReaderElement.NODE:
-                        if (nodeFilter.get(item.getId()) != -1) {
+                        if (nodeFilter.get(item.getId()) != EMPTY_NODE) {
                             processNode((ReaderNode) item);
                         }
                         break;
@@ -493,13 +496,11 @@ public class OSMReader implements DataReader {
             }
         } else {
             // MARQ24 MOD START
-            // ORG CODE START
-            // no barriers - simply add the whole way
-            // createdEdges.addAll(addOSMWay(way.getNodes(), wayFlags, wayOsmId));
-            // ORG CODE END
             if (!onCreateEdges(way, osmNodeIds, wayFlags, createdEdges)) {
+            // MARQ24 MOD END
                 // no barriers - simply add the whole way
                 createdEdges.addAll(addOSMWay(way.getNodes(), wayFlags, wayOsmId));
+            // MARQ24 MOD START
             }
             // MARQ24 MOD END
         }
@@ -802,6 +803,10 @@ public class OSMReader implements DataReader {
         if (pointList.getDimension() != nodeAccess.getDimension())
             throw new AssertionError("Dimension does not match for pointList vs. nodeAccess " + pointList.getDimension() + " <-> " + nodeAccess.getDimension());
 
+        // Smooth the elevation before calculating the distance because the distance will be incorrect if calculated afterwards
+        if (this.smoothElevation)
+            pointList = GraphElevationSmoothing.smoothElevation(pointList);
+
         double towerNodeDistance = 0;
         double prevLat = pointList.getLatitude(0);
         double prevLon = pointList.getLongitude(0);
@@ -819,7 +824,7 @@ public class OSMReader implements DataReader {
                     // MARQ24 MOD START
                     if(calcDistance3D) {
                     // MARQ24 MOD END
-                        towerNodeDistance += distCalc3D.calcDist(prevLat, prevLon, prevEle, lat, lon, ele);
+                    towerNodeDistance += distCalc3D.calcDist(prevLat, prevLon, prevEle, lat, lon, ele);
                     // MARQ24 MOD START
                     } else {
                     // MARQ24 MOD START
@@ -827,9 +832,8 @@ public class OSMReader implements DataReader {
                     }
                     // MARQ24 MOD END
                 prevEle = ele;
-            } else if (!distCalc.isCrossBoundary(lon, prevLon)) {
+            } else if (!distCalc.isCrossBoundary(lon, prevLon))
                 towerNodeDistance += distCalc.calcDist(prevLat, prevLon, lat, lon);
-            }
 
             prevLat = lat;
             prevLon = lon;
@@ -889,7 +893,6 @@ public class OSMReader implements DataReader {
         double lat = pillarInfo.getLatitude(tmpNode);
         double lon = pillarInfo.getLongitude(tmpNode);
         double ele = pillarInfo.getElevation(tmpNode);
-
         // MARQ24 MOD START
         // ORG CODE START
         /*if (lat == Double.MAX_VALUE || lon == Double.MAX_VALUE)
@@ -1010,18 +1013,20 @@ public class OSMReader implements DataReader {
     /**
      * Filter method, override in subclass
      */
-    // MARQ24 MOD
+    // MARQ24 MOD START
     //boolean isInBounds(ReaderNode node) {
     protected boolean isInBounds(ReaderNode node) {
+    // MARQ24 MOD END
         return true;
     }
 
     /**
      * Maps OSM IDs (long) to internal node IDs (int)
      */
-    // MARQ24 Modification by Maxim Rylov: Method visibility changed to public
+    // MARQ24 MOD START
     //protected LongIntMap getNodeMap() {
     public LongIntMap getNodeMap() {
+    // MARQ24 MOD END
         return osmNodeIdToInternalNodeMap;
     }
 
@@ -1037,6 +1042,12 @@ public class OSMReader implements DataReader {
     public OSMReader setWayPointMaxDistance(double maxDist) {
         doSimplify = maxDist > 0;
         simplifyAlgo.setMaxDistance(maxDist);
+        return this;
+    }
+
+    @Override
+    public DataReader setSmoothElevation(boolean smoothElevation) {
+        this.smoothElevation = smoothElevation;
         return this;
     }
 
@@ -1077,8 +1088,12 @@ public class OSMReader implements DataReader {
         return osmDataDate;
     }
 
-    public void setDontCreateStorage(boolean dontCreateStorage) {
-        this.dontCreateStorage = dontCreateStorage;
+    /**
+     * Per default the storage used in this OSMReader is uninitialized and created i.e. createStorage is true. Specify
+     * false if you call the create method outside of OSMReader.
+     */
+    public void setCreateStorage(boolean createStorage) {
+        this.createStorage = createStorage;
     }
 
     @Override

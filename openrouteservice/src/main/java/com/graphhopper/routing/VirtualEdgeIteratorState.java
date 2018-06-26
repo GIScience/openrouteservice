@@ -45,9 +45,10 @@ public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIterat
     private boolean unfavored;
     private EdgeIteratorState reverseEdge;
 
-    // MARQ24 MOD (added originalEdgeId)
+    // MARQ24 MOD START (added originalEdgeId)
     //public VirtualEdgeIteratorState(int originalTraversalKey, int edgeId, int baseNode, int adjNode, double distance, long flags, String name, PointList pointList) {
     public VirtualEdgeIteratorState(int originalTraversalKey, int edgeId, int originalEdgeId, int baseNode, int adjNode, double distance, long flags, String name, PointList pointList) {
+    // MARQ24 MOD END
         this.originalTraversalKey = originalTraversalKey;
         this.edgeId = edgeId;
         // MARQ24 MOD START
@@ -215,6 +216,9 @@ public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIterat
     @Override
     public EdgeIteratorState detach(boolean reverse) {
         if (reverse) {
+            reverseEdge.setFlags(getFlags());
+            reverseEdge.setName(getName());
+            reverseEdge.setDistance(getDistance());
             return reverseEdge;
         } else {
             return this;
@@ -241,7 +245,7 @@ public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIterat
         throw new UnsupportedOperationException("Not supported.");
     }
 
-    void setReverseEdge(EdgeIteratorState reverseEdge) {
+    public void setReverseEdge(EdgeIteratorState reverseEdge) {
         this.reverseEdge = reverseEdge;
     }
 

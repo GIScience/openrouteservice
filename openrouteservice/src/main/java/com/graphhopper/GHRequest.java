@@ -45,6 +45,7 @@ public class GHRequest {
     private final List<Pair<Double, Double>> favoredHeadings;  // Modification by Maxim Rylov: Double changed to Pair<Double, Double>
     // MARQ24 MOD END
     private List<String> pointHints = new ArrayList<>();
+    private List<String> pathDetails = new ArrayList<>();
     private String algo = "";
     private boolean possibleToAdd = false;
     private Locale locale = Locale.US;
@@ -323,6 +324,15 @@ public class GHRequest {
         return pointHints.size() == points.size();
     }
 
+    public GHRequest setPathDetails(List<String> pathDetails) {
+        this.pathDetails = pathDetails;
+        return this;
+    }
+
+    public List<String> getPathDetails() {
+        return this.pathDetails;
+    }
+
     @Override
     public String toString() {
         String res = "";
@@ -335,6 +345,12 @@ public class GHRequest {
         }
         if (!algo.isEmpty())
             res += " (" + algo + ")";
+
+        if (!pathDetails.isEmpty())
+            res += " (PathDetails: " + pathDetails + ")";
+
+        if (!hints.isEmpty())
+            res += " (Hints:" + hints + ")";
 
         return res;
     }
