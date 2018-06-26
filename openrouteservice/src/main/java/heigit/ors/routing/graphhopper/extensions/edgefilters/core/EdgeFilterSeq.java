@@ -18,25 +18,44 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.edgefilters;
+package heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.CHGraph;
 import com.graphhopper.util.EdgeIteratorState;
 
-public class DownwardSearchEdgeFilter extends CHLevelEdgeFilter {
+public class EdgeFilterSeq implements EdgeFilter {
+	protected final boolean _in;
+	protected final boolean _out;
+	protected final FlagEncoder _encoder;
+	private EdgeFilter _prevFilter;
 
-	public DownwardSearchEdgeFilter(CHGraph g, FlagEncoder encoder) {
-		super(g, encoder);
+	protected EdgeFilterSeq(FlagEncoder encoder, boolean in, boolean out, EdgeFilter prevFilter) {
+		_encoder = encoder;
+		_in = in;
+		_out = out;
+		_prevFilter = prevFilter;
+	}
+
+	public final void setPrevFilter(EdgeFilter prevFilter) {
+		_prevFilter = prevFilter;
+	}
+
+	public final EdgeFilter getPrevFilter() {
+		return _prevFilter;
 	}
 
 	@Override
-	public boolean accept(EdgeIteratorState edgeIterState) {
-		int adj = edgeIterState.getAdjNode(); 
-
-		if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel <= graph.getLevel(adj))
-			return edgeIterState.isBackward(encoder);
-		else
+	public final boolean accept(EdgeIteratorState iter) {
+		if (_prevFilter.accept(iter)) {
+			return check(iter);
+		} else {
 			return false;
+		}
 	}
+
+	protected boolean check(EdgeIteratorState iter) {
+		return true;
+	}
+
 }
