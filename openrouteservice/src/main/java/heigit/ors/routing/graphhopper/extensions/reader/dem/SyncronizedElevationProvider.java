@@ -20,12 +20,11 @@
  */
 package heigit.ors.routing.graphhopper.extensions.reader.dem;
 
+import com.graphhopper.reader.dem.ElevationProvider;
+import com.graphhopper.storage.DAType;
+
 import java.io.File;
 import java.util.concurrent.locks.StampedLock;
-
-import com.graphhopper.reader.dem.ElevationProvider;
-import com.graphhopper.reader.dem.HeightTile;
-import com.graphhopper.storage.DAType;
 
 public class SyncronizedElevationProvider implements ElevationProvider 
 {
@@ -38,50 +37,21 @@ public class SyncronizedElevationProvider implements ElevationProvider
 	}
 
 	@Override
-	public HeightTile loadTile(double lat, double lon) {
-		HeightTile dem = null;
-		
-		long stamp = _lock.writeLock();
-		
-        try
-        {
-        	dem = _elevProvider.loadTile(lat, lon);
-        }
-        finally
-        {
-        	_lock.unlockWrite(stamp);
-        }
-		
-		return dem;
-	}
-
-	@Override
 	public double getEle(double lat, double lon) {
-		HeightTile dem = null;
-		int tileKey;
-		
-		long stamp = _lock.readLock();
-		
-		try
-		{
-			tileKey = getTileKey(lat, lon);
-			dem = getTile(tileKey);
-        }
-		finally
-		{
-            _lock.unlockRead(stamp);
-        }
-		
-		if (dem == null)
-			dem = loadTile(lat, lon);
-		
-		if (dem == null)
-			return 0;
+        // MARQ24 removed the code that is is checking tile cache - since the complete
+        // ElevationProvider Interface have been rolled back to the original gh
+        // implementation - if CACHING would/could help, then this should be implemented
+        // within gh :-)
 
-		if (dem.isSeaLevel())
-			return 0;
+        // MARQ24: the only noticeable difference that might could exist, is, that the
+        // original code had checked the HeightTile if it's seaLevel... this might can
+        // make a difference - but hopefully mtb-tours in the atlantic ocean will not be
+        // that popular in the next century...
+        /*if (dem.isSeaLevel())
+            return 0;
+        return dem.getHeight(lat, lon);*/
 
-		return dem.getHeight(lat, lon);
+        return _elevProvider.getEle(lat, lon);
 	}
 
 	@Override
@@ -114,15 +84,5 @@ public class SyncronizedElevationProvider implements ElevationProvider
 	public void release() {
 		// omit calling release method of the internal provider since it is used by OSMReader
 		//_elevProvider.release();		
-	}
-
-	@Override
-	public int getTileKey(double lat, double lon) {
-		return _elevProvider.getTileKey(lat, lon);
-	}
-
-	@Override
-	public HeightTile getTile(int key) {
-		return _elevProvider.getTile(key);
 	}
 }
