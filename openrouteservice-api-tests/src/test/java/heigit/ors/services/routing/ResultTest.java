@@ -71,6 +71,7 @@ public class ResultTest extends ServiceTest {
 				.body("features[0].properties.containsKey('bbox')", is(true))
 				.body("features[0].properties.containsKey('way_points')", is(true))
 				.body("features[0].properties.containsKey('segments')", is(true))
+				.body("features[0].properties.containsKey('extras')", is(true))
 				.body("features[0].geometry.containsKey('coordinates')", is(true))
 				.body("features[0].geometry.containsKey('type')", is(true))
 				.body("features[0].geometry.type", is("LineString"))
