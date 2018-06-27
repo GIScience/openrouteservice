@@ -25,6 +25,7 @@
 
 package heigit.ors.globalResponseProcessor.gpx.beans;
 
+import com.graphhopper.util.shapes.BBox;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -60,6 +61,7 @@ public class XMLBuilderTest {
         rteTypeExtensions.setDistance(0);
         rteTypeExtensions.setDistanceActual(0);
         rteTypeExtensions.setDuration(0);
+        rteTypeExtensions.setBBox(new BBox(0.0,0.0,0.0,0.0,0.0,0.0));
         // set point extensions
         WptTypeExtensions wptTypeExtensions = new WptTypeExtensions();
         wptTypeExtensions.setDistance(0);
@@ -148,88 +150,96 @@ public class XMLBuilderTest {
         XMLBuilder xMLBuilder = new XMLBuilder();
         String result = xMLBuilder.build(gpx);
         Assert.assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
-                "<gpx version=\"1.0\" xmlns=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v1/ors-gpx.xsd\">\n" +
-                "    <metadata>\n" +
-                "        <name></name>\n" +
-                "        <desc></desc>\n" +
-                "        <author>\n" +
-                "            <name></name>\n" +
-                "            <email id=\"id\" domain=\"@domain\"/>\n" +
-                "            <link href=\"\">\n" +
-                "                <text></text>\n" +
-                "                <type></type>\n" +
-                "            </link>\n" +
-                "        </author>\n" +
-                "        <copyright author=\"\">\n" +
-                "            <year></year>\n" +
-                "            <license></license>\n" +
-                "        </copyright>\n" +
-                "        <time></time>\n" +
-                "        <keywords></keywords>\n" +
-                "        <bounds minlat=\"0.0\" minlon=\"0.0\" maxlat=\"0.0\" maxlon=\"0.0\"/>\n" +
-                "        <extensions>\n" +
-                "            <example1>0.0</example1>\n" +
-                "        </extensions>\n" +
-                "    </metadata>\n" +
-                "    <wpt lat=\"0.0\" lon=\"0.0\">\n" +
-                "        <ele>0.0</ele>\n" +
-                "        <extensions>\n" +
-                "            <distance>0.0</distance>\n" +
-                "            <duration>0.0</duration>\n" +
-                "            <type>0</type>\n" +
-                "            <step>0</step>\n" +
-                "        </extensions>\n" +
-                "    </wpt>\n" +
-                "    <rte>\n" +
-                "        <rtept lat=\"0.0\" lon=\"0.0\">\n" +
-                "            <ele>0.0</ele>\n" +
-                "            <extensions>\n" +
-                "                <distance>0.0</distance>\n" +
-                "                <duration>0.0</duration>\n" +
-                "                <type>0</type>\n" +
-                "                <step>0</step>\n" +
-                "            </extensions>\n" +
-                "        </rtept>\n" +
-                "        <extensions>\n" +
-                "            <distance>0.0</distance>\n" +
-                "            <duration>0.0</duration>\n" +
-                "            <distanceActual>0.0</distanceActual>\n" +
-                "            <ascent>0.0</ascent>\n" +
-                "            <descent>0.0</descent>\n" +
-                "            <avgSpeed>0.0</avgSpeed>\n" +
-                "        </extensions>\n" +
-                "    </rte>\n" +
-                "    <trk>\n" +
-                "        <extensions>\n" +
-                "            <example1>0.0</example1>\n" +
-                "        </extensions>\n" +
-                "        <trkseg>\n" +
-                "            <trkpt lat=\"0.0\" lon=\"0.0\">\n" +
-                "                <ele>0.0</ele>\n" +
-                "                <extensions>\n" +
-                "                    <distance>0.0</distance>\n" +
-                "                    <duration>0.0</duration>\n" +
-                "                    <type>0</type>\n" +
-                "                    <step>0</step>\n" +
-                "                </extensions>\n" +
-                "            </trkpt>\n" +
-                "            <extensions>\n" +
-                "                <example1>0.0</example1>\n" +
-                "            </extensions>\n" +
-                "        </trkseg>\n" +
-                "    </trk>\n" +
-                "    <extensions>\n" +
-                "        <attribution></attribution>\n" +
-                "        <engine></engine>\n" +
-                "        <build_date></build_date>\n" +
-                "        <profile></profile>\n" +
-                "        <preference></preference>\n" +
-                "        <language></language>\n" +
-                "        <distance-units></distance-units>\n" +
-                "        <duration-units></duration-units>\n" +
-                "        <instructions></instructions>\n" +
-                "        <elevation></elevation>\n" +
-                "    </extensions>\n" +
-                "</gpx>\n", result);
+                "<ns2:gpx version=\"1.0\" xmlns:ns2=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v1/ors-gpx.xsd\">\n" +
+                "    <ns2:metadata>\n" +
+                "        <ns2:name></ns2:name>\n" +
+                "        <ns2:desc></ns2:desc>\n" +
+                "        <ns2:author>\n" +
+                "            <ns2:name></ns2:name>\n" +
+                "            <ns2:email id=\"id\" domain=\"@domain\"/>\n" +
+                "            <ns2:link href=\"\">\n" +
+                "                <ns2:text></ns2:text>\n" +
+                "                <ns2:type></ns2:type>\n" +
+                "            </ns2:link>\n" +
+                "        </ns2:author>\n" +
+                "        <ns2:copyright author=\"\">\n" +
+                "            <ns2:year></ns2:year>\n" +
+                "            <ns2:license></ns2:license>\n" +
+                "        </ns2:copyright>\n" +
+                "        <ns2:time></ns2:time>\n" +
+                "        <ns2:keywords></ns2:keywords>\n" +
+                "        <ns2:bounds minlat=\"0.0\" minlon=\"0.0\" maxlat=\"0.0\" maxlon=\"0.0\"/>\n" +
+                "        <ns2:extensions>\n" +
+                "            <ns2:example1>0.0</ns2:example1>\n" +
+                "        </ns2:extensions>\n" +
+                "    </ns2:metadata>\n" +
+                "    <ns2:wpt lat=\"0.0\" lon=\"0.0\">\n" +
+                "        <ns2:ele>0.0</ns2:ele>\n" +
+                "        <ns2:extensions>\n" +
+                "            <ns2:distance>0.0</ns2:distance>\n" +
+                "            <ns2:duration>0.0</ns2:duration>\n" +
+                "            <ns2:type>0</ns2:type>\n" +
+                "            <ns2:step>0</ns2:step>\n" +
+                "        </ns2:extensions>\n" +
+                "    </ns2:wpt>\n" +
+                "    <ns2:rte>\n" +
+                "        <ns2:rtept lat=\"0.0\" lon=\"0.0\">\n" +
+                "            <ns2:ele>0.0</ns2:ele>\n" +
+                "            <ns2:extensions>\n" +
+                "                <ns2:distance>0.0</ns2:distance>\n" +
+                "                <ns2:duration>0.0</ns2:duration>\n" +
+                "                <ns2:type>0</ns2:type>\n" +
+                "                <ns2:step>0</ns2:step>\n" +
+                "            </ns2:extensions>\n" +
+                "        </ns2:rtept>\n" +
+                "        <ns2:extensions>\n" +
+                "            <ns2:distance>0.0</ns2:distance>\n" +
+                "            <ns2:duration>0.0</ns2:duration>\n" +
+                "            <ns2:distanceActual>0.0</ns2:distanceActual>\n" +
+                "            <ns2:ascent>0.0</ns2:ascent>\n" +
+                "            <ns2:descent>0.0</ns2:descent>\n" +
+                "            <ns2:avgSpeed>0.0</ns2:avgSpeed>\n" +
+                "            <ns2:BBox>\n" +
+                "                <minLon>0.0</minLon>\n" +
+                "                <maxLon>0.0</maxLon>\n" +
+                "                <minLat>0.0</minLat>\n" +
+                "                <maxLat>0.0</maxLat>\n" +
+                "                <minEle>0.0</minEle>\n" +
+                "                <maxEle>0.0</maxEle>\n" +
+                "            </ns2:BBox>\n" +
+                "        </ns2:extensions>\n" +
+                "    </ns2:rte>\n" +
+                "    <ns2:trk>\n" +
+                "        <ns2:extensions>\n" +
+                "            <ns2:example1>0.0</ns2:example1>\n" +
+                "        </ns2:extensions>\n" +
+                "        <ns2:trkseg>\n" +
+                "            <ns2:trkpt lat=\"0.0\" lon=\"0.0\">\n" +
+                "                <ns2:ele>0.0</ns2:ele>\n" +
+                "                <ns2:extensions>\n" +
+                "                    <ns2:distance>0.0</ns2:distance>\n" +
+                "                    <ns2:duration>0.0</ns2:duration>\n" +
+                "                    <ns2:type>0</ns2:type>\n" +
+                "                    <ns2:step>0</ns2:step>\n" +
+                "                </ns2:extensions>\n" +
+                "            </ns2:trkpt>\n" +
+                "            <ns2:extensions>\n" +
+                "                <ns2:example1>0.0</ns2:example1>\n" +
+                "            </ns2:extensions>\n" +
+                "        </ns2:trkseg>\n" +
+                "    </ns2:trk>\n" +
+                "    <ns2:extensions>\n" +
+                "        <ns2:attribution></ns2:attribution>\n" +
+                "        <ns2:engine></ns2:engine>\n" +
+                "        <ns2:build_date></ns2:build_date>\n" +
+                "        <ns2:profile></ns2:profile>\n" +
+                "        <ns2:preference></ns2:preference>\n" +
+                "        <ns2:language></ns2:language>\n" +
+                "        <ns2:distance-units></ns2:distance-units>\n" +
+                "        <ns2:duration-units></ns2:duration-units>\n" +
+                "        <ns2:instructions></ns2:instructions>\n" +
+                "        <ns2:elevation></ns2:elevation>\n" +
+                "    </ns2:extensions>\n" +
+                "</ns2:gpx>\n", result);
     }
 }
