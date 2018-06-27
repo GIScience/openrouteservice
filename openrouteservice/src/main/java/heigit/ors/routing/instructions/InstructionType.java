@@ -22,17 +22,19 @@ package heigit.ors.routing.instructions;
 
 public enum InstructionType 
 {
-    TURN_LEFT,
-    TURN_RIGHT,
-    TURN_SHARP_LEFT,
-    TURN_SHARP_RIGHT,
-    TURN_SLIGHT_LEFT,
-    TURN_SLIGHT_RIGHT,
-    CONTINUE,
-    ENTER_ROUNDABOUT,
-    EXIT_ROUNDABOUT,
-    UTURN,
-    FINISH,
-	DEPART,
-    UNKNOWN
+    TURN_LEFT,              /*0*/
+    TURN_RIGHT,             /*1*/
+    TURN_SHARP_LEFT,        /*2*/
+    TURN_SHARP_RIGHT,       /*3*/
+    TURN_SLIGHT_LEFT,       /*4*/
+    TURN_SLIGHT_RIGHT,      /*5*/
+    CONTINUE,               /*6*/
+    ENTER_ROUNDABOUT,       /*7*/
+    EXIT_ROUNDABOUT,        /*8*/
+    UTURN,                  /*9*/
+    FINISH,                 /*10*/
+	DEPART,                 /*11*/
+    KEEP_LEFT,              /*12*/
+    KEEP_RIGHT,             /*13*/
+    UNKNOWN                 /*14*/
 }

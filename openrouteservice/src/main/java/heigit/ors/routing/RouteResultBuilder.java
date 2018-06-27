@@ -202,12 +202,13 @@ public class RouteResultBuilder
 							}
 							else
 							{
-								if (isTurnInstruction(instrType))
-									instrText = instrTranslator.getTurn(instrType, roadName);
-								else if (instrType == InstructionType.CONTINUE)
-									instrText = instrTranslator.getContinue(instrType, roadName);
-								else if (instrType == InstructionType.FINISH)
-								{
+								if (isTurnInstruction(instrType)) {
+                                    instrText = instrTranslator.getTurn(instrType, roadName);
+                                } else if (isKeepInstruction(instrType)){
+                                    instrText = instrTranslator.getKeep(instrType, roadName);
+                                } else if (instrType == InstructionType.CONTINUE) {
+                                    instrText = instrTranslator.getContinue(instrType, roadName);
+                                } else if (instrType == InstructionType.FINISH) {
 									instrText = instrTranslator.getArrive(getArrivalDirection(routePoints, request.getDestination()), prevInstr.getName());
 								}
 								else
@@ -225,8 +226,23 @@ public class RouteResultBuilder
 						step.setType(instrType.ordinal());
 						step.setWayPoints(new int[] { startWayPointIndex, getWayPointEndIndex(startWayPointIndex, instrType, instr)});
 
-						if (request.getIncludeManeuvers())
-							step.setManeuver(calcManeuver(instrType, prevSegPoints, segPoints, nextSegPoints));
+						boolean incMan = request.getIncludeManeuvers();
+						boolean isSlightLeftOrRight = instrType.equals(InstructionType.TURN_SLIGHT_RIGHT) || instrType.equals(InstructionType.TURN_SLIGHT_LEFT);
+						if(incMan || isSlightLeftOrRight){
+							RouteStepManeuver man = calcManeuver(instrType, prevSegPoints, segPoints, nextSegPoints);
+							if(incMan){
+								step.setManeuver(man);
+							}
+							if(isSlightLeftOrRight){
+								// see com.graphhopper.routing.InstructionsFromEdges.getTurn(...)
+								// is generating the TurnInformation - for what EVER reason this
+								// is not correct from time to time - so I ADJUST THEM!
+								if(Math.abs(man.getBearingAfter() - man.getBearingBefore())< 6){
+									step.setInstruction(instrTranslator.getContinue(InstructionType.CONTINUE, roadName));
+									step.setType(InstructionType.CONTINUE.ordinal());
+								}
+							}
+						}
 
 						seg.addStep(step);
 
@@ -438,36 +454,48 @@ public class RouteResultBuilder
 			return false;
 	}
 
+	private boolean isKeepInstruction(InstructionType instrType){
+	    if(instrType == InstructionType.KEEP_LEFT || instrType == InstructionType.KEEP_RIGHT){
+	        return true;
+        }else{
+	        return false;
+        }
+    }
+
 	private InstructionType getInstructionType(boolean isDepart, Instruction instr)
 	{
-		if (isDepart)
+		if (isDepart) {
 			return InstructionType.DEPART;
+		}
 
-		int sign = instr.getSign();
-		if (sign == Instruction.CONTINUE_ON_STREET)
-			return InstructionType.CONTINUE;
-		else if (sign == Instruction.TURN_LEFT)
-			return InstructionType.TURN_LEFT;
-		else if (sign == Instruction.TURN_RIGHT)
-			return InstructionType.TURN_RIGHT;
-		else if (sign == Instruction.TURN_SHARP_LEFT)
-			return InstructionType.TURN_SHARP_LEFT;
-		else if (sign == Instruction.TURN_SHARP_RIGHT)
-			return InstructionType.TURN_SHARP_RIGHT;
-		else if (sign == Instruction.TURN_SLIGHT_LEFT)
-			return InstructionType.TURN_SLIGHT_LEFT;
-		else if (sign == Instruction.TURN_SLIGHT_RIGHT)
-			return InstructionType.TURN_SLIGHT_RIGHT;
-		else if (sign == Instruction.TURN_SLIGHT_RIGHT)
-			return InstructionType.TURN_SLIGHT_RIGHT;
-		else if (sign == Instruction.USE_ROUNDABOUT)
-			return InstructionType.ENTER_ROUNDABOUT;
-		else if (sign == Instruction.LEAVE_ROUNDABOUT)
-			return InstructionType.EXIT_ROUNDABOUT;
-		else if (sign == Instruction.FINISH)
-			return InstructionType.FINISH;
-
-		return InstructionType.CONTINUE;
+		switch (instr.getSign()){
+			case Instruction.CONTINUE_ON_STREET:
+				return InstructionType.CONTINUE;
+			case Instruction.TURN_LEFT:
+				return InstructionType.TURN_LEFT;
+			case Instruction.TURN_RIGHT:
+				return InstructionType.TURN_RIGHT;
+			case Instruction.TURN_SHARP_LEFT:
+				return InstructionType.TURN_SHARP_LEFT;
+			case Instruction.TURN_SHARP_RIGHT:
+				return InstructionType.TURN_SHARP_RIGHT;
+			case Instruction.TURN_SLIGHT_LEFT:
+				return InstructionType.TURN_SLIGHT_LEFT;
+			case Instruction.TURN_SLIGHT_RIGHT:
+				return InstructionType.TURN_SLIGHT_RIGHT;
+			case Instruction.USE_ROUNDABOUT:
+				return InstructionType.ENTER_ROUNDABOUT;
+			case Instruction.LEAVE_ROUNDABOUT:
+				return InstructionType.EXIT_ROUNDABOUT;
+			case Instruction.FINISH:
+				return InstructionType.FINISH;
+			case Instruction.KEEP_LEFT:
+				return InstructionType.KEEP_LEFT;
+			case Instruction.KEEP_RIGHT:
+				return InstructionType.KEEP_RIGHT;
+			default:
+				return InstructionType.CONTINUE;
+		}
 	}
 
 	private CardinalDirection calcDirection(double lat1, double lon1, double lat2, double lon2 )
