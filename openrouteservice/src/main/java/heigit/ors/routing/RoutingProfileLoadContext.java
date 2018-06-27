@@ -27,7 +27,7 @@ public class RoutingProfileLoadContext
 	// add here any other shared resources
 	private int _threads = 1;
 
-	private ElevationProvider _elevProviders;
+	private ElevationProvider _elevProvider = null;
 	
 	public RoutingProfileLoadContext()
 	{
@@ -39,18 +39,19 @@ public class RoutingProfileLoadContext
 		_threads = threads;
 	}
 
-	public void setElevationProvider(ElevationProvider ep)
-	{
-		_elevProviders = ep;
+	public ElevationProvider getElevationProvider(){
+		return _elevProvider;
 	}
 
-	public ElevationProvider getElevationProvider()
-	{
-		return _elevProviders;
+	public void setElevationProvider(ElevationProvider ep) {
+		if(_elevProvider == null) {
+			_elevProvider = ep;
+		}
 	}
-	
-	public void release()
-	{
-		_elevProviders.release();
+
+	public void releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed() {
+		if(_elevProvider != null){
+			_elevProvider.release();
+		}
 	}
 }

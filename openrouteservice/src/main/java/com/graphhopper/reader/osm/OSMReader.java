@@ -934,7 +934,12 @@ public class OSMReader implements DataReader {
     protected void finishedReading() {
         printInfo("way");
         pillarInfo.clear();
-        eleProvider.release();
+        // MARQ24 MOD START
+        // MARQ24: DO NOT CLEAR THE CACHE of the ELEVATION PROVIDERS - since the data will be reused
+        // the provider data will be cleared only after the last VehicleProfile have completed
+        // the work...
+        //eleProvider.release();
+        // MARQ24 MOD END
         osmNodeIdToInternalNodeMap = null;
         osmNodeIdToNodeFlagsMap = null;
         osmWayIdToRouteWeightMap = null;
