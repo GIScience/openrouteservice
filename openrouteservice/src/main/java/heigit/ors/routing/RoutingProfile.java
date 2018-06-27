@@ -23,8 +23,6 @@ package heigit.ors.routing;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
-import com.graphhopper.reader.dem.ElevationProvider;
-import com.graphhopper.reader.dem.MultiSourceElevationProvider;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
@@ -151,44 +149,16 @@ public class RoutingProfile {
         gh.setFlagEncoderFactory(flagEncoderFactory);
 
         gh.init(args);
-
+        // make sure that we only use ONE instance of the ElevationProvider across the multiple vehicle profiles
+        // so the cahcing for elevation data will/can be reused across different vehicles
+        if(loadCntx.getElevationProvider() != null) {
+            gh.setElevationProvider(loadCntx.getElevationProvider());
+        }else {
+            loadCntx.setElevationProvider(gh.getElevationProvider());
+        }
         gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
         gh.setWeightingFactory(new ORSWeightingFactory(RealTrafficDataProvider.getInstance()));
 
-        ElevationProvider eleProvoider = null;
-        synchronized (config) {
-            if (loadCntx.getElevationProvider() == null) {
-                if (!Helper.isEmpty(config.getElevationProvider()) && !Helper.isEmpty(config.getElevationCachePath())) {
-                    DAType elevationDAType;
-                    String tmpDataAccssType = config.getElevationDataAccess();
-                    if (tmpDataAccssType.isEmpty()) {
-                        elevationDAType = DAType.MMAP;
-                    } else {
-                        elevationDAType = DAType.fromString(tmpDataAccssType);
-                    }
-                    // MARQ24 TODO GET thes vals from "ors" config!!!
-                    boolean eleCalcMean = args.getBool("graph.elevation.calcmean", false);
-                    String baseURL = args.get("graph.elevation.base_url", "");
-
-                    //ElevationProvider elevProvider = loadCntx.getElevationProvider(config.getElevationProvider(), config.getElevationCachePath(), config.getElevationDataAccess(), config.getElevationCacheClear());
-                    eleProvoider = new MultiSourceElevationProvider(config.getElevationCachePath());
-                    eleProvoider.setAutoRemoveTemporaryFiles(config.getElevationCacheClear());
-                    eleProvoider.setCalcMean(eleCalcMean);
-                    if (!baseURL.isEmpty()) {
-                        eleProvoider.setBaseURL(baseURL);
-                    }
-                    eleProvoider.setDAType(elevationDAType);
-                } else {
-                    eleProvoider = ElevationProvider.NOOP;
-                }
-                loadCntx.setElevationProvider(eleProvoider);
-            } else {
-                eleProvoider = loadCntx.getElevationProvider();
-            }
-        }
-        if(eleProvoider != null) {
-            gh.setElevationProvider(eleProvoider);
-        }
         gh.importOrLoad();
 
         if (LOGGER.isInfoEnabled()) {
@@ -196,7 +166,7 @@ public class RoutingProfile {
             GraphHopperStorage ghStorage = gh.getGraphHopperStorage();
             // MARQ24 MOD START
             //LOGGER.info(String.format("[%d] FlagEncoders: %s, bits used %d/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getUsedBitsForFlags(), encodingMgr.getBytesForFlags() * 8));
-            LOGGER.info(String.format("[%d] FlagEncoders: [UNKNOWN], bits used %d/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getBytesForFlags() * 8));
+            LOGGER.info(String.format("[%d] FlagEncoders: %s, bits used [UNKNOWN]/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getBytesForFlags() * 8));
             // the 'getCapacity()' impl is the root cause of having a copy of the gh 'com.graphhopper.routing.lm.PrepareLandmarks'
             // class (to make the store) accessible (getLandmarkStorage()) - IMHO this is not worth it!
             // so gh.getCapacity() will be removed!
@@ -432,7 +402,7 @@ public class RoutingProfile {
 
                     mGraphHopper = initGraphHopper(ghOld.getDataReaderFile(), _config, RoutingProfileManager.getInstance().getProfiles(), loadCntx);
 
-                    loadCntx.release();
+                    loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
 
                     break;
                 }

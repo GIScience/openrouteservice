@@ -151,7 +151,7 @@ public class RoutingProfileManager {
             }
 
             executor.shutdown();
-            loadCntx.release();
+            loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
 
 
             LOGGER.info("Graphs were prepaired in " + TimeUtility.getElapsedTime(startTime, true) + ".");
@@ -229,7 +229,7 @@ public class RoutingProfileManager {
                     }
 
                     executor.shutdown();
-                    loadCntx.release();
+                    loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
 
                     LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
                     LOGGER.info("========================================================================");
