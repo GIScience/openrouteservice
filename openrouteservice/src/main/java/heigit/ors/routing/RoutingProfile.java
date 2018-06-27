@@ -24,6 +24,7 @@ import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.dem.ElevationProvider;
+import com.graphhopper.reader.dem.MultiSourceElevationProvider;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
@@ -154,11 +155,40 @@ public class RoutingProfile {
         gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
         gh.setWeightingFactory(new ORSWeightingFactory(RealTrafficDataProvider.getInstance()));
 
-        if (!Helper.isEmpty(config.getElevationProvider()) && !Helper.isEmpty(config.getElevationCachePath())) {
-            ElevationProvider elevProvider = loadCntx.getElevationProvider(config.getElevationProvider(), config.getElevationCachePath(), config.getElevationDataAccess(), config.getElevationCacheClear());
-            gh.setElevationProvider(elevProvider);
-        }
+        ElevationProvider eleProvoider = null;
+        synchronized (config) {
+            if (loadCntx.getElevationProvider() == null) {
+                if (!Helper.isEmpty(config.getElevationProvider()) && !Helper.isEmpty(config.getElevationCachePath())) {
+                    DAType elevationDAType;
+                    String tmpDataAccssType = config.getElevationDataAccess();
+                    if (tmpDataAccssType.isEmpty()) {
+                        elevationDAType = DAType.MMAP;
+                    } else {
+                        elevationDAType = DAType.fromString(tmpDataAccssType);
+                    }
+                    // MARQ24 TODO GET thes vals from "ors" config!!!
+                    boolean eleCalcMean = args.getBool("graph.elevation.calcmean", false);
+                    String baseURL = args.get("graph.elevation.base_url", "");
 
+                    //ElevationProvider elevProvider = loadCntx.getElevationProvider(config.getElevationProvider(), config.getElevationCachePath(), config.getElevationDataAccess(), config.getElevationCacheClear());
+                    eleProvoider = new MultiSourceElevationProvider(config.getElevationCachePath());
+                    eleProvoider.setAutoRemoveTemporaryFiles(config.getElevationCacheClear());
+                    eleProvoider.setCalcMean(eleCalcMean);
+                    if (!baseURL.isEmpty()) {
+                        eleProvoider.setBaseURL(baseURL);
+                    }
+                    eleProvoider.setDAType(elevationDAType);
+                } else {
+                    eleProvoider = ElevationProvider.NOOP;
+                }
+                loadCntx.setElevationProvider(eleProvoider);
+            } else {
+                eleProvoider = loadCntx.getElevationProvider();
+            }
+        }
+        if(eleProvoider != null) {
+            gh.setElevationProvider(eleProvoider);
+        }
         gh.importOrLoad();
 
         if (LOGGER.isInfoEnabled()) {
