@@ -212,6 +212,7 @@ public class RoutingProfile {
             args.put("graph.elevation.provider", StringUtility.trimQuotes(config.getElevationProvider()));
             args.put("graph.elevation.cache_dir", StringUtility.trimQuotes(config.getElevationCachePath()));
             args.put("graph.elevation.dataaccess", StringUtility.trimQuotes(config.getElevationDataAccess()));
+            args.put("graph.elevation.clear", config.getElevationCacheClear());
         }
 
         boolean prepareCH = false;
