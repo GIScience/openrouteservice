@@ -17,12 +17,12 @@
  */
 package heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-import com.graphhopper.util.PMap;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.FootFlagEncoder;
 import com.graphhopper.routing.weighting.PriorityWeighting;
+import com.graphhopper.util.PMap;
+import heigit.ors.routing.graphhopper.extensions.flagencodersexghoverwrite.ORSFootFlagEncoder;
 
-import java.util.*;
+import java.util.TreeMap;
 
 import static com.graphhopper.routing.util.PriorityCode.*;
 
@@ -31,7 +31,7 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  *
  * @author Peter Karich
  */
-public class RunningFlagEncoder extends FootFlagEncoder
+public class RunningFlagEncoder extends ORSFootFlagEncoder
 {
     /**
      * Should be only instantiated via EncodingManager

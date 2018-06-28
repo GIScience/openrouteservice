@@ -15,10 +15,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.graphhopper.routing.util;
+package heigit.ors.routing.graphhopper.extensions.flagencodersexghoverwrite;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.util.AbstractFlagEncoder;
+import com.graphhopper.routing.util.EncodedDoubleValue;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 
@@ -31,7 +33,7 @@ import java.util.*;
  * @author Peter Karich
  * @author Nop
  */
-public class CarFlagEncoder extends AbstractFlagEncoder {
+public class ORSCarFlagEncoder extends AbstractFlagEncoder {
     protected final Map<String, Integer> trackTypeSpeedMap = new HashMap<String, Integer>();
     protected final Set<String> badSurfaceSpeedMap = new HashSet<String>();
 
@@ -51,11 +53,11 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
     protected int maxTrackGradeLevel = 3;
     // MARQ24 MOD END
 
-    public CarFlagEncoder() {
+    public ORSCarFlagEncoder() {
         this(5, 5, 0);
     }
 
-    public CarFlagEncoder(PMap properties) {
+    public ORSCarFlagEncoder(PMap properties) {
         this((int) properties.getLong("speed_bits", 5),
                 properties.getDouble("speed_factor", 5),
                 properties.getBool("turn_costs", false) ? 1 : 0);
@@ -68,11 +70,11 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
         // MARQ24 MOD END
     }
 
-    public CarFlagEncoder(String propertiesStr) {
+    public ORSCarFlagEncoder(String propertiesStr) {
         this(new PMap(propertiesStr));
     }
 
-    public CarFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
+    public ORSCarFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
         super(speedBits, speedFactor, maxTurnCosts);
         restrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access"));
         restrictedValues.add("private");

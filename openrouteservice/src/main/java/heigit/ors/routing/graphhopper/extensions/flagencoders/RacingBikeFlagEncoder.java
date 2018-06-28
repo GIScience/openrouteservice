@@ -109,6 +109,7 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder {
         highwaySpeeds.put("service", 12);
         highwaySpeeds.put("unclassified", 16);
         highwaySpeeds.put("residential", 16);
+        highwaySpeeds.put("living_street", 8);
 
         highwaySpeeds.put("trunk", 20);
         highwaySpeeds.put("trunk_link", 20);
@@ -200,6 +201,6 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder {
 
     @Override
     public String toString() {
-        return "racingbike";
+        return "racingbike-ors";
     }
 }

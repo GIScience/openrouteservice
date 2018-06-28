@@ -15,7 +15,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.graphhopper.routing.util;
+package heigit.ors.routing.graphhopper.extensions.flagencodersexghoverwrite;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
@@ -32,12 +32,12 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  * @author ratrun
  * @author Peter Karich
  */
-public class MountainBikeFlagEncoder extends BikeCommonFlagEncoder {
-    public MountainBikeFlagEncoder() {
+public class ORSMountainBikeFlagEncoder extends ORSBikeCommonFlagEncoder {
+    public ORSMountainBikeFlagEncoder() {
         this(4, 2, 0, false);
     }
 
-    public MountainBikeFlagEncoder(PMap properties) {
+    public ORSMountainBikeFlagEncoder(PMap properties) {
         this(properties.getInt("speed_bits", 4) + (properties.getBool("consider_elevation", false) ? 1 : 0),
                 properties.getDouble("speed_factor", 2), properties.getBool("turn_costs", false) ? 1 : 0,
                 properties.getBool("consider_elevation", false));
@@ -45,11 +45,11 @@ public class MountainBikeFlagEncoder extends BikeCommonFlagEncoder {
         this.setBlockFords(properties.getBool("block_fords", true));
     }
 
-    public MountainBikeFlagEncoder(String propertiesStr) {
+    public ORSMountainBikeFlagEncoder(String propertiesStr) {
         this(new PMap(propertiesStr));
     }
 
-    public MountainBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
+    public ORSMountainBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
         super(speedBits, speedFactor, maxTurnCosts, considerElevation);
         setTrackTypeSpeed("grade1", 18); // paved
         setTrackTypeSpeed("grade2", 16); // now unpaved ...

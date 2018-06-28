@@ -34,12 +34,14 @@ public class RoutingProfileType {
 	public static final int DRIVING_TRAFFIC = 9;
 
 	public static final int CYCLING_REGULAR = 10;
-	public static final int CYCLING_ROAD = 11;
 	public static final int CYCLING_MOUNTAIN = 12;
 	public static final int CYCLING_ELECTRIC = 13;
 	public static final int CYCLING_SAFE = 14;
 	public static final int CYCLING_TOUR = 15;
 	public static final int CYCLING_MOTOR = 16;
+	public static final int CYCLING_ROAD = 11;
+	public static final int CYCLING_ROAD_NG = 17;
+	public static final int CYCLING_ROAD_GH = 18;
 
 	public static final int FOOT_WALKING = 20;
 	public static final int FOOT_HIKING = 21;
@@ -47,12 +49,13 @@ public class RoutingProfileType {
 
 	public static final int WHEELCHAIR = 30;
 	
-	
-
 	public static boolean isDriving(int routePref) {
 		if (routePref == DRIVING_CAR
-				|| routePref == DRIVING_HGV || routePref == DRIVING_ELECTRIC_CAR || routePref == DRIVING_EMERGENCY
-				|| routePref == DRIVING_MOTORCYCLE || routePref == DRIVING_CAROFFROAD)
+		|| routePref == DRIVING_HGV
+		|| routePref == DRIVING_ELECTRIC_CAR
+		|| routePref == DRIVING_EMERGENCY
+		|| routePref == DRIVING_MOTORCYCLE
+		|| routePref == DRIVING_CAROFFROAD)
 			return true;
 		else
 			return false;
@@ -70,9 +73,14 @@ public class RoutingProfileType {
 	}
 	
 	public static boolean isCycling(int routePref) {
-		if (routePref == CYCLING_REGULAR || routePref == CYCLING_MOUNTAIN
-				|| routePref == CYCLING_ROAD || routePref == CYCLING_TOUR || routePref == CYCLING_SAFE
-				|| routePref == CYCLING_ELECTRIC)
+		if (routePref == CYCLING_REGULAR
+		|| routePref == CYCLING_MOUNTAIN
+		|| routePref == CYCLING_ROAD
+		|| routePref == CYCLING_ROAD_GH
+		|| routePref == CYCLING_ROAD_NG
+		|| routePref == CYCLING_TOUR
+		|| routePref == CYCLING_SAFE
+		|| routePref == CYCLING_ELECTRIC)
 			return true;
 		else
 			return false;
@@ -102,6 +110,11 @@ public class RoutingProfileType {
 			return "cycling-regular";
 		case CYCLING_ROAD:
 			return "cycling-road";
+		case CYCLING_ROAD_NG:
+			return "cycling-road-ng";
+		case CYCLING_ROAD_GH:
+			return "cycling-road-gh";
+
 		case CYCLING_MOUNTAIN:
 			return "cycling-mountain";
 		case CYCLING_ELECTRIC:
@@ -138,12 +151,15 @@ public class RoutingProfileType {
 			return DRIVING_TRAFFIC;
 		else if ("driving-emergency".equalsIgnoreCase(profileType)) 
 			return DRIVING_EMERGENCY;
-
-		else if ("cycling-regular".equalsIgnoreCase(profileType)) 
+		else if ("cycling-regular".equalsIgnoreCase(profileType))
 			return CYCLING_REGULAR;
 		else if ("cycling-road".equalsIgnoreCase(profileType)) 
 			return CYCLING_ROAD;
-		else if ("cycling-mountain".equalsIgnoreCase(profileType)) 
+		else if ("cycling-road-ng".equalsIgnoreCase(profileType))
+			return CYCLING_ROAD_NG;
+		else if ("cycling-road-gh".equalsIgnoreCase(profileType))
+			return CYCLING_ROAD_GH;
+		else if ("cycling-mountain".equalsIgnoreCase(profileType))
 			return CYCLING_MOUNTAIN;
 		else if ("cycling-safe".equalsIgnoreCase(profileType)) 
 			return CYCLING_SAFE;	
@@ -190,6 +206,10 @@ public class RoutingProfileType {
 		else if (routePref == RoutingProfileType.CYCLING_MOUNTAIN)
 			return "MTB";
 		else if (routePref == RoutingProfileType.CYCLING_ROAD)
+			return "RACINGBIKE-ORS";
+		else if (routePref == RoutingProfileType.CYCLING_ROAD_NG)
+			return "ROADBIKE-NG";
+		else if (routePref == RoutingProfileType.CYCLING_ROAD_GH)
 			return "RACINGBIKE";
 		else if (routePref == RoutingProfileType.CYCLING_TOUR) // custom
 			return "CYCLETOURBIKE";
@@ -227,7 +247,11 @@ public class RoutingProfileType {
 		else if ("MTB".equalsIgnoreCase(encoder))
 			return RoutingProfileType.CYCLING_MOUNTAIN;
 		else if ("RACINGBIKE".equalsIgnoreCase(encoder))
+			return RoutingProfileType.CYCLING_ROAD_GH;
+		else if ("RACINGBIKE-ORS".equalsIgnoreCase(encoder))
 			return RoutingProfileType.CYCLING_ROAD;
+		else if ("RACINGBIKE-NG".equalsIgnoreCase(encoder))
+			return RoutingProfileType.CYCLING_ROAD_NG;
 		else if ("CYCLETOURBIKE".equalsIgnoreCase(encoder))
 			return RoutingProfileType.CYCLING_TOUR;
 		else if ("SAFETYBIKE".equalsIgnoreCase(encoder))

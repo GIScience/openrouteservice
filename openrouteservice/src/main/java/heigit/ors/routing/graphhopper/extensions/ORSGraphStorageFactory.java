@@ -129,7 +129,13 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 			return true;
 		}
 		catch(Exception ex)
-		{}
+		{
+			if(ex instanceof IllegalStateException){
+
+			}else {
+				ex.printStackTrace();
+			}
+		}
 		
 		return false;
 	}
