@@ -149,8 +149,10 @@ public class RoutingProfile {
         gh.setFlagEncoderFactory(flagEncoderFactory);
 
         gh.init(args);
-        // make sure that we only use ONE instance of the ElevationProvider across the multiple vehicle profiles
-        // so the cahcing for elevation data will/can be reused across different vehicles
+
+        // MARQ24: make sure that we only use ONE instance of the ElevationProvider across the multiple vehicle profiles
+        // so the caching for elevation data will/can be reused across different vehicles. [the loadCntx is a single
+        // Object that will shared across the (potential) multiple running instances]
         if(loadCntx.getElevationProvider() != null) {
             gh.setElevationProvider(loadCntx.getElevationProvider());
         }else {
@@ -165,6 +167,10 @@ public class RoutingProfile {
             EncodingManager encodingMgr = gh.getEncodingManager();
             GraphHopperStorage ghStorage = gh.getGraphHopperStorage();
             // MARQ24 MOD START
+            // Same here as for the 'gh.getCapacity()' below - the 'encodingMgr.getUsedBitsForFlags()' method requires
+            // the EncodingManager to be patched - and this is ONLY required for this logging line... which is IMHO
+            // not worth it (and since we are not sharing FlagEncoders for mutiple vehicles this info is anyhow
+            // obsolete
             //LOGGER.info(String.format("[%d] FlagEncoders: %s, bits used %d/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getUsedBitsForFlags(), encodingMgr.getBytesForFlags() * 8));
             LOGGER.info(String.format("[%d] FlagEncoders: %s, bits used [UNKNOWN]/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getBytesForFlags() * 8));
             // the 'getCapacity()' impl is the root cause of having a copy of the gh 'com.graphhopper.routing.lm.PrepareLandmarks'
@@ -231,7 +237,6 @@ public class RoutingProfile {
                         if (prepareCH == false)
                             args.put("prepare.ch.weightings", "no");
                     }
-
 
                     if (prepareCH) {
                         if (chOpts.hasPath("threads"))
