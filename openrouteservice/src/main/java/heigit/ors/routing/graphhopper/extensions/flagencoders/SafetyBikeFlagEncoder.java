@@ -20,20 +20,17 @@
  */
 package heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-import static com.graphhopper.routing.util.PriorityCode.AVOID_AT_ALL_COSTS;
-import static com.graphhopper.routing.util.PriorityCode.AVOID_IF_POSSIBLE;
-import static com.graphhopper.routing.util.PriorityCode.PREFER;
-import static com.graphhopper.routing.util.PriorityCode.REACH_DEST;
-
-import java.util.TreeMap;
-
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.BikeCommonFlagEncoder;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
+import heigit.ors.routing.graphhopper.extensions.flagencodersexghoverwrite.ORSBikeCommonFlagEncoder;
 
-public class SafetyBikeFlagEncoder extends BikeCommonFlagEncoder {
+import java.util.TreeMap;
+
+import static com.graphhopper.routing.util.PriorityCode.*;
+
+public class SafetyBikeFlagEncoder extends ORSBikeCommonFlagEncoder {
 	public SafetyBikeFlagEncoder()
     {
         this(4, 2, 0, false);
