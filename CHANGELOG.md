@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added missing translations for arrival instructions (Issue #171)
 - Updated code so that acceleration is taken into account when speeds are calculated for edges (Issue #178)
 - Fixed the mising rte tag in gpx issue (Issue #196)
-- Fixed the gpx validation errror (Issue #170)
+- Fixed the gpx validation errror (Issue #168)
 
 ### Changed
 - Updated the wheelchair profile to better handle restrictions such as width, kerb heights and instances where sidewalks are attached to roads. (Issue #162)
