@@ -276,6 +276,7 @@
 					profile-bike0: {
 						profiles: "cycling-regular",
 						parameters: {
+						    encoder_flags_size: 4,
 						    # extent: [5.866240, 15.042050, 47.270210, 55.058140], #
          					encoder_options :"consider_elevation=true|turn_costs=true|block_fords=false",
   				            elevation: true,
@@ -290,6 +291,7 @@
 					profile-bike1: {
 						profiles: "cycling-mountain",
 						parameters: {
+							encoder_flags_size: 4,
 							# extent: [5.866240, 15.042050, 47.270210, 55.058140], #
 							encoder_options :"consider_elevation=true|turn_costs=true|block_fords=false",
 							elevation: true,
@@ -304,6 +306,7 @@
 					profile-bike2: {
 						profiles: "cycling-road",
 						parameters: {
+						    encoder_flags_size: 4,
 							# extent: [5.866240, 15.042050, 47.270210, 55.058140], #
 							encoder_options :"consider_elevation=true|turn_costs=true|block_fords=false",
 							elevation: true,
@@ -318,6 +321,7 @@
 					profile-bike3: {
 						profiles: "cycling-safe",
 						parameters: {
+         					encoder_flags_size: 4,
          					encoder_options: "consider_elevation=true|turn_costs=true|block_fords=false",
 					        elevation: true,
 					 	    ext_storages: {
@@ -331,6 +335,7 @@
 					profile-bike4: {
 						profiles: "cycling-tour",
 						parameters: {
+						    encoder_flags_size: 4,
 							encoder_options: "consider_elevation=true|turn_costs=true|block_fords=false",
 							elevation: true,
 							ext_storages: {
@@ -344,6 +349,7 @@
 					profile-bike5: {
 						profiles: "cycling-electric",
 						parameters: {
+						    encoder_flags_size: 4,
 							encoder_options: "consider_elevation=true|turn_costs=true|block_fords=false",
 							elevation: true,
 							ext_storages: {
@@ -357,6 +363,7 @@
 					profile-pedestrian0: {
 						profiles: "foot-hiking",
 						parameters: {
+						    encoder_flags_size: 4,
 						    encoder_options: "block_fords=false",
 						    elevation: true,
                             ext_storages: {
@@ -376,6 +383,7 @@
 					profile-pedestrian1: {
 						profiles: "foot-walking",
 						parameters: {
+						    encoder_flags_size: 4,
 							encoder_options: "block_fords=false",
 							elevation: true,
 							ext_storages: {
