@@ -107,56 +107,56 @@ public class GpxResponseWriter {
                     }
                     routeType.getRtept().add(wayPoint);
                 }
-            }
-            if (route.getSegments().size() > 0) {
-                int route_step_iterator = route.getSegments().get(0).getSteps().size();
-                route_segments = route.getSegments();
-                for (int i = 0; i < route_step_iterator; i++) {
-                    RouteStep routeStep = route_segments.get(0).getSteps().get(i);
-                    WptType wayPoint = null;
-                    int[] wayPointNumber = routeStep.getWayPoints();
-                    int startPoint = wayPointNumber[0];
-                    // the start and end points always cross with the points from the routesteps before and after
-                    // to avoid duplicity the startpoint is raised by one if not zero or just one point ine the routestep
-                    if (startPoint != 0 || wayPointNumber.length == 1) {
-                        startPoint += 1;
-                    }
-                    int endPoint = wayPointNumber[1];
-
-                    if (route.getGeometry().length > 0) {
-                        int geometry_iterator = route.getGeometry().length;
-                        for (int j = 0; j < geometry_iterator; j++) {
-                            if (j >= startPoint && j <= endPoint) {
-                                wayPoint = routeType.getRtept().get(j);
-                                wayPoint.setName(routeStep.getName());
-                                wayPoint.setDesc(routeStep.getInstruction());
-                                // add extensions to waypoint
-                                wayPoint.setName(routeStep.getName());
-                                wayPoint.setDesc(routeStep.getInstruction());
-                                // add extensions to waypoint
-                                WptTypeExtensions wptExtensions = new WptTypeExtensions();
-                                wptExtensions.setDistance(routeStep.getDistance());
-                                wptExtensions.setDuration(routeStep.getDuration());
-                                wptExtensions.setType(routeStep.getType());
-                                wptExtensions.setStep(j);
-                                wayPoint.setExtensions(wptExtensions);
-                            }
+                if (rreq.getIncludeInstructions() && route.getSegments().size() > 0) {
+                    int route_step_iterator = route.getSegments().get(0).getSteps().size();
+                    route_segments = route.getSegments();
+                    for (int i = 0; i < route_step_iterator; i++) {
+                        RouteStep routeStep = route_segments.get(0).getSteps().get(i);
+                        WptType wayPoint = null;
+                        int[] wayPointNumber = routeStep.getWayPoints();
+                        int startPoint = wayPointNumber[0];
+                        // the start and end points always cross with the points from the routesteps before and after
+                        // to avoid duplicity the startpoint is raised by one if not zero or just one point ine the routestep
+                        if (startPoint != 0 || wayPointNumber.length == 1) {
+                            startPoint += 1;
                         }
-                    } else {
-                        int false_geometry_iterator = route.getSegments().get(0).getSteps().get(route_step_iterator).getWayPoints()[1];
-                        for (int j = 0; j <= false_geometry_iterator; j++) {
-                            wayPoint = new WptType();
-                            if (j >= startPoint && j <= endPoint) {
-                                wayPoint.setName(routeStep.getName());
-                                wayPoint.setDesc(routeStep.getInstruction());
-                                // add extensions to waypoint
-                                WptTypeExtensions wptExtensions = new WptTypeExtensions();
-                                wptExtensions.setDistance(routeStep.getDistance());
-                                wptExtensions.setDuration(routeStep.getDuration());
-                                wptExtensions.setType(routeStep.getType());
-                                wptExtensions.setStep(j);
-                                wayPoint.setExtensions(wptExtensions);
-                                routeType.getRtept().set(j, wayPoint);
+                        int endPoint = wayPointNumber[1];
+
+                        if (route.getGeometry().length > 0) {
+                            int geometry_iterator = route.getGeometry().length;
+                            for (int j = 0; j < geometry_iterator; j++) {
+                                if (j >= startPoint && j <= endPoint) {
+                                    wayPoint = routeType.getRtept().get(j);
+                                    wayPoint.setName(routeStep.getName());
+                                    wayPoint.setDesc(routeStep.getInstruction());
+                                    // add extensions to waypoint
+                                    wayPoint.setName(routeStep.getName());
+                                    wayPoint.setDesc(routeStep.getInstruction());
+                                    // add extensions to waypoint
+                                    WptTypeExtensions wptExtensions = new WptTypeExtensions();
+                                    wptExtensions.setDistance(routeStep.getDistance());
+                                    wptExtensions.setDuration(routeStep.getDuration());
+                                    wptExtensions.setType(routeStep.getType());
+                                    wptExtensions.setStep(j);
+                                    wayPoint.setExtensions(wptExtensions);
+                                }
+                            }
+                        } else {
+                            int false_geometry_iterator = route.getSegments().get(0).getSteps().get(route_step_iterator).getWayPoints()[1];
+                            for (int j = 0; j <= false_geometry_iterator; j++) {
+                                wayPoint = new WptType();
+                                if (j >= startPoint && j <= endPoint) {
+                                    wayPoint.setName(routeStep.getName());
+                                    wayPoint.setDesc(routeStep.getInstruction());
+                                    // add extensions to waypoint
+                                    WptTypeExtensions wptExtensions = new WptTypeExtensions();
+                                    wptExtensions.setDistance(routeStep.getDistance());
+                                    wptExtensions.setDuration(routeStep.getDuration());
+                                    wptExtensions.setType(routeStep.getType());
+                                    wptExtensions.setStep(j);
+                                    wayPoint.setExtensions(wptExtensions);
+                                    routeType.getRtept().set(j, wayPoint);
+                                }
                             }
                         }
                     }
