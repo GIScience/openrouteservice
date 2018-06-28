@@ -26,14 +26,18 @@
 package heigit.ors.globalResponseProcessor.gpx;
 
 
-import com.graphhopper.PathWrapper;
 import com.graphhopper.util.shapes.BBox;
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import heigit.ors.config.AppConfig;
 import heigit.ors.exceptions.MissingConfigParameterException;
-import heigit.ors.routing.*;
+import heigit.ors.routing.RouteResult;
+import heigit.ors.routing.RouteSegment;
+import heigit.ors.routing.RouteStep;
+import heigit.ors.routing.RouteSummary;
+import heigit.ors.routing.RoutingProfileType;
+import heigit.ors.routing.RoutingRequest;
+import heigit.ors.routing.WeightingMethod;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.GeomUtility;
@@ -56,7 +60,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Objects;
 
 
 /**
@@ -177,7 +180,7 @@ public class GpxResponseWriter {
                 bounds.setMinlon(BigDecimal.valueOf(routeBBox != null ? routeBBox.minLon : 0));
                 bounds.setMaxlat(BigDecimal.valueOf(routeBBox != null ? routeBBox.maxLat : 0));
                 bounds.setMaxlon(BigDecimal.valueOf(routeBBox != null ? routeBBox.maxLon : 0));
-                rteTypeExtensions.setBBox(routeBBox);
+                rteTypeExtensions.setBounds(bounds);
                 routeType.setExtensions(rteTypeExtensions);
                 gpx.getRte().add(routeType);
             }

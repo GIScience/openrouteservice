@@ -27,6 +27,17 @@ import junit.framework.Assert;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.StringReader;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItems;
@@ -45,7 +56,322 @@ public class ResultTest extends ServiceTest {
 		addParameter("carProfile", "driving-car");
 	}
 
-	/**
+    @Test
+    public void testGpxExport() throws IOException, SAXException, ParserConfigurationException {
+        Response response = given()
+                .param("coordinates", getParameter("coordinatesShort"))
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("carProfile"))
+                .param("format", "gpx")
+                .param("instructions", "True")
+                .when().log().ifValidationFails()
+                .get(getEndPointName());
+        response.then()
+                .assertThat()
+                .contentType("application/xml;charset=UTF-8")
+                .statusCode(200);
+        testGpxConsistency(response, true);
+        Response response_without_instructions = given()
+                .param("coordinates", getParameter("coordinatesShort"))
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("carProfile"))
+                .param("format", "gpx")
+                .param("instructions", "False")
+                .when().log().ifValidationFails()
+                .get(getEndPointName());
+        response_without_instructions.then()
+                .assertThat()
+                .contentType("application/xml;charset=UTF-8")
+                .statusCode(200);
+        testGpxConsistency(response_without_instructions, false);
+    }
+
+    /**
+     * Validates the xml consistency of the gpx output. Instructions can be turned on or off.
+     * The functions tests if all xml members are present in the output.
+     * Completeness is important for the xml schema verification!
+     *
+     * @param response
+     * @param instructions
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws SAXException
+     */
+    private void testGpxConsistency(Response response, boolean instructions) throws ParserConfigurationException, IOException, SAXException {
+        String body = response.body().asString();
+        DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document doc = db.parse(new InputSource(new StringReader(body)));
+        Assert.assertEquals(doc.getDocumentElement().getTagName(), "gpx");
+        int doc_length = doc.getDocumentElement().getChildNodes().getLength();
+        Assert.assertTrue(doc_length > 0);
+        boolean gpxMetadata = false;
+        boolean gpxRte = false;
+        boolean gpxExtensions = false;
+        for (int i = 0; i < doc_length; i++) {
+            String item = doc.getDocumentElement().getChildNodes().item(i).getNodeName();
+            switch (item) {
+                case "metadata":
+                    gpxMetadata = true;
+                    NodeList metadataChildren = doc.getDocumentElement().getChildNodes().item(i).getChildNodes();
+                    int metadataSize = metadataChildren.getLength();
+                    boolean metadataName = false;
+                    boolean metadataDescription = false;
+                    boolean metadataAuthor = false;
+                    boolean metadataCopyright = false;
+                    boolean metatadaTime = false;
+                    boolean metadataBounds = false;
+                    for (int j = 0; j < metadataSize; j++) {
+                        Node metadataItem = metadataChildren.item(j);
+                        switch (metadataItem.getNodeName()) {
+                            case "name":
+                                metadataName = true;
+                                break;
+                            case "desc":
+                                metadataDescription = true;
+                                break;
+                            case "author":
+                                metadataAuthor = true;
+                                NodeList authorChildren = metadataChildren.item(j).getChildNodes();
+                                int authorLength = authorChildren.getLength();
+                                boolean authorName = false;
+                                boolean authorEmail = false;
+                                boolean authorLink = false;
+                                for (int k = 0; k < authorLength; k++) {
+                                    Node authorItem = authorChildren.item(k);
+                                    switch (authorItem.getNodeName()) {
+                                        case "name":
+                                            authorName = true;
+                                            break;
+                                        case "email":
+                                            authorEmail = true;
+                                            break;
+                                        case "link":
+                                            authorLink = true;
+                                            NodeList linkChildren = authorChildren.item(k).getChildNodes();
+                                            int linkLength = linkChildren.getLength();
+                                            boolean linkText = false;
+                                            boolean linkType = false;
+                                            for (int l = 0; l < linkLength; l++) {
+                                                Node linkItem = linkChildren.item(l);
+                                                switch (linkItem.getNodeName()) {
+                                                    case "text":
+                                                        linkText = true;
+                                                        break;
+                                                    case "type":
+                                                        linkType = true;
+                                                }
+                                            }
+                                            Assert.assertTrue(linkText);
+                                            Assert.assertTrue(linkType);
+                                            break;
+                                    }
+                                }
+                                Assert.assertTrue(authorName);
+                                Assert.assertTrue(authorEmail);
+                                Assert.assertTrue(authorLink);
+                                break;
+                            case "copyright":
+                                metadataCopyright = true;
+                                NodeList copyrightChildren = metadataChildren.item(j).getChildNodes();
+                                int copyrightLength = copyrightChildren.getLength();
+                                boolean copyrightYear = false;
+                                boolean copyrightLicense = false;
+                                for (int k = 0; k < copyrightLength; k++) {
+                                    Node copyrightItem = copyrightChildren.item(k);
+                                    switch (copyrightItem.getNodeName()) {
+                                        case "year":
+                                            copyrightYear = true;
+                                            break;
+                                        case "license":
+                                            copyrightLicense = true;
+                                            break;
+                                    }
+                                }
+                                Assert.assertTrue(copyrightYear);
+                                Assert.assertTrue(copyrightLicense);
+                                break;
+                            case "time":
+                                metatadaTime = true;
+                                break;
+                            case "bounds":
+                                metadataBounds = true;
+                                break;
+                        }
+                    }
+                    Assert.assertTrue(metadataName);
+                    Assert.assertTrue(metadataDescription);
+                    Assert.assertTrue(metadataAuthor);
+                    Assert.assertTrue(metadataCopyright);
+                    Assert.assertTrue(metatadaTime);
+                    Assert.assertTrue(metadataBounds);
+                    break;
+                case "rte":
+                    gpxRte = true;
+                    NodeList rteChildren = doc.getDocumentElement().getChildNodes().item(i).getChildNodes();
+                    int rteSize = rteChildren.getLength();
+                    boolean rtept = false;
+                    boolean routeExtension = false;
+                    for (int j = 0; j < rteSize; j++) {
+                        Node rteElement = rteChildren.item(j);
+                        switch (rteElement.getNodeName()) {
+                            case "rtept":
+                                rtept = true;
+                                if (instructions) {
+                                    int rteptLength = rteElement.getChildNodes().getLength();
+                                    boolean rteptName = false;
+                                    boolean rteptDescription = false;
+                                    boolean rteptextensions = false;
+                                    for (int k = 0; k < rteptLength; k++) {
+                                        Node rteptElement = rteElement.getChildNodes().item(k);
+                                        switch (rteptElement.getNodeName()) {
+                                            case "name":
+                                                rteptName = true;
+                                                break;
+                                            case "desc":
+                                                rteptDescription = true;
+                                                break;
+                                            case "extensions":
+                                                rteptextensions = true;
+                                                int rteptExtensionLength = rteptElement.getChildNodes().getLength();
+                                                boolean distance = false;
+                                                boolean duration = false;
+                                                boolean type = false;
+                                                boolean step = false;
+                                                for (int l = 0; l < rteptExtensionLength; l++) {
+                                                    Node rteptExtensionElement = rteptElement.getChildNodes().item(l);
+                                                    switch (rteptExtensionElement.getNodeName()) {
+                                                        case "distance":
+                                                            distance = true;
+                                                            break;
+                                                        case "duration":
+                                                            duration = true;
+                                                            break;
+                                                        case "type":
+                                                            type = true;
+                                                            break;
+                                                        case "step":
+                                                            step = true;
+                                                            break;
+                                                    }
+                                                }
+                                                Assert.assertTrue(distance);
+                                                Assert.assertTrue(duration);
+                                                Assert.assertTrue(type);
+                                                Assert.assertTrue(step);
+                                        }
+                                    }
+                                    Assert.assertTrue(rteptName);
+                                    Assert.assertTrue(rteptDescription);
+                                    Assert.assertTrue(rteptextensions);
+                                }
+                                break;
+                            case "extensions":
+                                routeExtension = true;
+                                int rteExtensionsLength = rteElement.getChildNodes().getLength();
+                                boolean rteExtensionsDistance = false;
+                                boolean rteExtensionsDuration = false;
+                                boolean rteExtensionsDistanceActual = false;
+                                boolean rteExtensionsAscent = false;
+                                boolean rteExtensionsDescent = false;
+                                boolean rteExtensionsAvgSpeed = false;
+                                boolean rteExtensionsBounds = false;
+                                for (int k = 0; k < rteExtensionsLength; k++) {
+                                    Node extensionsElement = rteElement.getChildNodes().item(k);
+                                    switch (extensionsElement.getNodeName()) {
+                                        case "distance":
+                                            rteExtensionsDistance = true;
+                                            break;
+                                        case "duration":
+                                            rteExtensionsDuration = true;
+                                            break;
+                                        case "distanceActual":
+                                            rteExtensionsDistanceActual = true;
+                                            break;
+                                        case "ascent":
+                                            rteExtensionsAscent = true;
+                                            break;
+                                        case "descent":
+                                            rteExtensionsDescent = true;
+                                            break;
+                                        case "avgSpeed":
+                                            rteExtensionsAvgSpeed = true;
+                                            break;
+                                        case "bounds":
+                                            rteExtensionsBounds = true;
+                                            break;
+                                    }
+                                }
+                                Assert.assertTrue(rteExtensionsDistance);
+                                Assert.assertTrue(rteExtensionsDuration);
+                                Assert.assertTrue(rteExtensionsDistanceActual);
+                                Assert.assertTrue(rteExtensionsAscent);
+                                Assert.assertTrue(rteExtensionsDescent);
+                                Assert.assertTrue(rteExtensionsAvgSpeed);
+                                Assert.assertTrue(rteExtensionsBounds);
+                                break;
+                        }
+                    }
+                    Assert.assertTrue(rtept);
+                    Assert.assertTrue(routeExtension);
+                    break;
+                case "extensions":
+                    gpxExtensions = true;
+                    NodeList gpxExtensionsChildren = doc.getDocumentElement().getChildNodes().item(i).getChildNodes();
+                    int gpxExtensionLength = gpxExtensionsChildren.getLength();
+                    boolean gpxExtensionattribution = false;
+                    boolean gpxExtensionengine = false;
+                    boolean gpxExtensionbuild_date = false;
+                    boolean gpxExtensionprofile = false;
+                    boolean gpxExtensionpreference = false;
+                    boolean gpxExtensionlanguage = false;
+                    boolean gpxExtensioninstructions = false;
+                    boolean gpxExtensionelevation = false;
+                    for (int j = 0; j < gpxExtensionLength; j++) {
+                        Node gpxExtensionElement = gpxExtensionsChildren.item(j);
+                        switch (gpxExtensionElement.getNodeName()) {
+                            case "attribution":
+                                gpxExtensionattribution = true;
+                                break;
+                            case "engine":
+                                gpxExtensionengine = true;
+                                break;
+                            case "build_date":
+                                gpxExtensionbuild_date = true;
+                                break;
+                            case "profile":
+                                gpxExtensionprofile = true;
+                                break;
+                            case "preference":
+                                gpxExtensionpreference = true;
+                                break;
+                            case "language":
+                                gpxExtensionlanguage = true;
+                                break;
+                            case "instructions":
+                                gpxExtensioninstructions = true;
+                                break;
+                            case "elevation":
+                                gpxExtensionelevation = true;
+                                break;
+                        }
+                    }
+                    Assert.assertTrue(gpxExtensionattribution);
+                    Assert.assertTrue(gpxExtensionengine);
+                    Assert.assertTrue(gpxExtensionbuild_date);
+                    Assert.assertTrue(gpxExtensionprofile);
+                    Assert.assertTrue(gpxExtensionpreference);
+                    Assert.assertTrue(gpxExtensionlanguage);
+                    Assert.assertTrue(gpxExtensioninstructions);
+                    Assert.assertTrue(gpxExtensionelevation);
+                    break;
+            }
+        }
+        Assert.assertTrue(gpxMetadata);
+        Assert.assertTrue(gpxRte);
+        Assert.assertTrue(gpxExtensions);
+    }
+
+    /**
 	 * The function validates the whole GeoJson export except segments.
 	 * Segments hold the instructions and are not necessary for our valid GeoJson-export.
 	 */

@@ -26,7 +26,6 @@
 package heigit.ors.globalResponseProcessor.gpx.beans;
 
 
-import com.graphhopper.util.shapes.BBox;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -46,19 +45,19 @@ import javax.xml.bind.annotation.XmlType;
         "ascent",
         "descent",
         "avgSpeed",
-        "BBox"
+        "bounds"
         // always add new variables here! and below
 })
 
 public class RteTypeExtensions extends ExtensionsType {
 
-    private BBox BBox;
     private double distance;
     private double duration;
     private double distanceActual;
     private double ascent;
     private double descent;
     private double avgSpeed;
+    private BoundsType bounds;
 
 
     /**
@@ -172,17 +171,16 @@ public class RteTypeExtensions extends ExtensionsType {
 
     /**
      * Returns the route specific bounding box
-     * @return {@link BBox}
+     * @return {@link BoundsType}
      */
-    public BBox getBBox() {
-        return this.BBox;
+    public BoundsType getBounds() {
+        return this.bounds;
     }
 
     /**
      * Sets the route specific bounding box
-     * @param {@link {@link BBox}
      */
-    public void setBBox(BBox BBox) {
-        this.BBox = BBox;
+    public void setBounds(BoundsType bounds) {
+        this.bounds = bounds;
     }
 }
