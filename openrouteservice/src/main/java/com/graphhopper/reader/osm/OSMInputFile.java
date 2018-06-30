@@ -193,14 +193,14 @@ public class OSMInputFile implements Sink, OSMInput {
                         case 'n':
                             // note vs. node
                             if ("node".equals(name)) {
-                                // MARQ24 - MOD START Modification by Maxim Rylov: Added additional check to cope with corrupted files.
+                                // ORS-GH MOD START Modification by Maxim Rylov: Added additional check to cope with corrupted files.
                                 if (parser.getAttributeValue(null, "lat") != null) {
-                                // MARQ24 - MOD END
+                                // ORS-GH MOD END
                                     id = Long.parseLong(idStr);
                                     return OSMXMLHelper.createNode(id, parser);
-                                // MARQ24 - MOD START
+                                // ORS-GH MOD START
                                 }
-                                // MARQ24 - MOD END
+                                // ORS-GH MOD END
                             }
                             break;
 

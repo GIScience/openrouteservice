@@ -116,9 +116,9 @@ public class PbfBlobDecoder implements Runnable {
          */
     }
 
-    // MARQ24 MOD START Modification by Maxim Rylov: entityTags object moved to class members. this allows avoiding unneded allocations.
+    // ORS-GH MOD START Modification by Maxim Rylov: entityTags object moved to class members. this allows avoiding unneded allocations.
     private Map<String, String> entityTags = null;
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
     private Map<String, String> buildTags(List<Integer> keys, List<Integer> values, PbfFieldDecoder fieldDecoder) {
 
@@ -130,19 +130,19 @@ public class PbfBlobDecoder implements Runnable {
             }
         }
 
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         if (entityTags == null) {
             entityTags = new HashMap<String, String>(keys.size());
         }else {
             entityTags.clear();
         }
-        // MARQ24 MOD END
+        // ORS-GH MOD END
 
 
         Iterator<Integer> keyIterator = keys.iterator();
         Iterator<Integer> valueIterator = values.iterator();
         if (keyIterator.hasNext()) {
-            // MARQ24 MOD START
+            // ORS-GH MOD START
             // ORG CODE START
             /*
             Map<String, String> tags = new HashMap<String, String>(keys.size());
@@ -166,7 +166,7 @@ public class PbfBlobDecoder implements Runnable {
                 }
             }
             return entityTags;
-            // MARQ24 MOD END
+            // ORS-GH MOD END
         }
         return null;
     }
@@ -247,10 +247,10 @@ public class PbfBlobDecoder implements Runnable {
             // in the same PBF array. Each set of tags is delimited by an index
             // with a value of 0.
 
-            // MARQ24 MOD START
+            // ORS-GH MOD START
             //Map<String, String> tags = null;
             Map<String, String> tags = entityTags;
-            // MARQ24 MOD END
+            // ORS-GH MOD END
 
             while (keysValuesIterator.hasNext()) {
                 int keyIndex = keysValuesIterator.next();
@@ -270,13 +270,13 @@ public class PbfBlobDecoder implements Runnable {
                     tags = new HashMap<String, String>(Math.max(3, 2 * (nodes.getKeysValsList().size() / 2) / idList.size()));
                 }
 
-                // MARQ24 MOD START
+                // ORS-GH MOD START
                 if (!fieldDecoder.skip(keyIndex)) {
-                // MARQ24 MOD END
+                // ORS-GH MOD END
                     tags.put(fieldDecoder.decodeString(keyIndex), fieldDecoder.decodeString(valueIndex));
-                // MARQ24 MOD START
+                // ORS-GH MOD START
                 }
-                // MARQ24 MOD END
+                // ORS-GH MOD END
             }
 
             ReaderNode node = new ReaderNode(nodeId, ((double) latitude) / 10000000, ((double) longitude) / 10000000);
@@ -290,10 +290,10 @@ public class PbfBlobDecoder implements Runnable {
     private void processWays(List<Osmformat.Way> ways, PbfFieldDecoder fieldDecoder) {
         for (Osmformat.Way way : ways) {
             Map<String, String> tags = buildTags(way.getKeysList(), way.getValsList(), fieldDecoder);
-            // MARQ24 MOD START
+            // ORS-GH MOD START
             //ReaderWay osmWay = new ReaderWay(way.getId());
             ReaderWay osmWay = new ReaderWay(way.getId(), way.getRefsList().size()); // Modification by Maxim Rylov:  Make use of a constructor with capacity parameter.
-            // MARQ24 MOD END
+            // ORS-GH MOD END
             osmWay.setTags(tags);
 
             // Build up the list of way nodes for the way. The node ids are

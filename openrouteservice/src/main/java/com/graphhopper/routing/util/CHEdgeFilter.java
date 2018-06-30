@@ -26,7 +26,7 @@ import com.graphhopper.util.EdgeIteratorState;
  * @author Peter Karich
  */
 
-// MARQ24 PLAIN COPY OF 'EdgeFilter'
+// ORS-GH MOD - ADDED new class - this is a PLAIN COPY OF 'EdgeFilter' (MARQ24: not sure if this is needed at all?)
 public interface CHEdgeFilter {
 	static final CHEdgeFilter ALL_EDGES = new CHEdgeFilter() {
 		@Override

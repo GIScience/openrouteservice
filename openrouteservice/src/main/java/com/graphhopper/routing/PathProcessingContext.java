@@ -5,6 +5,7 @@ import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.Translation;
 
+// ORS-GH MOD - Modification by Maxim Rylov: Added a new class.
 public class PathProcessingContext {
 	private FlagEncoder _encoder;
 	private Translation _translation;

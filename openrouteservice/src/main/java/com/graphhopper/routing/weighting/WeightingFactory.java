@@ -7,7 +7,7 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.LocationIndex;
 
-// MARQ24 MOD ADDED CLASS
+// ORS-GH MOD - Modification by Maxim Rylov: Added a new class.
 public interface WeightingFactory {
 	
 	public Weighting createWeighting(HintsMap hintsMap, TraversalMode tMode, FlagEncoder encoder, Graph graph, LocationIndex index, GraphHopperStorage graphStorage);

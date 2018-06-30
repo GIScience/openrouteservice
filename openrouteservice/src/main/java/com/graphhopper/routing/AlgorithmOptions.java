@@ -42,7 +42,7 @@ public class AlgorithmOptions {
     private TraversalMode traversalMode = TraversalMode.NODE_BASED;
     private int maxVisitedNodes = Integer.MAX_VALUE;
 
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     // Modification by Maxim Rylov: Added additional class variables
     private EdgeFilter edgeFilter;
 
@@ -55,7 +55,7 @@ public class AlgorithmOptions {
     public void setEdgeFilter(EdgeFilter edgeFilter) {
         this.edgeFilter = edgeFilter;
     }
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
     private AlgorithmOptions() {
     }

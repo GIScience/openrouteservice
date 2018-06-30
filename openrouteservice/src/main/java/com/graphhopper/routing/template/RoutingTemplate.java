@@ -35,10 +35,10 @@ public interface RoutingTemplate {
     /**
      * This method takes the query points and returns the looked up QueryResults.
      */
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     //List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder);
     List<QueryResult> lookup(List<GHPoint> points, double[] radiuses, FlagEncoder encoder);
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
     /**
      * This method returns a list of Path objects which then can be merged to serve one route with
@@ -50,10 +50,10 @@ public interface RoutingTemplate {
      * This method merges the returned paths appropriately e.g. all paths from the list into one
      * PathWrapper of GHResponse or multiple (via / round trip).
      */
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     //boolean isReady(PathMerger pathMerger, Translation tr);
     boolean isReady(PathMerger pathMerger, PathProcessingContext pathProcCntx);
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
     /**
      * This method returns the maximum number of full retries of these 3 steps

@@ -4,7 +4,8 @@ import com.graphhopper.storage.ExtendedStorageSequence;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.TurnCostExtension;
 
-public class HelperOSM {
+// ORS-GH MOD - Modification by Maxim Rylov: Added a new class.
+public class HelperORS {
 
     // Modification by Maxim Rylov: Added getTurnCostExtensions method to extract TurnCostExtension
     public static TurnCostExtension getTurnCostExtensions(GraphExtension extendedStorage) {

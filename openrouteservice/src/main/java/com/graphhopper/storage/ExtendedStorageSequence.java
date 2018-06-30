@@ -2,6 +2,7 @@ package com.graphhopper.storage;
 
 import java.util.ArrayList;
 
+// ORS-GH MOD - Modification by Maxim Rylov: Added a new class.
 public class ExtendedStorageSequence  implements GraphExtension {
 
     private GraphExtension[] extensions;

@@ -160,11 +160,11 @@ public class PMap {
     public Map<String, String> getMap() {
         return map;
     }
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     public int size() {
         return map.size();
     }
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
     public PMap merge(PMap read) {
         return merge(read.getMap());

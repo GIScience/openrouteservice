@@ -43,9 +43,9 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
     private int visitedNodes;
     private int to = -1;
 
-    // MARQ24 MOD START Modification by Maxim Rylov: Added a new class variable used for computing isochrones.
+    // ORS-GH MOD START Modification by Maxim Rylov: Added a new class variable used for computing isochrones.
     protected Boolean reverseDirection = false;
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
     public Dijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
         super(graph, weighting, tMode);
@@ -58,11 +58,11 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
         fromMap = new GHIntObjectHashMap<SPTEntry>(size);
     }
 
-    // MARQ24 MOD START Modification by Maxim Rylov: Added a new method.
+    // ORS-GH MOD START Modification by Maxim Rylov: Added a new method.
     public void setReverseDirection(Boolean reverse) {
         reverseDirection = reverse;
     }
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
     @Override
     public Path calcPath(int from, int to) {
@@ -89,7 +89,7 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
                 if (!accept(iter, currEdge.edge))
                     continue;
 
-                // MARQ24 MOD START
+                // ORS-GH MOD START
                 // ORG CODE START
                 //int traversalId = traversalMode.createTraversalId(iter, false);
                 //double tmpWeight = weighting.calcWeight(iter, false, currEdge.edge) + currEdge.weight;
@@ -98,7 +98,7 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
                 int traversalId = traversalMode.createTraversalId(iter, false);
                 // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
                 double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight;
-                // MARQ24 MOD END
+                // ORS-GH MOD END
                 if (Double.isInfinite(tmpWeight))
                     continue;
 
@@ -106,18 +106,18 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
                 if (nEdge == null) {
                     nEdge = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
                     nEdge.parent = currEdge;
-                    // MARQ24 MOD START
+                    // ORS-GH MOD START
                     // Modification by Maxim Rylov: Assign the original edge id.
                     nEdge.originalEdge = iter.getOriginalEdge();
-                    // MARQ24 MOD END
+                    // ORS-GH MOD END
                     fromMap.put(traversalId, nEdge);
                     fromHeap.add(nEdge);
                 } else if (nEdge.weight > tmpWeight) {
                     fromHeap.remove(nEdge);
                     nEdge.edge = iter.getEdge();
-                    // MARQ24 MOD START
+                    // ORS-GH MOD START
                     nEdge.originalEdge = iter.getOriginalEdge();
-                    // MARQ24 MOD END
+                    // ORS-GH MOD END
                     nEdge.weight = tmpWeight;
                     nEdge.parent = currEdge;
                     fromHeap.add(nEdge);

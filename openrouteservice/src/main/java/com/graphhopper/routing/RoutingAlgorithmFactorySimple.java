@@ -66,13 +66,13 @@ public class RoutingAlgorithmFactorySimple implements RoutingAlgorithmFactory {
 
         ra.setMaxVisitedNodes(opts.getMaxVisitedNodes());
 
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         // Modification by Maxim Rylov: Set custom EdgeFilter.
         if (ra instanceof AbstractRoutingAlgorithm && opts.getEdgeFilter() != null) {
             AbstractRoutingAlgorithm ara = (AbstractRoutingAlgorithm) ra;
             ara.setEdgeFilter(opts.getEdgeFilter());
         }
-        // MARQ24 MOD END
+        // ORS-GH MOD END
         return ra;
     }
 

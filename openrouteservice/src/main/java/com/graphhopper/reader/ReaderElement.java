@@ -46,7 +46,7 @@ public abstract class ReaderElement {
         properties = new HashMap<>(propertyMapSize);
     }
 
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     // Modification by Maxim Rylov: A new method has been added.
     public boolean hasTag(String key) {
         return properties.containsKey(key);
@@ -56,7 +56,7 @@ public abstract class ReaderElement {
     public Iterator<Entry<String, Object>> getProperties() {
         return properties.entrySet().iterator();
     }
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
     public long getId() {
         return id;
@@ -76,10 +76,10 @@ public abstract class ReaderElement {
         return tagTxt.toString();
     }
 
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     //protected Map<String, Object> getTags()
     public Map<String, Object> getTags() {
-    // MARQ24 MOD END
+    // ORS-GH MOD END
         return properties;
     }
 

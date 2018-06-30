@@ -33,11 +33,11 @@ public class ShortestWeighting extends AbstractWeighting {
         super(flagEncoder);
     }
 
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     public ShortestWeighting(FlagEncoder flagEncoder, PMap map) {
         super(flagEncoder, map);
     }
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
     @Override
     public double getMinWeight(double currDistToGoal) {

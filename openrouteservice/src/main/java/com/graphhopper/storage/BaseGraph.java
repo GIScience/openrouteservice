@@ -1168,12 +1168,12 @@ class BaseGraph implements Graph {
             return edgeId;
         }
 
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         @Override
         public int getOriginalEdge() {
             return edgeId;
         }
-        // MARQ24 MOD END
+        // ORS-GH MOD END
 
         @Override
         public String getName() {

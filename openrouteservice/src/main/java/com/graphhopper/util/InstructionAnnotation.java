@@ -26,18 +26,19 @@ public class InstructionAnnotation {
     private int importance;
     private String message;
 
-    // MARQ24 Modification by Maxim Rylov: Added a new class variable.
+    // ORS-GH MOD START Modification by Maxim Rylov: Added a new class variable.
     private int wayType;
+    // ORS-GH MOD END
 
     private InstructionAnnotation() {
         setEmpty();
     }
 
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     public InstructionAnnotation(int importance, String message) {
         this(importance, message, -1);
     }
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
     public InstructionAnnotation(int importance, String message, int wayType) {
         if (message.isEmpty() && importance == 0) {
@@ -46,18 +47,18 @@ public class InstructionAnnotation {
             this.empty = false;
             this.importance = importance;
             this.message = message;
-            // MARQ24 MOD START
+            // ORS-GH MOD START
             this.wayType = wayType;
-            // MARQ24 MOD END
+            // ORS-GH MOD END
         }
     }
 
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     public int getWayType()
     {
         return wayType;
     }
-    // MARQ24 MOD EMD
+    // ORS-GH MOD EMD
 
     private void setEmpty() {
         this.empty = true;

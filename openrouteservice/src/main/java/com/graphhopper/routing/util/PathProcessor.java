@@ -4,7 +4,7 @@ import com.graphhopper.routing.PathProcessingContext;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
 
-// MARQ24 MOD - Modification by Maxim Rylov: Added a new class.
+// ORS-GH MOD - Modification by Maxim Rylov: Added a new class.
 public abstract class PathProcessor {
    public abstract void init(PathProcessingContext cntx);	
    public abstract void setSegmentIndex(int index, int count);

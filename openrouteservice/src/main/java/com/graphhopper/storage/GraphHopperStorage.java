@@ -86,11 +86,11 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         }
     }
 
-    // MARQ24 MOD START - just add a singleMethod
+    // ORS-GH MOD START - just add a singleMethod
     public int getEdges() {
         return baseGraph.edgeCount;
     }
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
     /**
      * This method returns the routing graph for the specified weighting, could be potentially

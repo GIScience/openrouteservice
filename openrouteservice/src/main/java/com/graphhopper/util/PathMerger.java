@@ -78,17 +78,17 @@ public class PathMerger {
         return this;
     }
 
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     //public void doWork(PathWrapper altRsp, List<Path> paths, Translation tr) {
     public void doWork(PathWrapper altRsp, List<Path> paths, PathProcessingContext procCntx) {
-    // MARQ24 MOD END
+    // ORS-GH MOD END
         int origPoints = 0;
         long fullTimeInMillis = 0;
         double fullWeight = 0;
         double fullDistance = 0;
         boolean allFound = true;
 
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         // Modification by Maxim Rylov
         PathProcessor pathProcessor = procCntx.getPathProcessor();
         if (pathProcessor != null) {
@@ -97,16 +97,16 @@ public class PathMerger {
         //******************************
         //InstructionList fullInstructions = new InstructionList(tr);
         InstructionList fullInstructions = new InstructionList(procCntx.getTranslation());
-        // MARQ24 MOD END
+        // ORS-GH MOD END
 
         PointList fullPoints = PointList.EMPTY;
         List<String> description = new ArrayList<>();
         for (int pathIndex = 0; pathIndex < paths.size(); pathIndex++) {
             Path path = paths.get(pathIndex);
 
-            // MARQ24 MOD START
+            // ORS-GH MOD START
             procCntx.setPathIndex(pathIndex); // Modification by Maxim Rylov
-            // MARQ24 MOD END
+            // ORS-GH MOD END
 
             if (!path.isFound()) {
                 allFound = false;
@@ -117,11 +117,11 @@ public class PathMerger {
             fullDistance += path.getDistance();
             fullWeight += path.getWeight();
             if (enableInstructions) {
-                // MARQ24 MOD START
+                // ORS-GH MOD START
                 // ORG CODE
                 //InstructionList il = path.calcInstructions(tr);
                 InstructionList il = path.calcInstructions(procCntx);
-                // MARQ24 MOD END
+                // ORS-GH MOD END
 
                 if (!il.isEmpty()) {
                     fullInstructions.addAll(il);
@@ -153,18 +153,18 @@ public class PathMerger {
             allFound = allFound && path.isFound();
         }
 
-        // MARQ24 MOD START - Modification by Maxim Rylov
+        // ORS-GH MOD START - Modification by Maxim Rylov
         if (pathProcessor != null) {
             pathProcessor.finish();
         }
-        // MARQ24 MOD END
+        // ORS-GH MOD END
 
         if (!fullPoints.isEmpty()) {
-            // MARQ24 MOD START
+            // ORS-GH MOD START
             if (pathProcessor != null){
                 fullPoints = pathProcessor.processPoints(fullPoints);
             }
-            // MARQ24 MOD END
+            // ORS-GH MOD END
 
             String debug = altRsp.getDebugInfo() + ", simplify (" + origPoints + "->" + fullPoints.getSize() + ")";
             altRsp.addDebugInfo(debug);

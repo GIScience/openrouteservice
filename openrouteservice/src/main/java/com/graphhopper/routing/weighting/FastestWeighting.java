@@ -41,10 +41,10 @@ public class FastestWeighting extends AbstractWeighting {
     private final double maxSpeed;
 
     public FastestWeighting(FlagEncoder encoder, PMap map) {
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         //super(encoder);
         super(encoder, map);
-        // MARQ24 MOD END
+        // ORS-GH MOD END
         headingPenalty = map.getDouble(Routing.HEADING_PENALTY, Routing.DEFAULT_HEADING_PENALTY);
         headingPenaltyMillis = Math.round(headingPenalty * 1000);
         maxSpeed = encoder.getMaxSpeed() / SPEED_CONV;
@@ -65,7 +65,7 @@ public class FastestWeighting extends AbstractWeighting {
         if (speed == 0)
             return Double.POSITIVE_INFINITY;
 
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         // Modification by Maxim Rylov: Consider maximum speed defined by a user.
         if (userMaxSpeed > 0) {
             if (speed > userMaxSpeed)
@@ -74,7 +74,7 @@ public class FastestWeighting extends AbstractWeighting {
                 speed = userMaxSpeed;
             }
         }
-        // MARQ24 MOD END
+        // ORS-GH MOD END
 
         double time = edge.getDistance() / speed * SPEED_CONV;
 

@@ -45,10 +45,10 @@ final public class AlternativeRoutingTemplate extends ViaRoutingTemplate {
     }
 
     @Override
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     //public List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder) {
     public List<QueryResult> lookup(List<GHPoint> points, double[] radiuses, FlagEncoder encoder) {
-    // MARQ24 MOD END
+    // ORS-GH MOD END
         if (points.size() > 2)
             throw new IllegalArgumentException("Currently alternative routes work only with start and end point. You tried to use: " + points.size() + " points");
         return super.lookup(points, radiuses, encoder);
@@ -64,10 +64,10 @@ final public class AlternativeRoutingTemplate extends ViaRoutingTemplate {
     }
 
     @Override
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     //public boolean isReady(PathMerger pathMerger, Translation tr) {
     public boolean isReady(PathMerger pathMerger, PathProcessingContext pathProcCntx) {
-    // MARQ24 MOD END
+    // ORS-GH MOD END
         if (pathList.isEmpty())
             throw new RuntimeException("Empty paths for alternative route calculation not expected");
 

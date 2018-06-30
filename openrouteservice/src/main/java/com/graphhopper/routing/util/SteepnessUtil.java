@@ -5,6 +5,7 @@ import com.graphhopper.util.PointList;
 
 import java.util.List;
 
+// ORS-GH MOD - Modification by Maxim Rylov: Added a new class.
 public class SteepnessUtil {
 
 	public static double ELEVATION_THRESHOLD = 20;

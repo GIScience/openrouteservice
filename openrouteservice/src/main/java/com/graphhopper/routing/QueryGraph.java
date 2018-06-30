@@ -156,10 +156,10 @@ public class QueryGraph implements Graph {
         mainNodes = graph.getNodes();
         mainEdges = graph.getAllEdges().getMaxId();
 
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         // ORG CODE
         //if (mainGraph.getExtension() instanceof TurnCostExtension) {
-        if (HelperOSM.getTurnCostExtensions(mainGraph.getExtension()) != null){
+        if (HelperORS.getTurnCostExtensions(mainGraph.getExtension()) != null){
         // MOD END
             wrappedExtension = new QueryGraphTurnExt();
         }else {
@@ -421,14 +421,14 @@ public class QueryGraph implements Graph {
         int virtEdgeId = mainEdges + virtualEdges.size();
 
         // edges between base and snapped point
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         // ORG CODE START
         //VirtualEdgeIteratorState baseEdge = new VirtualEdgeIteratorState(origTraversalKey, virtEdgeId, prevNodeId, nodeId, baseDistance, closestEdge.getFlags(), closestEdge.getName(), basePoints);
         //VirtualEdgeIteratorState baseReverseEdge = new VirtualEdgeIteratorState(origRevTraversalKey, virtEdgeId, nodeId, prevNodeId, baseDistance, reverseFlags, closestEdge.getName(), baseReversePoints);
         // ORG CODE END
         VirtualEdgeIteratorState baseEdge = new VirtualEdgeIteratorState(origTraversalKey, virtEdgeId, closestEdge.getEdge(), prevNodeId, nodeId, baseDistance, closestEdge.getFlags(), closestEdge.getName(), basePoints);
         VirtualEdgeIteratorState baseReverseEdge = new VirtualEdgeIteratorState(origRevTraversalKey, virtEdgeId, closestEdge.getEdge(), nodeId, prevNodeId, baseDistance, reverseFlags, closestEdge.getName(), baseReversePoints);
-        // MARQ24 MOD START
+        // ORS-GH MOD START
 
         baseEdge.setReverseEdge(baseReverseEdge);
         baseReverseEdge.setReverseEdge(baseEdge);
@@ -766,12 +766,12 @@ public class QueryGraph implements Graph {
         private final TurnCostExtension mainTurnExtension;
 
         public QueryGraphTurnExt() {
-            // MARQ24 MOD START
+            // ORS-GH MOD START
             // ORG CODE START
             //this.mainTurnExtension = (TurnCostExtension) mainGraph.getExtension();
             //ORG CODE END
-            this.mainTurnExtension = HelperOSM.getTurnCostExtensions(mainGraph.getExtension());
-            // MARQ24 MOD END
+            this.mainTurnExtension = HelperORS.getTurnCostExtensions(mainGraph.getExtension());
+            // ORS-GH MOD END
         }
 
         @Override
