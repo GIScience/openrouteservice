@@ -32,7 +32,7 @@ public class NextGenBikeFlagEncoder extends NextGenBikeCommonFlagEncoder {
     public NextGenBikeFlagEncoder() {
         // MARQ24 MOD START
         //this(4, 2, 0);
-        this(6, 2, 0, false);
+        this(4, 2, 0, false);
         // MARQ24 MOD END
     }
 
@@ -41,12 +41,15 @@ public class NextGenBikeFlagEncoder extends NextGenBikeCommonFlagEncoder {
     }
 
     public NextGenBikeFlagEncoder(PMap properties) {
-        this((int) properties.getLong("speed_bits", 6),
-                properties.getLong("speed_factor", 2),
-                properties.getBool("turn_costs", false) ? 1 : 0
-                // MARQ24 MOD START
-                ,properties.getBool("consider_elevation", false)
-                // MARQ24 MOD END
+        this(
+            // MARQ24 MOD START
+            properties.getInt("speed_bits", 4 + (properties.getBool("consider_elevation", false) ? 1 : 0)),
+            // MARQ24 MOD END
+            properties.getDouble("speed_factor", 2),
+            properties.getBool("turn_costs", false) ? 1 : 0
+            // MARQ24 MOD START
+            ,properties.getBool("consider_elevation", false)
+            // MARQ24 MOD END
         );
         this.properties = properties;
         this.setBlockFords(properties.getBool("block_fords", true));
