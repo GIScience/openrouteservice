@@ -387,6 +387,13 @@ public class GHUtility {
             throw new UnsupportedOperationException("Not supported. Edge is empty.");
         }
 
+        // ORS GH MOD START
+        @Override
+        public int getOriginalEdge() {
+            throw new UnsupportedOperationException("Not supported. Edge is empty.");
+        }
+        // ORS GH MOD END
+
         @Override
         public int getBaseNode() {
             throw new UnsupportedOperationException("Not supported. Edge is empty.");

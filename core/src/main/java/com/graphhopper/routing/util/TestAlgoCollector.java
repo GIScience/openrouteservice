@@ -78,7 +78,12 @@ public class TestAlgoCollector {
                 setSimplifyResponse(false).
                 setEnableInstructions(true);
         PathWrapper rsp = new PathWrapper();
-        pathMerger.doWork(rsp, altPaths, trMap.getWithFallBack(Locale.US));
+        // ORS GH MOD START
+        //pathMerger.doWork(rsp, altPaths, trMap.getWithFallBack(Locale.US));
+        Translation tr = trMap.getWithFallBack(Locale.US);
+        PathProcessingContext pathProcCntx = new PathProcessingContext(encoder, null, tr, null);
+        pathMerger.doWork(rsp, altPaths, pathProcCntx);
+        // ORS GH MOD END
 
         if (rsp.hasErrors()) {
             errors.add("response for " + algoEntry + " contains errors. Expected distance: " + oneRun.getDistance()
