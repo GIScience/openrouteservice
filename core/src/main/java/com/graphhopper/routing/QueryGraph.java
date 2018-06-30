@@ -156,10 +156,15 @@ public class QueryGraph implements Graph {
         mainNodes = graph.getNodes();
         mainEdges = graph.getAllEdges().getMaxId();
 
-        if (mainGraph.getExtension() instanceof TurnCostExtension)
+        // ORS-GH MOD START
+        // ORG CODE
+        //if (mainGraph.getExtension() instanceof TurnCostExtension) {
+        if (HelperORS.getTurnCostExtensions(mainGraph.getExtension()) != null){
+        // MOD END
             wrappedExtension = new QueryGraphTurnExt();
-        else
+        }else {
             wrappedExtension = mainGraph.getExtension();
+        }
 
         // create very lightweight QueryGraph which uses variables from this QueryGraph (same virtual edges)
         baseGraph = new QueryGraph(graph.getBaseGraph(), this) {
@@ -367,6 +372,11 @@ public class QueryGraph implements Graph {
         return baseGraph;
     }
 
+    // MARQ24 ADDED
+    public Graph getMainGraph() {
+        return mainGraph;
+    }
+
     public EdgeIteratorState getOriginalEdgeFromVirtNode(int nodeId) {
         return queryResults.get(nodeId - mainNodes).getClosestEdge();
     }
@@ -411,10 +421,15 @@ public class QueryGraph implements Graph {
         int virtEdgeId = mainEdges + virtualEdges.size();
 
         // edges between base and snapped point
-        VirtualEdgeIteratorState baseEdge = new VirtualEdgeIteratorState(origTraversalKey,
-                virtEdgeId, prevNodeId, nodeId, baseDistance, closestEdge.getFlags(), closestEdge.getName(), basePoints);
-        VirtualEdgeIteratorState baseReverseEdge = new VirtualEdgeIteratorState(origRevTraversalKey,
-                virtEdgeId, nodeId, prevNodeId, baseDistance, reverseFlags, closestEdge.getName(), baseReversePoints);
+        // ORS-GH MOD START
+        // ORG CODE START
+        //VirtualEdgeIteratorState baseEdge = new VirtualEdgeIteratorState(origTraversalKey, virtEdgeId, prevNodeId, nodeId, baseDistance, closestEdge.getFlags(), closestEdge.getName(), basePoints);
+        //VirtualEdgeIteratorState baseReverseEdge = new VirtualEdgeIteratorState(origRevTraversalKey, virtEdgeId, nodeId, prevNodeId, baseDistance, reverseFlags, closestEdge.getName(), baseReversePoints);
+        // ORG CODE END
+        VirtualEdgeIteratorState baseEdge = new VirtualEdgeIteratorState(origTraversalKey, virtEdgeId, closestEdge.getEdge(), prevNodeId, nodeId, baseDistance, closestEdge.getFlags(), closestEdge.getName(), basePoints);
+        VirtualEdgeIteratorState baseReverseEdge = new VirtualEdgeIteratorState(origRevTraversalKey, virtEdgeId, closestEdge.getEdge(), nodeId, prevNodeId, baseDistance, reverseFlags, closestEdge.getName(), baseReversePoints);
+        // ORS-GH MOD START
+
         baseEdge.setReverseEdge(baseReverseEdge);
         baseReverseEdge.setReverseEdge(baseEdge);
         virtualEdges.add(baseEdge);
@@ -751,7 +766,12 @@ public class QueryGraph implements Graph {
         private final TurnCostExtension mainTurnExtension;
 
         public QueryGraphTurnExt() {
-            this.mainTurnExtension = (TurnCostExtension) mainGraph.getExtension();
+            // ORS-GH MOD START
+            // ORG CODE START
+            //this.mainTurnExtension = (TurnCostExtension) mainGraph.getExtension();
+            //ORG CODE END
+            this.mainTurnExtension = HelperORS.getTurnCostExtensions(mainGraph.getExtension());
+            // ORS-GH MOD END
         }
 
         @Override

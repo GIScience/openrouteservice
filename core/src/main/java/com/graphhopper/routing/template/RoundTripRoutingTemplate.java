@@ -30,11 +30,9 @@ import com.graphhopper.routing.weighting.AvoidEdgesWeighting;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.Helper;
-import com.graphhopper.util.Parameters;
 import com.graphhopper.util.Parameters.Algorithms;
 import com.graphhopper.util.Parameters.Algorithms.RoundTrip;
 import com.graphhopper.util.PathMerger;
-import com.graphhopper.util.Translation;
 import com.graphhopper.util.exceptions.PointNotFoundException;
 import com.graphhopper.util.shapes.GHPoint;
 
@@ -66,9 +64,13 @@ public class RoundTripRoutingTemplate extends AbstractRoutingTemplate implements
     }
 
     @Override
-    public List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder) {
+    // ORS-GH MOD START
+    //public List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder) {
+    public List<QueryResult> lookup(List<GHPoint> points, double[] distances, FlagEncoder encoder) {
+        // ORS-GH MOD END
         if (points.size() != 1 || ghRequest.getPoints().size() != 1)
             throw new IllegalArgumentException("For round trip calculation exactly one point is required");
+
         final double distanceInMeter = ghRequest.getHints().getDouble(RoundTrip.DISTANCE, 10000);
         final long seed = ghRequest.getHints().getLong(RoundTrip.SEED, 0L);
         double initialHeading = ghRequest.getFavoredHeading(0);
@@ -111,7 +113,7 @@ public class RoundTripRoutingTemplate extends AbstractRoutingTemplate implements
         AvoidEdgesWeighting avoidPathWeighting = new AvoidEdgesWeighting(algoOpts.getWeighting());
         avoidPathWeighting.setEdgePenaltyFactor(5);
         algoOpts = AlgorithmOptions.start(algoOpts).
-                algorithm(Parameters.Algorithms.ASTAR_BI).
+                algorithm(Algorithms.ASTAR_BI).
                 weighting(avoidPathWeighting).build();
         algoOpts.getHints().put(Algorithms.AStarBi.EPSILON, 2);
 
@@ -147,11 +149,19 @@ public class RoundTripRoutingTemplate extends AbstractRoutingTemplate implements
     }
 
     @Override
-    public boolean isReady(PathMerger pathMerger, Translation tr) {
+    // ORS-GH MOD START
+    //public boolean isReady(PathMerger pathMerger, Translation tr) {
+    public boolean isReady(PathMerger pathMerger, PathProcessingContext pathProcCntx) {
+    // ORS-GH MOD END
         altResponse = new PathWrapper();
         altResponse.setWaypoints(getWaypoints());
         ghResponse.add(altResponse);
-        pathMerger.doWork(altResponse, pathList, tr);
+
+        // ORS-GH MOD START
+        //pathMerger.doWork(altResponse, pathList, tr);
+        pathMerger.doWork(altResponse, pathList, pathProcCntx);
+        // ORS-GH MOD END
+
         // with potentially retrying, including generating new route points, for now disabled
         return true;
     }

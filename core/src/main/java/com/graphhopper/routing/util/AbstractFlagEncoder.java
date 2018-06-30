@@ -1,14 +1,14 @@
 /*
  *  Licensed to GraphHopper GmbH under one or more contributor
- *  license agreements. See the NOTICE file distributed with this work for 
+ *  license agreements. See the NOTICE file distributed with this work for
  *  additional information regarding copyright ownership.
- * 
- *  GraphHopper GmbH licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in 
+ *
+ *  GraphHopper GmbH licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in
  *  compliance with the License. You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -90,6 +90,11 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
 
     private ConditionalTagInspector conditionalTagInspector;
 
+    // ORS-GH MOD START - Modification by Maxim Rylov: Added new class members.
+    private boolean considerElevation = false;
+    protected EncodedDoubleValue reverseSpeedEncoder;
+    // ORS-GH MOD END
+
     public AbstractFlagEncoder(PMap properties) {
         throw new RuntimeException("This method must be overridden in derived classes");
     }
@@ -118,6 +123,16 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
         ferries.add("ferry");
     }
 
+    // ORS-GH MOD START
+    public void setConsiderElevation(boolean considerElevation) {
+        this.considerElevation = considerElevation;
+    }
+
+    public boolean isConsiderElevation() {
+        return considerElevation;
+    }
+    // ORS-GH MOD END
+
     // should be called as last method in constructor, move out of the flag encoder somehow
     protected void init() {
         // we should move 'OSM to object' logic into the DataReader like OSMReader, but this is a major task as we need to convert OSM format into kind of a standard/generic format
@@ -139,6 +154,12 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
     public void setBlockByDefault(boolean blockByDefault) {
         this.blockByDefault = blockByDefault;
     }
+
+    // ORS-GH MOD START
+    public boolean isBlockByDefault() {
+        return blockByDefault;
+    }
+    // ORS-GH MOD END
 
     public boolean isBlockFords() {
         return blockFords;
@@ -273,19 +294,46 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
      * mind that this method is performance critical!
      */
     public long reverseFlags(long flags) {
-        long dir = flags & directionBitMask;
-        if (dir == directionBitMask || dir == 0)
-            return flags;
+        // ORS-GH MOD START
+        if (considerElevation) {
+            long dir = flags & directionBitMask;
+            if (dir == directionBitMask || dir == 0) {
 
-        return flags ^ directionBitMask;
+            } else {
+                flags = flags ^ directionBitMask;
+            }
+            // swap speeds
+            double otherValue = reverseSpeedEncoder.getDoubleValue(flags);
+            flags = setReverseSpeed(flags, speedEncoder.getDoubleValue(flags));
+            return setSpeed(flags, otherValue);
+        } else {
+            // ORS-GH MOD END
+            long dir = flags & directionBitMask;
+            if (dir == directionBitMask || dir == 0)
+                return flags;
+
+            return flags ^ directionBitMask;
+            // ORS-GH MOD START
+        }
+        // ORS-GH MOD END
     }
 
     /**
      * Sets default flags with specified access.
      */
     public long flagsDefault(boolean forward, boolean backward) {
-        long flags = speedEncoder.setDefaultValue(0);
-        return setAccess(flags, forward, backward);
+        // ORS-GH MOD START
+        if (isConsiderElevation() && backward) {
+            long flags = speedEncoder.setDefaultValue(0);
+            flags = setAccess(flags, forward, backward);
+            return reverseSpeedEncoder.setDefaultValue(flags);
+        } else {
+            // ORS-GH MOD END
+            long flags = speedEncoder.setDefaultValue(0);
+            return setAccess(flags, forward, backward);
+            // ORS-GH MOD START
+        }
+        // ORS-GH MOD END
     }
 
     @Override
@@ -309,6 +357,11 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
     }
 
     protected long setLowSpeed(long flags, double speed, boolean reverse) {
+        // ORS-GH MOD START
+        if (reverse && isConsiderElevation()) {
+            return setBool(reverseSpeedEncoder.setDoubleValue(flags, 0), K_BACKWARD, false);
+        }
+        // ORS-GH MOD END
         return setAccess(speedEncoder.setDoubleValue(flags, 0), false, false);
     }
 
@@ -323,12 +376,38 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
 
     @Override
     public long setReverseSpeed(long flags, double speed) {
-        return setSpeed(flags, speed);
+        // ORS-GH MOD START
+        if (considerElevation) {
+            if (speed < 0 || Double.isNaN(speed)) {
+                throw new IllegalArgumentException("Speed cannot be negative: " + speed + ", flags:" + BitUtil.LITTLE.toBitString(flags));
+            }
+            if (speed < speedEncoder.factor / 2) {
+                return setLowSpeed(flags, speed, true);
+            }
+            if (speed > getMaxSpeed()) {
+                speed = getMaxSpeed();
+            }
+            return reverseSpeedEncoder.setDoubleValue(flags, speed);
+        } else {
+            // ORS-GH MOD END
+            return setSpeed(flags, speed);
+            // ORS-GH MOD START
+        }
+        // ORS-GH MOD END
     }
 
     @Override
     public double getReverseSpeed(long flags) {
-        return getSpeed(flags);
+        // ORS-GH MOD START
+        if (considerElevation) {
+            return reverseSpeedEncoder.getDoubleValue(flags);
+        }
+        else {
+            // ORS-GH MOD END
+            return getSpeed(flags);
+            // ORS-GH MOD START
+        }
+        // ORS-GH MOD END
     }
 
     @Override
@@ -344,7 +423,10 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
     /**
      * @return -1 if no maxspeed found
      */
-    protected double getMaxSpeed(ReaderWay way) {
+    // ORS-GH MOD START
+    //protected double getMaxSpeed(ReaderWay way) {
+    public double getMaxSpeed(ReaderWay way) {
+        // ORS-GH MOD END
         double maxSpeed = parseSpeed(way.getTag("maxspeed"));
         double fwdSpeed = parseSpeed(way.getTag("maxspeed:forward"));
         if (fwdSpeed >= 0 && (maxSpeed < 0 || fwdSpeed < maxSpeed))
@@ -444,6 +526,14 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
      * Special handling for ferry ways.
      */
     protected double getFerrySpeed(ReaderWay way) {
+        // ORS-GH MOD START
+        return getFerrySpeed(way, Integer.MIN_VALUE,Integer.MIN_VALUE, Integer.MIN_VALUE);
+        // ORS-GH MOD END
+    }
+
+    // ORS-GH MOD START
+    protected double getFerrySpeed(ReaderWay way, double unknownSpeed, double shortTripsSpeed, double longTripsSpeed) {
+        // ORS-GH MOD END
         long duration = 0;
 
         try {
@@ -490,12 +580,33 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
             if(estimatedLength != null && estimatedLength.doubleValue() <= 300)
                 return speedEncoder.factor / 2;
             // unknown speed -> put penalty on ferry transport
-            return UNKNOWN_DURATION_FERRY_SPEED;
+            // ORS-GH MOD START
+            if(Integer.MIN_VALUE == unknownSpeed)
+                // ORS-GH MOD END
+                return UNKNOWN_DURATION_FERRY_SPEED;
+                // ORS-GH MOD START
+            else
+                return unknownSpeed;
+            // ORS-GH MOD END
         } else if (durationInHours > 1) {
             // lengthy ferries should be faster than short trip ferry
-            return LONG_TRIP_FERRY_SPEED;
+            // ORS-GH MOD START
+            if(Integer.MIN_VALUE == longTripsSpeed)
+                // ORS-GH MOD END
+                return LONG_TRIP_FERRY_SPEED;
+                // ORS-GH MOD START
+            else
+                return longTripsSpeed;
+            // ORS-GH MOD END
         } else {
-            return SHORT_TRIP_FERRY_SPEED;
+            // ORS-GH MOD START
+            if(Integer.MIN_VALUE == shortTripsSpeed)
+                // ORS-GH MOD END
+                return SHORT_TRIP_FERRY_SPEED;
+                // ORS-GH MOD START
+            else
+                return shortTripsSpeed;
+            // ORS-GH MOD END
         }
     }
 
@@ -701,5 +812,4 @@ public abstract class AbstractFlagEncoder implements FlagEncoder, TurnCostEncode
 
         return false;
     }
-
 }

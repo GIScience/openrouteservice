@@ -39,7 +39,7 @@ import java.util.List;
  *
  * @author Peter Karich
  * @see GraphBuilder to create a (CH)Graph easier
- * @see #getGraph(java.lang.Class)
+ * @see #getGraph(Class)
  */
 public final class GraphHopperStorage implements GraphStorage, Graph {
     private final Directory dir;
@@ -85,6 +85,12 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
             chGraphs.add(new CHGraphImpl(w, dir, this.baseGraph));
         }
     }
+
+    // ORS-GH MOD START - just add a singleMethod
+    public int getEdges() {
+        return baseGraph.edgeCount;
+    }
+    // ORS-GH MOD END
 
     /**
      * This method returns the routing graph for the specified weighting, could be potentially

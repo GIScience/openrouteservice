@@ -26,7 +26,7 @@ import com.graphhopper.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Random;
 
 import static com.graphhopper.util.Parameters.Algorithms.ASTAR_BI;
 import static com.graphhopper.util.Parameters.Algorithms.DIJKSTRA_BI;
@@ -418,6 +418,12 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
     public Weighting getWeighting() {
         return prepareGraph.getWeighting();
     }
+
+    // ORS-GH MOD START ADDED (exposed prepareWeighting)
+    public Weighting getPrepareWeighting() {
+        return prepareWeighting;
+    }
+    // ORS-GH MOD END
 
     private String getTimesAsString() {
         return "t(dijk):" + Helper.round2(dijkstraTime)

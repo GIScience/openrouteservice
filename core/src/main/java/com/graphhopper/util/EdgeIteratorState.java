@@ -36,6 +36,11 @@ public interface EdgeIteratorState {
      */
     int getEdge();
 
+    // ORS-GH MOD START
+    // Modification by Maxim Rylov: Added a new method that returns the original edge id.
+    int getOriginalEdge();
+    // ORS-GH MOD END
+
     /**
      * Returns the node used to instantiate the EdgeIterator. Example: "EdgeIterator iter =
      * graph.getEdges(baseNode)". Often only used for convenience reasons. Do not confuse this with

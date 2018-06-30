@@ -19,6 +19,8 @@ package com.graphhopper.util;
 
 import com.graphhopper.PathWrapper;
 import com.graphhopper.routing.Path;
+import com.graphhopper.routing.PathProcessingContext;
+import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.util.details.PathDetail;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
@@ -76,18 +78,36 @@ public class PathMerger {
         return this;
     }
 
-    public void doWork(PathWrapper altRsp, List<Path> paths, Translation tr) {
+    // ORS-GH MOD START
+    //public void doWork(PathWrapper altRsp, List<Path> paths, Translation tr) {
+    public void doWork(PathWrapper altRsp, List<Path> paths, PathProcessingContext procCntx) {
+    // ORS-GH MOD END
         int origPoints = 0;
         long fullTimeInMillis = 0;
         double fullWeight = 0;
         double fullDistance = 0;
         boolean allFound = true;
 
-        InstructionList fullInstructions = new InstructionList(tr);
+        // ORS-GH MOD START
+        // Modification by Maxim Rylov
+        PathProcessor pathProcessor = procCntx.getPathProcessor();
+        if (pathProcessor != null) {
+            pathProcessor.init(procCntx);
+        }
+        //******************************
+        //InstructionList fullInstructions = new InstructionList(tr);
+        InstructionList fullInstructions = new InstructionList(procCntx.getTranslation());
+        // ORS-GH MOD END
+
         PointList fullPoints = PointList.EMPTY;
         List<String> description = new ArrayList<>();
         for (int pathIndex = 0; pathIndex < paths.size(); pathIndex++) {
             Path path = paths.get(pathIndex);
+
+            // ORS-GH MOD START
+            procCntx.setPathIndex(pathIndex); // Modification by Maxim Rylov
+            // ORS-GH MOD END
+
             if (!path.isFound()) {
                 allFound = false;
                 continue;
@@ -97,7 +117,11 @@ public class PathMerger {
             fullDistance += path.getDistance();
             fullWeight += path.getWeight();
             if (enableInstructions) {
-                InstructionList il = path.calcInstructions(tr);
+                // ORS-GH MOD START
+                // ORG CODE
+                //InstructionList il = path.calcInstructions(tr);
+                InstructionList il = path.calcInstructions(procCntx);
+                // ORS-GH MOD END
 
                 if (!il.isEmpty()) {
                     fullInstructions.addAll(il);
@@ -129,7 +153,19 @@ public class PathMerger {
             allFound = allFound && path.isFound();
         }
 
+        // ORS-GH MOD START - Modification by Maxim Rylov
+        if (pathProcessor != null) {
+            pathProcessor.finish();
+        }
+        // ORS-GH MOD END
+
         if (!fullPoints.isEmpty()) {
+            // ORS-GH MOD START
+            if (pathProcessor != null){
+                fullPoints = pathProcessor.processPoints(fullPoints);
+            }
+            // ORS-GH MOD END
+
             String debug = altRsp.getDebugInfo() + ", simplify (" + origPoints + "->" + fullPoints.getSize() + ")";
             altRsp.addDebugInfo(debug);
             if (fullPoints.is3D)

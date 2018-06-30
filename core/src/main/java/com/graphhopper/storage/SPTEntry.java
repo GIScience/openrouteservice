@@ -25,12 +25,19 @@ package com.graphhopper.storage;
  */
 public class SPTEntry implements Cloneable, Comparable<SPTEntry> {
     public int edge;
+    // ORS-GH MOD START
+    public int originalEdge;
+    public boolean visited = false;
+    // ORS-GH MOD END
     public int adjNode;
     public double weight;
     public SPTEntry parent;
 
     public SPTEntry(int edgeId, int adjNode, double weight) {
         this.edge = edgeId;
+        // ORS-GH MOD START
+        this.originalEdge = edgeId;
+        // ORS-GH MOD END
         this.adjNode = adjNode;
         this.weight = weight;
     }
