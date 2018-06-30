@@ -40,13 +40,13 @@ public class DefaultWeightingFactory implements WeightingFactory {
         if (hintsMap.has(Routing.BLOCK_AREA)) {
             String blockAreaStr = hintsMap.get(Routing.BLOCK_AREA, "");
             GraphEdgeIdFinder.BlockArea blockArea = new GraphEdgeIdFinder(gh, locationIndex).
-                    // MARQ24 MOD START
+                    // ORS-GH MOD START
                     // ORG ORS0.9IMPL
                     //parseBlockArea(blockAreaStr, new DefaultEdgeFilter(encoder));
                     // copied the new code from the com.graphhopper.GraphHopper class
                     // see GraphHopper.createWeighting(...)
                     parseBlockArea(blockAreaStr, new DefaultEdgeFilter(encoder), hintsMap.getDouble("block_area.edge_id_max_area", 1000 * 1000));
-                    // MARQ24 MOD END
+                    // ORS-GH MOD END
             return new BlockAreaWeighting(weighting, blockArea);
         }
         return weighting;

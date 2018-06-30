@@ -74,7 +74,7 @@ public class OSMReader implements DataReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(OSMReader.class);
     private final GraphStorage ghStorage;
     private final Graph graph;
-    // MARQ24 MOD
+    // ORS-GH MOD
     //private final NodeAccess nodeAccess;
     protected final NodeAccess nodeAccess;
     // MARQ24 END
@@ -105,9 +105,9 @@ public class OSMReader implements DataReader {
     private GHLongLongHashMap osmNodeIdToNodeFlagsMap;
     private GHLongLongHashMap osmWayIdToRouteWeightMap;
 
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     private HashMap<Long, Map<String, Object>> osmNodeIdToReaderNodeMap;
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
     // stores osm way ids used by relations to identify which edge ids needs to be mapped later
     private GHLongHashSet osmWayIdSet = new GHLongHashSet();
@@ -122,11 +122,11 @@ public class OSMReader implements DataReader {
     private Date osmDataDate;
     private boolean createStorage = true;
 
-    // MARQ24 MOD START - Modification by Maxim Rylov
+    // ORS-GH MOD START - Modification by Maxim Rylov
     private boolean calcDistance3D = true;
     private Set<String> nodeTags = new HashSet<>();     // Storage for tags that should be extracted on OSM nodes
     public static final String[] HGV_VALUES = new String[] { "maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload" };
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
     public OSMReader(GraphHopperStorage ghStorage) {
         this.ghStorage = ghStorage;
@@ -139,14 +139,14 @@ public class OSMReader implements DataReader {
         osmWayIdToRouteWeightMap = new GHLongLongHashMap(200, .5f);
         pillarInfo = new PillarInfo(nodeAccess.is3D(), ghStorage.getDirectory());
 
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         osmNodeIdToReaderNodeMap = new HashMap<Long, Map<String, Object>>();
         this.nodeTags.addAll(Arrays.asList(HGV_VALUES));
-        // MARQ24 MOD END
+        // ORS-GH MOD END
     }
 
     // *******************************************
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     // *******************************************
     /**
      * Add a key to the list of tag keys that should be stored against nodes if present in the OSM data.
@@ -212,7 +212,7 @@ public class OSMReader implements DataReader {
 
     }
     // *******************************************
-    // MARQ24 MOD END
+    // ORS-GH MOD END
     // *******************************************
 
     @Override
@@ -396,10 +396,10 @@ public class OSMReader implements DataReader {
     /**
      * Process properties, encode flags and create edges for the way.
      */
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     //void processWay(ReaderWay way) {
     protected void processWay(ReaderWay way) {
-    // MARQ24 MOD END
+    // ORS-GH MOD END
         if (way.getNodes().size() < 2)
             return;
 
@@ -495,21 +495,21 @@ public class OSMReader implements DataReader {
                 createdEdges.addAll(addOSMWay(partNodeIds, wayFlags, wayOsmId));
             }
         } else {
-            // MARQ24 MOD START
+            // ORS-GH MOD START
             if (!onCreateEdges(way, osmNodeIds, wayFlags, createdEdges)) {
-            // MARQ24 MOD END
+            // ORS-GH MOD END
                 // no barriers - simply add the whole way
                 createdEdges.addAll(addOSMWay(way.getNodes(), wayFlags, wayOsmId));
-            // MARQ24 MOD START
+            // ORS-GH MOD START
             }
-            // MARQ24 MOD END
+            // ORS-GH MOD END
         }
 
         for (EdgeIteratorState edge : createdEdges) {
             encodingManager.applyWayTags(way, edge);
         }
 
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         // Get all properties of non-end nodes of the way and put them as the way
         // properties. The osmNodeIdToReaderNodeMap is created beforehand in the node processing step.
         applyNodeTagsToWay(osmNodeIdToReaderNodeMap, way);
@@ -517,18 +517,18 @@ public class OSMReader implements DataReader {
         for (EdgeIteratorState edge : createdEdges) {
             onProcessEdge(way, edge);
         }
-        // MARQ24 MOD END
+        // ORS-GH MOD END
     }
 
     public void processRelation(ReaderRelation relation) throws XMLStreamException {
         if (relation.hasTag("type", "restriction")) {
             OSMTurnRelation turnRelation = createTurnRelation(relation);
             if (turnRelation != null) {
-                //MARQ24 MOD START
+                //ORS-GH MOD START
                 // ORG CODE
                 //GraphExtension extendedStorage = graph.getExtension();
-                GraphExtension extendedStorage = HelperOSM.getTurnCostExtensions(graph.getExtension());
-                //MARQ24 MOD END
+                GraphExtension extendedStorage = HelperORS.getTurnCostExtensions(graph.getExtension());
+                //ORS-GH MOD END
                 if (extendedStorage instanceof TurnCostExtension) {
                     TurnCostExtension tcs = (TurnCostExtension) extendedStorage;
                     Collection<TurnCostTableEntry> entries = analyzeTurnRelation(turnRelation);
@@ -626,9 +626,9 @@ public class OSMReader implements DataReader {
 
     private void processNode(ReaderNode node) {
         if (isInBounds(node)) {
-            // MARQ24 MOD START
+            // ORS-GH MOD START
             node = onProcessNode(node);
-            // MARQ24 MOD END
+            // ORS-GH MOD END
             addNode(node);
 
             // analyze node tags for barriers
@@ -821,16 +821,16 @@ public class OSMReader implements DataReader {
             if (pointList.is3D()) {
                 ele = pointList.getElevation(i);
                 if (!distCalc.isCrossBoundary(lon, prevLon))
-                    // MARQ24 MOD START
+                    // ORS-GH MOD START
                     if(calcDistance3D) {
-                    // MARQ24 MOD END
+                    // ORS-GH MOD END
                     towerNodeDistance += distCalc3D.calcDist(prevLat, prevLon, prevEle, lat, lon, ele);
-                    // MARQ24 MOD START
+                    // ORS-GH MOD START
                     } else {
-                    // MARQ24 MOD START
+                    // ORS-GH MOD START
                         towerNodeDistance += distCalc.calcDist(prevLat, prevLon, lat, lon);
                     }
-                    // MARQ24 MOD END
+                    // ORS-GH MOD END
                 prevEle = ele;
             } else if (!distCalc.isCrossBoundary(lon, prevLon))
                 towerNodeDistance += distCalc.calcDist(prevLat, prevLon, lat, lon);
@@ -893,7 +893,7 @@ public class OSMReader implements DataReader {
         double lat = pillarInfo.getLatitude(tmpNode);
         double lon = pillarInfo.getLongitude(tmpNode);
         double ele = pillarInfo.getElevation(tmpNode);
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         // ORG CODE START
         /*if (lat == Double.MAX_VALUE || lon == Double.MAX_VALUE)
             throw new RuntimeException("Conversion pillarNode to towerNode already happended!? "
@@ -927,19 +927,19 @@ public class OSMReader implements DataReader {
                 pointList.add(lat, lon);
             }
         }
-        // MARQ24 MOD END
+        // ORS-GH MOD END
         return (int) tmpNode;
     }
 
     protected void finishedReading() {
         printInfo("way");
         pillarInfo.clear();
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         // MARQ24: DO NOT CLEAR THE CACHE of the ELEVATION PROVIDERS - since the data will be reused
         // the provider data will be cleared only after the last VehicleProfile have completed
         // the work...
         //eleProvider.release();
-        // MARQ24 MOD END
+        // ORS-GH MOD END
         osmNodeIdToInternalNodeMap = null;
         osmNodeIdToNodeFlagsMap = null;
         osmWayIdToRouteWeightMap = null;
@@ -1018,20 +1018,20 @@ public class OSMReader implements DataReader {
     /**
      * Filter method, override in subclass
      */
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     //boolean isInBounds(ReaderNode node) {
     protected boolean isInBounds(ReaderNode node) {
-    // MARQ24 MOD END
+    // ORS-GH MOD END
         return true;
     }
 
     /**
      * Maps OSM IDs (long) to internal node IDs (int)
      */
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     //protected LongIntMap getNodeMap() {
     public LongIntMap getNodeMap() {
-    // MARQ24 MOD END
+    // ORS-GH MOD END
         return osmNodeIdToInternalNodeMap;
     }
 

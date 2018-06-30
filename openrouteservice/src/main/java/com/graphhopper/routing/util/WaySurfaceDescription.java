@@ -1,5 +1,6 @@
 package com.graphhopper.routing.util;
 
+// ORS-GH MOD - Modification by Maxim Rylov: Added a new class.
 public class WaySurfaceDescription
 {
 	public byte WayType;

@@ -232,10 +232,10 @@ public class AStarBidirection extends AbstractBidirAlgo implements Recalculation
 
             // TODO performance: check if the node is already existent in the opposite direction
             // then we could avoid the approximation as we already know the exact complete path!
-            // MARQ24 MOD START
+            // ORS-GH MOD START
             //double alreadyVisitedWeight = weighting.calcWeight(iter, reverse, currEdge.edge) + currEdge.getWeightOfVisitedPath();
             double alreadyVisitedWeight = weighting.calcWeight(iter, reverse, currEdge.originalEdge) + currEdge.getWeightOfVisitedPath();
-            // MARQ24 MOD END
+            // ORS-GH MOD END
             if (Double.isInfinite(alreadyVisitedWeight))
                 continue;
 
@@ -245,10 +245,10 @@ public class AStarBidirection extends AbstractBidirAlgo implements Recalculation
                 double estimationFullWeight = alreadyVisitedWeight + currWeightToGoal;
                 if (ase == null) {
                     ase = new AStarEntry(iter.getEdge(), neighborNode, estimationFullWeight, alreadyVisitedWeight);
-                    // MARQ24 MOD START
+                    // ORS-GH MOD START
                     // Modification by Maxim Rylov: assign originalEdge
                     ase.originalEdge = iter.getOriginalEdge();
-                    // MARQ24 MOD END
+                    // ORS-GH MOD END
                     bestWeightMap.put(traversalId, ase);
                 } else {
 //                    assert (ase.weight > 0.999999 * estimationFullWeight) : "Inconsistent distance estimate "

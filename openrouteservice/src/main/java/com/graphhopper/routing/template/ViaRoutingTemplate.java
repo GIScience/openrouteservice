@@ -57,21 +57,21 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
     }
 
     @Override
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     //public List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder) {
     public List<QueryResult> lookup(List<GHPoint> points, double[] radiuses, FlagEncoder encoder) {
-    // MARQ24 MOD END
+    // ORS-GH MOD END
         if (points.size() < 2)
             throw new IllegalArgumentException("At least 2 points have to be specified, but was:" + points.size());
 
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         // EdgeFilter edgeFilter = new DefaultEdgeFilter(encoder);
         // Modification by Maxim Rylov: Added custom EdgeFilter
         EdgeFilter edgeFilter = ghRequest.getEdgeFilter();
         if (edgeFilter == null) {
             edgeFilter = new DefaultEdgeFilter(encoder);
         }
-        // MARQ24 MOD END
+        // ORS-GH MOD END
 
         queryResults = new ArrayList<>(points.size());
         for (int placeIndex = 0; placeIndex < points.size(); placeIndex++) {
@@ -88,11 +88,11 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
             if (!res.isValid())
                 ghResponse.addError(new PointNotFoundException("Cannot find point " + placeIndex + ": " + point, placeIndex));
 
-            // MARQ24 MOD START
+            // ORS-GH MOD START
             if (radiuses != null && res.getQueryDistance() > radiuses[placeIndex] && radiuses[placeIndex] != -1.0) {
                 ghResponse.addError(new PointNotFoundException("Cannot find point " + placeIndex + ": " + point + " within a radius of " + radiuses[placeIndex] + " meters.", placeIndex));
             }
-            // MARQ24 MOD END
+            // ORS-GH MOD END
 
             queryResults.add(res);
         }
@@ -165,10 +165,10 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
     }
 
     @Override
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     //public boolean isReady(PathMerger pathMerger, Translation tr) {
     public boolean isReady(PathMerger pathMerger, PathProcessingContext pathProcCntx) {
-    // MARQ24 MOD END
+    // ORS-GH MOD END
         if (ghRequest.getPoints().size() - 1 != pathList.size())
             throw new RuntimeException("There should be exactly one more points than paths. points:" + ghRequest.getPoints().size() + ", paths:" + pathList.size());
 

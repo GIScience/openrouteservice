@@ -40,17 +40,17 @@ public class GHRequest {
     private final HintsMap hints = new HintsMap();
     // List of favored start (1st element) and arrival heading (all other).
     // Headings are north based azimuth (clockwise) in (0, 360) or NaN for equal preference
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     //private final List<Double> favoredHeadings;
     private final List<Pair<Double, Double>> favoredHeadings;  // Modification by Maxim Rylov: Double changed to Pair<Double, Double>
-    // MARQ24 MOD END
+    // ORS-GH MOD END
     private List<String> pointHints = new ArrayList<>();
     private List<String> pathDetails = new ArrayList<>();
     private String algo = "";
     private boolean possibleToAdd = false;
     private Locale locale = Locale.US;
 
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     // Modification by Maxim Rylov: Added class members
     private EdgeAnnotator edgeAnnotator;
     private PathProcessor pathProcessor;
@@ -68,7 +68,7 @@ public class GHRequest {
             this.right = right;
         }
     }
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
     public GHRequest() {
         this(5);
@@ -76,10 +76,10 @@ public class GHRequest {
 
     public GHRequest(int size) {
         points = new ArrayList<GHPoint>(size);
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         //favoredHeadings = new ArrayList<Double>(size);
         favoredHeadings = new ArrayList<Pair<Double, Double>>(size);
-        // MARQ24 MOD END
+        // ORS-GH MOD END
         possibleToAdd = true;
     }
 
@@ -105,12 +105,12 @@ public class GHRequest {
      * heading. Headings are north based azimuth (clockwise) in (0, 360) or NaN for equal preference
      */
     public GHRequest(GHPoint startPlace, GHPoint endPlace, double startHeading, double endHeading) {
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         this(startPlace, endPlace, startHeading, Double.NaN, endHeading, Double.NaN);
-        // MARQ24 MOD END
+        // ORS-GH MOD END
     }
 
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     public GHRequest(GHPoint startPlace, GHPoint endPlace, double startHeading, double starHeadingDeviation, double endHeading, double endHeadingDeviation) {
         if (startPlace == null)
             throw new IllegalStateException("'from' cannot be null");
@@ -139,7 +139,7 @@ public class GHRequest {
         favoredHeadings.add(new Pair<Double, Double>(endHeading, endHeadingDeviation));
         // MOD END
     }
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
     public GHRequest(GHPoint startPlace, GHPoint endPlace) {
         this(startPlace, endPlace, Double.NaN, Double.NaN);
@@ -162,13 +162,13 @@ public class GHRequest {
             validateAzimuthValue(heading);
         }
         this.points = points;
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         //this.favoredHeadings = favoredHeadings;
         this.favoredHeadings= new ArrayList<Pair<Double, Double>>(favoredHeadings.size());
         for(Double heading : favoredHeadings) {
             this.favoredHeadings.add(new Pair<Double, Double>(heading, Double.NaN));
         }
-        // MARQ24 MOD END
+        // ORS-GH MOD END
     }
 
     /**
@@ -198,10 +198,10 @@ public class GHRequest {
 
         points.add(point);
         validateAzimuthValue(favoredHeading);
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         //favoredHeadings.add(favoredHeading);
         favoredHeadings.add(new Pair<Double, Double>(favoredHeading, Double.NaN));
-        // MARQ24 MOD END
+        // ORS-GH MOD END
         return this;
     }
 
@@ -220,17 +220,17 @@ public class GHRequest {
      * @return north based azimuth (clockwise) in (0, 360) or NaN for equal preference
      */
     public double getFavoredHeading(int i) {
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         //return favoredHeadings.get(i);
         return favoredHeadings.get(i).left;
-        // MARQ24 MOD END
+        // ORS-GH MOD END
     }
 
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     public double getFavoredHeadingDeviation(int i) {
         return  favoredHeadings.get(i).right;
     }
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
 
     /**
@@ -240,10 +240,10 @@ public class GHRequest {
         if (i >= favoredHeadings.size()) {
             return false;
         }
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         //return !Double.isNaN(favoredHeadings.get(i));
         return !Double.isNaN(favoredHeadings.get(i).left);
-        // MARQ24 MOD END
+        // ORS-GH MOD END
     }
 
     private void validateAzimuthValue(double heading) {

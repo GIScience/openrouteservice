@@ -46,7 +46,7 @@ import java.util.Arrays;
  * implementation of LocationIndex.
  * <p>
  */
-// MARQ24 MADE PUBLIC
+// ORS-GH MOD - made class public
 // class Location2IDQuadtree implements LocationIndex {
 public class Location2IDQuadtree implements LocationIndex {
     private final static int MAGIC_INT = Integer.MAX_VALUE / 12306;

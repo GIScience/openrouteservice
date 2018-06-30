@@ -20,14 +20,14 @@ public class PbfFieldDecoder {
     private long coordLongitudeOffset;
     private int dateGranularity;
 
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     // Modification by Maxim Rylov: Added a new class variable.
     private byte[] fieldsToSkip;
     // Modification by Maxim Rylov: Added a new method.
     public boolean skip(int rawString) {
         return fieldsToSkip[rawString] == 1;
     }
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
     /**
      * Creates a new instance.
@@ -43,18 +43,18 @@ public class PbfFieldDecoder {
 
         Osmformat.StringTable stringTable = primitiveBlock.getStringtable();
         strings = new String[stringTable.getSCount()];
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         fieldsToSkip = new byte[stringTable.getSCount()];
-        // MARQ24 MOD END
+        // ORS-GH MOD END
         for (int i = 0; i < strings.length; i++) {
             strings[i] = stringTable.getS(i).toStringUtf8();
-            // MARQ24 MOD START
+            // ORS-GH MOD START
             if ("".equals(strings[i]) || "created_by".equals(strings[i]) || strings[i].startsWith("TMC") || strings[i].startsWith("addr:")) {
                 fieldsToSkip[i] = 1;
             }else {
                 fieldsToSkip[i] = 0;
             }
-            // MARQ24 MOD END
+            // ORS-GH MOD END
 
         }
     }

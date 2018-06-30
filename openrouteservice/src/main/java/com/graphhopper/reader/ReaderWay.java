@@ -26,7 +26,7 @@ import com.carrotsearch.hppc.LongArrayList;
  * @author Nop
  */
 public class ReaderWay extends ReaderElement {
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     // ORG CODE
     /*protected final LongArrayList nodes = new LongArrayList(5);
     public ReaderWay(long id) {
@@ -44,7 +44,7 @@ public class ReaderWay extends ReaderElement {
         super(id, WAY);
         nodes = new LongArrayList(size);
     }
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
     public LongArrayList getNodes() {
         return nodes;

@@ -30,32 +30,32 @@ import static com.graphhopper.util.Helper.toLowerCase;
 public abstract class AbstractWeighting implements Weighting {
     protected final FlagEncoder flagEncoder;
 
-    // MARQ24 MOD START - ADDED - Modification by Maxim Rylov
+    // ORS-GH MOD START - ADDED - Modification by Maxim Rylov
     protected double userMaxSpeed = -1;
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
     protected AbstractWeighting(FlagEncoder encoder) {
         this(encoder, null);
     }
 
-    // MARQ24 MOD START - ADDED CONSTRUCTOR with MAP...
+    // ORS-GH MOD START - ADDED CONSTRUCTOR with MAP...
     protected AbstractWeighting(FlagEncoder encoder, PMap map) {
-    // MARQ24 MOD END
+    // ORS-GH MOD END
         this.flagEncoder = encoder;
         if (!flagEncoder.isRegistered())
             throw new IllegalStateException("Make sure you add the FlagEncoder " + flagEncoder + " to an EncodingManager before using it elsewhere");
         if (!isValidName(getName()))
             throw new IllegalStateException("Not a valid name for a Weighting: " + getName());
 
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         if (map != null) {
             userMaxSpeed = map.getDouble("max_speed", -1);
         }
-        // MARQ24 MOD END
+        // ORS-GH MOD END
 
-    // MARQ24 MOD START
+    // ORS-GH MOD START
     }
-    // MARQ24 MOD END
+    // ORS-GH MOD END
 
     @Override
     public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
@@ -71,12 +71,12 @@ public abstract class AbstractWeighting implements Weighting {
         if (speed == 0)
             throw new IllegalStateException("Speed cannot be 0 for unblocked edge, use access properties to mark edge blocked! Should only occur for shortest path calculation. See #242.");
 
-        // MARQ24 MOD START
+        // ORS-GH MOD START
         if (userMaxSpeed > 0) {
             if (speed > userMaxSpeed)
                 speed = userMaxSpeed;
         }
-        // MARQ24 MOD END
+        // ORS-GH MOD END
         return (long) (edgeState.getDistance() * 3600 / speed);
     }
 

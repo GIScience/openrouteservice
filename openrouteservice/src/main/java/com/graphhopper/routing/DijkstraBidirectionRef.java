@@ -166,11 +166,11 @@ public class DijkstraBidirectionRef extends AbstractBidirAlgo {
 
             int traversalId = traversalMode.createTraversalId(iter, reverse);
 
-            // MARQ24 MOD START
+            // ORS-GH MOD START
             // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
             //double tmpWeight = weighting.calcWeight(iter, reverse, currEdge.edge) + currEdge.weight;
             double tmpWeight = weighting.calcWeight(iter, reverse, currEdge.originalEdge) + currEdge.weight;
-            // MARQ24 MOD END
+            // ORS-GH MOD END
 
             if (Double.isInfinite(tmpWeight))
                 continue;
@@ -178,10 +178,10 @@ public class DijkstraBidirectionRef extends AbstractBidirAlgo {
             if (ee == null) {
                 ee = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
 
-                // MARQ24 MOD START
+                // ORS-GH MOD START
                 // Modification by Maxim Rylov: Assign the original edge id.
                 ee.originalEdge = iter.getOriginalEdge();
-                // MARQ24 MOD END
+                // ORS-GH MOD END
 
                 ee.parent = currEdge;
                 bestWeightMap.put(traversalId, ee);
