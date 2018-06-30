@@ -27,7 +27,8 @@ import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import heigit.ors.routing.RoutingProfile;
 import heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
@@ -36,7 +37,6 @@ import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -48,7 +48,10 @@ public class ORSOSMReader extends OSMReader {
 	private HashMap<Integer, Long> tmcEdges;
 	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds;
 	private RoutingProfile refProfile;
-	private boolean enrichInstructions;
+
+	// MARQ24: REMOVED SINCE code that handles 'enrichInstructions = true' is already inactive!
+	//private boolean enrichInstructions;
+
 	private OSMDataReaderContext _readerCntx;
 	private GeometryFactory gf = new GeometryFactory();
 
@@ -57,7 +60,19 @@ public class ORSOSMReader extends OSMReader {
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
 			"primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential" };
 
-
+	// MARQ24: REMOVED SINCE code that handles 'enrichInstructions = true' is already inactive!
+	/*private boolean doEnrichInstructions(GraphHopperStorage storage){
+		EncodingManager encMan = storage.getEncodingManager();
+		return 	encMan.supports("foot")
+				|| encMan.supports("hike")
+				|| encMan.supports("bike")
+				|| encMan.supports("bike-ors")
+				|| encMan.supports("mtb")
+				|| encMan.supports("mtb-ors")
+				|| encMan.supports("RACINGBIKE")
+				|| encMan.supports("roadbike-ors")
+				|| encMan.supports("SAFETYBIKE");
+	}*/
 
 	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx, HashMap<Integer, Long> tmcEdges,  HashMap<Long, ArrayList<Integer>> osmId2EdgeIds, RoutingProfile refProfile) {
 		super(storage);
@@ -69,11 +84,8 @@ public class ORSOSMReader extends OSMReader {
 		this.osmId2EdgeIds = osmId2EdgeIds;
 		this.refProfile = refProfile;
 
-		enrichInstructions = (refProfile != null) && (storage.getEncodingManager().supports("foot")
-				|| storage.getEncodingManager().supports("bike")  
-				|| storage.getEncodingManager().supports("MTB")
-				|| storage.getEncodingManager().supports("RACINGBIKE")
-				|| storage.getEncodingManager().supports("SAFETYBIKE"));
+		// MARQ24: REMOVED SINCE code that handles 'enrichInstructions = true' is already inactive!
+		//enrichInstructions = (refProfile != null) && doEnrichInstructions(storage);
 
 		// Look if we should do border processing - if so then we have to process the geometry
 		for(GraphStorageBuilder b : this._procCntx.getStorageBuilders()) {
@@ -219,8 +231,9 @@ public class ORSOSMReader extends OSMReader {
 	@Override
 	protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge) {
 
-		if (enrichInstructions && Helper.isEmpty(way.getTag("name")) && Helper.isEmpty(way.getTag("ref"))) {
-			try {
+		// MARQ24: REMOVED SINCE code that handles 'enrichInstructions = true' is already inactive!
+		// by MARQ24 if (enrichInstructions && Helper.isEmpty(way.getTag("name")) && Helper.isEmpty(way.getTag("ref"))) {
+		// by MARQ24	try {
 				/*	if (way.getId() != prevMatchedWayId)
 				{
 					prevMatchedWayId = way.getId();
@@ -241,10 +254,10 @@ public class ORSOSMReader extends OSMReader {
 					edge.setName(matchedEdgeName);
 				}*/
 
-			} 
-			catch (Exception ex) {
-			}
-		}
+		// by MARQ24	}
+		// by MARQ24	catch (Exception ex) {
+		// by MARQ24	}
+		// by MARQ24}
 
 		try {
 			if ((tmcEdges != null) && (osmId2EdgeIds!=null)) {
