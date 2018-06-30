@@ -15,11 +15,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencodersnextgen;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.nextgen;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.util.PMap;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
 import java.util.TreeMap;
 
@@ -34,14 +35,20 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  */
 public class NextGenRoadBikeFlagEncoder extends NextGenBikeCommonFlagEncoder {
     public NextGenRoadBikeFlagEncoder() {
-        this(4, 2, 0);
+        // MARQ24 MOD START
+        //this(4, 2, 0);
+        this(6, 2, 0, false);
+        // MARQ24 MOD END
     }
 
     public NextGenRoadBikeFlagEncoder(PMap properties) {
         this(
-            (int) properties.getLong("speed_bits", 4),
+            (int) properties.getLong("speed_bits", 6),
             properties.getDouble("speed_factor", 2),
             properties.getBool("turn_costs", false) ? 1 : 0
+            // MARQ24 MOD START
+            ,properties.getBool("consider_elevation", false)
+            // MARQ24 MOD END
         );
         this.properties = properties;
         setBlockFords(properties.getBool("block_fords", true));
@@ -51,8 +58,12 @@ public class NextGenRoadBikeFlagEncoder extends NextGenBikeCommonFlagEncoder {
         this(new PMap(propertiesStr));
     }
 
-    public NextGenRoadBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
-        super(speedBits, speedFactor, maxTurnCosts);
+    // MARQ24 MOD START
+    //public NextGenRoadBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
+    public NextGenRoadBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
+        //super(speedBits, speedFactor, maxTurnCosts);
+        super(speedBits, speedFactor, maxTurnCosts, considerElevation);
+    // MARQ24 MOD END
         preferHighwayTags.add("road");
         preferHighwayTags.add("secondary");
         preferHighwayTags.add("secondary_link");
@@ -128,8 +139,10 @@ public class NextGenRoadBikeFlagEncoder extends NextGenBikeCommonFlagEncoder {
         setAvoidSpeedLimit(81);
         setSpecificClassBicycle("roadcycling");
 
+        // MARQ24 MOD START
         //**********************************************************************
-        // REQUIRED ADDON OR OVERWRITE OF Default GH-RoadBikeProfile!!!
+        // REQUIRED ADDON OR OVERWRITE OF Default GH-RoadBikeProfile
+        // created by MARQ24
         //**********************************************************************
         preferHighwayTags.remove("residential");
         preferHighwayTags.add("unclassified");
@@ -146,39 +159,38 @@ public class NextGenRoadBikeFlagEncoder extends NextGenBikeCommonFlagEncoder {
         setHighwaySpeed("tertiary_link",   26);
         setHighwaySpeed("road",            20);
         setHighwaySpeed("unclassified",    20);
-        setHighwaySpeed("residential",      new SpeedValue(18, UpdateType.DOWN_ONLY));
+        setHighwaySpeed("residential",      new SpeedValue(18, UpdateType.DOWNGRADE_ONLY));
 
         // make sure that we will avoid 'cycleway' & 'service' ways where ever
         // it is possible...
-        setHighwaySpeed("cycleway",                new SpeedValue(8, UpdateType.DOWN_ONLY));
-        setHighwaySpeed("service",                 new SpeedValue(8, UpdateType.DOWN_ONLY));
+        setHighwaySpeed("cycleway",                new SpeedValue(8, UpdateType.DOWNGRADE_ONLY));
+        setHighwaySpeed("service",                 new SpeedValue(8, UpdateType.DOWNGRADE_ONLY));
 
         // overwriting also the SurfaceSpeeds... to the "max" of the residential speed
-        setSurfaceSpeed("paved",                    new SpeedValue(18, UpdateType.UP_ONLY));
-        setSurfaceSpeed("asphalt",                  new SpeedValue(18, UpdateType.UP_ONLY));
-        setSurfaceSpeed("concrete",                 new SpeedValue(18, UpdateType.UP_ONLY));
+        setSurfaceSpeed("paved",                    new SpeedValue(18, UpdateType.UPGRADE_ONLY));
+        setSurfaceSpeed("asphalt",                  new SpeedValue(18, UpdateType.UPGRADE_ONLY));
+        setSurfaceSpeed("concrete",                 new SpeedValue(18, UpdateType.UPGRADE_ONLY));
 
-        setSurfaceSpeed("concrete:lanes",           new SpeedValue(16, UpdateType.UP_ONLY));
-        setSurfaceSpeed("concrete:plates",          new SpeedValue(16, UpdateType.UP_ONLY));
-        setSurfaceSpeed("paving_stones",            new SpeedValue(10, UpdateType.UP_ONLY));
-        setSurfaceSpeed("paving_stones:30",         new SpeedValue(10, UpdateType.UP_ONLY));
-        setSurfaceSpeed("cobblestone",              new SpeedValue(10, UpdateType.UP_ONLY));
-        setSurfaceSpeed("cobblestone:flattened",    new SpeedValue(10, UpdateType.UP_ONLY));
-        setSurfaceSpeed("sett",                     new SpeedValue(10, UpdateType.UP_ONLY));
+        setSurfaceSpeed("concrete:lanes",           new SpeedValue(16, UpdateType.UPGRADE_ONLY));
+        setSurfaceSpeed("concrete:plates",          new SpeedValue(16, UpdateType.UPGRADE_ONLY));
+        setSurfaceSpeed("paving_stones",            new SpeedValue(10, UpdateType.UPGRADE_ONLY));
+        setSurfaceSpeed("paving_stones:30",         new SpeedValue(10, UpdateType.UPGRADE_ONLY));
+        setSurfaceSpeed("cobblestone",              new SpeedValue(10, UpdateType.UPGRADE_ONLY));
+        setSurfaceSpeed("cobblestone:flattened",    new SpeedValue(10, UpdateType.UPGRADE_ONLY));
+        setSurfaceSpeed("sett",                     new SpeedValue(10, UpdateType.UPGRADE_ONLY));
 
         // overwriting also the trackTypeSpeeds... to the "max" of the residential speed
-        setTrackTypeSpeed("grade1",                new SpeedValue(18, UpdateType.UP_ONLY));
-        setTrackTypeSpeed("grade2",                new SpeedValue(10, UpdateType.UP_ONLY));
+        setTrackTypeSpeed("grade1",                new SpeedValue(18, UpdateType.UPGRADE_ONLY));
+        setTrackTypeSpeed("grade2",                new SpeedValue(10, UpdateType.UPGRADE_ONLY));
 
         // HSW - asphalt cycleway vs asphalt roundabout
         // http://localhost:3035/directions?n1=51.965101&n2=8.24595&n3=18&a=51.965555,8.243968,51.964878,8.245057&b=1c&c=0&g1=-1&g2=0&h2=3&k1=en-US&k2=km
 
         // Aschloh roundabout vs cycleway (cycle relation) & service shortcut
         // http://localhost:3035/directions?n1=52.064701&n2=8.386386&n3=19&a=52.065407,8.386171,52.064821,8.386833&b=1c&c=0&g1=-1&g2=0&h2=3&k1=en-US&k2=km
-
-        // ADDON-END
-        this.init();
         LOGGER.info("NextGen RoadBike FlagEncoder is active...");
+        // MARQ24 MOD END
+        this.init();
     }
 
     @Override
@@ -221,6 +233,16 @@ public class NextGenRoadBikeFlagEncoder extends NextGenBikeCommonFlagEncoder {
 
     @Override
     public String toString() {
-        return "roadbike-ng";
+        // MARQ24 MOD START
+        //return "racebike";
+        return FlagEncoderNames.ROADBIKE_ORS;
+        // MARQ24 MOD END
     }
+
+    // MARQ24 MOD START
+    @Override
+    protected double getDownhillMaxSpeed() {
+        return 60;
+    }
+    // MARQ24 MOD END
 }

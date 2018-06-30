@@ -26,7 +26,8 @@ import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
-import heigit.ors.routing.graphhopper.extensions.flagencodersexghoverwrite.ORSCarFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.CarFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.exghoverwrite.ExGhORSCarFlagEncoder;
 import heigit.ors.routing.traffic.AvoidEdgeInfo;
 import heigit.ors.routing.traffic.TmcEventCodesTable;
 import heigit.ors.routing.traffic.TmcMode;
@@ -93,7 +94,7 @@ public class TrafficAvoidWeighting extends AbstractWeighting {
 				int code = codes[i];
 				tec = TmcEventCodesTable.getEventInfo(code);
 				
-				if ((tec.getTmcMode() == TmcMode.HEAVY_VEHICLE) && (flagEncoder instanceof ORSCarFlagEncoder))
+				if ((tec.getTmcMode() == TmcMode.HEAVY_VEHICLE) && isCarFlagEncoder(flagEncoder))
 					continue; 				
 				
 				if (tec!=null) {
@@ -142,6 +143,10 @@ public class TrafficAvoidWeighting extends AbstractWeighting {
 		return weight; 
 		
     }
+
+    private boolean isCarFlagEncoder(FlagEncoder encoder){
+		return encoder instanceof ExGhORSCarFlagEncoder || encoder instanceof CarFlagEncoder;
+	}
     
     private double calcTravelTimeInSec (double distance, double speed) {
     	return distance *3600 / (1000 * speed);

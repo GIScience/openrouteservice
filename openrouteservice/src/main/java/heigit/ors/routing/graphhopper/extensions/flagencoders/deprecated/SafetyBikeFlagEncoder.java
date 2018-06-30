@@ -18,19 +18,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencoders;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
-import heigit.ors.routing.graphhopper.extensions.flagencodersexghoverwrite.ORSBikeCommonFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.exghoverwrite.ExGhORSBikeCommonFlagEncoder;
 
 import java.util.TreeMap;
 
 import static com.graphhopper.routing.util.PriorityCode.*;
 
-public class SafetyBikeFlagEncoder extends ORSBikeCommonFlagEncoder {
+public class SafetyBikeFlagEncoder extends ExGhORSBikeCommonFlagEncoder {
 	public SafetyBikeFlagEncoder()
     {
         this(4, 2, 0, false);
@@ -162,6 +163,6 @@ public class SafetyBikeFlagEncoder extends ORSBikeCommonFlagEncoder {
 
 	@Override
 	public String toString() {
-		return "safetybike";
+		return FlagEncoderNames.BIKE_SAFTY;
 	}
 }

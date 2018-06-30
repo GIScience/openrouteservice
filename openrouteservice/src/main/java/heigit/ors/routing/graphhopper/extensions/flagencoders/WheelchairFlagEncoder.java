@@ -20,21 +20,6 @@
  */
 package heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-import static com.graphhopper.routing.util.PriorityCode.AVOID_AT_ALL_COSTS;
-import static com.graphhopper.routing.util.PriorityCode.AVOID_IF_POSSIBLE;
-import static com.graphhopper.routing.util.PriorityCode.BEST;
-import static com.graphhopper.routing.util.PriorityCode.PREFER;
-import static com.graphhopper.routing.util.PriorityCode.REACH_DEST;
-import static com.graphhopper.routing.util.PriorityCode.UNCHANGED;
-import static com.graphhopper.routing.util.PriorityCode.VERY_NICE;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
@@ -45,6 +30,10 @@ import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
+
+import java.util.*;
+
+import static com.graphhopper.routing.util.PriorityCode.*;
 
 public class WheelchairFlagEncoder extends AbstractFlagEncoder 
 {
@@ -866,7 +855,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
     @Override
     public String toString()
     {
-        return "wheelchair";
+        return FlagEncoderNames.WHEELCHAIR;
     }
 
 	@Override

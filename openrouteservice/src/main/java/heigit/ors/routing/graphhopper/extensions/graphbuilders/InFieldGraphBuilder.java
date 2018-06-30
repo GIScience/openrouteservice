@@ -39,7 +39,7 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.*;
 import heigit.ors.routing.graphhopper.extensions.DataReaderContext;
-import heigit.ors.routing.graphhopper.extensions.flagencodersexghoverwrite.ORSFootFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.exghoverwrite.ExGhORSFootFlagEncoder;
 
 import java.util.*;
 
@@ -53,7 +53,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 	private Coordinate[] _coordinates;
 	private Set<ArrayList<Integer>> _edges = new HashSet<ArrayList<Integer>>();
 	private ArrayList<Integer> tmpEdge = new ArrayList<Integer>();   
-	private ORSFootFlagEncoder footEncoder;
+	private ExGhORSFootFlagEncoder footEncoder;
 	private List<Weighting> weightings;
 	private EncodingManager encodingManager;
 
@@ -61,7 +61,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 	public void init(GraphHopper graphhopper) throws Exception {
 		// create local network taken from        
 		// https://github.com/graphhopper/graphhopper/blob/0.5/core/src/test/java/com/graphhopper/GraphHopperTest.java#L746
-		footEncoder = new ORSFootFlagEncoder();
+		footEncoder = new ExGhORSFootFlagEncoder();
 		encodingManager = new EncodingManager(footEncoder);  
 		weightings = new ArrayList<Weighting>(1);
 		weightings.add(new FastestWeighting(footEncoder));

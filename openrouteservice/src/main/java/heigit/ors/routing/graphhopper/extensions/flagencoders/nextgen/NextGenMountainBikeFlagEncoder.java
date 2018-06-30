@@ -15,11 +15,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencodersexghoverwrite;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.nextgen;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.PMap;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
 import java.util.TreeMap;
 
@@ -32,25 +33,37 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  * @author ratrun
  * @author Peter Karich
  */
-public class ORSMountainBikeFlagEncoder extends ORSBikeCommonFlagEncoder {
-    public ORSMountainBikeFlagEncoder() {
-        this(4, 2, 0, false);
+public class NextGenMountainBikeFlagEncoder extends NextGenBikeCommonFlagEncoder {
+    public NextGenMountainBikeFlagEncoder() {
+        // MARQ24 MOD START
+        //this(4, 2, 0);
+        this(6, 2, 0, false);
+        // MARQ24 MOD END
     }
 
-    public ORSMountainBikeFlagEncoder(PMap properties) {
-        this(properties.getInt("speed_bits", 4) + (properties.getBool("consider_elevation", false) ? 1 : 0),
-                properties.getDouble("speed_factor", 2), properties.getBool("turn_costs", false) ? 1 : 0,
-                properties.getBool("consider_elevation", false));
+    public NextGenMountainBikeFlagEncoder(PMap properties) {
+        this(
+                (int) properties.getLong("speed_bits", 6),
+                properties.getDouble("speed_factor", 2),
+                properties.getBool("turn_costs", false) ? 1 : 0
+                // MARQ24 MOD START
+                ,properties.getBool("consider_elevation", false)
+                // MARQ24 MOD END
+        );
         this.properties = properties;
         this.setBlockFords(properties.getBool("block_fords", true));
     }
 
-    public ORSMountainBikeFlagEncoder(String propertiesStr) {
+    public NextGenMountainBikeFlagEncoder(String propertiesStr) {
         this(new PMap(propertiesStr));
     }
 
-    public ORSMountainBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
+    // MARQ24 MOD START
+    //public NextGenMountainBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
+    public NextGenMountainBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
+        //super(speedBits, speedFactor, maxTurnCosts);
         super(speedBits, speedFactor, maxTurnCosts, considerElevation);
+    // MARQ24 MOD END
         setTrackTypeSpeed("grade1", 18); // paved
         setTrackTypeSpeed("grade2", 16); // now unpaved ...
         setTrackTypeSpeed("grade3", 12);
@@ -142,7 +155,7 @@ public class ORSMountainBikeFlagEncoder extends ORSBikeCommonFlagEncoder {
     }
 
     @Override
-    protected void collect(ReaderWay way, double wayTypeSpeed, TreeMap<Double, Integer> weightToPrioMap) {
+    void collect(ReaderWay way, double wayTypeSpeed, TreeMap<Double, Integer> weightToPrioMap) {
         super.collect(way, wayTypeSpeed, weightToPrioMap);
 
         String highway = way.getTag("highway");
@@ -178,12 +191,17 @@ public class ORSMountainBikeFlagEncoder extends ORSBikeCommonFlagEncoder {
     }
 
     @Override
+    public String toString() {
+        // MARQ24 MOD START
+        //return "mtb";
+        return FlagEncoderNames.MTB_ORS;
+        // MARQ24 MOD END
+    }
+
+    // MARQ24 MOD START
+    @Override
     protected double getDownhillMaxSpeed() {
         return 60;
     }
-
-    @Override
-    public String toString() {
-        return "mtb";
-    }
+    // MARQ24 MOD END
 }

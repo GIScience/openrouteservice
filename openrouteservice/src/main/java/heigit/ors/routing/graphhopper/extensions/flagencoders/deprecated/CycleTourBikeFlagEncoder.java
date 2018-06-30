@@ -18,21 +18,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencoders;
-
-import static com.graphhopper.routing.util.PriorityCode.AVOID_AT_ALL_COSTS;
-import static com.graphhopper.routing.util.PriorityCode.AVOID_IF_POSSIBLE;
-import static com.graphhopper.routing.util.PriorityCode.PREFER;
-import static com.graphhopper.routing.util.PriorityCode.REACH_DEST;
-import static com.graphhopper.routing.util.PriorityCode.UNCHANGED;
-import static com.graphhopper.routing.util.PriorityCode.VERY_NICE;
-import static com.graphhopper.routing.util.PriorityCode.BEST;
-
-import java.util.TreeMap;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+
+import java.util.TreeMap;
+
+import static com.graphhopper.routing.util.PriorityCode.*;
 
 public class CycleTourBikeFlagEncoder extends BikeCommonFlagEncoder {
 	public CycleTourBikeFlagEncoder() {
@@ -186,6 +181,6 @@ public class CycleTourBikeFlagEncoder extends BikeCommonFlagEncoder {
 
 	@Override
 	public String toString() {
-		return "cycletourbike";
+		return FlagEncoderNames.BIKE_TOUR;
 	}
 }

@@ -179,8 +179,10 @@ public class RoutingProfileManager {
                 // MARQ24 MOD START
                 // RAMDataAccess.LZ4_COMPRESSION_ENABLED = "LZ4".equalsIgnoreCase(RoutingServiceSettings.getStorageFormat());
                 // the ExGHOverwrite-FlagEncoder package contains the previously overwritten flagencoders of graphhopper
-                // in the ors fork... 
-                heigit.ors.routing.graphhopper.extensions.flagencodersexghoverwrite.ORSBikeCommonFlagEncoder.SKIP_WAY_TYPE_INFO = true;
+                // in the ors fork...
+                // MARQ24 removed 'ExGhORSBikeCommonFlagEncoder.SKIP_WAY_TYPE_INFO' because we will use the NextGen
+                // BikeFlagEncoders from now on...
+                // ExGhORSBikeCommonFlagEncoder.SKIP_WAY_TYPE_INFO = true;
                 // MARQ24 MOD END
 
                 if ("preparation".equalsIgnoreCase(RoutingServiceSettings.getWorkingMode())) {

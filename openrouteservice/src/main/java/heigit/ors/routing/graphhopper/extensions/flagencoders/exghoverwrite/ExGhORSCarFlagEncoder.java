@@ -15,7 +15,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencodersexghoverwrite;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.exghoverwrite;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
@@ -33,7 +33,7 @@ import java.util.*;
  * @author Peter Karich
  * @author Nop
  */
-public class ORSCarFlagEncoder extends AbstractFlagEncoder {
+public class ExGhORSCarFlagEncoder extends AbstractFlagEncoder {
     protected final Map<String, Integer> trackTypeSpeedMap = new HashMap<String, Integer>();
     protected final Set<String> badSurfaceSpeedMap = new HashSet<String>();
 
@@ -53,11 +53,11 @@ public class ORSCarFlagEncoder extends AbstractFlagEncoder {
     protected int maxTrackGradeLevel = 3;
     // MARQ24 MOD END
 
-    public ORSCarFlagEncoder() {
+    public ExGhORSCarFlagEncoder() {
         this(5, 5, 0);
     }
 
-    public ORSCarFlagEncoder(PMap properties) {
+    public ExGhORSCarFlagEncoder(PMap properties) {
         this((int) properties.getLong("speed_bits", 5),
                 properties.getDouble("speed_factor", 5),
                 properties.getBool("turn_costs", false) ? 1 : 0);
@@ -70,11 +70,11 @@ public class ORSCarFlagEncoder extends AbstractFlagEncoder {
         // MARQ24 MOD END
     }
 
-    public ORSCarFlagEncoder(String propertiesStr) {
+    public ExGhORSCarFlagEncoder(String propertiesStr) {
         this(new PMap(propertiesStr));
     }
 
-    public ORSCarFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
+    public ExGhORSCarFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
         super(speedBits, speedFactor, maxTurnCosts);
         restrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access"));
         restrictedValues.add("private");

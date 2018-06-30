@@ -15,12 +15,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencoders;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.util.PMap;
-import heigit.ors.routing.graphhopper.extensions.flagencodersexghoverwrite.ORSFootFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.exghoverwrite.ExGhORSFootFlagEncoder;
+import org.apache.log4j.Logger;
 
 import java.util.TreeMap;
 
@@ -31,7 +33,7 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  *
  * @author Peter Karich
  */
-public class HikingFlagEncoder extends ORSFootFlagEncoder
+public class HikingFlagEncoder extends ExGhORSFootFlagEncoder
 {
     /**
      * Should be only instantiated via EncodingManager
@@ -46,6 +48,9 @@ public class HikingFlagEncoder extends ORSFootFlagEncoder
         this((int) properties.getLong("speed_bits", 4),
                 properties.getDouble("speed_factor", 1));
         this.properties = properties;
+
+        // MARQ24 why the heck we ste "block_fords" as default for HIKING?!
+        // for regular foot that would had been fine - but for hiking?!
         this.setBlockFords(properties.getBool("block_fords", true));
     }
 
@@ -62,6 +67,9 @@ public class HikingFlagEncoder extends ORSFootFlagEncoder
         hikingNetworkToCode.put("nwn", BEST.getValue());
         hikingNetworkToCode.put("rwn", VERY_NICE.getValue());
         hikingNetworkToCode.put("lwn", VERY_NICE.getValue());
+
+        // MARQ24 - the call of the method init() is missing!! ?!
+        Logger.getLogger(HikingFlagEncoder.class.getName()).warn("ORS \"HIKING\" FlagEncoder should not be used anylonger - please use \"HIKE\" instead");
     }
 
     @Override
@@ -161,6 +169,6 @@ public class HikingFlagEncoder extends ORSFootFlagEncoder
     @Override
     public String toString()
     {
-        return "hiking";
+        return FlagEncoderNames.HIKING;
     }
 }
