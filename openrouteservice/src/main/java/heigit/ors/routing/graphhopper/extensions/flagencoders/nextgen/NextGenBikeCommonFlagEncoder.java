@@ -19,14 +19,9 @@ package heigit.ors.routing.graphhopper.extensions.flagencoders.nextgen;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.AbstractFlagEncoder;
-import com.graphhopper.routing.util.EncodedDoubleValue;
-import com.graphhopper.routing.util.EncodedValue;
-import com.graphhopper.routing.util.PriorityCode;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.PriorityWeighting;
-import com.graphhopper.util.Helper;
-import com.graphhopper.util.InstructionAnnotation;
-import com.graphhopper.util.Translation;
+import com.graphhopper.util.*;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -143,8 +138,8 @@ abstract public class NextGenBikeCommonFlagEncoder extends AbstractFlagEncoder {
         maxPossibleSpeed = 30;
 
         // MARQ24 MOD START
-        //setConsiderElevation(considerElevation);
-        setConsiderElevation(false);
+        setConsiderElevation(considerElevation);
+        //setConsiderElevation(false);
         if (considerElevation) {
             maxPossibleSpeed = (int) getDownhillMaxSpeed();
         }
@@ -835,6 +830,11 @@ abstract public class NextGenBikeCommonFlagEncoder extends AbstractFlagEncoder {
 
     protected long handleSpeed(ReaderWay way, double speed, long encoded) {
         encoded = setSpeed(encoded, speed);
+        //MARQ24 MOD START
+        if (isConsiderElevation()) {
+            encoded = setReverseSpeed(encoded, speed);
+        }
+        //MARQ24 MOD END
 
         // handle oneways
         boolean isOneway = way.hasTag("oneway", oneways)
@@ -952,6 +952,262 @@ abstract public class NextGenBikeCommonFlagEncoder extends AbstractFlagEncoder {
             this.type = type;
         }
     }
+
+    // MARQ24 MOD START [SHOULD BE REVIEWED!!!]
+    private List<RouteSplit> splits = new ArrayList<RouteSplit>();
+    private int prevEdgeId = Integer.MAX_VALUE;
+    private DistanceCalc distCalc = new DistanceCalc3D();
+
+    @Override
+    public void applyWayTags(ReaderWay way, EdgeIteratorState edge) {
+
+        // Modification by Maxim Rylov
+        if (isConsiderElevation()) {
+            PointList pl = edge.fetchWayGeometry(3);
+            if (!pl.is3D()) {
+                throw new IllegalStateException("To support speed calculation based on elevation data it is necessary to enable import of it.");
+            }
+
+            long flags = edge.getFlags();
+
+            if (way.hasTag("tunnel", "yes") || way.hasTag("bridge", "yes") || way.hasTag("highway", "steps")) {
+                // do not change speed
+                // note: although tunnel can have a difference in elevation it is very unlikely that the elevation data is correct for a tunnel
+            } else {
+                double fullDist2D = edge.getDistance();
+
+                if (Double.isInfinite(fullDist2D)) {
+                    System.err.println("infinity distance? for way:" + way.getId());
+                    return;
+                }
+
+                // for short edges an incline makes no sense and for 0 distances could lead to NaN values for speed, see #432
+                if (fullDist2D < 1)
+                    return;
+
+                double wayMaxSpeed = getMaxSpeed(way);
+                double maxSpeed = getDownhillMaxSpeed(); // getHighwaySpeed("cycleway");
+                if (wayMaxSpeed != -1) {
+                    maxSpeed = Math.min(maxSpeed, wayMaxSpeed);
+                }
+
+                // Formulas for the following calculations is taken from http://www.flacyclist.com/content/perf/science.html
+                double gradient = 0.0;
+
+                if (prevEdgeId != edge.getOriginalEdge()) {
+                    String incline = way.getTag("incline");
+                    if (!Helper.isEmpty(incline)) {
+                        incline = incline.replace("%", "").replace(",", ".");
+                        try {
+                            double v = Double.parseDouble(incline);
+                            splits.clear();
+                            RouteSplit split = new RouteSplit();
+                            split.Length = fullDist2D;
+                            split.Gradient = v;
+                        } catch (Exception ex) {
+                            SteepnessUtil.computeRouteSplits(pl, false, distCalc, splits);
+                        }
+                    } else
+                        SteepnessUtil.computeRouteSplits(pl, false, distCalc, splits);
+
+                    prevEdgeId = edge.getOriginalEdge();
+                }
+
+                double speed = 0;
+                double speedReverse = 0;
+
+                if (isForward(flags)) {
+                    speed = getSpeed(flags);
+                }
+
+                if (isBackward(flags)) {
+                    speedReverse = getReverseSpeed(flags);
+                }
+
+                if (splits.size() == 1) {
+                    RouteSplit split = splits.get(0);
+                    gradient = split.Gradient;
+
+                    if (split.Length < 60) {
+                        if (Math.abs(gradient) > 6) {
+                            if (Math.abs(gradient) < 9)
+                                gradient /= 2.0;
+                            else
+                                gradient /= 4.0;
+                        }
+                    }
+
+                    if (Math.abs(gradient) > 1.5) {
+                        if (speed != 0) {
+                            speed = getGradientSpeed(speed, (int) Math.round(gradient));
+                        }
+
+                        if (speedReverse != 0) {
+                            speedReverse = getGradientSpeed(speedReverse, (int) Math.round(-gradient));
+                        }
+                    }
+                } else {
+                    double distUphill = 0.0;
+                    double distDownhill = 0.0;
+                    double distUphillR = 0.0;
+                    double distDownhillR = 0.0;
+                    double distTotalEqFlat = 0.0;
+                    double length = 0.0;
+
+                    for (RouteSplit split : splits) {
+                        gradient = split.Gradient;
+                        length = split.Length;
+
+                        if (Math.abs(gradient) < 1.5) {
+
+                        } else {
+                            if (speed != 0) {
+                                double Vc = getGradientSpeed(speed, (int) Math.round(gradient));
+
+                                if (gradient > 0) {
+                                    distUphill += (speed / Vc - 1) * length;
+                                }else {
+                                    distDownhill += (speed / Vc - 1) * length;
+                                }
+                            }
+
+                            if (speedReverse != 0) {
+                                gradient = -gradient;
+                                double Vc = getGradientSpeed(speedReverse, (int) Math.round(gradient));
+
+                                if (gradient > 0) {
+                                    distUphillR += (speedReverse / Vc - 1) * length;
+                                }else {
+                                    distDownhillR += (speedReverse / Vc - 1) * length;
+                                }
+                            }
+                        }
+                    }
+
+                    if (speed != 0) {
+                        distTotalEqFlat = fullDist2D + distUphill + distDownhill;
+                        speed *= fullDist2D / distTotalEqFlat;
+                    }
+
+                    if (speedReverse != 0) {
+                        distTotalEqFlat = fullDist2D + distUphillR + distDownhillR;
+                        speedReverse *= fullDist2D / distTotalEqFlat;
+                    }
+                }
+
+                flags = this.setSpeed(flags, Helper.keepIn(speed, PUSHING_SECTION_SPEED / 2, maxSpeed));
+                flags = this.setReverseSpeed(flags, Helper.keepIn(speedReverse, PUSHING_SECTION_SPEED / 2, maxSpeed));
+            }
+            edge.setFlags(flags);
+        }
+    }
+
+    protected double getGradientSpeed(double speed, int gradient) {
+        if (gradient < -18) {
+            if (speed > 10)
+                return getDownhillMaxSpeed();
+            else
+                return speed;
+        } else {
+            if (speed > 10)
+                return speed * getGradientSpeedFactor(gradient);
+            else {
+                double result = speed * getGradientSpeedFactor(gradient);
+
+                // forbid high downhill speeds on surfaces with low speeds
+                if (result > speed)
+                    return speed;
+                else
+                    return result;
+            }
+        }
+    }
+
+    private double getGradientSpeedFactor(int gradient) {
+        if (gradient < -18)
+            return 3.5;
+        else if (gradient > 17)
+            return 0.1;
+        else {
+            switch (gradient) {
+                case -18:
+                    return 3.332978723;
+                case -17:
+                    return 3.241489362;
+                case -16:
+                    return 3.14751773;
+                case -15:
+                    return 3.05070922;
+                case -14:
+                    return 2.95106383;
+                case -13:
+                    return 2.84822695;
+                case -12:
+                    return 2.741843972;
+                case -11:
+                    return 2.631560284;
+                case -10:
+                    return 2.517021277;
+                case -9:
+                    return 2.39787234;
+                case -8:
+                    return 2.273049645;
+                case -7:
+                    return 2.142553191;
+                case -6:
+                    return 2.004964539;
+                case -5:
+                    return 1.859574468;
+                case -4:
+                    return 1.705673759;
+                case -3:
+                    return 1.542198582;
+                case -2:
+                    return 1.368439716;
+                case -1:
+                    return 1.186524823;
+                case 0:
+                    return 1;
+                case 1:
+                    return 0.820567376;
+                case 2:
+                    return 0.663120567;
+                case 3:
+                    return 0.537234043;
+                case 4:
+                    return 0.442553191;
+                case 5:
+                    return 0.372695035;
+                case 6:
+                    return 0.319858156;
+                case 7:
+                    return 0.279787234;
+                case 8:
+                    return 0.24822695;
+                case 9:
+                    return 0.222695035;
+                case 10:
+                    return 0.20177305;
+                case 11:
+                    return 0.184751773;
+                case 12:
+                    return 0.170212766;
+                case 13:
+                    return 0.157446809;
+                case 14:
+                    return 0.146808511;
+                case 15:
+                    return 0.137234043;
+                case 16:
+                    return 0.129078014;
+                case 17:
+                    return 0.121631206;
+            }
+        }
+
+        return 1;
+    }
+    // MARQ24 MOD END
 
     // MARQ24 MOD START
     protected abstract double getDownhillMaxSpeed();
