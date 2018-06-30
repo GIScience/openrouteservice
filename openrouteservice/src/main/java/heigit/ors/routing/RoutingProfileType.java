@@ -305,6 +305,12 @@ public class RoutingProfileType {
                 return FlagEncoderNames.WHEELCHAIR;
 
 
+            case RoutingProfileType.GH_CAR:
+                return FlagEncoderNames.GH_CAR;
+
+            case RoutingProfileType.GH_CAR4WD:
+                return FlagEncoderNames.GH_CAR4WD;
+
             case RoutingProfileType.GH_BIKE:
                 return FlagEncoderNames.GH_BIKE;
 
@@ -323,11 +329,6 @@ public class RoutingProfileType {
             case RoutingProfileType.GH_HIKE:
                 return FlagEncoderNames.GH_HIKE;
 
-            case RoutingProfileType.GH_CAR:
-                return FlagEncoderNames.GH_CAR;
-
-            case RoutingProfileType.GH_CAR4WD:
-                return FlagEncoderNames.GH_CAR4WD;
 
 
             case RoutingProfileType.FOOT_HIKING_DO_NOT_USE:
@@ -379,20 +380,6 @@ public class RoutingProfileType {
             case FlagEncoderNames.GH_MOTOCYCLE:
                 return RoutingProfileType.DRIVING_MOTORCYCLE;
 
-            /* default gh foot encoder */
-            case FlagEncoderNames.GH_FOOT:
-                return RoutingProfileType.FOOT_WALKING;
-
-            /* default gh foot encoder */
-            case FlagEncoderNames.GH_HIKE:
-                return RoutingProfileType.FOOT_HIKING;
-
-            /* not in use */
-            case FlagEncoderNames.RUNNING:
-                return RoutingProfileType.FOOT_JOGGING;
-
-            case FlagEncoderNames.WHEELCHAIR:
-                return RoutingProfileType.WHEELCHAIR;
 
             case FlagEncoderNames.BIKE_ORS:
             //case FlagEncoderNames.BIKE_ORS_OLD:
@@ -405,8 +392,43 @@ public class RoutingProfileType {
             case FlagEncoderNames.ROADBIKE_ORS:
                 return RoutingProfileType.CYCLING_ROAD;
 
+
+            /* not in use */
+            case FlagEncoderNames.RUNNING:
+                return RoutingProfileType.FOOT_JOGGING;
+
+
+            case FlagEncoderNames.WHEELCHAIR:
+                return RoutingProfileType.WHEELCHAIR;
+
+
+            case FlagEncoderNames.GH_CAR:
+                return RoutingProfileType.GH_CAR;
+
+            case FlagEncoderNames.GH_CAR4WD:
+                return RoutingProfileType.GH_CAR4WD;
+
+            case FlagEncoderNames.GH_BIKE:
+                return RoutingProfileType.GH_BIKE;
+
+            case FlagEncoderNames.GH_BIKE2:
+                return RoutingProfileType.GH_BIKE2;
+
+            case FlagEncoderNames.GH_MTB:
+                return RoutingProfileType.GH_BIKE_MTB;
+
             case FlagEncoderNames.GH_RACINGBIKE:
                 return RoutingProfileType.GH_BIKE_ROAD;
+
+            case FlagEncoderNames.GH_FOOT:
+                //return RoutingProfileType.GH_FOOT;
+                return RoutingProfileType.FOOT_WALKING;
+
+            case FlagEncoderNames.GH_HIKE:
+                //return RoutingProfileType.GH_HIKE;
+                return RoutingProfileType.FOOT_HIKING;
+
+
 
             /* depricated self implemented hiking */
             case FlagEncoderNames.WALKING:
