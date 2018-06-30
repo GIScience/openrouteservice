@@ -70,10 +70,13 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
             case FlagEncoderNames.HIKING:
                 return new heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.HikingFlagEncoder(configuration);
 
-            case FlagEncoderNames.BIKE_OLD:
+            case FlagEncoderNames.WALKING:
+                return new heigit.ors.routing.graphhopper.extensions.flagencoders.exghoverwrite.ExGhORSFootFlagEncoder(configuration);
+
+            case FlagEncoderNames.BIKE_ORS_OLD:
                 return new heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.BikeFlagEncoder(configuration);
 
-            case FlagEncoderNames.MTB_OLD:
+            case FlagEncoderNames.MTB_ORS_OLD:
                 // MARQ24: in previous ors this line of code was never used... MTB was set to "bike" - so when this method
                 // was called with the param name="mtb" the original DefaultFlagEncoderFactory was called!!!
                 // and the DefaultFlagEncoderFactory then returned the 'default' graphhopper MountainBikeFlagEncoder...

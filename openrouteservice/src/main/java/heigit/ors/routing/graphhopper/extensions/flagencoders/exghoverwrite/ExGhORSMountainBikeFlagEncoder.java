@@ -20,6 +20,7 @@ package heigit.ors.routing.graphhopper.extensions.flagencoders.exghoverwrite;
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.PMap;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
 import java.util.TreeMap;
 
@@ -184,6 +185,6 @@ public class ExGhORSMountainBikeFlagEncoder extends ExGhORSBikeCommonFlagEncoder
 
     @Override
     public String toString() {
-        return "mtb";
+        return FlagEncoderNames.MTB_ORS_OLD;
     }
 }

@@ -14,6 +14,8 @@ public interface FlagEncoderNames {
     // MARQ24 please note there is no "foot" profile present simply cause we will make
     // use of the default foot profile of GH
     @Deprecated // make use og original GH "hike" instead !!!
+    public static final String WALKING          = "walking";        // DEPRECATED - DO NOT USE
+    @Deprecated // make use og original GH "hike" instead !!!
     public static final String HIKING           = "hiking";         // DEPRECATED - DO NOT USE
     public static final String RUNNING          = "running";        // NOT IN USE!
 
@@ -32,9 +34,9 @@ public interface FlagEncoderNames {
     @Deprecated
     public static final String RACINGBIKE_ORS   = "racingbike-ors";
     @Deprecated
-    public static final String BIKE_OLD         = "bike";
+    public static final String BIKE_ORS_OLD     = "bike-oold";
     @Deprecated
-    public static final String MTB_OLD          = "mtb";
+    public static final String MTB_ORS_OLD      = "mtb-oold";
 
     // MARQ24 depricated bike profiles which we are not going to use anylonger (since we want to save
     // memory [in previous 0.9.x adjustments of the ors gh fork there was a cool feature where you could
