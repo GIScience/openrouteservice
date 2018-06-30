@@ -15,13 +15,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencoders;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.util.*;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.SpeedLimitHandler;
 
 import java.util.*;
 
@@ -65,7 +67,9 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 	private List<RouteSplit> splits = new ArrayList<RouteSplit>();
 	private int prevEdgeId = Integer.MAX_VALUE;
 	public static boolean SKIP_WAY_TYPE_INFO = false;
-	private CarFlagEncoder _carFlagEncoder = new CarFlagEncoder();
+
+	// MARQ24 REMOVED -> see comment near line 635
+	//private heigit.ors.routing.graphhopper.extensions.flagencoders.CarFlagEncoder _carFlagEncoder = new CarFlagEncoder();
 
 	protected BikeCommonFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
 		super(speedBits, speedFactor, maxTurnCosts);
@@ -628,6 +632,10 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 			// set higher priority if car speed is low
 			if (surface != null)
 			{
+				// MARQ24: WHY the heck a BikeFlagEncoder should use ANY SPEED from a CarFlagEncoder???
+				// this makes NO SENSE to me!
+				// SO I will comment this section out
+				/* REMOVED BY MARQ24 (2018.06.30)
 				double maxCarSpeed = _carFlagEncoder.getMaxSpeed(way);
 				if (maxCarSpeed <= 40)
 				{
@@ -637,7 +645,7 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 					{
 						value = UNCHANGED.getValue();
 					}
-				}
+				} REMOVE END*/
 			}
 
 			weightToPrioMap.put(50d, value);

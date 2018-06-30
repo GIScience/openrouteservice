@@ -3,13 +3,13 @@ package heigit.ors.routing.graphhopper.extensions.flagencoders;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
-import heigit.ors.routing.graphhopper.extensions.flagencodersexghoverwrite.ORSCarFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.exghoverwrite.ExGhORSCarFlagEncoder;
 
 /**
  * Defines bit layout for cars. (speed, access, ferries, ...)
  * <p>
  */
-public class CarTmcFlagEncoder extends ORSCarFlagEncoder {
+public class CarTmcFlagEncoder extends ExGhORSCarFlagEncoder {
 	
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
 			"primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential" };
@@ -58,6 +58,6 @@ public class CarTmcFlagEncoder extends ORSCarFlagEncoder {
 
 	@Override
 	public String toString() {
-		return "cartmc";
+		return FlagEncoderNames.CARTMC;
 	}
 }

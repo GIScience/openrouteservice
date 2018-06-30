@@ -20,16 +20,6 @@
  */
 package heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-import static com.graphhopper.routing.util.PriorityCode.BEST;
-import static com.graphhopper.routing.util.PriorityCode.UNCHANGED;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodedDoubleValue;
@@ -40,6 +30,9 @@ import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 
 import java.util.*;
+
+import static com.graphhopper.routing.util.PriorityCode.BEST;
+import static com.graphhopper.routing.util.PriorityCode.UNCHANGED;
 
 public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
 {
@@ -675,7 +668,7 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
     @Override
     public String toString()
     {
-        return "heavyvehicle";
+        return FlagEncoderNames.HEAVYVEHICLE;
     }
 
 	@Override

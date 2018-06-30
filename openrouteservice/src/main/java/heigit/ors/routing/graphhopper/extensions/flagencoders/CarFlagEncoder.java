@@ -24,7 +24,9 @@ import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import org.apache.log4j.Logger;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Defines bit layout for cars. (speed, access, ferries, ...)
@@ -506,6 +508,6 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
 
     @Override
     public String toString() {
-        return "car";
+        return FlagEncoderNames.CAR_ORS;
     }
 }

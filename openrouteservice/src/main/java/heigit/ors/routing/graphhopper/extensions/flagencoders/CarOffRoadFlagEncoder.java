@@ -19,14 +19,14 @@ package heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.PMap;
-import heigit.ors.routing.graphhopper.extensions.flagencodersexghoverwrite.ORSCarFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.exghoverwrite.ExGhORSCarFlagEncoder;
 
 /**
  * Defines bit layout for cars with four wheel drive
  *
  * @author zstadler
  */
-public class CarOffRoadFlagEncoder extends ORSCarFlagEncoder {
+public class CarOffRoadFlagEncoder extends ExGhORSCarFlagEncoder {
 	
 
     public CarOffRoadFlagEncoder() {
@@ -100,6 +100,6 @@ public class CarOffRoadFlagEncoder extends ORSCarFlagEncoder {
 
     @Override
     public String toString() {
-        return "caroffroad";
+        return FlagEncoderNames.CAROFFROAD;
     }
 }

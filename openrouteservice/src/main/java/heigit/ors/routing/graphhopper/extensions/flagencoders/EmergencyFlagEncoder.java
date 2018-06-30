@@ -20,13 +20,6 @@
  */
 package heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodedDoubleValue;
@@ -555,7 +548,7 @@ public class EmergencyFlagEncoder extends ORSAbstractFlagEncoder
     @Override
     public String toString()
     {
-        return "emergency";
+        return FlagEncoderNames.EMERGENCY;
     }
 
 	@Override

@@ -21,6 +21,7 @@
 package heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.FootFlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.*;
@@ -31,7 +32,7 @@ import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import heigit.ors.routing.ProfileWeighting;
-import heigit.ors.routing.graphhopper.extensions.flagencodersexghoverwrite.ORSFootFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.exghoverwrite.ExGhORSFootFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.weighting.*;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
 
@@ -99,7 +100,7 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 			result = new TrafficAvoidWeighting(result, encoder, m_trafficDataProvider.getAvoidEdges(graphStorage));
 		}
 
-		if (encoder.supports(TurnWeighting.class) && !(encoder instanceof ORSFootFlagEncoder) && graphStorage != null && !tMode.equals(TraversalMode.NODE_BASED)) {
+		if (encoder.supports(TurnWeighting.class) && !isFootBasedFlagEncoder(encoder) && graphStorage != null && !tMode.equals(TraversalMode.NODE_BASED)) {
 			Path path = Paths.get(graphStorage.getDirectory().getLocation(), "turn_costs");
 			File file = path.toFile();
 			if (file.exists()) {
@@ -165,6 +166,10 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 		}
 
 		return result;
+	}
+
+	private boolean isFootBasedFlagEncoder(FlagEncoder encoder){
+		return encoder instanceof ExGhORSFootFlagEncoder || encoder instanceof FootFlagEncoder;
 	}
 
 	private PMap getWeightingProps(String weightingName, Map<String, String> map)

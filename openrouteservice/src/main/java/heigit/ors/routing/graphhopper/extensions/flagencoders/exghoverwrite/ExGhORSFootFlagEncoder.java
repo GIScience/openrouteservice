@@ -15,7 +15,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencodersexghoverwrite;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.exghoverwrite;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
@@ -40,7 +40,7 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  * @author Nop
  * @author Karl Hübner
  */
-public class ORSFootFlagEncoder extends AbstractFlagEncoder {
+public class ExGhORSFootFlagEncoder extends AbstractFlagEncoder {
     static final int SLOW_SPEED = 2;
     static final int MEAN_SPEED = 5;
     static final int FERRY_SPEED = 15;
@@ -62,22 +62,22 @@ public class ORSFootFlagEncoder extends AbstractFlagEncoder {
     /**
      * Should be only instantiated via EncodingManager
      */
-    public ORSFootFlagEncoder() {
+    public ExGhORSFootFlagEncoder() {
         this(4, 1);
     }
 
-    public ORSFootFlagEncoder(PMap properties) {
+    public ExGhORSFootFlagEncoder(PMap properties) {
         this((int) properties.getLong("speedBits", 4),
                 properties.getDouble("speedFactor", 1));
         this.properties = properties;
         this.setBlockFords(properties.getBool("block_fords", true));
     }
 
-    public ORSFootFlagEncoder(String propertiesStr) {
+    public ExGhORSFootFlagEncoder(String propertiesStr) {
         this(new PMap(propertiesStr));
     }
 
-    public ORSFootFlagEncoder(int speedBits, double speedFactor) {
+    public ExGhORSFootFlagEncoder(int speedBits, double speedFactor) {
         super(speedBits, speedFactor, 0);
         restrictions.addAll(Arrays.asList("foot", "access"));
         restrictedValues.add("private");
