@@ -95,7 +95,11 @@ public class NextGenBikeFlagEncoder extends NextGenBikeCommonFlagEncoder {
     boolean isPushingSection(ReaderWay way) {
         String highway = way.getTag("highway");
         String trackType = way.getTag("tracktype");
-        return super.isPushingSection(way) || "track".equals(highway) && trackType != null && !"grade1".equals(trackType);
+        return super.isPushingSection(way) || "track".equals(highway) && trackType != null
+        // MARQ24 MOD START - by Runge
+                //&& !"grade1".equals(trackType);
+                && !("grade1".equals(trackType) || "grade2".equals(trackType) || "grade3".equals(trackType));
+        // MARQ24 MOD END
     }
 
     @Override

@@ -21,6 +21,7 @@ import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.PMap;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.SpeedLimitHandler;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.tomove.BikeCommonFlagEncoder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -182,7 +183,7 @@ public class MountainBikeFlagEncoder extends BikeCommonFlagEncoder {
         return oldRelationFlags;
     }
 
-    @Override
+    // MARQ24 removed @Override
     boolean isSacScaleAllowed(String sacScale) {
         // other scales are too dangerous even for MTB, see http://wiki.openstreetmap.org/wiki/Key:sac_scale
         return "hiking".equals(sacScale) || "mountain_hiking".equals(sacScale)

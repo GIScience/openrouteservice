@@ -283,8 +283,12 @@ public class RoutingProfileType {
                 return FlagEncoderNames.RUNNING;
 
             case RoutingProfileType.CYCLING_REGULAR:
-                return FlagEncoderNames.BIKE_ORS;
-                //return FlagEncoderNames.BIKE_ORS_OLD;
+                // TODO:
+                // MARQ24 - CURRENTLY WE USE the "old" Bike FlagEncoder - simply cause the routing result (in the test)
+                // is too differnt with the new one -> main difference might be caused by the _speedLimitHandler inside
+                // the heigit.ors.routing.graphhopper.extensions.flagencoders.tomove.BikeCommonFlagEncoder
+                //return FlagEncoderNames.BIKE_ORS;
+                return FlagEncoderNames.BIKE_ORS_OLD;
 
             case RoutingProfileType.CYCLING_MOUNTAIN:
                 return FlagEncoderNames.MTB_ORS;
@@ -380,9 +384,12 @@ public class RoutingProfileType {
             case FlagEncoderNames.GH_MOTOCYCLE:
                 return RoutingProfileType.DRIVING_MOTORCYCLE;
 
-
-            case FlagEncoderNames.BIKE_ORS:
-            //case FlagEncoderNames.BIKE_ORS_OLD:
+            // TODO:
+            // MARQ24 - CURRENTLY WE USE the "old" Bike FlagEncoder - simply cause the routing result (in the test)
+            // is too differnt with the new one -> main difference might be caused by the _speedLimitHandler inside
+            // the heigit.ors.routing.graphhopper.extensions.flagencoders.tomove.BikeCommonFlagEncoder
+            //case FlagEncoderNames.BIKE_ORS:
+            case FlagEncoderNames.BIKE_ORS_OLD:
                 return RoutingProfileType.CYCLING_REGULAR;
 
             case FlagEncoderNames.MTB_ORS:
@@ -429,10 +436,9 @@ public class RoutingProfileType {
                 return RoutingProfileType.FOOT_HIKING;
 
 
-
-            /* depricated self implemented hiking */
             case FlagEncoderNames.WALKING:
                 return RoutingProfileType.FOOT_WALKING_DO_NOT_USE;
+            /* depricated self implemented hiking */
             case FlagEncoderNames.HIKING:
                 return RoutingProfileType.FOOT_HIKING_DO_NOT_USE;
             case FlagEncoderNames.RACINGBIKE_ORS:

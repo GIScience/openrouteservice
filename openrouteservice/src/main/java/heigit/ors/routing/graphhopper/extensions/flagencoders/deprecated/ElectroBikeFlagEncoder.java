@@ -24,6 +24,7 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.PMap;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.SpeedLimitHandler;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.tomove.BikeCommonFlagEncoder;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -71,10 +71,10 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
                 return new heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.HikingFlagEncoder(configuration);
 
             case FlagEncoderNames.WALKING:
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.exghoverwrite.ExGhORSFootFlagEncoder(configuration);
+                return new heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.exghoverwrite.ExGhORSFootFlagEncoder(configuration);
 
             case FlagEncoderNames.BIKE_ORS_OLD:
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.BikeFlagEncoder(configuration);
+                return new heigit.ors.routing.graphhopper.extensions.flagencoders.tomove.BikeFlagEncoder(configuration);
 
             case FlagEncoderNames.MTB_ORS_OLD:
                 // MARQ24: in previous ors this line of code was never used... MTB was set to "bike" - so when this method
@@ -89,7 +89,7 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
                 // heigit.ors.routing.graphhopper.extensions.flagencodersexghoverwrite
                 // and the FlagEncoderNames have got the Prefix ORS...
                 //return new MountainBikeFlagEncoder(configuration);
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.exghoverwrite.ExGhORSMountainBikeFlagEncoder(configuration);
+                return new heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.exghoverwrite.ExGhORSMountainBikeFlagEncoder(configuration);
 
             case FlagEncoderNames.RACINGBIKE_ORS:
                 return new heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.RacingBikeFlagEncoder(configuration);

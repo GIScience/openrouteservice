@@ -15,7 +15,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.tomove;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.PMap;
@@ -92,5 +92,6 @@ public class BikeFlagEncoder extends BikeCommonFlagEncoder {
     @Override
     public String toString() {
         return FlagEncoderNames.BIKE_ORS_OLD;
+        //return FlagEncoderNames.BIKE_ORS;
     }
 }
