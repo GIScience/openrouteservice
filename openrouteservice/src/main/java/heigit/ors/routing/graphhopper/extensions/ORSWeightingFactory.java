@@ -32,7 +32,7 @@ import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import heigit.ors.routing.ProfileWeighting;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.exghoverwrite.ExGhORSFootFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.exghoverwrite.ExGhORSFootFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.weighting.*;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
 

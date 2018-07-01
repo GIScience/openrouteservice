@@ -23,6 +23,7 @@ import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.SpeedLimitHandler;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.tomove.BikeCommonFlagEncoder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -195,7 +196,7 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder {
         return isPushing;
     }
 
-    @Override
+    // MARQ24 removed @Override
     boolean isSacScaleAllowed(String sacScale) {
         // for racing bike it is only allowed if empty
         return false;

@@ -19,7 +19,7 @@ package heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.PMap;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.exghoverwrite.ExGhORSCarFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.tomove.exghoverwrite.ExGhORSCarFlagEncoder;
 
 /**
  * Defines bit layout for cars with four wheel drive

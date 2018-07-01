@@ -15,13 +15,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencoders.unused;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.unused;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.util.PMap;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.exghoverwrite.ExGhORSFootFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.exghoverwrite.ExGhORSFootFlagEncoder;
 
 import java.util.TreeMap;
 

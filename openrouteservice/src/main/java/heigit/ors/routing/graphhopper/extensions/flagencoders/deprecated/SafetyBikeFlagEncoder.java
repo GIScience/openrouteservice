@@ -25,7 +25,7 @@ import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.exghoverwrite.ExGhORSBikeCommonFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.exghoverwrite.ExGhORSBikeCommonFlagEncoder;
 
 import java.util.TreeMap;
 

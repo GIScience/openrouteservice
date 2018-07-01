@@ -33,7 +33,7 @@ public interface FlagEncoderNames {
     // propper name roadbike!]
     @Deprecated
     public static final String RACINGBIKE_ORS   = "racingbike-ors";
-    @Deprecated
+    //@Deprecated - IS CURRENTLY STILL THE DEFAULT - since the result of nextGen and the ors-original is too different
     public static final String BIKE_ORS_OLD     = "bike-oold";
     @Deprecated
     public static final String MTB_ORS_OLD      = "mtb-oold";
