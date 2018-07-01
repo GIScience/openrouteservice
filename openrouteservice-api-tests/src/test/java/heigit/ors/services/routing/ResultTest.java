@@ -312,7 +312,7 @@ public class ResultTest extends ServiceTest {
 	@Test
 	public void testAvoidTrailDifficulty() {
 /*
-http://localhost:8080/ors-osm/routes?
+http://localhost:8080/ors/routes?
 &coordinates=8.711343,49.401186%7C8.738122,49.402275
 &elevation=true
 &extra_info=traildifficulty%7Csteepness%7Cwaytype%7Csurface
@@ -338,7 +338,8 @@ http://localhost:8080/ors-osm/routes?
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('extras')", is(true))
-				.body("routes[0].segments[0].steps.size()", is(17))
+				//.body("routes[0].segments[0].steps.size()", is(17))
+				.body("routes[0].segments[0].steps.size()", is(18))
 				.body("routes[0].segments[0].distance", is(4310.5f))
 				.body("routes[0].segments[0].duration", is(1628.5f))
 				.body("routes[0].extras.traildifficulty.values.size()", is(4))
@@ -854,7 +855,10 @@ http://localhost:8080/ors-osm/routes?
 
 	@Test
 	public void testAvoidArea() {
-		given()
+/*
+http://localhost:8080/ors/routes?preference=fastest&profile=driving-car&coordinates=8.680916,49.410973%7C8.687696,49.424737&elevation=true&geometry=true&geometry_format=geojson&language=en-US&options=%7B%22profile_params%22:%7B%7D,%22avoid_polygons%22:%7B%22type%22:%22Polygon%22,%22coordinates%22:%5B%5B%5B%228.675%22,%2249.419%22%5D,%5B%228.677%22,%2249.419%22%5D,%5B%228.675%22,%2249.418%22%5D,%5B%228.675%22,%2249.419%22%5D%5D%5D%7D%7D
+*/
+	    given()
 				.param("coordinates",getParameter("coordinatesShort"))
 				.param("preference",getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
@@ -864,8 +868,13 @@ http://localhost:8080/ors-osm/routes?
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(2722.6f))
-				.body("routes[0].summary.duration", is(273.2f))
+				//.body("routes[0].summary.distance", is(2722.6f))
+				//.body("routes[0].summary.duration", is(273.2f))
+				// MARQ24 the new carFlagEncoder ist called now 'car-ors' and by this
+				// change we will get now a different detour around the polygon - since
+				// EAST-bound
+				.body("routes[0].summary.distance", is(2265.1f))
+				.body("routes[0].summary.duration", is(302))
 				.statusCode(200);
 	}
 }
