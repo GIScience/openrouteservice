@@ -138,6 +138,8 @@ abstract public class NextGenBikeCommonFlagEncoder extends AbstractFlagEncoder {
         maxPossibleSpeed = 30;
 
         // MARQ24 MOD START
+        // we have to check, WHAT this really does - since when 'enabled' we get 'cracy' detours like this one
+        // http://localhost:3035/directions?n1=51.563406&n2=8.713585&n3=16&a=51.566454,8.705764,51.559224,8.707244&b=1a&c=0&g1=-1&g2=0&h2=3&k1=en-US&k2=km
         setConsiderElevation(considerElevation);
         //setConsiderElevation(false);
         if (considerElevation) {
