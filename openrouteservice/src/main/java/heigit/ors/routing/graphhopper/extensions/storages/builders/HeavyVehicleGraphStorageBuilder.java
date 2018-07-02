@@ -82,7 +82,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 	}
 
 	public void processWay(ReaderWay way) {
-		
+		// reset values
 		_hgvType = 0;
 		_hgvDestination = 0;
 		
@@ -99,7 +99,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 		boolean hasHighway = way.hasTag("highway");
 
 		if (hasHighway) {
-
+			// restrict all types if there are any generic motor vehicle restrictions
 			if (way.hasTag(_motorVehicleRestrictions, _motorVehicleRestrictedValues)) {
 				_hgvType |= HeavyVehicleAttributes.BUS;
 				_hgvType |= HeavyVehicleAttributes.AGRICULTURE;
@@ -116,19 +116,14 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 				String key = pairs.getKey();
 				String value = pairs.getValue().toString();
 
-				if (key.equals("highway")) {
-					if ("track".equals(value)) {
-						String tracktype = way.getTag("tracktype");
-						if (tracktype != null && (tracktype.equals("grade1") || tracktype.equals("grade2") || tracktype.equals("grade3") || tracktype.equals("grade4") || tracktype.equals("grade5"))) {
-							_hgvType |= HeavyVehicleAttributes.AGRICULTURE;
-							_hgvType |= HeavyVehicleAttributes.FORESTRY;
-						}
+				// TODO: why are only the following types restricted even though tracks are "roads for mostly agricultural use, forest tracks"?
+				if (key.equals("highway") && value.equals("track")) {
+					String tracktype = way.getTag("tracktype");
+					if (tracktype != null && (tracktype.equals("grade1") || tracktype.equals("grade2") || tracktype.equals("grade3") || tracktype.equals("grade4") || tracktype.equals("grade5"))) {
+						_hgvType |= HeavyVehicleAttributes.AGRICULTURE;
+						_hgvType |= HeavyVehicleAttributes.FORESTRY;
 					}
-
 				}
-				/*
-				 * todo borders
-				 */
 				/*
 				 * https://wiki.openstreetmap.org/wiki/Restrictions
 				 */
@@ -185,13 +180,13 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 						}
 					}
 
-
-					String hgvTag = getHeavyVehicleValue(key, "hgv", value); //key.equals("hgv") ? value : null;
-					String goodsTag = getHeavyVehicleValue(key, "goods", value); // key.equals("goods") ? value : null;
-					String busTag = getHeavyVehicleValue(key, "bus", value); //key.equals("bus") ? value : null;
-					String agriculturalTag = getHeavyVehicleValue(key, "agricultural", value); //key.equals("agricultural") ? value : null;
-					String forestryTag = getHeavyVehicleValue(key, "forestry", value); // key.equals("forestry") ? value : null;
-					String deliveryTag = getHeavyVehicleValue(key, "delivery", value); //key.equals("delivery") ? value : null;
+					// TODO: the following implementation does not pick up access:destination
+					String hgvTag = getHeavyVehicleValue(key, "hgv", value);
+					String goodsTag = getHeavyVehicleValue(key, "goods", value);
+					String busTag = getHeavyVehicleValue(key, "bus", value);
+					String agriculturalTag = getHeavyVehicleValue(key, "agricultural", value);
+					String forestryTag = getHeavyVehicleValue(key, "forestry", value);
+					String deliveryTag = getHeavyVehicleValue(key, "delivery", value);
 
 					String accessTag = key.equals("access") ? value : null;
 
@@ -215,9 +210,6 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 							forestryTag = "yes";
 						else if ("delivery".equals(motorVehicle))
 							deliveryTag = "yes";
-
-						//if ("destination".equals(motorVehicle))
-						//	heavyVehicleFlag |= HeavyVehicleAttributes.Destination;
 					}
 
 					setFlagsFromTag(goodsTag, HeavyVehicleAttributes.GOODS);
