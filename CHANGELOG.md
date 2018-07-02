@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Removed Geocoding code as this will be handled by the geocoder service rather than within ORS
 
 ### Fixed
+- Correct logic of determining vehicle type flags in heavy vehicle storage (Issue #211)
+- Enable OSM "key:access" tag values to take effect for heavy vehicle profile (Issue #209)
 - Fixed problem with avoid polygons excluding ways that should have been accepted (Issue #95)
 - Updated code to remove merging of instructions as this resulted in missing important turn instructions (Issue #177)
 - Added missing translations for arrival instructions (Issue #171)
