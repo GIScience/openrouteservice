@@ -607,110 +607,120 @@ public class RoutingProfile {
     }
 
     private RouteSearchContext createSearchContext(RouteSearchParameters searchParams, RouteSearchMode mode, EdgeFilter customEdgeFilter) throws Exception {
-        int profileType = searchParams.getProfileType();
-        int weightingMethod = searchParams.getWeightingMethod();
-        String encoderName = RoutingProfileType.getEncoderName(profileType);
-        FlagEncoder flagEncoder = mGraphHopper.getEncodingManager().getEncoder(encoderName);
-        EdgeFilterSequence edgeFilters = new EdgeFilterSequence();
-        edgeFilters.add(new DefaultEdgeFilter(flagEncoder));
         PMap props = new PMap();
 
-        if (searchParams.hasAvoidAreas()) {
-            if (encoderName.isEmpty())
-                throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "vehicle parameter is empty.");
+        int profileType = searchParams.getProfileType();
+        String encoderName = RoutingProfileType.getEncoderName(profileType);
 
-            if (!mGraphHopper.getEncodingManager().supports(encoderName)) {
-                throw new IllegalArgumentException("Vehicle " + encoderName + " unsupported. " + "Supported are: "
-                        + mGraphHopper.getEncodingManager());
-            }
+        if ("UNKNOWN".equals(encoderName))
+            throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "unknown vehicle profile.");
+
+        if (!mGraphHopper.getEncodingManager().supports(encoderName)) {
+            throw new IllegalArgumentException("Vehicle " + encoderName + " unsupported. " + "Supported are: "
+                    + mGraphHopper.getEncodingManager());
+        }
+
+        FlagEncoder flagEncoder = mGraphHopper.getEncodingManager().getEncoder(encoderName);
+        GraphStorage gs = mGraphHopper.getGraphHopperStorage();
+        ProfileParameters profileParams = searchParams.getProfileParameters();
+
+        /* Initialize empty edge filter sequence */
+
+        EdgeFilterSequence edgeFilters = new EdgeFilterSequence();
+
+        /* Default edge filter which accepts both directions of the specified vehicle */
+
+        edgeFilters.add(new DefaultEdgeFilter(flagEncoder));
+
+        /* Avoid areas */
+
+        if (searchParams.hasAvoidAreas()) {
             edgeFilters.add(new AvoidAreasEdgeFilter(searchParams.getAvoidAreas()));
         }
 
+        /* Heavy vehicle filter */
+
         if (RoutingProfileType.isDriving(profileType)) {
-            if (RoutingProfileType.isHeavyVehicle(profileType)) {
-                if (searchParams.hasParameters(VehicleParameters.class)) {
-                    GraphStorage gs = mGraphHopper.getGraphHopperStorage();
+            if (RoutingProfileType.isHeavyVehicle(profileType) && searchParams.hasParameters(VehicleParameters.class)) {
+                VehicleParameters vehicleParams = (VehicleParameters) profileParams;
 
-                    int vehicleType = searchParams.getVehicleType();
-                    VehicleParameters vehicleParams = (VehicleParameters) searchParams.getProfileParameters();
+                if (vehicleParams.hasAttributes()) {
 
-                    if (vehicleParams.hasAttributes()) {
-                        EdgeFilter ef = null;
-                        if (searchParams.getProfileType() == RoutingProfileType.DRIVING_HGV)
-                            ef = new HeavyVehicleEdgeFilter(flagEncoder, vehicleType, vehicleParams, gs);
-                        else if (searchParams.getProfileType() == RoutingProfileType.DRIVING_EMERGENCY)
-                            ef = new EmergencyVehicleEdgeFilter(vehicleParams, gs);
-
-                        if (ef != null)
-                            edgeFilters.add(ef);
-                    }
-                }
-            } else if (searchParams.hasParameters(VehicleParameters.class)) {
-                //edgeFilter = createWayRestrictionsEdgeFilter(searchParams, flagEncoder, edgeFilter);
-            }
-        } else if (profileType == RoutingProfileType.WHEELCHAIR) {
-            if (searchParams.hasParameters(WheelchairParameters.class)) {
-                if (searchParams.hasParameters(WheelchairParameters.class)) {
-                    GraphStorage gs = mGraphHopper.getGraphHopperStorage();
-                    edgeFilters.add(new WheelchairEdgeFilter((WheelchairParameters) searchParams.getProfileParameters(), gs));
+                    if (profileType == RoutingProfileType.DRIVING_HGV)
+                        edgeFilters.add(new HeavyVehicleEdgeFilter(flagEncoder, searchParams.getVehicleType(), vehicleParams, gs));
+                    else if (profileType == RoutingProfileType.DRIVING_EMERGENCY)
+                        edgeFilters.add(new EmergencyVehicleEdgeFilter(vehicleParams, gs));
                 }
             }
         }
+
+        /* Wheelchair filter */
+
+        else if (profileType == RoutingProfileType.WHEELCHAIR && searchParams.hasParameters(WheelchairParameters.class)) {
+            edgeFilters.add(new WheelchairEdgeFilter((WheelchairParameters) profileParams, gs));
+        }
+
+        /* Avoid features */
 
         if (searchParams.hasAvoidFeatures()) {
             if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)
                     || profileType == RoutingProfileType.FOOT_WALKING || profileType == RoutingProfileType.FOOT_HIKING
                     || profileType == RoutingProfileType.WHEELCHAIR) {
 
-                if (searchParams.getAvoidFeatureTypes() != AvoidFeatureFlags.Hills) {
-                    edgeFilters.add(new AvoidFeaturesEdgeFilter(flagEncoder, searchParams, mGraphHopper.getGraphHopperStorage()));
+                int avoidFeatures = searchParams.getAvoidFeatureTypes();
+
+                /* Avoid any features other than hills */
+                if (avoidFeatures != AvoidFeatureFlags.Hills) {
+                    edgeFilters.add(new AvoidFeaturesEdgeFilter(flagEncoder, searchParams, gs));
                 }
 
-                if (mode == RouteSearchMode.Routing) {
-                    if ((searchParams.getAvoidFeatureTypes() & AvoidFeatureFlags.Hills) == AvoidFeatureFlags.Hills) {
-                        props.put("custom_weightings", true);
-                        props.put(ProfileWeighting.encodeName("avoid_hills"), true);
+                /* Special case of hills */
+                if (mode == RouteSearchMode.Routing && (avoidFeatures & AvoidFeatureFlags.Hills) == AvoidFeatureFlags.Hills) {
+                    props.put("custom_weightings", true);
+                    props.put(ProfileWeighting.encodeName("avoid_hills"), true);
 
-                        if (searchParams.hasParameters(CyclingParameters.class)) // FIXME: have no idea what this line was meant for.
-                        {
-                            CyclingParameters cyclingParams = (CyclingParameters) searchParams.getProfileParameters();
-                            props.put("steepness_maximum", cyclingParams.getMaximumGradient());
-                        }
+                    if (searchParams.hasParameters(CyclingParameters.class)) {
+                        CyclingParameters cyclingParams = (CyclingParameters) profileParams;
+                        props.put("steepness_maximum", cyclingParams.getMaximumGradient());
                     }
+
                 }
             }
         }
+
+        /* Avoid borders of some form */
 
         if (searchParams.hasAvoidBorders() || searchParams.hasAvoidCountries()) {
-            // We want to avoid borders of some form
             if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)) {
-                edgeFilters.add(new AvoidBordersEdgeFilter(searchParams, mGraphHopper.getGraphHopperStorage()));
+                edgeFilters.add(new AvoidBordersEdgeFilter(searchParams, gs));
             }
         }
+
+        /* Steepness and (disabled) trail difficulty filters */
 
         if (searchParams.hasParameters(CyclingParameters.class)) {
-            CyclingParameters cyclingParams = (CyclingParameters) searchParams.getProfileParameters();
+            CyclingParameters cyclingParams = (CyclingParameters) profileParams;
+            int maximumGradient = cyclingParams.getMaximumGradient();
+            if (maximumGradient > 0)
+                edgeFilters.add(new AvoidSteepnessEdgeFilter(gs, maximumGradient));
 
-            if (cyclingParams.getMaximumGradient() > 0) {
-                edgeFilters.add(new AvoidSteepnessEdgeFilter(mGraphHopper.getGraphHopperStorage(), cyclingParams.getMaximumGradient()));
-            }
+            int maximumTrailDifficulty = cyclingParams.getMaximumTrailDifficulty();
+            if (maximumTrailDifficulty > 0)
+                edgeFilters.add(new TrailDifficultyEdgeFilter(flagEncoder, gs, maximumTrailDifficulty));
 
-            if (cyclingParams.getMaximumTrailDifficulty() > 0) {
-                edgeFilters.add(new TrailDifficultyEdgeFilter(flagEncoder, mGraphHopper.getGraphHopperStorage(), cyclingParams.getMaximumTrailDifficulty()));
-            }
         } else if (searchParams.hasParameters(WalkingParameters.class)) {
-            WalkingParameters walkingParams = (WalkingParameters) searchParams.getProfileParameters();
+            WalkingParameters walkingParams = (WalkingParameters) profileParams;
+            int maximumGradient = walkingParams.getMaximumGradient();
+            if (maximumGradient > 0)
+                edgeFilters.add(new AvoidSteepnessEdgeFilter(gs, maximumGradient));
 
-            if (walkingParams.getMaximumGradient() > 0) {
-                edgeFilters.add(new AvoidSteepnessEdgeFilter(mGraphHopper.getGraphHopperStorage(), walkingParams.getMaximumGradient()));
-            }
+            int maximumTrailDifficulty = walkingParams.getMaximumTrailDifficulty();
+            if (maximumTrailDifficulty > 0)
+                edgeFilters.add(new TrailDifficultyEdgeFilter(flagEncoder, gs, maximumTrailDifficulty));
 
-            if (walkingParams.getMaximumTrailDifficulty() > 0) {
-                edgeFilters.add(new TrailDifficultyEdgeFilter(flagEncoder, mGraphHopper.getGraphHopperStorage(), walkingParams.getMaximumTrailDifficulty()));
-            }
         }
 
-        ProfileParameters profileParams = searchParams.getProfileParameters();
+
         if (profileParams != null && profileParams.hasWeightings()) {
             props.put("custom_weightings", true);
             Iterator<ProfileWeighting> iterator = profileParams.getWeightings().getIterator();
@@ -724,16 +734,13 @@ public class RoutingProfile {
             }
         }
 
-        if (searchParams.getConsiderTraffic()/* && mHasDynamicWeights */) {
-            if (RoutingProfileType.isDriving(profileType) && weightingMethod != WeightingMethod.SHORTEST
-                    && RealTrafficDataProvider.getInstance().isInitialized()) {
+        /* Live traffic filter - currently disabled */
+
+        if (searchParams.getConsiderTraffic()) {
+            RealTrafficDataProvider trafficData = RealTrafficDataProvider.getInstance();
+            if (RoutingProfileType.isDriving(profileType) && searchParams.getWeightingMethod() != WeightingMethod.SHORTEST && trafficData.isInitialized()) {
                 props.put("weighting_traffic_block", true);
-
-                EdgeFilter ef = new BlockedEdgesEdgeFilter(flagEncoder, RealTrafficDataProvider.getInstance()
-                        .getBlockedEdges(mGraphHopper.getGraphHopperStorage()), RealTrafficDataProvider.getInstance()
-                        .getHeavyVehicleBlockedEdges(mGraphHopper.getGraphHopperStorage()));
-
-                edgeFilters.add(ef);
+                edgeFilters.add(new BlockedEdgesEdgeFilter(flagEncoder, trafficData.getBlockedEdges(gs), trafficData.getHeavyVehicleBlockedEdges(gs)));
             }
         }
 
