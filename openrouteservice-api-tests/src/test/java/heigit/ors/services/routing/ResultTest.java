@@ -27,6 +27,17 @@ import junit.framework.Assert;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.StringReader;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItems;
@@ -45,7 +56,322 @@ public class ResultTest extends ServiceTest {
 		addParameter("carProfile", "driving-car");
 	}
 
-	/**
+    @Test
+    public void testGpxExport() throws IOException, SAXException, ParserConfigurationException {
+        Response response = given()
+                .param("coordinates", getParameter("coordinatesShort"))
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("carProfile"))
+                .param("format", "gpx")
+                .param("instructions", "True")
+                .when().log().ifValidationFails()
+                .get(getEndPointName());
+        response.then()
+                .assertThat()
+                .contentType("application/xml;charset=UTF-8")
+                .statusCode(200);
+        testGpxConsistency(response, true);
+        Response response_without_instructions = given()
+                .param("coordinates", getParameter("coordinatesShort"))
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("carProfile"))
+                .param("format", "gpx")
+                .param("instructions", "False")
+                .when().log().ifValidationFails()
+                .get(getEndPointName());
+        response_without_instructions.then()
+                .assertThat()
+                .contentType("application/xml;charset=UTF-8")
+                .statusCode(200);
+        testGpxConsistency(response_without_instructions, false);
+    }
+
+    /**
+     * Validates the xml consistency of the gpx output. Instructions can be turned on or off.
+     * The functions tests if all xml members are present in the output.
+     * Completeness is important for the xml schema verification!
+     *
+     * @param response
+     * @param instructions
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws SAXException
+     */
+    private void testGpxConsistency(Response response, boolean instructions) throws ParserConfigurationException, IOException, SAXException {
+        String body = response.body().asString();
+        DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document doc = db.parse(new InputSource(new StringReader(body)));
+        Assert.assertEquals(doc.getDocumentElement().getTagName(), "gpx");
+        int doc_length = doc.getDocumentElement().getChildNodes().getLength();
+        Assert.assertTrue(doc_length > 0);
+        boolean gpxMetadata = false;
+        boolean gpxRte = false;
+        boolean gpxExtensions = false;
+        for (int i = 0; i < doc_length; i++) {
+            String item = doc.getDocumentElement().getChildNodes().item(i).getNodeName();
+            switch (item) {
+                case "metadata":
+                    gpxMetadata = true;
+                    NodeList metadataChildren = doc.getDocumentElement().getChildNodes().item(i).getChildNodes();
+                    int metadataSize = metadataChildren.getLength();
+                    boolean metadataName = false;
+                    boolean metadataDescription = false;
+                    boolean metadataAuthor = false;
+                    boolean metadataCopyright = false;
+                    boolean metatadaTime = false;
+                    boolean metadataBounds = false;
+                    for (int j = 0; j < metadataSize; j++) {
+                        Node metadataItem = metadataChildren.item(j);
+                        switch (metadataItem.getNodeName()) {
+                            case "name":
+                                metadataName = true;
+                                break;
+                            case "desc":
+                                metadataDescription = true;
+                                break;
+                            case "author":
+                                metadataAuthor = true;
+                                NodeList authorChildren = metadataChildren.item(j).getChildNodes();
+                                int authorLength = authorChildren.getLength();
+                                boolean authorName = false;
+                                boolean authorEmail = false;
+                                boolean authorLink = false;
+                                for (int k = 0; k < authorLength; k++) {
+                                    Node authorItem = authorChildren.item(k);
+                                    switch (authorItem.getNodeName()) {
+                                        case "name":
+                                            authorName = true;
+                                            break;
+                                        case "email":
+                                            authorEmail = true;
+                                            break;
+                                        case "link":
+                                            authorLink = true;
+                                            NodeList linkChildren = authorChildren.item(k).getChildNodes();
+                                            int linkLength = linkChildren.getLength();
+                                            boolean linkText = false;
+                                            boolean linkType = false;
+                                            for (int l = 0; l < linkLength; l++) {
+                                                Node linkItem = linkChildren.item(l);
+                                                switch (linkItem.getNodeName()) {
+                                                    case "text":
+                                                        linkText = true;
+                                                        break;
+                                                    case "type":
+                                                        linkType = true;
+                                                }
+                                            }
+                                            Assert.assertTrue(linkText);
+                                            Assert.assertTrue(linkType);
+                                            break;
+                                    }
+                                }
+                                Assert.assertTrue(authorName);
+                                Assert.assertTrue(authorEmail);
+                                Assert.assertTrue(authorLink);
+                                break;
+                            case "copyright":
+                                metadataCopyright = true;
+                                NodeList copyrightChildren = metadataChildren.item(j).getChildNodes();
+                                int copyrightLength = copyrightChildren.getLength();
+                                boolean copyrightYear = false;
+                                boolean copyrightLicense = false;
+                                for (int k = 0; k < copyrightLength; k++) {
+                                    Node copyrightItem = copyrightChildren.item(k);
+                                    switch (copyrightItem.getNodeName()) {
+                                        case "year":
+                                            copyrightYear = true;
+                                            break;
+                                        case "license":
+                                            copyrightLicense = true;
+                                            break;
+                                    }
+                                }
+                                Assert.assertTrue(copyrightYear);
+                                Assert.assertTrue(copyrightLicense);
+                                break;
+                            case "time":
+                                metatadaTime = true;
+                                break;
+                            case "bounds":
+                                metadataBounds = true;
+                                break;
+                        }
+                    }
+                    Assert.assertTrue(metadataName);
+                    Assert.assertTrue(metadataDescription);
+                    Assert.assertTrue(metadataAuthor);
+                    Assert.assertTrue(metadataCopyright);
+                    Assert.assertTrue(metatadaTime);
+                    Assert.assertTrue(metadataBounds);
+                    break;
+                case "rte":
+                    gpxRte = true;
+                    NodeList rteChildren = doc.getDocumentElement().getChildNodes().item(i).getChildNodes();
+                    int rteSize = rteChildren.getLength();
+                    boolean rtept = false;
+                    boolean routeExtension = false;
+                    for (int j = 0; j < rteSize; j++) {
+                        Node rteElement = rteChildren.item(j);
+                        switch (rteElement.getNodeName()) {
+                            case "rtept":
+                                rtept = true;
+                                if (instructions) {
+                                    int rteptLength = rteElement.getChildNodes().getLength();
+                                    boolean rteptName = false;
+                                    boolean rteptDescription = false;
+                                    boolean rteptextensions = false;
+                                    for (int k = 0; k < rteptLength; k++) {
+                                        Node rteptElement = rteElement.getChildNodes().item(k);
+                                        switch (rteptElement.getNodeName()) {
+                                            case "name":
+                                                rteptName = true;
+                                                break;
+                                            case "desc":
+                                                rteptDescription = true;
+                                                break;
+                                            case "extensions":
+                                                rteptextensions = true;
+                                                int rteptExtensionLength = rteptElement.getChildNodes().getLength();
+                                                boolean distance = false;
+                                                boolean duration = false;
+                                                boolean type = false;
+                                                boolean step = false;
+                                                for (int l = 0; l < rteptExtensionLength; l++) {
+                                                    Node rteptExtensionElement = rteptElement.getChildNodes().item(l);
+                                                    switch (rteptExtensionElement.getNodeName()) {
+                                                        case "distance":
+                                                            distance = true;
+                                                            break;
+                                                        case "duration":
+                                                            duration = true;
+                                                            break;
+                                                        case "type":
+                                                            type = true;
+                                                            break;
+                                                        case "step":
+                                                            step = true;
+                                                            break;
+                                                    }
+                                                }
+                                                Assert.assertTrue(distance);
+                                                Assert.assertTrue(duration);
+                                                Assert.assertTrue(type);
+                                                Assert.assertTrue(step);
+                                        }
+                                    }
+                                    Assert.assertTrue(rteptName);
+                                    Assert.assertTrue(rteptDescription);
+                                    Assert.assertTrue(rteptextensions);
+                                }
+                                break;
+                            case "extensions":
+                                routeExtension = true;
+                                int rteExtensionsLength = rteElement.getChildNodes().getLength();
+                                boolean rteExtensionsDistance = false;
+                                boolean rteExtensionsDuration = false;
+                                boolean rteExtensionsDistanceActual = false;
+                                boolean rteExtensionsAscent = false;
+                                boolean rteExtensionsDescent = false;
+                                boolean rteExtensionsAvgSpeed = false;
+                                boolean rteExtensionsBounds = false;
+                                for (int k = 0; k < rteExtensionsLength; k++) {
+                                    Node extensionsElement = rteElement.getChildNodes().item(k);
+                                    switch (extensionsElement.getNodeName()) {
+                                        case "distance":
+                                            rteExtensionsDistance = true;
+                                            break;
+                                        case "duration":
+                                            rteExtensionsDuration = true;
+                                            break;
+                                        case "distanceActual":
+                                            rteExtensionsDistanceActual = true;
+                                            break;
+                                        case "ascent":
+                                            rteExtensionsAscent = true;
+                                            break;
+                                        case "descent":
+                                            rteExtensionsDescent = true;
+                                            break;
+                                        case "avgSpeed":
+                                            rteExtensionsAvgSpeed = true;
+                                            break;
+                                        case "bounds":
+                                            rteExtensionsBounds = true;
+                                            break;
+                                    }
+                                }
+                                Assert.assertTrue(rteExtensionsDistance);
+                                Assert.assertTrue(rteExtensionsDuration);
+                                Assert.assertTrue(rteExtensionsDistanceActual);
+                                Assert.assertTrue(rteExtensionsAscent);
+                                Assert.assertTrue(rteExtensionsDescent);
+                                Assert.assertTrue(rteExtensionsAvgSpeed);
+                                Assert.assertTrue(rteExtensionsBounds);
+                                break;
+                        }
+                    }
+                    Assert.assertTrue(rtept);
+                    Assert.assertTrue(routeExtension);
+                    break;
+                case "extensions":
+                    gpxExtensions = true;
+                    NodeList gpxExtensionsChildren = doc.getDocumentElement().getChildNodes().item(i).getChildNodes();
+                    int gpxExtensionLength = gpxExtensionsChildren.getLength();
+                    boolean gpxExtensionattribution = false;
+                    boolean gpxExtensionengine = false;
+                    boolean gpxExtensionbuild_date = false;
+                    boolean gpxExtensionprofile = false;
+                    boolean gpxExtensionpreference = false;
+                    boolean gpxExtensionlanguage = false;
+                    boolean gpxExtensioninstructions = false;
+                    boolean gpxExtensionelevation = false;
+                    for (int j = 0; j < gpxExtensionLength; j++) {
+                        Node gpxExtensionElement = gpxExtensionsChildren.item(j);
+                        switch (gpxExtensionElement.getNodeName()) {
+                            case "attribution":
+                                gpxExtensionattribution = true;
+                                break;
+                            case "engine":
+                                gpxExtensionengine = true;
+                                break;
+                            case "build_date":
+                                gpxExtensionbuild_date = true;
+                                break;
+                            case "profile":
+                                gpxExtensionprofile = true;
+                                break;
+                            case "preference":
+                                gpxExtensionpreference = true;
+                                break;
+                            case "language":
+                                gpxExtensionlanguage = true;
+                                break;
+                            case "instructions":
+                                gpxExtensioninstructions = true;
+                                break;
+                            case "elevation":
+                                gpxExtensionelevation = true;
+                                break;
+                        }
+                    }
+                    Assert.assertTrue(gpxExtensionattribution);
+                    Assert.assertTrue(gpxExtensionengine);
+                    Assert.assertTrue(gpxExtensionbuild_date);
+                    Assert.assertTrue(gpxExtensionprofile);
+                    Assert.assertTrue(gpxExtensionpreference);
+                    Assert.assertTrue(gpxExtensionlanguage);
+                    Assert.assertTrue(gpxExtensioninstructions);
+                    Assert.assertTrue(gpxExtensionelevation);
+                    break;
+            }
+        }
+        Assert.assertTrue(gpxMetadata);
+        Assert.assertTrue(gpxRte);
+        Assert.assertTrue(gpxExtensions);
+    }
+
+    /**
 	 * The function validates the whole GeoJson export except segments.
 	 * Segments hold the instructions and are not necessary for our valid GeoJson-export.
 	 */
@@ -56,7 +382,8 @@ public class ResultTest extends ServiceTest {
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
 				.param("format", "geojson")
-				.when()
+				.param("extra_info", getParameter("extra_info"))
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -71,6 +398,7 @@ public class ResultTest extends ServiceTest {
 				.body("features[0].properties.containsKey('bbox')", is(true))
 				.body("features[0].properties.containsKey('way_points')", is(true))
 				.body("features[0].properties.containsKey('segments')", is(true))
+				.body("features[0].properties.containsKey('extras')", is(true))
 				.body("features[0].geometry.containsKey('coordinates')", is(true))
 				.body("features[0].geometry.containsKey('type')", is(true))
 				.body("features[0].geometry.type", is("LineString"))
@@ -96,7 +424,7 @@ public class ResultTest extends ServiceTest {
 				.param("geometry", "true")
 				.param("profile", getParameter("carProfile"))
 				.param("options", options.toString())
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -111,7 +439,7 @@ public class ResultTest extends ServiceTest {
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -130,7 +458,7 @@ public class ResultTest extends ServiceTest {
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
 				.param("elevation", "true")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -152,7 +480,7 @@ public class ResultTest extends ServiceTest {
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -175,8 +503,7 @@ public class ResultTest extends ServiceTest {
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
 				.param("elevation", "true")
-				.when()
-				.log().all()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -196,7 +523,7 @@ public class ResultTest extends ServiceTest {
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -213,7 +540,7 @@ public class ResultTest extends ServiceTest {
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -231,7 +558,7 @@ public class ResultTest extends ServiceTest {
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
 				.param("maneuvers", "true")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -255,7 +582,7 @@ public class ResultTest extends ServiceTest {
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
 				.param("extra_info", getParameter("extra_info"))
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -276,7 +603,7 @@ public class ResultTest extends ServiceTest {
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
 				.param("extra_info", getParameter("extra_info"))
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName());
 
 		response.then()
@@ -301,7 +628,7 @@ public class ResultTest extends ServiceTest {
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
 				.param("extra_info", "surface|suitability|avgspeed|steepness")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName());
 
 		Assert.assertEquals(response.getStatusCode(), 200);
@@ -318,7 +645,7 @@ public class ResultTest extends ServiceTest {
 				.param("profile", "cycling-mountain")
 				.param("extra_info", "traildifficulty")
 				.param("options", "{\"profile_params\":{\"restrictions\":{\"trail_difficulty\":1}}}")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName());
 
 		response.then()
@@ -348,7 +675,7 @@ public class ResultTest extends ServiceTest {
 				.param("preference", "fastest")
 				.param("profile", "cycling-regular")
 				.param("extra_info", "suitability|traildifficulty")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName());
 
 		response.then()
@@ -372,7 +699,7 @@ public class ResultTest extends ServiceTest {
 				.param("preference", "fastest")
 				.param("profile", "foot-hiking")
 				.param("extra_info", "traildifficulty")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName());
 
 		response.then()
@@ -396,13 +723,15 @@ public class ResultTest extends ServiceTest {
 
 	@Test
 	public void testTollwaysExtraDetails() {
+		// Test that the response indicates that the whole route is tollway free. The first two tests check that the waypoint ids
+		// in the extras.tollways.values match the final waypoint of the route
 		Response response = given()
 				.param("coordinates", "8.676281,49.414715|8.6483,49.413291")
 				.param("instructions", "true")
 				.param("preference", "fastest")
 				.param("profile", "driving-car")
 				.param("extra_info", "suitability|tollways")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName());
 
 		response.then()
@@ -423,7 +752,7 @@ public class ResultTest extends ServiceTest {
 				.param("preference", "fastest")
 				.param("profile", "driving-hgv")
 				.param("extra_info", "suitability|tollways")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName());
 
 		response.then()
@@ -432,7 +761,7 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].containsKey('extras')", is(true))
 				.body("routes[0].extras.tollways.values.size()", is(1))
 				.body("routes[0].extras.tollways.values[0][0]", is(0))
-				.body("routes[0].extras.tollways.values[0][1]", is(86))
+				.body("routes[0].extras.tollways.values[0][1]", is(80))
 				.body("routes[0].extras.tollways.values[0][2]", is(0))
 				.statusCode(200);
 
@@ -446,7 +775,7 @@ public class ResultTest extends ServiceTest {
 				.param("continue_straight", "false")
 				.param("options", "{\"profile_params\":{\"width\":\"2\",\"height\":\"2\",\"weight\":\"14\"},\"vehicle_type\":\"hgv\"}")
 				.param("extra_info", "suitability|tollways")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName());
 
 		response.then()
@@ -470,18 +799,19 @@ public class ResultTest extends ServiceTest {
 
 	@Test
 	public void testOptimizedAndTurnRestrictions() {
+		// Test that the "right turn only" restriction at the juntion is taken into account
 		given()
 				.param("coordinates", "8.684081,49.398155|8.684703,49.397359")
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", "driving-car")
 				.param("optimized", "false")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(872.9f))
+				.body("routes[0].summary.distance", is(693.8f))
 				.statusCode(200);
 	}
 
@@ -492,7 +822,7 @@ public class ResultTest extends ServiceTest {
 				.param("preference", "fastest")
 				.param("geometry", "true")
 				.param("profile", "cycling-regular")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -509,7 +839,7 @@ public class ResultTest extends ServiceTest {
 				.param("geometry", "true")
 				.param("profile", "cycling-regular")
 				.param("bearings", "25,30|90,20")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -526,7 +856,7 @@ public class ResultTest extends ServiceTest {
 				.param("geometry", "true")
 				.param("profile", "cycling-regular")
 				.param("bearings", "25,30")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -543,7 +873,7 @@ public class ResultTest extends ServiceTest {
 				.param("geometry", "true")
 				.param("profile", "cycling-regular")
 				.param("bearings", "|90,20")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -554,13 +884,12 @@ public class ResultTest extends ServiceTest {
 
 	@Test
 	public void testSteps() {
-
 		given()
 				.param("coordinates", getParameter("coordinatesLong"))
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -580,7 +909,7 @@ public class ResultTest extends ServiceTest {
 				.param("instructions", "true")
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("bikeProfile"))
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -655,13 +984,13 @@ public class ResultTest extends ServiceTest {
 				.param("profile", "driving-hgv")
 				.param("options", "{\"profile_params\":{\"restrictions\":{\"width\":\"3\"}},\"vehicle_type\":\"hgv\"}")
 				.param("units", "m")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(809.3f))
-				.body("routes[0].summary.duration", is(197.2f))
+				.body("routes[0].summary.duration", is(225.1f))
 				.statusCode(200);
 
 		given()
@@ -671,13 +1000,13 @@ public class ResultTest extends ServiceTest {
 				.param("profile", "driving-hgv")
 				.param("options", "{\"profile_params\":{\"restrictions\":{\"width\":\"2\"}},\"vehicle_type\":\"hgv\"}")
 				.param("units", "m")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(379.5f))
-				.body("routes[0].summary.duration", is(135.5f))
+				.body("routes[0].summary.duration", is(135.7f))
 				.statusCode(200);
 	}
 
@@ -690,13 +1019,13 @@ public class ResultTest extends ServiceTest {
 				.param("profile", "driving-hgv")
 				.param("options", "{\"profile_params\":{\"restrictions\":{\"height\":\"4\"}},\"vehicle_type\":\"hgv\"}")
 				.param("units", "m")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(549))
-				.body("routes[0].summary.duration", is(135.7f))
+				.body("routes[0].summary.duration", is(141.1f))
 				.statusCode(200);
 
 		given()
@@ -706,13 +1035,13 @@ public class ResultTest extends ServiceTest {
 				.param("profile", "driving-hgv")
 				.param("options", "{\"profile_params\":{\"restrictions\":{\"height\":\"2\"}},\"vehicle_type\":\"hgv\"}")
 				.param("units", "m")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(376.5f))
-				.body("routes[0].summary.duration", is(125.5f))
+				.body("routes[0].summary.duration", is(128.7f))
 				.statusCode(200);
 	}
 
@@ -724,13 +1053,13 @@ public class ResultTest extends ServiceTest {
 				.param("instructions", "false")
 				.param("preference", "shortest")
 				.param("profile", getParameter("carProfile"))
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(379.5f))
-				.body("routes[0].summary.duration", is(270))
+				.body("routes[0].summary.duration", is(269.5f))
 				.statusCode(200);
 	}
 
@@ -742,16 +1071,15 @@ public class ResultTest extends ServiceTest {
 		given()
 				.param("coordinates", "8.684682,49.401961|8.690518,49.405326")
 				.param("instructions", "false")
-				.param("preference", getParameter("preference"))
+				.param("preference", "shortest")
 				.param("profile", getParameter("carProfile"))
 				.param("options", "{\"avoid_borders\":\"controlled\"}")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(1581.9f))
-				.body("routes[0].summary.duration", is(282.2f))
+				.body("routes[0].summary.distance", is(1404))
 				.statusCode(200);
 
 		// Option 1 signifies that the route should not cross any borders
@@ -761,7 +1089,7 @@ public class ResultTest extends ServiceTest {
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
 				.param("options", "{\"avoid_borders\":\"all\"}")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -775,31 +1103,29 @@ public class ResultTest extends ServiceTest {
 		given()
 				.param("coordinates", "8.684682,49.401961|8.690518,49.405326")
 				.param("instructions", "false")
-				.param("preference", getParameter("preference"))
+				.param("preference", "shortest")
 				.param("profile", getParameter("carProfile"))
 				.param("options", "{\"avoid_countries\":\"3\"}")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(1581.9f))
-				.body("routes[0].summary.duration", is(282.2f))
+				.body("routes[0].summary.distance", is(1156.6f))
 				.statusCode(200);
 
 		given()
 				.param("coordinates", "8.684682,49.401961|8.690518,49.405326")
 				.param("instructions", "false")
-				.param("preference", getParameter("preference"))
+				.param("preference", "shortest")
 				.param("profile", getParameter("carProfile"))
 				.param("options", "{\"avoid_countries\":\"1|3\"}")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(3172.3f))
-                .body("routes[0].summary.duration", is(402.8f))
                 .statusCode(200);
 
 	}
@@ -813,7 +1139,7 @@ public class ResultTest extends ServiceTest {
 				.param("preference", getParameter("preference"))
 				.param("profile", getParameter("carProfile"))
 				.param("options", "{\"avoid_borders\":\"controlled\",\"avoid_countries\":\"1\"}")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -827,32 +1153,32 @@ public class ResultTest extends ServiceTest {
 		// Test that a detourfactor is returned when requested
 		given()
 				.param("coordinates",getParameter("coordinatesShort"))
-				.param("preference",getParameter("preference"))
+				.param("preference", "shortest")
 				.param("profile", getParameter("carProfile"))
 				.param("attributes", "detourfactor")
-				.when()
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].segments[0].detourfactor", is(1.62f))
+				.body("routes[0].segments[0].detourfactor", is(1.32f))
 				.statusCode(200);
 	}
 
 	@Test
 	public void testAvoidArea() {
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
+				.param("coordinates",getParameter("coordinatesShort"))
+				.param("preference", "shortest")
 				.param("profile", getParameter("carProfile"))
-				.param("options", "{\"avoid_polygons\":{\"type\":\"Polygon\",\"coordinates\":[[[\"8.675\",\"49.419\"],[\"8.677\",\"49.419\"],[\"8.675\",\"49.418\"],[\"8.675\",\"49.419\"]]]}}")
-				.when()
+				.param("options", "{\"avoid_polygons\":{\"type\":\"Polygon\",\"coordinates\":[[[\"8.680\",\"49.421\"],[\"8.687\",\"49.421\"],[\"8.687\",\"49.418\"],[\"8.680\",\"49.418\"],[\"8.680\",\"49.421\"]]]}}")
+				.when().log().ifValidationFails()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(2722.6f))
-				.body("routes[0].summary.duration", is(273.2f))
+				.body("routes[0].summary.distance", is(2133.7f))
+				.body("routes[0].summary.duration", is(290.8f))
 				.statusCode(200);
 	}
 
