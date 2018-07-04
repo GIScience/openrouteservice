@@ -21,28 +21,22 @@
 package heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 
-public class AvoidBordersCoreEdgeFilter extends EdgeFilterSeq {
-    private BordersGraphStorage _extBorders;
+public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
+    private BordersGraphStorage _storage;
 
-    public AvoidBordersCoreEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage, EdgeFilter prevFilter) {
-        super(encoder, true, true, prevFilter);
-        this._extBorders = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
+    public AvoidBordersCoreEdgeFilter(GraphStorage graphStorage) {
+        this._storage = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
     }
 
     @Override
-    protected final boolean check(EdgeIteratorState iter) {
+    public final boolean accept(EdgeIteratorState iter) {
 
-        if (_out && iter.isForward(_encoder) || _in && iter.isBackward(_encoder)) {
-            // accept if an edge does not cross a border
-            return _extBorders.getEdgeValue(iter.getEdge(), BordersGraphStorage.Property.TYPE) == BordersGraphStorage.NO_BORDER;
-        }
+        return _storage.getEdgeValue(iter.getEdge(), BordersGraphStorage.Property.TYPE) == BordersGraphStorage.NO_BORDER;
 
-        return false;
     }
 }

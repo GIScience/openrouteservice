@@ -21,35 +21,26 @@
 package heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
-import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 
 
-public class HeavyVehicleCoreEdgeFilter extends EdgeFilterSeq {
-	private HeavyVehicleAttributesGraphStorage _gsHeavyVehicles;
+public class HeavyVehicleCoreEdgeFilter implements EdgeFilter {
+	private HeavyVehicleAttributesGraphStorage _storage;
 	private byte[] _buffer;
 
-	public HeavyVehicleCoreEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage, EdgeFilter prevFilter) {
-		super(encoder, true, true, prevFilter);
-		this._buffer = new byte[10];
-		this._gsHeavyVehicles = GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class);
+	public HeavyVehicleCoreEdgeFilter(GraphStorage graphStorage) {
+		_buffer = new byte[3];
+		_storage = GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class);
 	}
 
 	@Override
-	public boolean check(EdgeIteratorState iter) {
-		if (_out && iter.isForward(_encoder) || _in && iter.isBackward(_encoder)) {
-			int edgeId = iter.getOriginalEdge();
+	public final boolean accept(EdgeIteratorState iter) {
 
-			int vt = _gsHeavyVehicles.getEdgeVehicleType(edgeId, _buffer);
+		return  _storage.hasEdgeRestriction(iter.getOriginalEdge(), _buffer);
 
-			// true if edge has no restrictions
-			return (vt == HeavyVehicleAttributes.UNKNOWN);
-		}
-		return false;
 	}
 
 }

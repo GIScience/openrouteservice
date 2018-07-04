@@ -20,42 +20,25 @@
  */
 package heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
+import java.util.ArrayList;
+
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.util.EdgeIteratorState;
 
-public class EdgeFilterSeq implements EdgeFilter {
-	protected final boolean _in;
-	protected final boolean _out;
-	protected final FlagEncoder _encoder;
-	private EdgeFilter _prevFilter;
-
-	protected EdgeFilterSeq(FlagEncoder encoder, boolean in, boolean out, EdgeFilter prevFilter) {
-		_encoder = encoder;
-		_in = in;
-		_out = out;
-		_prevFilter = prevFilter;
-	}
-
-	public final void setPrevFilter(EdgeFilter prevFilter) {
-		_prevFilter = prevFilter;
-	}
-
-	public final EdgeFilter getPrevFilter() {
-		return _prevFilter;
-	}
+public class EdgeFilterSequence extends ArrayList<EdgeFilter> implements EdgeFilter {
 
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {
-		if (_prevFilter.accept(iter)) {
-			return check(iter);
-		} else {
-			return false;
+		for (EdgeFilter edgeFilter: this) {
+			if (!edgeFilter.accept(iter)) {
+				return false;
+			}
 		}
-	}
-
-	protected boolean check(EdgeIteratorState iter) {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "EdgeFilter Sequence :" + size();
+	}
 }

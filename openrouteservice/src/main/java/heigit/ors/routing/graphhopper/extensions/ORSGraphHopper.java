@@ -36,8 +36,9 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.*;
+import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.mapmatching.RouteSegmentInfo;
-import heigit.ors.routing.RoutingProfile;
+import heigit.ors.routing.*;
 
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
@@ -50,8 +51,15 @@ import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesCoreEdgeFilter;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.core.EdgeFilterSequence;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
+import heigit.ors.routing.parameters.CyclingParameters;
+import heigit.ors.routing.parameters.VehicleParameters;
+import heigit.ors.routing.parameters.WheelchairParameters;
 
 public class ORSGraphHopper extends GraphHopper {
 
@@ -229,16 +237,42 @@ public class ORSGraphHopper extends GraphHopper {
 	public void postProcessing() {
 		super.postProcessing();
 
-		//TODO
-		EdgeFilter coreEdgeFilter = new AvoidFeaturesCoreEdgeFilter();
+		//TODO: iterate over all available profiles; the hard-coded profile is provided as an example
+
+		int profileType = RoutingProfileType.DRIVING_HGV;
+
+		GraphHopperStorage gs = getGraphHopperStorage();
+
+		/* Initialize edge filter sequence */
+
+		EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
+
+		/* Heavy vehicle filter */
+
+		if (profileType == RoutingProfileType.DRIVING_HGV) {
+			coreEdgeFilter.add(new HeavyVehicleCoreEdgeFilter(gs));
+		}
+
+		/* Avoid features */
+
+		if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)
+				|| profileType == RoutingProfileType.FOOT_WALKING || profileType == RoutingProfileType.FOOT_HIKING
+				|| profileType == RoutingProfileType.WHEELCHAIR) {
+			coreEdgeFilter.add(new AvoidFeaturesCoreEdgeFilter(gs, profileType));
+		}
+
+		/* Avoid borders of some form */
+
+		if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)) {
+			coreEdgeFilter.add(new AvoidBordersCoreEdgeFilter(gs));
+		}
+
+		/* End filter sequence initialization */
 
 		if(coreFactoryDecorator.isEnabled())
 			coreFactoryDecorator.createPreparations(ghStorage, traversalMode, coreEdgeFilter);
 		if (!isCorePrepared())
 			prepareCore();
-
-
-
 	}
 	/**
 	 * Enables or disables core calculation.

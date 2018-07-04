@@ -4,14 +4,14 @@
  *   http://www.giscience.uni-hd.de
  *   http://www.heigit.org
  *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
+ *  under one or more contributor license agreements. See the NOTICE file
+ *  distributed with this work for additional information regarding copyright
+ *  ownership. The GIScience licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in compliance
  *  with the License. You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,11 +30,16 @@ public class AvoidFeatureFlags {
 	public static final int Tunnels = 32; // 1 << 5;
 	public static final int PavedRoads = 64; // 1 << 6;
 	public static final int Fords = 128; // 1 << 7;
-	
+
 	public static final int Bridges = 256; // does not work as it is greater than byte limit of 255.
-	public static final int Borders = 512; 
+	public static final int Borders = 512;
 	public static final int Hills = 1024;
-	
+
+	public static final int DrivingFeatures = Highways | Tollways | Ferries | UnpavedRoads | Tracks | Tunnels | Fords | Bridges | Borders;
+	public static final int CyclingFeatures = Steps | Ferries | UnpavedRoads | PavedRoads | Fords;
+	public static final int WalkingFeatures =  Steps | Ferries | Fords;
+	public static final int WheelchairFeatures = Ferries;
+
 	public static int getFromString(String value)
 	{
 		switch(value.toLowerCase())
@@ -64,10 +69,25 @@ public class AvoidFeatureFlags {
 			case "hills":
 				return Hills;
 		}
-		
+
 		return 0;
 	}
-	
+
+	public static int getProfileFlags(int profileCategory) {
+		switch(profileCategory) {
+			case RoutingProfileCategory.DRIVING:
+				return DrivingFeatures;
+			case RoutingProfileCategory.CYCLING:
+				return CyclingFeatures;
+			case RoutingProfileCategory.WALKING:
+				return WalkingFeatures;
+			case RoutingProfileCategory.WHEELCHAIR:
+				return WheelchairFeatures;
+			default:
+				return RoutingProfileCategory.UNKNOWN;
+		}
+	}
+
 	public static boolean isValid(int profileType, int value, String featName)
 	{
 		if (RoutingProfileType.isDriving(profileType))
@@ -80,7 +100,7 @@ public class AvoidFeatureFlags {
 			if (value == Highways || value == Tunnels)
 				return false;
 		}
-		
+
 		return true;
 	}
 }

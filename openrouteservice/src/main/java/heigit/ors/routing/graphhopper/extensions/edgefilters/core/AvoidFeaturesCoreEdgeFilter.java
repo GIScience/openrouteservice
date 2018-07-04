@@ -30,56 +30,22 @@ import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
 
-public class AvoidFeaturesCoreEdgeFilter extends EdgeFilterSeq {
+public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
 	private byte[] _buffer;
-	private WayCategoryGraphStorage _extWayCategory;
-	private int _profileCategory;
+	private WayCategoryGraphStorage _storage;
+	private int _avoidFeatures;
 
-	private static final int HIGHWAYS = AvoidFeatureFlags.Highways;
-	private static final int TOLLWAYS = AvoidFeatureFlags.Tollways;
-	private static final int FERRIES = AvoidFeatureFlags.Ferries;
-	private static final int UNPAVEDROADS = AvoidFeatureFlags.UnpavedRoads;
-	private static final int PAVEDROADS = AvoidFeatureFlags.PavedRoads;
-	private static final int TRACKS = AvoidFeatureFlags.Tracks;
-	private static final int STEPS = AvoidFeatureFlags.Steps;
-	private static final int BORDERS = AvoidFeatureFlags.Borders;
-	private static final int TUNNELS = AvoidFeatureFlags.Tunnels;
-	private static final int BRIDGES = AvoidFeatureFlags.Bridges;
-	private static final int FORDS = AvoidFeatureFlags.Fords;
-
-	private static final int DRIVING_FEATURES = HIGHWAYS | TOLLWAYS | FERRIES | UNPAVEDROADS | TRACKS | BORDERS | TUNNELS | BRIDGES | FORDS;
-	private static final int CYCLING_FEATURES = FERRIES | UNPAVEDROADS | PAVEDROADS| STEPS | FORDS;
-	private static final int WALKING_FEATURES = FERRIES | STEPS | FORDS;
-	private static final int WHEELCHAIR_FEATURES = FERRIES;
-
-
-	public AvoidFeaturesCoreEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage, EdgeFilter prevFilter) {
-		super(encoder, true, true, prevFilter);
-		this._buffer = new byte[10];
-		_profileCategory = RoutingProfileCategory.getFromRouteProfile(RoutingProfileType.getFromEncoderName(encoder.toString()));
-		_extWayCategory = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
+	public AvoidFeaturesCoreEdgeFilter(GraphStorage graphStorage, int profileType) {
+		_buffer = new byte[10];
+		_avoidFeatures = AvoidFeatureFlags.getProfileFlags(profileType);
+		_storage = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
 	}
 
 	@Override
-	public final boolean check(EdgeIteratorState iter) {
-		if (_out && iter.isForward(_encoder) || _in && iter.isBackward(_encoder)) {
-			if (_extWayCategory != null) {
-				int edgeFeatType = _extWayCategory.getEdgeValue(iter.getEdge(), _buffer);
+	public final boolean accept(EdgeIteratorState iter) {
 
-				if (edgeFeatType > 0) {
-					switch (_profileCategory) {
-						case RoutingProfileCategory.DRIVING: return (edgeFeatType & DRIVING_FEATURES) == 0;
-						case RoutingProfileCategory.CYCLING: return (edgeFeatType & CYCLING_FEATURES) == 0;
-						case RoutingProfileCategory.WALKING: return (edgeFeatType & WALKING_FEATURES) == 0;
-						case RoutingProfileCategory.WHEELCHAIR: return (edgeFeatType & WHEELCHAIR_FEATURES) == 0;
-					}
-				}
-			}
+		return (_storage.getEdgeValue(iter.getEdge(), _buffer) & _avoidFeatures) == 0;
 
-			return true;
-		}
-
-		return false;
 	}
 
 }
