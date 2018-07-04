@@ -18,13 +18,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.tomove;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.PMap;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.SpeedLimitHandler;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.tomove.BikeCommonFlagEncoder;
 
 import java.util.HashMap;
 import java.util.Map;

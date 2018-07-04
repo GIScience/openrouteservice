@@ -24,6 +24,7 @@ public interface FlagEncoderNames {
     public static final String BIKE_ORS         = "bike-ors";
     public static final String ROADBIKE_ORS     = "roadbike-ors";
     public static final String MTB_ORS          = "mtb-ors";
+    public static final String BIKE_ELECTRO     = "electrobike";
 
     // MARQ24: just here to be able to compare old encoders with NextGen (NG) impl
     // MARQ24 - please note this is the  depricated "road bike" profile of ors which was based on gh 0.9.x -> I have no
@@ -43,8 +44,6 @@ public interface FlagEncoderNames {
     // combine multiple vehicles in a single graph - this feature was hard to maintain over the time
     // with all the original gh changes so we (timothy, alan & marq24) have decided to ged rid of this
     // feature...
-    @Deprecated
-    public static final String BIKE_ELECTRO     = "electrobike";
     @Deprecated
     public static final String BIKE_SAFTY       = "safetybike";
     @Deprecated

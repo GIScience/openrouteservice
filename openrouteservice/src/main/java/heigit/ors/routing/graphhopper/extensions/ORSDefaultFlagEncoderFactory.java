@@ -25,6 +25,7 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.FlagEncoderFactory;
 import com.graphhopper.util.PMap;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.tomove.ElectroBikeFlagEncoder;
 
 public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory implements FlagEncoderFactory {
 
@@ -60,6 +61,9 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
 
             case FlagEncoderNames.MTB_ORS:
                 return new heigit.ors.routing.graphhopper.extensions.flagencoders.nextgen.NextGenMountainBikeFlagEncoder(configuration);
+
+            case FlagEncoderNames.BIKE_ELECTRO:
+                return new ElectroBikeFlagEncoder(configuration);
 
             case FlagEncoderNames.ROADBIKE_ORS:
                 // MARQ24 hardcoded "ignore" consider_elevation for the NextGenRoadbike FlagEncoder - when
@@ -102,9 +106,6 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
 
             case FlagEncoderNames.BIKE_SAFTY:
                 return new heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.SafetyBikeFlagEncoder(configuration);
-
-            case FlagEncoderNames.BIKE_ELECTRO:
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.ElectroBikeFlagEncoder(configuration);
 
             case FlagEncoderNames.BIKE_TOUR:
                 return new heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.CycleTourBikeFlagEncoder(configuration);
