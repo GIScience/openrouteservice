@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.EdgeIteratorState;
 
-public class EdgeFilterSequence extends ArrayList<EdgeFilter> implements EdgeFilter{
+public class EdgeFilterSequence extends ArrayList<EdgeFilter> implements EdgeFilter {
 
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {

@@ -30,8 +30,6 @@ import heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.apache.log4j.Logger;
 
 public class AvoidBordersEdgeFilter implements EdgeFilter {
-    private static Logger LOGGER = Logger.getLogger(AvoidFeaturesEdgeFilter.class);
-
     private BordersExtractor.Avoid _avoidBorders = BordersExtractor.Avoid.NONE;
     private boolean _avoidCountries = false;
 
