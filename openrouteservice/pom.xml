@@ -319,11 +319,36 @@
       	<artifactId>jbrotli</artifactId>
       	<version>0.5.0</version>
    	</dependency>
+
     <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>4.4</version>
     </dependency>
+
+    <!-- Required for JDK 10 - since javax.xml.bind not longer included in default JDK
+    https://stackoverflow.com/questions/43574426/how-to-resolve-java-lang-noclassdeffounderror-javax-xml-bind-jaxbexception-in-j/46455026
+    <dependency>
+        <groupId>javax.xml.bind</groupId>
+        <artifactId>jaxb-api</artifactId>
+        <version>2.3.0</version>
+    </dependency>
+    <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-core</artifactId>
+        <version>2.3.0</version>
+    </dependency>
+    <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-impl</artifactId>
+        <version>2.3.0</version>
+    </dependency>
+    <dependency>
+        <groupId>javax.activation</groupId>
+        <artifactId>activation</artifactId>
+        <version>1.1.1</version>
+    </dependency>
+    -->
 
     <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
 <!-- <dependency>
