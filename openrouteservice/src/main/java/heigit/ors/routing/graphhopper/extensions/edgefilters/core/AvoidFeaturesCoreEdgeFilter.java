@@ -37,7 +37,7 @@ public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
 
 	public AvoidFeaturesCoreEdgeFilter(GraphStorage graphStorage, int profileType) {
 		_buffer = new byte[10];
-		_avoidFeatures = AvoidFeatureFlags.getProfileFlags(profileType);
+		_avoidFeatures = AvoidFeatureFlags.getProfileFlags(RoutingProfileCategory.getFromRouteProfile(profileType));
 		_storage = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
 	}
 
