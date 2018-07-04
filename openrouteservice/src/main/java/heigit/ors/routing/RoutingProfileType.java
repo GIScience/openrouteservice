@@ -39,11 +39,11 @@ public class RoutingProfileType {
     public static final int CYCLING_REGULAR = 10;
     public static final int CYCLING_MOUNTAIN = 11;
     public static final int CYCLING_ROAD = 12;
+    public static final int CYCLING_ELECTRIC = 17;
+
     public static final int CYCLING_MOTOR = 15;
     @Deprecated
     public static final int CYCLING_ROAD_OLD = 16;
-    @Deprecated
-    public static final int CYCLING_ELECTRIC = 17;
     @Deprecated
     public static final int CYCLING_SAFE = 18;
     @Deprecated
