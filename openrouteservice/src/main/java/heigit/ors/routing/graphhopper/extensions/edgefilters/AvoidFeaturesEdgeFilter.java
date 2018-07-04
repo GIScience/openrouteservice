@@ -41,10 +41,10 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 
 	private static final int NOT_TOLLWAYS = ~AvoidFeatureFlags.Tollways;
 
-	public AvoidFeaturesEdgeFilter(FlagEncoder encoder, RouteSearchParameters searchParams, GraphStorage graphStorage) throws Exception {
+	public AvoidFeaturesEdgeFilter(int profileType, RouteSearchParameters searchParams, GraphStorage graphStorage) throws Exception {
 		this._buffer = new byte[10];
 
-		_profileCategory = RoutingProfileCategory.getFromRouteProfile(RoutingProfileType.getFromEncoderName(encoder.toString()));
+		_profileCategory = RoutingProfileCategory.getFromRouteProfile(profileType);
 
 		this._avoidFeatureType = searchParams.getAvoidFeatureTypes() & AvoidFeatureFlags.getProfileFlags(_profileCategory);
 

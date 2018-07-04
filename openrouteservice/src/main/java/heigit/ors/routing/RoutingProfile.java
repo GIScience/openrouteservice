@@ -671,7 +671,7 @@ public class RoutingProfile {
 
                 /* Avoid any features other than hills */
                 if (avoidFeatures != AvoidFeatureFlags.Hills) {
-                    edgeFilters.add(new AvoidFeaturesEdgeFilter(flagEncoder, searchParams, gs));
+                    edgeFilters.add(new AvoidFeaturesEdgeFilter(profileType, searchParams, gs));
                 }
 
                 /* Special case of hills */
