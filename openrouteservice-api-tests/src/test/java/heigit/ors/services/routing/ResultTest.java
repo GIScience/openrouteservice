@@ -1337,4 +1337,21 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].summary.duration", is(129.2f))
 				.statusCode(200);
 	}
+
+	@Test
+    public void testOsmIdExtras() {
+        given()
+                .param("coordinates", "8.676730,49.421513|8.678545,49.421117")
+                .param("preference", "shortest")
+                .param("profile", "wheelchair")
+                .param("extra_info", "osmid")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.containsKey('osmid')", is(true))
+                .statusCode(200);
+    }
 }
