@@ -237,7 +237,7 @@ public class ORSGraphHopper extends GraphHopper {
 	public void postProcessing() {
 		super.postProcessing();
 
-		//TODO: iterate over all available profiles; the hard-coded profile is provided as an example
+		//TODO: select appropriate set of filters based on profile (category); this method is called for each of the profile categories corresponding to the subdirectories of graphs/
 
 		int profileType = RoutingProfileType.DRIVING_HGV;
 
