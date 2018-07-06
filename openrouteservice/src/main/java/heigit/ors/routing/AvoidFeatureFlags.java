@@ -34,12 +34,7 @@ public class AvoidFeatureFlags {
 	public static final int Bridges = 256; // does not work as it is greater than byte limit of 255.
 	public static final int Borders = 512; 
 	public static final int Hills = 1024;
-
-	public static final int DrivingFeatures = Highways | Tollways | Ferries | UnpavedRoads | Tracks | Tunnels | Fords | Bridges | Borders;
-	public static final int CyclingFeatures = Steps | Ferries | UnpavedRoads | PavedRoads | Fords;
-	public static final int WalkingFeatures =  Steps | Ferries | Fords;
-	public static final int WheelchairFeatures = Ferries;
-
+	
 	public static int getFromString(String value)
 	{
 		switch(value.toLowerCase())
@@ -72,22 +67,7 @@ public class AvoidFeatureFlags {
 		
 		return 0;
 	}
-
-	public static int getProfileFlags(int profileCategory) {
-		switch(profileCategory) {
-			case RoutingProfileCategory.DRIVING:
-				return DrivingFeatures;
-			case RoutingProfileCategory.CYCLING:
-				return CyclingFeatures;
-			case RoutingProfileCategory.WALKING:
-				return WalkingFeatures;
-			case RoutingProfileCategory.WHEELCHAIR:
-				return WheelchairFeatures;
-			default:
-				return RoutingProfileCategory.UNKNOWN;
-		}
-	}
-
+	
 	public static boolean isValid(int profileType, int value, String featName)
 	{
 		if (RoutingProfileType.isDriving(profileType))

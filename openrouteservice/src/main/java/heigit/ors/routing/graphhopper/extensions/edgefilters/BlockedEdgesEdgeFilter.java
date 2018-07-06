@@ -20,9 +20,7 @@
  */
 package heigit.ors.routing.graphhopper.extensions.edgefilters;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -31,22 +29,58 @@ import com.graphhopper.util.EdgeIteratorState;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.HeavyVehicleFlagEncoder;
 
 public class BlockedEdgesEdgeFilter implements EdgeFilter {
-	private Set<Integer> blockedEdges;
 
+	private final boolean in;
+	private final boolean out;
+	private FlagEncoder encoder;
+	private List<Integer> blockedEdges;
+	private List<Integer> blockedEdges_hv;
+
+	/**
+	 * edges (blockedEdges) for cars and heavy vehicles
+	 * edges_hv only for heavy vehicles 
+	 **/
 	public BlockedEdgesEdgeFilter(FlagEncoder encoder, List<Integer> edges, List<Integer> edges_hv) {
-		// use HashSet which has O(1) performance compared to O(n) for List<Integer>
-		this.blockedEdges = new HashSet<Integer>();
-		this.blockedEdges.addAll(edges);
-
-		if (encoder instanceof HeavyVehicleFlagEncoder)
-			this.blockedEdges.addAll(edges_hv);
+		
+		this(encoder, true, true, edges, edges_hv);
+	}
+	/**
+	 * Creates an edges filter which accepts both direction of the specified
+	 * vehicle.
+	 */
+	public BlockedEdgesEdgeFilter(FlagEncoder encoder, boolean in, boolean out, List<Integer> edges, List<Integer> edges_hv) {
+		
+		this.encoder = encoder;
+		this.in = in;
+		this.out = out;
+		this.blockedEdges = edges;
+		this.blockedEdges_hv = edges_hv;
 	}
 
 	@Override
 	public boolean accept(EdgeIteratorState iter) {
+		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder)) {
+            if (blockedEdges != null)
+            {
+            	if (blockedEdges.contains(iter.getOriginalEdge()))
+            		return false;
+            }
+            
+            if ((blockedEdges_hv.size()!=0) && ( encoder instanceof HeavyVehicleFlagEncoder))
+            {
+         
+            	if (blockedEdges_hv.contains(iter.getOriginalEdge()))
+            		return false;
+            }
+            
+            return true;
+		}
 
-		return !blockedEdges.contains(iter.getOriginalEdge());
-
+		return false;
 	}
 
+	@Override
+	public String toString() {
+		return encoder.toString() + ", in:" + in + ", out:" + out;
+	}
 }

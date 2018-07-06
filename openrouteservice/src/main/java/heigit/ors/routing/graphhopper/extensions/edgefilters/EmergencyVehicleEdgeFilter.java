@@ -28,19 +28,35 @@ import heigit.ors.routing.graphhopper.extensions.storages.EmergencyVehicleAttrib
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
 
 public class EmergencyVehicleEdgeFilter implements EdgeFilter {
 
 	private EmergencyVehicleAttributesGraphStorage gsAttributes;
+	private final boolean in;
+	private final boolean out;
+	private FlagEncoder encoder;
 	private float[] restrictionValues;
 	private double[] retValues;
 	private Integer[] indexValues;
 	private int restCount;
 	private byte[] buffer;
 
-	public EmergencyVehicleEdgeFilter(VehicleParameters vehicleParams, GraphStorage graphStorage) {
+	public EmergencyVehicleEdgeFilter(FlagEncoder encoder, VehicleParameters vehicleParams, GraphStorage graphStorage) {
+		this(encoder, true, true, vehicleParams, graphStorage);
+	}
+
+	/**
+	 * Creates an edges filter which accepts both direction of the specified
+	 * vehicle.
+	 */
+	public EmergencyVehicleEdgeFilter(FlagEncoder encoder, boolean in, boolean out, VehicleParameters vehicleParams, GraphStorage graphStorage) {
+		this.encoder = encoder;
+		this.in = in;
+		this.out = out;
+
 		float[] vehicleAttrs = new float[VehicleDimensionRestrictions.Count];
 
 		vehicleAttrs[VehicleDimensionRestrictions.MaxHeight] = (float)vehicleParams.getHeight();
@@ -72,50 +88,56 @@ public class EmergencyVehicleEdgeFilter implements EdgeFilter {
 
 	@Override
 	public boolean accept(EdgeIteratorState iter) {
+		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder)) {
+			int edgeId = iter.getOriginalEdge();
 
-		int edgeId = iter.getOriginalEdge();
-
-		if (restCount != 0 && gsAttributes != null) {
-			if (restCount == 1) {
-				double value = gsAttributes.getEdgeRestrictionValue(edgeId, indexValues[0], buffer);
-				if (value > 0 && value < restrictionValues[0])
-					return false;
-				else
-					return true;
-			} else {
-				if (gsAttributes.getEdgeRestrictionValues(edgeId, buffer, retValues))
-				{
-					double value = retValues[0];
-					if (value > 0.0f && value < restrictionValues[0])
+			if (restCount != 0 && gsAttributes != null) {
+				if (restCount == 1) {
+					double value = gsAttributes.getEdgeRestrictionValue(edgeId, indexValues[0], buffer);
+					if (value > 0 && value < restrictionValues[0])
 						return false;
-
-					value = retValues[1];
-					if (value > 0.0f && value < restrictionValues[1])
-						return false;
-
-					if (restCount >= 3) {
-						value = retValues[2];
-						if (value > 0.0f && value < restrictionValues[2])
+					else
+						return true;
+				} else {
+					if (gsAttributes.getEdgeRestrictionValues(edgeId, buffer, retValues))
+					{
+						double value = retValues[0];
+						if (value > 0.0f && value < restrictionValues[0])
 							return false;
-					}
 
-					if (restCount >= 4) {
-						value = retValues[3];
-						if (value > 0.0f && value < restrictionValues[3])
+						value = retValues[1];
+						if (value > 0.0f && value < restrictionValues[1])
 							return false;
-					}
 
-					if (restCount == 5) {
-						value = retValues[4];
-						if (value > 0.0f && value < restrictionValues[4])
-							return false;
+						if (restCount >= 3) {
+							value = retValues[2];
+							if (value > 0.0f && value < restrictionValues[2])
+								return false;
+						}
+
+						if (restCount >= 4) {
+							value = retValues[3];
+							if (value > 0.0f && value < restrictionValues[3])
+								return false;
+						}
+
+						if (restCount == 5) {
+							value = retValues[4];
+							if (value > 0.0f && value < restrictionValues[4])
+								return false;
+						}
 					}
 				}
 			}
+			
+			return true;
 		}
-
-		return true;
-
+		
+		return false;
 	}
 
+	@Override
+	public String toString() {
+		return encoder.toString() + ", in:" + in + ", out:" + out;
+	}
 }

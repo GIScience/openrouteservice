@@ -34,13 +34,26 @@ import heigit.ors.routing.graphhopper.extensions.storages.AccessRestrictionsGrap
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 
 public class AccessRestrictionsEdgeFilter implements EdgeFilter {
+
+	private final boolean _in;
+	private final boolean _out;
+	private FlagEncoder _encoder;
 	private int _vehicleType= 0;
 	private AccessRestrictionsGraphStorage _gsRestrictions;
 	private GHIntArrayList _allowedEdges;
 	private byte[] _buffer = new byte[2];
 
-	public AccessRestrictionsEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage, List<Integer> allowedEdges) {
+	public AccessRestrictionsEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage, List<Integer> allowedEdges)
+	{
+		this(encoder, true, true, graphStorage, allowedEdges);
+	}
 
+	public AccessRestrictionsEdgeFilter(FlagEncoder encoder, boolean in, boolean out, GraphStorage graphStorage, List<Integer> allowedEdges)
+	{
+		this._encoder = encoder;
+		this._in = in;
+		this._out = out;
+		
 		if (allowedEdges != null)
 		{
 			_allowedEdges = new GHIntArrayList(allowedEdges.size());
@@ -67,10 +80,24 @@ public class AccessRestrictionsEdgeFilter implements EdgeFilter {
 	}
 
 	@Override
-	public final boolean accept(EdgeIteratorState iter) {
+	public final boolean accept(EdgeIteratorState iter )
+	{
+		if (_out && iter.isForward(_encoder) || _in && iter.isBackward(_encoder))
+		{
+			int res = _gsRestrictions.getEdgeValue(iter.getOriginalEdge(), _vehicleType, _buffer);
+			if (res == AccessRestrictionType.None)
+				return true;
 
-		return _gsRestrictions.getEdgeValue(iter.getOriginalEdge(), _vehicleType, _buffer) == AccessRestrictionType.None || _allowedEdges == null || _allowedEdges.contains(iter.getOriginalEdge());
+			if (_allowedEdges == null || _allowedEdges.contains(iter.getOriginalEdge()))
+				return true;
+		}
 
+		return false;
 	}
 
+	@Override
+	public String toString()
+	{
+		return _encoder.toString() + ", in:" + _in + ", out:" + _out;
+	}
 }

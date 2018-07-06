@@ -23,6 +23,7 @@ package heigit.ors.routing.graphhopper.extensions.edgefilters;
 import java.io.Serializable;
 
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
 
@@ -35,6 +36,9 @@ import com.vividsolutions.jts.geom.Polygon;
 
 public class AvoidAreasEdgeFilter implements EdgeFilter {
 
+	private final boolean in;
+	private final boolean out;
+	private FlagEncoder encoder;
 	private Envelope env; 
 	private Polygon[] polys;
 	private DefaultCoordinateSequence coordSequence;
@@ -48,8 +52,16 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 	/**
 	 * Creates an edges filter which accepts both direction of the specified vehicle.
 	 */
-	public AvoidAreasEdgeFilter(Polygon[] polys)
+	public AvoidAreasEdgeFilter(FlagEncoder encoder, Polygon[] polys)
 	{
+		this(encoder, true, true, polys);
+	}
+
+	public AvoidAreasEdgeFilter(FlagEncoder encoder, boolean in, boolean out, Polygon[] polys)
+	{
+		this.encoder = encoder;
+		this.in = in;
+		this.out = out;
 		this.polys = polys;
 
 		if (polys != null && polys.length > 0)
@@ -80,83 +92,86 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 	}
 
 	@Override
-	public final boolean accept(EdgeIteratorState iter ) {
-		if (env == null)
-			return true;
-
-		boolean inEnv = false;
-		//   PointList pl = iter.fetchWayGeometry(2); // does not work
-		PointList pl = iter.fetchWayGeometry(3);
-		int size = pl.getSize();
-
-		eMinX = Double.MAX_VALUE;
-		eMinY = Double.MAX_VALUE;
-		eMaxX = Double.MIN_VALUE;
-		eMaxY = Double.MIN_VALUE;
-
-		for (int j = 0; j < pl.getSize(); j++)
+	public final boolean accept(EdgeIteratorState iter )
+	{
+		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder))
 		{
-			double x = pl.getLon(j);
-			double y = pl.getLat(j);
-			if (env.contains(x, y))
+			if (env == null)
+				return true;
+
+			boolean inEnv = false;
+			//   PointList pl = iter.fetchWayGeometry(2); // does not work
+			PointList pl = iter.fetchWayGeometry(3);
+			int size = pl.getSize();
+			
+			eMinX = Double.MAX_VALUE;
+			eMinY = Double.MAX_VALUE;
+			eMaxX = Double.MIN_VALUE;
+			eMaxY = Double.MIN_VALUE;
+
+			for (int j = 0; j < pl.getSize(); j++)
 			{
-				inEnv = true;
-				break;
+				double x = pl.getLon(j);
+				double y = pl.getLat(j);
+				if (env.contains(x, y))
+				{
+					inEnv = true;
+					break;
+				}
+				
+				if (x < eMinX)
+					eMinX = x;
+				if (y < eMinY)
+					 eMinY = y;
+				if (x > eMaxX)
+					eMaxX = x;
+				if (y > eMaxY)
+					eMaxY = y;
 			}
 
-			if (x < eMinX)
-				eMinX = x;
-			if (y < eMinY)
-				eMinY = y;
-			if (x > eMaxX)
-				eMaxX = x;
-			if (y > eMaxY)
-				eMaxY = y;
-		}
-
-		if (inEnv || !(eMinX > env.getMaxX() || eMaxX < env.getMinX() || eMinY > env.getMaxY() || eMaxY < env.getMinY()))
-		{
-			// We have to reset the coordinate sequence else for some reason the envelopes for the edge are wrong
-			coordSequence = new DefaultCoordinateSequence(new Coordinate[1], 1);
-			if (size >= 2)
+			if (inEnv || !(eMinX > env.getMaxX() || eMaxX < env.getMinX() || eMinY > env.getMaxY() || eMaxY < env.getMinY()))
 			{
-				// resize sequence if needed
-				coordSequence.resize(size);
-
-				for (int j = 0; j < size; j++)
+				// We have to reset the coordinate sequence else for some reason the envelopes for the edge are wrong
+				coordSequence = new DefaultCoordinateSequence(new Coordinate[1], 1);
+				if (size >= 2)
 				{
-					double x = pl.getLon(j);
-					double y = pl.getLat(j);
-					Coordinate c =  coordSequence.getCoordinate(j);
+					// resize sequence if needed
+					coordSequence.resize(size);
 
-					if (c == null)
+					for (int j = 0; j < size; j++)
 					{
-						c = new Coordinate(x, y);
-						coordSequence.setCoordinate(j, c);
+						double x = pl.getLon(j);
+						double y = pl.getLat(j);
+						Coordinate c =  coordSequence.getCoordinate(j);
+
+						if (c == null)
+						{
+							c = new Coordinate(x, y);
+							coordSequence.setCoordinate(j, c);
+						}
+						else
+						{
+							c.x = x;
+							c.y = y;
+						}
 					}
-					else
+
+					LineString ls = geomFactory.createLineString(coordSequence);
+
+					for (int i = 0; i < polys.length; i++)
 					{
-						c.x = x;
-						c.y = y;
+						Polygon poly = polys[i];
+						if (poly.contains(ls) || ls.crosses(poly))
+						{
+							return false;
+						}
 					}
 				}
-
-				LineString ls = geomFactory.createLineString(coordSequence);
-
-				for (int i = 0; i < polys.length; i++)
+				else
 				{
-					Polygon poly = polys[i];
-					if (poly.contains(ls) || ls.crosses(poly))
-					{
-						return false;
-					}
+					return false;
 				}
 			}
-			else
-			{
-				return false;
-			}
-		}
 			/*else
 			{
 				// Check if edge geomery intersects env.
@@ -164,9 +179,18 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 				{
 					
 				}
-			}	*/
+			}	*/			
 
-		return true;
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public String toString()
+	{
+		return encoder.toString() + ", in:" + in + ", out:" + out;
 	}
 
 	/**

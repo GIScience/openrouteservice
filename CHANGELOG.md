@@ -18,7 +18,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed the gpx validation errror (Issue #168)
 
 ### Changed
-- Refactored some of the edge filters and cleaned up the code initializing them
 - Updated the wheelchair profile to better handle restrictions such as width, kerb heights and instances where sidewalks are attached to roads. (Issue #162)
 - Replaced "Sand" surface encoding with "Paving stone"
 

@@ -25,20 +25,57 @@ import java.util.ArrayList;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.EdgeIteratorState;
 
-public class EdgeFilterSequence extends ArrayList<EdgeFilter> implements EdgeFilter {
+public class EdgeFilterSequence implements EdgeFilter {
+
+	private ArrayList<EdgeFilter> edgeFilters;
+	private int filtersCount;
+
+	/**
+	 * Creates an edges filter which accepts both direction of the specified
+	 * vehicle.
+	 */
+	public EdgeFilterSequence(ArrayList<EdgeFilter> edgeFilters) {
+		this.edgeFilters = edgeFilters;
+		this.filtersCount = edgeFilters.size();
+	}
+
+	public void addFilter(EdgeFilter e) {
+		edgeFilters.add(e);
+		filtersCount++;
+	}
+	
+	public EdgeFilter getEdgeFilter(Class<?> type)
+	{
+		for (int i = 0; i < filtersCount; i++) {
+			if (type.isAssignableFrom(edgeFilters.get(i).getClass()))
+				return edgeFilters.get(i);
+		}
+		
+		return null;
+	}
+	
+	public boolean containsEdgeFilter(Class<?> type)
+	{
+		for (int i = 0; i < filtersCount; i++) {
+			if (type.isAssignableFrom(edgeFilters.get(i).getClass()))
+				return true;
+		}
+		
+		return false;
+	}
 
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {
-		for (EdgeFilter edgeFilter: this) {
-			if (!edgeFilter.accept(iter)) {
+		for (int i = 0; i < filtersCount; i++) {
+			if (!edgeFilters.get(i).accept(iter))
 				return false;
-			}
 		}
+
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "EdgeFilter Sequence :" + size();
+		return "EdgeFilter Sequence :" + filtersCount;
 	}
 }

@@ -31,6 +31,9 @@ import heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStorage;
 import heigit.ors.routing.graphhopper.extensions.storages.TrailDifficultyScaleGraphStorage;
 
 public class TrailDifficultyEdgeFilter implements EdgeFilter {
+
+	private final boolean _in;
+	private final boolean _out;
 	private FlagEncoder _encoder;
 	private boolean _isHiking = true;
 	private TrailDifficultyScaleGraphStorage _extTrailDifficulty;
@@ -38,8 +41,16 @@ public class TrailDifficultyEdgeFilter implements EdgeFilter {
 	private byte[] _buffer = new byte[2];
 	private int _maximumScale = 10;
 
-	public TrailDifficultyEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage, int maximumScale) {
+	public TrailDifficultyEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage, int maximumScale)
+	{
+		this(encoder, true, true, graphStorage, maximumScale);
+	}
+
+	public TrailDifficultyEdgeFilter(FlagEncoder encoder, boolean in, boolean out, GraphStorage graphStorage, int maximumScale)
+	{
 		this._encoder = encoder;
+		this._in = in;
+		this._out = out;
 
 		_maximumScale = maximumScale;
 
@@ -51,31 +62,41 @@ public class TrailDifficultyEdgeFilter implements EdgeFilter {
 	}
 
 	@Override
-	public final boolean accept(EdgeIteratorState iter ) {
-		if (_isHiking)
+	public final boolean accept(EdgeIteratorState iter )
+	{
+		if (_out && iter.isForward(_encoder) || _in && iter.isBackward(_encoder))
 		{
-			int value = _extTrailDifficulty.getHikingScale(iter.getOriginalEdge(), _buffer);
-			if (value > _maximumScale)
-				return false;
-		}
-		else
-		{
-			boolean uphill = false;
-			if (_extHillIndex != null)
+			if (_isHiking)
 			{
-				boolean revert = iter.getBaseNode() < iter.getAdjNode();
-				int hillIndex = _extHillIndex.getEdgeValue(iter.getOriginalEdge(), revert, _buffer);
-				if (hillIndex > 0)
-					uphill = true;
+				int value = _extTrailDifficulty.getHikingScale(iter.getOriginalEdge(), _buffer);
+				if (value > _maximumScale)
+					return false;
+			} 
+			else
+			{
+				boolean uphill = false;
+				if (_extHillIndex != null)
+				{
+					boolean revert = iter.getBaseNode() < iter.getAdjNode();
+					int hillIndex = _extHillIndex.getEdgeValue(iter.getOriginalEdge(), revert, _buffer);
+					if (hillIndex > 0)
+						uphill = true;
+				}
+				
+				int value = _extTrailDifficulty.getMtbScale(iter.getOriginalEdge(), _buffer, uphill);
+				if (value > _maximumScale)
+					return false;				
 			}
 
-			int value = _extTrailDifficulty.getMtbScale(iter.getOriginalEdge(), _buffer, uphill);
-			if (value > _maximumScale)
-				return false;
+			return true;
 		}
 
-		return true;
-
+		return false;
 	}
 
+	@Override
+	public String toString()
+	{
+		return _encoder.toString() + ", in:" + _in + ", out:" + _out;
+	}
 }
