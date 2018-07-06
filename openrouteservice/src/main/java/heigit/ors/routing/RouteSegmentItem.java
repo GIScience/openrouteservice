@@ -23,10 +23,10 @@ package heigit.ors.routing;
 public class RouteSegmentItem {
 	private int _from;
 	private int _to;
-	private int _value;
+	private long _value;
 	private double _distance;
 
-	public RouteSegmentItem(int from, int to, int value, double distance)
+	public RouteSegmentItem(int from, int to, long value, double distance)
 	{
 		_from = from;
 		_to = to;
@@ -50,7 +50,7 @@ public class RouteSegmentItem {
 		_to = to;
 	}
 
-	public int getValue() {
+	public long getValue() {
 		return _value;
 	}
 
