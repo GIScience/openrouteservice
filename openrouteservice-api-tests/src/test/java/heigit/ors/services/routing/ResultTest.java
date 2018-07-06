@@ -1351,7 +1351,7 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('extras')", is(true))
-                .body("routes[0].extras.containsKey('osmid')", is(true))
+                .body("routes[0].extras.containsKey('osmId')", is(true))
                 .statusCode(200);
     }
 }
