@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 import java.util.*;
 
 import static com.graphhopper.routing.util.PriorityCode.*;
+import static com.graphhopper.util.Helper.keepIn;
 
 /**
  * Defines bit layout of bicycles (not motorcycles) for speed, access and relations (network).
@@ -234,21 +235,22 @@ abstract public class NextGenBikeCommonFlagEncoder extends AbstractFlagEncoder {
         speedEncoder = new EncodedDoubleValue("Speed", shift, speedBits, speedFactor, highwaySpeeds.get("cycleway").speed, maxPossibleSpeed);
         shift += speedEncoder.getBits();
 
-        // MARQ24 MOD START
-        if (isConsiderElevation()) {
-            reverseSpeedEncoder = new EncodedDoubleValue("Reverse Speed", shift, speedBits, speedFactor, getHighwaySpeed("cycleway").speed, maxPossibleSpeed);
-            shift += reverseSpeedEncoder.getBits();
-        }
-        // MARQ24 MOD END
-
         unpavedBit = 1L << shift++;
         // 2 bits
+        // MARQ24 2018/07/08 WayType-Encoder has NO IMPACT on the actual routing - the only place where it was/is used
+        // is in the TurnInstructions (where an different annotations will be added once a different WAYTYPE are present
         wayTypeEncoder = new EncodedValue("WayType", shift, 2, 1, 0, 3, true);
         shift += wayTypeEncoder.getBits();
 
         priorityWayEncoder = new EncodedValue("PreferWay", shift, 3, 1, 0, 7);
         shift += priorityWayEncoder.getBits();
 
+        // MARQ24 MOD START
+        if (isConsiderElevation()) {
+            reverseSpeedEncoder = new EncodedDoubleValue("Reverse Speed", shift, speedBits, speedFactor, getHighwaySpeed("cycleway").speed, maxPossibleSpeed);
+            shift += reverseSpeedEncoder.getBits();
+        }
+        // MARQ24 MOD END
         return shift;
     }
 
@@ -309,6 +311,10 @@ abstract public class NextGenBikeCommonFlagEncoder extends AbstractFlagEncoder {
         if (way.hasTag("bicycle", intendedValues)
                 || way.hasTag("bicycle", "dismount")
                 || way.hasTag("highway", "cycleway")
+                // MARQ24 MOD START
+                // Runge: http://www.openstreetmap.org/way/1700503
+                || way.hasTag("bicycle_road", "yes")
+                // MARQ24 MOD END
         ){
             return acceptBit;
         }
@@ -417,48 +423,43 @@ abstract public class NextGenBikeCommonFlagEncoder extends AbstractFlagEncoder {
     }
 
     int getSpeed(ReaderWay way) {
-        int speed = PUSHING_SECTION_SPEED;
+        int speed = Integer.MIN_VALUE;
         String highwayTag = way.getTag("highway");
         SpeedValue highwaySpeed = highwaySpeeds.get(highwayTag);
 
+        boolean isPushingWay = isPushingSection(way);
+        boolean isCyclewayLikeWay = false;
+        boolean isSteps = way.hasTag("highway", "steps");
+
         // Under certain conditions we need to increase the speed of pushing sections to the speed of a "highway=cycleway"
-        if (way.hasTag("highway", pushingSectionsHighways) &&
+        // MARQ24 - so if this is a pushing section (like path, track or footway) BUT have additional bicycle attributes
+        // then we treat this way as it was tagged as "cycleway"...
+        if (isPushingWay &&
             (
                 (way.hasTag("foot", "yes") && way.hasTag("segregated", "yes"))
+                || way.hasTag("bicycle", "yes")
                 || way.hasTag("bicycle", "designated")
                 || way.hasTag("bicycle", "official")
             )
         ){
-            highwaySpeed = getHighwaySpeed("cycleway");
+            // MARQ24 - but still ignoring STEPS!!!
+            if (!isSteps) {
+                isCyclewayLikeWay = true;
+                highwaySpeed = getHighwaySpeed("cycleway");
+            }
         }
 
         String s = way.getTag("surface");
         if (!Helper.isEmpty(s)) {
             SpeedValue surfaceSpeed = surfaceSpeeds.get(s);
             if (surfaceSpeed != null) {
-                /* MARQ24 - ORG CODE START
-                speed = surfaceSpeed;
-                // boost handling for good surfaces but avoid boosting if pushing section
-                if (highwaySpeed != null && surfaceSpeed > highwaySpeed) {
-                    if (pushingSectionsHighways.contains(highwayTag)) {
-                        speed = highwaySpeed;
-                    }else {
-                        speed = surfaceSpeed;
-                    }
-                }
-                ORG CODE END */
-                if(!pushingSectionsHighways.contains(highwayTag)) {
+                if(!isPushingWay || isCyclewayLikeWay) {
                     // ok if no specific highway speed is set we will use the surface speed...
                     if(highwaySpeed == null){
                         speed = surfaceSpeed.speed;
                     }else{
                         speed = calcHighwaySpeedBasedOnSurface(highwaySpeed, surfaceSpeed);
                     }
-                    /*if (highwaySpeed == null || surfaceSpeed > highwaySpeed && !surfaceOrTracktypeIndependantHighways.contains(highwayTag)) {
-                        speed = surfaceSpeed.speed;
-                    }else{
-                        speed = highwaySpeed.speed;
-                    }*/
                 }
             }
         } else {
@@ -467,50 +468,84 @@ abstract public class NextGenBikeCommonFlagEncoder extends AbstractFlagEncoder {
             if (!Helper.isEmpty(tt)) {
                 SpeedValue tracktypeSpeed = trackTypeSpeeds.get(tt);
                 if (tracktypeSpeed != null) {
-                    /* MARQ24 - ORG CODE START
-                    speed = tInt;
-                    ORG CODE END */
-                    if(!pushingSectionsHighways.contains(highwayTag)) {
+                    if(!isPushingWay || isCyclewayLikeWay) {
                         if(highwaySpeed == null){
                             speed = tracktypeSpeed.speed;
                         }else{
                             speed = calcHighwaySpeedBasedOnSurface(highwaySpeed, tracktypeSpeed);
                         }
-                        /*if (!surfaceOrTracktypeIndependantHighways.contains(highwayTag)) {
-                            speed = tInt.speed;
-                        }*/
                     }
-                }
-            } else if (highwaySpeed != null) {
-                if (!way.hasTag("service")) {
-                    speed = highwaySpeed.speed;
-                }else {
-                    speed = highwaySpeeds.get("living_street").speed;
                 }
             }
         }
 
+        // if the speed have not been set yet...
+        if (speed == Integer.MIN_VALUE){
+            if(highwaySpeed != null) {
+                if (!way.hasTag("service")) {
+                    speed = highwaySpeed.speed;
+                } else {
+                    // MARQ24: with other words any 'service' tagged ways will be
+                    // considered as min "living street" speed (or slower)...
+                    speed = Math.min(highwaySpeeds.get("living_street").speed, highwaySpeed.speed);
+                }
+            }else {
+                speed = PUSHING_SECTION_SPEED;
+            }
+        }
+
+        // MARQ24 MOD START -> 2018/07/08 - REMOVED COMPLETE SECTION!
+        // IMHO there is no need to check ONCE again, if we are faster then pushing speed, and decrease the speed
+        // to PUSHING_SECTION_SPEED ['steps' handling will done later]
+        /*
         // Until now we assumed that the way is no pushing section
         // Now we check that, but only in case that our speed is bigger compared to the PUSHING_SECTION_SPEED
         if (speed > PUSHING_SECTION_SPEED && (way.hasTag("highway", pushingSectionsHighways) || way.hasTag("bicycle", "dismount"))) {
+            // MARQ24 MOD START
+            // MARQ24 MOD END
             if (!way.hasTag("bicycle", intendedValues)) {
                 // Here we set the speed for pushing sections and set speed for steps as even lower:
-                if (way.hasTag("highway", "steps")) {
+                if (isSteps) {
                     speed = PUSHING_SECTION_SPEED / 2;
                 }else {
                     speed = PUSHING_SECTION_SPEED;
                 }
-            } else if (way.hasTag("bicycle", "designated") || way.hasTag("bicycle", "official")) {
+            // MARQ24 MOD START
+            //} else if (way.hasTag("bicycle", "designated") || way.hasTag("bicycle", "official")) {
+            } else if (way.hasTag("bicycle", "designated") || way.hasTag("bicycle", "official") || way.hasTag("bicycle", "yes")) {
+            // MARQ24 MOD END
                 // Here we handle the cases where the OSM tagging results in something similar to "highway=cycleway"
-                speed = highwaySpeeds.get("cycleway").speed;
+                // MARQ24 - WHY the heck we should set the speed again to the specified 'cycleway' speed - even if
+                // we are in a pushing section ???! - WHEN we would ignore "pushing speed" (in the case that the
+                // highway have an osm bicycle attribute, then this should ne the previous calculated speed based on
+                // surface and track type! - so I will remove the original line!
+                // MARQ24 MOD START
+                //speed = highwaySpeeds.get("cycleway").speed;
+                // MARQ24 MOD END
             } else {
                 speed = PUSHING_SECTION_SPEED;
             }
-            // Increase speed in case of segregated
-            if (speed <= PUSHING_SECTION_SPEED && way.hasTag("segregated", "yes")) {
-                speed = PUSHING_SECTION_SPEED * 2;
+        }
+        // MARQ24 MOD END */
+
+        // MARQ24 MOD START
+        if(speed <= PUSHING_SECTION_SPEED) {
+            if (!isSteps) {
+                // MARQ24 if we are still on pushing section speed, then we at least double the speed in the case
+                // that the way is 'segregated' (but of course we sill ignore steps)...
+        // MARQ24 MOD END
+                // Increase speed in case of segregated
+                if (way.hasTag("segregated", "yes")) {
+                    speed = PUSHING_SECTION_SPEED * 2;
+                }
+        // MARQ24 MOD START
+            } else {
+                // MARQ24: make sure that steps will always get a very slow speed...
+                speed = PUSHING_SECTION_SPEED / 2;
             }
         }
+        // MARQ24 MOD END
+
         return speed;
     }
 
@@ -663,7 +698,10 @@ abstract public class NextGenBikeCommonFlagEncoder extends AbstractFlagEncoder {
         // MARQ24 MOD START
         if(!isRoadBikeEncoder){
         // MARQ24 MOD END
-            if (way.hasTag("bicycle", "designated") || way.hasTag("bicycle", "official")) {
+            // MARQ24 MOD START
+            //if (way.hasTag("bicycle", "designated") || way.hasTag("bicycle", "official")) {
+            if (way.hasTag("bicycle", "designated") || way.hasTag("bicycle", "official") || way.hasTag("bicycle_road", "yes")) {
+            // MARQ24 MOD END
                 if ("path".equals(highway)) {
                     weightToPrioMap.put(100d, VERY_NICE.getValue());
                 } else {
@@ -745,7 +783,7 @@ abstract public class NextGenBikeCommonFlagEncoder extends AbstractFlagEncoder {
         }
 
         // Increase the priority for scenic routes or in case that maxspeed limits our average speed as compensation. See #630
-        if (way.hasTag("scenic", "yes") || maxSpeed > 0 && maxSpeed < wayTypeSpeed) {
+        if (way.hasTag("scenic", "yes") || (maxSpeed > 0 && maxSpeed < wayTypeSpeed)) {
             if (weightToPrioMap.lastEntry().getValue() < BEST.getValue()) {
                 // Increase the prio by one step
                 weightToPrioMap.put(110d, weightToPrioMap.lastEntry().getValue() + 1);
@@ -777,22 +815,33 @@ abstract public class NextGenBikeCommonFlagEncoder extends AbstractFlagEncoder {
 
         boolean isPushingSection = isPushingSection(way);
         // MARQ24 MOD START
-        //if (isPushingSection  && !partOfCycleRelation || "steps".equals(highway)) {
-        if (isPushingSection  && (!isRoadBikeEncoder && !partOfCycleRelation) || "steps".equals(highway)) {
-        // MARQ24 MOD END
+        /* ORG CODE START
+        if (isPushingSection && !partOfCycleRelation || "steps".equals(highway))
             wayType = WayType.PUSHING_SECTION;
-        }
 
         if (way.hasTag("bicycle", intendedValues)) {
-            if (isPushingSection && !way.hasTag("bicycle", "designated")) {
+            if (isPushingSection && !way.hasTag("bicycle", "designated"))
                 wayType = WayType.OTHER_SMALL_WAY;
-            } else if (wayType == WayType.OTHER_SMALL_WAY || wayType == WayType.PUSHING_SECTION) {
+            else if (wayType == WayType.OTHER_SMALL_WAY || wayType == WayType.PUSHING_SECTION)
+                wayType = WayType.CYCLEWAY;
+        } else if ("cycleway".equals(highway))
+            wayType = WayType.CYCLEWAY;
+        ORG CODE END */
+        // MARQ24 MOD END
+        if (isPushingSection || "steps".equals(highway)) {
+            wayType = WayType.PUSHING_SECTION;
+        } else{
+            // boost "none identified" partOfCycleRelation
+            if(!isRoadBikeEncoder && partOfCycleRelation){
                 wayType = WayType.CYCLEWAY;
             }
-        } else if ("cycleway".equals(highway)) {
-            wayType = WayType.CYCLEWAY;
-        }
 
+            if (way.hasTag("bicycle", intendedValues)) {
+                wayType = WayType.CYCLEWAY;
+            } else if ("cycleway".equals(highway)) {
+                wayType = WayType.CYCLEWAY;
+            }
+        }
         return wayTypeEncoder.setValue(encoded, wayType.getValue());
     }
 
@@ -827,25 +876,43 @@ abstract public class NextGenBikeCommonFlagEncoder extends AbstractFlagEncoder {
     }
 
     boolean isPushingSection(ReaderWay way) {
-        return way.hasTag("highway", pushingSectionsHighways) || way.hasTag("railway", "platform") || way.hasTag("bicycle", "dismount");
+        // MARQ24 MOD START
+        //return way.hasTag("highway", pushingSectionsHighways) || way.hasTag("railway", "platform") || way.hasTag("bicycle", "dismount");
+        return way.hasTag("highway", pushingSectionsHighways) || way.hasTag("railway", "platform") || way.hasTag("bicycle", "dismount") || way.hasTag("route", ferries); // Runge
+        // MARQ24 MOD END
     }
 
-    protected long handleSpeed(ReaderWay way, double speed, long encoded) {
-        encoded = setSpeed(encoded, speed);
-        //MARQ24 MOD START
-        if (isConsiderElevation()) {
+    //MARQ24 MOD START
+    public long handleSpeed(ReaderWay way, double speed, long encoded) {
+        // MARQ24: taken from GH Bike2WeightFlagEncoder.handleSpeed(...)
+
+        // handle oneways
+        encoded = handleSpeedInt(way, speed, encoded);
+        if (isBackward(encoded)) {
             encoded = setReverseSpeed(encoded, speed);
         }
-        //MARQ24 MOD END
+        if (isForward(encoded)) {
+            encoded = setSpeed(encoded, speed);
+        }
+        return encoded;
+    }
+    //MARQ24 MOD END
 
+    //MARQ24 MOD START
+    //protected long handleSpeed(ReaderWay way, double speed, long encoded) {
+    private long handleSpeedInt(ReaderWay way, double speed, long encoded) {
+    //MARQ24 MOD END
+        encoded = setSpeed(encoded, speed);
         // handle oneways
         boolean isOneway = way.hasTag("oneway", oneways)
                 || way.hasTag("oneway:bicycle", oneways)
                 || way.hasTag("vehicle:backward")
                 || way.hasTag("vehicle:forward")
                 || way.hasTag("bicycle:forward");
-
-        if ((isOneway || way.hasTag("junction", "roundabout"))
+        //MARQ24 MOD START
+        //if ((isOneway || way.hasTag("junction", "roundabout"))
+        if (!way.hasTag("bicycle_road", "yes") && (isOneway || way.hasTag("junction", "roundabout"))
+        //MARQ24 MOD END
                 && !way.hasTag("oneway:bicycle", "no")
                 && !way.hasTag("bicycle:backward")
                 && !way.hasTag("cycleway", oppositeLanes)
@@ -953,8 +1020,134 @@ abstract public class NextGenBikeCommonFlagEncoder extends AbstractFlagEncoder {
             this.speed = speed;
             this.type = type;
         }
+
+        public String toString(){
+            switch (type){
+                default:
+                case BOTH:
+                    return speed +" [BOTH]";
+                case UPGRADE_ONLY:
+                    return speed +" [UP]";
+                case DOWNGRADE_ONLY:
+                    return speed +" [DOWN]";
+            }
+        }
     }
 
+    // MARQ24 MOD START
+    protected abstract double getDownhillMaxSpeed();
+    // MARQ24 MOD END
+
+    // MARQ24 08 July 2018
+    // I have decided to remove all the ors reverse speed calculations and include here the "original"
+    // gh speed calc (as it could be found in the Bike2WeightFlagEncoder...
+    @Override
+    public void applyWayTags(ReaderWay way, EdgeIteratorState edge) {
+        // MARQ24 MOD START
+        if (isConsiderElevation()) {
+        // MARQ24 MOD END
+            PointList pl = edge.fetchWayGeometry(3);
+            if (!pl.is3D())
+                throw new IllegalStateException("To support speed calculation based on elevation data it is necessary to enable import of it.");
+
+            long flags = edge.getFlags();
+
+            if (way.hasTag("tunnel", "yes") || way.hasTag("bridge", "yes") || way.hasTag("highway", "steps")) {
+                // do not change speed
+                // note: although tunnel can have a difference in elevation it is very unlikely that the elevation data is correct for a tunnel
+            } else {
+                // Decrease the speed for ele increase (incline), and decrease the speed for ele decrease (decline). The speed-decrease
+                // has to be bigger (compared to the speed-increase) for the same elevation difference to simulate loosing energy and avoiding hills.
+                // For the reverse speed this has to be the opposite but again keeping in mind that up+down difference.
+                double incEleSum = 0, incDist2DSum = 0;
+                double decEleSum = 0, decDist2DSum = 0;
+                // double prevLat = pl.getLatitude(0), prevLon = pl.getLongitude(0);
+                double prevEle = pl.getElevation(0);
+                double fullDist2D = edge.getDistance();
+
+                if (Double.isInfinite(fullDist2D))
+                    throw new IllegalStateException("Infinite distance should not happen due to #435. way ID=" + way.getId());
+
+                // for short edges an incline makes no sense and for 0 distances could lead to NaN values for speed, see #432
+                if (fullDist2D < 1)
+                    return;
+
+                double eleDelta = pl.getElevation(pl.size() - 1) - prevEle;
+                if (eleDelta > 0.1) {
+                    incEleSum = eleDelta;
+                    incDist2DSum = fullDist2D;
+                } else if (eleDelta < -0.1) {
+                    decEleSum = -eleDelta;
+                    decDist2DSum = fullDist2D;
+                }
+
+//            // get a more detailed elevation information, but due to bad SRTM data this does not make sense now.
+//            for (int i = 1; i < pl.size(); i++)
+//            {
+//                double lat = pl.getLatitude(i);
+//                double lon = pl.getLongitude(i);
+//                double ele = pl.getElevation(i);
+//                double eleDelta = ele - prevEle;
+//                double dist2D = distCalc.calcDist(prevLat, prevLon, lat, lon);
+//                if (eleDelta > 0.1)
+//                {
+//                    incEleSum += eleDelta;
+//                    incDist2DSum += dist2D;
+//                } else if (eleDelta < -0.1)
+//                {
+//                    decEleSum += -eleDelta;
+//                    decDist2DSum += dist2D;
+//                }
+//                fullDist2D += dist2D;
+//                prevLat = lat;
+//                prevLon = lon;
+//                prevEle = ele;
+//            }
+                // Calculate slop via tan(asin(height/distance)) but for rather smallish angles where we can assume tan a=a and sin a=a.
+                // Then calculate a factor which decreases or increases the speed.
+                // Do this via a simple quadratic equation where y(0)=1 and y(0.3)=1/4 for incline and y(0.3)=2 for decline
+                double fwdIncline = incDist2DSum > 1 ? incEleSum / incDist2DSum : 0;
+                double fwdDecline = decDist2DSum > 1 ? decEleSum / decDist2DSum : 0;
+                double restDist2D = fullDist2D - incDist2DSum - decDist2DSum;
+
+                // MARQ24 MOD START
+                //double maxSpeed = getHighwaySpeed("cycleway").speed;
+                double wayMaxSpeed = getMaxSpeed(way);
+                double maxSpeed = getDownhillMaxSpeed();
+                if (wayMaxSpeed != -1) {
+                    maxSpeed = Math.min(maxSpeed, wayMaxSpeed);
+                }
+                // MARQ24 MOD END
+
+                if (isForward(flags)) {
+                    // use weighted mean so that longer incline influences speed more than shorter
+                    double speed = getSpeed(flags);
+                    double fwdFaster = 1 + 2 * keepIn(fwdDecline, 0, 0.2);
+                    fwdFaster = fwdFaster * fwdFaster;
+                    double fwdSlower = 1 - 5 * keepIn(fwdIncline, 0, 0.2);
+                    fwdSlower = fwdSlower * fwdSlower;
+                    speed = speed * (fwdSlower * incDist2DSum + fwdFaster * decDist2DSum + 1 * restDist2D) / fullDist2D;
+                    flags = this.setSpeed(flags, keepIn(speed, PUSHING_SECTION_SPEED / 2, maxSpeed));
+                }
+
+                if (isBackward(flags)) {
+                    double speedReverse = getReverseSpeed(flags);
+                    double bwFaster = 1 + 2 * keepIn(fwdIncline, 0, 0.2);
+                    bwFaster = bwFaster * bwFaster;
+                    double bwSlower = 1 - 5 * keepIn(fwdDecline, 0, 0.2);
+                    bwSlower = bwSlower * bwSlower;
+                    speedReverse = speedReverse * (bwFaster * incDist2DSum + bwSlower * decDist2DSum + 1 * restDist2D) / fullDist2D;
+                    flags = this.setReverseSpeed(flags, keepIn(speedReverse, PUSHING_SECTION_SPEED / 2, maxSpeed));
+                }
+            }
+            edge.setFlags(flags);
+
+        // MARQ24 MOD START
+        }
+        // MARQ24 MOD END
+    }
+
+    /* REMOVED by MARQ24 (08 July 2018)
     // MARQ24 MOD START [SHOULD BE REVIEWED!!!]
     private List<RouteSplit> splits = new ArrayList<RouteSplit>();
     private int prevEdgeId = Integer.MAX_VALUE;
@@ -1210,8 +1403,5 @@ abstract public class NextGenBikeCommonFlagEncoder extends AbstractFlagEncoder {
         return 1;
     }
     // MARQ24 MOD END
-
-    // MARQ24 MOD START
-    protected abstract double getDownhillMaxSpeed();
-    // MARQ24 MOD END
+    */
 }

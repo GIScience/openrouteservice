@@ -45,6 +45,8 @@ public class RoutingProfileType {
     @Deprecated
     public static final int CYCLING_ROAD_OLD = 16;
     @Deprecated
+    public static final int CYCLING_REGULAR_OLD = 13;
+    @Deprecated
     public static final int CYCLING_SAFE = 18;
     @Deprecated
     public static final int CYCLING_TOUR = 19;
@@ -110,6 +112,7 @@ public class RoutingProfileType {
             || routePref == GH_BIKE_MTB
             || routePref == GH_BIKE_ROAD
             || routePref == CYCLING_ROAD_OLD
+            || routePref == CYCLING_REGULAR_OLD
             || routePref == CYCLING_TOUR
             || routePref == CYCLING_SAFE
             || routePref == CYCLING_ELECTRIC)
@@ -139,6 +142,8 @@ public class RoutingProfileType {
 
             case CYCLING_REGULAR:
                 return "cycling-regular";
+            case CYCLING_REGULAR_OLD:
+                return "cycling-regular-old";
             case CYCLING_MOUNTAIN:
                 return "cycling-mountain";
             case CYCLING_ROAD:
@@ -206,6 +211,8 @@ public class RoutingProfileType {
 
             case "cycling-regular":
                 return CYCLING_REGULAR;
+            case "cycling-regular-old":
+                return CYCLING_REGULAR_OLD;
             case "cycling-mountain":
                 return CYCLING_MOUNTAIN;
             case "cycling-road":
@@ -287,7 +294,10 @@ public class RoutingProfileType {
                 // MARQ24 - CURRENTLY WE USE the "old" Bike FlagEncoder - simply cause the routing result (in the test)
                 // is too differnt with the new one -> main difference might be caused by the _speedLimitHandler inside
                 // the heigit.ors.routing.graphhopper.extensions.flagencoders.tomove.BikeCommonFlagEncoder
-                //return FlagEncoderNames.BIKE_ORS;
+                return FlagEncoderNames.BIKE_ORS;
+                //return FlagEncoderNames.BIKE_ORS_OLD;
+
+            case RoutingProfileType.CYCLING_REGULAR_OLD:
                 return FlagEncoderNames.BIKE_ORS_OLD;
 
             case RoutingProfileType.CYCLING_MOUNTAIN:
@@ -388,9 +398,11 @@ public class RoutingProfileType {
             // MARQ24 - CURRENTLY WE USE the "old" Bike FlagEncoder - simply cause the routing result (in the test)
             // is too differnt with the new one -> main difference might be caused by the _speedLimitHandler inside
             // the heigit.ors.routing.graphhopper.extensions.flagencoders.tomove.BikeCommonFlagEncoder
-            //case FlagEncoderNames.BIKE_ORS:
-            case FlagEncoderNames.BIKE_ORS_OLD:
+            case FlagEncoderNames.BIKE_ORS:
                 return RoutingProfileType.CYCLING_REGULAR;
+
+            case FlagEncoderNames.BIKE_ORS_OLD:
+                return RoutingProfileType.CYCLING_REGULAR_OLD;
 
             case FlagEncoderNames.MTB_ORS:
             //case FlagEncoderNames.MTB_ORS_OLD:
