@@ -465,10 +465,14 @@ public class ResultTest extends ServiceTest {
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('segments')", is(true))
 				.body("routes[0].segments.size()", is(2))
-				.body("routes[0].summary.distance", is(12270.9f))
-				.body("routes[0].summary.duration", is(3461.3f))
-				.body("routes[0].summary.ascent", is(346.8f))
-				.body("routes[0].summary.descent", is(337.4f))
+				//.body("routes[0].summary.distance", is(12270.9f))
+                .body("routes[0].summary.distance", is(12638.9f))
+				//.body("routes[0].summary.duration", is(3461.3f))
+                .body("routes[0].summary.duration", is(4643.4f))
+				//.body("routes[0].summary.ascent", is(346.8f))
+                .body("routes[0].summary.ascent", is(337.6f))
+				//.body("routes[0].summary.descent", is(337.4f))
+                .body("routes[0].summary.descent", is(328.3f))
 				.statusCode(200);
 	}
 
@@ -487,10 +491,14 @@ public class ResultTest extends ServiceTest {
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('segments')", is(true))
 				.body("routes[0].segments.size()", is(2))
-				.body("routes[0].segments[0].distance", is(6418.2f))
-				.body("routes[0].segments[0].duration", is(2420.8f))
-				.body("routes[0].segments[1].distance", is(5852.7f))
-				.body("routes[0].segments[1].duration", is(1040.5f))
+				//.body("routes[0].segments[0].distance", is(6418.2f))
+                .body("routes[0].segments[0].distance", is(7082.3f))
+				//.body("routes[0].segments[0].duration", is(2420.8f))
+                .body("routes[0].segments[0].duration", is(3389.8f))
+				//.body("routes[0].segments[1].distance", is(5852.7f))
+                .body("routes[0].segments[1].distance", is(5556.6f))
+				//.body("routes[0].segments[1].duration", is(1040.5f))
+                .body("routes[0].segments[1].duration", is(1253.6f))
 				.statusCode(200);
 	}
 
@@ -511,8 +519,9 @@ public class ResultTest extends ServiceTest {
 				.body(
 						"routes[0].geometry",
 						is(
-								"yrqlHkn~s@sqT\\jG}IVrHpE@bInLKpD~@SdCy@YpBi@S|@JIAJBi@LBkBb@?iBL@cA@EkAOAy@SAUI?KICGICIICoACQeA?Q@BAk@DEiA`@Ck@RCk@RAQ?Gw@sA?Cq@Ek@q@S{BaFScBqEa@mCuJQmAaCM{@cBNEIC]RMaBdBM_CbHCIxAKcApDAItA?GrAGqArEEsA\\Eu@a@CcA{@GqAuCAQeAC_A_DAOoAEcAaCEgAsB@Wu@E?q@KB]AYIEo@?AOBcAyGbBIiADIaA?EmBq@CyA]AaAHAa@HAgAeARCHHAHCqBp@BIHAy@VAURJQX@M\\?E\\?]\\Cm@\\ATR@RH?JHAd@f@K?dAAw@RDAF~HsAxDF?RF@RF@RB@RAQPAKN?GNAILAKJAUJ@OHAQHJSFE]_@OcBiBO_CuDCq@q@IoAcB]gE}IEm@q@Em@q@OqBaAAOOEs@VCsAvAAM\\CS\\HM\\BI\\BC\\HE\\FA\\D?\\D@\\DD\\@E\\Lg@|@?C`A?A`A@EdALwBlBFYyAFSyALOyAPIyA~@OmGn@IsDB?yAF?cBFAcB`B_@cSjA]qHzAa@p@BAHHCHAMHAy@\\AuAz@C}CX?YOG{DsA?aASGmEaAE_CNEmBS?MOF?Sx@@{@B?S@?SJ?q@VGq@@Jq@DrAuC?FSB~@g@DAMJAILCE@_@?@K?BiAk@VmD{CF]IH[I`@cA{@@?g@@Eg@NQsDBCsD^_@gJtAsAuWr@a@sWFEaIFC_IHE_IHC_IPG}Hn@WaSh@a@sNJMiMDOmM?OkMCIcL?AcLFGcL`@g@gYHOgJBEkH@?oF@@oFD?oFN?oF??oF@?oFBCoFDEoFBEoFJMoF@Sf@?Af@ACf@EG?ES?AU{@DO{@JK{@@G{@?C{@?C{@@M{@AM{@AA{@BC{@@G{@HQ{@?E{@CM{@EG{@JUwGT]wG@AwG??wGD@aHBFeFBv@{L?R{E?h@{EDx@wLNnA_XAl@aH?BaHAFaHc@tA]A@nF?@nF?FnF@BxFGJxFALrF?LnF@@nFJNnF@@gEh@a@wJC\\yCI^aC@@aCFFaCFFaCADcMAJmPARsS@?sSXu@}]JKwL\\a@oZRWwLtA_Cqr@dAcD_NLm@bBL{@aCHw@_FD}@{E@yBuc@ToDmbAJo@qKPiAaXLdBkf@^vAah@DbAaW^lCsDZ`BtCZr@{JNJ}GN?kHbAMeYhAO{u@xBMelBn@Eun@DAiXTOiSGa@iNMgAs]]qC_iAIcAsTIaDeb@@GuC@Iu@@If@BIiDBEiDn@i@}NLKaDBGyCDEqCHUiCEGaCDC_BDGaC@G_D@G}DDK{EBGyFTc@wGVi@oPN[wGBBeArAo@mQv@UaM|BS{TdBJkMjEd@kRvBN_@fCSaFh@@_DVDiAZHgA\\OaAFC_AD?{@z@GyFhAQmNfCi@kDlGk@pKmGj@f@gCh@gBiAP}A{@FwAE?_@GB]]N_@[I]WE]i@Ay@gCRfNwBO~OkEe@lTeBKoA}BRrHw@TzBsAn@xJCC~AOZzAWh@jDUb@nACFnAEJnAAFnAAFnAEFtCEBtCDFtCITtCEDtCCFtCDFdCNTtB?LdBQnI|q@GhBtMEn@hDAJhDF`@hDBPhDR`ApLTz@hLJTbEDFxDb@d@dHh@j@|EPNzA^f@tCv@nAg@^x@tFb@fApLf@v@bBjAbBdF`@t@xKv@nCtn@~@nCdMNnAlLLfCl[G`AjGI`@vAWl@bM[`@zPaBdAju@q@n@xZY\\bGg@t@nKUh@jCUx@hNS~@`KcBvMbrA?F`C?DfE@DlGBF|FFLlFIL|Ei@f@jKw@h@`VaCrAxl@aAT`K{@FfJm@@nFg@GfJ{@[rI_Ae@pEgAu@bQm@q@xFwCiEhN[Up@m@U`Jk@KhIeA@pOGA`H?LvGbAXtWj@h@~MLN`FJJXT\\fDHd@~CD`AjHEhA`F@PbBHl@bBPn@fEApAjJBZpEPj@pELTpECHpEANtM?FtMOCtMw@Mfc@QMxFYe@~Zo@iBns@SYhIECpGKGzEYIzE]BzEODvLo@d@jZ@D|IV?|IFDrLDLjOPjA`WAJxCKRjHCDjHCHjHQx@hXCy@pYAMdKEAdKKpA`WCT`FGZjCE\\jC?z@fOA@jHA?`M[kBvj@??jCC@dAGH?uBvAni@OJfEm@d@~HI@f@SBp@OLp@Bd@xA?L`CH`CzT?BhDG@jCI@pB}@ZdD_DbAqJKD{@KDq@{C~@zBoHhBls@K?`BSCxAGBnAO@hAUJdACB`AEB|@oIxApDE@Sk@HaCG?mA[BkAU@kAG^iACBiAqADkIqAFwIK?sAI@qAgA?{H{@ByAO?][@]o@Bg@iCHMO@HC?Hk@@Xm@Hd@ODR]VRgAlAnD_AfAfEURp@EDp@C?p@Q?p@OBRE@RqBn@xCA@RSHHOJ]ELg@CDg@gAb@_Dq@\\wBmAt@{@y@f@q@y@X{@eBt@XYJ?E@?_@LSmA`@Bc@NR{C`Av@_DfAf@uAf@{BMHYKJWG@WGCUINSCGSI?SKBQ"))
-				.statusCode(200);
+								//"yrqlHkn~s@sqT\\jG}IVrHpE@bInLKpD~@SdCy@YpBi@S|@JIAJBi@LBkBb@?iBL@cA@EkAOAy@SAUI?KICGICIICoACQeA?Q@BAk@DEiA`@Ck@RCk@RAQ?Gw@sA?Cq@Ek@q@S{BaFScBqEa@mCuJQmAaCM{@cBNEIC]RMaBdBM_CbHCIxAKcApDAItA?GrAGqArEEsA\\Eu@a@CcA{@GqAuCAQeAC_A_DAOoAEcAaCEgAsB@Wu@E?q@KB]AYIEo@?AOBcAyGbBIiADIaA?EmBq@CyA]AaAHAa@HAgAeARCHHAHCqBp@BIHAy@VAURJQX@M\\?E\\?]\\Cm@\\ATR@RH?JHAd@f@K?dAAw@RDAF~HsAxDF?RF@RF@RB@RAQPAKN?GNAILAKJAUJ@OHAQHJSFE]_@OcBiBO_CuDCq@q@IoAcB]gE}IEm@q@Em@q@OqBaAAOOEs@VCsAvAAM\\CS\\HM\\BI\\BC\\HE\\FA\\D?\\D@\\DD\\@E\\Lg@|@?C`A?A`A@EdALwBlBFYyAFSyALOyAPIyA~@OmGn@IsDB?yAF?cBFAcB`B_@cSjA]qHzAa@p@BAHHCHAMHAy@\\AuAz@C}CX?YOG{DsA?aASGmEaAE_CNEmBS?MOF?Sx@@{@B?S@?SJ?q@VGq@@Jq@DrAuC?FSB~@g@DAMJAILCE@_@?@K?BiAk@VmD{CF]IH[I`@cA{@@?g@@Eg@NQsDBCsD^_@gJtAsAuWr@a@sWFEaIFC_IHE_IHC_IPG}Hn@WaSh@a@sNJMiMDOmM?OkMCIcL?AcLFGcL`@g@gYHOgJBEkH@?oF@@oFD?oFN?oF??oF@?oFBCoFDEoFBEoFJMoF@Sf@?Af@ACf@EG?ES?AU{@DO{@JK{@@G{@?C{@?C{@@M{@AM{@AA{@BC{@@G{@HQ{@?E{@CM{@EG{@JUwGT]wG@AwG??wGD@aHBFeFBv@{L?R{E?h@{EDx@wLNnA_XAl@aH?BaHAFaHc@tA]A@nF?@nF?FnF@BxFGJxFALrF?LnF@@nFJNnF@@gEh@a@wJC\\yCI^aC@@aCFFaCFFaCADcMAJmPARsS@?sSXu@}]JKwL\\a@oZRWwLtA_Cqr@dAcD_NLm@bBL{@aCHw@_FD}@{E@yBuc@ToDmbAJo@qKPiAaXLdBkf@^vAah@DbAaW^lCsDZ`BtCZr@{JNJ}GN?kHbAMeYhAO{u@xBMelBn@Eun@DAiXTOiSGa@iNMgAs]]qC_iAIcAsTIaDeb@@GuC@Iu@@If@BIiDBEiDn@i@}NLKaDBGyCDEqCHUiCEGaCDC_BDGaC@G_D@G}DDK{EBGyFTc@wGVi@oPN[wGBBeArAo@mQv@UaM|BS{TdBJkMjEd@kRvBN_@fCSaFh@@_DVDiAZHgA\\OaAFC_AD?{@z@GyFhAQmNfCi@kDlGk@pKmGj@f@gCh@gBiAP}A{@FwAE?_@GB]]N_@[I]WE]i@Ay@gCRfNwBO~OkEe@lTeBKoA}BRrHw@TzBsAn@xJCC~AOZzAWh@jDUb@nACFnAEJnAAFnAAFnAEFtCEBtCDFtCITtCEDtCCFtCDFdCNTtB?LdBQnI|q@GhBtMEn@hDAJhDF`@hDBPhDR`ApLTz@hLJTbEDFxDb@d@dHh@j@|EPNzA^f@tCv@nAg@^x@tFb@fApLf@v@bBjAbBdF`@t@xKv@nCtn@~@nCdMNnAlLLfCl[G`AjGI`@vAWl@bM[`@zPaBdAju@q@n@xZY\\bGg@t@nKUh@jCUx@hNS~@`KcBvMbrA?F`C?DfE@DlGBF|FFLlFIL|Ei@f@jKw@h@`VaCrAxl@aAT`K{@FfJm@@nFg@GfJ{@[rI_Ae@pEgAu@bQm@q@xFwCiEhN[Up@m@U`Jk@KhIeA@pOGA`H?LvGbAXtWj@h@~MLN`FJJXT\\fDHd@~CD`AjHEhA`F@PbBHl@bBPn@fEApAjJBZpEPj@pELTpECHpEANtM?FtMOCtMw@Mfc@QMxFYe@~Zo@iBns@SYhIECpGKGzEYIzE]BzEODvLo@d@jZ@D|IV?|IFDrLDLjOPjA`WAJxCKRjHCDjHCHjHQx@hXCy@pYAMdKEAdKKpA`WCT`FGZjCE\\jC?z@fOA@jHA?`M[kBvj@??jCC@dAGH?uBvAni@OJfEm@d@~HI@f@SBp@OLp@Bd@xA?L`CH`CzT?BhDG@jCI@pB}@ZdD_DbAqJKD{@KDq@{C~@zBoHhBls@K?`BSCxAGBnAO@hAUJdACB`AEB|@oIxApDE@Sk@HaCG?mA[BkAU@kAG^iACBiAqADkIqAFwIK?sAI@qAgA?{H{@ByAO?][@]o@Bg@iCHMO@HC?Hk@@Xm@Hd@ODR]VRgAlAnD_AfAfEURp@EDp@C?p@Q?p@OBRE@RqBn@xCA@RSHHOJ]ELg@CDg@gAb@_Dq@\\wBmAt@{@y@f@q@y@X{@eBt@XYJ?E@?_@LSmA`@Bc@NR{C`Av@_DfAf@uAf@{BMHYKJWG@WGCUINSCGSI?SKBQ"))
+                                "yrqlHkn~s@sqTgAyRzKcC__@jC_AaKyIQyA{BW{AwBMBe@JzA}AUh@YOf@U@^SO?QIk@MCo@KA]G?cAG?M?MA??]?Cm@?AT?@R??J?Ad@?K??Aw@?DA?~HsArDF?RF@RF@RB@PBDPBBNFRv@HVt@FJr@LZr@JTp@BBp@D@n@B@n@RAl@HCj@CKj@D?h@NIh@PKeAvAq@}INIeABLmB~@e@eKVMkCFCkCJCkCRCkCZFkCNFkCDFkC\\ZiDBBiDJD{@PD{@JB{@J?{@R?{@PA{@b@CwB^Eq@L?H@?RB?RFBRBBRJ@R|BObG@?p@FAnAF?nAFFnA@FnALEnAFCnA@?\\HG\\BA\\NK?HC?LA?BG?FS??K?AG?@M?DI?DK?@K??[]?M]@K]BMSAgAg@@MS@IS?o@SC]HCIHDDHBHH`DVnAJ@Ht@XIlDtA{Oz@PmGx@R}D~A\\uD`HbBdCtBv@{Av@ZwAnGrAcJBBYB@]D@@HBPF@\\D?ZF@\\FJZBBXFEZROXBEVJIXNOVRSTHIVROTpAo@QNKSLKeAh@q@kCHIeABCeA~Ay@uMTa@mBVu@oDHe@oAGIoAUQeA]K{@{CQgJ[Gi@MEa@mAy@_HQMsBOKaC[MaC_@IaCQCaCg@EgJW@}DgBd@iZU@_DkCUuZQEyASK{@}@e@oCi@UqJcE{@c{A{AqAqd@QSeF]a@qTQUqEQYoEW]yBYc@wBIKqBIMsJIOoJMUmJQk@gJC[eJ@qAcZQo@a]Im@uNAQcODiAuf@EaAs]Ie@mLU]cQKKuMMOuMk@i@gTcAYuR?MqEF@yCdAAkHj@JgEl@TsGZTuCvChEsjAl@p@qOfAt@kT~@d@mCz@ZcAf@FwBl@A{Bz@GsB`AUyK`CsA}Sv@i@uMh@g@wGHMwBGMwBCGwBAEwB?EwB?G{BbBwMmsBR_AiITy@gMTi@mFf@u@kLX]}Dp@o@yO`BeA_UZa@iBVm@aKHa@wGFaA}IMgC_]OoAoZ_AoCku@w@oCaa@a@u@iNkAcBqYg@w@kCc@gAuC_@y@}Lw@oAi^_@g@kNQO_Di@k@{Bc@e@kAEG]KU]U{@sDSaAcICQuDGa@_AMgAnA]qCqEIcAyFIaDuK@G[@I]@IBBIiDBEiDn@i@}NLKaDBGyCDEqCHUiCEGaCDC}ADGaC@G_D@G}DDK{EBGyFTc@wGVi@oPN[yGBBcArAo@mQv@UaM|BS{TdBJkMjEd@mRvBN_@fCSaFh@@_DVDiAZHgA\\OaAFC_AD?{@z@GyFhAQmNfCi@iDlGk@nKmGj@f@gCh@gBiAP}A{@FwAE?_@GB]]N_@wDhAzQCBjCAFjC[@jCi@BzGqAEhV{E_Aju@k@IbEgAC`JeAFbCcANAcAViAk@^_A[Za@c@b@mAIJk@EFREBRDFRITREDRCFRMJRo@h@lBCDdACHvGAHvGAHvGAFvGH`Dt\\HbA~E\\pC`WLfArIF`@hDCd@nFCv@z@@nAz@AZ\\MNz@_@l@pEs@tApX{@r@jL{AbBrd@iAdAtRSLvBE@vBCBvB_Bl@fR_DvCp~@wFvH|zBUf@|BWz@vZCT~OAFxO@bAb`@FzBbiAd@nE`{ANhD|V@TyA@FyADVyA\\`AcABPo@?NoAIN_@SFLQIz@O_@lBEMzCIShESm@hYS{@vZ]kB~i@Qi@jHOa@jHWa@dFIG~CL\\~CZdA~HdA~Hll@Pj@lGNT\\BD\\DB\\D@\\F@\\?L\\bAXr@j@h@YLNa@JJiFT\\aBHd@mBD`AaGEhA_B@PkCHl@bBPn@fEApAjJBZpEPj@pELTpECHpEANtM?FtMOCtMw@Mfc@QMxFYe@~Zo@iBns@SYhIECpGKGzEYIzE]BzEODvLo@d@jZ@D|IV?|IFDrLDLjOPjA`WAJxCKRjHCDjHCHjHQx@hXCy@pYAMdKEAdKKpA`WCT`FGZjCE\\jC?z@fOA@jHA?`M[kBvj@??jCC@dAGH?uBvAni@OJfEm@d@~HI@f@SBp@OLp@Bd@xA?L`CH`CzT?BhDG@jCI@pB}@ZdD_DbAqJKD{@KDq@{C~@zBoHhBls@K?`BSCxAGBnAO@hAUJdACB`AEB|@oIxApDE@Sk@HaCG?mA[BkAU@kAG^iACBiAqADkIqAFwIK?sAI@qAgA?{H{@ByAO?][@]o@Bg@iCHMO@HC?Hk@@Xm@Hd@ODR]VRgAlAnD_AfAfEURp@EDp@C?p@Q?p@OBRE@RqBn@xCA@RSHHOJ]ELg@CDg@gAb@_Dq@\\wBmAt@{@y@f@q@y@X{@eBt@XYJ?E@?_@LSmA`@Bc@NR{C`Av@_DfAf@uAf@{BMHYKJWG@WGCUINSCGSI?SKBQ"))
+                                .statusCode(200);
 	}
 
 	@Test
@@ -528,7 +537,8 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].way_points", hasItems(0, 330, 563))
+				//.body("routes[0].way_points", hasItems(0, 330, 563))
+                .body("routes[0].way_points", hasItems(0, 291, 524))
 				.statusCode(200);
 	}
 
@@ -565,11 +575,15 @@ public class ResultTest extends ServiceTest {
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].bbox", hasItems(8.687794f, 49.393272f, 8.714833f, 49.424603f))
 				.body("routes[0].segments[0].steps[0].maneuver.bearing_before", is(0))
-				.body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(260))
+				//.body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(260))
+                .body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(80))
 				.body("routes[0].segments[0].steps[0].maneuver.containsKey('location')", is(true))
-				.body("routes[0].segments[0].steps[1].maneuver.bearing_before", is(298))
-				.body("routes[0].segments[0].steps[1].maneuver.bearing_after", is(4))
-				.body("routes[0].segments[0].steps[1].maneuver.location", hasItems(8.673925f, 49.411283f))
+				//.body("routes[0].segments[0].steps[1].maneuver.bearing_before", is(298))
+                .body("routes[0].segments[0].steps[1].maneuver.bearing_before", is(68))
+				//.body("routes[0].segments[0].steps[1].maneuver.bearing_after", is(4))
+                .body("routes[0].segments[0].steps[1].maneuver.bearing_after", is(350))
+				//.body("routes[0].segments[0].steps[1].maneuver.location", hasItems(8.673925f, 49.411283f))
+                .body("routes[0].segments[0].steps[1].maneuver.location", hasItems(8.691992f, 49.412724f))
 				.statusCode(200);
 	}
 
@@ -610,10 +624,14 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('extras')", is(true))
-				.body("routes[0].extras.surface.values.size()", is(56))
-				.body("routes[0].extras.surface.values[35][1]", is(261))
-				.body("routes[0].extras.suitability.values[30][0]", is(357))
-				.body("routes[0].extras.steepness.values[11][1]", is(317))
+				//.body("routes[0].extras.surface.values.size()", is(56))
+                .body("routes[0].extras.surface.values.size()", is(37))
+				//.body("routes[0].extras.surface.values[35][1]", is(261))
+                .body("routes[0].extras.surface.values[35][1]", is(521))
+				//.body("routes[0].extras.suitability.values[30][0]", is(357))
+                .body("routes[0].extras.suitability.values[30][0]", is(440))
+				//.body("routes[0].extras.steepness.values[11][1]", is(317))
+                .body("routes[0].extras.steepness.values[11][1]", is(306))
 				.statusCode(200);
 
 		checkExtraConsistency(response);
@@ -665,15 +683,22 @@ http://localhost:8080/ors-osm/routes?
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('extras')", is(true))
-				.body("routes[0].segments[0].steps.size()", is(18))
-				.body("routes[0].segments[0].distance", is(4310.5f))
-				.body("routes[0].segments[0].duration", is(1628.5f))
-				.body("routes[0].extras.traildifficulty.values.size()", is(4))
+				//.body("routes[0].segments[0].steps.size()", is(18))
+                .body("routes[0].segments[0].steps.size()", is(16))
+				//.body("routes[0].segments[0].distance", is(4310.5f))
+                .body("routes[0].segments[0].distance", is(3241.5f))
+				//.body("routes[0].segments[0].duration", is(1628.5f))
+                .body("routes[0].segments[0].duration", is(1704.6f))
+				//.body("routes[0].extras.traildifficulty.values.size()", is(4))
+                .body("routes[0].extras.traildifficulty.values.size()", is(2))
 				.body("routes[0].extras.traildifficulty.values[0][0]", is(0))
-				.body("routes[0].extras.traildifficulty.values[0][1]", is(52))
+				//.body("routes[0].extras.traildifficulty.values[0][1]", is(52))
+                .body("routes[0].extras.traildifficulty.values[0][1]", is(83))
 				.body("routes[0].extras.traildifficulty.values[0][2]", is(0))
-				.body("routes[0].extras.traildifficulty.values[1][0]", is(52))
-				.body("routes[0].extras.traildifficulty.values[1][1]", is(61))
+				//.body("routes[0].extras.traildifficulty.values[1][0]", is(52))
+                .body("routes[0].extras.traildifficulty.values[1][0]", is(83))
+				//.body("routes[0].extras.traildifficulty.values[1][1]", is(61))
+                .body("routes[0].extras.traildifficulty.values[1][1]", is(115))
 				.body("routes[0].extras.traildifficulty.values[1][2]", is(1))
 				.statusCode(200);
 
@@ -700,7 +725,8 @@ http://localhost:8080/ors-osm/routes?
 				.body("routes[0].extras.traildifficulty.values[0][1]", is(2))
 				.body("routes[0].extras.traildifficulty.values[0][2]", is(2))
 				.body("routes[0].extras.traildifficulty.values[1][0]", is(2))
-				.body("routes[0].extras.traildifficulty.values[1][1]", is(20))
+				//.body("routes[0].extras.traildifficulty.values[1][1]", is(20))
+                .body("routes[0].extras.traildifficulty.values[1][1]", is(6))
 				.body("routes[0].extras.traildifficulty.values[1][2]", is(1))
 				.statusCode(200);
 
@@ -840,7 +866,8 @@ http://localhost:8080/ors-osm/routes?
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(620.1f))
+				//.body("routes[0].summary.distance", is(620.1f))
+                .body("routes[0].summary.distance", is(587.3f))
 				.statusCode(200);
 	}
 
@@ -891,7 +918,8 @@ http://localhost:8080/ors-osm/routes?
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(714.7f))
+				//.body("routes[0].summary.distance", is(714.7f))
+                .body("routes[0].summary.distance", is(721.8f))
 				.statusCode(200);
 	}
 
@@ -909,8 +937,10 @@ http://localhost:8080/ors-osm/routes?
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].segments[0].containsKey('steps')", is(true))
 				.body("routes[0].segments[1].containsKey('steps')", is(true))
-				.body("routes[0].segments[0].steps.size()", is(55))
-				.body("routes[0].segments[1].steps.size()", is(28))
+				//.body("routes[0].segments[0].steps.size()", is(55))
+                .body("routes[0].segments[0].steps.size()", is(36))
+				//.body("routes[0].segments[1].steps.size()", is(28))
+                .body("routes[0].segments[1].steps.size()", is(23))
 				.statusCode(200);
 	}
 
@@ -929,16 +959,25 @@ http://localhost:8080/ors-osm/routes?
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].segments[0].containsKey('steps')", is(true))
 				.body("routes[0].segments[1].containsKey('steps')", is(true))
-				.body("routes[0].segments[0].steps.size()", is(55))
-				.body("routes[0].segments[1].steps.size()", is(28))
-				.body("routes[0].segments[0].steps[0].distance", is(511.4f))
-				.body("routes[0].segments[0].steps[0].duration", is(230.1f))
+				//.body("routes[0].segments[0].steps.size()", is(55))
+                .body("routes[0].segments[0].steps.size()", is(36))
+				//.body("routes[0].segments[1].steps.size()", is(28))
+                .body("routes[0].segments[1].steps.size()", is(23))
+				//.body("routes[0].segments[0].steps[0].distance", is(511.4f))
+                .body("routes[0].segments[0].steps[0].distance", is(824.6f))
+				//.body("routes[0].segments[0].steps[0].duration", is(230.1f))
+                .body("routes[0].segments[0].steps[0].duration", is(371.1f))
 				.body("routes[0].segments[0].steps[0].type", is(11))
-				.body("routes[0].segments[0].steps[0].instruction", is("Head west"))
-				.body("routes[0].segments[0].steps[10].distance", is(74))
-				.body("routes[0].segments[0].steps[10].duration", is(22.2f))
-				.body("routes[0].segments[0].steps[10].type", is(0))
-				.body("routes[0].segments[0].steps[10].instruction", is("Turn left"))
+				//.body("routes[0].segments[0].steps[0].instruction", is("Head west"))
+                .body("routes[0].segments[0].steps[0].instruction", is("Head east"))
+				//.body("routes[0].segments[0].steps[10].distance", is(74))
+                .body("routes[0].segments[0].steps[10].distance", is(30.9f))
+				//.body("routes[0].segments[0].steps[10].duration", is(22.2f))
+                .body("routes[0].segments[0].steps[10].duration", is(4.1f))
+				//.body("routes[0].segments[0].steps[10].type", is(0))
+                .body("routes[0].segments[0].steps[10].type", is(5))
+				//.body("routes[0].segments[0].steps[10].instruction", is("Turn left"))
+                .body("routes[0].segments[0].steps[10].instruction", is("Turn slight right"))
 				.statusCode(200);
 	}
 
