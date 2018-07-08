@@ -60,6 +60,11 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
                 return new heigit.ors.routing.graphhopper.extensions.flagencoders.nextgen.NextGenBikeFlagEncoder(configuration);
 
             case FlagEncoderNames.MTB_ORS:
+                // MARQ24 hardcoded "ignore" consider_elevation for the NextGenMountainBike FlagEncoder - when
+                // consider_elevation is enabled we have various detours (over smaler tracks)
+                if(configuration.getBool("consider_elevation", false)){
+                    configuration.remove("consider_elevation");
+                }
                 return new heigit.ors.routing.graphhopper.extensions.flagencoders.nextgen.NextGenMountainBikeFlagEncoder(configuration);
 
             case FlagEncoderNames.BIKE_ELECTRO:

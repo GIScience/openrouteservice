@@ -657,7 +657,7 @@ public class ResultTest extends ServiceTest {
 	@Test
 	public void testAvoidTrailDifficulty() {
 /*
-http://localhost:8080/ors-osm/routes?
+http://localhost:8080/ors/routes?
 &coordinates=8.711343,49.401186%7C8.738122,49.402275
 &elevation=true
 &extra_info=traildifficulty%7Csteepness%7Cwaytype%7Csurface
@@ -684,21 +684,21 @@ http://localhost:8080/ors-osm/routes?
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('extras')", is(true))
 				//.body("routes[0].segments[0].steps.size()", is(18))
-                .body("routes[0].segments[0].steps.size()", is(16))
+                .body("routes[0].segments[0].steps.size()", is(13))
 				//.body("routes[0].segments[0].distance", is(4310.5f))
-                .body("routes[0].segments[0].distance", is(3241.5f))
+                .body("routes[0].segments[0].distance", is(2862))
 				//.body("routes[0].segments[0].duration", is(1628.5f))
-                .body("routes[0].segments[0].duration", is(1704.6f))
+                .body("routes[0].segments[0].duration", is(681.6f))
 				//.body("routes[0].extras.traildifficulty.values.size()", is(4))
                 .body("routes[0].extras.traildifficulty.values.size()", is(2))
 				.body("routes[0].extras.traildifficulty.values[0][0]", is(0))
 				//.body("routes[0].extras.traildifficulty.values[0][1]", is(52))
-                .body("routes[0].extras.traildifficulty.values[0][1]", is(83))
+                .body("routes[0].extras.traildifficulty.values[0][1]", is(69))
 				.body("routes[0].extras.traildifficulty.values[0][2]", is(0))
 				//.body("routes[0].extras.traildifficulty.values[1][0]", is(52))
-                .body("routes[0].extras.traildifficulty.values[1][0]", is(83))
+                .body("routes[0].extras.traildifficulty.values[1][0]", is(69))
 				//.body("routes[0].extras.traildifficulty.values[1][1]", is(61))
-                .body("routes[0].extras.traildifficulty.values[1][1]", is(115))
+                .body("routes[0].extras.traildifficulty.values[1][1]", is(91))
 				.body("routes[0].extras.traildifficulty.values[1][2]", is(1))
 				.statusCode(200);
 
