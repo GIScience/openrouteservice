@@ -82,6 +82,11 @@ public class OsmIdGraphStorage implements GraphExtension {
         orsEdges.ensureCapacity(((long) edgeIndex + 1) * edgeEntryBytes);
     }
 
+    /**
+     * Set the osm id of an edge to the spcified value.
+     * @param edgeId    The internal id of the edge in the graph
+     * @param osmId     The osm idto be assigned ot the edge
+     */
     public void setEdgeValue(int edgeId, long osmId) {
         edgesCount++;
         ensureEdgesIndex(edgeId);
@@ -92,6 +97,11 @@ public class OsmIdGraphStorage implements GraphExtension {
         orsEdges.setBytes(edgePointer + EF_OSMID, byteValues, 8);
     }
 
+    /**
+     * Get the OSM id of the edge specified
+     * @param edgeId    The internal graph id of the edge that the OSM way ID is required for
+     * @return          The OSM ID that was stored for the edge (normally the OSM ID of the way the edge was created from)
+     */
     public long getEdgeValue(int edgeId) {
         byte[] buffer = new byte[8];
         long edgePointer = (long) edgeId * edgeEntryBytes;
