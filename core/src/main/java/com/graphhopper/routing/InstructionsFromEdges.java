@@ -105,7 +105,7 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
     @Override
     // ORS-GH MOD START
     //public void next(EdgeIteratorState edge, int index, int prevEdgeId) {
-    public void next(EdgeIteratorState edge, int index, int count, int prevEdgeId) {
+    public void next(EdgeIteratorState edge, int index, int totalEdgeCount, int prevEdgeId) {
     // ORS-GH MOD END
         // baseNode is the current node and adjNode is the next
         int adjNode = edge.getAdjNode();
@@ -280,8 +280,9 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         }
 
         // ORS-GH MOD START
-        //updatePointsAndInstruction(edge, wayGeo);
-        updatePointsAndInstruction(edge, wayGeo,prevEdgeId);
+        // MARQ24 2018/07/10 - simply keep the original gh code - since we don't need the prevEdgeId
+        updatePointsAndInstruction(edge, wayGeo);
+        //updatePointsAndInstruction(edge, wayGeo, prevEdgeId);
         // ORS-GH MOD END
 
         if (wayGeo.getSize() <= 2) {
@@ -301,9 +302,9 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
 
         // ORS-GH MOD START
         // Modification by Maxim Rylov
-        boolean lastEdge = index == count - 1;
+        boolean isLastEdge = index == totalEdgeCount - 1;
         if (pathProcCntx.getPathProcessor() != null) {
-            pathProcCntx.getPathProcessor().processEdge(pathProcCntx.getPathIndex(), edge, lastEdge, wayGeo);
+            pathProcCntx.getPathProcessor().processEdge(edge, isLastEdge, wayGeo);
         }
         // ORS-GH MOD END
     }
@@ -436,9 +437,10 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         return Instruction.IGNORE;
     }
 
-    // ORS-GH MOD START [NEED TO BE REVISED IF NEEDED!!!]
-    //private void updatePointsAndInstruction(EdgeIteratorState edge, PointList pl) {
-    private void updatePointsAndInstruction(EdgeIteratorState edge, PointList pl, int prevEdgeId) {
+    //ORS-GH MOD START [NEED TO BE REVISED IF NEEDED!!!]
+    //MARQ24 2018/07/10 KEEP the original code
+    private void updatePointsAndInstruction(EdgeIteratorState edge, PointList pl) {
+    //private void updatePointsAndInstruction(EdgeIteratorState edge, PointList pl, int prevEdgeId) {
     // ORS-GH MOD END [NEED TO BE REVISED IF NEEDED!!!]
         // skip adjNode
         int len = pl.size() - 1;
@@ -449,8 +451,11 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         prevInstruction.setDistance(newDist + prevInstruction.getDistance());
 
         //ORS-GH MOD START [NEED TO BE REVISED IF NEEDED!!!]
-        //prevInstruction.setTime(weighting.calcMillis(edge, false, EdgeIterator.NO_EDGE) + prevInstruction.getTime());
-        prevInstruction.setTime(weighting.calcMillis(edge, false, prevEdgeId) + prevInstruction.getTime());
+        //MARQ24 2018/07/10 KEEP the original code -> the 'prevEdgeId' is only used by
+        //TurnWeight 'calcMillis()' - and since original gh impl have decided that a
+        //turn will not drastically increase the travel time - we can assume the same!
+        prevInstruction.setTime(weighting.calcMillis(edge, false, EdgeIterator.NO_EDGE) + prevInstruction.getTime());
+        //prevInstruction.setTime(weighting.calcMillis(edge, false, prevEdgeId) + prevInstruction.getTime());
         //ORS-GH MOD END [NEED TO BE REVISED IF NEEDED!!!]
     }
 

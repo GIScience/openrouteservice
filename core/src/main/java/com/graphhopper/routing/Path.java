@@ -437,7 +437,7 @@ public class Path {
     public interface EdgeVisitor {
         // ORS-GH MOD START
         //void next(EdgeIteratorState edge, int index, int prevEdgeId);
-        void next(EdgeIteratorState edge, int index, int count, int prevEdgeId);
+        void next(EdgeIteratorState edge, int index, int totalEdgeCount, int prevEdgeId);
         // ORS-GH MOD END
         void finish();
     }

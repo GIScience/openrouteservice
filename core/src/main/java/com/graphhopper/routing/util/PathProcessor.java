@@ -8,7 +8,7 @@ import com.graphhopper.util.PointList;
 public abstract class PathProcessor {
    public abstract void init(PathProcessingContext cntx);	
    public abstract void setSegmentIndex(int index, int count);
-   public abstract void processEdge(int pathIndex, EdgeIteratorState edge, boolean lastEdge, PointList geom);
+   public abstract void processEdge(EdgeIteratorState edge, boolean isLastEdge, PointList geom);
    public abstract void finish();
    public abstract PointList processPoints(PointList points);
 }
