@@ -172,7 +172,6 @@ public class GpxResponseWriter {
                 rteTypeExtensions.setAvgSpeed(route_summary.getAverageSpeed());
                 rteTypeExtensions.setDescent(route_summary.getDescent());
                 rteTypeExtensions.setDistance(route_summary.getDistance());
-                rteTypeExtensions.setDistanceActual(route_summary.getDistanceActual());
                 rteTypeExtensions.setDuration(route_summary.getDuration());
                 BoundsType bounds = new BoundsType();
                 BBox routeBBox = route.getSummary().getBBox();

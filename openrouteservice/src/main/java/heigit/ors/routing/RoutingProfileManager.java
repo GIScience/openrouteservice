@@ -297,8 +297,6 @@ public class RoutingProfileManager {
         PathProcessor pathProcessor = null;
 
         if (req.getExtraInfo() > 0) {
-            // do not allow geometry simplification when extras are requested
-            req.setSimplifyGeometry(false);
             pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req);
         } else {
             if (req.getIncludeElevation())
@@ -320,9 +318,9 @@ public class RoutingProfileManager {
             Coordinate c1 = coords[i];
             GHResponse gr = null;
             if (invertFlow)
-                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, null, null, false, searchParams, customEdgeFilter, req.getSimplifyGeometry(), routeProcCntx);
+                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, null, null, false, searchParams, customEdgeFilter, routeProcCntx);
             else
-                gr = rp.computeRoute(c1.y, c1.x, c0.y, c0.x, null, null, false, searchParams, customEdgeFilter, req.getSimplifyGeometry(), routeProcCntx);
+                gr = rp.computeRoute(c1.y, c1.x, c0.y, c0.x, null, null, false, searchParams, customEdgeFilter, routeProcCntx);
 
             //if (gr.hasErrors())
             //	throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
@@ -359,8 +357,6 @@ public class RoutingProfileManager {
         PathProcessor pathProcessor = null;
 
         if (req.getExtraInfo() > 0) {
-            // do not allow geometry simplification when extras are requested
-            req.setSimplifyGeometry(false);
             pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req);
         } else {
             if (req.getIncludeElevation())
@@ -400,7 +396,7 @@ public class RoutingProfileManager {
                 radiuses[1] = searchParams.getMaximumRadiuses()[i];
             }
 
-            GHResponse gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, c0.z == 1.0, searchParams, customEdgeFilter, req.getSimplifyGeometry(), routeProcCntx);
+            GHResponse gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, c0.z == 1.0, searchParams, customEdgeFilter, routeProcCntx);
 
             if (gr.hasErrors()) {
                 if (gr.getErrors().size() > 0) {

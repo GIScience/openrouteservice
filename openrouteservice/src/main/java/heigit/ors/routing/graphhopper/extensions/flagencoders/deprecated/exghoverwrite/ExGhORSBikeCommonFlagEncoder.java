@@ -498,7 +498,7 @@ abstract public class ExGhORSBikeCommonFlagEncoder extends AbstractFlagEncoder {
         // MARQ24 MOD START
         if (SKIP_WAY_TYPE_INFO) {
             // Modification by Maxim Rylov. We don't use this information
-            return new InstructionAnnotation(0, "", 0);
+            return new InstructionAnnotation(0, "");
         } else {
             // MARQ24 MOD END
             int wayType = (int) wayTypeEncoder.getValue(flags);

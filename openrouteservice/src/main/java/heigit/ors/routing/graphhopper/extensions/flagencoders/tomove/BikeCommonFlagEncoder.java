@@ -482,7 +482,7 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 			paveType = 1; // unpaved        
 
 		if (SKIP_WAY_TYPE_INFO)  // Runge. We don't use this information
-			return new InstructionAnnotation(0, "", 0/*Runge*/);
+			return new InstructionAnnotation(0, "");
 		else
 		{
 			int wayType = (int) wayTypeEncoder.getValue(flags);

@@ -221,7 +221,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 	}
 
 	@Override
-	public void processEdge(int pathIndex, EdgeIteratorState edge, boolean lastEdge, PointList geom) {
+	public void processEdge(EdgeIteratorState edge, boolean isLastEdge, PointList geom) {
 		double dist = edge.getDistance();
 
 		if (_extWaySurface != null && _wayTypeInfo != null || _surfaceInfo != null)
@@ -229,16 +229,16 @@ public class ExtraInfoProcessor extends PathProcessor {
 			WaySurfaceDescription wsd = _extWaySurface.getEdgeValue(edge.getOriginalEdge(), buffer);
 
 			if (_surfaceInfoBuilder != null)
-				_surfaceInfoBuilder.addSegment(wsd.SurfaceType, wsd.SurfaceType, geom, dist, lastEdge && _lastSegment);
+				_surfaceInfoBuilder.addSegment(wsd.SurfaceType, wsd.SurfaceType, geom, dist, isLastEdge && _lastSegment);
 			
 			if (_wayTypeInfo != null)
-				_wayTypeInfoBuilder.addSegment(wsd.WayType, wsd.WayType, geom, dist, lastEdge && _lastSegment);
+				_wayTypeInfoBuilder.addSegment(wsd.WayType, wsd.WayType, geom, dist, isLastEdge && _lastSegment);
 		}
 		
 		if (_wayCategoryInfoBuilder != null)
 		{
 			int value = _extWayCategory.getEdgeValue(edge.getOriginalEdge(), buffer);
-			_wayCategoryInfoBuilder.addSegment(value, value, geom, dist, lastEdge && _lastSegment);
+			_wayCategoryInfoBuilder.addSegment(value, value, geom, dist, isLastEdge && _lastSegment);
 		}
 		
 		if (_trailDifficultyInfoBuilder != null)
@@ -260,7 +260,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 			else if (RoutingProfileType.isWalking(_profileType))
 				value = _extTrailDifficulty.getHikingScale(edge.getOriginalEdge(), buffer);
 			
-			_trailDifficultyInfoBuilder.addSegment(value, value, geom, dist, lastEdge && _lastSegment);
+			_trailDifficultyInfoBuilder.addSegment(value, value, geom, dist, isLastEdge && _lastSegment);
 		}
 		
 		if (_avgSpeedInfoBuilder != null)
@@ -268,13 +268,13 @@ public class ExtraInfoProcessor extends PathProcessor {
 		    double speed = _encoder.getSpeed(edge.getFlags());
 		    if (_maximumSpeed > 0 && speed > _maximumSpeed)
 		    	speed = _maximumSpeed;
-		    _avgSpeedInfoBuilder.addSegment(speed, (int)Math.round(speed*_avgSpeedInfo.getFactor()), geom, dist, lastEdge && _lastSegment);
+		    _avgSpeedInfoBuilder.addSegment(speed, (int)Math.round(speed*_avgSpeedInfo.getFactor()), geom, dist, isLastEdge && _lastSegment);
 		}
 		
 		if (_tollwaysInfoBuilder != null)
 		{
 			int value = _tollwayExtractor.getValue(edge.getOriginalEdge());
-		    _tollwaysInfoBuilder.addSegment(value, value, geom, dist, lastEdge && _lastSegment);
+		    _tollwaysInfoBuilder.addSegment(value, value, geom, dist, isLastEdge && _lastSegment);
 		}
 
 		if (_waySuitabilityInfoBuilder != null)
@@ -295,13 +295,13 @@ public class ExtraInfoProcessor extends PathProcessor {
 				priorityIndex = (int)(priority * 10);
 			}
 			
-			_waySuitabilityInfoBuilder.addSegment(priority, priorityIndex, geom, dist,  lastEdge && _lastSegment);
+			_waySuitabilityInfoBuilder.addSegment(priority, priorityIndex, geom, dist,  isLastEdge && _lastSegment);
 		}
 		
 		if (_steepnessInfoBuilder != null)
 		{
 			// just add dummy values
-			_steepnessInfoBuilder.addSegment(0, 0, geom, dist, lastEdge && _lastSegment);
+			_steepnessInfoBuilder.addSegment(0, 0, geom, dist, isLastEdge && _lastSegment);
 		}
 
 		if (_greenInfoBuilder != null) {
@@ -311,7 +311,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 			int MIN_CLIENT_VAL = 3;
 			int MAX_CLIENT_VAL = 10;
 			int clientVal = MIN_CLIENT_VAL + value * (MAX_CLIENT_VAL - MIN_CLIENT_VAL + 1) / 64;
-			_greenInfoBuilder.addSegment(value, clientVal, geom, dist, lastEdge && _lastSegment);
+			_greenInfoBuilder.addSegment(value, clientVal, geom, dist, isLastEdge && _lastSegment);
 		}
 		
 		if (_noiseInfoBuilder != null) {
@@ -321,7 +321,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 				noise_level = 3; 
 			
 			int client_noise_level = noise_level + 7;
-			_noiseInfoBuilder.addSegment(noise_level, client_noise_level, geom, dist, lastEdge && _lastSegment);
+			_noiseInfoBuilder.addSegment(noise_level, client_noise_level, geom, dist, isLastEdge && _lastSegment);
 		}
 	}
 

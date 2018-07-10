@@ -38,7 +38,6 @@ public class RoutingRequest extends ServiceRequest
 	private Boolean _includeGeometry = true;
 	private Boolean _includeManeuvers = false;
     private boolean _includeRoundaboutExits = false;
-	private Boolean _simplifyGeometry = false;
 	private String[] _attributes = null;
     private int _extraInfo;
     private int _locationIndex = -1;
@@ -153,14 +152,6 @@ public class RoutingRequest extends ServiceRequest
 		return false;
 	}
 
-	public Boolean getSimplifyGeometry() {
-		return _simplifyGeometry;
-	}
-
-	public void setSimplifyGeometry(Boolean simplifyGeometry) {
-		_simplifyGeometry = simplifyGeometry;
-	}
-	
 	public boolean getConsiderTraffic(){
 		return this._searchParameters.getConsiderTraffic();
 		

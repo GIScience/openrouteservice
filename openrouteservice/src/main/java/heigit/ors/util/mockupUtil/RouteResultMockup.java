@@ -69,7 +69,6 @@ public class RouteResultMockup {
             routeResult.getSummary().setBBox(bbox);
             routeResult.getSummary().setDescent(0.0);
             routeResult.getSummary().setDistance(0.0);
-            routeResult.getSummary().setDistanceActual(0.0);
             routeResult.getSummary().setDuration(0.0);
             PointList pointList = new PointList();
             pointList.add(8.690675487235653, 49.38366164068056);

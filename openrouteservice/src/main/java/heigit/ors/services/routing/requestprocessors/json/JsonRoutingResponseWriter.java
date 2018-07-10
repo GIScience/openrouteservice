@@ -95,7 +95,6 @@ public class JsonRoutingResponseWriter {
 		if (request.getIncludeGeometry())
 		{
 			jQuery.put("geometry_format", Helper.isEmpty(request.getGeometryFormat()) ? "encodedpolyline" : request.getGeometryFormat());
-			jQuery.put("geometry_simplify", request.getSimplifyGeometry());
 
 			if (request.getIncludeInstructions())
 				jQuery.put("instructions_format", request.getInstructionsFormat().toString().toLowerCase());
@@ -142,9 +141,6 @@ public class JsonRoutingResponseWriter {
 			RouteSummary rSummary = route.getSummary();
 			jSummary.put("distance", rSummary.getDistance());
 			jSummary.put("duration", rSummary.getDuration());
-
-			if (rSummary.getDistanceActual() != 0.0 && Math.abs(rSummary.getDistance() - rSummary.getDistanceActual()) > 1.0)
-				jSummary.put("distance_actual", rSummary.getDistanceActual());
 
 			if (rSummary.getAscent() != 0.0 || rSummary.getDescent() != 0.0)
 			{

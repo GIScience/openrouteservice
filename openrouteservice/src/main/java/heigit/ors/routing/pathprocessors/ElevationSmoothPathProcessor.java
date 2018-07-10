@@ -46,7 +46,7 @@ public class ElevationSmoothPathProcessor extends PathProcessor {
 	}
 
 	@Override
-	public void processEdge(int pathIndex, EdgeIteratorState edge, boolean lastEdge, PointList geom) {
+	public void processEdge(EdgeIteratorState edge, boolean isLastEdge, PointList geom) {
 		// TODO Auto-generated method stub
 
 	}

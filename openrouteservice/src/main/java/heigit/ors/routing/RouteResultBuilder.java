@@ -70,7 +70,7 @@ public class RouteResultBuilder
 		double duration = 0.0;
 		double ascent = 0.0;
 		double descent = 0.0;
-		double distanceActual = 0.0;
+		//MARQ24 removed not implemented -> double distanceActual = 0.0;
 		double durationTraffic = 0.0;
 
 		double lon0 = 0, lat0 = 0, lat1 = 0, lon1 = 0;
@@ -239,8 +239,9 @@ public class RouteResultBuilder
 						startWayPointIndex += instr.getPoints().size();
 						//step.setMode // walking, cycling, etc. for multimodal routing
 
-						if (instrAnnotation != null && instrAnnotation.getWayType() != 1) // Ferry, Steps as pushing sections
-							distanceActual += stepDistance;
+						//MARQ24 removed not implemented
+						//if (instrAnnotation != null && instrAnnotation.getWayType() != 1) // Ferry, Steps as pushing sections
+						//	distanceActual += stepDistance;
 
 						prevInstr = instr;
 						prevSegPoints = segPoints;
@@ -269,8 +270,9 @@ public class RouteResultBuilder
 					Instruction instr = instructions.get(j);
 					InstructionAnnotation instrAnnotation = instr.getAnnotation();
 
-					if (instrAnnotation != null && instrAnnotation.getWayType() != 1) // Ferry, Steps as pushing sections
-						distanceActual += FormatUtility.roundToDecimals(DistanceUnitUtil.convert(instr.getDistance(), DistanceUnit.Meters, units), unitDecimals);
+					//MARQ24 removed not implemented
+					//if (instrAnnotation != null && instrAnnotation.getWayType() != 1) // Ferry, Steps as pushing sections
+					//	distanceActual += FormatUtility.roundToDecimals(DistanceUnitUtil.convert(instr.getDistance(), DistanceUnit.Meters, units), unitDecimals);
 				}
 
 				distance += FormatUtility.roundToDecimals(DistanceUnitUtil.convert(path.getDistance(), DistanceUnit.Meters, units), unitDecimals);
@@ -290,7 +292,8 @@ public class RouteResultBuilder
 
 		routeSummary.setDuration(request.getSearchParameters().getConsiderTraffic() ? durationTraffic : duration);
 		routeSummary.setDistance(FormatUtility.roundToDecimals(distance, unitDecimals));
-		routeSummary.setDistanceActual(FormatUtility.roundToDecimals(distanceActual, unitDecimals));
+		//MARQ24 removed not implemented
+		//routeSummary.setDistanceActual(FormatUtility.roundToDecimals(distanceActual, unitDecimals));
 		routeSummary.setAverageSpeed(FormatUtility.roundToDecimals(distance/(units == DistanceUnit.Meters ? 1000 : 1)/(routeSummary.getDuration() / 3600), 1));
 		routeSummary.setAscent(FormatUtility.roundToDecimals(ascent, 1));
 		routeSummary.setDescent(FormatUtility.roundToDecimals(descent, 1));
