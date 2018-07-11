@@ -51,10 +51,7 @@ import static org.junit.Assert.*;
  */
 public class InstructionListTest {
     private final TranslationMap trMap = TranslationMapTest.SINGLETON;
-    // ORS-GH MOD START
-    //private final Translation usTR = trMap.getWithFallBack(Locale.US);
-    private final PathProcessingContext usTR = new PathProcessingContext(null, null, trMap.getWithFallBack(Locale.US), null);
-    // ORS-GH MOD END
+    private final Translation usTR = trMap.getWithFallBack(Locale.US);
     private final TraversalMode tMode = TraversalMode.NODE_BASED;
     private EncodingManager carManager;
     private FlagEncoder carEncoder;
@@ -118,10 +115,7 @@ public class InstructionListTest {
         List<String> tmpList = pick("text", wayList.createJson());
         assertEquals(Arrays.asList("Continue onto 0-1", "Turn right onto 1-4", "Turn left onto 7-8", "Arrive at destination"),
                 tmpList);
-        // ORS-GH MOD START
-        //wayList = p.calcInstructions(trMap.getWithFallBack(Locale.GERMAN));
-        wayList = p.calcInstructions(new PathProcessingContext(null, null, trMap.getWithFallBack(Locale.GERMAN), null));
-        // ORS-GH MOD END
+        wayList = p.calcInstructions(trMap.getWithFallBack(Locale.GERMAN));
         tmpList = pick("text", wayList.createJson());
         assertEquals(Arrays.asList("Dem Straßenverlauf von 0-1 folgen", "Rechts abbiegen auf 1-4", "Links abbiegen auf 7-8", "Ziel erreicht"),
                 tmpList);
@@ -158,10 +152,7 @@ public class InstructionListTest {
         p = new Dijkstra(g, new ShortestWeighting(carEncoder), tMode).calcPath(0, 0);
         wayList = p.calcInstructions(usTR);
         assertEquals(1, wayList.size());
-        // ORS-GH MOD START
-        //assertEquals("arrive at destination", wayList.get(0).getTurnDescription(usTR));
-        assertEquals("arrive at destination", wayList.get(0).getTurnDescription(usTR.getTranslation()));
-        // ORS-GH MOD END
+        assertEquals("arrive at destination", wayList.get(0).getTurnDescription(usTR));
     }
 
     List<String> pick(String key, List<Map<String, Object>> instructionJson) {
@@ -342,10 +333,7 @@ public class InstructionListTest {
 
     @Test
     public void testRoundaboutJsonIntegrity() {
-        // ORS-GH MOD START
-        //InstructionList il = new InstructionList(usTR);
-        InstructionList il = new InstructionList(usTR.getTranslation());
-        // ORS-GH MOD END
+        InstructionList il = new InstructionList(usTR);
 
         PointList pl = new PointList();
         pl.add(52.514, 13.349);
@@ -379,11 +367,7 @@ public class InstructionListTest {
     // Roundabout with unknown dir of rotation
     @Test
     public void testRoundaboutJsonNaN() {
-        // ORS-GH MOD START
-        //InstructionList il = new InstructionList(usTR);
-        InstructionList il = new InstructionList(usTR.getTranslation());
-        // ORS-GH MOD END
-
+        InstructionList il = new InstructionList(usTR);
         PointList pl = new PointList();
         pl.add(52.514, 13.349);
         pl.add(52.5135, 13.35);
@@ -404,11 +388,7 @@ public class InstructionListTest {
 
     @Test
     public void testCreateGPXIncludesRoundaboutExitNumber() {
-        // ORS-GH MOD START
-        //InstructionList instructions = new InstructionList(usTR);
-        InstructionList instructions = new InstructionList(usTR.getTranslation());
-        // ORS-GH MOD END
-
+        InstructionList instructions = new InstructionList(usTR);
         PointList pl = new PointList();
         pl.add(52.555423473315, 13.43890086052345);
         pl.add(52.555550691982, 13.43946393816465);
@@ -429,11 +409,7 @@ public class InstructionListTest {
 
     @Test
     public void testCreateGPXCorrectFormattingSmallNumbers() {
-        // ORS-GH MOD START
-        //InstructionList instructions = new InstructionList(usTR);
-        InstructionList instructions = new InstructionList(usTR.getTranslation());
-        // ORS-GH MOD END
-
+        InstructionList instructions = new InstructionList(usTR);
         PointList pl = new PointList();
         pl.add(0.000001, 0.000001);
         pl.add(-0.000123, -0.000125);
@@ -454,10 +430,7 @@ public class InstructionListTest {
         final List<GPXEntry> fakeList = new ArrayList<GPXEntry>();
         fakeList.add(new GPXEntry(12, 13, 0));
         fakeList.add(new GPXEntry(12.5, 13, 1000));
-        // ORS-GH MOD START
-        //InstructionList il = new InstructionList(usTR) {
-        InstructionList il = new InstructionList(usTR.getTranslation()) {
-        // ORS-GH MOD END
+        InstructionList il = new InstructionList(usTR) {
             @Override
             public List<GPXEntry> createGPXList() {
                 return fakeList;
@@ -480,10 +453,7 @@ public class InstructionListTest {
     @Test
     public void testCreateGPX() {
         InstructionAnnotation ea = InstructionAnnotation.EMPTY;
-        // ORS-GH MOD START
-        //InstructionList instructions = new InstructionList(usTR);
-        InstructionList instructions = new InstructionList(usTR.getTranslation());
-        // ORS-GH MOD END
+        InstructionList instructions = new InstructionList(usTR);
         PointList pl = new PointList();
         pl.add(49.942576, 11.580384);
         pl.add(49.941858, 11.582422);

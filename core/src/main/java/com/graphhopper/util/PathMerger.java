@@ -19,7 +19,6 @@ package com.graphhopper.util;
 
 import com.graphhopper.PathWrapper;
 import com.graphhopper.routing.Path;
-import com.graphhopper.routing.PathProcessingContext;
 import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.util.details.PathDetail;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
@@ -78,10 +77,7 @@ public class PathMerger {
         return this;
     }
 
-    // ORS-GH MOD START
-    //public void doWork(PathWrapper altRsp, List<Path> paths, Translation tr) {
-    public void doWork(PathWrapper altRsp, List<Path> paths, PathProcessingContext procCntx) {
-    // ORS-GH MOD END
+    public void doWork(PathWrapper altRsp, List<Path> paths, Translation tr) {
         int origPoints = 0;
         long fullTimeInMillis = 0;
         double fullWeight = 0;
@@ -90,14 +86,17 @@ public class PathMerger {
 
         // ORS-GH MOD START
         // Modification by Maxim Rylov
-        PathProcessor pathProcessor = procCntx.getPathProcessor();
-        if (pathProcessor != null) {
-            pathProcessor.init(procCntx);
+        PathProcessor pathProcessor = null;
+        if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo){
+            TranslationMap.ORSTranslationHashMapWithExtendedInfo extraInfoFromTranslationMap = (TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr;
+            pathProcessor = extraInfoFromTranslationMap.getPathProcessor();
+            if (pathProcessor != null) {
+                pathProcessor.init(extraInfoFromTranslationMap.getEncoder());
+            }
         }
-        //******************************
-        //InstructionList fullInstructions = new InstructionList(tr);
-        InstructionList fullInstructions = new InstructionList(procCntx.getTranslation());
         // ORS-GH MOD END
+
+        InstructionList fullInstructions = new InstructionList(tr);
 
         PointList fullPoints = PointList.EMPTY;
         List<String> description = new ArrayList<>();
@@ -113,12 +112,7 @@ public class PathMerger {
             fullDistance += path.getDistance();
             fullWeight += path.getWeight();
             if (enableInstructions) {
-                // ORS-GH MOD START
-                // ORG CODE
-                //InstructionList il = path.calcInstructions(tr);
-                InstructionList il = path.calcInstructions(procCntx);
-                // ORS-GH MOD END
-
+                InstructionList il = path.calcInstructions(tr);
                 if (!il.isEmpty()) {
                     fullInstructions.addAll(il);
 
