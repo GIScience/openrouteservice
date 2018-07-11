@@ -19,6 +19,7 @@ package heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.exghov
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.util.*;
@@ -762,7 +763,7 @@ abstract public class ExGhORSBikeCommonFlagEncoder extends AbstractFlagEncoder {
                 // Formulas for the following calculations is taken from http://www.flacyclist.com/content/perf/science.html
                 double gradient = 0.0;
 
-                if (prevEdgeId != edge.getOriginalEdge()) {
+                if (prevEdgeId != EdgeIteratorStateHelper.getOriginalEdge(edge)) {
                     String incline = way.getTag("incline");
                     if (!Helper.isEmpty(incline)) {
                         incline = incline.replace("%", "").replace(",", ".");
@@ -780,7 +781,7 @@ abstract public class ExGhORSBikeCommonFlagEncoder extends AbstractFlagEncoder {
                     } else
                         SteepnessUtil.computeRouteSplits(pl, false, distCalc, splits);
 
-                    prevEdgeId = edge.getOriginalEdge();
+                    prevEdgeId = EdgeIteratorStateHelper.getOriginalEdge(edge);
                 }
 
                 double speed = 0;

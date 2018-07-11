@@ -20,12 +20,7 @@
  */
 package heigit.ors.mapmatching;
 
-import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.List;
-
-import heigit.ors.util.FrechetDistance;
-
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
@@ -33,6 +28,11 @@ import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
+import heigit.ors.util.FrechetDistance;
+
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RouteSegmentInfo {
 	private List<EdgeIteratorState> edges;
@@ -68,7 +68,7 @@ public class RouteSegmentInfo {
 		List<Integer> res = new ArrayList<Integer>(edges.size());
 	    
 		for(EdgeIteratorState edge : edges)
-			res.add(edge.getOriginalEdge());
+			res.add(EdgeIteratorStateHelper.getOriginalEdge(edge));
 		
 		return res;
 	}

@@ -20,6 +20,7 @@
  */
 package heigit.ors.routing.pathprocessors;
 
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.PathProcessingContext;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
@@ -226,7 +227,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 
 		if (_extWaySurface != null && _wayTypeInfo != null || _surfaceInfo != null)
 		{
-			WaySurfaceDescription wsd = _extWaySurface.getEdgeValue(edge.getOriginalEdge(), buffer);
+			WaySurfaceDescription wsd = _extWaySurface.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
 
 			if (_surfaceInfoBuilder != null)
 				_surfaceInfoBuilder.addSegment(wsd.SurfaceType, wsd.SurfaceType, geom, dist, isLastEdge && _lastSegment);
@@ -237,7 +238,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 		
 		if (_wayCategoryInfoBuilder != null)
 		{
-			int value = _extWayCategory.getEdgeValue(edge.getOriginalEdge(), buffer);
+			int value = _extWayCategory.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
 			_wayCategoryInfoBuilder.addSegment(value, value, geom, dist, isLastEdge && _lastSegment);
 		}
 		
@@ -250,15 +251,15 @@ public class ExtraInfoProcessor extends PathProcessor {
 				if (_extHillIndex != null)
 				{
 					boolean revert = edge.getBaseNode() > edge.getAdjNode();
-					int hillIndex = _extHillIndex.getEdgeValue(edge.getOriginalEdge(), revert, buffer);
+					int hillIndex = _extHillIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), revert, buffer);
 					if (hillIndex > 0)
 						uphill = true;
 				}
 				
-				value = _extTrailDifficulty.getMtbScale(edge.getOriginalEdge(), buffer, uphill);
+				value = _extTrailDifficulty.getMtbScale(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer, uphill);
 			}
 			else if (RoutingProfileType.isWalking(_profileType))
-				value = _extTrailDifficulty.getHikingScale(edge.getOriginalEdge(), buffer);
+				value = _extTrailDifficulty.getHikingScale(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
 			
 			_trailDifficultyInfoBuilder.addSegment(value, value, geom, dist, isLastEdge && _lastSegment);
 		}
@@ -273,7 +274,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 		
 		if (_tollwaysInfoBuilder != null)
 		{
-			int value = _tollwayExtractor.getValue(edge.getOriginalEdge());
+			int value = _tollwayExtractor.getValue(EdgeIteratorStateHelper.getOriginalEdge(edge));
 		    _tollwaysInfoBuilder.addSegment(value, value, geom, dist, isLastEdge && _lastSegment);
 		}
 
@@ -305,7 +306,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 		}
 
 		if (_greenInfoBuilder != null) {
-			int value = _extGreenIndex.getEdgeValue(edge.getOriginalEdge(), buffer);
+			int value = _extGreenIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
 			// This number is how many levels client can display in the stats bar
 			// FIXME should be changed when the specific bar legend for green routing is finished
 			int MIN_CLIENT_VAL = 3;
@@ -315,7 +316,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 		}
 		
 		if (_noiseInfoBuilder != null) {
-			int noise_level = _extNoiseIndex.getEdgeValue(edge.getOriginalEdge(), buffer);
+			int noise_level = _extNoiseIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
 			// convert the noise level (from 0 to 3) to the values (from 7 to 10) for the client
 			if (noise_level > 3)
 				noise_level = 3; 

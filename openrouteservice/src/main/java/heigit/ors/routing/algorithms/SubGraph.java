@@ -77,11 +77,6 @@ public class SubGraph {
 		}
 
 		@Override
-		public int getOriginalEdge() {
-			return _currState.getOriginalEdge();
-		}
-
-		@Override
 		public int getBaseNode() {
 			return _currState.getBaseNode();
 		}

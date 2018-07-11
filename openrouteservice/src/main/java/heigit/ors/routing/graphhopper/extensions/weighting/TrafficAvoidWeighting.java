@@ -21,6 +21,7 @@
 package heigit.ors.routing.graphhopper.extensions.weighting;
 
 
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.Weighting;
@@ -133,7 +134,7 @@ public class TrafficAvoidWeighting extends AbstractWeighting {
 			} else {
 				
 				 System.err.println("traffic weighting method didn't give the weight");
-				 throw new IllegalStateException("edge " + edge.getOriginalEdge() + 
+				 throw new IllegalStateException("edge " + EdgeIteratorStateHelper.getOriginalEdge(edge) +
 						   "has no considered event codes " + ei.getCodesAsString());
 			}
 		}

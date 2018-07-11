@@ -20,30 +20,30 @@
  */
 package heigit.ors.routing.graphhopper.extensions.edgefilters;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import heigit.ors.routing.parameters.VehicleParameters;
-import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
-import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
-import heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.HeavyVehicleFlagEncoder;
-import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
-
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.routing.Dijkstra;
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.DestinationDependentEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeIteratorState;
+import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
+import heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
+import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.HeavyVehicleFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
+import heigit.ors.routing.parameters.VehicleParameters;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 
@@ -156,13 +156,13 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 						destinationEdges.add(ee.value.edge);
 				}
 
-				if (!destinationEdges.contains(edge.getOriginalEdge()))
+				if (!destinationEdges.contains(EdgeIteratorStateHelper.getOriginalEdge(edge)))
 				{
-					int vt = gsHeavyVehicles.getEdgeVehicleType(edge.getOriginalEdge(), buffer);
+					int vt = gsHeavyVehicles.getEdgeVehicleType(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
 					boolean dstFlag = buffer[1]!=0;// ((buffer[1] >> (vehicleType >> 1)) & 1) == 1;
 
 					if (((vt & vehicleType) == vehicleType) && (dstFlag))
-						destinationEdges.add(edge.getOriginalEdge());
+						destinationEdges.add(EdgeIteratorStateHelper.getOriginalEdge(edge));
 				}
 
 				if (destinationEdges.size() == 0)
@@ -176,7 +176,7 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 	@Override
 	public boolean accept(EdgeIteratorState iter) {
 		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder)) {
-			int edgeId = iter.getOriginalEdge();
+			int edgeId = EdgeIteratorStateHelper.getOriginalEdge(iter);
 
 			int vt = gsHeavyVehicles.getEdgeVehicleType(edgeId, buffer);
 			boolean dstFlag = buffer[1] != 0; // ((buffer[1] >> (vehicleType >> 1)) & 1) == 1;
