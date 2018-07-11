@@ -20,14 +20,13 @@
  */
 package heigit.ors.routing.graphhopper.extensions.weighting;
 
-import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStorage;
-
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
+import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStorage;
 
 public class SteepnessDifficultyWeighting extends FastestWeighting
 {
@@ -224,7 +223,7 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
     	if (gsHillIndex != null)
     	{
     		boolean revert = edgeState.getBaseNode() < edgeState.getAdjNode();
-    		int hillIndex = gsHillIndex.getEdgeValue(edgeState.getOriginalEdge(), revert, buffer);
+    		int hillIndex = gsHillIndex.getEdgeValue(EdgeIteratorState.getOriginalEdge(edgeState), revert, buffer);
 
     		if (difficultyWeights != null)
     			return difficultyWeights[hillIndex];

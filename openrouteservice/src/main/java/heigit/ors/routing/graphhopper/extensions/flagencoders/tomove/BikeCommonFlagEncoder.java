@@ -767,7 +767,7 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 				// Formulas for the following calculations is taken from http://www.flacyclist.com/content/perf/science.html
 				double gradient = 0.0;
 
-				if (prevEdgeId != edge.getOriginalEdge())
+				if (prevEdgeId != EdgeIteratorState.getOriginalEdge(edge))
 				{
 					String incline = way.getTag("incline"); 
 					if (!Helper.isEmpty(incline))
@@ -791,7 +791,7 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 					else
 						SteepnessUtil.computeRouteSplits(pl, false, distCalc, splits);
  
-					prevEdgeId = edge.getOriginalEdge();
+					prevEdgeId = EdgeIteratorState.getOriginalEdge(edge);
 				}
 
 

@@ -20,17 +20,16 @@
  */
 package heigit.ors.routing.graphhopper.extensions.edgefilters;
 
-import java.util.ArrayList;
-
-import heigit.ors.routing.parameters.VehicleParameters;
-import heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
-import heigit.ors.routing.graphhopper.extensions.storages.EmergencyVehicleAttributesGraphStorage;
-import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
+import heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
+import heigit.ors.routing.graphhopper.extensions.storages.EmergencyVehicleAttributesGraphStorage;
+import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import heigit.ors.routing.parameters.VehicleParameters;
+
+import java.util.ArrayList;
 
 public class EmergencyVehicleEdgeFilter implements EdgeFilter {
 
@@ -89,7 +88,7 @@ public class EmergencyVehicleEdgeFilter implements EdgeFilter {
 	@Override
 	public boolean accept(EdgeIteratorState iter) {
 		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder)) {
-			int edgeId = iter.getOriginalEdge();
+			int edgeId = EdgeIteratorState.getOriginalEdge(iter);
 
 			if (restCount != 0 && gsAttributes != null) {
 				if (restCount == 1) {

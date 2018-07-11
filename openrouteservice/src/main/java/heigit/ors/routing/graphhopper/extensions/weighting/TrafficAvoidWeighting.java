@@ -133,7 +133,7 @@ public class TrafficAvoidWeighting extends AbstractWeighting {
 			} else {
 				
 				 System.err.println("traffic weighting method didn't give the weight");
-				 throw new IllegalStateException("edge " + edge.getOriginalEdge() + 
+				 throw new IllegalStateException("edge " + EdgeIteratorState.getOriginalEdge(edge) +
 						   "has no considered event codes " + ei.getCodesAsString());
 			}
 		}

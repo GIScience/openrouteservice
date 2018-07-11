@@ -20,18 +20,17 @@
  */
 package heigit.ors.routing.graphhopper.extensions.edgefilters;
 
-import java.util.List;
-
 import com.graphhopper.coll.GHIntArrayList;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
-
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
 import heigit.ors.routing.graphhopper.extensions.storages.AccessRestrictionsGraphStorage;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+
+import java.util.List;
 
 public class AccessRestrictionsEdgeFilter implements EdgeFilter {
 
@@ -84,11 +83,11 @@ public class AccessRestrictionsEdgeFilter implements EdgeFilter {
 	{
 		if (_out && iter.isForward(_encoder) || _in && iter.isBackward(_encoder))
 		{
-			int res = _gsRestrictions.getEdgeValue(iter.getOriginalEdge(), _vehicleType, _buffer);
+			int res = _gsRestrictions.getEdgeValue(EdgeIteratorState.getOriginalEdge(iter), _vehicleType, _buffer);
 			if (res == AccessRestrictionType.None)
 				return true;
 
-			if (_allowedEdges == null || _allowedEdges.contains(iter.getOriginalEdge()))
+			if (_allowedEdges == null || _allowedEdges.contains(EdgeIteratorState.getOriginalEdge(iter)))
 				return true;
 		}
 
