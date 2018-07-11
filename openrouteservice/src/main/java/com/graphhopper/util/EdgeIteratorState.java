@@ -17,7 +17,6 @@
  */
 package com.graphhopper.util;
 
-import com.graphhopper.routing.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.FlagEncoder;
 
 /**
@@ -136,16 +135,4 @@ public interface EdgeIteratorState {
      * @return the specified edge e
      */
     EdgeIteratorState copyPropertiesTo(EdgeIteratorState e);
-
-    public static int getOriginalEdge(Object inst){
-        if(inst instanceof VirtualEdgeIteratorState){
-            return ((VirtualEdgeIteratorState) inst).getOriginalEdge();
-        } else if (inst instanceof com.graphhopper.routing.VirtualEdgeIterator) {
-            EdgeIteratorState edgeIterState = ((com.graphhopper.routing.VirtualEdgeIterator) inst).detach(false);
-            return getOriginalEdge(edgeIterState);
-        } else if(inst instanceof  EdgeIteratorState){
-            return ((EdgeIteratorState) inst).getEdge();
-        }
-        return -1;
-    }
 }

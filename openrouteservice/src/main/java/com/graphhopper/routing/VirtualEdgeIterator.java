@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * @author Peter Karich
  */
-public class VirtualEdgeIterator implements EdgeIterator, CHEdgeIteratorState {
+class VirtualEdgeIterator implements EdgeIterator, CHEdgeIteratorState {
     private final List<EdgeIteratorState> edges;
     private int current;
 

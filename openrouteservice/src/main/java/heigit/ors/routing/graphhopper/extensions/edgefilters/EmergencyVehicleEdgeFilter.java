@@ -20,6 +20,7 @@
  */
 package heigit.ors.routing.graphhopper.extensions.edgefilters;
 
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphStorage;
@@ -88,7 +89,7 @@ public class EmergencyVehicleEdgeFilter implements EdgeFilter {
 	@Override
 	public boolean accept(EdgeIteratorState iter) {
 		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder)) {
-			int edgeId = EdgeIteratorState.getOriginalEdge(iter);
+			int edgeId = EdgeIteratorStateHelper.getOriginalEdge(iter);
 
 			if (restCount != 0 && gsAttributes != null) {
 				if (restCount == 1) {

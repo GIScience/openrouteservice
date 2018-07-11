@@ -20,6 +20,7 @@
  */
 package heigit.ors.routing.graphhopper.extensions.edgefilters;
 
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.util.EdgeIteratorState;
@@ -61,14 +62,14 @@ public class BlockedEdgesEdgeFilter implements EdgeFilter {
 		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder)) {
             if (blockedEdges != null)
             {
-            	if (blockedEdges.contains(EdgeIteratorState.getOriginalEdge(iter)))
+            	if (blockedEdges.contains(EdgeIteratorStateHelper.getOriginalEdge(iter)))
             		return false;
             }
             
             if ((blockedEdges_hv.size()!=0) && ( encoder instanceof HeavyVehicleFlagEncoder))
             {
          
-            	if (blockedEdges_hv.contains(EdgeIteratorState.getOriginalEdge(iter)))
+            	if (blockedEdges_hv.contains(EdgeIteratorStateHelper.getOriginalEdge(iter)))
             		return false;
             }
             

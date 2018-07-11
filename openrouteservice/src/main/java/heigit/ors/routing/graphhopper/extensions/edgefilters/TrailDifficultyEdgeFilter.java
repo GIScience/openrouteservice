@@ -20,6 +20,7 @@
  */
 package heigit.ors.routing.graphhopper.extensions.edgefilters;
 
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphStorage;
@@ -67,7 +68,7 @@ public class TrailDifficultyEdgeFilter implements EdgeFilter {
 		{
 			if (_isHiking)
 			{
-				int value = _extTrailDifficulty.getHikingScale(EdgeIteratorState.getOriginalEdge(iter), _buffer);
+				int value = _extTrailDifficulty.getHikingScale(EdgeIteratorStateHelper.getOriginalEdge(iter), _buffer);
 				if (value > _maximumScale)
 					return false;
 			} 
@@ -77,12 +78,12 @@ public class TrailDifficultyEdgeFilter implements EdgeFilter {
 				if (_extHillIndex != null)
 				{
 					boolean revert = iter.getBaseNode() < iter.getAdjNode();
-					int hillIndex = _extHillIndex.getEdgeValue(EdgeIteratorState.getOriginalEdge(iter), revert, _buffer);
+					int hillIndex = _extHillIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(iter), revert, _buffer);
 					if (hillIndex > 0)
 						uphill = true;
 				}
 				
-				int value = _extTrailDifficulty.getMtbScale(EdgeIteratorState.getOriginalEdge(iter), _buffer, uphill);
+				int value = _extTrailDifficulty.getMtbScale(EdgeIteratorStateHelper.getOriginalEdge(iter), _buffer, uphill);
 				if (value > _maximumScale)
 					return false;				
 			}

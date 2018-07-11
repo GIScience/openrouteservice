@@ -20,6 +20,7 @@
  */
 package heigit.ors.mapmatching;
 
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
@@ -67,7 +68,7 @@ public class RouteSegmentInfo {
 		List<Integer> res = new ArrayList<Integer>(edges.size());
 	    
 		for(EdgeIteratorState edge : edges)
-			res.add(EdgeIteratorState.getOriginalEdge(edge));
+			res.add(EdgeIteratorStateHelper.getOriginalEdge(edge));
 		
 		return res;
 	}

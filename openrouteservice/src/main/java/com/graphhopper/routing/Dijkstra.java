@@ -25,7 +25,6 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
-import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Parameters;
 
 import java.util.PriorityQueue;
@@ -109,7 +108,7 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
                     nEdge.parent = currEdge;
                     // ORS-GH MOD START
                     // Modification by Maxim Rylov: Assign the original edge id.
-                    nEdge.originalEdge = EdgeIteratorState.getOriginalEdge(iter);
+                    nEdge.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
                     // ORS-GH MOD END
                     fromMap.put(traversalId, nEdge);
                     fromHeap.add(nEdge);
@@ -117,7 +116,7 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
                     fromHeap.remove(nEdge);
                     nEdge.edge = iter.getEdge();
                     // ORS-GH MOD START
-                    nEdge.originalEdge = EdgeIteratorState.getOriginalEdge(iter);
+                    nEdge.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
                     // ORS-GH MOD END
                     nEdge.weight = tmpWeight;
                     nEdge.parent = currEdge;

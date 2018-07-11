@@ -20,6 +20,7 @@
  */
 package heigit.ors.routing.graphhopper.extensions.weighting;
 
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.storage.GraphStorage;
@@ -64,7 +65,7 @@ public class GreenWeighting extends FastestWeighting {
     @Override
     public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
         if (_gsGreenIndex != null) {
-            int greenLevel = _gsGreenIndex.getEdgeValue(EdgeIteratorState.getOriginalEdge(edgeState), _buffer);
+            int greenLevel = _gsGreenIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), _buffer);
             return _factors[greenLevel];
         }
 

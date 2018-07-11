@@ -20,6 +20,7 @@
  */
 package heigit.ors.routing.graphhopper.extensions.edgefilters;
 
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphStorage;
@@ -59,7 +60,7 @@ public class AvoidSteepnessEdgeFilter implements EdgeFilter {
 			if (gsHillIndex != null)
 	    	{
 	    		boolean revert = iter.getBaseNode() < iter.getAdjNode();
-	    		int hillIndex = gsHillIndex.getEdgeValue(EdgeIteratorState.getOriginalEdge(iter), revert, buffer);
+	    		int hillIndex = gsHillIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(iter), revert, buffer);
 	    		
 	    		if (hillIndex > maximumSteepness)
 	    			return false;

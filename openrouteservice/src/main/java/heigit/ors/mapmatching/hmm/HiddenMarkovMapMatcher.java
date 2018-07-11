@@ -24,6 +24,7 @@ import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.PathWrapper;
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -31,7 +32,6 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
-import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.mapmatching.AbstractMapMatcher;
 import heigit.ors.mapmatching.LocationIndexMatch;
@@ -362,7 +362,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
 			if (distance <= _searchRadius) {
 				
-				int edgeId = EdgeIteratorState.getOriginalEdge(qr.getClosestEdge());
+				int edgeId = EdgeIteratorStateHelper.getOriginalEdge(qr.getClosestEdge());
 
 				if (!roadSegments.contains(edgeId))
 					roadSegments.add(edgeId);

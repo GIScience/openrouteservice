@@ -164,7 +164,7 @@ public class DijkstraOneToManyAlgorithm extends AbstractOneToManyRoutingAlgorith
     			entry.parent = _currEdge.parent;
     			// MARQ24 - this line makes no sense to me!
     			//entry.visited = entry.visited;
-                // MARQ24 -> added (since why we should not also keeo the original?!)
+                // MARQ24 -> added (since why we should not also keep the originalEdge ?!)
                 entry.originalEdge = _currEdge.originalEdge;
     			_targetsFound++;
     		}

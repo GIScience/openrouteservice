@@ -23,6 +23,7 @@ package heigit.ors.routing.graphhopper.extensions.edgefilters;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.routing.Dijkstra;
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.DestinationDependentEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -155,13 +156,13 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 						destinationEdges.add(ee.value.edge);
 				}
 
-				if (!destinationEdges.contains(EdgeIteratorState.getOriginalEdge(edge)))
+				if (!destinationEdges.contains(EdgeIteratorStateHelper.getOriginalEdge(edge)))
 				{
-					int vt = gsHeavyVehicles.getEdgeVehicleType(EdgeIteratorState.getOriginalEdge(edge), buffer);
+					int vt = gsHeavyVehicles.getEdgeVehicleType(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
 					boolean dstFlag = buffer[1]!=0;// ((buffer[1] >> (vehicleType >> 1)) & 1) == 1;
 
 					if (((vt & vehicleType) == vehicleType) && (dstFlag))
-						destinationEdges.add(EdgeIteratorState.getOriginalEdge(edge));
+						destinationEdges.add(EdgeIteratorStateHelper.getOriginalEdge(edge));
 				}
 
 				if (destinationEdges.size() == 0)
@@ -175,7 +176,7 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 	@Override
 	public boolean accept(EdgeIteratorState iter) {
 		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder)) {
-			int edgeId = EdgeIteratorState.getOriginalEdge(iter);
+			int edgeId = EdgeIteratorStateHelper.getOriginalEdge(iter);
 
 			int vt = gsHeavyVehicles.getEdgeVehicleType(edgeId, buffer);
 			boolean dstFlag = buffer[1] != 0; // ((buffer[1] >> (vehicleType >> 1)) & 1) == 1;
