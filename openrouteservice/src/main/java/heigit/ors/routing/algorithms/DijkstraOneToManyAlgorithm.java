@@ -162,7 +162,15 @@ public class DijkstraOneToManyAlgorithm extends AbstractOneToManyRoutingAlgorith
     			entry.weight = _currEdge.weight;
     			entry.edge = _currEdge.edge;
     			entry.parent = _currEdge.parent;
-    			entry.visited = entry.visited;
+
+    			// MARQ24 - this looks quite strange to me!
+                // ORG CODE START
+    			// entry.visited = entry.visited;
+                // ORG CODE END
+    			// IMHO this should be: [and also take over the originalEdge value!
+                entry.visited = _currEdge.visited;
+                entry.originalEdge = _currEdge.originalEdge;
+
     			_targetsFound++;
     		}
     	}
