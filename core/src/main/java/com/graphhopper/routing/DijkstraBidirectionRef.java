@@ -180,7 +180,7 @@ public class DijkstraBidirectionRef extends AbstractBidirAlgo {
 
                 // ORS-GH MOD START
                 // Modification by Maxim Rylov: Assign the original edge id.
-                ee.originalEdge = iter.getOriginalEdge();
+                ee.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
                 // ORS-GH MOD END
 
                 ee.parent = currEdge;

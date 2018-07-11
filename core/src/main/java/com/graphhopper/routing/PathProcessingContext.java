@@ -11,8 +11,7 @@ public class PathProcessingContext {
 	private Translation _translation;
 	private PathProcessor _pathProcessor;
 	private Weighting _weighting;
-	private int _pathIndex = 0;
-	
+
 	public PathProcessingContext(FlagEncoder encoder, Weighting weighting, Translation tr, PathProcessor pathProcessor)
 	{
 		_encoder = encoder;
@@ -39,13 +38,5 @@ public class PathProcessingContext {
 	public PathProcessor getPathProcessor()
 	{
 		return _pathProcessor;
-	}
-	
-	public int getPathIndex() {
-		return _pathIndex;
-	}
-
-	public void setPathIndex(int pathIndex) {
-		_pathIndex = pathIndex;
 	}
 }

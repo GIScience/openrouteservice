@@ -104,10 +104,6 @@ public class PathMerger {
         for (int pathIndex = 0; pathIndex < paths.size(); pathIndex++) {
             Path path = paths.get(pathIndex);
 
-            // ORS-GH MOD START
-            procCntx.setPathIndex(pathIndex); // Modification by Maxim Rylov
-            // ORS-GH MOD END
-
             if (!path.isFound()) {
                 allFound = false;
                 continue;

@@ -40,10 +40,7 @@ public class GHRequest {
     private final HintsMap hints = new HintsMap();
     // List of favored start (1st element) and arrival heading (all other).
     // Headings are north based azimuth (clockwise) in (0, 360) or NaN for equal preference
-    // ORS-GH MOD START
-    //private final List<Double> favoredHeadings;
-    private final List<Pair<Double, Double>> favoredHeadings;  // Modification by Maxim Rylov: Double changed to Pair<Double, Double>
-    // ORS-GH MOD END
+    private final List<Double> favoredHeadings;
     private List<String> pointHints = new ArrayList<>();
     private List<String> pathDetails = new ArrayList<>();
     private String algo = "";
@@ -56,19 +53,6 @@ public class GHRequest {
     private PathProcessor pathProcessor;
     private EdgeFilter edgeFilter;
     private double[] maxSearchDistances;
-    private Boolean simplifyGeometry = true;
-
-    public class Pair<A, B> {
-        private final A left;
-        private final B right;
-
-        public Pair(A left, B right)
-        {
-            this.left = left;
-            this.right = right;
-        }
-    }
-    // ORS-GH MOD END
 
     public GHRequest() {
         this(5);
@@ -76,10 +60,7 @@ public class GHRequest {
 
     public GHRequest(int size) {
         points = new ArrayList<GHPoint>(size);
-        // ORS-GH MOD START
-        //favoredHeadings = new ArrayList<Double>(size);
-        favoredHeadings = new ArrayList<Pair<Double, Double>>(size);
-        // ORS-GH MOD END
+        favoredHeadings = new ArrayList<Double>(size);
         possibleToAdd = true;
     }
 
@@ -105,13 +86,6 @@ public class GHRequest {
      * heading. Headings are north based azimuth (clockwise) in (0, 360) or NaN for equal preference
      */
     public GHRequest(GHPoint startPlace, GHPoint endPlace, double startHeading, double endHeading) {
-        // ORS-GH MOD START
-        this(startPlace, endPlace, startHeading, Double.NaN, endHeading, Double.NaN);
-        // ORS-GH MOD END
-    }
-
-    // ORS-GH MOD START
-    public GHRequest(GHPoint startPlace, GHPoint endPlace, double startHeading, double starHeadingDeviation, double endHeading, double endHeadingDeviation) {
         if (startPlace == null)
             throw new IllegalStateException("'from' cannot be null");
 
@@ -122,22 +96,11 @@ public class GHRequest {
         points.add(startPlace);
         points.add(endPlace);
 
-        // MARQ24 ORG CODE START
-        /*
         favoredHeadings = new ArrayList<Double>(2);
         validateAzimuthValue(startHeading);
         favoredHeadings.add(startHeading);
         validateAzimuthValue(endHeading);
         favoredHeadings.add(endHeading);
-        */
-        // MARQ24 ORG CODE END
-        // MOD START
-        favoredHeadings = new ArrayList<Pair<Double, Double>>(2);
-        validateAzimuthValue(startHeading);
-        favoredHeadings.add(new Pair<Double, Double>(startHeading, starHeadingDeviation));
-        validateAzimuthValue(endHeading);
-        favoredHeadings.add(new Pair<Double, Double>(endHeading, endHeadingDeviation));
-        // MOD END
     }
     // ORS-GH MOD END
 
@@ -162,13 +125,7 @@ public class GHRequest {
             validateAzimuthValue(heading);
         }
         this.points = points;
-        // ORS-GH MOD START
-        //this.favoredHeadings = favoredHeadings;
-        this.favoredHeadings= new ArrayList<Pair<Double, Double>>(favoredHeadings.size());
-        for(Double heading : favoredHeadings) {
-            this.favoredHeadings.add(new Pair<Double, Double>(heading, Double.NaN));
-        }
-        // ORS-GH MOD END
+        this.favoredHeadings = favoredHeadings;
     }
 
     /**
@@ -198,10 +155,7 @@ public class GHRequest {
 
         points.add(point);
         validateAzimuthValue(favoredHeading);
-        // ORS-GH MOD START
-        //favoredHeadings.add(favoredHeading);
-        favoredHeadings.add(new Pair<Double, Double>(favoredHeading, Double.NaN));
-        // ORS-GH MOD END
+        favoredHeadings.add(favoredHeading);
         return this;
     }
 
@@ -220,18 +174,8 @@ public class GHRequest {
      * @return north based azimuth (clockwise) in (0, 360) or NaN for equal preference
      */
     public double getFavoredHeading(int i) {
-        // ORS-GH MOD START
-        //return favoredHeadings.get(i);
-        return favoredHeadings.get(i).left;
-        // ORS-GH MOD END
+        return favoredHeadings.get(i);
     }
-
-    // ORS-GH MOD START
-    public double getFavoredHeadingDeviation(int i) {
-        return  favoredHeadings.get(i).right;
-    }
-    // ORS-GH MOD END
-
 
     /**
      * @return if there exist a preferred heading for start/via/end point i
@@ -240,10 +184,7 @@ public class GHRequest {
         if (i >= favoredHeadings.size()) {
             return false;
         }
-        // ORS-GH MOD START
-        //return !Double.isNaN(favoredHeadings.get(i));
-        return !Double.isNaN(favoredHeadings.get(i).left);
-        // ORS-GH MOD END
+        return !Double.isNaN(favoredHeadings.get(i));
     }
 
     private void validateAzimuthValue(double heading) {
@@ -362,11 +303,17 @@ public class GHRequest {
     public EdgeFilter getEdgeFilter() {
         return edgeFilter;
     }
+    // Modification by Maxim Rylov: Added setEdgeFilter method.
+    public GHRequest setEdgeFilter(EdgeFilter edgeFilter) {
+        if (edgeFilter != null) {
+            this.edgeFilter = edgeFilter;
+        }
+        return this;
+    }
 
     public EdgeAnnotator getEdgeAnnotator() {
         return edgeAnnotator;
     }
-
     public void setEdgeAnnotator(EdgeAnnotator edgeAnnotator) {
         this.edgeAnnotator = edgeAnnotator;
     }
@@ -380,8 +327,7 @@ public class GHRequest {
     }
 
     // Modification by Maxim Rylov: Added getMaxSearchDistances method.
-    public double[] getMaxSearchDistances()
-    {
+    public double[] getMaxSearchDistances() {
         return maxSearchDistances;
     }
 
@@ -396,26 +342,6 @@ public class GHRequest {
             hints.put("max_speed", speed);
         }
     }
-
-    // Modification by Maxim Rylov: Added setEdgeFilter method.
-    public GHRequest setEdgeFilter(EdgeFilter edgeFilter)
-    {
-        if (edgeFilter != null)
-            this.edgeFilter = edgeFilter;
-
-        return this;
-    }
-
-    // Modification by Maxim Rylov: Added getSimplifyGeometry method.
-    public Boolean getSimplifyGeometry() {
-        return simplifyGeometry;
-    }
-
-    // Modification by Maxim Rylov: Added setSimplifyGeometry method.
-    public void setSimplifyGeometry(Boolean value) {
-        simplifyGeometry = value;
-    }
-
     // ****************************************************************
     // MAR24 MOD END
     // ****************************************************************

@@ -1,14 +1,14 @@
 /*
  *  Licensed to GraphHopper GmbH under one or more contributor
- *  license agreements. See the NOTICE file distributed with this work for 
+ *  license agreements. See the NOTICE file distributed with this work for
  *  additional information regarding copyright ownership.
- * 
- *  GraphHopper GmbH licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in 
+ *
+ *  GraphHopper GmbH licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in
  *  compliance with the License. You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,39 +26,19 @@ public class InstructionAnnotation {
     private int importance;
     private String message;
 
-    // ORS-GH MOD START Modification by Maxim Rylov: Added a new class variable.
-    private int wayType;
-    // ORS-GH MOD END
-
     private InstructionAnnotation() {
         setEmpty();
     }
 
-    // ORS-GH MOD START
     public InstructionAnnotation(int importance, String message) {
-        this(importance, message, -1);
-    }
-    // ORS-GH MOD END
-
-    public InstructionAnnotation(int importance, String message, int wayType) {
         if (message.isEmpty() && importance == 0) {
             setEmpty();
         } else {
             this.empty = false;
             this.importance = importance;
             this.message = message;
-            // ORS-GH MOD START
-            this.wayType = wayType;
-            // ORS-GH MOD END
         }
     }
-
-    // ORS-GH MOD START
-    public int getWayType()
-    {
-        return wayType;
-    }
-    // ORS-GH MOD EMD
 
     private void setEmpty() {
         this.empty = true;
