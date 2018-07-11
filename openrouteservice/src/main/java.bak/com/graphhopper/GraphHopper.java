@@ -1122,7 +1122,9 @@ public class GraphHopper implements GraphHopperAPI {
                 if (request.getEdgeFilter() != null) {
                     algoOpts.setEdgeFilter(request.getEdgeFilter());
                 }
-                PathProcessingContext pathProcCntx = new PathProcessingContext(encoder, weighting, tr, request.getPathProcessor());
+                if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo){
+                    ((TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr).init(encoder, weighting, request.getPathProcessor());
+                }
                 // ORS-GH MOD END
 
                 altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts);
@@ -1143,11 +1145,7 @@ public class GraphHopper implements GraphHopperAPI {
                     pathMerger.setFavoredHeading(request.getFavoredHeading(0));
                 }
 
-                // ORS-GH MOD START
-                // ORG CODE
-                //if (routingTemplate.isReady(pathMerger, tr)) {
-                if (routingTemplate.isReady(pathMerger, pathProcCntx)) {
-                    // ORS-GH MOD END
+                if (routingTemplate.isReady(pathMerger, tr)) {
                     break;
                 }
             }

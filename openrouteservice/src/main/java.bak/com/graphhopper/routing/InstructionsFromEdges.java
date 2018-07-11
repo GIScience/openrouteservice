@@ -19,6 +19,7 @@ package com.graphhopper.routing;
 
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
@@ -37,12 +38,8 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
     private final Weighting weighting;
     private final FlagEncoder encoder;
     private final NodeAccess nodeAccess;
-
-    // ORS-GH MOD START private final Translation tr;
-    private PathProcessingContext pathProcCntx;
-    // ORS-GH MOD END
-
     private final InstructionList ways;
+    private final Translation tr;
     /*
      * We need three points to make directions
      *
@@ -79,18 +76,20 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
     private EdgeExplorer crossingExplorer;
 
     private final int MAX_U_TURN_DISTANCE = 35;
-
     // ORS-GH MOD START
-    //public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder, NodeAccess nodeAccess, Translation tr, InstructionList ways) {
-    public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder, NodeAccess nodeAccess, PathProcessingContext pathProcCntx, InstructionList ways) {
+    private final PathProcessor mPathProcessor;
+    private int mTotalEdgeCount = 0;
+
+    void setTotalEdges(int len){
+        mTotalEdgeCount = len;
+    }
     // ORS-GH MOD END
+
+    public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder, NodeAccess nodeAccess, Translation tr, InstructionList ways) {
         this.weighting = weighting;
         this.encoder = encoder;
         this.nodeAccess = nodeAccess;
-        // ORS-GH MOD START
-        //this.tr = tr;
-        this.pathProcCntx = pathProcCntx;
-        // ORS-GH MOD END
+        this.tr = tr;
         this.ways = ways;
         prevLat = this.nodeAccess.getLatitude(tmpNode);
         prevLon = this.nodeAccess.getLongitude(tmpNode);
@@ -99,14 +98,19 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         prevName = null;
         outEdgeExplorer = graph.createEdgeExplorer(new DefaultEdgeFilter(this.encoder, false, true));
         crossingExplorer = graph.createEdgeExplorer(new DefaultEdgeFilter(encoder, true, true));
+
+        // ORS-GH MOD START
+        if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo) {
+            mPathProcessor = ((TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr).getPathProcessor();
+        }else{
+            mPathProcessor = null;
+        }
+        // ORS-GH MOD END
     }
 
 
     @Override
-    // ORS-GH MOD START
-    //public void next(EdgeIteratorState edge, int index, int prevEdgeId) {
-    public void next(EdgeIteratorState edge, int index, int count, int prevEdgeId) {
-    // ORS-GH MOD END
+    public void next(EdgeIteratorState edge, int index, int prevEdgeId) {
         // baseNode is the current node and adjNode is the next
         int adjNode = edge.getAdjNode();
         int baseNode = edge.getBaseNode();
@@ -129,10 +133,7 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         }
 
         String name = edge.getName();
-        // ORS-GH MOD START
-        //InstructionAnnotation annotation = encoder.getAnnotation(flags, tr);
-        InstructionAnnotation annotation = encoder.getAnnotation(flags, pathProcCntx.getTranslation());
-        // ORS-GH MOD END
+        InstructionAnnotation annotation = encoder.getAnnotation(flags, tr);
 
         if ((prevName == null) && (!isRoundabout)) // very first instruction (if not in Roundabout)
         {
@@ -259,7 +260,6 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
                             uTurnType = Instruction.U_TURN_RIGHT;
                         }
                     }
-
                 }
 
                 if (isUTurn) {
@@ -278,11 +278,7 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
             // name can be an old name. This leads to incorrect turn instructions due to name changes
             prevName = name;
         }
-
-        // ORS-GH MOD START
-        //updatePointsAndInstruction(edge, wayGeo);
-        updatePointsAndInstruction(edge, wayGeo,prevEdgeId);
-        // ORS-GH MOD END
+        updatePointsAndInstruction(edge, wayGeo);
 
         if (wayGeo.getSize() <= 2) {
             doublePrevLat = prevLat;
@@ -301,9 +297,9 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
 
         // ORS-GH MOD START
         // Modification by Maxim Rylov
-        boolean lastEdge = index == count - 1;
-        if (pathProcCntx.getPathProcessor() != null) {
-            pathProcCntx.getPathProcessor().processEdge(pathProcCntx.getPathIndex(), edge, lastEdge, wayGeo);
+        boolean isLastEdge = index == mTotalEdgeCount - 1;
+        if(mPathProcessor != null){
+            mPathProcessor.processEdge(edge, isLastEdge, wayGeo);
         }
         // ORS-GH MOD END
     }
@@ -413,8 +409,6 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
                 } else {
                     return Instruction.KEEP_RIGHT;
                 }
-
-
             }
         }
 
@@ -436,10 +430,7 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         return Instruction.IGNORE;
     }
 
-    // ORS-GH MOD START [NEED TO BE REVISED IF NEEDED!!!]
-    //private void updatePointsAndInstruction(EdgeIteratorState edge, PointList pl) {
-    private void updatePointsAndInstruction(EdgeIteratorState edge, PointList pl, int prevEdgeId) {
-    // ORS-GH MOD END [NEED TO BE REVISED IF NEEDED!!!]
+    private void updatePointsAndInstruction(EdgeIteratorState edge, PointList pl) {
         // skip adjNode
         int len = pl.size() - 1;
         for (int i = 0; i < len; i++) {
@@ -447,11 +438,6 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         }
         double newDist = edge.getDistance();
         prevInstruction.setDistance(newDist + prevInstruction.getDistance());
-
-        //ORS-GH MOD START [NEED TO BE REVISED IF NEEDED!!!]
-        //prevInstruction.setTime(weighting.calcMillis(edge, false, EdgeIterator.NO_EDGE) + prevInstruction.getTime());
-        prevInstruction.setTime(weighting.calcMillis(edge, false, prevEdgeId) + prevInstruction.getTime());
-        //ORS-GH MOD END [NEED TO BE REVISED IF NEEDED!!!]
+        prevInstruction.setTime(weighting.calcMillis(edge, false, EdgeIterator.NO_EDGE) + prevInstruction.getTime());
     }
-
 }

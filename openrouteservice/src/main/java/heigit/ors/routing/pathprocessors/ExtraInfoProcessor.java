@@ -349,8 +349,8 @@ public class ExtraInfoProcessor extends PathProcessor {
 	}
 
 	@Override
-	public void init(PathProcessingContext cntx) {
-		_encoder = cntx.getEncoder();
+	public void init(FlagEncoder encoder) {
+		_encoder = encoder;
 		_encoderWithPriority = _encoder.supports(PriorityWeighting.class);
 	}
 }

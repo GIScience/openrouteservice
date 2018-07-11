@@ -254,6 +254,15 @@ public class Path {
     private void forEveryEdge(EdgeVisitor visitor) {
         int tmpNode = getFromNode();
         int len = edgeIds.size();
+        // ORS-GH MOD START
+        // MARQ24 ONLY required to let the InstructionsFromEdges know, WHEN the last
+        // edge will be processed, so that 'isLastEdge' could be passed to the
+        // ORS-PathProcessor
+        if(visitor instanceof InstructionsFromEdges){
+            ((InstructionsFromEdges) visitor).setTotalEdges(len);
+        }
+        // ORS-GH MOD END
+
         int prevEdgeId = EdgeIterator.NO_EDGE;
         for (int i = 0; i < len; i++) {
             EdgeIteratorState edgeBase = graph.getEdgeIteratorState(edgeIds.get(i), tmpNode);
@@ -264,11 +273,7 @@ public class Path {
             tmpNode = edgeBase.getBaseNode();
             // more efficient swap, currently not implemented for virtual edges: visitor.next(edgeBase.detach(true), i);
             edgeBase = graph.getEdgeIteratorState(edgeBase.getEdge(), tmpNode);
-            // ORS-GH MOD START
-            //visitor.next(edgeBase, i, prevEdgeId);
-            visitor.next(edgeBase, i, len, prevEdgeId);
-            // ORS-GH MOD START
-
+            visitor.next(edgeBase, i, prevEdgeId);
             prevEdgeId = edgeBase.getEdge();
         }
         visitor.finish();
@@ -284,10 +289,7 @@ public class Path {
 
         forEveryEdge(new EdgeVisitor() {
             @Override
-            // ORS-GH MOD START
-            //public void next(EdgeIteratorState eb, int index, int prevEdgeId) {
-            public void next(EdgeIteratorState eb, int index, int len, int prevEdgeId) {
-            // ORS-GH MOD END
+            public void next(EdgeIteratorState eb, int index, int prevEdgeId) {
                 edges.add(eb);
             }
 
@@ -315,10 +317,7 @@ public class Path {
         nodes.add(tmpNode);
         forEveryEdge(new EdgeVisitor() {
             @Override
-            // ORS-GH MOD START
-            //public void next(EdgeIteratorState eb, int index, int prevEdgeId) {
-            public void next(EdgeIteratorState eb, int index, int len, int prevEdgeId) {
-            // ORS-GH MOD END
+            public void next(EdgeIteratorState eb, int index, int prevEdgeId) {
                 nodes.add(eb.getAdjNode());
             }
 
@@ -349,10 +348,7 @@ public class Path {
         points.add(nodeAccess, tmpNode);
         forEveryEdge(new EdgeVisitor() {
             @Override
-            // ORS-GH MOD END
-            //public void next(EdgeIteratorState eb, int index, int prevEdgeId) {
-            public void next(EdgeIteratorState eb, int index, int len, int prevEdgeId) {
-            // ORS-GH MOD END
+            public void next(EdgeIteratorState eb, int index, int prevEdgeId) {
                 PointList pl = eb.fetchWayGeometry(2);
                 for (int j = 0; j < pl.getSize(); j++) {
                     points.add(pl, j);
@@ -370,22 +366,15 @@ public class Path {
     /**
      * @return the list of instructions for this path.
      */
-    // ORS-GH MOD START
-    //public InstructionList calcInstructions(final Translation tr) {
-    public InstructionList calcInstructions(final PathProcessingContext procCntx) {
-        //final InstructionList ways = new InstructionList(edgeIds.size() / 4, tr);
-        final InstructionList ways = new InstructionList(edgeIds.size() / 4, procCntx.getTranslation());
-        // ORS-GH MOD END
+    public InstructionList calcInstructions(final Translation tr) {
+        final InstructionList ways = new InstructionList(edgeIds.size() / 4, tr);
         if (edgeIds.isEmpty()) {
             if (isFound()) {
                 ways.add(new FinishInstruction(nodeAccess, endNode));
             }
             return ways;
         }
-        // ORS-GH MOD START
-        //forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, nodeAccess, tr, ways));
-        forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, nodeAccess, procCntx, ways));
-        // ORS-GH MOD END
+        forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, nodeAccess, tr, ways));
         return ways;
     }
 
@@ -435,10 +424,7 @@ public class Path {
      * The callback used in forEveryEdge.
      */
     public interface EdgeVisitor {
-        // ORS-GH MOD START
-        //void next(EdgeIteratorState edge, int index, int prevEdgeId);
-        void next(EdgeIteratorState edge, int index, int count, int prevEdgeId);
-        // ORS-GH MOD END
+        void next(EdgeIteratorState edge, int index, int prevEdgeId);
         void finish();
     }
 }

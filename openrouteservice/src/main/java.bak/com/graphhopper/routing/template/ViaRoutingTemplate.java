@@ -31,6 +31,7 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Parameters.Routing;
 import com.graphhopper.util.PathMerger;
 import com.graphhopper.util.StopWatch;
+import com.graphhopper.util.Translation;
 import com.graphhopper.util.exceptions.PointNotFoundException;
 import com.graphhopper.util.shapes.GHPoint;
 
@@ -165,16 +166,13 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
     }
 
     @Override
-    // ORS-GH MOD START
-    //public boolean isReady(PathMerger pathMerger, Translation tr) {
-    public boolean isReady(PathMerger pathMerger, PathProcessingContext pathProcCntx) {
-    // ORS-GH MOD END
+    public boolean isReady(PathMerger pathMerger, Translation tr) {
         if (ghRequest.getPoints().size() - 1 != pathList.size())
             throw new RuntimeException("There should be exactly one more points than paths. points:" + ghRequest.getPoints().size() + ", paths:" + pathList.size());
 
         altResponse.setWaypoints(getWaypoints());
         ghResponse.add(altResponse);
-        pathMerger.doWork(altResponse, pathList, pathProcCntx);
+        pathMerger.doWork(altResponse, pathList, tr);
         return true;
     }
 
