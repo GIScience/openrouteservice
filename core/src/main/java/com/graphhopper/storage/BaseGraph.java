@@ -1168,13 +1168,6 @@ class BaseGraph implements Graph {
             return edgeId;
         }
 
-        // ORS-GH MOD START
-        @Override
-        public int getOriginalEdge() {
-            return edgeId;
-        }
-        // ORS-GH MOD END
-
         @Override
         public String getName() {
             int nameIndexRef = baseGraph.edges.getInt(edgePointer + baseGraph.E_NAME);

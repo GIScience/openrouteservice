@@ -247,7 +247,7 @@ public class AStarBidirection extends AbstractBidirAlgo implements Recalculation
                     ase = new AStarEntry(iter.getEdge(), neighborNode, estimationFullWeight, alreadyVisitedWeight);
                     // ORS-GH MOD START
                     // Modification by Maxim Rylov: assign originalEdge
-                    ase.originalEdge = iter.getOriginalEdge();
+                    ase.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
                     // ORS-GH MOD END
                     bestWeightMap.put(traversalId, ase);
                 } else {

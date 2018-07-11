@@ -27,7 +27,6 @@ public class SPTEntry implements Cloneable, Comparable<SPTEntry> {
     public int edge;
     // ORS-GH MOD START
     public int originalEdge;
-    public boolean visited = false;
     // ORS-GH MOD END
     public int adjNode;
     public double weight;

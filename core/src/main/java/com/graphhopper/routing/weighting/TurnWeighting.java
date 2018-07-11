@@ -17,6 +17,7 @@
  */
 package com.graphhopper.routing.weighting;
 
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.util.TurnCostEncoder;
@@ -74,7 +75,7 @@ public class TurnWeighting implements Weighting {
 
         // ORS-GH MOD START
         //int edgeId = edgeState.getEdge();
-        int edgeId = edgeState.getOriginalEdge();
+        int edgeId = EdgeIteratorStateHelper.getOriginalEdge(edgeState);
         // ORS-GH MOD END
         double turnCosts;
         if (reverse)
