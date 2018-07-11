@@ -168,7 +168,6 @@ public class DijkstraOneToManyAlgorithm extends AbstractOneToManyRoutingAlgorith
     			// entry.visited = entry.visited;
                 // ORG CODE END
     			// IMHO this should be: [and also take over the originalEdge value!
-                entry.visited = _currEdge.visited;
                 entry.originalEdge = _currEdge.originalEdge;
 
     			_targetsFound++;
