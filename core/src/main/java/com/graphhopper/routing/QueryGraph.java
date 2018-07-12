@@ -160,7 +160,7 @@ public class QueryGraph implements Graph {
         // ORG CODE
         //if (mainGraph.getExtension() instanceof TurnCostExtension) {
         if (HelperORS.getTurnCostExtensions(mainGraph.getExtension()) != null){
-        // MOD END
+        // ORS-GH MOD END
             wrappedExtension = new QueryGraphTurnExt();
         }else {
             wrappedExtension = mainGraph.getExtension();

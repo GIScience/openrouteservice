@@ -297,7 +297,7 @@ public class GHRequest {
     }
 
     // ****************************************************************
-    // MAR24 MOD START
+    // ORS-GH MOD START
     // ****************************************************************
     // Modification by Maxim Rylov: Added getEdgeFilter method.
     public EdgeFilter getEdgeFilter() {
@@ -343,6 +343,6 @@ public class GHRequest {
         }
     }
     // ****************************************************************
-    // MAR24 MOD END
+    // ORS-GH MOD END
     // ****************************************************************
 }

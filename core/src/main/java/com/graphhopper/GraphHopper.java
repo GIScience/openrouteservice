@@ -985,7 +985,7 @@ public class GraphHopper implements GraphHopperAPI {
                 // ORS-GH MOD START
                 //return new TurnWeighting(weighting, (TurnCostExtension) graph.getExtension());
                 return new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()));
-                // MOD END
+                // ORS-GH MOD END
             }
         // ORS-GH MOD START
         }
