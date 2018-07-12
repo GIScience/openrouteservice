@@ -269,7 +269,7 @@
     	<version>3.0.3</version>
 	</dependency>
 
-    <dependency>
+    <!--dependency>
         <groupId>com.github.GIScience.graphhopper</groupId>
         <artifactId>graphhopper-core</artifactId>
         <version>0.10.1-7</version>
@@ -279,9 +279,9 @@
         <groupId>com.github.GIScience.graphhopper</groupId>
         <artifactId>graphhopper-reader-osm</artifactId>
         <version>0.10.1-7</version>
-    </dependency>
+    </dependency-->
 
-    <!-- remove the comment to enable debugging>
+    <!-- remove the comment to enable debugging-->
     <dependency>
     <groupId>com.graphhopper</groupId>
         <artifactId>graphhopper-core</artifactId>
@@ -293,7 +293,7 @@
         <artifactId>graphhopper-reader-osm</artifactId>
         <version>0.10-SNAPSHOT</version>
     </dependency>
-    -->
+    <!---->
 
 	<dependency>
     	<groupId>com.typesafe</groupId>

@@ -21,7 +21,6 @@
 package heigit.ors.routing.pathprocessors;
 
 import com.graphhopper.routing.EdgeIteratorStateHelper;
-import com.graphhopper.routing.PathProcessingContext;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.util.PriorityCode;
