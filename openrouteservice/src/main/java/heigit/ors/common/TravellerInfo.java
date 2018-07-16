@@ -63,6 +63,39 @@ public class TravellerInfo
 		return _ranges;
 	}
 
+	public double[] getRangesInUnit(String unit){
+		// convert ranges from meters to user specified unit
+		double[] rangesInUnit = new double[_ranges.length];
+
+		if (!(unit == null || "m".equalsIgnoreCase(unit)))
+		{
+			double scale = 1.0;
+			if (_rangeType == TravelRangeType.Distance)
+			{
+				switch(unit)
+				{
+					case "m":
+						break;
+					case "km":
+						scale = 1/1000.0;
+						break;
+					case "mi":
+						scale = 1/1609.34;
+						break;
+				}
+			}
+
+			if (scale != 1.0)
+			{
+				for (int i = 0; i < _ranges.length; i++)
+					rangesInUnit[i] = _ranges[i]*scale;
+				return rangesInUnit;
+			}
+			return _ranges;
+		}
+		return _ranges;
+	}
+
 	public void setRanges(double range, double interval) {
 		if (interval > range)
 			range = interval;

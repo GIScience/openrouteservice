@@ -292,7 +292,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 		if (traveller.getRangeType() != null)
 			jQuery.put("range_type", traveller.getRangeType().toString().toLowerCase());
 
-		jQuery.put("ranges", StringUtility.arrayToString(traveller.getRanges(), ","));
+		jQuery.put("ranges", StringUtility.arrayToString(traveller.getRangesInUnit(request.getUnits()), ","));
 
 		jQuery.put("locations", GeometryJSON.toJSON(request.getLocations(), false));
 
