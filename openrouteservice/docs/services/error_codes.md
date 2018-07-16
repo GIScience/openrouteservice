@@ -60,17 +60,18 @@ The following sections describes the list of possible internal error codes that 
 | 3008 |  Empty Element. |
 | 3099 |  Unknown internal error. |
 
-## Locations API
+## POIs API
 | Error Code   |  Description |
 |----------|-------------|
-| 4000 |  Unable to parse JSON request. |
-| 4001 |  Required parameter is missing. |
-| 4002 |  Invalid parameter format. |
-| 4003 |  Invalid parameter value. |
-| 4004 |  Parameter value exceeds the maximum allowed limit. |
-| 4006 |  Unable to parse the request to the export handler. |
-| 4007 |  Unsupported export format. |
-| 4008 |  Empty Element. |
+| 4000 |  Invalid JSON object in request. |
+| 4001 |  Category or category group ids missing. |
+| 4002 |  Geometry is missing. |
+| 4003 |  Bounding box and or geojson not present in request. |
+| 4004 |  Buffer is missing. |
+| 4005 |  Geometry length does not meet the restrictions. |
+| 4006 |  Unsupported HTTP method. |
+| 4007 |  GeoJSON parsing error. |
+| 4008 |  Geometry size does not meet the restrictions. |
 | 4099 |  Unknown internal error. |
 
 ## Matrix API

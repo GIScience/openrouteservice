@@ -70,6 +70,8 @@ public final class WheelchairTypesEncoder {
         put("paving_stones", SURFACE_PAVING_STONES);
         put("concrete:plates", SURFACE_CONCRETE_PLATES);
         put("cobblestone:flattened", SURFACE_COBBLESTONE_FLATTENED);
+        put("sett", SURFACE_COBBLESTONE_FLATTENED);
+        put("unhewn_cobblestone", SURFACE_COBBLESTONE_FLATTENED);
         put("concrete:lanes", SURFACE_CONCRETE_LANES);
         put("cobblestone", SURFACE_COBBLESTONE);
         put("unpaved", SURFACE_UNPAVED);
@@ -148,6 +150,16 @@ public final class WheelchairTypesEncoder {
     		return 0;
     	else
     		return SURFACE_MAP.getOrDefault(value, -1);
+    }
+
+    public static int getEncodedType(WheelchairAttributes.Attribute attribute, String value) throws Exception {
+        switch(attribute) {
+            case SMOOTHNESS: return getSmoothnessType(value);
+            case SURFACE: return getSurfaceType(value);
+            case TRACK: return getTrackType(value);
+
+            default: throw new Exception("Attribute is not a recognised encoded type");
+        }
     }
     
     public static int getSmoothnessType(String value)

@@ -170,6 +170,29 @@ public class GeomUtility {
 		}
 	}
 
+	/**
+	 * Determine the 2D bearing between two points. Note that this does not take into account the spheroid shape of
+	 * the Earth.
+	 *
+	 * @param lat1		Latitude of point 1
+	 * @param lon1		Longitude of point 1
+	 * @param lat2		Latitude of point 2
+	 * @param lon2		Longitude of point 2
+	 *
+	 * @return			The bearing from point 1 to point 2 in degrees from North
+	 */
+	public static double getSimpleBearing(double lat1, double lon1, double lat2, double lon2) {
+		// if points are equal, do nothing
+		if(lat1 == lat2 && lon1 == lon2)
+			return -1;
+
+		double theta = Math.atan2(lon2 - lon1, lat2 - lat1);
+		if(theta < 0.0)
+			theta += (Math.PI * 2);
+
+		return Math.toDegrees(theta);
+	}
+
 	private static double getSignedArea(CoordinateSequence ring)
 	{
 		int n = ring.size();

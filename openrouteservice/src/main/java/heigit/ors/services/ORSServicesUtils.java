@@ -20,36 +20,33 @@
  */
 package heigit.ors.services;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import com.graphhopper.storage.StorableProperties;
 import heigit.ors.localization.LocalizationManager;
 import heigit.ors.routing.RoutingProfile;
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.routing.RoutingProfileManagerStatus;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
-import heigit.ors.services.accessibility.AccessibilityServiceSettings;
+//import heigit.ors.services.accessibility.AccessibilityServiceSettings;
 import heigit.ors.services.geocoding.GeocodingServiceSettings;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
-import heigit.ors.services.locations.LocationsServiceSettings;
 import heigit.ors.services.mapmatching.MapMatchingServiceSettings;
 import heigit.ors.services.matrix.MatrixServiceSettings;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import com.graphhopper.storage.StorableProperties;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import static javax.servlet.http.HttpServletResponse.*;
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 public class ORSServicesUtils {
 
@@ -72,10 +69,8 @@ public class ORSServicesUtils {
 					list.add("geocoding");
 				if (IsochronesServiceSettings.getEnabled())
 					list.add("isochrones");
-				if (AccessibilityServiceSettings.getEnabled())
-					list.add("accessibility");
-				if (LocationsServiceSettings.getEnabled())
-					list.add("locations");
+				/*if (AccessibilityServiceSettings.getEnabled())
+					list.add("accessibility");*/
 				if (MatrixServiceSettings.getEnabled())
 					list.add("matrix");
 				if (MapMatchingServiceSettings.getEnabled())

@@ -116,7 +116,7 @@
 				attribution: "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
 				distance_approximation: true,
 				profiles: {
-					active: ["vehicles", "bike", "bike2", "pedestrian"],
+					active: ["vehicles", "bike", "bike2", "pedestrian", "wheelchair"],
 					default_params: {
 						encoder_flags_size: 8, 
 						graphs_root_path: "graphs", 
@@ -258,7 +258,21 @@
 								TrailDifficulty: { }
 						    } 						
 						}
-					}
+					},
+					profile-wheelchair: {
+                        profiles: "wheelchair",
+                        parameters: {
+                            encoder_options: "block_fords=true",
+                            elevation: true,
+                            ext_storages: {
+                                Wheelchair: {
+                                    KerbsOnCrossings: "true"
+                                },
+                                WaySurfaceType: { },
+                                WayCategory: { }
+                            }
+                        }
+                    }
 				}
 				update: {
 					enabled: false,

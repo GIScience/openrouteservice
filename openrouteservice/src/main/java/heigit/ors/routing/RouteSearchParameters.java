@@ -315,6 +315,7 @@ public class RouteSearchParameters {
             } else if (RoutingProfileType.isHeavyVehicle(_profileType) == true) {
                 VehicleParameters vehicleParams = new VehicleParameters();
 
+
                 if (json.has("vehicle_type")) {
                     String vehicleType = json.getString("vehicle_type");
                     _vehicleType = HeavyVehicleAttributes.getFromString(vehicleType);
@@ -363,11 +364,15 @@ public class RouteSearchParameters {
                 if (jRestrictions.has("smoothness_type"))
                     wheelchairParams.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(jRestrictions.getString("smoothness_type")));
 
-                if (jRestrictions.has("maximum_sloped_curb"))
-                    wheelchairParams.setMaximumSlopedCurb((float) jRestrictions.getDouble("maximum_sloped_curb"));
+                if (jRestrictions.has("maximum_sloped_kerb"))
+                    wheelchairParams.setMaximumSlopedKerb((float) jRestrictions.getDouble("maximum_sloped_kerb"));
 
                 if (jRestrictions.has("maximum_incline"))
                     wheelchairParams.setMaximumIncline((float) jRestrictions.getDouble("maximum_incline"));
+
+                if (jRestrictions.has("minimum_width")) {
+                    wheelchairParams.setMinimumWidth((float) jRestrictions.getDouble("minimum_width"));
+                }
 
                 _profileParams = wheelchairParams;
             }

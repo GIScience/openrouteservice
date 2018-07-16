@@ -1,4 +1,0 @@
-1. a website that shows opening hours for POIs.
-   http://openingh.openstreetmap.de/?filter=open
-2. list of tags that might be used for POIs
-https://github.com/MorbZ/OsmPoisPbf/blob/master/doc/poi_types.csv

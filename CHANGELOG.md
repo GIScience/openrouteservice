@@ -6,16 +6,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
--
+- Removed locations code as this will be handled by openpoiservice in the future (Issue #120)
+- Removed Geocoding code as this will be handled by the geocoder service rather than within ORS
 
 ### Fixed
 - Fixed problem with avoid polygons excluding ways that should have been accepted (Issue #95)
+- Updated code to remove merging of instructions as this resulted in missing important turn instructions (Issue #177)
+- Added missing translations for arrival instructions (Issue #171)
+- Updated code so that acceleration is taken into account when speeds are calculated for edges (Issue #178)
+- Fixed the mising rte tag in gpx issue (Issue #196)
+- Fixed the gpx validation errror (Issue #168)
 
 ### Changed
--
+- Updated the wheelchair profile to better handle restrictions such as width, kerb heights and instances where sidewalks are attached to roads. (Issue #162)
+- Replaced "Sand" surface encoding with "Paving stone"
 
-### Depricated
--
+### Deprecated
+- Removed references to locations and accessibilty services from web.xml (Issue #186)
 
 ## [4.5.1] - 2018-03-20
 ### Fixed

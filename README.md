@@ -66,6 +66,11 @@ For an easy and interactive way to test the api, visit our [documentation](https
 
 For questions please use our [Google Groups Forum](https://groups.google.com/forum/#!forum/openrouteservice) and we will respond to you shortly. 
 
+## Translations
+
+If you notice any thing wrong with translations, or you want to add a new language to the ORS instructions, please add/edit files in the src/main/resources/locales folder. You can use the ors_en.resources file as a template as to what information needs to be present.
+As a guide, for each instruction there are two formats - one where there is a named place (i.e. 47 Berlinerstraße) and one without. It is important to keep the {way_name} tag in the text, but it should be moved to the correct location.
+To show ORS what alnguage is being used, you should alter the name of the file to include the ISO identifier (i.e. for Austrian German the filename would be ors_de_AT.resources).
 
 <!-- 
 # Technical Summary
