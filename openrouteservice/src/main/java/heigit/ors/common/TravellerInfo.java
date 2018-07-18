@@ -63,6 +63,14 @@ public class TravellerInfo
 		return _ranges;
 	}
 
+	/**
+	 * Returns the range specified in the unit given by the user. The algorithm converts
+	 * the input range to m so we need to convert it back.
+	 *
+	 * @param  unit  the unit to return in
+	 * @return      the ranges array in the specified unit
+	 */
+
 	public double[] getRangesInUnit(String unit){
 		// convert ranges from meters to user specified unit
 		double[] rangesInUnit = new double[_ranges.length];
