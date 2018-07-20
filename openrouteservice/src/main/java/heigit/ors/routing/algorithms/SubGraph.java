@@ -20,19 +20,13 @@
  */
 package heigit.ors.routing.algorithms;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.util.ByteArrayBuffer;
-import com.graphhopper.util.CHEdgeIteratorState;
-import com.graphhopper.util.EdgeExplorer;
-import com.graphhopper.util.EdgeIterator;
-import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.PointList;
+import com.graphhopper.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SubGraph {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -83,11 +77,6 @@ public class SubGraph {
 		}
 
 		@Override
-		public int getOriginalEdge() {
-			return _currState.getOriginalEdge();
-		}
-
-		@Override
 		public int getBaseNode() {
 			return _currState.getBaseNode();
 		}
@@ -99,11 +88,6 @@ public class SubGraph {
 
 		@Override
 		public PointList fetchWayGeometry(int mode) {
-			return null;
-		}
-
-		@Override
-		public PointList fetchWayGeometry(int mode, ByteArrayBuffer buffer) {
 			return null;
 		}
 
@@ -125,11 +109,6 @@ public class SubGraph {
 		@Override
 		public long getFlags() {
 			return _currState.getFlags();
-		}
-
-		@Override
-		public long getFlags(int encoderIndex) {
-			return _currState.getFlags(encoderIndex);
 		}
 
 		@Override

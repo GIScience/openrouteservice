@@ -20,22 +20,11 @@
  */
 package heigit.ors.routing;
 
-import java.util.List;
-
 import com.graphhopper.GHResponse;
 import com.graphhopper.PathWrapper;
-import com.graphhopper.util.AngleCalc;
-import com.graphhopper.util.DistanceCalc;
-import com.graphhopper.util.DistanceCalcEarth;
-import com.graphhopper.util.Helper;
-import com.graphhopper.util.Instruction;
-import com.graphhopper.util.InstructionAnnotation;
-import com.graphhopper.util.InstructionList;
-import com.graphhopper.util.PointList;
-import com.graphhopper.util.RoundaboutInstruction;
+import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Coordinate;
-
 import heigit.ors.common.ArrivalDirection;
 import heigit.ors.common.CardinalDirection;
 import heigit.ors.common.DistanceUnit;
@@ -47,6 +36,8 @@ import heigit.ors.routing.instructions.InstructionType;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.StringUtility;
+
+import java.util.List;
 
 public class RouteResultBuilder 
 {
@@ -79,7 +70,7 @@ public class RouteResultBuilder
 		double duration = 0.0;
 		double ascent = 0.0;
 		double descent = 0.0;
-		double distanceActual = 0.0;
+		//MARQ24 removed not implemented -> double distanceActual = 0.0;
 		double durationTraffic = 0.0;
 
 		double lon0 = 0, lat0 = 0, lat1 = 0, lon1 = 0;
@@ -195,19 +186,16 @@ public class RouteResultBuilder
 								RoundaboutInstruction raInstr = (RoundaboutInstruction)instr;
 								step.setExitNumber(raInstr.getExitNumber());
 								instrText = instrTranslator.getRoundabout(raInstr.getExitNumber(), roadName);
-								if (raInstr.getRoundaboutExitBearings() != null)
-								{
-									step.setRoundaboutExitBearings(raInstr.getRoundaboutExitBearings());
-								}
 							}
 							else
 							{
-								if (isTurnInstruction(instrType))
-									instrText = instrTranslator.getTurn(instrType, roadName);
-								else if (instrType == InstructionType.CONTINUE)
-									instrText = instrTranslator.getContinue(instrType, roadName);
-								else if (instrType == InstructionType.FINISH)
-								{
+								if (isTurnInstruction(instrType)) {
+                                    instrText = instrTranslator.getTurn(instrType, roadName);
+                                } else if (isKeepInstruction(instrType)){
+                                    instrText = instrTranslator.getKeep(instrType, roadName);
+                                } else if (instrType == InstructionType.CONTINUE) {
+                                    instrText = instrTranslator.getContinue(instrType, roadName);
+                                } else if (instrType == InstructionType.FINISH) {
 									instrText = instrTranslator.getArrive(getArrivalDirection(routePoints, request.getDestination()), prevInstr.getName());
 								}
 								else
@@ -225,8 +213,23 @@ public class RouteResultBuilder
 						step.setType(instrType.ordinal());
 						step.setWayPoints(new int[] { startWayPointIndex, getWayPointEndIndex(startWayPointIndex, instrType, instr)});
 
-						if (request.getIncludeManeuvers())
-							step.setManeuver(calcManeuver(instrType, prevSegPoints, segPoints, nextSegPoints));
+						boolean incMan = request.getIncludeManeuvers();
+						boolean isSlightLeftOrRight = instrType.equals(InstructionType.TURN_SLIGHT_RIGHT) || instrType.equals(InstructionType.TURN_SLIGHT_LEFT);
+						if(incMan || isSlightLeftOrRight){
+							RouteStepManeuver man = calcManeuver(instrType, prevSegPoints, segPoints, nextSegPoints);
+							if(incMan){
+								step.setManeuver(man);
+							}
+							if(isSlightLeftOrRight){
+								// see com.graphhopper.routing.InstructionsFromEdges.getTurn(...)
+								// is generating the TurnInformation - for what EVER reason this
+								// is not correct from time to time - so I ADJUST THEM!
+								if(Math.abs(man.getBearingAfter() - man.getBearingBefore())< 6){
+									step.setInstruction(instrTranslator.getContinue(InstructionType.CONTINUE, roadName));
+									step.setType(InstructionType.CONTINUE.ordinal());
+								}
+							}
+						}
 
 						seg.addStep(step);
 
@@ -236,8 +239,9 @@ public class RouteResultBuilder
 						startWayPointIndex += instr.getPoints().size();
 						//step.setMode // walking, cycling, etc. for multimodal routing
 
-						if (instrAnnotation != null && instrAnnotation.getWayType() != 1) // Ferry, Steps as pushing sections
-							distanceActual += stepDistance;
+						//MARQ24 removed not implemented
+						//if (instrAnnotation != null && instrAnnotation.getWayType() != 1) // Ferry, Steps as pushing sections
+						//	distanceActual += stepDistance;
 
 						prevInstr = instr;
 						prevSegPoints = segPoints;
@@ -266,8 +270,9 @@ public class RouteResultBuilder
 					Instruction instr = instructions.get(j);
 					InstructionAnnotation instrAnnotation = instr.getAnnotation();
 
-					if (instrAnnotation != null && instrAnnotation.getWayType() != 1) // Ferry, Steps as pushing sections
-						distanceActual += FormatUtility.roundToDecimals(DistanceUnitUtil.convert(instr.getDistance(), DistanceUnit.Meters, units), unitDecimals);
+					//MARQ24 removed not implemented
+					//if (instrAnnotation != null && instrAnnotation.getWayType() != 1) // Ferry, Steps as pushing sections
+					//	distanceActual += FormatUtility.roundToDecimals(DistanceUnitUtil.convert(instr.getDistance(), DistanceUnit.Meters, units), unitDecimals);
 				}
 
 				distance += FormatUtility.roundToDecimals(DistanceUnitUtil.convert(path.getDistance(), DistanceUnit.Meters, units), unitDecimals);
@@ -287,7 +292,8 @@ public class RouteResultBuilder
 
 		routeSummary.setDuration(request.getSearchParameters().getConsiderTraffic() ? durationTraffic : duration);
 		routeSummary.setDistance(FormatUtility.roundToDecimals(distance, unitDecimals));
-		routeSummary.setDistanceActual(FormatUtility.roundToDecimals(distanceActual, unitDecimals));
+		//MARQ24 removed not implemented
+		//routeSummary.setDistanceActual(FormatUtility.roundToDecimals(distanceActual, unitDecimals));
 		routeSummary.setAverageSpeed(FormatUtility.roundToDecimals(distance/(units == DistanceUnit.Meters ? 1000 : 1)/(routeSummary.getDuration() / 3600), 1));
 		routeSummary.setAscent(FormatUtility.roundToDecimals(ascent, 1));
 		routeSummary.setDescent(FormatUtility.roundToDecimals(descent, 1));
@@ -438,36 +444,48 @@ public class RouteResultBuilder
 			return false;
 	}
 
+	private boolean isKeepInstruction(InstructionType instrType){
+	    if(instrType == InstructionType.KEEP_LEFT || instrType == InstructionType.KEEP_RIGHT){
+	        return true;
+        }else{
+	        return false;
+        }
+    }
+
 	private InstructionType getInstructionType(boolean isDepart, Instruction instr)
 	{
-		if (isDepart)
+		if (isDepart) {
 			return InstructionType.DEPART;
+		}
 
-		int sign = instr.getSign();
-		if (sign == Instruction.CONTINUE_ON_STREET)
-			return InstructionType.CONTINUE;
-		else if (sign == Instruction.TURN_LEFT)
-			return InstructionType.TURN_LEFT;
-		else if (sign == Instruction.TURN_RIGHT)
-			return InstructionType.TURN_RIGHT;
-		else if (sign == Instruction.TURN_SHARP_LEFT)
-			return InstructionType.TURN_SHARP_LEFT;
-		else if (sign == Instruction.TURN_SHARP_RIGHT)
-			return InstructionType.TURN_SHARP_RIGHT;
-		else if (sign == Instruction.TURN_SLIGHT_LEFT)
-			return InstructionType.TURN_SLIGHT_LEFT;
-		else if (sign == Instruction.TURN_SLIGHT_RIGHT)
-			return InstructionType.TURN_SLIGHT_RIGHT;
-		else if (sign == Instruction.TURN_SLIGHT_RIGHT)
-			return InstructionType.TURN_SLIGHT_RIGHT;
-		else if (sign == Instruction.USE_ROUNDABOUT)
-			return InstructionType.ENTER_ROUNDABOUT;
-		else if (sign == Instruction.LEAVE_ROUNDABOUT)
-			return InstructionType.EXIT_ROUNDABOUT;
-		else if (sign == Instruction.FINISH)
-			return InstructionType.FINISH;
-
-		return InstructionType.CONTINUE;
+		switch (instr.getSign()){
+			case Instruction.CONTINUE_ON_STREET:
+				return InstructionType.CONTINUE;
+			case Instruction.TURN_LEFT:
+				return InstructionType.TURN_LEFT;
+			case Instruction.TURN_RIGHT:
+				return InstructionType.TURN_RIGHT;
+			case Instruction.TURN_SHARP_LEFT:
+				return InstructionType.TURN_SHARP_LEFT;
+			case Instruction.TURN_SHARP_RIGHT:
+				return InstructionType.TURN_SHARP_RIGHT;
+			case Instruction.TURN_SLIGHT_LEFT:
+				return InstructionType.TURN_SLIGHT_LEFT;
+			case Instruction.TURN_SLIGHT_RIGHT:
+				return InstructionType.TURN_SLIGHT_RIGHT;
+			case Instruction.USE_ROUNDABOUT:
+				return InstructionType.ENTER_ROUNDABOUT;
+			case Instruction.LEAVE_ROUNDABOUT:
+				return InstructionType.EXIT_ROUNDABOUT;
+			case Instruction.FINISH:
+				return InstructionType.FINISH;
+			case Instruction.KEEP_LEFT:
+				return InstructionType.KEEP_LEFT;
+			case Instruction.KEEP_RIGHT:
+				return InstructionType.KEEP_RIGHT;
+			default:
+				return InstructionType.CONTINUE;
+		}
 	}
 
 	private CardinalDirection calcDirection(double lat1, double lon1, double lat2, double lon2 )

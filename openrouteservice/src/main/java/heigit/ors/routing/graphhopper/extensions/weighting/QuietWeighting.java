@@ -20,12 +20,12 @@
  */
 package heigit.ors.routing.graphhopper.extensions.weighting;
 
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
-
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.graphhopper.extensions.storages.NoiseIndexGraphStorage;
 
@@ -57,7 +57,7 @@ public class QuietWeighting extends FastestWeighting {
     @Override
     public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
         if (_gsNoiseIndex != null) {
-            int noiseLevel = _gsNoiseIndex.getEdgeValue(edgeState.getOriginalEdge(), _buffer);
+            int noiseLevel = _gsNoiseIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), _buffer);
             return calcNoiseWeightFactor(noiseLevel);
         }
 

@@ -20,14 +20,6 @@
  */
 package heigit.ors.routing.graphhopper.extensions.graphbuilders;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.carrotsearch.hppc.IntIndexedContainer;
 import com.carrotsearch.hppc.LongArrayList;
 import com.graphhopper.GraphHopper;
@@ -36,9 +28,8 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.Dijkstra;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.weighting.FastestWeighting;
-import com.graphhopper.routing.util.FootFlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -46,13 +37,11 @@ import com.graphhopper.storage.RAMDirectory;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.Polygon;
-
+import com.vividsolutions.jts.geom.*;
 import heigit.ors.routing.graphhopper.extensions.DataReaderContext;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.exghoverwrite.ExGhORSFootFlagEncoder;
+
+import java.util.*;
 
 public class InFieldGraphBuilder extends AbstractGraphBuilder {
 
@@ -64,7 +53,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 	private Coordinate[] _coordinates;
 	private Set<ArrayList<Integer>> _edges = new HashSet<ArrayList<Integer>>();
 	private ArrayList<Integer> tmpEdge = new ArrayList<Integer>();   
-	private FootFlagEncoder footEncoder; 
+	private ExGhORSFootFlagEncoder footEncoder;
 	private List<Weighting> weightings;
 	private EncodingManager encodingManager;
 
@@ -72,7 +61,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 	public void init(GraphHopper graphhopper) throws Exception {
 		// create local network taken from        
 		// https://github.com/graphhopper/graphhopper/blob/0.5/core/src/test/java/com/graphhopper/GraphHopperTest.java#L746
-		footEncoder = new FootFlagEncoder();       
+		footEncoder = new ExGhORSFootFlagEncoder();
 		encodingManager = new EncodingManager(footEncoder);  
 		weightings = new ArrayList<Weighting>(1);
 		weightings.add(new FastestWeighting(footEncoder));

@@ -20,6 +20,22 @@
  */
 package heigit.ors.routing.graphhopper.extensions;
 
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.FootFlagEncoder;
+import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.weighting.*;
+import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.TurnCostExtension;
+import com.graphhopper.storage.index.LocationIndex;
+import com.graphhopper.util.Helper;
+import com.graphhopper.util.PMap;
+import heigit.ors.routing.ProfileWeighting;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.exghoverwrite.ExGhORSFootFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.weighting.*;
+import heigit.ors.routing.traffic.RealTrafficDataProvider;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,27 +43,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import heigit.ors.routing.ProfileWeighting;
-import heigit.ors.routing.graphhopper.extensions.weighting.*;
-import heigit.ors.routing.traffic.RealTrafficDataProvider;
-
-import com.graphhopper.routing.weighting.DefaultWeightingFactory;
-import com.graphhopper.routing.weighting.FastestWeighting;
-import com.graphhopper.routing.weighting.PriorityWeighting;
-import com.graphhopper.routing.weighting.ShortestWeighting;
-import com.graphhopper.routing.weighting.TurnWeighting;
-import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.FootFlagEncoder;
-import com.graphhopper.routing.util.HintsMap;
-import com.graphhopper.routing.util.TraversalMode;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.TurnCostExtension;
-import com.graphhopper.storage.index.LocationIndex;
-import com.graphhopper.util.Helper;
-import com.graphhopper.util.PMap;
 
 public class ORSWeightingFactory extends DefaultWeightingFactory {
 
@@ -105,7 +100,7 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 			result = new TrafficAvoidWeighting(result, encoder, m_trafficDataProvider.getAvoidEdges(graphStorage));
 		}
 
-		if (encoder.supports(TurnWeighting.class) && !(encoder instanceof FootFlagEncoder) && graphStorage != null && !tMode.equals(TraversalMode.NODE_BASED)) {
+		if (encoder.supports(TurnWeighting.class) && !isFootBasedFlagEncoder(encoder) && graphStorage != null && !tMode.equals(TraversalMode.NODE_BASED)) {
 			Path path = Paths.get(graphStorage.getDirectory().getLocation(), "turn_costs");
 			File file = path.toFile();
 			if (file.exists()) {
@@ -171,6 +166,10 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 		}
 
 		return result;
+	}
+
+	private boolean isFootBasedFlagEncoder(FlagEncoder encoder){
+		return encoder instanceof ExGhORSFootFlagEncoder || encoder instanceof FootFlagEncoder;
 	}
 
 	private PMap getWeightingProps(String weightingName, Map<String, String> map)

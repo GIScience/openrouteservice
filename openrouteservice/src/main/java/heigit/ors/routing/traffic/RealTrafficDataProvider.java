@@ -20,55 +20,35 @@
  */
 package heigit.ors.routing.traffic;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.StringWriter;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.logging.Logger;
-
-import javax.xml.parsers.ParserConfigurationException;
-
+import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.util.EdgeIterator;
+import com.graphhopper.util.Helper;
+import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.index.quadtree.Quadtree;
 import heigit.ors.routing.RoutingProfile;
 import heigit.ors.routing.RoutingProfileLoadContext;
 import heigit.ors.routing.RoutingProfilesCollection;
-import heigit.ors.routing.configuration.RoutingManagerConfiguration;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
+import heigit.ors.routing.configuration.RoutingManagerConfiguration;
 import heigit.ors.routing.configuration.TrafficInformationConfiguration;
 import heigit.ors.routing.traffic.providers.TrafficInfoDataSource;
 import heigit.ors.routing.traffic.providers.TrafficInfoDataSourceFactory;
 import heigit.ors.services.routing.RoutingServiceSettings;
-
+import heigit.ors.util.DebugUtility;
+import heigit.ors.util.FormatUtility;
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.xml.sax.SAXException;
 
-import com.graphhopper.storage.GraphStorage;
-import com.graphhopper.util.EdgeIterator;
-import com.graphhopper.util.Helper;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.index.quadtree.Quadtree;
-
-import heigit.ors.util.DebugUtility;
-import heigit.ors.util.FormatUtility;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 public class RealTrafficDataProvider {
 	public class UpdateTask extends TimerTask {
@@ -254,7 +234,7 @@ public class RealTrafficDataProvider {
 					}
 				}
 				
-				loadCntx.release();
+				loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
 
 				for (RoutingProfile rp : profiles.getCarProfiles()) {
 					if (rp.useTrafficInformation()) {
