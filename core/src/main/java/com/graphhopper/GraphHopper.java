@@ -985,7 +985,7 @@ public class GraphHopper implements GraphHopperAPI {
                 // ORS-GH MOD START
                 //return new TurnWeighting(weighting, (TurnCostExtension) graph.getExtension());
                 return new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()));
-                // MOD END
+                // ORS-GH MOD END
             }
         // ORS-GH MOD START
         }
@@ -1122,7 +1122,12 @@ public class GraphHopper implements GraphHopperAPI {
                 if (request.getEdgeFilter() != null) {
                     algoOpts.setEdgeFilter(request.getEdgeFilter());
                 }
-                PathProcessingContext pathProcCntx = new PathProcessingContext(encoder, weighting, tr, request.getPathProcessor());
+                // MARQ24: we "tunnel" all the additional object that we require for the additional storage
+                // processing inside the TranslationMap Object - simply cause in this case we do not have to
+                // alter so many original GH classes...
+                if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo){
+                    ((TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr).init(encoder, weighting, request.getPathProcessor());
+                }
                 // ORS-GH MOD END
 
                 altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts);
@@ -1143,11 +1148,7 @@ public class GraphHopper implements GraphHopperAPI {
                     pathMerger.setFavoredHeading(request.getFavoredHeading(0));
                 }
 
-                // ORS-GH MOD START
-                // ORG CODE
-                //if (routingTemplate.isReady(pathMerger, tr)) {
-                if (routingTemplate.isReady(pathMerger, pathProcCntx)) {
-                    // ORS-GH MOD END
+                if (routingTemplate.isReady(pathMerger, tr)) {
                     break;
                 }
             }

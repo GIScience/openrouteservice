@@ -17,6 +17,10 @@
  */
 package com.graphhopper.util;
 
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.PathProcessor;
+import com.graphhopper.routing.weighting.Weighting;
+
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
@@ -51,7 +55,10 @@ public class TranslationMap {
     public TranslationMap doImport(File folder) {
         try {
             for (String locale : LOCALES) {
-                TranslationHashMap trMap = new TranslationHashMap(getLocale(locale));
+                // ORS-GH MOD START
+                //TranslationHashMap trMap = new TranslationHashMap(getLocale(locale));
+                TranslationHashMap trMap = new ORSTranslationHashMapWithExtendedInfo(getLocale(locale));
+                // ORS-GH MOD END
                 trMap.doImport(new FileInputStream(new File(folder, locale + ".txt")));
                 add(trMap);
             }
@@ -68,7 +75,10 @@ public class TranslationMap {
     public TranslationMap doImport() {
         try {
             for (String locale : LOCALES) {
-                TranslationHashMap trMap = new TranslationHashMap(getLocale(locale));
+                // ORS-GH MOD START
+                //TranslationHashMap trMap = new TranslationHashMap(getLocale(locale));
+                TranslationHashMap trMap = new ORSTranslationHashMapWithExtendedInfo(getLocale(locale));
+                // ORS-GH MOD END
                 trMap.doImport(TranslationMap.class.getResourceAsStream(locale + ".txt"));
                 add(trMap);
             }
@@ -241,4 +251,37 @@ public class TranslationMap {
             return this;
         }
     }
+
+    // ORS-GH MOD START
+    // MARQ24: we "tunnel" all the additional object that we require for the additional storage
+    // processing inside the TranslationMap Object - simply cause in this case we do not have to
+    // alter so many original GH classes...
+    public static class ORSTranslationHashMapWithExtendedInfo extends TranslationHashMap{
+        private FlagEncoder _encoder;
+        private PathProcessor _pathProcessor;
+        private Weighting _weighting;
+
+        public ORSTranslationHashMapWithExtendedInfo(Locale locale) {
+            super(locale);
+        }
+
+        public void init(FlagEncoder encoder, Weighting weighting, PathProcessor pathProcessor){
+            _encoder = encoder;
+            _weighting = weighting;
+            _pathProcessor = pathProcessor;
+        }
+
+        public FlagEncoder getEncoder() {
+            return _encoder;
+        }
+
+        public Weighting getWeighting() {
+            return _weighting;
+        }
+
+        public PathProcessor getPathProcessor() {
+            return _pathProcessor;
+        }
+    }
+    // ORS-GH MOD END
 }

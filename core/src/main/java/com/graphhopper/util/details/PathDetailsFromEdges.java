@@ -43,10 +43,7 @@ public class PathDetailsFromEdges implements Path.EdgeVisitor {
     }
 
     @Override
-    // ORS GH MOD START
-    //public void next(EdgeIteratorState edge, int index, int prevEdgeId) {
-    public void next(EdgeIteratorState edge, int index, int count, int prevEdgeId) {
-    // ORS GH MOD START
+    public void next(EdgeIteratorState edge, int index, int prevEdgeId) {
         for (PathDetailsBuilder calc : calculators) {
             if (calc.isEdgeDifferentToLastEdge(edge)) {
                 calc.endInterval(lastIndex);

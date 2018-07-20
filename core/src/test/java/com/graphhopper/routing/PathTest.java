@@ -44,11 +44,7 @@ public class PathTest {
     private final EncodingManager dataFlagManager = new EncodingManager(dataFlagEncoder);
     private final EncodingManager mixedEncoders = new EncodingManager(new CarFlagEncoder());
     private final TranslationMap trMap = TranslationMapTest.SINGLETON;
-    // ORS-GH MOD START
-    //private final Translation tr = trMap.getWithFallBack(Locale.US);
-    private final PathProcessingContext tr = new PathProcessingContext(null, null, trMap.getWithFallBack(Locale.US), null);
-    // ORS-GH MOD END
-
+    private final Translation tr = trMap.getWithFallBack(Locale.US);
     private final RoundaboutGraph roundaboutGraph = new RoundaboutGraph();
     private final Graph pathDetailGraph = generatePathDetailsGraph();
 
