@@ -269,7 +269,7 @@
     	<version>3.0.3</version>
 	</dependency>
 
-    
+
     <dependency>
         <groupId>com.github.GIScience.graphhopper</groupId>
         <artifactId>graphhopper-core</artifactId>
