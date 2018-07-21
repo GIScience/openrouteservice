@@ -702,11 +702,11 @@ class BaseGraph implements Graph {
                 setWayGeometry_(fetchWayGeometry_(edgePointer, true, 0, -1, -1), edgePointer, false);
         }
 
+        if (removeNodeCount >= nodeCount)
+            throw new IllegalStateException("graph is empty after in-place removal - toRemove: " + removeNodeCount+" / orgSize: "+nodeCount);
+
         // clear N_EDGE_REF
         initNodeRefs((nodeCount - removeNodeCount) * nodeEntryBytes, nodeCount * nodeEntryBytes);
-
-        if (removeNodeCount >= nodeCount)
-            throw new IllegalStateException("graph is empty after in-place removal but was " + removeNodeCount);
 
         // we do not remove the invalid edges => edgeCount stays the same!
         nodeCount -= removeNodeCount;
@@ -1167,13 +1167,6 @@ class BaseGraph implements Graph {
         public int getEdge() {
             return edgeId;
         }
-
-        // ORS-GH MOD START
-        @Override
-        public int getOriginalEdge() {
-            return edgeId;
-        }
-        // ORS-GH MOD END
 
         @Override
         public String getName() {

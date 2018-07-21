@@ -17,6 +17,7 @@
  */
 package com.graphhopper.storage;
 
+import com.graphhopper.coll.GHBitSet;
 import com.graphhopper.routing.util.AllEdgesIterator;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
@@ -24,11 +25,10 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.shapes.BBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * This class manages all storage related methods and delegates the calls to the associated graphs.
@@ -42,6 +42,7 @@ import java.util.List;
  * @see #getGraph(Class)
  */
 public final class GraphHopperStorage implements GraphStorage, Graph {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final Directory dir;
     private final EncodingManager encodingManager;
     private final StorableProperties properties;
@@ -216,7 +217,17 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         if (isFrozen())
             throw new IllegalStateException("do not optimize after graph was frozen");
 
-        int delNodes = baseGraph.getRemovedNodes().getCardinality();
+        GHBitSet removeNodesObject = baseGraph.getRemovedNodes();
+        int delNodes = removeNodesObject.getCardinality();
+        logger.warn("removeNodesObject: "+ removeNodesObject);
+System.out.println("removeNodesObject: "+ removeNodesObject);
+        logger.warn("delNodes: "+ delNodes);
+System.out.println("delNodes: "+ delNodes);
+        if(removeNodesObject instanceof BitSet) {
+            logger.warn("length: " + ((BitSet)removeNodesObject).length());
+System.out.println("length: " + ((BitSet)removeNodesObject).length());
+        }
+
         if (delNodes <= 0)
             return;
 
