@@ -50,10 +50,48 @@ import heigit.ors.util.FormatUtility;
 
 public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor 
 {
-	public JsonMatrixRequestProcessor(HttpServletRequest request) throws Exception
-	{
+	public JsonMatrixRequestProcessor(HttpServletRequest request) throws Exception {
 		super(request);
 	}
+
+    /*
+    @Override
+    public int getMethodNotSupportedErrorCode() {
+        return -1;
+    }
+
+    @Override
+    public int getInvalidJsonFormatErrorCode() {
+        return MatrixErrorCodes.INVALID_JSON_FORMAT;
+    }
+
+    @Override
+    public int getInvalidParameterFormatErrorCode() {
+        return MatrixErrorCodes.INVALID_PARAMETER_FORMAT;
+    }
+
+    @Override
+    public int getMissingParameterErrorCode() {
+        return MatrixErrorCodes.MISSING_PARAMETER;
+    }
+
+    @Override
+    public void process(AbstractHttpRequestProcessor.MixedRequestParameters map, HttpServletResponse response) throws Exception {
+        MatrixRequest req = JsonMatrixRequestParser.parseFromRequestParams(map);
+
+        if (req == null) {
+            throw new StatusCodeException(StatusCode.BAD_REQUEST, MatrixErrorCodes.UNKNOWN, "MatrixRequest object is null.");
+        }
+
+        boolean flexibleMode = req.getFlexibleMode() ? true : !RoutingProfileManager.getInstance().getProfiles().isCHProfileAvailable(req.getProfileType());
+        if (MatrixServiceSettings.getMaximumLocations(flexibleMode) > 0 && req.getTotalNumberOfLocations() > MatrixServiceSettings.getMaximumLocations(flexibleMode)) {
+            throw new ParameterOutOfRangeException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "sources/destinations", Integer.toString(req.getTotalNumberOfLocations()), Integer.toString(MatrixServiceSettings.getMaximumLocations(flexibleMode)));
+        }
+        MatrixResult mtxResult = RoutingProfileManager.getInstance().computeMatrix(req);
+
+        writeResponse(response, req, mtxResult);
+    }
+    */
 
 	@Override
 	public void process(HttpServletResponse response) throws Exception 
