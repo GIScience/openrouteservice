@@ -56,7 +56,7 @@ import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCo
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
-import heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
+import heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
 import heigit.ors.routing.parameters.CyclingParameters;
 import heigit.ors.routing.parameters.VehicleParameters;
 import heigit.ors.routing.parameters.WheelchairParameters;
@@ -70,14 +70,14 @@ public class ORSGraphHopper extends GraphHopper {
 	// A route profile for referencing which is used to extract names of adjacent streets and other objects.
 	private RoutingProfile refRouteProfile;
 
-	private final CoreAlgoFactoryDecorator coreFactoryDecorator = new CoreAlgoFactoryDecorator();
+	private CoreAlgoFactoryDecorator coreFactoryDecorator;
 
 
 	public ORSGraphHopper(GraphProcessContext procCntx, boolean useTmc, RoutingProfile refProfile) {
 		_procCntx = procCntx;
 		this.refRouteProfile= refProfile;
 		this.forDesktop();
-
+		coreFactoryDecorator =  new CoreAlgoFactoryDecorator();
 		coreFactoryDecorator.setEnabled(true);
 		algoDecorators.add(coreFactoryDecorator);
 
@@ -309,12 +309,12 @@ public class ORSGraphHopper extends GraphHopper {
 
 			ghStorage.freeze();
 			coreFactoryDecorator.prepare(ghStorage.getProperties());
-			ghStorage.getProperties().put(ORSParameters.Core.PREPARE + "done", true);
+			ghStorage.getProperties().put(Core.PREPARE + "done", true);
 		}
 	}
 
 	private boolean isCorePrepared() {
-		return "true".equals(ghStorage.getProperties().get(ORSParameters.Core.PREPARE + "done"))
+		return "true".equals(ghStorage.getProperties().get(Core.PREPARE + "done"))
 				// remove old property in >0.9
 				|| "true".equals(ghStorage.getProperties().get("prepare.done"));
 	}

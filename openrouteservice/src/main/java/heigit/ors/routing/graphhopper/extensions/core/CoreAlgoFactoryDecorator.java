@@ -28,7 +28,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
-import com.graphhopper.util.Parameters.CH;
+import heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,14 +73,14 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
         // throw explicit error for deprecated configs
         //TODO need to make the core parameters
         if (!args.get("prepare.threads", "").isEmpty())
-            throw new IllegalStateException("Use " + CH.PREPARE + "threads instead of prepare.threads");
+            throw new IllegalStateException("Use " + Core.PREPARE + "threads instead of prepare.threads");
         if (!args.get("prepare.chWeighting", "").isEmpty() || !args.get("prepare.chWeightings", "").isEmpty())
-            throw new IllegalStateException("Use " + CH.PREPARE + "weightings and a comma separated list instead of prepare.chWeighting or prepare.chWeightings");
+            throw new IllegalStateException("Use " + Core.PREPARE + "weightings and a comma separated list instead of prepare.chWeighting or prepare.chWeightings");
 
-        setPreparationThreads(args.getInt(CH.PREPARE + "threads", getPreparationThreads()));
+        setPreparationThreads(args.getInt(Core.PREPARE + "threads", getPreparationThreads()));
 
         // default is enabled & fastest
-        String coreWeightingsStr = args.get(CH.PREPARE + "weightings", "");
+        String coreWeightingsStr = args.get(Core.PREPARE + "weightings", "");
 
         if ("no".equals(coreWeightingsStr)) {
             // default is fastest and we need to clear this explicitely
@@ -92,15 +92,17 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
 
         boolean enableThis = !weightingsAsStrings.isEmpty();
         setEnabled(enableThis);
+        //TODO this is testing
+        setEnabled(true);
         if (enableThis)
             //TODO
-            setDisablingAllowed(args.getBool(CH.INIT_DISABLING_ALLOWED, isDisablingAllowed()));
+            setDisablingAllowed(args.getBool(Core.INIT_DISABLING_ALLOWED, isDisablingAllowed()));
 
-        setPreparationPeriodicUpdates(args.getInt(CH.PREPARE + "updates.periodic", getPreparationPeriodicUpdates()));
-        setPreparationLazyUpdates(args.getInt(CH.PREPARE + "updates.lazy", getPreparationLazyUpdates()));
-        setPreparationNeighborUpdates(args.getInt(CH.PREPARE + "updates.neighbor", getPreparationNeighborUpdates()));
-        setPreparationContractedNodes(args.getInt(CH.PREPARE + "contracted_nodes", getPreparationContractedNodes()));
-        setPreparationLogMessages(args.getDouble(CH.PREPARE + "log_messages", getPreparationLogMessages()));
+        setPreparationPeriodicUpdates(args.getInt(Core.PREPARE + "updates.periodic", getPreparationPeriodicUpdates()));
+        setPreparationLazyUpdates(args.getInt(Core.PREPARE + "updates.lazy", getPreparationLazyUpdates()));
+        setPreparationNeighborUpdates(args.getInt(Core.PREPARE + "updates.neighbor", getPreparationNeighborUpdates()));
+        setPreparationContractedNodes(args.getInt(Core.PREPARE + "contracted_nodes", getPreparationContractedNodes()));
+        setPreparationLogMessages(args.getDouble(Core.PREPARE + "log_messages", getPreparationLogMessages()));
     }
 
     public int getPreparationPeriodicUpdates() {
@@ -150,6 +152,8 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
 
     @Override
     public final boolean isEnabled() {
+        //TODO THIS IS FOR TESTING
+//        return true;
         return enabled;
     }
 
@@ -294,7 +298,7 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
                     // toString is not taken into account so we need to cheat, see http://stackoverflow.com/q/6113746/194609 for other options
                     Thread.currentThread().setName(name);
                     prepare.doWork();
-                    properties.put(CH.PREPARE + "date." + name, Helper.createFormatter().format(new Date()));
+                    properties.put(Core.PREPARE + "date." + name, Helper.createFormatter().format(new Date()));
                 }
             }, name);
 

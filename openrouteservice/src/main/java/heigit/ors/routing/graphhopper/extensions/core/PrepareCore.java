@@ -285,7 +285,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
 
             counter++;
             int polledNode = sortedNodes.pollKey();
-
             //We have worked through all nodes that are not associated with restrictions. Now we can stop the contraction.
             if (oldPriorities[polledNode] == restrictionPriority) break;
 
@@ -413,11 +412,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         //TODO Set priority of all nodes that are next to a restriction edge to a HIGH value
         //We can probably use the vehicleInExplorer for this
 
-        CHEdgeIterator restrictionIterator = restrictionExplorer.setBaseNode(v);
-        while (restrictionIterator.next()) {
-            if (!restrictionFilter.accept(restrictionIterator))
-                return restrictionPriority;
-        }
+
 
 
 
@@ -460,6 +455,13 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
 
         // according to the paper do a simple linear combination of the properties to get the priority.
         // this is the current optimum for unterfranken:
+
+        EdgeIterator restrictionIterator = restrictionExplorer.setBaseNode(v);
+        while (restrictionIterator.next()) {
+            if (!restrictionFilter.accept(restrictionIterator))
+                return restrictionPriority;
+        }
+
         return 10 * edgeDifference + originalEdgesCount + contractedNeighbors;
     }
 
@@ -603,7 +605,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         FlagEncoder prepareFlagEncoder = prepareWeighting.getFlagEncoder();
 
         //TODO
-        restrictionExplorer = prepareGraph.createEdgeExplorer(restrictionFilter);
 
         vehicleInExplorer = prepareGraph.createEdgeExplorer(new DefaultEdgeFilter(prepareFlagEncoder, true, false));
         vehicleOutExplorer = prepareGraph.createEdgeExplorer(new DefaultEdgeFilter(prepareFlagEncoder, false, true));
@@ -627,6 +628,8 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         vehicleAllExplorer = prepareGraph.createEdgeExplorer(allFilter);
         vehicleAllTmpExplorer = prepareGraph.createEdgeExplorer(allFilter);
         calcPrioAllExplorer = prepareGraph.createEdgeExplorer(accessWithLevelFilter);
+        restrictionExplorer = prepareGraph.createEdgeExplorer(allFilter);
+
 
         // Use an alternative to PriorityQueue as it has some advantages:
         //   1. Gets automatically smaller if less entries are stored => less total RAM used.
