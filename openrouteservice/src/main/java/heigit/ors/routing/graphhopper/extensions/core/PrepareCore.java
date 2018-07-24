@@ -91,7 +91,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     private double neighborTime;
     private int maxEdgesCount;
 
-    private int restrictionPriority = Integer.MAX_VALUE;
+    private static final int RESTRICTION_PRIORITY = Integer.MAX_VALUE;
 
     public PrepareCore(Directory dir, GraphHopperStorage ghStorage, CHGraph chGraph,
                           Weighting weighting, TraversalMode traversalMode, EdgeFilter restrictionFilter) {
@@ -254,7 +254,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                     if (prepareGraph.getLevel(node) != maxLevel)
                         continue;
                     int priority = oldPriorities[node];
-                    if(!(priority == restrictionPriority)) {
+                    if(!(priority == RESTRICTION_PRIORITY)) {
                         priority = oldPriorities[node] = calculatePriority(node);
                     }
                     sortedNodes.insert(node, priority);
@@ -286,12 +286,12 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             counter++;
             int polledNode = sortedNodes.pollKey();
             //We have worked through all nodes that are not associated with restrictions. Now we can stop the contraction.
-            if (oldPriorities[polledNode] == restrictionPriority) break;
+            if (oldPriorities[polledNode] == RESTRICTION_PRIORITY) break;
 
             if (!sortedNodes.isEmpty() && sortedNodes.getSize() < lastNodesLazyUpdates) {
                 lazySW.start();
                 int priority = oldPriorities[polledNode];
-                if(!(priority == restrictionPriority)) {
+                if(!(priority == RESTRICTION_PRIORITY)) {
                     priority = oldPriorities[polledNode] = calculatePriority(polledNode);
                 }
                 if (priority > sortedNodes.peekValue()) {
@@ -407,15 +407,12 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
      * lead to a slowish or even endless loop.
      */
     int calculatePriority(int v) {
-
-
-        //TODO Set priority of all nodes that are next to a restriction edge to a HIGH value
-        //We can probably use the vehicleInExplorer for this
-
-
-
-
-
+        // set the priority of a node that is next to a restricted edge to a HIGH value
+        EdgeIterator restrictionIterator = restrictionExplorer.setBaseNode(v);
+        while (restrictionIterator.next()) {
+            if (!restrictionFilter.accept(restrictionIterator))
+                return RESTRICTION_PRIORITY;
+        }
 
         // set of shortcuts that would be added if adjNode v would be contracted next.
         findShortcuts(calcScHandler.setNode(v));
@@ -455,13 +452,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
 
         // according to the paper do a simple linear combination of the properties to get the priority.
         // this is the current optimum for unterfranken:
-
-        EdgeIterator restrictionIterator = restrictionExplorer.setBaseNode(v);
-        while (restrictionIterator.next()) {
-            if (!restrictionFilter.accept(restrictionIterator))
-                return restrictionPriority;
-        }
-
         return 10 * edgeDifference + originalEdgesCount + contractedNeighbors;
     }
 
