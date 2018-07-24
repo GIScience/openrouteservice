@@ -20,30 +20,16 @@
  */
 package heigit.ors.routing.graphhopper.extensions.core;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
-import heigit.ors.routing.AvoidFeatureFlags;
-import heigit.ors.routing.RoutingProfileCategory;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
 
-public class CoreTestEdgeFilter implements EdgeFilter {
-	private ArrayList<Integer> restrictionEdges = new ArrayList<Integer>();
+public class CoreTestEdgeFilter extends HashSet<Integer> implements EdgeFilter {
 
-	public CoreTestEdgeFilter() {
-		restrictionEdges.add(10);
-		restrictionEdges.add(17);
-	}
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {
-
-		return !(restrictionEdges.contains(iter.getEdge()));
-
+		return !contains(iter.getEdge());
 	}
 
 }

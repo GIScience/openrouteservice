@@ -34,10 +34,7 @@ import com.graphhopper.util.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static com.graphhopper.util.Parameters.Algorithms.DIJKSTRA_BI;
 import static org.junit.Assert.*;
@@ -90,13 +87,13 @@ public class PrepareCoreTest {
 
 
     @Test
-    public void testMoreComplexGraph() {
+    public void testUnrestrictedGraph() {
         GraphHopperStorage g = createGHStorage();
         CHGraph lg = g.getGraph(CHGraph.class);
         initShortcutsGraph(lg);
         int oldCount = g.getAllEdges().getMaxId();
-        CoreTestEdgeFilter filter = new CoreTestEdgeFilter();
-        PrepareCore prepare = new PrepareCore(dir, g, lg, weighting, tMode, filter);
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        PrepareCore prepare = new PrepareCore(dir, g, lg, weighting, tMode, restrictedEdges);
         prepare.doWork();
         for(int i = 0; i < lg.getNodes(); i++)
             System.out.println("nodeId " + i + " level: " + lg.getLevel(i));
@@ -108,6 +105,29 @@ public class PrepareCoreTest {
         }
         assertEquals(oldCount, g.getAllEdges().getMaxId());
         assertEquals(oldCount + 7, lg.getAllEdges().getMaxId());
+    }
+
+    @Test
+    public void testRestrictedGraph() {
+        GraphHopperStorage g = createGHStorage();
+        CHGraph lg = g.getGraph(CHGraph.class);
+        initShortcutsGraph(lg);
+        int oldCount = g.getAllEdges().getMaxId();
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        restrictedEdges.add(10);
+        restrictedEdges.add(17);
+        PrepareCore prepare = new PrepareCore(dir, g, lg, weighting, tMode, restrictedEdges);
+        prepare.doWork();
+        for(int i = 0; i < lg.getNodes(); i++)
+            System.out.println("nodeId " + i + " level: " + lg.getLevel(i));
+        AllCHEdgesIterator iter = lg.getAllEdges();
+        while(iter.next()){
+            System.out.print(iter.getBaseNode() + " -> " + iter.getAdjNode() + " via edge " + iter.getEdge());
+            if(iter.isShortcut()) System.out.println(" (shortcut)");
+            else System.out.println(" ");
+        }
+        assertEquals(oldCount, g.getAllEdges().getMaxId());
+        assertEquals(oldCount + 10, lg.getAllEdges().getMaxId());
     }
 
 
