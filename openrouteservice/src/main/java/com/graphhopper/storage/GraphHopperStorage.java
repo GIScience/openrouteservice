@@ -219,14 +219,20 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
 
         GHBitSet removeNodesObject = baseGraph.getRemovedNodes();
         int delNodes = removeNodesObject.getCardinality();
-        logger.warn("removeNodesObject: "+ removeNodesObject);
-System.out.println("removeNodesObject: "+ removeNodesObject);
-        logger.warn("delNodes: "+ delNodes);
-System.out.println("delNodes: "+ delNodes);
+
+logger.warn("totalSize: " +getNodes());
+System.out.println("totalSize: "+ getNodes());
+
+logger.warn("capacity: " + baseGraph.getCapacity());
+System.out.println("capacity: "+ baseGraph.getCapacity());
+
         if(removeNodesObject instanceof BitSet) {
-            logger.warn("length: " + ((BitSet)removeNodesObject).length());
-System.out.println("length: " + ((BitSet)removeNodesObject).length());
+logger.warn("removeNodesObject length: " + ((BitSet) removeNodesObject).length());
+System.out.println("removeNodesObject length: " + ((BitSet) removeNodesObject).length());
         }
+
+logger.warn("removeNodesObject.getCardinality() delNodes: "+ delNodes);
+System.out.println("removeNodesObject.getCardinality() delNodes: "+ delNodes);
 
         if (delNodes <= 0)
             return;

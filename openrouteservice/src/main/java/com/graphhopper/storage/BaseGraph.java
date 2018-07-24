@@ -44,6 +44,8 @@ import static com.graphhopper.util.Helper.nf;
  * loadExisting, (4) usage, (5) flush, (6) close
  */
 class BaseGraph implements Graph {
+    final Logger logger = LoggerFactory.getLogger(getClass());
+
     final DataAccess edges;
     final DataAccess nodes;
     final BBox bounds;
@@ -259,11 +261,19 @@ class BaseGraph implements Graph {
      * Initializes the node area with the empty edge value and default additional value.
      */
     void initNodeRefs(long oldCapacity, long newCapacity) {
+int count = 0;
         for (long pointer = oldCapacity + N_EDGE_REF; pointer < newCapacity; pointer += nodeEntryBytes) {
+logger.warn("ORS-EXTRA ["+count+"] pointer: "+pointer);
+System.out.println("ORS-EXTRA ["+count+"] pointer: "+pointer);
+count++;
             nodes.setInt(pointer, EdgeIterator.NO_EDGE);
         }
         if (extStorage.isRequireNodeField()) {
+count = 0;
             for (long pointer = oldCapacity + N_ADDITIONAL; pointer < newCapacity; pointer += nodeEntryBytes) {
+logger.warn("ORS-EXTRA 2["+count+"] pointer: "+pointer+" value: "+extStorage.getDefaultNodeFieldValue());
+System.out.println("ORS-EXTRA 2["+count+"] pointer: "+pointer+" value: "+extStorage.getDefaultNodeFieldValue());
+count++;
                 nodes.setInt(pointer, extStorage.getDefaultNodeFieldValue());
             }
         }
@@ -591,7 +601,6 @@ class BaseGraph implements Graph {
         GHBitSet toRemoveSet = new GHBitSetImpl(removeNodeCount);
         removedNodes.copyTo(toRemoveSet);
 
-        Logger logger = LoggerFactory.getLogger(getClass());
         if (removeNodeCount > getNodes() / 2.0)
             logger.warn("More than a half of the network should be removed!? "
                     + "Nodes:" + getNodes() + ", remove:" + removeNodeCount);
@@ -617,6 +626,8 @@ class BaseGraph implements Graph {
 
             itemsToMove++;
         }
+logger.warn("ORS-EXTRA itemsToMove: "+itemsToMove+" removeNodes.length: "+((GHBitSetImpl) removedNodes).length()+" getCardinality: "+((GHBitSetImpl) removedNodes).getCardinality());
+System.out.println("ORS-EXTRA itemsToMove: "+itemsToMove+" removeNodes.length: "+((GHBitSetImpl) removedNodes).length()+" getCardinality: "+((GHBitSetImpl) removedNodes).getCardinality());
 
         EdgeIterable adjNodesToDelIter = (EdgeIterable) createEdgeExplorer();
         // now similar process to disconnectEdges but only for specific nodes
@@ -659,6 +670,8 @@ class BaseGraph implements Graph {
                 toMoveSet.add(nodeId);
             }
         }
+logger.warn("ORS-EXTRA toMoveSet.length: "+((GHBitSetImpl) toMoveSet).length()+" getCardinality: "+((GHBitSetImpl) toMoveSet).getCardinality());
+System.out.println("ORS-EXTRA toMoveSet.length: "+((GHBitSetImpl) toMoveSet).length()+" getCardinality: "+((GHBitSetImpl) toMoveSet).getCardinality());
 
         // move nodes into deleted nodes
         for (int i = 0; i < itemsToMove; i++) {
@@ -701,6 +714,9 @@ class BaseGraph implements Graph {
             if (updatedA < updatedB != nodeA < nodeB)
                 setWayGeometry_(fetchWayGeometry_(edgePointer, true, 0, -1, -1), edgePointer, false);
         }
+
+logger.warn("ORS-EXTRA: nodeCount: "+nodeCount+ " / removeNodeCount: "+removeNodeCount+" / nodeEntryBytes: "+nodeEntryBytes);
+System.out.println("ORS-EXTRA: nodeCount: "+nodeCount+ " / removeNodeCount: "+removeNodeCount+" / nodeEntryBytes: "+nodeEntryBytes);
 
         if (removeNodeCount >= nodeCount)
             throw new IllegalStateException("graph is empty after in-place removal - toRemove: " + removeNodeCount+" / orgSize: "+nodeCount);
