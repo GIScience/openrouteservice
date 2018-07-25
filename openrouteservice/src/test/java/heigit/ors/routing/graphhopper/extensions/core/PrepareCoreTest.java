@@ -238,7 +238,7 @@ public class PrepareCoreTest {
 //        assertEquals(oldCount + 7, lg.getAllEdges().getMaxId());
     }
 
-    private AllCHEdgesIterator testMoreComplexRestrictedGraph(CoreTestEdgeFilter restrictedEdges) {
+    private CHGraph testMoreComplexRestrictedGraph(CoreTestEdgeFilter restrictedEdges) {
         GraphHopperStorage g = createGHStorage();
         CHGraph lg = g.getGraph(CHGraph.class);
         createMoreComplexGraph(lg);
@@ -253,26 +253,134 @@ public class PrepareCoreTest {
             if(iter.isShortcut()) System.out.println(" (shortcut)");
             else System.out.println(" ");
         }
-        return iter;
+        return lg;
 
     }
 
+    //With a restriction on {0->1}
     @Test
-    public void testRestrictedGraph(){
+    public void testRestrictedGraph1(){
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
-        restrictedEdges.add(12);
-        restrictedEdges.add(6);
-        AllCHEdgesIterator iter = testMoreComplexRestrictedGraph(restrictedEdges);
+        restrictedEdges.add(0);
+        CHGraph lg = testMoreComplexRestrictedGraph(restrictedEdges);
+        AllCHEdgesIterator iter = lg.getAllEdges();
 
         while(iter.next()){
             if(iter.isShortcut()){
                 if(iter.getEdge() == 13){
                     assertEquals(iter.getBaseNode(), 4);
                     assertEquals(iter.getAdjNode(), 7);
+                    continue;
+
+                }
+                if(iter.getEdge()==14){
+                    assertEquals(iter.getBaseNode(), 1);
+                    assertEquals(iter.getAdjNode(), 3);
+                    continue;
+
+                }
+                if(iter.getEdge()==15){
+                    assertEquals(iter.getBaseNode(), 0);
+                    assertEquals(iter.getAdjNode(), 3);
+                    continue;
+
+                }
+                if(iter.getEdge()==16){
+                    assertEquals(iter.getBaseNode(), 1);
+                    assertEquals(iter.getAdjNode(), 4);
+                    continue;
+
+                }
+                if(iter.getEdge()==17){
+                    assertEquals(iter.getBaseNode(), 0);
+                    assertEquals(iter.getAdjNode(), 4);
+
                 }
             }
         }
+        assertEquals(10,lg.getLevel(0));
+        assertEquals(10,lg.getLevel(1));
     }
 
+    //restrictions on edges:{0->1,2->3}
+    @Test
+    public void testRestrictedGraph2(){
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        restrictedEdges.add(0);
+        restrictedEdges.add(6);
+        CHGraph lg = testMoreComplexRestrictedGraph(restrictedEdges);
+        AllCHEdgesIterator iter = lg.getAllEdges();
+
+        while(iter.next()){
+            if(iter.isShortcut()){
+                if(iter.getEdge() == 13){
+                    assertEquals(iter.getBaseNode(), 4);
+                    assertEquals(iter.getAdjNode(), 7);
+                    continue;
+
+                }
+                if(iter.getEdge() == 14){
+                    assertEquals(iter.getBaseNode(), 3);
+                    assertEquals(iter.getAdjNode(), 7);
+
+
+                }
+
+
+            }
+        }
+        assertEquals(10,lg.getLevel(0));
+        assertEquals(10,lg.getLevel(1));
+        assertEquals(10,lg.getLevel(2));
+        assertEquals(10,lg.getLevel(3));
+
+
+
+    }
+    //Restrictions on edges{2->3,7->8}
+    @Test
+    public void testRestrictedGraph3(){
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        restrictedEdges.add(12);
+        restrictedEdges.add(6);
+        CHGraph lg = testMoreComplexRestrictedGraph(restrictedEdges);
+        AllCHEdgesIterator iter = lg.getAllEdges();
+
+        while(iter.next()){
+            if(iter.isShortcut()){
+                if(iter.getEdge() == 13){
+                    assertEquals(iter.getBaseNode(), 4);
+                    assertEquals(iter.getAdjNode(), 7);
+                    continue;
+
+                }
+                if(iter.getEdge() == 14){
+                    assertEquals(iter.getBaseNode(), 3);
+                    assertEquals(iter.getAdjNode(), 7);
+                    continue;
+
+                }
+                if(iter.getEdge() == 15){
+                    assertEquals(iter.getBaseNode(), 3);
+                    assertEquals(iter.getAdjNode(), 8);
+                    continue;
+
+                }
+                if(iter.getEdge() == 16){
+                    assertEquals(iter.getBaseNode(), 2);
+                    assertEquals(iter.getAdjNode(), 8);
+
+
+                }
+            }
+        }
+        assertEquals(10,lg.getLevel(2));
+        assertEquals(10,lg.getLevel(3));
+        assertEquals(10,lg.getLevel(7));
+        assertEquals(10,lg.getLevel(8));
+
+
+
+    }
 
 }
