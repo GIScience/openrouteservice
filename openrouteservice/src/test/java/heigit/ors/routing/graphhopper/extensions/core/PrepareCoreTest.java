@@ -54,6 +54,47 @@ public class PrepareCoreTest {
         dir = new GHDirectory("", DAType.RAM_INT);
     }
 
+    public static Graph createSimpleGraph(Graph g) {
+        //5-1-----2
+        //   \ __/|
+        //    0   |
+        //   /    |
+        //  4-----3
+        //
+        g.edge(0, 1, 1, true);
+        g.edge(0, 2, 1, true);
+        g.edge(0, 4, 3, true);
+        g.edge(1, 2, 2, true);
+        g.edge(2, 3, 1, true);
+        g.edge(4, 3, 2, true);
+        g.edge(5, 1, 2, true);
+        return g;
+    }
+
+    public static Graph createMoreComplexGraph(Graph g) {
+//        3--------4--5
+//        |\       |  |
+//        | \      6--7
+//        2--0        |
+//        | / \__   _/
+//        |/     \ /
+//        1-------8
+        g.edge(0, 1, 1, true);
+        g.edge(0, 2, 1, true);
+        g.edge(0, 3, 5, true);
+        g.edge(0, 8, 1, true);
+        g.edge(1, 2, 1, true);
+        g.edge(1, 8, 2, true);
+        g.edge(2, 3, 2, true);
+        g.edge(3, 4, 2, true);
+        g.edge(4, 5, 1, true);
+        g.edge(4, 6, 1, true);
+        g.edge(5, 7, 1, true);
+        g.edge(6, 7, 2, true);
+        g.edge(7, 8, 3, true);
+        return g;
+    }
+
     // prepare-routing.svg
     public static Graph initShortcutsGraph(Graph g) {
         g.edge(0, 1, 1, true);
@@ -85,9 +126,52 @@ public class PrepareCoreTest {
     }
 
 
+    @Test
+    public void testSimpleUnrestrictedGraph() {
+        GraphHopperStorage g = createGHStorage();
+        CHGraph lg = g.getGraph(CHGraph.class);
+        createSimpleGraph(lg);
+        int oldCount = g.getAllEdges().getMaxId();
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        PrepareCore prepare = new PrepareCore(dir, g, lg, weighting, tMode, restrictedEdges);
+        prepare.doWork();
+        for(int i = 0; i < lg.getNodes(); i++)
+            System.out.println("nodeId " + i + " level: " + lg.getLevel(i));
+        AllCHEdgesIterator iter = lg.getAllEdges();
+        while(iter.next()){
+            System.out.print(iter.getBaseNode() + " -> " + iter.getAdjNode() + " via edge " + iter.getEdge());
+            if(iter.isShortcut()) System.out.println(" (shortcut)");
+            else System.out.println(" ");
+        }
+        assertEquals(oldCount, g.getAllEdges().getMaxId());
+        assertEquals(oldCount + 1, lg.getAllEdges().getMaxId());
+    }
 
     @Test
-    public void testUnrestrictedGraph() {
+    public void testSimpleRestrictedGraph() {
+        GraphHopperStorage g = createGHStorage();
+        CHGraph lg = g.getGraph(CHGraph.class);
+        createSimpleGraph(lg);
+        int oldCount = g.getAllEdges().getMaxId();
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        restrictedEdges.add(5);
+        restrictedEdges.add(2);
+        PrepareCore prepare = new PrepareCore(dir, g, lg, weighting, tMode, restrictedEdges);
+        prepare.doWork();
+        for(int i = 0; i < lg.getNodes(); i++)
+            System.out.println("nodeId " + i + " level: " + lg.getLevel(i));
+        AllCHEdgesIterator iter = lg.getAllEdges();
+        while(iter.next()){
+            System.out.print(iter.getBaseNode() + " -> " + iter.getAdjNode() + " via edge " + iter.getEdge());
+            if(iter.isShortcut()) System.out.println(" (shortcut)");
+            else System.out.println(" ");
+        }
+        assertEquals(oldCount, g.getAllEdges().getMaxId());
+        assertEquals(oldCount + 1, lg.getAllEdges().getMaxId());
+    }
+
+    @Test
+    public void testLargeUnrestrictedGraph() {
         GraphHopperStorage g = createGHStorage();
         CHGraph lg = g.getGraph(CHGraph.class);
         initShortcutsGraph(lg);
@@ -108,7 +192,7 @@ public class PrepareCoreTest {
     }
 
     @Test
-    public void testRestrictedGraph() {
+    public void testLargeRestrictedGraph() {
         GraphHopperStorage g = createGHStorage();
         CHGraph lg = g.getGraph(CHGraph.class);
         initShortcutsGraph(lg);
@@ -128,6 +212,66 @@ public class PrepareCoreTest {
         }
         assertEquals(oldCount, g.getAllEdges().getMaxId());
         assertEquals(oldCount + 10, lg.getAllEdges().getMaxId());
+    }
+
+    @Test
+    public void testMoreComplexUnrestrictedGraph() {
+        GraphHopperStorage g = createGHStorage();
+        CHGraph lg = g.getGraph(CHGraph.class);
+        createMoreComplexGraph(lg);
+        int oldCount = g.getAllEdges().getMaxId();
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        PrepareCore prepare = new PrepareCore(dir, g, lg, weighting, tMode, restrictedEdges);
+        prepare.doWork();
+        for(int i = 0; i < lg.getNodes(); i++)
+            System.out.println("nodeId " + i + " level: " + lg.getLevel(i));
+        AllCHEdgesIterator iter = lg.getAllEdges();
+        while(iter.next()){
+            System.out.print(iter.getBaseNode() + " -> " + iter.getAdjNode() + " via edge " + iter.getEdge());
+            if(iter.isShortcut()) System.out.println(" (shortcut from  " + iter.getSkippedEdge1() + " and " + iter.getSkippedEdge2() + ")");
+            else System.out.println(" ");
+        }
+
+
+
+//        assertEquals(oldCount, g.getAllEdges().getMaxId());
+//        assertEquals(oldCount + 7, lg.getAllEdges().getMaxId());
+    }
+
+    private AllCHEdgesIterator testMoreComplexRestrictedGraph(CoreTestEdgeFilter restrictedEdges) {
+        GraphHopperStorage g = createGHStorage();
+        CHGraph lg = g.getGraph(CHGraph.class);
+        createMoreComplexGraph(lg);
+        int oldCount = g.getAllEdges().getMaxId();
+        PrepareCore prepare = new PrepareCore(dir, g, lg, weighting, tMode, restrictedEdges);
+        prepare.doWork();
+        for(int i = 0; i < lg.getNodes(); i++)
+            System.out.println("nodeId " + i + " level: " + lg.getLevel(i));
+        AllCHEdgesIterator iter = lg.getAllEdges();
+        while(iter.next()){
+            System.out.print(iter.getBaseNode() + " -> " + iter.getAdjNode() + " via edge " + iter.getEdge());
+            if(iter.isShortcut()) System.out.println(" (shortcut)");
+            else System.out.println(" ");
+        }
+        return iter;
+
+    }
+
+    @Test
+    public void testRestrictedGraph(){
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        restrictedEdges.add(12);
+        restrictedEdges.add(6);
+        AllCHEdgesIterator iter = testMoreComplexRestrictedGraph(restrictedEdges);
+
+        while(iter.next()){
+            if(iter.isShortcut()){
+                if(iter.getEdge() == 13){
+                    assertEquals(iter.getBaseNode(), 4);
+                    assertEquals(iter.getAdjNode(), 7);
+                }
+            }
+        }
     }
 
 
