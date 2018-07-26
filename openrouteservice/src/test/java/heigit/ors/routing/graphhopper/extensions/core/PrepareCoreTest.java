@@ -17,8 +17,6 @@
  */
 package heigit.ors.routing.graphhopper.extensions.core;
 
-import heigit.ors.common.Pair;
-
 import com.graphhopper.routing.util.AllCHEdgesIterator;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
@@ -26,11 +24,11 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
+import heigit.ors.common.Pair;
 import heigit.ors.util.DebugUtility;
+import java.util.*;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -62,11 +60,11 @@ public class PrepareCoreTest {
         GraphHopperStorage g = createGHStorage();
         g.edge(0, 1, 1, true);
         g.edge(0, 2, 1, true);
-        g.edge(0, 4, 3, true);
+        g.edge(0, 4, 3, true); // restricted in #1 and #4
         g.edge(1, 2, 2, true);
-        g.edge(2, 3, 1, true);
-        g.edge(4, 3, 2, true);
-        g.edge(5, 1, 2, true);
+        g.edge(2, 3, 1, true); // restricted in #2
+        g.edge(4, 3, 2, true); // restricted in #3, #4 and #5
+        g.edge(5, 1, 2, true); // restricted in #5
         return g;
     }
 
@@ -78,19 +76,19 @@ public class PrepareCoreTest {
         //  |/   \ /
         //  1-----8
         GraphHopperStorage g = createGHStorage();
-        g.edge(0, 1, 1, true);
+        g.edge(0, 1, 1, true); // restricted in #1 and #2
         g.edge(0, 2, 1, true);
         g.edge(0, 3, 5, true);
         g.edge(0, 8, 1, true);
         g.edge(1, 2, 1, true);
         g.edge(1, 8, 2, true);
-        g.edge(2, 3, 2, true);
+        g.edge(2, 3, 2, true); // restricted in #2 and #3
         g.edge(3, 4, 2, true);
         g.edge(4, 5, 1, true);
         g.edge(4, 6, 1, true);
         g.edge(5, 7, 1, true);
         g.edge(6, 7, 2, true);
-        g.edge(7, 8, 3, true);
+        g.edge(7, 8, 3, true); // restricted in #3
         return g;
     }
 
@@ -137,7 +135,7 @@ public class PrepareCoreTest {
                 else System.out.println(" ");
             }
         }
-        
+
         return lg;
     }
 
