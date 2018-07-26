@@ -26,6 +26,7 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
+import heigit.ors.util.DebugUtility;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,7 +35,7 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 /**
- * @author Hendrik Leuschner
+ * @author Hendrik Leuschner, Andrzej Oles, Djime Gueye
  */
 public class PrepareCoreTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
@@ -71,7 +72,7 @@ public class PrepareCoreTest {
 
     private GraphHopperStorage createMediumGraph() {
         //    3---4--5
-        //   / \  |  |
+        //   /\   |  |
         //  2--0  6--7
         //  | / \   /
         //  |/   \ /
@@ -125,14 +126,18 @@ public class PrepareCoreTest {
         CHGraph lg = g.getGraph(CHGraph.class);
         PrepareCore prepare = new PrepareCore(dir, g, lg, weighting, tMode, restrictedEdges);
         prepare.doWork();
-        for(int i = 0; i < lg.getNodes(); i++)
-            System.out.println("nodeId " + i + " level: " + lg.getLevel(i));
-        AllCHEdgesIterator iter = lg.getAllEdges();
-        while(iter.next()){
-            System.out.print(iter.getBaseNode() + " -> " + iter.getAdjNode() + " via edge " + iter.getEdge());
-            if(iter.isShortcut()) System.out.println(" (shortcut)");
-            else System.out.println(" ");
+
+        if (DebugUtility.isDebug()) {
+            for (int i = 0; i < lg.getNodes(); i++)
+                System.out.println("nodeId " + i + " level: " + lg.getLevel(i));
+            AllCHEdgesIterator iter = lg.getAllEdges();
+            while (iter.next()) {
+                System.out.print(iter.getBaseNode() + " -> " + iter.getAdjNode() + " via edge " + iter.getEdge());
+                if (iter.isShortcut()) System.out.println(" (shortcut)");
+                else System.out.println(" ");
+            }
         }
+        
         return lg;
     }
 
@@ -334,7 +339,7 @@ public class PrepareCoreTest {
         Integer core[] = {6, 7, 12, 15};
         assertCore(g, new HashSet<>(Arrays.asList(core)));
     }
-    
+
     private void assertCore(CHGraph g, Set<Integer> coreNodes) {
         int nodes = g.getNodes();
         int maxLevel = nodes + 1;
