@@ -17,26 +17,21 @@
  */
 package heigit.ors.routing.graphhopper.extensions.core;
 
-import heigit.ors.routing.graphhopper.extensions.core.CoreTestEdgeFilter;
+import heigit.ors.common.Pair;
 
-import com.carrotsearch.hppc.IntIndexedContainer;
-import com.graphhopper.routing.*;
 //import com.graphhopper.routing.ch.PrepareContractionHierarchies.Shortcut;
 import com.graphhopper.routing.util.AllCHEdgesIterator;
-import com.graphhopper.routing.util.BikeFlagEncoder;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
-import com.graphhopper.util.*;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
 
-import static com.graphhopper.util.Parameters.Algorithms.DIJKSTRA_BI;
 import static org.junit.Assert.*;
 
 /**
@@ -185,7 +180,26 @@ public class PrepareCoreTest {
             }
         }
     }
+    private void assertShortcuts(CHGraph g, HashMap<Integer, Pair> shortcuts ){
 
+        AllCHEdgesIterator iter = g.getAllEdges();
+        HashSet<Integer> shortcutsFound = new HashSet<>();
+        while(iter.next()){
+            if(iter.isShortcut()){
+                assertTrue(shortcuts.containsKey(iter.getEdge()));
+                assertEquals(iter.getBaseNode(), shortcuts.get(iter.getEdge()).first);
+                assertEquals(iter.getAdjNode(), shortcuts.get(iter.getEdge()).second);
+                shortcutsFound.add(iter.getEdge());
+            }
+        }
+        //Verify if all the expected shortcuts were found
+        Iterator<Integer> iterator = shortcuts.keySet().iterator();
+        while(iterator.hasNext()){
+            Integer key = iterator.next();
+            assertTrue(shortcutsFound.contains(key));
+        }
+
+    }
     @Test
     public void testLargeUnrestrictedGraph() {
         GraphHopperStorage g = createGHStorage();
@@ -278,44 +292,19 @@ public class PrepareCoreTest {
     public void testRestrictedGraph1(){
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         restrictedEdges.add(0);
+        Integer coreNodeIds[] = {0, 1};
+        //Map that associates each edge id of a shortcut to a
+        //pair consisting of the two nodes of the edge
+
+        HashMap<Integer, Pair> shortcuts = new HashMap<>();
+        shortcuts.put(13, new Pair<>(4,7));
+        shortcuts.put(14, new Pair<>(1,3));
+        shortcuts.put(15, new Pair<>(0,3));
+        shortcuts.put(16, new Pair<>(1,4));
+        shortcuts.put(17, new Pair<>(0,4));
         CHGraph lg = testMoreComplexRestrictedGraph(restrictedEdges);
-        AllCHEdgesIterator iter = lg.getAllEdges();
-
-        while(iter.next()){
-            if(iter.isShortcut()){
-                if(iter.getEdge() == 13){
-                    assertEquals(iter.getBaseNode(), 4);
-                    assertEquals(iter.getAdjNode(), 7);
-                    continue;
-
-                }
-                if(iter.getEdge()==14){
-                    assertEquals(iter.getBaseNode(), 1);
-                    assertEquals(iter.getAdjNode(), 3);
-                    continue;
-
-                }
-                if(iter.getEdge()==15){
-                    assertEquals(iter.getBaseNode(), 0);
-                    assertEquals(iter.getAdjNode(), 3);
-                    continue;
-
-                }
-                if(iter.getEdge()==16){
-                    assertEquals(iter.getBaseNode(), 1);
-                    assertEquals(iter.getAdjNode(), 4);
-                    continue;
-
-                }
-                if(iter.getEdge()==17){
-                    assertEquals(iter.getBaseNode(), 0);
-                    assertEquals(iter.getAdjNode(), 4);
-
-                }
-            }
-        }
-        assertEquals(10,lg.getLevel(0));
-        assertEquals(10,lg.getLevel(1));
+        assertShortcuts(lg, shortcuts);
+        assertCore(lg, new HashSet<>(Arrays.asList(coreNodeIds)));
     }
 
     //restrictions on edges:{0->1,2->3}
@@ -324,34 +313,15 @@ public class PrepareCoreTest {
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         restrictedEdges.add(0);
         restrictedEdges.add(6);
+        Integer coreNodeIds[] = {0, 1, 2, 3};
+        //Map that associates each edge id of a shortcut to a
+        //pair consisting of the two nodes of the edge
+        HashMap<Integer, Pair> shortcuts = new HashMap<>();
+        shortcuts.put(13, new Pair<>(4,7));
+        shortcuts.put(14, new Pair<>(3,7));
         CHGraph lg = testMoreComplexRestrictedGraph(restrictedEdges);
-        AllCHEdgesIterator iter = lg.getAllEdges();
-
-        while(iter.next()){
-            if(iter.isShortcut()){
-                if(iter.getEdge() == 13){
-                    assertEquals(iter.getBaseNode(), 4);
-                    assertEquals(iter.getAdjNode(), 7);
-                    continue;
-
-                }
-                if(iter.getEdge() == 14){
-                    assertEquals(iter.getBaseNode(), 3);
-                    assertEquals(iter.getAdjNode(), 7);
-
-
-                }
-
-
-            }
-        }
-        assertEquals(10,lg.getLevel(0));
-        assertEquals(10,lg.getLevel(1));
-        assertEquals(10,lg.getLevel(2));
-        assertEquals(10,lg.getLevel(3));
-
-
-
+        assertShortcuts(lg, shortcuts);
+        assertCore(lg, new HashSet<>(Arrays.asList(coreNodeIds)));
     }
     //Restrictions on edges{2->3,7->8}
     @Test
@@ -359,44 +329,18 @@ public class PrepareCoreTest {
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         restrictedEdges.add(12);
         restrictedEdges.add(6);
+        Integer coreNodeIds[] = {2,3,7,8};
+        //Map that associates each edge id of a shortcut to a
+        //pair consisting of the two nodes of the edge
+        HashMap<Integer, Pair> shortcuts = new HashMap<>();
+        shortcuts.put(13, new Pair<>(4,7));
+        shortcuts.put(14, new Pair<>(3,7));
+        shortcuts.put(15, new Pair<>(3,8));
+        shortcuts.put(16, new Pair<>(2,8));
         CHGraph lg = testMoreComplexRestrictedGraph(restrictedEdges);
-        AllCHEdgesIterator iter = lg.getAllEdges();
-
-        while(iter.next()){
-            if(iter.isShortcut()){
-                if(iter.getEdge() == 13){
-                    assertEquals(iter.getBaseNode(), 4);
-                    assertEquals(iter.getAdjNode(), 7);
-                    continue;
-
-                }
-                if(iter.getEdge() == 14){
-                    assertEquals(iter.getBaseNode(), 3);
-                    assertEquals(iter.getAdjNode(), 7);
-                    continue;
-
-                }
-                if(iter.getEdge() == 15){
-                    assertEquals(iter.getBaseNode(), 3);
-                    assertEquals(iter.getAdjNode(), 8);
-                    continue;
-
-                }
-                if(iter.getEdge() == 16){
-                    assertEquals(iter.getBaseNode(), 2);
-                    assertEquals(iter.getAdjNode(), 8);
-
-
-                }
-            }
-        }
-        assertEquals(10,lg.getLevel(2));
-        assertEquals(10,lg.getLevel(3));
-        assertEquals(10,lg.getLevel(7));
-        assertEquals(10,lg.getLevel(8));
-
-
-
+        assertShortcuts(lg, shortcuts);
+        assertCore(lg, new HashSet<>(Arrays.asList(coreNodeIds)));
     }
+
 
 }
