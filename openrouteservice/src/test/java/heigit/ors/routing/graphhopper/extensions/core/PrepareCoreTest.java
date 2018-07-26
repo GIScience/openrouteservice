@@ -168,6 +168,22 @@ public class PrepareCoreTest {
         }
         assertEquals(oldCount, g.getAllEdges().getMaxId());
         assertEquals(oldCount + 1, lg.getAllEdges().getMaxId());
+
+        Integer coreNodeIds[] = {0, 3, 4};
+        assertCore(lg, new HashSet<>(Arrays.asList(coreNodeIds)));
+    }
+
+    private void assertCore(CHGraph g, Set<Integer> coreNodes) {
+        int nodes = g.getNodes();
+        int maxLevel = nodes + 1;
+        for (int node = 0; node < nodes; node++) {
+            int level = g.getLevel(node);
+            if (coreNodes.contains(node)) {
+                assertEquals(maxLevel, level);
+            } else {
+                assertTrue(level < nodes);
+            }
+        }
     }
 
     @Test

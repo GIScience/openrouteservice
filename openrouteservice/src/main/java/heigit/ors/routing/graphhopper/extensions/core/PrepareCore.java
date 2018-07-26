@@ -612,7 +612,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         };
 
 
-        //TODO Set this to prepareGraph.getNodes() + 1 - nodesWithRestriction?
         maxLevel = prepareGraph.getNodes() + 1;
         ignoreNodeFilter = new IgnoreNodeFilter(prepareGraph, maxLevel);
         vehicleAllExplorer = prepareGraph.createEdgeExplorer(allFilter);
