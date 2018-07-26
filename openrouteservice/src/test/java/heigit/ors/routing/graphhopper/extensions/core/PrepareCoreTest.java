@@ -19,7 +19,6 @@ package heigit.ors.routing.graphhopper.extensions.core;
 
 import heigit.ors.common.Pair;
 
-//import com.graphhopper.routing.ch.PrepareContractionHierarchies.Shortcut;
 import com.graphhopper.routing.util.AllCHEdgesIterator;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
@@ -49,13 +48,12 @@ public class PrepareCoreTest {
         dir = new GHDirectory("", DAType.RAM_INT);
     }
 
-    public static Graph createSimpleGraph(Graph g) {
-        //5-1-----2
-        //   \ __/|
-        //    0   |
-        //   /    |
-        //  4-----3
-        //
+    private static Graph createSimpleGraph(Graph g) {
+        // 5--1---2
+        //     \ /|
+        //      0 |
+        //     /  |
+        //    4---3
         g.edge(0, 1, 1, true);
         g.edge(0, 2, 1, true);
         g.edge(0, 4, 3, true);
@@ -66,14 +64,13 @@ public class PrepareCoreTest {
         return g;
     }
 
-    public static Graph createMoreComplexGraph(Graph g) {
-//        3--------4--5
-//        |\       |  |
-//        | \      6--7
-//        2--0        |
-//        | / \__   _/
-//        |/     \ /
-//        1-------8
+    private static Graph createMediumGraph(Graph g) {
+        //   3---4--5
+        //  / \  |  |
+        //  2--0  6--7
+        //  | /| ___/
+        //  |/ |/
+        //  1--8
         g.edge(0, 1, 1, true);
         g.edge(0, 2, 1, true);
         g.edge(0, 3, 5, true);
@@ -90,8 +87,8 @@ public class PrepareCoreTest {
         return g;
     }
 
-    // prepare-routing.svg
-    public static Graph initShortcutsGraph(Graph g) {
+    private static Graph createComplexGraph(Graph g) {
+        // prepare-routing.svg
         g.edge(0, 1, 1, true);
         g.edge(0, 2, 1, true);
         g.edge(1, 2, 1, true);
@@ -116,13 +113,13 @@ public class PrepareCoreTest {
         g.edge(14, 16, 1, true);
         return g;
     }
+
     GraphHopperStorage createGHStorage() {
         return new GraphBuilder(encodingManager).setCHGraph(weighting).create();
     }
 
-
     @Test
-    public void testSimpleUnrestrictedGraph() {
+    public void testSimpleUnrestricted() {
         GraphHopperStorage g = createGHStorage();
         CHGraph lg = g.getGraph(CHGraph.class);
         createSimpleGraph(lg);
@@ -143,7 +140,7 @@ public class PrepareCoreTest {
     }
 
     @Test
-    public void testSimpleRestrictedGraph() {
+    public void testSimpleRestricted() {
         GraphHopperStorage g = createGHStorage();
         CHGraph lg = g.getGraph(CHGraph.class);
         createSimpleGraph(lg);
@@ -168,43 +165,11 @@ public class PrepareCoreTest {
         assertCore(lg, new HashSet<>(Arrays.asList(coreNodeIds)));
     }
 
-    private void assertCore(CHGraph g, Set<Integer> coreNodes) {
-        int nodes = g.getNodes();
-        int maxLevel = nodes + 1;
-        for (int node = 0; node < nodes; node++) {
-            int level = g.getLevel(node);
-            if (coreNodes.contains(node)) {
-                assertEquals(maxLevel, level);
-            } else {
-                assertTrue(level < nodes);
-            }
-        }
-    }
-    private void assertShortcuts(CHGraph g, HashMap<Integer, Pair> shortcuts ){
-
-        AllCHEdgesIterator iter = g.getAllEdges();
-        HashSet<Integer> shortcutsFound = new HashSet<>();
-        while(iter.next()){
-            if(iter.isShortcut()){
-                assertTrue(shortcuts.containsKey(iter.getEdge()));
-                assertEquals(iter.getBaseNode(), shortcuts.get(iter.getEdge()).first);
-                assertEquals(iter.getAdjNode(), shortcuts.get(iter.getEdge()).second);
-                shortcutsFound.add(iter.getEdge());
-            }
-        }
-        //Verify if all the expected shortcuts were found
-        Iterator<Integer> iterator = shortcuts.keySet().iterator();
-        while(iterator.hasNext()){
-            Integer key = iterator.next();
-            assertTrue(shortcutsFound.contains(key));
-        }
-
-    }
     @Test
-    public void testLargeUnrestrictedGraph() {
+    public void testComplexUnrestricted() {
         GraphHopperStorage g = createGHStorage();
         CHGraph lg = g.getGraph(CHGraph.class);
-        initShortcutsGraph(lg);
+        createComplexGraph(lg);
         int oldCount = g.getAllEdges().getMaxId();
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         PrepareCore prepare = new PrepareCore(dir, g, lg, weighting, tMode, restrictedEdges);
@@ -222,10 +187,10 @@ public class PrepareCoreTest {
     }
 
     @Test
-    public void testLargeRestrictedGraph() {
+    public void testComplexRestricted() {
         GraphHopperStorage g = createGHStorage();
         CHGraph lg = g.getGraph(CHGraph.class);
-        initShortcutsGraph(lg);
+        createComplexGraph(lg);
         int oldCount = g.getAllEdges().getMaxId();
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         restrictedEdges.add(10);
@@ -244,35 +209,10 @@ public class PrepareCoreTest {
         assertEquals(oldCount + 10, lg.getAllEdges().getMaxId());
     }
 
-    @Test
-    public void testMoreComplexUnrestrictedGraph() {
+    private CHGraph contractMediumGraph(CoreTestEdgeFilter restrictedEdges) {
         GraphHopperStorage g = createGHStorage();
         CHGraph lg = g.getGraph(CHGraph.class);
-        createMoreComplexGraph(lg);
-        int oldCount = g.getAllEdges().getMaxId();
-        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
-        PrepareCore prepare = new PrepareCore(dir, g, lg, weighting, tMode, restrictedEdges);
-        prepare.doWork();
-        for(int i = 0; i < lg.getNodes(); i++)
-            System.out.println("nodeId " + i + " level: " + lg.getLevel(i));
-        AllCHEdgesIterator iter = lg.getAllEdges();
-        while(iter.next()){
-            System.out.print(iter.getBaseNode() + " -> " + iter.getAdjNode() + " via edge " + iter.getEdge());
-            if(iter.isShortcut()) System.out.println(" (shortcut from  " + iter.getSkippedEdge1() + " and " + iter.getSkippedEdge2() + ")");
-            else System.out.println(" ");
-        }
-
-
-
-//        assertEquals(oldCount, g.getAllEdges().getMaxId());
-//        assertEquals(oldCount + 7, lg.getAllEdges().getMaxId());
-    }
-
-    private CHGraph testMoreComplexRestrictedGraph(CoreTestEdgeFilter restrictedEdges) {
-        GraphHopperStorage g = createGHStorage();
-        CHGraph lg = g.getGraph(CHGraph.class);
-        createMoreComplexGraph(lg);
-        int oldCount = g.getAllEdges().getMaxId();
+        createMediumGraph(lg);
         PrepareCore prepare = new PrepareCore(dir, g, lg, weighting, tMode, restrictedEdges);
         prepare.doWork();
         for(int i = 0; i < lg.getNodes(); i++)
@@ -284,52 +224,73 @@ public class PrepareCoreTest {
             else System.out.println(" ");
         }
         return lg;
-
     }
 
-    //With a restriction on {0->1}
     @Test
-    public void testRestrictedGraph1(){
-        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
-        restrictedEdges.add(0);
-        Integer coreNodeIds[] = {0, 1};
+    public void testMediumUnrestricted(){
+        CHGraph g = contractMediumGraph(new CoreTestEdgeFilter());
+
         //Map that associates each edge id of a shortcut to a
         //pair consisting of the two nodes of the edge
+        HashMap<Integer, Pair> shortcuts = new HashMap<>();
+        shortcuts.put(13, new Pair<>(4,7));
+        shortcuts.put(14, new Pair<>(0,3));
+        shortcuts.put(15, new Pair<>(0,4));
+        assertShortcuts(g, shortcuts);
 
+        assertCore(g, new HashSet<>());
+    }
+
+    // With a single restriction on 0-1
+    @Test
+    public void testMediumRestricted1(){
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        restrictedEdges.add(0);
+        CHGraph g = contractMediumGraph(restrictedEdges);
+
+        //Map that associates each edge id of a shortcut to a
+        //pair consisting of the two nodes of the edge
         HashMap<Integer, Pair> shortcuts = new HashMap<>();
         shortcuts.put(13, new Pair<>(4,7));
         shortcuts.put(14, new Pair<>(1,3));
         shortcuts.put(15, new Pair<>(0,3));
         shortcuts.put(16, new Pair<>(1,4));
         shortcuts.put(17, new Pair<>(0,4));
-        CHGraph lg = testMoreComplexRestrictedGraph(restrictedEdges);
-        assertShortcuts(lg, shortcuts);
-        assertCore(lg, new HashSet<>(Arrays.asList(coreNodeIds)));
+        assertShortcuts(g, shortcuts);
+
+        Integer core[] = {0, 1};
+        assertCore(g, new HashSet<>(Arrays.asList(core)));
     }
 
-    //restrictions on edges:{0->1,2->3}
+    // Restrictions on edges: 0-1, 2-3
     @Test
-    public void testRestrictedGraph2(){
+    public void testMediumRestricted2() {
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         restrictedEdges.add(0);
         restrictedEdges.add(6);
-        Integer coreNodeIds[] = {0, 1, 2, 3};
+
+        CHGraph g = contractMediumGraph(restrictedEdges);
+
         //Map that associates each edge id of a shortcut to a
         //pair consisting of the two nodes of the edge
         HashMap<Integer, Pair> shortcuts = new HashMap<>();
         shortcuts.put(13, new Pair<>(4,7));
         shortcuts.put(14, new Pair<>(3,7));
-        CHGraph lg = testMoreComplexRestrictedGraph(restrictedEdges);
-        assertShortcuts(lg, shortcuts);
-        assertCore(lg, new HashSet<>(Arrays.asList(coreNodeIds)));
+        assertShortcuts(g, shortcuts);
+
+        Integer core[] = {0, 1, 2, 3};
+        assertCore(g, new HashSet<>(Arrays.asList(core)));
     }
-    //Restrictions on edges{2->3,7->8}
+
+    // Restrictions on edges: 2-3, 7-8
     @Test
-    public void testRestrictedGraph3(){
+    public void testMediumRestricted3() {
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         restrictedEdges.add(12);
         restrictedEdges.add(6);
-        Integer coreNodeIds[] = {2,3,7,8};
+
+        CHGraph g = contractMediumGraph(restrictedEdges);
+
         //Map that associates each edge id of a shortcut to a
         //pair consisting of the two nodes of the edge
         HashMap<Integer, Pair> shortcuts = new HashMap<>();
@@ -337,10 +298,42 @@ public class PrepareCoreTest {
         shortcuts.put(14, new Pair<>(3,7));
         shortcuts.put(15, new Pair<>(3,8));
         shortcuts.put(16, new Pair<>(2,8));
-        CHGraph lg = testMoreComplexRestrictedGraph(restrictedEdges);
-        assertShortcuts(lg, shortcuts);
-        assertCore(lg, new HashSet<>(Arrays.asList(coreNodeIds)));
+        assertShortcuts(g, shortcuts);
+
+        Integer core[] = {2, 3, 7, 8};
+        assertCore(g, new HashSet<>(Arrays.asList(core)));
     }
 
+    private void assertCore(CHGraph g, Set<Integer> coreNodes) {
+        int nodes = g.getNodes();
+        int maxLevel = nodes + 1;
+        for (int node = 0; node < nodes; node++) {
+            int level = g.getLevel(node);
+            if (coreNodes.contains(node)) {
+                assertEquals(maxLevel, level);
+            } else {
+                assertTrue(level < maxLevel);
+            }
+        }
+    }
+
+    private void assertShortcuts(CHGraph g, HashMap<Integer, Pair> shortcuts) {
+        AllCHEdgesIterator iter = g.getAllEdges();
+        HashSet<Integer> shortcutsFound = new HashSet<>();
+        while(iter.next()) {
+            if(iter.isShortcut()) {
+                int edge = iter.getEdge();
+                assertTrue(shortcuts.containsKey(edge));
+                assertEquals(iter.getBaseNode(), shortcuts.get(edge).first);
+                assertEquals(iter.getAdjNode(), shortcuts.get(edge).second);
+                shortcutsFound.add(edge);
+            }
+        }
+        // Verify that all the expected shortcuts were found
+        Iterator<Integer> shortcutIds = shortcuts.keySet().iterator();
+        while(shortcutIds.hasNext()) {
+            assertTrue(shortcutsFound.contains(shortcutIds.next()));
+        }
+    }
 
 }
