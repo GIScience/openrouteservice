@@ -261,19 +261,19 @@ class BaseGraph implements Graph {
      * Initializes the node area with the empty edge value and default additional value.
      */
     void initNodeRefs(long oldCapacity, long newCapacity) {
+logger.warn("ORS-EXTRA initNodeRefs start oldCapacity:"+oldCapacity+" N_EDGE_REF: "+N_EDGE_REF+" newCapacity: "+newCapacity);
+System.out.println("ORS-EXTRA initNodeRefs start oldCapacity: "+oldCapacity+" N_EDGE_REF: "+N_EDGE_REF+" newCapacity: "+newCapacity);
 int count = 0;
         for (long pointer = oldCapacity + N_EDGE_REF; pointer < newCapacity; pointer += nodeEntryBytes) {
-logger.warn("ORS-EXTRA ["+count+"] pointer: "+pointer);
-System.out.println("ORS-EXTRA ["+count+"] pointer: "+pointer);
+if(count == 0 || (pointer+nodeEntryBytes) >= newCapacity) {
+logger.warn("ORS-EXTRA [" + count + "] pointer: " + pointer);
+System.out.println("ORS-EXTRA [" + count + "] pointer: " + pointer);
+}
 count++;
             nodes.setInt(pointer, EdgeIterator.NO_EDGE);
         }
         if (extStorage.isRequireNodeField()) {
-count = 0;
             for (long pointer = oldCapacity + N_ADDITIONAL; pointer < newCapacity; pointer += nodeEntryBytes) {
-logger.warn("ORS-EXTRA 2["+count+"] pointer: "+pointer+" value: "+extStorage.getDefaultNodeFieldValue());
-System.out.println("ORS-EXTRA 2["+count+"] pointer: "+pointer+" value: "+extStorage.getDefaultNodeFieldValue());
-count++;
                 nodes.setInt(pointer, extStorage.getDefaultNodeFieldValue());
             }
         }
