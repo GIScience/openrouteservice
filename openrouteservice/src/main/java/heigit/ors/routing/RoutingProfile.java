@@ -851,9 +851,12 @@ public class RoutingProfile {
             if (useDynamicWeights(searchParams) || flexibleMode) {
                 if (mGraphHopper.isCHEnabled())
                     req.getHints().put("ch.disable", true);
-                if (mGraphHopper.getLMFactoryDecorator().isEnabled())
+                if (mGraphHopper.getLMFactoryDecorator().isEnabled()) {
                     req.setAlgorithm("astarbi");
-                req.getHints().put("lm.disable", false);
+                    req.getHints().put("lm.disable", false);
+                }
+                if (mGraphHopper.isCoreEnabled())
+                    req.getHints().put("core.disable", false);
             } else {
                 if (mGraphHopper.isCHEnabled())
                     req.getHints().put("lm.disable", true);
