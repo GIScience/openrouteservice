@@ -417,27 +417,34 @@ public class ORSGraphHopper extends GraphHopper {
 
 		GraphHopperStorage gs = getGraphHopperStorage();
 
+		EncodingManager encodingManager = getEncodingManager();
+
 		/* Initialize edge filter sequence */
 
 		EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
 
 		/* Heavy vehicle filter */
 
-		if (profileType == RoutingProfileType.DRIVING_HGV) {
+		if (encodingManager.supports("heavyvehicle")) {
 			coreEdgeFilter.add(new HeavyVehicleCoreEdgeFilter(gs));
 		}
 
+		boolean isDrivingEncoder = encodingManager.supports("car") || encodingManager.supports("heavyvehicle");
+
+		boolean isCyclingEncoder = encodingManager.supports("bike") || encodingManager.supports("mtb") || encodingManager.supports("racingbike")
+				|| encodingManager.supports("safetybike") || encodingManager.supports("cycletourbike") || encodingManager.supports("electrobike");
+
 		/* Avoid features */
 
-		if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)
-				|| profileType == RoutingProfileType.FOOT_WALKING || profileType == RoutingProfileType.FOOT_HIKING
-				|| profileType == RoutingProfileType.WHEELCHAIR) {
+		if (isDrivingEncoder || isCyclingEncoder
+				|| encodingManager.supports("foot") || encodingManager.supports("hiking")
+				|| encodingManager.supports("wheelchair")) {
 			coreEdgeFilter.add(new AvoidFeaturesCoreEdgeFilter(gs, profileType));
 		}
 
 		/* Avoid borders of some form */
 
-		if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)) {
+		if (isDrivingEncoder || isCyclingEncoder) {
 			coreEdgeFilter.add(new AvoidBordersCoreEdgeFilter(gs));
 		}
 

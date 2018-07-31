@@ -36,7 +36,11 @@ public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
     @Override
     public final boolean accept(EdgeIteratorState iter) {
 
-        return _storage.getEdgeValue(iter.getEdge(), BordersGraphStorage.Property.TYPE) == BordersGraphStorage.NO_BORDER;
+        if (_storage == null) {
+            return true;
+        } else {
+            return _storage.getEdgeValue(iter.getEdge(), BordersGraphStorage.Property.TYPE) == BordersGraphStorage.NO_BORDER;
+        }
 
     }
 }
