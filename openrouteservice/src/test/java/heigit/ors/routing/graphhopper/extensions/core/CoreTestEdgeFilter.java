@@ -27,6 +27,11 @@ import com.graphhopper.util.EdgeIteratorState;
 
 public class CoreTestEdgeFilter extends HashSet<Integer> implements EdgeFilter {
 
+	/**
+	 *Determine whether or not an edge is to be filtered
+	 * @param iter iterator pointing to a given edge
+	 * @return <tt>true</tt> iff the edge pointed to by the iterator is not to be filtered
+	 */
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {
 		return !contains(iter.getEdge());

@@ -338,6 +338,11 @@ public class PrepareCoreTest {
         assertCore(g, new HashSet<>(Arrays.asList(core)));
     }
 
+    /**
+     * Test whether only the core nodes have maximum level
+     * @param g the contraction hierarchy Graph
+     * @param coreNodes
+     */
     private void assertCore(CHGraph g, Set<Integer> coreNodes) {
         int nodes = g.getNodes();
         int maxLevel = nodes + 1;
@@ -351,7 +356,13 @@ public class PrepareCoreTest {
         }
     }
 
-    // Shortcuts are stored in a map that associates each edge id with a pair consisting of the two corresponding nodes
+
+
+    /**
+     * Test whether all the expected shortcuts are built and they are no addtional shortcuts
+     * @param g contraction hierarchy Graph
+     * @param shortcuts map with edge ids as key and as a value a pair of the nodes of the corresponding edge
+     */
     private void assertShortcuts(CHGraph g, HashMap<Integer, Pair> shortcuts) {
         AllCHEdgesIterator iter = g.getAllEdges();
         HashSet<Integer> shortcutsFound = new HashSet<>();

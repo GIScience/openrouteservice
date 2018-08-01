@@ -33,12 +33,22 @@ public class CoreDijkstraFilter implements EdgeFilter {
     private final int maxNodes;
     private final int coreNodeLevel;
 
+    /**
+     *
+     * @param g
+     */
     public CoreDijkstraFilter(CHGraph g) {
         graph = g;
         maxNodes = g.getNodes();
         coreNodeLevel = maxNodes + 1;
     }
 
+    /**
+     *
+     * @param edgeIterState iterator pointing to a given edge
+     * @return true iff the edge is virtual or is a shortcut or the level of the base node is greater/equal than
+     * the level of the adjacent node
+     */
     @Override
     public boolean accept(EdgeIteratorState edgeIterState) {
         int base = edgeIterState.getBaseNode();

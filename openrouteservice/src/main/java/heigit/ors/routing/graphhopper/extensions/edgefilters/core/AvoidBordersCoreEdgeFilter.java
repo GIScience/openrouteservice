@@ -32,7 +32,11 @@ public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
     public AvoidBordersCoreEdgeFilter(GraphStorage graphStorage) {
         this._storage = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
     }
-
+    /**
+     *Determine whether or not an edge is to be filtered
+     * @param iter iterator pointing to a given edge
+     * @return <tt>true</tt> iff the edge pointed to by the iterator is not to be filtered
+     */
     @Override
     public final boolean accept(EdgeIteratorState iter) {
 
