@@ -213,6 +213,15 @@ public class JsonIsochroneRequestParser {
 				throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "intersections", value);
 			}
 		}
+
+		value = json.optString("smoothing");
+		if (!Helper.isEmpty(value)) {
+			try {
+				req.setSmoothingFactor(Float.parseFloat(value));
+			} catch (Exception e) {
+				throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "smoothing", value);
+			}
+		}
 		
 		value = json.optString("id");
 		if (!Helper.isEmpty(value))
@@ -401,6 +410,15 @@ public class JsonIsochroneRequestParser {
 			catch(Exception ex)
 			{
 				throw new ParameterValueException(IsochronesErrorCodes.INVALID_JSON_FORMAT, "options", value);
+			}
+		}
+
+		value = request.getParameter("smoothing");
+		if (!Helper.isEmpty(value)) {
+			try {
+				req.setSmoothingFactor(Float.parseFloat(value));
+			} catch (Exception e) {
+				throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "smoothing", value);
 			}
 		}
 		
