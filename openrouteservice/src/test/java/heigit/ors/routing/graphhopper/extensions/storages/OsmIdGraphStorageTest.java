@@ -17,6 +17,6 @@ public class OsmIdGraphStorageTest {
     public void TestItemCreation() {
         _storage.setEdgeValue(1, 1234L);
 
-        assertEquals(_storage.getEdgeValue(1), 1234);
+        assertEquals(1234, _storage.getEdgeValue(1));
     }
 }

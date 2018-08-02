@@ -3,8 +3,6 @@ package heigit.ors.routing.graphhopper.extensions.storages;
 import com.graphhopper.storage.*;
 import heigit.ors.routing.graphhopper.extensions.util.EncodeUtils;
 
-import java.nio.ByteBuffer;
-
 public class OsmIdGraphStorage implements GraphExtension {
     /* pointer for no entry */
     protected final int NO_ENTRY = -1;
@@ -19,9 +17,9 @@ public class OsmIdGraphStorage implements GraphExtension {
 
     public OsmIdGraphStorage() {
         EF_OSMID = 0;
-        edgeEntryBytes = edgeEntryIndex + 8;
+        edgeEntryBytes = edgeEntryIndex + 4;
         edgesCount = 0;
-        byteValues = new byte[8];
+        byteValues = new byte[4];
     }
 
     public void init(Graph graph, Directory dir) {
@@ -47,7 +45,7 @@ public class OsmIdGraphStorage implements GraphExtension {
     }
 
     public GraphExtension create(long initBytes) {
-        orsEdges.create((long) initBytes * edgeEntryBytes);
+        orsEdges.create(initBytes * edgeEntryBytes);
         return this;
     }
 
@@ -93,8 +91,12 @@ public class OsmIdGraphStorage implements GraphExtension {
 
         // add entry
         long edgePointer = (long) edgeId * edgeEntryBytes;
-        byteValues = EncodeUtils.longToByteArray(osmId);
-        orsEdges.setBytes(edgePointer + EF_OSMID, byteValues, 8);
+        byte[] tempBytes = EncodeUtils.longToByteArray(osmId);
+        byteValues[0] = tempBytes[4];
+        byteValues[1] = tempBytes[5];
+        byteValues[2] = tempBytes[6];
+        byteValues[3] = tempBytes[7];
+        orsEdges.setBytes(edgePointer + EF_OSMID, byteValues, 4);
     }
 
     /**
@@ -103,9 +105,9 @@ public class OsmIdGraphStorage implements GraphExtension {
      * @return          The OSM ID that was stored for the edge (normally the OSM ID of the way the edge was created from)
      */
     public long getEdgeValue(int edgeId) {
-        byte[] buffer = new byte[8];
+        byte[] buffer = new byte[4];
         long edgePointer = (long) edgeId * edgeEntryBytes;
-        orsEdges.getBytes(edgePointer + EF_OSMID, buffer, 8);
+        orsEdges.getBytes(edgePointer + EF_OSMID, buffer, 4);
 
         return EncodeUtils.byteArrayToLong(buffer);
     }
