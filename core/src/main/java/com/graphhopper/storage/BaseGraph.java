@@ -706,7 +706,12 @@ class BaseGraph implements Graph {
             throw new IllegalStateException("graph is empty after in-place removal but was " + removeNodeCount);
 
         // clear N_EDGE_REF
+        // ORS-GH MOD START
+        // ORG CODE START
+        // initNodeRefs((nodeCount - removeNodeCount) * nodeEntryBytes, nodeCount * nodeEntryBytes);
+        // ORG CODE END
         initNodeRefs(((long) nodeCount - removeNodeCount) * nodeEntryBytes, (long) nodeCount * nodeEntryBytes);
+        // ORS-GH MOD END
 
         // we do not remove the invalid edges => edgeCount stays the same!
         nodeCount -= removeNodeCount;
