@@ -58,7 +58,7 @@ public class WheelchairEdgeFilter implements EdgeFilter
 		
 		_params = params;
 		_attributes = new WheelchairAttributes();
-		_buffer = new byte[3];
+		_buffer = new byte[WheelchairAttributesGraphStorage.BYTE_COUNT];
 	}
 
 	@Override
@@ -88,16 +88,25 @@ public class WheelchairEdgeFilter implements EdgeFilter
 						return false;
 				}
 
-				if (_params.getMaximumIncline() != 0.0)
+				if (_params.getMaximumIncline() > (Float.MAX_VALUE * -1.0f))
 				{
 					if (_params.getMaximumIncline() < _attributes.getIncline())
 						return false;
 				}
 
-				if (_params.getMaximumSlopedCurb() > 0.0)
+				if (_params.getMaximumSlopedKerb() >= 0.0)
 				{
-					if (_params.getMaximumSlopedCurb() < _attributes.getSlopedCurbHeight())
+					if (_params.getMaximumSlopedKerb() < _attributes.getSlopedKerbHeight())
 						return false;
+				}
+
+				if (_params.getMinimumWidth() > 0.0) {
+					// if the attribute value is 0, this signifies that no data is available
+					if(_attributes.getWidth() > 0.0) {
+						if(_params.getMinimumWidth() > _attributes.getWidth()) {
+							return false;
+						}
+					}
 				}
 			}
 		}

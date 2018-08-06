@@ -20,6 +20,7 @@
  */
 package heigit.ors.routing.graphhopper.extensions.storages.builders;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.graphhopper.GraphHopper;
@@ -37,9 +38,11 @@ public interface GraphStorageBuilder extends Plugin
 
 	public abstract void processWay(ReaderWay way);
 
-	public abstract void processWay(ReaderWay way, Coordinate[] coords);
+	public abstract void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String, String>> nodeTags);
 	
 	public abstract void processEdge(ReaderWay way, EdgeIteratorState edge);
+
+	public abstract void processEdge(ReaderWay way, EdgeIteratorState edge, Coordinate[] coords);
 
 	public abstract void setParameters(Map<String, String> parameters);
 

@@ -279,6 +279,23 @@ public class ParamsTest extends ServiceTest {
 	}
 
 	@Test
+	public void testRangesUserUnits() {
+
+		given()
+				.param("locations", getParameter("location"))
+				.param("profile", getParameter("profile"))
+				.param("range", "1")
+				.param("range_type", "distance")
+				.param("units", "km")
+				.param("location_type", "destination")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.body("info.query.ranges", is("1.0"))
+				.statusCode(200);
+	}
+
+	@Test
 	public void testRangeRestrictionTime() {
 
 		given()

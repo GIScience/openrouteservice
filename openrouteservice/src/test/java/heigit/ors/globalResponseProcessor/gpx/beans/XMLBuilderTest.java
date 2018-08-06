@@ -60,6 +60,12 @@ public class XMLBuilderTest {
         rteTypeExtensions.setDistance(0);
         rteTypeExtensions.setDistanceActual(0);
         rteTypeExtensions.setDuration(0);
+        BoundsType boundsType = new BoundsType();
+        boundsType.setMaxlat(bigDecimal);
+        boundsType.setMaxlon(bigDecimal);
+        boundsType.setMinlat(bigDecimal);
+        boundsType.setMinlon(bigDecimal);
+        rteTypeExtensions.setBounds(boundsType);
         // set point extensions
         WptTypeExtensions wptTypeExtensions = new WptTypeExtensions();
         wptTypeExtensions.setDistance(0);
@@ -117,12 +123,12 @@ public class XMLBuilderTest {
         copyrightType.setLicense("");
         copyrightType.setYear(cal);
         metadataType.setCopyright(copyrightType);
-        BoundsType boundsType = new BoundsType();
+        BoundsType boundsType1 = new BoundsType();
         boundsType.setMaxlat(bigDecimal);
         boundsType.setMaxlon(bigDecimal);
         boundsType.setMinlat(bigDecimal);
         boundsType.setMinlon(bigDecimal);
-        metadataType.setBounds(boundsType);
+        metadataType.setBounds(boundsType1);
         metadataType.setDesc("");
         metadataType.setKeywords("");
         metadataType.setName("");
@@ -148,7 +154,7 @@ public class XMLBuilderTest {
         XMLBuilder xMLBuilder = new XMLBuilder();
         String result = xMLBuilder.build(gpx);
         Assert.assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
-                "<gpx version=\"1.0\" xmlns=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v1/ors-gpx.xsd\">\n" +
+                "<gpx version=\"1.0\" xmlns=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\">\n" +
                 "    <metadata>\n" +
                 "        <name></name>\n" +
                 "        <desc></desc>\n" +
@@ -166,7 +172,7 @@ public class XMLBuilderTest {
                 "        </copyright>\n" +
                 "        <time></time>\n" +
                 "        <keywords></keywords>\n" +
-                "        <bounds minlat=\"0.0\" minlon=\"0.0\" maxlat=\"0.0\" maxlon=\"0.0\"/>\n" +
+                "        <bounds/>\n" +
                 "        <extensions>\n" +
                 "            <example1>0.0</example1>\n" +
                 "        </extensions>\n" +
@@ -197,6 +203,7 @@ public class XMLBuilderTest {
                 "            <ascent>0.0</ascent>\n" +
                 "            <descent>0.0</descent>\n" +
                 "            <avgSpeed>0.0</avgSpeed>\n" +
+                "            <bounds minlat=\"0.0\" minlon=\"0.0\" maxlat=\"0.0\" maxlon=\"0.0\"/>\n" +
                 "        </extensions>\n" +
                 "    </rte>\n" +
                 "    <trk>\n" +
