@@ -855,8 +855,10 @@ public class RoutingProfile {
                     req.setAlgorithm("astarbi");
                     req.getHints().put("lm.disable", false);
                 }
-                if (mGraphHopper.isCoreEnabled())
+                if (mGraphHopper.isCoreEnabled()) {
                     req.getHints().put("core.disable", false);
+                    req.setAlgorithm("dijkstrabi");
+                }
             } else {
                 if (mGraphHopper.isCHEnabled())
                     req.getHints().put("lm.disable", true);

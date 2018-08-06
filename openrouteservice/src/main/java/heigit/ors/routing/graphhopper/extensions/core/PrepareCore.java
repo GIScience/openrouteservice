@@ -52,7 +52,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final PreparationWeighting prepareWeighting;
     private final TraversalMode traversalMode;
-    private final LevelEdgeFilter levelFilter;
+    private final EdgeFilter levelFilter;
     private final EdgeFilter restrictionFilter;
     private final GraphHopperStorage ghStorage;
     private final CHGraphImpl prepareGraph;
@@ -98,7 +98,8 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         this.ghStorage = ghStorage;
         this.prepareGraph = (CHGraphImpl) chGraph;
         this.traversalMode = traversalMode;
-        levelFilter = new LevelEdgeFilter(prepareGraph);
+//        levelFilter = new LevelEdgeFilter(prepareGraph);
+        levelFilter = new CoreDijkstraFilter(prepareGraph, ghStorage);
         this.restrictionFilter = restrictionFilter;
         prepareWeighting = new PreparationWeighting(weighting);
         originalEdges = dir.find("original_edges_" + AbstractWeighting.weightingToFileName(weighting));
@@ -336,7 +337,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 }
 
                 // Hendrik: PHAST algorithm does not work properly with removed shortcuts
-                prepareGraph.disconnect(vehicleAllTmpExplorer, iter);
+//                prepareGraph.disconnect(vehicleAllTmpExplorer, iter);
             }
         }
 
