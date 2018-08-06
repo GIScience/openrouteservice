@@ -26,6 +26,7 @@
 package heigit.ors.globalResponseProcessor.gpx.beans;
 
 
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
@@ -43,7 +44,8 @@ import javax.xml.bind.annotation.XmlType;
         "distanceActual",
         "ascent",
         "descent",
-        "avgSpeed"
+        "avgSpeed",
+        "bounds"
         // always add new variables here! and below
 })
 
@@ -55,6 +57,7 @@ public class RteTypeExtensions extends ExtensionsType {
     private double ascent;
     private double descent;
     private double avgSpeed;
+    private BoundsType bounds;
 
 
     /**
@@ -164,5 +167,20 @@ public class RteTypeExtensions extends ExtensionsType {
      */
     public void setAvgSpeed(double avgSpeed) {
         this.avgSpeed = avgSpeed;
+    }
+
+    /**
+     * Returns the route specific bounding box
+     * @return {@link BoundsType}
+     */
+    public BoundsType getBounds() {
+        return this.bounds;
+    }
+
+    /**
+     * Sets the route specific bounding box
+     */
+    public void setBounds(BoundsType bounds) {
+        this.bounds = bounds;
     }
 }

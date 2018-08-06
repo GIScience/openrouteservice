@@ -23,5 +23,5 @@
  *
  */
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v1/ors-gpx.xsd", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@javax.xml.bind.annotation.XmlSchema(namespace = "https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package heigit.ors.globalResponseProcessor.gpx.beans;

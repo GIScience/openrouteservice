@@ -262,6 +262,11 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
 
 		return maxSpeed;
 	}
+
+    @Override
+    double averageSecondsTo100KmpH() {
+        return 20;
+    }
 	
 	protected int getTrackGradeLevel(String grade)
     {
@@ -475,6 +480,11 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
         		if (speed > surfaceSpeed && surfaceSpeed != -1)
         			speed = surfaceSpeed;
         	}
+
+            if(way.hasTag("estimated_distance")) {
+                double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
+                speed = Math.max(adjustSpeedForAcceleration(estDist, speed), speedFactor);
+            }
         	
         	 boolean isRoundabout = way.hasTag("junction", "roundabout");
 
