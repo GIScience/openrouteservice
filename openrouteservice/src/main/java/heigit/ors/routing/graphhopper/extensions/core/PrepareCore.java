@@ -337,7 +337,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 }
 
                 // Hendrik: PHAST algorithm does not work properly with removed shortcuts
-//                prepareGraph.disconnect(vehicleAllTmpExplorer, iter);
+                prepareGraph.disconnect(vehicleAllTmpExplorer, iter);
             }
         }
 
@@ -409,8 +409,9 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
      */
     int calculatePriority(int v) {
         // set the priority of a node that is next to a restricted edge to a HIGH value
-        EdgeIterator restrictionIterator = restrictionExplorer.setBaseNode(v);
+        CHEdgeIterator restrictionIterator = restrictionExplorer.setBaseNode(v);
         while (restrictionIterator.next()) {
+            if(restrictionIterator.isShortcut()) continue;
             if (!restrictionFilter.accept(restrictionIterator))
                 return RESTRICTION_PRIORITY;
         }

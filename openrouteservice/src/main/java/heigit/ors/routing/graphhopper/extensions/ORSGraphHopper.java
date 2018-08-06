@@ -425,9 +425,12 @@ public class ORSGraphHopper extends GraphHopper {
 
 		/* Heavy vehicle filter */
 
+
+
 		if (encodingManager.supports("heavyvehicle")) {
 			coreEdgeFilter.add(new HeavyVehicleCoreEdgeFilter(gs));
 		}
+
 
 		boolean isDrivingEncoder = encodingManager.supports("car") || encodingManager.supports("heavyvehicle");
 
