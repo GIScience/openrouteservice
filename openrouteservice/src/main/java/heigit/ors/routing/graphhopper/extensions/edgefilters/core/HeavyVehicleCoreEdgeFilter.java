@@ -39,7 +39,7 @@ public class HeavyVehicleCoreEdgeFilter implements EdgeFilter {
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {
 
-		return  _storage.hasEdgeRestriction(iter.getOriginalEdge(), _buffer);
+		return  !_storage.hasEdgeRestriction(iter.getOriginalEdge(), _buffer);
 
 	}
 
