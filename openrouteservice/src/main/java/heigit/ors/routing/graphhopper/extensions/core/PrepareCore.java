@@ -293,9 +293,9 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             if (!sortedNodes.isEmpty() && sortedNodes.getSize() < lastNodesLazyUpdates) {
                 lazySW.start();
                 int priority = oldPriorities[polledNode];
-                if(!(priority == RESTRICTION_PRIORITY)) {
+//                if(!(priority == RESTRICTION_PRIORITY)) {
                     priority = oldPriorities[polledNode] = calculatePriority(polledNode);
-                }
+//                }
                 if (priority > sortedNodes.peekValue()) {
                     // current node got more important => insert as new value and contract it later
                     sortedNodes.insert(polledNode, priority);

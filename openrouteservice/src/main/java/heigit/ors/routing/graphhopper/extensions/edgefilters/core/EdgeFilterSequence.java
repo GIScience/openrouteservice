@@ -23,6 +23,7 @@ package heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 import java.util.ArrayList;
 
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeIteratorState;
 
 public class EdgeFilterSequence extends ArrayList<EdgeFilter> implements EdgeFilter {
@@ -30,6 +31,7 @@ public class EdgeFilterSequence extends ArrayList<EdgeFilter> implements EdgeFil
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {
 		for (EdgeFilter edgeFilter: this) {
+			if(((CHEdgeIteratorState) iter).isShortcut()) return true;
 			if (!edgeFilter.accept(iter)) {
 				return false;
 			}
