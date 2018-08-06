@@ -27,6 +27,7 @@ import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.core.EdgeFilterSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -679,7 +680,18 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         }
 
         algo.setMaxVisitedNodes(opts.getMaxVisitedNodes());
-        algo.setEdgeFilter(levelFilter);
+
+        EdgeFilterSequence efs = new EdgeFilterSequence();
+
+        efs.add(levelFilter);
+
+        // append any restriction filters after node level filter
+        EdgeFilter ef = opts.getEdgeFilter();
+        if (ef != null)
+            efs.add(ef);
+
+        algo.setEdgeFilter(efs);
+
         return algo;
     }
 
