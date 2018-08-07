@@ -100,7 +100,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         this.prepareGraph = (CHGraphImpl) chGraph;
         this.traversalMode = traversalMode;
 //        levelFilter = new LevelEdgeFilter(prepareGraph);
-        levelFilter = new CoreDijkstraFilter(prepareGraph, ghStorage);
+        levelFilter = new CoreDijkstraFilter(prepareGraph);
         this.restrictionFilter = restrictionFilter;
         prepareWeighting = new PreparationWeighting(weighting);
         originalEdges = dir.find("original_edges_" + AbstractWeighting.weightingToFileName(weighting));
@@ -683,16 +683,12 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
 
         algo.setMaxVisitedNodes(opts.getMaxVisitedNodes());
 
-        EdgeFilterSequence efs = new EdgeFilterSequence();
-
-        efs.add(levelFilter);
-
         // append any restriction filters after node level filter
         EdgeFilter ef = opts.getEdgeFilter();
         if (ef != null)
-            efs.add(ef);
+            ((CoreDijkstraFilter) levelFilter).addRestrictionFilter(ef);
 
-        algo.setEdgeFilter(efs);
+        algo.setEdgeFilter(levelFilter);
 
         return algo;
     }

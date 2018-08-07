@@ -42,21 +42,16 @@ public class CoreDijkstraFilter implements EdgeFilter {
     static int countCore = 0;
     static HashSet<Integer> coreNodes = new HashSet<>();
     static HashSet<Integer> nonCoreNodes = new HashSet<>();
-
-    private HeavyVehicleAttributesGraphStorage _storage;
-    private byte[] _buffer;
-
+    EdgeFilter restrictions;
 
     /**
      *
      * @param g
      */
-    public CoreDijkstraFilter(CHGraph g, GraphStorage graphStorage) {
+    public CoreDijkstraFilter(CHGraph g) {
         graph = g;
         maxNodes = g.getNodes();
         coreNodeLevel = maxNodes + 1;
-        _buffer = new byte[3];
-        _storage = GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class);
     }
 
     /**
@@ -80,22 +75,31 @@ public class CoreDijkstraFilter implements EdgeFilter {
 //        System.out.println("Non-core size: " + nonCoreNodes.size() + " core size: " + coreNodes.size());
 
 //        System.out.print("basenode " + base + " -> " + adj);
-        if(graph.getLevel(base) == coreNodeLevel)         countCore++;
-        else count++;
+
+        if(graph.getLevel(base) == coreNodeLevel)
+            countCore++;
+        else
+            count++;
+
         //System.out.println("(CORE level)");
 //        if(((CHEdgeIteratorState) edgeIterState).isShortcut()) System.out.println("(shortcut)");
 //        else System.out.println("");
         // minor performance improvement: shortcuts in wrong direction are disconnected, so no need to exclude them
 //        if (((CHEdgeIteratorState) edgeIterState).isShortcut())
 //            return true;
-        if(graph.getLevel(base) == coreNodeLevel) {
-            if(((CHEdgeIteratorState) edgeIterState).isShortcut()) return true;
-            return !_storage.hasEdgeRestriction(edgeIterState.getOriginalEdge(), _buffer);
-
-
-        }
 
 //        System.out.println("Visited edges NOT IN core: " + count + "   Visited edges IN core " + countCore);
-            return graph.getLevel(base) <= graph.getLevel(adj);
+
+        if (graph.getLevel(base) <= graph.getLevel(adj)) {
+            if (((CHEdgeIteratorState) edgeIterState).isShortcut())
+                return true;
+            else
+                return restrictions.accept(edgeIterState);
+        }
+        else return false;
+    }
+
+    public void addRestrictionFilter (EdgeFilter restrictions) {
+        this.restrictions = restrictions;
     }
 }

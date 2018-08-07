@@ -31,7 +31,6 @@ public class EdgeFilterSequence extends ArrayList<EdgeFilter> implements EdgeFil
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {
 		for (EdgeFilter edgeFilter: this) {
-			if(((CHEdgeIteratorState) iter).isShortcut()) return true;
 			if (!edgeFilter.accept(iter)) {
 				return false;
 			}
