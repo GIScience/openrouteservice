@@ -288,7 +288,17 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             counter++;
             int polledNode = sortedNodes.pollKey();
             //We have worked through all nodes that are not associated with restrictions. Now we can stop the contraction.
-            if (oldPriorities[polledNode] == RESTRICTION_PRIORITY) break;
+            if (oldPriorities[polledNode] == RESTRICTION_PRIORITY){
+                while(!sortedNodes.isEmpty()){
+                    CHEdgeIterator iter = vehicleAllExplorer.setBaseNode(polledNode);
+                    while (iter.next()) {
+                        if(oldPriorities[iter.getAdjNode()] == RESTRICTION_PRIORITY) continue;
+                        prepareGraph.disconnect(vehicleAllTmpExplorer, iter);
+                    }
+                    polledNode = sortedNodes.pollKey();
+                }
+                break;
+            }
 
             if (!sortedNodes.isEmpty() && sortedNodes.getSize() < lastNodesLazyUpdates) {
                 lazySW.start();
