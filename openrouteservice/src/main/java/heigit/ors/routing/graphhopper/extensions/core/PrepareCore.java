@@ -273,12 +273,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 periodTime += periodSW.getSeconds();
                 lazyTime += lazySW.getSeconds();
                 neighborTime += neighborSW.getSeconds();
-
-                logger.info(Helper.nf(counter) + ", updates:" + updateCounter + ", nodes: "
-                        + Helper.nf(sortedNodes.getSize()) + ", shortcuts:" + Helper.nf(newShortcuts) + ", dijkstras:"
-                        + Helper.nf(dijkstraCount) + ", " + getTimesAsString() + ", meanDegree:" + (long) meanDegree
-                        + ", algo:" + prepareAlgo.getMemoryUsageAsString() + ", " + Helper.getMemInfo());
-
                 dijkstraSW = new StopWatch();
                 periodSW = new StopWatch();
                 lazySW = new StopWatch();
@@ -360,7 +354,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         periodTime += periodSW.getSeconds();
         lazyTime += lazySW.getSeconds();
         neighborTime += neighborSW.getSeconds();
-        logger.info("took:" + (int) allSW.stop().getSeconds() + ", new shortcuts: " + Helper.nf(newShortcuts) + ", "
+        logger.info("took: " + (int) allSW.stop().getSeconds() + "s, new shortcuts: " + Helper.nf(newShortcuts) + ", "
                 + prepareWeighting + ", dijkstras:" + dijkstraCount + ", " + getTimesAsString() + ", meanDegree:"
                 + (long) meanDegree + ", initSize:" + initSize + ", periodic:" + periodicUpdatesPercentage + ", lazy:"
                 + lastNodesLazyUpdatePercentage + ", neighbor:" + neighborUpdatePercentage + ", "

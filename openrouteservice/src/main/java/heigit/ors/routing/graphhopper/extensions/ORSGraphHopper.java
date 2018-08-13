@@ -411,13 +411,11 @@ public class ORSGraphHopper extends GraphHopper {
 	public void postProcessing() {
 		super.postProcessing();
 
-		//TODO: select appropriate set of filters based on profile (category); this method is called for each of the profile categories corresponding to the subdirectories of graphs/
-
-		int profileType = RoutingProfileType.DRIVING_HGV;
-
 		GraphHopperStorage gs = getGraphHopperStorage();
 
 		EncodingManager encodingManager = getEncodingManager();
+
+		int routingProfileCategory = RoutingProfileCategory.getFromEncoder(encodingManager);
 
 		/* Initialize edge filter sequence */
 
@@ -425,30 +423,24 @@ public class ORSGraphHopper extends GraphHopper {
 
 		/* Heavy vehicle filter */
 
-
-
 		if (encodingManager.supports("heavyvehicle")) {
 			coreEdgeFilter.add(new HeavyVehicleCoreEdgeFilter(gs));
 		}
 
-
-		boolean isDrivingEncoder = encodingManager.supports("car") || encodingManager.supports("heavyvehicle");
-
-		boolean isCyclingEncoder = encodingManager.supports("bike") || encodingManager.supports("mtb") || encodingManager.supports("racingbike")
-				|| encodingManager.supports("safetybike") || encodingManager.supports("cycletourbike") || encodingManager.supports("electrobike");
-
 		/* Avoid features */
 
-		if (isDrivingEncoder || isCyclingEncoder
-				|| encodingManager.supports("foot") || encodingManager.supports("hiking")
-				|| encodingManager.supports("wheelchair")) {
-			coreEdgeFilter.add(new AvoidFeaturesCoreEdgeFilter(gs, profileType));
+		if ((routingProfileCategory & (RoutingProfileCategory.DRIVING | RoutingProfileCategory.CYCLING | RoutingProfileCategory.WALKING | RoutingProfileCategory.WHEELCHAIR)) != 0) {
+			coreEdgeFilter.add(new AvoidFeaturesCoreEdgeFilter(gs, routingProfileCategory));
 		}
 
 		/* Avoid borders of some form */
 
-		if (isDrivingEncoder || isCyclingEncoder) {
+		if ((routingProfileCategory & (RoutingProfileCategory.DRIVING | RoutingProfileCategory.CYCLING)) != 0) {
 			coreEdgeFilter.add(new AvoidBordersCoreEdgeFilter(gs));
+		}
+
+		if (routingProfileCategory == RoutingProfileCategory.WHEELCHAIR) {
+			coreEdgeFilter.add(new WheelchairCoreEdgeFilter(gs));
 		}
 
 		/* End filter sequence initialization */
