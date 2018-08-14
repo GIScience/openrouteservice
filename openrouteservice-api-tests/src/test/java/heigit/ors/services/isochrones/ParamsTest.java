@@ -527,4 +527,65 @@ public class ParamsTest extends ServiceTest {
 				.body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE));
 	}
 
+	@Test
+	public void testSmoothingFactor() {
+		given()
+				.param("locations", getParameter("location"))
+				.param("profile", getParameter("profile"))
+				.param("range", "2000")
+				.param("range_type", "distance")
+				.param("smoothing", "50")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.log()
+				.all()
+				.statusCode(200);
+	}
+
+	@Test
+	public void testSmoothingInvalidValue() {
+		given()
+				.param("locations", getParameter("location"))
+				.param("profile", getParameter("profile"))
+				.param("range", "2000")
+				.param("range_type", "distance")
+				.param("smoothing", "ten")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.log()
+				.all()
+				.statusCode(400)
+				.body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE));
+
+		given()
+				.param("locations", getParameter("location"))
+				.param("profile", getParameter("profile"))
+				.param("range", "2000")
+				.param("range_type", "distance")
+				.param("smoothing", "101")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.log()
+				.all()
+				.statusCode(400)
+				.body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE));
+
+		given()
+				.param("locations", getParameter("location"))
+				.param("profile", getParameter("profile"))
+				.param("range", "2000")
+				.param("range_type", "distance")
+				.param("smoothing", "-1")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.log()
+				.all()
+				.statusCode(400)
+				.body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE));
+	}
+
 }

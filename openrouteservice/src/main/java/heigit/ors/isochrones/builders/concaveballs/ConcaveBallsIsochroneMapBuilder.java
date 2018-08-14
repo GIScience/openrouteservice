@@ -196,7 +196,8 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 		double intervalDegrees = GeomUtility.metresToDegrees(maxRadius);
 		double MINIMUM_DISTANCE = 0.006;
-		double maxLength = (smoothingFactor * intervalDegrees) / 10;
+		//double maxLength = (smoothingFactor * intervalDegrees) / 10;
+		double maxLength = (intervalDegrees / 100f) * smoothingFactor;
 
 		if(maxLength < MINIMUM_DISTANCE)
 			maxLength = MINIMUM_DISTANCE;
