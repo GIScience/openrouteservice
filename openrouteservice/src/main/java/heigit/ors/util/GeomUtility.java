@@ -98,6 +98,37 @@ public class GeomUtility {
 		}
 	}
 
+	/**
+	 * Takes an array of bounding boxes and calculates a bounding box that covers them all.
+	 *
+	 * @param boundingBoxes
+	 * @return	A graphhopper bounding box that covers all provided bounding boxes
+	 */
+	public static BBox generateBoundingFromMultiple(BBox[] boundingBoxes) {
+		double minLon = Double.MAX_VALUE;
+		double maxLon = -Double.MAX_VALUE;
+		double minLat = Double.MAX_VALUE;
+		double maxLat = -Double.MAX_VALUE;
+		double minEle = Double.MAX_VALUE;
+		double maxEle = -Double.MAX_VALUE;
+
+		for(BBox bbox : boundingBoxes) {
+			minLon = Math.min(minLon, bbox.minLon);
+			maxLon = Math.max(maxLon, bbox.maxLon);
+			minLat = Math.min(minLat, bbox.minLat);
+			maxLat = Math.max(maxLat, bbox.maxLat);
+			if(!Double.isNaN(bbox.minEle))
+				minEle = Math.min(minEle, bbox.minEle);
+			if(!Double.isNaN(bbox.maxEle))
+				maxEle = Math.max(maxEle, bbox.maxEle);
+		}
+
+		if(minEle != Double.MAX_VALUE && maxEle != Double.MAX_VALUE)
+			return new BBox(minLon, maxLon, minLat, maxLat, minEle, maxEle);
+		else
+			return new BBox(minLon, maxLon, minLat, maxLat);
+	}
+
 	public static double distance2(double ax, double ay, double bx, double by)
 	{
 		return Math.sqrt((bx - ax) * (bx - ax) + (by - ay) * (by - ay));

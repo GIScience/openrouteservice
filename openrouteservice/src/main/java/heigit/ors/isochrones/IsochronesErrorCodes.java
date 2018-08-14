@@ -27,6 +27,7 @@ package heigit.ors.isochrones;
  * @author Julian Psotta, julian@openrouteservice.org
  */
 public class IsochronesErrorCodes {
+    public static int BASE = 3000;
     public static int INVALID_JSON_FORMAT = 3000;
     public static int MISSING_PARAMETER = 3001;
     public static int INVALID_PARAMETER_FORMAT = 3002;
@@ -36,5 +37,6 @@ public class IsochronesErrorCodes {
     public static int EXPORT_HANDLER_ERROR = 3006;
     public static int UNSUPPORTED_EXPORT_FORMAT = 3007;
     public static int EMPTY_ELEMENT = 3008;
+    public static int UNKNOWN_PARAMETER = 3011;
     public static int UNKNOWN = 3099;
 }

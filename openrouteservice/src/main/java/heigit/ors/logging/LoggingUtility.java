@@ -13,6 +13,19 @@
  */
 package heigit.ors.logging;
 
+import org.apache.log4j.PropertyConfigurator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.core.appender.ConsoleAppender;
+import org.apache.logging.log4j.core.appender.FileAppender;
+import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
+import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
+import org.springframework.core.io.ClassPathResource;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -22,23 +35,32 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.PropertyConfigurator;
 
 public class LoggingUtility {
 
-	public static void init(String logsPath) throws Exception
+	public static void init() throws Exception
 	{
 		if (LoggingSettings.getEnabled())
 		{
-			String location = LoggingSettings.getLevelFile();
+			String settingsFileName = LoggingSettings.getLevelFile();
 
-			if (location != null)
+			if (settingsFileName != null)
 			{
-				File configFile = Paths.get(logsPath, location).toFile();
+				ClassPathResource rs = new ClassPathResource("logs/" + settingsFileName);
+				ConfigurationSource source = new ConfigurationSource(rs.getInputStream());
+
+				File outputPath = Paths.get(LoggingSettings.getLocation()).toFile();
+
+				ConfigurationBuilder<BuiltConfiguration> conf = ConfigurationBuilderFactory.newConfigurationBuilder();
+				conf.setConfigurationSource(source);
+				conf.addProperty("filename", LoggingSettings.getLocation() + "/ors-logs.log");
+
+				conf.writeXmlConfiguration(System.out);
+				Configurator.initialize(conf.build());
+
+				//Configurator.initialize(null, source);
+
+				/*File configFile = Paths.get(logsPath, location).toFile();
 				if (configFile.exists())
 				{
 					File outputPath  = Paths.get(LoggingSettings.getLocation()).toFile();
@@ -49,7 +71,7 @@ public class LoggingUtility {
 					initInternal(configFile, outputPath.toString(), LoggingSettings.getStdOut());
 				}
 				else
-					throw new Exception("Logging config file does not exist.");
+					throw new Exception("Logging config file does not exist.");*/
 			}
 		}
 	}
@@ -57,13 +79,14 @@ public class LoggingUtility {
 	@SuppressWarnings("rawtypes")
 	private static void initInternal(File configFile, String outputPath, boolean stdOut) throws IOException
 	{
-		List<Appender> appenders = new ArrayList<Appender>();
+
+		/*List<Appender> appenders = new ArrayList<Appender>();
 
 		// Retrieve all existing appenders
 		Enumeration apps = LogManager.getRootLogger().getAllAppenders();
 		while(apps.hasMoreElements()) {
 			Appender appender = (Appender)apps.nextElement();
-			if (!(appender instanceof ConsoleAppender || appender instanceof FileAppender)) 
+			if (!(appender instanceof ConsoleAppender || appender instanceof FileAppender))
 				appenders.add( appender );
 		}
 
@@ -80,13 +103,13 @@ public class LoggingUtility {
             apps = org.apache.log4j.Logger.getRootLogger().getAllAppenders();
             while (apps.hasMoreElements()) {
             	Appender appender = (Appender)apps.nextElement();
-                if (appender instanceof org.apache.log4j.ConsoleAppender) {
+                if (appender instanceof ConsoleAppender) {
                     org.apache.log4j.Logger.getRootLogger().removeAppender(appender);
                 }
             }
 		} 
 
-		for (Appender appender : appenders ) 
-			LogManager.getRootLogger().addAppender( appender );
+		for (Appender appender : appenders )
+			LogManager.getRootLogger().addAppender( appender );*/
 	}
 }

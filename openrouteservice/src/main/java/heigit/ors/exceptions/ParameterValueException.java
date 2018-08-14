@@ -28,6 +28,10 @@ public class ParameterValueException extends StatusCodeException
    {
 	   super(StatusCode.BAD_REQUEST, errorCode, "Parameter '" + paramName + "' has incorrect value of '" + paramValue + "'.");
    }
+
+   public ParameterValueException(int errorCode, String paramName, String paramValue, String extraInformation) {
+        super(StatusCode.BAD_REQUEST, errorCode, "Parameter '" + paramName + "' has incorrect value of '" + paramValue + "'. " + extraInformation);
+   }
    
    public ParameterValueException(String paramName)
    {

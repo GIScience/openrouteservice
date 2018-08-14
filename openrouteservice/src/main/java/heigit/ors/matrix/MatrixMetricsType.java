@@ -41,32 +41,47 @@ public class MatrixMetricsType {
     	return res;
     }
 
-	public static int getFromString(String value)
-	{
-        if (Helper.isEmpty(value))
-            return 0;
-        
-        String[] values = value.toLowerCase().split("\\|");
-        int res = Unknown;
-        
-        for(String str : values)
-        {
-        	switch(str)
-        	{
-        	case "duration":
-        		res |= Duration;
-        		break;
-        	case "distance":
-        		res |= Distance;
-        		break;
-        	case "weight":
-        		res |= Weight;
-        		break;
-       		default:
-        		return Unknown;
-        	}
-        }
-        
+	public static int getFromString(String value) {
+		if (Helper.isEmpty(value))
+			return 0;
+
+		String[] values = value.toLowerCase().split("\\|");
+		int res = Unknown;
+
+		for(String str : values) {
+			switch(str) {
+				case "duration":
+					res |= Duration;
+					break;
+				case "distance":
+					res |= Distance;
+					break;
+				case "weight":
+					res |= Weight;
+					break;
+				default:
+					return Unknown;
+			}
+		}
+
+		return res;
+	}
+
+	public static String getMetricNameFromInt(int metric) {
+		String res;
+		switch (metric) {
+			case MatrixMetricsType.Duration:
+				res = "duration";
+				break;
+			case MatrixMetricsType.Distance:
+				res = "distance";
+				break;
+			case MatrixMetricsType.Weight:
+				res = "weight";
+				break;
+			default:
+				res = "unknown";
+		}
 		return res;
 	}
 }
