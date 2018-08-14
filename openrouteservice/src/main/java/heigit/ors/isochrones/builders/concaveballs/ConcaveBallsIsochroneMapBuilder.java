@@ -158,10 +158,10 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 			switch(isochroneType) {
 				case Distance:
-					addIsochrone(isochroneMap, points, isoValue, isoValue, smoothingFactor, isochroneType);
+					addIsochrone(isochroneMap, points, isoValue, isoValue, smoothingFactor);
 					break;
 				case Time:
-					addIsochrone(isochroneMap, points, isoValue, metersPerSecond * isoValue, smoothingFactor, isochroneType);
+					addIsochrone(isochroneMap, points, isoValue, metersPerSecond * isoValue, smoothingFactor);
 					break;
 			}
 
@@ -178,7 +178,16 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		return isochroneMap;
 	}
 
-	private double getMaximumBoundaryLineLength(float smoothingFactor, double maxRadius, TravelRangeType isochroneType)
+	/**
+	 * Converts the smoothing factor into a distance (which can be used in algorithms for generating isochrone polygons).
+	 * The distance value returned is dependent on the radius and smoothing factor.
+	 *
+	 * @param smoothingFactor	A factor that should be used in the smoothing process. Lower numbers produce a smaller
+	 *                          distance (and so likely a more detailed polygon)
+	 * @param maxRadius			The maximum radius of the isochrone (in metres)
+	 * @return
+	 */
+	private double convertSmoothingFactorToDistance(float smoothingFactor, double maxRadius)
 	{
 		if(smoothingFactor == -1) {
 			// No user defined smoothing factor, so use a default length (~1333m)
@@ -194,12 +203,12 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		return maxLength;
 	}
 
-	private void addIsochrone(IsochroneMap isochroneMap, GeometryCollection points, double isoValue, double maxRadius, float smoothingFactor, TravelRangeType isochroneType)
+	private void addIsochrone(IsochroneMap isochroneMap, GeometryCollection points, double isoValue, double maxRadius, float smoothingFactor)
 	{
 		if (points.isEmpty())
 			return;
 
-		ConcaveHull ch = new ConcaveHull(points, getMaximumBoundaryLineLength(smoothingFactor, maxRadius, isochroneType), false);
+		ConcaveHull ch = new ConcaveHull(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
 		Geometry geom = ch.getConcaveHull();
 
 		if (geom instanceof GeometryCollection)
