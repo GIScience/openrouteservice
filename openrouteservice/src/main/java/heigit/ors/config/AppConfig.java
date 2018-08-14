@@ -32,6 +32,7 @@ import org.apache.log4j.Logger;
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.util.StringUtility;
 import heigit.ors.util.FileUtility;
+import org.springframework.core.io.ClassPathResource;
 
 public class AppConfig {
 
@@ -48,6 +49,17 @@ public class AppConfig {
 	
 	public AppConfig()	{
     	URL url = RoutingProfileManager.class.getClassLoader().getResource("../app.config");
+    	try {
+
+    		ClassPathResource rs = new ClassPathResource("app.config");
+
+    		String path = rs.getPath();
+
+    		url = rs.getURL();
+			//url = new ClassPathResource("../app.config").getURL();
+		} catch (IOException ioe) {
+    		LOGGER.error(ioe);
+		}
 		if(System.getenv("ORS_APP_CONFIG") != null)
 			url = RoutingProfileManager.class.getClassLoader().getResource("../" + System.getenv("ORS_APP_CONFIG"));
     	
