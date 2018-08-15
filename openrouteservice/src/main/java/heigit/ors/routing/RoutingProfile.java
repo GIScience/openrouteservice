@@ -854,16 +854,26 @@ public class RoutingProfile {
                 if (mGraphHopper.getLMFactoryDecorator().isEnabled()) {
                     req.setAlgorithm("astarbi");
                     req.getHints().put("lm.disable", false);
+                    req.getHints().put("core.disable", true);
                 }
                 if (mGraphHopper.isCoreEnabled()) {
                     req.getHints().put("core.disable", false);
                     req.setAlgorithm("dijkstrabi");
                 }
             } else {
-                if (mGraphHopper.isCHEnabled())
+                if (mGraphHopper.isCHEnabled()) {
                     req.getHints().put("lm.disable", true);
-                else
-                    req.getHints().put("ch.disable", true);
+                    req.getHints().put("core.disable", true);
+                }
+                else {
+                    if (mGraphHopper.isCoreEnabled()) {
+                        req.getHints().put("lm.disable", true);
+                        req.getHints().put("ch.disable", true);
+
+                    }
+                    else
+                        req.getHints().put("ch.disable", true);
+                }
             }
 
             if (profileType == RoutingProfileType.DRIVING_EMERGENCY) {

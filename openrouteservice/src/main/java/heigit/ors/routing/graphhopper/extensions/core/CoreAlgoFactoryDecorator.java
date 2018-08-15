@@ -93,7 +93,7 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
         boolean enableThis = !weightingsAsStrings.isEmpty();
         setEnabled(enableThis);
         //TODO this is testing
-        setEnabled(true);
+//        setEnabled(false);
         if (enableThis)
             //TODO
             setDisablingAllowed(args.getBool(Core.INIT_DISABLING_ALLOWED, isDisablingAllowed()));

@@ -26,6 +26,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.graphhopper.routing.weighting.Weighting;
 import org.apache.log4j.Logger;
 
 import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
@@ -115,15 +116,43 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 		if (gh.getCHFactoryDecorator().isEnabled())
 			gh.initCHAlgoFactoryDecorator();
 
-		if (gh.isCHEnabled())
-			return new GraphHopperStorage(gh.getCHFactoryDecorator().getWeightings(), dir, encodingManager, gh.hasElevation(), graphExtension);
-		else if (((ORSGraphHopper) gh).isCoreEnabled()){
-			return new GraphHopperStorage(((ORSGraphHopper) gh).getCoreFactoryDecorator().getWeightings(),
+		List<Weighting> weightings = new ArrayList<>();
+		List<String> suffixes = new ArrayList<>();
+		int chGraphs = 0;
+
+		if(gh.isCHEnabled()) {
+			weightings.addAll(gh.getCHFactoryDecorator().getWeightings());
+			chGraphs = weightings.size();
+			for (int i = 0; i < chGraphs; i++){
+				suffixes.add("ch");
+			}
+		}
+
+		if(((ORSGraphHopper) gh).isCoreEnabled()) {
+			weightings.addAll(((ORSGraphHopper) gh).getCoreFactoryDecorator().getWeightings());
+			for (int i = chGraphs; i < weightings.size(); i++) {
+				suffixes.add("core");
+			}
+		}
+
+		if (!weightings.isEmpty())
+			return new GraphHopperStorage(weightings,
 					dir,
 					encodingManager,
 					gh.hasElevation(),
-					graphExtension);
-		}
+					graphExtension,
+					suffixes);
+
+//		if (gh.isCHEnabled())
+//			return new GraphHopperStorage(gh.getCHFactoryDecorator().getWeightings(), dir, encodingManager, gh.hasElevation(), graphExtension);
+//		else if (((ORSGraphHopper) gh).isCoreEnabled()){
+//			return new GraphHopperStorage(((ORSGraphHopper) gh).getCoreFactoryDecorator().getWeightings(),
+//					dir,
+//					encodingManager,
+//					gh.hasElevation(),
+//					graphExtension,
+//					"core");
+//		}
 		else
 			return new GraphHopperStorage(dir, encodingManager, gh.hasElevation(), graphExtension);
 	}

@@ -84,8 +84,11 @@ public class ORSGraphHopper extends GraphHopper {
 		_procCntx = procCntx;
 		this.refRouteProfile= refProfile;
 		this.forDesktop();
-		coreFactoryDecorator.setEnabled(true);
+		coreFactoryDecorator.setEnabled(false);
+		algoDecorators.clear();
 		algoDecorators.add(coreFactoryDecorator);
+		algoDecorators.add(getCHFactoryDecorator());
+		algoDecorators.add(getLMFactoryDecorator());
 
 		if (useTmc){
 			tmcEdges = new HashMap<Integer, Long>();
@@ -238,58 +241,51 @@ public class ORSGraphHopper extends GraphHopper {
 				RoutingAlgorithmFactory tmpAlgoFactory = getAlgorithmFactory(hints);
 				Weighting weighting;
 				QueryGraph queryGraph;
-				if (getCoreFactoryDecorator().isEnabled() && !disableCore) {
+
+				if (coreFactoryDecorator.isEnabled() && !disableCore) {
 					boolean forceCHHeading = hints.getBool(Parameters.CH.FORCE_HEADING, false);
 					if (!forceCHHeading && request.hasFavoredHeading(0))
 						throw new IllegalArgumentException(
 								"Heading is not (fully) supported for CHGraph. See issue #483");
 
-					// if LM is enabled we have the LMFactory with the CH algo!
-					RoutingAlgorithmFactory coreAlgoFactory = tmpAlgoFactory;
-					//TODO
-//					if (tmpAlgoFactory instanceof LMAlgoFactoryDecorator.LMRAFactory)
-//						chAlgoFactory = ((LMAlgoFactoryDecorator.LMRAFactory) tmpAlgoFactory).getDefaultAlgoFactory();
-//
-//					if (chAlgoFactory instanceof PrepareContractionHierarchies)
-//						weighting = ((PrepareContractionHierarchies) chAlgoFactory).getWeighting();
-//
-//					if(chAlgoFactory instanceof  )
+					RoutingAlgorithmFactory coreAlgoFactory = coreFactoryDecorator.getDecoratedAlgorithmFactory(new RoutingAlgorithmFactorySimple(), hints);
 					weighting = ((PrepareCore) coreAlgoFactory).getWeighting();
-//					else
-//						throw new IllegalStateException(
-//								"Although CH was enabled a non-CH algorithm factory was returned " + tmpAlgoFactory);
-
 					tMode = getCoreFactoryDecorator().getNodeBase();
 					queryGraph = new QueryGraph(ghStorage.getGraph(CHGraph.class, weighting));
 					queryGraph.lookup(qResults, byteBuffer);
-				} else {
-				if (getCHFactoryDecorator().isEnabled() && !disableCH) {
-					boolean forceCHHeading = hints.getBool(Parameters.CH.FORCE_HEADING, false);
-					if (!forceCHHeading && request.hasFavoredHeading(0))
-						throw new IllegalArgumentException(
-								"Heading is not (fully) supported for CHGraph. See issue #483");
+				}
+				else{
+					if (getCHFactoryDecorator().isEnabled() && !disableCH) {
+						boolean forceCHHeading = hints.getBool(Parameters.CH.FORCE_HEADING, false);
+						if (!forceCHHeading && request.hasFavoredHeading(0))
+							throw new IllegalArgumentException(
+									"Heading is not (fully) supported for CHGraph. See issue #483");
 
-					// if LM is enabled we have the LMFactory with the CH algo!
-					RoutingAlgorithmFactory chAlgoFactory = tmpAlgoFactory;
-					if (tmpAlgoFactory instanceof LMAlgoFactoryDecorator.LMRAFactory)
-						chAlgoFactory = ((LMAlgoFactoryDecorator.LMRAFactory) tmpAlgoFactory).getDefaultAlgoFactory();
+						// if LM is enabled we have the LMFactory with the CH algo!
+						RoutingAlgorithmFactory chAlgoFactory = tmpAlgoFactory;
+						if (tmpAlgoFactory instanceof LMAlgoFactoryDecorator.LMRAFactory)
+							chAlgoFactory = ((LMAlgoFactoryDecorator.LMRAFactory) tmpAlgoFactory).getDefaultAlgoFactory();
 
-					if (chAlgoFactory instanceof PrepareContractionHierarchies)
-						weighting = ((PrepareContractionHierarchies) chAlgoFactory).getWeighting();
-					else
-						throw new IllegalStateException(
-								"Although CH was enabled a non-CH algorithm factory was returned " + tmpAlgoFactory);
+						if (chAlgoFactory instanceof PrepareContractionHierarchies)
+							weighting = ((PrepareContractionHierarchies) chAlgoFactory).getWeighting();
+						else
+							throw new IllegalStateException(
+									"Although CH was enabled a non-CH algorithm factory was returned " + tmpAlgoFactory);
 
-					tMode = getCHFactoryDecorator().getNodeBase();
-					queryGraph = new QueryGraph(ghStorage.getGraph(CHGraph.class, weighting));
-					queryGraph.lookup(qResults, byteBuffer);
-				} else {
-					checkNonChMaxWaypointDistance(points);
-					queryGraph = new QueryGraph(ghStorage);
-					queryGraph.lookup(qResults, byteBuffer);
-					weighting = createWeighting(hints, tMode, encoder, queryGraph, ghStorage);
-					ghRsp.addDebugInfo("tmode:" + tMode.toString());
-				} }
+						tMode = getCHFactoryDecorator().getNodeBase();
+						queryGraph = new QueryGraph(ghStorage.getGraph(CHGraph.class, weighting));
+						queryGraph.lookup(qResults, byteBuffer);
+
+
+					} else {
+
+						checkNonChMaxWaypointDistance(points);
+						queryGraph = new QueryGraph(ghStorage);
+						queryGraph.lookup(qResults, byteBuffer);
+						weighting = createWeighting(hints, tMode, encoder, queryGraph, ghStorage);
+						ghRsp.addDebugInfo("tmode:" + tMode.toString());
+					}
+				}
 
 				int maxVisitedNodesForRequest = hints.getInt(Parameters.Routing.MAX_VISITED_NODES, getMaxVisitedNodes());
 				if (maxVisitedNodesForRequest > getMaxVisitedNodes())
@@ -458,6 +454,8 @@ public class ORSGraphHopper extends GraphHopper {
 		if (!isCorePrepared())
 			prepareCore();
 	}
+
+
 	/**
 	 * Enables or disables core calculation.
 	 */
