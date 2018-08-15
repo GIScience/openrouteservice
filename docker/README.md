@@ -4,7 +4,7 @@ Installing the openrouteservice backend service with **Docker** is quite straigh
 
 ## Short version
 
-Run the following command within this `docker/` directory:
+Please clone the repository (downloading the archive and running docker is currently not supported) and run the following command within this `docker/` directory:
 
 ```bash
 sudo docker-compose up -d
