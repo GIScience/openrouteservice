@@ -27,7 +27,6 @@ import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.core.EdgeFilterSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

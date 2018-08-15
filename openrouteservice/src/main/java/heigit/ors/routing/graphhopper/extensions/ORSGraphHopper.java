@@ -42,7 +42,6 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.*;
-import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.mapmatching.RouteSegmentInfo;
 import heigit.ors.routing.*;
 
@@ -56,15 +55,12 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
 import heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.core.EdgeFilterSequence;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
-import heigit.ors.routing.parameters.CyclingParameters;
-import heigit.ors.routing.parameters.VehicleParameters;
-import heigit.ors.routing.parameters.WheelchairParameters;
 
 import static com.graphhopper.util.Parameters.Algorithms.*;
 
