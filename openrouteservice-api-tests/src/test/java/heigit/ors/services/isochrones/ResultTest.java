@@ -200,4 +200,35 @@ public class ResultTest extends ServiceTest {
 			
 			.statusCode(200);
 	}
+
+	@Test
+	public void testSmoothingFactor() {
+		given()
+				.param("locations", getParameter("location"))
+				.param("profile", getParameter("profile"))
+				.param("range", "2000")
+				.param("range_type", "distance")
+				.param("smoothing", "10")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.body("any { it.key == 'type' }", is(true))
+				.body("any { it.key == 'features' }", is(true))
+                .body("features[0].geometry.coordinates[0].size", is(52))
+				.statusCode(200);
+
+		given()
+				.param("locations", getParameter("location"))
+				.param("profile", getParameter("profile"))
+				.param("range", "2000")
+				.param("range_type", "distance")
+				.param("smoothing", "100")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.body("any { it.key == 'type' }", is(true))
+				.body("any { it.key == 'features' }", is(true))
+				.body("features[0].geometry.coordinates[0].size", is(19))
+				.statusCode(200);
+	}
 }

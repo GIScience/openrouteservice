@@ -33,14 +33,10 @@ public final class WheelchairCoreEdgeFilter implements EdgeFilter {
 	private WheelchairAttributesGraphStorage _storage;
 	private WheelchairAttributes _attributes;
 
-	public WheelchairCoreEdgeFilter(GraphStorage graphStorage) throws Exception {
-		_storage = GraphStorageUtils.getGraphExtension(graphStorage, WheelchairAttributesGraphStorage.class);
-
-		if (_storage == null)
-			throw new Exception("ExtendedGraphStorage for wheelchair attributes was not found.");
-
+	public WheelchairCoreEdgeFilter(GraphStorage graphStorage) {
+        _buffer = new byte[WheelchairAttributesGraphStorage.BYTE_COUNT];
 		_attributes = new WheelchairAttributes();
-		_buffer = new byte[3];
+		_storage = GraphStorageUtils.getGraphExtension(graphStorage, WheelchairAttributesGraphStorage.class);
 	}
 
 	@Override
