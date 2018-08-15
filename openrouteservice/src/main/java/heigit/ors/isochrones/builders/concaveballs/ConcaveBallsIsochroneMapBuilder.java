@@ -47,6 +47,8 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 
+import heigit.ors.common.TravelRangeType;
+import heigit.ors.util.GeomUtility;
 import org.apache.log4j.Logger;
 import org.opensphere.geometry.algorithm.ConcaveHull;
 
@@ -133,6 +135,8 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		double prevCost = 0;
 		for (int i = 0; i < nRanges; i++) {
 			double isoValue = parameters.getRanges()[i];
+			float smoothingFactor = parameters.getSmoothingFactor();
+			TravelRangeType isochroneType = parameters.getRangeType();
 
 			if (LOGGER.isDebugEnabled())
 			{
@@ -152,7 +156,15 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 				sw.start();
 			}
 
-			addIsochrone(isochroneMap, points, isoValue, metersPerSecond * isoValue);
+			switch(isochroneType) {
+				case Distance:
+					addIsochrone(isochroneMap, points, isoValue, isoValue, smoothingFactor);
+					break;
+				case Time:
+					addIsochrone(isochroneMap, points, isoValue, metersPerSecond * isoValue, smoothingFactor);
+					break;
+			}
+
 
 			if (LOGGER.isDebugEnabled())
 				LOGGER.debug("Build concave hull: " + sw.stop().getSeconds());
@@ -165,29 +177,39 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 		return isochroneMap;
 	}
-	
-	private double getConcaveHullTreshold(double isoValue)
-	{
-		//	private double CONCAVE_HULL_THRESHOLD = 0.012;
 
-		/*if (isoValue < 10000)
-			return 0.005;
-		else if (isoValue < 30000)
-			return 0.008;
-		else if (isoValue < 50000)
+	/**
+	 * Converts the smoothing factor into a distance (which can be used in algorithms for generating isochrone polygons).
+	 * The distance value returned is dependent on the radius and smoothing factor.
+	 *
+	 * @param smoothingFactor	A factor that should be used in the smoothing process. Lower numbers produce a smaller
+	 *                          distance (and so likely a more detailed polygon)
+	 * @param maxRadius			The maximum radius of the isochrone (in metres)
+	 * @return
+	 */
+	private double convertSmoothingFactorToDistance(float smoothingFactor, double maxRadius)
+	{
+		if(smoothingFactor == -1) {
+			// No user defined smoothing factor, so use a default length (~1333m)
 			return 0.012;
-		else if (isoValue < 100000)
-			return 0.02;*/
-		
-		return 0.012;
+		}
+
+		double intervalDegrees = GeomUtility.metresToDegrees(maxRadius);
+		double MINIMUM_DISTANCE = 0.006;
+		//double maxLength = (smoothingFactor * intervalDegrees) / 10;
+		double maxLength = (intervalDegrees / 100f) * smoothingFactor;
+
+		if(maxLength < MINIMUM_DISTANCE)
+			maxLength = MINIMUM_DISTANCE;
+		return maxLength;
 	}
 
-	private void addIsochrone(IsochroneMap isochroneMap, GeometryCollection points, double isoValue, double maxRadius)
+	private void addIsochrone(IsochroneMap isochroneMap, GeometryCollection points, double isoValue, double maxRadius, float smoothingFactor)
 	{
 		if (points.isEmpty())
 			return;
 
-		ConcaveHull ch = new ConcaveHull(points, getConcaveHullTreshold(isoValue), false);
+		ConcaveHull ch = new ConcaveHull(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
 		Geometry geom = ch.getConcaveHull();
 
 		if (geom instanceof GeometryCollection)

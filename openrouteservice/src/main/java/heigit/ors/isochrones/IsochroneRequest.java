@@ -36,6 +36,7 @@ public class IsochroneRequest extends ServiceRequest
 	private String _units = null;
 	private Boolean _includeIntersections = false;
 	private String[] _attributes;
+	private float _smoothingFactor = -1.0f;
 
 	public IsochroneRequest()
 	{
@@ -130,6 +131,10 @@ public class IsochroneRequest extends ServiceRequest
 		return locations;
 	}
 
+	public void setSmoothingFactor(float smoothingFactor) {
+		this._smoothingFactor = smoothingFactor;
+	}
+
 	public IsochroneSearchParameters getSearchParameters(int travellerIndex)
 	{
 		TravellerInfo traveller = _travellers.get(travellerIndex);
@@ -168,7 +173,7 @@ public class IsochroneRequest extends ServiceRequest
 		parameters.setRouteParameters(traveller.getRouteSearchParameters());
 		if ("destination".equalsIgnoreCase(traveller.getLocationType()))
 			parameters.setReverseDirection(true);
-
+		parameters.setSmoothingFactor(_smoothingFactor);
 		return parameters;
 	}
 

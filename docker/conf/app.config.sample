@@ -235,7 +235,7 @@
 					extent: "",
 					working_directory: "./update_graphs"
 				}
-
+				# service is deprecated
 				traffic: {
 					enabled: false,
 					source: "type=ftp;server=viznrwftp.gewi.com;user=cacc016;password=4)Zn3450;file=viznrw.xml",
