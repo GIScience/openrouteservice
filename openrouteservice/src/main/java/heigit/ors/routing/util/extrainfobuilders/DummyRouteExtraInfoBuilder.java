@@ -32,7 +32,7 @@ public class DummyRouteExtraInfoBuilder extends RouteExtraInfoBuilder {
 		super(extraInfo);
 	}
 
-	public void addSegment(double value, int valueIndex, PointList geom, double dist, boolean lastEdge)
+	public void addSegment(double value, long valueIndex, PointList geom, double dist, boolean lastEdge)
     {
 		int nPoints = geom.getSize() - 1;
 
