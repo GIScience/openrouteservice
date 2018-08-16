@@ -48,7 +48,7 @@ public class PrepareCoreTest {
     }
 
     GraphHopperStorage createGHStorage() {
-        return new GraphBuilder(encodingManager).setCHGraph(weighting).create();
+        return new GraphBuilder(encodingManager).setCoreGraph(weighting).create();
     }
 
     private GraphHopperStorage createSimpleGraph() {

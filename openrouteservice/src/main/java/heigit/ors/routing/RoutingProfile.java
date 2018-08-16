@@ -806,6 +806,7 @@ public class RoutingProfile {
             RouteSearchContext searchCntx = createSearchContext(searchParams, RouteSearchMode.Routing, customEdgeFilter);
 
             boolean flexibleMode = searchParams.getFlexibleMode();
+            boolean optimized = searchParams.getOptimized();
             GHRequest req = null;
             if (bearings == null || bearings[0] == null)
                 req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
@@ -870,7 +871,7 @@ public class RoutingProfile {
                     req.getHints().put("lm.disable", false);
                     req.getHints().put("core.disable", true);
                 }
-                if (mGraphHopper.isCoreEnabled()) {
+                if (mGraphHopper.isCoreEnabled() && !(searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED || searchParams.getBearings() != null || optimized)) {
                     req.getHints().put("core.disable", false);
                     req.setAlgorithm("dijkstrabi");
                 }
@@ -880,13 +881,15 @@ public class RoutingProfile {
                     req.getHints().put("core.disable", true);
                 }
                 else {
-                    if (mGraphHopper.isCoreEnabled()) {
+                    if (mGraphHopper.isCoreEnabled() && !(searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED || searchParams.getBearings() != null || optimized)) {
                         req.getHints().put("lm.disable", true);
                         req.getHints().put("ch.disable", true);
 
                     }
-                    else
+                    else {
                         req.getHints().put("ch.disable", true);
+                        req.getHints().put("core.disable", true);
+                    }
                 }
             }
 

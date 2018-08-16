@@ -59,6 +59,7 @@ public class RouteSearchParameters {
     private WayPointBearing[] _bearings = null;
     private double[] _maxRadiuses;
     private boolean _flexibleMode = false;
+    private boolean _optimized = false;
 
     private int[] _avoidCountries = null;
     private BordersExtractor.Avoid _avoidBorders = BordersExtractor.Avoid.NONE;
@@ -444,6 +445,14 @@ public class RouteSearchParameters {
 
     public void setFlexibleMode(boolean flexibleMode) {
         _flexibleMode = flexibleMode;
+    }
+
+    public boolean getOptimized() {
+        return _optimized;
+    }
+
+    public void setOptimized(boolean optimized) {
+        _optimized = optimized;
     }
 
     public double[] getMaximumRadiuses() {
