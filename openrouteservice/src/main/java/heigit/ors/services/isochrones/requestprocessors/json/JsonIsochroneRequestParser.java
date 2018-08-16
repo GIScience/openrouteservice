@@ -213,6 +213,8 @@ public class JsonIsochroneRequestParser {
 				throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "intersections", value);
 			}
 		}
+
+		setIsochroneSmoothing(req, json.optString("smoothing"));
 		
 		value = json.optString("id");
 		if (!Helper.isEmpty(value))
@@ -403,6 +405,8 @@ public class JsonIsochroneRequestParser {
 				throw new ParameterValueException(IsochronesErrorCodes.INVALID_JSON_FORMAT, "options", value);
 			}
 		}
+
+		setIsochroneSmoothing(req, request.getParameter("smoothing"));
 		
 		if (coords.length == 1)
 		{
@@ -427,5 +431,21 @@ public class JsonIsochroneRequestParser {
 			req.setId(value);
 
 		return req;
+	}
+
+	private static void setIsochroneSmoothing(IsochroneRequest isochroneRequest, String requestSmoothingValue) throws ParameterValueException {
+		if (!Helper.isEmpty(requestSmoothingValue)) {
+			float smoothingValue;
+			try {
+				smoothingValue = Float.parseFloat(requestSmoothingValue);
+			} catch (Exception e) {
+				throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "smoothing", requestSmoothingValue);
+			}
+
+			if(smoothingValue < 0 || smoothingValue > 100)
+				throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "smoothing", requestSmoothingValue);
+
+			isochroneRequest.setSmoothingFactor(smoothingValue);
+		}
 	}
 }

@@ -35,7 +35,7 @@ public abstract class RouteExtraInfoBuilder {
     	_extraInfo = extraInfo;
     }
     
-    public abstract void addSegment(double value, int valueIndex, PointList geom, double dist, boolean lastEdge);
+    public abstract void addSegment(double value, long valueIndex, PointList geom, double dist, boolean lastEdge);
     
     public abstract void finish();
 }

@@ -349,7 +349,8 @@
                                     # The KerbsOnCrossings option tells the builder whether kerb heights should only be attached to ways
                                     # marked as crossings ("true"), or to any way they fall on ("false")
                                     KerbsOnCrossings: "true"
-                                }
+                                },
+                                OsmId: {}   # Allow the returning of som ids of ways in extra info
                             }
                         }
                     }

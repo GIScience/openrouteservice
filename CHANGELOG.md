@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Removed locations code as this will be handled by openpoiservice in the future (Issue #120)
 - Removed Geocoding code as this will be handled by the geocoder service rather than within ORS
+- Added smoothing option for isochrones (Issue #137)
+- Added ExtraInfo storage for osm way id so that this information can be stored (and accessed) agianst the edges (Issue #217)
 
 ### Fixed
 - Correct logic of determining vehicle type flags in heavy vehicle storage (Issue #211)
@@ -18,8 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Updated code so that acceleration is taken into account when speeds are calculated for edges (Issue #178)
 - Fixed the mising rte tag in gpx issue (Issue #196)
 - Fixed the gpx validation errror (Issue #168)
+- Added unit conversion so that isochrone response is in user specified unit (issue #91)
 
 ### Changed
+- Refactored some of the edge filters and cleaned up the code initializing them
 - Updated the wheelchair profile to better handle restrictions such as width, kerb heights and instances where sidewalks are attached to roads. (Issue #162)
 - Replaced "Sand" surface encoding with "Paving stone"
 
