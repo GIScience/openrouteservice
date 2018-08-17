@@ -261,7 +261,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 				_hgvType |= flag;
 			else if ("yes".equals(tag))
 				_hgvType &= ~flag;
-			else if ("destination".equals(tag)) {
+			else if ("destination".equals(tag) || (flag==HeavyVehicleAttributes.DELIVERY && "delivery".equals(tag))) {
 				_hgvType |= flag;
 				_hgvDestination |= flag;
 			}
