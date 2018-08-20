@@ -702,8 +702,8 @@ public class ParamsTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.body("error.code", is(RoutingErrorCodes.UNKNOWN))
-				.statusCode(500);
+				.body("error.code", is(RoutingErrorCodes.POINT_NOT_FOUND))
+				.statusCode(404);
 	}
 	@Test
 	public void expectUnknownUnits() {
