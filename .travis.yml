@@ -4,10 +4,10 @@ jdk: openjdk8
 sudo: required
 dist: trusty
 
-#before_install:
-#  - sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
-#  - sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
-#  - ip addr # for confirmation. can be skipped
+before_install:
+  - sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+  - sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+  - ip addr # for confirmation. can be skipped
 
 branches:
   only:
@@ -16,18 +16,16 @@ branches:
   - integrate-travis
 
 stages:
-  - compile
-  - test
+  - compile_test
 
 jobs:
   include:
-    - stage: compile
+    - stage: compile_test
       script:
         - cp ${TRAVIS_BUILD_DIR}/openrouteservice-api-tests/conf/app.config.test ${TRAVIS_BUILD_DIR}/openrouteservice/WebContent/WEB-INF/app.config
         - mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml install -B
-    - stage: test
-      script:
         - nohup mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml tomcat7:run &
+        - cat nohup.out
         - sleep 20s
         - curl http://127.0.0.1:8082/openrouteservice-4.5.0/health
         - sleep 5m
