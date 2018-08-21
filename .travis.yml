@@ -4,6 +4,7 @@ branches:
   only:
   - master
   - development
+  - integrate-travis
 
 stages:
   - compile
