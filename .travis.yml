@@ -1,7 +1,7 @@
 language: java
 jdk: openjdk8
 
-sudo: true
+sudo: required
 dist: trusty
 
 #before_install:
@@ -23,16 +23,16 @@ jobs:
   include:
     - stage: compile
       script:
-        - sudo cp ${TRAVIS_BUILD_DIR}/openrouteservice-api-tests/conf/app.config.test ${TRAVIS_BUILD_DIR}/openrouteservice/WebContent/WEB-INF/app.config
-        - sudo mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml install -B
+        - cp ${TRAVIS_BUILD_DIR}/openrouteservice-api-tests/conf/app.config.test ${TRAVIS_BUILD_DIR}/openrouteservice/WebContent/WEB-INF/app.config
+        - mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml install -B
     - stage: test
       script:
-        - sudo nohup mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml tomcat7:run &
-        - sudo sleep 20s
-        - sudo curl http://127.0.0.1:8082/openrouteservice-4.5.0/health
-        - sudo sleep 5m
-        - sudo curl http://127.0.0.1:8082/openrouteservice-4.5.0/health
-        - sudo mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice-api-tests/pom.xml test
+        - nohup mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml tomcat7:run &
+        - sleep 20s
+        - curl http://127.0.0.1:8082/openrouteservice-4.5.0/health
+        - sleep 5m
+        - curl http://127.0.0.1:8082/openrouteservice-4.5.0/health
+        - mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice-api-tests/pom.xml test
 
 notifications:
   webhooks: https://chat.gistools.geog.uni-heidelberg.de/hooks/fqX555ZPxYFdHeqhS/2kxt4rNATiJ9cB8pLmkSc2R3mrxnmJrEQZFd7JKqiPEGFnW9
