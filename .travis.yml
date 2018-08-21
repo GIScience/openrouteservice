@@ -1,4 +1,5 @@
 language: java
+jdk: openjdk8
 
 branches:
   only:
@@ -18,7 +19,7 @@ jobs:
         - mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml install -B
     - stage: test
       script:
-        - nohup mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml tomcat7:run & > ${TRAVIS_BUILD_DIR}/build_graphs.out&
+        - nohup mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml tomcat7:run &
         - sleep 5m
         - mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice-api-tests/pom.xml test
 
