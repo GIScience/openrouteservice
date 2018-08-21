@@ -1,0 +1,31 @@
+language: java
+
+branches:
+  only:
+  - master
+  - development
+
+stages:
+  - compile
+  - buildgraphs
+  - wait
+  - test
+  - notify
+
+jobs:
+  include:
+    - stage: compile
+      script:
+        - cp ${TRAVIS_BUILD_DIR}/openrouteservice-api-tests/conf/app.config.test ${TRAVIS_BUILD_DIR}/openrouteservice/WebContent/WEB-INF/app.config
+        - mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml install -B
+    - stage: buildgraphs
+      script: nohup mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml tomcat7:run & > ${TRAVIS_BUILD_DIR}/build_graphs.out&
+    - stage: wait
+      script: sleep 5m
+    - stage: test
+      script: mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice-api-tests/pom.xml test
+    - stage: notify
+      script: ./notify
+
+notifications:
+  webhooks: https://chat.gistools.geog.uni-heidelberg.de/hooks/fqX555ZPxYFdHeqhS/2kxt4rNATiJ9cB8pLmkSc2R3mrxnmJrEQZFd7JKqiPEGFnW9
