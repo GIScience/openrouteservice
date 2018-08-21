@@ -1,8 +1,7 @@
 # Openrouteservice
 
-[![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=master)](https://travis-ci.org/GIScience/openrouteservice)
-[![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=development)](https://travis-ci.org/GIScience/openrouteservice)
-
+- [master](https://github.com/GIScience/openrouteservice) [![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=master)](https://travis-ci.org/GIScience/openrouteservice)
+- [development](https://github.com/GIScience/openrouteservice/tree/development) [![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=development)](https://travis-ci.org/GIScience/openrouteservice)
 
 The **openrouteservice API** provides global spatial services by consuming user-generated and collaboratively collected free geographic data directly from [OpenStreetMap](http://www.openstreetmap.org). It is highly customizable, performant and written in Java.
 
