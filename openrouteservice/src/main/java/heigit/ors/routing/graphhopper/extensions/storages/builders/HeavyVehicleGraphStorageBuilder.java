@@ -116,117 +116,109 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 				String key = pairs.getKey();
 				String value = pairs.getValue().toString();
 
-				// TODO: why are only the following types restricted even though tracks are "roads for mostly agricultural use, forest tracks"?
-				if (key.equals("highway") && value.equals("track")) {
-					String tracktype = way.getTag("tracktype");
-					if (tracktype != null && (tracktype.equals("grade1") || tracktype.equals("grade2") || tracktype.equals("grade3") || tracktype.equals("grade4") || tracktype.equals("grade5"))) {
-						_hgvType |= HeavyVehicleAttributes.AGRICULTURE;
-						_hgvType |= HeavyVehicleAttributes.FORESTRY;
-					}
-				}
 				/*
 				 * https://wiki.openstreetmap.org/wiki/Restrictions
 				 */
-				else {
-					if (_includeRestrictions) {
-						int valueIndex = -1;
+				if (_includeRestrictions) {
+					int valueIndex = -1;
 
-						if (key.equals("maxheight")) {
-							valueIndex = VehicleDimensionRestrictions.MaxHeight;
-						} else if (key.equals("maxweight")) {
-							valueIndex = VehicleDimensionRestrictions.MaxWeight;
-						} else if (key.equals("maxweight:hgv")) {
-							valueIndex = VehicleDimensionRestrictions.MaxWeight;
-						}	else if (key.equals("maxwidth")) {
-							valueIndex = VehicleDimensionRestrictions.MaxWidth;
-						} else if (key.equals("maxlength")) {
-							valueIndex = VehicleDimensionRestrictions.MaxLength;
-						} else if (key.equals("maxlength:hgv")) {
-							valueIndex = VehicleDimensionRestrictions.MaxLength;
-						}
-						else if (key.equals("maxaxleload")) {
-							valueIndex = VehicleDimensionRestrictions.MaxAxleLoad;
-						}
+					if (key.equals("maxheight")) {
+						valueIndex = VehicleDimensionRestrictions.MaxHeight;
+					} else if (key.equals("maxweight")) {
+						valueIndex = VehicleDimensionRestrictions.MaxWeight;
+					} else if (key.equals("maxweight:hgv")) {
+						valueIndex = VehicleDimensionRestrictions.MaxWeight;
+					}	else if (key.equals("maxwidth")) {
+						valueIndex = VehicleDimensionRestrictions.MaxWidth;
+					} else if (key.equals("maxlength")) {
+						valueIndex = VehicleDimensionRestrictions.MaxLength;
+					} else if (key.equals("maxlength:hgv")) {
+						valueIndex = VehicleDimensionRestrictions.MaxLength;
+					}
+					else if (key.equals("maxaxleload")) {
+						valueIndex = VehicleDimensionRestrictions.MaxAxleLoad;
+					}
 
-						if (valueIndex >= 0 && !("none".equals(value) || "default".equals(value))) {
-							if (valueIndex == VehicleDimensionRestrictions.MaxWeight || valueIndex == VehicleDimensionRestrictions.MaxAxleLoad) {
-								if (value.contains("t")) {
-									value = value.replace('t', ' ');
-								} else if (value.contains("lbs")) {
-									value = value.replace("lbs", " ");
-									value = Double.toString(Double.parseDouble(value) / 2204.622);
-								}
-							} else {
-								if (value.contains("m")) {
-									value = value.replace('m', ' ');
-								}
-								else if (value.contains("'"))
+					if (valueIndex >= 0 && !("none".equals(value) || "default".equals(value))) {
+						if (valueIndex == VehicleDimensionRestrictions.MaxWeight || valueIndex == VehicleDimensionRestrictions.MaxAxleLoad) {
+							if (value.contains("t")) {
+								value = value.replace('t', ' ');
+							} else if (value.contains("lbs")) {
+								value = value.replace("lbs", " ");
+								value = Double.toString(Double.parseDouble(value) / 2204.622);
+							}
+						} else {
+							if (value.contains("m")) {
+								value = value.replace('m', ' ');
+							}
+							else if (value.contains("'"))
+							{
+								Matcher m = _patternHeight.matcher(value);
+								if (m.find())
 								{
-									Matcher m = _patternHeight.matcher(value);
-									if (m.find())
-									{
-										int feet = Integer.parseInt(m.group(1));
-										int inches = 0;
-										if (m.groupCount() > 1)
-											inches = Integer.parseInt(m.group(2));
-										double newValue = feet * 0.3048 + inches * 0.0254*feet;
-										value = Double.toString(newValue);
-									}
+									int feet = Integer.parseInt(m.group(1));
+									int inches = 0;
+									if (m.groupCount() > 1)
+										inches = Integer.parseInt(m.group(2));
+									double newValue = feet * 0.3048 + inches * 0.0254*feet;
+									value = Double.toString(newValue);
 								}
 							}
-
-							_restrictionValues[valueIndex] = Double.parseDouble(value);
-							_hasRestrictionValues = true;
 						}
+
+						_restrictionValues[valueIndex] = Double.parseDouble(value);
+						_hasRestrictionValues = true;
 					}
-
-					// TODO: the following implementation does not pick up access:destination
-					String hgvTag = getHeavyVehicleValue(key, "hgv", value);
-					String goodsTag = getHeavyVehicleValue(key, "goods", value);
-					String busTag = getHeavyVehicleValue(key, "bus", value);
-					String agriculturalTag = getHeavyVehicleValue(key, "agricultural", value);
-					String forestryTag = getHeavyVehicleValue(key, "forestry", value);
-					String deliveryTag = getHeavyVehicleValue(key, "delivery", value);
-
-					String accessTag = key.equals("access") ? value : null;
-
-					if (!Helper.isEmpty(accessTag)) {
-						if ("agricultural".equals(accessTag))
-							agriculturalTag = "yes";
-						else if ("forestry".equals(accessTag))
-							forestryTag = "yes";
-						else if ("bus".equals(accessTag))
-							busTag = "yes";
-					}
-
-					String motorVehicle = key.equals("motor_vehicle") ? value : null;
-					if (motorVehicle == null)
-						motorVehicle = key.equals("motorcar") ? value : null;
-
-					if (motorVehicle != null) {
-						if ("agricultural".equals(motorVehicle))
-							agriculturalTag = "yes";
-						else if ("forestry".equals(motorVehicle))
-							forestryTag = "yes";
-						else if ("delivery".equals(motorVehicle))
-							deliveryTag = "yes";
-					}
-
-					setFlagsFromTag(goodsTag, HeavyVehicleAttributes.GOODS);
-					setFlagsFromTag(hgvTag, HeavyVehicleAttributes.HGV);
-					setFlagsFromTag(busTag, HeavyVehicleAttributes.BUS);
-					setFlagsFromTag(agriculturalTag, HeavyVehicleAttributes.AGRICULTURE);
-					setFlagsFromTag(forestryTag, HeavyVehicleAttributes.FORESTRY);
-					setFlagsFromTag(deliveryTag, HeavyVehicleAttributes.DELIVERY);
-
-					String hazmatTag = key.equals("hazmat") ? value : null;
-					if ("no".equals(hazmatTag)) {
-						_hgvType |= HeavyVehicleAttributes.HAZMAT;
-					}
-
-					// (access=no) + access:conditional=delivery @
-					// (07:00-11:00); customer @ (07:00-17:00)
 				}
+
+				// TODO: the following implementation does not pick up access:destination
+				String hgvTag = getHeavyVehicleValue(key, "hgv", value);
+				String goodsTag = getHeavyVehicleValue(key, "goods", value);
+				String busTag = getHeavyVehicleValue(key, "bus", value);
+				String agriculturalTag = getHeavyVehicleValue(key, "agricultural", value);
+				String forestryTag = getHeavyVehicleValue(key, "forestry", value);
+				String deliveryTag = getHeavyVehicleValue(key, "delivery", value);
+
+				String accessTag = key.equals("access") ? value : null;
+
+				if (!Helper.isEmpty(accessTag)) {
+					if ("agricultural".equals(accessTag))
+						agriculturalTag = "yes";
+					else if ("forestry".equals(accessTag))
+						forestryTag = "yes";
+					else if ("bus".equals(accessTag))
+						busTag = "yes";
+				}
+
+				String motorVehicle = key.equals("motor_vehicle") ? value : null;
+				if (motorVehicle == null)
+					motorVehicle = key.equals("motorcar") ? value : null;
+
+				if (motorVehicle != null) {
+					if ("agricultural".equals(motorVehicle))
+						agriculturalTag = "yes";
+					else if ("forestry".equals(motorVehicle))
+						forestryTag = "yes";
+					else if ("delivery".equals(motorVehicle))
+						deliveryTag = "yes";
+				}
+
+				setFlagsFromTag(goodsTag, HeavyVehicleAttributes.GOODS);
+				setFlagsFromTag(hgvTag, HeavyVehicleAttributes.HGV);
+				setFlagsFromTag(busTag, HeavyVehicleAttributes.BUS);
+				setFlagsFromTag(agriculturalTag, HeavyVehicleAttributes.AGRICULTURE);
+				setFlagsFromTag(forestryTag, HeavyVehicleAttributes.FORESTRY);
+				setFlagsFromTag(deliveryTag, HeavyVehicleAttributes.DELIVERY);
+
+				String hazmatTag = key.equals("hazmat") ? value : null;
+				if ("no".equals(hazmatTag)) {
+					_hgvType |= HeavyVehicleAttributes.HAZMAT;
+				}
+
+				String tag = forestryTag;
+				if (tag != null) System.out.println(way.getId() + " " + tag);
+				// (access=no) + access:conditional=delivery @
+				// (07:00-11:00); customer @ (07:00-17:00)
 			}
 		}
 	}
