@@ -32,7 +32,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import heigit.ors.exceptions.PointNotFoundException;
 import heigit.ors.exceptions.RouteNotFoundException;
+import heigit.ors.util.StringUtility;
 import org.apache.log4j.Logger;
 
 import heigit.ors.routing.parameters.VehicleParameters;
@@ -417,6 +419,14 @@ public class RoutingProfileManager {
                                         i + 1,
                                         FormatUtility.formatCoordinate(c1))
                         );
+                    } else if(gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
+                        String message = "";
+                        for(Throwable error: gr.getErrors()) {
+                            if(!StringUtility.isEmpty(message))
+                                message = message + "; ";
+                            message = message + error.getMessage();
+                        }
+                        throw new PointNotFoundException(message);
                     } else {
                         throw new InternalServerException(RoutingErrorCodes.UNKNOWN, gr.getErrors().get(0).getMessage());
                     }

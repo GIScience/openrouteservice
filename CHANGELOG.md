@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed the mising rte tag in gpx issue (Issue #196)
 - Fixed the gpx validation errror (Issue #168)
 - Added unit conversion so that isochrone response is in user specified unit (issue #91)
+- Enabled the reporting of multiple missing points in error response (issue #246)
 
 ### Changed
 - Refactored some of the edge filters and cleaned up the code initializing them
