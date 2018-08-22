@@ -25,7 +25,7 @@ jobs:
         - cp ${TRAVIS_BUILD_DIR}/openrouteservice-api-tests/conf/app.config.test ${TRAVIS_BUILD_DIR}/openrouteservice/WebContent/WEB-INF/app.config
         - mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml install -B
         - nohup mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml tomcat7:run &
-        - travis_wait 15 sleep 15m
+        - travis_wait 45 sleep 45m
         - curl http://127.0.0.1:8082/openrouteservice-4.5.0/health
         - mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice-api-tests/pom.xml test
 
