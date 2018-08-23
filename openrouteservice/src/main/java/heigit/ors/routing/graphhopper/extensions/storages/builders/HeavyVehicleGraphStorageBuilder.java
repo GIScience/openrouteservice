@@ -247,6 +247,18 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 		return null;
 	}
 
+	/**
+	 * Toggle the bit corresponding to a given hgv type defined by {@code flag} inside binary restriction masks based on
+	 * the value of {@code tag}. "no" sets the bit in {@code _hgvType}, while "yes" unsets it.
+	 *
+	 * When the value is "destination" (or "delivery" for hgv delivery) values in both {@code _hgvType} and
+	 * {@code  _hgvDestination} are set.
+	 *
+	 * @param tag
+	 *          a String describing the access restriction
+	 * @param flag
+	 *          hgv type as defined in {@code HeavyVehicleAttributes}
+	 */
 	private void setFlagsFromTag (String tag, int flag) {
 		if (tag != null) {
 			if ("no".equals(tag))
