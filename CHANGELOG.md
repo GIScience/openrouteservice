@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Removed Geocoding code as this will be handled by the geocoder service rather than within ORS
 - Added smoothing option for isochrones (Issue #137)
 - Added ExtraInfo storage for osm way id so that this information can be stored (and accessed) agianst the edges (Issue #217)
+- Added a new GeometryUtility function and its unit test to calculate the bbox for a set of coordinates (Issue #241)
 
 ### Fixed
 - Fixed problem with avoid polygons excluding ways that should have been accepted (Issue #95)
@@ -27,6 +28,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Updated the wheelchair profile to better handle restrictions such as width, kerb heights and instances where sidewalks are attached to roads. (Issue #162)
 - Replaced "Sand" surface encoding with "Paving stone"
 - Changed the bbox api test (Issue #241)
+- Changed the way the bbox is calculated internally (Issue #241)
+
 ### Deprecated
 - Removed references to locations and accessibilty services from web.xml (Issue #186)
 
