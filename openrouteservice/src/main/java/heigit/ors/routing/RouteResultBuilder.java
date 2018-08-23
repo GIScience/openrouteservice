@@ -46,6 +46,7 @@ import heigit.ors.routing.instructions.InstructionTranslatorsCache;
 import heigit.ors.routing.instructions.InstructionType;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
+import heigit.ors.util.GeomUtility;
 import heigit.ors.util.StringUtility;
 
 public class RouteResultBuilder
@@ -119,7 +120,7 @@ public class RouteResultBuilder
 			}
 			if (bbox == null)
 				bbox = new BBox(routePoints.getLon(0), routePoints.getLon(0), routePoints.getLat(0), routePoints.getLat(0));
-			bbox = path.calcRouteBBox(bbox);
+			bbox = GeomUtility.CalculateBoundingBox(path.getPoints(), bbox);
 
 			if (request.getIncludeGeometry())
 			{
@@ -302,36 +303,10 @@ public class RouteResultBuilder
 			result.setWayPointsIndices(routeWayPoints);
 
 		if (summary_pointlist != null) {
-			PathWrapper summary_path = new PathWrapper().setPoints(summary_pointlist);
-			if (bbox != null && summary_path.getPoints().getSize() > 0) {
-
-				double min_lon = Double.MAX_VALUE;
-				double max_lon = -Double.MAX_VALUE;
-				double min_lat = Double.MAX_VALUE;
-				double max_lat = -Double.MAX_VALUE;
-				double min_ele = Double.MAX_VALUE;
-				double max_ele = -Double.MAX_VALUE;
-				if (summary_path.getPoints().is3D()) {
-					min_ele = summary_path.getPoints().getEle(0);
-					max_ele = summary_path.getPoints().getEle(0);
-				}
-				for (int i = 0; i < summary_path.getPoints().getSize(); ++i) {
-					min_lon = Math.min(min_lon, summary_path.getPoints().getLon(i));
-					max_lon = Math.max(max_lon, summary_path.getPoints().getLon(i));
-					min_lat = Math.min(min_lat, summary_path.getPoints().getLat(i));
-					max_lat = Math.max(max_lat, summary_path.getPoints().getLat(i));
-					if (summary_path.getPoints().is3D()) {
-						min_ele = Math.min(min_ele, summary_path.getPoints().getEle(i));
-						max_ele = Math.max(max_ele, summary_path.getPoints().getEle(i));
-					}
-				}
-				if (summary_path.getPoints().is3D() && min_ele != 0) {
-					BBox summary_bbox = new BBox(min_lon, max_lon, min_lat, max_lat,min_ele, max_ele);
-					routeSummary.setBBox(summary_bbox);
-				} else {
-					BBox summary_bbox = new BBox(min_lon, max_lon, min_lat, max_lat);
-					routeSummary.setBBox(summary_bbox);
-				}
+			if (summary_pointlist.getSize() > 0) {
+				// The bounding box function of graphhopper returns wrong bboxes. This one should fix it.
+				BBox summary_bbox = GeomUtility.CalculateBoundingBox(summary_pointlist, bbox);
+				routeSummary.setBBox(summary_bbox);
 			}
 		}
 		else
