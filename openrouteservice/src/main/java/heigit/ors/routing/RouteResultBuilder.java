@@ -47,7 +47,6 @@ import heigit.ors.routing.instructions.InstructionType;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.StringUtility;
-import org.junit.Test;
 
 public class RouteResultBuilder
 {
@@ -120,7 +119,6 @@ public class RouteResultBuilder
 			}
 			if (bbox == null)
 				bbox = new BBox(routePoints.getLon(0), routePoints.getLon(0), routePoints.getLat(0), routePoints.getLat(0));
-
 			bbox = path.calcRouteBBox(bbox);
 
 			if (request.getIncludeGeometry())
