@@ -24,7 +24,9 @@ import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import org.apache.log4j.Logger;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Defines bit layout for cars. (speed, access, ferries, ...)
@@ -49,6 +51,9 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
      */
     protected int maxTrackGradeLevel = 3;
 
+    // Take into account acceleration calculations when determining travel speed
+    protected boolean useAcceleration = false;
+
     public CarFlagEncoder() {
         this(5, 5, 0);
     }
@@ -60,7 +65,9 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
         this.properties = properties;
         this.setBlockFords(properties.getBool("block_fords", true));
         this.setBlockByDefault(properties.getBool("block_barriers", true));
-        
+
+        this.useAcceleration = properties.getBool("use_acceleration", false);
+
         maxTrackGradeLevel = properties.getInt("maximum_grade_level", 3);
     }
 
@@ -368,7 +375,7 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
 
             speed = getSurfaceSpeed(way, speed);
 
-            if(way.hasTag("estimated_distance")) {
+            if(way.hasTag("estimated_distance") && this.useAcceleration) {
                 double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
                 speed = Math.max(adjustSpeedForAcceleration(estDist, speed), speedFactor);
             }
