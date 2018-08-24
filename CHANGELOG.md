@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added a new GeometryUtility function and its unit test to calculate the bbox for a set of coordinates (Issue #241)
 
 ### Fixed
+- Correct logic of determining vehicle type flags in heavy vehicle storage (Issue #211)
+- Enable OSM "key:access" tag values to take effect for heavy vehicle profile (Issue #209)
 - Fixed problem with avoid polygons excluding ways that should have been accepted (Issue #95)
 - Updated code to remove merging of instructions as this resulted in missing important turn instructions (Issue #177)
 - Added missing translations for arrival instructions (Issue #171)
