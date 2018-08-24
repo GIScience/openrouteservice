@@ -48,6 +48,9 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
     protected final HashSet<String> noValues = new HashSet<String>(5);
     protected final HashSet<String> yesValues = new HashSet<String>(5);
     protected final List<String> hgvAccess = new ArrayList<String>(5);
+
+    // Take into account acceleration calculations when determining travel speed
+    protected boolean useAcceleration = false;
     
     protected int maxTrackGradeLevel = 3;
     
@@ -75,6 +78,8 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
         setBlockFords(false);
         
         maxTrackGradeLevel = properties.getInt("maximum_grade_level", 1);
+
+        this.useAcceleration = properties.getBool("use_acceleration", false);
     }
 
     public HeavyVehicleFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts )
@@ -481,7 +486,7 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
         			speed = surfaceSpeed;
         	}
 
-            if(way.hasTag("estimated_distance")) {
+            if(way.hasTag("estimated_distance") && this.useAcceleration) {
                 double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
                 speed = Math.max(adjustSpeedForAcceleration(estDist, speed), speedFactor);
             }
