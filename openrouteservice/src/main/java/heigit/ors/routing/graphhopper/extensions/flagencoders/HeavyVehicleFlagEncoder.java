@@ -486,9 +486,25 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
         			speed = surfaceSpeed;
         	}
 
-            if(way.hasTag("estimated_distance") && this.useAcceleration) {
-                double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
-                speed = Math.max(adjustSpeedForAcceleration(estDist, speed), speedFactor);
+            if(way.hasTag("estimated_distance")) {
+                if(this.useAcceleration) {
+                    double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
+                    speed = Math.max(adjustSpeedForAcceleration(estDist, speed), speedFactor);
+                } else {
+                    // Assume that in residential areas we will travel slower if the segment is short
+                    if(way.hasTag("highway","residential")) {
+                        double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
+                        // take into account number of nodes to get an average distance between nodes
+                        double interimDistance = estDist;
+                        int interimNodes = way.getNodes().size() - 2;
+                        if(interimNodes > 0) {
+                            interimDistance = estDist/(interimNodes+1);
+                        }
+                        if(interimDistance < 100) {
+                            speed = speed * 0.5;
+                        }
+                    }
+                }
             }
         	
         	 boolean isRoundabout = way.hasTag("junction", "roundabout");
