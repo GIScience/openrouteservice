@@ -181,14 +181,14 @@ public class ResultTest extends ServiceTest {
 			.then()
 			.body("any { it.key == 'type' }", is(true))
 			.body("any { it.key == 'features' }", is(true))
-			.body("features.size()", is(6))
+			.body("features.size()", is(5))
 			.body("features[0].type", is("Feature"))
 			.body("features[0].geometry.type", is("Polygon"))
-			.body("features[0].geometry.coordinates[0].size", is(33))
+			.body("features[0].geometry.coordinates[0].size", is(23))
 			.body("features[0].properties.containsKey('area')", is(true))
 			.body("features[1].type", is("Feature"))
 			.body("features[1].geometry.type", is("Polygon"))
-			.body("features[1].geometry.coordinates[0].size", is(53))
+			.body("features[1].geometry.coordinates[0].size", is(56))
 			.body("features[2].type", is("Feature"))
 			.body("features[2].geometry.type", is("Polygon"))
 			.body("features[2].geometry.coordinates[0].size", is(25))
@@ -196,7 +196,6 @@ public class ResultTest extends ServiceTest {
 			.body("features[3].geometry.type", is("Polygon"))
 			.body("features[3].geometry.coordinates[0].size", is(33))
 			.body("features[4].properties.contours.size", is(2))
-			.body("features[5].properties.contours.size", is(2))
 			
 			.statusCode(200);
 	}
