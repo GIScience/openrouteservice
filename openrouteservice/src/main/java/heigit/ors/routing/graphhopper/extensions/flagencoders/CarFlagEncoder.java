@@ -22,11 +22,11 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodedDoubleValue;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
-import heigit.ors.config.AppConfig;
-import heigit.ors.services.routing.RoutingServiceSettings;
 import org.apache.log4j.Logger;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Defines bit layout for cars. (speed, access, ferries, ...)
