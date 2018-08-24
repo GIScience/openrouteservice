@@ -48,6 +48,9 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
     protected final HashSet<String> noValues = new HashSet<String>(5);
     protected final HashSet<String> yesValues = new HashSet<String>(5);
     protected final List<String> hgvAccess = new ArrayList<String>(5);
+
+    // Take into account acceleration calculations when determining travel speed
+    protected boolean useAcceleration = false;
     
     protected int maxTrackGradeLevel = 3;
     
@@ -75,6 +78,8 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
         setBlockFords(false);
         
         maxTrackGradeLevel = properties.getInt("maximum_grade_level", 1);
+
+        this.useAcceleration = properties.getBool("use_acceleration", false);
     }
 
     public HeavyVehicleFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts )
@@ -265,7 +270,7 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
 
     @Override
     double averageSecondsTo100KmpH() {
-        return 20;
+        return 10;
     }
 	
 	protected int getTrackGradeLevel(String grade)
@@ -482,8 +487,18 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
         	}
 
             if(way.hasTag("estimated_distance")) {
-                double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
-                speed = Math.max(adjustSpeedForAcceleration(estDist, speed), speedFactor);
+                if(this.useAcceleration) {
+                    double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
+                    if(way.hasTag("highway","residential")) {
+                        speed = addResedentialPenalty(speed, way);
+                    } else {
+                        speed = Math.max(adjustSpeedForAcceleration(estDist, speed), speedFactor);
+                    }
+                } else {
+                    if(way.hasTag("highway","residential")) {
+                        speed = addResedentialPenalty(speed, way);
+                    }
+                }
             }
         	
         	 boolean isRoundabout = way.hasTag("junction", "roundabout");

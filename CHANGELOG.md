@@ -9,8 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Removed locations code as this will be handled by openpoiservice in the future (Issue #120)
 - Removed Geocoding code as this will be handled by the geocoder service rather than within ORS
 - Added smoothing option for isochrones (Issue #137)
+- Added ExtraInfo storage for osm way id so that this information can be stored (and accessed) agianst the edges (Issue #217)
 
 ### Fixed
+- Correct logic of determining vehicle type flags in heavy vehicle storage (Issue #211)
+- Enable OSM "key:access" tag values to take effect for heavy vehicle profile (Issue #209)
 - Fixed problem with avoid polygons excluding ways that should have been accepted (Issue #95)
 - Updated code to remove merging of instructions as this resulted in missing important turn instructions (Issue #177)
 - Added missing translations for arrival instructions (Issue #171)
@@ -18,6 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed the mising rte tag in gpx issue (Issue #196)
 - Fixed the gpx validation errror (Issue #168)
 - Added unit conversion so that isochrone response is in user specified unit (issue #91)
+- Enabled the reporting of multiple missing points in error response (issue #246)
 
 ### Changed
 - Refactored some of the edge filters and cleaned up the code initializing them

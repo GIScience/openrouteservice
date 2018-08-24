@@ -50,7 +50,7 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder
 		_distCalc = Helper.DIST_3D;
 	}
 
-	public void addSegment(double value, int valueIndex, PointList geom, double dist, boolean lastEdge)
+	public void addSegment(double value, long valueIndex, PointList geom, double dist, boolean lastEdge)
     {
 		_lastEdge = lastEdge;
     }

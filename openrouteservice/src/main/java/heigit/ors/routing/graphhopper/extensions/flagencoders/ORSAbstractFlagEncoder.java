@@ -20,6 +20,7 @@
  */
 package heigit.ors.routing.graphhopper.extensions.flagencoders;
 
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 
 public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
@@ -32,6 +33,24 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 
 	protected ORSAbstractFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
 		super(speedBits, speedFactor, maxTurnCosts);
+	}
+
+	double addResedentialPenalty(double baseSpeed, ReaderWay way) {
+		double speed = baseSpeed;
+		if(way.hasTag("highway","residential")) {
+			double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
+			// take into account number of nodes to get an average distance between nodes
+			double interimDistance = estDist;
+			int interimNodes = way.getNodes().size() - 2;
+			if(interimNodes > 0) {
+				interimDistance = estDist/(interimNodes+1);
+			}
+			if(interimDistance < 100) {
+				speed = speed * 0.5;
+			}
+		}
+
+		return speed;
 	}
 
 	double averageSecondsTo100KmpH() { return 10; }
