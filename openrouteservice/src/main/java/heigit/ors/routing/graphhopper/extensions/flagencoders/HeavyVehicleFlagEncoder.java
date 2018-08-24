@@ -489,20 +489,14 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
             if(way.hasTag("estimated_distance")) {
                 if(this.useAcceleration) {
                     double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
-                    speed = Math.max(adjustSpeedForAcceleration(estDist, speed), speedFactor);
-                } else {
-                    // Assume that in residential areas we will travel slower if the segment is short
                     if(way.hasTag("highway","residential")) {
-                        double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
-                        // take into account number of nodes to get an average distance between nodes
-                        double interimDistance = estDist;
-                        int interimNodes = way.getNodes().size() - 2;
-                        if(interimNodes > 0) {
-                            interimDistance = estDist/(interimNodes+1);
-                        }
-                        if(interimDistance < 100) {
-                            speed = speed * 0.5;
-                        }
+                        speed = addResedentialPenalty(speed, way);
+                    } else {
+                        speed = Math.max(adjustSpeedForAcceleration(estDist, speed), speedFactor);
+                    }
+                } else {
+                    if(way.hasTag("highway","residential")) {
+                        speed = addResedentialPenalty(speed, way);
                     }
                 }
             }
