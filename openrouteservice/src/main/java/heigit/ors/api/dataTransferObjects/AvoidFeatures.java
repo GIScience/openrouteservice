@@ -5,6 +5,14 @@ import io.swagger.annotations.ApiModel;
 
 @ApiModel
 public enum AvoidFeatures {
-    @JsonProperty("tollways") TOLLWAYS,
-    @JsonProperty("ferries") FERRIES
+    @JsonProperty("tollways") TOLLWAYS {
+        public String toString() {
+            return "tollways";
+        }
+    },
+    @JsonProperty("ferries") FERRIES {
+        public String toString() {
+            return "ferries";
+        }
+    }
 }
