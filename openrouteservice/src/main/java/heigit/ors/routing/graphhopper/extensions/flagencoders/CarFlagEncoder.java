@@ -375,9 +375,19 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
 
             speed = getSurfaceSpeed(way, speed);
 
-            if(way.hasTag("estimated_distance") && this.useAcceleration) {
-                double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
-                speed = Math.max(adjustSpeedForAcceleration(estDist, speed), speedFactor);
+            if(way.hasTag("estimated_distance")) {
+                if(this.useAcceleration) {
+                    double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
+                    if(way.hasTag("highway","residential")) {
+                        speed = addResedentialPenalty(speed, way);
+                    } else {
+                        speed = Math.max(adjustSpeedForAcceleration(estDist, speed), speedFactor);
+                    }
+                } else {
+                    if(way.hasTag("highway","residential")) {
+                        speed = addResedentialPenalty(speed, way);
+                    }
+                }
             }
 
             boolean isRoundabout = way.hasTag("junction", "roundabout");
