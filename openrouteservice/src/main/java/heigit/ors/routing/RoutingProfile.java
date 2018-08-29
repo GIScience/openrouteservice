@@ -863,6 +863,9 @@ public class RoutingProfile {
             req.setEdgeFilter(searchCntx.getEdgeFilter());
             req.setPathProcessor(routeProcCntx.getPathProcessor());
 
+            //TEST
+//            optimized = false;
+
             if (useDynamicWeights(searchParams) || flexibleMode) {
                 if (mGraphHopper.isCHEnabled())
                     req.getHints().put("ch.disable", true);
@@ -871,8 +874,13 @@ public class RoutingProfile {
                     req.getHints().put("lm.disable", false);
                     req.getHints().put("core.disable", true);
                 }
-                if (mGraphHopper.isCoreEnabled() && !(searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED || searchParams.getBearings() != null || optimized)) {
+                if (mGraphHopper.isCoreEnabled() &&
+                        optimized &&
+                        !(searchParams.getWeightingMethod() == WeightingMethod.SHORTEST ||
+                                searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED ||
+                                searchParams.getBearings() != null)) {
                     req.getHints().put("core.disable", false);
+                    req.getHints().put("lm.disable", true);
                     req.setAlgorithm("dijkstrabi");
                 }
             } else {
@@ -881,7 +889,11 @@ public class RoutingProfile {
                     req.getHints().put("core.disable", true);
                 }
                 else {
-                    if (mGraphHopper.isCoreEnabled() && !(searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED || searchParams.getBearings() != null || optimized)) {
+                    if (mGraphHopper.isCoreEnabled() &&
+                            optimized &&
+                            !(searchParams.getWeightingMethod() == WeightingMethod.SHORTEST ||
+                                    searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED ||
+                                    searchParams.getBearings() != null)) {
                         req.getHints().put("lm.disable", true);
                         req.getHints().put("ch.disable", true);
 
