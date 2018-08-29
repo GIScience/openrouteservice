@@ -10,3 +10,4 @@ heigit.ors.routing.graphhopper.extensions.storages.builders.AccessRestrictionsGr
 heigit.ors.routing.graphhopper.extensions.storages.builders.TollwaysGraphStorageBuilder
 heigit.ors.routing.graphhopper.extensions.storages.builders.TrailDifficultyScaleGraphStorageBuilder
 heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder
+heigit.ors.routing.graphhopper.extensions.storages.builders.OsmIdGraphStorageBuilder

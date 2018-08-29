@@ -20,6 +20,8 @@
  */
 package heigit.ors.routing.graphhopper.extensions.util;
 
+import java.nio.ByteBuffer;
+
 public class EncodeUtils {
 
 	public static double getValue(int restValue, int index) {
@@ -57,6 +59,40 @@ public class EncodeUtils {
 				| (((int) (values[2] * 10) & 0xFF) << 8) | ((int) (values[3] * 10) & 0xFF));
 
 		return value;
+	}
+
+	/**
+	 * Takes a long value and converts it into a byte array of size 8.
+	 *
+	 * @param longValue
+	 * @return			An 8 long byte array representation of the long number
+	 */
+	public static byte[] longToByteArray(long longValue) {
+		ByteBuffer longToByteBuffer = ByteBuffer.allocate(Long.BYTES);
+		longToByteBuffer.putLong(longValue);
+		return longToByteBuffer.array();
+	}
+
+	/**
+	 * Takes a byte array and converts it to a long value representation
+	 *
+	 * @param byteArray
+	 * @return			The long number representation of the bytes
+	 */
+	public static long byteArrayToLong(byte[] byteArray) {
+		ByteBuffer byteToLongBuffer = ByteBuffer.allocate(Long.BYTES);
+		// Need to make up to the needed 8 bytes
+		byte[] storageBytes = {0,0,0,0,0,0,0,0};
+		int differenceInSize = storageBytes.length - byteArray.length;
+
+		for(int i = byteArray.length-1; i >= 0; i--) {
+			if(differenceInSize + i >= 0)
+				storageBytes[differenceInSize + i] = byteArray[i];
+		}
+
+		byteToLongBuffer.put(storageBytes);
+		byteToLongBuffer.flip();
+		return byteToLongBuffer.getLong();
 	}
 
 	public static void main(String[] args) {

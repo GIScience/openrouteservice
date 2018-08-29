@@ -84,15 +84,22 @@ public class CoreDijkstraFilter implements EdgeFilter {
         //System.out.println("(CORE level)");
 //        if(((CHEdgeIteratorState) edgeIterState).isShortcut()) System.out.println("(shortcut)");
 //        else System.out.println("");
-        // minor performance improvement: shortcuts in wrong direction are disconnected, so no need to exclude them
-        if (((CHEdgeIteratorState) edgeIterState).isShortcut())
+
+        //        System.out.println("Visited edges NOT IN core: " + count + "   Visited edges IN core " + countCore);
+
+
+        // minor performance improvement: shortcuts in wrong direction are already disconnected, so no need to check them
+        if (((CHEdgeIteratorState) edgeIterState).isShortcut()) {
             return true;
-
-//        System.out.println("Visited edges NOT IN core: " + count + "   Visited edges IN core " + countCore);
-        if (graph.getLevel(base) <= graph.getLevel(adj))
+        }
+        else {
+            // if edge is in the core check for restrictions
+            if (graph.getLevel(base) == coreNodeLevel && graph.getLevel(adj) == coreNodeLevel)
                 return restrictions.accept(edgeIterState);
-
-        else return false;
+            // otherwise use CH level filter
+            else
+                return graph.getLevel(base) <= graph.getLevel(adj);
+        }
     }
 
     public void addRestrictionFilter (EdgeFilter restrictions) {
