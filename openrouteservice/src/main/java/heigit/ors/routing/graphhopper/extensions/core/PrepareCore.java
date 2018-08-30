@@ -734,8 +734,15 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     }
 
     public static class DijkstraBidirectionCH extends DijkstraBidirectionRef {
+        protected HashSet<SPTEntry> coreEntryPointsFrom = new HashSet<>();
+        protected HashSet<SPTEntry> coreEntryPointsTo = new HashSet<>();
+        CHGraph chGraph;
+        int coreNodeLevel;
+
         public DijkstraBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode, double maxSpeed) {
             super(graph, weighting, traversalMode, maxSpeed);
+            chGraph = (CHGraph) ((QueryGraph) graph).getMainGraph();
+            coreNodeLevel = chGraph.getNodes() + 1;
         }
 
         @Override
@@ -752,6 +759,28 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             // changed also the final finish condition for CH
             return currFrom.weight >= bestPath.getWeight() && currTo.weight >= bestPath.getWeight();
         }
+
+        protected void runAlgo() {
+
+            // PHASE 1: run modified CH outside of core to find entry points
+            while(!this.finished() && !this.isMaxVisitedNodesExceeded()) {
+                if (!this.finishedFrom) {
+                    if (chGraph.getLevel(currFrom.adjNode) == coreNodeLevel)
+                        coreEntryPointsFrom.add(currFrom);
+                    this.finishedFrom = !this.fillEdgesFrom();
+                }
+
+                if (!this.finishedTo) {
+                    if (chGraph.getLevel(currTo.adjNode) == coreNodeLevel)
+                        coreEntryPointsTo.add(currTo);
+                    this.finishedTo = !this.fillEdgesTo();
+                }
+            }
+
+            // TODO STEP 2 Perform routing in core with the restrictions filter
+
+        }
+
 
         @Override
         protected Path createAndInitPath() {
