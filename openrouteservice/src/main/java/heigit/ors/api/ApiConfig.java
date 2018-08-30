@@ -1,5 +1,6 @@
 package heigit.ors.api;
 
+import heigit.ors.api.converters.APIRequestProfileConverter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -24,7 +25,7 @@ public class ApiConfig implements WebMvcConfigurer {
 
     @Override
     public void addFormatters(FormatterRegistry registry) {
-
+        registry.addConverter(new APIRequestProfileConverter());
     }
 
     @Override
