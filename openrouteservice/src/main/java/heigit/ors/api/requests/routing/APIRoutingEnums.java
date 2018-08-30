@@ -31,11 +31,12 @@ public class APIRoutingEnums {
 
         @JsonCreator
         public static AvoidBorders forValue(String v) throws ParameterValueException {
-            try {
-                return AvoidBorders.valueOf(v);
-            } catch (Exception e) {
-                throw new ParameterValueException(INVALID_PARAMETER_VALUE, "avoid_borders", v);
+            for(AvoidBorders enumItem : AvoidBorders.values()) {
+                if(enumItem.value.equals(v))
+                    return enumItem;
             }
+
+            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "avoid_borders", v);
         }
 
         @Override
@@ -69,19 +70,17 @@ public class APIRoutingEnums {
 
         private final String value;
 
-        static private final String parameterName = "extra_info";
-
         ExtraInfo(String value) {
             this.value = value;
         }
 
         @JsonCreator
         public static ExtraInfo forValue(String v) throws ParameterValueException {
-            try {
-                return ExtraInfo.valueOf(v);
-            } catch (Exception e) {
-                throw new ParameterValueException(INVALID_PARAMETER_VALUE, parameterName, v);
+            for(ExtraInfo enumItem : ExtraInfo.values()) {
+                if(enumItem.value.equals(v))
+                    return enumItem;
             }
+            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "extra_info", v);
         }
 
         @Override
@@ -133,11 +132,11 @@ public class APIRoutingEnums {
 
         @JsonCreator
         public static RouteResponseGeometryType forValue(String v) throws ParameterValueException {
-            try {
-                return RouteResponseGeometryType.valueOf(v);
-            } catch (Exception e) {
-                throw new ParameterValueException(INVALID_PARAMETER_VALUE, "geometry_format", v);
+            for(RouteResponseGeometryType enumItem : RouteResponseGeometryType.values()) {
+                if(enumItem.value.equals(v))
+                    return enumItem;
             }
+            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "geometry_format", v);
         }
 
         @Override
@@ -160,11 +159,11 @@ public class APIRoutingEnums {
 
         @JsonCreator
         public static RouteResponseType forValue(String v) throws ParameterValueException {
-            try {
-                return RouteResponseType.valueOf(v);
-            } catch (Exception e) {
-                throw new ParameterValueException(INVALID_PARAMETER_VALUE, "geometry_format", v);
+            for(RouteResponseType enumItem : RouteResponseType.values()) {
+                if(enumItem.value.equals(v))
+                    return enumItem;
             }
+            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "format", v);
         }
 
         @Override
@@ -191,11 +190,11 @@ public class APIRoutingEnums {
 
         @JsonCreator
         public static VehicleType forValue(String v) throws ParameterValueException {
-            try {
-                return VehicleType.valueOf(v);
-            } catch (Exception e) {
-                throw new ParameterValueException(INVALID_PARAMETER_VALUE, "geometry_format", v);
+            for(VehicleType enumItem : VehicleType.values()) {
+                if(enumItem.value.equals(v))
+                    return enumItem;
             }
+            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "vehicle_type", v);
         }
 
         @Override
@@ -206,69 +205,209 @@ public class APIRoutingEnums {
 
     @ApiModel
     public enum AvoidFeatures {
-        HIGHWAYS { public String toString() { return "highways"; }},
-        TOLLWAYS { public String toString() { return "tollways"; }},
-        FERRIES { public String toString() { return "ferries"; }},
-        TUNNELS { public String toString() { return "tunnels"; }},
-        PAVED_ROADS { public String toString() { return "pavedroads"; }},
-        UNPAVED_ROADS { public String toString() { return "unpavedroads"; }},
-        TRACKS { public String toString() { return "tracks"; }},
-        FORDS { public String toString() { return "fords"; }},
-        STEPS { public String toString() { return "steps"; }},
-        HILLS { public String toString() { return "hills"; }}
+        HIGHWAYS ("highways"),
+        TOLLWAYS ("tollways"),
+        FERRIES ("ferries"),
+        TUNNELS ("tunnels"),
+        PAVED_ROADS ("pavedroads"),
+        UNPAVED_ROADS ("unpavedroads"),
+        TRACKS ("tracks"),
+        FORDS ("fords"),
+        STEPS ("steps"),
+        HILLS ("hills");
+
+        private final String value;
+
+        AvoidFeatures(String value) {
+            this.value = value;
+        }
+
+        @JsonCreator
+        public static AvoidFeatures forValue(String v) throws ParameterValueException {
+            for(AvoidFeatures enumItem : AvoidFeatures.values()) {
+                if(enumItem.value.equals(v))
+                    return enumItem;
+            }
+            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "avoid_features", v);
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
     }
 
     @ApiModel(value = "Preference", description = "Specifies the route preference")
     public enum RoutePreference {
-        @JsonProperty("fastest") FASTEST { public String toString() { return "fastest"; }},
-        @JsonProperty("shortest") SHORTEST { public String toString() { return "shortest"; }},
-        @JsonProperty("recommended") RECOMMENDED { public String toString() { return "recommended"; }}
+        FASTEST ("fastest"),
+        SHORTEST ("shortest"),
+        RECOMMENDED ("recommended");
+
+        private final String value;
+
+        RoutePreference(String value) {
+            this.value = value;
+        }
+
+        @JsonCreator
+        public static RoutePreference forValue(String v) throws ParameterValueException {
+            for(RoutePreference enumItem : RoutePreference.values()) {
+                if(enumItem.value.equals(v))
+                    return enumItem;
+            }
+            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "preference", v);
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
     }
 
     public enum RoutingProfile {
-        @JsonProperty("driving-car") DRIVING_CAR { public String toString() { return "driving-car"; }},
-        @JsonProperty("driving-car") DRIVING_HGV { public String toString() { return "driving-car"; }},
-        @JsonProperty("cycling-regular") CYCLING_REGULAR { public String toString() { return "cycling-regular"; }},
-        @JsonProperty("cycling-road") CYCLING_ROAD { public String toString() { return "cycling-road"; }},
-        @JsonProperty("cycling-safe") CYCLING_SAFE { public String toString() { return "cycling-safe"; }},
-        @JsonProperty("cycling-mountain") CYCLING_MOUNTAIN { public String toString() { return "cycling-mountain"; }},
-        @JsonProperty("cycling-tour") CYCLING_TOUR { public String toString() { return "cycling-tour"; }},
-        @JsonProperty("cycling-electric") CYCLING_ELECTRIC { public String toString() { return "cycling-electric"; }},
-        @JsonProperty("foot-walking") FOOT_WALKING { public String toString() { return "foot-walking"; }},
-        @JsonProperty("foot-hiking") FOOT_HIKING { public String toString() { return "foot-hiking"; }},
-        @JsonProperty("wheelchair") WHEELCHAIR { public String toString() { return "wheelchair"; }},
+        DRIVING_CAR ("driving-car"),
+        DRIVING_HGV ("driving-hgv"),
+        CYCLING_REGULAR ("cycling-regular"),
+        CYCLING_ROAD ("cycling-road"),
+        CYCLING_SAFE ("cycling-safe"),
+        CYCLING_MOUNTAIN ("cycling-mountain"),
+        CYCLING_TOUR ("cycling-tour"),
+        CYCLING_ELECTRIC ("cycling-electric"),
+        FOOT_WALKING ("foot-walking"),
+        FOOT_HIKING ("foot-hiking"),
+        WHEELCHAIR ("wheelchair");
+
+        private final String value;
+
+        RoutingProfile(String value) {
+            this.value = value;
+        }
+
+        @JsonCreator
+        public static RoutingProfile forValue(String v) throws ParameterValueException {
+            for(RoutingProfile enumItem : RoutingProfile.values()) {
+                if(enumItem.value.equals(v))
+                    return enumItem;
+            }
+            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "profile", v);
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
     }
 
     public enum Units {
-        @JsonProperty("m") METRES { public String toString() { return "m"; }},
-        @JsonProperty("km") KILOMETRES { public String toString() { return "km"; }},
-        @JsonProperty("mi") MILES { public String toString() { return "mi"; }}
+        METRES ("m"),
+        KILOMETRES ("km"),
+        MILES ("mi");
+
+        private final String value;
+
+        Units(String value) {
+            this.value = value;
+        }
+
+        @JsonCreator
+        public static Units forValue(String v) throws ParameterValueException {
+            for(Units enumItem : Units.values()) {
+                if(enumItem.value.equals(v))
+                    return enumItem;
+            }
+            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "units", v);
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
     }
 
     public enum Languages {
-        @JsonProperty("en") EN { public String toString() { return "en"; }},
-        @JsonProperty("cn") CN { public String toString() { return "cn"; }},
-        @JsonProperty("de") DE { public String toString() { return "de"; }},
-        @JsonProperty("es") ES { public String toString() { return "es"; }},
-        @JsonProperty("ru") RU { public String toString() { return "ru"; }},
-        @JsonProperty("dk") DK { public String toString() { return "dk"; }},
-        @JsonProperty("fr") FR { public String toString() { return "fr"; }},
-        @JsonProperty("it") IT { public String toString() { return "it"; }},
-        @JsonProperty("nl") NL { public String toString() { return "nl"; }},
-        @JsonProperty("br") BR { public String toString() { return "br"; }},
-        @JsonProperty("se") SE { public String toString() { return "se"; }},
-        @JsonProperty("tr") TR { public String toString() { return "tr"; }},
-        @JsonProperty("gr") GR { public String toString() { return "gr"; }}
+        EN ("en"),
+        CN ("cn"),
+        DE ("de"),
+        ES ("es"),
+        RU ("ru"),
+        DK ("dk"),
+        FR ("fr"),
+        IT ("it"),
+        NL ("nl"),
+        BR ("br"),
+        SE ("se"),
+        TR ("tr"),
+        GR ("gr");
+
+        private final String value;
+
+        Languages(String value) {
+            this.value = value;
+        }
+
+        @JsonCreator
+        public static Languages forValue(String v) throws ParameterValueException {
+            for(Languages enumItem : Languages.values()) {
+                if(enumItem.value.equals(v))
+                    return enumItem;
+            }
+            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "language", v);
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
     }
 
     public enum InstructionsFormat {
-        @JsonProperty("html") HTML { public String toString() { return "html"; }},
-        @JsonProperty("text") TEXT { public String toString() { return "text"; }}
+        HTML ("html"),
+        TEXT ("text");
+
+        private final String value;
+
+        InstructionsFormat(String value) {
+            this.value = value;
+        }
+
+        @JsonCreator
+        public static InstructionsFormat forValue(String v) throws ParameterValueException {
+            for(InstructionsFormat enumItem : InstructionsFormat.values()) {
+                if(enumItem.value.equals(v))
+                    return enumItem;
+            }
+            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "instructions_format", v);
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
     }
 
     public enum Attributes {
-        @JsonProperty("avgspeed") AVERAGE_SPEED { public String toString() { return "avgspeed"; }},
-        @JsonProperty("detourfactor") DETOUR_FACTOR { public String toString() { return "detourfactor"; }},
-        @JsonProperty("percentage") ROUTE_PERCENTAGE { public String toString() { return "percentage"; }}
+        AVERAGE_SPEED ("avgspeed"),
+        DETOUR_FACTOR ("detourfactor"),
+        ROUTE_PERCENTAGE ("percentage");
+
+        private final String value;
+
+        Attributes(String value) {
+            this.value = value;
+        }
+
+        @JsonCreator
+        public static Attributes forValue(String v) throws ParameterValueException {
+            for(Attributes enumItem : Attributes.values()) {
+                if(enumItem.value.equals(v))
+                    return enumItem;
+            }
+            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "attributes", v);
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
     }
 }
