@@ -1,7 +1,7 @@
 package heigit.ors.api.responses.routing;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.api.dataTransferObjects.RouteResponseGeometryType;
+import heigit.ors.api.requests.routing.APIRoutingEnums.RouteResponseGeometryType;
 
 public class GeometryResponseFactory {
     public static GeometryResponse createGeometryResponse(Coordinate[] coordinates, boolean includeElevation, RouteResponseGeometryType geomType) {

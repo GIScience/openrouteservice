@@ -26,7 +26,7 @@ public class ProfileWeighting {
 	public ProfileWeighting(String name) throws Exception
 	{
 		if (Helper.isEmpty(name))
-			throw new Exception("'name' cann't be null or empty");
+			throw new Exception("'name' can't be null or empty");
 
 		_name =  name;
 	}

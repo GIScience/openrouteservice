@@ -1,12 +1,11 @@
-package heigit.ors.api.dataTransferObjects;
+package heigit.ors.api.responses.routing;
 
-import heigit.ors.api.responses.routing.GPXRouteResponse;
-import heigit.ors.api.responses.routing.JSONRouteResponse;
-import heigit.ors.api.responses.routing.RouteResponse;
+import heigit.ors.api.requests.routing.RouteRequest;
+import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONRouteResponse;
 import heigit.ors.routing.RouteResult;
 
 public class RouteResponseFactory {
-    public static RouteResponse constructResponse(RouteResult route, RouteRequestDTO request) {
+    public static RouteResponse constructResponse(RouteResult route, RouteRequest request) {
         RouteResponse response = null;
 
         switch(request.getResponseType()) {
@@ -16,6 +15,8 @@ public class RouteResponseFactory {
             case JSON:
                 response = new JSONRouteResponse(route, request.getGeometryType());
         }
+
+        response.setRequest(request);
 
         return response;
     }

@@ -1,6 +1,5 @@
 package heigit.ors.api.responses.routing;
 
-import heigit.ors.api.dataTransferObjects.RouteResponseDTO;
 import heigit.ors.routing.RouteResult;
 
 import javax.xml.bind.annotation.XmlRootElement;

@@ -438,6 +438,10 @@ public class RouteSearchParameters {
         return _profileParams;
     }
 
+    public void setProfileParams(ProfileParameters profileParams) {
+        this._profileParams = profileParams;
+    }
+
     public boolean getFlexibleMode() {
         return _flexibleMode;
     }
