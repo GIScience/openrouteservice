@@ -3,6 +3,7 @@ package heigit.ors.api.requests.routing;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import io.swagger.annotations.ApiModel;
@@ -40,6 +41,7 @@ public class APIRoutingEnums {
         }
 
         @Override
+        @JsonValue
         public String toString() {
             return value;
         }
@@ -84,6 +86,7 @@ public class APIRoutingEnums {
         }
 
         @Override
+        @JsonValue
         public String toString() {
             return value;
         }
@@ -140,6 +143,7 @@ public class APIRoutingEnums {
         }
 
         @Override
+        @JsonValue
         public String toString() {
             return value;
         }
@@ -167,6 +171,7 @@ public class APIRoutingEnums {
         }
 
         @Override
+        @JsonValue
         public String toString() {
             return value;
         }
@@ -198,6 +203,7 @@ public class APIRoutingEnums {
         }
 
         @Override
+        @JsonValue
         public String toString() {
             return value;
         }
@@ -232,6 +238,7 @@ public class APIRoutingEnums {
         }
 
         @Override
+        @JsonValue
         public String toString() {
             return value;
         }
@@ -259,6 +266,7 @@ public class APIRoutingEnums {
         }
 
         @Override
+        @JsonValue
         public String toString() {
             return value;
         }
@@ -293,6 +301,7 @@ public class APIRoutingEnums {
         }
 
         @Override
+        @JsonValue
         public String toString() {
             return value;
         }
@@ -319,6 +328,7 @@ public class APIRoutingEnums {
         }
 
         @Override
+        @JsonValue
         public String toString() {
             return value;
         }
@@ -355,6 +365,7 @@ public class APIRoutingEnums {
         }
 
         @Override
+        @JsonValue
         public String toString() {
             return value;
         }
@@ -380,6 +391,7 @@ public class APIRoutingEnums {
         }
 
         @Override
+        @JsonValue
         public String toString() {
             return value;
         }
@@ -406,6 +418,7 @@ public class APIRoutingEnums {
         }
 
         @Override
+        @JsonValue
         public String toString() {
             return value;
         }

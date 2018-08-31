@@ -4,20 +4,31 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import heigit.ors.api.requests.routing.RouteRequest;
 import heigit.ors.routing.RouteResult;
 
+import java.util.List;
+
 public class RouteResponse {
-    @JsonProperty("request")
-    private RouteRequest request;
+    @JsonProperty("info")
+    protected RouteResponseInfo responseInformation;
 
-    public RouteResponse() {};
-    public RouteResponse(RouteResult routeResult) {
+    @JsonProperty("bbox")
+    protected double[][] bbox;
 
+    @JsonProperty("routes")
+    protected List<IndividualRouteResponse> routeResults;
+
+    public RouteResponse(RouteRequest request) {
+        responseInformation = new RouteResponseInfo(request);
     }
 
-    public RouteRequest getRequest() {
-        return request;
+    public RouteResponseInfo getResponseInformation() {
+        return responseInformation;
     }
 
-    public void setRequest(RouteRequest request) {
-        this.request = request;
+    public double[][] getBbox() {
+        return bbox;
+    }
+
+    public List<IndividualRouteResponse> getRouteResults() {
+        return routeResults;
     }
 }

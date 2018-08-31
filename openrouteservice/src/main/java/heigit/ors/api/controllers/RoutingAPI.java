@@ -30,7 +30,7 @@ public class RoutingAPI {
     private RouteResponse buildResponse(RouteRequest request) throws Exception {
         RouteResult result = RouteRequestHandler.generateRouteFromRequest(request);
 
-        return RouteResponseFactory.constructResponse(result, request);
+        return RouteResponseFactory.constructResponse(new RouteResult[] { result }, request);
     }
 
     /*@ExceptionHandler(InvalidDefinitionException.class)

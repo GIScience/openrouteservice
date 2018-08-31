@@ -109,7 +109,7 @@ public class RouteRequestHandler {
         try {
             convertedGeom = GeometryJSON.parse(jsonComplex);
         } catch (Exception e) {
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_polygons");
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, "avoid_polygons");
         }
 
         Polygon[] avoidAreas;
@@ -133,7 +133,7 @@ public class RouteRequestHandler {
             return null;
 
         if(bearingsIn.length != coordinatesLength)
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "bearings", bearingsIn.toString());
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "bearings", bearingsIn.toString(), "The number of bearings must be equal to the number of waypoints on the route.");
 
         WayPointBearing[] bearings = new WayPointBearing[coordinatesLength];
         for(int i=0; i<bearingsIn.length; i++) {
@@ -155,7 +155,7 @@ public class RouteRequestHandler {
         double[] maxRadii = new double[coordinatesLength];
         if(radiiIn != null) {
             if(radiiIn.length != coordinatesLength)
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "radiuses", radiiIn.toString());
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "radiuses", radiiIn.toString(), "The number of radius pairs must be equal to the number of waypoints on the route.");
             for(int i=0; i<coordinatesLength; i++) {
                 maxRadii[i] = radiiIn[i];
             }

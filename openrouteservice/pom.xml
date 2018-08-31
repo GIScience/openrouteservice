@@ -153,6 +153,17 @@
                  <uriEncoding>utf-8</uriEncoding>
           </configuration>
       </plugin>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>repackage</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
        <plugin><!-- clean up from war:inplace  -->
         <artifactId>maven-clean-plugin</artifactId>
         <version>2.5</version>
