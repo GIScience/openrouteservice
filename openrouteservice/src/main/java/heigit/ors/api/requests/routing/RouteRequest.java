@@ -14,7 +14,7 @@ import java.util.ArrayList;
 @ApiImplicitParams({
         @ApiImplicitParam(name="start", required=true, value = "The starting location of the route")
 })
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RouteRequest {
     @ApiModelProperty(value = "The start location of the route", required = true, position = 0, example = "[ 8.34234, 48.23424 ]")
     private Double[] start;
