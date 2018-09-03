@@ -27,6 +27,7 @@ import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -282,6 +283,8 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             int polledNode = sortedNodes.pollKey();
             //We have worked through all nodes that are not associated with restrictions. Now we can stop the contraction.
             if (oldPriorities[polledNode] == RESTRICTION_PRIORITY){
+                //Set the number of core nodes in the storage for use in other places
+//                prepareGraph.setCoreNodes(sortedNodes.getSize());
                 while(!sortedNodes.isEmpty()){
                     CHEdgeIterator iter = vehicleAllExplorer.setBaseNode(polledNode);
                     while (iter.next()) {
@@ -599,12 +602,16 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         ghStorage.freeze();
         maxEdgesCount = ghStorage.getAllEdges().getMaxId();
         FlagEncoder prepareFlagEncoder = prepareWeighting.getFlagEncoder();
+        final EdgeFilter allFilter = new DefaultEdgeFilter(prepareFlagEncoder, true, true);
 
         //TODO
+        EdgeFilterSequence restrictionFilterSequenceFWD = (EdgeFilterSequence) restrictionFilter;
+        restrictionFilterSequenceFWD.add(new DefaultEdgeFilter(prepareFlagEncoder, true, false));
+        EdgeFilterSequence restrictionFilterSequenceBWD = (EdgeFilterSequence) restrictionFilter;
+        restrictionFilterSequenceBWD.add(new DefaultEdgeFilter(prepareFlagEncoder, false, true));
 
-        vehicleInExplorer = prepareGraph.createEdgeExplorer(new DefaultEdgeFilter(prepareFlagEncoder, true, false));
-        vehicleOutExplorer = prepareGraph.createEdgeExplorer(new DefaultEdgeFilter(prepareFlagEncoder, false, true));
-        final EdgeFilter allFilter = new DefaultEdgeFilter(prepareFlagEncoder, true, true);
+        vehicleInExplorer = prepareGraph.createEdgeExplorer(restrictionFilterSequenceFWD);
+        vehicleOutExplorer = prepareGraph.createEdgeExplorer(restrictionFilterSequenceBWD);
 
         // filter by vehicle and level number
         final EdgeFilter accessWithLevelFilter = new LevelEdgeFilter(prepareGraph) {
