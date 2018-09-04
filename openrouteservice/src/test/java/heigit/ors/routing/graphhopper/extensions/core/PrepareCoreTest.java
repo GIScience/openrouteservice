@@ -377,10 +377,9 @@ public class PrepareCoreTest {
         while (iter.next()) {
             if (iter.isShortcut()) {
                 int edge = iter.getEdge();
-                System.out.println("edge: " + edge + " base: " + iter.getBaseNode() + " adj: " + iter.getAdjNode());
-//                assertTrue(shortcuts.containsKey(edge));
-//                assertEquals(shortcuts.get(edge).first, iter.getBaseNode());
-//                assertEquals(shortcuts.get(edge).second, iter.getAdjNode());
+                assertTrue(shortcuts.containsKey(edge));
+                assertEquals(shortcuts.get(edge).first, iter.getBaseNode());
+                assertEquals(shortcuts.get(edge).second, iter.getAdjNode());
                 shortcutsFound.add(edge);
             }
         }
