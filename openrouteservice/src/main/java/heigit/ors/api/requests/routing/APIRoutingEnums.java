@@ -47,18 +47,6 @@ public class APIRoutingEnums {
         }
     }
 
-    /*@ApiModel(value = "Specify which extra info items to include in the response")
-    public enum ExtraInfo {
-        @JsonProperty("steepness") STEEPNESS { public String toString() { return "steepness"; }},
-        @JsonProperty("surface") SUITABILITY { public String toString() { return "suitability"; }},
-        @JsonProperty("surface") SURFACE { public String toString() { return "surface"; }},
-        @JsonProperty("waycategory") WAY_CATEGORY { public String toString() { return "waycategory"; }},
-        @JsonProperty("waytype") WAY_TYPE { public String toString() { return "waytype"; }},
-        @JsonProperty("tollways") TOLLWAYS { public String toString() { return "tollways"; }},
-        @JsonProperty("traildifficulty") TRAIL_DIFFICULTY { public String toString() { return "traildifficulty"; }},
-        @JsonProperty("osmid") OSM_ID { public String toString() { return "osmid"; }};
-    }*/
-
     @ApiModel(value = "Specify which extra info items to include in the response")
     public enum ExtraInfo {
         STEEPNESS ("steepness"),
@@ -92,34 +80,6 @@ public class APIRoutingEnums {
         }
 
     }
-
-    /*@ApiModel(value = "Specify which extra info items to include in the response")
-    public enum ExtraInfo {
-        @JsonProperty("steepness") STEEPNESS ("steepness"),
-        @JsonProperty("surface") SUITABILITY ("suitability"),
-        @JsonProperty("surface") SURFACE ("surface"),
-        @JsonProperty("waycategory") WAY_CATEGORY ("waycategory"),
-        @JsonProperty("waytype") WAY_TYPE ("waytype"),
-        @JsonProperty("tollways") TOLLWAYS ("tollways"),
-        @JsonProperty("traildifficulty") TRAIL_DIFFICULTY ("traildifficulty"),
-        @JsonProperty("osmid") OSM_ID ("osmid");
-
-        private static Map<String, ExtraInfo> FORMAT_MAP = Stream
-                .of(ExtraInfo.values())
-                .collect(Collectors.toMap(s -> s.formatted, Function.identity()));
-        private final String formatted;
-
-        ExtraInfo(String formatted) {
-            this.formatted = formatted;
-        }
-
-        @JsonCreator
-        public static ExtraInfo fromString(String string) throws UnknownParameterValueException {
-            return Optional
-                    .ofNullable(FORMAT_MAP.get(string))
-                    .orElseThrow(() -> new UnknownParameterValueException(1, "extra_info", string));
-        }
-    }*/
 
     @ApiModel
     public enum RouteResponseGeometryType {

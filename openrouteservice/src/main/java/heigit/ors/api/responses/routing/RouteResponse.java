@@ -1,19 +1,19 @@
 package heigit.ors.api.responses.routing;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import heigit.ors.api.requests.routing.RouteRequest;
-import heigit.ors.routing.RouteResult;
+import heigit.ors.api.responses.routing.BoundingBox.BoundingBox;
 
 import java.util.List;
 
 public class RouteResponse {
-    @JsonProperty("info")
+    @JsonIgnore
     protected RouteResponseInfo responseInformation;
 
-    @JsonProperty("bbox")
-    protected double[][] bbox;
+    @JsonIgnore
+    protected BoundingBox bbox;
 
-    @JsonProperty("routes")
+    @JsonIgnore
     protected List<IndividualRouteResponse> routeResults;
 
     public RouteResponse(RouteRequest request) {
@@ -24,7 +24,7 @@ public class RouteResponse {
         return responseInformation;
     }
 
-    public double[][] getBbox() {
+    public BoundingBox getBbox() {
         return bbox;
     }
 

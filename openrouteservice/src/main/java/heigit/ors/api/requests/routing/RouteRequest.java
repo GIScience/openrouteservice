@@ -16,6 +16,10 @@ import java.util.ArrayList;
 })
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RouteRequest {
+    @ApiModelProperty(value = "Arbitrary identification string of the request reflected in the meta information.")
+    private String id;
+    private boolean hasId = false;
+
     @ApiModelProperty(value = "The start location of the route", required = true, position = 0, example = "[ 8.34234, 48.23424 ]")
     private Double[] start;
     @ApiModelProperty(value = "The destination location of the route", required = true, position = 1, example = "[ 8.34423, 48.26424 ]")
@@ -113,8 +117,8 @@ public class RouteRequest {
             "The bearing can take values between 0 and 360 clockwise from true north. If the deviation is not set, then the default value of 100 degrees is used. " +
             "The number of pairs must correspond to the number of waypoints. Setting optimized=false is mandatory for this feature to work for all profiles. " +
             "The number of bearings corresponds to the length of waypoints-1 or waypoints. If the bearing information for the last waypoint is given, then this will control the sector from which the destination waypoint may be reached. " +
-            "You can skip a bearing for a certain waypoint by passing an empty value for a pair, e.g. 30,20||40,20.",
-            example = "[ [ 30, 20 ], [ -999, -999 ], [ 40, 20 ] ]"
+            "You can skip a bearing for a certain waypoint by passing an empty value for an array, e.g. [30,20],[],[40,20].",
+            example = "[ [ 30, 20 ], [ ], [ 40, 20 ] ]"
     )
     @JsonProperty("bearings")
     private Double[][] bearings;
@@ -159,6 +163,19 @@ public class RouteRequest {
             @JsonProperty(value = "end", required = true) Double[] end) {
         this.start = start;
         this.end = end;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+        this.hasId = true;
+    }
+
+    public boolean hasId() {
+        return hasId;
     }
 
     public Double[] getStart() {
@@ -239,6 +256,7 @@ public class RouteRequest {
 
     public void setExtraInfo(APIRoutingEnums.ExtraInfo[] extraInfo) {
         this.extraInfo = extraInfo;
+        this.hasExtraInfo = true;
     }
 
     public RouteRequestOptions getRouteOptions() {
@@ -298,6 +316,7 @@ public class RouteRequest {
 
     public void setAttributes(APIRoutingEnums.Attributes[] attributes) {
         this.attributes = attributes;
+        this.hasAttributes = true;
     }
 
     public Boolean getIncĺudeManeuvers() {
@@ -384,6 +403,9 @@ public class RouteRequest {
         return hasUseContractionHierarchies;
     }
 
+    public boolean isHasExtraInfo() {
+        return hasExtraInfo;
+    }
 
     @ApiIgnore
     @ApiModelProperty(hidden = true)
@@ -391,6 +413,13 @@ public class RouteRequest {
     public Coordinate[] getCoordinates() {
         ArrayList<Coordinate> coordinates = new ArrayList<>();
         coordinates.add(new Coordinate(start[0], start[1]));
+
+        if(via != null) {
+            for (Double[] viaCoords : via) {
+                coordinates.add(new Coordinate(viaCoords[0], viaCoords[1]));
+            }
+        }
+
         coordinates.add(new Coordinate(end[0], end[1]));
 
         return coordinates.toArray(new Coordinate[coordinates.size()]);

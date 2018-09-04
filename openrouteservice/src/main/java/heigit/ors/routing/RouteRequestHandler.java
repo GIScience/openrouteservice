@@ -4,21 +4,71 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import heigit.ors.api.requests.routing.*;
+import heigit.ors.common.DistanceUnit;
+import heigit.ors.common.StatusCode;
+import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.ParameterValueException;
+import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.geojson.GeometryJSON;
+import heigit.ors.localization.LocalizationManager;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import heigit.ors.routing.parameters.*;
 import heigit.ors.routing.pathprocessors.BordersExtractor;
+import heigit.ors.util.DistanceUnitUtil;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RouteRequestHandler {
-    public static RouteResult generateRouteFromRequest(RouteRequest request) throws ParameterValueException, Exception  {
+    public static RouteResult generateRouteFromRequest(RouteRequest request) throws StatusCodeException, Exception  {
+        RoutingRequest routingRequest = convertRouteRequest(request);
+
+        return RoutingProfileManager.getInstance().computeRoute(routingRequest);
+    }
+
+    public static RoutingRequest convertRouteRequest(RouteRequest request) throws StatusCodeException {
         RoutingRequest routingRequest = new RoutingRequest();
 
         routingRequest.setCoordinates(request.getCoordinates());
+
+        if(request.hasReturnElevationForPoints())
+            routingRequest.setIncludeElevation(request.getReturnElevationForPoints());
+
+        routingRequest.setContinueStraight(request.getContinueStraightAtWaypoints());
+
+        routingRequest.setIncludeGeometry(request.getIncludeGeometry());
+
+        routingRequest.setIncludeManeuvers(request.getIncĺudeManeuvers());
+
+        routingRequest.setIncludeInstructions(request.getIncludeInstructionsInResponse());
+
+        if(request.hasIncludeRoundaboutExitInfo())
+            routingRequest.setIncludeRoundaboutExits(request.getIncludeRoundaboutExitInfo());
+
+        if(request.hasAttributes())
+            routingRequest.setAttributes(convertAttributes(request.getAttributes()));
+
+        if(request.isHasExtraInfo())
+            routingRequest.setExtraInfo(convertExtraInfo(request.getExtraInfo()));
+
+        routingRequest.setLanguage(convertLanguage(request.getLanguage()));
+
+        routingRequest.setGeometryFormat(convertAPIEnum(request.getGeometryType()));
+
+        routingRequest.setInstructionsFormat(convertInstructionsFormat(request.getInstructionsFormat()));
+
+        if(request.hasSimplifyGeography())
+            routingRequest.setSimplifyGeometry(request.getSimplifyGeometry());
+
+        routingRequest.setUnits(convertUnits(request.getUnits()));
+
+        if(request.hasId())
+            routingRequest.setId(request.getId());
 
         int profileType = -1;
 
@@ -37,8 +87,10 @@ public class RouteRequestHandler {
 
         if(request.hasBearings())
             params.setBearings(convertBearings(request.getBearings(), coordinatesLength));
+
         if(request.hasMaximumSearchRadii())
             params.setMaximumRadiuses(convertMaxRadii(request.getMaximumSearchRadii(), coordinatesLength, profileType));
+
         if(request.hasUseContractionHierarchies())
             params.setFlexibleMode(convertSetFlexibleMode(request.getUseContractionHierarchies()));
 
@@ -46,14 +98,19 @@ public class RouteRequestHandler {
             RouteRequestOptions options = request.getRouteOptions();
             if (options.hasAvoidBorders())
                 params.setAvoidBorders(convertAvoidBorders(options.getAvoidBorders()));
+
             if (options.hasAvoidPolygonFeatures())
                 params.setAvoidAreas(convertAvoidAreas(options.getAvoidPolygonFeatures()));
+
             if (options.hasAvoidCountries())
                 params.setAvoidCountries(options.getAvoidCountries());
+
             if (options.hasAvoidFeatures())
                 params.setAvoidFeatureTypes(convertFeatureTypes(options.getAvoidFeatures(), profileType));
+
             if (options.hasMaximumSpeed())
                 params.setMaximumSpeed(options.getMaximumSpeed());
+
             if (options.hasVehicleType())
                 params.setVehicleType(convertVehicleType(options.getVehicleType()));
 
@@ -61,11 +118,12 @@ public class RouteRequestHandler {
         }
 
         params.setConsiderTraffic(false);
+
         params.setConsiderTurnRestrictions(false);
 
         routingRequest.setSearchParameters(params);
 
-        return RoutingProfileManager.getInstance().computeRoute(routingRequest);
+        return routingRequest;
     }
 
     private static int convertFeatureTypes(APIRoutingEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, ParameterValueException {
@@ -104,10 +162,15 @@ public class RouteRequestHandler {
     }
 
     private static Polygon[] convertAvoidAreas(JSONObject geoJson) throws ParameterValueException {
-        org.json.JSONObject jsonComplex = new org.json.JSONObject(geoJson.toJSONString());
+        // It seems that arrays in json.simple cannot be converted to strings simply
+        org.json.JSONObject complexJson = new org.json.JSONObject();
+        complexJson.put("type", geoJson.get("type"));
+        List<List<Double[]>> coordinates = (List<List<Double[]>>) geoJson.get("coordinates");
+        complexJson.put("coordinates", coordinates);
+
         Geometry convertedGeom;
         try {
-            convertedGeom = GeometryJSON.parse(jsonComplex);
+            convertedGeom = GeometryJSON.parse(complexJson);
         } catch (Exception e) {
             throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, "avoid_polygons");
         }
@@ -126,6 +189,18 @@ public class RouteRequestHandler {
         }
 
         return avoidAreas;
+    }
+
+    private double[][][] geoJsonPolygonCoordinates(JSONArray coordinatesIn) {
+        List<List<Double[]>> group = new ArrayList();
+        for(int i=0; i< coordinatesIn.size(); i++) {
+            List<Double[]> polygonIn = (List<Double[]>) coordinatesIn.get(i);
+            for(Double[] coords : polygonIn) {
+
+            }
+        }
+
+        return null;
     }
 
     private static WayPointBearing[] convertBearings(Double[][] bearingsIn, int coordinatesLength) throws ParameterValueException {
@@ -172,6 +247,64 @@ public class RouteRequestHandler {
         }
 
         return maxRadii;
+    }
+
+    private static String[] convertAPIEnumListToStrings(Enum[] valuesIn) {
+        String[] attributes = new String[valuesIn.length];
+        for(int i=0; i<valuesIn.length; i++) {
+            attributes[i] = convertAPIEnum(valuesIn[i]);
+        }
+
+        return attributes;
+    }
+
+    private static String convertAPIEnum(Enum valuesIn) {
+        return valuesIn.toString();
+    }
+
+    private static String[] convertAttributes(APIRoutingEnums.Attributes[] attributes) {
+        return convertAPIEnumListToStrings(attributes);
+    }
+
+    private static int convertExtraInfo(APIRoutingEnums.ExtraInfo[] extraInfos) {
+        String[] extraInfosStrings = convertAPIEnumListToStrings(extraInfos);
+
+        String extraInfoPiped = String.join("|", extraInfosStrings);
+
+        return RouteExtraInfoFlag.getFromString(extraInfoPiped);
+    }
+
+    private static String convertLanguage(APIRoutingEnums.Languages languageIn) throws StatusCodeException {
+        boolean isLanguageSupported;
+        String languageString = languageIn.toString();
+
+        try {
+            isLanguageSupported = LocalizationManager.getInstance().isLanguageSupported(languageString);
+        } catch (Exception e) {
+            throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Could not access Localization Manager");
+        }
+
+        if(!isLanguageSupported)
+            throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, "Specified language '" +  languageIn + "' is not supported.");
+
+        return languageString;
+    }
+
+    private static RouteInstructionsFormat convertInstructionsFormat(APIRoutingEnums.InstructionsFormat formatIn) throws UnknownParameterValueException {
+        RouteInstructionsFormat instrFormat = RouteInstructionsFormat.fromString(formatIn.toString());
+        if (instrFormat == RouteInstructionsFormat.UNKNOWN)
+            throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "instructions_format", formatIn.toString());
+
+        return instrFormat;
+    }
+
+    private static DistanceUnit convertUnits(APIRoutingEnums.Units unitsIn) throws ParameterValueException {
+        DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.Unknown);
+
+        if (units == DistanceUnit.Unknown)
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "units", unitsIn.toString());
+
+        return units;
     }
 
     private static int convertVehicleType(APIRoutingEnums.VehicleType vehicleTypeIn) throws ParameterValueException {
@@ -276,7 +409,7 @@ public class RouteRequestHandler {
         if(restrictions.hasTrackType())
             params.setTrackType(WheelchairTypesEncoder.getTrackType(restrictions.getTrackType()));
         if(restrictions.hasSmoothnessType())
-            params.setSmoothnessType(WheelchairTypesEncoder.getTrackType(restrictions.getSmoothnessType()));
+            params.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(restrictions.getSmoothnessType()));
         if(restrictions.hasMaxSlopedKerb())
             params.setMaximumSlopedKerb(restrictions.getMaxSlopedKerb());
         if(restrictions.hasMaxIncline())
