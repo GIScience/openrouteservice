@@ -28,7 +28,7 @@ import com.graphhopper.util.EdgeIteratorState;
 public class EdgeFilterSequence extends ArrayList<EdgeFilter> implements EdgeFilter {
 
 	@Override
-	public final boolean accept(EdgeIteratorState iter) {
+	public boolean accept(EdgeIteratorState iter) {
 		for (EdgeFilter edgeFilter: this) {
 			if (!edgeFilter.accept(iter)) {
 				return false;

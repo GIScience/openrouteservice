@@ -75,6 +75,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     private GHTreeMapComposed sortedNodes;
     private int oldPriorities[];
     private IgnoreNodeFilter ignoreNodeFilter;
+    private IgnoreNodeFilterSequence ignoreNodeFilterSequence;
     private DijkstraOneToMany prepareAlgo;
     private long counter;
     private int newShortcuts;
@@ -508,7 +509,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 double existingDistSum = v_u_dist + outgoingEdges.getDistance();
                 prepareAlgo.setWeightLimit(existingDirectWeight);
                 prepareAlgo.setMaxVisitedNodes((int) meanDegree * 100);
-                prepareAlgo.setEdgeFilter(ignoreNodeFilter.setAvoidNode(sch.getNode()));
+                prepareAlgo.setEdgeFilter(ignoreNodeFilterSequence.setAvoidNode(sch.getNode()));
 
                 dijkstraSW.start();
                 dijkstraCount++;
@@ -604,14 +605,17 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         FlagEncoder prepareFlagEncoder = prepareWeighting.getFlagEncoder();
         final EdgeFilter allFilter = new DefaultEdgeFilter(prepareFlagEncoder, true, true);
 
-        //TODO
-        EdgeFilterSequence restrictionFilterSequenceFWD = (EdgeFilterSequence) restrictionFilter;
-        restrictionFilterSequenceFWD.add(new DefaultEdgeFilter(prepareFlagEncoder, true, false));
-        EdgeFilterSequence restrictionFilterSequenceBWD = (EdgeFilterSequence) restrictionFilter;
-        restrictionFilterSequenceBWD.add(new DefaultEdgeFilter(prepareFlagEncoder, false, true));
+        //I think having the restrictions for this filter is not necessary. Just needs bwd and fwd
+//        EdgeFilterSequence restrictionFilterSequenceFWD = (EdgeFilterSequence) restrictionFilter;
+//        restrictionFilterSequenceFWD.add(new DefaultEdgeFilter(prepareFlagEncoder, true, false));
+//        EdgeFilterSequence restrictionFilterSequenceBWD = (EdgeFilterSequence) restrictionFilter;
+//        restrictionFilterSequenceBWD.add(new DefaultEdgeFilter(prepareFlagEncoder, false, true));
+//
+//        vehicleInExplorer = prepareGraph.createEdgeExplorer(restrictionFilterSequenceFWD);
+//        vehicleOutExplorer = prepareGraph.createEdgeExplorer(restrictionFilterSequenceBWD);
 
-        vehicleInExplorer = prepareGraph.createEdgeExplorer(restrictionFilterSequenceFWD);
-        vehicleOutExplorer = prepareGraph.createEdgeExplorer(restrictionFilterSequenceBWD);
+        vehicleInExplorer = prepareGraph.createEdgeExplorer(new DefaultEdgeFilter(prepareFlagEncoder, true, false));
+        vehicleOutExplorer = prepareGraph.createEdgeExplorer(new DefaultEdgeFilter(prepareFlagEncoder, false, true));
 
         // filter by vehicle and level number
         final EdgeFilter accessWithLevelFilter = new LevelEdgeFilter(prepareGraph) {
@@ -625,7 +629,11 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         };
 
 
+
         maxLevel = prepareGraph.getNodes() + 1;
+        ignoreNodeFilterSequence = new IgnoreNodeFilterSequence(prepareGraph, maxLevel);
+        for(EdgeFilter restriction : (EdgeFilterSequence) restrictionFilter)
+            ignoreNodeFilterSequence.add(restriction);
         ignoreNodeFilter = new IgnoreNodeFilter(prepareGraph, maxLevel);
         vehicleAllExplorer = prepareGraph.createEdgeExplorer(allFilter);
         vehicleAllTmpExplorer = prepareGraph.createEdgeExplorer(allFilter);
@@ -741,15 +749,8 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     }
 
     public static class DijkstraBidirectionCH extends DijkstraBidirectionRef {
-        protected HashSet<SPTEntry> coreEntryPointsFrom = new HashSet<>();
-        protected HashSet<SPTEntry> coreEntryPointsTo = new HashSet<>();
-        CHGraph chGraph;
-        int coreNodeLevel;
-
         public DijkstraBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode, double maxSpeed) {
             super(graph, weighting, traversalMode, maxSpeed);
-            chGraph = (CHGraph) ((QueryGraph) graph).getMainGraph();
-            coreNodeLevel = chGraph.getNodes() + 1;
         }
 
         @Override
@@ -766,28 +767,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             // changed also the final finish condition for CH
             return currFrom.weight >= bestPath.getWeight() && currTo.weight >= bestPath.getWeight();
         }
-
-        protected void runAlgo() {
-
-            // PHASE 1: run modified CH outside of core to find entry points
-            while(!this.finished() && !this.isMaxVisitedNodesExceeded()) {
-                if (!this.finishedFrom) {
-                    if (chGraph.getLevel(currFrom.adjNode) == coreNodeLevel)
-                        coreEntryPointsFrom.add(currFrom);
-                    this.finishedFrom = !this.fillEdgesFrom();
-                }
-
-                if (!this.finishedTo) {
-                    if (chGraph.getLevel(currTo.adjNode) == coreNodeLevel)
-                        coreEntryPointsTo.add(currTo);
-                    this.finishedTo = !this.fillEdgesTo();
-                }
-            }
-
-            // TODO STEP 2 Perform routing in core with the restrictions filter
-
-        }
-
 
         @Override
         protected Path createAndInitPath() {
@@ -838,6 +817,30 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             // ignore if it is skipNode or adjNode is already contracted
             int node = iter.getAdjNode();
             return avoidNode != node && graph.getLevel(node) == maxLevel;
+        }
+    }
+
+    static class IgnoreNodeFilterSequence extends EdgeFilterSequence implements EdgeFilter {
+        int avoidNode;
+        int maxLevel;
+        CHGraph graph;
+
+        public IgnoreNodeFilterSequence(CHGraph g, int maxLevel) {
+            this.graph = g;
+            this.maxLevel = maxLevel;
+        }
+
+        public IgnoreNodeFilterSequence setAvoidNode(int node) {
+            this.avoidNode = node;
+            return this;
+        }
+
+        @Override
+        public final boolean accept(EdgeIteratorState iter) {
+            // ignore if it is skipNode or adjNode is already contracted
+            int node = iter.getAdjNode();
+            if(!(avoidNode != node && graph.getLevel(node) == maxLevel)) return false;
+            return super.accept(iter);
         }
     }
 
