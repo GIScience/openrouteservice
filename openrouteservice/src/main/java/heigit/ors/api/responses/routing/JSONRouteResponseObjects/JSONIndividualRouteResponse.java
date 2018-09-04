@@ -3,22 +3,21 @@ package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import com.graphhopper.util.shapes.BBox;
 import heigit.ors.api.requests.routing.APIRoutingEnums;
-import heigit.ors.api.responses.routing.GeometryResponse;
-import heigit.ors.api.responses.routing.GeometryResponseFactory;
-import heigit.ors.api.responses.routing.IndividualRouteResponse;
-import heigit.ors.api.responses.routing.RouteResponse;
+import heigit.ors.api.requests.routing.RouteRequest;
+import heigit.ors.api.responses.routing.*;
+import heigit.ors.api.responses.routing.BoundingBox.BoundingBox;
+import heigit.ors.api.responses.routing.BoundingBox.BoundingBoxFactory;
+import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.routing.RouteResult;
-import heigit.ors.routing.RouteSegment;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class JSONIndividualRouteResponse extends IndividualRouteResponse {
+public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteResponse {
 
-    private double[][] bbox;
+    @JsonProperty("bbox")
+    private BoundingBox bbox;
 
     @JsonUnwrapped
     private GeometryResponse geomResponse;
@@ -27,23 +26,26 @@ public class JSONIndividualRouteResponse extends IndividualRouteResponse {
 
     private List<JSONSegment> segments;
 
+    @JsonProperty("way_points")
+    private int[] wayPoints;
+
     @JsonProperty("geometry_format")
     private APIRoutingEnums.RouteResponseGeometryType geometryFormat;
 
-    public JSONIndividualRouteResponse() {
-        super();
-    }
+    public JSONIndividualRouteResponse(RouteResult routeResult, RouteRequest request) throws StatusCodeException {
+        super(routeResult, request);
 
-    public JSONIndividualRouteResponse(RouteResult routeResult, APIRoutingEnums.RouteResponseGeometryType geomType) {
-        super();
-        geomResponse = GeometryResponseFactory.createGeometryResponse(routeResult.getGeometry(), false, geomType);
-        geometryFormat = geomType;
+        geometryFormat = request.getGeometryType();
+        geomResponse = GeometryResponseFactory.createGeometryResponse(this.routeCoordinates, this.includeElevation, geometryFormat);
         summary = new JSONSummary(routeResult.getSummary().getDistance(), routeResult.getSummary().getDuration());
         segments = constructSegments(routeResult);
-        bbox = convertBBox(routeResult.getSummary().getBBox());
+
+        bbox = BoundingBoxFactory.constructBoundingBox(routeResult.getSummary().getBBox(), request);
+
+        wayPoints = routeResult.getWayPointsIndices();
     }
 
-    public double[][] getBbox() {
+    public BoundingBox getBbox() {
         return bbox;
     }
 
@@ -63,24 +65,7 @@ public class JSONIndividualRouteResponse extends IndividualRouteResponse {
         return segments;
     }
 
-
-    private List<JSONSegment> constructSegments(RouteResult routeResult) {
-        List segments = new ArrayList<>();
-        for(RouteSegment routeSegment : routeResult.getSegments()) {
-            segments.add(new JSONSegment(routeSegment));
-        }
-
-        return segments;
-    }
-
-    private double[][] convertBBox(BBox boundingIn) {
-
-        double[][] bbox = new double[2][2];
-        bbox[0][0] = boundingIn.minLon;
-        bbox[0][1] = boundingIn.minLat;
-        bbox[1][0] = boundingIn.maxLon;
-        bbox[1][1] = boundingIn.maxLat;
-
-        return bbox;
+    public int[] getWayPoints() {
+        return wayPoints;
     }
 }

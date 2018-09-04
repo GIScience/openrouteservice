@@ -6,6 +6,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 public class GeomUtilityTest {
     private static PointList pointList3D = new PointList(14, true);
     private static PointList pointList2D = new PointList(14, false);
@@ -53,5 +55,22 @@ public class GeomUtilityTest {
         Assert.assertEquals(0f,bbox_fallback.maxLon, 0.000009);
         Assert.assertEquals(0f,bbox_fallback.minLat, 0.000009);
         Assert.assertEquals(0f,bbox_fallback.maxLat, 0.000009);
+    }
+
+    @Test
+    public void generateBBoxFromMultiple() {
+        BBox[] bboxes = {
+                new BBox(1.5, 2.5, -1.5, 1.5, 10, 20),
+                new BBox(2.6, 8.5, -0.5, 1.7, 5, 25)
+        };
+
+        BBox bbox = GeomUtility.generateBoundingFromMultiple(bboxes);
+
+        Assert.assertEquals(-1.5, bbox.minLat, 0);
+        Assert.assertEquals(1.7, bbox.maxLat, 0);
+        Assert.assertEquals(1.5, bbox.minLon, 0);
+        Assert.assertEquals(8.5, bbox.maxLon, 0);
+        Assert.assertEquals(5, bbox.minEle, 0);
+        Assert.assertEquals(25, bbox.maxEle, 0);
     }
 }

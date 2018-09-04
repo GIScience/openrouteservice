@@ -63,13 +63,13 @@
        <resource>
          <directory>src/main/resources</directory>
          <includes>
-           <include>resources/locales/*.resources</include>
+             <include>resources/locales/*.resources</include>
              <include>logs/*</include>
-           <include>resources/version.properties</include>
+             <include>resources/version.properties</include>
              <include>application.properties</include>
-           <include>resources/services/locations/categories.txt</include>
-           <include>resources/services/routing/speed_limits/*.*</include>
-           <include>META-INF/services/*.*</include>
+             <include>resources/services/locations/categories.txt</include>
+             <include>resources/services/routing/speed_limits/*.*</include>
+             <include>META-INF/services/*.*</include>
              <include>app.config</include>
          </includes>
          <filtering>true</filtering>
@@ -180,10 +180,6 @@
           <artifactId>maven-jar-plugin</artifactId>
           <version>2.6</version>
       </plugin>
-        <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-        </plugin>
 
       </plugins>
   </build>
@@ -395,10 +391,6 @@
                 <artifactId>spring-boot-starter-logging</artifactId>
             </exclusion>
         </exclusions>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-log4j2</artifactId>
     </dependency>
     <dependency>
         <groupId>io.springfox</groupId>

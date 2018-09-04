@@ -207,6 +207,7 @@ public class RequestProfileParamsRestrictions {
 
     public void setMinWidth(Integer minWidth) {
         this.minWidth = minWidth;
+        this.hasMinWidth = true;
     }
 
     public Integer getTrailDifficulty() {

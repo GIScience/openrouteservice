@@ -1,5 +1,6 @@
 package heigit.ors.api.responses.routing.GPXRouteResponseObjects;
 
+import heigit.ors.api.requests.routing.RouteRequest;
 import heigit.ors.api.responses.routing.IndividualRouteResponse;
 import heigit.ors.routing.RouteResult;
 
@@ -9,11 +10,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class GPXIndividualRouteResponse extends IndividualRouteResponse {
     private String test;
 
-    public GPXIndividualRouteResponse() { test="blah2"; }
+    public GPXIndividualRouteResponse() {
+        super(null, null);
+    }
 
-    public GPXIndividualRouteResponse(RouteResult routeResult) {
-        super();
-        test="blah";
+    public GPXIndividualRouteResponse(RouteResult routeResult, RouteRequest request) {
+        super(routeResult, request);
     }
 
     public String getTest() {
