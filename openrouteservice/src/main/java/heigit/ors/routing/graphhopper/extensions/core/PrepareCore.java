@@ -839,6 +839,8 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             // ignore if it is skipNode or adjNode is already contracted
             int node = iter.getAdjNode();
             if(!(avoidNode != node && graph.getLevel(node) == maxLevel)) return false;
+            if (graph.isShortcut(iter.getEdge()))
+                return true;
             return super.accept(iter);
         }
     }
