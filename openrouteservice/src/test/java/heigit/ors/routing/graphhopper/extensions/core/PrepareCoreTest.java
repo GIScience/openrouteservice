@@ -83,12 +83,12 @@ public class PrepareCoreTest {
         g.edge(1, 2, 1, true);
         g.edge(1, 8, 2, true);
         g.edge(2, 3, 2, true); // restricted in #2 and #3
-        g.edge(3, 4, 2, true);
+        g.edge(3, 4, 2, true); // restricted in #4
         g.edge(4, 5, 1, true);
         g.edge(4, 6, 1, true);
         g.edge(5, 7, 1, true);
         g.edge(6, 7, 2, true);
-        g.edge(7, 8, 3, true); // restricted in #3
+        g.edge(7, 8, 3, true); // restricted in #3 and #4
         return g;
     }
 
@@ -158,7 +158,8 @@ public class PrepareCoreTest {
         CHGraph g = contractGraph(createSimpleGraph(), restrictedEdges);
 
         HashMap<Integer, Pair> shortcuts = new HashMap<>();
-        shortcuts.put(7, new Pair<>(2, 4));
+        shortcuts.put(7, new Pair<>(2, 4)); // original shortcut
+        shortcuts.put(8, new Pair<>(0, 4)); // the new one replacing the restricted edge
         assertShortcuts(g, shortcuts);
 
         Integer core[] = {0, 4};
@@ -172,7 +173,11 @@ public class PrepareCoreTest {
         restrictedEdges.add(4);
         CHGraph g = contractGraph(createSimpleGraph(), restrictedEdges);
 
-        assertShortcuts(g, new HashMap<>());
+        HashMap<Integer, Pair> shortcuts = new HashMap<>();
+        shortcuts.put(7, new Pair<>(0, 3));
+        shortcuts.put(8, new Pair<>(1, 3));
+        shortcuts.put(9, new Pair<>(2, 3)); // shortcut in place of restricted edge
+        assertShortcuts(g, shortcuts);
 
         Integer core[] = {2, 3};
         assertCore(g, new HashSet<>(Arrays.asList(core)));
@@ -186,7 +191,9 @@ public class PrepareCoreTest {
         CHGraph g = contractGraph(createSimpleGraph(), restrictedEdges);
 
         HashMap<Integer, Pair> shortcuts = new HashMap<>();
-        shortcuts.put(7, new Pair<>(1, 4));
+        shortcuts.put(7, new Pair<>(2, 4));
+        shortcuts.put(8, new Pair<>(1, 4));
+        shortcuts.put(9, new Pair<>(3, 4));
         assertShortcuts(g, shortcuts);
 
         Integer core[] = {3, 4};
@@ -218,8 +225,10 @@ public class PrepareCoreTest {
         CHGraph g = contractGraph(createSimpleGraph(), restrictedEdges);
 
         HashMap<Integer, Pair> shortcuts = new HashMap<>();
-        shortcuts.put(7, new Pair<>(1, 4));
-        shortcuts.put(8, new Pair<>(1, 3));
+        shortcuts.put(7, new Pair<>(2, 4));
+        shortcuts.put(8, new Pair<>(1, 4));
+        shortcuts.put(9, new Pair<>(1, 3));
+        shortcuts.put(10, new Pair<>(3, 4));
         assertShortcuts(g, shortcuts);
 
         Integer core[] = {1, 3, 4, 5};
@@ -248,10 +257,11 @@ public class PrepareCoreTest {
 
         HashMap<Integer, Pair> shortcuts = new HashMap<>();
         shortcuts.put(13, new Pair<>(4,7));
-        shortcuts.put(14, new Pair<>(1,3));
-        shortcuts.put(15, new Pair<>(0,3));
-        shortcuts.put(16, new Pair<>(1,4));
-        shortcuts.put(17, new Pair<>(0,4));
+        shortcuts.put(14, new Pair<>(0,1));
+        shortcuts.put(15, new Pair<>(1,3));
+        shortcuts.put(16, new Pair<>(0,3));
+        shortcuts.put(17, new Pair<>(1,4));
+        shortcuts.put(18, new Pair<>(0,4));
         assertShortcuts(g, shortcuts);
 
         Integer core[] = {0, 1};
@@ -285,14 +295,35 @@ public class PrepareCoreTest {
 
         CHGraph g = contractGraph(createMediumGraph(), restrictedEdges);
 
+
         HashMap<Integer, Pair> shortcuts = new HashMap<>();
         shortcuts.put(13, new Pair<>(4,7));
         shortcuts.put(14, new Pair<>(3,7));
         shortcuts.put(15, new Pair<>(3,8));
         shortcuts.put(16, new Pair<>(2,8));
+        shortcuts.put(17, new Pair<>(2,3));
         assertShortcuts(g, shortcuts);
 
         Integer core[] = {2, 3, 7, 8};
+        assertCore(g, new HashSet<>(Arrays.asList(core)));
+    }
+
+    // Restrictions on edges: 3-4, 7-8 -> Separated graph
+    @Test
+    public void testMediumRestricted4() {
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        restrictedEdges.add(12);
+        restrictedEdges.add(7);
+
+        CHGraph g = contractGraph(createMediumGraph(), restrictedEdges);
+        
+        HashMap<Integer, Pair> shortcuts = new HashMap<>();
+        shortcuts.put(13, new Pair<>(4,7));
+        shortcuts.put(14, new Pair<>(0,3));
+        shortcuts.put(15, new Pair<>(3,8));
+        assertShortcuts(g, shortcuts);
+
+        Integer core[] = {3, 4, 7, 8};
         assertCore(g, new HashSet<>(Arrays.asList(core)));
     }
 
