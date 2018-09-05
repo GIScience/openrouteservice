@@ -61,7 +61,7 @@ public class CoreDijkstraFilter implements EdgeFilter {
      * the level of the adjacent node
      */
     @Override
-
+    
     public boolean accept(EdgeIteratorState edgeIterState) {
         int base = edgeIterState.getBaseNode();
         int adj = edgeIterState.getAdjNode();
@@ -89,20 +89,17 @@ public class CoreDijkstraFilter implements EdgeFilter {
 
 
         // minor performance improvement: shortcuts in wrong direction are already disconnected, so no need to check them
-//        if (((CHEdgeIteratorState) edgeIterState).isShortcut()) {
-//            return true;
-//        }
-//        else {
-//            // if edge is in the core check for restrictions
-//            if (graph.getLevel(base) == coreNodeLevel && graph.getLevel(adj) == coreNodeLevel)
-//                return restrictions.accept(edgeIterState);
-//            // otherwise use CH level filter
-//            else
-//                return graph.getLevel(base) <= graph.getLevel(adj);
-//        }
-
-        // Nodes are supposed to be on the same level only if both are in core
-        return graph.getLevel(base) < graph.getLevel(adj);
+        if (((CHEdgeIteratorState) edgeIterState).isShortcut()) {
+            return true;
+        }
+        else {
+            // if edge is in the core check for restrictions
+            if (graph.getLevel(base) == coreNodeLevel && graph.getLevel(adj) == coreNodeLevel)
+                return restrictions.accept(edgeIterState);
+                // otherwise use CH level filter
+            else
+                return graph.getLevel(base) <= graph.getLevel(adj);
+        }
     }
 
     public void addRestrictionFilter (EdgeFilter restrictions) {
