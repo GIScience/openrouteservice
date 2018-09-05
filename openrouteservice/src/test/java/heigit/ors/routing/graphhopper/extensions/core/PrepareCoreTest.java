@@ -150,7 +150,7 @@ public class PrepareCoreTest {
         assertCore(g, new HashSet<>());
     }
 
-    // Original shortcut unaltered
+    // Original shortcut + one new
     @Test
     public void testSimpleRestricted1() {
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -166,7 +166,6 @@ public class PrepareCoreTest {
         assertCore(g, new HashSet<>(Arrays.asList(core)));
     }
 
-    // No shortcuts at all
     @Test
     public void testSimpleRestricted2() {
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -406,8 +405,8 @@ public class PrepareCoreTest {
             if (iter.isShortcut()) {
                 int edge = iter.getEdge();
                 assertTrue(shortcuts.containsKey(edge));
-                assertEquals(iter.getBaseNode(), shortcuts.get(edge).first);
-                assertEquals(iter.getAdjNode(), shortcuts.get(edge).second);
+                assertEquals(shortcuts.get(edge).first, iter.getBaseNode());
+                assertEquals(shortcuts.get(edge).second, iter.getAdjNode());
                 shortcutsFound.add(edge);
             }
         }
