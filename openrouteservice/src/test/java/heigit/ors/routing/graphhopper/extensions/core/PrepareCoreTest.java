@@ -316,7 +316,7 @@ public class PrepareCoreTest {
         restrictedEdges.add(7);
 
         CHGraph g = contractGraph(createMediumGraph(), restrictedEdges);
-        
+
         HashMap<Integer, Pair> shortcuts = new HashMap<>();
         shortcuts.put(13, new Pair<>(4,7));
         shortcuts.put(14, new Pair<>(0,3));
@@ -351,7 +351,7 @@ public class PrepareCoreTest {
         restrictedEdges.add(17);
 
         CHGraph g = contractGraph(createComplexGraph(), restrictedEdges);
-
+        
         HashMap<Integer, Pair> shortcuts = new HashMap<>();
         shortcuts.put(22, new Pair<>(4, 6));
         shortcuts.put(23, new Pair<>(7, 9));
@@ -360,9 +360,14 @@ public class PrepareCoreTest {
         shortcuts.put(26, new Pair<>(2, 4));
         shortcuts.put(27, new Pair<>(6, 12));
         shortcuts.put(28, new Pair<>(2, 12));
-        shortcuts.put(29, new Pair<>(9, 16));
-        shortcuts.put(30, new Pair<>(9, 12));
-        shortcuts.put(31, new Pair<>(9, 15));
+        shortcuts.put(29, new Pair<>(2, 6));
+        shortcuts.put(30, new Pair<>(9, 16));
+        shortcuts.put(31, new Pair<>(6, 9));
+        shortcuts.put(32, new Pair<>(7, 16));
+        shortcuts.put(33, new Pair<>(6, 7));
+        shortcuts.put(34, new Pair<>(7, 12));
+        shortcuts.put(35, new Pair<>(12, 15));
+        shortcuts.put(36, new Pair<>(7, 15));
         assertShortcuts(g, shortcuts);
 
         Integer core[] = {6, 7, 12, 15};
