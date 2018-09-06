@@ -1247,33 +1247,33 @@ public class ResultTest extends ServiceTest {
 
 	@Test
 	public void testWheelchairKerbRestriction() {
-		/*given()
-				.param("coordinates", "8.708605,49.410688|8.709844,49.411160")
+		given()
+				.param("coordinates", "8.681125,49.403070|8.681434,49.402991")
 				.param("preference", "shortest")
 				.param("profile", "wheelchair")
-				.param("options", "{\"profile_params\":{\"maximum_sloped_kerb\":\"2.0\"}}")
+				.param("options", "{\"profile_params\":{\"maximum_sloped_kerb\":\"0.1\"}}")
 				.when()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(129.6f))
-				.body("routes[0].summary.duration", is(93.3f))
+				.body("routes[0].summary.distance", is(74.1f))
+				.body("routes[0].summary.duration", is(57.9f))
 				.statusCode(200);
 
 		given()
-				.param("coordinates", "8.708605,49.410688|8.709844,49.411160")
+				.param("coordinates", "8.681125,49.403070|8.681434,49.402991")
 				.param("preference", "shortest")
 				.param("profile", "wheelchair")
-				.param("options", "{\"profile_params\":{\"maximum_sloped_kerb\":\"2.1\"}}")
+				.param("options", "{\"profile_params\":{\"maximum_sloped_kerb\":\"0.03\"}}")
 				.when()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(158.7f))
-				.body("routes[0].summary.duration", is(114.3f))
-				.statusCode(200);*/
+				.body("routes[0].summary.distance", is(146.7f))
+				.body("routes[0].summary.duration", is(126.1f))
+				.statusCode(200);
 	}
 
 	@Test
