@@ -215,8 +215,6 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 					_hgvType |= HeavyVehicleAttributes.HAZMAT;
 				}
 
-				String tag = forestryTag;
-				if (tag != null) System.out.println(way.getId() + " " + tag);
 				// (access=no) + access:conditional=delivery @
 				// (07:00-11:00); customer @ (07:00-17:00)
 			}
