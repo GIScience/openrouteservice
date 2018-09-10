@@ -8,18 +8,29 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Removed locations code as this will be handled by openpoiservice in the future (Issue #120)
 - Removed Geocoding code as this will be handled by the geocoder service rather than within ORS
+- Added smoothing option for isochrones (Issue #137)
+- Added ExtraInfo storage for osm way id so that this information can be stored (and accessed) agianst the edges (Issue #217)
+- Added a new GeometryUtility function and its unit test to calculate the bbox for a set of coordinates (Issue #241)
 
 ### Fixed
+- Correct logic of determining vehicle type flags in heavy vehicle storage (Issue #211)
+- Enable OSM "key:access" tag values to take effect for heavy vehicle profile (Issue #209)
 - Fixed problem with avoid polygons excluding ways that should have been accepted (Issue #95)
 - Updated code to remove merging of instructions as this resulted in missing important turn instructions (Issue #177)
 - Added missing translations for arrival instructions (Issue #171)
 - Updated code so that acceleration is taken into account when speeds are calculated for edges (Issue #178)
 - Fixed the mising rte tag in gpx issue (Issue #196)
 - Fixed the gpx validation errror (Issue #168)
+- Added unit conversion so that isochrone response is in user specified unit (issue #91)
+- Enabled the reporting of multiple missing points in error response (issue #246)
+- Fixed wrong bounding box error (Issue #241)
 
 ### Changed
+- Refactored some of the edge filters and cleaned up the code initializing them
 - Updated the wheelchair profile to better handle restrictions such as width, kerb heights and instances where sidewalks are attached to roads. (Issue #162)
 - Replaced "Sand" surface encoding with "Paving stone"
+- Changed the bbox api test (Issue #241)
+- Changed the way the bbox is calculated internally (Issue #241)
 
 ### Deprecated
 - Removed references to locations and accessibilty services from web.xml (Issue #186)

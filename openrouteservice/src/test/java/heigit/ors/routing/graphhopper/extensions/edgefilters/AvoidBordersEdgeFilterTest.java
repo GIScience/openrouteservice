@@ -70,7 +70,7 @@ public class AvoidBordersEdgeFilterTest {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.ALL);
         _searchParams.setAvoidCountries(new int[] {});
 
-        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(encoder, _searchParams, _graphStorage);
+        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, _graphStorage);
 
         VirtualEdgeIteratorState ve1 = generateEdge(1);
         VirtualEdgeIteratorState ve2 = generateEdge(2);
@@ -87,7 +87,7 @@ public class AvoidBordersEdgeFilterTest {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.CONTROLLED);
         _searchParams.setAvoidCountries(new int[] {});
 
-        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(encoder, _searchParams, _graphStorage);
+        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, _graphStorage);
 
         VirtualEdgeIteratorState ve1 = generateEdge(1);
         VirtualEdgeIteratorState ve2 = generateEdge(2);
@@ -103,7 +103,7 @@ public class AvoidBordersEdgeFilterTest {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.NONE);
         _searchParams.setAvoidCountries(new int[] {});
 
-        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(encoder, _searchParams, _graphStorage);
+        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, _graphStorage);
 
         VirtualEdgeIteratorState ve1 = generateEdge(1);
         VirtualEdgeIteratorState ve2 = generateEdge(2);
@@ -119,7 +119,7 @@ public class AvoidBordersEdgeFilterTest {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.NONE);
         _searchParams.setAvoidCountries(new int[] {1, 5});
 
-        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(encoder, _searchParams, _graphStorage);
+        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, _graphStorage);
 
         VirtualEdgeIteratorState ve1 = generateEdge(1);
         VirtualEdgeIteratorState ve2 = generateEdge(2);
@@ -135,7 +135,7 @@ public class AvoidBordersEdgeFilterTest {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.CONTROLLED);
         _searchParams.setAvoidCountries(new int[] {3});
 
-        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(encoder, _searchParams, _graphStorage);
+        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, _graphStorage);
 
         VirtualEdgeIteratorState ve1 = generateEdge(1);
         VirtualEdgeIteratorState ve2 = generateEdge(2);

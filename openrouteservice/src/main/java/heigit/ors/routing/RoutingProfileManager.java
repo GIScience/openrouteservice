@@ -28,6 +28,7 @@ import com.graphhopper.util.Helper;
 import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.exceptions.InternalServerException;
+import heigit.ors.exceptions.PointNotFoundException;
 import heigit.ors.exceptions.RouteNotFoundException;
 import heigit.ors.exceptions.ServerLimitExceededException;
 import heigit.ors.isochrones.IsochroneMap;
@@ -48,6 +49,7 @@ import heigit.ors.routing.traffic.RealTrafficDataProvider;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.RuntimeUtility;
+import heigit.ors.util.StringUtility;
 import heigit.ors.util.TimeUtility;
 import org.apache.log4j.Logger;
 
@@ -409,6 +411,14 @@ public class RoutingProfileManager {
                                         i + 1,
                                         FormatUtility.formatCoordinate(c1))
                         );
+                    } else if(gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
+                        String message = "";
+                        for(Throwable error: gr.getErrors()) {
+                            if(!StringUtility.isEmpty(message))
+                                message = message + "; ";
+                            message = message + error.getMessage();
+                        }
+                        throw new PointNotFoundException(message);
                     } else {
                         throw new InternalServerException(RoutingErrorCodes.UNKNOWN, gr.getErrors().get(0).getMessage());
                     }

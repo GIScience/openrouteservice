@@ -20,6 +20,8 @@
  */
 package heigit.ors.util;
 
+import com.graphhopper.util.PointList;
+import com.graphhopper.util.shapes.BBox;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -51,7 +53,7 @@ public class GeomUtility {
 	{
 	  return GEOM_FACTORY.createLineString(coords);
 	}
-	
+
 	// CRS.decode("EPSG:3785",
 	// true), true);
 	public static double pointToLineDistance(double ax, double ay, double bx, double by, double px, double py) {
@@ -69,6 +71,44 @@ public class GeomUtility {
 		double s = ((ay - py) * (bx - ax) - (ax - px) * (by - ay)) / len2;
 
 		return Math.abs(s) * Math.sqrt(len2);
+	}
+
+	/**
+	 * Creates the correct bbox from a Graphhopper pointlist. Instead of using the > or < operators to compare double
+	 * values this function uses the Math library which is more accurate and precise and creates correct bboxes even if
+	 * the coordinates only differ in some small extend.
+	 * The Fallback bbox is used when the pointlist is empty.
+	 * @param pointList
+	 * @return Returns a graphhopper bounding box
+	 */
+	public static BBox CalculateBoundingBox(PointList pointList, BBox _fallback) {
+		if (pointList.getSize() <= 0) {
+			return _fallback;
+		} else {
+			double min_lon = Double.MAX_VALUE;
+			double max_lon = -Double.MAX_VALUE;
+			double min_lat = Double.MAX_VALUE;
+			double max_lat = -Double.MAX_VALUE;
+			double min_ele = Double.MAX_VALUE;
+			double max_ele = -Double.MAX_VALUE;
+			for (int i = 0; i < pointList.getSize(); ++i) {
+				min_lon = Math.min(min_lon, pointList.getLon(i));
+				max_lon = Math.max(max_lon, pointList.getLon(i));
+				min_lat = Math.min(min_lat, pointList.getLat(i));
+				max_lat = Math.max(max_lat, pointList.getLat(i));
+				if (pointList.is3D()) {
+					min_ele = Math.min(min_ele, pointList.getEle(i));
+					max_ele = Math.max(max_ele, pointList.getEle(i));
+				}
+			}
+			if (pointList.is3D()) {
+				BBox summary_bbox = new BBox(min_lon, max_lon, min_lat, max_lat, min_ele, max_ele);
+				return summary_bbox;
+			} else {
+				BBox summary_bbox = new BBox(min_lon, max_lon, min_lat, max_lat);
+				return summary_bbox;
+			}
+		}
 	}
 
 	public static double distance2(double ax, double ay, double bx, double by)
@@ -131,6 +171,16 @@ public class GeomUtility {
 		}
 		else
 			return ls.getLength();
+	}
+
+	public static double metresToDegrees(double metres) {
+		// One degree latitude is approximately 111,139 metres on a spherical earth
+		return metres / 111139;
+
+	}
+
+	public  static double degreesToMetres(double degrees) {
+		return degrees * 111139;
 	}
 
 	public static double getArea(Geometry geom, Boolean inMeters) throws Exception

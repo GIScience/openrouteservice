@@ -1,0 +1,34 @@
+language: java
+jdk: openjdk8
+
+sudo: required
+dist: trusty
+
+before_install:
+  - sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+  - sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+  - ip addr # for confirmation. can be skipped
+
+branches:
+  only:
+  - master
+  - development
+  - integrate-travis
+
+stages:
+  - compile_test
+
+jobs:
+  include:
+    - stage: compile_test
+      script:
+        - cp ${TRAVIS_BUILD_DIR}/openrouteservice-api-tests/conf/app.config.test ${TRAVIS_BUILD_DIR}/openrouteservice/WebContent/WEB-INF/app.config
+        - mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml install -B
+        - nohup mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml tomcat7:run &
+        - travis_wait 15 sleep 15m
+        - tail -n2000 nohup.out
+        - curl http://127.0.0.1:8082/openrouteservice-4.5.0/health
+        - mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice-api-tests/pom.xml test
+
+notifications:
+  webhooks: https://chat.gistools.geog.uni-heidelberg.de/hooks/fqX555ZPxYFdHeqhS/2kxt4rNATiJ9cB8pLmkSc2R3mrxnmJrEQZFd7JKqiPEGFnW9

@@ -4,14 +4,14 @@
  *   http://www.giscience.uni-hd.de
  *   http://www.heigit.org
  *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
+ *  under one or more contributor license agreements. See the NOTICE file
+ *  distributed with this work for additional information regarding copyright
+ *  ownership. The GIScience licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in compliance
  *  with the License. You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,11 +35,12 @@ import heigit.ors.routing.instructions.InstructionTranslatorsCache;
 import heigit.ors.routing.instructions.InstructionType;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
+import heigit.ors.util.GeomUtility;
 import heigit.ors.util.StringUtility;
 
 import java.util.List;
 
-public class RouteResultBuilder 
+public class RouteResultBuilder
 {
 	private AngleCalc _angleCalc;
 	private DistanceCalc _distCalc;
@@ -80,12 +81,13 @@ public class RouteResultBuilder
 		int unitDecimals = FormatUtility.getUnitDecimals(units);
 		PointList prevSegPoints = null, segPoints, nextSegPoints;
 
-		BBox bbox = null; 
+		PointList summary_pointlist = null;
+		BBox bbox = null;
 		int[] routeWayPoints = null;
 
 		if (request.getIncludeGeometry())
 		{
-			routeWayPoints = new int[nRoutes + 1]; 
+			routeWayPoints = new int[nRoutes + 1];
 			routeWayPoints[0] = 0;
 		}
 
@@ -101,10 +103,15 @@ public class RouteResultBuilder
 
 			PathWrapper path = resp.getBest();
 			PointList routePoints = path.getPoints();
-
+			if (summary_pointlist == null) {
+				summary_pointlist = path.getPoints();
+			} else {
+				PointList new_points = path.getPoints();
+				summary_pointlist.add(new_points);
+			}
 			if (bbox == null)
 				bbox = new BBox(routePoints.getLon(0), routePoints.getLon(0), routePoints.getLat(0), routePoints.getLat(0));
-			bbox = path.calcRouteBBox(bbox);
+			bbox = GeomUtility.CalculateBoundingBox(path.getPoints(), bbox);
 
 			if (request.getIncludeGeometry())
 			{
@@ -116,7 +123,7 @@ public class RouteResultBuilder
 				{
 					InstructionList instructions = path.getInstructions();
 					int startWayPointIndex = routeWayPoints[ri];
-					int nInstructions = instructions.size(); 
+					int nInstructions = instructions.size();
 					//if (nInstructions > 1) // last is finishinstruction
 					//	nInstructions -= 1;
 
@@ -139,11 +146,11 @@ public class RouteResultBuilder
 					String instrText = "";
 					double stepDistance, stepDuration;
 
-					for (int ii = 0; ii < nInstructions; ++ii) 
+					for (int ii = 0; ii < nInstructions; ++ii)
 					{
 						instr = instructions.get(ii);
 						InstructionAnnotation instrAnnotation = instr.getAnnotation();
-						instrType = getInstructionType(ii == 0, instr); 
+						instrType = getInstructionType(ii == 0, instr);
 						segPoints = instr.getPoints();
 						nextSegPoints = (ii + 1 < nInstructions) ? instructions.get(ii + 1).getPoints() : getNextSegPoints(routes, ri + 1, 0);
 
@@ -151,7 +158,7 @@ public class RouteResultBuilder
 						instrText = "";
 
 						stepDistance = FormatUtility.roundToDecimals(DistanceUnitUtil.convert(instr.getDistance(), DistanceUnit.Meters, units), unitDecimals);
-						stepDuration = FormatUtility.roundToDecimals(instr.getTime()/1000.0, 1); 
+						stepDuration = FormatUtility.roundToDecimals(instr.getTime()/1000.0, 1);
 
 						RouteStep step = new RouteStep();
 
@@ -261,11 +268,11 @@ public class RouteResultBuilder
 			else
 			{
 				InstructionList instructions = path.getInstructions();
-				int nInstructions = instructions.size(); 
-				if (nInstructions > 1) 
+				int nInstructions = instructions.size();
+				if (nInstructions > 1)
 					nInstructions -= 1;
 
-				for (int j = 0; j < nInstructions; ++j) 
+				for (int j = 0; j < nInstructions; ++j)
 				{
 					Instruction instr = instructions.get(j);
 					InstructionAnnotation instrAnnotation = instr.getAnnotation();
@@ -301,6 +308,14 @@ public class RouteResultBuilder
 		if (routeWayPoints != null)
 			result.setWayPointsIndices(routeWayPoints);
 
+		if (summary_pointlist != null) {
+			if (summary_pointlist.getSize() > 0) {
+				// The bounding box function of graphhopper returns wrong bboxes. This one should fix it.
+				BBox summary_bbox = GeomUtility.CalculateBoundingBox(summary_pointlist, bbox);
+				routeSummary.setBBox(summary_bbox);
+			}
+		}
+		else
 		if (bbox != null)
 			routeSummary.setBBox(bbox);
 
@@ -321,7 +336,7 @@ public class RouteResultBuilder
 		double dist = _distCalc.calcDist(lat1, lon1, destination.y, destination.x);
 
 		if (dist < 1)
-			return ArrivalDirection.StraightAhead; 
+			return ArrivalDirection.StraightAhead;
 		else
 		{
 			double sign = Math.signum((lon1 - lon0) * (destination.y - lat0) - (lat1 - lat0) * (destination.x - lon0));
@@ -374,7 +389,7 @@ public class RouteResultBuilder
 				{
 					lon1  = nextSegPoints.getLon(0);
 					lat1  = nextSegPoints.getLat(0);
-				}				
+				}
 				else
 				{
 					lon1  = segPoints.getLon(1);
@@ -394,7 +409,7 @@ public class RouteResultBuilder
 				if (instrType != InstructionType.FINISH)
 				{
 					if (segPoints.size() == 1)
-					{ 
+					{
 						if (nextSegPoints != null)
 						{
 							double lon2 = nextSegPoints.getLon(0);
@@ -431,7 +446,7 @@ public class RouteResultBuilder
 		if (_nameAppendix == null)
 			return StringUtility.containsDigit(name);
 		else
-			return _nameAppendix.indexOf(name) == -1 && StringUtility.containsDigit(name);   
+			return _nameAppendix.indexOf(name) == -1 && StringUtility.containsDigit(name);
 	}
 
 

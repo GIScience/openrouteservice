@@ -50,6 +50,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 	private TollwaysGraphStorage _extTollways;
 	private TrailDifficultyScaleGraphStorage _extTrailDifficulty;
 	private HillIndexGraphStorage _extHillIndex;
+	private OsmIdGraphStorage _extOsmId;
 	
 	private RouteExtraInfo _surfaceInfo;
 	private RouteExtraInfoBuilder _surfaceInfoBuilder;
@@ -81,6 +82,9 @@ public class ExtraInfoProcessor extends PathProcessor {
 	
 	private RouteExtraInfo _trailDifficultyInfo;
 	private RouteExtraInfoBuilder _trailDifficultyInfoBuilder;
+
+	private RouteExtraInfo _osmIdInfo;
+	private RouteExtraInfoBuilder _osmIdInfoBuilder;
 	
 	private int _profileType = RoutingProfileType.UNKNOWN;
 	private FlagEncoder _encoder;
@@ -184,6 +188,14 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_noiseInfoBuilder = new SimpleRouteExtraInfoBuilder(_noiseInfo);
 		}
 
+		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.OsmId)) {
+			_extOsmId = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), OsmIdGraphStorage.class);
+
+			if(_extOsmId == null)
+				throw new Exception("OsmId storage is not found");
+			_osmIdInfo = new RouteExtraInfo("osmId");
+			_osmIdInfoBuilder = new SimpleRouteExtraInfoBuilder(_osmIdInfo);
+		}
 		buffer = new byte[4];
 	}
 
@@ -216,6 +228,8 @@ public class ExtraInfoProcessor extends PathProcessor {
 			extras.add(_tollwaysInfo);
 		if (_trailDifficultyInfo != null)
 			extras.add(_trailDifficultyInfo);
+		if (_osmIdInfo != null)
+			extras.add(_osmIdInfo);
 
 		return extras;
 	}
@@ -322,6 +336,13 @@ public class ExtraInfoProcessor extends PathProcessor {
 			
 			int client_noise_level = noise_level + 7;
 			_noiseInfoBuilder.addSegment(noise_level, client_noise_level, geom, dist, isLastEdge && _lastSegment);
+		}
+
+		if (_osmIdInfoBuilder != null) {
+
+			long osmId = _extOsmId.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge));
+
+			_osmIdInfoBuilder.addSegment((double)osmId, osmId, geom, dist, isLastEdge && _lastSegment);
 		}
 	}
 

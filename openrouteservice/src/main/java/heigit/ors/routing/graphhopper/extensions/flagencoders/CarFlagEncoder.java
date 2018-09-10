@@ -51,6 +51,9 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
      */
     protected int maxTrackGradeLevel = 3;
 
+    // Take into account acceleration calculations when determining travel speed
+    protected boolean useAcceleration = false;
+
     public CarFlagEncoder() {
         this(5, 5, 0);
     }
@@ -62,7 +65,9 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
         this.properties = properties;
         this.setBlockFords(properties.getBool("block_fords", true));
         this.setBlockByDefault(properties.getBool("block_barriers", true));
-        
+
+        this.useAcceleration = properties.getBool("use_acceleration", false);
+
         maxTrackGradeLevel = properties.getInt("maximum_grade_level", 3);
     }
 
@@ -371,8 +376,18 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
             speed = getSurfaceSpeed(way, speed);
 
             if(way.hasTag("estimated_distance")) {
-                double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
-                speed = Math.max(adjustSpeedForAcceleration(estDist, speed), speedFactor);
+                if(this.useAcceleration) {
+                    double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
+                    if(way.hasTag("highway","residential")) {
+                        speed = addResedentialPenalty(speed, way);
+                    } else {
+                        speed = Math.max(adjustSpeedForAcceleration(estDist, speed), speedFactor);
+                    }
+                } else {
+                    if(way.hasTag("highway","residential")) {
+                        speed = addResedentialPenalty(speed, way);
+                    }
+                }
             }
 
             boolean isRoundabout = way.hasTag("junction", "roundabout");

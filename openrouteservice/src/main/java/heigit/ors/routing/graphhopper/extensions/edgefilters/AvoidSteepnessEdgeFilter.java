@@ -22,30 +22,17 @@ package heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStorage;
 
 public class AvoidSteepnessEdgeFilter implements EdgeFilter {
-
-	private final boolean in;
-	private final boolean out;
-	protected final FlagEncoder encoder;
 	private byte[] buffer;
     private double maximumSteepness;
     private HillIndexGraphStorage gsHillIndex;
     
-	public AvoidSteepnessEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage, double maxSteepness) {
-		this(encoder, true, true, graphStorage, maxSteepness);
-	}
-
-	public AvoidSteepnessEdgeFilter(FlagEncoder encoder, boolean in, boolean out, GraphStorage graphStorage, double maxSteepness) {
-		this.in = in;
-		this.out = out;
-
-		this.encoder = encoder;
+	public AvoidSteepnessEdgeFilter(GraphStorage graphStorage, double maxSteepness) {
 		this.maximumSteepness = maxSteepness;
         this.buffer = new byte[1];
         
@@ -54,26 +41,17 @@ public class AvoidSteepnessEdgeFilter implements EdgeFilter {
 
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {
+		if (gsHillIndex != null)
+		{
+			boolean revert = iter.getBaseNode() < iter.getAdjNode();
+			int hillIndex = gsHillIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(iter), revert, buffer);
 
-		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder)) {
-			
-			if (gsHillIndex != null)
-	    	{
-	    		boolean revert = iter.getBaseNode() < iter.getAdjNode();
-	    		int hillIndex = gsHillIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(iter), revert, buffer);
-	    		
-	    		if (hillIndex > maximumSteepness)
-	    			return false;
-	    	}
-			
-			return true;
+			if (hillIndex > maximumSteepness)
+				return false;
 		}
-		
-		return false;
+
+		return true;
+
 	}
 
-	@Override
-	public String toString() {
-		return "AVOIDSTEEPNESS|" + encoder;
-	}
 }

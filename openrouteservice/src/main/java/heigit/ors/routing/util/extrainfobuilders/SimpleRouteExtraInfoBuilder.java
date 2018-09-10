@@ -28,7 +28,7 @@ import heigit.ors.routing.RouteSegmentItem;
 public class SimpleRouteExtraInfoBuilder extends RouteExtraInfoBuilder {
 	private int _prevIndex = 0;
 	private int _segmentLength = 0;
-	private int _prevValueIndex = -1;
+	private long _prevValueIndex = -1;
 	private double _prevValue = Double.MAX_VALUE;
 	private double _segmentDist = 0;
 	
@@ -36,7 +36,7 @@ public class SimpleRouteExtraInfoBuilder extends RouteExtraInfoBuilder {
 		super(extraInfo);
 	}
 
-	public void addSegment(double value, int valueIndex, PointList geom, double dist, boolean lastEdge)
+	public void addSegment(double value, long valueIndex, PointList geom, double dist, boolean lastEdge)
     {
 		int nPoints = geom.getSize() - 1;
 

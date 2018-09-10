@@ -4,14 +4,14 @@
  *   	 http://www.giscience.uni-hd.de
  *   	 http://www.heigit.org
  *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
+ *  under one or more contributor license agreements. See the NOTICE file
+ *  distributed with this work for additional information regarding copyright
+ *  ownership. The GIScience licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in compliance
  *  with the License. You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -555,7 +555,7 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].bbox", hasItems(8.687794f, 49.393272f, 8.714833f, 49.424603f))
+				.body("routes[0].bbox", hasItems(8.680863f, 49.393272f, 8.714833f, 49.424603f))
 				.statusCode(200);
 	}
 
@@ -573,7 +573,7 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].bbox", hasItems(8.687794f, 49.393272f, 8.714833f, 49.424603f))
+                .body("routes[0].bbox", hasItems(8.680863f, 49.393272f, 8.714833f, 49.424603f))
 				.body("routes[0].segments[0].steps[0].maneuver.bearing_before", is(0))
 				//.body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(260))
                 .body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(80))
@@ -800,7 +800,7 @@ http://localhost:8080/ors/routes?
 				.body("routes[0].containsKey('extras')", is(true))
 				.body("routes[0].extras.tollways.values.size()", is(1))
 				.body("routes[0].extras.tollways.values[0][0]", is(0))
-				.body("routes[0].extras.tollways.values[0][1]", is(80))
+				.body("routes[0].extras.tollways.values[0][1]", is(86))
 				.body("routes[0].extras.tollways.values[0][2]", is(0))
 				.statusCode(200);
 
@@ -1042,7 +1042,7 @@ http://localhost:8080/ors/routes?
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(809.3f))
-				.body("routes[0].summary.duration", is(225.1f))
+				.body("routes[0].summary.duration", is(239.1f))
 				.statusCode(200);
 
 		given()
@@ -1058,7 +1058,7 @@ http://localhost:8080/ors/routes?
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(379.5f))
-				.body("routes[0].summary.duration", is(135.7f))
+				.body("routes[0].summary.duration", is(136))
 				.statusCode(200);
 	}
 
@@ -1077,7 +1077,7 @@ http://localhost:8080/ors/routes?
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(549))
-				.body("routes[0].summary.duration", is(141.1f))
+				.body("routes[0].summary.duration", is(163.2f))
 				.statusCode(200);
 
 		given()
@@ -1093,7 +1093,7 @@ http://localhost:8080/ors/routes?
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(376.5f))
-				.body("routes[0].summary.duration", is(128.7f))
+				.body("routes[0].summary.duration", is(130))
 				.statusCode(200);
 	}
 
@@ -1111,7 +1111,7 @@ http://localhost:8080/ors/routes?
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(379.5f))
-				.body("routes[0].summary.duration", is(269.5f))
+				.body("routes[0].summary.duration", is(270))
 				.statusCode(200);
 	}
 
@@ -1230,7 +1230,7 @@ http://localhost:8080/ors/routes?
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(2133.7f))
-				.body("routes[0].summary.duration", is(290.8f))
+				.body("routes[0].summary.duration", is(430.1f))
 				.statusCode(200);
 	}
 
@@ -1299,33 +1299,33 @@ http://localhost:8080/ors/routes?
 
 	@Test
 	public void testWheelchairKerbRestriction() {
-		/*given()
-				.param("coordinates", "8.708605,49.410688|8.709844,49.411160")
+		given()
+				.param("coordinates", "8.681125,49.403070|8.681434,49.402991")
 				.param("preference", "shortest")
 				.param("profile", "wheelchair")
-				.param("options", "{\"profile_params\":{\"maximum_sloped_kerb\":\"2.0\"}}")
+				.param("options", "{\"profile_params\":{\"maximum_sloped_kerb\":\"0.1\"}}")
 				.when()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(129.6f))
-				.body("routes[0].summary.duration", is(93.3f))
+				.body("routes[0].summary.distance", is(74.1f))
+				.body("routes[0].summary.duration", is(57.9f))
 				.statusCode(200);
 
 		given()
-				.param("coordinates", "8.708605,49.410688|8.709844,49.411160")
+				.param("coordinates", "8.681125,49.403070|8.681434,49.402991")
 				.param("preference", "shortest")
 				.param("profile", "wheelchair")
-				.param("options", "{\"profile_params\":{\"maximum_sloped_kerb\":\"2.1\"}}")
+				.param("options", "{\"profile_params\":{\"maximum_sloped_kerb\":\"0.03\"}}")
 				.when()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(158.7f))
-				.body("routes[0].summary.duration", is(114.3f))
-				.statusCode(200);*/
+				.body("routes[0].summary.distance", is(146.7f))
+				.body("routes[0].summary.duration", is(126.1f))
+				.statusCode(200);
 	}
 
 	@Test
@@ -1389,4 +1389,21 @@ http://localhost:8080/ors/routes?
 				.body("routes[0].summary.duration", is(129.2f))
 				.statusCode(200);
 	}
+
+	@Test
+    public void testOsmIdExtras() {
+        given()
+                .param("coordinates", "8.676730,49.421513|8.678545,49.421117")
+                .param("preference", "shortest")
+                .param("profile", "wheelchair")
+                .param("extra_info", "osmid")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.containsKey('osmId')", is(true))
+                .statusCode(200);
+    }
 }

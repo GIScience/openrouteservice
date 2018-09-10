@@ -47,7 +47,7 @@ public class AvoidAreasEdgeFilterTest {
                 new Coordinate(1,6),
                 new Coordinate(-1,5)});
 
-        AvoidAreasEdgeFilter filter = new AvoidAreasEdgeFilter(encoder.getEncoder(FlagEncoderNames.CAR_ORS), new Polygon[] {poly});
+        AvoidAreasEdgeFilter filter = new AvoidAreasEdgeFilter(new Polygon[] {poly});
         assertFalse(filter.accept(iter1));
         assertTrue(filter.accept(iter2));
     }

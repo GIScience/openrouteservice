@@ -33,6 +33,7 @@ public class IsochroneSearchParameters {
 	private double[] _ranges;
 	private RouteSearchParameters _parameters;
 	private String _calcMethod;
+	private float _smoothingFactor = -1.0f;
 
 	public IsochroneSearchParameters(int travellerId, Coordinate location, double[] ranges) {
 		_travellerId = travellerId;
@@ -101,6 +102,14 @@ public class IsochroneSearchParameters {
 			
 			return maxValue;
 		}
+	}
+
+	public float getSmoothingFactor() {
+		return _smoothingFactor;
+	}
+
+	public void setSmoothingFactor(float smoothingFactor) {
+		this._smoothingFactor = smoothingFactor;
 	}
 
 	public RouteSearchParameters getRouteParameters() {
