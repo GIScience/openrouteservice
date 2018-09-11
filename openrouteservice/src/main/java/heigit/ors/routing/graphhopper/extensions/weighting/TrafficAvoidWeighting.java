@@ -21,20 +21,20 @@
 package heigit.ors.routing.graphhopper.extensions.weighting;
 
 
-import java.util.HashMap;
-
-
-import com.graphhopper.routing.util.CarFlagEncoder;
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
-
+import heigit.ors.routing.graphhopper.extensions.flagencoders.CarFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.tomove.exghoverwrite.ExGhORSCarFlagEncoder;
 import heigit.ors.routing.traffic.AvoidEdgeInfo;
 import heigit.ors.routing.traffic.TmcEventCodesTable;
 import heigit.ors.routing.traffic.TmcMode;
 import heigit.ors.routing.traffic.TrafficEventInfo;
+
+import java.util.HashMap;
 
 public class TrafficAvoidWeighting extends AbstractWeighting {
 
@@ -46,8 +46,6 @@ public class TrafficAvoidWeighting extends AbstractWeighting {
     private double maxSpeed;
 	private HashMap<Integer, AvoidEdgeInfo> forbiddenEdges;
 
-	private int encoderIndex = -1;
-
     public TrafficAvoidWeighting( FlagEncoder encoder, PMap map)
     {
     	super(encoder);
@@ -55,7 +53,6 @@ public class TrafficAvoidWeighting extends AbstractWeighting {
         if (!encoder.isRegistered())
             throw new IllegalStateException("Make sure you add the FlagEncoder " + encoder + " to an EncodingManager before using it elsewhere");
 
-        encoderIndex = encoder.getIndex();
         maxSpeed = encoder.getMaxSpeed() / SPEED_CONV;
     }
 
@@ -81,7 +78,7 @@ public class TrafficAvoidWeighting extends AbstractWeighting {
     @Override
     public double calcWeight( EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId )
     {
-        double normal_speed = reverse ? getFlagEncoder().getReverseSpeed(edge.getFlags(encoderIndex)) : getFlagEncoder().getSpeed(edge.getFlags(encoderIndex));
+        double normal_speed = reverse ? getFlagEncoder().getReverseSpeed(edge.getFlags()) : getFlagEncoder().getSpeed(edge.getFlags());
         if (normal_speed == 0)
             return Double.POSITIVE_INFINITY;
 
@@ -98,7 +95,7 @@ public class TrafficAvoidWeighting extends AbstractWeighting {
 				int code = codes[i];
 				tec = TmcEventCodesTable.getEventInfo(code);
 				
-				if ((tec.getTmcMode() == TmcMode.HEAVY_VEHICLE) && (flagEncoder instanceof CarFlagEncoder))
+				if ((tec.getTmcMode() == TmcMode.HEAVY_VEHICLE) && isCarFlagEncoder(flagEncoder))
 					continue; 				
 				
 				if (tec!=null) {
@@ -137,7 +134,7 @@ public class TrafficAvoidWeighting extends AbstractWeighting {
 			} else {
 				
 				 System.err.println("traffic weighting method didn't give the weight");
-				 throw new IllegalStateException("edge " + edge.getOriginalEdge() + 
+				 throw new IllegalStateException("edge " + EdgeIteratorStateHelper.getOriginalEdge(edge) +
 						   "has no considered event codes " + ei.getCodesAsString());
 			}
 		}
@@ -147,6 +144,10 @@ public class TrafficAvoidWeighting extends AbstractWeighting {
 		return weight; 
 		
     }
+
+    private boolean isCarFlagEncoder(FlagEncoder encoder){
+		return encoder instanceof ExGhORSCarFlagEncoder || encoder instanceof CarFlagEncoder;
+	}
     
     private double calcTravelTimeInSec (double distance, double speed) {
     	return distance *3600 / (1000 * speed);

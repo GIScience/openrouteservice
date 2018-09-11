@@ -20,18 +20,11 @@
  */
 package heigit.ors.mapmatching.hmm;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
-import heigit.ors.mapmatching.AbstractMapMatcher;
-import heigit.ors.mapmatching.LocationIndexMatch;
-import heigit.ors.mapmatching.RouteSegmentInfo;
-
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.PathWrapper;
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -40,6 +33,13 @@ import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
 import com.vividsolutions.jts.geom.Coordinate;
+import heigit.ors.mapmatching.AbstractMapMatcher;
+import heigit.ors.mapmatching.LocationIndexMatch;
+import heigit.ors.mapmatching.RouteSegmentInfo;
+import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /*
  * This class presents an implementation of a map matching algorithm based on a paper "Hidden Markov Map Matching Through Noise and Sparseness" written by Paul Newson and John Krumm  
@@ -362,7 +362,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
 			if (distance <= _searchRadius) {
 				
-				int edgeId = qr.getClosestEdge().getOriginalEdge();
+				int edgeId = EdgeIteratorStateHelper.getOriginalEdge(qr.getClosestEdge());
 
 				if (!roadSegments.contains(edgeId))
 					roadSegments.add(edgeId);

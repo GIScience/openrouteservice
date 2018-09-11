@@ -18,22 +18,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencoders;
-
-import static com.graphhopper.routing.util.PriorityCode.AVOID_AT_ALL_COSTS;
-import static com.graphhopper.routing.util.PriorityCode.AVOID_IF_POSSIBLE;
-import static com.graphhopper.routing.util.PriorityCode.PREFER;
-import static com.graphhopper.routing.util.PriorityCode.REACH_DEST;
-
-import java.util.TreeMap;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated;
 
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.BikeCommonFlagEncoder;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.exghoverwrite.ExGhORSBikeCommonFlagEncoder;
 
-public class SafetyBikeFlagEncoder extends BikeCommonFlagEncoder {
+import java.util.TreeMap;
+
+import static com.graphhopper.routing.util.PriorityCode.*;
+
+public class SafetyBikeFlagEncoder extends ExGhORSBikeCommonFlagEncoder {
 	public SafetyBikeFlagEncoder()
     {
         this(4, 2, 0, false);
@@ -165,6 +163,6 @@ public class SafetyBikeFlagEncoder extends BikeCommonFlagEncoder {
 
 	@Override
 	public String toString() {
-		return "safetybike";
+		return FlagEncoderNames.BIKE_SAFTY;
 	}
 }

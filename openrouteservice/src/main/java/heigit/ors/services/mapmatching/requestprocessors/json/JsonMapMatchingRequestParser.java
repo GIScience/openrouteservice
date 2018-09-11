@@ -126,10 +126,6 @@ public class JsonMapMatchingRequestParser
 			req.setGeometryFormat(value);
 		}
 
-		value = request.getParameter("geometry_simplify");
-		if (!Helper.isEmpty(value))
-			req.setSimplifyGeometry(Boolean.parseBoolean(value));
-
 		value = request.getParameter("instructions");
 		if (!Helper.isEmpty(value))
 			req.setIncludeInstructions(Boolean.parseBoolean(value));

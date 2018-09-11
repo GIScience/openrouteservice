@@ -4,14 +4,14 @@
  *   http://www.giscience.uni-hd.de
  *   http://www.heigit.org
  *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
+ *  under one or more contributor license agreements. See the NOTICE file
+ *  distributed with this work for additional information regarding copyright
+ *  ownership. The GIScience licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in compliance
  *  with the License. You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -150,24 +150,29 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 						} else {
 							if (value.contains("m")) {
 								value = value.replace('m', ' ');
-							}
-							else if (value.contains("'"))
-							{
-								Matcher m = _patternHeight.matcher(value);
-								if (m.find())
-								{
-									int feet = Integer.parseInt(m.group(1));
-									int inches = 0;
-									if (m.groupCount() > 1)
-										inches = Integer.parseInt(m.group(2));
-									double newValue = feet * 0.3048 + inches * 0.0254*feet;
-									value = Double.toString(newValue);
-								}
-							}
-						}
+							} else /*if (value.contains("'")) */ {
+                            // MARQ24: why the heck we only make use of our fancy RegEx for height
+                            // parsing - IF the string contains a ' ?!
+                            Matcher m = _patternHeight.matcher(value);
+                            if (m.matches() && m.lookingAt()) {
+                                double feet = Double.parseDouble(m.group(1));
+                                double inches = 0;
+                                if (m.groupCount() > 1 && m.group(2) != null) {
+                                    inches = Double.parseDouble(m.group(2));
+                                }
+                                // MARQ24: n feet * 0.3048 = feet 2 meter - ok fine... BUT
+                                // x inches * 0.0254 * y feet - this does not make much sense to me...
+                                // double newValue = feet * 0.3048 + inches * 0.0254 * feet;
+                                double newValue = feet * 0.3048 + inches * 0.0254;
+                                value = Double.toString(newValue);
+                            }
+                        }
+                    }
 
-						_restrictionValues[valueIndex] = Double.parseDouble(value);
-						_hasRestrictionValues = true;
+                    // MARQ24: FIXME: Here we can get a "NumberFormatException" and then the complete
+                    // iterator will stop (no additional propertis of the way will be processed!
+                    _restrictionValues[valueIndex] = Double.parseDouble(value);
+                    _hasRestrictionValues = true;
 					}
 				}
 

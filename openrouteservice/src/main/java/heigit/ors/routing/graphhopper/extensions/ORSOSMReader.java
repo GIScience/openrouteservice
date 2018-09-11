@@ -49,7 +49,8 @@ public class ORSOSMReader extends OSMReader {
 	private HashMap<Integer, Long> tmcEdges;
 	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds;
 	private RoutingProfile refProfile;
-	private boolean enrichInstructions;
+	// MARQ24: REMOVED SINCE code that handles 'enrichInstructions = true' is already inactive!
+	//private boolean enrichInstructions;
 	private boolean processNodeTags;
 	private OSMDataReaderContext _readerCntx;
 
@@ -76,11 +77,13 @@ public class ORSOSMReader extends OSMReader {
 		this.osmId2EdgeIds = osmId2EdgeIds;
 		this.refProfile = refProfile;
 
-		enrichInstructions = (refProfile != null) && (storage.getEncodingManager().supports("foot")
+		// MARQ24: REMOVED SINCE code that handles 'enrichInstructions = true' is already inactive!
+		/*enrichInstructions = (refProfile != null) && (storage.getEncodingManager().supports("foot")
 				|| storage.getEncodingManager().supports("bike")  
 				|| storage.getEncodingManager().supports("MTB")
 				|| storage.getEncodingManager().supports("RACINGBIKE")
 				|| storage.getEncodingManager().supports("SAFETYBIKE"));
+        */
 
 		extraTagKeys = new HashSet<>();
 		// Look if we should do border processing - if so then we have to process the geometry
@@ -343,8 +346,9 @@ public class ORSOSMReader extends OSMReader {
 	@Override
 	protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge) {
 
-		if (enrichInstructions && Helper.isEmpty(way.getTag("name")) && Helper.isEmpty(way.getTag("ref"))) {
-			try {
+		// MARQ24: REMOVED SINCE code that handles 'enrichInstructions = true' is already inactive!
+		// by MARQ24 if (enrichInstructions && Helper.isEmpty(way.getTag("name")) && Helper.isEmpty(way.getTag("ref"))) {
+		// by MARQ24 	try {
 				/*	if (way.getId() != prevMatchedWayId)
 				{
 					prevMatchedWayId = way.getId();
@@ -365,10 +369,10 @@ public class ORSOSMReader extends OSMReader {
 					edge.setName(matchedEdgeName);
 				}*/
 
-			} 
-			catch (Exception ex) {
-			}
-		}
+		// by MARQ24 	}
+		// by MARQ24 	catch (Exception ex) {
+		// by MARQ24 	}
+		// by MARQ24 }
 
 		try {
 			if ((tmcEdges != null) && (osmId2EdgeIds!=null)) {

@@ -20,11 +20,10 @@
  */
 package heigit.ors.routing.pathprocessors;
 
-import com.graphhopper.routing.PathProcessingContext;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
-
 import heigit.ors.routing.util.ElevationSmoother;
 
 public class ElevationSmoothPathProcessor extends PathProcessor {
@@ -34,7 +33,7 @@ public class ElevationSmoothPathProcessor extends PathProcessor {
 	}
 
 	@Override
-	public void init(PathProcessingContext cntx) {
+	public void init(FlagEncoder enc) {
 		// TODO Auto-generated method stub
 
 	}
@@ -46,7 +45,7 @@ public class ElevationSmoothPathProcessor extends PathProcessor {
 	}
 
 	@Override
-	public void processEdge(int pathIndex, EdgeIteratorState edge, boolean lastEdge, PointList geom) {
+	public void processEdge(EdgeIteratorState edge, boolean isLastEdge, PointList geom) {
 		// TODO Auto-generated method stub
 
 	}

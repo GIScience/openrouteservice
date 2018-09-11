@@ -73,7 +73,6 @@ public class RoutingRequestMockup {
 
         if (profile == RoutingRequestMockup.routeProfile.standardHeidelberg2d) {
             routingRequestMockup.setGeometryFormat("geojson");
-            routingRequestMockup.setSimplifyGeometry(false);
             // Fill the two-dimensional coordinate
             coords2d[0] = new Coordinate(Double.parseDouble("8.690614"), Double.parseDouble("49.38365"));
             coords2d[1] = new Coordinate(Double.parseDouble("8.7007"), Double.parseDouble("49.411699"));
@@ -97,7 +96,6 @@ public class RoutingRequestMockup {
             return routingRequestMockup;
         } else if (profile == RoutingRequestMockup.routeProfile.standardHeidelberg3d) {
             routingRequestMockup.setGeometryFormat("geojson");
-            routingRequestMockup.setSimplifyGeometry(false);
             // Fill the three-dimensional coordinate
             // TODO fill with third coordinate!!!
             coords3d[0] = new Coordinate(Double.parseDouble("8.690614"), Double.parseDouble("49.38365"), Double.parseDouble("NaN"));

@@ -15,14 +15,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencoders;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated;
 
-import com.graphhopper.util.PMap;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.FootFlagEncoder;
 import com.graphhopper.routing.weighting.PriorityWeighting;
+import com.graphhopper.util.PMap;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.exghoverwrite.ExGhORSFootFlagEncoder;
+import org.apache.log4j.Logger;
 
-import java.util.*;
+import java.util.TreeMap;
 
 import static com.graphhopper.routing.util.PriorityCode.*;
 
@@ -31,30 +33,33 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  *
  * @author Peter Karich
  */
-public class RunningFlagEncoder extends FootFlagEncoder
+public class HikingFlagEncoder extends ExGhORSFootFlagEncoder
 {
     /**
      * Should be only instantiated via EncodingManager
      */
-    public RunningFlagEncoder()
+    public HikingFlagEncoder()
     {
         this(4, 1);
     }
 
-    public RunningFlagEncoder( PMap properties )
+    public HikingFlagEncoder( PMap properties )
     {
         this((int) properties.getLong("speed_bits", 4),
                 properties.getDouble("speed_factor", 1));
         this.properties = properties;
+
+        // MARQ24 why the heck we ste "block_fords" as default for HIKING?!
+        // for regular foot that would had been fine - but for hiking?!
         this.setBlockFords(properties.getBool("block_fords", true));
     }
 
-    public RunningFlagEncoder( String propertiesStr )
+    public HikingFlagEncoder( String propertiesStr )
     {
         this(new PMap(propertiesStr));
     }
 
-    public RunningFlagEncoder( int speedBits, double speedFactor )
+    public HikingFlagEncoder( int speedBits, double speedFactor )
     {
         super(speedBits, speedFactor);
 
@@ -62,12 +67,15 @@ public class RunningFlagEncoder extends FootFlagEncoder
         hikingNetworkToCode.put("nwn", BEST.getValue());
         hikingNetworkToCode.put("rwn", VERY_NICE.getValue());
         hikingNetworkToCode.put("lwn", VERY_NICE.getValue());
+
+        // MARQ24 - the call of the method init() is missing!! ?!
+        Logger.getLogger(HikingFlagEncoder.class.getName()).warn("ORS \"HIKING\" FlagEncoder should not be used anylonger - please use \"HIKE\" instead");
     }
 
     @Override
     public int getVersion()
     {
-        return 1;
+        return 2;
     }
 
     @Override
@@ -161,6 +169,6 @@ public class RunningFlagEncoder extends FootFlagEncoder
     @Override
     public String toString()
     {
-        return "running";
+        return FlagEncoderNames.HIKING;
     }
 }

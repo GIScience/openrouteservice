@@ -210,25 +210,25 @@
 	<dependency>
     	<groupId>org.geotools</groupId>
     	<artifactId>gt-main</artifactId>
-    	<version>16.1</version>
+    	<version>19.1</version>
 	</dependency>
 
 	<dependency>
     	<groupId>org.geotools</groupId>
     	<artifactId>gt-api</artifactId>
-    	<version>16.1</version>
+    	<version>19.1</version>
 	</dependency>
 
 	<dependency>
     	<groupId>org.geotools</groupId>
     	<artifactId>gt-epsg-hsql</artifactId>
-    	<version>16.1</version>
+    	<version>19.1</version>
 	</dependency>
 
     <dependency>
         <groupId>org.geotools</groupId>
         <artifactId>gt-geojson</artifactId>
-        <version>18.2</version>
+        <version>19.1</version>
     </dependency>
 
 	<dependency>
@@ -270,45 +270,46 @@
 	</dependency>
 
 
+    <dependency>
+        <groupId>com.github.GIScience.graphhopper</groupId>
+        <artifactId>graphhopper-core</artifactId>
+        <version>v0.10.1-8</version>
+    </dependency>
 
     <dependency>
-	 	<groupId>com.github.GIScience.graphhopper</groupId>
-		<artifactId>graphhopper-core</artifactId>
-	   	<version>v0.9.14</version>
-	</dependency>
-
-    <dependency>
-		<groupId>com.github.GIScience.graphhopper</groupId>
-		<artifactId>graphhopper-reader-osm</artifactId>
-		<version>v0.9.14</version>
+        <groupId>com.github.GIScience.graphhopper</groupId>
+        <artifactId>graphhopper-reader-osm</artifactId>
+        <version>v0.10.1-8</version>
     </dependency>
 
 
+    <!-- remove the comment to enable debugging
+    <dependency>
+        <groupId>com.graphhopper</groupId>
+        <artifactId>graphhopper-core</artifactId>
+        <version>0.10-SNAPSHOT</version>
+    </dependency>
 
-    <!-- remove the comment to enable debugging	<dependency>
-            <groupId>com.graphhopper</groupId>
-           <artifactId>graphhopper-core</artifactId>
-              <version>0.10-SNAPSHOT</version>
-       </dependency>
+    <dependency>
+        <groupId>com.graphhopper</groupId>
+        <artifactId>graphhopper-reader-osm</artifactId>
+        <version>0.10-SNAPSHOT</version>
+    </dependency>
+    -->
 
-         <dependency>
-            <groupId>com.graphhopper</groupId>
-          <artifactId>graphhopper-reader-osm</artifactId>
-              <version>0.10-SNAPSHOT</version>
-       </dependency>-->
-   <dependency>
-       <groupId>com.typesafe</groupId>
-       <artifactId>config</artifactId>
-       <version>1.3.1</version>
-   </dependency>
+	<dependency>
+    	<groupId>com.typesafe</groupId>
+	    <artifactId>config</artifactId>
+	    <version>1.3.1</version>
+	</dependency>
 
-   <dependency>
-       <groupId>com.zaxxer</groupId>
-       <artifactId>HikariCP</artifactId>
-       <version>2.6.1</version>
-   </dependency>
+	<dependency>
+    	<groupId>com.zaxxer</groupId>
+    	<artifactId>HikariCP</artifactId>
+    	<version>2.6.1</version>
+	</dependency>
 
-   <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+	<!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
 	<dependency>
     	<groupId>org.postgresql</groupId>
     	<artifactId>postgresql</artifactId>
@@ -320,11 +321,36 @@
       	<artifactId>jbrotli</artifactId>
       	<version>0.5.0</version>
    	</dependency>
+
     <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>4.4</version>
     </dependency>
+
+    <!-- Required for JDK 10 - since javax.xml.bind not longer included in default JDK
+    https://stackoverflow.com/questions/43574426/how-to-resolve-java-lang-noclassdeffounderror-javax-xml-bind-jaxbexception-in-j/46455026
+    <dependency>
+        <groupId>javax.xml.bind</groupId>
+        <artifactId>jaxb-api</artifactId>
+        <version>2.3.0</version>
+    </dependency>
+    <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-core</artifactId>
+        <version>2.3.0</version>
+    </dependency>
+    <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-impl</artifactId>
+        <version>2.3.0</version>
+    </dependency>
+    <dependency>
+        <groupId>javax.activation</groupId>
+        <artifactId>activation</artifactId>
+        <version>1.1.1</version>
+    </dependency>
+    -->
 
     <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
 <!-- <dependency>

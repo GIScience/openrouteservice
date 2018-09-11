@@ -25,7 +25,7 @@ import com.graphhopper.util.shapes.BBox;
 public class RouteSummary 
 {
 	private double _distance;
-	private double _distanceActual;
+	//private double _distanceActual;
 	private double _duration;
 	private double _ascent;
 	private double _descent;
@@ -74,13 +74,13 @@ public class RouteSummary
 		_descent = descent;
 	}
 
-	public double getDistanceActual() {
-		return _distanceActual;
-	}
-
-	public void setDistanceActual(double distanceActual) {
-		_distanceActual = distanceActual;
-	}
+	//MARQ24 removed not implemented
+	//public double getDistanceActual() {
+	//	return _distanceActual;
+	//}
+	//public void setDistanceActual(double distanceActual) {
+	//	_distanceActual = distanceActual;
+	//}
 
 	public double getAverageSpeed() {
 		return _avgSpeed;

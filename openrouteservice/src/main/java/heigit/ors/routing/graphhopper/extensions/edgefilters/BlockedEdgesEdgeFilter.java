@@ -20,15 +20,15 @@
  */
 package heigit.ors.routing.graphhopper.extensions.edgefilters;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.util.EdgeIteratorState;
-
 import heigit.ors.routing.graphhopper.extensions.flagencoders.HeavyVehicleFlagEncoder;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class BlockedEdgesEdgeFilter implements EdgeFilter {
 	private Set<Integer> blockedEdges;
@@ -44,8 +44,7 @@ public class BlockedEdgesEdgeFilter implements EdgeFilter {
 
 	@Override
 	public boolean accept(EdgeIteratorState iter) {
-
-		return !blockedEdges.contains(iter.getOriginalEdge());
+		return !blockedEdges.contains(EdgeIteratorStateHelper.getOriginalEdge(iter));
 
 	}
 
