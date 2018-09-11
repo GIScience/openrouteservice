@@ -374,7 +374,8 @@
                   KerbsOnCrossings: "true"
                 },
                 WaySurfaceType: {},
-                WayCategory: {}
+                WayCategory: {},
+                OsmId: {}
               }
             }
           }
