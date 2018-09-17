@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+### Fixed
+### Changed
+### Depricated
+
+## [4.7] - 2018-09-17
+### Added
 - Removed locations code as this will be handled by openpoiservice in the future (Issue #120)
 - Removed Geocoding code as this will be handled by the geocoder service rather than within ORS
 - Added smoothing option for isochrones (Issue #137)
