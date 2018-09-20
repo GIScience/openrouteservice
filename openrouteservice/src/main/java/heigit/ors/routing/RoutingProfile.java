@@ -203,9 +203,12 @@ public class RoutingProfile {
 
         boolean prepareCH = false;
         boolean prepareLM = false;
+        boolean prepareCore = false;
+        boolean prepareCoreLM = false;
 
         args.put("prepare.ch.weightings", "no");
         args.put("prepare.lm.weightings", "no");
+        args.put("prepare.core.weightings", "no");
 
         if (config.getPreparationOpts() != null) {
             Config opts = config.getPreparationOpts();
@@ -253,15 +256,39 @@ public class RoutingProfile {
                             args.put("prepare.lm.landmarks", lmOpts.getInt("landmarks"));
                     }
                 }
+
+                if (opts.hasPath("methods.core")) {
+                    prepareCore = true;
+                    Config coreOpts = opts.getConfig("methods.core");
+
+                    if (coreOpts.hasPath("enabled") || coreOpts.getBoolean("enabled")) {
+                        prepareCore = coreOpts.getBoolean("enabled");
+                        if (prepareCore == false)
+                            args.put("prepare.ch.weightings", "no");
+                    }
+
+
+                    if (prepareCore) {
+                        if (coreOpts.hasPath("threads"))
+                            args.put("prepare.core.threads", coreOpts.getInt("threads"));
+                        if (coreOpts.hasPath("weightings"))
+                            args.put("prepare.core.weightings", StringUtility.trimQuotes(coreOpts.getString("weightings")));
+                    }
+                }
             }
         }
 
         if (config.getExecutionOpts() != null) {
             Config opts = config.getExecutionOpts();
             if (opts.hasPath("methods.ch")) {
-                Config chOpts = opts.getConfig("methods.ch");
+                Config coreOpts = opts.getConfig("methods.ch");
+                if (coreOpts.hasPath("disabling_allowed"))
+                    args.put("routing.ch.disabling_allowed", coreOpts.getBoolean("disabling_allowed"));
+            }
+            if (opts.hasPath("methods.core")) {
+                Config chOpts = opts.getConfig("methods.core");
                 if (chOpts.hasPath("disabling_allowed"))
-                    args.put("routing.ch.disabling_allowed", chOpts.getBoolean("disabling_allowed"));
+                    args.put("routing.core.disabling_allowed", chOpts.getBoolean("disabling_allowed"));
             }
             if (opts.hasPath("methods.lm")) {
                 Config lmOpts = opts.getConfig("methods.lm");

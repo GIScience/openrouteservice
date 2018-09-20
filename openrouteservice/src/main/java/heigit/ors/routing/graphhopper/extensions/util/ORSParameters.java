@@ -48,6 +48,32 @@ public class ORSParameters {
         public static final String FORCE_HEADING = "core.force_heading";
     }
 
+    /**
+     * Properties for routing with landmark speedup
+     */
+    public static final class CoreLandmark {
+        public static final String PREPARE = "prepare.corelm.";
+        /**
+         * This property name in HintsMap configures at runtime if CH routing should be ignored.
+         */
+        public static final String DISABLE = "corelm.disable";
+        /**
+         * Specifies how many active landmarks should be used when routing
+         */
+        public static final String ACTIVE_COUNT = "corelm.active_landmarks";
+        /**
+         * Default for active count
+         */
+        public static final String ACTIVE_COUNT_DEFAULT = ROUTING_INIT_PREFIX + ACTIVE_COUNT;
+        /**
+         * Specifies how many landmarks should be created
+         */
+        public static final String COUNT = PREPARE + "corelandmarks";
+        /**
+         * This property name configures at start if the DISABLE parameter can have an effect.
+         */
+        public static final String INIT_DISABLING_ALLOWED = ROUTING_INIT_PREFIX + "corelm.disabling_allowed";
+    }
 
 
 }

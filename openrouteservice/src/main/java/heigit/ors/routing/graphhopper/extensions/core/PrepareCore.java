@@ -191,7 +191,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         initFromGraph();
         if (!prepareNodes())
             return;
-
         contractNodes();
     }
 
@@ -285,7 +284,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             //We have worked through all nodes that are not associated with restrictions. Now we can stop the contraction.
             if (oldPriorities[polledNode] == RESTRICTION_PRIORITY){
                 //Set the number of core nodes in the storage for use in other places
-//                prepareGraph.setCoreNodes(sortedNodes.getSize());
+                prepareGraph.setCoreNodes(sortedNodes.getSize());
                 while(!sortedNodes.isEmpty()){
                     CHEdgeIterator iter = vehicleAllExplorer.setBaseNode(polledNode);
                     while (iter.next()) {
@@ -357,7 +356,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         periodTime += periodSW.getSeconds();
         lazyTime += lazySW.getSeconds();
         neighborTime += neighborSW.getSeconds();
-        logger.info("took: " + (int) allSW.stop().getSeconds() + "s, new shortcuts: " + Helper.nf(newShortcuts) + ", "
+        logger.info("took: " +  allSW.stop().getSeconds() + "s, new shortcuts: " + Helper.nf(newShortcuts) + ", "
                 + prepareWeighting + ", dijkstras:" + dijkstraCount + ", " + getTimesAsString() + ", meanDegree:"
                 + (long) meanDegree + ", initSize:" + initSize + ", periodic:" + periodicUpdatesPercentage + ", lazy:"
                 + lastNodesLazyUpdatePercentage + ", neighbor:" + neighborUpdatePercentage + ", "
@@ -527,7 +526,15 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         }
         if (sch instanceof AddShortcutHandler) {
             // sliding mean value when using "*2" => slower changes
-            meanDegree = (meanDegree * 2 + tmpDegreeCounter) / 3;
+//            if(tmpDegreeCounter> 20)
+//                meanDegree = (meanDegree * 2 + tmpDegreeCounter / 15) / 3;
+//            else if(tmpDegreeCounter> 10)
+//                meanDegree = (meanDegree * 2 + tmpDegreeCounter / 10) / 3;
+//            else
+                meanDegree = (meanDegree * 2 + tmpDegreeCounter) / 3;
+//                if(meanDegree>10) meanDegree = meanDegree / 2;
+//            if(meanDegree>5)System.out.println("Core meanDegree: " + meanDegree + " with tmpDegreeCounter: " + tmpDegreeCounter);
+
             // meanDegree = (meanDegree + tmpDegreeCounter) / 2;
         }
     }
@@ -839,6 +846,8 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             // ignore if it is skipNode or adjNode is already contracted
             int node = iter.getAdjNode();
             if(!(avoidNode != node && graph.getLevel(node) == maxLevel)) return false;
+            if (graph.isShortcut(iter.getEdge()))
+                return true;
             return super.accept(iter);
         }
     }

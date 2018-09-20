@@ -54,12 +54,14 @@ import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
+import heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
 import heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
+import heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
 
 import static com.graphhopper.util.Parameters.Algorithms.*;
@@ -75,14 +77,18 @@ public class ORSGraphHopper extends GraphHopper {
 
 	private final CoreAlgoFactoryDecorator coreFactoryDecorator =  new CoreAlgoFactoryDecorator();
 
+	private final CoreLMAlgoFactoryDecorator coreLMFactoryDecorator = new CoreLMAlgoFactoryDecorator();
+
+
 
 	public ORSGraphHopper(GraphProcessContext procCntx, boolean useTmc, RoutingProfile refProfile) {
 		_procCntx = procCntx;
 		this.refRouteProfile= refProfile;
 		this.forDesktop();
-		coreFactoryDecorator.setEnabled(false);
+//		coreFactoryDecorator.setEnabled(false);
 		algoDecorators.clear();
 		algoDecorators.add(coreFactoryDecorator);
+		algoDecorators.add(coreLMFactoryDecorator);
 		algoDecorators.add(getCHFactoryDecorator());
 		algoDecorators.add(getLMFactoryDecorator());
 
@@ -412,7 +418,6 @@ public class ORSGraphHopper extends GraphHopper {
 		/* Initialize edge filter sequence */
 
 		EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
-
 		/* Heavy vehicle filter */
 
 		if (encodingManager.supports("heavyvehicle")) {
@@ -437,10 +442,16 @@ public class ORSGraphHopper extends GraphHopper {
 
 		/* End filter sequence initialization */
 
+		//Create the core
 		if(coreFactoryDecorator.isEnabled())
 			coreFactoryDecorator.createPreparations(ghStorage, traversalMode, coreEdgeFilter);
 		if (!isCorePrepared())
 			prepareCore();
+		//Create the landmarks in the core
+		if (coreLMFactoryDecorator.isEnabled())
+			coreLMFactoryDecorator.createPreparations(ghStorage, super.getLocationIndex());
+		loadOrPrepareCoreLM();
+
 	}
 
 
@@ -488,4 +499,44 @@ public class ORSGraphHopper extends GraphHopper {
 				// remove old property in >0.9
 				|| "true".equals(ghStorage.getProperties().get("prepare.done"));
 	}
+
+	/**
+	 * Enables or disables core calculation.
+	 */
+	public GraphHopper setCoreLMEnabled(boolean enable) {
+		ensureNotLoaded();
+		coreLMFactoryDecorator.setEnabled(enable);
+		return this;
+	}
+
+	public final boolean isCoreLMEnabled() {
+		return coreLMFactoryDecorator.isEnabled();
+	}
+
+	public void initCoreLMAlgoFactoryDecorator() {
+		if (!coreLMFactoryDecorator.hasWeightings()) {
+			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
+				for (String coreWeightingStr : coreFactoryDecorator.getWeightingsAsStrings()) {
+					// ghStorage is null at this point
+					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), traversalMode, encoder, null);
+					coreLMFactoryDecorator.addWeighting(weighting);
+				}
+			}
+		}
+	}
+
+
+	/**
+	 * For landmarks it is required to always call this method: either it creates the landmark data or it loads it.
+	 */
+	protected void loadOrPrepareCoreLM() {
+		boolean tmpPrepare = coreLMFactoryDecorator.isEnabled();
+		if (tmpPrepare) {
+			ensureWriteAccess();
+			ghStorage.freeze();
+			if (coreLMFactoryDecorator.loadOrDoWork(ghStorage.getProperties()))
+				ghStorage.getProperties().put(ORSParameters.CoreLandmark.PREPARE + "done", true);
+		}
+	}
+
 }
