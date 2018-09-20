@@ -2,13 +2,17 @@ package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 
 import heigit.ors.routing.RouteSegment;
 import heigit.ors.routing.RouteStep;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class JSONSegment {
+    @ApiModelProperty("The total length of the route")
     private Double distance;
+    @ApiModelProperty("How long the route should take to complete")
     private Double duration;
+    @ApiModelProperty("The steps that ")
     private List<JSONStep> steps;
 
     public JSONSegment(RouteSegment routeSegment) {

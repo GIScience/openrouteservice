@@ -1,5 +1,6 @@
 package heigit.ors.routing;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
@@ -18,6 +19,7 @@ import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import heigit.ors.routing.parameters.*;
 import heigit.ors.routing.pathprocessors.BordersExtractor;
 import heigit.ors.util.DistanceUnitUtil;
+import org.geotools.data.DataAccessFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -34,7 +36,7 @@ public class RouteRequestHandler {
     public static RoutingRequest convertRouteRequest(RouteRequest request) throws StatusCodeException {
         RoutingRequest routingRequest = new RoutingRequest();
 
-        routingRequest.setCoordinates(request.getCoordinates());
+        routingRequest.setCoordinates(convertCoordinates(request.getCoordinates()));
 
         if(request.hasReturnElevationForPoints())
             routingRequest.setIncludeElevation(request.getReturnElevationForPoints());
@@ -72,7 +74,7 @@ public class RouteRequestHandler {
 
         int profileType = -1;
 
-        int coordinatesLength = request.getCoordinates().length;
+        int coordinatesLength = request.getCoordinates().size();
 
         RouteSearchParameters params = new RouteSearchParameters();
 
@@ -124,6 +126,28 @@ public class RouteRequestHandler {
         routingRequest.setSearchParameters(params);
 
         return routingRequest;
+    }
+
+    private static Coordinate[] convertCoordinates(List<List<Double>> coordinates) throws ParameterValueException {
+        if(coordinates.size() < 2)
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "coordinates");
+
+        ArrayList<Coordinate> coords = new ArrayList<>();
+
+        for(List<Double> coord : coordinates) {
+            coords.add(convertSingleCoordinate(coord));
+        }
+
+        return coords.toArray(new Coordinate[coords.size()]);
+
+    }
+
+    private static Coordinate convertSingleCoordinate(List<Double> coordinate) throws ParameterValueException {
+        if(coordinate.size() != 2)
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "coordinates");
+
+        return new Coordinate(coordinate.get(0), coordinate.get(1));
+
     }
 
     private static int convertFeatureTypes(APIRoutingEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, ParameterValueException {

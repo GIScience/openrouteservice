@@ -1,7 +1,9 @@
 package heigit.ors.api.responses.routing.BoundingBox;
 
 import com.graphhopper.util.shapes.BBox;
+import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.api.requests.routing.APIRoutingEnums;
+import heigit.ors.api.requests.routing.CoordinateListWrapper;
 import heigit.ors.api.requests.routing.RouteRequest;
 import heigit.ors.api.responses.routing.BoundingBox.BoundingBox;
 import heigit.ors.api.responses.routing.BoundingBox.BoundingBoxFactory;
@@ -11,10 +13,22 @@ import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONBoundingBox
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BoundingBoxFactoryTest {
     @Test
     public void testCorrectTypeCreated() throws Exception {
-        RouteRequest request = new RouteRequest(new Double[] {123.4, 567.8}, new Double[] {321.4, 765.8});
+        List<List<Double>> coords = new ArrayList<>();
+        List<Double> coord1 = new ArrayList<>();
+        coord1.add(24.5);
+        coord1.add(39.2);
+        coords.add(coord1);
+        List<Double> coord2 = new ArrayList<>();
+        coord2.add(27.4);
+        coord2.add(38.6);
+        RouteRequest request = new RouteRequest(coords);
+
         BBox bbox = new BBox(1,2,3,4,5,6);
 
         request.setReturnElevationForPoints(true);

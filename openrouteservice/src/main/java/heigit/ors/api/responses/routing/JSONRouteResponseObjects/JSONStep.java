@@ -2,15 +2,23 @@ package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import heigit.ors.routing.RouteStep;
+import io.swagger.annotations.ApiModelProperty;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JSONStep {
+    @ApiModelProperty("The length of this step")
     private Double distance;
+    @ApiModelProperty("The amount of time this step should take")
     private Double duration;
+    @ApiModelProperty("The type of step")
     private Integer type;
+    @ApiModelProperty("The navigational instruction to get tot the next step of the route")
     private String instruction;
+    @ApiModelProperty("The name (if available) of the street that this step travels along")
     private String name;
+    @ApiModelProperty("The exit number of the roundabout that must be taken")
     private Integer exitNumber;
+    @ApiModelProperty("The start and end coordinates that make up this step")
     private Integer[] waypoints;
 
     public JSONStep(RouteStep step) {

@@ -4,6 +4,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RouteSegment;
 import heigit.ors.routing.RouteStep;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -11,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @XmlRootElement(name = "rte")
+@ApiModel(value = "rte")
 public class GPXRouteElement {
     @XmlElement(name = "rtept")
     List<GPXRoutePointElement> routePoints;

@@ -1,6 +1,5 @@
 package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 
-import com.graphhopper.util.shapes.BBox;
 import heigit.ors.api.requests.routing.RouteRequest;
 import heigit.ors.api.responses.routing.IndividualRouteResponse;
 import heigit.ors.routing.RouteResult;

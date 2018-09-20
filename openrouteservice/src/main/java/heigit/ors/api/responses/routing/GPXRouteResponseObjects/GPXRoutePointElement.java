@@ -1,6 +1,7 @@
 package heigit.ors.api.responses.routing.GPXRouteResponseObjects;
 
 import heigit.ors.routing.RouteStep;
+import io.swagger.annotations.ApiModelProperty;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
