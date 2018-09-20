@@ -94,7 +94,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 //        super(graph, dir, weighting, landmarks);
         this.graph = graph;
         this.core = graph.getCoreGraph(weighting);
-        this.minimumNodes = Math.min(graph.getCoreNodes() / 2, 500_000);
+        this.minimumNodes = Math.min(core.getCoreNodes() / 2, 500_000);
         this.encoder = weighting.getFlagEncoder();
 
         this.lmWeighting = new ShortestWeighting(encoder) {
@@ -185,8 +185,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             throw new IllegalStateException("Initialize the landmark storage only once!");
 
         // fill 'from' and 'to' weights with maximum value
-        long maxBytes = (long) graph.getCoreNodes() * LM_ROW_LENGTH;
-        int test = graph.getCoreNodes();
+        long maxBytes = (long) core.getCoreNodes() * LM_ROW_LENGTH;
         this.landmarkWeightDA.create(2000);
         this.landmarkWeightDA.ensureCapacity(maxBytes);
 
@@ -299,7 +298,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             }
         }
         //Changed to core
-        landmarkWeightDA.setHeader(0 * 4, graph.getCoreNodes());
+        landmarkWeightDA.setHeader(0 * 4, core.getCoreNodes());
         landmarkWeightDA.setHeader(1 * 4, landmarks);
         landmarkWeightDA.setHeader(2 * 4, subnetworkCount);
         if (factor * DOUBLE_MLTPL > Integer.MAX_VALUE)
@@ -309,7 +308,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
         // serialize fast byte[] into DataAccess
         //Changed to core
-        subnetworkStorage.create(graph.getCoreNodes());
+        subnetworkStorage.create(core.getCoreNodes());
         for (int nodeId = 0; nodeId < subnetworks.length; nodeId++) {
             subnetworkStorage.setSubnetwork(nodeId, subnetworks[nodeId]);
         }
@@ -317,7 +316,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         if (logDetails)
             //Changed to core
             LOGGER.info("Finished landmark creation. Subnetwork node count sum " + nodes + " vs. nodes "
-                    + graph.getCoreNodes());
+                    + core.getCoreNodes());
         initialized = true;
     }
 
@@ -460,7 +459,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
                 throw new IllegalStateException("landmark weights loaded but not the subnetworks!?");
 
             int nodes = landmarkWeightDA.getHeader(0 * 4);
-            if (nodes != graph.getNodes())
+            if (nodes != core.getCoreNodes())
                 throw new IllegalArgumentException(
                         "Cannot load landmark data as written for different graph storage with " + nodes
                                 + " nodes, not " + graph.getNodes());
