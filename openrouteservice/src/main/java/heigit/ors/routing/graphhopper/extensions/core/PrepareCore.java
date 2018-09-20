@@ -53,7 +53,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final PreparationWeighting prepareWeighting;
     private final TraversalMode traversalMode;
-    private final EdgeFilter levelFilter;
+    private final CoreDijkstraFilter levelFilter;
     private final EdgeFilter restrictionFilter;
     private final GraphHopperStorage ghStorage;
     private final CHGraphImpl prepareGraph;
@@ -690,7 +690,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
 
     @Override
     public RoutingAlgorithm createAlgo(Graph graph, AlgorithmOptions opts) {
-        AbstractBidirAlgo algo;
+        RoutingAlgorithm algo;
         if (ASTAR_BI.equals(opts.getAlgorithm())) {
             AStarBidirection tmpAlgo = new AStarBidirectionCH(graph, prepareWeighting, traversalMode,
                     opts.getMaxSpeed());
@@ -699,7 +699,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             algo = tmpAlgo;
 
         } else if (DIJKSTRA_BI.equals(opts.getAlgorithm())) {
-            algo = new DijkstraBidirectionCH(graph, prepareWeighting, traversalMode, opts.getMaxSpeed());
+            algo = new CoreRouting(graph, prepareWeighting, traversalMode, opts.getMaxSpeed());
         } else {
             throw new IllegalArgumentException("Algorithm " + opts.getAlgorithm()
                     + " not supported for Contraction Hierarchies. Try with ch.disable=true");
@@ -710,9 +710,9 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         // append any restriction filters after node level filter
         EdgeFilter ef = opts.getEdgeFilter();
         if (ef != null)
-            ((CoreDijkstraFilter) levelFilter).addRestrictionFilter(ef);
+            levelFilter.addRestrictionFilter(ef);
 
-        algo.setEdgeFilter(levelFilter);
+        ((CoreRouting) algo).setEdgeFilter(levelFilter);
 
         return algo;
     }
@@ -753,7 +753,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             return getName() + "|" + weighting;
         }
     }
-
+/*
     public static class DijkstraBidirectionCH extends DijkstraBidirectionRef {
         public DijkstraBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode, double maxSpeed) {
             super(graph, weighting, traversalMode, maxSpeed);
@@ -790,7 +790,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             return getName() + "|" + weighting;
         }
     }
-
+*/
     @Override
     public String toString() {
         return "prepare|dijkstrabi|ch";

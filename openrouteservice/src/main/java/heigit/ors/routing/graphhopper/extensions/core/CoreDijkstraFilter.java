@@ -44,6 +44,12 @@ public class CoreDijkstraFilter implements EdgeFilter {
     static HashSet<Integer> nonCoreNodes = new HashSet<>();
     EdgeFilter restrictions;
 
+    boolean inCore = false;
+
+    public void setInCore(boolean inCore) {
+        this.inCore = inCore;
+    }
+
     /**
      *
      * @param g
@@ -65,40 +71,57 @@ public class CoreDijkstraFilter implements EdgeFilter {
     public boolean accept(EdgeIteratorState edgeIterState) {
         int base = edgeIterState.getBaseNode();
         int adj = edgeIterState.getAdjNode();
+
         // always accept virtual edges, see #288
         if (base >= maxNodes || adj >= maxNodes)
             return true;
-//        for (int i = 0; i < graph.getNodes(); i++){
-//            if (graph.getLevel(i) == coreNodeLevel) coreNodes.add(i);
-//            else nonCoreNodes.add(i);
-//    }
-//        System.out.println("Non-core size: " + nonCoreNodes.size() + " core size: " + coreNodes.size());
+        //        for (int i = 0; i < graph.getNodes(); i++){
+        //            if (graph.getLevel(i) == coreNodeLevel) coreNodes.add(i);
+        //            else nonCoreNodes.add(i);
+        //    }
+        //        System.out.println("Non-core size: " + nonCoreNodes.size() + " core size: " + coreNodes.size());
 
-//        System.out.print("basenode " + base + " -> " + adj);
+        //        System.out.print("basenode " + base + " -> " + adj);
 
-        if(graph.getLevel(base) == coreNodeLevel)
+        if (graph.getLevel(base) == coreNodeLevel)
             countCore++;
         else
             count++;
 
-        //System.out.println("(CORE level)");
-//        if(((CHEdgeIteratorState) edgeIterState).isShortcut()) System.out.println("(shortcut)");
-//        else System.out.println("");
-
-        //        System.out.println("Visited edges NOT IN core: " + count + "   Visited edges IN core " + countCore);
+        if (!inCore) {
 
 
-        // minor performance improvement: shortcuts in wrong direction are already disconnected, so no need to check them
-        if (((CHEdgeIteratorState) edgeIterState).isShortcut()) {
-            return true;
+            //System.out.println("(CORE level)");
+            //        if(((CHEdgeIteratorState) edgeIterState).isShortcut()) System.out.println("(shortcut)");
+            //        else System.out.println("");
+
+            //        System.out.println("Visited edges NOT IN core: " + count + "   Visited edges IN core " + countCore);
+
+
+            // minor performance improvement: shortcuts in wrong direction are already disconnected, so no need to check them
+            if (((CHEdgeIteratorState) edgeIterState).isShortcut()) {
+                if (graph.getLevel(base) > graph.getLevel(adj))
+                    System.out.println("WTF0");
+                return true;
+            } else {
+                if (graph.getLevel(base) == coreNodeLevel && graph.getLevel(adj) == coreNodeLevel)
+                    System.out.println("WTF1");
+                return graph.getLevel(base) <= graph.getLevel(adj);
+            }
         }
         else {
-            // if edge is in the core check for restrictions
-            if (graph.getLevel(base) == coreNodeLevel && graph.getLevel(adj) == coreNodeLevel)
-                return restrictions.accept(edgeIterState);
-                // otherwise use CH level filter
+            // minor performance improvement: shortcuts in wrong direction are already disconnected, so no need to check them
+            if (((CHEdgeIteratorState) edgeIterState).isShortcut()) {
+                if (graph.getLevel(base) != graph.getLevel(adj))
+                    System.out.println("WTF3");
+                return true;
+            }
+            // stay within core
+            if (graph.getLevel(adj) != coreNodeLevel)
+                return false;
             else
-                return graph.getLevel(base) <= graph.getLevel(adj);
+                // if edge is in the core check for restrictions
+                return restrictions.accept(edgeIterState);
         }
     }
 
