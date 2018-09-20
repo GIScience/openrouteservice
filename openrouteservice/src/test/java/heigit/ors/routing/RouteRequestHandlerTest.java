@@ -20,8 +20,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 public class RouteRequestHandlerTest {
     RouteRequest request;
@@ -33,7 +35,7 @@ public class RouteRequestHandlerTest {
 
     private JSONObject geoJsonPolygon;
 
-    public RouteRequestHandlerTest() {
+    public RouteRequestHandlerTest() throws Exception {
         init();
         geoJsonPolygon = constructGeoJson();
     }
@@ -55,10 +57,22 @@ public class RouteRequestHandlerTest {
     }
 
     @Before
-    public void init() {
-        request = new RouteRequest(new Double[] {24.5, 39.2}, new Double[] {26.5, 37.2});
+    public void init() throws Exception {
+        List<List<Double>> coords = new ArrayList<>();
+        List<Double> coord1 = new ArrayList<>();
+        coord1.add(24.5);
+        coord1.add(39.2);
+        coords.add(coord1);
+        List<Double> coord2 = new ArrayList<>();
+        coord2.add(27.4);
+        coord2.add(38.6);
+        coords.add(coord2);
+        List<Double> coord3 = new ArrayList<>();
+        coord3.add(26.5);
+        coord3.add(37.2);
+        coords.add(coord3);
 
-        request.setVia(new Double[][] {{27.4, 38.6}});
+        request = new RouteRequest(coords);
 
         request.setProfile(APIRoutingEnums.RoutingProfile.DRIVING_CAR);
         request.setAttributes(new APIRoutingEnums.Attributes[] { APIRoutingEnums.Attributes.AVERAGE_SPEED, APIRoutingEnums.Attributes.DETOUR_FACTOR});

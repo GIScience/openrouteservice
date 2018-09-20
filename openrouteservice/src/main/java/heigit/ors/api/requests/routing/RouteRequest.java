@@ -4,13 +4,19 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.vividsolutions.jts.geom.Coordinate;
+import heigit.ors.api.converters.CoordinateListDeserializer;
+import heigit.ors.api.converters.CoordinateListSerializer;
 import io.swagger.annotations.*;
+import org.hibernate.validator.constraints.EAN;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.ArrayList;
+import java.util.List;
 
-@ApiModel(value = "Route Request", description = "The JSON body request sent to the routing service which defines options and parameters regarding the route to generate.")
+@ApiModel(value = "RouteRequest", description = "The JSON body request sent to the routing service which defines options and parameters regarding the route to generate.")
 @ApiImplicitParams({
         @ApiImplicitParam(name="start", required=true, value = "The starting location of the route")
 })
@@ -20,13 +26,9 @@ public class RouteRequest {
     private String id;
     private boolean hasId = false;
 
-    @ApiModelProperty(value = "The start location of the route", required = true, position = 0, example = "[ 8.34234, 48.23424 ]")
-    private Double[] start;
-    @ApiModelProperty(value = "The destination location of the route", required = true, position = 1, example = "[ 8.34423, 48.26424 ]")
-    private Double[] end;
-
-    @ApiModelProperty(value = "Via points to use in the route", position = 2, example = "[ [ 8.3435, 48.24645 ], [ 8.3487, 48.27451 ] ]")
-    private Double[][] via;
+    @ApiModelProperty(name = "coordinates", value = "The waypoints to use for the route as an array of longitude/latitude pairs", example = "[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]]")
+    @JsonProperty("coordinates")
+    private List<List<Double>> coordinates;
 
     @ApiModelProperty(hidden = true)
     private APIRoutingEnums.RoutingProfile profile;
@@ -159,10 +161,8 @@ public class RouteRequest {
 
     @JsonCreator
     public RouteRequest(
-            @JsonProperty(value = "start", required = true) Double[] start,
-            @JsonProperty(value = "end", required = true) Double[] end) {
-        this.start = start;
-        this.end = end;
+            @JsonProperty(value = "coordinates", required = true) List<List<Double>> coordinates) {
+        this.coordinates = coordinates;
     }
 
     public String getId() {
@@ -178,28 +178,12 @@ public class RouteRequest {
         return hasId;
     }
 
-    public Double[] getStart() {
-        return start;
+    public List<List<Double>> getCoordinates() {
+        return coordinates;
     }
 
-    public void setStart(Double[] start) {
-        this.start = start;
-    }
-
-    public Double[] getEnd() {
-        return end;
-    }
-
-    public void setEnd(Double[] end) {
-        this.end = end;
-    }
-
-    public Double[][] getVia() {
-        return via;
-    }
-
-    public void setVia(Double[][] via) {
-        this.via = via;
+    public void setCoordinates(List<List<Double>> coordinates) {
+        this.coordinates = coordinates;
     }
 
     public APIRoutingEnums.RoutingProfile getProfile() {
@@ -405,23 +389,5 @@ public class RouteRequest {
 
     public boolean isHasExtraInfo() {
         return hasExtraInfo;
-    }
-
-    @ApiIgnore
-    @ApiModelProperty(hidden = true)
-    @JsonIgnore
-    public Coordinate[] getCoordinates() {
-        ArrayList<Coordinate> coordinates = new ArrayList<>();
-        coordinates.add(new Coordinate(start[0], start[1]));
-
-        if(via != null) {
-            for (Double[] viaCoords : via) {
-                coordinates.add(new Coordinate(viaCoords[0], viaCoords[1]));
-            }
-        }
-
-        coordinates.add(new Coordinate(end[0], end[1]));
-
-        return coordinates.toArray(new Coordinate[coordinates.size()]);
     }
 }

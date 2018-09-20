@@ -12,4 +12,6 @@ public interface BoundingBox {
     double getMaxLon();
     double getMinLat();
     double getMaxLat();
+
+    double[] getAsArray();
 }

@@ -1,5 +1,6 @@
 package heigit.ors.api.requests.routing;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.api.responses.routing.GPXRouteResponseObjects.GPXRouteResponse;
 import heigit.ors.api.responses.routing.GeoJSONRouteResponseObjects.GeoJSONRouteResponse;
 import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONRouteResponse;
@@ -9,10 +10,21 @@ import heigit.ors.util.mockupUtil.RouteResultMockup;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GeometryResponseFactoryTest {
     @Test
     public void testResponseCreatedWithCorrectType() throws Exception {
-        RouteRequest request = new RouteRequest(new Double[] {58.0,4.0}, new Double[] { 58.01, 4.01});
+        List<List<Double>> coords = new ArrayList<>();
+        List<Double> coord1 = new ArrayList<>();
+        coord1.add(24.5);
+        coord1.add(39.2);
+        coords.add(coord1);
+        List<Double> coord2 = new ArrayList<>();
+        coord2.add(27.4);
+        coord2.add(38.6);
+        RouteRequest request = new RouteRequest(coords);
         request.setResponseType(APIRoutingEnums.RouteResponseType.JSON);
 
         RouteResponse test = RouteResponseFactory.constructResponse(RouteResultMockup.create(RouteResultMockup.routeResultProfile.standardHeidelberg), request);
