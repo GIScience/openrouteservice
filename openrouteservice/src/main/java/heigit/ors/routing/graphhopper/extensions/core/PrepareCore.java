@@ -690,15 +690,16 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
 
     @Override
     public RoutingAlgorithm createAlgo(Graph graph, AlgorithmOptions opts) {
-        RoutingAlgorithm algo;
-        if (ASTAR_BI.equals(opts.getAlgorithm())) {
-            AStarBidirection tmpAlgo = new AStarBidirectionCH(graph, prepareWeighting, traversalMode,
-                    opts.getMaxSpeed());
-            tmpAlgo.setApproximation(
-                    RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts, graph.getNodeAccess()));
-            algo = tmpAlgo;
+        AbstractCoreRoutingAlgorithm algo;
 
-        } else if (DIJKSTRA_BI.equals(opts.getAlgorithm())) {
+        // TODO: Proper way of switching between Dijkstra and AStar in core
+        String algoStr = ASTAR_BI; //opts.getAlgorithm();
+
+        if (ASTAR_BI.equals(algoStr)) {
+            CoreALT tmpAlgo = new CoreALT(graph, prepareWeighting, traversalMode, opts.getMaxSpeed());
+            tmpAlgo.setApproximation(RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts, graph.getNodeAccess()));
+            algo = tmpAlgo;
+        } else if (DIJKSTRA_BI.equals(algoStr)) {
             algo = new CoreDijkstra(graph, prepareWeighting, traversalMode, opts.getMaxSpeed());
         } else {
             throw new IllegalArgumentException("Algorithm " + opts.getAlgorithm()
@@ -712,7 +713,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         if (ef != null)
             levelFilter.addRestrictionFilter(ef);
 
-        ((AbstractCoreRoutingAlgorithm) algo).setEdgeFilter(levelFilter);
+        algo.setEdgeFilter(levelFilter);
 
         return algo;
     }

@@ -17,15 +17,12 @@
  */
 package heigit.ors.routing.graphhopper.extensions.core;
 
-import com.carrotsearch.hppc.IntObjectMap;
-import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.*;
 import com.graphhopper.routing.ch.Path4CH;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.*;
 
 import java.util.PriorityQueue;
@@ -77,9 +74,6 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     abstract void runPhase2();
 
     public abstract boolean finishedPhase2();
-
-    abstract void fillEdges(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<SPTEntry> bestWeightMap,
-                   EdgeExplorer explorer, boolean reverse);
 
     void runPhase1() {
         while (!finishedPhase1() && !isMaxVisitedNodesExceeded()) {
