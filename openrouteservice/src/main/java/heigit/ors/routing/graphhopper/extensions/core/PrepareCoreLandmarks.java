@@ -144,6 +144,20 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
 
     public RoutingAlgorithm getDecoratedAlgorithm(Graph qGraph, RoutingAlgorithm algo, AlgorithmOptions opts) {
         int activeLM = Math.max(1, opts.getHints().getInt(Landmark.ACTIVE_COUNT, defaultActiveLandmarks));
+
+        if (algo instanceof CoreALT) {
+            if (!lms.isInitialized())
+                throw new IllegalStateException("Initalize landmark storage before creating algorithms");
+
+            double epsilon = opts.getHints().getDouble(Parameters.Algorithms.ASTAR_BI + ".epsilon", 1);
+            CoreALT coreALT = (CoreALT) algo;
+            //TODO Should work with standard LMApproximator
+
+            coreALT.setApproximation(
+                    new CoreLMApproximator(qGraph, this.graph.getNodes(), lms, activeLM, lms.getFactor(), false)
+                            .setEpsilon(epsilon));
+            return algo;
+        }
         if (algo instanceof AStar) {
             if (!lms.isInitialized())
                 throw new IllegalStateException("Initalize landmark storage before creating algorithms");

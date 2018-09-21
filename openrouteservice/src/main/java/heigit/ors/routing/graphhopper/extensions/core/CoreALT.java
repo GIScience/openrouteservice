@@ -99,6 +99,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         this.from = from;
         currFrom = new AStarEntry(EdgeIterator.NO_EDGE, from, weight, weight);
         pqCHFrom.add(currFrom);
+        weightApprox.setFrom(from);
         if (!traversalMode.isEdgeBased()) {
             bestWeightMapFrom.put(from, currFrom);
             if (currTo != null) {
@@ -119,6 +120,8 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         this.to = to;
         currTo = new AStarEntry(EdgeIterator.NO_EDGE, to, weight, weight);
         pqCHTo.add(currTo);
+        weightApprox.setTo(to);
+
         if (!traversalMode.isEdgeBased()) {
             bestWeightMapTo.put(to, currTo);
             if (currFrom != null) {
@@ -199,10 +202,15 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         finishedFrom = pqCoreFrom.isEmpty();
         finishedTo = pqCoreTo.isEmpty();
 
+
+        //TODO This is just an approximation. The original to and from do not work because they cannot be found in the subnetworks for CoreLM. Need to solve that
+        weightApprox.setTo(pqCoreTo.peek().adjNode);
+        weightApprox.setFrom(pqCoreFrom.peek().adjNode);
+
+
         Iterator<AStarEntry> it;
 
         if (!finishedFrom) {
-            weightApprox.setFrom(from);
             it = pqCoreFrom.iterator();
             while (it.hasNext()) {
                 AStarEntry node = it.next();
@@ -212,7 +220,6 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         }
 
         if (!finishedTo) {
-            weightApprox.setTo(to);
             it = pqCoreTo.iterator();
             while (it.hasNext()) {
                 AStarEntry node = it.next();

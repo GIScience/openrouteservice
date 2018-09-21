@@ -84,7 +84,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
     private SpatialRuleLookup ruleLookup;
     private boolean logDetails = false;
 
-    private static HashMap<Integer, Integer> coreNodeIdMap;
+    public static HashMap<Integer, Integer> coreNodeIdMap;
     /**
      * 'to' and 'from' fit into 32 bit => 16 bit for each of them => 65536
      */
@@ -308,7 +308,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
         // serialize fast byte[] into DataAccess
         //Changed to core
-        subnetworkStorage.create(core.getCoreNodes());
+        subnetworkStorage.create(core.getNodes());
         for (int nodeId = 0; nodeId < subnetworks.length; nodeId++) {
             subnetworkStorage.setSubnetwork(nodeId, subnetworks[nodeId]);
         }
@@ -618,7 +618,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
      * a node ID but the internal index of the landmark array.
      */
     public int getFromWeight(int landmarkIndex, int node) {
-        int res = (int) landmarkWeightDA.getShort((long) node * LM_ROW_LENGTH + landmarkIndex * 4 + FROM_OFFSET)
+        int res = (int) landmarkWeightDA.getShort((long) coreNodeIdMap.get(node) * LM_ROW_LENGTH + landmarkIndex * 4 + FROM_OFFSET)
                 & 0x0000FFFF;
         assert res >= 0 : "Negative to weight " + res + ", landmark index:" + landmarkIndex + ", node:" + node;
         if (res == SHORT_INFINITY)
@@ -636,7 +636,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
      * @return the weight from the specified node to the landmark (specified *as index*)
      */
     public int getToWeight(int landmarkIndex, int node) {
-        int res = (int) landmarkWeightDA.getShort((long) node * LM_ROW_LENGTH + landmarkIndex * 4 + TO_OFFSET)
+        int res = (int) landmarkWeightDA.getShort((long) coreNodeIdMap.get(node) * LM_ROW_LENGTH + landmarkIndex * 4 + TO_OFFSET)
                 & 0x0000FFFF;
         assert res >= 0 : "Negative to weight " + res + ", landmark index:" + landmarkIndex + ", node:" + node;
         if (res == SHORT_INFINITY)
