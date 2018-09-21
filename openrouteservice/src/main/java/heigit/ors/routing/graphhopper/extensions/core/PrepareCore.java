@@ -699,7 +699,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             algo = tmpAlgo;
 
         } else if (DIJKSTRA_BI.equals(opts.getAlgorithm())) {
-            algo = new CoreRouting(graph, prepareWeighting, traversalMode, opts.getMaxSpeed());
+            algo = new CoreDijkstra(graph, prepareWeighting, traversalMode, opts.getMaxSpeed());
         } else {
             throw new IllegalArgumentException("Algorithm " + opts.getAlgorithm()
                     + " not supported for Contraction Hierarchies. Try with ch.disable=true");
@@ -712,7 +712,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         if (ef != null)
             levelFilter.addRestrictionFilter(ef);
 
-        ((CoreRouting) algo).setEdgeFilter(levelFilter);
+        ((AbstractCoreRoutingAlgorithm) algo).setEdgeFilter(levelFilter);
 
         return algo;
     }
