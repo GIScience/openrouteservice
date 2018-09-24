@@ -202,23 +202,23 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         finishedFrom = pqCoreFrom.isEmpty();
         finishedTo = pqCoreTo.isEmpty();
 
-        //TODO This is just an approximation. The original to and from do not work because they cannot be found in the subnetworks for CoreLM. Need to solve that
-        weightApprox.setTo(pqCoreTo.peek().adjNode);
-        weightApprox.setFrom(pqCoreFrom.peek().adjNode);
+        if (!finishedFrom && !finishedTo) {
+            //TODO This is just an approximation. The original to and from do not work because they cannot be found in the subnetworks for CoreLM. Need to solve that
+            weightApprox.setTo(pqCoreTo.peek().adjNode);
+            weightApprox.setFrom(pqCoreFrom.peek().adjNode);
 
-        if (!finishedFrom) {
             // copy into temporary array to avoid pointer change of PQ
-            AStarEntry[] entries = pqCoreFrom.toArray(new AStarEntry[pqCoreFrom.size()]);
+            AStarEntry[] entries;
+
+            entries = pqCoreFrom.toArray(new AStarEntry[pqCoreFrom.size()]);
             pqCoreFrom.clear();
             for (AStarEntry value : entries) {
                 value.weight = value.weightOfVisitedPath + weightApprox.approximate(value.adjNode, false);
                 pqCoreFrom.add(value);
             }
             currFrom = pqCoreFrom.peek();
-        }
 
-        if (!finishedTo) {
-            AStarEntry[] entries = pqCoreTo.toArray(new AStarEntry[pqCoreTo.size()]);
+            entries = pqCoreTo.toArray(new AStarEntry[pqCoreTo.size()]);
             pqCoreTo.clear();
             for (AStarEntry value : entries) {
                 value.weight = value.weightOfVisitedPath + weightApprox.approximate(value.adjNode, true);
