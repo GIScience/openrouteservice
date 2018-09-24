@@ -202,28 +202,27 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         finishedFrom = pqCoreFrom.isEmpty();
         finishedTo = pqCoreTo.isEmpty();
 
-
         //TODO This is just an approximation. The original to and from do not work because they cannot be found in the subnetworks for CoreLM. Need to solve that
         weightApprox.setTo(pqCoreTo.peek().adjNode);
         weightApprox.setFrom(pqCoreFrom.peek().adjNode);
 
-
-        Iterator<AStarEntry> it;
-
         if (!finishedFrom) {
-            it = pqCoreFrom.iterator();
-            while (it.hasNext()) {
-                AStarEntry node = it.next();
-                node.weight = weightApprox.approximate(node.adjNode, false);
+            // copy into temporary array to avoid pointer change of PQ
+            AStarEntry[] entries = pqCoreFrom.toArray(new AStarEntry[pqCoreFrom.size()]);
+            pqCoreFrom.clear();
+            for (AStarEntry value : entries) {
+                value.weight = value.weightOfVisitedPath + weightApprox.approximate(value.adjNode, false);
+                pqCoreFrom.add(value);
             }
             currFrom = pqCoreFrom.peek();
         }
 
         if (!finishedTo) {
-            it = pqCoreTo.iterator();
-            while (it.hasNext()) {
-                AStarEntry node = it.next();
-                node.weight = weightApprox.approximate(node.adjNode, true);
+            AStarEntry[] entries = pqCoreTo.toArray(new AStarEntry[pqCoreTo.size()]);
+            pqCoreTo.clear();
+            for (AStarEntry value : entries) {
+                value.weight = value.weightOfVisitedPath + weightApprox.approximate(value.adjNode, true);
+                pqCoreTo.add(value);
             }
             currTo = pqCoreTo.peek();
         }
@@ -270,6 +269,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                 prioQueue.remove(ee);
                 ee.edge = iter.getEdge();
                 ee.weight = tmpWeight;
+                ee.weightOfVisitedPath = tmpWeight;
                 ee.parent = currEdge;
                 prioQueue.add(ee);
             } else
