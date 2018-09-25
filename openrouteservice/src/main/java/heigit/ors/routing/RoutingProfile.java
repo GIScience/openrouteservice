@@ -900,6 +900,7 @@ public class RoutingProfile {
                     req.setAlgorithm("astarbi");
                     req.getHints().put("lm.disable", false);
                     req.getHints().put("core.disable", true);
+                    req.getHints().put("ch.disable", true);
                 }
                 if (mGraphHopper.isCoreEnabled() &&
                         optimized &&

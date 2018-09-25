@@ -66,7 +66,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
     private final Map<String, Double> maximumWeights = new HashMap<>();
     private boolean enabled = true;
     private int minNodes = -1;
-    private boolean disablingAllowed = false;
+    private boolean disablingAllowed = true;
     private final List<String> lmSuggestionsLocations = new ArrayList<>(5);
     private int preparationThreads;
     private ExecutorService threadPool;
@@ -227,7 +227,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
             HintsMap map) {
         // for now do not allow mixing CH&LM #1082
         boolean disableCH = map.getBool(Parameters.CH.DISABLE, false);
-        boolean disableLM = map.getBool(Landmark.DISABLE, false);
+        boolean disableLM = map.getBool(Core.DISABLE, false);
         if (!isEnabled() || disablingAllowed && disableLM || !disableCH)
             return defaultAlgoFactory;
 

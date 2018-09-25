@@ -46,7 +46,7 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
     protected PriorityQueue<SPTEntry> fromHeap;
     protected SPTEntry currEdge;
     private int visitedNodes;
-    private int maxVisitedNodes = 100;
+    private int maxVisitedNodes = 500;
     private int proxyNode = -1;
     private int to = -1;
     private int coreNodeLevel = -1;
