@@ -99,7 +99,9 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         this.from = from;
         currFrom = new AStarEntry(EdgeIterator.NO_EDGE, from, weight, weight);
         pqCHFrom.add(currFrom);
-        weightApprox.setFrom(from);
+        weightApprox.setFrom(getProxyNode(from, false));
+        System.out.println("getProxyNode(from) " + getProxyNode(from, false));
+
         if (!traversalMode.isEdgeBased()) {
             bestWeightMapFrom.put(from, currFrom);
             if (currTo != null) {
@@ -120,7 +122,9 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         this.to = to;
         currTo = new AStarEntry(EdgeIterator.NO_EDGE, to, weight, weight);
         pqCHTo.add(currTo);
-        weightApprox.setTo(to);
+        weightApprox.setTo(getProxyNode(to, true));
+        System.out.println("getProxyNode(to) " + getProxyNode(to, true));
+
 
         if (!traversalMode.isEdgeBased()) {
             bestWeightMapTo.put(to, currTo);
@@ -204,9 +208,10 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
 
         if (!finishedFrom && !finishedTo) {
             //TODO This is just an approximation. The original to and from do not work because they cannot be found in the subnetworks for CoreLM. Need to solve that
-            weightApprox.setTo(pqCoreTo.peek().adjNode);
-            weightApprox.setFrom(pqCoreFrom.peek().adjNode);
-
+//            weightApprox.setTo(pqCoreTo.peek().adjNode);
+//            weightApprox.setFrom(pqCoreFrom.peek().adjNode);
+            System.out.println("pqCoreFrom.peek().adjNode " + pqCoreFrom.peek().adjNode);
+            System.out.println("pqCoreTo.peek().adjNode " + pqCoreTo.peek().adjNode);
             // copy into temporary array to avoid pointer change of PQ
             AStarEntry[] entries;
 
@@ -380,6 +385,15 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             bestPath.setWeight(newWeight);
             bestPath.setSPTEntryTo(entryOther);
         }
+    }
+    /**
+     * Finds the closest node that is in the core from a node that is not necessarily in the core.
+     * Use this node as approximation node in lm approximator in core
+     * @param nodeId the nodeId in the basegraph to get the proxynode for
+     * @return the proxy node id
+     */
+    private int getProxyNode(int nodeId, boolean bwd) {
+        return new ProxyNodeDijkstra(graph, weighting, traversalMode).getProxyNode(nodeId, bwd);
     }
 
     public static class AStarEntry extends SPTEntry {
