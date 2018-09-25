@@ -46,6 +46,7 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
     protected PriorityQueue<SPTEntry> fromHeap;
     protected SPTEntry currEdge;
     private int visitedNodes;
+    private int maxVisitedNodes = 100;
     private int proxyNode = -1;
     private int to = -1;
     private int coreNodeLevel = -1;
@@ -56,16 +57,18 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
     protected Boolean reverseDirection = false;
 
     public ProxyNodeDijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
-        this(graph, weighting, tMode, -1);
-    }
-
-    public ProxyNodeDijkstra(Graph graph, Weighting weighting, TraversalMode tMode, double maxSpeed) {
-        super(graph, weighting, tMode, maxSpeed);
+        super(graph, weighting, tMode, -1);
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
         chGraph  = (CHGraph) ((QueryGraph) graph).getMainGraph();
         coreNodeLevel = chGraph.getNodes() + 1;
         initCollections(size);
     }
+
+    public ProxyNodeDijkstra(Graph graph, Weighting weighting, TraversalMode tMode, int maxVisitedNodes) {
+        this(graph,weighting,tMode);
+        this.maxVisitedNodes = maxVisitedNodes;
+    }
+
 
     protected void initCollections(int size) {
         fromHeap = new PriorityQueue<SPTEntry>(size);
@@ -90,8 +93,8 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
     }
 
     protected void runAlgo() {
-//        explorer = outEdgeExplorer;
         while (true) {
+            if(visitedNodes >= maxVisitedNodes) break;
             visitedNodes++;
             if (isMaxVisitedNodesExceeded() || finished())
                 break;
