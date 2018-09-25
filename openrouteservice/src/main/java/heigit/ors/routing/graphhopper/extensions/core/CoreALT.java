@@ -54,8 +54,8 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     private PriorityQueue<AStarEntry> pqCoreFrom;
     private PriorityQueue<AStarEntry> pqCoreTo;
 
-    int from;
-    int to;
+    int fromProxy;
+    int toProxy;
 
     public CoreALT(Graph graph, Weighting weighting, TraversalMode tMode, double maxSpeed) {
         super(graph, weighting, tMode, maxSpeed);
@@ -96,11 +96,11 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
 
     @Override
     public void initFrom(int from, double weight) {
-        this.from = from;
         currFrom = new AStarEntry(EdgeIterator.NO_EDGE, from, weight, weight);
         pqCHFrom.add(currFrom);
-        weightApprox.setFrom(getProxyNode(from, false));
-        System.out.println("getProxyNode(from) " + getProxyNode(from, false));
+        fromProxy = getProxyNode(from, false);
+        // FIXME: debug info
+        System.out.println("getProxyNode(from) " + fromProxy);
 
         if (!traversalMode.isEdgeBased()) {
             bestWeightMapFrom.put(from, currFrom);
@@ -119,12 +119,11 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
 
     @Override
     public void initTo(int to, double weight) {
-        this.to = to;
         currTo = new AStarEntry(EdgeIterator.NO_EDGE, to, weight, weight);
         pqCHTo.add(currTo);
-        weightApprox.setTo(getProxyNode(to, true));
-        System.out.println("getProxyNode(to) " + getProxyNode(to, true));
-
+        toProxy = getProxyNode(to, true);
+        // FIXME: debug info
+        System.out.println("getProxyNode(to) " + toProxy);
 
         if (!traversalMode.isEdgeBased()) {
             bestWeightMapTo.put(to, currTo);
@@ -207,11 +206,13 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         finishedTo = pqCoreTo.isEmpty();
 
         if (!finishedFrom && !finishedTo) {
-            //TODO This is just an approximation. The original to and from do not work because they cannot be found in the subnetworks for CoreLM. Need to solve that
-//            weightApprox.setTo(pqCoreTo.peek().adjNode);
-//            weightApprox.setFrom(pqCoreFrom.peek().adjNode);
+            // If proxy node not set use the closest core entry point
+            weightApprox.setFrom(fromProxy != -1 ? fromProxy : pqCoreFrom.peek().adjNode);
+            weightApprox.setTo(toProxy != -1 ? toProxy : pqCoreTo.peek().adjNode);
+            // FIXME: debug info
             System.out.println("pqCoreFrom.peek().adjNode " + pqCoreFrom.peek().adjNode);
             System.out.println("pqCoreTo.peek().adjNode " + pqCoreTo.peek().adjNode);
+
             // copy into temporary array to avoid pointer change of PQ
             AStarEntry[] entries;
 
