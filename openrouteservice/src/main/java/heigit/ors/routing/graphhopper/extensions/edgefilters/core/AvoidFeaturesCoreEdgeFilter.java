@@ -22,7 +22,10 @@ package heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.storage.CHGraphImpl;
 import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.util.CHEdgeIterator;
+import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeIteratorState;
 import heigit.ors.routing.AvoidFeatureFlags;
 import heigit.ors.routing.RoutingProfileCategory;
@@ -34,15 +37,22 @@ public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
 	private byte[] _buffer;
 	private WayCategoryGraphStorage _storage;
 	private int _avoidFeatures;
+	private CHGraphImpl core;
 
 	public AvoidFeaturesCoreEdgeFilter(GraphStorage graphStorage, int profileCategory) {
 		_buffer = new byte[10];
 		_avoidFeatures = AvoidFeatureFlags.getProfileFlags(profileCategory);
 		_storage = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
 	}
+	public AvoidFeaturesCoreEdgeFilter(GraphStorage graphStorage, int profileCategory, int overrideClass) {
+		this(graphStorage, profileCategory);
+		_avoidFeatures = overrideClass;
+	}
 
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {
+		if(iter instanceof CHEdgeIterator)
+			if(((CHEdgeIterator)iter).isShortcut()) return true;
 
 		return (_storage.getEdgeValue(iter.getEdge(), _buffer) & _avoidFeatures) == 0;
 

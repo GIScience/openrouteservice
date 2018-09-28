@@ -39,6 +39,9 @@ import com.graphhopper.util.*;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -223,7 +226,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         Arrays.fill(empty, UNSET_SUBNETWORK);
         landmarkIDs.add(empty);
 
-        byte[] subnetworks = new byte[graph.getNodes()];
+        byte[] subnetworks = new byte[core.getCoreNodes()];
         Arrays.fill(subnetworks, (byte) UNSET_SUBNETWORK);
         EdgeFilter tarjanFilter;// = new DefaultEdgeFilter(encoder, false, true);
         IntHashSet blockedEdges = new IntHashSet();
@@ -308,7 +311,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
         // serialize fast byte[] into DataAccess
         //Changed to core
-        subnetworkStorage.create(core.getNodes());
+        subnetworkStorage.create(core.getCoreNodes());
         for (int nodeId = 0; nodeId < subnetworks.length; nodeId++) {
             subnetworkStorage.setSubnetwork(nodeId, subnetworks[nodeId]);
         }
@@ -412,8 +415,11 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             CoreLandmarkExplorer explorer = new CoreLandmarkExplorer(graph, this, lmWeighting, traversalMode);
             explorer.initFrom(lmNodeId, 0);
             //TODO Core - DONE
-            explorer.setFilter(new CoreAndBlockedEdgesFilter(encoder, false, true, blockedEdges, graph));
-            explorer.runAlgo(true, new CoreAndBlockedEdgesFilter(encoder, false, true, blockedEdges, graph));
+            EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
+            coreEdgeFilter.add(new CoreAndBlockedEdgesFilter(encoder, false, true, blockedEdges, graph));
+//            coreEdgeFilter.add(new AvoidFeaturesCoreEdgeFilter(this.graph, 1, 1));
+            explorer.setFilter(coreEdgeFilter);
+            explorer.runAlgo(true, coreEdgeFilter);
             explorer.initLandmarkWeights(lmIdx, lmNodeId, LM_ROW_LENGTH, FROM_OFFSET);
 
             // set subnetwork id to all explored nodes, but do this only for the first landmark
@@ -425,8 +431,8 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             explorer = new CoreLandmarkExplorer(graph, this, lmWeighting, traversalMode);
             explorer.initTo(lmNodeId, 0);
             //TODO Core - DONE
-            explorer.setFilter(new CoreAndBlockedEdgesFilter(encoder, true, false, blockedEdges, graph));
-            explorer.runAlgo(false, new CoreAndBlockedEdgesFilter(encoder, true, false, blockedEdges, graph));
+            explorer.setFilter(coreEdgeFilter);
+            explorer.runAlgo(false, coreEdgeFilter);
             explorer.initLandmarkWeights(lmIdx, lmNodeId, LM_ROW_LENGTH, TO_OFFSET);
 
             if (lmIdx == 0) {
@@ -832,12 +838,6 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             this.lms = lms;
         }
 
-        public void setFilter(IntHashSet set, boolean bwd, boolean fwd) {
-            EdgeFilter ef = new BlockedEdgesFilter(flagEncoder, bwd, fwd, set);
-            outEdgeExplorer = core.createEdgeExplorer(ef);
-            inEdgeExplorer = core.createEdgeExplorer(ef);
-        }
-
         public void setFilter(EdgeFilter filter) {
             outEdgeExplorer = core.createEdgeExplorer(filter);
             inEdgeExplorer = core.createEdgeExplorer(filter);
@@ -889,7 +889,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             map.forEach(new IntObjectPredicate<SPTEntry>() {
                 @Override
                 public boolean apply(int nodeId, SPTEntry value) {
-                    int sn = subnetworks[nodeId];
+                    int sn = subnetworks[coreNodeIdMap.get(nodeId)];
                     if (sn != subnetworkId) {
                         if (sn != UNSET_SUBNETWORK && sn != UNCLEAR_SUBNETWORK) {
                             // this is ugly but can happen in real world, see testWithOnewaySubnetworks
@@ -900,7 +900,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
                             return false;
                         }
 
-                        subnetworks[nodeId] = (byte) subnetworkId;
+                        subnetworks[coreNodeIdMap.get(nodeId)] = (byte) subnetworkId;
                     }
                     return true;
                 }
@@ -965,39 +965,6 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         }
     }
 
-    private static class BlockedEdgesFilter implements EdgeFilter {
-        private final IntHashSet blockedEdges;
-        private final FlagEncoder encoder;
-        private final boolean fwd;
-        private final boolean bwd;
-
-        public BlockedEdgesFilter(FlagEncoder encoder, boolean bwd, boolean fwd, IntHashSet blockedEdges) {
-            this.encoder = encoder;
-            this.bwd = bwd;
-            this.fwd = fwd;
-            this.blockedEdges = blockedEdges;
-        }
-
-        @Override
-        public final boolean accept(EdgeIteratorState iter) {
-            boolean blocked = blockedEdges.contains(iter.getEdge());
-            return fwd && iter.isForward(encoder) && !blocked || bwd && iter.isBackward(encoder) && !blocked;
-        }
-
-        public boolean acceptsBackward() {
-            return bwd;
-        }
-
-        public boolean acceptsForward() {
-            return fwd;
-        }
-
-        @Override
-        public String toString() {
-            return encoder.toString() + ", bwd:" + bwd + ", fwd:" + fwd;
-        }
-    }
-
 
 
     private class CoreAndBlockedEdgesFilter implements EdgeFilter {
@@ -1035,7 +1002,6 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
                 return false;
             int baseLevel = core.getLevel(base);
             int adjLevel = core.getLevel(adj);
-
 //            boolean isShortcut = ((CHEdgeIterator)iter).isShortcut();
             //Accept only edges that are in core
             if(core.getLevel(base) < coreNodeLevel || core.getLevel(adj) < coreNodeLevel)
@@ -1074,6 +1040,8 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
         @Override
         public boolean accept(EdgeIteratorState iter) {
+            int baseLevel = core.getLevel(iter.getBaseNode());
+            int adjLevel = core.getLevel(iter.getAdjNode());
             if(core.getLevel(iter.getBaseNode()) < coreNodeLevel || core.getLevel(iter.getAdjNode()) < coreNodeLevel)
                 return false;
             return super.accept(iter);

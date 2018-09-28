@@ -137,9 +137,9 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
         lms.createLandmarks();
         lms.flush();
         //TODO Done
-        LOGGER.info("Calculating landmarks for " + (lms.getSubnetworksWithLandmarks() - 1) + " subnetworks took:"
-                + sw.stop().getSeconds() + " => " + lms.getLandmarksAsGeoJSON() + ", stored weights:"
-                + lms.getLandmarkCount() + ", nodes:" + graph.getNodes() + ", " + Helper.getMemInfo());
+//        LOGGER.info("Calculating landmarks for " + (lms.getSubnetworksWithLandmarks() - 1) + " subnetworks took:"
+//                + sw.stop().getSeconds() + " => " + lms.getLandmarksAsGeoJSON() + ", stored weights:"
+//                + lms.getLandmarkCount() + ", nodes:" + graph.getNodes() + ", " + Helper.getMemInfo());
     }
 
     public RoutingAlgorithm getDecoratedAlgorithm(Graph qGraph, RoutingAlgorithm algo, AlgorithmOptions opts) {

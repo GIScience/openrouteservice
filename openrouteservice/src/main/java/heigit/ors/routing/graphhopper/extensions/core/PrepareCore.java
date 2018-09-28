@@ -83,7 +83,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     private double meanDegree;
     private StopWatch dijkstraSW = new StopWatch();
     private int periodicUpdatesPercentage = 20;
-    private int lastNodesLazyUpdatePercentage = 10;
+    private int lastNodesLazyUpdatePercentage = 0;
     private int neighborUpdatePercentage = 20;
     private double nodesContractedPercentage = 100;
     private double logMessagesPercentage = 20;
@@ -284,7 +284,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             //We have worked through all nodes that are not associated with restrictions. Now we can stop the contraction.
             if (oldPriorities[polledNode] == RESTRICTION_PRIORITY){
                 //Set the number of core nodes in the storage for use in other places
-                prepareGraph.setCoreNodes(sortedNodes.getSize());
+                prepareGraph.setCoreNodes(sortedNodes.getSize() + 1);
                 while(!sortedNodes.isEmpty()){
                     CHEdgeIterator iter = vehicleAllExplorer.setBaseNode(polledNode);
                     while (iter.next()) {
@@ -318,9 +318,19 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             prepareGraph.setLevel(polledNode, level);
             level++;
 
-            if (sortedNodes.getSize() < nodesToAvoidContract)
+            if (sortedNodes.getSize() < nodesToAvoidContract) {
                 // skipped nodes are already set to maxLevel
+                prepareGraph.setCoreNodes(sortedNodes.getSize() + 1);
+                while(!sortedNodes.isEmpty()){
+                    CHEdgeIterator iter = vehicleAllExplorer.setBaseNode(polledNode);
+                    while (iter.next()) {
+                        if(oldPriorities[iter.getAdjNode()] == RESTRICTION_PRIORITY) continue;
+                        prepareGraph.disconnect(vehicleAllTmpExplorer, iter);
+                    }
+                    polledNode = sortedNodes.pollKey();
+                }
                 break;
+            }
 
             CHEdgeIterator iter = vehicleAllExplorer.setBaseNode(polledNode);
             while (iter.next()) {
