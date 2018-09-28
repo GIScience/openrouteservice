@@ -38,10 +38,7 @@ public class CoreDijkstraFilter implements EdgeFilter {
     private final CHGraph graph;
     private final int maxNodes;
     private final int coreNodeLevel;
-    static int count = 0;
-    static int countCore = 0;
-    static HashSet<Integer> coreNodes = new HashSet<>();
-    static HashSet<Integer> nonCoreNodes = new HashSet<>();
+    static boolean[] isCoreNode;
     EdgeFilter restrictions;
 
     boolean inCore = false;
@@ -58,6 +55,10 @@ public class CoreDijkstraFilter implements EdgeFilter {
         graph = g;
         maxNodes = g.getNodes();
         coreNodeLevel = maxNodes + 1;
+
+        isCoreNode = new boolean[maxNodes];
+        for (int node = 0; node < maxNodes; node++)
+            isCoreNode[node] = graph.getLevel(node) == coreNodeLevel;
     }
 
     /**
@@ -75,49 +76,21 @@ public class CoreDijkstraFilter implements EdgeFilter {
         // always accept virtual edges, see #288
         if (base >= maxNodes || adj >= maxNodes)
             return true;
-        //        for (int i = 0; i < graph.getNodes(); i++){
-        //            if (graph.getLevel(i) == coreNodeLevel) coreNodes.add(i);
-        //            else nonCoreNodes.add(i);
-        //    }
-        //        System.out.println("Non-core size: " + nonCoreNodes.size() + " core size: " + coreNodes.size());
-
-        //        System.out.print("basenode " + base + " -> " + adj);
-
-        if (graph.getLevel(base) == coreNodeLevel)
-            countCore++;
-        else
-            count++;
 
         if (!inCore) {
-
-
-            //System.out.println("(CORE level)");
-            //        if(((CHEdgeIteratorState) edgeIterState).isShortcut()) System.out.println("(shortcut)");
-            //        else System.out.println("");
-
-            //        System.out.println("Visited edges NOT IN core: " + count + "   Visited edges IN core " + countCore);
-
-
             // minor performance improvement: shortcuts in wrong direction are already disconnected, so no need to check them
-            if (((CHEdgeIteratorState) edgeIterState).isShortcut()) {
-                if (graph.getLevel(base) > graph.getLevel(adj))
-                    System.out.println("WTF0");
+            if (((CHEdgeIteratorState) edgeIterState).isShortcut())
                 return true;
-            } else {
-                if (graph.getLevel(base) == coreNodeLevel && graph.getLevel(adj) == coreNodeLevel)
-                    System.out.println("WTF1");
+            else
                 return graph.getLevel(base) <= graph.getLevel(adj);
-            }
         }
         else {
             // minor performance improvement: shortcuts in wrong direction are already disconnected, so no need to check them
-            if (((CHEdgeIteratorState) edgeIterState).isShortcut()) {
-                if (graph.getLevel(base) != graph.getLevel(adj))
-                    System.out.println("WTF3");
+            if (((CHEdgeIteratorState) edgeIterState).isShortcut())
                 return true;
-            }
+
             // stay within core
-            if (graph.getLevel(adj) != coreNodeLevel)
+            if (!isCoreNode[adj])
                 return false;
             else
                 // if edge is in the core check for restrictions
