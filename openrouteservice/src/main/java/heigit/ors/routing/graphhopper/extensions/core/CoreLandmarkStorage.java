@@ -690,8 +690,8 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             throw new IllegalStateException(
                     "from " + fromNode + " and to " + toNode + " nodes have to be 0 or positive to init landmarks");
 
-        int subnetworkFrom = subnetworkStorage.getSubnetwork(fromNode);
-        int subnetworkTo = subnetworkStorage.getSubnetwork(toNode);
+        int subnetworkFrom = subnetworkStorage.getSubnetwork(coreNodeIdMap.get(fromNode));
+        int subnetworkTo = subnetworkStorage.getSubnetwork(coreNodeIdMap.get(toNode));
         if (subnetworkFrom <= UNCLEAR_SUBNETWORK || subnetworkTo <= UNCLEAR_SUBNETWORK)
             return false;
         if (subnetworkFrom != subnetworkTo) {
