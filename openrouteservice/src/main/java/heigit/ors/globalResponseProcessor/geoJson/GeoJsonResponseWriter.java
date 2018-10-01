@@ -181,6 +181,13 @@ public class GeoJsonResponseWriter {
                     for (String key : featureProperties.keySet()) {
                         JSONObject jsonObj = objectToJSONObject(featureProperties.get(key));
                         JSONArray jsonArr = objectToJSONArray(featureProperties.get(key));
+
+                        // To preserve backwards compatibility, we need to pass the summary object as an array of summary objects
+                        if(key.equals("summary") && jsonObj != null) {
+                            jsonArr = new JSONArray( new JSONObject[] { jsonObj });
+                            jsonObj = null;
+                        }
+
                         if (jsonObj != null) {
                             featureOrFeatureCollection.getJSONArray("features").getJSONObject(featureCount).getJSONObject("properties").put(key, jsonObj);
                         } else if (jsonArr != null) {
