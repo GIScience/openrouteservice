@@ -19,14 +19,21 @@ import java.util.List;
 public class BoundingBoxFactoryTest {
     @Test
     public void testCorrectTypeCreated() throws Exception {
-        List<List<Double>> coords = new ArrayList<>();
+        /*List<Double[]> coords = new ArrayList<>();
+        coords.add(new Double[] {24.5,39.2});
+        coords.add(new Double[] {27.4,38.6});
         List<Double> coord1 = new ArrayList<>();
         coord1.add(24.5);
         coord1.add(39.2);
         coords.add(coord1);
         List<Double> coord2 = new ArrayList<>();
         coord2.add(27.4);
-        coord2.add(38.6);
+        coord2.add(38.6);*/
+
+        Double[][] coords = new Double[2][2];
+        coords[0] = new Double[] {24.5,39.2};
+        coords[1] = new Double[] {27.4,38.6};
+
         RouteRequest request = new RouteRequest(coords);
 
         BBox bbox = new BBox(1,2,3,4,5,6);

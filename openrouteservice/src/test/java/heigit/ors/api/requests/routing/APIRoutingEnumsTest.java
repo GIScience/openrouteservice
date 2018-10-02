@@ -49,22 +49,6 @@ public class APIRoutingEnumsTest {
     }
 
     @Test(expected = ParameterValueException.class)
-    public void testGeomTypeEnumCreation() throws ParameterValueException {
-        Assert.assertEquals(APIRoutingEnums.RouteResponseGeometryType.ENCODED_POLYLINE, APIRoutingEnums.RouteResponseGeometryType.forValue("encodedpolyline"));
-        Assert.assertEquals(APIRoutingEnums.RouteResponseGeometryType.GEOJSON, APIRoutingEnums.RouteResponseGeometryType.forValue("geojson"));
-        Assert.assertEquals(APIRoutingEnums.RouteResponseGeometryType.GPX, APIRoutingEnums.RouteResponseGeometryType.forValue("gpx"));
-
-        APIRoutingEnums.RouteResponseGeometryType.forValue("invalid");
-    }
-
-    @Test
-    public void testGeomTypeEnumValue() {
-        Assert.assertEquals("geojson", APIRoutingEnums.RouteResponseGeometryType.GEOJSON.toString());
-        Assert.assertEquals("gpx", APIRoutingEnums.RouteResponseGeometryType.GPX.toString());
-        Assert.assertEquals("encodedpolyline", APIRoutingEnums.RouteResponseGeometryType.ENCODED_POLYLINE.toString());
-    }
-
-    @Test(expected = ParameterValueException.class)
     public void testResponseTypeEnumCreation() throws ParameterValueException {
         Assert.assertEquals(APIRoutingEnums.RouteResponseType.JSON, APIRoutingEnums.RouteResponseType.forValue("json"));
         Assert.assertEquals(APIRoutingEnums.RouteResponseType.GEOJSON, APIRoutingEnums.RouteResponseType.forValue("geojson"));

@@ -2,7 +2,10 @@ package heigit.ors.api.requests.routing;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.std.CollectionDeserializer;
 import com.vividsolutions.jts.geom.Coordinate;
+import heigit.ors.api.converters.CoordinateListDeserializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -10,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ApiModel(value = "Coordinates", description = "An array of waypoints in the longitude/latitude pairs.")
+@JsonDeserialize(using = CoordinateListDeserializer.class)
 public class CoordinateListWrapper {
     @JsonIgnore
     private Coordinate start;
@@ -81,5 +85,25 @@ public class CoordinateListWrapper {
         coordinates.add(end);
 
         return coordinates.toArray(new Coordinate[coordinates.size()]);
+    }
+
+    public List<List<Double>> getCoordinatesList() {
+        List<List<Double>> coordinates = new ArrayList<>();
+        List<Double> startCoords = new ArrayList<>();
+        startCoords.add(start.x);
+        startCoords.add(start.y);
+        coordinates.add(startCoords);
+        for(Coordinate c : via) {
+            List<Double> viaCoords = new ArrayList<>();
+            viaCoords.add(c.x);
+            viaCoords.add(c.y);
+            coordinates.add(viaCoords);
+        }
+        List<Double> endCoords = new ArrayList<>();
+        endCoords.add(end.x);
+        endCoords.add(end.y);
+        coordinates.add(endCoords);
+
+        return coordinates;
     }
 }

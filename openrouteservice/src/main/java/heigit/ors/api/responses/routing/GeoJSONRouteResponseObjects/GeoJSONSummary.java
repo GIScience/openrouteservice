@@ -10,7 +10,6 @@ import java.util.List;
 public class GeoJSONSummary extends JSONSummary {
     @JsonProperty("segments")
     private List<JSONSegment> segments;
-    @JsonProperty("way_points")
     private int[] wayPoints;
 
     public GeoJSONSummary(RouteResult result, List<JSONSegment> segments) {
@@ -23,6 +22,7 @@ public class GeoJSONSummary extends JSONSummary {
         return segments;
     }
 
+    @JsonProperty("way_points")
     public int[] getWaypoints() {
         return wayPoints;
     }

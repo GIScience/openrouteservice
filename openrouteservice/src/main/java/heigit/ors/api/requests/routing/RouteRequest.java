@@ -1,25 +1,16 @@
 package heigit.ors.api.requests.routing;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.api.converters.CoordinateListDeserializer;
-import heigit.ors.api.converters.CoordinateListSerializer;
-import io.swagger.annotations.*;
-import org.hibernate.validator.constraints.EAN;
-import springfox.documentation.annotations.ApiIgnore;
+import heigit.ors.exceptions.ParameterValueException;
+import heigit.ors.routing.RoutingErrorCodes;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @ApiModel(value = "RouteRequest", description = "The JSON body request sent to the routing service which defines options and parameters regarding the route to generate.")
-@ApiImplicitParams({
-        @ApiImplicitParam(name="start", required=true, value = "The starting location of the route")
-})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RouteRequest {
     @ApiModelProperty(value = "Arbitrary identification string of the request reflected in the meta information.")
@@ -62,13 +53,6 @@ public class RouteRequest {
                     "Default: true.")
     @JsonProperty(value = "geometry", defaultValue = "true")
     private Boolean includeGeometry = true;
-
-    @ApiModelProperty(name = "geometry_format",
-            value = "Sets the format of the returned geometry. Note that for elevation=true encodedpolyline also encodes the height information of each point. " +
-                    "If format=geojson, this parameter has no effect. To decode, please use a suitable library (for example graphhopper).\n" +
-                    "Default: encodedpolyline.")
-    @JsonProperty(value = "geometry_format", defaultValue = "encodedpolyline")
-    private APIRoutingEnums.RouteResponseGeometryType geometryType = APIRoutingEnums.RouteResponseGeometryType.ENCODED_POLYLINE;
 
     @ApiModelProperty(name = "geometry_simplify",
             value = "Specifies whether to simplify the geometry. true will automatically be set to false if extra_info parameter is specified."
@@ -159,10 +143,46 @@ public class RouteRequest {
     @JsonIgnore
     private boolean hasRouteOptions = false;
 
+    /*@JsonCreator
+    public RouteRequest(
+            @JsonProperty(value = "coordinates", required = true) CoordinateListWrapper coordinates) {
+        this.coordinates = coordinates.getCoordinatesList();
+    }
+
+    public RouteRequest( Double[][] coordinates) throws ParameterValueException {
+        if(coordinates.length < 2)
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "coordinates");
+
+        this.coordinates = new ArrayList<>();
+        for(Double[] coordPair : coordinates) {
+            if(coordPair.length != 2)
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "coordinates");
+            List<Double> coordPairList = new ArrayList<>();
+            coordPairList.add(coordPair[0]);
+            coordPairList.add(coordPair[1]);
+            this.coordinates.add(coordPairList);
+        }
+    }*/
+
     @JsonCreator
     public RouteRequest(
             @JsonProperty(value = "coordinates", required = true) List<List<Double>> coordinates) {
         this.coordinates = coordinates;
+    }
+
+    public RouteRequest( Double[][] coordinates) throws ParameterValueException {
+        if(coordinates.length < 2)
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "coordinates");
+
+        this.coordinates = new ArrayList<>();
+        for(Double[] coordPair : coordinates) {
+            if(coordPair.length != 2)
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "coordinates");
+            List<Double> coordPairList = new ArrayList<>();
+            coordPairList.add(coordPair[0]);
+            coordPairList.add(coordPair[1]);
+            this.coordinates.add(coordPairList);
+        }
     }
 
     public String getId() {
@@ -224,14 +244,6 @@ public class RouteRequest {
 
     public void setResponseType(APIRoutingEnums.RouteResponseType responseType) {
         this.responseType = responseType;
-    }
-
-    public APIRoutingEnums.RouteResponseGeometryType getGeometryType() {
-        return geometryType;
-    }
-
-    public void setGeometryType(APIRoutingEnums.RouteResponseGeometryType geometryType) {
-        this.geometryType = geometryType;
     }
 
     public APIRoutingEnums.ExtraInfo[] getExtraInfo() {

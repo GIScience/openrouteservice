@@ -30,6 +30,7 @@ import java.util.Map;
 public abstract class ServiceTest {
 	private final Map<String, Object> dictUrlParams;
 	private String endPointName;
+	private String version;
 
 	public ServiceTest() {
 		dictUrlParams = new HashMap<String, Object>();
@@ -40,6 +41,10 @@ public abstract class ServiceTest {
 		    	EndPointAnnotation epa = (EndPointAnnotation) annotation;
 		        endPointName = epa.name();
 		    }
+		    if(annotation instanceof VersionAnnotation) {
+		    	VersionAnnotation va = (VersionAnnotation) annotation;
+		    	version = va.version();
+			}
 		}
 	}
 
@@ -55,6 +60,15 @@ public abstract class ServiceTest {
 		return endPointName;
 	}
 
+	protected String getEndPointPath() {
+		String path = "";
+		if(version != null && !version.isEmpty())
+			path = version + "/";
+		path = path + endPointName;
+
+		return path;
+	}
+
 	@BeforeClass
 	public static void setup() {
 		String port = System.getProperty("server.port");
@@ -62,8 +76,8 @@ public abstract class ServiceTest {
 
 		String baseHost = System.getProperty("server.host");
 		if (baseHost == null) 
-			baseHost = "http://localhost";
-		
+			baseHost = "http://localhost/";
+
 		RestAssured.baseURI = baseHost;
 	}
 }

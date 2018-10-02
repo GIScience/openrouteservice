@@ -1,5 +1,6 @@
 package heigit.ors.api.responses.routing;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.Helper;
 import heigit.ors.api.requests.routing.RouteRequest;
@@ -8,6 +9,7 @@ import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import org.json.JSONObject;
 
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RouteResponseInfo {
     @JsonProperty("attribution")
     private String attribution;

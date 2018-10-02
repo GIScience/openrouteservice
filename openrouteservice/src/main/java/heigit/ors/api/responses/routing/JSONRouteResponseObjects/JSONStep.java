@@ -1,6 +1,7 @@
 package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import heigit.ors.routing.RouteStep;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -61,6 +62,7 @@ public class JSONStep {
         return exitNumber;
     }
 
+    @JsonProperty("way_points")
     public Integer[] getWaypoints() {
         return waypoints;
     }

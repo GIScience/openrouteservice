@@ -58,7 +58,10 @@ public class RouteRequestHandlerTest {
 
     @Before
     public void init() throws Exception {
-        List<List<Double>> coords = new ArrayList<>();
+        /*List<Double[]> coords = new ArrayList<>();
+        coords.add(new Double[] {24.5,39.2});
+        coords.add(new Double[] {27.4,38.6});
+        coords.add(new Double[] {26.5,37.2});
         List<Double> coord1 = new ArrayList<>();
         coord1.add(24.5);
         coord1.add(39.2);
@@ -70,7 +73,12 @@ public class RouteRequestHandlerTest {
         List<Double> coord3 = new ArrayList<>();
         coord3.add(26.5);
         coord3.add(37.2);
-        coords.add(coord3);
+        coords.add(coord3);*/
+
+        Double[][] coords = new Double[3][2];
+        coords[0] = new Double[] {24.5,39.2};
+        coords[1] = new Double[] {27.4,38.6};
+        coords[2] = new Double[] {26.5,37.2};
 
         request = new RouteRequest(coords);
 
@@ -79,7 +87,6 @@ public class RouteRequestHandlerTest {
         request.setBearings(new Double[][] {{10.0,10.0},{260.0, 90.0},{45.0, 30.0}});
         request.setContinueStraightAtWaypoints(true);
         request.setExtraInfo(new APIRoutingEnums.ExtraInfo[] { APIRoutingEnums.ExtraInfo.OSM_ID});
-        request.setGeometryType(APIRoutingEnums.RouteResponseGeometryType.GEOJSON);
         request.setIncludeGeometry(true);
         request.setIncludeInstructionsInResponse(true);
         request.setIncludeRoundaboutExitInfo(true);

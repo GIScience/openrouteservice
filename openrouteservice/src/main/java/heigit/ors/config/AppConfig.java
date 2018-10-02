@@ -49,19 +49,16 @@ public class AppConfig {
 	
 	public AppConfig()	{
     	URL url = RoutingProfileManager.class.getClassLoader().getResource("../app.config");
+		String appConfigName = "app.config";
+		if(System.getenv("ORS_APP_CONFIG") != null)
+			appConfigName = System.getenv("ORS_APP_CONFIG");
     	try {
 
-    		ClassPathResource rs = new ClassPathResource("app.config");
-
-    		String path = rs.getPath();
-
+    		ClassPathResource rs = new ClassPathResource(appConfigName);
     		url = rs.getURL();
-			//url = new ClassPathResource("../app.config").getURL();
 		} catch (IOException ioe) {
     		LOGGER.error(ioe);
 		}
-		if(System.getenv("ORS_APP_CONFIG") != null)
-			url = RoutingProfileManager.class.getClassLoader().getResource("../" + System.getenv("ORS_APP_CONFIG"));
     	
     	File file = new File(url.getPath());
 		_config = ConfigFactory.parseFile(file);

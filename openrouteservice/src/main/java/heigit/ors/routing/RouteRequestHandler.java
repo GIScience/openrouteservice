@@ -7,10 +7,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import heigit.ors.api.requests.routing.*;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.common.StatusCode;
-import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.exceptions.UnknownParameterValueException;
+import heigit.ors.exceptions.*;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.localization.LocalizationManager;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
@@ -23,14 +20,20 @@ import org.geotools.data.DataAccessFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RouteRequestHandler {
-    public static RouteResult generateRouteFromRequest(RouteRequest request) throws StatusCodeException, Exception  {
+    public static RouteResult generateRouteFromRequest(RouteRequest request) throws StatusCodeException{
         RoutingRequest routingRequest = convertRouteRequest(request);
 
-        return RoutingProfileManager.getInstance().computeRoute(routingRequest);
+        try {
+            RouteResult result = RoutingProfileManager.getInstance().computeRoute(routingRequest);
+            return result;
+        } catch (Exception e) {
+            throw new StatusCodeException(RoutingErrorCodes.UNKNOWN);
+        }
     }
 
     public static RoutingRequest convertRouteRequest(RouteRequest request) throws StatusCodeException {
@@ -43,7 +46,7 @@ public class RouteRequestHandler {
 
         routingRequest.setContinueStraight(request.getContinueStraightAtWaypoints());
 
-        routingRequest.setIncludeGeometry(request.getIncludeGeometry());
+        routingRequest.setIncludeGeometry(convertIncludeGeometry(request));
 
         routingRequest.setIncludeManeuvers(request.getIncĺudeManeuvers());
 
@@ -60,7 +63,7 @@ public class RouteRequestHandler {
 
         routingRequest.setLanguage(convertLanguage(request.getLanguage()));
 
-        routingRequest.setGeometryFormat(convertAPIEnum(request.getGeometryType()));
+        routingRequest.setGeometryFormat(convertGeometryFromat(request.getResponseType()));
 
         routingRequest.setInstructionsFormat(convertInstructionsFormat(request.getInstructionsFormat()));
 
@@ -126,6 +129,28 @@ public class RouteRequestHandler {
         routingRequest.setSearchParameters(params);
 
         return routingRequest;
+    }
+
+    private static boolean convertIncludeGeometry(RouteRequest request) throws IncompatableParameterException {
+        boolean includeGeometry = request.getIncludeGeometry();
+        if(!includeGeometry) {
+            if(request.getResponseType() == APIRoutingEnums.RouteResponseType.GEOJSON)
+                throw new IncompatableParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "geometry", "false", "response type", "geojson");
+        }
+        return includeGeometry;
+    }
+
+    private static String convertGeometryFromat(APIRoutingEnums.RouteResponseType responseType) throws ParameterValueException {
+        switch(responseType) {
+            case GEOJSON:
+                return "geojson";
+            case JSON:
+                return "encodedpolyline";
+            case GPX:
+                return "gpx";
+                default:
+                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "format");
+        }
     }
 
     private static Coordinate[] convertCoordinates(List<List<Double>> coordinates) throws ParameterValueException {
