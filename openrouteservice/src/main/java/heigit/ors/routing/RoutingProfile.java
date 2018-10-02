@@ -853,15 +853,8 @@ public class RoutingProfile {
                 }
             }
 
-            if ((profileType == RoutingProfileType.CYCLING_TOUR || profileType == RoutingProfileType.CYCLING_MOUNTAIN)
-                    && weightingMethod == WeightingMethod.FASTEST) {
-                req.setWeighting("fastest");
-                req.getHints().put("weighting_method", "recommended");
-                flexibleMode = true;
-            }
-
-            if ((profileType == RoutingProfileType.CYCLING_TOUR /*RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType)*/ || (profileType == RoutingProfileType.DRIVING_HGV && HeavyVehicleAttributes.HGV == searchParams
-                    .getVehicleType())) && weightingMethod == WeightingMethod.RECOMMENDED) {
+            if ((profileType == RoutingProfileType.DRIVING_HGV && HeavyVehicleAttributes.HGV == searchParams
+                    .getVehicleType()) && weightingMethod == WeightingMethod.RECOMMENDED) {
                 req.setWeighting("fastest");
                 req.getHints().put("weighting_method", "recommended_pref");
 

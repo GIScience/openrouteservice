@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added unit conversion so that isochrone response is in user specified unit (issue #91)
 - Enabled the reporting of multiple missing points in error response (issue #246)
 - Fixed wrong bounding box error (Issue #241)
+- Fixed problem with mountain bike profile never using contraction hierarchies.
 
 ### Changed
 - Updated the internal graphhopper libraries from 0.9.x to 0.10.1 and reduced the number of custom implementations and features.
