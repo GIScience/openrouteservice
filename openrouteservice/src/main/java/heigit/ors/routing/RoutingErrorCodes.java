@@ -38,5 +38,6 @@ public class RoutingErrorCodes {
     public static int ROUTE_NOT_FOUND = 2009;
     public static int POINT_NOT_FOUND = 2010;
     public static int INCOMPATIBLE_PARAMETERS = 2011;
+    public static int UNKNOWN_PARAMETER = 2012;
     public static int UNKNOWN = 2099;
 }

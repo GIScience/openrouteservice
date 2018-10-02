@@ -22,7 +22,7 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
     private BoundingBox bbox;
 
     @JsonUnwrapped
-    private GeometryResponse geomResponse;
+    private EncodedPolylineGeometryResponse geomResponse;
 
     @ApiModelProperty("Summary information about the route")
     private JSONSummary summary;
@@ -34,21 +34,20 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
     @ApiModelProperty("A list of the locations of coordinates in the orute that correspond to the waypoints")
     private int[] wayPoints;
 
-    @JsonProperty("geometry_format")
-    @ApiModelProperty("The format of the geometry that is contained in the response")
-    private APIRoutingEnums.RouteResponseGeometryType geometryFormat;
+    private JSONExtras extras;
 
     public JSONIndividualRouteResponse(RouteResult routeResult, RouteRequest request) throws StatusCodeException {
         super(routeResult, request);
 
-        geometryFormat = request.getGeometryType();
-        geomResponse = GeometryResponseFactory.createGeometryResponse(this.routeCoordinates, this.includeElevation, geometryFormat);
+        geomResponse = new EncodedPolylineGeometryResponse(this.routeCoordinates, this.includeElevation);
         summary = new JSONSummary(routeResult.getSummary().getDistance(), routeResult.getSummary().getDuration());
         segments = constructSegments(routeResult);
 
         bbox = BoundingBoxFactory.constructBoundingBox(routeResult.getSummary().getBBox(), request);
 
         wayPoints = routeResult.getWayPointsIndices();
+
+        extras = new JSONExtras(routeResult, request.getUnits());
     }
 
     @ApiModelProperty(value = "A bounding box which contains the entire route", example = "[49.414057, 8.680894, 49.420514, 8.690123]")
@@ -63,12 +62,13 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
         return geomResponse;
     }
 
-    public JSONSummary getSummary() {
-        return summary;
+    @JsonProperty("extras")
+    public JSONExtras getExtras() {
+        return extras;
     }
 
-    public APIRoutingEnums.RouteResponseGeometryType getGeometryFormat() {
-        return geometryFormat;
+    public JSONSummary getSummary() {
+        return summary;
     }
 
     public List<JSONSegment> getSegments() {

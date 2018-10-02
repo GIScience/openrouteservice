@@ -11,6 +11,9 @@ public class PolylineGeometryResponse extends GeometryResponse {
 
     @Override
     public Object getGeometry() {
-        return GeometryJSON.toJSON(coordinates, includeElevation);
+        if(coordinates != null)
+            return GeometryJSON.toJSON(coordinates, includeElevation);
+        else
+            return null;
     }
 }

@@ -82,34 +82,6 @@ public class APIRoutingEnums {
     }
 
     @ApiModel
-    public enum RouteResponseGeometryType {
-        GEOJSON ("geojson"),
-        ENCODED_POLYLINE ("encodedpolyline"),
-        GPX ("gpx");
-
-        private final String value;
-
-        RouteResponseGeometryType(String value) {
-            this.value = value;
-        }
-
-        @JsonCreator
-        public static RouteResponseGeometryType forValue(String v) throws ParameterValueException {
-            for(RouteResponseGeometryType enumItem : RouteResponseGeometryType.values()) {
-                if(enumItem.value.equals(v))
-                    return enumItem;
-            }
-            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "geometry_format", v);
-        }
-
-        @Override
-        @JsonValue
-        public String toString() {
-            return value;
-        }
-    }
-
-    @ApiModel
     public enum RouteResponseType {
         GPX  ("gpx"),
         JSON  ("json"),

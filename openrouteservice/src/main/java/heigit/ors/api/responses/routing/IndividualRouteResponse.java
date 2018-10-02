@@ -10,7 +10,8 @@ public class IndividualRouteResponse {
 
 
     public IndividualRouteResponse(RouteResult result, RouteRequest request) {
-        this.routeCoordinates = result.getGeometry();
+        if(result.getGeometry() != null)
+            this.routeCoordinates = result.getGeometry();
 
         if(request.hasReturnElevationForPoints())
             includeElevation = request.getReturnElevationForPoints();

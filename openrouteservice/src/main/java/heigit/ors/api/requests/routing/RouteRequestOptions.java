@@ -8,7 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import org.json.simple.JSONObject;
 
 @ApiModel(value = "Route Options", description = "Advanced options for routing", parent = RouteRequest.class)
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RouteRequestOptions {
     @ApiModelProperty(name = "avoid_features", value = "List of features to avoid.")
     @JsonProperty("avoid_features")
@@ -36,7 +36,7 @@ public class RouteRequestOptions {
     private boolean hasAvoidCountries = false;
 
     @ApiModelProperty(value = "(for profile=driving-hgv only): hgv,bus,agricultural,delivery,forestry and goods. It is needed for vehicle restrictions to work.")
-    @JsonProperty(value = "vehicle_type", defaultValue = "UNKNOWN")
+    @JsonProperty(value = "vehicle_type", defaultValue = "unknown")
     private APIRoutingEnums.VehicleType vehicleType = APIRoutingEnums.VehicleType.UNKNOWN;
     @JsonIgnore
     private boolean hasVehicleType = false;

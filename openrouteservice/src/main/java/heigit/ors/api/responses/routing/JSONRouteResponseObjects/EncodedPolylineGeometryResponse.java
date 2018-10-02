@@ -1,5 +1,6 @@
 package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.api.responses.routing.GeometryResponse;
@@ -8,6 +9,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel("EncodedPolyLineGeometryResponse")
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class EncodedPolylineGeometryResponse extends GeometryResponse {
     public EncodedPolylineGeometryResponse(Coordinate[]coordinates, boolean includeElevation) {
         super(coordinates, includeElevation);
@@ -18,6 +20,9 @@ public class EncodedPolylineGeometryResponse extends GeometryResponse {
     @Override
     public Object getGeometry() {
         StringBuffer strBuffer = new StringBuffer();
-        return PolylineEncoder.encode(coordinates, includeElevation, strBuffer);
+        if(coordinates != null)
+            return PolylineEncoder.encode(coordinates, includeElevation, strBuffer);
+        else
+            return null;
     }
 }

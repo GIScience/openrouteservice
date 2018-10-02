@@ -20,22 +20,62 @@
  */
 package heigit.ors.v2.services.routing;
 
-import heigit.ors.services.common.EndPointAnnotation;
-import heigit.ors.services.common.ServiceTest;
+import heigit.ors.v2.services.common.EndPointAnnotation;
+import heigit.ors.v2.services.common.ServiceTest;
+import heigit.ors.v2.services.common.VersionAnnotation;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
 @EndPointAnnotation(name = "routes")
+@VersionAnnotation(version = "v2")
 public class ParamsTest extends ServiceTest {
 
 	public ParamsTest() {
-		addParameter("coordinatesShort", "8.680916,49.410973|8.687782,49.424597");
-		addParameter("coordinatesShortFaulty", "8.680916a,49.41b0973|8.6c87782,049gbd.424597");
-		addParameter("coordinatesLong", "8.502045,49.47794|4.78906,53.071752");
-		addParameter("extra_info", "surface|suitability|steepness");
+	    JSONArray coordsShort = new JSONArray();
+	    JSONArray coord1 = new JSONArray();
+	    coord1.put(8.680916);
+	    coord1.put(49.410973);
+	    coordsShort.put(coord1);
+	    JSONArray coord2 = new JSONArray();
+	    coord2.put(8.687782);
+	    coord2.put(49.424597);
+        coordsShort.put(coord2);
+		addParameter("coordinatesShort", coordsShort);
+
+		JSONArray coordsFaulty = new JSONArray();
+		JSONArray coordFaulty1 = new JSONArray();
+		coordFaulty1.put("8.680916a");
+		coordFaulty1.put("49.41b0973");
+		coordsFaulty.put(coordFaulty1);
+		JSONArray coordFaulty2 = new JSONArray();
+		coordFaulty2.put("8.6c87782");
+		coordFaulty2.put("049gbd.424597");
+		coordsFaulty.put(coordFaulty2);
+
+		addParameter("coordinatesShortFaulty", coordsFaulty);
+
+		addParameter("coordinatesLong", new JSONArray(new HashSet<HashSet<Double>>() {{
+			new HashSet<Double>() {{
+				add(8.502045);
+				add(49.47794);
+			}};
+			new HashSet<Double>() {{
+				add(4.78906);
+				add(53.071752);
+			}};
+		}}));
+		addParameter("extra_info", new JSONArray(new HashSet<String>() {{
+			add("surface");
+			add("suitability");
+			add("steepness");
+		}}));
 		addParameter("preference", "fastest");
 		addParameter("profile", "cycling-regular");
 		addParameter("carProfile", "driving-car");
@@ -43,28 +83,36 @@ public class ParamsTest extends ServiceTest {
 
 	@Test
 	public void basicPingTest() {
-
+		JSONObject body = new JSONObject();
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+        body.put("preference", getParameter("preference"));
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
+				.header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("profile"))
+				.body(body.toString())
 				.when()
-				.get(getEndPointName())
+                .log().all()
+				.post(getEndPointPath()+"/{profile}")
 				.then()
+                .log().all()
 				.body("any { it.key == 'routes' }", is(true))
 				.statusCode(200);
 	}
 
 	@Test
 	public void expectNoInstructions() {
-
+        JSONObject body = new JSONObject();
+        body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+        body.put("instructions", "false");
+        body.put("preference", getParameter("preference"));
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("instructions", "false")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
-				.when()
-				.get(getEndPointName())
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("profile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}")
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
@@ -74,14 +122,17 @@ public class ParamsTest extends ServiceTest {
 
 	@Test
 	public void expectInstructions() {
-
+        JSONObject body = new JSONObject();
+        body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+        body.put("instructions", "true");
+        body.put("preference", getParameter("preference"));
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("instructions", "true")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
-				.when()
-				.get(getEndPointName())
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("profile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}")
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
@@ -92,15 +143,18 @@ public class ParamsTest extends ServiceTest {
 
 	@Test
 	public void expectInstructionsAsText() {
-
+        JSONObject body = new JSONObject();
+        body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+        body.put("instructions", "true");
+        body.put("instructions_format", "text");
+        body.put("preference", getParameter("preference"));
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("instructions", "true")
-				.param("instructions_format", "text")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
-				.when()
-				.get(getEndPointName())
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("profile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}")
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
@@ -110,15 +164,18 @@ public class ParamsTest extends ServiceTest {
 
 	@Test
 	public void expectInstructionsAsHtml() {
-
+        JSONObject body = new JSONObject();
+        body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+        body.put("instructions", "true");
+        body.put("instructions_format", "html");
+        body.put("preference", getParameter("preference"));
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("instructions", "true")
-				.param("instructions_format", "html")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
-				.when()
-				.get(getEndPointName())
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("profile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}")
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
@@ -128,14 +185,17 @@ public class ParamsTest extends ServiceTest {
 
 	@Test
 	public void expectGeometry() {
-
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("geometry", "true");
+        body.put("preference", getParameter("preference"));
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
-				.param("geometry", "true")
-				.when()
-				.get(getEndPointName())
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("profile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}")
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
@@ -145,14 +205,17 @@ public class ParamsTest extends ServiceTest {
 
 	@Test
 	public void expectNoGeometry() {
-
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("geometry", "false");
+        body.put("preference", getParameter("preference"));
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
-				.param("geometry", "false")
-				.when()
-				.get(getEndPointName())
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("profile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}")
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
@@ -166,15 +229,17 @@ public class ParamsTest extends ServiceTest {
 	 */
 	@Test
 	public void expectGeometryGeojson() {
-
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("geometry", "true");
+        body.put("preference", getParameter("preference"));
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
-				.param("geometry", "true")
-				.param("geometry_format", "geojson")
-				.when()
-				.get(getEndPointName())
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("profile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}")
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
@@ -190,13 +255,18 @@ public class ParamsTest extends ServiceTest {
      */
 	@Test
 	public void expectGeoJsonExportInstructions(){
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("geometry", "true");
+        body.put("preference", getParameter("preference"));
+
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
-				.param("format", "geojson")
-				.when()
-				.get(getEndPointName())
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("profile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}")
 				.then()
 				.assertThat()
 				.body("any { it.key == 'features' }", is(true))
@@ -206,14 +276,20 @@ public class ParamsTest extends ServiceTest {
 				.body("features[0].containsKey('properties')", is(true))
 				.body("features[0].properties.containsKey('segments')", is(true))
 				.statusCode(200);
+
+        body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("geometry", "true");
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", "false");
+
         given()
-                .param("coordinates", getParameter("coordinatesShort"))
-                .param("preference", getParameter("preference"))
-                .param("profile", getParameter("profile"))
-                .param("instructions", "false")
-                .param("format", "geojson")
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("profile"))
+                .body(body.toString())
                 .when()
-                .get(getEndPointName())
+                .post(getEndPointPath()+"/{profile}")
                 .then()
                 .assertThat()
 				.body("any { it.key == 'features' }", is(true))
@@ -226,36 +302,19 @@ public class ParamsTest extends ServiceTest {
 	}
 
 	@Test
-	public void expectGeometryPolyline() {
-
-		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
-				.param("geometry", "true")
-				.param("geometry_format", "polyline")
-				.when()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].containsKey('geometry')", is(true))
-				.body("routes[0].geometry_format", is("polyline"))
-				//.body("routes[0].geometry", hasSize(243))
-				.statusCode(200);
-	}
-
-	@Test
 	public void expectGeometryEncodedPolyline() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("geometry", "true");
+        body.put("preference", getParameter("preference"));
 
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
-				.param("geometry", "true")
-				.param("geometry_format", "encodedpolyline")
-				.when()
-				.get(getEndPointName())
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("profile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}")
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
@@ -270,59 +329,70 @@ public class ParamsTest extends ServiceTest {
 
 	@Test
 	public void expectElevation() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("geometry", "true");
+        body.put("elevation", "true");
+        body.put("preference", getParameter("preference"));
 
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
-				.param("geometry", "true")
-				.param("geometry_format", "geojson")
-				.param("elevation", "true")
-				.when()
-				.get(getEndPointName())
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("profile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}")
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].containsKey('geometry')", is(true))
-				.body("routes[0].geometry_format", is("geojson"))
-				.body("routes[0].geometry.type", is("LineString"))
-				.body("routes[0].geometry.coordinates[0]", hasSize(3))
+				.body("features[0].containsKey('geometry')", is(true))
+				.body("features[0].properties.geometry_format", is("geojson"))
+				.body("features[0].geometry.type", is("LineString"))
+				.body("features[0].geometry.coordinates[0]", hasSize(3))
 				.statusCode(200);
 	}
 
 	@Test
 	public void expectNoElevation() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("geometry", "true");
+        body.put("elevation", "true");
+        body.put("preference", getParameter("preference"));
 
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
-				.param("geometry", "true")
-				.param("geometry_format", "geojson")
-				.param("elevation", "false")
-				.when()
-				.get(getEndPointName())
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("profile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}")
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].containsKey('geometry')", is(true))
-				.body("routes[0].geometry_format", is("geojson"))
-				.body("routes[0].geometry.type", is("LineString"))
-				.body("routes[0].geometry.coordinates[0]", hasSize(2))
+				.body("features[0].containsKey('geometry')", is(true))
+				.body("features[0].properties.geometry_format", is("geojson"))
+				.body("features[0].geometry.type", is("LineString"))
+				.body("features[0].geometry.coordinates[0]", hasSize(2))
 				.statusCode(200);
 	}
 
 	@Test
 	public void expectExtrainfo() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("geometry", "true");
+        body.put("elevation", "true");
+        body.put("preference", getParameter("preference"));
+        body.put("extra_info", getParameter("extra_info"));
 
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
-				.param("geometry", "true")
-				.param("extra_info", getParameter("extra_info"))
-				.when()
-				.get(getEndPointName())
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("profile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}")
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
@@ -336,15 +406,19 @@ public class ParamsTest extends ServiceTest {
 
 	@Test
 	public void expectNoExtrainfo() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("geometry", "false");
+        body.put("elevation", "true");
+        body.put("preference", getParameter("preference"));
 
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("profile"))
-				.param("geometry", "false")
-				.when()
-				.log().all()
-				.get(getEndPointName())
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("profile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}")
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
@@ -354,14 +428,19 @@ public class ParamsTest extends ServiceTest {
 
 	@Test
 	public void expectUnknownProfile() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("geometry", "true");
+        body.put("elevation", "true");
+        body.put("preference", getParameter("preference"));
 
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("profile", "driving-car123")
-				.param("geometry", "true")
-				.when()
-				.get(getEndPointName())
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "driving-car-123")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}")
 				.then()
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
@@ -369,14 +448,18 @@ public class ParamsTest extends ServiceTest {
 	}
 
 	@Test
-	public void expect400201() {
+	public void expect4002001() {
+		JSONObject body = new JSONObject();
+		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("geometry", "true");
+		body.put("preference", getParameter("preference"));
 
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("geometry", "true")
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.body(body.toString())
 				.when()
-				.get(getEndPointName())
+				.post(getEndPointPath())
 				.then()
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.MISSING_PARAMETER))
@@ -384,15 +467,19 @@ public class ParamsTest extends ServiceTest {
 	}
 
 	@Test
-	public void expect400202() {
+	public void expect4002002() {
+		JSONObject body = new JSONObject();
+		body.put("coordinates", getParameter("coordinatesShortFaulty"));
+		body.put("geometry", "true");
+		body.put("preference", getParameter("preference"));
 
 		given()
-				.param("coordinates", getParameter("coordinatesShortFaulty"))
-				.param("preference", getParameter("preference"))
-				.param("geometry", "true")
-				.param("profile", getParameter("profile"))
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("profile"))
+				.body(body.toString())
 				.when()
-				.get(getEndPointName())
+				.post(getEndPointPath()+"/{profile}")
 				.then()
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_FORMAT))
@@ -400,17 +487,21 @@ public class ParamsTest extends ServiceTest {
 	}
 
 	@Test
-	public void expect400203() {
+	public void expect4002003() {
+		JSONObject body = new JSONObject();
+		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("geometry", "true");
+		body.put("preference", getParameter("preference"));
+		body.put("language", "yuhd");
 
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("geometry", "true")
-				.param("profile", getParameter("profile"))
-				.param("language", "yuhd")
-				.when()
-				.get(getEndPointName())
-				.then()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("profile"))
+				.body(body.toString())
+				.when().log().all()
+				.post(getEndPointPath()+"/{profile}")
+				.then().log().all()
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
@@ -561,26 +652,31 @@ public class ParamsTest extends ServiceTest {
 	public void expectCyclingToRejectHgvAvoidables() {
 		// options for HGV profiles
 		JSONObject options = new JSONObject();
-		options.put("avoid_features", "highways|tollways|ferries|tunnels|unpavedroads|tracks|fords");
+		options.put("avoid_features", new String[] {"highways","tollways","ferries","tunnels","unpavedroads","tracks","fords"});
 		options.put("maximum_speed", "75");
 		JSONObject profileParams = new JSONObject();
-		profileParams.put("width", "5");
-		profileParams.put("height", "3");
-		profileParams.put("length", "10");
-		profileParams.put("axleload", "2");
-		profileParams.put("weight", "5");
-		profileParams.put("hazmat", "true");
+		JSONObject restrictions = new JSONObject();
+		restrictions.put("width", "5");
+		restrictions.put("height", "3");
+		restrictions.put("length", "10");
+		restrictions.put("axleload", "2");
+		restrictions.put("weight", "5");
+		restrictions.put("hazmat", "true");
+		profileParams.put("restrictions", restrictions);
 		options.put("profile_params", profileParams);
 
+		JSONObject body = new JSONObject();
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+		body.put("preference", getParameter("preference"));
+		body.put("options", options);
+
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("geometry", "true")
-				.param("profile", "cycling-road")
-				.param("options", options.toString())
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", "cycling-road")
+				.body(body.toString())
 				.when()
-				.log().all()
-				.get(getEndPointName())
+				.post(getEndPointPath()+"/{profile}")
 				.then()
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
@@ -592,18 +688,25 @@ public class ParamsTest extends ServiceTest {
 
 		// options for walking profiles
 		JSONObject options = new JSONObject();
-		options.put("avoid_features", "steps|fords");
-		options.put("maximum_speed", "5");
+		JSONArray avoids = new JSONArray();
+		avoids.put("steps");
+		avoids.put("fords");
+		options.put("avoid_features", avoids);
+
+		options.put("maximum_speed", 5);
+
+		JSONObject body = new JSONObject();
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+		body.put("preference", getParameter("preference"));
+		body.put("options", options);
 
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("geometry", "true")
-				.param("profile", getParameter("carProfile"))
-				.param("options", options.toString())
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("carProfile"))
+				.body(body.toString())
 				.when()
-				.log().all()
-				.get(getEndPointName())
+				.post(getEndPointPath()+"/{profile}")
 				.then()
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
