@@ -370,8 +370,8 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             CoreLandmarkExplorer explorer = new CoreLandmarkExplorer(graph, this, initWeighting, traversalMode);
             explorer.initFrom(startNode, 0);
             //TODO Core - DONE
-            explorer.setFilter(new CoreAndBlockedEdgesFilter(encoder, false, true, blockedEdges, graph));
-            explorer.runAlgo(true, new CoreAndBlockedEdgesFilter(encoder, false, true, blockedEdges, graph));
+            explorer.setFilter(new CoreAndBlockedEdgesFilter(encoder, true, true, blockedEdges, graph));
+            explorer.runAlgo(true, new CoreAndBlockedEdgesFilter(encoder, true, true, blockedEdges, graph));
 
             //TODO Check this number of minnodes and see if it works for core. Probably needs to be lowered from 500k
             if (explorer.getFromCount() < minimumNodes) {
@@ -388,12 +388,12 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
                 }
                 explorer = new CoreLandmarkExplorer(graph, this, initWeighting, traversalMode);
                 //TODO Core - DONE
-                explorer.setFilter(new CoreAndBlockedEdgesFilter(encoder, false, true, blockedEdges, graph));
+                explorer.setFilter(new CoreAndBlockedEdgesFilter(encoder, true, true, blockedEdges, graph));
                 // set all current landmarks as start so that the next getLastNode is hopefully a "far away" node
                 for (int j = 0; j < lmIdx + 1; j++) {
                     explorer.initFrom(tmpLandmarkNodeIds[j], 0);
                 }
-                explorer.runAlgo(true, new CoreAndBlockedEdgesFilter(encoder, false, true, blockedEdges, graph));
+                explorer.runAlgo(true, new CoreAndBlockedEdgesFilter(encoder, true, true, blockedEdges, graph));
                 tmpLandmarkNodeIds[lmIdx + 1] = explorer.getLastNode();
                 if (logDetails && lmIdx % logOffset == 0)
                     LOGGER.info("Finding landmarks [" + weighting + "] in network [" + explorer.getVisitedNodes()
@@ -431,8 +431,10 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             explorer = new CoreLandmarkExplorer(graph, this, lmWeighting, traversalMode);
             explorer.initTo(lmNodeId, 0);
             //TODO Core - DONE
-            explorer.setFilter(coreEdgeFilter);
-            explorer.runAlgo(false, coreEdgeFilter);
+            EdgeFilterSequence coreEdgeFilterBWD = new EdgeFilterSequence();
+            coreEdgeFilterBWD.add(new CoreAndBlockedEdgesFilter(encoder, true, false, blockedEdges, graph));
+            explorer.setFilter(coreEdgeFilterBWD);
+            explorer.runAlgo(false, coreEdgeFilterBWD);
             explorer.initLandmarkWeights(lmIdx, lmNodeId, LM_ROW_LENGTH, TO_OFFSET);
 
             if (lmIdx == 0) {
@@ -692,6 +694,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
         int subnetworkFrom = subnetworkStorage.getSubnetwork(coreNodeIdMap.get(fromNode));
         int subnetworkTo = subnetworkStorage.getSubnetwork(coreNodeIdMap.get(toNode));
+
         if (subnetworkFrom <= UNCLEAR_SUBNETWORK || subnetworkTo <= UNCLEAR_SUBNETWORK)
             return false;
         if (subnetworkFrom != subnetworkTo) {
@@ -841,6 +844,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         public void setFilter(EdgeFilter filter) {
             outEdgeExplorer = core.createEdgeExplorer(filter);
             inEdgeExplorer = core.createEdgeExplorer(filter);
+            this.setEdgeFilter(filter);
         }
 
         public int getFromCount() {
@@ -858,7 +862,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         public void runAlgo(boolean from, EdgeFilter filter) {
             // no path should be calculated
             setUpdateBestPath(false);
-            super.setEdgeFilter(filter);
+            this.setEdgeFilter(filter);
             // set one of the bi directions as already finished
             if (from)
                 finishedTo = true;
@@ -999,16 +1003,19 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             adj = iter.getAdjNode();
 
             if (base >= maxNodes || adj >= maxNodes)
-                return false;
+                return true;
             int baseLevel = core.getLevel(base);
             int adjLevel = core.getLevel(adj);
-//            boolean isShortcut = ((CHEdgeIterator)iter).isShortcut();
             //Accept only edges that are in core
             if(core.getLevel(base) < coreNodeLevel || core.getLevel(adj) < coreNodeLevel)
                 return false;
 
             boolean blocked = blockedEdges.contains(iter.getEdge());
-
+//            if(((CHEdgeIterator)iter).isShortcut())
+//                return fwd && !blocked || bwd && !blocked;
+//
+//            boolean isForward = iter.isForward(encoder);
+//            boolean isBackward = iter.isBackward(encoder);
 
             return fwd && iter.isForward(encoder) && !blocked || bwd && iter.isBackward(encoder) && !blocked;
         }
