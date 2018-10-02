@@ -49,6 +49,7 @@ are attached to roads. (Issue #162)
 - Replaced "Sand" surface encoding with "Paving stone"
 - Changed the bbox api test (Issue #241)
 - Changed the way the bbox is calculated internally (Issue #241)
+- Change the license from apache 2.0 to LGPL3 (PR #296)
 
 ### Deprecated
 - Removed references to locations and accessibilty services from web.xml (Issue #186)
