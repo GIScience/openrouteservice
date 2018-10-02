@@ -941,20 +941,20 @@ public class RoutingProfile {
 
     private boolean useDynamicWeights(RouteSearchParameters searchParams) {
         boolean dynamicWeights = (
-                searchParams.hasAvoidAreas()
-                        || searchParams.hasAvoidFeatures()
-                        || searchParams.hasAvoidCountries()
-                        || searchParams.hasAvoidBorders()
-                        || searchParams.getMaximumSpeed() > 0
-                        ||( RoutingProfileType.isDriving(searchParams.getProfileType())
-                        &&( searchParams.hasParameters(VehicleParameters.class)
-                        || searchParams.getConsiderTraffic()
+            searchParams.hasAvoidAreas()
+            || searchParams.hasAvoidFeatures()
+            || searchParams.hasAvoidCountries()
+            || searchParams.hasAvoidBorders()
+            || searchParams.getMaximumSpeed() > 0
+            ||( RoutingProfileType.isDriving(searchParams.getProfileType())
+                &&( searchParams.hasParameters(VehicleParameters.class)
+                    || searchParams.getConsiderTraffic()
                 )
-                )
-                        ||( searchParams.getWeightingMethod() == WeightingMethod.SHORTEST
-                        || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED
-                )
-                        || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
+            )
+            ||( searchParams.getWeightingMethod() == WeightingMethod.SHORTEST
+                || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED
+            )
+            || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
         return dynamicWeights;
     }
 
