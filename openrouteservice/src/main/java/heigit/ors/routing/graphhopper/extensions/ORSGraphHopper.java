@@ -447,6 +447,9 @@ public class ORSGraphHopper extends GraphHopper {
 			coreFactoryDecorator.createPreparations(ghStorage, traversalMode, coreEdgeFilter);
 		if (!isCorePrepared())
 			prepareCore();
+
+		coreFactoryDecorator.initEdgeFilter();
+
 		//Create the landmarks in the core
 		if (coreLMFactoryDecorator.isEnabled())
 			coreLMFactoryDecorator.createPreparations(ghStorage, super.getLocationIndex());
