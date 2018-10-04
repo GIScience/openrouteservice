@@ -8,12 +8,17 @@ import heigit.ors.api.requests.routing.RouteRequest;
 import heigit.ors.api.responses.routing.*;
 import heigit.ors.api.responses.routing.BoundingBox.BoundingBox;
 import heigit.ors.api.responses.routing.BoundingBox.BoundingBoxFactory;
+import heigit.ors.common.DistanceUnit;
 import heigit.ors.exceptions.StatusCodeException;
+import heigit.ors.routing.RouteExtraInfo;
 import heigit.ors.routing.RouteResult;
+import heigit.ors.util.DistanceUnitUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @ApiModel(value = "JSONIndividualRouteResponse", description = "An individual JSON based route created by the service")
@@ -34,7 +39,7 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
     @ApiModelProperty("A list of the locations of coordinates in the orute that correspond to the waypoints")
     private int[] wayPoints;
 
-    private JSONExtras extras;
+    private Map<String, JSONExtra> extras;
 
     public JSONIndividualRouteResponse(RouteResult routeResult, RouteRequest request) throws StatusCodeException {
         super(routeResult, request);
@@ -47,7 +52,17 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
 
         wayPoints = routeResult.getWayPointsIndices();
 
-        extras = new JSONExtras(routeResult, request.getUnits());
+        //extras = new JSONExtras(routeResult, request.getUnits());
+        extras = new HashMap<>();
+        List<RouteExtraInfo> responseExtras = routeResult.getExtraInfo();
+        if(responseExtras != null) {
+            double routeLength = routeResult.getSummary().getDistance();
+            DistanceUnit units =  DistanceUnitUtil.getFromString(request.getUnits().toString(), DistanceUnit.Unknown);
+            for (RouteExtraInfo extraInfo : responseExtras) {
+                extras.put(extraInfo.getName(), new JSONExtra(extraInfo.getSegments(), extraInfo.getSummary(units, routeLength, true)));
+
+            }
+        }
     }
 
     @ApiModelProperty(value = "A bounding box which contains the entire route", example = "[49.414057, 8.680894, 49.420514, 8.690123]")
@@ -63,8 +78,16 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
     }
 
     @JsonProperty("extras")
-    public JSONExtras getExtras() {
+    public Map<String, JSONExtra> getExtras() {
         return extras;
+    }
+    /*public JSONExtras getExtras() {
+        return extras;
+    }*/
+
+    @JsonProperty("geometry_format")
+    public String getGeometryFormat() {
+        return geomResponse.FORMAT;
     }
 
     public JSONSummary getSummary() {
