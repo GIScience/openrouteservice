@@ -86,6 +86,12 @@
 					"name": "Faça inversão de marcha em direção a {way_name}"
 				}
 			}
+			"keep": {
+				"default": {
+					"default": "Vire {turn_maneuver}",
+					"name": "Vire {turn_maneuver} em direção a {way_name}",
+				},
+			}
 		}
 	}
 }
