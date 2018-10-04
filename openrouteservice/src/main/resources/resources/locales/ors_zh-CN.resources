@@ -85,6 +85,12 @@
                     "name": "前方掉头后进入 {way_name}"
                 }
             }
+			"keep": {
+				"default": {
+                    "default": "{turn_maneuver}",
+                    "name": "{turn_maneuver} 进入 {way_name}",
+				},
+			}
         }
     }
 }
