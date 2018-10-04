@@ -53,7 +53,7 @@
         }
       ],
       "root": {
-        "level": "debug",
+        "level": "error",
         "AppenderRef": {
           "ref": "stdout"
         }

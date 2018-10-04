@@ -32,6 +32,9 @@ public class RouteRequestHandler {
             RouteResult result = RoutingProfileManager.getInstance().computeRoute(routingRequest);
             return result;
         } catch (Exception e) {
+            if(e instanceof StatusCodeException)
+                throw (StatusCodeException)e;
+
             throw new StatusCodeException(RoutingErrorCodes.UNKNOWN);
         }
     }
@@ -119,7 +122,8 @@ public class RouteRequestHandler {
             if (options.hasVehicleType())
                 params.setVehicleType(convertVehicleType(options.getVehicleType()));
 
-            params.setProfileParams(convertParameters(request, profileType));
+            if(options.hasProfileParams())
+                params.setProfileParams(convertParameters(request, profileType));
         }
 
         params.setConsiderTraffic(false);
