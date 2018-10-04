@@ -9,6 +9,7 @@ import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.routing.RouteResult;
 
 import java.util.List;
+import java.util.Map;
 
 public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResponse {
     @JsonUnwrapped
@@ -24,7 +25,10 @@ public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResp
         super(routeResult, request);
         geomResponse = new GeoJSONGeometryResponse(this.routeCoordinates, this.includeElevation);
         List<JSONSegment> segments = constructSegments(routeResult);
-        properties = new GeoJSONSummary(routeResult, segments);
+
+        Map extras = constructExtras(request, routeResult);
+
+        properties = new GeoJSONSummary(routeResult, segments, extras);
     }
 
     public GeoJSONGeometryResponse getGeomResponse() {
