@@ -52,7 +52,6 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
 
         wayPoints = routeResult.getWayPointsIndices();
 
-        //extras = new JSONExtras(routeResult, request.getUnits());
         extras = new HashMap<>();
         List<RouteExtraInfo> responseExtras = routeResult.getExtraInfo();
         if(responseExtras != null) {
@@ -81,9 +80,6 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
     public Map<String, JSONExtra> getExtras() {
         return extras;
     }
-    /*public JSONExtras getExtras() {
-        return extras;
-    }*/
 
     @JsonProperty("geometry_format")
     public String getGeometryFormat() {
