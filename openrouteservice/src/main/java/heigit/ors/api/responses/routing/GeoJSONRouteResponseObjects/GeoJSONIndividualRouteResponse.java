@@ -1,5 +1,6 @@
 package heigit.ors.api.responses.routing.GeoJSONRouteResponseObjects;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import heigit.ors.api.requests.routing.RouteRequest;
@@ -37,5 +38,11 @@ public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResp
 
     public GeoJSONSummary getProperties() {
         return properties;
+    }
+
+    @JsonProperty("bbox")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public double[] getBBox() {
+        return bbox.getAsArray();
     }
 }

@@ -73,11 +73,12 @@ public class ParamsTest extends ServiceTest {
 
 		addParameter("coordinatesLong", coordsLong);
 
-		addParameter("extra_info", new JSONArray(new HashSet<String>() {{
-			add("surface");
-			add("suitability");
-			add("steepness");
-		}}));
+		JSONArray extraInfo = new JSONArray();
+		extraInfo.put("surface");
+		extraInfo.put("suitability");
+		extraInfo.put("steepness");
+		addParameter("extra_info", extraInfo);
+
 		addParameter("preference", "fastest");
 		addParameter("profile", "cycling-regular");
 		addParameter("carProfile", "driving-car");
@@ -745,6 +746,37 @@ public class ParamsTest extends ServiceTest {
 				.when()
 				.post(getEndPointPath()+"/{profile}")
 				.then()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+				.statusCode(400);
+	}
+
+	@Test
+	public void expectCarToRejectBikeParams() {
+		JSONObject body = new JSONObject();
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+		body.put("preference", getParameter("preference"));
+		body.put("geometry", true);
+
+		// options for cycling profiles
+		JSONObject options = new JSONObject();
+		JSONObject profileParams = new JSONObject();
+		JSONObject profileRestrictions = new JSONObject();
+		profileRestrictions.put("gradient", "5");
+		profileRestrictions.put("trail_difficulty", "1");
+		profileParams.put("restrictions", profileRestrictions);
+		options.put("profile_params", profileParams);
+
+		body.put("options", options);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("carProfile"))
+				.body(body.toString())
+				.when().log().all()
+				.post(getEndPointPath()+"/{profile}")
+				.then().log().all()
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);

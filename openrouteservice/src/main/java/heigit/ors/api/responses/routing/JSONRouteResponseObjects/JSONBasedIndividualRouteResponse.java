@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 public class JSONBasedIndividualRouteResponse extends IndividualRouteResponse {
-    BoundingBox bbox;
+    protected BoundingBox bbox;
 
     public JSONBasedIndividualRouteResponse(RouteResult result, RouteRequest request) throws StatusCodeException {
         super(result, request);
