@@ -151,7 +151,6 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
 
             double epsilon = opts.getHints().getDouble(Parameters.Algorithms.ASTAR_BI + ".epsilon", 1);
             CoreALT coreALT = (CoreALT) algo;
-            //TODO Should work with standard LMApproximator
 
             coreALT.setApproximation(
                     new CoreLMApproximator(qGraph, this.graph.getNodes(), lms, activeLM, lms.getFactor(), false)
@@ -164,7 +163,6 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
 
             double epsilon = opts.getHints().getDouble(Parameters.Algorithms.ASTAR + ".epsilon", 1);
             AStar astar = (AStar) algo;
-            //TODO Should work with standard LMApproximator
 
             astar.setApproximation(
                     new CoreLMApproximator(qGraph, this.graph.getNodes(), lms, activeLM, lms.getFactor(), false)
@@ -176,7 +174,6 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
 
             double epsilon = opts.getHints().getDouble(Parameters.Algorithms.ASTAR_BI + ".epsilon", 1);
             AStarBidirection astarbi = (AStarBidirection) algo;
-            //TODO Should work with standard LMApproximator
 
             astarbi.setApproximation(
                     new CoreLMApproximator(qGraph, this.graph.getNodes(), lms, activeLM, lms.getFactor(), false)
