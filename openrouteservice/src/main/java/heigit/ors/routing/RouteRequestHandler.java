@@ -383,7 +383,7 @@ public class RouteRequestHandler {
         return(!useContractionHierarchies);
     }
 
-    private static ProfileParameters convertParameters(RouteRequest request, int profileType) {
+    private static ProfileParameters convertParameters(RouteRequest request, int profileType) throws StatusCodeException {
         ProfileParameters params = new ProfileParameters();
 
         if(request.getRouteOptions().getProfileParams().hasRestrictions()) {
@@ -471,6 +471,10 @@ public class RouteRequestHandler {
             params.setMinimumWidth(restrictions.getMinWidth());
 
         return params;
+    }
+
+    private static void validateRestrictionsForProfile(RequestProfileParamsRestrictions restrictions, APIRoutingEnums.VehicleType vehicleType) throws IncompatableParameterException {
+
     }
 
     private static ProfileParameters applyWeightings(RequestProfileParamsWeightings weightings, ProfileParameters params) {

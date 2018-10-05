@@ -6,10 +6,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class JSONSummary {
     @JsonProperty(value = "distance")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.2d")
-    private Double distance;
+    protected Double distance;
     @JsonProperty(value = "duration")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
-    private Double duration;
+    protected Double duration;
 
     public JSONSummary(Double distance, Double duration) {
         this.distance = distance;

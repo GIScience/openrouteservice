@@ -36,7 +36,7 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
     private List<JSONSegment> segments;
 
     @JsonProperty("way_points")
-    @ApiModelProperty("A list of the locations of coordinates in the orute that correspond to the waypoints")
+    @ApiModelProperty("A list of the locations of coordinates in the route that correspond to the waypoints")
     private int[] wayPoints;
 
     private Map<String, JSONExtra> extras;

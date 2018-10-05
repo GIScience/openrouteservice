@@ -22,6 +22,7 @@ package heigit.ors.v2.services.routing;
 
 import heigit.ors.v2.services.common.EndPointAnnotation;
 import heigit.ors.v2.services.common.ServiceTest;
+import heigit.ors.v2.services.common.VersionAnnotation;
 import io.restassured.response.Response;
 import junit.framework.Assert;
 import org.json.JSONArray;
@@ -38,50 +39,90 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashSet;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 
 @EndPointAnnotation(name = "routes")
+@VersionAnnotation(version = "v2")
 public class ResultTest extends ServiceTest {
 
 	public ResultTest() {
+        JSONArray coordsShort = new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.680916);
+        coord1.put(49.410973);
+        coordsShort.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.687782);
+        coord2.put(49.424597);
+        coordsShort.put(coord2);
+        addParameter("coordinatesShort", coordsShort);
 
-		addParameter("coordinatesShort", "8.680916,49.410973|8.687782,49.424597");
-		addParameter("coordinatesLong", "8.680916,49.410973|8.714733,49.393267|8.687782,49.424597");
-		addParameter("extra_info", "surface|suitability|steepness");
-		addParameter("preference", "fastest");
-		addParameter("bikeProfile", "cycling-regular");
-		addParameter("carProfile", "driving-car");
+        JSONArray coordsLong = new JSONArray();
+        JSONArray coordLong1 = new JSONArray();
+        coordLong1.put(8.680916);
+        coordLong1.put(49.410973);
+        coordsLong.put(coordLong1);
+        JSONArray coordLong2 = new JSONArray();
+        coordLong2.put(8.714733);
+        coordLong2.put(49.393267);
+        coordsLong.put(coordLong2);
+        JSONArray coordLong3 = new JSONArray();
+        coordLong3.put(8.687782);
+        coordLong3.put(49.424597);
+        coordLong3.put(coordLong3);
+        addParameter("coordinatesShort", coordsShort);
+
+        JSONArray extraInfo = new JSONArray();
+        extraInfo.put("surface");
+        extraInfo.put("suitability");
+        extraInfo.put("steepness");
+        addParameter("extra_info", extraInfo);
+
+        addParameter("preference", "fastest");
+        addParameter("profile", "cycling-regular");
+        addParameter("carProfile", "driving-car");
 	}
 
     @Test
     public void testGpxExport() throws IOException, SAXException, ParserConfigurationException {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+
         Response response = given()
-                .param("coordinates", getParameter("coordinatesShort"))
-                .param("preference", getParameter("preference"))
-                .param("profile", getParameter("carProfile"))
-                .param("format", "gpx")
-                .param("instructions", "True")
-                .when().log().ifValidationFails()
-                .get(getEndPointName());
+                .header("Accept", "application/gpx+xml")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .log().all()
+                .post(getEndPointPath()+"/{profile}");
+
         response.then()
+                .log().all()
                 .assertThat()
-                .contentType("application/xml;charset=UTF-8")
+                .contentType("application/gpx+xml;charset=UTF-8")
                 .statusCode(200);
         testGpxConsistency(response, true);
+
+        body.put("instructions", false);
+
         Response response_without_instructions = given()
-                .param("coordinates", getParameter("coordinatesShort"))
-                .param("preference", getParameter("preference"))
-                .param("profile", getParameter("carProfile"))
-                .param("format", "gpx")
-                .param("instructions", "False")
-                .when().log().ifValidationFails()
-                .get(getEndPointName());
+                .header("Accept", "application/gpx+xml")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .log().all()
+                .post(getEndPointPath()+"/{profile}");
         response_without_instructions.then()
                 .assertThat()
-                .contentType("application/xml;charset=UTF-8")
+                .contentType("application/gpx+xml;charset=UTF-8")
                 .statusCode(200);
         testGpxConsistency(response_without_instructions, false);
     }
@@ -377,57 +418,38 @@ public class ResultTest extends ServiceTest {
 	 */
 	@Test
 	public void testGeoJsonExport(){
-		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("carProfile"))
-				.param("format", "geojson")
-				.param("extra_info", getParameter("extra_info"))
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'features' }", is(true))
-				.body("any { it.key == 'bbox' }", is(true))
-				.body("any { it.key == 'type' }", is(true))
-				.body("any { it.key == 'info' }", is(true))
-				.body("features[0].containsKey('geometry')", is(true))
-				.body("features[0].containsKey('type')", is(true))
-				.body("features[0].containsKey('properties')", is(true))
-				.body("features[0].properties.containsKey('summary')", is(true))
-				.body("features[0].properties.containsKey('bbox')", is(true))
-				.body("features[0].properties.containsKey('way_points')", is(true))
-				.body("features[0].properties.containsKey('segments')", is(true))
-				.body("features[0].properties.containsKey('extras')", is(true))
-				.body("features[0].geometry.containsKey('coordinates')", is(true))
-				.body("features[0].geometry.containsKey('type')", is(true))
-				.body("features[0].geometry.type", is("LineString"))
-				.body("features[0].type", is("Feature"))
-				.body("type", is("FeatureCollection"))
+            JSONObject body = new JSONObject();
+            body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+            body.put("preference", getParameter("preference"));
+            body.put("instructions", true);
+            body.put("extra_info", getParameter("extra_info"));
 
-				.statusCode(200);
-	}
+            given()
+                    .header("Accept", "application/geo+json")
+                    .header("Content-Type", "application/json")
+                    .pathParam("profile", getParameter("carProfile"))
+                    .body(body.toString())
+                    .when()
+                    .post(getEndPointPath()+"/{profile}")
+                    .then()
+                    .assertThat()
+                    .body("any { it.key == 'features' }", is(true))
+                    .body("any { it.key == 'bbox' }", is(true))
+                    .body("any { it.key == 'type' }", is(true))
+                    .body("features[0].containsKey('geometry')", is(true))
+                    .body("features[0].containsKey('type')", is(true))
+                    .body("features[0].containsKey('properties')", is(true))
+                    .body("features[0].properties.containsKey('summary')", is(true))
+                    .body("features[0].containsKey('bbox')", is(true))
+                    .body("features[0].properties.containsKey('way_points')", is(true))
+                    .body("features[0].properties.containsKey('segments')", is(true))
+                    .body("features[0].properties.containsKey('extras')", is(true))
+                    .body("features[0].geometry.containsKey('coordinates')", is(true))
+                    .body("features[0].geometry.containsKey('type')", is(true))
+                    .body("features[0].geometry.type", is("LineString"))
+                    .body("features[0].type", is("Feature"))
+                    .body("type", is("FeatureCollection"))
 
-	@Test
-	public void expectCarToRejectBikeParams() {
-
-		// options for cycling profiles
-		JSONObject options = new JSONObject();
-		JSONObject profileParams = new JSONObject();
-		profileParams.put("maximum_gradient", "5");
-		profileParams.put("difficulty_level", "1");
-		options.put("profile_params", profileParams);
-
-		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("geometry", "true")
-				.param("profile", getParameter("carProfile"))
-				.param("options", options.toString())
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
 				.statusCode(200);
 	}
 

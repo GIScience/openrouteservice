@@ -19,7 +19,7 @@ import java.util.List;
 
 public class GeoJSONRouteResponse extends RouteResponse {
     @JsonProperty("type")
-    public final String type = "FeatureSet";
+    public final String type = "FeatureCollection";
 
     @JsonProperty("bbox")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)

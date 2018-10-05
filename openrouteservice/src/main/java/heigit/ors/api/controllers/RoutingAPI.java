@@ -24,20 +24,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v2/routes")
 public class RoutingAPI {
 
-    @GetMapping("/{profile}")
-    public String getMapping(
-            @ApiParam(value = "Specifies the route profile.") @PathVariable APIRoutingEnums.RoutingProfile profile
-    ) {
-        return "Hello " + profile;
-    }
-
     @PostMapping
     public String getPostMapping(@RequestBody RouteRequest request) throws MissingParameterException {
         throw new MissingParameterException(RoutingErrorCodes.MISSING_PARAMETER, "profile");
     }
 
 
-    @PostMapping(value = "/{profile}", produces = "application/gpx+xml")
+    @PostMapping(value = "/{profile}", produces = "application/gpx+xml;charset=UTF-8")
     @ApiOperation(value = "Get a route from the specified profile", httpMethod = "POST", consumes = "application/json")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "GPX Response", response = GPXRouteResponse.class)
@@ -54,7 +47,7 @@ public class RoutingAPI {
 
     }
 
-    @PostMapping(value = "/{profile}", produces = "application/geo+json")
+    @PostMapping(value = "/{profile}", produces = "application/geo+json;charset=UTF-8")
     @ApiOperation(value = "Get a route from the specified profile", httpMethod = "POST", consumes = "application/json")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "GeoJSON Response", response = GeoJSONRouteResponse.class)
@@ -70,7 +63,7 @@ public class RoutingAPI {
         return new GeoJSONRouteResponse(new RouteResult[] { result }, request);
     }
 
-    @PostMapping(value = "/{profile}", produces = "application/json")
+    @PostMapping(value = "/{profile}", produces = "application/json;charset=UTF-8")
     @ApiOperation(value = "Get a route from the specified profile", httpMethod = "POST", consumes = "application/json")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JSON Response", response = JSONRouteResponse.class)

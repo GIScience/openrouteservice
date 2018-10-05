@@ -1,5 +1,6 @@
 package heigit.ors.api.responses.routing.GeoJSONRouteResponseObjects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import heigit.ors.api.requests.routing.RouteRequest;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonIgnoreProperties({"distance", "duration"})
 public class GeoJSONSummary extends JSONSummary {
     @JsonProperty("segments")
     private List<JSONSegment> segments;
@@ -37,5 +39,10 @@ public class GeoJSONSummary extends JSONSummary {
     @JsonProperty("extras")
     public Map<String, JSONExtra> getExtras() {
         return extras;
+    }
+
+    @JsonProperty("summary")
+    public JSONSummary getSummary() {
+        return new JSONSummary(this.distance, this.duration);
     }
 }
