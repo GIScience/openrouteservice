@@ -36,8 +36,10 @@ import java.util.PriorityQueue;
 public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgorithm {
     protected boolean finishedFrom;
     protected boolean finishedTo;
-    int visitedCountFrom;
-    int visitedCountTo;
+    int visitedCountFrom1;
+    int visitedCountTo1;
+    int visitedCountFrom2;
+    int visitedCountTo2;
 
     protected PathBidirRef bestPath;
     protected boolean updateBestPath = true;
@@ -131,7 +133,15 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
 
     @Override
     public int getVisitedNodes() {
-        return visitedCountFrom + visitedCountTo;
+        return getVisitedNodesPhase1() + getVisitedNodesPhase2();
+    }
+
+    public int getVisitedNodesPhase1() {
+        return visitedCountFrom1 + visitedCountTo1;
+    }
+
+    public int getVisitedNodesPhase2() {
+        return visitedCountFrom2 + visitedCountTo2;
     }
 
     public RoutingAlgorithm setEdgeFilter(CoreDijkstraFilter additionalEdgeFilter) {

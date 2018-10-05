@@ -28,6 +28,8 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.*;
+import heigit.ors.util.DebugUtility;
+import org.apache.log4j.Logger;
 
 import java.util.Iterator;
 import java.util.PriorityQueue;
@@ -39,7 +41,7 @@ import java.util.PriorityQueue;
  */
 
 public class CoreALT extends AbstractCoreRoutingAlgorithm {
-
+    private static final Logger LOGGER = Logger.getLogger(AbstractCoreRoutingAlgorithm.class.getName());
     protected AStarEntry currFrom;
     protected AStarEntry currTo;
     protected IntObjectMap<AStarEntry> bestWeightMapFrom;
@@ -56,6 +58,8 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
 
     int fromProxy;
     int toProxy;
+
+    int visitedCountProxy;
 
     public CoreALT(Graph graph, Weighting weighting, TraversalMode tMode, double maxSpeed) {
         super(graph, weighting, tMode, maxSpeed);
@@ -98,8 +102,10 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         currFrom = new AStarEntry(EdgeIterator.NO_EDGE, from, weight, weight);
         pqCHFrom.add(currFrom);
         fromProxy = getProxyNode(from, false);
+
         // FIXME: debug info
-        System.out.println("getProxyNode(from) " + fromProxy);
+        if (DebugUtility.isDebug())
+            System.out.println("getProxyNode(from) " + fromProxy);
 
         if (!traversalMode.isEdgeBased()) {
             bestWeightMapFrom.put(from, currFrom);
@@ -121,8 +127,10 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         currTo = new AStarEntry(EdgeIterator.NO_EDGE, to, weight, weight);
         pqCHTo.add(currTo);
         toProxy = getProxyNode(to, true);
+
         // FIXME: debug info
-        System.out.println("getProxyNode(to) " + toProxy);
+        if (DebugUtility.isDebug())
+            System.out.println("getProxyNode(to) " + toProxy);
 
         if (!traversalMode.isEdgeBased()) {
             bestWeightMapTo.put(to, currTo);
@@ -153,7 +161,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         else {
             bestWeightMapOther = bestWeightMapTo;
             fillEdges(currFrom, pqCHFrom, bestWeightMapFrom, outEdgeExplorer, false);
-            visitedCountFrom++;
+            visitedCountFrom1++;
         }
 
         return true;
@@ -173,7 +181,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         else {
             bestWeightMapOther = bestWeightMapFrom;
             fillEdges(currTo, pqCHTo, bestWeightMapTo, inEdgeExplorer, true);
-            visitedCountTo++;
+            visitedCountTo1++;
         }
 
         return true;
@@ -208,9 +216,12 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             // If proxy node not set use the closest core entry point
             weightApprox.setFrom(fromProxy != -1 ? fromProxy : pqCoreFrom.peek().adjNode);
             weightApprox.setTo(toProxy != -1 ? toProxy : pqCoreTo.peek().adjNode);
+
             // FIXME: debug info
-            System.out.println("pqCoreFrom.peek().adjNode " + pqCoreFrom.peek().adjNode);
-            System.out.println("pqCoreTo.peek().adjNode " + pqCoreTo.peek().adjNode);
+            if (DebugUtility.isDebug()) {
+                System.out.println("pqCoreFrom.peek().adjNode " + pqCoreFrom.peek().adjNode);
+                System.out.println("pqCoreTo.peek().adjNode " + pqCoreTo.peek().adjNode);
+            }
 
             // copy into temporary array to avoid pointer change of PQ
             AStarEntry[] entriesFrom;
@@ -261,6 +272,9 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             if (!finishedTo)
                 finishedTo = !fillEdgesToALT();
         }
+
+        // FIXME: debug info
+        LOGGER.info("PHASE_1: " + getVisitedNodesPhase1() + "; PHASE_2: " + getVisitedNodesPhase2() + "; PROXY: " + getVisitedNodesProxy());
     }
 
     @Override
@@ -314,7 +328,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         currFrom = pqCoreFrom.poll();
         bestWeightMapOther = bestWeightMapTo;
         fillEdgesALT(currFrom, pqCoreFrom, bestWeightMapFrom, ignoreExplorationFrom, outEdgeExplorer, false);
-        visitedCountFrom++;
+        visitedCountFrom2++;
         return true;
     }
 
@@ -325,7 +339,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         currTo = pqCoreTo.poll();
         bestWeightMapOther = bestWeightMapFrom;
         fillEdgesALT(currTo, pqCoreTo, bestWeightMapTo, ignoreExplorationTo, inEdgeExplorer, true);
-        visitedCountTo++;
+        visitedCountTo2++;
         return true;
     }
 
@@ -447,7 +461,19 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
      * @return the proxy node id
      */
     private int getProxyNode(int nodeId, boolean bwd) {
-        return new ProxyNodeDijkstra(graph, weighting, traversalMode).getProxyNode(nodeId, bwd);
+        ProxyNodeDijkstra proxyNodeDijkstra = new ProxyNodeDijkstra(graph, weighting, traversalMode);
+        int proxyNode = proxyNodeDijkstra.getProxyNode(nodeId, bwd);
+        visitedCountProxy += proxyNodeDijkstra.getVisitedNodes();
+        return proxyNode;
+    }
+
+    public int getVisitedNodesProxy() {
+        return visitedCountProxy;
+    }
+
+    @Override
+    public int getVisitedNodes() {
+        return super.getVisitedNodes() + getVisitedNodesProxy();
     }
 
     public static class AStarEntry extends SPTEntry {

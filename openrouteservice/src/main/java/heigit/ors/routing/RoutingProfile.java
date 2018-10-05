@@ -947,13 +947,12 @@ public class RoutingProfile {
 			/*if (directedSegment)
 				resp = mGraphHopper.directRoute(req); NOTE IMPLEMENTED!!!
 			else */
+
+            StopWatch sw = new StopWatch().start();
+
             resp = mGraphHopper.route(req, routeProcCntx.getArrayBuffer());
 
-            if (DebugUtility.isDebug()) {
-                System.out.println("visited_nodes.average - " + resp.getHints().get("visited_nodes.average", ""));
-            }
-
-            LOGGER.info("STATS: " + resp.getHints().get("visited_nodes.sum", "0") + "; " + resp.getDebugInfo().replaceFirst(".*routing:([0-9.]*).*", "$1"));
+            LOGGER.info("STATS: " + resp.getHints().get("visited_nodes.sum", "0") + "; " + sw.stop().getSeconds());
 
             endUseGH();
         } catch (Exception ex) {

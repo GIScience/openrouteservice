@@ -113,7 +113,10 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
         else {
             bestWeightMapOther = bestWeightMapTo;
             fillEdges(currFrom, pqCHFrom, bestWeightMapFrom, outEdgeExplorer, false);
-            visitedCountFrom++;
+            if (inCore)
+                visitedCountFrom2++;
+            else
+                visitedCountFrom1++;
         }
 
         return true;
@@ -133,7 +136,10 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
         else {
             bestWeightMapOther = bestWeightMapFrom;
             fillEdges(currTo, pqCHTo, bestWeightMapTo, inEdgeExplorer, true);
-            visitedCountTo++;
+            if (inCore)
+                visitedCountTo2++;
+            else
+                visitedCountTo1++;
         }
 
         return true;
