@@ -56,8 +56,8 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     private PriorityQueue<AStarEntry> pqCoreFrom;
     private PriorityQueue<AStarEntry> pqCoreTo;
 
-    int fromProxy;
-    int toProxy;
+    SPTEntry fromProxy;
+    SPTEntry toProxy;
 
     int visitedCountProxy;
 
@@ -214,8 +214,10 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
 
         if (!finishedFrom && !finishedTo) {
             // If proxy node not set use the closest core entry point
-            weightApprox.setFrom(fromProxy != -1 ? fromProxy : pqCoreFrom.peek().adjNode);
-            weightApprox.setTo(toProxy != -1 ? toProxy : pqCoreTo.peek().adjNode);
+            weightApprox.setFrom(fromProxy != null ? fromProxy.adjNode : pqCoreFrom.peek().adjNode);
+            weightApprox.setTo(toProxy != null ? toProxy.adjNode : pqCoreTo.peek().adjNode);
+
+            // TODO: take into account fromProxy.getWeightOfVisitedPath() and toProxy.getWeightOfVisitedPath()
 
             // FIXME: debug info
             if (DebugUtility.isDebug()) {
@@ -460,9 +462,9 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
      * @param nodeId the nodeId in the basegraph to get the proxynode for
      * @return the proxy node id
      */
-    private int getProxyNode(int nodeId, boolean bwd) {
+    private SPTEntry getProxyNode(int nodeId, boolean bwd) {
         ProxyNodeDijkstra proxyNodeDijkstra = new ProxyNodeDijkstra(graph, weighting, traversalMode);
-        int proxyNode = proxyNodeDijkstra.getProxyNode(nodeId, bwd);
+        SPTEntry proxyNode = proxyNodeDijkstra.getProxyNode(nodeId, bwd);
         visitedCountProxy += proxyNodeDijkstra.getVisitedNodes();
         return proxyNode;
     }

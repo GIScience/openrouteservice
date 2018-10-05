@@ -47,8 +47,6 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
     protected SPTEntry currEdge;
     private int visitedNodes;
     private int maxVisitedNodes = 500;
-    private int proxyNode = -1;
-    private int to = -1;
     private int coreNodeLevel = -1;
     private CHGraph chGraph;
     EdgeExplorer explorer;
@@ -81,7 +79,7 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
 
     }
 
-    public int getProxyNode(int from, boolean bwd){
+    public SPTEntry getProxyNode(int from, boolean bwd){
         checkAlreadyRun();
         currEdge = createSPTEntry(from, 0);
         if (!traversalMode.isEdgeBased()) {
@@ -89,7 +87,11 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
         }
         explorer = bwd? inEdgeExplorer : outEdgeExplorer;
         runAlgo();
-        return proxyNode;
+
+        if (finished())
+            return currEdge;
+        else
+            return null;
     }
 
     protected void runAlgo() {
@@ -105,11 +107,6 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
                 if (!accept(iter, currEdge.edge))
                     continue;
 
-                if(chGraph.getLevel(iter.getAdjNode()) ==  coreNodeLevel){
-                    proxyNode = iter.getAdjNode();
-                    break;
-                }
-
                 int traversalId = traversalMode.createTraversalId(iter, false);
                 // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
                 double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight;
@@ -121,7 +118,7 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
                     nEdge = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
                     nEdge.parent = currEdge;
                     // Modification by Maxim Rylov: Assign the original edge id.
-                    nEdge.originalEdge = iter.getOriginalEdge();   
+                    nEdge.originalEdge = iter.getOriginalEdge();
                     fromMap.put(traversalId, nEdge);
                     fromHeap.add(nEdge);
                 } else if (nEdge.weight > tmpWeight) {
@@ -131,8 +128,7 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
                     nEdge.weight = tmpWeight;
                     nEdge.parent = currEdge;
                     fromHeap.add(nEdge);
-                } else
-                    continue;
+                }
 
             }
 
