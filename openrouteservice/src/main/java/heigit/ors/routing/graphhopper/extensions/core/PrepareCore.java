@@ -108,6 +108,9 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         originalEdges.create(1000);
     }
 
+    public void initLevelFilter() {
+        levelFilter.init();
+    }
     /**
      * The higher the values are the longer the preparation takes but the less shortcuts are
      * produced.

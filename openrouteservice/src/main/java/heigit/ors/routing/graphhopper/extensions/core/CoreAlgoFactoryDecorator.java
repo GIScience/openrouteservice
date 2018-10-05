@@ -316,6 +316,11 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
         }
     }
 
+    public void initEdgeFilter() {
+        for (final PrepareCore prepare : getPreparations())
+            prepare.initLevelFilter();
+    }
+
     public void createPreparations(GraphHopperStorage ghStorage, TraversalMode traversalMode, EdgeFilter restrictionFilter) {
         if (!isEnabled() || !preparations.isEmpty())
             return;

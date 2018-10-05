@@ -55,7 +55,9 @@ public class CoreDijkstraFilter implements EdgeFilter {
         graph = g;
         maxNodes = g.getNodes();
         coreNodeLevel = maxNodes + 1;
+    }
 
+    public void init() {
         isCoreNode = new boolean[maxNodes];
         for (int node = 0; node < maxNodes; node++)
             isCoreNode[node] = graph.getLevel(node) == coreNodeLevel;

@@ -272,13 +272,13 @@
     <dependency>
         <groupId>com.github.GIScience.graphhopper</groupId>
        <artifactId>graphhopper-core</artifactId>
-          <version>v0.9-core-alt</version>
+          <version>v0.9-core-alt.1</version>
    </dependency>
 
     <dependency>
        <groupId>com.github.GIScience.graphhopper</groupId>
        <artifactId>graphhopper-reader-osm</artifactId>
-       <version>v0.9-core-alt</version>
+       <version>v0.9-core-alt.1</version>
     </dependency>
 
 
