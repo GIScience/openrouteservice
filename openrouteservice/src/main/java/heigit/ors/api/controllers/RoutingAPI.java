@@ -2,6 +2,7 @@ package heigit.ors.api.controllers;
 
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import heigit.ors.api.errors.RestResponseEntityExceptionHandler;
 import heigit.ors.api.requests.routing.APIRoutingEnums;
@@ -89,6 +90,9 @@ public class RoutingAPI {
             return h.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, ((InvalidFormatException)cause).getValue().toString()));
         } else if(cause instanceof InvalidDefinitionException) {
             return h.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, ""));
+        } else if(cause instanceof MismatchedInputException) {
+            // TODO: Need to get the attribute that has a problem
+            return h.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, ""));
         } else {
             return h.handleGenericException(e);
         }

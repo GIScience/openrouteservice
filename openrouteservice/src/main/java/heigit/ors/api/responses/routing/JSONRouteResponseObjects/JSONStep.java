@@ -21,6 +21,8 @@ public class JSONStep {
     private Integer exitNumber;
     @ApiModelProperty("The start and end coordinates that make up this step")
     private Integer[] waypoints;
+    @ApiModelProperty("The manouver to be performed")
+    private JSONStepManeuver maneuver;
 
     public JSONStep(RouteStep step) {
         this.distance = step.getDistance();
@@ -35,6 +37,9 @@ public class JSONStep {
             for (int i=0; i< step.getWayPoints().length; i++) {
                 waypoints[i] = step.getWayPoints()[i];
             }
+        }
+        if(step.getManeuver() != null) {
+            this.maneuver = new JSONStepManeuver(step.getManeuver());
         }
     }
 
@@ -65,5 +70,10 @@ public class JSONStep {
     @JsonProperty("way_points")
     public Integer[] getWaypoints() {
         return waypoints;
+    }
+
+    @JsonProperty("maneuver")
+    public JSONStepManeuver getManeuver() {
+        return maneuver;
     }
 }

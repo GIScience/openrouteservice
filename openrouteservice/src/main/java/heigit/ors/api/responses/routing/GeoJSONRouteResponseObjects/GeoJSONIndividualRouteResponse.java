@@ -29,7 +29,7 @@ public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResp
 
         Map extras = constructExtras(request, routeResult);
 
-        properties = new GeoJSONSummary(routeResult, segments, extras);
+        properties = new GeoJSONSummary(routeResult, segments, extras, this.includeElevation);
     }
 
     public GeoJSONGeometryResponse getGeomResponse() {

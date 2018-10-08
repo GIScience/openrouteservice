@@ -6,6 +6,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @ApiModel(value = "Restrictions", parent = RequestProfileParams.class)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RequestProfileParamsRestrictions {
@@ -82,8 +85,8 @@ public class RequestProfileParamsRestrictions {
     private boolean hasMaxIncline = false;
 
     @ApiModelProperty(value = "Specifies the minimum width of the footway in metres", example = "2.5")
-    @JsonProperty(value = "minimum:width")
-    private Integer minWidth;
+    @JsonProperty(value = "minimum_width")
+    private Float minWidth;
     @JsonIgnore
     private boolean hasMinWidth = false;
 
@@ -201,11 +204,11 @@ public class RequestProfileParamsRestrictions {
         hasMaxIncline = true;
     }
 
-    public Integer getMinWidth() {
+    public Float getMinWidth() {
         return minWidth;
     }
 
-    public void setMinWidth(Integer minWidth) {
+    public void setMinWidth(Float minWidth) {
         this.minWidth = minWidth;
         this.hasMinWidth = true;
     }
@@ -277,5 +280,39 @@ public class RequestProfileParamsRestrictions {
 
     public boolean hasTrailDifficulty() {
         return hasTrailDifficulty;
+    }
+
+    public List<String> getSetRestrictions() {
+        List<String> setRestrictions = new ArrayList<>();
+        if(hasGradient)
+            setRestrictions.add("gradient");
+        if(hasLength)
+            setRestrictions.add("length");
+        if(hasWidth)
+            setRestrictions.add("width");
+        if(hasHeight)
+            setRestrictions.add("height");
+        if(hasAxleLoad)
+            setRestrictions.add("axleload");
+        if(hasWeight)
+            setRestrictions.add("weight");
+        if(hasHazardousMaterial)
+            setRestrictions.add("hazmat");
+        if(hasSurfaceType)
+            setRestrictions.add("surface_type");
+        if(hasTrackType)
+            setRestrictions.add("track_type");
+        if(hasSmoothnessType)
+            setRestrictions.add("smoothness_type");
+        if(hasMaxSlopedKerb)
+            setRestrictions.add("maximum_sloped_kerb");
+        if(hasMaxIncline)
+            setRestrictions.add("maximum_incline");
+        if(hasMinWidth)
+            setRestrictions.add("minimum_width");
+        if(hasTrailDifficulty)
+            setRestrictions.add("trail_difficulty");
+
+        return setRestrictions;
     }
 }

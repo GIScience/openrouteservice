@@ -97,7 +97,6 @@ public class RouteRequestHandlerTest {
         request.setResponseType(APIRoutingEnums.RouteResponseType.GEOJSON);
         request.setReturnElevationForPoints(true);
         request.setRoutePreference(APIRoutingEnums.RoutePreference.FASTEST);
-        request.setSimplifyGeometry(false);
         request.setUnits(APIRoutingEnums.Units.METRES);
         request.setUseContractionHierarchies(false);
 
@@ -113,7 +112,6 @@ public class RouteRequestHandlerTest {
         vehicleParams = new RequestProfileParamsRestrictions();
 
         vehicleParams.setAxleLoad(10.0f);
-        vehicleParams.setGradient(5);
         vehicleParams.setHazardousMaterial(true);
         vehicleParams.setHeight(5.0f);
         vehicleParams.setLength(15.0f);
@@ -131,7 +129,7 @@ public class RouteRequestHandlerTest {
         wheelchairParams = new RequestProfileParamsRestrictions();
         wheelchairParams.setMaxIncline(3);
         wheelchairParams.setMaxSlopedKerb(1.0f);
-        wheelchairParams.setMinWidth(200);
+        wheelchairParams.setMinWidth(2.0f);
         wheelchairParams.setSmoothnessType("good");
         wheelchairParams.setSurfaceType("asphalt");
 
@@ -182,7 +180,6 @@ public class RouteRequestHandlerTest {
         Assert.assertEquals("geojson", routingRequest.getGeometryFormat());
         Assert.assertTrue(routingRequest.getIncludeElevation());
         Assert.assertEquals(WeightingMethod.FASTEST, routingRequest.getSearchParameters().getWeightingMethod());
-        Assert.assertFalse(routingRequest.getSimplifyGeometry());
         Assert.assertEquals(DistanceUnit.Meters, routingRequest.getUnits());
         Assert.assertTrue(routingRequest.getSearchParameters().getFlexibleMode());
 
@@ -267,7 +264,7 @@ public class RouteRequestHandlerTest {
         Assert.assertEquals(WheelchairTypesEncoder.getSmoothnessType("good"), params.getSmoothnessType());
         Assert.assertEquals(3.0f, params.getMaximumIncline(), 0);
         Assert.assertEquals(1.0f, params.getMaximumSlopedKerb(), 0);
-        Assert.assertEquals(200.0f, params.getMinimumWidth(), 0);
+        Assert.assertEquals(2.0f, params.getMinimumWidth(), 0);
         Assert.assertEquals(WheelchairTypesEncoder.getSurfaceType("asphalt"), params.getSurfaceType());
     }
 
