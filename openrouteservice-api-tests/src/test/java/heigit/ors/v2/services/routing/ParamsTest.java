@@ -778,7 +778,7 @@ public class ParamsTest extends ServiceTest {
 				.post(getEndPointPath()+"/{profile}")
 				.then().log().all()
 				.assertThat()
-				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+				.body("error.code", is(RoutingErrorCodes.UNKNOWN_PARAMETER))
 				.statusCode(400);
 	}
 

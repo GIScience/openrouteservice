@@ -20,8 +20,8 @@ public class GeoJSONSummary extends JSONSummary {
     private int[] wayPoints;
     private Map<String, JSONExtra> extras;
 
-    public GeoJSONSummary(RouteResult result, List<JSONSegment> segments, Map extras) {
-        super(result.getSummary().getDistance(), result.getSummary().getDuration());
+    public GeoJSONSummary(RouteResult result, List<JSONSegment> segments, Map extras, boolean includeElevation) {
+        super(result, includeElevation);
         this.segments = segments;
         this.wayPoints = result.getWayPointsIndices();
         this.extras = extras;

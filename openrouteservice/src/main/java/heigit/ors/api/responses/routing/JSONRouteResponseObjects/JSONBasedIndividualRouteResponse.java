@@ -18,9 +18,12 @@ import java.util.Map;
 
 public class JSONBasedIndividualRouteResponse extends IndividualRouteResponse {
     protected BoundingBox bbox;
+    protected boolean includeElevation = false;
 
     public JSONBasedIndividualRouteResponse(RouteResult result, RouteRequest request) throws StatusCodeException {
         super(result, request);
+        if(request.hasReturnElevationForPoints() && request.getReturnElevationForPoints())
+            includeElevation = true;
 
         bbox = BoundingBoxFactory.constructBoundingBox(result.getSummary().getBBox(), request);
     }
@@ -28,7 +31,7 @@ public class JSONBasedIndividualRouteResponse extends IndividualRouteResponse {
     protected List<JSONSegment> constructSegments(RouteResult routeResult) {
         List segments = new ArrayList<>();
         for(RouteSegment routeSegment : routeResult.getSegments()) {
-            segments.add(new JSONSegment(routeSegment));
+            segments.add(new JSONSegment(routeSegment, includeElevation));
         }
 
         return segments;

@@ -16,6 +16,7 @@ import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import heigit.ors.routing.parameters.*;
 import heigit.ors.routing.pathprocessors.BordersExtractor;
 import heigit.ors.util.DistanceUnitUtil;
+import org.apache.commons.lang.StringUtils;
 import org.geotools.data.DataAccessFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -69,9 +70,6 @@ public class RouteRequestHandler {
         routingRequest.setGeometryFormat(convertGeometryFromat(request.getResponseType()));
 
         routingRequest.setInstructionsFormat(convertInstructionsFormat(request.getInstructionsFormat()));
-
-        if(request.hasSimplifyGeography())
-            routingRequest.setSimplifyGeometry(request.getSimplifyGeometry());
 
         routingRequest.setUnits(convertUnits(request.getUnits()));
 
@@ -260,7 +258,7 @@ public class RouteRequestHandler {
         if(bearingsIn == null || bearingsIn.length == 0)
             return null;
 
-        if(bearingsIn.length != coordinatesLength)
+        if(bearingsIn.length != coordinatesLength && bearingsIn.length != coordinatesLength-1)
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "bearings", bearingsIn.toString(), "The number of bearings must be equal to the number of waypoints on the route.");
 
         WayPointBearing[] bearings = new WayPointBearing[coordinatesLength];
@@ -290,7 +288,7 @@ public class RouteRequestHandler {
         } else if(profileType == RoutingProfileType.WHEELCHAIR) {
             // As there are generally less ways that can be used as pedestrian ways, we need to restrict search
             // radii else we end up with starting and ending ways really far from the actual points. This is
-            // especially a problem for wheechair users as the restrictions are stricter
+            // especially a problem for wheelchair users as the restrictions are stricter
 
             for(int i=0; i<coordinatesLength; i++) {
                 maxRadii[i] = 50;
@@ -391,6 +389,8 @@ public class RouteRequestHandler {
             RequestProfileParamsRestrictions restrictions = request.getRouteOptions().getProfileParams().getRestrictions();
             APIRoutingEnums.VehicleType vehicleType = request.getRouteOptions().getVehicleType();
 
+            validateRestrictionsForProfile(restrictions, profileType);
+
             if (RoutingProfileType.isCycling(profileType))
                 params = convertCyclingParameters(restrictions);
             if (RoutingProfileType.isHeavyVehicle(profileType))
@@ -410,6 +410,7 @@ public class RouteRequestHandler {
     }
 
     private static CyclingParameters convertCyclingParameters(RequestProfileParamsRestrictions restrictions) {
+
         CyclingParameters params = new CyclingParameters();
         if(restrictions.hasGradient())
             params.setMaximumGradient(restrictions.getGradient());
@@ -420,6 +421,7 @@ public class RouteRequestHandler {
     }
 
     private static WalkingParameters convertWalkingParameters(RequestProfileParamsRestrictions restrictions) {
+
         WalkingParameters params = new WalkingParameters();
         if(restrictions.hasGradient())
             params.setMaximumGradient(restrictions.getGradient());
@@ -430,6 +432,7 @@ public class RouteRequestHandler {
     }
 
     private static VehicleParameters convertHeavyVehicleParameters(RequestProfileParamsRestrictions restrictions, APIRoutingEnums.VehicleType vehicleType) {
+
         VehicleParameters params = new VehicleParameters();
         if(vehicleType != null && vehicleType != APIRoutingEnums.VehicleType.UNKNOWN) {
             if(restrictions.hasLength())
@@ -455,6 +458,7 @@ public class RouteRequestHandler {
     }
 
     private static WheelchairParameters convertWheelchairParameters(RequestProfileParamsRestrictions restrictions) {
+
         WheelchairParameters params = new WheelchairParameters();
 
         if(restrictions.hasSurfaceType())
@@ -473,8 +477,42 @@ public class RouteRequestHandler {
         return params;
     }
 
-    private static void validateRestrictionsForProfile(RequestProfileParamsRestrictions restrictions, APIRoutingEnums.VehicleType vehicleType) throws IncompatableParameterException {
+    private static void validateRestrictionsForProfile(RequestProfileParamsRestrictions restrictions, int profile) throws IncompatableParameterException {
+        // Check that we do not have some parameters that should not be there
+        List<String> setRestrictions = restrictions.getSetRestrictions();
+        if(RoutingProfileType.isCycling(profile)) {
+            setRestrictions.remove("gradient");
+            setRestrictions.remove("trail_difficulty");
+        }
+        if(RoutingProfileType.isWheelchair(profile)) {
+            setRestrictions.remove("surface_type");
+            setRestrictions.remove("track_type");
+            setRestrictions.remove("smoothness_type");
+            setRestrictions.remove("maximum_sloped_kerb");
+            setRestrictions.remove("maximum_incline");
+            setRestrictions.remove("minimum_width");
+        }
+        if(RoutingProfileType.isWalking(profile)) {
+            setRestrictions.remove("gradient");
+            setRestrictions.remove("trail_difficulty");
+        }
+        if(RoutingProfileType.isHeavyVehicle(profile)) {
+            setRestrictions.remove("length");
+            setRestrictions.remove("width");
+            setRestrictions.remove("height");
+            setRestrictions.remove("weight");
+            setRestrictions.remove("axleload");
+            setRestrictions.remove("hazmat");
+        }
+        if(RoutingProfileType.isDriving(profile)) {
 
+        }
+
+        if(setRestrictions.size() > 0) {
+            // There are some parameters present that shouldn't be there
+            String invalidParams = StringUtils.join(setRestrictions, ", ");
+            throw new IncompatableParameterException(RoutingErrorCodes.UNKNOWN_PARAMETER, invalidParams, null, "profile", RoutingProfileType.getName(profile));
+        }
     }
 
     private static ProfileParameters applyWeightings(RequestProfileParamsWeightings weightings, ProfileParameters params) {

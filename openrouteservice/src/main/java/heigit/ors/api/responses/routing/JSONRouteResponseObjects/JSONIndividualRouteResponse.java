@@ -45,7 +45,11 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
         super(routeResult, request);
 
         geomResponse = new EncodedPolylineGeometryResponse(this.routeCoordinates, this.includeElevation);
-        summary = new JSONSummary(routeResult.getSummary().getDistance(), routeResult.getSummary().getDuration());
+        if(this.includeElevation)
+            summary = new JSONSummary(routeResult.getSummary().getDistance(), routeResult.getSummary().getDuration(), routeResult.getSummary().getAscent(), routeResult.getSummary().getDescent());
+        else
+            summary = new JSONSummary(routeResult.getSummary().getDistance(), routeResult.getSummary().getDuration());
+
         segments = constructSegments(routeResult);
 
         bbox = BoundingBoxFactory.constructBoundingBox(routeResult.getSummary().getBBox(), request);

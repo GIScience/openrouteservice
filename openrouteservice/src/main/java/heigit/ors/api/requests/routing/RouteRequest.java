@@ -54,14 +54,6 @@ public class RouteRequest {
     @JsonProperty(value = "geometry", defaultValue = "true")
     private Boolean includeGeometry = true;
 
-    @ApiModelProperty(name = "geometry_simplify",
-            value = "Specifies whether to simplify the geometry. true will automatically be set to false if extra_info parameter is specified."
-    )
-    @JsonProperty(value = "geometry_simplify")
-    private Boolean simplifyGeometry;
-    @JsonIgnore
-    private boolean hasSimplifyGeography = false;
-
     @ApiModelProperty(name = "instructions",
             value = "Specifies whether to return instructions.\n" +
                     "Default: true.")
@@ -272,15 +264,6 @@ public class RouteRequest {
         this.includeGeometry = includeGeometry;
     }
 
-    public Boolean getSimplifyGeometry() {
-        return simplifyGeometry;
-    }
-
-    public void setSimplifyGeometry(Boolean simplifyGeometry) {
-        this.simplifyGeometry = simplifyGeometry;
-        hasSimplifyGeography = true;
-    }
-
     public Boolean getIncludeInstructionsInResponse() {
         return includeInstructionsInResponse;
     }
@@ -365,10 +348,6 @@ public class RouteRequest {
     public void setUseContractionHierarchies(Boolean useContractionHierarchies) {
         this.useContractionHierarchies = useContractionHierarchies;
         hasUseContractionHierarchies = true;
-    }
-
-    public boolean hasSimplifyGeography() {
-        return hasSimplifyGeography;
     }
 
     public boolean hasIncludeRoundaboutExitInfo() {
