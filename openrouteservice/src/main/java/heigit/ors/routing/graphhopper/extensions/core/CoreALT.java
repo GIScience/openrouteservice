@@ -84,7 +84,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
      * @param approx if true it enables approximate distance calculation from lat,lon values
      */
     public CoreALT setApproximation(WeightApproximator approx) {
-        weightApprox = new ConsistentWeightApproximator(approx);
+        weightApprox = new ConsistentCoreWeightApproximator(approx);
         return this;
     }
 
@@ -216,6 +216,10 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             // If proxy node not set use the closest core entry point
             weightApprox.setFrom(fromProxy != null ? fromProxy.adjNode : pqCoreFrom.peek().adjNode);
             weightApprox.setTo(toProxy != null ? toProxy.adjNode : pqCoreTo.peek().adjNode);
+            if(weightApprox instanceof ConsistentCoreWeightApproximator) {
+                ((ConsistentCoreWeightApproximator) weightApprox).setFromWeight((int)(fromProxy != null ? fromProxy.getWeightOfVisitedPath() : pqCoreFrom.peek().weightOfVisitedPath));
+                ((ConsistentCoreWeightApproximator) weightApprox).setToWeight((int)(toProxy != null ? toProxy.getWeightOfVisitedPath() : pqCoreTo.peek().weightOfVisitedPath));
+            }
 
             // TODO: take into account fromProxy.getWeightOfVisitedPath() and toProxy.getWeightOfVisitedPath()
 

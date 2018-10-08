@@ -51,6 +51,7 @@ public class CoreLMApproximator implements WeightApproximator {
     private int[] activeToIntWeights;
     private double epsilon = 1;
     private int to = -1;
+    private int proxyWeight = 0;
     // do activate landmark recalculation
     private boolean doALMRecalc = true;
     private final double factor;
@@ -170,7 +171,8 @@ public class CoreLMApproximator implements WeightApproximator {
             // 3. as weight is the full edge weight for now (and not the precise weight to the virt node) we can only add it to the subtrahend
             //    to avoid overestimating (keep the result strictly lower)
             int fromWeightInt = activeFromIntWeights[activeLMIdx] - (lms.getFromWeight(landmarkIndex, node) + virtEdgeWeightInt);
-            int toWeightInt = lms.getToWeight(landmarkIndex, node) - activeToIntWeights[activeLMIdx];
+            fromWeightInt = fromWeightInt + proxyWeight;
+            int toWeightInt = lms.getToWeight(landmarkIndex, node) - activeToIntWeights[activeLMIdx] - proxyWeight;
             if (reverse) {
                 fromWeightInt = -fromWeightInt;
                 // we need virtEntryWeight for the minuend
@@ -206,8 +208,12 @@ public class CoreLMApproximator implements WeightApproximator {
     }
 
     @Override
-    public WeightApproximator reverse() {
+    public CoreLMApproximator reverse() {
         return new CoreLMApproximator(graph, maxBaseNodes, lms, activeLandmarks.length, factor, !reverse);
+    }
+
+    public void setWeight(int weight){
+        proxyWeight = weight;
     }
 
     /**
