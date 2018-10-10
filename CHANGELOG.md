@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+### Fixed
+### Changed
+### Depricated
+
+## [4.7] - 2018-10-10
+### Added
 - Removed locations code as this will be handled by openpoiservice in the future (Issue #120)
 - Removed Geocoding code as this will be handled by the geocoder service rather than within ORS
 - Added smoothing option for isochrones (Issue #137)
@@ -27,6 +33,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added unit conversion so that isochrone response is in user specified unit (issue #91)
 - Enabled the reporting of multiple missing points in error response (issue #246)
 - Fixed wrong bounding box error (Issue #241)
+- Fixed problem with mountain bike profile never using contraction hierarchies.
 
 ### Changed
 - Updated the internal graphhopper libraries from 0.9.x to 0.10.1 and reduced the number of custom implementations and features.
@@ -43,6 +50,7 @@ are attached to roads. (Issue #162)
 - Replaced "Sand" surface encoding with "Paving stone"
 - Changed the bbox api test (Issue #241)
 - Changed the way the bbox is calculated internally (Issue #241)
+- Change the license from apache 2.0 to LGPL3 (PR #296)
 
 ### Deprecated
 - Removed references to locations and accessibilty services from web.xml (Issue #186)

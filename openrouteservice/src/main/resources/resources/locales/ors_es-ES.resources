@@ -85,6 +85,12 @@
 					"name": "¡Haga una vuelta en U a {way_name}!"
 				}
 			}
+			"keep": {
+				"default": {
+					"default": "¡Gire {turn_maneuver}!",
+					"name": "¡Gire {turn_maneuver} a {way_name}!",
+				},
+			}
 		}
 	}
 }

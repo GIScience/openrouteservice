@@ -85,6 +85,12 @@
                     "name": "Faites un demi-tour {way_name}"
                 }
             }
+			"keep": {
+				"default": {
+                    "default": "Tournez {turn_maneuver}",
+                    "name": "Tournez {turn_maneuver} sur {way_name}",
+				},
+			}
         }
     }
 }

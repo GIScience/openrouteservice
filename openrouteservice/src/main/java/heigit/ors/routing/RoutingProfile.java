@@ -853,19 +853,39 @@ public class RoutingProfile {
                 }
             }
 
-            if ((profileType == RoutingProfileType.CYCLING_TOUR || profileType == RoutingProfileType.CYCLING_MOUNTAIN)
-                    && weightingMethod == WeightingMethod.FASTEST) {
-                req.setWeighting("fastest");
-                req.getHints().put("weighting_method", "recommended");
-                flexibleMode = true;
-            }
-
-            if ((profileType == RoutingProfileType.CYCLING_TOUR /*RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType)*/ || (profileType == RoutingProfileType.DRIVING_HGV && HeavyVehicleAttributes.HGV == searchParams
-                    .getVehicleType())) && weightingMethod == WeightingMethod.RECOMMENDED) {
-                req.setWeighting("fastest");
-                req.getHints().put("weighting_method", "recommended_pref");
-
-                flexibleMode = true;
+            // MARQ24 for what ever reason after the 'weighting_method' hint have been set (based
+            // on the given searchParameter Max have decided that's necessary 'patch' the hint
+            // for certain profiles...
+            // ...and BTW if the flexibleMode set to true, CH will be disabled!
+            if(weightingMethod == WeightingMethod.FASTEST){
+                if (profileType == RoutingProfileType.CYCLING_TOUR) {
+                    req.setWeighting("fastest");
+                    req.getHints().put("weighting_method", "recommended");
+                    flexibleMode = true;
+                } else if(profileType == RoutingProfileType.CYCLING_MOUNTAIN){
+                    // MARQ24 - in the original code by Max the 'weighting_method' was always set
+                    // to 'recommended' for MTB (and enable 'flexibleMode' -> which will turn off CH)
+                    // - I will add code, that this will only apply if there are certain terrain/track
+                    // types disabled (like certain trail_difficulty) in the searchParams like this ->
+                    // options: {"profile_params":{"restrictions":{"trail_difficulty":1}}
+                    ProfileParameters params = searchParams.getProfileParameters();
+                    if(params != null && params instanceof CyclingParameters) {
+                        CyclingParameters cycleParams = (CyclingParameters) params;
+                        if(cycleParams.getMaximumGradient() > -1 || cycleParams.getMaximumTrailDifficulty() > -1) {
+                            req.setWeighting("fastest");
+                            req.getHints().put("weighting_method", "recommended");
+                            flexibleMode = true;
+                        }
+                    }
+                }
+            } else if (weightingMethod == WeightingMethod.RECOMMENDED){
+                if( (profileType == RoutingProfileType.DRIVING_HGV && HeavyVehicleAttributes.HGV == searchParams.getVehicleType())
+                    || profileType == RoutingProfileType.CYCLING_TOUR
+                ){
+                    req.setWeighting("fastest");
+                    req.getHints().put("weighting_method", "recommended_pref");
+                    flexibleMode = true;
+                }
             }
 
             if (RoutingProfileType.isDriving(profileType) && RealTrafficDataProvider.getInstance().isInitialized())
@@ -920,16 +940,30 @@ public class RoutingProfile {
     }
 
     private boolean useDynamicWeights(RouteSearchParameters searchParams) {
-        boolean dynamicWeights = (searchParams.hasAvoidAreas() || searchParams.hasAvoidFeatures() || searchParams.hasAvoidCountries() || searchParams.hasAvoidBorders() || searchParams.getMaximumSpeed() > 0 || (RoutingProfileType.isDriving(searchParams.getProfileType()) && (searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
-
+        boolean dynamicWeights =
+            searchParams.hasAvoidAreas()
+            || searchParams.hasAvoidFeatures()
+            || searchParams.hasAvoidCountries()
+            || searchParams.hasAvoidBorders()
+            || searchParams.getMaximumSpeed() > 0
+            ||( RoutingProfileType.isDriving(searchParams.getProfileType())
+                &&( searchParams.hasParameters(VehicleParameters.class)
+                    || searchParams.getConsiderTraffic()
+                )
+            )
+            ||( searchParams.getWeightingMethod() == WeightingMethod.SHORTEST
+                || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED
+            )
+            || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/;
         return dynamicWeights;
     }
 
     private static boolean supportWeightingMethod(int profileType) {
-        if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType) || profileType == RoutingProfileType.WHEELCHAIR)
+        if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType) || profileType == RoutingProfileType.WHEELCHAIR) {
             return true;
-        else
+        }else {
             return false;
+        }
     }
 
     public Geometry getEdgeGeometry(int edgeId) {
