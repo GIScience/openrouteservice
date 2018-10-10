@@ -33,10 +33,28 @@
 			"uturn": "atrás"
 		},
 		"actions": {
+		    "arrive": {
+                "default": {
+            	    "default": "Llegar a su destino",
+            	    "name": "Llegar a {way_name}"
+                   },
+            	"left": {
+            		"default": "Llegar a su destino, a la izquierda",
+            		"name": "Llegar a {way_name}, a la izquierda"
+            	},
+            	"right": {
+            	    "default": "Llegar a su destino, a la derecha",
+            	    "name": "Llegar a {way_name}, a la derecha"
+            	},
+            	"straight": {
+            	    "default": "Llegar a su destino, es recto",
+            	    "name": "Llegar a {way_name}, es recto"
+            	}
+            },
 			"depart": {
 				"default": {
-					"default": "Head {direction}",
-					"name": "Head {direction} on {way_name}"
+					"default": "Camina hacia el {direction}",
+					"name": "Camina hacia el {direction} en {way_name}"
 				}
 			},
 			"roundabout": {
@@ -66,6 +84,12 @@
 					"default": "¡Haga una vuelta en U!",
 					"name": "¡Haga una vuelta en U a {way_name}!"
 				}
+			}
+			"keep": {
+				"default": {
+					"default": "¡Gire {turn_maneuver}!",
+					"name": "¡Gire {turn_maneuver} a {way_name}!",
+				},
 			}
 		}
 	}

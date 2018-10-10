@@ -35,20 +35,20 @@
 		"actions": {
 			"arrive": {
            		 	"default": {
-		                "default": "Arrive at your destination",
-						"name": "Arrive at {way_name}"
+		                "default": "Arrivo a destinazione",
+						"name": "Arrivo a {way_name}"
                 	},
 					"left": {
-						"default": "Arrive at your destination, on the left",
-						"name": "Arrive at {way_name}, on the left"
+						"default": "Arrivo a destinazione, a sinistra",
+						"name": "Arrivo a {way_name}, a sinistra"
 					},
 					"right": {
-						"default": "Arrive at your destination, on the right",
-						"name": "Arrive at {way_name}, on the right"
+						"default": "Arrivo a destinazione, sulla destra",
+						"name": "Arrivo a {way_name}, sulla destra"
 					},
 					"straight": {
-						"default": "Arrive at your destination, straight ahead",
-						"name": "Arrive at {way_name}, straight ahead"
+						"default": "Arrivo a destinazione, dritto",
+						"name": "Arrivo a {way_name}, dritto"
 					}
 			},        
 			"depart": {
@@ -84,6 +84,12 @@
 					"default": "Fai un'inversione a U",
 					"name": "Fai un'inversione a U su {way_name}"
 				}
+			}
+			"keep": {
+				"default": {
+					"default": "Gira {turn_maneuver}",
+					"name": "Gira {turn_maneuver} su {way_name}",
+				},
 			}
 		}
 	}

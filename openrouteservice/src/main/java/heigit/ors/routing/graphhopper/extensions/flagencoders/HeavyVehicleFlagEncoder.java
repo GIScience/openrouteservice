@@ -1,34 +1,17 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
- *  with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  if not, see <https://www.gnu.org/licenses/>.  
  */
 package heigit.ors.routing.graphhopper.extensions.flagencoders;
-
-import static com.graphhopper.routing.util.PriorityCode.BEST;
-import static com.graphhopper.routing.util.PriorityCode.UNCHANGED;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
@@ -41,6 +24,9 @@ import com.graphhopper.util.PMap;
 
 import java.util.*;
 
+import static com.graphhopper.routing.util.PriorityCode.BEST;
+import static com.graphhopper.routing.util.PriorityCode.UNCHANGED;
+
 public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
 {
     protected final HashSet<String> forwardKeys = new HashSet<String>(5);
@@ -48,6 +34,9 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
     protected final HashSet<String> noValues = new HashSet<String>(5);
     protected final HashSet<String> yesValues = new HashSet<String>(5);
     protected final List<String> hgvAccess = new ArrayList<String>(5);
+
+    // Take into account acceleration calculations when determining travel speed
+    protected boolean useAcceleration = false;
     
     protected int maxTrackGradeLevel = 3;
     
@@ -75,6 +64,8 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
         setBlockFords(false);
         
         maxTrackGradeLevel = properties.getInt("maximum_grade_level", 1);
+
+        this.useAcceleration = properties.getBool("use_acceleration", false);
     }
 
     public HeavyVehicleFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts )
@@ -262,6 +253,11 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
 
 		return maxSpeed;
 	}
+
+    @Override
+    double averageSecondsTo100KmpH() {
+        return 10;
+    }
 	
 	protected int getTrackGradeLevel(String grade)
     {
@@ -475,6 +471,21 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
         		if (speed > surfaceSpeed && surfaceSpeed != -1)
         			speed = surfaceSpeed;
         	}
+
+            if(way.hasTag("estimated_distance")) {
+                if(this.useAcceleration) {
+                    double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
+                    if(way.hasTag("highway","residential")) {
+                        speed = addResedentialPenalty(speed, way);
+                    } else {
+                        speed = Math.max(adjustSpeedForAcceleration(estDist, speed), speedFactor);
+                    }
+                } else {
+                    if(way.hasTag("highway","residential")) {
+                        speed = addResedentialPenalty(speed, way);
+                    }
+                }
+            }
         	
         	 boolean isRoundabout = way.hasTag("junction", "roundabout");
 
@@ -665,7 +676,7 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
     @Override
     public String toString()
     {
-        return "heavyvehicle";
+        return FlagEncoderNames.HEAVYVEHICLE;
     }
 
 	@Override

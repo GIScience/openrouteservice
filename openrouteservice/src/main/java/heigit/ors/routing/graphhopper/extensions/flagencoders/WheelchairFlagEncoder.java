@@ -1,39 +1,17 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
- *  with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  if not, see <https://www.gnu.org/licenses/>.  
  */
 package heigit.ors.routing.graphhopper.extensions.flagencoders;
-
-import static com.graphhopper.routing.util.PriorityCode.AVOID_AT_ALL_COSTS;
-import static com.graphhopper.routing.util.PriorityCode.AVOID_IF_POSSIBLE;
-import static com.graphhopper.routing.util.PriorityCode.BEST;
-import static com.graphhopper.routing.util.PriorityCode.PREFER;
-import static com.graphhopper.routing.util.PriorityCode.REACH_DEST;
-import static com.graphhopper.routing.util.PriorityCode.UNCHANGED;
-import static com.graphhopper.routing.util.PriorityCode.VERY_NICE;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderRelation;
@@ -46,6 +24,10 @@ import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 
+import java.util.*;
+
+import static com.graphhopper.routing.util.PriorityCode.*;
+
 public class WheelchairFlagEncoder extends AbstractFlagEncoder 
 {
 	static final int SLOW_SPEED = 2;
@@ -55,6 +37,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
     
     private EncodedValue priorityWayEncoder;
     private EncodedValue relationCodeEncoder;
+
     private final Set<String> usableSidewalkValues = new HashSet<String>();
     private final Set<String> noSidewalkValues = new HashSet<String>();
     // convert network tag of hiking routes into a way route code
@@ -220,6 +203,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
         accessibilityRelatedAttributes.add("tracktype");
         accessibilityRelatedAttributes.add("incline");
         accessibilityRelatedAttributes.add("sloped_curb");
+        accessibilityRelatedAttributes.add("sloped_kerb");
 
         // prefer international, national, regional or local hiking routes
         hikingNetworkToCode.put("iwn", BEST.getValue());
@@ -246,6 +230,14 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
 
         priorityWayEncoder = new EncodedValue("PreferWay", shift, 3, 1, 0, 7);
         shift += priorityWayEncoder.getBits();
+
+        return shift;
+    }
+
+    @Override
+    public int defineNodeBits(int index, int shift) {
+        shift = super.defineNodeBits(index, shift);
+
         return shift;
     }
     
@@ -582,7 +574,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
     public long handleNodeTags(ReaderNode node)
     {
     	long encoded = 0;
-    	
+
         // absolute barriers always block
         if (node.hasTag("barrier", absoluteBarriers)) {
         	// barrier is not passable
@@ -633,6 +625,11 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
         		encoded |= directionBitMask;
         	}
         }
+
+        /*if(node.hasTag("kerb") || node.hasTag("kerb:height")) {
+            // We do not know if the kerb is a barrier as this is defined by the user
+            encoded |= directionBitMask;
+        }*/
       
         /*
         // https://github.com/species/osrm-wheelchair-profiles/blob/master/wheelchair-normal.lua
@@ -681,19 +678,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
     }
     
     
-    /**
-     * Checks whether the value encoded by <code>flags</code> and <code>encoderName</code> <= <code>value</code> 
-     * 
-     * @param flags
-     * @param encoderName
-     * @param restriction a restriction value to be checked
-     * @return <code>true</code> if <code>value</code> >= encoded value, <code>false</code> otherwise
-     */
-    /*
-    public boolean checkRestriction(long flags, String encoderName, int restriction) throws IllegalArgumentException {
-    	return getValueEncoder(encoderName).getValue(flags) <= restriction;
-    }
-    */
+
     
     
     @Override
@@ -866,7 +851,7 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
     @Override
     public String toString()
     {
-        return "wheelchair";
+        return FlagEncoderNames.WHEELCHAIR;
     }
 
 	@Override

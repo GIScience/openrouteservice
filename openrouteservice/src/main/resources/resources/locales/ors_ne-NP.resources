@@ -35,20 +35,20 @@
 		"actions": {
 			"arrive": {
            		 	"default": {
-		                "default": "Arrive at your destination",
-						"name": "Arrive at {way_name}"
+		                "default": "तपाईंको गन्तव्यमा पुग्नुहोस्",
+						"name": "{Way_name} मा आइपुग्नुहोस्"
                 	},
 					"left": {
-						"default": "Arrive at your destination, on the left",
-						"name": "Arrive at {way_name}, on the left"
+						"default": "तपाईंको गन्तव्यमा पुग्नुहोस्, बाँयामा",
+						"name": "{Way_name} मा बायाँ तिर"
 					},
 					"right": {
-						"default": "Arrive at your destination, on the right",
-						"name": "Arrive at {way_name}, on the right"
+						"default": "तपाईंको गन्तव्यमा पुग्नुहोस् दाँयामा",
+						"name": "दायाँतिर {way_name} मा आइपुग्नुहोस्"
 					},
 					"straight": {
-						"default": "Arrive at your destination, straight ahead",
-						"name": "Arrive at {way_name}, straight ahead"
+						"default": "तपाईंको गन्तव्यमा पुग्नुहोस्, सीधा अगाडी",
+						"name": "{Way_name} मा जानुहोस्, सीधा अगाडी"
 					}
 			},        
 			"depart": {
@@ -85,6 +85,12 @@
 					"name": "{way_name} तिर U मोड लिनुहोस्"
 				}
 			}
-		}
+			"keep": {
+				"default": {
+					"default": "घुम्नुहोस् {turn_maneuver}",
+					"name": "घुम्नुहोस् {turn_maneuver} {way_name} तिर",
+				},
+			}
+        }
 	}
 }

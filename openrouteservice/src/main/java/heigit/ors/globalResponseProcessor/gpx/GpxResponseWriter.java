@@ -34,6 +34,7 @@ import heigit.ors.exceptions.MissingConfigParameterException;
 import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RouteSegment;
 import heigit.ors.routing.RouteStep;
+import heigit.ors.routing.RouteSummary;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.RoutingRequest;
 import heigit.ors.routing.WeightingMethod;
@@ -58,6 +59,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 
 /**
@@ -84,80 +86,105 @@ public class GpxResponseWriter {
         // When multiple routes are integrated, a method should be integrated to calculate a BBox of multiple BBoxes... For now it's enough!
         bbox = routeResults[0].getSummary().getBBox();
         // Access routeresults
-        if (routeResults != null) {
-            for (RouteResult route : routeResults) {
-                RteType routeType = new RteType();
-                // Access segments
-                if (route.getSegments().size() > 0) {
-                    LineString routeGeom = GeomUtility.createLinestring(route.getGeometry());
+        for (RouteResult route : routeResults) {
+            RteType routeType = new RteType();
+            LineString routeGeom;
+            List<RouteSegment> route_segments = null;
+            if (route.getGeometry() != null) {
+                routeGeom = GeomUtility.createLinestring(route.getGeometry());
+                int number_points = routeGeom.getNumPoints();
 
-                    for (RouteSegment segment : route.getSegments()) {
-                        // Access routesteps
-                        for (RouteStep routestep : segment.getSteps()) {
-                            // Get the id of the coordinates to look for them inside routeGeom and assign them to the WayPoint
-                            int[] wayPointNumber = routestep.getWayPoints();
-                            // get start coordinate to look for in routeGeom
-                            int startPoint = wayPointNumber[0];
-                            // the start and end points always cross with the points from the routesteps before and after
-                            // to avoid duplicity the startpoint is raised by one if not zero or just one point ine the routestep
-                            if (startPoint != 0 || wayPointNumber.length == 1) {
-                                startPoint += 1;
-                            }
-                            // get end coordinate to look for in routeGeom
-                            int endPoint = wayPointNumber[1];
-                            // create a counter to avoid double entries
-                            // Get the coordinate pair from routeGeom according to wayPointNumber. But stop at one before the endPoint to prevent duplicity
-                            for (int j = startPoint; j <= endPoint; j++) {
-                                // Get geometry of the actual Point
-                                Point point = routeGeom.getPointN(j);
-                                BigDecimal longitude = BigDecimal.valueOf(point.getCoordinate().x);
-                                BigDecimal latitude = BigDecimal.valueOf(point.getCoordinate().y);
-                                // Create waypoint
-                                WptType wayPoint = new WptType();
-                                // look for elevation
-                                if (includeElevation) {
-                                    // add coordinates to waypoint
-                                    BigDecimal elevation = BigDecimal.valueOf(point.getCoordinate().z);
-                                    wayPoint.setLat(latitude);
-                                    wayPoint.setLon(longitude);
-                                    wayPoint.setEle(elevation);
-                                } else {
-                                    // add coordinates to waypoint
-                                    wayPoint.setLat(latitude);
-                                    wayPoint.setLon(longitude);
+                for (int i = 0; i < number_points; i++) {
+                    Point point = routeGeom.getPointN(i);
+                    BigDecimal longitude = BigDecimal.valueOf(point.getCoordinate().x);
+                    BigDecimal latitude = BigDecimal.valueOf(point.getCoordinate().y);
+                    WptType wayPoint = new WptType();
+                    if (includeElevation) {
+                        BigDecimal elevation = BigDecimal.valueOf(point.getCoordinate().z);
+                        wayPoint.setLat(latitude);
+                        wayPoint.setLon(longitude);
+                        wayPoint.setEle(elevation);
+                    } else {
+                        wayPoint.setLat(latitude);
+                        wayPoint.setLon(longitude);
+                    }
+                    routeType.getRtept().add(wayPoint);
+                }
+                if (rreq.getIncludeInstructions() && route.getSegments().size() > 0) {
+                    int route_step_iterator = route.getSegments().get(0).getSteps().size();
+                    route_segments = route.getSegments();
+                    for (int i = 0; i < route_step_iterator; i++) {
+                        RouteStep routeStep = route_segments.get(0).getSteps().get(i);
+                        WptType wayPoint = null;
+                        int[] wayPointNumber = routeStep.getWayPoints();
+                        int startPoint = wayPointNumber[0];
+                        // the start and end points always cross with the points from the routesteps before and after
+                        // to avoid duplicity the startpoint is raised by one if not zero or just one point ine the routestep
+                        if (startPoint != 0 || wayPointNumber.length == 1) {
+                            startPoint += 1;
+                        }
+                        int endPoint = wayPointNumber[1];
+
+                        if (route.getGeometry().length > 0) {
+                            int geometry_iterator = route.getGeometry().length;
+                            for (int j = 0; j < geometry_iterator; j++) {
+                                if (j >= startPoint && j <= endPoint) {
+                                    wayPoint = routeType.getRtept().get(j);
+                                    wayPoint.setName(routeStep.getName());
+                                    wayPoint.setDesc(routeStep.getInstruction());
+                                    // add extensions to waypoint
+                                    wayPoint.setName(routeStep.getName());
+                                    wayPoint.setDesc(routeStep.getInstruction());
+                                    // add extensions to waypoint
+                                    WptTypeExtensions wptExtensions = new WptTypeExtensions();
+                                    wptExtensions.setDistance(routeStep.getDistance());
+                                    wptExtensions.setDuration(routeStep.getDuration());
+                                    wptExtensions.setType(routeStep.getType());
+                                    wptExtensions.setStep(j);
+                                    wayPoint.setExtensions(wptExtensions);
                                 }
-
-                                // add additional information to waypoint;
-                                wayPoint.setName(routestep.getName());
-                                wayPoint.setDesc(routestep.getInstruction());
-                                // add extensions to waypoint
-                                WptTypeExtensions wptExtensions = new WptTypeExtensions();
-                                wptExtensions.setDistance(routestep.getDistance());
-                                wptExtensions.setDuration(routestep.getDuration());
-                                wptExtensions.setType(routestep.getType());
-                                wptExtensions.setStep(j);
-                                wayPoint.setExtensions(wptExtensions);
-                                // add waypoint the the routepoint list
-                                routeType.getRtept().add(wayPoint);
-
+                            }
+                        } else {
+                            int false_geometry_iterator = route.getSegments().get(0).getSteps().get(route_step_iterator).getWayPoints()[1];
+                            for (int j = 0; j <= false_geometry_iterator; j++) {
+                                wayPoint = new WptType();
+                                if (j >= startPoint && j <= endPoint) {
+                                    wayPoint.setName(routeStep.getName());
+                                    wayPoint.setDesc(routeStep.getInstruction());
+                                    // add extensions to waypoint
+                                    WptTypeExtensions wptExtensions = new WptTypeExtensions();
+                                    wptExtensions.setDistance(routeStep.getDistance());
+                                    wptExtensions.setDuration(routeStep.getDuration());
+                                    wptExtensions.setType(routeStep.getType());
+                                    wptExtensions.setStep(j);
+                                    wayPoint.setExtensions(wptExtensions);
+                                    routeType.getRtept().set(j, wayPoint);
+                                }
                             }
                         }
-
                     }
-                    // create and add extensions to the routeType
-                    RteTypeExtensions extensions = new RteTypeExtensions();
-                    extensions.setDistance(route.getSummary().getDistance());
-                    extensions.setDistanceActual(route.getSummary().getDistanceActual());
-                    extensions.setDuration(route.getSummary().getDuration());
-                    extensions.setAscent(route.getSummary().getAscent());
-                    extensions.setDescent(route.getSummary().getDescent());
-                    extensions.setAvgSpeed(route.getSummary().getAverageSpeed());
-                    routeType.setExtensions(extensions);
-                    // add the finished routeType to the gpx
-                    gpx.getRte().add(routeType);
                 }
             }
+            if (route.getSummary() != null) {
+                RteTypeExtensions rteTypeExtensions = new RteTypeExtensions();
+                RouteSummary route_summary = route.getSummary();
+                rteTypeExtensions.setAscent(route_summary.getAscent());
+                rteTypeExtensions.setAvgSpeed(route_summary.getAverageSpeed());
+                rteTypeExtensions.setDescent(route_summary.getDescent());
+                rteTypeExtensions.setDistance(route_summary.getDistance());
+                rteTypeExtensions.setDuration(route_summary.getDuration());
+                BoundsType bounds = new BoundsType();
+                BBox routeBBox = route.getSummary().getBBox();
+                bounds.setMinlat(BigDecimal.valueOf(routeBBox != null ? routeBBox.minLat : 0));
+                bounds.setMinlon(BigDecimal.valueOf(routeBBox != null ? routeBBox.minLon : 0));
+                bounds.setMaxlat(BigDecimal.valueOf(routeBBox != null ? routeBBox.maxLat : 0));
+                bounds.setMaxlon(BigDecimal.valueOf(routeBBox != null ? routeBBox.maxLon : 0));
+                rteTypeExtensions.setBounds(bounds);
+                routeType.setExtensions(rteTypeExtensions);
+                gpx.getRte().add(routeType);
+            }
         }
+
         // Create and set boundaries
         BoundsType bounds = new BoundsType();
         bounds.setMinlat(BigDecimal.valueOf(bbox != null ? bbox.minLat : 0));
@@ -273,9 +300,6 @@ public class GpxResponseWriter {
         gpxExtensions.setProfile(WeightingMethod.getName(rreq.getSearchParameters().getProfileType()));
         gpxExtensions.setDistance_units(rreq.getUnits().name());
         gpx.setExtensions(gpxExtensions);
-        // return the gpx element as a finished XML element in string representation
         return gpx.build();
     }
-
-
 }

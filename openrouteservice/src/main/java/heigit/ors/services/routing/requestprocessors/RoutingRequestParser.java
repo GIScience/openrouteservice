@@ -1,22 +1,15 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
- *  with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  if not, see <https://www.gnu.org/licenses/>.  
  */
 package heigit.ors.services.routing.requestprocessors;
 
@@ -144,8 +137,21 @@ public class RoutingRequestParser
 			
 			if (radiuses == null || radiuses.length != req.getCoordinates().length)
 				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "radiuses", value);
-	
+
 			req.getSearchParameters().setMaximumRadiuses(radiuses);
+		} else {
+			if(searchParams.getProfileType() == RoutingProfileType.WHEELCHAIR) {
+				// As there are generally less ways that can be used as pedestrian ways, we need to restrict search
+				// radii else we end up with starting and ending ways really far from the actual points. This is
+				// especially a problem for wheechair users as the restrictions are stricter
+				final int coordinateCount = req.getCoordinates().length;
+				double maxRadii[] = new double[coordinateCount];
+				for(int i=0; i<coordinateCount; i++) {
+					maxRadii[i] = 50;
+				}
+				
+				req.getSearchParameters().setMaximumRadiuses(maxRadii);
+			}
 		}
 		
 		value = request.getParameter("units");
@@ -180,10 +186,6 @@ public class RoutingRequestParser
 
 			req.setGeometryFormat(value);
 		}
-
-		value = request.getParameter("geometry_simplify");
-		if (!Helper.isEmpty(value))
-			req.setSimplifyGeometry(Boolean.parseBoolean(value));
 
 		value = request.getParameter("instructions");
 		if (!Helper.isEmpty(value))

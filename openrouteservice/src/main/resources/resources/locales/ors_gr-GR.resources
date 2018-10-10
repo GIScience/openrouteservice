@@ -35,55 +35,61 @@
 		"actions": {
 			"arrive": {
            		 	"default": {
-		                "default": "Arrive at your destination",
-						"name": "Arrive at {way_name}"
+		                "default": "Φτάσετε στον προορισμό σας",
+						"name": "Άφιξη στο {way_name}"
                 	},
 					"left": {
-						"default": "Arrive at your destination, on the left",
-						"name": "Arrive at {way_name}, on the left"
+						"default": "Άφιξη στον προορισμό σας, στα αριστερά",
+						"name": "Άφιξη στο {way_name}, στα αριστερά"
 					},
 					"right": {
-						"default": "Arrive at your destination, on the right",
-						"name": "Arrive at {way_name}, on the right"
+						"default": "Φτάσετε στον προορισμό σας, στα δεξιά",
+						"name": "Άφιξη στο {way_name}, στα δεξιά"
 					},
 					"straight": {
-						"default": "Arrive at your destination, straight ahead"
-						"name": "Arrive at {way_name}, straight ahead"
+						"default": "Φτάσετε στον προορισμό σας, ευθεία μπροστά"
+						"name": "Άφιξη στο {way_name}, ευθεία μπροστά"
 					}
 			},          
 			"depart": {
 				"default": {
-					"default": "Head {direction}",
+					"default": "Συνεχίστε ευθεία {direction}",
 					"name": "Συνεχίστε ευθεία {direction} στην οδό {way_name}"
 				}
 			},
 			"roundabout": {
 				"default": {
 					"exit": {
-						"default": "Enter the roundabout and take the {exit_number} exit",
+						"default": "Μπείτε στον κυκλικό κόμβο και στη συνέχεια ακολουθείστε την έξοδο {exit_number} και",
 						"name": "Μπείτε στον κυκλικό κόμβο και στη συνέχεια ακολουθείστε την έξοδο {exit_number} και συνεχίστε στην οδό {way_name}"
 					},
 					"default": {
-						"default": "Enter the roundabout",
+						"default": "Εισάγετε τον κυκλικό κόμβο",
 						"name": "Μπείτε στον κυκλικό κόμβο και συνεχίστε στην οδό {way_name}"
 					}
 				}
 			},
 			"turn": {
 				"default": {
-					"default": "Turn {turn_maneuver}",
+					"default": "Στρίψτε {turn_maneuver}",
 					"name": "Στρίψτε {turn_maneuver} στην οδό {way_name}",
 				},
 			},
 			"continue": {
 				"default": {
-					"default": "Continue {turn_maneuver}",
+					"default": "Συνεχίστε {turn_maneuver}",
 					"name": "Συνεχίστε {turn_maneuver} στην οδό {way_name}"
 				},
 				"uturn": {
-					"default": "Make a U-turn",
+					"default": "Κάντε αναστροφή",
 					"name": "Κάντε αναστροφή στην οδό {way_name}"
 				}
+			}
+			"keep": {
+				"default": {
+					"default": "Στρίψτε {turn_maneuver}",
+					"name": "Στρίψτε {turn_maneuver} στην οδό {way_name}",
+				},
 			}
 		}
 	}

@@ -1,55 +1,47 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
- *  with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  if not, see <https://www.gnu.org/licenses/>.  
  */
 package heigit.ors.routing.graphhopper.extensions.edgefilters;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import heigit.ors.routing.parameters.VehicleParameters;
-import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
-import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
-import heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.HeavyVehicleFlagEncoder;
-import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.routing.Dijkstra;
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.DestinationDependentEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeIteratorState;
+import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
+import heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
+import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
+import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
+import heigit.ors.routing.parameters.VehicleParameters;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 
 	public class CustomDijkstra extends Dijkstra
 	{
-		public CustomDijkstra(Graph g, FlagEncoder encoder, Weighting weighting, TraversalMode tMode)
+		public CustomDijkstra(Graph g, Weighting weighting, TraversalMode tMode)
 		{
 			super(g, weighting, tMode);
 			initCollections(1000);
@@ -64,8 +56,6 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 	private int vehicleType;
 	private boolean hasHazmat; 
 	private HeavyVehicleAttributesGraphStorage gsHeavyVehicles;
-	private final boolean in;
-	private final boolean out;
 	private FlagEncoder encoder;
 	private float[] restrictionValues;
 	private double[] retValues;
@@ -81,18 +71,7 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 	private static final int MODE_ROUTE = 0;
 
 	public HeavyVehicleEdgeFilter(FlagEncoder encoder, int vehicleType, VehicleParameters vehicleParams, GraphStorage graphStorage) {
-		this(encoder, true, true, vehicleType, vehicleParams, graphStorage);
-	}
-
-	/**
-	 * Creates an edges filter which accepts both direction of the specified
-	 * vehicle.
-	 */
-	public HeavyVehicleEdgeFilter(FlagEncoder encoder, boolean in, boolean out, int vehicleType,
-			VehicleParameters vehicleParams, GraphStorage graphStorage) {
 		this.encoder = encoder;
-		this.in = in;
-		this.out = out;
 
 		this.hasHazmat = VehicleLoadCharacteristicsFlags.isSet(vehicleParams.getLoadCharacteristics(), VehicleLoadCharacteristicsFlags.HAZMAT);
 
@@ -120,16 +99,12 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 		Integer[] indexLocs = idxl.toArray(new Integer[idxl.size()]);
 
 		this.restrictionValues = vehicleAttrs;
-		this.restCount = indexValues == null ? 0 : indexValues.length;
+		this.restCount = indexValues.length;
 		this.indexValues = indexValues;
 		this.indexLocs = indexLocs;
 
 		this.vehicleType = vehicleType;
 		this.buffer = new byte[10];
-		if (this.encoder instanceof HeavyVehicleFlagEncoder)
-		{
-			//this.encoder.setVehicleType(vehicleType);
-		}
 
 		this.gsHeavyVehicles = GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class);
 	}
@@ -143,7 +118,7 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 			{
 				mode = MODE_DESTINATION_EDGES;
 				Weighting weighting = new FastestWeighting(encoder);
-				CustomDijkstra dijkstraAlg = new CustomDijkstra(graph, encoder, weighting, tMode);
+				CustomDijkstra dijkstraAlg = new CustomDijkstra(graph, weighting, tMode);
 				EdgeFilter edgeFilter = this;
 				dijkstraAlg.setEdgeFilter(edgeFilter);
 				dijkstraAlg.calcPath(nodeId, Integer.MIN_VALUE);
@@ -156,13 +131,13 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 						destinationEdges.add(ee.value.edge);
 				}
 
-				if (!destinationEdges.contains(edge.getOriginalEdge()))
+				if (!destinationEdges.contains(EdgeIteratorStateHelper.getOriginalEdge(edge)))
 				{
-					int vt = gsHeavyVehicles.getEdgeVehicleType(edge.getOriginalEdge(), buffer);
+					int vt = gsHeavyVehicles.getEdgeVehicleType(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
 					boolean dstFlag = buffer[1]!=0;// ((buffer[1] >> (vehicleType >> 1)) & 1) == 1;
 
 					if (((vt & vehicleType) == vehicleType) && (dstFlag))
-						destinationEdges.add(edge.getOriginalEdge());
+						destinationEdges.add(EdgeIteratorStateHelper.getOriginalEdge(edge));
 				}
 
 				if (destinationEdges.size() == 0)
@@ -175,28 +150,27 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 
 	@Override
 	public boolean accept(EdgeIteratorState iter) {
-		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder)) {
-			int edgeId = iter.getOriginalEdge();
+		int edgeId = EdgeIteratorStateHelper.getOriginalEdge(iter);
 
-			int vt = gsHeavyVehicles.getEdgeVehicleType(edgeId, buffer);
-			boolean dstFlag = buffer[1] != 0; // ((buffer[1] >> (vehicleType >> 1)) & 1) == 1;
+		int vt = gsHeavyVehicles.getEdgeVehicleType(edgeId, buffer);
+		boolean dstFlag = buffer[1] != 0; // ((buffer[1] >> (vehicleType >> 1)) & 1) == 1;
 
-			// if edge has some restrictions
-			if (vt != HeavyVehicleAttributes.UNKNOWN) {
-				if (mode == MODE_CLOSEST_EDGE)
-				{
-					// current vehicle type is not forbidden
-					boolean edgeRestricted = ((vt & vehicleType) == vehicleType);
-					if ((edgeRestricted || dstFlag) && (byte)buffer[1] != vehicleType)
-						return false;
-				}
-				else if (mode == MODE_DESTINATION_EDGES)
-				{
-					// Here we are looking for all edges that have destination 
-					return  dstFlag && ((vt & vehicleType) == vehicleType);
-				}
-				else 
-				{
+		// if edge has some restrictions
+		if (vt != HeavyVehicleAttributes.UNKNOWN) {
+			if (mode == MODE_CLOSEST_EDGE)
+			{
+				// current vehicle type is not forbidden
+				boolean edgeRestricted = ((vt & vehicleType) == vehicleType);
+				if ((edgeRestricted || dstFlag) && (byte)buffer[1] != vehicleType)
+					return false;
+			}
+			else if (mode == MODE_DESTINATION_EDGES)
+			{
+				// Here we are looking for all edges that have destination
+				return  dstFlag && ((vt & vehicleType) == vehicleType);
+			}
+			else
+			{
 					/*if (mode == 0)
 					{
 						boolean bForward = encoder.isBool(vehicleType, flags, FlagEncoder.K_FORWARD);
@@ -238,70 +212,63 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 						}
 					}*/
 
-					// Check an edge with destination attribute
-					if (dstFlag) {
-						if ((vt & vehicleType) == vehicleType)
+				// Check an edge with destination attribute
+				if (dstFlag) {
+					if ((vt & vehicleType) == vehicleType)
+					{
+						if (destinationEdges != null)
 						{
-							if (destinationEdges != null)
-							{
-								if (!destinationEdges.contains(edgeId))
-									return false;
-							}
-							else
+							if (!destinationEdges.contains(edgeId))
 								return false;
 						}
 						else
 							return false;
 					}
-					else if ((vt & vehicleType) == vehicleType)
-						return false;
-				}
-			}
-			else
-			{
-				if (mode == MODE_DESTINATION_EDGES)
-				{
-					return false;
-				}
-			}
-
-
-			if (hasHazmat)
-			{
-				if ((vt & HeavyVehicleAttributes.HAZMAT) != 0) {
-					return false;
-				}
-			}
-
-			if (restCount != 0) {
-				if (restCount == 1) {
-					double value = gsHeavyVehicles.getEdgeRestrictionValue(edgeId, indexValues[0], buffer);
-					if (value > 0 && value < restrictionValues[indexLocs[0]])
-						return false;
 					else
-						return true;
-				} else {
-					if (gsHeavyVehicles.getEdgeRestrictionValues(edgeId, buffer, retValues))
-					{
-						for(int i=0; i<restCount; i++) {
-							double value = retValues[indexLocs[i]];
-							if(value > 0.0f && value < restrictionValues[indexLocs[i]]) {
-								return false;
-							}
+						return false;
+				}
+				else if ((vt & vehicleType) == vehicleType)
+					return false;
+			}
+		}
+		else
+		{
+			if (mode == MODE_DESTINATION_EDGES)
+			{
+				return false;
+			}
+		}
+
+
+		if (hasHazmat)
+		{
+			if ((vt & HeavyVehicleAttributes.HAZMAT) != 0) {
+				return false;
+			}
+		}
+
+		if (restCount != 0) {
+			if (restCount == 1) {
+				double value = gsHeavyVehicles.getEdgeRestrictionValue(edgeId, indexValues[0], buffer);
+				if (value > 0 && value < restrictionValues[indexLocs[0]])
+					return false;
+				else
+					return true;
+			} else {
+				if (gsHeavyVehicles.getEdgeRestrictionValues(edgeId, buffer, retValues))
+				{
+					for(int i=0; i<restCount; i++) {
+						double value = retValues[indexLocs[i]];
+						if(value > 0.0f && value < restrictionValues[indexLocs[i]]) {
+							return false;
 						}
 					}
 				}
 			}
-
-			//if (mode != MODE_DESTINATION_EDGES)
-			return true;
 		}
 
-		return false;
+		return true;
+
 	}
 
-	@Override
-	public String toString() {
-		return encoder.toString() + ", vehicle:" + vehicleType + ", in:" + in + ", out:" + out;
-	}
 }

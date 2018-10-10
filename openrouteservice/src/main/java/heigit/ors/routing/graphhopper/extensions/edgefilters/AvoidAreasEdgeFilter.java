@@ -1,29 +1,21 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
- *  with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  if not, see <https://www.gnu.org/licenses/>.  
  */
 package heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import java.io.Serializable;
 
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
 
@@ -36,9 +28,6 @@ import com.vividsolutions.jts.geom.Polygon;
 
 public class AvoidAreasEdgeFilter implements EdgeFilter {
 
-	private final boolean in;
-	private final boolean out;
-	private FlagEncoder encoder;
 	private Envelope env; 
 	private Polygon[] polys;
 	private DefaultCoordinateSequence coordSequence;
@@ -52,16 +41,8 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 	/**
 	 * Creates an edges filter which accepts both direction of the specified vehicle.
 	 */
-	public AvoidAreasEdgeFilter(FlagEncoder encoder, Polygon[] polys)
+	public AvoidAreasEdgeFilter(Polygon[] polys)
 	{
-		this(encoder, true, true, polys);
-	}
-
-	public AvoidAreasEdgeFilter(FlagEncoder encoder, boolean in, boolean out, Polygon[] polys)
-	{
-		this.encoder = encoder;
-		this.in = in;
-		this.out = out;
 		this.polys = polys;
 
 		if (polys != null && polys.length > 0)
@@ -92,84 +73,83 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 	}
 
 	@Override
-	public final boolean accept(EdgeIteratorState iter )
-	{
-		if (out && iter.isForward(encoder) || in && iter.isBackward(encoder))
+	public final boolean accept(EdgeIteratorState iter ) {
+		if (env == null)
+			return true;
+
+		boolean inEnv = false;
+		//   PointList pl = iter.fetchWayGeometry(2); // does not work
+		PointList pl = iter.fetchWayGeometry(3);
+		int size = pl.getSize();
+
+		eMinX = Double.MAX_VALUE;
+		eMinY = Double.MAX_VALUE;
+		eMaxX = Double.MIN_VALUE;
+		eMaxY = Double.MIN_VALUE;
+
+		for (int j = 0; j < pl.getSize(); j++)
 		{
-			if (env == null)
-				return true;
-
-			boolean inEnv = false;
-			//   PointList pl = iter.fetchWayGeometry(2); // does not work
-			PointList pl = iter.fetchWayGeometry(3);
-			int size = pl.getSize();
-			
-			eMinX = Double.MAX_VALUE;
-			eMinY = Double.MAX_VALUE;
-			eMaxX = Double.MIN_VALUE;
-			eMaxY = Double.MIN_VALUE;
-
-			for (int j = 0; j < pl.getSize(); j++)
+			double x = pl.getLon(j);
+			double y = pl.getLat(j);
+			if (env.contains(x, y))
 			{
-				double x = pl.getLon(j);
-				double y = pl.getLat(j);
-				if (env.contains(x, y))
-				{
-					inEnv = true;
-					break;
-				}
-				
-				if (x < eMinX)
-					eMinX = x;
-				if (y < eMinY)
-					 eMinY = y;
-				if (x > eMaxX)
-					eMaxX = x;
-				if (y > eMaxY)
-					eMaxY = y;
+				inEnv = true;
+				break;
 			}
 
-			if (inEnv || !(eMinX > env.getMaxX() || eMaxX < env.getMinX() || eMinY > env.getMaxY() || eMaxY < env.getMinY()))
+			if (x < eMinX)
+				eMinX = x;
+			if (y < eMinY)
+				eMinY = y;
+			if (x > eMaxX)
+				eMaxX = x;
+			if (y > eMaxY)
+				eMaxY = y;
+		}
+
+		if (inEnv || !(eMinX > env.getMaxX() || eMaxX < env.getMinX() || eMinY > env.getMaxY() || eMaxY < env.getMinY()))
+		{
+			// We have to reset the coordinate sequence else for some reason the envelopes for the edge are wrong
+			coordSequence = new DefaultCoordinateSequence(new Coordinate[1], 1);
+			if (size >= 2)
 			{
-				if (size >= 2)
+				// resize sequence if needed
+				coordSequence.resize(size);
+
+				for (int j = 0; j < size; j++)
 				{
-					// resize sequence if needed
-					coordSequence.resize(size);
+					double x = pl.getLon(j);
+					double y = pl.getLat(j);
+					Coordinate c =  coordSequence.getCoordinate(j);
 
-					for (int j = 0; j < size; j++)
+					if (c == null)
 					{
-						double x = pl.getLon(j);
-						double y = pl.getLat(j);
-						Coordinate c =  coordSequence.getCoordinate(j);
-
-						if (c == null)
-						{
-							c = new Coordinate(x, y);
-							coordSequence.setCoordinate(j, c);
-						}
-						else
-						{
-							c.x = x;
-							c.y = y;
-						}
+						c = new Coordinate(x, y);
+						coordSequence.setCoordinate(j, c);
 					}
-
-					LineString ls = geomFactory.createLineString(coordSequence);
-
-					for (int i = 0; i < polys.length; i++)
+					else
 					{
-						Polygon poly = polys[i];
-						if (poly.contains(ls) || ls.crosses(poly))
-						{
-							return false;
-						}
+						c.x = x;
+						c.y = y;
 					}
 				}
-				else
+
+				LineString ls = geomFactory.createLineString(coordSequence);
+
+				for (int i = 0; i < polys.length; i++)
 				{
-					return false;
+					Polygon poly = polys[i];
+					if (poly.contains(ls) || ls.crosses(poly))
+					{
+						return false;
+					}
 				}
 			}
+			else
+			{
+				return false;
+			}
+		}
 			/*else
 			{
 				// Check if edge geomery intersects env.
@@ -177,18 +157,9 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 				{
 					
 				}
-			}	*/			
+			}	*/
 
-			return true;
-		}
-
-		return false;
-	}
-
-	@Override
-	public String toString()
-	{
-		return encoder.toString() + ", in:" + in + ", out:" + out;
+		return true;
 	}
 
 	/**

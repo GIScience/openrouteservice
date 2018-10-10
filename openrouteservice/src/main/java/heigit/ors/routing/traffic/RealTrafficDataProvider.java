@@ -1,74 +1,47 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
- *  with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  if not, see <https://www.gnu.org/licenses/>.  
  */
 package heigit.ors.routing.traffic;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.StringWriter;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.logging.Logger;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import heigit.ors.routing.RoutingProfile;
-import heigit.ors.routing.RoutingProfileLoadContext;
-import heigit.ors.routing.RoutingProfilesCollection;
-import heigit.ors.routing.configuration.RoutingManagerConfiguration;
-import heigit.ors.routing.configuration.RouteProfileConfiguration;
-import heigit.ors.routing.configuration.TrafficInformationConfiguration;
-import heigit.ors.routing.traffic.providers.TrafficInfoDataSource;
-import heigit.ors.routing.traffic.providers.TrafficInfoDataSourceFactory;
-import heigit.ors.services.routing.RoutingServiceSettings;
-
-import org.json.JSONException;
-import org.json.JSONWriter;
-import org.xml.sax.SAXException;
 
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.Helper;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
-
+import heigit.ors.routing.RoutingProfile;
+import heigit.ors.routing.RoutingProfileLoadContext;
+import heigit.ors.routing.RoutingProfilesCollection;
+import heigit.ors.routing.configuration.RouteProfileConfiguration;
+import heigit.ors.routing.configuration.RoutingManagerConfiguration;
+import heigit.ors.routing.configuration.TrafficInformationConfiguration;
+import heigit.ors.routing.traffic.providers.TrafficInfoDataSource;
+import heigit.ors.routing.traffic.providers.TrafficInfoDataSourceFactory;
+import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.DebugUtility;
 import heigit.ors.util.FormatUtility;
+import org.json.JSONException;
+import org.json.JSONWriter;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 public class RealTrafficDataProvider {
 	public class UpdateTask extends TimerTask {
@@ -254,7 +227,7 @@ public class RealTrafficDataProvider {
 					}
 				}
 				
-				loadCntx.release();
+				loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
 
 				for (RoutingProfile rp : profiles.getCarProfiles()) {
 					if (rp.useTrafficInformation()) {

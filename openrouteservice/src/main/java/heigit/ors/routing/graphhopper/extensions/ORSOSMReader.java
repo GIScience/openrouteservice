@@ -1,22 +1,15 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
- *  with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  if not, see <https://www.gnu.org/licenses/>.  
  */
 package heigit.ors.routing.graphhopper.extensions;
 
@@ -29,15 +22,16 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.*;
 import heigit.ors.routing.RoutingProfile;
+import heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
+import heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.WheelchairWayFilter;
 import heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGraphStorageBuilder;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.io.InvalidObjectException;
+import java.util.*;
 
-import java.util.Map;
 import java.util.Map.Entry;
 
 public class ORSOSMReader extends OSMReader {
@@ -48,16 +42,23 @@ public class ORSOSMReader extends OSMReader {
 	private HashMap<Integer, Long> tmcEdges;
 	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds;
 	private RoutingProfile refProfile;
-	private boolean enrichInstructions;
+	// MARQ24: REMOVED SINCE code that handles 'enrichInstructions = true' is already inactive!
+	//private boolean enrichInstructions;
+	private boolean processNodeTags;
 	private OSMDataReaderContext _readerCntx;
-	private GeometryFactory gf = new GeometryFactory();
+
+	private HashMap<Long, HashMap<String, String>> nodeTags = new HashMap<>();
 
 	private boolean processGeom = false;
+	private boolean processSimpleGeom = false;
+	private boolean detachSidewalksFromRoad = false;
+
+	private List<OSMFeatureFilter> filtersToApply = new ArrayList<>();
 
 	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
 			"primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential" };
 
-
+	private HashSet<String> extraTagKeys;
 
 	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx, HashMap<Integer, Long> tmcEdges,  HashMap<Long, ArrayList<Integer>> osmId2EdgeIds, RoutingProfile refProfile) {
 		super(storage);
@@ -69,19 +70,36 @@ public class ORSOSMReader extends OSMReader {
 		this.osmId2EdgeIds = osmId2EdgeIds;
 		this.refProfile = refProfile;
 
-		enrichInstructions = (refProfile != null) && (storage.getEncodingManager().supports("foot")
+		// MARQ24: REMOVED SINCE code that handles 'enrichInstructions = true' is already inactive!
+		/*enrichInstructions = (refProfile != null) && (storage.getEncodingManager().supports("foot")
 				|| storage.getEncodingManager().supports("bike")  
 				|| storage.getEncodingManager().supports("MTB")
 				|| storage.getEncodingManager().supports("RACINGBIKE")
 				|| storage.getEncodingManager().supports("SAFETYBIKE"));
+        */
 
+		extraTagKeys = new HashSet<>();
 		// Look if we should do border processing - if so then we have to process the geometry
 		for(GraphStorageBuilder b : this._procCntx.getStorageBuilders()) {
 			if ( b instanceof BordersGraphStorageBuilder) {
 				this.processGeom = true;
 			}
-		}
 
+			if ( b instanceof WheelchairGraphStorageBuilder) {
+				filtersToApply.add(new WheelchairWayFilter());
+				this.processNodeTags = true;
+				this.detachSidewalksFromRoad = true;
+				this.processSimpleGeom = true;
+				extraTagKeys.add("kerb");
+				extraTagKeys.add("kerb:both");
+                extraTagKeys.add("kerb:left");
+                extraTagKeys.add("kerb:right");
+				extraTagKeys.add("kerb:height");
+                extraTagKeys.add("kerb:both:height");
+                extraTagKeys.add("kerb:left:height");
+                extraTagKeys.add("kerb:right:height");
+			}
+		}
 	}
 
 	@Override
@@ -93,29 +111,122 @@ public class ORSOSMReader extends OSMReader {
 		return super.isInBounds(node);
 	}
 
+	@Override
+	public ReaderNode onProcessNode(ReaderNode node) {
+		// On OSM, nodes are seperate entities which are used to make up ways. So basically, a node is read before a
+		// way and if it has some properties that could affect routing, these properties need to be stored so that they
+		// can be accessed when it comes to using ways
+		if(processNodeTags && node.hasTags()) {
+			// Check each node and store the tags that are required
+			HashMap<String, String> tagValues = new HashMap<>();
+			Set<String> nodeKeys = node.getTags().keySet();
+			for(String key : nodeKeys) {
+				if(extraTagKeys.contains(key)) {
+					tagValues.put(key, node.getTag(key));
+				}
+			}
+
+			// Now if we have tag data, we need to store it
+			if(tagValues.size() > 0) {
+				nodeTags.put(node.getId(), tagValues);
+			}
+		}
+		return node;
+	}
+
+	@Override
+	protected void processWay(ReaderWay way) {
+		// As a first step we need to check to see if we should try to split the way
+		if(this.detachSidewalksFromRoad) {
+			// If we are requesting to split sidewalks, then we need to create multiple ways from a single road
+			// For example, if a road way has been tagged as having sidewalks on both sides (sidewalk=both), then we
+			// need to create two ways - one for the left sidewalk and one for the right. The Graph Builder would then
+			// process these ways separately so that additional edges are created in the graph.
+
+			for(OSMFeatureFilter filter : filtersToApply) {
+				try {
+					filter.assignFeatureForFiltering(way);
+				} catch (InvalidObjectException ioe) {
+					LOGGER.error("Invalid object for filtering - " + ioe.getMessage());
+				}
+
+				if(filter.accept()) {
+					// We can only perform the processing of the ways here and so we cannot delegate it to another object.
+					while (!filter.isWayProcessingComplete()) {
+						filter.prepareForProcessing();
+						super.processWay(way);
+					}
+				}
+			}
+
+			return;
+
+		}
+
+		// Normal processing
+		super.processWay(way);
+	}
+
 	/**
 	 * Method to be run against each way obtained from the data. If one of the storage builders needs geometry
 	 * determined in the constructor then we need to get the geometry as well as the tags.
+	 * Also we need to pass through any important tag values obtained from nodes through to the processing stage so
+	 * that they can be evaluated.
 	 *
 	 * @param way		The way object read from the OSM data (not including geometry)
 	 */
 	@Override
 	public void onProcessWay(ReaderWay way) {
-		if(processGeom) {
+
+		HashMap<Integer, HashMap<String,String>> tags = new HashMap<>();
+		ArrayList<Coordinate> coords = new ArrayList<>();
+
+		if(processNodeTags) {
+			// If we are processing the node tags then we need to obtain the tags for nodes that are on the way. We
+			// should store the internal node id though rather than the osm node as during the edge processing, we
+			// do not know the osm node id
+			LongArrayList osmNodeIds = way.getNodes();
+			int size = osmNodeIds.size();
+
+			for(int i=0; i<size; i++) {
+				// find the node
+				long id = osmNodeIds.get(i);
+				// replace the osm id with the internal id
+				int internalId = getInternalNodeIdOfOsmNode(id);
+				HashMap<String, String> tagsForNode = nodeTags.get(id);
+
+				if(tagsForNode != null) {
+					tags.put(internalId, nodeTags.get(id));
+				}
+			}
+		}
+
+		if(processGeom || processSimpleGeom) {
 			// We need to pass the geometry of the way aswell as the ReaderWay object
 			// This is slower so should only be done when needed
 
 			// First we need to generate the geometry
-			LongArrayList osmNodeIds = way.getNodes();
+			LongArrayList osmNodeIds = new LongArrayList();
+			LongArrayList allOsmNodes = way.getNodes();
 
-			ArrayList<Coordinate> coords = new ArrayList<>();
+			if(allOsmNodes.size() > 1) {
+				if (processSimpleGeom) {
+					// We only want the start and end nodes
+					osmNodeIds.add(allOsmNodes.get(0));
+					osmNodeIds.add(allOsmNodes.get(allOsmNodes.size()-1));
+				} else {
+					// Process all nodes
+					osmNodeIds = allOsmNodes;
+				}
+			}
 
 			if(osmNodeIds.size() > 1) {
+
 				for (int i=0; i<osmNodeIds.size(); i++) {
 					int id = getNodeMap().get(osmNodeIds.get(i));
 					try {
-						double lat = getLatitudeOfNode(id);
-						double lon = getLongitudeOfNode(id);
+						double lat = getLatitudeOfNode(id, true);
+						double lon = getLongitudeOfNode(id, true);
 						// Add the point to the line
 						// Check that we have a tower node
 						if(!(lat == 0 || lon == 0 || Double.isNaN(lat) || Double.isNaN(lon)))
@@ -125,15 +236,13 @@ public class ORSOSMReader extends OSMReader {
 						LOGGER.error("Could not process node " + osmNodeIds.get(i) );
 					}
 				}
-
-				// Only process valid ways (with more than 1 valid node)
-                if(coords.size() > 1) {
-                    //LineString ls = gf.createLineString(coords.toArray(new Coordinate[coords.size()]));
-
-                    _procCntx.processWay(way, coords.toArray(new Coordinate[coords.size()]));
-                }
 			}
 
+		}
+
+		if(tags.size() > 0 || coords.size() > 1) {
+			// Use an overloaded method that allows the passing of parameters from this reader
+			_procCntx.processWay(way, coords.toArray(new Coordinate[coords.size()]), tags);
 		} else {
 			_procCntx.processWay(way);
 		}
@@ -149,7 +258,7 @@ public class ORSOSMReader extends OSMReader {
 	 * @param id		Internal ID of the OSM node
 	 * @return
 	 */
-	private double getLatitudeOfNode(int id) {
+	private double getLatitudeOfNode(int id, boolean onlyTower) {
 		// for speed, we only want to handle the geometry of tower nodes (those at junctions)
 		if (id == EMPTY_NODE)
 			return Double.NaN;
@@ -159,7 +268,12 @@ public class ORSOSMReader extends OSMReader {
 			return nodeAccess.getLatitude(id);
 		} else if (id > -TOWER_NODE) {
 			// pillar node
-			return Double.NaN;
+			// Do we want to return it if it is not a tower node?
+			if(onlyTower) {
+				return Double.NaN;
+			} else {
+				return pillarInfo.getLatitude(id);
+			}
 		} else
 			// e.g. if id is not handled from preparse (e.g. was ignored via isInBounds)
 			return Double.NaN;
@@ -172,7 +286,7 @@ public class ORSOSMReader extends OSMReader {
 	 * @param id		Internal ID of the OSM node
 	 * @return
 	 */
-	private double getLongitudeOfNode(int id) {
+	private double getLongitudeOfNode(int id, boolean onlyTower) {
 		if (id == EMPTY_NODE)
 			return Double.NaN;
 		if (id < TOWER_NODE) {
@@ -181,7 +295,12 @@ public class ORSOSMReader extends OSMReader {
 			return nodeAccess.getLongitude(id);
 		} else if (id > -TOWER_NODE) {
 			// pillar node
-			return Double.NaN;
+			// Do we want to return it if it is not a tower node?
+			if(onlyTower) {
+				return Double.NaN;
+			} else {
+				return pillarInfo.getLatitude(id);
+			}
 		} else
 			// e.g. if id is not handled from preparse (e.g. was ignored via isInBounds)
 			return Double.NaN;
@@ -200,7 +319,8 @@ public class ORSOSMReader extends OSMReader {
 		LongArrayList osmNodeIds = way.getNodes();
 		int size = osmNodeIds.size();
 		if (size > 2) {
-			for (int i = 1; i < size - 1; i++) {
+		    // If it is a crossing then we need to apply any kerb tags to the way, but we need to make sure we keep the "worse" one
+			for (int i = 1; i < size-1; i++) {
 				long nodeId = osmNodeIds.get(i);
 				if (map.containsKey(nodeId)) {
 					java.util.Iterator<Entry<String, Object>> it = map.get(nodeId).entrySet().iterator();
@@ -219,8 +339,9 @@ public class ORSOSMReader extends OSMReader {
 	@Override
 	protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge) {
 
-		if (enrichInstructions && Helper.isEmpty(way.getTag("name")) && Helper.isEmpty(way.getTag("ref"))) {
-			try {
+		// MARQ24: REMOVED SINCE code that handles 'enrichInstructions = true' is already inactive!
+		// by MARQ24 if (enrichInstructions && Helper.isEmpty(way.getTag("name")) && Helper.isEmpty(way.getTag("ref"))) {
+		// by MARQ24 	try {
 				/*	if (way.getId() != prevMatchedWayId)
 				{
 					prevMatchedWayId = way.getId();
@@ -241,10 +362,10 @@ public class ORSOSMReader extends OSMReader {
 					edge.setName(matchedEdgeName);
 				}*/
 
-			} 
-			catch (Exception ex) {
-			}
-		}
+		// by MARQ24 	}
+		// by MARQ24 	catch (Exception ex) {
+		// by MARQ24 	}
+		// by MARQ24 }
 
 		try {
 			if ((tmcEdges != null) && (osmId2EdgeIds!=null)) {
@@ -270,8 +391,18 @@ public class ORSOSMReader extends OSMReader {
 					}
 				}
 			}
-		
-			_procCntx.processEdge(way, edge);
+
+			// Pass through the coordinates of the graph nodes
+			Coordinate baseCoord = new Coordinate(
+					getLongitudeOfNode(edge.getBaseNode(), false),
+					getLatitudeOfNode(edge.getBaseNode(), false)
+			);
+			Coordinate adjCoordinate = new Coordinate(
+					getLongitudeOfNode(edge.getAdjNode(), false),
+					getLatitudeOfNode(edge.getAdjNode(), false)
+			);
+
+			_procCntx.processEdge(way, edge, new Coordinate[] {baseCoord, adjCoordinate});
 		} catch (Exception ex) {
 			LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
 		}

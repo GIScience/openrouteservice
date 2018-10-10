@@ -20,29 +20,18 @@
  */
 package heigit.ors.routing;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
+import com.graphhopper.GHResponse;
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.PathProcessor;
+import com.graphhopper.util.DistanceCalc;
+import com.graphhopper.util.Helper;
+import com.graphhopper.util.PointList;
+import com.vividsolutions.jts.geom.Coordinate;
+import heigit.ors.exceptions.InternalServerException;
+import heigit.ors.exceptions.PointNotFoundException;
 import heigit.ors.exceptions.RouteNotFoundException;
-import org.apache.log4j.Logger;
-
-import heigit.ors.routing.parameters.VehicleParameters;
-import heigit.ors.routing.pathprocessors.ElevationSmoothPathProcessor;
-import heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
-import heigit.ors.routing.configuration.RoutingManagerConfiguration;
-import heigit.ors.routing.configuration.RouteProfileConfiguration;
-import heigit.ors.routing.traffic.RealTrafficDataProvider;
-import heigit.ors.services.routing.RoutingServiceSettings;
-import heigit.ors.util.FormatUtility;
+import heigit.ors.exceptions.ServerLimitExceededException;
+import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.mapmatching.MapMatchingRequest;
 import heigit.ors.matrix.MatrixErrorCodes;
@@ -51,25 +40,24 @@ import heigit.ors.matrix.MatrixResult;
 import heigit.ors.optimization.OptimizationErrorCodes;
 import heigit.ors.optimization.RouteOptimizationRequest;
 import heigit.ors.optimization.RouteOptimizationResult;
-import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.exceptions.ServerLimitExceededException;
-import heigit.ors.isochrones.IsochroneMap;
-import heigit.ors.routing.RoutingProfilesCollection;
-import heigit.ors.routing.RouteSearchParameters;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.WeightingMethod;
+import heigit.ors.routing.configuration.RouteProfileConfiguration;
+import heigit.ors.routing.configuration.RoutingManagerConfiguration;
+import heigit.ors.routing.parameters.VehicleParameters;
+import heigit.ors.routing.pathprocessors.ElevationSmoothPathProcessor;
+import heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
+import heigit.ors.routing.traffic.RealTrafficDataProvider;
+import heigit.ors.services.routing.RoutingServiceSettings;
+import heigit.ors.util.FormatUtility;
 import heigit.ors.util.RuntimeUtility;
+import heigit.ors.util.StringUtility;
 import heigit.ors.util.TimeUtility;
+import org.apache.log4j.Logger;
 
-import com.graphhopper.GHResponse;
-import com.graphhopper.routing.util.BikeCommonFlagEncoder;
-import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.PathProcessor;
-import com.graphhopper.storage.RAMDataAccess;
-import com.graphhopper.util.DistanceCalc;
-import com.graphhopper.util.Helper;
-import com.graphhopper.util.PointList;
-import com.vividsolutions.jts.geom.Coordinate;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.*;
 
 public class RoutingProfileManager {
     private static final Logger LOGGER = Logger.getLogger(RoutingProfileManager.class.getName());
@@ -165,7 +153,7 @@ public class RoutingProfileManager {
             }
 
             executor.shutdown();
-            loadCntx.release();
+            loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
 
 
             LOGGER.info("Graphs were prepaired in " + TimeUtility.getElapsedTime(startTime, true) + ".");
@@ -190,8 +178,14 @@ public class RoutingProfileManager {
                 LOGGER.info(String.format("====> Initializing profiles from '%s' (%d threads) ...", RoutingServiceSettings.getSourceFile(), RoutingServiceSettings.getInitializationThreads()));
                 LOGGER.info("                              ");
 
-                RAMDataAccess.LZ4_COMPRESSION_ENABLED = "LZ4".equalsIgnoreCase(RoutingServiceSettings.getStorageFormat());
-                BikeCommonFlagEncoder.SKIP_WAY_TYPE_INFO = true;
+                // MARQ24 MOD START
+                // RAMDataAccess.LZ4_COMPRESSION_ENABLED = "LZ4".equalsIgnoreCase(RoutingServiceSettings.getStorageFormat());
+                // the ExGHOverwrite-FlagEncoder package contains the previously overwritten flagencoders of graphhopper
+                // in the ors fork...
+                // MARQ24 removed 'ExGhORSBikeCommonFlagEncoder.SKIP_WAY_TYPE_INFO' because we will use the NextGen
+                // BikeFlagEncoders from now on...
+                // ExGhORSBikeCommonFlagEncoder.SKIP_WAY_TYPE_INFO = true;
+                // MARQ24 MOD END
 
                 if ("preparation".equalsIgnoreCase(RoutingServiceSettings.getWorkingMode())) {
                     prepareGraphs(graphProps);
@@ -241,7 +235,7 @@ public class RoutingProfileManager {
                     }
 
                     executor.shutdown();
-                    loadCntx.release();
+                    loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
 
                     LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
                     LOGGER.info("========================================================================");
@@ -305,8 +299,6 @@ public class RoutingProfileManager {
         PathProcessor pathProcessor = null;
 
         if (req.getExtraInfo() > 0) {
-            // do not allow geometry simplification when extras are requested
-            req.setSimplifyGeometry(false);
             pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req);
         } else {
             if (req.getIncludeElevation())
@@ -328,9 +320,9 @@ public class RoutingProfileManager {
             Coordinate c1 = coords[i];
             GHResponse gr = null;
             if (invertFlow)
-                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, null, null, false, searchParams, customEdgeFilter, req.getSimplifyGeometry(), routeProcCntx);
+                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, null, null, false, searchParams, customEdgeFilter, routeProcCntx);
             else
-                gr = rp.computeRoute(c1.y, c1.x, c0.y, c0.x, null, null, false, searchParams, customEdgeFilter, req.getSimplifyGeometry(), routeProcCntx);
+                gr = rp.computeRoute(c1.y, c1.x, c0.y, c0.x, null, null, false, searchParams, customEdgeFilter, routeProcCntx);
 
             //if (gr.hasErrors())
             //	throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
@@ -357,14 +349,16 @@ public class RoutingProfileManager {
     public RouteResult computeRoute(RoutingRequest req) throws Exception {
         List<GHResponse> routes = new ArrayList<GHResponse>();
 
+//System.out.println("PATCHED!!!!");
+//req.setExtraInfo(512);
+//req.getSearchParameters().setOptions("{\"profile_params\":{\"restrictions\":{\"trail_difficulty\":1}}}");
+//req.getSearchParameters().setFlexibleMode(true);
+
         RoutingProfile rp = getRouteProfile(req, false);
         RouteSearchParameters searchParams = req.getSearchParameters();
         PathProcessor pathProcessor = null;
 
         if (req.getExtraInfo() > 0) {
-            // do not allow geometry simplification when extras are requested
-            req.setSimplifyGeometry(false);
-
             pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req);
         } else {
             if (req.getIncludeElevation())
@@ -404,7 +398,7 @@ public class RoutingProfileManager {
                 radiuses[1] = searchParams.getMaximumRadiuses()[i];
             }
 
-            GHResponse gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, c0.z == 1.0, searchParams, customEdgeFilter, req.getSimplifyGeometry(), routeProcCntx);
+            GHResponse gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, c0.z == 1.0, searchParams, customEdgeFilter, routeProcCntx);
 
             if (gr.hasErrors()) {
                 if (gr.getErrors().size() > 0) {
@@ -417,6 +411,14 @@ public class RoutingProfileManager {
                                         i + 1,
                                         FormatUtility.formatCoordinate(c1))
                         );
+                    } else if(gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
+                        String message = "";
+                        for(Throwable error: gr.getErrors()) {
+                            if(!StringUtility.isEmpty(message))
+                                message = message + "; ";
+                            message = message + error.getMessage();
+                        }
+                        throw new PointNotFoundException(message);
                     } else {
                         throw new InternalServerException(RoutingErrorCodes.UNKNOWN, gr.getErrors().get(0).getMessage());
                     }

@@ -35,25 +35,25 @@
         "actions": {
 			"arrive": {
            		 	"default": {
-		                	"default": "Arrive at your destination",
-							"name": "Arrive at {way_name}"
+		                	"default": "Arrivez à votre destination",
+							"name": "Arrivez à {way_name}"
                 	},
 					"left": {
-						"default": "Arrive at your destination, on the left",
-						"name": "Arrive at {way_name}, on the left"
+						"default": "Arrivez à votre destination, à gauche",
+						"name": "Arrivez à {way_name}, on the left"
 					},
 					"right": {
-						"default": "Arrive at your destination, on the right",
-						"name": "Arrive at {way_name}, on the right"
+						"default": "Arrivez à votre destination, sur la droite",
+						"name": "Arrivez à {way_name}, sur la droite"
 					},
 					"straight": {
-						"default": "Arrive at your destination, straight ahead",
-						"name": "Arrive at {way_name}, straight ahead"
+						"default": "Arrivez à votre destination, droit devant",
+						"name": "Arrivez à {way_name}, droit devant"
 					}
 			},          
             "depart": {
                 "default": {
-                    "default": "{direction}",
+                    "default": "Tournez à {direction}",
                     "name": "Tournez à {direction} sur {way_name}"
                 }
             },
@@ -85,6 +85,12 @@
                     "name": "Faites un demi-tour {way_name}"
                 }
             }
+			"keep": {
+				"default": {
+                    "default": "Tournez {turn_maneuver}",
+                    "name": "Tournez {turn_maneuver} sur {way_name}",
+				},
+			}
         }
     }
 }

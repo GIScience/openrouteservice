@@ -35,20 +35,20 @@
 		"actions": {
 			"arrive": {
            		 	"default": {
-		                "default": "Arrive at your destination",
-						"name": "Arrive at {way_name}"
+		                "default": "Érkezzen meg úticélját",
+						"name": "Megérkezik a {way_name}"
                 	},
 					"left": {
-						"default": "Arrive at your destination, on the left",
-						"name": "Arrive at {way_name}, on the left"
+						"default": "Érkezzen meg úticélja, balra",
+						"name": "Megérkezik a {way_name}, a bal oldalon"
 					},
 					"right": {
-						"default": "Arrive at your destination, on the right",
-						"name": "Arrive at {way_name}, on the right"
+						"default": "Megérkeznek a célállomásra, a jobb oldalon",
+						"name": "Megérkezik a {way_name}, a jobb oldalon"
 					},
 					"straight": {
-						"default": "Arrive at your destination, straight ahead",
-						"name": "Arrive at {way_name}, straight ahead"
+						"default": "Érkezés a célállomásra, egyenesen előre",
+						"name": "Érkezzen {way_name}, egyenesen előre"
 					}
 			},          
 			"depart": {
@@ -84,6 +84,12 @@
 					"default": "Fordulj meg",
 					"name": "Fordulj meg  a(z) {way_name}-ra" 
 				}
+			}
+			"keep": {
+				"default": {
+					"default": "Fordulj {turn_maneuver}",
+					"name": "Fordulj {turn_maneuver} a(z) {way_name}-on",
+				},
 			}
 		}
 	}

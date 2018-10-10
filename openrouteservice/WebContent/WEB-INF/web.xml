@@ -34,33 +34,11 @@
 		<url-pattern>/isochrones</url-pattern>
 	</servlet-mapping>
 	
-	<!-- LOCATIONS SERVICE -->
-	<servlet>
-		<servlet-name>locations</servlet-name>
-		<servlet-class>heigit.ors.services.locations.LocationsServiceServlet</servlet-class>
-		<load-on-startup>4</load-on-startup>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>locations</servlet-name>
-		<url-pattern>/locations</url-pattern>
-	</servlet-mapping>
-	
-	<!-- ACCESSIBILITY SERVICE -->
-	<servlet>
-		<servlet-name>accessibility</servlet-name>
-		<servlet-class>heigit.ors.services.accessibility.AccessibilityServiceServlet</servlet-class>
-		<load-on-startup>5</load-on-startup>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>accessibility</servlet-name>
-		<url-pattern>/accessibility</url-pattern>
-	</servlet-mapping>
-	
     <!-- MATRIX SERVICE -->
 	<servlet>
 		<servlet-name>matrix</servlet-name>
 		<servlet-class>heigit.ors.services.matrix.MatrixServiceServlet</servlet-class>
-		<load-on-startup>6</load-on-startup>
+		<load-on-startup>4</load-on-startup>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>matrix</servlet-name>
@@ -71,7 +49,7 @@
 	<servlet>
 		<servlet-name>optimization</servlet-name>
 		<servlet-class>heigit.ors.services.optimization.OptimizationServiceServlet</servlet-class>
-		<load-on-startup>7</load-on-startup>
+		<load-on-startup>5</load-on-startup>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>optimization</servlet-name>
@@ -82,7 +60,7 @@
 	<servlet>
 		<servlet-name>matching</servlet-name>
 		<servlet-class>heigit.ors.services.mapmatching.MapMatchingServiceServlet</servlet-class>
-		<load-on-startup>8</load-on-startup>
+		<load-on-startup>6</load-on-startup>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>matching</servlet-name>
@@ -93,7 +71,7 @@
 	<servlet>
 		<servlet-name>shortenlink</servlet-name>
 		<servlet-class>heigit.ors.services.shortenlink.ShortenLinkServlet</servlet-class>
-		<load-on-startup>9</load-on-startup>
+		<load-on-startup>7</load-on-startup>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>shortenlink</servlet-name>
@@ -104,7 +82,7 @@
 	<servlet>
 		<servlet-name>status</servlet-name>
 		<servlet-class>heigit.ors.servlet.http.ServerStatusServlet</servlet-class>
-		<load-on-startup>10</load-on-startup>
+		<load-on-startup>8</load-on-startup>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>status</servlet-name>
@@ -114,7 +92,7 @@
 	<servlet>
 		<servlet-name>health</servlet-name>
 		<servlet-class>heigit.ors.servlet.http.HealthStatusServlet</servlet-class>
-		<load-on-startup>11</load-on-startup>
+		<load-on-startup>9</load-on-startup>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>health</servlet-name>
@@ -143,7 +121,7 @@
 		</init-param>
 		<init-param>
 			<param-name>cors.support.credentials</param-name>
-			<param-value>true</param-value>
+			<param-value>false</param-value>
 		</init-param>
 		<init-param>
 			<param-name>cors.preflight.maxage</param-name>

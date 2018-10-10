@@ -1,23 +1,18 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
- *  with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  if not, see <https://www.gnu.org/licenses/>.  
  */
+/*
+
 package heigit.ors.services.accessibility.requestprocessors.json;
 
 import java.util.LinkedHashMap;
@@ -280,14 +275,16 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 
 
             writeFilterSection(jQuery, request.getLocationsRequest().getSearchFilter());
-            /*
+            */
+/*
 			if (request.getRadius() > 0)
 				jQuery.put("radius", request.getRadius());
 			if (request.getLimit() > 0)
 				jQuery.put("limit", request.getLimit());
 			if (!Helper.isEmpty(request.getLanguage()))
 				jQuery.put("lang", request.getLanguage());
-			jQuery.put("locations", value) */
+			jQuery.put("locations", value) *//*
+
 
             if (request.getId() != null)
                 jQuery.put("id", request.getId());
@@ -318,3 +315,4 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
             jQuery.put("filter", jFilter);
     }
 }
+*/

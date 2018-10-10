@@ -1,24 +1,19 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
- *  with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  if not, see <https://www.gnu.org/licenses/>.  
  */
 package heigit.ors.routing.graphhopper.extensions.util;
+
+import java.nio.ByteBuffer;
 
 public class EncodeUtils {
 
@@ -57,6 +52,40 @@ public class EncodeUtils {
 				| (((int) (values[2] * 10) & 0xFF) << 8) | ((int) (values[3] * 10) & 0xFF));
 
 		return value;
+	}
+
+	/**
+	 * Takes a long value and converts it into a byte array of size 8.
+	 *
+	 * @param longValue
+	 * @return			An 8 long byte array representation of the long number
+	 */
+	public static byte[] longToByteArray(long longValue) {
+		ByteBuffer longToByteBuffer = ByteBuffer.allocate(Long.BYTES);
+		longToByteBuffer.putLong(longValue);
+		return longToByteBuffer.array();
+	}
+
+	/**
+	 * Takes a byte array and converts it to a long value representation
+	 *
+	 * @param byteArray
+	 * @return			The long number representation of the bytes
+	 */
+	public static long byteArrayToLong(byte[] byteArray) {
+		ByteBuffer byteToLongBuffer = ByteBuffer.allocate(Long.BYTES);
+		// Need to make up to the needed 8 bytes
+		byte[] storageBytes = {0,0,0,0,0,0,0,0};
+		int differenceInSize = storageBytes.length - byteArray.length;
+
+		for(int i = byteArray.length-1; i >= 0; i--) {
+			if(differenceInSize + i >= 0)
+				storageBytes[differenceInSize + i] = byteArray[i];
+		}
+
+		byteToLongBuffer.put(storageBytes);
+		byteToLongBuffer.flip();
+		return byteToLongBuffer.getLong();
 	}
 
 	public static void main(String[] args) {

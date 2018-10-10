@@ -22,8 +22,11 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodedDoubleValue;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
+import org.apache.log4j.Logger;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Defines bit layout for cars. (speed, access, ferries, ...)
@@ -33,6 +36,9 @@ import java.util.*;
  * @author Nop
  */
 public class CarFlagEncoder extends ORSAbstractFlagEncoder {
+
+    private static Logger LOGGER = Logger.getLogger(CarFlagEncoder.class);
+
     // This value determines the maximal possible on roads with bad surfaces
     protected int badSurfaceSpeed;
 
@@ -45,6 +51,9 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
      */
     protected int maxTrackGradeLevel = 3;
 
+    // Take into account acceleration calculations when determining travel speed
+    protected boolean useAcceleration = false;
+
     public CarFlagEncoder() {
         this(5, 5, 0);
     }
@@ -56,7 +65,9 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
         this.properties = properties;
         this.setBlockFords(properties.getBool("block_fords", true));
         this.setBlockByDefault(properties.getBool("block_barriers", true));
-        
+
+        this.useAcceleration = properties.getBool("use_acceleration", false);
+
         maxTrackGradeLevel = properties.getInt("maximum_grade_level", 3);
     }
 
@@ -187,6 +198,11 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
         speedEncoder = new EncodedDoubleValue("Speed", shift, speedBits, speedFactor, _speedLimitHandler.getSpeed("secondary"),
                 maxPossibleSpeed);
         return shift + speedEncoder.getBits();
+    }
+
+    @Override
+    double averageSecondsTo100KmpH() {
+        return 10;
     }
 
     protected double getSpeed(ReaderWay way) {
@@ -359,23 +375,21 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
 
             speed = getSurfaceSpeed(way, speed);
 
-            // Assume that in residential areas we will travel slower if the segment is short
-            if(way.hasTag("highway","residential")) {
-                // Check length
-                if(way.hasTag("estimated_distance")) {
+            if(way.hasTag("estimated_distance")) {
+                if(this.useAcceleration) {
                     double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
-                    // take into account number of nodes to get an average distance between nodes
-                    double interimDistance = estDist;
-                    int interimNodes = way.getNodes().size() - 2;
-                    if(interimNodes > 0) {
-                        interimDistance = estDist/(interimNodes+1);
+                    if(way.hasTag("highway","residential")) {
+                        speed = addResedentialPenalty(speed, way);
+                    } else {
+                        speed = Math.max(adjustSpeedForAcceleration(estDist, speed), speedFactor);
                     }
-                    if(interimDistance < 100) {
-                        speed = speed * 0.5;
+                } else {
+                    if(way.hasTag("highway","residential")) {
+                        speed = addResedentialPenalty(speed, way);
                     }
                 }
             }
-            
+
             boolean isRoundabout = way.hasTag("junction", "roundabout");
 
             if (isRoundabout) // Runge
@@ -509,6 +523,6 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
 
     @Override
     public String toString() {
-        return "car";
+        return FlagEncoderNames.CAR_ORS;
     }
 }

@@ -279,6 +279,23 @@ public class ParamsTest extends ServiceTest {
 	}
 
 	@Test
+	public void testRangesUserUnits() {
+
+		given()
+				.param("locations", getParameter("location"))
+				.param("profile", getParameter("profile"))
+				.param("range", "1")
+				.param("range_type", "distance")
+				.param("units", "km")
+				.param("location_type", "destination")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.body("info.query.ranges", is("1.0"))
+				.statusCode(200);
+	}
+
+	@Test
 	public void testRangeRestrictionTime() {
 
 		given()
@@ -501,6 +518,67 @@ public class ParamsTest extends ServiceTest {
 				.param("range", "400")
 				.param("range_type", "time")
 				.param("attributes", "area|reachfactorrr")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.log()
+				.all()
+				.statusCode(400)
+				.body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE));
+	}
+
+	@Test
+	public void testSmoothingFactor() {
+		given()
+				.param("locations", getParameter("location"))
+				.param("profile", getParameter("profile"))
+				.param("range", "2000")
+				.param("range_type", "distance")
+				.param("smoothing", "50")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.log()
+				.all()
+				.statusCode(200);
+	}
+
+	@Test
+	public void testSmoothingInvalidValue() {
+		given()
+				.param("locations", getParameter("location"))
+				.param("profile", getParameter("profile"))
+				.param("range", "2000")
+				.param("range_type", "distance")
+				.param("smoothing", "ten")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.log()
+				.all()
+				.statusCode(400)
+				.body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE));
+
+		given()
+				.param("locations", getParameter("location"))
+				.param("profile", getParameter("profile"))
+				.param("range", "2000")
+				.param("range_type", "distance")
+				.param("smoothing", "101")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.log()
+				.all()
+				.statusCode(400)
+				.body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE));
+
+		given()
+				.param("locations", getParameter("location"))
+				.param("profile", getParameter("profile"))
+				.param("range", "2000")
+				.param("range_type", "distance")
+				.param("smoothing", "-1")
 				.when()
 				.get(getEndPointName())
 				.then()

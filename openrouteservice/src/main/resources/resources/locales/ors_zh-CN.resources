@@ -35,20 +35,20 @@
         "actions": {
 			"arrive": {
            		 	"default": {
-		                "default": "Arrive at your destination",
-						"name": "Arrive at {way_name}"
+		                "default": "到达目的地",
+						"name": "到达 {way_name}"
                 	},
 					"left": {
-						"default": "Arrive at your destination, on the left",
-						"name": "Arrive at {way_name}, on the left"
+						"default": "到达你的目的地, 在左边",
+						"name": "到达 {way_name}, 在左侧"
 					},
 					"right": {
-						"default": "Arrive at your destination, on the right",
-						"name": "Arrive at {way_name}, on the right"
+						"default": "到达你的目的地, 在右边",
+						"name": "到达 {way_name}, 在右侧"
 					},
 					"straight": {
-						"default": "Arrive at your destination, straight ahead",
-						"name": "Arrive at {way_name}, straight ahead"
+						"default": "到达目的地, 笔直向前",
+						"name": "到达 {way_name}, 直接向前"
 					}
 			},        
             "depart": {
@@ -85,6 +85,12 @@
                     "name": "前方掉头后进入 {way_name}"
                 }
             }
+			"keep": {
+				"default": {
+                    "default": "{turn_maneuver}",
+                    "name": "{turn_maneuver} 进入 {way_name}",
+				},
+			}
         }
     }
 }

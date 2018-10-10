@@ -25,6 +25,7 @@
 
 package heigit.ors.globalResponseProcessor.geoJson;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import heigit.ors.isochrones.IsochroneRequest;
@@ -45,6 +46,9 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
 
+import static heigit.ors.util.JsonUtility.objectToJSONArray;
+import static heigit.ors.util.JsonUtility.objectToJSONObject;
+
 /**
  * The {@link GeoJsonResponseWriter} class handles the global GeoJSON export or should do this in the future.
  * The idea is to write easy to use code that can/should be reused as much as possible.
@@ -60,8 +64,8 @@ public class GeoJsonResponseWriter {
 
     /**
      * The function transforms {@link RouteResult}'s in a ready-to-be-shipped {@link DefaultFeatureCollection} enriched with ORS specific information
-     * The return value is an unstructured {@link JSONObject} per definition. Don't expect good readability.
-     * The function is already-ready to process RouteResults[] Arrays with multiple Routes.
+     * The return value is a {@link JSONObject}.
+     * The function is ready to process RouteResults[] Arrays with multiple Routes.
      * Results will always be {@link DefaultFeatureCollection} nevertheless the input consists of one ore more Routes.
      *
      * @param rreq        A {@link RoutingRequest} holding the initial Request.
@@ -70,55 +74,42 @@ public class GeoJsonResponseWriter {
      * @throws Exception Throws an error if the JsonRoute could not be calculated
      */
     public static JSONObject toGeoJson(RoutingRequest rreq, RouteResult[] routeResult) throws Exception {
-        // Create HashMap of HashMaps to store properties for individual Features in it, accessible through unique identifiers
-        HashMap<String, HashMap<String, JSONArray>> featurePropertiesMap = new HashMap<>();
-        // Create HashMap to store FeatureCollection properties. No identifier necessary because there will be just one FeatureCollection at a time
+        HashMap<String, HashMap<String, Object>> featurePropertiesMap = new HashMap<>();
         HashMap<String, Object> defaultFeatureCollectionProperties = new HashMap<>();
-        // Create GeometryFactory for reuse purposes
-        GeometryFactory geometryFactory = new GeometryFactory();
-        // Create a new SimpleFeatureType to create a SimpleFeature from it.
-        // The variable is written capital, because a custom SimpleFeatureType is a static and immutable object once created.
         SimpleFeatureType ROUTINGFEATURETYPE = new SimpleFeatureTypes(SimpleFeatureTypes.RouteFeatureType.routeFeature).create();
-        // Create DefaultFeatureCollection to store the SimpleFeature
         DefaultFeatureCollection defaultFeatureCollection = new DefaultFeatureCollection("routing", ROUTINGFEATURETYPE);
-        // Create a SimpleFeature for GEOJSON export preparation
-        SimpleFeature routingFeature = null;
-        // Calculate a route to extract the JSONObject's from it
-        JSONObject jRoutes = JsonRoutingResponseWriter.toJson(rreq, routeResult);
-        for (int i = 0; i < routeResult.length; i++) {
-            RouteResult route = routeResult[i];
-            // Create a HashMap for the individual feature properties
-            HashMap<String, JSONArray> featureProperties = new HashMap<>();
-            // Get the route specific Geometry as LineString
-            LineString lineString = geometryFactory.createLineString(route.getGeometry());
-            // Create a SimpleFeature from the ROUTINGFEATURETYPE template
+
+        GeometryFactory geometryFactory = new GeometryFactory();
+        JSONObject jsonRoutes = JsonRoutingResponseWriter.toJson(rreq, routeResult);
+        for (int i = 0; i < jsonRoutes.getJSONArray("routes").length(); i++) {
+            JSONObject route = jsonRoutes.getJSONArray("routes").getJSONObject(i);
             SimpleFeatureBuilder routingFeatureBuilder = new SimpleFeatureBuilder(ROUTINGFEATURETYPE);
-            // Add route specific Geometry
+            SimpleFeature routingFeature = null;
+            HashMap<String, Object> routingFeatureProperties = new HashMap<>();
+            Coordinate[] coordinate_array = routeResult[i].getGeometry();
+            LineString lineString = geometryFactory.createLineString(coordinate_array);
+
             routingFeatureBuilder.set("geometry", lineString);
-            // Add route specific Summary
-            featureProperties.put("summary", new JSONArray().put(jRoutes.getJSONArray("routes").getJSONObject(i).getJSONObject("summary")));
-            // Add route specific BBox
-            featureProperties.put("bbox", jRoutes.getJSONArray("routes").getJSONObject(i).getJSONArray("bbox"));
-            // Add route specific Way_Points
-            featureProperties.put("way_points", jRoutes.getJSONArray("routes").getJSONObject(i).getJSONArray("way_points"));
-            // Add route specific Segments. Segments are optional, so it is handled through a try-catch.
-            try {
-                featureProperties.put("segments", jRoutes.getJSONArray("routes").getJSONObject(i).getJSONArray("segments"));
-                // Build the SimpleFeature with segments
-                routingFeature = routingFeatureBuilder.buildFeature(null);
-                defaultFeatureCollection.add(routingFeature);
-                featurePropertiesMap.put(routingFeature.getID(), featureProperties);
-            } catch (Exception e){
-                // Build the SimpleFeature without segments
-                routingFeature = routingFeatureBuilder.buildFeature(null);
-                defaultFeatureCollection.add(routingFeature);
-                featurePropertiesMap.put(routingFeature.getID(), featureProperties);
+            JSONArray route_keys = route.names();
+            for (int j = 0; j < route_keys.length(); j++) {
+                String key = route_keys.getString(j);
+                if (!key.equals("geometry_format") && !key.equals("geometry")) {
+                    routingFeatureProperties.put(key, route.get(key));
+                }
+            }
+
+            routingFeature = routingFeatureBuilder.buildFeature(null);
+            defaultFeatureCollection.add(routingFeature);
+            featurePropertiesMap.put(routingFeature.getID(), routingFeatureProperties);
+
+            JSONArray json_route_keys = jsonRoutes.names();
+            for (int j = 0; j < json_route_keys.length(); j++) {
+                String key = json_route_keys.getString(j);
+                if (!key.equals("routes")) {
+                    defaultFeatureCollectionProperties.put(key, jsonRoutes.get(key));
+                }
             }
         }
-
-        // Add the feature properties through a generalized class
-        defaultFeatureCollectionProperties.put("bbox", jRoutes.get("bbox"));
-        defaultFeatureCollectionProperties.put("info", jRoutes.get("info"));
         return addProperties(defaultFeatureCollection, featurePropertiesMap, defaultFeatureCollectionProperties);
 
     }
@@ -142,16 +133,11 @@ public class GeoJsonResponseWriter {
      * @return A complete {@link SimpleFeature} in a {@link JSONObject} representation with all necessary information will be returned
      * @throws IOException Throws an {@link IOException} if the {@link FeatureJSON} could not be processed.
      */
-    public static JSONObject addProperties(SimpleFeature simpleFeature, HashMap<String, HashMap<String, JSONArray>> featurePropertiesMap) throws IOException {
-        // Create the StringWriter to catch the JSON output
+    public static JSONObject addProperties(SimpleFeature simpleFeature, HashMap<String, HashMap<String, Object>> featurePropertiesMap) throws IOException {
         StringWriter stringWriter = new StringWriter();
-        // convert the geojson element to a JSONObject in a string representation using the FeatureJSON
         fjson.writeFeature(simpleFeature, stringWriter);
-        // Serialize the json from the json string
         JSONObject featureAsJSON = new JSONObject(stringWriter.toString());
-        // Close the Writer for good practice purposes
         stringWriter.close();
-        // Add the properties to the features in the featureCollection and return it
         return FeatureProperties(featureAsJSON, featurePropertiesMap);
     }
 
@@ -163,20 +149,14 @@ public class GeoJsonResponseWriter {
      * @param featurePropertiesMap               A {@link HashMap} in a {@link HashMap} ({@link HashMap} inception ;) holding the properties for each {@link SimpleFeature} referenced by a FeatureID. E.g. HashMap<String FeatureID, HashMap<String key, JSONArray value>>.
      * @param defaultFeatureCollectionProperties A simple {@link HashMap} holding additional information that should be added to the root of the {@link DefaultFeatureCollection}.
      * @return A complete {@link DefaultFeatureCollection} in a {@link JSONObject} representation with all necessary information will be returned
-     * @throws Exception
+     * @throws IOException: Returns an IOException.
      */
-    public static JSONObject addProperties(DefaultFeatureCollection defaultFeatureCollection, HashMap<String, HashMap<String, JSONArray>> featurePropertiesMap, HashMap<String, Object> defaultFeatureCollectionProperties) throws Exception {
-        // Create the StringWriter to catch the JSON output
+    public static JSONObject addProperties(DefaultFeatureCollection defaultFeatureCollection, HashMap<String, HashMap<String, Object>> featurePropertiesMap, HashMap<String, Object> defaultFeatureCollectionProperties) throws IOException {
         Writer stringWriter = new StringWriter();
-        // convert the geojson element to a JSONObject in a string representation using the FeatureJSON
         fjson.writeFeatureCollection(defaultFeatureCollection, stringWriter);
-        // Serialize the json from the json string
         JSONObject featureCollectionAsJSON = new JSONObject(stringWriter.toString());
-        // Close the Writer for good practice purposes
         stringWriter.close();
-        // Add the properties to the features in the featureCollection
         JSONObject addFeatureProperties = FeatureProperties(featureCollectionAsJSON, featurePropertiesMap);
-        // Add the properties to the featureCollection and return it
         return FeatureCollectionProperties(addFeatureProperties, defaultFeatureCollectionProperties);
     }
 
@@ -190,40 +170,44 @@ public class GeoJsonResponseWriter {
      * @param featureOrFeatureCollection The input must to be a single {@link SimpleFeature} or a collection of {@link SimpleFeature} in a {@link DefaultFeatureCollection} represented by a {@link JSONObject}.
      * @param featurePropertiesMap       The input must be a {@link HashMap} in a {@link HashMap}. E.g. HashMap<String FeatureID, HashMap<String key, JSONArray value>>.
      * @return A single {@link SimpleFeature} or a collection of {@link SimpleFeature} in a {@link DefaultFeatureCollection} enriched with {@link SimpleFeature} properties will be returned.
-     * @throws Exception
      */
-    private static JSONObject FeatureProperties(JSONObject featureOrFeatureCollection, HashMap<String, HashMap<String, JSONArray>> featurePropertiesMap) {
-        // Check if the the JSONObject is a FeatureCollection
+    private static JSONObject FeatureProperties(JSONObject featureOrFeatureCollection, HashMap<String, HashMap<String, Object>> featurePropertiesMap) {
         if (featureOrFeatureCollection.get("type").equals("FeatureCollection")) {
-            for (int featureCount = 0; featureCount < featureOrFeatureCollection.getJSONArray("features").length(); featureCount++) {
-                // Get Feature Id to look for it in the featureProperties
-                String featureId = featureOrFeatureCollection.getJSONArray("features").getJSONObject(featureCount).get("id").toString();
-                // Look for the feature Id
+            JSONArray features = featureOrFeatureCollection.getJSONArray("features");
+            for (int featureCount = 0; featureCount < features.length(); featureCount++) {
+                String featureId = features.getJSONObject(featureCount).get("id").toString();
                 if (featurePropertiesMap.containsKey(featureId)) {
-                    // Get properties
-                    HashMap<String, JSONArray> featureProperties = featurePropertiesMap.get(featureId);
-                    // set properties
+                    HashMap<String, Object> featureProperties = featurePropertiesMap.get(featureId);
                     for (String key : featureProperties.keySet()) {
-                        // Get the specific value by key
-                        JSONArray value = featureProperties.get(key);
-                        featureOrFeatureCollection.getJSONArray("features").getJSONObject(featureCount).getJSONObject("properties").put(key, value);
+                        JSONObject jsonObj = objectToJSONObject(featureProperties.get(key));
+                        JSONArray jsonArr = objectToJSONArray(featureProperties.get(key));
+
+                        // To preserve backwards compatibility, we need to pass the summary object as an array of summary objects
+                        if(key.equals("summary") && jsonObj != null) {
+                            jsonArr = new JSONArray( new JSONObject[] { jsonObj });
+                            jsonObj = null;
+                        }
+
+                        if (jsonObj != null) {
+                            featureOrFeatureCollection.getJSONArray("features").getJSONObject(featureCount).getJSONObject("properties").put(key, jsonObj);
+                        } else if (jsonArr != null) {
+                            featureOrFeatureCollection.getJSONArray("features").getJSONObject(featureCount).getJSONObject("properties").put(key, jsonArr);
+                        }
                     }
                 }
             }
-        }
-        // Check if the JSONObject is a SimpleFeature
-        else if (featureOrFeatureCollection.get("type").equals("Feature")) {
-            // Get Feature Id to look for it in the featureProperties
+        } else if (featureOrFeatureCollection.get("type").equals("Feature")) {
             String featureId = featureOrFeatureCollection.get("id").toString();
-            // Look for the feature Id
             if (featurePropertiesMap.containsKey(featureId)) {
-                // Get properties
-                HashMap<String, JSONArray> featureProperties = featurePropertiesMap.get(featureId);
-                // Iterate over the HashMap and add each property to the Feature
+                HashMap<String, Object> featureProperties = featurePropertiesMap.get(featureId);
                 for (String key : featureProperties.keySet()) {
-                    // Get the specific value by key
-                    JSONArray value = featureProperties.get(key);
-                    featureOrFeatureCollection.getJSONObject("properties").put(key, value);
+                    JSONObject jsonObj = objectToJSONObject(featureProperties.get(key));
+                    JSONArray jsonArr = objectToJSONArray(featureProperties.get(key));
+                    if (jsonObj != null) {
+                        featureOrFeatureCollection.getJSONObject("properties").put(key, jsonObj);
+                    } else if (jsonArr != null) {
+                        featureOrFeatureCollection.getJSONObject("properties").put(key, jsonArr);
+                    }
                 }
             }
         }
@@ -239,17 +223,17 @@ public class GeoJsonResponseWriter {
      * @param featureCollection           The input must to be a {@link DefaultFeatureCollection} in a {@link JSONObject} representation
      * @param featureCollectionProperties The input must be a {@link HashMap}. E.g. HashMap<String key, JSONArray value>.
      * @return A {@link DefaultFeatureCollection} in {@link JSONObject} representation, enriched with properties, will be returned.
-     * @throws Exception
      */
     private static JSONObject FeatureCollectionProperties(JSONObject featureCollection, HashMap<String, Object> featureCollectionProperties) {
-        // Check if the JSONObject is a FeatureCollection
         if (featureCollection.get("type").equals("FeatureCollection")) {
-            // Iterate over HashMap and add each Property to the FeatureCollection
-            for (String key : featureCollectionProperties.keySet()
-                    ) {
-                // Get the specific value by key
-                Object value = featureCollectionProperties.get(key);
-                featureCollection.put(key, value);
+            for (String key : featureCollectionProperties.keySet()) {
+                JSONObject jsonObj = objectToJSONObject(featureCollectionProperties.get(key));
+                JSONArray jsonArr = objectToJSONArray(featureCollectionProperties.get(key));
+                if (jsonObj != null) {
+                    featureCollection.put(key, jsonObj);
+                } else if (jsonArr != null) {
+                    featureCollection.put(key, jsonArr);
+                }
             }
         }
         return featureCollection;

@@ -1,22 +1,15 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
- *  with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  if not, see <https://www.gnu.org/licenses/>.  
  */
 package heigit.ors.routing.graphhopper.extensions.storages;
 
@@ -31,6 +24,12 @@ import com.graphhopper.storage.GraphExtension;
 
 public class WheelchairAttributesGraphStorage implements GraphExtension
 {
+	protected final static int WIDTH_MAX_VALUE = 3;
+	protected final static int KERB_MAX_VALUE = 15;
+	protected final static int INCLINE_MAX_VALUE = 30;
+	protected final static int TRACK_TYPE_MAX_VALUE = 5;
+	protected final static int SMOOTHNESS_MAX_VALUE = 8;
+	protected final static int SURFACE_MAX_VALUE = 30;
 	/* pointer for no entry */
 	protected final int NO_ENTRY = -1;
 	protected final int EF_WHEELCHAIR_ATTRIBUTES;
@@ -46,10 +45,12 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 	private EncodedValue _surfaceEncoder;
 	private EncodedValue _smoothnessEncoder;
 	private EncodedValue _trackTypeEncoder;
-	private EncodedDoubleValue _curbHeightEncoder;
-	private EncodedDoubleValue _inclineEncoder; 
+	private EncodedValue _sideFlagEncoder;
+	private EncodedDoubleValue _kerbHeightEncoder;
+	private EncodedDoubleValue _inclineEncoder;
+	private EncodedDoubleValue _widthEncoder;
 	
-	private static int BYTE_COUNT = 3;
+	public static int BYTE_COUNT = 4;
 
 	public WheelchairAttributesGraphStorage() 
 	{
@@ -60,15 +61,19 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 		edgesCount = 0;
 
 		int shift = 1;
-		_surfaceEncoder = new EncodedValue("surface", shift, 5, 1, 0, 30);
+		_surfaceEncoder = new EncodedValue("surface", shift, 5, 1, 0, SURFACE_MAX_VALUE);
 		shift += _surfaceEncoder.getBits();
-		_smoothnessEncoder = new EncodedValue("smoothness", shift, 4, 1, 0, 8);
+		_smoothnessEncoder = new EncodedValue("smoothness", shift, 4, 1, 0, SMOOTHNESS_MAX_VALUE);
 		shift += _smoothnessEncoder.getBits();
-		_trackTypeEncoder = new EncodedValue("tracktype", shift, 3, 1, 0, 5);
+		_trackTypeEncoder = new EncodedValue("tracktype", shift, 3, 1, 0, TRACK_TYPE_MAX_VALUE);
 		shift += _trackTypeEncoder.getBits();
-		_inclineEncoder = new EncodedDoubleValue("incline", shift, 6, 0.5, 0, 30);
+		_inclineEncoder = new EncodedDoubleValue("incline", shift, 6, 0.5, 0, INCLINE_MAX_VALUE);
 		shift += _inclineEncoder.getBits();
-		_curbHeightEncoder = new EncodedDoubleValue("curbHeight", shift, 4, 1, 0, 15);
+		_kerbHeightEncoder = new EncodedDoubleValue("kerbHeight", shift, 4, 1, 0, KERB_MAX_VALUE);
+		shift += _kerbHeightEncoder.getBits();
+		_widthEncoder = new EncodedDoubleValue("width", shift,5,0.1,0, WIDTH_MAX_VALUE);
+		shift += _widthEncoder.getBits();
+		_sideFlagEncoder = new EncodedValue("northFacing", shift, 2, 1,0,2);
 	}
 
 	public void init(Graph graph, Directory dir) {
@@ -133,8 +138,8 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 	private void encodeAttributes(WheelchairAttributes attrs, byte[] buffer)
 	{
 		/*
-		 *       | flag  | surface | smoothness | tracktype | curbHeight | incline |
-		 * lsb-> | 1 bit | 5 bits  |  4 bits    | 3 bits    | 6 bits     | 4 bits  |   23 bits in total which can fit into 3 bytes
+		 *       | flag  | surface | smoothness | tracktype | kerbHeight | incline | width  | northFacing |
+		 * lsb-> | 1 bit | 5 bits  |  4 bits    | 3 bits    | 6 bits     | 4 bits  | 6 bits | 2 bit 	  | 31 bits in total which can fit into 4 bytes
 		 * 	
 		 * 
 		 */
@@ -144,7 +149,6 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 			long encodedValue = 0;
 			// set first bit to 1 to mark that we have wheelchair specific attributes for this edge
 			encodedValue |= (1L << 0);
-
 			if (attrs.getSurfaceType() > 0)
 				encodedValue = _surfaceEncoder.setValue(encodedValue, attrs.getSurfaceType());
 
@@ -156,9 +160,21 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 
 			encodedValue = _inclineEncoder.setDoubleValue(encodedValue, 15 + attrs.getIncline());
 
-			if (attrs.getSlopedCurbHeight() > 0.0)
-				encodedValue = _curbHeightEncoder.setDoubleValue(encodedValue, attrs.getSlopedCurbHeight()*100);
+			if (attrs.getSlopedKerbHeight() > 0.0)
+				encodedValue = _kerbHeightEncoder.setDoubleValue(encodedValue, attrs.getSlopedKerbHeight()*100);
 
+			if (attrs.getWidth() > 0.0)
+				encodedValue = _widthEncoder.setDoubleValue(encodedValue, attrs.getWidth());
+
+			switch(attrs.getSide()) {
+				case LEFT:
+					encodedValue = _sideFlagEncoder.setValue(encodedValue, 1);
+				case RIGHT:
+					encodedValue = _sideFlagEncoder.setValue(encodedValue, 2);
+			}
+
+
+			buffer[3] = (byte) ((encodedValue >> 24) & 0xFF);
 			buffer[2] = (byte) ((encodedValue >> 16) & 0xFF);
 			buffer[1] = (byte) ((encodedValue >> 8) & 0xFF);
 			buffer[0] = (byte) ((encodedValue) & 0xFF);
@@ -168,13 +184,8 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 			buffer[0] = 0;
 			buffer[1] = 0;
 			buffer[2] = 0;
+			buffer[3] = 0;
 		}
-  /*
-		WheelchairAttributes attr2 = new WheelchairAttributes();
-		decodeAttributes(attr2, buffer);
-		if (attrs.hasValues() && !attrs.equals(attr2))
-			attr2 = null;*/
-	
 	}	
 
 	private void decodeAttributes(WheelchairAttributes attrs, byte[] buffer)
@@ -184,29 +195,45 @@ public class WheelchairAttributesGraphStorage implements GraphExtension
 		if (buffer[0] == 0)
 			return;
 
-		long encodedValue = ((buffer[0] & 0xFF) | (buffer[1] & 0xFF) << 8 |	(buffer[2] & 0xFF) << 16);
+		long encodedValue = ((buffer[0] & 0xFF) | (buffer[1] & 0xFF) << 8 |	(buffer[2] & 0xFF) << 16 | (buffer[3] & 0xFF) <<24);
 
 		if ((1 & (encodedValue >> 0)) != 0)
 		{
 			long iValue = _surfaceEncoder.getValue(encodedValue);
 			if (iValue != 0)
-				attrs.setSurfaceType((int)iValue);
+				attrs.setSurfaceType((int) iValue);
 
 			iValue = _smoothnessEncoder.getValue(encodedValue);
 			if (iValue != 0)
-				attrs.setSmoothnessType((int)iValue);
+				attrs.setSmoothnessType((int) iValue);
 
 			iValue = _trackTypeEncoder.getValue(encodedValue);
 			if (iValue != 0)
-				attrs.setTrackType((int)iValue);
+				attrs.setTrackType((int) iValue);
 
 			double dValue = _inclineEncoder.getDoubleValue(encodedValue) - 15.0;
 			if (dValue != 0.0)
-				attrs.setIncline((float)(dValue));
+				attrs.setIncline((float) (dValue));
 
-			dValue = _curbHeightEncoder.getDoubleValue(encodedValue);
+			dValue = _kerbHeightEncoder.getDoubleValue(encodedValue);
 			if (dValue != 0.0)
-				attrs.setSlopedCurbHeight((float)(dValue/100.0));
+				attrs.setSlopedKerbHeight((float) (dValue / 100.0));
+
+			dValue = _widthEncoder.getDoubleValue(encodedValue);
+			if (dValue != 0.0)
+				attrs.setWidth((float) (dValue));
+
+			iValue = _sideFlagEncoder.getValue(encodedValue);
+			switch((int) iValue) {
+				case 1:
+					attrs.setSide(WheelchairAttributes.Side.LEFT);
+					break;
+				case 2:
+					attrs.setSide(WheelchairAttributes.Side.RIGHT);
+					break;
+				default:
+					attrs.setSide(WheelchairAttributes.Side.UNKNOWN);
+			}
 		}
 	}
 

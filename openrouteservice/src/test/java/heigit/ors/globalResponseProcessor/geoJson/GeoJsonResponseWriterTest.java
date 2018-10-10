@@ -52,7 +52,7 @@ import static heigit.ors.globalResponseProcessor.geoJson.SimpleFeatureTypes.*;
  * @author Julian Psotta, julian@openrouteservice.org
  */
 public class GeoJsonResponseWriterTest {
-    private static HashMap<String, HashMap<String, JSONArray>> featurePropertiesMap;
+    private static HashMap<String, HashMap<String, Object>> featurePropertiesMap;
     private static HashMap<String, Object> defaultFeatureCollectionProperties;
     private static DefaultFeatureCollection defaultFeatureCollection;
     private static SimpleFeature routingFeature = null;
@@ -72,7 +72,7 @@ public class GeoJsonResponseWriterTest {
         coords2d[1] = new Coordinate(Double.parseDouble("1"), Double.parseDouble("1"));
         coords2d[2] = new Coordinate(Double.parseDouble("1"), Double.parseDouble("1"));
         // Create HashMap of HashMaps to store properties for individual Features in it, accessible through unique identifiers
-        featurePropertiesMap = new HashMap<>();
+        featurePropertiesMap = new HashMap<String, HashMap<String, Object>>();
         // Create HashMap to store FeatureCollection properties. No identifier necessary because there will be just one FeatureCollection at a time
         defaultFeatureCollectionProperties = new HashMap<>();
         // Create GeometryFactory for reuse purposes
@@ -83,7 +83,7 @@ public class GeoJsonResponseWriterTest {
         // Create DefaultFeatureCollection to store the SimpleFeature
         defaultFeatureCollection = new DefaultFeatureCollection("routing", ROUTINGFEATURETYPE);
         // Create a HashMap for the individual feature properties
-        HashMap<String, JSONArray> featureProperties = new HashMap<>();
+        HashMap<String, Object> routingFeatureProperties = new HashMap<>();
         // Get the route specific Geometry as LineString
         LineString lineString = geometryFactory.createLineString(coords2d);
         // Create a SimpleFeature from the ROUTINGFEATURETYPE template
@@ -91,16 +91,16 @@ public class GeoJsonResponseWriterTest {
         // Add route specific Geometry
         routingFeatureBuilder.set("geometry", lineString);
         // Add route specific BBox
-        featureProperties.put("bbox", new JSONArray().put(1).put(1).put(1).put(1));
+        routingFeatureProperties.put("bbox", new JSONArray().put(1).put(1).put(1).put(1));
         // Add route specific Way_Points
-        featureProperties.put("way_points", new JSONArray().put(1).put(1));
+        routingFeatureProperties.put("way_points", new JSONArray().put(1).put(1));
         // Add route specific Segments
-        featureProperties.put("segments", new JSONArray().put(1));
+        routingFeatureProperties.put("segments", new JSONArray().put(1));
         // Build the SimpleFeature
         routingFeature = routingFeatureBuilder.buildFeature(null);
         routingFeatureID = routingFeature.getID();
         defaultFeatureCollection.add(routingFeature);
-        featurePropertiesMap.put(routingFeature.getID(), featureProperties);
+        featurePropertiesMap.put(routingFeature.getID(), routingFeatureProperties);
 
 
         // Add the feature properties through a generalized class
