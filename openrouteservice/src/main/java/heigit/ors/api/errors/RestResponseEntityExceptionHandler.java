@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +29,21 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     @ExceptionHandler(value = InvalidDefinitionException.class)
     public ResponseEntity handleInvalidDefinitionException(InvalidDefinitionException exception) {
         return handleStatusCodeException((StatusCodeException) exception.getCause());
+    }
+
+    @ExceptionHandler(value = HttpMediaTypeNotAcceptableException.class)
+    public ResponseEntity<Object> handleMimeError(final HttpMediaTypeNotAcceptableException exception) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        if(LOGGER.isDebugEnabled()) {
+            // Log also the stack trace
+            LOGGER.error("Exception", exception);
+        } else {
+            // Log only the error message
+            LOGGER.error(exception);
+        }
+
+        return new ResponseEntity(constructErrorBody(new UnknownParameterValueException(RoutingErrorCodes.EXPORT_HANDLER_ERROR, "mime-type", "")), headers, HttpStatus.NOT_IMPLEMENTED);
     }
 
     @ExceptionHandler(value = StatusCodeException.class)
