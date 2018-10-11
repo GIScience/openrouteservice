@@ -16,8 +16,11 @@ import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RoutingErrorCodes;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.parsing.Problem;
+import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.util.InvalidMimeTypeException;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,6 +33,11 @@ public class RoutingAPI {
         throw new MissingParameterException(RoutingErrorCodes.MISSING_PARAMETER, "profile");
     }
 
+    @PostMapping(value = "/{profile}")
+    public JSONRouteResponse getDefault( @ApiParam(value = "Specifies the route profile.") @PathVariable APIRoutingEnums.RoutingProfile profile,
+                                         @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws Exception {
+        return getJsonMime(profile, request);
+    }
 
     @PostMapping(value = "/{profile}", produces = "application/gpx+xml;charset=UTF-8")
     @ApiOperation(value = "Get a route from the specified profile", httpMethod = "POST", consumes = "application/json")
