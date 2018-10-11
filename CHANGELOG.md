@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+Added instructions to readme for installing without Docker (Issue #272)
 ### Fixed
 ### Changed
 ### Depricated

@@ -49,6 +49,18 @@ cd docker && docker-compose up
 
 For more details, check the [docker installation guide](docker/README.md).
 
+If you need to install without Docker, on an Ubuntu 16.04 system (also generally works with newer Ubuntu versions) you can use the following steps:
+
+  1. Clone the openrouteservice repository to your machine.
+  2. Make sure that you have java 1.8 set as the default Java environment.
+  3. Make sure that you have Maven installed.
+  4. Download/create an OpenStreetMap pbf file on the machine.
+  5. Copy the `openrouteservice/WebContent/WEB-INF/app.config.sample` file to the same location but renaming it to `app.config`.
+  6. Update the `app.config` file to reflect the various settings, profiles you want to have running, and the locations of various files, in particular the source location of the OSM file that will be used and additional files required for extended storages.
+  7. From within the `openrouteservice` folder (containing the pom file and the src folder, amongst others) run the command `mvn package tomcat7:run`. This should build the ORS source and start a Tomcat instance running it. If you want to see more logging information, update the `app.config` logging section to use 
+
+There are numerous settings within the `app.config` which are highly dependent on your individual circumstances, but many of these are documented. As a guide however you can look at the `app.config.sample` file in the `docker/conf` folder. If you run into issues relating to out of memory or similar, then you will need to adjust java/tomcat settings accordingly.
+
 ## Usage
 
 Openrouteservice offers a set of endpoints for different spatial purposes. They are served with the help of [Tomcat in a java servlet container](https://github.com/GIScience/openrouteservice/blob/master/openrouteservice/WebContent/WEB-INF/web.xml). By default you will be able to query the services with these addresses:
@@ -71,4 +83,4 @@ For questions please use our [Google Groups Forum](https://groups.google.com/for
 
 If you notice any thing wrong with translations, or you want to add a new language to the ORS instructions, please add/edit files in the src/main/resources/locales folder. You can use the ors_en.resources file as a template as to what information needs to be present.
 As a guide, for each instruction there are two formats - one where there is a named place (i.e. 47 Berlinerstraße) and one without. It is important to keep the {way_name} tag in the text, but it should be moved to the correct location.
-To show ORS what alnguage is being used, you should alter the name of the file to include the ISO identifier (i.e. for Austrian German the filename would be ors_de_AT.resources).
+To show ORS what language is being used, you should alter the name of the file to include the ISO identifier (i.e. for Austrian German the filename would be ors_de_AT.resources).
