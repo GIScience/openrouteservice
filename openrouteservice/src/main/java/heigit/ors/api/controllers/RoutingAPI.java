@@ -11,24 +11,21 @@ import heigit.ors.api.responses.routing.GPXRouteResponseObjects.GPXRouteResponse
 import heigit.ors.api.responses.routing.GeoJSONRouteResponseObjects.GeoJSONRouteResponse;
 import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONRouteResponse;
 import heigit.ors.exceptions.*;
-import heigit.ors.routing.RouteRequestHandler;
+import heigit.ors.api.requests.routing.RouteRequestHandler;
 import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RoutingErrorCodes;
 import io.swagger.annotations.*;
-import org.springframework.beans.factory.parsing.Problem;
-import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.util.InvalidMimeTypeException;
-import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@Api(value="/v2/routes", description = "Get a route")
-@RequestMapping("/v2/routes")
+@Api(value="/v2/directions", description = "Get a route")
+@RequestMapping("/v2/directions")
 public class RoutingAPI {
 
     @PostMapping
+    @ApiOperation(value = "", hidden = true)
     public String getPostMapping(@RequestBody RouteRequest request) throws MissingParameterException {
         throw new MissingParameterException(RoutingErrorCodes.MISSING_PARAMETER, "profile");
     }

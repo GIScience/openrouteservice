@@ -10,7 +10,16 @@ import org.json.simple.JSONObject;
 @ApiModel(value = "Route Options", description = "Advanced options for routing", parent = RouteRequest.class)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RouteRequestOptions {
-    @ApiModelProperty(name = "avoid_features", value = "List of features to avoid.")
+    @ApiModelProperty(name = "avoid_features", value = "List of features to avoid." +
+            "{highways={profile=[driving-*]}," +
+            "tollways={profile=[driving-*]}," +
+            "ferries={profile=[driving-*,bike-*,foot-*,wheelchair]}," +
+            "tunnels={profile=[driving-*]}," +
+            "pavedroads={profile=[driving-*,bike-*]}," +
+            "unpavedroads={profile=[driving-*,bike-*]}," +
+            "tracks={profile=[driving-*]}," +
+            "fords={profile=[driving-*,bike-*,foot-*]}," +
+            "steps={profile=[driving-*,bike-*,foot-*],wheelchair}}")
     @JsonProperty("avoid_features")
     private APIRoutingEnums.AvoidFeatures[] avoidFeatures;
     @JsonIgnore
@@ -22,20 +31,20 @@ public class RouteRequestOptions {
     @JsonIgnore
     private boolean hasMaximumSpeed = false;
 
-    @ApiModelProperty(value = "\"all\" for no border crossing. \"controlled\" to cross open borders but avoid controlled ones. Only for driving-* profiles.")
+    @ApiModelProperty(value = "\"all\" for no border crossing. \"controlled\" to cross open borders but avoid controlled ones. Only for driving-* profiles.[{profile=[car,hgv]}]")
     @JsonProperty("avoid_borders")
     private APIRoutingEnums.AvoidBorders avoidBorders;
     @JsonIgnore
     private boolean hasAvoidBorders = false;
 
     @ApiModelProperty(value = "List of countries to exclude from routing with driving-* profiles. Can be used together with \"avoid_borders\": \"controlled\". " +
-            "[ 11, 193 ] would exclude Austria and Switzerland. List of countries and application examples can be found here.", example = "[ 11, 193 ]")
+            "[ 11, 193 ] would exclude Austria and Switzerland. List of countries and application examples can be found here.[{profile=[car,hgv]}]", example = "[ 11, 193 ]")
     @JsonProperty("avoid_countries")
     private int[] avoidCountries;
     @JsonIgnore
     private boolean hasAvoidCountries = false;
 
-    @ApiModelProperty(value = "(for profile=driving-hgv only): hgv,bus,agricultural,delivery,forestry and goods. It is needed for vehicle restrictions to work.")
+    @ApiModelProperty(value = "(for profile=driving-hgv only): hgv,bus,agricultural,delivery,forestry and goods. It is needed for vehicle restrictions to work.[{profile=[hgv]}]")
     @JsonProperty(value = "vehicle_type", defaultValue = "unknown")
     private APIRoutingEnums.VehicleType vehicleType = APIRoutingEnums.VehicleType.UNKNOWN;
     @JsonIgnore

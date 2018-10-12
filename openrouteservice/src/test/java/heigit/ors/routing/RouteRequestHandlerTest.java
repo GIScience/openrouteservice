@@ -5,7 +5,6 @@ import com.vividsolutions.jts.geom.Polygon;
 import heigit.ors.api.requests.routing.*;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
@@ -20,10 +19,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 
 public class RouteRequestHandlerTest {
     RouteRequest request;

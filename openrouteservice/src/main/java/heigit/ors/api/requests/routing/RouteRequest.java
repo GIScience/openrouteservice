@@ -1,7 +1,9 @@
 package heigit.ors.api.requests.routing;
 
-import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.routing.RoutingErrorCodes;
 import io.swagger.annotations.ApiModel;
@@ -30,10 +32,7 @@ public class RouteRequest {
     @JsonProperty(value = "preference", defaultValue = "fastest")
     private APIRoutingEnums.RoutePreference routePreference = APIRoutingEnums.RoutePreference.FASTEST;
 
-    @ApiModelProperty(name = "format",
-            value = "Specifies the response format. The GPX schema the response is validated against can be found here.\n" +
-                    "Default: json.")
-    @JsonProperty(value = "format", defaultValue = "json")
+    @ApiModelProperty(hidden = true)
     private APIRoutingEnums.RouteResponseType responseType = APIRoutingEnums.RouteResponseType.JSON;
 
     @ApiModelProperty(name = "units",
@@ -50,7 +49,7 @@ public class RouteRequest {
 
     @ApiModelProperty(name = "geometry",
             value = "Specifies whether to return geometry.\n" +
-                    "Default: true.")
+                    "Default: true.[{response!=[geo+json]}]")
     @JsonProperty(value = "geometry", defaultValue = "true")
     private Boolean includeGeometry = true;
 
@@ -104,11 +103,11 @@ public class RouteRequest {
     private boolean hasBearings = false;
 
     @ApiModelProperty(name = "continue_straight", value = "Forces the route to keep going straight at waypoints restricting uturns there even if it would be faster. This setting will work for all profiles except for driving-*. " +
-            "In this case you will have to set optimized=false for it to work. Default: false.")
+            "In this case you will have to set optimized=false for it to work. Default: false. [{profile!=[car,hgv]}]")
     @JsonProperty(value = "continue_straight", defaultValue = "false")
     private Boolean continueStraightAtWaypoints = false;
 
-    @ApiModelProperty(name = "elevation", value = "Specifies whether to return elevation values for points. Please note that elevation also gets encoded for geometry_format=encodedpolyline.")
+    @ApiModelProperty(name = "elevation", value = "Specifies whether to return elevation values for points. Please note that elevation also gets encoded for json response encoded polyline.")
     @JsonProperty("elevation")
     private Boolean returnElevationForPoints;
     @JsonIgnore

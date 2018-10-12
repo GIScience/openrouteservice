@@ -31,20 +31,6 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return handleStatusCodeException((StatusCodeException) exception.getCause());
     }
 
-    @ExceptionHandler(value = HttpMediaTypeNotAcceptableException.class)
-    public ResponseEntity<Object> handleMimeError(final HttpMediaTypeNotAcceptableException exception) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        if(LOGGER.isDebugEnabled()) {
-            // Log also the stack trace
-            LOGGER.error("Exception", exception);
-        } else {
-            // Log only the error message
-            LOGGER.error(exception);
-        }
-
-        return new ResponseEntity(constructErrorBody(new UnknownParameterValueException(RoutingErrorCodes.EXPORT_HANDLER_ERROR, "mime-type", "")), headers, HttpStatus.NOT_IMPLEMENTED);
-    }
 
     @ExceptionHandler(value = StatusCodeException.class)
     public ResponseEntity handleStatusCodeException(StatusCodeException exception) {
