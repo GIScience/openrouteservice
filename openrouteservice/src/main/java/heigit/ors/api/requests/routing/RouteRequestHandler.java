@@ -1,4 +1,4 @@
-package heigit.ors.routing;
+package heigit.ors.api.requests.routing;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -10,6 +10,7 @@ import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.*;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.localization.LocalizationManager;
+import heigit.ors.routing.*;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
