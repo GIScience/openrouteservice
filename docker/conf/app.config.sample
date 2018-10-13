@@ -41,7 +41,7 @@
             "sources":[
                "data/heidelberg.osm.gz"
             ],
-            "init_threads":2,
+            "init_threads":1,
             "attribution":"openrouteservice.org, OpenStreetMap contributors",
             "distance_approximation":true,
             "profiles":{
@@ -55,7 +55,7 @@
                    "encoder_flags_size": 8,
                    "graphs_root_path": "data/graphs",
                    "elevation_provider": "cgiar",
-                   "elevation_cache_path": "data/cgiar_cache",
+                   "elevation_cache_path": "data/cgiar_provider",
                    "elevation_clear_cache": true,
                    "instructions": true,
                    "maximum_distance": 100000,

@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 Added instructions to readme for installing without Docker (Issue #272)
 ### Fixed
 ### Changed
-### Depricated
+- Changed app.config.sample for docker to consider split profiles (Issue #320)
+- Changed minor information in pom.xml
+### Deprecated
 
 ## [4.7] - 2018-10-10
 ### Added
