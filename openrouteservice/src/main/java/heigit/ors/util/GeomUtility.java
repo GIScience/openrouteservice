@@ -176,42 +176,37 @@ public class GeomUtility {
 		return degrees * 111139;
 	}
 
-	public static double getArea(Geometry geom, Boolean inMeters) throws Exception
-	{
-		if (inMeters) {
-			if (geom instanceof Polygon)
-			{
-				Polygon poly = (Polygon) geom;
-				double area = Math.abs(getSignedArea(poly.getExteriorRing().getCoordinateSequence()));
-				
-				for (int i = 0; i < poly.getNumInteriorRing(); i++) {
-					LineString hole =	poly.getInteriorRingN(i);
-					area -= Math.abs(getSignedArea(hole.getCoordinateSequence()));
-				}
-				
-				return area;
-			}
-			else if (geom instanceof LineString)
-			{
-				LineString ring = (LineString)geom;
-				return getSignedArea(ring.getCoordinateSequence());
-			}
-			else
-			{
-				if (TRANSFORM_WGS84_SPHERICALMERCATOR == null) {
-					String wkt = "PROJCS[\"WGS 84 / Pseudo-Mercator\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4326\"]],PROJECTION[\"Mercator_1SP\"],PARAMETER[\"central_meridian\",0],PARAMETER[\"scale_factor\",1],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"X\",EAST],AXIS[\"Y\",NORTH],AUTHORITY[\"EPSG\",\"3857\"]]";
-					CoordinateReferenceSystem crs = CRS.parseWKT(wkt);//  CRS.decode("EPSG:3857");
-					TRANSFORM_WGS84_SPHERICALMERCATOR = CRS.findMathTransform(DefaultGeographicCRS.WGS84, crs, true);
-				}
+	public static double getArea(Geometry geom, Boolean inMeters) throws Exception {
+        if (inMeters) {
+            if (geom instanceof Polygon) {
+                Polygon poly = (Polygon) geom;
+
+                double area = Math.abs(getSignedArea(poly.getExteriorRing().getCoordinateSequence()));
+
+                for (int i = 0; i < poly.getNumInteriorRing(); i++) {
+                    LineString hole = poly.getInteriorRingN(i);
+                    area -= Math.abs(getSignedArea(hole.getCoordinateSequence()));
+                }
+
+                return area;
+            } else if (geom instanceof LineString) {
+                LineString ring = (LineString) geom;
+                return getSignedArea(ring.getCoordinateSequence());
+            } else {
+                if (TRANSFORM_WGS84_SPHERICALMERCATOR == null) {
+                    String wkt = "PROJCS[\"WGS 84 / Pseudo-Mercator\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4326\"]],PROJECTION[\"Mercator_1SP\"],PARAMETER[\"central_meridian\",0],PARAMETER[\"scale_factor\",1],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"X\",EAST],AXIS[\"Y\",NORTH],AUTHORITY[\"EPSG\",\"3857\"]]";
+                    CoordinateReferenceSystem crs = CRS.parseWKT(wkt);//  CRS.decode("EPSG:3857");
+                    TRANSFORM_WGS84_SPHERICALMERCATOR = CRS.findMathTransform(DefaultGeographicCRS.WGS84, crs, true);
+                }
 
 
-				Geometry transformedGeometry = JTS.transform(geom, TRANSFORM_WGS84_SPHERICALMERCATOR);
-				return transformedGeometry.getArea();
-			}
-		} else {
-			return geom.getArea();
-		}
-	}
+                Geometry transformedGeometry = JTS.transform(geom, TRANSFORM_WGS84_SPHERICALMERCATOR);
+                return transformedGeometry.getArea();
+            }
+        } else {
+            return geom.getArea();
+        }
+    }
 
 	/**
 	 * Determine the 2D bearing between two points. Note that this does not take into account the spheroid shape of
