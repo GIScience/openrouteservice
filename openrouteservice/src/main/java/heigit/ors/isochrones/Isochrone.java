@@ -24,44 +24,43 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Isochrone {
-	private Geometry geometry;
-	private double value;
-	private double area = 0.0;
-	private double maxRadius;
-	private Envelope envelope;
-	private List<AttributeValue> _attributes;
+    private Geometry geometry;
+    private double value;
+    private double area = 0.0;
+    private double maxRadius;
+    private Envelope envelope;
+    private List<AttributeValue> _attributes;
 
-	public Isochrone(Geometry geometry, double value, double maxRadius) {
-		this.geometry = geometry;
-		this.value = value;
-		this.maxRadius = maxRadius;
-	}
+    public Isochrone(Geometry geometry, double value, double maxRadius) {
+        this.geometry = geometry;
+        this.value = value;
+        this.maxRadius = maxRadius;
+    }
 
-	public Geometry getGeometry() {
-		return geometry;
-	}
+    public Geometry getGeometry() {
+        return geometry;
+    }
 
-	public double getValue() {
-		return value;
-	}
+    public double getValue() {
+        return value;
+    }
 
-	public double getMaxRadius(String units)
-	{
-		if (units != null)
-		{
-			switch(units)
-			{
-			case "m":
-				return maxRadius;
-			case "mi":
-				return UnitsConverter.SqMetersToSqMiles(maxRadius);
-			case "km":
-                return UnitsConverter.SqMetersToSqKilometers(maxRadius);
-			}
-		}
+    public double getMaxRadius(String units) {
 
-		return maxRadius;
-	}
+        if (units != null) {
+            switch (units) {
+                case "m":
+                    return maxRadius;
+                case "mi":
+                    return UnitsConverter.MetersToMiles(maxRadius);
+                case "km":
+                    return UnitsConverter.MetersToKilometers(maxRadius);
+            }
+        }
+
+        // return default meter
+        return maxRadius;
+    }
 
     public double getArea(String units) throws Exception {
         double area = getArea(true);
@@ -76,39 +75,38 @@ public class Isochrone {
             }
         }
 
-
-        // return default square km
-        return UnitsConverter.SqMetersToSqKilometers(area);
+        // return default square meter
+        return area;
 
     }
 
-	public double getArea(Boolean inMeters) throws Exception {
-		if (area == 0.0) {
-			area = FormatUtility.roundToDecimals(GeomUtility.getArea(geometry, inMeters), 2);
-		}
+    public double getArea(Boolean inMeters) throws Exception {
+        if (area == 0.0) {
+            area = FormatUtility.roundToDecimals(GeomUtility.getArea(geometry, inMeters), 2);
+        }
 
-		return area;
-	}
+        return area;
+    }
 
-	public Envelope getEnvelope() {
-		if (envelope == null)
-			envelope = geometry.getEnvelopeInternal();
+    public Envelope getEnvelope() {
+        if (envelope == null)
+            envelope = geometry.getEnvelopeInternal();
 
-		return envelope;
-	}
+        return envelope;
+    }
 
-	public List<AttributeValue> getAttributes() {
-		return _attributes;
-	}
+    public List<AttributeValue> getAttributes() {
+        return _attributes;
+    }
 
-	public void setAttributes(List<String> statNames, double[] statValues, String source) {
-		if (statNames == null)
-			return;
+    public void setAttributes(List<String> statNames, double[] statValues, String source) {
+        if (statNames == null)
+            return;
 
-		if (_attributes == null)
-			_attributes = new ArrayList<AttributeValue>();
+        if (_attributes == null)
+            _attributes = new ArrayList<AttributeValue>();
 
-		for (int i = 0; i < statNames.size(); i++)
-			_attributes.add(new AttributeValue(statNames.get(i), statValues[i], source));
-	}
+        for (int i = 0; i < statNames.size(); i++)
+            _attributes.add(new AttributeValue(statNames.get(i), statValues[i], source));
+    }
 }

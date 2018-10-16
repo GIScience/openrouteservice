@@ -172,7 +172,7 @@ public class GeomUtility {
 
 	}
 
-	public  static double degreesToMetres(double degrees) {
+    public static double degreesToMetres(double degrees) {
 		return degrees * 111139;
 	}
 

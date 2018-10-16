@@ -172,6 +172,15 @@ public class JsonIsochroneRequestParser {
 
 			req.setUnits(value.toLowerCase());
 		}
+
+
+        value = json.optString("area_units");
+        if (!Helper.isEmpty(value)) {
+            if (!("m".equals(value) || "km".equals(value) || "mi".equals(value)))
+                throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "area_units", value);
+
+            req.setUnits(value.toLowerCase());
+        }
 		
 		value = json.optString("calc_method");
 		if (!Helper.isEmpty(value))
@@ -301,6 +310,17 @@ public class JsonIsochroneRequestParser {
 			}
 		}
 
+        value = request.getParameter("area_units");
+        if (!Helper.isEmpty(value)) {
+
+
+            if (!("m".equals(value) || "km".equals(value) || "mi".equals(value)))
+                throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "area_units", value);
+
+
+            req.setAreaUnits(value.toLowerCase());
+        }
+
         value = request.getParameter("units");
         if (!Helper.isEmpty(value)) {
 
@@ -312,7 +332,8 @@ public class JsonIsochroneRequestParser {
             req.setUnits(value.toLowerCase());
         }
 
-		boolean inverseXY = false;
+
+        boolean inverseXY = false;
 		value = request.getParameter("locations");
 
 		if (Helper.isEmpty(value))
