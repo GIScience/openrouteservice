@@ -24,3 +24,4 @@ target/
 .python-version
 nohup.out
 build/
+cgiar_cache/

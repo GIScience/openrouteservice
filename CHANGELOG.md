@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 Added instructions to readme for installing without Docker (Issue #272)
+Added area_units for isochrones API as units being misleading (Issue #272)
 ### Fixed
+- Area calculation for isochrones using metric crs (Issue #130)
 ### Changed
 - Changed app.config.sample for docker to consider split profiles (Issue #320)
 - Changed minor information in pom.xml
