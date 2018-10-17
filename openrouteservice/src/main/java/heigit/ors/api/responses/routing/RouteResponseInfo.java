@@ -22,22 +22,31 @@ import heigit.ors.api.requests.routing.RouteRequest;
 import heigit.ors.config.AppConfig;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.json.JSONObject;
 
+@ApiModel(value="RouteResponseInfo")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RouteResponseInfo {
+    @ApiModelProperty(value = "Copyright and attribution information")
     @JsonProperty("attribution")
     private String attribution;
+    @ApiModelProperty(value = "The MD5 hash of the OSM planet file that was used for generating graphs")
     @JsonProperty("osm_file_md5_hash")
     private String osmFileMD5Hash;
+    @ApiModelProperty(value = "The service that was requested")
     @JsonProperty("service")
     private String service;
+    @ApiModelProperty(value = "Time that the request was made (UNIX Epoch time)")
     @JsonProperty("timestamp")
     private long timeStamp;
 
+    @ApiModelProperty(value = "The information that was used for generating the route")
     @JsonProperty("query")
     private RouteRequest request;
 
+    @ApiModelProperty(value = "Information about the routing service")
     @JsonProperty("engine")
     private EngineInfo engineInfo;
 
@@ -56,9 +65,12 @@ public class RouteResponseInfo {
         this.request = request;
     }
 
+    @ApiModel(description = "Information about the version of the openrouteservice that was used to generate the route")
     private class EngineInfo {
+        @ApiModelProperty("The backend version of the openrouteservice that was queried")
         @JsonProperty("version")
         private String version;
+        @ApiModelProperty("The date that the service was last updated")
         @JsonProperty("build_date")
         private String buildDate;
 

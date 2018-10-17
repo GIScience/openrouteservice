@@ -19,13 +19,19 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.routing.RouteStepManeuver;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
+@ApiModel(description = "Maneuver object of the step")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JSONStepManeuver {
+    @ApiModelProperty(value = "The coordinate of the point where a maneuver takes place.")
     @JsonProperty("location")
     private Double[] location;
+    @ApiModelProperty(value = "The azimuth angle (in degrees) of the direction right before the maneuver.")
     @JsonProperty("bearing_before")
     private Integer bearingBefore;
+    @ApiModelProperty(value = "The azimuth angle (in degrees) of the direction right after the maneuver.")
     @JsonProperty("bearing_after")
     private Integer bearingAfter;
 

@@ -1,20 +1,13 @@
 package heigit.ors.api.responses.routing.BoundingBox;
 
 import com.graphhopper.util.shapes.BBox;
-import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.api.requests.routing.APIRoutingEnums;
-import heigit.ors.api.requests.routing.CoordinateListWrapper;
 import heigit.ors.api.requests.routing.RouteRequest;
-import heigit.ors.api.responses.routing.BoundingBox.BoundingBox;
-import heigit.ors.api.responses.routing.BoundingBox.BoundingBoxFactory;
 import heigit.ors.api.responses.routing.GPXRouteResponseObjects.GPXBounds;
 import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSON3DBoundingBox;
 import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONBoundingBox;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class BoundingBoxFactoryTest {
     @Test
@@ -38,21 +31,21 @@ public class BoundingBoxFactoryTest {
 
         BBox bbox = new BBox(1,2,3,4,5,6);
 
-        request.setReturnElevationForPoints(true);
+        request.setUseElevation(true);
         request.setResponseType(APIRoutingEnums.RouteResponseType.JSON);
         BoundingBox boundingBox = BoundingBoxFactory.constructBoundingBox(bbox, request);
         Assert.assertTrue(boundingBox instanceof JSON3DBoundingBox);
 
-        request.setReturnElevationForPoints(false);
+        request.setUseElevation(false);
         boundingBox = BoundingBoxFactory.constructBoundingBox(bbox, request);
         Assert.assertTrue(boundingBox instanceof JSONBoundingBox);
 
-        request.setReturnElevationForPoints(true);
+        request.setUseElevation(true);
         request.setResponseType(APIRoutingEnums.RouteResponseType.GEOJSON);
         boundingBox = BoundingBoxFactory.constructBoundingBox(bbox, request);
         Assert.assertTrue(boundingBox instanceof JSON3DBoundingBox);
 
-        request.setReturnElevationForPoints(false);
+        request.setUseElevation(false);
         boundingBox = BoundingBoxFactory.constructBoundingBox(bbox, request);
         Assert.assertTrue(boundingBox instanceof JSONBoundingBox);
 

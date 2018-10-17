@@ -16,6 +16,7 @@
 package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
 
 public class JSONExtraSummary {
     private double value;
@@ -28,16 +29,19 @@ public class JSONExtraSummary {
         this.amount = amount;
     }
 
+    @ApiModelProperty(value = "[Value](https://github.com/GIScience/openrouteservice-docs#routing-response) of a info category.")
     @JsonProperty("value")
     public double getValue() {
         return value;
     }
 
+    @ApiModelProperty(value = "Cumulative distance of this value.")
     @JsonProperty("distance")
     public double getDistance() {
         return distance;
     }
 
+    @ApiModelProperty(value = "Category percentage of the entire route.")
     @JsonProperty("amount")
     public double getAmount() {
         return amount;

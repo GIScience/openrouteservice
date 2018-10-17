@@ -29,6 +29,6 @@ public class IndividualRouteResponse {
             this.routeCoordinates = result.getGeometry();
 
         if(request.hasReturnElevationForPoints())
-            includeElevation = request.getReturnElevationForPoints();
+            includeElevation = request.getUseElevation();
     }
 }

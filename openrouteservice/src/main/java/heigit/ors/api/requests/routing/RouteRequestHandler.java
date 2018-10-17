@@ -19,7 +19,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-import heigit.ors.api.requests.routing.*;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.*;
@@ -33,11 +32,9 @@ import heigit.ors.routing.parameters.*;
 import heigit.ors.routing.pathprocessors.BordersExtractor;
 import heigit.ors.util.DistanceUnitUtil;
 import org.apache.commons.lang.StringUtils;
-import org.geotools.data.DataAccessFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,7 +59,7 @@ public class RouteRequestHandler {
         routingRequest.setCoordinates(convertCoordinates(request.getCoordinates()));
 
         if(request.hasReturnElevationForPoints())
-            routingRequest.setIncludeElevation(request.getReturnElevationForPoints());
+            routingRequest.setIncludeElevation(request.getUseElevation());
 
         routingRequest.setContinueStraight(request.getContinueStraightAtWaypoints());
 

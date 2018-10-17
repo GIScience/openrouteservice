@@ -17,8 +17,11 @@ package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import heigit.ors.api.requests.routing.APIRoutingEnums;
+import heigit.ors.api.requests.routing.RouteRequest;
 import heigit.ors.routing.RouteSegment;
 import heigit.ors.routing.RouteStep;
+import heigit.ors.util.FormatUtility;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
@@ -26,37 +29,60 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class JSONSegment {
-    @ApiModelProperty("The total length of the route")
+    @ApiModelProperty(value = "Contains the distance of the segment in specified units.")
     @JsonProperty("distance")
     private Double distance;
-    @ApiModelProperty("How long the route should take to complete")
+    @ApiModelProperty("Contains the duration of the segment in seconds.")
     @JsonProperty("duration")
     private Double duration;
-    @ApiModelProperty("The steps that ")
+    @ApiModelProperty("List containing the specific steps the segment consists of.")
     @JsonProperty("steps")
     private List<JSONStep> steps;
+    @ApiModelProperty(value = "Contains the deviation compared to a straight line that would have the factor `1`. Double the Distance would be a `2`. [:attributes=detourfactor]")
     @JsonProperty("detourfactor")
     private Double detourFactor;
+    @ApiModelProperty(value = "Contains the proportion of the route in percent. [:attributes=percentage]")
     @JsonProperty("percentage")
     private Double percentage;
+    @ApiModelProperty(value = "Contains the average speed of this segment in km/h. [:attributes=avgspeed]")
     @JsonProperty("avgspeed")
     private Double averageSpeed;
+    @ApiModelProperty(value = " Contains ascent of this segment in metres [:elevation=true]")
     @JsonProperty("ascent")
     private Double ascent;
+    @ApiModelProperty(value = "Contains descent of this segment in metres [:elevation=true]")
     @JsonProperty("descent")
     private Double descent;
 
-    public JSONSegment(RouteSegment routeSegment, boolean includeElevation) {
+    public JSONSegment(RouteSegment routeSegment, RouteRequest request, double routeLength) {
         this.distance = routeSegment.getDistance();
         this.duration = routeSegment.getDuration();
         this.detourFactor = routeSegment.getDetourFactor();
-        if(includeElevation) {
+        if(request.hasReturnElevationForPoints() && request.getUseElevation()) {
             this.ascent = routeSegment.getAscent();
             this.descent = routeSegment.getDescent();
         }
         steps = new ArrayList<>();
         for(RouteStep routeStep : routeSegment.getSteps()) {
             steps.add(new JSONStep(routeStep));
+        }
+
+        if(request.hasAttributes()) {
+            APIRoutingEnums.Attributes[] attributes = request.getAttributes();
+            for(APIRoutingEnums.Attributes attr : attributes) {
+                switch(attr) {
+                    case DETOUR_FACTOR:
+                        detourFactor = routeSegment.getDetourFactor();
+                        break;
+                    case AVERAGE_SPEED:
+                        double distFactor = request.getUnits() == APIRoutingEnums.Units.METRES ? 1000 : 1;
+                        averageSpeed = FormatUtility.roundToDecimals(routeSegment.getDistance() / distFactor / (routeSegment.getDuration() /3600), 2);
+                        break;
+                    case ROUTE_PERCENTAGE:
+                        percentage = FormatUtility.roundToDecimals(routeSegment.getDistance() * 100 / routeLength, 2);
+                        break;
+                }
+            }
         }
     }
 
@@ -82,5 +108,13 @@ public class JSONSegment {
 
     public List<JSONStep> getSteps() {
         return steps;
+    }
+
+    public Double getPercentage() {
+        return percentage;
+    }
+
+    public Double getAverageSpeed() {
+        return averageSpeed;
     }
 }
