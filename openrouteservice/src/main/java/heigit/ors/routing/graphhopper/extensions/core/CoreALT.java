@@ -467,7 +467,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
      * @return the proxy node id
      */
     private SPTEntry getProxyNode(int nodeId, boolean bwd) {
-        ProxyNodeDijkstra proxyNodeDijkstra = new ProxyNodeDijkstra(graph, weighting, traversalMode);
+        ProxyNodeDijkstra proxyNodeDijkstra = new ProxyNodeDijkstra(chGraph, weighting, traversalMode);
         SPTEntry proxyNode = proxyNodeDijkstra.getProxyNode(nodeId, bwd);
         visitedCountProxy += proxyNodeDijkstra.getVisitedNodes();
         return proxyNode;
