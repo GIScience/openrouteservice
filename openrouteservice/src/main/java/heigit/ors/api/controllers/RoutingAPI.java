@@ -51,13 +51,29 @@ public class RoutingAPI {
         return getJsonMime(profile, request);
     }
 
-    @PostMapping(value = "/{profile}", produces = "application/gpx+xml;charset=UTF-8")
+    @PostMapping(value = "/{profile}/json", produces = {"application/json;charset=UTF-8"})
+    @ApiOperation(value = "Get a route from the specified profile", httpMethod = "POST", consumes = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "JSON Response", response = JSONRouteResponse.class)
+    })
+    public JSONRouteResponse getJsonMime(
+            @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIRoutingEnums.RoutingProfile profile,
+            @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws StatusCodeException {
+        request.setProfile(profile);
+        request.setResponseType(APIRoutingEnums.RouteResponseType.JSON);
+
+        RouteResult result = RouteRequestHandler.generateRouteFromRequest(request);
+
+        return new JSONRouteResponse(new RouteResult[] { result }, request);
+    }
+
+    @PostMapping(value = "/{profile}/gpx", produces = "application/gpx+xml;charset=UTF-8")
     @ApiOperation(value = "Get a route from the specified profile", httpMethod = "POST", consumes = "application/json")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "GPX Response", response = GPXRouteResponse.class)
     })
     public GPXRouteResponse getGPXMime(
-            @ApiParam(value = "Specifies the route profile.") @PathVariable APIRoutingEnums.RoutingProfile profile,
+            @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIRoutingEnums.RoutingProfile profile,
             @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws Exception {
         request.setProfile(profile);
         request.setResponseType(APIRoutingEnums.RouteResponseType.GPX);
@@ -68,13 +84,13 @@ public class RoutingAPI {
 
     }
 
-    @PostMapping(value = "/{profile}", produces = "application/geo+json;charset=UTF-8")
+    @PostMapping(value = "/{profile}/geojson", produces = "application/geo+json;charset=UTF-8")
     @ApiOperation(value = "Get a route from the specified profile", httpMethod = "POST", consumes = "application/json")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "GeoJSON Response", response = GeoJSONRouteResponse.class)
     })
     public GeoJSONRouteResponse getGeoJsonMime(
-            @ApiParam(value = "Specifies the route profile.") @PathVariable APIRoutingEnums.RoutingProfile profile,
+            @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIRoutingEnums.RoutingProfile profile,
             @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws Exception {
         request.setProfile(profile);
         request.setResponseType(APIRoutingEnums.RouteResponseType.GEOJSON);
@@ -82,22 +98,6 @@ public class RoutingAPI {
         RouteResult result = RouteRequestHandler.generateRouteFromRequest(request);
 
         return new GeoJSONRouteResponse(new RouteResult[] { result }, request);
-    }
-
-    @PostMapping(value = "/{profile}", produces = "application/json;charset=UTF-8")
-    @ApiOperation(value = "Get a route from the specified profile", httpMethod = "POST", consumes = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JSON Response", response = JSONRouteResponse.class)
-    })
-    public JSONRouteResponse getJsonMime(
-            @ApiParam(value = "Specifies the route profile.") @PathVariable APIRoutingEnums.RoutingProfile profile,
-            @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws StatusCodeException {
-        request.setProfile(profile);
-        request.setResponseType(APIRoutingEnums.RouteResponseType.JSON);
-
-        RouteResult result = RouteRequestHandler.generateRouteFromRequest(request);
-
-        return new JSONRouteResponse(new RouteResult[] { result }, request);
     }
 
     @ExceptionHandler

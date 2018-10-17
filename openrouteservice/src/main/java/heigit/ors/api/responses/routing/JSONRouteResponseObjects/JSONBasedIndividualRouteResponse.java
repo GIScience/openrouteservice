@@ -37,16 +37,16 @@ public class JSONBasedIndividualRouteResponse extends IndividualRouteResponse {
 
     public JSONBasedIndividualRouteResponse(RouteResult result, RouteRequest request) throws StatusCodeException {
         super(result, request);
-        if(request.hasReturnElevationForPoints() && request.getReturnElevationForPoints())
+        if(request.hasReturnElevationForPoints() && request.getUseElevation())
             includeElevation = true;
 
         bbox = BoundingBoxFactory.constructBoundingBox(result.getSummary().getBBox(), request);
     }
 
-    protected List<JSONSegment> constructSegments(RouteResult routeResult) {
+    protected List<JSONSegment> constructSegments(RouteResult routeResult, RouteRequest request) {
         List segments = new ArrayList<>();
         for(RouteSegment routeSegment : routeResult.getSegments()) {
-            segments.add(new JSONSegment(routeSegment, includeElevation));
+            segments.add(new JSONSegment(routeSegment, request, routeResult.getSummary().getDistance()));
         }
 
         return segments;

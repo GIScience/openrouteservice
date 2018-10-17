@@ -40,7 +40,7 @@ public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResp
     public GeoJSONIndividualRouteResponse(RouteResult routeResult, RouteRequest request) throws StatusCodeException {
         super(routeResult, request);
         geomResponse = new GeoJSONGeometryResponse(this.routeCoordinates, this.includeElevation);
-        List<JSONSegment> segments = constructSegments(routeResult);
+        List<JSONSegment> segments = constructSegments(routeResult, request);
 
         Map extras = constructExtras(request, routeResult);
 

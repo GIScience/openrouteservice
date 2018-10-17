@@ -92,7 +92,7 @@ public class RouteRequestHandlerTest {
         request.setLanguage(APIRoutingEnums.Languages.DE);
         request.setMaximumSearchRadii(new Double[] { 50.0, 20.0, 100.0});
         request.setResponseType(APIRoutingEnums.RouteResponseType.GEOJSON);
-        request.setReturnElevationForPoints(true);
+        request.setUseElevation(true);
         request.setRoutePreference(APIRoutingEnums.RoutePreference.FASTEST);
         request.setUnits(APIRoutingEnums.Units.METRES);
         request.setUseContractionHierarchies(false);

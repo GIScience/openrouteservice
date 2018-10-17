@@ -124,9 +124,9 @@ public class RouteRequest {
 
     @ApiModelProperty(name = "elevation", value = "Specifies whether to return elevation values for points. Please note that elevation also gets encoded for json response encoded polyline.")
     @JsonProperty("elevation")
-    private Boolean returnElevationForPoints;
+    private Boolean useElevation;
     @JsonIgnore
-    private boolean hasReturnElevationForPoints = false;
+    private boolean hasUseElevation = false;
 
     @ApiModelProperty(name = "extra_info",
             value = "The extra info items to include in the response")
@@ -346,13 +346,13 @@ public class RouteRequest {
         this.continueStraightAtWaypoints = continueStraightAtWaypoints;
     }
 
-    public Boolean getReturnElevationForPoints() {
-        return returnElevationForPoints;
+    public Boolean getUseElevation() {
+        return useElevation;
     }
 
-    public void setReturnElevationForPoints(Boolean returnElevationForPoints) {
-        this.returnElevationForPoints = returnElevationForPoints;
-        hasReturnElevationForPoints = true;
+    public void setUseElevation(Boolean useElevation) {
+        this.useElevation = useElevation;
+        hasUseElevation = true;
     }
 
     public Boolean getUseContractionHierarchies() {
@@ -381,7 +381,7 @@ public class RouteRequest {
     }
 
     public boolean hasReturnElevationForPoints() {
-        return hasReturnElevationForPoints;
+        return hasUseElevation;
     }
 
     public boolean hasRouteOptions() {

@@ -18,9 +18,8 @@ package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import heigit.ors.api.requests.routing.APIRoutingEnums;
+import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.api.requests.routing.RouteRequest;
-import heigit.ors.api.responses.routing.*;
 import heigit.ors.api.responses.routing.BoundingBox.BoundingBox;
 import heigit.ors.api.responses.routing.BoundingBox.BoundingBoxFactory;
 import heigit.ors.common.DistanceUnit;
@@ -28,6 +27,7 @@ import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.routing.RouteExtraInfo;
 import heigit.ors.routing.RouteResult;
 import heigit.ors.util.DistanceUnitUtil;
+import heigit.ors.util.PolylineEncoder;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -41,17 +41,19 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
 
     private BoundingBox bbox;
 
+    @ApiModelProperty(value = "The geometry of the route. For JSON route responses this is an encoded polyline.")
+    @JsonProperty("geometry")
     @JsonUnwrapped
-    private EncodedPolylineGeometryResponse geomResponse;
+    private String geomResponse;
 
     @ApiModelProperty("Summary information about the route")
     private JSONSummary summary;
 
-    @ApiModelProperty("The segments of the route. These correspond to routing instructions")
+    @ApiModelProperty("List containing the segments and its correspoding steps which make up the route.")
     private List<JSONSegment> segments;
 
     @JsonProperty("way_points")
-    @ApiModelProperty("A list of the locations of coordinates in the route that correspond to the waypoints")
+    @ApiModelProperty("List containing the indices of way points corresponding to the *geometry*.")
     private int[] wayPoints;
 
     private Map<String, JSONExtra> extras;
@@ -59,13 +61,14 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
     public JSONIndividualRouteResponse(RouteResult routeResult, RouteRequest request) throws StatusCodeException {
         super(routeResult, request);
 
-        geomResponse = new EncodedPolylineGeometryResponse(this.routeCoordinates, this.includeElevation);
+        geomResponse = constructEncodedGeometry(this.routeCoordinates, this.includeElevation);
+
         if(this.includeElevation)
             summary = new JSONSummary(routeResult.getSummary().getDistance(), routeResult.getSummary().getDuration(), routeResult.getSummary().getAscent(), routeResult.getSummary().getDescent());
         else
             summary = new JSONSummary(routeResult.getSummary().getDistance(), routeResult.getSummary().getDuration());
 
-        segments = constructSegments(routeResult);
+        segments = constructSegments(routeResult, request);
 
         bbox = BoundingBoxFactory.constructBoundingBox(routeResult.getSummary().getBBox(), request);
 
@@ -78,9 +81,15 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
             DistanceUnit units =  DistanceUnitUtil.getFromString(request.getUnits().toString(), DistanceUnit.Unknown);
             for (RouteExtraInfo extraInfo : responseExtras) {
                 extras.put(extraInfo.getName(), new JSONExtra(extraInfo.getSegments(), extraInfo.getSummary(units, routeLength, true)));
-
             }
         }
+    }
+
+    private String constructEncodedGeometry(final Coordinate[] coordinates, boolean useElevation) {
+        if(coordinates != null)
+            return PolylineEncoder.encode(coordinates, includeElevation, new StringBuffer());
+        else
+            return "";
     }
 
     @ApiModelProperty(value = "A bounding box which contains the entire route", example = "[49.414057, 8.680894, 49.420514, 8.690123]")
@@ -89,20 +98,14 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
         return bbox.getAsArray();
     }
 
-    @ApiModelProperty(value = "The geometry of the route", dataType = "heigit.ors.api.responses.routing.GeoJSONRouteResponseObjects.GeoJSONGeometryResponse")
-    @JsonProperty("geometry")
-    public GeometryResponse getGeomResponse() {
+    public String getGeomResponse() {
         return geomResponse;
     }
 
+    @ApiModelProperty(value = "List of extra info objects representing the extra info items that were requested for the route.")
     @JsonProperty("extras")
     public Map<String, JSONExtra> getExtras() {
         return extras;
-    }
-
-    @JsonProperty("geometry_format")
-    public String getGeometryFormat() {
-        return geomResponse.FORMAT;
     }
 
     public JSONSummary getSummary() {
