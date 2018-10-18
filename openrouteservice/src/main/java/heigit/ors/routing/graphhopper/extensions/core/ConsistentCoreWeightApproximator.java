@@ -36,13 +36,13 @@ public class ConsistentCoreWeightApproximator extends ConsistentWeightApproximat
         super(weightApprox);
     }
 
-    public void setFromWeight(int weight){
+    public void setFromWeight(double weight){
         if(getApproximation() instanceof CoreLMApproximator)
-            ((CoreLMApproximator)getApproximation()).setWeight(weight);
+            ((CoreLMApproximator)getApproximation()).setProxyWeight(weight);
     }
-    public void setToWeight(int weight){
+    public void setToWeight(double weight){
         if(getApproximation() instanceof CoreLMApproximator)
-            ((CoreLMApproximator)getReverseApproximation()).setWeight(weight);
+            ((CoreLMApproximator)getReverseApproximation()).setProxyWeight(weight);
     }
 
 }

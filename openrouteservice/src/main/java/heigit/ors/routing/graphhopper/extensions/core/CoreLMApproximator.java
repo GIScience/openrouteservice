@@ -19,7 +19,6 @@ package heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.QueryGraph;
-import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.weighting.BeelineWeightApproximator;
 import com.graphhopper.routing.weighting.WeightApproximator;
 import com.graphhopper.storage.Graph;
@@ -51,7 +50,7 @@ public class CoreLMApproximator implements WeightApproximator {
     private int[] activeToIntWeights;
     private double epsilon = 1;
     private int to = -1;
-    private int proxyWeight = 0;
+    private double proxyWeight = 0;
     // do activate landmark recalculation
     private boolean doALMRecalc = true;
     private final double factor;
@@ -147,7 +146,13 @@ public class CoreLMApproximator implements WeightApproximator {
         }
 
         int maxWeightInt = getMaxWeight(node, virtEdgeWeightInt, activeLandmarks, activeFromIntWeights, activeToIntWeights);
-        if (maxWeightInt < 0) {
+
+        if (factor <= 0) System.out.print("Negative factor");
+        if (epsilon <= 0) System.out.print("Negative faepsilonctor");
+
+        double weightDouble = maxWeightInt * factor * epsilon - proxyWeight;
+
+        if (weightDouble < 0) {
             // allow negative weight for now until we have more precise approximation (including query graph)
             return 0;
 //                throw new IllegalStateException("Maximum approximation weight cannot be negative. "
@@ -155,7 +160,7 @@ public class CoreLMApproximator implements WeightApproximator {
 //                        + "queryNode:" + queryNode + ", node:" + node + ", reverse:" + reverse);
         }
 
-        return maxWeightInt * factor * epsilon;
+        return weightDouble;
     }
 
     int getMaxWeight(int node, int virtEdgeWeightInt, int[] activeLandmarks, int[] activeFromIntWeights, int[] activeToIntWeights) {
@@ -179,8 +184,7 @@ public class CoreLMApproximator implements WeightApproximator {
                 toWeightInt = -toWeightInt;
             }
 
-            fromWeightInt -= virtEdgeWeightInt + proxyWeight;
-            toWeightInt -= virtEdgeWeightInt + proxyWeight;
+            if (virtEdgeWeightInt!=0) System.out.println("No virtual edge expected here");
 
             int tmpMaxWeightInt = Math.max(fromWeightInt, toWeightInt);
 //                if (tmpMaxWeightInt < 0)
@@ -213,8 +217,8 @@ public class CoreLMApproximator implements WeightApproximator {
         return new CoreLMApproximator(graph, maxBaseNodes, lms, activeLandmarks.length, factor, !reverse);
     }
 
-    public void setWeight(int weight){
-        proxyWeight = weight;
+    public void setProxyWeight(double proxyDistance){
+        proxyWeight = proxyDistance;
     }
 
     /**
