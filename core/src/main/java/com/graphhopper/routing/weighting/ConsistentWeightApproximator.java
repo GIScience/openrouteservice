@@ -42,6 +42,10 @@ public class ConsistentWeightApproximator {
         return uniDirApproximatorForward;
     }
 
+    public WeightApproximator getReverseApproximation() {
+        return uniDirApproximatorReverse;
+    }
+
     public void setFrom(int from) {
         uniDirApproximatorReverse.setTo(from);
     }

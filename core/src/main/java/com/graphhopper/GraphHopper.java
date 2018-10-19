@@ -69,13 +69,13 @@ import static com.graphhopper.util.Parameters.Algorithms.*;
 public class GraphHopper implements GraphHopperAPI {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final String fileLockName = "gh.lock";
-    private final Set<RoutingAlgorithmFactoryDecorator> algoDecorators = new LinkedHashSet<>();
+    protected final Set<RoutingAlgorithmFactoryDecorator> algoDecorators = new LinkedHashSet<>();
     // utils
     private final TranslationMap trMap = new TranslationMap().doImport();
     boolean removeZipped = true;
-    boolean enableInstructions = true;
+    protected boolean enableInstructions = true;
     // for graph:
-    private GraphHopperStorage ghStorage;
+    protected GraphHopperStorage ghStorage;
     private EncodingManager encodingManager;
     private int defaultSegmentSize = -1;
     private String ghLocation = "";
@@ -90,7 +90,7 @@ public class GraphHopper implements GraphHopperAPI {
     // for routing
     private int maxRoundTripRetries = 3;
     private boolean simplifyResponse = true;
-    private TraversalMode traversalMode = TraversalMode.NODE_BASED;
+    protected TraversalMode traversalMode = TraversalMode.NODE_BASED;
     private int maxVisitedNodes = Integer.MAX_VALUE;
 
     private int nonChMaxWaypointDistance = Integer.MAX_VALUE;
@@ -140,7 +140,7 @@ public class GraphHopper implements GraphHopperAPI {
     /**
      * @return the first flag encoder of the encoding manager
      */
-    FlagEncoder getDefaultVehicle() {
+    protected FlagEncoder getDefaultVehicle() {
         if (encodingManager == null)
             throw new IllegalStateException("No encoding manager specified or loaded");
 
@@ -182,6 +182,13 @@ public class GraphHopper implements GraphHopperAPI {
      */
     protected int getWorkerThreads() {
         return dataReaderWorkerThreads;
+    }
+
+    public int getMaxRoundTripRetries() {
+        return maxRoundTripRetries;
+    }
+    public boolean isCalcPoints() {
+        return calcPoints;
     }
 
     /**
@@ -371,6 +378,13 @@ public class GraphHopper implements GraphHopperAPI {
         return this;
     }
 
+    public boolean isSimplifyResponse() {
+        return simplifyResponse;
+    }
+    public boolean isFullyLoaded() {
+        return fullyLoaded;
+    }
+
     public String getPreferredLanguage() {
         return preferredLanguage;
     }
@@ -485,6 +499,10 @@ public class GraphHopper implements GraphHopperAPI {
         ensureNotLoaded();
         this.sortGraph = sortGraph;
         return this;
+    }
+
+    public ReadWriteLock getReadWriteLock() {
+        return readWriteLock;
     }
 
     public boolean isAllowWrites() {
@@ -1188,7 +1206,7 @@ public class GraphHopper implements GraphHopperAPI {
         return new ChangeGraphHelper(graph, locationIndex);
     }
 
-    private void checkIfPointsAreInBounds(List<GHPoint> points) {
+    protected void checkIfPointsAreInBounds(List<GHPoint> points) {
         BBox bounds = getGraphHopperStorage().getBounds();
         for (int i = 0; i < points.size(); i++) {
             GHPoint point = points.get(i);
@@ -1198,7 +1216,7 @@ public class GraphHopper implements GraphHopperAPI {
         }
     }
 
-    private void checkNonChMaxWaypointDistance(List<GHPoint> points) {
+    protected void checkNonChMaxWaypointDistance(List<GHPoint> points) {
         if (nonChMaxWaypointDistance == Integer.MAX_VALUE) {
             return;
         }

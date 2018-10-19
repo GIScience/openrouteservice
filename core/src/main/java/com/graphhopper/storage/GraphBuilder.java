@@ -21,6 +21,8 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.weighting.Weighting;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * For now this is just a helper class to quickly create a GraphStorage.
@@ -36,6 +38,7 @@ public class GraphBuilder {
     private boolean elevation;
     private long byteCapacity = 100;
     private Weighting singleCHWeighting;
+    private Weighting singleCoreWeighting;
 
     public GraphBuilder(EncodingManager encodingManager) {
         this.encodingManager = encodingManager;
@@ -46,6 +49,14 @@ public class GraphBuilder {
      */
     public GraphBuilder setCHGraph(Weighting singleCHWeighting) {
         this.singleCHWeighting = singleCHWeighting;
+        return this;
+    }
+
+    /**
+     * This method enables creating a CoreGraph with the specified weighting.
+     */
+    public GraphBuilder setCoreGraph(Weighting singleCoreWeighting) {
+        this.singleCoreWeighting = singleCoreWeighting;
         return this;
     }
 
@@ -98,10 +109,24 @@ public class GraphBuilder {
             dir = new RAMDirectory(location, store);
 
         GraphHopperStorage graph;
-        if (encodingManager.needsTurnCostsSupport() || singleCHWeighting == null)
+        if (encodingManager.needsTurnCostsSupport() || (singleCHWeighting == null && singleCoreWeighting == null))
             graph = new GraphHopperStorage(dir, encodingManager, elevation, new TurnCostExtension());
+        else if (singleCoreWeighting != null && singleCHWeighting != null)
+            throw new IllegalStateException("Cannot build CHGraph and CoreGraph at the same time");
+        else if (singleCHWeighting != null)
+            graph = new GraphHopperStorage(Arrays.asList(singleCHWeighting),
+                    dir,
+                    encodingManager,
+                    elevation,
+                    new TurnCostExtension.NoOpExtension(),
+                    Collections.singletonList("ch"));
         else
-            graph = new GraphHopperStorage(Arrays.asList(singleCHWeighting), dir, encodingManager, elevation, new TurnCostExtension.NoOpExtension());
+        graph = new GraphHopperStorage(Arrays.asList(singleCoreWeighting),
+                dir,
+                encodingManager,
+                elevation,
+                new TurnCostExtension.NoOpExtension(),
+                Collections.singletonList("core"));
 
         return graph;
     }

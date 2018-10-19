@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Iterator;
 
 /**
  * This class manages all storage related methods and delegates the calls to the associated graphs.
@@ -53,13 +54,24 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         this(Collections.<Weighting>emptyList(), dir, encodingManager, withElevation, extendedStorage);
     }
 
+    public GraphHopperStorage(List<? extends Weighting> chWeightings, Directory dir, final EncodingManager encodingManager, boolean withElevation, GraphExtension extendedStorage) {
+        this(chWeightings, dir, encodingManager, withElevation, extendedStorage, null);
+    }
+
     public GraphHopperStorage(List<? extends Weighting> chWeightings, Directory dir, final EncodingManager encodingManager,
-                              boolean withElevation, GraphExtension extendedStorage) {
+                              boolean withElevation, GraphExtension extendedStorage, List<String> types) {
         if (extendedStorage == null)
             throw new IllegalArgumentException("GraphExtension cannot be null, use NoOpExtension");
 
         if (encodingManager == null)
             throw new IllegalArgumentException("EncodingManager needs to be non-null since 0.7. Create one using new EncodingManager or EncodingManager.create(flagEncoderFactory, ghLocation)");
+
+        //default to ch
+        if(types == null && chWeightings != null){
+            types = new ArrayList<>();
+            for(int i = 0; i < chWeightings.size(); i++)
+                types.add("ch");
+        }
 
         this.encodingManager = encodingManager;
         this.dir = dir;
@@ -81,8 +93,8 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         };
 
         this.baseGraph = new BaseGraph(dir, encodingManager, withElevation, listener, extendedStorage);
-        for (Weighting w : chWeightings) {
-            chGraphs.add(new CHGraphImpl(w, dir, this.baseGraph));
+        for (int i = 0; i < chWeightings.size(); i++)  {
+            chGraphs.add(new CHGraphImpl(chWeightings.get(i), dir, this.baseGraph, types.get(i)));
         }
     }
 
@@ -126,6 +138,32 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
 
         CHGraph cg = chGraphs.iterator().next();
         return (T) cg;
+    }
+
+    public CHGraphImpl getCoreGraph(Weighting weighting) {
+        if (chGraphs.isEmpty())
+            throw new IllegalStateException("Cannot find graph implementation");
+        Iterator<CHGraphImpl> iterator = chGraphs.iterator();
+        while(iterator.hasNext()){
+            CHGraphImpl cg = iterator.next();
+            boolean isWeighting = cg.getWeighting().getName() == weighting.getName();
+            isWeighting = cg.getWeighting().getFlagEncoder().toString() == weighting.getFlagEncoder().toString();
+            //TODO This is very ugly. The weightings are the same but different instances so just getWeighting != weighting :(
+            if(cg.getType() == "core" && cg.getWeighting().getName() == weighting.getName() && cg.getWeighting().getFlagEncoder().toString() == weighting.getFlagEncoder().toString())
+                return cg;
+        }
+        throw new IllegalStateException("No core graph was found");
+    }
+    public CHGraphImpl getCoreGraph() {
+        if (chGraphs.isEmpty())
+            throw new IllegalStateException("Cannot find graph implementation");
+        Iterator<CHGraphImpl> iterator = chGraphs.iterator();
+        while(iterator.hasNext()){
+            CHGraphImpl cg = iterator.next();
+            if(cg.getType() == "core")
+                return cg;
+        }
+        throw new IllegalStateException("No core graph was found");
     }
 
     public boolean isCHPossible() {
@@ -349,6 +387,15 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
     public int getNodes() {
         return baseGraph.getNodes();
     }
+
+    public int getCoreNodes() {
+        for (CHGraphImpl cg : chGraphs) {
+            if (cg.getCoreNodes() == -1) continue;
+            return cg.getCoreNodes();
+        }
+        throw new IllegalStateException("No prepared core graph was found");
+    }
+
 
     @Override
     public NodeAccess getNodeAccess() {
