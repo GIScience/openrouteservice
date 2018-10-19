@@ -51,8 +51,8 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
 
     boolean inCore;
 
-    public AbstractCoreRoutingAlgorithm(Graph graph, Weighting weighting, TraversalMode tMode, double maxSpeed) {
-        super(graph, weighting, tMode, maxSpeed);
+    public AbstractCoreRoutingAlgorithm(Graph graph, Weighting weighting, TraversalMode tMode) {
+        super(graph, weighting, tMode);
 
         int size = Math.min(2000, Math.max(200, graph.getNodes() / 10));
         initCollections(size);
@@ -93,7 +93,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     }
 
     protected Path createAndInitPath() {
-        bestPath = new Path4CH(graph, graph.getBaseGraph(), weighting, maxSpeed);
+        bestPath = new Path4CH(graph, graph.getBaseGraph(), weighting);
         return bestPath;
     }
 

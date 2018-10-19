@@ -15,14 +15,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencoders;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.unused;
 
-import com.graphhopper.util.PMap;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.FootFlagEncoder;
 import com.graphhopper.routing.weighting.PriorityWeighting;
+import com.graphhopper.util.PMap;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.exghoverwrite.ExGhORSFootFlagEncoder;
 
-import java.util.*;
+import java.util.TreeMap;
 
 import static com.graphhopper.routing.util.PriorityCode.*;
 
@@ -31,17 +32,17 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  *
  * @author Peter Karich
  */
-public class HikingFlagEncoder extends FootFlagEncoder
+public class RunningFlagEncoder extends ExGhORSFootFlagEncoder
 {
     /**
      * Should be only instantiated via EncodingManager
      */
-    public HikingFlagEncoder()
+    public RunningFlagEncoder()
     {
         this(4, 1);
     }
 
-    public HikingFlagEncoder( PMap properties )
+    public RunningFlagEncoder( PMap properties )
     {
         this((int) properties.getLong("speed_bits", 4),
                 properties.getDouble("speed_factor", 1));
@@ -49,12 +50,12 @@ public class HikingFlagEncoder extends FootFlagEncoder
         this.setBlockFords(properties.getBool("block_fords", true));
     }
 
-    public HikingFlagEncoder( String propertiesStr )
+    public RunningFlagEncoder( String propertiesStr )
     {
         this(new PMap(propertiesStr));
     }
 
-    public HikingFlagEncoder( int speedBits, double speedFactor )
+    public RunningFlagEncoder( int speedBits, double speedFactor )
     {
         super(speedBits, speedFactor);
 
@@ -67,7 +68,7 @@ public class HikingFlagEncoder extends FootFlagEncoder
     @Override
     public int getVersion()
     {
-        return 2;
+        return 1;
     }
 
     @Override
@@ -161,6 +162,6 @@ public class HikingFlagEncoder extends FootFlagEncoder
     @Override
     public String toString()
     {
-        return "hiking";
+        return FlagEncoderNames.RUNNING;
     }
 }

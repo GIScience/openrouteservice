@@ -20,6 +20,7 @@ package heigit.ors.routing.graphhopper.extensions.core;
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.BeelineWeightApproximator;
 import com.graphhopper.routing.weighting.ConsistentWeightApproximator;
@@ -61,8 +62,8 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
 
     int visitedCountProxy;
 
-    public CoreALT(Graph graph, Weighting weighting, TraversalMode tMode, double maxSpeed) {
-        super(graph, weighting, tMode, maxSpeed);
+    public CoreALT(Graph graph, Weighting weighting, TraversalMode tMode) {
+        super(graph, weighting, tMode);
         BeelineWeightApproximator defaultApprox = new BeelineWeightApproximator(nodeAccess, weighting);
         defaultApprox.setDistanceCalc(Helper.DIST_PLANE);
         setApproximation(defaultApprox);
@@ -308,7 +309,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             if (ee == null) {
                 ee = new AStarEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight, tmpWeight);
                 // Modification by Maxim Rylov: Assign the original edge id.
-                ee.originalEdge = iter.getOriginalEdge();
+                ee.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
                 ee.parent = currEdge;
                 bestWeightMap.put(traversalId, ee);
                 prioQueue.add(ee);
@@ -379,7 +380,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                 if (ase == null) {
                     ase = new AStarEntry(iter.getEdge(), neighborNode, estimationFullWeight, alreadyVisitedWeight);
                     // Modification by Maxim Rylov: assign originalEdge
-                    ase.originalEdge = iter.getOriginalEdge();
+                    ase.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
                     bestWeightMap.put(traversalId, ase);
                 } else {
                     //                    assert (ase.weight > 0.999999 * estimationFullWeight) : "Inconsistent distance estimate "

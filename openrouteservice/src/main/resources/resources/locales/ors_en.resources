@@ -85,6 +85,12 @@
 					"name": "Make a U-turn onto {way_name}"
 				}
 			}
+			"keep": {
+				"default": {
+					"default": "Keep {turn_maneuver}",
+					"name": "Keep {turn_maneuver} onto {way_name}"
+				},
+			}
 		}
 	}
 }

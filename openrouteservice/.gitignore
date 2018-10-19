@@ -7,3 +7,5 @@ TODO.txt
 #/WebContent/WEB-INF/app.config
 *.iws
 *.ipr
+cgiar-cache
+srtm_38_03.zip

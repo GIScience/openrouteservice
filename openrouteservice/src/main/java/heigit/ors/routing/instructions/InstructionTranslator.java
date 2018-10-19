@@ -1,22 +1,15 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
- *  with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  if not, see <https://www.gnu.org/licenses/>.  
  */
 package heigit.ors.routing.instructions;
 
@@ -39,6 +32,8 @@ public class InstructionTranslator
 	private String _actionRoundaboutName;
 	private String _actionContinueDefault;
 	private String _actionContinueName;
+	private String _actionKeepDefault;
+	private String _actionKeepName;
 	private String _actionTurnDefault;
 	private String _actionTurnName;
 	private String[] _numerals;
@@ -58,7 +53,7 @@ public class InstructionTranslator
 		_directions[6] = _resources.getTranslation("instructions.directions.west");
 		_directions[7] = _resources.getTranslation("instructions.directions.northwest");
 
-		_turnManeuvers = new String[8];
+		_turnManeuvers = new String[10];
 		_turnManeuvers[0] = _resources.getTranslation("instructions.turn_maneuvers.left");
 		_turnManeuvers[1] = _resources.getTranslation("instructions.turn_maneuvers.right");
 		_turnManeuvers[2] = _resources.getTranslation("instructions.turn_maneuvers.sharp_left");
@@ -67,6 +62,8 @@ public class InstructionTranslator
 		_turnManeuvers[5] = _resources.getTranslation("instructions.turn_maneuvers.slight_right");
 		_turnManeuvers[6] = _resources.getTranslation("instructions.turn_maneuvers.straight");
 		_turnManeuvers[7] = _resources.getTranslation("instructions.turn_maneuvers.uturn");
+		_turnManeuvers[8] = _resources.getTranslation("instructions.turn_maneuvers.left");
+		_turnManeuvers[9] = _resources.getTranslation("instructions.turn_maneuvers.right");
 
 		_numerals = new String[11];
 		for (int i = 1; i<=10; i++)
@@ -76,6 +73,8 @@ public class InstructionTranslator
 		_actionDepartName = _resources.getTranslation("instructions.actions.depart.default.name");
 		_actionContinueDefault = _resources.getTranslation("instructions.actions.continue.default.default");
 		_actionContinueName = _resources.getTranslation("instructions.actions.continue.default.name");
+		_actionKeepDefault = _resources.getTranslation("instructions.actions.keep.default.default");
+		_actionKeepName = _resources.getTranslation("instructions.actions.keep.default.name");
 		_actionTurnDefault = _resources.getTranslation("instructions.actions.turn.default.default");
 		_actionTurnName = _resources.getTranslation("instructions.actions.turn.default.name");
 		_actionRoundaboutDefault = _resources.getTranslation("instructions.actions.roundabout.default.exit.default");
@@ -112,6 +111,17 @@ public class InstructionTranslator
 		if (isWayNull)
 			return str.replace("{turn_maneuver}",  _turnManeuvers[getTurnManeuver(type)]);
 		else 
+			return str.replace("{turn_maneuver}", _turnManeuvers[getTurnManeuver(type)]).replace("{way_name}", wayName);
+	}
+
+	public String getKeep(InstructionType type, String wayName)
+	{
+		boolean isWayNull = Helper.isEmpty(wayName);
+		String str = isWayNull ? _actionKeepDefault: _actionKeepName;
+
+		if (isWayNull)
+			return str.replace("{turn_maneuver}",  _turnManeuvers[getTurnManeuver(type)]);
+		else
 			return str.replace("{turn_maneuver}", _turnManeuvers[getTurnManeuver(type)]).replace("{way_name}", wayName);
 	}
 
@@ -173,23 +183,28 @@ public class InstructionTranslator
 
 	private int getTurnManeuver(InstructionType type)
 	{
-		if (type == InstructionType.TURN_LEFT)
-			return 0;
-		else if (type == InstructionType.TURN_RIGHT)
-			return 1;
-		else if (type == InstructionType.TURN_SHARP_LEFT)
-			return 2;
-		else if (type == InstructionType.TURN_SHARP_RIGHT)
-			return 3;
-		else if (type == InstructionType.TURN_SLIGHT_LEFT)
-			return 4;
-		else if (type == InstructionType.TURN_SLIGHT_RIGHT)
-			return 5;
-		else if (type == InstructionType.CONTINUE)
-			return 6;
+	    switch (type){
+            case TURN_LEFT:
+                return 0;
+            case TURN_RIGHT:
+                return 1;
+            case TURN_SHARP_LEFT:
+                return 2;
+            case TURN_SHARP_RIGHT:
+                return 3;
+            case TURN_SLIGHT_LEFT:
+                return 4;
+            case TURN_SLIGHT_RIGHT:
+                return 5;
+            case CONTINUE:
+                return 6;
+            case KEEP_LEFT:
+                return 8;
+            case KEEP_RIGHT:
+                return 9;
+        }
 		//TODO
 		//	_turnManeuvers[7] = _resources.getTranslation("instructions.turn_maneuvers.uturn");
-
 		return 0;
 	}
 }

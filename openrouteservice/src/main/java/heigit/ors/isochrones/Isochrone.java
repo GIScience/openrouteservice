@@ -1,123 +1,112 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
- *  with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package heigit.ors.isochrones;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
-
 import heigit.ors.common.AttributeValue;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.GeomUtility;
 import heigit.ors.util.UnitsConverter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Isochrone {
-	private Geometry geometry;
-	private double value;
-	private double area = 0.0;
-	private double maxRadius;
-	private Envelope envelope;
-	private List<AttributeValue> _attributes;
+    private Geometry geometry;
+    private double value;
+    private double area = 0.0;
+    private double maxRadius;
+    private Envelope envelope;
+    private List<AttributeValue> _attributes;
 
-	public Isochrone(Geometry geometry, double value, double maxRadius) {
-		this.geometry = geometry;
-		this.value = value;
-		this.maxRadius = maxRadius;
-	}
+    public Isochrone(Geometry geometry, double value, double maxRadius) {
+        this.geometry = geometry;
+        this.value = value;
+        this.maxRadius = maxRadius;
+    }
 
-	public Geometry getGeometry() {
-		return geometry;
-	}
+    public Geometry getGeometry() {
+        return geometry;
+    }
 
-	public double getValue() {
-		return value;
-	}
+    public double getValue() {
+        return value;
+    }
 
-	public double getMaxRadius(String units)
-	{
-		if (units != null)
-		{
-			switch(units)
-			{
-			case "m":
-				return maxRadius;
-			case "mi":
-				return UnitsConverter.SqMetersToSqMiles(maxRadius);
-			case "km":
-				return UnitsConverter.SqMetersToSqKilometers(maxRadius); 
-			}
-		}
+    public double getMaxRadius(String units) {
 
-		return maxRadius;
-	}
+        if (units != null) {
+            switch (units) {
+                case "m":
+                    return maxRadius;
+                case "mi":
+                    return UnitsConverter.MetersToMiles(maxRadius);
+                case "km":
+                    return UnitsConverter.MetersToKilometers(maxRadius);
+            }
+        }
 
-	public double getArea(String units) throws Exception
-	{
-		double area = getArea(true);
+        // return default meter
+        return maxRadius;
+    }
 
-		if (units != null)
-		{
-			switch(units)
-			{
-			case "m":
-				return area;
-			case "mi":
-				return UnitsConverter.SqMetersToSqMiles(area);
-			case "km":
-				return UnitsConverter.SqMetersToSqKilometers(area); 
-			}
-		}
+    public double getArea(String units) throws Exception {
+        double area = getArea(true);
+        if (units != null) {
+            switch (units) {
+                case "m":
+                    return area;
+                case "mi":
+                    return UnitsConverter.SqMetersToSqMiles(area);
+                case "km":
+                    return UnitsConverter.SqMetersToSqKilometers(area);
+            }
+        }
 
-		return area;
-	}
+        // return default square meter
+        return area;
 
-	public double getArea(Boolean inMeters) throws Exception {
-		if (area == 0.0) {
-			area = FormatUtility.roundToDecimals(GeomUtility.getArea(geometry, inMeters), 2);
-		}
+    }
 
-		return area;
-	}
+    public double getArea(Boolean inMeters) throws Exception {
+        if (area == 0.0) {
+            area = FormatUtility.roundToDecimals(GeomUtility.getArea(geometry, inMeters), 2);
+        }
 
-	public Envelope getEnvelope() {
-		if (envelope == null)
-			envelope = geometry.getEnvelopeInternal();
+        return area;
+    }
 
-		return envelope;
-	}
+    public Envelope getEnvelope() {
+        if (envelope == null)
+            envelope = geometry.getEnvelopeInternal();
 
-	public List<AttributeValue> getAttributes() {
-		return _attributes;
-	}
+        return envelope;
+    }
 
-	public void setAttributes(List<String> statNames, double[] statValues, String source) {
-		if (statNames == null)
-			return;
+    public List<AttributeValue> getAttributes() {
+        return _attributes;
+    }
 
-		if (_attributes == null)
-			_attributes = new ArrayList<AttributeValue>();
+    public void setAttributes(List<String> statNames, double[] statValues, String source) {
+        if (statNames == null)
+            return;
 
-		for (int i = 0; i < statNames.size(); i++)
-			_attributes.add(new AttributeValue(statNames.get(i), statValues[i], source));
-	}
+        if (_attributes == null)
+            _attributes = new ArrayList<AttributeValue>();
+
+        for (int i = 0; i < statNames.size(); i++)
+            _attributes.add(new AttributeValue(statNames.get(i), statValues[i], source));
+    }
 }

@@ -85,6 +85,12 @@
 					"name": "Eine Kehrtwendung auf {way_name} vollziehen"
 				}
 			}
+			"keep": {
+				"default": {
+					"default": "{turn_maneuver} halten",
+					"name": "{turn_maneuver} halten auf {way_name}"
+				},
+			}
 		}
 	}
 }

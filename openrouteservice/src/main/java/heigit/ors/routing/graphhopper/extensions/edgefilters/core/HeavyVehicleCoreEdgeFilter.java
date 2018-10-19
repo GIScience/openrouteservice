@@ -20,6 +20,7 @@
  */
 package heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
@@ -39,7 +40,7 @@ public class HeavyVehicleCoreEdgeFilter implements EdgeFilter {
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {
 
-		return  !_storage.hasEdgeRestriction(iter.getOriginalEdge(), _buffer);
+		return  !_storage.hasEdgeRestriction(EdgeIteratorStateHelper.getOriginalEdge(iter), _buffer);
 
 	}
 

@@ -19,6 +19,7 @@ package heigit.ors.routing.graphhopper.extensions.core;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
@@ -45,8 +46,8 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
     private PriorityQueue<SPTEntry> pqCoreFrom;
     private PriorityQueue<SPTEntry> pqCoreTo;
 
-    public CoreDijkstra(Graph graph, Weighting weighting, TraversalMode tMode, double maxSpeed) {
-        super(graph, weighting, tMode, maxSpeed);
+    public CoreDijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
+        super(graph, weighting, tMode);
     }
 
     @Override
@@ -212,7 +213,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
             if (ee == null) {
                 ee = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
                 // Modification by Maxim Rylov: Assign the original edge id.
-                ee.originalEdge = iter.getOriginalEdge();
+                ee.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
                 ee.parent = currEdge;
                 bestWeightMap.put(traversalId, ee);
                 prioQueue.add(ee);

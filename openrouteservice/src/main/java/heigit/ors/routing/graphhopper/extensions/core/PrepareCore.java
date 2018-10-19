@@ -771,11 +771,11 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         String algoStr = ASTAR_BI; //opts.getAlgorithm();
 
         if (ASTAR_BI.equals(algoStr)) {
-            CoreALT tmpAlgo = new CoreALT(graph, prepareWeighting, traversalMode, opts.getMaxSpeed());
+            CoreALT tmpAlgo = new CoreALT(graph, prepareWeighting, traversalMode);
             tmpAlgo.setApproximation(RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts, graph.getNodeAccess()));
             algo = tmpAlgo;
         } else if (DIJKSTRA_BI.equals(algoStr)) {
-            algo = new CoreDijkstra(graph, prepareWeighting, traversalMode, opts.getMaxSpeed());
+            algo = new CoreDijkstra(graph, prepareWeighting, traversalMode);
         } else {
             throw new IllegalArgumentException("Algorithm " + opts.getAlgorithm()
                     + " not supported for Contraction Hierarchies. Try with ch.disable=true");
@@ -794,8 +794,8 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     }
 
     public static class AStarBidirectionCH extends AStarBidirection {
-        public AStarBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode, double maxSpeed) {
-            super(graph, weighting, traversalMode, maxSpeed);
+        public AStarBidirectionCH(Graph graph, Weighting weighting, TraversalMode traversalMode) {
+            super(graph, weighting, traversalMode);
         }
 
         @Override
@@ -815,7 +815,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
 
         @Override
         protected Path createAndInitPath() {
-            bestPath = new Path4CH(graph, graph.getBaseGraph(), weighting, maxSpeed);
+            bestPath = new Path4CH(graph, graph.getBaseGraph(), weighting);
             return bestPath;
         }
 

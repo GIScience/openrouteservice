@@ -25,7 +25,6 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.storage.index.QueryResult;
-import com.graphhopper.util.ByteArrayBuffer;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIteratorState;
 
@@ -73,7 +72,6 @@ public class LocationIndexMatch extends LocationIndexTree {
     	 // implement a cheap priority queue via List, sublist and Collections.sort
         final List<QueryResult> queryResults = new ArrayList<QueryResult>();
         GHIntHashSet set = new GHIntHashSet();
-        ByteArrayBuffer arrayBuffer = new ByteArrayBuffer(10);
 
         for (int iteration = 0; iteration < 2; iteration++) {
             // should we use the return value of earlyFinish?
@@ -86,7 +84,7 @@ public class LocationIndexMatch extends LocationIndexTree {
 
                 @Override
                 public void apply(int node) {
-                    new XFirstSearchCheck(queryLat, queryLon, exploredNodes, edgeFilter, arrayBuffer) {
+                    new XFirstSearchCheck(queryLat, queryLon, exploredNodes, edgeFilter) {
                         @Override
                         protected double getQueryDistance() {
                             // do not skip search if distance is 0 or near zero (equalNormedDelta)
@@ -147,7 +145,7 @@ public class LocationIndexMatch extends LocationIndexTree {
             if (qr.isValid()) {
                 // denormalize distance
                 qr.setQueryDistance(distCalc.calcDenormalizedDist(qr.getQueryDistance()));
-                qr.calcSnappedPoint(distCalc, arrayBuffer);
+                qr.calcSnappedPoint(distCalc);
             } else {
                 throw new IllegalStateException("invalid query result should not happen here: " + qr);
             }

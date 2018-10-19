@@ -23,7 +23,6 @@ package heigit.ors.routing;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
-import com.graphhopper.reader.dem.ElevationProvider;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
@@ -151,21 +150,35 @@ public class RoutingProfile {
 
         gh.init(args);
 
+        // MARQ24: make sure that we only use ONE instance of the ElevationProvider across the multiple vehicle profiles
+        // so the caching for elevation data will/can be reused across different vehicles. [the loadCntx is a single
+        // Object that will shared across the (potential) multiple running instances]
+        if(loadCntx.getElevationProvider() != null) {
+            gh.setElevationProvider(loadCntx.getElevationProvider());
+        }else {
+            loadCntx.setElevationProvider(gh.getElevationProvider());
+        }
         gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
         gh.setWeightingFactory(new ORSWeightingFactory(RealTrafficDataProvider.getInstance()));
-
-        if (!Helper.isEmpty(config.getElevationProvider()) && !Helper.isEmpty(config.getElevationCachePath())) {
-            ElevationProvider elevProvider = loadCntx.getElevationProvider(config.getElevationProvider(), config.getElevationCachePath(), config.getElevationDataAccess(), config.getElevationCacheClear());
-            gh.setElevationProvider(elevProvider);
-        }
 
         gh.importOrLoad();
 
         if (LOGGER.isInfoEnabled()) {
             EncodingManager encodingMgr = gh.getEncodingManager();
             GraphHopperStorage ghStorage = gh.getGraphHopperStorage();
-            LOGGER.info(String.format("[%d] FlagEncoders: %s, bits used %d/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getUsedBitsForFlags(), encodingMgr.getBytesForFlags() * 8));
-            LOGGER.info(String.format("[%d] Capacity:  %s. (edges - %s, nodes - %s)", profileId, RuntimeUtility.getMemorySize(gh.getCapacity()), ghStorage.getEdges(), ghStorage.getNodes()));
+            // MARQ24 MOD START
+            // Same here as for the 'gh.getCapacity()' below - the 'encodingMgr.getUsedBitsForFlags()' method requires
+            // the EncodingManager to be patched - and this is ONLY required for this logging line... which is IMHO
+            // not worth it (and since we are not sharing FlagEncoders for mutiple vehicles this info is anyhow
+            // obsolete
+            //LOGGER.info(String.format("[%d] FlagEncoders: %s, bits used %d/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getUsedBitsForFlags(), encodingMgr.getBytesForFlags() * 8));
+            LOGGER.info(String.format("[%d] FlagEncoders: %s, bits used [UNKNOWN]/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getBytesForFlags() * 8));
+            // the 'getCapacity()' impl is the root cause of having a copy of the gh 'com.graphhopper.routing.lm.PrepareLandmarks'
+            // class (to make the store) accessible (getLandmarkStorage()) - IMHO this is not worth it!
+            // so gh.getCapacity() will be removed!
+            //LOGGER.info(String.format("[%d] Capacity:  %s. (edges - %s, nodes - %s)", profileId, RuntimeUtility.getMemorySize(gh.getCapacity()), ghStorage.getEdges(), ghStorage.getNodes()));
+            LOGGER.info(String.format("[%d] Capacity: [UNKNOWN]. (edges - %s, nodes - %s)", profileId, ghStorage.getEdges(), ghStorage.getNodes()));
+            // MARQ24 MOD END
             LOGGER.info(String.format("[%d] Total time: %s.", profileId, TimeUtility.getElapsedTime(startTime, true)));
             LOGGER.info(String.format("[%d] Finished at: %s.", profileId, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
             LOGGER.info("                              ");
@@ -199,6 +212,7 @@ public class RoutingProfile {
             args.put("graph.elevation.provider", StringUtility.trimQuotes(config.getElevationProvider()));
             args.put("graph.elevation.cache_dir", StringUtility.trimQuotes(config.getElevationCachePath()));
             args.put("graph.elevation.dataaccess", StringUtility.trimQuotes(config.getElevationDataAccess()));
+            args.put("graph.elevation.clear", config.getElevationCacheClear());
         }
 
         boolean prepareCH = false;
@@ -227,7 +241,6 @@ public class RoutingProfile {
                         if (prepareCH == false)
                             args.put("prepare.ch.weightings", "no");
                     }
-
 
                     if (prepareCH) {
                         if (chOpts.hasPath("threads"))
@@ -422,7 +435,7 @@ public class RoutingProfile {
 
                     mGraphHopper = initGraphHopper(ghOld.getDataReaderFile(), _config, RoutingProfileManager.getInstance().getProfiles(), loadCntx);
 
-                    loadCntx.release();
+                    loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
 
                     break;
                 }
@@ -566,7 +579,7 @@ public class RoutingProfile {
             else
                 graph = gh.getGraphHopperStorage().getBaseGraph();
 
-            MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), new ByteArrayBuffer(), req.getResolveLocations());
+            MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), req.getResolveLocations());
             MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 
             HintsMap hintsMap = new HintsMap();
@@ -818,7 +831,7 @@ public class RoutingProfile {
         return totalDistance <= maxDistance && wayPoints <= maxWayPoints;
     }
 
-    public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings, double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, EdgeFilter customEdgeFilter, boolean simplifyGeometry, RouteProcessContext routeProcCntx)
+    public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings, double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, EdgeFilter customEdgeFilter, RouteProcessContext routeProcCntx)
             throws Exception {
 
         GHResponse resp = null;
@@ -838,13 +851,12 @@ public class RoutingProfile {
             if (bearings == null || bearings[0] == null)
                 req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
             else if (bearings[1] == null)
-                req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), bearings[0].getDeviation(), Double.NaN, Double.NaN);
+                req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), Double.NaN);
             else
-                req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), bearings[0].getDeviation(), bearings[1].getValue(), bearings[1].getDeviation());
+                req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), bearings[1].getValue());
 
             req.setVehicle(searchCntx.getEncoder().toString());
             req.setMaxSpeed(searchParams.getMaximumSpeed());
-            req.setSimplifyGeometry(simplifyGeometry);
             req.setAlgorithm("dijkstrabi");
 
             if (radiuses != null)
@@ -869,19 +881,39 @@ public class RoutingProfile {
                 }
             }
 
-            if ((profileType == RoutingProfileType.CYCLING_TOUR || profileType == RoutingProfileType.CYCLING_MOUNTAIN)
-                    && weightingMethod == WeightingMethod.FASTEST) {
-                req.setWeighting("fastest");
-                req.getHints().put("weighting_method", "recommended");
-                flexibleMode = true;
-            }
-
-            if ((profileType == RoutingProfileType.CYCLING_TOUR /*RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType)*/ || (profileType == RoutingProfileType.DRIVING_HGV && HeavyVehicleAttributes.HGV == searchParams
-                    .getVehicleType())) && weightingMethod == WeightingMethod.RECOMMENDED) {
-                req.setWeighting("fastest");
-                req.getHints().put("weighting_method", "recommended_pref");
-
-                flexibleMode = true;
+            // MARQ24 for what ever reason after the 'weighting_method' hint have been set (based
+            // on the given searchParameter Max have decided that's necessary 'patch' the hint
+            // for certain profiles...
+            // ...and BTW if the flexibleMode set to true, CH will be disabled!
+            if(weightingMethod == WeightingMethod.FASTEST){
+                if (profileType == RoutingProfileType.CYCLING_TOUR) {
+                    req.setWeighting("fastest");
+                    req.getHints().put("weighting_method", "recommended");
+                    flexibleMode = true;
+                } else if(profileType == RoutingProfileType.CYCLING_MOUNTAIN){
+                    // MARQ24 - in the original code by Max the 'weighting_method' was always set
+                    // to 'recommended' for MTB (and enable 'flexibleMode' -> which will turn off CH)
+                    // - I will add code, that this will only apply if there are certain terrain/track
+                    // types disabled (like certain trail_difficulty) in the searchParams like this ->
+                    // options: {"profile_params":{"restrictions":{"trail_difficulty":1}}
+                    ProfileParameters params = searchParams.getProfileParameters();
+                    if(params != null && params instanceof CyclingParameters) {
+                        CyclingParameters cycleParams = (CyclingParameters) params;
+                        if(cycleParams.getMaximumGradient() > -1 || cycleParams.getMaximumTrailDifficulty() > -1) {
+                            req.setWeighting("fastest");
+                            req.getHints().put("weighting_method", "recommended");
+                            flexibleMode = true;
+                        }
+                    }
+                }
+            } else if (weightingMethod == WeightingMethod.RECOMMENDED){
+                if( (profileType == RoutingProfileType.DRIVING_HGV && HeavyVehicleAttributes.HGV == searchParams.getVehicleType())
+                    || profileType == RoutingProfileType.CYCLING_TOUR
+                ){
+                    req.setWeighting("fastest");
+                    req.getHints().put("weighting_method", "recommended_pref");
+                    flexibleMode = true;
+                }
             }
 
             if (RoutingProfileType.isDriving(profileType) && RealTrafficDataProvider.getInstance().isInitialized())
@@ -948,12 +980,11 @@ public class RoutingProfile {
 				resp = mGraphHopper.directRoute(req); NOTE IMPLEMENTED!!!
 			else */
 
-            StopWatch sw = new StopWatch().start();
+            resp = mGraphHopper.route(req);
 
-            resp = mGraphHopper.route(req, routeProcCntx.getArrayBuffer());
-
-            LOGGER.info("STATS: " + resp.getHints().get("visited_nodes.sum", "0") + "; " + sw.stop().getSeconds());
-
+            if (DebugUtility.isDebug()) {
+                System.out.println("visited_nodes.average - " + resp.getHints().get("visited_nodes.average", ""));
+            }
             endUseGH();
         } catch (Exception ex) {
             endUseGH();
@@ -967,16 +998,30 @@ public class RoutingProfile {
     }
 
     private boolean useDynamicWeights(RouteSearchParameters searchParams) {
-        boolean dynamicWeights = (searchParams.hasAvoidAreas() || searchParams.hasAvoidFeatures() || searchParams.hasAvoidCountries() || searchParams.hasAvoidBorders() || searchParams.getMaximumSpeed() > 0 || (RoutingProfileType.isDriving(searchParams.getProfileType()) && (searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
-
+        boolean dynamicWeights =
+            searchParams.hasAvoidAreas()
+            || searchParams.hasAvoidFeatures()
+            || searchParams.hasAvoidCountries()
+            || searchParams.hasAvoidBorders()
+            || searchParams.getMaximumSpeed() > 0
+            ||( RoutingProfileType.isDriving(searchParams.getProfileType())
+                &&( searchParams.hasParameters(VehicleParameters.class)
+                    || searchParams.getConsiderTraffic()
+                )
+            )
+            ||( searchParams.getWeightingMethod() == WeightingMethod.SHORTEST
+                || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED
+            )
+            || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/;
         return dynamicWeights;
     }
 
     private static boolean supportWeightingMethod(int profileType) {
-        if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType) || profileType == RoutingProfileType.WHEELCHAIR)
+        if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType) || profileType == RoutingProfileType.WHEELCHAIR) {
             return true;
-        else
+        }else {
             return false;
+        }
     }
 
     public Geometry getEdgeGeometry(int edgeId) {

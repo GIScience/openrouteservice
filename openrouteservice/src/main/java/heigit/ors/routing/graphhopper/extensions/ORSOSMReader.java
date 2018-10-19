@@ -1,22 +1,15 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
- *  with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  if not, see <https://www.gnu.org/licenses/>.  
  */
 package heigit.ors.routing.graphhopper.extensions;
 
@@ -49,7 +42,8 @@ public class ORSOSMReader extends OSMReader {
 	private HashMap<Integer, Long> tmcEdges;
 	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds;
 	private RoutingProfile refProfile;
-	private boolean enrichInstructions;
+	// MARQ24: REMOVED SINCE code that handles 'enrichInstructions = true' is already inactive!
+	//private boolean enrichInstructions;
 	private boolean processNodeTags;
 	private OSMDataReaderContext _readerCntx;
 
@@ -76,11 +70,13 @@ public class ORSOSMReader extends OSMReader {
 		this.osmId2EdgeIds = osmId2EdgeIds;
 		this.refProfile = refProfile;
 
-		enrichInstructions = (refProfile != null) && (storage.getEncodingManager().supports("foot")
+		// MARQ24: REMOVED SINCE code that handles 'enrichInstructions = true' is already inactive!
+		/*enrichInstructions = (refProfile != null) && (storage.getEncodingManager().supports("foot")
 				|| storage.getEncodingManager().supports("bike")  
 				|| storage.getEncodingManager().supports("MTB")
 				|| storage.getEncodingManager().supports("RACINGBIKE")
 				|| storage.getEncodingManager().supports("SAFETYBIKE"));
+        */
 
 		extraTagKeys = new HashSet<>();
 		// Look if we should do border processing - if so then we have to process the geometry
@@ -343,8 +339,9 @@ public class ORSOSMReader extends OSMReader {
 	@Override
 	protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge) {
 
-		if (enrichInstructions && Helper.isEmpty(way.getTag("name")) && Helper.isEmpty(way.getTag("ref"))) {
-			try {
+		// MARQ24: REMOVED SINCE code that handles 'enrichInstructions = true' is already inactive!
+		// by MARQ24 if (enrichInstructions && Helper.isEmpty(way.getTag("name")) && Helper.isEmpty(way.getTag("ref"))) {
+		// by MARQ24 	try {
 				/*	if (way.getId() != prevMatchedWayId)
 				{
 					prevMatchedWayId = way.getId();
@@ -365,10 +362,10 @@ public class ORSOSMReader extends OSMReader {
 					edge.setName(matchedEdgeName);
 				}*/
 
-			} 
-			catch (Exception ex) {
-			}
-		}
+		// by MARQ24 	}
+		// by MARQ24 	catch (Exception ex) {
+		// by MARQ24 	}
+		// by MARQ24 }
 
 		try {
 			if ((tmcEdges != null) && (osmId2EdgeIds!=null)) {

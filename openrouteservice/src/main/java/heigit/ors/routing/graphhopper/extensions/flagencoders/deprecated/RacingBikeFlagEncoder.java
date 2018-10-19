@@ -15,12 +15,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencoders;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.SpeedLimitHandler;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.tomove.BikeCommonFlagEncoder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -109,6 +112,7 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder {
         highwaySpeeds.put("service", 12);
         highwaySpeeds.put("unclassified", 16);
         highwaySpeeds.put("residential", 16);
+        highwaySpeeds.put("living_street", 8);
 
         highwaySpeeds.put("trunk", 20);
         highwaySpeeds.put("trunk_link", 20);
@@ -192,7 +196,7 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder {
         return isPushing;
     }
 
-    @Override
+    // MARQ24 removed @Override
     boolean isSacScaleAllowed(String sacScale) {
         // for racing bike it is only allowed if empty
         return false;
@@ -200,6 +204,6 @@ public class RacingBikeFlagEncoder extends BikeCommonFlagEncoder {
 
     @Override
     public String toString() {
-        return "racingbike";
+        return FlagEncoderNames.RACINGBIKE_ORS;
     }
 }

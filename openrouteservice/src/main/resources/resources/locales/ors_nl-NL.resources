@@ -85,6 +85,12 @@
 					"name": "Rechtsomkeerd richting {way_name}"
 				}
 			}
+			"keep": {
+				"default": {
+					"default": "Keer om {turn_maneuver}",
+					"name": "Keer om {turn_maneuver} richting {way_name}",
+				},
+			}
 		}
 	}
 }

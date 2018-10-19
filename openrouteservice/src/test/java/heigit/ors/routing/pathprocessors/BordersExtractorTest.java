@@ -26,13 +26,15 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.DAType;
 import com.graphhopper.storage.GHDirectory;
 import com.graphhopper.util.Helper;
+import heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 public class BordersExtractorTest {
-    private final FlagEncoder encoder = new EncodingManager("car").getEncoder("car");
+    private final FlagEncoder encoder = new EncodingManager(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4).getEncoder(FlagEncoderNames.CAR_ORS);
     private final BordersGraphStorage _graphstorage;
 
     public BordersExtractorTest() {

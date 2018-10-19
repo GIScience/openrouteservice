@@ -1,38 +1,25 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
- *  with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  if not, see <https://www.gnu.org/licenses/>.  
  */
 package heigit.ors.routing.algorithms;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.util.ByteArrayBuffer;
-import com.graphhopper.util.CHEdgeIteratorState;
-import com.graphhopper.util.EdgeExplorer;
-import com.graphhopper.util.EdgeIterator;
-import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.PointList;
+import com.graphhopper.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SubGraph {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -83,11 +70,6 @@ public class SubGraph {
 		}
 
 		@Override
-		public int getOriginalEdge() {
-			return _currState.getOriginalEdge();
-		}
-
-		@Override
 		public int getBaseNode() {
 			return _currState.getBaseNode();
 		}
@@ -99,11 +81,6 @@ public class SubGraph {
 
 		@Override
 		public PointList fetchWayGeometry(int mode) {
-			return null;
-		}
-
-		@Override
-		public PointList fetchWayGeometry(int mode, ByteArrayBuffer buffer) {
 			return null;
 		}
 
@@ -125,11 +102,6 @@ public class SubGraph {
 		@Override
 		public long getFlags() {
 			return _currState.getFlags();
-		}
-
-		@Override
-		public long getFlags(int encoderIndex) {
-			return _currState.getFlags(encoderIndex);
 		}
 
 		@Override
