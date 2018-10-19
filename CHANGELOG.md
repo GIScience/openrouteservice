@@ -13,6 +13,7 @@ Added area_units for isochrones API as units being misleading (Issue #272)
 ### Changed
 - Changed app.config.sample for docker to consider split profiles (Issue #320)
 - Changed minor information in pom.xml
+- Updated API test starting coordinates to be on a road (Issue #328)
 ### Deprecated
 
 ## [4.7] - 2018-10-10
