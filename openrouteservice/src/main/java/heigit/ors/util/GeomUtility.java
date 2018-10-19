@@ -174,31 +174,19 @@ public class GeomUtility {
         if (inMeters) {
             if (geom instanceof Polygon) {
 
+                // https://gis.stackexchange.com/questions/265481/geotools-unexpected-result-reprojecting-bounding-box-to-epsg3035
                 System.setProperty("org.geotools.referencing.forceXY", "true");
 
                 Polygon poly = (Polygon) geom;
 
                 CoordinateReferenceSystem sourceCRS = CRS.decode("EPSG:4326");
-                CoordinateReferenceSystem targetCRS = CRS.decode("EPSG:3035");
+
+                String mollweideProj = "PROJCS[\"World_Mollweide\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"Mollweide\"],PARAMETER[\"False_Easting\",0],PARAMETER[\"False_Northing\",0],PARAMETER[\"Central_Meridian\",0],UNIT[\"Meter\",1],AUTHORITY[\"EPSG\",\"54009\"]]";
+
+                CoordinateReferenceSystem targetCRS = CRS.parseWKT(mollweideProj);
 
                 MathTransform transform = CRS.findMathTransform(sourceCRS, targetCRS);
                 Geometry targetGeometry = JTS.transform(poly, transform);
-
-                double area = targetGeometry.getArea();
-
-                return area;
-
-            } else if (geom instanceof LineString) {
-
-                System.setProperty("org.geotools.referencing.forceXY", "true");
-
-                LineString ring = (LineString) geom;
-
-                CoordinateReferenceSystem sourceCRS = CRS.decode("EPSG:4326");
-                CoordinateReferenceSystem targetCRS = CRS.decode("EPSG:3035");
-
-                MathTransform transform = CRS.findMathTransform(sourceCRS, targetCRS);
-                Geometry targetGeometry = JTS.transform(ring, transform);
 
                 double area = targetGeometry.getArea();
 
@@ -210,7 +198,6 @@ public class GeomUtility {
                     CoordinateReferenceSystem crs = CRS.parseWKT(wkt);//  CRS.decode("EPSG:3857");
                     TRANSFORM_WGS84_SPHERICALMERCATOR = CRS.findMathTransform(DefaultGeographicCRS.WGS84, crs, true);
                 }
-
 
                 Geometry transformedGeometry = JTS.transform(geom, TRANSFORM_WGS84_SPHERICALMERCATOR);
                 return transformedGeometry.getArea();
