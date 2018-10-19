@@ -21,9 +21,6 @@
 package heigit.ors.isochrones.statistics.postgresql;
 
 import com.graphhopper.util.Helper;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.OutputStreamOutStream;
-import com.vividsolutions.jts.io.WKBWriter;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import heigit.ors.exceptions.InternalServerException;
@@ -33,8 +30,6 @@ import heigit.ors.isochrones.statistics.AbstractStatisticsProvider;
 import org.apache.log4j.Logger;
 import org.postgresql.ds.PGSimpleDataSource;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -137,9 +132,8 @@ public class PostgresSQLStatisticsProvider extends AbstractStatisticsProvider {
             for (String property : properties) {
                 String polyGeom = isochrone.getGeometry().toText();
                 switch (property) {
-                    case "total_area_km":
                     case "total_pop":
-                        sql = "SELECT ST_Area(poly) / 1000000 AS total_area_km, ROUND(SUM((ST_SummaryStats(ST_Clip(" + _geomColumn + ", poly))).sum)) AS total_pop FROM " + _tableName + ", ST_Simplify(ST_Transform(ST_GeomFromText('" + polyGeom + "', 4326), 954009), 125) AS poly WHERE ST_Intersects(poly, " + _geomColumn + ") GROUP BY poly;";
+                        sql = "SELECT ROUND(SUM((ST_SummaryStats(ST_Clip(" + _geomColumn + ", poly))).sum)) AS total_pop FROM " + _tableName + ", ST_Transform(ST_GeomFromText('" + polyGeom + "', 4326), 954009) AS poly WHERE ST_Intersects(poly, " + _geomColumn + ") GROUP BY poly;";
                         break;
                     default:
                         break;
@@ -183,85 +177,6 @@ public class PostgresSQLStatisticsProvider extends AbstractStatisticsProvider {
         }
         return res;
 
-    }
-
-
-    @Deprecated
-    public double[] getStatisticsOld(Isochrone isochrone, String[] properties) throws Exception {
-        int nProperties = properties.length;
-        double[] res = new double[nProperties];
-
-        Connection connection = null;
-        PreparedStatement statement = null;
-        Exception exception = null;
-
-        try {
-            String strParams = "";
-            String strRatioParams = "";
-            for (int i = 0; i < nProperties; i++) {
-                strRatioParams += "SUM(overlap_ratio * \"" + properties[i] + "\")";
-                strParams += "\"" + properties[i] + "\"";
-                if (i < nProperties - 1) {
-                    strRatioParams += ", ";
-                    strParams += ", ";
-                }
-            }
-
-            String sql = "SELECT " + strRatioParams + " FROM " +
-                    "(" +
-                    "SELECT" + strParams + "," + String.format("ST_Area(ST_Intersection(%s, ?)) / ST_Area(%s) overlap_ratio FROM %s WHERE ST_Intersects(%s, ?)", _geomColumn, _geomColumn, _tableName, _geomColumn) +
-                    ") AS tbl";
-
-            byte[] geomBytes = geometryToWKB(isochrone.getGeometry());
-
-            connection = _dataSource.getConnection();
-            connection.setAutoCommit(false);
-
-            statement = connection.prepareStatement(sql);
-            statement.setBytes(1, geomBytes);
-            statement.setBytes(2, geomBytes);
-
-            ResultSet resSet = statement.executeQuery();
-
-            if (resSet.next()) {
-                for (int i = 0; i < nProperties; i++)
-                    res[i] = resSet.getDouble(i + 1);
-            }
-        } catch (Exception ex) {
-            LOGGER.error(ex);
-            exception = new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to retrieve data from the data source.");
-        } finally {
-            if (statement != null)
-                statement.close();
-
-            if (connection != null)
-                connection.close();
-        }
-
-        if (exception != null)
-            throw exception;
-
-        return res;
-
-    }
-
-    /**
-     * This function translates a {@link Geometry} object into a byte[] representation.
-     * It was used by getStatisticsOld().
-     *
-     * @param geom {@link Geometry} object holding the Geometry (e.g. LINESTRING...).
-     * @return byte[] holding the byte representation of the {@link Geometry} object.
-     * @throws IOException
-     */
-    @Deprecated
-    private byte[] geometryToWKB(Geometry geom) throws IOException {
-        WKBWriter wkbWriter = new WKBWriter();
-        ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
-        wkbWriter.write(geom, new OutputStreamOutStream(bytesStream));
-        byte[] geomBytes = bytesStream.toByteArray();
-        bytesStream.close();
-
-        return geomBytes;
     }
 
     /**

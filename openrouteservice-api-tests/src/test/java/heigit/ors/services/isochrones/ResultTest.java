@@ -115,9 +115,9 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 //.body("features[0].properties.area", is(1.4625101E7f))
-                .body("features[0].properties.area", is(12829909.5f))
+				.body("features[0].properties.area", is(5433839.5f))
                 //.body("features[0].properties.reachfactor", is(0.1508f))
-                .body("features[0].properties.reachfactor", is(0.1323f))
+				.body("features[0].properties.reachfactor", is(0.056f))
                 .statusCode(200);
     }
 
@@ -135,8 +135,8 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.body("any { it.key == 'type' }", is(true))
 				.body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(12829909.5f))
-				.body("features[0].properties.reachfactor", is(0.1323f))
+				.body("features[0].properties.area", is(5433839.5f))
+				.body("features[0].properties.reachfactor", is(0.056f))
 				.statusCode(200);
 	}
 
@@ -154,8 +154,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(12.8299f))
-                .body("features[0].properties.reachfactor", is(0.1323f))
+				.body("features[0].properties.area", is(5.4338f))
+				.body("features[0].properties.reachfactor", is(0.056f))
                 .statusCode(200);
     }
 
@@ -173,8 +173,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(4.9537f))
-                .body("features[0].properties.reachfactor", is(0.1323f))
+				.body("features[0].properties.area", is(2.098f))
+				.body("features[0].properties.reachfactor", is(0.056f))
                 .statusCode(200);
     }
 
@@ -205,7 +205,7 @@ public class ResultTest extends ServiceTest {
 				.body("features[2].properties.contours.size()", is(2))
 				.body("features[2].properties.containsKey('area')", is(true))
 				//.body("features[2].properties.area", is(5824280.5f))
-				.body("features[2].properties.area", is(4745689.5f))
+				.body("features[2].properties.area", is(2010485.8f))
 				.body("features[2].properties.contours[0][0]", is(0))
 				.body("features[2].properties.contours[0][1]", is(0))
 				.body("features[2].properties.contours[1][0]", is(1))
