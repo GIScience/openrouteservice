@@ -33,11 +33,11 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
     public FlagEncoder createFlagEncoder(String name, PMap configuration) {
         switch(name){
             default:
-                // for all the types that DOES not macht the ORS specific encoders we make
-                // use of the GH defualts - PLEASE note, that even if the GH defaults are
+                // for all the types that DOES not match the ORS specific encoders we make
+                // use of the GH defaults - PLEASE note, that even if the GH defaults are
                 // used, the ors-fork of gh includes an adjustment in the
                 // 'AbstractFlagEncoder' (which is the parent class of ALL vehicles - so
-                // even if a gh default flagEncoder impl ist used - we hase some additional
+                // even if a gh default flagEncoder impl ist used - we have some additional
                 // features inside!
                 return super.createFlagEncoder(name, configuration);
 
@@ -57,6 +57,9 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
                 return new heigit.ors.routing.graphhopper.extensions.flagencoders.HeavyVehicleFlagEncoder(configuration);
 
             case FlagEncoderNames.BIKE_ORS:
+                if (configuration.getBool("consider_elevation", false)) {
+                    configuration.remove("consider_elevation");
+                }
                 return new heigit.ors.routing.graphhopper.extensions.flagencoders.nextgen.NextGenBikeFlagEncoder(configuration);
 
             case FlagEncoderNames.MTB_ORS:
