@@ -41,7 +41,7 @@ public class RoutingProfileCategory {
 
 	public static int getFromEncoder(EncodingManager encodingManager)
 	{
-		if (encodingManager.supports("car") || encodingManager.supports("heavyvehicle"))
+		if (encodingManager.supports("car-ors") || encodingManager.supports("heavyvehicle"))
 			return RoutingProfileCategory.DRIVING;
 
 		if (encodingManager.supports("bike") || encodingManager.supports("mtb") || encodingManager.supports("racingbike")

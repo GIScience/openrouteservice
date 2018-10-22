@@ -46,7 +46,6 @@ class CoreNodeContractor {
     private final CalcShortcutHandler calcScHandler = new CalcShortcutHandler();
     private CHEdgeExplorer vehicleInExplorer;
     private CHEdgeExplorer vehicleOutExplorer;
-    private IgnoreNodeFilter ignoreNodeFilter;
     private IgnoreNodeFilterSequence ignoreNodeFilterSequence;
     private EdgeFilter restrictionFilter;
     private DijkstraOneToMany prepareAlgo;
@@ -78,7 +77,6 @@ class CoreNodeContractor {
         maxEdgesCount = ghStorage.getAllEdges().getMaxId();
         ignoreNodeFilterSequence = new IgnoreNodeFilterSequence(prepareGraph, maxLevel);
         ignoreNodeFilterSequence.add(restrictionFilter);
-        ignoreNodeFilter = new IgnoreNodeFilter(prepareGraph, maxLevel);
         FlagEncoder prepareFlagEncoder = prepareWeighting.getFlagEncoder();
         vehicleInExplorer = prepareGraph.createEdgeExplorer(new DefaultEdgeFilter(prepareFlagEncoder, true, false));
         vehicleOutExplorer = prepareGraph.createEdgeExplorer(new DefaultEdgeFilter(prepareFlagEncoder, false, true));
@@ -294,29 +292,6 @@ class CoreNodeContractor {
 
     float getDijkstraSeconds() {
         return dijkstraSW.getSeconds();
-    }
-
-    static class IgnoreNodeFilter implements EdgeFilter {
-        int avoidNode;
-        int maxLevel;
-        CHGraph graph;
-
-        IgnoreNodeFilter(CHGraph chGraph, int maxLevel) {
-            this.graph = chGraph;
-            this.maxLevel = maxLevel;
-        }
-
-        IgnoreNodeFilter setAvoidNode(int node) {
-            this.avoidNode = node;
-            return this;
-        }
-
-        @Override
-        public final boolean accept(EdgeIteratorState iter) {
-            // ignore if it is skipNode or adjNode is already contracted
-            int node = iter.getAdjNode();
-            return avoidNode != node && graph.getLevel(node) == maxLevel;
-        }
     }
 
     static class IgnoreNodeFilterSequence extends EdgeFilterSequence implements EdgeFilter {
