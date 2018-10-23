@@ -12,6 +12,7 @@ Added area_units for isochrones API as units being misleading (Issue #272)
 - Area calculation for isochrones using metric crs (Issue #130)
 - Decreases maximum peed for bike-regular for more realistic reachability scores (Issue #325)
 - Fixes self intersecting polygons when requesting population for isochrones (Issue #297)
+- Enable HGV axleload restriction (Issue #262)
 ### Changed
 - Changed app.config.sample for docker to consider split profiles (Issue #320)
 - Changed minor information in pom.xml
