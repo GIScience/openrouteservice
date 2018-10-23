@@ -146,9 +146,6 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         Iterator<CHGraphImpl> iterator = chGraphs.iterator();
         while(iterator.hasNext()){
             CHGraphImpl cg = iterator.next();
-            boolean isWeighting = cg.getWeighting().getName() == weighting.getName();
-            isWeighting = cg.getWeighting().getFlagEncoder().toString() == weighting.getFlagEncoder().toString();
-            //TODO This is very ugly. The weightings are the same but different instances so just getWeighting != weighting :(
             if(cg.getType() == "core" && cg.getWeighting().getName() == weighting.getName() && cg.getWeighting().getFlagEncoder().toString() == weighting.getFlagEncoder().toString())
                 return cg;
         }
