@@ -55,11 +55,13 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.body("any { it.key == 'type' }", is(true))
 				.body("any { it.key == 'features' }", is(true))
-				.body("features[0].geometry.coordinates[0].size()", is(27))
+				.body("features[0].geometry.coordinates[0].size()", is(28))
+				//.body("features[0].geometry.coordinates[0].size()", is(30))
 				.body("features[0].properties.center.size()", is(2))
 				.body("features[0].properties.center[0]", is(8.684177f))
 				.body("features[0].properties.center[1]", is(49.423034f))
-				.body("bbox", hasItems(8.662622f, 49.40911f, 8.695994f, 49.440487f))
+				//.body("bbox", hasItems(8.662622f, 49.40911f, 8.695994f, 49.440487f))
+				.body("bbox", hasItems(8.664085f, 49.410324f, 8.695973f, 49.438873f))
 				.body("features[0].type", is("Feature"))
 				.body("features[0].geometry.type", is("Polygon"))
 				.body("features[0].properties.group_index", is(0))
@@ -99,23 +101,83 @@ public class ResultTest extends ServiceTest {
 				.body("error.code", is(IsochronesErrorCodes.UNKNOWN));
 	}
 
+    @Test
+    public void testReachfactorAndArea() {
+
+        given()
+                .param("locations", getParameter("location"))
+                .param("profile", getParameter("profile"))
+                .param("range", "400")
+                .param("attributes", "reachfactor|area")
+                .when()
+                .get(getEndPointName())
+                .then()
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'features' }", is(true))
+                //.body("features[0].properties.area", is(1.4625101E7f))
+                .body("features[0].properties.area", is(12829909.5f))
+                //.body("features[0].properties.reachfactor", is(0.1508f))
+                .body("features[0].properties.reachfactor", is(0.1323f))
+                .statusCode(200);
+    }
+
 	@Test
-	public void testReachfactorAndArea() {
+    public void testReachfactorAndAreaAreaUnitsM() {
 
 		given()
 				.param("locations", getParameter("location"))
 				.param("profile", getParameter("profile"))
 				.param("range", "400")
 				.param("attributes", "reachfactor|area")
+                .param("area_units", "m")
 				.when()
 				.get(getEndPointName())
 				.then()
 				.body("any { it.key == 'type' }", is(true))
 				.body("any { it.key == 'features' }", is(true))
-				.body("features[0].properties.area", is(1.46161E7f))
-				.body("features[0].properties.reachfactor", is(0.1507f))
+                .body("features[0].properties.area", is(12829909.5f))
+				.body("features[0].properties.reachfactor", is(0.1323f))
 				.statusCode(200);
 	}
+
+    @Test
+    public void testReachfactorAndAreaAreaUnitsKM() {
+
+        given()
+                .param("locations", getParameter("location"))
+                .param("profile", getParameter("profile"))
+                .param("range", "400")
+                .param("attributes", "reachfactor|area")
+                .param("area_units", "km")
+                .when()
+                .get(getEndPointName())
+                .then()
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'features' }", is(true))
+                .body("features[0].properties.area", is(12.8299f))
+                .body("features[0].properties.reachfactor", is(0.1323f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testReachfactorAndAreaAreaUnitsMI() {
+
+        given()
+                .param("locations", getParameter("location"))
+                .param("profile", getParameter("profile"))
+                .param("range", "400")
+                .param("attributes", "reachfactor|area")
+                .param("area_units", "mi")
+                .when()
+                .get(getEndPointName())
+                .then()
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'features' }", is(true))
+                .body("features[0].properties.area", is(4.9537f))
+                .body("features[0].properties.reachfactor", is(0.1323f))
+                .statusCode(200);
+    }
+
 
 	@Test
 	public void testIntersections() {
@@ -138,10 +200,12 @@ public class ResultTest extends ServiceTest {
 				.body("features[1].geometry.type", is("Polygon"))
 				.body("features[2].type", is("Feature"))
 				.body("features[2].geometry.type", is("Polygon"))
-				.body("features[2].geometry.coordinates[0].size()", is(25))
+				//.body("features[2].geometry.coordinates[0].size()", is(26))
+				.body("features[2].geometry.coordinates[0].size()", is(19))
 				.body("features[2].properties.contours.size()", is(2))
 				.body("features[2].properties.containsKey('area')", is(true))
-				.body("features[2].properties.area", is(5815279.5f))
+				//.body("features[2].properties.area", is(5824280.5f))
+				.body("features[2].properties.area", is(4745689.5f))
 				.body("features[2].properties.contours[0][0]", is(0))
 				.body("features[2].properties.contours[0][1]", is(0))
 				.body("features[2].properties.contours[1][0]", is(1))
@@ -191,10 +255,12 @@ public class ResultTest extends ServiceTest {
 			.body("features[1].geometry.coordinates[0].size", is(56))
 			.body("features[2].type", is("Feature"))
 			.body("features[2].geometry.type", is("Polygon"))
-			.body("features[2].geometry.coordinates[0].size", is(25))
+			//.body("features[2].geometry.coordinates[0].size", is(25))
+			.body("features[2].geometry.coordinates[0].size", is(21))
 			.body("features[3].type", is("Feature"))
 			.body("features[3].geometry.type", is("Polygon"))
-			.body("features[3].geometry.coordinates[0].size", is(33))
+			//.body("features[3].geometry.coordinates[0].size", is(33))
+			.body("features[3].geometry.coordinates[0].size", is(32))
 			.body("features[4].properties.contours.size", is(2))
 			
 			.statusCode(200);

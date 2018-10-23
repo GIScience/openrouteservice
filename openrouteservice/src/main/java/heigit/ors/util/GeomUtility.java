@@ -1,25 +1,20 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
- *  with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  if not, see <https://www.gnu.org/licenses/>.  
  */
 package heigit.ors.util;
 
+import com.graphhopper.util.PointList;
+import com.graphhopper.util.shapes.BBox;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -51,7 +46,7 @@ public class GeomUtility {
 	{
 	  return GEOM_FACTORY.createLineString(coords);
 	}
-	
+
 	// CRS.decode("EPSG:3785",
 	// true), true);
 	public static double pointToLineDistance(double ax, double ay, double bx, double by, double px, double py) {
@@ -69,6 +64,44 @@ public class GeomUtility {
 		double s = ((ay - py) * (bx - ax) - (ax - px) * (by - ay)) / len2;
 
 		return Math.abs(s) * Math.sqrt(len2);
+	}
+
+	/**
+	 * Creates the correct bbox from a Graphhopper pointlist. Instead of using the > or < operators to compare double
+	 * values this function uses the Math library which is more accurate and precise and creates correct bboxes even if
+	 * the coordinates only differ in some small extend.
+	 * The Fallback bbox is used when the pointlist is empty.
+	 * @param pointList
+	 * @return Returns a graphhopper bounding box
+	 */
+	public static BBox CalculateBoundingBox(PointList pointList, BBox _fallback) {
+		if (pointList.getSize() <= 0) {
+			return _fallback;
+		} else {
+			double min_lon = Double.MAX_VALUE;
+			double max_lon = -Double.MAX_VALUE;
+			double min_lat = Double.MAX_VALUE;
+			double max_lat = -Double.MAX_VALUE;
+			double min_ele = Double.MAX_VALUE;
+			double max_ele = -Double.MAX_VALUE;
+			for (int i = 0; i < pointList.getSize(); ++i) {
+				min_lon = Math.min(min_lon, pointList.getLon(i));
+				max_lon = Math.max(max_lon, pointList.getLon(i));
+				min_lat = Math.min(min_lat, pointList.getLat(i));
+				max_lat = Math.max(max_lat, pointList.getLat(i));
+				if (pointList.is3D()) {
+					min_ele = Math.min(min_ele, pointList.getEle(i));
+					max_ele = Math.max(max_ele, pointList.getEle(i));
+				}
+			}
+			if (pointList.is3D()) {
+				BBox summary_bbox = new BBox(min_lon, max_lon, min_lat, max_lat, min_ele, max_ele);
+				return summary_bbox;
+			} else {
+				BBox summary_bbox = new BBox(min_lon, max_lon, min_lat, max_lat);
+				return summary_bbox;
+			}
+		}
 	}
 
 	public static double distance2(double ax, double ay, double bx, double by)
@@ -139,46 +172,41 @@ public class GeomUtility {
 
 	}
 
-	public  static double degreesToMetres(double degrees) {
+    public static double degreesToMetres(double degrees) {
 		return degrees * 111139;
 	}
 
-	public static double getArea(Geometry geom, Boolean inMeters) throws Exception
-	{
-		if (inMeters) {
-			if (geom instanceof Polygon)
-			{
-				Polygon poly = (Polygon) geom;
-				double area = Math.abs(getSignedArea(poly.getExteriorRing().getCoordinateSequence()));
-				
-				for (int i = 0; i < poly.getNumInteriorRing(); i++) {
-					LineString hole =	poly.getInteriorRingN(i);
-					area -= Math.abs(getSignedArea(hole.getCoordinateSequence()));
-				}
-				
-				return area;
-			}
-			else if (geom instanceof LineString)
-			{
-				LineString ring = (LineString)geom;
-				return getSignedArea(ring.getCoordinateSequence());
-			}
-			else
-			{
-				if (TRANSFORM_WGS84_SPHERICALMERCATOR == null) {
-					String wkt = "PROJCS[\"WGS 84 / Pseudo-Mercator\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4326\"]],PROJECTION[\"Mercator_1SP\"],PARAMETER[\"central_meridian\",0],PARAMETER[\"scale_factor\",1],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"X\",EAST],AXIS[\"Y\",NORTH],AUTHORITY[\"EPSG\",\"3857\"]]";
-					CoordinateReferenceSystem crs = CRS.parseWKT(wkt);//  CRS.decode("EPSG:3857");
-					TRANSFORM_WGS84_SPHERICALMERCATOR = CRS.findMathTransform(DefaultGeographicCRS.WGS84, crs, true);
-				}
+	public static double getArea(Geometry geom, Boolean inMeters) throws Exception {
+        if (inMeters) {
+            if (geom instanceof Polygon) {
+                Polygon poly = (Polygon) geom;
+
+                double area = Math.abs(getSignedArea(poly.getExteriorRing().getCoordinateSequence()));
+
+                for (int i = 0; i < poly.getNumInteriorRing(); i++) {
+                    LineString hole = poly.getInteriorRingN(i);
+                    area -= Math.abs(getSignedArea(hole.getCoordinateSequence()));
+                }
+
+                return area;
+            } else if (geom instanceof LineString) {
+                LineString ring = (LineString) geom;
+                return getSignedArea(ring.getCoordinateSequence());
+            } else {
+                if (TRANSFORM_WGS84_SPHERICALMERCATOR == null) {
+                    String wkt = "PROJCS[\"WGS 84 / Pseudo-Mercator\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4326\"]],PROJECTION[\"Mercator_1SP\"],PARAMETER[\"central_meridian\",0],PARAMETER[\"scale_factor\",1],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"X\",EAST],AXIS[\"Y\",NORTH],AUTHORITY[\"EPSG\",\"3857\"]]";
+                    CoordinateReferenceSystem crs = CRS.parseWKT(wkt);//  CRS.decode("EPSG:3857");
+                    TRANSFORM_WGS84_SPHERICALMERCATOR = CRS.findMathTransform(DefaultGeographicCRS.WGS84, crs, true);
+                }
 
 
-				Geometry transformedGeometry = JTS.transform(geom, TRANSFORM_WGS84_SPHERICALMERCATOR);
-				return transformedGeometry.getArea();
-			}
-		} else {
-			return geom.getArea();
-		}
-	}
+                Geometry transformedGeometry = JTS.transform(geom, TRANSFORM_WGS84_SPHERICALMERCATOR);
+                return transformedGeometry.getArea();
+            }
+        } else {
+            return geom.getArea();
+        }
+    }
 
 	/**
 	 * Determine the 2D bearing between two points. Note that this does not take into account the spheroid shape of

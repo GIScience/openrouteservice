@@ -20,6 +20,7 @@ package heigit.ors.routing.graphhopper.extensions.core;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.AbstractRoutingAlgorithm;
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.util.TraversalMode;
@@ -55,7 +56,7 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
     protected Boolean reverseDirection = false;
 
     public ProxyNodeDijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
-        super(graph, weighting, tMode, -1);
+        super(graph, weighting, tMode);
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
         chGraph  = (CHGraph) ((QueryGraph) graph).getMainGraph();
         coreNodeLevel = chGraph.getNodes() + 1;
@@ -118,13 +119,13 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
                     nEdge = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
                     nEdge.parent = currEdge;
                     // Modification by Maxim Rylov: Assign the original edge id.
-                    nEdge.originalEdge = iter.getOriginalEdge();
+                    nEdge.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
                     fromMap.put(traversalId, nEdge);
                     fromHeap.add(nEdge);
                 } else if (nEdge.weight > tmpWeight) {
                     fromHeap.remove(nEdge);
                     nEdge.edge = iter.getEdge();
-                    nEdge.originalEdge = iter.getOriginalEdge();
+                    nEdge.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
                     nEdge.weight = tmpWeight;
                     nEdge.parent = currEdge;
                     fromHeap.add(nEdge);
@@ -151,7 +152,7 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
         if (currEdge == null || !finished())
             return createEmptyPath();
 
-        return new Path(graph, weighting, maxSpeed).setWeight(currEdge.weight).setSPTEntry(currEdge).extract();
+        return new Path(graph, weighting).setWeight(currEdge.weight).setSPTEntry(currEdge).extract();
     }
 
     @Override

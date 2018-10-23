@@ -1,30 +1,30 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
- *  with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  if not, see <https://www.gnu.org/licenses/>.  
  */
 package heigit.ors.routing;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import com.graphhopper.GraphHopper;
+import com.graphhopper.storage.StorableProperties;
+import com.graphhopper.util.Helper;
+import heigit.ors.routing.configuration.RouteProfileConfiguration;
+import heigit.ors.routing.configuration.RouteUpdateConfiguration;
+import heigit.ors.routing.traffic.RealTrafficDataProvider;
+import heigit.ors.util.DebugUtility;
+import heigit.ors.util.FileUtility;
+import heigit.ors.util.StackTraceUtility;
+import org.apache.commons.io.FileUtils;
+
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.Channels;
@@ -38,20 +38,6 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Logger;
-
-import org.apache.commons.io.FileUtils;
-
-import com.graphhopper.GraphHopper;
-import com.graphhopper.storage.StorableProperties;
-import com.graphhopper.util.Helper;
-
-import heigit.ors.routing.RoutingProfilesCollection;
-import heigit.ors.routing.configuration.RouteProfileConfiguration;
-import heigit.ors.routing.configuration.RouteUpdateConfiguration;
-import heigit.ors.routing.traffic.RealTrafficDataProvider;
-import heigit.ors.util.DebugUtility;
-import heigit.ors.util.FileUtility;
-import heigit.ors.util.StackTraceUtility;
 
 public class RoutingProfilesUpdater {
 
@@ -319,7 +305,7 @@ public class RoutingProfilesUpdater {
 					m_updateStatus = null;
 				}
 
-				loadCntx.release();
+				loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
 				
 				FileUtils.writeStringToFile(fileLastUpdate, md5Sum);
 

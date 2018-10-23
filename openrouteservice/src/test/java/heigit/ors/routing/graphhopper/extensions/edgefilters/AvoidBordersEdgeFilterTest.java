@@ -27,16 +27,18 @@ import com.graphhopper.storage.DAType;
 import com.graphhopper.storage.GHDirectory;
 import com.graphhopper.util.Helper;
 import heigit.ors.routing.RouteSearchParameters;
+import heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class AvoidBordersEdgeFilterTest {
 
-    private final FlagEncoder encoder = new EncodingManager("car").getEncoder("car");
+    private final FlagEncoder encoder = new EncodingManager(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4).getEncoder(FlagEncoderNames.CAR_ORS);
     private final BordersGraphStorage _graphStorage;
 
     private final RouteSearchParameters _searchParams;

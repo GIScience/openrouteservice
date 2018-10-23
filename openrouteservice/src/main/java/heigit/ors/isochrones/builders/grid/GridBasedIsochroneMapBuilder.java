@@ -1,55 +1,41 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
- *  with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  if not, see <https://www.gnu.org/licenses/>.  
  */
 package heigit.ors.isochrones.builders.grid;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.log4j.Logger;
-
 import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.MMapDirectory;
 import com.graphhopper.storage.index.Location2IDQuadtree;
 import com.graphhopper.storage.index.LocationIndex;
-import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.storage.index.QueryResult;
-import com.graphhopper.util.ByteArrayBuffer;
 import com.graphhopper.util.StopWatch;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
-
 import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
 import heigit.ors.matrix.MatrixMetricsType;
 import heigit.ors.matrix.MatrixRequest;
-import heigit.ors.matrix.MatrixResult;
-import heigit.ors.matrix.MatrixLocations;
 import heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
 import heigit.ors.routing.RouteSearchContext;
+import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GridBasedIsochroneMapBuilder extends AbstractIsochroneMapBuilder 
 {
@@ -111,7 +97,6 @@ public class GridBasedIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		double gridSizeY = Math.toDegrees(gridSizeMeters / 6378100.0);
 		double gridSizeX = gridSizeY / Math.cos(Math.toRadians(cx));
 		double halfN = gridSizeMeters/2;
-		ByteArrayBuffer arrayBuffer = new ByteArrayBuffer(50);
 		List<Coordinate> gridLocations = new ArrayList<Coordinate>(gridValues.length);
 		
 		for (int xi = 0; xi < gridSizeMeters; xi++)
@@ -124,7 +109,7 @@ public class GridBasedIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 				
 				int p = xi + yi*gridSizeMeters;
 
-				QueryResult res = _gridIndex.findClosest(cy + dy, cx + dx, EdgeFilter.ALL_EDGES , arrayBuffer);
+				QueryResult res = _gridIndex.findClosest(cy + dy, cx + dx, EdgeFilter.ALL_EDGES);
 				if (res.isValid())
 					gridValues[p] = res.getClosestNode();
 				else

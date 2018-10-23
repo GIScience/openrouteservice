@@ -85,6 +85,12 @@
 					"name": "Κάντε αναστροφή στην οδό {way_name}"
 				}
 			}
+			"keep": {
+				"default": {
+					"default": "Στρίψτε {turn_maneuver}",
+					"name": "Στρίψτε {turn_maneuver} στην οδό {way_name}",
+				},
+			}
 		}
 	}
 }

@@ -29,7 +29,9 @@ import com.graphhopper.PathWrapper;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.BBox;
 import heigit.ors.common.DistanceUnit;
-import heigit.ors.routing.*;
+import heigit.ors.routing.RouteResult;
+import heigit.ors.routing.RouteSegment;
+import heigit.ors.routing.RouteStep;
 
 import java.math.BigDecimal;
 
@@ -67,7 +69,6 @@ public class RouteResultMockup {
             routeResult.getSummary().setBBox(bbox);
             routeResult.getSummary().setDescent(0.0);
             routeResult.getSummary().setDistance(0.0);
-            routeResult.getSummary().setDistanceActual(0.0);
             routeResult.getSummary().setDuration(0.0);
             PointList pointList = new PointList();
             pointList.add(8.690675487235653, 49.38366164068056);
@@ -85,7 +86,8 @@ public class RouteResultMockup {
             pathWrapper.setDescend(0.0);
             pathWrapper.setDescription(null);
             pathWrapper.setFare(BigDecimal.ZERO);
-            pathWrapper.setFirstPtLegDeparture(0);
+            // MARQ24 UPDATE to gh 0.10.1 - method not present anylonger
+            //pathWrapper.setFirstPtLegDeparture(0);
             pathWrapper.setNumChanges(2);
             pathWrapper.setRouteWeight(0.0);
             pathWrapper.setPoints(pointList);

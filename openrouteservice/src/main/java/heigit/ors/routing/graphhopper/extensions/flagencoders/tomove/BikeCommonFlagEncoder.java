@@ -15,24 +15,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencoders;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.tomove;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.EncodedDoubleValue;
-import com.graphhopper.routing.util.EncodedValue;
-import com.graphhopper.routing.util.PriorityCode;
-import com.graphhopper.routing.util.RouteSplit;
-import com.graphhopper.routing.util.SteepnessUtil;
+import com.graphhopper.routing.EdgeIteratorStateHelper;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.PriorityWeighting;
-import com.graphhopper.util.ByteArrayBuffer;
-import com.graphhopper.util.DistanceCalc;
-import com.graphhopper.util.DistanceCalc3D;
-import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.Helper;
-import com.graphhopper.util.InstructionAnnotation;
-import com.graphhopper.util.PointList;
-import com.graphhopper.util.Translation;
+import com.graphhopper.util.*;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.SpeedLimitHandler;
 
 import java.util.*;
 
@@ -76,8 +68,9 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 	private List<RouteSplit> splits = new ArrayList<RouteSplit>();
 	private int prevEdgeId = Integer.MAX_VALUE;
 	public static boolean SKIP_WAY_TYPE_INFO = false;
-	private ByteArrayBuffer arrayBuffer =  new ByteArrayBuffer(100);
-	private CarFlagEncoder _carFlagEncoder = new CarFlagEncoder();
+
+	// MARQ24 REMOVED -> see comment near line 635
+	//private heigit.ors.routing.graphhopper.extensions.flagencoders.CarFlagEncoder _carFlagEncoder = new CarFlagEncoder();
 
 	protected BikeCommonFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
 		super(speedBits, speedFactor, maxTurnCosts);
@@ -490,7 +483,7 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 			paveType = 1; // unpaved        
 
 		if (SKIP_WAY_TYPE_INFO)  // Runge. We don't use this information
-			return new InstructionAnnotation(0, "", 0/*Runge*/);
+			return new InstructionAnnotation(0, "");
 		else
 		{
 			int wayType = (int) wayTypeEncoder.getValue(flags);
@@ -640,6 +633,10 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 			// set higher priority if car speed is low
 			if (surface != null)
 			{
+				// MARQ24: WHY the heck a BikeFlagEncoder should use ANY SPEED from a CarFlagEncoder???
+				// this makes NO SENSE to me!
+				// SO I will comment this section out
+				/* REMOVED BY MARQ24 (2018.06.30)
 				double maxCarSpeed = _carFlagEncoder.getMaxSpeed(way);
 				if (maxCarSpeed <= 40)
 				{
@@ -649,7 +646,7 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 					{
 						value = UNCHANGED.getValue();
 					}
-				}
+				} REMOVE END*/
 			}
 
 			weightToPrioMap.put(50d, value);
@@ -739,7 +736,7 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 		// Runge
 		if (isConsiderElevation())
 		{
-			PointList pl = edge.fetchWayGeometry(3, arrayBuffer);
+			PointList pl = edge.fetchWayGeometry(3);
 			if (!pl.is3D())
 				throw new IllegalStateException("To support speed calculation based on elevation data it is necessary to enable import of it.");
 
@@ -771,7 +768,7 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 				// Formulas for the following calculations is taken from http://www.flacyclist.com/content/perf/science.html
 				double gradient = 0.0;
 
-				if (prevEdgeId != edge.getOriginalEdge())
+				if (prevEdgeId != EdgeIteratorStateHelper.getOriginalEdge(edge))
 				{
 					String incline = way.getTag("incline"); 
 					if (!Helper.isEmpty(incline))
@@ -795,7 +792,7 @@ abstract public class BikeCommonFlagEncoder extends ORSAbstractFlagEncoder {
 					else
 						SteepnessUtil.computeRouteSplits(pl, false, distCalc, splits);
  
-					prevEdgeId = edge.getOriginalEdge();
+					prevEdgeId = EdgeIteratorStateHelper.getOriginalEdge(edge);
 				}
 
 

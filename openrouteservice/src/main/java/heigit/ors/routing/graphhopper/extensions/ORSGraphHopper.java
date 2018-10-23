@@ -4,14 +4,14 @@
  *   http://www.giscience.uni-hd.de
  *   http://www.heigit.org
  *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
+ *  under one or more contributor license agreements. See the NOTICE file
+ *  distributed with this work for additional information regarding copyright
+ *  ownership. The GIScience licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in compliance
  *  with the License. You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,6 +42,9 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.*;
+
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.util.CmdArgs;
 import heigit.ors.mapmatching.RouteSegmentInfo;
 import heigit.ors.routing.*;
 
@@ -63,10 +66,13 @@ import heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCo
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.graphhopper.util.Parameters.Algorithms.*;
 
 public class ORSGraphHopper extends GraphHopper {
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private GraphProcessContext _procCntx;
 	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds; // one osm id can correspond to multiple edges
@@ -168,7 +174,7 @@ public class ORSGraphHopper extends GraphHopper {
 		return gh;
 	}
 
-	public List<Path> calcPaths(GHRequest request, GHResponse ghRsp, ByteArrayBuffer byteBuffer) {
+	public List<Path> calcPaths(GHRequest request, GHResponse ghRsp) {
 		if (ghStorage == null || !isFullyLoaded())
 			throw new IllegalStateException("Do a successful call to load or importOrLoad before routing");
 
@@ -235,7 +241,7 @@ public class ORSGraphHopper extends GraphHopper {
 			Translation tr = getTranslationMap().getWithFallBack(locale);
 			for (int i = 0; i < maxRetries; i++) {
 				StopWatch sw = new StopWatch().start();
-				List<QueryResult> qResults = routingTemplate.lookup(points, request.getMaxSearchDistances(), encoder, byteBuffer);
+				List<QueryResult> qResults = routingTemplate.lookup(points, request.getMaxSearchDistances(), encoder);
 				ghRsp.addDebugInfo("idLookup:" + sw.stop().getSeconds() + "s");
 				if (ghRsp.hasErrors())
 					return Collections.emptyList();
@@ -254,7 +260,7 @@ public class ORSGraphHopper extends GraphHopper {
 					weighting = ((PrepareCore) coreAlgoFactory).getWeighting();
 					tMode = getCoreFactoryDecorator().getNodeBase();
 					queryGraph = new QueryGraph(ghStorage.getGraph(CHGraph.class, weighting));
-					queryGraph.lookup(qResults, byteBuffer);
+					queryGraph.lookup(qResults);
 				}
 				else{
 					if (getCHFactoryDecorator().isEnabled() && !disableCH) {
@@ -276,14 +282,14 @@ public class ORSGraphHopper extends GraphHopper {
 
 						tMode = getCHFactoryDecorator().getNodeBase();
 						queryGraph = new QueryGraph(ghStorage.getGraph(CHGraph.class, weighting));
-						queryGraph.lookup(qResults, byteBuffer);
+						queryGraph.lookup(qResults);
 
 
 					} else {
 
 						checkNonChMaxWaypointDistance(points);
 						queryGraph = new QueryGraph(ghStorage);
-						queryGraph.lookup(qResults, byteBuffer);
+						queryGraph.lookup(qResults);
 						weighting = createWeighting(hints, tMode, encoder, queryGraph, ghStorage);
 						ghRsp.addDebugInfo("tmode:" + tMode.toString());
 					}
@@ -302,10 +308,10 @@ public class ORSGraphHopper extends GraphHopper {
 				if (request.getEdgeFilter() != null)
 					algoOpts.setEdgeFilter(request.getEdgeFilter());
 
-				PathProcessingContext pathProcCntx = new PathProcessingContext(encoder, weighting, tr,
-						request.getEdgeAnnotator(), request.getPathProcessor(), byteBuffer);
+//				PathProcessingContext pathProcCntx = new PathProcessingContext(encoder, weighting, tr,
+//						request.getEdgeAnnotator(), request.getPathProcessor(), byteBuffer);
 
-				altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts, pathProcCntx);
+				altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts);
 
 				boolean tmpEnableInstructions = hints.getBool(Parameters.Routing.INSTRUCTIONS, enableInstructions);
 				boolean tmpCalcPoints = hints.getBool(Parameters.Routing.CALC_POINTS, isCalcPoints());
@@ -315,7 +321,7 @@ public class ORSGraphHopper extends GraphHopper {
 						.setEnableInstructions(tmpEnableInstructions)
 						.setSimplifyResponse(isSimplifyResponse() && wayPointMaxDistance > 0);
 
-				if (routingTemplate.isReady(pathMerger, pathProcCntx))
+				if (routingTemplate.isReady(pathMerger, tr))
 					break;
 			}
 
@@ -391,6 +397,38 @@ public class ORSGraphHopper extends GraphHopper {
 		}
 
 		return result;
+	}
+
+	private int _minNetworkSize = 200;
+	private int _minOneWayNetworkSize = 0;
+	@Override
+	public GraphHopper init(CmdArgs args) {
+		GraphHopper ret = super.init(args);
+		_minNetworkSize = args.getInt("prepare.min_network_size", _minNetworkSize);
+		_minOneWayNetworkSize = args.getInt("prepare.min_one_way_network_size", _minOneWayNetworkSize);
+		return ret;
+	}
+
+	@Override
+	protected void cleanUp() {
+		logger.info("call cleanUp for '" + getGraphHopperLocation() + "' ");
+		GraphHopperStorage ghs = getGraphHopperStorage();
+		if (ghs != null) {
+			this.logger.info("graph " + ghs.toString() + ", details:" + ghs.toDetailsString());
+			int prevNodeCount = ghs.getNodes();
+			int ex = ghs.getAllEdges().getMaxId();
+			List<FlagEncoder> list = getEncodingManager().fetchEdgeEncoders();
+			this.logger.info("will create PrepareRoutingSubnetworks with:\r\n"+
+					"\tNodeCountBefore: '" + prevNodeCount+"'\r\n"+
+					"\tgetAllEdges().getMaxId(): '" + ex+"'\r\n"+
+					"\tList<FlagEncoder>: '" + list+"'\r\n"+
+					"\tminNetworkSize: '" + _minNetworkSize+"'\r\n"+
+					"\tminOneWayNetworkSize: '" + _minOneWayNetworkSize+"'"
+			);
+		} else {
+			this.logger.info("graph GraphHopperStorage is null?!");
+		}
+		super.cleanUp();
 	}
 
 	public HashMap<Integer, Long> getTmcGraphEdges() {
@@ -541,5 +579,4 @@ public class ORSGraphHopper extends GraphHopper {
 				ghStorage.getProperties().put(ORSParameters.CoreLandmark.PREPARE + "done", true);
 		}
 	}
-
 }

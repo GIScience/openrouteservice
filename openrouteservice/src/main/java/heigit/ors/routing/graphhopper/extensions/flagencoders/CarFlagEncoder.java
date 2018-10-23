@@ -523,6 +523,6 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
 
     @Override
     public String toString() {
-        return "car";
+        return FlagEncoderNames.CAR_ORS;
     }
 }

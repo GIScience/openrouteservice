@@ -85,6 +85,12 @@
 					"name": "Fordulj meg  a(z) {way_name}-ra" 
 				}
 			}
+			"keep": {
+				"default": {
+					"default": "Fordulj {turn_maneuver}",
+					"name": "Fordulj {turn_maneuver} a(z) {way_name}-on",
+				},
+			}
 		}
 	}
 }

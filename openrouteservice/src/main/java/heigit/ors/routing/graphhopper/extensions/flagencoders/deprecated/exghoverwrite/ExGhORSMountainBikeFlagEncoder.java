@@ -15,14 +15,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencoders;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.exghoverwrite;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.PMap;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.TreeMap;
 
 import static com.graphhopper.routing.util.PriorityCode.*;
@@ -34,88 +33,79 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  * @author ratrun
  * @author Peter Karich
  */
-public class MountainBikeFlagEncoder extends BikeCommonFlagEncoder {
-    public MountainBikeFlagEncoder() {
+public class ExGhORSMountainBikeFlagEncoder extends ExGhORSBikeCommonFlagEncoder {
+    public ExGhORSMountainBikeFlagEncoder() {
         this(4, 2, 0, false);
     }
 
-    public MountainBikeFlagEncoder(PMap properties) {
-        this(
-                properties.getInt("speed_bits", 4) + (properties.getBool("consider_elevation", false) ? 1 : 0),
-                properties.getDouble("speed_factor", 2),
-                properties.getBool("turn_costs", false) ? 1 : 0,
-                properties.getBool("consider_elevation", false)
-        );
+    public ExGhORSMountainBikeFlagEncoder(PMap properties) {
+        this(properties.getInt("speed_bits", 4) + (properties.getBool("consider_elevation", false) ? 1 : 0),
+                properties.getDouble("speed_factor", 2), properties.getBool("turn_costs", false) ? 1 : 0,
+                properties.getBool("consider_elevation", false));
         this.properties = properties;
         this.setBlockFords(properties.getBool("block_fords", true));
     }
 
-    public MountainBikeFlagEncoder(String propertiesStr) {
+    public ExGhORSMountainBikeFlagEncoder(String propertiesStr) {
         this(new PMap(propertiesStr));
     }
 
-    public MountainBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
+    public ExGhORSMountainBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
         super(speedBits, speedFactor, maxTurnCosts, considerElevation);
-        
-		Map<String, Integer> trackTypeSpeedMap = new HashMap<String, Integer>();
-		trackTypeSpeedMap.put("grade1", 18); // paved
-		trackTypeSpeedMap.put("grade2", 12); // now unpaved ...
-		trackTypeSpeedMap.put("grade3", 8);
-		trackTypeSpeedMap.put("grade4", 6);
-		trackTypeSpeedMap.put("grade5", 4); // like sand/grass    
+        setTrackTypeSpeed("grade1", 18); // paved
+        setTrackTypeSpeed("grade2", 16); // now unpaved ...
+        setTrackTypeSpeed("grade3", 12);
+        setTrackTypeSpeed("grade4", 8);
+        setTrackTypeSpeed("grade5", 6); // like sand/grass     
 
-		Map<String, Integer> badSurfaceSpeedMap = new HashMap<String, Integer>();
-        badSurfaceSpeedMap.put("paved", 18);
-        badSurfaceSpeedMap.put("asphalt", 18);
-        badSurfaceSpeedMap.put("cobblestone", 10);
-        badSurfaceSpeedMap.put("cobblestone:flattened", 10);
-        badSurfaceSpeedMap.put("sett", 10);
-        badSurfaceSpeedMap.put("concrete", 14);
-        badSurfaceSpeedMap.put("concrete:lanes", 16);
-        badSurfaceSpeedMap.put("concrete:plates", 16);
-        badSurfaceSpeedMap.put("paving_stones", 16);
-        badSurfaceSpeedMap.put("paving_stones:30", 16);
-        badSurfaceSpeedMap.put("unpaved", 14);
-        badSurfaceSpeedMap.put("compacted", 14);
-        badSurfaceSpeedMap.put("dirt", 14);
-        badSurfaceSpeedMap.put("earth", 14);
-        badSurfaceSpeedMap.put("fine_gravel", 18);
-        badSurfaceSpeedMap.put("grass", 14);
-        badSurfaceSpeedMap.put("grass_paver", 14);
-        badSurfaceSpeedMap.put("gravel", 16);
-        badSurfaceSpeedMap.put("ground", 16);
-        badSurfaceSpeedMap.put("ice", PUSHING_SECTION_SPEED / 2);
-        badSurfaceSpeedMap.put("metal", 10);
-        badSurfaceSpeedMap.put("mud", 12);
-        badSurfaceSpeedMap.put("pebblestone", 12);
-        badSurfaceSpeedMap.put("salt", 12);
-        badSurfaceSpeedMap.put("sand", 10);
-        badSurfaceSpeedMap.put("wood", 10);
+        setSurfaceSpeed("paved", 18);
+        setSurfaceSpeed("asphalt", 18);
+        setSurfaceSpeed("cobblestone", 10);
+        setSurfaceSpeed("cobblestone:flattened", 10);
+        setSurfaceSpeed("sett", 10);
+        setSurfaceSpeed("concrete", 14);
+        setSurfaceSpeed("concrete:lanes", 16);
+        setSurfaceSpeed("concrete:plates", 16);
+        setSurfaceSpeed("paving_stones", 16);
+        setSurfaceSpeed("paving_stones:30", 16);
+        setSurfaceSpeed("unpaved", 14);
+        setSurfaceSpeed("compacted", 14);
+        setSurfaceSpeed("dirt", 14);
+        setSurfaceSpeed("earth", 14);
+        setSurfaceSpeed("fine_gravel", 18);
+        setSurfaceSpeed("grass", 14);
+        setSurfaceSpeed("grass_paver", 14);
+        setSurfaceSpeed("gravel", 16);
+        setSurfaceSpeed("ground", 16);
+        setSurfaceSpeed("ice", PUSHING_SECTION_SPEED / 2);
+        setSurfaceSpeed("metal", 10);
+        setSurfaceSpeed("mud", 12);
+        setSurfaceSpeed("pebblestone", 12);
+        setSurfaceSpeed("salt", 12);
+        setSurfaceSpeed("sand", 10);
+        setSurfaceSpeed("wood", 10);
 
-        Map<String, Integer> highwaySpeeds = new HashMap<String, Integer>();
-        highwaySpeeds.put("living_street", 6);
-        highwaySpeeds.put("steps", PUSHING_SECTION_SPEED);
+        setHighwaySpeed("living_street", 6);
+        setHighwaySpeed("steps", PUSHING_SECTION_SPEED);
 
-        highwaySpeeds.put("cycleway", 18);
-        highwaySpeeds.put("path", 18);
-        highwaySpeeds.put("footway", 6);
-        highwaySpeeds.put("pedestrian", 6);
-        highwaySpeeds.put("road", 12);
-        highwaySpeeds.put("track", 18);
-        highwaySpeeds.put("service", 14);
-        highwaySpeeds.put("unclassified", 16);
-        highwaySpeeds.put("residential", 16);
+        setHighwaySpeed("cycleway", 18);
+        setHighwaySpeed("path", 18);
+        setHighwaySpeed("footway", 6);
+        setHighwaySpeed("pedestrian", 6);
+        setHighwaySpeed("road", 12);
+        setHighwaySpeed("track", 18);
+        setHighwaySpeed("service", 14);
+        setHighwaySpeed("unclassified", 16);
+        setHighwaySpeed("residential", 16);
 
-        highwaySpeeds.put("trunk", 18);
-        highwaySpeeds.put("trunk_link", 18);
-        highwaySpeeds.put("primary", 18);
-        highwaySpeeds.put("primary_link", 18);
-        highwaySpeeds.put("secondary", 18);
-        highwaySpeeds.put("secondary_link", 18);
-        highwaySpeeds.put("tertiary", 18);
-        highwaySpeeds.put("tertiary_link", 18);
-        
-        _speedLimitHandler = new SpeedLimitHandler(this.toString(), highwaySpeeds, badSurfaceSpeedMap, trackTypeSpeedMap);
+        setHighwaySpeed("trunk", 18);
+        setHighwaySpeed("trunk_link", 18);
+        setHighwaySpeed("primary", 18);
+        setHighwaySpeed("primary_link", 18);
+        setHighwaySpeed("secondary", 18);
+        setHighwaySpeed("secondary_link", 18);
+        setHighwaySpeed("tertiary", 18);
+        setHighwaySpeed("tertiary_link", 18);
 
         addPushingSection("footway");
         addPushingSection("pedestrian");
@@ -189,13 +179,12 @@ public class MountainBikeFlagEncoder extends BikeCommonFlagEncoder {
     }
 
     @Override
-	protected double getDownhillMaxSpeed()
-	{
-		return 60;
-	}
+    protected double getDownhillMaxSpeed() {
+        return 60;
+    }
 
     @Override
     public String toString() {
-        return "mtb";
+        return FlagEncoderNames.MTB_ORS_OLD;
     }
 }

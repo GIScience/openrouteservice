@@ -1,45 +1,36 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
- *  with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  if not, see <https://www.gnu.org/licenses/>.  
  */
 package heigit.ors.matrix;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.QueryResult;
-import com.graphhopper.util.ByteArrayBuffer;
 import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MatrixSearchContextBuilder {
 	private Map<Coordinate, LocationEntry> _locationCache;
 	private boolean _resolveNames;
 	private LocationIndex _locIndex;
 	private EdgeFilter _edgeFilter;
-	private ByteArrayBuffer _buffer;
 
 	class LocationEntry
 	{
@@ -48,11 +39,10 @@ public class MatrixSearchContextBuilder {
 		public QueryResult queryResult;
 	}
 
-	public MatrixSearchContextBuilder(LocationIndex index, EdgeFilter edgeFilter, ByteArrayBuffer buffer, boolean resolveNames)
+	public MatrixSearchContextBuilder(LocationIndex index, EdgeFilter edgeFilter, boolean resolveNames)
 	{
 		_locIndex = index;
 		_edgeFilter = edgeFilter;
-		_buffer = buffer;
 		_resolveNames = resolveNames;
 	}
 
@@ -69,7 +59,7 @@ public class MatrixSearchContextBuilder {
 		resolveLocations(sources, queryResults, maxSearchRadius);
 		resolveLocations(destinations, queryResults, maxSearchRadius);
 
-		queryGraph.lookup(queryResults, _buffer);
+		queryGraph.lookup(queryResults);
 		
 		MatrixLocations mlSources = createLocations(sources);
 		MatrixLocations mlDestinations = createLocations(destinations);
@@ -88,7 +78,7 @@ public class MatrixSearchContextBuilder {
 			LocationEntry ld = _locationCache.get(p);
 			if (ld == null)
 			{  
-				QueryResult qr = _locIndex.findClosest(p.y, p.x, _edgeFilter, _buffer);
+				QueryResult qr = _locIndex.findClosest(p.y, p.x, _edgeFilter);
 				
 				ld = new LocationEntry();
 				ld.queryResult = qr;

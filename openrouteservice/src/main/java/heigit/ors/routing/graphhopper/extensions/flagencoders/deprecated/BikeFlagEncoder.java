@@ -15,10 +15,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencoders;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.PMap;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.tomove.BikeCommonFlagEncoder;
 
 public class BikeFlagEncoder extends BikeCommonFlagEncoder {
     public BikeFlagEncoder() {
@@ -90,6 +92,7 @@ public class BikeFlagEncoder extends BikeCommonFlagEncoder {
 
     @Override
     public String toString() {
-        return "bike";
+        return FlagEncoderNames.BIKE_ORS_OLD;
+        //return FlagEncoderNames.BIKE_ORS;
     }
 }

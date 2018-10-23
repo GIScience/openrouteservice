@@ -85,6 +85,12 @@
 					"name": "Произведите разворот на {way_name}"
 				}
 			}
+			"keep": {
+				"default": {
+					"default": "Поверните {turn_maneuver}",
+					"name": "Поверните {turn_maneuver} на {way_name}",
+				},
+			}
 		}
 	}
 }

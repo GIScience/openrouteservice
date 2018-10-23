@@ -841,7 +841,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         private final CoreLandmarkStorage lms;
 
         public CoreLandmarkExplorer(Graph g, CoreLandmarkStorage lms, Weighting weighting, TraversalMode tMode) {
-            super(g, weighting, tMode, -1);
+            super(g, weighting, tMode);
             this.lms = lms;
         }
 
