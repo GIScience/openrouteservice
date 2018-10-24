@@ -13,7 +13,11 @@
  */
 package heigit.ors.routing.parameters;
 
-public class WalkingParameters extends ProfileParameters 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class WalkingParameters extends ProfileParameters
 {
 	private int _maximumTrailDifficulty = Integer.MAX_VALUE;
 	
@@ -28,5 +32,14 @@ public class WalkingParameters extends ProfileParameters
 
 	public void setMaximumTrailDifficulty(int value) {
 		_maximumTrailDifficulty = value;
+	}
+
+	@Override
+	public List<String> getValidRestrictions() {
+		List<String> valid = super.getValidRestrictions();
+
+		valid.add("trail_difficulty");
+
+		return valid;
 	}
 }
