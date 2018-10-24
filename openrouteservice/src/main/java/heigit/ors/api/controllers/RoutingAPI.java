@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import heigit.ors.api.errors.RestResponseEntityExceptionHandler;
+import heigit.ors.api.errors.RoutingResponseEntityExceptionHandler;
 import heigit.ors.api.requests.routing.APIRoutingEnums;
 import heigit.ors.api.requests.routing.RouteRequest;
 import heigit.ors.api.responses.routing.GPXRouteResponseObjects.GPXRouteResponse;
@@ -100,19 +100,20 @@ public class RoutingAPI {
         return new GeoJSONRouteResponse(new RouteResult[] { result }, request);
     }
 
+    // Errors generated from the reading of the request (before entering the routing system). Normally these are where
+    // parameters have been entered incorrectly in the request
     @ExceptionHandler
     public ResponseEntity<Object> handleError(final HttpMessageNotReadableException e) {
         final Throwable cause = e.getCause();
-        final RestResponseEntityExceptionHandler h = new RestResponseEntityExceptionHandler();
+        final RoutingResponseEntityExceptionHandler h = new RoutingResponseEntityExceptionHandler();
         if(cause instanceof UnrecognizedPropertyException) {
             return h.handleUnknownParameterException(new UnknownParameterException(RoutingErrorCodes.UNKNOWN_PARAMETER, ((UnrecognizedPropertyException)cause).getPropertyName()));
         } else if(cause instanceof InvalidFormatException) {
             return h.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, ((InvalidFormatException)cause).getValue().toString()));
         } else if(cause instanceof InvalidDefinitionException) {
-            return h.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, ""));
+            return h.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, ((InvalidDefinitionException)cause).getPath().get(0).getFieldName()));
         } else if(cause instanceof MismatchedInputException) {
-            // TODO: Need to get the attribute that has a problem
-            return h.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, ""));
+            return h.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, ((MismatchedInputException)cause).getPath().get(0).getFieldName()));
         } else {
             return h.handleGenericException(e);
         }
