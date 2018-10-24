@@ -17,20 +17,19 @@ package heigit.ors.api.responses.routing.GeoJSONRouteResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import heigit.ors.api.requests.routing.RouteRequest;
 import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONBasedIndividualRouteResponse;
 import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONSegment;
 import heigit.ors.exceptions.StatusCodeException;
+import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.RouteResult;
+import io.swagger.annotations.ApiModelProperty;
+import org.json.simple.JSONObject;
 
 import java.util.List;
 import java.util.Map;
 
 public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResponse {
-    @JsonUnwrapped
-    private GeoJSONGeometryResponse geomResponse;
-
     @JsonProperty("type")
     public final String type = "Feature";
 
@@ -39,7 +38,6 @@ public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResp
 
     public GeoJSONIndividualRouteResponse(RouteResult routeResult, RouteRequest request) throws StatusCodeException {
         super(routeResult, request);
-        geomResponse = new GeoJSONGeometryResponse(this.routeCoordinates, this.includeElevation);
         List<JSONSegment> segments = constructSegments(routeResult, request);
 
         Map extras = constructExtras(request, routeResult);
@@ -47,8 +45,14 @@ public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResp
         properties = new GeoJSONSummary(routeResult, segments, extras, this.includeElevation);
     }
 
-    public GeoJSONGeometryResponse getGeomResponse() {
-        return geomResponse;
+    @ApiModelProperty(dataType = "org.json.simple.JSONObject")
+    @JsonProperty("geometry")
+    public JSONObject getGeometry() {
+        JSONObject geoJson = new JSONObject();
+        geoJson.put("type", "LineString");
+        geoJson.put("coordinates", GeometryJSON.toJSON(this.routeCoordinates, includeElevation));
+
+        return geoJson;
     }
 
     public GeoJSONSummary getProperties() {

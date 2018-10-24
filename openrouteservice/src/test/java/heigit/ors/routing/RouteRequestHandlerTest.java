@@ -4,6 +4,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Polygon;
 import heigit.ors.api.requests.routing.*;
 import heigit.ors.common.DistanceUnit;
+import heigit.ors.exceptions.IncompatableParameterException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
@@ -20,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Iterator;
 
 public class RouteRequestHandlerTest {
@@ -104,7 +106,6 @@ public class RouteRequestHandlerTest {
 
         options.setAvoidPolygonFeatures(geoJsonPolygon);
         options.setMaximumSpeed(120.0);
-        options.setVehicleType(APIRoutingEnums.VehicleType.AGRICULTURAL);
 
         vehicleParams = new RequestProfileParamsRestrictions();
 
@@ -187,7 +188,6 @@ public class RouteRequestHandlerTest {
         checkPolygon(routingRequest.getSearchParameters().getAvoidAreas(), geoJsonPolygon);
 
         Assert.assertEquals(120.0, routingRequest.getSearchParameters().getMaximumSpeed(), 0);
-        Assert.assertEquals(HeavyVehicleAttributes.AGRICULTURE, routingRequest.getSearchParameters().getVehicleType());
 
         ProfileWeightingCollection weightings = routingRequest.getSearchParameters().getProfileParameters().getWeightings();
         ProfileWeighting weighting;
@@ -209,6 +209,7 @@ public class RouteRequestHandlerTest {
     public void TestVehicleParameters() throws Exception {
         request.setProfile(APIRoutingEnums.RoutingProfile.DRIVING_HGV);
         request.getRouteOptions().getProfileParams().setRestrictions(vehicleParams);
+        request.getRouteOptions().setVehicleType(APIRoutingEnums.VehicleType.AGRICULTURAL);
 
         RoutingRequest routingRequest;
         routingRequest = RouteRequestHandler.convertRouteRequest(request);
@@ -291,6 +292,26 @@ public class RouteRequestHandlerTest {
     public void onlySetOptimizationToFalse() throws Exception {
         request.setUseContractionHierarchies(true);
         RouteRequestHandler.convertRouteRequest(request);
+    }
+
+    @Test
+    public void vehicleType() throws Exception{
+        RouteRequestOptions opts = request.getRouteOptions();
+        opts.setVehicleType(APIRoutingEnums.VehicleType.AGRICULTURAL);
+
+        for(APIRoutingEnums.RoutingProfile profile : APIRoutingEnums.RoutingProfile.values()) {
+            request.setProfile(profile);
+            request.setRouteOptions(opts);
+            if(profile != APIRoutingEnums.RoutingProfile.DRIVING_HGV) {
+                try {
+                    RouteRequestHandler.convertRouteRequest(request);
+                } catch (Exception e) {
+                    Assert.assertTrue(e instanceof IncompatableParameterException);
+                }
+            } else {
+                RouteRequestHandler.convertRouteRequest(request);
+            }
+        }
     }
 
     private void checkPolygon(Polygon[] requestPolys, JSONObject apiPolys) {

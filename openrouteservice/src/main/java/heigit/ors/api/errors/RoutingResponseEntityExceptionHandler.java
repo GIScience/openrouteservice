@@ -16,11 +16,9 @@
 package heigit.ors.api.errors;
 
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterException;
-import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.routing.RoutingErrorCodes;
 import heigit.ors.util.AppInfo;
 import org.apache.log4j.Logger;
@@ -29,7 +27,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,9 +34,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @ControllerAdvice
 @RestController
-public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+public class RoutingResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
-    protected static Logger LOGGER = Logger.getLogger(RestResponseEntityExceptionHandler.class.getName());
+    protected static Logger LOGGER = Logger.getLogger(RoutingResponseEntityExceptionHandler.class.getName());
 
     @ExceptionHandler(value = InvalidDefinitionException.class)
     public ResponseEntity handleInvalidDefinitionException(InvalidDefinitionException exception) {
@@ -59,7 +56,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
             LOGGER.error(exception);
         }
 
-        return new ResponseEntity(constructErrorBody(exception), headers, convertStatus(exception.getStatusCode()));
+        return new ResponseEntity(constructErrorBody(exception), headers, convertOrsToSpringHttpCode(exception.getStatusCode()));
     }
 
     @ExceptionHandler(value = UnknownParameterException.class)
@@ -74,9 +71,10 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
             LOGGER.error(exception);
         }
 
-        return new ResponseEntity(constructErrorBody(exception), headers, convertStatus(exception.getStatusCode()));
+        return new ResponseEntity(constructErrorBody(exception), headers, convertOrsToSpringHttpCode(exception.getStatusCode()));
     }
 
+    // Generic Error Handler
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity handleGenericException(Exception exception) {
         HttpHeaders headers = new HttpHeaders();
@@ -103,14 +101,12 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return new ResponseEntity(constructGenericErrorBody(exception), headers, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private HttpStatus convertStatus(int statusCode) {
+    private HttpStatus convertOrsToSpringHttpCode(int statusCode) {
         return HttpStatus.valueOf(statusCode);
     }
 
     private String constructErrorBody(StatusCodeException exception) {
-        int errorCode = -1;
-
-        errorCode = exception.getInternalCode();
+        int errorCode = exception.getInternalCode();
 
         JSONObject json = constructJsonBody(exception, errorCode);
 
@@ -123,7 +119,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         JSONObject jError = new JSONObject();
         jError.put("message", exception.getMessage());
 
-        if(internalErrorCode != -1) {
+        if(internalErrorCode > 0) {
             jError.put("code", internalErrorCode);
         }
 

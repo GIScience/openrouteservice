@@ -45,7 +45,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 
-@EndPointAnnotation(name = "routes")
+@EndPointAnnotation(name = "directions")
 @VersionAnnotation(version = "v2")
 public class ResultTest extends ServiceTest {
 
@@ -101,7 +101,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .log().all()
-                .post(getEndPointPath() + "/{profile}");
+                .post(getEndPointPath() + "/{profile}/gpx");
 
         response.then()
                 .log().all()
@@ -119,7 +119,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .log().all()
-                .post(getEndPointPath() + "/{profile}");
+                .post(getEndPointPath() + "/{profile}/gpx");
         response_without_instructions.then()
                 .assertThat()
                 .contentType("application/gpx+xml;charset=UTF-8")
@@ -430,7 +430,7 @@ public class ResultTest extends ServiceTest {
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .post(getEndPointPath() + "/{profile}")
+                .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .assertThat()
                 .body("any { it.key == 'features' }", is(true))

@@ -80,7 +80,7 @@ public class RouteRequestHandler {
 
         routingRequest.setLanguage(convertLanguage(request.getLanguage()));
 
-        routingRequest.setGeometryFormat(convertGeometryFromat(request.getResponseType()));
+        routingRequest.setGeometryFormat(convertGeometryFormat(request.getResponseType()));
 
         routingRequest.setInstructionsFormat(convertInstructionsFormat(request.getInstructionsFormat()));
 
@@ -131,7 +131,7 @@ public class RouteRequestHandler {
                 params.setMaximumSpeed(options.getMaximumSpeed());
 
             if (options.hasVehicleType())
-                params.setVehicleType(convertVehicleType(options.getVehicleType()));
+                params.setVehicleType(convertVehicleType(options.getVehicleType(), profileType));
 
             if(options.hasProfileParams())
                 params.setProfileParams(convertParameters(request, profileType));
@@ -155,7 +155,7 @@ public class RouteRequestHandler {
         return includeGeometry;
     }
 
-    private static String convertGeometryFromat(APIRoutingEnums.RouteResponseType responseType) throws ParameterValueException {
+    private static String convertGeometryFormat(APIRoutingEnums.RouteResponseType responseType) throws ParameterValueException {
         switch(responseType) {
             case GEOJSON:
                 return "geojson";
@@ -179,7 +179,6 @@ public class RouteRequestHandler {
         }
 
         return coords.toArray(new Coordinate[coords.size()]);
-
     }
 
     private static Coordinate convertSingleCoordinate(List<Double> coordinate) throws ParameterValueException {
@@ -187,10 +186,9 @@ public class RouteRequestHandler {
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "coordinates");
 
         return new Coordinate(coordinate.get(0), coordinate.get(1));
-
     }
 
-    private static int convertFeatureTypes(APIRoutingEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, ParameterValueException {
+    private static int convertFeatureTypes(APIRoutingEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatableParameterException {
         int flags = 0;
         for(APIRoutingEnums.AvoidFeatures avoid : avoidFeatures) {
             String avoidFeatureName = avoid.toString();
@@ -199,7 +197,7 @@ public class RouteRequestHandler {
                 throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", avoidFeatureName);
 
             if (!AvoidFeatureFlags.isValid(profileType, flag, avoidFeatureName))
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", avoidFeatureName);
+                throw new IncompatableParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", avoidFeatureName, "profile", RoutingProfileType.getName(profileType));
 
             flags |= flag;
         }
@@ -253,18 +251,6 @@ public class RouteRequestHandler {
         }
 
         return avoidAreas;
-    }
-
-    private double[][][] geoJsonPolygonCoordinates(JSONArray coordinatesIn) {
-        List<List<Double[]>> group = new ArrayList();
-        for(int i=0; i< coordinatesIn.size(); i++) {
-            List<Double[]> polygonIn = (List<Double[]>) coordinatesIn.get(i);
-            for(Double[] coords : polygonIn) {
-
-            }
-        }
-
-        return null;
     }
 
     private static WayPointBearing[] convertBearings(Double[][] bearingsIn, int coordinatesLength) throws ParameterValueException {
@@ -371,7 +357,12 @@ public class RouteRequestHandler {
         return units;
     }
 
-    private static int convertVehicleType(APIRoutingEnums.VehicleType vehicleTypeIn) throws ParameterValueException {
+    private static int convertVehicleType(APIRoutingEnums.VehicleType vehicleTypeIn, int profileType) throws IncompatableParameterException {
+        if(!RoutingProfileType.isHeavyVehicle(profileType)) {
+            throw new IncompatableParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE,
+                    "vehicle_type", vehicleTypeIn.toString(),
+                    "profile", RoutingProfileType.getName(profileType));
+        }
         if(vehicleTypeIn == null) {
             return HeavyVehicleAttributes.UNKNOWN;
         }
