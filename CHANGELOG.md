@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+### Fixed
+### Changed
+### Deprecated
+
+## [4.7.1] - 2018-10-24
+### Added
 Added instructions to readme for installing without Docker (Issue #272)
 Added area_units for isochrones API as units being misleading (Issue #272)
 ### Fixed
