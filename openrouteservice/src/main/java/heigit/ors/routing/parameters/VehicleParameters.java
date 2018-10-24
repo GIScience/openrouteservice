@@ -24,10 +24,7 @@ public class VehicleParameters extends ProfileParameters {
 
 	private int _characteristics = VehicleLoadCharacteristicsFlags.NONE;
 
-	public VehicleParameters()
-	{
-
-	}
+	public VehicleParameters() {}
 
 	public double getLength() {
 		return _length;
@@ -57,8 +54,8 @@ public class VehicleParameters extends ProfileParameters {
 		return _weight;
 	}
 
-	public void setWeight(double _weight) {
-		this._weight = _weight;
+	public void setWeight(double weight) {
+		_weight = weight;
 	}
 
 	public double getAxleload() {
@@ -77,8 +74,7 @@ public class VehicleParameters extends ProfileParameters {
 		_characteristics = characteristics;
 	}
 	
-	public boolean hasAttributes()
-	{
-		return _height >0.0 || _length > 0.0 || _width > 0.0 || _weight >0.0 || _characteristics != 0;
+	public boolean hasAttributes() {
+		return _height > 0.0 || _length > 0.0 || _width > 0.0 || _weight > 0.0 || _axleload > 0.0 || _characteristics != 0;
 	}
 }
