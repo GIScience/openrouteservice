@@ -13,7 +13,11 @@
  */
 package heigit.ors.routing.parameters;
 
-public class WheelchairParameters extends ProfileParameters 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class WheelchairParameters extends ProfileParameters
 {
 	private float _maxIncline = Float.MAX_VALUE * -1.0f;
 	private float _maxSlopedKerb = -1.0F;
@@ -70,4 +74,18 @@ public class WheelchairParameters extends ProfileParameters
 	public float getMinimumWidth() { return _minWidth; }
 
 	public void setMinimumWidth(float width) { _minWidth = width; }
+
+	@Override
+	public List<String> getValidRestrictions() {
+		List<String> valid = super.getValidRestrictions();
+
+		valid.add("surface_type");
+		valid.add("track_type");
+		valid.add("smoothness_type");
+		valid.add("maximum_sloped_kerb");
+		valid.add("maximum_incline");
+		valid.add("minimum_width");
+
+		return valid;
+	}
 }

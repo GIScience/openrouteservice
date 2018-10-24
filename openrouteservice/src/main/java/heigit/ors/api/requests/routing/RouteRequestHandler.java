@@ -484,38 +484,39 @@ public class RouteRequestHandler {
     private static void validateRestrictionsForProfile(RequestProfileParamsRestrictions restrictions, int profile) throws IncompatableParameterException {
         // Check that we do not have some parameters that should not be there
         List<String> setRestrictions = restrictions.getSetRestrictions();
+        ProfileParameters params = new ProfileParameters();
         if(RoutingProfileType.isCycling(profile)) {
-            setRestrictions.remove("gradient");
-            setRestrictions.remove("trail_difficulty");
+            params = new CyclingParameters();
         }
         if(RoutingProfileType.isWheelchair(profile)) {
-            setRestrictions.remove("surface_type");
-            setRestrictions.remove("track_type");
-            setRestrictions.remove("smoothness_type");
-            setRestrictions.remove("maximum_sloped_kerb");
-            setRestrictions.remove("maximum_incline");
-            setRestrictions.remove("minimum_width");
+            params = new WheelchairParameters();
         }
         if(RoutingProfileType.isWalking(profile)) {
-            setRestrictions.remove("gradient");
-            setRestrictions.remove("trail_difficulty");
+            params = new WalkingParameters();
         }
         if(RoutingProfileType.isHeavyVehicle(profile)) {
-            setRestrictions.remove("length");
-            setRestrictions.remove("width");
-            setRestrictions.remove("height");
-            setRestrictions.remove("weight");
-            setRestrictions.remove("axleload");
-            setRestrictions.remove("hazmat");
-        }
-        if(RoutingProfileType.isDriving(profile)) {
-
+            params = new VehicleParameters();
         }
 
-        if(setRestrictions.size() > 0) {
+        List<String> invalidParams = new ArrayList<>();
+        for(String setRestriction : setRestrictions) {
+            boolean valid = false;
+            for(String validRestriction : params.getValidRestrictions()) {
+                if(validRestriction.equals(setRestriction)) {
+                    valid = true;
+                    break;
+                }
+            }
+
+            if(!valid) {
+                invalidParams.add(setRestriction);
+            }
+        }
+
+        if(invalidParams.size() > 0) {
             // There are some parameters present that shouldn't be there
-            String invalidParams = StringUtils.join(setRestrictions, ", ");
-            throw new IncompatableParameterException(RoutingErrorCodes.UNKNOWN_PARAMETER, invalidParams, null, "profile", RoutingProfileType.getName(profile));
+            String invalidParamsString = StringUtils.join(invalidParams, ", ");
+            throw new IncompatableParameterException(RoutingErrorCodes.UNKNOWN_PARAMETER, "restrictions", invalidParamsString, "profile", RoutingProfileType.getName(profile));
         }
     }
 

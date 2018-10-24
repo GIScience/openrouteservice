@@ -16,6 +16,9 @@ package heigit.ors.routing.parameters;
 import heigit.ors.routing.ProfileWeighting;
 import heigit.ors.routing.ProfileWeightingCollection;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ProfileParameters {
     protected ProfileWeightingCollection _weightings;
     protected int _maximumGradient = -1;
@@ -49,5 +52,11 @@ public class ProfileParameters {
     public boolean hasWeightings()
     {
     	return _weightings != null && _weightings.size() > 0;
+    }
+
+    public List<String> getValidRestrictions() {
+        List<String> valid = new ArrayList<>();
+        valid.add("gradient");
+        return valid;
     }
 }
