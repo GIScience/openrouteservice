@@ -74,7 +74,7 @@ public class ProxyNodeStorage implements Storable<ProxyNodeStorage>{
         SPTEntry proxyNode;
 
         for (int node = 0; node < nodes; node++) {
-            if(core.getLevel(node) == coreNodeLevel){
+            if (core.getLevel(node) == coreNodeLevel) {
                 setProxyNode(node, node, 0, false);
                 setProxyNode(node, node, 0, true);
                 continue;
@@ -82,12 +82,11 @@ public class ProxyNodeStorage implements Storable<ProxyNodeStorage>{
             //fwd
             ProxyNodeDijkstra proxyNodeDijkstra = new ProxyNodeDijkstra(graph, weighting, TraversalMode.NODE_BASED);
             proxyNode = proxyNodeDijkstra.getProxyNode(node, false);
-            //cast to integer approximates weight but that should not be a problem
+            // instead of truncating the weight towards 0 always take its upper integer bound to avoid underestimation
             if (proxyNode == null)
                 setProxyNode(node, -1, -1, false);
             else
-                setProxyNode(node, proxyNode.adjNode, (int)proxyNode.getWeightOfVisitedPath(), false);
-
+                setProxyNode(node, proxyNode.adjNode, (int) Math.floor(proxyNode.getWeightOfVisitedPath()), false);
             //bwd
             proxyNodeDijkstra = new ProxyNodeDijkstra(graph, weighting, TraversalMode.NODE_BASED);
             proxyNode = proxyNodeDijkstra.getProxyNode(node, true);
@@ -95,7 +94,7 @@ public class ProxyNodeStorage implements Storable<ProxyNodeStorage>{
             if (proxyNode == null)
                 setProxyNode(node, -1, -1, true);
             else
-                setProxyNode(node, proxyNode.adjNode, (int)proxyNode.getWeightOfVisitedPath(), true);
+                setProxyNode(node, proxyNode.adjNode, (int) Math.floor(proxyNode.getWeightOfVisitedPath()), true);
         }
     }
 
