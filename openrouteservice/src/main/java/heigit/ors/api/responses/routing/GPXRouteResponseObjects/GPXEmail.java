@@ -16,6 +16,8 @@
 package heigit.ors.api.responses.routing.GPXRouteResponseObjects;
 
 import heigit.ors.config.AppConfig;
+import heigit.ors.exceptions.InternalServerException;
+import heigit.ors.routing.RoutingErrorCodes;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -28,13 +30,17 @@ public class GPXEmail {
     @XmlAttribute(name = "domain")
     private String domain;
 
-    public GPXEmail() {
+    public GPXEmail() throws InternalServerException {
         String email = AppConfig.Global().getParameter("info", "support_mail");
-        String[] parts = email.split("@");
+        try {
+            String[] parts = email.split("@");
 
-        if(parts.length == 2) {
-            id = parts[0];
-            domain = parts[1];
+            if (parts.length == 2) {
+                id = parts[0];
+                domain = parts[1];
+            }
+        } catch (Exception e) {
+            throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Error creating GPX Email attribute, has it been set in the app.config?");
         }
     }
 

@@ -16,21 +16,27 @@
 package heigit.ors.api.responses.routing.GPXRouteResponseObjects;
 
 import heigit.ors.routing.RouteStep;
+import heigit.ors.util.FormatUtility;
 import io.swagger.annotations.ApiModelProperty;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
+@XmlType(propOrder = {"elevation", "name", "instructionDescription", "element"})
 public class GPXRoutePointElement {
-    @XmlAttribute(name = "lat")
+    private final int COORDINATE_DECIMAL_PLACES = 6;
+    private final int ELEVATION_DECIMAL_PLACES = 2;
+
     private double latitude;
-    @XmlAttribute(name = "lon")
     private double longitude;
     @XmlElement(name = "name")
     private String name;
     @XmlElement(name = "desc")
     private String instructionDescription;
-    @XmlElement(name = "ele")
+
     private double elevation;
 
     @XmlElement(name = "extensions")
@@ -48,5 +54,20 @@ public class GPXRoutePointElement {
         this.instructionDescription = step.getInstruction();
 
         this.element = new GPXRoutePointExtensionElement(step, stepNumber);
+    }
+
+    @XmlElement(name = "ele")
+    public double getElevation() {
+        return FormatUtility.roundToDecimals(elevation, ELEVATION_DECIMAL_PLACES);
+    }
+
+    @XmlAttribute(name = "lat")
+    public double getLatitude() {
+        return FormatUtility.roundToDecimals(latitude, COORDINATE_DECIMAL_PLACES);
+    }
+
+    @XmlAttribute(name = "lon")
+    public double getLongitude() {
+        return FormatUtility.roundToDecimals(longitude, COORDINATE_DECIMAL_PLACES);
     }
 }

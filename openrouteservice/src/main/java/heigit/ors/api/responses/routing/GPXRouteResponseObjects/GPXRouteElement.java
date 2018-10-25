@@ -32,6 +32,8 @@ import java.util.List;
 public class GPXRouteElement {
     @XmlElement(name = "rtept")
     List<GPXRoutePointElement> routePoints;
+    @XmlElement(name = "extensions")
+    GPXRouteExtensions extensions;
 
     public GPXRouteElement() { }
 
@@ -47,8 +49,14 @@ public class GPXRouteElement {
 
         for(int i=0; i<steps.size(); i++) {
             RouteStep step = steps.get(i);
-            Coordinate c = routeCoordinates[step.getWayPoints()[0]];
-            routePoints.add(new GPXRoutePointElement(step, c.x, c.y, c.z, i));
+            int coordinateId = step.getWayPoints()[0];
+            while(coordinateId <= step.getWayPoints()[1]) {
+                Coordinate c = routeCoordinates[coordinateId];
+                routePoints.add(new GPXRoutePointElement(step, c.x, c.y, c.z, i));
+                coordinateId++;
+            }
         }
+
+        extensions = new GPXRouteExtensions(result);
     }
 }
