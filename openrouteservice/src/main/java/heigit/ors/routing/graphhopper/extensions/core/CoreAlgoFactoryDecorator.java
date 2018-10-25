@@ -40,10 +40,11 @@ import java.util.concurrent.Executors;
 import static com.graphhopper.util.Parameters.CH.DISABLE;
 
 /**
- * This class implements the CH decorator and provides several helper methods related to CH
+ * This class implements the Core Algo decorator and provides several helper methods related to core
  * preparation and its vehicle profiles.
  *
  * @author Peter Karich
+ * @author Hendrik Leuschner
  */
 public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorator {
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
@@ -92,10 +93,7 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
 
         boolean enableThis = !weightingsAsStrings.isEmpty();
         setEnabled(enableThis);
-        //TODO this is testing
-//        setEnabled(false);
         if (enableThis)
-            //TODO
             setDisablingAllowed(args.getBool(Core.INIT_DISABLING_ALLOWED, isDisablingAllowed()));
 
         setPreparationPeriodicUpdates(args.getInt(Core.PREPARE + "updates.periodic", getPreparationPeriodicUpdates()));
@@ -152,8 +150,6 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
 
     @Override
     public final boolean isEnabled() {
-        //TODO THIS IS FOR TESTING
-//        return true;
         return enabled;
     }
 
@@ -170,7 +166,7 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
     }
 
     /**
-     * This method specifies if it is allowed to disable CH routing at runtime via routing hints.
+     * This method specifies if it is allowed to disable Core routing at runtime via routing hints.
      */
     public final CoreAlgoFactoryDecorator setDisablingAllowed(boolean disablingAllowed) {
         this.disablingAllowed = disablingAllowed;
@@ -178,7 +174,7 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
     }
 
     /**
-     * Decouple weightings from PrepareContractionHierarchies as we need weightings for the
+     * Decouple weightings from PrepareCore as we need weightings for the
      * graphstorage and the graphstorage for the preparation.
      */
     public CoreAlgoFactoryDecorator addWeighting(Weighting weighting) {
@@ -195,11 +191,11 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
         preparations.add(pc);
         int lastIndex = preparations.size() - 1;
         if (lastIndex >= weightings.size())
-            throw new IllegalStateException("Cannot access weighting for PrepareContractionHierarchies with " + pc.getWeighting()
+            throw new IllegalStateException("Cannot access weighting for PrepareCore with " + pc.getWeighting()
                     + ". Call add(Weighting) before");
 
         if (preparations.get(lastIndex).getWeighting() != weightings.get(lastIndex))
-            throw new IllegalArgumentException("Weighting of PrepareContractionHierarchies " + preparations.get(lastIndex).getWeighting()
+            throw new IllegalArgumentException("Weighting of PrepareCore " + preparations.get(lastIndex).getWeighting()
                     + " needs to be identical to previously added " + weightings.get(lastIndex));
         return this;
     }
@@ -224,7 +220,7 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
     }
 
     /**
-     * Enables the use of contraction hierarchies to reduce query times. Enabled by default.
+     * Enables the use of core to reduce query times. Enabled by default.
      *
      * @param weightingList A list containing multiple weightings like: "fastest", "shortest" or
      *                      your own weight-calculation type.

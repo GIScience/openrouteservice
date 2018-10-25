@@ -37,7 +37,7 @@ import java.util.Iterator;
 import java.util.PriorityQueue;
 
 /**
- * Calculates best path using core routing algorithm.
+ * Calculates best path using CH routing outside core and ALT inside core.
  *
  * @author Andrzej Oles
  */
@@ -222,6 +222,9 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         return fromWeight >= bestPath.getWeight() && toWeight >= bestPath.getWeight();
     }
 
+    /**
+     * Run the ALT algo in the core
+     */
     @Override
     void runPhase2() {
         // re-init queues
@@ -533,14 +536,11 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
      * Finds the closest node that is in the core from a node that is not necessarily in the core.
      * Use this node as approximation node in lm approximator in core
      * @param nodeId the nodeId in the basegraph to get the proxynode for
-     * @return the proxy node id
+     * @return [proxy node id, weight]
      */
     private int[] getProxyNode(int nodeId, boolean bwd) {
         return pns.getProxyNodeAndWeight(nodeId, bwd);
-//        ProxyNodeDijkstra proxyNodeDijkstra = new ProxyNodeDijkstra(graph, weighting, traversalMode);
-//        SPTEntry proxyNode = proxyNodeDijkstra.getProxyNode(nodeId, bwd);
-//        visitedCountProxy += proxyNodeDijkstra.getVisitedNodes();
-//        return new AStarEntry(proxyNode.originalEdge, proxyNode.adjNode, proxyNode.weight, proxyNode.weight);
+
     }
 
     public int getVisitedNodesProxy() {

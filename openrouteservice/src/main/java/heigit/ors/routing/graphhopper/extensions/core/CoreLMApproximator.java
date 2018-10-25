@@ -27,9 +27,10 @@ import com.graphhopper.util.EdgeIteratorState;
 import java.util.Arrays;
 
 /**
- * This class is a weight approximation based on precalculated landmarks.
+ * This class is a weight approximation based on precalculated landmarks for core.
  *
  * @author Peter Karich
+ * @author Hendrik Leuschner
  */
 public class CoreLMApproximator implements WeightApproximator {
     private static class VirtEntry {
@@ -187,16 +188,7 @@ public class CoreLMApproximator implements WeightApproximator {
             if (virtEdgeWeightInt!=0) System.out.println("No virtual edge expected here");
 
             int tmpMaxWeightInt = Math.max(fromWeightInt, toWeightInt);
-//                if (tmpMaxWeightInt < 0)
-//                {
-//                    int lm = lms.getLandmarks()[landmarkIndex];
-//                    throw new IllegalStateException("At least one weight should be positive but wasn't. "
-//                            + "activeFromWeight:" + activeFromIntWeights[activeLMIdx] + ", lms.getFromWeight:" + lms.getFromWeight(landmarkIndex, node)
-//                            + "lms.getToWeight:" + lms.getToWeight(landmarkIndex, node) + ", activeToWeight:" + activeToIntWeights[activeLMIdx]
-//                            + ", virtEdgeWeight:" + virtEdgeWeightInt
-//                            + ", lm:" + lm + " (" + getCoord(lm) + ")"
-//                            + ", queryNode:" + queryNode + " , node:" + node + " (" + getCoord(node) + "), reverse:" + reverse);
-//                }
+
             if (tmpMaxWeightInt > maxWeightInt)
                 maxWeightInt = tmpMaxWeightInt;
         }

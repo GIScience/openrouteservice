@@ -49,9 +49,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * This class implements the A*, landmark and triangulation (ALT) decorator.
+ * This class implements the A*, landmark and triangulation (ALT) decorator for Core.
  *
  * @author Peter Karich
+ * @author Hendrik Leuschner
  */
 public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorator {
     private Logger LOGGER = LoggerFactory.getLogger(CoreLMAlgoFactoryDecorator.class);
@@ -141,7 +142,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
     }
 
     /**
-     * Enables the use of contraction hierarchies to reduce query times. Enabled by default.
+     *
      *
      * @param weightingList A list containing multiple weightings like: "fastest", "shortest" or
      *                      your own weight-calculation type.
@@ -180,7 +181,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
     }
 
     /**
-     * Decouple weightings from PrepareLandmarks as we need weightings for the graphstorage and the
+     * Decouple weightings from PrepareCoreLandmarks as we need weightings for the graphstorage and the
      * graphstorage for the preparation.
      */
     public CoreLMAlgoFactoryDecorator addWeighting(Weighting weighting) {
@@ -192,12 +193,12 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
         preparations.add(pch);
         int lastIndex = preparations.size() - 1;
         if (lastIndex >= weightings.size())
-            throw new IllegalStateException("Cannot access weighting for PrepareLandmarks with " + pch.getWeighting()
+            throw new IllegalStateException("Cannot access weighting for PrepareCoreLandmarks with " + pch.getWeighting()
                     + ". Call add(Weighting) before");
 
         if (preparations.get(lastIndex).getWeighting() != weightings.get(lastIndex))
             throw new IllegalArgumentException(
-                    "Weighting of PrepareContractionHierarchies " + preparations.get(lastIndex).getWeighting()
+                    "Weighting of PrepareCoreLandmarks " + preparations.get(lastIndex).getWeighting()
                             + " needs to be identical to previously added " + weightings.get(lastIndex));
         return this;
     }
@@ -288,7 +289,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
                     if (plm.loadExisting())
                         return;
 
-                    LOGGER.info(tmpCounter + "/" + getPreparations().size() + " calling LM prepare.doWork for "
+                    LOGGER.info(tmpCounter + "/" + getPreparations().size() + " calling CoreLM prepare.doWork for "
                             + plm.getWeighting() + " ... (" + Helper.getMemInfo() + ")");
                     prepared.set(true);
                     Thread.currentThread().setName(name);

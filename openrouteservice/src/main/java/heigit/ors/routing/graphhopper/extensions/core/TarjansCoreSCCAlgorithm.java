@@ -41,6 +41,9 @@ import java.util.Stack;
  * <p>
  * See http://en.wikipedia.org/wiki/Tarjan's_strongly_connected_components_algorithm. See
  * http://www.timl.id.au/?p=327 and http://homepages.ecs.vuw.ac.nz/~djp/files/P05.pdf
+ *
+ *
+ * This has been adapted for use in the core.
  */
 public class TarjansCoreSCCAlgorithm {
     private final ArrayList<IntArrayList> components = new ArrayList<IntArrayList>();
@@ -92,18 +95,11 @@ public class TarjansCoreSCCAlgorithm {
      */
     public List<IntArrayList> findComponents() {
         int nodes = graph.getNodes();
-        int coreLevelCount = 0;
-        int notCoreLevelCount = 0;
-//        CHGraphImpl coreGraph = graph.getCoreGraph();
         int coreNodeLevel = core.getNodes() + 1;
         for (int start = 0; start < nodes; start++) {
             int nodeLevel = core.getLevel(start);
-            if(core.getLevel(start) < coreNodeLevel){ notCoreLevelCount++;
-            continue;}
-            else coreLevelCount++;
-            boolean isnotremoved = !graph.isNodeRemoved(start);
-            int nodeIndexS = nodeIndex[start];
-            boolean cont = !ignoreSet.contains(start);
+            if(core.getLevel(start) < coreNodeLevel)
+                continue;
             if (nodeIndex[start] == 0
                     && !ignoreSet.contains(start)
                     && !graph.isNodeRemoved(start))

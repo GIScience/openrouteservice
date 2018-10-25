@@ -38,11 +38,12 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /**
- * This class does the preprocessing for the ALT algorithm (A* , landmark, triangle inequality).
+ * This class does the preprocessing for the ALT algorithm (A* , landmark, triangle inequality) in the core.
  * <p>
  * http://www.siam.org/meetings/alenex05/papers/03agoldberg.pdf
  *
  * @author Peter Karich
+ * @author Hendrik Leuschner
  */
 public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
     private static final Logger LOGGER = LoggerFactory.getLogger(PrepareCoreLandmarks.class);
@@ -57,10 +58,8 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
             throw new IllegalArgumentException("Default value for active landmarks " + activeLandmarks
                     + " should be less or equal to landmark count of " + landmarks);
         this.graph = graph;
-        //TODO This should be fine
         this.defaultActiveLandmarks = activeLandmarks;
         this.weighting = weighting;
-//TODO This too
         lms = new CoreLandmarkStorage(graph, dir, weighting, landmarks);
     }
 
@@ -130,16 +129,11 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
     public void doWork() {
         super.doWork();
 
-        StopWatch sw = new StopWatch().start();
         LOGGER.info("Start calculating " + lms.getLandmarkCount() + " landmarks, default active lms:"
                 + defaultActiveLandmarks + ", weighting:" + lms.getLmSelectionWeighting() + ", " + Helper.getMemInfo());
         lms.createCoreNodeIdMap();
         lms.createLandmarks();
         lms.flush();
-        //TODO Done
-//        LOGGER.info("Calculating landmarks for " + (lms.getSubnetworksWithLandmarks() - 1) + " subnetworks took:"
-//                + sw.stop().getSeconds() + " => " + lms.getLandmarksAsGeoJSON() + ", stored weights:"
-//                + lms.getLandmarkCount() + ", nodes:" + graph.getNodes() + ", " + Helper.getMemInfo());
     }
 
     public RoutingAlgorithm getDecoratedAlgorithm(Graph qGraph, RoutingAlgorithm algo, AlgorithmOptions opts) {

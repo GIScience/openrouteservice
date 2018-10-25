@@ -38,17 +38,11 @@ import static com.graphhopper.util.Parameters.Algorithms.ASTAR_BI;
 import static com.graphhopper.util.Parameters.Algorithms.DIJKSTRA_BI;
 
 /**
- * This class prepares the graph for a bidirectional algorithm supporting contraction hierarchies
- * ie. an algorithm returned by createAlgo.
- * <p>
- * There are several description of contraction hierarchies available. The following is one of the
- * more detailed: http://web.cs.du.edu/~sturtevant/papers/highlevelpathfinding.pdf
- * <p>
- * The only difference is that we use two skipped edges instead of one skipped node for faster
- * unpacking.
- * <p>
+ * Prepare the core graph. The core graph is a contraction hierarchies graph in which specified parts are not contracted
+ * but remain on the highest level. E.g. used to build the core from restrictions.
  *
  * @author Peter Karich
+ * @author Hendrik Leuschner, Andrzej Oles
  */
 public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgorithmFactory {
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -316,10 +310,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
 
             if (!sortedNodes.isEmpty() && sortedNodes.getSize() < lastNodesLazyUpdates) {
                 lazySW.start();
-                int priority = oldPriorities[polledNode];
-//                if(!(priority == RESTRICTION_PRIORITY)) {
-                priority = oldPriorities[polledNode] = calculatePriority(polledNode);
-//                }
+                int priority = oldPriorities[polledNode] = calculatePriority(polledNode);
                 if (priority > sortedNodes.peekValue()) {
                     // current node got more important => insert as new value and contract it later
                     sortedNodes.insert(polledNode, priority);
@@ -421,13 +412,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         return prepareGraph.getWeighting();
     }
 
-//    public void close() {
-//        prepareAlgo.close();
-//        originalEdges.close();
-//        sortedNodes = null;
-//        oldPriorities = null;
-//    }
-
     private String getTimesAsString() {
         return "t(dijk):" + Helper.round2(dijkstraTime) + ", t(period):" + Helper.round2(periodTime) + ", t(lazy):"
                 + Helper.round2(lazyTime) + ", t(neighbor):" + Helper.round2(neighborTime);
@@ -526,8 +510,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             }
         };
 
-
-
         maxLevel = prepareGraph.getNodes() + 1;
         vehicleAllExplorer = prepareGraph.createEdgeExplorer(allFilter);
         vehicleAllTmpExplorer = prepareGraph.createEdgeExplorer(allFilter);
@@ -581,19 +563,10 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         return algo;
     }
 
-
     @Override
     public String toString() {
         return "prepare|dijkstrabi|ch";
     }
-
-    interface ShortcutHandler {
-        void foundShortcut(int u_fromNode, int w_toNode, double existingDirectWeight, double distance,
-                           EdgeIterator outgoingEdges, int skippedEdge1, int incomingEdgeOrigCount);
-
-        int getNode();
-    }
-
 
     public void close() {
         nodeContractor.close();
@@ -608,8 +581,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     public int getShortcuts() {
         return nodeContractor.getAddedShortcutsCount();
     }
-
-
 
 
     private int getMaxVisitedNodesEstimate() {

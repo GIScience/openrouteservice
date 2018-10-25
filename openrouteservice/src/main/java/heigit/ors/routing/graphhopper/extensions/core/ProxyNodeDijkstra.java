@@ -33,17 +33,18 @@ import com.graphhopper.util.Parameters;
 import java.util.PriorityQueue;
 
 /**
- * Implements a single source shortest path algorithm
- * http://en.wikipedia.org/wiki/Dijkstra's_algorithm
- * <p>
+ * Finds proxy nodes in the graph.
+ * A proxy node of a given node is the closest node to it in the graph given a weighting.
  *
  * @author Peter Karich
+ * @author Hendrik Leuschner
  */
 public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
     protected IntObjectMap<SPTEntry> fromMap;
     protected PriorityQueue<SPTEntry> fromHeap;
     protected SPTEntry currEdge;
     private int visitedNodes;
+    //Don't search for too long -> otherwise long preprocessing
     private int maxVisitedNodes = 500;
     private int coreNodeLevel = -1;
     private CHGraph chGraph;
@@ -77,6 +78,12 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
 
     }
 
+    /**
+     * Get a proxy node for a given node
+     * @param from the node for which to calc a proxy
+     * @param bwd use backwards weights
+     * @return SPTEntry of the proxy node
+     */
     public SPTEntry getProxyNode(int from, boolean bwd){
         checkAlreadyRun();
         currEdge = createSPTEntry(from, 0);
@@ -92,6 +99,9 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
             return null;
     }
 
+    /**
+     * Run a Dijkstra on the base graph to find the closest node that is in the core
+     */
     protected void runAlgo() {
         while (true) {
             if(visitedNodes >= maxVisitedNodes) break;

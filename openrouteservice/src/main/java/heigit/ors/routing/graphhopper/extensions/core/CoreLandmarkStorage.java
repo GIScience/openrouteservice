@@ -50,12 +50,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * This class stores the landmark nodes and the weights from and to all other nodes in every
- * subnetwork. This data is created to apply a speed-up for path calculation but at the same times
- * stays flexible to per-request changes. The class is safe for usage from multiple reading threads
- * across algorithms.
+ * Store Landmark distances for core nodes
  *
  * @author Peter Karich
+ * @author Hendrik Leuschner
  */
 public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
     private static final Logger LOGGER = LoggerFactory.getLogger(CoreLandmarkStorage.class);
@@ -162,7 +160,8 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         this.subnetworkStorage = new SubnetworkStorage(dir, "landmarks_core_" + name);
     }
     /**
-     * This method creates a mapping of CoreNode ids to integers from 0 to numCoreNodes to save space
+     * This method creates a mapping of CoreNode ids to integers from 0 to numCoreNodes to save space.
+     * Otherwise we would have to store a lot of empty info
      */
 
     public void createCoreNodeIdMap(){
@@ -248,13 +247,11 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
         // we cannot reuse the components calculated in PrepareRoutingSubnetworks as the edgeIds changed in between (called graph.optimize)
         // also calculating subnetworks from scratch makes bigger problems when working with many oneways
-        //TODO DONE via tarjanFilter
         TarjansCoreSCCAlgorithm tarjanAlgo = new TarjansCoreSCCAlgorithm(graph, core,  tarjanFilter, false);
         List<IntArrayList> graphComponents = tarjanAlgo.findComponents();
         if (logDetails)
             LOGGER.info("Calculated " + graphComponents.size() + " subnetworks via tarjan in " + sw.stop().getSeconds()
                     + "s, " + Helper.getMemInfo());
-        //TODO use core only DONE via new filter
         CHEdgeExplorer tmpExplorer = this.core.createEdgeExplorer(new CoreAndRequireBothDirectionsEdgeFilter(encoder, graph));
 
         int nodes = 0;
@@ -270,21 +267,10 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
                 if (subnetworks[coreNodeIdMap.get(nextStartNode)] == UNSET_SUBNETWORK
                         && GHUtility.count(tmpExplorer.setBaseNode(nextStartNode)) > 0) {
 
-                    //TODO use core only, maybe irrelevant, only used for logging
-//                    GHPoint p = createPoint(graph, nextStartNode);
-//                    if (logDetails)
-//                        LOGGER.info("start node: " + nextStartNode + " (" + p + ") subnetwork size: "
-//                                + subnetworkIds.size() + ", " + Helper.getMemInfo()
-//                                + ((ruleLookup == null) ? "" : " area:" + ruleLookup.lookupRule(p).getId()));
-                    //I think this does the magic
                     if (createLandmarksForSubnetwork(nextStartNode, subnetworks, blockedEdges))
                         break;
                 }
             }
-//            if (index < 0)
-//                LOGGER.warn("next start node not found in big enough network of size " + subnetworkIds.size()
-//                        + ", first element is " + subnetworkIds.get(0) + ", "
-//                        + createPoint(graph, subnetworkIds.get(0)));
         }
 
         int subnetworkCount = landmarkIDs.size();
@@ -329,7 +315,6 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
      *
      * @return landmark mapping
      */
-//    @Override
     protected boolean createLandmarksForSubnetwork(final int startNode, final byte[] subnetworks,
                                                    IntHashSet blockedEdges) {
         final int subnetworkId = landmarkIDs.size();
@@ -369,14 +354,12 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             Weighting initWeighting = lmSelectionWeighting;
             CoreLandmarkExplorer explorer = new CoreLandmarkExplorer(graph, this, initWeighting, traversalMode);
             explorer.initFrom(startNode, 0);
-            //TODO Core - DONE
             EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
             coreEdgeFilter.add(new CoreAndBlockedEdgesFilter(encoder, true, true, blockedEdges, graph));
 //            coreEdgeFilter.add(new AvoidFeaturesCoreEdgeFilter(this.graph, 1, 1));
             explorer.setFilter(coreEdgeFilter);
             explorer.runAlgo(true, coreEdgeFilter);
 
-            //TODO Check this number of minnodes and see if it works for core. Probably needs to be lowered from 500k
             if (explorer.getFromCount() < minimumNodes) {
                 // too small subnetworks are initialized with special id==0
                 explorer.setSubnetworks(subnetworks, UNCLEAR_SUBNETWORK);
@@ -389,7 +372,6 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
                 if (Thread.currentThread().isInterrupted()) {
                     throw new RuntimeException("Thread was interrupted");
                 }
-                explorer = new CoreLandmarkExplorer(graph, this, initWeighting, traversalMode);
                 //TODO Core - DONE
                 explorer.setFilter(coreEdgeFilter);
                 // set all current landmarks as start so that the next getLastNode is hopefully a "far away" node
@@ -417,7 +399,6 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             int lmNodeId = tmpLandmarkNodeIds[lmIdx];
             CoreLandmarkExplorer explorer = new CoreLandmarkExplorer(graph, this, lmWeighting, traversalMode);
             explorer.initFrom(lmNodeId, 0);
-            //TODO Core - DONE
             EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
             coreEdgeFilter.add(new CoreAndBlockedEdgesFilter(encoder, false, true, blockedEdges, graph));
 //            coreEdgeFilter.add(new AvoidFeaturesCoreEdgeFilter(this.graph, 1, 1));
@@ -456,16 +437,10 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         return true;
     }
 
-//    @Override
-//    protected boolean initActiveLandmarks(int fromNode, int toNode, int[] activeLandmarkIndices, int[] activeFroms,
-//                                          int[] activeTos, boolean reverse){
-//        return super.initActiveLandmarks(fromNode, toNode, activeLandmarkIndices, activeFroms, activeTos, reverse);
-//    }
-
     @Override
     public boolean loadExisting() {
         if (isInitialized())
-            throw new IllegalStateException("Cannot call PrepareLandmarks.loadExisting if already initialized");
+            throw new IllegalStateException("Cannot call PrepareCoreLandmarks.loadExisting if already initialized");
         if (landmarkWeightDA.loadExisting()) {
             if (!subnetworkStorage.loadExisting())
                 throw new IllegalStateException("landmark weights loaded but not the subnetworks!?");
@@ -474,7 +449,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             if (nodes != core.getCoreNodes())
                 throw new IllegalArgumentException(
                         "Cannot load landmark data as written for different graph storage with " + nodes
-                                + " nodes, not " + graph.getNodes());
+                                + " nodes, not " + core.getCoreNodes());
             landmarks = landmarkWeightDA.getHeader(1 * 4);
             int subnetworks = landmarkWeightDA.getHeader(2 * 4);
             factor = landmarkWeightDA.getHeader(3 * 4) / DOUBLE_MLTPL;
@@ -577,15 +552,6 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
     public boolean isInitialized() {
         return initialized;
     }
-
-
-
-    /**
-     * This method creates landmarks for the specified subnetwork (integer list)
-     *
-     * @return landmark mapping
-     */
-
 
     /**
      * This method specifies the polygons which should be used to split the world wide area to improve performance and
@@ -973,14 +939,15 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         }
     }
 
-
+    /**
+     * Filter out blocked edges and edges that are NOT in the core
+     */
 
     private class CoreAndBlockedEdgesFilter implements EdgeFilter {
         private final IntHashSet blockedEdges;
         private final FlagEncoder encoder;
         private final boolean fwd;
         private final boolean bwd;
-//        private final CHGraphImpl core;
         private final int coreNodeLevel;
         private final int maxNodes;
         private int base;
@@ -991,10 +958,8 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         }
 
         public CoreAndBlockedEdgesFilter(FlagEncoder encoder, boolean bwd, boolean fwd, IntHashSet blockedEdges, GraphHopperStorage storage) {
-//            this.core = storage.getCoreGraph();
-            //TODO Check this computation
-            this.coreNodeLevel = core.getNodes() + 1;
             this.maxNodes = core.getNodes();
+            this.coreNodeLevel = this.maxNodes + 1;
             this.encoder = encoder;
             this.bwd = bwd;
             this.fwd = fwd;
@@ -1008,19 +973,11 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
             if (base >= maxNodes || adj >= maxNodes)
                 return true;
-            int baseLevel = core.getLevel(base);
-            int adjLevel = core.getLevel(adj);
             //Accept only edges that are in core
             if(core.getLevel(base) < coreNodeLevel || core.getLevel(adj) < coreNodeLevel)
                 return false;
 
             boolean blocked = blockedEdges.contains(iter.getEdge());
-//            if(((CHEdgeIterator)iter).isShortcut())
-//                return fwd && !blocked || bwd && !blocked;
-//
-//            boolean isForward = iter.isForward(encoder);
-//            boolean isBackward = iter.isBackward(encoder);
-
             return fwd && iter.isForward(encoder) && !blocked || bwd && iter.isBackward(encoder) && !blocked;
         }
 
@@ -1038,21 +995,20 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         }
     }
 
+    /**
+     * Filter out edges that are NOT in the core and then super.accept
+     */
     final protected class CoreAndRequireBothDirectionsEdgeFilter extends RequireBothDirectionsEdgeFilter {
-//        private final CHGraphImpl core;
         private final int coreNodeLevel;
 
 
         public CoreAndRequireBothDirectionsEdgeFilter(FlagEncoder flagEncoder, GraphHopperStorage storage) {
             super(flagEncoder);
-//            this.core = storage.getCoreGraph();
             this.coreNodeLevel = core.getNodes() + 1;
         }
 
         @Override
         public boolean accept(EdgeIteratorState iter) {
-            int baseLevel = core.getLevel(iter.getBaseNode());
-            int adjLevel = core.getLevel(iter.getAdjNode());
             if(core.getLevel(iter.getBaseNode()) < coreNodeLevel || core.getLevel(iter.getAdjNode()) < coreNodeLevel)
                 return false;
             return super.accept(iter);
