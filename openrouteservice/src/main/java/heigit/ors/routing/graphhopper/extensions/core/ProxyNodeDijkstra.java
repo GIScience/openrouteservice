@@ -25,10 +25,7 @@ import com.graphhopper.routing.Path;
 import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.CHGraph;
-import com.graphhopper.storage.CHGraphImpl;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.SPTEntry;
+import com.graphhopper.storage.*;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.Parameters;
@@ -55,15 +52,15 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
     // Modification by Maxim Rylov: Added a new class variable used for computing isochrones.
     protected Boolean reverseDirection = false;
 
-    public ProxyNodeDijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
+    public ProxyNodeDijkstra(GraphHopperStorage graph, Weighting weighting, TraversalMode tMode) {
         super(graph, weighting, tMode);
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
-        chGraph  = (CHGraph) ((QueryGraph) graph).getMainGraph();
+        chGraph  = graph.getCoreGraph(weighting);
         coreNodeLevel = chGraph.getNodes() + 1;
         initCollections(size);
     }
 
-    public ProxyNodeDijkstra(Graph graph, Weighting weighting, TraversalMode tMode, int maxVisitedNodes) {
+    public ProxyNodeDijkstra(GraphHopperStorage graph, Weighting weighting, TraversalMode tMode, int maxVisitedNodes) {
         this(graph,weighting,tMode);
         this.maxVisitedNodes = maxVisitedNodes;
     }

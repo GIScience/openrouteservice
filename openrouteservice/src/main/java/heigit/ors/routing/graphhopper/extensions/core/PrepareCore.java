@@ -89,6 +89,8 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
 
     private CoreNodeContractor nodeContractor;
 
+    private ProxyNodeStorage pns;
+
 
 
     private static final int RESTRICTION_PRIORITY = Integer.MAX_VALUE;
@@ -103,6 +105,8 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         this.weighting = weighting;
         prepareWeighting = new PreparationWeighting(weighting);
         this.dir = dir;
+        this.pns = new ProxyNodeStorage(ghStorage, ghStorage.getDirectory(), weighting);
+        pns.loadExisting();
     }
 
     public void initLevelFilter() {
@@ -193,30 +197,13 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             return;
         contractNodes();
         //generate proxy nodes for forward and backward direction
-//        generateProxies(true);
-//        generateProxies(false);
+        if(pns.loadExisting())
+            return;
+        pns.generateProxies();
+        pns.flush();
     }
 
-    /**
-     * Calculate the proxy node (closest node in core with specified weighting) for all non-core nodes in the graph.
-     * Use a Dijkstra for each node
-     */
-//    private void generateProxies(boolean fwd) {
-//        int nodes = prepareGraph.getNodes();
-//        int coreNodeLevel = nodes + 1;
-//        SPTEntry proxyNode;
-//        for (int node = 0; node < nodes; node++) {
-//            if(prepareGraph.getLevel(node) == coreNodeLevel)
-//                continue;
-//            ProxyNodeDijkstra proxyNodeDijkstra = new ProxyNodeDijkstra(prepareGraph, prepareWeighting, traversalMode);
-//            proxyNode = proxyNodeDijkstra.getProxyNode(node, fwd);
-//            //cast to integer approximates weight but that should not be a problem
-//            if (proxyNode == null)
-//                setProxyNode(node, -1, -1, fwd);
-//            else
-//                setProxyNode(node, proxyNode.adjNode, (int)proxyNode.getWeightOfVisitedPath(), fwd);
-//        }
-//    }
+
 
     boolean prepareNodes() {
         int nodes = prepareGraph.getNodes();
@@ -572,7 +559,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         String algoStr = ASTAR_BI; //opts.getAlgorithm();
 
         if (ASTAR_BI.equals(algoStr)) {
-            CoreALT tmpAlgo = new CoreALT(graph, prepareWeighting, traversalMode);
+            CoreALT tmpAlgo = new CoreALT(graph, prepareWeighting, traversalMode, this.pns);
             tmpAlgo.setApproximation(RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts, graph.getNodeAccess()));
             algo = tmpAlgo;
         } else if (DIJKSTRA_BI.equals(algoStr)) {

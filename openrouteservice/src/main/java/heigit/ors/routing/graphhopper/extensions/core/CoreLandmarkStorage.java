@@ -267,7 +267,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             // ensure start node is reachable from both sides and no subnetwork is associated
             for (; index >= 0; index--) {
                 int nextStartNode = subnetworkIds.get(index);
-                if (subnetworks[nextStartNode] == UNSET_SUBNETWORK
+                if (subnetworks[coreNodeIdMap.get(nextStartNode)] == UNSET_SUBNETWORK
                         && GHUtility.count(tmpExplorer.setBaseNode(nextStartNode)) > 0) {
 
                     //TODO use core only, maybe irrelevant, only used for logging

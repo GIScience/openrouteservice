@@ -21,6 +21,7 @@ import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.EdgeIteratorStateHelper;
+import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.BeelineWeightApproximator;
 import com.graphhopper.routing.weighting.ConsistentWeightApproximator;
@@ -51,21 +52,25 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     private ConsistentCoreWeightApproximator weightApprox;
     private IntHashSet ignoreExplorationFrom = new IntHashSet();
     private IntHashSet ignoreExplorationTo = new IntHashSet();
-    
+    private ProxyNodeStorage pns;
+
     private PriorityQueue<AStarEntry> pqCHFrom;
     private PriorityQueue<AStarEntry> pqCHTo;
     private PriorityQueue<AStarEntry> pqCoreFrom;
     private PriorityQueue<AStarEntry> pqCoreTo;
 
-    AStarEntry fromProxy;
-    AStarEntry toProxy;
+    int fromProxy;
+    int fromProxyWeight;
+    int toProxy;
+    int toProxyWeight;
 
     int approximateCount = 0;
 
     int visitedCountProxy;
 
-    public CoreALT(Graph graph, Weighting weighting, TraversalMode tMode) {
+    public CoreALT(Graph graph, Weighting weighting, TraversalMode tMode, ProxyNodeStorage pns) {
         super(graph, weighting, tMode);
+        this.pns = pns;
         BeelineWeightApproximator defaultApprox = new BeelineWeightApproximator(nodeAccess, weighting);
         defaultApprox.setDistanceCalc(Helper.DIST_PLANE);
         setApproximation(defaultApprox);
@@ -104,7 +109,16 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     public void initFrom(int from, double weight) {
         currFrom = new AStarEntry(EdgeIterator.NO_EDGE, from, weight, weight);
         pqCHFrom.add(currFrom);
-        fromProxy = getProxyNode(from, false);
+        int proxyQueryNode = from;
+        if (graph instanceof QueryGraph && from >= graph.getBaseGraph().getNodes()) {
+            EdgeIteratorState edge = ((QueryGraph) graph).getOriginalEdgeFromVirtNode(from);
+            proxyQueryNode = edge.getAdjNode();
+        }
+
+        int[] fromProxyAndWeight = getProxyNode(proxyQueryNode, false);
+
+        fromProxy = fromProxyAndWeight[0];
+        fromProxyWeight = fromProxyAndWeight[1];
 
         if (!traversalMode.isEdgeBased()) {
             bestWeightMapFrom.put(from, currFrom);
@@ -125,7 +139,14 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     public void initTo(int to, double weight) {
         currTo = new AStarEntry(EdgeIterator.NO_EDGE, to, weight, weight);
         pqCHTo.add(currTo);
-        toProxy = getProxyNode(to, true);
+        int proxyQueryNode = to;
+        if (graph instanceof QueryGraph && to >= graph.getBaseGraph().getNodes()) {
+            EdgeIteratorState edge = ((QueryGraph) graph).getOriginalEdgeFromVirtNode(to);
+            proxyQueryNode = edge.getBaseNode();
+        }
+        int[] toProxyAndWeight = getProxyNode(proxyQueryNode, true);
+        toProxy = toProxyAndWeight[0];
+        toProxyWeight = toProxyAndWeight[1];
 
         if (!traversalMode.isEdgeBased()) {
             bestWeightMapTo.put(to, currTo);
@@ -212,27 +233,45 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             boolean iterative = false;
 
             if (iterative) {
-                fromProxy = pqCoreFrom.peek();
-                toProxy = pqCoreTo.peek();
+                fromProxy = pqCoreFrom.peek().adjNode;
+                fromProxyWeight = (int)pqCoreFrom.peek().weightOfVisitedPath;
+                toProxy = pqCoreTo.peek().adjNode;
+                toProxy = (int)pqCoreTo.peek().weightOfVisitedPath;
             }
 
             // FIXME: debug info
             if (DebugUtility.isDebug())
                 System.out.println("fromProxy " + fromProxy + " toProxy " + toProxy);
 
-            weightApprox.setFrom(fromProxy.adjNode);
-            weightApprox.setTo(toProxy.adjNode);
+            //This is the case if no proxy node was found during preprocessing -> fallback to first found entry point
+            if(fromProxy == 0){
+                weightApprox.setFrom(pqCoreFrom.peek().adjNode);
+                weightApprox.setFromWeight((int)pqCoreFrom.peek().weightOfVisitedPath);
+            }
+            else{
+                weightApprox.setFrom(fromProxy);
+                weightApprox.setFromWeight(fromProxyWeight);
+            }
+            if(toProxy == 0){
+                weightApprox.setTo(pqCoreTo.peek().adjNode);
+                weightApprox.setToWeight((int)pqCoreTo.peek().weightOfVisitedPath);
 
-            weightApprox.setFromWeight(fromProxy.weightOfVisitedPath);
-            weightApprox.setToWeight(toProxy.weightOfVisitedPath);
+            }
+            else{
+                weightApprox.setTo(toProxy);
+                weightApprox.setToWeight(toProxyWeight);
+            }
+
 
             recalculateWeights(pqCoreFrom, false);
             recalculateWeights(pqCoreTo, true);
 
             if (iterative) {
                 // check whether "from" proxy changed after taking into account LM distances ...
-                AStarEntry oldProxy = fromProxy;
-                AStarEntry newProxy = pqCoreFrom.peek();
+                int oldProxy = fromProxy;
+                int oldProxyWeight = fromProxyWeight;
+                int newProxy = pqCoreFrom.peek().adjNode;
+                int newProxyWeight = (int)pqCoreFrom.peek().weightOfVisitedPath;
 
                 PriorityQueue<AStarEntry> queue = pqCoreFrom;
                 PriorityQueue<AStarEntry> queueOther = pqCoreTo;
@@ -243,7 +282,9 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                 // ... otherwise check the "to" pro
                 if (oldProxy == newProxy) {
                     oldProxy = toProxy;
-                    newProxy = pqCoreTo.peek();
+                    oldProxyWeight = toProxyWeight;
+                    newProxy = pqCoreTo.peek().adjNode;
+                    newProxyWeight = (int)pqCoreTo.peek().weightOfVisitedPath;
 
                     queue = pqCoreTo;
                     queueOther = pqCoreFrom;
@@ -257,10 +298,12 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                         System.out.println(reverse ? "toProxy " : "fromProxy " + newProxy);
 
                     // update from/to proxy and recalculate weights on the opposite side
-                    weightApproximatorSetFromTo(newProxy, reverse);
-                    oldProxy = queueOther.peek();
+                    weightApproximatorSetFromTo(newProxy, newProxyWeight, reverse);
+                    oldProxy = queueOther.peek().adjNode;
+                    oldProxyWeight = (int)queueOther.peek().weightOfVisitedPath;
                     recalculateWeights(queueOther, !reverse);
-                    newProxy = queueOther.peek();
+                    newProxy = queueOther.peek().adjNode;
+                    newProxyWeight = (int)queueOther.peek().weightOfVisitedPath;
 
                     //switch sides
                     tmpQueue = queue;
@@ -298,14 +341,14 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         }
     }
 
-    private void weightApproximatorSetFromTo(AStarEntry proxy, boolean reverse) {
+    private void weightApproximatorSetFromTo(int proxy, int weight, boolean reverse) {
         if (reverse) {
-            weightApprox.setTo(proxy.adjNode);
-            weightApprox.setToWeight(proxy.weightOfVisitedPath);
+            weightApprox.setTo(proxy);
+            weightApprox.setToWeight(weight);
         }
         else {
-            weightApprox.setFrom(proxy.adjNode);
-            weightApprox.setFromWeight(proxy.weightOfVisitedPath);
+            weightApprox.setFrom(proxy);
+            weightApprox.setFromWeight(weight);
         }
     }
 
@@ -376,8 +419,8 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     }
 
     private void fillEdgesALT(AStarEntry currEdge, PriorityQueue<AStarEntry> prioQueueOpenSet,
-                           IntObjectMap<AStarEntry> bestWeightMap, IntHashSet ignoreExploration, EdgeExplorer explorer,
-                           boolean reverse) {
+                              IntObjectMap<AStarEntry> bestWeightMap, IntHashSet ignoreExploration, EdgeExplorer explorer,
+                              boolean reverse) {
 
         int currNode = currEdge.adjNode;
         EdgeIterator iter = explorer.setBaseNode(currNode);
@@ -425,7 +468,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             }
         }
     }
-    
+
     public void updateBestPathALT(EdgeIteratorState edgeState, AStarEntry entryCurrent, int currLoc) {
         AStarEntry entryOther = bestWeightMapOther.get(currLoc);
         if (entryOther == null)
@@ -492,11 +535,12 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
      * @param nodeId the nodeId in the basegraph to get the proxynode for
      * @return the proxy node id
      */
-    private AStarEntry getProxyNode(int nodeId, boolean bwd) {
-        ProxyNodeDijkstra proxyNodeDijkstra = new ProxyNodeDijkstra(graph, weighting, traversalMode);
-        SPTEntry proxyNode = proxyNodeDijkstra.getProxyNode(nodeId, bwd);
-        visitedCountProxy += proxyNodeDijkstra.getVisitedNodes();
-        return new AStarEntry(proxyNode.originalEdge, proxyNode.adjNode, proxyNode.weight, proxyNode.weight);
+    private int[] getProxyNode(int nodeId, boolean bwd) {
+        return pns.getProxyNodeAndWeight(nodeId, bwd);
+//        ProxyNodeDijkstra proxyNodeDijkstra = new ProxyNodeDijkstra(graph, weighting, traversalMode);
+//        SPTEntry proxyNode = proxyNodeDijkstra.getProxyNode(nodeId, bwd);
+//        visitedCountProxy += proxyNodeDijkstra.getVisitedNodes();
+//        return new AStarEntry(proxyNode.originalEdge, proxyNode.adjNode, proxyNode.weight, proxyNode.weight);
     }
 
     public int getVisitedNodesProxy() {
