@@ -46,7 +46,8 @@ public class GPXRouteResponse extends RouteResponse {
     @XmlElement(name = "rte")
     private List<GPXRouteElement> routes;
 
-    //@XmlElement(name = "extensions")
+    @XmlElement(name = "extensions")
+    private GPXExtensions extensions;
 
     public GPXRouteResponse() throws StatusCodeException {
         super(null);
@@ -64,6 +65,7 @@ public class GPXRouteResponse extends RouteResponse {
     private void init(RouteResult[] result, RouteRequest request) throws StatusCodeException {
         metadata = new GPXMetadata(result, request);
         routes = new ArrayList<>();
+        extensions = new GPXExtensions(request);
     }
 
     public List<GPXRouteElement> getGpxRouteElements() {

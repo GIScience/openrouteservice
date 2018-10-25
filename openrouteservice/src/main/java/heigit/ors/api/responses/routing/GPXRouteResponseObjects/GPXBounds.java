@@ -18,10 +18,13 @@ package heigit.ors.api.responses.routing.GPXRouteResponseObjects;
 import com.graphhopper.util.shapes.BBox;
 import heigit.ors.api.responses.routing.BoundingBox.BoundingBox;
 import heigit.ors.api.responses.routing.BoundingBox.BoundingBoxBase;
+import heigit.ors.util.FormatUtility;
 
 import javax.xml.bind.annotation.XmlAttribute;
 
 public class GPXBounds extends BoundingBoxBase implements BoundingBox {
+    private final int COORDINATE_DECIMAL_PLACES = 6;
+
     public GPXBounds() {
         super();
     }
@@ -32,18 +35,18 @@ public class GPXBounds extends BoundingBoxBase implements BoundingBox {
 
     @XmlAttribute(name = "minLat")
     public double getMinLat() {
-        return this.minLat;
+        return FormatUtility.roundToDecimals(this.minLat, COORDINATE_DECIMAL_PLACES);
     }
     @XmlAttribute(name = "minLon")
     public double getMinLon() {
-        return this.minLon;
+        return FormatUtility.roundToDecimals(this.minLon, COORDINATE_DECIMAL_PLACES);
     }
     @XmlAttribute(name = "maxLat")
     public double getMaxLat() {
-        return this.maxLat;
+        return FormatUtility.roundToDecimals(this.maxLat, COORDINATE_DECIMAL_PLACES);
     }
     @XmlAttribute(name = "maxLon")
     public double getMaxLon() {
-        return this.maxLon;
+        return FormatUtility.roundToDecimals(this.maxLon, COORDINATE_DECIMAL_PLACES);
     }
 }
