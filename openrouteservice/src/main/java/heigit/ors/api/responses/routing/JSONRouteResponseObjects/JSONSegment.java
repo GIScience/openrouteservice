@@ -17,7 +17,7 @@ package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import heigit.ors.api.requests.routing.APIRoutingEnums;
+import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.api.requests.routing.RouteRequest;
 import heigit.ors.routing.RouteSegment;
 import heigit.ors.routing.RouteStep;
@@ -68,14 +68,14 @@ public class JSONSegment {
         }
 
         if(request.hasAttributes()) {
-            APIRoutingEnums.Attributes[] attributes = request.getAttributes();
-            for(APIRoutingEnums.Attributes attr : attributes) {
+            APIEnums.Attributes[] attributes = request.getAttributes();
+            for(APIEnums.Attributes attr : attributes) {
                 switch(attr) {
                     case DETOUR_FACTOR:
                         detourFactor = routeSegment.getDetourFactor();
                         break;
                     case AVERAGE_SPEED:
-                        double distFactor = request.getUnits() == APIRoutingEnums.Units.METRES ? 1000 : 1;
+                        double distFactor = request.getUnits() == APIEnums.Units.METRES ? 1000 : 1;
                         averageSpeed = FormatUtility.roundToDecimals(routeSegment.getDistance() / distFactor / (routeSegment.getDuration() /3600), 2);
                         break;
                     case ROUTE_PERCENTAGE:

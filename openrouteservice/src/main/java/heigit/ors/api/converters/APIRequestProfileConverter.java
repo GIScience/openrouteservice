@@ -16,12 +16,12 @@
 package heigit.ors.api.converters;
 
 import org.springframework.core.convert.converter.Converter;
-import heigit.ors.api.requests.routing.APIRoutingEnums;
+import heigit.ors.api.requests.common.APIEnums;
 
-public class APIRequestProfileConverter implements Converter<String, APIRoutingEnums.RoutingProfile> {
+public class APIRequestProfileConverter implements Converter<String, APIEnums.RoutingProfile> {
     @Override
-    public APIRoutingEnums.RoutingProfile convert(String s) {
-        for(APIRoutingEnums.RoutingProfile profile : APIRoutingEnums.RoutingProfile.values()) {
+    public APIEnums.RoutingProfile convert(String s) {
+        for(APIEnums.RoutingProfile profile : APIEnums.RoutingProfile.values()) {
             if(profile.toString().equals(s)) {
                 return profile;
             }

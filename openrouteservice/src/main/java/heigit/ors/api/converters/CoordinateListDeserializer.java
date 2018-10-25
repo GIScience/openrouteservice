@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.api.requests.routing.CoordinateListWrapper;
+import heigit.ors.api.requests.common.CoordinateListWrapper;
 
 import java.io.IOException;
 import java.util.ArrayList;

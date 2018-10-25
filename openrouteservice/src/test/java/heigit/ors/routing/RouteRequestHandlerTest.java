@@ -2,11 +2,11 @@ package heigit.ors.routing;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Polygon;
+import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.api.requests.routing.*;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.exceptions.IncompatableParameterException;
 import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import heigit.ors.routing.parameters.CyclingParameters;
@@ -21,7 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.Iterator;
 
 public class RouteRequestHandlerTest {
@@ -81,28 +80,28 @@ public class RouteRequestHandlerTest {
 
         request = new RouteRequest(coords);
 
-        request.setProfile(APIRoutingEnums.RoutingProfile.DRIVING_CAR);
-        request.setAttributes(new APIRoutingEnums.Attributes[] { APIRoutingEnums.Attributes.AVERAGE_SPEED, APIRoutingEnums.Attributes.DETOUR_FACTOR});
+        request.setProfile(APIEnums.RoutingProfile.DRIVING_CAR);
+        request.setAttributes(new APIEnums.Attributes[] { APIEnums.Attributes.AVERAGE_SPEED, APIEnums.Attributes.DETOUR_FACTOR});
         request.setBearings(new Double[][] {{10.0,10.0},{260.0, 90.0},{45.0, 30.0}});
         request.setContinueStraightAtWaypoints(true);
-        request.setExtraInfo(new APIRoutingEnums.ExtraInfo[] { APIRoutingEnums.ExtraInfo.OSM_ID});
+        request.setExtraInfo(new APIEnums.ExtraInfo[] { APIEnums.ExtraInfo.OSM_ID});
         request.setIncludeGeometry(true);
         request.setIncludeInstructionsInResponse(true);
         request.setIncludeRoundaboutExitInfo(true);
         request.setIncĺudeManeuvers(true);
-        request.setInstructionsFormat(APIRoutingEnums.InstructionsFormat.HTML);
-        request.setLanguage(APIRoutingEnums.Languages.DE);
+        request.setInstructionsFormat(APIEnums.InstructionsFormat.HTML);
+        request.setLanguage(APIEnums.Languages.DE);
         request.setMaximumSearchRadii(new Double[] { 50.0, 20.0, 100.0});
-        request.setResponseType(APIRoutingEnums.RouteResponseType.GEOJSON);
+        request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
         request.setUseElevation(true);
-        request.setRoutePreference(APIRoutingEnums.RoutePreference.FASTEST);
-        request.setUnits(APIRoutingEnums.Units.METRES);
+        request.setRoutePreference(APIEnums.RoutePreference.FASTEST);
+        request.setUnits(APIEnums.Units.METRES);
         request.setUseContractionHierarchies(false);
 
         RouteRequestOptions options = new RouteRequestOptions();
-        options.setAvoidBorders(APIRoutingEnums.AvoidBorders.CONTROLLED);
+        options.setAvoidBorders(APIEnums.AvoidBorders.CONTROLLED);
         options.setAvoidCountries(new int[] { 115 });
-        options.setAvoidFeatures(new APIRoutingEnums.AvoidFeatures[] {APIRoutingEnums.AvoidFeatures.FORDS});
+        options.setAvoidFeatures(new APIEnums.AvoidFeatures[] {APIEnums.AvoidFeatures.FORDS});
 
         options.setAvoidPolygonFeatures(geoJsonPolygon);
         options.setMaximumSpeed(120.0);
@@ -207,9 +206,9 @@ public class RouteRequestHandlerTest {
 
     @Test
     public void TestVehicleParameters() throws Exception {
-        request.setProfile(APIRoutingEnums.RoutingProfile.DRIVING_HGV);
+        request.setProfile(APIEnums.RoutingProfile.DRIVING_HGV);
         request.getRouteOptions().getProfileParams().setRestrictions(vehicleParams);
-        request.getRouteOptions().setVehicleType(APIRoutingEnums.VehicleType.AGRICULTURAL);
+        request.getRouteOptions().setVehicleType(APIEnums.VehicleType.AGRICULTURAL);
 
         RoutingRequest routingRequest;
         routingRequest = RouteRequestHandler.convertRouteRequest(request);
@@ -225,7 +224,7 @@ public class RouteRequestHandlerTest {
 
     @Test
     public void TestCyclingParameters() throws Exception {
-        request.setProfile(APIRoutingEnums.RoutingProfile.CYCLING_REGULAR);
+        request.setProfile(APIEnums.RoutingProfile.CYCLING_REGULAR);
         request.getRouteOptions().getProfileParams().setRestrictions(cyclingParams);
 
         RoutingRequest routingRequest;
@@ -238,7 +237,7 @@ public class RouteRequestHandlerTest {
 
     @Test
     public void TestWalkingParameters() throws Exception {
-        request.setProfile(APIRoutingEnums.RoutingProfile.FOOT_WALKING);
+        request.setProfile(APIEnums.RoutingProfile.FOOT_WALKING);
         request.getRouteOptions().getProfileParams().setRestrictions(walkingParams);
 
         RoutingRequest routingRequest;
@@ -251,7 +250,7 @@ public class RouteRequestHandlerTest {
 
     @Test
     public void TestWheelchairParameters() throws Exception {
-        request.setProfile(APIRoutingEnums.RoutingProfile.WHEELCHAIR);
+        request.setProfile(APIEnums.RoutingProfile.WHEELCHAIR);
         request.getRouteOptions().getProfileParams().setRestrictions(wheelchairParams);
 
         RoutingRequest routingRequest;
@@ -297,12 +296,12 @@ public class RouteRequestHandlerTest {
     @Test
     public void vehicleType() throws Exception{
         RouteRequestOptions opts = request.getRouteOptions();
-        opts.setVehicleType(APIRoutingEnums.VehicleType.AGRICULTURAL);
+        opts.setVehicleType(APIEnums.VehicleType.AGRICULTURAL);
 
-        for(APIRoutingEnums.RoutingProfile profile : APIRoutingEnums.RoutingProfile.values()) {
+        for(APIEnums.RoutingProfile profile : APIEnums.RoutingProfile.values()) {
             request.setProfile(profile);
             request.setRouteOptions(opts);
-            if(profile != APIRoutingEnums.RoutingProfile.DRIVING_HGV) {
+            if(profile != APIEnums.RoutingProfile.DRIVING_HGV) {
                 try {
                     RouteRequestHandler.convertRouteRequest(request);
                 } catch (Exception e) {

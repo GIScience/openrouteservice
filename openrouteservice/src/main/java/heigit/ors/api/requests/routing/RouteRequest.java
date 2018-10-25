@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.routing.RoutingErrorCodes;
 import io.swagger.annotations.ApiModel;
@@ -39,28 +40,28 @@ public class RouteRequest {
     private List<List<Double>> coordinates;
 
     @ApiModelProperty(hidden = true)
-    private APIRoutingEnums.RoutingProfile profile;
+    private APIEnums.RoutingProfile profile;
 
     @ApiModelProperty(name = "preference",
             value = "Specifies the route preference.\n" +
                     "Default: fastest.")
     @JsonProperty(value = "preference", defaultValue = "fastest")
-    private APIRoutingEnums.RoutePreference routePreference = APIRoutingEnums.RoutePreference.FASTEST;
+    private APIEnums.RoutePreference routePreference = APIEnums.RoutePreference.FASTEST;
 
     @ApiModelProperty(hidden = true)
-    private APIRoutingEnums.RouteResponseType responseType = APIRoutingEnums.RouteResponseType.JSON;
+    private APIEnums.RouteResponseType responseType = APIEnums.RouteResponseType.JSON;
 
     @ApiModelProperty(name = "units",
             value = "Specifies the distance unit.\n" +
                     "Default: m.")
     @JsonProperty(value = "units", defaultValue = "m")
-    private APIRoutingEnums.Units units = APIRoutingEnums.Units.METRES;
+    private APIEnums.Units units = APIEnums.Units.METRES;
 
     @ApiModelProperty(name = "language",
             value = "Language for the route instructions.\n" +
                     "Default: en.")
     @JsonProperty(value = "language", defaultValue = "en")
-    private APIRoutingEnums.Languages language = APIRoutingEnums.Languages.EN;
+    private APIEnums.Languages language = APIEnums.Languages.EN;
 
     @ApiModelProperty(name = "geometry",
             value = "Specifies whether to return geometry.\n" +
@@ -78,7 +79,7 @@ public class RouteRequest {
             value = "Select html for more verbose instructions.\n" +
                     "Default: text.")
     @JsonProperty(value = "instructions_format", defaultValue = "text")
-    private APIRoutingEnums.InstructionsFormat instructionsFormat = APIRoutingEnums.InstructionsFormat.TEXT;
+    private APIEnums.InstructionsFormat instructionsFormat = APIEnums.InstructionsFormat.TEXT;
 
     @ApiModelProperty(name = "roundabout_exits",
             value = "Provides bearings of the entrance and all passed roundabout exits. Adds the exit_bearings array to the step object in the response.")
@@ -89,7 +90,7 @@ public class RouteRequest {
 
     @ApiModelProperty(name = "attributes", value = "List of route attributes")
     @JsonProperty("attributes")
-    private APIRoutingEnums.Attributes[] attributes;
+    private APIEnums.Attributes[] attributes;
     @JsonIgnore
     private boolean hasAttributes = false;
 
@@ -131,7 +132,7 @@ public class RouteRequest {
     @ApiModelProperty(name = "extra_info",
             value = "The extra info items to include in the response")
     @JsonProperty("extra_info")
-    private APIRoutingEnums.ExtraInfo[] extraInfo;
+    private APIEnums.ExtraInfo[] extraInfo;
     @JsonIgnore
     private boolean hasExtraInfo = false;
 
@@ -212,51 +213,51 @@ public class RouteRequest {
         this.coordinates = coordinates;
     }
 
-    public APIRoutingEnums.RoutingProfile getProfile() {
+    public APIEnums.RoutingProfile getProfile() {
         return profile;
     }
 
-    public void setProfile(APIRoutingEnums.RoutingProfile profile) {
+    public void setProfile(APIEnums.RoutingProfile profile) {
         this.profile = profile;
     }
 
-    public APIRoutingEnums.Units getUnits() {
+    public APIEnums.Units getUnits() {
         return units;
     }
 
-    public void setUnits(APIRoutingEnums.Units units) {
+    public void setUnits(APIEnums.Units units) {
         this.units = units;
     }
 
-    public APIRoutingEnums.Languages getLanguage() {
+    public APIEnums.Languages getLanguage() {
         return language;
     }
 
-    public void setLanguage(APIRoutingEnums.Languages language) {
+    public void setLanguage(APIEnums.Languages language) {
         this.language = language;
     }
 
-    public APIRoutingEnums.RoutePreference getRoutePreference() {
+    public APIEnums.RoutePreference getRoutePreference() {
         return routePreference;
     }
 
-    public void setRoutePreference(APIRoutingEnums.RoutePreference routePreference) {
+    public void setRoutePreference(APIEnums.RoutePreference routePreference) {
         this.routePreference = routePreference;
     }
 
-    public APIRoutingEnums.RouteResponseType getResponseType() {
+    public APIEnums.RouteResponseType getResponseType() {
         return responseType;
     }
 
-    public void setResponseType(APIRoutingEnums.RouteResponseType responseType) {
+    public void setResponseType(APIEnums.RouteResponseType responseType) {
         this.responseType = responseType;
     }
 
-    public APIRoutingEnums.ExtraInfo[] getExtraInfo() {
+    public APIEnums.ExtraInfo[] getExtraInfo() {
         return extraInfo;
     }
 
-    public void setExtraInfo(APIRoutingEnums.ExtraInfo[] extraInfo) {
+    public void setExtraInfo(APIEnums.ExtraInfo[] extraInfo) {
         this.extraInfo = extraInfo;
         this.hasExtraInfo = true;
     }
@@ -286,11 +287,11 @@ public class RouteRequest {
         this.includeInstructionsInResponse = includeInstructionsInResponse;
     }
 
-    public APIRoutingEnums.InstructionsFormat getInstructionsFormat() {
+    public APIEnums.InstructionsFormat getInstructionsFormat() {
         return instructionsFormat;
     }
 
-    public void setInstructionsFormat(APIRoutingEnums.InstructionsFormat instructionsFormat) {
+    public void setInstructionsFormat(APIEnums.InstructionsFormat instructionsFormat) {
         this.instructionsFormat = instructionsFormat;
     }
 
@@ -303,11 +304,11 @@ public class RouteRequest {
         hasIncludeRoundaboutExitInfo = true;
     }
 
-    public APIRoutingEnums.Attributes[] getAttributes() {
+    public APIEnums.Attributes[] getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(APIRoutingEnums.Attributes[] attributes) {
+    public void setAttributes(APIEnums.Attributes[] attributes) {
         this.attributes = attributes;
         this.hasAttributes = true;
     }
