@@ -1,7 +1,7 @@
 package heigit.ors.api.responses.routing.BoundingBox;
 
 import com.graphhopper.util.shapes.BBox;
-import heigit.ors.api.requests.routing.APIRoutingEnums;
+import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.api.requests.routing.RouteRequest;
 import heigit.ors.api.responses.routing.GPXRouteResponseObjects.GPXBounds;
 import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSON3DBoundingBox;
@@ -32,7 +32,7 @@ public class BoundingBoxFactoryTest {
         BBox bbox = new BBox(1,2,3,4,5,6);
 
         request.setUseElevation(true);
-        request.setResponseType(APIRoutingEnums.RouteResponseType.JSON);
+        request.setResponseType(APIEnums.RouteResponseType.JSON);
         BoundingBox boundingBox = BoundingBoxFactory.constructBoundingBox(bbox, request);
         Assert.assertTrue(boundingBox instanceof JSON3DBoundingBox);
 
@@ -41,7 +41,7 @@ public class BoundingBoxFactoryTest {
         Assert.assertTrue(boundingBox instanceof JSONBoundingBox);
 
         request.setUseElevation(true);
-        request.setResponseType(APIRoutingEnums.RouteResponseType.GEOJSON);
+        request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
         boundingBox = BoundingBoxFactory.constructBoundingBox(bbox, request);
         Assert.assertTrue(boundingBox instanceof JSON3DBoundingBox);
 
@@ -49,7 +49,7 @@ public class BoundingBoxFactoryTest {
         boundingBox = BoundingBoxFactory.constructBoundingBox(bbox, request);
         Assert.assertTrue(boundingBox instanceof JSONBoundingBox);
 
-        request.setResponseType(APIRoutingEnums.RouteResponseType.GPX);
+        request.setResponseType(APIEnums.RouteResponseType.GPX);
         boundingBox = BoundingBoxFactory.constructBoundingBox(bbox, request);
         Assert.assertTrue(boundingBox instanceof GPXBounds);
     }

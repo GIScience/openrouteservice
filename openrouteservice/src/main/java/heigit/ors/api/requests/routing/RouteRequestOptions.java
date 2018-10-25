@@ -18,6 +18,7 @@ package heigit.ors.api.requests.routing;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import heigit.ors.api.requests.common.APIEnums;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.json.simple.JSONObject;
@@ -36,7 +37,7 @@ public class RouteRequestOptions {
             "fords={profile=[driving-*,bike-*,foot-*]}," +
             "steps={profile=[driving-*,bike-*,foot-*],wheelchair}}")
     @JsonProperty("avoid_features")
-    private APIRoutingEnums.AvoidFeatures[] avoidFeatures;
+    private APIEnums.AvoidFeatures[] avoidFeatures;
     @JsonIgnore
     private boolean hasAvoidFeatures = false;
 
@@ -48,7 +49,7 @@ public class RouteRequestOptions {
 
     @ApiModelProperty(value = "\"all\" for no border crossing. \"controlled\" to cross open borders but avoid controlled ones. Only for driving-* profiles.[{profile=[car,hgv]}]")
     @JsonProperty("avoid_borders")
-    private APIRoutingEnums.AvoidBorders avoidBorders;
+    private APIEnums.AvoidBorders avoidBorders;
     @JsonIgnore
     private boolean hasAvoidBorders = false;
 
@@ -61,7 +62,7 @@ public class RouteRequestOptions {
 
     @ApiModelProperty(value = "(for profile=driving-hgv only): hgv,bus,agricultural,delivery,forestry and goods. It is needed for vehicle restrictions to work.[{profile=[hgv]}]")
     @JsonProperty(value = "vehicle_type", defaultValue = "unknown")
-    private APIRoutingEnums.VehicleType vehicleType = APIRoutingEnums.VehicleType.UNKNOWN;
+    private APIEnums.VehicleType vehicleType = APIEnums.VehicleType.UNKNOWN;
     @JsonIgnore
     private boolean hasVehicleType = false;
 
@@ -77,11 +78,11 @@ public class RouteRequestOptions {
     @JsonIgnore
     private boolean hasAvoidPolygonFeatures = false;
 
-    public APIRoutingEnums.AvoidFeatures[] getAvoidFeatures() {
+    public APIEnums.AvoidFeatures[] getAvoidFeatures() {
         return avoidFeatures;
     }
 
-    public void setAvoidFeatures(APIRoutingEnums.AvoidFeatures[] avoidFeatures) {
+    public void setAvoidFeatures(APIEnums.AvoidFeatures[] avoidFeatures) {
         this.avoidFeatures = avoidFeatures;
         hasAvoidFeatures = true;
     }
@@ -95,11 +96,11 @@ public class RouteRequestOptions {
         hasMaximumSpeed = true;
     }
 
-    public APIRoutingEnums.AvoidBorders getAvoidBorders() {
+    public APIEnums.AvoidBorders getAvoidBorders() {
         return avoidBorders;
     }
 
-    public void setAvoidBorders(APIRoutingEnums.AvoidBorders avoidBorders) {
+    public void setAvoidBorders(APIEnums.AvoidBorders avoidBorders) {
         this.avoidBorders = avoidBorders;
         hasAvoidBorders = true;
     }
@@ -113,11 +114,11 @@ public class RouteRequestOptions {
         hasAvoidCountries = true;
     }
 
-    public APIRoutingEnums.VehicleType getVehicleType() {
+    public APIEnums.VehicleType getVehicleType() {
         return vehicleType;
     }
 
-    public void setVehicleType(APIRoutingEnums.VehicleType vehicleType) {
+    public void setVehicleType(APIEnums.VehicleType vehicleType) {
         this.vehicleType = vehicleType;
         hasVehicleType = true;
     }
