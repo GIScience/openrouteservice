@@ -548,7 +548,7 @@
         }
         traffic: {
           enabled: false,
-          source: "type=ftp;server=YOUR_SERVER;user=cacc016;password=4)Zn3450;file=viznrw.xml",
+          source: "type=ftp;server=YOUR_SERVER;user=YOUR_USER;password=YOUR_PASSWORD;file=TMC_FILE",
           location_codes_path: "PATH/TO/TMC_LCL_LIST",
           update_interval: 300000,
           output_directory: "Temp"
