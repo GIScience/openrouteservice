@@ -373,6 +373,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
                     throw new RuntimeException("Thread was interrupted");
                 }
                 //TODO Core - DONE
+                explorer = new CoreLandmarkExplorer(graph, this, initWeighting, traversalMode);
                 explorer.setFilter(coreEdgeFilter);
                 // set all current landmarks as start so that the next getLastNode is hopefully a "far away" node
                 for (int j = 0; j < lmIdx + 1; j++) {
