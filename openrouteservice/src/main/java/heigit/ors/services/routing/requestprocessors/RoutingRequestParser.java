@@ -38,6 +38,7 @@ import heigit.ors.util.DistanceUnitUtil;
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 
+@Deprecated
 public class RoutingRequestParser
 {
 	public static RoutingRequest parseFromRequestParams(HttpServletRequest request) throws Exception
