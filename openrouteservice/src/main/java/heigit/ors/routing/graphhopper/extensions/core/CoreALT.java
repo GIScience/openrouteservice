@@ -243,8 +243,8 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             }
 
             // FIXME: debug info
-            if (DebugUtility.isDebug())
-                System.out.println("fromProxy " + fromProxy + " toProxy " + toProxy);
+            //if (DebugUtility.isDebug())
+            //    System.out.println("fromProxy " + fromProxy + " toProxy " + toProxy);
 
             //This is the case if no proxy node was found during preprocessing -> fallback to first found entry point
             if(fromProxy == 0){
@@ -297,8 +297,8 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
 
                 while (oldProxy != newProxy) {
                     // FIXME: debug info
-                    if (DebugUtility.isDebug())
-                        System.out.println(reverse ? "toProxy " : "fromProxy " + newProxy);
+                    //if (DebugUtility.isDebug())
+                    //    System.out.println(reverse ? "toProxy " : "fromProxy " + newProxy);
 
                     // update from/to proxy and recalculate weights on the opposite side
                     weightApproximatorSetFromTo(newProxy, newProxyWeight, reverse);
@@ -329,7 +329,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         }
 
         // FIXME: debug info
-        LOGGER.info("PHASE_1: " + getVisitedNodesPhase1() + "; PHASE_2: " + getVisitedNodesPhase2() + "; APPROX: " + approximateCount);
+        //System.out.print(getVisitedNodesPhase1()+getVisitedNodesPhase2() + "; " + getVisitedNodesPhase1() + "; " + getVisitedNodesPhase2());
     }
 
     private void recalculateWeights(PriorityQueue<AStarEntry> queue, boolean reverse) {

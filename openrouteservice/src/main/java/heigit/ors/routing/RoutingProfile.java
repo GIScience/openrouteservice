@@ -982,9 +982,8 @@ public class RoutingProfile {
 
             resp = mGraphHopper.route(req);
 
-            if (DebugUtility.isDebug()) {
-                System.out.println("visited_nodes.average - " + resp.getHints().get("visited_nodes.average", ""));
-            }
+            System.out.println(resp.getHints().get("visited_nodes.sum", ""));
+
             endUseGH();
         } catch (Exception ex) {
             endUseGH();
