@@ -57,6 +57,13 @@ public class GPXRouteElement {
             }
         }
 
+        // it may be the case that we did not ask for instructions so there will be no steps
+        if(steps.size() == 0 && routeCoordinates.length > 0) {
+            for(Coordinate coord : routeCoordinates) {
+                routePoints.add(new GPXRoutePointElement(null, coord.x, coord.y, coord.z, -1));
+            }
+        }
+
         extensions = new GPXRouteExtensions(result);
     }
 }
