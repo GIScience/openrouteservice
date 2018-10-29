@@ -92,6 +92,11 @@ public class ResultTest extends ServiceTest {
         JSONObject body = new JSONObject();
         body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
         body.put("preference", getParameter("preference"));
+
+        JSONArray attributes = new JSONArray();
+        attributes.put("avgspeed");
+        body.put("attributes", attributes);
+
         body.put("instructions", true);
 
         Response response = given()
@@ -311,7 +316,6 @@ public class ResultTest extends ServiceTest {
                                 int rteExtensionsLength = rteElement.getChildNodes().getLength();
                                 boolean rteExtensionsDistance = false;
                                 boolean rteExtensionsDuration = false;
-                                boolean rteExtensionsDistanceActual = false;
                                 boolean rteExtensionsAscent = false;
                                 boolean rteExtensionsDescent = false;
                                 boolean rteExtensionsAvgSpeed = false;
@@ -325,16 +329,13 @@ public class ResultTest extends ServiceTest {
                                         case "duration":
                                             rteExtensionsDuration = true;
                                             break;
-                                        case "distanceActual":
-                                            rteExtensionsDistanceActual = true;
-                                            break;
                                         case "ascent":
                                             rteExtensionsAscent = true;
                                             break;
                                         case "descent":
                                             rteExtensionsDescent = true;
                                             break;
-                                        case "avgSpeed":
+                                        case "avgspeed":
                                             rteExtensionsAvgSpeed = true;
                                             break;
                                         case "bounds":
@@ -344,7 +345,6 @@ public class ResultTest extends ServiceTest {
                                 }
                                 Assert.assertTrue(rteExtensionsDistance);
                                 Assert.assertTrue(rteExtensionsDuration);
-                                Assert.assertTrue(rteExtensionsDistanceActual);
                                 Assert.assertTrue(rteExtensionsAscent);
                                 Assert.assertTrue(rteExtensionsDescent);
                                 Assert.assertTrue(rteExtensionsAvgSpeed);

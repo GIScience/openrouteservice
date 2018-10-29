@@ -23,7 +23,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "route")
 public class GPXIndividualRouteResponse extends IndividualRouteResponse {
-    private String test;
 
     public GPXIndividualRouteResponse() {
         super(null, null);
@@ -31,13 +30,5 @@ public class GPXIndividualRouteResponse extends IndividualRouteResponse {
 
     public GPXIndividualRouteResponse(RouteResult routeResult, RouteRequest request) {
         super(routeResult, request);
-    }
-
-    public String getTest() {
-        return test;
-    }
-
-    public void setTest(String test) {
-        this.test = test;
     }
 }

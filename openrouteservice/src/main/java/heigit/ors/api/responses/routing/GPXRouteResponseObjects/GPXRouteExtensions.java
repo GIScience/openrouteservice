@@ -33,6 +33,8 @@ public class GPXRouteExtensions {
     private double descent;
     @XmlElement(name = "avgspeed")
     private double avgSpeed;
+    @XmlElement(name = "bounds")
+    private GPXBounds bounds;
 
     public GPXRouteExtensions() {}
 
@@ -43,5 +45,6 @@ public class GPXRouteExtensions {
         this.ascent = summary.getAscent();
         this.descent = summary.getDescent();
         this.avgSpeed = summary.getAverageSpeed();
+        this.bounds = new GPXBounds(result.getSummary().getBBox());
     }
 }
