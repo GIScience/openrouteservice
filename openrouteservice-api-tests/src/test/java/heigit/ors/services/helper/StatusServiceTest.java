@@ -38,7 +38,7 @@ public class StatusServiceTest extends ServiceTest {
 	public void pingTest() {
 
 		given()
-				.when()
+				.when().log().all()
 				.get(getEndPointName())
 				.then()
 				.body("any { it.key == 'profiles' }", is(true))

@@ -20,9 +20,11 @@ import heigit.ors.services.isochrones.requestprocessors.IsochronesServiceRequest
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.http.BaseHttpServlet;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Deprecated
 @RestController
 @RequestMapping("/isochrones")
 public class IsochronesServiceServlet extends BaseHttpServlet {
@@ -34,7 +36,8 @@ public class IsochronesServiceServlet extends BaseHttpServlet {
 
 	public void init() {
 	}
-	
+
+	@PostMapping
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException 
 	{
 		try
