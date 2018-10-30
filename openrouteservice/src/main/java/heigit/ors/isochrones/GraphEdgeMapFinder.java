@@ -23,6 +23,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.storage.index.QueryResult;
+import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.exceptions.InternalServerException;
@@ -41,6 +42,9 @@ public class GraphEdgeMapFinder {
 
 		Coordinate loc = parameters.getLocation();
 		QueryResult res = gh.getLocationIndex().findClosest(loc.y, loc.x, searchCntx.getEdgeFilter());
+
+       GHPoint3D SnappedPosition = res.getSnappedPoint();
+
 		int fromId = res.getClosestNode();
 
 		if (fromId == -1)
@@ -72,7 +76,6 @@ public class GraphEdgeMapFinder {
 		dijkstraAlg.calcPath(fromId, Integer.MIN_VALUE);
 
 		IntObjectMap<SPTEntry> edgeMap = dijkstraAlg.getMap();
-
-		return new AccessibilityMap(edgeMap, dijkstraAlg.getCurrentEdge());
+       return new AccessibilityMap(edgeMap, dijkstraAlg.getCurrentEdge(), SnappedPosition);
 	}
 }
