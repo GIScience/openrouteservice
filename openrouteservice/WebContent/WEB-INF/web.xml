@@ -11,7 +11,7 @@
 		<servlet-name>routing</servlet-name>
 		<url-pattern>/routes</url-pattern>
 	</servlet-mapping>
-	
+
 	<!-- GEOCODING SERVICE -->
 	<servlet>
 	<servlet-name>geocoding</servlet-name>

@@ -16,12 +16,14 @@ package heigit.ors.servlet.listeners;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import heigit.ors.logging.LoggingUtility;
 
+//@WebListener
 public class LoggingStartupContextListener implements ServletContextListener
 {
 	private static Logger LOGGER;    
@@ -32,7 +34,7 @@ public class LoggingStartupContextListener implements ServletContextListener
 		 
 		 try
 		 {
-			 LoggingUtility.init(context.getRealPath("/WEB-INF/logs"));
+			 LoggingUtility.init();
 		 }
 		 catch(Exception ex)
 		 {

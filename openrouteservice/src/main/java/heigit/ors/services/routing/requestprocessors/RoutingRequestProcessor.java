@@ -48,6 +48,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author OpenRouteServiceTeam
  * @author Julian Psotta, julian@openrouteservice.org
  */
+@Deprecated
 public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
     /**
      * {@link RoutingRequestProcessor} is the constructor and calls the {@link AbstractHttpRequestProcessor} as the super class.

@@ -96,6 +96,10 @@ public class RoutingProfileType {
         return (routePref == FOOT_WALKING || routePref == FOOT_HIKING || routePref == FOOT_JOGGING || routePref == GH_FOOT || routePref == GH_HIKE);
     }
 
+    public static boolean isWheelchair(int routePref) {
+        return routePref == WHEELCHAIR;
+    }
+
     public static boolean isCycling(int routePref) {
         if (routePref == CYCLING_REGULAR
             || routePref == CYCLING_MOUNTAIN
