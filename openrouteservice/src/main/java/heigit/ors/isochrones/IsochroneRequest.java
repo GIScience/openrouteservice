@@ -13,6 +13,7 @@
  */
 package heigit.ors.isochrones;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.common.TravellerInfo;
 import heigit.ors.services.ServiceRequest;
@@ -20,13 +21,12 @@ import heigit.ors.services.ServiceRequest;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.vividsolutions.jts.geom.Coordinate;
-
 public class IsochroneRequest extends ServiceRequest
 {
 	private List<TravellerInfo> _travellers;
 	private String _calcMethod;
 	private String _units = null;
+    private String _area_units = null;
 	private Boolean _includeIntersections = false;
 	private String[] _attributes;
 	private float _smoothingFactor = -1.0f;
@@ -50,9 +50,17 @@ public class IsochroneRequest extends ServiceRequest
 		return _units;
 	}
 
+    public String getAreaUnits() {
+        return _area_units;
+    }
+
 	public void setUnits(String units) {
 		_units = units;
 	}
+
+    public void setAreaUnits(String area_units) {
+        _area_units = area_units;
+    }
 
 	public boolean isValid()
 	{

@@ -13,23 +13,17 @@
  */
 package heigit.ors.util;
 
+import com.graphhopper.util.DistanceCalc;
+import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.BBox;
+import com.vividsolutions.jts.geom.*;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
-import com.graphhopper.util.DistanceCalc;
-import com.graphhopper.util.DistanceCalcEarth;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.CoordinateSequence;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
 
 public class GeomUtility {
 
@@ -47,7 +41,7 @@ public class GeomUtility {
 	  return GEOM_FACTORY.createLineString(coords);
 	}
 
-	// CRS.decode("EPSG:3785",
+    // CRS.decode("EPSG:3785",
 	// true), true);
 	public static double pointToLineDistance(double ax, double ay, double bx, double by, double px, double py) {
 		if (ax == bx && ay == by)
@@ -172,46 +166,46 @@ public class GeomUtility {
 
 	}
 
-	public  static double degreesToMetres(double degrees) {
+    public static double degreesToMetres(double degrees) {
 		return degrees * 111139;
 	}
 
-	public static double getArea(Geometry geom, Boolean inMeters) throws Exception
-	{
-		if (inMeters) {
-			if (geom instanceof Polygon)
-			{
-				Polygon poly = (Polygon) geom;
-				double area = Math.abs(getSignedArea(poly.getExteriorRing().getCoordinateSequence()));
-				
-				for (int i = 0; i < poly.getNumInteriorRing(); i++) {
-					LineString hole =	poly.getInteriorRingN(i);
-					area -= Math.abs(getSignedArea(hole.getCoordinateSequence()));
-				}
-				
-				return area;
-			}
-			else if (geom instanceof LineString)
-			{
-				LineString ring = (LineString)geom;
-				return getSignedArea(ring.getCoordinateSequence());
-			}
-			else
-			{
-				if (TRANSFORM_WGS84_SPHERICALMERCATOR == null) {
-					String wkt = "PROJCS[\"WGS 84 / Pseudo-Mercator\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4326\"]],PROJECTION[\"Mercator_1SP\"],PARAMETER[\"central_meridian\",0],PARAMETER[\"scale_factor\",1],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"X\",EAST],AXIS[\"Y\",NORTH],AUTHORITY[\"EPSG\",\"3857\"]]";
-					CoordinateReferenceSystem crs = CRS.parseWKT(wkt);//  CRS.decode("EPSG:3857");
-					TRANSFORM_WGS84_SPHERICALMERCATOR = CRS.findMathTransform(DefaultGeographicCRS.WGS84, crs, true);
-				}
+	public static double getArea(Geometry geom, Boolean inMeters) throws Exception {
+        if (inMeters) {
+            if (geom instanceof Polygon) {
 
+                // https://gis.stackexchange.com/questions/265481/geotools-unexpected-result-reprojecting-bounding-box-to-epsg3035
+                System.setProperty("org.geotools.referencing.forceXY", "true");
 
-				Geometry transformedGeometry = JTS.transform(geom, TRANSFORM_WGS84_SPHERICALMERCATOR);
-				return transformedGeometry.getArea();
-			}
-		} else {
-			return geom.getArea();
-		}
-	}
+                Polygon poly = (Polygon) geom;
+
+                CoordinateReferenceSystem sourceCRS = CRS.decode("EPSG:4326");
+
+                String mollweideProj = "PROJCS[\"World_Mollweide\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"Mollweide\"],PARAMETER[\"False_Easting\",0],PARAMETER[\"False_Northing\",0],PARAMETER[\"Central_Meridian\",0],UNIT[\"Meter\",1],AUTHORITY[\"EPSG\",\"54009\"]]";
+
+                CoordinateReferenceSystem targetCRS = CRS.parseWKT(mollweideProj);
+
+                MathTransform transform = CRS.findMathTransform(sourceCRS, targetCRS);
+                Geometry targetGeometry = JTS.transform(poly, transform);
+
+                double area = targetGeometry.getArea();
+
+                return area;
+
+            } else {
+                if (TRANSFORM_WGS84_SPHERICALMERCATOR == null) {
+                    String wkt = "PROJCS[\"WGS 84 / Pseudo-Mercator\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4326\"]],PROJECTION[\"Mercator_1SP\"],PARAMETER[\"central_meridian\",0],PARAMETER[\"scale_factor\",1],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"X\",EAST],AXIS[\"Y\",NORTH],AUTHORITY[\"EPSG\",\"3857\"]]";
+                    CoordinateReferenceSystem crs = CRS.parseWKT(wkt);//  CRS.decode("EPSG:3857");
+                    TRANSFORM_WGS84_SPHERICALMERCATOR = CRS.findMathTransform(DefaultGeographicCRS.WGS84, crs, true);
+                }
+
+                Geometry transformedGeometry = JTS.transform(geom, TRANSFORM_WGS84_SPHERICALMERCATOR);
+                return transformedGeometry.getArea();
+            }
+        } else {
+            return geom.getArea();
+        }
+    }
 
 	/**
 	 * Determine the 2D bearing between two points. Note that this does not take into account the spheroid shape of
@@ -236,38 +230,4 @@ public class GeomUtility {
 		return Math.toDegrees(theta);
 	}
 
-	private static double getSignedArea(CoordinateSequence ring)
-	{
-		int n = ring.size();
-		if (n < 3)
-			return 0.0;
-		/**
-		 * Based on the Shoelace formula.
-		 * http://en.wikipedia.org/wiki/Shoelace_formula
-		 */
-		Coordinate p0 = new Coordinate();
-		Coordinate p1 = new Coordinate();
-		Coordinate p2 = new Coordinate();
-		getMercatorCoordinate(ring, 0, p1);
-		getMercatorCoordinate(ring, 1, p2);
-		double x0 = p1.x;
-		p2.x -= x0;
-		double sum = 0.0;
-		for (int i = 1; i < n - 1; i++) {
-			p0.y = p1.y;
-			p1.x = p2.x;
-			p1.y = p2.y;
-			getMercatorCoordinate(ring, i + 1, p2);
-			p2.x -= x0;
-			sum += p1.x * (p0.y - p2.y);
-		}
-		return sum / 2.0;
-	}
-	
-	private static void getMercatorCoordinate(CoordinateSequence seq, int index, Coordinate coord)
-	{
-		seq.getCoordinate(index, coord);
-		coord.x = SphericalMercator.lonToX(coord.x);
-		coord.y = SphericalMercator.latToY(coord.y);
-	}
 }

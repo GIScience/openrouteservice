@@ -33,9 +33,9 @@ import heigit.ors.services.common.ServiceTest;
 public class ParamsTest extends ServiceTest {
 
 	public ParamsTest() {
-		addParameter("coordinatesShort", "8.680916,49.410973|8.687782,49.424597");
+		addParameter("coordinatesShort", "8.678613,49.411721|8.687782,49.424597");
 		addParameter("coordinatesShortFaulty", "8.680916a,49.41b0973|8.6c87782,049gbd.424597");
-		addParameter("coordinatesLong", "8.502045,49.47794|4.78906,53.071752");
+		addParameter("coordinatesLong", "8.678613,49.411721|4.78906,53.071752");
 		addParameter("extra_info", "surface|suitability|steepness");
 		addParameter("preference", "fastest");
 		addParameter("profile", "cycling-regular");
