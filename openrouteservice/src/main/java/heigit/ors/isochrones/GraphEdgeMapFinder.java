@@ -43,7 +43,7 @@ public class GraphEdgeMapFinder {
 		Coordinate loc = parameters.getLocation();
 		QueryResult res = gh.getLocationIndex().findClosest(loc.y, loc.x, searchCntx.getEdgeFilter());
 
-       GHPoint3D SnappedPosition = res.getSnappedPoint();
+       GHPoint3D snappedPosition = res.getSnappedPoint();
 
 		int fromId = res.getClosestNode();
 
@@ -76,6 +76,6 @@ public class GraphEdgeMapFinder {
 		dijkstraAlg.calcPath(fromId, Integer.MIN_VALUE);
 
 		IntObjectMap<SPTEntry> edgeMap = dijkstraAlg.getMap();
-       return new AccessibilityMap(edgeMap, dijkstraAlg.getCurrentEdge(), SnappedPosition);
+       return new AccessibilityMap(edgeMap, dijkstraAlg.getCurrentEdge(), snappedPosition);
 	}
 }
