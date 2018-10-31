@@ -62,8 +62,6 @@ public class ResultTest extends ServiceTest {
                 .body("features[0].geometry.coordinates[0].size()", is(33))
                 //.body("features[0].geometry.coordinates[0].size()", is(30))
                 .body("features[0].properties.center.size()", is(2))
-                .body("features[0].properties.center[0]", is(8.684177f))
-                .body("features[0].properties.center[1]", is(49.423034f))
                 //.body("bbox", hasItems(8.662622f, 49.40911f, 8.695994f, 49.440487f))
                 .body("bbox", hasItems(8.663811f, 49.409103f, 8.699429f, 49.43929f))
                 .body("features[0].type", is("Feature"))
