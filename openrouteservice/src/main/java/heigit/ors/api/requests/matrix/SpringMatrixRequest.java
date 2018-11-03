@@ -1,5 +1,21 @@
+/*
+ * This file is part of Openrouteservice.
+ *
+ * Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
+ * of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this library;
+ * if not, see <https://www.gnu.org/licenses/>.
+ */
+
 package heigit.ors.api.requests.matrix;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.api.requests.common.APIEnums;
@@ -8,14 +24,15 @@ import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.matrix.MatrixErrorCodes;
 import heigit.ors.matrix.MatrixMetricsType;
 import heigit.ors.services.ServiceRequest;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
+@ApiModel(value = "MatrixRequest", description = "The JSON body request sent to the matrix service which defines options and parameters regarding the matrix to generate.")
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class SpringMatrixRequest {
-
     @ApiModelProperty(name = "id", value = "Arbitrary identification string of the request reflected in the meta information.")
     @JsonProperty("id")
     private String id;
@@ -31,16 +48,10 @@ public class SpringMatrixRequest {
     @ApiModelProperty(name = "sources", value = "A comma separated list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default).\\n\\nExample: `0,3` for the first and fourth Location.\\n")
     @JsonProperty("sources")
     private String[] sources;
-    // TODO sources will be translated to integer type into clean_sources
-    @ApiModelProperty(hidden = true)
-    private int[] clean_sources;
 
     @ApiModelProperty(name = "destinations", value = "A comma separated list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default).\\n\\nExample: `0,3` for the first and fourth Location.\\n      type: \\\"array\\\"\\n")
     @JsonProperty("destinations")
     private String[] destinations;
-    // TODO destinations will be translated to integer type into clean_destinations
-    @ApiModelProperty(hidden = true)
-    private int[] cleandestinations;
 
     @ApiModelProperty(name = "metrics", value = "Specifies a list of returned metrics separated with a pipe character (|).\\n* `distance` - Returns distance matrix for specified points in defined `units`.\\n* `duration` - Returns duration matrix for specified points in *seconds*.\\n")
     @JsonProperty("metrics")
@@ -124,28 +135,12 @@ public class SpringMatrixRequest {
         this.sources = sources;
     }
 
-    public int[] getClean_sources() {
-        return clean_sources;
-    }
-
-    public void setClean_sources(int[] clean_sources) {
-        this.clean_sources = clean_sources;
-    }
-
     public String[] getDestinations() {
         return destinations;
     }
 
     public void setDestinations(String[] destinations) {
         this.destinations = destinations;
-    }
-
-    public int[] getCleandestinations() {
-        return cleandestinations;
-    }
-
-    public void setCleandestinations(int[] cleandestinations) {
-        this.cleandestinations = cleandestinations;
     }
 
     public int getMetrics() {
@@ -212,7 +207,37 @@ public class SpringMatrixRequest {
         this.profileType = profileType;
     }
 
-//
+    public boolean hasMetrics() {
+        return false;
+    }
 
+    public boolean hasUnits() {
+        return false;
+    }
+
+    public boolean hasValidSourceIndex() {
+        return validateLocationsIndex(sources);
+    }
+
+    public boolean hasValidDestinationIndex() {
+        return validateLocationsIndex(destinations);
+    }
+
+    private boolean validateLocationsIndex(String[] index) {
+        int indexLength = index.length;
+        if (indexLength == 0) return true;
+        if (indexLength == 1 && "all".equalsIgnoreCase(index[0])) return true;
+        for (String indexString : index) {
+            int indexInt = 0;
+            try {
+                indexInt = Integer.parseInt(indexString);
+            } catch (NumberFormatException ex) {
+                return false;
+            }
+            if (indexInt > locations.size())
+                return false;
+        }
+        return false;
+    }
 }
 

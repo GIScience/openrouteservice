@@ -35,14 +35,13 @@ public class MatrixAPI {
     }
 
     @PostMapping(value = "/{profile}/json", produces = {"application/json;charset=UTF-8"})
-    @ApiOperation(value = "Get a route from the specified profile", httpMethod = "POST", consumes = "application/json")
+    @ApiOperation(value = "Get a matrix calculation from the specified profile", httpMethod = "POST", consumes = "application/json")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JSON Response", response = JSONRouteResponse.class)
+            @ApiResponse(code = 200, message = "JSON Response", response = JSONMatrixResponse.class)
     })
     public JSONMatrixResponse getJsonMime(
             @ApiParam(value = "Specifies the matrix profile.", required = true) @PathVariable APIEnums.MatrixProfile profile,
             @ApiParam(value = "The request payload", required = true) @RequestBody SpringMatrixRequest request) throws StatusCodeException {
-        // TODO Check if we should incorporate a specific MatrixProfileType;
         request.setProfile(profile);
         request.setResponseType(APIEnums.MatrixResponseType.JSON);
 

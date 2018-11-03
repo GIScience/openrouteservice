@@ -24,7 +24,6 @@ import java.io.InputStream;
 
 import javax.servlet.http.HttpServletRequest;
 
-import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
