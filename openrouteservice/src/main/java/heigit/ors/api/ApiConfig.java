@@ -17,22 +17,20 @@ package heigit.ors.api;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import heigit.ors.api.converters.APIRequestProfileConverter;
+import heigit.ors.api.converters.APIMatrixRequestProfileConverter;
+import heigit.ors.api.converters.APIRoutingRequestProfileConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.List;
 
 @Configuration
 public class ApiConfig implements WebMvcConfigurer {
     @Override
     public void addFormatters(FormatterRegistry registry) {
-        registry.addConverter(new APIRequestProfileConverter());
+        registry.addConverter(new APIRoutingRequestProfileConverter());
+        registry.addConverter(new APIMatrixRequestProfileConverter());
     }
 
     @Override

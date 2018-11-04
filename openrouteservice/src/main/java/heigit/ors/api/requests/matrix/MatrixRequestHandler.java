@@ -1,3 +1,18 @@
+/*
+ * This file is part of Openrouteservice.
+ *
+ * Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
+ * of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this library;
+ * if not, see <https://www.gnu.org/licenses/>.
+ */
+
 package heigit.ors.api.requests.matrix;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -6,7 +21,6 @@ import heigit.ors.common.DistanceUnit;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.matrix.MatrixErrorCodes;
-import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.routing.RoutingProfileType;
@@ -16,8 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MatrixRequestHandler {
-    public static MatrixResult generateRouteFromRequest(SpringMatrixRequest request) throws StatusCodeException {
-        MatrixRequest matrixRequest = convertMatrixRequest(request);
+    public static MatrixResult generateRouteFromRequest(MatrixRequest request) throws StatusCodeException {
+        heigit.ors.matrix.MatrixRequest matrixRequest = convertMatrixRequest(request);
         try {
             return RoutingProfileManager.getInstance().computeMatrix(matrixRequest);
         } catch (Exception e) {
@@ -28,9 +42,9 @@ public class MatrixRequestHandler {
         }
     }
 
-    private static MatrixRequest convertMatrixRequest(SpringMatrixRequest request) throws StatusCodeException {
+    private static heigit.ors.matrix.MatrixRequest convertMatrixRequest(MatrixRequest request) throws StatusCodeException {
         //TODO Next
-        MatrixRequest matrixRequest = new MatrixRequest();
+        heigit.ors.matrix.MatrixRequest matrixRequest = new heigit.ors.matrix.MatrixRequest();
         matrixRequest.setProfileType(convertMatrixProfileType(request.getProfile()));
         Coordinate[] locations = convertLocations(request.getLocations());
         if (request.isHasId())

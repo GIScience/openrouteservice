@@ -322,7 +322,6 @@ public class APIEnums {
         }
     }
 
-
     public enum Units {
         METRES("m"),
         KILOMETRES("km"),

@@ -13,19 +13,19 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.converters;
+package heigit.ors.api.responses.matrix;
 
-import org.springframework.core.convert.converter.Converter;
-import heigit.ors.api.requests.common.APIEnums;
+import com.vividsolutions.jts.geom.Coordinate;
+import heigit.ors.api.requests.matrix.MatrixRequest;
+import heigit.ors.api.requests.routing.RouteRequest;
+import heigit.ors.matrix.MatrixResult;
+import heigit.ors.routing.RouteResult;
 
-public class APIRequestProfileConverter implements Converter<String, APIEnums.RoutingProfile> {
-    @Override
-    public APIEnums.RoutingProfile convert(String s) {
-        for(APIEnums.RoutingProfile profile : APIEnums.RoutingProfile.values()) {
-            if(profile.toString().equals(s)) {
-                return profile;
-            }
-        }
-        return null;
+// Placeholder Class to implement subclasses. For now no further use!
+public class IndividualMatrixResponse {
+    protected Coordinate[] matrixLocations;
+
+
+    public IndividualMatrixResponse(MatrixResult result, MatrixRequest request) {
     }
 }
