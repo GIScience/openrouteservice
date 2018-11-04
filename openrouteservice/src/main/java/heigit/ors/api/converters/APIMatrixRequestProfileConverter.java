@@ -13,29 +13,19 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.matrix;
+package heigit.ors.api.converters;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import heigit.ors.api.requests.matrix.MatrixRequest;
+import heigit.ors.api.requests.common.APIEnums;
+import org.springframework.core.convert.converter.Converter;
 
-import java.util.List;
-
-public class MatrixResponse {
-    @JsonIgnore
-    protected MatrixResponseInfo responseInformation;
-
-    @JsonIgnore
-    protected List matrixResults;
-
-    public MatrixResponse(MatrixRequest request) {
-        responseInformation = new MatrixResponseInfo(request);
-    }
-
-    public MatrixResponseInfo getResponseInformation() {
-        return responseInformation;
-    }
-
-    public List getMatrixResults() {
-        return matrixResults;
+public class APIMatrixRequestProfileConverter implements Converter<String, APIEnums.MatrixProfile> {
+    @Override
+    public APIEnums.MatrixProfile convert(String s) {
+        for(APIEnums.MatrixProfile profile : APIEnums.MatrixProfile.values()) {
+            if(profile.toString().equals(s)) {
+                return profile;
+            }
+        }
+        return null;
     }
 }

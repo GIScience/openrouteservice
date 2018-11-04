@@ -15,15 +15,14 @@
 
 package heigit.ors.api.requests.matrix;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vividsolutions.jts.geom.Coordinate;
+import com.typesafe.config.ConfigException;
 import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.common.DistanceUnit;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.matrix.MatrixErrorCodes;
 import heigit.ors.matrix.MatrixMetricsType;
-import heigit.ors.services.ServiceRequest;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -32,26 +31,25 @@ import java.util.List;
 
 @ApiModel(value = "MatrixRequest", description = "The JSON body request sent to the matrix service which defines options and parameters regarding the matrix to generate.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class SpringMatrixRequest {
-    @ApiModelProperty(name = "id", value = "Arbitrary identification string of the request reflected in the meta information.")
-    @JsonProperty("id")
+public class MatrixRequest {
+    @ApiModelProperty(value = "Arbitrary identification string of the request reflected in the meta information.")
     private String id;
     private boolean hasId = false;
-
-    @ApiModelProperty(hidden = true)
-    private APIEnums.MatrixProfile profile;
 
     @ApiModelProperty(name = "locations", value = "List of comma separated lists of `longitude,latitude` coordinates (note, without quotes around the coordinates, this is a displaying error of swagger). \\nexample : `\\\"locations\\\":[[9.70093,48.477473],[9.207916,49.153868],[37.573242,55.801281],[115.663757,38.106467]]")
     @JsonProperty("locations")
     private List<List<Double>> locations;
 
+    @ApiModelProperty(hidden = true)
+    private APIEnums.MatrixProfile profile;
+
     @ApiModelProperty(name = "sources", value = "A comma separated list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default).\\n\\nExample: `0,3` for the first and fourth Location.\\n")
-    @JsonProperty("sources")
-    private String[] sources;
+    @JsonProperty(value = "sources", defaultValue = "all")
+    private String[] sources = {"all"};
 
     @ApiModelProperty(name = "destinations", value = "A comma separated list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default).\\n\\nExample: `0,3` for the first and fourth Location.\\n      type: \\\"array\\\"\\n")
-    @JsonProperty("destinations")
-    private String[] destinations;
+    @JsonProperty(value = "destinations", defaultValue = "all")
+    private String[] destinations = {"all"};
 
     @ApiModelProperty(name = "metrics", value = "Specifies a list of returned metrics separated with a pipe character (|).\\n* `distance` - Returns distance matrix for specified points in defined `units`.\\n* `duration` - Returns duration matrix for specified points in *seconds*.\\n")
     @JsonProperty("metrics")
@@ -79,7 +77,12 @@ public class SpringMatrixRequest {
     @ApiModelProperty(hidden = true)
     private int profileType = -1;
 
-    public SpringMatrixRequest(Double[][] locations) throws ParameterValueException {
+    @JsonCreator
+    public MatrixRequest(@JsonProperty(value = "locations", required = true) List<List<Double>> locations) {
+        this.locations = locations;
+    }
+
+    public MatrixRequest(Double[][] locations) throws ParameterValueException {
         if (locations.length < 2) {
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "locations");
         }
@@ -224,7 +227,12 @@ public class SpringMatrixRequest {
     }
 
     private boolean validateLocationsIndex(String[] index) {
-        int indexLength = index.length;
+        int indexLength;
+        try {
+            indexLength = index.length;
+        }catch (NullPointerException ne){
+            return false;
+        }
         if (indexLength == 0) return true;
         if (indexLength == 1 && "all".equalsIgnoreCase(index[0])) return true;
         for (String indexString : index) {

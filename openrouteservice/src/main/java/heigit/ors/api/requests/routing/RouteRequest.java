@@ -172,8 +172,7 @@ public class RouteRequest {
     }*/
 
     @JsonCreator
-    public RouteRequest(
-            @JsonProperty(value = "coordinates", required = true) List<List<Double>> coordinates) {
+    public RouteRequest(@JsonProperty(value = "coordinates", required = true) List<List<Double>> coordinates) {
         this.coordinates = coordinates;
     }
 
