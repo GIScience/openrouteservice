@@ -29,7 +29,6 @@ import java.util.ArrayList;
 public class JSONMatrixResponse extends MatrixResponse {
     public JSONMatrixResponse(MatrixResult[] matrixResults, MatrixRequest request) {
         super(request);
-        //TODO
         this.matrixResults = new ArrayList<JSONLocation>();
         for (MatrixResult result : matrixResults) {
             this.matrixResults.add(new JSONIndividualMatrixResponse(result, request));

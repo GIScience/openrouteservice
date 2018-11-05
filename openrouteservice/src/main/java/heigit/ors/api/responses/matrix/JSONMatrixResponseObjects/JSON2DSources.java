@@ -21,8 +21,8 @@ import heigit.ors.util.FormatUtility;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class JSON2DSources extends JSONLocation {
-    JSON2DSources(ResolvedLocation source) {
-        super(source);
+    JSON2DSources(ResolvedLocation source, boolean includeResolveLocations) {
+        super(source, includeResolveLocations);
     }
 
     public Double[] getLocation() {

@@ -22,28 +22,27 @@ import heigit.ors.matrix.ResolvedLocation;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO Construct location results here if the "resolve_locations" parameter is true
 class JSONBasedIndividualMatrixResponse {
 
-    /*    boolean includeLocations = false;*/
+    private boolean includeResolveLocations = false;
 
-    JSONBasedIndividualMatrixResponse(MatrixResult result, MatrixRequest request) {
-  /*      if (request.isResolveLocations())
-            includeLocations = true;*/
+    JSONBasedIndividualMatrixResponse(MatrixRequest request) {
+        if (request.isResolveLocations())
+            includeResolveLocations = true;
     }
 
     List<JSON2DDestinations> constructDestinations(MatrixResult matrixResult) {
         List<JSON2DDestinations> destinations = new ArrayList<>();
-        for (ResolvedLocation resolvedLocation : matrixResult.getDestinations()) {
-            destinations.add(new JSON2DDestinations(resolvedLocation));
+        for (ResolvedLocation location : matrixResult.getDestinations()) {
+            destinations.add(new JSON2DDestinations(location, includeResolveLocations));
         }
         return destinations;
     }
 
     List<JSON2DSources> constructSources(MatrixResult matrixResult) {
         List<JSON2DSources> sources = new ArrayList<>();
-        for (ResolvedLocation resolvedLocation : matrixResult.getDestinations()) {
-            sources.add(new JSON2DSources(resolvedLocation));
+        for (ResolvedLocation location : matrixResult.getDestinations()) {
+            sources.add(new JSON2DSources(location, includeResolveLocations));
         }
         return sources;
     }

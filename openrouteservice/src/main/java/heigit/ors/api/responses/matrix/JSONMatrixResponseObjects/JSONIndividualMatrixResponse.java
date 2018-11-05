@@ -25,7 +25,6 @@ import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
 
-// TODO not yet finished
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @ApiModel(value = "JSONIndividualRouteResponse", description = "An individual JSON based route created by the service")
 public class JSONIndividualMatrixResponse extends JSONBasedIndividualMatrixResponse {
@@ -42,9 +41,8 @@ public class JSONIndividualMatrixResponse extends JSONBasedIndividualMatrixRespo
     @JsonProperty("sources")
     private List<JSON2DSources> sources;
 
-    // TODO construct every matrix like in the usual get request
     JSONIndividualMatrixResponse(MatrixResult matrixResult, MatrixRequest request) {
-        super(matrixResult, request);
+        super(request);
         durations = constructDurations(matrixResult, request);
         destinations = constructDestinations(matrixResult);
         sources = constructSources(matrixResult);
