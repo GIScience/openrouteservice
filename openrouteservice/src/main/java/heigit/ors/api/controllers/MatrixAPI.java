@@ -65,15 +65,14 @@ public class MatrixAPI {
 
         MatrixResult result = MatrixRequestHandler.generateRouteFromRequest(request);
 
-        JSONMatrixResponse jsonMatrixResponse = new JSONMatrixResponse(new MatrixResult[]{result}, request);
-        return jsonMatrixResponse;
+        return new JSONMatrixResponse(new MatrixResult[]{result}, request);
         // Todo End
     }
 
     // Errors generated from the reading of the request (before entering the routing system). Normally these are where
     // parameters have been entered incorrectly in the request
     @ExceptionHandler
-    public ResponseEntity<Object> handleError(final HttpMessageNotReadableException e) {
+    public ResponseEntity handleError(final HttpMessageNotReadableException e) {
         final Throwable cause = e.getCause();
         final MatrixResponseEntityExceptionHandler h = new MatrixResponseEntityExceptionHandler();
         if (cause instanceof UnrecognizedPropertyException) {

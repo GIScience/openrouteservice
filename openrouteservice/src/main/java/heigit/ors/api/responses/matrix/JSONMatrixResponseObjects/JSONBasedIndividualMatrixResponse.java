@@ -16,23 +16,35 @@
 package heigit.ors.api.responses.matrix.JSONMatrixResponseObjects;
 
 import heigit.ors.api.requests.matrix.MatrixRequest;
-import heigit.ors.api.responses.matrix.IndividualMatrixResponse;
 import heigit.ors.matrix.MatrixResult;
+import heigit.ors.matrix.ResolvedLocation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 //TODO Construct location results here if the "resolve_locations" parameter is true
-public class JSONBasedIndividualMatrixResponse extends IndividualMatrixResponse {
+class JSONBasedIndividualMatrixResponse {
 
+    /*    boolean includeLocations = false;*/
 
-    public JSONBasedIndividualMatrixResponse(MatrixResult result, MatrixRequest request) {
-        super(result, request);
+    JSONBasedIndividualMatrixResponse(MatrixResult result, MatrixRequest request) {
+  /*      if (request.isResolveLocations())
+            includeLocations = true;*/
     }
 
-    /*protected List<JSONSegment> constructSegments(RouteResult routeResult, RouteRequest request) {
-        List segments = new ArrayList<>();
-        for (RouteSegment routeSegment : routeResult.getSegments()) {
-            segments.add(new JSONSegment(routeSegment, request, routeResult.getSummary().getDistance()));
+    List<JSON2DDestinations> constructDestinations(MatrixResult matrixResult) {
+        List<JSON2DDestinations> destinations = new ArrayList<>();
+        for (ResolvedLocation resolvedLocation : matrixResult.getDestinations()) {
+            destinations.add(new JSON2DDestinations(resolvedLocation));
         }
+        return destinations;
+    }
 
-        return segments;
-    }*/
+    List<JSON2DSources> constructSources(MatrixResult matrixResult) {
+        List<JSON2DSources> sources = new ArrayList<>();
+        for (ResolvedLocation resolvedLocation : matrixResult.getDestinations()) {
+            sources.add(new JSON2DSources(resolvedLocation));
+        }
+        return sources;
+    }
 }

@@ -61,6 +61,8 @@ public class MatrixRequestHandler {
         if (request.hasUnits()) {
             matrixRequest.setUnits(convertUnits(request.getUnits()));
         }
+        if (request.isResolveLocations())
+            matrixRequest.setResolveLocations(true);
         return matrixRequest;
     }
 
@@ -92,7 +94,7 @@ public class MatrixRequestHandler {
         if (length == 1 && "all".equalsIgnoreCase(sourcesIndex[0])) return locations;
         try {
             ArrayList<Coordinate> indexCoordinateArray = convertIndexToLocations(sourcesIndex, locations);
-            return indexCoordinateArray.toArray(new Coordinate[indexCoordinateArray.size()]);
+            return indexCoordinateArray.toArray(new Coordinate[0]);
         } catch (NumberFormatException | ArrayStoreException | NullPointerException ex) {
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "sources");
         }
@@ -105,7 +107,7 @@ public class MatrixRequestHandler {
         if (length == 1 && "all".equalsIgnoreCase(destinationsIndex[0])) return locations;
         try {
             ArrayList<Coordinate> indexCoordinateArray = convertIndexToLocations(destinationsIndex, locations);
-            return indexCoordinateArray.toArray(new Coordinate[indexCoordinateArray.size()]);
+            return indexCoordinateArray.toArray(new Coordinate[0]);
         } catch (NumberFormatException | ArrayStoreException | NullPointerException ex) {
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "destinations");
         }
