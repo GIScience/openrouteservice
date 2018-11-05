@@ -21,8 +21,8 @@ import org.springframework.core.convert.converter.Converter;
 public class APIMatrixRequestProfileConverter implements Converter<String, APIEnums.MatrixProfile> {
     @Override
     public APIEnums.MatrixProfile convert(String s) {
-        for(APIEnums.MatrixProfile profile : APIEnums.MatrixProfile.values()) {
-            if(profile.toString().equals(s)) {
+        for (APIEnums.MatrixProfile profile : APIEnums.MatrixProfile.values()) {
+            if (profile.toString().equals(s)) {
                 return profile;
             }
         }

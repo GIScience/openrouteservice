@@ -13,28 +13,23 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.matrix;
+package heigit.ors.api.responses.matrix.JSONMatrixResponseObjects;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import heigit.ors.api.requests.matrix.MatrixRequest;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import heigit.ors.matrix.ResolvedLocation;
+import heigit.ors.util.FormatUtility;
 
-import java.util.List;
-
-public class MatrixResponse {
-    @JsonIgnore
-    protected MatrixResponseInfo responseInformation;
-    @JsonIgnore
-    protected List matrixResults;
-
-    public MatrixResponse(MatrixRequest request) {
-        responseInformation = new MatrixResponseInfo(request);
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+public class JSON2DSources extends JSONLocation {
+    JSON2DSources(ResolvedLocation source) {
+        super(source);
     }
 
-    public MatrixResponseInfo getResponseInformation() {
-        return responseInformation;
-    }
-
-    public List getMatrixResults() {
-        return matrixResults;
+    public Double[] getLocation() {
+        Double[] location2D = new Double[2];
+        location2D[0] = FormatUtility.roundToDecimals(location.x, COORDINATE_DECIMAL_PLACES);
+        location2D[1] = FormatUtility.roundToDecimals(location.y, COORDINATE_DECIMAL_PLACES);
+        // location2D[3] = location.z; --> example for third dimension
+        return location2D;
     }
 }

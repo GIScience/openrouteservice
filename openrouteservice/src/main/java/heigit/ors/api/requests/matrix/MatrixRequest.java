@@ -18,7 +18,6 @@ package heigit.ors.api.requests.matrix;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.typesafe.config.ConfigException;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.matrix.MatrixErrorCodes;
@@ -230,13 +229,12 @@ public class MatrixRequest {
         int indexLength;
         try {
             indexLength = index.length;
-        }catch (NullPointerException ne){
+        } catch (NullPointerException ne) {
             return false;
         }
-        if (indexLength == 0) return true;
         if (indexLength == 1 && "all".equalsIgnoreCase(index[0])) return true;
         for (String indexString : index) {
-            int indexInt = 0;
+            int indexInt;
             try {
                 indexInt = Integer.parseInt(indexString);
             } catch (NumberFormatException ex) {
@@ -245,7 +243,7 @@ public class MatrixRequest {
             if (indexInt > locations.size())
                 return false;
         }
-        return false;
+        return true;
     }
 }
 
