@@ -34,10 +34,10 @@ public class JSONLocation {
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.2d")
     private Double snapped_distance;
 
-    JSONLocation(ResolvedLocation location) {
+    JSONLocation(ResolvedLocation location, boolean includeResolveLocations) {
         this.snapped_distance = location.getSnappedDistance();
         this.location = location.getCoordinate();
-        if (location.getName() != null)
+        if (includeResolveLocations)
             this.name = location.getName();
     }
 

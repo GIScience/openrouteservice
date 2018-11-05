@@ -21,8 +21,8 @@ import heigit.ors.util.FormatUtility;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class JSON2DDestinations extends JSONLocation {
-    JSON2DDestinations(ResolvedLocation destination) {
-        super(destination);
+    JSON2DDestinations(ResolvedLocation destination, boolean includeResolveLocations) {
+        super(destination, includeResolveLocations);
     }
 
     public Double[] getLocation() {

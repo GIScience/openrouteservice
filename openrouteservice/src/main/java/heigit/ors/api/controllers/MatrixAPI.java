@@ -66,7 +66,6 @@ public class MatrixAPI {
         MatrixResult result = MatrixRequestHandler.generateRouteFromRequest(request);
 
         return new JSONMatrixResponse(new MatrixResult[]{result}, request);
-        // Todo End
     }
 
     // Errors generated from the reading of the request (before entering the routing system). Normally these are where

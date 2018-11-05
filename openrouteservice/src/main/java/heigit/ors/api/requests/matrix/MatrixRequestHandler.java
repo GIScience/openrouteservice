@@ -43,7 +43,6 @@ public class MatrixRequestHandler {
     }
 
     private static heigit.ors.matrix.MatrixRequest convertMatrixRequest(MatrixRequest request) throws StatusCodeException {
-        //TODO Next
         heigit.ors.matrix.MatrixRequest matrixRequest = new heigit.ors.matrix.MatrixRequest();
         matrixRequest.setProfileType(convertMatrixProfileType(request.getProfile()));
         Coordinate[] locations = convertLocations(request.getLocations());
@@ -101,7 +100,6 @@ public class MatrixRequestHandler {
     }
 
     private static Coordinate[] convertDestinations(String[] destinationsIndex, Coordinate[] locations) throws ParameterValueException {
-        // TODO Check for: all, sources >= locations.index >> break,
         int length = destinationsIndex.length;
         if (length == 0) return locations;
         if (length == 1 && "all".equalsIgnoreCase(destinationsIndex[0])) return locations;
