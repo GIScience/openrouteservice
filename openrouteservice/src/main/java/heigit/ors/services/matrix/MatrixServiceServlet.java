@@ -21,6 +21,10 @@ import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.http.BaseHttpServlet;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Deprecated
 @RestController
@@ -36,6 +40,7 @@ public class MatrixServiceServlet extends BaseHttpServlet {
 		
 	}
 
+	@PostMapping
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException   {
 		try
 		{
@@ -48,6 +53,7 @@ public class MatrixServiceServlet extends BaseHttpServlet {
 		}
 	}
 
+	@GetMapping
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		try
 		{

@@ -17,7 +17,13 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 import heigit.ors.services.ORSServicesUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+@Deprecated
+@RestController
+@RequestMapping("/status")
 public class ServerStatusServlet extends BaseHttpServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -31,6 +37,7 @@ public class ServerStatusServlet extends BaseHttpServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 	}
 
+	@GetMapping
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		try
 		{

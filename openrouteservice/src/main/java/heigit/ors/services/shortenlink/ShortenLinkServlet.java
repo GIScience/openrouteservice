@@ -32,7 +32,14 @@ import heigit.ors.util.HTTPUtility;
 import heigit.ors.util.StringUtility;
 
 import com.graphhopper.util.Helper;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+@Deprecated
+@RestController
+@RequestMapping("/shortenlink")
 public class ShortenLinkServlet extends BaseHttpServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -44,6 +51,7 @@ public class ShortenLinkServlet extends BaseHttpServlet {
 	public void destroy() {
 	}
 
+	@PostMapping
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		try
 		{
@@ -59,6 +67,7 @@ public class ShortenLinkServlet extends BaseHttpServlet {
 		}
 	}
 
+	@GetMapping
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		try
 		{

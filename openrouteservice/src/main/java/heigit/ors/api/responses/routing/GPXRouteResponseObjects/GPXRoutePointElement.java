@@ -37,7 +37,7 @@ public class GPXRoutePointElement {
     @XmlElement(name = "desc")
     private String instructionDescription;
 
-    private double elevation;
+    private Double elevation;
 
     @XmlElement(name = "extensions")
     private GPXRoutePointExtensionElement element;
@@ -50,15 +50,20 @@ public class GPXRoutePointElement {
         if(!Double.isNaN(elevation))
             this.elevation = elevation;
 
-        this.name = step.getName();
-        this.instructionDescription = step.getInstruction();
+        if(step != null) {
+            this.name = step.getName();
+            this.instructionDescription = step.getInstruction();
 
-        this.element = new GPXRoutePointExtensionElement(step, stepNumber);
+            this.element = new GPXRoutePointExtensionElement(step, stepNumber);
+        }
     }
 
     @XmlElement(name = "ele")
-    public double getElevation() {
-        return FormatUtility.roundToDecimals(elevation, ELEVATION_DECIMAL_PLACES);
+    public Double getElevation() {
+        if(elevation != null)
+            return FormatUtility.roundToDecimals(elevation, ELEVATION_DECIMAL_PLACES);
+        else
+            return null;
     }
 
     @XmlAttribute(name = "lat")

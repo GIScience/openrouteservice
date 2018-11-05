@@ -55,7 +55,7 @@ public class GPXExtensions {
         language = request.getLanguage().toString();
         units = request.getUnits().toString();
         includeInstructions = request.getIncludeInstructionsInResponse();
-        includeElevation = request.getUseElevation();
-
+        if(request.hasReturnElevationForPoints())
+            includeElevation = request.getUseElevation();
     }
 }

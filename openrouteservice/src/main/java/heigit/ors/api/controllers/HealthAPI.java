@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/health")
+@RequestMapping("/v2/health")
 public class HealthAPI {
     @GetMapping
     public ResponseEntity<?> fetchHealth() {

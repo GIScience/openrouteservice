@@ -13,22 +13,7 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.routing.GPXRouteResponseObjects;
+package heigit.ors.api.controllers;
 
-import heigit.ors.api.requests.routing.RouteRequest;
-import heigit.ors.api.responses.routing.IndividualRouteResponse;
-import heigit.ors.routing.RouteResult;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
-@XmlRootElement(name = "route")
-public class GPXIndividualRouteResponse extends IndividualRouteResponse {
-
-    public GPXIndividualRouteResponse() {
-        super(null, null);
-    }
-
-    public GPXIndividualRouteResponse(RouteResult routeResult, RouteRequest request) {
-        super(routeResult, request);
-    }
+public class StatusAPI {
 }
