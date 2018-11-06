@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.matrix.MatrixErrorCodes;
-import heigit.ors.matrix.MatrixMetricsType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -50,9 +49,9 @@ public class MatrixRequest {
     @JsonProperty(value = "destinations", defaultValue = "all")
     private String[] destinations = {"all"};
 
-    @ApiModelProperty(name = "metrics", value = "Specifies a list of returned metrics separated with a pipe character (|).\\n* `distance` - Returns distance matrix for specified points in defined `units`.\\n* `duration` - Returns duration matrix for specified points in *seconds*.\\n")
-    @JsonProperty("metrics")
-    private int metrics = MatrixMetricsType.Duration;
+    @ApiModelProperty(name = "metrics", value = "Specifies a list of returned metrics separated with a (,) character.\\n* `distance` - Returns distance matrix for specified points in defined `units`.\\n* `duration` - Returns duration matrix for specified points in *seconds*.\\n")
+    @JsonProperty(value = "metrics", defaultValue = "duration")
+    private String[] metrics = {"duration"};
 
     @ApiModelProperty(name = "resolve_locations", value = "Specifies whether given locations are resolved or not. If the parameter value set to `true`, every element in destinations and sources will contain `name` element that identifies the name of the closest street. Default is `false`")
     @JsonProperty("resolve_locations")
@@ -61,10 +60,10 @@ public class MatrixRequest {
     @ApiModelProperty(name = "units", value = "Specifies the distance unit.\n" +
             "Default: m.")
     @JsonProperty(value = "units", defaultValue = "m")
-    private APIEnums.Units units = APIEnums.Units.METRES;
+    private String units = "m";
 
-    @ApiModelProperty(name = "flexible_mode", value = "Specifies weather flexible mode is used or not. Standard is `flexible_mode=false`")
-    @JsonProperty("flexible_mode")
+    @ApiModelProperty(name = "flexible_mode", value = "Specifies weather flexible mode is used or not.")
+    @JsonProperty(value = "flexible_mode", defaultValue = "false")
     private boolean flexibleMode = false;
 
     @ApiModelProperty(hidden = true)
@@ -75,6 +74,11 @@ public class MatrixRequest {
     private String algorithm;
     @ApiModelProperty(hidden = true)
     private int profileType = -1;
+
+    @ApiModelProperty(hidden = true)
+    private boolean hasMetrics = false;
+    @ApiModelProperty(hidden = true)
+    private boolean hasUnits = false;
 
     @JsonCreator
     public MatrixRequest(@JsonProperty(value = "locations", required = true) List<List<Double>> locations) {
@@ -145,12 +149,13 @@ public class MatrixRequest {
         this.destinations = destinations;
     }
 
-    public int getMetrics() {
+    public String[] getMetrics() {
         return metrics;
     }
 
-    public void setMetrics(int metrics) {
+    public void setMetrics(String[] metrics) {
         this.metrics = metrics;
+        this.hasMetrics = true;
     }
 
     public boolean isResolveLocations() {
@@ -161,12 +166,13 @@ public class MatrixRequest {
         this.resolveLocations = resolveLocations;
     }
 
-    public APIEnums.Units getUnits() {
+    public String getUnits() {
         return units;
     }
 
-    public void setUnits(APIEnums.Units units) {
+    public void setUnits(String units) {
         this.units = units;
+        this.hasUnits = true;
     }
 
     public boolean isFlexibleMode() {
@@ -210,11 +216,23 @@ public class MatrixRequest {
     }
 
     public boolean hasMetrics() {
-        return false;
+        if (!this.hasMetrics && this.metrics == null) {
+            return hasMetrics;
+        }
+        if (!this.hasMetrics && this.metrics != null) {
+            return true;
+        }
+        return this.hasMetrics && this.metrics != null;
     }
 
     public boolean hasUnits() {
-        return false;
+        if (!this.hasUnits && this.units == null) {
+            return hasUnits;
+        }
+        if (!this.hasUnits && this.units != null) {
+            return true;
+        }
+        return this.hasUnits && this.units != null;
     }
 
     public boolean hasValidSourceIndex() {
@@ -245,5 +263,7 @@ public class MatrixRequest {
         }
         return true;
     }
+
+
 }
 

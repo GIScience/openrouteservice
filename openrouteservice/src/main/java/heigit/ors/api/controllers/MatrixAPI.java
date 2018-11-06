@@ -35,6 +35,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
+import static heigit.ors.api.requests.matrix.MatrixRequestHandler.convertMatrixRequest;
+
 @RestController
 @Api(value = "/v2/matrix", description = "Get a Matrix calculation")
 @RequestMapping("/v2/matrix")
@@ -59,13 +63,13 @@ public class MatrixAPI {
     })
     public JSONMatrixResponse getJsonMime(
             @ApiParam(value = "Specifies the matrix profile.", required = true) @PathVariable APIEnums.MatrixProfile profile,
-            @ApiParam(value = "The request payload", required = true) @RequestBody MatrixRequest request) throws StatusCodeException {
-        request.setProfile(profile);
-        request.setResponseType(APIEnums.MatrixResponseType.JSON);
+            @ApiParam(value = "The request payload", required = true) @RequestBody MatrixRequest originalRequest) throws StatusCodeException {
+        originalRequest.setProfile(profile);
+        originalRequest.setResponseType(APIEnums.MatrixResponseType.JSON);
+        List<heigit.ors.matrix.MatrixRequest> matrixRequests = convertMatrixRequest(originalRequest);
+        List<MatrixResult> matrixResults = MatrixRequestHandler.generateRouteFromRequests(matrixRequests);
 
-        MatrixResult result = MatrixRequestHandler.generateRouteFromRequest(request);
-
-        return new JSONMatrixResponse(new MatrixResult[]{result}, request);
+        return new JSONMatrixResponse(matrixResults, matrixRequests, originalRequest);
     }
 
     // Errors generated from the reading of the request (before entering the routing system). Normally these are where

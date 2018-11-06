@@ -16,23 +16,43 @@
 package heigit.ors.api.responses.matrix.JSONMatrixResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import heigit.ors.api.requests.matrix.MatrixRequest;
 import heigit.ors.api.responses.matrix.MatrixResponse;
 import heigit.ors.api.responses.matrix.MatrixResponseInfo;
+import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @ApiModel(value = "JSONMatrixResponse")
 public class JSONMatrixResponse extends MatrixResponse {
-    public JSONMatrixResponse(MatrixResult[] matrixResults, MatrixRequest request) {
-        super(request);
+    public JSONMatrixResponse(List<MatrixResult> matrixResults, List<MatrixRequest> matrixRequests, heigit.ors.api.requests.matrix.MatrixRequest originalRequest) {
+        super(originalRequest);
         this.matrixResults = new ArrayList<JSONLocation>();
-        for (MatrixResult result : matrixResults) {
-            this.matrixResults.add(new JSONIndividualMatrixResponse(result, request));
+        JSONIndividualMatrixResponse combinedJSONIndividualMatrixResponse = null;
+        for (int i = 0; i < matrixResults.size(); i++) {
+            JSONIndividualMatrixResponse jsonIndividualMatrixResponse = new JSONIndividualMatrixResponse(matrixResults.get(i), matrixRequests.get(i));
+            Double[] durations = jsonIndividualMatrixResponse.getDurations();
+            Double[] distances = jsonIndividualMatrixResponse.getDistances();
+            Double[] weights = jsonIndividualMatrixResponse.getWeights();
+            if (combinedJSONIndividualMatrixResponse == null) {
+                combinedJSONIndividualMatrixResponse = new JSONIndividualMatrixResponse(matrixRequests.get(i));
+                combinedJSONIndividualMatrixResponse.setDestinations(jsonIndividualMatrixResponse.getDestinations());
+                combinedJSONIndividualMatrixResponse.setSources(jsonIndividualMatrixResponse.getSources());
+            }
+            if (durations != null && durations.length > 0) {
+                combinedJSONIndividualMatrixResponse.setDurations(durations);
+            }
+            if (distances != null && distances.length > 0) {
+                combinedJSONIndividualMatrixResponse.setDistances(distances);
+            }
+            if (weights != null && weights.length > 0) {
+                combinedJSONIndividualMatrixResponse.setWeights(weights);
+            }
         }
+        this.matrixResults.add(combinedJSONIndividualMatrixResponse);
     }
 
     @JsonProperty("matrix")
