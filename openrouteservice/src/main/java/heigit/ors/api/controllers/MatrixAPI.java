@@ -62,6 +62,7 @@ public class MatrixAPI {
             @ApiResponse(code = 200, message = "JSON Response", response = JSONMatrixResponse.class)
     })
     public JSONMatrixResponse getJsonMime(
+            //TODO Flexible mode???
             @ApiParam(value = "Specifies the matrix profile.", required = true) @PathVariable APIEnums.MatrixProfile profile,
             @ApiParam(value = "The request payload", required = true) @RequestBody MatrixRequest originalRequest) throws StatusCodeException {
         originalRequest.setProfile(profile);

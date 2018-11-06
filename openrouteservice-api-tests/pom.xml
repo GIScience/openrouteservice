@@ -61,5 +61,11 @@
 			<version>20140107</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>heigit.ors</groupId>
+			<artifactId>openrouteservice</artifactId>
+			<version>4.7.0</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>
