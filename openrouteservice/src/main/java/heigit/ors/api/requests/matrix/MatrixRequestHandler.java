@@ -21,6 +21,7 @@ import heigit.ors.common.DistanceUnit;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.matrix.MatrixErrorCodes;
+import heigit.ors.matrix.MatrixMetricsType;
 import heigit.ors.matrix.MatrixResult;
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.routing.RoutingProfileType;
@@ -30,39 +31,62 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MatrixRequestHandler {
-    public static MatrixResult generateRouteFromRequest(MatrixRequest request) throws StatusCodeException {
-        heigit.ors.matrix.MatrixRequest matrixRequest = convertMatrixRequest(request);
-        try {
-            return RoutingProfileManager.getInstance().computeMatrix(matrixRequest);
-        } catch (Exception e) {
-            if (e instanceof StatusCodeException)
-                throw (StatusCodeException) e;
-
-            throw new StatusCodeException(MatrixErrorCodes.UNKNOWN);
+    public static List<MatrixResult> generateRouteFromRequests(List<heigit.ors.matrix.MatrixRequest> matrixRequests) throws StatusCodeException {
+        List<MatrixResult> matrixResults = new ArrayList<>();
+        for (heigit.ors.matrix.MatrixRequest matrixRequest : matrixRequests) {
+            if (matrixRequest.getMetrics() == 0) {
+                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "metrics");
+            }
+            try {
+                matrixResults.add(RoutingProfileManager.getInstance().computeMatrix(matrixRequest));
+            } catch (Exception e) {
+                if (e instanceof StatusCodeException)
+                    throw (StatusCodeException) e;
+                throw new StatusCodeException(MatrixErrorCodes.UNKNOWN);
+            }
         }
+        return matrixResults;
     }
 
-    private static heigit.ors.matrix.MatrixRequest convertMatrixRequest(MatrixRequest request) throws StatusCodeException {
-        heigit.ors.matrix.MatrixRequest matrixRequest = new heigit.ors.matrix.MatrixRequest();
-        matrixRequest.setProfileType(convertMatrixProfileType(request.getProfile()));
-        Coordinate[] locations = convertLocations(request.getLocations());
-        if (request.isHasId())
-            matrixRequest.setId(request.getId());
-        if (!request.hasValidSourceIndex())
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "sources");
-        matrixRequest.setSources(convertSources(request.getSources(), locations));
-        if (!request.hasValidDestinationIndex())
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "destinations");
-        matrixRequest.setDestinations(convertDestinations(request.getSources(), locations));
-        if (request.hasMetrics()) {
-            matrixRequest.setMetrics(request.getMetrics());
+    public static List<heigit.ors.matrix.MatrixRequest> convertMatrixRequest(MatrixRequest request) throws StatusCodeException {
+        List<heigit.ors.matrix.MatrixRequest> matrixRequests = new ArrayList<>();
+        if (!request.hasMetrics()) {
+            throw new ParameterValueException(MatrixErrorCodes.MISSING_PARAMETER, "metrics");
         }
-        if (request.hasUnits()) {
-            matrixRequest.setUnits(convertUnits(request.getUnits()));
+        for (String metric : request.getMetrics()) {
+            heigit.ors.matrix.MatrixRequest matrixRequest = new heigit.ors.matrix.MatrixRequest();
+
+            matrixRequest.setMetrics(convertMetrics(metric));
+            matrixRequest.setProfileType(convertMatrixProfileType(request.getProfile()));
+            Coordinate[] locations = convertLocations(request.getLocations());
+
+            if (request.isHasId())
+                matrixRequest.setId(request.getId());
+            if (!request.hasValidSourceIndex())
+                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "sources");
+            matrixRequest.setSources(convertSources(request.getSources(), locations));
+            if (!request.hasValidDestinationIndex())
+                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "destinations");
+            matrixRequest.setDestinations(convertDestinations(request.getSources(), locations));
+            if (request.hasUnits()) {
+                matrixRequest.setUnits(convertUnits(request.getUnits()));
+            } else {
+                throw new ParameterValueException(MatrixErrorCodes.MISSING_PARAMETER, "units");
+            }
+            if (request.isResolveLocations())
+                matrixRequest.setResolveLocations(true);
+            matrixRequests.add(matrixRequest);
         }
-        if (request.isResolveLocations())
-            matrixRequest.setResolveLocations(true);
-        return matrixRequest;
+
+
+        return matrixRequests;
+    }
+
+    private static int convertMetrics(String metric) throws ParameterValueException {
+        int metricFromString = MatrixMetricsType.getFromString(metric);
+        if (metricFromString == 0)
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "metric");
+        return metricFromString;
     }
 
     private static Coordinate[] convertLocations(List<List<Double>> locations) throws ParameterValueException {
@@ -124,11 +148,10 @@ public class MatrixRequestHandler {
         return indexCoordinates;
     }
 
-    private static DistanceUnit convertUnits(APIEnums.Units unitsIn) throws ParameterValueException {
-        DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.Unknown);
+    private static DistanceUnit convertUnits(String unitsIn) throws ParameterValueException {
+        DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn, DistanceUnit.Unknown);
         if (units == DistanceUnit.Unknown)
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "units", unitsIn.toString());
-
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "units", unitsIn);
         return units;
     }
 
