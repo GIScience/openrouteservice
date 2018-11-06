@@ -31,10 +31,10 @@ public class JSONMatrixResponse extends MatrixResponse {
     public JSONMatrixResponse(List<MatrixResult> matrixResults, List<MatrixRequest> matrixRequests, heigit.ors.api.requests.matrix.MatrixRequest originalRequest) {
         super(originalRequest);
         this.matrixResults = new ArrayList<JSONLocation>();
-        this.matrixResults.add(constructCombindedMatrixResponse(matrixResults, matrixRequests));
+        this.matrixResults.add(constructCombinedMatrixResponse(matrixResults, matrixRequests));
     }
 
-    private JSONIndividualMatrixResponse constructCombindedMatrixResponse(List<MatrixResult> matrixResults, List<MatrixRequest> matrixRequests) {
+    private JSONIndividualMatrixResponse constructCombinedMatrixResponse(List<MatrixResult> matrixResults, List<MatrixRequest> matrixRequests) {
         JSONIndividualMatrixResponse combinedJSONIndividualMatrixResponse = null;
         for (int i = 0; i < matrixResults.size(); i++) {
             JSONIndividualMatrixResponse jsonIndividualMatrixResponse = new JSONIndividualMatrixResponse(matrixResults.get(i), matrixRequests.get(i));
