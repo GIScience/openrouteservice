@@ -25,6 +25,7 @@ import heigit.ors.matrix.MatrixMetricsType;
 import heigit.ors.matrix.MatrixResult;
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.routing.RoutingProfileType;
+import heigit.ors.services.matrix.MatrixServiceSettings;
 import heigit.ors.util.DistanceUnitUtil;
 
 import java.util.ArrayList;
@@ -92,7 +93,8 @@ public class MatrixRequestHandler {
     private static Coordinate[] convertLocations(List<List<Double>> locations) throws ParameterValueException {
         if (locations.size() < 2)
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "locations");
-
+        if (locations.size() > MatrixServiceSettings.getMaximumLocations(false))
+            throw new ParameterValueException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations");
         ArrayList<Coordinate> locationCoordinates = new ArrayList<>();
 
         for (List<Double> coordinate : locations) {
