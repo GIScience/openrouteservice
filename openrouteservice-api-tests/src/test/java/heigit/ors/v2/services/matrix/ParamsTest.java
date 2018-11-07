@@ -65,11 +65,11 @@ public class ParamsTest extends ServiceTest {
         coordsFaulty.put(coordFaulty3);
         addParameter("locationsFaulty", coordsFaulty);
 
-        // Fake array to test maximum exceedings
-        /*JSONArray maximumLocations = fakeLocations(MatrixServiceSettings.getMaximumLocations(false) + 1);
-        addParameter("maximumLocations", maximumLocations);
+       /* // Fake array to test maximum exceedings
+        JSONArray maximumLocations = fakeLocations(MatrixServiceSettings.getMaximumLocations(false) + 1);
+        addParameter("maximumLocations", maximumLocations);*/
         JSONArray minimalLocations = fakeLocations(1);
-        addParameter("minimalLocations", minimalLocations);*/
+        addParameter("minimalLocations", minimalLocations);
         // Sources
         JSONArray sourcesAll = new JSONArray();
         sourcesAll.put("all");
@@ -212,9 +212,10 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", "driving-car-123")
+                .pathParam("profile", "carProfile")
                 .body(body.toString())
                 .when()
+                .log().all()
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
@@ -275,7 +276,7 @@ public class ParamsTest extends ServiceTest {
 
     //TODO Check how to get the MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM
     // For now it is importing the config module from the ors mein package
-    /*@Test
+   /* @Test
     public void expect4006004() {
 
         JSONObject body = new JSONObject();
@@ -469,7 +470,6 @@ public class ParamsTest extends ServiceTest {
                 .body("info.query.containsKey('locations')", is(true))
                 .body("info.query.containsKey('profile')", is(true))
                 .body("info.query.containsKey('responseType')", is(true))
-                .body("info.query.containsKey('profileType')", is(true))
                 .body("info.query.containsKey('sources')", is(true))
                 .body("info.query.containsKey('destinations')", is(true))
                 .body("info.query.containsKey('metrics')", is(true))
@@ -531,24 +531,6 @@ public class ParamsTest extends ServiceTest {
                 .assertThat()
                 .body("info.containsKey('query')", is(true))
                 .body("info.query.containsKey('responseType')", is(true))
-                .statusCode(200);
-    }
-
-    @Test
-    public void expectQueryProfileType() {
-        JSONObject body = new JSONObject();
-        body.put("locations", getParameter("locations"));
-        given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
-                .body(body.toString())
-                .when()
-                .post(getEndPointPath() + "/{profile}/json")
-                .then()
-                .assertThat()
-                .body("info.containsKey('query')", is(true))
-                .body("info.query.containsKey('profileType')", is(true))
                 .statusCode(200);
     }
 
