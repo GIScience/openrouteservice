@@ -286,6 +286,8 @@ public class RoutingProfile {
                             args.put("prepare.core.threads", coreOpts.getInt("threads"));
                         if (coreOpts.hasPath("weightings"))
                             args.put("prepare.core.weightings", StringUtility.trimQuotes(coreOpts.getString("weightings")));
+                        if (coreOpts.hasPath("lmsets"))
+                            args.put("prepare.corelm.lmsets", StringUtility.trimQuotes(coreOpts.getString("lmsets")));
                     }
                 }
             }
@@ -712,6 +714,7 @@ public class RoutingProfile {
                 /* Avoid any features other than hills */
                 if (avoidFeatures != AvoidFeatureFlags.Hills) {
                     edgeFilters.add(new AvoidFeaturesEdgeFilter(profileType, searchParams, gs));
+                    props.put("avoid_features", searchParams.getAvoidFeatureTypes());
                 }
 
                 /* Special case of hills */

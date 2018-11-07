@@ -40,6 +40,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     int visitedCountTo1;
     int visitedCountFrom2;
     int visitedCountTo2;
+    int visitedEdgesALTCount;
 
     protected PathBidirRef bestPath;
     protected boolean updateBestPath = true;
@@ -128,6 +129,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         initFrom(from, 0);
         initTo(to, 0);
         runAlgo();
+        System.out.println("Visited edges Core-ALT: " + visitedEdgesALTCount );
         return extractPath();
     }
 

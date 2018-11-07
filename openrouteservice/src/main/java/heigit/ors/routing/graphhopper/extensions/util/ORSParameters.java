@@ -56,6 +56,10 @@ public class ORSParameters {
         /**
          * This property name in HintsMap configures at runtime if CH routing should be ignored.
          */
+        public static final String LMSETS = PREPARE + "lmsets";
+        /**
+         * This property name in HintsMap configures at runtime if CH routing should be ignored.
+         */
         public static final String DISABLE = "corelm.disable";
         /**
          * Specifies how many active landmarks should be used when routing

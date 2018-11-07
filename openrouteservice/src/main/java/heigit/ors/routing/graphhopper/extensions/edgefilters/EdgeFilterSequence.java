@@ -17,6 +17,7 @@ import java.util.ArrayList;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.EdgeIteratorState;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
 
 public class EdgeFilterSequence extends ArrayList<EdgeFilter> implements EdgeFilter {
 
@@ -28,6 +29,25 @@ public class EdgeFilterSequence extends ArrayList<EdgeFilter> implements EdgeFil
 			}
 		}
 		return true;
+	}
+
+	public String getName(){
+		String name = "";
+		for (EdgeFilter edgeFilter: this) {
+			name += "_" + edgeFilter.getClass().getSimpleName();
+		}
+		return name.toLowerCase();
+	}
+
+	public boolean isAvoidHighways(){
+		for (EdgeFilter edgeFilter: this) {
+			if (edgeFilter instanceof AvoidFeaturesCoreEdgeFilter){
+				if (((AvoidFeaturesCoreEdgeFilter) edgeFilter).getType() == "avoid_features"
+					&& ((AvoidFeaturesCoreEdgeFilter) edgeFilter).getAvoidFeatures() == 1)
+					return true;
+			}
+		}
+		return false;
 	}
 
 	@Override

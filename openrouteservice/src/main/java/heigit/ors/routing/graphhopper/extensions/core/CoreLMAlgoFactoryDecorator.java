@@ -37,6 +37,7 @@ import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
 import com.graphhopper.util.Parameters.Landmark;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import heigit.ors.routing.graphhopper.extensions.util.ORSParameters.CoreLandmark;
 import heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
 import org.slf4j.Logger;
@@ -72,9 +73,15 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
     private int preparationThreads;
     private ExecutorService threadPool;
     private boolean logDetails = false;
+    private CoreLMOptions coreLMOptions;
+    private GraphHopperStorage ghStorage;
 
     public CoreLMAlgoFactoryDecorator() {
         setPreparationThreads(1);
+    }
+    public CoreLMAlgoFactoryDecorator(GraphHopperStorage graphHopperStorage) {
+        setPreparationThreads(1);
+        this.ghStorage = graphHopperStorage;
     }
 
     @Override
@@ -100,6 +107,15 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
         setEnabled(enableThis);
         if (enableThis)
             setDisablingAllowed(args.getBool(CoreLandmark.INIT_DISABLING_ALLOWED, isDisablingAllowed()));
+
+        //Get the landmark sets that should be calculated
+        this.coreLMOptions = new CoreLMOptions(ghStorage);
+        String coreLMSets = args.get(CoreLandmark.LMSETS, "allow_all");
+        if (!coreLMSets.isEmpty() && !coreLMSets.equalsIgnoreCase("no")) {
+            List<String> tmpCoreLMSets = Arrays.asList(coreLMSets.split(";"));
+            coreLMOptions.setRestrictionFilters(tmpCoreLMSets);
+        }
+
     }
 
     public int getLandmarks() {
@@ -192,11 +208,11 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
     public CoreLMAlgoFactoryDecorator addPreparation(PrepareCoreLandmarks pch) {
         preparations.add(pch);
         int lastIndex = preparations.size() - 1;
-        if (lastIndex >= weightings.size())
+        if (lastIndex >= weightings.size() * coreLMOptions.getFilters().size())
             throw new IllegalStateException("Cannot access weighting for PrepareCoreLandmarks with " + pch.getWeighting()
                     + ". Call add(Weighting) before");
 
-        if (preparations.get(lastIndex).getWeighting() != weightings.get(lastIndex))
+        if (preparations.get(lastIndex).getWeighting() != weightings.get(lastIndex / coreLMOptions.getFilters().size()))
             throw new IllegalArgumentException(
                     "Weighting of PrepareCoreLandmarks " + preparations.get(lastIndex).getWeighting()
                             + " needs to be identical to previously added " + weightings.get(lastIndex));
@@ -235,6 +251,12 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
         if (preparations.isEmpty())
             throw new IllegalStateException("No preparations added to this decorator");
 
+        //First try to find a preparation with a landmarkset that fits the query
+        for (final PrepareCoreLandmarks p : preparations) {
+            if (p.getWeighting().matches(map) && p.matchesFilter(map))
+                return new CoreLMRAFactory(p, defaultAlgoFactory);
+        }
+        //If none matches, use a default one if available
         for (final PrepareCoreLandmarks p : preparations) {
             if (p.getWeighting().matches(map))
                 return new CoreLMRAFactory(p, defaultAlgoFactory);
@@ -332,18 +354,23 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
             }
         }
 
-        for (Weighting weighting : getWeightings()) {
-            Double maximumWeight = maximumWeights.get(weighting.getName());
-            if (maximumWeight == null)
-                throw new IllegalStateException("maximumWeight cannot be null. Default should be just negative. "
-                        + "Couldn't find " + weighting.getName() + " in " + maximumWeights);
+        coreLMOptions.setGhStorage(ghStorage);
+        coreLMOptions.createRestrictionFilters();
 
-            PrepareCoreLandmarks tmpPrepareLM = new PrepareCoreLandmarks(ghStorage.getDirectory(), ghStorage, weighting,
-                    landmarkCount, activeLandmarkCount).setLandmarkSuggestions(lmSuggestions)
-                            .setMaximumWeight(maximumWeight).setLogDetails(logDetails);
-            if (minNodes > 1)
-                tmpPrepareLM.setMinimumNodes(minNodes);
-            addPreparation(tmpPrepareLM);
+        for (Weighting weighting : getWeightings()) {
+            for (EdgeFilterSequence edgeFilterSequence : coreLMOptions.getFilters()) {
+                Double maximumWeight = maximumWeights.get(weighting.getName());
+                if (maximumWeight == null)
+                    throw new IllegalStateException("maximumWeight cannot be null. Default should be just negative. "
+                            + "Couldn't find " + weighting.getName() + " in " + maximumWeights);
+
+                PrepareCoreLandmarks tmpPrepareLM = new PrepareCoreLandmarks(ghStorage.getDirectory(), ghStorage, weighting, edgeFilterSequence,
+                        landmarkCount, activeLandmarkCount).setLandmarkSuggestions(lmSuggestions)
+                        .setMaximumWeight(maximumWeight).setLogDetails(logDetails);
+                if (minNodes > 1)
+                    tmpPrepareLM.setMinimumNodes(minNodes);
+                addPreparation(tmpPrepareLM);
+            }
         }
     }
 }

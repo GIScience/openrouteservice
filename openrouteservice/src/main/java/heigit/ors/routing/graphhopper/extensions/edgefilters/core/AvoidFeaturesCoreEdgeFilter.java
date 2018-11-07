@@ -38,6 +38,7 @@ public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
 	private WayCategoryGraphStorage _storage;
 	private int _avoidFeatures;
 	private CHGraphImpl core;
+	private final String type = "avoid_features";
 
 	public AvoidFeaturesCoreEdgeFilter(GraphStorage graphStorage, int profileCategory) {
 		_buffer = new byte[10];
@@ -58,4 +59,11 @@ public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
 
 	}
 
+	public String getType() {
+		return type;
+	}
+
+	public int getAvoidFeatures() {
+		return _avoidFeatures;
+	}
 }

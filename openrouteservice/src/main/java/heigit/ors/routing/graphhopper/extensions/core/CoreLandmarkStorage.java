@@ -84,6 +84,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
     private List<LandmarkSuggestion> landmarkSuggestions = Collections.emptyList();
     private SpatialRuleLookup ruleLookup;
     private boolean logDetails = false;
+    private EdgeFilterSequence landmarksFilter;
 
     public static HashMap<Integer, Integer> coreNodeIdMap;
     /**
@@ -91,12 +92,13 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
      */
     static final long PRECISION = 1 << 16;
 
-    public CoreLandmarkStorage(GraphHopperStorage graph, Directory dir, final Weighting weighting, int landmarks) {
+    public CoreLandmarkStorage(GraphHopperStorage graph, Directory dir, final Weighting weighting, EdgeFilterSequence landmarksFilter, int landmarks) {
 //        super(graph, dir, weighting, landmarks);
         this.graph = graph;
         this.core = graph.getCoreGraph(weighting);
         this.minimumNodes = Math.min(core.getCoreNodes() / 2, 500_000);
         this.encoder = weighting.getFlagEncoder();
+        this.landmarksFilter = landmarksFilter;
 
         this.lmWeighting = new ShortestWeighting(encoder) {
             @Override
@@ -148,7 +150,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         // Edge based is not really necessary because when adding turn costs while routing we can still
         // use the node based traversal as this is a smaller weight approximation and will still produce correct results
         this.traversalMode = TraversalMode.NODE_BASED;
-        final String name = AbstractWeighting.weightingToFileName(weighting);
+        final String name = AbstractWeighting.weightingToFileName(weighting) + landmarksFilter.getName();
         this.landmarkWeightDA = dir.find("landmarks_core_" + name);
 
         this.landmarks = landmarks;
@@ -356,6 +358,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             explorer.initFrom(startNode, 0);
             EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
             coreEdgeFilter.add(new CoreAndBlockedEdgesFilter(encoder, true, true, blockedEdges, graph));
+            coreEdgeFilter.add(landmarksFilter);
 //            coreEdgeFilter.add(new AvoidFeaturesCoreEdgeFilter(this.graph, 1, 1));
             explorer.setFilter(coreEdgeFilter);
             explorer.runAlgo(true, coreEdgeFilter);
@@ -372,7 +375,6 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
                 if (Thread.currentThread().isInterrupted()) {
                     throw new RuntimeException("Thread was interrupted");
                 }
-                //TODO Core - DONE
                 explorer = new CoreLandmarkExplorer(graph, this, initWeighting, traversalMode);
                 explorer.setFilter(coreEdgeFilter);
                 // set all current landmarks as start so that the next getLastNode is hopefully a "far away" node
@@ -402,6 +404,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             explorer.initFrom(lmNodeId, 0);
             EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
             coreEdgeFilter.add(new CoreAndBlockedEdgesFilter(encoder, false, true, blockedEdges, graph));
+            coreEdgeFilter.add(landmarksFilter);
 //            coreEdgeFilter.add(new AvoidFeaturesCoreEdgeFilter(this.graph, 1, 1));
             explorer.setFilter(coreEdgeFilter);
             explorer.runAlgo(true, coreEdgeFilter);
@@ -419,6 +422,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             EdgeFilterSequence coreEdgeFilterBWD = new EdgeFilterSequence();
             coreEdgeFilterBWD.add(new CoreAndBlockedEdgesFilter(encoder, true, false, blockedEdges, graph));
 //            coreEdgeFilterBWD.add(new AvoidFeaturesCoreEdgeFilter(this.graph, 1, 1));
+            coreEdgeFilter.add(landmarksFilter);
             explorer.setFilter(coreEdgeFilterBWD);
             explorer.runAlgo(false, coreEdgeFilterBWD);
             explorer.initLandmarkWeights(lmIdx, lmNodeId, LM_ROW_LENGTH, TO_OFFSET);

@@ -85,31 +85,31 @@ public class WayCategoryGraphStorageBuilder extends AbstractGraphStorageBuilder
 					_wayType |= AvoidFeatureFlags.Tollways;
 				else if (key.equals("route") && isFerryRoute) 
 					_wayType |= AvoidFeatureFlags.Ferries;
-				else if (key.equals("tunnel") && value.equals("yes")) 
+				else if (key.equals("tunnel") && value.equals("yes"))
 					_wayType |= AvoidFeatureFlags.Tunnels;
 				else if (key.equals("bridge") && value.equals("yes")) 
 					_wayType |= AvoidFeatureFlags.Bridges;
 				else if (("ford".equals(key) && value.equals("yes")))
 					_wayType |= AvoidFeatureFlags.Fords;
 				else if (key.equals("surface")) {
-						if (value.equals("paved") || value.equals("asphalt") || value.equals("cobblestone")
-								|| value.equals("cobblestone") || value.equals("cobblestone:flattened")
-								|| value.equals("sett") || value.equals("concrete")
-								|| value.equals("concrete:lanes") || value.equals("concrete:plates")
-								|| value.equals("paving_stones") || value.equals("metal") || value.equals("wood"))
-						{
-							_wayType |= AvoidFeatureFlags.PavedRoads;
-						}
-
-						if (value.equals("unpaved") || value.equals("compacted") || value.equals("dirt")
-								|| value.equals("earth") || value.equals("fine_gravel") || value.equals("grass")
-								|| value.equals("grass_paver") || value.equals("gravel") || value.equals("ground")
-								|| value.equals("ice") || value.equals("metal") || value.equals("mud")
-								|| value.equals("pebblestone") || value.equals("salt") || value.equals("sand")
-								|| value.equals("snow") || value.equals("wood") || value.equals("woodchips"))
-						{
-							_wayType |= AvoidFeatureFlags.UnpavedRoads;
-						}
+//						if (value.equals("paved") || value.equals("asphalt") || value.equals("cobblestone")
+//								|| value.equals("cobblestone") || value.equals("cobblestone:flattened")
+//								|| value.equals("sett") || value.equals("concrete")
+//								|| value.equals("concrete:lanes") || value.equals("concrete:plates")
+//								|| value.equals("paving_stones") || value.equals("metal") || value.equals("wood"))
+//						{
+//							_wayType |= AvoidFeatureFlags.PavedRoads;
+//						}
+//
+//						if (value.equals("unpaved") || value.equals("compacted") || value.equals("dirt")
+//								|| value.equals("earth") || value.equals("fine_gravel") || value.equals("grass")
+//								|| value.equals("grass_paver") || value.equals("gravel") || value.equals("ground")
+//								|| value.equals("ice") || value.equals("metal") || value.equals("mud")
+//								|| value.equals("pebblestone") || value.equals("salt") || value.equals("sand")
+//								|| value.equals("snow") || value.equals("wood") || value.equals("woodchips"))
+//						{
+//							_wayType |= AvoidFeatureFlags.UnpavedRoads;
+//						}
 					}
 			}
 		}

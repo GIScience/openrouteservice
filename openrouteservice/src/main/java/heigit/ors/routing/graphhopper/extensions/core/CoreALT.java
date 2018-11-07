@@ -74,6 +74,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         BeelineWeightApproximator defaultApprox = new BeelineWeightApproximator(nodeAccess, weighting);
         defaultApprox.setDistanceCalc(Helper.DIST_PLANE);
         setApproximation(defaultApprox);
+        visitedEdgesALTCount = 0;
     }
 
     @Override
@@ -370,7 +371,6 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         while (iter.next()) {
             if (!accept(iter, currEdge.edge))
                 continue;
-
             int traversalId = traversalMode.createTraversalId(iter, reverse);
             // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
             double tmpWeight = weighting.calcWeight(iter, reverse, currEdge.originalEdge) + currEdge.weight;
@@ -430,6 +430,8 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         while (iter.next()) {
             if (!accept(iter, currEdge.edge))
                 continue;
+            visitedEdgesALTCount++;
+
 
             int neighborNode = iter.getAdjNode();
             int traversalId = traversalMode.createTraversalId(iter, reverse);

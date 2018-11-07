@@ -67,14 +67,15 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     // the most important nodes comes last
     private GHTreeMapComposed sortedNodes;
     private int oldPriorities[];
+    private int restrictedNodes = 0;
 
     private long counter;
     private double meanDegree;
     private StopWatch dijkstraSW = new StopWatch();
-    private int periodicUpdatesPercentage = 20;
-    private int lastNodesLazyUpdatePercentage = 0;
-    private int neighborUpdatePercentage = 20;
-    private double nodesContractedPercentage = 100;
+    private int periodicUpdatesPercentage = 10;
+    private int lastNodesLazyUpdatePercentage = 10;
+    private int neighborUpdatePercentage = 90;
+    private double nodesContractedPercentage = 98;
     private double logMessagesPercentage = 20;
     private double dijkstraTime;
     private double periodTime;
@@ -208,6 +209,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         for (int node = 0; node < nodes; node++) {
             int priority = oldPriorities[node] = calculatePriority(node);
             sortedNodes.insert(node, priority);
+            if(priority == RESTRICTION_PRIORITY) restrictedNodes++;
         }
 
         return !sortedNodes.isEmpty();
@@ -237,7 +239,9 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
 
         // according to paper "Polynomial-time Construction of Contraction Hierarchies for Multi-criteria Objectives" by Funke and Storandt
         // we don't need to wait for all nodes to be contracted
-        long nodesToAvoidContract = Math.round((100 - nodesContractedPercentage) / 100 * sortedNodes.getSize());
+
+        //Avoid contrtacting core nodes  +  the additional percentage
+        long nodesToAvoidContract = Math.round((100 - nodesContractedPercentage) / 100 * (sortedNodes.getSize() - restrictedNodes))  + restrictedNodes ;
         StopWatch lazySW = new StopWatch();
 
         // Recompute priority of uncontracted neighbors.
@@ -336,6 +340,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                     CHEdgeIterator iter = vehicleAllExplorer.setBaseNode(polledNode);
                     while (iter.next()) {
                         if (oldPriorities[iter.getAdjNode()] == RESTRICTION_PRIORITY) continue;
+                        if (prepareGraph.getLevel(iter.getAdjNode()) == maxLevel) continue;
                         prepareGraph.disconnect(vehicleAllTmpExplorer, iter);
                     }
                     polledNode = sortedNodes.pollKey();
@@ -377,17 +382,28 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             periodTime += periodSW.getSeconds();
             lazyTime += lazySW.getSeconds();
             neighborTime += neighborSW.getSeconds();
-            logger.info("took:" + (int) allSW.stop().getSeconds()
-                    + ", new shortcuts: " + Helper.nf(nodeContractor.getAddedShortcutsCount())
-                    + ", " + prepareWeighting
-                    + ", dijkstras:" + nodeContractor.getDijkstraCount()
-                    + ", " + getTimesAsString()
-                    + ", meanDegree:" + (long) meanDegree
-                    + ", initSize:" + initSize
-                    + ", periodic:" + periodicUpdatesPercentage
-                    + ", lazy:" + lastNodesLazyUpdatePercentage
-                    + ", neighbor:" + neighborUpdatePercentage
-                    + ", " + Helper.getMemInfo());
+        System.out.println("took:" + (int) allSW.stop().getSeconds()
+                + ", new shortcuts: " + Helper.nf(nodeContractor.getAddedShortcutsCount())
+                + ", " + prepareWeighting
+                + ", dijkstras:" + nodeContractor.getDijkstraCount()
+                + ", " + getTimesAsString()
+                + ", meanDegree:" + (long) meanDegree
+                + ", initSize:" + initSize
+                + ", periodic:" + periodicUpdatesPercentage
+                + ", lazy:" + lastNodesLazyUpdatePercentage
+                + ", neighbor:" + neighborUpdatePercentage
+                + ", " + Helper.getMemInfo());
+//            logger.info("took:" + (int) allSW.stop().getSeconds()
+//                    + ", new shortcuts: " + Helper.nf(nodeContractor.getAddedShortcutsCount())
+//                    + ", " + prepareWeighting
+//                    + ", dijkstras:" + nodeContractor.getDijkstraCount()
+//                    + ", " + getTimesAsString()
+//                    + ", meanDegree:" + (long) meanDegree
+//                    + ", initSize:" + initSize
+//                    + ", periodic:" + periodicUpdatesPercentage
+//                    + ", lazy:" + lastNodesLazyUpdatePercentage
+//                    + ", neighbor:" + neighborUpdatePercentage
+//                    + ", " + Helper.getMemInfo());
     }
 
 

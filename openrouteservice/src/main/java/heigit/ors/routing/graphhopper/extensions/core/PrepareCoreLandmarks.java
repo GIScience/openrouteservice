@@ -29,9 +29,11 @@ import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.Helper;
+import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
 import com.graphhopper.util.Parameters.Landmark;
 import com.graphhopper.util.StopWatch;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,8 +53,9 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
     private final CoreLandmarkStorage lms;
     private final Weighting weighting;
     private int defaultActiveLandmarks;
+    private EdgeFilterSequence landmarksFilter;
 
-    public PrepareCoreLandmarks(Directory dir, GraphHopperStorage graph, Weighting weighting, int landmarks,
+    public PrepareCoreLandmarks(Directory dir, GraphHopperStorage graph, Weighting weighting, EdgeFilterSequence landmarksFilter, int landmarks,
                                 int activeLandmarks) {
         if (activeLandmarks > landmarks)
             throw new IllegalArgumentException("Default value for active landmarks " + activeLandmarks
@@ -60,7 +63,8 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
         this.graph = graph;
         this.defaultActiveLandmarks = activeLandmarks;
         this.weighting = weighting;
-        lms = new CoreLandmarkStorage(graph, dir, weighting, landmarks);
+        this.landmarksFilter = landmarksFilter;
+        lms = new CoreLandmarkStorage(graph, dir, weighting, landmarksFilter, landmarks);
     }
 
     /**
@@ -190,5 +194,14 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
         }
 
         return algo;
+    }
+
+    public boolean matchesFilter(PMap pmap){
+        if ((pmap.getInt("avoid_features", 0) & 1) == 1) {
+            if(landmarksFilter.isAvoidHighways())
+                return true;
+            return false;
+        }
+        return true;
     }
 }
