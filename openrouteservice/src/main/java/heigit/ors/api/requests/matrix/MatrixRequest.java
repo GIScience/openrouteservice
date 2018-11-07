@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ApiModel(value = "MatrixRequest", description = "The JSON body request sent to the matrix service which defines options and parameters regarding the matrix to generate.")
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class MatrixRequest {
     @ApiModelProperty(name = "id", value = "Arbitrary identification string of the request reflected in the meta information.")
     private String id;
@@ -54,7 +54,7 @@ public class MatrixRequest {
     private String[] metrics = {"duration"};
 
     @ApiModelProperty(name = "resolve_locations", value = "Specifies whether given locations are resolved or not. If the parameter value set to `true`, every element in destinations and sources will contain `name` element that identifies the name of the closest street. Default is `false`")
-    @JsonProperty("resolve_locations")
+    @JsonProperty(value = "resolve_locations", defaultValue = "false")
     private Boolean resolveLocations = false;
 
     @ApiModelProperty(name = "units", value = "Specifies the distance unit.\n" +
@@ -62,9 +62,9 @@ public class MatrixRequest {
     @JsonProperty(value = "units", defaultValue = "m")
     private String units = "m";
 
-    @ApiModelProperty(name = "flexible_mode", value = "Specifies weather flexible mode is used or not.")
-    @JsonProperty(value = "flexible_mode", defaultValue = "false")
-    private boolean flexibleMode = false;
+    @ApiModelProperty(name = "optimized", value = "Specifies weather flexible mode is used or not.", hidden = true)
+    @JsonProperty(value = "optimized")
+    private boolean optimized = false;
 
     @ApiModelProperty(hidden = true)
     private APIEnums.MatrixResponseType responseType = APIEnums.MatrixResponseType.JSON;
@@ -72,9 +72,6 @@ public class MatrixRequest {
     private String weightingMethod;
     @ApiModelProperty(hidden = true)
     private String algorithm;
-    @ApiModelProperty(hidden = true)
-    private int profileType = -1;
-
     @ApiModelProperty(hidden = true)
     private boolean hasMetrics = false;
     @ApiModelProperty(hidden = true)
@@ -172,12 +169,12 @@ public class MatrixRequest {
         this.hasUnits = true;
     }
 
-    public boolean isFlexibleMode() {
-        return flexibleMode;
+    public boolean isOptimized() {
+        return optimized;
     }
 
-    public void setFlexibleMode(boolean flexibleMode) {
-        this.flexibleMode = flexibleMode;
+    public void setOptimized(boolean optimized) {
+        this.optimized = optimized;
     }
 
     public APIEnums.MatrixResponseType getResponseType() {
@@ -202,14 +199,6 @@ public class MatrixRequest {
 
     public void setAlgorithm(String algorithm) {
         this.algorithm = algorithm;
-    }
-
-    public int getProfileType() {
-        return profileType;
-    }
-
-    public void setProfileType(int profileType) {
-        this.profileType = profileType;
     }
 
     public boolean hasMetrics() {

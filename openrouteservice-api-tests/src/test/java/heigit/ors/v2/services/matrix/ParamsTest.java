@@ -474,7 +474,7 @@ public class ParamsTest extends ServiceTest {
                 .body("info.query.containsKey('destinations')", is(true))
                 .body("info.query.containsKey('metrics')", is(true))
                 .body("info.query.containsKey('resolve_locations')", is(false))
-                .body("info.query.containsKey('flexible_mode')", is(false))
+                .body("info.query.containsKey('optimized')", is(false))
                 .body("info.query.containsKey('units')", is(true))
                 .statusCode(200);
     }
@@ -483,7 +483,7 @@ public class ParamsTest extends ServiceTest {
     public void expectFlexibleMode() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
-        body.put("flexible_mode", true);
+        body.put("optimized", true);
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
@@ -501,7 +501,7 @@ public class ParamsTest extends ServiceTest {
                 .body("info.query.containsKey('destinations')", is(true))
                 .body("info.query.containsKey('metrics')", is(true))
                 .body("info.query.containsKey('resolve_locations')", is(false))
-                .body("info.query.containsKey('flexible_mode')", is(true))
+                .body("info.query.containsKey('optimized')", is(true))
                 .body("info.query.containsKey('units')", is(true))
                 .statusCode(200);
     }
