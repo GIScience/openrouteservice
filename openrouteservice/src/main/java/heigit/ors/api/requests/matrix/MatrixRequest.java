@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.matrix.MatrixErrorCodes;
+import heigit.ors.services.matrix.MatrixServiceSettings;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -28,11 +29,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ApiModel(value = "MatrixRequest", description = "The JSON body request sent to the matrix service which defines options and parameters regarding the matrix to generate.")
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class MatrixRequest {
-    @ApiModelProperty(value = "Arbitrary identification string of the request reflected in the meta information.")
+    @ApiModelProperty(name = "id", value = "Arbitrary identification string of the request reflected in the meta information.")
     private String id;
-    private boolean hasId = false;
 
     @ApiModelProperty(name = "locations", value = "List of comma separated lists of `longitude,latitude` coordinates (note, without quotes around the coordinates, this is a displaying error of swagger). \\nexample : `\\\"locations\\\":[[9.70093,48.477473],[9.207916,49.153868],[37.573242,55.801281],[115.663757,38.106467]]")
     @JsonProperty("locations")
@@ -55,7 +55,7 @@ public class MatrixRequest {
 
     @ApiModelProperty(name = "resolve_locations", value = "Specifies whether given locations are resolved or not. If the parameter value set to `true`, every element in destinations and sources will contain `name` element that identifies the name of the closest street. Default is `false`")
     @JsonProperty("resolve_locations")
-    private boolean resolveLocations = false;
+    private Boolean resolveLocations = false;
 
     @ApiModelProperty(name = "units", value = "Specifies the distance unit.\n" +
             "Default: m.")
@@ -89,6 +89,8 @@ public class MatrixRequest {
         if (locations.length < 2) {
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "locations");
         }
+        if (locations.length > MatrixServiceSettings.getMaximumLocations(false))
+            throw new ParameterValueException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations");
         this.locations = new ArrayList<>();
         for (Double[] coordPair : locations) {
             if (coordPair.length != 2)
@@ -106,15 +108,10 @@ public class MatrixRequest {
 
     public void setId(String id) {
         this.id = id;
-        this.hasId = true;
     }
 
-    public boolean isHasId() {
-        return hasId;
-    }
-
-    public void setHasId(boolean hasId) {
-        this.hasId = hasId;
+    public boolean hasId() {
+        return this.id != null;
     }
 
     public APIEnums.MatrixProfile getProfile() {
@@ -162,7 +159,7 @@ public class MatrixRequest {
         return resolveLocations;
     }
 
-    public void setResolveLocations(boolean resolveLocations) {
+    public void setResolve_Locations(boolean resolveLocations) {
         this.resolveLocations = resolveLocations;
     }
 
