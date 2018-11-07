@@ -168,7 +168,11 @@ public class MatrixRequestHandler {
 
     private static int convertMatrixProfileType(APIEnums.MatrixProfile profile) throws ParameterValueException {
         try {
-            return RoutingProfileType.getFromString(profile.toString());
+            int profileFromString = RoutingProfileType.getFromString(profile.toString());
+            if (profileFromString == 0) {
+                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "profile");
+            }
+            return profileFromString;
         } catch (Exception e) {
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "profile");
         }
