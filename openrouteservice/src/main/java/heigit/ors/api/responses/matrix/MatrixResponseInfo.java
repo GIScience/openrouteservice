@@ -18,6 +18,7 @@ package heigit.ors.api.responses.matrix;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.Helper;
+import heigit.ors.api.requests.matrix.MatrixRequest;
 import heigit.ors.config.AppConfig;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
@@ -43,13 +44,13 @@ public class MatrixResponseInfo {
 
     @ApiModelProperty(value = "The information that was used for generating the matrix")
     @JsonProperty("query")
-    private heigit.ors.api.requests.matrix.MatrixRequest request;
+    private MatrixRequest request;
 
     @ApiModelProperty(value = "Information about the routing service")
     @JsonProperty("engine")
     private EngineInfo engineInfo;
 
-    public MatrixResponseInfo(heigit.ors.api.requests.matrix.MatrixRequest request) {
+    public MatrixResponseInfo(MatrixRequest request) {
         service = "matrix";
         timeStamp = System.currentTimeMillis();
 

@@ -61,7 +61,7 @@ public class MatrixRequestHandler {
             matrixRequest.setProfileType(convertMatrixProfileType(request.getProfile()));
             Coordinate[] locations = convertLocations(request.getLocations());
 
-            if (request.isHasId())
+            if (request.hasId())
                 matrixRequest.setId(request.getId());
             if (!request.hasValidSourceIndex())
                 throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "sources");
@@ -76,6 +76,15 @@ public class MatrixRequestHandler {
             }
             if (request.isResolveLocations())
                 matrixRequest.setResolveLocations(true);
+            else {
+                matrixRequest.setResolveLocations(false);
+            }
+            if (request.isFlexibleMode()) {
+                matrixRequest.setFlexibleMode(true);
+            } else {
+                matrixRequest.setFlexibleMode(false);
+            }
+
             matrixRequests.add(matrixRequest);
         }
 
