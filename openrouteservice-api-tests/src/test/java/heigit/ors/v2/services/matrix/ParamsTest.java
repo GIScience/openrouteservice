@@ -23,6 +23,7 @@ package heigit.ors.v2.services.matrix;
 import heigit.ors.v2.services.common.EndPointAnnotation;
 import heigit.ors.v2.services.common.ServiceTest;
 import heigit.ors.v2.services.common.VersionAnnotation;
+import heigit.ors.v2.services.serviceSettings.MatrixServiceSettings;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -65,9 +66,9 @@ public class ParamsTest extends ServiceTest {
         coordsFaulty.put(coordFaulty3);
         addParameter("locationsFaulty", coordsFaulty);
 
-       /* // Fake array to test maximum exceedings
+        // Fake array to test maximum exceedings
         JSONArray maximumLocations = fakeLocations(MatrixServiceSettings.getMaximumLocations(false) + 1);
-        addParameter("maximumLocations", maximumLocations);*/
+        addParameter("maximumLocations", maximumLocations);
         JSONArray minimalLocations = fakeLocations(1);
         addParameter("minimalLocations", minimalLocations);
         // Sources
@@ -276,7 +277,7 @@ public class ParamsTest extends ServiceTest {
 
     //TODO Check how to get the MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM
     // For now it is importing the config module from the ors mein package
-   /* @Test
+    @Test
     public void expect4006004() {
 
         JSONObject body = new JSONObject();
@@ -293,7 +294,7 @@ public class ParamsTest extends ServiceTest {
                 .assertThat()
                 .body("error.code", is(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM))
                 .statusCode(400);
-    }*/
+    }
 
     @Test
     public void expectResolveLocations() {
