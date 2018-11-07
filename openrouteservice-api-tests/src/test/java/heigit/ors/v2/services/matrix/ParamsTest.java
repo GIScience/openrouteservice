@@ -318,78 +318,397 @@ public class ParamsTest extends ServiceTest {
     public void expectDurations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
+        body.put("resolve_locations", true);
+        body.put("metrics", getParameter("metricsDuration"));
 
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("matrix[0].containsKey('durations')", is(true))
+                .statusCode(200);
     }
 
     @Test
     public void expectDistances() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
-
+        body.put("resolve_locations", true);
+        body.put("metrics", getParameter("metricsDistance"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("matrix[0].containsKey('distances')", is(true))
+                .statusCode(200);
     }
 
     @Test
     public void expectWeights() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
+        body.put("resolve_locations", true);
+        body.put("metrics", getParameter("metricsWeight"));
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("matrix[0].containsKey('weights')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
+    public void expectAllMetrics() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations"));
+        body.put("resolve_locations", true);
+        body.put("metrics", getParameter("metricsAll"));
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("matrix[0].containsKey('weights')", is(true))
+                .body("matrix[0].containsKey('durations')", is(true))
+                .body("matrix[0].containsKey('distances')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
+    public void expectInfoItems() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("info.containsKey('attribution')", is(true))
+                .body("info.containsKey('service')", is(true))
+                .body("info.containsKey('timestamp')", is(true))
+                .body("info.containsKey('timestamp')", is(true))
+                .body("info.containsKey('query')", is(true))
+                .body("info.containsKey('engine')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
+    public void expectEngineItems() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("info.engine.containsKey('version')", is(true))
+                .body("info.engine.containsKey('build_date')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
+    public void expectQuery() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("info.containsKey('query')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
+    public void expectQueryItems() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("info.containsKey('query')", is(true))
+                .body("info.query.containsKey('locations')", is(true))
+                .body("info.query.containsKey('profile')", is(true))
+                .body("info.query.containsKey('responseType')", is(true))
+                .body("info.query.containsKey('profileType')", is(true))
+                .body("info.query.containsKey('sources')", is(true))
+                .body("info.query.containsKey('destinations')", is(true))
+                .body("info.query.containsKey('metrics')", is(true))
+                .body("info.query.containsKey('resolve_locations')", is(true))
+                .body("info.query.containsKey('flexible_mode')", is(true))
+                .body("info.query.containsKey('units')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
+    public void expectQueryLocations() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("info.containsKey('query')", is(true))
+                .body("info.query.containsKey('locations')", is(true))
+                .statusCode(200);
 
     }
 
     @Test
-    public void expectLocations() {
+    public void expectQueryProfile() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
-
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("info.containsKey('query')", is(true))
+                .body("info.query.containsKey('profile')", is(true))
+                .statusCode(200);
     }
 
     @Test
-    public void expectProfile() {
+    public void expectQueryResponseType() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
-
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("info.containsKey('query')", is(true))
+                .body("info.query.containsKey('responseType')", is(true))
+                .statusCode(200);
     }
 
     @Test
-    public void expectResponseType() {
+    public void expectQueryProfileType() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
-
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("info.containsKey('query')", is(true))
+                .body("info.query.containsKey('profileType')", is(true))
+                .statusCode(200);
     }
 
     @Test
-    public void expectSources() {
+    public void expectQuerySources() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("info.containsKey('query')", is(true))
+                .body("info.query.containsKey('sources')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
+    public void expectQueryDestinations() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("info.containsKey('query')", is(true))
+                .body("info.query.containsKey('destinations')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
+    public void expectQueryMetrics() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("info.containsKey('query')", is(true))
+                .body("info.query.containsKey('metrics')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
+    public void expectQueryUnits() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("info.containsKey('query')", is(true))
+                .body("info.query.containsKey('units')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
+    public void expectQueryResolveLocations() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("info.containsKey('query')", is(true))
+                .body("info.query.containsKey('resolve_locations')", is(true))
+                .statusCode(200);
     }
 
     @Test
     public void expectDestinations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("matrix[0].containsKey('destinations')", is(true))
+                .statusCode(200);
     }
 
     @Test
-    public void expectMetrics() {
+    public void expectDestinationItems() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("matrix[0].destinations[0].containsKey('location')", is(true))
+                .body("matrix[0].destinations[0].containsKey('snapped_distance')", is(true))
+                .statusCode(200);
     }
 
     @Test
-    public void expectUnits() {
+    public void expectSources() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
-
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("matrix[0].containsKey('sources')", is(true))
+                .statusCode(200);
     }
 
     @Test
-    public void expectInfo() {
-        // Check for attribution, service, timestamp, query (only tag), engine
+    public void expectSourceItems() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
-    }
-
-    public void expectSnappedDistance() {
-        JSONObject body = new JSONObject();
-        body.put("locations", getParameter("locations"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("matrix[0].sources[0].containsKey('location')", is(true))
+                .body("matrix[0].sources[0].containsKey('snapped_distance')", is(true))
+                .statusCode(200);
     }
 }
