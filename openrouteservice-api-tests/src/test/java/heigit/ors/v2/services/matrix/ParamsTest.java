@@ -473,7 +473,34 @@ public class ParamsTest extends ServiceTest {
                 .body("info.query.containsKey('sources')", is(true))
                 .body("info.query.containsKey('destinations')", is(true))
                 .body("info.query.containsKey('metrics')", is(true))
-                .body("info.query.containsKey('resolve_locations')", is(true))
+                .body("info.query.containsKey('resolve_locations')", is(false))
+                .body("info.query.containsKey('flexible_mode')", is(false))
+                .body("info.query.containsKey('units')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
+    public void expectFlexibleMode() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations"));
+        body.put("flexible_mode", true);
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("info.containsKey('query')", is(true))
+                .body("info.query.containsKey('locations')", is(true))
+                .body("info.query.containsKey('profile')", is(true))
+                .body("info.query.containsKey('responseType')", is(true))
+                .body("info.query.containsKey('sources')", is(true))
+                .body("info.query.containsKey('destinations')", is(true))
+                .body("info.query.containsKey('metrics')", is(true))
+                .body("info.query.containsKey('resolve_locations')", is(false))
                 .body("info.query.containsKey('flexible_mode')", is(true))
                 .body("info.query.containsKey('units')", is(true))
                 .statusCode(200);
@@ -610,6 +637,8 @@ public class ParamsTest extends ServiceTest {
     public void expectQueryResolveLocations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
+        body.put("resolve_locations", true);
+
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
