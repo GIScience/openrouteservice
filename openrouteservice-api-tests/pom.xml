@@ -61,12 +61,5 @@
 			<version>20140107</version>
 			<scope>test</scope>
 		</dependency>
-        <!-- Dependency needed for a proper exceeding maximum api test by using MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM -->
-        <!--<dependency>
-            <groupId>heigit.ors</groupId>
-            <artifactId>openrouteservice</artifactId>
-            <version>4.7.0</version>
-            <scope>test</scope>
-        </dependency>-->
 	</dependencies>
 </project>
