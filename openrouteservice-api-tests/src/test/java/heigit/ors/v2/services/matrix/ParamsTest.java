@@ -20,7 +20,6 @@
  */
 package heigit.ors.v2.services.matrix;
 
-import heigit.ors.services.matrix.MatrixServiceSettings;
 import heigit.ors.v2.services.common.EndPointAnnotation;
 import heigit.ors.v2.services.common.ServiceTest;
 import heigit.ors.v2.services.common.VersionAnnotation;
@@ -67,10 +66,10 @@ public class ParamsTest extends ServiceTest {
         addParameter("locationsFaulty", coordsFaulty);
 
         // Fake array to test maximum exceedings
-        JSONArray maximumLocations = fakeLocations(MatrixServiceSettings.getMaximumLocations(false) + 1);
+        /*JSONArray maximumLocations = fakeLocations(MatrixServiceSettings.getMaximumLocations(false) + 1);
         addParameter("maximumLocations", maximumLocations);
         JSONArray minimalLocations = fakeLocations(1);
-        addParameter("minimalLocations", minimalLocations);
+        addParameter("minimalLocations", minimalLocations);*/
         // Sources
         JSONArray sourcesAll = new JSONArray();
         sourcesAll.put("all");
