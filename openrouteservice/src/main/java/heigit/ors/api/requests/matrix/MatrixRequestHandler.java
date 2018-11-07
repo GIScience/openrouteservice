@@ -79,7 +79,7 @@ public class MatrixRequestHandler {
             else {
                 matrixRequest.setResolveLocations(false);
             }
-            if (request.isFlexibleMode()) {
+            if (request.isOptimized()) {
                 matrixRequest.setFlexibleMode(true);
             } else {
                 matrixRequest.setFlexibleMode(false);

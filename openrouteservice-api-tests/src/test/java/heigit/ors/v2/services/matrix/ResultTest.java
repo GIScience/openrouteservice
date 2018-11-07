@@ -464,7 +464,7 @@ public class ResultTest extends ServiceTest {
                 .body("info.query.metrics[2]", is("weight"))
                 .body("info.query.containsKey('resolve_locations')", is(true))
                 .body("info.query.resolve_locations", is(true))
-                .body("info.query.containsKey('flexible_mode')", is(false))
+                .body("info.query.containsKey('optimized')", is(false))
                 .body("info.query.containsKey('units')", is(true))
                 .body("info.query.units", is("m"))
                 .statusCode(200);
