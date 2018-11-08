@@ -20,19 +20,10 @@
  */
 package heigit.ors.routing;
 
-import java.text.ParseException;
-import java.util.Iterator;
-
-import heigit.ors.routing.pathprocessors.BordersExtractor;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import com.graphhopper.util.Helper;
-
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.geojson.GeometryJSON;
@@ -40,7 +31,13 @@ import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import heigit.ors.routing.parameters.*;
+import heigit.ors.routing.pathprocessors.BordersExtractor;
 import heigit.ors.util.StringUtility;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.util.Iterator;
 
 /**
  * This class is used to store the search/calculation Parameters to calculate the desired Route/Isochrones etc…
@@ -70,9 +67,7 @@ public class RouteSearchParameters {
         return _profileType;
     }
 
-    public void setProfileType(int profileType) throws Exception {
-        if (profileType == RoutingProfileType.UNKNOWN)
-            throw new Exception("Routing profile is unknown.");
+    public void setProfileType(int profileType) {
 
         this._profileType = profileType;
     }

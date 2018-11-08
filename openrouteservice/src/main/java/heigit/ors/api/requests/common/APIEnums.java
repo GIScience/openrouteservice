@@ -32,18 +32,9 @@ package heigit.ors.api.requests.common;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.UnknownParameterValueException;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static heigit.ors.routing.RoutingErrorCodes.INVALID_PARAMETER_VALUE;
 
@@ -358,6 +349,7 @@ public class APIEnums {
             return value;
         }
     }
+
 
     public enum Attributes {
         AVERAGE_SPEED ("avgspeed"),
