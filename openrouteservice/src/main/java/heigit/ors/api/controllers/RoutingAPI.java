@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.api.errors.RoutingResponseEntityExceptionHandler;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.api.requests.routing.RouteRequest;
@@ -39,6 +40,29 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v2/directions")
 public class RoutingAPI {
 
+    @GetMapping(value = "/{profile}", produces = {"application/json;charset=UTF-8"})
+    @ApiOperation(value = "Get a basic route between two points with the profile provided", httpMethod = "GET")
+    @ApiResponses(
+            @ApiResponse(code = 200, message = "GeoJSON Response", response = GeoJSONRouteResponse.class)
+    )
+    public GeoJSONRouteResponse getSimpleGeoJsonRoute(@ApiParam(value = "Specifies the route profile.") @PathVariable APIEnums.RoutingProfile profile,
+                                                      @ApiParam(value = "Start coordinate of the route") @RequestParam Coordinate start,
+                                                      @ApiParam(value = "Destination coordinate of the route") @RequestParam Coordinate end) throws StatusCodeException{
+        Double[][] coordPairs = new Double[2][2];
+        coordPairs[0][0] = start.x;
+        coordPairs[0][1] = start.y;
+        coordPairs[1][0] = end.x;
+        coordPairs[1][1] = end.y;
+
+        RouteRequest request = new RouteRequest(coordPairs);
+        request.setProfile(profile);
+
+        RouteResult result = RouteRequestHandler.generateRouteFromRequest(request);
+
+        return new GeoJSONRouteResponse(new RouteResult[] { result }, request);
+    }
+
+
     @PostMapping
     @ApiOperation(value = "", hidden = true)
     public String getPostMapping(@RequestBody RouteRequest request) throws MissingParameterException {
@@ -48,7 +72,7 @@ public class RoutingAPI {
     @PostMapping(value = "/{profile}")
     public JSONRouteResponse getDefault( @ApiParam(value = "Specifies the route profile.") @PathVariable APIEnums.RoutingProfile profile,
                                          @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws Exception {
-        return getJsonMime(profile, request);
+        return getJsonRoute(profile, request);
     }
 
     @PostMapping(value = "/{profile}/json", produces = {"application/json;charset=UTF-8"})
@@ -56,7 +80,7 @@ public class RoutingAPI {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JSON Response", response = JSONRouteResponse.class)
     })
-    public JSONRouteResponse getJsonMime(
+    public JSONRouteResponse getJsonRoute(
             @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.RoutingProfile profile,
             @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws StatusCodeException {
         request.setProfile(profile);
@@ -72,7 +96,7 @@ public class RoutingAPI {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "GPX Response", response = GPXRouteResponse.class)
     })
-    public GPXRouteResponse getGPXMime(
+    public GPXRouteResponse getGPXRoute(
             @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.RoutingProfile profile,
             @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws Exception {
         request.setProfile(profile);
@@ -89,7 +113,7 @@ public class RoutingAPI {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "GeoJSON Response", response = GeoJSONRouteResponse.class)
     })
-    public GeoJSONRouteResponse getGeoJsonMime(
+    public GeoJSONRouteResponse getGeoJsonRoute(
             @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.RoutingProfile profile,
             @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws Exception {
         request.setProfile(profile);
