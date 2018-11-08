@@ -195,7 +195,7 @@ public class ResultTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("info.query.containsKey('resolve_locations')", is(false))
+                .body("info.query.containsKey('resolve_locations')", is(true))
                 .body("matrix[0].destinations[0].containsKey('name')", is(false))
                 .body("matrix[0].sources[0].containsKey('name')", is(false))
                 .statusCode(200);
@@ -429,6 +429,7 @@ public class ResultTest extends ServiceTest {
         body.put("metrics", getParameter("metricsAll"));
         body.put("units", "m");
         body.put("resolve_locations", "true");
+        body.put("sources", getParameter("source1"));
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
@@ -453,7 +454,7 @@ public class ResultTest extends ServiceTest {
                 .body("info.query.responseType", is("json"))
                 .body("info.query.containsKey('sources')", is(true))
                 .body("info.query.sources.size()", is(1))
-                .body("info.query.sources[0]", is("all"))
+                .body("info.query.sources[0]", is("1"))
                 .body("info.query.containsKey('destinations')", is(true))
                 .body("info.query.destinations.size()", is(1))
                 .body("info.query.destinations[0]", is("all"))
@@ -464,7 +465,7 @@ public class ResultTest extends ServiceTest {
                 .body("info.query.metrics[2]", is("weight"))
                 .body("info.query.containsKey('resolve_locations')", is(true))
                 .body("info.query.resolve_locations", is(true))
-                .body("info.query.containsKey('optimized')", is(false))
+                .body("info.query.containsKey('optimized')", is(true))
                 .body("info.query.containsKey('units')", is(true))
                 .body("info.query.units", is("m"))
                 .statusCode(200);
