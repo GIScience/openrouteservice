@@ -275,8 +275,6 @@ public class ParamsTest extends ServiceTest {
                 .statusCode(400);
     }
 
-    //TODO Check how to get the MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM
-    // For now it is importing the config module from the ors mein package
     @Test
     public void expect4006004() {
 
@@ -474,8 +472,8 @@ public class ParamsTest extends ServiceTest {
                 .body("info.query.containsKey('sources')", is(true))
                 .body("info.query.containsKey('destinations')", is(true))
                 .body("info.query.containsKey('metrics')", is(true))
-                .body("info.query.containsKey('resolve_locations')", is(false))
-                .body("info.query.containsKey('optimized')", is(false))
+                .body("info.query.containsKey('resolve_locations')", is(true))
+                .body("info.query.containsKey('optimized')", is(true))
                 .body("info.query.containsKey('units')", is(true))
                 .statusCode(200);
     }
@@ -501,7 +499,7 @@ public class ParamsTest extends ServiceTest {
                 .body("info.query.containsKey('sources')", is(true))
                 .body("info.query.containsKey('destinations')", is(true))
                 .body("info.query.containsKey('metrics')", is(true))
-                .body("info.query.containsKey('resolve_locations')", is(false))
+                .body("info.query.containsKey('resolve_locations')", is(true))
                 .body("info.query.containsKey('optimized')", is(true))
                 .body("info.query.containsKey('units')", is(true))
                 .statusCode(200);
