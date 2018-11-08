@@ -20,6 +20,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import heigit.ors.api.requests.common.APIEnums;
+import heigit.ors.api.requests.common.GenericHandler;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.*;
@@ -38,8 +39,13 @@ import org.json.simple.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RouteRequestHandler {
-    public static RouteResult generateRouteFromRequest(RouteRequest request) throws StatusCodeException{
+public class RouteRequestHandler extends GenericHandler {
+    public RouteRequestHandler() {
+        super();
+        this.errorCodes.put("UNKNOWN_PARAMETER", RoutingErrorCodes.UNKNOWN_PARAMETER);
+    }
+
+    public  RouteResult generateRouteFromRequest(RouteRequest request) throws StatusCodeException{
         RoutingRequest routingRequest = convertRouteRequest(request);
 
         try {
@@ -53,7 +59,7 @@ public class RouteRequestHandler {
         }
     }
 
-    public static RoutingRequest convertRouteRequest(RouteRequest request) throws StatusCodeException {
+    public  RoutingRequest convertRouteRequest(RouteRequest request) throws StatusCodeException {
         RoutingRequest routingRequest = new RoutingRequest();
 
         routingRequest.setCoordinates(convertCoordinates(request.getCoordinates()));
@@ -146,7 +152,7 @@ public class RouteRequestHandler {
         return routingRequest;
     }
 
-    private static boolean convertIncludeGeometry(RouteRequest request) throws IncompatableParameterException {
+    private  boolean convertIncludeGeometry(RouteRequest request) throws IncompatableParameterException {
         boolean includeGeometry = request.getIncludeGeometry();
         if(!includeGeometry) {
             if(request.getResponseType() == APIEnums.RouteResponseType.GEOJSON)
@@ -155,7 +161,7 @@ public class RouteRequestHandler {
         return includeGeometry;
     }
 
-    private static String convertGeometryFormat(APIEnums.RouteResponseType responseType) throws ParameterValueException {
+    private  String convertGeometryFormat(APIEnums.RouteResponseType responseType) throws ParameterValueException {
         switch(responseType) {
             case GEOJSON:
                 return "geojson";
@@ -168,7 +174,7 @@ public class RouteRequestHandler {
         }
     }
 
-    private static Coordinate[] convertCoordinates(List<List<Double>> coordinates) throws ParameterValueException {
+    private  Coordinate[] convertCoordinates(List<List<Double>> coordinates) throws ParameterValueException {
         if(coordinates.size() < 2)
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "coordinates");
 
@@ -181,14 +187,14 @@ public class RouteRequestHandler {
         return coords.toArray(new Coordinate[coords.size()]);
     }
 
-    private static Coordinate convertSingleCoordinate(List<Double> coordinate) throws ParameterValueException {
+    private  Coordinate convertSingleCoordinate(List<Double> coordinate) throws ParameterValueException {
         if(coordinate.size() != 2)
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "coordinates");
 
         return new Coordinate(coordinate.get(0), coordinate.get(1));
     }
 
-    private static int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatableParameterException {
+    private  int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatableParameterException {
         int flags = 0;
         for(APIEnums.AvoidFeatures avoid : avoidFeatures) {
             String avoidFeatureName = avoid.toString();
@@ -205,11 +211,11 @@ public class RouteRequestHandler {
         return flags;
     }
 
-    private static int convertRouteProfileType(APIEnums.RoutingProfile profile) {
+    private  int convertRouteProfileType(APIEnums.RoutingProfile profile) {
         return RoutingProfileType.getFromString(profile.toString());
     }
 
-    private static BordersExtractor.Avoid convertAvoidBorders(APIEnums.AvoidBorders avoidBorders) {
+    private  BordersExtractor.Avoid convertAvoidBorders(APIEnums.AvoidBorders avoidBorders) {
         if(avoidBorders != null) {
             switch (avoidBorders) {
                 case ALL:
@@ -223,7 +229,7 @@ public class RouteRequestHandler {
         return null;
     }
 
-    private static Polygon[] convertAvoidAreas(JSONObject geoJson) throws ParameterValueException {
+    private  Polygon[] convertAvoidAreas(JSONObject geoJson) throws ParameterValueException {
         // It seems that arrays in json.simple cannot be converted to strings simply
         org.json.JSONObject complexJson = new org.json.JSONObject();
         complexJson.put("type", geoJson.get("type"));
@@ -253,7 +259,7 @@ public class RouteRequestHandler {
         return avoidAreas;
     }
 
-    private static WayPointBearing[] convertBearings(Double[][] bearingsIn, int coordinatesLength) throws ParameterValueException {
+    private  WayPointBearing[] convertBearings(Double[][] bearingsIn, int coordinatesLength) throws ParameterValueException {
         if(bearingsIn == null || bearingsIn.length == 0)
             return null;
 
@@ -276,7 +282,7 @@ public class RouteRequestHandler {
         return bearings;
     }
 
-    private static double[] convertMaxRadii(Double[] radiiIn, int coordinatesLength, int profileType) throws ParameterValueException {
+    private  double[] convertMaxRadii(Double[] radiiIn, int coordinatesLength, int profileType) throws ParameterValueException {
         double[] maxRadii = new double[coordinatesLength];
         if(radiiIn != null) {
             if(radiiIn.length != coordinatesLength)
@@ -299,24 +305,11 @@ public class RouteRequestHandler {
         return maxRadii;
     }
 
-    private static String[] convertAPIEnumListToStrings(Enum[] valuesIn) {
-        String[] attributes = new String[valuesIn.length];
-        for(int i=0; i<valuesIn.length; i++) {
-            attributes[i] = convertAPIEnum(valuesIn[i]);
-        }
-
-        return attributes;
-    }
-
-    private static String convertAPIEnum(Enum valuesIn) {
-        return valuesIn.toString();
-    }
-
-    private static String[] convertAttributes(APIEnums.Attributes[] attributes) {
+    private  String[] convertAttributes(APIEnums.Attributes[] attributes) {
         return convertAPIEnumListToStrings(attributes);
     }
 
-    private static int convertExtraInfo(APIEnums.ExtraInfo[] extraInfos) {
+    private  int convertExtraInfo(APIEnums.ExtraInfo[] extraInfos) {
         String[] extraInfosStrings = convertAPIEnumListToStrings(extraInfos);
 
         String extraInfoPiped = String.join("|", extraInfosStrings);
@@ -324,7 +317,7 @@ public class RouteRequestHandler {
         return RouteExtraInfoFlag.getFromString(extraInfoPiped);
     }
 
-    private static String convertLanguage(APIEnums.Languages languageIn) throws StatusCodeException {
+    private  String convertLanguage(APIEnums.Languages languageIn) throws StatusCodeException {
         boolean isLanguageSupported;
         String languageString = languageIn.toString();
 
@@ -340,7 +333,7 @@ public class RouteRequestHandler {
         return languageString;
     }
 
-    private static RouteInstructionsFormat convertInstructionsFormat(APIEnums.InstructionsFormat formatIn) throws UnknownParameterValueException {
+    private  RouteInstructionsFormat convertInstructionsFormat(APIEnums.InstructionsFormat formatIn) throws UnknownParameterValueException {
         RouteInstructionsFormat instrFormat = RouteInstructionsFormat.fromString(formatIn.toString());
         if (instrFormat == RouteInstructionsFormat.UNKNOWN)
             throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "instructions_format", formatIn.toString());
@@ -348,7 +341,7 @@ public class RouteRequestHandler {
         return instrFormat;
     }
 
-    private static DistanceUnit convertUnits(APIEnums.Units unitsIn) throws ParameterValueException {
+    private  DistanceUnit convertUnits(APIEnums.Units unitsIn) throws ParameterValueException {
         DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.Unknown);
 
         if (units == DistanceUnit.Unknown)
@@ -357,20 +350,7 @@ public class RouteRequestHandler {
         return units;
     }
 
-    private static int convertVehicleType(APIEnums.VehicleType vehicleTypeIn, int profileType) throws IncompatableParameterException {
-        if(!RoutingProfileType.isHeavyVehicle(profileType)) {
-            throw new IncompatableParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE,
-                    "vehicle_type", vehicleTypeIn.toString(),
-                    "profile", RoutingProfileType.getName(profileType));
-        }
-        if(vehicleTypeIn == null) {
-            return HeavyVehicleAttributes.UNKNOWN;
-        }
-
-        return HeavyVehicleAttributes.getFromString(vehicleTypeIn.toString());
-    }
-
-    private static int convertWeightingMethod(APIEnums.RoutePreference preferenceIn) throws UnknownParameterValueException {
+    private  int convertWeightingMethod(APIEnums.RoutePreference preferenceIn) throws UnknownParameterValueException {
         int weightingMethod = WeightingMethod.getFromString(preferenceIn.toString());
         if (weightingMethod == WeightingMethod.UNKNOWN)
             throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "preference", preferenceIn.toString());
@@ -378,169 +358,10 @@ public class RouteRequestHandler {
         return weightingMethod;
     }
 
-    private static boolean convertSetFlexibleMode(boolean useContractionHierarchies) throws ParameterValueException {
+    private  boolean convertSetFlexibleMode(boolean useContractionHierarchies) throws ParameterValueException {
         if(useContractionHierarchies)
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "optimized");
 
         return(!useContractionHierarchies);
-    }
-
-    private static ProfileParameters convertParameters(RouteRequest request, int profileType) throws StatusCodeException {
-        ProfileParameters params = new ProfileParameters();
-
-        if(request.getRouteOptions().getProfileParams().hasRestrictions()) {
-
-            RequestProfileParamsRestrictions restrictions = request.getRouteOptions().getProfileParams().getRestrictions();
-            APIEnums.VehicleType vehicleType = request.getRouteOptions().getVehicleType();
-
-            validateRestrictionsForProfile(restrictions, profileType);
-
-            if (RoutingProfileType.isCycling(profileType))
-                params = convertCyclingParameters(restrictions);
-            if (RoutingProfileType.isHeavyVehicle(profileType))
-                params = convertHeavyVehicleParameters(restrictions, vehicleType);
-            if (RoutingProfileType.isWalking(profileType))
-                params = convertWalkingParameters(restrictions);
-            if (RoutingProfileType.isWheelchair(profileType))
-                params = convertWheelchairParameters(restrictions);
-        }
-
-        if(request.getRouteOptions().getProfileParams().hasWeightings()) {
-            RequestProfileParamsWeightings weightings = request.getRouteOptions().getProfileParams().getWeightings();
-            applyWeightings(weightings, params);
-        }
-
-        return params;
-    }
-
-    private static CyclingParameters convertCyclingParameters(RequestProfileParamsRestrictions restrictions) {
-
-        CyclingParameters params = new CyclingParameters();
-        if(restrictions.hasGradient())
-            params.setMaximumGradient(restrictions.getGradient());
-        if(restrictions.hasTrailDifficulty())
-            params.setMaximumTrailDifficulty(restrictions.getTrailDifficulty());
-
-        return params;
-    }
-
-    private static WalkingParameters convertWalkingParameters(RequestProfileParamsRestrictions restrictions) {
-
-        WalkingParameters params = new WalkingParameters();
-        if(restrictions.hasGradient())
-            params.setMaximumGradient(restrictions.getGradient());
-        if(restrictions.hasTrailDifficulty())
-            params.setMaximumTrailDifficulty(restrictions.getTrailDifficulty());
-
-        return params;
-    }
-
-    private static VehicleParameters convertHeavyVehicleParameters(RequestProfileParamsRestrictions restrictions, APIEnums.VehicleType vehicleType) {
-
-        VehicleParameters params = new VehicleParameters();
-        if(vehicleType != null && vehicleType != APIEnums.VehicleType.UNKNOWN) {
-            if(restrictions.hasLength())
-                params.setLength(restrictions.getLength());
-            if(restrictions.hasWidth())
-                params.setWidth(restrictions.getWidth());
-            if(restrictions.hasHeight())
-                params.setHeight(restrictions.getHeight());
-            if(restrictions.hasWeight())
-                params.setWeight(restrictions.getWeight());
-            if(restrictions.hasAxleLoad())
-                params.setAxleload(restrictions.getAxleLoad());
-
-            int loadCharacteristics = 0;
-            if(restrictions.hasHazardousMaterial() && restrictions.getHazardousMaterial() == true)
-                loadCharacteristics |= VehicleLoadCharacteristicsFlags.HAZMAT;
-
-            if(loadCharacteristics != 0)
-                params.setLoadCharacteristics(loadCharacteristics);
-        }
-
-        return params;
-    }
-
-    private static WheelchairParameters convertWheelchairParameters(RequestProfileParamsRestrictions restrictions) {
-
-        WheelchairParameters params = new WheelchairParameters();
-
-        if(restrictions.hasSurfaceType())
-            params.setSurfaceType(WheelchairTypesEncoder.getSurfaceType(restrictions.getSurfaceType()));
-        if(restrictions.hasTrackType())
-            params.setTrackType(WheelchairTypesEncoder.getTrackType(restrictions.getTrackType()));
-        if(restrictions.hasSmoothnessType())
-            params.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(restrictions.getSmoothnessType()));
-        if(restrictions.hasMaxSlopedKerb())
-            params.setMaximumSlopedKerb(restrictions.getMaxSlopedKerb());
-        if(restrictions.hasMaxIncline())
-            params.setMaximumIncline(restrictions.getMaxIncline());
-        if(restrictions.hasMinWidth())
-            params.setMinimumWidth(restrictions.getMinWidth());
-
-        return params;
-    }
-
-    private static void validateRestrictionsForProfile(RequestProfileParamsRestrictions restrictions, int profile) throws IncompatableParameterException {
-        // Check that we do not have some parameters that should not be there
-        List<String> setRestrictions = restrictions.getSetRestrictions();
-        ProfileParameters params = new ProfileParameters();
-        if(RoutingProfileType.isCycling(profile)) {
-            params = new CyclingParameters();
-        }
-        if(RoutingProfileType.isWheelchair(profile)) {
-            params = new WheelchairParameters();
-        }
-        if(RoutingProfileType.isWalking(profile)) {
-            params = new WalkingParameters();
-        }
-        if(RoutingProfileType.isHeavyVehicle(profile)) {
-            params = new VehicleParameters();
-        }
-
-        List<String> invalidParams = new ArrayList<>();
-        for(String setRestriction : setRestrictions) {
-            boolean valid = false;
-            for(String validRestriction : params.getValidRestrictions()) {
-                if(validRestriction.equals(setRestriction)) {
-                    valid = true;
-                    break;
-                }
-            }
-
-            if(!valid) {
-                invalidParams.add(setRestriction);
-            }
-        }
-
-        if(invalidParams.size() > 0) {
-            // There are some parameters present that shouldn't be there
-            String invalidParamsString = StringUtils.join(invalidParams, ", ");
-            throw new IncompatableParameterException(RoutingErrorCodes.UNKNOWN_PARAMETER, "restrictions", invalidParamsString, "profile", RoutingProfileType.getName(profile));
-        }
-    }
-
-    private static ProfileParameters applyWeightings(RequestProfileParamsWeightings weightings, ProfileParameters params) {
-        try {
-            if (weightings.hasGreenIndex()) {
-                ProfileWeighting pw = new ProfileWeighting("green");
-                pw.addParameter("factor", String.format("%.2f", weightings.getGreenIndex()));
-                params.add(pw);
-            }
-            if(weightings.hasQuietIndex()) {
-                ProfileWeighting pw = new ProfileWeighting("quiet");
-                pw.addParameter("factor", String.format("%.2f", weightings.getQuietIndex()));
-                params.add(pw);
-            }
-            if(weightings.hasSteepnessDifficulty()) {
-                ProfileWeighting pw = new ProfileWeighting("steepness_difficulty");
-                pw.addParameter("level", String.format("%d", weightings.getSteepnessDifficulty()));
-                params.add(pw);
-            }
-        } catch (Exception e) {
-
-        }
-
-        return params;
     }
 }

@@ -46,7 +46,6 @@ import heigit.ors.util.StringUtility;
  * This class is used to store the search/calculation Parameters to calculate the desired Route/Isochrones etc…
  * It can be called from any class and the values be set according to the needs of the route calculation.
  */
-@Deprecated
 public class RouteSearchParameters {
     private int _profileType;
     private int _weightingMethod = WeightingMethod.FASTEST;
