@@ -52,7 +52,7 @@ public class RoutingAPI {
         RouteRequest request = new RouteRequest(start, end);
         request.setProfile(profile);
 
-        RouteResult result = RouteRequestHandler.generateRouteFromRequest(request);
+        RouteResult result = new RouteRequestHandler().generateRouteFromRequest(request);
 
         return new GeoJSONRouteResponse(new RouteResult[] { result }, request);
     }
@@ -81,7 +81,7 @@ public class RoutingAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.JSON);
 
-        RouteResult result = RouteRequestHandler.generateRouteFromRequest(request);
+        RouteResult result = new RouteRequestHandler().generateRouteFromRequest(request);
 
         return new JSONRouteResponse(new RouteResult[]{result}, request);
     }
@@ -97,7 +97,7 @@ public class RoutingAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GPX);
 
-        RouteResult result = RouteRequestHandler.generateRouteFromRequest(request);
+        RouteResult result = new RouteRequestHandler().generateRouteFromRequest(request);
 
         return new GPXRouteResponse(new RouteResult[]{result}, request);
 
@@ -114,7 +114,7 @@ public class RoutingAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 
-        RouteResult result = RouteRequestHandler.generateRouteFromRequest(request);
+        RouteResult result = new RouteRequestHandler().generateRouteFromRequest(request);
 
         return new GeoJSONRouteResponse(new RouteResult[]{result}, request);
     }
