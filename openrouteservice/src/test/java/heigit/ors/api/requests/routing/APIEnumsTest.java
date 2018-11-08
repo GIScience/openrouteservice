@@ -50,13 +50,21 @@ public class APIEnumsTest {
     }
 
     @Test(expected = ParameterValueException.class)
-    public void testResponseTypeEnumCreation() throws ParameterValueException {
+    public void testRouteResponseTypeEnumCreation() throws ParameterValueException {
         Assert.assertEquals(APIEnums.RouteResponseType.JSON, APIEnums.RouteResponseType.forValue("json"));
         Assert.assertEquals(APIEnums.RouteResponseType.GEOJSON, APIEnums.RouteResponseType.forValue("geojson"));
         Assert.assertEquals(APIEnums.RouteResponseType.GPX, APIEnums.RouteResponseType.forValue("gpx"));
 
         APIEnums.RouteResponseType.forValue("invalid");
     }
+
+    @Test(expected = ParameterValueException.class)
+    public void testMatrixResponseTypeEnumCreation() throws ParameterValueException {
+        Assert.assertEquals(APIEnums.MatrixResponseType.JSON, APIEnums.MatrixResponseType.forValue("json"));
+
+        APIEnums.MatrixResponseType.forValue("invalid");
+    }
+
 
     @Test
     public void testResponseTypeEnumValue() {
