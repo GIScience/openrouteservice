@@ -123,6 +123,13 @@ public class PrepareCoreTest {
     private CHGraph contractGraph(GraphHopperStorage g, CoreTestEdgeFilter restrictedEdges) {
         CHGraph lg = g.getGraph(CHGraph.class);
         PrepareCore prepare = new PrepareCore(dir, g, lg, weighting, tMode, restrictedEdges);
+
+        // set contraction parameters to prevent test results from changing when algorithm parameters are tweaked
+        prepare.setPeriodicUpdates(20);
+        prepare.setLazyUpdates(10);
+        prepare.setNeighborUpdates(20);
+        prepare.setContractedNodes(100);
+
         prepare.doWork();
 
         if (DebugUtility.isDebug()) {
