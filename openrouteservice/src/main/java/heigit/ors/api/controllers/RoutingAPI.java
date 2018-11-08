@@ -33,6 +33,7 @@ import heigit.ors.routing.RoutingErrorCodes;
 import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -48,13 +49,7 @@ public class RoutingAPI {
     public GeoJSONRouteResponse getSimpleGeoJsonRoute(@ApiParam(value = "Specifies the route profile.") @PathVariable APIEnums.RoutingProfile profile,
                                                       @ApiParam(value = "Start coordinate of the route") @RequestParam Coordinate start,
                                                       @ApiParam(value = "Destination coordinate of the route") @RequestParam Coordinate end) throws StatusCodeException{
-        Double[][] coordPairs = new Double[2][2];
-        coordPairs[0][0] = start.x;
-        coordPairs[0][1] = start.y;
-        coordPairs[1][0] = end.x;
-        coordPairs[1][1] = end.y;
-
-        RouteRequest request = new RouteRequest(coordPairs);
+        RouteRequest request = new RouteRequest(start, end);
         request.setProfile(profile);
 
         RouteResult result = RouteRequestHandler.generateRouteFromRequest(request);
@@ -122,6 +117,12 @@ public class RoutingAPI {
         RouteResult result = RouteRequestHandler.generateRouteFromRequest(request);
 
         return new GeoJSONRouteResponse(new RouteResult[] { result }, request);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex) {
+        final RoutingResponseEntityExceptionHandler h = new RoutingResponseEntityExceptionHandler();
+        return  h.handleStatusCodeException(new MissingParameterException(RoutingErrorCodes.MISSING_PARAMETER, ex.getParameterName()));
     }
 
     // Errors generated from the reading of the request (before entering the routing system). Normally these are where
