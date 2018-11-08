@@ -13,17 +13,8 @@
  */
 package heigit.ors.services.isochrones.requestprocessors.json;
 
-import java.io.InputStream;
-import java.util.Arrays;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
-
 import heigit.ors.common.StatusCode;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.common.TravellerInfo;
@@ -37,6 +28,12 @@ import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.util.CoordTools;
 import heigit.ors.util.StreamUtility;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.InputStream;
+import java.util.Arrays;
 
 public class JsonIsochroneRequestParser {
 
@@ -175,6 +172,15 @@ public class JsonIsochroneRequestParser {
 
 			req.setUnits(value.toLowerCase());
 		}
+
+
+        value = json.optString("area_units");
+        if (!Helper.isEmpty(value)) {
+            if (!("m".equals(value) || "km".equals(value) || "mi".equals(value)))
+                throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "area_units", value);
+
+            req.setUnits(value.toLowerCase());
+        }
 		
 		value = json.optString("calc_method");
 		if (!Helper.isEmpty(value))
@@ -304,23 +310,30 @@ public class JsonIsochroneRequestParser {
 			}
 		}
 
-		value = request.getParameter("units");
-		if (!Helper.isEmpty(value))
-		{
-			if (travellerInfo.getRangeType() == TravelRangeType.Distance)
-			{
-				if (!("m".equals(value) || "km".equals(value) || "mi".equals(value)))
-					throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "units", value);
-			}
-			else
-			{
-				throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "units");
-			}
+        value = request.getParameter("area_units");
+        if (!Helper.isEmpty(value)) {
 
-			req.setUnits(value.toLowerCase());
-		}
 
-		boolean inverseXY = false;
+            if (!("m".equals(value) || "km".equals(value) || "mi".equals(value)))
+                throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "area_units", value);
+
+
+            req.setAreaUnits(value.toLowerCase());
+        }
+
+        value = request.getParameter("units");
+        if (!Helper.isEmpty(value)) {
+
+
+            if (!("m".equals(value) || "km".equals(value) || "mi".equals(value)))
+                throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "units", value);
+
+
+            req.setUnits(value.toLowerCase());
+        }
+
+
+        boolean inverseXY = false;
 		value = request.getParameter("locations");
 
 		if (Helper.isEmpty(value))

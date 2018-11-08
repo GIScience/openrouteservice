@@ -32,9 +32,9 @@
     <artifactId>openrouteservice</artifactId>
     <version>4.7.0</version>
     <packaging>war</packaging>
-    <name>OpenRouteService</name>
+    <name>openrouteservice</name>
     <url>openrouteservice.org</url>
-    <inceptionYear>2017</inceptionYear>
+    <inceptionYear>2008</inceptionYear>
     <issueManagement>
         <system>GitHub</system>
         <url>https://github.com/GIScience/openrouteservice/issues</url>
@@ -48,9 +48,9 @@
         <build.version>${git.commit.time}.${git.commit.id.abbrev}</build.version>
     </properties>
      <scm>
-  	<url>git@gitlab.com:giscience/openrouteservice/ORS_backend.git</url>
-   	<connection>scm:git:git@gitlab.com:giscience/openrouteservice/ORS_backend.git</connection>
-   	<developerConnection>scm:git:git@gitlab.com:giscience/openrouteservice/ORS_backend.git</developerConnection>
+  	<url>git@github.com:GIScience/openrouteservice.git</url>
+   	<connection>git@github.com:GIScience/openrouteservice.git</connection>
+   	<developerConnection>git@github.com:GIScience/openrouteservice.git</developerConnection>
      </scm>
     <parent>
         <groupId>org.springframework.boot</groupId>

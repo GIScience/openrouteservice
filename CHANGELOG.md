@@ -8,7 +8,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 ### Fixed
 ### Changed
-### Depricated
+### Deprecated
+
+## [4.7.1] - 2018-10-24
+### Added
+Added instructions to readme for installing without Docker (Issue #272)
+Added area_units for isochrones API as units being misleading (Issue #272)
+### Fixed
+- Area calculation for isochrones using metric crs (Issue #130)
+- Decreases maximum peed for bike-regular for more realistic reachability scores (Issue #325)
+- Fixes self intersecting polygons when requesting population for isochrones (Issue #297)
+- Changes center in isochrones response to snapped edge coordinate on graph (Issue #336)
+- Enable HGV axleload restriction (Issue #262)
+### Changed
+- Changed app.config.sample for docker to consider split profiles (Issue #320)
+- Changed minor information in pom.xml
+- Updated API test starting coordinates to be on a road (Issue #328)
+### Deprecated
 
 ## [4.7] - 2018-10-10
 ### Added
