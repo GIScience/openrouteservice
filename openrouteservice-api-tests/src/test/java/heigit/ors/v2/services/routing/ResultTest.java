@@ -88,6 +88,24 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
+    public void testSimpleGetRoute() {
+        given()
+                .param("start", "8.686581,49.403154")
+                .param("end", "8.688126,49.409074")
+                .pathParam("profile", getParameter("carProfile"))
+                .when().log().all()
+                .get(getEndPointPath() + "/{profile}")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'features' }", is(true))
+                .body("features[0].containsKey('properties')", is(true))
+                .body("features[0].properties.containsKey('summary')", is(true))
+                .body("features[0].properties.summary.distance", is(1046.1f))
+                .body("features[0].properties.summary.duration", is(215.0f))
+                .statusCode(200);
+    }
+
+    @Test
     public void testGpxExport() throws IOException, SAXException, ParserConfigurationException {
         JSONObject body = new JSONObject();
         body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));

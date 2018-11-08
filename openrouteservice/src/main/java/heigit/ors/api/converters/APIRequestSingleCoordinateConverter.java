@@ -22,11 +22,12 @@ public class APIRequestSingleCoordinateConverter implements Converter<String, Co
     @Override
     public Coordinate convert(String coordinatePair) {
 
-        Coordinate coordinate = new Coordinate();
+        Coordinate coordinate = null;
 
         String[] coordValues = coordinatePair.split(",");
 
         if(coordValues.length == 2) {
+            coordinate = new Coordinate();
             coordinate.x = Double.parseDouble(coordValues[0]);
             coordinate.y = Double.parseDouble(coordValues[1]);
         }
