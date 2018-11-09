@@ -455,8 +455,8 @@ public class ResultTest extends ServiceTest {
                 .body("info.query.locations[2][1]", is(49.42032f))
                 .body("info.query.containsKey('profile')", is(true))
                 .body("info.query.profile", is("driving-car"))
-                .body("info.query.containsKey('responseType')", is(false))
-                //.body("info.query.responseType", is("json"))
+                .body("info.query.containsKey('responseType')", is(true))
+                .body("info.query.responseType", is("json"))
                 .body("info.query.containsKey('sources')", is(true))
                 .body("info.query.sources.size()", is(1))
                 .body("info.query.sources[0]", is("1"))
@@ -556,8 +556,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("info.containsKey('query')", is(true))
-                .body("info.query.containsKey('responseType')", is(false))
-                //.body("info.query.responseType", is("json"))
+                .body("info.query.containsKey('responseType')", is(true))
+                .body("info.query.responseType", is("json"))
                 .statusCode(200);
     }
 
