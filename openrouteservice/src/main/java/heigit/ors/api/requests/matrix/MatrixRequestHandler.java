@@ -58,7 +58,7 @@ public class MatrixRequestHandler {
             heigit.ors.matrix.MatrixRequest matrixRequest = new heigit.ors.matrix.MatrixRequest();
 
             matrixRequest.setMetrics(convertMetrics(metric));
-            matrixRequest.setProfileType(convertMatrixProfileType(request.getProfile()));
+            matrixRequest.setProfileType(convertToMatrixProfileType(request.getProfile()));
             Coordinate[] locations = convertLocations(request.getLocations());
 
             if (request.hasId())
@@ -92,15 +92,15 @@ public class MatrixRequestHandler {
         return matrixRequests;
     }
 
-    private static int convertMetrics(String metric) throws ParameterValueException {
+    public static int convertMetrics(String metric) throws ParameterValueException {
         int metricFromString = MatrixMetricsType.getFromString(metric);
         if (metricFromString == 0)
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "metric");
         return metricFromString;
     }
 
-    private static Coordinate[] convertLocations(List<List<Double>> locations) throws ParameterValueException {
-        if (locations.size() < 2)
+    protected static Coordinate[] convertLocations(List<List<Double>> locations) throws ParameterValueException {
+        if (locations == null || locations.size() < 2)
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "locations");
         if (locations.size() > MatrixServiceSettings.getMaximumLocations(false))
             throw new ParameterValueException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations");
@@ -116,13 +116,13 @@ public class MatrixRequestHandler {
         }
     }
 
-    private static Coordinate convertSingleLocationCoordinate(List<Double> coordinate) throws ParameterValueException {
+    protected static Coordinate convertSingleLocationCoordinate(List<Double> coordinate) throws ParameterValueException {
         if (coordinate.size() != 2)
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "locations");
         return new Coordinate(coordinate.get(0), coordinate.get(1));
     }
 
-    private static Coordinate[] convertSources(String[] sourcesIndex, Coordinate[] locations) throws ParameterValueException {
+    protected static Coordinate[] convertSources(String[] sourcesIndex, Coordinate[] locations) throws ParameterValueException {
         int length = sourcesIndex.length;
         if (length == 0) return locations;
         if (length == 1 && "all".equalsIgnoreCase(sourcesIndex[0])) return locations;
@@ -134,7 +134,7 @@ public class MatrixRequestHandler {
         }
     }
 
-    private static Coordinate[] convertDestinations(String[] destinationsIndex, Coordinate[] locations) throws ParameterValueException {
+    protected static Coordinate[] convertDestinations(String[] destinationsIndex, Coordinate[] locations) throws ParameterValueException {
         int length = destinationsIndex.length;
         if (length == 0) return locations;
         if (length == 1 && "all".equalsIgnoreCase(destinationsIndex[0])) return locations;
@@ -146,27 +146,27 @@ public class MatrixRequestHandler {
         }
     }
 
-    private static ArrayList<Coordinate> convertIndexToLocations(String[] index, Coordinate[] locations) throws NumberFormatException {
+    protected static ArrayList<Coordinate> convertIndexToLocations(String[] index, Coordinate[] locations) throws NumberFormatException, ParameterValueException {
         ArrayList<Coordinate> indexCoordinates = new ArrayList<>();
         for (String indexString : index) {
             try {
                 int indexInteger = Integer.parseInt(indexString);
                 indexCoordinates.add(locations[indexInteger]);
             } catch (NumberFormatException ex) {
-                throw new NumberFormatException();
+                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "sources or destinations");
             }
         }
         return indexCoordinates;
     }
 
-    private static DistanceUnit convertUnits(String unitsIn) throws ParameterValueException {
+    protected static DistanceUnit convertUnits(String unitsIn) throws ParameterValueException {
         DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn, DistanceUnit.Unknown);
         if (units == DistanceUnit.Unknown)
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "units", unitsIn);
         return units;
     }
 
-    private static int convertMatrixProfileType(APIEnums.MatrixProfile profile) throws ParameterValueException {
+    protected static int convertToMatrixProfileType(APIEnums.MatrixProfile profile) throws ParameterValueException {
         try {
             int profileFromString = RoutingProfileType.getFromString(profile.toString());
             if (profileFromString == 0) {

@@ -33,7 +33,6 @@ package heigit.ors.api.requests.common;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.vividsolutions.jts.math.Matrix;
 import heigit.ors.exceptions.ParameterValueException;
 import io.swagger.annotations.ApiModel;
 
@@ -347,7 +346,6 @@ public class APIEnums {
         public String toString() {
             return value;
         }
-
     }
 
     public enum Languages {
@@ -385,7 +383,6 @@ public class APIEnums {
         public String toString() {
             return value;
         }
-
     }
 
     public enum InstructionsFormat {
@@ -412,7 +409,6 @@ public class APIEnums {
         public String toString() {
             return value;
         }
-
     }
 
     public enum Attributes {
@@ -440,8 +436,5 @@ public class APIEnums {
         public String toString() {
             return value;
         }
-
     }
-
-
 }
