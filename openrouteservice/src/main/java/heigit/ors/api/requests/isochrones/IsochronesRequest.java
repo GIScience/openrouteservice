@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.api.requests.routing.RouteRequestOptions;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.isochrones.IsochronesErrorCodes;
 import io.swagger.annotations.ApiModel;
@@ -69,11 +68,11 @@ public class IsochronesRequest {
     private boolean hasAttributes = false;
 
     @ApiModelProperty(name = "options",
-            value = "Additional options for the route request")
+            value = "Additional options for the isochrones request")
     @JsonProperty("options")
-    private RouteRequestOptions routeOptions;
+    private IsochronesRequestOptions isochronesOptions;
     @JsonIgnore
-    private boolean hasRouteOptions = false;
+    private boolean hasIsochronesOptions = false;
 
     @ApiModelProperty(name = "range_type",
             value = "Specifies the isochrones reachability type")
@@ -224,14 +223,13 @@ public class IsochronesRequest {
         this.responseType = responseType;
     }
 
-
-    public RouteRequestOptions getRouteOptions() {
-        return routeOptions;
+    public IsochronesRequestOptions getIsochronesOptions() {
+        return isochronesOptions;
     }
 
-    public void setRouteOptions(RouteRequestOptions routeOptions) {
-        this.routeOptions = routeOptions;
-        hasRouteOptions = true;
+    public void setIsochronesOptions(IsochronesRequestOptions isochronesOptions) {
+        this.isochronesOptions = isochronesOptions;
+        this.hasIsochronesOptions = true;
     }
 
     public Boolean getIntersections() {
@@ -246,8 +244,8 @@ public class IsochronesRequest {
         return hasAttributes;
     }
 
-    public boolean hasRouteOptions() {
-        return hasRouteOptions;
+    public boolean hasIsochronesOptions() {
+        return hasIsochronesOptions;
     }
 
 }

@@ -18,14 +18,17 @@ package heigit.ors.api.requests.isochrones;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.api.requests.routing.RouteRequestOptions;
+import heigit.ors.api.requests.common.GenericHandler;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.common.TravellerInfo;
-import heigit.ors.exceptions.*;
+import heigit.ors.exceptions.IncompatableParameterException;
+import heigit.ors.exceptions.ParameterValueException;
+import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.isochrones.IsochroneMapCollection;
 import heigit.ors.isochrones.IsochroneRequest;
 import heigit.ors.isochrones.IsochronesErrorCodes;
+import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.routing.RoutingErrorCodes;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.util.DistanceUnitUtil;
@@ -35,9 +38,16 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class IsochronesRequestHandler {
+public class IsochronesRequestHandler extends GenericHandler {
 
-    public static IsochroneMapCollection generateIsochronesFromRequest(IsochronesRequest request) throws StatusCodeException {
+    public IsochronesRequestHandler() {
+        super();
+        this.errorCodes.put("UNKNOWN_PARAMETER", IsochronesErrorCodes.UNKNOWN_PARAMETER);
+        this.errorCodes.put("INVALID_JSON_FORMAT", IsochronesErrorCodes.INVALID_JSON_FORMAT);
+        this.errorCodes.put("INVALID_PARAMETER_VALUE", IsochronesErrorCodes.INVALID_PARAMETER_VALUE);
+    }
+
+    public IsochroneMapCollection generateIsochronesFromRequest(IsochronesRequest request) throws StatusCodeException {
 
         IsochroneRequest isochroneRequest = convertIsochroneRequest(request);
 
@@ -61,14 +71,22 @@ public class IsochronesRequestHandler {
         }
     }
 
-    public static IsochroneRequest convertIsochroneRequest(IsochronesRequest request) throws StatusCodeException {
+    public IsochroneRequest convertIsochroneRequest(IsochronesRequest request) throws StatusCodeException {
 
         IsochroneRequest isochroneRequest = new IsochroneRequest();
 
         TravellerInfo travellerInfo = new TravellerInfo();
 
         // profile
-        travellerInfo.getRouteSearchParameters().setProfileType(convertRouteProfileType(request.getProfile()));
+        int profileType = -1;
+
+        try {
+            profileType = convertRouteProfileType(request.getProfile());
+            travellerInfo.getRouteSearchParameters().setProfileType(profileType);
+
+        } catch (Exception e) {
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "profile");
+        }
 
         //range_type
         travellerInfo.setRangeType(convertRangeType(request.getRangeType()));
@@ -82,83 +100,38 @@ public class IsochronesRequestHandler {
         //area_units
         isochroneRequest.setAreaUnits(convertAreaUnits(request.getAreaUnits()).toString());
 
-
-        //range
-        isochroneRequest
-
-        double rangeValue = -1.0;
-        boolean skipInterval = false;
+        //range + interval
         List<Double> rangeValues = request.getRange();
-
-        if (rangeValues.size() == 1) {
-
-            try {
-
-                rangeValue = rangeValues.get(0);
-                travellerInfo.setRanges(new double[] { rangeValue});
-
-            }
-
-            catch(NumberFormatException ex) {
-                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "range");
-
-            }
-        }
-        else {
-            double[] ranges = new double[rangeValues.length];
-            double maxRange = Double.MIN_VALUE;
-            for (int i = 0; i < ranges.length; i++)
-            {
-                double dv = Double.parseDouble(rangeValues[i]);
-                if (dv > maxRange)
-                    maxRange = dv;
-                ranges[i] = dv;
-            }
-
-            Arrays.sort(ranges);
-
-            travellerInfo.setRanges(ranges);
-
-            skipInterval = true;
-        }
-
-
-
-
-
-        //interval
-
-        if (!skipInterval)
-        {
-            value = request.getParameter("interval");
-            if (!Helper.isEmpty(value))
-            {
-                if (rangeValue != -1)
-                {
-                    travellerInfo.setRanges(rangeValue, Double.parseDouble(value));
-                }
-            }
-        }
-
+        setRangeAndIntervals(travellerInfo, rangeValues);
 
         //attributes
-        if(request.hasAttributes())
+        if (request.hasAttributes())
             isochroneRequest.setAttributes(convertAttributes(request.getAttributes()));
 
         //id
-        if(request.hasId())
+        if (request.hasId())
             isochroneRequest.setId(request.getId());
 
+        //options
+        RouteSearchParameters isochronesSearchParams = travellerInfo.getRouteSearchParameters();
+        if (request.hasIsochronesOptions()) {
 
-        //options SHARED WITH ROUTING!!
-        if(request.hasRouteOptions()) {
+            IsochronesRequestOptions options = request.getIsochronesOptions();
 
-            //common, wqit for adam
-            //RouteRequestOptions options = request.getRouteOptions();
+            if (options.hasAvoidBorders())
 
+                isochronesSearchParams.setAvoidBorders(convertAvoidBorders(options.getAvoidBorders()));
+
+            if (options.hasAvoidPolygonFeatures())
+                isochronesSearchParams.setAvoidAreas(convertAvoidAreas(options.getAvoidPolygonFeatures()));
+
+            if (options.hasAvoidCountries())
+                isochronesSearchParams.setAvoidCountries(options.getAvoidCountries());
+
+            if (options.hasAvoidFeatures())
+                isochronesSearchParams.setAvoidFeatureTypes(convertFeatureTypes(options.getAvoidFeatures(), profileType));
 
         }
-
 
         //intersections
 
@@ -182,44 +155,64 @@ public class IsochronesRequestHandler {
 
         }
 
-
         return isochroneRequest;
     }
 
-    private static String[] convertAPIEnumListToStrings(Enum[] valuesIn) {
-        String[] attributes = new String[valuesIn.length];
-        for(int i=0; i<valuesIn.length; i++) {
-            attributes[i] = convertAPIEnum(valuesIn[i]);
+    public void setRangeAndIntervals(TravellerInfo travellerInfo, List<Double> rangeValues) throws ParameterValueException{
+
+        boolean skipInterval = false;
+        double rangeValue = -1.0;
+
+        if (rangeValues.size() == 1) {
+
+            try {
+
+                rangeValue = rangeValues.get(0);
+                travellerInfo.setRanges(new double[]{rangeValue});
+
+            } catch (NumberFormatException ex) {
+
+                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "range");
+
+            }
+
+        } else {
+
+            double[] ranges = new double[rangeValues.size()];
+            double maxRange = Double.MIN_VALUE;
+
+            for (int i = 0; i < ranges.length; i++) {
+                double dv = rangeValues.get(i);
+                if (dv > maxRange)
+                    maxRange = dv;
+                ranges[i] = dv;
+            }
+
+            Arrays.sort(ranges);
+
+            travellerInfo.setRanges(ranges);
+
+            skipInterval = true;
         }
 
-        return attributes;
+        //interval
+        if (!skipInterval) {
+            value = request.getParameter("interval");
+            if (!Helper.isEmpty(value)) {
+                if (rangeValue != -1) {
+                    travellerInfo.setRanges(rangeValue, Double.parseDouble(value));
+                }
+            }
+        }
+
     }
 
-    private static String convertAPIEnum(Enum valuesIn) {
-        return valuesIn.toString();
-    }
 
-    private static String[] convertAttributes(IsochronesRequestEnums.Attributes[] attributes) {
+
+    private String[] convertAttributes(IsochronesRequestEnums.Attributes[] attributes) {
         return convertAPIEnumListToStrings(attributes);
     }
 
-    private static int convertRouteProfileType(APIEnums.RoutingProfile profile) throws ParameterValueException {
-
-        int profileType;
-
-        try {
-
-            profileType = RoutingProfileType.getFromString(profile.toString());
-
-        } catch (Exception e) {
-
-            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "profile", profile.toString());
-
-        }
-
-        return profileType;
-
-    }
 
     private static String convertLocationType(IsochronesRequestEnums.LocationType locationType) throws ParameterValueException {
 
