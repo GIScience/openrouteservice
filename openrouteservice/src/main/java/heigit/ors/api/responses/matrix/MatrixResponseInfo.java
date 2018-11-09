@@ -87,4 +87,28 @@ public class MatrixResponseInfo {
             return buildDate;
         }
     }
+
+    public String getAttribution() {
+        return attribution;
+    }
+
+    public String getOsmFileMD5Hash() {
+        return osmFileMD5Hash;
+    }
+
+    public String getService() {
+        return service;
+    }
+
+    public long getTimeStamp() {
+        return timeStamp;
+    }
+
+    public MatrixRequest getRequest() {
+        return request;
+    }
+
+    public EngineInfo getEngineInfo() {
+        return engineInfo;
+    }
 }
