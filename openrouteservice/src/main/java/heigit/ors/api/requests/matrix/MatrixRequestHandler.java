@@ -27,6 +27,8 @@ import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.services.matrix.MatrixServiceSettings;
 import heigit.ors.util.DistanceUnitUtil;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +53,7 @@ public class MatrixRequestHandler {
 
     public static List<heigit.ors.matrix.MatrixRequest> convertMatrixRequest(MatrixRequest request) throws StatusCodeException {
         List<heigit.ors.matrix.MatrixRequest> matrixRequests = new ArrayList<>();
-        if (!request.hasMetrics()) {
+        if (ArrayUtils.isEmpty(request.getMetrics())) {
             throw new ParameterValueException(MatrixErrorCodes.MISSING_PARAMETER, "metrics");
         }
         for (String metric : request.getMetrics()) {
@@ -69,11 +71,10 @@ public class MatrixRequestHandler {
             if (!request.hasValidDestinationIndex())
                 throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "destinations");
             matrixRequest.setDestinations(convertDestinations(request.getSources(), locations));
-            if (request.hasUnits()) {
-                matrixRequest.setUnits(convertUnits(request.getUnits()));
-            } else {
+            if (StringUtils.isEmpty(request.getUnits())) {
                 throw new ParameterValueException(MatrixErrorCodes.MISSING_PARAMETER, "units");
             }
+            matrixRequest.setUnits(convertUnits(request.getUnits()));
             if (request.isResolveLocations())
                 matrixRequest.setResolveLocations(true);
             else {

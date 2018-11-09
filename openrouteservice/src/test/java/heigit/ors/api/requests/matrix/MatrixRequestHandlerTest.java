@@ -9,8 +9,7 @@ import heigit.ors.matrix.MatrixMetricsType;
 import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.services.matrix.MatrixServiceSettings;
-import org.json.JSONArray;
-import org.junit.After;
+import heigit.ors.util.HelperFunctions;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,12 +78,8 @@ public class MatrixRequestHandlerTest {
 
         // Fake locations to test maximum exceedings
 
-        maximumLocations = fakeLocations(MatrixServiceSettings.getMaximumLocations(false) + 1);
-        minimalLocations = fakeLocations(1);
-    }
-
-    @After
-    public void tearDown() {
+        maximumLocations = HelperFunctions.fakeListLocations(MatrixServiceSettings.getMaximumLocations(false) + 1, 2);
+        minimalLocations = HelperFunctions.fakeListLocations(1, 2);
     }
 
     @Test
@@ -171,7 +166,7 @@ public class MatrixRequestHandlerTest {
         heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest();
         springMatrixRequest.setProfile(APIEnums.MatrixProfile.DRIVING_CAR);
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
-        springMatrixRequest.setSources(new String[]{"duck"});
+        springMatrixRequest.setSources(new String[]{"foo"});
         MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
     }
 
@@ -181,7 +176,7 @@ public class MatrixRequestHandlerTest {
         springMatrixRequest.setProfile(APIEnums.MatrixProfile.DRIVING_CAR);
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setSources(new String[]{"all"});
-        springMatrixRequest.setDestinations(new String[]{"duck"});
+        springMatrixRequest.setDestinations(new String[]{"foo"});
         MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
     }
 
@@ -192,7 +187,7 @@ public class MatrixRequestHandlerTest {
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setSources(new String[]{"all"});
         springMatrixRequest.setDestinations(new String[]{"all"});
-        springMatrixRequest.setUnits("duck");
+        springMatrixRequest.setUnits("foo");
         MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
     }
 
@@ -202,7 +197,7 @@ public class MatrixRequestHandlerTest {
         Assert.assertEquals(2, MatrixRequestHandler.convertMetrics("Distance"));
         Assert.assertEquals(4, MatrixRequestHandler.convertMetrics("Weight"));
 
-        MatrixRequestHandler.convertMetrics("false-duck");
+        MatrixRequestHandler.convertMetrics("false-foo");
     }
 
     @Test(expected = ParameterValueException.class)
@@ -285,7 +280,7 @@ public class MatrixRequestHandlerTest {
 
     @Test(expected = ParameterValueException.class)
     public void convertWrongSourcesTest() throws ParameterValueException {
-        String[] wrongSource = new String[]{"duck"};
+        String[] wrongSource = new String[]{"foo"};
         MatrixRequestHandler.convertSources(wrongSource, this.coordinates);
     }
 
@@ -324,7 +319,7 @@ public class MatrixRequestHandlerTest {
 
     @Test(expected = ParameterValueException.class)
     public void convertWrongDestinationsTest() throws ParameterValueException {
-        String[] wrongDestinations = new String[]{"duck"};
+        String[] wrongDestinations = new String[]{"foo"};
         MatrixRequestHandler.convertDestinations(wrongDestinations, this.coordinates);
     }
 
@@ -338,7 +333,7 @@ public class MatrixRequestHandlerTest {
 
     @Test(expected = ParameterValueException.class)
     public void convertWrongIndexToLocationsTest() throws ParameterValueException {
-        MatrixRequestHandler.convertIndexToLocations(new String[]{"duck"}, this.coordinates);
+        MatrixRequestHandler.convertIndexToLocations(new String[]{"foo"}, this.coordinates);
     }
 
     @Test
@@ -353,7 +348,7 @@ public class MatrixRequestHandlerTest {
 
     @Test(expected = ParameterValueException.class)
     public void convertWrongUnitsTest() throws ParameterValueException {
-        MatrixRequestHandler.convertUnits("duck");
+        MatrixRequestHandler.convertUnits("foo");
     }
 
     @Test
@@ -373,24 +368,7 @@ public class MatrixRequestHandlerTest {
 
     @Test(expected = ParameterValueException.class)
     public void convertToWrongMatrixProfileTypeTest() throws ParameterValueException {
-        MatrixRequestHandler.convertToMatrixProfileType(APIEnums.MatrixProfile.forValue("duck"));
+        MatrixRequestHandler.convertToMatrixProfileType(APIEnums.MatrixProfile.forValue("foo"));
     }
 
-    /**
-     * This function creates a {@link JSONArray} with fake coordinates.
-     * The size depends on maximumSize.
-     *
-     * @param maximumSize number of maximum coordinates in the {@link JSONArray}
-     * @return {@link JSONArray}
-     */
-    private List<List<Double>> fakeLocations(int maximumSize) {
-        List<List<Double>> listOfBareCoordinatesList = new ArrayList<>();
-        for (int i = 0; i < maximumSize; i++) {
-            List<Double> bareCoordinatesList = new ArrayList<>();
-            bareCoordinatesList.add(8.681495);
-            bareCoordinatesList.add(49.41461);
-            listOfBareCoordinatesList.add(bareCoordinatesList);
-        }
-        return listOfBareCoordinatesList;
-    }
 }

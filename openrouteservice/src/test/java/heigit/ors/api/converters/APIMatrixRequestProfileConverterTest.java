@@ -50,6 +50,6 @@ public class APIMatrixRequestProfileConverterTest {
         Assert.assertEquals(footWalking, apiMatrixRequestProfileConverter.convert("foot-walking"));
         Assert.assertEquals(footHiking, apiMatrixRequestProfileConverter.convert("foot-hiking"));
         Assert.assertEquals(wheelchair, apiMatrixRequestProfileConverter.convert("wheelchair"));
-        Assert.assertNull(apiMatrixRequestProfileConverter.convert("flying-duck"));
+        Assert.assertNull(apiMatrixRequestProfileConverter.convert("flying-foo"));
     }
 }
