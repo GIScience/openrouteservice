@@ -23,6 +23,8 @@ package heigit.ors.v2.services.matrix;
 import heigit.ors.v2.services.common.EndPointAnnotation;
 import heigit.ors.v2.services.common.ServiceTest;
 import heigit.ors.v2.services.common.VersionAnnotation;
+import heigit.ors.v2.services.serviceSettings.MatrixServiceSettings;
+import heigit.ors.v2.services.utils.HelperFunctions;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -68,11 +70,11 @@ public class ResultTest extends ServiceTest {
         locationsLong.put(coord3);
         addParameter("locationsLong", locationsLong);
 
-        /*// Fake array to test maximum exceedings
-        JSONArray maximumLocations = fakeLocations(MatrixServiceSettings.getMaximumLocations(false) + 1);
+        // Fake array to test maximum exceedings
+        JSONArray maximumLocations = HelperFunctions.fakeJSONLocations(MatrixServiceSettings.getMaximumLocations(false) + 1);
         addParameter("maximumLocations", maximumLocations);
-        JSONArray minimalLocations = fakeLocations(1);
-        addParameter("minimalLocations", minimalLocations);*/
+        JSONArray minimalLocations = HelperFunctions.fakeJSONLocations(1);
+        addParameter("minimalLocations", minimalLocations);
         // Sources
         JSONArray sourcesAll = new JSONArray();
         sourcesAll.put("all");
@@ -353,6 +355,8 @@ public class ResultTest extends ServiceTest {
         body.put("locations", getParameter("locations"));
         body.put("resolve_locations", true);
         body.put("metrics", getParameter("metricsAll"));
+        body.put("units", "km");
+
 
         given()
                 .header("Accept", "application/json")
@@ -360,10 +364,12 @@ public class ResultTest extends ServiceTest {
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
+                .log().all()
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
                 .body("any { it.key == 'matrix' }", is(true))
+                .body("info.query.units", is("km"))
                 .body("matrix[0].containsKey('durations')", is(true))
                 /*          [0.0, 212.67, 315.18, 211.17, 0.0, 102.53, 235.97, 90.42, 0.0]*/
                 .body("matrix[0].durations[0]", is(0.0f))
@@ -376,15 +382,15 @@ public class ResultTest extends ServiceTest {
                 .body("matrix[0].durations[7]", is(90.42f))
                 .body("matrix[0].durations[8]", is(0.0f))
                 .body("matrix[0].containsKey('distances')", is(true))
-                /*          [0.0, 886.14, 1365.15, 1171.07, 0.0, 479.07, 1274.4, 376.77, 0.0]*/
+                /*          [0.0, 0.89, 1.37, 1.17, 0.0, 0.48, 1.27, 0.38, 0.0]*/
                 .body("matrix[0].distances[0]", is(0.0f))
-                .body("matrix[0].distances[1]", is(886.14f))
-                .body("matrix[0].distances[2]", is(1365.15f))
-                .body("matrix[0].distances[3]", is(1171.07f))
+                .body("matrix[0].distances[1]", is(0.89f))
+                .body("matrix[0].distances[2]", is(1.37f))
+                .body("matrix[0].distances[3]", is(1.17f))
                 .body("matrix[0].distances[4]", is(0.0f))
-                .body("matrix[0].distances[5]", is(479.07f))
-                .body("matrix[0].distances[6]", is(1274.4f))
-                .body("matrix[0].distances[7]", is(376.77f))
+                .body("matrix[0].distances[5]", is(0.48f))
+                .body("matrix[0].distances[6]", is(1.27f))
+                .body("matrix[0].distances[7]", is(0.38f))
                 .body("matrix[0].distances[8]", is(0.0f))
                 .body("matrix[0].containsKey('weights')", is(true))
                 /*          [0.0, 212.67, 315.19, 211.18, 0.0, 102.53, 235.98, 90.42, 0.0]*/
@@ -450,8 +456,8 @@ public class ResultTest extends ServiceTest {
                 .body("info.query.locations[2][1]", is(49.42032f))
                 .body("info.query.containsKey('profile')", is(true))
                 .body("info.query.profile", is("driving-car"))
-                .body("info.query.containsKey('responseType')", is(true))
-                .body("info.query.responseType", is("json"))
+                .body("info.query.containsKey('responseType')", is(false))
+                //.body("info.query.responseType", is("json"))
                 .body("info.query.containsKey('sources')", is(true))
                 .body("info.query.sources.size()", is(1))
                 .body("info.query.sources[0]", is("1"))
@@ -551,8 +557,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("info.containsKey('query')", is(true))
-                .body("info.query.containsKey('responseType')", is(true))
-                .body("info.query.responseType", is("json"))
+                .body("info.query.containsKey('responseType')", is(false))
+                //.body("info.query.responseType", is("json"))
                 .statusCode(200);
     }
 
