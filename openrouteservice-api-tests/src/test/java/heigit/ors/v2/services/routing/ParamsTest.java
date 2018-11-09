@@ -27,9 +27,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
@@ -417,6 +414,41 @@ public class ParamsTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+				.statusCode(400);
+	}
+
+	@Test
+	public void expectInvalidCoordinatesInGet() {
+		given()
+				.param("start", "8.686581")
+				.param("end", "8.688126,49.409074")
+				.pathParam("profile", getParameter("carProfile"))
+				.when().log().all()
+				.get(getEndPointPath() + "/{profile}")
+				.then().log().all()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_FORMAT))
+				.statusCode(400);
+
+		given()
+				.param("start", "8.686581,49.403154")
+				.param("end", "8.688126")
+				.pathParam("profile", getParameter("carProfile"))
+				.when().log().all()
+				.get(getEndPointPath() + "/{profile}")
+				.then().log().all()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_FORMAT))
+				.statusCode(400);
+
+		given()
+				.param("start", "8.686581,49.403154")
+				.pathParam("profile", getParameter("carProfile"))
+				.when().log().all()
+				.get(getEndPointPath() + "/{profile}")
+				.then().log().all()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.MISSING_PARAMETER))
 				.statusCode(400);
 	}
 
