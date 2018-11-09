@@ -61,7 +61,6 @@ public class RouteRequestHandler extends GenericHandler {
 
     public  RoutingRequest convertRouteRequest(RouteRequest request) throws StatusCodeException {
         RoutingRequest routingRequest = new RoutingRequest();
-
         routingRequest.setCoordinates(convertCoordinates(request.getCoordinates()));
 
         if(request.hasReturnElevationForPoints())
