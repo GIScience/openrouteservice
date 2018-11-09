@@ -67,15 +67,11 @@ public class MatrixRequest {
     private boolean optimized = false;
 
     @ApiModelProperty(hidden = true)
-    private APIEnums.MatrixResponseType responseType = APIEnums.MatrixResponseType.JSON;
+    private APIEnums.MatrixResponseType responseType;
     @ApiModelProperty(hidden = true)
     private String weightingMethod;
     @ApiModelProperty(hidden = true)
     private String algorithm;
-    @ApiModelProperty(hidden = true)
-    private boolean hasMetrics = false;
-    @ApiModelProperty(hidden = true)
-    private boolean hasUnits = false;
 
     @JsonCreator
     public MatrixRequest(@JsonProperty(value = "locations", required = true) List<List<Double>> locations) {
@@ -152,7 +148,6 @@ public class MatrixRequest {
 
     public void setMetrics(String[] metrics) {
         this.metrics = metrics;
-        this.hasMetrics = true;
     }
 
     public boolean isResolveLocations() {
@@ -169,7 +164,6 @@ public class MatrixRequest {
 
     public void setUnits(String units) {
         this.units = units;
-        this.hasUnits = true;
     }
 
     public boolean isOptimized() {
@@ -202,20 +196,6 @@ public class MatrixRequest {
 
     public void setAlgorithm(String algorithm) {
         this.algorithm = algorithm;
-    }
-
-    public boolean hasMetrics() {
-        return this.metrics != null && this.metrics.length > 0;
-    }
-
-    public boolean hasUnits() {
-        if (!this.hasUnits && this.units == null) {
-            return hasUnits;
-        }
-        if (!this.hasUnits && this.units != null) {
-            return true;
-        }
-        return this.hasUnits && this.units != null;
     }
 
     public boolean hasValidSourceIndex() {
