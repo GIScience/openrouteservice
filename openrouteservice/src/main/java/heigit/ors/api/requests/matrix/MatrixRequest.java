@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ApiModel(value = "MatrixRequest", description = "The JSON body request sent to the matrix service which defines options and parameters regarding the matrix to generate.")
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class MatrixRequest {
     @ApiModelProperty(name = "id", value = "Arbitrary identification string of the request reflected in the meta information.")
     private String id;
@@ -97,6 +97,9 @@ public class MatrixRequest {
             coordPairList.add(coordPair[1]);
             this.locations.add(coordPairList);
         }
+    }
+
+    public MatrixRequest() {
     }
 
     public String getId() {
@@ -202,13 +205,7 @@ public class MatrixRequest {
     }
 
     public boolean hasMetrics() {
-        if (!this.hasMetrics && this.metrics == null) {
-            return hasMetrics;
-        }
-        if (!this.hasMetrics && this.metrics != null) {
-            return true;
-        }
-        return this.hasMetrics && this.metrics != null;
+        return this.metrics != null && this.metrics.length > 0;
     }
 
     public boolean hasUnits() {
