@@ -364,7 +364,6 @@ public class ResultTest extends ServiceTest {
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .log().all()
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
