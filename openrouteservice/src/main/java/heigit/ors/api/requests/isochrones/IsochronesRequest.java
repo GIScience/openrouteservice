@@ -92,7 +92,7 @@ public class IsochronesRequest {
             example = "[ 300, 200 ]"
     )
     @JsonProperty("range")
-    private List<Integer> range;
+    private List<Double> range;
 
 
     @ApiModelProperty(name = "interval", value = "Interval of isochrones or equidistants for one range value. " +
@@ -183,11 +183,19 @@ public class IsochronesRequest {
         this.rangeType = rangeType;
     }
 
-    public List<Integer> getRange() {
+    public IsochronesRequestEnums.LocationType getLocationType() {
+        return locationType;
+    }
+
+    public void setLocationType(IsochronesRequestEnums.LocationType locationType) {
+        this.locationType = locationType;
+    }
+
+    public List<Double> getRange() {
         return range;
     }
 
-    public void setRange(List<Integer> range) {
+    public void setRange(List<Double> range) {
         this.range = range;
     }
 

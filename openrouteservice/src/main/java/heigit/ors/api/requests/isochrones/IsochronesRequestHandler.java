@@ -15,19 +15,24 @@
 
 package heigit.ors.api.requests.isochrones;
 
+import com.graphhopper.util.Helper;
+import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.api.requests.common.APIEnums;
+import heigit.ors.api.requests.routing.RouteRequestOptions;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.common.TravellerInfo;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.IncompatableParameterException;
-import heigit.ors.exceptions.StatusCodeException;
+import heigit.ors.exceptions.*;
 import heigit.ors.isochrones.IsochroneMapCollection;
 import heigit.ors.isochrones.IsochroneRequest;
 import heigit.ors.isochrones.IsochronesErrorCodes;
 import heigit.ors.routing.RoutingErrorCodes;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.util.DistanceUnitUtil;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class IsochronesRequestHandler {
@@ -68,29 +73,134 @@ public class IsochronesRequestHandler {
         //range_type
         travellerInfo.setRangeType(convertRangeType(request.getRangeType()));
 
+        //location_type
+        travellerInfo.setLocationType(convertLocationType(request.getLocationType()));
+
         //units
         isochroneRequest.setUnits(convertUnits(request.getUnits(), travellerInfo.getRangeType()).toString());
 
         //area_units
-        //isochroneRequest.setAreaUnits(convertUnits(request.getAreaUnits());
+        isochroneRequest.setAreaUnits(convertAreaUnits(request.getAreaUnits()).toString());
 
-
-        //attributes
-
-        //options
-
-        //location_Type
 
         //range
+        isochroneRequest
+
+        double rangeValue = -1.0;
+        boolean skipInterval = false;
+        List<Double> rangeValues = request.getRange();
+
+        if (rangeValues.size() == 1) {
+
+            try {
+
+                rangeValue = rangeValues.get(0);
+                travellerInfo.setRanges(new double[] { rangeValue});
+
+            }
+
+            catch(NumberFormatException ex) {
+                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "range");
+
+            }
+        }
+        else {
+            double[] ranges = new double[rangeValues.length];
+            double maxRange = Double.MIN_VALUE;
+            for (int i = 0; i < ranges.length; i++)
+            {
+                double dv = Double.parseDouble(rangeValues[i]);
+                if (dv > maxRange)
+                    maxRange = dv;
+                ranges[i] = dv;
+            }
+
+            Arrays.sort(ranges);
+
+            travellerInfo.setRanges(ranges);
+
+            skipInterval = true;
+        }
+
+
+
+
 
         //interval
 
+        if (!skipInterval)
+        {
+            value = request.getParameter("interval");
+            if (!Helper.isEmpty(value))
+            {
+                if (rangeValue != -1)
+                {
+                    travellerInfo.setRanges(rangeValue, Double.parseDouble(value));
+                }
+            }
+        }
+
+
+        //attributes
+        if(request.hasAttributes())
+            isochroneRequest.setAttributes(convertAttributes(request.getAttributes()));
+
+        //id
+        if(request.hasId())
+            isochroneRequest.setId(request.getId());
+
+
+        //options SHARED WITH ROUTING!!
+        if(request.hasRouteOptions()) {
+
+            //common, wqit for adam
+            //RouteRequestOptions options = request.getRouteOptions();
+
+
+        }
+
+
         //intersections
 
-        //locations
+        //locations (must come very last)
+        Coordinate[] locations = convertLocations(request.getLocations());
+
+        for (int i = 0; i < locations.length; i++) {
+
+            if (i == 0) {
+
+                travellerInfo.setLocation(locations[0]);
+                isochroneRequest.addTraveller(travellerInfo);
+
+            } else {
+
+                TravellerInfo ti = travellerInfo.clone();
+                ti.setLocation(locations[i]);
+                isochroneRequest.addTraveller(ti);
+
+            }
+
+        }
 
 
         return isochroneRequest;
+    }
+
+    private static String[] convertAPIEnumListToStrings(Enum[] valuesIn) {
+        String[] attributes = new String[valuesIn.length];
+        for(int i=0; i<valuesIn.length; i++) {
+            attributes[i] = convertAPIEnum(valuesIn[i]);
+        }
+
+        return attributes;
+    }
+
+    private static String convertAPIEnum(Enum valuesIn) {
+        return valuesIn.toString();
+    }
+
+    private static String[] convertAttributes(IsochronesRequestEnums.Attributes[] attributes) {
+        return convertAPIEnumListToStrings(attributes);
     }
 
     private static int convertRouteProfileType(APIEnums.RoutingProfile profile) throws ParameterValueException {
@@ -111,8 +221,34 @@ public class IsochronesRequestHandler {
 
     }
 
-    private static TravelRangeType convertRangeType(IsochronesRequestEnums.RangeType rangeType) throws ParameterValueException {
+    private static String convertLocationType(IsochronesRequestEnums.LocationType locationType) throws ParameterValueException {
 
+        IsochronesRequestEnums.LocationType value;
+
+        switch (locationType) {
+
+            case DESTINATION:
+
+                value = IsochronesRequestEnums.LocationType.DESTINATION;
+
+                break;
+
+            case START:
+
+                value = IsochronesRequestEnums.LocationType.START;
+
+                break;
+
+            default:
+
+                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "location_type", locationType.toString());
+        }
+
+        return value.toString();
+
+    }
+
+    private static TravelRangeType convertRangeType(IsochronesRequestEnums.RangeType rangeType) throws ParameterValueException {
 
         TravelRangeType travelRangeType;
 
@@ -139,6 +275,20 @@ public class IsochronesRequestHandler {
     }
 
 
+    private static DistanceUnit convertAreaUnits(APIEnums.Units unitsIn) throws
+            ParameterValueException {
+
+        DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.Unknown);
+
+        if (units == DistanceUnit.Unknown)
+
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "units", unitsIn.toString());
+
+
+        return units;
+
+    }
+
     private static DistanceUnit convertUnits(APIEnums.Units unitsIn, TravelRangeType rangeType) throws
             ParameterValueException, IncompatableParameterException {
 
@@ -161,6 +311,27 @@ public class IsochronesRequestHandler {
 
         return units;
 
+    }
+
+    private static Coordinate[] convertLocations(List<List<Double>> locations) throws ParameterValueException {
+        if (locations.size() < 1)
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "locations");
+
+        ArrayList<Coordinate> coords = new ArrayList<>();
+
+        for (List<Double> coord : locations) {
+            coords.add(convertSingleCoordinate(coord));
+        }
+
+        return coords.toArray(new Coordinate[coords.size()]);
+    }
+
+
+    private static Coordinate convertSingleCoordinate(List<Double> coordinate) throws ParameterValueException {
+        if (coordinate.size() != 2)
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "locations");
+
+        return new Coordinate(coordinate.get(0), coordinate.get(1));
     }
 
 
