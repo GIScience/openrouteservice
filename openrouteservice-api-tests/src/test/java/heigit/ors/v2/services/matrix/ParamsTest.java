@@ -468,7 +468,7 @@ public class ParamsTest extends ServiceTest {
                 .body("info.containsKey('query')", is(true))
                 .body("info.query.containsKey('locations')", is(true))
                 .body("info.query.containsKey('profile')", is(true))
-                .body("info.query.containsKey('responseType')", is(true))
+                .body("info.query.containsKey('responseType')", is(false))
                 .body("info.query.containsKey('sources')", is(true))
                 .body("info.query.containsKey('destinations')", is(true))
                 .body("info.query.containsKey('metrics')", is(true))
@@ -495,7 +495,7 @@ public class ParamsTest extends ServiceTest {
                 .body("info.containsKey('query')", is(true))
                 .body("info.query.containsKey('locations')", is(true))
                 .body("info.query.containsKey('profile')", is(true))
-                .body("info.query.containsKey('responseType')", is(true))
+                .body("info.query.containsKey('responseType')", is(false))
                 .body("info.query.containsKey('sources')", is(true))
                 .body("info.query.containsKey('destinations')", is(true))
                 .body("info.query.containsKey('metrics')", is(true))
@@ -556,7 +556,7 @@ public class ParamsTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("info.containsKey('query')", is(true))
-                .body("info.query.containsKey('responseType')", is(true))
+                .body("info.query.containsKey('responseType')", is(false))
                 .statusCode(200);
     }
 
