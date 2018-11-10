@@ -15,7 +15,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencoders.nextgen;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
@@ -37,7 +37,7 @@ import static com.graphhopper.util.Helper.keepIn;
  * @author Nop
  * @author ratrun
  */
-abstract public class NextGenBikeCommonFlagEncoder extends AbstractFlagEncoder {
+abstract public class CommonBikeFlagEncoder extends AbstractFlagEncoder {
     /**
      * Reports whether this edge is unpaved.
      */
@@ -68,18 +68,18 @@ abstract public class NextGenBikeCommonFlagEncoder extends AbstractFlagEncoder {
     // MARQ24 MOD START
     // MARQ24 ADDON in the case of the RoadBike Encoder we want to skip some
     // conditions...
-    private boolean isRoadBikeEncoder = this instanceof NextGenRoadBikeFlagEncoder;
-    protected static final Logger LOGGER = Logger.getLogger(NextGenBikeCommonFlagEncoder.class.getName());
+    private boolean isRoadBikeEncoder = this instanceof RoadBikeFlagEncoder;
+    protected static final Logger LOGGER = Logger.getLogger(CommonBikeFlagEncoder.class.getName());
     // MARQ24 MOD END
 
     // MARQ24 MOD START
-    protected NextGenBikeCommonFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
+    protected CommonBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
         this(speedBits, speedFactor, maxTurnCosts, false);
     }
     // MARQ24 MOD END
 
     // MARQ24 MOD START
-    protected NextGenBikeCommonFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
+    protected CommonBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
     // MARQ24 MOD END
         super(speedBits, speedFactor, maxTurnCosts);
         // strict set, usually vehicle and agricultural/forestry are ignored by cyclists
