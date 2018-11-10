@@ -147,7 +147,7 @@ public class RouteRequestHandlerTest {
     public void convertRouteRequestTest() throws Exception {
         RoutingRequest routingRequest;
 
-        routingRequest = RouteRequestHandler.convertRouteRequest(request);
+        routingRequest = new RouteRequestHandler().convertRouteRequest(request);
 
         Assert.assertEquals(3, routingRequest.getCoordinates().length);
 
@@ -211,7 +211,7 @@ public class RouteRequestHandlerTest {
         request.getRouteOptions().setVehicleType(APIEnums.VehicleType.AGRICULTURAL);
 
         RoutingRequest routingRequest;
-        routingRequest = RouteRequestHandler.convertRouteRequest(request);
+        routingRequest = new RouteRequestHandler().convertRouteRequest(request);
 
         VehicleParameters params = (VehicleParameters) routingRequest.getSearchParameters().getProfileParameters();
         Assert.assertEquals(30.0, params.getWeight(), 0);
@@ -228,7 +228,7 @@ public class RouteRequestHandlerTest {
         request.getRouteOptions().getProfileParams().setRestrictions(cyclingParams);
 
         RoutingRequest routingRequest;
-        routingRequest = RouteRequestHandler.convertRouteRequest(request);
+        routingRequest = new RouteRequestHandler().convertRouteRequest(request);
 
         CyclingParameters params = (CyclingParameters) routingRequest.getSearchParameters().getProfileParameters();
         Assert.assertEquals(2, params.getMaximumTrailDifficulty());
@@ -241,7 +241,7 @@ public class RouteRequestHandlerTest {
         request.getRouteOptions().getProfileParams().setRestrictions(walkingParams);
 
         RoutingRequest routingRequest;
-        routingRequest = RouteRequestHandler.convertRouteRequest(request);
+        routingRequest = new RouteRequestHandler().convertRouteRequest(request);
 
         WalkingParameters params = (WalkingParameters) routingRequest.getSearchParameters().getProfileParameters();
         Assert.assertEquals(2, params.getMaximumTrailDifficulty());
@@ -255,7 +255,7 @@ public class RouteRequestHandlerTest {
 
         RoutingRequest routingRequest;
 
-        routingRequest = RouteRequestHandler.convertRouteRequest(request);
+        routingRequest = new RouteRequestHandler().convertRouteRequest(request);
 
         WheelchairParameters params = (WheelchairParameters) routingRequest.getSearchParameters().getProfileParameters();
         Assert.assertEquals(WheelchairTypesEncoder.getSmoothnessType("good"), params.getSmoothnessType());
@@ -270,7 +270,7 @@ public class RouteRequestHandlerTest {
         request.setBearings(new Double[][] {{120.0, 90.0}, { , }, {90.0, 30.0}});
         RoutingRequest routingRequest;
 
-        routingRequest = RouteRequestHandler.convertRouteRequest(request);
+        routingRequest = new RouteRequestHandler().convertRouteRequest(request);
 
         Assert.assertEquals(3, routingRequest.getSearchParameters().getBearings().length);
     }
@@ -278,19 +278,19 @@ public class RouteRequestHandlerTest {
     @Test(expected = ParameterValueException.class)
     public void invalidBearingLength() throws Exception {
         request.setBearings(new Double[][] {{123.0,123.0}});
-        RouteRequestHandler.convertRouteRequest(request);
+        new RouteRequestHandler().convertRouteRequest(request);
     }
 
     @Test(expected = ParameterValueException.class)
     public void invalidRadiusLength() throws Exception {
         request.setMaximumSearchRadii(new Double[] {10.0});
-        RouteRequestHandler.convertRouteRequest(request);
+        new RouteRequestHandler().convertRouteRequest(request);
     }
 
     @Test(expected = ParameterValueException.class)
     public void onlySetOptimizationToFalse() throws Exception {
         request.setUseContractionHierarchies(true);
-        RouteRequestHandler.convertRouteRequest(request);
+        new RouteRequestHandler().convertRouteRequest(request);
     }
 
     @Test
@@ -303,12 +303,12 @@ public class RouteRequestHandlerTest {
             request.setRouteOptions(opts);
             if(profile != APIEnums.RoutingProfile.DRIVING_HGV) {
                 try {
-                    RouteRequestHandler.convertRouteRequest(request);
+                    new RouteRequestHandler().convertRouteRequest(request);
                 } catch (Exception e) {
                     Assert.assertTrue(e instanceof IncompatableParameterException);
                 }
             } else {
-                RouteRequestHandler.convertRouteRequest(request);
+                new RouteRequestHandler().convertRouteRequest(request);
             }
         }
     }

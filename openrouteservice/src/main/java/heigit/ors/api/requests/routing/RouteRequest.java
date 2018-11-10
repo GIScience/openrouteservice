@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.routing.RoutingErrorCodes;
@@ -26,6 +27,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @ApiModel(value = "RouteRequest", description = "The JSON body request sent to the routing service which defines options and parameters regarding the route to generate.")
@@ -189,6 +191,23 @@ public class RouteRequest {
             coordPairList.add(coordPair[1]);
             this.coordinates.add(coordPairList);
         }
+    }
+
+    public RouteRequest(Coordinate start, Coordinate end) throws ParameterValueException {
+        if(start == null) {
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "start");
+        }
+        if(end == null) {
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "end");
+        }
+
+        this.coordinates = new ArrayList<>();
+        this.coordinates.add(
+                new ArrayList<>(Arrays.asList(start.x, start.y))
+        );
+        this.coordinates.add(
+                new ArrayList<>(Arrays.asList(end.x, end.y))
+        );
     }
 
     public String getId() {
