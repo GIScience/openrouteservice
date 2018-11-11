@@ -6,13 +6,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class MatrixResponseTest {
-    private static heigit.ors.api.requests.matrix.MatrixRequest bareMatrixRequest;
     private MatrixResponse bareMatrixResponse;
 
 
     @Before
     public void setUp() {
-        bareMatrixRequest = new MatrixRequest();
+        MatrixRequest bareMatrixRequest = new MatrixRequest();
         bareMatrixResponse = new MatrixResponse(bareMatrixRequest);
     }
 
