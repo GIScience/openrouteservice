@@ -25,10 +25,6 @@ public class JSONMatrixResponseTest {
     private JSONMatrixResponse jsonMatrixDistancesResponse;
     private JSONMatrixResponse jsonMatrixWeightsResponse;
 
-    public JSONMatrixResponseTest() {
-    }
-
-
     @Before
     public void setUp() throws StatusCodeException {
 
