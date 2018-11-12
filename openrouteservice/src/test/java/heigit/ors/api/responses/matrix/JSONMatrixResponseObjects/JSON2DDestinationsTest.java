@@ -17,9 +17,9 @@ public class JSON2DDestinationsTest {
 
     @Test
     public void getLocation() {
-        JSON2DSources json2DSourcesWithLocation = new JSON2DSources(resolvedLocation, true);
-        JSON2DSources json2DSourcesWoLocation = new JSON2DSources(resolvedLocation, false);
-        Assert.assertArrayEquals(new Double[]{8.681495, 49.41461}, json2DSourcesWithLocation.getLocation());
-        Assert.assertArrayEquals(new Double[]{8.681495, 49.41461}, json2DSourcesWoLocation.getLocation());
+        JSON2DDestinations json2DDestinationsWithLocation = new JSON2DDestinations(resolvedLocation, true);
+        JSON2DDestinations json2DDestinationsWoLocation = new JSON2DDestinations(resolvedLocation, false);
+        Assert.assertArrayEquals(new Double[]{8.681495, 49.41461}, json2DDestinationsWithLocation.getLocation());
+        Assert.assertArrayEquals(new Double[]{8.681495, 49.41461}, json2DDestinationsWoLocation.getLocation());
     }
 }
