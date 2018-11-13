@@ -21,6 +21,7 @@ import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesC
 
 public class EdgeFilterSequence extends ArrayList<EdgeFilter> implements EdgeFilter {
 
+	private String name;
 	@Override
 	public boolean accept(EdgeIteratorState iter) {
 		for (EdgeFilter edgeFilter: this) {
@@ -32,11 +33,21 @@ public class EdgeFilterSequence extends ArrayList<EdgeFilter> implements EdgeFil
 	}
 
 	public String getName(){
-		String name = "";
-		for (EdgeFilter edgeFilter: this) {
-			name += "_" + edgeFilter.getClass().getSimpleName();
+		if (this.name == null) {
+			String name = "";
+			for (EdgeFilter edgeFilter : this) {
+				name += "_" + edgeFilter.getClass().getSimpleName();
+			}
+			return name.toLowerCase();
 		}
-		return name.toLowerCase();
+		else return this.name;
+	}
+
+	public void appendName(String name){
+		if (this.name == null)
+			this.name = ("_" + name);
+		else
+			this.name += ("_" + name);
 	}
 
 	public boolean isAvoidHighways(){
@@ -44,6 +55,18 @@ public class EdgeFilterSequence extends ArrayList<EdgeFilter> implements EdgeFil
 			if (edgeFilter instanceof AvoidFeaturesCoreEdgeFilter){
 				if (((AvoidFeaturesCoreEdgeFilter) edgeFilter).getType() == "avoid_features"
 					&& ((AvoidFeaturesCoreEdgeFilter) edgeFilter).getAvoidFeatures() == 1)
+					return true;
+			}
+		}
+		return false;
+	}
+	public boolean isAvoidable(int avoidable){
+		for (EdgeFilter edgeFilter: this) {
+			if (edgeFilter instanceof AvoidFeaturesCoreEdgeFilter){
+				//Some bit magic to find if the storage bits are a subset of the query bits, but not the other way around
+				int reverseQueryFeatures = Integer.MAX_VALUE ^ avoidable;
+				int filterFeatures = ((AvoidFeaturesCoreEdgeFilter) edgeFilter).getAvoidFeatures();
+				if ((reverseQueryFeatures & filterFeatures) == 0)
 					return true;
 			}
 		}

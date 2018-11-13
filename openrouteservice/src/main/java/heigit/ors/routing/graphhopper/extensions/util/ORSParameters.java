@@ -64,7 +64,7 @@ public class ORSParameters {
         /**
          * Specifies how many active landmarks should be used when routing
          */
-        public static final String ACTIVE_COUNT = "corelm.active_landmarks";
+        public static final String ACTIVE_COUNT = ROUTING_INIT_PREFIX + "corelm.active_landmarks";
         /**
          * Default for active count
          */
@@ -72,7 +72,7 @@ public class ORSParameters {
         /**
          * Specifies how many landmarks should be created
          */
-        public static final String COUNT = PREPARE + "corelandmarks";
+        public static final String COUNT = PREPARE + "landmarks";
         /**
          * This property name configures at start if the DISABLE parameter can have an effect.
          */

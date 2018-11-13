@@ -46,7 +46,7 @@ public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
 		_storage = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
 	}
 	public AvoidFeaturesCoreEdgeFilter(GraphStorage graphStorage, int profileCategory, int overrideClass) {
-		this(graphStorage, profileCategory);
+		this(graphStorage, -1);
 		_avoidFeatures = overrideClass;
 	}
 

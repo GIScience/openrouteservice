@@ -58,7 +58,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorator {
     private Logger LOGGER = LoggerFactory.getLogger(CoreLMAlgoFactoryDecorator.class);
     private int landmarkCount = 16;
-    private int activeLandmarkCount = 8;
+    private int activeLandmarkCount = 4;
 
     private final List<PrepareCoreLandmarks> preparations = new ArrayList<>();
     // input weighting list from configuration file
@@ -89,7 +89,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
         setPreparationThreads(args.getInt(CoreLandmark.PREPARE + "threads", getPreparationThreads()));
 
         landmarkCount = args.getInt(CoreLandmark.COUNT, landmarkCount);
-        activeLandmarkCount = args.getInt(CoreLandmark.ACTIVE_COUNT_DEFAULT, Math.min(8, landmarkCount));
+        activeLandmarkCount = args.getInt(CoreLandmark.ACTIVE_COUNT, Math.min(4, landmarkCount));
         logDetails = args.getBool(CoreLandmark.PREPARE + "log_details", false);
         minNodes = args.getInt(CoreLandmark.PREPARE + "min_network_size", -1);
 
@@ -256,13 +256,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
             if (p.getWeighting().matches(map) && p.matchesFilter(map))
                 return new CoreLMRAFactory(p, defaultAlgoFactory);
         }
-        //If none matches, use a default one if available
-        for (final PrepareCoreLandmarks p : preparations) {
-            if (p.getWeighting().matches(map))
-                return new CoreLMRAFactory(p, defaultAlgoFactory);
-        }
-
-        // if the initial encoder&weighting has certain properties we could cross query it but for now avoid this
+        //If none matches, we return the original one and will be using slow beeline approx
         return defaultAlgoFactory;
     }
 

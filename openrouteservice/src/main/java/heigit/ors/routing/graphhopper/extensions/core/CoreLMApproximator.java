@@ -176,9 +176,11 @@ public class CoreLMApproximator implements WeightApproximator {
             // 2. for the case a->v the sign is reverse as we need to know the vector av not va => if(reverse) "-weight"
             // 3. as weight is the full edge weight for now (and not the precise weight to the virt node) we can only add it to the subtrahend
             //    to avoid overestimating (keep the result strictly lower)
+//            int weight = lms.getFromWeight(landmarkIndex, node);
             int fromWeightInt = activeFromIntWeights[activeLMIdx] - lms.getFromWeight(landmarkIndex, node);
             int toWeightInt = lms.getToWeight(landmarkIndex, node) - activeToIntWeights[activeLMIdx];
-
+//            int fromWeightInt = activeFromIntWeights[activeLMIdx] - weight;
+//            int toWeightInt = weight - activeToIntWeights[activeLMIdx];
             if (reverse) {
                 fromWeightInt = -fromWeightInt;
                 // we need virtEntryWeight for the minuend

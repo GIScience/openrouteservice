@@ -288,6 +288,8 @@ public class RoutingProfile {
                             args.put("prepare.core.weightings", StringUtility.trimQuotes(coreOpts.getString("weightings")));
                         if (coreOpts.hasPath("lmsets"))
                             args.put("prepare.corelm.lmsets", StringUtility.trimQuotes(coreOpts.getString("lmsets")));
+                        if (coreOpts.hasPath("landmarks"))
+                            args.put("prepare.corelm.landmarks", coreOpts.getInt("landmarks"));
                     }
                 }
             }
@@ -312,6 +314,14 @@ public class RoutingProfile {
 
                 if (lmOpts.hasPath("active_landmarks"))
                     args.put("routing.lm.active_landmarks", lmOpts.getInt("active_landmarks"));
+            }
+            if (opts.hasPath("methods.corelm")) {
+                Config lmOpts = opts.getConfig("methods.corelm");
+                if (lmOpts.hasPath("disabling_allowed"))
+                    args.put("routing.lm.disabling_allowed", lmOpts.getBoolean("disabling_allowed"));
+
+                if (lmOpts.hasPath("active_landmarks"))
+                    args.put("routing.corelm.active_landmarks", lmOpts.getInt("active_landmarks"));
             }
         }
 

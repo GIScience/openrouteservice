@@ -30,15 +30,6 @@ import com.graphhopper.storage.*;
  * @author Hendrik Leuschner
  */
 public class ProxyNodeStorage implements Storable<ProxyNodeStorage>{
-    private static class VirtEntry {
-        private int node;
-        private int weight;
-
-        @Override
-        public String toString() {
-            return node + ", " + weight;
-        }
-    }
     private final DataAccess proxyNodes;
     private final CHGraphImpl core;
     private final GraphHopperStorage graph;

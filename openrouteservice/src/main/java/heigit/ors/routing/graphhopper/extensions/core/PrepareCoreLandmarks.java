@@ -34,6 +34,7 @@ import com.graphhopper.util.Parameters;
 import com.graphhopper.util.Parameters.Landmark;
 import com.graphhopper.util.StopWatch;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,7 +142,7 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
     }
 
     public RoutingAlgorithm getDecoratedAlgorithm(Graph qGraph, RoutingAlgorithm algo, AlgorithmOptions opts) {
-        int activeLM = Math.max(1, opts.getHints().getInt(Landmark.ACTIVE_COUNT, defaultActiveLandmarks));
+        int activeLM = Math.max(1, opts.getHints().getInt(ORSParameters.CoreLandmark.ACTIVE_COUNT, defaultActiveLandmarks));
 
         if (algo instanceof CoreALT) {
             if (!lms.isInitialized())
@@ -197,11 +198,10 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
     }
 
     public boolean matchesFilter(PMap pmap){
-        if ((pmap.getInt("avoid_features", 0) & 1) == 1) {
-            if(landmarksFilter.isAvoidHighways())
+        //Returns true if the landmarkset is for the avoidables.
+        //Also returns true if the query has no avoidables and the set has no avoidables
+            if(landmarksFilter.isAvoidable(pmap.getInt("avoid_features", 0)))
                 return true;
             return false;
-        }
-        return true;
     }
 }

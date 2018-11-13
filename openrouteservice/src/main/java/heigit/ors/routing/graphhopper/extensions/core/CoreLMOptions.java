@@ -32,17 +32,28 @@ public class CoreLMOptions {
         for(String set : coreLMSets) {
             List<String> filters = Arrays.asList(set.split(","));
             EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
+            int filter = 0;
             for (String filterType : filters) {
                 //Do not add any filter if it is allow_all
                 if (filterType.equalsIgnoreCase("allow_all")) {
+                    edgeFilterSequence.appendName("allow_all");
 //                    if(filters.size() > 1)
 //                        throw new IllegalArgumentException("Cannot use more edgefilters in combination with 'allow_all'");
                     break;
                 }
                 if (filterType.equalsIgnoreCase("highways")) {
-                    edgeFilterSequence.add(new AvoidFeaturesCoreEdgeFilter(ghStorage, 1, 1));
+                    filter = filter | 1;
+                    edgeFilterSequence.appendName("highways");
                 }
+                if (filterType.equalsIgnoreCase("tollways")) {
+                    filter = filter | 2;
+                    edgeFilterSequence.appendName("tollways");
+                }
+                if (filter == 0)
+                    throw new IllegalArgumentException("Currently unsupported filter type: " + filterType);
             }
+            if(filter != 0)
+                edgeFilterSequence.add(new AvoidFeaturesCoreEdgeFilter(ghStorage, -1, filter));
             if(edgeFilterSequence != null)
                 this.filters.add(edgeFilterSequence);
         }
