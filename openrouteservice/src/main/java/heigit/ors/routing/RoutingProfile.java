@@ -882,6 +882,10 @@ public class RoutingProfile {
                 }
             }
 
+            if(profileType == RoutingProfileType.WHEELCHAIR) {
+                flexibleMode = true;
+            }
+
             if (RoutingProfileType.isDriving(profileType) && RealTrafficDataProvider.getInstance().isInitialized())
                 req.setEdgeAnnotator(new TrafficEdgeAnnotator(mGraphHopper.getGraphHopperStorage()));
 
