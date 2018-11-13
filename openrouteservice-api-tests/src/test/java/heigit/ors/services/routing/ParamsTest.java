@@ -479,7 +479,6 @@ public class ParamsTest extends ServiceTest {
 
 		// options for avoid polygon
 		JSONObject options = new JSONObject();
-		options.put("avoid_features", "tunnels");
 		options.put("maximum_speed", "75");
 		JSONObject polygon = new JSONObject();
 		polygon.put("type", "Polygon");
@@ -507,7 +506,6 @@ public class ParamsTest extends ServiceTest {
 
 		// options for avoid polygon faulty
 		JSONObject options = new JSONObject();
-		options.put("avoid_features", "tunnels");
 		options.put("maximum_speed", "75");
 		JSONObject polygon = new JSONObject();
 		polygon.put("type", "Polygon");
@@ -562,7 +560,7 @@ public class ParamsTest extends ServiceTest {
 	public void expectCyclingToRejectHgvAvoidables() {
 		// options for HGV profiles
 		JSONObject options = new JSONObject();
-		options.put("avoid_features", "highways|tollways|ferries|tunnels|fords");
+		options.put("avoid_features", "highways|tollways|ferries|fords");
 		options.put("maximum_speed", "75");
 		JSONObject profileParams = new JSONObject();
 		profileParams.put("width", "5");

@@ -74,8 +74,6 @@ public class WayCategoryGraphStorageBuilder extends AbstractGraphStorageBuilder
 					_wayType |= AvoidFeatureFlags.Tollways;
 				else if (key.equals("route") && isFerryRoute) 
 					_wayType |= AvoidFeatureFlags.Ferries;
-				else if (key.equals("tunnel") && value.equals("yes")) 
-					_wayType |= AvoidFeatureFlags.Tunnels;
 				else if (key.equals("bridge") && value.equals("yes")) 
 					_wayType |= AvoidFeatureFlags.Bridges;
 				else if (("ford".equals(key) && value.equals("yes")))
