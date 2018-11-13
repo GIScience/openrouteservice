@@ -437,7 +437,7 @@ public class ParamsTest extends ServiceTest {
 	public void expectOptions() {
 
 		JSONObject options = new JSONObject();
-		options.put("avoid_features", "tracks|fords");
+		options.put("avoid_features", "fords");
 		options.put("maximum_speed", "105");
 
 		given()
@@ -562,7 +562,7 @@ public class ParamsTest extends ServiceTest {
 	public void expectCyclingToRejectHgvAvoidables() {
 		// options for HGV profiles
 		JSONObject options = new JSONObject();
-		options.put("avoid_features", "highways|tollways|ferries|tunnels|tracks|fords");
+		options.put("avoid_features", "highways|tollways|ferries|tunnels|fords");
 		options.put("maximum_speed", "75");
 		JSONObject profileParams = new JSONObject();
 		profileParams.put("width", "5");

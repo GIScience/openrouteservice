@@ -18,7 +18,6 @@ public class AvoidFeatureFlags {
 	public static final int Tollways = 2; // 1 << 1;
 	public static final int Steps = 2; // 1 << 1;
 	public static final int Ferries = 4; // 1 << 2;
-	public static final int Tracks = 16; // 1 << 4;
 	public static final int Tunnels = 32; // 1 << 5;
 	public static final int Fords = 128; // 1 << 7;
 	
@@ -26,7 +25,7 @@ public class AvoidFeatureFlags {
 	public static final int Borders = 512; 
 	public static final int Hills = 1024;
 
-	public static final int DrivingFeatures = Highways | Tollways | Ferries | Tracks | Tunnels | Fords | Bridges | Borders;
+	public static final int DrivingFeatures = Highways | Tollways | Ferries | Tunnels | Fords | Bridges | Borders;
 	public static final int CyclingFeatures = Steps | Ferries | Fords;
 	public static final int WalkingFeatures =  Steps | Ferries | Fords;
 	public static final int WheelchairFeatures = Ferries;
@@ -43,8 +42,6 @@ public class AvoidFeatureFlags {
 				return Ferries;
 			case "steps":
 				return Steps;
-			case "tracks":
-				return Tracks;
 			case "tunnels":
 				return Tunnels;
 			case "fords":

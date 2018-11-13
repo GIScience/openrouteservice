@@ -70,17 +70,6 @@ public class WayCategoryGraphStorageBuilder extends AbstractGraphStorageBuilder
 					{
 						_wayType |= AvoidFeatureFlags.Steps;
 					}
-					else if ("track".equals(value)) {
-						String tracktype = way.getTag("tracktype");
-						if (tracktype == null
-								|| (tracktype.equals("grade1") || tracktype.equals("grade2")
-										|| tracktype.equals("grade3") || tracktype.equals("grade4") || tracktype
-											.equals("grade5"))) {
-						
-							_wayType |= AvoidFeatureFlags.Tracks;
-						}
-					}
-
 				} else if (value.equals("yes") && key.startsWith("toll")) 
 					_wayType |= AvoidFeatureFlags.Tollways;
 				else if (key.equals("route") && isFerryRoute) 
