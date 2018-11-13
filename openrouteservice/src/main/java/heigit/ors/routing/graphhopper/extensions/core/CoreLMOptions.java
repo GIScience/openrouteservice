@@ -2,6 +2,7 @@ package heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
+import heigit.ors.routing.AvoidFeatureFlags;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
@@ -42,11 +43,11 @@ public class CoreLMOptions {
                     break;
                 }
                 if (filterType.equalsIgnoreCase("highways")) {
-                    filter = filter | 1;
+                    filter = filter | AvoidFeatureFlags.Highways;
                     edgeFilterSequence.appendName("highways");
                 }
                 if (filterType.equalsIgnoreCase("tollways")) {
-                    filter = filter | 2;
+                    filter = filter | AvoidFeatureFlags.Tollways;
                     edgeFilterSequence.appendName("tollways");
                 }
                 if (filter == 0)
