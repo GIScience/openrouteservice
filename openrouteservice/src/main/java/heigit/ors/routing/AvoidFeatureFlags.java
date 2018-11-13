@@ -18,14 +18,13 @@ public class AvoidFeatureFlags {
 	public static final int Tollways = 2; // 1 << 1;
 	public static final int Steps = 2; // 1 << 1;
 	public static final int Ferries = 4; // 1 << 2;
-	public static final int Tunnels = 32; // 1 << 5;
 	public static final int Fords = 128; // 1 << 7;
 	
 	public static final int Bridges = 256; // does not work as it is greater than byte limit of 255.
 	public static final int Borders = 512; 
 	public static final int Hills = 1024;
 
-	public static final int DrivingFeatures = Highways | Tollways | Ferries | Tunnels | Fords | Bridges | Borders;
+	public static final int DrivingFeatures = Highways | Tollways | Ferries | Fords | Bridges | Borders;
 	public static final int CyclingFeatures = Steps | Ferries | Fords;
 	public static final int WalkingFeatures =  Steps | Ferries | Fords;
 	public static final int WheelchairFeatures = Ferries;
@@ -42,8 +41,6 @@ public class AvoidFeatureFlags {
 				return Ferries;
 			case "steps":
 				return Steps;
-			case "tunnels":
-				return Tunnels;
 			case "fords":
 				return Fords;
 			case "bridges":
@@ -81,7 +78,7 @@ public class AvoidFeatureFlags {
 		}
 		else if (RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType))
 		{
-			if (value == Highways || value == Tunnels)
+			if (value == Highways)
 				return false;
 		}
 		
