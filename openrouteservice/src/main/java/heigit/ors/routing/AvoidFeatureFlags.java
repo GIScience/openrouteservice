@@ -16,15 +16,13 @@ package heigit.ors.routing;
 public class AvoidFeatureFlags {
 	public static final int Highways = 1; // 1 << 0;
 	public static final int Tollways = 2; // 1 << 1;
-	public static final int Steps = 2; // 1 << 1;
-	public static final int Ferries = 4; // 1 << 2;
-	public static final int Fords = 128; // 1 << 7;
-	
-	public static final int Bridges = 256; // does not work as it is greater than byte limit of 255.
-	public static final int Borders = 512; 
-	public static final int Hills = 1024;
+	public static final int Steps = 4; // 1 << 2;
+	public static final int Ferries = 8; // 1 << 3;
+	public static final int Fords = 16; // 1 << 4;
 
-	public static final int DrivingFeatures = Highways | Tollways | Ferries | Fords | Bridges | Borders;
+	public static final int Hills = 256; // AO: not stored as it exceeds 255 byte limit, just used in query to enable "avoid_hills" weighting
+
+	public static final int DrivingFeatures = Highways | Tollways | Ferries | Fords;
 	public static final int CyclingFeatures = Steps | Ferries | Fords;
 	public static final int WalkingFeatures =  Steps | Ferries | Fords;
 	public static final int WheelchairFeatures = Ferries;
@@ -43,10 +41,6 @@ public class AvoidFeatureFlags {
 				return Steps;
 			case "fords":
 				return Fords;
-			case "bridges":
-				return Bridges;
-			case "borders":
-				return Borders;
 			case "hills":
 				return Hills;
 		}
@@ -81,7 +75,7 @@ public class AvoidFeatureFlags {
 			if (value == Highways)
 				return false;
 		}
-		
+
 		return true;
 	}
 }

@@ -62,22 +62,15 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 
 				if (avoidEdgeFeatureType != 0) {
 
-					// needs special handling as "tollways" which are valid only for driving share flag with "steps"
-					if (_profileCategory == RoutingProfileCategory.DRIVING) {
-
-						if ((avoidEdgeFeatureType & NOT_TOLLWAYS) != 0) {
-							// restrictions other than tollways are present
-							return false;
-						}
-						else if (_tollwayExtractor != null) {
-							// false when there is a toll for the given profile
-							return _tollwayExtractor.getValue(edge) == 0;
-						}
-
-					} else {
-
+					if ((avoidEdgeFeatureType & NOT_TOLLWAYS) != 0) {
+						// restrictions other than tollways are present
 						return false;
 					}
+					else if (_tollwayExtractor != null) {
+						// false when there is a toll for the given profile
+						return _tollwayExtractor.getValue(edge) == 0;
+					}
+
 				}
 			}
 		}
