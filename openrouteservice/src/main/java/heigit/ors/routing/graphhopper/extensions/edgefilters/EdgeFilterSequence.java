@@ -61,6 +61,8 @@ public class EdgeFilterSequence extends ArrayList<EdgeFilter> implements EdgeFil
 		return false;
 	}
 	public boolean isAvoidable(int avoidable){
+		if(avoidable == 0)
+			return true;
 		for (EdgeFilter edgeFilter: this) {
 			if (edgeFilter instanceof AvoidFeaturesCoreEdgeFilter){
 				//Some bit magic to find if the storage bits are a subset of the query bits, but not the other way around
@@ -68,9 +70,10 @@ public class EdgeFilterSequence extends ArrayList<EdgeFilter> implements EdgeFil
 				int filterFeatures = ((AvoidFeaturesCoreEdgeFilter) edgeFilter).getAvoidFeatures();
 				if ((reverseQueryFeatures & filterFeatures) == 0)
 					return true;
+				return false;
 			}
 		}
-		return false;
+		return true;
 	}
 
 	@Override
