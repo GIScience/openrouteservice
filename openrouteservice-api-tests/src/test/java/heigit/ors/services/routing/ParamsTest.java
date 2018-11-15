@@ -438,7 +438,6 @@ public class ParamsTest extends ServiceTest {
 
 		JSONObject options = new JSONObject();
 		options.put("avoid_features", "fords");
-		options.put("maximum_speed", "105");
 
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
@@ -479,7 +478,6 @@ public class ParamsTest extends ServiceTest {
 
 		// options for avoid polygon
 		JSONObject options = new JSONObject();
-		options.put("maximum_speed", "75");
 		JSONObject polygon = new JSONObject();
 		polygon.put("type", "Polygon");
 		String[][][] coords = new String[][][] { { { "8.91197", "53.07257" }, { "8.91883", "53.06081" },
@@ -506,7 +504,6 @@ public class ParamsTest extends ServiceTest {
 
 		// options for avoid polygon faulty
 		JSONObject options = new JSONObject();
-		options.put("maximum_speed", "75");
 		JSONObject polygon = new JSONObject();
 		polygon.put("type", "Polygon");
 		String[][][] coords = new String[][][] { { { "8b.91197", "53a.07257" }, { "c8.91883", "53.06081" },
@@ -534,7 +531,6 @@ public class ParamsTest extends ServiceTest {
 		// options for avoid polygon wrong feature type (can be polygon or
 		// linestring)
 		JSONObject options = new JSONObject();
-		options.put("maximum_speed", "75");
 		JSONObject polygon = new JSONObject();
 		polygon.put("type", "Polygon");
 		String[][] polygonCoords = new String[][] { { "8.91197", "53.07257" }, { "8.91883", "53.06081" },
@@ -561,7 +557,6 @@ public class ParamsTest extends ServiceTest {
 		// options for HGV profiles
 		JSONObject options = new JSONObject();
 		options.put("avoid_features", "highways|tollways|ferries|fords");
-		options.put("maximum_speed", "75");
 		JSONObject profileParams = new JSONObject();
 		profileParams.put("width", "5");
 		profileParams.put("height", "3");
@@ -592,7 +587,6 @@ public class ParamsTest extends ServiceTest {
 		// options for walking profiles
 		JSONObject options = new JSONObject();
 		options.put("avoid_features", "steps|fords");
-		options.put("maximum_speed", "5");
 
 		given()
 				.param("coordinates", getParameter("coordinatesShort"))
@@ -606,27 +600,6 @@ public class ParamsTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
-				.statusCode(400);
-	}
-
-	@Test
-	public void expectMaximumspeedError() {
-
-		// options for cycling profiles
-		JSONObject options = new JSONObject();
-		options.put("maximum_speed", "25fgf");
-
-		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("geometry", "true")
-				.param("profile", getParameter("carProfile"))
-				.param("options", options.toString())
-				.when()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_FORMAT))
 				.statusCode(400);
 	}
 

@@ -828,7 +828,6 @@ public class RoutingProfile {
                 req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), bearings[1].getValue());
 
             req.setVehicle(searchCntx.getEncoder().toString());
-            req.setMaxSpeed(searchParams.getMaximumSpeed());
             req.setAlgorithm("dijkstrabi");
 
             if (radiuses != null)
@@ -939,7 +938,6 @@ public class RoutingProfile {
             || searchParams.hasAvoidFeatures()
             || searchParams.hasAvoidCountries()
             || searchParams.hasAvoidBorders()
-            || searchParams.getMaximumSpeed() > 0
             ||( RoutingProfileType.isDriving(searchParams.getProfileType())
                 &&( searchParams.hasParameters(VehicleParameters.class)
                     || searchParams.getConsiderTraffic()
