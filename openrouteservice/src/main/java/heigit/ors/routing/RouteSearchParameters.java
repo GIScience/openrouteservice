@@ -245,57 +245,7 @@ public class RouteSearchParameters {
             if (jProfileParams.has("restrictions"))
                 jRestrictions = jProfileParams.getJSONObject("restrictions");
 
-            if (RoutingProfileType.isCycling(_profileType)) {
-                CyclingParameters cyclingParams = new CyclingParameters();
-
-                // To make the new API compatible with a new one, we create 'weightings' element.
-				/*if (!jProfileParams.has("weightings") && (jProfileParams.has("difficulty_level") || jProfileParams.has("maximum_gradient")))
-				{
-					JSONObject jWeightings = new JSONObject();
-
-					if (jProfileParams.has("difficulty_level"))
-						jWeightings.put("difficulty_level", jProfileParams.get("difficulty_level"));
-					else if	(jProfileParams.has("maximum_gradient"))
-						jWeightings.put("maximum_gradient", jProfileParams.get("maximum_gradient"));
-
-					jProfileParams.put("weightings", jWeightings);
-				}*/
-
-                if (jRestrictions != null) {
-                    if (jRestrictions.has("gradient"))
-                        cyclingParams.setMaximumGradient(jRestrictions.getInt("gradient"));
-
-                    if (jRestrictions.has("trail_difficulty"))
-                        cyclingParams.setMaximumTrailDifficulty(jRestrictions.getInt("trail_difficulty"));
-                }
-
-                _profileParams = cyclingParams;
-            } else if (RoutingProfileType.isWalking(_profileType)) {
-                WalkingParameters walkingParams = new WalkingParameters();
-
-                // To make the new API compatible with a new one, we create 'weightings' element.
-				/*if (!jProfileParams.has("weightings") && (jProfileParams.has("difficulty_level") || jProfileParams.has("maximum_gradient")))
-				{
-					JSONObject jWeightings = new JSONObject();
-
-					if (jProfileParams.has("difficulty_level"))
-						jWeightings.put("difficulty_level", jProfileParams.get("difficulty_level"));
-					else if	(jProfileParams.has("maximum_gradient"))
-						jWeightings.put("maximum_gradient", jProfileParams.get("maximum_gradient"));
-
-					jProfileParams.put("weightings", jWeightings);
-				}*/
-
-                if (jRestrictions != null) {
-                    if (jRestrictions.has("gradient"))
-                        walkingParams.setMaximumGradient(jRestrictions.getInt("gradient"));
-
-                    if (jRestrictions.has("trail_difficulty"))
-                        walkingParams.setMaximumTrailDifficulty(jRestrictions.getInt("trail_difficulty"));
-                }
-
-                _profileParams = walkingParams;
-            } else if (RoutingProfileType.isHeavyVehicle(_profileType) == true) {
+            if (RoutingProfileType.isHeavyVehicle(_profileType) == true) {
                 VehicleParameters vehicleParams = new VehicleParameters();
 
 
