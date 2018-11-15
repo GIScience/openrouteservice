@@ -20,8 +20,6 @@ public class AvoidFeatureFlags {
 	public static final int Ferries = 8; // 1 << 3;
 	public static final int Fords = 16; // 1 << 4;
 
-	public static final int Hills = 256; // AO: not stored as it exceeds 255 byte limit, just used in query to enable "avoid_hills" weighting
-
 	public static final int DrivingFeatures = Highways | Tollways | Ferries | Fords;
 	public static final int CyclingFeatures = Steps | Ferries | Fords;
 	public static final int WalkingFeatures =  Steps | Ferries | Fords;
@@ -41,8 +39,6 @@ public class AvoidFeatureFlags {
 				return Steps;
 			case "fords":
 				return Fords;
-			case "hills":
-				return Hills;
 		}
 		
 		return 0;

@@ -644,57 +644,6 @@ public class ResultTest extends ServiceTest {
 	}
 
 	@Test
-	public void testAvoidTrailDifficulty() {
-/*
-http://localhost:8080/ors/routes?
-&coordinates=8.711343,49.401186%7C8.738122,49.402275
-&elevation=true
-&extra_info=traildifficulty%7Csteepness%7Cwaytype%7Csurface
-&geometry=true
-&geometry_format=geojson
-&instructions=true
-&instructions_format=html
-&options=%7B%22profile_params%22%3A%7B%22restrictions%22%3A%7B%22trail_difficulty%22%3A1%7D%7D%7D
-&preference=fastest
-&profile=cycling-mountain
-*/
-		Response response = given()
-				.param("coordinates", "8.711343,49.401186|8.738122,49.402275")
-				.param("instructions", "true")
-				.param("preference", "fastest")
-				.param("profile", "cycling-mountain")
-				.param("extra_info", "traildifficulty")
-				.param("options", "{\"profile_params\":{\"restrictions\":{\"trail_difficulty\":1}}}")
-				.when().log().ifValidationFails()
-				.get(getEndPointName());
-
-		response.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].containsKey('extras')", is(true))
-				//.body("routes[0].segments[0].steps.size()", is(18))
-                .body("routes[0].segments[0].steps.size()", is(13))
-				//.body("routes[0].segments[0].distance", is(4310.5f))
-                .body("routes[0].segments[0].distance", is(2862))
-				//.body("routes[0].segments[0].duration", is(1628.5f))
-                .body("routes[0].segments[0].duration", is(681.6f))
-				//.body("routes[0].extras.traildifficulty.values.size()", is(4))
-                .body("routes[0].extras.traildifficulty.values.size()", is(2))
-				.body("routes[0].extras.traildifficulty.values[0][0]", is(0))
-				//.body("routes[0].extras.traildifficulty.values[0][1]", is(52))
-                .body("routes[0].extras.traildifficulty.values[0][1]", is(69))
-				.body("routes[0].extras.traildifficulty.values[0][2]", is(0))
-				//.body("routes[0].extras.traildifficulty.values[1][0]", is(52))
-                .body("routes[0].extras.traildifficulty.values[1][0]", is(69))
-				//.body("routes[0].extras.traildifficulty.values[1][1]", is(61))
-                .body("routes[0].extras.traildifficulty.values[1][1]", is(91))
-				.body("routes[0].extras.traildifficulty.values[1][2]", is(1))
-				.statusCode(200);
-
-		checkExtraConsistency(response);
-	}
-
-	@Test
 	public void testTrailDifficultyExtraDetails() {
 		Response response = given()
 				.param("coordinates", "8.763442,49.388882|8.762927,49.397541")

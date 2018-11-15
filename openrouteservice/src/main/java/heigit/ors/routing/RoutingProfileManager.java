@@ -348,10 +348,6 @@ public class RoutingProfileManager {
 
     public RouteResult computeRoute(RoutingRequest req) throws Exception {
         List<GHResponse> routes = new ArrayList<GHResponse>();
-//System.out.println("PATCHED!!!!");
-//req.setExtraInfo(512);
-//req.getSearchParameters().setOptions("{\"profile_params\":{\"restrictions\":{\"trail_difficulty\":1}}}");
-//req.getSearchParameters().setFlexibleMode(true);
 
         RoutingProfile rp = getRouteProfile(req, false);
         RouteSearchParameters searchParams = req.getSearchParameters();
