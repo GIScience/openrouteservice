@@ -49,7 +49,6 @@ public class RouteSearchParameters {
     private int _weightingMethod = WeightingMethod.FASTEST;
     private Boolean _considerTraffic = false;
     private Boolean _considerTurnRestrictions = false;
-    private double _maxSpeed = -1;
     private Polygon[] _avoidAreas;
     private int _avoidFeaturesTypes;
     private int _vehicleType = HeavyVehicleAttributes.UNKNOWN;
@@ -72,14 +71,6 @@ public class RouteSearchParameters {
             throw new Exception("Routing profile is unknown.");
 
         this._profileType = profileType;
-    }
-
-    public double getMaximumSpeed() {
-        return _maxSpeed;
-    }
-
-    public void setMaximumSpeed(double maxSpeed) {
-        _maxSpeed = maxSpeed;
     }
 
     public int getWeightingMethod() {
@@ -183,14 +174,6 @@ public class RouteSearchParameters {
             json = new JSONObject(_options);
         } catch (Exception ex) {
             throw new ParseException(ex.getMessage(), 0);
-        }
-
-        if (json.has("maximum_speed")) {
-            try {
-                _maxSpeed = json.getDouble("maximum_speed");
-            } catch (Exception ex) {
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "maximum_speed", json.getString("maximum_speed"));
-            }
         }
 
         if (json.has("avoid_features")) {
