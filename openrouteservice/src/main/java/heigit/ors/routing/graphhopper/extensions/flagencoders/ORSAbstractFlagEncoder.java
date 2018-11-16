@@ -29,7 +29,10 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 	}
 
 	double addResedentialPenalty(double baseSpeed, ReaderWay way) {
+		if (baseSpeed == 0)
+			return 0;
 		double speed = baseSpeed;
+
 		if(way.hasTag("highway","residential")) {
 			double estDist = way.getTag("estimated_distance", Double.MAX_VALUE);
 			// take into account number of nodes to get an average distance between nodes
@@ -38,9 +41,12 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 			if(interimNodes > 0) {
 				interimDistance = estDist/(interimNodes+1);
 			}
-			if(interimDistance < 100) {
+			if(interimDistance < 100 && speed > 10) {
 				speed = speed * 0.5;
 			}
+			//Don't go below 2.5 because it will be stored as 0 later
+			if(speed < 5)
+				speed = 5;
 		}
 
 		return speed;
