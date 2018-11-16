@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 ### Fixed
+- If residential penalty reduces speed to <5, set it to 5
 ### Changed
 ### Deprecated
 
