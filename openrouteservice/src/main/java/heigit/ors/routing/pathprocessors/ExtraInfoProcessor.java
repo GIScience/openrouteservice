@@ -96,7 +96,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 		if(!req.getSuppressWarnings())
 			applyWarningExtensions(graphHopper);
 
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.WayCategory))
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.WayCategory))
 		{
 			_extWayCategory = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), WayCategoryGraphStorage.class);
 			
@@ -107,45 +107,45 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_wayCategoryInfoBuilder = new SimpleRouteExtraInfoBuilder(_wayCategoryInfo);
 		}
 		
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Surface) || RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.WayType))
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.Surface) || includeExtraInfo(extraInfo, RouteExtraInfoFlag.WayType))
 		{
 			_extWaySurface = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), WaySurfaceTypeGraphStorage.class);
 			
 			if (_extWaySurface == null)
 				throw new Exception("WaySurfaceType storage is not found.");
 
-			if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Surface))
+			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.Surface))
 			{
 				_surfaceInfo = new RouteExtraInfo("surface");
 				_surfaceInfoBuilder = new SimpleRouteExtraInfoBuilder(_surfaceInfo);
 			}
-			if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.WayType))
+			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.WayType))
 			{
 				_wayTypeInfo = new RouteExtraInfo("waytypes");
 				_wayTypeInfoBuilder = new SimpleRouteExtraInfoBuilder(_wayTypeInfo);
 			}
 		}
 		
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Steepness))
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.Steepness))
 		{
 			_steepnessInfo = new RouteExtraInfo("steepness");
 			_steepnessInfoBuilder = new SteepnessExtraInfoBuilder(_steepnessInfo);
 		}
 		
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Suitability))
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.Suitability))
 		{
 			_waySuitabilityInfo = new RouteExtraInfo("suitability");
 			_waySuitabilityInfoBuilder = new SimpleRouteExtraInfoBuilder(_waySuitabilityInfo);
 		}
 		
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.AvgSpeed))
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.AvgSpeed))
 		{
 			_avgSpeedInfo = new RouteExtraInfo("avgspeed");
 			_avgSpeedInfo.setFactor(10);
 			_avgSpeedInfoBuilder = new SimpleRouteExtraInfoBuilder(_avgSpeedInfo);
 		}
 		
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Tollways) || warningExtensions.contains(RouteExtraInfoFlag.Tollways))
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.Tollways))
 		{
 			_extTollways = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), TollwaysGraphStorage.class);
 
@@ -157,7 +157,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_tollwayExtractor = new TollwayExtractor(_extTollways, req.getSearchParameters().getVehicleType(), req.getSearchParameters().getProfileParameters());
 		}
 
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.TrailDifficulty))
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.TrailDifficulty))
 		{
 			_extTrailDifficulty  = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), TrailDifficultyScaleGraphStorage.class);
 			_extHillIndex = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), HillIndexGraphStorage.class);
@@ -166,7 +166,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_trailDifficultyInfoBuilder = new SimpleRouteExtraInfoBuilder(_trailDifficultyInfo);
 		}
 
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Green)) {
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.Green)) {
 			_extGreenIndex = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), GreenIndexGraphStorage.class);
 
 			if (_extGreenIndex == null)
@@ -175,7 +175,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_greenInfoBuilder = new SimpleRouteExtraInfoBuilder(_greenInfo);
 		}
 
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Noise)) {
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.Noise)) {
 
 			_extNoiseIndex = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), NoiseIndexGraphStorage.class);
 
@@ -185,7 +185,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_noiseInfoBuilder = new SimpleRouteExtraInfoBuilder(_noiseInfo);
 		}
 
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.OsmId)) {
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.OsmId)) {
 			_extOsmId = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), OsmIdGraphStorage.class);
 
 			if(_extOsmId == null)
@@ -207,6 +207,15 @@ public class ExtraInfoProcessor extends PathProcessor {
 				}
 			}
 		}
+	}
+
+	private boolean includeExtraInfo(int encodedExtras, int infoFlag) {
+		boolean include = false;
+
+		if(RouteExtraInfoFlag.isSet(encodedExtras, infoFlag) || warningExtensions.contains(infoFlag))
+			include = true;
+
+		return include;
 	}
 
 	public void setSegmentIndex(int index, int count)
