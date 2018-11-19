@@ -19,12 +19,10 @@ import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.util.WaySurfaceDescription;
 import com.graphhopper.routing.weighting.PriorityWeighting;
+import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
-import heigit.ors.routing.RouteExtraInfo;
-import heigit.ors.routing.RouteExtraInfoFlag;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.RoutingRequest;
+import heigit.ors.routing.*;
 import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import heigit.ors.routing.graphhopper.extensions.storages.*;
 import heigit.ors.routing.util.ElevationSmoother;
@@ -32,8 +30,7 @@ import heigit.ors.routing.util.extrainfobuilders.RouteExtraInfoBuilder;
 import heigit.ors.routing.util.extrainfobuilders.SimpleRouteExtraInfoBuilder;
 import heigit.ors.routing.util.extrainfobuilders.SteepnessExtraInfoBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ExtraInfoProcessor extends PathProcessor {
 	private WaySurfaceTypeGraphStorage _extWaySurface;
@@ -78,7 +75,9 @@ public class ExtraInfoProcessor extends PathProcessor {
 
 	private RouteExtraInfo _osmIdInfo;
 	private RouteExtraInfoBuilder _osmIdInfoBuilder;
-	
+
+	private List<Integer> warningExtensions;
+
 	private int _profileType = RoutingProfileType.UNKNOWN;
 	private FlagEncoder _encoder;
 	private double _maximumSpeed = -1;
@@ -86,12 +85,17 @@ public class ExtraInfoProcessor extends PathProcessor {
 	private byte[] buffer;
 	private boolean _lastSegment;
 
-	public ExtraInfoProcessor(ORSGraphHopper graphHopper, RoutingRequest req) throws Exception 
+	public ExtraInfoProcessor(ORSGraphHopper graphHopper, RoutingRequest req) throws Exception
 	{
 		_profileType = req.getSearchParameters().getProfileType();
 		_maximumSpeed = req.getSearchParameters().getMaximumSpeed();
 		int extraInfo = req.getExtraInfo();
-		
+
+		warningExtensions = new ArrayList<>();
+
+		if(!req.getSuppressWarnings())
+			applyWarningExtensions(graphHopper);
+
 		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.WayCategory))
 		{
 			_extWayCategory = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), WayCategoryGraphStorage.class);
@@ -141,14 +145,14 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_avgSpeedInfoBuilder = new SimpleRouteExtraInfoBuilder(_avgSpeedInfo);
 		}
 		
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Tollways))
+		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Tollways) || warningExtensions.contains(RouteExtraInfoFlag.Tollways))
 		{
 			_extTollways = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), TollwaysGraphStorage.class);
 
 			if (_extTollways == null)
 				throw new Exception("Tollways storage is not found.");
 			
-			_tollwaysInfo = new RouteExtraInfo("tollways");
+			_tollwaysInfo = new RouteExtraInfo("tollways", _extTollways);
 			_tollwaysInfoBuilder = new SimpleRouteExtraInfoBuilder(_tollwaysInfo);
 			_tollwayExtractor = new TollwayExtractor(_extTollways, req.getSearchParameters().getVehicleType(), req.getSearchParameters().getProfileParameters());
 		}
@@ -189,7 +193,20 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_osmIdInfo = new RouteExtraInfo("osmId");
 			_osmIdInfoBuilder = new SimpleRouteExtraInfoBuilder(_osmIdInfo);
 		}
+
 		buffer = new byte[4];
+	}
+
+	private void applyWarningExtensions(ORSGraphHopper graphHopper) {
+		GraphExtension[] extensions = GraphStorageUtils.getGraphExtensions(graphHopper.getGraphHopperStorage());
+		for(GraphExtension ge : extensions) {
+			if (ge instanceof WarningGraphExtension) {
+				if(((WarningGraphExtension)ge).isUsedForWarning()) {
+					warningExtensions.add(RouteExtraInfoFlag.getFromString(((WarningGraphExtension) ge).getName()));
+					//warningExtensions.add(new RouteExtraInfoHolder(RouteExtraInfoFlag.getFromString(((WarningGraphExtension) ge).getName()), graphHopper));
+				}
+			}
+		}
 	}
 
 	public void setSegmentIndex(int index, int count)
@@ -223,7 +240,6 @@ public class ExtraInfoProcessor extends PathProcessor {
 			extras.add(_trailDifficultyInfo);
 		if (_osmIdInfo != null)
 			extras.add(_osmIdInfo);
-
 		return extras;
 	}
 

@@ -358,12 +358,13 @@ public class RoutingProfileManager {
         RouteSearchParameters searchParams = req.getSearchParameters();
         PathProcessor pathProcessor = null;
 
-        if (req.getExtraInfo() > 0) {
+        /*if (req.getExtraInfo() > 0 || ExtraInfoProcessor.hasWarningExtensions(req.getSearchParameters().getProfileType())) {
             pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req);
         } else {
             if (req.getIncludeElevation())
                 pathProcessor = new ElevationSmoothPathProcessor();
-        }
+        }*/
+        pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req);
 
         Coordinate[] coords = req.getCoordinates();
         Coordinate c0 = coords[0];

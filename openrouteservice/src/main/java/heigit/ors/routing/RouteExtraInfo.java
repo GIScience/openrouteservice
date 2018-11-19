@@ -19,8 +19,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.graphhopper.storage.GraphExtension;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.exceptions.StatusCodeException;
+import heigit.ors.routing.graphhopper.extensions.storages.WarningGraphExtension;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
 
@@ -29,12 +31,23 @@ public class RouteExtraInfo
     private String _name;
     private List<RouteSegmentItem> _segments;
     private double _factor = 1.0;
+    private boolean _usedForWarnings = false;
+    private WarningGraphExtension warningGraphExtension;
     
     public RouteExtraInfo(String name)
     {
-    	_name = name;
-    	_segments = new ArrayList<RouteSegmentItem>();
+    	this(name, null);
     }
+
+	public RouteExtraInfo(String name, GraphExtension extension)
+	{
+		_name = name;
+		_segments = new ArrayList<RouteSegmentItem>();
+		if(extension instanceof WarningGraphExtension) {
+			warningGraphExtension = (WarningGraphExtension) extension;
+			_usedForWarnings = true;
+		}
+	}
     
     public String getName()
     {
@@ -117,5 +130,13 @@ public class RouteExtraInfo
 
 	public void setFactor(double _factor) {
 		this._factor = _factor;
+	}
+
+	public boolean isUsedForWarnings() {
+    	return  _usedForWarnings;
+    }
+
+    public WarningGraphExtension getWarningGraphExtension() {
+    	return warningGraphExtension;
 	}
 }
