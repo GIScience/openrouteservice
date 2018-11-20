@@ -119,11 +119,15 @@ public class RouteResult
 	
 	public void addExtraInfo(RouteExtraInfo info)
 	{
+		if(_extraInfo == null)
+			_extraInfo = new ArrayList<>();
 		_extraInfo.add(info);
 	}
 	
 	public void addExtraInfo(Collection<RouteExtraInfo> infos)
 	{
+		if(_extraInfo == null)
+			_extraInfo = new ArrayList<>();
 		_extraInfo.addAll(infos);
 	}
 
