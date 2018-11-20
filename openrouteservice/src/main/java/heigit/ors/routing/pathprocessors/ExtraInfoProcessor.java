@@ -41,6 +41,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 	private TrailDifficultyScaleGraphStorage _extTrailDifficulty;
 	private HillIndexGraphStorage _extHillIndex;
 	private OsmIdGraphStorage _extOsmId;
+	private RoadAccessRestrictionsGraphStorage _extRoadAccessRestrictions;
 	
 	private RouteExtraInfo _surfaceInfo;
 	private RouteExtraInfoBuilder _surfaceInfoBuilder;
@@ -75,6 +76,9 @@ public class ExtraInfoProcessor extends PathProcessor {
 
 	private RouteExtraInfo _osmIdInfo;
 	private RouteExtraInfoBuilder _osmIdInfoBuilder;
+
+	private RouteExtraInfo _roadAccessRestrictionsInfo;
+	private RouteExtraInfoBuilder _roadAccessRestrictionsBuilder;
 
 	private List<Integer> warningExtensions;
 
@@ -194,6 +198,15 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_osmIdInfoBuilder = new SimpleRouteExtraInfoBuilder(_osmIdInfo);
 		}
 
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.RoadAccessRestrictions)) {
+			_extRoadAccessRestrictions = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), RoadAccessRestrictionsGraphStorage.class);
+
+			if(_extRoadAccessRestrictions == null)
+				throw new Exception("RoadAccessRestrictions storage is not found");
+			_roadAccessRestrictionsInfo = new RouteExtraInfo("roadaccessrestrictions", _extRoadAccessRestrictions);
+			_roadAccessRestrictionsBuilder = new SimpleRouteExtraInfoBuilder(_roadAccessRestrictionsInfo);
+		}
+
 		buffer = new byte[4];
 	}
 
@@ -249,6 +262,8 @@ public class ExtraInfoProcessor extends PathProcessor {
 			extras.add(_trailDifficultyInfo);
 		if (_osmIdInfo != null)
 			extras.add(_osmIdInfo);
+		if (_roadAccessRestrictionsInfo != null)
+			extras.add(_roadAccessRestrictionsInfo);
 		return extras;
 	}
 
@@ -361,6 +376,11 @@ public class ExtraInfoProcessor extends PathProcessor {
 			long osmId = _extOsmId.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge));
 
 			_osmIdInfoBuilder.addSegment((double)osmId, osmId, geom, dist, isLastEdge && _lastSegment);
+		}
+
+		if (_roadAccessRestrictionsBuilder != null) {
+			int value = _extRoadAccessRestrictions.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
+			_roadAccessRestrictionsBuilder.addSegment(value, value, geom, dist, isLastEdge && _lastSegment);
 		}
 	}
 

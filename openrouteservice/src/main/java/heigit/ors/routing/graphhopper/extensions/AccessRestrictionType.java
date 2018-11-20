@@ -18,4 +18,7 @@ public class AccessRestrictionType {
 	public static final int No = 1;
 	public static final int Customers = 2;
 	public static final int Destination = 4;
+	public static final int Delivery = 8;
+	public static final int Private = 16;
+	public static final int Permissive = 32;
 }
