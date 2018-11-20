@@ -75,11 +75,11 @@ public class CoreDijkstraFilter implements EdgeFilter {
         int base = edgeIterState.getBaseNode();
         int adj = edgeIterState.getAdjNode();
 
-        // always accept virtual edges, see #288
-        if (base >= maxNodes || adj >= maxNodes)
-            return true;
 
         if (!inCore) {
+            // always accept virtual edges, see #288
+            if (base >= maxNodes || adj >= maxNodes)
+                return true;
             // minor performance improvement: shortcuts in wrong direction are already disconnected, so no need to check them
             if (((CHEdgeIteratorState) edgeIterState).isShortcut())
                 return true;
@@ -87,16 +87,18 @@ public class CoreDijkstraFilter implements EdgeFilter {
                 return graph.getLevel(base) <= graph.getLevel(adj);
         }
         else {
+            if (adj >= maxNodes)
+                return false;
             // minor performance improvement: shortcuts in wrong direction are already disconnected, so no need to check them
             if (((CHEdgeIteratorState) edgeIterState).isShortcut())
                 return true;
 
-            // stay within core
-            if (!isCoreNode[adj])
-                return false;
-            else
+            // do not follow virtual edges, and stay within core
+            if (isCoreNode[adj])
                 // if edge is in the core check for restrictions
                 return restrictions.accept(edgeIterState);
+            else
+                return false;
         }
     }
 

@@ -297,6 +297,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
 
             counter++;
             int polledNode = sortedNodes.pollKey();
+
             //We have worked through all nodes that are not associated with restrictions. Now we can stop the contraction.
             if (oldPriorities[polledNode] == RESTRICTION_PRIORITY) {
                 //Set the number of core nodes in the storage for use in other places
@@ -304,7 +305,23 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 while (!sortedNodes.isEmpty()) {
                     CHEdgeIterator iter = vehicleAllExplorer.setBaseNode(polledNode);
                     while (iter.next()) {
-                        if (oldPriorities[iter.getAdjNode()] == RESTRICTION_PRIORITY) continue;
+                        if (prepareGraph.getLevel(iter.getAdjNode()) == maxLevel) continue;
+                        prepareGraph.disconnect(vehicleAllTmpExplorer, iter);
+                    }
+                    polledNode = sortedNodes.pollKey();
+                }
+                break;
+            }
+
+            if (sortedNodes.getSize() < nodesToAvoidContract) {
+                // skipped nodes are already set to maxLevel
+                prepareGraph.setCoreNodes(sortedNodes.getSize() + 1);
+                //Disconnect all shortcuts that lead out of the core
+                while (!sortedNodes.isEmpty()) {
+                    CHEdgeIterator iter = vehicleAllExplorer.setBaseNode(polledNode);
+                    while (iter.next()) {
+//                        if (oldPriorities[iter.getAdjNode()] == RESTRICTION_PRIORITY) continue;
+                        if (prepareGraph.getLevel(iter.getAdjNode()) == maxLevel) continue;
                         prepareGraph.disconnect(vehicleAllTmpExplorer, iter);
                     }
                     polledNode = sortedNodes.pollKey();
@@ -331,22 +348,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             meanDegree = (meanDegree * 2 + degree) / 3;
             prepareGraph.setLevel(polledNode, level);
             level++;
-
-            if (sortedNodes.getSize() < nodesToAvoidContract) {
-                // skipped nodes are already set to maxLevel
-                prepareGraph.setCoreNodes(sortedNodes.getSize() + 1);
-                //Disconnect all shortcuts that lead out of the core
-                while (!sortedNodes.isEmpty()) {
-                    CHEdgeIterator iter = vehicleAllExplorer.setBaseNode(polledNode);
-                    while (iter.next()) {
-                        if (oldPriorities[iter.getAdjNode()] == RESTRICTION_PRIORITY) continue;
-                        if (prepareGraph.getLevel(iter.getAdjNode()) == maxLevel) continue;
-                        prepareGraph.disconnect(vehicleAllTmpExplorer, iter);
-                    }
-                    polledNode = sortedNodes.pollKey();
-                }
-                break;
-            }
 
             CHEdgeIterator iter = vehicleAllExplorer.setBaseNode(polledNode);
             while (iter.next()) {
