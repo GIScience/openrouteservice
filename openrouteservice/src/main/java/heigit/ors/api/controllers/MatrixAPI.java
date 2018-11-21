@@ -37,8 +37,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static heigit.ors.api.requests.matrix.MatrixRequestHandler.convertMatrixRequest;
-
 @RestController
 @Api(value = "/v2/matrix", description = "Get a Matrix calculation")
 @RequestMapping("/v2/matrix")
@@ -67,7 +65,7 @@ public class MatrixAPI {
             @ApiParam(value = "The request payload", required = true) @RequestBody MatrixRequest originalRequest) throws StatusCodeException {
         originalRequest.setProfile(profile);
         originalRequest.setResponseType(APIEnums.MatrixResponseType.JSON);
-        List<heigit.ors.matrix.MatrixRequest> matrixRequests = convertMatrixRequest(originalRequest);
+        List<heigit.ors.matrix.MatrixRequest> matrixRequests = MatrixRequestHandler.convertMatrixRequest(originalRequest);
         List<MatrixResult> matrixResults = MatrixRequestHandler.generateRouteFromRequests(matrixRequests);
 
         return new JSONMatrixResponse(matrixResults, matrixRequests, originalRequest);
