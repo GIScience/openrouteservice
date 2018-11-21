@@ -85,7 +85,7 @@ public class MatrixRequestHandlerTest {
     @Test
     public void convertMatrixRequestTest() throws StatusCodeException {
         heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates);
-        springMatrixRequest.setProfile(APIEnums.MatrixProfile.DRIVING_CAR);
+        springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         List<MatrixRequest> matrixRequests = MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
         Assert.assertEquals(1, matrixRequests.size());
         Assert.assertEquals(1, matrixRequests.get(0).getProfileType());
@@ -100,7 +100,7 @@ public class MatrixRequestHandlerTest {
         Assert.assertNull(matrixRequests.get(0).getId());
 
         springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates);
-        springMatrixRequest.setProfile(APIEnums.MatrixProfile.DRIVING_CAR);
+        springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         String[] metrics = new String[3];
         metrics[0] = "duration";
         metrics[1] = "distance";
@@ -148,14 +148,14 @@ public class MatrixRequestHandlerTest {
     @Test(expected = ParameterValueException.class)
     public void invalidLocationsTest() throws StatusCodeException {
         heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest();
-        springMatrixRequest.setProfile(APIEnums.MatrixProfile.DRIVING_CAR);
+        springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
     }
 
     @Test(expected = ParameterValueException.class)
     public void invalidMetricsTest() throws StatusCodeException {
         heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest();
-        springMatrixRequest.setProfile(APIEnums.MatrixProfile.DRIVING_CAR);
+        springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setMetrics(new String[0]);
         MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
@@ -164,7 +164,7 @@ public class MatrixRequestHandlerTest {
     @Test(expected = ParameterValueException.class)
     public void invalidSourceIndexTest() throws StatusCodeException {
         heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest();
-        springMatrixRequest.setProfile(APIEnums.MatrixProfile.DRIVING_CAR);
+        springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setSources(new String[]{"foo"});
         MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
@@ -173,7 +173,7 @@ public class MatrixRequestHandlerTest {
     @Test(expected = ParameterValueException.class)
     public void invalidDestinationIndexTest() throws StatusCodeException {
         heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest();
-        springMatrixRequest.setProfile(APIEnums.MatrixProfile.DRIVING_CAR);
+        springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setSources(new String[]{"all"});
         springMatrixRequest.setDestinations(new String[]{"foo"});
@@ -183,7 +183,7 @@ public class MatrixRequestHandlerTest {
     @Test(expected = ParameterValueException.class)
     public void invalidHasUnitsTest() throws StatusCodeException {
         heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest();
-        springMatrixRequest.setProfile(APIEnums.MatrixProfile.DRIVING_CAR);
+        springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setSources(new String[]{"all"});
         springMatrixRequest.setDestinations(new String[]{"all"});
@@ -352,23 +352,23 @@ public class MatrixRequestHandlerTest {
     }
 
     @Test
-    public void convertToMatrixProfileTypeTest() throws ParameterValueException {
-        Assert.assertEquals(1, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.MatrixProfile.DRIVING_CAR));
-        Assert.assertEquals(2, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.MatrixProfile.DRIVING_HGV));
-        Assert.assertEquals(10, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.MatrixProfile.CYCLING_REGULAR));
-        Assert.assertEquals(12, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.MatrixProfile.CYCLING_ROAD));
-        Assert.assertEquals(18, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.MatrixProfile.CYCLING_SAFE));
-        Assert.assertEquals(11, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.MatrixProfile.CYCLING_MOUNTAIN));
-        Assert.assertEquals(19, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.MatrixProfile.CYCLING_TOUR));
-        Assert.assertEquals(17, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.MatrixProfile.CYCLING_ELECTRIC));
-        Assert.assertEquals(20, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.MatrixProfile.FOOT_WALKING));
-        Assert.assertEquals(21, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.MatrixProfile.FOOT_HIKING));
-        Assert.assertEquals(30, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.MatrixProfile.WHEELCHAIR));
+    public void convertToProfileTypeTest() throws ParameterValueException {
+        Assert.assertEquals(1, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.DRIVING_CAR));
+        Assert.assertEquals(2, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.DRIVING_HGV));
+        Assert.assertEquals(10, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.CYCLING_REGULAR));
+        Assert.assertEquals(12, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.CYCLING_ROAD));
+        Assert.assertEquals(18, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.CYCLING_SAFE));
+        Assert.assertEquals(11, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.CYCLING_MOUNTAIN));
+        Assert.assertEquals(19, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.CYCLING_TOUR));
+        Assert.assertEquals(17, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.CYCLING_ELECTRIC));
+        Assert.assertEquals(20, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.FOOT_WALKING));
+        Assert.assertEquals(21, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.FOOT_HIKING));
+        Assert.assertEquals(30, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.WHEELCHAIR));
     }
 
     @Test(expected = ParameterValueException.class)
     public void convertToWrongMatrixProfileTypeTest() throws ParameterValueException {
-        MatrixRequestHandler.convertToMatrixProfileType(APIEnums.MatrixProfile.forValue("foo"));
+        MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.forValue("foo"));
     }
 
 }

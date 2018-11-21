@@ -65,12 +65,12 @@ public class JSONMatrixResponseTest {
 
 
         MatrixRequest springMatrixDurationsRequest = new MatrixRequest(bareCoordinates);
-        springMatrixDurationsRequest.setProfile(APIEnums.MatrixProfile.DRIVING_CAR);
+        springMatrixDurationsRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         MatrixRequest springMatrixDistancesRequest = new MatrixRequest(bareCoordinates);
-        springMatrixDistancesRequest.setProfile(APIEnums.MatrixProfile.DRIVING_CAR);
+        springMatrixDistancesRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixDistancesRequest.setMetrics(new String[]{"distance"});
         MatrixRequest springMatrixWeightsRequest = new MatrixRequest(bareCoordinates);
-        springMatrixWeightsRequest.setProfile(APIEnums.MatrixProfile.DRIVING_CAR);
+        springMatrixWeightsRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixWeightsRequest.setMetrics(new String[]{"weight"});
 
 
