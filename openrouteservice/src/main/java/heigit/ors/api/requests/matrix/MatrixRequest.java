@@ -62,7 +62,7 @@ public class MatrixRequest {
     @JsonProperty(value = "units", defaultValue = "m")
     private String units = "m";
 
-    @ApiModelProperty(name = "optimized", value = "Specifies weather flexible mode is used or not.", hidden = true)
+    @ApiModelProperty(name = "optimized", value = "Specifies whether flexible mode is used or not.", hidden = true)
     @JsonProperty(value = "optimized")
     private boolean optimized = false;
 
