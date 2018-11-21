@@ -144,32 +144,6 @@ public class IsochronesServiceSettings {
         return maximumIntervals;
     }
 
-    /*public static int getMaximumRange(int profileType, TravelRangeType range) {
-        Integer res = 0;
-
-        switch(range)
-        {
-            case Distance:
-                res = maximumRangeDistance;
-
-                if (profileMaxRangeDistances != null && profileMaxRangeDistances.containsKey(profileType))
-                {
-                    res = profileMaxRangeDistances.get(profileType);
-                }
-                break;
-            case Time:
-                res = maximumRangeTime;
-
-                if (profileMaxRangeTimes != null && profileMaxRangeTimes.containsKey(profileType))
-                {
-                    res = profileMaxRangeTimes.get(profileType);
-                }
-                break;
-        }
-
-        return res;
-    }*/
-
     public static Map<String, StatisticsProviderConfiguration> getStatsProviders() {
         return statsProviders;
     }
