@@ -17,7 +17,7 @@ public class APIMatrixRequestProfileConverterTest {
     private APIEnums.Profile footHiking;
     private APIEnums.Profile footWalking;
     private APIEnums.Profile wheelchair;
-    private APIMatrixRequestProfileConverter apiMatrixRequestProfileConverter;
+    private APIRequestProfileConverter apiRequestProfileConverter;
 
 
     @Before
@@ -33,22 +33,22 @@ public class APIMatrixRequestProfileConverterTest {
         footHiking = APIEnums.Profile.FOOT_HIKING;
         footWalking = APIEnums.Profile.FOOT_WALKING;
         wheelchair = APIEnums.Profile.WHEELCHAIR;
-        apiMatrixRequestProfileConverter = new APIMatrixRequestProfileConverter();
+        apiRequestProfileConverter = new APIRequestProfileConverter();
     }
 
     @Test()
     public void convert() {
-        Assert.assertEquals(drivingCar, apiMatrixRequestProfileConverter.convert("driving-car"));
-        Assert.assertEquals(drivingHgv, apiMatrixRequestProfileConverter.convert("driving-hgv"));
-        Assert.assertEquals(cyclingRegular, apiMatrixRequestProfileConverter.convert("cycling-regular"));
-        Assert.assertEquals(cyclingRoad, apiMatrixRequestProfileConverter.convert("cycling-road"));
-        Assert.assertEquals(cyclingSafe, apiMatrixRequestProfileConverter.convert("cycling-safe"));
-        Assert.assertEquals(cyclingMountain, apiMatrixRequestProfileConverter.convert("cycling-mountain"));
-        Assert.assertEquals(cyclingTour, apiMatrixRequestProfileConverter.convert("cycling-tour"));
-        Assert.assertEquals(cyclingElectric, apiMatrixRequestProfileConverter.convert("cycling-electric"));
-        Assert.assertEquals(footWalking, apiMatrixRequestProfileConverter.convert("foot-walking"));
-        Assert.assertEquals(footHiking, apiMatrixRequestProfileConverter.convert("foot-hiking"));
-        Assert.assertEquals(wheelchair, apiMatrixRequestProfileConverter.convert("wheelchair"));
-        Assert.assertNull(apiMatrixRequestProfileConverter.convert("flying-foo"));
+        Assert.assertEquals(drivingCar, apiRequestProfileConverter.convert("driving-car"));
+        Assert.assertEquals(drivingHgv, apiRequestProfileConverter.convert("driving-hgv"));
+        Assert.assertEquals(cyclingRegular, apiRequestProfileConverter.convert("cycling-regular"));
+        Assert.assertEquals(cyclingRoad, apiRequestProfileConverter.convert("cycling-road"));
+        Assert.assertEquals(cyclingSafe, apiRequestProfileConverter.convert("cycling-safe"));
+        Assert.assertEquals(cyclingMountain, apiRequestProfileConverter.convert("cycling-mountain"));
+        Assert.assertEquals(cyclingTour, apiRequestProfileConverter.convert("cycling-tour"));
+        Assert.assertEquals(cyclingElectric, apiRequestProfileConverter.convert("cycling-electric"));
+        Assert.assertEquals(footWalking, apiRequestProfileConverter.convert("foot-walking"));
+        Assert.assertEquals(footHiking, apiRequestProfileConverter.convert("foot-hiking"));
+        Assert.assertEquals(wheelchair, apiRequestProfileConverter.convert("wheelchair"));
+        Assert.assertNull(apiRequestProfileConverter.convert("flying-foo"));
     }
 }
