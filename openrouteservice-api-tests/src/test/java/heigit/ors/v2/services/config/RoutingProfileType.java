@@ -21,8 +21,6 @@ public class RoutingProfileType {
     public static final int DRIVING_CAR = 1;
     public static final int DRIVING_HGV = 2;
     public static final int DRIVING_EMERGENCY = 3;
-    public static final int DRIVING_CAROFFROAD = 4; // not supported
-    public static final int DRIVING_SEGWAY = 5; // not supported
     public static final int DRIVING_ELECTRIC_CAR = 6;
     public static final int DRIVING_MOTORCYCLE = 7;
     public static final int DRIVING_TRAFFIC = 8;
@@ -62,14 +60,9 @@ public class RoutingProfileType {
                 || routePref == DRIVING_ELECTRIC_CAR
                 || routePref == DRIVING_EMERGENCY
                 || routePref == DRIVING_MOTORCYCLE
-                || routePref == DRIVING_CAROFFROAD
                 || routePref == DRIVING_TRAFFIC
                 || routePref == GH_CAR
                 || routePref == GH_CAR4WD;
-    }
-
-    public static boolean isHeavyVehicle(int routePref) {
-        return routePref == DRIVING_HGV || routePref == DRIVING_CAROFFROAD || routePref == DRIVING_EMERGENCY;
     }
 
     public static boolean isWalking(int routePref) {
