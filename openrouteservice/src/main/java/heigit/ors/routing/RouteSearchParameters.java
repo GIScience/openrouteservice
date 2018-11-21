@@ -256,7 +256,7 @@ public class RouteSearchParameters {
             }
         }
 
-        if (json.has("profile_params") && RoutingProfileType.isDriving(_profileType)) {
+        if (json.has("profile_params") && _profileType == RoutingProfileType.DRIVING_CAR) {
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "profile_params");
         } else if (json.has("profile_params")) {
             JSONObject jProfileParams = json.getJSONObject("profile_params");
