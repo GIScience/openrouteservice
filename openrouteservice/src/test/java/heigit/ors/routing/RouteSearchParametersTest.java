@@ -1,6 +1,7 @@
 package heigit.ors.routing;
 
 import com.vividsolutions.jts.geom.Polygon;
+import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.parameters.VehicleParameters;
 import heigit.ors.routing.pathprocessors.BordersExtractor;
@@ -8,6 +9,13 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class RouteSearchParametersTest {
+
+    @Test(expected = ParameterValueException.class)
+    public void expectFailingProfileParamsWithVehicleProfile() throws Exception {
+        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
+        routeSearchParameters.setProfileType(1);
+        routeSearchParameters.setOptions("{\"profile_params\":{\"weightings\":{\"green\":{\"factor\":0.8}}}}");
+    }
 
     @Test
     public void getProfileType() {
