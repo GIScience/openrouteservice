@@ -27,7 +27,7 @@ import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-@ApiModel(value = "JSONIndividualRouteResponse", description = "An individual JSON based route created by the service")
+@ApiModel(value = "JSONIndividualMatrixResponse", description = "An individual JSON based route created by the service")
 public class JSONIndividualMatrixResponse extends JSONBasedIndividualMatrixResponse {
     private final int DURATIONS_DECIMAL_PLACES = 2;
     private final int DISTANCES_DECIMAL_PLACES = 2;
