@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 ### Fixed
 - Added a new ParameterValueException if the profile is driving-car and profile_params are set in the operions (Issue #291)
+
 ### Changed
 ### Deprecated
 
