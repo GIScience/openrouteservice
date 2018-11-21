@@ -251,7 +251,41 @@ public class APIEnums {
         }
     }
 
-    public enum RoutingProfile {
+    public enum Profile {
+        DRIVING_CAR("driving-car"),
+        DRIVING_HGV("driving-hgv"),
+        CYCLING_REGULAR("cycling-regular"),
+        CYCLING_ROAD("cycling-road"),
+        CYCLING_SAFE("cycling-safe"),
+        CYCLING_MOUNTAIN("cycling-mountain"),
+        CYCLING_TOUR("cycling-tour"),
+        CYCLING_ELECTRIC("cycling-electric"),
+        FOOT_WALKING("foot-walking"),
+        FOOT_HIKING("foot-hiking"),
+        WHEELCHAIR("wheelchair");
+
+        private final String value;
+
+        Profile(String value) {
+            this.value = value;
+        }
+
+        @JsonCreator
+        public static Profile forValue(String v) throws ParameterValueException {
+            for (Profile enumItem : Profile.values()) {
+                if (enumItem.value.equals(v))
+                    return enumItem;
+            }
+            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "profile", v);
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return value;
+        }
+    }
+/*    public enum RoutingProfile {
         DRIVING_CAR("driving-car"),
         DRIVING_HGV("driving-hgv"),
         CYCLING_REGULAR("cycling-regular"),
@@ -284,9 +318,9 @@ public class APIEnums {
         public String toString() {
             return value;
         }
-    }
+    }*/
 
-    public enum MatrixProfile {
+    /*public enum MatrixProfile {
         DRIVING_CAR("driving-car"),
         DRIVING_HGV("driving-hgv"),
         CYCLING_REGULAR("cycling-regular"),
@@ -319,7 +353,7 @@ public class APIEnums {
         public String toString() {
             return value;
         }
-    }
+    }*/
 
     public enum Units {
         METRES("m"),

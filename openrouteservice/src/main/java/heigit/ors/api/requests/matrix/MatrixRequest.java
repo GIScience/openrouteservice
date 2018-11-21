@@ -39,7 +39,7 @@ public class MatrixRequest {
     private List<List<Double>> locations;
 
     @ApiModelProperty(hidden = true)
-    private APIEnums.MatrixProfile profile;
+    private APIEnums.Profile profile;
 
     @ApiModelProperty(name = "sources", value = "A comma separated list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default).\\n\\nExample: `0,3` for the first and fourth Location.\\n")
     @JsonProperty(value = "sources", defaultValue = "all")
@@ -110,11 +110,11 @@ public class MatrixRequest {
         return this.id != null;
     }
 
-    public APIEnums.MatrixProfile getProfile() {
+    public APIEnums.Profile getProfile() {
         return profile;
     }
 
-    public void setProfile(APIEnums.MatrixProfile profile) {
+    public void setProfile(APIEnums.Profile profile) {
         this.profile = profile;
     }
 

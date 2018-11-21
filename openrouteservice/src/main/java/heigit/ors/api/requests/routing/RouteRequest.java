@@ -42,7 +42,7 @@ public class RouteRequest {
     private List<List<Double>> coordinates;
 
     @ApiModelProperty(hidden = true)
-    private APIEnums.RoutingProfile profile;
+    private APIEnums.Profile profile;
 
     @ApiModelProperty(name = "preference",
             value = "Specifies the route preference.\n" +
@@ -231,11 +231,11 @@ public class RouteRequest {
         this.coordinates = coordinates;
     }
 
-    public APIEnums.RoutingProfile getProfile() {
+    public APIEnums.Profile getProfile() {
         return profile;
     }
 
-    public void setProfile(APIEnums.RoutingProfile profile) {
+    public void setProfile(APIEnums.Profile profile) {
         this.profile = profile;
     }
 

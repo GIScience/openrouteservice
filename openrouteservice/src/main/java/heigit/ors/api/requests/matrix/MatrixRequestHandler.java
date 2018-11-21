@@ -167,7 +167,7 @@ public class MatrixRequestHandler {
         return units;
     }
 
-    protected static int convertToMatrixProfileType(APIEnums.MatrixProfile profile) throws ParameterValueException {
+    protected static int convertToMatrixProfileType(APIEnums.Profile profile) throws ParameterValueException {
         try {
             int profileFromString = RoutingProfileType.getFromString(profile.toString());
             if (profileFromString == 0) {
