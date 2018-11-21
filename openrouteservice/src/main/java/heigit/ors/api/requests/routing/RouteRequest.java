@@ -42,7 +42,7 @@ public class RouteRequest {
     private List<List<Double>> coordinates;
 
     @ApiModelProperty(hidden = true)
-    private APIEnums.RoutingProfile profile;
+    private APIEnums.Profile profile;
 
     @ApiModelProperty(name = "preference",
             value = "Specifies the route preference.\n" +
@@ -174,18 +174,17 @@ public class RouteRequest {
     }*/
 
     @JsonCreator
-    public RouteRequest(
-            @JsonProperty(value = "coordinates", required = true) List<List<Double>> coordinates) {
+    public RouteRequest(@JsonProperty(value = "coordinates", required = true) List<List<Double>> coordinates) {
         this.coordinates = coordinates;
     }
 
-    public RouteRequest( Double[][] coordinates) throws ParameterValueException {
-        if(coordinates.length < 2)
+    public RouteRequest(Double[][] coordinates) throws ParameterValueException {
+        if (coordinates.length < 2)
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "coordinates");
 
         this.coordinates = new ArrayList<>();
-        for(Double[] coordPair : coordinates) {
-            if(coordPair.length != 2)
+        for (Double[] coordPair : coordinates) {
+            if (coordPair.length != 2)
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "coordinates");
             List<Double> coordPairList = new ArrayList<>();
             coordPairList.add(coordPair[0]);
@@ -232,11 +231,11 @@ public class RouteRequest {
         this.coordinates = coordinates;
     }
 
-    public APIEnums.RoutingProfile getProfile() {
+    public APIEnums.Profile getProfile() {
         return profile;
     }
 
-    public void setProfile(APIEnums.RoutingProfile profile) {
+    public void setProfile(APIEnums.Profile profile) {
         this.profile = profile;
     }
 
