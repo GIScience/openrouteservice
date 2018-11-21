@@ -27,13 +27,8 @@ import heigit.ors.exceptions.*;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.localization.LocalizationManager;
 import heigit.ors.routing.*;
-import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
-import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
-import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
-import heigit.ors.routing.parameters.*;
 import heigit.ors.routing.pathprocessors.BordersExtractor;
 import heigit.ors.util.DistanceUnitUtil;
-import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
@@ -210,7 +205,7 @@ public class RouteRequestHandler extends GenericHandler {
         return flags;
     }
 
-    private  int convertRouteProfileType(APIEnums.RoutingProfile profile) {
+    private  int convertRouteProfileType(APIEnums.Profile profile) {
         return RoutingProfileType.getFromString(profile.toString());
     }
 

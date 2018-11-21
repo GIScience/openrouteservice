@@ -18,10 +18,10 @@ package heigit.ors.api.converters;
 import heigit.ors.api.requests.common.APIEnums;
 import org.springframework.core.convert.converter.Converter;
 
-public class APIMatrixRequestProfileConverter implements Converter<String, APIEnums.MatrixProfile> {
+public class APIMatrixRequestProfileConverter implements Converter<String, APIEnums.Profile> {
     @Override
-    public APIEnums.MatrixProfile convert(String s) {
-        for (APIEnums.MatrixProfile profile : APIEnums.MatrixProfile.values()) {
+    public APIEnums.Profile convert(String s) {
+        for (APIEnums.Profile profile : APIEnums.Profile.values()) {
             if (profile.toString().equals(s)) {
                 return profile;
             }

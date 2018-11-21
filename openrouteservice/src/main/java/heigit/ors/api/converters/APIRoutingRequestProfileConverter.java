@@ -18,10 +18,10 @@ package heigit.ors.api.converters;
 import org.springframework.core.convert.converter.Converter;
 import heigit.ors.api.requests.common.APIEnums;
 
-public class APIRoutingRequestProfileConverter implements Converter<String, APIEnums.RoutingProfile> {
+public class APIRoutingRequestProfileConverter implements Converter<String, APIEnums.Profile> {
     @Override
-    public APIEnums.RoutingProfile convert(String s) {
-        for(APIEnums.RoutingProfile profile : APIEnums.RoutingProfile.values()) {
+    public APIEnums.Profile convert(String s) {
+        for(APIEnums.Profile profile : APIEnums.Profile.values()) {
             if(profile.toString().equals(s)) {
                 return profile;
             }
