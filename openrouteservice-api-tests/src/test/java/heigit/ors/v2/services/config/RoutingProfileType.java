@@ -34,22 +34,10 @@ public class RoutingProfileType {
     public static final int CYCLING_ELECTRIC = 17;
 
     public static final int CYCLING_MOTOR = 15;
-    @Deprecated
-    public static final int CYCLING_ROAD_OLD = 16;
-    @Deprecated
-    public static final int CYCLING_REGULAR_OLD = 13;
-    @Deprecated
-    public static final int CYCLING_SAFE = 18;
-    @Deprecated
-    public static final int CYCLING_TOUR = 19;
 
     // WALKING STUFF
     public static final int FOOT_WALKING = 20;
     public static final int FOOT_HIKING = 21;
-    @Deprecated
-    public static final int FOOT_HIKING_DO_NOT_USE = 22;
-    @Deprecated
-    public static final int FOOT_WALKING_DO_NOT_USE = 23;
     public static final int FOOT_JOGGING = 24;
 
     // OTHER STUFF
@@ -100,10 +88,6 @@ public class RoutingProfileType {
                 || routePref == GH_BIKE2
                 || routePref == GH_BIKE_MTB
                 || routePref == GH_BIKE_ROAD
-                || routePref == CYCLING_ROAD_OLD
-                || routePref == CYCLING_REGULAR_OLD
-                || routePref == CYCLING_TOUR
-                || routePref == CYCLING_SAFE
                 || routePref == CYCLING_ELECTRIC;
     }
 
@@ -128,29 +112,17 @@ public class RoutingProfileType {
 
             case CYCLING_REGULAR:
                 return "cycling-regular";
-            case CYCLING_REGULAR_OLD:
-                return "cycling-regular-old";
             case CYCLING_MOUNTAIN:
                 return "cycling-mountain";
             case CYCLING_ROAD:
                 return "cycling-road";
-            case CYCLING_ROAD_OLD:
-                return "cycling-road-old";
-            case CYCLING_SAFE:
-                return "cycling-safe";
-            case CYCLING_TOUR:
-                return "cycling-tour";
             case CYCLING_ELECTRIC:
                 return "cycling-electric";
 
             case FOOT_WALKING:
                 return "foot-walking";
-            case FOOT_WALKING_DO_NOT_USE:
-                return "foot-walking-old";
             case FOOT_HIKING:
                 return "foot-hiking";
-            case FOOT_HIKING_DO_NOT_USE:
-                return "foot-hiking-old";
             case FOOT_JOGGING:
                 return "foot-jogging";
 
@@ -197,29 +169,17 @@ public class RoutingProfileType {
 
             case "cycling-regular":
                 return CYCLING_REGULAR;
-            case "cycling-regular-old":
-                return CYCLING_REGULAR_OLD;
             case "cycling-mountain":
                 return CYCLING_MOUNTAIN;
             case "cycling-road":
                 return CYCLING_ROAD;
-            case "cycling-road-old":
-                return CYCLING_ROAD_OLD;
-            case "cycling-safe":
-                return CYCLING_SAFE;
-            case "cycling-tour":
-                return CYCLING_TOUR;
             case "cycling-electric":
                 return CYCLING_ELECTRIC;
 
             case "foot-walking":
                 return FOOT_WALKING;
-            case "foot-walking-old":
-                return FOOT_WALKING_DO_NOT_USE;
             case "foot-hiking":
                 return FOOT_HIKING;
-            case "foot-hiking-old":
-                return FOOT_HIKING_DO_NOT_USE;
             case "foot-jogging":
                 return FOOT_JOGGING;
 
