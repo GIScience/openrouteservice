@@ -1,39 +1,38 @@
 package heigit.ors.api.converters;
 
+import heigit.ors.api.requests.common.APIEnums;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static heigit.ors.api.requests.common.APIEnums.MatrixProfile;
-
 public class APIMatrixRequestProfileConverterTest {
-    private MatrixProfile cyclingElectric;
-    private MatrixProfile cyclingMountain;
-    private MatrixProfile cyclingRegular;
-    private MatrixProfile cyclingRoad;
-    private MatrixProfile cyclingSafe;
-    private MatrixProfile cyclingTour;
-    private MatrixProfile drivingCar;
-    private MatrixProfile drivingHgv;
-    private MatrixProfile footHiking;
-    private MatrixProfile footWalking;
-    private MatrixProfile wheelchair;
+    private APIEnums.Profile cyclingElectric;
+    private APIEnums.Profile cyclingMountain;
+    private APIEnums.Profile cyclingRegular;
+    private APIEnums.Profile cyclingRoad;
+    private APIEnums.Profile cyclingSafe;
+    private APIEnums.Profile cyclingTour;
+    private APIEnums.Profile drivingCar;
+    private APIEnums.Profile drivingHgv;
+    private APIEnums.Profile footHiking;
+    private APIEnums.Profile footWalking;
+    private APIEnums.Profile wheelchair;
     private APIMatrixRequestProfileConverter apiMatrixRequestProfileConverter;
 
 
     @Before
     public void setUp() {
-        cyclingElectric = MatrixProfile.CYCLING_ELECTRIC;
-        cyclingMountain = MatrixProfile.CYCLING_MOUNTAIN;
-        cyclingRegular = MatrixProfile.CYCLING_REGULAR;
-        cyclingRoad = MatrixProfile.CYCLING_ROAD;
-        cyclingSafe = MatrixProfile.CYCLING_SAFE;
-        cyclingTour = MatrixProfile.CYCLING_TOUR;
-        drivingCar = MatrixProfile.DRIVING_CAR;
-        drivingHgv = MatrixProfile.DRIVING_HGV;
-        footHiking = MatrixProfile.FOOT_HIKING;
-        footWalking = MatrixProfile.FOOT_WALKING;
-        wheelchair = MatrixProfile.WHEELCHAIR;
+        cyclingElectric = APIEnums.Profile.CYCLING_ELECTRIC;
+        cyclingMountain = APIEnums.Profile.CYCLING_MOUNTAIN;
+        cyclingRegular = APIEnums.Profile.CYCLING_REGULAR;
+        cyclingRoad = APIEnums.Profile.CYCLING_ROAD;
+        cyclingSafe = APIEnums.Profile.CYCLING_SAFE;
+        cyclingTour = APIEnums.Profile.CYCLING_TOUR;
+        drivingCar = APIEnums.Profile.DRIVING_CAR;
+        drivingHgv = APIEnums.Profile.DRIVING_HGV;
+        footHiking = APIEnums.Profile.FOOT_HIKING;
+        footWalking = APIEnums.Profile.FOOT_WALKING;
+        wheelchair = APIEnums.Profile.WHEELCHAIR;
         apiMatrixRequestProfileConverter = new APIMatrixRequestProfileConverter();
     }
 

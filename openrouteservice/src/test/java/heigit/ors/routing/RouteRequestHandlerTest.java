@@ -80,7 +80,7 @@ public class RouteRequestHandlerTest {
 
         request = new RouteRequest(coords);
 
-        request.setProfile(APIEnums.RoutingProfile.DRIVING_CAR);
+        request.setProfile(APIEnums.Profile.DRIVING_CAR);
         request.setAttributes(new APIEnums.Attributes[] { APIEnums.Attributes.AVERAGE_SPEED, APIEnums.Attributes.DETOUR_FACTOR});
         request.setBearings(new Double[][] {{10.0,10.0},{260.0, 90.0},{45.0, 30.0}});
         request.setContinueStraightAtWaypoints(true);
@@ -206,7 +206,7 @@ public class RouteRequestHandlerTest {
 
     @Test
     public void TestVehicleParameters() throws Exception {
-        request.setProfile(APIEnums.RoutingProfile.DRIVING_HGV);
+        request.setProfile(APIEnums.Profile.DRIVING_HGV);
         request.getRouteOptions().getProfileParams().setRestrictions(vehicleParams);
         request.getRouteOptions().setVehicleType(APIEnums.VehicleType.AGRICULTURAL);
 
@@ -224,7 +224,7 @@ public class RouteRequestHandlerTest {
 
     @Test
     public void TestCyclingParameters() throws Exception {
-        request.setProfile(APIEnums.RoutingProfile.CYCLING_REGULAR);
+        request.setProfile(APIEnums.Profile.CYCLING_REGULAR);
         request.getRouteOptions().getProfileParams().setRestrictions(cyclingParams);
 
         RoutingRequest routingRequest;
@@ -237,7 +237,7 @@ public class RouteRequestHandlerTest {
 
     @Test
     public void TestWalkingParameters() throws Exception {
-        request.setProfile(APIEnums.RoutingProfile.FOOT_WALKING);
+        request.setProfile(APIEnums.Profile.FOOT_WALKING);
         request.getRouteOptions().getProfileParams().setRestrictions(walkingParams);
 
         RoutingRequest routingRequest;
@@ -250,7 +250,7 @@ public class RouteRequestHandlerTest {
 
     @Test
     public void TestWheelchairParameters() throws Exception {
-        request.setProfile(APIEnums.RoutingProfile.WHEELCHAIR);
+        request.setProfile(APIEnums.Profile.WHEELCHAIR);
         request.getRouteOptions().getProfileParams().setRestrictions(wheelchairParams);
 
         RoutingRequest routingRequest;
@@ -298,10 +298,10 @@ public class RouteRequestHandlerTest {
         RouteRequestOptions opts = request.getRouteOptions();
         opts.setVehicleType(APIEnums.VehicleType.AGRICULTURAL);
 
-        for(APIEnums.RoutingProfile profile : APIEnums.RoutingProfile.values()) {
+        for(APIEnums.Profile profile : APIEnums.Profile.values()) {
             request.setProfile(profile);
             request.setRouteOptions(opts);
-            if(profile != APIEnums.RoutingProfile.DRIVING_HGV) {
+            if(profile != APIEnums.Profile.DRIVING_HGV) {
                 try {
                     new RouteRequestHandler().convertRouteRequest(request);
                 } catch (Exception e) {

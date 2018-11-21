@@ -145,34 +145,34 @@ public class APIEnumsTest {
 
     @Test(expected = ParameterValueException.class)
     public void testProfileEnumCreation() throws ParameterValueException {
-        Assert.assertEquals(APIEnums.RoutingProfile.DRIVING_CAR, APIEnums.RoutingProfile.forValue("driving-car"));
-        Assert.assertEquals(APIEnums.RoutingProfile.DRIVING_HGV, APIEnums.RoutingProfile.forValue("driving-hgv"));
-        Assert.assertEquals(APIEnums.RoutingProfile.CYCLING_REGULAR, APIEnums.RoutingProfile.forValue("cycling-regular"));
-        Assert.assertEquals(APIEnums.RoutingProfile.CYCLING_ROAD, APIEnums.RoutingProfile.forValue("cycling-road"));
-        Assert.assertEquals(APIEnums.RoutingProfile.CYCLING_SAFE, APIEnums.RoutingProfile.forValue("cycling-safe"));
-        Assert.assertEquals(APIEnums.RoutingProfile.CYCLING_MOUNTAIN, APIEnums.RoutingProfile.forValue("cycling-mountain"));
-        Assert.assertEquals(APIEnums.RoutingProfile.CYCLING_TOUR, APIEnums.RoutingProfile.forValue("cycling-tour"));
-        Assert.assertEquals(APIEnums.RoutingProfile.CYCLING_ELECTRIC, APIEnums.RoutingProfile.forValue("cycling-electric"));
-        Assert.assertEquals(APIEnums.RoutingProfile.FOOT_WALKING, APIEnums.RoutingProfile.forValue("foot-walking"));
-        Assert.assertEquals(APIEnums.RoutingProfile.FOOT_HIKING, APIEnums.RoutingProfile.forValue("foot-hiking"));
-        Assert.assertEquals(APIEnums.RoutingProfile.WHEELCHAIR, APIEnums.RoutingProfile.forValue("wheelchair"));
+        Assert.assertEquals(APIEnums.Profile.DRIVING_CAR, APIEnums.Profile.forValue("driving-car"));
+        Assert.assertEquals(APIEnums.Profile.DRIVING_HGV, APIEnums.Profile.forValue("driving-hgv"));
+        Assert.assertEquals(APIEnums.Profile.CYCLING_REGULAR, APIEnums.Profile.forValue("cycling-regular"));
+        Assert.assertEquals(APIEnums.Profile.CYCLING_ROAD, APIEnums.Profile.forValue("cycling-road"));
+        Assert.assertEquals(APIEnums.Profile.CYCLING_SAFE, APIEnums.Profile.forValue("cycling-safe"));
+        Assert.assertEquals(APIEnums.Profile.CYCLING_MOUNTAIN, APIEnums.Profile.forValue("cycling-mountain"));
+        Assert.assertEquals(APIEnums.Profile.CYCLING_TOUR, APIEnums.Profile.forValue("cycling-tour"));
+        Assert.assertEquals(APIEnums.Profile.CYCLING_ELECTRIC, APIEnums.Profile.forValue("cycling-electric"));
+        Assert.assertEquals(APIEnums.Profile.FOOT_WALKING, APIEnums.Profile.forValue("foot-walking"));
+        Assert.assertEquals(APIEnums.Profile.FOOT_HIKING, APIEnums.Profile.forValue("foot-hiking"));
+        Assert.assertEquals(APIEnums.Profile.WHEELCHAIR, APIEnums.Profile.forValue("wheelchair"));
 
-        APIEnums.RoutingProfile.forValue("invalid");
+        APIEnums.Profile.forValue("invalid");
     }
 
     @Test
     public void testProfileEnumValue() {
-        Assert.assertEquals("driving-car", APIEnums.RoutingProfile.DRIVING_CAR.toString());
-        Assert.assertEquals("driving-hgv", APIEnums.RoutingProfile.DRIVING_HGV.toString());
-        Assert.assertEquals("cycling-regular", APIEnums.RoutingProfile.CYCLING_REGULAR.toString());
-        Assert.assertEquals("cycling-road", APIEnums.RoutingProfile.CYCLING_ROAD.toString());
-        Assert.assertEquals("cycling-safe", APIEnums.RoutingProfile.CYCLING_SAFE.toString());
-        Assert.assertEquals("cycling-mountain", APIEnums.RoutingProfile.CYCLING_MOUNTAIN.toString());
-        Assert.assertEquals("cycling-tour", APIEnums.RoutingProfile.CYCLING_TOUR.toString());
-        Assert.assertEquals("cycling-electric", APIEnums.RoutingProfile.CYCLING_ELECTRIC.toString());
-        Assert.assertEquals("foot-walking", APIEnums.RoutingProfile.FOOT_WALKING.toString());
-        Assert.assertEquals("foot-hiking", APIEnums.RoutingProfile.FOOT_HIKING.toString());
-        Assert.assertEquals("wheelchair", APIEnums.RoutingProfile.WHEELCHAIR.toString());
+        Assert.assertEquals("driving-car", APIEnums.Profile.DRIVING_CAR.toString());
+        Assert.assertEquals("driving-hgv", APIEnums.Profile.DRIVING_HGV.toString());
+        Assert.assertEquals("cycling-regular", APIEnums.Profile.CYCLING_REGULAR.toString());
+        Assert.assertEquals("cycling-road", APIEnums.Profile.CYCLING_ROAD.toString());
+        Assert.assertEquals("cycling-safe", APIEnums.Profile.CYCLING_SAFE.toString());
+        Assert.assertEquals("cycling-mountain", APIEnums.Profile.CYCLING_MOUNTAIN.toString());
+        Assert.assertEquals("cycling-tour", APIEnums.Profile.CYCLING_TOUR.toString());
+        Assert.assertEquals("cycling-electric", APIEnums.Profile.CYCLING_ELECTRIC.toString());
+        Assert.assertEquals("foot-walking", APIEnums.Profile.FOOT_WALKING.toString());
+        Assert.assertEquals("foot-hiking", APIEnums.Profile.FOOT_HIKING.toString());
+        Assert.assertEquals("wheelchair", APIEnums.Profile.WHEELCHAIR.toString());
     }
 
     @Test(expected = ParameterValueException.class)
