@@ -89,6 +89,7 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
 
         intendedValues.add("yes");
         intendedValues.add("permissive");
+        intendedValues.add("destination");
 
         potentialBarriers.add("gate");
         potentialBarriers.add("lift_gate");

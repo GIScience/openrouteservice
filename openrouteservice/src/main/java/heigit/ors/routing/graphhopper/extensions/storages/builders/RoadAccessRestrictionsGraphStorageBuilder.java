@@ -21,6 +21,7 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
+import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
 import heigit.ors.routing.graphhopper.extensions.storages.RoadAccessRestrictionsGraphStorage;
@@ -97,10 +98,21 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
     }
 
     public void processWay(ReaderWay way) {
+        this.processWay(way, null, null);
+    }
 
+    public void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String,String>> nodeTags) {
         if (hasRestrictions) {
             hasRestrictions = false;
             restrictions = 0;
+        }
+
+        if(nodeTags != null) {
+            for (HashMap<String, String> tagPairs : nodeTags.values()) {
+                for (Map.Entry<String, String> pair : tagPairs.entrySet()) {
+                    way.setTag(pair.getKey(), pair.getValue());
+                }
+            }
         }
 
         if (way.hasTag(accessRestrictedTags, restrictedValues)) {
