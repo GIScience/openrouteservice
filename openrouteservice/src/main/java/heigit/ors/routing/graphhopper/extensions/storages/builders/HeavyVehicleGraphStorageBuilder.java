@@ -51,7 +51,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 	private double[] _restrictionValues = new double[VehicleDimensionRestrictions.Count];
 	private List<String> _motorVehicleRestrictions = new ArrayList<String>(5);
 	private Set<String> _motorVehicleRestrictedValues = new HashSet<String>(5);
-	private Pattern _patternHeight;
+	private Pattern _patternDimension;
 
 	public HeavyVehicleGraphStorageBuilder()
 	{
@@ -62,7 +62,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 		_motorVehicleRestrictedValues.add("restricted");
 		_motorVehicleRestrictedValues.add("military");
 		
-		_patternHeight = Pattern.compile("(?:\\s*(\\d+)\\s*(?:feet|ft\\.|ft|'))?(?:(\\d+)\\s*(?:inches|in\\.|in|''|\"))?");
+		_patternDimension = Pattern.compile("(?:\\s*(\\d+)\\s*(?:feet|ft\\.|ft|'))?(?:(\\d+)\\s*(?:inches|in\\.|in|''|\"))?");
 	}
 	
 	public GraphExtension init(GraphHopper graphhopper) throws Exception {
@@ -85,14 +85,14 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 		// reset values
 		_hgvType = 0;
 		_hgvDestination = 0;
-		
+
 		if (_hasRestrictionValues) {
 			_restrictionValues[0] = 0.0;
 			_restrictionValues[1] = 0.0;
 			_restrictionValues[2] = 0.0;
 			_restrictionValues[3] = 0.0;
 			_restrictionValues[4] = 0.0;
-			
+
 			_hasRestrictionValues = false;
 		}
 
@@ -108,7 +108,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 				_hgvType |= HeavyVehicleAttributes.GOODS;
 				_hgvType |= HeavyVehicleAttributes.HGV;
 			}
-			
+
 			Iterator<Entry<String, Object>> it = way.getProperties();
 
 			while (it.hasNext()) {
@@ -119,109 +119,120 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 				/*
 				 * https://wiki.openstreetmap.org/wiki/Restrictions
 				 */
-				if (_includeRestrictions) {
-					int valueIndex = -1;
 
-					if (key.equals("maxheight")) {
+				int valueIndex = -1;
+
+				switch(key) {
+					case "maxheight":
 						valueIndex = VehicleDimensionRestrictions.MaxHeight;
-					} else if (key.equals("maxweight")) {
+						break;
+					case "maxweight":
+					case "maxweight:hgv":
 						valueIndex = VehicleDimensionRestrictions.MaxWeight;
-					} else if (key.equals("maxweight:hgv")) {
-						valueIndex = VehicleDimensionRestrictions.MaxWeight;
-					}	else if (key.equals("maxwidth")) {
+						break;
+					case "maxwidth":
 						valueIndex = VehicleDimensionRestrictions.MaxWidth;
-					} else if (key.equals("maxlength")) {
+						break;
+					case "maxlength":
+					case "maxlength:hgv":
 						valueIndex = VehicleDimensionRestrictions.MaxLength;
-					} else if (key.equals("maxlength:hgv")) {
-						valueIndex = VehicleDimensionRestrictions.MaxLength;
-					}
-					else if (key.equals("maxaxleload")) {
+						break;
+					case "maxaxleload":
 						valueIndex = VehicleDimensionRestrictions.MaxAxleLoad;
-					}
+						break;
+				}
 
-					if (valueIndex >= 0 && !("none".equals(value) || "default".equals(value))) {
+				// given tag is a weight/dimension restriction
+				if (valueIndex >= 0) {
+					if (_includeRestrictions && !("none".equals(value) || "default".equals(value))) {
+						double parsedValue = -1;
+
+						// sanitize decimal separators
+						if (value.contains(","))
+							value = value.replace(',', '.');
+
+						// weight restrictions
 						if (valueIndex == VehicleDimensionRestrictions.MaxWeight || valueIndex == VehicleDimensionRestrictions.MaxAxleLoad) {
 							if (value.contains("t")) {
 								value = value.replace('t', ' ');
 							} else if (value.contains("lbs")) {
 								value = value.replace("lbs", " ");
-								value = Double.toString(Double.parseDouble(value) / 2204.622);
+								parsedValue = parseDouble(value) / 2204.622;
 							}
-						} else {
+						}
+
+						// dimension restrictions
+						else {
 							if (value.contains("m")) {
 								value = value.replace('m', ' ');
-							} else /*if (value.contains("'")) */ {
-                            // MARQ24: why the heck we only make use of our fancy RegEx for height
-                            // parsing - IF the string contains a ' ?!
-                            Matcher m = _patternHeight.matcher(value);
-                            if (m.matches() && m.lookingAt()) {
-                                double feet = Double.parseDouble(m.group(1));
-                                double inches = 0;
-                                if (m.groupCount() > 1 && m.group(2) != null) {
-                                    inches = Double.parseDouble(m.group(2));
-                                }
-                                // MARQ24: n feet * 0.3048 = feet 2 meter - ok fine... BUT
-                                // x inches * 0.0254 * y feet - this does not make much sense to me...
-                                // double newValue = feet * 0.3048 + inches * 0.0254 * feet;
-                                double newValue = feet * 0.3048 + inches * 0.0254;
-                                value = Double.toString(newValue);
-                            }
-                        }
-                    }
+							} else {
+								Matcher m = _patternDimension.matcher(value);
+								if (m.matches() && m.lookingAt()) {
+									double feet = parseDouble(m.group(1));
+									double inches = 0;
+									if (m.groupCount() > 1 && m.group(2) != null) {
+										inches = parseDouble(m.group(2));
+									}
+									parsedValue = feet * 0.3048 + inches * 0.0254;
+								}
+							}
+						}
 
-                    // MARQ24: FIXME: Here we can get a "NumberFormatException" and then the complete
-                    // iterator will stop (no additional propertis of the way will be processed!
-                    _restrictionValues[valueIndex] = Double.parseDouble(value);
-                    _hasRestrictionValues = true;
+						if (parsedValue == -1)
+							parsedValue = parseDouble(value);
+
+						_restrictionValues[valueIndex] = parsedValue;
+						_hasRestrictionValues = true;
 					}
 				}
 
-				// TODO: the following implementation does not pick up access:destination
-				String hgvTag = getHeavyVehicleValue(key, "hgv", value);
-				String goodsTag = getHeavyVehicleValue(key, "goods", value);
-				String busTag = getHeavyVehicleValue(key, "bus", value);
-				String agriculturalTag = getHeavyVehicleValue(key, "agricultural", value);
-				String forestryTag = getHeavyVehicleValue(key, "forestry", value);
-				String deliveryTag = getHeavyVehicleValue(key, "delivery", value);
+				// access restrictions
+				else {
+					// TODO: the following implementation does not pick up access:destination
+					String hgvTag = getHeavyVehicleValue(key, "hgv", value);
+					String goodsTag = getHeavyVehicleValue(key, "goods", value);
+					String busTag = getHeavyVehicleValue(key, "bus", value);
+					String agriculturalTag = getHeavyVehicleValue(key, "agricultural", value);
+					String forestryTag = getHeavyVehicleValue(key, "forestry", value);
+					String deliveryTag = getHeavyVehicleValue(key, "delivery", value);
 
-				String accessTag = key.equals("access") ? value : null;
+					String accessTag = key.equals("access") ? value : null;
 
-				if (!Helper.isEmpty(accessTag)) {
-					if ("agricultural".equals(accessTag))
-						agriculturalTag = "yes";
-					else if ("forestry".equals(accessTag))
-						forestryTag = "yes";
-					else if ("bus".equals(accessTag))
-						busTag = "yes";
+					if (!Helper.isEmpty(accessTag)) {
+						if ("agricultural".equals(accessTag))
+							agriculturalTag = "yes";
+						else if ("forestry".equals(accessTag))
+							forestryTag = "yes";
+						else if ("bus".equals(accessTag))
+							busTag = "yes";
+					}
+
+					String motorVehicle = key.equals("motor_vehicle") ? value : null;
+					if (motorVehicle == null)
+						motorVehicle = key.equals("motorcar") ? value : null;
+
+					if (motorVehicle != null) {
+						if ("agricultural".equals(motorVehicle))
+							agriculturalTag = "yes";
+						else if ("forestry".equals(motorVehicle))
+							forestryTag = "yes";
+						else if ("delivery".equals(motorVehicle))
+							deliveryTag = "yes";
+					}
+
+					setFlagsFromTag(goodsTag, HeavyVehicleAttributes.GOODS);
+					setFlagsFromTag(hgvTag, HeavyVehicleAttributes.HGV);
+					setFlagsFromTag(busTag, HeavyVehicleAttributes.BUS);
+					setFlagsFromTag(agriculturalTag, HeavyVehicleAttributes.AGRICULTURE);
+					setFlagsFromTag(forestryTag, HeavyVehicleAttributes.FORESTRY);
+					setFlagsFromTag(deliveryTag, HeavyVehicleAttributes.DELIVERY);
+
+					String hazmatTag = key.equals("hazmat") ? value : null;
+					if ("no".equals(hazmatTag)) {
+						_hgvType |= HeavyVehicleAttributes.HAZMAT;
+					}
+
 				}
-
-				String motorVehicle = key.equals("motor_vehicle") ? value : null;
-				if (motorVehicle == null)
-					motorVehicle = key.equals("motorcar") ? value : null;
-
-				if (motorVehicle != null) {
-					if ("agricultural".equals(motorVehicle))
-						agriculturalTag = "yes";
-					else if ("forestry".equals(motorVehicle))
-						forestryTag = "yes";
-					else if ("delivery".equals(motorVehicle))
-						deliveryTag = "yes";
-				}
-
-				setFlagsFromTag(goodsTag, HeavyVehicleAttributes.GOODS);
-				setFlagsFromTag(hgvTag, HeavyVehicleAttributes.HGV);
-				setFlagsFromTag(busTag, HeavyVehicleAttributes.BUS);
-				setFlagsFromTag(agriculturalTag, HeavyVehicleAttributes.AGRICULTURE);
-				setFlagsFromTag(forestryTag, HeavyVehicleAttributes.FORESTRY);
-				setFlagsFromTag(deliveryTag, HeavyVehicleAttributes.DELIVERY);
-
-				String hazmatTag = key.equals("hazmat") ? value : null;
-				if ("no".equals(hazmatTag)) {
-					_hgvType |= HeavyVehicleAttributes.HAZMAT;
-				}
-
-				// (access=no) + access:conditional=delivery @
-				// (07:00-11:00); customer @ (07:00-17:00)
 			}
 		}
 	}
@@ -274,7 +285,17 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 			}
 		}
 	}
-	
+
+	private double parseDouble(String str) {
+		double d;
+		try {
+			d = Double.parseDouble(str);
+		} catch(NumberFormatException e) {
+			d = 0.0;
+		}
+		return d;
+	}
+
 	@Override
 	public String getName() {
 		return "HeavyVehicle";
