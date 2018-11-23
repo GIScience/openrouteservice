@@ -41,7 +41,7 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 			if(interimNodes > 0) {
 				interimDistance = estDist/(interimNodes+1);
 			}
-			if(interimDistance < 100 && speed > 10) {
+			if(interimDistance < 100) {
 				speed = speed * 0.5;
 			}
 			//Don't go below 2.5 because it will be stored as 0 later
