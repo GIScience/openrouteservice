@@ -6,8 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- Added Unit Tests for RouteSearchParameters.class() (while fixing Issue #291)
 ### Fixed
 - If residential penalty reduces speed to <5, set it to 5
+- Added a new ParameterValueException in RouteSearchParameters if the profile is driving-car and profile_params are set in the options (Issue #291)
+- Fixed API Test to consider the new ParameterValueException (while fixing Issue #291)
 ### Changed
 ### Deprecated
 
