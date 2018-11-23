@@ -187,7 +187,7 @@ public class RoutingRequest extends ServiceRequest
 		return _suppressWarnings;
 	}
 
-	public void setSupressWarnings(boolean suppressWarnings) {
+	public void setSuppressWarnings(boolean suppressWarnings) {
 		_suppressWarnings = suppressWarnings;
 	}
 

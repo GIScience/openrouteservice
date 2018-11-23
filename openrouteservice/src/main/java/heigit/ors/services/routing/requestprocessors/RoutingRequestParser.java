@@ -209,7 +209,7 @@ public class RoutingRequestParser
 
 		value = request.getParameter("suppress_warnings");
 		if (!Helper.isEmpty(value))
-			req.setSupressWarnings(Boolean.parseBoolean(value));
+			req.setSuppressWarnings(Boolean.parseBoolean(value));
 
 		value = request.getParameter("instructions_format");
 		if (!Helper.isEmpty(value))
