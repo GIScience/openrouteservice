@@ -20,27 +20,28 @@
  */
 package heigit.ors.routing;
 
-import java.text.ParseException;
-import java.util.Iterator;
-
-import heigit.ors.routing.pathprocessors.BordersExtractor;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import com.graphhopper.util.Helper;
-
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
-import heigit.ors.routing.parameters.*;
+import heigit.ors.routing.parameters.CyclingParameters;
+import heigit.ors.routing.parameters.ProfileParameters;
+import heigit.ors.routing.parameters.VehicleParameters;
+import heigit.ors.routing.parameters.WalkingParameters;
+import heigit.ors.routing.parameters.WheelchairParameters;
+import heigit.ors.routing.pathprocessors.BordersExtractor;
 import heigit.ors.util.StringUtility;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.util.Iterator;
 
 /**
  * This class is used to store the search/calculation Parameters to calculate the desired Route/Isochrones etc…
@@ -255,28 +256,16 @@ public class RouteSearchParameters {
             }
         }
 
-        if (json.has("profile_params")) {
+        if (json.has("profile_params") && _profileType == RoutingProfileType.DRIVING_CAR) {
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "profile_params");
+        } else if (json.has("profile_params")) {
             JSONObject jProfileParams = json.getJSONObject("profile_params");
             JSONObject jRestrictions = null;
 
             if (jProfileParams.has("restrictions"))
                 jRestrictions = jProfileParams.getJSONObject("restrictions");
-
             if (RoutingProfileType.isCycling(_profileType)) {
                 CyclingParameters cyclingParams = new CyclingParameters();
-
-                // To make the new API compatible with a new one, we create 'weightings' element.
-				/*if (!jProfileParams.has("weightings") && (jProfileParams.has("difficulty_level") || jProfileParams.has("maximum_gradient")))
-				{
-					JSONObject jWeightings = new JSONObject();
-
-					if (jProfileParams.has("difficulty_level"))
-						jWeightings.put("difficulty_level", jProfileParams.get("difficulty_level"));
-					else if	(jProfileParams.has("maximum_gradient"))
-						jWeightings.put("maximum_gradient", jProfileParams.get("maximum_gradient"));
-
-					jProfileParams.put("weightings", jWeightings);
-				}*/
 
                 if (jRestrictions != null) {
                     if (jRestrictions.has("gradient"))
@@ -312,7 +301,7 @@ public class RouteSearchParameters {
                 }
 
                 _profileParams = walkingParams;
-            } else if (RoutingProfileType.isHeavyVehicle(_profileType) == true) {
+            } else if (RoutingProfileType.isHeavyVehicle(_profileType)) {
                 VehicleParameters vehicleParams = new VehicleParameters();
 
 
