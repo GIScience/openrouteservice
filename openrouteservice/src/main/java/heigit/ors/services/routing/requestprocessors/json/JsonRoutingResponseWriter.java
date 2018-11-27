@@ -17,6 +17,7 @@ package heigit.ors.services.routing.requestprocessors.json;
 import java.util.List;
 
 import heigit.ors.exceptions.StatusCodeException;
+import heigit.ors.routing.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -26,17 +27,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.config.AppConfig;
 import heigit.ors.geojson.GeometryJSON;
-import heigit.ors.routing.ExtraSummaryItem;
-import heigit.ors.routing.RouteExtraInfo;
-import heigit.ors.routing.RouteResult;
-import heigit.ors.routing.RouteSegment;
-import heigit.ors.routing.RouteSegmentItem;
-import heigit.ors.routing.RouteStep;
-import heigit.ors.routing.RouteStepManeuver;
-import heigit.ors.routing.RouteSummary;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.RoutingRequest;
-import heigit.ors.routing.WeightingMethod;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import heigit.ors.util.DistanceUnitUtil;
@@ -125,6 +115,18 @@ public class JsonRoutingResponseWriter {
 		{
 			RouteResult route = routeResult[i];
 			JSONObject jRoute = new JSONObject(true);
+
+			if(route.getWarnings().size() != 0) {
+				JSONArray jWarnings = new JSONArray();
+				for(RouteWarning warning : route.getWarnings()) {
+					JSONObject jWarning = new JSONObject();
+					jWarning.put("code", warning.getWarningCode());
+					jWarning.put("message", warning.getWarningMessage());
+					jWarnings.put(jWarning);
+				}
+
+				jRoute.put("warnings", jWarnings);
+			}
 
 			if (request.getIncludeElevation())
 				jRoute.put("elevation", true);
