@@ -50,6 +50,10 @@ public class CoreLMOptions {
                     filter = filter | AvoidFeatureFlags.Tollways;
                     edgeFilterSequence.appendName("tollways");
                 }
+                if (filterType.equalsIgnoreCase("steps")) {
+                    filter = filter | AvoidFeatureFlags.Steps;
+                    edgeFilterSequence.appendName("steps");
+                }
                 if (filter == 0)
                     throw new IllegalArgumentException("Currently unsupported filter type: " + filterType);
             }
