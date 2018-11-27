@@ -352,13 +352,8 @@ public class RoutingProfileManager {
         RoutingProfile rp = getRouteProfile(req, false);
         RouteSearchParameters searchParams = req.getSearchParameters();
         PathProcessor pathProcessor = null;
-
-        if (req.getExtraInfo() > 0) {
-            pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req);
-        } else {
-            if (req.getIncludeElevation())
-                pathProcessor = new ElevationSmoothPathProcessor();
-        }
+        
+        pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req);
 
         Coordinate[] coords = req.getCoordinates();
         Coordinate c0 = coords[0];

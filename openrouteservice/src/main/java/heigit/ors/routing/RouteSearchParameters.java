@@ -20,27 +20,26 @@
  */
 package heigit.ors.routing;
 
-import java.text.ParseException;
-import java.util.Iterator;
-
-import heigit.ors.routing.pathprocessors.BordersExtractor;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import com.graphhopper.util.Helper;
-
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.UnknownParameterValueException;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
-import heigit.ors.routing.parameters.*;
+import heigit.ors.routing.parameters.ProfileParameters;
+import heigit.ors.routing.parameters.VehicleParameters;
+import heigit.ors.routing.parameters.WheelchairParameters;
+import heigit.ors.routing.pathprocessors.BordersExtractor;
 import heigit.ors.util.StringUtility;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.util.Iterator;
 
 /**
  * This class is used to store the search/calculation Parameters to calculate the desired Route/Isochrones etc…
@@ -238,7 +237,9 @@ public class RouteSearchParameters {
             }
         }
 
-        if (json.has("profile_params")) {
+        if (json.has("profile_params") && _profileType == RoutingProfileType.DRIVING_CAR) {
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "profile_params");
+        } else if (json.has("profile_params")) {
             JSONObject jProfileParams = json.getJSONObject("profile_params");
             JSONObject jRestrictions = null;
 
@@ -247,7 +248,6 @@ public class RouteSearchParameters {
 
             if (RoutingProfileType.isHeavyVehicle(_profileType) == true) {
                 VehicleParameters vehicleParams = new VehicleParameters();
-
 
                 if (json.has("vehicle_type")) {
                     String vehicleType = json.getString("vehicle_type");
