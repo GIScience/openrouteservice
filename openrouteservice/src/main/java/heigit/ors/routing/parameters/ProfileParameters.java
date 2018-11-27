@@ -18,21 +18,7 @@ import heigit.ors.routing.ProfileWeightingCollection;
 
 public class ProfileParameters {
     protected ProfileWeightingCollection _weightings;
-    protected int _maximumGradient = -1;
-    
-    public ProfileParameters()
-    {
-    	
-    }
 
-    public int getMaximumGradient() {
-        return _maximumGradient;
-    }
-
-    public void setMaximumGradient(int maximumGradient) {
-        this._maximumGradient = maximumGradient;
-    }
-    
     public void add(ProfileWeighting weighting)
     {
     	if (_weightings == null)

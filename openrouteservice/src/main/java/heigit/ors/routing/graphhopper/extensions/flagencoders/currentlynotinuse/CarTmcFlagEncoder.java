@@ -1,9 +1,9 @@
-package heigit.ors.routing.graphhopper.extensions.flagencoders;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.currentlynotinuse;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.tomove.exghoverwrite.ExGhORSCarFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
 /**
  * Defines bit layout for cars. (speed, access, ferries, ...)

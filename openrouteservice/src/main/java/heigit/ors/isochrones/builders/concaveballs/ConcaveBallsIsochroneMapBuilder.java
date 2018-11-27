@@ -20,6 +20,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.*;
+import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 import heigit.ors.common.TravelRangeType;
@@ -73,9 +74,13 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		// 1. Find all graph edges for a given cost.
 		double maxSpeed = _searchContext.getEncoder().getMaxSpeed();
 
-		Coordinate loc = parameters.getLocation();
+        AccessibilityMap edgeMap = GraphEdgeMapFinder.findEdgeMap(_searchContext, parameters);
+
+        GHPoint3D point = edgeMap.getSnappedPosition();
+
+        Coordinate loc = (point == null) ? parameters.getLocation() : new Coordinate(point.lon, point.lat);
+
 		IsochroneMap isochroneMap = new IsochroneMap(parameters.getTravellerId(), loc);
-		AccessibilityMap edgeMap = GraphEdgeMapFinder.findEdgeMap(_searchContext, parameters);
 
 		if (LOGGER.isDebugEnabled())
 		{

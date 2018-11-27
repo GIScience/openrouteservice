@@ -34,23 +34,9 @@ public class RoutingProfileType {
     public static final int CYCLING_ROAD = 12;
     public static final int CYCLING_ELECTRIC = 17;
 
-    public static final int CYCLING_MOTOR = 15;
-    @Deprecated
-    public static final int CYCLING_ROAD_OLD = 16;
-    @Deprecated
-    public static final int CYCLING_REGULAR_OLD = 13;
-    @Deprecated
-    public static final int CYCLING_SAFE = 18;
-    @Deprecated
-    public static final int CYCLING_TOUR = 19;
-
     // WALKING STUFF
     public static final int FOOT_WALKING = 20;
     public static final int FOOT_HIKING = 21;
-    @Deprecated
-    public static final int FOOT_HIKING_DO_NOT_USE = 22;
-    @Deprecated
-    public static final int FOOT_WALKING_DO_NOT_USE = 23;
     public static final int FOOT_JOGGING = 24;
 
     // OTHER STUFF
@@ -100,15 +86,12 @@ public class RoutingProfileType {
         if (routePref == CYCLING_REGULAR
             || routePref == CYCLING_MOUNTAIN
             || routePref == CYCLING_ROAD
+            || routePref == CYCLING_ELECTRIC
             || routePref == GH_BIKE
             || routePref == GH_BIKE2
             || routePref == GH_BIKE_MTB
             || routePref == GH_BIKE_ROAD
-            || routePref == CYCLING_ROAD_OLD
-            || routePref == CYCLING_REGULAR_OLD
-            || routePref == CYCLING_TOUR
-            || routePref == CYCLING_SAFE
-            || routePref == CYCLING_ELECTRIC)
+        )
             return true;
         else
             return false;
@@ -135,29 +118,17 @@ public class RoutingProfileType {
 
             case CYCLING_REGULAR:
                 return "cycling-regular";
-            case CYCLING_REGULAR_OLD:
-                return "cycling-regular-old";
             case CYCLING_MOUNTAIN:
                 return "cycling-mountain";
             case CYCLING_ROAD:
                 return "cycling-road";
-            case CYCLING_ROAD_OLD:
-                return "cycling-road-old";
-            case CYCLING_SAFE:
-                return "cycling-safe";
-            case CYCLING_TOUR:
-                return "cycling-tour";
             case CYCLING_ELECTRIC:
                 return "cycling-electric";
 
             case FOOT_WALKING:
                 return "foot-walking";
-            case FOOT_WALKING_DO_NOT_USE:
-                return "foot-walking-old";
             case FOOT_HIKING:
                 return "foot-hiking";
-            case FOOT_HIKING_DO_NOT_USE:
-                return "foot-hiking-old";
             case FOOT_JOGGING:
                 return "foot-jogging";
 
@@ -204,29 +175,17 @@ public class RoutingProfileType {
 
             case "cycling-regular":
                 return CYCLING_REGULAR;
-            case "cycling-regular-old":
-                return CYCLING_REGULAR_OLD;
             case "cycling-mountain":
                 return CYCLING_MOUNTAIN;
             case "cycling-road":
                 return CYCLING_ROAD;
-            case "cycling-road-old":
-                return CYCLING_ROAD_OLD;
-            case "cycling-safe":
-                return CYCLING_SAFE;
-            case "cycling-tour":
-                return CYCLING_TOUR;
             case "cycling-electric":
                 return CYCLING_ELECTRIC;
 
             case "foot-walking":
                 return FOOT_WALKING;
-            case "foot-walking-old":
-                return FOOT_WALKING_DO_NOT_USE;
             case "foot-hiking":
                 return FOOT_HIKING;
-            case "foot-hiking-old":
-                return FOOT_HIKING_DO_NOT_USE;
             case "foot-jogging":
                 return FOOT_JOGGING;
 
@@ -283,19 +242,10 @@ public class RoutingProfileType {
                 return FlagEncoderNames.RUNNING;
 
             case RoutingProfileType.CYCLING_REGULAR:
-                // TODO:
-                // MARQ24 - CURRENTLY WE USE the "old" Bike FlagEncoder - simply cause the routing result (in the test)
-                // is too differnt with the new one -> main difference might be caused by the _speedLimitHandler inside
-                // the heigit.ors.routing.graphhopper.extensions.flagencoders.tomove.BikeCommonFlagEncoder
                 return FlagEncoderNames.BIKE_ORS;
-                //return FlagEncoderNames.BIKE_ORS_OLD;
-
-            case RoutingProfileType.CYCLING_REGULAR_OLD:
-                return FlagEncoderNames.BIKE_ORS_OLD;
 
             case RoutingProfileType.CYCLING_MOUNTAIN:
                 return FlagEncoderNames.MTB_ORS;
-                //return FlagEncoderNames.MTB_ORS_OLD;
 
             case RoutingProfileType.CYCLING_ROAD:
                 return FlagEncoderNames.ROADBIKE_ORS;
@@ -336,23 +286,6 @@ public class RoutingProfileType {
             case RoutingProfileType.GH_HIKE:
                 return FlagEncoderNames.GH_HIKE;
 
-
-
-            case RoutingProfileType.FOOT_HIKING_DO_NOT_USE:
-                return FlagEncoderNames.HIKING;
-
-            case RoutingProfileType.FOOT_WALKING_DO_NOT_USE:
-                return FlagEncoderNames.WALKING;
-
-            case RoutingProfileType.CYCLING_ROAD_OLD:
-                return FlagEncoderNames.RACINGBIKE_ORS;
-
-            case RoutingProfileType.CYCLING_TOUR:
-                return FlagEncoderNames.BIKE_TOUR;
-
-            case RoutingProfileType.CYCLING_SAFE:
-                return FlagEncoderNames.BIKE_SAFTY;
-
             case RoutingProfileType.CYCLING_ELECTRIC:
                 return FlagEncoderNames.BIKE_ELECTRO;
 
@@ -387,15 +320,8 @@ public class RoutingProfileType {
             case FlagEncoderNames.GH_MOTOCYCLE:
                 return RoutingProfileType.DRIVING_MOTORCYCLE;
 
-            // TODO:
-            // MARQ24 - CURRENTLY WE USE the "old" Bike FlagEncoder - simply cause the routing result (in the test)
-            // is too differnt with the new one -> main difference might be caused by the _speedLimitHandler inside
-            // the heigit.ors.routing.graphhopper.extensions.flagencoders.tomove.BikeCommonFlagEncoder
             case FlagEncoderNames.BIKE_ORS:
                 return RoutingProfileType.CYCLING_REGULAR;
-
-            case FlagEncoderNames.BIKE_ORS_OLD:
-                return RoutingProfileType.CYCLING_REGULAR_OLD;
 
             case FlagEncoderNames.MTB_ORS:
             //case FlagEncoderNames.MTB_ORS_OLD:
@@ -440,18 +366,6 @@ public class RoutingProfileType {
                 //return RoutingProfileType.GH_HIKE;
                 return RoutingProfileType.FOOT_HIKING;
 
-
-            case FlagEncoderNames.WALKING:
-                return RoutingProfileType.FOOT_WALKING_DO_NOT_USE;
-            /* depricated self implemented hiking */
-            case FlagEncoderNames.HIKING:
-                return RoutingProfileType.FOOT_HIKING_DO_NOT_USE;
-            case FlagEncoderNames.RACINGBIKE_ORS:
-                return RoutingProfileType.CYCLING_ROAD_OLD;
-            case FlagEncoderNames.BIKE_TOUR:
-                return RoutingProfileType.CYCLING_TOUR;
-            case FlagEncoderNames.BIKE_SAFTY:
-                return RoutingProfileType.CYCLING_SAFE;
             case FlagEncoderNames.BIKE_ELECTRO:
                 return RoutingProfileType.CYCLING_ELECTRIC;
 

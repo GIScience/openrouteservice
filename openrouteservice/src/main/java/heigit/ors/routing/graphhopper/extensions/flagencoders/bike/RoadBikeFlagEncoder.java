@@ -15,7 +15,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencoders.nextgen;
+package heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.PriorityCode;
@@ -33,15 +33,15 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  * @author ratrun
  * @author Peter Karich
  */
-public class NextGenRoadBikeFlagEncoder extends NextGenBikeCommonFlagEncoder {
-    public NextGenRoadBikeFlagEncoder() {
+public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
+    public RoadBikeFlagEncoder() {
         // MARQ24 MOD START
         //this(4, 2, 0);
         this(6, 2, 0, false);
         // MARQ24 MOD END
     }
 
-    public NextGenRoadBikeFlagEncoder(PMap properties) {
+    public RoadBikeFlagEncoder(PMap properties) {
         this(
             // MARQ24 MOD START
             //(int) properties.getLong("speed_bits", 4),
@@ -57,13 +57,13 @@ public class NextGenRoadBikeFlagEncoder extends NextGenBikeCommonFlagEncoder {
         setBlockFords(properties.getBool("block_fords", true));
     }
 
-    public NextGenRoadBikeFlagEncoder(String propertiesStr) {
+    public RoadBikeFlagEncoder(String propertiesStr) {
         this(new PMap(propertiesStr));
     }
 
     // MARQ24 MOD START
     //public NextGenRoadBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
-    public NextGenRoadBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
+    public RoadBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
         //super(speedBits, speedFactor, maxTurnCosts);
         super(speedBits, speedFactor, maxTurnCosts, considerElevation);
     // MARQ24 MOD END

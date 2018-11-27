@@ -137,7 +137,6 @@ public class RoutingRequestMockup {
             routingRequestMockup.getSearchParameters().setConsiderTurnRestrictions(false);
             routingRequestMockup.getSearchParameters().setFlexibleMode(false);
             routingRequestMockup.getSearchParameters().setMaximumRadiuses(null);
-            routingRequestMockup.getSearchParameters().setMaximumSpeed(-1.0);
             routingRequestMockup.getSearchParameters().setOptions(null);
             routingRequestMockup.getSearchParameters().setProfileType(1);
             routingRequestMockup.getSearchParameters().setVehicleType(0);

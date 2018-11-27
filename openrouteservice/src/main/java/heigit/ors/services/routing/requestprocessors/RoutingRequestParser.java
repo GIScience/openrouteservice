@@ -207,6 +207,10 @@ public class RoutingRequestParser
 		if (!Helper.isEmpty(value))
 			req.setIncludeRoundaboutExits(Boolean.parseBoolean(value));
 
+		value = request.getParameter("suppress_warnings");
+		if (!Helper.isEmpty(value))
+			req.setSuppressWarnings(Boolean.parseBoolean(value));
+
 		value = request.getParameter("instructions_format");
 		if (!Helper.isEmpty(value))
 		{

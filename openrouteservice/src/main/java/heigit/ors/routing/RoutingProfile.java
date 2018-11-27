@@ -715,30 +715,7 @@ public class RoutingProfile {
         /* Avoid features */
 
         if (searchParams.hasAvoidFeatures()) {
-            if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)
-                    || profileType == RoutingProfileType.FOOT_WALKING || profileType == RoutingProfileType.FOOT_HIKING
-                    || profileType == RoutingProfileType.WHEELCHAIR) {
-
-                int avoidFeatures = searchParams.getAvoidFeatureTypes();
-
-                /* Avoid any features other than hills */
-                if (avoidFeatures != AvoidFeatureFlags.Hills) {
-                    edgeFilters.add(new AvoidFeaturesEdgeFilter(profileType, searchParams, gs));
-                    props.put("avoid_features", searchParams.getAvoidFeatureTypes());
-                }
-
-                /* Special case of hills */
-                if (mode == RouteSearchMode.Routing && (avoidFeatures & AvoidFeatureFlags.Hills) == AvoidFeatureFlags.Hills) {
-                    props.put("custom_weightings", true);
-                    props.put(ProfileWeighting.encodeName("avoid_hills"), true);
-
-                    if (searchParams.hasParameters(CyclingParameters.class)) {
-                        CyclingParameters cyclingParams = (CyclingParameters) profileParams;
-                        props.put("steepness_maximum", cyclingParams.getMaximumGradient());
-                    }
-
-                }
-            }
+            edgeFilters.add(new AvoidFeaturesEdgeFilter(profileType, searchParams, gs));
         }
 
         /* Avoid borders of some form */
@@ -747,30 +724,6 @@ public class RoutingProfile {
             if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)) {
                 edgeFilters.add(new AvoidBordersEdgeFilter(searchParams, gs));
             }
-        }
-
-        /* Steepness and (disabled) trail difficulty filters */
-
-        if (searchParams.hasParameters(CyclingParameters.class)) {
-            CyclingParameters cyclingParams = (CyclingParameters) profileParams;
-            int maximumGradient = cyclingParams.getMaximumGradient();
-            if (maximumGradient > 0)
-                edgeFilters.add(new AvoidSteepnessEdgeFilter(gs, maximumGradient));
-
-            int maximumTrailDifficulty = cyclingParams.getMaximumTrailDifficulty();
-            if (maximumTrailDifficulty > 0)
-                edgeFilters.add(new TrailDifficultyEdgeFilter(flagEncoder, gs, maximumTrailDifficulty));
-
-        } else if (searchParams.hasParameters(WalkingParameters.class)) {
-            WalkingParameters walkingParams = (WalkingParameters) profileParams;
-            int maximumGradient = walkingParams.getMaximumGradient();
-            if (maximumGradient > 0)
-                edgeFilters.add(new AvoidSteepnessEdgeFilter(gs, maximumGradient));
-
-            int maximumTrailDifficulty = walkingParams.getMaximumTrailDifficulty();
-            if (maximumTrailDifficulty > 0)
-                edgeFilters.add(new TrailDifficultyEdgeFilter(flagEncoder, gs, maximumTrailDifficulty));
-
         }
 
 
@@ -869,7 +822,6 @@ public class RoutingProfile {
                 req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), bearings[1].getValue());
 
             req.setVehicle(searchCntx.getEncoder().toString());
-            req.setMaxSpeed(searchParams.getMaximumSpeed());
             req.setAlgorithm("dijkstrabi");
 
             if (radiuses != null)
@@ -898,35 +850,16 @@ public class RoutingProfile {
             // on the given searchParameter Max have decided that's necessary 'patch' the hint
             // for certain profiles...
             // ...and BTW if the flexibleMode set to true, CH will be disabled!
-            if(weightingMethod == WeightingMethod.FASTEST){
-                if (profileType == RoutingProfileType.CYCLING_TOUR) {
-                    req.setWeighting("fastest");
-                    req.getHints().put("weighting_method", "recommended");
-                    flexibleMode = true;
-                } else if(profileType == RoutingProfileType.CYCLING_MOUNTAIN){
-                    // MARQ24 - in the original code by Max the 'weighting_method' was always set
-                    // to 'recommended' for MTB (and enable 'flexibleMode' -> which will turn off CH)
-                    // - I will add code, that this will only apply if there are certain terrain/track
-                    // types disabled (like certain trail_difficulty) in the searchParams like this ->
-                    // options: {"profile_params":{"restrictions":{"trail_difficulty":1}}
-                    ProfileParameters params = searchParams.getProfileParameters();
-                    if(params != null && params instanceof CyclingParameters) {
-                        CyclingParameters cycleParams = (CyclingParameters) params;
-                        if(cycleParams.getMaximumGradient() > -1 || cycleParams.getMaximumTrailDifficulty() > -1) {
-                            req.setWeighting("fastest");
-                            req.getHints().put("weighting_method", "recommended");
-                            flexibleMode = true;
-                        }
-                    }
-                }
-            } else if (weightingMethod == WeightingMethod.RECOMMENDED){
-                if( (profileType == RoutingProfileType.DRIVING_HGV && HeavyVehicleAttributes.HGV == searchParams.getVehicleType())
-                    || profileType == RoutingProfileType.CYCLING_TOUR
-                ){
+            if (weightingMethod == WeightingMethod.RECOMMENDED){
+                if(profileType == RoutingProfileType.DRIVING_HGV && HeavyVehicleAttributes.HGV == searchParams.getVehicleType()){
                     req.setWeighting("fastest");
                     req.getHints().put("weighting_method", "recommended_pref");
                     flexibleMode = true;
                 }
+            }
+
+            if(profileType == RoutingProfileType.WHEELCHAIR) {
+                flexibleMode = true;
             }
 
             if (RoutingProfileType.isDriving(profileType) && RealTrafficDataProvider.getInstance().isInitialized())
@@ -1015,7 +948,6 @@ public class RoutingProfile {
             || searchParams.hasAvoidFeatures()
             || searchParams.hasAvoidCountries()
             || searchParams.hasAvoidBorders()
-            || searchParams.getMaximumSpeed() > 0
             ||( RoutingProfileType.isDriving(searchParams.getProfileType())
                 &&( searchParams.hasParameters(VehicleParameters.class)
                     || searchParams.getConsiderTraffic()
