@@ -191,16 +191,8 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
                 jFeatures.put(jFeature);
 
                 Envelope env = shell.getEnvelopeInternal();
-                if (Double.isFinite(env.getMinX()))
-                    bbox.minLon = env.getMinX();
-                if (Double.isFinite(env.getMinY()))
-                    bbox.minLat = env.getMinY();
-                if (Double.isFinite(env.getMaxX()))
-                    bbox.maxLon = env.getMaxX();
-                if (Double.isFinite(env.getMaxY()))
-                    bbox.maxLat = env.getMaxY();
-                if (!bbox.isValid())
-                    bbox = new BBox(0, 0, 0, 0);
+                bbox = constructIsochroneBBox(env);
+
             }
 
             groupIndex++;
@@ -293,5 +285,19 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
         jResp.put("info", jInfo);
 
         ServletUtility.write(response, jResp);
+    }
+    public static BBox constructIsochroneBBox(Envelope env){
+        BBox bbox = new BBox(0,0,0,0);
+        if (Double.isFinite(env.getMinX()))
+            bbox.minLon = env.getMinX();
+        if (Double.isFinite(env.getMinY()))
+            bbox.minLat = env.getMinY();
+        if (Double.isFinite(env.getMaxX()))
+            bbox.maxLon = env.getMaxX();
+        if (Double.isFinite(env.getMaxY()))
+            bbox.maxLat = env.getMaxY();
+        if (!bbox.isValid())
+            bbox = new BBox(0, 0, 0, 0);
+        return bbox;
     }
 }
