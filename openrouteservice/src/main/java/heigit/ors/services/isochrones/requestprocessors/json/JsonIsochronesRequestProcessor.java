@@ -99,7 +99,6 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
                 IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams, nonDefaultAttrs);
                 isoMaps.add(isochroneMap);
             }
-
             writeResponse(response, req, isoMaps);
         }
     }
@@ -192,17 +191,16 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
                 jFeatures.put(jFeature);
 
                 Envelope env = shell.getEnvelopeInternal();
-                if (!Double.isNaN(env.getMinX()) && Double.isFinite(env.getMinX()))
+                if (Double.isFinite(env.getMinX()))
                     bbox.minLon = env.getMinX();
-                if (!Double.isNaN(env.getMinY()) && Double.isFinite(env.getMinY()))
+                if (Double.isFinite(env.getMinY()))
                     bbox.minLat = env.getMinY();
-                if (!Double.isNaN(env.getMaxX()) && Double.isFinite(env.getMaxX()))
+                if (Double.isFinite(env.getMaxX()))
                     bbox.maxLon = env.getMaxX();
-                if (!Double.isNaN(env.getMaxY()) && Double.isFinite(env.getMaxY()))
+                if (Double.isFinite(env.getMaxY()))
                     bbox.maxLat = env.getMaxY();
                 if (!bbox.isValid())
                     bbox = new BBox(0, 0, 0, 0);
-
             }
 
             groupIndex++;
