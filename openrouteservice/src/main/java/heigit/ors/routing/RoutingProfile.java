@@ -715,6 +715,8 @@ public class RoutingProfile {
         /* Avoid features */
 
         if (searchParams.hasAvoidFeatures()) {
+            props.put("avoid_features", searchParams.getAvoidFeatureTypes());
+
             edgeFilters.add(new AvoidFeaturesEdgeFilter(profileType, searchParams, gs));
         }
 

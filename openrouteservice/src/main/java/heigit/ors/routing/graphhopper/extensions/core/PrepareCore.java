@@ -75,7 +75,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     private int periodicUpdatesPercentage = 10;
     private int lastNodesLazyUpdatePercentage = 10;
     private int neighborUpdatePercentage = 90;
-    private double nodesContractedPercentage = 97.5;
+    private double nodesContractedPercentage = 99.75;
     private double logMessagesPercentage = 20;
     private double dijkstraTime;
     private double periodTime;
