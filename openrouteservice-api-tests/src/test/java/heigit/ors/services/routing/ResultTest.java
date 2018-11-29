@@ -409,7 +409,7 @@ public class ResultTest extends ServiceTest {
 	}
 
 	@Test
-	public void expectCarToRejectBikeParams() {
+	public void expectCarToRejectProfileParams() {
 
 		// options for cycling profiles
 		JSONObject options = new JSONObject();
@@ -428,7 +428,7 @@ public class ResultTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.statusCode(200);
+				.statusCode(400);
 	}
 
 	@Test
