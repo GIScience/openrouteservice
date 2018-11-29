@@ -19,12 +19,10 @@ import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.util.WaySurfaceDescription;
 import com.graphhopper.routing.weighting.PriorityWeighting;
+import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
-import heigit.ors.routing.RouteExtraInfo;
-import heigit.ors.routing.RouteExtraInfoFlag;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.RoutingRequest;
+import heigit.ors.routing.*;
 import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import heigit.ors.routing.graphhopper.extensions.storages.*;
 import heigit.ors.routing.util.ElevationSmoother;
@@ -32,8 +30,7 @@ import heigit.ors.routing.util.extrainfobuilders.RouteExtraInfoBuilder;
 import heigit.ors.routing.util.extrainfobuilders.SimpleRouteExtraInfoBuilder;
 import heigit.ors.routing.util.extrainfobuilders.SteepnessExtraInfoBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ExtraInfoProcessor extends PathProcessor {
 	private WaySurfaceTypeGraphStorage _extWaySurface;
@@ -78,7 +75,9 @@ public class ExtraInfoProcessor extends PathProcessor {
 
 	private RouteExtraInfo _osmIdInfo;
 	private RouteExtraInfoBuilder _osmIdInfoBuilder;
-	
+
+	private List<Integer> warningExtensions;
+
 	private int _profileType = RoutingProfileType.UNKNOWN;
 	private FlagEncoder _encoder;
 	private double _maximumSpeed = -1;
@@ -86,13 +85,18 @@ public class ExtraInfoProcessor extends PathProcessor {
 	private byte[] buffer;
 	private boolean _lastSegment;
 
-	public ExtraInfoProcessor(ORSGraphHopper graphHopper, RoutingRequest req) throws Exception 
+	public ExtraInfoProcessor(ORSGraphHopper graphHopper, RoutingRequest req) throws Exception
 	{
 		_profileType = req.getSearchParameters().getProfileType();
 		_maximumSpeed = req.getSearchParameters().getMaximumSpeed();
 		int extraInfo = req.getExtraInfo();
-		
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.WayCategory))
+
+		warningExtensions = new ArrayList<>();
+
+		if(!req.getSuppressWarnings())
+			applyWarningExtensions(graphHopper);
+
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.WayCategory))
 		{
 			_extWayCategory = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), WayCategoryGraphStorage.class);
 			
@@ -103,57 +107,57 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_wayCategoryInfoBuilder = new SimpleRouteExtraInfoBuilder(_wayCategoryInfo);
 		}
 		
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Surface) || RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.WayType))
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.Surface) || includeExtraInfo(extraInfo, RouteExtraInfoFlag.WayType))
 		{
 			_extWaySurface = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), WaySurfaceTypeGraphStorage.class);
 			
 			if (_extWaySurface == null)
 				throw new Exception("WaySurfaceType storage is not found.");
 
-			if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Surface))
+			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.Surface))
 			{
 				_surfaceInfo = new RouteExtraInfo("surface");
 				_surfaceInfoBuilder = new SimpleRouteExtraInfoBuilder(_surfaceInfo);
 			}
-			if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.WayType))
+			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.WayType))
 			{
 				_wayTypeInfo = new RouteExtraInfo("waytypes");
 				_wayTypeInfoBuilder = new SimpleRouteExtraInfoBuilder(_wayTypeInfo);
 			}
 		}
 		
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Steepness))
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.Steepness))
 		{
 			_steepnessInfo = new RouteExtraInfo("steepness");
 			_steepnessInfoBuilder = new SteepnessExtraInfoBuilder(_steepnessInfo);
 		}
 		
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Suitability))
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.Suitability))
 		{
 			_waySuitabilityInfo = new RouteExtraInfo("suitability");
 			_waySuitabilityInfoBuilder = new SimpleRouteExtraInfoBuilder(_waySuitabilityInfo);
 		}
 		
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.AvgSpeed))
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.AvgSpeed))
 		{
 			_avgSpeedInfo = new RouteExtraInfo("avgspeed");
 			_avgSpeedInfo.setFactor(10);
 			_avgSpeedInfoBuilder = new SimpleRouteExtraInfoBuilder(_avgSpeedInfo);
 		}
 		
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Tollways))
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.Tollways))
 		{
 			_extTollways = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), TollwaysGraphStorage.class);
 
 			if (_extTollways == null)
 				throw new Exception("Tollways storage is not found.");
 			
-			_tollwaysInfo = new RouteExtraInfo("tollways");
+			_tollwaysInfo = new RouteExtraInfo("tollways", _extTollways);
 			_tollwaysInfoBuilder = new SimpleRouteExtraInfoBuilder(_tollwaysInfo);
 			_tollwayExtractor = new TollwayExtractor(_extTollways, req.getSearchParameters().getVehicleType(), req.getSearchParameters().getProfileParameters());
 		}
 
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.TrailDifficulty))
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.TrailDifficulty))
 		{
 			_extTrailDifficulty  = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), TrailDifficultyScaleGraphStorage.class);
 			_extHillIndex = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), HillIndexGraphStorage.class);
@@ -162,7 +166,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_trailDifficultyInfoBuilder = new SimpleRouteExtraInfoBuilder(_trailDifficultyInfo);
 		}
 
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Green)) {
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.Green)) {
 			_extGreenIndex = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), GreenIndexGraphStorage.class);
 
 			if (_extGreenIndex == null)
@@ -171,7 +175,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_greenInfoBuilder = new SimpleRouteExtraInfoBuilder(_greenInfo);
 		}
 
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.Noise)) {
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.Noise)) {
 
 			_extNoiseIndex = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), NoiseIndexGraphStorage.class);
 
@@ -181,7 +185,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_noiseInfoBuilder = new SimpleRouteExtraInfoBuilder(_noiseInfo);
 		}
 
-		if (RouteExtraInfoFlag.isSet(extraInfo, RouteExtraInfoFlag.OsmId)) {
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.OsmId)) {
 			_extOsmId = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), OsmIdGraphStorage.class);
 
 			if(_extOsmId == null)
@@ -189,7 +193,43 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_osmIdInfo = new RouteExtraInfo("osmId");
 			_osmIdInfoBuilder = new SimpleRouteExtraInfoBuilder(_osmIdInfo);
 		}
+
 		buffer = new byte[4];
+	}
+
+	/**
+	 * Loop through the GraphExtensions of the storage and store in the warningExtensions object those that implement
+	 * the WarningGraphExtension interface and are set to be used for generating warnings.
+	 *
+	 * @param graphHopper
+	 */
+	private void applyWarningExtensions(ORSGraphHopper graphHopper) {
+		GraphExtension[] extensions = GraphStorageUtils.getGraphExtensions(graphHopper.getGraphHopperStorage());
+		for(GraphExtension ge : extensions) {
+			if (ge instanceof WarningGraphExtension) {
+				if(((WarningGraphExtension)ge).isUsedForWarning()) {
+					warningExtensions.add(RouteExtraInfoFlag.getFromString(((WarningGraphExtension) ge).getName()));
+				}
+			}
+		}
+	}
+
+	/**
+	 * Check if the extra info should be included in the generation or not by looking at the encoded extras value and
+	 * the list of warning extras.
+	 *
+	 * @param encodedExtras		The encoded value stating which extras were passed explicitly
+	 * @param infoFlag			The id of the extra info whos inclusion needs to be decided
+	 *
+	 * @return
+	 */
+	private boolean includeExtraInfo(int encodedExtras, int infoFlag) {
+		boolean include = false;
+
+		if(RouteExtraInfoFlag.isSet(encodedExtras, infoFlag) || warningExtensions.contains(infoFlag))
+			include = true;
+
+		return include;
 	}
 
 	public void setSegmentIndex(int index, int count)
@@ -223,7 +263,6 @@ public class ExtraInfoProcessor extends PathProcessor {
 			extras.add(_trailDifficultyInfo);
 		if (_osmIdInfo != null)
 			extras.add(_osmIdInfo);
-
 		return extras;
 	}
 

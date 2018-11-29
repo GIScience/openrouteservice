@@ -18,6 +18,8 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.GraphStorage;
 
+import java.util.List;
+
 public class GraphStorageUtils {
 
 	@SuppressWarnings("unchecked")
@@ -48,6 +50,24 @@ public class GraphStorageUtils {
 			}
 		}
 
+		return null;
+	}
+
+	public static GraphExtension[] getGraphExtensions(GraphStorage graphStorage) {
+		if(graphStorage != null) {
+			if(graphStorage instanceof GraphHopperStorage) {
+				GraphHopperStorage ghs = (GraphHopperStorage) graphStorage;
+				GraphExtension ge = ghs.getExtension();
+
+				if(ge instanceof  ExtendedStorageSequence) {
+					ExtendedStorageSequence ess = (ExtendedStorageSequence)ge;
+					return ess.getExtensions();
+				} else {
+					return new GraphExtension[] {ge};
+				}
+
+			}
+		}
 		return null;
 	}
 	
