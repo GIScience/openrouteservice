@@ -24,7 +24,6 @@ public class TollwayExtractor {
 	private VehicleParameters _vehicleParams;
 	private int _profileType;
 	private TollwaysGraphStorage _storage;
-	private byte[] _buffer = new byte[4];
 
 	public TollwayExtractor(TollwaysGraphStorage storage, int profileType, ProfileParameters vehicleParams) {
 		_storage = storage;
@@ -39,7 +38,7 @@ public class TollwayExtractor {
 	 * @see HeavyVehicleAttributes
 	 */
 	public int getValue(int edgeId) {
-		int value = _storage.getEdgeValue(edgeId, _buffer);
+		int value = _storage.getEdgeValue(edgeId);
 
 		switch (value) {
 			// toll:no
