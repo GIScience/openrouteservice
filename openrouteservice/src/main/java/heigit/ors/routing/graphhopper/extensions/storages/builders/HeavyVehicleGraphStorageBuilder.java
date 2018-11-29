@@ -181,8 +181,14 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 						if (parsedValue == -1)
 							parsedValue = parseDouble(value);
 
-						_restrictionValues[valueIndex] = parsedValue;
-						_hasRestrictionValues = true;
+						// it was possible to extract a reasonable value
+						if (parsedValue > 0) {
+							_restrictionValues[valueIndex] = parsedValue;
+							_hasRestrictionValues = true;
+							//if (parsedValue > 12.7) System.out.println(way.getId() + " " + key +  " " + parsedValue);
+							if (parsedValue % 0.1 < 0.099 && parsedValue % 0.1 > 0.001) System.out.println(way.getId() + " " + key +  " " + parsedValue);
+
+						}
 					}
 				}
 
