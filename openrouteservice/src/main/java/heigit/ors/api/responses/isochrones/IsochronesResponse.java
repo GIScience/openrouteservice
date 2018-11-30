@@ -13,29 +13,27 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.routing;
+package heigit.ors.api.responses.isochrones;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import heigit.ors.api.requests.routing.RouteRequest;
+import heigit.ors.api.requests.isochrones.IsochronesRequest;
 import heigit.ors.api.responses.common.BoundingBox.BoundingBox;
 
-import java.util.List;
-
-public class RouteResponse {
+public class IsochronesResponse {
     @JsonIgnore
-    protected RouteResponseInfo responseInformation;
+    protected IsochronesResponseInfo responseInformation;
 
     @JsonIgnore
     protected BoundingBox bbox;
 
-    @JsonIgnore
-    protected List routeResults;
+    //@JsonIgnore
+    //protected List routeResults;
 
-    public RouteResponse(RouteRequest request) {
-        responseInformation = new RouteResponseInfo(request);
+    public IsochronesResponse(IsochronesRequest request) {
+        responseInformation = new IsochronesResponseInfo(request);
     }
 
-    public RouteResponseInfo getResponseInformation() {
+    public IsochronesResponseInfo getResponseInformation() {
         return responseInformation;
     }
 
@@ -43,7 +41,7 @@ public class RouteResponse {
         return bbox;
     }
 
-    public List getRouteResults() {
+    /*public List getRouteResults() {
         return routeResults;
-    }
+    }*/
 }

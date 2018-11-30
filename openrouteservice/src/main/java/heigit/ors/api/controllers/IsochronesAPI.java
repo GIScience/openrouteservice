@@ -23,11 +23,14 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import heigit.ors.api.errors.IsochronesResponseEntityExceptionHandler;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.api.requests.isochrones.IsochronesRequest;
+import heigit.ors.api.requests.isochrones.IsochronesRequestHandler;
 import heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects.GeoJSONIsochronesResponse;
 import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.UnknownParameterException;
+import heigit.ors.isochrones.IsochroneMapCollection;
 import heigit.ors.isochrones.IsochronesErrorCodes;
+import heigit.ors.isochrones.IsochroneRequest;
 import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -61,11 +64,14 @@ public class IsochronesAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 
-        //IsochronesResult result =
-        IsochronesRequestHandler.generateIsochronesFromRequest(request);
+        IsochronesRequestHandler handler = new IsochronesRequestHandler();
+
+        handler.generateIsochronesFromRequest(request);
+        IsochroneRequest isochroneRequest = handler.getIsochroneRequest();
+        IsochroneMapCollection isoMaps = handler.getIsoMaps();
 
         return null;
-        //return new GeoJSONIsochronesResponse(new IsochronesResult[] { result }, request);
+        //return new GeoJSONIsochronesResponse(isochroneRequest, isoMaps);
     }
 
     // Errors generated from the reading of the request (before entering the routing system). Normally these are where

@@ -15,30 +15,28 @@
 
 package heigit.ors.api.requests.isochrones;
 
-import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.api.requests.common.GenericHandler;
 import heigit.ors.common.DistanceUnit;
+import heigit.ors.common.StatusCode;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.common.TravellerInfo;
-import heigit.ors.exceptions.IncompatableParameterException;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.isochrones.IsochroneMapCollection;
-import heigit.ors.isochrones.IsochroneRequest;
-import heigit.ors.isochrones.IsochronesErrorCodes;
+import heigit.ors.exceptions.*;
+import heigit.ors.isochrones.*;
 import heigit.ors.routing.RouteSearchParameters;
-import heigit.ors.routing.RoutingErrorCodes;
-import heigit.ors.routing.RoutingProfileType;
+import heigit.ors.routing.RoutingProfileManager;
+import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.util.DistanceUnitUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 public class IsochronesRequestHandler extends GenericHandler {
+
+    public IsochroneMapCollection isoMaps;
+    public IsochroneRequest isochroneRequest;
 
     public IsochronesRequestHandler() {
         super();
@@ -47,28 +45,30 @@ public class IsochronesRequestHandler extends GenericHandler {
         this.errorCodes.put("INVALID_PARAMETER_VALUE", IsochronesErrorCodes.INVALID_PARAMETER_VALUE);
     }
 
-    public IsochroneMapCollection generateIsochronesFromRequest(IsochronesRequest request) throws StatusCodeException {
+    public void generateIsochronesFromRequest(IsochronesRequest request) throws Exception {
 
-        IsochroneRequest isochroneRequest = convertIsochroneRequest(request);
+        isochroneRequest = convertIsochroneRequest(request);
 
-        try {
+        // request object is built, now check if app config allows all settings
+        List<TravellerInfo> travellers = isochroneRequest.getTravellers();
 
-            IsochroneMapCollection isoMaps = new IsochroneMapCollection();
+        // TODO where should we put the validation code?
+        validateAgainstConfig(isochroneRequest, travellers);
 
-            /*for (int i = 0;i < travellers.size(); ++i){
-                IsochroneSearchParameters searchParams = req.getSearchParameters(i);
-                IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams, nonDefaultAttrs);
+        if (travellers.size() > 0) {
+            String[] attrs = isochroneRequest.getAttributes();
+
+            isoMaps = new IsochroneMapCollection();
+
+            for (int i = 0; i < travellers.size(); ++i) {
+                IsochroneSearchParameters searchParams = isochroneRequest.getSearchParameters(i);
+                IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams);
+
                 isoMaps.add(isochroneMap);
-            }*/
+            }
 
-            return isoMaps;
-
-        } catch (Exception e) {
-            if (e instanceof StatusCodeException)
-                throw (StatusCodeException) e;
-
-            throw new StatusCodeException(IsochronesErrorCodes.UNKNOWN);
         }
+
     }
 
     public IsochroneRequest convertIsochroneRequest(IsochronesRequest request) throws StatusCodeException {
@@ -102,7 +102,8 @@ public class IsochronesRequestHandler extends GenericHandler {
 
         //range + interval
         List<Double> rangeValues = request.getRange();
-        setRangeAndIntervals(travellerInfo, rangeValues);
+        Double intervalValue = request.getInterval();
+        setRangeAndIntervals(travellerInfo, rangeValues, intervalValue);
 
         //attributes
         if (request.hasAttributes())
@@ -133,32 +134,93 @@ public class IsochronesRequestHandler extends GenericHandler {
 
         }
 
+        //smoothing
+        if (request.hasSmoothing())
+            isochroneRequest.setSmoothingFactor(convertSmoothing(request.getSmoothing()));
+
         //intersections
+        if (request.getIntersections()) isochroneRequest.setIncludeIntersections(request.getIntersections());
 
         //locations (must come very last)
         Coordinate[] locations = convertLocations(request.getLocations());
+
+        setLocations(isochroneRequest, travellerInfo, locations);
+
+        return isochroneRequest;
+    }
+
+    public void validateAgainstConfig(IsochroneRequest isochroneRequest, List<TravellerInfo> travellers) throws ParameterOutOfRangeException, StatusCodeException {
+
+        if (IsochronesServiceSettings.getAllowComputeArea() == false && isochroneRequest.hasAttribute("area"))
+            throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.FEATURE_NOT_SUPPORTED, "Area computation is not enabled.");
+
+        if (travellers.size() > IsochronesServiceSettings.getMaximumLocations())
+            throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations", Integer.toString(travellers.size()), Integer.toString(IsochronesServiceSettings.getMaximumLocations()));
+
+        for (int i = 0; i < travellers.size(); ++i) {
+            TravellerInfo traveller = travellers.get(i);
+            int maxAllowedRange = IsochronesServiceSettings.getMaximumRange(traveller.getRouteSearchParameters().getProfileType(), traveller.getRangeType());
+            double maxRange = traveller.getMaximumRange();
+            if (maxRange > maxAllowedRange)
+                throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Double.toString(maxRange), Integer.toString(maxAllowedRange));
+
+            if (IsochronesServiceSettings.getMaximumIntervals() > 0) {
+                if (IsochronesServiceSettings.getMaximumIntervals() < traveller.getRanges().length)
+                    throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(traveller.getRanges().length), Integer.toString(IsochronesServiceSettings.getMaximumIntervals()));
+            }
+        }
+
+    }
+
+    private static Float convertSmoothing(Double smoothingValue) throws ParameterValueException {
+
+        float f = (float) smoothingValue.doubleValue();
+
+        if (smoothingValue < 0 || smoothingValue > 100)
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "smoothing", smoothingValue.toString());
+
+        return f;
+
+    }
+
+    public void setLocations(IsochroneRequest isochroneRequest, TravellerInfo travellerInfo, Coordinate[] locations) throws InternalServerException {
 
         for (int i = 0; i < locations.length; i++) {
 
             if (i == 0) {
 
                 travellerInfo.setLocation(locations[0]);
-                isochroneRequest.addTraveller(travellerInfo);
+
+                try {
+
+                    isochroneRequest.addTraveller(travellerInfo);
+
+                } catch (Exception ex) {
+
+                    throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "interval");
+
+                }
 
             } else {
 
                 TravellerInfo ti = travellerInfo.clone();
                 ti.setLocation(locations[i]);
-                isochroneRequest.addTraveller(ti);
+
+                try {
+
+                    isochroneRequest.addTraveller(ti);
+
+                } catch (Exception ex) {
+
+                    throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "interval");
+
+                }
 
             }
-
         }
-
-        return isochroneRequest;
     }
 
-    public void setRangeAndIntervals(TravellerInfo travellerInfo, List<Double> rangeValues) throws ParameterValueException{
+    public void setRangeAndIntervals(TravellerInfo travellerInfo, List<Double> rangeValues, Double intervalValue) throws ParameterValueException {
 
         boolean skipInterval = false;
         double rangeValue = -1.0;
@@ -195,24 +257,19 @@ public class IsochronesRequestHandler extends GenericHandler {
             skipInterval = true;
         }
 
-        //interval
+        // interval, only use if one range is defined
         if (!skipInterval) {
-            value = request.getParameter("interval");
-            if (!Helper.isEmpty(value)) {
-                if (rangeValue != -1) {
-                    travellerInfo.setRanges(rangeValue, Double.parseDouble(value));
-                }
+            if (rangeValue != -1) {
+                travellerInfo.setRanges(rangeValue, intervalValue);
             }
+
         }
 
     }
 
-
-
     private String[] convertAttributes(IsochronesRequestEnums.Attributes[] attributes) {
         return convertAPIEnumListToStrings(attributes);
     }
-
 
     private static String convertLocationType(IsochronesRequestEnums.LocationType locationType) throws ParameterValueException {
 
@@ -267,7 +324,6 @@ public class IsochronesRequestHandler extends GenericHandler {
 
     }
 
-
     private static DistanceUnit convertAreaUnits(APIEnums.Units unitsIn) throws
             ParameterValueException {
 
@@ -275,8 +331,7 @@ public class IsochronesRequestHandler extends GenericHandler {
 
         if (units == DistanceUnit.Unknown)
 
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "units", unitsIn.toString());
-
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "units", unitsIn.toString());
 
         return units;
 
@@ -293,7 +348,7 @@ public class IsochronesRequestHandler extends GenericHandler {
 
             if (units == DistanceUnit.Unknown)
 
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "units", unitsIn.toString());
+                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "units", unitsIn.toString());
 
         } else {
 
@@ -308,7 +363,7 @@ public class IsochronesRequestHandler extends GenericHandler {
 
     private static Coordinate[] convertLocations(List<List<Double>> locations) throws ParameterValueException {
         if (locations.size() < 1)
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "locations");
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "locations");
 
         ArrayList<Coordinate> coords = new ArrayList<>();
 
@@ -319,13 +374,19 @@ public class IsochronesRequestHandler extends GenericHandler {
         return coords.toArray(new Coordinate[coords.size()]);
     }
 
-
     private static Coordinate convertSingleCoordinate(List<Double> coordinate) throws ParameterValueException {
         if (coordinate.size() != 2)
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "locations");
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "locations");
 
         return new Coordinate(coordinate.get(0), coordinate.get(1));
     }
 
+    public IsochroneMapCollection getIsoMaps() {
+        return isoMaps;
+    }
+
+    public IsochroneRequest getIsochroneRequest() {
+        return isochroneRequest;
+    }
 
 }

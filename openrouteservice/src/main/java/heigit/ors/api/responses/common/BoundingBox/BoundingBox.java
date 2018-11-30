@@ -13,25 +13,20 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.routing.BoundingBox;
+package heigit.ors.api.responses.common.BoundingBox;
 
-import com.graphhopper.util.shapes.BBox;
+import heigit.ors.api.responses.routing.GPXRouteResponseObjects.GPXBounds;
 
-public class BoundingBox3DBase extends BoundingBoxBase {
-    protected double minEle;
-    protected double maxEle;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 
-    public BoundingBox3DBase(BBox bounding) {
-        super(bounding);
-        this.maxEle = bounding.maxEle;
-        this.minEle = bounding.minEle;
-    }
+@XmlSeeAlso(GPXBounds.class)
+@XmlTransient
+public interface BoundingBox {
+    double getMinLon();
+    double getMaxLon();
+    double getMinLat();
+    double getMaxLat();
 
-    public double getMinEle() {
-        return minEle;
-    }
-
-    public double getMaxEle() {
-        return maxEle;
-    }
+    double[] getAsArray();
 }

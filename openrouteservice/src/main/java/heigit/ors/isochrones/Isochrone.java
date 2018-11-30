@@ -27,6 +27,9 @@ public class Isochrone {
     private Geometry geometry;
     private double value;
     private double area = 0.0;
+    private boolean hasArea = false;
+    private boolean hasReachfactor = false;
+    private double reachfactor;
     private double maxRadius;
     private Envelope envelope;
     private List<AttributeValue> _attributes;
@@ -62,8 +65,8 @@ public class Isochrone {
         return maxRadius;
     }
 
-    public double getArea(String units) throws Exception {
-        double area = getArea(true);
+    public double calcArea(String units) throws Exception {
+        double area = calcArea(true);
         if (units != null) {
             switch (units) {
                 case "m":
@@ -80,13 +83,57 @@ public class Isochrone {
 
     }
 
-    public double getArea(Boolean inMeters) throws Exception {
+    public double calcArea(Boolean inMeters) throws Exception {
         if (area == 0.0) {
             area = FormatUtility.roundToDecimals(GeomUtility.getArea(geometry, inMeters), 2);
         }
 
+        hasArea = true;
         return area;
     }
+
+    public void setArea(double area) {
+
+        this.area = area;
+
+    }
+
+    public double getArea() {
+
+        return area;
+
+    }
+
+    public boolean hasArea() {
+        return hasArea;
+    }
+
+    public double calcReachfactor(String units) throws Exception {
+
+        double r = getMaxRadius(units);
+        double maxArea = Math.PI * r * r;
+
+        hasReachfactor = true;
+        return FormatUtility.roundToDecimals(area / maxArea, 4);
+
+    }
+
+    public void setReachfactor(double reachfactor) {
+
+        this.reachfactor = reachfactor;
+
+    }
+
+    public double getReachfactor() {
+
+        return reachfactor;
+
+    }
+
+    public boolean hasReachfactor() {
+        return hasReachfactor;
+    }
+
 
     public Envelope getEnvelope() {
         if (envelope == null)
@@ -109,4 +156,5 @@ public class Isochrone {
         for (int i = 0; i < statNames.size(); i++)
             _attributes.add(new AttributeValue(statNames.get(i), statValues[i], source));
     }
+
 }

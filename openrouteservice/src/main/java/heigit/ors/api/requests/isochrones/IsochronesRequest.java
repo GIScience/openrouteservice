@@ -15,7 +15,6 @@
 
 package heigit.ors.api.requests.isochrones;
 
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -93,20 +92,28 @@ public class IsochronesRequest {
     @JsonProperty("range")
     private List<Double> range;
 
-
     @ApiModelProperty(name = "interval", value = "Interval of isochrones or equidistants for one range value. " +
             "value in seconds for time and meters for distance.",
-            example = "[ 30 ]"
+            example = "30"
     )
     @JsonProperty("interval")
-    private List<Integer> interval;
-
+    private Double interval;
 
     @ApiModelProperty(name = "intersections",
             value = "Specifies whether to return intersecting polygons")
     @JsonProperty(value = "intersections", defaultValue = "false")
     private Boolean intersections = false;
 
+    @ApiModelProperty(name = "smoothing",
+            value = "Applies a level of generalisation to the isochrone polygons generated as a smoothing_factor between 0 and 1.0.\n" +
+                    "Generalisation is produced by determining a maximum length of a connecting line between two points found on the outside of a containing polygon.\n" +
+                    "If the distance is larger than a threshold value, the line between the two points is removed and a smaller connecting line between other points is used.\n" +
+                    "The threshold value is determined as (smoothing_factor * maximum_radius_of_isochrone) / 10.\n" +
+                    "Therefore, a value closer to 1 will result in a more generalised shape.\n" +
+                    "The polygon generation algorithm is based on Duckham and al. (2008) \"Efficient generation of simple polygons for characterizing the shape of a set of points in the plane.\"")
+    @JsonProperty(value = "intersections", defaultValue = "false")
+    private Double smoothing;
+    private boolean hasSmoothing = false;
 
     @JsonCreator
     public IsochronesRequest(
@@ -198,12 +205,24 @@ public class IsochronesRequest {
         this.range = range;
     }
 
-    public List<Integer> getInterval() {
+    public Double getInterval() {
         return interval;
     }
 
-    public void setInterval(List<Integer> interval) {
+    public void setInterval(Double interval) {
         this.interval = interval;
+    }
+
+    public Double getSmoothing() {
+        return smoothing;
+    }
+
+    public void setSmoothing(Double smoothing) {
+        this.smoothing = smoothing;
+    }
+
+    public boolean hasSmoothing() {
+        return hasSmoothing;
     }
 
     public IsochronesRequestEnums.Attributes[] getAttributes() {

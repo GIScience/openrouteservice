@@ -16,16 +16,12 @@
 package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.graphhopper.util.shapes.BBox;
-import heigit.ors.api.responses.routing.BoundingBox.BoundingBox;
-import heigit.ors.api.responses.routing.BoundingBox.BoundingBoxBase;
+import heigit.ors.api.responses.common.BoundingBox.BoundingBox;
+import heigit.ors.api.responses.common.BoundingBox.BoundingBoxBase;
 import heigit.ors.util.FormatUtility;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiModel;
 
 @JsonFormat(shape = JsonFormat.Shape.ARRAY)
 @JsonPropertyOrder({"minLat", "minLon", "maxLat", "maxLon"})

@@ -17,8 +17,8 @@ package heigit.ors.api.responses.routing.GPXRouteResponseObjects;
 
 import com.graphhopper.util.shapes.BBox;
 import heigit.ors.api.requests.routing.RouteRequest;
-import heigit.ors.api.responses.routing.BoundingBox.BoundingBox;
-import heigit.ors.api.responses.routing.BoundingBox.BoundingBoxFactory;
+import heigit.ors.api.responses.common.BoundingBox.BoundingBox;
+import heigit.ors.api.responses.common.BoundingBox.BoundingBoxFactory;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.routing.RouteResult;
 import heigit.ors.util.GeomUtility;
