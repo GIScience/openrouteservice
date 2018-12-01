@@ -19,6 +19,8 @@ import javax.servlet.http.*;
 import heigit.ors.services.matrix.requestprocessors.MatrixServiceRequestProcessorFactory;
 import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import heigit.ors.servlet.http.BaseHttpServlet;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

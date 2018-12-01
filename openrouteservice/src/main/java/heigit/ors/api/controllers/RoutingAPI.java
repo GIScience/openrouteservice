@@ -37,7 +37,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@Api(value="/v2/directions", description = "Get a route")
+@Api(value = "/v2/directions", description = "Get a route")
 @RequestMapping("/v2/directions")
 public class RoutingAPI {
 
@@ -46,7 +46,7 @@ public class RoutingAPI {
     @ApiResponses(
             @ApiResponse(code = 200, message = "GeoJSON Response", response = GeoJSONRouteResponse.class)
     )
-    public GeoJSONRouteResponse getSimpleGeoJsonRoute(@ApiParam(value = "Specifies the route profile.") @PathVariable APIEnums.RoutingProfile profile,
+    public GeoJSONRouteResponse getSimpleGeoJsonRoute(@ApiParam(value = "Specifies the route profile.") @PathVariable APIEnums.Profile profile,
                                                       @ApiParam(value = "Start coordinate of the route") @RequestParam Coordinate start,
                                                       @ApiParam(value = "Destination coordinate of the route") @RequestParam Coordinate end) throws StatusCodeException{
         RouteRequest request = new RouteRequest(start, end);
@@ -65,8 +65,8 @@ public class RoutingAPI {
     }
 
     @PostMapping(value = "/{profile}")
-    public JSONRouteResponse getDefault( @ApiParam(value = "Specifies the route profile.") @PathVariable APIEnums.RoutingProfile profile,
-                                         @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws Exception {
+    public JSONRouteResponse getDefault(@ApiParam(value = "Specifies the route profile.") @PathVariable APIEnums.Profile profile,
+                                        @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws Exception {
         return getJsonRoute(profile, request);
     }
 
@@ -76,14 +76,14 @@ public class RoutingAPI {
             @ApiResponse(code = 200, message = "JSON Response", response = JSONRouteResponse.class)
     })
     public JSONRouteResponse getJsonRoute(
-            @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.RoutingProfile profile,
+            @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.Profile profile,
             @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws StatusCodeException {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.JSON);
 
         RouteResult result = new RouteRequestHandler().generateRouteFromRequest(request);
 
-        return new JSONRouteResponse(new RouteResult[] { result }, request);
+        return new JSONRouteResponse(new RouteResult[]{result}, request);
     }
 
     @PostMapping(value = "/{profile}/gpx", produces = "application/gpx+xml;charset=UTF-8")
@@ -92,14 +92,14 @@ public class RoutingAPI {
             @ApiResponse(code = 200, message = "GPX Response", response = GPXRouteResponse.class)
     })
     public GPXRouteResponse getGPXRoute(
-            @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.RoutingProfile profile,
+            @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.Profile profile,
             @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws Exception {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GPX);
 
         RouteResult result = new RouteRequestHandler().generateRouteFromRequest(request);
 
-        return new GPXRouteResponse(new RouteResult[] { result }, request);
+        return new GPXRouteResponse(new RouteResult[]{result}, request);
 
     }
 
@@ -109,14 +109,14 @@ public class RoutingAPI {
             @ApiResponse(code = 200, message = "GeoJSON Response", response = GeoJSONRouteResponse.class)
     })
     public GeoJSONRouteResponse getGeoJsonRoute(
-            @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.RoutingProfile profile,
+            @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.Profile profile,
             @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws Exception {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 
         RouteResult result = new RouteRequestHandler().generateRouteFromRequest(request);
 
-        return new GeoJSONRouteResponse(new RouteResult[] { result }, request);
+        return new GeoJSONRouteResponse(new RouteResult[]{result}, request);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
@@ -131,14 +131,14 @@ public class RoutingAPI {
     public ResponseEntity<Object> handleError(final HttpMessageNotReadableException e) {
         final Throwable cause = e.getCause();
         final RoutingResponseEntityExceptionHandler h = new RoutingResponseEntityExceptionHandler();
-        if(cause instanceof UnrecognizedPropertyException) {
-            return h.handleUnknownParameterException(new UnknownParameterException(RoutingErrorCodes.UNKNOWN_PARAMETER, ((UnrecognizedPropertyException)cause).getPropertyName()));
-        } else if(cause instanceof InvalidFormatException) {
-            return h.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, ((InvalidFormatException)cause).getValue().toString()));
-        } else if(cause instanceof InvalidDefinitionException) {
-            return h.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, ((InvalidDefinitionException)cause).getPath().get(0).getFieldName()));
-        } else if(cause instanceof MismatchedInputException) {
-            return h.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, ((MismatchedInputException)cause).getPath().get(0).getFieldName()));
+        if (cause instanceof UnrecognizedPropertyException) {
+            return h.handleUnknownParameterException(new UnknownParameterException(RoutingErrorCodes.UNKNOWN_PARAMETER, ((UnrecognizedPropertyException) cause).getPropertyName()));
+        } else if (cause instanceof InvalidFormatException) {
+            return h.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, ((InvalidFormatException) cause).getValue().toString()));
+        } else if (cause instanceof InvalidDefinitionException) {
+            return h.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, ((InvalidDefinitionException) cause).getPath().get(0).getFieldName()));
+        } else if (cause instanceof MismatchedInputException) {
+            return h.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, ((MismatchedInputException) cause).getPath().get(0).getFieldName()));
         } else {
             return h.handleGenericException(e);
         }
