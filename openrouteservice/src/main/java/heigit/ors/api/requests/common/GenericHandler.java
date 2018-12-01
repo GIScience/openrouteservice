@@ -18,6 +18,7 @@ package heigit.ors.api.requests.common;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
+import heigit.ors.api.requests.isochrones.IsochronesRequestTraveller;
 import heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
 import heigit.ors.api.requests.routing.RouteRequest;
@@ -51,7 +52,7 @@ public class GenericHandler {
 
     protected String[] convertAPIEnumListToStrings(Enum[] valuesIn) {
         String[] attributes = new String[valuesIn.length];
-        for(int i=0; i<valuesIn.length; i++) {
+        for (int i = 0; i < valuesIn.length; i++) {
             attributes[i] = convertAPIEnum(valuesIn[i]);
         }
 
@@ -63,12 +64,12 @@ public class GenericHandler {
     }
 
     protected int convertVehicleType(APIEnums.VehicleType vehicleTypeIn, int profileType) throws IncompatableParameterException {
-        if(!RoutingProfileType.isHeavyVehicle(profileType)) {
+        if (!RoutingProfileType.isHeavyVehicle(profileType)) {
             throw new IncompatableParameterException(getErrorCode("INVALID_PARAMETER_VALUE"),
                     "vehicle_type", vehicleTypeIn.toString(),
                     "profile", RoutingProfileType.getName(profileType));
         }
-        if(vehicleTypeIn == null) {
+        if (vehicleTypeIn == null) {
             return HeavyVehicleAttributes.UNKNOWN;
         }
 
@@ -77,7 +78,7 @@ public class GenericHandler {
 
     private Integer getErrorCode(String name) {
         int errorCode = -1;
-        if(errorCodes.containsKey(name)) {
+        if (errorCodes.containsKey(name)) {
             errorCode = errorCodes.get(name);
         }
 
@@ -85,7 +86,7 @@ public class GenericHandler {
     }
 
     protected BordersExtractor.Avoid convertAvoidBorders(APIEnums.AvoidBorders avoidBorders) {
-        if(avoidBorders != null) {
+        if (avoidBorders != null) {
             switch (avoidBorders) {
                 case ALL:
                     return BordersExtractor.Avoid.ALL;
@@ -98,7 +99,7 @@ public class GenericHandler {
         return null;
     }
 
-    protected int convertRouteProfileType(APIEnums.RoutingProfile profile) {
+    protected int convertRouteProfileType(APIEnums.Profile profile) {
         return RoutingProfileType.getFromString(profile.toString());
     }
 
@@ -134,10 +135,10 @@ public class GenericHandler {
 
     protected int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatableParameterException {
         int flags = 0;
-        for(APIEnums.AvoidFeatures avoid : avoidFeatures) {
+        for (APIEnums.AvoidFeatures avoid : avoidFeatures) {
             String avoidFeatureName = avoid.toString();
             int flag = AvoidFeatureFlags.getFromString(avoidFeatureName);
-            if(flag == 0)
+            if (flag == 0)
                 throw new UnknownParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), "avoid_features", avoidFeatureName);
 
             if (!AvoidFeatureFlags.isValid(profileType, flag, avoidFeatureName))
@@ -149,27 +150,40 @@ public class GenericHandler {
         return flags;
     }
 
+
+    protected ProfileParameters convertParameters(IsochronesRequestTraveller traveller, int profileType) throws StatusCodeException {
+        ProfileParameters params = new ProfileParameters();
+
+        if (traveller.getIsochronesOptions().getProfileParams().hasRestrictions()) {
+
+            RequestProfileParamsRestrictions restrictions = traveller.getIsochronesOptions().getProfileParams().getRestrictions();
+            APIEnums.VehicleType vehicleType = traveller.getIsochronesOptions().getVehicleType();
+
+            validateRestrictionsForProfile(restrictions, profileType);
+            params = convertSpecificProfileParameters(profileType, restrictions, vehicleType);
+        }
+
+        if (traveller.getIsochronesOptions().getProfileParams().hasWeightings()) {
+            RequestProfileParamsWeightings weightings = traveller.getIsochronesOptions().getProfileParams().getWeightings();
+            applyWeightings(weightings, params);
+        }
+
+        return params;
+    }
+
     protected ProfileParameters convertParameters(RouteRequest request, int profileType) throws StatusCodeException {
         ProfileParameters params = new ProfileParameters();
 
-        if(request.getRouteOptions().getProfileParams().hasRestrictions()) {
+        if (request.getRouteOptions().getProfileParams().hasRestrictions()) {
 
             RequestProfileParamsRestrictions restrictions = request.getRouteOptions().getProfileParams().getRestrictions();
             APIEnums.VehicleType vehicleType = request.getRouteOptions().getVehicleType();
 
             validateRestrictionsForProfile(restrictions, profileType);
-
-            if (RoutingProfileType.isCycling(profileType))
-                params = convertCyclingParameters(restrictions);
-            if (RoutingProfileType.isHeavyVehicle(profileType))
-                params = convertHeavyVehicleParameters(restrictions, vehicleType);
-            if (RoutingProfileType.isWalking(profileType))
-                params = convertWalkingParameters(restrictions);
-            if (RoutingProfileType.isWheelchair(profileType))
-                params = convertWheelchairParameters(restrictions);
+            params = convertSpecificProfileParameters(profileType, restrictions, vehicleType);
         }
 
-        if(request.getRouteOptions().getProfileParams().hasWeightings()) {
+        if (request.getRouteOptions().getProfileParams().hasWeightings()) {
             RequestProfileParamsWeightings weightings = request.getRouteOptions().getProfileParams().getWeightings();
             applyWeightings(weightings, params);
         }
@@ -177,12 +191,25 @@ public class GenericHandler {
         return params;
     }
 
+    protected ProfileParameters convertSpecificProfileParameters(int profileType, RequestProfileParamsRestrictions restrictions, APIEnums.VehicleType vehicleType) {
+        ProfileParameters params = new ProfileParameters();
+        if (RoutingProfileType.isCycling(profileType))
+            params = convertCyclingParameters(restrictions);
+        if (RoutingProfileType.isHeavyVehicle(profileType))
+            params = convertHeavyVehicleParameters(restrictions, vehicleType);
+        if (RoutingProfileType.isWalking(profileType))
+            params = convertWalkingParameters(restrictions);
+        if (RoutingProfileType.isWheelchair(profileType))
+            params = convertWheelchairParameters(restrictions);
+        return params;
+    }
+
     private CyclingParameters convertCyclingParameters(RequestProfileParamsRestrictions restrictions) {
 
         CyclingParameters params = new CyclingParameters();
-        if(restrictions.hasGradient())
+        if (restrictions.hasGradient())
             params.setMaximumGradient(restrictions.getGradient());
-        if(restrictions.hasTrailDifficulty())
+        if (restrictions.hasTrailDifficulty())
             params.setMaximumTrailDifficulty(restrictions.getTrailDifficulty());
 
         return params;
@@ -191,9 +218,9 @@ public class GenericHandler {
     private WalkingParameters convertWalkingParameters(RequestProfileParamsRestrictions restrictions) {
 
         WalkingParameters params = new WalkingParameters();
-        if(restrictions.hasGradient())
+        if (restrictions.hasGradient())
             params.setMaximumGradient(restrictions.getGradient());
-        if(restrictions.hasTrailDifficulty())
+        if (restrictions.hasTrailDifficulty())
             params.setMaximumTrailDifficulty(restrictions.getTrailDifficulty());
 
         return params;
@@ -202,23 +229,23 @@ public class GenericHandler {
     private VehicleParameters convertHeavyVehicleParameters(RequestProfileParamsRestrictions restrictions, APIEnums.VehicleType vehicleType) {
 
         VehicleParameters params = new VehicleParameters();
-        if(vehicleType != null && vehicleType != APIEnums.VehicleType.UNKNOWN) {
-            if(restrictions.hasLength())
+        if (vehicleType != null && vehicleType != APIEnums.VehicleType.UNKNOWN) {
+            if (restrictions.hasLength())
                 params.setLength(restrictions.getLength());
-            if(restrictions.hasWidth())
+            if (restrictions.hasWidth())
                 params.setWidth(restrictions.getWidth());
-            if(restrictions.hasHeight())
+            if (restrictions.hasHeight())
                 params.setHeight(restrictions.getHeight());
-            if(restrictions.hasWeight())
+            if (restrictions.hasWeight())
                 params.setWeight(restrictions.getWeight());
-            if(restrictions.hasAxleLoad())
+            if (restrictions.hasAxleLoad())
                 params.setAxleload(restrictions.getAxleLoad());
 
             int loadCharacteristics = 0;
-            if(restrictions.hasHazardousMaterial() && restrictions.getHazardousMaterial() == true)
+            if (restrictions.hasHazardousMaterial() && restrictions.getHazardousMaterial() == true)
                 loadCharacteristics |= VehicleLoadCharacteristicsFlags.HAZMAT;
 
-            if(loadCharacteristics != 0)
+            if (loadCharacteristics != 0)
                 params.setLoadCharacteristics(loadCharacteristics);
         }
 
@@ -229,74 +256,74 @@ public class GenericHandler {
 
         WheelchairParameters params = new WheelchairParameters();
 
-        if(restrictions.hasSurfaceType())
+        if (restrictions.hasSurfaceType())
             params.setSurfaceType(WheelchairTypesEncoder.getSurfaceType(restrictions.getSurfaceType()));
-        if(restrictions.hasTrackType())
+        if (restrictions.hasTrackType())
             params.setTrackType(WheelchairTypesEncoder.getTrackType(restrictions.getTrackType()));
-        if(restrictions.hasSmoothnessType())
+        if (restrictions.hasSmoothnessType())
             params.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(restrictions.getSmoothnessType()));
-        if(restrictions.hasMaxSlopedKerb())
+        if (restrictions.hasMaxSlopedKerb())
             params.setMaximumSlopedKerb(restrictions.getMaxSlopedKerb());
-        if(restrictions.hasMaxIncline())
+        if (restrictions.hasMaxIncline())
             params.setMaximumIncline(restrictions.getMaxIncline());
-        if(restrictions.hasMinWidth())
+        if (restrictions.hasMinWidth())
             params.setMinimumWidth(restrictions.getMinWidth());
 
         return params;
     }
 
-    private  void validateRestrictionsForProfile(RequestProfileParamsRestrictions restrictions, int profile) throws IncompatableParameterException {
+    private void validateRestrictionsForProfile(RequestProfileParamsRestrictions restrictions, int profile) throws IncompatableParameterException {
         // Check that we do not have some parameters that should not be there
         List<String> setRestrictions = restrictions.getSetRestrictions();
         ProfileParameters params = new ProfileParameters();
-        if(RoutingProfileType.isCycling(profile)) {
+        if (RoutingProfileType.isCycling(profile)) {
             params = new CyclingParameters();
         }
-        if(RoutingProfileType.isWheelchair(profile)) {
+        if (RoutingProfileType.isWheelchair(profile)) {
             params = new WheelchairParameters();
         }
-        if(RoutingProfileType.isWalking(profile)) {
+        if (RoutingProfileType.isWalking(profile)) {
             params = new WalkingParameters();
         }
-        if(RoutingProfileType.isHeavyVehicle(profile)) {
+        if (RoutingProfileType.isHeavyVehicle(profile)) {
             params = new VehicleParameters();
         }
 
         List<String> invalidParams = new ArrayList<>();
-        for(String setRestriction : setRestrictions) {
+        for (String setRestriction : setRestrictions) {
             boolean valid = false;
-            for(String validRestriction : params.getValidRestrictions()) {
-                if(validRestriction.equals(setRestriction)) {
+            for (String validRestriction : params.getValidRestrictions()) {
+                if (validRestriction.equals(setRestriction)) {
                     valid = true;
                     break;
                 }
             }
 
-            if(!valid) {
+            if (!valid) {
                 invalidParams.add(setRestriction);
             }
         }
 
-        if(invalidParams.size() > 0) {
+        if (invalidParams.size() > 0) {
             // There are some parameters present that shouldn't be there
             String invalidParamsString = StringUtils.join(invalidParams, ", ");
             throw new IncompatableParameterException(getErrorCode("UNKNOWN_PARAMETER"), "restrictions", invalidParamsString, "profile", RoutingProfileType.getName(profile));
         }
     }
 
-    private  ProfileParameters applyWeightings(RequestProfileParamsWeightings weightings, ProfileParameters params) {
+    private ProfileParameters applyWeightings(RequestProfileParamsWeightings weightings, ProfileParameters params) {
         try {
             if (weightings.hasGreenIndex()) {
                 ProfileWeighting pw = new ProfileWeighting("green");
                 pw.addParameter("factor", String.format("%.2f", weightings.getGreenIndex()));
                 params.add(pw);
             }
-            if(weightings.hasQuietIndex()) {
+            if (weightings.hasQuietIndex()) {
                 ProfileWeighting pw = new ProfileWeighting("quiet");
                 pw.addParameter("factor", String.format("%.2f", weightings.getQuietIndex()));
                 params.add(pw);
             }
-            if(weightings.hasSteepnessDifficulty()) {
+            if (weightings.hasSteepnessDifficulty()) {
                 ProfileWeighting pw = new ProfileWeighting("steepness_difficulty");
                 pw.addParameter("level", String.format("%d", weightings.getSteepnessDifficulty()));
                 params.add(pw);
@@ -307,8 +334,6 @@ public class GenericHandler {
 
         return params;
     }
-
-
 
 
 }
