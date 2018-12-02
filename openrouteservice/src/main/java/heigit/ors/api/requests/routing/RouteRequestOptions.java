@@ -19,11 +19,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import heigit.ors.api.requests.common.APIEnums;
+import heigit.ors.isochrones.IsochroneRequest;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.json.simple.JSONObject;
 
-@ApiModel(value = "Route Options", description = "Advanced options for routing", parent = RouteRequest.class)
+@ApiModel(value = "Route Options", description = "Advanced options for routing", subTypes = {RouteRequest.class, IsochroneRequest.class})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RouteRequestOptions {
     @ApiModelProperty(name = "avoid_features", value = "List of features to avoid." +

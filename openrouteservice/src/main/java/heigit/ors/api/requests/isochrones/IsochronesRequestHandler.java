@@ -136,7 +136,7 @@ public class IsochronesRequestHandler extends GenericHandler {
 
     private RouteSearchParameters processIsochronesRequestOptions(IsochronesRequestTraveller traveller, RouteSearchParameters parameters) throws StatusCodeException {
         RouteRequestOptions options = traveller.getIsochronesOptions();
-        parameters = RouteRequestHandler.processRequestOptions(options, parameters);
+        parameters = new RouteRequestHandler().processRequestOptions(options, parameters);
         if (options.hasProfileParams())
             parameters.setProfileParams(convertParameters(traveller, parameters.getProfileType()));
         return parameters;

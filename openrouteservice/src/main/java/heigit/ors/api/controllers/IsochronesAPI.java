@@ -37,31 +37,17 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@Api(value = "/v2/isochrones", description = "Get a route")
+@Api(value = "/v2/isochrones", description = "Get an Isochrone Calculation")
 @RequestMapping("/v2/isochrones")
 public class IsochronesAPI {
 
-    @PostMapping
-    @ApiOperation(value = "", hidden = true)
-    public String getPostMapping(@RequestBody IsochronesRequest request) throws MissingParameterException {
-        throw new MissingParameterException(IsochronesErrorCodes.MISSING_PARAMETER, "profile");
-    }
-
-    @PostMapping(value = "/{profile}")
-    public GeoJSONIsochronesResponse getDefault(@ApiParam(value = "Specifies the isochrones profile.") @PathVariable APIEnums.RoutingProfile profile,
-                                                @ApiParam(value = "The request payload", required = true) @RequestBody IsochronesRequest request) throws Exception {
-        return getGeoJsonMime(profile, request);
-    }
-
-    @PostMapping(value = "/{profile}/geojson", produces = "application/geo+json;charset=UTF-8")
+    @PostMapping(value = "/geojson", produces = "application/geo+json;charset=UTF-8")
     @ApiOperation(value = "Get isochrones from the specified profile", httpMethod = "POST", consumes = "application/json")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "GeoJSON Response", response = GeoJSONIsochronesResponse.class)
     })
     public GeoJSONIsochronesResponse getGeoJsonMime(
-            @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.RoutingProfile profile,
             @ApiParam(value = "The request payload", required = true) @RequestBody IsochronesRequest request) throws Exception {
-        request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 
         IsochronesRequestHandler handler = new IsochronesRequestHandler();
