@@ -15,55 +15,58 @@
 
 package heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects;
 
-public class GeoJSONIsochronesResponse {
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.graphhopper.util.shapes.BBox;
+import com.vividsolutions.jts.geom.Envelope;
+import heigit.ors.api.requests.isochrones.IsochronesRequest;
+import heigit.ors.api.responses.common.BoundingBox.BoundingBoxFactory;
+import heigit.ors.api.responses.isochrones.IsochronesResponse;
+import heigit.ors.api.responses.isochrones.IsochronesResponseInfo;
+import heigit.ors.exceptions.ParameterValueException;
+import heigit.ors.isochrones.IsochroneMap;
+import heigit.ors.isochrones.IsochroneMapCollection;
+import heigit.ors.util.GeomUtility;
+import io.swagger.annotations.ApiModelProperty;
 
-}
-//  @JsonProperty("type")
-//   public final String type = "FeatureCollection";
+import java.util.ArrayList;
+import java.util.List;
 
-//   @JsonProperty("bbox")
-//    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-//    @ApiModelProperty(value = "Bounding box that covers all returned isochrones", example = "[49.414057, 8.680894, 49.420514, 8.690123]")
-//   public double[] getBBox() {
-//       return bbox.getAsArray();
-//   }
+public class GeoJSONIsochronesResponse extends IsochronesResponse {
+    @JsonProperty("type")
+    public final String type = "FeatureCollection";
 
-//public GeoJSONIsochronesResponse(IsochroneRequest request, IsochroneMapCollection isochroneMaps) throws StatusCodeException {
+    @JsonProperty("bbox")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ApiModelProperty(value = "Bounding box that covers all returned isochrones", example = "[49.414057, 8.680894, 49.420514, 8.690123]")
+    public double[] getBBox() {
+        return bbox.getAsArray();
+    }
 
-//super(request);
-
-// features
-
-//TravellerInfo traveller = null;
-
-//for (IsochroneMap isoMap : isochroneMaps.getIsochroneMaps()) {
-
-//    new GeoJSONIndividualIsochronesResponse(result, request)
-
-//    traveller = request.getTravellers().get(isoMap.getTravellerId());
-// }
-
-// bbox
-
-// info
-
-//*/
-/*List<BBox> bboxes = new ArrayList<>();
-        for(RouteResult result : routeResults) {
-            bboxes.add(result.getSummary().getBBox());
+    public GeoJSONIsochronesResponse(IsochronesRequest request, IsochroneMapCollection isoMaps) throws ParameterValueException {
+        super(request);
+        this.isochroneResults = new ArrayList();
+        for (IsochroneMap isoMap : isoMaps.getIsochroneMaps()) {
+            this.isochroneResults.addAll(new GeoJSONIndividualIsochronesMapResponse(isoMap, request).calculateIsochrones());
         }
+        constructBBox(isoMaps, request);
+    }
 
-        BBox bounding = GeomUtility.generateBoundingFromMultiple(bboxes.toArray(new BBox[bboxes.size()]));
+    private void constructBBox(IsochroneMapCollection isoMaps, IsochronesRequest request) throws ParameterValueException {
+        List<BBox> bboxes = new ArrayList<>();
+        for (IsochroneMap isochroneMap : isoMaps.getIsochroneMaps()) {
+            Envelope isochroneMapEnvelope = isochroneMap.getEnvelope();
+            BBox isochroneMapBBox = new BBox(isochroneMapEnvelope.getMaxX(), isochroneMapEnvelope.getMaxY(), isochroneMapEnvelope.getMinX(), isochroneMapEnvelope.getMinY());
+            bboxes.add(isochroneMapBBox);
+        }
+        BBox bounding = GeomUtility.generateBoundingFromMultiple(bboxes.toArray(new BBox[0]));
+        bbox = BoundingBoxFactory.constructBoundingBox(bounding, request);
+    }
 
-        bbox = BoundingBoxFactory.constructBoundingBox(bounding, request);*//*
-
-
-
-    //}
 
     @JsonProperty("features")
-    public List getRoutes() {
-        return routeResults;
+    public List getIsochrones() {
+        return isochroneResults;
     }
 
     @JsonProperty("properties")
@@ -71,4 +74,4 @@ public class GeoJSONIsochronesResponse {
         return this.responseInformation;
     }
 }
-*/
+
