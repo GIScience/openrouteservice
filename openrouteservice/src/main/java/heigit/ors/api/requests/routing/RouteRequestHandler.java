@@ -16,6 +16,9 @@
 package heigit.ors.api.requests.routing;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Polygon;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.api.requests.common.GenericHandler;
 import heigit.ors.common.DistanceUnit;
@@ -35,9 +38,6 @@ public class RouteRequestHandler extends GenericHandler {
     public RouteRequestHandler() {
         super();
         this.errorCodes.put("UNKNOWN_PARAMETER", RoutingErrorCodes.UNKNOWN_PARAMETER);
-        this.errorCodes.put("INVALID_JSON_FORMAT", RoutingErrorCodes.INVALID_JSON_FORMAT);
-        this.errorCodes.put("INVALID_PARAMETER_VALUE", RoutingErrorCodes.INVALID_PARAMETER_VALUE);
-
     }
 
     public  RouteResult generateRouteFromRequest(RouteRequest request) throws StatusCodeException{
@@ -114,27 +114,7 @@ public class RouteRequestHandler extends GenericHandler {
             params.setFlexibleMode(convertSetFlexibleMode(request.getUseContractionHierarchies()));
 
         if(request.hasRouteOptions()) {
-            RouteRequestOptions options = request.getRouteOptions();
-            if (options.hasAvoidBorders())
-                params.setAvoidBorders(convertAvoidBorders(options.getAvoidBorders()));
-
-            if (options.hasAvoidPolygonFeatures())
-                params.setAvoidAreas(convertAvoidAreas(options.getAvoidPolygonFeatures()));
-
-            if (options.hasAvoidCountries())
-                params.setAvoidCountries(options.getAvoidCountries());
-
-            if (options.hasAvoidFeatures())
-                params.setAvoidFeatureTypes(convertFeatureTypes(options.getAvoidFeatures(), profileType));
-
-            if (options.hasMaximumSpeed())
-                params.setMaximumSpeed(options.getMaximumSpeed());
-
-            if (options.hasVehicleType())
-                params.setVehicleType(convertVehicleType(options.getVehicleType(), profileType));
-
-            if(options.hasProfileParams())
-                params.setProfileParams(convertParameters(request, profileType));
+            params = processRouteRequestOptions(request, params);
         }
 
         params.setConsiderTraffic(false);
@@ -146,6 +126,34 @@ public class RouteRequestHandler extends GenericHandler {
         return routingRequest;
     }
 
+    private RouteSearchParameters processRouteRequestOptions(RouteRequest request, RouteSearchParameters params) throws StatusCodeException {
+        RouteRequestOptions routeOptions = request.getRouteOptions();
+        params = processRequestOptions(routeOptions,params);
+        if (routeOptions.hasProfileParams())
+            params.setProfileParams(convertParameters(request, params.getProfileType()));
+        return params;
+    }
+
+    public RouteSearchParameters processRequestOptions(RouteRequestOptions options, RouteSearchParameters params) throws ParameterValueException, IncompatableParameterException, UnknownParameterValueException {
+        if (options.hasAvoidBorders())
+            params.setAvoidBorders(convertAvoidBorders(options.getAvoidBorders()));
+
+        if (options.hasAvoidPolygonFeatures())
+            params.setAvoidAreas(convertAvoidAreas(options.getAvoidPolygonFeatures()));
+
+        if (options.hasAvoidCountries())
+            params.setAvoidCountries(options.getAvoidCountries());
+
+        if (options.hasAvoidFeatures())
+            params.setAvoidFeatureTypes(convertFeatureTypes(options.getAvoidFeatures(), params.getProfileType()));
+
+        if (options.hasMaximumSpeed())
+            params.setMaximumSpeed(options.getMaximumSpeed());
+
+        if (options.hasVehicleType())
+            params.setVehicleType(convertVehicleType(options.getVehicleType(), params.getProfileType()));
+        return params;
+    }
     private  boolean convertIncludeGeometry(RouteRequest request) throws IncompatableParameterException {
         boolean includeGeometry = request.getIncludeGeometry();
         if(!includeGeometry) {
@@ -188,7 +196,7 @@ public class RouteRequestHandler extends GenericHandler {
         return new Coordinate(coordinate.get(0), coordinate.get(1));
     }
 
-    private  int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatableParameterException {
+    protected int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatableParameterException {
         int flags = 0;
         for(APIEnums.AvoidFeatures avoid : avoidFeatures) {
             String avoidFeatureName = avoid.toString();
@@ -205,11 +213,11 @@ public class RouteRequestHandler extends GenericHandler {
         return flags;
     }
 
-    private  int convertRouteProfileType(APIEnums.Profile profile) {
+    public   int convertRouteProfileType(APIEnums.Profile profile) {
         return RoutingProfileType.getFromString(profile.toString());
     }
 
-    private  BordersExtractor.Avoid convertAvoidBorders(APIEnums.AvoidBorders avoidBorders) {
+    protected BordersExtractor.Avoid convertAvoidBorders(APIEnums.AvoidBorders avoidBorders) {
         if(avoidBorders != null) {
             switch (avoidBorders) {
                 case ALL:
@@ -223,7 +231,7 @@ public class RouteRequestHandler extends GenericHandler {
         return null;
     }
 
-    private  Polygon[] convertAvoidAreas(JSONObject geoJson) throws ParameterValueException {
+    protected Polygon[] convertAvoidAreas(JSONObject geoJson) throws ParameterValueException {
         // It seems that arrays in json.simple cannot be converted to strings simply
         org.json.JSONObject complexJson = new org.json.JSONObject();
         complexJson.put("type", geoJson.get("type"));
