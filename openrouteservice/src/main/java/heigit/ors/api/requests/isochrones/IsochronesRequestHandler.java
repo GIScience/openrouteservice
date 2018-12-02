@@ -53,7 +53,6 @@ public class IsochronesRequestHandler extends GenericHandler {
 
     public void generateIsochronesFromRequest(IsochronesRequest request) throws Exception {
         isochroneRequest = convertIsochroneRequest(request);
-
         // request object is built, now check if app config allows all settings
         List<TravellerInfo> travellers = isochroneRequest.getTravellers();
 
@@ -62,13 +61,12 @@ public class IsochronesRequestHandler extends GenericHandler {
 
         if (travellers.size() > 0) {
             String[] attrs = isochroneRequest.getAttributes();
-
             isoMaps = new IsochroneMapCollection();
 
             for (int i = 0; i < travellers.size(); ++i) {
                 IsochroneSearchParameters searchParams = isochroneRequest.getSearchParameters(i);
+                // searchParams.setAttributes(attrs);
                 IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams);
-
                 isoMaps.add(isochroneMap);
             }
 
@@ -95,7 +93,6 @@ public class IsochronesRequestHandler extends GenericHandler {
         if (request.hasSmoothing())
             isochroneRequest.setSmoothingFactor(convertSmoothing(request.getSmoothing()));
         if (request.getIntersections()) isochroneRequest.setIncludeIntersections(request.getIntersections());
-
         return isochroneRequest;
 
     }
@@ -301,7 +298,7 @@ public class IsochronesRequestHandler extends GenericHandler {
             throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "location");
         }
         try {
-            realCoordinate = new Coordinate(coordinate[0], coordinate[0]);
+            realCoordinate = new Coordinate(coordinate[0], coordinate[1]);
         } catch (Exception e) {
             throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "location");
         }
