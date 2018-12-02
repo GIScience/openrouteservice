@@ -48,16 +48,13 @@ public class IsochronesAPI {
     })
     public GeoJSONIsochronesResponse getGeoJsonMime(
             @ApiParam(value = "The request payload", required = true) @RequestBody IsochronesRequest request) throws Exception {
+        // TODO: 1. Calcmethod,
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 
         IsochronesRequestHandler handler = new IsochronesRequestHandler();
-
         handler.generateIsochronesFromRequest(request);
-        IsochroneRequest isochroneRequest = handler.getIsochroneRequest();
         IsochroneMapCollection isoMaps = handler.getIsoMaps();
-
-        return null;
-        //return new GeoJSONIsochronesResponse(isochroneRequest, isoMaps);
+        return new GeoJSONIsochronesResponse(request, isoMaps);
     }
 
     // Errors generated from the reading of the request (before entering the routing system). Normally these are where
