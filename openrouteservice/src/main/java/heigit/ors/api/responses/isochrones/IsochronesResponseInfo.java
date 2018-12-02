@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.Helper;
 import heigit.ors.api.requests.isochrones.IsochronesRequest;
 import heigit.ors.config.AppConfig;
+import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import io.swagger.annotations.ApiModel;
@@ -51,14 +52,14 @@ public class IsochronesResponseInfo {
     private EngineInfo engineInfo;
 
     public IsochronesResponseInfo(IsochronesRequest request) {
-        service = "routing";
+        service = "isochrones";
         timeStamp = System.currentTimeMillis();
 
         if (AppConfig.hasValidMD5Hash())
             osmFileMD5Hash = AppConfig.getMD5Hash();
 
-        if (!Helper.isEmpty(RoutingServiceSettings.getAttribution()))
-            attribution = RoutingServiceSettings.getAttribution();
+        if (!Helper.isEmpty(IsochronesServiceSettings.getAttribution()))
+            attribution = IsochronesServiceSettings.getAttribution();
 
         engineInfo = new EngineInfo(AppInfo.getEngineInfo());
 
