@@ -16,6 +16,7 @@
 package heigit.ors.api.responses.common.BoundingBox;
 
 import com.graphhopper.util.shapes.BBox;
+import heigit.ors.api.requests.isochrones.IsochronesRequest;
 import heigit.ors.api.requests.routing.RouteRequest;
 import heigit.ors.api.responses.routing.GPXRouteResponseObjects.GPXBounds;
 import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSON3DBoundingBox;
@@ -33,6 +34,14 @@ public class BoundingBoxFactory {
                 return new JSONBoundingBox(bounds);
             case GPX:
                 return new GPXBounds(bounds);
+            default:
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "format", request.getResponseType().toString());
+        }
+    }
+    public static BoundingBox constructBoundingBox(BBox bounds, IsochronesRequest request) throws ParameterValueException {
+        switch(request.getResponseType()) {
+            case GEOJSON:
+                return new JSONBoundingBox(bounds);
             default:
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "format", request.getResponseType().toString());
         }
