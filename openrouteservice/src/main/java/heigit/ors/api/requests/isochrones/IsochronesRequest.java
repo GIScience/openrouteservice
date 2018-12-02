@@ -16,6 +16,7 @@
 package heigit.ors.api.requests.isochrones;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import heigit.ors.api.requests.common.APIEnums;
@@ -64,6 +65,13 @@ public class IsochronesRequest {
             value = "Specifies whether to return intersecting polygons")
     @JsonProperty(value = "intersections", defaultValue = "false")
     private Boolean intersections = false;
+
+    @ApiModelProperty(name = "attributes", value = "List of isochrones attributes")
+    @JsonProperty("attributes")
+    private IsochronesRequestEnums.Attributes[] attributes;
+    @JsonIgnore
+    private boolean hasAttributes = false;
+
 
     @ApiModelProperty(name = "smoothing",
             value = "Applies a level of generalisation to the isochrone polygons generated as a smoothing_factor between 0 and 1.0.\n" +
@@ -145,6 +153,20 @@ public class IsochronesRequest {
     public void setRangeUnits(APIEnums.Units rangeUnit) {
         this.rangeUnit = rangeUnit;
     }
+
+    public IsochronesRequestEnums.Attributes[] getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(IsochronesRequestEnums.Attributes[] attributes) {
+        this.attributes = attributes;
+        this.hasAttributes = true;
+    }
+
+    public boolean hasAttributes() {
+        return hasAttributes;
+    }
+
 }
 
 

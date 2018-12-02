@@ -4,6 +4,7 @@ package heigit.ors.api.requests.isochrones;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import heigit.ors.api.requests.common.APIEnums;
+import heigit.ors.api.requests.routing.RouteRequestOptions;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.isochrones.IsochronesErrorCodes;
 import io.swagger.annotations.ApiModelProperty;
@@ -15,19 +16,20 @@ public class IsochronesRequestTraveller {
     @JsonProperty("location")
     private Double[] location;
 
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(hidden = true, required = true)
     private APIEnums.Profile profile;
 
-    @ApiModelProperty(name = "attributes", value = "List of isochrones attributes")
-    @JsonProperty("attributes")
-    private IsochronesRequestEnums.Attributes[] attributes;
-    @JsonIgnore
-    private boolean hasAttributes = false;
+
+    @ApiModelProperty(name = "id", value = "Set an id for the individual traveller")
+    @JsonProperty("id")
+    private String id;
+    private boolean hasId = false;
 
     @ApiModelProperty(name = "options",
             value = "Additional options for the isochrones request")
     @JsonProperty("options")
-    private IsochronesRequestOptions isochronesOptions;
+    private RouteRequestOptions isochronesOptions = null;
+
     @JsonIgnore
     private boolean hasIsochronesOptions = false;
 
@@ -112,30 +114,31 @@ public class IsochronesRequestTraveller {
         this.interval = interval;
     }
 
-    public IsochronesRequestEnums.Attributes[] getAttributes() {
-        return attributes;
-    }
-
-    public void setAttributes(IsochronesRequestEnums.Attributes[] attributes) {
-        this.attributes = attributes;
-        this.hasAttributes = true;
-    }
-
-    public IsochronesRequestOptions getIsochronesOptions() {
+    public RouteRequestOptions getIsochronesOptions() {
         return isochronesOptions;
     }
 
-    public void setIsochronesOptions(IsochronesRequestOptions isochronesOptions) {
+    public void setIsochronesOptions(RouteRequestOptions isochronesOptions) {
         this.isochronesOptions = isochronesOptions;
         this.hasIsochronesOptions = true;
     }
 
 
-    public boolean hasAttributes() {
-        return hasAttributes;
-    }
-
     public boolean hasIsochronesOptions() {
         return hasIsochronesOptions;
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.hasId = true;
+        this.id = id;
+    }
+
+    public boolean hasId() {
+        return hasId;
+    }
+
 }
