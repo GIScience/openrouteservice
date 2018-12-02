@@ -47,7 +47,7 @@ public class GeoJSONIsochronesResponse extends IsochronesResponse {
         super(request);
         this.isochroneResults = new ArrayList();
         for (IsochroneMap isoMap : isoMaps.getIsochroneMaps()) {
-            this.isochroneResults.addAll(new GeoJSONIndividualIsochronesMapResponse(isoMap, request).calculateIsochrones());
+            this.isochroneResults.addAll(new GeoJSONIsochronesMap(isoMap).calculateIsochrones());
         }
         constructBBox(isoMaps, request);
     }

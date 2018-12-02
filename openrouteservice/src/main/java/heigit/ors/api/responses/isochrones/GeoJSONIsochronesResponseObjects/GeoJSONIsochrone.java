@@ -2,19 +2,14 @@ package heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
-import heigit.ors.api.requests.isochrones.IsochronesRequest;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.isochrones.Isochrone;
 import io.swagger.annotations.ApiModelProperty;
 import org.json.simple.JSONObject;
 
-public class GeoJSONIndividualIsochroneResponse {
+public class GeoJSONIsochrone {
     private Isochrone isochrone;
-    private IsochronesRequest request;
-    private Coordinate center;
-    private int travellerId;
 
     @JsonProperty("type")
     public final String type = "Feature";
@@ -23,12 +18,9 @@ public class GeoJSONIndividualIsochroneResponse {
     public GeoJSONIsochroneProperties properties;
 
 
-    public GeoJSONIndividualIsochroneResponse(Isochrone isochrone, IsochronesRequest request, Coordinate center, int travellerId) {
+    public GeoJSONIsochrone(Isochrone isochrone, Coordinate center, int travellerId) {
         this.isochrone = isochrone;
-        this.request = request;
-        this.center = center;
-        this.travellerId = travellerId;
-        properties = new GeoJSONIsochroneProperties(this.isochrone, this.center, this.travellerId);
+        properties = new GeoJSONIsochroneProperties(this.isochrone, center, travellerId);
     }
 
     @ApiModelProperty(dataType = "org.json.simple.JSONObject")

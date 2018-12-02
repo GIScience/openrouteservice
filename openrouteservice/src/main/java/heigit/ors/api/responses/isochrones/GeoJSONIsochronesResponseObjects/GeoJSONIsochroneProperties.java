@@ -1,10 +1,12 @@
 package heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.common.AttributeValue;
 import heigit.ors.isochrones.Isochrone;
 
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class GeoJSONIsochroneProperties {
 
     @JsonProperty("group_index")
@@ -22,7 +24,7 @@ public class GeoJSONIsochroneProperties {
     @JsonProperty("reachfactor")
     private double reachfactor;
 
-    @JsonProperty("total_pop")
+    @JsonProperty(value = "total_pop")
     private AttributeValue total_pop;
 
 
