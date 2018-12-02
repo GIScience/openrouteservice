@@ -48,7 +48,7 @@ public class IsochronesAPI {
     })
     public GeoJSONIsochronesResponse getGeoJsonMime(
             @ApiParam(value = "The request payload", required = true) @RequestBody IsochronesRequest request) throws Exception {
-        // TODO: 1. Calcmethod,
+        // TODO: 1. Calcmethod, Options
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 
         IsochronesRequestHandler handler = new IsochronesRequestHandler();
