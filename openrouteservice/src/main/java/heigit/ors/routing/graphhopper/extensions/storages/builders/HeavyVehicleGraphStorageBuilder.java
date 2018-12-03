@@ -227,7 +227,9 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 	}
 
 	private String getHeavyVehicleValue(String key, String hv, String value) {
-		if (key.equals(hv)) {
+		if (value.equals(hv))
+			return value;
+		else if (key.equals(hv)) {
 			if (_yesValues.contains(value))
 				return "yes";
 			else if (_noValues.contains(value))
