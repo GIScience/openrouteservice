@@ -60,6 +60,10 @@ public class IsochronesRequest {
     @JsonProperty(value = "area_unit", defaultValue = "m")
     private APIEnums.Units areaUnit = APIEnums.Units.METRES;
 
+    @ApiModelProperty(name = "calc_method",
+            value = "Specifies the calculation method. ConcaveBalls or Grid")
+    @JsonProperty(value = "calc_method", defaultValue = "ConcaveBalls")
+    private String calcMethod = "ConcaveBalls";
 
     @ApiModelProperty(name = "intersections",
             value = "Specifies whether to return intersecting polygons")
@@ -69,6 +73,7 @@ public class IsochronesRequest {
     @ApiModelProperty(name = "attributes", value = "List of isochrones attributes")
     @JsonProperty("attributes")
     private IsochronesRequestEnums.Attributes[] attributes;
+
     @JsonIgnore
     private boolean hasAttributes = false;
 
@@ -167,6 +172,13 @@ public class IsochronesRequest {
         return hasAttributes;
     }
 
+    public String getCalcMethod() {
+        return calcMethod;
+    }
+
+    public void setCalcMethod(String calcMethod) {
+        this.calcMethod = calcMethod;
+    }
 }
 
 
