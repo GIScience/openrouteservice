@@ -45,7 +45,7 @@ public class GeoJSONIsochronesResponse extends IsochronesResponse {
 
     public GeoJSONIsochronesResponse(IsochronesRequest request, IsochroneMapCollection isoMaps) throws ParameterValueException {
         super(request);
-        this.isochroneResults = new ArrayList();
+        this.isochroneResults = new ArrayList<>();
         for (IsochroneMap isoMap : isoMaps.getIsochroneMaps()) {
             this.isochroneResults.addAll(new GeoJSONIsochronesMap(isoMap).calculateIsochrones());
         }
@@ -65,7 +65,7 @@ public class GeoJSONIsochronesResponse extends IsochronesResponse {
 
 
     @JsonProperty("features")
-    public List getIsochrones() {
+    public List<GeoJSONIsochrone> getIsochrones() {
         return isochroneResults;
     }
 
