@@ -41,10 +41,10 @@ public class TollwayExtractor {
 		int value = _storage.getEdgeValue(edgeId);
 
 		switch (value) {
-			// toll:no
+			// toll=no
 			case TollwayType.None:
 				return 0;
-			// toll: yes
+			// toll=yes
 			case TollwayType.General:
 				return 1;
 			default:

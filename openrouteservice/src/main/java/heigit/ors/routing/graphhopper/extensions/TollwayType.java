@@ -16,7 +16,6 @@ package heigit.ors.routing.graphhopper.extensions;
 public class TollwayType {
 
 	public static final int None = 0;
-	public static final int General = ~ None;
 
 	// https://en.wikipedia.org/wiki/Vehicle_category
 
@@ -30,6 +29,8 @@ public class TollwayType {
 	public static final int N3 = 32;
 
 	public static final int N = N1 | N2 | N3;
+
+	public static final int General = M | N;
 
     public static boolean isSet(int flag, int value) {
         return (flag & value) == value;
