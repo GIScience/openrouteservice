@@ -51,6 +51,10 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 	private double[] _restrictionValues = new double[VehicleDimensionRestrictions.Count];
 	private List<String> _motorVehicleRestrictions = new ArrayList<String>(5);
 	private Set<String> _motorVehicleRestrictedValues = new HashSet<String>(5);
+	private Set<String> _motorVehicleHgvValues = new HashSet<String>(6);
+
+	private Set<String> _noValues = new HashSet<String>(5);
+	private Set<String> _yesValues = new HashSet<String>(5);
 	private Pattern _patternDimension;
 
 	public HeavyVehicleGraphStorageBuilder()
@@ -61,7 +65,12 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 		_motorVehicleRestrictedValues.add("no");
 		_motorVehicleRestrictedValues.add("restricted");
 		_motorVehicleRestrictedValues.add("military");
-		
+
+		_motorVehicleHgvValues.addAll(Arrays.asList("hgv", "goods", "bus", "agricultural", "forestry", "delivery"));
+
+		_noValues.addAll(Arrays.asList("no", "private"));
+		_yesValues.addAll(Arrays.asList("yes", "designated"));
+
 		_patternDimension = Pattern.compile("(?:\\s*(\\d+)\\s*(?:feet|ft\\.|ft|'))?(?:(\\d+)\\s*(?:inches|in\\.|in|''|\"))?");
 	}
 	
@@ -99,14 +108,21 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 		boolean hasHighway = way.hasTag("highway");
 
 		if (hasHighway) {
-			// restrict all types if there are any generic motor vehicle restrictions
-			if (way.hasTag(_motorVehicleRestrictions, _motorVehicleRestrictedValues)) {
-				_hgvType |= HeavyVehicleAttributes.BUS;
-				_hgvType |= HeavyVehicleAttributes.AGRICULTURE;
-				_hgvType |= HeavyVehicleAttributes.FORESTRY;
-				_hgvType |= HeavyVehicleAttributes.DELIVERY;
-				_hgvType |= HeavyVehicleAttributes.GOODS;
-				_hgvType |= HeavyVehicleAttributes.HGV;
+			// process motor vehicle restrictions before any more specific vehicle type tags which override the former
+
+			// if there are any generic motor vehicle restrictions restrict all types...
+			if (way.hasTag(_motorVehicleRestrictions, _motorVehicleRestrictedValues))
+				_hgvType = HeavyVehicleAttributes.ANY;
+
+			//...or all but the explicitly listed ones
+			if (way.hasTag(_motorVehicleRestrictions, _motorVehicleHgvValues)) {
+				int flag = 0;
+				for (String key : _motorVehicleRestrictions) {
+					String val = way.getTag(key);
+					if (_motorVehicleHgvValues.contains(val))
+						flag |= HeavyVehicleAttributes.getFromString(val);
+				}
+				_hgvType = HeavyVehicleAttributes.ANY & ~flag;
 			}
 
 			Iterator<Entry<String, Object>> it = way.getProperties();
@@ -189,8 +205,8 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 					}
 				}
 
-				// access restrictions
-				else {
+				if (_motorVehicleHgvValues.contains(key)) {
+
 					// TODO: the following implementation does not pick up access:destination
 					String hgvTag = getHeavyVehicleValue(key, "hgv", value);
 					String goodsTag = getHeavyVehicleValue(key, "goods", value);
@@ -199,30 +215,6 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 					String forestryTag = getHeavyVehicleValue(key, "forestry", value);
 					String deliveryTag = getHeavyVehicleValue(key, "delivery", value);
 
-					String accessTag = key.equals("access") ? value : null;
-
-					if (!Helper.isEmpty(accessTag)) {
-						if ("agricultural".equals(accessTag))
-							agriculturalTag = "yes";
-						else if ("forestry".equals(accessTag))
-							forestryTag = "yes";
-						else if ("bus".equals(accessTag))
-							busTag = "yes";
-					}
-
-					String motorVehicle = key.equals("motor_vehicle") ? value : null;
-					if (motorVehicle == null)
-						motorVehicle = key.equals("motorcar") ? value : null;
-
-					if (motorVehicle != null) {
-						if ("agricultural".equals(motorVehicle))
-							agriculturalTag = "yes";
-						else if ("forestry".equals(motorVehicle))
-							forestryTag = "yes";
-						else if ("delivery".equals(motorVehicle))
-							deliveryTag = "yes";
-					}
-
 					setFlagsFromTag(goodsTag, HeavyVehicleAttributes.GOODS);
 					setFlagsFromTag(hgvTag, HeavyVehicleAttributes.HGV);
 					setFlagsFromTag(busTag, HeavyVehicleAttributes.BUS);
@@ -230,11 +222,9 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 					setFlagsFromTag(forestryTag, HeavyVehicleAttributes.FORESTRY);
 					setFlagsFromTag(deliveryTag, HeavyVehicleAttributes.DELIVERY);
 
-					String hazmatTag = key.equals("hazmat") ? value : null;
-					if ("no".equals(hazmatTag)) {
-						_hgvType |= HeavyVehicleAttributes.HAZMAT;
-					}
-
+				}
+				else if (key.equals("hazmat") && "no".equals(value)) {
+					_hgvType |= HeavyVehicleAttributes.HAZMAT;
 				}
 			}
 		}
@@ -251,15 +241,17 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 	    }
 	}
 
-	private String getHeavyVehicleValue(String key, String hv, String value)
-	{
-		if (value.equals(hv) || (key.equals(hv) && ("yes".equals(value) || "no".equals(value))))
+	private String getHeavyVehicleValue(String key, String hv, String value) {
+		if (value.equals(hv))
 			return value;
-		else 
-		{
-			if (key.equals(hv+":forward") || key.equals(hv+":backward"))
-				return value;
+		else if (key.equals(hv)) {
+			if (_yesValues.contains(value))
+				return "yes";
+			else if (_noValues.contains(value))
+				return "no";
 		}
+		else if (key.equals(hv+":forward") || key.equals(hv+":backward"))
+			return value;
 		
 		return null;
 	}
