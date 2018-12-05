@@ -25,7 +25,7 @@ public class GeoJSONIsochroneProperties {
     private double reachfactor;
 
     @JsonProperty(value = "total_pop")
-    private AttributeValue total_pop;
+    private double total_pop;
 
 
     public GeoJSONIsochroneProperties(Isochrone isochrone, Coordinate center, int group_index) {
@@ -39,7 +39,7 @@ public class GeoJSONIsochroneProperties {
         if (isochrone.getAttributes() != null && isochrone.getAttributes().size() > 0)
             for (AttributeValue attributeValue : isochrone.getAttributes()) {
                 if (attributeValue.getName().toLowerCase().equals("total_pop"))
-                    this.total_pop = attributeValue;
+                    this.total_pop = attributeValue.getValue();
             }
     }
 
@@ -63,7 +63,7 @@ public class GeoJSONIsochroneProperties {
         return reachfactor;
     }
 
-    public AttributeValue getTotal_pop() {
+    public double getTotal_pop() {
         return total_pop;
     }
 }

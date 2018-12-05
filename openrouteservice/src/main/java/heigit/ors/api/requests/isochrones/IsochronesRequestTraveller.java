@@ -2,6 +2,7 @@ package heigit.ors.api.requests.isochrones;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.api.requests.routing.RouteRequestOptions;
@@ -11,6 +12,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class IsochronesRequestTraveller {
     @ApiModelProperty(name = "location", value = "The location to use for the route as an array of longitude/latitude pairs", example = "[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]]")
     @JsonProperty("location")
@@ -28,7 +30,7 @@ public class IsochronesRequestTraveller {
     @ApiModelProperty(name = "options",
             value = "Additional options for the isochrones request")
     @JsonProperty("options")
-    private RouteRequestOptions isochronesOptions = null;
+    private RouteRequestOptions isochronesOptions = new RouteRequestOptions();
 
     @JsonIgnore
     private boolean hasIsochronesOptions = false;

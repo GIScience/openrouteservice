@@ -22,7 +22,7 @@ public class GeoJSONIsochronesMap {
     }
 
 
-    List<GeoJSONIsochrone> calculateIsochrones() {
+    List<GeoJSONIsochrone> buildGeoJSONIsochrones() {
         for (Isochrone isochrone : isochroneMap.getIsochrones()) {
             features.add(new GeoJSONIsochrone(isochrone, mapCenter, travellerID));
         }
