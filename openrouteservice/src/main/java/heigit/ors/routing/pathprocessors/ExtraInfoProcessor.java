@@ -210,18 +210,32 @@ public class ExtraInfoProcessor extends PathProcessor {
 		buffer = new byte[4];
 	}
 
+	/**
+	 * Loop through the GraphExtensions of the storage and store in the warningExtensions object those that implement
+	 * the WarningGraphExtension interface and are set to be used for generating warnings.
+	 *
+	 * @param graphHopper
+	 */
 	private void applyWarningExtensions(ORSGraphHopper graphHopper) {
 		GraphExtension[] extensions = GraphStorageUtils.getGraphExtensions(graphHopper.getGraphHopperStorage());
 		for(GraphExtension ge : extensions) {
 			if (ge instanceof WarningGraphExtension) {
 				if(((WarningGraphExtension)ge).isUsedForWarning()) {
 					warningExtensions.add(RouteExtraInfoFlag.getFromString(((WarningGraphExtension) ge).getName()));
-					//warningExtensions.add(new RouteExtraInfoHolder(RouteExtraInfoFlag.getFromString(((WarningGraphExtension) ge).getName()), graphHopper));
 				}
 			}
 		}
 	}
 
+	/**
+	 * Check if the extra info should be included in the generation or not by looking at the encoded extras value and
+	 * the list of warning extras.
+	 *
+	 * @param encodedExtras		The encoded value stating which extras were passed explicitly
+	 * @param infoFlag			The id of the extra info whos inclusion needs to be decided
+	 *
+	 * @return
+	 */
 	private boolean includeExtraInfo(int encodedExtras, int infoFlag) {
 		boolean include = false;
 

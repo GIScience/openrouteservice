@@ -39,10 +39,18 @@ public class RouteExtraInfo
     	this(name, null);
     }
 
+	/**
+	 * Constructor that can mark the RouteExtraInfo as being able to generate warnings or not
+	 *
+	 * @param name			name of the extra info
+	 * @param extension		The GraphExtension that is used to generate the extra info. A check is made against this to
+	 *                      see if it is of type {@Link heigit.ors.routing.graphhopper.extensions.storages.WarningGraphExtension}.
+	 *
+	 */
 	public RouteExtraInfo(String name, GraphExtension extension)
 	{
 		_name = name;
-		_segments = new ArrayList<RouteSegmentItem>();
+		_segments = new ArrayList<>();
 		if(extension instanceof WarningGraphExtension) {
 			warningGraphExtension = (WarningGraphExtension) extension;
 			_usedForWarnings = true;

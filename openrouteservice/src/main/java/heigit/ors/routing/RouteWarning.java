@@ -15,6 +15,9 @@
 
 package heigit.ors.routing;
 
+/**
+ * Holder class for a warning that could be used in the response
+ */
 public class RouteWarning {
     public final static int ACCESS_RESTRICTION = 1;
     public final static int TOLLWAYS = 2;
@@ -22,6 +25,10 @@ public class RouteWarning {
     private int warningCode = 0;
     private String warningMessage = "";
 
+    /**
+     * Generate the warning object and initialise the contents based on the warning code passed
+     * @param warning   The warning code for the warning that should be generated
+     */
     public RouteWarning(int warning) {
         warningCode = warning;
         switch(warning) {
