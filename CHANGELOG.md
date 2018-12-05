@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - Added Unit Tests for RouteSearchParameters.class() (while fixing Issue #291)
-- Added ability to turn warning messages in the route response which can be used for showing info to a user when warning criteria have been met based on extended storages.
+- Added ability to return warning messages in the route response which can be used for showing info to a user when warning criteria have been met based on extended storages.
+- Added a RoadAccessRestrictions extended storage as a warning extended storage for when a route goes of ways with access restrictions (Issue #342)
 ### Fixed
 - If residential penalty reduces speed to <5, set it to 5
 - Added a new ParameterValueException in RouteSearchParameters if the profile is driving-car and profile_params are set in the options (Issue #291)
@@ -16,6 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed empty BBox error if the route is located in the southern hemisphere (Issue #348)
 - Take into account access restrictions specific to hgv subprofiles (fixes issue #235)
 ### Changed
+- Allowed access for cars and hgvs on access=destination roads (Issue #342)
 ### Deprecated
 
 ## [4.7.1] - 2018-10-24

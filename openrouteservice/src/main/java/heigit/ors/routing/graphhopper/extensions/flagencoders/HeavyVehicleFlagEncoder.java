@@ -78,6 +78,7 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
         intendedValues.add("yes");
         intendedValues.add("permissive");
         intendedValues.add("designated");
+        intendedValues.add("destination");
 
         intendedValues.add("agricultural");
         intendedValues.add("forestry");
