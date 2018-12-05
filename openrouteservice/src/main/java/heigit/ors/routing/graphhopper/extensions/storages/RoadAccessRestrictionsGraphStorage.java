@@ -21,6 +21,9 @@ import heigit.ors.routing.RouteSegmentItem;
 import heigit.ors.routing.RouteWarning;
 import heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
 
+/**
+ * The graph storage for road access restrictions.
+ */
 public class RoadAccessRestrictionsGraphStorage implements GraphExtension, WarningGraphExtension {
     protected final int NO_ENTRY = -1;
     protected final int EF_RESTRICTIONS;
@@ -128,7 +131,6 @@ public class RoadAccessRestrictionsGraphStorage implements GraphExtension, Warni
 
     public int getDefaultNodeFieldValue() {
         return -1;
-        //		throw new UnsupportedOperationException("Not supported by this storage");
     }
 
     public int getDefaultEdgeFieldValue() {

@@ -89,7 +89,7 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
 
         intendedValues.add("yes");
         intendedValues.add("permissive");
-        intendedValues.add("destination");
+        intendedValues.add("destination");  // This is needed to allow the passing of barriers that are marked as destination
 
         potentialBarriers.add("gate");
         potentialBarriers.add("lift_gate");
