@@ -687,6 +687,7 @@ public class RoutingProfile {
         /* Avoid areas */
 
         if (searchParams.hasAvoidAreas()) {
+            props.put("avoid_areas", true);
             edgeFilters.add(new AvoidAreasEdgeFilter(searchParams.getAvoidAreas()));
         }
 
@@ -911,6 +912,13 @@ public class RoutingProfile {
                         req.getHints().put("core.disable", true);
                     }
                 }
+            }
+            //cannot use CH or CoreALT with avoid areas. Need to fallback to ALT with beeline approximator or Dijkstra
+            if(props.getBool("avoid_areas", false)){
+                req.setAlgorithm("astarbi");
+                req.getHints().put("lm.disable", false);
+                req.getHints().put("core.disable", true);
+                req.getHints().put("ch.disable", true);
             }
 
             if (profileType == RoutingProfileType.DRIVING_EMERGENCY) {

@@ -168,8 +168,11 @@ public class RoutingManagerConfiguration
 					case "maximum_distance":
 						profile.setMaximumDistance(Double.parseDouble(paramItem.getValue().toString()));
 						break;
-					case "maximum_segment_distance_with_dynamic_weights":
-						profile.setMaximumSegmentDistanceWithDynamicWeights(Double.parseDouble(paramItem.getValue().toString()));
+					case "maximum__distance_dynamic_weights":
+						profile.setMaximumDistanceDynamicWeights(Double.parseDouble(paramItem.getValue().toString()));
+						break;
+					case "maximum_distance_avoid_areas":
+						profile.setMaximumDistanceAvoidAreas(Double.parseDouble(paramItem.getValue().toString()));
 						break;
 					case "maximum_waypoints":
 						profile.setMaximumWayPoints(Integer.parseInt(paramItem.getValue().toString()));
