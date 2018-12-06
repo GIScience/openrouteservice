@@ -58,9 +58,9 @@ public class TollwaysGraphStorageBuilder extends AbstractGraphStorageBuilder
 							setFlag(TollwayType.General, value);
 							break;
 						case "toll:hgv":
-							setFlag(TollwayType.N, value);
+							setFlag(TollwayType.Hgv, value);
 							break;
-						case "toll:N1":
+						case "toll:N1": //currently not used in OSM
 							setFlag(TollwayType.N1, value);
 							break;
 						case "toll:N2":
@@ -70,7 +70,7 @@ public class TollwaysGraphStorageBuilder extends AbstractGraphStorageBuilder
 							setFlag(TollwayType.N3, value);
 							break;
 						case "toll:motorcar":
-							setFlag(TollwayType.M1, value);
+							setFlag(TollwayType.Motorcar, value);
 						default:
 							break;
 					}

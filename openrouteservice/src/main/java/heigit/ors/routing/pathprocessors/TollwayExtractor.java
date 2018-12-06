@@ -51,15 +51,15 @@ public class TollwayExtractor {
 				switch(_profileType) {
 					// toll:motorcar
 					case RoutingProfileType.DRIVING_CAR:
-						return TollwayType.isSet(TollwayType.M1, value) ? 1 : 0;
+						return TollwayType.isSet(TollwayType.Motorcar, value) ? 1 : 0;
 
 					case RoutingProfileType.DRIVING_HGV:
 						// toll:hgv
-						if (TollwayType.isSet(TollwayType.N, value))
+						if (TollwayType.isSet(TollwayType.Hgv, value))
 							return 1;
 
 						// check for weight specific toll tags even when weight is unset
-						double weight = _vehicleParams.getWeight();
+						double weight = _vehicleParams==null ? 0 : _vehicleParams.getWeight();
 						if (weight == 0 && TollwayType.isNType(value))
 							return 1;
 							//Check in which weight range the hgv falls and return accordingly

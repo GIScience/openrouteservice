@@ -32,6 +32,11 @@ public class TollwayType {
 
 	public static final int General = M | N;
 
+	// OSM classification
+	public static final int Motorcar = M1;
+	public static final int Goods = N1;
+	public static final int Hgv = N2 | N3;
+
     public static boolean isSet(int flag, int value) {
         return (flag & value) == flag;
     }
