@@ -1083,6 +1083,41 @@ http://localhost:8080/ors/routes?
 				.statusCode(200);
 	}
 
+    @Test
+    public void testHGVAxleLoadRestriction() {
+        given()
+                .param("coordinates", "8.686849,49.406093|8.687525,49.405437")
+                .param("instructions", "false")
+                .param("preference", "shortest")
+                .param("profile", "driving-hgv")
+                .param("options", "{\"profile_params\":{\"restrictions\":{\"axleload\":\"12.9\"}},\"vehicle_type\":\"hgv\"}")
+                .param("units", "m")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(132.9f))
+                .body("routes[0].summary.duration", is(44.3f))
+                .statusCode(200);
+
+        given()
+                .param("coordinates", "8.686849,49.406093|8.687525,49.405437")
+                .param("instructions", "true")
+                .param("preference", "shortest")
+                .param("profile", "driving-hgv")
+                .param("options", "{\"profile_params\":{\"restrictions\":{\"axleload\":\"13.1\"}},\"vehicle_type\":\"hgv\"}")
+                .param("units", "m")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(364.3f))
+                .body("routes[0].summary.duration", is(92.7f))
+                .statusCode(200);
+    }
+
 	@Test
 	public void testCarDistanceAndDuration() {
 		// Generic test to ensure that the distance and duration dont get changed

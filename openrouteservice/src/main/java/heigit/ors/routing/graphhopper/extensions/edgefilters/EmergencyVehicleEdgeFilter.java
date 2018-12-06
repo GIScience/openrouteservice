@@ -58,7 +58,7 @@ public class EmergencyVehicleEdgeFilter implements EdgeFilter {
 		this.restCount = indexValues == null ? 0 : indexValues.length;
 		this.indexValues = indexValues;
 
-		this.buffer = new byte[10];
+		this.buffer = new byte[2];
 
 		this.gsAttributes = GraphStorageUtils.getGraphExtension(graphStorage, EmergencyVehicleAttributesGraphStorage.class);
 	}
@@ -69,13 +69,13 @@ public class EmergencyVehicleEdgeFilter implements EdgeFilter {
 
 		if (restCount != 0 && gsAttributes != null) {
 			if (restCount == 1) {
-				double value = gsAttributes.getEdgeRestrictionValue(edgeId, indexValues[0], buffer);
+				double value = gsAttributes.getEdgeRestrictionValue(edgeId, indexValues[0]);
 				if (value > 0 && value < restrictionValues[0])
 					return false;
 				else
 					return true;
 			} else {
-				if (gsAttributes.getEdgeRestrictionValues(edgeId, buffer, retValues))
+				if (gsAttributes.getEdgeRestrictionValues(edgeId, retValues))
 				{
 					double value = retValues[0];
 					if (value > 0.0f && value < restrictionValues[0])
