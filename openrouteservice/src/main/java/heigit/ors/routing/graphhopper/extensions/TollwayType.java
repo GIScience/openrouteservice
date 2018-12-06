@@ -33,7 +33,7 @@ public class TollwayType {
 	public static final int General = M | N;
 
     public static boolean isSet(int flag, int value) {
-        return (flag & value) == value;
+        return (flag & value) == flag;
     }
 
 	public static boolean isType(int flag, int value) {
