@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Improved range and resolution of values encoding dimension/weight road restrictions in order to properly resolve them when corresponding hgv parameters are set (fixes issue #263)
 - Fixed empty BBox error if the route is located in the southern hemisphere (Issue #348)
 - Take into account access restrictions specific to hgv subprofiles (fixes issue #235)
+- Properly resolve all tolls, especially hgv-specific ones (fixes issue #358)
 ### Changed
 - Allowed access for cars and hgvs on access=destination roads (Issue #342)
 ### Deprecated
