@@ -26,6 +26,7 @@ import heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSM
 import heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.WheelchairWayFilter;
 import heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import heigit.ors.routing.graphhopper.extensions.storages.builders.RoadAccessRestrictionsGraphStorageBuilder;
 import heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGraphStorageBuilder;
 import org.apache.log4j.Logger;
 
@@ -98,6 +99,17 @@ public class ORSOSMReader extends OSMReader {
                 extraTagKeys.add("kerb:both:height");
                 extraTagKeys.add("kerb:left:height");
                 extraTagKeys.add("kerb:right:height");
+			}
+
+			if ( b instanceof RoadAccessRestrictionsGraphStorageBuilder) {
+				this.processNodeTags = true;
+				extraTagKeys.add("access");
+				extraTagKeys.add("bicycle");
+				extraTagKeys.add("foot");
+				extraTagKeys.add("horse");
+				extraTagKeys.add("motor_vehicle");
+				extraTagKeys.add("motorcar");
+				extraTagKeys.add("motorcycle");
 			}
 		}
 	}
