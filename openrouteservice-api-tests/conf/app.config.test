@@ -209,6 +209,9 @@
                   boundaries: "openrouteservice-api-tests/data/borders/borders.geojson",
                   ids: "openrouteservice-api-tests/data/borders/ids.csv",
                   openborders: "openrouteservice-api-tests/data/borders/openborders.csv"
+                },
+                RoadAccessRestrictions: {
+                  use_for_warnings: true
                 }
               }
               traffic: false

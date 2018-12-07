@@ -1427,4 +1427,23 @@ http://localhost:8080/ors/routes?
                 .body("routes[0].extras.containsKey('osmId')", is(true))
                 .statusCode(200);
     }
+
+    @Test
+    public void testAccessRestrictionsWarnings() {
+        given()
+                .param("coordinates", "8.675154,49.407727|8.675863,49.407162")
+                .param("preference", "shortest")
+                .param("profile", getParameter("carProfile"))
+                .when()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('warnings')", is(true))
+                .body("routes[0].warnings[0].code", is(1))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.containsKey('roadaccessrestrictions')", is(true))
+                .body("routes[0].extras.roadaccessrestrictions.values[1][2]", is(32))
+                .statusCode(200);
+    }
 }
