@@ -890,7 +890,8 @@ public class RoutingProfile {
                                 searchParams.getBearings() != null)) {
                     req.getHints().put("core.disable", false);
                     req.getHints().put("lm.disable", true);
-                    req.setAlgorithm("dijkstrabi");
+                    req.getHints().put("ch.disable", true);
+                    req.setAlgorithm("astarbi");
                 }
             } else {
                 if (mGraphHopper.isCHEnabled()) {
@@ -903,8 +904,10 @@ public class RoutingProfile {
                             !(searchParams.getWeightingMethod() == WeightingMethod.SHORTEST ||
                                     searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED ||
                                     searchParams.getBearings() != null)) {
+                        req.getHints().put("core.disable", false);
                         req.getHints().put("lm.disable", true);
                         req.getHints().put("ch.disable", true);
+                        req.setAlgorithm("astarbi");
 
                     }
                     else {
