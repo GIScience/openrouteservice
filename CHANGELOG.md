@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+### Fixed
+### Changed
+### Deprecated
+
+## [4.7.2] - 2018-12-10
+### Added
 - Added Unit Tests for RouteSearchParameters.class() (while fixing Issue #291)
 - Added ability to return warning messages in the route response which can be used for showing info to a user when warning criteria have been met based on extended storages.
 - Added a RoadAccessRestrictions extended storage as a warning extended storage for when a route goes of ways with access restrictions (Issue #342)
