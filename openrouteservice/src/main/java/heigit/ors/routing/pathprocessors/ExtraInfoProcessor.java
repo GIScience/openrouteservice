@@ -158,7 +158,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 			
 			_tollwaysInfo = new RouteExtraInfo("tollways", _extTollways);
 			_tollwaysInfoBuilder = new SimpleRouteExtraInfoBuilder(_tollwaysInfo);
-			_tollwayExtractor = new TollwayExtractor(_extTollways, req.getSearchParameters().getVehicleType(), req.getSearchParameters().getProfileParameters());
+			_tollwayExtractor = new TollwayExtractor(_extTollways, req.getSearchParameters().getProfileType(), req.getSearchParameters().getProfileParameters());
 		}
 
 		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.TrailDifficulty))

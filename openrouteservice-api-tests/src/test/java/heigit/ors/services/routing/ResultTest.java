@@ -787,10 +787,16 @@ http://localhost:8080/ors/routes?
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('extras')", is(true))
-				.body("routes[0].extras.tollways.values.size()", is(1))
+				.body("routes[0].extras.tollways.values.size()", is(3))
 				.body("routes[0].extras.tollways.values[0][0]", is(0))
-				.body("routes[0].extras.tollways.values[0][1]", is(86))
+				.body("routes[0].extras.tollways.values[0][1]", is(52))
 				.body("routes[0].extras.tollways.values[0][2]", is(0))
+                .body("routes[0].extras.tollways.values[1][0]", is(52))
+                .body("routes[0].extras.tollways.values[1][1]", is(66))
+                .body("routes[0].extras.tollways.values[1][2]", is(1))
+                .body("routes[0].extras.tollways.values[2][0]", is(66))
+                .body("routes[0].extras.tollways.values[2][1]", is(86))
+                .body("routes[0].extras.tollways.values[2][2]", is(0))
 				.statusCode(200);
 
 		checkExtraConsistency(response);
