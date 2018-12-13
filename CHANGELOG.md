@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed empty BBox error if the route is located in the southern hemisphere (Issue #348)
 - Take into account access restrictions specific to hgv subprofiles (fixes issue #235)
 - Properly resolve all tolls, especially hgv-specific ones (fixes issue #358)
+- Updated checks on pedestrian way filter for access restrictions
 ### Changed
 - Allowed access for cars and hgvs on access=destination roads (Issue #342)
 ### Deprecated

@@ -1299,8 +1299,8 @@ http://localhost:8080/ors/routes?
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(594.4f))
-				.body("routes[0].summary.duration", is(493.8f))
+				.body("routes[0].summary.distance", is(591.6f))
+				.body("routes[0].summary.duration", is(498.7f))
 				.statusCode(200);
 
 		given()
