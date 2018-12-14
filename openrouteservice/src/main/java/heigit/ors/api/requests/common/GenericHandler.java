@@ -22,6 +22,7 @@ import heigit.ors.api.requests.isochrones.IsochronesRequestTraveller;
 import heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
 import heigit.ors.api.requests.routing.RouteRequest;
+import heigit.ors.api.requests.routing.RouteRequestOptions;
 import heigit.ors.exceptions.IncompatableParameterException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
@@ -150,41 +151,19 @@ public class GenericHandler {
         return flags;
     }
 
-
-    protected ProfileParameters convertParameters(IsochronesRequestTraveller traveller, int profileType) throws StatusCodeException {
+    protected  ProfileParameters convertParameters(RouteRequestOptions options, int profileType) throws StatusCodeException {
         ProfileParameters params = new ProfileParameters();
+        if (options.getProfileParams().hasRestrictions()) {
 
-        if (traveller.getIsochronesOptions().getProfileParams().hasRestrictions()) {
-
-            RequestProfileParamsRestrictions restrictions = traveller.getIsochronesOptions().getProfileParams().getRestrictions();
-            APIEnums.VehicleType vehicleType = traveller.getIsochronesOptions().getVehicleType();
+            RequestProfileParamsRestrictions restrictions = options.getProfileParams().getRestrictions();
+            APIEnums.VehicleType vehicleType = options.getVehicleType();
 
             validateRestrictionsForProfile(restrictions, profileType);
             params = convertSpecificProfileParameters(profileType, restrictions, vehicleType);
         }
 
-        if (traveller.getIsochronesOptions().getProfileParams().hasWeightings()) {
-            RequestProfileParamsWeightings weightings = traveller.getIsochronesOptions().getProfileParams().getWeightings();
-            applyWeightings(weightings, params);
-        }
-
-        return params;
-    }
-
-    protected ProfileParameters convertParameters(RouteRequest request, int profileType) throws StatusCodeException {
-        ProfileParameters params = new ProfileParameters();
-
-        if (request.getRouteOptions().getProfileParams().hasRestrictions()) {
-
-            RequestProfileParamsRestrictions restrictions = request.getRouteOptions().getProfileParams().getRestrictions();
-            APIEnums.VehicleType vehicleType = request.getRouteOptions().getVehicleType();
-
-            validateRestrictionsForProfile(restrictions, profileType);
-            params = convertSpecificProfileParameters(profileType, restrictions, vehicleType);
-        }
-
-        if (request.getRouteOptions().getProfileParams().hasWeightings()) {
-            RequestProfileParamsWeightings weightings = request.getRouteOptions().getProfileParams().getWeightings();
+        if (options.getProfileParams().hasWeightings()) {
+            RequestProfileParamsWeightings weightings = options.getProfileParams().getWeightings();
             applyWeightings(weightings, params);
         }
 

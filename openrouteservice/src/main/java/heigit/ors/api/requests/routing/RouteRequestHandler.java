@@ -130,7 +130,7 @@ public class RouteRequestHandler extends GenericHandler {
         RouteRequestOptions routeOptions = request.getRouteOptions();
         params = processRequestOptions(routeOptions,params);
         if (routeOptions.hasProfileParams())
-            params.setProfileParams(convertParameters(request, params.getProfileType()));
+            params.setProfileParams(convertParameters(routeOptions, params.getProfileType()));
         return params;
     }
 

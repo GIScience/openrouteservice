@@ -52,7 +52,7 @@ public class IsochronesRequestEnums {
                 if (enumItem.value.equals(v))
                     return enumItem;
             }
-            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "attributes", v);
+            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "range_type", v);
         }
 
         @Override
@@ -78,13 +78,30 @@ public class IsochronesRequestEnums {
                 if (enumItem.value.equals(v))
                     return enumItem;
             }
-            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "attributes", v);
+            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "location_type", v);
         }
 
         @Override
         @JsonValue
         public String toString() {
             return value;
+        }
+    }
+
+    public enum CalculationMethod {
+        GRID("grid"),
+        CONCAVE_BALLS("concaveballs");
+
+        private final String value;
+        CalculationMethod(String value) { this.value = value; }
+
+        @JsonCreator
+        public static CalculationMethod forValue(String v) throws ParameterValueException {
+            for (CalculationMethod enumItem : CalculationMethod.values()) {
+                if (enumItem.value.equals(v))
+                    return enumItem;
+            }
+            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "calc_method", v);
         }
     }
 

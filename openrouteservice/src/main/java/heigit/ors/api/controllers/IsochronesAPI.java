@@ -41,6 +41,16 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v2/isochrones")
 public class IsochronesAPI {
 
+    @PostMapping(produces = "application/geo+json;charset=UTF-8")
+    @ApiOperation(value = "Get isochrones from the specified profile", httpMethod = "POST", consumes = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "GeoJSON Response", response = GeoJSONIsochronesResponse.class)
+    })
+    public GeoJSONIsochronesResponse getDefaultMimeType(
+            @ApiParam(value = "The request payload", required = true) @RequestBody IsochronesRequest request) throws Exception {
+        return getGeoJsonMime(request);
+    }
+
     @PostMapping(value = "/geojson", produces = "application/geo+json;charset=UTF-8")
     @ApiOperation(value = "Get isochrones from the specified profile", httpMethod = "POST", consumes = "application/json")
     @ApiResponses(value = {

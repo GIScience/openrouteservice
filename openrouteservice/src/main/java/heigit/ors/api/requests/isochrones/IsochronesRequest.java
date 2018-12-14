@@ -63,7 +63,7 @@ public class IsochronesRequest {
     @ApiModelProperty(name = "calc_method",
             value = "Specifies the calculation method. ConcaveBalls or Grid")
     @JsonProperty(value = "calc_method", defaultValue = "ConcaveBalls")
-    private String calcMethod = "ConcaveBalls";
+    private IsochronesRequestEnums.CalculationMethod calcMethod = IsochronesRequestEnums.CalculationMethod.CONCAVE_BALLS;
 
     @ApiModelProperty(name = "intersections",
             value = "Specifies whether to return intersecting polygons")
@@ -121,6 +121,7 @@ public class IsochronesRequest {
 
     public void setSmoothing(Double smoothing) {
         this.smoothing = smoothing;
+        this.hasSmoothing = true;
     }
 
     public boolean hasSmoothing() {
@@ -172,11 +173,11 @@ public class IsochronesRequest {
         return hasAttributes;
     }
 
-    public String getCalcMethod() {
+    public IsochronesRequestEnums.CalculationMethod getCalcMethod() {
         return calcMethod;
     }
 
-    public void setCalcMethod(String calcMethod) {
+    public void setCalcMethod(IsochronesRequestEnums.CalculationMethod calcMethod) {
         this.calcMethod = calcMethod;
     }
 }

@@ -72,7 +72,7 @@ public class IsochronesRequestHandler extends GenericHandler {
         }
     }
 
-    static Float convertSmoothing(Double smoothingValue) throws ParameterValueException {
+    Float convertSmoothing(Double smoothingValue) throws ParameterValueException {
 
         float f = (float) smoothingValue.doubleValue();
 
@@ -83,7 +83,7 @@ public class IsochronesRequestHandler extends GenericHandler {
 
     }
 
-    static String convertLocationType(IsochronesRequestEnums.LocationType locationType) throws ParameterValueException {
+    String convertLocationType(IsochronesRequestEnums.LocationType locationType) throws ParameterValueException {
 
         IsochronesRequestEnums.LocationType value;
 
@@ -110,7 +110,7 @@ public class IsochronesRequestHandler extends GenericHandler {
 
     }
 
-    static TravelRangeType convertRangeType(IsochronesRequestEnums.RangeType rangeType) throws ParameterValueException {
+    TravelRangeType convertRangeType(IsochronesRequestEnums.RangeType rangeType) throws ParameterValueException {
 
         TravelRangeType travelRangeType;
 
@@ -136,7 +136,7 @@ public class IsochronesRequestHandler extends GenericHandler {
 
     }
 
-    static DistanceUnit convertAreaUnit(APIEnums.Units unitsIn) throws ParameterValueException {
+    DistanceUnit convertAreaUnit(APIEnums.Units unitsIn) throws ParameterValueException {
 
         DistanceUnit are_unit;
         try {
@@ -152,7 +152,7 @@ public class IsochronesRequestHandler extends GenericHandler {
         }
     }
 
-    static DistanceUnit convertRangeUnit(APIEnums.Units unitsIn) throws ParameterValueException {
+    DistanceUnit convertRangeUnit(APIEnums.Units unitsIn) throws ParameterValueException {
 
         DistanceUnit units;
         try {
@@ -166,7 +166,7 @@ public class IsochronesRequestHandler extends GenericHandler {
 
     }
 
-    static Coordinate convertSingleCoordinate(Double[] coordinate) throws ParameterValueException {
+    Coordinate convertSingleCoordinate(Double[] coordinate) throws ParameterValueException {
         Coordinate realCoordinate;
         if (coordinate.length != 2) {
             throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "location");
@@ -247,7 +247,7 @@ public class IsochronesRequestHandler extends GenericHandler {
         RouteRequestOptions options = traveller.getIsochronesOptions();
         parameters = new RouteRequestHandler().processRequestOptions(options, parameters);
         if (options.hasProfileParams())
-            parameters.setProfileParams(convertParameters(traveller, parameters.getProfileType()));
+            parameters.setProfileParams(convertParameters(options, parameters.getProfileType()));
         return parameters;
     }
 
@@ -305,12 +305,12 @@ public class IsochronesRequestHandler extends GenericHandler {
         return convertAPIEnumListToStrings(attributes);
     }
 
-    String convertCalcMethod(String bareCalcMethod) throws ParameterValueException {
+    String convertCalcMethod(IsochronesRequestEnums.CalculationMethod bareCalcMethod) throws ParameterValueException {
         try {
-            switch (bareCalcMethod.toLowerCase()) {
-                case "concaveballs":
+            switch (bareCalcMethod) {
+                case CONCAVE_BALLS:
                     return "concaveballs";
-                case "grid":
+                case GRID:
                     return "grid";
                 default:
                     return "none";

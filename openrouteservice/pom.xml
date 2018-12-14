@@ -277,6 +277,13 @@
         <version>2.8.2</version>
     </dependency>
 
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+        <version>${slf4j.version}</version>
+        <scope>test</scope>
+    </dependency>
+
 	<dependency>
    		<groupId>javax.servlet</groupId>
    		<artifactId>javax.servlet-api</artifactId>
@@ -373,12 +380,12 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>
         <version>1.5.15.RELEASE</version>
-        <!--<exclusions>
+        <exclusions>
           <exclusion>
               <groupId>org.springframework.boot</groupId>
               <artifactId>spring-boot-starter-logging</artifactId>
           </exclusion>
-      </exclusions>-->
+      </exclusions>
     </dependency>
     <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -407,11 +414,12 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-actuator</artifactId>
         <version>LATEST</version>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-web</artifactId>
-        <version>LATEST</version>
+        <exclusions>
+            <exclusion>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-logging</artifactId>
+            </exclusion>
+        </exclusions>
     </dependency>
 
 

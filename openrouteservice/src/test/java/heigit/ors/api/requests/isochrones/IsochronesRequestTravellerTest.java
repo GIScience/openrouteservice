@@ -1,83 +1,44 @@
 package heigit.ors.api.requests.isochrones;
 
+import heigit.ors.api.requests.routing.RouteRequestOptions;
+import heigit.ors.exceptions.ParameterValueException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class IsochronesRequestTravellerTest {
+    IsochronesRequestTraveller traveller;
 
     @Before
     public void setUp() throws Exception {
+        traveller = new IsochronesRequestTraveller(new Double[]{1.0,2.0});
+    }
+
+    @Test (expected = ParameterValueException.class)
+    public void tooSmallLocationTest() throws ParameterValueException {
+        new IsochronesRequestTraveller(new Double[]{1.0});
+    }
+
+    @Test (expected = ParameterValueException.class)
+    public void tooLargeLocationTest() throws ParameterValueException {
+        new IsochronesRequestTraveller(new Double[]{1.0, 1.0, 1.0});
     }
 
     @Test
-    public void getLocation() {
+    public void optionsTest() {
+        Assert.assertFalse(traveller.hasIsochronesOptions());
+        RouteRequestOptions opts = new RouteRequestOptions();
+        opts.setMaximumSpeed(120.0);
+        traveller.setIsochronesOptions(opts);
+        Assert.assertTrue(traveller.hasIsochronesOptions());
+        Assert.assertEquals(120.0, traveller.getIsochronesOptions().getMaximumSpeed(), 0.0);
     }
 
     @Test
-    public void setLocation() {
-    }
-
-    @Test
-    public void getProfile() {
-    }
-
-    @Test
-    public void setProfile() {
-    }
-
-    @Test
-    public void getRangeType() {
-    }
-
-    @Test
-    public void setRangeType() {
-    }
-
-    @Test
-    public void getLocationType() {
-    }
-
-    @Test
-    public void setLocationType() {
-    }
-
-    @Test
-    public void getRange() {
-    }
-
-    @Test
-    public void setRange() {
-    }
-
-    @Test
-    public void getInterval() {
-    }
-
-    @Test
-    public void setInterval() {
-    }
-
-    @Test
-    public void getIsochronesOptions() {
-    }
-
-    @Test
-    public void setIsochronesOptions() {
-    }
-
-    @Test
-    public void hasIsochronesOptions() {
-    }
-
-    @Test
-    public void getId() {
-    }
-
-    @Test
-    public void setId() {
-    }
-
-    @Test
-    public void hasId() {
+    public void idTest() {
+        Assert.assertFalse(traveller.hasId());
+        traveller.setId("1");
+        Assert.assertTrue(traveller.hasId());
+        Assert.assertEquals("1", traveller.getId());
     }
 }

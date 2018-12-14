@@ -62,7 +62,7 @@ public class IsochronesRequestTraveller {
     private Double interval;
 
 
-    private IsochronesRequestTraveller(@JsonProperty(value = "location", required = true) Double[] location) throws ParameterValueException {
+    public IsochronesRequestTraveller(@JsonProperty(value = "location", required = true) Double[] location) throws ParameterValueException {
         if (location.length != 2)
             throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "location");
         this.location = location;
