@@ -33,9 +33,9 @@ import heigit.ors.services.common.ServiceTest;
 public class ParamsTest extends ServiceTest {
 
 	public ParamsTest() {
-		addParameter("coordinatesShort", "8.680916,49.410973|8.687782,49.424597");
+		addParameter("coordinatesShort", "8.678613,49.411721|8.687782,49.424597");
 		addParameter("coordinatesShortFaulty", "8.680916a,49.41b0973|8.6c87782,049gbd.424597");
-		addParameter("coordinatesLong", "8.502045,49.47794|4.78906,53.071752");
+		addParameter("coordinatesLong", "8.678613,49.411721|4.78906,53.071752");
 		addParameter("extra_info", "surface|suitability|steepness");
 		addParameter("preference", "fastest");
 		addParameter("profile", "cycling-regular");
@@ -720,5 +720,38 @@ public class ParamsTest extends ServiceTest {
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
+	}
+
+	@Test
+	public void expectWarningsAndExtraInfo() {
+		given()
+				.param("coordinates", "8.675154,49.407727|8.675863,49.407162")
+				.param("preference", "shortest")
+				.param("profile", getParameter("carProfile"))
+				.when().log().all()
+				.get(getEndPointName())
+				.then().log().all()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].containsKey('warnings')", is(true))
+				.body("routes[0].containsKey('extras')", is(true))
+				.body("routes[0].extras.containsKey('roadaccessrestrictions')", is(true))
+				.statusCode(200);
+	}
+
+	@Test
+	public void expectSuppressedWarnings() {
+		given()
+				.param("coordinates", "8.675154,49.407727|8.675863,49.407162")
+				.param("preference", "shortest")
+				.param("profile", getParameter("carProfile"))
+				.param("suppress_warnings", "true")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].containsKey('warnings')", is(false))
+				.statusCode(200);
 	}
 }

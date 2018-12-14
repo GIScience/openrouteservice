@@ -48,8 +48,8 @@ public class ResultTest extends ServiceTest {
 
 	public ResultTest() {
 
-		addParameter("coordinatesShort", "8.680916,49.410973|8.687782,49.424597");
-		addParameter("coordinatesLong", "8.680916,49.410973|8.714733,49.393267|8.687782,49.424597");
+		addParameter("coordinatesShort", "8.678613,49.411721|8.687782,49.424597");
+		addParameter("coordinatesLong", "8.678613,49.411721|8.714733,49.393267|8.687782,49.424597");
 		addParameter("extra_info", "surface|suitability|steepness");
 		addParameter("preference", "fastest");
 		addParameter("bikeProfile", "cycling-regular");
@@ -409,7 +409,7 @@ public class ResultTest extends ServiceTest {
 	}
 
 	@Test
-	public void expectCarToRejectBikeParams() {
+	public void expectCarToRejectProfileParams() {
 
 		// options for cycling profiles
 		JSONObject options = new JSONObject();
@@ -428,7 +428,7 @@ public class ResultTest extends ServiceTest {
 				.get(getEndPointName())
 				.then()
 				.assertThat()
-				.statusCode(200);
+				.statusCode(400);
 	}
 
 	@Test
@@ -449,98 +449,90 @@ public class ResultTest extends ServiceTest {
 				.statusCode(200);
 	}
 
-	@Test
-	public void testSummary() {
+    @Test
+    public void testSummary() {
 
-		given()
-				.param("coordinates", getParameter("coordinatesLong"))
-				.param("instructions", "true")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("bikeProfile"))
-				.param("elevation", "true")
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].containsKey('segments')", is(true))
-				.body("routes[0].segments.size()", is(2))
-				//.body("routes[0].summary.distance", is(12270.9f))
-                .body("routes[0].summary.distance", is(12638.9f))
-				//.body("routes[0].summary.duration", is(3461.3f))
-                .body("routes[0].summary.duration", is(4643.4f))
-				//.body("routes[0].summary.ascent", is(346.8f))
-                .body("routes[0].summary.ascent", is(337.6f))
-				//.body("routes[0].summary.descent", is(337.4f))
-                .body("routes[0].summary.descent", is(328.3f))
-				.statusCode(200);
-	}
+        given()
+                .param("coordinates", getParameter("coordinatesLong"))
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("bikeProfile"))
+                .param("elevation", "true")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('segments')", is(true))
+                .body("routes[0].segments.size()", is(2))
+                .body("routes[0].summary.distance", is(11259.9f))
+                .body("routes[0].summary.duration", is(2546.9f))
+                .body("routes[0].summary.ascent", is(345.2f))
+                .body("routes[0].summary.descent", is(341.8f))
+                .statusCode(200);
+    }
 
-	@Test
-	public void testSegmentDistances() {
+    @Test
+    public void testSegmentDistances() {
 
-		given()
-				.param("coordinates", getParameter("coordinatesLong"))
-				.param("instructions", "true")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("bikeProfile"))
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].containsKey('segments')", is(true))
-				.body("routes[0].segments.size()", is(2))
-				//.body("routes[0].segments[0].distance", is(6418.2f))
-                .body("routes[0].segments[0].distance", is(7082.3f))
-				//.body("routes[0].segments[0].duration", is(2420.8f))
-                .body("routes[0].segments[0].duration", is(3389.8f))
-				//.body("routes[0].segments[1].distance", is(5852.7f))
-                .body("routes[0].segments[1].distance", is(5556.6f))
-				//.body("routes[0].segments[1].duration", is(1040.5f))
-                .body("routes[0].segments[1].duration", is(1253.6f))
-				.statusCode(200);
-	}
+        given()
+                .param("coordinates", getParameter("coordinatesLong"))
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("bikeProfile"))
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('segments')", is(true))
+                .body("routes[0].segments.size()", is(2))
+                .body("routes[0].segments[0].distance", is(5666.4f))
+                .body("routes[0].segments[0].duration", is(1284.9f))
+                .body("routes[0].segments[1].distance", is(5593.5f))
+                .body("routes[0].segments[1].duration", is(1262))
+                .statusCode(200);
+    }
 
-	@Test
-	public void testEncodedPolyline() {
 
-		given()
-				.param("coordinates", getParameter("coordinatesLong"))
-				.param("instructions", "true")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("bikeProfile"))
-				.param("elevation", "true")
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body(
-						"routes[0].geometry",
-						is(
-								//"yrqlHkn~s@sqT\\jG}IVrHpE@bInLKpD~@SdCy@YpBi@S|@JIAJBi@LBkBb@?iBL@cA@EkAOAy@SAUI?KICGICIICoACQeA?Q@BAk@DEiA`@Ck@RCk@RAQ?Gw@sA?Cq@Ek@q@S{BaFScBqEa@mCuJQmAaCM{@cBNEIC]RMaBdBM_CbHCIxAKcApDAItA?GrAGqArEEsA\\Eu@a@CcA{@GqAuCAQeAC_A_DAOoAEcAaCEgAsB@Wu@E?q@KB]AYIEo@?AOBcAyGbBIiADIaA?EmBq@CyA]AaAHAa@HAgAeARCHHAHCqBp@BIHAy@VAURJQX@M\\?E\\?]\\Cm@\\ATR@RH?JHAd@f@K?dAAw@RDAF~HsAxDF?RF@RF@RB@RAQPAKN?GNAILAKJAUJ@OHAQHJSFE]_@OcBiBO_CuDCq@q@IoAcB]gE}IEm@q@Em@q@OqBaAAOOEs@VCsAvAAM\\CS\\HM\\BI\\BC\\HE\\FA\\D?\\D@\\DD\\@E\\Lg@|@?C`A?A`A@EdALwBlBFYyAFSyALOyAPIyA~@OmGn@IsDB?yAF?cBFAcB`B_@cSjA]qHzAa@p@BAHHCHAMHAy@\\AuAz@C}CX?YOG{DsA?aASGmEaAE_CNEmBS?MOF?Sx@@{@B?S@?SJ?q@VGq@@Jq@DrAuC?FSB~@g@DAMJAILCE@_@?@K?BiAk@VmD{CF]IH[I`@cA{@@?g@@Eg@NQsDBCsD^_@gJtAsAuWr@a@sWFEaIFC_IHE_IHC_IPG}Hn@WaSh@a@sNJMiMDOmM?OkMCIcL?AcLFGcL`@g@gYHOgJBEkH@?oF@@oFD?oFN?oF??oF@?oFBCoFDEoFBEoFJMoF@Sf@?Af@ACf@EG?ES?AU{@DO{@JK{@@G{@?C{@?C{@@M{@AM{@AA{@BC{@@G{@HQ{@?E{@CM{@EG{@JUwGT]wG@AwG??wGD@aHBFeFBv@{L?R{E?h@{EDx@wLNnA_XAl@aH?BaHAFaHc@tA]A@nF?@nF?FnF@BxFGJxFALrF?LnF@@nFJNnF@@gEh@a@wJC\\yCI^aC@@aCFFaCFFaCADcMAJmPARsS@?sSXu@}]JKwL\\a@oZRWwLtA_Cqr@dAcD_NLm@bBL{@aCHw@_FD}@{E@yBuc@ToDmbAJo@qKPiAaXLdBkf@^vAah@DbAaW^lCsDZ`BtCZr@{JNJ}GN?kHbAMeYhAO{u@xBMelBn@Eun@DAiXTOiSGa@iNMgAs]]qC_iAIcAsTIaDeb@@GuC@Iu@@If@BIiDBEiDn@i@}NLKaDBGyCDEqCHUiCEGaCDC_BDGaC@G_D@G}DDK{EBGyFTc@wGVi@oPN[wGBBeArAo@mQv@UaM|BS{TdBJkMjEd@kRvBN_@fCSaFh@@_DVDiAZHgA\\OaAFC_AD?{@z@GyFhAQmNfCi@kDlGk@pKmGj@f@gCh@gBiAP}A{@FwAE?_@GB]]N_@[I]WE]i@Ay@gCRfNwBO~OkEe@lTeBKoA}BRrHw@TzBsAn@xJCC~AOZzAWh@jDUb@nACFnAEJnAAFnAAFnAEFtCEBtCDFtCITtCEDtCCFtCDFdCNTtB?LdBQnI|q@GhBtMEn@hDAJhDF`@hDBPhDR`ApLTz@hLJTbEDFxDb@d@dHh@j@|EPNzA^f@tCv@nAg@^x@tFb@fApLf@v@bBjAbBdF`@t@xKv@nCtn@~@nCdMNnAlLLfCl[G`AjGI`@vAWl@bM[`@zPaBdAju@q@n@xZY\\bGg@t@nKUh@jCUx@hNS~@`KcBvMbrA?F`C?DfE@DlGBF|FFLlFIL|Ei@f@jKw@h@`VaCrAxl@aAT`K{@FfJm@@nFg@GfJ{@[rI_Ae@pEgAu@bQm@q@xFwCiEhN[Up@m@U`Jk@KhIeA@pOGA`H?LvGbAXtWj@h@~MLN`FJJXT\\fDHd@~CD`AjHEhA`F@PbBHl@bBPn@fEApAjJBZpEPj@pELTpECHpEANtM?FtMOCtMw@Mfc@QMxFYe@~Zo@iBns@SYhIECpGKGzEYIzE]BzEODvLo@d@jZ@D|IV?|IFDrLDLjOPjA`WAJxCKRjHCDjHCHjHQx@hXCy@pYAMdKEAdKKpA`WCT`FGZjCE\\jC?z@fOA@jHA?`M[kBvj@??jCC@dAGH?uBvAni@OJfEm@d@~HI@f@SBp@OLp@Bd@xA?L`CH`CzT?BhDG@jCI@pB}@ZdD_DbAqJKD{@KDq@{C~@zBoHhBls@K?`BSCxAGBnAO@hAUJdACB`AEB|@oIxApDE@Sk@HaCG?mA[BkAU@kAG^iACBiAqADkIqAFwIK?sAI@qAgA?{H{@ByAO?][@]o@Bg@iCHMO@HC?Hk@@Xm@Hd@ODR]VRgAlAnD_AfAfEURp@EDp@C?p@Q?p@OBRE@RqBn@xCA@RSHHOJ]ELg@CDg@gAb@_Dq@\\wBmAt@{@y@f@q@y@X{@eBt@XYJ?E@?_@LSmA`@Bc@NR{C`Av@_DfAf@uAf@{BMHYKJWG@WGCUINSCGSI?SKBQ"))
-                                "yrqlHkn~s@sqTgAyRzKcC__@jC_AaKyIQyA{BW{AwBMBe@JzA}AUh@YOf@U@^SO?QIk@MCo@KA]G?cAG?M?MA??]?Cm@?AT?@R??J?Ad@?K??Aw@?DA?~HsArDF?RF@RF@RB@PBDPBBNFRv@HVt@FJr@LZr@JTp@BBp@D@n@B@n@RAl@HCj@CKj@D?h@NIh@PKeAvAq@}INIeABLmB~@e@eKVMkCFCkCJCkCRCkCZFkCNFkCDFkC\\ZiDBBiDJD{@PD{@JB{@J?{@R?{@PA{@b@CwB^Eq@L?H@?RB?RFBRBBRJ@R|BObG@?p@FAnAF?nAFFnA@FnALEnAFCnA@?\\HG\\BA\\NK?HC?LA?BG?FS??K?AG?@M?DI?DK?@K??[]?M]@K]BMSAgAg@@MS@IS?o@SC]HCIHDDHBHH`DVnAJ@Ht@XIlDtA{Oz@PmGx@R}D~A\\uD`HbBdCtBv@{Av@ZwAnGrAcJBBYB@]D@@HBPF@\\D?ZF@\\FJZBBXFEZROXBEVJIXNOVRSTHIVROTpAo@QNKSLKeAh@q@kCHIeABCeA~Ay@uMTa@mBVu@oDHe@oAGIoAUQeA]K{@{CQgJ[Gi@MEa@mAy@_HQMsBOKaC[MaC_@IaCQCaCg@EgJW@}DgBd@iZU@_DkCUuZQEyASK{@}@e@oCi@UqJcE{@c{A{AqAqd@QSeF]a@qTQUqEQYoEW]yBYc@wBIKqBIMsJIOoJMUmJQk@gJC[eJ@qAcZQo@a]Im@uNAQcODiAuf@EaAs]Ie@mLU]cQKKuMMOuMk@i@gTcAYuR?MqEF@yCdAAkHj@JgEl@TsGZTuCvChEsjAl@p@qOfAt@kT~@d@mCz@ZcAf@FwBl@A{Bz@GsB`AUyK`CsA}Sv@i@uMh@g@wGHMwBGMwBCGwBAEwB?EwB?G{BbBwMmsBR_AiITy@gMTi@mFf@u@kLX]}Dp@o@yO`BeA_UZa@iBVm@aKHa@wGFaA}IMgC_]OoAoZ_AoCku@w@oCaa@a@u@iNkAcBqYg@w@kCc@gAuC_@y@}Lw@oAi^_@g@kNQO_Di@k@{Bc@e@kAEG]KU]U{@sDSaAcICQuDGa@_AMgAnA]qCqEIcAyFIaDuK@G[@I]@IBBIiDBEiDn@i@}NLKaDBGyCDEqCHUiCEGaCDC}ADGaC@G_D@G}DDK{EBGyFTc@wGVi@oPN[yGBBcArAo@mQv@UaM|BS{TdBJkMjEd@mRvBN_@fCSaFh@@_DVDiAZHgA\\OaAFC_AD?{@z@GyFhAQmNfCi@iDlGk@nKmGj@f@gCh@gBiAP}A{@FwAE?_@GB]]N_@wDhAzQCBjCAFjC[@jCi@BzGqAEhV{E_Aju@k@IbEgAC`JeAFbCcANAcAViAk@^_A[Za@c@b@mAIJk@EFREBRDFRITREDRCFRMJRo@h@lBCDdACHvGAHvGAHvGAFvGH`Dt\\HbA~E\\pC`WLfArIF`@hDCd@nFCv@z@@nAz@AZ\\MNz@_@l@pEs@tApX{@r@jL{AbBrd@iAdAtRSLvBE@vBCBvB_Bl@fR_DvCp~@wFvH|zBUf@|BWz@vZCT~OAFxO@bAb`@FzBbiAd@nE`{ANhD|V@TyA@FyADVyA\\`AcABPo@?NoAIN_@SFLQIz@O_@lBEMzCIShESm@hYS{@vZ]kB~i@Qi@jHOa@jHWa@dFIG~CL\\~CZdA~HdA~Hll@Pj@lGNT\\BD\\DB\\D@\\F@\\?L\\bAXr@j@h@YLNa@JJiFT\\aBHd@mBD`AaGEhA_B@PkCHl@bBPn@fEApAjJBZpEPj@pELTpECHpEANtM?FtMOCtMw@Mfc@QMxFYe@~Zo@iBns@SYhIECpGKGzEYIzE]BzEODvLo@d@jZ@D|IV?|IFDrLDLjOPjA`WAJxCKRjHCDjHCHjHQx@hXCy@pYAMdKEAdKKpA`WCT`FGZjCE\\jC?z@fOA@jHA?`M[kBvj@??jCC@dAGH?uBvAni@OJfEm@d@~HI@f@SBp@OLp@Bd@xA?L`CH`CzT?BhDG@jCI@pB}@ZdD_DbAqJKD{@KDq@{C~@zBoHhBls@K?`BSCxAGBnAO@hAUJdACB`AEB|@oIxApDE@Sk@HaCG?mA[BkAU@kAG^iACBiAqADkIqAFwIK?sAI@qAgA?{H{@ByAO?][@]o@Bg@iCHMO@HC?Hk@@Xm@Hd@ODR]VRgAlAnD_AfAfEURp@EDp@C?p@Q?p@OBRE@RqBn@xCA@RSHHOJ]ELg@CDg@gAb@_Dq@\\wBmAt@{@y@f@q@y@X{@eBt@XYJ?E@?_@LSmA`@Bc@NR{C`Av@_DfAf@uAf@{BMHYKJWG@WGCUINSCGSI?SKBQ"))
-                                .statusCode(200);
-	}
+    @Test
+    public void testEncodedPolyline() {
 
-	@Test
-	public void testWaypoints() {
+        given()
+                .param("coordinates", getParameter("coordinatesLong"))
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("bikeProfile"))
+                .param("elevation", "true")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body(
+                        "routes[0].geometry",
+                        is(
+                                "gvqlHk`~s@cwUB?tC?Cp@NAdIAE`EQaCi@WiCaDcAuG?C]g@MaBVM_C`HCInAKcA~CAIjA?GhAGqAzDEsAh@Eu@a@CcA{@GqAuCAQeAC_A_DAOoAEcAaCEgAsB@Wu@E?q@KB]AYIEo@?AOBcAyGbBIiADIaA?EmBq@CyA]AaAHAa@HAgAeARCHHAHCqBp@BIHAy@VAURJQX@M\\?E\\?]\\Cm@\\ATR@RH?JHAd@f@K?dAAw@RDAF~HsAxDF?RF@RF@RB@RBDPBBNFRv@HVt@FJr@LZr@JTp@BBp@D@n@B@n@RAl@HCj@RGj@PIcAvAu@}IPGeA~@e@uHVMkCFCkCJCkCRCkCZFkCNFkCDFkC\\ZiDBBiDJDiDPD{@JB{@J?{@R?{@PA{@b@CwB^Eq@L?H@?RB?RFBRBBRJ@R|BObG@?p@FAnAF?nAFFnA@FnALEnAFCnA@?\\HG\\BA\\NK?HC?LA?BG?FS??K?AG?@M?DI?DK?@K??[]?M]@K]BMSAgAg@@MS@IS?o@SC]HCIHEAHMCHICHWCHgAKf@CGq@?Cq@IaCwB?MSCe@SNMSRC]HA]l@e@{@NK]tBwAu\\FIiDBAsD??}DZjBkL@?q@@Ai@?{@_ID]gEF[gEBUiDJqAsMD@aF@LcEBx@cBPy@qEBIkCBEqDJSiO@KoPQkAmVEMkHGEyEW?mCAEkCn@e@uONEkM\\CeKXHeKJFeKDBkMRXwLn@hBuf@Xd@qMPLkMv@L}g@NB}I?G}I@OkOBIwLMU{EQk@{EC[{E@qA}QQo@gYIm@cLAQcLDiA}ZEaAsNIe@oIU]}PKKuMMOuMk@i@gTcAYuR?MqEGA{CEAcBECcBCEcBOUjCQk@ReA_IpW[eA{@M]]HF]V`@]N`@]Ph@mG\\jBeIRz@YRl@qIHRqEDLeEN^wDPHmDRG_DHO_D?O_DCQ_D]aAqOEWkHAGkHAU_IOiDslAe@oEmLG{BlEAcApD@GxABUlBV{@sKTg@}GvFwH{aG~CwCov@~Am@sj@BCkIDAgIRMaIhAeAeXzAcB{f@z@s@{Nr@uAgM^m@oFLOwBDB_DFDgEDIoFPOyFZSsEKUmDU{@eFSaAwDCQ}BGa@cDMgAgJ]qCwLIcAgGIaDgK@G[@I]@IBBIiDBEiDn@i@}NLKaDBGyCDEqCHUiCEGaCDC}ADGaCHK_Db@c@yKZ[yFj@_@qPbAWsRbAOmBdAG}@fABmAj@HrAzE~@dCpADsHh@CgEZA_B@GyABCwAvDiAyo@\\OqEFCcED?qDz@G}LhAQoPfCi@_NlGk@bJmGj@f@gCh@gBiAP}A{@FwAE?_@GB]]N_@wDhAzQCBjCAFjC[@jCi@BzGqAEhV{E_Aju@k@IbEgAC`JeAFbCcANAcAViAk@^_A[Za@c@b@mAIJk@EFREBRDFRITREDRCFRMJRo@h@lBCDdACHvGAHvGAHvGAFvGH`Dt\\HbA~E\\pC`WLfArIF`@hDBPhDR`AXTz@z@JTz@[RxAQNxAEHvBGEtCECpBMNnA_@l@fCs@tAfQ{@r@zJ{AbB~\\iAdAnUSLvBE@vBCBvB_Bl@fR_DvCp~@wFvH|zBUf@|BWz@vZCT~OAFxO@bAb`@FzBbiAd@nE`{ANhD|V@TyA@FyADVyA\\`AcABPo@?NoAIN_@SFLQIz@O_@lBEMzCIShESm@hYS{@vZ]kB~i@Qi@jHOa@jHWa@dFIG~CL\\~CZdA~HdA~Hll@Pj@lGNT\\BD\\DB\\D@\\F@\\?L\\bAXr@j@h@YLNa@JJiFT\\aBHd@mBD`AaGEhA_B@PkCHl@bBPn@fEApAjJBZpEPj@pELTpECHpEANtM?FtMOCtMw@Mfc@QMxFYe@~Zo@iBns@SYhIECpGKGzEYIzE]BzEODvLo@d@jZ@D|IV?|IFDrLDLjOPjA`WAJxCKRjHCDjHCHjHQx@hXCy@pYAMdKEAdKKpA`WCT`FGZjCE\\jC?z@fOA@jHA?`M[kBvj@??jCC@dAGH?uBvAni@OJfEm@d@~HI@f@SBp@OLp@Bd@xA?L`CH`CzT?BhDG@jCI@pB}@ZdD_DbAqJKD{@KDq@{C~@zBoHhBls@K?`BSCxAGBnAO@hAUJdACB`AEB|@oIxApDE@Sk@HaCG?mA[BkAU@kAG^iACBiAqADkIqAFwIK?sAI@qAgA?{H{@ByAO?][@]o@Bg@iCHMO@HC?Hk@@Xm@Hd@ODR]VRgAlAnD_AfAfEURp@EDp@C?p@Q?p@OBRE@RqBn@xCA@RSHHOJ]ELg@CDg@gAb@_Dq@\\wBmAt@{@y@f@q@y@X{@eBt@XYJ?E@?_@LSmA`@Bc@NR{C`Av@_DfAf@uAf@{BMHYKJWG@WGCUINSCGSI?SKBQ"))
+                .statusCode(200);
+    }
 
-		given()
-				.param("coordinates", getParameter("coordinatesLong"))
-				.param("instructions", "true")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("bikeProfile"))
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				//.body("routes[0].way_points", hasItems(0, 330, 563))
-                .body("routes[0].way_points", hasItems(0, 291, 524))
-				.statusCode(200);
-	}
+
+    @Test
+    public void testWaypoints() {
+
+        given()
+                .param("coordinates", getParameter("coordinatesLong"))
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("bikeProfile"))
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].way_points", hasItems(0, 302, 540))
+                .statusCode(200);
+    }
 
 	@Test
 	public void testBbox() {
@@ -555,7 +547,7 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].bbox", hasItems(8.680863f, 49.393272f, 8.714833f, 49.424603f))
+                .body("routes[0].bbox", hasItems(8.678615f, 49.393272f, 8.714833f, 49.424603f))
 				.statusCode(200);
 	}
 
@@ -573,17 +565,17 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].bbox", hasItems(8.680863f, 49.393272f, 8.714833f, 49.424603f))
+                .body("routes[0].bbox", hasItems(8.678615f, 49.393272f, 8.714833f, 49.424603f))
 				.body("routes[0].segments[0].steps[0].maneuver.bearing_before", is(0))
 				//.body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(260))
-                .body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(80))
+                .body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(175))
 				.body("routes[0].segments[0].steps[0].maneuver.containsKey('location')", is(true))
 				//.body("routes[0].segments[0].steps[1].maneuver.bearing_before", is(298))
-                .body("routes[0].segments[0].steps[1].maneuver.bearing_before", is(68))
+                .body("routes[0].segments[0].steps[1].maneuver.bearing_before", is(175))
 				//.body("routes[0].segments[0].steps[1].maneuver.bearing_after", is(4))
-                .body("routes[0].segments[0].steps[1].maneuver.bearing_after", is(350))
+                .body("routes[0].segments[0].steps[1].maneuver.bearing_after", is(80))
 				//.body("routes[0].segments[0].steps[1].maneuver.location", hasItems(8.673925f, 49.411283f))
-                .body("routes[0].segments[0].steps[1].maneuver.location", hasItems(8.691992f, 49.412724f))
+                .body("routes[0].segments[0].steps[1].maneuver.location", hasItems(8.678618f, 49.411697f))
 				.statusCode(200);
 	}
 
@@ -624,15 +616,12 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('extras')", is(true))
-				//.body("routes[0].extras.surface.values.size()", is(56))
-                .body("routes[0].extras.surface.values.size()", is(37))
-				//.body("routes[0].extras.surface.values[35][1]", is(261))
-                .body("routes[0].extras.surface.values[35][1]", is(521))
-				//.body("routes[0].extras.suitability.values[30][0]", is(357))
-                .body("routes[0].extras.suitability.values[30][0]", is(440))
-				//.body("routes[0].extras.steepness.values[11][1]", is(317))
-                .body("routes[0].extras.steepness.values[11][1]", is(306))
-				.statusCode(200);
+                .body("routes[0].extras.surface.values.size()", is(43))
+                .body("routes[0].extras.surface.values[26][1]", is(347))
+                .body("routes[0].extras.suitability.values[29][0]", is(461))
+                .body("routes[0].extras.steepness.values[11][1]", is(296))
+
+                .statusCode(200);
 
 		checkExtraConsistency(response);
 	}
@@ -798,10 +787,16 @@ http://localhost:8080/ors/routes?
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('extras')", is(true))
-				.body("routes[0].extras.tollways.values.size()", is(1))
+				.body("routes[0].extras.tollways.values.size()", is(3))
 				.body("routes[0].extras.tollways.values[0][0]", is(0))
-				.body("routes[0].extras.tollways.values[0][1]", is(86))
+				.body("routes[0].extras.tollways.values[0][1]", is(52))
 				.body("routes[0].extras.tollways.values[0][2]", is(0))
+                .body("routes[0].extras.tollways.values[1][0]", is(52))
+                .body("routes[0].extras.tollways.values[1][1]", is(66))
+                .body("routes[0].extras.tollways.values[1][2]", is(1))
+                .body("routes[0].extras.tollways.values[2][0]", is(66))
+                .body("routes[0].extras.tollways.values[2][1]", is(86))
+                .body("routes[0].extras.tollways.values[2][2]", is(0))
 				.statusCode(200);
 
 		checkExtraConsistency(response);
@@ -867,7 +862,7 @@ http://localhost:8080/ors/routes?
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				//.body("routes[0].summary.distance", is(620.1f))
-                .body("routes[0].summary.distance", is(587.3f))
+                .body("routes[0].summary.distance", is(617.1f))
 				.statusCode(200);
 	}
 
@@ -919,7 +914,7 @@ http://localhost:8080/ors/routes?
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				//.body("routes[0].summary.distance", is(714.7f))
-                .body("routes[0].summary.distance", is(721.8f))
+                .body("routes[0].summary.distance", is(751.5f))
 				.statusCode(200);
 	}
 
@@ -938,48 +933,39 @@ http://localhost:8080/ors/routes?
 				.body("routes[0].segments[0].containsKey('steps')", is(true))
 				.body("routes[0].segments[1].containsKey('steps')", is(true))
 				//.body("routes[0].segments[0].steps.size()", is(55))
-                .body("routes[0].segments[0].steps.size()", is(36))
+                .body("routes[0].segments[0].steps.size()", is(42))
 				//.body("routes[0].segments[1].steps.size()", is(28))
-                .body("routes[0].segments[1].steps.size()", is(23))
+                .body("routes[0].segments[1].steps.size()", is(25))
 				.statusCode(200);
 	}
 
-	@Test
-	public void testStepsDetails() {
+    @Test
+    public void testStepsDetails() {
 
-		given()
-				.param("coordinates", getParameter("coordinatesLong"))
-				.param("instructions", "true")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("bikeProfile"))
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].segments[0].containsKey('steps')", is(true))
-				.body("routes[0].segments[1].containsKey('steps')", is(true))
-				//.body("routes[0].segments[0].steps.size()", is(55))
-                .body("routes[0].segments[0].steps.size()", is(36))
-				//.body("routes[0].segments[1].steps.size()", is(28))
-                .body("routes[0].segments[1].steps.size()", is(23))
-				//.body("routes[0].segments[0].steps[0].distance", is(511.4f))
-                .body("routes[0].segments[0].steps[0].distance", is(824.6f))
-				//.body("routes[0].segments[0].steps[0].duration", is(230.1f))
-                .body("routes[0].segments[0].steps[0].duration", is(371.1f))
-				.body("routes[0].segments[0].steps[0].type", is(11))
-				//.body("routes[0].segments[0].steps[0].instruction", is("Head west"))
-                .body("routes[0].segments[0].steps[0].instruction", is("Head east"))
-				//.body("routes[0].segments[0].steps[10].distance", is(74))
-                .body("routes[0].segments[0].steps[10].distance", is(30.9f))
-				//.body("routes[0].segments[0].steps[10].duration", is(22.2f))
-                .body("routes[0].segments[0].steps[10].duration", is(4.1f))
-				//.body("routes[0].segments[0].steps[10].type", is(0))
-                .body("routes[0].segments[0].steps[10].type", is(5))
-				//.body("routes[0].segments[0].steps[10].instruction", is("Turn left"))
-                .body("routes[0].segments[0].steps[10].instruction", is("Turn slight right"))
-				.statusCode(200);
-	}
+        given()
+                .param("coordinates", getParameter("coordinatesLong"))
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("bikeProfile"))
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].segments[0].containsKey('steps')", is(true))
+                .body("routes[0].segments[1].containsKey('steps')", is(true))
+                .body("routes[0].segments[0].steps.size()", is(42))
+                .body("routes[0].segments[1].steps.size()", is(25))
+                .body("routes[0].segments[0].steps[3].distance", is(337.3f))
+                .body("routes[0].segments[0].steps[3].duration", is(67.5f))
+                .body("routes[0].segments[0].steps[3].type", is(0))
+                .body("routes[0].segments[0].steps[3].instruction", is("Turn left"))
+                .body("routes[0].segments[0].steps[9].distance", is(44.8f))
+                .body("routes[0].segments[0].steps[9].duration", is(9))
+                .body("routes[0].segments[0].steps[9].type", is(1))
+                .body("routes[0].segments[0].steps[9].instruction", is("Turn right"))
+                .statusCode(200);
+    }
 
 	private void checkExtraConsistency(Response response) {
 		JSONObject jResponse = new JSONObject(response.body().asString());
@@ -1097,6 +1083,41 @@ http://localhost:8080/ors/routes?
 				.statusCode(200);
 	}
 
+    @Test
+    public void testHGVAxleLoadRestriction() {
+        given()
+                .param("coordinates", "8.686849,49.406093|8.687525,49.405437")
+                .param("instructions", "false")
+                .param("preference", "shortest")
+                .param("profile", "driving-hgv")
+                .param("options", "{\"profile_params\":{\"restrictions\":{\"axleload\":\"12.9\"}},\"vehicle_type\":\"hgv\"}")
+                .param("units", "m")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(132.9f))
+                .body("routes[0].summary.duration", is(44.3f))
+                .statusCode(200);
+
+        given()
+                .param("coordinates", "8.686849,49.406093|8.687525,49.405437")
+                .param("instructions", "true")
+                .param("preference", "shortest")
+                .param("profile", "driving-hgv")
+                .param("options", "{\"profile_params\":{\"restrictions\":{\"axleload\":\"13.1\"}},\"vehicle_type\":\"hgv\"}")
+                .param("units", "m")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(364.3f))
+                .body("routes[0].summary.duration", is(92.7f))
+                .statusCode(200);
+    }
+
 	@Test
 	public void testCarDistanceAndDuration() {
 		// Generic test to ensure that the distance and duration dont get changed
@@ -1213,7 +1234,7 @@ http://localhost:8080/ors/routes?
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].segments[0].detourfactor", is(1.32f))
+				.body("routes[0].segments[0].detourfactor", is(1.38f))
 				.statusCode(200);
 	}
 
@@ -1229,8 +1250,8 @@ http://localhost:8080/ors/routes?
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(2133.7f))
-				.body("routes[0].summary.duration", is(430.1f))
+				.body("routes[0].summary.distance", is(2181.7f))
+				.body("routes[0].summary.duration", is(433.2f))
 				.statusCode(200);
 	}
 
@@ -1278,8 +1299,8 @@ http://localhost:8080/ors/routes?
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(594.4f))
-				.body("routes[0].summary.duration", is(493.8f))
+				.body("routes[0].summary.distance", is(591.6f))
+				.body("routes[0].summary.duration", is(498.7f))
 				.statusCode(200);
 
 		given()
@@ -1404,6 +1425,25 @@ http://localhost:8080/ors/routes?
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('extras')", is(true))
                 .body("routes[0].extras.containsKey('osmId')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testAccessRestrictionsWarnings() {
+        given()
+                .param("coordinates", "8.675154,49.407727|8.675863,49.407162")
+                .param("preference", "shortest")
+                .param("profile", getParameter("carProfile"))
+                .when()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('warnings')", is(true))
+                .body("routes[0].warnings[0].code", is(1))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.containsKey('roadaccessrestrictions')", is(true))
+                .body("routes[0].extras.roadaccessrestrictions.values[1][2]", is(32))
                 .statusCode(200);
     }
 }

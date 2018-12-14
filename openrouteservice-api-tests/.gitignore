@@ -1,3 +1,4 @@
 /target/
 /.classpath
 /.gitignore
+/data/elevation/srtm_38_03.gh

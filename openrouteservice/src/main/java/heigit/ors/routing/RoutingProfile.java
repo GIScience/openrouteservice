@@ -858,11 +858,7 @@ public class RoutingProfile {
             // for certain profiles...
             // ...and BTW if the flexibleMode set to true, CH will be disabled!
             if(weightingMethod == WeightingMethod.FASTEST){
-                if (profileType == RoutingProfileType.CYCLING_TOUR) {
-                    req.setWeighting("fastest");
-                    req.getHints().put("weighting_method", "recommended");
-                    flexibleMode = true;
-                } else if(profileType == RoutingProfileType.CYCLING_MOUNTAIN){
+                if(profileType == RoutingProfileType.CYCLING_MOUNTAIN){
                     // MARQ24 - in the original code by Max the 'weighting_method' was always set
                     // to 'recommended' for MTB (and enable 'flexibleMode' -> which will turn off CH)
                     // - I will add code, that this will only apply if there are certain terrain/track
@@ -879,13 +875,15 @@ public class RoutingProfile {
                     }
                 }
             } else if (weightingMethod == WeightingMethod.RECOMMENDED){
-                if( (profileType == RoutingProfileType.DRIVING_HGV && HeavyVehicleAttributes.HGV == searchParams.getVehicleType())
-                    || profileType == RoutingProfileType.CYCLING_TOUR
-                ){
+                if(profileType == RoutingProfileType.DRIVING_HGV && HeavyVehicleAttributes.HGV == searchParams.getVehicleType()){
                     req.setWeighting("fastest");
                     req.getHints().put("weighting_method", "recommended_pref");
                     flexibleMode = true;
                 }
+            }
+
+            if(profileType == RoutingProfileType.WHEELCHAIR) {
+                flexibleMode = true;
             }
 
             if (RoutingProfileType.isDriving(profileType) && RealTrafficDataProvider.getInstance().isInitialized())

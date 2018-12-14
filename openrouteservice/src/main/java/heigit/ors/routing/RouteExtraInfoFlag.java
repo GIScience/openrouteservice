@@ -27,6 +27,7 @@ public class RouteExtraInfoFlag {
     public static final int Tollways = 256;
     public static final int TrailDifficulty = 512;
     public static final int OsmId = 1024;
+    public static final int RoadAccessRestrictions = 2048;
 
     public static boolean isSet(int extraInfo, int value) {
         return (extraInfo & value) == value;
@@ -73,6 +74,9 @@ public class RouteExtraInfoFlag {
                 	break;
                 case "osmid":
                     res |= OsmId;
+                    break;
+                case "roadaccessrestrictions":
+                    res |= RoadAccessRestrictions;
                     break;
             }
         }

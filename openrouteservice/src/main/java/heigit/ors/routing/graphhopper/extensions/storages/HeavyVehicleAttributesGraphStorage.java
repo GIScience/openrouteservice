@@ -17,38 +17,34 @@ import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
+import heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
 
 public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 	/* pointer for no entry */
 	protected final int NO_ENTRY = -1;
-	protected final int EF_VEHICLETYPE, EF_DESTINATIONTYPE, EF_RESTRICTION;
+	protected final int EF_VEHICLETYPE, EF_DESTINATIONTYPE, EF_RESTRICTION_BYTES, EF_RESTRICTIONS;
 
 	protected DataAccess orsEdges;
 	protected int edgeEntryIndex = 0;
 	protected int edgeEntryBytes;
-	protected int edgesCount; 
-	private byte[] byteValues;
+	protected int edgesCount;
 
-	private int attrTypes;
+	final int factor = 100;
 
 	public HeavyVehicleAttributesGraphStorage(boolean includeRestrictions) 
 	{
 		EF_VEHICLETYPE = nextBlockEntryIndex(1);
 		EF_DESTINATIONTYPE = nextBlockEntryIndex(1);
+		EF_RESTRICTION_BYTES = 2;
 
 		if (includeRestrictions)
 			// first byte indicates whether any restrictions are given 
-			EF_RESTRICTION = nextBlockEntryIndex(6);
+			EF_RESTRICTIONS = nextBlockEntryIndex(VehicleDimensionRestrictions.Count * EF_RESTRICTION_BYTES);
 		else
-			EF_RESTRICTION = -1;
+			EF_RESTRICTIONS = -1;
 
 		edgeEntryBytes = edgeEntryIndex;
 		edgesCount = 0;
-		byteValues = new byte[10];
-	}
-	
-	public int getAttributeTypes() {
-		return this.attrTypes;
 	}
 	
 	public void init(Graph graph, Directory dir) {
@@ -109,70 +105,37 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 		ensureEdgesIndex(edgeId);
 
 		long edgePointer = (long) edgeId * edgeEntryBytes;
-		
-	    byteValues[0] = (byte)vehicleType;
-		orsEdges.setBytes(edgePointer + EF_VEHICLETYPE, byteValues, 1);
-		
-		byteValues[0] = (byte)heavyVehicleDestination;
-		orsEdges.setBytes(edgePointer + EF_DESTINATIONTYPE, byteValues, 1);
 
-		if (EF_RESTRICTION == -1)
+		byte [] byteValues = {(byte) vehicleType, (byte) heavyVehicleDestination};
+		orsEdges.setBytes(edgePointer + EF_VEHICLETYPE, byteValues, 2);
+
+		if (EF_RESTRICTIONS == -1)
 			throw new IllegalStateException("EF_RESTRICTION is not supported.");
-	
-		if (restrictionValues == null)
-		{
-			byteValues[0] = 0;
-			byteValues[1] = 0;
-			byteValues[2] = 0;
-			byteValues[3] = 0;
-			byteValues[4] = 0;
-			byteValues[5] = 0;
+
+		for (int i = 0; i < VehicleDimensionRestrictions.Count; i++) {
+			short shortValue = restrictionValues == null ? 0 : (short) (restrictionValues[i] * factor);
+			orsEdges.setShort(edgePointer + EF_RESTRICTIONS + i * EF_RESTRICTION_BYTES, shortValue);
 		}
-		else
-		{
-			byteValues[0] = 1;
-			byteValues[1] = (byte)(restrictionValues[0] * 10);
-			byteValues[2] = (byte)(restrictionValues[1] * 10);
-			byteValues[3] = (byte)(restrictionValues[2] * 10);
-			byteValues[4] = (byte)(restrictionValues[3] * 10);
-			byteValues[5] = (byte)(restrictionValues[4] * 10);
-		}
-		
-		orsEdges.setBytes(edgePointer + EF_RESTRICTION, byteValues, 6);
 	}
 
-	public double getEdgeRestrictionValue(int edgeId, int valueIndex, byte[] buffer) {
+	public double getEdgeRestrictionValue(int edgeId, int valueIndex) {
 		long edgeBase = (long) edgeId * edgeEntryBytes;
 
-		if (EF_RESTRICTION == -1)
+		if (EF_RESTRICTIONS == -1)
 			throw new IllegalStateException("EF_RESTRICTION is not supported.");
 
-		orsEdges.getBytes(edgeBase + EF_RESTRICTION + 1, buffer, 5);
-		int retValue = buffer[valueIndex];
-		if (retValue == 0)
-			return 0.0;
-
-		return retValue / 10d;
+		return orsEdges.getShort(edgeBase + EF_RESTRICTIONS + valueIndex * EF_RESTRICTION_BYTES) / factor;
 	}
 
-	public boolean getEdgeRestrictionValues(int edgeId, byte[] buffer, double[] retValues) {
+	public boolean getEdgeRestrictionValues(int edgeId, double[] retValues) {
 		long edgeBase = (long) edgeId * edgeEntryBytes;
 
-		if (EF_RESTRICTION == -1)
+		if (EF_RESTRICTIONS == -1)
 			throw new IllegalStateException("EF_RESTRICTION is not supported.");
 
-		orsEdges.getBytes(edgeBase + EF_RESTRICTION, buffer, 1);
-		if (buffer[0] == 0)
-			return false;
-		
-		orsEdges.getBytes(edgeBase + EF_RESTRICTION + 1, buffer, 5);
-		
-		retValues[0] = buffer[0] / 10d; 
-		retValues[1] = buffer[1] / 10d;
-		retValues[2] = buffer[2] / 10d;
-		retValues[3] = buffer[3] / 10d;
-		retValues[4] = buffer[4] / 10d;
-		
+		for (int i = 0; i < VehicleDimensionRestrictions.Count; i++)
+			retValues[i] = orsEdges.getShort(edgeBase + EF_RESTRICTIONS + i * EF_RESTRICTION_BYTES) / factor;
+
 		return true;
 	}
 

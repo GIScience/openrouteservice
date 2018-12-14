@@ -39,7 +39,7 @@
             graphs_root_path: "graphs",
             elevation_provider: multi,
             elevation_cache_clear: false,
-            elevation_cache_path: "cgiar_provider",
+            elevation_cache_path: "openrouteservice-api-tests/data/elevation",
             instructions: true,
             maximum_distance: 100000,
             maximum_segment_distance_with_dynamic_weights: 50000,
@@ -126,6 +126,9 @@
                   boundaries: "openrouteservice-api-tests/data/borders/borders.geojson",
                   ids: "openrouteservice-api-tests/data/borders/ids.csv",
                   openborders: "openrouteservice-api-tests/data/borders/openborders.csv"
+                },
+                RoadAccessRestrictions: {
+                  use_for_warnings: true
                 }
               }
               traffic: false
@@ -192,7 +195,7 @@
           profile-bike: {
             profiles: "cycling-regular",
             parameters: {
-              encoder_options: "consider_elevation=true|turn_costs=true|block_fords=false",
+              encoder_options: "consider_elevation=false|turn_costs=true|block_fords=false",
               elevation: true,
               ext_storages: {
                 WayCategory: {},
@@ -205,7 +208,7 @@
           profile-bike-mtb: {
             profiles: "cycling-mountain",
             parameters: {
-              encoder_options: "consider_elevation=true|turn_costs=true|block_fords=false",
+              encoder_options: "consider_elevation=false|turn_costs=true|block_fords=false",
               elevation: true,
               ext_storages: {
                 WayCategory: {},
@@ -231,7 +234,7 @@
           profile-bike-e: {
             profiles: "cycling-electric",
             parameters: {
-              encoder_options: "consider_elevation=true|turn_costs=true|block_fords=false",
+              encoder_options: "consider_elevation=false|turn_costs=true|block_fords=false",
               elevation: true,
               ext_storages: {
                 WayCategory: {},

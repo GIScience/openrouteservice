@@ -23,6 +23,7 @@ public class HeavyVehicleAttributes {
 	public static final int AGRICULTURE = 8;
 	public static final int FORESTRY = 16;
 	public static final int DELIVERY = 32;
+	public static final int ANY = GOODS | HGV | BUS | AGRICULTURE | FORESTRY | DELIVERY;
 	// Load characteristics
 	public static final int HAZMAT = 128;
 	

@@ -21,6 +21,7 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.Dijkstra;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FootFlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
@@ -32,7 +33,6 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.*;
 import heigit.ors.routing.graphhopper.extensions.DataReaderContext;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.exghoverwrite.ExGhORSFootFlagEncoder;
 
 import java.util.*;
 
@@ -46,7 +46,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 	private Coordinate[] _coordinates;
 	private Set<ArrayList<Integer>> _edges = new HashSet<ArrayList<Integer>>();
 	private ArrayList<Integer> tmpEdge = new ArrayList<Integer>();   
-	private ExGhORSFootFlagEncoder footEncoder;
+	private FootFlagEncoder footEncoder;
 	private List<Weighting> weightings;
 	private EncodingManager encodingManager;
 
@@ -54,7 +54,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 	public void init(GraphHopper graphhopper) throws Exception {
 		// create local network taken from        
 		// https://github.com/graphhopper/graphhopper/blob/0.5/core/src/test/java/com/graphhopper/GraphHopperTest.java#L746
-		footEncoder = new ExGhORSFootFlagEncoder();
+		footEncoder = new FootFlagEncoder();
 		encodingManager = new EncodingManager(footEncoder);  
 		weightings = new ArrayList<Weighting>(1);
 		weightings.add(new FastestWeighting(footEncoder));

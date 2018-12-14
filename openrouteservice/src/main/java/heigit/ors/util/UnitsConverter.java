@@ -30,7 +30,7 @@ public class UnitsConverter {
    }
    
    public static double MetersToKilometers(double value) {
-	   return value* 0.0001;
+       return value * 0.001;
    }
    
    public static double MetersToMiles(double value)
