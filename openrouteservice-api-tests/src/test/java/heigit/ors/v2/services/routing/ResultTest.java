@@ -1766,6 +1766,41 @@ http://localhost:8080/ors/routes?
                 .statusCode(200);
     }
 
+    @Test
+    public void testAccessRestrictionsWarnings() {
+        JSONObject body = new JSONObject();
+
+        JSONArray coordinates = new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.675154);
+        coord1.put(49.407727);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.675863);
+        coord2.put(49.407162);
+        coordinates.put(coord2);
+        body.put("coordinates", coordinates);
+
+        body.put("preference", "shortest");
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "wheelchair")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('warnings')", is(true))
+                .body("routes[0].warnings[0].code", is(1))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.containsKey('roadaccessrestrictions')", is(true))
+                .body("routes[0].extras.roadaccessrestrictions.values[1][2]", is(32))
+                .statusCode(200);
+    }
+
     private JSONArray constructCoords(String coordString) {
         JSONArray coordinates = new JSONArray();
         String[] coordPairs = coordString.split("\\|");
