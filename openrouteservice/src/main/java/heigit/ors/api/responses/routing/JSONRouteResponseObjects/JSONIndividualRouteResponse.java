@@ -26,11 +26,13 @@ import heigit.ors.common.DistanceUnit;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.routing.RouteExtraInfo;
 import heigit.ors.routing.RouteResult;
+import heigit.ors.routing.RouteWarning;
 import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.PolylineEncoder;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +57,10 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
     @JsonProperty("way_points")
     @ApiModelProperty("List containing the indices of way points corresponding to the *geometry*.")
     private int[] wayPoints;
+
+    @JsonProperty("warnings")
+    @ApiModelProperty("List of warnings that have been generated for the route")
+    private List<JSONWarning> warnings;
 
     private Map<String, JSONExtra> extras;
 
@@ -81,6 +87,13 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
             DistanceUnit units =  DistanceUnitUtil.getFromString(request.getUnits().toString(), DistanceUnit.Unknown);
             for (RouteExtraInfo extraInfo : responseExtras) {
                 extras.put(extraInfo.getName(), new JSONExtra(extraInfo.getSegments(), extraInfo.getSummary(units, routeLength, true)));
+            }
+        }
+
+        if (routeResult.getWarnings() != null && routeResult.getWarnings().size() > 0) {
+            warnings= new ArrayList<>();
+            for (RouteWarning warning : routeResult.getWarnings()) {
+                warnings.add(new JSONWarning(warning));
             }
         }
     }
