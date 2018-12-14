@@ -692,4 +692,37 @@ public class ParamsTest extends ServiceTest {
 				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
 	}
+
+	@Test
+	public void expectWarningsAndExtraInfo() {
+		given()
+				.param("coordinates", "8.675154,49.407727|8.675863,49.407162")
+				.param("preference", "shortest")
+				.param("profile", getParameter("carProfile"))
+				.when().log().all()
+				.get(getEndPointName())
+				.then().log().all()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].containsKey('warnings')", is(true))
+				.body("routes[0].containsKey('extras')", is(true))
+				.body("routes[0].extras.containsKey('roadaccessrestrictions')", is(true))
+				.statusCode(200);
+	}
+
+	@Test
+	public void expectSuppressedWarnings() {
+		given()
+				.param("coordinates", "8.675154,49.407727|8.675863,49.407162")
+				.param("preference", "shortest")
+				.param("profile", getParameter("carProfile"))
+				.param("suppress_warnings", "true")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].containsKey('warnings')", is(false))
+				.statusCode(200);
+	}
 }

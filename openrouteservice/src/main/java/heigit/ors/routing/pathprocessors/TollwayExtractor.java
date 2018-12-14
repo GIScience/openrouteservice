@@ -13,6 +13,7 @@
  */
 package heigit.ors.routing.pathprocessors;
 
+import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.TollwayType;
 import heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStorage;
@@ -21,55 +22,63 @@ import heigit.ors.routing.parameters.VehicleParameters;
 
 public class TollwayExtractor {
 	private VehicleParameters _vehicleParams;
-	private int _vehicleType;
+	private int _profileType;
 	private TollwaysGraphStorage _storage;
-	private byte[] _buffer = new byte[4];
 
-	public TollwayExtractor(TollwaysGraphStorage storage, int vehicleType, ProfileParameters vehicleParams) {
+	public TollwayExtractor(TollwaysGraphStorage storage, int profileType, ProfileParameters vehicleParams) {
 		_storage = storage;
-		_vehicleType = vehicleType;
+		_profileType = profileType;
 		if (vehicleParams instanceof VehicleParameters)
 			_vehicleParams = (VehicleParameters) vehicleParams;
 	}
 	/**
-	 * return if a way is a tollway for the configured vehicle. If _vehicleType != 0, it is a heavy vehicle.
-	 * If it is a heavy vehicle and weight parameter is provided, return the toll attribute based on the weight
+	 * return if a way is a tollway for the configured vehicle.
 	 *
 	 * @param edgeId				The edgeId for which toll should be checked
 	 * @see HeavyVehicleAttributes
 	 */
 	public int getValue(int edgeId) {
-		int value = _storage.getEdgeValue(edgeId, _buffer);
+		int value = _storage.getEdgeValue(edgeId);
 
-		if (value != TollwayType.None) {
-
-			// Check if "toll=yes" is present. If no and you're a car, you're good to go
-			if (TollwayType.isLType(value) || TollwayType.isMType(value))
-				return 1;
-			if (_vehicleType == 0)
+		switch (value) {
+			// toll=no
+			case TollwayType.None:
 				return 0;
-
-			//Check if tag "toll:hgv" is present -> assume toll for any hgv type
-			if (TollwayType.isNType(value) && value == TollwayType.N)
+			// toll=yes
+			case TollwayType.General:
 				return 1;
+			default:
+				switch(_profileType) {
+					// toll:motorcar
+					case RoutingProfileType.DRIVING_CAR:
+						return TollwayType.isSet(TollwayType.Motorcar, value) ? 1 : 0;
 
-			//Check if weight specific toll tags are present even though the weight is unset
-			double weight = _vehicleParams.getWeight();
-			if (weight == 0 && TollwayType.isNType(value))
-					return 1;
-			//Check in which weight range the hgv falls and return accordingly
-			//toll:N1=yes - Für Fahrzeuge bis 3,5 Tonnen eingesetzt, Bsp. Pick-up-Truck. (siehe Europäische Fahrzeugklassifikation N1)
-			//toll:N2=yes - Für Fahrzeuge von 3,5 Tonnen bis zu 12 Tonnen eingesetzt, Bsp. Commercial Truck.
-			//toll:N3=yes Für LKW mit einem zulässigen Gesamtgewicht > 12 t
-			else {
-				if (weight < 3.5 && value == TollwayType.N1)
-					return 1;
-				else if (weight >= 3.5 && weight < 12 && value == TollwayType.N2)
-					return 1;
-				else if (weight >= 12 && value == TollwayType.N3)
-					return 1;
-			}
+					case RoutingProfileType.DRIVING_HGV:
+						// toll:hgv
+						if (TollwayType.isSet(TollwayType.Hgv, value))
+							return 1;
+
+						// check for weight specific toll tags even when weight is unset
+						double weight = _vehicleParams==null ? 0 : _vehicleParams.getWeight();
+						if (weight == 0 && TollwayType.isNType(value))
+							return 1;
+							//Check in which weight range the hgv falls and return accordingly
+							//toll:N1=yes - Für Fahrzeuge bis 3,5 Tonnen eingesetzt, Bsp. Pick-up-Truck. (siehe Europäische Fahrzeugklassifikation N1)
+							//toll:N2=yes - Für Fahrzeuge von 3,5 Tonnen bis zu 12 Tonnen eingesetzt, Bsp. Commercial Truck.
+							//toll:N3=yes Für LKW mit einem zulässigen Gesamtgewicht > 12 t
+						else {
+							if (weight < 3.5 && TollwayType.isSet(TollwayType.N1, value))
+								return 1;
+							else if (weight >= 3.5 && weight < 12 && TollwayType.isSet(TollwayType.N2, value))
+								return 1;
+							else if (weight >= 12 && TollwayType.isSet(TollwayType.N3, value))
+								return 1;
+						}
+					default:
+						return 0;
+				}
 		}
-		return 0;
+
 	}
+
 }

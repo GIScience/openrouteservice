@@ -268,7 +268,7 @@ public class ResultTest extends ServiceTest {
                 .body("features.size()", is(5))
                 .body("features[0].type", is("Feature"))
                 .body("features[0].geometry.type", is("Polygon"))
-                .body("features[0].geometry.coordinates[0].size", is(23))
+                .body("features[0].geometry.coordinates[0].size", is(22))
                 .body("features[0].properties.containsKey('area')", is(true))
                 .body("features[1].type", is("Feature"))
                 .body("features[1].geometry.type", is("Polygon"))
