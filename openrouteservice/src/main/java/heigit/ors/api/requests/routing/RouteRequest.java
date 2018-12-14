@@ -152,26 +152,12 @@ public class RouteRequest {
     @JsonIgnore
     private boolean hasRouteOptions = false;
 
-    /*@JsonCreator
-    public RouteRequest(
-            @JsonProperty(value = "coordinates", required = true) CoordinateListWrapper coordinates) {
-        this.coordinates = coordinates.getCoordinatesList();
-    }
-
-    public RouteRequest( Double[][] coordinates) throws ParameterValueException {
-        if(coordinates.length < 2)
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "coordinates");
-
-        this.coordinates = new ArrayList<>();
-        for(Double[] coordPair : coordinates) {
-            if(coordPair.length != 2)
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "coordinates");
-            List<Double> coordPairList = new ArrayList<>();
-            coordPairList.add(coordPair[0]);
-            coordPairList.add(coordPair[1]);
-            this.coordinates.add(coordPairList);
-        }
-    }*/
+    @ApiModelProperty(name="suppress_warnings",
+            value = "Suppress warning messages in the response")
+    @JsonProperty("suppress_warnings")
+    private Boolean suppressWarnings = false;
+    @JsonIgnore
+    private boolean hasSuppressWarnings = false;
 
     @JsonCreator
     public RouteRequest(@JsonProperty(value = "coordinates", required = true) List<List<Double>> coordinates) {
@@ -383,6 +369,15 @@ public class RouteRequest {
         hasUseContractionHierarchies = true;
     }
 
+    public Boolean getSuppressWarnings() {
+        return suppressWarnings;
+    }
+
+    public void setSuppressWarnings(boolean suppressWarnings) {
+        this.suppressWarnings = suppressWarnings;
+        hasSuppressWarnings = true;
+    }
+
     public boolean hasIncludeRoundaboutExitInfo() {
         return hasIncludeRoundaboutExitInfo;
     }
@@ -399,7 +394,7 @@ public class RouteRequest {
         return hasBearings;
     }
 
-    public boolean hasReturnElevationForPoints() {
+    public boolean hasUseElevation() {
         return hasUseElevation;
     }
 
@@ -411,7 +406,11 @@ public class RouteRequest {
         return hasUseContractionHierarchies;
     }
 
-    public boolean isHasExtraInfo() {
+    public boolean hasExtraInfo() {
         return hasExtraInfo;
+    }
+
+    public boolean hasSuppressWarnings() {
+        return hasSuppressWarnings;
     }
 }

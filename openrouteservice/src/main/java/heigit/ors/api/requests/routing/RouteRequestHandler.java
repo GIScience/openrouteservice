@@ -58,7 +58,7 @@ public class RouteRequestHandler extends GenericHandler {
         RoutingRequest routingRequest = new RoutingRequest();
         routingRequest.setCoordinates(convertCoordinates(request.getCoordinates()));
 
-        if(request.hasReturnElevationForPoints())
+        if(request.hasUseElevation())
             routingRequest.setIncludeElevation(request.getUseElevation());
 
         routingRequest.setContinueStraight(request.getContinueStraightAtWaypoints());
@@ -75,7 +75,7 @@ public class RouteRequestHandler extends GenericHandler {
         if(request.hasAttributes())
             routingRequest.setAttributes(convertAttributes(request.getAttributes()));
 
-        if(request.isHasExtraInfo())
+        if(request.hasExtraInfo())
             routingRequest.setExtraInfo(convertExtraInfo(request.getExtraInfo()));
 
         routingRequest.setLanguage(convertLanguage(request.getLanguage()));
@@ -92,6 +92,9 @@ public class RouteRequestHandler extends GenericHandler {
         int profileType = -1;
 
         int coordinatesLength = request.getCoordinates().size();
+
+        if (request.hasSuppressWarnings())
+            routingRequest.setSuppressWarnings(request.getSuppressWarnings());
 
         RouteSearchParameters params = new RouteSearchParameters();
 
