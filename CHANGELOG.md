@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 ### Fixed
 ### Changed
+- Updated rural speed limit in France to be 80km/h (Issue #355)
 ### Deprecated
 
 ## [4.7.2] - 2018-12-10

@@ -84,7 +84,7 @@
 		"FI:trunk": 100,
 		"FI:motorway": 120,
 		"FR:urban": 50,
-		"FR:rural": 90,
+		"FR:rural": 80,
 		"FR:trunk": 110,
 		"FR:motorway": 130,
 		"GR:urban": 50,
