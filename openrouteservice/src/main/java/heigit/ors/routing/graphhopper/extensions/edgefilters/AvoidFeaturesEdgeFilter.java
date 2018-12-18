@@ -47,7 +47,7 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 
 		TollwaysGraphStorage extTollways = GraphStorageUtils.getGraphExtension(graphStorage, TollwaysGraphStorage.class);
 		if (extTollways != null)
-			_tollwayExtractor = new TollwayExtractor(extTollways, searchParams.getVehicleType(), searchParams.getProfileParameters());
+			_tollwayExtractor = new TollwayExtractor(extTollways, searchParams.getProfileType(), searchParams.getProfileParameters());
 	}
 
 	@Override

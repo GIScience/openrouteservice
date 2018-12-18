@@ -13,19 +13,19 @@
  */
 package heigit.ors.isochrones;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class IsochroneMap {
 	private int _travellerId;
 	private Envelope _envelope;
 	private List<Isochrone> _isochrones;
 	private Coordinate _center;
-	
-	public IsochroneMap(int travellerId, Coordinate center)
+
+    public IsochroneMap(int travellerId, Coordinate center)
 	{
 		_travellerId = travellerId;
 		_center = center;
@@ -48,7 +48,8 @@ public class IsochroneMap {
 		return _center;
 	}
 
-	public Iterable<Isochrone> getIsochrones()
+
+    public Iterable<Isochrone> getIsochrones()
 	{
 		return _isochrones;
 	}

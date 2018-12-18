@@ -28,6 +28,7 @@ public class RouteResult
 	private List<RouteExtraInfo> _extraInfo;
 	private int[] _wayPointsIndices = null;
 	private int _locationIndex = 0;
+	private List<RouteWarning> routeWarnings;
 
 	public RouteResult(int routeExtras) throws Exception
 	{
@@ -36,6 +37,8 @@ public class RouteResult
 		
 		if (routeExtras != 0)
 			_extraInfo = new ArrayList<RouteExtraInfo>();
+
+		routeWarnings = new ArrayList<>();
 	}
 	
 	public void addSegment(RouteSegment seg)
@@ -116,12 +119,24 @@ public class RouteResult
 	
 	public void addExtraInfo(RouteExtraInfo info)
 	{
+		if(_extraInfo == null)
+			_extraInfo = new ArrayList<>();
 		_extraInfo.add(info);
 	}
 	
 	public void addExtraInfo(Collection<RouteExtraInfo> infos)
 	{
+		if(_extraInfo == null)
+			_extraInfo = new ArrayList<>();
 		_extraInfo.addAll(infos);
+	}
+
+	public void addWarning(RouteWarning warning) {
+		routeWarnings.add(warning);
+	}
+
+	public List<RouteWarning> getWarnings() {
+		return routeWarnings;
 	}
 
 	public int[] getWayPointsIndices() {

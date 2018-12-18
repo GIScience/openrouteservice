@@ -27,15 +27,15 @@ public class TollwaysGraphStorage implements GraphExtension {
 	protected int edgeEntryIndex = 0;
 	protected int edgeEntryBytes;
 	protected int edgesCount; 
-	private byte[] byteValues;
+	private byte[] byteValue;
 
 	public TollwaysGraphStorage() 
 	{
-		EF_TOLLWAYS = nextBlockEntryIndex (4);
+		EF_TOLLWAYS = nextBlockEntryIndex (1);
 
 		edgeEntryBytes = edgeEntryIndex;
 		edgesCount = 0;
-		byteValues = new byte[4];
+		byteValue = new byte[1];
 	}
 
 	public void init(Graph graph, Directory dir) {
@@ -94,23 +94,16 @@ public class TollwaysGraphStorage implements GraphExtension {
 	public void setEdgeValue(int edgeId, int value) {
 		edgesCount++;
 		ensureEdgesIndex(edgeId);
-
-		long edgePointer = (long) edgeId * edgeEntryBytes;
  
-		byteValues[0] = (byte)(value >> 24);
-		byteValues[1] = (byte)(value >> 16);
-		byteValues[2] = (byte)(value >> 8);
-		byteValues[3] = (byte)(value & 0xff);
-		
-		edges.setBytes(edgePointer + EF_TOLLWAYS, byteValues, 4);
+		byteValue[0] = (byte) value;
+
+		edges.setBytes((long) edgeId * edgeEntryBytes + EF_TOLLWAYS, byteValue, 1);
 	}
 
-	public int getEdgeValue(int edgeId, byte[] buffer) {
-		long edgeBase = (long) edgeId * edgeEntryBytes;
+	public int getEdgeValue(int edgeId) {
+		edges.getBytes((long) edgeId * edgeEntryBytes + EF_TOLLWAYS, byteValue, 1);
 		
-		edges.getBytes(edgeBase + EF_TOLLWAYS, buffer, 4);
-		
-		return buffer[0] << 24 | (buffer[1] & 0xFF) << 16 | (buffer[2] & 0xFF) << 8 | (buffer[3] & 0xFF);
+		return byteValue[0] & 0xFF;
 	}
 
 	public boolean isRequireNodeField() {

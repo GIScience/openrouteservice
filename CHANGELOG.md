@@ -10,6 +10,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 ### Deprecated
 
+## [4.7.2] - 2018-12-10
+### Added
+- Added Unit Tests for RouteSearchParameters.class() (while fixing Issue #291)
+- Added ability to return warning messages in the route response which can be used for showing info to a user when warning criteria have been met based on extended storages.
+- Added a RoadAccessRestrictions extended storage as a warning extended storage for when a route goes of ways with access restrictions (Issue #342)
+### Fixed
+- If residential penalty reduces speed to <5, set it to 5
+- Added a new ParameterValueException in RouteSearchParameters if the profile is driving-car and profile_params are set in the options (Issue #291)
+- Fixed API Test to consider the new ParameterValueException (while fixing Issue #291)
+- Improved range and resolution of values encoding dimension/weight road restrictions in order to properly resolve them when corresponding hgv parameters are set (fixes issue #263)
+- Fixed empty BBox error if the route is located in the southern hemisphere (Issue #348)
+- Take into account access restrictions specific to hgv subprofiles (fixes issue #235)
+- Properly resolve all tolls, especially hgv-specific ones (fixes issue #358)
+- Updated checks on pedestrian way filter for access restrictions
+### Changed
+- Allowed access for cars and hgvs on access=destination roads (Issue #342)
+### Deprecated
+
 ## [4.7.1] - 2018-10-24
 ### Added
 Added instructions to readme for installing without Docker (Issue #272)
@@ -18,6 +36,7 @@ Added area_units for isochrones API as units being misleading (Issue #272)
 - Area calculation for isochrones using metric crs (Issue #130)
 - Decreases maximum peed for bike-regular for more realistic reachability scores (Issue #325)
 - Fixes self intersecting polygons when requesting population for isochrones (Issue #297)
+- Changes center in isochrones response to snapped edge coordinate on graph (Issue #336)
 - Enable HGV axleload restriction (Issue #262)
 ### Changed
 - Changed app.config.sample for docker to consider split profiles (Issue #320)

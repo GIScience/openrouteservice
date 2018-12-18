@@ -25,7 +25,6 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.FlagEncoderFactory;
 import com.graphhopper.util.PMap;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.tomove.ElectroBikeFlagEncoder;
 
 public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory implements FlagEncoderFactory {
 
@@ -45,10 +44,10 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
                 return new heigit.ors.routing.graphhopper.extensions.flagencoders.CarFlagEncoder(configuration);
 
             case FlagEncoderNames.CAROFFROAD:
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.CarOffRoadFlagEncoder(configuration);
+                return new heigit.ors.routing.graphhopper.extensions.flagencoders.currentlynotinuse.CarOffRoadFlagEncoder(configuration);
 
             case FlagEncoderNames.CARTMC:
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.CarTmcFlagEncoder(configuration);
+                return new heigit.ors.routing.graphhopper.extensions.flagencoders.currentlynotinuse.CarTmcFlagEncoder(configuration);
 
             case FlagEncoderNames.EMERGENCY:
                 return new heigit.ors.routing.graphhopper.extensions.flagencoders.EmergencyFlagEncoder(configuration);
@@ -60,7 +59,7 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
                 if (configuration.getBool("consider_elevation", false)) {
                     configuration.remove("consider_elevation");
                 }
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.nextgen.NextGenBikeFlagEncoder(configuration);
+                return new heigit.ors.routing.graphhopper.extensions.flagencoders.bike.RegularBikeFlagEncoder(configuration);
 
             case FlagEncoderNames.MTB_ORS:
                 // MARQ24 hardcoded "ignore" consider_elevation for the NextGenMountainBike FlagEncoder - when
@@ -68,10 +67,15 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
                 if(configuration.getBool("consider_elevation", false)){
                     configuration.remove("consider_elevation");
                 }
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.nextgen.NextGenMountainBikeFlagEncoder(configuration);
+                return new heigit.ors.routing.graphhopper.extensions.flagencoders.bike.MountainBikeFlagEncoder(configuration);
 
             case FlagEncoderNames.BIKE_ELECTRO:
-                return new ElectroBikeFlagEncoder(configuration);
+                // MARQ24 hardcoded "ignore" consider_elevation for the NextGenMountainBike FlagEncoder - when
+                // consider_elevation is enabled we have various detours (over smaler tracks)
+                if(configuration.getBool("consider_elevation", false)){
+                    configuration.remove("consider_elevation");
+                }
+                return new heigit.ors.routing.graphhopper.extensions.flagencoders.bike.ElectroBikeFlagEncoder(configuration);
 
             case FlagEncoderNames.ROADBIKE_ORS:
                 // MARQ24 hardcoded "ignore" consider_elevation for the NextGenRoadbike FlagEncoder - when
@@ -80,43 +84,10 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
                 if(configuration.getBool("consider_elevation", false)){
                     configuration.remove("consider_elevation");
                 }
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.nextgen.NextGenRoadBikeFlagEncoder(configuration);
+                return new heigit.ors.routing.graphhopper.extensions.flagencoders.bike.RoadBikeFlagEncoder(configuration);
 
             case FlagEncoderNames.WHEELCHAIR:
                 return new heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder(configuration);
-
-            case FlagEncoderNames.HIKING:
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.HikingFlagEncoder(configuration);
-
-            case FlagEncoderNames.WALKING:
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.exghoverwrite.ExGhORSFootFlagEncoder(configuration);
-
-            case FlagEncoderNames.BIKE_ORS_OLD:
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.BikeFlagEncoder(configuration);
-
-            case FlagEncoderNames.MTB_ORS_OLD:
-                // MARQ24: in previous ors this line of code was never used... MTB was set to "bike" - so when this method
-                // was called with the param name="mtb" the original DefaultFlagEncoderFactory was called!!!
-                // and the DefaultFlagEncoderFactory then returned the 'default' graphhopper MountainBikeFlagEncoder...
-                // But this is not the complete story...
-                // 'of course' the original gh MountainBikeFlagEncoder was patched in the ors fork of gh - so at the end
-                // of the day the com.graphhopper.routing.util.flagencoder.MountainBikeFlagEncoder as it was present
-                // in the ors fork would be returned...
-                // I have decided (with the migration to gh 0.10.1) that the original FlagEncoders should not been modified
-                // and instead the modified version have been paced in the package:
-                // heigit.ors.routing.graphhopper.extensions.flagencodersexghoverwrite
-                // and the FlagEncoderNames have got the Prefix ORS...
-                //return new MountainBikeFlagEncoder(configuration);
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.exghoverwrite.ExGhORSMountainBikeFlagEncoder(configuration);
-
-            case FlagEncoderNames.RACINGBIKE_ORS:
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.RacingBikeFlagEncoder(configuration);
-
-            case FlagEncoderNames.BIKE_SAFTY:
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.SafetyBikeFlagEncoder(configuration);
-
-            case FlagEncoderNames.BIKE_TOUR:
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.CycleTourBikeFlagEncoder(configuration);
         }
     }
 }

@@ -273,7 +273,16 @@
                 #   boundaries: "...",  - The path to a file containing geojson data representing the borders of countries
                 #   ids: "...",         - Path to a csv file containing a unique id for each country, its local name and its english name
                 #   openborders: "..."  - Path to a csv file contianing pairs of countries where the borders are open (i.e. Schengen borders)
-                # }
+                # },
+                # RoadAccessRestrictions are where roads are restricted to certain vehicles to certain circumstances.
+                # e.g. access=destination
+                  RoadAccessRestrictions: {
+                  # The use_for_warnings parameter tells the ors that this storage can be used for generating warning messages
+                  # in the route response. For RoadAccessRestrictions, this means that whenever a route goes over a way
+                  # which has some restrictions, a warning message will be delivered with the response and the roadaccessrestrictions
+                  # extra info automatically added.
+                  use_for_warnings: true
+                }
               }
               # Traffic feature is not ready for production.
               traffic: false
