@@ -168,7 +168,7 @@ public class RoutingManagerConfiguration
 					case "maximum_distance":
 						profile.setMaximumDistance(Double.parseDouble(paramItem.getValue().toString()));
 						break;
-					case "maximum__distance_dynamic_weights":
+					case "maximum_distance_dynamic_weights":
 						profile.setMaximumDistanceDynamicWeights(Double.parseDouble(paramItem.getValue().toString()));
 						break;
 					case "maximum_distance_avoid_areas":
