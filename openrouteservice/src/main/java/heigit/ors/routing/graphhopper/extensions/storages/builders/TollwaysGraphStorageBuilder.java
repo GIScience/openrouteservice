@@ -29,11 +29,11 @@ public class TollwaysGraphStorageBuilder extends AbstractGraphStorageBuilder
 {
 	private TollwaysGraphStorage _storage;
 	private int _tollways;
-	private List<String> _tollTags = new ArrayList<String>(7);
+	private List<String> _tollTags = new ArrayList<String>(6);
 	
-	public TollwaysGraphStorageBuilder()
-	{
-		_tollTags.addAll(Arrays.asList("toll", "toll:hgv", "toll:N1", "toll:N2", "toll:N3",  "toll:class", "toll:hgv:class"));
+	public TollwaysGraphStorageBuilder() {
+		// Currently consider only toll tags relevant to cars or hgvs:
+		_tollTags.addAll(Arrays.asList("toll", "toll:hgv", "toll:N1", "toll:N2", "toll:N3",  "toll:motorcar"));
 	}
 
 	public GraphExtension init(GraphHopper graphhopper) throws Exception {
@@ -48,78 +48,50 @@ public class TollwaysGraphStorageBuilder extends AbstractGraphStorageBuilder
 	public void processWay(ReaderWay way) {
 		_tollways = TollwayType.None;
 
-		String tollKey = null;
-		String tollValue = null;
-		
 		for (String key : _tollTags) {
-			if (way.hasTag(key))
-			{
-				tollKey = key;
-				tollValue = way.getTag(key);
-				break;
-			}
-		} 
-		
-		/*
-        toll=yes
-		toll:class= L1, L2, ....M 
-		toll:hgv=yes
-		toll:hgv:class=N1, N2, N3 
-        */
-		if (tollValue != null && !tollValue.equals("no"))
-		{
-			switch(tollKey)
-			{
-			case "toll":
-				_tollways = TollwayType.General;
-				break;
-			case "toll:hgv":
-				_tollways = TollwayType.N;
-				break;
-			case "toll:N1":
-				_tollways = TollwayType.N1;
-				break;
-			case "toll:N2":
-				_tollways = TollwayType.N2;
-				break;
-			case "toll:N3":
-				_tollways = TollwayType.N3;
-				break;
-			case "toll:hgv:class":
-				if (tollValue.equals("yes"))
-					_tollways = TollwayType.N;
-				else
-					_tollways = getTollValues(tollValue);
-				break;
-			case "toll:class":
-				_tollways = getTollValues(tollValue);
-				break;
-			default:
-				_tollways = TollwayType.getFromString(tollValue);
-				break;
+			if (way.hasTag(key)) {
+				String value = way.getTag(key);
+
+				if (value != null) {
+					switch(key) {
+						case "toll":
+							setFlag(TollwayType.General, value);
+							break;
+						case "toll:hgv":
+							setFlag(TollwayType.Hgv, value);
+							break;
+						case "toll:N1": //currently not used in OSM
+							setFlag(TollwayType.N1, value);
+							break;
+						case "toll:N2":
+							setFlag(TollwayType.N2, value);
+							break;
+						case "toll:N3":
+							setFlag(TollwayType.N3, value);
+							break;
+						case "toll:motorcar":
+							setFlag(TollwayType.Motorcar, value);
+						default:
+							break;
+					}
+				}
 			}
 		}
-	}
-	
-	private int getTollValues(String value)
-	{
-		if (value.contains(","))
-		{
-			int res = TollwayType.None;
-			String[] values = value.split(",");
-			for (String v : values)
-			{
-				res |= TollwayType.getFromString(v.trim());
-			}
-			
-			return res;
-		}
-		
-		return TollwayType.getFromString(value);
+
 	}
 
-	public void processEdge(ReaderWay way, EdgeIteratorState edge)
-	{ 
+	private void setFlag(int flag, String value) {
+		switch(value) {
+			case "yes":
+				_tollways |= flag;
+				break;
+			case "no":
+				_tollways &= ~flag;
+				break;
+		}
+	}
+
+	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
 		_storage.setEdgeValue(edge.getEdge(), _tollways);
 	}
 

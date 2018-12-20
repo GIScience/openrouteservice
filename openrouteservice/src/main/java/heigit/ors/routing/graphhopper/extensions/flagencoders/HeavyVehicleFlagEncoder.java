@@ -31,8 +31,6 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
 {
     protected final HashSet<String> forwardKeys = new HashSet<String>(5);
     protected final HashSet<String> backwardKeys = new HashSet<String>(5);
-    protected final HashSet<String> noValues = new HashSet<String>(5);
-    protected final HashSet<String> yesValues = new HashSet<String>(5);
     protected final List<String> hgvAccess = new ArrayList<String>(5);
 
     // Take into account acceleration calculations when determining travel speed
@@ -73,15 +71,22 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
         super(speedBits, speedFactor, maxTurnCosts);
         restrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access"));
         restrictedValues.add("private");
-        restrictedValues.add("agricultural");
-        restrictedValues.add("forestry");
         restrictedValues.add("no");
         restrictedValues.add("restricted");
-        restrictedValues.add("delivery");
+        restrictedValues.add("military");
 
         intendedValues.add("yes");
         intendedValues.add("permissive");
-        
+        intendedValues.add("designated");
+        intendedValues.add("destination");  // This is needed to allow the passing of barriers that are marked as destination
+
+        intendedValues.add("agricultural");
+        intendedValues.add("forestry");
+        intendedValues.add("delivery");
+        intendedValues.add("bus");
+        intendedValues.add("hgv");
+        intendedValues.add("goods");
+
         hgvAccess.addAll(Arrays.asList("hgv", "goods", "bus", "agricultural", "forestry", "delivery"));
 
         potentialBarriers.add("gate");
@@ -178,13 +183,7 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
         backwardKeys.add("agricultural:backward");
         backwardKeys.add("forestry:backward");
         backwardKeys.add("delivery:backward");
-        
-        noValues.add("no");
-        noValues.add("-1");
-        
-        yesValues.add("yes");
-        yesValues.add("1");
-        
+
         init();
     }
     

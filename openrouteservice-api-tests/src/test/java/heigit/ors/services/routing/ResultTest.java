@@ -736,10 +736,16 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('extras')", is(true))
-				.body("routes[0].extras.tollways.values.size()", is(1))
+				.body("routes[0].extras.tollways.values.size()", is(3))
 				.body("routes[0].extras.tollways.values[0][0]", is(0))
-				.body("routes[0].extras.tollways.values[0][1]", is(86))
+				.body("routes[0].extras.tollways.values[0][1]", is(52))
 				.body("routes[0].extras.tollways.values[0][2]", is(0))
+                .body("routes[0].extras.tollways.values[1][0]", is(52))
+                .body("routes[0].extras.tollways.values[1][1]", is(66))
+                .body("routes[0].extras.tollways.values[1][2]", is(1))
+                .body("routes[0].extras.tollways.values[2][0]", is(66))
+                .body("routes[0].extras.tollways.values[2][1]", is(86))
+                .body("routes[0].extras.tollways.values[2][2]", is(0))
 				.statusCode(200);
 
 		checkExtraConsistency(response);
@@ -1026,6 +1032,41 @@ public class ResultTest extends ServiceTest {
 				.statusCode(200);
 	}
 
+    @Test
+    public void testHGVAxleLoadRestriction() {
+        given()
+                .param("coordinates", "8.686849,49.406093|8.687525,49.405437")
+                .param("instructions", "false")
+                .param("preference", "shortest")
+                .param("profile", "driving-hgv")
+                .param("options", "{\"profile_params\":{\"restrictions\":{\"axleload\":\"12.9\"}},\"vehicle_type\":\"hgv\"}")
+                .param("units", "m")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(132.9f))
+                .body("routes[0].summary.duration", is(44.3f))
+                .statusCode(200);
+
+        given()
+                .param("coordinates", "8.686849,49.406093|8.687525,49.405437")
+                .param("instructions", "true")
+                .param("preference", "shortest")
+                .param("profile", "driving-hgv")
+                .param("options", "{\"profile_params\":{\"restrictions\":{\"axleload\":\"13.1\"}},\"vehicle_type\":\"hgv\"}")
+                .param("units", "m")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(364.3f))
+                .body("routes[0].summary.duration", is(92.7f))
+                .statusCode(200);
+    }
+
 	@Test
 	public void testCarDistanceAndDuration() {
 		// Generic test to ensure that the distance and duration dont get changed
@@ -1207,8 +1248,8 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(594.4f))
-				.body("routes[0].summary.duration", is(493.8f))
+				.body("routes[0].summary.distance", is(591.6f))
+				.body("routes[0].summary.duration", is(498.7f))
 				.statusCode(200);
 
 		given()
@@ -1333,6 +1374,25 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('extras')", is(true))
                 .body("routes[0].extras.containsKey('osmId')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testAccessRestrictionsWarnings() {
+        given()
+                .param("coordinates", "8.675154,49.407727|8.675863,49.407162")
+                .param("preference", "shortest")
+                .param("profile", getParameter("carProfile"))
+                .when()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('warnings')", is(true))
+                .body("routes[0].warnings[0].code", is(1))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.containsKey('roadaccessrestrictions')", is(true))
+                .body("routes[0].extras.roadaccessrestrictions.values[1][2]", is(32))
                 .statusCode(200);
     }
 }
