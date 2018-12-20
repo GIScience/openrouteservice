@@ -28,9 +28,22 @@ import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 
 public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
     private BordersGraphStorage _storage;
+    private int[] avoidCountries;
+    private boolean isAvoidCountries = false;
 
+    //Used to avoid all borders
     public AvoidBordersCoreEdgeFilter(GraphStorage graphStorage) {
         this._storage = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
+    }
+    //Used to specify multiple countries to avoid (For a specific LM set)
+    public AvoidBordersCoreEdgeFilter(GraphStorage graphStorage, int[] avoidCountries) {
+        this._storage = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
+        this.avoidCountries = avoidCountries;
+        if(avoidCountries.length > 0) isAvoidCountries = true;
+    }
+
+    public int[] getAvoidCountries(){
+        return avoidCountries;
     }
     /**
      *Determine whether or not an edge is to be filtered
@@ -39,12 +52,28 @@ public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
      */
     @Override
     public final boolean accept(EdgeIteratorState iter) {
-
+        //If a specific country was given, just check if its one of the country borders
+        if(isAvoidCountries)
+            return !restrictedCountry(iter.getEdge());
+        //else check if there is ANY border
         if (_storage == null) {
             return true;
         } else {
             return _storage.getEdgeValue(iter.getEdge(), BordersGraphStorage.Property.TYPE) == BordersGraphStorage.NO_BORDER;
         }
 
+    }
+
+    public boolean restrictedCountry(int edgeId) {
+        int startCountry = _storage.getEdgeValue(edgeId, BordersGraphStorage.Property.START);
+        int endCountry = _storage.getEdgeValue(edgeId, BordersGraphStorage.Property.END);
+
+        for(int i=0; i<avoidCountries.length; i++) {
+            if(startCountry == avoidCountries[i] || endCountry == avoidCountries[i] ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

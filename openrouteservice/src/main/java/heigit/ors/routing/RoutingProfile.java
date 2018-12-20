@@ -726,6 +726,8 @@ public class RoutingProfile {
         if (searchParams.hasAvoidBorders() || searchParams.hasAvoidCountries()) {
             if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)) {
                 edgeFilters.add(new AvoidBordersEdgeFilter(searchParams, gs));
+                if(searchParams.hasAvoidCountries())
+                    props.put("avoid_countries", Arrays.toString(searchParams.getAvoidCountries()));
             }
         }
 

@@ -42,6 +42,7 @@ import com.graphhopper.util.shapes.GHPoint;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +85,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
     private List<LandmarkSuggestion> landmarkSuggestions = Collections.emptyList();
     private SpatialRuleLookup ruleLookup;
     private boolean logDetails = false;
-    private EdgeFilterSequence landmarksFilter;
+    private LMEdgeFilterSequence landmarksFilter;
 
     public static HashMap<Integer, Integer> coreNodeIdMap;
     /**
@@ -92,7 +93,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
      */
     static final long PRECISION = 1 << 16;
 
-    public CoreLandmarkStorage(GraphHopperStorage graph, Directory dir, final Weighting weighting, EdgeFilterSequence landmarksFilter, int landmarks) {
+    public CoreLandmarkStorage(GraphHopperStorage graph, Directory dir, final Weighting weighting, LMEdgeFilterSequence landmarksFilter, int landmarks) {
 //        super(graph, dir, weighting, landmarks);
         this.graph = graph;
         this.core = graph.getCoreGraph(weighting);

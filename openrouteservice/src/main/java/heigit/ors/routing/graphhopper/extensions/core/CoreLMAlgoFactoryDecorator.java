@@ -38,6 +38,7 @@ import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
 import com.graphhopper.util.Parameters.Landmark;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import heigit.ors.routing.graphhopper.extensions.util.ORSParameters.CoreLandmark;
 import heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
 import org.slf4j.Logger;
@@ -352,7 +353,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
         coreLMOptions.createRestrictionFilters();
 
         for (Weighting weighting : getWeightings()) {
-            for (EdgeFilterSequence edgeFilterSequence : coreLMOptions.getFilters()) {
+            for (LMEdgeFilterSequence edgeFilterSequence : coreLMOptions.getFilters()) {
                 Double maximumWeight = maximumWeights.get(weighting.getName());
                 if (maximumWeight == null)
                     throw new IllegalStateException("maximumWeight cannot be null. Default should be just negative. "

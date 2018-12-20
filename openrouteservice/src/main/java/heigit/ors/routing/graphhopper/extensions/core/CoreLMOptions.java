@@ -5,7 +5,9 @@ import com.graphhopper.storage.GraphHopperStorage;
 import heigit.ors.routing.AvoidFeatureFlags;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -14,7 +16,7 @@ import java.util.List;
 
 public class CoreLMOptions {
     List<String> coreLMSets;
-    List<EdgeFilterSequence> filters = new ArrayList<>();
+    List<LMEdgeFilterSequence> filters = new ArrayList<>();
     GraphHopperStorage ghStorage;
 
     public CoreLMOptions(GraphHopperStorage ghStorage){
@@ -29,42 +31,81 @@ public class CoreLMOptions {
         this.coreLMSets = tmpCoreLMSets;
     }
 
+    /**
+     * Creates all LMSet-Filters from the sets specified in the app.config
+     * The filter is an LMEdgeFilterSequence, consisting of at most ONE AvoidFeaturesFilter and ONE AvoidCountriesFilter
+     * These can contain multiple avoidfeatures and avoidcountries
+     *
+     *
+     * */
     public void createRestrictionFilters(){
+        //Create one edgefiltersequence for each lmset
         for(String set : coreLMSets) {
+            //Now iterate over all comma separated values in one lm set
             List<String> filters = Arrays.asList(set.split(","));
-            EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
-            int filter = 0;
+            LMEdgeFilterSequence edgeFilterSequence = new LMEdgeFilterSequence();
+            int avoidFeatures = 0;
+            List<Integer> countries = new ArrayList<Integer>();
+
+
+            //process avoid features
             for (String filterType : filters) {
                 //Do not add any filter if it is allow_all
                 if (filterType.equalsIgnoreCase("allow_all")) {
                     edgeFilterSequence.appendName("allow_all");
-//                    if(filters.size() > 1)
-//                        throw new IllegalArgumentException("Cannot use more edgefilters in combination with 'allow_all'");
                     break;
                 }
                 if (filterType.equalsIgnoreCase("highways")) {
-                    filter = filter | AvoidFeatureFlags.Highways;
+                    avoidFeatures = avoidFeatures | AvoidFeatureFlags.Highways;
                     edgeFilterSequence.appendName("highways");
+                    continue;
                 }
                 if (filterType.equalsIgnoreCase("tollways")) {
-                    filter = filter | AvoidFeatureFlags.Tollways;
+                    avoidFeatures = avoidFeatures | AvoidFeatureFlags.Tollways;
                     edgeFilterSequence.appendName("tollways");
+                    continue;
                 }
                 if (filterType.equalsIgnoreCase("steps")) {
-                    filter = filter | AvoidFeatureFlags.Steps;
+                    avoidFeatures = avoidFeatures | AvoidFeatureFlags.Steps;
                     edgeFilterSequence.appendName("steps");
+                    continue;
                 }
-                if (filter == 0)
-                    throw new IllegalArgumentException("Currently unsupported filter type: " + filterType);
             }
-            if(filter != 0)
-                edgeFilterSequence.add(new AvoidFeaturesCoreEdgeFilter(ghStorage, -1, filter));
+
+
+            //process avoid countries
+            for (String filterType : filters) {
+
+                if (filterType.equalsIgnoreCase("country_193")) {
+                    countries.add(193);
+                    edgeFilterSequence.appendName("country_193");
+                    continue;
+                }
+                if (filterType.equalsIgnoreCase("country_35")) {
+                    countries.add(35);
+                    edgeFilterSequence.appendName("country_35");
+                    continue;
+                }
+            }
+
+            if(avoidFeatures != 0)
+                edgeFilterSequence.add(new AvoidFeaturesCoreEdgeFilter(ghStorage, -1, avoidFeatures));
+
+            if(!countries.isEmpty()){
+                int[] avoidCountries = new int[countries.size()];
+                for(int i = 0; i < countries.size(); i++){
+                    avoidCountries[i] = countries.get(i);
+                }
+                //Only one avoidBordersCoreEdgeFIlter per set
+                edgeFilterSequence.add(new AvoidBordersCoreEdgeFilter(ghStorage, avoidCountries));
+            }
+
             if(edgeFilterSequence != null)
                 this.filters.add(edgeFilterSequence);
         }
     }
 
-    public List<EdgeFilterSequence> getFilters(){
+    public List<LMEdgeFilterSequence> getFilters(){
         return filters;
     }
 

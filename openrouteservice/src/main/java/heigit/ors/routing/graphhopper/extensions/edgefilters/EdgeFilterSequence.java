@@ -50,32 +50,6 @@ public class EdgeFilterSequence extends ArrayList<EdgeFilter> implements EdgeFil
 			this.name += ("_" + name);
 	}
 
-	public boolean isAvoidHighways(){
-		for (EdgeFilter edgeFilter: this) {
-			if (edgeFilter instanceof AvoidFeaturesCoreEdgeFilter){
-				if (((AvoidFeaturesCoreEdgeFilter) edgeFilter).getType() == "avoid_features"
-					&& ((AvoidFeaturesCoreEdgeFilter) edgeFilter).getAvoidFeatures() == 1)
-					return true;
-			}
-		}
-		return false;
-	}
-	public boolean isAvoidable(int avoidable){
-//		if(avoidable == 0)
-//			return true;
-		for (EdgeFilter edgeFilter: this) {
-			if (edgeFilter instanceof AvoidFeaturesCoreEdgeFilter){
-				//Some bit magic to find if the storage bits are a subset of the query bits, but not the other way around
-				int reverseQueryFeatures = Integer.MAX_VALUE ^ avoidable;
-				int filterFeatures = ((AvoidFeaturesCoreEdgeFilter) edgeFilter).getAvoidFeatures();
-				if ((reverseQueryFeatures & filterFeatures) == 0)
-					return true;
-				return false;
-			}
-		}
-		return true;
-	}
-
 	@Override
 	public String toString() {
 		return "EdgeFilter Sequence :" + size();
