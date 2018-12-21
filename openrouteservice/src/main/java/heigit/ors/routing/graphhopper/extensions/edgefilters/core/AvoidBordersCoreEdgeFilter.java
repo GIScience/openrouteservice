@@ -22,6 +22,7 @@ package heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.util.CHEdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
@@ -53,6 +54,8 @@ public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
     @Override
     public final boolean accept(EdgeIteratorState iter) {
         //If a specific country was given, just check if its one of the country borders
+        if(iter instanceof CHEdgeIterator)
+            if(((CHEdgeIterator)iter).isShortcut()) return true;
         if(isAvoidCountries)
             return !restrictedCountry(iter.getEdge());
         //else check if there is ANY border

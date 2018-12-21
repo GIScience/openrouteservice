@@ -230,7 +230,8 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
         byte[] subnetworks = new byte[core.getCoreNodes()];
         Arrays.fill(subnetworks, (byte) UNSET_SUBNETWORK);
-        EdgeFilter tarjanFilter;// = new DefaultEdgeFilter(encoder, false, true);
+        EdgeFilterSequence tarjanFilter = new EdgeFilterSequence();
+//        EdgeFilter tarjanFilter;// = new DefaultEdgeFilter(encoder, false, true);
         IntHashSet blockedEdges = new IntHashSet();
 
         // the ruleLookup splits certain areas from each other but avoids making this a permanent change so that other algorithms still can route through these regions.
@@ -243,7 +244,8 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
                         + sw.stop().getSeconds() + "s, " + Helper.getMemInfo());
         }
 
-        tarjanFilter = new CoreAndBlockedEdgesFilter(encoder, false, true, blockedEdges, graph);
+        tarjanFilter.add(new CoreAndBlockedEdgesFilter(encoder, false, true, blockedEdges, graph));
+        tarjanFilter.add(landmarksFilter);
 
 
         StopWatch sw = new StopWatch().start();
