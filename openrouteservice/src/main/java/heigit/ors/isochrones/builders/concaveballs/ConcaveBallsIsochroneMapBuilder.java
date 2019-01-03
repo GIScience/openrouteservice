@@ -16,6 +16,9 @@ package heigit.ors.isochrones.builders.concaveballs;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
+import com.graphhopper.routing.util.AbstractFlagEncoder;
+import com.graphhopper.routing.util.FootFlagEncoder;
+import com.graphhopper.routing.util.HikeFlagEncoder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.storage.SPTEntry;
@@ -31,6 +34,7 @@ import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
 import heigit.ors.routing.RouteSearchContext;
 import heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import heigit.ors.util.GeomUtility;
 import org.apache.log4j.Logger;
 import org.opensphere.geometry.algorithm.ConcaveHull;
@@ -74,7 +78,17 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		// 1. Find all graph edges for a given cost.
 		double maxSpeed = _searchContext.getEncoder().getMaxSpeed();
 
-        AccessibilityMap edgeMap = GraphEdgeMapFinder.findEdgeMap(_searchContext, parameters);
+		if (_searchContext.getEncoder() instanceof FootFlagEncoder || _searchContext.getEncoder() instanceof HikeFlagEncoder) {
+			// in the GH FootFlagEncoder, the maximum speed is set to 15km/h which is way too high
+			maxSpeed = 4;
+		}
+
+		if (_searchContext.getEncoder() instanceof WheelchairFlagEncoder) {
+			maxSpeed = WheelchairFlagEncoder.MEAN_SPEED;
+		}
+
+
+		AccessibilityMap edgeMap = GraphEdgeMapFinder.findEdgeMap(_searchContext, parameters);
 
         GHPoint3D point = edgeMap.getSnappedPosition();
 
@@ -111,11 +125,16 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		}
 
 		int nRanges = parameters.getRanges().length;
+
 		double metersPerSecond = maxSpeed / 3.6;
 
 		double prevCost = 0;
 		for (int i = 0; i < nRanges; i++) {
 			double isoValue = parameters.getRanges()[i];
+			double isochronesDifference = parameters.getRanges()[i];
+			if (i > 0)
+				isochronesDifference = isochronesDifference -parameters.getRanges()[i-1];
+
 			float smoothingFactor = parameters.getSmoothingFactor();
 			TravelRangeType isochroneType = parameters.getRangeType();
 
@@ -125,7 +144,18 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 				sw.start();
 			}
 
-			GeometryCollection points = buildIsochrone(edgeMap, isoPoints, loc.x, loc.y, isoValue, prevCost,maxSpeed, 0.85);
+			double maxRadius = 0;
+			switch (isochroneType) {
+				case Distance:
+					maxRadius = isoValue;
+					break;
+				case Time:
+					maxRadius = metersPerSecond * isoValue;
+					isochronesDifference = metersPerSecond * isochronesDifference;
+					break;
+			}
+
+			GeometryCollection points = buildIsochrone(edgeMap, isoPoints, loc.x, loc.y, isoValue, prevCost, isochronesDifference, 0.85);
 
 			if (LOGGER.isDebugEnabled())
 			{
@@ -137,14 +167,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 				sw.start();
 			}
 
-			switch(isochroneType) {
-				case Distance:
-					addIsochrone(isochroneMap, points, isoValue, isoValue, smoothingFactor);
-					break;
-				case Time:
-					addIsochrone(isochroneMap, points, isoValue, metersPerSecond * isoValue, smoothingFactor);
-					break;
-			}
+			addIsochrone(isochroneMap, points, isoValue, maxRadius, smoothingFactor);
 
 
 			if (LOGGER.isDebugEnabled())
@@ -170,17 +193,23 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 	 */
 	private double convertSmoothingFactorToDistance(float smoothingFactor, double maxRadius)
 	{
-		if(smoothingFactor == -1) {
-			// No user defined smoothing factor, so use a default length (~1333m)
+		double MINIMUM_DISTANCE = 0.006;
+
+		if (smoothingFactor == -1) {
+			// No user defined smoothing factor, so use defaults
+
+			// For shorter isochrones, we want to use a smaller minimum distance else we get inaccurate results
+			if (maxRadius < 5000)
+				return MINIMUM_DISTANCE;
+
+			// Use a default length (~1333m)
 			return 0.012;
 		}
 
 		double intervalDegrees = GeomUtility.metresToDegrees(maxRadius);
-		double MINIMUM_DISTANCE = 0.006;
-		//double maxLength = (smoothingFactor * intervalDegrees) / 10;
 		double maxLength = (intervalDegrees / 100f) * smoothingFactor;
 
-		if(maxLength < MINIMUM_DISTANCE)
+		if (maxLength < MINIMUM_DISTANCE)
 			maxLength = MINIMUM_DISTANCE;
 		return maxLength;
 	}
@@ -295,7 +324,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 	}
 
 	private GeometryCollection buildIsochrone(AccessibilityMap edgeMap, List<Coordinate> points, double lon, double lat,
-			double isolineCost, double prevCost,  double maxSpeed, double detailedGeomFactor) {
+			double isolineCost, double prevCost, double isochronesDifference, double detailedGeomFactor) {
 		IntObjectMap<SPTEntry> map = edgeMap.getMap();
 
 		points.clear();
@@ -326,7 +355,12 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		{
 			defaultSearchWidth = 0.0008;
 			defaulPointWidth = 0.005;
-			defaultVisitorThreshold = 0.0025;  
+			defaultVisitorThreshold = 0.0025;
+		}
+
+		if (isochronesDifference < 1000) {
+			bufferSize = 0.00018;
+			defaultVisitorThreshold = 0.000005;
 		}
 		
 		int nodeId, edgeId;
@@ -348,8 +382,9 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			float maxCost = (float) (goalEdge.weight);
 			float minCost = (float) (goalEdge.parent.weight);
 
-			// ignore all edges that have been considered in the previous step
-			if (minCost < prevCost)
+			// ignore all edges that have been considered in the previous step. We do not want to do this for small
+			// isochrones as the edge may have more than one range on it in that case
+			if (minCost < prevCost & isochronesDifference > 1000)
 				continue;
 
 			searchWidth = defaultSearchWidth; 
@@ -360,8 +395,9 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 			// edges that are fully inside of the isochrone
 			if (isolineCost >= maxCost) {
-
-				if (goalEdge.edge == -2)
+				// This checks for dead end edges, but we need to include those in small areas to provide realistic
+				// results
+				if (goalEdge.edge == -2 && isochronesDifference > 1000)
 				{
 					//addPoint(points, qtree, nodeAccess.getLon(nodeId), nodeAccess.getLat(nodeId), true);
 				}
