@@ -1,9 +1,12 @@
 package heigit.ors.api.requests.isochrones;
 
-import heigit.ors.isochrones.Isochrone;
+import heigit.ors.exceptions.ParameterValueException;
+import heigit.ors.services.matrix.MatrixServiceSettings;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static heigit.ors.util.HelperFunctions.fakeArrayLocations;
 
 public class IsochronesRequestTest {
 
@@ -33,9 +36,29 @@ public class IsochronesRequestTest {
     public void attributesTest() {
         IsochronesRequest request = new IsochronesRequest();
         Assert.assertFalse(request.hasAttributes());
-        request.setAttributes(new IsochronesRequestEnums.Attributes[] { IsochronesRequestEnums.Attributes.AREA});
+        request.setAttributes(new IsochronesRequestEnums.Attributes[]{IsochronesRequestEnums.Attributes.AREA});
         Assert.assertTrue(request.hasAttributes());
         Assert.assertEquals(request.getAttributes().length, 1);
         Assert.assertEquals(IsochronesRequestEnums.Attributes.AREA, request.getAttributes()[0]);
     }
+
+    @Test(expected = ParameterValueException.class)
+    public void tooSmallLocationTest() throws ParameterValueException {
+        Double[][] double_array = {{1.0}, {1.0, 3.0}};
+        new IsochronesRequest(double_array);
+    }
+
+    @Test(expected = ParameterValueException.class)
+    public void exceedingLocationMaximumTest() throws ParameterValueException {
+        Double[][] exceedingLocationsMaximumCoords = fakeArrayLocations(MatrixServiceSettings.getMaximumLocations(false) + 1, 2);
+        new IsochronesRequest(exceedingLocationsMaximumCoords);
+    }
+
+
+    @Test(expected = ParameterValueException.class)
+    public void tooLargeLocationTest() throws ParameterValueException {
+        Double[][] exceedingLocationsMaximumCoords = {{1.0, 3.0, 4.0}, {1.0, 3.0}};
+        new IsochronesRequest(exceedingLocationsMaximumCoords);
+    }
+
 }
