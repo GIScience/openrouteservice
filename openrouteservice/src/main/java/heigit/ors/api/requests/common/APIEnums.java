@@ -257,7 +257,6 @@ public class APIEnums {
         DRIVING_HGV("driving-hgv"),
         CYCLING_REGULAR("cycling-regular"),
         CYCLING_ROAD("cycling-road"),
-        CYCLING_SAFE("cycling-safe"),
         CYCLING_MOUNTAIN("cycling-mountain"),
         CYCLING_TOUR("cycling-tour"),
         CYCLING_ELECTRIC("cycling-electric"),

@@ -26,7 +26,6 @@ public class APIMatrixRequestProfileConverterTest {
         cyclingMountain = APIEnums.Profile.CYCLING_MOUNTAIN;
         cyclingRegular = APIEnums.Profile.CYCLING_REGULAR;
         cyclingRoad = APIEnums.Profile.CYCLING_ROAD;
-        cyclingSafe = APIEnums.Profile.CYCLING_SAFE;
         cyclingTour = APIEnums.Profile.CYCLING_TOUR;
         drivingCar = APIEnums.Profile.DRIVING_CAR;
         drivingHgv = APIEnums.Profile.DRIVING_HGV;

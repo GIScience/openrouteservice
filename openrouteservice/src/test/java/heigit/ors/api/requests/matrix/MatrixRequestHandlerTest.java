@@ -357,7 +357,6 @@ public class MatrixRequestHandlerTest {
         Assert.assertEquals(2, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.DRIVING_HGV));
         Assert.assertEquals(10, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.CYCLING_REGULAR));
         Assert.assertEquals(12, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.CYCLING_ROAD));
-        Assert.assertEquals(18, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.CYCLING_SAFE));
         Assert.assertEquals(11, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.CYCLING_MOUNTAIN));
         Assert.assertEquals(19, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.CYCLING_TOUR));
         Assert.assertEquals(17, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.CYCLING_ELECTRIC));

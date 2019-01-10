@@ -149,7 +149,6 @@ public class APIEnumsTest {
         Assert.assertEquals(APIEnums.Profile.DRIVING_HGV, APIEnums.Profile.forValue("driving-hgv"));
         Assert.assertEquals(APIEnums.Profile.CYCLING_REGULAR, APIEnums.Profile.forValue("cycling-regular"));
         Assert.assertEquals(APIEnums.Profile.CYCLING_ROAD, APIEnums.Profile.forValue("cycling-road"));
-        Assert.assertEquals(APIEnums.Profile.CYCLING_SAFE, APIEnums.Profile.forValue("cycling-safe"));
         Assert.assertEquals(APIEnums.Profile.CYCLING_MOUNTAIN, APIEnums.Profile.forValue("cycling-mountain"));
         Assert.assertEquals(APIEnums.Profile.CYCLING_TOUR, APIEnums.Profile.forValue("cycling-tour"));
         Assert.assertEquals(APIEnums.Profile.CYCLING_ELECTRIC, APIEnums.Profile.forValue("cycling-electric"));
