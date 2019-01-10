@@ -20,10 +20,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import heigit.ors.api.requests.common.APIEnums;
+import heigit.ors.api.requests.routing.RouteRequestOptions;
+import heigit.ors.exceptions.ParameterValueException;
+import heigit.ors.isochrones.IsochronesErrorCodes;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -41,17 +43,42 @@ public class IsochronesRequest {
     private String id;
     private boolean hasId = false;
 
+    @ApiModelProperty(name = "location", value = "The location to use for the route as an array of longitude/latitude pairs", example = "[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]]")
+    @JsonProperty("location")
+    private Double[][] location;
+
+    @JsonProperty(value = "location_type", defaultValue = "start")
+    private IsochronesRequestEnums.LocationType locationType = IsochronesRequestEnums.LocationType.START;
+
+    @ApiModelProperty(hidden = true, required = true)
+    private APIEnums.Profile profile;
+
+    @ApiModelProperty(name = "options",
+            value = "Additional options for the isochrones request")
+    @JsonProperty("options")
+    private RouteRequestOptions isochronesOptions = new RouteRequestOptions();
+
+
     @ApiModelProperty(hidden = true)
     private APIEnums.RouteResponseType responseType = APIEnums.RouteResponseType.GEOJSON;
 
-    @ApiModelProperty(value = "List with the traveller objects", name = "travellers")
-    private List<IsochronesRequestTraveller> travellers = new ArrayList<>();
+    @ApiModelProperty(name = "range", value = "Maximum range value of the analysis in seconds for time and meters for distance." +
+            "Alternatively a comma separated list of specific single range values if more than one location is set.",
+            example = "[ 300, 200 ]"
+    )
+    @JsonProperty("range")
+    private List<Double> range;
+
+    @ApiModelProperty(name = "range_type",
+            value = "Specifies the isochrones reachability type")
+    @JsonProperty(value = "range_type", defaultValue = "time")
+    private IsochronesRequestEnums.RangeType rangeType = IsochronesRequestEnums.RangeType.TIME;
 
     // unit only valid for range_type distance, will be ignored for range_time time
-    @ApiModelProperty(name = "range_unit",
-            value = "Specifies the distance unit if range_type is set to distance.\n" +
+    @ApiModelProperty(name = "units",
+            value = "Specifies the distance units only if range_type is set to distance.\n" +
                     "Default: m.")
-    @JsonProperty(value = "range_unit", defaultValue = "m")
+    @JsonProperty(value = "units", defaultValue = "m")
     private APIEnums.Units rangeUnit = APIEnums.Units.METRES;
 
     @ApiModelProperty(name = "area_unit",
@@ -74,9 +101,20 @@ public class IsochronesRequest {
     @JsonProperty("attributes")
     private IsochronesRequestEnums.Attributes[] attributes;
 
+    @ApiModelProperty(name = "interval", value = "Interval of isochrones or equidistants for one range value. " +
+            "value in seconds for time and meters for distance.",
+            example = "30"
+    )
+    @JsonProperty("interval")
+    private Double interval;
+
+
     @JsonIgnore
     private boolean hasAttributes = false;
 
+
+    @JsonIgnore
+    private boolean hasIsochronesOptions = false;
 
     @ApiModelProperty(name = "smoothing",
             value = "Applies a level of generalisation to the isochrone polygons generated as a smoothing_factor between 0 and 1.0.\n" +
@@ -87,10 +125,19 @@ public class IsochronesRequest {
                     "The polygon generation algorithm is based on Duckham and al. (2008) \"Efficient generation of simple polygons for characterizing the shape of a set of points in the plane.\"")
     @JsonProperty(value = "smoothing", defaultValue = "false")
     private Double smoothing;
+
+    @JsonIgnore
     private boolean hasSmoothing = false;
 
     @JsonCreator
     public IsochronesRequest() {
+    }
+
+    @JsonCreator
+    public IsochronesRequest(@JsonProperty(value = "location", required = true) Double[][] locations) throws ParameterValueException {
+        if (locations.length != 2)
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "location");
+        this.location = locations;
     }
 
 
@@ -144,14 +191,6 @@ public class IsochronesRequest {
         this.intersections = intersections;
     }
 
-    public List<IsochronesRequestTraveller> getTravellers() {
-        return travellers;
-    }
-
-    public void setTravellers(List<IsochronesRequestTraveller> travellers) {
-        this.travellers = travellers;
-    }
-
     public APIEnums.Units getRangeUnits() {
         return rangeUnit;
     }
@@ -180,7 +219,67 @@ public class IsochronesRequest {
     public void setCalcMethod(IsochronesRequestEnums.CalculationMethod calcMethod) {
         this.calcMethod = calcMethod;
     }
+
+    public Double[][] getLocation() {
+        return location;
+    }
+
+    public void setLocation(Double[][] location) {
+        this.location = location;
+    }
+
+    public IsochronesRequestEnums.LocationType getLocationType() {
+        return locationType;
+    }
+
+    public void setLocationType(IsochronesRequestEnums.LocationType locationType) {
+        this.locationType = locationType;
+    }
+
+    public APIEnums.Profile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(APIEnums.Profile profile) {
+        this.profile = profile;
+    }
+
+    public RouteRequestOptions getIsochronesOptions() {
+        return isochronesOptions;
+    }
+
+    public void setIsochronesOptions(RouteRequestOptions isochronesOptions) {
+        this.isochronesOptions = isochronesOptions;
+        this.hasIsochronesOptions = true;
+    }
+
+    public boolean hasIsochronesOptions() {
+        return this.hasIsochronesOptions;
+    }
+
+    public List<Double> getRange() {
+        return range;
+    }
+
+    public void setRange(List<Double> range) {
+        this.range = range;
+    }
+
+    public IsochronesRequestEnums.RangeType getRangeType() {
+        return rangeType;
+    }
+
+    public void setRangeType(IsochronesRequestEnums.RangeType rangeType) {
+        this.rangeType = rangeType;
+    }
+
+    public Double getInterval() {
+        return interval;
+    }
+
+    public void setInterval(Double interval) {
+        this.interval = interval;
+    }
+
+
 }
-
-
-

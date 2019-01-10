@@ -182,8 +182,8 @@ public class IsochronesRequestHandler extends GenericHandler {
     IsochroneRequest convertIsochroneRequest(IsochronesRequest request) throws Exception {
 
         IsochroneRequest isochroneRequest = new IsochroneRequest();
-        for (IsochronesRequestTraveller traveller : request.getTravellers()) {
-            TravellerInfo travellerInfo = constructTravellerInfo(traveller, request);
+        for (Double[] location : request.getLocation()) {
+            TravellerInfo travellerInfo = constructTravellerInfo(location, request);
             try {
                 isochroneRequest.addTraveller(travellerInfo);
             } catch (Exception ex) {
@@ -204,29 +204,27 @@ public class IsochronesRequestHandler extends GenericHandler {
 
     }
 
-    TravellerInfo constructTravellerInfo(IsochronesRequestTraveller traveller, IsochronesRequest request) throws Exception {
+    TravellerInfo constructTravellerInfo(Double[] coordinate, IsochronesRequest request) throws Exception {
         TravellerInfo travellerInfo = new TravellerInfo();
-        RouteSearchParameters routeSearchParameters = constructRouteSearchParameters(traveller, request);
-        travellerInfo.setRouteSearchParameters(routeSearchParameters);
-        if (traveller.hasId())
-            travellerInfo.setId(traveller.getId());
-        travellerInfo.setRangeType(convertRangeType(traveller.getRangeType()));
 
-        travellerInfo.setLocationType(convertLocationType(traveller.getLocationType()));
-        travellerInfo.setLocation(convertSingleCoordinate(traveller.getLocation()));
+        RouteSearchParameters routeSearchParameters = constructRouteSearchParameters(request);
+        travellerInfo.setRouteSearchParameters(routeSearchParameters);
+        travellerInfo.setRangeType(convertRangeType(request.getRangeType()));
+        travellerInfo.setLocationType(convertLocationType(request.getLocationType()));
+        travellerInfo.setLocation(convertSingleCoordinate(coordinate));
         travellerInfo.getRanges();
         //range + interval
-        List<Double> rangeValues = traveller.getRange();
-        Double intervalValue = traveller.getInterval();
+        List<Double> rangeValues = request.getRange();
+        Double intervalValue = request.getInterval();
         setRangeAndIntervals(travellerInfo, rangeValues, intervalValue);
         return travellerInfo;
     }
 
-    RouteSearchParameters constructRouteSearchParameters(IsochronesRequestTraveller traveller, IsochronesRequest request) throws Exception {
+    RouteSearchParameters constructRouteSearchParameters(IsochronesRequest request) throws Exception {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         int profileType;
         try {
-            profileType = convertRouteProfileType(traveller.getProfile());
+            profileType = convertRouteProfileType(request.getProfile());
         } catch (Exception e) {
             throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "profile");
         }
@@ -235,16 +233,16 @@ public class IsochronesRequestHandler extends GenericHandler {
             throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "profile");
         routeSearchParameters.setProfileType(profileType);
 
-        if (traveller.hasIsochronesOptions()) {
-            routeSearchParameters = processIsochronesRequestOptions(traveller, routeSearchParameters);
+        if (request.hasIsochronesOptions()) {
+            routeSearchParameters = processIsochronesRequestOptions(request, routeSearchParameters);
         }
         routeSearchParameters.setConsiderTraffic(false);
         routeSearchParameters.setConsiderTurnRestrictions(false);
         return routeSearchParameters;
     }
 
-    RouteSearchParameters processIsochronesRequestOptions(IsochronesRequestTraveller traveller, RouteSearchParameters parameters) throws StatusCodeException {
-        RouteRequestOptions options = traveller.getIsochronesOptions();
+    RouteSearchParameters processIsochronesRequestOptions(IsochronesRequest request, RouteSearchParameters parameters) throws StatusCodeException {
+        RouteRequestOptions options = request.getIsochronesOptions();
         parameters = new RouteRequestHandler().processRequestOptions(options, parameters);
         if (options.hasProfileParams())
             parameters.setProfileParams(convertParameters(options, parameters.getProfileType()));
