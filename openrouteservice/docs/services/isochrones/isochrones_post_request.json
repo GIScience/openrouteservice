@@ -5,7 +5,11 @@
   ],
   "range_type": "time",
   "location_type": "start",
-  "options": {},
+  "options": {
+    "avoid_features": [
+      "unpavedroads"
+    ]
+  },
   "id": "4234sa",
   "location": [
     [
@@ -22,7 +26,9 @@
   "calc_method": "default",
   "attributes": [
     "reachfactor",
-    "area"
+    "area",
+    "total_pop"
   ],
-  "units": "m"
+  "units": "m",
+  "area_unit": "km"
 }
