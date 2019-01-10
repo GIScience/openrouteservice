@@ -384,7 +384,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 			// ignore all edges that have been considered in the previous step. We do not want to do this for small
 			// isochrones as the edge may have more than one range on it in that case
-			if (minCost < prevCost & isochronesDifference > 1000)
+			if (minCost < prevCost && isochronesDifference > 1000)
 				continue;
 
 			searchWidth = defaultSearchWidth; 
