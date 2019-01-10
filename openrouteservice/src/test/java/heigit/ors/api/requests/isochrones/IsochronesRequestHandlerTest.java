@@ -6,8 +6,6 @@ import heigit.ors.common.DistanceUnit;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.common.TravellerInfo;
 import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
-import org.geotools.data.DataAccessFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +15,7 @@ import java.util.List;
 
 public class IsochronesRequestHandlerTest {
     IsochronesRequestHandler handler;
-    
+
     @Before
     public void setUp() throws Exception {
         handler = new IsochronesRequestHandler();
@@ -40,7 +38,7 @@ public class IsochronesRequestHandlerTest {
     }
 
     @Test
-    public void convertLocationType() throws ParameterValueException{
+    public void convertLocationType() throws ParameterValueException {
         String locationType = handler.convertLocationType(IsochronesRequestEnums.LocationType.DESTINATION);
         Assert.assertEquals("destination", locationType);
         locationType = handler.convertLocationType(IsochronesRequestEnums.LocationType.START);
@@ -77,19 +75,19 @@ public class IsochronesRequestHandlerTest {
 
     @Test
     public void convertSingleCoordinate() throws ParameterValueException {
-        Coordinate coord = handler.convertSingleCoordinate(new Double[] { 123.4, 321.0});
+        Coordinate coord = handler.convertSingleCoordinate(new Double[]{123.4, 321.0});
         Assert.assertEquals(123.4, coord.x, 0.0001);
         Assert.assertEquals(321.0, coord.y, 0.0001);
     }
 
     @Test(expected = ParameterValueException.class)
     public void convertSingleCoordinateInvalidLengthShort() throws ParameterValueException {
-        handler.convertSingleCoordinate(new Double[] { 123.4 });
+        handler.convertSingleCoordinate(new Double[]{123.4});
     }
 
     @Test(expected = ParameterValueException.class)
     public void convertSingleCoordinateInvalidLengthLong() throws ParameterValueException {
-        handler.convertSingleCoordinate(new Double[] { 123.4, 123.4, 123.4 });
+        handler.convertSingleCoordinate(new Double[]{123.4, 123.4, 123.4});
     }
 
     @Test
@@ -116,7 +114,7 @@ public class IsochronesRequestHandlerTest {
 
     @Test
     public void convertAttributes() {
-        IsochronesRequestEnums.Attributes[] atts = new IsochronesRequestEnums.Attributes[] {IsochronesRequestEnums.Attributes.AREA, IsochronesRequestEnums.Attributes.REACH_FACTOR, IsochronesRequestEnums.Attributes.TOTAL_POPULATION};
+        IsochronesRequestEnums.Attributes[] atts = new IsochronesRequestEnums.Attributes[]{IsochronesRequestEnums.Attributes.AREA, IsochronesRequestEnums.Attributes.REACH_FACTOR, IsochronesRequestEnums.Attributes.TOTAL_POPULATION};
         String[] attStr = handler.convertAttributes(atts);
         Assert.assertEquals("area", attStr[0]);
         Assert.assertEquals("reachfactor", attStr[1]);
