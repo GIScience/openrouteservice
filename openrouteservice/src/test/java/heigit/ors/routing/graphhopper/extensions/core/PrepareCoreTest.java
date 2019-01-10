@@ -138,8 +138,9 @@ public class PrepareCoreTest {
             AllCHEdgesIterator iter = lg.getAllEdges();
             while (iter.next()) {
                 System.out.print(iter.getBaseNode() + " -> " + iter.getAdjNode() + " via edge " + iter.getEdge());
-                if (iter.isShortcut()) System.out.println(" (shortcut)");
-                else System.out.println(" ");
+                if (iter.isShortcut())
+                    System.out.print(" (shortcut)");
+                System.out.println(" [weight: " + iter.getDistance()+ "]");
             }
         }
 
