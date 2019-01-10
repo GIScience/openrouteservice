@@ -23,6 +23,7 @@ import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.api.requests.routing.RouteRequestOptions;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.isochrones.IsochronesErrorCodes;
+import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -135,8 +136,15 @@ public class IsochronesRequest {
 
     @JsonCreator
     public IsochronesRequest(@JsonProperty(value = "location", required = true) Double[][] locations) throws ParameterValueException {
-        if (locations.length != 2)
+        int maximumLocations = IsochronesServiceSettings.getMaximumLocations();
+        if (locations.length > maximumLocations)
+            throw new ParameterValueException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "location");
+        if (locations.length < 1)
             throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "location");
+        for (Double[] location : locations) {
+            if (location.length != 2)
+                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "location");
+        }
         this.location = locations;
     }
 

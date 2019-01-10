@@ -25,12 +25,10 @@ import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.api.requests.isochrones.IsochronesRequest;
 import heigit.ors.api.requests.isochrones.IsochronesRequestHandler;
 import heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects.GeoJSONIsochronesResponse;
-import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.UnknownParameterException;
 import heigit.ors.isochrones.IsochroneMapCollection;
 import heigit.ors.isochrones.IsochronesErrorCodes;
-import heigit.ors.isochrones.IsochroneRequest;
 import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -58,7 +56,6 @@ public class IsochronesAPI {
     })
     public GeoJSONIsochronesResponse getGeoJsonMime(
             @ApiParam(value = "The request payload", required = true) @RequestBody IsochronesRequest request) throws Exception {
-        // TODO: 1. Calcmethod, Options
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 
         IsochronesRequestHandler handler = new IsochronesRequestHandler();
