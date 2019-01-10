@@ -21,6 +21,7 @@ public class IsochronesRequestEnums {
 
         @JsonCreator
         public static Attributes forValue(String v) throws ParameterValueException {
+            v = v.toLowerCase();
             for (Attributes enumItem : Attributes.values()) {
                 if (enumItem.value.equals(v))
                     return enumItem;
