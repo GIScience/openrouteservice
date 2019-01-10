@@ -258,7 +258,6 @@ public class APIEnums {
         CYCLING_REGULAR("cycling-regular"),
         CYCLING_ROAD("cycling-road"),
         CYCLING_MOUNTAIN("cycling-mountain"),
-        CYCLING_TOUR("cycling-tour"),
         CYCLING_ELECTRIC("cycling-electric"),
         FOOT_WALKING("foot-walking"),
         FOOT_HIKING("foot-hiking"),

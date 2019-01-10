@@ -10,8 +10,6 @@ public class APIMatrixRequestProfileConverterTest {
     private APIEnums.Profile cyclingMountain;
     private APIEnums.Profile cyclingRegular;
     private APIEnums.Profile cyclingRoad;
-    private APIEnums.Profile cyclingSafe;
-    private APIEnums.Profile cyclingTour;
     private APIEnums.Profile drivingCar;
     private APIEnums.Profile drivingHgv;
     private APIEnums.Profile footHiking;
@@ -26,7 +24,6 @@ public class APIMatrixRequestProfileConverterTest {
         cyclingMountain = APIEnums.Profile.CYCLING_MOUNTAIN;
         cyclingRegular = APIEnums.Profile.CYCLING_REGULAR;
         cyclingRoad = APIEnums.Profile.CYCLING_ROAD;
-        cyclingTour = APIEnums.Profile.CYCLING_TOUR;
         drivingCar = APIEnums.Profile.DRIVING_CAR;
         drivingHgv = APIEnums.Profile.DRIVING_HGV;
         footHiking = APIEnums.Profile.FOOT_HIKING;
@@ -41,9 +38,7 @@ public class APIMatrixRequestProfileConverterTest {
         Assert.assertEquals(drivingHgv, apiRequestProfileConverter.convert("driving-hgv"));
         Assert.assertEquals(cyclingRegular, apiRequestProfileConverter.convert("cycling-regular"));
         Assert.assertEquals(cyclingRoad, apiRequestProfileConverter.convert("cycling-road"));
-        Assert.assertEquals(cyclingSafe, apiRequestProfileConverter.convert("cycling-safe"));
         Assert.assertEquals(cyclingMountain, apiRequestProfileConverter.convert("cycling-mountain"));
-        Assert.assertEquals(cyclingTour, apiRequestProfileConverter.convert("cycling-tour"));
         Assert.assertEquals(cyclingElectric, apiRequestProfileConverter.convert("cycling-electric"));
         Assert.assertEquals(footWalking, apiRequestProfileConverter.convert("foot-walking"));
         Assert.assertEquals(footHiking, apiRequestProfileConverter.convert("foot-hiking"));
