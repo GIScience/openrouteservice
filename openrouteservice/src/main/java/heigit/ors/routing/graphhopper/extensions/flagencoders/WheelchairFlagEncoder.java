@@ -31,7 +31,7 @@ import static com.graphhopper.routing.util.PriorityCode.*;
 public class WheelchairFlagEncoder extends AbstractFlagEncoder 
 {
 	static final int SLOW_SPEED = 2;
-    static final int MEAN_SPEED = 4;
+    public static final int MEAN_SPEED = 4;
     static final int FERRY_SPEED = 10;
     static final int MAX_SPEED = 15;
     
