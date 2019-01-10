@@ -165,9 +165,7 @@ public class APIEnumsTest {
         Assert.assertEquals("driving-hgv", APIEnums.Profile.DRIVING_HGV.toString());
         Assert.assertEquals("cycling-regular", APIEnums.Profile.CYCLING_REGULAR.toString());
         Assert.assertEquals("cycling-road", APIEnums.Profile.CYCLING_ROAD.toString());
-        Assert.assertEquals("cycling-safe", APIEnums.Profile.CYCLING_SAFE.toString());
         Assert.assertEquals("cycling-mountain", APIEnums.Profile.CYCLING_MOUNTAIN.toString());
-        Assert.assertEquals("cycling-tour", APIEnums.Profile.CYCLING_TOUR.toString());
         Assert.assertEquals("cycling-electric", APIEnums.Profile.CYCLING_ELECTRIC.toString());
         Assert.assertEquals("foot-walking", APIEnums.Profile.FOOT_WALKING.toString());
         Assert.assertEquals("foot-hiking", APIEnums.Profile.FOOT_HIKING.toString());
