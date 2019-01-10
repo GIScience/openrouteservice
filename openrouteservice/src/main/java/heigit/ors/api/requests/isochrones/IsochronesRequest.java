@@ -57,7 +57,7 @@ public class IsochronesRequest {
     @ApiModelProperty(name = "options",
             value = "Additional options for the isochrones request")
     @JsonProperty("options")
-    private RouteRequestOptions isochronesOptions = new RouteRequestOptions();
+    private RouteRequestOptions isochronesOptions;
 
 
     @ApiModelProperty(hidden = true)
@@ -124,7 +124,7 @@ public class IsochronesRequest {
                     "The threshold value is determined as (smoothing_factor * maximum_radius_of_isochrone) / 10.\n" +
                     "Therefore, a value closer to 1 will result in a more generalised shape.\n" +
                     "The polygon generation algorithm is based on Duckham and al. (2008) \"Efficient generation of simple polygons for characterizing the shape of a set of points in the plane.\"")
-    @JsonProperty(value = "smoothing", defaultValue = "false")
+    @JsonProperty(value = "smoothing", defaultValue = "None")
     private Double smoothing;
 
     @JsonIgnore
