@@ -1,7 +1,7 @@
 package heigit.ors.api.requests.isochrones;
 
 import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.services.matrix.MatrixServiceSettings;
+import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +11,7 @@ import static heigit.ors.util.HelperFunctions.fakeArrayLocations;
 public class IsochronesRequestTest {
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
     }
 
     @Test
@@ -50,7 +50,7 @@ public class IsochronesRequestTest {
 
     @Test(expected = ParameterValueException.class)
     public void exceedingLocationMaximumTest() throws ParameterValueException {
-        Double[][] exceedingLocationsMaximumCoords = fakeArrayLocations(MatrixServiceSettings.getMaximumLocations(false) + 1, 2);
+        Double[][] exceedingLocationsMaximumCoords = fakeArrayLocations(IsochronesServiceSettings.getMaximumLocations() + 1, 2);
         new IsochronesRequest(exceedingLocationsMaximumCoords);
     }
 
