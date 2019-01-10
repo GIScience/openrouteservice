@@ -204,7 +204,7 @@ public class IsochronesRequestHandler extends GenericHandler {
 
     }
 
-    TravellerInfo constructTravellerInfo(IsochronesRequestTraveller traveller, IsochronesRequest request) throws StatusCodeException {
+    TravellerInfo constructTravellerInfo(IsochronesRequestTraveller traveller, IsochronesRequest request) throws Exception {
         TravellerInfo travellerInfo = new TravellerInfo();
         RouteSearchParameters routeSearchParameters = constructRouteSearchParameters(traveller, request);
         travellerInfo.setRouteSearchParameters(routeSearchParameters);
@@ -222,7 +222,7 @@ public class IsochronesRequestHandler extends GenericHandler {
         return travellerInfo;
     }
 
-    RouteSearchParameters constructRouteSearchParameters(IsochronesRequestTraveller traveller, IsochronesRequest request) throws StatusCodeException {
+    RouteSearchParameters constructRouteSearchParameters(IsochronesRequestTraveller traveller, IsochronesRequest request) throws Exception {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         int profileType;
         try {
