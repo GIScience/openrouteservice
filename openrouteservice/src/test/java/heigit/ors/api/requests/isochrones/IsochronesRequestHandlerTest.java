@@ -6,6 +6,7 @@ import heigit.ors.common.DistanceUnit;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.common.TravellerInfo;
 import heigit.ors.exceptions.ParameterValueException;
+import heigit.ors.isochrones.IsochroneRequest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +18,7 @@ public class IsochronesRequestHandlerTest {
     IsochronesRequestHandler handler;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         handler = new IsochronesRequestHandler();
     }
 
@@ -127,5 +128,69 @@ public class IsochronesRequestHandlerTest {
         Assert.assertEquals("concaveballs", calcMethod);
         calcMethod = handler.convertCalcMethod(IsochronesRequestEnums.CalculationMethod.GRID);
         Assert.assertEquals("grid", calcMethod);
+    }
+
+    @Test
+    public void convertIsochroneRequest() throws Exception {
+        IsochronesRequest request = new IsochronesRequest();
+        Double[][] locations = {{9.676034, 50.409675}, {9.676034, 50.409675}};
+        Coordinate coord0 = new Coordinate();
+        coord0.x = 9.676034;
+        coord0.y = 50.409675;
+
+        request.setLocation(locations);
+        request.setProfile(APIEnums.Profile.DRIVING_CAR);
+        List<Double> range = new ArrayList<>();
+        range.add(300.0);
+        range.add(600.0);
+        request.setRange(range);
+        IsochroneRequest isochroneRequest = handler.convertIsochroneRequest(request);
+        Assert.assertNotNull(isochroneRequest);
+        Coordinate[] coords = isochroneRequest.getLocations();
+        Assert.assertEquals(IsochronesRequestEnums.CalculationMethod.CONCAVE_BALLS, IsochronesRequestEnums.CalculationMethod.forValue(isochroneRequest.getCalcMethod()));
+        Assert.assertFalse(isochroneRequest.getIncludeIntersections());
+        Assert.assertNull(request.getAttributes());
+        Assert.assertFalse(request.hasSmoothing());
+        Assert.assertNull(request.getSmoothing());
+        Assert.assertNull(request.getId());
+        Assert.assertEquals(coord0.x, isochroneRequest.getLocations()[0].x, 0);
+        Assert.assertEquals(coord0.y, isochroneRequest.getLocations()[0].y, 0);
+        Assert.assertEquals(coord0.x, isochroneRequest.getLocations()[1].x, 0);
+        Assert.assertEquals(coord0.y, isochroneRequest.getLocations()[1].y, 0);
+        Assert.assertEquals(2, isochroneRequest.getTravellers().size());
+        for (int i = 0; i < isochroneRequest.getTravellers().size(); i++) {
+            TravellerInfo travellerInfo = isochroneRequest.getTravellers().get(i);
+            Assert.assertEquals(String.valueOf(i), travellerInfo.getId());
+            Assert.assertEquals(coord0, travellerInfo.getLocation());
+            Assert.assertEquals(IsochronesRequestEnums.LocationType.START.toString(), travellerInfo.getLocationType());
+            Assert.assertNotNull(travellerInfo.getRanges());
+            Assert.assertEquals(TravelRangeType.Time, travellerInfo.getRangeType());
+            Assert.assertNotNull(travellerInfo.getRouteSearchParameters());
+        }
+
+    }
+
+    @Test
+    public void constructTravellerInfo() {
+    }
+
+    @Test
+    public void constructRouteSearchParameters() {
+    }
+
+    @Test
+    public void processIsochronesRequestOptions() {
+    }
+
+    @Test
+    public void validateAgainstConfig() {
+    }
+
+    @Test
+    public void getIsoMaps() {
+    }
+
+    @Test
+    public void getIsochroneRequest() {
     }
 }

@@ -46,7 +46,7 @@ public class IsochronesRequest {
 
     @ApiModelProperty(name = "location", value = "The location to use for the route as an array of longitude/latitude pairs", example = "[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]]")
     @JsonProperty("location")
-    private Double[][] location;
+    private Double[][] location = new Double[][]{};
 
     @JsonProperty(value = "location_type", defaultValue = "start")
     private IsochronesRequestEnums.LocationType locationType = IsochronesRequestEnums.LocationType.START;

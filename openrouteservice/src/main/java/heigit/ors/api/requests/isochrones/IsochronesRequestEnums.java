@@ -94,7 +94,10 @@ public class IsochronesRequestEnums {
         CONCAVE_BALLS("concaveballs");
 
         private final String value;
-        CalculationMethod(String value) { this.value = value; }
+
+        CalculationMethod(String value) {
+            this.value = value;
+        }
 
         @JsonCreator
         public static CalculationMethod forValue(String v) throws ParameterValueException {

@@ -186,7 +186,7 @@ public class IsochronesRequestTest {
     @Test
     public void getLocationTest() {
         IsochronesRequest request = new IsochronesRequest();
-        Assert.assertNull(request.getLocation());
+        Assert.assertEquals(Double[][].class, request.getLocation().getClass());
     }
 
     @Test
@@ -295,11 +295,20 @@ public class IsochronesRequestTest {
         new IsochronesRequest(exceedingLocationsMaximumCoords);
     }
 
-
     @Test(expected = ParameterValueException.class)
     public void tooLargeLocationTest() throws ParameterValueException {
         Double[][] exceedingLocationsMaximumCoords = {{1.0, 3.0, 4.0}, {1.0, 3.0}};
         new IsochronesRequest(exceedingLocationsMaximumCoords);
     }
 
+    @Test
+    public void detailedOptionsTest() {
+        IsochronesRequest request = new IsochronesRequest();
+        Assert.assertFalse(request.hasIsochronesOptions());
+        RouteRequestOptions opts = new RouteRequestOptions();
+        opts.setMaximumSpeed(120.0);
+        request.setIsochronesOptions(opts);
+        Assert.assertTrue(request.hasIsochronesOptions());
+        Assert.assertEquals(120.0, request.getIsochronesOptions().getMaximumSpeed(), 0.0);
+    }
 }
