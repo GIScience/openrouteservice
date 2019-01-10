@@ -37,7 +37,7 @@ public class JSONBasedIndividualRouteResponse extends IndividualRouteResponse {
 
     public JSONBasedIndividualRouteResponse(RouteResult result, RouteRequest request) throws StatusCodeException {
         super(result, request);
-        if(request.hasReturnElevationForPoints() && request.getUseElevation())
+        if(request.hasUseElevation() && request.getUseElevation())
             includeElevation = true;
 
         bbox = BoundingBoxFactory.constructBoundingBox(result.getSummary().getBBox(), request);

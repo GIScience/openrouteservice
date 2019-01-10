@@ -25,7 +25,6 @@ import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import heigit.ors.routing.ProfileWeighting;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.deprecated.exghoverwrite.ExGhORSFootFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.weighting.*;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
 
@@ -162,7 +161,7 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
 	}
 
 	private boolean isFootBasedFlagEncoder(FlagEncoder encoder){
-		return encoder instanceof ExGhORSFootFlagEncoder || encoder instanceof FootFlagEncoder;
+		return encoder instanceof FootFlagEncoder;
 	}
 
 	private PMap getWeightingProps(String weightingName, Map<String, String> map)

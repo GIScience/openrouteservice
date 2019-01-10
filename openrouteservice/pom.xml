@@ -381,11 +381,11 @@
         <artifactId>spring-boot-starter-web</artifactId>
         <version>1.5.15.RELEASE</version>
         <exclusions>
-          <exclusion>
-              <groupId>org.springframework.boot</groupId>
-              <artifactId>spring-boot-starter-logging</artifactId>
-          </exclusion>
-      </exclusions>
+        <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+        </exclusion>
+    </exclusions>
     </dependency>
     <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -410,6 +410,16 @@
         <version>2.9.2</version>
         <scope>compile</scope>
     </dependency>
+    <!--<dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
+        <version>LATEST</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+        <version>LATEST</version>
+    </dependency>-->
 
 
     <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->

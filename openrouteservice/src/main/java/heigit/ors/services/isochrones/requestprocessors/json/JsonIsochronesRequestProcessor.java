@@ -14,6 +14,7 @@
 package heigit.ors.services.isochrones.requestprocessors.json;
 
 import com.graphhopper.util.Helper;
+import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
@@ -99,7 +100,6 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
                 IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams);
                 isoMaps.add(isochroneMap);
             }
-
             writeResponse(response, req, isoMaps);
         }
     }
@@ -112,10 +112,8 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
         JSONArray jFeatures = new JSONArray(isochroneMaps.getIsochronesCount());
         jResp.put("features", jFeatures);
 
-        double minX = Double.MAX_VALUE;
-        double minY = Double.MAX_VALUE;
-        double maxX = Double.MIN_VALUE;
-        double maxY = Double.MIN_VALUE;
+        BBox bbox = new BBox(0, 0, 0, 0);
+
 
         TravellerInfo traveller = null;
         int groupIndex = 0;
@@ -195,14 +193,8 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
                 jFeatures.put(jFeature);
 
                 Envelope env = shell.getEnvelopeInternal();
-                if (minX > env.getMinX())
-                    minX = env.getMinX();
-                if (minY > env.getMinY())
-                    minY = env.getMinY();
-                if (maxX < env.getMaxX())
-                    maxX = env.getMaxX();
-                if (maxY < env.getMaxY())
-                    maxY = env.getMaxY();
+                bbox = constructIsochroneBBox(env);
+
             }
 
             groupIndex++;
@@ -244,7 +236,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
             }
         }
 
-        jResp.put("bbox", GeometryJSON.toJSON(minX, minY, maxX, maxY));
+        jResp.put("bbox", GeometryJSON.toJSON(bbox.minLon, bbox.minLat, bbox.maxLon, bbox.maxLat));
 
         traveller = request.getTravellers().get(0);
 
@@ -295,5 +287,19 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
         jResp.put("info", jInfo);
 
         ServletUtility.write(response, jResp);
+    }
+    public static BBox constructIsochroneBBox(Envelope env){
+        BBox bbox = new BBox(0,0,0,0);
+        if (Double.isFinite(env.getMinX()))
+            bbox.minLon = env.getMinX();
+        if (Double.isFinite(env.getMinY()))
+            bbox.minLat = env.getMinY();
+        if (Double.isFinite(env.getMaxX()))
+            bbox.maxLon = env.getMaxX();
+        if (Double.isFinite(env.getMaxY()))
+            bbox.maxLat = env.getMaxY();
+        if (!bbox.isValid())
+            bbox = new BBox(0, 0, 0, 0);
+        return bbox;
     }
 }

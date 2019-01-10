@@ -58,7 +58,7 @@ public class JSONSegment {
         this.distance = routeSegment.getDistance();
         this.duration = routeSegment.getDuration();
         this.detourFactor = routeSegment.getDetourFactor();
-        if(request.hasReturnElevationForPoints() && request.getUseElevation()) {
+        if(request.hasUseElevation() && request.getUseElevation()) {
             this.ascent = routeSegment.getAscent();
             this.descent = routeSegment.getDescent();
         }

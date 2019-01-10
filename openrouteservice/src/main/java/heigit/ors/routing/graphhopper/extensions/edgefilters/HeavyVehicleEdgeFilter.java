@@ -104,7 +104,7 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 		this.indexLocs = indexLocs;
 
 		this.vehicleType = vehicleType;
-		this.buffer = new byte[10];
+		this.buffer = new byte[2];
 
 		this.gsHeavyVehicles = GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class);
 	}
@@ -249,13 +249,13 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 
 		if (restCount != 0) {
 			if (restCount == 1) {
-				double value = gsHeavyVehicles.getEdgeRestrictionValue(edgeId, indexValues[0], buffer);
+				double value = gsHeavyVehicles.getEdgeRestrictionValue(edgeId, indexValues[0]);
 				if (value > 0 && value < restrictionValues[indexLocs[0]])
 					return false;
 				else
 					return true;
 			} else {
-				if (gsHeavyVehicles.getEdgeRestrictionValues(edgeId, buffer, retValues))
+				if (gsHeavyVehicles.getEdgeRestrictionValues(edgeId, retValues))
 				{
 					for(int i=0; i<restCount; i++) {
 						double value = retValues[indexLocs[i]];

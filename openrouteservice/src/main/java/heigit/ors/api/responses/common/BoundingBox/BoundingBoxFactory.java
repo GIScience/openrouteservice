@@ -29,7 +29,7 @@ public class BoundingBoxFactory {
         switch(request.getResponseType()) {
             case GEOJSON:
             case JSON:
-                if(request.hasReturnElevationForPoints() && request.getUseElevation())
+                if(request.hasUseElevation() && request.getUseElevation())
                     return new JSON3DBoundingBox(bounds);
                 return new JSONBoundingBox(bounds);
             case GPX:

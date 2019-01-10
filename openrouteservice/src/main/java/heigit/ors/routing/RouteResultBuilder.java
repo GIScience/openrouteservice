@@ -30,6 +30,7 @@ import heigit.ors.common.CardinalDirection;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.localization.LocalizationManager;
+import heigit.ors.routing.graphhopper.extensions.storages.WarningGraphExtension;
 import heigit.ors.routing.instructions.InstructionTranslator;
 import heigit.ors.routing.instructions.InstructionTranslatorsCache;
 import heigit.ors.routing.instructions.InstructionType;
@@ -91,8 +92,22 @@ public class RouteResultBuilder
 			routeWayPoints[0] = 0;
 		}
 
-		if (extras != null)
-			result.addExtraInfo(extras);
+		if (extras != null) {
+			// only add the extras we requested unless a "warning" has been generated
+			for(RouteExtraInfo extra : extras) {
+				if(RouteExtraInfoFlag.isSet(request.getExtraInfo(), RouteExtraInfoFlag.getFromString(extra.getName()))) {
+					result.addExtraInfo(extra);
+				} else {
+					if (extra.isUsedForWarnings() && extra.getWarningGraphExtension() instanceof WarningGraphExtension) {
+						WarningGraphExtension warningExtension = extra.getWarningGraphExtension();
+						if(warningExtension.generatesWarning(extra)) {
+							result.addWarning(warningExtension.getWarning());
+							result.addExtraInfo(extra);
+						}
+					}
+				}
+			}
+		}
 
 		for (int ri = 0; ri < nRoutes; ++ri)
 		{

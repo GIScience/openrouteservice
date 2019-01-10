@@ -77,7 +77,8 @@ public class APIEnums {
         WAY_TYPE("waytype"),
         TOLLWAYS("tollways"),
         TRAIL_DIFFICULTY("traildifficulty"),
-        OSM_ID("osmid");
+        OSM_ID("osmid"),
+        ROAD_ACCESS_RESTRICTIONS("roadaccessrestrictions");
 
         private final String value;
 
