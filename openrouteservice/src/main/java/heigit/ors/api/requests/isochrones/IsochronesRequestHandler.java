@@ -180,10 +180,12 @@ public class IsochronesRequestHandler extends GenericHandler {
     }
 
     IsochroneRequest convertIsochroneRequest(IsochronesRequest request) throws Exception {
-
         IsochroneRequest isochroneRequest = new IsochroneRequest();
-        for (Double[] location : request.getLocation()) {
+        Double[][] locations = request.getLocation();
+        for (int i = 0; i < request.getLocation().length; i++) {
+            Double[] location = locations[i];
             TravellerInfo travellerInfo = constructTravellerInfo(location, request);
+            travellerInfo.setId(Integer.toString(i));
             try {
                 isochroneRequest.addTraveller(travellerInfo);
             } catch (Exception ex) {
