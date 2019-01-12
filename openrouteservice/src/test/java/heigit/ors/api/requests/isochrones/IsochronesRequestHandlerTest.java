@@ -10,7 +10,6 @@ import heigit.ors.api.requests.routing.RouteRequestOptions;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.common.TravellerInfo;
-import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.isochrones.IsochroneRequest;
 import heigit.ors.routing.*;
@@ -55,6 +54,7 @@ public class IsochronesRequestHandlerTest {
 
     @Before
     public void init() throws Exception {
+        handler = new IsochronesRequestHandler();
         geoJsonPolygon = constructGeoJson();
 
         Double[][] coords = new Double[2][2];
@@ -349,8 +349,8 @@ public class IsochronesRequestHandlerTest {
         Assert.assertNull(isochronesRequestHandler.getIsoMaps());
     }
 
-    @Test(expected = InternalServerException.class)
-    public void getIsochroneRequestTest() throws Exception {
+    @Test
+    public void getIsochroneRequestTest() {
         IsochronesRequestHandler isochronesRequestHandler = new IsochronesRequestHandler();
         Assert.assertNull(isochronesRequestHandler.getIsochroneRequest());
     }
