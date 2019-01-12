@@ -18,10 +18,8 @@ package heigit.ors.api.requests.common;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-import heigit.ors.api.requests.isochrones.IsochronesRequestTraveller;
 import heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
-import heigit.ors.api.requests.routing.RouteRequest;
 import heigit.ors.api.requests.routing.RouteRequestOptions;
 import heigit.ors.exceptions.IncompatableParameterException;
 import heigit.ors.exceptions.ParameterValueException;
@@ -151,7 +149,7 @@ public class GenericHandler {
         return flags;
     }
 
-    protected  ProfileParameters convertParameters(RouteRequestOptions options, int profileType) throws StatusCodeException {
+    protected ProfileParameters convertParameters(RouteRequestOptions options, int profileType) throws StatusCodeException {
         ProfileParameters params = new ProfileParameters();
         if (options.getProfileParams().hasRestrictions()) {
 
