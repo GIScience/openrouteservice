@@ -216,6 +216,9 @@ public class IsochronesRequestHandler extends GenericHandler {
         travellerInfo.setLocation(convertSingleCoordinate(coordinate));
         travellerInfo.getRanges();
         //range + interval
+        if (request.getRange() == null) {
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "range");
+        }
         List<Double> rangeValues = request.getRange();
         Double intervalValue = request.getInterval();
         setRangeAndIntervals(travellerInfo, rangeValues, intervalValue);
