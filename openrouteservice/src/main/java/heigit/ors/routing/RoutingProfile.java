@@ -61,7 +61,10 @@ import heigit.ors.routing.traffic.TrafficEdgeAnnotator;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.services.matrix.MatrixServiceSettings;
 import heigit.ors.services.optimization.OptimizationServiceSettings;
-import heigit.ors.util.*;
+import heigit.ors.util.DebugUtility;
+import heigit.ors.util.RuntimeUtility;
+import heigit.ors.util.StringUtility;
+import heigit.ors.util.TimeUtility;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
@@ -140,7 +143,7 @@ public class RoutingProfile {
 
         GraphProcessContext gpc = new GraphProcessContext(config);
 
-        ORSGraphHopper gh = (ORSGraphHopper) new ORSGraphHopper(gpc, config.getUseTrafficInformation(), refProfile);
+        ORSGraphHopper gh = new ORSGraphHopper(gpc, config.getUseTrafficInformation(), refProfile);
 
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
@@ -434,110 +437,8 @@ public class RoutingProfile {
         }
     }
 
-    /**
-     * This function creates the actual {@link IsochroneMap}.
-     * So the first step in the function is a checkup on that.
-     *
-     * @param parameters The input are {@link IsochroneSearchParameters}
-     * @param attributes The input are a {@link String}[] holding the attributes if set
-     * @return The return will be an {@link IsochroneMap}
-     * @throws Exception
-     */
-    public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters) throws Exception {
-
-        IsochroneMap result = null;
-        waitForUpdateCompletion();
-
-        beginUseGH();
-
-        try {
-            RouteSearchContext searchCntx = createSearchContext(parameters.getRouteParameters(), RouteSearchMode.Isochrones, null);
-
-            IsochroneMapBuilderFactory isochroneMapBuilderFactory = new IsochroneMapBuilderFactory(searchCntx);
-            result = isochroneMapBuilderFactory.buildMap(parameters);
-
-            endUseGH();
-        } catch (Exception ex) {
-            endUseGH();
-
-            LOGGER.error(ex);
-
-            throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to build an isochrone map.");
-        }
-
-        String[] attributes = parameters.getAttributes();
-
-        if (result.getIsochronesCount() > 0) {
-
-            if (parameters.hasAttribute("total_pop")) {
-
-                try {
-
-                    Map<StatisticsProviderConfiguration, List<String>> mapProviderToAttrs = new HashMap<StatisticsProviderConfiguration, List<String>>();
-
-                    StatisticsProviderConfiguration provConfig = IsochronesServiceSettings.getStatsProviders().get("total_pop");
-
-                    if (provConfig != null) {
-                        if (mapProviderToAttrs.containsKey(provConfig)) {
-                            List<String> attrList = mapProviderToAttrs.get(provConfig);
-                            attrList.add("total_pop");
-                        } else {
-                            List<String> attrList = new ArrayList<String>();
-                            attrList.add("total_pop");
-                            mapProviderToAttrs.put(provConfig, attrList);
-                        }
-                    }
-
-                    for (Map.Entry<StatisticsProviderConfiguration, List<String>> entry : mapProviderToAttrs.entrySet()) {
-                        provConfig = entry.getKey();
-                        StatisticsProvider provider = StatisticsProviderFactory.getProvider(provConfig.getName(), provConfig.getParameters());
-                        String[] provAttrs = provConfig.getMappedProperties(entry.getValue());
-
-                        for (Isochrone isochrone : result.getIsochrones()) {
-
-                            double[] attrValues = provider.getStatistics(isochrone, provAttrs);
-                            isochrone.setAttributes(entry.getValue(), attrValues, provConfig.getAttribution());
-
-                        }
-                    }
-                } catch (Exception ex) {
-                    LOGGER.error(ex);
-
-                    throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to compute isochrone attributes.");
-                }
-            }
-
-            if (parameters.hasAttribute("reachfactor") || parameters.hasAttribute("area")) {
-
-                for (Isochrone isochrone : result.getIsochrones()) {
-
-                    String units = parameters.getUnits();
-                    String area_units = parameters.getAreaUnits();
-
-                    if (area_units != null) units = area_units;
-
-                    double area = isochrone.calcArea(units);
-
-                    if (parameters.hasAttribute("area")) {
-
-                        isochrone.setArea(area);
-
-                    }
-
-                    if (parameters.hasAttribute("reachfactor") && parameters.getRangeType() == TravelRangeType.Time) {
-
-                        double reachfactor = isochrone.calcReachfactor(units);
-                        isochrone.setReachfactor(reachfactor);
-
-                    }
-
-                }
-
-            }
-
-        }
-
-        return result;
+    private static boolean supportWeightingMethod(int profileType) {
+        return RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType) || profileType == RoutingProfileType.WHEELCHAIR;
     }
 
     public MatrixResult computeMatrix(MatrixRequest req) throws Exception {
@@ -964,12 +865,110 @@ public class RoutingProfile {
         return dynamicWeights;
     }
 
-    private static boolean supportWeightingMethod(int profileType) {
-        if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType) || profileType == RoutingProfileType.WHEELCHAIR) {
-            return true;
-        }else {
-            return false;
+    /**
+     * This function creates the actual {@link IsochroneMap}.
+     * So the first step in the function is a checkup on that.
+     *
+     * @param parameters The input are {@link IsochroneSearchParameters}
+     * @param attributes The input are a {@link String}[] holding the attributes if set
+     * @return The return will be an {@link IsochroneMap}
+     * @throws Exception
+     */
+    public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters) throws Exception {
+
+        IsochroneMap result = null;
+        waitForUpdateCompletion();
+
+        beginUseGH();
+
+        try {
+            RouteSearchContext searchCntx = createSearchContext(parameters.getRouteParameters(), RouteSearchMode.Isochrones, null);
+
+            IsochroneMapBuilderFactory isochroneMapBuilderFactory = new IsochroneMapBuilderFactory(searchCntx);
+            result = isochroneMapBuilderFactory.buildMap(parameters);
+
+            endUseGH();
+        } catch (Exception ex) {
+            endUseGH();
+
+            LOGGER.error(ex);
+
+            throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to build an isochrone map.");
         }
+
+        String[] attributes = parameters.getAttributes();
+
+        if (result.getIsochronesCount() > 0) {
+
+            if (parameters.hasAttribute("total_pop")) {
+
+                try {
+
+                    Map<StatisticsProviderConfiguration, List<String>> mapProviderToAttrs = new HashMap<StatisticsProviderConfiguration, List<String>>();
+
+                    StatisticsProviderConfiguration provConfig = IsochronesServiceSettings.getStatsProviders().get("total_pop");
+
+                    if (provConfig != null) {
+                        if (mapProviderToAttrs.containsKey(provConfig)) {
+                            List<String> attrList = mapProviderToAttrs.get(provConfig);
+                            attrList.add("total_pop");
+                        } else {
+                            List<String> attrList = new ArrayList<String>();
+                            attrList.add("total_pop");
+                            mapProviderToAttrs.put(provConfig, attrList);
+                        }
+                    }
+
+                    for (Map.Entry<StatisticsProviderConfiguration, List<String>> entry : mapProviderToAttrs.entrySet()) {
+                        provConfig = entry.getKey();
+                        StatisticsProvider provider = StatisticsProviderFactory.getProvider(provConfig.getName(), provConfig.getParameters());
+                        String[] provAttrs = provConfig.getMappedProperties(entry.getValue());
+
+                        for (Isochrone isochrone : result.getIsochrones()) {
+
+                            double[] attrValues = provider.getStatistics(isochrone, provAttrs);
+                            isochrone.setAttributes(entry.getValue(), attrValues, provConfig.getAttribution());
+
+                        }
+                    }
+                } catch (Exception ex) {
+                    LOGGER.error(ex);
+
+                    throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to compute isochrone total_pop attribute.");
+                }
+            }
+
+            if (parameters.hasAttribute("reachfactor") || parameters.hasAttribute("area")) {
+
+                for (Isochrone isochrone : result.getIsochrones()) {
+
+                    String units = parameters.getUnits();
+                    String area_units = parameters.getAreaUnits();
+
+                    if (area_units != null) units = area_units;
+
+                    double area = isochrone.calcArea(units);
+
+                    if (parameters.hasAttribute("area")) {
+
+                        isochrone.setArea(area);
+
+                    }
+
+                    if (parameters.hasAttribute("reachfactor") && parameters.getRangeType() == TravelRangeType.Time) {
+
+                        double reachfactor = isochrone.calcReachfactor(units);
+                        isochrone.setReachfactor(reachfactor);
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        return result;
     }
 
     public Geometry getEdgeGeometry(int edgeId) {
