@@ -1201,6 +1201,35 @@ http://localhost:8080/ors/routes?
                 .body("routes[0].summary.distance", is(3172.3f))
                 .statusCode(200);
 
+        // Test avoid_countries with ISO 3166-1 Alpha-2 parameters
+        given()
+                .param("coordinates", "8.684682,49.401961|8.690518,49.405326")
+                .param("instructions", "false")
+                .param("preference", "shortest")
+                .param("profile", getParameter("carProfile"))
+                .param("options", "{\"avoid_countries\":\"AT|FR\"}")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(3172.3f))
+                .statusCode(200);
+
+        // Test avoid_countries with ISO 3166-1 Alpha-3 parameters
+        given()
+                .param("coordinates", "8.684682,49.401961|8.690518,49.405326")
+                .param("instructions", "false")
+                .param("preference", "shortest")
+                .param("profile", getParameter("carProfile"))
+                .param("options", "{\"avoid_countries\":\"AUT|FRA\"}")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(3172.3f))
+                .statusCode(200);
 	}
 
 	@Test

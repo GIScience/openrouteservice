@@ -50,8 +50,11 @@ public class CountryBordersReader {
 
     private HashMap<String, CountryInfo> ids = new HashMap<>();
     private HashMap<String, ArrayList<String>> openBorders = new HashMap<>();
+    private HashMap<String, Integer> isoCodes = new HashMap<>();
 
     private HashMap<Long, CountryBordersHierarchy> hierarchies = new HashMap<>();
+
+    private static CountryBordersReader currentInstance = null;
 
     /**
      * Empty constructor which does not read any data - the user must explicitly pass information
@@ -62,6 +65,8 @@ public class CountryBordersReader {
         HIERARCHY_ID_FIELD = "hierarchy";
         IDS_PATH = "";
         OPEN_PATH = "";
+
+        currentInstance = this;
     }
 
     /**
@@ -95,17 +100,22 @@ public class CountryBordersReader {
             LOGGER.error("Could not access file(s) required for border crossing analysis");
             throw ioe;
         }
+        currentInstance = this;
     }
 
+    // for test mocks
     public void addHierarchy(Long id, CountryBordersHierarchy hierarchy) {
         if(!hierarchies.containsKey(id)) {
             hierarchies.put(id, hierarchy);
         }
     }
 
-    public void addId(String id, String localName, String englishName) {
+    // for test mocks
+    public void addId(String id, String localName, String englishName, String cca2, String cca3) {
         if(!ids.containsKey(localName)) {
             ids.put(localName, new CountryInfo(id, localName, englishName));
+            isoCodes.put(cca2.trim().toUpperCase(), Integer.parseInt(id));
+            isoCodes.put(cca3.trim().toUpperCase(), Integer.parseInt(id));
         }
     }
 
@@ -367,17 +377,64 @@ public class CountryBordersReader {
     }
 
     /**
+     * Get country ID by ISO 3166-1 Alpha-2 / Alpha-3 code. Static method that uses the last created instance of
+     * this class. (Usually there should be only one instance for each server instance, and even if not, the
+     * borders data used should be the same)
+     *
+     * @param code      The code to look up
+     * @return          The ID of the country or 0 if not found
+     */
+    public static int getCountryIdByISOCode(String code) {
+        return currentInstance != null ? currentInstance.isoCodes.getOrDefault(code.toUpperCase(), 0) : 0;
+    }
+
+    /**
      * Read information from the id csv. This includes a unique identifier, the local name of the country and the
-     * English name of the country.
+     * English name of the country. Optionally reads ISO codes from column 4 and 5 (expecting them to contain the
+     * Alpha-2 and Alpha-3 codes respectively) for the getCountryIdByISOCode method.
      */
     private void readIds() {
         // First read the csv file
         ArrayList<ArrayList<String>> data = CSVUtility.readFile(IDS_PATH);
 
         // Loop through and store in the hashmap
+        int countries = 0;
+        int isoCCA2 = 0;
+        int isoCCA3 = 0;
         for(ArrayList<String> col : data) {
-            if(col.size() == 3) {
+            if(col.size() >= 3) {
                 ids.put(col.get(1), new CountryInfo(col.get(0), col.get(1), col.get(2)));
+                countries++;
+            }
+            int intID = 0;
+            try {
+                intID = Integer.parseInt(col.get(0));
+            } catch (NumberFormatException e) {
+                LOGGER.error("Invalid country ID " + col.get(0));
+                continue;
+            }
+            if(col.size() >= 4 && !col.get(3).trim().isEmpty()) {
+                isoCodes.put(col.get(3).trim().toUpperCase(), intID);
+                isoCCA2++;
+            }
+            if(col.size() == 5 && !col.get(4).trim().isEmpty()) {
+                isoCodes.put(col.get(4).trim().toUpperCase(), intID);
+                isoCCA3++;
+            }
+        }
+        LOGGER.info(countries + " country IDs read");
+        if (isoCCA2 > 0) {
+            if (isoCCA2 < countries) {
+                LOGGER.warn((countries - isoCCA2)+ " countries have no ISO 3166-1 CCA2 code assigned.");
+            } else {
+                LOGGER.info("ISO 3166-1 CCA2 codes enabled for all countries");
+            }
+        }
+        if (isoCCA3 > 0) {
+            if (isoCCA3 < countries) {
+                LOGGER.warn((countries - isoCCA3)+ " countries have no ISO 3166-1 CCA3 code assigned.");
+            } else {
+                LOGGER.info("ISO 3166-1 CCA3 codes enabled for all countries");
             }
         }
     }
