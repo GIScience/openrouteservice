@@ -201,8 +201,28 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
     public boolean matchesFilter(PMap pmap){
         //Returns true if the landmarkset is for the avoidables.
         //Also returns true if the query has no avoidables and the set has no avoidables
-            if(landmarksFilter.isFilter(pmap))
+            if(landmarksFilter.isFilter(pmap)){
+//                printLandmarksLongLat();
                 return true;
+            }
             return false;
     }
+
+    /**
+     * This method is for debugging
+     */
+
+    public void printLandmarksLongLat(){
+        int[] currentSubnetwork;
+        System.out.println("CoreLM");
+        for(int subnetworkId = 1; subnetworkId < lms.getSubnetworksWithLandmarks(); subnetworkId++){
+            System.out.println("Subnetwork " + subnetworkId);
+            currentSubnetwork = lms.getLandmarks(subnetworkId);
+            for(int landmark : currentSubnetwork){
+                System.out.println("[" + graph.getNodeAccess().getLon(landmark)
+                    + ", " + graph.getNodeAccess().getLat(landmark) + "],");
+            }
+        }
+    }
+
 }

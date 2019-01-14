@@ -32,6 +32,7 @@ import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.util.spatialrules.SpatialRule;
 import com.graphhopper.routing.util.spatialrules.SpatialRuleLookup;
 import com.graphhopper.routing.weighting.AbstractWeighting;
+import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
@@ -86,6 +87,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
     private SpatialRuleLookup ruleLookup;
     private boolean logDetails = false;
     private LMEdgeFilterSequence landmarksFilter;
+    private int count = 0;
 
     public static HashMap<Integer, Integer> coreNodeIdMap;
     /**
@@ -100,20 +102,21 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         this.minimumNodes = Math.min(core.getCoreNodes() / 2, 500_000);
         this.encoder = weighting.getFlagEncoder();
         this.landmarksFilter = landmarksFilter;
+//        this.lmWeighting = weighting;
 
-        this.lmWeighting = new ShortestWeighting(encoder) {
+        this.lmWeighting = new FastestWeighting(encoder) {
             @Override
             public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId) {
                 // make accessibility of shortest identical to the provided weighting to avoid problems like shown in testWeightingConsistence
                 CHEdgeIteratorState tmp = (CHEdgeIteratorState) edge;
+                double res;
                 if (tmp.isShortcut())
                     // if a shortcut is in both directions the weight is identical => no need for 'reverse'
-                    return tmp.getWeight();
-                double res = weighting.calcWeight(edge, reverse, prevOrNextEdgeId);
+                    res = tmp.getWeight();
+                else res = weighting.calcWeight(edge, reverse, prevOrNextEdgeId);
                 if (res >= Double.MAX_VALUE)
                     return Double.POSITIVE_INFINITY;
 
-                // returning the time or distance leads to strange landmark positions (ferries -> slow&very long) and BFS is more what we want
                 return res;
             }
 
@@ -131,10 +134,19 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId) {
                 // make accessibility of shortest identical to the provided weighting to avoid problems like shown in testWeightingConsistence
                 CHEdgeIteratorState tmp = (CHEdgeIteratorState) edge;
-                if (tmp.isShortcut())
-                    // if a shortcut is in both directions the weight is identical => no need for 'reverse'
-                    return tmp.getWeight();
-                double res = weighting.calcWeight(edge, reverse, prevOrNextEdgeId);
+                double res;
+                if (tmp.isShortcut()) {
+                    count = 0;
+                    res = tmp.getWeight();
+
+                    if (res >= Double.MAX_VALUE)
+                        return Double.POSITIVE_INFINITY;
+
+                    expandEdge(tmp, false);
+
+                    return count;
+                }
+                else res = weighting.calcWeight(edge, reverse, prevOrNextEdgeId);
                 if (res >= Double.MAX_VALUE)
                     return Double.POSITIVE_INFINITY;
 
@@ -162,6 +174,36 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         this.landmarkIDs = new ArrayList<>();
         this.subnetworkStorage = new SubnetworkStorage(dir, "landmarks_core_" + name);
     }
+
+    private void expandEdge(CHEdgeIteratorState mainEdgeState, boolean reverse) {
+        if (!mainEdgeState.isShortcut()) {
+            count += 1;
+            return;
+        }
+
+        int skippedEdge1 = mainEdgeState.getSkippedEdge1();
+        int skippedEdge2 = mainEdgeState.getSkippedEdge2();
+        int from = mainEdgeState.getBaseNode(), to = mainEdgeState.getAdjNode();
+
+
+
+            CHEdgeIteratorState iter = core.getEdgeIteratorState(skippedEdge1, from);
+            boolean empty = iter == null;
+            if (empty)
+                iter =  core.getEdgeIteratorState(skippedEdge2, from);
+
+            expandEdge(iter, true);
+
+            if (empty)
+                iter =  core.getEdgeIteratorState(skippedEdge1, to);
+            else
+                iter =  core.getEdgeIteratorState(skippedEdge2, to);
+
+            expandEdge(iter, false);
+
+    }
+
+
     /**
      * This method creates a mapping of CoreNode ids to integers from 0 to numCoreNodes to save space.
      * Otherwise we would have to store a lot of empty info
@@ -805,6 +847,8 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
     public long getCapacity() {
         return landmarkWeightDA.getCapacity() + subnetworkStorage.getCapacity();
     }
+
+
 
     /**
      * This class is used to calculate landmark location (equally distributed).
