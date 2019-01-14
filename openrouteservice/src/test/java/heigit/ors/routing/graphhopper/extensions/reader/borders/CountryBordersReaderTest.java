@@ -87,7 +87,7 @@ public class CountryBordersReaderTest {
         }
 
         _reader.addOpenBorder("country1", "country2");
-        _reader.addId("1", "country1", "country1 English");
+        _reader.addId("1", "country1", "country1 English", "CT", "CTR");
     }
 
     /**
@@ -138,4 +138,15 @@ public class CountryBordersReaderTest {
         assertTrue(_reader.isOpen("country1", "country2"));
         assertFalse(_reader.isOpen("country1", "country3"));
     }
+
+    /**
+     * Test that the correct id is returned for ISO codes
+     */
+    @Test
+    public void TestGetCountryIdByISOCode() {
+        assertEquals(1, CountryBordersReader.getCountryIdByISOCode("CT"));
+        assertEquals(1, CountryBordersReader.getCountryIdByISOCode("CTR"));
+        assertEquals(0, CountryBordersReader.getCountryIdByISOCode("FOO"));
+    }
+
 }
