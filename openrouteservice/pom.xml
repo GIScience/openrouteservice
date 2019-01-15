@@ -273,6 +273,13 @@
         <version>2.8.2</version>
     </dependency>
 
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+        <version>${slf4j.version}</version>
+        <scope>test</scope>
+    </dependency>
+
 	<dependency>
    		<groupId>javax.servlet</groupId>
    		<artifactId>javax.servlet-api</artifactId>

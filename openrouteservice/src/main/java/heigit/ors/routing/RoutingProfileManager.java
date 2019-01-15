@@ -532,12 +532,12 @@ public class RoutingProfileManager {
      * @return Return is a {@link IsochroneMap} holding the calculated data plus statistical data if the attributes where set.
      * @throws Exception
      */
-    public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters, String[] attributes) throws Exception {
+    public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters) throws Exception {
 
         int profileType = parameters.getRouteParameters().getProfileType();
         RoutingProfile rp = _routeProfiles.getRouteProfile(profileType, false);
 
-        return rp.buildIsochrone(parameters, attributes);
+        return rp.buildIsochrone(parameters);
     }
 
     public MatrixResult computeMatrix(MatrixRequest req) throws Exception {

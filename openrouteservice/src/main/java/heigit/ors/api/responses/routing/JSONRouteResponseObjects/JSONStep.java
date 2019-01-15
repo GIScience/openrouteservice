@@ -15,6 +15,7 @@
 
 package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

@@ -18,7 +18,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.isochrones;
+package heigit.ors.v2.services.isochrones;
 
 /**
  * This Class handles the error Codes as described in the error_codes.md

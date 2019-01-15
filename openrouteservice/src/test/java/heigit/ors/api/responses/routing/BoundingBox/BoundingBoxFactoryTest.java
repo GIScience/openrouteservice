@@ -3,6 +3,8 @@ package heigit.ors.api.responses.routing.BoundingBox;
 import com.graphhopper.util.shapes.BBox;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.api.requests.routing.RouteRequest;
+import heigit.ors.api.responses.common.BoundingBox.BoundingBox;
+import heigit.ors.api.responses.common.BoundingBox.BoundingBoxFactory;
 import heigit.ors.api.responses.routing.GPXRouteResponseObjects.GPXBounds;
 import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSON3DBoundingBox;
 import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONBoundingBox;

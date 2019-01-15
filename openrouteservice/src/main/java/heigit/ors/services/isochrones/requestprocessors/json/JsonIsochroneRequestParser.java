@@ -347,7 +347,7 @@ public class JsonIsochroneRequestParser {
 		{
 			try
 			{
-				coords = CoordTools.parse(value, "\\|", false, inverseXY);						
+				coords = CoordTools.parse(value, "\\|", false, inverseXY);
 			}
 			catch(NumberFormatException nfex)
 			{

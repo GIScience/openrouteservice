@@ -298,6 +298,9 @@ public class APIEnums {
 
         @JsonCreator
         public static Units forValue(String v) throws ParameterValueException {
+
+            v = v.toLowerCase();
+
             for (Units enumItem : Units.values()) {
                 if (enumItem.value.equals(v))
                     return enumItem;

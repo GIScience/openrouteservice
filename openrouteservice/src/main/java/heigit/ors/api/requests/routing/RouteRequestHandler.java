@@ -117,6 +117,7 @@ public class RouteRequestHandler extends GenericHandler {
             params.setFlexibleMode(convertSetFlexibleMode(request.getUseContractionHierarchies()));
 
         if(request.hasRouteOptions()) {
+
             RouteRequestOptions options = request.getRouteOptions();
             if (options.hasAvoidBorders())
                 params.setAvoidBorders(convertAvoidBorders(options.getAvoidBorders()));
@@ -191,7 +192,11 @@ public class RouteRequestHandler extends GenericHandler {
         return new Coordinate(coordinate.get(0), coordinate.get(1));
     }
 
+<<<<<<< HEAD
     private  int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatableParameterException {
+=======
+    protected int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatableParameterException {
+>>>>>>> Squashed commit of the following:
         int flags = 0;
         for(APIEnums.AvoidFeatures avoid : avoidFeatures) {
             String avoidFeatureName = avoid.toString();
@@ -208,11 +213,19 @@ public class RouteRequestHandler extends GenericHandler {
         return flags;
     }
 
+<<<<<<< HEAD
     private  int convertRouteProfileType(APIEnums.Profile profile) {
         return RoutingProfileType.getFromString(profile.toString());
     }
 
     private  BordersExtractor.Avoid convertAvoidBorders(APIEnums.AvoidBorders avoidBorders) {
+=======
+    public   int convertRouteProfileType(APIEnums.Profile profile) {
+        return RoutingProfileType.getFromString(profile.toString());
+    }
+
+    protected BordersExtractor.Avoid convertAvoidBorders(APIEnums.AvoidBorders avoidBorders) {
+>>>>>>> Squashed commit of the following:
         if(avoidBorders != null) {
             switch (avoidBorders) {
                 case ALL:
@@ -226,7 +239,11 @@ public class RouteRequestHandler extends GenericHandler {
         return null;
     }
 
+<<<<<<< HEAD
     private  Polygon[] convertAvoidAreas(JSONObject geoJson) throws ParameterValueException {
+=======
+    protected Polygon[] convertAvoidAreas(JSONObject geoJson) throws ParameterValueException {
+>>>>>>> Squashed commit of the following:
         // It seems that arrays in json.simple cannot be converted to strings simply
         org.json.JSONObject complexJson = new org.json.JSONObject();
         complexJson.put("type", geoJson.get("type"));
