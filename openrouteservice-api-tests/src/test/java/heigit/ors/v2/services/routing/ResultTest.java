@@ -63,8 +63,10 @@ public class ResultTest extends ServiceTest {
 
         JSONArray coordsLong = new JSONArray();
         JSONArray coordLong1 = new JSONArray();
-        coordLong1.put(8.678613);
-        coordLong1.put(49.411721);
+
+        coordLong1.put(8.680916);
+        coordLong1.put(49.410973);
+
         coordsLong.put(coordLong1);
         JSONArray coordLong2 = new JSONArray();
         coordLong2.put(8.714733);
@@ -540,6 +542,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('segments')", is(true))
                 .body("routes[0].segments.size()", is(2))
+
                 .body("routes[0].segments[0].distance", is(5666.4f))
                 .body("routes[0].segments[0].duration", is(1284.9f))
                 .body("routes[0].segments[1].distance", is(5593.5f))

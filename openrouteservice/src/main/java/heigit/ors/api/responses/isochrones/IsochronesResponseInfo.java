@@ -13,23 +13,23 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.matrix;
+package heigit.ors.api.responses.isochrones;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.Helper;
-import heigit.ors.api.requests.matrix.MatrixRequest;
+import heigit.ors.api.requests.isochrones.IsochronesRequest;
 import heigit.ors.config.AppConfig;
-import heigit.ors.services.matrix.MatrixServiceSettings;
+import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.json.JSONObject;
 
-@ApiModel(value = "MatrixResponseInfo")
+@ApiModel(value = "RouteResponseInfo")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class MatrixResponseInfo {
+public class IsochronesResponseInfo {
     @ApiModelProperty(value = "Copyright and attribution information")
     @JsonProperty("attribution")
     private String attribution;
@@ -43,35 +43,30 @@ public class MatrixResponseInfo {
     @JsonProperty("timestamp")
     private long timeStamp;
 
-    @ApiModelProperty(value = "The information that was used for generating the matrix")
+    @ApiModelProperty(value = "The information that was used for generating the route")
     @JsonProperty("query")
-    private MatrixRequest request;
+    private IsochronesRequest request;
 
     @ApiModelProperty(value = "Information about the routing service")
     @JsonProperty("engine")
     private EngineInfo engineInfo;
 
-    public MatrixResponseInfo(MatrixRequest request) {
-        service = "matrix";
+    public IsochronesResponseInfo(IsochronesRequest request) {
+        service = "isochrones";
         timeStamp = System.currentTimeMillis();
 
         if (AppConfig.hasValidMD5Hash())
             osmFileMD5Hash = AppConfig.getMD5Hash();
 
-<<<<<<< HEAD
-        if (!Helper.isEmpty(RoutingServiceSettings.getAttribution()))
-            attribution = RoutingServiceSettings.getAttribution();
-=======
-        if (!Helper.isEmpty(MatrixServiceSettings.getAttribution()))
-            attribution = MatrixServiceSettings.getAttribution();
->>>>>>> Squashed commit of the following:
+        if (!Helper.isEmpty(IsochronesServiceSettings.getAttribution()))
+            attribution = IsochronesServiceSettings.getAttribution();
 
         engineInfo = new EngineInfo(AppInfo.getEngineInfo());
 
         this.request = request;
     }
 
-    @ApiModel(description = "Information about the version of the openrouteservice that was used to generate the matrix")
+    @ApiModel(description = "Information about the version of the openrouteservice that was used to generate the route")
     private class EngineInfo {
         @ApiModelProperty("The backend version of the openrouteservice that was queried")
         @JsonProperty("version")
@@ -92,29 +87,5 @@ public class MatrixResponseInfo {
         public String getBuildDate() {
             return buildDate;
         }
-    }
-
-    public String getAttribution() {
-        return attribution;
-    }
-
-    public String getOsmFileMD5Hash() {
-        return osmFileMD5Hash;
-    }
-
-    public String getService() {
-        return service;
-    }
-
-    public long getTimeStamp() {
-        return timeStamp;
-    }
-
-    public MatrixRequest getRequest() {
-        return request;
-    }
-
-    public EngineInfo getEngineInfo() {
-        return engineInfo;
     }
 }
