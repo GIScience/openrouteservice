@@ -142,16 +142,16 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
                     if (res >= Double.MAX_VALUE)
                         return Double.POSITIVE_INFINITY;
 
-                    expandEdge(tmp, false);
+                    //expandEdge(tmp, false);
 
-                    return count;
+                    return res; //return count;
                 }
                 else res = weighting.calcWeight(edge, reverse, prevOrNextEdgeId);
                 if (res >= Double.MAX_VALUE)
                     return Double.POSITIVE_INFINITY;
 
                 // returning the time or distance leads to strange landmark positions (ferries -> slow&very long) and BFS is more what we want
-                return 1;
+                return res; //return 1;
             }
 
             @Override
