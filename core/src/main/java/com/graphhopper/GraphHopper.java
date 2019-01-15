@@ -421,7 +421,7 @@ public class GraphHopper implements GraphHopperAPI {
      * This method specifies if the returned path should be simplified or not, via douglas-peucker
      * or similar algorithm.
      */
-    private GraphHopper setSimplifyResponse(boolean doSimplify) {
+    public GraphHopper setSimplifyResponse(boolean doSimplify) {
         this.simplifyResponse = doSimplify;
         return this;
     }
