@@ -47,21 +47,24 @@ public class LMEdgeFilterSequence extends EdgeFilterSequence implements EdgeFilt
 	 *
 	 * */
 	private boolean isAvoidCountry(String countries){
-		if(countries == "" || countries == "[]")
-			return true;
-		//Cut away the brackets
-		countries = countries.substring(1, countries.length() - 1);
-		String[] countryList = countries.split(", ");
-		//Make an int arraylist
 		ArrayList<Integer> queryCountries = new ArrayList<>();
-		for (int i = 0; i < countryList.length; i++ ){
-			queryCountries.add(Integer.parseInt(countryList[i]));
+		if(!(countries == "" || countries == "[]")) {
+			//Cut away the brackets
+			countries = countries.substring(1, countries.length() - 1);
+			String[] countryList = countries.split(", ");
+			//Make an int arraylist
+			for (int i = 0; i < countryList.length; i++) {
+				queryCountries.add(Integer.parseInt(countryList[i]));
+			}
 		}
 		//Check if the avoidBordersFilter has the same countries or a subset
 		for (EdgeFilter edgeFilter: this) {
 			if (edgeFilter instanceof AvoidBordersCoreEdgeFilter){
 				ArrayList<Integer> filterCountries =
 						new ArrayList<Integer>() {{ for (int i : ((AvoidBordersCoreEdgeFilter) edgeFilter).getAvoidCountries()) add(i); }};
+				//There are no countries queried, but there are some in the lmset
+				if(queryCountries.isEmpty())
+					return false;
 				return queryCountries.containsAll(filterCountries);
 			}
 		}
