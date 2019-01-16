@@ -804,7 +804,7 @@ public class RoutingProfile {
         return totalDistance <= maxDistance && wayPoints <= maxWayPoints;
     }
 
-    public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings, double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, EdgeFilter customEdgeFilter, RouteProcessContext routeProcCntx)
+    public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings, double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, EdgeFilter customEdgeFilter, RouteProcessContext routeProcCntx, Boolean geometrySimplify)
             throws Exception {
 
         GHResponse resp = null;
@@ -919,6 +919,8 @@ public class RoutingProfile {
 			/*if (directedSegment)
 				resp = mGraphHopper.directRoute(req); NOTE IMPLEMENTED!!!
 			else */
+
+            mGraphHopper.setSimplifyResponse(geometrySimplify);
             resp = mGraphHopper.route(req);
 
             if (DebugUtility.isDebug()) {
