@@ -17,8 +17,8 @@ package heigit.ors.api.responses.routing;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import heigit.ors.api.requests.routing.RouteRequest;
-import heigit.ors.api.responses.routing.BoundingBox.BoundingBox;
-import io.swagger.annotations.ApiResponse;
+import heigit.ors.api.responses.common.BoundingBox.BoundingBox;
+
 import java.util.List;
 
 public class RouteResponse {

@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.Helper;
 import heigit.ors.api.requests.matrix.MatrixRequest;
 import heigit.ors.config.AppConfig;
-import heigit.ors.services.matrix.MatrixServiceSettings;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import io.swagger.annotations.ApiModel;
@@ -58,13 +57,8 @@ public class MatrixResponseInfo {
         if (AppConfig.hasValidMD5Hash())
             osmFileMD5Hash = AppConfig.getMD5Hash();
 
-<<<<<<< HEAD
         if (!Helper.isEmpty(RoutingServiceSettings.getAttribution()))
             attribution = RoutingServiceSettings.getAttribution();
-=======
-        if (!Helper.isEmpty(MatrixServiceSettings.getAttribution()))
-            attribution = MatrixServiceSettings.getAttribution();
->>>>>>> Squashed commit of the following:
 
         engineInfo = new EngineInfo(AppInfo.getEngineInfo());
 

@@ -15,18 +15,29 @@
 
 package heigit.ors.api.requests.common;
 
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Polygon;
+
 import heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
+import heigit.ors.api.requests.routing.RouteRequestOptions;
 import heigit.ors.exceptions.IncompatableParameterException;
+import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
-
+import heigit.ors.exceptions.UnknownParameterValueException;
+import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.ProfileWeighting;
+import heigit.ors.routing.AvoidFeatureFlags;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import heigit.ors.routing.parameters.*;
+import heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.apache.commons.lang.StringUtils;
+import org.json.simple.JSONObject;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -78,32 +89,100 @@ public class GenericHandler {
         return errorCode;
     }
 
+    protected BordersExtractor.Avoid convertAvoidBorders(APIEnums.AvoidBorders avoidBorders) {
+        if (avoidBorders != null) {
+            switch (avoidBorders) {
+                case ALL:
+                    return BordersExtractor.Avoid.ALL;
+                case CONTROLLED:
+                    return BordersExtractor.Avoid.CONTROLLED;
+                default:
+                    return BordersExtractor.Avoid.NONE;
+            }
+        }
+        return null;
+    }
 
-    protected ProfileParameters convertParameters(RouteRequest request, int profileType) throws StatusCodeException {
-        ProfileParameters params = new ProfileParameters();
+    protected int convertRouteProfileType(APIEnums.Profile profile) {
+        return RoutingProfileType.getFromString(profile.toString());
+    }
 
-        if(request.getRouteOptions().getProfileParams().hasRestrictions()) {
+    protected Polygon[] convertAvoidAreas(JSONObject geoJson) throws ParameterValueException {
+        // It seems that arrays in json.simple cannot be converted to strings simply
+        org.json.JSONObject complexJson = new org.json.JSONObject();
+        complexJson.put("type", geoJson.get("type"));
+        List<List<Double[]>> coordinates = (List<List<Double[]>>) geoJson.get("coordinates");
+        complexJson.put("coordinates", coordinates);
 
-            RequestProfileParamsRestrictions restrictions = request.getRouteOptions().getProfileParams().getRestrictions();
-            APIEnums.VehicleType vehicleType = request.getRouteOptions().getVehicleType();
-
-            validateRestrictionsForProfile(restrictions, profileType);
-
-            if (RoutingProfileType.isCycling(profileType))
-                params = convertCyclingParameters(restrictions);
-            if (RoutingProfileType.isHeavyVehicle(profileType))
-                params = convertHeavyVehicleParameters(restrictions, vehicleType);
-            if (RoutingProfileType.isWalking(profileType))
-                params = convertWalkingParameters(restrictions);
-            if (RoutingProfileType.isWheelchair(profileType))
-                params = convertWheelchairParameters(restrictions);
+        Geometry convertedGeom;
+        try {
+            convertedGeom = GeometryJSON.parse(complexJson);
+        } catch (Exception e) {
+            throw new ParameterValueException(getErrorCode("INVALID_JSON_FORMAT"), "avoid_polygons");
         }
 
-        if(request.getRouteOptions().getProfileParams().hasWeightings()) {
-            RequestProfileParamsWeightings weightings = request.getRouteOptions().getProfileParams().getWeightings();
+        Polygon[] avoidAreas;
+
+        if (convertedGeom instanceof Polygon) {
+            avoidAreas = new Polygon[]{(Polygon) convertedGeom};
+        } else if (convertedGeom instanceof MultiPolygon) {
+            MultiPolygon multiPoly = (MultiPolygon) convertedGeom;
+            avoidAreas = new Polygon[multiPoly.getNumGeometries()];
+            for (int i = 0; i < multiPoly.getNumGeometries(); i++)
+                avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
+        } else {
+            throw new ParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), "avoid_polygons");
+        }
+
+        return avoidAreas;
+    }
+
+    protected int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatableParameterException {
+        int flags = 0;
+        for (APIEnums.AvoidFeatures avoid : avoidFeatures) {
+            String avoidFeatureName = avoid.toString();
+            int flag = AvoidFeatureFlags.getFromString(avoidFeatureName);
+            if (flag == 0)
+                throw new UnknownParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), "avoid_features", avoidFeatureName);
+
+            if (!AvoidFeatureFlags.isValid(profileType, flag, avoidFeatureName))
+                throw new IncompatableParameterException(getErrorCode("INVALID_PARAMETER_VALUE"), "avoid_features", avoidFeatureName, "profile", RoutingProfileType.getName(profileType));
+
+            flags |= flag;
+        }
+
+        return flags;
+    }
+
+    protected ProfileParameters convertParameters(RouteRequestOptions options, int profileType) throws StatusCodeException {
+        ProfileParameters params = new ProfileParameters();
+        if (options.getProfileParams().hasRestrictions()) {
+
+            RequestProfileParamsRestrictions restrictions = options.getProfileParams().getRestrictions();
+            APIEnums.VehicleType vehicleType = options.getVehicleType();
+
+            validateRestrictionsForProfile(restrictions, profileType);
+            params = convertSpecificProfileParameters(profileType, restrictions, vehicleType);
+        }
+
+        if (options.getProfileParams().hasWeightings()) {
+            RequestProfileParamsWeightings weightings = options.getProfileParams().getWeightings();
             applyWeightings(weightings, params);
         }
 
+        return params;
+    }
+
+    protected ProfileParameters convertSpecificProfileParameters(int profileType, RequestProfileParamsRestrictions restrictions, APIEnums.VehicleType vehicleType) {
+        ProfileParameters params = new ProfileParameters();
+        if (RoutingProfileType.isCycling(profileType))
+            params = convertCyclingParameters(restrictions);
+        if (RoutingProfileType.isHeavyVehicle(profileType))
+            params = convertHeavyVehicleParameters(restrictions, vehicleType);
+        if (RoutingProfileType.isWalking(profileType))
+            params = convertWalkingParameters(restrictions);
+        if (RoutingProfileType.isWheelchair(profileType))
+            params = convertWheelchairParameters(restrictions);
         return params;
     }
 

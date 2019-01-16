@@ -39,7 +39,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.HashSet;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItems;
@@ -64,9 +63,8 @@ public class ResultTest extends ServiceTest {
         JSONArray coordsLong = new JSONArray();
         JSONArray coordLong1 = new JSONArray();
 
-        coordLong1.put(8.680916);
-        coordLong1.put(49.410973);
-
+        coordLong1.put(8.678613);
+        coordLong1.put(49.411721);
         coordsLong.put(coordLong1);
         JSONArray coordLong2 = new JSONArray();
         coordLong2.put(8.714733);

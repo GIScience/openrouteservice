@@ -217,7 +217,7 @@ public class IsochronesRequestHandler extends GenericHandler {
         travellerInfo.getRanges();
         //range + interval
         if (request.getRange() == null) {
-            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "range");
+            throw new ParameterValueException(IsochronesErrorCodes.MISSING_PARAMETER, "range");
         }
         List<Double> rangeValues = request.getRange();
         Double intervalValue = request.getInterval();
@@ -229,7 +229,7 @@ public class IsochronesRequestHandler extends GenericHandler {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         int profileType;
         try {
-            profileType = convertRouteProfileType(request.getProfile());
+            profileType = convertToIsochronesProfileType(request.getProfile());
         } catch (Exception e) {
             throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "profile");
         }
@@ -284,7 +284,7 @@ public class IsochronesRequestHandler extends GenericHandler {
                 rangeValue = rangeValues.get(0);
                 travellerInfo.setRanges(new double[]{rangeValue});
             } catch (NumberFormatException ex) {
-                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "range");
+                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "range");
             }
         } else {
             double[] ranges = new double[rangeValues.size()];
@@ -299,8 +299,12 @@ public class IsochronesRequestHandler extends GenericHandler {
             travellerInfo.setRanges(ranges);
         }
         // interval, only use if one range is defined
+
         if (rangeValues.size() == 1 && rangeValue != -1)
-            travellerInfo.setRanges(rangeValue, intervalValue);
+
+            if (intervalValue != null) {
+                travellerInfo.setRanges(rangeValue, intervalValue);
+            }
 
     }
 
@@ -320,6 +324,18 @@ public class IsochronesRequestHandler extends GenericHandler {
             }
         } catch (Exception ex) {
             throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "calc_method");
+        }
+    }
+
+    protected static int convertToIsochronesProfileType(APIEnums.Profile profile) throws ParameterValueException {
+        try {
+            int profileFromString = RoutingProfileType.getFromString(profile.toString());
+            if (profileFromString == 0) {
+                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "profile");
+            }
+            return profileFromString;
+        } catch (Exception e) {
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "profile");
         }
     }
 
