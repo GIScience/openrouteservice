@@ -15,6 +15,7 @@
 
 package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import heigit.ors.routing.RouteStep;
@@ -29,6 +30,7 @@ public class JSONStep {
     private Double distance;
     @ApiModelProperty(value = "The duration for the step in seconds.")
     @JsonProperty("duration")
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
     private Double duration;
     @ApiModelProperty(value = "The [instruction](https://github.com/GIScience/openrouteservice-docs#instruction-types) action for symbolisation purposes.")
     @JsonProperty("type")
