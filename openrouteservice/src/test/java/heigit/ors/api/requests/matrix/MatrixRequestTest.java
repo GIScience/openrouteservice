@@ -130,10 +130,8 @@ public class MatrixRequestTest {
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         bareMatrixRequest.setProfile(APIEnums.Profile.DRIVING_HGV);
         matrixLocationsRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
-        matrixLocationsListRequest.setProfile(APIEnums.Profile.CYCLING_SAFE);
         Assert.assertEquals(APIEnums.Profile.DRIVING_HGV, bareMatrixRequest.getProfile());
         Assert.assertEquals(APIEnums.Profile.DRIVING_CAR, matrixLocationsRequest.getProfile());
-        Assert.assertEquals(APIEnums.Profile.CYCLING_SAFE, matrixLocationsListRequest.getProfile());
     }
 
     @Test

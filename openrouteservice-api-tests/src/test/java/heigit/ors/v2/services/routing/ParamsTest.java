@@ -985,7 +985,6 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void expectWarningsAndExtraInfo() {
 		JSONObject body = new JSONObject();
-
 		JSONArray coordinates = new JSONArray();
 		JSONArray coord1 = new JSONArray();
 		coord1.put(8.675154);
@@ -1005,7 +1004,7 @@ public class ParamsTest extends ServiceTest {
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
-				.get(getEndPointName() + "/{profile}/json")
+				.post(getEndPointPath() + "/{profile}/json")
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
@@ -1018,7 +1017,6 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void expectSuppressedWarnings() {
 		JSONObject body = new JSONObject();
-
 		JSONArray coordinates = new JSONArray();
 		JSONArray coord1 = new JSONArray();
 		coord1.put(8.675154);
@@ -1038,9 +1036,9 @@ public class ParamsTest extends ServiceTest {
 				.header("Content-Type", "application/json")
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
-				.when()
-				.get(getEndPointName() + "/{profile}/json")
-				.then()
+				.when().log().all()
+				.post(getEndPointPath() + "/{profile}/json")
+				.then().log().all()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('warnings')", is(false))
