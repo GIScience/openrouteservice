@@ -50,7 +50,7 @@ Here you can be creative, but still descriptive. Make sure to describe the curre
 
 ## Pull Requests
 
-We :heart: pull requests! We aspire to make our commit history cleaner and more sustainable, benefiting our contributors and us maintainers.
+We :heart: pull requests! We also aspire to make our commit history cleaner and more sustainable, benefiting our contributors and us maintainers.
 
 ### Pull request guidelines
 
@@ -66,7 +66,9 @@ We'd like all pull requests to adhere to the following rules:
 
 ```
 git checkout my-new-feat
-git rebase master
+git stash
+git rebase development
+git stash pop
 ```
 
 Be extra careful using `rebase` commands when collaborating on a branch with other people.
@@ -80,8 +82,8 @@ For a short explanation on how to setup, deploy and test **openrouteservice** lo
 Though there are no concrete rules for code that is contributed, we have a few general styles that should be adopted:
 
 - **Descriptive names** for variables, methods and classes
-- **Minimal in-line comments**: code should be self-explanatory for the most part. **Never** use comments to comment out blocks of code
-- **Use JDoc** docstrings to provide background for methods and classes
+- **Minimal in-line comments**: code should be self-explanatory. **Never** use comments to comment out blocks of code
+- **Use JDoc** docstrings to provide context for methods and classes
 - **Unit tests!!**
 - **API test** when adding API functionality in the corresponding [`openrouteservice-api-tests`](https://github.com/GIScience/openrouteservice/tree/master/openrouteservice-api-tests) subproject
 - Keep **methods modular**, rather short and singular functionality than 100s line of code
