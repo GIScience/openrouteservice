@@ -86,4 +86,4 @@ Though there are no concrete rules for code that is contributed, we have a few g
 - **Use JDoc** docstrings to provide context for methods and classes
 - **Unit tests!!**
 - **API test** when adding API functionality in the corresponding [`openrouteservice-api-tests`](https://github.com/GIScience/openrouteservice/tree/master/openrouteservice-api-tests) subproject
-- Keep **methods modular**, rather short and singular functionality than 100s line of code
+- Keep **methods modular**: rather short and singular functionality than 100s line of code
