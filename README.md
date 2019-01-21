@@ -1,7 +1,7 @@
 # Openrouteservice
 
-- [master](https://github.com/GIScience/openrouteservice) [![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=master)](https://travis-ci.org/GIScience/openrouteservice)
-- [development](https://github.com/GIScience/openrouteservice/tree/development) [![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=development)](https://travis-ci.org/GIScience/openrouteservice)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[master](https://github.com/GIScience/openrouteservice)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [development](https://github.com/GIScience/openrouteservice/tree/development)
+[![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=master)](https://travis-ci.org/GIScience/openrouteservice) [![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=development)](https://travis-ci.org/GIScience/openrouteservice)
 
 The **openrouteservice API** provides global spatial services by consuming user-generated and collaboratively collected free geographic data directly from [OpenStreetMap](http://www.openstreetmap.org). It is highly customizable, performant and written in Java.
 
@@ -12,11 +12,12 @@ The following services are available via a RESTful interface served by Tomcat.
 
 To play around with openrouteservice you may use our [demonstration server](https://maps.openrouteservice.org) which comes with both the backend and a [frontend](https://github.com/GIScience/openrouteservice-app). Or simply sign up for an [API key](https://openrouteservice.org) and fire your requests against the API directly.
 
-Please note that openrouteservice uses a forked and edited version of [graphhopper 0.9](https://github.com/GIScience/graphhopper) which can be found [here](https://github.com/GIScience/graphhopper).
+Please note that openrouteservice uses a forked and edited version of [graphhopper 0.10](https://github.com/GIScience/graphhopper) which can be found [here](https://github.com/GIScience/graphhopper).
 
 [![ors client accessibility](https://user-images.githubusercontent.com/23240110/30385487-9eac96b8-98a7-11e7-9357-afd4df8fccdf.png)](https://openrouteservice.org/reach)
 
 **Note**
+
 - Our geocoding API is a separate service running the stack built around [**Pelias**](https://github.com/pelias/pelias).
 - Our locations/API is another service which we have coined **openpoiservice** which can be found [here](https://github.com/GIScience/openpoiservice).
 
@@ -29,13 +30,7 @@ Please note that openrouteservice uses a forked and edited version of [graphhopp
 
 We appreciate any kind of contribution - bug reports, new feature suggestion or improving our translations are greatly appreciated. Feel free to create an [issue](https://github.com/GIScience/openrouteservice/issues) and label it accordingly. If your issue regards the openrouteservice web-app please use the [corresponding repository](https://github.com/GIScience/openrouteservice-app/issues).
 
-If you want to do contribute your improvements, please follow these steps:
-
-  1. [Fork the openrouteservice project](https://help.github.com/articles/fork-a-repo)
-  
-  2. Create a branch for the improvement from the development branch on your fork and add your contributions there.
-  
-  3. Create a [pull request](https://help.github.com/articles/using-pull-requests) to our development branch, so we can review your changes before applying them. Please write your pull request description similar to [this](http://api.coala.io/en/latest/Developers/Writing_Good_Commits.html) standard. Also please make sure to reference your pull request to the corresponding issue, for changes regarding multiple issues please create different pullrequests using different branches in your fork.
+If you want to contribute your improvements, please follow the steps outlined in [our CONTRIBUTION guidelines](./CONTRIBUTE.md)
 
 
 ## Installation
@@ -63,7 +58,7 @@ After you have packaged openrouteservice, there are two options for running it. 
 
   1. Install Tomcat 8 using `sudo apt-get install tomcat8`.
   2. If you want to use system settings (i.e. Java heap size) other than the default, then you need to add these to the `/usr/share/tomcat8/bin/setenv.sh` file. If the file is not present, then you can create it. The settings generally used on our servers are similar to:
-    
+
 ```bash
 JAVA_OPTS="-server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms114g -Xmx114g -XX:MaxMetaspaceSize=50m"
 CATALINA_OPTS="(here we set settings for JMX monitoring)"
@@ -96,7 +91,7 @@ After obtaining your key you can try out the different endpoints instantly and s
 
 ## Questions
 
-For questions please use our [Google Groups Forum](https://groups.google.com/forum/#!forum/openrouteservice) and we will respond to you shortly or add a GitHub issue if it is of technical nature.
+For questions please use our [community forum](https://ask.openrouteservice.org).
 
 ## Translations
 
