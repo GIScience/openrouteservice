@@ -421,7 +421,10 @@ public class GraphHopper implements GraphHopperAPI {
      * This method specifies if the returned path should be simplified or not, via douglas-peucker
      * or similar algorithm.
      */
+    //ORS-GH MOD START
+    //private GraphHopper setSimplifyResponse(boolean doSimplify) {
     public GraphHopper setSimplifyResponse(boolean doSimplify) {
+    //ORS-GH MOD END
         this.simplifyResponse = doSimplify;
         return this;
     }
