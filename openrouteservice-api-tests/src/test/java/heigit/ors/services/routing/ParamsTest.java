@@ -754,4 +754,33 @@ public class ParamsTest extends ServiceTest {
 				.body("routes[0].containsKey('warnings')", is(false))
 				.statusCode(200);
 	}
+
+	@Test
+	public void expectSimplifyGeometry() {
+		given()
+				.param("coordinates", getParameter("coordinatesShort"))
+				.param("profile", getParameter("carProfile"))
+				.param("geometry_simplify", "true")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.statusCode(200);
+	};
+
+	@Test
+	public void expectIncompatibleParameters() {
+		given()
+				.param("coordinates", getParameter("coordinatesShort"))
+				.param("profile", getParameter("carProfile"))
+				.param("geometry_simplify", "true")
+				.param("extra_info", getParameter("extra_info"))
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS))
+				.statusCode(400);
+	};
 }

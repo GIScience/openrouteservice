@@ -1475,4 +1475,31 @@ http://localhost:8080/ors/routes?
                 .body("routes[0].extras.roadaccessrestrictions.values[1][2]", is(32))
                 .statusCode(200);
     }
+
+    @Test
+    public void testSimplifyHasLessWayPoints() {
+
+        given()
+                .param("coordinates", getParameter("coordinatesShort"))
+                .param("profile", "driving-car")
+                .param("format", "geojson")
+                .when()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("features[0].geometry.coordinates.size()", is(75))
+                .statusCode(200);
+
+        given()
+                .param("coordinates", getParameter("coordinatesShort"))
+                .param("profile", "driving-car")
+                .param("format", "geojson")
+                .param("geometry_simplify", "true")
+                .when()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("features[0].geometry.coordinates.size()", is(34))
+                .statusCode(200);
+	}
 }

@@ -25,6 +25,7 @@ public class RoutingRequest extends ServiceRequest
 	private DistanceUnit _units = DistanceUnit.Meters;
 	private String _language = "en";
 	private String _geometryFormat = "encodedpolyline";
+	private Boolean _geometrySimplify = false;
 	private RouteInstructionsFormat _instructionsFormat = RouteInstructionsFormat.TEXT;
 	private Boolean _includeInstructions = true;
 	private Boolean _includeElevation = false;
@@ -86,6 +87,10 @@ public class RoutingRequest extends ServiceRequest
 	public void setGeometryFormat(String geometryFormat) {
 		_geometryFormat = geometryFormat;
 	}
+
+	public boolean getGeometrySimplify() { return _geometrySimplify; }
+
+	public void setGeometrySimplify(boolean geometrySimplify) { _geometrySimplify = geometrySimplify; }
 
 	public String getLanguage() {
 		return _language;

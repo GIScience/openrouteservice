@@ -21,6 +21,7 @@ import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
+import heigit.ors.exceptions.IncompatibleParametersException;
 import heigit.ors.localization.LocalizationManager;
 import heigit.ors.routing.RouteExtraInfoFlag;
 import heigit.ors.routing.RouteInstructionsFormat;
@@ -187,6 +188,10 @@ public class RoutingRequestParser
 			req.setGeometryFormat(value);
 		}
 
+		value = request.getParameter("geometry_simplify");
+		if (!Helper.isEmpty(value))
+            req.setGeometrySimplify(Boolean.parseBoolean(value));
+
 		value = request.getParameter("instructions");
 		if (!Helper.isEmpty(value))
 			req.setIncludeInstructions(Boolean.parseBoolean(value));
@@ -222,8 +227,12 @@ public class RoutingRequestParser
 		}
 
 		value = request.getParameter("extra_info");
-		if (!Helper.isEmpty(value))
+		if (!Helper.isEmpty(value)) {
+            if (req.getGeometrySimplify())
+                throw new IncompatibleParametersException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, "extra_info", "geometry_simplify");
+
 			req.setExtraInfo(RouteExtraInfoFlag.getFromString(value));
+        }
 
 		value = request.getParameter("attributes");
 		if (!Helper.isEmpty(value))
