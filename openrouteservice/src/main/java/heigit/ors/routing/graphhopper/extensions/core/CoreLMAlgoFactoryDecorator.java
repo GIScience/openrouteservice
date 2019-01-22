@@ -311,7 +311,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
                     prepared.set(true);
                     Thread.currentThread().setName(name);
                     plm.doWork();
-                    properties.put(Landmark.PREPARE + "date." + name, Helper.createFormatter().format(new Date()));
+                    properties.put(CoreLandmark.PREPARE + "date." + name, Helper.createFormatter().format(new Date()));
                 }
             }, name);
         }
