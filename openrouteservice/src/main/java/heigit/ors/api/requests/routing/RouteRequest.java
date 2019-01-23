@@ -56,7 +56,7 @@ public class RouteRequest {
     public static final String PARAM_SUPPRESS_WARNINGS = "suppress_warnings";
     public static final String PARAM_SIMPLIFY_GEOMETRY = "geometry_simplify";
     public static final String PARAM_SKIP_SEGMENTS = "skip_segments";
-
+    public static final String PARAM_ALTERNATIVE_ROUTES = "alternative_routes";
 
     @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.",
             example = "routing_request")
@@ -238,6 +238,13 @@ public class RouteRequest {
     private List<Integer> skipSegments;
     @JsonIgnore
     private boolean hasSkipSegments = false;
+
+    @ApiModelProperty(name = PARAM_ALTERNATIVE_ROUTES, value = "Specifies whether alternative routes are computed, and parameters for the algorithm determining suitable alternatives.")
+    @JsonProperty(PARAM_ALTERNATIVE_ROUTES)
+    private RouteRequestAlternativeRoutes alternativeRoutes;
+    @JsonIgnore
+    private boolean hasAlternativeRoutes = false;
+
 
     @JsonCreator
     public RouteRequest(@JsonProperty(value = PARAM_COORDINATES, required = true) List<List<Double>> coordinates) {
@@ -488,6 +495,15 @@ public class RouteRequest {
         hasSkipSegments = true;
     }
 
+    public RouteRequestAlternativeRoutes getAlternativeRoutes() {
+        return alternativeRoutes;
+    }
+
+    public void setAlternativeRoutes(RouteRequestAlternativeRoutes alternativeRoutes) {
+        this.alternativeRoutes = alternativeRoutes;
+        hasAlternativeRoutes = true;
+    }
+
     public boolean hasIncludeRoundaboutExitInfo() {
         return hasIncludeRoundaboutExitInfo;
     }
@@ -557,4 +573,6 @@ public class RouteRequest {
     }
 
     public boolean hasSkipSegments() { return hasSkipSegments;}
+
+    public boolean hasAlternativeRoutes() { return hasAlternativeRoutes; }
 }

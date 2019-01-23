@@ -128,6 +128,7 @@ public class RouteRequestHandlerTest {
 
         options.setProfileParams(params);
         request.setRouteOptions(options);
+
     }
 
     @Test
@@ -139,7 +140,7 @@ public class RouteRequestHandlerTest {
         Assert.assertEquals(3, routingRequest.getCoordinates().length);
 
         Assert.assertEquals(RoutingProfileType.getFromString("driving-car"), routingRequest.getSearchParameters().getProfileType());
-        Assert.assertArrayEquals(new String[] {"avgspeed", "detourfactor"}, routingRequest.getAttributes());
+        Assert.assertArrayEquals(new String[]{"avgspeed", "detourfactor"}, routingRequest.getAttributes());
 
         WayPointBearing[] bearings = routingRequest.getSearchParameters().getBearings();
         Assert.assertEquals(bearings[0].getValue(), 10.0, 0);
@@ -160,7 +161,7 @@ public class RouteRequestHandlerTest {
         Assert.assertTrue(routingRequest.getIncludeManeuvers());
         Assert.assertEquals(RouteInstructionsFormat.HTML, routingRequest.getInstructionsFormat());
         Assert.assertEquals("de", routingRequest.getLanguage());
-        Assert.assertTrue(Arrays.equals(new double[] { 50.0, 20.0, 100.0 }, routingRequest.getSearchParameters().getMaximumRadiuses()));
+        Assert.assertTrue(Arrays.equals(new double[]{50.0, 20.0, 100.0}, routingRequest.getSearchParameters().getMaximumRadiuses()));
         Assert.assertEquals("geojson", routingRequest.getGeometryFormat());
         Assert.assertTrue(routingRequest.getIncludeElevation());
         Assert.assertEquals(WeightingMethod.FASTEST, routingRequest.getSearchParameters().getWeightingMethod());
@@ -168,7 +169,7 @@ public class RouteRequestHandlerTest {
         Assert.assertTrue(routingRequest.getSearchParameters().getFlexibleMode());
 
         Assert.assertEquals(BordersExtractor.Avoid.CONTROLLED, routingRequest.getSearchParameters().getAvoidBorders());
-        Assert.assertArrayEquals(new int[] {115}, routingRequest.getSearchParameters().getAvoidCountries());
+        Assert.assertArrayEquals(new int[]{115}, routingRequest.getSearchParameters().getAvoidCountries());
         Assert.assertEquals(AvoidFeatureFlags.getFromString("fords"), routingRequest.getSearchParameters().getAvoidFeatureTypes());
 
         checkPolygon(routingRequest.getSearchParameters().getAvoidAreas(), geoJsonPolygon);
@@ -176,17 +177,37 @@ public class RouteRequestHandlerTest {
         ProfileWeightingCollection weightings = routingRequest.getSearchParameters().getProfileParameters().getWeightings();
         ProfileWeighting weighting;
         Iterator<ProfileWeighting> iter = weightings.getIterator();
-        while(iter.hasNext() && (weighting = iter.next()) != null) {
-            if(weighting.getName().equals("green")) {
+        while (iter.hasNext() && (weighting = iter.next()) != null) {
+            if (weighting.getName().equals("green")) {
                 Assert.assertEquals(0.5, weighting.getParameters().getDouble("factor", -1), 0);
             }
-            if(weighting.getName().equals("quiet")) {
+            if (weighting.getName().equals("quiet")) {
                 Assert.assertEquals(0.2, weighting.getParameters().getDouble("factor", -1), 0);
             }
-            if(weighting.getName().equals("steepness_difficulty")) {
+            if (weighting.getName().equals("steepness_difficulty")) {
                 Assert.assertEquals(3, weighting.getParameters().getInt("level", -1), 0);
             }
         }
+    }
+
+    @Test
+    public void convertRouteRequestTestForAlternativeRoutes() throws Exception {
+        Double[][] coords = new Double[2][2];
+        coords[0] = new Double[] {24.5,39.2};
+        coords[1] = new Double[] {26.5,37.2};
+        RouteRequest arRequest = new RouteRequest(coords);
+        arRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
+
+        RouteRequestAlternativeRoutes ar = new RouteRequestAlternativeRoutes();
+        ar.setTargetCount(3);
+        ar.setShareFactor(0.9);
+        ar.setWeightFactor(1.8);
+        arRequest.setAlternativeRoutes(ar);
+
+        RoutingRequest routingRequest = new RouteRequestHandler().convertRouteRequest(arRequest);
+        Assert.assertEquals(3, routingRequest.getSearchParameters().getAlternativeRoutesCount());
+        Assert.assertEquals(0.9, routingRequest.getSearchParameters().getAlternativeRoutesShareFactor(), 0);
+        Assert.assertEquals(1.8, routingRequest.getSearchParameters().getAlternativeRoutesWeightFactor(), 0);
     }
 
     @Test

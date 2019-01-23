@@ -119,4 +119,12 @@ public class RouteRequestTest {
         request.setSkipSegments(testSegments);
         Assert.assertTrue(request.hasSkipSegments());
     }
+
+    @Test
+    public void testHasAlternativeRoutes() {
+        RouteRequestAlternativeRoutes ar = new RouteRequestAlternativeRoutes();
+        Assert.assertFalse(request.hasAlternativeRoutes());
+        request.setAlternativeRoutes(ar);
+        Assert.assertTrue(request.hasAlternativeRoutes());
+    }
 }

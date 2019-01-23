@@ -67,6 +67,24 @@ public class ParamsTest extends ServiceTest {
 
 		addParameter("coordinatesLong", coordsLong);
 
+		JSONArray coordsVia= new JSONArray();
+		JSONArray coordv1 = new JSONArray();
+		coordv1.put(8.680916);
+		coordv1.put(49.410973);
+		coordsVia.put(coordv1);
+		JSONArray coordv2 = new JSONArray();
+		coordv2.put(8.687782);
+		coordv2.put(49.424597);
+		coordsVia.put(coordv2);
+		JSONArray coordv3 = new JSONArray();
+		coordv3.put(8.689061);
+		coordv3.put(49.421752);
+		coordsVia.put(coordv3);
+
+		addParameter("coordinatesWithViaPoint", coordsVia);
+
+
+
 		JSONArray extraInfo = new JSONArray();
 		extraInfo.put("surface");
 		extraInfo.put("suitability");
@@ -1510,4 +1528,28 @@ public class ParamsTest extends ServiceTest {
 				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
 				.statusCode(400);
 	}
+
+	@Test
+	public void expectAlternativeRoutesToRejectMoreThanTwoWaypoints() {
+		JSONObject body = new JSONObject();
+		body.put("coordinates", (JSONArray) getParameter("coordinatesWithViaPoint"));
+		body.put("preference", getParameter("preference"));
+
+		JSONObject ar = new JSONObject();
+		ar.put("target_count", "3");
+		body.put("alternative_routes", ar);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("carProfile"))
+				.body(body.toString())
+				.when().log().all()
+				.post(getEndPointPath() + "/{profile}/json")
+				.then().log().all()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS))
+				.statusCode(400);
+	}
+
 }
