@@ -65,6 +65,8 @@ public class RouteSearchParameters {
     private int[] _avoidCountries = null;
     private BordersExtractor.Avoid _avoidBorders = BordersExtractor.Avoid.NONE;
 
+    private int _alternativeRoutes = -1;
+
     private String _options;
 
     public int getProfileType() {
@@ -164,6 +166,14 @@ public class RouteSearchParameters {
 
     public void setVehicleType(int vehicleType) {
         this._vehicleType = vehicleType;
+    }
+
+    public int getAlternativeRoutes() {
+        return _alternativeRoutes;
+    }
+
+    public void setAlternativeRoutes(int _alternativeRoutes) {
+        this._alternativeRoutes = _alternativeRoutes;
     }
 
     public String getOptions() {
@@ -397,6 +407,15 @@ public class RouteSearchParameters {
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_polygons");
             }
         }
+
+        if (json.has("alternative_routes")) {
+            try {
+                _alternativeRoutes = json.getInt("alternative_routes");
+            } catch (Exception ex) {
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "alternative_routes", json.getString("alternative_routes"));
+            }
+        }
+
     }
 
     private void processWeightings(JSONObject json, ProfileParameters profileParams) throws Exception {

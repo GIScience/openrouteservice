@@ -920,6 +920,15 @@ public class RoutingProfile {
             if (_astarApproximation != null)
                 req.getHints().put("astarbi.approximation", _astarApproximation);
 
+            if (searchParams.getAlternativeRoutes() > 0) {
+                req.setAlgorithm("alternative_route");
+                req.getHints().put("alternative_route.max_paths", searchParams.getAlternativeRoutes());
+//                TAKB: TODO more testing required to find out if we can tweak here to remove irregular alternative paths
+//                req.getHints().put("alternative_route.max_weight_factor", 1.4);
+//                req.getHints().put("alternative_route.max_share_factor", 0.6);
+                req.getHints().put("ch.disable", true);
+            }
+
 			/*if (directedSegment)
 				resp = mGraphHopper.directRoute(req); NOTE IMPLEMENTED!!!
 			else */

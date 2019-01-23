@@ -346,7 +346,7 @@ public class RoutingProfileManager {
         return null;
     }
 
-    public RouteResult computeRoute(RoutingRequest req) throws Exception {
+    public RouteResult[] computeRoute(RoutingRequest req) throws Exception {
         List<GHResponse> routes = new ArrayList<GHResponse>();
 //System.out.println("PATCHED!!!!");
 //req.setExtraInfo(512);
@@ -435,7 +435,7 @@ public class RoutingProfileManager {
             c0 = c1;
         }
 
-        return new RouteResultBuilder().createRouteResult(routes, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor) pathProcessor).getExtras() : null);
+        return new RouteResultBuilder().createRouteResults(routes, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor) pathProcessor).getExtras() : null);
     }
 
     private double getHeadingDirection(GHResponse resp) {
