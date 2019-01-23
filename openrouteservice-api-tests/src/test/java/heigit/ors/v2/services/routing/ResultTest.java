@@ -1441,7 +1441,7 @@ public class ResultTest extends ServiceTest {
                 .then().log().all()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].segments[0].detourfactor", is(1.38f))
+                .body("routes[0].segments[0].detourfactor", is(1.3f))
                 .statusCode(200);
     }
 
@@ -2161,6 +2161,67 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].segments[0].avgspeed", is(19.32f))
                 .statusCode(200);
     }
+
+    @Test
+    public void testAlternativeRoutes() {
+        JSONObject body = new JSONObject();
+        JSONArray coordinates = new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.673191);
+        coord1.put(49.446812);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.689499);
+        coord2.put(49.398295);
+        coordinates.put(coord2);
+        body.put("coordinates", coordinates);
+        body.put("preference", "shortest");
+        JSONObject ar = new JSONObject();
+        ar.put("target_count", "2");
+        ar.put("share_factor", "0.5");
+        body.put("alternative_routes", ar);
+
+        given()
+            .header("Accept", "application/json")
+            .header("Content-Type", "application/json")
+            .pathParam("profile", getParameter("carProfile"))
+            .body(body.toString())
+            .when()
+            .post(getEndPointPath() + "/{profile}")
+            .then().log().all()
+            .assertThat()
+            .body("any { it.key == 'routes' }", is(true))
+            .body("routes.size()", is(2))
+            .body("routes[0].summary.distance", is(5939.8f))
+            .body("routes[0].summary.duration", is(936.4f))
+            .body("routes[1].summary.distance", is( 6435.0f))
+            .body("routes[1].summary.duration", is(801.5f))
+            .statusCode(200);
+
+        JSONObject avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[8.685873,49.414421], [8.688169,49.403978], [8.702095,49.407762], [8.695185,49.416013], [8.685873,49.414421]]]}}");
+        JSONObject options = new JSONObject();
+        options.put("avoid_polygons", avoidGeom);
+        body.put("options", options);
+
+        System.out.println(getEndPointPath() + "/{profile}");
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes.size()", is(1))
+                .body("routes[0].summary.distance", is( 6435.0f))
+                .body("routes[0].summary.duration", is(801.5f))
+                .statusCode(200);
+
+
+    }
+
 
     private JSONArray constructCoords(String coordString) {
         JSONArray coordinates = new JSONArray();

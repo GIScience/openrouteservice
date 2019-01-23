@@ -43,14 +43,23 @@ class RouteResultBuilder
 	private static final CardinalDirection[] directions = {CardinalDirection.North, CardinalDirection.NorthEast, CardinalDirection.East, CardinalDirection.SouthEast, CardinalDirection.South, CardinalDirection.SouthWest, CardinalDirection.West, CardinalDirection.NorthWest};
     private int startWayPointIndex = 0;
 
-	RouteResultBuilder()
-	{
+	RouteResultBuilder() {
 		angleCalc = new AngleCalc();
 		distCalc = new DistanceCalcEarth();
 	}
 
-    RouteResult createMergedRouteResultFromBestPaths(List<GHResponse> responses, RoutingRequest request, List<RouteExtraInfo> extras) throws Exception {
+    RouteResult[] createRouteResults(List<GHResponse> responses, RoutingRequest request, List<RouteExtraInfo> extras) throws Exception {
+        if (responses.isEmpty())
+            throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to find a route.");
+        if (responses.size() > 1) { // request had multiple segments (route with via points)
+            return createMergedRouteResultSetFromBestPaths(responses, request, extras);
+        } else
+            return createRouteResultSetFromMultiplePaths(responses.get(0), request, extras);
+    }
+
+    private RouteResult createInitialRouteResult (RoutingRequest request, List<RouteExtraInfo> extras) {
         RouteResult result = new RouteResult(request.getExtraInfo());
+
         result.addExtras(request, extras);
 
         if (request.getSkipSegments() != null && !request.getSkipSegments().isEmpty()) {
@@ -58,9 +67,15 @@ class RouteResultBuilder
         }
 
         startWayPointIndex = 0;
+
         if (request.getIncludeGeometry()) {
             result.addWayPointIndex(0);
         }
+        return result;
+    }
+
+    RouteResult createMergedRouteResultFromBestPaths(List<GHResponse> responses, RoutingRequest request, List<RouteExtraInfo> extras) throws Exception {
+        RouteResult result = createInitialRouteResult(request, extras);
 
         for (int ri = 0; ri < responses.size(); ++ri) {
             GHResponse response = responses.get(ri);
@@ -83,8 +98,39 @@ class RouteResultBuilder
             result.resetSegments();
         }
 
-
         return result;
+    }
+
+    private RouteResult[] createMergedRouteResultSetFromBestPaths(List<GHResponse> responses, RoutingRequest request, List<RouteExtraInfo> extras) throws Exception {
+        return new RouteResult[]{createMergedRouteResultFromBestPaths(responses, request, extras)};
+    }
+
+    private RouteResult[] createRouteResultSetFromMultiplePaths(GHResponse response, RoutingRequest request, List<RouteExtraInfo> extras) throws Exception {
+        if (response.hasErrors())
+            throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", 0, FormatUtility.formatCoordinate(request.getCoordinates()[0]), 1, FormatUtility.formatCoordinate(request.getCoordinates()[1])));
+
+        RouteResult[] resultSet = new RouteResult[response.getAll().size()];
+
+        for (PathWrapper path : response.getAll()) {
+            RouteResult result = createInitialRouteResult(request, extras);
+
+            result.addPointlist(path.getPoints());
+            if (request.getIncludeGeometry()) {
+                result.addPointsToGeometry(path.getPoints(), false, request.getIncludeElevation());
+                result.addWayPointIndex(result.getGeometry().length - 1);
+            }
+
+            result.addSegment(createRouteSegment(path, request, null));
+
+            result.calculateRouteSummary(request);
+            if (!request.getIncludeGeometry() || !request.getIncludeInstructions()) {
+                result.resetSegments();
+            }
+
+            resultSet[response.getAll().indexOf(path)] = result;
+        }
+
+        return resultSet;
     }
 
     private PointList getNextResponseFirstStepPoints(List<GHResponse> routes, int ri) {
@@ -230,16 +276,14 @@ class RouteResultBuilder
 		}
 	}
 
-	private int getEndWayPointIndex(int startIndex, InstructionType instrType, Instruction instr)
-	{
+	private int getEndWayPointIndex(int startIndex, InstructionType instrType, Instruction instr) {
 		if (instrType == InstructionType.FINISH)
 			return startIndex;
 		else
 			return startIndex + instr.getPoints().size();
 	}
 
-	private RouteStepManeuver calcManeuver(InstructionType instrType, PointList prevSegPoints, PointList segPoints, PointList nextSegPoints)
-	{
+	private RouteStepManeuver calcManeuver(InstructionType instrType, PointList prevSegPoints, PointList segPoints, PointList nextSegPoints) {
 		RouteStepManeuver maneuver = new RouteStepManeuver();
         maneuver.setBearingBefore(0);
         maneuver.setBearingAfter(0);
@@ -284,7 +328,6 @@ class RouteResultBuilder
         return maneuver;
 	}
 
-
 	private boolean isTurnInstruction(InstructionType instrType) {
 		return instrType == InstructionType.TURN_LEFT || instrType == InstructionType.TURN_SLIGHT_LEFT
 				|| instrType == InstructionType.TURN_SHARP_LEFT || instrType == InstructionType.TURN_RIGHT
@@ -295,8 +338,7 @@ class RouteResultBuilder
 	    return instrType == InstructionType.KEEP_LEFT || instrType == InstructionType.KEEP_RIGHT;
     }
 
-    private InstructionType getInstructionType(boolean isDepart, Instruction instr)
-	{
+    private InstructionType getInstructionType(boolean isDepart, Instruction instr)	{
 		if (isDepart) {
 			return InstructionType.DEPART;
 		}
@@ -331,8 +373,7 @@ class RouteResultBuilder
 		}
 	}
 
-	private CardinalDirection calcDirection(double lat1, double lon1, double lat2, double lon2 )
-	{
+	private CardinalDirection calcDirection(double lat1, double lon1, double lat2, double lon2 ) {
 		double orientation = - angleCalc.calcOrientation(lat1, lon1, lat2, lon2);
 		orientation = Helper.round4(orientation + Math.PI / 2);
 		if (orientation < 0)

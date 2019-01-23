@@ -61,6 +61,10 @@ public class RouteSearchParameters {
     private int[] _avoidCountries = null;
     private BordersExtractor.Avoid _avoidBorders = BordersExtractor.Avoid.NONE;
 
+    private int _alternativeRoutesCount = -1;
+    private double _alternativeRoutesWeightFactor = 1.4;
+    private double _alternativeRoutesShareFactor = 0.6;
+
     private String _options;
 
     public int getProfileType() {
@@ -152,6 +156,30 @@ public class RouteSearchParameters {
 
     public void setVehicleType(int vehicleType) {
         this._vehicleType = vehicleType;
+    }
+
+    public int getAlternativeRoutesCount() {
+        return _alternativeRoutesCount;
+    }
+
+    public void setAlternativeRoutesCount(int _alternativeRoutesCount) {
+        this._alternativeRoutesCount = _alternativeRoutesCount;
+    }
+
+    public double getAlternativeRoutesWeightFactor() {
+        return _alternativeRoutesWeightFactor;
+    }
+
+    public void set_alternativeRoutesWeightFactor(double _alternativeRoutesWeightFactor) {
+        this._alternativeRoutesWeightFactor = _alternativeRoutesWeightFactor;
+    }
+
+    public double getAlternativeRoutesShareFactor() {
+        return _alternativeRoutesShareFactor;
+    }
+
+    public void set_alternativeRoutesShareFactor(double _alternativeRoutesShareFactor) {
+        this._alternativeRoutesShareFactor = _alternativeRoutesShareFactor;
     }
 
     public String getOptions() {
@@ -338,6 +366,28 @@ public class RouteSearchParameters {
                     _avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
             } else {
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_polygons");
+            }
+        }
+
+        if (json.has("alternative_routes_count")) {
+            try {
+                _alternativeRoutesCount = json.getInt("alternative_routes_count");
+            } catch (Exception ex) {
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "alternative_routes", json.getString("alternative_routes"));
+            }
+            if (json.has("alternative_routes_weight_factor")) {
+                try {
+                    _alternativeRoutesWeightFactor = json.getDouble("alternative_routes_weight_factor");
+                } catch (Exception ex) {
+                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "alternative_routes_weight_factor", json.getString("alternative_routes_weight_factor"));
+                }
+            }
+            if (json.has("alternative_routes_share_factor")) {
+                try {
+                    _alternativeRoutesShareFactor = json.getDouble("alternative_routes_share_factor");
+                } catch (Exception ex) {
+                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "alternative_routes_share_factor", json.getString("alternative_routes_share_factor"));
+                }
             }
         }
     }

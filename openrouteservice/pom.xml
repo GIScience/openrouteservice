@@ -171,34 +171,34 @@
     </plugins>
   </build>
 
-  <repositories>
-		<repository>
-			<id>maven2-repository.dev.java.net</id>
-			<name>Java.net repository</name>
-			<url>http://download.java.net/maven/2</url>
-		</repository>
-		<repository>
-      		<id>bintray-nitram509-jbrotli</id>
-      		<name>bintray</name>
-      		<url>http://dl.bintray.com/nitram509/jbrotli</url>
-    	</repository>
-    	<repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
-		</repository>
-      <repository>
-          <id>osgeo</id>
-          <name>Open Source Geospatial Foundation Repository</name>
-          <url>http://download.osgeo.org/webdav/geotools/</url>
-      </repository>
-      <repository>
-          <snapshots>
-              <enabled>true</enabled>
-          </snapshots>
-          <id>opengeo</id>
-          <name>OpenGeo Maven Repository</name>
-          <url>http://repo.boundlessgeo.com/main </url>
-      </repository>
+    <repositories>
+        <repository>
+            <id>maven2-repository.dev.java.net</id>
+            <name>Java.net repository</name>
+            <url>http://download.java.net/maven/2</url>
+        </repository>
+        <repository>
+            <id>bintray-nitram509-jbrotli</id>
+            <name>bintray</name>
+            <url>http://dl.bintray.com/nitram509/jbrotli</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
+            <id>osgeo</id>
+            <name>Open Source Geospatial Foundation Repository</name>
+            <url>http://download.osgeo.org/webdav/geotools/</url>
+        </repository>
+        <repository>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <id>opengeo</id>
+            <name>OpenGeo Maven Repository</name>
+            <url>http://repo.boundlessgeo.com/main </url>
+        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
@@ -206,6 +206,7 @@
             <url>https://repo.spring.io/libs-release</url>
         </pluginRepository>
     </pluginRepositories>
+
 
 <dependencies>
     <dependency>
@@ -302,13 +303,13 @@
     <dependency>
         <groupId>com.github.GIScience.graphhopper</groupId>
         <artifactId>graphhopper-core</artifactId>
-        <version>v0.10.1.12</version>
+        <version>v0.10.1.14</version>
     </dependency>
 
     <dependency>
         <groupId>com.github.GIScience.graphhopper</groupId>
         <artifactId>graphhopper-reader-osm</artifactId>
-        <version>v0.10.1.12</version>
+        <version>v0.10.1.14</version>
     </dependency>
 
     <!-- remove the comment to enable debugging

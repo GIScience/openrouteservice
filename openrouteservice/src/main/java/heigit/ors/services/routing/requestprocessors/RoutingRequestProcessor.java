@@ -79,8 +79,8 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
         String geometryFormat = rreq.getGeometryFormat();
 
         if (Helper.isEmpty(respFormat) || "json".equalsIgnoreCase(respFormat)) {
-            RouteResult result = RoutingProfileManager.getInstance().computeRoute(rreq);
-            json = JsonRoutingResponseWriter.toJson(rreq, new RouteResult[]{result});
+            RouteResult[] result = RoutingProfileManager.getInstance().computeRoute(rreq);
+            json = JsonRoutingResponseWriter.toJson(rreq, result);
             if (json != null) {
                 ServletUtility.write(response, json, "UTF-8");
 
@@ -94,8 +94,8 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
             if (Helper.isEmpty(geometryFormat) || !geometryFormat.equals("geojson")) {
                 rreq.setGeometryFormat("geojson");
             }
-            RouteResult result = RoutingProfileManager.getInstance().computeRoute(rreq);
-            geojson = new GlobalResponseProcessor(rreq, new RouteResult[]{result}).toGeoJson();
+            RouteResult[] result = RoutingProfileManager.getInstance().computeRoute(rreq);
+            geojson = new GlobalResponseProcessor(rreq, result).toGeoJson();
             if (geojson != null) {
                 ServletUtility.write(response, geojson, "UTF-8");
             } else {
@@ -109,8 +109,8 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
             if (Helper.isEmpty(geometryFormat) || !geometryFormat.equals("geojson")) {
                 rreq.setGeometryFormat("geojson");
             }
-            RouteResult result = RoutingProfileManager.getInstance().computeRoute(rreq);
-            gpx = new GlobalResponseProcessor(rreq, new RouteResult[]{result}).toGPX();
+            RouteResult[] result = RoutingProfileManager.getInstance().computeRoute(rreq);
+            gpx = new GlobalResponseProcessor(rreq, result).toGPX();
             //gpx = GpxResponseWriter.toGPX(rreq, new RouteResult[]{result});
             if (gpx != null) {
                 ServletUtility.write(response, gpx);

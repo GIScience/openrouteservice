@@ -442,6 +442,101 @@ public class RoutingProfile {
         return RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType) || profileType == RoutingProfileType.WHEELCHAIR;
     }
 
+    /**
+     * This function creates the actual {@link IsochroneMap}.
+     * It is important, that whenever attributes contains pop_total it must also contain pop_area. If not the data won't be complete.
+     * So the first step in the function is a checkup on that.
+     *
+     * @param parameters The input are {@link IsochroneSearchParameters}
+     * @param attributes The input are a {@link String}[] holding the attributes if set
+     * @return The return will be an {@link IsochroneMap}
+     * @throws Exception
+     */
+    public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters, String[] attributes) throws Exception {
+        // Checkup for pop_total. If the value is set, pop_area must always be set here, if not already done so by the user.
+        String[] tempAttributes;
+        if (Arrays.toString(attributes).contains("total_pop".toLowerCase()) && !(Arrays.toString(attributes).contains("total_area_km".toLowerCase()))) {
+            tempAttributes = new String[attributes.length + 1];
+            int i = 0;
+            while (i < attributes.length) {
+                String attribute = attributes[i];
+                tempAttributes[i] = attribute;
+                i++;
+            }
+            tempAttributes[i] = "total_area_km";
+        } else if ((Arrays.toString(attributes).contains("total_area_km".toLowerCase())) && (!Arrays.toString(attributes).contains("total_pop".toLowerCase()))) {
+            tempAttributes = new String[attributes.length + 1];
+            int i = 0;
+            while (i < attributes.length) {
+                String attribute = attributes[i];
+                tempAttributes[i] = attribute;
+                i++;
+            }
+            tempAttributes[i] = "total_pop";
+        } else {
+            tempAttributes = attributes;
+        }
+
+
+        IsochroneMap result = null;
+        waitForUpdateCompletion();
+
+        beginUseGH();
+
+        try {
+            RouteSearchContext searchCntx = createSearchContext(parameters.getRouteParameters(), RouteSearchMode.Isochrones, null);
+
+            IsochroneMapBuilderFactory isochroneMapBuilderFactory = new IsochroneMapBuilderFactory(searchCntx);
+            result = isochroneMapBuilderFactory.buildMap(parameters);
+
+            endUseGH();
+        } catch (Exception ex) {
+            endUseGH();
+
+            LOGGER.error(ex);
+
+            throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to build an isochrone map.");
+        }
+
+        if (tempAttributes != null && result.getIsochronesCount() > 0) {
+            try {
+                Map<StatisticsProviderConfiguration, List<String>> mapProviderToAttrs = new HashMap<StatisticsProviderConfiguration, List<String>>();
+                for (String attr : tempAttributes) {
+                    StatisticsProviderConfiguration provConfig = IsochronesServiceSettings.getStatsProviders().get(attr);
+
+                    if (provConfig != null) {
+                        if (mapProviderToAttrs.containsKey(provConfig)) {
+                            List<String> attrList = mapProviderToAttrs.get(provConfig);
+                            attrList.add(attr);
+                        } else {
+                            List<String> attrList = new ArrayList<String>();
+                            attrList.add(attr);
+                            mapProviderToAttrs.put(provConfig, attrList);
+                        }
+                    }
+                }
+
+                for (Map.Entry<StatisticsProviderConfiguration, List<String>> entry : mapProviderToAttrs.entrySet()) {
+                    StatisticsProviderConfiguration provConfig = entry.getKey();
+                    StatisticsProvider provider = StatisticsProviderFactory.getProvider(provConfig.getName(), provConfig.getParameters());
+                    String[] provAttrs = provConfig.getMappedProperties(entry.getValue());
+
+                    for (Isochrone isochrone : result.getIsochrones()) {
+                        double[] attrValues = provider.getStatistics(isochrone, provAttrs);
+                        isochrone.setAttributes(entry.getValue(), attrValues, provConfig.getAttribution());
+                    }
+                }
+
+            } catch (Exception ex) {
+                LOGGER.error(ex);
+
+                throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to compute isochrone attributes.");
+            }
+        }
+
+        return result;
+    }
+
     public MatrixResult computeMatrix(MatrixRequest req) throws Exception {
         MatrixResult mtxResult = null;
 
@@ -763,6 +858,15 @@ public class RoutingProfile {
                 req.getHints().put("astarbi.epsilon", _astarEpsilon);
             if (_astarApproximation != null)
                 req.getHints().put("astarbi.approximation", _astarApproximation);
+
+            if (searchParams.getAlternativeRoutesCount() > 0) {
+                req.setAlgorithm("alternative_route");
+                req.getHints().put("alternative_route.max_paths", searchParams.getAlternativeRoutesCount());
+                req.getHints().put("alternative_route.max_weight_factor", searchParams.getAlternativeRoutesWeightFactor());
+                req.getHints().put("alternative_route.max_share_factor", searchParams.getAlternativeRoutesShareFactor());
+//              TAKB: contraction hierarchies have to be disabled for alternative routes until GH pulls https://github.com/graphhopper/graphhopper/pull/1524 and we update our fork.
+                req.getHints().put("ch.disable", true);
+            }
 
             if (directedSegment) {
                 resp = mGraphHopper.constructFreeHandRoute(req);

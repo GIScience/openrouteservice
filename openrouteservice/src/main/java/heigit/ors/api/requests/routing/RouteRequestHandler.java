@@ -42,7 +42,7 @@ public class RouteRequestHandler extends GenericHandler {
         this.errorCodes.put("UNKNOWN_PARAMETER", RoutingErrorCodes.UNKNOWN_PARAMETER);
     }
 
-    public  RouteResult generateRouteFromRequest(RouteRequest request) throws StatusCodeException{
+    public RouteResult[] generateRouteFromRequest(RouteRequest request) throws StatusCodeException{
         RoutingRequest routingRequest = convertRouteRequest(request);
 
         try {
@@ -141,6 +141,19 @@ public class RouteRequestHandler extends GenericHandler {
             params = processRouteRequestOptions(request, params);
         }
 
+        if (request.hasAlternativeRoutes()) {
+            if (request.getCoordinates().size() > 2) {
+                throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_ALTERNATIVE_ROUTES, "(number of waypoints > 2)");
+            }
+            RouteRequestAlternativeRoutes alternativeRoutes = request.getAlternativeRoutes();
+            if (alternativeRoutes.hasTargetCount())
+                params.setAlternativeRoutesCount(alternativeRoutes.getTargetCount());
+            if (alternativeRoutes.hasWeightFactor())
+                params.set_alternativeRoutesWeightFactor(alternativeRoutes.getWeightFactor());
+            if (alternativeRoutes.hasShareFactor())
+                params.set_alternativeRoutesShareFactor(alternativeRoutes.getShareFactor());
+        }
+
         params.setConsiderTraffic(false);
 
         params.setConsiderTurnRestrictions(false);
@@ -149,6 +162,7 @@ public class RouteRequestHandler extends GenericHandler {
 
         return routingRequest;
     }
+
 
     private List<Integer> processSkipSegments(RouteRequest request) throws ParameterOutOfRangeException, ParameterValueException, EmptyElementException {
         List<Integer> skipSegments = request.getSkipSegments();
@@ -193,6 +207,7 @@ public class RouteRequestHandler extends GenericHandler {
 
         if (options.hasVehicleType())
             params.setVehicleType(convertVehicleType(options.getVehicleType(), params.getProfileType()));
+
         return params;
     }
     private  boolean convertIncludeGeometry(RouteRequest request) throws IncompatibleParameterException {

@@ -91,9 +91,9 @@ public class RoutingAPI {
         RouteRequest request = new RouteRequest(start, end);
         request.setProfile(profile);
 
-        RouteResult result = new RouteRequestHandler().generateRouteFromRequest(request);
+        RouteResult[] result = new RouteRequestHandler().generateRouteFromRequest(request);
 
-        return new GeoJSONRouteResponse(new RouteResult[] { result }, request);
+        return new GeoJSONRouteResponse(result, request);
     }
 
     @PostMapping(value = "/{profile}")
@@ -119,9 +119,9 @@ public class RoutingAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.JSON);
 
-        RouteResult result = new RouteRequestHandler().generateRouteFromRequest(request);
+        RouteResult[] result = new RouteRequestHandler().generateRouteFromRequest(request);
 
-        return new JSONRouteResponse(new RouteResult[]{result}, request);
+        return new JSONRouteResponse(result, request);
     }
 
     @PostMapping(value = "/{profile}/gpx", produces = "application/gpx+xml;charset=UTF-8")
@@ -138,9 +138,9 @@ public class RoutingAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GPX);
 
-        RouteResult result = new RouteRequestHandler().generateRouteFromRequest(request);
+        RouteResult[] result = new RouteRequestHandler().generateRouteFromRequest(request);
 
-        return new GPXRouteResponse(new RouteResult[]{result}, request);
+        return new GPXRouteResponse(result, request);
 
     }
 
@@ -157,9 +157,9 @@ public class RoutingAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 
-        RouteResult result = new RouteRequestHandler().generateRouteFromRequest(request);
+        RouteResult[] result = new RouteRequestHandler().generateRouteFromRequest(request);
 
-        return new GeoJSONRouteResponse(new RouteResult[]{result}, request);
+        return new GeoJSONRouteResponse(result, request);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

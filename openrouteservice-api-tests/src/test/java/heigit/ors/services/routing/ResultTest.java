@@ -54,6 +54,9 @@ public class ResultTest extends ServiceTest {
 		addParameter("preference", "fastest");
 		addParameter("bikeProfile", "cycling-regular");
 		addParameter("carProfile", "driving-car");
+
+		// query for testing the alternative routes algorithm
+        addParameter("coordinatesAR", "8.680401,49.437436|8.746362,49.414191");
 	}
 
     @Test
@@ -1210,7 +1213,7 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].segments[0].detourfactor", is(1.38f))
+				.body("routes[0].segments[0].detourfactor", is(1.3f))
 				.statusCode(200);
 	}
 
@@ -1449,4 +1452,26 @@ public class ResultTest extends ServiceTest {
                 .body("features[0].geometry.coordinates.size()", is(34))
                 .statusCode(200);
 	}
+
+    @Test
+    public void testAlternativeRoutes() {
+        given()
+                .param("coordinates", getParameter("coordinatesAR"))
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("carProfile"))
+                .param("options", "{\"alternative_routes_count\": 2}")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes.size()", is(2))
+                .body("routes[0].summary.distance", is(8178.2f))
+                .body("routes[0].summary.duration", is(1087.3f))
+                .body("routes[1].summary.distance", is(10670.8f))
+                .body("routes[1].summary.duration", is(1414))
+                .statusCode(200);
+    }
 }
+
