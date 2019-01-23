@@ -874,7 +874,7 @@ public class RoutingProfile {
             req.setPathProcessor(routeProcCntx.getPathProcessor());
 
             //TEST
-            optimized = false;
+            // optimized = false;
 
             if (useDynamicWeights(searchParams) || flexibleMode) {
                 if (mGraphHopper.isCHEnabled())

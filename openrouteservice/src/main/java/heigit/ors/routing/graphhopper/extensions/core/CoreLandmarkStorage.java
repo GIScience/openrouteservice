@@ -89,7 +89,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
     private LMEdgeFilterSequence landmarksFilter;
     private int count = 0;
 
-    public static HashMap<Integer, Integer> coreNodeIdMap;
+    public HashMap<Integer, Integer> coreNodeIdMap;
     /**
      * 'to' and 'from' fit into 32 bit => 16 bit for each of them => 65536
      */
