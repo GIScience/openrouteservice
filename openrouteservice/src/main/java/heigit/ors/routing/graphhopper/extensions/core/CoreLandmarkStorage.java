@@ -173,6 +173,8 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         this.TO_OFFSET = 2;
         this.landmarkIDs = new ArrayList<>();
         this.subnetworkStorage = new SubnetworkStorage(dir, "landmarks_core_" + name);
+
+        createCoreNodeIdMap();
     }
 
     private void expandEdge(CHEdgeIteratorState mainEdgeState, boolean reverse) {
@@ -209,7 +211,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
      * Otherwise we would have to store a lot of empty info
      */
 
-    public void createCoreNodeIdMap(){
+    public void createCoreNodeIdMap() {
         this.coreNodeIdMap = new HashMap<>();
         int maxNode = graph.getNodes();
         int coreNodeLevel = maxNode + 1;
