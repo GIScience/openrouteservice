@@ -24,12 +24,8 @@ import heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.api.requests.isochrones.IsochronesRequest;
 import heigit.ors.api.requests.isochrones.IsochronesRequestHandler;
-import heigit.ors.api.requests.routing.RouteRequest;
 import heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects.GeoJSONIsochronesResponse;
-import heigit.ors.exceptions.MissingParameterException;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.exceptions.UnknownParameterException;
+import heigit.ors.exceptions.*;
 import heigit.ors.isochrones.IsochroneMapCollection;
 import heigit.ors.isochrones.IsochronesErrorCodes;
 import io.swagger.annotations.*;
@@ -56,7 +52,7 @@ public class IsochronesAPI {
 
     @PostMapping
     @ApiOperation(value = "", hidden = true)
-    public String getPostMapping(@RequestBody RouteRequest request) throws MissingParameterException {
+    public String getPostMapping(@RequestBody IsochronesRequest request) throws MissingParameterException {
         throw new MissingParameterException(IsochronesErrorCodes.MISSING_PARAMETER, "profile");
     }
 
@@ -102,6 +98,10 @@ public class IsochronesAPI {
         } else if (cause instanceof MismatchedInputException) {
             return errorHandler.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, ((MismatchedInputException) cause).getPath().get(0).getFieldName()));
         } else {
+            // Check if we are missing the body as a whole
+            if (e.getLocalizedMessage().startsWith("Required request body is missing")) {
+                return errorHandler.handleStatusCodeException(new EmptyElementException(IsochronesErrorCodes.MISSING_PARAMETER, "Request body could not be read"));
+            }
             return errorHandler.handleGenericException(e);
         }
     }
