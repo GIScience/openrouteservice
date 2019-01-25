@@ -6,30 +6,30 @@ import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.common.AttributeValue;
 import heigit.ors.isochrones.Isochrone;
 
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class GeoJSONIsochroneProperties {
 
-    @JsonProperty("group_index")
-    private int group_index;
+    @JsonProperty(value = "group_index")
+    private Integer groupIndex;
 
     @JsonProperty("value")
-    private double value;
+    private Double value;
 
     @JsonProperty("center")
     private Double[] center;
 
     @JsonProperty("area")
-    private double area;
+    private Double area;
 
     @JsonProperty("reachfactor")
-    private double reachfactor;
+    private Double reachfactor;
 
     @JsonProperty(value = "total_pop")
-    private double total_pop;
+    private Double totalPop;
 
 
     public GeoJSONIsochroneProperties(Isochrone isochrone, Coordinate center, int group_index) {
-        this.group_index = group_index;
+        this.groupIndex = group_index;
         if (isochrone.hasArea())
             this.area = isochrone.getArea();
         this.value = isochrone.getValue();
@@ -39,15 +39,15 @@ public class GeoJSONIsochroneProperties {
         if (isochrone.getAttributes() != null && isochrone.getAttributes().size() > 0)
             for (AttributeValue attributeValue : isochrone.getAttributes()) {
                 if (attributeValue.getName().toLowerCase().equals("total_pop"))
-                    this.total_pop = attributeValue.getValue();
+                    this.totalPop = attributeValue.getValue();
             }
     }
 
-    public int getGroup_index() {
-        return group_index;
+    public int getGroupIndex() {
+        return groupIndex;
     }
 
-    public double getValue() {
+    public Double getValue() {
         return value;
     }
 
@@ -55,15 +55,15 @@ public class GeoJSONIsochroneProperties {
         return center;
     }
 
-    public double getArea() {
+    public Double getArea() {
         return area;
     }
 
-    public double getReachfactor() {
+    public Double getReachfactor() {
         return reachfactor;
     }
 
-    public double getTotal_pop() {
-        return total_pop;
+    public Double getTotalPop() {
+        return totalPop;
     }
 }

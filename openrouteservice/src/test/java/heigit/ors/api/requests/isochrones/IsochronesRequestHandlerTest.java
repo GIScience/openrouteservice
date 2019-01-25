@@ -145,22 +145,22 @@ public class IsochronesRequestHandlerTest {
 
     @Test
     public void convertAreaUnit() throws ParameterValueException {
-        DistanceUnit unit = handler.convertAreaUnit(APIEnums.Units.KILOMETRES);
-        Assert.assertEquals(DistanceUnit.Kilometers, unit);
+        String unit = handler.convertAreaUnit(APIEnums.Units.KILOMETRES);
+        Assert.assertEquals("km", unit);
         unit = handler.convertAreaUnit(APIEnums.Units.METRES);
-        Assert.assertEquals(DistanceUnit.Meters, unit);
+        Assert.assertEquals("m", unit);
         unit = handler.convertAreaUnit(APIEnums.Units.MILES);
-        Assert.assertEquals(DistanceUnit.Miles, unit);
+        Assert.assertEquals("mi", unit);
     }
 
     @Test
     public void convertRangeUnit() throws ParameterValueException {
-        DistanceUnit unit = handler.convertRangeUnit(APIEnums.Units.KILOMETRES);
-        Assert.assertEquals(DistanceUnit.Kilometers, unit);
+        String unit = handler.convertRangeUnit(APIEnums.Units.KILOMETRES);
+        Assert.assertEquals("km", unit);
         unit = handler.convertRangeUnit(APIEnums.Units.METRES);
-        Assert.assertEquals(DistanceUnit.Meters, unit);
+        Assert.assertEquals("m", unit);
         unit = handler.convertRangeUnit(APIEnums.Units.MILES);
-        Assert.assertEquals(DistanceUnit.Miles, unit);
+        Assert.assertEquals("mi", unit);
     }
 
     @Test

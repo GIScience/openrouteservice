@@ -46,7 +46,6 @@ public class JSONRouteResponse extends RouteResponse {
         }
 
         BBox bounding = GeomUtility.generateBoundingFromMultiple(bboxes.toArray(new BBox[bboxes.size()]));
-
         bbox = BoundingBoxFactory.constructBoundingBox(bounding, request);
     }
 

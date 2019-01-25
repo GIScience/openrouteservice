@@ -27,6 +27,7 @@ package heigit.ors.matrix;
  * @author Julian Psotta, julian@openrouteservice.org
  */
 public class MatrixErrorCodes {
+    public static int BASE = 6000;
     public static int INVALID_JSON_FORMAT = 6000;
     public static int MISSING_PARAMETER = 6001;
     public static int INVALID_PARAMETER_FORMAT = 6002;
@@ -35,5 +36,6 @@ public class MatrixErrorCodes {
     public static int EXPORT_HANDLER_ERROR = 6006;
     public static int UNSUPPORTED_EXPORT_FORMAT = 6007;
     public static int EMPTY_ELEMENT = 6008;
+    public static int UNKNOWN_PARAMETER = 6011;
     public static int UNKNOWN = 6099;
 }

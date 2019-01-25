@@ -20,6 +20,7 @@
  */
 package heigit.ors.v2.services.common;
 
+import heigit.ors.services.common.Utils;
 import io.restassured.RestAssured;
 import org.junit.BeforeClass;
 
@@ -79,5 +80,13 @@ public abstract class ServiceTest {
 			baseHost = "http://localhost/";
 
 		RestAssured.baseURI = baseHost;
+
+		if (RestAssured.get("/status").statusCode() != 200) {
+			String basePath = System.getProperty("server.base");
+			if (basePath == null)
+				basePath = "/openrouteservice-" + Utils.getORSVersion() + "/";
+
+			RestAssured.basePath = basePath;
+		}
 	}
 }

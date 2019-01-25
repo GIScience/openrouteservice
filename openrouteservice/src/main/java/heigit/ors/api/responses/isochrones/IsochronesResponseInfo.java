@@ -21,7 +21,6 @@ import com.graphhopper.util.Helper;
 import heigit.ors.api.requests.isochrones.IsochronesRequest;
 import heigit.ors.config.AppConfig;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
-import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

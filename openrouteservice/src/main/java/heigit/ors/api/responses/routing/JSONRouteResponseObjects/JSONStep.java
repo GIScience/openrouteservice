@@ -56,8 +56,6 @@ public class JSONStep {
     @JsonProperty("maneuver")
     private JSONStepManeuver maneuver;
 
-
-
     public JSONStep(RouteStep step) {
         this.distance = step.getDistance();
         this.duration = step.getDuration();

@@ -20,24 +20,53 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import heigit.ors.api.errors.IsochronesResponseEntityExceptionHandler;
+import heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.api.requests.isochrones.IsochronesRequest;
 import heigit.ors.api.requests.isochrones.IsochronesRequestHandler;
+import heigit.ors.api.requests.routing.RouteRequest;
 import heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects.GeoJSONIsochronesResponse;
+import heigit.ors.exceptions.MissingParameterException;
 import heigit.ors.exceptions.ParameterValueException;
+import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterException;
 import heigit.ors.isochrones.IsochroneMapCollection;
 import heigit.ors.isochrones.IsochronesErrorCodes;
 import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @Api(value = "/v2/isochrones", description = "Get an Isochrone Calculation")
 @RequestMapping("/v2/isochrones")
 public class IsochronesAPI {
+    final static CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(IsochronesErrorCodes.BASE);
+
+    // generic catch methods - when extra info is provided in the url, the other methods are accessed.
+    @GetMapping
+    @ApiOperation(value = "", hidden = true)
+    public void getGetMapping() throws MissingParameterException {
+        throw new MissingParameterException(IsochronesErrorCodes.MISSING_PARAMETER, "profile");
+    }
+
+    @PostMapping
+    @ApiOperation(value = "", hidden = true)
+    public String getPostMapping(@RequestBody RouteRequest request) throws MissingParameterException {
+        throw new MissingParameterException(IsochronesErrorCodes.MISSING_PARAMETER, "profile");
+    }
+
+    // Matches any response type that has not been defined
+    @PostMapping(value="/{profile}/*")
+    public void getInvalidResponseType() throws StatusCodeException {
+        throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, IsochronesErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "This response format is not supported");
+    }
+
+    // Functional request methods
 
     @PostMapping(value = "/{profile}/geojson", produces = "application/geo+json;charset=UTF-8")
     @ApiOperation(value = "Get isochrones from the specified profile", httpMethod = "POST", consumes = "application/json")
@@ -56,22 +85,29 @@ public class IsochronesAPI {
         return new GeoJSONIsochronesResponse(request, isoMaps);
     }
 
-    // Errors generated from the reading of the request (before entering the routing system). Normally these are where
-    // parameters have been entered incorrectly in the request
-    @ExceptionHandler
-    public ResponseEntity<Object> handleError(final HttpMessageNotReadableException e) {
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<Object> handleMissingParams(final MissingServletRequestParameterException e) {
+        return errorHandler.handleStatusCodeException(new MissingParameterException(IsochronesErrorCodes.MISSING_PARAMETER, e.getParameterName()));
+    }
+
+    @ExceptionHandler({HttpMessageNotReadableException.class, HttpMessageConversionException.class})
+    public ResponseEntity<Object> handleReadingBodyException(final Exception e) {
         final Throwable cause = e.getCause();
-        final IsochronesResponseEntityExceptionHandler h = new IsochronesResponseEntityExceptionHandler();
         if (cause instanceof UnrecognizedPropertyException) {
-            return h.handleUnknownParameterException(new UnknownParameterException(IsochronesErrorCodes.UNKNOWN_PARAMETER, ((UnrecognizedPropertyException) cause).getPropertyName()));
+            return errorHandler.handleUnknownParameterException(new UnknownParameterException(IsochronesErrorCodes.UNKNOWN_PARAMETER, ((UnrecognizedPropertyException) cause).getPropertyName()));
         } else if (cause instanceof InvalidFormatException) {
-            return h.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, ((InvalidFormatException) cause).getValue().toString()));
+            return errorHandler.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, ((InvalidFormatException) cause).getValue().toString()));
         } else if (cause instanceof InvalidDefinitionException) {
-            return h.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, ((InvalidDefinitionException) cause).getPath().get(0).getFieldName()));
+            return errorHandler.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, ((InvalidDefinitionException) cause).getPath().get(0).getFieldName()));
         } else if (cause instanceof MismatchedInputException) {
-            return h.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, ((MismatchedInputException) cause).getPath().get(0).getFieldName()));
+            return errorHandler.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, ((MismatchedInputException) cause).getPath().get(0).getFieldName()));
         } else {
-            return h.handleGenericException(e);
+            return errorHandler.handleGenericException(e);
         }
+    }
+
+    @ExceptionHandler(StatusCodeException.class)
+    public ResponseEntity<Object> handleException(final StatusCodeException e) {
+        return errorHandler.handleStatusCodeException(e);
     }
 }

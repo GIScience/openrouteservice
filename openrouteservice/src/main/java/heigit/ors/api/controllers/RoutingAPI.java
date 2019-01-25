@@ -20,26 +20,48 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.api.errors.RoutingResponseEntityExceptionHandler;
+import heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.api.requests.routing.RouteRequest;
+import heigit.ors.api.requests.routing.RouteRequestHandler;
 import heigit.ors.api.responses.routing.GPXRouteResponseObjects.GPXRouteResponse;
 import heigit.ors.api.responses.routing.GeoJSONRouteResponseObjects.GeoJSONRouteResponse;
 import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONRouteResponse;
-import heigit.ors.exceptions.*;
-import heigit.ors.api.requests.routing.RouteRequestHandler;
+import heigit.ors.exceptions.MissingParameterException;
+import heigit.ors.exceptions.ParameterValueException;
+import heigit.ors.exceptions.StatusCodeException;
+import heigit.ors.exceptions.UnknownParameterException;
 import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RoutingErrorCodes;
 import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @Api(value = "/v2/directions", description = "Get a route")
 @RequestMapping("/v2/directions")
 public class RoutingAPI {
+    final static CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(RoutingErrorCodes.BASE);
+
+    // generic catch methods - when extra info is provided in the url, the other methods are accessed.
+    @GetMapping
+    @ApiOperation(value = "", hidden = true)
+    public void getGetMapping() throws MissingParameterException {
+        throw new MissingParameterException(RoutingErrorCodes.MISSING_PARAMETER, "profile");
+    }
+
+    @PostMapping
+    @ApiOperation(value = "", hidden = true)
+    public String getPostMapping(@RequestBody RouteRequest request) throws MissingParameterException {
+        throw new MissingParameterException(RoutingErrorCodes.MISSING_PARAMETER, "profile");
+    }
+
+    // Functional request methods
 
     @GetMapping(value = "/{profile}", produces = {"application/json;charset=UTF-8"})
     @ApiOperation(value = "Get a basic route between two points with the profile provided", httpMethod = "GET")
@@ -57,11 +79,10 @@ public class RoutingAPI {
         return new GeoJSONRouteResponse(new RouteResult[] { result }, request);
     }
 
-
-    @PostMapping
-    @ApiOperation(value = "", hidden = true)
-    public String getPostMapping(@RequestBody RouteRequest request) throws MissingParameterException {
-        throw new MissingParameterException(RoutingErrorCodes.MISSING_PARAMETER, "profile");
+    // Matches any response type that has not been defined
+    @PostMapping(value="/{profile}/*")
+    public void getInvalidResponseType() throws StatusCodeException {
+        throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, RoutingErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "This response format is not supported");
     }
 
     @PostMapping(value = "/{profile}")
@@ -120,27 +141,29 @@ public class RoutingAPI {
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex) {
-        final RoutingResponseEntityExceptionHandler h = new RoutingResponseEntityExceptionHandler();
-        return  h.handleStatusCodeException(new MissingParameterException(RoutingErrorCodes.MISSING_PARAMETER, ex.getParameterName()));
+    public ResponseEntity<Object> handleMissingParams(final MissingServletRequestParameterException e) {
+        return errorHandler.handleStatusCodeException(new MissingParameterException(RoutingErrorCodes.MISSING_PARAMETER, e.getParameterName()));
     }
 
-    // Errors generated from the reading of the request (before entering the routing system). Normally these are where
-    // parameters have been entered incorrectly in the request
-    @ExceptionHandler
-    public ResponseEntity<Object> handleError(final HttpMessageNotReadableException e) {
+
+    @ExceptionHandler({HttpMessageNotReadableException.class, HttpMessageConversionException.class, Exception.class})
+    public ResponseEntity<Object> handleReadingBodyException(final Exception e) {
         final Throwable cause = e.getCause();
-        final RoutingResponseEntityExceptionHandler h = new RoutingResponseEntityExceptionHandler();
         if (cause instanceof UnrecognizedPropertyException) {
-            return h.handleUnknownParameterException(new UnknownParameterException(RoutingErrorCodes.UNKNOWN_PARAMETER, ((UnrecognizedPropertyException) cause).getPropertyName()));
+            return errorHandler.handleUnknownParameterException(new UnknownParameterException(RoutingErrorCodes.UNKNOWN_PARAMETER, ((UnrecognizedPropertyException) cause).getPropertyName()));
         } else if (cause instanceof InvalidFormatException) {
-            return h.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, ((InvalidFormatException) cause).getValue().toString()));
+            return errorHandler.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, ((InvalidFormatException) cause).getValue().toString()));
         } else if (cause instanceof InvalidDefinitionException) {
-            return h.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, ((InvalidDefinitionException) cause).getPath().get(0).getFieldName()));
+            return errorHandler.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, ((InvalidDefinitionException) cause).getPath().get(0).getFieldName()));
         } else if (cause instanceof MismatchedInputException) {
-            return h.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, ((MismatchedInputException) cause).getPath().get(0).getFieldName()));
+            return errorHandler.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, ((MismatchedInputException) cause).getPath().get(0).getFieldName()));
         } else {
-            return h.handleGenericException(e);
+            return errorHandler.handleGenericException(e);
         }
+    }
+
+    @ExceptionHandler(StatusCodeException.class)
+    public ResponseEntity<Object> handleException(final StatusCodeException e) {
+        return errorHandler.handleStatusCodeException(e);
     }
 }

@@ -146,5 +146,4 @@ public class JSONIndividualMatrixResponse extends JSONBasedIndividualMatrixRespo
     public void setSources(List<JSON2DSources> sources) {
         this.sources = sources;
     }
-
 }

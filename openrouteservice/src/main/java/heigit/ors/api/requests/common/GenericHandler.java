@@ -259,7 +259,7 @@ public class GenericHandler {
 
     private void validateRestrictionsForProfile(RequestProfileParamsRestrictions restrictions, int profile) throws IncompatableParameterException {
         // Check that we do not have some parameters that should not be there
-        List<String> setRestrictions = restrictions.getSetRestrictions();
+        List<String> setRestrictions = restrictions.getRestrictionsThatAreSet();
         ProfileParameters params = new ProfileParameters();
         if (RoutingProfileType.isCycling(profile)) {
             params = new CyclingParameters();

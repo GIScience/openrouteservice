@@ -27,6 +27,7 @@ package heigit.ors.routing;
  * @author Julian Psotta, julian@openrouteservice.org
  */
 public class RoutingErrorCodes {
+    public static int BASE = 2000;
     public static int INVALID_JSON_FORMAT = 2000;
     public static int MISSING_PARAMETER = 2001;
     public static int INVALID_PARAMETER_FORMAT = 2002;

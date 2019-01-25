@@ -207,6 +207,54 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
+    public void expectUnknownUnits() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations"));
+        body.put("units", "j");
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "driving-car-123")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_VALUE))
+                .statusCode(400);
+    }
+
+    @Test
+    public void expectInvalidResponseFormat() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations"));
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}/blah")
+                .then()
+                .assertThat()
+                .body("error.code", is(MatrixErrorCodes.UNSUPPORTED_EXPORT_FORMAT))
+                .statusCode(406);
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}/json")
+                .then()
+                .assertThat()
+                .body("error.code", is(MatrixErrorCodes.UNSUPPORTED_EXPORT_FORMAT))
+                .statusCode(406);
+    }
+
+    @Test
     public void expectTooLittleLocationsError() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("minimalLocations"));
@@ -248,10 +296,11 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .post(getEndPointPath())
-                .then()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().all()
                 .assertThat()
                 .body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_FORMAT))
                 .statusCode(400);

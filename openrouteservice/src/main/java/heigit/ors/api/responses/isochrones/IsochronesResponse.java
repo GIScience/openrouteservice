@@ -18,7 +18,7 @@ package heigit.ors.api.responses.isochrones;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import heigit.ors.api.requests.isochrones.IsochronesRequest;
 import heigit.ors.api.responses.common.BoundingBox.BoundingBox;
-import heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects.GeoJSONIsochrone;
+import heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects.GeoJSONIsochroneBase;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ public class IsochronesResponse {
     protected BoundingBox bbox;
 
     @JsonIgnore
-    protected List<GeoJSONIsochrone> isochroneResults;
+    protected List<GeoJSONIsochroneBase> isochroneResults;
 
     public IsochronesResponse(IsochronesRequest request) {
         responseInformation = new IsochronesResponseInfo(request);

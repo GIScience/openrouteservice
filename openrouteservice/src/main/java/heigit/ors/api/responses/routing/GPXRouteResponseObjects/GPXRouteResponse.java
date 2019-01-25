@@ -20,11 +20,9 @@ import heigit.ors.api.responses.routing.RouteResponse;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.routing.RouteResult;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;

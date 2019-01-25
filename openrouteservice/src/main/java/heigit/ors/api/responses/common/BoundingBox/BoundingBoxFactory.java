@@ -38,6 +38,7 @@ public class BoundingBoxFactory {
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "format", request.getResponseType().toString());
         }
     }
+
     public static BoundingBox constructBoundingBox(BBox bounds, IsochronesRequest request) throws ParameterValueException {
         switch(request.getResponseType()) {
             case GEOJSON:

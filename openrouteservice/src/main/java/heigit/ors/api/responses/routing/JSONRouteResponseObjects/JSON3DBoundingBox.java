@@ -15,7 +15,9 @@
 
 package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.graphhopper.util.shapes.BBox;
 import heigit.ors.api.responses.common.BoundingBox.BoundingBox;
 import heigit.ors.api.responses.common.BoundingBox.BoundingBox3DBase;

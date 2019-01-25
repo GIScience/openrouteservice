@@ -18,7 +18,6 @@ package heigit.ors.api.responses.routing.GeoJSONRouteResponseObjects;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import heigit.ors.api.requests.routing.RouteRequest;
 import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONExtra;
 import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONSegment;
 import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONSummary;

@@ -82,10 +82,10 @@ public class IsochronesRequest {
     @JsonProperty(value = "units", defaultValue = "m")
     private APIEnums.Units rangeUnit = APIEnums.Units.METRES;
 
-    @ApiModelProperty(name = "area_unit",
+    @ApiModelProperty(name = "area_units",
             value = "Specifies the area unit.\n" +
                     "Default: m.")
-    @JsonProperty(value = "area_unit", defaultValue = "m")
+    @JsonProperty(value = "area_units", defaultValue = "m")
     private APIEnums.Units areaUnit = APIEnums.Units.METRES;
 
     @ApiModelProperty(name = "calc_method",
@@ -288,6 +288,4 @@ public class IsochronesRequest {
     public void setInterval(Double interval) {
         this.interval = interval;
     }
-
-
 }

@@ -21,8 +21,6 @@ import heigit.ors.services.routing.RoutingServiceSettings;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 
 public class GPXCopyright {
     @XmlAttribute(name = "author")

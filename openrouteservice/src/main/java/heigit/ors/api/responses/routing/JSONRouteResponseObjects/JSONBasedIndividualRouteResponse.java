@@ -16,7 +16,6 @@
 package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 
 import heigit.ors.api.requests.routing.RouteRequest;
-
 import heigit.ors.api.responses.common.BoundingBox.BoundingBox;
 import heigit.ors.api.responses.common.BoundingBox.BoundingBoxFactory;
 import heigit.ors.api.responses.routing.IndividualRouteResponse;
