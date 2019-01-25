@@ -66,7 +66,6 @@ public class CoreLMApproximator implements WeightApproximator {
                               double factor, boolean reverse) {
         this.reverse = reverse;
         this.lms = lms;
-        if (lms.coreNodeIdMap == null) lms.createCoreNodeIdMap();
         this.factor = factor;
         if (activeCount > lms.getLandmarkCount())
             throw new IllegalArgumentException("Active landmarks " + activeCount

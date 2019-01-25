@@ -1,15 +1,11 @@
 package heigit.ors.routing.graphhopper.extensions.core;
 
-import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 import heigit.ors.routing.AvoidFeatureFlags;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,11 +13,6 @@ import java.util.List;
 public class CoreLMOptions {
     List<String> coreLMSets;
     List<LMEdgeFilterSequence> filters = new ArrayList<>();
-    GraphHopperStorage ghStorage;
-
-    public CoreLMOptions(GraphHopperStorage ghStorage){
-        this.ghStorage = ghStorage;
-    }
 
     /**
      * Set the filters that are used while calculating landmarks and their distance
@@ -38,7 +29,7 @@ public class CoreLMOptions {
      *
      *
      * */
-    public void createRestrictionFilters(){
+    public void createRestrictionFilters(GraphHopperStorage ghStorage){
         //Create one edgefiltersequence for each lmset
         for(String set : coreLMSets) {
             //Now iterate over all comma separated values in one lm set
@@ -109,7 +100,4 @@ public class CoreLMOptions {
         return filters;
     }
 
-    public void setGhStorage(GraphHopperStorage ghStorage){
-        this.ghStorage = ghStorage;
-    }
 }
