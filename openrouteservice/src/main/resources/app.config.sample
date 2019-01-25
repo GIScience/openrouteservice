@@ -569,7 +569,7 @@
       # Enables or disables logging. Default value is true.
       enabled: true,
       # The path to a file containing logging parameters.
-      level_file: "DEBUG_LOGGING.properties",
+      level_file: "DEBUG_LOGGING.json",
       # The path to a directory to which logs will be written.
       location: "./logs",
       # Enables/disables writing logs to STDOUT.

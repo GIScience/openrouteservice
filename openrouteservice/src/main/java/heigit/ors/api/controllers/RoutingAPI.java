@@ -27,10 +27,7 @@ import heigit.ors.api.requests.routing.RouteRequestHandler;
 import heigit.ors.api.responses.routing.GPXRouteResponseObjects.GPXRouteResponse;
 import heigit.ors.api.responses.routing.GeoJSONRouteResponseObjects.GeoJSONRouteResponse;
 import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONRouteResponse;
-import heigit.ors.exceptions.MissingParameterException;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.exceptions.UnknownParameterException;
+import heigit.ors.exceptions.*;
 import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RoutingErrorCodes;
 import io.swagger.annotations.*;
@@ -158,6 +155,10 @@ public class RoutingAPI {
         } else if (cause instanceof MismatchedInputException) {
             return errorHandler.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, ((MismatchedInputException) cause).getPath().get(0).getFieldName()));
         } else {
+            // Check if we are missing the body as a whole
+            if (e.getLocalizedMessage().startsWith("Required request body is missing")) {
+                return errorHandler.handleStatusCodeException(new EmptyElementException(RoutingErrorCodes.MISSING_PARAMETER, "Request body could not be read"));
+            }
             return errorHandler.handleGenericException(e);
         }
     }

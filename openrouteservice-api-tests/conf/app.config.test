@@ -310,7 +310,7 @@
     }
     logging: {
       enabled: true,
-      level_file: "DEBUG_LOGGING.properties",
+      level_file: "DEBUG_LOGGING.json",
       location: "./logs",
       stdout: true
     }

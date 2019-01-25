@@ -24,10 +24,7 @@ import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.api.requests.matrix.MatrixRequest;
 import heigit.ors.api.requests.matrix.MatrixRequestHandler;
 import heigit.ors.api.responses.matrix.JSONMatrixResponseObjects.JSONMatrixResponse;
-import heigit.ors.exceptions.MissingParameterException;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.exceptions.UnknownParameterException;
+import heigit.ors.exceptions.*;
 import heigit.ors.matrix.MatrixErrorCodes;
 import heigit.ors.matrix.MatrixResult;
 import io.swagger.annotations.*;
@@ -107,6 +104,10 @@ public class MatrixAPI {
         } else if (cause instanceof MismatchedInputException) {
             return errorHandler.handleStatusCodeException(new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, ((MismatchedInputException) cause).getPath().get(0).getFieldName()));
         } else {
+            // Check if we are missing the body as a whole
+            if (e.getLocalizedMessage().startsWith("Required request body is missing")) {
+                return errorHandler.handleStatusCodeException(new EmptyElementException(MatrixErrorCodes.MISSING_PARAMETER, "Request body could not be read"));
+            }
             return errorHandler.handleGenericException(e);
         }
     }
