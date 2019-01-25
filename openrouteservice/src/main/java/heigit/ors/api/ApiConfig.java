@@ -15,6 +15,7 @@
 
 package heigit.ors.api;
 
+import com.bedatadriven.jackson.datatype.jts.JtsModule;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import heigit.ors.api.converters.APIRequestProfileConverter;
@@ -48,6 +49,7 @@ public class ApiConfig implements WebMvcConfigurer {
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
+        mapper.registerModule(new JtsModule());
 
         return mapper;
     }

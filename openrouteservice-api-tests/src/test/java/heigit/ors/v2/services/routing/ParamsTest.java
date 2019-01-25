@@ -27,6 +27,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
@@ -972,6 +975,27 @@ public class ParamsTest extends ServiceTest {
 				.header("Content-Type", "application/json")
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
+				.when().log().all()
+				.post(getEndPointPath()+"/{profile}/json")
+				.then()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+				.statusCode(400);
+	}
+
+	@Test
+	public void expectUnknownInstructionFormat() {
+
+		JSONObject body = new JSONObject();
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+		body.put("preference", getParameter("preference"));
+		body.put("instructions_format", "blah");
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("carProfile"))
+				.body(body.toString())
 				.when()
 				.post(getEndPointPath()+"/{profile}/json")
 				.then()
@@ -980,7 +1004,144 @@ public class ParamsTest extends ServiceTest {
 				.statusCode(400);
 	}
 
+	@Test
+	public void expectUnknownPreference() {
+		JSONObject body = new JSONObject();
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+		body.put("preference", "blah");
 
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("carProfile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath()+"/{profile}/json")
+				.then()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+				.statusCode(400);
+	}
+
+	@Test
+	public void expectUnknownLanguage() {
+		JSONObject body = new JSONObject();
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+		body.put("preference", getParameter("preference"));
+		body.put("language", "blah");
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("carProfile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath()+"/{profile}/json")
+				.then()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+				.statusCode(400);
+	}
+
+	@Test
+	public void expectUnknownAttributes() {
+		JSONObject body = new JSONObject();
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+		body.put("preference", getParameter("preference"));
+		body.put("attributes", Arrays.asList("blah"));
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("carProfile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath()+"/{profile}/json")
+				.then()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+				.statusCode(400);
+
+		body.put("attributes", new JSONArray(Arrays.asList("blah", "percentage")));
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("carProfile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath()+"/{profile}/json")
+				.then()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+				.statusCode(400);
+	}
+
+	@Test
+	public void expectUnknownAvoidFeatures() {
+		JSONObject options = new JSONObject();
+		JSONArray avoids = new JSONArray(Arrays.asList("blah", "unpavedroads", "tracks"));
+		options.put("avoid_features", avoids);
+
+		JSONObject body = new JSONObject();
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+		body.put("preference", getParameter("preference"));
+		body.put("options", options);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("carProfile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath()+"/{profile}/json")
+				.then()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+				.statusCode(400);
+	}
+
+	@Test
+	public void expectUnknownAvoidBorders() {
+		JSONObject options = new JSONObject();
+		options.put("avoid_borders", "blah");
+
+		JSONObject body = new JSONObject();
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+		body.put("preference", getParameter("preference"));
+		body.put("options", options);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("carProfile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath()+"/{profile}/json")
+				.then()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+				.statusCode(400);
+	}
+
+	@Test
+	public void expectInvalidResponseFormat() {
+		JSONObject body = new JSONObject();
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+		body.put("preference", getParameter("preference"));
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("carProfile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath()+"/{profile}/blah")
+				.then()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.UNSUPPORTED_EXPORT_FORMAT))
+				.statusCode(406);
+	}
 
 	@Test
 	public void expectWarningsAndExtraInfo() {

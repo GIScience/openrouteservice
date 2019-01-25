@@ -297,7 +297,7 @@ public class RequestProfileParamsRestrictions {
         return hasTrailDifficulty;
     }
 
-    public List<String> getSetRestrictions() {
+    public List<String> getRestrictionsThatAreSet() {
         List<String> setRestrictions = new ArrayList<>();
         if(hasGradient)
             setRestrictions.add("gradient");

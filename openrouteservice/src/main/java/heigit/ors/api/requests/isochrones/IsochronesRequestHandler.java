@@ -64,7 +64,6 @@ public class IsochronesRequestHandler extends GenericHandler {
 
             for (int i = 0; i < travellers.size(); ++i) {
                 IsochroneSearchParameters searchParams = isochroneRequest.getSearchParameters(i);
-                // searchParams.setAttributes(attrs);
                 IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams);
                 isoMaps.add(isochroneMap);
             }
@@ -73,62 +72,42 @@ public class IsochronesRequestHandler extends GenericHandler {
     }
 
     Float convertSmoothing(Double smoothingValue) throws ParameterValueException {
-
         float f = (float) smoothingValue.doubleValue();
 
         if (smoothingValue < 0 || smoothingValue > 100)
             throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "smoothing", smoothingValue.toString());
 
         return f;
-
     }
 
     String convertLocationType(IsochronesRequestEnums.LocationType locationType) throws ParameterValueException {
-
         IsochronesRequestEnums.LocationType value;
 
         switch (locationType) {
-
             case DESTINATION:
-
                 value = IsochronesRequestEnums.LocationType.DESTINATION;
-
                 break;
-
             case START:
-
                 value = IsochronesRequestEnums.LocationType.START;
-
                 break;
-
             default:
-
                 throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "location_type", locationType.toString());
         }
 
         return value.toString();
-
     }
 
     TravelRangeType convertRangeType(IsochronesRequestEnums.RangeType rangeType) throws ParameterValueException {
-
         TravelRangeType travelRangeType;
 
         switch (rangeType) {
-
             case DISTANCE:
-
                 travelRangeType = TravelRangeType.Distance;
-
                 break;
             case TIME:
-
                 travelRangeType = TravelRangeType.Time;
-
                 break;
-
             default:
-
                 throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "range_type", rangeType.toString());
         }
 
@@ -136,33 +115,32 @@ public class IsochronesRequestHandler extends GenericHandler {
 
     }
 
-    DistanceUnit convertAreaUnit(APIEnums.Units unitsIn) throws ParameterValueException {
+    String convertAreaUnit(APIEnums.Units unitsIn) throws ParameterValueException {
 
-        DistanceUnit are_unit;
+        DistanceUnit area_unit;
         try {
-            are_unit = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.Unknown);
-            if (are_unit == DistanceUnit.Unknown)
+            area_unit = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.Unknown);
+            if (area_unit == DistanceUnit.Unknown)
+                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "area_units", unitsIn.toString());
 
-                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "are_unit", unitsIn.toString());
-
-            return are_unit;
+            return DistanceUnitUtil.toString(area_unit);
 
         } catch (Exception e) {
-            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "are_unit", unitsIn.toString());
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "area_units", unitsIn.toString());
         }
     }
 
-    DistanceUnit convertRangeUnit(APIEnums.Units unitsIn) throws ParameterValueException {
+    String convertRangeUnit(APIEnums.Units unitsIn) throws ParameterValueException {
 
         DistanceUnit units;
         try {
             units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.Unknown);
             if (units == DistanceUnit.Unknown)
-                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "range_unit", unitsIn.toString());
+                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "range_units", unitsIn.toString());
         } catch (Exception e) {
-            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "range_unit", unitsIn.toString());
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "range_units", unitsIn.toString());
         }
-        return units;
+        return DistanceUnitUtil.toString(units);
 
     }
 

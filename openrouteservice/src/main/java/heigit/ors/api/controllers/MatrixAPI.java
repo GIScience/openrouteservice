@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import heigit.ors.api.errors.MatrixResponseEntityExceptionHandler;
+import heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.api.requests.matrix.MatrixRequest;
 import heigit.ors.api.requests.matrix.MatrixRequestHandler;
@@ -30,27 +30,42 @@ import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterException;
 import heigit.ors.matrix.MatrixErrorCodes;
 import heigit.ors.matrix.MatrixResult;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RestController
 @Api(value = "/v2/matrix", description = "Get a Matrix calculation")
 @RequestMapping("/v2/matrix")
 public class MatrixAPI {
+    final static CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(MatrixErrorCodes.BASE);
+
+    // generic catch methods - when extra info is provided in the url, the other methods are accessed.
+    @GetMapping
+    @ApiOperation(value = "", hidden = true)
+    public void getGetMapping() throws MissingParameterException {
+        throw new MissingParameterException(MatrixErrorCodes.MISSING_PARAMETER, "profile");
+    }
 
     @PostMapping
     @ApiOperation(value = "", hidden = true)
-    public String getPostMapping(@RequestBody MatrixRequest request) throws MissingParameterException {
+    public String getPostMapping() throws MissingParameterException {
         throw new MissingParameterException(MatrixErrorCodes.MISSING_PARAMETER, "profile");
     }
+
+    // Matches any response type that has not been defined
+    @PostMapping(value="/{profile}/*")
+    public void getInvalidResponseType() throws StatusCodeException {
+        throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, MatrixErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "This response format is not supported");
+    }
+
+    // Functional request methods
 
     @PostMapping(value = "/{profile}")
     public JSONMatrixResponse getDefault(@ApiParam(value = "Specifies the matrix profile.") @PathVariable APIEnums.Profile profile,
@@ -75,22 +90,29 @@ public class MatrixAPI {
         return new JSONMatrixResponse(matrixResults, matrixRequests, originalRequest);
     }
 
-    // Errors generated from the reading of the request (before entering the routing system). Normally these are where
-    // parameters have been entered incorrectly in the request
-    @ExceptionHandler
-    public ResponseEntity handleError(final HttpMessageNotReadableException e) {
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<Object> handleMissingParams(final MissingServletRequestParameterException e) {
+        return errorHandler.handleStatusCodeException(new MissingParameterException(MatrixErrorCodes.MISSING_PARAMETER, e.getParameterName()));
+    }
+
+    @ExceptionHandler({HttpMessageNotReadableException.class, HttpMessageConversionException.class, Exception.class})
+    public ResponseEntity<Object> handleReadingBodyException(final Exception e) {
         final Throwable cause = e.getCause();
-        final MatrixResponseEntityExceptionHandler h = new MatrixResponseEntityExceptionHandler();
         if (cause instanceof UnrecognizedPropertyException) {
-            return h.handleUnknownParameterException(new UnknownParameterException(MatrixErrorCodes.UNKNOWN, ((UnrecognizedPropertyException) cause).getPropertyName()));
+            return errorHandler.handleUnknownParameterException(new UnknownParameterException(MatrixErrorCodes.UNKNOWN_PARAMETER, ((UnrecognizedPropertyException) cause).getPropertyName()));
         } else if (cause instanceof InvalidFormatException) {
-            return h.handleStatusCodeException(new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, ((InvalidFormatException) cause).getValue().toString()));
+            return errorHandler.handleStatusCodeException(new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, ((InvalidFormatException) cause).getValue().toString()));
         } else if (cause instanceof InvalidDefinitionException) {
-            return h.handleStatusCodeException(new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, ((InvalidDefinitionException) cause).getPath().get(0).getFieldName()));
+            return errorHandler.handleStatusCodeException(new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, ((InvalidDefinitionException) cause).getPath().get(0).getFieldName()));
         } else if (cause instanceof MismatchedInputException) {
-            return h.handleStatusCodeException(new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, ((MismatchedInputException) cause).getPath().get(0).getFieldName()));
+            return errorHandler.handleStatusCodeException(new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, ((MismatchedInputException) cause).getPath().get(0).getFieldName()));
         } else {
-            return h.handleGenericException(e);
+            return errorHandler.handleGenericException(e);
         }
+    }
+
+    @ExceptionHandler(StatusCodeException.class)
+    public ResponseEntity<Object> handleException(final StatusCodeException e) {
+        return errorHandler.handleStatusCodeException(e);
     }
 }

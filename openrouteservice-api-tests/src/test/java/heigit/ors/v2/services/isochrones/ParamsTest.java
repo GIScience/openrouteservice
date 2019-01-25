@@ -27,6 +27,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 
@@ -266,6 +268,170 @@ public class ParamsTest extends ServiceTest {
                 .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
 
+    }
+
+    @Test
+    public void testUnknownLocationType() {
+        JSONObject body = new JSONObject();
+        body.put("location", getParameter("locations_2"));
+        body.put("range", getParameter("ranges_1800"));
+        body.put("range_type", "distance");
+        body.put("interval", "100");
+        body.put("location_type", "blah");
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .log().all()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
+                .statusCode(400);
+    }
+
+    @Test
+    public void testUnknownRangeType() {
+        JSONObject body = new JSONObject();
+        body.put("location", getParameter("locations_2"));
+        body.put("range", getParameter("ranges_1800"));
+        body.put("interval", "100");
+        body.put("range_type", "blah");
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .log().all()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
+                .statusCode(400);
+    }
+
+    @Test
+    public void testUnknownAttributes() {
+        JSONArray ranges = new JSONArray();
+        ranges.put(400);
+
+        JSONObject body = new JSONObject();
+        body.put("location", getParameter("locations_1"));
+        body.put("range", ranges);
+        body.put("range_type", "time");
+        body.put("attributes", getParameter("attributesReachfactorAreaFaulty"));
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().all()
+                .post(getEndPointPath()+"/{profile}/geojson")
+                .then()
+                .assertThat()
+                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
+                .statusCode(400);
+
+        body.put("attributes", new JSONArray(Arrays.asList("blah", "reachfactor")));
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}/geojson")
+                .then()
+                .assertThat()
+                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
+                .statusCode(400);
+    }
+
+    @Test
+    public void expectUnknownAvoidFeatures() {
+        JSONObject options = new JSONObject();
+        JSONArray avoids = new JSONArray(Arrays.asList("blah", "unpavedroads", "tracks"));
+        options.put("avoid_features", avoids);
+
+        JSONObject body = new JSONObject();
+        body.put("location", getParameter("locations_2"));
+        body.put("range", getParameter("ranges_1800"));
+        body.put("range_type", "distance");
+        body.put("interval", "100");
+        body.put("options", options);
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}/geojson")
+                .then()
+                .assertThat()
+                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
+                .statusCode(400);
+    }
+
+    @Test
+    public void expectUnknownAvoidBorders() {
+        JSONObject options = new JSONObject();
+        options.put("avoid_borders", "blah");
+
+        JSONObject body = new JSONObject();
+        body.put("location", getParameter("locations_2"));
+        body.put("range", getParameter("ranges_1800"));
+        body.put("range_type", "distance");
+        body.put("interval", "100");
+        body.put("options", options);
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}/geojson")
+                .then()
+                .assertThat()
+                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
+                .statusCode(400);
+    }
+
+    @Test
+    public void expectInvalidResponseFormat() {
+        JSONObject body = new JSONObject();
+        body.put("location", getParameter("locations_1"));
+        body.put("range", getParameter("ranges_400"));
+        body.put("range_type", "time");
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}/blah")
+                .then()
+                .assertThat()
+                .body("error.code", is(IsochronesErrorCodes.UNSUPPORTED_EXPORT_FORMAT))
+                .statusCode(406);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath()+"/{profile}/geojson")
+                .then()
+                .assertThat()
+                .body("error.code", is(IsochronesErrorCodes.UNSUPPORTED_EXPORT_FORMAT))
+                .statusCode(406);
     }
 
     @Test
@@ -591,7 +757,7 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .statusCode(400)
-                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE));
+                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT));
 
         body.put("smoothing", "-1");
 

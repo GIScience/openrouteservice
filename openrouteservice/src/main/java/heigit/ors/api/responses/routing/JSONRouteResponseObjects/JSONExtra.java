@@ -44,7 +44,6 @@ public class JSONExtra {
         for(ExtraSummaryItem item : summaryItems) {
             summary.add(new JSONExtraSummary(item.getValue(), item.getDistance(), item.getAmount()));
         }
-
     }
 
     @ApiModelProperty(value = "A list of values representing a section of the route. The individual values are: \n" +

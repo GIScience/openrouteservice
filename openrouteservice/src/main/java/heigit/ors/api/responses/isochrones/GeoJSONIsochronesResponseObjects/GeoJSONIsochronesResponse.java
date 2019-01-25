@@ -26,6 +26,8 @@ import heigit.ors.api.responses.isochrones.IsochronesResponseInfo;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.isochrones.IsochroneMapCollection;
+import heigit.ors.isochrones.IsochroneUtility;
+import heigit.ors.isochrones.IsochronesIntersection;
 import heigit.ors.util.GeomUtility;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -49,6 +51,15 @@ public class GeoJSONIsochronesResponse extends IsochronesResponse {
         for (IsochroneMap isoMap : isoMaps.getIsochroneMaps()) {
             this.isochroneResults.addAll(new GeoJSONIsochronesMap(isoMap).buildGeoJSONIsochrones());
         }
+
+        if (request.getIntersections()) {
+            List<IsochronesIntersection> isoIntersections = IsochroneUtility.computeIntersections(isoMaps);
+            if (isoIntersections != null && !isoIntersections.isEmpty()) {
+                for (IsochronesIntersection isoIntersection : isoIntersections) {
+                    this.isochroneResults.add(new GeoJSONIsochronesIntersection(isoIntersection, request));
+                }
+            }
+        }
         constructBBox(isoMaps, request);
     }
 
@@ -63,9 +74,8 @@ public class GeoJSONIsochronesResponse extends IsochronesResponse {
         bbox = BoundingBoxFactory.constructBoundingBox(bounding, request);
     }
 
-
     @JsonProperty("features")
-    public List<GeoJSONIsochrone> getIsochrones() {
+    public List<GeoJSONIsochroneBase> getIsochrones() {
         return isochroneResults;
     }
 

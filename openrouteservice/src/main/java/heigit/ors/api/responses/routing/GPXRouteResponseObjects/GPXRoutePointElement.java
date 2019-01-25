@@ -17,13 +17,10 @@ package heigit.ors.api.responses.routing.GPXRouteResponseObjects;
 
 import heigit.ors.routing.RouteStep;
 import heigit.ors.util.FormatUtility;
-import io.swagger.annotations.ApiModelProperty;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 @XmlType(propOrder = {"elevation", "name", "instructionDescription", "element"})
 public class GPXRoutePointElement {

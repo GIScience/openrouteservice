@@ -17,7 +17,6 @@ package heigit.ors.api.responses.routing.GPXRouteResponseObjects;
 
 import heigit.ors.config.AppConfig;
 
-import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 

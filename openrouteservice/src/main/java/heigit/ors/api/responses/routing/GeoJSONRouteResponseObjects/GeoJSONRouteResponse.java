@@ -21,7 +21,6 @@ import com.graphhopper.util.shapes.BBox;
 import heigit.ors.api.requests.routing.RouteRequest;
 import heigit.ors.api.responses.common.BoundingBox.BoundingBoxFactory;
 import heigit.ors.api.responses.routing.IndividualRouteResponse;
-import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONIndividualRouteResponse;
 import heigit.ors.api.responses.routing.RouteResponse;
 import heigit.ors.api.responses.routing.RouteResponseInfo;
 import heigit.ors.exceptions.StatusCodeException;

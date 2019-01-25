@@ -18,7 +18,6 @@ package heigit.ors.api.responses.routing.GPXRouteResponseObjects;
 import heigit.ors.routing.RouteStep;
 
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "extensions")

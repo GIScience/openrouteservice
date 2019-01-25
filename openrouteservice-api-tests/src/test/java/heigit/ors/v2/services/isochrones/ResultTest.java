@@ -123,7 +123,7 @@ public class ResultTest extends ServiceTest {
                 .when()
                 .log().all()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then()
+                .then().log().all()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].geometry.coordinates[0].size()", is(52))
@@ -132,7 +132,7 @@ public class ResultTest extends ServiceTest {
                 .body("features[0].type", is("Feature"))
                 .body("features[0].geometry.type", is("Polygon"))
                 .body("features[0].properties.group_index", is(0))
-                .body("features[0].properties.value", is(400))
+                .body("features[0].properties.value", is(400f))
                 .statusCode(200);
 
     }
@@ -241,7 +241,7 @@ public class ResultTest extends ServiceTest {
         body.put("location", getParameter("locations_1"));
         body.put("range", getParameter("ranges_400"));
         body.put("attributes", getParameter("attributesReachfactorArea"));
-        body.put("area_units", getParameter("km"));
+        body.put("area_units", "km");
 
         given()
                 .header("Accept", "application/geo+json")
@@ -294,7 +294,7 @@ public class ResultTest extends ServiceTest {
         body.put("location", getParameter("locations_1"));
         body.put("range", getParameter("ranges_400"));
         body.put("attributes", getParameter("attributesReachfactorArea"));
-        body.put("area_units", getParameter("mi"));
+        body.put("area_units", "mi");
 
         given()
                 .header("Accept", "application/geo+json")
@@ -380,14 +380,13 @@ public class ResultTest extends ServiceTest {
         body.put("smoothing", "100");
 
         given()
-                .param("locations", getParameter("location"))
-                .param("profile", getParameter("profile"))
-                .param("range", "2000")
-                .param("range_type", "distance")
-                .param("smoothing", "100")
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("cyclingProfile"))
+                .body(body.toString())
                 .when()
-                .get(getEndPointName())
-                .then()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().all()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].geometry.coordinates[0].size", is(19))

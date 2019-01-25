@@ -45,7 +45,6 @@ public class JSONLocation {
         return FormatUtility.roundToDecimals(snapped_distance, SNAPPED_DISTANCE_DECIMAL_PLACES);
     }
 
-
     public Double[] getLocation() {
         return new Double[0];
     }

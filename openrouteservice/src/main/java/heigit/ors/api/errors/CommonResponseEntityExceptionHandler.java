@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterException;
-import heigit.ors.matrix.MatrixErrorCodes;
+import heigit.ors.isochrones.IsochronesErrorCodes;
 import heigit.ors.util.AppInfo;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
@@ -28,23 +28,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
 @RestController
-public class MatrixResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+public class CommonResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+    protected static Logger LOGGER = Logger.getLogger(CommonResponseEntityExceptionHandler.class.getName());
 
-    protected static Logger LOGGER = Logger.getLogger(MatrixResponseEntityExceptionHandler.class.getName());
+    final int errorCodeBase;
 
-    @ExceptionHandler(value = InvalidDefinitionException.class)
-    public ResponseEntity handleInvalidDefinitionException(InvalidDefinitionException exception) {
-        return handleStatusCodeException((StatusCodeException) exception.getCause());
+    public CommonResponseEntityExceptionHandler() {
+        errorCodeBase = 0;
     }
 
+    public CommonResponseEntityExceptionHandler(int errorCodeBase) {
+        this.errorCodeBase = errorCodeBase;
+    }
 
-    @ExceptionHandler(value = StatusCodeException.class)
     public ResponseEntity handleStatusCodeException(StatusCodeException exception) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -59,7 +60,6 @@ public class MatrixResponseEntityExceptionHandler extends ResponseEntityExceptio
         return new ResponseEntity(constructErrorBody(exception), headers, convertOrsToSpringHttpCode(exception.getStatusCode()));
     }
 
-    @ExceptionHandler(value = UnknownParameterException.class)
     public ResponseEntity handleUnknownParameterException(UnknownParameterException exception) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -74,8 +74,6 @@ public class MatrixResponseEntityExceptionHandler extends ResponseEntityExceptio
         return new ResponseEntity(constructErrorBody(exception), headers, convertOrsToSpringHttpCode(exception.getStatusCode()));
     }
 
-    // Generic Error Handler
-    @ExceptionHandler(value = Exception.class)
     public ResponseEntity handleGenericException(Exception exception) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -95,7 +93,7 @@ public class MatrixResponseEntityExceptionHandler extends ResponseEntityExceptio
                 StatusCodeException origExc = (StatusCodeException) e.getCause();
                 return new ResponseEntity(constructErrorBody(origExc), headers, HttpStatus.BAD_REQUEST);
             }
-            return new ResponseEntity(constructErrorBody(new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "")), headers, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(constructErrorBody(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "")), headers, HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity(constructGenericErrorBody(exception), headers, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -107,6 +105,9 @@ public class MatrixResponseEntityExceptionHandler extends ResponseEntityExceptio
 
     private String constructErrorBody(StatusCodeException exception) {
         int errorCode = exception.getInternalCode();
+        if (errorCode < 100) {
+            errorCode = errorCodeBase + errorCode;
+        }
 
         JSONObject json = constructJsonBody(exception, errorCode);
 

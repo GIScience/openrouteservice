@@ -36,7 +36,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import heigit.ors.exceptions.ParameterValueException;
 import io.swagger.annotations.ApiModel;
 
-import static heigit.ors.routing.RoutingErrorCodes.INVALID_PARAMETER_VALUE;
+import static heigit.ors.api.errors.GenericErrorCodes.INVALID_PARAMETER_VALUE;
 
 public class APIEnums {
     @ApiModel(value = "Specify which type of border crossing to avoid")

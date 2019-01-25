@@ -47,7 +47,7 @@ public class JSONStepManeuver {
             location[0] = coordinate.x;
             location[1] = coordinate.y;
         }
-        //bearingBefore = (maneuver.getBearingBefore() == null) ? 0 : maneuver.getBearingBefore();
+
         bearingAfter = maneuver.getBearingAfter();
         bearingBefore = maneuver.getBearingBefore();
     }
