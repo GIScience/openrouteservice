@@ -57,11 +57,7 @@ public class RouteResultBuilder
     public RouteResult[] createRouteResults(List<GHResponse> routes, RoutingRequest request, List<RouteExtraInfo> extras) throws Exception {
         if (routes.isEmpty())
             return new RouteResult[]{new RouteResult(request.getExtraInfo())};
-
         if (routes.size() > 1) {
-            if (request.getSearchParameters().getAlternativeRoutes() > 1) {
-                throw new InternalServerException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "Alternative routes algorithm does not support more than two way points");
-            }
             return new RouteResult[]{createRouteResult(routes, request, extras)};
         }
         return createRouteResultSet(routes.get(0), request, extras);

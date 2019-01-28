@@ -923,9 +923,9 @@ public class RoutingProfile {
             if (searchParams.getAlternativeRoutes() > 0) {
                 req.setAlgorithm("alternative_route");
                 req.getHints().put("alternative_route.max_paths", searchParams.getAlternativeRoutes());
-//                TAKB: TODO more testing required to find out if we can tweak here to remove irregular alternative paths
-//                req.getHints().put("alternative_route.max_weight_factor", 1.4);
-//                req.getHints().put("alternative_route.max_share_factor", 0.6);
+                req.getHints().put("alternative_route.max_weight_factor", searchParams.getAlternativeRoutesWeightFactor());
+                req.getHints().put("alternative_route.max_share_factor", searchParams.getAlternativeRoutesShareFactor());
+//              TAKB: contraction hierarchies have to be disabled for alternative routes until GH pulls https://github.com/graphhopper/graphhopper/pull/1524 and we update our fork.
                 req.getHints().put("ch.disable", true);
             }
 

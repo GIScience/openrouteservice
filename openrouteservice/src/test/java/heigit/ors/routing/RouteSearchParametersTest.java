@@ -249,4 +249,13 @@ public class RouteSearchParametersTest {
         routeSearchParameters.setBearings(new WayPointBearing[]{});
         Assert.assertArrayEquals(new WayPointBearing[]{}, routeSearchParameters.getBearings());
     }
+
+    @Test
+    public void alternativeRoutesParams() throws Exception {
+        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
+        routeSearchParameters.setOptions("{\"alternative_routes\": 2, \"alternative_routes_weight_factor\": 3.3, \"alternative_routes_share_factor\": 4.4}}");
+        Assert.assertEquals(2, routeSearchParameters.getAlternativeRoutes());
+        Assert.assertEquals(3.3, routeSearchParameters.getAlternativeRoutesWeightFactor(), 0.0);
+        Assert.assertEquals(4.4, routeSearchParameters.getAlternativeRoutesShareFactor(), 0.0);
+    }
 }
