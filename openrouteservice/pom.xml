@@ -180,9 +180,9 @@
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
-			<id>opengeo</id>
-			<name>OpenGeo Maven Repository</name>
-			<url>http://repo.opengeo.org</url>
+			<id>boundlessgeo</id>
+			<name>Boundless Maven Repository</name>
+			<url>http://repo.boundlessgeo.com</url>
 		</repository>
 		<repository>
       		<id>bintray-nitram509-jbrotli</id>
