@@ -843,7 +843,7 @@ public class RoutingProfile {
                 } else if (weightingMethod == WeightingMethod.SHORTEST) {
                     req.setWeighting("shortest");
                     req.getHints().put("weighting_method", "shortest");
-                    flexibleMode = true;
+                    //flexibleMode = true;
                 } else if (weightingMethod == WeightingMethod.RECOMMENDED) {
                     req.setWeighting("fastest");
                     req.getHints().put("weighting_method", "recommended");
@@ -874,7 +874,7 @@ public class RoutingProfile {
             req.setPathProcessor(routeProcCntx.getPathProcessor());
 
             //TEST
-//            optimized = false;
+            // optimized = false;
 
             if (useDynamicWeights(searchParams) || flexibleMode) {
                 if (mGraphHopper.isCHEnabled())
@@ -886,10 +886,10 @@ public class RoutingProfile {
                     req.getHints().put("ch.disable", true);
                 }
                 if (mGraphHopper.isCoreEnabled() &&
-                        optimized &&
+                        optimized /*&&
                         !(searchParams.getWeightingMethod() == WeightingMethod.SHORTEST ||
                                 searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED ||
-                                searchParams.getBearings() != null)) {
+                                searchParams.getBearings() != null)*/) {
                     req.getHints().put("core.disable", false);
                     req.getHints().put("lm.disable", true);
                     req.getHints().put("ch.disable", true);
@@ -902,10 +902,10 @@ public class RoutingProfile {
                 }
                 else {
                     if (mGraphHopper.isCoreEnabled() &&
-                            optimized &&
+                            optimized /*&&
                             !(searchParams.getWeightingMethod() == WeightingMethod.SHORTEST ||
                                     searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED ||
-                                    searchParams.getBearings() != null)) {
+                                    searchParams.getBearings() != null)*/) {
                         req.getHints().put("core.disable", false);
                         req.getHints().put("lm.disable", true);
                         req.getHints().put("ch.disable", true);
@@ -968,9 +968,9 @@ public class RoutingProfile {
                     || searchParams.getConsiderTraffic()
                 )
             )
-            ||( searchParams.getWeightingMethod() == WeightingMethod.SHORTEST
+            //||( searchParams.getWeightingMethod() == WeightingMethod.SHORTEST
                 || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED
-            )
+            //)
             || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/;
         return dynamicWeights;
     }

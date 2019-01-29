@@ -18,27 +18,23 @@
 package heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.*;
-import com.graphhopper.routing.lm.LMApproximator;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.lm.LandmarkSuggestion;
 import com.graphhopper.routing.util.AbstractAlgoPreparation;
 import com.graphhopper.routing.util.spatialrules.SpatialRuleLookup;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.CHGraphImpl;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
-import com.graphhopper.util.Parameters.Landmark;
-import com.graphhopper.util.StopWatch;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -57,7 +53,7 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
     private int defaultActiveLandmarks;
     private LMEdgeFilterSequence landmarksFilter;
 
-    public PrepareCoreLandmarks(Directory dir, GraphHopperStorage graph, Weighting weighting, LMEdgeFilterSequence landmarksFilter, int landmarks,
+    public PrepareCoreLandmarks(Directory dir, GraphHopperStorage graph, HashMap<Integer, Integer> coreNodeIdMap, Weighting weighting, LMEdgeFilterSequence landmarksFilter, int landmarks,
                                 int activeLandmarks) {
         if (activeLandmarks > landmarks)
             throw new IllegalArgumentException("Default value for active landmarks " + activeLandmarks
@@ -66,7 +62,7 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
         this.defaultActiveLandmarks = activeLandmarks;
         this.weighting = weighting;
         this.landmarksFilter = landmarksFilter;
-        lms = new CoreLandmarkStorage(graph, dir, weighting, landmarksFilter, landmarks);
+        lms = new CoreLandmarkStorage(dir, graph, coreNodeIdMap, weighting, landmarksFilter, landmarks);
     }
 
     /**
@@ -137,7 +133,7 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
 
         LOGGER.info("Start calculating " + lms.getLandmarkCount() + " landmarks, default active lms:"
                 + defaultActiveLandmarks + ", weighting:" + lms.getLmSelectionWeighting() + ", " + Helper.getMemInfo());
-        lms.createCoreNodeIdMap();
+        //lms.createCoreNodeIdMap();
         lms.createLandmarks();
         lms.flush();
     }
@@ -202,7 +198,8 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
         //Returns true if the landmarkset is for the avoidables.
         //Also returns true if the query has no avoidables and the set has no avoidables
             if(landmarksFilter.isFilter(pmap)){
-                printLandmarksLongLat();
+                System.out.println("CoreLM");
+                //printLandmarksLongLat();
                 return true;
             }
             return false;
@@ -214,7 +211,6 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
 
     public void printLandmarksLongLat(){
         int[] currentSubnetwork;
-        System.out.println("CoreLM");
         for(int subnetworkId = 1; subnetworkId < lms.getSubnetworksWithLandmarks(); subnetworkId++){
             System.out.println("Subnetwork " + subnetworkId);
             currentSubnetwork = lms.getLandmarks(subnetworkId);

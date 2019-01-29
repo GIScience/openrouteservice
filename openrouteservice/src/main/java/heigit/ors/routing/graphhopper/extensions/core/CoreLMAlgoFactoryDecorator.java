@@ -24,10 +24,10 @@ import com.graphhopper.routing.RoutingAlgorithm;
 import com.graphhopper.routing.RoutingAlgorithmFactory;
 import com.graphhopper.routing.RoutingAlgorithmFactoryDecorator;
 import com.graphhopper.routing.lm.LandmarkSuggestion;
-import com.graphhopper.routing.lm.PrepareLandmarks;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.storage.CHGraphImpl;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.StorableProperties;
@@ -36,8 +36,6 @@ import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
-import com.graphhopper.util.Parameters.Landmark;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import heigit.ors.routing.graphhopper.extensions.util.ORSParameters.CoreLandmark;
 import heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
@@ -74,15 +72,10 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
     private int preparationThreads;
     private ExecutorService threadPool;
     private boolean logDetails = false;
-    private CoreLMOptions coreLMOptions;
-    private GraphHopperStorage ghStorage;
+    private CoreLMOptions coreLMOptions = new CoreLMOptions();
 
     public CoreLMAlgoFactoryDecorator() {
         setPreparationThreads(1);
-    }
-    public CoreLMAlgoFactoryDecorator(GraphHopperStorage graphHopperStorage) {
-        setPreparationThreads(1);
-        this.ghStorage = graphHopperStorage;
     }
 
     @Override
@@ -110,13 +103,11 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
             setDisablingAllowed(args.getBool(CoreLandmark.INIT_DISABLING_ALLOWED, isDisablingAllowed()));
 
         //Get the landmark sets that should be calculated
-        this.coreLMOptions = new CoreLMOptions(ghStorage);
         String coreLMSets = args.get(CoreLandmark.LMSETS, "allow_all");
         if (!coreLMSets.isEmpty() && !coreLMSets.equalsIgnoreCase("no")) {
             List<String> tmpCoreLMSets = Arrays.asList(coreLMSets.split(";"));
             coreLMOptions.setRestrictionFilters(tmpCoreLMSets);
         }
-
     }
 
     public int getLandmarks() {
@@ -203,20 +194,6 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
      */
     public CoreLMAlgoFactoryDecorator addWeighting(Weighting weighting) {
         weightings.add(weighting);
-        return this;
-    }
-
-    public CoreLMAlgoFactoryDecorator addPreparation(PrepareCoreLandmarks pch) {
-        preparations.add(pch);
-        int lastIndex = preparations.size() - 1;
-        if (lastIndex >= weightings.size() * coreLMOptions.getFilters().size())
-            throw new IllegalStateException("Cannot access weighting for PrepareCoreLandmarks with " + pch.getWeighting()
-                    + ". Call add(Weighting) before");
-
-        if (preparations.get(lastIndex).getWeighting() != weightings.get(lastIndex / coreLMOptions.getFilters().size()))
-            throw new IllegalArgumentException(
-                    "Weighting of PrepareCoreLandmarks " + preparations.get(lastIndex).getWeighting()
-                            + " needs to be identical to previously added " + weightings.get(lastIndex));
         return this;
     }
 
@@ -311,7 +288,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
                     prepared.set(true);
                     Thread.currentThread().setName(name);
                     plm.doWork();
-                    properties.put(Landmark.PREPARE + "date." + name, Helper.createFormatter().format(new Date()));
+                    properties.put(CoreLandmark.PREPARE + "date." + name, Helper.createFormatter().format(new Date()));
                 }
             }, name);
         }
@@ -333,6 +310,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
      * This method creates the landmark storages ready for landmark creation.
      */
     public void createPreparations(GraphHopperStorage ghStorage, LocationIndex locationIndex) {
+
         if (!isEnabled() || !preparations.isEmpty())
             return;
         if (weightings.isEmpty())
@@ -349,23 +327,46 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
             }
         }
 
-        coreLMOptions.setGhStorage(ghStorage);
-        coreLMOptions.createRestrictionFilters();
+        coreLMOptions.createRestrictionFilters(ghStorage);
 
         for (Weighting weighting : getWeightings()) {
+
+            HashMap<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(ghStorage, weighting);
+
             for (LMEdgeFilterSequence edgeFilterSequence : coreLMOptions.getFilters()) {
                 Double maximumWeight = maximumWeights.get(weighting.getName());
                 if (maximumWeight == null)
                     throw new IllegalStateException("maximumWeight cannot be null. Default should be just negative. "
                             + "Couldn't find " + weighting.getName() + " in " + maximumWeights);
 
-                PrepareCoreLandmarks tmpPrepareLM = new PrepareCoreLandmarks(ghStorage.getDirectory(), ghStorage, weighting, edgeFilterSequence,
+                PrepareCoreLandmarks tmpPrepareLM = new PrepareCoreLandmarks(ghStorage.getDirectory(), ghStorage, coreNodeIdMap, weighting, edgeFilterSequence,
                         landmarkCount, activeLandmarkCount).setLandmarkSuggestions(lmSuggestions)
                         .setMaximumWeight(maximumWeight).setLogDetails(logDetails);
                 if (minNodes > 1)
                     tmpPrepareLM.setMinimumNodes(minNodes);
-                addPreparation(tmpPrepareLM);
+                preparations.add(tmpPrepareLM);
             }
         }
     }
+
+    /**
+     * This method creates a mapping of CoreNode ids to integers from 0 to numCoreNodes to save space.
+     * Otherwise we would have to store a lot of empty info
+     */
+
+    private HashMap<Integer, Integer> createCoreNodeIdMap(GraphHopperStorage graph, Weighting weighting) {
+        CHGraphImpl core = graph.getCoreGraph(weighting);
+        HashMap<Integer, Integer> coreNodeIdMap = new HashMap<>();
+        int maxNode = graph.getNodes();
+        int coreNodeLevel = maxNode + 1;
+        int index = 0;
+        for (int i = 0; i < maxNode; i++){
+            if (core.getLevel(i) < coreNodeLevel)
+                continue;
+            coreNodeIdMap.put(i, index);
+            index++;
+        }
+        return coreNodeIdMap;
+    }
+
 }

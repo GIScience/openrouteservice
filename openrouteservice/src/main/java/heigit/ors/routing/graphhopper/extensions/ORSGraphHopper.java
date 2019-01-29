@@ -83,7 +83,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 	private final CoreAlgoFactoryDecorator coreFactoryDecorator =  new CoreAlgoFactoryDecorator();
 
-	private final CoreLMAlgoFactoryDecorator coreLMFactoryDecorator = new CoreLMAlgoFactoryDecorator(ghStorage);
+	private final CoreLMAlgoFactoryDecorator coreLMFactoryDecorator = new CoreLMAlgoFactoryDecorator();
 
 
 
@@ -482,7 +482,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 		//Create the core
 		if(coreFactoryDecorator.isEnabled())
-			coreFactoryDecorator.createPreparations(ghStorage, traversalMode, coreEdgeFilter);
+			coreFactoryDecorator.createPreparations(gs, traversalMode, coreEdgeFilter);
 		if (!isCorePrepared())
 			prepareCore();
 
@@ -491,7 +491,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 		//Create the landmarks in the core
 		if (coreLMFactoryDecorator.isEnabled())
-			coreLMFactoryDecorator.createPreparations(ghStorage, super.getLocationIndex());
+			coreLMFactoryDecorator.createPreparations(gs, super.getLocationIndex());
 		loadOrPrepareCoreLM();
 
 	}
