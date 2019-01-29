@@ -57,6 +57,7 @@ public class TarjansCoreSCCAlgorithm {
     private final EdgeFilter edgeFilter;
     private int index = 1;
     private final CHGraphImpl core;
+    private final int coreNodeLevel;
 
     public TarjansCoreSCCAlgorithm(GraphHopperStorage ghStorage, CHGraphImpl core, final EdgeFilter edgeFilter, boolean ignoreSingleEntries) {
         this.graph = ghStorage;
@@ -66,13 +67,16 @@ public class TarjansCoreSCCAlgorithm {
         this.nodeIndex = new int[ghStorage.getNodes()];
         this.nodeLowLink = new int[ghStorage.getNodes()];
         this.edgeFilter = edgeFilter;
+        coreNodeLevel = core.getNodes() + 1;
+
 
         if (ignoreSingleEntries) {
             // Very important case to boost performance - see #520. Exclude single entry components as we don't need them! 
             // But they'll be created a lot for multiple vehicles because many nodes e.g. for foot are not accessible at all for car.
             // We can ignore these single entry components as they are already set 'not accessible'
             CHEdgeExplorer explorer = core.createEdgeExplorer(edgeFilter);
-            int nodes = ghStorage.getCoreNodes();
+//            int nodes = ghStorage.getCoreNodes();
+            int nodes = ghStorage.getNodes();
             ignoreSet = new GHBitSetImpl(ghStorage.getCoreNodes());
             for (int start = 0; start < nodes; start++) {
                 if (!ghStorage.isNodeRemoved(start)) {
@@ -94,10 +98,8 @@ public class TarjansCoreSCCAlgorithm {
      * Find and return list of all strongly connected components in g.
      */
     public List<IntArrayList> findComponents() {
-        int nodes = graph.getNodes();
-        int coreNodeLevel = core.getNodes() + 1;
+        int nodes = core.getNodes();
         for (int start = 0; start < nodes; start++) {
-            int nodeLevel = core.getLevel(start);
             if(core.getLevel(start) < coreNodeLevel)
                 continue;
             if (nodeIndex[start] == 0
@@ -149,7 +151,7 @@ public class TarjansCoreSCCAlgorithm {
             // a successor with a lower nodeLowLink.
             while (iter.next()) {
                 int connectedId = iter.getAdjNode();
-                if (ignoreSet.contains(start))
+                if (ignoreSet.contains(start) || core.getLevel(start) < coreNodeLevel)
                     continue;
 
                 if (nodeIndex[connectedId] == 0) {

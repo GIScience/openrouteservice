@@ -81,7 +81,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
     private Weighting lmWeighting;
     private final TraversalMode traversalMode;
     private boolean initialized;
-    private int minimumNodes = 500_000;
+    private int minimumNodes = 10000;
     private final SubnetworkStorage subnetworkStorage;
     private List<LandmarkSuggestion> landmarkSuggestions = Collections.emptyList();
     private SpatialRuleLookup ruleLookup;
@@ -99,7 +99,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 //        super(graph, dir, weighting, landmarks);
         this.graph = graph;
         this.core = graph.getCoreGraph(weighting);
-        this.minimumNodes = Math.min(core.getCoreNodes() / 2, 500_000);
+        this.minimumNodes = Math.min(core.getCoreNodes() / 2, 10000);
         this.encoder = weighting.getFlagEncoder();
         this.landmarksFilter = landmarksFilter;
 //        this.lmWeighting = weighting;
@@ -142,16 +142,16 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
                     if (res >= Double.MAX_VALUE)
                         return Double.POSITIVE_INFINITY;
 
-                    //expandEdge(tmp, false);
+                    expandEdge(tmp, false);
 
-                    return res; //return count;
+                    return count;
                 }
                 else res = weighting.calcWeight(edge, reverse, prevOrNextEdgeId);
                 if (res >= Double.MAX_VALUE)
                     return Double.POSITIVE_INFINITY;
 
                 // returning the time or distance leads to strange landmark positions (ferries -> slow&very long) and BFS is more what we want
-                return res; //return 1;
+                return 1;
             }
 
             @Override
@@ -467,7 +467,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             EdgeFilterSequence coreEdgeFilterBWD = new EdgeFilterSequence();
             coreEdgeFilterBWD.add(new CoreAndBlockedEdgesFilter(encoder, true, false, blockedEdges, graph));
 //            coreEdgeFilterBWD.add(new AvoidFeaturesCoreEdgeFilter(this.graph, 1, 1));
-            coreEdgeFilter.add(landmarksFilter);
+            coreEdgeFilterBWD.add(landmarksFilter);
             explorer.setFilter(coreEdgeFilterBWD);
             explorer.runAlgo(false, coreEdgeFilterBWD);
             explorer.initLandmarkWeights(lmIdx, lmNodeId, LM_ROW_LENGTH, TO_OFFSET);

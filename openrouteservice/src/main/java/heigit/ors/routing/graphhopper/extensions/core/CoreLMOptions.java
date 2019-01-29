@@ -70,6 +70,11 @@ public class CoreLMOptions {
                     edgeFilterSequence.appendName("steps");
                     continue;
                 }
+                if (filterType.equalsIgnoreCase("ferries")) {
+                    avoidFeatures = avoidFeatures | AvoidFeatureFlags.Ferries;
+                    edgeFilterSequence.appendName("ferries");
+                    continue;
+                }
             }
 
 
