@@ -23,7 +23,7 @@ public class AvoidFeatureFlags {
 	public static final int DrivingFeatures = Highways | Tollways | Ferries | Fords;
 	public static final int CyclingFeatures = Steps | Ferries | Fords;
 	public static final int WalkingFeatures =  Steps | Ferries | Fords;
-	public static final int WheelchairFeatures = Ferries;
+	public static final int WheelchairFeatures = WalkingFeatures;
 
 	public static int getFromString(String value)
 	{

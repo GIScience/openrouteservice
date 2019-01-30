@@ -31,22 +31,12 @@ public class RouteRequestOptions {
             "{highways={profile=[driving-*]}," +
             "tollways={profile=[driving-*]}," +
             "ferries={profile=[driving-*,bike-*,foot-*,wheelchair]}," +
-            "tunnels={profile=[driving-*]}," +
-            "pavedroads={profile=[driving-*,bike-*]}," +
-            "unpavedroads={profile=[driving-*,bike-*]}," +
-            "tracks={profile=[driving-*]}," +
             "fords={profile=[driving-*,bike-*,foot-*]}," +
             "steps={profile=[driving-*,bike-*,foot-*],wheelchair}}")
     @JsonProperty("avoid_features")
     private APIEnums.AvoidFeatures[] avoidFeatures;
     @JsonIgnore
     private boolean hasAvoidFeatures = false;
-
-    @ApiModelProperty(name = "maximum_speed", value = "Specifies a maximum travel speed restriction in km/h.", example = "100")
-    @JsonProperty("maximum_speed")
-    private double maximumSpeed;
-    @JsonIgnore
-    private boolean hasMaximumSpeed = false;
 
     @ApiModelProperty(value = "\"all\" for no border crossing. \"controlled\" to cross open borders but avoid controlled ones. Only for driving-* profiles.[{profile=[car,hgv]}]")
     @JsonProperty("avoid_borders")
@@ -86,15 +76,6 @@ public class RouteRequestOptions {
     public void setAvoidFeatures(APIEnums.AvoidFeatures[] avoidFeatures) {
         this.avoidFeatures = avoidFeatures;
         hasAvoidFeatures = true;
-    }
-
-    public double getMaximumSpeed() {
-        return maximumSpeed;
-    }
-
-    public void setMaximumSpeed(double maximumSpeed) {
-        this.maximumSpeed = maximumSpeed;
-        hasMaximumSpeed = true;
     }
 
     public APIEnums.AvoidBorders getAvoidBorders() {
@@ -144,10 +125,6 @@ public class RouteRequestOptions {
 
     public boolean hasAvoidFeatures() {
         return hasAvoidFeatures;
-    }
-
-    public boolean hasMaximumSpeed() {
-        return hasMaximumSpeed;
     }
 
     public boolean hasAvoidBorders() {

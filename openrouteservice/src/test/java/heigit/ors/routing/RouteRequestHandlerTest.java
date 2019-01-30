@@ -9,9 +9,7 @@ import heigit.ors.exceptions.IncompatibleParameterException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
-import heigit.ors.routing.parameters.CyclingParameters;
 import heigit.ors.routing.parameters.VehicleParameters;
-import heigit.ors.routing.parameters.WalkingParameters;
 import heigit.ors.routing.parameters.WheelchairParameters;
 import heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.json.simple.JSONArray;
@@ -104,7 +102,6 @@ public class RouteRequestHandlerTest {
         options.setAvoidFeatures(new APIEnums.AvoidFeatures[] {APIEnums.AvoidFeatures.FORDS});
 
         options.setAvoidPolygonFeatures(geoJsonPolygon);
-        options.setMaximumSpeed(120.0);
 
         vehicleParams = new RequestProfileParamsRestrictions();
 
@@ -114,14 +111,6 @@ public class RouteRequestHandlerTest {
         vehicleParams.setLength(15.0f);
         vehicleParams.setWeight(30.0f);
         vehicleParams.setWidth(4.5f);
-
-        cyclingParams = new RequestProfileParamsRestrictions();
-        cyclingParams.setGradient(6);
-        cyclingParams.setTrailDifficulty(2);
-
-        walkingParams = new RequestProfileParamsRestrictions();
-        walkingParams.setGradient(6);
-        walkingParams.setTrailDifficulty(2);
 
         wheelchairParams = new RequestProfileParamsRestrictions();
         wheelchairParams.setMaxIncline(3);
@@ -186,8 +175,6 @@ public class RouteRequestHandlerTest {
 
         checkPolygon(routingRequest.getSearchParameters().getAvoidAreas(), geoJsonPolygon);
 
-        Assert.assertEquals(120.0, routingRequest.getSearchParameters().getMaximumSpeed(), 0);
-
         ProfileWeightingCollection weightings = routingRequest.getSearchParameters().getProfileParameters().getWeightings();
         ProfileWeighting weighting;
         Iterator<ProfileWeighting> iter = weightings.getIterator();
@@ -220,32 +207,6 @@ public class RouteRequestHandlerTest {
         Assert.assertEquals(15.0, params.getLength(), 0);
         Assert.assertEquals(4.5, params.getWidth(), 0);
         Assert.assertEquals(new VehicleLoadCharacteristicsFlags().getFromString("hazmat"), params.getLoadCharacteristics());
-    }
-
-    @Test
-    public void TestCyclingParameters() throws Exception {
-        request.setProfile(APIEnums.Profile.CYCLING_REGULAR);
-        request.getRouteOptions().getProfileParams().setRestrictions(cyclingParams);
-
-        RoutingRequest routingRequest;
-        routingRequest = new RouteRequestHandler().convertRouteRequest(request);
-
-        CyclingParameters params = (CyclingParameters) routingRequest.getSearchParameters().getProfileParameters();
-        Assert.assertEquals(2, params.getMaximumTrailDifficulty());
-        Assert.assertEquals(6, params.getMaximumGradient());
-    }
-
-    @Test
-    public void TestWalkingParameters() throws Exception {
-        request.setProfile(APIEnums.Profile.FOOT_WALKING);
-        request.getRouteOptions().getProfileParams().setRestrictions(walkingParams);
-
-        RoutingRequest routingRequest;
-        routingRequest = new RouteRequestHandler().convertRouteRequest(request);
-
-        WalkingParameters params = (WalkingParameters) routingRequest.getSearchParameters().getProfileParameters();
-        Assert.assertEquals(2, params.getMaximumTrailDifficulty());
-        Assert.assertEquals(6, params.getMaximumGradient());
     }
 
     @Test

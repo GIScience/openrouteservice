@@ -414,8 +414,6 @@ public class ResultTest extends ServiceTest {
 		// options for cycling profiles
 		JSONObject options = new JSONObject();
 		JSONObject profileParams = new JSONObject();
-		profileParams.put("maximum_gradient", "5");
-		profileParams.put("difficulty_level", "1");
 		options.put("profile_params", profileParams);
 
 		given()

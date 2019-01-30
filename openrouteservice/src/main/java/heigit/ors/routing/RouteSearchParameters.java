@@ -252,7 +252,7 @@ public class RouteSearchParameters {
                 jRestrictions = jProfileParams.getJSONObject("restrictions");
 
             if (RoutingProfileType.isHeavyVehicle(_profileType) == true) {
-                VehicleParameters vehicleParams = new VehicleParameters();s
+                VehicleParameters vehicleParams = new VehicleParameters();
 
                 if (json.has("vehicle_type")) {
                     String vehicleType = json.getString("vehicle_type");

@@ -194,13 +194,8 @@ public class APIEnums {
         HIGHWAYS("highways"),
         TOLLWAYS("tollways"),
         FERRIES("ferries"),
-        TUNNELS("tunnels"),
-        PAVED_ROADS("pavedroads"),
-        UNPAVED_ROADS("unpavedroads"),
-        TRACKS("tracks"),
         FORDS("fords"),
-        STEPS("steps"),
-        HILLS("hills");
+        STEPS("steps");
 
         private final String value;
 

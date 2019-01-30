@@ -42,7 +42,6 @@ public class ProfileParameters {
 
     public List<String> getValidRestrictions() {
         List<String> valid = new ArrayList<>();
-        valid.add("gradient");
         return valid;
     }
 }

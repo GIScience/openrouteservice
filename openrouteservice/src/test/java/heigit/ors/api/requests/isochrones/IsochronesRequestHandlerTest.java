@@ -73,7 +73,6 @@ public class IsochronesRequestHandlerTest {
         options.setAvoidFeatures(new APIEnums.AvoidFeatures[]{APIEnums.AvoidFeatures.FORDS});
 
         options.setAvoidPolygonFeatures(geoJsonPolygon);
-        options.setMaximumSpeed(120.0);
 
         vehicleParams = new RequestProfileParamsRestrictions();
 
@@ -83,14 +82,6 @@ public class IsochronesRequestHandlerTest {
         vehicleParams.setLength(15.0f);
         vehicleParams.setWeight(30.0f);
         vehicleParams.setWidth(4.5f);
-
-        cyclingParams = new RequestProfileParamsRestrictions();
-        cyclingParams.setGradient(6);
-        cyclingParams.setTrailDifficulty(2);
-
-        walkingParams = new RequestProfileParamsRestrictions();
-        walkingParams.setGradient(6);
-        walkingParams.setTrailDifficulty(2);
 
         wheelchairParams = new RequestProfileParamsRestrictions();
         wheelchairParams.setMaxIncline(3);
@@ -294,7 +285,6 @@ public class IsochronesRequestHandlerTest {
         Assert.assertEquals(WeightingMethod.FASTEST, routeSearchParameters.getWeightingMethod());
         Assert.assertFalse(routeSearchParameters.getConsiderTraffic());
         Assert.assertFalse(routeSearchParameters.getConsiderTurnRestrictions());
-        Assert.assertEquals(-1.0, routeSearchParameters.getMaximumSpeed(), 0);
         Assert.assertNull(routeSearchParameters.getAvoidAreas());
         Assert.assertEquals(0, routeSearchParameters.getAvoidFeatureTypes());
         Assert.assertEquals(0, routeSearchParameters.getVehicleType());
@@ -316,9 +306,8 @@ public class IsochronesRequestHandlerTest {
         Assert.assertEquals(WeightingMethod.FASTEST, routeSearchParameters.getWeightingMethod());
         Assert.assertFalse(routeSearchParameters.getConsiderTraffic());
         Assert.assertFalse(routeSearchParameters.getConsiderTurnRestrictions());
-        Assert.assertEquals(120.0, routeSearchParameters.getMaximumSpeed(), 0);
         checkPolygon(routeSearchParameters.getAvoidAreas(), geoJsonPolygon);
-        Assert.assertEquals(128, routeSearchParameters.getAvoidFeatureTypes());
+        Assert.assertEquals(16, routeSearchParameters.getAvoidFeatureTypes());
         Assert.assertEquals(0, routeSearchParameters.getVehicleType());
         Assert.assertFalse(routeSearchParameters.getFlexibleMode());
         Assert.assertEquals(BordersExtractor.Avoid.CONTROLLED, routeSearchParameters.getAvoidBorders());

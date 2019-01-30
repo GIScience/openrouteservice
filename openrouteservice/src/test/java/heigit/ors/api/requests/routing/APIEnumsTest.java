@@ -102,13 +102,8 @@ public class APIEnumsTest {
         Assert.assertEquals(APIEnums.AvoidFeatures.FORDS, APIEnums.AvoidFeatures.forValue("fords"));
         Assert.assertEquals(APIEnums.AvoidFeatures.FERRIES, APIEnums.AvoidFeatures.forValue("ferries"));
         Assert.assertEquals(APIEnums.AvoidFeatures.HIGHWAYS, APIEnums.AvoidFeatures.forValue("highways"));
-        Assert.assertEquals(APIEnums.AvoidFeatures.HILLS, APIEnums.AvoidFeatures.forValue("hills"));
-        Assert.assertEquals(APIEnums.AvoidFeatures.PAVED_ROADS, APIEnums.AvoidFeatures.forValue("pavedroads"));
         Assert.assertEquals(APIEnums.AvoidFeatures.STEPS, APIEnums.AvoidFeatures.forValue("steps"));
         Assert.assertEquals(APIEnums.AvoidFeatures.TOLLWAYS, APIEnums.AvoidFeatures.forValue("tollways"));
-        Assert.assertEquals(APIEnums.AvoidFeatures.TRACKS, APIEnums.AvoidFeatures.forValue("tracks"));
-        Assert.assertEquals(APIEnums.AvoidFeatures.TUNNELS, APIEnums.AvoidFeatures.forValue("tunnels"));
-        Assert.assertEquals(APIEnums.AvoidFeatures.UNPAVED_ROADS, APIEnums.AvoidFeatures.forValue("unpavedroads"));
 
         APIEnums.AvoidFeatures.forValue("invalid");
     }
@@ -118,13 +113,8 @@ public class APIEnumsTest {
         Assert.assertEquals("fords", APIEnums.AvoidFeatures.FORDS.toString());
         Assert.assertEquals("ferries", APIEnums.AvoidFeatures.FERRIES.toString());
         Assert.assertEquals("highways", APIEnums.AvoidFeatures.HIGHWAYS.toString());
-        Assert.assertEquals("hills", APIEnums.AvoidFeatures.HILLS.toString());
-        Assert.assertEquals("pavedroads", APIEnums.AvoidFeatures.PAVED_ROADS.toString());
         Assert.assertEquals("steps", APIEnums.AvoidFeatures.STEPS.toString());
         Assert.assertEquals("tollways", APIEnums.AvoidFeatures.TOLLWAYS.toString());
-        Assert.assertEquals("tracks", APIEnums.AvoidFeatures.TRACKS.toString());
-        Assert.assertEquals("tunnels", APIEnums.AvoidFeatures.TUNNELS.toString());
-        Assert.assertEquals("unpavedroads", APIEnums.AvoidFeatures.UNPAVED_ROADS.toString());
     }
 
     @Test(expected = ParameterValueException.class)

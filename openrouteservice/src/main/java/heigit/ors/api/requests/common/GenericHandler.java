@@ -145,8 +145,8 @@ public class GenericHandler {
             if (flag == 0)
                 throw new UnknownParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), "avoid_features", avoidFeatureName);
 
-            if (!AvoidFeatureFlags.isValid(profileType, flag, avoidFeatureName))
-                throw new IncompatibleParameterException(getErrorCode("INVALID_PARAMETER_VALUE"), "avoid_features", avoidFeatureName, "profile", RoutingProfileType.getName(profileType));
+            if (!AvoidFeatureFlags.isValid(profileType, flag))
+                throw new IncompatableParameterException(getErrorCode("INVALID_PARAMETER_VALUE"), "avoid_features", avoidFeatureName, "profile", RoutingProfileType.getName(profileType));
 
             flags |= flag;
         }
@@ -175,38 +175,10 @@ public class GenericHandler {
 
     protected ProfileParameters convertSpecificProfileParameters(int profileType, RequestProfileParamsRestrictions restrictions, APIEnums.VehicleType vehicleType) {
         ProfileParameters params = new ProfileParameters();
-        if (RoutingProfileType.isCycling(profileType))
-            params = convertCyclingParameters(restrictions);
         if (RoutingProfileType.isHeavyVehicle(profileType))
             params = convertHeavyVehicleParameters(restrictions, vehicleType);
-        if (RoutingProfileType.isWalking(profileType))
-            params = convertWalkingParameters(restrictions);
         if (RoutingProfileType.isWheelchair(profileType))
             params = convertWheelchairParameters(restrictions);
-        return params;
-    }
-
-
-    private CyclingParameters convertCyclingParameters(RequestProfileParamsRestrictions restrictions) {
-
-        CyclingParameters params = new CyclingParameters();
-        if(restrictions.hasGradient())
-            params.setMaximumGradient(restrictions.getGradient());
-        if(restrictions.hasTrailDifficulty())
-            params.setMaximumTrailDifficulty(restrictions.getTrailDifficulty());
-
-        return params;
-    }
-
-    private WalkingParameters convertWalkingParameters(RequestProfileParamsRestrictions restrictions) {
-
-        WalkingParameters params = new WalkingParameters();
-
-        if (restrictions.hasGradient())
-            params.setMaximumGradient(restrictions.getGradient());
-        if (restrictions.hasTrailDifficulty())
-            params.setMaximumTrailDifficulty(restrictions.getTrailDifficulty());
-
         return params;
     }
 
@@ -261,14 +233,8 @@ public class GenericHandler {
         // Check that we do not have some parameters that should not be there
         List<String> setRestrictions = restrictions.getRestrictionsThatAreSet();
         ProfileParameters params = new ProfileParameters();
-        if (RoutingProfileType.isCycling(profile)) {
-            params = new CyclingParameters();
-        }
         if (RoutingProfileType.isWheelchair(profile)) {
             params = new WheelchairParameters();
-        }
-        if (RoutingProfileType.isWalking(profile)) {
-            params = new WalkingParameters();
         }
         if (RoutingProfileType.isHeavyVehicle(profile)) {
             params = new VehicleParameters();

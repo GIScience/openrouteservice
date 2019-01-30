@@ -306,9 +306,7 @@ public class IsochronesRequestTest {
         IsochronesRequest request = new IsochronesRequest();
         Assert.assertFalse(request.hasIsochronesOptions());
         RouteRequestOptions opts = new RouteRequestOptions();
-        opts.setMaximumSpeed(120.0);
         request.setIsochronesOptions(opts);
         Assert.assertTrue(request.hasIsochronesOptions());
-        Assert.assertEquals(120.0, request.getIsochronesOptions().getMaximumSpeed(), 0.0);
     }
 }
