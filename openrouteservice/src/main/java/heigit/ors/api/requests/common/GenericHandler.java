@@ -146,7 +146,7 @@ public class GenericHandler {
                 throw new UnknownParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), "avoid_features", avoidFeatureName);
 
             if (!AvoidFeatureFlags.isValid(profileType, flag))
-                throw new IncompatableParameterException(getErrorCode("INVALID_PARAMETER_VALUE"), "avoid_features", avoidFeatureName, "profile", RoutingProfileType.getName(profileType));
+                throw new IncompatibleParameterException(getErrorCode("INVALID_PARAMETER_VALUE"), "avoid_features", avoidFeatureName, "profile", RoutingProfileType.getName(profileType));
 
             flags |= flag;
         }

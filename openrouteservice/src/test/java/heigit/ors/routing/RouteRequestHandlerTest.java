@@ -25,8 +25,6 @@ public class RouteRequestHandlerTest {
     RouteRequest request;
 
     private RequestProfileParamsRestrictions vehicleParams;
-    private RequestProfileParamsRestrictions cyclingParams;
-    private RequestProfileParamsRestrictions walkingParams;
     private RequestProfileParamsRestrictions wheelchairParams;
 
     private JSONObject geoJsonPolygon;
