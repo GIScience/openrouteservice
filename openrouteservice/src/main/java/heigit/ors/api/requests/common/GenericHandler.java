@@ -22,7 +22,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
 import heigit.ors.api.requests.routing.RouteRequestOptions;
-import heigit.ors.exceptions.IncompatableParameterException;
+import heigit.ors.exceptions.IncompatibleParameterException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
@@ -65,9 +65,9 @@ public class GenericHandler {
         return valuesIn.toString();
     }
 
-    protected int convertVehicleType(APIEnums.VehicleType vehicleTypeIn, int profileType) throws IncompatableParameterException {
+    protected int convertVehicleType(APIEnums.VehicleType vehicleTypeIn, int profileType) throws IncompatibleParameterException {
         if (!RoutingProfileType.isHeavyVehicle(profileType)) {
-            throw new IncompatableParameterException(getErrorCode("INVALID_PARAMETER_VALUE"),
+            throw new IncompatibleParameterException(getErrorCode("INVALID_PARAMETER_VALUE"),
                     "vehicle_type", vehicleTypeIn.toString(),
                     "profile", RoutingProfileType.getName(profileType));
         }
@@ -137,7 +137,7 @@ public class GenericHandler {
         return avoidAreas;
     }
 
-    protected int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatableParameterException {
+    protected int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatibleParameterException {
         int flags = 0;
         for (APIEnums.AvoidFeatures avoid : avoidFeatures) {
             String avoidFeatureName = avoid.toString();
@@ -146,7 +146,7 @@ public class GenericHandler {
                 throw new UnknownParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), "avoid_features", avoidFeatureName);
 
             if (!AvoidFeatureFlags.isValid(profileType, flag, avoidFeatureName))
-                throw new IncompatableParameterException(getErrorCode("INVALID_PARAMETER_VALUE"), "avoid_features", avoidFeatureName, "profile", RoutingProfileType.getName(profileType));
+                throw new IncompatibleParameterException(getErrorCode("INVALID_PARAMETER_VALUE"), "avoid_features", avoidFeatureName, "profile", RoutingProfileType.getName(profileType));
 
             flags |= flag;
         }
@@ -257,7 +257,7 @@ public class GenericHandler {
         return params;
     }
 
-    private void validateRestrictionsForProfile(RequestProfileParamsRestrictions restrictions, int profile) throws IncompatableParameterException {
+    private void validateRestrictionsForProfile(RequestProfileParamsRestrictions restrictions, int profile) throws IncompatibleParameterException {
         // Check that we do not have some parameters that should not be there
         List<String> setRestrictions = restrictions.getRestrictionsThatAreSet();
         ProfileParameters params = new ProfileParameters();
@@ -293,7 +293,7 @@ public class GenericHandler {
         if (invalidParams.size() > 0) {
             // There are some parameters present that shouldn't be there
             String invalidParamsString = StringUtils.join(invalidParams, ", ");
-            throw new IncompatableParameterException(getErrorCode("UNKNOWN_PARAMETER"), "restrictions", invalidParamsString, "profile", RoutingProfileType.getName(profile));
+            throw new IncompatibleParameterException(getErrorCode("UNKNOWN_PARAMETER"), "restrictions", invalidParamsString, "profile", RoutingProfileType.getName(profile));
         }
     }
 

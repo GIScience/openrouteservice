@@ -69,7 +69,7 @@ public class IsochronesRequestHandlerTest {
 
         RouteRequestOptions options = new RouteRequestOptions();
         options.setAvoidBorders(APIEnums.AvoidBorders.CONTROLLED);
-        options.setAvoidCountries(new int[]{115});
+        options.setAvoidCountries(new String[]{"115"});
         options.setAvoidFeatures(new APIEnums.AvoidFeatures[]{APIEnums.AvoidFeatures.FORDS});
 
         options.setAvoidPolygonFeatures(geoJsonPolygon);

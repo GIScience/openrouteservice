@@ -27,6 +27,7 @@ import heigit.ors.exceptions.*;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.localization.LocalizationManager;
 import heigit.ors.routing.*;
+import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import heigit.ors.routing.pathprocessors.BordersExtractor;
 import heigit.ors.util.DistanceUnitUtil;
 import org.json.simple.JSONObject;
@@ -86,6 +87,13 @@ public class RouteRequestHandler extends GenericHandler {
 
         routingRequest.setUnits(convertUnits(request.getUnits()));
 
+        if (request.hasSimplifyGeometry()) {
+            routingRequest.setGeometrySimplify(request.getSimplifyGeometry());
+            if (request.hasExtraInfo() && request.getSimplifyGeometry()) {
+                throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, "geometry_simplify", "true", "extra_info", "*");
+            }
+        }
+
         if(request.hasId())
             routingRequest.setId(request.getId());
 
@@ -137,7 +145,7 @@ public class RouteRequestHandler extends GenericHandler {
         return params;
     }
 
-    public RouteSearchParameters processRequestOptions(RouteRequestOptions options, RouteSearchParameters params) throws ParameterValueException, IncompatableParameterException, UnknownParameterValueException {
+    public RouteSearchParameters processRequestOptions(RouteRequestOptions options, RouteSearchParameters params) throws ParameterValueException, IncompatibleParameterException, UnknownParameterValueException {
         if (options.hasAvoidBorders())
             params.setAvoidBorders(convertAvoidBorders(options.getAvoidBorders()));
 
@@ -145,7 +153,7 @@ public class RouteRequestHandler extends GenericHandler {
             params.setAvoidAreas(convertAvoidAreas(options.getAvoidPolygonFeatures()));
 
         if (options.hasAvoidCountries())
-            params.setAvoidCountries(options.getAvoidCountries());
+            params.setAvoidCountries(convertAvoidCountries(options.getAvoidCountries()));
 
         if (options.hasAvoidFeatures())
             params.setAvoidFeatureTypes(convertFeatureTypes(options.getAvoidFeatures(), params.getProfileType()));
@@ -157,11 +165,11 @@ public class RouteRequestHandler extends GenericHandler {
             params.setVehicleType(convertVehicleType(options.getVehicleType(), params.getProfileType()));
         return params;
     }
-    private  boolean convertIncludeGeometry(RouteRequest request) throws IncompatableParameterException {
+    private  boolean convertIncludeGeometry(RouteRequest request) throws IncompatibleParameterException {
         boolean includeGeometry = request.getIncludeGeometry();
         if(!includeGeometry) {
             if(request.getResponseType() == APIEnums.RouteResponseType.GEOJSON)
-                throw new IncompatableParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "geometry", "false", "response type", "geojson");
+                throw new IncompatibleParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "geometry", "false", "response type", "geojson");
         }
         return includeGeometry;
     }
@@ -199,7 +207,7 @@ public class RouteRequestHandler extends GenericHandler {
         return new Coordinate(coordinate.get(0), coordinate.get(1));
     }
 
-    protected int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatableParameterException {
+    protected int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatibleParameterException {
         int flags = 0;
         for(APIEnums.AvoidFeatures avoid : avoidFeatures) {
             String avoidFeatureName = avoid.toString();
@@ -208,7 +216,7 @@ public class RouteRequestHandler extends GenericHandler {
                 throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", avoidFeatureName);
 
             if (!AvoidFeatureFlags.isValid(profileType, flag, avoidFeatureName))
-                throw new IncompatableParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", avoidFeatureName, "profile", RoutingProfileType.getName(profileType));
+                throw new IncompatibleParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", avoidFeatureName, "profile", RoutingProfileType.getName(profileType));
 
             flags |= flag;
         }
@@ -368,5 +376,26 @@ public class RouteRequestHandler extends GenericHandler {
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "optimized");
 
         return(!useContractionHierarchies);
+    }
+
+    private int[] convertAvoidCountries(String[] avoidCountries) throws ParameterValueException {
+        int[] avoidCountryIds = new int[avoidCountries.length];
+        if (avoidCountries.length > 0) {
+            for (int i = 0; i < avoidCountries.length; i++) {
+                try {
+                    avoidCountryIds[i] = Integer.parseInt(avoidCountries[i]);
+                } catch (NumberFormatException nfe) {
+                    // Check if ISO-3166-1 Alpha-2 / Alpha-3 code
+                    int countryId = CountryBordersReader.getCountryIdByISOCode(avoidCountries[i]);
+                    if (countryId > 0) {
+                        avoidCountryIds[i] = countryId;
+                    } else {
+                        throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_countries", avoidCountries[i]);
+                    }
+                }
+            }
+        }
+
+        return avoidCountryIds;
     }
 }

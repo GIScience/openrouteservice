@@ -1205,4 +1205,24 @@ public class ParamsTest extends ServiceTest {
 				.body("routes[0].containsKey('warnings')", is(false))
 				.statusCode(200);
 	}
+
+	@Test
+	public void expectSimplifyIncompatibleWithExtraInfo() {
+		JSONObject body = new JSONObject();
+		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("geometry_simplify", true);
+		body.put("extra_info", getParameter("extra_info"));
+
+		given()
+				.header("Accept", "application/geo+json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("carProfile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}/geojson")
+				.then().log().all()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS))
+				.statusCode(400);
+	}
 }

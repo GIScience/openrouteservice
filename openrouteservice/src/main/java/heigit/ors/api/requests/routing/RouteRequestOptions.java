@@ -57,7 +57,7 @@ public class RouteRequestOptions {
     @ApiModelProperty(value = "List of countries to exclude from routing with driving-* profiles. Can be used together with \"avoid_borders\": \"controlled\". " +
             "[ 11, 193 ] would exclude Austria and Switzerland. List of countries and application examples can be found here.[{profile=[car,hgv]}]", example = "[ 11, 193 ]")
     @JsonProperty("avoid_countries")
-    private int[] avoidCountries;
+    private String[] avoidCountries;
     @JsonIgnore
     private boolean hasAvoidCountries = false;
 
@@ -106,11 +106,11 @@ public class RouteRequestOptions {
         hasAvoidBorders = true;
     }
 
-    public int[] getAvoidCountries() {
+    public String[] getAvoidCountries() {
         return avoidCountries;
     }
 
-    public void setAvoidCountries(int[] avoidCountries) {
+    public void setAvoidCountries(String[] avoidCountries) {
         this.avoidCountries = avoidCountries;
         hasAvoidCountries = true;
     }

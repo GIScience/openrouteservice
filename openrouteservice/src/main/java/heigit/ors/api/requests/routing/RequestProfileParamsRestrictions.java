@@ -51,7 +51,7 @@ public class RequestProfileParamsRestrictions {
     @JsonIgnore
     private boolean hasHeight = false;
 
-    @ApiModelProperty(value = "Axleload restriction in tons.[{profile=[hgv]}]", example = "50")
+    @ApiModelProperty(value = "Axleload restriction in tons.CUSTOM_KEYS={profile:[hgv]}", example = "50")
     @JsonProperty("axleload")
     private Float axleLoad;
     @JsonIgnore

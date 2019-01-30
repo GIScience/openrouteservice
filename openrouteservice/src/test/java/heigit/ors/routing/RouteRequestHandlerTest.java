@@ -5,7 +5,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.api.requests.routing.*;
 import heigit.ors.common.DistanceUnit;
-import heigit.ors.exceptions.IncompatableParameterException;
+import heigit.ors.exceptions.IncompatibleParameterException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
@@ -100,7 +100,7 @@ public class RouteRequestHandlerTest {
 
         RouteRequestOptions options = new RouteRequestOptions();
         options.setAvoidBorders(APIEnums.AvoidBorders.CONTROLLED);
-        options.setAvoidCountries(new int[] { 115 });
+        options.setAvoidCountries(new String[] { "115" });
         options.setAvoidFeatures(new APIEnums.AvoidFeatures[] {APIEnums.AvoidFeatures.FORDS});
 
         options.setAvoidPolygonFeatures(geoJsonPolygon);
@@ -305,7 +305,7 @@ public class RouteRequestHandlerTest {
                 try {
                     new RouteRequestHandler().convertRouteRequest(request);
                 } catch (Exception e) {
-                    Assert.assertTrue(e instanceof IncompatableParameterException);
+                    Assert.assertTrue(e instanceof IncompatibleParameterException);
                 }
             } else {
                 new RouteRequestHandler().convertRouteRequest(request);

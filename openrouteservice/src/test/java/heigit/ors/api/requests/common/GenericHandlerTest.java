@@ -4,23 +4,18 @@ import com.vividsolutions.jts.geom.Polygon;
 import heigit.ors.api.requests.routing.RequestProfileParams;
 import heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import heigit.ors.api.requests.routing.RouteRequestOptions;
-import heigit.ors.exceptions.IncompatableParameterException;
+import heigit.ors.exceptions.IncompatibleParameterException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.exceptions.UnknownParameterValueException;
-import heigit.ors.routing.parameters.CyclingParameters;
 import heigit.ors.routing.parameters.ProfileParameters;
 import heigit.ors.routing.parameters.VehicleParameters;
 import heigit.ors.routing.pathprocessors.BordersExtractor;
-import heigit.ors.util.GeomUtility;
-import org.geotools.geojson.GeoJSON;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class GenericHandlerTest {
     GenericHandler handler;
@@ -45,13 +40,13 @@ public class GenericHandlerTest {
     }
 
     @Test
-    public void convertVehicleType() throws IncompatableParameterException {
+    public void convertVehicleType() throws IncompatibleParameterException {
         int type = handler.convertVehicleType(APIEnums.VehicleType.HGV, 2);
         Assert.assertEquals(2, type);
     }
 
-    @Test(expected = IncompatableParameterException.class)
-    public void convertVehicleTypeError() throws IncompatableParameterException {
+    @Test(expected = IncompatibleParameterException.class)
+    public void convertVehicleTypeError() throws IncompatibleParameterException {
         handler.convertVehicleType(APIEnums.VehicleType.HGV, 1);
     }
 
@@ -156,14 +151,14 @@ public class GenericHandlerTest {
     }
 
     @Test
-    public void convertFeatureTypes() throws UnknownParameterValueException, IncompatableParameterException {
+    public void convertFeatureTypes() throws UnknownParameterValueException, IncompatibleParameterException {
         APIEnums.AvoidFeatures[] avoids = new APIEnums.AvoidFeatures[] { APIEnums.AvoidFeatures.FERRIES, APIEnums.AvoidFeatures.FORDS };
         int converted = handler.convertFeatureTypes(avoids, 1);
         Assert.assertEquals(132, converted);
     }
 
-    @Test(expected = IncompatableParameterException.class)
-    public void convertFeatureTypesIncompatible() throws UnknownParameterValueException, IncompatableParameterException {
+    @Test(expected = IncompatibleParameterException.class)
+    public void convertFeatureTypesIncompatible() throws UnknownParameterValueException, IncompatibleParameterException {
         APIEnums.AvoidFeatures[] avoids = new APIEnums.AvoidFeatures[] { APIEnums.AvoidFeatures.STEPS};
         handler.convertFeatureTypes(avoids, 1);
     }

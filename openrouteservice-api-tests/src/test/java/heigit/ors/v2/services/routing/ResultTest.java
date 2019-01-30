@@ -1364,7 +1364,7 @@ http://localhost:8080/ors/routes?
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
-                .then()
+                .then().log().all()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(1156.6f))
@@ -1374,6 +1374,36 @@ http://localhost:8080/ors/routes?
         options.put("avoid_countries", constructFromPipedList("1|3"));
         body.put("options", options);
 
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(3172.3f))
+                .statusCode(200);
+
+        // Test avoid_countries with ISO 3166-1 Alpha-2 parameters
+        options.put("avoid_countries", constructFromPipedList("AT|FR"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(3172.3f))
+                .statusCode(200);
+
+        // Test avoid_countries with ISO 3166-1 Alpha-3 parameters
+        options.put("avoid_countries", constructFromPipedList("AUT|FRA"));
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
@@ -1783,6 +1813,38 @@ http://localhost:8080/ors/routes?
                 .body("routes[0].containsKey('extras')", is(true))
                 .body("routes[0].extras.containsKey('roadaccessrestrictions')", is(true))
                 .body("routes[0].extras.roadaccessrestrictions.values[1][2]", is(32))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testSimplifyHasLessWayPoints() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().all()
+                .assertThat()
+                .body("features[0].geometry.coordinates.size()", is(75))
+                .statusCode(200);
+
+        body.put("geometry_simplify", true);
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().all()
+                .assertThat()
+                .body("features[0].geometry.coordinates.size()", is(34))
                 .statusCode(200);
     }
 

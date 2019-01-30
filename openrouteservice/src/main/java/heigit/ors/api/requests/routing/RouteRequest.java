@@ -159,6 +159,13 @@ public class RouteRequest {
     @JsonIgnore
     private boolean hasSuppressWarnings = false;
 
+    @ApiModelProperty(name="geometry_simplify", value = "Specifies whether to simplify the geometry. true will automatically be set to false if extra_info parameter is specified.\n " +
+            "Default: false.")
+    @JsonProperty("geometry_simplify")
+    private Boolean simplifyGeometry = false;
+    @JsonIgnore
+    private boolean hasSimplifyGeometry = false;
+
     @JsonCreator
     public RouteRequest(@JsonProperty(value = "coordinates", required = true) List<List<Double>> coordinates) {
         this.coordinates = coordinates;
@@ -378,6 +385,15 @@ public class RouteRequest {
         hasSuppressWarnings = true;
     }
 
+    public Boolean getSimplifyGeometry() {
+        return simplifyGeometry;
+    }
+
+    public void setSimplifyGeometry(boolean simplifyGeometry) {
+        this.simplifyGeometry = simplifyGeometry;
+        this.hasSimplifyGeometry = true;
+    }
+
     public boolean hasIncludeRoundaboutExitInfo() {
         return hasIncludeRoundaboutExitInfo;
     }
@@ -412,5 +428,9 @@ public class RouteRequest {
 
     public boolean hasSuppressWarnings() {
         return hasSuppressWarnings;
+    }
+
+    public boolean hasSimplifyGeometry() {
+        return hasSimplifyGeometry;
     }
 }
