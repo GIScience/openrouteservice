@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - Added support for ISO 3166-1 Alpha-2 / Alpha-3 codes for routing directions option avoid_countries (Issue #195)
+- Added check on matrix service to make sure that the requested locations are within the bounding area of the graph (Issue #408)
 ### Fixed
 - Fixed `geometry_simplify` parameter, which had no effect before. `geometry_simplify` is incompatible with `extra_info` (#381)
 ### Changed
