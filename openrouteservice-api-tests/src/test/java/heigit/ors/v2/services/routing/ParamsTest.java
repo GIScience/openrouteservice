@@ -540,12 +540,8 @@ public class ParamsTest extends ServiceTest {
 	public void expectOptions() {
 		JSONObject options = new JSONObject();
 		JSONArray avoids = new JSONArray();
-		avoids.put("unpavedroads");
-		avoids.put("tracks");
 		avoids.put("fords");
 		options.put("avoid_features", avoids);
-
-		options.put("maximum_speed", 105);
 
 		JSONObject body = new JSONObject();
 		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
@@ -598,9 +594,7 @@ public class ParamsTest extends ServiceTest {
 		// options for avoid polygon
 		JSONObject options = new JSONObject();
 		JSONArray avoids = new JSONArray();
-		avoids.put("tunnels");
 		options.put("avoid_features", avoids);
-		options.put("maximum_speed", "75");
 
 		JSONObject polygon = new JSONObject();
 		polygon.put("type", "Polygon");
@@ -633,9 +627,8 @@ public class ParamsTest extends ServiceTest {
 		// options for avoid polygon faulty
 		JSONObject options = new JSONObject();
 		JSONArray avoids = new JSONArray();
-		avoids.put("tunnels");
+		avoids.put("ferries");
 		options.put("avoid_features", avoids);
-		options.put("maximum_speed", "75");
 
 		JSONObject polygon = new JSONObject();
 		polygon.put("type", "Polygon");
@@ -668,7 +661,6 @@ public class ParamsTest extends ServiceTest {
 		// options for avoid polygon wrong feature type (can be polygon or
 		// linestring)
 		JSONObject options = new JSONObject();
-		options.put("maximum_speed", "75");
 
 		JSONObject polygon = new JSONObject();
 		polygon.put("type", "Polygon");
@@ -699,8 +691,7 @@ public class ParamsTest extends ServiceTest {
 	public void expectCyclingToRejectHgvAvoidables() {
 		// options for HGV profiles
 		JSONObject options = new JSONObject();
-		options.put("avoid_features", new String[] {"highways","tollways","ferries","tunnels","unpavedroads","tracks","fords"});
-		options.put("maximum_speed", "75");
+		options.put("avoid_features", new String[] {"highways","tollways","ferries","fords"});
 		JSONObject profileParams = new JSONObject();
 		JSONObject restrictions = new JSONObject();
 		restrictions.put("width", "5");
@@ -740,8 +731,6 @@ public class ParamsTest extends ServiceTest {
 		avoids.put("fords");
 		options.put("avoid_features", avoids);
 
-		options.put("maximum_speed", 5);
-
 		JSONObject body = new JSONObject();
 		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", getParameter("preference"));
@@ -757,62 +746,6 @@ public class ParamsTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
-				.statusCode(400);
-	}
-
-	@Test
-	public void expectCarToRejectBikeParams() {
-		JSONObject body = new JSONObject();
-		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
-		body.put("preference", getParameter("preference"));
-		body.put("geometry", true);
-
-		// options for cycling profiles
-		JSONObject options = new JSONObject();
-		JSONObject profileParams = new JSONObject();
-		JSONObject profileRestrictions = new JSONObject();
-		profileRestrictions.put("gradient", "5");
-		profileRestrictions.put("trail_difficulty", "1");
-		profileParams.put("restrictions", profileRestrictions);
-		options.put("profile_params", profileParams);
-
-		body.put("options", options);
-
-		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
-				.pathParam("profile", getParameter("carProfile"))
-				.body(body.toString())
-				.when().log().all()
-				.post(getEndPointPath()+"/{profile}/json")
-				.then().log().all()
-				.assertThat()
-				.body("error.code", is(RoutingErrorCodes.UNKNOWN_PARAMETER))
-				.statusCode(400);
-	}
-
-	@Test
-	public void expectMaximumspeedError() {
-
-		// options for cycling profiles
-		JSONObject options = new JSONObject();
-		options.put("maximum_speed", "25fgf");
-
-		JSONObject body = new JSONObject();
-		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
-		body.put("preference", getParameter("preference"));
-		body.put("options", options);
-
-		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
-				.pathParam("profile", getParameter("carProfile"))
-				.body(body.toString())
-				.when()
-				.post(getEndPointPath()+"/{profile}/json")
-				.then()
-				.assertThat()
-				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_FORMAT))
 				.statusCode(400);
 	}
 
@@ -1080,7 +1013,7 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void expectUnknownAvoidFeatures() {
 		JSONObject options = new JSONObject();
-		JSONArray avoids = new JSONArray(Arrays.asList("blah", "unpavedroads", "tracks"));
+		JSONArray avoids = new JSONArray(Arrays.asList("blah", "ferries", "highways"));
 		options.put("avoid_features", avoids);
 
 		JSONObject body = new JSONObject();

@@ -354,7 +354,7 @@ public class ParamsTest extends ServiceTest {
     @Test
     public void expectUnknownAvoidFeatures() {
         JSONObject options = new JSONObject();
-        JSONArray avoids = new JSONArray(Arrays.asList("blah", "unpavedroads", "tracks"));
+        JSONArray avoids = new JSONArray(Arrays.asList("blah", "ferries", "highways"));
         options.put("avoid_features", avoids);
 
         JSONObject body = new JSONObject();

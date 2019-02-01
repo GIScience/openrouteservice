@@ -154,7 +154,7 @@ public class GenericHandlerTest {
     public void convertFeatureTypes() throws UnknownParameterValueException, IncompatibleParameterException {
         APIEnums.AvoidFeatures[] avoids = new APIEnums.AvoidFeatures[] { APIEnums.AvoidFeatures.FERRIES, APIEnums.AvoidFeatures.FORDS };
         int converted = handler.convertFeatureTypes(avoids, 1);
-        Assert.assertEquals(132, converted);
+        Assert.assertEquals(24, converted);
     }
 
     @Test(expected = IncompatibleParameterException.class)

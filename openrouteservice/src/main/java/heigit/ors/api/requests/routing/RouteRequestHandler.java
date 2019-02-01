@@ -158,9 +158,6 @@ public class RouteRequestHandler extends GenericHandler {
         if (options.hasAvoidFeatures())
             params.setAvoidFeatureTypes(convertFeatureTypes(options.getAvoidFeatures(), params.getProfileType()));
 
-        if (options.hasMaximumSpeed())
-            params.setMaximumSpeed(options.getMaximumSpeed());
-
         if (options.hasVehicleType())
             params.setVehicleType(convertVehicleType(options.getVehicleType(), params.getProfileType()));
         return params;
@@ -215,7 +212,7 @@ public class RouteRequestHandler extends GenericHandler {
             if(flag == 0)
                 throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", avoidFeatureName);
 
-            if (!AvoidFeatureFlags.isValid(profileType, flag, avoidFeatureName))
+            if (!AvoidFeatureFlags.isValid(profileType, flag))
                 throw new IncompatibleParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", avoidFeatureName, "profile", RoutingProfileType.getName(profileType));
 
             flags |= flag;

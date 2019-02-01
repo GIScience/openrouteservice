@@ -27,13 +27,6 @@ import java.util.List;
 @ApiModel(value = "Restrictions", parent = RequestProfileParams.class, description = "Describe restrictions to be applied to edges on the routing. any edges that do not match these restrictions are not traversed.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RequestProfileParamsRestrictions {
-    @ApiModelProperty(value = "Only for avoided hills or specified steepness_difficulty. Specifies the maximum route steepness in percent. Values range from 1 to 15. Routes with a higher gradient are avoided. CUSTOM_KEYS:{validWhen:{ref:\"profile\",value:[\"cycling-*\",\"foot-*\"]}}",
-            example = "5")
-    @JsonProperty("gradient")
-    private Integer gradient;
-    @JsonIgnore
-    private boolean hasGradient = false;
-
     @ApiModelProperty(value = "Length restriction in metres. CUSTOM_KEYS:{validWhen:{ref:\"profile\",value:[\"driving-hgv\"]}}", example = "8.4")
     @JsonProperty("length")
     private Float length;
@@ -104,21 +97,6 @@ public class RequestProfileParamsRestrictions {
     private Float minWidth;
     @JsonIgnore
     private boolean hasMinWidth = false;
-
-    @ApiModelProperty(value = "Specifies the maximum trail difficulty.CUSTOM_KEYS:{apiDefault: 1, validWhen:{ref:\"profile\",value:[\"wheelchair\"]}}", example = "3")
-    @JsonProperty(value = "trail_difficulty", defaultValue = "1")
-    private Integer trailDifficulty = 1;
-    @JsonIgnore
-    private boolean hasTrailDifficulty = false;
-
-    public Integer getGradient() {
-        return gradient;
-    }
-
-    public void setGradient(Integer gradient) {
-        this.gradient = gradient;
-        hasGradient = true;
-    }
 
     public Float getLength() {
         return length;
@@ -228,19 +206,6 @@ public class RequestProfileParamsRestrictions {
         this.hasMinWidth = true;
     }
 
-    public Integer getTrailDifficulty() {
-        return trailDifficulty;
-    }
-
-    public void setTrailDifficulty(Integer trailDifficulty) {
-        this.trailDifficulty = trailDifficulty;
-        hasTrailDifficulty = true;
-    }
-
-    public boolean hasGradient() {
-        return hasGradient;
-    }
-
     public boolean hasLength() {
         return hasLength;
     }
@@ -293,15 +258,9 @@ public class RequestProfileParamsRestrictions {
         return hasMinWidth;
     }
 
-    public boolean hasTrailDifficulty() {
-        return hasTrailDifficulty;
-    }
-
     @JsonIgnore
     public List<String> getRestrictionsThatAreSet() {
         List<String> setRestrictions = new ArrayList<>();
-        if(hasGradient)
-            setRestrictions.add("gradient");
         if(hasLength)
             setRestrictions.add("length");
         if(hasWidth)
@@ -326,8 +285,6 @@ public class RequestProfileParamsRestrictions {
             setRestrictions.add("maximum_incline");
         if(hasMinWidth)
             setRestrictions.add("minimum_width");
-        if(hasTrailDifficulty)
-            setRestrictions.add("trail_difficulty");
 
         return setRestrictions;
     }
