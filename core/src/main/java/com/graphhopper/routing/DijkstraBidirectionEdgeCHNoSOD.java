@@ -17,43 +17,43 @@
  */
 package com.graphhopper.routing;
 
-import com.graphhopper.routing.util.TraversalMode;
-import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.routing.ch.CHEntry;
+import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
-import com.graphhopper.util.*;
+import com.graphhopper.util.EdgeIteratorState;
 
 /**
- * Calculates best path in bidirectional way.
- * <p>
- * 'Ref' stands for reference implementation and is using the normal Java-'reference'-way.
- * <p>
- *
- * @author Peter Karich
+ * @author easbar
  */
-public class DijkstraBidirectionRef extends AbstractBidirAlgo {
-    public DijkstraBidirectionRef(Graph graph, Weighting weighting, TraversalMode tMode) {
-        super(graph, weighting, tMode);
+public class DijkstraBidirectionEdgeCHNoSOD extends AbstractBidirectionEdgeCHNoSOD {
+    public DijkstraBidirectionEdgeCHNoSOD(Graph graph, TurnWeighting weighting) {
+        super(graph, weighting);
     }
 
     @Override
-    protected SPTEntry createStartEntry(int node, double weight, boolean reverse) {
-        return new SPTEntry(node, weight);
+    protected CHEntry createStartEntry(int node, double weight, boolean reverse) {
+        return new CHEntry(node, weight);
     }
 
     @Override
-    protected SPTEntry createEntry(EdgeIteratorState edge, int incEdge, double weight, SPTEntry parent, boolean reverse) {
-        SPTEntry entry = new SPTEntry(edge.getEdge(), edge.getAdjNode(), weight);
+    protected CHEntry createEntry(EdgeIteratorState edge, int incEdge, double weight, SPTEntry parent, boolean reverse) {
+        CHEntry entry = new CHEntry(edge.getEdge(), incEdge, edge.getAdjNode(), weight);
         entry.parent = parent;
         return entry;
     }
 
-    protected SPTEntry getParent(SPTEntry entry) {
-        return entry.getParent();
+    @Override
+    protected void updateEntry(SPTEntry entry, EdgeIteratorState edge, int edgeId, double weight, SPTEntry parent, boolean reverse) {
+        entry.edge = edge.getEdge();
+        ((CHEntry) entry).incEdge = edgeId;
+        entry.weight = weight;
+        entry.parent = parent;
     }
 
     @Override
     public String getName() {
-        return Parameters.Algorithms.DIJKSTRA_BI;
+        return "dijkstrabi|ch|edge_based|no_sod";
     }
+
 }
