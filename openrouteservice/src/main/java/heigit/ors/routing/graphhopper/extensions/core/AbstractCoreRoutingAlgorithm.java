@@ -129,7 +129,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         initFrom(from, 0);
         initTo(to, 0);
         runAlgo();
-        System.out.println("Visited edges Core-ALT: " + visitedEdgesALTCount );
+        //System.out.println("Visited edges Core-ALT: " + visitedEdgesALTCount );
         return extractPath();
     }
 

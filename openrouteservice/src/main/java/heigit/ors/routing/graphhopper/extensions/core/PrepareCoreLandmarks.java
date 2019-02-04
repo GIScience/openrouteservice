@@ -198,7 +198,6 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
         //Returns true if the landmarkset is for the avoidables.
         //Also returns true if the query has no avoidables and the set has no avoidables
             if(landmarksFilter.isFilter(pmap)){
-                System.out.println("CoreLM");
                 //printLandmarksLongLat();
                 return true;
             }
