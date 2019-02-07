@@ -86,18 +86,16 @@ public class MatrixRequestHandlerTest {
     public void convertMatrixRequestTest() throws StatusCodeException {
         heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates);
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
-        List<MatrixRequest> matrixRequests = MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
-        Assert.assertEquals(1, matrixRequests.size());
-        Assert.assertEquals(1, matrixRequests.get(0).getProfileType());
-        Assert.assertEquals(3, matrixRequests.get(0).getSources().length);
-        Assert.assertEquals(3, matrixRequests.get(0).getDestinations().length);
-        Assert.assertEquals(1, matrixRequests.get(0).getMetrics());
-        Assert.assertNull(matrixRequests.get(0).getWeightingMethod());
-        Assert.assertEquals(DistanceUnit.Meters, matrixRequests.get(0).getUnits());
-        Assert.assertFalse(matrixRequests.get(0).getResolveLocations());
-        Assert.assertFalse(matrixRequests.get(0).getFlexibleMode());
-        Assert.assertNull(matrixRequests.get(0).getAlgorithm());
-        Assert.assertNull(matrixRequests.get(0).getId());
+        MatrixRequest matrixRequest = MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
+        Assert.assertEquals(1, matrixRequest.getProfileType());
+        Assert.assertEquals(3, matrixRequest.getSources().length);
+        Assert.assertEquals(3, matrixRequest.getDestinations().length);
+        Assert.assertEquals(1, matrixRequest.getMetrics());
+        Assert.assertNull(matrixRequest.getWeightingMethod());
+        Assert.assertEquals(DistanceUnit.Meters, matrixRequest.getUnits());
+        Assert.assertFalse(matrixRequest.getResolveLocations());
+        Assert.assertFalse(matrixRequest.getFlexibleMode());
+        Assert.assertNull(matrixRequest.getId());
 
         springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates);
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
@@ -105,44 +103,21 @@ public class MatrixRequestHandlerTest {
         metrics[0] = MatrixRequestEnums.Metrics.DURATION;
         metrics[1] = MatrixRequestEnums.Metrics.DISTANCE;
         springMatrixRequest.setMetrics(metrics);
-        matrixRequests = MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
-        Assert.assertEquals(2, matrixRequests.size());
-        // Test each Request
-        // 1
-        Assert.assertEquals(1, matrixRequests.get(0).getProfileType());
-        Assert.assertEquals(3, matrixRequests.get(0).getSources().length);
-        Assert.assertEquals(3, matrixRequests.get(0).getDestinations().length);
-        Assert.assertEquals(1, matrixRequests.get(0).getMetrics());
-        Assert.assertNull(matrixRequests.get(0).getWeightingMethod());
-        Assert.assertEquals(DistanceUnit.Meters, matrixRequests.get(0).getUnits());
-        Assert.assertFalse(matrixRequests.get(0).getResolveLocations());
-        Assert.assertFalse(matrixRequests.get(0).getFlexibleMode());
-        Assert.assertNull(matrixRequests.get(0).getAlgorithm());
-        Assert.assertNull(matrixRequests.get(0).getId());
-        // 2
-        Assert.assertEquals(1, matrixRequests.get(1).getProfileType());
-        Assert.assertEquals(3, matrixRequests.get(1).getSources().length);
-        Assert.assertEquals(3, matrixRequests.get(1).getDestinations().length);
-        Assert.assertEquals(2, matrixRequests.get(1).getMetrics());
-        Assert.assertNull(matrixRequests.get(1).getWeightingMethod());
-        Assert.assertEquals(DistanceUnit.Meters, matrixRequests.get(1).getUnits());
-        Assert.assertFalse(matrixRequests.get(1).getResolveLocations());
-        Assert.assertFalse(matrixRequests.get(1).getFlexibleMode());
-        Assert.assertNull(matrixRequests.get(1).getAlgorithm());
-        Assert.assertNull(matrixRequests.get(1).getId());
+        matrixRequest = MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
 
+        Assert.assertEquals(3, matrixRequest.getMetrics());
     }
 
     @Test(expected = ParameterValueException.class)
     public void invalidLocationsTest() throws StatusCodeException {
-        heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest();
+        heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest(new ArrayList<>());
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
     }
 
     @Test(expected = ParameterValueException.class)
     public void invalidMetricsTest() throws StatusCodeException {
-        heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest();
+        heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest(new ArrayList<>());
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setMetrics(new MatrixRequestEnums.Metrics[0]);
@@ -151,7 +126,7 @@ public class MatrixRequestHandlerTest {
 
     @Test(expected = ParameterValueException.class)
     public void invalidSourceIndexTest() throws StatusCodeException {
-        heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest();
+        heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest(new ArrayList<>());
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setSources(new String[]{"foo"});
@@ -160,7 +135,7 @@ public class MatrixRequestHandlerTest {
 
     @Test(expected = ParameterValueException.class)
     public void invalidDestinationIndexTest() throws StatusCodeException {
-        heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest();
+        heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest(new ArrayList<>());
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setSources(new String[]{"all"});
@@ -168,13 +143,11 @@ public class MatrixRequestHandlerTest {
         MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
     }
 
-    @Test(expected = ParameterValueException.class)
+    @Test
     public void convertMetricsTest() throws ParameterValueException {
-        Assert.assertEquals(1, MatrixRequestHandler.convertMetrics("Duration"));
-        Assert.assertEquals(2, MatrixRequestHandler.convertMetrics("Distance"));
-        Assert.assertEquals(4, MatrixRequestHandler.convertMetrics("Weight"));
-
-        MatrixRequestHandler.convertMetrics("false-foo");
+        Assert.assertEquals(1, MatrixRequestHandler.convertMetrics(new MatrixRequestEnums.Metrics[] {MatrixRequestEnums.Metrics.DURATION}));
+        Assert.assertEquals(2, MatrixRequestHandler.convertMetrics(new MatrixRequestEnums.Metrics[] {MatrixRequestEnums.Metrics.DISTANCE}));
+        Assert.assertEquals(3, MatrixRequestHandler.convertMetrics(new MatrixRequestEnums.Metrics[] {MatrixRequestEnums.Metrics.DURATION, MatrixRequestEnums.Metrics.DISTANCE}));
     }
 
     @Test(expected = ParameterValueException.class)
@@ -301,31 +274,23 @@ public class MatrixRequestHandlerTest {
     }
 
     @Test
-    public void convertIndexToLocationsTest() throws ParameterValueException {
+    public void convertIndexToLocationsTest() throws Exception {
         ArrayList<Coordinate> coordinate = MatrixRequestHandler.convertIndexToLocations(new String[]{"1"}, this.coordinates);
         Assert.assertEquals(8.686507, coordinate.get(0).x, 0);
         Assert.assertEquals(49.41943, coordinate.get(0).y, 0);
         Assert.assertEquals(Double.NaN, coordinate.get(0).z, 0);
     }
 
-    @Test(expected = ParameterValueException.class)
-    public void convertWrongIndexToLocationsTest() throws ParameterValueException {
+    @Test(expected = Exception.class)
+    public void convertWrongIndexToLocationsTest() throws Exception {
         MatrixRequestHandler.convertIndexToLocations(new String[]{"foo"}, this.coordinates);
     }
 
     @Test
     public void convertUnitsTest() throws ParameterValueException {
-        Assert.assertEquals(DistanceUnit.Meters, MatrixRequestHandler.convertUnits("meters"));
-        Assert.assertEquals(DistanceUnit.Meters, MatrixRequestHandler.convertUnits("m"));
-        Assert.assertEquals(DistanceUnit.Kilometers, MatrixRequestHandler.convertUnits("kilometers"));
-        Assert.assertEquals(DistanceUnit.Kilometers, MatrixRequestHandler.convertUnits("km"));
-        Assert.assertEquals(DistanceUnit.Miles, MatrixRequestHandler.convertUnits("miles"));
-        Assert.assertEquals(DistanceUnit.Miles, MatrixRequestHandler.convertUnits("mi"));
-    }
-
-    @Test(expected = ParameterValueException.class)
-    public void convertWrongUnitsTest() throws ParameterValueException {
-        MatrixRequestHandler.convertUnits("foo");
+        Assert.assertEquals(DistanceUnit.Meters, MatrixRequestHandler.convertUnits(APIEnums.Units.METRES));
+        Assert.assertEquals(DistanceUnit.Kilometers, MatrixRequestHandler.convertUnits(APIEnums.Units.KILOMETRES));
+        Assert.assertEquals(DistanceUnit.Miles, MatrixRequestHandler.convertUnits(APIEnums.Units.MILES));
     }
 
     @Test

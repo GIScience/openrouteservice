@@ -1,18 +1,21 @@
 package heigit.ors.api.responses.matrix;
 
 import heigit.ors.api.requests.matrix.MatrixRequest;
+import heigit.ors.matrix.MatrixResult;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+
 public class MatrixResponseInfoTest {
-    private static heigit.ors.api.requests.matrix.MatrixRequest bareMatrixRequest;
+    private static MatrixRequest bareMatrixRequest;
     private MatrixResponseInfo responseInformation;
 
     @Before
     public void setUp() {
-        bareMatrixRequest = new MatrixRequest();
-        MatrixResponse bareMatrixResponse = new MatrixResponse(bareMatrixRequest);
+        bareMatrixRequest = new MatrixRequest(new ArrayList<>());
+        MatrixResponse bareMatrixResponse = new MatrixResponse(new MatrixResult(null, null), bareMatrixRequest);
         responseInformation = bareMatrixResponse.responseInformation;
     }
 

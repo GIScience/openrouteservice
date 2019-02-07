@@ -22,35 +22,37 @@ import heigit.ors.api.requests.routing.RouteRequest;
 import heigit.ors.routing.RouteSegment;
 import heigit.ors.routing.RouteStep;
 import heigit.ors.util.FormatUtility;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@ApiModel(description = "List containing the segments and its correspoding steps which make up the route.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class JSONSegment {
-    @ApiModelProperty(value = "Contains the distance of the segment in specified units.")
+    @ApiModelProperty(value = "Contains the distance of the segment in specified units.", example = "253")
     @JsonProperty("distance")
     private Double distance;
-    @ApiModelProperty("Contains the duration of the segment in seconds.")
+    @ApiModelProperty(value = "Contains the duration of the segment in seconds.", example = "37.7")
     @JsonProperty("duration")
     private Double duration;
     @ApiModelProperty("List containing the specific steps the segment consists of.")
     @JsonProperty("steps")
     private List<JSONStep> steps;
-    @ApiModelProperty(value = "Contains the deviation compared to a straight line that would have the factor `1`. Double the Distance would be a `2`. [:attributes=detourfactor]")
+    @ApiModelProperty(value = "Contains the deviation compared to a straight line that would have the factor `1`. Double the Distance would be a `2`. CUSTOM_KEYS:{'validWhen':{'ref':'attributes','valueContains':'detourfactor'}}", example = "0.5")
     @JsonProperty("detourfactor")
     private Double detourFactor;
-    @ApiModelProperty(value = "Contains the proportion of the route in percent. [:attributes=percentage]")
+    @ApiModelProperty(value = "Contains the proportion of the route in percent. CUSTOM_KEYS:{'validWhen':{'ref':'attributes','valueContains':'percentage'}}", example = "43.2")
     @JsonProperty("percentage")
     private Double percentage;
-    @ApiModelProperty(value = "Contains the average speed of this segment in km/h. [:attributes=avgspeed]")
+    @ApiModelProperty(value = "Contains the average speed of this segment in km/h. CUSTOM_KEYS:{'validWhen':{'ref':'attributes','valueContains':'avgspeed'}}", example = "56.3")
     @JsonProperty("avgspeed")
     private Double averageSpeed;
-    @ApiModelProperty(value = " Contains ascent of this segment in metres [:elevation=true]")
+    @ApiModelProperty(value = " Contains ascent of this segment in metres. CUSTOM_KEYS:{'validWhen':{'ref':'elevation',value:true}}", example = "56.3")
     @JsonProperty("ascent")
     private Double ascent;
-    @ApiModelProperty(value = "Contains descent of this segment in metres [:elevation=true]")
+    @ApiModelProperty(value = "Contains descent of this segment in metres. CUSTOM_KEYS:{'validWhen':{'ref':'elevation',value:true}}", example = "45.2")
     @JsonProperty("descent")
     private Double descent;
 

@@ -15,7 +15,7 @@
 
 package heigit.ors.api.responses.matrix.JSONMatrixResponseObjects;
 
-import heigit.ors.matrix.MatrixRequest;
+import heigit.ors.api.requests.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
 import heigit.ors.matrix.ResolvedLocation;
 
@@ -27,7 +27,7 @@ class JSONBasedIndividualMatrixResponse {
     private boolean includeResolveLocations = false;
 
     JSONBasedIndividualMatrixResponse(MatrixRequest request) {
-        if (request.getResolveLocations())
+        if (request.hasResolveLocations() && request.getResolveLocations())
             includeResolveLocations = true;
     }
 

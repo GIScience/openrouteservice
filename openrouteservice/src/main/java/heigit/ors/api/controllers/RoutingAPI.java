@@ -40,8 +40,17 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-@Api(value = "Directions Service", description = "et directions for different modes of transport")
+@Api(value = "Directions Service", description = "Get directions for different modes of transport", tags = "Directions")
 @RequestMapping("/v2/directions")
+@ApiResponses({
+        @ApiResponse(code = 400, message = "The request is incorrect and therefore can not be processed."),
+        @ApiResponse(code = 404, message = "An element could not be found. If possible, a more detailed error code is provided."),
+        @ApiResponse(code = 405, message = "The specified HTTP method is not supported. For more details, refer to the EndPoint documentation."),
+        @ApiResponse(code = 413, message = "The request is larger than the server is able to process, the data provided in the request exceeds the capacity limit."),
+        @ApiResponse(code = 500, message = "An unexpected error was encountered and a more detailed error code is provided."),
+        @ApiResponse(code = 501, message = "Indicates that the server does not support the functionality needed to fulfill the request."),
+        @ApiResponse(code = 503, message = "The server is currently unavailable due to overload or maintenance.")
+})
 public class RoutingAPI {
     final static CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(RoutingErrorCodes.BASE);
 
@@ -68,11 +77,13 @@ public class RoutingAPI {
     // Functional request methods
 
     @GetMapping(value = "/{profile}", produces = {"application/geo+json;charset=UTF-8"})
-    @ApiOperation(value = "Get a basic route between two points with the profile provided. Returned response is in GeoJSON format", httpMethod = "GET")
+    @ApiOperation(notes = "Get a basic route between two points with the profile provided. Returned response is in GeoJSON format", value = "Directions Service (GET)", httpMethod = "GET")
     @ApiResponses(
-            @ApiResponse(code = 200, message = "GeoJSON Response", response = GeoJSONRouteResponse.class)
+            @ApiResponse(code = 200,
+                    message = "Standard response for successfully processed requests. Returns GeoJSON. The decoded values of the extra information can be found [here](https://github.com/GIScience/openrouteservice-docs).",
+                    response = GeoJSONRouteResponse.class)
     )
-    public GeoJSONRouteResponse getSimpleGeoJsonRoute(@ApiParam(value = "Specifies the route profile.") @PathVariable APIEnums.Profile profile,
+    public GeoJSONRouteResponse getSimpleGeoJsonRoute(@ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.Profile profile,
                                                       @ApiParam(value = "Start coordinate of the route", required = true) @RequestParam Coordinate start,
                                                       @ApiParam(value = "Destination coordinate of the route", required = true) @RequestParam Coordinate end) throws StatusCodeException{
         RouteRequest request = new RouteRequest(start, end);
@@ -84,17 +95,19 @@ public class RoutingAPI {
     }
 
     @PostMapping(value = "/{profile}")
-    @ApiOperation(value = "Returns a route between two or more locations for a selected profile and its settings as JSON", httpMethod = "POST", consumes = "application/json", produces = "application/json")
+    @ApiOperation(notes = "Returns a route between two or more locations for a selected profile and its settings as JSON", value = "Directions Service (POST)", httpMethod = "POST", consumes = "application/json", produces = "application/json")
     @ApiResponses(
-            @ApiResponse(code = 200, message = "JSON Response", response = JSONRouteResponse.class)
+            @ApiResponse(code = 200,
+                    message = "Standard response for successfully processed requests. Returns JSON. The decoded values of the extra information can be found [here](https://github.com/GIScience/openrouteservice-docs).",
+                    response = JSONRouteResponse.class)
     )
-    public JSONRouteResponse getDefault(@ApiParam(value = "Specifies the route profile.") @PathVariable APIEnums.Profile profile,
+    public JSONRouteResponse getDefault(@ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.Profile profile,
                                         @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws Exception {
         return getJsonRoute(profile, request);
     }
 
     @PostMapping(value = "/{profile}/json", produces = {"application/json;charset=UTF-8"})
-    @ApiOperation(value = "Returns a route between two or more locations for a selected profile and its settings as JSON", httpMethod = "POST", consumes = "application/json", produces = "application/json")
+    @ApiOperation(notes = "Returns a route between two or more locations for a selected profile and its settings as JSON", value = "Directions Service JSON (POST)", httpMethod = "POST", consumes = "application/json", produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JSON Response", response = JSONRouteResponse.class)
     })
@@ -110,9 +123,12 @@ public class RoutingAPI {
     }
 
     @PostMapping(value = "/{profile}/gpx", produces = "application/gpx+xml;charset=UTF-8")
-    @ApiOperation(value = "Returns a route between two or more locations for a selected profile and its settings as GPX", httpMethod = "POST", consumes = "application/json", produces = "application/gpx+xml")
+    @ApiOperation(notes = "Returns a route between two or more locations for a selected profile and its settings as GPX. The schema can be found [here](https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v1/ors-gpx.xsd)",
+            value = "Directions Service GPX (POST)", httpMethod = "POST", consumes = "application/json", produces = "application/gpx+xml")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "GPX Response", response = GPXRouteResponse.class)
+            @ApiResponse(code = 200,
+                    message = "Standard response for successfully processed requests. Returns GPX.",
+                    response = GPXRouteResponse.class)
     })
     public GPXRouteResponse getGPXRoute(
             @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.Profile profile,
@@ -127,9 +143,11 @@ public class RoutingAPI {
     }
 
     @PostMapping(value = "/{profile}/geojson", produces = "application/geo+json;charset=UTF-8")
-    @ApiOperation(value = "Returns a route between two or more locations for a selected profile and its settings as GeoJSON", httpMethod = "POST", consumes = "application/json", produces = "application/geo+json")
+    @ApiOperation(notes = "Returns a route between two or more locations for a selected profile and its settings as GeoJSON", value = "Directions Service GeoJSON (POST)", httpMethod = "POST", consumes = "application/json", produces = "application/geo+json")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "GeoJSON Response", response = GeoJSONRouteResponse.class)
+            @ApiResponse(code = 200,
+                    message = "Standard response for successfully processed requests. Returns GeoJSON. The decoded values of the extra information can be found [here](https://github.com/GIScience/openrouteservice-docs).",
+                    response = GeoJSONRouteResponse.class)
     })
     public GeoJSONRouteResponse getGeoJsonRoute(
             @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.Profile profile,

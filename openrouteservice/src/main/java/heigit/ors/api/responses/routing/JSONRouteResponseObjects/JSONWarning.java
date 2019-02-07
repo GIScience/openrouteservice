@@ -17,14 +17,16 @@ package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import heigit.ors.routing.RouteWarning;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+@ApiModel(description = "Informs about possible difficulties like access restrictions on the generated route. Generates a corresponding `extras` object with the affected segments.")
 public class JSONWarning {
-    @ApiModelProperty(value = "Identification code for the warning")
+    @ApiModelProperty(value = "Identification code for the warning", example = "1")
     @JsonProperty
     private Integer code;
 
-    @ApiModelProperty( value = "The message associated with the warning")
+    @ApiModelProperty( value = "The message associated with the warning", example = "This route may go over restricted roads")
     @JsonProperty
     private String message;
 

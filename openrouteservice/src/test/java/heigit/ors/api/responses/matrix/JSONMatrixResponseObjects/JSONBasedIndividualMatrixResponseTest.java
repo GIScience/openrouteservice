@@ -1,9 +1,11 @@
 package heigit.ors.api.responses.matrix.JSONMatrixResponseObjects;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import heigit.ors.api.requests.common.APIEnums;
+import heigit.ors.api.requests.matrix.MatrixRequestEnums;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.matrix.MatrixMetricsType;
-import heigit.ors.matrix.MatrixRequest;
+import heigit.ors.api.requests.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
 import heigit.ors.matrix.ResolvedLocation;
 import heigit.ors.routing.RoutingProfileType;
@@ -16,7 +18,7 @@ import java.util.List;
 
 public class JSONBasedIndividualMatrixResponseTest {
 
-    private MatrixRequest matrixRequest = new MatrixRequest();
+    private MatrixRequest matrixRequest = new MatrixRequest(new ArrayList<>());
     private MatrixResult matrixResult;
     private JSONBasedIndividualMatrixResponse jsonBasedIndividualMatrixResponse;
 
@@ -25,11 +27,11 @@ public class JSONBasedIndividualMatrixResponseTest {
     @Before
     public void setUp() {
         matrixRequest.setResolveLocations(true);
-        matrixRequest.setMetrics(MatrixMetricsType.Duration);
-        matrixRequest.setSources(coordinates);
-        matrixRequest.setDestinations(coordinates);
-        matrixRequest.setProfileType(RoutingProfileType.CYCLING_REGULAR);
-        matrixRequest.setUnits(DistanceUnit.Meters);
+        matrixRequest.setMetrics(new MatrixRequestEnums.Metrics[] {MatrixRequestEnums.Metrics.DISTANCE});
+        matrixRequest.setSources(new String[] {"all"});
+        matrixRequest.setDestinations(new String[] {"all"});
+        matrixRequest.setProfile(APIEnums.Profile.CYCLING_REGULAR);
+        matrixRequest.setUnits(APIEnums.Units.METRES);
         jsonBasedIndividualMatrixResponse = new JSONBasedIndividualMatrixResponse(matrixRequest);
 
         Coordinate coordinate = new Coordinate(8.681495, 49.41461);
@@ -42,7 +44,6 @@ public class JSONBasedIndividualMatrixResponseTest {
         matrixResult.setTable(MatrixMetricsType.Weight, new float[]{0, 1});
         List<MatrixResult> matrixResults = new ArrayList<>();
         matrixResults.add(matrixResult);
-
     }
 
     @Test

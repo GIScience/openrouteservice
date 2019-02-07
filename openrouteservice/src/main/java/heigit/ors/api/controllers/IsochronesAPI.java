@@ -38,8 +38,17 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-@Api(value = "Isochrone Service", description = "Obtain areas of reachability from given locations")
+@Api(value = "Isochrones Service", description = "Obtain areas of reachability from given locations", tags = "Isochrones")
 @RequestMapping("/v2/isochrones")
+@ApiResponses({
+        @ApiResponse(code = 400, message = "The request is incorrect and therefore can not be processed."),
+        @ApiResponse(code = 404, message = "An element could not be found. If possible, a more detailed error code is provided."),
+        @ApiResponse(code = 405, message = "The specified HTTP method is not supported. For more details, refer to the EndPoint documentation."),
+        @ApiResponse(code = 413, message = "The request is larger than the server is able to process, the data provided in the request exceeds the capacity limit."),
+        @ApiResponse(code = 500, message = "An unexpected error was encountered and a more detailed error code is provided."),
+        @ApiResponse(code = 501, message = "Indicates that the server does not support the functionality needed to fulfill the request."),
+        @ApiResponse(code = 503, message = "The server is currently unavailable due to overload or maintenance.")
+})
 public class IsochronesAPI {
     final static CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(IsochronesErrorCodes.BASE);
 
@@ -65,12 +74,12 @@ public class IsochronesAPI {
 
     // Functional request methods
     @PostMapping(value = "/{profile}", produces = "application/geo+json;charset=UTF-8")
-    @ApiOperation(value = "The Isochrone Service supports time and distance analyses for one single or multiple locations.\n" +
+    @ApiOperation(value = "Isochrones Service", notes = "The Isochrone Service supports time and distance analyses for one single or multiple locations.\n" +
             "You may also specify the isochrone interval or provide multiple exact isochrone range values.\n" +
             "This service allows the same range of profile options as the /directions endpoint,\n" +
             "which help you to further customize your request to obtain a more detailed reachability area response.", httpMethod = "POST", consumes = "application/geo+json")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "GeoJSON Response", response = GeoJSONIsochronesResponse.class)
+            @ApiResponse(code = 200, message = "Standard response for successfully processed requests. Returns GeoJSON.", response = GeoJSONIsochronesResponse.class)
     })
     public GeoJSONIsochronesResponse getDefaultIsochrones(
             @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.Profile profile,
@@ -84,7 +93,7 @@ public class IsochronesAPI {
             "This service allows the same range of profile options as the /directions endpoint,\n" +
             "which help you to further customize your request to obtain a more detailed reachability area response.", httpMethod = "POST", consumes = "application/geo+json", hidden = true)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "GeoJSON Response", response = GeoJSONIsochronesResponse.class)
+            @ApiResponse(code = 200, message = "Standard response for successfully processed requests. Returns GeoJSON.", response = GeoJSONIsochronesResponse.class)
     })
     public GeoJSONIsochronesResponse getGeoJsonIsochrones(
             @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.Profile profile,

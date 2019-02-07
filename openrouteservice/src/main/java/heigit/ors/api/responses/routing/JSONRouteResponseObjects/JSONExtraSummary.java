@@ -29,19 +29,19 @@ public class JSONExtraSummary {
         this.amount = amount;
     }
 
-    @ApiModelProperty(value = "[Value](https://github.com/GIScience/openrouteservice-docs#routing-response) of a info category.")
+    @ApiModelProperty(value = "[Value](https://github.com/GIScience/openrouteservice-docs#routing-response) of a info category.", example = "5")
     @JsonProperty("value")
     public double getValue() {
         return value;
     }
 
-    @ApiModelProperty(value = "Cumulative distance of this value.")
+    @ApiModelProperty(value = "Cumulative distance of this value.", example = "123.1")
     @JsonProperty("distance")
     public double getDistance() {
         return distance;
     }
 
-    @ApiModelProperty(value = "Category percentage of the entire route.")
+    @ApiModelProperty(value = "Category percentage of the entire route.", example = "23.8")
     @JsonProperty("amount")
     public double getAmount() {
         return amount;

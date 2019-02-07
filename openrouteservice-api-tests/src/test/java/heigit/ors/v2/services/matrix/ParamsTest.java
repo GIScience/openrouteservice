@@ -180,7 +180,7 @@ public class ParamsTest extends ServiceTest {
                 .then()
                 .log().all()
                 .body("any { it.key == 'info' }", is(true))
-                .body("any { it.key == 'matrix' }", is(true))
+                .body("any { it.key == 'sources' }", is(true))
                 .statusCode(200);
     }
 
@@ -353,8 +353,8 @@ public class ParamsTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("info.query.containsKey('resolve_locations')", is(true))
-                .body("matrix[0].destinations[0].containsKey('name')", is(true))
-                .body("matrix[0].sources[0].containsKey('name')", is(true))
+                .body("destinations[0].containsKey('name')", is(true))
+                .body("sources[0].containsKey('name')", is(true))
                 .statusCode(200);
     }
 
@@ -362,7 +362,6 @@ public class ParamsTest extends ServiceTest {
     public void expectDurations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
-        body.put("resolve_locations", true);
         body.put("metrics", getParameter("metricsDuration"));
 
         given()
@@ -374,7 +373,7 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("matrix[0].containsKey('durations')", is(true))
+                .body("containsKey('durations')", is(true))
                 .statusCode(200);
     }
 
@@ -382,7 +381,6 @@ public class ParamsTest extends ServiceTest {
     public void expectDistances() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
-        body.put("resolve_locations", true);
         body.put("metrics", getParameter("metricsDistance"));
         given()
                 .header("Accept", "application/json")
@@ -393,7 +391,7 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("matrix[0].containsKey('distances')", is(true))
+                .body("containsKey('distances')", is(true))
                 .statusCode(200);
     }
 
@@ -401,7 +399,6 @@ public class ParamsTest extends ServiceTest {
     public void expectAllMetrics() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
-        body.put("resolve_locations", true);
         body.put("metrics", getParameter("metricsAll"));
 
         given()
@@ -413,8 +410,8 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("matrix[0].containsKey('durations')", is(true))
-                .body("matrix[0].containsKey('distances')", is(true))
+                .body("containsKey('durations')", is(true))
+                .body("containsKey('distances')", is(true))
                 .statusCode(200);
     }
 
@@ -476,32 +473,6 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void expectQueryItems() {
-        JSONObject body = new JSONObject();
-        body.put("locations", getParameter("locations"));
-        given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
-                .body(body.toString())
-                .when()
-                .post(getEndPointPath() + "/{profile}/json")
-                .then()
-                .assertThat()
-                .body("info.containsKey('query')", is(true))
-                .body("info.query.containsKey('locations')", is(true))
-                .body("info.query.containsKey('profile')", is(true))
-                .body("info.query.containsKey('responseType')", is(true))
-                .body("info.query.containsKey('sources')", is(true))
-                .body("info.query.containsKey('destinations')", is(true))
-                .body("info.query.containsKey('metrics')", is(true))
-                .body("info.query.containsKey('resolve_locations')", is(true))
-                .body("info.query.containsKey('optimized')", is(true))
-                .body("info.query.containsKey('units')", is(true))
-                .statusCode(200);
-    }
-
-    @Test
     public void expectFlexibleMode() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
@@ -516,15 +487,7 @@ public class ParamsTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("info.containsKey('query')", is(true))
-                .body("info.query.containsKey('locations')", is(true))
-                .body("info.query.containsKey('profile')", is(true))
-                .body("info.query.containsKey('responseType')", is(true))
-                .body("info.query.containsKey('sources')", is(true))
-                .body("info.query.containsKey('destinations')", is(true))
-                .body("info.query.containsKey('metrics')", is(true))
-                .body("info.query.containsKey('resolve_locations')", is(true))
                 .body("info.query.containsKey('optimized')", is(true))
-                .body("info.query.containsKey('units')", is(true))
                 .statusCode(200);
     }
 
@@ -587,6 +550,7 @@ public class ParamsTest extends ServiceTest {
     public void expectQuerySources() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
+        body.put("sources", new String[] {"all"});
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
@@ -605,6 +569,7 @@ public class ParamsTest extends ServiceTest {
     public void expectQueryDestinations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
+        body.put("destinations", new String[] {"all"});
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
@@ -623,6 +588,7 @@ public class ParamsTest extends ServiceTest {
     public void expectQueryMetrics() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
+        body.put("metrics", new String[]{"distance"});
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
@@ -641,6 +607,7 @@ public class ParamsTest extends ServiceTest {
     public void expectQueryUnits() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
+        body.put("units", "m");
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
@@ -688,7 +655,7 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("matrix[0].containsKey('destinations')", is(true))
+                .body("containsKey('destinations')", is(true))
                 .statusCode(200);
     }
 
@@ -705,8 +672,8 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("matrix[0].destinations[0].containsKey('location')", is(true))
-                .body("matrix[0].destinations[0].containsKey('snapped_distance')", is(true))
+                .body("destinations[0].containsKey('location')", is(true))
+                .body("destinations[0].containsKey('snapped_distance')", is(true))
                 .statusCode(200);
     }
 
@@ -723,7 +690,7 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("matrix[0].containsKey('sources')", is(true))
+                .body("containsKey('sources')", is(true))
                 .statusCode(200);
     }
 
@@ -740,8 +707,8 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("matrix[0].sources[0].containsKey('location')", is(true))
-                .body("matrix[0].sources[0].containsKey('snapped_distance')", is(true))
+                .body("sources[0].containsKey('location')", is(true))
+                .body("sources[0].containsKey('snapped_distance')", is(true))
                 .statusCode(200);
     }
 }

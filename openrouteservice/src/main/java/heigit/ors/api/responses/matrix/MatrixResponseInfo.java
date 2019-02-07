@@ -26,19 +26,19 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.json.JSONObject;
 
-@ApiModel(value = "MatrixResponseInfo")
+@ApiModel(description = "Information about the request")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class MatrixResponseInfo {
-    @ApiModelProperty(value = "Copyright and attribution information")
+    @ApiModelProperty(value = "Copyright and attribution information", example = "openrouteservice.org, OpenStreetMap contributors")
     @JsonProperty("attribution")
     private String attribution;
-    @ApiModelProperty(value = "The MD5 hash of the OSM planet file that was used for generating graphs")
+    @ApiModelProperty(value = "The MD5 hash of the OSM planet file that was used for generating graphs", example = "c0327ba6")
     @JsonProperty("osm_file_md5_hash")
     private String osmFileMD5Hash;
-    @ApiModelProperty(value = "The service that was requested")
+    @ApiModelProperty(value = "The service that was requested", example = "matrix")
     @JsonProperty("service")
     private String service;
-    @ApiModelProperty(value = "Time that the request was made (UNIX Epoch time)")
+    @ApiModelProperty(value = "Time that the request was made (UNIX Epoch time)", example = "1549549847974")
     @JsonProperty("timestamp")
     private long timeStamp;
 
@@ -67,10 +67,10 @@ public class MatrixResponseInfo {
 
     @ApiModel(description = "Information about the version of the openrouteservice that was used to generate the matrix")
     private class EngineInfo {
-        @ApiModelProperty("The backend version of the openrouteservice that was queried")
+        @ApiModelProperty(value = "The backend version of the openrouteservice that was queried", example = "5.0")
         @JsonProperty("version")
         private String version;
-        @ApiModelProperty("The date that the service was last updated")
+        @ApiModelProperty(value = "The date that the service was last updated", example = "2019-02-07T14:28:11Z")
         @JsonProperty("build_date")
         private String buildDate;
 

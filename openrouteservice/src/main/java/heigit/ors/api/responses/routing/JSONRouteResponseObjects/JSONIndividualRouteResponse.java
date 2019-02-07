@@ -43,7 +43,7 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
 
     private BoundingBox bbox;
 
-    @ApiModelProperty(value = "The geometry of the route. For JSON route responses this is an encoded polyline.")
+    @ApiModelProperty(value = "The geometry of the route. For JSON route responses this is an encoded polyline.", example = "yuqlH{i~s@gaUe@VgEQFcBRbB_C")
     @JsonProperty("geometry")
     @JsonUnwrapped
     private String geomResponse;
@@ -51,11 +51,11 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
     @ApiModelProperty("Summary information about the route")
     private JSONSummary summary;
 
-    @ApiModelProperty("List containing the segments and its correspoding steps which make up the route.")
+    @ApiModelProperty("List containing the segments and its corresponding steps which make up the route.")
     private List<JSONSegment> segments;
 
     @JsonProperty("way_points")
-    @ApiModelProperty("List containing the indices of way points corresponding to the *geometry*.")
+    @ApiModelProperty(value = "List containing the indices of way points corresponding to the *geometry*.", example = "[0,23]")
     private int[] wayPoints;
 
     @JsonProperty("warnings")
@@ -84,7 +84,9 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
         List<RouteExtraInfo> responseExtras = routeResult.getExtraInfo();
         if(responseExtras != null) {
             double routeLength = routeResult.getSummary().getDistance();
-            DistanceUnit units =  DistanceUnitUtil.getFromString(request.getUnits().toString(), DistanceUnit.Unknown);
+            DistanceUnit units = DistanceUnit.Meters;
+            if (request.hasUnits())
+                units =  DistanceUnitUtil.getFromString(request.getUnits().toString(), DistanceUnit.Unknown);
             for (RouteExtraInfo extraInfo : responseExtras) {
                 extras.put(extraInfo.getName(), new JSONExtra(extraInfo.getSegments(), extraInfo.getSummary(units, routeLength, true)));
             }

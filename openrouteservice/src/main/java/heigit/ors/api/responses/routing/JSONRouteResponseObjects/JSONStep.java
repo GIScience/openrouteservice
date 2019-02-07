@@ -26,33 +26,33 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(value="JSONStep", description = "Step of a route segment")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JSONStep {
-    @ApiModelProperty(value = "The distance for the step in metres.")
+    @ApiModelProperty(value = "The distance for the step in metres.", example = "245")
     @JsonProperty("distance")
     private Double distance;
-    @ApiModelProperty(value = "The duration for the step in seconds.")
+    @ApiModelProperty(value = "The duration for the step in seconds.", example = "96.2")
     @JsonProperty("duration")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
     private Double duration;
-    @ApiModelProperty(value = "The [instruction](https://github.com/GIScience/openrouteservice-docs#instruction-types) action for symbolisation purposes.")
+    @ApiModelProperty(value = "The [instruction](https://github.com/GIScience/openrouteservice-docs#instruction-types) action for symbolisation purposes.", example = "1")
     @JsonProperty("type")
     private Integer type;
-    @ApiModelProperty(value = "The routing instruction text for the step.")
+    @ApiModelProperty(value = "The routing instruction text for the step.", example = "Turn right onto Berliner Straße")
     @JsonProperty("instruction")
     private String instruction;
-    @ApiModelProperty(value = "The name of the next street.")
+    @ApiModelProperty(value = "The name of the next street.", example = "Berliner Straße")
     @JsonProperty("name")
     private String name;
-    @ApiModelProperty(value = "Only for roundabouts. Contains the number of the exit to take.")
+    @ApiModelProperty(value = "Only for roundabouts. Contains the number of the exit to take.", example = "2")
     @JsonProperty("exit_number")
     private Integer exitNumber;
-    @ApiModelProperty(value = "Contains the bearing of the entrance and all passed exits in a roundabout [:roundabout_exits=true].")
+    @ApiModelProperty(value = "Contains the bearing of the entrance and all passed exits in a roundabout  CUSTOM_KEYS:{'validWhen':{'ref':'roundabout_exits',value:true}}.", example = "[10,45,60]")
     @JsonProperty("exit_bearings")
     private Integer[] exitBearings;
 
-    @ApiModelProperty(value = "List containing the indices of the steps start- and endpoint corresponding to the *geometry*.")
+    @ApiModelProperty(value = "List containing the indices of the steps start- and endpoint corresponding to the *geometry*.", example = "[45,48]")
     @JsonProperty("way_points")
     private Integer[] waypoints;
-    @ApiModelProperty(value = "The maneuver to be performed [:maneuvers=true]")
+    @ApiModelProperty(value = "The maneuver to be performed  CUSTOM_KEYS:{'validWhen':{'ref':'maneuvers',value:true}}")
     @JsonProperty("maneuver")
     private JSONStepManeuver maneuver;
 

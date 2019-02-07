@@ -58,34 +58,40 @@ public class RouteRequestHandler extends GenericHandler {
     public  RoutingRequest convertRouteRequest(RouteRequest request) throws StatusCodeException {
         RoutingRequest routingRequest = new RoutingRequest();
         routingRequest.setCoordinates(convertCoordinates(request.getCoordinates()));
-
-        if(request.hasUseElevation())
-            routingRequest.setIncludeElevation(request.getUseElevation());
-
-        routingRequest.setContinueStraight(request.getContinueStraightAtWaypoints());
-
-        routingRequest.setIncludeGeometry(convertIncludeGeometry(request));
-
-        routingRequest.setIncludeManeuvers(request.getIncĺudeManeuvers());
-
-        routingRequest.setIncludeInstructions(request.getIncludeInstructionsInResponse());
-
-        if(request.hasIncludeRoundaboutExitInfo())
-            routingRequest.setIncludeRoundaboutExits(request.getIncludeRoundaboutExitInfo());
-
-        if(request.hasAttributes())
-            routingRequest.setAttributes(convertAttributes(request.getAttributes()));
-
-        if(request.hasExtraInfo())
-            routingRequest.setExtraInfo(convertExtraInfo(request.getExtraInfo()));
-
-        routingRequest.setLanguage(convertLanguage(request.getLanguage()));
-
         routingRequest.setGeometryFormat(convertGeometryFormat(request.getResponseType()));
 
-        routingRequest.setInstructionsFormat(convertInstructionsFormat(request.getInstructionsFormat()));
+        if (request.hasUseElevation())
+            routingRequest.setIncludeElevation(request.getUseElevation());
 
-        routingRequest.setUnits(convertUnits(request.getUnits()));
+        if (request.hasContinueStraightAtWaypoints())
+            routingRequest.setContinueStraight(request.getContinueStraightAtWaypoints());
+
+        if (request.hasIncludeGeometry())
+            routingRequest.setIncludeGeometry(convertIncludeGeometry(request));
+
+        if (request.hasIncludeManeuvers())
+            routingRequest.setIncludeManeuvers(request.getIncĺudeManeuvers());
+
+        if (request.hasIncludeInstructions())
+            routingRequest.setIncludeInstructions(request.getIncludeInstructionsInResponse());
+
+        if (request.hasIncludeRoundaboutExitInfo())
+            routingRequest.setIncludeRoundaboutExits(request.getIncludeRoundaboutExitInfo());
+
+        if (request.hasAttributes())
+            routingRequest.setAttributes(convertAttributes(request.getAttributes()));
+
+        if (request.hasExtraInfo())
+            routingRequest.setExtraInfo(convertExtraInfo(request.getExtraInfo()));
+
+        if (request.hasLanguage())
+            routingRequest.setLanguage(convertLanguage(request.getLanguage()));
+
+        if (request.hasInstructionsFormat())
+            routingRequest.setInstructionsFormat(convertInstructionsFormat(request.getInstructionsFormat()));
+
+        if (request.hasUnits())
+            routingRequest.setUnits(convertUnits(request.getUnits()));
 
         if (request.hasSimplifyGeometry()) {
             routingRequest.setGeometrySimplify(request.getSimplifyGeometry());

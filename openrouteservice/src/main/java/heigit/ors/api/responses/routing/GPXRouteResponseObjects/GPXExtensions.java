@@ -16,7 +16,9 @@
 package heigit.ors.api.responses.routing.GPXRouteResponseObjects;
 
 import com.graphhopper.util.Helper;
+import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.api.requests.routing.RouteRequest;
+import heigit.ors.localization.Language;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 
@@ -52,10 +54,24 @@ public class GPXExtensions {
         buildDate = AppInfo.getEngineInfo().getString("build_date");
         profile = request.getProfile().toString();
         preference = request.getRoutePreference().toString();
-        language = request.getLanguage().toString();
-        units = request.getUnits().toString();
-        includeInstructions = request.getIncludeInstructionsInResponse();
+        if (request.hasLanguage())
+            language = request.getLanguage().toString();
+        else
+            language = APIEnums.Languages.EN.toString();
+
+        if (request.hasUnits())
+            units = request.getUnits().toString();
+        else
+            units = APIEnums.Units.METRES.toString();
+
+        if (request.hasIncludeInstructions())
+            includeInstructions = request.getIncludeInstructionsInResponse();
+        else
+            includeInstructions = true;
+
         if(request.hasUseElevation())
             includeElevation = request.getUseElevation();
+        else
+            includeElevation = false;
     }
 }

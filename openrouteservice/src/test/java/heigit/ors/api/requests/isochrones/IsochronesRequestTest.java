@@ -127,7 +127,7 @@ public class IsochronesRequestTest {
     @Test
     public void setIntersectionTest() {
         IsochronesRequest request = new IsochronesRequest();
-        request.setIntersection(true);
+        request.setIntersections(true);
         Assert.assertTrue(request.getIntersections());
     }
 

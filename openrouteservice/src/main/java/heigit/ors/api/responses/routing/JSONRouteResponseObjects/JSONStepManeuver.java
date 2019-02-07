@@ -25,13 +25,13 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(description = "Maneuver object of the step")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JSONStepManeuver {
-    @ApiModelProperty(value = "The coordinate of the point where a maneuver takes place.")
+    @ApiModelProperty(value = "The coordinate of the point where a maneuver takes place.", example = "[8.678962,49.407819]")
     @JsonProperty("location")
     private Double[] location;
-    @ApiModelProperty(value = "The azimuth angle (in degrees) of the direction right before the maneuver.")
+    @ApiModelProperty(value = "The azimuth angle (in degrees) of the direction right before the maneuver.", example = "24")
     @JsonProperty("bearing_before")
     private Integer bearingBefore;
-    @ApiModelProperty(value = "The azimuth angle (in degrees) of the direction right after the maneuver.")
+    @ApiModelProperty(value = "The azimuth angle (in degrees) of the direction right after the maneuver.", example = "96")
     @JsonProperty("bearing_after")
     private Integer bearingAfter;
 

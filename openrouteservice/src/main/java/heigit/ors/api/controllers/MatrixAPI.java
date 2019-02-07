@@ -38,8 +38,17 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RestController
-@Api(value = "Matrix", description = "Obtain one-to-many, many-to-one and many-to-many matrices for time and distance")
+@Api(value = "Matrix Service", description = "Obtain one-to-many, many-to-one and many-to-many matrices for time and distance", tags = "Matrix")
 @RequestMapping("/v2/matrix")
+@ApiResponses({
+        @ApiResponse(code = 400, message = "The request is incorrect and therefore can not be processed."),
+        @ApiResponse(code = 404, message = "An element could not be found. If possible, a more detailed error code is provided."),
+        @ApiResponse(code = 405, message = "The specified HTTP method is not supported. For more details, refer to the EndPoint documentation."),
+        @ApiResponse(code = 413, message = "The request is larger than the server is able to process, the data provided in the request exceeds the capacity limit."),
+        @ApiResponse(code = 500, message = "An unexpected error was encountered and a more detailed error code is provided."),
+        @ApiResponse(code = 501, message = "Indicates that the server does not support the functionality needed to fulfill the request."),
+        @ApiResponse(code = 503, message = "The server is currently unavailable due to overload or maintenance.")
+})
 public class MatrixAPI {
     final static CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(MatrixErrorCodes.BASE);
 
@@ -66,11 +75,12 @@ public class MatrixAPI {
     // Functional request methods
 
     @PostMapping(value = "/{profile}", produces = {"application/json;charset=UTF-8"})
-    @ApiOperation(value = "Get a matrix calculation from the specified profile", httpMethod = "POST", consumes = "application/json", produces = "application/json")
+    @ApiOperation(value = "Matrix Service", notes = "Returns duration or distance matrix for mutliple source and destination points.\n" +
+            "By default a symmetric duration matrix is returned where every point in locations is paired with each other. The result is null if a value can’t be determined.", httpMethod = "POST", consumes = "application/json", produces = "application/json")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JSON Response", response = JSONMatrixResponse.class)
+            @ApiResponse(code = 200, message = "Standard response for successfully processed requests. Returns JSON.", response = JSONMatrixResponse.class)
     })
-    public JSONMatrixResponse getDefault(@ApiParam(value = "Specifies the matrix profile.") @PathVariable APIEnums.Profile profile,
+    public JSONMatrixResponse getDefault(@ApiParam(value = "Specifies the matrix profile.", required = true) @PathVariable APIEnums.Profile profile,
                                          @ApiParam(value = "The request payload", required = true) @RequestBody MatrixRequest request) throws Exception {
         return getJsonMime(profile, request);
     }
@@ -78,7 +88,7 @@ public class MatrixAPI {
     @PostMapping(value = "/{profile}/json", produces = {"application/json;charset=UTF-8"})
     @ApiOperation(value = "Get a matrix calculation from the specified profile", httpMethod = "POST", consumes = "application/json", hidden = true)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JSON Response", response = JSONMatrixResponse.class)
+            @ApiResponse(code = 200, message = "Standard response for successfully processed requests. Returns JSON.", response = JSONMatrixResponse.class)
     })
     public JSONMatrixResponse getJsonMime(
             //TODO Flexible mode???
@@ -86,10 +96,9 @@ public class MatrixAPI {
             @ApiParam(value = "The request payload", required = true) @RequestBody MatrixRequest originalRequest) throws StatusCodeException {
         originalRequest.setProfile(profile);
         originalRequest.setResponseType(APIEnums.MatrixResponseType.JSON);
-        List<heigit.ors.matrix.MatrixRequest> matrixRequests = MatrixRequestHandler.convertMatrixRequest(originalRequest);
-        List<MatrixResult> matrixResults = MatrixRequestHandler.generateRouteFromRequests(matrixRequests);
+        MatrixResult matrixResult = MatrixRequestHandler.generateMatrixFromRequest(originalRequest);
 
-        return new JSONMatrixResponse(matrixResults, matrixRequests, originalRequest);
+        return new JSONMatrixResponse(matrixResult, originalRequest);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

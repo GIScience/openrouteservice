@@ -17,8 +17,8 @@ package heigit.ors.api.responses.matrix.JSONMatrixResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import heigit.ors.api.requests.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixMetricsType;
-import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
 import heigit.ors.util.FormatUtility;
 import io.swagger.annotations.ApiModel;
@@ -29,20 +29,13 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @ApiModel(value = "JSONIndividualMatrixResponse", description = "An individual JSON based route created by the service")
 public class JSONIndividualMatrixResponse extends JSONBasedIndividualMatrixResponse {
-    private final int DURATIONS_DECIMAL_PLACES = 2;
-    private final int DISTANCES_DECIMAL_PLACES = 2;
-    private final int WEIGHT_DECIMAL_PLACES = 2;
-    @ApiModelProperty(value = "The durations of the matrix calculations.")
+    @ApiModelProperty(value = "The durations of the matrix calculations.", example = "[[0,25],[25,0]]")
     @JsonProperty("durations")
-    private Double[] durations;
+    private Double[][] durations;
 
-    @ApiModelProperty(value = "The distances of the matrix calculations.")
+    @ApiModelProperty(value = "The distances of the matrix calculations.", example = "[[0,0.25],[0.25,0]]")
     @JsonProperty("distances")
-    private Double[] distances;
-
-    @ApiModelProperty(value = "The weights of the matrix calculations.")
-    @JsonProperty("weights")
-    private Double[] weights;
+    private Double[][] distances;
 
     @ApiModelProperty(value = "The individual destinations of the matrix calculations.")
     @JsonProperty("destinations")
@@ -52,62 +45,43 @@ public class JSONIndividualMatrixResponse extends JSONBasedIndividualMatrixRespo
     @JsonProperty("sources")
     private List<JSON2DSources> sources;
 
-    JSONIndividualMatrixResponse(MatrixResult matrixResult, MatrixRequest request) {
+    JSONIndividualMatrixResponse(MatrixResult result, MatrixRequest request) {
         super(request);
-        int metric = request.getMetrics();
-        switch (metric) {
-            case MatrixMetricsType.Duration:
-                durations = constructDurations(matrixResult, request);
-                break;
-            case MatrixMetricsType.Distance:
-                distances = constructDistances(matrixResult, request);
-                break;
-            case MatrixMetricsType.Weight:
-                weights = constructWeights(matrixResult, request);
-                break;
-            default:
-                break;
+
+        destinations = constructDestinations(result);
+        sources = constructSources(result);
+
+        for (int i=0; i<result.getTables().length; i++) {
+            if (result.getTable(i) != null) {
+                switch (i) {
+                    case MatrixMetricsType.Duration:
+                        durations = constructMetric(result.getTable(i), result);
+                        break;
+                    case MatrixMetricsType.Distance:
+                        distances = constructMetric(result.getTable(i), result);
+                        break;
+                }
+            }
         }
-        destinations = constructDestinations(matrixResult);
-        sources = constructSources(matrixResult);
-
     }
 
-    public JSONIndividualMatrixResponse(MatrixRequest request) {
-        super(request);
-    }
+    private Double[][] constructMetric(float[] table, MatrixResult result) {
+        int sourceCount = result.getSources().length;
+        int destinationCount = result.getDestinations().length;
 
-    private Double[] constructDurations(MatrixResult matrixResult, MatrixRequest request) {
-        float[] durations = matrixResult.getTable(request.getMetrics());
-        Double[] constructedDurations = new Double[durations.length];
-        for (int i = 0; i < durations.length; i++) {
-            double duration = (double) durations[i];
-            constructedDurations[i] = FormatUtility.roundToDecimals(duration, DURATIONS_DECIMAL_PLACES);
+        Double[][] constructedTable = new Double[sourceCount][destinationCount];
+
+        for (int i=0; i<sourceCount; i++) {
+            for (int j=0; j<destinationCount; j++) {
+                double value = (double) table[(i*sourceCount) + j];
+                constructedTable[i][j] = FormatUtility.roundToDecimals(value, 2);
+            }
         }
-        return constructedDurations;
+
+        return constructedTable;
     }
 
-    private Double[] constructDistances(MatrixResult matrixResult, MatrixRequest request) {
-        float[] distances = matrixResult.getTable(request.getMetrics());
-        Double[] constructedDistances = new Double[distances.length];
-        for (int i = 0; i < distances.length; i++) {
-            double distance = (double) distances[i];
-            constructedDistances[i] = FormatUtility.roundToDecimals(distance, DISTANCES_DECIMAL_PLACES);
-        }
-        return constructedDistances;
-    }
-
-    private Double[] constructWeights(MatrixResult matrixResult, MatrixRequest request) {
-        float[] weights = matrixResult.getTable(request.getMetrics());
-        Double[] constructedWeights = new Double[weights.length];
-        for (int i = 0; i < weights.length; i++) {
-            double weight = (double) weights[i];
-            constructedWeights[i] = FormatUtility.roundToDecimals(weight, WEIGHT_DECIMAL_PLACES);
-        }
-        return constructedWeights;
-    }
-
-    public Double[] getDurations() {
+    public Double[][] getDurations() {
         return durations;
     }
 
@@ -119,23 +93,15 @@ public class JSONIndividualMatrixResponse extends JSONBasedIndividualMatrixRespo
         return sources;
     }
 
-    public Double[] getDistances() {
+    public Double[][] getDistances() {
         return distances;
     }
 
-    public void setDistances(Double[] distances) {
+    public void setDistances(Double[][] distances) {
         this.distances = distances;
     }
 
-    public Double[] getWeights() {
-        return weights;
-    }
-
-    public void setWeights(Double[] weights) {
-        this.weights = weights;
-    }
-
-    public void setDurations(Double[] durations) {
+    public void setDurations(Double[][] durations) {
         this.durations = durations;
     }
 

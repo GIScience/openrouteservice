@@ -27,72 +27,88 @@ import java.util.List;
 @ApiModel(value = "Restrictions", parent = RequestProfileParams.class, description = "Describe restrictions to be applied to edges on the routing. any edges that do not match these restrictions are not traversed.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RequestProfileParamsRestrictions {
-    @ApiModelProperty(value = "Length restriction in metres. CUSTOM_KEYS:{validWhen:{ref:\"profile\",value:[\"driving-hgv\"]}}", example = "8.4")
+    @ApiModelProperty(value = "Length restriction in metres. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}", example = "8.4")
     @JsonProperty("length")
     private Float length;
     private boolean hasLength = false;
 
-    @ApiModelProperty(value = "Width restriction in metres. CUSTOM_KEYS:{validWhen:{ref:\"profile\",value:[\"driving-hgv\"]}}", example = "5.6")
+    @ApiModelProperty(value = "Width restriction in metres. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}", example = "5.6")
     @JsonProperty("width")
     private Float width;
     @JsonIgnore
     private boolean hasWidth = false;
 
-    @ApiModelProperty(value = "Height restriction in metres. CUSTOM_KEYS:{validWhen:{ref:\"profile\",value:[\"driving-hgv\"]}}", example = "4.2")
+    @ApiModelProperty(value = "Height restriction in metres. " +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}", example = "4.2")
     @JsonProperty("height")
     private Float height;
     @JsonIgnore
     private boolean hasHeight = false;
 
-    @ApiModelProperty(value = "Axleload restriction in tons. CUSTOM_KEYS:{validWhen:{ref:\"profile\",value:[\"driving-hgv\"]}}", example = "50")
+    @ApiModelProperty(value = "Axleload restriction in tons. " +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}", example = "50")
     @JsonProperty("axleload")
     private Float axleLoad;
     @JsonIgnore
     private boolean hasAxleLoad = false;
 
-    @ApiModelProperty(value = "Weight restriction in tons. CUSTOM_KEYS:{validWhen:{ref:\"profile\",value:[\"driving-hgv\"]}}", example = "40")
+    @ApiModelProperty(value = "Weight restriction in tons. " +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}", example = "40")
     @JsonProperty("weight")
     private Float weight;
     @JsonIgnore
     private boolean hasWeight = false;
 
-    @ApiModelProperty(value = "Specifies whether to use appropriate routing for delivering hazardous goods and avoiding water protected areas. Default is false. CUSTOM_KEYS:{apiDefault: \"false\", validWhen:{ref:\"profile\",value:[\"driving-hgv\"]}}")
+    @ApiModelProperty(value = "Specifies whether to use appropriate routing for delivering hazardous goods and avoiding water protected areas. Default is false. " +
+            "CUSTOM_KEYS:{'apiDefault':false,'validWhen':{'ref':'profile','value':['driving-hgv']}}")
     @JsonProperty(value = "hazmat", defaultValue = "false")
     private Boolean hazardousMaterial = false;
     @JsonIgnore
     private boolean hasHazardousMaterial = false;
 
-    @ApiModelProperty(value = "Specifies the minimum surface type. Default is \"cobblestone:flattened\". CUSTOM_KEYS:{apiDefault: \"cobblestone:flattened\", validWhen:{ref:\"profile\",value:[\"wheelchair\"]}}", example = "asphalt")
+    @ApiModelProperty(value = "Specifies the minimum surface type. Default is 'cobblestone:flattened'. " +
+            "CUSTOM_KEYS:{'apiDefault':'cobblestone:flattened','validWhen':{'ref':'profile','value':['wheelchair']}}",
+            example = "asphalt")
     @JsonProperty(value = "surface_type", defaultValue = "cobblestone:flattened")
     private String surfaceType = "cobblestone:flattened";
     @JsonIgnore
     private boolean hasSurfaceType = false;
 
-    @ApiModelProperty(value = "Specifies the minimum grade of the route. Default is \"grade1\". CUSTOM_KEYS:{apiDefault: \"grade1\", validWhen:{ref:\"profile\",value:[\"wheelchair\"]}}", example = "grade2")
+    @ApiModelProperty(value = "Specifies the minimum grade of the route. Default is 'grade1'. " +
+            "CUSTOM_KEYS:{'apiDefault':'grade1','validWhen':{'ref':'profile','value':['wheelchair']}}",
+            example = "grade2")
     @JsonProperty(value = "track_type", defaultValue = "grade1")
     private String trackType = "grade1";
     @JsonIgnore
     private boolean hasTrackType = false;
 
-    @ApiModelProperty(value = "Specifies the minimum smoothness of the route. Default is \"good\".CUSTOM_KEYS:{apiDefault: \"good\", validWhen:{ref:\"profile\",value:[\"wheelchair\"]}}", example = "best")
+    @ApiModelProperty(value = "Specifies the minimum smoothness of the route. Default is 'good'." +
+            "CUSTOM_KEYS:{'apiDefault':'good','validWhen':{'ref':'profile','value':['wheelchair']}}",
+            example = "best")
     @JsonProperty(value = "smoothness_type", defaultValue = "good")
     private String smoothnessType = "good";
     @JsonIgnore
     private boolean hasSmoothnessType = false;
 
-    @ApiModelProperty(value = "Specifies the maximum height of the sloped curb in metres. Values are 0.03, 0.06(default), 0.1.CUSTOM_KEYS:{apiDefault: 0.6, validWhen:{ref:\"profile\",value:[\"wheelchair\"]}}", example = "0.03")
+    @ApiModelProperty(value = "Specifies the maximum height of the sloped curb in metres. Values are 0.03, 0.06(default), 0.1." +
+            "CUSTOM_KEYS:{'apiDefault':0.6,'validWhen':{'ref':'profile','value':['wheelchair']}}",
+            example = "0.03")
     @JsonProperty(value = "maximum_sloped_kerb", defaultValue = "0.1")
     private Float maxSlopedKerb = 0.1f;
     @JsonIgnore
     private boolean hasMaxSlopedKerb = false;
 
-    @ApiModelProperty(value = "Specifies the maximum incline as a percentage. 3, 6(default), 10, 15.CUSTOM_KEYS:{apiDefault: 6, validWhen:{ref:\"profile\",value:[\"wheelchair\"]}}", example = "3")
+    @ApiModelProperty(value = "Specifies the maximum incline as a percentage. 3, 6(default), 10, 15." +
+            "CUSTOM_KEYS:{'apiDefault':6,'validWhen':{'ref':'profile','value':['wheelchair']}}",
+            example = "3")
     @JsonProperty(value = "maximum_incline", defaultValue = "6")
     private Integer maxIncline = 6;
     @JsonIgnore
     private boolean hasMaxIncline = false;
 
-    @ApiModelProperty(value = "Specifies the minimum width of the footway in metres.CUSTOM_KEYS:{validWhen:{ref:\"profile\",value:[\"wheelchair\"]}}", example = "2.5")
+    @ApiModelProperty(value = "Specifies the minimum width of the footway in metres." +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['wheelchair']}}",
+            example = "2.5")
     @JsonProperty(value = "minimum_width")
     private Float minWidth;
     @JsonIgnore

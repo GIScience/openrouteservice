@@ -16,6 +16,7 @@
 package heigit.ors.api.requests.matrix;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import heigit.ors.api.requests.common.APIEnums;
@@ -29,49 +30,65 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ApiModel(value = "MatrixRequest", description = "The JSON body request sent to the matrix service which defines options and parameters regarding the matrix to generate.")
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class MatrixRequest {
     @ApiModelProperty(name = "id", value = "Arbitrary identification string of the request reflected in the meta information.")
     private String id;
 
-    @ApiModelProperty(name = "locations", value = "List of comma separated lists of `longitude,latitude` coordinates (note, without quotes around the coordinates, this is a displaying error of swagger). \\nexample : `\\\"locations\\\":[[9.70093,48.477473],[9.207916,49.153868],[37.573242,55.801281],[115.663757,38.106467]]")
+    @ApiModelProperty(name = "locations", value = "List of comma separated lists of `longitude,latitude` coordinates (note, without quotes around the coordinates, this is a displaying error of swagger).",
+            example = "[[9.70093,48.477473],[9.207916,49.153868],[37.573242,55.801281],[115.663757,38.106467]]",
+            required = true)
     @JsonProperty("locations")
     private List<List<Double>> locations;
 
     @ApiModelProperty(hidden = true)
     private APIEnums.Profile profile;
 
-    @ApiModelProperty(name = "sources", value = "A comma separated list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default).\\n\\nExample: `0,3` for the first and fourth Location.\\n")
-    @JsonProperty(value = "sources", defaultValue = "all")
-    private String[] sources = {"all"};
+    @ApiModelProperty(name = "sources", value = "A comma separated list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default). example [0,3] for the first and fourth locations " +
+            "CUSTOM_KEYS:{'apiDefault':'all'}")
+    @JsonProperty(value = "sources")
+    private String[] sources;
+    @JsonIgnore
+    private boolean hasSources = false;
 
-    @ApiModelProperty(name = "destinations", value = "A comma separated list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default).\\n\\nExample: `0,3` for the first and fourth Location.\\n      type: \\\"array\\\"\\n")
-    @JsonProperty(value = "destinations", defaultValue = "all")
-    private String[] destinations = {"all"};
+    @ApiModelProperty(name = "destinations", value = "A comma separated list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default). [0,3] for the first and fourth locations " +
+            "CUSTOM_KEYS:{'apiDefault':'all'}")
+    @JsonProperty(value = "destinations")
+    private String[] destinations;
+    @JsonIgnore
+    private boolean hasDestinations = false;
 
-    @ApiModelProperty(name = "metrics", value = "Specifies a list of returned metrics separated with a (,) character.\\n* `distance` - Returns distance matrix for specified points in defined `units`.\\n* `duration` - Returns duration matrix for specified points in *seconds*.\\n")
-    @JsonProperty(value = "metrics", defaultValue = "duration")
-    private MatrixRequestEnums.Metrics[] metrics = {MatrixRequestEnums.Metrics.DURATION};
+    @ApiModelProperty(name = "metrics", value = "Specifies a list of returned metrics separated with a (,) character.\\n" +
+            "* `distance` - Returns distance matrix for specified points in defined `units`.\\n* `duration` - Returns duration matrix for specified points in *seconds*. " +
+            "CUSTOM_KEYS:{'apiDefault':'duration'}")
+    @JsonProperty(value = "metrics")
+    private MatrixRequestEnums.Metrics[] metrics;
+    @JsonIgnore
+    private boolean hasMetrics = false;
 
-    @ApiModelProperty(name = "resolve_locations", value = "Specifies whether given locations are resolved or not. If the parameter value set to `true`, every element in destinations and sources will contain `name` element that identifies the name of the closest street. Default is `false`")
-    @JsonProperty(value = "resolve_locations", defaultValue = "false")
-    private Boolean resolveLocations = false;
+    @ApiModelProperty(name = "resolve_locations", value = "Specifies whether given locations are resolved or not. If the parameter value set to `true`, every element in " +
+            "destinations and sources will contain `name` element that identifies the name of the closest street. Default is `false`. " +
+            "CUSTOM_KEYS:{'apiDefault':false}")
+    @JsonProperty(value = "resolve_locations")
+    private Boolean resolveLocations;
+    @JsonIgnore
+    private boolean hasResolveLocations = false;
 
     @ApiModelProperty(name = "units", value = "Specifies the distance unit.\n" +
-            "Default: m.")
-    @JsonProperty(value = "units", defaultValue = "m")
-    private APIEnums.Units units = APIEnums.Units.METRES;
+            "Default: m. CUSTOM_KEYS:{'apiDefault':'m'}")
+    @JsonProperty(value = "units")
+    private APIEnums.Units units;
+    @JsonIgnore
+    private boolean hasUnits = false;
 
     @ApiModelProperty(name = "optimized", value = "Specifies whether flexible mode is used or not.", hidden = true)
     @JsonProperty(value = "optimized")
-    private boolean optimized = false;
+    private Boolean optimized;
+    @JsonIgnore
+    private boolean hasOptimized = false;
 
     @ApiModelProperty(hidden = true)
     private APIEnums.MatrixResponseType responseType;
-    @ApiModelProperty(hidden = true)
-    private String weightingMethod;
-    @ApiModelProperty(hidden = true)
-    private String algorithm;
 
     @JsonCreator
     public MatrixRequest(@JsonProperty(value = "locations", required = true) List<List<Double>> locations) {
@@ -93,9 +110,6 @@ public class MatrixRequest {
             coordPairList.add(coordPair[1]);
             this.locations.add(coordPairList);
         }
-    }
-
-    public MatrixRequest() {
     }
 
     public String getId() {
@@ -132,6 +146,11 @@ public class MatrixRequest {
 
     public void setSources(String[] sources) {
         this.sources = sources;
+        hasSources = true;
+    }
+
+    public boolean hasSources() {
+        return hasSources;
     }
 
     public String[] getDestinations() {
@@ -140,6 +159,11 @@ public class MatrixRequest {
 
     public void setDestinations(String[] destinations) {
         this.destinations = destinations;
+        hasDestinations = true;
+    }
+
+    public boolean hasDestinations() {
+        return hasDestinations;
     }
 
     public MatrixRequestEnums.Metrics[] getMetrics() {
@@ -148,14 +172,24 @@ public class MatrixRequest {
 
     public void setMetrics(MatrixRequestEnums.Metrics[] metrics) {
         this.metrics = metrics;
+        hasMetrics = true;
     }
 
-    public boolean isResolveLocations() {
+    public boolean hasMetrics() {
+        return hasMetrics;
+    }
+
+    public Boolean getResolveLocations() {
         return resolveLocations;
     }
 
-    public void setResolve_Locations(boolean resolveLocations) {
+    public void setResolveLocations(boolean resolveLocations) {
         this.resolveLocations = resolveLocations;
+        hasResolveLocations = true;
+    }
+
+    public boolean hasResolveLocations() {
+        return hasResolveLocations;
     }
 
     public APIEnums.Units getUnits() {
@@ -164,14 +198,24 @@ public class MatrixRequest {
 
     public void setUnits(APIEnums.Units units) {
         this.units = units;
+        hasUnits = true;
     }
 
-    public boolean isOptimized() {
+    public boolean hasUnits() {
+        return hasUnits;
+    }
+
+    public Boolean getOptimized() {
         return optimized;
     }
 
     public void setOptimized(boolean optimized) {
         this.optimized = optimized;
+        hasOptimized = true;
+    }
+
+    public boolean hasOptimized() {
+        return hasOptimized;
     }
 
     public APIEnums.MatrixResponseType getResponseType() {
@@ -180,51 +224,6 @@ public class MatrixRequest {
 
     public void setResponseType(APIEnums.MatrixResponseType responseType) {
         this.responseType = responseType;
-    }
-
-    public String getWeightingMethod() {
-        return weightingMethod;
-    }
-
-    public void setWeightingMethod(String weightingMethod) {
-        this.weightingMethod = weightingMethod;
-    }
-
-    public String getAlgorithm() {
-        return algorithm;
-    }
-
-    public void setAlgorithm(String algorithm) {
-        this.algorithm = algorithm;
-    }
-
-    public boolean hasValidSourceIndex() {
-        return validateLocationsIndex(sources);
-    }
-
-    public boolean hasValidDestinationIndex() {
-        return validateLocationsIndex(destinations);
-    }
-
-    private boolean validateLocationsIndex(String[] index) {
-        int indexLength;
-        try {
-            indexLength = index.length;
-        } catch (NullPointerException ne) {
-            return false;
-        }
-        if (indexLength == 1 && "all".equalsIgnoreCase(index[0])) return true;
-        for (String indexString : index) {
-            int indexInt;
-            try {
-                indexInt = Integer.parseInt(indexString);
-            } catch (NumberFormatException ex) {
-                return false;
-            }
-            if (indexInt > locations.size())
-                return false;
-        }
-        return true;
     }
 }
 

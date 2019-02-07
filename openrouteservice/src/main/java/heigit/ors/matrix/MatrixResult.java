@@ -35,6 +35,10 @@ public class MatrixResult {
 	  return _tables[metric];
   }
 
+  public float[][] getTables() {
+      return _tables;
+  }
+
   public ResolvedLocation[] getDestinations()
   {
 	  return _destinations;

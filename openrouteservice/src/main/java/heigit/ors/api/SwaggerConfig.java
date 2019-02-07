@@ -36,17 +36,16 @@ public class SwaggerConfig {
     ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("OpenRouteService")
-                .description("Openrouteservice description")
-                .license("LGPL3")
-                .termsOfServiceUrl("")
-                .version("5.0.0")
+                .description("This is the openrouteservice API documentation")
+                .license("MIT")
+                .licenseUrl("https://github.com/swagger-api/swagger-ui/blob/master/LICENSE")
                 .contact(new Contact("","", "info@openrouteservice.org"))
                 .build();
     }
     @Bean
     public Docket api(ServletContext servletContext) {
         return new Docket(DocumentationType.SWAGGER_2)
-                .host("https://api.openrouteservice.org")
+                .host("api.openrouteservice.org")
                 .pathProvider(new RelativePathProvider(servletContext) {
                     @Override
                     public String getApplicationBasePath() {

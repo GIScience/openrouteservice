@@ -44,7 +44,9 @@ public class IsochronesRequest {
     private String id;
     private boolean hasId = false;
 
-    @ApiModelProperty(name = "locations", value = "The locations to use for the route as an array of longitude/latitude pairs", example = "[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]]")
+    @ApiModelProperty(name = "locations", value = "The locations to use for the route as an array of longitude/latitude pairs",
+            example = "[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]]",
+            required = true)
     @JsonProperty("locations")
     private Double[][] locations = new Double[][]{};
 
@@ -65,8 +67,7 @@ public class IsochronesRequest {
 
     @ApiModelProperty(name = "range", value = "Maximum range value of the analysis in seconds for time and meters for distance." +
             "Alternatively a comma separated list of specific single range values if more than one location is set.",
-            example = "[ 300, 200 ]"
-    )
+            example = "[ 300, 200 ]")
     @JsonProperty("range")
     private List<Double> range;
 
@@ -78,23 +79,27 @@ public class IsochronesRequest {
     // unit only valid for range_type distance, will be ignored for range_time time
     @ApiModelProperty(name = "units",
             value = "Specifies the distance units only if range_type is set to distance.\n" +
-                    "Default: m.")
+                    "Default: m. " +
+                    "CUSTOM_KEYS:{'apiDefault':'m'}")
     @JsonProperty(value = "units", defaultValue = "m")
     private APIEnums.Units rangeUnit = APIEnums.Units.METRES;
 
     @ApiModelProperty(name = "area_units",
             value = "Specifies the area unit.\n" +
-                    "Default: m.")
+                    "Default: m. " +
+                    "CUSTOM_KEYS:{'apiDefault':'m'}")
     @JsonProperty(value = "area_units", defaultValue = "m")
     private APIEnums.Units areaUnit = APIEnums.Units.METRES;
 
     @ApiModelProperty(name = "calc_method",
-            value = "Specifies the calculation method. ConcaveBalls or Grid")
-    @JsonProperty(value = "calc_method", defaultValue = "ConcaveBalls")
+            value = "Specifies the calculation method. concaveballs or grid. " +
+                    "CUSTOM_KEYS:{'apiDefault':'concaveballs'}")
+    @JsonProperty(value = "calc_method", defaultValue = "concaveballs")
     private IsochronesRequestEnums.CalculationMethod calcMethod = IsochronesRequestEnums.CalculationMethod.CONCAVE_BALLS;
 
     @ApiModelProperty(name = "intersections",
-            value = "Specifies whether to return intersecting polygons")
+            value = "Specifies whether to return intersecting polygons. " +
+                    "CUSTOM_KEYS:{'apiDefault':false}")
     @JsonProperty(value = "intersections", defaultValue = "false")
     private Boolean intersections = false;
 
@@ -124,7 +129,7 @@ public class IsochronesRequest {
                     "The threshold value is determined as (smoothing_factor * maximum_radius_of_isochrone) / 10.\n" +
                     "Therefore, a value closer to 1 will result in a more generalised shape.\n" +
                     "The polygon generation algorithm is based on Duckham and al. (2008) \"Efficient generation of simple polygons for characterizing the shape of a set of points in the plane.\"")
-    @JsonProperty(value = "smoothing", defaultValue = "None")
+    @JsonProperty(value = "smoothing")
     private Double smoothing;
 
     @JsonIgnore
@@ -195,7 +200,7 @@ public class IsochronesRequest {
         return intersections;
     }
 
-    public void setIntersection(Boolean intersections) {
+    public void setIntersections(Boolean intersections) {
         this.intersections = intersections;
     }
 

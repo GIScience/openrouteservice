@@ -27,33 +27,33 @@ import org.json.simple.JSONObject;
 @ApiModel(value = "Route Options", description = "Advanced options for routing", subTypes = {RouteRequest.class, IsochroneRequest.class})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RouteRequestOptions {
-    @ApiModelProperty(name = "avoid_features", value = "List of features to avoid." +
-            "{highways={profile=[driving-*]}," +
-            "tollways={profile=[driving-*]}," +
-            "ferries={profile=[driving-*,bike-*,foot-*,wheelchair]}," +
-            "fords={profile=[driving-*,bike-*,foot-*]}," +
-            "steps={profile=[driving-*,bike-*,foot-*],wheelchair}}")
+    @ApiModelProperty(name = "avoid_features", value = "List of features to avoid. " +
+            "CUSTOM_KEYS:{'itemRestrictions':{'ref':'profile', 'itemsWhen':{'driving-*':['highways','tollways','ferries'],'cycling-*':['ferries','steps','fords'],'foot-*':['ferries','fords','steps'],'wheelchair':['ferries','steps']}}}")
     @JsonProperty("avoid_features")
     private APIEnums.AvoidFeatures[] avoidFeatures;
     @JsonIgnore
     private boolean hasAvoidFeatures = false;
 
-    @ApiModelProperty(value = "\"all\" for no border crossing. \"controlled\" to cross open borders but avoid controlled ones. Only for driving-* profiles. CUSTOM_KEYS:{validWhen:{ref:\"profile\",value:[\"driving-*\"]}}")
+    @ApiModelProperty(value = "'all' for no border crossing. 'controlled' to cross open borders but avoid controlled ones. Only for driving-* profiles. " +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-*']}}")
     @JsonProperty("avoid_borders")
     private APIEnums.AvoidBorders avoidBorders;
     @JsonIgnore
     private boolean hasAvoidBorders = false;
 
-    @ApiModelProperty(value = "List of countries to exclude from routing with driving-* profiles. Can be used together with \"avoid_borders\": \"controlled\". " +
-            "[ 11, 193 ] would exclude Austria and Switzerland. List of countries and application examples can be found here. CUSTOM_KEYS:{validWhen:{ref:\"profile\",value:[\"driving-*\"}}", example = "[ 11, 193 ]")
+    @ApiModelProperty(value = "List of countries to exclude from routing with driving-* profiles. Can be used together with 'avoid_borders': 'controlled'. " +
+            "[ 11, 193 ] would exclude Austria and Switzerland. List of countries and application examples can be found here. " +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-*']}}",
+            example = "[ 11, 193 ]")
     @JsonProperty("avoid_countries")
     private String[] avoidCountries;
     @JsonIgnore
     private boolean hasAvoidCountries = false;
 
-    @ApiModelProperty(value = "(for profile=driving-hgv only): hgv,bus,agricultural,delivery,forestry and goods. It is needed for vehicle restrictions to work. CUSTOM_KEYS:{validWhen:{ref:\"profile\",value:[\"driving-hgv\"]}}")
-    @JsonProperty(value = "vehicle_type", defaultValue = "unknown")
-    private APIEnums.VehicleType vehicleType = APIEnums.VehicleType.UNKNOWN;
+    @ApiModelProperty(value = "(for profile=driving-hgv only): hgv,bus,agricultural,delivery,forestry and goods. It is needed for vehicle restrictions to work. " +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}")
+    @JsonProperty(value = "vehicle_type")
+    private APIEnums.VehicleType vehicleType;
     @JsonIgnore
     private boolean hasVehicleType = false;
 
