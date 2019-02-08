@@ -33,103 +33,129 @@ import java.util.List;
 @ApiModel(value = "Directions Service", description = "The JSON body request sent to the routing service which defines options and parameters regarding the route to generate.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RouteRequest {
-    @ApiModelProperty(value = "Arbitrary identification string of the request reflected in the meta information.")
+    public static final String PARAM_ID = "id";
+    public static final String PARAM_COORDINATES = "coordinates";
+    public static final String PARAM_PROFILE = "profile";
+    public static final String PARAM_PREFERENCE = "preference";
+    public static final String PARAM_FORMAT = "format";
+    public static final String PARAM_UNITS = "units";
+    public static final String PARAM_LANGUAGE = "language";
+    public static final String PARAM_GEOMETRY = "geometry";
+    public static final String PARAM_INSTRUCTIONS = "instructions";
+    public static final String PARAM_INSTRUCTIONS_FORMAT = "instructions_format";
+    public static final String PARAM_ROUNDABOUT_EXITS = "roundabout_exits";
+    public static final String PARAM_ATTRIBUTES = "attributes";
+    public static final String PARAM_MANEUVERS = "maneuvers";
+    public static final String PARAM_RADII = "radiuses";
+    public static final String PARAM_BEARINGS = "bearings";
+    public static final String PARAM_CONTINUE_STRAIGHT = "continue_straight";
+    public static final String PARAM_ELEVATION  = "elevation";
+    public static final String PARAM_EXTRA_INFO = "extra_info";
+    public static final String PARAM_OPTIMIZED = "optimized";
+    public static final String PARAM_OPTIONS = "options";
+    public static final String PARAM_SUPPRESS_WARNINGS = "suppress_warnings";
+    public static final String PARAM_SIMPLIFY_GEOMETRY = "geometry_simplify";
+
+
+    @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.")
+    @JsonProperty(PARAM_ID)
     private String id;
+    @JsonIgnore
     private boolean hasId = false;
 
-    @ApiModelProperty(name = "coordinates", value = "The waypoints to use for the route as an array of longitude/latitude pairs",
+    @ApiModelProperty(name = PARAM_COORDINATES, value = "The waypoints to use for the route as an array of longitude/latitude pairs",
             example = "[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]]",
             required = true)
-    @JsonProperty("coordinates")
+    @JsonProperty(PARAM_COORDINATES)
     private List<List<Double>> coordinates;
 
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(name = PARAM_PROFILE, hidden = true)
     private APIEnums.Profile profile;
 
-    @ApiModelProperty(name = "preference",
+    @ApiModelProperty(name = PARAM_PREFERENCE,
             value = "Specifies the route preference. CUSTOM_KEYS:{'apiDefault':'fastest'}",
             example = "fastest")
-    @JsonProperty(value = "preference")
+    @JsonProperty(value = PARAM_PREFERENCE)
     private APIEnums.RoutePreference routePreference = APIEnums.RoutePreference.FASTEST;
 
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(name = PARAM_FORMAT, hidden = true)
     private APIEnums.RouteResponseType responseType = APIEnums.RouteResponseType.JSON;
 
-    @ApiModelProperty(name = "units",
+    @ApiModelProperty(name = PARAM_UNITS,
             value = "Specifies the distance unit. CUSTOM_KEYS:{'apiDefault':'m'}",
             example = "m")
-    @JsonProperty(value = "units")
+    @JsonProperty(value = PARAM_UNITS)
     private APIEnums.Units units;
     @JsonIgnore
     private boolean hasUnits = false;
 
-    @ApiModelProperty(name = "language",
+    @ApiModelProperty(name = PARAM_LANGUAGE,
             value = "Language for the route instructions. CUSTOM_KEYS:{'apiDefault':'en'}",
             example = "en")
-    @JsonProperty(value = "language")
+    @JsonProperty(value = PARAM_LANGUAGE)
     private APIEnums.Languages language;
     @JsonIgnore
     private boolean hasLanguage = false;
 
-    @ApiModelProperty(name = "geometry",
+    @ApiModelProperty(name = PARAM_GEOMETRY,
             value = "Specifies whether to return geometry. " +
                     "CUSTOM_KEYS:{'apiDefault':true, 'validWhen':{'ref':'format','value':['json','gpx']}}",
                     example = "true")
-    @JsonProperty(value = "geometry")
+    @JsonProperty(value = PARAM_GEOMETRY)
     private Boolean includeGeometry;
     @JsonIgnore
     private boolean hasIncludeGeometry = false;
 
-    @ApiModelProperty(name = "instructions",
+    @ApiModelProperty(name = PARAM_INSTRUCTIONS,
             value = "Specifies whether to return instructions. CUSTOM_KEYS:{'apiDefault':true}",
             example = "true")
-    @JsonProperty(value = "instructions")
+    @JsonProperty(value = PARAM_INSTRUCTIONS)
     private Boolean includeInstructionsInResponse;
     @JsonIgnore
     private boolean hasIncludeInstructions = false;
 
-    @ApiModelProperty(name = "instructions_format",
+    @ApiModelProperty(name = PARAM_INSTRUCTIONS_FORMAT,
             value = "Select html for more verbose instructions. CUSTOM_KEYS:{'apiDefault':'text'}",
             example = "text")
-    @JsonProperty(value = "instructions_format")
+    @JsonProperty(value = PARAM_INSTRUCTIONS_FORMAT)
     private APIEnums.InstructionsFormat instructionsFormat;
     @JsonIgnore
     private boolean hasInstructionsFormat = false;
 
-    @ApiModelProperty(name = "roundabout_exits",
+    @ApiModelProperty(name = PARAM_ROUNDABOUT_EXITS,
             value = "Provides bearings of the entrance and all passed roundabout exits. Adds the exit_bearings array to the step object in the response. " +
                     "CUSTOM_KEYS:{'apiDefault':false}",
             example = "false")
-    @JsonProperty(value = "roundabout_exits")
+    @JsonProperty(value = PARAM_ROUNDABOUT_EXITS)
     private Boolean includeRoundaboutExitInfo;
     @JsonIgnore
     private boolean hasIncludeRoundaboutExitInfo = false;
 
-    @ApiModelProperty(name = "attributes",
+    @ApiModelProperty(name = PARAM_ATTRIBUTES,
             value = "List of route attributes",
             example = "[\"avgspeed\",\"percentage\"]")
-    @JsonProperty("attributes")
+    @JsonProperty(PARAM_ATTRIBUTES)
     private APIEnums.Attributes[] attributes;
     @JsonIgnore
     private boolean hasAttributes = false;
 
-    @ApiModelProperty(name = "maneuvers", value = "Specifies whether the maneuver object is included into the step object or not. " +
+    @ApiModelProperty(name = PARAM_MANEUVERS, value = "Specifies whether the maneuver object is included into the step object or not. " +
             "CUSTOM_KEYS:{'apiDefault':false}",
             example = "false")
-    @JsonProperty(value = "maneuvers")
+    @JsonProperty(value = PARAM_MANEUVERS)
     private Boolean incĺudeManeuvers;
     @JsonIgnore
     private boolean hasIncludeManeuvers = false;
 
-    @ApiModelProperty(name = "radiuses", value = "A pipe list of maximum distances (measured in metres) that limit the search of nearby road segments to every given waypoint. " +
+    @ApiModelProperty(name = PARAM_RADII, value = "A pipe list of maximum distances (measured in metres) that limit the search of nearby road segments to every given waypoint. " +
             "The values must be greater than 0, the value of -1 specifies no limit in the search. The number of radiuses correspond to the number of waypoints.",
             example = "[200, -1, 30]")
-    @JsonProperty("radiuses")
+    @JsonProperty(PARAM_RADII)
     private Double[] maximumSearchRadii;
     @JsonIgnore
     private boolean hasMaximumSearchRadii = false;
 
-    @ApiModelProperty(name = "bearings", value = "Specifies a list of pairs (bearings and deviations) to filter the segments of the road network a waypoint can snap to. " +
+    @ApiModelProperty(name = PARAM_BEARINGS, value = "Specifies a list of pairs (bearings and deviations) to filter the segments of the road network a waypoint can snap to. " +
             "For example bearings=45,10|120,20. Each pair is a comma-separated list that can consist of one or two float values, where the first value is the bearing and the second one is the allowed deviation from the bearing. " +
             "The bearing can take values between 0 and 360 clockwise from true north. If the deviation is not set, then the default value of 100 degrees is used. " +
             "The number of pairs must correspond to the number of waypoints. Setting optimized=false is mandatory for this feature to work for all profiles. " +
@@ -137,80 +163,80 @@ public class RouteRequest {
             "You can skip a bearing for a certain waypoint by passing an empty value for an array, e.g. [30,20],[],[40,20].",
             example = "[[30, 20], [], [40, 20]]"
     )
-    @JsonProperty("bearings")
+    @JsonProperty(PARAM_BEARINGS)
     private Double[][] bearings;
     @JsonIgnore
     private boolean hasBearings = false;
 
-    @ApiModelProperty(name = "continue_straight",
+    @ApiModelProperty(name = PARAM_CONTINUE_STRAIGHT,
             value = "Forces the route to keep going straight at waypoints restricting uturns there even if it would be faster. This setting will work for all profiles except for driving-*. " +
             "CUSTOM_KEYS:{'apiDefault':'true','validWhen':{'ref':'profile','valueNot':['driving-*']}}",
             example = "false")
-    @JsonProperty(value = "continue_straight")
+    @JsonProperty(value = PARAM_CONTINUE_STRAIGHT)
     private Boolean continueStraightAtWaypoints;
     @JsonIgnore
     private boolean hasContinueStraightAtWaypoints = false;
 
-    @ApiModelProperty(name = "elevation",
+    @ApiModelProperty(name = PARAM_ELEVATION,
             value = "Specifies whether to return elevation values for points. Please note that elevation also gets encoded for json response encoded polyline.",
             example = "false")
-    @JsonProperty(value = "elevation")
+    @JsonProperty(value = PARAM_ELEVATION)
     private Boolean useElevation;
     @JsonIgnore
     private boolean hasUseElevation = false;
 
-    @ApiModelProperty(name = "extra_info",
+    @ApiModelProperty(name = PARAM_EXTRA_INFO,
             value = "The extra info items to include in the response",
             example = "[\"waytype\",\"surface\"]")
-    @JsonProperty("extra_info")
+    @JsonProperty(PARAM_EXTRA_INFO)
     private APIEnums.ExtraInfo[] extraInfo;
     @JsonIgnore
     private boolean hasExtraInfo = false;
 
-    @ApiModelProperty(name = "optimized", value = "Uses contraction hierarchies if available (false). " +
+    @ApiModelProperty(name = PARAM_OPTIMIZED, value = "Uses contraction hierarchies if available (false). " +
             "CUSTOM_KEYS:{'apiDefault':true}", hidden = true)
-    @JsonProperty(value = "optimized")
+    @JsonProperty(value = PARAM_OPTIMIZED)
     private Boolean useContractionHierarchies;
     @JsonIgnore
     private boolean hasUseContractionHierarchies = false;
 
-    @ApiModelProperty(name = "options",
+    @ApiModelProperty(name = PARAM_OPTIONS,
             value = "For advanced options formatted as json object. For structure refer to the [these examples](https://github.com/GIScience/openrouteservice-docs#examples).",
             example = "{\"maximum_speed\": 100}")
-    @JsonProperty("options")
+    @JsonProperty(PARAM_OPTIONS)
     private RouteRequestOptions routeOptions;
     @JsonIgnore
     private boolean hasRouteOptions = false;
 
-    @ApiModelProperty(name="suppress_warnings",
+    @ApiModelProperty(name = PARAM_SUPPRESS_WARNINGS,
             value = "Suppress warning messages in the response",
             example = "false")
-    @JsonProperty("suppress_warnings")
+    @JsonProperty(PARAM_SUPPRESS_WARNINGS)
     private Boolean suppressWarnings;
     @JsonIgnore
     private boolean hasSuppressWarnings = false;
 
-    @ApiModelProperty(name="geometry_simplify", value = "Specifies whether to simplify the geometry. true will automatically be set to false if extra_info parameter is specified. " +
+    @ApiModelProperty(name = PARAM_SIMPLIFY_GEOMETRY, value = "Specifies whether to simplify the geometry. true will automatically be set to false if extra_info parameter is specified. " +
             "CUSTOM_KEYS:{'apiDefault':false}",
             example = "false")
-    @JsonProperty(value = "geometry_simplify")
+    @JsonProperty(value = PARAM_SIMPLIFY_GEOMETRY)
     private Boolean simplifyGeometry = false;
     @JsonIgnore
     private boolean hasSimplifyGeometry = false;
 
     @JsonCreator
-    public RouteRequest(@JsonProperty(value = "coordinates", required = true) List<List<Double>> coordinates) {
+    public RouteRequest(@JsonProperty(value = PARAM_COORDINATES, required = true) List<List<Double>> coordinates) {
         this.coordinates = coordinates;
     }
 
     public RouteRequest(Double[][] coordinates) throws ParameterValueException {
         if (coordinates.length < 2)
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "coordinates");
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, PARAM_COORDINATES);
 
         this.coordinates = new ArrayList<>();
         for (Double[] coordPair : coordinates) {
             if (coordPair.length != 2)
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "coordinates");
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, PARAM_COORDINATES);
             List<Double> coordPairList = new ArrayList<>();
             coordPairList.add(coordPair[0]);
             coordPairList.add(coordPair[1]);

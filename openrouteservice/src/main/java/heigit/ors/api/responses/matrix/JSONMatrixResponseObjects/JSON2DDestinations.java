@@ -25,6 +25,7 @@ public class JSON2DDestinations extends JSONLocation {
         super(destination, includeResolveLocations);
     }
 
+    @Override
     public Double[] getLocation() {
         Double[] location2D = new Double[2];
         location2D[0] = FormatUtility.roundToDecimals(location.x, COORDINATE_DECIMAL_PLACES);

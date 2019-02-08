@@ -34,8 +34,8 @@ public class JSONExtra {
 
         for(RouteSegmentItem item : segments) {
             List<Long> segment = new ArrayList<>();
-            segment.add(new Long(item.getFrom()));
-            segment.add(new Long(item.getTo()));
+            segment.add(Long.valueOf(item.getFrom()));
+            segment.add(Long.valueOf(item.getTo()));
             segment.add(item.getValue());
             values.add(segment);
         }

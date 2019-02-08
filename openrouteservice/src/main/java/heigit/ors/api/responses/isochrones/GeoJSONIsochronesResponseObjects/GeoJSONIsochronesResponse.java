@@ -23,6 +23,7 @@ import heigit.ors.api.requests.isochrones.IsochronesRequest;
 import heigit.ors.api.responses.common.BoundingBox.BoundingBoxFactory;
 import heigit.ors.api.responses.isochrones.IsochronesResponse;
 import heigit.ors.api.responses.isochrones.IsochronesResponseInfo;
+import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.isochrones.IsochroneMapCollection;
@@ -41,18 +42,18 @@ public class GeoJSONIsochronesResponse extends IsochronesResponse {
     @JsonProperty("bbox")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty(value = "Bounding box that covers all returned isochrones", example = "[49.414057, 8.680894, 49.420514, 8.690123]")
-    public double[] getBBox() {
+    public double[] getBBoxAsArray() {
         return bbox.getAsArray();
     }
 
-    public GeoJSONIsochronesResponse(IsochronesRequest request, IsochroneMapCollection isoMaps) throws ParameterValueException {
+    public GeoJSONIsochronesResponse(IsochronesRequest request, IsochroneMapCollection isoMaps) throws ParameterValueException, InternalServerException {
         super(request);
         this.isochroneResults = new ArrayList<>();
         for (IsochroneMap isoMap : isoMaps.getIsochroneMaps()) {
             this.isochroneResults.addAll(new GeoJSONIsochronesMap(isoMap).buildGeoJSONIsochrones());
         }
 
-        if (request.getIntersections()) {
+        if (request.hasIntersections() && request.getIntersections()) {
             List<IsochronesIntersection> isoIntersections = IsochroneUtility.computeIntersections(isoMaps);
             if (isoIntersections != null && !isoIntersections.isEmpty()) {
                 for (IsochronesIntersection isoIntersection : isoIntersections) {

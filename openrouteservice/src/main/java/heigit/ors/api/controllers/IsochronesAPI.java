@@ -50,7 +50,7 @@ import javax.servlet.http.HttpServletResponse;
         @ApiResponse(code = 503, message = "The server is currently unavailable due to overload or maintenance.")
 })
 public class IsochronesAPI {
-    final static CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(IsochronesErrorCodes.BASE);
+    static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(IsochronesErrorCodes.BASE);
 
     // generic catch methods - when extra info is provided in the url, the other methods are accessed.
     @GetMapping

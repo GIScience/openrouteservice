@@ -27,8 +27,7 @@ import heigit.ors.util.FormatUtility;
 @JsonPropertyOrder({"minLat", "minLon", "minEle", "maxLat", "maxLon", "maxEle"})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JSON3DBoundingBox extends BoundingBox3DBase implements BoundingBox {
-    private final int ELEVATION_DECIMAL_PLACES = 2;
-    private final int COORDINATE_DECIMAL_PLACES = 6;
+    private static final int ELEVATION_DECIMAL_PLACES = 2;
 
     public JSON3DBoundingBox(BBox bounds) {
         super(bounds);

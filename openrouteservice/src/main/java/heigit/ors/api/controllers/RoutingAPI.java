@@ -27,6 +27,7 @@ import heigit.ors.api.requests.routing.RouteRequestHandler;
 import heigit.ors.api.responses.routing.GPXRouteResponseObjects.GPXRouteResponse;
 import heigit.ors.api.responses.routing.GeoJSONRouteResponseObjects.GeoJSONRouteResponse;
 import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONRouteResponse;
+import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.*;
 import heigit.ors.routing.RouteResult;
 import heigit.ors.routing.RoutingErrorCodes;
@@ -52,7 +53,7 @@ import javax.servlet.http.HttpServletResponse;
         @ApiResponse(code = 503, message = "The server is currently unavailable due to overload or maintenance.")
 })
 public class RoutingAPI {
-    final static CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(RoutingErrorCodes.BASE);
+    static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(RoutingErrorCodes.BASE);
 
     // generic catch methods - when extra info is provided in the url, the other methods are accessed.
     @GetMapping
@@ -102,7 +103,7 @@ public class RoutingAPI {
                     response = JSONRouteResponse.class)
     )
     public JSONRouteResponse getDefault(@ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.Profile profile,
-                                        @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws Exception {
+                                        @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws StatusCodeException {
         return getJsonRoute(profile, request);
     }
 
@@ -132,7 +133,7 @@ public class RoutingAPI {
     })
     public GPXRouteResponse getGPXRoute(
             @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.Profile profile,
-            @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws Exception {
+            @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws StatusCodeException {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GPX);
 
@@ -151,7 +152,7 @@ public class RoutingAPI {
     })
     public GeoJSONRouteResponse getGeoJsonRoute(
             @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.Profile profile,
-            @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws Exception {
+            @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws StatusCodeException {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 

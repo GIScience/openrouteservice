@@ -34,7 +34,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 @RestController
 public class CommonResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
-    protected static Logger LOGGER = Logger.getLogger(CommonResponseEntityExceptionHandler.class.getName());
+    private static final String EXCEPTION_MESSAGE = "Exception";
+    protected static Logger LOCAL_LOGGER = Logger.getLogger(CommonResponseEntityExceptionHandler.class.getName());
 
     final int errorCodeBase;
 
@@ -49,12 +50,12 @@ public class CommonResponseEntityExceptionHandler extends ResponseEntityExceptio
     public ResponseEntity handleStatusCodeException(StatusCodeException exception) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        if (LOGGER.isDebugEnabled()) {
+        if (LOCAL_LOGGER.isDebugEnabled()) {
             // Log also the stack trace
-            LOGGER.error("Exception", exception);
+            LOCAL_LOGGER.error(EXCEPTION_MESSAGE, exception);
         } else {
             // Log only the error message
-            LOGGER.error(exception);
+            LOCAL_LOGGER.error(exception);
         }
 
         return new ResponseEntity(constructErrorBody(exception), headers, convertOrsToSpringHttpCode(exception.getStatusCode()));
@@ -63,12 +64,12 @@ public class CommonResponseEntityExceptionHandler extends ResponseEntityExceptio
     public ResponseEntity handleUnknownParameterException(UnknownParameterException exception) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        if (LOGGER.isDebugEnabled()) {
+        if (LOCAL_LOGGER.isDebugEnabled()) {
             // Log also the stack trace
-            LOGGER.error("Exception", exception);
+            LOCAL_LOGGER.error(EXCEPTION_MESSAGE, exception);
         } else {
             // Log only the error message
-            LOGGER.error(exception);
+            LOCAL_LOGGER.error(exception);
         }
 
         return new ResponseEntity(constructErrorBody(exception), headers, convertOrsToSpringHttpCode(exception.getStatusCode()));
@@ -78,12 +79,12 @@ public class CommonResponseEntityExceptionHandler extends ResponseEntityExceptio
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        if (LOGGER.isDebugEnabled()) {
+        if (LOCAL_LOGGER.isDebugEnabled()) {
             // Log also the stack trace
-            LOGGER.error("Exception", exception);
+            LOCAL_LOGGER.error(EXCEPTION_MESSAGE, exception);
         } else {
             // Log only the error message
-            LOGGER.error(exception);
+            LOCAL_LOGGER.error(exception);
         }
 
         Throwable cause = exception.getCause();

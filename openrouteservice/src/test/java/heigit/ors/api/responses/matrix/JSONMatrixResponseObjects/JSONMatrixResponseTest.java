@@ -110,7 +110,7 @@ public class JSONMatrixResponseTest {
         Assert.assertEquals(49.41461, durationMatrix.getSources().get(0).location.y, 0);
         Assert.assertEquals(Double.NaN, durationMatrix.getSources().get(0).location.z, 0);
         Assert.assertNotNull(durationMatrix.getSources().get(0).name);
-        Assert.assertEquals(0.0, durationMatrix.getSources().get(0).getSnapped_distance(), 0);
+        Assert.assertEquals(0.0, durationMatrix.getSources().get(0).getSnappedDistance(), 0);
 
         JSONIndividualMatrixResponse distanceMatrix = jsonMatrixDistancesResponse.getMatrix();
         Assert.assertNotNull(distanceMatrix.getDistances());
@@ -121,7 +121,7 @@ public class JSONMatrixResponseTest {
         Assert.assertEquals(49.41461, distanceMatrix.getSources().get(0).location.y, 0);
         Assert.assertEquals(Double.NaN, distanceMatrix.getSources().get(0).location.z, 0);
         Assert.assertNull(distanceMatrix.getSources().get(0).name);
-        Assert.assertEquals(0.0, distanceMatrix.getSources().get(0).getSnapped_distance(), 0);
+        Assert.assertEquals(0.0, distanceMatrix.getSources().get(0).getSnappedDistance(), 0);
 
 
         JSONIndividualMatrixResponse combinedMatrix = jsonMatrixCombinedResponse.getMatrix();
@@ -133,7 +133,7 @@ public class JSONMatrixResponseTest {
         Assert.assertEquals(49.41461, combinedMatrix.getSources().get(0).location.y, 0);
         Assert.assertEquals(Double.NaN, combinedMatrix.getSources().get(0).location.z, 0);
         Assert.assertNotNull(combinedMatrix.getSources().get(0).name);
-        Assert.assertEquals(0.0, combinedMatrix.getSources().get(0).getSnapped_distance(), 0);
+        Assert.assertEquals(0.0, combinedMatrix.getSources().get(0).getSnappedDistance(), 0);
     }
 
     @Test

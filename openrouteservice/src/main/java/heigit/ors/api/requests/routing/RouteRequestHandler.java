@@ -33,6 +33,7 @@ import heigit.ors.util.DistanceUnitUtil;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class RouteRequestHandler extends GenericHandler {
@@ -45,12 +46,10 @@ public class RouteRequestHandler extends GenericHandler {
         RoutingRequest routingRequest = convertRouteRequest(request);
 
         try {
-            RouteResult result = RoutingProfileManager.getInstance().computeRoute(routingRequest);
-            return result;
+            return RoutingProfileManager.getInstance().computeRoute(routingRequest);
+        } catch (StatusCodeException e) {
+            throw e;
         } catch (Exception e) {
-            if(e instanceof StatusCodeException)
-                throw (StatusCodeException)e;
-
             throw new StatusCodeException(RoutingErrorCodes.UNKNOWN);
         }
     }
@@ -96,7 +95,7 @@ public class RouteRequestHandler extends GenericHandler {
         if (request.hasSimplifyGeometry()) {
             routingRequest.setGeometrySimplify(request.getSimplifyGeometry());
             if (request.hasExtraInfo() && request.getSimplifyGeometry()) {
-                throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, "geometry_simplify", "true", "extra_info", "*");
+                throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_SIMPLIFY_GEOMETRY, "true", RouteRequest.PARAM_EXTRA_INFO, "*");
             }
         }
 
@@ -116,7 +115,7 @@ public class RouteRequestHandler extends GenericHandler {
             profileType = convertRouteProfileType(request.getProfile());
             params.setProfileType(profileType);
         } catch (Exception e) {
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "profile");
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PROFILE);
         }
 
         params.setWeightingMethod(convertWeightingMethod(request.getRoutePreference()));
@@ -170,9 +169,8 @@ public class RouteRequestHandler extends GenericHandler {
     }
     private  boolean convertIncludeGeometry(RouteRequest request) throws IncompatibleParameterException {
         boolean includeGeometry = request.getIncludeGeometry();
-        if(!includeGeometry) {
-            if(request.getResponseType() == APIEnums.RouteResponseType.GEOJSON)
-                throw new IncompatibleParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "geometry", "false", "response type", "geojson");
+        if(!includeGeometry && request.getResponseType() == APIEnums.RouteResponseType.GEOJSON) {
+            throw new IncompatibleParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_GEOMETRY, "false", RouteRequest.PARAM_FORMAT, "geojson");
         }
         return includeGeometry;
     }
@@ -186,13 +184,13 @@ public class RouteRequestHandler extends GenericHandler {
             case GPX:
                 return "gpx";
             default:
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "format");
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_FORMAT);
         }
     }
 
     private  Coordinate[] convertCoordinates(List<List<Double>> coordinates) throws ParameterValueException {
         if(coordinates.size() < 2)
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "coordinates");
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_COORDINATES);
 
         ArrayList<Coordinate> coords = new ArrayList<>();
 
@@ -205,21 +203,22 @@ public class RouteRequestHandler extends GenericHandler {
 
     private  Coordinate convertSingleCoordinate(List<Double> coordinate) throws ParameterValueException {
         if(coordinate.size() != 2)
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "coordinates");
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_COORDINATES);
 
         return new Coordinate(coordinate.get(0), coordinate.get(1));
     }
 
+    @Override
     protected int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatibleParameterException {
         int flags = 0;
         for(APIEnums.AvoidFeatures avoid : avoidFeatures) {
             String avoidFeatureName = avoid.toString();
             int flag = AvoidFeatureFlags.getFromString(avoidFeatureName);
             if(flag == 0)
-                throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", avoidFeatureName);
+                throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_FEATURES, avoidFeatureName);
 
             if (!AvoidFeatureFlags.isValid(profileType, flag))
-                throw new IncompatibleParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", avoidFeatureName, "profile", RoutingProfileType.getName(profileType));
+                throw new IncompatibleParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_FEATURES, avoidFeatureName, RouteRequest.PARAM_PROFILE, RoutingProfileType.getName(profileType));
 
             flags |= flag;
         }
@@ -227,10 +226,12 @@ public class RouteRequestHandler extends GenericHandler {
         return flags;
     }
 
+    @Override
     public   int convertRouteProfileType(APIEnums.Profile profile) {
         return RoutingProfileType.getFromString(profile.toString());
     }
 
+    @Override
     protected BordersExtractor.Avoid convertAvoidBorders(APIEnums.AvoidBorders avoidBorders) {
         if(avoidBorders != null) {
             switch (avoidBorders) {
@@ -245,6 +246,7 @@ public class RouteRequestHandler extends GenericHandler {
         return null;
     }
 
+    @Override
     protected Polygon[] convertAvoidAreas(JSONObject geoJson) throws ParameterValueException {
         // It seems that arrays in json.simple cannot be converted to strings simply
         org.json.JSONObject complexJson = new org.json.JSONObject();
@@ -256,7 +258,7 @@ public class RouteRequestHandler extends GenericHandler {
         try {
             convertedGeom = GeometryJSON.parse(complexJson);
         } catch (Exception e) {
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, "avoid_polygons");
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, RouteRequestOptions.PARAM_AVOID_POLYGONS);
         }
 
         Polygon[] avoidAreas;
@@ -269,7 +271,7 @@ public class RouteRequestHandler extends GenericHandler {
             for (int i = 0; i < multiPoly.getNumGeometries(); i++)
                 avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
         } else {
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_polygons");
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_POLYGONS);
         }
 
         return avoidAreas;
@@ -277,10 +279,10 @@ public class RouteRequestHandler extends GenericHandler {
 
     private  WayPointBearing[] convertBearings(Double[][] bearingsIn, int coordinatesLength) throws ParameterValueException {
         if(bearingsIn == null || bearingsIn.length == 0)
-            return null;
+            return new WayPointBearing[0];
 
         if(bearingsIn.length != coordinatesLength && bearingsIn.length != coordinatesLength-1)
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "bearings", bearingsIn.toString(), "The number of bearings must be equal to the number of waypoints on the route.");
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_BEARINGS, Arrays.toString(bearingsIn), "The number of bearings must be equal to the number of waypoints on the route.");
 
         WayPointBearing[] bearings = new WayPointBearing[coordinatesLength];
         for(int i=0; i<bearingsIn.length; i++) {
@@ -302,7 +304,7 @@ public class RouteRequestHandler extends GenericHandler {
         double[] maxRadii = new double[coordinatesLength];
         if(radiiIn != null) {
             if(radiiIn.length != coordinatesLength)
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "radiuses", radiiIn.toString(), "The number of radius pairs must be equal to the number of waypoints on the route.");
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_RADII, Arrays.toString(radiiIn), "The number of radius pairs must be equal to the number of waypoints on the route.");
             for(int i=0; i<coordinatesLength; i++) {
                 maxRadii[i] = radiiIn[i];
             }
@@ -315,7 +317,7 @@ public class RouteRequestHandler extends GenericHandler {
                 maxRadii[i] = 50;
             }
         } else {
-            return null;
+            return new double[0];
         }
 
         return maxRadii;
@@ -352,7 +354,7 @@ public class RouteRequestHandler extends GenericHandler {
     private  RouteInstructionsFormat convertInstructionsFormat(APIEnums.InstructionsFormat formatIn) throws UnknownParameterValueException {
         RouteInstructionsFormat instrFormat = RouteInstructionsFormat.fromString(formatIn.toString());
         if (instrFormat == RouteInstructionsFormat.UNKNOWN)
-            throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "instructions_format", formatIn.toString());
+            throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_INSTRUCTIONS_FORMAT, formatIn.toString());
 
         return instrFormat;
     }
@@ -361,7 +363,7 @@ public class RouteRequestHandler extends GenericHandler {
         DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.Unknown);
 
         if (units == DistanceUnit.Unknown)
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "units", unitsIn.toString());
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_UNITS, unitsIn.toString());
 
         return units;
     }
@@ -369,14 +371,14 @@ public class RouteRequestHandler extends GenericHandler {
     private  int convertWeightingMethod(APIEnums.RoutePreference preferenceIn) throws UnknownParameterValueException {
         int weightingMethod = WeightingMethod.getFromString(preferenceIn.toString());
         if (weightingMethod == WeightingMethod.UNKNOWN)
-            throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "preference", preferenceIn.toString());
+            throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PREFERENCE, preferenceIn.toString());
 
         return weightingMethod;
     }
 
     private  boolean convertSetFlexibleMode(boolean useContractionHierarchies) throws ParameterValueException {
         if(useContractionHierarchies)
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "optimized");
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, RouteRequest.PARAM_OPTIMIZED);
 
         return(!useContractionHierarchies);
     }
@@ -393,7 +395,7 @@ public class RouteRequestHandler extends GenericHandler {
                     if (countryId > 0) {
                         avoidCountryIds[i] = countryId;
                     } else {
-                        throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_countries", avoidCountries[i]);
+                        throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_COUNTRIES, avoidCountries[i]);
                     }
                 }
             }

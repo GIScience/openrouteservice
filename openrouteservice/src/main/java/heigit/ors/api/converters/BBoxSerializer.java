@@ -23,7 +23,7 @@ import heigit.ors.util.FormatUtility;
 import java.io.IOException;
 
 public class BBoxSerializer extends StdSerializer<double[][]> {
-    private final int COORDINATE_PRECISION = 6;
+    private static final int COORDINATE_PRECISION = 6;
 
     public BBoxSerializer() {
         this(null);

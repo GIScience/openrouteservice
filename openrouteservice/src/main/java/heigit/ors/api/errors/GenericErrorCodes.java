@@ -15,17 +15,23 @@
 
 package heigit.ors.api.errors;
 
+import heigit.ors.exceptions.InternalServerException;
+
 public class GenericErrorCodes {
-    public static int INVALID_JSON_FORMAT = 0;
-    public static int MISSING_PARAMETER = 1;
-    public static int INVALID_PARAMETER_FORMAT = 2;
-    public static int INVALID_PARAMETER_VALUE = 3;
-    public static int REQUEST_EXCEEDS_SERVER_LIMIT = 4;
-    public static int EXPORT_HANDLER_ERROR = 6;
-    public static int UNSUPPORTED_EXPORT_FORMAT = 7;
-    public static int EMPTY_ELEMENT = 8;
-    public static int ROUTE_NOT_FOUND = 9;
-    public static int POINT_NOT_FOUND = 10;
-    public static int UNKNOWN_PARAMETER = 11;
-    public static int UNKNOWN = 99;
+    private GenericErrorCodes() throws InternalServerException {
+        throw new InternalServerException("GenericErrorCodes should never be instantiated");
+    }
+
+    public static final int INVALID_JSON_FORMAT = 0;
+    public static final int MISSING_PARAMETER = 1;
+    public static final int INVALID_PARAMETER_FORMAT = 2;
+    public static final int INVALID_PARAMETER_VALUE = 3;
+    public static final int REQUEST_EXCEEDS_SERVER_LIMIT = 4;
+    public static final int EXPORT_HANDLER_ERROR = 6;
+    public static final int UNSUPPORTED_EXPORT_FORMAT = 7;
+    public static final int EMPTY_ELEMENT = 8;
+    public static final int ROUTE_NOT_FOUND = 9;
+    public static final int POINT_NOT_FOUND = 10;
+    public static final int UNKNOWN_PARAMETER = 11;
+    public static final int UNKNOWN = 99;
 }

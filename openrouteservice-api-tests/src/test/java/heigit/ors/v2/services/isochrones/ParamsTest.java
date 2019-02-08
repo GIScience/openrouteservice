@@ -108,7 +108,7 @@ public class ParamsTest extends ServiceTest {
                 .when()
                 .log().all()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then()
+                .then().log().all()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .statusCode(200);
@@ -264,7 +264,7 @@ public class ParamsTest extends ServiceTest {
                 .when()
                 .log().all()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then()
+                .then().log().all()
                 .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
 

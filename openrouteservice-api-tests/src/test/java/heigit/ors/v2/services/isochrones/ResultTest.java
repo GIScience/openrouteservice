@@ -330,7 +330,7 @@ public class ResultTest extends ServiceTest {
                 .when()
                 .log().all()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then()
+                .then().log().all()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features.size()", is(3))

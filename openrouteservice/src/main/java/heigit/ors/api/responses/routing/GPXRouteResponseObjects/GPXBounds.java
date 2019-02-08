@@ -23,8 +23,6 @@ import heigit.ors.util.FormatUtility;
 import javax.xml.bind.annotation.XmlAttribute;
 
 public class GPXBounds extends BoundingBoxBase implements BoundingBox {
-    private final int COORDINATE_DECIMAL_PLACES = 6;
-
     public GPXBounds() {
         super();
     }

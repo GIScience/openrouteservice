@@ -34,7 +34,7 @@ public class CoordinateListSerializer extends StdSerializer<CoordinateListWrappe
     }
 
     @Override
-    public void serialize(CoordinateListWrapper listWrapper, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(CoordinateListWrapper listWrapper, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
         jsonGenerator.writeStartArray();
 
         for(Coordinate coord : listWrapper.getCoordinates()) {

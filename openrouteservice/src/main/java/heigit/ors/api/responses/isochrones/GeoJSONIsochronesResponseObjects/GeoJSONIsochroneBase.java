@@ -25,7 +25,7 @@ import org.json.simple.JSONObject;
 
 public abstract class GeoJSONIsochroneBase {
     @JsonProperty("type")
-    public final String type = "Feature";
+    public final String TYPE = "Feature";
 
     @JsonIgnore
     abstract Geometry getIsochroneGeometry();

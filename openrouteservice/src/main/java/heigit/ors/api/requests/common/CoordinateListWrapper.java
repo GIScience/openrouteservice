@@ -13,29 +13,13 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-/*
- * This file is part of Openrouteservice.
- *
- * Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
- * GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
- * of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along with this library;
- * if not, see <https://www.gnu.org/licenses/>.
- */
-
 package heigit.ors.api.requests.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.std.CollectionDeserializer;
 import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.api.converters.CoordinateListDeserializer;
+import heigit.ors.exceptions.ParameterValueException;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -62,9 +46,9 @@ public class CoordinateListWrapper {
         this.end = end;
     }
 
-    public CoordinateListWrapper(List<Coordinate> coordinates) throws Exception {
+    public CoordinateListWrapper(List<Coordinate> coordinates) throws ParameterValueException {
         if (coordinates.size() < 2)
-            throw new Exception("Invalid coordinates length");
+            throw new ParameterValueException("Invalid coordinates length");
 
         start = coordinates.get(0);
 
@@ -76,13 +60,13 @@ public class CoordinateListWrapper {
         end = coordinates.get(coordinates.size()-1);
     }
 
-    public CoordinateListWrapper(double[][] coordinates) throws Exception {
+    public CoordinateListWrapper(double[][] coordinates) throws ParameterValueException {
         if (coordinates.length < 2)
-            throw new Exception("Invalid coordinates length");
+            throw new ParameterValueException("Invalid coordinates length");
 
         for (double[] coordPair : coordinates) {
             if (coordPair.length != 2)
-                throw new Exception("Coordinates must be in pairs");
+                throw new ParameterValueException("Coordinates must be in pairs");
         }
 
         start = new Coordinate(coordinates[0][0], coordinates[0][1]);

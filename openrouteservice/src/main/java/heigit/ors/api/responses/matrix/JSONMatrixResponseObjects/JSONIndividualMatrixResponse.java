@@ -60,6 +60,8 @@ public class JSONIndividualMatrixResponse extends JSONBasedIndividualMatrixRespo
                     case MatrixMetricsType.Distance:
                         distances = constructMetric(result.getTable(i), result);
                         break;
+                    default:
+                        break;
                 }
             }
         }

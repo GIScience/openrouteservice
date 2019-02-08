@@ -29,7 +29,6 @@ import heigit.ors.services.matrix.MatrixServiceSettings;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -41,21 +40,16 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
-
 @RestController
 @RequestMapping("/v2/status")
 public class StatusAPI {
     @GetMapping
-    public ResponseEntity<?> fetchHealth(HttpServletRequest request) throws Exception {
+    public ResponseEntity fetchHealth(HttpServletRequest request) throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -66,17 +60,15 @@ public class StatusAPI {
         if (RoutingProfileManagerStatus.isReady()) {
             RoutingProfileManager profileManager = RoutingProfileManager.getInstance();
 
-            if (profileManager.getProfiles().getUniqueProfiles().size() > 0) {
+            if (!profileManager.getProfiles().getUniqueProfiles().isEmpty()) {
 
-                List<String> list = new ArrayList<String>(4);
+                List<String> list = new ArrayList<>(4);
                 if (RoutingServiceSettings.getEnabled())
                     list.add("routing");
                 if (GeocodingServiceSettings.getEnabled())
                     list.add("geocoding");
                 if (IsochronesServiceSettings.getEnabled())
                     list.add("isochrones");
-				/*if (AccessibilityServiceSettings.getEnabled())
-					list.add("accessibility");*/
                 if (MatrixServiceSettings.getEnabled())
                     list.add("matrix");
                 if (MapMatchingServiceSettings.getEnabled())
@@ -138,8 +130,7 @@ public class StatusAPI {
         return new ResponseEntity<>(jsonResponse, headers, HttpStatus.OK);
     }
 
-    private String constructResponse(HttpServletRequest req, org.json.JSONObject json)
-            throws JSONException, HttpStatusCodeException {
+    private String constructResponse(HttpServletRequest req, org.json.JSONObject json) {
         String type = getParam(req, "type", "json");
         boolean debug = getBooleanParam(req, "debug", false) || getBooleanParam(req, "pretty", false);
         if ("jsonp".equals(type)) {
@@ -168,19 +159,19 @@ public class StatusAPI {
         return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(date);
     }
 
-    protected boolean getBooleanParam(HttpServletRequest req, String string, boolean _default) {
+    protected boolean getBooleanParam(HttpServletRequest req, String string, boolean defaultValue) {
         try {
-            return Boolean.parseBoolean(getParam(req, string, "" + _default));
+            return Boolean.parseBoolean(getParam(req, string, "" + defaultValue));
         } catch (Exception ex) {
-            return _default;
+            return defaultValue;
         }
     }
 
-    protected String getParam(HttpServletRequest req, String string, String _default) {
+    protected String getParam(HttpServletRequest req, String string, String defaultValue) {
         String[] l = req.getParameterMap().get(string);
         if (l != null && l.length > 0)
             return l[0];
 
-        return _default;
+        return defaultValue;
     }
 }

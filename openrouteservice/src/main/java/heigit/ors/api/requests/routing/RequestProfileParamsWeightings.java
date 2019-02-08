@@ -24,23 +24,27 @@ import jdk.nashorn.internal.ir.annotations.Ignore;
 @ApiModel(value = "Profile Weightings", parent = RequestProfileParams.class, description = "Describe additional weightings to be applied to edges on the routing.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RequestProfileParamsWeightings {
-    @ApiModelProperty(value = "Specifies the fitness level for cycling-* profiles.\n" +
+    public static final String PARAM_STEEPNESS_DIFFICULTY = "steepness_difficulty";
+    public static final String PARAM_GREEN_INDEX = "green";
+    public static final String PARAM_QUIETNESS = "quiet";
+
+    @ApiModelProperty(name = PARAM_STEEPNESS_DIFFICULTY, value = "Specifies the fitness level for cycling-* profiles.\n" +
             "\n level: 0 = Novice, 1 = Moderate, 2 = Amateur, 3 = Pro. The prefered gradient increases with level. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['cycling-*']}}", example = "2")
-    @JsonProperty("steepness_difficulty")
+    @JsonProperty(PARAM_STEEPNESS_DIFFICULTY)
     private Integer steepnessDifficulty;
     @Ignore
     private boolean hasSteepnessDifficulty = false;
 
-    @ApiModelProperty(value = "Specifies the Green factor for foot-* profiles.\n" +
+    @ApiModelProperty(name = PARAM_GREEN_INDEX, value = "Specifies the Green factor for foot-* profiles.\n" +
             "\nfactor: Values range from 0 to 1. 0 equals normal routing. 1 will prefer ways through green areas over a shorter route. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['foot-*']}}", example = "0.4")
-    @JsonProperty("green")
+    @JsonProperty(PARAM_GREEN_INDEX)
     private Float greenIndex;
     @Ignore
     private boolean hasGreenIndex = false;
 
-    @ApiModelProperty(value = "Specifies the Quiet factor for foot-* profiles.\n" +
+    @ApiModelProperty(name = PARAM_QUIETNESS, value = "Specifies the Quiet factor for foot-* profiles.\n" +
             "\nfactor: Values range from 0 to 1. 0 equals normal routing. 1 will prefer quiet ways over a shorter route. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['foot-*']}}", example = "0.8")
-    @JsonProperty("quiet")
+    @JsonProperty(PARAM_QUIETNESS)
     private Float quietIndex;
     @Ignore
     private boolean hasQuietIndex = false;

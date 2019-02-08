@@ -71,12 +71,6 @@ public class IsochronesRequestTest {
     }
 
     @Test
-    public void getAreaUnitTest() {
-        IsochronesRequest request = new IsochronesRequest();
-        Assert.assertEquals(APIEnums.Units.METRES, request.getAreaUnit());
-    }
-
-    @Test
     public void setAreaUnitTest() throws ParameterValueException {
         IsochronesRequest request = new IsochronesRequest();
         request.setAreaUnit(APIEnums.Units.forValue("km"));
@@ -119,22 +113,10 @@ public class IsochronesRequestTest {
     }
 
     @Test
-    public void getIntersectionsTest() {
-        IsochronesRequest request = new IsochronesRequest();
-        Assert.assertFalse(request.getIntersections());
-    }
-
-    @Test
     public void setIntersectionTest() {
         IsochronesRequest request = new IsochronesRequest();
         request.setIntersections(true);
         Assert.assertTrue(request.getIntersections());
-    }
-
-    @Test
-    public void getRangeUnitsTest() {
-        IsochronesRequest request = new IsochronesRequest();
-        Assert.assertEquals(APIEnums.Units.METRES, request.getRangeUnits());
     }
 
     @Test
@@ -171,19 +153,6 @@ public class IsochronesRequestTest {
     }
 
     @Test
-    public void getCalcMethodTest() {
-        IsochronesRequest request = new IsochronesRequest();
-        Assert.assertEquals(IsochronesRequestEnums.CalculationMethod.CONCAVE_BALLS, request.getCalcMethod());
-    }
-
-    @Test
-    public void setCalcMethodTest() {
-        IsochronesRequest request = new IsochronesRequest();
-        request.setCalcMethod(IsochronesRequestEnums.CalculationMethod.GRID);
-        Assert.assertEquals(IsochronesRequestEnums.CalculationMethod.GRID, request.getCalcMethod());
-    }
-
-    @Test
     public void getLocationTest() {
         IsochronesRequest request = new IsochronesRequest();
         Assert.assertEquals(Double[][].class, request.getLocations().getClass());
@@ -195,12 +164,6 @@ public class IsochronesRequestTest {
         Double[][] double_array = {{1.0, 2.0}, {1.0, 3.0}};
         request.setLocations(double_array);
         Assert.assertArrayEquals(double_array, request.getLocations());
-    }
-
-    @Test
-    public void getLocationTypeTest() {
-        IsochronesRequest request = new IsochronesRequest();
-        Assert.assertEquals(IsochronesRequestEnums.LocationType.START, request.getLocationType());
     }
 
     @Test
@@ -241,7 +204,7 @@ public class IsochronesRequestTest {
     public void hasIsochronesOptionsTest() {
         IsochronesRequest request = new IsochronesRequest();
         request.setIsochronesOptions(new RouteRequestOptions());
-        Assert.assertTrue(request.hasIsochronesOptions());
+        Assert.assertTrue(request.hasOptions());
     }
 
     @Test
@@ -255,12 +218,6 @@ public class IsochronesRequestTest {
         IsochronesRequest request = new IsochronesRequest();
         request.setRange(new ArrayList<>());
         Assert.assertNotNull(request.getRange());
-    }
-
-    @Test
-    public void getRangeTypeTest() {
-        IsochronesRequest request = new IsochronesRequest();
-        Assert.assertEquals(IsochronesRequestEnums.RangeType.TIME, request.getRangeType());
     }
 
     @Test
@@ -304,9 +261,9 @@ public class IsochronesRequestTest {
     @Test
     public void detailedOptionsTest() {
         IsochronesRequest request = new IsochronesRequest();
-        Assert.assertFalse(request.hasIsochronesOptions());
+        Assert.assertFalse(request.hasOptions());
         RouteRequestOptions opts = new RouteRequestOptions();
         request.setIsochronesOptions(opts);
-        Assert.assertTrue(request.hasIsochronesOptions());
+        Assert.assertTrue(request.hasOptions());
     }
 }

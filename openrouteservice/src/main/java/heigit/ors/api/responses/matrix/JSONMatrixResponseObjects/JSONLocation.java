@@ -23,33 +23,36 @@ import heigit.ors.util.FormatUtility;
 import io.swagger.annotations.ApiModelProperty;
 
 public class JSONLocation {
-    final int COORDINATE_DECIMAL_PLACES = 6;
-    private final int SNAPPED_DISTANCE_DECIMAL_PLACES = 2;
+    protected static final int COORDINATE_DECIMAL_PLACES = 6;
+    private static final int SNAPPED_DISTANCE_DECIMAL_PLACES = 2;
+
     @ApiModelProperty(value = "{longitude},{latitude} coordinates of the closest accessible point on the routing graph",
             example = "[8.678962, 49.40783]")
     @JsonProperty(value = "location")
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
     protected Coordinate location;
+
     @ApiModelProperty(value = "Name of the street the closest accessible point is situated on. Only for `resolve_locations=true` and only if name is available." +
             "CUSTOM_KEYS:{'dependsOn':{'ref':'resolve_locations','value':true}}",
             example = "Bergheimer Straße")
     @JsonProperty(value = "name")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     protected String name;
+
     @ApiModelProperty(value = "Distance between the `source/destination` Location and the used point on the routing graph.", example = "1.2")
     @JsonProperty(value = "snapped_distance")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.2d")
-    private Double snapped_distance;
+    private Double snappedDistance;
 
     JSONLocation(ResolvedLocation location, boolean includeResolveLocations) {
-        this.snapped_distance = location.getSnappedDistance();
+        this.snappedDistance = location.getSnappedDistance();
         this.location = location.getCoordinate();
         if (includeResolveLocations)
             this.name = location.getName();
     }
 
-    public Double getSnapped_distance() {
-        return FormatUtility.roundToDecimals(snapped_distance, SNAPPED_DISTANCE_DECIMAL_PLACES);
+    public Double getSnappedDistance() {
+        return FormatUtility.roundToDecimals(snappedDistance, SNAPPED_DISTANCE_DECIMAL_PLACES);
     }
 
     public Double[] getLocation() {

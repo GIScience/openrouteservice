@@ -39,17 +39,17 @@ public class GeoJSONIsochroneProperties {
     private Double totalPop;
 
 
-    public GeoJSONIsochroneProperties(Isochrone isochrone, Coordinate center, int group_index) {
-        this.groupIndex = group_index;
+    public GeoJSONIsochroneProperties(Isochrone isochrone, Coordinate center, int groupIndex) {
+        this.groupIndex = groupIndex;
         if (isochrone.hasArea())
             this.area = isochrone.getArea();
         this.value = isochrone.getValue();
         this.center = new Double[]{center.x, center.y};
         if (isochrone.hasReachfactor())
             this.reachfactor = isochrone.getReachfactor();
-        if (isochrone.getAttributes() != null && isochrone.getAttributes().size() > 0)
+        if (isochrone.getAttributes() != null && !isochrone.getAttributes().isEmpty())
             for (AttributeValue attributeValue : isochrone.getAttributes()) {
-                if (attributeValue.getName().toLowerCase().equals("total_pop"))
+                if (attributeValue.getName().equalsIgnoreCase("total_pop"))
                     this.totalPop = attributeValue.getValue();
             }
     }

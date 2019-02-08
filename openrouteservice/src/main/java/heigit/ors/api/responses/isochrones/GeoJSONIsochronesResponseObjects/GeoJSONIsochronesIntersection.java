@@ -16,10 +16,13 @@
 package heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vividsolutions.jts.geom.Geometry;
 import heigit.ors.api.requests.isochrones.IsochronesRequest;
 import heigit.ors.api.requests.isochrones.IsochronesRequestEnums;
 import heigit.ors.common.Pair;
+import heigit.ors.exceptions.InternalServerException;
+import heigit.ors.isochrones.IsochronesErrorCodes;
 import heigit.ors.isochrones.IsochronesIntersection;
 import heigit.ors.util.FormatUtility;
 
@@ -29,14 +32,15 @@ public class GeoJSONIsochronesIntersection extends GeoJSONIsochroneBase {
     @JsonIgnore
     private IsochronesIntersection intersection;
 
-    public Map<String, Object> properties;
+    @JsonProperty("properties")
+    private Map<String, Object> properties;
 
-    public GeoJSONIsochronesIntersection(IsochronesIntersection intersection, IsochronesRequest request) {
+    public GeoJSONIsochronesIntersection(IsochronesIntersection intersection, IsochronesRequest request) throws InternalServerException {
         this.intersection = intersection;
         properties = fillProperties(intersection, request);
     }
 
-    private Map fillProperties(IsochronesIntersection intersection, IsochronesRequest request)  {
+    private Map fillProperties(IsochronesIntersection intersection, IsochronesRequest request) throws InternalServerException  {
         Map<String, Object> props = new HashMap();
 
         List<Integer[]> contours = new ArrayList();
@@ -54,13 +58,23 @@ public class GeoJSONIsochronesIntersection extends GeoJSONIsochroneBase {
 
         if (attr.contains(IsochronesRequestEnums.Attributes.AREA)) {
             try {
-                props.put("area", FormatUtility.roundToDecimals(intersection.getArea(request.getAreaUnit().toString()), 4));
-            } catch (Exception e) {
+                double areaValue = 0;
+                if (request.hasAreaUnits())
+                    areaValue = intersection.getArea(request.getAreaUnit().toString());
+                else
+                    areaValue = intersection.getArea("");
 
+                props.put("area", FormatUtility.roundToDecimals(areaValue, 4));
+            } catch (InternalServerException e) {
+                throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "There was a problem calculating the area of the isochrone");
             }
         }
 
         return props;
+    }
+
+    public Map getProperties() {
+        return properties;
     }
 
     @Override

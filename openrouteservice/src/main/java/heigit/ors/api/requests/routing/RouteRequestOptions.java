@@ -27,44 +27,52 @@ import org.json.simple.JSONObject;
 @ApiModel(value = "Route Options", description = "Advanced options for routing", subTypes = {RouteRequest.class, IsochroneRequest.class})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RouteRequestOptions {
-    @ApiModelProperty(name = "avoid_features", value = "List of features to avoid. " +
+    public static final String PARAM_AVOID_FEATURES = "avoid_features";
+    public static final String PARAM_AVOID_BORDERS = "avoid_borders";
+    public static final String PARAM_AVOID_COUNTRIES = "avoid_countries";
+    public static final String PARAM_VEHICLE_TYPE = "vehicle_type";
+    public static final String PARAM_PROFILE_PARAMS = "profile_params";
+    public static final String PARAM_AVOID_POLYGONS = "avoid_polygons";
+
+    @ApiModelProperty(name = PARAM_AVOID_FEATURES, value = "List of features to avoid. " +
             "CUSTOM_KEYS:{'itemRestrictions':{'ref':'profile', 'itemsWhen':{'driving-*':['highways','tollways','ferries'],'cycling-*':['ferries','steps','fords'],'foot-*':['ferries','fords','steps'],'wheelchair':['ferries','steps']}}}")
-    @JsonProperty("avoid_features")
+    @JsonProperty(PARAM_AVOID_FEATURES)
     private APIEnums.AvoidFeatures[] avoidFeatures;
     @JsonIgnore
     private boolean hasAvoidFeatures = false;
 
-    @ApiModelProperty(value = "'all' for no border crossing. 'controlled' to cross open borders but avoid controlled ones. Only for driving-* profiles. " +
+    @ApiModelProperty(name = PARAM_AVOID_BORDERS, value = "'all' for no border crossing. 'controlled' to cross open borders but avoid controlled ones. Only for driving-* profiles. " +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-*']}}")
-    @JsonProperty("avoid_borders")
+    @JsonProperty(PARAM_AVOID_BORDERS)
     private APIEnums.AvoidBorders avoidBorders;
     @JsonIgnore
     private boolean hasAvoidBorders = false;
 
-    @ApiModelProperty(value = "List of countries to exclude from routing with driving-* profiles. Can be used together with 'avoid_borders': 'controlled'. " +
-            "[ 11, 193 ] would exclude Austria and Switzerland. List of countries and application examples can be found here. " +
+    @ApiModelProperty(name = PARAM_AVOID_COUNTRIES, value = "List of countries to exclude from routing with `driving-*` profiles. Can be used together with `'avoid_borders': 'controlled'`. " +
+            "`[ 11, 193 ]` would exclude Austria and Switzerland. List of countries and application examples can be found [here](https://github.com/GIScience/openrouteservice-docs#country-list). " +
+            "Also, ISO standard country codes cna be used in place of the numerical ids, for example, DE or DEU for Germany. " +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-*']}}",
             example = "[ 11, 193 ]")
-    @JsonProperty("avoid_countries")
+    @JsonProperty(PARAM_AVOID_COUNTRIES)
     private String[] avoidCountries;
     @JsonIgnore
     private boolean hasAvoidCountries = false;
 
-    @ApiModelProperty(value = "(for profile=driving-hgv only): hgv,bus,agricultural,delivery,forestry and goods. It is needed for vehicle restrictions to work. " +
+    @ApiModelProperty(name = PARAM_VEHICLE_TYPE, value = "(for profile=driving-hgv only): hgv,bus,agricultural,delivery,forestry and goods. It is needed for vehicle restrictions to work. " +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}")
-    @JsonProperty(value = "vehicle_type")
+    @JsonProperty(value = PARAM_VEHICLE_TYPE)
     private APIEnums.VehicleType vehicleType;
     @JsonIgnore
     private boolean hasVehicleType = false;
 
-    @ApiModelProperty(value = " Specifies additional routing parameters.")
-    @JsonProperty("profile_params")
+    @ApiModelProperty(name = PARAM_PROFILE_PARAMS, value = " Specifies additional routing parameters.")
+    @JsonProperty(PARAM_PROFILE_PARAMS)
     private RequestProfileParams profileParams;
     @JsonIgnore
     private boolean hasProfileParams = false;
 
-    @ApiModelProperty(name = "avoid_polygons", value = "Comprises areas to be avoided for the route. Formatted in GeoJSON as either a Polygon or Multipolygon object.")
-    @JsonProperty("avoid_polygons")
+    @ApiModelProperty(name = PARAM_AVOID_POLYGONS, value = "Comprises areas to be avoided for the route. Formatted in GeoJSON as either a Polygon or Multipolygon object.")
+    @JsonProperty(PARAM_AVOID_POLYGONS)
     private JSONObject avoidPolygonFeatures;
     @JsonIgnore
     private boolean hasAvoidPolygonFeatures = false;

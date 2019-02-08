@@ -18,6 +18,7 @@ package heigit.ors.api.requests.matrix;
 import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.common.DistanceUnit;
+import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.matrix.MatrixErrorCodes;
@@ -32,16 +33,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MatrixRequestHandler {
+    private MatrixRequestHandler() throws InternalServerException {
+        throw new InternalServerException("MatrixRequestHandler should not be instantiated empty");
+    }
+
     public static MatrixResult generateMatrixFromRequest(MatrixRequest request) throws StatusCodeException {
         heigit.ors.matrix.MatrixRequest coreRequest = convertMatrixRequest(request);
 
         try {
             return RoutingProfileManager.getInstance().computeMatrix(coreRequest);
+        } catch (StatusCodeException e) {
+            throw e;
         } catch (Exception e) {
-            if (e instanceof StatusCodeException)
-                throw (StatusCodeException) e;
-            else
-                throw new StatusCodeException(MatrixErrorCodes.UNKNOWN);
+            throw new StatusCodeException(MatrixErrorCodes.UNKNOWN);
         }
     }
 
@@ -88,16 +92,16 @@ public class MatrixRequestHandler {
         int combined = MatrixMetricsType.getFromString(concatMetrics);
 
         if (combined == MatrixMetricsType.Unknown)
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "metrics");
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_METRICS);
 
         return combined;
     }
 
     protected static Coordinate[] convertLocations(List<List<Double>> locations) throws ParameterValueException {
         if (locations == null || locations.size() < 2)
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "locations");
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_LOCATIONS);
         if (locations.size() > MatrixServiceSettings.getMaximumLocations(false))
-            throw new ParameterValueException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations");
+            throw new ParameterValueException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, MatrixRequest.PARAM_LOCATIONS);
         ArrayList<Coordinate> locationCoordinates = new ArrayList<>();
 
         for (List<Double> coordinate : locations) {
@@ -106,13 +110,13 @@ public class MatrixRequestHandler {
         try {
             return locationCoordinates.toArray(new Coordinate[locations.size()]);
         } catch (NumberFormatException | ArrayStoreException | NullPointerException ex) {
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "locations");
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_LOCATIONS);
         }
     }
 
     protected static Coordinate convertSingleLocationCoordinate(List<Double> coordinate) throws ParameterValueException {
         if (coordinate.size() != 2)
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "locations");
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_LOCATIONS);
         return new Coordinate(coordinate.get(0), coordinate.get(1));
     }
 
@@ -124,7 +128,7 @@ public class MatrixRequestHandler {
             ArrayList<Coordinate> indexCoordinateArray = convertIndexToLocations(sourcesIndex, locations);
             return indexCoordinateArray.toArray(new Coordinate[0]);
         } catch (Exception ex) {
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "sources");
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_SOURCES);
         }
     }
 
@@ -136,11 +140,11 @@ public class MatrixRequestHandler {
             ArrayList<Coordinate> indexCoordinateArray = convertIndexToLocations(destinationsIndex, locations);
             return indexCoordinateArray.toArray(new Coordinate[0]);
         } catch (Exception ex) {
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "destinations");
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_DESTINATIONS);
         }
     }
 
-    protected static ArrayList<Coordinate> convertIndexToLocations(String[] index, Coordinate[] locations) throws Exception {
+    protected static ArrayList<Coordinate> convertIndexToLocations(String[] index, Coordinate[] locations) {
         ArrayList<Coordinate> indexCoordinates = new ArrayList<>();
         for (String indexString : index) {
             int indexInteger = Integer.parseInt(indexString);
@@ -152,7 +156,7 @@ public class MatrixRequestHandler {
     protected static DistanceUnit convertUnits(APIEnums.Units unitsIn) throws ParameterValueException {
         DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.Unknown);
         if (units == DistanceUnit.Unknown)
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "units", unitsIn.toString());
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_UNITS, unitsIn.toString());
         return units;
     }
 
@@ -160,11 +164,11 @@ public class MatrixRequestHandler {
         try {
             int profileFromString = RoutingProfileType.getFromString(profile.toString());
             if (profileFromString == 0) {
-                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "profile");
+                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PROFILE);
             }
             return profileFromString;
         } catch (Exception e) {
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "profile");
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PROFILE);
         }
     }
 }

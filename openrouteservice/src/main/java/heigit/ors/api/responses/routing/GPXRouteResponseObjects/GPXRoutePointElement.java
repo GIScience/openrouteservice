@@ -24,8 +24,8 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlType(propOrder = {"elevation", "name", "instructionDescription", "element"})
 public class GPXRoutePointElement {
-    private final int COORDINATE_DECIMAL_PLACES = 6;
-    private final int ELEVATION_DECIMAL_PLACES = 2;
+    private static final int COORDINATE_DECIMAL_PLACES = 6;
+    private static final int ELEVATION_DECIMAL_PLACES = 2;
 
     private double latitude;
     private double longitude;

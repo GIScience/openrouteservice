@@ -226,8 +226,6 @@ public class IsochronesRequestHandlerTest {
         request.setRange(range);
         IsochroneRequest isochroneRequest = handler.convertIsochroneRequest(request);
         Assert.assertNotNull(isochroneRequest);
-        Coordinate[] coords = isochroneRequest.getLocations();
-        Assert.assertEquals(IsochronesRequestEnums.CalculationMethod.CONCAVE_BALLS, IsochronesRequestEnums.CalculationMethod.forValue(isochroneRequest.getCalcMethod()));
         Assert.assertFalse(isochroneRequest.getIncludeIntersections());
         Assert.assertNull(request.getAttributes());
         Assert.assertFalse(request.hasSmoothing());

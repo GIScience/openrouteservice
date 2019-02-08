@@ -30,108 +30,125 @@ import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
 
 
-/*
-  The general idea is that a request can consist of multiple travellers whom can have their own options.
-  Every traveller will only accept one coordinate pair in contrary to the solution before.
-  To calculate isochrones for more than one coordinate users can easily add a new traveller with the desired coordinates.
-  That way users have more flexibility in defining their isochrones even more individually.
-  **/
 @ApiModel(value = "IsochronesRequest", description = "The JSON body request sent to the isochrones service which defines options and parameters regarding the isochrones to generate.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class IsochronesRequest {
+    public static final String PARAM_ID = "id";
+    public static final String PARAM_PROFILE = "profile";
+    public static final String PARAM_LOCATIONS = "locations";
+    public static final String PARAM_LOCATION_TYPE = "location_type";
+    public static final String PARAM_OPTIONS = "options";
+    public static final String PARAM_RANGE = "range";
+    public static final String PARAM_RANGE_TYPE = "range_type";
+    public static final String PARAM_RANGE_UNITS = "units";
+    public static final String PARAM_AREA_UNITS = "area_units";
+    public static final String PARAM_INTERSECTIONS = "intersections";
+    public static final String PARAM_ATTRIBUTES = "attributes";
+    public static final String PARAM_INTERVAL = "interval";
+    public static final String PARAM_SMOOTHING = "smoothing";
 
-    @ApiModelProperty(value = "Arbitrary identification string of the request reflected in the meta information.")
+    @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.")
+    @JsonProperty(PARAM_ID)
     private String id;
+    @JsonIgnore
     private boolean hasId = false;
 
-    @ApiModelProperty(name = "locations", value = "The locations to use for the route as an array of longitude/latitude pairs",
+    @ApiModelProperty(name = PARAM_LOCATIONS, value = "The locations to use for the route as an array of longitude/latitude pairs",
             example = "[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]]",
             required = true)
-    @JsonProperty("locations")
+    @JsonProperty(PARAM_LOCATIONS)
     private Double[][] locations = new Double[][]{};
+    @JsonIgnore
+    private boolean hasLocations = false;
 
-    @JsonProperty(value = "location_type", defaultValue = "start")
-    private IsochronesRequestEnums.LocationType locationType = IsochronesRequestEnums.LocationType.START;
+    @ApiModelProperty(name = PARAM_LOCATION_TYPE, value = "start treats the location(s) as starting point, destination as goal. CUSTOM_KEYS:{'apiDefault':'start'}",
+            example = "start")
+    @JsonProperty(value = PARAM_LOCATION_TYPE)
+    private IsochronesRequestEnums.LocationType locationType;
+    @JsonIgnore
+    private boolean hasLocationType = false;
 
-    @ApiModelProperty(hidden = true, required = true)
+    @ApiModelProperty(name = PARAM_PROFILE, hidden = true, required = true)
+    @JsonIgnore
     private APIEnums.Profile profile;
 
-    @ApiModelProperty(name = "options",
+    @ApiModelProperty(name = PARAM_OPTIONS,
             value = "Additional options for the isochrones request")
-    @JsonProperty("options")
+    @JsonProperty(PARAM_OPTIONS)
     private RouteRequestOptions isochronesOptions;
-
+    @JsonIgnore
+    private boolean hasOptions = false;
 
     @ApiModelProperty(hidden = true)
     private APIEnums.RouteResponseType responseType = APIEnums.RouteResponseType.GEOJSON;
 
-    @ApiModelProperty(name = "range", value = "Maximum range value of the analysis in seconds for time and meters for distance." +
+    @ApiModelProperty(name = PARAM_RANGE, value = "Maximum range value of the analysis in seconds for time and meters for distance." +
             "Alternatively a comma separated list of specific single range values if more than one location is set.",
             example = "[ 300, 200 ]")
-    @JsonProperty("range")
+    @JsonProperty(PARAM_RANGE)
     private List<Double> range;
+    @JsonIgnore
+    private boolean hasRange = false;
 
-    @ApiModelProperty(name = "range_type",
-            value = "Specifies the isochrones reachability type")
-    @JsonProperty(value = "range_type", defaultValue = "time")
-    private IsochronesRequestEnums.RangeType rangeType = IsochronesRequestEnums.RangeType.TIME;
+    @ApiModelProperty(name = PARAM_RANGE_TYPE,
+            value = "Specifies the isochrones reachability type. CUSTOM_KEYS:{'apiDefault':'time'}", example = "time")
+    @JsonProperty(value = PARAM_RANGE_TYPE, defaultValue = "time")
+    private IsochronesRequestEnums.RangeType rangeType;
+    @JsonIgnore
+    private boolean hasRangeType = false;
 
     // unit only valid for range_type distance, will be ignored for range_time time
-    @ApiModelProperty(name = "units",
+    @ApiModelProperty(name = PARAM_RANGE_UNITS,
             value = "Specifies the distance units only if range_type is set to distance.\n" +
                     "Default: m. " +
-                    "CUSTOM_KEYS:{'apiDefault':'m'}")
-    @JsonProperty(value = "units", defaultValue = "m")
-    private APIEnums.Units rangeUnit = APIEnums.Units.METRES;
+                    "CUSTOM_KEYS:{'apiDefault':'m'}",
+            example = "m")
+    @JsonProperty(value = PARAM_RANGE_UNITS)
+    private APIEnums.Units rangeUnit;
+    @JsonIgnore
+    private boolean hasRangeUnits = false;
 
-    @ApiModelProperty(name = "area_units",
+    @ApiModelProperty(name = PARAM_AREA_UNITS,
             value = "Specifies the area unit.\n" +
                     "Default: m. " +
                     "CUSTOM_KEYS:{'apiDefault':'m'}")
-    @JsonProperty(value = "area_units", defaultValue = "m")
-    private APIEnums.Units areaUnit = APIEnums.Units.METRES;
+    @JsonProperty(value = PARAM_AREA_UNITS)
+    private APIEnums.Units areaUnit;
+    @JsonIgnore
+    private boolean hasAreaUnits = false;
 
-    @ApiModelProperty(name = "calc_method",
-            value = "Specifies the calculation method. concaveballs or grid. " +
-                    "CUSTOM_KEYS:{'apiDefault':'concaveballs'}")
-    @JsonProperty(value = "calc_method", defaultValue = "concaveballs")
-    private IsochronesRequestEnums.CalculationMethod calcMethod = IsochronesRequestEnums.CalculationMethod.CONCAVE_BALLS;
-
-    @ApiModelProperty(name = "intersections",
+    @ApiModelProperty(name = PARAM_INTERSECTIONS,
             value = "Specifies whether to return intersecting polygons. " +
                     "CUSTOM_KEYS:{'apiDefault':false}")
-    @JsonProperty(value = "intersections", defaultValue = "false")
-    private Boolean intersections = false;
+    @JsonProperty(value = PARAM_INTERSECTIONS)
+    private Boolean intersections;
+    @JsonIgnore
+    private boolean hasIntersections = false;
 
-    @ApiModelProperty(name = "attributes", value = "List of isochrones attributes")
-    @JsonProperty("attributes")
+    @ApiModelProperty(name = PARAM_ATTRIBUTES, value = "List of isochrones attributes")
+    @JsonProperty(PARAM_ATTRIBUTES)
     private IsochronesRequestEnums.Attributes[] attributes;
-
-    @ApiModelProperty(name = "interval", value = "Interval of isochrones or equidistants for one range value. " +
-            "value in seconds for time and meters for distance.",
-            example = "30"
-    )
-    @JsonProperty("interval")
-    private Double interval;
-
-
     @JsonIgnore
     private boolean hasAttributes = false;
 
-
+    @ApiModelProperty(name = PARAM_INTERVAL, value = "Interval of isochrones or equidistants for one range value. " +
+            "value in seconds for time and meters for distance.",
+            example = "30"
+    )
+    @JsonProperty(PARAM_INTERVAL)
+    private Double interval;
     @JsonIgnore
-    private boolean hasIsochronesOptions = false;
+    private boolean hasInterval = false;
 
-    @ApiModelProperty(name = "smoothing",
+    @ApiModelProperty(name = PARAM_SMOOTHING,
             value = "Applies a level of generalisation to the isochrone polygons generated as a smoothing_factor between 0 and 1.0.\n" +
                     "Generalisation is produced by determining a maximum length of a connecting line between two points found on the outside of a containing polygon.\n" +
                     "If the distance is larger than a threshold value, the line between the two points is removed and a smaller connecting line between other points is used.\n" +
                     "The threshold value is determined as (smoothing_factor * maximum_radius_of_isochrone) / 10.\n" +
                     "Therefore, a value closer to 1 will result in a more generalised shape.\n" +
                     "The polygon generation algorithm is based on Duckham and al. (2008) \"Efficient generation of simple polygons for characterizing the shape of a set of points in the plane.\"")
-    @JsonProperty(value = "smoothing")
+    @JsonProperty(value = PARAM_SMOOTHING)
     private Double smoothing;
-
     @JsonIgnore
     private boolean hasSmoothing = false;
 
@@ -173,6 +190,11 @@ public class IsochronesRequest {
 
     public void setAreaUnit(APIEnums.Units areaUnit) {
         this.areaUnit = areaUnit;
+        hasAreaUnits = true;
+    }
+
+    public boolean hasAreaUnits() {
+        return hasAreaUnits;
     }
 
     public Double getSmoothing() {
@@ -202,6 +224,11 @@ public class IsochronesRequest {
 
     public void setIntersections(Boolean intersections) {
         this.intersections = intersections;
+        hasIntersections = true;
+    }
+
+    public boolean hasIntersections() {
+        return hasIntersections;
     }
 
     public APIEnums.Units getRangeUnits() {
@@ -210,6 +237,11 @@ public class IsochronesRequest {
 
     public void setRangeUnits(APIEnums.Units rangeUnit) {
         this.rangeUnit = rangeUnit;
+        hasRangeUnits = true;
+    }
+
+    public boolean hasRangeUnits() {
+        return hasRangeUnits;
     }
 
     public IsochronesRequestEnums.Attributes[] getAttributes() {
@@ -225,20 +257,17 @@ public class IsochronesRequest {
         return hasAttributes;
     }
 
-    public IsochronesRequestEnums.CalculationMethod getCalcMethod() {
-        return calcMethod;
-    }
-
-    public void setCalcMethod(IsochronesRequestEnums.CalculationMethod calcMethod) {
-        this.calcMethod = calcMethod;
-    }
-
     public Double[][] getLocations() {
         return locations;
     }
 
     public void setLocations(Double[][] locations) {
         this.locations = locations;
+        hasLocations = true;
+    }
+
+    public boolean hasLocations() {
+        return hasLocations;
     }
 
     public IsochronesRequestEnums.LocationType getLocationType() {
@@ -247,6 +276,11 @@ public class IsochronesRequest {
 
     public void setLocationType(IsochronesRequestEnums.LocationType locationType) {
         this.locationType = locationType;
+        hasLocationType = true;
+    }
+
+    public boolean hasLocationType() {
+        return hasLocationType;
     }
 
     public APIEnums.Profile getProfile() {
@@ -263,11 +297,11 @@ public class IsochronesRequest {
 
     public void setIsochronesOptions(RouteRequestOptions isochronesOptions) {
         this.isochronesOptions = isochronesOptions;
-        this.hasIsochronesOptions = true;
+        this.hasOptions = true;
     }
 
-    public boolean hasIsochronesOptions() {
-        return this.hasIsochronesOptions;
+    public boolean hasOptions() {
+        return this.hasOptions;
     }
 
     public List<Double> getRange() {
@@ -276,6 +310,11 @@ public class IsochronesRequest {
 
     public void setRange(List<Double> range) {
         this.range = range;
+        hasRange = true;
+    }
+
+    public boolean hasRange() {
+        return hasRange;
     }
 
     public IsochronesRequestEnums.RangeType getRangeType() {
@@ -284,6 +323,11 @@ public class IsochronesRequest {
 
     public void setRangeType(IsochronesRequestEnums.RangeType rangeType) {
         this.rangeType = rangeType;
+        hasRangeType = true;
+    }
+
+    public boolean hasRangeType() {
+        return hasRangeType;
     }
 
     public Double getInterval() {
@@ -292,5 +336,10 @@ public class IsochronesRequest {
 
     public void setInterval(Double interval) {
         this.interval = interval;
+        hasInterval = true;
+    }
+
+    public boolean hasInterval() {
+        return hasInterval;
     }
 }

@@ -33,7 +33,6 @@ import java.util.Map;
 
 public class JSONBasedIndividualRouteResponse extends IndividualRouteResponse {
     protected BoundingBox bbox;
-    protected boolean includeElevation = false;
 
     public JSONBasedIndividualRouteResponse(RouteResult result, RouteRequest request) throws StatusCodeException {
         super(result, request);

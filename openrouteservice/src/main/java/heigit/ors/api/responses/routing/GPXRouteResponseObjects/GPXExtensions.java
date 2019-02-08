@@ -18,7 +18,6 @@ package heigit.ors.api.responses.routing.GPXRouteResponseObjects;
 import com.graphhopper.util.Helper;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.api.requests.routing.RouteRequest;
-import heigit.ors.localization.Language;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.AppInfo;
 

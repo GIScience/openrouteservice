@@ -20,15 +20,18 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 
-@ApiModel(value = "Profile Parameters", parent = RouteRequestOptions.class, description = "Specifies additional routing parameters.")
+@ApiModel(value = "Profile Parameters", parent = RouteRequestOptions.class, description = "Specifies additional routing parameters. For all profiles except `driving-car`.")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class RequestProfileParams {
-    @JsonProperty("weightings")
+    public static final String PARAM_WEIGHTINGS = "weightings";
+    public static final String PARAM_RESTRICTIONS = "restrictions";
+
+    @JsonProperty(PARAM_WEIGHTINGS)
     private RequestProfileParamsWeightings weightings;
     @JsonIgnore
     private boolean hasWeightings = false;
 
-    @JsonProperty("restrictions")
+    @JsonProperty(PARAM_RESTRICTIONS)
     private RequestProfileParamsRestrictions restrictions;
     @JsonIgnore
     private boolean hasRestrictions = false;

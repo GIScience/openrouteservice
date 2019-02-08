@@ -40,9 +40,6 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @ApiModel(value = "JSONIndividualRouteResponse", description = "An individual JSON based route created by the service")
 public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteResponse {
-
-    private BoundingBox bbox;
-
     @ApiModelProperty(value = "The geometry of the route. For JSON route responses this is an encoded polyline.", example = "yuqlH{i~s@gaUe@VgEQFcBRbB_C")
     @JsonProperty("geometry")
     @JsonUnwrapped
@@ -67,7 +64,7 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
     public JSONIndividualRouteResponse(RouteResult routeResult, RouteRequest request) throws StatusCodeException {
         super(routeResult, request);
 
-        geomResponse = constructEncodedGeometry(this.routeCoordinates, this.includeElevation);
+        geomResponse = constructEncodedGeometry(this.routeCoordinates);
 
         if(this.includeElevation)
             summary = new JSONSummary(routeResult.getSummary().getDistance(), routeResult.getSummary().getDuration(), routeResult.getSummary().getAscent(), routeResult.getSummary().getDescent());
@@ -92,7 +89,7 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
             }
         }
 
-        if (routeResult.getWarnings() != null && routeResult.getWarnings().size() > 0) {
+        if (routeResult.getWarnings() != null && !routeResult.getWarnings().isEmpty()) {
             warnings= new ArrayList<>();
             for (RouteWarning warning : routeResult.getWarnings()) {
                 warnings.add(new JSONWarning(warning));
@@ -100,7 +97,7 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
         }
     }
 
-    private String constructEncodedGeometry(final Coordinate[] coordinates, boolean useElevation) {
+    private String constructEncodedGeometry(final Coordinate[] coordinates) {
         if(coordinates != null)
             return PolylineEncoder.encode(coordinates, includeElevation, new StringBuffer());
         else

@@ -19,7 +19,7 @@ import com.graphhopper.util.shapes.BBox;
 import heigit.ors.util.FormatUtility;
 
 public class BoundingBoxBase implements BoundingBox {
-    protected final int COORDINATE_DECIMAL_PLACES = 6;
+    protected static final int COORDINATE_DECIMAL_PLACES = 6;
     protected double minLat;
     protected double minLon;
     protected double maxLat;

@@ -22,13 +22,11 @@ import com.vividsolutions.jts.geom.Polygon;
 import heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
 import heigit.ors.api.requests.routing.RouteRequestOptions;
-import heigit.ors.exceptions.IncompatibleParameterException;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.exceptions.UnknownParameterValueException;
+import heigit.ors.exceptions.*;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.ProfileWeighting;
 import heigit.ors.routing.AvoidFeatureFlags;
+import heigit.ors.routing.RoutingErrorCodes;
 import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
@@ -67,7 +65,7 @@ public class GenericHandler {
 
     protected int convertVehicleType(APIEnums.VehicleType vehicleTypeIn, int profileType) throws IncompatibleParameterException {
         if (!RoutingProfileType.isHeavyVehicle(profileType)) {
-            throw new IncompatibleParameterException(getErrorCode("INVALID_PARAMETER_VALUE"),
+            throw new IncompatibleParameterException(getInvalidParameterValueErrorCode(),
                     "vehicle_type", vehicleTypeIn.toString(),
                     "profile", RoutingProfileType.getName(profileType));
         }
@@ -77,6 +75,10 @@ public class GenericHandler {
         }
 
         return HeavyVehicleAttributes.getFromString(vehicleTypeIn.toString());
+    }
+
+    private Integer getInvalidParameterValueErrorCode() {
+        return getErrorCode("INVALID_PARAMETER_VALUE");
     }
 
     private Integer getErrorCode(String name) {
@@ -118,7 +120,7 @@ public class GenericHandler {
         try {
             convertedGeom = GeometryJSON.parse(complexJson);
         } catch (Exception e) {
-            throw new ParameterValueException(getErrorCode("INVALID_JSON_FORMAT"), "avoid_polygons");
+            throw new ParameterValueException(getInvalidParameterValueErrorCode(), "avoid_polygons");
         }
 
         Polygon[] avoidAreas;
@@ -131,7 +133,7 @@ public class GenericHandler {
             for (int i = 0; i < multiPoly.getNumGeometries(); i++)
                 avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
         } else {
-            throw new ParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), "avoid_polygons");
+            throw new ParameterValueException(getInvalidParameterValueErrorCode(), "avoid_polygons");
         }
 
         return avoidAreas;
@@ -143,10 +145,10 @@ public class GenericHandler {
             String avoidFeatureName = avoid.toString();
             int flag = AvoidFeatureFlags.getFromString(avoidFeatureName);
             if (flag == 0)
-                throw new UnknownParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), "avoid_features", avoidFeatureName);
+                throw new UnknownParameterValueException(getInvalidParameterValueErrorCode(), "avoid_features", avoidFeatureName);
 
             if (!AvoidFeatureFlags.isValid(profileType, flag))
-                throw new IncompatibleParameterException(getErrorCode("INVALID_PARAMETER_VALUE"), "avoid_features", avoidFeatureName, "profile", RoutingProfileType.getName(profileType));
+                throw new IncompatibleParameterException(getInvalidParameterValueErrorCode(), "avoid_features", avoidFeatureName, "profile", RoutingProfileType.getName(profileType));
 
             flags |= flag;
         }
@@ -187,25 +189,67 @@ public class GenericHandler {
         VehicleParameters params = new VehicleParameters();
 
         if (vehicleType != null && vehicleType != APIEnums.VehicleType.UNKNOWN) {
-            if (restrictions.hasLength())
-                params.setLength(restrictions.getLength());
-            if (restrictions.hasWidth())
-                params.setWidth(restrictions.getWidth());
-            if (restrictions.hasHeight())
-                params.setHeight(restrictions.getHeight());
-            if (restrictions.hasWeight())
-                params.setWeight(restrictions.getWeight());
-            if (restrictions.hasAxleLoad())
-                params.setAxleload(restrictions.getAxleLoad());
+            setLengthParam(restrictions, params);
+            setWidthParam(restrictions, params);
+            setHeightParam(restrictions, params);
+            setWeightParam(restrictions, params);
+            setAxleLoadParam(restrictions, params);
 
+            setLoadCharacteristicsParam(restrictions, params);
+        }
+
+        return params;
+    }
+
+    private VehicleParameters setLengthParam(RequestProfileParamsRestrictions restrictions, VehicleParameters params) {
+        if (params != null && restrictions != null && restrictions.hasLength()) {
+            params.setLength(restrictions.getLength());
+        }
+
+        return params;
+    }
+
+    private VehicleParameters setWidthParam(RequestProfileParamsRestrictions restrictions, VehicleParameters params) {
+        if (params != null && restrictions != null && restrictions.hasWidth()) {
+            params.setWidth(restrictions.getWidth());
+        }
+
+        return params;
+    }
+
+    private VehicleParameters setHeightParam(RequestProfileParamsRestrictions restrictions, VehicleParameters params) {
+        if (params != null && restrictions != null && restrictions.hasHeight()) {
+            params.setHeight(restrictions.getHeight());
+        }
+
+        return params;
+    }
+
+    private VehicleParameters setWeightParam(RequestProfileParamsRestrictions restrictions, VehicleParameters params) {
+        if (params != null && restrictions != null && restrictions.hasWeight()) {
+            params.setWeight(restrictions.getWeight());
+        }
+
+        return params;
+    }
+
+    private VehicleParameters setAxleLoadParam(RequestProfileParamsRestrictions restrictions, VehicleParameters params) {
+        if (params != null && restrictions != null && restrictions.hasAxleLoad()) {
+            params.setAxleload(restrictions.getAxleLoad());
+        }
+
+        return params;
+    }
+
+    private VehicleParameters setLoadCharacteristicsParam(RequestProfileParamsRestrictions restrictions, VehicleParameters params) {
+        if (params != null && restrictions != null) {
             int loadCharacteristics = 0;
-            if (restrictions.hasHazardousMaterial() && restrictions.getHazardousMaterial() == true)
+            if (restrictions.hasHazardousMaterial() && restrictions.getHazardousMaterial())
                 loadCharacteristics |= VehicleLoadCharacteristicsFlags.HAZMAT;
 
             if (loadCharacteristics != 0)
                 params.setLoadCharacteristics(loadCharacteristics);
         }
-
         return params;
     }
 
@@ -256,14 +300,14 @@ public class GenericHandler {
             }
         }
 
-        if (invalidParams.size() > 0) {
+        if (!invalidParams.isEmpty()) {
             // There are some parameters present that shouldn't be there
             String invalidParamsString = StringUtils.join(invalidParams, ", ");
             throw new IncompatibleParameterException(getErrorCode("UNKNOWN_PARAMETER"), "restrictions", invalidParamsString, "profile", RoutingProfileType.getName(profile));
         }
     }
 
-    private ProfileParameters applyWeightings(RequestProfileParamsWeightings weightings, ProfileParameters params) {
+    private ProfileParameters applyWeightings(RequestProfileParamsWeightings weightings, ProfileParameters params) throws ParameterValueException {
         try {
             if (weightings.hasGreenIndex()) {
                 ProfileWeighting pw = new ProfileWeighting("green");
@@ -282,7 +326,8 @@ public class GenericHandler {
                 pw.addParameter("level", String.format("%d", weightings.getSteepnessDifficulty()));
                 params.add(pw);
             }
-        } catch (Exception e) {
+        } catch (InternalServerException e) {
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "weightings");
 
         }
 
