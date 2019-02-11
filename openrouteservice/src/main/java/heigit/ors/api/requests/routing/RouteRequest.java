@@ -76,9 +76,12 @@ public class RouteRequest {
             value = "Specifies the route preference. CUSTOM_KEYS:{'apiDefault':'fastest'}",
             example = "fastest")
     @JsonProperty(value = PARAM_PREFERENCE)
-    private APIEnums.RoutePreference routePreference = APIEnums.RoutePreference.FASTEST;
+    private APIEnums.RoutePreference routePreference;
+    @JsonIgnore
+    private boolean hasRoutePreference = false;
 
     @ApiModelProperty(name = PARAM_FORMAT, hidden = true)
+    @JsonProperty(PARAM_FORMAT)
     private APIEnums.RouteResponseType responseType = APIEnums.RouteResponseType.JSON;
 
     @ApiModelProperty(name = PARAM_UNITS,
@@ -314,6 +317,11 @@ public class RouteRequest {
 
     public void setRoutePreference(APIEnums.RoutePreference routePreference) {
         this.routePreference = routePreference;
+        this.hasRoutePreference = true;
+    }
+
+    public boolean hasRoutePreference() {
+        return hasRoutePreference;
     }
 
     public APIEnums.RouteResponseType getResponseType() {

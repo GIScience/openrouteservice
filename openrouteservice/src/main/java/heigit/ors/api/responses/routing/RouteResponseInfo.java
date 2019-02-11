@@ -29,6 +29,10 @@ import org.json.JSONObject;
 @ApiModel(description = "Information about the request")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RouteResponseInfo {
+    @ApiModelProperty(value = "ID of the request (as passed in by the query)", example = "request123")
+    @JsonProperty("id")
+    private String id;
+
     @ApiModelProperty(value = "Copyright and attribution information", example = "openrouteservice.org | OpenStreetMap contributors")
     @JsonProperty("attribution")
     private String attribution;
@@ -59,6 +63,9 @@ public class RouteResponseInfo {
 
         if (!Helper.isEmpty(RoutingServiceSettings.getAttribution()))
             attribution =  RoutingServiceSettings.getAttribution();
+
+        if (request.hasId())
+            id = request.getId();
 
         engineInfo = new EngineInfo(AppInfo.getEngineInfo());
 

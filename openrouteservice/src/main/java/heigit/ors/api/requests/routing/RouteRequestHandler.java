@@ -118,7 +118,8 @@ public class RouteRequestHandler extends GenericHandler {
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PROFILE);
         }
 
-        params.setWeightingMethod(convertWeightingMethod(request.getRoutePreference()));
+        if (request.hasRoutePreference())
+            params.setWeightingMethod(convertWeightingMethod(request.getRoutePreference()));
 
         if(request.hasBearings())
             params.setBearings(convertBearings(request.getBearings(), coordinatesLength));

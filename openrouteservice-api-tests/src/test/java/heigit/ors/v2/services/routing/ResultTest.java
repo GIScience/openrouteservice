@@ -472,6 +472,43 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
+    public void testIdInSummary() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+        body.put("id", "request123");
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .assertThat()
+                .body("any {it.key == 'properties'}", is(true))
+                .body("properties.containsKey('id')", is(true))
+                .body("properties.id", is("request123"))
+
+                .statusCode(200);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("any {it.key == 'info'}", is(true))
+                .body("info.containsKey('id')", is(true))
+                .body("info.id", is("request123"))
+
+                .statusCode(200);
+    }
+
+    @Test
     public void expectSegmentsToMatchCoordinates() {
         JSONObject body = new JSONObject();
         body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));

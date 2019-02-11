@@ -393,4 +393,25 @@ public class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
+    @Test
+    public void testIdInSummary() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations_1"));
+        body.put("range", getParameter("ranges_400"));
+        body.put("id", "request123");
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("cyclingProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .assertThat()
+                .body("any {it.key == 'properties'}", is(true))
+                .body("properties.containsKey('id')", is(true))
+                .body("properties.id", is("request123"))
+                .statusCode(200);
+    }
 }

@@ -725,4 +725,24 @@ public class ResultTest extends ServiceTest {
                 .body("sources[2].snapped_distance", is(0.05f))
                 .statusCode(200);
     }
+
+    @Test
+    public void testIdInSummary() {
+        JSONObject body = new JSONObject();body.put("locations", getParameter("locations"));
+        body.put("id", "request123");
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("cyclingProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any {it.key == 'info'}", is(true))
+                .body("info.containsKey('id')", is(true))
+                .body("info.id", is("request123"))
+                .statusCode(200);
+    }
 }

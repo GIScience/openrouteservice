@@ -52,7 +52,8 @@ public class GPXExtensions {
         engine = AppInfo.getEngineInfo().getString("version");
         buildDate = AppInfo.getEngineInfo().getString("build_date");
         profile = request.getProfile().toString();
-        preference = request.getRoutePreference().toString();
+        if (request.hasRoutePreference())
+            preference = request.getRoutePreference().toString();
         if (request.hasLanguage())
             language = request.getLanguage().toString();
         else
