@@ -248,7 +248,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             //    System.out.println("fromProxy " + fromProxy + " toProxy " + toProxy);
 
             //This is the case if no proxy node was found during preprocessing -> fallback to first found entry point
-            if(fromProxy == 0){
+            if(fromProxy == -1){
                 weightApprox.setFrom(pqCoreFrom.peek().adjNode);
                 weightApprox.setFromWeight((int)pqCoreFrom.peek().weightOfVisitedPath);
             }
@@ -256,7 +256,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                 weightApprox.setFrom(fromProxy);
                 weightApprox.setFromWeight(fromProxyWeight);
             }
-            if(toProxy == 0){
+            if(toProxy == -1){
                 weightApprox.setTo(pqCoreTo.peek().adjNode);
                 weightApprox.setToWeight((int)pqCoreTo.peek().weightOfVisitedPath);
 

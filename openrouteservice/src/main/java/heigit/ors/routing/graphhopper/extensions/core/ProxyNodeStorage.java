@@ -73,19 +73,18 @@ public class ProxyNodeStorage implements Storable<ProxyNodeStorage>{
             //fwd
             ProxyNodeDijkstra proxyNodeDijkstra = new ProxyNodeDijkstra(graph, weighting, TraversalMode.NODE_BASED);
             proxyNode = proxyNodeDijkstra.getProxyNode(node, false);
-            // instead of truncating the weight towards 0 always take its upper integer bound to avoid underestimation
+            // instead of truncating the weight towards 0 always take its upper integer bound to prevent underestimation
             if (proxyNode == null)
                 setProxyNode(node, -1, -1, false);
             else
-                setProxyNode(node, proxyNode.adjNode, (int) Math.floor(proxyNode.getWeightOfVisitedPath()), false);
+                setProxyNode(node, proxyNode.adjNode, (int) Math.ceil(proxyNode.getWeightOfVisitedPath()), false);
             //bwd
             proxyNodeDijkstra = new ProxyNodeDijkstra(graph, weighting, TraversalMode.NODE_BASED);
             proxyNode = proxyNodeDijkstra.getProxyNode(node, true);
-            //cast to integer approximates weight but that should not be a problem
             if (proxyNode == null)
                 setProxyNode(node, -1, -1, true);
             else
-                setProxyNode(node, proxyNode.adjNode, (int) Math.floor(proxyNode.getWeightOfVisitedPath()), true);
+                setProxyNode(node, proxyNode.adjNode, (int) Math.ceil(proxyNode.getWeightOfVisitedPath()), true);
         }
     }
 
