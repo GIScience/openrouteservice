@@ -44,8 +44,7 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
     protected PriorityQueue<SPTEntry> fromHeap;
     protected SPTEntry currEdge;
     private int visitedNodes;
-    //Don't search for too long -> otherwise long preprocessing
-    private int maxVisitedNodes = 500;
+    private int maxVisitedNodes = Integer.MAX_VALUE;
     private int coreNodeLevel = -1;
     private CHGraph chGraph;
     EdgeExplorer explorer;
@@ -104,7 +103,6 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
      */
     protected void runAlgo() {
         while (true) {
-            if(visitedNodes >= maxVisitedNodes) break;
             visitedNodes++;
             if (isMaxVisitedNodesExceeded() || finished())
                 break;

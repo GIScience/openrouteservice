@@ -116,7 +116,8 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             proxyQueryNode = edge.getAdjNode();
         }
 
-        int[] fromProxyAndWeight = getProxyNode(proxyQueryNode, false);
+        // for source node we need the backward distance a'a from proxy to actual node
+        int[] fromProxyAndWeight = getProxyNode(proxyQueryNode, true);
 
         fromProxy = fromProxyAndWeight[0];
         fromProxyWeight = fromProxyAndWeight[1];
@@ -145,7 +146,9 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             EdgeIteratorState edge = ((QueryGraph) graph).getOriginalEdgeFromVirtNode(to);
             proxyQueryNode = edge.getBaseNode();
         }
-        int[] toProxyAndWeight = getProxyNode(proxyQueryNode, true);
+
+        // for target node we need the forward distance bb' from node to its proxy
+        int[] toProxyAndWeight = getProxyNode(proxyQueryNode, false);
         toProxy = toProxyAndWeight[0];
         toProxyWeight = toProxyAndWeight[1];
 
@@ -243,29 +246,26 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                 toProxy = (int)pqCoreTo.peek().weightOfVisitedPath;
             }
 
-            // FIXME: debug info
-            //if (DebugUtility.isDebug())
-            //    System.out.println("fromProxy " + fromProxy + " toProxy " + toProxy);
-
-            //This is the case if no proxy node was found during preprocessing -> fallback to first found entry point
-            if(fromProxy == 0){
+            //This is the case if no proxy node was found during preprocessing -> fallback to first entry point found
+            if(fromProxy == -1){
                 weightApprox.setFrom(pqCoreFrom.peek().adjNode);
-                weightApprox.setFromWeight((int)pqCoreFrom.peek().weightOfVisitedPath);
+                // TODO: it actually has to be the weight of travelling in the opposite direction
+                weightApprox.setFromWeight((int) Math.ceil(pqCoreFrom.peek().weightOfVisitedPath));
             }
             else{
                 weightApprox.setFrom(fromProxy);
                 weightApprox.setFromWeight(fromProxyWeight);
             }
-            if(toProxy == 0){
+            if(toProxy == -1){
                 weightApprox.setTo(pqCoreTo.peek().adjNode);
-                weightApprox.setToWeight((int)pqCoreTo.peek().weightOfVisitedPath);
+                // TODO: it actually has to be the weight of travelling in the opposite direction
+                weightApprox.setToWeight((int) Math.ceil(pqCoreTo.peek().weightOfVisitedPath));
 
             }
             else{
                 weightApprox.setTo(toProxy);
                 weightApprox.setToWeight(toProxyWeight);
             }
-
 
             recalculateWeights(pqCoreFrom, false);
             recalculateWeights(pqCoreTo, true);
