@@ -309,7 +309,6 @@ public class RoutingProfileManager {
         Coordinate c0 = coords[0];
         int nSegments = coords.length - 1;
         RouteProcessContext routeProcCntx = new RouteProcessContext(pathProcessor);
-        RouteResultBuilder routeBuilder = new RouteResultBuilder();
         EdgeFilter customEdgeFilter = rp.createAccessRestrictionFilter(coords);
         List<GHResponse> resp = new ArrayList<GHResponse>();
 
@@ -330,8 +329,7 @@ public class RoutingProfileManager {
             if (!gr.hasErrors()) {
                 resp.clear();
                 resp.add(gr);
-                RouteResult route = routeBuilder.createRouteResult(resp, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor) pathProcessor).getExtras() : null);
-                route.setLocationIndex(req.getLocationIndex());
+                RouteResult route = new RouteResultBuilder().createMergedRouteResultFromBestPaths(resp, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor) pathProcessor).getExtras() : null);
                 routes.add(route);
             } else
                 routes.add(null);
@@ -369,7 +367,7 @@ public class RoutingProfileManager {
         WayPointBearing[] bearings = (req.getContinueStraight() || searchParams.getBearings() != null) ? new WayPointBearing[2] : null;
         double[] radiuses = searchParams.getMaximumRadiuses() != null ? new double[2] : null;
 
-        if (req.getSearchParameters().getAlternativeRoutes() > 1 && coords.length > 2) {
+        if (req.getSearchParameters().getAlternativeRoutesCount() > 1 && coords.length > 2) {
             throw new InternalServerException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "Alternative routes algorithm does not support more than two way points.");
         }
 
@@ -463,8 +461,7 @@ public class RoutingProfileManager {
     public RoutingProfile getRouteProfile(RoutingRequest req, boolean oneToMany) throws Exception {
         RouteSearchParameters searchParams = req.getSearchParameters();
         int profileType = searchParams.getProfileType();
-
-        boolean dynamicWeights = (searchParams.hasAvoidAreas() || searchParams.hasAvoidFeatures() || searchParams.hasAvoidBorders() || searchParams.hasAvoidCountries() || searchParams.getMaximumSpeed() > 0 || (RoutingProfileType.isDriving(profileType) && ((RoutingProfileType.isHeavyVehicle(profileType) && searchParams.getVehicleType() > 0) || searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
+        boolean dynamicWeights = searchParams.requiresDynamicWeights();
 
         RoutingProfile rp = _routeProfiles.getRouteProfile(profileType, !dynamicWeights);
 

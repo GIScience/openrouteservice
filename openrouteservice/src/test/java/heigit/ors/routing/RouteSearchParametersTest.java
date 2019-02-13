@@ -204,7 +204,7 @@ public class RouteSearchParametersTest {
     }
 
     @Test
-    public void getProfileParameters() throws Exception {
+    public void getProfileParameters() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         Assert.assertNull(routeSearchParameters.getProfileParameters());
     }
@@ -253,9 +253,66 @@ public class RouteSearchParametersTest {
     @Test
     public void alternativeRoutesParams() throws Exception {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        routeSearchParameters.setOptions("{\"alternative_routes\": 2, \"alternative_routes_weight_factor\": 3.3, \"alternative_routes_share_factor\": 4.4}}");
-        Assert.assertEquals(2, routeSearchParameters.getAlternativeRoutes());
+        routeSearchParameters.setOptions("{\"alternative_routes_count\": 2, \"alternative_routes_weight_factor\": 3.3, \"alternative_routes_share_factor\": 4.4}}");
+        Assert.assertEquals(2, routeSearchParameters.getAlternativeRoutesCount());
         Assert.assertEquals(3.3, routeSearchParameters.getAlternativeRoutesWeightFactor(), 0.0);
         Assert.assertEquals(4.4, routeSearchParameters.getAlternativeRoutesShareFactor(), 0.0);
+    }
+
+    @Test
+    public void requiresDynamicWeights() throws Exception {
+        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
+        Assert.assertFalse(routeSearchParameters.requiresDynamicWeights());
+
+        routeSearchParameters = new RouteSearchParameters();
+        routeSearchParameters.setAvoidAreas(new Polygon[1]);
+        Assert.assertTrue("avoid areas", routeSearchParameters.requiresDynamicWeights());
+
+        routeSearchParameters = new RouteSearchParameters();
+        routeSearchParameters.setAvoidFeatureTypes(1);
+        Assert.assertTrue("avoid features", routeSearchParameters.requiresDynamicWeights());
+
+        routeSearchParameters = new RouteSearchParameters();
+        routeSearchParameters.setAvoidBorders(BordersExtractor.Avoid.CONTROLLED);
+        Assert.assertTrue("avoid borders", routeSearchParameters.requiresDynamicWeights());
+
+        routeSearchParameters = new RouteSearchParameters();
+        routeSearchParameters.setAvoidCountries(new int[1]);
+        Assert.assertTrue("avoid countries", routeSearchParameters.requiresDynamicWeights());
+
+        routeSearchParameters = new RouteSearchParameters();
+        routeSearchParameters.setOptions("{\"alternative_routes_count\": 2, \"alternative_routes_weight_factor\": 3.3, \"alternative_routes_share_factor\": 4.4}}");
+        Assert.assertTrue("alternative routes", routeSearchParameters.requiresDynamicWeights());
+
+        routeSearchParameters = new RouteSearchParameters();
+        routeSearchParameters.setMaximumSpeed(2.0);
+        Assert.assertTrue("maximum speed", routeSearchParameters.requiresDynamicWeights());
+
+        routeSearchParameters = new RouteSearchParameters();
+        routeSearchParameters.setConsiderTurnRestrictions(true);
+        Assert.assertTrue("turn restrictions", routeSearchParameters.requiresDynamicWeights());
+
+        routeSearchParameters = new RouteSearchParameters();
+        routeSearchParameters.setWeightingMethod(WeightingMethod.SHORTEST);
+        Assert.assertTrue("shortest", routeSearchParameters.requiresDynamicWeights());
+
+        routeSearchParameters = new RouteSearchParameters();
+        routeSearchParameters.setWeightingMethod(WeightingMethod.RECOMMENDED);
+        Assert.assertTrue("recommended", routeSearchParameters.requiresDynamicWeights());
+
+        routeSearchParameters = new RouteSearchParameters();
+        routeSearchParameters.setProfileType(RoutingProfileType.DRIVING_HGV);
+        routeSearchParameters.setVehicleType(HeavyVehicleAttributes.HGV);
+        Assert.assertTrue("heavy vehicle", routeSearchParameters.requiresDynamicWeights());
+
+        routeSearchParameters = new RouteSearchParameters();
+        routeSearchParameters.setProfileType(RoutingProfileType.DRIVING_HGV);
+        routeSearchParameters.setOptions("{\"profile_params\":{\"weightings\":{\"green\":{\"factor\":0.8}}}}");
+        Assert.assertTrue("profile param", routeSearchParameters.requiresDynamicWeights());
+
+        routeSearchParameters = new RouteSearchParameters();
+        routeSearchParameters.setProfileType(RoutingProfileType.DRIVING_CAR);
+        routeSearchParameters.setConsiderTraffic(true);
+        Assert.assertTrue("consider traffic", routeSearchParameters.requiresDynamicWeights());
     }
 }

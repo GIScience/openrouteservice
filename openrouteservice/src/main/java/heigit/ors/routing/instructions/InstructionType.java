@@ -29,5 +29,9 @@ public enum InstructionType
 	DEPART,                 /*11*/
     KEEP_LEFT,              /*12*/
     KEEP_RIGHT,             /*13*/
-    UNKNOWN                 /*14*/
+    UNKNOWN                 /*14*/;
+
+    public boolean isSlightLeftOrRight() {
+        return this == TURN_SLIGHT_RIGHT || this == TURN_SLIGHT_LEFT;
+    }
 }

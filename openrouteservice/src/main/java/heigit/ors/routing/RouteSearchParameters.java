@@ -49,6 +49,11 @@ import java.util.Iterator;
  * It can be called from any class and the values be set according to the needs of the route calculation.
  */
 public class RouteSearchParameters {
+
+    private static final String OPTIONS_KEY_ALTERNATIVE_ROUTES_COUNT = "alternative_routes_count";
+    private static final String OPTIONS_KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR = "alternative_routes_weight_factor";
+    private static final String OPTIONS_KEY_ALTERNATIVE_ROUTES_SHARE_FACTOR = "alternative_routes_share_factor";
+
     private int _profileType;
     private int _weightingMethod = WeightingMethod.FASTEST;
     private Boolean _considerTraffic = false;
@@ -65,8 +70,8 @@ public class RouteSearchParameters {
     private int[] _avoidCountries = null;
     private BordersExtractor.Avoid _avoidBorders = BordersExtractor.Avoid.NONE;
 
-//  TAKB: parameters weight factor and share factor seem to be ignored by the algorithm, further testing required.
-    private int _alternativeRoutes = -1;
+//  TAKB: parameters weight factor and share factor seem to be not taken into account properly for all routes beyond the second, needs fixing...
+    private int _alternativeRoutesCount = -1;
     private double _alternativeRoutesWeightFactor = 1.4;
     private double _alternativeRoutesShareFactor = 0.6;
 
@@ -171,12 +176,16 @@ public class RouteSearchParameters {
         this._vehicleType = vehicleType;
     }
 
-    public int getAlternativeRoutes() {
-        return _alternativeRoutes;
+    public boolean hasAlternativeRoutes() {
+        return _alternativeRoutesCount > 1;
     }
 
-    public void setAlternativeRoutes(int _alternativeRoutes) {
-        this._alternativeRoutes = _alternativeRoutes;
+    public int getAlternativeRoutesCount() {
+        return _alternativeRoutesCount;
+    }
+
+    public void setAlternativeRoutesCount(int _alternativeRoutesCount) {
+        this._alternativeRoutesCount = _alternativeRoutesCount;
     }
 
     public double getAlternativeRoutesWeightFactor() {
@@ -427,24 +436,24 @@ public class RouteSearchParameters {
             }
         }
 
-        if (json.has("alternative_routes")) {
+        if (json.has(OPTIONS_KEY_ALTERNATIVE_ROUTES_COUNT)) {
             try {
-                _alternativeRoutes = json.getInt("alternative_routes");
+                _alternativeRoutesCount = json.getInt(OPTIONS_KEY_ALTERNATIVE_ROUTES_COUNT);
             } catch (Exception ex) {
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "alternative_routes", json.getString("alternative_routes"));
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, OPTIONS_KEY_ALTERNATIVE_ROUTES_COUNT, json.getString(OPTIONS_KEY_ALTERNATIVE_ROUTES_COUNT));
             }
-            if (json.has("alternative_routes_weight_factor")) {
+            if (json.has(OPTIONS_KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR)) {
                 try {
-                    _alternativeRoutesWeightFactor = json.getDouble("alternative_routes_weight_factor");
+                    _alternativeRoutesWeightFactor = json.getDouble(OPTIONS_KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR);
                 } catch (Exception ex) {
-                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "alternative_routes_weight_factor", json.getString("alternative_routes_weight_factor"));
+                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, OPTIONS_KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR, json.getString(OPTIONS_KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR));
                 }
             }
-            if (json.has("alternative_routes_share_factor")) {
+            if (json.has(OPTIONS_KEY_ALTERNATIVE_ROUTES_SHARE_FACTOR)) {
                 try {
-                    _alternativeRoutesShareFactor = json.getDouble("alternative_routes_share_factor");
+                    _alternativeRoutesShareFactor = json.getDouble(OPTIONS_KEY_ALTERNATIVE_ROUTES_SHARE_FACTOR);
                 } catch (Exception ex) {
-                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "alternative_routes_share_factor", json.getString("alternative_routes_share_factor"));
+                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, OPTIONS_KEY_ALTERNATIVE_ROUTES_SHARE_FACTOR, json.getString(OPTIONS_KEY_ALTERNATIVE_ROUTES_SHARE_FACTOR));
                 }
             }
         }
@@ -508,5 +517,29 @@ public class RouteSearchParameters {
 
     public void setBearings(WayPointBearing[] bearings) {
         _bearings = bearings;
+    }
+
+    public boolean isProfileTypeDriving() {
+        return RoutingProfileType.isDriving(this.getProfileType());
+    }
+
+    public boolean isProfileTypeHeavyVehicle() {
+        return RoutingProfileType.isHeavyVehicle(this.getProfileType());
+    }
+
+    public boolean requiresDynamicWeights() {
+        return hasAvoidAreas()
+            || hasAvoidFeatures()
+            || hasAvoidBorders()
+            || hasAvoidCountries()
+            || hasAlternativeRoutes()
+            || getMaximumSpeed() > 0
+            || getConsiderTurnRestrictions()
+            || getWeightingMethod() == WeightingMethod.SHORTEST
+            || getWeightingMethod() == WeightingMethod.RECOMMENDED
+            || isProfileTypeHeavyVehicle() && getVehicleType() > 0
+            || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
+            || isProfileTypeDriving() && getConsiderTraffic()
+        ;
     }
 }

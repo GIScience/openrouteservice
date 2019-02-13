@@ -20,7 +20,9 @@ import heigit.ors.services.ServiceRequest;
 
 public class RoutingRequest extends ServiceRequest
 {
-	private Coordinate[] _coordinates;
+    public static final String ATTR_DETOURFACTOR = "detourfactor";
+
+    private Coordinate[] _coordinates;
 	private RouteSearchParameters _searchParameters;
 	private DistanceUnit _units = DistanceUnit.Meters;
 	private String _language = "en";

@@ -210,4 +210,9 @@ public class FormatUtility {
 		
 		return 1;
 	}
+
+	public static double roundToDecimalsForUnits(double d, DistanceUnit unit)
+	{
+		return roundToDecimals(d, getUnitDecimals(unit));
+	}
 }

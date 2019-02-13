@@ -34,7 +34,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.exceptions.PointNotFoundException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.isochrones.*;
 import heigit.ors.isochrones.statistics.StatisticsProvider;
@@ -55,7 +54,6 @@ import heigit.ors.optimization.solvers.OptimizationSolution;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.graphhopper.extensions.*;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.*;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.parameters.*;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
@@ -896,7 +894,7 @@ public class RoutingProfile {
             req.setEdgeFilter(searchCntx.getEdgeFilter());
             req.setPathProcessor(routeProcCntx.getPathProcessor());
 
-            if (useDynamicWeights(searchParams) || flexibleMode) {
+            if (searchParams.requiresDynamicWeights() || flexibleMode) {
                 if (mGraphHopper.isCHEnabled())
                     req.getHints().put("ch.disable", true);
                 if (mGraphHopper.getLMFactoryDecorator().isEnabled())
@@ -920,12 +918,12 @@ public class RoutingProfile {
             if (_astarApproximation != null)
                 req.getHints().put("astarbi.approximation", _astarApproximation);
 
-            if (searchParams.getAlternativeRoutes() > 0) {
+            if (searchParams.getAlternativeRoutesCount() > 0) {
                 req.setAlgorithm("alternative_route");
-                req.getHints().put("alternative_route.max_paths", searchParams.getAlternativeRoutes());
+                req.getHints().put("alternative_route.max_paths", searchParams.getAlternativeRoutesCount());
                 req.getHints().put("alternative_route.max_weight_factor", searchParams.getAlternativeRoutesWeightFactor());
                 req.getHints().put("alternative_route.max_share_factor", searchParams.getAlternativeRoutesShareFactor());
-//              TAKB: contraction hierarchies have to be disabled for alternative routes until GH pulls https://github.com/graphhopper/graphhopper/pull/1524 and we update our fork.
+//              TODO; (TAKB) contraction hierarchies have to be disabled for alternative routes until GH pulls https://github.com/graphhopper/graphhopper/pull/1524 and we update our fork.
                 req.getHints().put("ch.disable", true);
             }
 
@@ -950,25 +948,6 @@ public class RoutingProfile {
         }
 
         return resp;
-    }
-
-    private boolean useDynamicWeights(RouteSearchParameters searchParams) {
-        boolean dynamicWeights =
-            searchParams.hasAvoidAreas()
-            || searchParams.hasAvoidFeatures()
-            || searchParams.hasAvoidCountries()
-            || searchParams.hasAvoidBorders()
-            || searchParams.getMaximumSpeed() > 0
-            ||( RoutingProfileType.isDriving(searchParams.getProfileType())
-                &&( searchParams.hasParameters(VehicleParameters.class)
-                    || searchParams.getConsiderTraffic()
-                )
-            )
-            ||( searchParams.getWeightingMethod() == WeightingMethod.SHORTEST
-                || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED
-            )
-            || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/;
-        return dynamicWeights;
     }
 
     private static boolean supportWeightingMethod(int profileType) {
