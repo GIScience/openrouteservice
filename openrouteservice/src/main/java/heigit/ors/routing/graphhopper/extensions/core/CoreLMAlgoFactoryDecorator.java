@@ -354,7 +354,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
      * Otherwise we would have to store a lot of empty info
      */
 
-    private HashMap<Integer, Integer> createCoreNodeIdMap(GraphHopperStorage graph, Weighting weighting) {
+    public HashMap<Integer, Integer> createCoreNodeIdMap(GraphHopperStorage graph, Weighting weighting) {
         CHGraphImpl core = graph.getCoreGraph(weighting);
         HashMap<Integer, Integer> coreNodeIdMap = new HashMap<>();
         int maxNode = graph.getNodes();
@@ -367,6 +367,10 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
             index++;
         }
         return coreNodeIdMap;
+    }
+
+    public CoreLMOptions getCoreLMOptions(){
+        return coreLMOptions;
     }
 
 }

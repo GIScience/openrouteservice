@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class CoreLMOptions {
-    List<String> coreLMSets;
+    List<String> coreLMSets = new ArrayList<>();
     List<LMEdgeFilterSequence> filters = new ArrayList<>();
 
     /**

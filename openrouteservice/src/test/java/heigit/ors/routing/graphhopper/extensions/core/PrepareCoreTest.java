@@ -68,7 +68,7 @@ public class PrepareCoreTest {
         return g;
     }
 
-    private GraphHopperStorage createMediumGraph() {
+    public GraphHopperStorage createMediumGraph() {
         //    3---4--5
         //   /\   |  |
         //  2--0  6--7

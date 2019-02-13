@@ -684,7 +684,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
     }
 
     // From all available landmarks pick just a few active ones
-    protected boolean initActiveLandmarks(int fromNode, int toNode, int[] activeLandmarkIndices, int[] activeFroms,
+    public boolean initActiveLandmarks(int fromNode, int toNode, int[] activeLandmarkIndices, int[] activeFroms,
                                           int[] activeTos, boolean reverse) {
         if (fromNode < 0 || toNode < 0)
             throw new IllegalStateException(
