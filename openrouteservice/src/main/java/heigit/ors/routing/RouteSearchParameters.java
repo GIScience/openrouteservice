@@ -45,6 +45,7 @@ import java.util.Iterator;
  * It can be called from any class and the values be set according to the needs of the route calculation.
  */
 public class RouteSearchParameters {
+
     private int _profileType;
     private int _weightingMethod = WeightingMethod.FASTEST;
     private Boolean _considerTraffic = false;
@@ -402,5 +403,27 @@ public class RouteSearchParameters {
 
     public void setBearings(WayPointBearing[] bearings) {
         _bearings = bearings;
+    }
+
+    public boolean isProfileTypeDriving() {
+        return RoutingProfileType.isDriving(this.getProfileType());
+    }
+
+    public boolean isProfileTypeHeavyVehicle() {
+        return RoutingProfileType.isHeavyVehicle(this.getProfileType());
+    }
+
+    public boolean requiresDynamicWeights() {
+        return hasAvoidAreas()
+            || hasAvoidFeatures()
+            || hasAvoidBorders()
+            || hasAvoidCountries()
+            || getConsiderTurnRestrictions()
+            || getWeightingMethod() == WeightingMethod.SHORTEST
+            || getWeightingMethod() == WeightingMethod.RECOMMENDED
+            || isProfileTypeHeavyVehicle() && getVehicleType() > 0
+            || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
+            || isProfileTypeDriving() && getConsiderTraffic()
+        ;
     }
 }
