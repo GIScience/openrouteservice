@@ -309,7 +309,6 @@ public class RoutingProfileManager {
         Coordinate c0 = coords[0];
         int nSegments = coords.length - 1;
         RouteProcessContext routeProcCntx = new RouteProcessContext(pathProcessor);
-        RouteResultBuilder routeBuilder = new RouteResultBuilder();
         EdgeFilter customEdgeFilter = rp.createAccessRestrictionFilter(coords);
         List<GHResponse> resp = new ArrayList<GHResponse>();
 
@@ -330,8 +329,7 @@ public class RoutingProfileManager {
             if (!gr.hasErrors()) {
                 resp.clear();
                 resp.add(gr);
-                RouteResult route = routeBuilder.createRouteResult(resp, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor) pathProcessor).getExtras() : null);
-                route.setLocationIndex(req.getLocationIndex());
+                RouteResult route = new RouteResultBuilder().createMergedRouteResultFromBestPaths(resp, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor) pathProcessor).getExtras() : null);
                 routes.add(route);
             } else
                 routes.add(null);
@@ -437,7 +435,7 @@ public class RoutingProfileManager {
             c0 = c1;
         }
         routes = enrichDirectRoutesTime(routes);
-        return new RouteResultBuilder().createRouteResult(routes, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor) pathProcessor).getExtras() : null);
+        return new RouteResultBuilder().createMergedRouteResultFromBestPaths(routes, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor) pathProcessor).getExtras() : null);
     }
 
     /**
@@ -506,8 +504,7 @@ public class RoutingProfileManager {
     public RoutingProfile getRouteProfile(RoutingRequest req, boolean oneToMany) throws Exception {
         RouteSearchParameters searchParams = req.getSearchParameters();
         int profileType = searchParams.getProfileType();
-
-        boolean dynamicWeights = (searchParams.hasAvoidAreas() || searchParams.hasAvoidFeatures() || searchParams.hasAvoidBorders() || searchParams.hasAvoidCountries() || (RoutingProfileType.isDriving(profileType) && ((RoutingProfileType.isHeavyVehicle(profileType) && searchParams.getVehicleType() > 0) || searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
+        boolean dynamicWeights = searchParams.requiresDynamicWeights();
 
         RoutingProfile rp = _routeProfiles.getRouteProfile(profileType, !dynamicWeights);
 

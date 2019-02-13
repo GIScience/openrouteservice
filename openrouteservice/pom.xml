@@ -168,7 +168,7 @@
                 <argLine>-Duser.language=en -Duser.region=US</argLine>
             </configuration>
         </plugin>
-      </plugins>
+    </plugins>
   </build>
 
   <repositories>
@@ -299,7 +299,6 @@
     	<version>3.0.3</version>
 	</dependency>
 
-
     <dependency>
         <groupId>com.github.GIScience.graphhopper</groupId>
         <artifactId>graphhopper-core</artifactId>
@@ -311,7 +310,6 @@
         <artifactId>graphhopper-reader-osm</artifactId>
         <version>v0.10.1.12</version>
     </dependency>
-
 
     <!-- remove the comment to enable debugging
     <dependency>

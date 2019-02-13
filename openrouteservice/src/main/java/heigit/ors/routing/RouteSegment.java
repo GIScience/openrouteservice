@@ -26,29 +26,21 @@ import heigit.ors.util.FormatUtility;
 public class RouteSegment {
 	private double _distance;
 	private double _duration;
+	private double _durationTraffic;
 	private double _ascent;
 	private double _descent;
 	private double _detourFactor = 0.0;
-	private BBox _bbox;
 	private List<RouteStep> _steps;
 
 	public RouteSegment(PathWrapper path, DistanceUnit units) throws Exception
 	{
-		_distance = FormatUtility.roundToDecimals(DistanceUnitUtil.convert(path.getDistance(), DistanceUnit.Meters, units), FormatUtility.getUnitDecimals(units));
-		_duration =   FormatUtility.roundToDecimals(path.getTime()/1000.0, 1);
-		_ascent = FormatUtility.roundToDecimals(path.getAscend(), 1);
-		_descent = FormatUtility.roundToDecimals(path.getDescend() ,1);
+		_distance = FormatUtility.roundToDecimalsForUnits(DistanceUnitUtil.convert(path.getDistance(), DistanceUnit.Meters, units), units);
+		_duration = FormatUtility.roundToDecimals(path.getTime()/1000.0, 1);
+		_durationTraffic += path.getRouteWeight();
+		_ascent = path.getAscend();
+		_descent = path.getDescend();
 
-		if (_bbox == null)
-		{
-			double lat = path.getPoints().getLat(0);
-			double lon = path.getPoints().getLon(0);
-			_bbox = new BBox(lon, lon, lat, lat);
-		}
-
-		path.calcRouteBBox(_bbox);
-
-		_steps = new ArrayList<RouteStep>();
+		_steps = new ArrayList<>();
 	}
 
 	public double getDistance()
@@ -61,6 +53,11 @@ public class RouteSegment {
 		return _duration;
 	}
 
+	public double getDurationTraffic()
+	{
+		return _durationTraffic;
+	}
+
 	public double getAscent()
 	{
 		return _ascent;
@@ -71,9 +68,14 @@ public class RouteSegment {
 		return _descent;
 	}
 
-	public BBox getBBox()
+	public double getAscentRounded()
 	{
-		return _bbox;
+		return FormatUtility.roundToDecimals(_ascent, 1);
+	}
+
+	public double getDescentRounded()
+	{
+		return FormatUtility.roundToDecimals(_descent, 1);
 	}
 
 	public void addStep(RouteStep step)

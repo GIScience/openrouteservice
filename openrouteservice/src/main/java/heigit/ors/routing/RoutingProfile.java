@@ -35,7 +35,6 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.exceptions.PointNotFoundException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.isochrones.*;
 import heigit.ors.isochrones.statistics.StatisticsProvider;
@@ -741,7 +740,7 @@ public class RoutingProfile {
             req.setEdgeFilter(searchCntx.getEdgeFilter());
             req.setPathProcessor(routeProcCntx.getPathProcessor());
 
-            if (useDynamicWeights(searchParams) || flexibleMode) {
+            if (searchParams.requiresDynamicWeights() || flexibleMode) {
                 if (mGraphHopper.isCHEnabled())
                     req.getHints().put("ch.disable", true);
                 if (mGraphHopper.getLMFactoryDecorator().isEnabled())
@@ -788,24 +787,6 @@ public class RoutingProfile {
         }
 
         return resp;
-    }
-
-    private boolean useDynamicWeights(RouteSearchParameters searchParams) {
-        boolean dynamicWeights =
-            searchParams.hasAvoidAreas()
-            || searchParams.hasAvoidFeatures()
-            || searchParams.hasAvoidCountries()
-            || searchParams.hasAvoidBorders()
-            ||( RoutingProfileType.isDriving(searchParams.getProfileType())
-                &&( searchParams.hasParameters(VehicleParameters.class)
-                    || searchParams.getConsiderTraffic()
-                )
-            )
-            ||( searchParams.getWeightingMethod() == WeightingMethod.SHORTEST
-                || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED
-            )
-            || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/;
-        return dynamicWeights;
     }
 
     /**

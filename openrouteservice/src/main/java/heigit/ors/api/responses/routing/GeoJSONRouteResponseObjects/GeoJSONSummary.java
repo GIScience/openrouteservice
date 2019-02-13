@@ -34,7 +34,7 @@ import java.util.Map;
 public class GeoJSONSummary extends JSONSummary {
     @JsonProperty("segments")
     private List<JSONSegment> segments;
-    private int[] wayPoints;
+    private List<Integer> wayPoints;
     private Map<String, JSONExtra> extras;
     private List<RouteWarning> warnings;
 
@@ -51,7 +51,7 @@ public class GeoJSONSummary extends JSONSummary {
     }
 
     @JsonProperty("way_points")
-    public int[] getWaypoints() {
+    public List<Integer> getWaypoints() {
         return wayPoints;
     }
 
