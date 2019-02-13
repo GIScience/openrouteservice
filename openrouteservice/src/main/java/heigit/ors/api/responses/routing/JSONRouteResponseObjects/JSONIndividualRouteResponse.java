@@ -53,7 +53,7 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
 
     @JsonProperty("way_points")
     @ApiModelProperty(value = "List containing the indices of way points corresponding to the *geometry*.", example = "[0,23]")
-    private int[] wayPoints;
+    private List<Integer> wayPoints;
 
     @JsonProperty("warnings")
     @ApiModelProperty("List of warnings that have been generated for the route")
@@ -128,7 +128,7 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
         return segments;
     }
 
-    public int[] getWayPoints() {
+    public List<Integer> getWayPoints() {
         return wayPoints;
     }
 }

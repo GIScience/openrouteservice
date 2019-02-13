@@ -70,36 +70,33 @@ public class GeomUtility {
 	 * Creates the correct bbox from a Graphhopper pointlist. Instead of using the > or < operators to compare double
 	 * values this function uses the Math library which is more accurate and precise and creates correct bboxes even if
 	 * the coordinates only differ in some small extend.
-	 * The Fallback bbox is used when the pointlist is empty.
-	 * @param pointList
+	 * @param pointList the points to consider
 	 * @return Returns a graphhopper bounding box
 	 */
-	public static BBox CalculateBoundingBox(PointList pointList, BBox _fallback) {
-		if (pointList.getSize() <= 0) {
-			return _fallback;
+	public static BBox calculateBoundingBox(PointList pointList) {
+		if (pointList == null || pointList.getSize() <= 0) {
+			return new BBox(0, 0, 0, 0);
 		} else {
-			double min_lon = Double.MAX_VALUE;
-			double max_lon = -Double.MAX_VALUE;
-			double min_lat = Double.MAX_VALUE;
-			double max_lat = -Double.MAX_VALUE;
-			double min_ele = Double.MAX_VALUE;
-			double max_ele = -Double.MAX_VALUE;
+			double minLon = Double.MAX_VALUE;
+			double maxLon = -Double.MAX_VALUE;
+			double minLat = Double.MAX_VALUE;
+			double maxLat = -Double.MAX_VALUE;
+			double minEle = Double.MAX_VALUE;
+			double maxEle = -Double.MAX_VALUE;
 			for (int i = 0; i < pointList.getSize(); ++i) {
-				min_lon = Math.min(min_lon, pointList.getLon(i));
-				max_lon = Math.max(max_lon, pointList.getLon(i));
-				min_lat = Math.min(min_lat, pointList.getLat(i));
-				max_lat = Math.max(max_lat, pointList.getLat(i));
+				minLon = Math.min(minLon, pointList.getLon(i));
+				maxLon = Math.max(maxLon, pointList.getLon(i));
+				minLat = Math.min(minLat, pointList.getLat(i));
+				maxLat = Math.max(maxLat, pointList.getLat(i));
 				if (pointList.is3D()) {
-					min_ele = Math.min(min_ele, pointList.getEle(i));
-					max_ele = Math.max(max_ele, pointList.getEle(i));
+					minEle = Math.min(minEle, pointList.getEle(i));
+					maxEle = Math.max(maxEle, pointList.getEle(i));
 				}
 			}
 			if (pointList.is3D()) {
-				BBox summary_bbox = new BBox(min_lon, max_lon, min_lat, max_lat, min_ele, max_ele);
-				return summary_bbox;
+				return new BBox(minLon, maxLon, minLat, maxLat, minEle, maxEle);
 			} else {
-				BBox summary_bbox = new BBox(min_lon, max_lon, min_lat, max_lat);
-				return summary_bbox;
+				return new BBox(minLon, maxLon, minLat, maxLat);
 			}
 		}
 	}
