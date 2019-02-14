@@ -69,7 +69,7 @@ public class RouteRequestHandler extends GenericHandler {
             routingRequest.setIncludeGeometry(convertIncludeGeometry(request));
 
         if (request.hasIncludeManeuvers())
-            routingRequest.setIncludeManeuvers(request.getIncĺudeManeuvers());
+            routingRequest.setIncludeManeuvers(request.getIncludeManeuvers());
 
         if (request.hasIncludeInstructions())
             routingRequest.setIncludeInstructions(request.getIncludeInstructionsInResponse());

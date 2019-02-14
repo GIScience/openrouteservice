@@ -146,7 +146,7 @@ public class RouteRequest {
             "CUSTOM_KEYS:{'apiDefault':false}",
             example = "false")
     @JsonProperty(value = PARAM_MANEUVERS)
-    private Boolean incĺudeManeuvers;
+    private Boolean includeManeuvers;
     @JsonIgnore
     private boolean hasIncludeManeuvers = false;
 
@@ -395,12 +395,12 @@ public class RouteRequest {
         this.hasAttributes = true;
     }
 
-    public Boolean getIncĺudeManeuvers() {
-        return incĺudeManeuvers;
+    public Boolean getIncludeManeuvers() {
+        return includeManeuvers;
     }
 
-    public void setIncĺudeManeuvers(Boolean incĺudeManeuvers) {
-        this.incĺudeManeuvers = incĺudeManeuvers;
+    public void setIncludeManeuvers(Boolean includeManeuvers) {
+        this.includeManeuvers = includeManeuvers;
         hasIncludeManeuvers = true;
     }
 
