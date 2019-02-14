@@ -22,7 +22,10 @@ import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONExtra;
 import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONSegment;
 import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONSummary;
 import heigit.ors.routing.RouteResult;
+import heigit.ors.routing.RouteWarning;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,12 +36,14 @@ public class GeoJSONSummary extends JSONSummary {
     private List<JSONSegment> segments;
     private int[] wayPoints;
     private Map<String, JSONExtra> extras;
+    private List<RouteWarning> warnings;
 
     public GeoJSONSummary(RouteResult result, List<JSONSegment> segments, Map extras, boolean includeElevation) {
         super(result, includeElevation);
         this.segments = segments;
         this.wayPoints = result.getWayPointsIndices();
         this.extras = extras;
+        this.warnings = result.getWarnings();
     }
 
     public List<JSONSegment> getSegments() {
@@ -58,5 +63,17 @@ public class GeoJSONSummary extends JSONSummary {
     @JsonProperty("summary")
     public JSONSummary getSummary() {
         return new JSONSummary(this.distance, this.duration);
+    }
+
+    @JsonProperty("warnings")
+    public List<Map> getWarnings() {
+        List<Map> warningsMap = new ArrayList<>();
+        for (RouteWarning warning: warnings) {
+            Map<Object, Object> warningMap = new HashMap<>();
+            warningMap.put("code", warning.getWarningCode());
+            warningMap.put("message", warning.getWarningMessage());
+            warningsMap.add(warningMap);
+        }
+        return warningsMap;
     }
 }

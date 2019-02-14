@@ -1103,9 +1103,31 @@ public class ParamsTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('warnings')", is(true))
+				.body("routes[0].warnings[0].containsKey('code')", is(true))
+				.body("routes[0].warnings[0].containsKey('message')", is(true))
 				.body("routes[0].containsKey('extras')", is(true))
 				.body("routes[0].extras.containsKey('roadaccessrestrictions')", is(true))
 				.statusCode(200);
+
+		given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'features' }", is(true))
+                .body("any { it.key == 'bbox' }", is(true))
+                .body("any { it.key == 'type' }", is(true))
+                .body("features[0].containsKey('properties')", is(true))
+                .body("features[0].properties.containsKey('extras')", is(true))
+                .body("features[0].properties.containsKey('warnings')", is(true))
+                .body("features[0].properties.warnings[0].containsKey('code')", is(true))
+                .body("features[0].properties.warnings[0].containsKey('message')", is(true))
+                .body("features[0].properties.extras.containsKey('roadaccessrestrictions')", is(true))
+                .statusCode(200);
 	}
 
 	@Test

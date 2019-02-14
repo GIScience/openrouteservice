@@ -1788,6 +1788,28 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].extras.containsKey('roadaccessrestrictions')", is(true))
                 .body("routes[0].extras.roadaccessrestrictions.values[1][2]", is(32))
                 .statusCode(200);
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'features' }", is(true))
+                .body("any { it.key == 'bbox' }", is(true))
+                .body("any { it.key == 'type' }", is(true))
+                .body("features[0].containsKey('properties')", is(true))
+                .body("features[0].properties.containsKey('extras')", is(true))
+                .body("features[0].properties.containsKey('warnings')", is(true))
+                .body("features[0].properties.warnings[0].containsKey('code')", is(true))
+                .body("features[0].properties.warnings[0].containsKey('message')", is(true))
+                .body("features[0].properties.warnings[0].code", is(1))
+                .body("features[0].properties.extras.containsKey('roadaccessrestrictions')", is(true))
+                .body("features[0].properties.extras.roadaccessrestrictions.values[1][2]", is(32))
+                .statusCode(200);
     }
 
     @Test
