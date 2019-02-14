@@ -29,6 +29,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
@@ -1180,4 +1181,161 @@ public class ParamsTest extends ServiceTest {
 				.body("error.code", is(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS))
 				.statusCode(400);
 	}
+
+    @Test
+    public void expectSkipSegmentsErrors() {
+        List<Integer> skipSegmentsEmpty = new ArrayList<>(1);
+        List<Integer> skipSegmentsTooHigh = new ArrayList<>(1);
+        List<Integer> skipSegmentsTooSmall = new ArrayList<>(1);
+        List<Integer> skipSegmentsTooMany = new ArrayList<>(3);
+        skipSegmentsEmpty.add(0, 0);
+        skipSegmentsTooHigh.add(0, 99);
+        skipSegmentsTooSmall.add(0, -99);
+        skipSegmentsTooMany.add(0, 1);
+        skipSegmentsTooMany.add(1, 1);
+        skipSegmentsTooMany.add(2, 1);
+
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+
+        body.put("skip_segments", skipSegmentsEmpty);
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().all()
+                .assertThat()
+                .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+                .statusCode(400);
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().all()
+                .assertThat()
+                .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+                .statusCode(400);
+
+        body.put("skip_segments", skipSegmentsTooHigh);
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().all()
+                .assertThat()
+                .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+                .statusCode(400);
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().all()
+                .assertThat()
+                .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+                .statusCode(400);
+
+        body.put("skip_segments", skipSegmentsTooSmall);
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().all()
+                .assertThat()
+                .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+                .statusCode(400);
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().all()
+                .assertThat()
+                .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+                .statusCode(400);
+
+        body.put("skip_segments", skipSegmentsTooMany);
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().all()
+                .assertThat()
+                .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+                .statusCode(400);
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().all()
+                .assertThat()
+                .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+                .statusCode(400);
+    }
+
+    @Test
+    public void expectSkipSegmentsWarnings() {
+        List<Integer> skipSegments = new ArrayList<>(1);
+        skipSegments.add(1);
+
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+
+
+        body.put("skip_segments", skipSegments);
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().all()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('warnings')", is(true))
+                .body("routes[0].warnings[0].containsKey('code')", is(true))
+                .body("routes[0].warnings[0].containsKey('message')", is(true))
+                .statusCode(200);
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'features' }", is(true))
+                .body("any { it.key == 'bbox' }", is(true))
+                .body("any { it.key == 'type' }", is(true))
+                .body("features[0].containsKey('properties')", is(true))
+                .body("features[0].properties.containsKey('warnings')", is(true))
+                .body("features[0].properties.warnings[0].containsKey('code')", is(true))
+                .body("features[0].properties.warnings[0].containsKey('message')", is(true))
+                .statusCode(200);
+    }
 }

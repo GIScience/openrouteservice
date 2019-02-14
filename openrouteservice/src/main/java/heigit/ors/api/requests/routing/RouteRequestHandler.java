@@ -99,6 +99,10 @@ public class RouteRequestHandler extends GenericHandler {
             }
         }
 
+        if (request.hasSkipSegments()) {
+            routingRequest.setSkipSegments(processSkipSegments(request));
+        }
+
         if(request.hasId())
             routingRequest.setId(request.getId());
 
@@ -141,6 +145,26 @@ public class RouteRequestHandler extends GenericHandler {
         routingRequest.setSearchParameters(params);
 
         return routingRequest;
+    }
+
+    private List<Integer> processSkipSegments(RouteRequest request) throws ParameterOutOfRangeException, ParameterValueException, EmptyElementException {
+        List<Integer> skipSegments = request.getSkipSegments();
+        for (Integer skipSegment: skipSegments){
+            if (skipSegment >= request.getCoordinates().size()) {
+                throw new ParameterOutOfRangeException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_SKIP_SEGMENTS, skipSegment.toString(), String.valueOf(request.getCoordinates().size() - 1));
+            }
+            if (skipSegment <= 0) {
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_SKIP_SEGMENTS, skipSegments.toString(), "The individual skip_segments values have to be greater than 0.");
+            }
+
+        }
+        if (skipSegments.size() > request.getCoordinates().size() - 1) {
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_SKIP_SEGMENTS, skipSegments.toString(), "The amount of segments to skip shouldn't be more than segments in the coordinates.");
+        }
+        if (skipSegments.isEmpty()) {
+            throw new EmptyElementException(RoutingErrorCodes.EMPTY_ELEMENT, RouteRequest.PARAM_SKIP_SEGMENTS);
+        }
+        return skipSegments;
     }
 
     private RouteSearchParameters processRouteRequestOptions(RouteRequest request, RouteSearchParameters params) throws StatusCodeException {

@@ -69,7 +69,7 @@ public class GeoJSONSummary extends JSONSummary {
     public List<Map> getWarnings() {
         List<Map> warningsMap = new ArrayList<>();
         for (RouteWarning warning: warnings) {
-            Map<Object, Object> warningMap = new HashMap<>();
+            Map<String, Object> warningMap = new HashMap<>();
             warningMap.put("code", warning.getWarningCode());
             warningMap.put("message", warning.getWarningMessage());
             warningsMap.add(warningMap);

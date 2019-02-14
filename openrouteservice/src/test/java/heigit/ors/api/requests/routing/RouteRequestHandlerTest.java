@@ -19,8 +19,11 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Polygon;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.common.DistanceUnit;
+import heigit.ors.exceptions.EmptyElementException;
 import heigit.ors.exceptions.IncompatibleParameterException;
+import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.ParameterValueException;
+import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.routing.*;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
@@ -33,8 +36,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 public class RouteRequestHandlerTest {
     RouteRequest request;
@@ -91,6 +96,10 @@ public class RouteRequestHandlerTest {
         coords[1] = new Double[] {27.4,38.6};
         coords[2] = new Double[] {26.5,37.2};
 
+        List<Integer> skip_segments = new ArrayList<>();
+        skip_segments.add(0, 1);
+        skip_segments.add(1, 2);
+
         request = new RouteRequest(coords);
 
         request.setProfile(APIEnums.Profile.DRIVING_CAR);
@@ -110,6 +119,7 @@ public class RouteRequestHandlerTest {
         request.setRoutePreference(APIEnums.RoutePreference.FASTEST);
         request.setUnits(APIEnums.Units.METRES);
         request.setUseContractionHierarchies(false);
+        request.setSkipSegments(skip_segments);
 
         RouteRequestOptions options = new RouteRequestOptions();
         options.setAvoidBorders(APIEnums.AvoidBorders.CONTROLLED);
@@ -187,6 +197,9 @@ public class RouteRequestHandlerTest {
         Assert.assertEquals(BordersExtractor.Avoid.CONTROLLED, routingRequest.getSearchParameters().getAvoidBorders());
         Assert.assertArrayEquals(new int[] {115}, routingRequest.getSearchParameters().getAvoidCountries());
         Assert.assertEquals(AvoidFeatureFlags.getFromString("fords"), routingRequest.getSearchParameters().getAvoidFeatureTypes());
+        Assert.assertEquals(2, routingRequest.getSkipSegments().size());
+        Assert.assertEquals(Integer.valueOf(1), routingRequest.getSkipSegments().get(0));
+        Assert.assertEquals(Integer.valueOf(2), routingRequest.getSkipSegments().get(1));
 
         checkPolygon(routingRequest.getSearchParameters().getAvoidAreas(), geoJsonPolygon);
 
@@ -287,6 +300,39 @@ public class RouteRequestHandlerTest {
                 new RouteRequestHandler().convertRouteRequest(request);
             }
         }
+    }
+
+    @Test(expected = ParameterValueException.class)
+    public void invalidSkipSegmentsLength() throws StatusCodeException {
+        List<Integer> skip_segments = new ArrayList<>();
+        skip_segments.add(0, 1);
+        skip_segments.add(0, 2);
+        skip_segments.add(0, 2);
+        request.setSkipSegments(skip_segments);
+        new RouteRequestHandler().convertRouteRequest(request);
+    }
+
+    @Test(expected = EmptyElementException.class)
+    public void emptySkipSegments() throws StatusCodeException {
+        List<Integer> skip_segments = new ArrayList<>();
+        request.setSkipSegments(skip_segments);
+        new RouteRequestHandler().convertRouteRequest(request);
+    }
+
+    @Test(expected = ParameterOutOfRangeException.class)
+    public void skipSegmentsValueTooBig() throws StatusCodeException {
+        List<Integer> skip_segments = new ArrayList<>();
+        skip_segments.add(0, 99);
+        request.setSkipSegments(skip_segments);
+        new RouteRequestHandler().convertRouteRequest(request);
+    }
+
+    @Test(expected = ParameterValueException.class)
+    public void skipSegmentsValueTooSmall() throws StatusCodeException {
+        List<Integer> skip_segments = new ArrayList<>();
+        skip_segments.add(0, -99);
+        request.setSkipSegments(skip_segments);
+        new RouteRequestHandler().convertRouteRequest(request);
     }
 
     private void checkPolygon(Polygon[] requestPolys, JSONObject apiPolys) {

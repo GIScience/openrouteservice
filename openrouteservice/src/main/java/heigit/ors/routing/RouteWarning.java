@@ -21,6 +21,7 @@ package heigit.ors.routing;
 public class RouteWarning {
     public final static int ACCESS_RESTRICTION = 1;
     public final static int TOLLWAYS = 2;
+    public final static int SKIPPED_SEGMENTS = 3;
 
     private int warningCode = 0;
     private String warningMessage = "";
@@ -37,6 +38,9 @@ public class RouteWarning {
                 break;
             case TOLLWAYS:
                 warningMessage = "There are tollways along the route";
+                break;
+            case SKIPPED_SEGMENTS:
+                warningMessage = "There are skipped segments along the route. Durations and accessibility may not be correct";
                 break;
         }
     }
