@@ -78,15 +78,16 @@ public class RoutingAPI {
     // Functional request methods
 
     @GetMapping(value = "/{profile}", produces = {"application/geo+json;charset=UTF-8"})
-    @ApiOperation(notes = "Get a basic route between two points with the profile provided. Returned response is in GeoJSON format", value = "Directions Service (GET)", httpMethod = "GET")
+    @ApiOperation(notes = "Get a basic route between two points with the profile provided. Returned response is in GeoJSON format. " +
+            "This method does not accept any request body or parameters other than profile, start coordinate, and end coordinate.", value = "Directions Service (GET)", httpMethod = "GET")
     @ApiResponses(
             @ApiResponse(code = 200,
                     message = "Standard response for successfully processed requests. Returns GeoJSON. The decoded values of the extra information can be found [here](https://github.com/GIScience/openrouteservice-docs).",
                     response = GeoJSONRouteResponse.class)
     )
-    public GeoJSONRouteResponse getSimpleGeoJsonRoute(@ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.Profile profile,
-                                                      @ApiParam(value = "Start coordinate of the route", required = true) @RequestParam Coordinate start,
-                                                      @ApiParam(value = "Destination coordinate of the route", required = true) @RequestParam Coordinate end) throws StatusCodeException{
+    public GeoJSONRouteResponse getSimpleGeoJsonRoute(@ApiParam(value = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+                                                      @ApiParam(value = "Start coordinate of the route", required = true, example = "8.681495,49.41461") @RequestParam Coordinate start,
+                                                      @ApiParam(value = "Destination coordinate of the route", required = true, example = "8.687872,49.420318") @RequestParam Coordinate end) throws StatusCodeException{
         RouteRequest request = new RouteRequest(start, end);
         request.setProfile(profile);
 
@@ -102,7 +103,7 @@ public class RoutingAPI {
                     message = "Standard response for successfully processed requests. Returns JSON. The decoded values of the extra information can be found [here](https://github.com/GIScience/openrouteservice-docs).",
                     response = JSONRouteResponse.class)
     )
-    public JSONRouteResponse getDefault(@ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.Profile profile,
+    public JSONRouteResponse getDefault(@ApiParam(value = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
                                         @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws StatusCodeException {
         return getJsonRoute(profile, request);
     }
@@ -113,7 +114,7 @@ public class RoutingAPI {
             @ApiResponse(code = 200, message = "JSON Response", response = JSONRouteResponse.class)
     })
     public JSONRouteResponse getJsonRoute(
-            @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.Profile profile,
+            @ApiParam(value = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
             @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws StatusCodeException {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.JSON);
@@ -132,7 +133,7 @@ public class RoutingAPI {
                     response = GPXRouteResponse.class)
     })
     public GPXRouteResponse getGPXRoute(
-            @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.Profile profile,
+            @ApiParam(value = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
             @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws StatusCodeException {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GPX);
@@ -151,7 +152,7 @@ public class RoutingAPI {
                     response = GeoJSONRouteResponse.class)
     })
     public GeoJSONRouteResponse getGeoJsonRoute(
-            @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.Profile profile,
+            @ApiParam(value = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
             @ApiParam(value = "The request payload", required = true) @RequestBody RouteRequest request) throws StatusCodeException {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);

@@ -161,7 +161,7 @@ public class ParamsTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("info.query.instructions_format", is("text"))
+				.body("metadata.query.instructions_format", is("text"))
 				.statusCode(200);
 	}
 
@@ -182,7 +182,7 @@ public class ParamsTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("info.query.instructions_format", is("html"))
+				.body("metadata.query.instructions_format", is("html"))
 				.statusCode(200);
 	}
 
@@ -557,7 +557,7 @@ public class ParamsTest extends ServiceTest {
 				.post(getEndPointPath()+"/{profile}/json")
 				.then()
 				.assertThat()
-				.body("info.query.options.containsKey('avoid_features')", is(true))
+				.body("metadata.query.options.containsKey('avoid_features')", is(true))
 				.statusCode(200);
 	}
 
@@ -617,7 +617,7 @@ public class ParamsTest extends ServiceTest {
 				.post(getEndPointPath()+"/{profile}/json")
 				.then()
 				.assertThat()
-				.body("info.query.options.containsKey('avoid_polygons')", is(true))
+				.body("metadata.query.options.containsKey('avoid_polygons')", is(true))
 				.statusCode(200);
 	}
 

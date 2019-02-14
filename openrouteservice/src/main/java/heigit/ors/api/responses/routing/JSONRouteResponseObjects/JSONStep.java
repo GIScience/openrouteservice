@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import heigit.ors.routing.RouteStep;
+import heigit.ors.util.StringUtility;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -61,7 +62,11 @@ public class JSONStep {
         this.duration = step.getDuration();
         this.type = step.getType();
         this.instruction = step.getInstruction();
+
         this.name = step.getName();
+        if (StringUtility.isEmpty(name))
+            this.name = "-";
+
         if(step.getExitNumber() != -1)
             this.exitNumber = step.getExitNumber();
         if(step.getWayPoints().length > 0) {

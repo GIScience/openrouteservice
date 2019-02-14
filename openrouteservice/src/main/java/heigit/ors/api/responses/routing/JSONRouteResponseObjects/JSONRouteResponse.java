@@ -62,7 +62,7 @@ public class JSONRouteResponse extends RouteResponse {
         return bbox.getAsArray();
     }
 
-    @JsonProperty("info")
+    @JsonProperty("metadata")
     @ApiModelProperty("Information about the service and request")
     public RouteResponseInfo getInfo() {
         return responseInformation;
