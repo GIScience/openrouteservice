@@ -36,7 +36,7 @@ public class JSONMatrixResponse extends MatrixResponse {
         return new JSONIndividualMatrixResponse(matrixResult, matrixRequest);
     }
 
-    @JsonProperty("info")
+    @JsonProperty("metadata")
     @ApiModelProperty("Information about the service and request")
     public MatrixResponseInfo getInfo() {
         return responseInformation;
