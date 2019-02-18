@@ -110,12 +110,8 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     public void initFrom(int from, double weight) {
         currFrom = new AStarEntry(EdgeIterator.NO_EDGE, from, weight, weight);
         pqCHFrom.add(currFrom);
-        int proxyQueryNode = from;
-        if (graph instanceof QueryGraph && from >= graph.getBaseGraph().getNodes()) {
-            EdgeIteratorState edge = ((QueryGraph) graph).getOriginalEdgeFromVirtNode(from);
-            proxyQueryNode = edge.getAdjNode();
-        }
-
+        int proxyQueryNode = ((CoreLMApproximator)weightApprox.getReverseApproximation()).getNode(from);
+        
         // for source node we need the backward distance a'a from proxy to actual node
         int[] fromProxyAndWeight = getProxyNode(proxyQueryNode, true);
 
@@ -141,11 +137,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     public void initTo(int to, double weight) {
         currTo = new AStarEntry(EdgeIterator.NO_EDGE, to, weight, weight);
         pqCHTo.add(currTo);
-        int proxyQueryNode = to;
-        if (graph instanceof QueryGraph && to >= graph.getBaseGraph().getNodes()) {
-            EdgeIteratorState edge = ((QueryGraph) graph).getOriginalEdgeFromVirtNode(to);
-            proxyQueryNode = edge.getBaseNode();
-        }
+        int proxyQueryNode = ((CoreLMApproximator)weightApprox.getApproximation()).getNode(to);
 
         // for target node we need the forward distance bb' from node to its proxy
         int[] toProxyAndWeight = getProxyNode(proxyQueryNode, false);
@@ -247,7 +239,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             }
 
             //This is the case if no proxy node was found during preprocessing -> fallback to first entry point found
-            if(fromProxy == -1){
+            if(fromProxy <= 0){
                 weightApprox.setFrom(pqCoreFrom.peek().adjNode);
                 // TODO: it actually has to be the weight of travelling in the opposite direction
                 weightApprox.setFromWeight((int) Math.ceil(pqCoreFrom.peek().weightOfVisitedPath));
@@ -256,7 +248,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                 weightApprox.setFrom(fromProxy);
                 weightApprox.setFromWeight(fromProxyWeight);
             }
-            if(toProxy == -1){
+            if(toProxy <= 0){
                 weightApprox.setTo(pqCoreTo.peek().adjNode);
                 // TODO: it actually has to be the weight of travelling in the opposite direction
                 weightApprox.setToWeight((int) Math.ceil(pqCoreTo.peek().weightOfVisitedPath));
