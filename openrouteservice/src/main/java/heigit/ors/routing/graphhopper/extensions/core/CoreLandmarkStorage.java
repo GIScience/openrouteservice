@@ -24,6 +24,7 @@ import com.carrotsearch.hppc.predicates.IntObjectPredicate;
 import com.carrotsearch.hppc.procedures.IntObjectProcedure;
 import com.graphhopper.coll.MapEntry;
 import com.graphhopper.routing.DijkstraBidirectionRef;
+import com.graphhopper.routing.ch.PreparationWeighting;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.lm.LandmarkSuggestion;
 import com.graphhopper.routing.subnetwork.SubnetworkStorage;
@@ -100,29 +101,9 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         this.minimumNodes = Math.min(core.getCoreNodes() / 2, 10000);
         this.encoder = weighting.getFlagEncoder();
         this.landmarksFilter = landmarksFilter;
-//        this.lmWeighting = weighting;
 
-        this.lmWeighting = new FastestWeighting(encoder) {
-            @Override
-            public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId) {
-                // make accessibility of shortest identical to the provided weighting to avoid problems like shown in testWeightingConsistence
-                CHEdgeIteratorState tmp = (CHEdgeIteratorState) edge;
-                double res;
-                if (tmp.isShortcut())
-                    // if a shortcut is in both directions the weight is identical => no need for 'reverse'
-                    res = tmp.getWeight();
-                else res = weighting.calcWeight(edge, reverse, prevOrNextEdgeId);
-                if (res >= Double.MAX_VALUE)
-                    return Double.POSITIVE_INFINITY;
-
-                return res;
-            }
-
-            @Override
-            public String toString() {
-                return "LM_BFS|" + encoder;
-            }
-        };
+        //Adapted from NodeContractor
+        this.lmWeighting = new PreparationWeighting(weighting);
 
 
         this.weighting = weighting;
