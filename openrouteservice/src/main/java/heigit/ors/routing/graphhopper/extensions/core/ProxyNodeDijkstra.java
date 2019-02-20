@@ -90,6 +90,7 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
             fromMap.put(from, currEdge);
         }
         explorer = bwd? inEdgeExplorer : outEdgeExplorer;
+        reverseDirection = bwd;
         runAlgo();
 
         if (finished())
