@@ -19,6 +19,7 @@ package heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.QueryGraph;
+import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.weighting.BeelineWeightApproximator;
 import com.graphhopper.routing.weighting.WeightApproximator;
 import com.graphhopper.storage.Graph;
@@ -52,6 +53,7 @@ public class CoreLMApproximator implements WeightApproximator {
     private double epsilon = 1;
     private int to = -1;
     private double proxyWeight = 0;
+    private double virtEdgeWeight = 0;
     // do activate landmark recalculation
     private boolean doALMRecalc = true;
     private final double factor;
@@ -147,11 +149,8 @@ public class CoreLMApproximator implements WeightApproximator {
 
         int maxWeightInt = getMaxWeight(node, virtEdgeWeightInt, activeLandmarks, activeFromIntWeights, activeToIntWeights);
 
-        if (factor <= 0) System.out.print("Negative factor");
-        if (epsilon <= 0) System.out.print("Negative faepsilonctor");
-
-        double weightDouble = maxWeightInt * factor * epsilon - proxyWeight;
-
+        double weightDouble = maxWeightInt * factor * epsilon - proxyWeight - virtEdgeWeight;
+/*
         if (weightDouble < 0) {
             // allow negative weight for now until we have more precise approximation (including query graph)
             return 0;
@@ -159,6 +158,7 @@ public class CoreLMApproximator implements WeightApproximator {
 //                        + "max weight:" + maxWeightInt
 //                        + "queryNode:" + queryNode + ", node:" + node + ", reverse:" + reverse);
         }
+        */
 
         return weightDouble;
     }
@@ -200,6 +200,9 @@ public class CoreLMApproximator implements WeightApproximator {
         return node >= maxBaseNodes ? virtNodeMap.get(node).node : node;
     }
 
+    /*
+     * This method initializes the to/from nodes in the forward/reverse approximators
+     */
     @Override
     public void setTo(int to) {
         this.to = getNode(to);
@@ -212,6 +215,11 @@ public class CoreLMApproximator implements WeightApproximator {
 
     public void setProxyWeight(double proxyDistance){
         proxyWeight = proxyDistance;
+    }
+
+
+    public void setVirtEdgeWeight(double virtEdgeWeight){
+        this.virtEdgeWeight = virtEdgeWeight;
     }
 
     /**

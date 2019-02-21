@@ -59,14 +59,19 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     private PriorityQueue<AStarEntry> pqCoreFrom;
     private PriorityQueue<AStarEntry> pqCoreTo;
 
+    int from, to;
     int fromProxy;
-    int fromProxyWeight;
+    int fromProxyWeight, fromProxyWeightRev;
     int toProxy;
-    int toProxyWeight;
+    int toProxyWeight, toProxyWeightRev;
 
     int approximateCount = 0;
 
     int visitedCountProxy;
+
+    double bestPathCorrection = 0;
+
+    double virtEdgeWeightFrom, virtEdgeWeightTo;
 
     public CoreALT(Graph graph, Weighting weighting, TraversalMode tMode, ProxyNodeStorage pns) {
         super(graph, weighting, tMode);
@@ -110,13 +115,28 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     public void initFrom(int from, double weight) {
         currFrom = new AStarEntry(EdgeIterator.NO_EDGE, from, weight, weight);
         pqCHFrom.add(currFrom);
+
+        // do the following only for virt nodes
+        EdgeIterator iter = inEdgeExplorer.setBaseNode(from);
+        double virtEdgeWeightFrom = Double.MAX_VALUE;
+        while (iter.next()) {
+            double tmpWeight = weighting.calcWeight(iter, true, EdgeIterator.NO_EDGE);
+            if (tmpWeight < virtEdgeWeightFrom) {
+                virtEdgeWeightFrom = tmpWeight;
+                this.from = iter.getAdjNode();
+            }
+        }
+
         int proxyQueryNode = ((CoreLMApproximator)weightApprox.getReverseApproximation()).getNode(from);
-        
+        //virtEdgeWeightFrom = ((CoreLMApproximator)weightApprox.getReverseApproximation()).getVirtEdgeWeight(from);
+        weightApprox.setVirtEdgeWeightFrom(virtEdgeWeightFrom);
+
         // for source node we need the backward distance a'a from proxy to actual node
-        int[] fromProxyAndWeight = getProxyNode(proxyQueryNode, true);
+        int[] fromProxyAndWeight = getProxyNode(this.from, true);
 
         fromProxy = fromProxyAndWeight[0];
         fromProxyWeight = fromProxyAndWeight[1];
+        fromProxyWeightRev = getProxyNode(this.from, false)[1];
 
         if (!traversalMode.isEdgeBased()) {
             bestWeightMapFrom.put(from, currFrom);
@@ -137,12 +157,27 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     public void initTo(int to, double weight) {
         currTo = new AStarEntry(EdgeIterator.NO_EDGE, to, weight, weight);
         pqCHTo.add(currTo);
-        int proxyQueryNode = ((CoreLMApproximator)weightApprox.getApproximation()).getNode(to);
 
+        // do the following only for virt nodes
+        EdgeIterator iter = outEdgeExplorer.setBaseNode(to);
+        virtEdgeWeightTo = Double.MAX_VALUE;
+        while (iter.next()) {
+            double tmpWeight = weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
+            if (tmpWeight < virtEdgeWeightTo) {
+                virtEdgeWeightTo = tmpWeight;
+                this.to = iter.getAdjNode();
+            }
+        }
+
+        int proxyQueryNode = ((CoreLMApproximator)weightApprox.getApproximation()).getNode(to);
+        //virtEdgeWeightTo = ((CoreLMApproximator)weightApprox.getApproximation()).getVirtEdgeWeight(to);
+        weightApprox.setVirtEdgeWeightTo(virtEdgeWeightTo);
         // for target node we need the forward distance bb' from node to its proxy
-        int[] toProxyAndWeight = getProxyNode(proxyQueryNode, false);
+        int[] toProxyAndWeight = getProxyNode(this.to, false);
+
         toProxy = toProxyAndWeight[0];
         toProxyWeight = toProxyAndWeight[1];
+        toProxyWeightRev = getProxyNode(this.to, true)[1];
 
         if (!traversalMode.isEdgeBased()) {
             bestWeightMapTo.put(to, currTo);
@@ -313,6 +348,13 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             currFrom = pqCoreFrom.peek();
         }
 
+        double pfs = weightApprox.approximate(fromProxy, false);
+        double pft = weightApprox.approximate(toProxy, false);
+        double prt = weightApprox.approximate(toProxy, true);
+
+
+        //bestPathCorrection = virtEdgeWeightFrom + virtEdgeWeightTo;
+
         while (!finishedPhase2() && !isMaxVisitedNodesExceeded()) {
             if (!finishedFrom)
                 finishedFrom = !fillEdgesFromALT();
@@ -354,7 +396,12 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             return true;
 //        return false;
         // using 'weight' is important and correct here e.g. approximation can get negative and smaller than 'weightOfVisitedPath'
-        return currFrom.weight + currTo.weight >= bestPath.getWeight();
+        double tops =  currFrom.weight + currTo.weight;
+        double path =  bestPath.getWeight();
+        double diff = tops - path;
+        return currFrom.weight + currTo.weight >= bestPath.getWeight() + bestPathCorrection ;
+        // use more conservative for debugging:
+        //return currFrom.weight > bestPath.getWeight() || currTo.weight > bestPath.getWeight();
     }
 
     void fillEdges(AStarEntry currEdge, PriorityQueue<AStarEntry> prioQueue, IntObjectMap<AStarEntry> bestWeightMap,
@@ -564,5 +611,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     public String getName() {
         return Parameters.Algorithms.ASTAR_BI + "|" + weightApprox;
     }
+
+
 
 }

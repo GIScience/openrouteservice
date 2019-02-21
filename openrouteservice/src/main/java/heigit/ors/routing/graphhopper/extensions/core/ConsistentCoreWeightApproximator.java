@@ -41,4 +41,13 @@ public class ConsistentCoreWeightApproximator extends ConsistentWeightApproximat
             ((CoreLMApproximator)getApproximation()).setProxyWeight(weight);
     }
 
+    public void setVirtEdgeWeightFrom(double weight){
+        if(getApproximation() instanceof CoreLMApproximator)
+            ((CoreLMApproximator)getReverseApproximation()).setVirtEdgeWeight(weight);
+    }
+    public void setVirtEdgeWeightTo(double weight){
+        if(getApproximation() instanceof CoreLMApproximator)
+            ((CoreLMApproximator)getApproximation()).setVirtEdgeWeight(weight);
+    }
+
 }
