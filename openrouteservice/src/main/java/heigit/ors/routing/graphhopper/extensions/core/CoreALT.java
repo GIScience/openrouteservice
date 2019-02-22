@@ -230,6 +230,10 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         CoreLMApproximator approximator = (CoreLMApproximator) ( reverse ? weightApprox.getReverseApproximation() : weightApprox.getApproximation() );
         EdgeExplorer edgeExplorer = reverse ? inEdgeExplorer : outEdgeExplorer;
 
+        int proxyNode = -1;
+        double proxyWeight = 0;
+        double virtEdgeWeight = 0;
+
         if (((QueryGraph) graph).isVirtualNode(node)) {
             EdgeIterator iter = edgeExplorer.setBaseNode(node);
             double minWeight = Double.MAX_VALUE;
@@ -241,13 +245,20 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                 double currProxyWeight = currProxy[1];
                 if (currVirtWeight + currProxyWeight < minWeight) {
                     minWeight = currVirtWeight + currProxyWeight;
-                    approximator.setTo(currProxy[0]);
-                    approximator.setProxyWeight(currProxyWeight);
-                    approximator.setVirtEdgeWeight(currVirtWeight);
+                    proxyNode = currProxy[0];
+                    proxyWeight = currProxyWeight;
+                    virtEdgeWeight = currVirtWeight;
                 }
             }
+        } else {
+            int[] currProxy = getProxyNode(node, reverse);
+            proxyNode = currProxy[0];
+            proxyWeight = currProxy[1];
         }
 
+        approximator.setTo(proxyNode);
+        approximator.setProxyWeight(proxyWeight);
+        approximator.setVirtEdgeWeight(virtEdgeWeight);
     }
 
     private void recalculateWeights(PriorityQueue<AStarEntry> queue, boolean reverse) {
@@ -415,7 +426,6 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
      */
     private int[] getProxyNode(int nodeId, boolean bwd) {
         return pns.getProxyNodeAndWeight(nodeId, bwd);
-
     }
 
     public static class AStarEntry extends SPTEntry {
