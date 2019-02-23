@@ -486,11 +486,11 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then()
+                .then().log().all()
                 .assertThat()
-                .body("any {it.key == 'properties'}", is(true))
-                .body("properties.containsKey('id')", is(true))
-                .body("properties.id", is("request123"))
+                .body("any {it.key == 'metadata'}", is(true))
+                .body("metadata.containsKey('id')", is(true))
+                .body("metadata.id", is("request123"))
 
                 .statusCode(200);
 
@@ -503,9 +503,9 @@ public class ResultTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("any {it.key == 'info'}", is(true))
-                .body("info.containsKey('id')", is(true))
-                .body("info.id", is("request123"))
+                .body("any {it.key == 'metadata'}", is(true))
+                .body("metadata.containsKey('id')", is(true))
+                .body("metadata.id", is("request123"))
 
                 .statusCode(200);
     }

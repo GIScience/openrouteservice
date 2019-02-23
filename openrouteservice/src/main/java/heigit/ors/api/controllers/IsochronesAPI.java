@@ -82,7 +82,7 @@ public class IsochronesAPI {
             @ApiResponse(code = 200, message = "Standard response for successfully processed requests. Returns GeoJSON.", response = GeoJSONIsochronesResponse.class)
     })
     public GeoJSONIsochronesResponse getDefaultIsochrones(
-            @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.Profile profile,
+            @ApiParam(value = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
             @ApiParam(value = "The request payload", required = true) @RequestBody IsochronesRequest request) throws Exception {
         return getGeoJsonIsochrones(profile, request);
     }
@@ -96,7 +96,7 @@ public class IsochronesAPI {
             @ApiResponse(code = 200, message = "Standard response for successfully processed requests. Returns GeoJSON.", response = GeoJSONIsochronesResponse.class)
     })
     public GeoJSONIsochronesResponse getGeoJsonIsochrones(
-            @ApiParam(value = "Specifies the route profile.", required = true) @PathVariable APIEnums.Profile profile,
+            @ApiParam(value = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
             @ApiParam(value = "The request payload", required = true) @RequestBody IsochronesRequest request) throws Exception {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);

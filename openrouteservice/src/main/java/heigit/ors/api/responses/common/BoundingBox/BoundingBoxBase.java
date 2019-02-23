@@ -52,9 +52,9 @@ public class BoundingBoxBase implements BoundingBox {
 
     public double[] getAsArray() {
         return new double[] {
-                FormatUtility.roundToDecimals(minLat, COORDINATE_DECIMAL_PLACES),
                 FormatUtility.roundToDecimals(minLon, COORDINATE_DECIMAL_PLACES),
-                FormatUtility.roundToDecimals(maxLat, COORDINATE_DECIMAL_PLACES),
-                FormatUtility.roundToDecimals(maxLon, COORDINATE_DECIMAL_PLACES)};
+                FormatUtility.roundToDecimals(minLat, COORDINATE_DECIMAL_PLACES),
+                FormatUtility.roundToDecimals(maxLon, COORDINATE_DECIMAL_PLACES),
+                FormatUtility.roundToDecimals(maxLat, COORDINATE_DECIMAL_PLACES)};
     }
 }

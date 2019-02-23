@@ -179,7 +179,7 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .log().all()
-                .body("any { it.key == 'info' }", is(true))
+                .body("any { it.key == 'metadata' }", is(true))
                 .body("any { it.key == 'sources' }", is(true))
                 .statusCode(200);
     }
@@ -352,7 +352,7 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("info.query.containsKey('resolve_locations')", is(true))
+                .body("metadata.query.containsKey('resolve_locations')", is(true))
                 .body("destinations[0].containsKey('name')", is(true))
                 .body("sources[0].containsKey('name')", is(true))
                 .statusCode(200);
@@ -428,12 +428,12 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("info.containsKey('attribution')", is(true))
-                .body("info.containsKey('service')", is(true))
-                .body("info.containsKey('timestamp')", is(true))
-                .body("info.containsKey('timestamp')", is(true))
-                .body("info.containsKey('query')", is(true))
-                .body("info.containsKey('engine')", is(true))
+                .body("metadata.containsKey('attribution')", is(true))
+                .body("metadata.containsKey('service')", is(true))
+                .body("metadata.containsKey('timestamp')", is(true))
+                .body("metadata.containsKey('timestamp')", is(true))
+                .body("metadata.containsKey('query')", is(true))
+                .body("metadata.containsKey('engine')", is(true))
                 .statusCode(200);
     }
 
@@ -450,8 +450,8 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("info.engine.containsKey('version')", is(true))
-                .body("info.engine.containsKey('build_date')", is(true))
+                .body("metadata.engine.containsKey('version')", is(true))
+                .body("metadata.engine.containsKey('build_date')", is(true))
                 .statusCode(200);
     }
 
@@ -468,7 +468,7 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("info.containsKey('query')", is(true))
+                .body("metadata.containsKey('query')", is(true))
                 .statusCode(200);
     }
 
@@ -486,8 +486,8 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("info.containsKey('query')", is(true))
-                .body("info.query.containsKey('optimized')", is(true))
+                .body("metadata.containsKey('query')", is(true))
+                .body("metadata.query.containsKey('optimized')", is(true))
                 .statusCode(200);
     }
 
@@ -504,8 +504,8 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("info.containsKey('query')", is(true))
-                .body("info.query.containsKey('locations')", is(true))
+                .body("metadata.containsKey('query')", is(true))
+                .body("metadata.query.containsKey('locations')", is(true))
                 .statusCode(200);
 
     }
@@ -523,8 +523,8 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("info.containsKey('query')", is(true))
-                .body("info.query.containsKey('profile')", is(true))
+                .body("metadata.containsKey('query')", is(true))
+                .body("metadata.query.containsKey('profile')", is(true))
                 .statusCode(200);
     }
 
@@ -541,8 +541,8 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("info.containsKey('query')", is(true))
-                .body("info.query.containsKey('responseType')", is(true))
+                .body("metadata.containsKey('query')", is(true))
+                .body("metadata.query.containsKey('responseType')", is(true))
                 .statusCode(200);
     }
 
@@ -560,8 +560,8 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("info.containsKey('query')", is(true))
-                .body("info.query.containsKey('sources')", is(true))
+                .body("metadata.containsKey('query')", is(true))
+                .body("metadata.query.containsKey('sources')", is(true))
                 .statusCode(200);
     }
 
@@ -579,8 +579,8 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("info.containsKey('query')", is(true))
-                .body("info.query.containsKey('destinations')", is(true))
+                .body("metadata.containsKey('query')", is(true))
+                .body("metadata.query.containsKey('destinations')", is(true))
                 .statusCode(200);
     }
 
@@ -598,8 +598,8 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("info.containsKey('query')", is(true))
-                .body("info.query.containsKey('metrics')", is(true))
+                .body("metadata.containsKey('query')", is(true))
+                .body("metadata.query.containsKey('metrics')", is(true))
                 .statusCode(200);
     }
 
@@ -617,8 +617,8 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("info.containsKey('query')", is(true))
-                .body("info.query.containsKey('units')", is(true))
+                .body("metadata.containsKey('query')", is(true))
+                .body("metadata.query.containsKey('units')", is(true))
                 .statusCode(200);
     }
 
@@ -637,8 +637,8 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("info.containsKey('query')", is(true))
-                .body("info.query.containsKey('resolve_locations')", is(true))
+                .body("metadata.containsKey('query')", is(true))
+                .body("metadata.query.containsKey('resolve_locations')", is(true))
                 .statusCode(200);
     }
 

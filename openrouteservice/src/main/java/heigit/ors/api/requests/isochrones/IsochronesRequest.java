@@ -54,7 +54,7 @@ public class IsochronesRequest {
     private boolean hasId = false;
 
     @ApiModelProperty(name = PARAM_LOCATIONS, value = "The locations to use for the route as an array of longitude/latitude pairs",
-            example = "[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]]",
+            example = "[[8.681495,49.41461],[8.686507,49.41943]]",
             required = true)
     @JsonProperty(PARAM_LOCATIONS)
     private Double[][] locations = new Double[][]{};
@@ -68,23 +68,10 @@ public class IsochronesRequest {
     @JsonIgnore
     private boolean hasLocationType = false;
 
-    @ApiModelProperty(name = PARAM_PROFILE, hidden = true, required = true)
-    @JsonIgnore
-    private APIEnums.Profile profile;
-
-    @ApiModelProperty(name = PARAM_OPTIONS,
-            value = "Additional options for the isochrones request")
-    @JsonProperty(PARAM_OPTIONS)
-    private RouteRequestOptions isochronesOptions;
-    @JsonIgnore
-    private boolean hasOptions = false;
-
-    @ApiModelProperty(hidden = true)
-    private APIEnums.RouteResponseType responseType = APIEnums.RouteResponseType.GEOJSON;
-
     @ApiModelProperty(name = PARAM_RANGE, value = "Maximum range value of the analysis in seconds for time and meters for distance." +
             "Alternatively a comma separated list of specific single range values if more than one location is set.",
-            example = "[ 300, 200 ]")
+            example = "[ 300, 200 ]",
+            required = true)
     @JsonProperty(PARAM_RANGE)
     private List<Double> range;
     @JsonIgnore
@@ -107,6 +94,20 @@ public class IsochronesRequest {
     private APIEnums.Units rangeUnit;
     @JsonIgnore
     private boolean hasRangeUnits = false;
+
+    @ApiModelProperty(name = PARAM_PROFILE, hidden = true, required = true)
+    @JsonIgnore
+    private APIEnums.Profile profile;
+
+    @ApiModelProperty(name = PARAM_OPTIONS,
+            value = "Additional options for the isochrones request")
+    @JsonProperty(PARAM_OPTIONS)
+    private RouteRequestOptions isochronesOptions;
+    @JsonIgnore
+    private boolean hasOptions = false;
+
+    @ApiModelProperty(hidden = true)
+    private APIEnums.RouteResponseType responseType = APIEnums.RouteResponseType.GEOJSON;
 
     @ApiModelProperty(name = PARAM_AREA_UNITS,
             value = "Specifies the area unit.\n" +

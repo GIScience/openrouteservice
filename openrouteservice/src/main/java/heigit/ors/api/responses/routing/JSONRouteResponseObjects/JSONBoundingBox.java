@@ -24,7 +24,7 @@ import heigit.ors.api.responses.common.BoundingBox.BoundingBoxBase;
 import heigit.ors.util.FormatUtility;
 
 @JsonFormat(shape = JsonFormat.Shape.ARRAY)
-@JsonPropertyOrder({"minLat", "minLon", "maxLat", "maxLon"})
+@JsonPropertyOrder({"minLon", "minLat", "maxLon", "maxLat"})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JSONBoundingBox extends BoundingBoxBase implements BoundingBox {
     public JSONBoundingBox(BBox bounding) {

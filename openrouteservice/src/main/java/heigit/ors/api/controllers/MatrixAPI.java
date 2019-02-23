@@ -80,7 +80,7 @@ public class MatrixAPI {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Standard response for successfully processed requests. Returns JSON.", response = JSONMatrixResponse.class)
     })
-    public JSONMatrixResponse getDefault(@ApiParam(value = "Specifies the matrix profile.", required = true) @PathVariable APIEnums.Profile profile,
+    public JSONMatrixResponse getDefault(@ApiParam(value = "Specifies the matrix profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
                                          @ApiParam(value = "The request payload", required = true) @RequestBody MatrixRequest request) throws Exception {
         return getJsonMime(profile, request);
     }
@@ -92,7 +92,7 @@ public class MatrixAPI {
     })
     public JSONMatrixResponse getJsonMime(
             //TODO Flexible mode???
-            @ApiParam(value = "Specifies the matrix profile.", required = true) @PathVariable APIEnums.Profile profile,
+            @ApiParam(value = "Specifies the matrix profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
             @ApiParam(value = "The request payload", required = true) @RequestBody MatrixRequest originalRequest) throws StatusCodeException {
         originalRequest.setProfile(profile);
         originalRequest.setResponseType(APIEnums.MatrixResponseType.JSON);

@@ -80,7 +80,7 @@ public class GeoJSONIsochronesResponse extends IsochronesResponse {
         return isochroneResults;
     }
 
-    @JsonProperty("properties")
+    @JsonProperty("metadata")
     public IsochronesResponseInfo getProperties() {
         return this.responseInformation;
     }

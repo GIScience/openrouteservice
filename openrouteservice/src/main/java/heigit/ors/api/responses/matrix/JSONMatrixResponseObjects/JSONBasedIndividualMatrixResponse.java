@@ -34,7 +34,10 @@ class JSONBasedIndividualMatrixResponse {
     List<JSON2DDestinations> constructDestinations(MatrixResult matrixResult) {
         List<JSON2DDestinations> destinations = new ArrayList<>();
         for (ResolvedLocation location : matrixResult.getDestinations()) {
-            destinations.add(new JSON2DDestinations(location, includeResolveLocations));
+            if (location != null)
+                destinations.add(new JSON2DDestinations(location, includeResolveLocations));
+            else
+                destinations.add(null);
         }
         return destinations;
     }
@@ -42,7 +45,10 @@ class JSONBasedIndividualMatrixResponse {
     List<JSON2DSources> constructSources(MatrixResult matrixResult) {
         List<JSON2DSources> sources = new ArrayList<>();
         for (ResolvedLocation location : matrixResult.getDestinations()) {
-            sources.add(new JSON2DSources(location, includeResolveLocations));
+            if (location != null)
+                sources.add(new JSON2DSources(location, includeResolveLocations));
+            else
+                sources.add(null);
         }
         return sources;
     }

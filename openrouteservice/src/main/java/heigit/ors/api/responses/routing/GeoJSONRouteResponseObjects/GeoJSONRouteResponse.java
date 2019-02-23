@@ -67,7 +67,7 @@ public class GeoJSONRouteResponse extends RouteResponse {
         return routeResults;
     }
 
-    @JsonProperty("properties")
+    @JsonProperty("metadata")
     public RouteResponseInfo getProperties() {
         return this.responseInformation;
     }
