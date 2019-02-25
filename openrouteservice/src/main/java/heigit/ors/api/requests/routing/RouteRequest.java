@@ -103,7 +103,7 @@ public class RouteRequest {
 
     @ApiModelProperty(name = PARAM_GEOMETRY,
             value = "Specifies whether to return geometry. " +
-                    "CUSTOM_KEYS:{'apiDefault':true, 'validWhen':{'ref':'format','value':['json','gpx']}}",
+                    "CUSTOM_KEYS:{'apiDefault':true, 'validWhen':{'ref':'format','value':['json']}}",
                     example = "true")
     @JsonProperty(value = PARAM_GEOMETRY)
     private Boolean includeGeometry;

@@ -194,8 +194,10 @@ public class RouteRequestHandler extends GenericHandler {
     }
     private  boolean convertIncludeGeometry(RouteRequest request) throws IncompatibleParameterException {
         boolean includeGeometry = request.getIncludeGeometry();
-        if(!includeGeometry && request.getResponseType() == APIEnums.RouteResponseType.GEOJSON) {
-            throw new IncompatibleParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_GEOMETRY, "false", RouteRequest.PARAM_FORMAT, "geojson");
+        if(!includeGeometry && request.getResponseType() != APIEnums.RouteResponseType.JSON) {
+            throw new IncompatibleParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE,
+                    RouteRequest.PARAM_GEOMETRY, "false",
+                    RouteRequest.PARAM_FORMAT, APIEnums.RouteResponseType.GEOJSON + "/" + APIEnums.RouteResponseType.GPX);
         }
         return includeGeometry;
     }
