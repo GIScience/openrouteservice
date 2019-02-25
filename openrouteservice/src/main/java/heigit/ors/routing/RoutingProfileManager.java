@@ -347,16 +347,13 @@ public class RoutingProfileManager {
     }
 
     public RouteResult computeRoute(RoutingRequest req) throws Exception {
+        List<Integer> skipSegments = req.getSkipSegments();
         List<GHResponse> routes = new ArrayList<GHResponse>();
-//System.out.println("PATCHED!!!!");
-//req.setExtraInfo(512);
-//req.getSearchParameters().setOptions("{\"profile_params\":{\"restrictions\":{\"trail_difficulty\":1}}}");
-//req.getSearchParameters().setFlexibleMode(true);
 
         RoutingProfile rp = getRouteProfile(req, false);
         RouteSearchParameters searchParams = req.getSearchParameters();
         PathProcessor pathProcessor = null;
-        
+
         pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req);
 
         Coordinate[] coords = req.getCoordinates();
@@ -392,11 +389,16 @@ public class RoutingProfileManager {
                 radiuses[1] = searchParams.getMaximumRadiuses()[i];
             }
 
-            GHResponse gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, c0.z == 1.0, searchParams, customEdgeFilter, routeProcCntx, req.getGeometrySimplify());
+            GHResponse gr;
+            if ((skipSegments.contains(i))) {
+                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, true, searchParams, customEdgeFilter, routeProcCntx, req.getGeometrySimplify());
+            } else {
+                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, false, searchParams, customEdgeFilter, routeProcCntx, req.getGeometrySimplify());
+            }
 
             if (gr.hasErrors()) {
                 if (gr.getErrors().size() > 0) {
-                    if(gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.ConnectionNotFoundException) {
+                    if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.ConnectionNotFoundException) {
                         throw new RouteNotFoundException(
                                 RoutingErrorCodes.ROUTE_NOT_FOUND,
                                 String.format("Unable to find a route between points %d (%s) and %d (%s).",
@@ -434,8 +436,53 @@ public class RoutingProfileManager {
             routes.add(gr);
             c0 = c1;
         }
-
+        routes = enrichDirectRoutesTime(routes);
         return new RouteResultBuilder().createRouteResult(routes, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor) pathProcessor).getExtras() : null);
+    }
+
+    /**
+     * This will enrich all direct routes with an approximated travel time that is being calculated from the real graphhopper
+     * results. The routes object should contain all routes, so the function can maintain and return the proper order!
+     *
+     * @param routes Should hold all the routes that have been calculated, not only the direct routes.
+     * @return will return routes object with enriched direct routes if any we're found in the same order as the input object.
+     */
+    private List<GHResponse> enrichDirectRoutesTime(List<GHResponse> routes) {
+        List<GHResponse> graphhopperRoutes = new ArrayList<>();
+        List<GHResponse> directRoutes = new ArrayList<>();
+        long graphHopperTravelTime = 0;
+        double graphHopperTravelDistance = 0;
+        double averageTravelTimePerMeter;
+
+        for (GHResponse ghResponse : routes) {
+            if (!ghResponse.getHints().has("skipped_segment")) {
+                graphHopperTravelDistance += ghResponse.getBest().getDistance();
+                graphHopperTravelTime += ghResponse.getBest().getTime();
+                graphhopperRoutes.add(ghResponse);
+            } else {
+                directRoutes.add(ghResponse);
+            }
+        }
+
+        if (graphhopperRoutes.isEmpty() || directRoutes.isEmpty()) {
+            return routes;
+        }
+
+        if (graphHopperTravelDistance == 0) {
+            return routes;
+        }
+
+        averageTravelTimePerMeter = graphHopperTravelTime / graphHopperTravelDistance;
+        for (GHResponse ghResponse : routes) {
+            if (ghResponse.getHints().has("skipped_segment")) {
+                double directRouteDistance = ghResponse.getBest().getDistance();
+                ghResponse.getBest().setTime(Math.round(directRouteDistance * averageTravelTimePerMeter));
+                double directRouteInstructionDistance = ghResponse.getBest().getInstructions().get(0).getDistance();
+                ghResponse.getBest().getInstructions().get(0).setTime(Math.round(directRouteInstructionDistance * averageTravelTimePerMeter));
+            }
+        }
+
+        return routes;
     }
 
     private double getHeadingDirection(GHResponse resp) {
@@ -460,7 +507,7 @@ public class RoutingProfileManager {
         RouteSearchParameters searchParams = req.getSearchParameters();
         int profileType = searchParams.getProfileType();
 
-        boolean dynamicWeights = (searchParams.hasAvoidAreas() || searchParams.hasAvoidFeatures() || searchParams.hasAvoidBorders() || searchParams.hasAvoidCountries() || searchParams.getMaximumSpeed() > 0 || (RoutingProfileType.isDriving(profileType) && ((RoutingProfileType.isHeavyVehicle(profileType) && searchParams.getVehicleType() > 0) || searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
+        boolean dynamicWeights = (searchParams.hasAvoidAreas() || searchParams.hasAvoidFeatures() || searchParams.hasAvoidBorders() || searchParams.hasAvoidCountries() || (RoutingProfileType.isDriving(profileType) && ((RoutingProfileType.isHeavyVehicle(profileType) && searchParams.getVehicleType() > 0) || searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
 
         RoutingProfile rp = _routeProfiles.getRouteProfile(profileType, !dynamicWeights);
 
@@ -528,16 +575,15 @@ public class RoutingProfileManager {
      * This function sends the {@link IsochroneSearchParameters} together with the Attributes to the {@link RoutingProfile}.
      *
      * @param parameters The input is a {@link IsochroneSearchParameters}
-     * @param attributes The attributes are a {@link String}[] holding the set attributes from the api query
      * @return Return is a {@link IsochroneMap} holding the calculated data plus statistical data if the attributes where set.
      * @throws Exception
      */
-    public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters, String[] attributes) throws Exception {
+    public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters) throws Exception {
 
         int profileType = parameters.getRouteParameters().getProfileType();
         RoutingProfile rp = _routeProfiles.getRouteProfile(profileType, false);
 
-        return rp.buildIsochrone(parameters, attributes);
+        return rp.buildIsochrone(parameters);
     }
 
     public MatrixResult computeMatrix(MatrixRequest req) throws Exception {

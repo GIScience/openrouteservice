@@ -110,6 +110,10 @@ public class RouteResultBuilder
 			}
 		}
 
+		if (request.getSkipSegments() != null && !request.getSkipSegments().isEmpty()) {
+			result.addWarning(new RouteWarning(RouteWarning.SKIPPED_SEGMENTS));
+		}
+
 		for (int ri = 0; ri < nRoutes; ++ri)
 		{
 			GHResponse resp = routes.get(ri);

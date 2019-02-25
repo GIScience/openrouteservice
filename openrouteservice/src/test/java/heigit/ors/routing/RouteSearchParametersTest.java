@@ -31,19 +31,6 @@ public class RouteSearchParametersTest {
     }
 
     @Test
-    public void getMaximumSpeed() {
-        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertEquals(-1.0, routeSearchParameters.getMaximumSpeed(), 0.0);
-    }
-
-    @Test
-    public void setMaximumSpeed() {
-        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        routeSearchParameters.setMaximumSpeed(2.0);
-        Assert.assertEquals(2.0, routeSearchParameters.getMaximumSpeed(), 0.0);
-    }
-
-    @Test
     public void getWeightingMethod() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         Assert.assertEquals(WeightingMethod.FASTEST, routeSearchParameters.getWeightingMethod(), 0.0);
@@ -185,13 +172,6 @@ public class RouteSearchParametersTest {
     public void getOptions() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         Assert.assertNull(routeSearchParameters.getOptions());
-    }
-
-    @Test
-    public void setOptions() throws Exception {
-        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        routeSearchParameters.setOptions("{\"maximum_speed\": 10}");
-        Assert.assertEquals("{\"maximum_speed\": 10}", routeSearchParameters.getOptions());
     }
 
     @Test

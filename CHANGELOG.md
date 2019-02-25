@@ -6,7 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- Updated api code to use the Spring framework, with the v2 api being added (Issue #233)
 - Added support for ISO 3166-1 Alpha-2 / Alpha-3 codes for routing directions option avoid_countries (Issue #195)
+- Added support for free hand route option/ skip segments (Issue #167)
 - Added check on matrix service to make sure that the requested locations are within the bounding area of the graph (Issue #408)
 ### Fixed
 - Fixed `geometry_simplify` parameter, which had no effect before. `geometry_simplify` is incompatible with `extra_info` (#381)
@@ -15,6 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Modified smoothing and buffer distances for small isochrones, aswell as other fixes for smaller isochrones (Issue #382)
 - Updated pom to use correct opengeo repo and reordered so this is the last in the list, and use latest ORS-Graphhopper library (Issue #398)
 - Added /directions as an endpoint for routing (Issue #384)
+- Removed the following avoid features: pavedroads, unpavedroads, tunnels, tracks and hills, as well as the option to set maximum speed; for cycling and walking profiles the option to specify difficulty settings such as fitness level and maximum steepness (issue #396)
 ### Deprecated
 
 ## [4.7.2] - 2018-12-10

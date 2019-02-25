@@ -90,13 +90,14 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
         }
 
         if (travellers.size() > 0) {
-            String[] nonDefaultAttrs = req.getNonDefaultAttributes();
+
+            //String[] attrs = req.getAttributes();
 
             IsochroneMapCollection isoMaps = new IsochroneMapCollection();
 
             for (int i = 0; i < travellers.size(); ++i) {
                 IsochroneSearchParameters searchParams = req.getSearchParameters(i);
-                IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams, nonDefaultAttrs);
+                IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams);
                 isoMaps.add(isochroneMap);
             }
             writeResponse(response, req, isoMaps);
@@ -153,22 +154,23 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
                 // to calculate the area of an isochrone in m/km/mi
                 if (area_units != null) units = area_units;
 
-                if (includeArea || includeReachFactor) {
+                if (isoLine.hasArea()) jProperties.put("area", FormatUtility.roundToDecimals(isoLine.getArea(), 4));
+                if (isoLine.hasReachfactor()) jProperties.put("reachfactor", isoLine.getReachfactor());
 
-                    double area = isoLine.getArea(units);
+                //if (includeArea || includeReachFactor) {
 
-                    jProperties.put("area", FormatUtility.roundToDecimals(area, 4));
+                //double area = isoLine.getArea();
 
-                    if (includeReachFactor && traveller.getRangeType() == TravelRangeType.Time) {
+                //if (includeReachFactor && traveller.getRangeType() == TravelRangeType.Time) {
 
-                        double r = isoLine.getMaxRadius(units);
-                        double maxArea = Math.PI * r * r;
+                // double r = isoLine.getMaxRadius(units);
+                // double maxArea = Math.PI * r * r;
 
-                        jProperties.put("reachfactor", FormatUtility.roundToDecimals(area / maxArea, 4));
+                //  jProperties.put("reachfactor", FormatUtility.roundToDecimals(area / maxArea, 4));
 
-                    }
+                // }
 
-                }
+                //}
 
                 if (hasAttributes && isoLine.getAttributes() != null) {
                     List<AttributeValue> attrStats = isoLine.getAttributes();

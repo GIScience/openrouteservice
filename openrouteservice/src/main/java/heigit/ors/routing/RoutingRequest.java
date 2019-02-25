@@ -18,6 +18,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.services.ServiceRequest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RoutingRequest extends ServiceRequest
 {
 	private Coordinate[] _coordinates;
@@ -37,7 +40,8 @@ public class RoutingRequest extends ServiceRequest
     private int _locationIndex = -1;
     private boolean _continueStraight = false;
     private Boolean _suppressWarnings = false;
-	
+	private List<Integer> _skipSegments = new ArrayList<>();
+
 	public RoutingRequest()
 	{
 		_searchParameters = new RouteSearchParameters();
@@ -198,5 +202,13 @@ public class RoutingRequest extends ServiceRequest
 
 	public boolean isValid() {
 		return !(_coordinates == null);
+	}
+
+	public List<Integer> getSkipSegments() {
+		return _skipSegments;
+	}
+
+	public void setSkipSegments(List<Integer> skipSegments) {
+		_skipSegments = skipSegments;
 	}
 }

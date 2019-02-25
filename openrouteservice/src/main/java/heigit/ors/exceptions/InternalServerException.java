@@ -33,4 +33,8 @@ public class InternalServerException extends StatusCodeException
 	{
 		super(StatusCode.INTERNAL_SERVER_ERROR, errorCode, message);
 	}
+
+	public InternalServerException(String message) {
+		super(StatusCode.INTERNAL_SERVER_ERROR, message);
+	}
 }
