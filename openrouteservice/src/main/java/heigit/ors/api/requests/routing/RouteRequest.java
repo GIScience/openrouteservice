@@ -55,6 +55,7 @@ public class RouteRequest {
     public static final String PARAM_OPTIONS = "options";
     public static final String PARAM_SUPPRESS_WARNINGS = "suppress_warnings";
     public static final String PARAM_SIMPLIFY_GEOMETRY = "geometry_simplify";
+    public static final String PARAM_SKIP_SEGMENTS = "skip_segments";
 
 
     @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.")
@@ -146,7 +147,7 @@ public class RouteRequest {
             "CUSTOM_KEYS:{'apiDefault':false}",
             example = "false")
     @JsonProperty(value = PARAM_MANEUVERS)
-    private Boolean incĺudeManeuvers;
+    private Boolean includeManeuvers;
     @JsonIgnore
     private boolean hasIncludeManeuvers = false;
 
@@ -226,6 +227,14 @@ public class RouteRequest {
     private Boolean simplifyGeometry = false;
     @JsonIgnore
     private boolean hasSimplifyGeometry = false;
+
+    @ApiModelProperty(name = PARAM_SKIP_SEGMENTS, value = "Specifies the segments that should be skipped in the route calculation. " +
+            "A segment is the connection between two given coordinates and the counting starts with 1 for the connection between the first and second coordinate.",
+            example = "[2,4]")
+    @JsonProperty(PARAM_SKIP_SEGMENTS)
+    private List<Integer> skipSegments;
+    @JsonIgnore
+    private boolean hasSkipSegments = false;
 
     @JsonCreator
     public RouteRequest(@JsonProperty(value = PARAM_COORDINATES, required = true) List<List<Double>> coordinates) {
@@ -395,12 +404,12 @@ public class RouteRequest {
         this.hasAttributes = true;
     }
 
-    public Boolean getIncĺudeManeuvers() {
-        return incĺudeManeuvers;
+    public Boolean getIncludeManeuvers() {
+        return includeManeuvers;
     }
 
-    public void setIncĺudeManeuvers(Boolean incĺudeManeuvers) {
-        this.incĺudeManeuvers = incĺudeManeuvers;
+    public void setIncludeManeuvers(Boolean includeManeuvers) {
+        this.includeManeuvers = includeManeuvers;
         hasIncludeManeuvers = true;
     }
 
@@ -465,6 +474,15 @@ public class RouteRequest {
     public void setSimplifyGeometry(boolean simplifyGeometry) {
         this.simplifyGeometry = simplifyGeometry;
         this.hasSimplifyGeometry = true;
+    }
+
+    public List<Integer> getSkipSegments(){
+        return this.skipSegments;
+    }
+
+    public void setSkipSegments(List<Integer> skipSegments){
+        this.skipSegments = skipSegments;
+        hasSkipSegments = true;
     }
 
     public boolean hasIncludeRoundaboutExitInfo() {
@@ -534,4 +552,6 @@ public class RouteRequest {
     public boolean hasSimplifyGeometry() {
         return hasSimplifyGeometry;
     }
+
+    public boolean hasSkipSegments() { return hasSkipSegments;}
 }

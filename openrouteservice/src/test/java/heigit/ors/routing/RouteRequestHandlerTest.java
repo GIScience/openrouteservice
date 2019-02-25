@@ -84,7 +84,7 @@ public class RouteRequestHandlerTest {
         request.setIncludeGeometry(true);
         request.setIncludeInstructionsInResponse(true);
         request.setIncludeRoundaboutExitInfo(true);
-        request.setIncĺudeManeuvers(true);
+        request.setIncludeManeuvers(true);
         request.setInstructionsFormat(APIEnums.InstructionsFormat.HTML);
         request.setLanguage(APIEnums.Languages.DE);
         request.setMaximumSearchRadii(new Double[] { 50.0, 20.0, 100.0});

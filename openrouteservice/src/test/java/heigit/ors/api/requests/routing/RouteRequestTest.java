@@ -22,6 +22,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RouteRequestTest {
     RouteRequest request;
 
@@ -106,5 +109,14 @@ public class RouteRequestTest {
     public void testHasSuppressWarnings() {
         request.setSuppressWarnings(true);
         Assert.assertTrue(request.hasSuppressWarnings());
+    }
+
+    @Test
+    public void testHasSkipSegments() {
+        List<Integer> testSegments = new ArrayList<>();
+        testSegments.add(0, 1);
+        Assert.assertFalse(request.hasSkipSegments());
+        request.setSkipSegments(testSegments);
+        Assert.assertTrue(request.hasSkipSegments());
     }
 }

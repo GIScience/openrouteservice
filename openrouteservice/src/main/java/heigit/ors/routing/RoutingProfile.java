@@ -761,15 +761,17 @@ public class RoutingProfile {
             if (_astarApproximation != null)
                 req.getHints().put("astarbi.approximation", _astarApproximation);
 
-			/*if (directedSegment)
-				resp = mGraphHopper.directRoute(req); NOTE IMPLEMENTED!!!
-			else */
-
-            mGraphHopper.setSimplifyResponse(geometrySimplify);
-            resp = mGraphHopper.route(req);
-
-            if (DebugUtility.isDebug()) {
-                System.out.println("visited_nodes.average - " + resp.getHints().get("visited_nodes.average", ""));
+            if (directedSegment) {
+                resp = mGraphHopper.constructFreeHandRoute(req);
+            } else {
+                mGraphHopper.setSimplifyResponse(geometrySimplify);
+                resp = mGraphHopper.route(req);
+            }
+            if (DebugUtility.isDebug() && !directedSegment) {
+                LOGGER.info("visited_nodes.average - " + resp.getHints().get("visited_nodes.average", ""));
+            }
+            if (DebugUtility.isDebug() && directedSegment) {
+                LOGGER.info("skipped segment - " + resp.getHints().get("skipped_segment", ""));
             }
 
             endUseGH();
@@ -807,7 +809,6 @@ public class RoutingProfile {
      * So the first step in the function is a checkup on that.
      *
      * @param parameters The input are {@link IsochroneSearchParameters}
-     * @param attributes The input are a {@link String}[] holding the attributes if set
      * @return The return will be an {@link IsochroneMap}
      * @throws Exception
      */

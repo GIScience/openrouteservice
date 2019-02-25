@@ -4,14 +4,14 @@
  *   	 http://www.giscience.uni-hd.de
  *   	 http://www.heigit.org
  *
- *  under one or more contributor license agreements. See the NOTICE file 
- *  distributed with this work for additional information regarding copyright 
- *  ownership. The GIScience licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in compliance 
+ *  under one or more contributor license agreements. See the NOTICE file
+ *  distributed with this work for additional information regarding copyright
+ *  ownership. The GIScience licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in compliance
  *  with the License. You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,6 +39,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItems;
@@ -1788,6 +1790,28 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].extras.containsKey('roadaccessrestrictions')", is(true))
                 .body("routes[0].extras.roadaccessrestrictions.values[1][2]", is(32))
                 .statusCode(200);
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'features' }", is(true))
+                .body("any { it.key == 'bbox' }", is(true))
+                .body("any { it.key == 'type' }", is(true))
+                .body("features[0].containsKey('properties')", is(true))
+                .body("features[0].properties.containsKey('extras')", is(true))
+                .body("features[0].properties.containsKey('warnings')", is(true))
+                .body("features[0].properties.warnings[0].containsKey('code')", is(true))
+                .body("features[0].properties.warnings[0].containsKey('message')", is(true))
+                .body("features[0].properties.warnings[0].code", is(1))
+                .body("features[0].properties.extras.containsKey('roadaccessrestrictions')", is(true))
+                .body("features[0].properties.extras.roadaccessrestrictions.values[1][2]", is(32))
+                .statusCode(200);
     }
 
     @Test
@@ -1820,6 +1844,253 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("features[0].geometry.coordinates.size()", is(34))
                 .statusCode(200);
+    }
+
+    @Test
+    public void testSkipSegmentWarning() {
+        List<Integer> skipSegments = new ArrayList<>(1);
+        skipSegments.add(1);
+
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+
+
+        body.put("skip_segments", skipSegments);
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().all()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('warnings')", is(true))
+                .body("routes[0].warnings[0].containsKey('code')", is(true))
+                .body("routes[0].warnings[0].code", is(3))
+                .statusCode(200);
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'features' }", is(true))
+                .body("any { it.key == 'bbox' }", is(true))
+                .body("any { it.key == 'type' }", is(true))
+                .body("features[0].containsKey('properties')", is(true))
+                .body("features[0].properties.containsKey('warnings')", is(true))
+                .body("features[0].properties.warnings[0].containsKey('code')", is(true))
+                .body("features[0].properties.warnings[0].code", is(3))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testSkipSegments() {
+        List<Integer> skipSegments = new ArrayList<>(1);
+        skipSegments.add(1);
+
+        JSONObject body = new JSONObject();
+        body.put("skip_segments", skipSegments);
+
+        body.put("coordinates", getParameter("coordinatesShort"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().all()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(1744.3f))
+                .body("routes[0].containsKey('geometry')", is(true))
+                .body("routes[0].containsKey('way_points')", is(true))
+                .body("routes[0].geometry", is("gvqlHi`~s@ooAix@"))
+                .body("routes[0].way_points[0]", is(0))
+                .body("routes[0].way_points[1]", is(1))
+                .body("routes[0].segments[0].steps[0].distance", is(1744.3f))
+                .body("routes[0].segments[0].steps[0].duration", is(0.0f))
+                .body("routes[0].segments[0].steps[0].type", is(11))
+                .body("routes[0].segments[0].steps[0].name", is("free hand route"))
+                .body("routes[0].segments[0].steps[0].containsKey('instruction')", is(true))
+                .body("routes[0].segments[0].steps[0].containsKey('way_points')", is(true))
+                .body("routes[0].segments[0].steps[0].way_points[0]", is(0))
+                .body("routes[0].segments[0].steps[0].way_points[1]", is(1))
+
+                .body("routes[0].segments[0].steps[1].distance", is(0.0f))
+                .body("routes[0].segments[0].steps[1].duration", is(0.0f))
+                .body("routes[0].segments[0].steps[1].type", is(10))
+                .body("routes[0].segments[0].steps[1].name", is("end of free hand route"))
+                .body("routes[0].segments[0].steps[1].containsKey('instruction')", is(true))
+                .body("routes[0].segments[0].steps[1].containsKey('way_points')", is(true))
+                .body("routes[0].segments[0].steps[1].way_points[0]", is(1))
+                .body("routes[0].segments[0].steps[1].way_points[1]", is(1))
+
+                .body("routes[0].containsKey('warnings')", is(true))
+                .body("routes[0].warnings[0].containsKey('code')", is(true))
+                .body("routes[0].warnings[0].code", is(3))
+                .statusCode(200);
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'features' }", is(true))
+                .body("any { it.key == 'bbox' }", is(true))
+                .body("any { it.key == 'type' }", is(true))
+                .body("features[0].containsKey('properties')", is(true))
+                .body("features[0].containsKey('geometry')", is(true))
+                .body("features[0].geometry.coordinates[0][0]", is(8.678613f))
+                .body("features[0].geometry.coordinates[0][1]", is(49.411721f))
+                .body("features[0].geometry.coordinates[1][0]", is(8.687782f))
+                .body("features[0].geometry.coordinates[1][1]", is(49.424597f))
+                .body("features[0].geometry.type", is("LineString"))
+                .body("features[0].properties.containsKey('segments')", is(true))
+                .body("features[0].properties.containsKey('warnings')", is(true))
+                .body("features[0].properties.containsKey('summary')", is(true))
+                .body("features[0].properties.containsKey('way_points')", is(true))
+
+                .body("features[0].properties.segments[0].distance", is(1744.3f))
+                .body("features[0].properties.segments[0].steps[0].distance", is(1744.3f))
+                .body("features[0].properties.segments[0].steps[0].duration", is(0.0f))
+                .body("features[0].properties.segments[0].steps[0].type", is(11))
+                .body("features[0].properties.segments[0].steps[0].name", is("free hand route"))
+                .body("features[0].properties.segments[0].steps[0].containsKey('instruction')", is(true))
+                .body("features[0].properties.segments[0].steps[0].containsKey('way_points')", is(true))
+                .body("features[0].properties.segments[0].steps[0].way_points[0]", is(0))
+                .body("features[0].properties.segments[0].steps[0].way_points[1]", is(1))
+
+                .body("features[0].properties.segments[0].steps[1].distance", is(0.0f))
+                .body("features[0].properties.segments[0].steps[1].duration", is(0.0f))
+                .body("features[0].properties.segments[0].steps[1].type", is(10))
+                .body("features[0].properties.segments[0].steps[1].name", is("end of free hand route"))
+                .body("features[0].properties.segments[0].steps[1].containsKey('instruction')", is(true))
+                .body("features[0].properties.segments[0].steps[1].containsKey('way_points')", is(true))
+                .body("features[0].properties.segments[0].steps[1].way_points[0]", is(1))
+                .body("features[0].properties.segments[0].steps[1].way_points[1]", is(1))
+
+
+                .body("features[0].properties.summary.distance", is(1744.3f))
+                .body("features[0].properties.way_points[0]", is(0))
+                .body("features[0].properties.way_points[1]", is(1))
+
+                .body("features[0].properties.containsKey('warnings')", is(true))
+                .body("features[0].properties.warnings[0].containsKey('code')", is(true))
+                .body("features[0].properties.warnings[0].code", is(3))
+                .statusCode(200);
+
+        body.put("coordinates", getParameter("coordinatesLong"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().all()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(10936.3f))
+                .body("routes[0].containsKey('geometry')", is(true))
+                .body("routes[0].containsKey('way_points')", is(true))
+                .body("routes[0].geometry", is("gvqlHi`~s@hrBw`Fq@lAiEf@qEn@wH^[@i@BqAEuDu@qASgACi@B_BRs@N]L]" +
+                        "X_A~@IJEFEBGFCBODSEUYMg@yAeKGq@O{CS{Bk@sEk@uDYkAGOSMK?IBIHGJQXg@p@cA`A_@f@MVIPs@pA_@j@GLEFg@j@" +
+                        "gA~@k@v@KRMTo@tA_@lAa@fBW`B?J?D@DJFD?FC\\oAVk@l@q@z@a@|@Sn@Br@XZPPRHN@FDVARU`AStAGb@If@Ib@Q~@[" +
+                        "fBm@dEEt@Ar@FbCCjBEl@O~@Kd@EPEROx@Kf@Sv@Sf@GPGPOZGDICCS?A@Ab@uA@G?C@m@OoAEy@?i@?SAm@EQEAEBQZKTC" +
+                        "FGLKTm@rAEHEF]b@oCrBEN?@?@BB@?@@bAGz@MDBBH@JCLY^g@\\g@PQFIBcAh@_BzA_@^CBSV[t@Oh@G\\WlDKr@AJIh@I" +
+                        "PE@JpE?d@?tA?rA?v@?n@@`@?HHfAJfARjB@TPdBJdAT|BBPDh@BNDZFr@D`@b@pEBVP~ARnBBLZxCD\\JhA@T[H_@HQFw@V" +
+                        "eBh@m@NgAXo@PsA`@QDSFcBf@{@X_@LKBO@M@Y@C?[BmJ`Be@ROFO?qADqAFK?I@gA?{@Bk@@o@BiCHO@C?k@@m@HOD]VgA" +
+                        "lA_AfAUREDC?Q?OBE@qBn@A@SHOJELCDgAb@q@\\mAt@y@f@y@XeBt@YJsBp@c@N{C`A_DfAuAf@MHKJQVEEACCGI?KB"))
+                .body("routes[0].way_points[0]", is(0))
+                .body("routes[0].way_points[1]", is(1))
+                .body("routes[0].segments[0].steps[0].distance", is(4499.5f))
+                .body("routes[0].segments[0].steps[0].duration", is(561.2f))
+                .body("routes[0].segments[0].steps[0].type", is(11))
+                .body("routes[0].segments[0].steps[0].name", is("free hand route"))
+                .body("routes[0].segments[0].steps[0].containsKey('instruction')", is(true))
+                .body("routes[0].segments[0].steps[0].containsKey('way_points')", is(true))
+                .body("routes[0].segments[0].steps[0].way_points[0]", is(0))
+                .body("routes[0].segments[0].steps[0].way_points[1]", is(1))
+
+                .body("routes[0].segments[0].steps[1].distance", is(0.0f))
+                .body("routes[0].segments[0].steps[1].duration", is(0.0f))
+                .body("routes[0].segments[0].steps[1].type", is(10))
+                .body("routes[0].segments[0].steps[1].name", is("end of free hand route"))
+                .body("routes[0].segments[0].steps[1].containsKey('instruction')", is(true))
+                .body("routes[0].segments[0].steps[1].containsKey('way_points')", is(true))
+                .body("routes[0].segments[0].steps[1].way_points[0]", is(1))
+                .body("routes[0].segments[0].steps[1].way_points[1]", is(1))
+
+                .body("routes[0].containsKey('warnings')", is(true))
+                .body("routes[0].warnings[0].containsKey('code')", is(true))
+                .body("routes[0].warnings[0].code", is(3))
+                .statusCode(200);
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'features' }", is(true))
+                .body("any { it.key == 'bbox' }", is(true))
+                .body("any { it.key == 'type' }", is(true))
+                .body("features[0].containsKey('properties')", is(true))
+                .body("features[0].containsKey('geometry')", is(true))
+                .body("features[0].geometry.type", is("LineString"))
+                .body("features[0].properties.containsKey('segments')", is(true))
+                .body("features[0].properties.containsKey('warnings')", is(true))
+                .body("features[0].properties.containsKey('summary')", is(true))
+                .body("features[0].properties.containsKey('way_points')", is(true))
+
+                .body("features[0].properties.segments[0].distance", is(4499.5f))
+                .body("features[0].properties.segments[0].duration", is(561.2f))
+                .body("features[0].properties.segments[0].steps[0].distance", is(4499.5f))
+                .body("features[0].properties.segments[0].steps[0].duration", is(561.2f))
+                .body("features[0].properties.segments[0].steps[0].type", is(11))
+                .body("features[0].properties.segments[0].steps[0].name", is("free hand route"))
+                .body("features[0].properties.segments[0].steps[0].containsKey('instruction')", is(true))
+                .body("features[0].properties.segments[0].steps[0].containsKey('way_points')", is(true))
+                .body("features[0].properties.segments[0].steps[0].way_points[0]", is(0))
+                .body("features[0].properties.segments[0].steps[0].way_points[1]", is(1))
+
+                .body("features[0].properties.segments[0].steps[1].distance", is(0.0f))
+                .body("features[0].properties.segments[0].steps[1].duration", is(0.0f))
+                .body("features[0].properties.segments[0].steps[1].type", is(10))
+                .body("features[0].properties.segments[0].steps[1].name", is("end of free hand route"))
+                .body("features[0].properties.segments[0].steps[1].containsKey('instruction')", is(true))
+                .body("features[0].properties.segments[0].steps[1].containsKey('way_points')", is(true))
+                .body("features[0].properties.segments[0].steps[1].way_points[0]", is(1))
+                .body("features[0].properties.segments[0].steps[1].way_points[1]", is(1))
+
+
+                .body("features[0].properties.summary.distance", is(10936.3f))
+                .body("features[0].properties.summary.duration", is(1364.0f))
+                .body("features[0].properties.way_points[0]", is(0))
+                .body("features[0].properties.way_points[1]", is(1))
+
+                .body("features[0].properties.containsKey('warnings')", is(true))
+                .body("features[0].properties.warnings[0].containsKey('code')", is(true))
+                .body("features[0].properties.warnings[0].code", is(3))
+                .statusCode(200);
+
+
+
     }
 
     private JSONArray constructCoords(String coordString) {
