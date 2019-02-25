@@ -30,16 +30,14 @@ import heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributes
 
 public class HeavyVehicleCoreEdgeFilter implements EdgeFilter {
 	private HeavyVehicleAttributesGraphStorage _storage;
-	private byte[] _buffer;
 
 	public HeavyVehicleCoreEdgeFilter(GraphStorage graphStorage) {
-		_buffer = new byte[3];
 		_storage = GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class);
 	}
 
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {
-		return  !_storage.hasEdgeRestriction(EdgeIteratorStateHelper.getOriginalEdge(iter), _buffer);
+		return  !_storage.hasEdgeRestriction(EdgeIteratorStateHelper.getOriginalEdge(iter));
 
 	}
 
