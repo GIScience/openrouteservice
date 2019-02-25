@@ -148,6 +148,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
 
     public RoutingAlgorithm setEdgeFilter(CoreDijkstraFilter additionalEdgeFilter) {
         this.additionalEdgeFilter = additionalEdgeFilter;
+        this.additionalEdgeFilter.setCurrentGraph(chGraph);
         return this;
     }
 

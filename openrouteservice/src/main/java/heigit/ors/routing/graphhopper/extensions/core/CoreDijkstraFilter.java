@@ -18,6 +18,7 @@
 package heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.CHEdgeIteratorState;
@@ -38,8 +39,11 @@ public class CoreDijkstraFilter implements EdgeFilter {
     private final CHGraph graph;
     private final int maxNodes;
     private final int coreNodeLevel;
-    static boolean[] isCoreNode;
+    static boolean[] isCoreNode = new boolean[0];
     EdgeFilter restrictions;
+    private static int numGraph = 0;
+    private static int currentGraph = 0;
+    private static HashMap<CHGraph, Integer> graphMap = new HashMap<>();
 
     boolean inCore = false;
 
@@ -57,10 +61,17 @@ public class CoreDijkstraFilter implements EdgeFilter {
         coreNodeLevel = maxNodes + 1;
     }
 
-    public void init() {
-        isCoreNode = new boolean[maxNodes];
+    public void init(CHGraph g) {
+        isCoreNode = new boolean[isCoreNode.length + maxNodes];
+        graphMap.put(g, numGraph);
+        currentGraph = numGraph;
         for (int node = 0; node < maxNodes; node++)
-            isCoreNode[node] = graph.getLevel(node) == coreNodeLevel;
+            isCoreNode[currentGraph * maxNodes + node] = graph.getLevel(node) == coreNodeLevel;
+        numGraph++;
+    }
+
+    public void setCurrentGraph(CHGraph g){
+        currentGraph = graphMap.get(g);
     }
 
     /**
@@ -94,7 +105,7 @@ public class CoreDijkstraFilter implements EdgeFilter {
                 return true;
 
             // do not follow virtual edges, and stay within core
-            if (isCoreNode[adj])
+            if (isCoreNode[currentGraph * maxNodes + adj])
                 // if edge is in the core check for restrictions
                 return restrictions.accept(edgeIterState);
             else

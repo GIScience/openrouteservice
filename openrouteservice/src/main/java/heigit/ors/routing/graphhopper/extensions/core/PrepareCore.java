@@ -105,7 +105,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     }
 
     public void initLevelFilter() {
-        levelFilter.init();
+        levelFilter.init(this.prepareGraph);
     }
     /**
      * The higher the values are the longer the preparation takes but the less shortcuts are
