@@ -36,6 +36,7 @@ public class MatrixErrorCodes {
     public static int EXPORT_HANDLER_ERROR = 6006;
     public static int UNSUPPORTED_EXPORT_FORMAT = 6007;
     public static int EMPTY_ELEMENT = 6008;
+    public static int POINT_NOT_FOUND = 6010;
     public static int UNKNOWN_PARAMETER = 6011;
     public static int UNKNOWN = 6099;
 }

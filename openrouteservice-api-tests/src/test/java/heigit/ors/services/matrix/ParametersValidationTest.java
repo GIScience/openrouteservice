@@ -375,4 +375,19 @@ public class ParametersValidationTest extends ServiceTest {
 		.body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_FORMAT))
 		.statusCode(400);
 	}
+
+	@Test
+	public void pointOutOfBoundsTest() {
+		given()
+				.param("profile", "driving-car")
+				.param("locations", "9.0,48.7|9.0,49.1")
+				.param("sources", "all")
+				.param("destinations", "all")
+				.when()
+				.get(getEndPointName())
+				.then()
+				.assertThat()
+				.body("error.code", is(MatrixErrorCodes.POINT_NOT_FOUND))
+				.statusCode(404);
+	}
 }

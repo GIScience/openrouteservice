@@ -35,6 +35,8 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.exceptions.InternalServerException;
+import heigit.ors.exceptions.PointNotFoundException;
+import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.isochrones.*;
 import heigit.ors.isochrones.statistics.StatisticsProvider;
 import heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
@@ -473,6 +475,8 @@ public class RoutingProfile {
             mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
         } catch (Exception ex) {
             LOGGER.error(ex);
+            if (ex instanceof StatusCodeException)
+                throw ex;
             throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix.");
         }
 
