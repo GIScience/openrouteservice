@@ -246,16 +246,16 @@ public class ORSGraphHopper extends GraphHopper {
     }
 
 
-    public GHResponse constructAirLineRoute(GHRequest request) {
-        LineString directRouteGeometry = constructAirLineRouteGeometry(request);
-        PathWrapper directRoutePathWrapper = constructAirLineRoutePathWrapper(directRouteGeometry);
+    public GHResponse constructFreeHandRoute(GHRequest request) {
+        LineString directRouteGeometry = constructFreeHandRouteGeometry(request);
+        PathWrapper directRoutePathWrapper = constructFreeHandRoutePathWrapper(directRouteGeometry);
         GHResponse directRouteResponse = new GHResponse();
         directRouteResponse.add(directRoutePathWrapper);
         directRouteResponse.getHints().put("skipped_segment", "true");
         return directRouteResponse;
     }
 
-    private PathWrapper constructAirLineRoutePathWrapper(LineString lineString) {
+    private PathWrapper constructFreeHandRoutePathWrapper(LineString lineString) {
         PathWrapper pathWrapper = new PathWrapper();
         PointList pointList = new PointList();
         PointList startPointList = new PointList();
@@ -291,7 +291,7 @@ public class ORSGraphHopper extends GraphHopper {
         return pathWrapper;
     }
 
-    private LineString constructAirLineRouteGeometry(GHRequest request){
+    private LineString constructFreeHandRouteGeometry(GHRequest request){
         Coordinate start = new Coordinate();
         Coordinate end = new Coordinate();
         start.x = request.getPoints().get(0).getLat();

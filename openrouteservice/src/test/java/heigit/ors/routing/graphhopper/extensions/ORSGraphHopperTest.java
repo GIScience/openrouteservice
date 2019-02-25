@@ -15,7 +15,7 @@ public class ORSGraphHopperTest {
     @Test
     public void directRouteTest() {
         GHRequest ghRequest = new GHRequest(49.41281601436809, 8.686215877532959, 49.410163456220076, 8.687160015106201);
-        GHResponse ghResponse = new ORSGraphHopper().constructAirLineRoute(ghRequest);
+        GHResponse ghResponse = new ORSGraphHopper().constructFreeHandRoute(ghRequest);
 
         Assert.assertTrue(ghResponse.getHints().has("skipped_segment"));
         Assert.assertTrue(ghResponse.getHints().getBool("skipped_segment", false));

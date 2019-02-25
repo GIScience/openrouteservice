@@ -762,7 +762,7 @@ public class RoutingProfile {
                 req.getHints().put("astarbi.approximation", _astarApproximation);
 
             if (directedSegment) {
-                resp = mGraphHopper.constructAirLineRoute(req);
+                resp = mGraphHopper.constructFreeHandRoute(req);
             } else {
                 mGraphHopper.setSimplifyResponse(geometrySimplify);
                 resp = mGraphHopper.route(req);
