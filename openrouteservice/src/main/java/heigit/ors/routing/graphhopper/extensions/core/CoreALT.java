@@ -30,11 +30,10 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.*;
-import heigit.ors.util.DebugUtility;
 import org.apache.log4j.Logger;
 
-import java.util.Iterator;
 import java.util.PriorityQueue;
+
 
 /**
  * Calculates best path using CH routing outside core and ALT inside core.
@@ -49,7 +48,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     protected IntObjectMap<AStarEntry> bestWeightMapFrom;
     protected IntObjectMap<AStarEntry> bestWeightMapTo;
     private IntObjectMap<AStarEntry> bestWeightMapOther;
-    private ConsistentCoreWeightApproximator weightApprox;
+    private ConsistentWeightApproximator weightApprox;
     private IntHashSet ignoreExplorationFrom = new IntHashSet();
     private IntHashSet ignoreExplorationTo = new IntHashSet();
     private ProxyNodeStorage pns;
@@ -59,7 +58,8 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     private PriorityQueue<AStarEntry> pqCoreFrom;
     private PriorityQueue<AStarEntry> pqCoreTo;
 
-    int from, to;
+    int from, to, fromProxy, toProxy;
+    double fromProxyWeight, toProxyWeight;
 
 
     public CoreALT(Graph graph, Weighting weighting, TraversalMode tMode, ProxyNodeStorage pns) {
@@ -87,7 +87,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
      * @param approx if true it enables approximate distance calculation from lat,lon values
      */
     public CoreALT setApproximation(WeightApproximator approx) {
-        weightApprox = new ConsistentCoreWeightApproximator(approx);
+        weightApprox = new ConsistentWeightApproximator(approx);
         return this;
     }
 
@@ -206,8 +206,10 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         finishedTo = pqCoreTo.isEmpty();
 
         if (!finishedFrom && !finishedTo) {
-            initLMApproximator(this.to,false);
-            initLMApproximator(this.from, true);
+            findProxyNode(this.to,false);
+            findProxyNode(this.from, true);
+
+            initApproximator();
 
             recalculateWeights(pqCoreFrom, false);
             recalculateWeights(pqCoreTo, true);
@@ -226,8 +228,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
 
     }
 
-    private void initLMApproximator(int node, boolean reverse) {
-        CoreLMApproximator approximator = (CoreLMApproximator) ( reverse ? weightApprox.getReverseApproximation() : weightApprox.getApproximation() );
+    private void findProxyNode(int node, boolean reverse) {
         EdgeExplorer edgeExplorer = reverse ? inEdgeExplorer : outEdgeExplorer;
 
         int proxyNode = -1;
@@ -256,9 +257,34 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             proxyWeight = currProxy[1];
         }
 
-        approximator.setTo(proxyNode);
-        approximator.setProxyWeight(proxyWeight);
-        approximator.setVirtEdgeWeight(virtEdgeWeight);
+        if (reverse) {
+            fromProxy = proxyNode;
+            fromProxyWeight = proxyWeight + virtEdgeWeight;
+        } else {
+            toProxy = proxyNode;
+            toProxyWeight = proxyWeight + virtEdgeWeight;
+        }
+    }
+
+    private void initApproximator() {
+        if (weightApprox.getApproximation() instanceof CoreLMApproximator && weightApprox.getReverseApproximation() instanceof CoreLMApproximator) {
+            CoreLMApproximator forwardApproximator = (CoreLMApproximator) weightApprox.getApproximation();
+            forwardApproximator.setTo(toProxy);
+            // AO: when ConsistentWeight Approximator is used it is not neccessary to account for proxy weights as any constant terms cancel out
+            //forwardApproximator.setProxyWeight(toProxyWeight);
+
+            boolean activeLandmarksSet = forwardApproximator.initActiveLandmarks(fromProxy);
+
+            CoreLMApproximator reverseApproximator = (CoreLMApproximator) weightApprox.getReverseApproximation();
+            reverseApproximator.setTo(fromProxy);
+            //reverseApproximator.setProxyWeight(fromProxyWeight);
+
+            // AO: typically the optimal landmarks set for the formward approximator is the same as for the reverse one so there is no need to recompute them
+            if (activeLandmarksSet)
+                reverseApproximator.setActiveLandmarks(forwardApproximator.getActiveLandmarks());
+            else
+                reverseApproximator.initActiveLandmarks(toProxy);
+        }
     }
 
     private void recalculateWeights(PriorityQueue<AStarEntry> queue, boolean reverse) {
@@ -275,6 +301,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     public boolean finishedPhase2() {
         if (finishedFrom || finishedTo)
             return true;
+
         // using 'weight' is important and correct here e.g. approximation can get negative and smaller than 'weightOfVisitedPath'
         return currFrom.weight + currTo.weight >= bestPath.getWeight();
     }

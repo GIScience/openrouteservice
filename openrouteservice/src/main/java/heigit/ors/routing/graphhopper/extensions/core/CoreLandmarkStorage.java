@@ -718,14 +718,19 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         }
 
         // store weight values of active landmarks in 'cache' arrays
+        initActiveLandmarkWeights(toNode, activeLandmarkIndices, activeFroms, activeTos);
+
+        return true;
+    }
+
+    // precompute weights from and to active landmarks
+    public void initActiveLandmarkWeights(int toNode, int[] activeLandmarkIndices, int[] activeFroms,  int[] activeTos) {
         for (int i = 0; i < activeLandmarkIndices.length; i++) {
             int lmIndex = activeLandmarkIndices[i];
             activeFroms[i] = getFromWeight(lmIndex, toNode);
             activeTos[i] = getToWeight(lmIndex, toNode);
         }
-        return true;
     }
-
     public int getLandmarkCount() {
         return landmarks;
     }
