@@ -210,6 +210,10 @@ public class CoreLMApproximator implements WeightApproximator {
         lms.initActiveLandmarkWeights(to, activeLandmarks, activeFromIntWeights, activeToIntWeights);
     }
 
+    public double getfFactor() {
+        return factor;
+    }
+
     /**
      * This method forces a lazy recalculation of the active landmark set e.g. necessary after the 'to' node changed.
      */

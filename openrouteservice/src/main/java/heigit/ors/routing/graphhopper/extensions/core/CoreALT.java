@@ -61,6 +61,8 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     int from, to, fromProxy, toProxy;
     double fromProxyWeight, toProxyWeight;
 
+    double approximatorOffset;
+
 
     public CoreALT(Graph graph, Weighting weighting, TraversalMode tMode, ProxyNodeStorage pns) {
         super(graph, weighting, tMode);
@@ -284,6 +286,8 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                 reverseApproximator.setActiveLandmarks(forwardApproximator.getActiveLandmarks());
             else
                 reverseApproximator.initActiveLandmarks(toProxy);
+
+            approximatorOffset = 2.0D * forwardApproximator.getfFactor();
         }
     }
 
@@ -301,9 +305,8 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     public boolean finishedPhase2() {
         if (finishedFrom || finishedTo)
             return true;
-
-        // using 'weight' is important and correct here e.g. approximation can get negative and smaller than 'weightOfVisitedPath'
-        return currFrom.weight + currTo.weight >= bestPath.getWeight();
+            // AO: in order to guarantee that the shortest path is found it is neccesary to account for possible precision loss in LM distance approximation by introducing the additional offset
+        return currFrom.weight + currTo.weight >= bestPath.getWeight() + approximatorOffset;
     }
 
     void fillEdges(AStarEntry currEdge, PriorityQueue<AStarEntry> prioQueue, IntObjectMap<AStarEntry> bestWeightMap,
