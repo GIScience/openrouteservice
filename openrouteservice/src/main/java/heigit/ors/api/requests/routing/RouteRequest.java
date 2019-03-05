@@ -221,10 +221,11 @@ public class RouteRequest {
     private boolean hasSuppressWarnings = false;
 
     @ApiModelProperty(name = PARAM_SIMPLIFY_GEOMETRY, value = "Specifies whether to simplify the geometry. true will automatically be set to false if extra_info parameter is specified. " +
+            "Simplify geometry cannot be applied to routes with more than one segment and when extra_info is required." +
             "CUSTOM_KEYS:{'apiDefault':false}",
             example = "false")
     @JsonProperty(value = PARAM_SIMPLIFY_GEOMETRY)
-    private Boolean simplifyGeometry = false;
+    private Boolean simplifyGeometry;
     @JsonIgnore
     private boolean hasSimplifyGeometry = false;
 
