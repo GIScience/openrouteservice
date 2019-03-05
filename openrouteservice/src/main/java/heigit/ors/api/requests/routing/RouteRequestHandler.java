@@ -97,6 +97,9 @@ public class RouteRequestHandler extends GenericHandler {
             if (request.hasExtraInfo() && request.getSimplifyGeometry()) {
                 throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_SIMPLIFY_GEOMETRY, "true", RouteRequest.PARAM_EXTRA_INFO, "*");
             }
+            if (request.getCoordinates().size() > 2 && request.getSimplifyGeometry()) {
+                throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_SIMPLIFY_GEOMETRY, "true", RouteRequest.PARAM_COORDINATES, "count > 2");
+            }
         }
 
         if (request.hasSkipSegments()) {
