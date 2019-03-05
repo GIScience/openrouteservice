@@ -50,7 +50,7 @@ public class RouteRequestHandler extends GenericHandler {
         } catch (StatusCodeException e) {
             throw e;
         } catch (Exception e) {
-            throw new StatusCodeException(RoutingErrorCodes.UNKNOWN);
+            throw new StatusCodeException(StatusCode.INTERNAL_SERVER_ERROR, RoutingErrorCodes.UNKNOWN);
         }
     }
 
