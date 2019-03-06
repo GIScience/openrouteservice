@@ -122,8 +122,8 @@ public class IsochronesRequestTest {
     @Test
     public void setRangeUnitsTest() throws ParameterValueException {
         IsochronesRequest request = new IsochronesRequest();
-        request.setRangeUnits(APIEnums.Units.forValue("km"));
-        Assert.assertEquals(APIEnums.Units.KILOMETRES, request.getRangeUnits());
+        request.setRangeUnit(APIEnums.Units.forValue("km"));
+        Assert.assertEquals(APIEnums.Units.KILOMETRES, request.getRangeUnit());
     }
 
     @Test
