@@ -33,7 +33,7 @@ public class JSONLocation {
     protected Coordinate location;
 
     @ApiModelProperty(value = "Name of the street the closest accessible point is situated on. Only for `resolve_locations=true` and only if name is available." +
-            "CUSTOM_KEYS:{'dependsOn':{'ref':'resolve_locations','value':true}}",
+            "CUSTOM_KEYS:{'validWhen':{'ref':'resolve_locations','value':true}}",
             example = "Bergheimer Straße")
     @JsonProperty(value = "name")
     @JsonFormat(shape = JsonFormat.Shape.STRING)

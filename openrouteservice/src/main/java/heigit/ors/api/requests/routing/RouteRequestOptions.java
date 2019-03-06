@@ -41,7 +41,7 @@ public class RouteRequestOptions {
     @JsonIgnore
     private boolean hasAvoidFeatures = false;
 
-    @ApiModelProperty(name = PARAM_AVOID_BORDERS, value = "'all' for no border crossing. 'controlled' to cross open borders but avoid controlled ones. Only for driving-* profiles. " +
+    @ApiModelProperty(name = PARAM_AVOID_BORDERS, value = "`all` for no border crossing. `controlled` to cross open borders but avoid controlled ones. Only for `driving-*` profiles. " +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-*']}}")
     @JsonProperty(PARAM_AVOID_BORDERS)
     private APIEnums.AvoidBorders avoidBorders;

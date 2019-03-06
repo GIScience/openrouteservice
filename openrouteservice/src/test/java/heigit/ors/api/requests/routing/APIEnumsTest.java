@@ -180,17 +180,13 @@ public class APIEnumsTest {
     @Test(expected = ParameterValueException.class)
     public void testLanguagesEnumCreation() throws ParameterValueException {
         Assert.assertEquals(APIEnums.Languages.EN, APIEnums.Languages.forValue("en"));
-        Assert.assertEquals(APIEnums.Languages.CN, APIEnums.Languages.forValue("cn"));
+        Assert.assertEquals(APIEnums.Languages.ZH_CN, APIEnums.Languages.forValue("zh-cn"));
         Assert.assertEquals(APIEnums.Languages.DE, APIEnums.Languages.forValue("de"));
         Assert.assertEquals(APIEnums.Languages.ES, APIEnums.Languages.forValue("es"));
         Assert.assertEquals(APIEnums.Languages.RU, APIEnums.Languages.forValue("re"));
-        Assert.assertEquals(APIEnums.Languages.DK, APIEnums.Languages.forValue("dk"));
         Assert.assertEquals(APIEnums.Languages.FR, APIEnums.Languages.forValue("fr"));
         Assert.assertEquals(APIEnums.Languages.IT, APIEnums.Languages.forValue("it"));
         Assert.assertEquals(APIEnums.Languages.NL, APIEnums.Languages.forValue("nl"));
-        Assert.assertEquals(APIEnums.Languages.BR, APIEnums.Languages.forValue("br"));
-        Assert.assertEquals(APIEnums.Languages.SE, APIEnums.Languages.forValue("se"));
-        Assert.assertEquals(APIEnums.Languages.TR, APIEnums.Languages.forValue("tr"));
         Assert.assertEquals(APIEnums.Languages.GR, APIEnums.Languages.forValue("gr"));
 
         APIEnums.Languages.forValue("invalid");
@@ -199,17 +195,13 @@ public class APIEnumsTest {
     @Test
     public void testLanguagesEnumValue() {
         Assert.assertEquals("en", APIEnums.Languages.EN.toString());
-        Assert.assertEquals("cn", APIEnums.Languages.CN.toString());
+        Assert.assertEquals("zh-cn", APIEnums.Languages.ZH_CN.toString());
         Assert.assertEquals("de", APIEnums.Languages.DE.toString());
         Assert.assertEquals("es", APIEnums.Languages.ES.toString());
         Assert.assertEquals("ru", APIEnums.Languages.RU.toString());
-        Assert.assertEquals("dk", APIEnums.Languages.DK.toString());
         Assert.assertEquals("fr", APIEnums.Languages.FR.toString());
         Assert.assertEquals("it", APIEnums.Languages.IT.toString());
         Assert.assertEquals("nl", APIEnums.Languages.NL.toString());
-        Assert.assertEquals("br", APIEnums.Languages.BR.toString());
-        Assert.assertEquals("se", APIEnums.Languages.SE.toString());
-        Assert.assertEquals("tr", APIEnums.Languages.TR.toString());
         Assert.assertEquals("gr", APIEnums.Languages.GR.toString());
     }
 
