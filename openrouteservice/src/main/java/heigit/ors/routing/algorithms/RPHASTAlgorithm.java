@@ -26,8 +26,8 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 
-import heigit.ors.routing.graphhopper.extensions.edgefilters.DownwardSearchEdgeFilter;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.UpwardSearchEdgeFilter;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.ch.DownwardSearchEdgeFilter;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.ch.UpwardSearchEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
 import heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
 

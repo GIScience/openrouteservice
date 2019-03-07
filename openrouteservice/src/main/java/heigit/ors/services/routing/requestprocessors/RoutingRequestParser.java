@@ -255,6 +255,7 @@ public class RoutingRequestParser
 				   throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "optimized");
 			   
 			   searchParams.setFlexibleMode(!b);
+			   searchParams.setOptimized(b);
 		   }
 		   catch(Exception ex)
 		   {

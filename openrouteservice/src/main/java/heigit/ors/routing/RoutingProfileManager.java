@@ -506,8 +506,9 @@ public class RoutingProfileManager {
     public RoutingProfile getRouteProfile(RoutingRequest req, boolean oneToMany) throws Exception {
         RouteSearchParameters searchParams = req.getSearchParameters();
         int profileType = searchParams.getProfileType();
+        boolean hasAvoidAreas = searchParams.hasAvoidAreas();
 
-        boolean dynamicWeights = (searchParams.hasAvoidAreas() || searchParams.hasAvoidFeatures() || searchParams.hasAvoidBorders() || searchParams.hasAvoidCountries() || (RoutingProfileType.isDriving(profileType) && ((RoutingProfileType.isHeavyVehicle(profileType) && searchParams.getVehicleType() > 0) || searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
+        boolean dynamicWeights = (hasAvoidAreas || searchParams.hasAvoidFeatures() || searchParams.hasAvoidBorders() || searchParams.hasAvoidCountries() || (RoutingProfileType.isDriving(profileType) && ((RoutingProfileType.isHeavyVehicle(profileType) && searchParams.getVehicleType() > 0) || searchParams.hasParameters(VehicleParameters.class) || searchParams.getConsiderTraffic())) || (searchParams.getWeightingMethod() == WeightingMethod.SHORTEST || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED) || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/);
 
         RoutingProfile rp = _routeProfiles.getRouteProfile(profileType, !dynamicWeights);
 
@@ -519,7 +520,10 @@ public class RoutingProfileManager {
 
         RouteProfileConfiguration config = rp.getConfiguration();
 
-        if (config.getMaximumDistance() > 0 || (dynamicWeights && config.getMaximumSegmentDistanceWithDynamicWeights() > 0) || config.getMaximumWayPoints() > 0) {
+        if (config.getMaximumDistance() > 0
+                || (dynamicWeights && config.getMaximumDistanceDynamicWeights() > 0)
+                || config.getMaximumWayPoints() > 0
+                || (hasAvoidAreas && config.getMaximumDistanceAvoidAreas() > 0)) {
             Coordinate[] coords = req.getCoordinates();
             int nCoords = coords.length;
             if (config.getMaximumWayPoints() > 0) {
@@ -527,7 +531,9 @@ public class RoutingProfileManager {
                     throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The specified number of waypoints must not be greater than " + Integer.toString(config.getMaximumWayPoints()) + ".");
             }
 
-            if (config.getMaximumDistance() > 0 || (dynamicWeights && config.getMaximumSegmentDistanceWithDynamicWeights() > 0)) {
+            if (config.getMaximumDistance() > 0
+                    || (dynamicWeights && config.getMaximumDistanceDynamicWeights() > 0)
+                    || (hasAvoidAreas && config.getMaximumDistanceAvoidAreas() > 0)) {
                 double longestSegmentDist = 0.0;
                 DistanceCalc distCalc = Helper.DIST_EARTH;
 
@@ -563,8 +569,10 @@ public class RoutingProfileManager {
                 if (config.getMaximumDistance() > 0 && totalDist > config.getMaximumDistance())
                     throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The approximated route distance must not be greater than " + Double.toString(config.getMaximumDistance()) + " meters.");
 
-                if (dynamicWeights && config.getMaximumSegmentDistanceWithDynamicWeights() > 0 && longestSegmentDist > config.getMaximumSegmentDistanceWithDynamicWeights())
-                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "By dynamic weighting, the approximated distance of a route segment must not be greater than " + Double.toString(config.getMaximumSegmentDistanceWithDynamicWeights()) + " meters.");
+                if (dynamicWeights && config.getMaximumDistanceDynamicWeights() > 0 && totalDist > config.getMaximumDistanceDynamicWeights())
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "By dynamic weighting, the approximated distance of a route segment must not be greater than " + Double.toString(config.getMaximumDistanceDynamicWeights()) + " meters.");
+                if (hasAvoidAreas && config.getMaximumDistanceAvoidAreas() > 0 && totalDist > config.getMaximumDistanceAvoidAreas())
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "With areas to avoid, the approximated route distance must not be greater than " + Double.toString(config.getMaximumDistanceAvoidAreas()) + " meters.");
             }
         }
 

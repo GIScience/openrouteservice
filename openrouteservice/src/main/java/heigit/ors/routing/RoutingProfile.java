@@ -219,9 +219,12 @@ public class RoutingProfile {
 
         boolean prepareCH = false;
         boolean prepareLM = false;
+        boolean prepareCore = false;
+        boolean prepareCoreLM = false;
 
         args.put("prepare.ch.weightings", "no");
         args.put("prepare.lm.weightings", "no");
+        args.put("prepare.core.weightings", "no");
 
         if (config.getPreparationOpts() != null) {
             Config opts = config.getPreparationOpts();
@@ -268,15 +271,43 @@ public class RoutingProfile {
                             args.put("prepare.lm.landmarks", lmOpts.getInt("landmarks"));
                     }
                 }
+
+                if (opts.hasPath("methods.core")) {
+                    prepareCore = true;
+                    Config coreOpts = opts.getConfig("methods.core");
+
+                    if (coreOpts.hasPath("enabled") || coreOpts.getBoolean("enabled")) {
+                        prepareCore = coreOpts.getBoolean("enabled");
+                        if (prepareCore == false)
+                            args.put("prepare.ch.weightings", "no");
+                    }
+
+
+                    if (prepareCore) {
+                        if (coreOpts.hasPath("threads"))
+                            args.put("prepare.core.threads", coreOpts.getInt("threads"));
+                        if (coreOpts.hasPath("weightings"))
+                            args.put("prepare.core.weightings", StringUtility.trimQuotes(coreOpts.getString("weightings")));
+                        if (coreOpts.hasPath("lmsets"))
+                            args.put("prepare.corelm.lmsets", StringUtility.trimQuotes(coreOpts.getString("lmsets")));
+                        if (coreOpts.hasPath("landmarks"))
+                            args.put("prepare.corelm.landmarks", coreOpts.getInt("landmarks"));
+                    }
+                }
             }
         }
 
         if (config.getExecutionOpts() != null) {
             Config opts = config.getExecutionOpts();
             if (opts.hasPath("methods.ch")) {
-                Config chOpts = opts.getConfig("methods.ch");
+                Config coreOpts = opts.getConfig("methods.ch");
+                if (coreOpts.hasPath("disabling_allowed"))
+                    args.put("routing.ch.disabling_allowed", coreOpts.getBoolean("disabling_allowed"));
+            }
+            if (opts.hasPath("methods.core")) {
+                Config chOpts = opts.getConfig("methods.core");
                 if (chOpts.hasPath("disabling_allowed"))
-                    args.put("routing.ch.disabling_allowed", chOpts.getBoolean("disabling_allowed"));
+                    args.put("routing.core.disabling_allowed", chOpts.getBoolean("disabling_allowed"));
             }
             if (opts.hasPath("methods.lm")) {
                 Config lmOpts = opts.getConfig("methods.lm");
@@ -285,6 +316,14 @@ public class RoutingProfile {
 
                 if (lmOpts.hasPath("active_landmarks"))
                     args.put("routing.lm.active_landmarks", lmOpts.getInt("active_landmarks"));
+            }
+            if (opts.hasPath("methods.corelm")) {
+                Config lmOpts = opts.getConfig("methods.corelm");
+                if (lmOpts.hasPath("disabling_allowed"))
+                    args.put("routing.lm.disabling_allowed", lmOpts.getBoolean("disabling_allowed"));
+
+                if (lmOpts.hasPath("active_landmarks"))
+                    args.put("routing.corelm.active_landmarks", lmOpts.getInt("active_landmarks"));
             }
         }
 
@@ -561,6 +600,7 @@ public class RoutingProfile {
         /* Avoid areas */
 
         if (searchParams.hasAvoidAreas()) {
+            props.put("avoid_areas", true);
             edgeFilters.add(new AvoidAreasEdgeFilter(searchParams.getAvoidAreas()));
         }
 
@@ -589,6 +629,7 @@ public class RoutingProfile {
         /* Avoid features */
 
         if (searchParams.hasAvoidFeatures()) {
+            props.put("avoid_features", searchParams.getAvoidFeatureTypes());
             edgeFilters.add(new AvoidFeaturesEdgeFilter(profileType, searchParams, gs));
         }
 
@@ -597,6 +638,8 @@ public class RoutingProfile {
         if (searchParams.hasAvoidBorders() || searchParams.hasAvoidCountries()) {
             if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)) {
                 edgeFilters.add(new AvoidBordersEdgeFilter(searchParams, gs));
+                if(searchParams.hasAvoidCountries())
+                    props.put("avoid_countries", Arrays.toString(searchParams.getAvoidCountries()));
             }
         }
 
@@ -686,6 +729,7 @@ public class RoutingProfile {
             RouteSearchContext searchCntx = createSearchContext(searchParams, RouteSearchMode.Routing, customEdgeFilter);
 
             boolean flexibleMode = searchParams.getFlexibleMode();
+            boolean optimized = searchParams.getOptimized();
             GHRequest req = null;
             if (bearings == null || bearings[0] == null)
                 req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
@@ -711,7 +755,7 @@ public class RoutingProfile {
                 } else if (weightingMethod == WeightingMethod.SHORTEST) {
                     req.setWeighting("shortest");
                     req.getHints().put("weighting_method", "shortest");
-                    flexibleMode = true;
+                    //flexibleMode = true;
                 } else if (weightingMethod == WeightingMethod.RECOMMENDED) {
                     req.setWeighting("fastest");
                     req.getHints().put("weighting_method", "recommended");
@@ -741,17 +785,57 @@ public class RoutingProfile {
             req.setEdgeFilter(searchCntx.getEdgeFilter());
             req.setPathProcessor(routeProcCntx.getPathProcessor());
 
+            //TEST
+            // optimized = false;
+
             if (useDynamicWeights(searchParams) || flexibleMode) {
                 if (mGraphHopper.isCHEnabled())
                     req.getHints().put("ch.disable", true);
-                if (mGraphHopper.getLMFactoryDecorator().isEnabled())
+                if (mGraphHopper.getLMFactoryDecorator().isEnabled()) {
                     req.setAlgorithm("astarbi");
-                req.getHints().put("lm.disable", false);
-            } else {
-                if (mGraphHopper.isCHEnabled())
-                    req.getHints().put("lm.disable", true);
-                else
+                    req.getHints().put("lm.disable", false);
+                    req.getHints().put("core.disable", true);
                     req.getHints().put("ch.disable", true);
+                }
+                if (mGraphHopper.isCoreEnabled() &&
+                        optimized /*&&
+                        !(searchParams.getWeightingMethod() == WeightingMethod.SHORTEST ||
+                                searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED ||
+                                searchParams.getBearings() != null)*/) {
+                    req.getHints().put("core.disable", false);
+                    req.getHints().put("lm.disable", true);
+                    req.getHints().put("ch.disable", true);
+                    req.setAlgorithm("astarbi");
+                }
+            } else {
+                if (mGraphHopper.isCHEnabled()) {
+                    req.getHints().put("lm.disable", true);
+                    req.getHints().put("core.disable", true);
+                }
+                else {
+                    if (mGraphHopper.isCoreEnabled() &&
+                            optimized /*&&
+                            !(searchParams.getWeightingMethod() == WeightingMethod.SHORTEST ||
+                                    searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED ||
+                                    searchParams.getBearings() != null)*/) {
+                        req.getHints().put("core.disable", false);
+                        req.getHints().put("lm.disable", true);
+                        req.getHints().put("ch.disable", true);
+                        req.setAlgorithm("astarbi");
+
+                    }
+                    else {
+                        req.getHints().put("ch.disable", true);
+                        req.getHints().put("core.disable", true);
+                    }
+                }
+            }
+            //cannot use CH or CoreALT with avoid areas. Need to fallback to ALT with beeline approximator or Dijkstra
+            if(props.getBool("avoid_areas", false)){
+                req.setAlgorithm("astarbi");
+                req.getHints().put("lm.disable", false);
+                req.getHints().put("core.disable", true);
+                req.getHints().put("ch.disable", true);
             }
 
             if (profileType == RoutingProfileType.DRIVING_EMERGENCY) {
@@ -777,7 +861,6 @@ public class RoutingProfile {
             if (DebugUtility.isDebug() && directedSegment) {
                 LOGGER.info("skipped segment - " + resp.getHints().get("skipped_segment", ""));
             }
-
             endUseGH();
         } catch (Exception ex) {
             endUseGH();
@@ -801,9 +884,9 @@ public class RoutingProfile {
                     || searchParams.getConsiderTraffic()
                 )
             )
-            ||( searchParams.getWeightingMethod() == WeightingMethod.SHORTEST
+            //||( searchParams.getWeightingMethod() == WeightingMethod.SHORTEST
                 || searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED
-            )
+            //)
             || searchParams.getConsiderTurnRestrictions() /*|| RouteExtraInformationFlag.isSet(extraInfo, value) searchParams.getIncludeWaySurfaceInfo()*/;
         return dynamicWeights;
     }

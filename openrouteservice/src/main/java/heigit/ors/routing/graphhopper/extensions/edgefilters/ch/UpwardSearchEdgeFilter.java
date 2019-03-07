@@ -11,24 +11,24 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions.edgefilters;
+package heigit.ors.routing.graphhopper.extensions.edgefilters.ch;
 
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.util.EdgeIteratorState;
 
-public class DownwardSearchEdgeFilter extends CHLevelEdgeFilter {
+public class UpwardSearchEdgeFilter extends CHLevelEdgeFilter {
 
-	public DownwardSearchEdgeFilter(CHGraph g, FlagEncoder encoder) {
+	public UpwardSearchEdgeFilter(CHGraph g, FlagEncoder encoder) {
 		super(g, encoder);
 	}
-
+	
 	@Override
 	public boolean accept(EdgeIteratorState edgeIterState) {
 		int adj = edgeIterState.getAdjNode(); 
 
 		if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel <= graph.getLevel(adj))
-			return edgeIterState.isBackward(encoder);
+			return edgeIterState.isForward(encoder);
 		else
 			return false;
 	}
