@@ -362,7 +362,15 @@ public class RoutingProfileManager {
         EdgeFilter customEdgeFilter = rp.createAccessRestrictionFilter(coords);
         GHResponse prevResp = null;
         WayPointBearing[] bearings = (req.getContinueStraight() || searchParams.getBearings() != null) ? new WayPointBearing[2] : null;
-        double[] radiuses = searchParams.getMaximumRadiuses() != null ? new double[2] : null;
+        int profileType = req.getSearchParameters().getProfileType();
+        double[] radiuses;
+        if (searchParams.getMaximumRadiuses() != null) {
+            radiuses = new double[2];
+        } else if (_routeProfiles.getRouteProfile(profileType).getConfiguration().hasMaximumSnappingRadius()) {
+            radiuses = new double[2];
+        } else {
+            radiuses = null;
+        }
 
         for (int i = 1; i <= nSegments; ++i) {
             c1 = coords[i];
@@ -385,7 +393,20 @@ public class RoutingProfileManager {
             if (searchParams.getMaximumRadiuses() != null) {
                 radiuses[0] = searchParams.getMaximumRadiuses()[i - 1];
                 radiuses[1] = searchParams.getMaximumRadiuses()[i];
+            }else {
+                try {
+                    int maximumSnappingRadius = _routeProfiles.getRouteProfile(profileType).getConfiguration().getMaximumSnappingRadius();
+                    radiuses[0] = maximumSnappingRadius;
+                    radiuses[1] = maximumSnappingRadius;
+                 } catch (Exception ex) {
+                }
+
             }
+
+//             else {
+//                _routeProfiles.getUniqueProfiles().get()
+//                mInstance.getProfiles()
+//            }
 
             GHResponse gr;
             if ((skipSegments.contains(i))) {

@@ -1338,4 +1338,110 @@ public class ParamsTest extends ServiceTest {
                 .body("features[0].properties.warnings[0].containsKey('message')", is(true))
                 .statusCode(200);
     }
+
+	/**
+	 * This test needs the maximum_snapping_radius of cycling-regular to be >= 10 and <= 100
+     * and maximum_snapping_radius of the default parameters to be >= 350 in the test config to run through.
+	 */
+	@Test
+	public void expectPointNotFoundError() {
+
+        JSONArray coords = new JSONArray();
+        coords.put(new JSONArray(new double[]{8.688544, 49.435462}));
+        coords.put(new JSONArray(new double[]{8.678727, 49.440115}));
+
+        JSONObject body = new JSONObject();
+        body.put("coordinates", coords);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "cycling-mountain")
+                .body(body.toString())
+                .when().log().all()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .statusCode(200);
+        body.put("radiuses", new int[]{5, 10});
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "cycling-mountain")
+                .body(body.toString())
+                .when().log().all()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().all()
+                .assertThat()
+                .body("error.code", is(RoutingErrorCodes.POINT_NOT_FOUND))
+                .statusCode(404);
+
+		coords = new JSONArray();
+		coords.put(new JSONArray(new double[]{8.688297, 49.436299}));
+		coords.put(new JSONArray(new double[]{8.678727, 49.440115}));
+
+		body = new JSONObject();
+		body.put("coordinates", coords);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", "cycling-mountain")
+				.body(body.toString())
+				.when().log().all()
+				.post(getEndPointPath() + "/{profile}/json")
+				.then().log().all()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.POINT_NOT_FOUND))
+				.statusCode(404);
+
+		body.put("radiuses", new int[]{100, 10});
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", "cycling-mountain")
+				.body(body.toString())
+				.when().log().all()
+				.post(getEndPointPath() + "/{profile}/json")
+				.then().log().all()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.POINT_NOT_FOUND))
+				.statusCode(404);
+
+        coords = new JSONArray();
+        coords.put(new JSONArray(new double[]{8.647348, 49.366612}));
+        coords.put(new JSONArray(new double[]{8.678727, 49.440115}));
+
+        body = new JSONObject();
+        body.put("coordinates", coords);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "driving-car")
+                .body(body.toString())
+                .when().log().all()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .statusCode(200);
+
+        body.put("radiuses", new int[]{150, 10});
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "driving-car")
+                .body(body.toString())
+                .when().log().all()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().all()
+                .assertThat()
+                .body("error.code", is(RoutingErrorCodes.POINT_NOT_FOUND))
+                .statusCode(404);
+	}
 }
