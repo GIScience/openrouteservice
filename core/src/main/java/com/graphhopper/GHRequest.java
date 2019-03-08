@@ -336,12 +336,6 @@ public class GHRequest {
         maxSearchDistances = distances;
     }
 
-    // Modification by Maxim Rylov: Added setMaxSpeed method.
-    public void setMaxSpeed(double speed) {
-        if (speed > 0) {
-            hints.put("max_speed", speed);
-        }
-    }
     // ****************************************************************
     // ORS-GH MOD END
     // ****************************************************************

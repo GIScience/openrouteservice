@@ -110,7 +110,7 @@ public class QueryResult {
     /**
      * @return the closest matching edge. Will be null if nothing found or call isValid before
      */
-    public EdgeIteratorState getClosestEdge() {
+    public EdgeIteratorState    getClosestEdge() {
         return closestEdge;
     }
 
