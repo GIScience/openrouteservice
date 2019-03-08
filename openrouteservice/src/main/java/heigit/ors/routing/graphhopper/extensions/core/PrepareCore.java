@@ -100,8 +100,8 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         this.weighting = weighting;
         prepareWeighting = new PreparationWeighting(weighting);
         this.dir = dir;
-        this.pns = new ProxyNodeStorage(ghStorage, ghStorage.getDirectory(), weighting);
-        pns.loadExisting();
+//        this.pns = new ProxyNodeStorage(ghStorage, ghStorage.getDirectory(), weighting);
+//        pns.loadExisting();
     }
 
     public void initLevelFilter() {
@@ -192,10 +192,10 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             return;
         contractNodes();
         //generate proxy nodes for forward and backward direction
-        if(pns.loadExisting())
-            return;
-        pns.generateProxies();
-        pns.flush();
+//        if(pns.loadExisting())
+//            return;
+//        pns.generateProxies();
+//        pns.flush();
     }
 
 
