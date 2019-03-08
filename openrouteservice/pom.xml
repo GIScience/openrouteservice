@@ -44,8 +44,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.timestamp>${maven.build.timestamp}</project.timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
-        <!-- The following line might show up as an error in IntelliJ IDE... it is not an error but a bug in IntelliJ so don't worry! -->
-        <build.version>${git.commit.time}.${git.commit.id.abbrev}</build.version>
     </properties>
      <scm>
   	<url>git@github.com:GIScience/openrouteservice.git</url>
@@ -95,25 +93,6 @@
                     </configuration>
                 </execution>
             </executions>
-        </plugin>
-        <plugin>
-            <groupId>pl.project13.maven</groupId>
-            <artifactId>git-commit-id-plugin</artifactId>
-            <version>2.2.1</version>
-            <executions>
-                <execution>
-                    <phase>validate</phase>
-                    <goals>
-                        <goal>revision</goal>
-                    </goals>
-                </execution>
-            </executions>
-            <configuration>
-                <dateFormat>yyyMMdd-HHmmss</dateFormat>
-                <dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
-                <generateGitPropertiesFile>false</generateGitPropertiesFile>
-                <injectAllReactorProjects>true</injectAllReactorProjects>
-            </configuration>
         </plugin>
      <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
