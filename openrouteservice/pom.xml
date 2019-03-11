@@ -56,6 +56,7 @@
         <version>2.0.4.RELEASE</version>
     </parent>
   <build>
+    <finalName>ors</finalName>
     <sourceDirectory>src/main/java</sourceDirectory>
     <resources>
        <resource>
@@ -88,7 +89,7 @@
                     <configuration>
                         <tasks>
                             <echo>Creating version file</echo>
-                            <copy file="${basedir}/target/${project.artifactId}-${project.version}/WEB-INF/classes/resources/version.properties" tofile="${basedir}/target/version.properties" />
+                            <copy file="${basedir}/target/${project.build.finalName}/WEB-INF/classes/resources/version.properties" tofile="${basedir}/target/version.properties" />
                         </tasks>
                     </configuration>
                 </execution>
