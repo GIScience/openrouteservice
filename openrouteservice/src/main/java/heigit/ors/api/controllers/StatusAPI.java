@@ -101,8 +101,8 @@ public class StatusAPI {
                     if (rpc.getMaximumDistance() > 0)
                         jProfileLimits.put("maximum_distance", rpc.getMaximumDistance());
 
-                    if (rpc.getMaximumSegmentDistanceWithDynamicWeights() > 0)
-                        jProfileLimits.put("maximum_segment_distance_with_dynamic_weights", rpc.getMaximumSegmentDistanceWithDynamicWeights());
+//                    if (rpc.getMaximumSegmentDistanceWithDynamicWeights() > 0)
+//                        jProfileLimits.put("maximum_segment_distance_with_dynamic_weights", rpc.getMaximumSegmentDistanceWithDynamicWeights());
 
                     if (rpc.getMaximumWayPoints() > 0)
                         jProfileLimits.put("maximum_waypoints", rpc.getMaximumWayPoints());
