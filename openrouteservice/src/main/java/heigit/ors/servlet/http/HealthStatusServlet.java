@@ -21,7 +21,13 @@ import org.json.JSONObject;
 import heigit.ors.common.StatusCode;
 import heigit.ors.routing.RoutingProfileManagerStatus;
 import heigit.ors.servlet.util.ServletUtility;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+@Deprecated
+@RestController
+@RequestMapping("/health")
 public class HealthStatusServlet extends BaseHttpServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -37,6 +43,7 @@ public class HealthStatusServlet extends BaseHttpServlet {
 		
 	}
 
+	@GetMapping
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		try
 		{

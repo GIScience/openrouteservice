@@ -31,6 +31,7 @@ import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 
 import javax.servlet.http.HttpServletRequest;
 
+@Deprecated
 public class RoutingServiceRequestProcessorFactory {
 	public static AbstractHttpRequestProcessor createProcessor(HttpServletRequest request) throws Exception
 	{

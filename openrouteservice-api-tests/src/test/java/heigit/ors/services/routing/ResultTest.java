@@ -414,8 +414,6 @@ public class ResultTest extends ServiceTest {
 		// options for cycling profiles
 		JSONObject options = new JSONObject();
 		JSONObject profileParams = new JSONObject();
-		profileParams.put("maximum_gradient", "5");
-		profileParams.put("difficulty_level", "1");
 		options.put("profile_params", profileParams);
 
 		given()
@@ -1150,6 +1148,35 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].summary.distance", is(3172.3f))
                 .statusCode(200);
 
+        // Test avoid_countries with ISO 3166-1 Alpha-2 parameters
+        given()
+                .param("coordinates", "8.684682,49.401961|8.690518,49.405326")
+                .param("instructions", "false")
+                .param("preference", "shortest")
+                .param("profile", getParameter("carProfile"))
+                .param("options", "{\"avoid_countries\":\"AT|FR\"}")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(3172.3f))
+                .statusCode(200);
+
+        // Test avoid_countries with ISO 3166-1 Alpha-3 parameters
+        given()
+                .param("coordinates", "8.684682,49.401961|8.690518,49.405326")
+                .param("instructions", "false")
+                .param("preference", "shortest")
+                .param("profile", getParameter("carProfile"))
+                .param("options", "{\"avoid_countries\":\"AUT|FRA\"}")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(3172.3f))
+                .statusCode(200);
 	}
 
 	@Test
@@ -1395,4 +1422,31 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].extras.roadaccessrestrictions.values[1][2]", is(32))
                 .statusCode(200);
     }
+
+    @Test
+    public void testSimplifyHasLessWayPoints() {
+
+        given()
+                .param("coordinates", getParameter("coordinatesShort"))
+                .param("profile", "driving-car")
+                .param("format", "geojson")
+                .when()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("features[0].geometry.coordinates.size()", is(75))
+                .statusCode(200);
+
+        given()
+                .param("coordinates", getParameter("coordinatesShort"))
+                .param("profile", "driving-car")
+                .param("format", "geojson")
+                .param("geometry_simplify", "true")
+                .when()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("features[0].geometry.coordinates.size()", is(34))
+                .statusCode(200);
+	}
 }

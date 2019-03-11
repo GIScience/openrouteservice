@@ -15,6 +15,10 @@ package heigit.ors.routing.parameters;
 
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class VehicleParameters extends ProfileParameters {
 	private double _length = 0.0;
 	private double _height = 0.0;
@@ -76,5 +80,19 @@ public class VehicleParameters extends ProfileParameters {
 	
 	public boolean hasAttributes() {
 		return _height > 0.0 || _length > 0.0 || _width > 0.0 || _weight > 0.0 || _axleload > 0.0 || _characteristics != 0;
+	}
+
+	@Override
+	public List<String> getValidRestrictions() {
+		List<String> valid = super.getValidRestrictions();
+
+		valid.add("height");
+		valid.add("length");
+		valid.add("width");
+		valid.add("weight");
+		valid.add("hazmat");
+		valid.add("axleload");
+
+		return valid;
 	}
 }

@@ -18,6 +18,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.services.ServiceRequest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RoutingRequest extends ServiceRequest
 {
 	private Coordinate[] _coordinates;
@@ -25,6 +28,7 @@ public class RoutingRequest extends ServiceRequest
 	private DistanceUnit _units = DistanceUnit.Meters;
 	private String _language = "en";
 	private String _geometryFormat = "encodedpolyline";
+	private Boolean _geometrySimplify = false;
 	private RouteInstructionsFormat _instructionsFormat = RouteInstructionsFormat.TEXT;
 	private Boolean _includeInstructions = true;
 	private Boolean _includeElevation = false;
@@ -36,7 +40,8 @@ public class RoutingRequest extends ServiceRequest
     private int _locationIndex = -1;
     private boolean _continueStraight = false;
     private Boolean _suppressWarnings = false;
-	
+	private List<Integer> _skipSegments = new ArrayList<>();
+
 	public RoutingRequest()
 	{
 		_searchParameters = new RouteSearchParameters();
@@ -86,6 +91,10 @@ public class RoutingRequest extends ServiceRequest
 	public void setGeometryFormat(String geometryFormat) {
 		_geometryFormat = geometryFormat;
 	}
+
+	public boolean getGeometrySimplify() { return _geometrySimplify; }
+
+	public void setGeometrySimplify(boolean geometrySimplify) { _geometrySimplify = geometrySimplify; }
 
 	public String getLanguage() {
 		return _language;
@@ -193,5 +202,13 @@ public class RoutingRequest extends ServiceRequest
 
 	public boolean isValid() {
 		return !(_coordinates == null);
+	}
+
+	public List<Integer> getSkipSegments() {
+		return _skipSegments;
+	}
+
+	public void setSkipSegments(List<Integer> skipSegments) {
+		_skipSegments = skipSegments;
 	}
 }

@@ -58,6 +58,7 @@ import org.json.JSONObject;
  * @author Julian Psotta, julian@openrouteservice.com
  */
 @SuppressWarnings("FieldCanBeLocal")
+@Deprecated
 public class GlobalResponseProcessor {
     private GeocodingRequest geocodingRequest;
     private GeocodingResult geocodingResult;

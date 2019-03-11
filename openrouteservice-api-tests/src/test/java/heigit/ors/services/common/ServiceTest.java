@@ -61,16 +61,19 @@ public abstract class ServiceTest {
 		String port = System.getProperty("server.port");
 		RestAssured.port = (port == null) ? 8082 : Integer.valueOf(port);
 
-		String basePath = System.getProperty("server.base");
-		if (basePath == null) 
-			basePath = "/openrouteservice-" + Utils.getORSVersion() + "/";
-		
-		RestAssured.basePath = basePath;
-
 		String baseHost = System.getProperty("server.host");
-		if (baseHost == null) 
+		if (baseHost == null)
 			baseHost = "http://localhost";
-		
+
 		RestAssured.baseURI = baseHost;
+
+		if (RestAssured.get("/status").statusCode() != 200) {
+			String basePath = System.getProperty("server.base");
+			if (basePath == null) {
+				basePath = "/ors/";
+			}
+			RestAssured.basePath = basePath;
+		}
+
 	}
 }

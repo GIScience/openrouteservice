@@ -175,13 +175,6 @@ public class RouteSearchParametersTest {
     }
 
     @Test
-    public void setOptions() throws Exception {
-        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        routeSearchParameters.setOptions("{\"maximum_speed\": 10}");
-        Assert.assertEquals("{\"maximum_speed\": 10}", routeSearchParameters.getOptions());
-    }
-
-    @Test
     public void hasParameters() throws Exception {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         Assert.assertFalse(routeSearchParameters.hasParameters(routeSearchParameters.getClass()));

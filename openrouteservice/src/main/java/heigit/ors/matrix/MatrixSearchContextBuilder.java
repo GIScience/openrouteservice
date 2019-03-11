@@ -18,13 +18,12 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.QueryResult;
+import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
+import heigit.ors.exceptions.PointNotFoundException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MatrixSearchContextBuilder {
 	private Map<Coordinate, LocationEntry> _locationCache;
@@ -52,7 +51,9 @@ public class MatrixSearchContextBuilder {
 			_locationCache = new HashMap<Coordinate, LocationEntry>();
 		else
 			_locationCache.clear();
-	
+
+		checkBounds(graph.getBounds(), sources, destinations);
+
 		QueryGraph queryGraph = new QueryGraph(graph);
 		List<QueryResult> queryResults = new ArrayList<QueryResult>(sources.length + destinations.length);
 		
@@ -65,6 +66,57 @@ public class MatrixSearchContextBuilder {
 		MatrixLocations mlDestinations = createLocations(destinations);
 		
 		return new  MatrixSearchContext(queryGraph, mlSources, mlDestinations);
+	}
+
+	private void checkBounds(BBox bounds, Coordinate[] sources, Coordinate[] destinations) throws PointNotFoundException {
+		String[] messages = new String[2];
+		messages[0] = constructPointOutOfBoundsMessage("Source", bounds, sources);
+		messages[1] = constructPointOutOfBoundsMessage("Destination", bounds, destinations);
+
+		String exceptionMessage = messages[0];
+		if (!exceptionMessage.isEmpty() && !messages[1].isEmpty())
+			exceptionMessage += ". ";
+		exceptionMessage += messages[1];
+
+		if (!exceptionMessage.isEmpty())
+			throw new PointNotFoundException(exceptionMessage, MatrixErrorCodes.POINT_NOT_FOUND);
+	}
+
+	private String constructPointOutOfBoundsMessage(String pointsType, BBox bounds, Coordinate[] coords) {
+		int[] pointIds = pointIdsOutOfBounds(bounds, coords);
+		String message = "";
+
+		if (pointIds.length > 0) {
+			String idString = Arrays.toString(pointIds);
+			String coordsString = "";
+			for (int id : pointIds) {
+				coordsString = coordsString + coords[id].y + "," + coords[id].x + "; ";
+			}
+			if (coordsString.length() > 1) {
+				coordsString = coordsString.substring(0, coordsString.length() - 2);
+			}
+
+			message = pointsType + " point(s) " + idString + " out of bounds: " + coordsString;
+		}
+
+		return message;
+	}
+
+	private int[] pointIdsOutOfBounds(BBox bounds, Coordinate[] coords) {
+		List<Integer> ids = new ArrayList();
+		for (int i=0; i<coords.length; i++) {
+			Coordinate c = coords[i];
+			if (!bounds.contains(c.y, c.x)) {
+				ids.add(i);
+			}
+		}
+
+		int[] idsArray = new int[ids.size()];
+		for(int i=0; i<ids.size(); i++) {
+			idsArray[i] = ids.get(i).intValue();
+		}
+
+		return idsArray;
 	}
 	
 	private void resolveLocations(Coordinate[] coords, List<QueryResult> queryResults, double maxSearchRadius)

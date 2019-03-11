@@ -10,8 +10,9 @@
 	<servlet-mapping>
 		<servlet-name>routing</servlet-name>
 		<url-pattern>/routes</url-pattern>
+		<url-pattern>/directions</url-pattern>
 	</servlet-mapping>
-	
+
 	<!-- GEOCODING SERVICE -->
 	<servlet>
 	<servlet-name>geocoding</servlet-name>

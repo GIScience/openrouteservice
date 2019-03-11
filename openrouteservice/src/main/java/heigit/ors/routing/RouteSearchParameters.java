@@ -30,9 +30,8 @@ import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
-import heigit.ors.routing.parameters.ProfileParameters;
-import heigit.ors.routing.parameters.VehicleParameters;
-import heigit.ors.routing.parameters.WheelchairParameters;
+import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
+import heigit.ors.routing.parameters.*;
 import heigit.ors.routing.pathprocessors.BordersExtractor;
 import heigit.ors.util.StringUtility;
 import org.json.JSONArray;
@@ -209,13 +208,19 @@ public class RouteSearchParameters {
             String keyValue = json.getString("avoid_countries");
             if (!Helper.isEmpty(keyValue)) {
                 String[] avoidCountries = keyValue.split("\\|");
-                if (avoidCountries != null && avoidCountries.length > 0) {
+                if (avoidCountries.length > 0) {
                     _avoidCountries = new int[avoidCountries.length];
                     for (int i = 0; i < avoidCountries.length; i++) {
                         try {
                             _avoidCountries[i] = Integer.parseInt(avoidCountries[i]);
                         } catch (NumberFormatException nfe) {
-                            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_countries", avoidCountries[i]);
+                            // Check if ISO-3166-1 Alpha-2 / Alpha-3 code
+                            int countryId = CountryBordersReader.getCountryIdByISOCode(avoidCountries[i]);
+                            if (countryId > 0) {
+                                _avoidCountries[i] = countryId;
+                            } else {
+                                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_countries", avoidCountries[i]);
+                            }
                         }
                     }
                 }
@@ -370,6 +375,10 @@ public class RouteSearchParameters {
 
     public ProfileParameters getProfileParameters() {
         return _profileParams;
+    }
+
+    public void setProfileParams(ProfileParameters profileParams) {
+        this._profileParams = profileParams;
     }
 
     public boolean getFlexibleMode() {

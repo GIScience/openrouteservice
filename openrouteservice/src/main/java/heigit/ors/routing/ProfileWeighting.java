@@ -17,16 +17,17 @@ package heigit.ors.routing;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 
+import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.util.StringUtility;
 
 public class ProfileWeighting {
 	private String _name;
 	private PMap _params;
 
-	public ProfileWeighting(String name) throws Exception
+	public ProfileWeighting(String name) throws InternalServerException
 	{
 		if (Helper.isEmpty(name))
-			throw new Exception("'name' cann't be null or empty");
+			throw new InternalServerException(RoutingErrorCodes.EMPTY_ELEMENT, "'name' can't be null or empty");
 
 		_name =  name;
 	}

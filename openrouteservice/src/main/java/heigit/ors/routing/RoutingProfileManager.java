@@ -320,9 +320,9 @@ public class RoutingProfileManager {
             Coordinate c1 = coords[i];
             GHResponse gr = null;
             if (invertFlow)
-                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, null, null, false, searchParams, customEdgeFilter, routeProcCntx);
+                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, null, null, false, searchParams, customEdgeFilter, routeProcCntx, req.getGeometrySimplify());
             else
-                gr = rp.computeRoute(c1.y, c1.x, c0.y, c0.x, null, null, false, searchParams, customEdgeFilter, routeProcCntx);
+                gr = rp.computeRoute(c1.y, c1.x, c0.y, c0.x, null, null, false, searchParams, customEdgeFilter, routeProcCntx, req.getGeometrySimplify());
 
             //if (gr.hasErrors())
             //	throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
@@ -347,12 +347,13 @@ public class RoutingProfileManager {
     }
 
     public RouteResult computeRoute(RoutingRequest req) throws Exception {
+        List<Integer> skipSegments = req.getSkipSegments();
         List<GHResponse> routes = new ArrayList<GHResponse>();
 
         RoutingProfile rp = getRouteProfile(req, false);
         RouteSearchParameters searchParams = req.getSearchParameters();
         PathProcessor pathProcessor = null;
-        
+
         pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req);
 
         Coordinate[] coords = req.getCoordinates();
@@ -388,11 +389,16 @@ public class RoutingProfileManager {
                 radiuses[1] = searchParams.getMaximumRadiuses()[i];
             }
 
-            GHResponse gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, c0.z == 1.0, searchParams, customEdgeFilter, routeProcCntx);
+            GHResponse gr;
+            if ((skipSegments.contains(i))) {
+                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, true, searchParams, customEdgeFilter, routeProcCntx, req.getGeometrySimplify());
+            } else {
+                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, false, searchParams, customEdgeFilter, routeProcCntx, req.getGeometrySimplify());
+            }
 
             if (gr.hasErrors()) {
                 if (gr.getErrors().size() > 0) {
-                    if(gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.ConnectionNotFoundException) {
+                    if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.ConnectionNotFoundException) {
                         throw new RouteNotFoundException(
                                 RoutingErrorCodes.ROUTE_NOT_FOUND,
                                 String.format("Unable to find a route between points %d (%s) and %d (%s).",
@@ -430,8 +436,53 @@ public class RoutingProfileManager {
             routes.add(gr);
             c0 = c1;
         }
-
+        routes = enrichDirectRoutesTime(routes);
         return new RouteResultBuilder().createRouteResult(routes, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor) pathProcessor).getExtras() : null);
+    }
+
+    /**
+     * This will enrich all direct routes with an approximated travel time that is being calculated from the real graphhopper
+     * results. The routes object should contain all routes, so the function can maintain and return the proper order!
+     *
+     * @param routes Should hold all the routes that have been calculated, not only the direct routes.
+     * @return will return routes object with enriched direct routes if any we're found in the same order as the input object.
+     */
+    private List<GHResponse> enrichDirectRoutesTime(List<GHResponse> routes) {
+        List<GHResponse> graphhopperRoutes = new ArrayList<>();
+        List<GHResponse> directRoutes = new ArrayList<>();
+        long graphHopperTravelTime = 0;
+        double graphHopperTravelDistance = 0;
+        double averageTravelTimePerMeter;
+
+        for (GHResponse ghResponse : routes) {
+            if (!ghResponse.getHints().has("skipped_segment")) {
+                graphHopperTravelDistance += ghResponse.getBest().getDistance();
+                graphHopperTravelTime += ghResponse.getBest().getTime();
+                graphhopperRoutes.add(ghResponse);
+            } else {
+                directRoutes.add(ghResponse);
+            }
+        }
+
+        if (graphhopperRoutes.isEmpty() || directRoutes.isEmpty()) {
+            return routes;
+        }
+
+        if (graphHopperTravelDistance == 0) {
+            return routes;
+        }
+
+        averageTravelTimePerMeter = graphHopperTravelTime / graphHopperTravelDistance;
+        for (GHResponse ghResponse : routes) {
+            if (ghResponse.getHints().has("skipped_segment")) {
+                double directRouteDistance = ghResponse.getBest().getDistance();
+                ghResponse.getBest().setTime(Math.round(directRouteDistance * averageTravelTimePerMeter));
+                double directRouteInstructionDistance = ghResponse.getBest().getInstructions().get(0).getDistance();
+                ghResponse.getBest().getInstructions().get(0).setTime(Math.round(directRouteInstructionDistance * averageTravelTimePerMeter));
+            }
+        }
+
+        return routes;
     }
 
     private double getHeadingDirection(GHResponse resp) {
@@ -532,16 +583,15 @@ public class RoutingProfileManager {
      * This function sends the {@link IsochroneSearchParameters} together with the Attributes to the {@link RoutingProfile}.
      *
      * @param parameters The input is a {@link IsochroneSearchParameters}
-     * @param attributes The attributes are a {@link String}[] holding the set attributes from the api query
      * @return Return is a {@link IsochroneMap} holding the calculated data plus statistical data if the attributes where set.
      * @throws Exception
      */
-    public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters, String[] attributes) throws Exception {
+    public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters) throws Exception {
 
         int profileType = parameters.getRouteParameters().getProfileType();
         RoutingProfile rp = _routeProfiles.getRouteProfile(profileType, false);
 
-        return rp.buildIsochrone(parameters, attributes);
+        return rp.buildIsochrone(parameters);
     }
 
     public MatrixResult computeMatrix(MatrixRequest req) throws Exception {

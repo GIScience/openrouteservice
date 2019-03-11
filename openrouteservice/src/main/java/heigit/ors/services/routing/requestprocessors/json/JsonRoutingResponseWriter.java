@@ -33,7 +33,7 @@ import heigit.ors.util.DistanceUnitUtil;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.PolylineEncoder;
 
-
+@Deprecated
 public class JsonRoutingResponseWriter {
 
 	public static JSONObject toJson(RoutingRequest request, RouteResult[] routeResult) throws StatusCodeException {

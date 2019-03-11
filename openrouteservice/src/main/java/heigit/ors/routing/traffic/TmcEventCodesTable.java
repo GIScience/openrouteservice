@@ -547,7 +547,7 @@ public class TmcEventCodesTable {
 			new TrafficEventInfo(624, "	lane closures removed	", TrafficEventType.ANY, 1f, TrafficEventCategory.NORMAL_TRAFFIC), // changed by zwang
 			new TrafficEventInfo(625, "	message cancelled	", TrafficEventType.ANY, 1f, TrafficEventCategory.NORMAL_TRAFFIC), // changed by zwang
 			new TrafficEventInfo(626, "	blocked ahead. Slow traffic for 3 km	", TrafficEventType.AVOID, 0.7f, TrafficEventCategory.SLOW_TRAFFIC), // changed by zwang
-			new TrafficEventInfo(627, "	no motor vehicles without catalytic converters	", TrafficEventType.ANY, 1f, TrafficEventCategory.NORMAL_TRAFFIC), // changed by zwang
+			new TrafficEventInfo(627, "	no motor vehicles without catalytic converters2	", TrafficEventType.ANY, 1f, TrafficEventCategory.NORMAL_TRAFFIC), // changed by zwang
 			new TrafficEventInfo(628, "	no motor vehicles with even-numbered registration plates	", TrafficEventType.ANY, 1f, TrafficEventCategory.NORMAL_TRAFFIC), // changed by zwang
 			new TrafficEventInfo(629, "	no motor vehicles with odd-numbered registration plates	", TrafficEventType.ANY, 1f, TrafficEventCategory.NORMAL_TRAFFIC), // changed by zwang
 			new TrafficEventInfo(630, "	open	", TrafficEventType.ANY, 1f, TrafficEventCategory.NORMAL_TRAFFIC), // changed by zwang,
