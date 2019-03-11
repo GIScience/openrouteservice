@@ -45,7 +45,7 @@
             "enabled":true,
             "mode":"normal",
             "sources":[
-               "data/heidelberg.osm.gz"
+               "data/osm_file.pbf"
             ],
             "init_threads":1,
             "attribution":"openrouteservice.org, OpenStreetMap contributors",
@@ -60,8 +60,8 @@
                "default_params": {
                    "encoder_flags_size": 8,
                    "graphs_root_path": "data/graphs",
-                   "elevation_provider": "cgiar",
-                   "elevation_cache_path": "data/cgiar_provider",
+                   "elevation_provider": "multi",
+                       "elevation_cache_path": "data/elevation_cache",
                    "elevation_clear_cache": true,
                    "instructions": true,
                    "maximum_distance": 100000,
@@ -280,11 +280,11 @@
             }
          }
       },
-      "logging":{
-         "enabled":true,
-         "level_file":"DEBUG_LOGGING.json",
-         "location":"./logs",
-         "stdout":true
+      "logging": {
+          "enabled": true,
+          "level_file": "PRODUCTION_LOGGING.json",
+          "location": "/var/log/ors",
+          "stdout": true
       }
    }
 }
