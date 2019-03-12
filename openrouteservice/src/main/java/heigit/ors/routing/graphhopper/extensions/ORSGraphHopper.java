@@ -343,10 +343,10 @@ public class ORSGraphHopper extends GraphHopper {
 
 				if (request.getEdgeFilter() != null)
 					algoOpts.setEdgeFilter(request.getEdgeFilter());
-
-//				PathProcessingContext pathProcCntx = new PathProcessingContext(encoder, weighting, tr,
-//						request.getEdgeAnnotator(), request.getPathProcessor(), byteBuffer);
-
+				if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo){
+					((TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr).init(encoder, weighting, request.getPathProcessor());
+				}
+//			
 				altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts);
 
 				boolean tmpEnableInstructions = hints.getBool(Parameters.Routing.INSTRUCTIONS, enableInstructions);
