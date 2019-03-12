@@ -755,7 +755,7 @@ public class RoutingProfile {
                 } else if (weightingMethod == WeightingMethod.SHORTEST) {
                     req.setWeighting("shortest");
                     req.getHints().put("weighting_method", "shortest");
-                    //flexibleMode = true;
+                    flexibleMode = true;
                 } else if (weightingMethod == WeightingMethod.RECOMMENDED) {
                     req.setWeighting("fastest");
                     req.getHints().put("weighting_method", "recommended");
