@@ -208,8 +208,10 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         finishedTo = pqCoreTo.isEmpty();
 
         if (!finishedFrom && !finishedTo) {
-            findProxyNode(this.to,false);
-            findProxyNode(this.from, true);
+            //findProxyNode(this.to,false);
+            //findProxyNode(this.from, true);
+            toProxy = pqCoreTo.peek().adjNode;
+            fromProxy = pqCoreFrom.peek().adjNode;
 
             initApproximator();
 
