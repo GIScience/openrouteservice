@@ -20,7 +20,6 @@ import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.*;
 import heigit.ors.localization.LocalizationManager;
 import heigit.ors.routing.*;
-import heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import heigit.ors.util.ArraysUtility;
 import heigit.ors.util.CoordTools;
 import heigit.ors.util.DistanceUnitUtil;
