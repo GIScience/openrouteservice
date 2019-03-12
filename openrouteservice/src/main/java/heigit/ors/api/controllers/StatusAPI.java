@@ -100,7 +100,7 @@ public class StatusAPI {
                     org.json.JSONObject jProfileLimits = new org.json.JSONObject(true);
                     if (rpc.getMaximumDistance() > 0)
                         jProfileLimits.put("maximum_distance", rpc.getMaximumDistance());
-
+                    
                     if (rpc.getMaximumWayPoints() > 0)
                         jProfileLimits.put("maximum_waypoints", rpc.getMaximumWayPoints());
 
