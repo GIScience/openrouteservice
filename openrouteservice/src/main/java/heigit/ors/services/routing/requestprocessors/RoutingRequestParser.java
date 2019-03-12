@@ -20,6 +20,7 @@ import heigit.ors.common.StatusCode;
 import heigit.ors.exceptions.*;
 import heigit.ors.localization.LocalizationManager;
 import heigit.ors.routing.*;
+import heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import heigit.ors.util.ArraysUtility;
 import heigit.ors.util.CoordTools;
 import heigit.ors.util.DistanceUnitUtil;
@@ -180,6 +181,8 @@ public class RoutingRequestParser
 
 		value = request.getParameter("geometry_simplify");
 		if (!Helper.isEmpty(value))
+			if (req.getCoordinates().length > 2 )
+				throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, "geometry_simplify", "true", "coordinates", "count > 2");
             req.setGeometrySimplify(Boolean.parseBoolean(value));
 
 		value = request.getParameter("instructions");
