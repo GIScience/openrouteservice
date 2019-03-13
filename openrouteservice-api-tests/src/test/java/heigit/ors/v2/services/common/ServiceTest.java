@@ -83,9 +83,9 @@ public abstract class ServiceTest {
 
 		if (RestAssured.get("/status").statusCode() != 200) {
 			String basePath = System.getProperty("server.base");
-			if (basePath == null)
-				basePath = "/openrouteservice-" + Utils.getORSVersion() + "/";
-
+			if (basePath == null) {
+				basePath = "/ors/";
+			}
 			RestAssured.basePath = basePath;
 		}
 	}

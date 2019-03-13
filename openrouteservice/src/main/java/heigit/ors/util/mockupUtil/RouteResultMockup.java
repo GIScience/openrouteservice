@@ -77,7 +77,7 @@ public class RouteResultMockup {
             pointList.add(8.6904630144789, 49.384111711027735);
             pointList.add(8.690476425524274, 49.38459562624832);
             pointList.add(8.690506107646703, 49.38539990448134);
-            routeResult.addPoints(pointList, false, false);
+            routeResult.addPointsToGeometry(pointList, false, false);
             PathWrapper pathWrapper = new PathWrapper();
             pathWrapper.setDistance(0.0);
             pathWrapper.setInstructions(null);
@@ -138,8 +138,8 @@ public class RouteResultMockup {
             routeSegment.addStep(routeStep3);
             // Add RouteSegment
             routeResult.addSegment(routeSegment);
-            routeResult.setWayPointsIndices(new int[]{0, 2});
-            routeResult.setLocationIndex(0);
+            routeResult.addWayPointIndex(0);
+            routeResult.addWayPointIndex(2);
 
             return new RouteResult[]{routeResult};
         } else {

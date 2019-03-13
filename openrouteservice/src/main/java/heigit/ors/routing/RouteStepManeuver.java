@@ -46,4 +46,8 @@ public class RouteStepManeuver {
 	public void setBearingAfter(int value) {
 		_bearingAfter = value;
 	}
+
+    public boolean isContinue() {
+		return Math.abs(_bearingAfter - _bearingBefore) < 6;
+	}
 }

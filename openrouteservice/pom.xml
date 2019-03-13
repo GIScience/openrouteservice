@@ -44,8 +44,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.timestamp>${maven.build.timestamp}</project.timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
-        <!-- The following line might show up as an error in IntelliJ IDE... it is not an error but a bug in IntelliJ so don't worry! -->
-        <build.version>${git.commit.time}.${git.commit.id.abbrev}</build.version>
     </properties>
      <scm>
   	<url>git@github.com:GIScience/openrouteservice.git</url>
@@ -58,6 +56,7 @@
         <version>2.0.4.RELEASE</version>
     </parent>
   <build>
+    <finalName>ors</finalName>
     <sourceDirectory>src/main/java</sourceDirectory>
     <resources>
        <resource>
@@ -90,30 +89,11 @@
                     <configuration>
                         <tasks>
                             <echo>Creating version file</echo>
-                            <copy file="${basedir}/target/${project.artifactId}-${project.version}/WEB-INF/classes/resources/version.properties" tofile="${basedir}/target/version.properties" />
+                            <copy file="${basedir}/target/${project.build.finalName}/WEB-INF/classes/resources/version.properties" tofile="${basedir}/target/version.properties" />
                         </tasks>
                     </configuration>
                 </execution>
             </executions>
-        </plugin>
-        <plugin>
-            <groupId>pl.project13.maven</groupId>
-            <artifactId>git-commit-id-plugin</artifactId>
-            <version>2.2.1</version>
-            <executions>
-                <execution>
-                    <phase>validate</phase>
-                    <goals>
-                        <goal>revision</goal>
-                    </goals>
-                </execution>
-            </executions>
-            <configuration>
-                <dateFormat>yyyMMdd-HHmmss</dateFormat>
-                <dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
-                <generateGitPropertiesFile>false</generateGitPropertiesFile>
-                <injectAllReactorProjects>true</injectAllReactorProjects>
-            </configuration>
         </plugin>
      <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -181,7 +161,14 @@
           <version>2.6</version>
       </plugin>
 
-      </plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+                <argLine>-Duser.language=en -Duser.region=US</argLine>
+            </configuration>
+        </plugin>
+    </plugins>
   </build>
 
   <repositories>
@@ -312,7 +299,6 @@
     	<version>3.0.3</version>
 	</dependency>
 
-
     <dependency>
         <groupId>com.github.GIScience.graphhopper</groupId>
         <artifactId>graphhopper-core</artifactId>
@@ -324,7 +310,6 @@
         <artifactId>graphhopper-reader-osm</artifactId>
         <version>v0.10.1.12</version>
     </dependency>
-
 
     <!-- remove the comment to enable debugging
     <dependency>
