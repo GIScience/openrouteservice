@@ -6,11 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
--
+- Makes docker and docker-compose deployment of openrouteservice more customizable (Issue #434)
 ### Fixed
 -
 ### Changed
--
+- Updated pom to always build ors.war (Issue #432)
 ### Deprecated
 -
 
