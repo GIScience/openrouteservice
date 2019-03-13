@@ -2088,9 +2088,78 @@ public class ResultTest extends ServiceTest {
                 .body("features[0].properties.warnings[0].containsKey('code')", is(true))
                 .body("features[0].properties.warnings[0].code", is(3))
                 .statusCode(200);
+    }
 
+    @Test
+    public void testAvgSpeedValues() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+        JSONArray attributes = new JSONArray();
+        attributes.put("avgspeed");
+        body.put("attributes", attributes);
 
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('segments')", is(true))
+                .body("routes[0].segments[0].containsKey('avgspeed')", is(true))
+                .body("routes[0].segments[0].avgspeed", is(31.09f))
+                .statusCode(200);
 
+        body.put("units", "km");
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('segments')", is(true))
+                .body("routes[0].segments[0].containsKey('avgspeed')", is(true))
+                .body("routes[0].segments[0].avgspeed", is(31.09f))
+                .statusCode(200);
+
+        body.put("units", "m");
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('segments')", is(true))
+                .body("routes[0].segments[0].containsKey('avgspeed')", is(true))
+                .body("routes[0].segments[0].avgspeed", is(31.09f))
+                .statusCode(200);
+
+        body.put("units", "mi");
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('segments')", is(true))
+                .body("routes[0].segments[0].containsKey('avgspeed')", is(true))
+                .body("routes[0].segments[0].avgspeed", is(19.32f))
+                .statusCode(200);
     }
 
     private JSONArray constructCoords(String coordString) {

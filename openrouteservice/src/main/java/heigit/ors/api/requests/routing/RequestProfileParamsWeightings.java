@@ -28,14 +28,14 @@ public class RequestProfileParamsWeightings {
     public static final String PARAM_GREEN_INDEX = "green";
     public static final String PARAM_QUIETNESS = "quiet";
 
-    @ApiModelProperty(name = PARAM_STEEPNESS_DIFFICULTY, value = "Specifies the fitness level for cycling-* profiles.\n" +
+    @ApiModelProperty(name = PARAM_STEEPNESS_DIFFICULTY, value = "Specifies the fitness level for `cycling-*` profiles.\n" +
             "\n level: 0 = Novice, 1 = Moderate, 2 = Amateur, 3 = Pro. The prefered gradient increases with level. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['cycling-*']}}", example = "2")
     @JsonProperty(PARAM_STEEPNESS_DIFFICULTY)
     private Integer steepnessDifficulty;
     @Ignore
     private boolean hasSteepnessDifficulty = false;
 
-    @ApiModelProperty(name = PARAM_GREEN_INDEX, value = "Specifies the Green factor for foot-* profiles.\n" +
+    @ApiModelProperty(name = PARAM_GREEN_INDEX, value = "Specifies the Green factor for `foot-*` profiles.\n" +
             "\nfactor: Values range from 0 to 1. 0 equals normal routing. 1 will prefer ways through green areas over a shorter route. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['foot-*']}}", example = "0.4")
     @JsonProperty(PARAM_GREEN_INDEX)
     private Float greenIndex;

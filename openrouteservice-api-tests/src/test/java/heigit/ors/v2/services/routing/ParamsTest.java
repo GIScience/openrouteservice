@@ -1338,4 +1338,26 @@ public class ParamsTest extends ServiceTest {
                 .body("features[0].properties.warnings[0].containsKey('message')", is(true))
                 .statusCode(200);
     }
+
+    @Test
+	public void expectErrorWithMultiSegmentsAndSimplify() {
+		JSONArray coords = (JSONArray) getParameter("coordinatesShort");
+		coords.put(new JSONArray(new double[] {8.680916, 49.410973}));
+
+		JSONObject body = new JSONObject();
+		body.put("coordinates", coords);
+		body.put("geometry_simplify", true);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("carProfile"))
+				.body(body.toString())
+				.when().log().all()
+				.post(getEndPointPath() + "/{profile}/json")
+				.then().log().all()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS))
+				.statusCode(400);
+	}
 }

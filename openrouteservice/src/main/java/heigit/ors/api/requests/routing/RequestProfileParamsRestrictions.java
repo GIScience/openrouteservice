@@ -72,14 +72,14 @@ public class RequestProfileParamsRestrictions {
     @JsonIgnore
     private boolean hasWeight = false;
 
-    @ApiModelProperty(name = PARAM_HAZMAT, value = "Specifies whether to use appropriate routing for delivering hazardous goods and avoiding water protected areas. Default is false. " +
+    @ApiModelProperty(name = PARAM_HAZMAT, value = "Specifies whether to use appropriate routing for delivering hazardous goods and avoiding water protected areas. Default is `false`. " +
             "CUSTOM_KEYS:{'apiDefault':false,'validWhen':{'ref':'profile','value':['driving-hgv']}}")
     @JsonProperty(value = PARAM_HAZMAT)
     private Boolean hazardousMaterial;
     @JsonIgnore
     private boolean hasHazardousMaterial = false;
 
-    @ApiModelProperty(name = PARAM_SURFACE_TYPE, value = "Specifies the minimum surface type. Default is 'cobblestone:flattened'. " +
+    @ApiModelProperty(name = PARAM_SURFACE_TYPE, value = "Specifies the minimum surface type. Default is `cobblestone:flattened`. " +
             "CUSTOM_KEYS:{'apiDefault':'cobblestone:flattened','validWhen':{'ref':'profile','value':['wheelchair']}}",
             example = "asphalt")
     @JsonProperty(PARAM_SURFACE_TYPE)
@@ -87,7 +87,7 @@ public class RequestProfileParamsRestrictions {
     @JsonIgnore
     private boolean hasSurfaceType = false;
 
-    @ApiModelProperty(name = PARAM_TRACK_TYPE, value = "Specifies the minimum grade of the route. Default is 'grade1'. " +
+    @ApiModelProperty(name = PARAM_TRACK_TYPE, value = "Specifies the minimum grade of the route. Default is `grade1`. " +
             "CUSTOM_KEYS:{'apiDefault':'grade1','validWhen':{'ref':'profile','value':['wheelchair']}}",
             example = "grade2")
     @JsonProperty(PARAM_TRACK_TYPE)
@@ -95,7 +95,7 @@ public class RequestProfileParamsRestrictions {
     @JsonIgnore
     private boolean hasTrackType = false;
 
-    @ApiModelProperty(name = PARAM_SMOOTHNESS_TYPE, value = "Specifies the minimum smoothness of the route. Default is 'good'." +
+    @ApiModelProperty(name = PARAM_SMOOTHNESS_TYPE, value = "Specifies the minimum smoothness of the route. Default is `good`." +
             "CUSTOM_KEYS:{'apiDefault':'good','validWhen':{'ref':'profile','value':['wheelchair']}}",
             example = "best")
     @JsonProperty(value = PARAM_SMOOTHNESS_TYPE)
@@ -103,7 +103,7 @@ public class RequestProfileParamsRestrictions {
     @JsonIgnore
     private boolean hasSmoothnessType = false;
 
-    @ApiModelProperty(name = PARAM_MAXIMUM_SLOPED_KERB, value = "Specifies the maximum height of the sloped curb in metres. Values are 0.03, 0.06(default), 0.1." +
+    @ApiModelProperty(name = PARAM_MAXIMUM_SLOPED_KERB, value = "Specifies the maximum height of the sloped curb in metres. Values are `0.03`, `0.06` (default), `0.1`." +
             "CUSTOM_KEYS:{'apiDefault':0.6,'validWhen':{'ref':'profile','value':['wheelchair']}}",
             example = "0.03")
     @JsonProperty(PARAM_MAXIMUM_SLOPED_KERB)
@@ -111,7 +111,7 @@ public class RequestProfileParamsRestrictions {
     @JsonIgnore
     private boolean hasMaxSlopedKerb = false;
 
-    @ApiModelProperty(name = PARAM_MAX_INCLINE, value = "Specifies the maximum incline as a percentage. 3, 6(default), 10, 15." +
+    @ApiModelProperty(name = PARAM_MAX_INCLINE, value = "Specifies the maximum incline as a percentage. `3`, `6` (default), `10`, `15." +
             "CUSTOM_KEYS:{'apiDefault':6,'validWhen':{'ref':'profile','value':['wheelchair']}}",
             example = "3")
     @JsonProperty(PARAM_MAX_INCLINE)

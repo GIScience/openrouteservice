@@ -58,13 +58,14 @@ public class RouteRequest {
     public static final String PARAM_SKIP_SEGMENTS = "skip_segments";
 
 
-    @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.")
+    @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.",
+            example = "routing_request")
     @JsonProperty(PARAM_ID)
     private String id;
     @JsonIgnore
     private boolean hasId = false;
 
-    @ApiModelProperty(name = PARAM_COORDINATES, value = "The waypoints to use for the route as an array of longitude/latitude pairs",
+    @ApiModelProperty(name = PARAM_COORDINATES, value = "The waypoints to use for the route as an array of `longitude/latitude` pairs",
             example = "[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]]",
             required = true)
     @JsonProperty(PARAM_COORDINATES)
@@ -127,7 +128,7 @@ public class RouteRequest {
     private boolean hasInstructionsFormat = false;
 
     @ApiModelProperty(name = PARAM_ROUNDABOUT_EXITS,
-            value = "Provides bearings of the entrance and all passed roundabout exits. Adds the exit_bearings array to the step object in the response. " +
+            value = "Provides bearings of the entrance and all passed roundabout exits. Adds the `exit_bearings` array to the step object in the response. " +
                     "CUSTOM_KEYS:{'apiDefault':false}",
             example = "false")
     @JsonProperty(value = PARAM_ROUNDABOUT_EXITS)
@@ -160,11 +161,12 @@ public class RouteRequest {
     private boolean hasMaximumSearchRadii = false;
 
     @ApiModelProperty(name = PARAM_BEARINGS, value = "Specifies a list of pairs (bearings and deviations) to filter the segments of the road network a waypoint can snap to. " +
-            "For example bearings=45,10|120,20. Each pair is a comma-separated list that can consist of one or two float values, where the first value is the bearing and the second one is the allowed deviation from the bearing. " +
-            "The bearing can take values between 0 and 360 clockwise from true north. If the deviation is not set, then the default value of 100 degrees is used. " +
-            "The number of pairs must correspond to the number of waypoints. Setting optimized=false is mandatory for this feature to work for all profiles. " +
+            "For example `bearings=[[45,10],[120,20]]`. \n" +
+            "Each pair is a comma-separated list that can consist of one or two float values, where the first value is the bearing and the second one is the allowed deviation from the bearing. " +
+            "The bearing can take values between `0` and `360` clockwise from true north. If the deviation is not set, then the default value of `100` degrees is used. " +
+            "The number of pairs must correspond to the number of waypoints.\n" +
             "The number of bearings corresponds to the length of waypoints-1 or waypoints. If the bearing information for the last waypoint is given, then this will control the sector from which the destination waypoint may be reached. " +
-            "You can skip a bearing for a certain waypoint by passing an empty value for an array, e.g. [30,20],[],[40,20].",
+            "You can skip a bearing for a certain waypoint by passing an empty value for an array, e.g. `[30,20],[],[40,20]`. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':'cycling-*'}}",
             example = "[[30, 20], [], [40, 20]]"
     )
     @JsonProperty(PARAM_BEARINGS)
@@ -173,7 +175,7 @@ public class RouteRequest {
     private boolean hasBearings = false;
 
     @ApiModelProperty(name = PARAM_CONTINUE_STRAIGHT,
-            value = "Forces the route to keep going straight at waypoints restricting uturns there even if it would be faster. This setting will work for all profiles except for driving-*. " +
+            value = "Forces the route to keep going straight at waypoints restricting uturns there even if it would be faster. This setting will work for all profiles except for `driving-*`. " +
             "CUSTOM_KEYS:{'apiDefault':'true','validWhen':{'ref':'profile','valueNot':['driving-*']}}",
             example = "false")
     @JsonProperty(value = PARAM_CONTINUE_STRAIGHT)
@@ -220,11 +222,12 @@ public class RouteRequest {
     @JsonIgnore
     private boolean hasSuppressWarnings = false;
 
-    @ApiModelProperty(name = PARAM_SIMPLIFY_GEOMETRY, value = "Specifies whether to simplify the geometry. true will automatically be set to false if extra_info parameter is specified. " +
+    @ApiModelProperty(name = PARAM_SIMPLIFY_GEOMETRY, value = "Specifies whether to simplify the geometry. " +
+            "Simplify geometry cannot be applied to routes with more than **one segment** and when `extra_info` is required." +
             "CUSTOM_KEYS:{'apiDefault':false}",
             example = "false")
     @JsonProperty(value = PARAM_SIMPLIFY_GEOMETRY)
-    private Boolean simplifyGeometry = false;
+    private Boolean simplifyGeometry;
     @JsonIgnore
     private boolean hasSimplifyGeometry = false;
 

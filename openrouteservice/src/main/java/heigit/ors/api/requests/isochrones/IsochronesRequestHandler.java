@@ -175,7 +175,7 @@ public class IsochronesRequestHandler extends GenericHandler {
         if (request.hasId())
             convertedIsochroneRequest.setId(request.getId());
         if (request.hasRangeUnits())
-            convertedIsochroneRequest.setUnits(convertRangeUnit(request.getRangeUnits()));
+            convertedIsochroneRequest.setUnits(convertRangeUnit(request.getRangeUnit()));
         if (request.hasAreaUnits())
             convertedIsochroneRequest.setAreaUnits(convertAreaUnit(request.getAreaUnit()));
         if (request.hasAttributes())
