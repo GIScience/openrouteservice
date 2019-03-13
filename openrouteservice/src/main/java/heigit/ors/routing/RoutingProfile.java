@@ -33,7 +33,10 @@ import com.typesafe.config.Config;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import heigit.ors.common.TravelRangeType;
 import heigit.ors.exceptions.InternalServerException;
+import heigit.ors.exceptions.PointNotFoundException;
+import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.isochrones.*;
 import heigit.ors.isochrones.statistics.StatisticsProvider;
 import heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
@@ -53,7 +56,6 @@ import heigit.ors.optimization.solvers.OptimizationSolution;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.graphhopper.extensions.*;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.*;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.parameters.*;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
@@ -143,7 +145,7 @@ public class RoutingProfile {
 
         GraphProcessContext gpc = new GraphProcessContext(config);
 
-        ORSGraphHopper gh = (ORSGraphHopper) new ORSGraphHopper(gpc, config.getUseTrafficInformation(), refProfile);
+        ORSGraphHopper gh = new ORSGraphHopper(gpc, config.getUseTrafficInformation(), refProfile);
 
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
@@ -437,99 +439,8 @@ public class RoutingProfile {
         }
     }
 
-    /**
-     * This function creates the actual {@link IsochroneMap}.
-     * It is important, that whenever attributes contains pop_total it must also contain pop_area. If not the data won't be complete.
-     * So the first step in the function is a checkup on that.
-     *
-     * @param parameters The input are {@link IsochroneSearchParameters}
-     * @param attributes The input are a {@link String}[] holding the attributes if set
-     * @return The return will be an {@link IsochroneMap}
-     * @throws Exception
-     */
-    public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters, String[] attributes) throws Exception {
-        // Checkup for pop_total. If the value is set, pop_area must always be set here, if not already done so by the user.
-        String[] tempAttributes;
-        if (Arrays.toString(attributes).contains("total_pop".toLowerCase()) && !(Arrays.toString(attributes).contains("total_area_km".toLowerCase()))) {
-            tempAttributes = new String[attributes.length + 1];
-            int i = 0;
-            while (i < attributes.length) {
-                String attribute = attributes[i];
-                tempAttributes[i] = attribute;
-                i++;
-            }
-            tempAttributes[i] = "total_area_km";
-        } else if ((Arrays.toString(attributes).contains("total_area_km".toLowerCase())) && (!Arrays.toString(attributes).contains("total_pop".toLowerCase()))) {
-            tempAttributes = new String[attributes.length + 1];
-            int i = 0;
-            while (i < attributes.length) {
-                String attribute = attributes[i];
-                tempAttributes[i] = attribute;
-                i++;
-            }
-            tempAttributes[i] = "total_pop";
-        } else {
-            tempAttributes = attributes;
-        }
-
-
-        IsochroneMap result = null;
-        waitForUpdateCompletion();
-
-        beginUseGH();
-
-        try {
-            RouteSearchContext searchCntx = createSearchContext(parameters.getRouteParameters(), RouteSearchMode.Isochrones, null);
-
-            IsochroneMapBuilderFactory isochroneMapBuilderFactory = new IsochroneMapBuilderFactory(searchCntx);
-            result = isochroneMapBuilderFactory.buildMap(parameters);
-
-            endUseGH();
-        } catch (Exception ex) {
-            endUseGH();
-
-            LOGGER.error(ex);
-
-            throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to build an isochrone map.");
-        }
-
-        if (tempAttributes != null && result.getIsochronesCount() > 0) {
-            try {
-                Map<StatisticsProviderConfiguration, List<String>> mapProviderToAttrs = new HashMap<StatisticsProviderConfiguration, List<String>>();
-                for (String attr : tempAttributes) {
-                    StatisticsProviderConfiguration provConfig = IsochronesServiceSettings.getStatsProviders().get(attr);
-
-                    if (provConfig != null) {
-                        if (mapProviderToAttrs.containsKey(provConfig)) {
-                            List<String> attrList = mapProviderToAttrs.get(provConfig);
-                            attrList.add(attr);
-                        } else {
-                            List<String> attrList = new ArrayList<String>();
-                            attrList.add(attr);
-                            mapProviderToAttrs.put(provConfig, attrList);
-                        }
-                    }
-                }
-
-                for (Map.Entry<StatisticsProviderConfiguration, List<String>> entry : mapProviderToAttrs.entrySet()) {
-                    StatisticsProviderConfiguration provConfig = entry.getKey();
-                    StatisticsProvider provider = StatisticsProviderFactory.getProvider(provConfig.getName(), provConfig.getParameters());
-                    String[] provAttrs = provConfig.getMappedProperties(entry.getValue());
-
-                    for (Isochrone isochrone : result.getIsochrones()) {
-                        double[] attrValues = provider.getStatistics(isochrone, provAttrs);
-                        isochrone.setAttributes(entry.getValue(), attrValues, provConfig.getAttribution());
-                    }
-                }
-
-            } catch (Exception ex) {
-                LOGGER.error(ex);
-
-                throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to compute isochrone attributes.");
-            }
-        }
-
-        return result;
+    private static boolean supportWeightingMethod(int profileType) {
+        return RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType) || profileType == RoutingProfileType.WHEELCHAIR;
     }
 
     public MatrixResult computeMatrix(MatrixRequest req) throws Exception {
@@ -564,6 +475,8 @@ public class RoutingProfile {
             mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
         } catch (Exception ex) {
             LOGGER.error(ex);
+            if (ex instanceof StatusCodeException)
+                throw ex;
             throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix.");
         }
 
@@ -676,29 +589,7 @@ public class RoutingProfile {
         /* Avoid features */
 
         if (searchParams.hasAvoidFeatures()) {
-            if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)
-                    || profileType == RoutingProfileType.FOOT_WALKING || profileType == RoutingProfileType.FOOT_HIKING
-                    || profileType == RoutingProfileType.WHEELCHAIR) {
-
-                int avoidFeatures = searchParams.getAvoidFeatureTypes();
-
-                /* Avoid any features other than hills */
-                if (avoidFeatures != AvoidFeatureFlags.Hills) {
-                    edgeFilters.add(new AvoidFeaturesEdgeFilter(profileType, searchParams, gs));
-                }
-
-                /* Special case of hills */
-                if (mode == RouteSearchMode.Routing && (avoidFeatures & AvoidFeatureFlags.Hills) == AvoidFeatureFlags.Hills) {
-                    props.put("custom_weightings", true);
-                    props.put(ProfileWeighting.encodeName("avoid_hills"), true);
-
-                    if (searchParams.hasParameters(CyclingParameters.class)) {
-                        CyclingParameters cyclingParams = (CyclingParameters) profileParams;
-                        props.put("steepness_maximum", cyclingParams.getMaximumGradient());
-                    }
-
-                }
-            }
+            edgeFilters.add(new AvoidFeaturesEdgeFilter(profileType, searchParams, gs));
         }
 
         /* Avoid borders of some form */
@@ -707,30 +598,6 @@ public class RoutingProfile {
             if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)) {
                 edgeFilters.add(new AvoidBordersEdgeFilter(searchParams, gs));
             }
-        }
-
-        /* Steepness and (disabled) trail difficulty filters */
-
-        if (searchParams.hasParameters(CyclingParameters.class)) {
-            CyclingParameters cyclingParams = (CyclingParameters) profileParams;
-            int maximumGradient = cyclingParams.getMaximumGradient();
-            if (maximumGradient > 0)
-                edgeFilters.add(new AvoidSteepnessEdgeFilter(gs, maximumGradient));
-
-            int maximumTrailDifficulty = cyclingParams.getMaximumTrailDifficulty();
-            if (maximumTrailDifficulty > 0)
-                edgeFilters.add(new TrailDifficultyEdgeFilter(flagEncoder, gs, maximumTrailDifficulty));
-
-        } else if (searchParams.hasParameters(WalkingParameters.class)) {
-            WalkingParameters walkingParams = (WalkingParameters) profileParams;
-            int maximumGradient = walkingParams.getMaximumGradient();
-            if (maximumGradient > 0)
-                edgeFilters.add(new AvoidSteepnessEdgeFilter(gs, maximumGradient));
-
-            int maximumTrailDifficulty = walkingParams.getMaximumTrailDifficulty();
-            if (maximumTrailDifficulty > 0)
-                edgeFilters.add(new TrailDifficultyEdgeFilter(flagEncoder, gs, maximumTrailDifficulty));
-
         }
 
 
@@ -804,7 +671,7 @@ public class RoutingProfile {
         return totalDistance <= maxDistance && wayPoints <= maxWayPoints;
     }
 
-    public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings, double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, EdgeFilter customEdgeFilter, RouteProcessContext routeProcCntx)
+    public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings, double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, EdgeFilter customEdgeFilter, RouteProcessContext routeProcCntx, Boolean geometrySimplify)
             throws Exception {
 
         GHResponse resp = null;
@@ -828,7 +695,6 @@ public class RoutingProfile {
                 req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), bearings[1].getValue());
 
             req.setVehicle(searchCntx.getEncoder().toString());
-            req.setMaxSpeed(searchParams.getMaximumSpeed());
             req.setAlgorithm("dijkstrabi");
 
             if (radiuses != null)
@@ -857,24 +723,7 @@ public class RoutingProfile {
             // on the given searchParameter Max have decided that's necessary 'patch' the hint
             // for certain profiles...
             // ...and BTW if the flexibleMode set to true, CH will be disabled!
-            if(weightingMethod == WeightingMethod.FASTEST){
-                if(profileType == RoutingProfileType.CYCLING_MOUNTAIN){
-                    // MARQ24 - in the original code by Max the 'weighting_method' was always set
-                    // to 'recommended' for MTB (and enable 'flexibleMode' -> which will turn off CH)
-                    // - I will add code, that this will only apply if there are certain terrain/track
-                    // types disabled (like certain trail_difficulty) in the searchParams like this ->
-                    // options: {"profile_params":{"restrictions":{"trail_difficulty":1}}
-                    ProfileParameters params = searchParams.getProfileParameters();
-                    if(params != null && params instanceof CyclingParameters) {
-                        CyclingParameters cycleParams = (CyclingParameters) params;
-                        if(cycleParams.getMaximumGradient() > -1 || cycleParams.getMaximumTrailDifficulty() > -1) {
-                            req.setWeighting("fastest");
-                            req.getHints().put("weighting_method", "recommended");
-                            flexibleMode = true;
-                        }
-                    }
-                }
-            } else if (weightingMethod == WeightingMethod.RECOMMENDED){
+            if (weightingMethod == WeightingMethod.RECOMMENDED){
                 if(profileType == RoutingProfileType.DRIVING_HGV && HeavyVehicleAttributes.HGV == searchParams.getVehicleType()){
                     req.setWeighting("fastest");
                     req.getHints().put("weighting_method", "recommended_pref");
@@ -916,13 +765,17 @@ public class RoutingProfile {
             if (_astarApproximation != null)
                 req.getHints().put("astarbi.approximation", _astarApproximation);
 
-			/*if (directedSegment)
-				resp = mGraphHopper.directRoute(req); NOTE IMPLEMENTED!!!
-			else */
-            resp = mGraphHopper.route(req);
-
-            if (DebugUtility.isDebug()) {
-                System.out.println("visited_nodes.average - " + resp.getHints().get("visited_nodes.average", ""));
+            if (directedSegment) {
+                resp = mGraphHopper.constructFreeHandRoute(req);
+            } else {
+                mGraphHopper.setSimplifyResponse(geometrySimplify);
+                resp = mGraphHopper.route(req);
+            }
+            if (DebugUtility.isDebug() && !directedSegment) {
+                LOGGER.info("visited_nodes.average - " + resp.getHints().get("visited_nodes.average", ""));
+            }
+            if (DebugUtility.isDebug() && directedSegment) {
+                LOGGER.info("skipped segment - " + resp.getHints().get("skipped_segment", ""));
             }
 
             endUseGH();
@@ -943,7 +796,6 @@ public class RoutingProfile {
             || searchParams.hasAvoidFeatures()
             || searchParams.hasAvoidCountries()
             || searchParams.hasAvoidBorders()
-            || searchParams.getMaximumSpeed() > 0
             ||( RoutingProfileType.isDriving(searchParams.getProfileType())
                 &&( searchParams.hasParameters(VehicleParameters.class)
                     || searchParams.getConsiderTraffic()
@@ -956,12 +808,109 @@ public class RoutingProfile {
         return dynamicWeights;
     }
 
-    private static boolean supportWeightingMethod(int profileType) {
-        if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType) || profileType == RoutingProfileType.WHEELCHAIR) {
-            return true;
-        }else {
-            return false;
+    /**
+     * This function creates the actual {@link IsochroneMap}.
+     * So the first step in the function is a checkup on that.
+     *
+     * @param parameters The input are {@link IsochroneSearchParameters}
+     * @return The return will be an {@link IsochroneMap}
+     * @throws Exception
+     */
+    public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters) throws Exception {
+
+        IsochroneMap result = null;
+        waitForUpdateCompletion();
+
+        beginUseGH();
+
+        try {
+            RouteSearchContext searchCntx = createSearchContext(parameters.getRouteParameters(), RouteSearchMode.Isochrones, null);
+
+            IsochroneMapBuilderFactory isochroneMapBuilderFactory = new IsochroneMapBuilderFactory(searchCntx);
+            result = isochroneMapBuilderFactory.buildMap(parameters);
+
+            endUseGH();
+        } catch (Exception ex) {
+            endUseGH();
+
+            LOGGER.error(ex);
+
+            throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to build an isochrone map.");
         }
+
+        String[] attributes = parameters.getAttributes();
+
+        if (result.getIsochronesCount() > 0) {
+
+            if (parameters.hasAttribute("total_pop")) {
+
+                try {
+
+                    Map<StatisticsProviderConfiguration, List<String>> mapProviderToAttrs = new HashMap<StatisticsProviderConfiguration, List<String>>();
+
+                    StatisticsProviderConfiguration provConfig = IsochronesServiceSettings.getStatsProviders().get("total_pop");
+
+                    if (provConfig != null) {
+                        if (mapProviderToAttrs.containsKey(provConfig)) {
+                            List<String> attrList = mapProviderToAttrs.get(provConfig);
+                            attrList.add("total_pop");
+                        } else {
+                            List<String> attrList = new ArrayList<String>();
+                            attrList.add("total_pop");
+                            mapProviderToAttrs.put(provConfig, attrList);
+                        }
+                    }
+
+                    for (Map.Entry<StatisticsProviderConfiguration, List<String>> entry : mapProviderToAttrs.entrySet()) {
+                        provConfig = entry.getKey();
+                        StatisticsProvider provider = StatisticsProviderFactory.getProvider(provConfig.getName(), provConfig.getParameters());
+                        String[] provAttrs = provConfig.getMappedProperties(entry.getValue());
+
+                        for (Isochrone isochrone : result.getIsochrones()) {
+
+                            double[] attrValues = provider.getStatistics(isochrone, provAttrs);
+                            isochrone.setAttributes(entry.getValue(), attrValues, provConfig.getAttribution());
+
+                        }
+                    }
+                } catch (Exception ex) {
+                    LOGGER.error(ex);
+
+                    throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to compute isochrone total_pop attribute.");
+                }
+            }
+
+            if (parameters.hasAttribute("reachfactor") || parameters.hasAttribute("area")) {
+
+                for (Isochrone isochrone : result.getIsochrones()) {
+
+                    String units = parameters.getUnits();
+                    String area_units = parameters.getAreaUnits();
+
+                    if (area_units != null) units = area_units;
+
+                    double area = isochrone.calcArea(units);
+
+                    if (parameters.hasAttribute("area")) {
+
+                        isochrone.setArea(area);
+
+                    }
+
+                    if (parameters.hasAttribute("reachfactor") && parameters.getRangeType() == TravelRangeType.Time) {
+
+                        double reachfactor = isochrone.calcReachfactor(units);
+                        isochrone.setReachfactor(reachfactor);
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        return result;
     }
 
     public Geometry getEdgeGeometry(int edgeId) {

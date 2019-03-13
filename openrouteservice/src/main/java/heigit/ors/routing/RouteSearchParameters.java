@@ -30,11 +30,8 @@ import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
-import heigit.ors.routing.parameters.CyclingParameters;
-import heigit.ors.routing.parameters.ProfileParameters;
-import heigit.ors.routing.parameters.VehicleParameters;
-import heigit.ors.routing.parameters.WalkingParameters;
-import heigit.ors.routing.parameters.WheelchairParameters;
+import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
+import heigit.ors.routing.parameters.*;
 import heigit.ors.routing.pathprocessors.BordersExtractor;
 import heigit.ors.util.StringUtility;
 import org.json.JSONArray;
@@ -52,7 +49,6 @@ public class RouteSearchParameters {
     private int _weightingMethod = WeightingMethod.FASTEST;
     private Boolean _considerTraffic = false;
     private Boolean _considerTurnRestrictions = false;
-    private double _maxSpeed = -1;
     private Polygon[] _avoidAreas;
     private int _avoidFeaturesTypes;
     private int _vehicleType = HeavyVehicleAttributes.UNKNOWN;
@@ -75,14 +71,6 @@ public class RouteSearchParameters {
             throw new Exception("Routing profile is unknown.");
 
         this._profileType = profileType;
-    }
-
-    public double getMaximumSpeed() {
-        return _maxSpeed;
-    }
-
-    public void setMaximumSpeed(double maxSpeed) {
-        _maxSpeed = maxSpeed;
     }
 
     public int getWeightingMethod() {
@@ -188,14 +176,6 @@ public class RouteSearchParameters {
             throw new ParseException(ex.getMessage(), 0);
         }
 
-        if (json.has("maximum_speed")) {
-            try {
-                _maxSpeed = json.getDouble("maximum_speed");
-            } catch (Exception ex) {
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "maximum_speed", json.getString("maximum_speed"));
-            }
-        }
-
         if (json.has("avoid_features")) {
             String keyValue = json.getString("avoid_features");
             if (!Helper.isEmpty(keyValue)) {
@@ -209,7 +189,7 @@ public class RouteSearchParameters {
                             if (flag == 0)
                                 throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", featName);
 
-                            if (!AvoidFeatureFlags.isValid(_profileType, flag, featName))
+                            if (!AvoidFeatureFlags.isValid(_profileType, flag))
                                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", featName);
 
                             flags |= flag;
@@ -227,13 +207,19 @@ public class RouteSearchParameters {
             String keyValue = json.getString("avoid_countries");
             if (!Helper.isEmpty(keyValue)) {
                 String[] avoidCountries = keyValue.split("\\|");
-                if (avoidCountries != null && avoidCountries.length > 0) {
+                if (avoidCountries.length > 0) {
                     _avoidCountries = new int[avoidCountries.length];
                     for (int i = 0; i < avoidCountries.length; i++) {
                         try {
                             _avoidCountries[i] = Integer.parseInt(avoidCountries[i]);
                         } catch (NumberFormatException nfe) {
-                            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_countries", avoidCountries[i]);
+                            // Check if ISO-3166-1 Alpha-2 / Alpha-3 code
+                            int countryId = CountryBordersReader.getCountryIdByISOCode(avoidCountries[i]);
+                            if (countryId > 0) {
+                                _avoidCountries[i] = countryId;
+                            } else {
+                                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_countries", avoidCountries[i]);
+                            }
                         }
                     }
                 }
@@ -264,46 +250,9 @@ public class RouteSearchParameters {
 
             if (jProfileParams.has("restrictions"))
                 jRestrictions = jProfileParams.getJSONObject("restrictions");
-            if (RoutingProfileType.isCycling(_profileType)) {
-                CyclingParameters cyclingParams = new CyclingParameters();
 
-                if (jRestrictions != null) {
-                    if (jRestrictions.has("gradient"))
-                        cyclingParams.setMaximumGradient(jRestrictions.getInt("gradient"));
-
-                    if (jRestrictions.has("trail_difficulty"))
-                        cyclingParams.setMaximumTrailDifficulty(jRestrictions.getInt("trail_difficulty"));
-                }
-
-                _profileParams = cyclingParams;
-            } else if (RoutingProfileType.isWalking(_profileType)) {
-                WalkingParameters walkingParams = new WalkingParameters();
-
-                // To make the new API compatible with a new one, we create 'weightings' element.
-				/*if (!jProfileParams.has("weightings") && (jProfileParams.has("difficulty_level") || jProfileParams.has("maximum_gradient")))
-				{
-					JSONObject jWeightings = new JSONObject();
-
-					if (jProfileParams.has("difficulty_level"))
-						jWeightings.put("difficulty_level", jProfileParams.get("difficulty_level"));
-					else if	(jProfileParams.has("maximum_gradient"))
-						jWeightings.put("maximum_gradient", jProfileParams.get("maximum_gradient"));
-
-					jProfileParams.put("weightings", jWeightings);
-				}*/
-
-                if (jRestrictions != null) {
-                    if (jRestrictions.has("gradient"))
-                        walkingParams.setMaximumGradient(jRestrictions.getInt("gradient"));
-
-                    if (jRestrictions.has("trail_difficulty"))
-                        walkingParams.setMaximumTrailDifficulty(jRestrictions.getInt("trail_difficulty"));
-                }
-
-                _profileParams = walkingParams;
-            } else if (RoutingProfileType.isHeavyVehicle(_profileType)) {
+            if (RoutingProfileType.isHeavyVehicle(_profileType) == true) {
                 VehicleParameters vehicleParams = new VehicleParameters();
-
 
                 if (json.has("vehicle_type")) {
                     String vehicleType = json.getString("vehicle_type");
@@ -425,6 +374,10 @@ public class RouteSearchParameters {
 
     public ProfileParameters getProfileParameters() {
         return _profileParams;
+    }
+
+    public void setProfileParams(ProfileParameters profileParams) {
+        this._profileParams = profileParams;
     }
 
     public boolean getFlexibleMode() {

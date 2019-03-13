@@ -54,16 +54,7 @@ public class GraphEdgeMapFinder {
 		
 		if (parameters.getRangeType() == TravelRangeType.Time)
 		{
-			double maxSpeed = -1;
-			RouteSearchParameters routeParams = parameters.getRouteParameters();
-			if (routeParams != null)
-				maxSpeed = routeParams.getMaximumSpeed();
-			
-			HintsMap hints = new HintsMap();
-			hints.put("max_speed", maxSpeed);
-		    weighting = new FastestWeighting(encoder, hints);
-			/*Weighting[] weightings = new Weighting[] {new AccelerationWeighting(encoder, hints, graph)};
-			weighting = new AdditionWeighting(weightings,  new FastestWeighting(encoder, hints), encoder, hints, graph);*/
+		    weighting = new FastestWeighting(encoder);
 		}
 		else
 		{

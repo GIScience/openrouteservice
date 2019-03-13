@@ -84,7 +84,6 @@ public class ExtraInfoProcessor extends PathProcessor {
 
 	private int _profileType = RoutingProfileType.UNKNOWN;
 	private FlagEncoder _encoder;
-	private double _maximumSpeed = -1;
 	private boolean _encoderWithPriority = false;
 	private byte[] buffer;
 	private boolean _lastSegment;
@@ -92,7 +91,6 @@ public class ExtraInfoProcessor extends PathProcessor {
 	public ExtraInfoProcessor(ORSGraphHopper graphHopper, RoutingRequest req) throws Exception
 	{
 		_profileType = req.getSearchParameters().getProfileType();
-		_maximumSpeed = req.getSearchParameters().getMaximumSpeed();
 		int extraInfo = req.getExtraInfo();
 
 		warningExtensions = new ArrayList<>();
@@ -327,8 +325,6 @@ public class ExtraInfoProcessor extends PathProcessor {
 		if (_avgSpeedInfoBuilder != null)
 		{
 		    double speed = _encoder.getSpeed(edge.getFlags());
-		    if (_maximumSpeed > 0 && speed > _maximumSpeed)
-		    	speed = _maximumSpeed;
 		    _avgSpeedInfoBuilder.addSegment(speed, (int)Math.round(speed*_avgSpeedInfo.getFactor()), geom, dist, isLastEdge && _lastSegment);
 		}
 		

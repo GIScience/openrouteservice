@@ -17,19 +17,9 @@ import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.common.StatusCode;
-import heigit.ors.exceptions.MissingParameterException;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.exceptions.UnknownParameterValueException;
+import heigit.ors.exceptions.*;
 import heigit.ors.localization.LocalizationManager;
-import heigit.ors.routing.RouteExtraInfoFlag;
-import heigit.ors.routing.RouteInstructionsFormat;
-import heigit.ors.routing.RouteSearchParameters;
-import heigit.ors.routing.RoutingErrorCodes;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.RoutingRequest;
-import heigit.ors.routing.WayPointBearing;
-import heigit.ors.routing.WeightingMethod;
+import heigit.ors.routing.*;
 import heigit.ors.util.ArraysUtility;
 import heigit.ors.util.CoordTools;
 import heigit.ors.util.DistanceUnitUtil;
@@ -37,6 +27,7 @@ import heigit.ors.util.DistanceUnitUtil;
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 
+@Deprecated
 public class RoutingRequestParser
 {
 	public static RoutingRequest parseFromRequestParams(HttpServletRequest request) throws Exception
@@ -187,6 +178,12 @@ public class RoutingRequestParser
 			req.setGeometryFormat(value);
 		}
 
+		value = request.getParameter("geometry_simplify");
+		if (!Helper.isEmpty(value))
+			if (req.getCoordinates().length > 2 )
+				throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, "geometry_simplify", "true", "coordinates", "count > 2");
+            req.setGeometrySimplify(Boolean.parseBoolean(value));
+
 		value = request.getParameter("instructions");
 		if (!Helper.isEmpty(value))
 			req.setIncludeInstructions(Boolean.parseBoolean(value));
@@ -222,8 +219,12 @@ public class RoutingRequestParser
 		}
 
 		value = request.getParameter("extra_info");
-		if (!Helper.isEmpty(value))
+		if (!Helper.isEmpty(value)) {
+            if (req.getGeometrySimplify())
+                throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, "extra_info", "geometry_simplify");
+
 			req.setExtraInfo(RouteExtraInfoFlag.getFromString(value));
+        }
 
 		value = request.getParameter("attributes");
 		if (!Helper.isEmpty(value))

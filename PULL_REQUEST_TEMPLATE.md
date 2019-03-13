@@ -1,6 +1,6 @@
 ### Pull Request Checklist
 <!--- Please make sure you have completed the following items BEFORE submitting a pull request (put an x in each box when you have checked you have done them): -->
-- [ ] 1. I have merged the latest version of the development branch into my feature branch and all conflicts have been resolved.
+- [ ] 1. I have [**rebased**](https://github.com/GIScience/openrouteservice/blob/master/CONTRIBUTE.md#pull-request-guidelines) the latest version of the development branch into my feature branch and all conflicts have been resolved.
 - [ ] 2. I have added information about the change/addition to functionality to the CHANGELOG.md file under the [Unreleased] heading.
 - [ ] 3. I have documented my code using JDocs tags.
 - [ ] 4. I have removed unnecessary commented out code, imports and System.out.println statements.
@@ -17,10 +17,10 @@ Fixes # .
 
 ### Information about the changes
 - Key functionality added:
-- Reason for change: 
+- Reason for change:
 
 ### Examples and reasons for differences between live ORS routes and those generated from this pull request
-- 
+-
 
 ### Required changes to app.config (if applicable)
-- 
+-

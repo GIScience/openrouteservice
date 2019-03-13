@@ -20,6 +20,7 @@ import java.util.List;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
+import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.GeomUtility;
 import heigit.ors.util.UnitsConverter;
@@ -57,7 +58,7 @@ public class IsochronesIntersection {
 		return _geometry;
 	}
 
-	public double getArea(String units) throws Exception
+	public double getArea(String units) throws InternalServerException
 	{
 		double area = getArea(true);
 
@@ -77,7 +78,7 @@ public class IsochronesIntersection {
 		return area;
 	}
 
-	public double getArea(Boolean inMeters) throws Exception {
+	public double getArea(Boolean inMeters) throws InternalServerException {
 		if (_area == 0.0) {
 			_area = FormatUtility.roundToDecimals(GeomUtility.getArea(_geometry, inMeters), 2);
 		}

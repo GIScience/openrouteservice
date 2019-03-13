@@ -78,6 +78,7 @@ public class RouteResultBuilder
 		double lon0 = 0, lat0 = 0, lat1 = 0, lon1 = 0;
 		boolean includeDetourFactor = request.hasAttribute("detourfactor");
 		boolean includeElev = request.getIncludeElevation();
+		boolean geometrySimplify = request.getGeometrySimplify();
 		DistanceUnit units = request.getUnits();
 		int unitDecimals = FormatUtility.getUnitDecimals(units);
 		PointList prevSegPoints = null, segPoints, nextSegPoints;
@@ -109,6 +110,10 @@ public class RouteResultBuilder
 			}
 		}
 
+		if (request.getSkipSegments() != null && !request.getSkipSegments().isEmpty()) {
+			result.addWarning(new RouteWarning(RouteWarning.SKIPPED_SEGMENTS));
+		}
+
 		for (int ri = 0; ri < nRoutes; ++ri)
 		{
 			GHResponse resp = routes.get(ri);
@@ -116,9 +121,12 @@ public class RouteResultBuilder
 			if (resp.hasErrors())
 				throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", ri, FormatUtility.formatCoordinate(request.getCoordinates()[ri]), ri + 1, FormatUtility.formatCoordinate(request.getCoordinates()[ri+1])));
 
+			// Where does Pathwrappers points come from??
 			PathWrapper path = resp.getBest();
 			PointList routePoints = path.getPoints();
-			if (summary_pointlist == null) {
+
+			// summar_pointlist is already accessing the points
+			if (summary_pointlist == null){
 				summary_pointlist = path.getPoints();
 			} else {
 				PointList new_points = path.getPoints();
