@@ -296,19 +296,19 @@ public class APIEnums {
     }
 
     public enum Languages {
-        EN("en"),
-        CN("cn"),
         DE("de"),
+        EN("en"),
+        EN_US("en-us"),
         ES("es"),
-        RU("ru"),
-        DK("dk"),
         FR("fr"),
+        GR("gr"),
+        HU("hu"),
         IT("it"),
+        NE("ne"),
         NL("nl"),
-        BR("br"),
-        SE("se"),
-        TR("tr"),
-        GR("gr");
+        PT("pt"),
+        RU("ru"),
+        ZH_CN("zh-cn");
 
         private final String value;
 
@@ -319,7 +319,7 @@ public class APIEnums {
         @JsonCreator
         public static Languages forValue(String v) throws ParameterValueException {
             for (Languages enumItem : Languages.values()) {
-                if (enumItem.value.equals(v))
+                if (enumItem.value.equalsIgnoreCase(v))
                     return enumItem;
             }
             throw new ParameterValueException(INVALID_PARAMETER_VALUE, "language", v);

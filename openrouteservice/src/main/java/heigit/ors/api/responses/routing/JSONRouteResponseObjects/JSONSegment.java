@@ -77,7 +77,7 @@ public class JSONSegment {
                         detourFactor = routeSegment.getDetourFactor();
                         break;
                     case AVERAGE_SPEED:
-                        double distFactor = request.getUnits() == APIEnums.Units.METRES ? 1000 : 1;
+                        double distFactor = (!request.hasUnits() || request.getUnits() == APIEnums.Units.METRES) ? 1000 : 1;
                         averageSpeed = FormatUtility.roundToDecimals(routeSegment.getDistance() / distFactor / (routeSegment.getDuration() /3600), 2);
                         break;
                     case ROUTE_PERCENTAGE:

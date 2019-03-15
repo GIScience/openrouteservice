@@ -745,4 +745,60 @@ public class ResultTest extends ServiceTest {
                 .body("metadata.id", is("request123"))
                 .statusCode(200);
     }
+
+    @Test
+    public void testDefinedSources() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations"));
+        body.put("sources", new JSONArray(new int[] {1,2}));
+        body.put("metrics", getParameter("metricsDuration"));
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'durations' }", is(true))
+                .body("durations.size()", is(2))
+                .body("durations[0].size()", is(3))
+                .body("durations[0][0]", is(211.17f))
+                .body("durations[0][1]", is(0.0f))
+                .body("durations[0][2]", is(102.53f))
+                .body("durations[1][0]", is(235.97f))
+                .body("durations[1][1]", is(90.42f))
+                .body("durations[1][2]", is(0.0f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testDefinedDestinations() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations"));
+        body.put("destinations", new JSONArray(new int[] {1,2}));
+        body.put("metrics", getParameter("metricsDuration"));
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'durations' }", is(true))
+                .body("durations.size()", is(3))
+                .body("durations[0].size()", is(2))
+                .body("durations[0][0]", is(212.67f))
+                .body("durations[0][1]", is(315.18f))
+                .body("durations[1][0]", is(0.0f))
+                .body("durations[1][1]", is(102.53f))
+                .body("durations[2][0]", is(90.42f))
+                .body("durations[2][1]", is(0.0f))
+                .statusCode(200);
+    }
 }

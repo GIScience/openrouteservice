@@ -42,12 +42,13 @@ public class MatrixRequest {
     public static final String PARAM_UNITS = "units";
     public static final String PARAM_OPTIMIZED = "optimized";
 
-    @ApiModelProperty(name = "PARAM_ID", value = "Arbitrary identification string of the request reflected in the meta information.")
+    @ApiModelProperty(name = "PARAM_ID", value = "Arbitrary identification string of the request reflected in the meta information.",
+            example = "matrix_request")
     @JsonProperty(PARAM_ID)
     private String id;
 
-    @ApiModelProperty(name = PARAM_LOCATIONS, value = "List of comma separated lists of `longitude,latitude` coordinates (note, without quotes around the coordinates, this is a displaying error of swagger).",
-            example = "[[9.70093,48.477473],[9.207916,49.153868],[37.573242,55.801281],[115.663757,38.106467]]",
+    @ApiModelProperty(name = PARAM_LOCATIONS, value = "List of comma separated lists of `longitude,latitude` coordinates.",
+            example = "[[9.70093, 48.477473], [9.207916, 49.153868], [37.573242, 55.801281], [115.663757, 38.106467]]",
             required = true)
     @JsonProperty(PARAM_LOCATIONS)
     private List<List<Double>> locations;
@@ -55,22 +56,22 @@ public class MatrixRequest {
     @ApiModelProperty(name = PARAM_PROFILE, hidden = true)
     private APIEnums.Profile profile;
 
-    @ApiModelProperty(name = PARAM_SOURCES, value = "A comma separated list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default). example [0,3] for the first and fourth locations " +
-            "CUSTOM_KEYS:{'apiDefault':'all'}")
+    @ApiModelProperty(name = PARAM_SOURCES, value = "A list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default). example `[0,3]` for the first and fourth locations " +
+            "CUSTOM_KEYS:{'apiDefault':['all']}")
     @JsonProperty(value = PARAM_SOURCES)
     private String[] sources;
     @JsonIgnore
     private boolean hasSources = false;
 
-    @ApiModelProperty(name = PARAM_DESTINATIONS, value = "A comma separated list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default). [0,3] for the first and fourth locations " +
-            "CUSTOM_KEYS:{'apiDefault':'all'}")
+    @ApiModelProperty(name = PARAM_DESTINATIONS, value = "A list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default). `[0,3]` for the first and fourth locations " +
+            "CUSTOM_KEYS:{'apiDefault':['all']}")
     @JsonProperty(value = PARAM_DESTINATIONS)
     private String[] destinations;
     @JsonIgnore
     private boolean hasDestinations = false;
 
-    @ApiModelProperty(name = PARAM_METRICS, value = "Specifies a list of returned metrics separated with a (,) character.\\n" +
-            "* `distance` - Returns distance matrix for specified points in defined `units`.\\n* `duration` - Returns duration matrix for specified points in *seconds*. " +
+    @ApiModelProperty(name = PARAM_METRICS, value = "Specifies a list of returned metrics.\n" +
+            "* `distance` - Returns distance matrix for specified points in defined `units`.\n* `duration` - Returns duration matrix for specified points in **seconds**. " +
             "CUSTOM_KEYS:{'apiDefault':'duration'}")
     @JsonProperty(value = PARAM_METRICS)
     private MatrixRequestEnums.Metrics[] metrics;
@@ -78,7 +79,7 @@ public class MatrixRequest {
     private boolean hasMetrics = false;
 
     @ApiModelProperty(name = PARAM_RESOLVE_LOCATIONS, value = "Specifies whether given locations are resolved or not. If the parameter value set to `true`, every element in " +
-            "destinations and sources will contain `name` element that identifies the name of the closest street. Default is `false`. " +
+            "`destinations` and `sources` will contain a `name` element that identifies the name of the closest street. Default is `false`. " +
             "CUSTOM_KEYS:{'apiDefault':false}")
     @JsonProperty(value = PARAM_RESOLVE_LOCATIONS)
     private Boolean resolveLocations;
@@ -86,7 +87,7 @@ public class MatrixRequest {
     private boolean hasResolveLocations = false;
 
     @ApiModelProperty(name = PARAM_UNITS, value = "Specifies the distance unit.\n" +
-            "Default: m. CUSTOM_KEYS:{'apiDefault':'m'}")
+            "Default: m. CUSTOM_KEYS:{'apiDefault':'m','validWhen':{'ref':'metrics','value':'distance'}`}")
     @JsonProperty(value = PARAM_UNITS)
     private APIEnums.Units units;
     @JsonIgnore

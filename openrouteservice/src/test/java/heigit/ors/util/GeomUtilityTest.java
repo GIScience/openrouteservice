@@ -34,10 +34,9 @@ public class GeomUtilityTest {
 
     @Test
     public void calculateBoundingBox() {
-        BBox _fallback = new BBox(0, 0, 0, 0);
-        BBox bbox3D = GeomUtility.CalculateBoundingBox(pointList3D, _fallback);
-        BBox bbox2D = GeomUtility.CalculateBoundingBox(pointList2D, _fallback);
-        BBox bbox_fallback = GeomUtility.CalculateBoundingBox(emptyPointList,_fallback);
+        BBox bbox3D = GeomUtility.calculateBoundingBox(pointList3D);
+        BBox bbox2D = GeomUtility.calculateBoundingBox(pointList2D);
+        BBox bbox_fallback = GeomUtility.calculateBoundingBox(emptyPointList);
 
         Assert.assertEquals(-35.507813,bbox3D.minLon, 0.000009);
         Assert.assertEquals(38.408203,bbox3D.maxLon, 0.0000009);

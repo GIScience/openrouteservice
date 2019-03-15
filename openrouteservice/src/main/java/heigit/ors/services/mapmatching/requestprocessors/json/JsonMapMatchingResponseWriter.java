@@ -173,10 +173,10 @@ public class JsonMapMatchingResponseWriter {
 						jSegment.put("distance", seg.getDistance());
 						jSegment.put("duration", seg.getDuration());
 
-						if (request.getIncludeElevation() && (seg.getAscent() !=0.0 || seg.getDescent() != 0.0))
+						if (request.getIncludeElevation() && (seg.getAscentRounded() !=0.0 || seg.getDescentRounded() != 0.0))
 						{
-							jSegment.put("ascent", seg.getAscent());
-							jSegment.put("descent", seg.getDescent());
+							jSegment.put("ascent", seg.getAscentRounded());
+							jSegment.put("descent", seg.getDescentRounded());
 						}
 
 						if (attrDetourFactor)

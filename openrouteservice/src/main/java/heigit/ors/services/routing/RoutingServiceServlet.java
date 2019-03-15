@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Deprecated
 @RestController
-@RequestMapping("/routes")
+@RequestMapping({"/routes", "/directions"})
 public class RoutingServiceServlet extends BaseHttpServlet {
 	/** Serial Version UID */
 	private static final long serialVersionUID = 1L;

@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ORSWeightingFactory extends DefaultWeightingFactory {
+public class ORSWeightingFactory implements WeightingFactory {
 
 	private RealTrafficDataProvider m_trafficDataProvider;
 	private Map<Object, TurnCostExtension> m_turnCostExtensions;

@@ -1,23 +1,52 @@
-FROM maven:3-jdk-8
+FROM openjdk:8-jdk
 
-# This will supress any download for dependencies and plugins or upload messages which would clutter the console log.
-# `showDateTime` will show the passed time in milliseconds. You need to specify `--batch-mode` to make this work.
 ENV MAVEN_OPTS="-Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
-# As of Maven 3.3.0 instead of this you may define these options in `.mvn/maven.config` so the same config is used
-# when running from the command line.
-# `installAtEnd` and `deployAtEnd`are only effective with recent version of the corresponding plugins.
 ENV MAVEN_CLI_OPTS="--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
+
 ARG APP_CONFIG=docker/conf/app.config.sample
+ARG OSM_FILE=docker/data/heidelberg.osm.gz
+ARG JAVA_OPTS
+ARG CATALINA_OPTS
 
-RUN mkdir -p /ors-core/build
+# Install required deps
+RUN apt-get update -qq
+RUN apt-get install -qq -y locales wget nano maven
 
-COPY .git /ors-core/.git
+# Set the locale
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+RUN mkdir /ors-core
+# Copy ors sources
 COPY openrouteservice /ors-core/openrouteservice
-COPY $APP_CONFIG /ors-core/openrouteservice/WebContent/WEB-INF/app.config
+
+# Copy osm data file, config and cache if provided (ors will download otherwise)
+COPY $OSM_FILE /ors-core/data/osm_file.pbf
+COPY $APP_CONFIG /ors-core/openrouteservice/src/main/resources/app.config
 
 WORKDIR /ors-core
 
-# Build and install openrouteservice
-RUN mvn -f ./openrouteservice/pom.xml package -DskipTests 
+# Build openrouteservice
+RUN mvn -q -f ./openrouteservice/pom.xml package -DskipTests
 
-CMD ORS_VER=$(mvn -f ./openrouteservice/pom.xml -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec) && cp /ors-core/openrouteservice/target/openrouteservice-$ORS_VER.war /ors-core/build/ors.war
+# Install tomcat
+RUN mkdir /usr/local/tomcat
+RUN wget -q https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.32/bin/apache-tomcat-8.0.32.tar.gz -O /tmp/tomcat.tar.gz
+
+RUN cd /tmp && tar xvfz tomcat.tar.gz
+RUN cp -R /tmp/apache-tomcat-8.0.32/* /usr/local/tomcat/
+
+# Add tomcat custom settings if provided
+RUN touch /usr/local/tomcat/bin/setenv.sh
+RUN echo "CATALINA_OPTS=\"$CATALINA_OPTS\"" >> /usr/local/tomcat/bin/setenv.sh
+RUN echo "JAVA_OPTS=\"$JAVA_OPTS\"" >> /usr/local/tomcat/bin/setenv.sh
+
+# Copy ors app into tomcat webapps
+RUN cp /ors-core/openrouteservice/target/*.war /usr/local/tomcat/webapps/ors.war
+
+# Start the container
+EXPOSE 8080
+CMD /usr/local/tomcat/bin/catalina.sh run
+
