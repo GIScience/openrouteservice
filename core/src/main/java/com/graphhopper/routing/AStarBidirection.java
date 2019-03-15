@@ -21,6 +21,10 @@ import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.AStar.AStarEntry;
+// ORS-GH MOD START
+// Modification by Andrzej Oles: ALT patch https://github.com/GIScience/graphhopper/issues/21
+import com.graphhopper.routing.lm.LMApproximator;
+// ORS-GH MOD END
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.BeelineWeightApproximator;
 import com.graphhopper.routing.weighting.ConsistentWeightApproximator;
@@ -71,6 +75,11 @@ public class AStarBidirection extends AbstractBidirAlgo implements Recalculation
     private IntHashSet ignoreExplorationFrom = new IntHashSet();
     private IntHashSet ignoreExplorationTo = new IntHashSet();
     private boolean updateBestPath = true;
+
+    // ORS-GH MOD START
+    // Modification by Andrzej Oles: ALT patch https://github.com/GIScience/graphhopper/issues/21
+    private double approximatorOffset = 0.0;
+    // ORS-GH MOD END
 
     public AStarBidirection(Graph graph, Weighting weighting, TraversalMode tMode) {
         super(graph, weighting, tMode);
@@ -156,6 +165,12 @@ public class AStarBidirection extends AbstractBidirAlgo implements Recalculation
             finishedFrom = true;
             finishedTo = true;
         }
+
+        // ORS-GH MOD START
+        // Modification by Andrzej Oles: ALT patch https://github.com/GIScience/graphhopper/issues/21
+        if (weightApprox.getApproximation() instanceof LMApproximator)
+            approximatorOffset = 2.0D * ((LMApproximator) weightApprox.getApproximation()).getFactor();
+        // ORS-GH MOD END
     }
 
     @Override
@@ -188,7 +203,11 @@ public class AStarBidirection extends AbstractBidirAlgo implements Recalculation
             return true;
 
         // using 'weight' is important and correct here e.g. approximation can get negative and smaller than 'weightOfVisitedPath'
-        return currFrom.weight + currTo.weight >= bestPath.getWeight();
+        // ORS-GH MOD START
+        // Modification by Andrzej Oles: ALT patch https://github.com/GIScience/graphhopper/issues/21
+        //return currFrom.weight + currTo.weight >= bestPath.getWeight();
+        return currFrom.weight + currTo.weight - approximatorOffset >= bestPath.getWeight();
+        // ORS-GH MOD END
     }
 
     @Override
