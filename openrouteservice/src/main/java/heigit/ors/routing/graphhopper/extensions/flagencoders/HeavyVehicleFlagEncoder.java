@@ -369,12 +369,9 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
         if ("track".equals(highwayValue))
         {
             String tt = way.getTag("tracktype");
-            if (tt != null)
-            {
-            	int grade = getTrackGradeLevel(tt);
-            	if (grade > maxTrackGradeLevel)
-            		return 0;
-            }
+            int grade = getTrackGradeLevel(tt);
+            if (grade > maxTrackGradeLevel)
+                return 0;
         }
 
         if (!_speedLimitHandler.hasSpeedValue(highwayValue))
