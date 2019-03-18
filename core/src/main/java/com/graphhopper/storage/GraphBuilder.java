@@ -21,8 +21,10 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.weighting.Weighting;
 
 import java.util.Arrays;
+// ORS-GH MOD START
+// CALT
 import java.util.Collections;
-import java.util.List;
+// ORS-GH MOD END
 
 /**
  * For now this is just a helper class to quickly create a GraphStorage.
@@ -38,7 +40,10 @@ public class GraphBuilder {
     private boolean elevation;
     private long byteCapacity = 100;
     private Weighting singleCHWeighting;
+    // ORS-GH MOD START
+    // CALT
     private Weighting singleCoreWeighting;
+    // ORS-GH MOD END
 
     public GraphBuilder(EncodingManager encodingManager) {
         this.encodingManager = encodingManager;
@@ -52,6 +57,8 @@ public class GraphBuilder {
         return this;
     }
 
+    // ORS-GH MOD START
+    // CALT
     /**
      * This method enables creating a CoreGraph with the specified weighting.
      */
@@ -60,6 +67,7 @@ public class GraphBuilder {
         return this;
     }
 
+    // ORS-GH MOD END
     public GraphBuilder setLocation(String location) {
         this.location = location;
         return this;
@@ -109,8 +117,14 @@ public class GraphBuilder {
             dir = new RAMDirectory(location, store);
 
         GraphHopperStorage graph;
+        // ORS-GH MOD START
+        // CALT
+        //if (encodingManager.needsTurnCostsSupport() || singleCHWeighting == null)
         if (encodingManager.needsTurnCostsSupport() || (singleCHWeighting == null && singleCoreWeighting == null))
+        // ORS-GH MOD END
             graph = new GraphHopperStorage(dir, encodingManager, elevation, new TurnCostExtension());
+        // ORS-GH MOD START
+        // CALT
         else if (singleCoreWeighting != null && singleCHWeighting != null)
             throw new IllegalStateException("Cannot build CHGraph and CoreGraph at the same time");
         else if (singleCHWeighting != null)
@@ -120,13 +134,18 @@ public class GraphBuilder {
                     elevation,
                     new TurnCostExtension.NoOpExtension(),
                     Collections.singletonList("ch"));
+        // ORS-GH MOD END
         else
+            // ORS-GH MOD START
+            // CALT
+            //graph = new GraphHopperStorage(Arrays.asList(singleCHWeighting), dir, encodingManager, elevation, new TurnCostExtension.NoOpExtension());
         graph = new GraphHopperStorage(Arrays.asList(singleCoreWeighting),
                 dir,
                 encodingManager,
                 elevation,
                 new TurnCostExtension.NoOpExtension(),
                 Collections.singletonList("core"));
+            // ORS-GH MOD END
 
         return graph;
     }

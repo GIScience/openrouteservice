@@ -29,7 +29,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+// ORS-GH MOD START
+// CALT
 import java.util.Iterator;
+// ORS-GH MOD END
 
 /**
  * This class manages all storage related methods and delegates the calls to the associated graphs.
@@ -54,18 +57,27 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         this(Collections.<Weighting>emptyList(), dir, encodingManager, withElevation, extendedStorage);
     }
 
+    // ORS-GH MOD START
+    // CALT
     public GraphHopperStorage(List<? extends Weighting> chWeightings, Directory dir, final EncodingManager encodingManager, boolean withElevation, GraphExtension extendedStorage) {
         this(chWeightings, dir, encodingManager, withElevation, extendedStorage, null);
     }
 
+    // ORS-GH MOD END
     public GraphHopperStorage(List<? extends Weighting> chWeightings, Directory dir, final EncodingManager encodingManager,
+        // ORS-GH MOD START
+        // CALT
+                              //boolean withElevation, GraphExtension extendedStorage) {
                               boolean withElevation, GraphExtension extendedStorage, List<String> types) {
+        // ORS-GH MOD END
         if (extendedStorage == null)
             throw new IllegalArgumentException("GraphExtension cannot be null, use NoOpExtension");
 
         if (encodingManager == null)
             throw new IllegalArgumentException("EncodingManager needs to be non-null since 0.7. Create one using new EncodingManager or EncodingManager.create(flagEncoderFactory, ghLocation)");
 
+        // ORS-GH MOD START
+        // CALT
         //default to ch
         if(types == null && chWeightings != null){
             types = new ArrayList<>();
@@ -73,6 +85,7 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
                 types.add("ch");
         }
 
+        // ORS-GH MOD END
         this.encodingManager = encodingManager;
         this.dir = dir;
         this.properties = new StorableProperties(dir);
@@ -93,8 +106,13 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         };
 
         this.baseGraph = new BaseGraph(dir, encodingManager, withElevation, listener, extendedStorage);
+        // ORS-GH MOD START
+        // CALT
+        //for (Weighting w : chWeightings) {
+        //    chGraphs.add(new CHGraphImpl(w, dir, this.baseGraph));
         for (int i = 0; i < chWeightings.size(); i++)  {
             chGraphs.add(new CHGraphImpl(chWeightings.get(i), dir, this.baseGraph, types.get(i)));
+        // ORS-GH MOD END
         }
     }
 
@@ -140,6 +158,8 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         return (T) cg;
     }
 
+    // ORS-GH MOD START
+    // CALT
     public CHGraphImpl getCoreGraph(Weighting weighting) {
         if (chGraphs.isEmpty())
             throw new IllegalStateException("Cannot find graph implementation");
@@ -163,6 +183,7 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         throw new IllegalStateException("No core graph was found");
     }
 
+    // ORS-GH MOD END
     public boolean isCHPossible() {
         return !chGraphs.isEmpty();
     }
@@ -385,6 +406,8 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         return baseGraph.getNodes();
     }
 
+    // ORS-GH MOD START
+    // CALT
     public int getCoreNodes() {
         for (CHGraphImpl cg : chGraphs) {
             if (cg.getCoreNodes() == -1) continue;
@@ -393,7 +416,7 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         throw new IllegalStateException("No prepared core graph was found");
     }
 
-
+    // ORS-GH MOD END
     @Override
     public NodeAccess getNodeAccess() {
         return baseGraph.getNodeAccess();
