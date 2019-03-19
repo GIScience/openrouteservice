@@ -23,6 +23,7 @@ import com.carrotsearch.hppc.predicates.IntObjectPredicate;
 import com.graphhopper.coll.GHIntHashSet;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.AStar.AStarEntry;
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.WeightApproximator;
 import com.graphhopper.routing.weighting.Weighting;
@@ -80,6 +81,11 @@ public class AlternativeRoute implements RoutingAlgorithm {
     private double minPlateauFactor = 0.2;
     private int maxPaths = 2;
     private WeightApproximator weightApproximator;
+
+    // ORS-GH MOD START
+    // Modification by Takara Baumbach: Set custom EdgeFilter for Alternative Routing
+    private EdgeFilter additionalEdgeFilter;
+    // ORS-GH MOD END
 
     public AlternativeRoute(Graph graph, Weighting weighting, TraversalMode traversalMode) {
         this.graph = graph;
@@ -174,6 +180,12 @@ public class AlternativeRoute implements RoutingAlgorithm {
         if (weightApproximator != null) {
             altBidirDijktra.setApproximation(weightApproximator);
         }
+        // ORS-GH MOD START
+        // Modification by Takara Baumabch: Set custom EdgeFilter for Alternative Routing
+        if (additionalEdgeFilter != null) {
+            altBidirDijktra.setEdgeFilter(additionalEdgeFilter);
+        }
+        // ORS-GH MOD END
 
         altBidirDijktra.searchBest(from, to);
         visitedNodes = altBidirDijktra.getVisitedNodes();
@@ -206,6 +218,10 @@ public class AlternativeRoute implements RoutingAlgorithm {
     @Override
     public int getVisitedNodes() {
         return visitedNodes;
+    }
+
+    public void setEdgeFilter(EdgeFilter additionalEdgeFilter) {
+        this.additionalEdgeFilter = additionalEdgeFilter;
     }
 
     public static class AlternativeInfo {

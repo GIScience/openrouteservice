@@ -72,6 +72,10 @@ public class RoutingAlgorithmFactorySimple implements RoutingAlgorithmFactory {
             AbstractRoutingAlgorithm ara = (AbstractRoutingAlgorithm) ra;
             ara.setEdgeFilter(opts.getEdgeFilter());
         }
+        // Modification by Takara Baumabch: Set custom EdgeFilter for Alternative Routing
+        if (ra instanceof AlternativeRoute && opts.getEdgeFilter() != null) {
+            ((AlternativeRoute)ra).setEdgeFilter(opts.getEdgeFilter());
+        }
         // ORS-GH MOD END
         return ra;
     }
