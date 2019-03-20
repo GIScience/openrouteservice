@@ -1817,7 +1817,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testSimplifyHasLessWayPoints() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("coordinates", getParameter("coordinatesLong"));
 
         given()
                 .header("Accept", "application/geo+json")
@@ -1828,7 +1828,7 @@ public class ResultTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then().log().all()
                 .assertThat()
-                .body("features[0].geometry.coordinates.size()", is(75))
+                .body("features[0].geometry.coordinates.size()", is(534))
                 .statusCode(200);
 
         body.put("geometry_simplify", true);
@@ -1842,7 +1842,7 @@ public class ResultTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then().log().all()
                 .assertThat()
-                .body("features[0].geometry.coordinates.size()", is(34))
+                .body("features[0].geometry.coordinates.size()", is(299))
                 .statusCode(200);
     }
 

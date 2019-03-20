@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Makes docker and docker-compose deployment of openrouteservice more customizable (Issue #434)
 ### Fixed
--
+- Enable > 2 waypoints when geometry_simplify=true (#457)
 ### Changed
 - Updated pom to always build ors.war (Issue #432)
 ### Deprecated
