@@ -18,17 +18,11 @@
 package heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
-import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeIteratorState;
-import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 
 import java.util.HashMap;
-import java.util.HashSet;
-
 /**
  * Only certain nodes are accepted and therefor the others are ignored.
  * <p>
@@ -38,12 +32,10 @@ import java.util.HashSet;
 public class CoreDijkstraFilter implements EdgeFilter {
     private final CHGraph graph;
     private final int maxNodes;
-    private final int coreNodeLevel;
-    static boolean[] isCoreNode = new boolean[0];
+    private boolean[] isCoreNode;
     EdgeFilter restrictions;
-    private static int numGraph = 0;
-    private static int currentGraph = 0;
-    private static HashMap<CHGraph, Integer> graphMap = new HashMap<>();
+
+    private static HashMap<CHGraph, boolean []> graphMap = new HashMap<>();
 
     boolean inCore = false;
 
@@ -58,20 +50,16 @@ public class CoreDijkstraFilter implements EdgeFilter {
     public CoreDijkstraFilter(CHGraph g) {
         graph = g;
         maxNodes = g.getNodes();
-        coreNodeLevel = maxNodes + 1;
-    }
-
-    public void init(CHGraph g) {
-        isCoreNode = new boolean[isCoreNode.length + maxNodes];
-        graphMap.put(g, numGraph);
-        currentGraph = numGraph;
-        for (int node = 0; node < maxNodes; node++)
-            isCoreNode[currentGraph * maxNodes + node] = graph.getLevel(node) == coreNodeLevel;
-        numGraph++;
-    }
-
-    public void setCurrentGraph(CHGraph g){
-        currentGraph = graphMap.get(g);
+        if (graphMap.containsKey(g)) {
+            isCoreNode = graphMap.get(g);
+        }
+        else {
+            int coreNodeLevel = maxNodes + 1;
+            isCoreNode = new boolean[maxNodes];
+            for (int node = 0; node < maxNodes; node++)
+                isCoreNode[node] = graph.getLevel(node) == coreNodeLevel;
+            graphMap.put(g, isCoreNode);
+        }
     }
 
     /**
@@ -85,7 +73,6 @@ public class CoreDijkstraFilter implements EdgeFilter {
     public boolean accept(EdgeIteratorState edgeIterState) {
         int base = edgeIterState.getBaseNode();
         int adj = edgeIterState.getAdjNode();
-
 
         if (!inCore) {
             // always accept virtual edges, see #288
@@ -105,7 +92,7 @@ public class CoreDijkstraFilter implements EdgeFilter {
                 return true;
 
             // do not follow virtual edges, and stay within core
-            if (isCoreNode[currentGraph * maxNodes + adj])
+            if (isCoreNode[adj])
                 // if edge is in the core check for restrictions
                 return restrictions.accept(edgeIterState);
             else

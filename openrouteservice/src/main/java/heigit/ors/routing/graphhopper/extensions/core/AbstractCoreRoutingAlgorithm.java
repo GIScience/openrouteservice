@@ -129,7 +129,6 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         initFrom(from, 0);
         initTo(to, 0);
         runAlgo();
-        //System.out.println("Visited edges Core-ALT: " + visitedEdgesALTCount );
         return extractPath();
     }
 
@@ -148,10 +147,8 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
 
     public RoutingAlgorithm setEdgeFilter(CoreDijkstraFilter additionalEdgeFilter) {
         this.additionalEdgeFilter = additionalEdgeFilter;
-        this.additionalEdgeFilter.setCurrentGraph(chGraph);
         return this;
     }
-
     protected boolean accept(EdgeIterator iter, int prevOrNextEdgeId) {
         if (!traversalMode.hasUTurnSupport() && iter.getEdge() == prevOrNextEdgeId)
             return false;
