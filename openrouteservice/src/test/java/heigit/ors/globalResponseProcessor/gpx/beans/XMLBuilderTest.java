@@ -25,12 +25,13 @@
 
 package heigit.ors.globalResponseProcessor.gpx.beans;
 
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 
@@ -42,9 +43,9 @@ public class XMLBuilderTest {
      * This class initializes the dummy Gpx.class object
      */
     @BeforeClass
-    public static void setUp() {
+    public static void setUp() throws DatatypeConfigurationException {
         // Time Element
-        XMLGregorianCalendar cal = new XMLGregorianCalendarImpl();
+        XMLGregorianCalendar cal = DatatypeFactory.newInstance().newXMLGregorianCalendar();
         cal.setTime(0, 0, 0, 0);
         // template value
         BigDecimal bigDecimal = BigDecimal.valueOf(0.0);
