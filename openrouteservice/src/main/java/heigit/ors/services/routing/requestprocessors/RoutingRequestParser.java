@@ -180,8 +180,6 @@ public class RoutingRequestParser
 
 		value = request.getParameter("geometry_simplify");
 		if (!Helper.isEmpty(value))
-			if (req.getCoordinates().length > 2 )
-				throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, "geometry_simplify", "true", "coordinates", "count > 2");
             req.setGeometrySimplify(Boolean.parseBoolean(value));
 
 		value = request.getParameter("instructions");

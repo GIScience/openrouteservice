@@ -1358,35 +1358,35 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-	public void expectErrorWithMultiSegmentsAndSimplify() {
-		JSONArray coords = (JSONArray) getParameter("coordinatesShort");
-		coords.put(new JSONArray(new double[]{8.680916, 49.410973}));
+    public void expectErrorWithMultiSegmentsAndSimplify() {
+      JSONArray coords = (JSONArray) getParameter("coordinatesShort");
+      coords.put(new JSONArray(new double[]{8.680916, 49.410973}));
 
-		JSONObject body = new JSONObject();
-		body.put("coordinates", coords);
-		body.put("geometry_simplify", true);
-	}
+      JSONObject body = new JSONObject();
+      body.put("coordinates", coords);
+      body.put("geometry_simplify", true);
+    }
 
-	@Test
-	public void expectAlternativeRoutesToRejectMoreThanTwoWaypoints() {
-		JSONObject body = new JSONObject();
-		body.put("coordinates", (JSONArray) getParameter("coordinatesWithViaPoint"));
-		body.put("preference", getParameter("preference"));
+    @Test
+    public void expectAlternativeRoutesToRejectMoreThanTwoWaypoints() {
+      JSONObject body = new JSONObject();
+      body.put("coordinates", (JSONArray) getParameter("coordinatesWithViaPoint"));
+      body.put("preference", getParameter("preference"));
 
-		JSONObject ar = new JSONObject();
-		ar.put("target_count", "3");
-		body.put("alternative_routes", ar);
+      JSONObject ar = new JSONObject();
+      ar.put("target_count", "3");
+      body.put("alternative_routes", ar);
 
-		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
-				.pathParam("profile", getParameter("carProfile"))
-				.body(body.toString())
-				.when().log().all()
-				.post(getEndPointPath() + "/{profile}/json")
-				.then().log().all()
-				.assertThat()
-				.body("error.code", is(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS))
-				.statusCode(400);
-	}
+      given()
+        .header("Accept", "application/json")
+        .header("Content-Type", "application/json")
+        .pathParam("profile", getParameter("carProfile"))
+        .body(body.toString())
+        .when().log().all()
+        .post(getEndPointPath() + "/{profile}/json")
+        .then().log().all()
+        .assertThat()
+        .body("error.code", is(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS))
+        .statusCode(400);
+    }
 }
