@@ -32,6 +32,7 @@ import java.util.HashMap;
 public class CoreDijkstraFilter implements EdgeFilter {
     private final CHGraph graph;
     private final int maxNodes;
+    private final int coreNodeLevel;
     private boolean[] isCoreNode;
     EdgeFilter restrictions;
 
@@ -50,6 +51,7 @@ public class CoreDijkstraFilter implements EdgeFilter {
     public CoreDijkstraFilter(CHGraph g) {
         graph = g;
         maxNodes = g.getNodes();
+        coreNodeLevel = maxNodes + 1;
         if (graphMap.containsKey(g)) {
             isCoreNode = graphMap.get(g);
         }
@@ -92,12 +94,16 @@ public class CoreDijkstraFilter implements EdgeFilter {
                 return true;
 
             // do not follow virtual edges, and stay within core
-            if (isCoreNode[adj])
+            if (isCoreNode(adj))
                 // if edge is in the core check for restrictions
                 return restrictions.accept(edgeIterState);
             else
                 return false;
         }
+    }
+
+    private boolean isCoreNode(int node) {
+        return graph.getLevel(node) == coreNodeLevel;
     }
 
     public void addRestrictionFilter (EdgeFilter restrictions) {
