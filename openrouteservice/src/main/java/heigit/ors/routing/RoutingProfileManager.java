@@ -403,11 +403,6 @@ public class RoutingProfileManager {
 
             }
 
-//             else {
-//                _routeProfiles.getUniqueProfiles().get()
-//                mInstance.getProfiles()
-//            }
-
             GHResponse gr;
             if ((skipSegments.contains(i))) {
                 gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, true, searchParams, customEdgeFilter, routeProcCntx, req.getGeometrySimplify());
