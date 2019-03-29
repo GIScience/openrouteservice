@@ -27,7 +27,7 @@ import java.util.*;
 import static com.graphhopper.routing.util.PriorityCode.BEST;
 import static com.graphhopper.routing.util.PriorityCode.UNCHANGED;
 
-public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
+public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
 {
     protected final HashSet<String> forwardKeys = new HashSet<String>(5);
     protected final HashSet<String> backwardKeys = new HashSet<String>(5);
