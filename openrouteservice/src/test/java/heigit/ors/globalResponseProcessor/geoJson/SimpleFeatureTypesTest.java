@@ -25,20 +25,22 @@
 
 package heigit.ors.globalResponseProcessor.geoJson;
 
+import com.vividsolutions.jts.geom.LineString;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.geotools.feature.simple.SimpleFeatureTypeImpl;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.GeometryType;
 
-import static heigit.ors.globalResponseProcessor.geoJson.SimpleFeatureTypes.*;
+
+import static heigit.ors.globalResponseProcessor.geoJson.SimpleFeatureTypes.RouteFeatureType;
 
 
 public class SimpleFeatureTypesTest {
     private static SimpleFeatureType simpleFeatureType;
 
-    /**
-     *
-     */
+
     @BeforeClass
     public static void setUp() {
         simpleFeatureType = new SimpleFeatureTypes(RouteFeatureType.routeFeature).create();
@@ -46,6 +48,10 @@ public class SimpleFeatureTypesTest {
 
     @Test
     public void testCreateRouteFeatureType() {
-        Assert.assertEquals("SimpleFeatureTypeImpl http://www.opengis.net/gml:ORSRoutingFile identified extends Feature(geometry:geometry)", simpleFeatureType.toString());
+        Assert.assertEquals(SimpleFeatureTypeImpl.class, simpleFeatureType.getClass());
+        Assert.assertNotNull(simpleFeatureType.getName());
+        Assert.assertNotSame(-1, simpleFeatureType.indexOf("geometry"));
+        GeometryType type = simpleFeatureType.getGeometryDescriptor().getType();
+        Assert.assertEquals(LineString.class.getName(), type.getBinding().getName());
     }
 }

@@ -28,6 +28,7 @@ public class RoutingServiceSettings {
 	private static boolean distanceApproximation = false;
 	private static String storageFormat = "Native";
 	private static String attribution = "";
+	private static String routingName = "openrouteservice directions";
 	private static AppConfig _config;
 	
 	static 
@@ -70,6 +71,10 @@ public class RoutingServiceSettings {
 		value = config.getServiceParameter("routing", "attribution");
 		if (value != null)
 			attribution = value;
+
+		value = config.getServiceParameter("routing", "routing_name");
+		if (value != null)
+			routingName = value;
 	}
 	
 	public static Boolean getEnabled()
@@ -128,5 +133,9 @@ public class RoutingServiceSettings {
 	
  	public static String getAttribution() {
 		return attribution;
+	}
+
+	public static String getRoutingName() {
+		return routingName;
 	}
 }
