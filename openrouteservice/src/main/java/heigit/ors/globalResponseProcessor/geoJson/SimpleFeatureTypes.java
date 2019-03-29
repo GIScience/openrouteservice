@@ -27,8 +27,6 @@ package heigit.ors.globalResponseProcessor.geoJson;
 
 
 import com.vividsolutions.jts.geom.LineString;
-import heigit.ors.globalResponseProcessor.gpx.GpxResponseWriter;
-import heigit.ors.exceptions.MissingConfigParameterException;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -40,7 +38,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * @author Julian Psotta, julian@openrouteservice.org
  */
 class SimpleFeatureTypes {
-    // TODO implement all the different kind of SimpleFeatureTypes here!
     private RouteFeatureType type;
 
     public enum RouteFeatureType {
@@ -63,24 +60,10 @@ class SimpleFeatureTypes {
      */
     public SimpleFeatureType create() {
         if (type == RouteFeatureType.routeFeature) {
-            // create SimpleFeatureType template
             SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
-            // set the name --> The result looks weird but a name is required!! result -->  https://go.openrouteservice.org/:openrouteservice routing
-            try {
-                if (!(RoutingServiceSettings.getParameter("routing_name") == null)) {
-                    builder.setName(RoutingServiceSettings.getParameter("routing_name"));
-
-                } else {
-                    builder.setName("ORSRoutingFile");
-                    new MissingConfigParameterException(GpxResponseWriter.class, "routing_name");
-                }
-            } finally {
-                if (builder.getName() == null) {
-                    builder.setName("ORSRoutingFile");
-                }
-                builder.add("geometry", LineString.class);
-                return builder.buildFeatureType();
-            }
+            builder.setName(RoutingServiceSettings.getRoutingName());
+            builder.add("geometry", LineString.class);
+            return builder.buildFeatureType();
         }
         return null;
     }
