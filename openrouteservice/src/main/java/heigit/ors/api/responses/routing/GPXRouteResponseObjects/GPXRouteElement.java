@@ -49,7 +49,7 @@ public class GPXRouteElement {
         for(int i=0; i<steps.size(); i++) {
             RouteStep step = steps.get(i);
             int coordinateId = step.getWayPoints()[0];
-            while(coordinateId <= step.getWayPoints()[1]) {
+            while(coordinateId < routeCoordinates.length) {
                 Coordinate c = routeCoordinates[coordinateId];
                 routePoints.add(new GPXRoutePointElement(step, c.x, c.y, c.z, i));
                 coordinateId++;
