@@ -240,24 +240,6 @@ public class IsochronesRequestTest {
         Assert.assertEquals(new Double("0.0"), request.getInterval());
     }
 
-    @Test(expected = ParameterValueException.class)
-    public void tooSmallLocationTest() throws ParameterValueException {
-        Double[][] double_array = {{1.0}, {1.0, 3.0}};
-        new IsochronesRequest(double_array);
-    }
-
-    @Test(expected = ParameterValueException.class)
-    public void exceedingLocationMaximumTest() throws ParameterValueException {
-        Double[][] exceedingLocationsMaximumCoords = fakeArrayLocations(IsochronesServiceSettings.getMaximumLocations() + 1, 2);
-        new IsochronesRequest(exceedingLocationsMaximumCoords);
-    }
-
-    @Test(expected = ParameterValueException.class)
-    public void tooLargeLocationTest() throws ParameterValueException {
-        Double[][] exceedingLocationsMaximumCoords = {{1.0, 3.0, 4.0}, {1.0, 3.0}};
-        new IsochronesRequest(exceedingLocationsMaximumCoords);
-    }
-
     @Test
     public void detailedOptionsTest() {
         IsochronesRequest request = new IsochronesRequest();

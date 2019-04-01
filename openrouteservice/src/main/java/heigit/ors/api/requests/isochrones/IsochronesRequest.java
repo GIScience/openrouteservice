@@ -163,21 +163,6 @@ public class IsochronesRequest {
     public IsochronesRequest() {
     }
 
-    @JsonCreator
-    public IsochronesRequest(@JsonProperty(value = "locations", required = true) Double[][] locations) throws ParameterValueException {
-        int maximumLocations = IsochronesServiceSettings.getMaximumLocations();
-        if (locations.length > maximumLocations)
-            throw new ParameterValueException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations");
-        if (locations.length < 1)
-            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "locations");
-        for (Double[] location : locations) {
-            if (location.length != 2)
-                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "locations");
-        }
-        this.locations = locations;
-    }
-
-
     public String getId() {
         return id;
     }

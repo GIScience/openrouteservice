@@ -10,6 +10,7 @@ import heigit.ors.api.requests.routing.RouteRequestOptions;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.common.TravelRangeType;
 import heigit.ors.common.TravellerInfo;
+import heigit.ors.exceptions.ParameterOutOfRangeException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.isochrones.IsochroneRequest;
 import heigit.ors.routing.*;
@@ -61,7 +62,8 @@ public class IsochronesRequestHandlerTest {
         coords[0] = new Double[]{24.5, 39.2};
         coords[1] = new Double[]{27.4, 38.6};
 
-        request = new IsochronesRequest(coords);
+        request = new IsochronesRequest();
+        request.setLocations(coords);
 
         request.setProfile(APIEnums.Profile.DRIVING_CAR);
         request.setAttributes(new IsochronesRequestEnums.Attributes[]{IsochronesRequestEnums.Attributes.AREA, IsochronesRequestEnums.Attributes.REACH_FACTOR});
