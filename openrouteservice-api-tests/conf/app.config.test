@@ -49,8 +49,8 @@
             instructions: true,
             maximum_distance: 100000,
             maximum_segment_distance_with_dynamic_weights: 50000,
-            maximum_waypoints: 50
-
+            maximum_waypoints: 50,
+            maximum_snapping_radius: 350,
             preparation:
               {
                 min_network_size: 200,
@@ -216,6 +216,7 @@
             parameters: {
               encoder_options: "consider_elevation=false|turn_costs=true|block_fords=false",
               elevation: true,
+              maximum_snapping_radius: 10,
               ext_storages: {
                 WayCategory: {},
                 WaySurfaceType: {},
@@ -295,6 +296,7 @@
             parameters: {
               encoder_options: "block_fords=true",
               elevation: true,
+              maximum_snapping_radius: 50,
               ext_storages: {
                 Wheelchair: {
                   KerbsOnCrossings: "true"
