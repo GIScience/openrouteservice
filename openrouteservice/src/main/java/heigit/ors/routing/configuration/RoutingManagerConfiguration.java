@@ -181,6 +181,9 @@ public class RoutingManagerConfiguration
 						if (bbox.size() != 4)
 							throw new Exception("'extent' element must contain 4 elements.");
 						profile.setExtent(new Envelope(bbox.get(0),bbox.get(1),bbox.get(2),bbox.get(3)));
+						break;
+					case "maximum_snapping_radius":
+							profile.setMaximumSnappingRadius(Integer.parseInt(paramItem.getValue().toString()));
 					}
 				}
 			}
