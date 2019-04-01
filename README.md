@@ -6,7 +6,7 @@
 
 The **openrouteservice API** provides global spatial services by consuming user-generated and collaboratively collected free geographic data directly from [OpenStreetMap](http://www.openstreetmap.org). It is highly customizable, performant and written in Java.
 
-The following services are available via a RESTful interface served by Tomcat.
+The following services are available via a HTTP interface served by Tomcat.
 - **Directions** - Returns a route between two or more locations for a selected profile with customizable additional settings and instructions.
 - **Isochrones** - Obtains areas of reachability from given locations.
 - **Matrix** - Computes one-to-many, many-to-one or many-to-many routes for any mode of transport provided by openrouteservice.

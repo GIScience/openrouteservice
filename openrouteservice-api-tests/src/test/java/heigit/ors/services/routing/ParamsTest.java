@@ -36,6 +36,7 @@ public class ParamsTest extends ServiceTest {
 		addParameter("coordinatesShort", "8.678613,49.411721|8.687782,49.424597");
 		addParameter("coordinatesShortFaulty", "8.680916a,49.41b0973|8.6c87782,049gbd.424597");
 		addParameter("coordinatesLong", "8.678613,49.411721|4.78906,53.071752");
+		addParameter("coordinatesShortThree", "8.678613,49.411721|8.687782,49.424597|8.691087,49.425009");
 		addParameter("extra_info", "surface|suitability|steepness");
 		addParameter("preference", "fastest");
 		addParameter("profile", "cycling-regular");
@@ -729,7 +730,7 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void expectSimplifyGeometry() {
 		given()
-				.param("coordinates", getParameter("coordinatesShort"))
+				.param("coordinates", getParameter("coordinatesShortThree"))
 				.param("profile", getParameter("carProfile"))
 				.param("geometry_simplify", "true")
 				.when()

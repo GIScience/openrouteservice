@@ -24,8 +24,8 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>heigit.ors</groupId>
@@ -45,367 +45,340 @@
         <project.timestamp>${maven.build.timestamp}</project.timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
     </properties>
-     <scm>
-  	<url>git@github.com:GIScience/openrouteservice.git</url>
-   	<connection>git@github.com:GIScience/openrouteservice.git</connection>
-   	<developerConnection>git@github.com:GIScience/openrouteservice.git</developerConnection>
-     </scm>
+    <scm>
+        <url>git@github.com:GIScience/openrouteservice.git</url>
+        <connection>git@github.com:GIScience/openrouteservice.git</connection>
+        <developerConnection>git@github.com:GIScience/openrouteservice.git</developerConnection>
+    </scm>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.0.4.RELEASE</version>
     </parent>
-  <build>
-    <finalName>ors</finalName>
-    <sourceDirectory>src/main/java</sourceDirectory>
-    <resources>
-       <resource>
-         <directory>src/main/resources</directory>
-         <includes>
-             <include>resources/locales/*.resources</include>
-             <include>logs/*</include>
-             <include>resources/version.properties</include>
-             <include>application.properties</include>
-             <include>resources/services/locations/categories.txt</include>
-             <include>resources/services/routing/speed_limits/*.*</include>
-             <include>META-INF/services/*.*</include>
-             <include>app.config*</include>
-         </includes>
-         <filtering>true</filtering>
-       </resource>
-     </resources>
+    <build>
+        <finalName>ors</finalName>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>resources/locales/*.resources</include>
+                    <include>logs/*</include>
+                    <include>resources/version.properties</include>
+                    <include>application.properties</include>
+                    <include>resources/services/locations/categories.txt</include>
+                    <include>resources/services/routing/speed_limits/*.*</include>
+                    <include>META-INF/services/*.*</include>
+                    <include>app.config*</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
 
-    <plugins>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <version>1.8</version>
-            <executions>
-                <execution>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>run</goal>
-                    </goals>
-                    <configuration>
-                        <tasks>
-                            <echo>Creating version file</echo>
-                            <copy file="${basedir}/target/${project.build.finalName}/WEB-INF/classes/resources/version.properties" tofile="${basedir}/target/version.properties" />
-                        </tasks>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
-     <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.3</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-war-plugin</artifactId>
-        <version>2.6</version>
-        <configuration>
-          <warSourceDirectory>WebContent</warSourceDirectory>
-           <webXml>WebContent/WEB-INF/web.xml</webXml>
-          <failOnMissingWebXml>false</failOnMissingWebXml>
-          <!-- <attachClasses>true</attachClasses>
-          <classesClassifier>classes</classesClassifier> -->
-          <!-- <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-              <mainClass>ors.heigit.routing.GraphBuilder</mainClass>
-            </manifest>
-          </archive>-->
-        </configuration>
-      </plugin>
-      <plugin>
-          <groupId>org.apache.tomcat.maven</groupId>
-          <artifactId>tomcat7-maven-plugin</artifactId>
-          <version>2.2</version>
-          <configuration>
-          		 <path>/${project.build.finalName}</path>
-          		 <port>8082</port>
-                 <addContextWarDependencies>true</addContextWarDependencies>
-                 <addWarDependenciesInClassloader>true</addWarDependenciesInClassloader>
-                 <warSourceDirectory>${project.build.directory}/${project.build.finalName}/</warSourceDirectory>
-                 <uriEncoding>utf-8</uriEncoding>
-          </configuration>
-      </plugin>
-        <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-            <executions>
-                <execution>
-                    <goals>
-                        <goal>repackage</goal>
-                    </goals>
-                </execution>
-            </executions>
-        </plugin>
-       <plugin><!-- clean up from war:inplace  -->
-        <artifactId>maven-clean-plugin</artifactId>
-        <version>2.5</version>
-        <configuration>
-        </configuration>
-      </plugin>
-      <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.8.2</version>
-      </plugin>
-      <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>2.6</version>
-      </plugin>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <echo>Creating version file</echo>
+                                <copy file="${basedir}/target/${project.build.finalName}/WEB-INF/classes/resources/version.properties" tofile="${basedir}/target/version.properties" />
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <warSourceDirectory>WebContent</warSourceDirectory>
+                    <webXml>WebContent/WEB-INF/web.xml</webXml>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <!-- <attachClasses>true</attachClasses>
+                    <classesClassifier>classes</classesClassifier> -->
+                    <!-- <archive>
+                      <manifest>
+                        <addClasspath>true</addClasspath>
+                        <mainClass>ors.heigit.routing.GraphBuilder</mainClass>
+                      </manifest>
+                    </archive>-->
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <path>/${project.build.finalName}</path>
+                    <port>8082</port>
+                    <addContextWarDependencies>true</addContextWarDependencies>
+                    <addWarDependenciesInClassloader>true</addWarDependenciesInClassloader>
+                    <warSourceDirectory>${project.build.directory}/${project.build.finalName}/</warSourceDirectory>
+                    <uriEncoding>utf-8</uriEncoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin><!-- clean up from war:inplace  -->
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.2</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.6</version>
+            </plugin>
 
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-                <argLine>-Duser.language=en -Duser.region=US</argLine>
-            </configuration>
-        </plugin>
-    </plugins>
-  </build>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>-Duser.language=en -Duser.region=US</argLine>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
-  <repositories>
-		<repository>
-			<id>maven2-repository.dev.java.net</id>
-			<name>Java.net repository</name>
-			<url>http://download.java.net/maven/2</url>
-		</repository>
-		<repository>
-      		<id>bintray-nitram509-jbrotli</id>
-      		<name>bintray</name>
-      		<url>http://dl.bintray.com/nitram509/jbrotli</url>
-    	</repository>
-    	<repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
-		</repository>
-      <repository>
-          <id>osgeo</id>
-          <name>Open Source Geospatial Foundation Repository</name>
-          <url>http://download.osgeo.org/webdav/geotools/</url>
-      </repository>
-      <repository>
-          <snapshots>
-              <enabled>true</enabled>
-          </snapshots>
-          <id>opengeo</id>
-          <name>OpenGeo Maven Repository</name>
-          <url>http://repo.boundlessgeo.com/main </url>
-      </repository>
+    <repositories>
+        <repository>
+            <!--This will resolve special artifact through our own reopository (https://www.jfrog.com/confluence/display/RTF/Maven+Repository#MavenRepository-ResolvingArtifactsthroughArtifactory).-->
+            <id>HeiGIT main</id>
+            <name>Central Repository for OSHDB dependency related artefacts</name>
+            <url>http://repo.heigit.org/artifactory/main</url>
+        </repository>
     </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>spring-releases</id>
-            <url>https://repo.spring.io/libs-release</url>
-        </pluginRepository>
-    </pluginRepositories>
 
-<dependencies>
-    <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-compress</artifactId>
-        <version>1.15</version>
-    </dependency>
-	<dependency>
-		<groupId>com.vividsolutions</groupId>
-		<artifactId>jts</artifactId>
-		<version>1.13</version>
-	</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.15</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vividsolutions</groupId>
+            <artifactId>jts</artifactId>
+            <version>1.13</version>
+        </dependency>
 
-	<dependency>
-    	<groupId>org.geotools</groupId>
-    	<artifactId>gt-main</artifactId>
-    	<version>19.1</version>
-	</dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-main</artifactId>
+            <version>19.1</version>
+        </dependency>
 
-	<dependency>
-    	<groupId>org.geotools</groupId>
-    	<artifactId>gt-api</artifactId>
-    	<version>19.1</version>
-	</dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-api</artifactId>
+            <version>19.1</version>
+        </dependency>
 
-	<dependency>
-    	<groupId>org.geotools</groupId>
-    	<artifactId>gt-epsg-hsql</artifactId>
-    	<version>19.1</version>
-	</dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-epsg-hsql</artifactId>
+            <version>19.1</version>
+        </dependency>
 
-    <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-geojson</artifactId>
-        <version>19.1</version>
-    </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-geojson</artifactId>
+            <version>19.1</version>
+        </dependency>
 
-    <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-1.2-api</artifactId>
-        <version>2.8.2</version>
-    </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
+            <version>2.8.2</version>
+        </dependency>
 
-    <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-api</artifactId>
-        <version>2.8.2</version>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-core</artifactId>
-        <version>2.8.2</version>
-    </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.8.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.8.2</version>
+        </dependency>
 
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <version>${slf4j.version}</version>
-        <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>test</scope>
+        </dependency>
 
-	<dependency>
-   		<groupId>javax.servlet</groupId>
-   		<artifactId>javax.servlet-api</artifactId>
-   		<version>3.1.0</version>
-   		<scope>provided</scope>
-	</dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
 
-    <dependency>
-        <groupId>org.skyscreamer</groupId>
-        <artifactId>jsonassert</artifactId>
-        <version>1.5.0</version>
-        <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.skyscreamer</groupId>
+            <artifactId>jsonassert</artifactId>
+            <version>1.5.0</version>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-		<groupId>org.jgrapht</groupId>
-		<artifactId>jgrapht-core</artifactId>
-		<version>0.9.1</version>
-	</dependency>
+        <dependency>
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-core</artifactId>
+            <version>0.9.1</version>
+        </dependency>
 
-	<dependency>
-		<groupId>commons-net</groupId>
-		<artifactId>commons-net</artifactId>
-		<version>3.3</version>
-	</dependency>
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>3.3</version>
+        </dependency>
 
-	<dependency>
-    	<groupId>net.sf.trove4j</groupId>
-    	<artifactId>trove4j</artifactId>
-    	<version>3.0.3</version>
-	</dependency>
+        <dependency>
+            <groupId>net.sf.trove4j</groupId>
+            <artifactId>trove4j</artifactId>
+            <version>3.0.3</version>
+        </dependency>
 
-    <dependency>
-        <groupId>com.github.GIScience.graphhopper</groupId>
-        <artifactId>graphhopper-core</artifactId>
-        <version>v0.10.1.13</version>
-    </dependency>
+        <dependency>
+            <groupId>com.github.GIScience.graphhopper</groupId>
+            <artifactId>graphhopper-core</artifactId>
+            <version>v0.10.1.13</version>
+        </dependency>
 
-    <dependency>
-        <groupId>com.github.GIScience.graphhopper</groupId>
-        <artifactId>graphhopper-reader-osm</artifactId>
-        <version>v0.10.1.13</version>
-    </dependency>
+        <dependency>
+            <groupId>com.github.GIScience.graphhopper</groupId>
+            <artifactId>graphhopper-reader-osm</artifactId>
+            <version>v0.10.1.13</version>
+        </dependency>
 
-    <!-- remove the comment to enable debugging
-    <dependency>
-        <groupId>com.graphhopper</groupId>
-        <artifactId>graphhopper-core</artifactId>
-        <version>0.10-SNAPSHOT</version>
-    </dependency>
+        <!-- remove the comment to enable debugging
+        <dependency>
+            <groupId>com.graphhopper</groupId>
+            <artifactId>graphhopper-core</artifactId>
+            <version>0.10-SNAPSHOT</version>
+        </dependency>
 
-    <dependency>
-        <groupId>com.graphhopper</groupId>
-        <artifactId>graphhopper-reader-osm</artifactId>
-        <version>0.10-SNAPSHOT</version>
-    </dependency>
-    -->
+        <dependency>
+            <groupId>com.graphhopper</groupId>
+            <artifactId>graphhopper-reader-osm</artifactId>
+            <version>0.10-SNAPSHOT</version>
+        </dependency>
+        -->
 
-	<dependency>
-    	<groupId>com.typesafe</groupId>
-	    <artifactId>config</artifactId>
-	    <version>1.3.1</version>
-	</dependency>
+        <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+            <version>1.3.1</version>
+        </dependency>
 
-	<dependency>
-    	<groupId>com.zaxxer</groupId>
-    	<artifactId>HikariCP</artifactId>
-    	<version>2.6.1</version>
-	</dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>2.6.1</version>
+        </dependency>
 
-	<!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
-	<dependency>
-    	<groupId>org.postgresql</groupId>
-    	<artifactId>postgresql</artifactId>
-    	<version>9.4.1212</version>
-	</dependency>
+        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.4.1212</version>
+        </dependency>
 
-   	<dependency>
-      	<groupId>org.meteogroup.jbrotli</groupId>
-      	<artifactId>jbrotli</artifactId>
-      	<version>0.5.0</version>
-   	</dependency>
+        <dependency>
+            <groupId>org.meteogroup.jbrotli</groupId>
+            <artifactId>jbrotli</artifactId>
+            <version>0.5.0</version>
+        </dependency>
 
-    <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.4</version>
-    </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.4</version>
+        </dependency>
 
-    <!-- Spring dependencies -->
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-tomcat</artifactId>
-        <version>1.5.15.RELEASE</version>
-        <scope>provided</scope>
-        <exclusions>
-            <exclusion>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-logging</artifactId>
-            </exclusion>
-        </exclusions>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-web</artifactId>
-        <version>1.5.15.RELEASE</version>
-        <exclusions>
-            <exclusion>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-logging</artifactId>
-            </exclusion>
-        </exclusions>
-    </dependency>
-    <dependency>
-        <groupId>io.springfox</groupId>
-        <artifactId>springfox-swagger2</artifactId>
-        <version>2.9.2</version>
-    </dependency>
-    <dependency>
-        <groupId>io.springfox</groupId>
-        <artifactId>springfox-swagger-ui</artifactId>
-        <version>2.9.2</version>
-        <scope>compile</scope>
-    </dependency>
-    <dependency>
-        <groupId>com.bedatadriven</groupId>
-        <artifactId>jackson-datatype-jts</artifactId>
-        <version>2.3</version>
-    </dependency>
+        <!-- Spring dependencies -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <version>1.5.15.RELEASE</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>1.5.15.RELEASE</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>2.9.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.bedatadriven</groupId>
+            <artifactId>jackson-datatype-jts</artifactId>
+            <version>2.3</version>
+        </dependency>
 
 
-    <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
-<!-- <dependency>
-    	<groupId>mysql</groupId>
-    	<artifactId>mysql-connector-java</artifactId>
-    	<version>6.0.5</version>
-	</dependency>
- -->
-</dependencies>
+        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+        <!-- <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>6.0.5</version>
+            </dependency>
+         -->
+    </dependencies>
 
     <!-- mvn deploy -DperformRelease=true -->
     <profiles>

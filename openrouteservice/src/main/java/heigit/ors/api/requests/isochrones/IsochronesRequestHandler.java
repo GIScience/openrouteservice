@@ -159,10 +159,8 @@ public class IsochronesRequestHandler extends GenericHandler {
     IsochroneRequest convertIsochroneRequest(IsochronesRequest request) throws Exception {
         IsochroneRequest convertedIsochroneRequest = new IsochroneRequest();
         Double[][] locations = request.getLocations();
-        for (int i = 0; i < request.getLocations().length; i++) {
-            if (locations.length > 2)
-                throw new ParameterValueException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, IsochronesRequest.PARAM_LOCATIONS, Arrays.toString(locations), IsochronesRequest.PARAM_LOCATIONS + " is limited to 2");
 
+        for (int i = 0; i < request.getLocations().length; i++) {
             Double[] location = locations[i];
             TravellerInfo travellerInfo = constructTravellerInfo(location, request);
             travellerInfo.setId(Integer.toString(i));

@@ -53,6 +53,12 @@ class RouteResultBuilder
         RouteResult result = new RouteResult(request.getExtraInfo());
         result.addExtras(request, extras);
 
+        int allPointsSize = 0;
+        for (GHResponse resp : responses) {
+            allPointsSize =+ resp.getBest().getPoints().size();
+        };
+        PointList pointsToAdd = new PointList(allPointsSize, false);
+
         if (request.getSkipSegments() != null && !request.getSkipSegments().isEmpty()) {
             result.addWarning(new RouteWarning(RouteWarning.SKIPPED_SEGMENTS));
         }
@@ -68,8 +74,8 @@ class RouteResultBuilder
                 throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", ri, FormatUtility.formatCoordinate(request.getCoordinates()[ri]), ri + 1, FormatUtility.formatCoordinate(request.getCoordinates()[ri + 1])));
 
             PathWrapper path = response.getBest();
+            pointsToAdd.add(path.getPoints());
 
-            result.addPointlist(path.getPoints());
             if (request.getIncludeGeometry()) {
                 result.addPointsToGeometry(path.getPoints(), ri > 0, request.getIncludeElevation());
                 result.addWayPointIndex(result.getGeometry().length - 1);
@@ -78,11 +84,11 @@ class RouteResultBuilder
             result.addSegment(createRouteSegment(path, request, getNextResponseFirstStepPoints(responses, ri)));
         }
 
+        result.addPointlist(pointsToAdd);
         result.calculateRouteSummary(request);
         if (!request.getIncludeGeometry() || !request.getIncludeInstructions()) {
             result.resetSegments();
         }
-
 
         return result;
     }

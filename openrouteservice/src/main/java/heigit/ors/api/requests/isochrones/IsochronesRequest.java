@@ -146,13 +146,14 @@ public class IsochronesRequest {
     private boolean hasInterval = false;
 
     @ApiModelProperty(name = PARAM_SMOOTHING,
-            value = "Applies a level of generalisation to the isochrone polygons generated as a `smoothing_factor` between `0` and `1.0`.\n" +
+            value = "Applies a level of generalisation to the isochrone polygons generated as a `smoothing_factor` between `0` and `100.0`.\n" +
                     "Generalisation is produced by determining a maximum length of a connecting line between two points found on the outside of a containing polygon.\n" +
                     "If the distance is larger than a threshold value, the line between the two points is removed and a smaller connecting line between other points is used.\n" +
-                    "The threshold value is determined as `(smoothing_factor * maximum_radius_of_isochrone) / 10`.\n" +
-                    "Therefore, a value closer to 1 will result in a more generalised shape.\n" +
+                    "Note that the minimum length of this connecting line is ~1333m, and so when the `smoothing_factor` results in a distance smaller than this, the minimum value is used.\n" +
+                    "The threshold value is determined as `(maximum_radius_of_isochrone / 100) * smoothing_factor`.\n" +
+                    "Therefore, a value closer to 100 will result in a more generalised shape.\n" +
                     "The polygon generation algorithm is based on Duckham and al. (2008) `\"Efficient generation of simple polygons for characterizing the shape of a set of points in the plane.\"`",
-            example = "0.25")
+            example = "25")
     @JsonProperty(value = PARAM_SMOOTHING)
     private Double smoothing;
     @JsonIgnore
@@ -161,21 +162,6 @@ public class IsochronesRequest {
     @JsonCreator
     public IsochronesRequest() {
     }
-
-    @JsonCreator
-    public IsochronesRequest(@JsonProperty(value = "locations", required = true) Double[][] locations) throws ParameterValueException {
-        int maximumLocations = IsochronesServiceSettings.getMaximumLocations();
-        if (locations.length > maximumLocations)
-            throw new ParameterValueException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations");
-        if (locations.length < 1)
-            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "locations");
-        for (Double[] location : locations) {
-            if (location.length != 2)
-                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "locations");
-        }
-        this.locations = locations;
-    }
-
 
     public String getId() {
         return id;

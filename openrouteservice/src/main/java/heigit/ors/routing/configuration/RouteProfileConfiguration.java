@@ -48,9 +48,11 @@ public class RouteProfileConfiguration
 	private String _elevationCachePath = null;
 	private String _elevationDataAccess = "MMAP";
 	private boolean _elevationCacheClear = true;
+	private int _maximumSnappingRadius;
 	
 	private Envelope _extent;
-	
+	private boolean _hasMaximumSnappingRadius = false;
+
 	public RouteProfileConfiguration()
 	{
 		_extStorages = new HashMap<String, Map<String, String>>();
@@ -105,7 +107,9 @@ public class RouteProfileConfiguration
 		rpc._elevationCacheClear = this._elevationCacheClear;
 		rpc._elevationProvider = this._elevationProvider;
 		rpc._elevationDataAccess = this._elevationDataAccess;
-		
+
+		rpc._maximumSnappingRadius = this._maximumSnappingRadius;
+
 		rpc._extent = this._extent;
 		
 		return rpc;
@@ -323,5 +327,18 @@ public class RouteProfileConfiguration
 
 	public void setOptimize(boolean optimize) {
 		this._optimize = optimize;
+	}
+
+	public boolean hasMaximumSnappingRadius() {
+		return _hasMaximumSnappingRadius;
+	}
+
+	public int getMaximumSnappingRadius() {
+		return _maximumSnappingRadius;
+	}
+
+	public void setMaximumSnappingRadius(int _maximumSnappingRadius) {
+		this._maximumSnappingRadius = _maximumSnappingRadius;
+		this._hasMaximumSnappingRadius = true;
 	}
 }

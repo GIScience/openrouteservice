@@ -464,7 +464,10 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
                 return 0;
             
             if (restrictedWheelchairHighways.contains(highwayValue) && !bicycleOrHorseOnlyWay) {
-            	// only disallow cycleways/bridleways if they are only designated to either of this mode of traveling
+            	// In some countries bridleways cannot be travelled by anything other than a horse, so we should check if they have been explicitly allowed for foot or pedestrian
+                if (highwayValue.equals("bridleway") && !(intendedValues.contains(way.getTag("foot", "no")) || intendedValues.contains(way.getTag("wheelchair", "no")))) {
+                    return 0;
+                }
            		return acceptBit;
             }
             
