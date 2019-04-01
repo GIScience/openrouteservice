@@ -100,6 +100,12 @@ public class StatusAPI {
                     org.json.JSONObject jProfileLimits = new org.json.JSONObject(true);
                     if (rpc.getMaximumDistance() > 0)
                         jProfileLimits.put("maximum_distance", rpc.getMaximumDistance());
+
+                    if (rpc.getMaximumDistanceDynamicWeights() > 0)
+                        jProfileLimits.put("maximum_distance_dynamic_weights", rpc.getMaximumDistanceDynamicWeights());
+
+                    if (rpc.getMaximumDistanceAvoidAreas() > 0)
+                        jProfileLimits.put("maximum_distance_avoid_areas", rpc.getMaximumDistanceAvoidAreas());
                     
                     if (rpc.getMaximumWayPoints() > 0)
                         jProfileLimits.put("maximum_waypoints", rpc.getMaximumWayPoints());
