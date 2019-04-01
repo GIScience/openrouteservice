@@ -97,9 +97,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
 //        pns.loadExisting();
     }
 
-    public void initLevelFilter() {
-        new CoreDijkstraFilter(this.prepareGraph);
-    }
     /**
      * The higher the values are the longer the preparation takes but the less shortcuts are
      * produced.
