@@ -152,7 +152,6 @@ public class CoreLandmarkStorageTest {
         CHGraph g = contractGraph(ghStorage, restrictedEdges);
         HashMap<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(g, weighting);
 
-        ghStorage.edge(5, 6, 10, false);
         CoreLandmarkStorage storage = new CoreLandmarkStorage(dir, ghStorage, coreNodeIdMap, weighting,new LMEdgeFilterSequence(), 2 );
         storage.setMinimumNodes(2);
         storage.createLandmarks();

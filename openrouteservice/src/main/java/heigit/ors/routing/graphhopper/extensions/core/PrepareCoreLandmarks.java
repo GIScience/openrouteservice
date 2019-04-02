@@ -133,7 +133,6 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
 
         LOGGER.info("Start calculating " + lms.getLandmarkCount() + " landmarks, default active lms:"
                 + defaultActiveLandmarks + ", weighting:" + lms.getLmSelectionWeighting() + ", " + Helper.getMemInfo());
-        //lms.createCoreNodeIdMap();
         lms.createLandmarks();
         lms.flush();
     }
@@ -197,17 +196,14 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
     public boolean matchesFilter(PMap pmap){
         //Returns true if the landmarkset is for the avoidables.
         //Also returns true if the query has no avoidables and the set has no avoidables
-            if(landmarksFilter.isFilter(pmap)){
-                //printLandmarksLongLat();
-                return true;
-            }
-            return false;
+        if(landmarksFilter.isFilter(pmap))
+            return true;
+        return false;
     }
 
     /**
      * This method is for debugging
      */
-
     public void printLandmarksLongLat(){
         int[] currentSubnetwork;
         for(int subnetworkId = 1; subnetworkId < lms.getSubnetworksWithLandmarks(); subnetworkId++){

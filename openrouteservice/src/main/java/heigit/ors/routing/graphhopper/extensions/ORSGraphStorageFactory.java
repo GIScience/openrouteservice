@@ -137,17 +137,6 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 					gh.hasElevation(),
 					graphExtension,
 					suffixes);
-
-//		if (gh.isCHEnabled())
-//			return new GraphHopperStorage(gh.getCHFactoryDecorator().getWeightings(), dir, encodingManager, gh.hasElevation(), graphExtension);
-//		else if (((ORSGraphHopper) gh).isCoreEnabled()){
-//			return new GraphHopperStorage(((ORSGraphHopper) gh).getCoreFactoryDecorator().getWeightings(),
-//					dir,
-//					encodingManager,
-//					gh.hasElevation(),
-//					graphExtension,
-//					"core");
-//		}
 		else
 			return new GraphHopperStorage(dir, encodingManager, gh.hasElevation(), graphExtension);
 	}

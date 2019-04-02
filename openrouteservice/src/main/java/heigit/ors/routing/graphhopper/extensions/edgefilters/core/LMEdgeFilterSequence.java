@@ -78,8 +78,6 @@ public class LMEdgeFilterSequence extends EdgeFilterSequence implements EdgeFilt
 	 *
 	 * */
 	private boolean isAvoidFeature(int avoidable){
-//		if(avoidable == 0)
-//			return true;
 		for (EdgeFilter edgeFilter: this) {
 			//There is only one AvoidFeaturesCoreEdgeFilter per EdgeFilterSequence
 			if (edgeFilter instanceof AvoidFeaturesCoreEdgeFilter){
