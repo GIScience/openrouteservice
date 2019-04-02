@@ -185,7 +185,6 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
     /**
      * This method calculates the landmarks and initial weightings to & from them.
      */
-//    @Override
     public void createLandmarks() {
         if (isInitialized())
             throw new IllegalStateException("Initialize the landmark storage only once!");
@@ -232,14 +231,12 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         byte[] subnetworks = new byte[core.getCoreNodes()];
         Arrays.fill(subnetworks, (byte) UNSET_SUBNETWORK);
         EdgeFilterSequence tarjanFilter = new EdgeFilterSequence();
-//        EdgeFilter tarjanFilter;// = new DefaultEdgeFilter(encoder, false, true);
         IntHashSet blockedEdges = new IntHashSet();
 
         // the ruleLookup splits certain areas from each other but avoids making this a permanent change so that other algorithms still can route through these regions.
         if (ruleLookup != null && ruleLookup.size() > 0) {
             StopWatch sw = new StopWatch().start();
             blockedEdges = findBorderEdgeIds(ruleLookup);
-//            tarjanFilter = new CoreAndBlockedEdgesFilter(encoder, false, true, blockedEdges, graph);
             if (logDetails)
                 LOGGER.info("Made " + blockedEdges.size() + " edges inaccessible. Calculated country cut in "
                         + sw.stop().getSeconds() + "s, " + Helper.getMemInfo());
@@ -363,7 +360,6 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
             coreEdgeFilter.add(new CoreAndBlockedEdgesFilter(encoder, true, true, blockedEdges, graph));
             coreEdgeFilter.add(landmarksFilter);
-//            coreEdgeFilter.add(new AvoidFeaturesCoreEdgeFilter(this.graph, 1, 1));
             explorer.setFilter(coreEdgeFilter);
             explorer.runAlgo(true, coreEdgeFilter);
 
@@ -409,7 +405,6 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
             coreEdgeFilter.add(new CoreAndBlockedEdgesFilter(encoder, false, true, blockedEdges, graph));
             coreEdgeFilter.add(landmarksFilter);
-//            coreEdgeFilter.add(new AvoidFeaturesCoreEdgeFilter(this.graph, 1, 1));
             explorer.setFilter(coreEdgeFilter);
             explorer.runAlgo(true, coreEdgeFilter);
             explorer.initLandmarkWeights(lmIdx, lmNodeId, LM_ROW_LENGTH, FROM_OFFSET);
@@ -425,7 +420,6 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             //TODO Core - DONE
             EdgeFilterSequence coreEdgeFilterBWD = new EdgeFilterSequence();
             coreEdgeFilterBWD.add(new CoreAndBlockedEdgesFilter(encoder, true, false, blockedEdges, graph));
-//            coreEdgeFilterBWD.add(new AvoidFeaturesCoreEdgeFilter(this.graph, 1, 1));
             coreEdgeFilterBWD.add(landmarksFilter);
             explorer.setFilter(coreEdgeFilterBWD);
             explorer.runAlgo(false, coreEdgeFilterBWD);

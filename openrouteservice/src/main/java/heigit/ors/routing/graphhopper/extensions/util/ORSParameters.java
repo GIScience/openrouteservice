@@ -25,10 +25,6 @@ public class ORSParameters {
     static final String ROUTING_INIT_PREFIX = "routing.";
 
     /**
-     * Parameters that can be used for algorithm.
-     */
-
-    /**
      * Properties for routing with contraction hierarchies speedup
      */
     public static final class Core {

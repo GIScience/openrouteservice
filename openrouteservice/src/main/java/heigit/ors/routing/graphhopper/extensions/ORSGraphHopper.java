@@ -91,7 +91,6 @@ public class ORSGraphHopper extends GraphHopper {
 		_procCntx = procCntx;
 		this.refRouteProfile= refProfile;
 		this.forDesktop();
-//		coreFactoryDecorator.setEnabled(false);
 		algoDecorators.clear();
 		algoDecorators.add(coreFactoryDecorator);
 		algoDecorators.add(coreLMFactoryDecorator);
@@ -250,8 +249,6 @@ public class ORSGraphHopper extends GraphHopper {
 
 			//TODO
 			boolean disableCore = hints.getBool(Core.DISABLE, false);
-//			if (!CoreAlgoFactoryDecorator.isDisablingAllowed() && disableLM)
-//			throw new IllegalArgumentException("Disabling LM not allowed on the server-side");
 
 			String algoStr = request.getAlgorithm();
 			if (algoStr.isEmpty())
@@ -346,7 +343,7 @@ public class ORSGraphHopper extends GraphHopper {
 				if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo){
 					((TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr).init(encoder, weighting, request.getPathProcessor());
 				}
-//			
+
 				altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts);
 
 				boolean tmpEnableInstructions = hints.getBool(Parameters.Routing.INSTRUCTIONS, enableInstructions);
@@ -403,7 +400,6 @@ public class ORSGraphHopper extends GraphHopper {
 				time += path.getTime();
 
 				for (EdgeIteratorState edge : path.calcEdges()) {
-					//	fullEdges.add(edge.getEdge());
 					fullEdges.add(edge);
 					edgeNames.add(edge.getName());
 				}
@@ -427,7 +423,6 @@ public class ORSGraphHopper extends GraphHopper {
 					coords[i] = new Coordinate(x, y);
 				}
 
-				//throw new Exception("TODO");
 				result = new RouteSegmentInfo(fullEdges, distance, time, new GeometryFactory().createLineString(coords));
 			}
 		}

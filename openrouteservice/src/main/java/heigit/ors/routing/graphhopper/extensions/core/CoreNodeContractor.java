@@ -166,9 +166,7 @@ class CoreNodeContractor {
                 if (endNode == w_toNode && prepareAlgo.getWeight(endNode) <= existingDirectWeight)
                     // FOUND witness path, so do not add shortcut
                     continue;
-
-//                sch.foundShortcut(u_fromNode, w_toNode, existingDirectWeight, existingDistSum, outgoingEdges,
-//                        skippedEdge1, incomingEdgeOrigCount);
+                
                 sch.foundShortcut(u_fromNode, w_toNode,
                         existingDirectWeight, existingDistSum,
                         outgoingEdges.getEdge(), getOrigEdgeCount(outgoingEdges.getEdge()),

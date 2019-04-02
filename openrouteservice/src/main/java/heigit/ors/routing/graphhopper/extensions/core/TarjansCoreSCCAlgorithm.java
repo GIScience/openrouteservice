@@ -75,7 +75,6 @@ public class TarjansCoreSCCAlgorithm {
             // But they'll be created a lot for multiple vehicles because many nodes e.g. for foot are not accessible at all for car.
             // We can ignore these single entry components as they are already set 'not accessible'
             CHEdgeExplorer explorer = core.createEdgeExplorer(edgeFilter);
-//            int nodes = ghStorage.getCoreNodes();
             int nodes = ghStorage.getNodes();
             ignoreSet = new GHBitSetImpl(ghStorage.getCoreNodes());
             for (int start = 0; start < nodes; start++) {

@@ -52,8 +52,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     private final Directory dir;
     private CHEdgeExplorer restrictionExplorer;
 
-    private CHEdgeExplorer vehicleInExplorer;
-    private CHEdgeExplorer vehicleOutExplorer;
     private CHEdgeExplorer vehicleAllExplorer;
     private CHEdgeExplorer vehicleAllTmpExplorer;
     private CHEdgeExplorer calcPrioAllExplorer;
@@ -78,10 +76,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
 
     private CoreNodeContractor nodeContractor;
 
-    private ProxyNodeStorage pns;
-
-
-
     private static final int RESTRICTION_PRIORITY = Integer.MAX_VALUE;
 
     public PrepareCore(Directory dir, GraphHopperStorage ghStorage, CHGraph chGraph,
@@ -93,8 +87,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         this.weighting = weighting;
         prepareWeighting = new PreparationWeighting(weighting);
         this.dir = dir;
-//        this.pns = new ProxyNodeStorage(ghStorage, ghStorage.getDirectory(), weighting);
-//        pns.loadExisting();
     }
 
     /**
@@ -181,11 +173,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         if (!prepareNodes())
             return;
         contractNodes();
-        //generate proxy nodes for forward and backward direction
-//        if(pns.loadExisting())
-//            return;
-//        pns.generateProxies();
-//        pns.flush();
     }
 
 
@@ -310,7 +297,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 while (!sortedNodes.isEmpty()) {
                     CHEdgeIterator iter = vehicleAllExplorer.setBaseNode(polledNode);
                     while (iter.next()) {
-//                        if (oldPriorities[iter.getAdjNode()] == RESTRICTION_PRIORITY) continue;
                         if (prepareGraph.getLevel(iter.getAdjNode()) == maxLevel) continue;
                         prepareGraph.disconnect(vehicleAllTmpExplorer, iter);
                     }
@@ -384,17 +370,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 + ", lazy:" + lastNodesLazyUpdatePercentage
                 + ", neighbor:" + neighborUpdatePercentage
                 + ", " + Helper.getMemInfo());
-//            logger.info("took:" + (int) allSW.stop().getSeconds()
-//                    + ", new shortcuts: " + Helper.nf(nodeContractor.getAddedShortcutsCount())
-//                    + ", " + prepareWeighting
-//                    + ", dijkstras:" + nodeContractor.getDijkstraCount()
-//                    + ", " + getTimesAsString()
-//                    + ", meanDegree:" + (long) meanDegree
-//                    + ", initSize:" + initSize
-//                    + ", periodic:" + periodicUpdatesPercentage
-//                    + ", lazy:" + lastNodesLazyUpdatePercentage
-//                    + ", neighbor:" + neighborUpdatePercentage
-//                    + ", " + Helper.getMemInfo());
     }
 
 
@@ -444,10 +419,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         nodeContractor.setMaxVisitedNodes(getMaxVisitedNodesEstimate());
         CoreNodeContractor.CalcShortcutsResult calcShortcutsResult = nodeContractor.calcShortcutCount(v);
 
-        // set of shortcuts that would be added if adjNode v would be contracted next.
-//        findShortcuts(calcScHandler.setNode(v));
-
-        //        System.out.println(v + "\t " + tmpShortcuts);
         // # huge influence: the bigger the less shortcuts gets created and the faster is the preparation
         //
         // every adjNode has an 'original edge' number associated. initially it is r=1
@@ -455,9 +426,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         // r(u,w)=r(u,v)+r(v,w) now we can define
         // originalEdgesCount = σ(v) := sum_{ (u,w) ∈ shortcuts(v) } of r(u, w)
         int originalEdgesCount = calcShortcutsResult.originalEdgesCount;
-        //        for (Shortcut sc : tmpShortcuts) {
-        //            originalEdgesCount += sc.originalEdges;
-        //        }
 
         // # lowest influence on preparation speed or shortcut creation count
         // (but according to paper should speed up queries)
@@ -503,9 +471,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         FlagEncoder prepareFlagEncoder = prepareWeighting.getFlagEncoder();
         final EdgeFilter allFilter = new DefaultEdgeFilter(prepareFlagEncoder, true, true);
 
-        vehicleInExplorer = prepareGraph.createEdgeExplorer(new DefaultEdgeFilter(prepareFlagEncoder, true, false));
-        vehicleOutExplorer = prepareGraph.createEdgeExplorer(new DefaultEdgeFilter(prepareFlagEncoder, false, true));
-
         // filter by vehicle and level number
         final EdgeFilter accessWithLevelFilter = new LevelEdgeFilter(prepareGraph) {
             @Override
@@ -531,7 +496,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         //   but we need the additional oldPriorities array to keep the old value which is necessary for the update method
         sortedNodes = new GHTreeMapComposed();
         oldPriorities = new int[prepareGraph.getNodes()];
-//        prepareAlgo = new DijkstraOneToMany(prepareGraph, prepareWeighting, traversalMode);
         nodeContractor = new CoreNodeContractor(dir, ghStorage, prepareGraph, weighting, traversalMode);
         nodeContractor.setRestrictionFilter(restrictionFilter);
         nodeContractor.initFromGraph();
@@ -545,10 +509,10 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         AbstractCoreRoutingAlgorithm algo;
 
         // TODO: Proper way of switching between Dijkstra and AStar in core
-        String algoStr = ASTAR_BI; //opts.getAlgorithm();
+        String algoStr = ASTAR_BI;
 
         if (ASTAR_BI.equals(algoStr)) {
-            CoreALT tmpAlgo = new CoreALT(graph, prepareWeighting, traversalMode, this.pns);
+            CoreALT tmpAlgo = new CoreALT(graph, prepareWeighting, traversalMode);
             tmpAlgo.setApproximation(RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts, graph.getNodeAccess()));
             algo = tmpAlgo;
         } else if (DIJKSTRA_BI.equals(algoStr)) {

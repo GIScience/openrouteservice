@@ -105,7 +105,7 @@ public class RoutingProfile {
     public RoutingProfile(String osmFile, RouteProfileConfiguration rpc, RoutingProfilesCollection profiles, RoutingProfileLoadContext loadCntx) throws Exception {
         mRoutePrefs = rpc.getProfilesTypes();
         mUseCounter = 0;
-        mUseTrafficInfo = /*mHasDynamicWeights &&*/ hasCarPreferences() ? rpc.getUseTrafficInformation() : false;
+        mUseTrafficInfo = hasCarPreferences() ? rpc.getUseTrafficInformation() : false;
 
         mGraphHopper = initGraphHopper(osmFile, rpc, profiles, loadCntx);
 
@@ -172,12 +172,10 @@ public class RoutingProfile {
             // the EncodingManager to be patched - and this is ONLY required for this logging line... which is IMHO
             // not worth it (and since we are not sharing FlagEncoders for mutiple vehicles this info is anyhow
             // obsolete
-            //LOGGER.info(String.format("[%d] FlagEncoders: %s, bits used %d/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getUsedBitsForFlags(), encodingMgr.getBytesForFlags() * 8));
             LOGGER.info(String.format("[%d] FlagEncoders: %s, bits used [UNKNOWN]/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getBytesForFlags() * 8));
             // the 'getCapacity()' impl is the root cause of having a copy of the gh 'com.graphhopper.routing.lm.PrepareLandmarks'
             // class (to make the store) accessible (getLandmarkStorage()) - IMHO this is not worth it!
             // so gh.getCapacity() will be removed!
-            //LOGGER.info(String.format("[%d] Capacity:  %s. (edges - %s, nodes - %s)", profileId, RuntimeUtility.getMemorySize(gh.getCapacity()), ghStorage.getEdges(), ghStorage.getNodes()));
             LOGGER.info(String.format("[%d] Capacity: [UNKNOWN]. (edges - %s, nodes - %s)", profileId, ghStorage.getEdges(), ghStorage.getNodes()));
             // MARQ24 MOD END
             LOGGER.info(String.format("[%d] Total time: %s.", profileId, TimeUtility.getElapsedTime(startTime, true)));
@@ -326,7 +324,6 @@ public class RoutingProfile {
             }
         }
 
-
         if (config.getOptimize() && !prepareCH)
             args.put("graph.do_sort", true);
 
@@ -345,7 +342,6 @@ public class RoutingProfile {
 
         args.put("graph.flag_encoders", flagEncoders.toLowerCase());
 
-        //args.put("osmreader.wayPointMaxDistance",1);
         args.put("index.high_resolution", 500);
 
         return args;
@@ -524,8 +520,6 @@ public class RoutingProfile {
     public RouteOptimizationResult computeOptimizedRoutes(RouteOptimizationRequest req) throws Exception {
         RouteOptimizationResult optResult = null;
 
-        //RouteProcessContext routeProcCntx = new RouteProcessContext(null);
-
         MatrixResult mtxResult = null;
 
         try {
@@ -557,15 +551,7 @@ public class RoutingProfile {
         if (!solution.isValid())
             throw new InternalServerException(OptimizationErrorCodes.UNKNOWN, "Optimization problem solver was unable to find an appropriate solution.");
 
-        //RouteSearchParameters searchParams = new RouteSearchParameters();
-
         optResult = new RouteOptimizationResult();
-
-
-        //getRoute(lat0, lon0, lat1, lon1, false, searchParams, req.getSimplifyGeometry(), routeProcCntx);
-        // compute final route
-        //optResult.setRouteResult(routeResult);
-
 
         return optResult;
     }
@@ -793,11 +779,7 @@ public class RoutingProfile {
                     req.getHints().put("core.disable", true);
                     req.getHints().put("ch.disable", true);
                 }
-                if (mGraphHopper.isCoreEnabled() &&
-                        optimized /*&&
-                        !(searchParams.getWeightingMethod() == WeightingMethod.SHORTEST ||
-                                searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED ||
-                                searchParams.getBearings() != null)*/) {
+                if (mGraphHopper.isCoreEnabled() && optimized) {
                     req.getHints().put("core.disable", false);
                     req.getHints().put("lm.disable", true);
                     req.getHints().put("ch.disable", true);
@@ -809,16 +791,11 @@ public class RoutingProfile {
                     req.getHints().put("core.disable", true);
                 }
                 else {
-                    if (mGraphHopper.isCoreEnabled() &&
-                            optimized /*&&
-                            !(searchParams.getWeightingMethod() == WeightingMethod.SHORTEST ||
-                                    searchParams.getWeightingMethod() == WeightingMethod.RECOMMENDED ||
-                                    searchParams.getBearings() != null)*/) {
+                    if (mGraphHopper.isCoreEnabled() && optimized) {
                         req.getHints().put("core.disable", false);
                         req.getHints().put("lm.disable", true);
                         req.getHints().put("ch.disable", true);
                         req.setAlgorithm("astarbi");
-
                     }
                     else {
                         req.getHints().put("ch.disable", true);
@@ -899,8 +876,6 @@ public class RoutingProfile {
             throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to build an isochrone map.");
         }
 
-        String[] attributes = parameters.getAttributes();
-
         if (result.getIsochronesCount() > 0) {
 
             if (parameters.hasAttribute("total_pop")) {
@@ -974,10 +949,6 @@ public class RoutingProfile {
         return result;
     }
 
-    public Geometry getEdgeGeometry(int edgeId) {
-        return getEdgeGeometry(edgeId, 3, Integer.MIN_VALUE);
-    }
-
     public Geometry getEdgeGeometry(int edgeId, int mode, int adjnodeid) {
         EdgeIteratorState iter = mGraphHopper.getGraphHopperStorage().getEdgeIteratorState(edgeId, adjnodeid);
         PointList points = iter.fetchWayGeometry(mode);
@@ -994,7 +965,6 @@ public class RoutingProfile {
     }
 
     public EdgeFilter createAccessRestrictionFilter(Coordinate[] wayPoints) {
-        //rp.getGraphhopper()
         return null;
     }
 

@@ -28,17 +28,17 @@ import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 
 public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
-    private BordersGraphStorage _storage;
+    private BordersGraphStorage storage;
     private int[] avoidCountries;
     private boolean isAvoidCountries = false;
 
     //Used to avoid all borders
     public AvoidBordersCoreEdgeFilter(GraphStorage graphStorage) {
-        this._storage = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
+        this.storage = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
     }
     //Used to specify multiple countries to avoid (For a specific LM set)
     public AvoidBordersCoreEdgeFilter(GraphStorage graphStorage, int[] avoidCountries) {
-        this._storage = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
+        this.storage = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
         this.avoidCountries = avoidCountries;
         if(avoidCountries.length > 0) isAvoidCountries = true;
     }
@@ -59,17 +59,17 @@ public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
         if(isAvoidCountries)
             return !restrictedCountry(iter.getEdge());
         //else check if there is ANY border
-        if (_storage == null) {
+        if (storage == null) {
             return true;
         } else {
-            return _storage.getEdgeValue(iter.getEdge(), BordersGraphStorage.Property.TYPE) == BordersGraphStorage.NO_BORDER;
+            return storage.getEdgeValue(iter.getEdge(), BordersGraphStorage.Property.TYPE) == BordersGraphStorage.NO_BORDER;
         }
 
     }
 
     public boolean restrictedCountry(int edgeId) {
-        int startCountry = _storage.getEdgeValue(edgeId, BordersGraphStorage.Property.START);
-        int endCountry = _storage.getEdgeValue(edgeId, BordersGraphStorage.Property.END);
+        int startCountry = storage.getEdgeValue(edgeId, BordersGraphStorage.Property.START);
+        int endCountry = storage.getEdgeValue(edgeId, BordersGraphStorage.Property.END);
 
         for(int i=0; i<avoidCountries.length; i++) {
             if(startCountry == avoidCountries[i] || endCountry == avoidCountries[i] ) {

@@ -21,33 +21,27 @@
 package heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.CHGraphImpl;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.CHEdgeIterator;
-import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeIteratorState;
 import heigit.ors.routing.AvoidFeatureFlags;
-import heigit.ors.routing.RoutingProfileCategory;
-import heigit.ors.routing.RoutingProfileType;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
 
 public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
-	private byte[] _buffer;
-	private WayCategoryGraphStorage _storage;
-	private int _avoidFeatures;
-	private CHGraphImpl core;
+	private byte[] buffer;
+	private WayCategoryGraphStorage storage;
+	private int avoidFeatures;
 	private final String type = "avoid_features";
 
 	public AvoidFeaturesCoreEdgeFilter(GraphStorage graphStorage, int profileCategory) {
-		_buffer = new byte[10];
-		_avoidFeatures = AvoidFeatureFlags.getProfileFlags(profileCategory);
-		_storage = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
+		buffer = new byte[10];
+		avoidFeatures = AvoidFeatureFlags.getProfileFlags(profileCategory);
+		storage = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
 	}
 	public AvoidFeaturesCoreEdgeFilter(GraphStorage graphStorage, int profileCategory, int overrideClass) {
 		this(graphStorage, -1);
-		_avoidFeatures = overrideClass;
+		avoidFeatures = overrideClass;
 	}
 
 	@Override
@@ -55,7 +49,7 @@ public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
 		if(iter instanceof CHEdgeIterator)
 			if(((CHEdgeIterator)iter).isShortcut()) return true;
 
-		return (_storage.getEdgeValue(iter.getEdge(), _buffer) & _avoidFeatures) == 0;
+		return (storage.getEdgeValue(iter.getEdge(), buffer) & avoidFeatures) == 0;
 
 	}
 
@@ -64,6 +58,6 @@ public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
 	}
 
 	public int getAvoidFeatures() {
-		return _avoidFeatures;
+		return avoidFeatures;
 	}
 }

@@ -21,7 +21,6 @@ public class ServiceRequest {
 	}
 
 	public void setId(String id) {
-		System.out.print(id + "; ");
 		_id = id;
 	}
 }

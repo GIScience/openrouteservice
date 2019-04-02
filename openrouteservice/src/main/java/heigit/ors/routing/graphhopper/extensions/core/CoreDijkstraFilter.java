@@ -43,11 +43,11 @@ public class CoreDijkstraFilter implements EdgeFilter {
 
     /**
      *
-     * @param g
+     * @param graph
      */
-    public CoreDijkstraFilter(CHGraph g) {
-        graph = g;
-        maxNodes = g.getNodes();
+    public CoreDijkstraFilter(CHGraph graph) {
+        this.graph = graph;
+        maxNodes = graph.getNodes();
         coreNodeLevel = maxNodes + 1;
     }
 
