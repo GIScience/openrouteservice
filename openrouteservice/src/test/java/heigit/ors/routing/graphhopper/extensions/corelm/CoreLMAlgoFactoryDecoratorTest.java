@@ -4,17 +4,13 @@ import com.graphhopper.routing.lm.LMAlgoFactoryDecorator;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphBuilder;
-import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.RAMDirectory;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Parameters;
 import heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
-import heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -48,14 +44,6 @@ public class CoreLMAlgoFactoryDecoratorTest {
         GraphHopperStorage graph = new GraphBuilder(em).setCoreGraph(weighting).create();
         dec.createPreparations(graph, null);
         assertEquals(0.3, dec.getPreparations().get(0).getLandmarkStorage().getFactor(), .1);
-
-//        weighting = new FastestWeighting(car);
-//        dec.addWeighting(weighting);
-//
-//        graph = new GraphBuilder(em).setCoreGraph(weighting).create();
-//        dec.createPreparations(graph, null);
-//        assertEquals(1, dec.getPreparations().get(0).getLandmarkStorage().getFactor(), .1);
-
     }
 
     @Test

@@ -133,17 +133,13 @@ public class PrepareCoreLandmarksTest
                 if (hIndex + 1 < height)
                     graph.edge(node, node + width).setFlags(flags);
 
-//                AbstractRoutingAlgorithmTester.updateDistancesFor(graph, node, -hIndex / 50.0, wIndex / 50.0);
                 NodeAccess na = graph.getNodeAccess();
                 na.setNode(node, -hIndex / 50.0, wIndex / 50.0);
                 EdgeIterator iter = graph.createEdgeExplorer().setBaseNode(node);
                 while (iter.next()) {
                     iter.setDistance(iter.fetchWayGeometry(3).calcDistance(distCalc));
                     restrictedEdges.add(iter.getEdge());
-
-                    // System.out.println(node + "->" + adj + ": " + iter.getDistance());
                 }
-                //Make the entire graph the core
             }
         }
         CHGraph g = contractGraph(graph, restrictedEdges);
