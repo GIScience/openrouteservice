@@ -1,11 +1,14 @@
 /*
- *  Licensed to GraphHopper GmbH under one or more contributor
- *  license agreements. See the NOTICE file distributed with this work for
- *  additional information regarding copyright ownership.
+ *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
  *
- *  GraphHopper GmbH licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except in
- *  compliance with the License. You may obtain a copy of the License at
+ *   	 http://www.giscience.uni-hd.de
+ *   	 http://www.heigit.org
+ *
+ *  under one or more contributor license agreements. See the NOTICE file
+ *  distributed with this work for additional information regarding copyright
+ *  ownership. The GIScience licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in compliance
+ *  with the License. You may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -42,8 +45,10 @@ import java.util.List;
  * <p>
  * http://www.siam.org/meetings/alenex05/papers/03agoldberg.pdf
  *
- * @author Peter Karich
+ * This code is based on that from GraphHopper GmbH.
+ *
  * @author Hendrik Leuschner
+ * @author Peter Karich
  */
 public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
     private static final Logger LOGGER = LoggerFactory.getLogger(PrepareCoreLandmarks.class);

@@ -1,11 +1,14 @@
 /*
- *  Licensed to GraphHopper GmbH under one or more contributor
- *  license agreements. See the NOTICE file distributed with this work for
- *  additional information regarding copyright ownership.
+ *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
  *
- *  GraphHopper GmbH licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except in
- *  compliance with the License. You may obtain a copy of the License at
+ *   	 http://www.giscience.uni-hd.de
+ *   	 http://www.heigit.org
+ *
+ *  under one or more contributor license agreements. See the NOTICE file
+ *  distributed with this work for additional information regarding copyright
+ *  ownership. The GIScience licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in compliance
+ *  with the License. You may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -36,7 +39,7 @@ import java.util.HashMap;
 import static org.junit.Assert.*;
 
 /**
- * @author A. Oles, H. Leuschner
+ * @author Andrzej Oles, Hendrik Leuschner
  */
 public class CoreLandmarkStorageTest {
     private GraphHopperStorage ghStorage;
