@@ -113,7 +113,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 		// Apply soft weightings
 		if (hintsMap.getBool("custom_weightings", false))
 		{
-			Map<String, String> map = hintsMap.getMap();
+			Map<String, String> map = hintsMap.toMap();
 
 			List<String> weightingNames = new ArrayList<String>();
 			for (Map.Entry<String, String> kv : map.entrySet())

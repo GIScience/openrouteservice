@@ -607,7 +607,7 @@ public class RoutingProfile {
                 ProfileWeighting weighting = iterator.next();
                 if (!weighting.getParameters().isEmpty()) {
                     String name = ProfileWeighting.encodeName(weighting.getName());
-                    for (Map.Entry<String, String> kv : weighting.getParameters().getMap().entrySet())
+                    for (Map.Entry<String, String> kv : weighting.getParameters().toMap().entrySet())
                         props.put(name + kv.getKey(), kv.getValue());
                 }
             }
@@ -700,7 +700,7 @@ public class RoutingProfile {
                 req.setMaxSearchDistance(radiuses);
 
             PMap props = searchCntx.getProperties();
-            if (props != null && props.size() > 0)
+            if (props != null && !props.isEmpty())
                 req.getHints().merge(props);
 
             if (supportWeightingMethod(profileType)) {
