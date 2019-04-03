@@ -36,7 +36,7 @@ import java.util.HashMap;
 import static org.junit.Assert.*;
 
 /**
- * @author Peter Karich
+ * @author A. Oles, H. Leuschner
  */
 public class CoreLandmarkStorageTest {
     private GraphHopperStorage ghStorage;
