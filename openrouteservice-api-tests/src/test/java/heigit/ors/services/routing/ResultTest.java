@@ -1210,7 +1210,7 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].segments[0].detourfactor", is(1.38f))
+				.body("routes[0].segments[0].detourfactor", is(1.3f))
 				.statusCode(200);
 	}
 
