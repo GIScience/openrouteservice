@@ -67,7 +67,11 @@ public class LocalizationManager {
 		String filePattern = "ors_(.*?).resources";
 		Pattern pattern = Pattern.compile(filePattern);
 
-		File[] files = new File(localesPath.toString()).listFiles();
+		// MOD START Windows adjustment
+		//File[] files = new File(localesPath.toString()).listFiles();
+		File resourcePath = new File("C:\\Users\\Administrators\\openrouteservice\\openrouteservice\\src\\main\\resources\\resources\\locales");
+		File[] files = new File(resourcePath.toString()).listFiles();
+		// MOD END
 
 		if (files == null)
 			throw new Exception("Resources can not be found.");

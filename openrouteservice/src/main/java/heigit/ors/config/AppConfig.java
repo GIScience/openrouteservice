@@ -48,7 +48,7 @@ public class AppConfig {
 	}
 	
 	public AppConfig()	{
-    	URL url = RoutingProfileManager.class.getClassLoader().getResource("../app.config");
+    	URL url = RoutingProfileManager.class.getClassLoader().getResource("app.config");
 		String appConfigName = "app.config";
 		if(System.getenv("ORS_APP_CONFIG") != null)
 			appConfigName = System.getenv("ORS_APP_CONFIG");
@@ -59,9 +59,13 @@ public class AppConfig {
 		} catch (IOException ioe) {
     		LOGGER.error(ioe);
 		}
-    	
-    	File file = new File(url.getPath());
-		_config = ConfigFactory.parseFile(file);
+
+		// MOD START Windows customization
+		//File file = new File(url.getPath());
+		File file = new File("C:\\Users\\Administrators\\openrouteservice\\openrouteservice\\src\\main\\resources\\app.config");
+		//MOD END
+
+    	_config = ConfigFactory.parseFile(file);
 
 		//Modification by H Leuschner: Save md5 hash of map file in static String for access with every request
 		File graphsDir = new File(getServiceParameter("routing.profiles.default_params", "graphs_root_path"));
