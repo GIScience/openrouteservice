@@ -39,6 +39,10 @@ import java.util.PriorityQueue;
 /**
  * Calculates best path using CH routing outside core and ALT inside core.
  *
+ * This code is based on that from GraphHopper GmbH.
+ *
+ * @author Peter Karich
+ * @author jansoe
  * @author Andrzej Oles
  */
 

@@ -48,8 +48,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * @author Peter Karich, Hendrik Leuschner
+ * This code is based on that from GraphHopper GmbH.
+ *
+ * @author Peter Karich
+ * @author Hendrik Leuschner
  */
+
 public class PrepareCoreLandmarksTest
 /* extends AbstractRoutingAlgorithmTester */ {
     private GraphHopperStorage graph;

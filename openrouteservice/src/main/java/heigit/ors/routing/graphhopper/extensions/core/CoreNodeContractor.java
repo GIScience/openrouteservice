@@ -37,6 +37,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This code is based on that from GraphHopper GmbH.
+ *
+ * @author Peter Karich
+ * @author Hendrik Leuschner
+ */
+
 class CoreNodeContractor {
     private final GraphHopperStorage ghStorage;
     private final CHGraph prepareGraph;

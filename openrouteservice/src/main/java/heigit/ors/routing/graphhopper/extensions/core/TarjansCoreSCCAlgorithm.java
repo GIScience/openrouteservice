@@ -47,6 +47,11 @@ import java.util.Stack;
  *
  *
  * This has been adapted for use in the core.
+ *
+ * This code is based on that from GraphHopper GmbH.
+ *
+ * @author Peter Karich
+ * @author Hendrik Leuschner
  */
 public class TarjansCoreSCCAlgorithm {
     private final ArrayList<IntArrayList> components = new ArrayList<IntArrayList>();
