@@ -238,30 +238,6 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
         return defaultAlgoFactory;
     }
 
-    /**
-     * TODO needs to be public to pick defaultAlgoFactory.weighting if the defaultAlgoFactory is a CH one.
-     *
-     * @see com.graphhopper.GraphHopper#calcPaths(GHRequest, GHResponse)
-     */
-    public static class CoreLMRAFactory implements RoutingAlgorithmFactory {
-        private RoutingAlgorithmFactory defaultAlgoFactory;
-        private PrepareCoreLandmarks p;
-
-        public CoreLMRAFactory(PrepareCoreLandmarks p, RoutingAlgorithmFactory defaultAlgoFactory) {
-            this.defaultAlgoFactory = defaultAlgoFactory;
-            this.p = p;
-        }
-
-        public RoutingAlgorithmFactory getDefaultAlgoFactory() {
-            return defaultAlgoFactory;
-        }
-
-        @Override
-        public RoutingAlgorithm createAlgo(Graph g, AlgorithmOptions opts) {
-            RoutingAlgorithm algo = defaultAlgoFactory.createAlgo(g, opts);
-            return p.getDecoratedAlgorithm(g, algo, opts);
-        }
-    }
 
     /**
      * This method calculates the landmark data for all weightings (optionally in parallel) or if already existent loads it.
@@ -371,6 +347,31 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
 
     public CoreLMOptions getCoreLMOptions(){
         return coreLMOptions;
+    }
+
+    /**
+     * TODO needs to be public to pick defaultAlgoFactory.weighting if the defaultAlgoFactory is a CH one.
+     *
+     * @see com.graphhopper.GraphHopper#calcPaths(GHRequest, GHResponse)
+     */
+    public static class CoreLMRAFactory implements RoutingAlgorithmFactory {
+        private RoutingAlgorithmFactory defaultAlgoFactory;
+        private PrepareCoreLandmarks p;
+
+        public CoreLMRAFactory(PrepareCoreLandmarks p, RoutingAlgorithmFactory defaultAlgoFactory) {
+            this.defaultAlgoFactory = defaultAlgoFactory;
+            this.p = p;
+        }
+
+        public RoutingAlgorithmFactory getDefaultAlgoFactory() {
+            return defaultAlgoFactory;
+        }
+
+        @Override
+        public RoutingAlgorithm createAlgo(Graph g, AlgorithmOptions opts) {
+            RoutingAlgorithm algo = defaultAlgoFactory.createAlgo(g, opts);
+            return p.getDecoratedAlgorithm(g, algo, opts);
+        }
     }
 
 }

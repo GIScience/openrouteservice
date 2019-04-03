@@ -104,8 +104,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
         //Adapted from NodeContractor
         this.lmWeighting = new PreparationWeighting(weighting);
-
-
+        
         this.weighting = weighting;
         // allowing arbitrary weighting is too dangerous
         this.lmSelectionWeighting = new ShortestWeighting(encoder) {
@@ -417,7 +416,6 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
             explorer = new CoreLandmarkExplorer(graph, this, lmWeighting, traversalMode);
             explorer.initTo(lmNodeId, 0);
-            //TODO Core - DONE
             EdgeFilterSequence coreEdgeFilterBWD = new EdgeFilterSequence();
             coreEdgeFilterBWD.add(new CoreAndBlockedEdgesFilter(encoder, true, false, blockedEdges, graph));
             coreEdgeFilterBWD.add(landmarksFilter);
@@ -607,8 +605,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             // we should set a 'from' value to SHORT_MAX if the 'to' value was already set to find real bugs
             // and what to return? Integer.MAX_VALUE i.e. convert to Double.pos_infinity upstream?
             return SHORT_MAX;
-        // throw new IllegalStateException("Do not call getFromWeight for wrong landmark[" + landmarkIndex + "]=" + landmarkIDs[landmarkIndex] + " and node " + node);
-        // TODO if(res == MAX) fallback to beeline approximation!?
+            // TODO if(res == MAX) fallback to beeline approximation!?
 
         return res;
     }

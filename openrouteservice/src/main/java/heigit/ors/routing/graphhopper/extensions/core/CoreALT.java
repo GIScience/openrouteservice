@@ -21,7 +21,6 @@ import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.EdgeIteratorStateHelper;
-import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.BeelineWeightApproximator;
 import com.graphhopper.routing.weighting.ConsistentWeightApproximator;
@@ -50,10 +49,10 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     private IntHashSet ignoreExplorationFrom = new IntHashSet();
     private IntHashSet ignoreExplorationTo = new IntHashSet();
 
-    private PriorityQueue<AStarEntry> pqCHFrom;
-    private PriorityQueue<AStarEntry> pqCHTo;
-    private PriorityQueue<AStarEntry> pqCoreFrom;
-    private PriorityQueue<AStarEntry> pqCoreTo;
+    private PriorityQueue<AStarEntry> fromPriorityQueueCH;
+    private PriorityQueue<AStarEntry> toPriorityQueueCH;
+    private PriorityQueue<AStarEntry> fromPriorityQueueCore;
+    private PriorityQueue<AStarEntry> toPriorityQueueCore;
 
     int from, to, fromProxy, toProxy;
 
@@ -70,14 +69,14 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
 
     @Override
     protected void initCollections(int size) {
-        pqCHFrom = new PriorityQueue<AStarEntry>(size);
+        fromPriorityQueueCH = new PriorityQueue<AStarEntry>(size);
         bestWeightMapFrom = new GHIntObjectHashMap<AStarEntry>(size);
 
-        pqCHTo = new PriorityQueue<AStarEntry>(size);
+        toPriorityQueueCH = new PriorityQueue<AStarEntry>(size);
         bestWeightMapTo = new GHIntObjectHashMap<AStarEntry>(size);
 
-        pqCoreFrom = new PriorityQueue<>(size);
-        pqCoreTo = new PriorityQueue<>(size);
+        fromPriorityQueueCore = new PriorityQueue<>(size);
+        toPriorityQueueCore = new PriorityQueue<>(size);
     }
 
     /**
@@ -97,7 +96,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     public void initFrom(int from, double weight) {
         this.from = from;
         currFrom = new AStarEntry(EdgeIterator.NO_EDGE, from, weight, weight);
-        pqCHFrom.add(currFrom);
+        fromPriorityQueueCH.add(currFrom);
 
         if (!traversalMode.isEdgeBased()) {
             bestWeightMapFrom.put(from, currFrom);
@@ -118,7 +117,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     public void initTo(int to, double weight) {
         this.to = to;
         currTo = new AStarEntry(EdgeIterator.NO_EDGE, to, weight, weight);
-        pqCHTo.add(currTo);
+        toPriorityQueueCH.add(currTo);
 
         if (!traversalMode.isEdgeBased()) {
             bestWeightMapTo.put(to, currTo);
@@ -137,18 +136,18 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
 
     @Override
     public boolean fillEdgesFrom() {
-        if (pqCHFrom.isEmpty())
+        if (fromPriorityQueueCH.isEmpty())
             return false;
 
-        currFrom = pqCHFrom.poll();
+        currFrom = fromPriorityQueueCH.poll();
 
         if (!inCore && chGraph.getLevel(currFrom.adjNode) == coreNodeLevel) {
             // core entry point, do not relax its edges
-            pqCoreFrom.add(currFrom);
+            fromPriorityQueueCore.add(currFrom);
         }
         else {
             bestWeightMapOther = bestWeightMapTo;
-            fillEdges(currFrom, pqCHFrom, bestWeightMapFrom, outEdgeExplorer, false);
+            fillEdges(currFrom, fromPriorityQueueCH, bestWeightMapFrom, outEdgeExplorer, false);
             visitedCountFrom1++;
         }
 
@@ -157,18 +156,18 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
 
     @Override
     public boolean fillEdgesTo() {
-        if (pqCHTo.isEmpty())
+        if (toPriorityQueueCH.isEmpty())
             return false;
 
-        currTo = pqCHTo.poll();
+        currTo = toPriorityQueueCH.poll();
 
         if (!inCore && chGraph.getLevel(currTo.adjNode) == coreNodeLevel) {
             // core entry point, do not relax its edges
-            pqCoreTo.add(currTo);
+            toPriorityQueueCore.add(currTo);
         }
         else {
             bestWeightMapOther = bestWeightMapFrom;
-            fillEdges(currTo, pqCHTo, bestWeightMapTo, inEdgeExplorer, true);
+            fillEdges(currTo, toPriorityQueueCH, bestWeightMapTo, inEdgeExplorer, true);
             visitedCountTo1++;
         }
 
@@ -185,10 +184,10 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         double toWeight = currTo.weight;
 
         // changed also the final finish condition for CH
-        if (!pqCoreFrom.isEmpty())
-            fromWeight = Math.min(pqCoreFrom.peek().weight, fromWeight);
-        if (!pqCoreTo.isEmpty())
-            toWeight = Math.min(pqCoreTo.peek().weight, toWeight);
+        if (!fromPriorityQueueCore.isEmpty())
+            fromWeight = Math.min(fromPriorityQueueCore.peek().weight, fromWeight);
+        if (!toPriorityQueueCore.isEmpty())
+            toWeight = Math.min(toPriorityQueueCore.peek().weight, toWeight);
 
         return fromWeight >= bestPath.getWeight() && toWeight >= bestPath.getWeight();
     }
@@ -199,20 +198,20 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     @Override
     void runPhase2() {
         // re-init queues
-        finishedFrom = pqCoreFrom.isEmpty();
-        finishedTo = pqCoreTo.isEmpty();
+        finishedFrom = fromPriorityQueueCore.isEmpty();
+        finishedTo = toPriorityQueueCore.isEmpty();
 
         if (!finishedFrom && !finishedTo) {
-            toProxy = pqCoreTo.peek().adjNode;
-            fromProxy = pqCoreFrom.peek().adjNode;
+            toProxy = toPriorityQueueCore.peek().adjNode;
+            fromProxy = fromPriorityQueueCore.peek().adjNode;
 
             initApproximator();
 
-            recalculateWeights(pqCoreFrom, false);
-            recalculateWeights(pqCoreTo, true);
+            recalculateWeights(fromPriorityQueueCore, false);
+            recalculateWeights(toPriorityQueueCore, true);
 
-            currTo = pqCoreTo.peek();
-            currFrom = pqCoreFrom.peek();
+            currTo = toPriorityQueueCore.peek();
+            currFrom = fromPriorityQueueCore.peek();
         }
 
         while (!finishedPhase2() && !isMaxVisitedNodesExceeded()) {
@@ -275,47 +274,47 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             double tmpWeight = weighting.calcWeight(iter, reverse, currEdge.originalEdge) + currEdge.weight;
             if (Double.isInfinite(tmpWeight))
                 continue;
-            AStarEntry ee = bestWeightMap.get(traversalId);
-            if (ee == null) {
-                ee = new AStarEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight, tmpWeight);
+            AStarEntry aStarEntry = bestWeightMap.get(traversalId);
+            if (aStarEntry == null) {
+                aStarEntry = new AStarEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight, tmpWeight);
                 // Modification by Maxim Rylov: Assign the original edge id.
-                ee.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
-                ee.parent = currEdge;
-                bestWeightMap.put(traversalId, ee);
-                prioQueue.add(ee);
-            } else if (ee.weight > tmpWeight) {
-                prioQueue.remove(ee);
-                ee.edge = iter.getEdge();
-                ee.weight = tmpWeight;
-                ee.weightOfVisitedPath = tmpWeight;
-                ee.parent = currEdge;
-                prioQueue.add(ee);
+                aStarEntry.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
+                aStarEntry.parent = currEdge;
+                bestWeightMap.put(traversalId, aStarEntry);
+                prioQueue.add(aStarEntry);
+            } else if (aStarEntry.weight > tmpWeight) {
+                prioQueue.remove(aStarEntry);
+                aStarEntry.edge = iter.getEdge();
+                aStarEntry.weight = tmpWeight;
+                aStarEntry.weightOfVisitedPath = tmpWeight;
+                aStarEntry.parent = currEdge;
+                prioQueue.add(aStarEntry);
             } else
                 continue;
 
             if (updateBestPath)
-                updateBestPath(iter, ee, traversalId);
+                updateBestPath(iter, aStarEntry, traversalId);
         }
     }
 
     boolean fillEdgesFromALT() {
-        if (pqCoreFrom.isEmpty())
+        if (fromPriorityQueueCore.isEmpty())
             return false;
 
-        currFrom = pqCoreFrom.poll();
+        currFrom = fromPriorityQueueCore.poll();
         bestWeightMapOther = bestWeightMapTo;
-        fillEdgesALT(currFrom, pqCoreFrom, bestWeightMapFrom, ignoreExplorationFrom, outEdgeExplorer, false);
+        fillEdgesALT(currFrom, fromPriorityQueueCore, bestWeightMapFrom, ignoreExplorationFrom, outEdgeExplorer, false);
         visitedCountFrom2++;
         return true;
     }
 
     boolean fillEdgesToALT() {
-        if (pqCoreTo.isEmpty())
+        if (toPriorityQueueCore.isEmpty())
             return false;
 
-        currTo = pqCoreTo.poll();
+        currTo = toPriorityQueueCore.poll();
         bestWeightMapOther = bestWeightMapFrom;
-        fillEdgesALT(currTo, pqCoreTo, bestWeightMapTo, ignoreExplorationTo, inEdgeExplorer, true);
+        fillEdgesALT(currTo, toPriorityQueueCore, bestWeightMapTo, ignoreExplorationTo, inEdgeExplorer, true);
         visitedCountTo2++;
         return true;
     }
@@ -345,27 +344,27 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             if (Double.isInfinite(alreadyVisitedWeight))
                 continue;
 
-            AStarEntry ase = bestWeightMap.get(traversalId);
-            if (ase == null || ase.getWeightOfVisitedPath() > alreadyVisitedWeight) {
+            AStarEntry aStarEntry = bestWeightMap.get(traversalId);
+            if (aStarEntry == null || aStarEntry.getWeightOfVisitedPath() > alreadyVisitedWeight) {
                 double currWeightToGoal = weightApprox.approximate(neighborNode, reverse);
                 double estimationFullWeight = alreadyVisitedWeight + currWeightToGoal;
-                if (ase == null) {
-                    ase = new AStarEntry(iter.getEdge(), neighborNode, estimationFullWeight, alreadyVisitedWeight);
+                if (aStarEntry == null) {
+                    aStarEntry = new AStarEntry(iter.getEdge(), neighborNode, estimationFullWeight, alreadyVisitedWeight);
                     // Modification by Maxim Rylov: assign originalEdge
-                    ase.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
-                    bestWeightMap.put(traversalId, ase);
+                    aStarEntry.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
+                    bestWeightMap.put(traversalId, aStarEntry);
                 } else {
-                    prioQueueOpenSet.remove(ase);
-                    ase.edge = iter.getEdge();
-                    ase.weight = estimationFullWeight;
-                    ase.weightOfVisitedPath = alreadyVisitedWeight;
+                    prioQueueOpenSet.remove(aStarEntry);
+                    aStarEntry.edge = iter.getEdge();
+                    aStarEntry.weight = estimationFullWeight;
+                    aStarEntry.weightOfVisitedPath = alreadyVisitedWeight;
                 }
 
-                ase.parent = currEdge;
-                prioQueueOpenSet.add(ase);
+                aStarEntry.parent = currEdge;
+                prioQueueOpenSet.add(aStarEntry);
 
                 if (updateBestPath)
-                    updateBestPath(iter, ase, traversalId);
+                    updateBestPath(iter, aStarEntry, traversalId);
             }
         }
     }

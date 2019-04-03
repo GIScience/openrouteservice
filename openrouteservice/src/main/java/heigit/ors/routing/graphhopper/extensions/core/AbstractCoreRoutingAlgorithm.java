@@ -29,6 +29,8 @@ import java.util.PriorityQueue;
 
 /**
  * Calculates best path using core routing algorithm.
+ * A core algorithm is separated into phase 1, which is run outside of the core
+ * and phase 2, which is run inside the core
  *
  * @author Andrzej Oles
  */
@@ -72,12 +74,26 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
 
     public abstract boolean fillEdgesTo();
 
+    /**
+     * Stopping criterion for phase outside core
+     * @return should stop
+     */
     public abstract boolean finishedPhase1();
 
+    /**
+     * Begin running of the algorithm phase inside the core
+     */
     abstract void runPhase2();
 
+    /**
+     * Stopping criterion for phase inside core
+     * @return should stop
+     */
     public abstract boolean finishedPhase2();
 
+    /**
+     * Begin the phase that runs outside of the core
+     */
     void runPhase1() {
         while (!finishedPhase1() && !isMaxVisitedNodesExceeded()) {
             if (!finishedFrom)

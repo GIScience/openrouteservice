@@ -41,10 +41,10 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
     protected SPTEntry currFrom;
     protected SPTEntry currTo;
 
-    private PriorityQueue<SPTEntry> pqCHFrom;
-    private PriorityQueue<SPTEntry> pqCHTo;
-    private PriorityQueue<SPTEntry> pqCoreFrom;
-    private PriorityQueue<SPTEntry> pqCoreTo;
+    private PriorityQueue<SPTEntry> fromPriorityQueueCH;
+    private PriorityQueue<SPTEntry> toPriorityQueueCH;
+    private PriorityQueue<SPTEntry> fromPriorityQueueCore;
+    private PriorityQueue<SPTEntry> toPriorityQueueCore;
 
     public CoreDijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
         super(graph, weighting, tMode);
@@ -52,20 +52,20 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
 
     @Override
     protected void initCollections(int size) {
-        pqCHFrom = new PriorityQueue<SPTEntry>(size);
+        fromPriorityQueueCH = new PriorityQueue<SPTEntry>(size);
         bestWeightMapFrom = new GHIntObjectHashMap<SPTEntry>(size);
 
-        pqCHTo = new PriorityQueue<SPTEntry>(size);
+        toPriorityQueueCH = new PriorityQueue<SPTEntry>(size);
         bestWeightMapTo = new GHIntObjectHashMap<SPTEntry>(size);
 
-        pqCoreFrom = new PriorityQueue<>(size);
-        pqCoreTo = new PriorityQueue<>(size);
+        fromPriorityQueueCore = new PriorityQueue<>(size);
+        toPriorityQueueCore = new PriorityQueue<>(size);
     }
 
     @Override
     public void initFrom(int from, double weight) {
         currFrom = createSPTEntry(from, weight);
-        pqCHFrom.add(currFrom);
+        fromPriorityQueueCH.add(currFrom);
         if (!traversalMode.isEdgeBased()) {
             bestWeightMapFrom.put(from, currFrom);
             if (currTo != null) {
@@ -84,7 +84,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
     @Override
     public void initTo(int to, double weight) {
         currTo = createSPTEntry(to, weight);
-        pqCHTo.add(currTo);
+        toPriorityQueueCH.add(currTo);
         if (!traversalMode.isEdgeBased()) {
             bestWeightMapTo.put(to, currTo);
             if (currFrom != null) {
@@ -102,18 +102,18 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
 
     @Override
     public boolean fillEdgesFrom() {
-        if (pqCHFrom.isEmpty())
+        if (fromPriorityQueueCH.isEmpty())
             return false;
 
-        currFrom = pqCHFrom.poll();
+        currFrom = fromPriorityQueueCH.poll();
 
         if (!inCore && chGraph.getLevel(currFrom.adjNode) == coreNodeLevel) {
             // core entry point, do not relax its edges
-            pqCoreFrom.add(currFrom);
+            fromPriorityQueueCore.add(currFrom);
         }
         else {
             bestWeightMapOther = bestWeightMapTo;
-            fillEdges(currFrom, pqCHFrom, bestWeightMapFrom, outEdgeExplorer, false);
+            fillEdges(currFrom, fromPriorityQueueCH, bestWeightMapFrom, outEdgeExplorer, false);
             if (inCore)
                 visitedCountFrom2++;
             else
@@ -125,18 +125,18 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
 
     @Override
     public boolean fillEdgesTo() {
-        if (pqCHTo.isEmpty())
+        if (toPriorityQueueCH.isEmpty())
             return false;
 
-        currTo = pqCHTo.poll();
+        currTo = toPriorityQueueCH.poll();
 
         if (!inCore && chGraph.getLevel(currTo.adjNode) == coreNodeLevel) {
             // core entry point, do not relax its edges
-            pqCoreTo.add(currTo);
+            toPriorityQueueCore.add(currTo);
         }
         else {
             bestWeightMapOther = bestWeightMapFrom;
-            fillEdges(currTo, pqCHTo, bestWeightMapTo, inEdgeExplorer, true);
+            fillEdges(currTo, toPriorityQueueCH, bestWeightMapTo, inEdgeExplorer, true);
             if (inCore)
                 visitedCountTo2++;
             else
@@ -156,10 +156,10 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
         double toWeight = currTo.weight;
 
         // changed also the final finish condition for CH
-        if (!pqCoreFrom.isEmpty())
-            fromWeight = Math.min(pqCoreFrom.peek().weight, fromWeight);
-        if (!pqCoreTo.isEmpty())
-            toWeight = Math.min(pqCoreTo.peek().weight, toWeight);
+        if (!fromPriorityQueueCore.isEmpty())
+            fromWeight = Math.min(fromPriorityQueueCore.peek().weight, fromWeight);
+        if (!toPriorityQueueCore.isEmpty())
+            toWeight = Math.min(toPriorityQueueCore.peek().weight, toWeight);
 
 
         return fromWeight >= bestPath.getWeight() && toWeight >= bestPath.getWeight();
@@ -168,17 +168,17 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
     @Override
     void runPhase2() {
         // re-init queues
-        pqCHFrom = pqCoreFrom;
-        pqCHTo = pqCoreTo;
+        fromPriorityQueueCH = fromPriorityQueueCore;
+        toPriorityQueueCH = toPriorityQueueCore;
 
-        finishedFrom = pqCHFrom.isEmpty();
-        finishedTo = pqCHFrom.isEmpty();
+        finishedFrom = fromPriorityQueueCH.isEmpty();
+        finishedTo = fromPriorityQueueCH.isEmpty();
 
         if (!finishedFrom)
-            currFrom = pqCHFrom.peek();
+            currFrom = fromPriorityQueueCH.peek();
 
         if (!finishedTo)
-            currTo = pqCHTo.peek();
+            currTo = toPriorityQueueCH.peek();
 
         while (!finishedPhase2() && !isMaxVisitedNodesExceeded()) {
             if (!finishedFrom)
