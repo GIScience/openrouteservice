@@ -941,8 +941,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                // TODO: re-enable the following once CH turn restrictions are functional
-//                .body("routes[0].summary.distance", is(693.8f))
+                .body("routes[0].summary.distance", is(693.8f))
                 .statusCode(200);
     }
 
