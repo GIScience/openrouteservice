@@ -69,7 +69,7 @@ public class LocalizationManager {
 
 		// MOD START Windows adjustment
 		//File[] files = new File(localesPath.toString()).listFiles();
-		File resourcePath = new File("C:\\Users\\Administrators\\openrouteservice\\openrouteservice\\src\\main\\resources\\resources\\locales");
+		File resourcePath = new File("C:\\Users\\Administrator\\openrouteservice\\openrouteservice\\src\\main\\resources\\resources\\locales");
 		File[] files = new File(resourcePath.toString()).listFiles();
 		// MOD END
 

@@ -62,7 +62,7 @@ public class AppConfig {
 
 		// MOD START Windows customization
 		//File file = new File(url.getPath());
-		File file = new File("C:\\Users\\Administrators\\openrouteservice\\openrouteservice\\src\\main\\resources\\app.config");
+		File file = new File("C:\\Users\\Administrator\\openrouteservice\\openrouteservice\\src\\main\\resources\\app.config");
 		//MOD END
 
     	_config = ConfigFactory.parseFile(file);
