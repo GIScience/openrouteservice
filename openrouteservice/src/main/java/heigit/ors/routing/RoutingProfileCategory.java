@@ -13,12 +13,14 @@
  */
 package heigit.ors.routing;
 
+import com.graphhopper.routing.util.EncodingManager;
+
 public class RoutingProfileCategory {
 	public static final int UNKNOWN = 0;
 	public static final int DRIVING = 1;
-	public static final int CYCLING  =2;
-	public static final int WALKING = 3;
-	public static final int WHEELCHAIR = 4;
+	public static final int CYCLING = 2;
+	public static final int WALKING = 4;
+	public static final int WHEELCHAIR = 8;
 	
 	public static int getFromRouteProfile(int profileType)
 	{
@@ -34,6 +36,24 @@ public class RoutingProfileCategory {
 		if (RoutingProfileType.WHEELCHAIR == profileType)
 			return RoutingProfileCategory.WHEELCHAIR;
 		
+		return RoutingProfileCategory.UNKNOWN;
+	}
+
+	public static int getFromEncoder(EncodingManager encodingManager)
+	{
+		if (encodingManager.supports("car-ors") || encodingManager.supports("heavyvehicle"))
+			return RoutingProfileCategory.DRIVING;
+
+		if (encodingManager.supports("bike") || encodingManager.supports("mtb") || encodingManager.supports("racingbike")
+		 || encodingManager.supports("safetybike") || encodingManager.supports("cycletourbike") || encodingManager.supports("electrobike"))
+			return RoutingProfileCategory.CYCLING;
+
+		if (encodingManager.supports("foot") || encodingManager.supports("hiking"))
+			return RoutingProfileCategory.WALKING;
+
+		if (encodingManager.supports("wheelchair"))
+			return RoutingProfileCategory.WHEELCHAIR;
+
 		return RoutingProfileCategory.UNKNOWN;
 	}
 }

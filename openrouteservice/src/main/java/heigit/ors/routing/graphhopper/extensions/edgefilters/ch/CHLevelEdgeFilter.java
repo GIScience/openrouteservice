@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions.edgefilters;
+package heigit.ors.routing.graphhopper.extensions.edgefilters.ch;
 
 import com.graphhopper.routing.util.CHEdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
