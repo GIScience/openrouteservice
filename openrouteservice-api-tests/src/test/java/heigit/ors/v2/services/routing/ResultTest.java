@@ -34,6 +34,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import javax.imageio.metadata.IIOMetadataNode;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -173,6 +174,7 @@ public class ResultTest extends ServiceTest {
         boolean gpxMetadata = false;
         boolean gpxRte = false;
         boolean gpxExtensions = false;
+        Node gpxMetadataNode = new IIOMetadataNode();
         for (int i = 0; i < doc_length; i++) {
             String item = doc.getDocumentElement().getChildNodes().item(i).getNodeName();
             switch (item) {
@@ -191,6 +193,7 @@ public class ResultTest extends ServiceTest {
                         switch (metadataItem.getNodeName()) {
                             case "name":
                                 metadataName = true;
+                                gpxMetadataNode = metadataItem;
                                 break;
                             case "desc":
                                 metadataDescription = true;
@@ -265,6 +268,7 @@ public class ResultTest extends ServiceTest {
                         }
                     }
                     Assert.assertTrue(metadataName);
+                    Assert.assertEquals("ORSRouting", gpxMetadataNode.getTextContent());
                     Assert.assertTrue(metadataDescription);
                     Assert.assertTrue(metadataAuthor);
                     Assert.assertTrue(metadataCopyright);
