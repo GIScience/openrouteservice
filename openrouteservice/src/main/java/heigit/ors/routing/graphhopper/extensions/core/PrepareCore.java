@@ -20,8 +20,7 @@ import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 
@@ -38,7 +37,7 @@ import static com.graphhopper.util.Parameters.Algorithms.DIJKSTRA_BI;
  * @author Hendrik Leuschner, Andrzej Oles
  */
 public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgorithmFactory {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private static final Logger LOGGER = Logger.getLogger(RoutingAlgorithmFactory.class);
     private final PreparationWeighting prepareWeighting;
     private final TraversalMode traversalMode;
     private final EdgeFilter restrictionFilter;
@@ -255,7 +254,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 lazyTime += lazySW.getSeconds();
                 neighborTime += neighborSW.getSeconds();
 
-                logger.info(Helper.nf(counter) + ", updates:" + updateCounter
+                LOGGER.info(Helper.nf(counter) + ", updates:" + updateCounter
                         + ", nodes: " + Helper.nf(sortedNodes.getSize())
                         + ", shortcuts:" + Helper.nf(nodeContractor.getAddedShortcutsCount())
                         + ", dijkstras:" + Helper.nf(nodeContractor.getDijkstraCount())
@@ -353,11 +352,11 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         // The preparation object itself has to be intact to create the algorithm.
         close();
 
-            dijkstraTime += nodeContractor.getDijkstraSeconds();
-            periodTime += periodSW.getSeconds();
-            lazyTime += lazySW.getSeconds();
-            neighborTime += neighborSW.getSeconds();
-        System.out.println("took:" + (int) allSW.stop().getSeconds()
+        dijkstraTime += nodeContractor.getDijkstraSeconds();
+        periodTime += periodSW.getSeconds();
+        lazyTime += lazySW.getSeconds();
+        neighborTime += neighborSW.getSeconds();
+        LOGGER.info("took:" + (int) allSW.stop().getSeconds()
                 + ", new shortcuts: " + Helper.nf(nodeContractor.getAddedShortcutsCount())
                 + ", " + prepareWeighting
                 + ", dijkstras:" + nodeContractor.getDijkstraCount()
