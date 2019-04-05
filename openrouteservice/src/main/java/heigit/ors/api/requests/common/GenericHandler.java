@@ -19,6 +19,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
+import heigit.ors.api.errors.GenericErrorCodes;
 import heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
 import heigit.ors.api.requests.routing.RouteRequestOptions;
@@ -307,17 +308,23 @@ public class GenericHandler {
         }
     }
 
-    private ProfileParameters applyWeightings(RequestProfileParamsWeightings weightings, ProfileParameters params) throws ParameterValueException {
+    private ProfileParameters applyWeightings(RequestProfileParamsWeightings weightings, ProfileParameters params) throws ParameterOutOfRangeException, ParameterValueException {
         try {
             if (weightings.hasGreenIndex()) {
                 ProfileWeighting pw = new ProfileWeighting("green");
-                pw.addParameter("factor", String.format("%.2f", weightings.getGreenIndex()));
+                float greenFactor = weightings.getGreenIndex();
+                if (greenFactor > 1)
+                    throw new ParameterOutOfRangeException(GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format("%.2f", greenFactor), "green factor", "1.0");
+                pw.addParameter("factor", String.format("%.2f", greenFactor));
                 params.add(pw);
             }
 
             if (weightings.hasQuietIndex()) {
                 ProfileWeighting pw = new ProfileWeighting("quiet");
-                pw.addParameter("factor", String.format("%.2f", weightings.getQuietIndex()));
+                float quietFactor = weightings.getQuietIndex();
+                if (quietFactor > 1)
+                    throw new ParameterOutOfRangeException(GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format("%.2f", quietFactor), "quiet factor", "1.0");
+                pw.addParameter("factor", String.format("%.2f", quietFactor));
                 params.add(pw);
             }
 
