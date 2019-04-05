@@ -13,7 +13,7 @@
  */
 package heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.routing.util.WaySurfaceDescription;
+import heigit.ors.routing.util.WaySurfaceDescription;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
@@ -97,7 +97,7 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
 
 		// add entry
 		long edgePointer = (long) edgeId * edgeEntryBytes;
-		byteValues[0] = (byte)((wayDesc.WayType << 4) | wayDesc.SurfaceType);
+		byteValues[0] = (byte)((wayDesc.getWayType() << 4) | wayDesc.getSurfaceType());
 		orsEdges.setBytes(edgePointer + EF_WAYTYPE, byteValues, 1);
 	}
 
@@ -109,8 +109,8 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
 		
 		byte compValue = buffer[0];
 		WaySurfaceDescription res = new WaySurfaceDescription();
-		res.WayType = (byte)((compValue & 0b11110000) >> 4);
-	    res.SurfaceType = (byte)(compValue & 0b00001111);
+		res.setWayType((byte)((compValue & 0b11110000) >> 4));
+	    res.setSurfaceType((byte)(compValue & 0b00001111));
 	    
 	    return res;
 	}

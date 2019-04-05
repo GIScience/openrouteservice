@@ -17,7 +17,6 @@ import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.routing.Dijkstra;
 import com.graphhopper.routing.EdgeIteratorStateHelper;
-import com.graphhopper.routing.util.DestinationDependentEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
@@ -33,6 +32,7 @@ import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 import heigit.ors.routing.parameters.VehicleParameters;
+import heigit.ors.routing.util.DestinationDependentEdgeFilter;
 
 import java.util.ArrayList;
 import java.util.List;

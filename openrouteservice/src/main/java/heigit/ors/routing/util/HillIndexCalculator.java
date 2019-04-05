@@ -16,8 +16,6 @@ package heigit.ors.routing.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.graphhopper.routing.util.RouteSplit;
-import com.graphhopper.routing.util.SteepnessUtil;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalc3D;
 import com.graphhopper.util.PointList;
@@ -43,14 +41,14 @@ public class HillIndexCalculator {
 		
 		for(RouteSplit split : splits)
 		{
-			double gradient = split.Gradient;
+			double gradient = split.gradient;
 			if (gradient > 0)
 			{
-				double vc = split.VerticalClimb*3.28084;
+				double vc = split.verticalClimb *3.28084;
 				totalVerticalClimb += vc;
-				gradient = Math.min(split.Gradient, 30);
+				gradient = Math.min(split.gradient, 30);
 			}
-			totalDistance += split.Length*0.000621371;
+			totalDistance += split.length *0.000621371;
 		}
 
 		int hillIndex = (int)(100*(totalVerticalClimb + excessSteepClimb)/(5280*totalDistance));

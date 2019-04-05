@@ -17,7 +17,6 @@ import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.util.PriorityCode;
-import com.graphhopper.routing.util.WaySurfaceDescription;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
@@ -26,6 +25,7 @@ import heigit.ors.routing.*;
 import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import heigit.ors.routing.graphhopper.extensions.storages.*;
 import heigit.ors.routing.util.ElevationSmoother;
+import heigit.ors.routing.util.WaySurfaceDescription;
 import heigit.ors.routing.util.extrainfobuilders.RouteExtraInfoBuilder;
 import heigit.ors.routing.util.extrainfobuilders.SimpleRouteExtraInfoBuilder;
 import heigit.ors.routing.util.extrainfobuilders.SteepnessExtraInfoBuilder;
@@ -288,10 +288,10 @@ public class ExtraInfoProcessor extends PathProcessor {
 			WaySurfaceDescription wsd = _extWaySurface.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
 
 			if (_surfaceInfoBuilder != null)
-				_surfaceInfoBuilder.addSegment(wsd.SurfaceType, wsd.SurfaceType, geom, dist, isLastEdge && _lastSegment);
+				_surfaceInfoBuilder.addSegment(wsd.getSurfaceType(), wsd.getSurfaceType(), geom, dist, isLastEdge && _lastSegment);
 			
 			if (_wayTypeInfo != null)
-				_wayTypeInfoBuilder.addSegment(wsd.WayType, wsd.WayType, geom, dist, isLastEdge && _lastSegment);
+				_wayTypeInfoBuilder.addSegment(wsd.getWayType(), wsd.getWayType(), geom, dist, isLastEdge && _lastSegment);
 		}
 		
 		if (_wayCategoryInfoBuilder != null)

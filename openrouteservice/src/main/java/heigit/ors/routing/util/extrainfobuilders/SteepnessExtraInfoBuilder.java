@@ -13,13 +13,13 @@
  */
 package heigit.ors.routing.util.extrainfobuilders;
 
-import com.graphhopper.routing.util.SteepnessUtil;
 import com.graphhopper.util.DistanceCalc3D;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PointList;
 
 import heigit.ors.routing.RouteExtraInfo;
 import heigit.ors.routing.RouteSegmentItem;
+import heigit.ors.routing.util.SteepnessUtil;
 
 public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder 
 {

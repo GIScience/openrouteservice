@@ -238,9 +238,9 @@ abstract public class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
 
         unpavedBit = 1L << shift++;
         // 2 bits
-        // MARQ24 2018/07/08 WayType-Encoder has NO IMPACT on the actual routing - the only place where it was/is used
+        // MARQ24 2018/07/08 wayType-Encoder has NO IMPACT on the actual routing - the only place where it was/is used
         // is in the TurnInstructions (where an different annotations will be added once a different WAYTYPE are present
-        wayTypeEncoder = new EncodedValue("WayType", shift, 2, 1, 0, 3, true);
+        wayTypeEncoder = new EncodedValue("wayType", shift, 2, 1, 0, 3, true);
         shift += wayTypeEncoder.getBits();
 
         priorityWayEncoder = new EncodedValue("PreferWay", shift, 3, 1, 0, 7);
@@ -818,15 +818,15 @@ abstract public class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         // MARQ24 MOD START
         /* ORG CODE START
         if (isPushingSection && !partOfCycleRelation || "steps".equals(highway))
-            wayType = WayType.PUSHING_SECTION;
+            wayType = wayType.PUSHING_SECTION;
 
         if (way.hasTag("bicycle", intendedValues)) {
             if (isPushingSection && !way.hasTag("bicycle", "designated"))
-                wayType = WayType.OTHER_SMALL_WAY;
-            else if (wayType == WayType.OTHER_SMALL_WAY || wayType == WayType.PUSHING_SECTION)
-                wayType = WayType.CYCLEWAY;
+                wayType = wayType.OTHER_SMALL_WAY;
+            else if (wayType == wayType.OTHER_SMALL_WAY || wayType == wayType.PUSHING_SECTION)
+                wayType = wayType.CYCLEWAY;
         } else if ("cycleway".equals(highway))
-            wayType = WayType.CYCLEWAY;
+            wayType = wayType.CYCLEWAY;
         ORG CODE END */
         // MARQ24 MOD END
         if (isPushingSection || "steps".equals(highway)) {

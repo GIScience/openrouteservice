@@ -19,13 +19,13 @@ import java.util.Map.Entry;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.WaySurfaceDescription;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 
 import heigit.ors.routing.graphhopper.extensions.SurfaceType;
 import heigit.ors.routing.graphhopper.extensions.WayType;
 import heigit.ors.routing.graphhopper.extensions.storages.WaySurfaceTypeGraphStorage;
+import heigit.ors.routing.util.WaySurfaceDescription;
 
 public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuilder
 {
@@ -49,7 +49,7 @@ public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuild
 	}
 
 	public void processWay(ReaderWay way) {
-		waySurfaceDesc.Reset();
+		waySurfaceDesc.reset();
 
 		boolean hasHighway = way.hasTag("highway");
 		boolean isFerryRoute = way.hasTag("route", ferries);
@@ -65,18 +65,16 @@ public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuild
 				if (key.equals("highway")) {
 					byte wayType = (isFerryRoute) ? WayType.Ferry : (byte)WayType.getFromString(value);
 
-					if (waySurfaceDesc.SurfaceType == 0)
-					{
+					if (waySurfaceDesc.getSurfaceType() == 0) {
 						if (wayType == WayType.Road ||  wayType == WayType.StateRoad || wayType == WayType.Street)
-							waySurfaceDesc.SurfaceType = (byte)SurfaceType.Asphalt;
+							waySurfaceDesc.setSurfaceType((byte)SurfaceType.Asphalt);
 						else if (wayType == WayType.Path)
-							waySurfaceDesc.SurfaceType = (byte)SurfaceType.Unpaved;
+							waySurfaceDesc.setSurfaceType((byte)SurfaceType.Unpaved);
 					}
 
-					waySurfaceDesc.WayType = wayType;
-				}
-				else if (key.equals("surface")) {
-					waySurfaceDesc.SurfaceType = (byte)SurfaceType.getFromString(value);
+					waySurfaceDesc.setWayType(wayType);
+				} else if (key.equals("surface")) {
+					waySurfaceDesc.setSurfaceType((byte)SurfaceType.getFromString(value));
 				}
 			}
 		}
