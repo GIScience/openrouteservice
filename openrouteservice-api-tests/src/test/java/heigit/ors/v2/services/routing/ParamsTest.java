@@ -76,6 +76,7 @@ public class ParamsTest extends ServiceTest {
 		addParameter("preference", "fastest");
 		addParameter("profile", "cycling-regular");
 		addParameter("carProfile", "driving-car");
+		addParameter("footProfile", "foot-walking");
 	}
 
 	@Test
@@ -89,10 +90,10 @@ public class ParamsTest extends ServiceTest {
                 .pathParam("profile", getParameter("profile"))
 				.body(body.toString())
 				.when()
-                .log().all()
+                .log().ifValidationFails()
 				.post(getEndPointPath()+"/{profile}/json")
 				.then()
-                .log().all()
+                .log().ifValidationFails()
 				.body("any { it.key == 'routes' }", is(true))
 				.statusCode(200);
 	}
@@ -264,7 +265,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath()+"/{profile}/geojson")
-				.then().log().all()
+				.then().log().ifValidationFails()
 				.assertThat()
 				.body("any { it.key == 'features' }", is(true))
 				.body("any { it.key == 'bbox' }", is(true))
@@ -286,7 +287,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath()+"/{profile}/geojson")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
 				.body("any { it.key == 'features' }", is(true))
 				.body("any { it.key == 'bbox' }", is(true))
@@ -311,7 +312,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath()+"/{profile}/geojson")
-				.then().log().all()
+				.then().log().ifValidationFails()
 				.assertThat()
 				.body("any { it.key == 'features' }", is(true))
 				.body("features[0].containsKey('geometry')", is(true))
@@ -420,9 +421,9 @@ public class ParamsTest extends ServiceTest {
 				.param("start", "8.686581")
 				.param("end", "8.688126,49.409074")
 				.pathParam("profile", getParameter("carProfile"))
-				.when().log().all()
+				.when().log().ifValidationFails()
 				.get(getEndPointPath() + "/{profile}")
-				.then().log().all()
+				.then().log().ifValidationFails()
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_FORMAT))
 				.statusCode(400);
@@ -431,9 +432,9 @@ public class ParamsTest extends ServiceTest {
 				.param("start", "8.686581,49.403154")
 				.param("end", "8.688126")
 				.pathParam("profile", getParameter("carProfile"))
-				.when().log().all()
+				.when().log().ifValidationFails()
 				.get(getEndPointPath() + "/{profile}")
-				.then().log().all()
+				.then().log().ifValidationFails()
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_FORMAT))
 				.statusCode(400);
@@ -441,9 +442,9 @@ public class ParamsTest extends ServiceTest {
 		given()
 				.param("start", "8.686581,49.403154")
 				.pathParam("profile", getParameter("carProfile"))
-				.when().log().all()
+				.when().log().ifValidationFails()
 				.get(getEndPointPath() + "/{profile}")
-				.then().log().all()
+				.then().log().ifValidationFails()
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.MISSING_PARAMETER))
 				.statusCode(400);
@@ -902,7 +903,7 @@ public class ParamsTest extends ServiceTest {
 				.header("Content-Type", "application/json")
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
-				.when().log().all()
+				.when().log().ifValidationFails()
 				.post(getEndPointPath()+"/{profile}/json")
 				.then()
 				.assertThat()
@@ -1091,9 +1092,9 @@ public class ParamsTest extends ServiceTest {
 				.header("Content-Type", "application/json")
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
-				.when().log().all()
+				.when().log().ifValidationFails()
 				.post(getEndPointPath() + "/{profile}/json")
-				.then().log().all()
+				.then().log().ifValidationFails()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('warnings')", is(true))
@@ -1110,7 +1111,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'features' }", is(true))
                 .body("any { it.key == 'bbox' }", is(true))
@@ -1146,9 +1147,9 @@ public class ParamsTest extends ServiceTest {
 				.header("Content-Type", "application/json")
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
-				.when().log().all()
+				.when().log().ifValidationFails()
 				.post(getEndPointPath() + "/{profile}/json")
-				.then().log().all()
+				.then().log().ifValidationFails()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('warnings')", is(false))
@@ -1169,7 +1170,7 @@ public class ParamsTest extends ServiceTest {
 				.body(body.toString())
 				.when()
 				.post(getEndPointPath() + "/{profile}/geojson")
-				.then().log().all()
+				.then().log().ifValidationFails()
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS))
 				.statusCode(400);
@@ -1199,7 +1200,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
@@ -1210,7 +1211,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/json")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
@@ -1223,7 +1224,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
@@ -1234,7 +1235,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/json")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
@@ -1247,7 +1248,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
@@ -1258,7 +1259,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/json")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
@@ -1271,7 +1272,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
@@ -1282,7 +1283,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/json")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
@@ -1305,7 +1306,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
 				.when().log().ifValidationFails()
 				.post(getEndPointPath() + "/{profile}/json")
-				.then().log().all()
+				.then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('warnings')", is(true))
@@ -1320,7 +1321,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
 				.when().log().ifValidationFails()
 				.post(getEndPointPath() + "/{profile}/geojson")
-				.then().log().all()
+				.then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'features' }", is(true))
                 .body("any { it.key == 'bbox' }", is(true))
@@ -1353,7 +1354,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
 				.when().log().ifValidationFails()
 				.post(getEndPointPath() + "/{profile}/json")
-				.then().log().all()
+				.then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .statusCode(200);
@@ -1366,7 +1367,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
 				.when().log().ifValidationFails()
 				.post(getEndPointPath() + "/{profile}/json")
-				.then().log().all()
+				.then().log().ifValidationFails()
                 .assertThat()
                 .body("error.code", is(RoutingErrorCodes.POINT_NOT_FOUND))
                 .statusCode(404);
@@ -1385,7 +1386,7 @@ public class ParamsTest extends ServiceTest {
 				.body(body.toString())
 				.when().log().ifValidationFails()
 				.post(getEndPointPath() + "/{profile}/json")
-				.then().log().all()
+				.then().log().ifValidationFails()
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.POINT_NOT_FOUND))
 				.statusCode(404);
@@ -1399,7 +1400,7 @@ public class ParamsTest extends ServiceTest {
 				.body(body.toString())
 				.when().log().ifValidationFails()
 				.post(getEndPointPath() + "/{profile}/json")
-				.then().log().all()
+				.then().log().ifValidationFails()
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.POINT_NOT_FOUND))
 				.statusCode(404);
@@ -1418,7 +1419,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
 				.when().log().ifValidationFails()
 				.post(getEndPointPath() + "/{profile}/json")
-				.then().log().all()
+				.then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .statusCode(200);
@@ -1432,9 +1433,81 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
 				.when().log().ifValidationFails()
 				.post(getEndPointPath() + "/{profile}/json")
-				.then().log().all()
+				.then().log().ifValidationFails()
                 .assertThat()
                 .body("error.code", is(RoutingErrorCodes.POINT_NOT_FOUND))
                 .statusCode(404);
+	}
+
+	@Test
+	public void testGreenWeightingTooHigh() {
+		JSONObject body = new JSONObject();
+
+		JSONArray coordinates = new JSONArray();
+		JSONArray coord1 = new JSONArray();
+		coord1.put(8.676023);
+		coord1.put(49.416809);
+		coordinates.put(coord1);
+		JSONArray coord2 = new JSONArray();
+		coord2.put(8.696837);
+		coord2.put(49.411839);
+		coordinates.put(coord2);
+		body.put("coordinates", coordinates);
+
+		JSONObject weightings = new JSONObject();
+		weightings.put("green", 1.1);
+		JSONObject params = new JSONObject();
+		params.put("weightings", weightings);
+		JSONObject options = new JSONObject();
+		options.put("profile_params", params);
+		body.put("options", options);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("footProfile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}/json")
+				.then().log().ifValidationFails()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+				.statusCode(400);
+	}
+
+	@Test
+	public void testQuietWeightingTooHigh() {
+		JSONObject body = new JSONObject();
+
+		JSONArray coordinates = new JSONArray();
+		JSONArray coord1 = new JSONArray();
+		coord1.put(8.676023);
+		coord1.put(49.416809);
+		coordinates.put(coord1);
+		JSONArray coord2 = new JSONArray();
+		coord2.put(8.696837);
+		coord2.put(49.411839);
+		coordinates.put(coord2);
+		body.put("coordinates", coordinates);
+
+		JSONObject weightings = new JSONObject();
+		weightings.put("quiet", 1.1);
+		JSONObject params = new JSONObject();
+		params.put("weightings", weightings);
+		JSONObject options = new JSONObject();
+		options.put("profile_params", params);
+		body.put("options", options);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("footProfile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}/json")
+				.then().log().ifValidationFails()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+				.statusCode(400);
 	}
 }
