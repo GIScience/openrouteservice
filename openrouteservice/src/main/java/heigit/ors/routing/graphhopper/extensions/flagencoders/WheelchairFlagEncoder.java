@@ -16,7 +16,6 @@ package heigit.ors.routing.graphhopper.extensions.flagencoders;
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodedDoubleValue;
 import com.graphhopper.routing.util.EncodedValue;
 import com.graphhopper.routing.util.PriorityCode;
@@ -28,8 +27,7 @@ import java.util.*;
 
 import static com.graphhopper.routing.util.PriorityCode.*;
 
-public class WheelchairFlagEncoder extends AbstractFlagEncoder 
-{
+public class WheelchairFlagEncoder extends ORSAbstractFlagEncoder {
 	static final int SLOW_SPEED = 2;
     public static final int MEAN_SPEED = 4;
     static final int FERRY_SPEED = 10;
