@@ -15,11 +15,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Enable > 2 waypoints when geometry_simplify=true (#457)
 - Made it so that the wheelchair profile only goes over bridleways if they are set to be foot or wheelchair accessible (#415)
 - Fixed the build fail bug when `routing_name` was set in the config file (#424)
+- Fixed problem with border crossings where the way crosses three polygons (#491)
 ### Changed
 - Updated pom to always build ors.war (Issue #432)
 - Replace usage of packages incompatible with Java >8 (#474)
 ### Deprecated
--
+
 
 ## [5.0] - 2019-02-25
 ### Added
