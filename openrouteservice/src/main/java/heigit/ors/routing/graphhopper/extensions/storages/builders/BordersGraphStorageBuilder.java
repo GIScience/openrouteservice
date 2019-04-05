@@ -286,7 +286,8 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
         // Now get the names of the countries
         ArrayList<String> names = new ArrayList<>();
         for(int i=0; i<countries.size(); i++) {
-            names.add(countries.get(i).getName());
+            if (!names.contains(countries.get(i).getName()))
+                names.add(countries.get(i).getName());
         }
 
         // If there is an international point and at least one country name, then we know it is a border
