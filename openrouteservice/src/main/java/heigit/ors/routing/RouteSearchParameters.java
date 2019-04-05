@@ -308,7 +308,8 @@ public class RouteSearchParameters {
                 }
 
                 _profileParams = wheelchairParams;
-            }
+            } else
+                _profileParams = new ProfileParameters();
 
             processWeightings(jProfileParams, _profileParams);
         }
