@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+### Fixed
+### Changed
+### Deprecated
+
+## [5.1] - 2019-04-08
+### Added
 - CALT routing algorithm (Issue #433)
 - Makes docker and docker-compose deployment of openrouteservice more customizable (Issue #434)
 - Add the possibility to predefine standard maximum search radii in general and for each used profile in the config file (Issue #418)
