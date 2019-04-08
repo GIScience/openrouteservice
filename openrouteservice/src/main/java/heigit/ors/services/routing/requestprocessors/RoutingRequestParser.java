@@ -130,19 +130,6 @@ public class RoutingRequestParser
 				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "radiuses", value);
 
 			req.getSearchParameters().setMaximumRadiuses(radiuses);
-		} else {
-			if(searchParams.getProfileType() == RoutingProfileType.WHEELCHAIR) {
-				// As there are generally less ways that can be used as pedestrian ways, we need to restrict search
-				// radii else we end up with starting and ending ways really far from the actual points. This is
-				// especially a problem for wheechair users as the restrictions are stricter
-				final int coordinateCount = req.getCoordinates().length;
-				double maxRadii[] = new double[coordinateCount];
-				for(int i=0; i<coordinateCount; i++) {
-					maxRadii[i] = 50;
-				}
-				
-				req.getSearchParameters().setMaximumRadiuses(maxRadii);
-			}
 		}
 		
 		value = request.getParameter("units");
@@ -255,6 +242,7 @@ public class RoutingRequestParser
 				   throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "optimized");
 			   
 			   searchParams.setFlexibleMode(!b);
+			   searchParams.setOptimized(b);
 		   }
 		   catch(Exception ex)
 		   {

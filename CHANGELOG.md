@@ -6,15 +6,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- CALT routing algorithm (Issue #433)
 - Makes docker and docker-compose deployment of openrouteservice more customizable (Issue #434)
+- Add the possibility to predefine standard maximum search radii in general and for each used profile in the config file (Issue #418)
 ### Fixed
+- v2 isochrones now respects max_locations in app.config (#482)
 - Updated documentation to reflect correct isochrone smoothing algorithm (Issue #471)
 - Enable > 2 waypoints when geometry_simplify=true (#457)
+- Made it so that the wheelchair profile only goes over bridleways if they are set to be foot or wheelchair accessible (#415)
+- Fixed the build fail bug when `routing_name` was set in the config file (#424)
+- Fixed problem with border crossings where the way crosses three polygons (#491)
 ### Changed
 - Updated pom to always build ors.war (Issue #432)
 - Replace usage of packages incompatible with Java >8 (#474)
 ### Deprecated
--
+
 
 ## [5.0] - 2019-02-25
 ### Added

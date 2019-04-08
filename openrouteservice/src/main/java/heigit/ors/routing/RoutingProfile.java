@@ -1,22 +1,15 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file
- *  distributed with this work for additional information regarding copyright
- *  ownership. The GIScience licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except in compliance
- *  with the License. You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package heigit.ors.routing;
 
@@ -105,7 +98,7 @@ public class RoutingProfile {
     public RoutingProfile(String osmFile, RouteProfileConfiguration rpc, RoutingProfilesCollection profiles, RoutingProfileLoadContext loadCntx) throws Exception {
         mRoutePrefs = rpc.getProfilesTypes();
         mUseCounter = 0;
-        mUseTrafficInfo = /*mHasDynamicWeights &&*/ hasCarPreferences() ? rpc.getUseTrafficInformation() : false;
+        mUseTrafficInfo = hasCarPreferences() ? rpc.getUseTrafficInformation() : false;
 
         mGraphHopper = initGraphHopper(osmFile, rpc, profiles, loadCntx);
 
@@ -172,12 +165,10 @@ public class RoutingProfile {
             // the EncodingManager to be patched - and this is ONLY required for this logging line... which is IMHO
             // not worth it (and since we are not sharing FlagEncoders for mutiple vehicles this info is anyhow
             // obsolete
-            //LOGGER.info(String.format("[%d] FlagEncoders: %s, bits used %d/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getUsedBitsForFlags(), encodingMgr.getBytesForFlags() * 8));
             LOGGER.info(String.format("[%d] FlagEncoders: %s, bits used [UNKNOWN]/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getBytesForFlags() * 8));
             // the 'getCapacity()' impl is the root cause of having a copy of the gh 'com.graphhopper.routing.lm.PrepareLandmarks'
             // class (to make the store) accessible (getLandmarkStorage()) - IMHO this is not worth it!
             // so gh.getCapacity() will be removed!
-            //LOGGER.info(String.format("[%d] Capacity:  %s. (edges - %s, nodes - %s)", profileId, RuntimeUtility.getMemorySize(gh.getCapacity()), ghStorage.getEdges(), ghStorage.getNodes()));
             LOGGER.info(String.format("[%d] Capacity: [UNKNOWN]. (edges - %s, nodes - %s)", profileId, ghStorage.getEdges(), ghStorage.getNodes()));
             // MARQ24 MOD END
             LOGGER.info(String.format("[%d] Total time: %s.", profileId, TimeUtility.getElapsedTime(startTime, true)));
@@ -218,9 +209,12 @@ public class RoutingProfile {
 
         boolean prepareCH = false;
         boolean prepareLM = false;
+        boolean prepareCore = false;
+        boolean prepareCoreLM = false;
 
         args.put("prepare.ch.weightings", "no");
         args.put("prepare.lm.weightings", "no");
+        args.put("prepare.core.weightings", "no");
 
         if (config.getPreparationOpts() != null) {
             Config opts = config.getPreparationOpts();
@@ -267,15 +261,43 @@ public class RoutingProfile {
                             args.put("prepare.lm.landmarks", lmOpts.getInt("landmarks"));
                     }
                 }
+
+                if (opts.hasPath("methods.core")) {
+                    prepareCore = true;
+                    Config coreOpts = opts.getConfig("methods.core");
+
+                    if (coreOpts.hasPath("enabled") || coreOpts.getBoolean("enabled")) {
+                        prepareCore = coreOpts.getBoolean("enabled");
+                        if (prepareCore == false)
+                            args.put("prepare.ch.weightings", "no");
+                    }
+
+
+                    if (prepareCore) {
+                        if (coreOpts.hasPath("threads"))
+                            args.put("prepare.core.threads", coreOpts.getInt("threads"));
+                        if (coreOpts.hasPath("weightings"))
+                            args.put("prepare.core.weightings", StringUtility.trimQuotes(coreOpts.getString("weightings")));
+                        if (coreOpts.hasPath("lmsets"))
+                            args.put("prepare.corelm.lmsets", StringUtility.trimQuotes(coreOpts.getString("lmsets")));
+                        if (coreOpts.hasPath("landmarks"))
+                            args.put("prepare.corelm.landmarks", coreOpts.getInt("landmarks"));
+                    }
+                }
             }
         }
 
         if (config.getExecutionOpts() != null) {
             Config opts = config.getExecutionOpts();
             if (opts.hasPath("methods.ch")) {
-                Config chOpts = opts.getConfig("methods.ch");
+                Config coreOpts = opts.getConfig("methods.ch");
+                if (coreOpts.hasPath("disabling_allowed"))
+                    args.put("routing.ch.disabling_allowed", coreOpts.getBoolean("disabling_allowed"));
+            }
+            if (opts.hasPath("methods.core")) {
+                Config chOpts = opts.getConfig("methods.core");
                 if (chOpts.hasPath("disabling_allowed"))
-                    args.put("routing.ch.disabling_allowed", chOpts.getBoolean("disabling_allowed"));
+                    args.put("routing.core.disabling_allowed", chOpts.getBoolean("disabling_allowed"));
             }
             if (opts.hasPath("methods.lm")) {
                 Config lmOpts = opts.getConfig("methods.lm");
@@ -285,8 +307,15 @@ public class RoutingProfile {
                 if (lmOpts.hasPath("active_landmarks"))
                     args.put("routing.lm.active_landmarks", lmOpts.getInt("active_landmarks"));
             }
-        }
+            if (opts.hasPath("methods.corelm")) {
+                Config lmOpts = opts.getConfig("methods.corelm");
+                if (lmOpts.hasPath("disabling_allowed"))
+                    args.put("routing.lm.disabling_allowed", lmOpts.getBoolean("disabling_allowed"));
 
+                if (lmOpts.hasPath("active_landmarks"))
+                    args.put("routing.corelm.active_landmarks", lmOpts.getInt("active_landmarks"));
+            }
+        }
 
         if (config.getOptimize() && !prepareCH)
             args.put("graph.do_sort", true);
@@ -306,7 +335,6 @@ public class RoutingProfile {
 
         args.put("graph.flag_encoders", flagEncoders.toLowerCase());
 
-        //args.put("osmreader.wayPointMaxDistance",1);
         args.put("index.high_resolution", 500);
 
         return args;
@@ -485,8 +513,6 @@ public class RoutingProfile {
     public RouteOptimizationResult computeOptimizedRoutes(RouteOptimizationRequest req) throws Exception {
         RouteOptimizationResult optResult = null;
 
-        //RouteProcessContext routeProcCntx = new RouteProcessContext(null);
-
         MatrixResult mtxResult = null;
 
         try {
@@ -518,15 +544,7 @@ public class RoutingProfile {
         if (!solution.isValid())
             throw new InternalServerException(OptimizationErrorCodes.UNKNOWN, "Optimization problem solver was unable to find an appropriate solution.");
 
-        //RouteSearchParameters searchParams = new RouteSearchParameters();
-
         optResult = new RouteOptimizationResult();
-
-
-        //getRoute(lat0, lon0, lat1, lon1, false, searchParams, req.getSimplifyGeometry(), routeProcCntx);
-        // compute final route
-        //optResult.setRouteResult(routeResult);
-
 
         return optResult;
     }
@@ -560,6 +578,7 @@ public class RoutingProfile {
         /* Avoid areas */
 
         if (searchParams.hasAvoidAreas()) {
+            props.put("avoid_areas", true);
             edgeFilters.add(new AvoidAreasEdgeFilter(searchParams.getAvoidAreas()));
         }
 
@@ -588,6 +607,7 @@ public class RoutingProfile {
         /* Avoid features */
 
         if (searchParams.hasAvoidFeatures()) {
+            props.put("avoid_features", searchParams.getAvoidFeatureTypes());
             edgeFilters.add(new AvoidFeaturesEdgeFilter(profileType, searchParams, gs));
         }
 
@@ -596,6 +616,8 @@ public class RoutingProfile {
         if (searchParams.hasAvoidBorders() || searchParams.hasAvoidCountries()) {
             if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)) {
                 edgeFilters.add(new AvoidBordersEdgeFilter(searchParams, gs));
+                if(searchParams.hasAvoidCountries())
+                    props.put("avoid_countries", Arrays.toString(searchParams.getAvoidCountries()));
             }
         }
 
@@ -685,6 +707,7 @@ public class RoutingProfile {
             RouteSearchContext searchCntx = createSearchContext(searchParams, RouteSearchMode.Routing, customEdgeFilter);
 
             boolean flexibleMode = searchParams.getFlexibleMode();
+            boolean optimized = searchParams.getOptimized();
             GHRequest req = null;
             if (bearings == null || bearings[0] == null)
                 req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
@@ -743,14 +766,42 @@ public class RoutingProfile {
             if (searchParams.requiresDynamicWeights() || flexibleMode) {
                 if (mGraphHopper.isCHEnabled())
                     req.getHints().put("ch.disable", true);
-                if (mGraphHopper.getLMFactoryDecorator().isEnabled())
+                if (mGraphHopper.getLMFactoryDecorator().isEnabled()) {
                     req.setAlgorithm("astarbi");
-                req.getHints().put("lm.disable", false);
-            } else {
-                if (mGraphHopper.isCHEnabled())
-                    req.getHints().put("lm.disable", true);
-                else
+                    req.getHints().put("lm.disable", false);
+                    req.getHints().put("core.disable", true);
                     req.getHints().put("ch.disable", true);
+                }
+                if (mGraphHopper.isCoreEnabled() && optimized) {
+                    req.getHints().put("core.disable", false);
+                    req.getHints().put("lm.disable", true);
+                    req.getHints().put("ch.disable", true);
+                    req.setAlgorithm("astarbi");
+                }
+            } else {
+                if (mGraphHopper.isCHEnabled()) {
+                    req.getHints().put("lm.disable", true);
+                    req.getHints().put("core.disable", true);
+                }
+                else {
+                    if (mGraphHopper.isCoreEnabled() && optimized) {
+                        req.getHints().put("core.disable", false);
+                        req.getHints().put("lm.disable", true);
+                        req.getHints().put("ch.disable", true);
+                        req.setAlgorithm("astarbi");
+                    }
+                    else {
+                        req.getHints().put("ch.disable", true);
+                        req.getHints().put("core.disable", true);
+                    }
+                }
+            }
+            //cannot use CH or CoreALT with avoid areas. Need to fallback to ALT with beeline approximator or Dijkstra
+            if(props.getBool("avoid_areas", false)){
+                req.setAlgorithm("astarbi");
+                req.getHints().put("lm.disable", false);
+                req.getHints().put("core.disable", true);
+                req.getHints().put("ch.disable", true);
             }
 
             if (profileType == RoutingProfileType.DRIVING_EMERGENCY) {
@@ -776,7 +827,6 @@ public class RoutingProfile {
             if (DebugUtility.isDebug() && directedSegment) {
                 LOGGER.info("skipped segment - " + resp.getHints().get("skipped_segment", ""));
             }
-
             endUseGH();
         } catch (Exception ex) {
             endUseGH();
@@ -818,8 +868,6 @@ public class RoutingProfile {
 
             throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to build an isochrone map.");
         }
-
-        String[] attributes = parameters.getAttributes();
 
         if (result.getIsochronesCount() > 0) {
 
@@ -894,10 +942,6 @@ public class RoutingProfile {
         return result;
     }
 
-    public Geometry getEdgeGeometry(int edgeId) {
-        return getEdgeGeometry(edgeId, 3, Integer.MIN_VALUE);
-    }
-
     public Geometry getEdgeGeometry(int edgeId, int mode, int adjnodeid) {
         EdgeIteratorState iter = mGraphHopper.getGraphHopperStorage().getEdgeIteratorState(edgeId, adjnodeid);
         PointList points = iter.fetchWayGeometry(mode);
@@ -914,7 +958,6 @@ public class RoutingProfile {
     }
 
     public EdgeFilter createAccessRestrictionFilter(Coordinate[] wayPoints) {
-        //rp.getGraphhopper()
         return null;
     }
 

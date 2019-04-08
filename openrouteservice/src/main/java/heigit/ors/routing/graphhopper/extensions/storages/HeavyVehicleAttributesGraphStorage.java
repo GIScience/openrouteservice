@@ -149,7 +149,24 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 	    
 	    return result;
 	}
-	
+
+	public boolean hasEdgeRestriction(int edgeId) {
+		long edgeBase = (long) edgeId * edgeEntryBytes;
+
+		byte[] buffer = new byte[2];
+		orsEdges.getBytes(edgeBase + EF_VEHICLETYPE, buffer, 2);
+
+		if (buffer[0] != 0 || buffer[1] != 0)
+			return true;
+
+		if (EF_RESTRICTIONS > 0)
+			for (int i = 0; i < VehicleDimensionRestrictions.Count; i++)
+				if (orsEdges.getShort(edgeBase + EF_RESTRICTIONS + i * EF_RESTRICTION_BYTES) != 0)
+					return true;
+
+		return false;
+	}
+
 	public boolean isRequireNodeField() {
 		return true;
 	}

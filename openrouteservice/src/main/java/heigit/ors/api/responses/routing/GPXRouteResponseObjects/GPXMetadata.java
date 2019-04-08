@@ -21,6 +21,7 @@ import heigit.ors.api.responses.common.BoundingBox.BoundingBox;
 import heigit.ors.api.responses.common.BoundingBox.BoundingBoxFactory;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.routing.RouteResult;
+import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.GeomUtility;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -45,7 +46,7 @@ public class GPXMetadata {
     public GPXMetadata() {}
 
     public GPXMetadata(RouteResult[] routeResults, RouteRequest request) throws StatusCodeException {
-        this.name = "openrouteservice directions";
+        this.name = RoutingServiceSettings.getRoutingName();
         this.description = "This is a directions instructions file as GPX, generated from openrouteservice";
         this.author = new GPXAuthor();
         this.copyright = new GPXCopyright();

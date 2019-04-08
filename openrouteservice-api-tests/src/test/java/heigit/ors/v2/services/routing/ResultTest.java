@@ -1,22 +1,15 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   	 http://www.giscience.uni-hd.de
- *   	 http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file
- *  distributed with this work for additional information regarding copyright
- *  ownership. The GIScience licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except in compliance
- *  with the License. You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package heigit.ors.v2.services.routing;
 
@@ -34,6 +27,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import javax.imageio.metadata.IIOMetadataNode;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -87,6 +81,7 @@ public class ResultTest extends ServiceTest {
         addParameter("preference", "fastest");
         addParameter("bikeProfile", "cycling-regular");
         addParameter("carProfile", "driving-car");
+        addParameter("footProfile", "foot-walking");
     }
 
     @Test
@@ -95,9 +90,9 @@ public class ResultTest extends ServiceTest {
                 .param("start", "8.686581,49.403154")
                 .param("end", "8.688126,49.409074")
                 .pathParam("profile", getParameter("carProfile"))
-                .when().log().all()
+                .when().log().ifValidationFails()
                 .get(getEndPointPath() + "/{profile}")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].containsKey('properties')", is(true))
@@ -125,11 +120,11 @@ public class ResultTest extends ServiceTest {
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .log().all()
+                .log().ifValidationFails()
                 .post(getEndPointPath() + "/{profile}/gpx");
 
         response.then()
-                .log().all()
+                .log().ifValidationFails()
                 .assertThat()
                 .contentType("application/gpx+xml;charset=UTF-8")
                 .statusCode(200);
@@ -143,7 +138,7 @@ public class ResultTest extends ServiceTest {
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .log().all()
+                .log().ifValidationFails()
                 .post(getEndPointPath() + "/{profile}/gpx");
         response_without_instructions.then()
                 .assertThat()
@@ -173,6 +168,7 @@ public class ResultTest extends ServiceTest {
         boolean gpxMetadata = false;
         boolean gpxRte = false;
         boolean gpxExtensions = false;
+        Node gpxMetadataNode = new IIOMetadataNode();
         for (int i = 0; i < doc_length; i++) {
             String item = doc.getDocumentElement().getChildNodes().item(i).getNodeName();
             switch (item) {
@@ -191,6 +187,7 @@ public class ResultTest extends ServiceTest {
                         switch (metadataItem.getNodeName()) {
                             case "name":
                                 metadataName = true;
+                                gpxMetadataNode = metadataItem;
                                 break;
                             case "desc":
                                 metadataDescription = true;
@@ -265,6 +262,7 @@ public class ResultTest extends ServiceTest {
                         }
                     }
                     Assert.assertTrue(metadataName);
+                    Assert.assertEquals("ORSRouting", gpxMetadataNode.getTextContent());
                     Assert.assertTrue(metadataDescription);
                     Assert.assertTrue(metadataAuthor);
                     Assert.assertTrue(metadataCopyright);
@@ -486,7 +484,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any {it.key == 'metadata'}", is(true))
                 .body("metadata.containsKey('id')", is(true))
@@ -673,7 +671,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].bbox", hasItems(8.678615f, 49.393272f, 8.714833f, 49.424603f))
@@ -757,7 +755,7 @@ public class ResultTest extends ServiceTest {
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("bikeProfile"))
                 .body(body.toString())
-                .when().log().all()
+                .when().log().ifValidationFails()
                 .post(getEndPointPath() + "/{profile}");
 
         Assert.assertEquals(response.getStatusCode(), 200);
@@ -903,10 +901,10 @@ public class ResultTest extends ServiceTest {
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "driving-hgv")
                 .body(body.toString())
-                .when().log().all()
+                .when().log().ifValidationFails()
                 .post(getEndPointPath() + "/{profile}");
 
-        response.then().log().all()
+        response.then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('extras')", is(true))
@@ -1299,7 +1297,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(1404.0f))
+                .body("routes[0].summary.distance", is(1394.4f))
                 .statusCode(200);
 
         options = new JSONObject();
@@ -1340,10 +1338,10 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(1156.6f))
+                .body("routes[0].summary.distance", is(1147.0f))
                 .statusCode(200);
 
         options = new JSONObject();
@@ -1372,7 +1370,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(3172.3f))
@@ -1438,7 +1436,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].segments[0].detourfactor", is(1.3f))
@@ -1495,7 +1493,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(129.6f))
@@ -1515,7 +1513,7 @@ public class ResultTest extends ServiceTest {
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "wheelchair")
                 .body(body.toString())
-                .when().log().all()
+                .when().log().ifValidationFails()
                 .post(getEndPointPath() + "/{profile}")
                 .then()
                 .assertThat()
@@ -1781,7 +1779,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('warnings')", is(true))
@@ -1798,7 +1796,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'features' }", is(true))
                 .body("any { it.key == 'bbox' }", is(true))
@@ -1826,7 +1824,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("features[0].geometry.coordinates.size()", is(534))
                 .statusCode(200);
@@ -1840,7 +1838,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("features[0].geometry.coordinates.size()", is(299))
                 .statusCode(200);
@@ -1861,9 +1859,9 @@ public class ResultTest extends ServiceTest {
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
-                .when().log().all()
+                .when().log().ifValidationFails()
                 .post(getEndPointPath() + "/{profile}/json")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('warnings')", is(true))
@@ -1878,7 +1876,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'features' }", is(true))
                 .body("any { it.key == 'bbox' }", is(true))
@@ -1904,9 +1902,9 @@ public class ResultTest extends ServiceTest {
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
-                .when().log().all()
+                .when().log().ifValidationFails()
                 .post(getEndPointPath() + "/{profile}/json")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(1744.3f))
@@ -1945,7 +1943,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'features' }", is(true))
                 .body("any { it.key == 'bbox' }", is(true))
@@ -1997,9 +1995,9 @@ public class ResultTest extends ServiceTest {
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
-                .when().log().all()
+                .when().log().ifValidationFails()
                 .post(getEndPointPath() + "/{profile}/json")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(10936.3f))
@@ -2045,7 +2043,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'features' }", is(true))
                 .body("any { it.key == 'bbox' }", is(true))
@@ -2159,6 +2157,114 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].containsKey('segments')", is(true))
                 .body("routes[0].segments[0].containsKey('avgspeed')", is(true))
                 .body("routes[0].segments[0].avgspeed", is(19.32f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testPreferGreen() {
+        JSONObject body = new JSONObject();
+
+        JSONArray coordinates = new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.676023);
+        coord1.put(49.416809);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.696837);
+        coord2.put(49.411839);
+        coordinates.put(coord2);
+        body.put("coordinates", coordinates);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('summary')", is(true))
+                .body("routes[0].summary.distance", is(2097.2f))
+                .body("routes[0].summary.duration", is(1510.0f))
+                .statusCode(200);
+
+        JSONObject weightings = new JSONObject();
+        weightings.put("green", 1.0);
+        JSONObject params = new JSONObject();
+        params.put("weightings", weightings);
+        JSONObject options = new JSONObject();
+        options.put("profile_params", params);
+        body.put("options", options);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('summary')", is(true))
+                .body("routes[0].summary.distance", is(2308.3f))
+                .body("routes[0].summary.duration", is(3323.9f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testPreferQuiet() {
+        JSONObject body = new JSONObject();
+
+        JSONArray coordinates = new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.676023);
+        coord1.put(49.416809);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.696837);
+        coord2.put(49.411839);
+        coordinates.put(coord2);
+        body.put("coordinates", coordinates);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('summary')", is(true))
+                .body("routes[0].summary.distance", is(2097.2f))
+                .body("routes[0].summary.duration", is(1510.0f))
+                .statusCode(200);
+
+        JSONObject weightings = new JSONObject();
+        weightings.put("quiet", 1.0);
+        JSONObject params = new JSONObject();
+        params.put("weightings", weightings);
+        JSONObject options = new JSONObject();
+        options.put("profile_params", params);
+        body.put("options", options);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('summary')", is(true))
+                .body("routes[0].summary.distance", is(2878.6f))
+                .body("routes[0].summary.duration", is(4145.2f))
                 .statusCode(200);
     }
 

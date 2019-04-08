@@ -31,7 +31,8 @@ public class RouteProfileConfiguration
 	private Map<String, Map<String, String>> _extStorages;
 	private Map<String, Map<String, String>> _graphBuilders;
 	private Double _maximumDistance = 0.0;
-	private Double _maximumSegmentDistanceWithDynamicWeights = 0.0;
+	private Double _maximumDistanceDynamicWeights = 0.0;
+	private Double _maximumDistanceAvoidAreas = 0.0;
 	private Integer _maximumWayPoints = 0;
 	private boolean _useTrafficInformation = false;
 	private boolean _instructions = true;
@@ -47,9 +48,11 @@ public class RouteProfileConfiguration
 	private String _elevationCachePath = null;
 	private String _elevationDataAccess = "MMAP";
 	private boolean _elevationCacheClear = true;
+	private int _maximumSnappingRadius;
 	
 	private Envelope _extent;
-	
+	private boolean _hasMaximumSnappingRadius = false;
+
 	public RouteProfileConfiguration()
 	{
 		_extStorages = new HashMap<String, Map<String, String>>();
@@ -85,7 +88,8 @@ public class RouteProfileConfiguration
 		rpc._graphPath = this._graphPath;
 			
 		rpc._maximumDistance = this._maximumDistance;
-		rpc._maximumSegmentDistanceWithDynamicWeights = this._maximumSegmentDistanceWithDynamicWeights;
+		rpc._maximumDistanceDynamicWeights = this._maximumDistanceDynamicWeights;
+		rpc._maximumDistanceAvoidAreas = this._maximumDistanceAvoidAreas;
 		rpc._maximumWayPoints = this._maximumWayPoints;
 		rpc._useTrafficInformation = this._useTrafficInformation;
 		rpc._optimize = this._optimize;
@@ -103,7 +107,9 @@ public class RouteProfileConfiguration
 		rpc._elevationCacheClear = this._elevationCacheClear;
 		rpc._elevationProvider = this._elevationProvider;
 		rpc._elevationDataAccess = this._elevationDataAccess;
-		
+
+		rpc._maximumSnappingRadius = this._maximumSnappingRadius;
+
 		rpc._extent = this._extent;
 		
 		return rpc;
@@ -189,14 +195,24 @@ public class RouteProfileConfiguration
 		return _maximumDistance;
 	}
 	
-	public void setMaximumSegmentDistanceWithDynamicWeights(Double value)
+	public void setMaximumDistanceDynamicWeights(Double value)
 	{
-		_maximumSegmentDistanceWithDynamicWeights = value; 
+		_maximumDistanceDynamicWeights = value;
 	}
 	
-	public Double getMaximumSegmentDistanceWithDynamicWeights()
+	public Double getMaximumDistanceDynamicWeights()
 	{
-		return _maximumSegmentDistanceWithDynamicWeights;
+		return _maximumDistanceDynamicWeights;
+	}
+
+	public void setMaximumDistanceAvoidAreas(Double value)
+	{
+		_maximumDistanceAvoidAreas = value;
+	}
+
+	public Double getMaximumDistanceAvoidAreas()
+	{
+		return _maximumDistanceAvoidAreas;
 	}
 	
 	public void setMaximumWayPoints(Integer value)
@@ -311,5 +327,18 @@ public class RouteProfileConfiguration
 
 	public void setOptimize(boolean optimize) {
 		this._optimize = optimize;
+	}
+
+	public boolean hasMaximumSnappingRadius() {
+		return _hasMaximumSnappingRadius;
+	}
+
+	public int getMaximumSnappingRadius() {
+		return _maximumSnappingRadius;
+	}
+
+	public void setMaximumSnappingRadius(int _maximumSnappingRadius) {
+		this._maximumSnappingRadius = _maximumSnappingRadius;
+		this._hasMaximumSnappingRadius = true;
 	}
 }

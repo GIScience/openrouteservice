@@ -271,13 +271,7 @@ public class GpxResponseWriter {
             new MissingConfigParameterException(GpxResponseWriter.class, "routing_description");
         }
         // set routing_name
-        if (RoutingServiceSettings.getParameter("routing_name") != null) {
-
-            metadata.setName(RoutingServiceSettings.getParameter("routing_name"));
-        } else {
-            metadata.setName("ORSRoutingFile");
-            new MissingConfigParameterException(GpxResponseWriter.class, "routing_name");
-        }
+        metadata.setName(RoutingServiceSettings.getRoutingName());
         metadata.setTime(cal);
         gpx.setMetadata(metadata);
         // set author_tag

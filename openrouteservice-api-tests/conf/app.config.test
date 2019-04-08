@@ -38,6 +38,7 @@
         init_threads: 1,
         attribution: "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
         distance_approximation: true,
+        routing_name: "ORSRouting",
         profiles: {
           active: ["vehicles-car", "vehicles-hgv", "bike", "bike-mtb", "bike-road", "bike-e", "pedestrian-walk", "pedestrian-hike", "wheelchair"],
           default_params: {
@@ -49,8 +50,8 @@
             instructions: true,
             maximum_distance: 100000,
             maximum_segment_distance_with_dynamic_weights: 50000,
-            maximum_waypoints: 50
-
+            maximum_waypoints: 50,
+            maximum_snapping_radius: 350,
             preparation:
               {
                 min_network_size: 200,
@@ -103,8 +104,15 @@
                         {
                           enabled: true,
                           threads: 1,
-                          weightings: "fastest,shortest",
+                          weightings: "fastest",
                           landmarks: 16
+                        },
+                      core:
+                        {
+                          enabled: true,
+                          threads: 1,
+                          weightings: "fastest,shortest",
+                          landmarks: 32
                         }
                     }
                 }
@@ -120,6 +128,11 @@
                         {
                           disabling_allowed: true,
                           active_landmarks: 8
+                        },
+                      core:
+                        {
+                          disabling_allowed: true,
+                          active_landmarks: 6
                         }
                     }
                 }
@@ -163,8 +176,15 @@
                         {
                           enabled: true,
                           threads: 1,
-                          weightings: "fastest,shortest",
+                          weightings: "fastest",
                           landmarks: 16
+                        },
+                      core:
+                        {
+                          enabled: true,
+                          threads: 1,
+                          weightings: "fastest,shortest",
+                          landmarks: 32
                         }
                     }
                 }
@@ -180,6 +200,11 @@
                         {
                           disabling_allowed: true,
                           active_landmarks: 8
+                        },
+                      core:
+                        {
+                          disabling_allowed: true,
+                          active_landmarks: 6
                         }
                     }
                 }
@@ -216,6 +241,7 @@
             parameters: {
               encoder_options: "consider_elevation=false|turn_costs=true|block_fords=false",
               elevation: true,
+              maximum_snapping_radius: 10,
               ext_storages: {
                 WayCategory: {},
                 WaySurfaceType: {},
@@ -295,6 +321,7 @@
             parameters: {
               encoder_options: "block_fords=true",
               elevation: true,
+              maximum_snapping_radius: 50,
               ext_storages: {
                 Wheelchair: {
                   KerbsOnCrossings: "true"

@@ -17,17 +17,37 @@ import java.util.ArrayList;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.EdgeIteratorState;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
 
 public class EdgeFilterSequence extends ArrayList<EdgeFilter> implements EdgeFilter {
 
+	private String name;
 	@Override
-	public final boolean accept(EdgeIteratorState iter) {
+	public boolean accept(EdgeIteratorState iter) {
 		for (EdgeFilter edgeFilter: this) {
 			if (!edgeFilter.accept(iter)) {
 				return false;
 			}
 		}
 		return true;
+	}
+
+	public String getName(){
+		if (this.name == null) {
+			String name = "";
+			for (EdgeFilter edgeFilter : this) {
+				name += "_" + edgeFilter.getClass().getSimpleName();
+			}
+			return name.toLowerCase();
+		}
+		else return this.name;
+	}
+
+	public void appendName(String name){
+		if (this.name == null)
+			this.name = ("_" + name);
+		else
+			this.name += ("_" + name);
 	}
 
 	@Override

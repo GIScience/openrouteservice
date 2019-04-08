@@ -1,22 +1,15 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   	 http://www.giscience.uni-hd.de
- *   	 http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file
- *  distributed with this work for additional information regarding copyright
- *  ownership. The GIScience licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except in compliance
- *  with the License. You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package heigit.ors.v2.services.isochrones;
 
@@ -50,9 +43,9 @@ public class ParamsTest extends ServiceTest {
         secondLocation.put(8.684177);
         secondLocation.put(49.421034);
 
-        //JSONArray thirdLocation = new JSONArray();
-        //thirdLocation.put(8.684177);
-        //thirdLocation.put(49.421034);
+        JSONArray thirdLocation = new JSONArray();
+        thirdLocation.put(8.684177);
+        thirdLocation.put(49.421034);
 
         JSONArray locations_1 = new JSONArray();
         locations_1.put(firstLocation);
@@ -60,7 +53,11 @@ public class ParamsTest extends ServiceTest {
         JSONArray locations_2 = new JSONArray();
         locations_2.put(firstLocation);
         locations_2.put(secondLocation);
-        //locations.put(thirdLocation);
+
+        JSONArray locations_3 = new JSONArray();
+        locations_3.put(firstLocation);
+        locations_3.put(secondLocation);
+        locations_3.put(thirdLocation);
 
         JSONArray ranges_2 = new JSONArray();
         ranges_2.put(1800);
@@ -84,6 +81,7 @@ public class ParamsTest extends ServiceTest {
 
         addParameter("locations_1", locations_1);
         addParameter("locations_2", locations_2);
+        addParameter("locations_3", locations_3);
         addParameter("ranges_2", ranges_2);
         addParameter("ranges_1800", ranges_1800);
         addParameter("interval_100", interval_100);
@@ -227,7 +225,7 @@ public class ParamsTest extends ServiceTest {
     public void testTooManyLocations() {
 
         JSONObject body = new JSONObject();
-        body.put("locations", getParameter("locations_2"));
+        body.put("locations", getParameter("locations_3"));
         body.put("range", getParameter("ranges_1800"));
         body.put("range_type", "time");
         body.put("interval", getParameter("interval_100"));

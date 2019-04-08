@@ -168,8 +168,11 @@ public class RoutingManagerConfiguration
 					case "maximum_distance":
 						profile.setMaximumDistance(Double.parseDouble(paramItem.getValue().toString()));
 						break;
-					case "maximum_segment_distance_with_dynamic_weights":
-						profile.setMaximumSegmentDistanceWithDynamicWeights(Double.parseDouble(paramItem.getValue().toString()));
+					case "maximum_distance_dynamic_weights":
+						profile.setMaximumDistanceDynamicWeights(Double.parseDouble(paramItem.getValue().toString()));
+						break;
+					case "maximum_distance_avoid_areas":
+						profile.setMaximumDistanceAvoidAreas(Double.parseDouble(paramItem.getValue().toString()));
 						break;
 					case "maximum_waypoints":
 						profile.setMaximumWayPoints(Integer.parseInt(paramItem.getValue().toString()));
@@ -181,6 +184,9 @@ public class RoutingManagerConfiguration
 						if (bbox.size() != 4)
 							throw new Exception("'extent' element must contain 4 elements.");
 						profile.setExtent(new Envelope(bbox.get(0),bbox.get(1),bbox.get(2),bbox.get(3)));
+						break;
+					case "maximum_snapping_radius":
+							profile.setMaximumSnappingRadius(Integer.parseInt(paramItem.getValue().toString()));
 					}
 				}
 			}

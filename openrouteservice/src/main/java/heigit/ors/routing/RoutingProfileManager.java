@@ -1,22 +1,15 @@
-/*
- *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+/*  This file is part of Openrouteservice.
  *
- *   http://www.giscience.uni-hd.de
- *   http://www.heigit.org
- *
- *  under one or more contributor license agreements. See the NOTICE file
- *  distributed with this work for additional information regarding copyright
- *  ownership. The GIScience licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except in compliance
- *  with the License. You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
+ *  of the License, or (at your option) any later version.
+
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *  See the GNU Lesser General Public License for more details.
+
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package heigit.ors.routing;
 
@@ -42,7 +35,6 @@ import heigit.ors.optimization.RouteOptimizationRequest;
 import heigit.ors.optimization.RouteOptimizationResult;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.configuration.RoutingManagerConfiguration;
-import heigit.ors.routing.parameters.VehicleParameters;
 import heigit.ors.routing.pathprocessors.ElevationSmoothPathProcessor;
 import heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
@@ -362,7 +354,15 @@ public class RoutingProfileManager {
         EdgeFilter customEdgeFilter = rp.createAccessRestrictionFilter(coords);
         GHResponse prevResp = null;
         WayPointBearing[] bearings = (req.getContinueStraight() || searchParams.getBearings() != null) ? new WayPointBearing[2] : null;
-        double[] radiuses = searchParams.getMaximumRadiuses() != null ? new double[2] : null;
+        int profileType = req.getSearchParameters().getProfileType();
+        double[] radiuses;
+        if (searchParams.getMaximumRadiuses() != null) {
+            radiuses = new double[2];
+        } else if (_routeProfiles.getRouteProfile(profileType).getConfiguration().hasMaximumSnappingRadius()) {
+            radiuses = new double[2];
+        } else {
+            radiuses = null;
+        }
 
         for (int i = 1; i <= nSegments; ++i) {
             c1 = coords[i];
@@ -385,6 +385,14 @@ public class RoutingProfileManager {
             if (searchParams.getMaximumRadiuses() != null) {
                 radiuses[0] = searchParams.getMaximumRadiuses()[i - 1];
                 radiuses[1] = searchParams.getMaximumRadiuses()[i];
+            }else {
+                try {
+                    int maximumSnappingRadius = _routeProfiles.getRouteProfile(profileType).getConfiguration().getMaximumSnappingRadius();
+                    radiuses[0] = maximumSnappingRadius;
+                    radiuses[1] = maximumSnappingRadius;
+                 } catch (Exception ex) {
+                }
+
             }
 
             GHResponse gr;
@@ -504,6 +512,8 @@ public class RoutingProfileManager {
     public RoutingProfile getRouteProfile(RoutingRequest req, boolean oneToMany) throws Exception {
         RouteSearchParameters searchParams = req.getSearchParameters();
         int profileType = searchParams.getProfileType();
+
+        boolean hasAvoidAreas = searchParams.hasAvoidAreas();
         boolean dynamicWeights = searchParams.requiresDynamicWeights();
 
         RoutingProfile rp = _routeProfiles.getRouteProfile(profileType, !dynamicWeights);
@@ -516,7 +526,10 @@ public class RoutingProfileManager {
 
         RouteProfileConfiguration config = rp.getConfiguration();
 
-        if (config.getMaximumDistance() > 0 || (dynamicWeights && config.getMaximumSegmentDistanceWithDynamicWeights() > 0) || config.getMaximumWayPoints() > 0) {
+        if (config.getMaximumDistance() > 0
+                || (dynamicWeights && config.getMaximumDistanceDynamicWeights() > 0)
+                || config.getMaximumWayPoints() > 0
+                || (hasAvoidAreas && config.getMaximumDistanceAvoidAreas() > 0)) {
             Coordinate[] coords = req.getCoordinates();
             int nCoords = coords.length;
             if (config.getMaximumWayPoints() > 0) {
@@ -524,7 +537,9 @@ public class RoutingProfileManager {
                     throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The specified number of waypoints must not be greater than " + Integer.toString(config.getMaximumWayPoints()) + ".");
             }
 
-            if (config.getMaximumDistance() > 0 || (dynamicWeights && config.getMaximumSegmentDistanceWithDynamicWeights() > 0)) {
+            if (config.getMaximumDistance() > 0
+                    || (dynamicWeights && config.getMaximumDistanceDynamicWeights() > 0)
+                    || (hasAvoidAreas && config.getMaximumDistanceAvoidAreas() > 0)) {
                 double longestSegmentDist = 0.0;
                 DistanceCalc distCalc = Helper.DIST_EARTH;
 
@@ -560,8 +575,10 @@ public class RoutingProfileManager {
                 if (config.getMaximumDistance() > 0 && totalDist > config.getMaximumDistance())
                     throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The approximated route distance must not be greater than " + Double.toString(config.getMaximumDistance()) + " meters.");
 
-                if (dynamicWeights && config.getMaximumSegmentDistanceWithDynamicWeights() > 0 && longestSegmentDist > config.getMaximumSegmentDistanceWithDynamicWeights())
-                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "By dynamic weighting, the approximated distance of a route segment must not be greater than " + Double.toString(config.getMaximumSegmentDistanceWithDynamicWeights()) + " meters.");
+                if (dynamicWeights && config.getMaximumDistanceDynamicWeights() > 0 && totalDist > config.getMaximumDistanceDynamicWeights())
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "By dynamic weighting, the approximated distance of a route segment must not be greater than " + Double.toString(config.getMaximumDistanceDynamicWeights()) + " meters.");
+                if (hasAvoidAreas && config.getMaximumDistanceAvoidAreas() > 0 && totalDist > config.getMaximumDistanceAvoidAreas())
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "With areas to avoid, the approximated route distance must not be greater than " + Double.toString(config.getMaximumDistanceAvoidAreas()) + " meters.");
             }
         }
 
