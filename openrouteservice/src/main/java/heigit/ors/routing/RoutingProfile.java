@@ -51,7 +51,6 @@ import heigit.ors.routing.graphhopper.extensions.edgefilters.*;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.parameters.*;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
-import heigit.ors.routing.traffic.TrafficEdgeAnnotator;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.services.matrix.MatrixServiceSettings;
 import heigit.ors.services.optimization.OptimizationServiceSettings;
@@ -756,9 +755,6 @@ public class RoutingProfile {
             if(profileType == RoutingProfileType.WHEELCHAIR) {
                 flexibleMode = true;
             }
-
-            if (RoutingProfileType.isDriving(profileType) && RealTrafficDataProvider.getInstance().isInitialized())
-                req.setEdgeAnnotator(new TrafficEdgeAnnotator(mGraphHopper.getGraphHopperStorage()));
 
             req.setEdgeFilter(searchCntx.getEdgeFilter());
             req.setPathProcessor(routeProcCntx.getPathProcessor());
