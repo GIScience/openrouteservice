@@ -22,7 +22,10 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.PathWrapper;
 import com.graphhopper.routing.*;
 import com.graphhopper.routing.util.*;
+// ORS-GH MOD START
+import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
+// ORS-GH MOD END
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.EdgeIteratorState;
@@ -68,9 +71,9 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
         // ORS-GH MOD START
         // EdgeFilter edgeFilter = DefaultEdgeFilter.allEdges(encoder);
         // Modification by Maxim Rylov: Added custom EdgeFilter
-        EdgeFilter edgeFilter = ghRequest.getEdgeFilter();
+        EdgeFilter edgeFilter = null; // ORS TODO EdgeFilter not avalable here: ghRequest.getEdgeFilter();
         if (edgeFilter == null) {
-            edgeFilter = new DefaultEdgeFilter(encoder);
+            edgeFilter = DefaultEdgeFilter.allEdges(encoder);
         }
         // ORS-GH MOD END
 

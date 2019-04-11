@@ -58,14 +58,20 @@ public class RoundTripRoutingTemplateTest {
     public void lookup_throwsIfNumberOfGivenPointsNotOne() {
         RoundTripRoutingTemplate routingTemplate = new RoundTripRoutingTemplate(
                 new GHRequest(Collections.singletonList(ghPoint1)), new GHResponse(), null, em, 1);
-        routingTemplate.lookup(Arrays.asList(ghPoint1, ghPoint2), carFE);
+        // ORS-GH MOD START
+        //routingTemplate.lookup(Arrays.asList(ghPoint1, ghPoint2), carFE);
+        routingTemplate.lookup(Arrays.asList(ghPoint1, ghPoint2), null, carFE);
+        // ORS-GH MOD EMD
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void lookup_throwsIfNumberOfPointsInRequestNotOne() {
         RoundTripRoutingTemplate routingTemplate = new RoundTripRoutingTemplate(
                 new GHRequest(Arrays.asList(ghPoint1, ghPoint2)), new GHResponse(), null, em, 1);
-        routingTemplate.lookup(Collections.singletonList(ghPoint1), carFE);
+        // ORS-GH MOD START
+        //routingTemplate.lookup(Arrays.asList(ghPoint1, ghPoint2), carFE);
+        routingTemplate.lookup(Collections.singletonList(ghPoint1), null, carFE);
+        // ORS-GH MOD END
     }
 
     @Test
@@ -84,7 +90,10 @@ public class RoundTripRoutingTemplateTest {
         LocationIndex locationIndex = new LocationIndexTree(g, new RAMDirectory()).prepareIndex();
         RoundTripRoutingTemplate routingTemplate =
                 new RoundTripRoutingTemplate(ghRequest, new GHResponse(), locationIndex, em, 1);
-        List<QueryResult> stagePoints = routingTemplate.lookup(ghRequest.getPoints(), carFE);
+        // ORS-GH MOD START
+        //List<QueryResult> stagePoints = routingTemplate.lookup(ghRequest.getPoints(), carFE);
+        List<QueryResult> stagePoints = routingTemplate.lookup(ghRequest.getPoints(), null, carFE);
+        // ORS-GH MOD END
         assertEquals(3, stagePoints.size());
         assertEquals(0, stagePoints.get(0).getClosestNode());
         assertEquals(6, stagePoints.get(1).getClosestNode());

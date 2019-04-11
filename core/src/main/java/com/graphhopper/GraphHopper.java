@@ -1145,9 +1145,11 @@ public class GraphHopper implements GraphHopperAPI {
                 // MARQ24: we "tunnel" all the additional object that we require for the additional storage
                 // processing inside the TranslationMap Object - simply cause in this case we do not have to
                 // alter so many original GH classes...
-                if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo){
-                    ((TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr).init(encoder, weighting, request.getPathProcessor());
-                }
+                // ORS TODO START: PathProcessor not available due to GH's new structure
+                //if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo){
+                //    ((TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr).init(encoder, weighting, request.getPathProcessor());
+                //}
+                // ORS TODO END
                 // ORS-GH MOD END
 
                 // do the actual route calculation !

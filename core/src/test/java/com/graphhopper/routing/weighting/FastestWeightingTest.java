@@ -49,9 +49,13 @@ public class FastestWeightingTest {
     public void testWeightWrongHeading() {
         Weighting instance = new FastestWeighting(encoder, new PMap().
                 put(Parameters.Routing.HEADING_PENALTY, "100"));
-
-        VirtualEdgeIteratorState virtEdge = new VirtualEdgeIteratorState(0, 1, 1, 2, 10,
+        
+        // ORS-GH MOD START
+        //VirtualEdgeIteratorState virtEdge = new VirtualEdgeIteratorState(0, 1, 1, 2, 10,
+        //        GHUtility.setProperties(encodingManager.createEdgeFlags(), encoder, 10, true, true), "test", Helper.createPointList(51, 0, 51, 1), false);
+        VirtualEdgeIteratorState virtEdge = new VirtualEdgeIteratorState(0, 1, 1, 1, 2, 10,
                 GHUtility.setProperties(encodingManager.createEdgeFlags(), encoder, 10, true, true), "test", Helper.createPointList(51, 0, 51, 1), false);
+        // ORS-GH MOD END
         double time = instance.calcWeight(virtEdge, false, 0);
 
         virtEdge.setUnfavored(true);

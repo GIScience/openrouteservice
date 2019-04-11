@@ -425,10 +425,10 @@ public class QueryGraph implements Graph {
         // edges between base and snapped point
         // ORS-GH MOD START (added closestEdge.getEdge() as an originalEdgeId)
         // ORG CODE START
-        VirtualEdgeIteratorState baseEdge = new VirtualEdgeIteratorState(origEdgeKey,
-                virtEdgeId, prevNodeId, nodeId, baseDistance, closestEdge.getFlags(), closestEdge.getName(), basePoints, reverse);
-        VirtualEdgeIteratorState baseReverseEdge = new VirtualEdgeIteratorState(origRevEdgeKey,
-                virtEdgeId, nodeId, prevNodeId, baseDistance, IntsRef.deepCopyOf(closestEdge.getFlags()), closestEdge.getName(), baseReversePoints, !reverse);
+        //VirtualEdgeIteratorState baseEdge = new VirtualEdgeIteratorState(origEdgeKey,
+        //        virtEdgeId, prevNodeId, nodeId, baseDistance, closestEdge.getFlags(), closestEdge.getName(), basePoints, reverse);
+        //VirtualEdgeIteratorState baseReverseEdge = new VirtualEdgeIteratorState(origRevEdgeKey,
+        //        virtEdgeId, nodeId, prevNodeId, baseDistance, IntsRef.deepCopyOf(closestEdge.getFlags()), closestEdge.getName(), baseReversePoints, !reverse);
         // ORG CODE END
         VirtualEdgeIteratorState baseEdge = new VirtualEdgeIteratorState(origEdgeKey,
                 virtEdgeId, closestEdge.getEdge(), prevNodeId, nodeId, baseDistance, closestEdge.getFlags(), closestEdge.getName(), basePoints, reverse);

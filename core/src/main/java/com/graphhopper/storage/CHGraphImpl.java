@@ -69,6 +69,7 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
     // shortcut memory layout is synced with edges indices until E_FLAGS, then:
     private int S_SKIP_EDGE1, S_SKIP_EDGE2, S_ORIG_FIRST, S_ORIG_LAST;
     private int shortcutCount = 0;
+    private boolean isReadyForContraction;
     // ORS-GH MOD START
     // CALT add member variables
     private int coreNodeCount = -1;
@@ -77,8 +78,8 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
 
     // ORS-GH MOD START
     // CALT add type parameter
-    //CHGraphImpl(Weighting w, Directory dir, final BaseGraph baseGraph, boolean edgeBased) {
-    CHGraphImpl(Weighting w, Directory dir, final BaseGraph baseGraph, boolean edgeBased, final String type) {
+    CHGraphImpl(Weighting w, Directory dir, final BaseGraph baseGraph, boolean edgeBased) {
+    //CHGraphImpl(Weighting w, Directory dir, final BaseGraph baseGraph, boolean edgeBased, final String type) {
     // ORS-GH MOD END
         if (w == null)
             throw new IllegalStateException("Weighting for CHGraph cannot be null");
@@ -404,8 +405,8 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
 
     // ORS-GH MOD START
     // CALT add method
-    public CHGraphImpl setShortcutsStorage(Weighting w, Directory dir, String suffix){
-        final String name = AbstractWeighting.weightingToFileName(w);
+    public CHGraphImpl setShortcutsStorage(Weighting w, Directory dir, String suffix, boolean edgeBased){
+        final String name = AbstractWeighting.weightingToFileName(w, edgeBased);
         this.shortcuts = dir.find("shortcuts_" + suffix + name);
         return this;
     }
