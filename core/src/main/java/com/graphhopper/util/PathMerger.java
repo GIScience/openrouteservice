@@ -19,6 +19,7 @@ package com.graphhopper.util;
 
 import com.graphhopper.PathWrapper;
 import com.graphhopper.routing.Path;
+import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
@@ -84,6 +85,18 @@ public class PathMerger {
         double fullDistance = 0;
         boolean allFound = true;
 
+        // ORS-GH MOD START
+        // Modification by Maxim Rylov
+        PathProcessor pathProcessor = null;
+        if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo){
+            TranslationMap.ORSTranslationHashMapWithExtendedInfo extraInfoFromTranslationMap = (TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr;
+            pathProcessor = extraInfoFromTranslationMap.getPathProcessor();
+            if (pathProcessor != null) {
+                pathProcessor.init(extraInfoFromTranslationMap.getEncoder());
+            }
+        }
+        // ORS-GH MOD END
+
         InstructionList fullInstructions = new InstructionList(tr);
         PointList fullPoints = PointList.EMPTY;
         List<String> description = new ArrayList<>();
@@ -131,7 +144,19 @@ public class PathMerger {
             allFound = allFound && path.isFound();
         }
 
+        // ORS-GH MOD START - Modification by Maxim Rylov
+        if (pathProcessor != null) {
+            pathProcessor.finish();
+        }
+        // ORS-GH MOD END
+
         if (!fullPoints.isEmpty()) {
+            // ORS-GH MOD START
+            if (pathProcessor != null){
+                fullPoints = pathProcessor.processPoints(fullPoints);
+            }
+            // ORS-GH MOD END
+
             String debug = altRsp.getDebugInfo() + ", simplify (" + origPoints + "->" + fullPoints.getSize() + ")";
             altRsp.addDebugInfo(debug);
             if (fullPoints.is3D)

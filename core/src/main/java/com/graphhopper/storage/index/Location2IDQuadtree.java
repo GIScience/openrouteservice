@@ -46,7 +46,9 @@ import java.util.Arrays;
  * implementation of LocationIndex.
  * <p>
  */
-class Location2IDQuadtree implements LocationIndex {
+// ORS-GH MOD - made class public, used for isochrones
+// class Location2IDQuadtree implements LocationIndex {
+public class Location2IDQuadtree implements LocationIndex {
     private final static int MAGIC_INT = Integer.MAX_VALUE / 12306;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final DataAccess index;

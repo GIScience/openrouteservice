@@ -71,12 +71,20 @@ import static com.graphhopper.util.Parameters.Algorithms.*;
 public class GraphHopper implements GraphHopperAPI {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final String fileLockName = "gh.lock";
-    private final Set<RoutingAlgorithmFactoryDecorator> algoDecorators = new LinkedHashSet<>();
+    // ORS-GH MOD START
+    // CALT
+    //private final Set<RoutingAlgorithmFactoryDecorator> algoDecorators = new LinkedHashSet<>();
+    protected final Set<RoutingAlgorithmFactoryDecorator> algoDecorators = new LinkedHashSet<>();
+    // ORS-GH MOD END
     // utils
     private final TranslationMap trMap = new TranslationMap().doImport();
     boolean removeZipped = true;
     // for graph:
-    private GraphHopperStorage ghStorage;
+    // ORS-GH MOD START
+    // CALT
+    // private GraphHopperStorage ghStorage;
+    protected GraphHopperStorage ghStorage;
+    // ORS-GH MOD END
     private EncodingManager encodingManager;
     private int defaultSegmentSize = -1;
     private String ghLocation = "";
@@ -90,7 +98,11 @@ public class GraphHopper implements GraphHopperAPI {
     // for routing
     private int maxRoundTripRetries = 3;
     private boolean simplifyResponse = true;
-    private TraversalMode traversalMode = TraversalMode.NODE_BASED;
+    // ORS-GH MOD START
+    // CALT
+    //private TraversalMode traversalMode = TraversalMode.NODE_BASED;
+    protected TraversalMode traversalMode = TraversalMode.NODE_BASED;
+    // ORS-GH MOD END
     private int maxVisitedNodes = Integer.MAX_VALUE;
 
     private int nonChMaxWaypointDistance = Integer.MAX_VALUE;
@@ -140,7 +152,11 @@ public class GraphHopper implements GraphHopperAPI {
     /**
      * @return the first flag encoder of the encoding manager
      */
-    FlagEncoder getDefaultVehicle() {
+    // ORS-GH MOD START
+    // CALT
+    //FlagEncoder getDefaultVehicle() {
+    protected FlagEncoder getDefaultVehicle() {
+    // ORS-GH MOD END
         if (encodingManager == null)
             throw new IllegalStateException("No encoding manager specified or loaded");
 
@@ -184,6 +200,16 @@ public class GraphHopper implements GraphHopperAPI {
         return dataReaderWorkerThreads;
     }
 
+    // ORS-GH MOD START
+    // CALT
+    public int getMaxRoundTripRetries() {
+        return maxRoundTripRetries;
+    }
+    public boolean isCalcPoints() {
+        return calcPoints;
+    }
+
+    // ORS-GH MOD END
     /**
      * Return maximum distance (in meter) to reduce points via douglas peucker while OSM import.
      */
@@ -357,6 +383,17 @@ public class GraphHopper implements GraphHopperAPI {
         return this;
     }
 
+    // ORS-GH MOD START
+    // CALT
+    public boolean isSimplifyResponse() {
+        return simplifyResponse;
+    }
+
+    public boolean isFullyLoaded() {
+        return fullyLoaded;
+    }
+    // ORS-GH MOD END
+
     /**
      * This methods enables gps point calculation. If disabled only distance will be calculated.
      */
@@ -369,7 +406,10 @@ public class GraphHopper implements GraphHopperAPI {
      * This method specifies if the returned path should be simplified or not, via douglas-peucker
      * or similar algorithm.
      */
-    private GraphHopper setSimplifyResponse(boolean doSimplify) {
+    //ORS-GH MOD START
+    //private GraphHopper setSimplifyResponse(boolean doSimplify) {
+    public GraphHopper setSimplifyResponse(boolean doSimplify) {
+    //ORS-GH MOD END
         this.simplifyResponse = doSimplify;
         return this;
     }
@@ -449,6 +489,13 @@ public class GraphHopper implements GraphHopperAPI {
         return this;
     }
 
+    // ORS-GH MOD START
+    // CALT
+    public ReadWriteLock getReadWriteLock() {
+        return readWriteLock;
+    }
+
+    // ORS-GH MOD END
     public boolean isAllowWrites() {
         return allowWrites;
     }
@@ -711,19 +758,30 @@ public class GraphHopper implements GraphHopperAPI {
             dataAccessType = DAType.MMAP_RO;
 
         GHDirectory dir = new GHDirectory(ghLocation, dataAccessType);
-        GraphExtension ext = encodingManager.needsTurnCostsSupport()
-                ? new TurnCostExtension() : new GraphExtension.NoOpExtension();
-
-        if (lmFactoryDecorator.isEnabled())
-            initLMAlgoFactoryDecorator();
-
-        if (chFactoryDecorator.isEnabled()) {
-            initCHAlgoFactoryDecorator();
-            ghStorage = new GraphHopperStorage(chFactoryDecorator.getNodeBasedWeightings(), chFactoryDecorator.getEdgeBasedWeightings(),
-                    dir, encodingManager, hasElevation(), ext);
-        } else {
-            ghStorage = new GraphHopperStorage(dir, encodingManager, hasElevation(), ext);
+        //ORS-GH MOD START
+        //GraphExtension ext = encodingManager.needsTurnCostsSupport()
+        //        ? new TurnCostExtension() : new GraphExtension.NoOpExtension();
+        if (graphStorageFactory != null) {
+            ghStorage = graphStorageFactory.createStorage(dir, this);
         }
+
+        if (ghStorage == null) {
+        //ORS-GH MOD END
+            GraphExtension ext = encodingManager.needsTurnCostsSupport()
+                    ? new TurnCostExtension() : new GraphExtension.NoOpExtension();
+            if (lmFactoryDecorator.isEnabled())
+                initLMAlgoFactoryDecorator();
+
+            if (chFactoryDecorator.isEnabled()) {
+                initCHAlgoFactoryDecorator();
+                ghStorage = new GraphHopperStorage(chFactoryDecorator.getNodeBasedWeightings(), chFactoryDecorator.getEdgeBasedWeightings(),
+                        dir, encodingManager, hasElevation(), ext);
+            } else {
+                ghStorage = new GraphHopperStorage(dir, encodingManager, hasElevation(), ext);
+            }
+        //ORS-GH MOD START
+        }
+        //ORS-GH MOD END
 
         ghStorage.setSegmentSize(defaultSegmentSize);
 
@@ -774,17 +832,26 @@ public class GraphHopper implements GraphHopperAPI {
         return chFactoryDecorator;
     }
 
-    private void initCHAlgoFactoryDecorator() {
+    // ORS-GH MOD START
+    //private void initCHAlgoFactoryDecorator() {
+    public void initCHAlgoFactoryDecorator() {
+    // ORS-GH MOD END
         if (!chFactoryDecorator.hasWeightings()) {
             for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
                 for (String chWeightingStr : chFactoryDecorator.getWeightingsAsStrings()) {
                     // ghStorage is null at this point
                     CHAlgoFactoryDecorator.EdgeBasedCHMode edgeBasedCHMode = chFactoryDecorator.getEdgeBasedCHMode();
                     if (!(edgeBasedCHMode == EDGE_OR_NODE && encoder.supports(TurnWeighting.class))) {
-                        chFactoryDecorator.addNodeBasedWeighting(createWeighting(new HintsMap(chWeightingStr), encoder, null));
+                        // ORS-GH MOD START
+                        //chFactoryDecorator.addNodeBasedWeighting(createWeighting(new HintsMap(chWeightingStr), encoder, null));
+                        chFactoryDecorator.addNodeBasedWeighting(createWeighting(new HintsMap(chWeightingStr), traversalMode, encoder, null));
+                        // ORS-GH MOD END
                     }
                     if (edgeBasedCHMode != OFF && encoder.supports(TurnWeighting.class)) {
-                        chFactoryDecorator.addEdgeBasedWeighting(createWeighting(new HintsMap(chWeightingStr), encoder, null));
+                        // ORS-GH MOD START
+                        //chFactoryDecorator.addEdgeBasedWeighting(createWeighting(new HintsMap(chWeightingStr), encoder, null));
+                        chFactoryDecorator.addEdgeBasedWeighting(createWeighting(new HintsMap(chWeightingStr), traversalMode, encoder, null));
+                        // ORS-GH MOD END
                     }
                 }
             }
@@ -795,13 +862,19 @@ public class GraphHopper implements GraphHopperAPI {
         return lmFactoryDecorator;
     }
 
-    private void initLMAlgoFactoryDecorator() {
+    // ORS-GH MOD START
+    //private void initLMAlgoFactoryDecorator() {
+    public void initLMAlgoFactoryDecorator() {
+    // ORS-GH MOD END
         if (lmFactoryDecorator.hasWeightings())
             return;
 
         for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
             for (String lmWeightingStr : lmFactoryDecorator.getWeightingsAsStrings()) {
-                Weighting weighting = createWeighting(new HintsMap(lmWeightingStr), encoder, null);
+                // ORS-GH MOD START
+                //Weighting weighting = createWeighting(new HintsMap(lmWeightingStr), encoder, null);
+                Weighting weighting = createWeighting(new HintsMap(lmWeightingStr), traversalMode, encoder, null);
+                // ORS-GH MOD END
                 lmFactoryDecorator.addWeighting(weighting);
             }
         }
@@ -872,7 +945,20 @@ public class GraphHopper implements GraphHopperAPI {
      * @return the weighting to be used for route calculation
      * @see HintsMap
      */
-    public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph graph) {
+    // ORS-GH MOD START
+    // Modification by Maxim Rylov: new method
+    public Weighting createWeighting(HintsMap hintsMap, TraversalMode tMode, FlagEncoder encoder, Graph graph) {
+        return createWeighting(hintsMap, tMode, encoder, graph, ghStorage);
+    }
+    // ORS-GH MOD END
+
+    // ORS-GH MOD START
+    //public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph graph) {
+    public Weighting createWeighting(HintsMap hintsMap, TraversalMode tMode, FlagEncoder encoder, Graph graph, GraphHopperStorage graphStorage) {
+        if (weightingFactory != null) {
+            return weightingFactory.createWeighting(hintsMap, tMode, encoder, graph, locationIndex, graphStorage);
+        }
+    // ORS-GH MOD END
         String weightingStr = toLowerCase(hintsMap.getWeighting());
         Weighting weighting = null;
 
@@ -910,9 +996,19 @@ public class GraphHopper implements GraphHopperAPI {
      * Potentially wraps the specified weighting into a TurnWeighting instance.
      */
     public Weighting createTurnWeighting(Graph graph, Weighting weighting, TraversalMode tMode) {
+        // ORS-GH MOD START
+        if (!(weighting instanceof TurnWeighting)) {
+        // ORS-GH MOD END
         FlagEncoder encoder = weighting.getFlagEncoder();
-        if (encoder.supports(TurnWeighting.class) && !tMode.equals(TraversalMode.NODE_BASED))
-            return new TurnWeighting(weighting, (TurnCostExtension) graph.getExtension());
+            if (encoder.supports(TurnWeighting.class) && !tMode.equals(TraversalMode.NODE_BASED)) {
+                // ORS-GH MOD START
+                //return new TurnWeighting(weighting, (TurnCostExtension) graph.getExtension());
+                return new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()));
+                // ORS-GH MOD END
+            }
+        // ORS-GH MOD START
+        }
+        // ORS-GH MOD END
         return weighting;
     }
 
@@ -985,7 +1081,12 @@ public class GraphHopper implements GraphHopperAPI {
             Translation tr = trMap.getWithFallBack(locale);
             for (int i = 0; i < maxRetries; i++) {
                 StopWatch sw = new StopWatch().start();
-                List<QueryResult> qResults = routingTemplate.lookup(points, encoder);
+
+                // ORS-GH MOD START
+                //List<QueryResult> qResults = routingTemplate.lookup(points, encoder);
+                List<QueryResult> qResults = routingTemplate.lookup(points, request.getMaxSearchDistances(), encoder);
+                // ORS-GH MOD END
+
                 ghRsp.addDebugInfo("idLookup:" + sw.stop().getSeconds() + "s");
                 if (ghRsp.hasErrors())
                     return Collections.emptyList();
@@ -1015,9 +1116,12 @@ public class GraphHopper implements GraphHopperAPI {
                     checkNonChMaxWaypointDistance(points);
                     queryGraph = new QueryGraph(ghStorage);
                     queryGraph.lookup(qResults);
-                    weighting = createWeighting(hints, encoder, queryGraph);
+                    // ORS-GH MOD START
+                    //weighting = createWeighting(hints, encoder, queryGraph);
+                    weighting = createWeighting(hints, tMode, encoder, queryGraph, ghStorage);
+                    // ORS-GH MOD END
+                    ghRsp.addDebugInfo("tmode:" + tMode.toString());
                 }
-                ghRsp.addDebugInfo("tmode:" + tMode.toString());
 
                 int maxVisitedNodesForRequest = hints.getInt(Routing.MAX_VISITED_NODES, maxVisitedNodes);
                 if (maxVisitedNodesForRequest > maxVisitedNodes)
@@ -1030,6 +1134,21 @@ public class GraphHopper implements GraphHopperAPI {
                         maxVisitedNodes(maxVisitedNodesForRequest).
                         hints(hints).
                         build();
+
+                // ORS-GH MOD START
+                // new code inserted
+                // ORS TODO START: EdgeFilter not available due to GH's new structure
+                //if (request.getEdgeFilter() != null) {
+                //    algoOpts.setEdgeFilter(request.getEdgeFilter());
+                //}
+                // ORS TODO END
+                // MARQ24: we "tunnel" all the additional object that we require for the additional storage
+                // processing inside the TranslationMap Object - simply cause in this case we do not have to
+                // alter so many original GH classes...
+                if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo){
+                    ((TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr).init(encoder, weighting, request.getPathProcessor());
+                }
+                // ORS-GH MOD END
 
                 // do the actual route calculation !
                 altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts);
@@ -1088,7 +1207,11 @@ public class GraphHopper implements GraphHopperAPI {
         return new ChangeGraphHelper(graph, locationIndex);
     }
 
-    private void checkIfPointsAreInBounds(List<GHPoint> points) {
+    // ORS-GH MOD START
+    // CALT
+    //private void checkIfPointsAreInBounds(List<GHPoint> points) {
+    protected void checkIfPointsAreInBounds(List<GHPoint> points) {
+    // ORS-GH MOD END
         BBox bounds = getGraphHopperStorage().getBounds();
         for (int i = 0; i < points.size(); i++) {
             GHPoint point = points.get(i);
@@ -1098,7 +1221,11 @@ public class GraphHopper implements GraphHopperAPI {
         }
     }
 
-    private void checkNonChMaxWaypointDistance(List<GHPoint> points) {
+    // ORS-GH MOD START
+    // CALT
+    //private void checkNonChMaxWaypointDistance(List<GHPoint> points) {
+    protected void checkNonChMaxWaypointDistance(List<GHPoint> points) {
+    // ORS-GH MOD END
         if (nonChMaxWaypointDistance == Integer.MAX_VALUE) {
             return;
         }
@@ -1243,4 +1370,19 @@ public class GraphHopper implements GraphHopperAPI {
         this.nonChMaxWaypointDistance = nonChMaxWaypointDistance;
     }
 
+    // ORS-GH MOD START
+    // Modification by Maxim Rylov: Added new class variables.
+    private WeightingFactory weightingFactory;
+    private GraphStorageFactory graphStorageFactory;
+
+    // Modification by Maxim Rylov: Added new method.
+    public void setWeightingFactory(WeightingFactory weightingFactory) {
+        this.weightingFactory = weightingFactory;
+    }
+
+    // Modification by Maxim Rylov: Added new method.
+    public void setGraphStorageFactory(GraphStorageFactory graphStorageFactory) {
+        this.graphStorageFactory = graphStorageFactory;
+    }
+    // ORS-GH MOD END
 }

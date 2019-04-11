@@ -22,6 +22,7 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.PathWrapper;
 import com.graphhopper.routing.*;
 import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.EdgeIteratorState;
@@ -57,11 +58,22 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
     }
 
     @Override
-    public List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder) {
+    // ORS-GH MOD START
+    //public List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder) {
+    public List<QueryResult> lookup(List<GHPoint> points, double[] radiuses, FlagEncoder encoder) {
+    // ORS-GH MOD END
         if (points.size() < 2)
             throw new IllegalArgumentException("At least 2 points have to be specified, but was:" + points.size());
 
-        EdgeFilter edgeFilter = DefaultEdgeFilter.allEdges(encoder);
+        // ORS-GH MOD START
+        // EdgeFilter edgeFilter = DefaultEdgeFilter.allEdges(encoder);
+        // Modification by Maxim Rylov: Added custom EdgeFilter
+        EdgeFilter edgeFilter = ghRequest.getEdgeFilter();
+        if (edgeFilter == null) {
+            edgeFilter = new DefaultEdgeFilter(encoder);
+        }
+        // ORS-GH MOD END
+
         queryResults = new ArrayList<>(points.size());
         for (int placeIndex = 0; placeIndex < points.size(); placeIndex++) {
             GHPoint point = points.get(placeIndex);
@@ -72,6 +84,12 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
                 qr = locationIndex.findClosest(point.lat, point.lon, edgeFilter);
             if (!qr.isValid())
                 ghResponse.addError(new PointNotFoundException("Cannot find point " + placeIndex + ": " + point, placeIndex));
+
+            // ORS-GH MOD START
+            if ((radiuses != null) && (qr.getQueryDistance() > radiuses[placeIndex]) && (radiuses[placeIndex] != -1.0)) {
+                ghResponse.addError(new PointNotFoundException("Cannot find point " + placeIndex + ": " + point + " within a radius of " + radiuses[placeIndex] + " meters.", placeIndex));
+            }
+            // ORS-GH MOD END
 
             queryResults.add(qr);
         }

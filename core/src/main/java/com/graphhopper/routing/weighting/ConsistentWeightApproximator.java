@@ -42,6 +42,13 @@ public class ConsistentWeightApproximator {
         return uniDirApproximatorForward;
     }
 
+    // ORS-GH MOD START
+    // CALT
+    public WeightApproximator getReverseApproximation() {
+        return uniDirApproximatorReverse;
+    }
+    // ORS-GH MOD END
+
     public void setFrom(int from) {
         uniDirApproximatorReverse.setTo(from);
     }

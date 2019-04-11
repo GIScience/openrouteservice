@@ -255,6 +255,15 @@ public class Path {
     private void forEveryEdge(EdgeVisitor visitor) {
         int tmpNode = getFromNode();
         int len = edgeIds.size();
+        // ORS-GH MOD START
+        // MARQ24 ONLY required to let the InstructionsFromEdges know, WHEN the last
+        // edge will be processed, so that 'isLastEdge' could be passed to the
+        // ORS-PathProcessor
+        if(visitor instanceof InstructionsFromEdges){
+            ((InstructionsFromEdges) visitor).setTotalEdges(len);
+        }
+        // ORS-GH MOD END
+
         int prevEdgeId = EdgeIterator.NO_EDGE;
         for (int i = 0; i < len; i++) {
             EdgeIteratorState edgeBase = graph.getEdgeIteratorState(edgeIds.get(i), tmpNode);

@@ -93,7 +93,12 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         for (Weighting w : edgeBasedCHWeightings) {
             edgeBasedCHGraphs.add(new CHGraphImpl(w, dir, this.baseGraph, true));
         }
+
+    // ORS-GH MOD START - just add a singleMethod
+    public int getEdges() {
+        return baseGraph.edgeCount;
     }
+    // ORS-GH MOD END
 
     /**
      * This method returns the routing graph for the specified weighting, could be potentially

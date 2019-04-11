@@ -79,6 +79,11 @@ public class AlternativeRoute implements RoutingAlgorithm {
     private int maxPaths = 2;
     private WeightApproximator weightApproximator;
 
+    // ORS-GH MOD START
+    // Modification by Takara Baumbach: Set custom EdgeFilter for Alternative Routing
+    private EdgeFilter additionalEdgeFilter;
+    // ORS-GH MOD END
+
     public AlternativeRoute(Graph graph, Weighting weighting, TraversalMode traversalMode) {
         this.graph = graph;
         this.weighting = weighting;
@@ -172,6 +177,12 @@ public class AlternativeRoute implements RoutingAlgorithm {
         if (weightApproximator != null) {
             altBidirDijktra.setApproximation(weightApproximator);
         }
+        // ORS-GH MOD START
+        // Modification by Takara Baumabch: Set custom EdgeFilter for Alternative Routing
+        if (additionalEdgeFilter != null) {
+            altBidirDijktra.setEdgeFilter(additionalEdgeFilter);
+        }
+        // ORS-GH MOD END
 
         altBidirDijktra.searchBest(from, to);
         visitedNodes = altBidirDijktra.getVisitedNodes();
@@ -205,6 +216,13 @@ public class AlternativeRoute implements RoutingAlgorithm {
     public int getVisitedNodes() {
         return visitedNodes;
     }
+
+    // ORS-GH MOD START
+    // new method
+    public void setEdgeFilter(EdgeFilter additionalEdgeFilter) {
+        this.additionalEdgeFilter = additionalEdgeFilter;
+    }
+    // ORS-GH MOD END
 
     public static class AlternativeInfo {
         private final double sortBy;

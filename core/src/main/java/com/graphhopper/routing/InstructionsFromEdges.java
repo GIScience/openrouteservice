@@ -21,6 +21,7 @@ import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.IntsRef;
@@ -81,6 +82,15 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
     private InstructionAnnotation prevAnnotation;
 
     private final int MAX_U_TURN_DISTANCE = 35;
+    // ORS-GH MOD START
+    private final PathProcessor mPathProcessor;
+    private int mTotalEdgeCount = 0;
+
+    void setTotalEdges(int len){
+        mTotalEdgeCount = len;
+    }
+    // ORS-GH MOD END
+
 
     public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder,
                                  BooleanEncodedValue roundaboutEnc, NodeAccess nodeAccess,
@@ -99,6 +109,14 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         prevName = null;
         outEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(encoder));
         crossingExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.allEdges(encoder));
+
+        // ORS-GH MOD START
+        if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo) {
+            mPathProcessor = ((TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr).getPathProcessor();
+        }else{
+            mPathProcessor = null;
+        }
+        // ORS-GH MOD END
     }
 
 
@@ -290,6 +308,14 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         prevLat = adjLat;
         prevLon = adjLon;
         prevEdge = edge;
+
+        // ORS-GH MOD START
+        // Modification by Maxim Rylov
+        boolean isLastEdge = index == mTotalEdgeCount - 1;
+        if(mPathProcessor != null){
+            mPathProcessor.processEdge(edge, isLastEdge, wayGeo);
+        }
+        // ORS-GH MOD END
     }
 
     @Override

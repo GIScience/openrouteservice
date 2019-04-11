@@ -49,7 +49,11 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
     private static final int MAX_WEIGHT_31 = (Integer.MAX_VALUE >> 2) << 2;
     private static final double MAX_WEIGHT = (Integer.MAX_VALUE >> 2) / WEIGHT_FACTOR;
     private static final double MIN_WEIGHT = 1 / WEIGHT_FACTOR;
-    final DataAccess shortcuts;
+    // ORS-GH MOD START
+    // CALT
+    //final DataAccess shortcuts;
+    DataAccess shortcuts;
+    // ORS-GH MOD END
     final DataAccess nodesCH;
     final int scDirMask = PrepareEncoder.getScDirMask();
     private final boolean edgeBased;
@@ -65,9 +69,17 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
     // shortcut memory layout is synced with edges indices until E_FLAGS, then:
     private int S_SKIP_EDGE1, S_SKIP_EDGE2, S_ORIG_FIRST, S_ORIG_LAST;
     private int shortcutCount = 0;
-    private boolean isReadyForContraction;
+    // ORS-GH MOD START
+    // CALT add member variables
+    private int coreNodeCount = -1;
+    private String type;
+    // ORS-GH MOD END
 
-    CHGraphImpl(Weighting w, Directory dir, final BaseGraph baseGraph, boolean edgeBased) {
+    // ORS-GH MOD START
+    // CALT add type parameter
+    //CHGraphImpl(Weighting w, Directory dir, final BaseGraph baseGraph, boolean edgeBased) {
+    CHGraphImpl(Weighting w, Directory dir, final BaseGraph baseGraph, boolean edgeBased, final String type) {
+    // ORS-GH MOD END
         if (w == null)
             throw new IllegalStateException("Weighting for CHGraph cannot be null");
 
@@ -75,8 +87,14 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
         this.baseGraph = baseGraph;
         final String name = AbstractWeighting.weightingToFileName(w, edgeBased);
         this.edgeBased = edgeBased;
-        this.nodesCH = dir.find("nodes_ch_" + name, DAType.getPreferredInt(dir.getDefaultType()));
-        this.shortcuts = dir.find("shortcuts_" + name, DAType.getPreferredInt(dir.getDefaultType()));
+        // ORS-GH MOD START
+        // CALT include type in directory location
+        //this.nodesCH = dir.find("nodes_ch_" + name, DAType.getPreferredInt(dir.getDefaultType()));
+        //this.shortcuts = dir.find("shortcuts_" + name, DAType.getPreferredInt(dir.getDefaultType()));
+        this.nodesCH = dir.find("nodes_" + type + "_" + name, DAType.getPreferredInt(dir.getDefaultType()));
+        this.shortcuts = dir.find("shortcuts_" + type + "_" + name, DAType.getPreferredInt(dir.getDefaultType()));
+        this.type = type;
+        // ORS-GH MOD END
         this.chEdgeAccess = new CHEdgeAccess(name);
     }
 
@@ -204,6 +222,22 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
         return (CHEdgeIteratorState) chEdgeAccess.getEdgeProps(edgeId, endNode);
     }
 
+    // ORS-GH MOD START
+    // CALT add methods
+    public int getCoreNodes() {
+        return coreNodeCount;
+    }
+    public void setCoreNodes(int coreNodeCount) {
+        this.coreNodeCount = coreNodeCount;
+    }
+    public String getType() {
+        return type;
+    }
+    public void setType(String type) {
+        this.type = type;
+    }
+    // ORS-GH MOD END
+
     @Override
     public int getNodes() {
         return baseGraph.getNodes();
@@ -303,12 +337,20 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
     protected int loadEdgesHeader() {
         shortcutCount = shortcuts.getHeader(0 * 4);
         shortcutEntryBytes = shortcuts.getHeader(1 * 4);
+        // ORS-GH MOD START
+        // CALT
+        coreNodeCount = shortcuts.getHeader(2 * 4);
+        // ORS-GH MOD END
         return 3;
     }
 
     protected int setEdgesHeader() {
         shortcuts.setHeader(0 * 4, shortcutCount);
         shortcuts.setHeader(1 * 4, shortcutEntryBytes);
+        // ORS-GH MOD START
+        // CALT
+        shortcuts.setHeader(2 * 4, coreNodeCount);
+        // ORS-GH MOD END
         return 3;
     }
 
@@ -360,6 +402,15 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
         shortcuts.setSegmentSize(bytes);
     }
 
+    // ORS-GH MOD START
+    // CALT add method
+    public CHGraphImpl setShortcutsStorage(Weighting w, Directory dir, String suffix){
+        final String name = AbstractWeighting.weightingToFileName(w);
+        this.shortcuts = dir.find("shortcuts_" + suffix + name);
+        return this;
+    }
+
+    // ORS-GH MOD END
     @Override
     public CHGraph create(long bytes) {
         nodesCH.create(bytes);

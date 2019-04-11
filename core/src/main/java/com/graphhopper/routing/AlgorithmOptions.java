@@ -17,6 +17,7 @@
  */
 package com.graphhopper.routing;
 
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.PMap;
@@ -40,6 +41,21 @@ public class AlgorithmOptions {
     private Weighting weighting;
     private TraversalMode traversalMode = TraversalMode.NODE_BASED;
     private int maxVisitedNodes = Integer.MAX_VALUE;
+
+    // ORS-GH MOD START
+    // Modification by Maxim Rylov: Added additional class variables
+    private EdgeFilter edgeFilter;
+
+    // Modification by Maxim Rylov: Added getEdgeFilter method.
+    public EdgeFilter getEdgeFilter() {
+        return edgeFilter;
+    }
+
+    // Modification by Maxim Rylov: Added setEdgeFilter method.
+    public void setEdgeFilter(EdgeFilter edgeFilter) {
+        this.edgeFilter = edgeFilter;
+    }
+    // ORS-GH MOD END
 
     private AlgorithmOptions() {
     }
