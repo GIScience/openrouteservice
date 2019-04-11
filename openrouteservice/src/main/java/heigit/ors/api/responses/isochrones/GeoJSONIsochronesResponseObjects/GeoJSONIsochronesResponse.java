@@ -68,7 +68,7 @@ public class GeoJSONIsochronesResponse extends IsochronesResponse {
         List<BBox> bboxes = new ArrayList<>();
         for (IsochroneMap isochroneMap : isoMaps.getIsochroneMaps()) {
             Envelope isochroneMapEnvelope = isochroneMap.getEnvelope();
-            BBox isochroneMapBBox = new BBox(isochroneMapEnvelope.getMaxX(), isochroneMapEnvelope.getMaxY(), isochroneMapEnvelope.getMinX(), isochroneMapEnvelope.getMinY());
+            BBox isochroneMapBBox = new BBox(isochroneMapEnvelope.getMinX(), isochroneMapEnvelope.getMaxX(), isochroneMapEnvelope.getMinY(), isochroneMapEnvelope.getMaxY());
             bboxes.add(isochroneMapBBox);
         }
         BBox bounding = GeomUtility.generateBoundingFromMultiple(bboxes.toArray(new BBox[0]));
