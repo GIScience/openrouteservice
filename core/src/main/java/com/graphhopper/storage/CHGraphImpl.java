@@ -73,11 +73,12 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
     // ORS-GH MOD START
     // CALT add member variables
     private int coreNodeCount = -1;
-    private String type;
+    private String type;  // Either "ch" or "core"
     // ORS-GH MOD END
 
     // ORS-GH MOD START
     // CALT add type parameter
+    // ORS TODO: temporarily changed back to make it compile
     CHGraphImpl(Weighting w, Directory dir, final BaseGraph baseGraph, boolean edgeBased) {
     //CHGraphImpl(Weighting w, Directory dir, final BaseGraph baseGraph, boolean edgeBased, final String type) {
     // ORS-GH MOD END
