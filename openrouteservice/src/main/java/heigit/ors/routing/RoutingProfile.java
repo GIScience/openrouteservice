@@ -39,12 +39,6 @@ import heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
 import heigit.ors.matrix.*;
 import heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
-import heigit.ors.optimization.OptimizationErrorCodes;
-import heigit.ors.optimization.RouteOptimizationRequest;
-import heigit.ors.optimization.RouteOptimizationResult;
-import heigit.ors.optimization.solvers.OptimizationProblemSolver;
-import heigit.ors.optimization.solvers.OptimizationProblemSolverFactory;
-import heigit.ors.optimization.solvers.OptimizationSolution;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.graphhopper.extensions.*;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.*;
@@ -54,7 +48,6 @@ import heigit.ors.routing.traffic.RealTrafficDataProvider;
 import heigit.ors.routing.traffic.TrafficEdgeAnnotator;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.services.matrix.MatrixServiceSettings;
-import heigit.ors.services.optimization.OptimizationServiceSettings;
 import heigit.ors.util.DebugUtility;
 import heigit.ors.util.RuntimeUtility;
 import heigit.ors.util.StringUtility;
@@ -508,45 +501,6 @@ public class RoutingProfile {
         }
 
         return mtxResult;
-    }
-
-    public RouteOptimizationResult computeOptimizedRoutes(RouteOptimizationRequest req) throws Exception {
-        RouteOptimizationResult optResult = null;
-
-        MatrixResult mtxResult = null;
-
-        try {
-            MatrixRequest mtxReq = req.createMatrixRequest();
-            mtxResult = computeMatrix(mtxReq);
-        } catch (Exception ex) {
-            LOGGER.error(ex);
-            throw new InternalServerException(OptimizationErrorCodes.UNKNOWN, "Unable to compute an optimized route.");
-        }
-
-        OptimizationProblemSolver solver = OptimizationProblemSolverFactory.createSolver(OptimizationServiceSettings.getSolverName(), OptimizationServiceSettings.getSolverOptions());
-
-        if (solver == null)
-            throw new Exception("Unable to create an algorithm to distance/duration matrix.");
-
-        OptimizationSolution solution = null;
-
-        try {
-            float[] costs = mtxResult.getTable(req.getMetric());
-            costs[0] = 0; // TODO
-
-            solution = solver.solve();
-        } catch (Exception ex) {
-            LOGGER.error(ex);
-
-            throw new InternalServerException(OptimizationErrorCodes.UNKNOWN, "Optimization problem solver threw an exception.");
-        }
-
-        if (!solution.isValid())
-            throw new InternalServerException(OptimizationErrorCodes.UNKNOWN, "Optimization problem solver was unable to find an appropriate solution.");
-
-        optResult = new RouteOptimizationResult();
-
-        return optResult;
     }
 
     private RouteSearchContext createSearchContext(RouteSearchParameters searchParams, RouteSearchMode mode, EdgeFilter customEdgeFilter) throws Exception {
