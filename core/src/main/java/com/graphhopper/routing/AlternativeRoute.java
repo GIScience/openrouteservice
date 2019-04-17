@@ -81,7 +81,6 @@ public class AlternativeRoute implements RoutingAlgorithm {
     private WeightApproximator weightApproximator;
 
     // ORS-GH MOD START
-    // Modification by Takara Baumbach: Set custom EdgeFilter for Alternative Routing
     private EdgeFilter additionalEdgeFilter;
     // ORS-GH MOD END
 
@@ -179,10 +178,7 @@ public class AlternativeRoute implements RoutingAlgorithm {
             altBidirDijktra.setApproximation(weightApproximator);
         }
         // ORS-GH MOD START
-        // Modification by Takara Baumabch: Set custom EdgeFilter for Alternative Routing
-        if (additionalEdgeFilter != null) {
-            altBidirDijktra.setEdgeFilter(additionalEdgeFilter);
-        }
+        altBidirDijktra.setEdgeFilter(additionalEdgeFilter);
         // ORS-GH MOD END
 
         altBidirDijktra.searchBest(from, to);

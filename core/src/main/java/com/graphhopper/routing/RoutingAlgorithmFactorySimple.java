@@ -17,6 +17,7 @@
  */
 package com.graphhopper.routing;
 
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.weighting.BeelineWeightApproximator;
 import com.graphhopper.routing.weighting.WeightApproximator;
 import com.graphhopper.storage.Graph;
@@ -72,13 +73,10 @@ public class RoutingAlgorithmFactorySimple implements RoutingAlgorithmFactory {
         ra.setMaxVisitedNodes(opts.getMaxVisitedNodes());
 
         // ORS-GH MOD START
-        // Modification by Maxim Rylov: Set custom EdgeFilter.
-        if (ra instanceof AbstractRoutingAlgorithm && opts.getEdgeFilter() != null) {
-            AbstractRoutingAlgorithm ara = (AbstractRoutingAlgorithm) ra;
-            ara.setEdgeFilter(opts.getEdgeFilter());
+        if (ra instanceof AbstractRoutingAlgorithm) {
+            ((AbstractRoutingAlgorithm)ra).setEdgeFilter(opts.getEdgeFilter());
         }
-        // Modification by Takara Baumabch: Set custom EdgeFilter for Alternative Routing
-        if (ra instanceof AlternativeRoute && opts.getEdgeFilter() != null) {
+        if (ra instanceof AlternativeRoute) {
             ((AlternativeRoute)ra).setEdgeFilter(opts.getEdgeFilter());
         }
         // ORS-GH MOD END

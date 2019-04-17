@@ -130,6 +130,10 @@ public class GraphHopper implements GraphHopperAPI {
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private PathDetailsBuilderFactory pathBuilderFactory = new PathDetailsBuilderFactory();
 
+    // ORS-GH MOD START
+    private EdgeFilterFactory edgeFilterFactory = EdgeFilterFactory.DEFAULT;
+    // ORS-GH MOD END
+
     public GraphHopper() {
         chFactoryDecorator.setEnabled(true);
         lmFactoryDecorator.setEnabled(false);
@@ -148,6 +152,12 @@ public class GraphHopper implements GraphHopperAPI {
         initLocationIndex();
         return this;
     }
+
+    // ORS-GH MOD START
+    public void setEdgeFilterFactory(EdgeFilterFactory newFactory) {
+        this.edgeFilterFactory = newFactory;
+    }
+    // ORS-GH MOD END
 
     /**
      * @return the first flag encoder of the encoding manager
@@ -1136,12 +1146,9 @@ public class GraphHopper implements GraphHopperAPI {
                         build();
 
                 // ORS-GH MOD START
-                // new code inserted
-                // ORS TODO START: EdgeFilter not available due to GH's new structure
-                //if (request.getEdgeFilter() != null) {
-                //    algoOpts.setEdgeFilter(request.getEdgeFilter());
-                //}
-                // ORS TODO END
+                algoOpts.setEdgeFilter(edgeFilterFactory.createEdgeFilter(algoOpts));
+                // ORS MOD END
+                
                 // MARQ24: we "tunnel" all the additional object that we require for the additional storage
                 // processing inside the TranslationMap Object - simply cause in this case we do not have to
                 // alter so many original GH classes...
