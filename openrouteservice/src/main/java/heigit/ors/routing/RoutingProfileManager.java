@@ -280,56 +280,56 @@ public class RoutingProfileManager {
         return _profileUpdater == null ? null : _profileUpdater.getStatus();
     }
 
-    public List<RouteResult> computeRoutes(RoutingRequest req, boolean invertFlow, boolean oneToMany) throws Exception {
-        if (req.getCoordinates().length <= 1)
-            throw new Exception("Number of coordinates must be greater than 1.");
-
-        List<RouteResult> routes = new ArrayList<RouteResult>(req.getCoordinates().length - 1);
-
-        RoutingProfile rp = getRouteProfile(req, true);
-        RouteSearchParameters searchParams = req.getSearchParameters();
-        PathProcessor pathProcessor = null;
-
-        if (req.getExtraInfo() > 0) {
-            pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req);
-        } else {
-            if (req.getIncludeElevation())
-                pathProcessor = new ElevationSmoothPathProcessor();
-        }
-
-        Coordinate[] coords = req.getCoordinates();
-        Coordinate c0 = coords[0];
-        int nSegments = coords.length - 1;
-        RouteProcessContext routeProcCntx = new RouteProcessContext(pathProcessor);
-        EdgeFilter customEdgeFilter = rp.createAccessRestrictionFilter(coords);
-        List<GHResponse> resp = new ArrayList<GHResponse>();
-
-        for (int i = 1; i <= nSegments; ++i) {
-            if (pathProcessor != null)
-                pathProcessor.setSegmentIndex(i - 1, nSegments);
-
-            Coordinate c1 = coords[i];
-            GHResponse gr = null;
-            if (invertFlow)
-                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, null, null, false, searchParams, customEdgeFilter, routeProcCntx, req.getGeometrySimplify());
-            else
-                gr = rp.computeRoute(c1.y, c1.x, c0.y, c0.x, null, null, false, searchParams, customEdgeFilter, routeProcCntx, req.getGeometrySimplify());
-
-            //if (gr.hasErrors())
-            //	throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
-
-            if (!gr.hasErrors()) {
-                resp.clear();
-                resp.add(gr);
-                RouteResult route = new RouteResultBuilder().createMergedRouteResultFromBestPaths(resp, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor) pathProcessor).getExtras() : null);
-                routes.add(route);
-            } else
-                routes.add(null);
-        }
-
-        return routes;
-    }
-
+//    public List<RouteResult> computeRoutes(RoutingRequest req, boolean invertFlow, boolean oneToMany) throws Exception {
+//        if (req.getCoordinates().length <= 1)
+//            throw new Exception("Number of coordinates must be greater than 1.");
+//
+//        List<RouteResult> routes = new ArrayList<RouteResult>(req.getCoordinates().length - 1);
+//
+//        RoutingProfile rp = getRouteProfile(req, true);
+//        RouteSearchParameters searchParams = req.getSearchParameters();
+//        PathProcessor pathProcessor = null;
+//
+//        if (req.getExtraInfo() > 0) {
+//            pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req);
+//        } else {
+//            if (req.getIncludeElevation())
+//                pathProcessor = new ElevationSmoothPathProcessor();
+//        }
+//
+//        Coordinate[] coords = req.getCoordinates();
+//        Coordinate c0 = coords[0];
+//        int nSegments = coords.length - 1;
+//        RouteProcessContext routeProcCntx = new RouteProcessContext(pathProcessor);
+//        EdgeFilter customEdgeFilter = rp.createAccessRestrictionFilter(coords);
+//        List<GHResponse> resp = new ArrayList<GHResponse>();
+//
+//        for (int i = 1; i <= nSegments; ++i) {
+//            if (pathProcessor != null)
+//                pathProcessor.setSegmentIndex(i - 1, nSegments);
+//
+//            Coordinate c1 = coords[i];
+//            GHResponse gr = null;
+//            if (invertFlow)
+//                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, null, null, false, searchParams, customEdgeFilter, routeProcCntx, req.getGeometrySimplify());
+//            else
+//                gr = rp.computeRoute(c1.y, c1.x, c0.y, c0.x, null, null, false, searchParams, customEdgeFilter, routeProcCntx, req.getGeometrySimplify());
+//
+//            //if (gr.hasErrors())
+//            //	throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
+//
+//            if (!gr.hasErrors()) {
+//                resp.clear();
+//                resp.add(gr);
+//                RouteResult route = new RouteResultBuilder().createMergedRouteResultFromBestPaths(resp, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor) pathProcessor).getExtras() : null);
+//                routes.add(route);
+//            } else
+//                routes.add(null);
+//        }
+//
+//        return routes;
+//    }
+//
     public RouteResult matchTrack(MapMatchingRequest req) throws Exception {
         //RoutingProfile rp = getRouteProfile(req, false);
 
@@ -351,7 +351,6 @@ public class RoutingProfileManager {
         Coordinate c1;
         int nSegments = coords.length - 1;
         RouteProcessContext routeProcCntx = new RouteProcessContext(pathProcessor);
-        EdgeFilter customEdgeFilter = rp.createAccessRestrictionFilter(coords);
         GHResponse prevResp = null;
         WayPointBearing[] bearings = (req.getContinueStraight() || searchParams.getBearings() != null) ? new WayPointBearing[2] : null;
         int profileType = req.getSearchParameters().getProfileType();
@@ -397,9 +396,9 @@ public class RoutingProfileManager {
 
             GHResponse gr;
             if ((skipSegments.contains(i))) {
-                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, true, searchParams, customEdgeFilter, routeProcCntx, req.getGeometrySimplify());
+                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, true, searchParams, routeProcCntx, req.getGeometrySimplify());
             } else {
-                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, false, searchParams, customEdgeFilter, routeProcCntx, req.getGeometrySimplify());
+                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, false, searchParams, routeProcCntx, req.getGeometrySimplify());
             }
 
             if (gr.hasErrors()) {

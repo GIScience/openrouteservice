@@ -489,7 +489,7 @@ public class RoutingProfile {
             else
                 graph = gh.getGraphHopperStorage().getBaseGraph();
 
-            MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), req.getResolveLocations());
+            MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), DefaultEdgeFilter.allEdges(flagEncoder), req.getResolveLocations());
             MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 
             HintsMap hintsMap = new HintsMap();
@@ -548,7 +548,7 @@ public class RoutingProfile {
         return optResult;
     }
 
-    private RouteSearchContext createSearchContext(RouteSearchParameters searchParams, RouteSearchMode mode, EdgeFilter customEdgeFilter) throws Exception {
+    private RouteSearchContext createSearchContext(RouteSearchParameters searchParams) throws Exception {
         PMap props = new PMap();
 
         int profileType = searchParams.getProfileType();
@@ -557,7 +557,7 @@ public class RoutingProfile {
         if ("UNKNOWN".equals(encoderName))
             throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "unknown vehicle profile.");
 
-        if (!mGraphHopper.getEncodingManager().supports(encoderName)) {
+        if (!mGraphHopper.getEncodingManager().hasEncoder(encoderName)) {
             throw new IllegalArgumentException("Vehicle " + encoderName + " unsupported. " + "Supported are: "
                     + mGraphHopper.getEncodingManager());
         }
@@ -572,7 +572,7 @@ public class RoutingProfile {
 
         /* Default edge filter which accepts both directions of the specified vehicle */
 
-        edgeFilters.add(new DefaultEdgeFilter(flagEncoder));
+        edgeFilters.add(DefaultEdgeFilter.allEdges(flagEncoder));
 
         /* Avoid areas */
 
@@ -691,7 +691,7 @@ public class RoutingProfile {
         return totalDistance <= maxDistance && wayPoints <= maxWayPoints;
     }
 
-    public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings, double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, EdgeFilter customEdgeFilter, RouteProcessContext routeProcCntx, Boolean geometrySimplify)
+    public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings, double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, RouteProcessContext routeProcCntx, Boolean geometrySimplify)
             throws Exception {
 
         GHResponse resp = null;
@@ -703,7 +703,7 @@ public class RoutingProfile {
         try {
             int profileType = searchParams.getProfileType();
             int weightingMethod = searchParams.getWeightingMethod();
-            RouteSearchContext searchCntx = createSearchContext(searchParams, RouteSearchMode.Routing, customEdgeFilter);
+            RouteSearchContext searchCntx = createSearchContext(searchParams);
 
             boolean flexibleMode = searchParams.getFlexibleMode();
             boolean optimized = searchParams.getOptimized();
@@ -756,8 +756,8 @@ public class RoutingProfile {
                 flexibleMode = true;
             }
 
-            req.setEdgeFilter(searchCntx.getEdgeFilter());
-            req.setPathProcessor(routeProcCntx.getPathProcessor());
+//            req.setEdgeFilter(searchCntx.getEdgeFilter());
+//            req.setPathProcessor(routeProcCntx.getPathProcessor());
 
             if (searchParams.requiresDynamicWeights() || flexibleMode) {
                 if (mGraphHopper.isCHEnabled())
@@ -851,7 +851,7 @@ public class RoutingProfile {
         beginUseGH();
 
         try {
-            RouteSearchContext searchCntx = createSearchContext(parameters.getRouteParameters(), RouteSearchMode.Isochrones, null);
+            RouteSearchContext searchCntx = createSearchContext(parameters.getRouteParameters());
 
             IsochroneMapBuilderFactory isochroneMapBuilderFactory = new IsochroneMapBuilderFactory(searchCntx);
             result = isochroneMapBuilderFactory.buildMap(parameters);
@@ -950,10 +950,6 @@ public class RoutingProfile {
             }
             return new GeometryFactory().createLineString(coords);
         }
-        return null;
-    }
-
-    public EdgeFilter createAccessRestrictionFilter(Coordinate[] wayPoints) {
         return null;
     }
 
