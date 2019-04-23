@@ -19,6 +19,9 @@ public interface FlagEncoderNames {
     public static final String MTB_ORS          = "mtb-ors";
     public static final String BIKE_ELECTRO     = "electrobike";
 
+    public static final String PEDESTRIAN_ORS   = "pedestrian-ors";
+    public static final String HIKING_ORS       = "hiking-ors";
+
 
     public static final String GH_CAR           = "car";
     public static final String GH_CAR4WD        = "car4wd";
