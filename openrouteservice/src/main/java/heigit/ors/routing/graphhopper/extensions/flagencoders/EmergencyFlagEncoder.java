@@ -22,7 +22,7 @@ import com.graphhopper.util.PMap;
 
 import java.util.*;
 
-public class EmergencyFlagEncoder extends ORSAbstractFlagEncoder
+public class EmergencyFlagEncoder extends VehicleFlagEncoder
 {
     protected final HashSet<String> forwardKeys = new HashSet<String>(5);
     protected final HashSet<String> backwardKeys = new HashSet<String>(5);

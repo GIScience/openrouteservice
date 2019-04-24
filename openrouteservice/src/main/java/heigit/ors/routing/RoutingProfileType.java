@@ -260,10 +260,10 @@ public class RoutingProfileType {
 
 
             case RoutingProfileType.FOOT_WALKING:
-                return FlagEncoderNames.GH_FOOT;
+                return FlagEncoderNames.PEDESTRIAN_ORS;
 
             case RoutingProfileType.FOOT_HIKING:
-                return FlagEncoderNames.GH_HIKE;
+                return FlagEncoderNames.HIKING_ORS;
 
 
             case RoutingProfileType.WHEELCHAIR:

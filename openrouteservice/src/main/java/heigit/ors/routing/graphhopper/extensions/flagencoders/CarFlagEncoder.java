@@ -35,7 +35,7 @@ import java.util.Map;
  * @author Peter Karich
  * @author Nop
  */
-public class CarFlagEncoder extends ORSAbstractFlagEncoder {
+public class CarFlagEncoder extends VehicleFlagEncoder {
 
     private static Logger LOGGER = Logger.getLogger(CarFlagEncoder.class);
 
