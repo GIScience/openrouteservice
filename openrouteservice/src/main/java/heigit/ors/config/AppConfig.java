@@ -16,7 +16,6 @@ package heigit.ors.config;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +28,6 @@ import com.typesafe.config.ConfigValue;
 
 import org.apache.log4j.Logger;
 
-import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.util.StringUtility;
 import heigit.ors.util.FileUtility;
 import org.springframework.core.io.ClassPathResource;
@@ -48,20 +46,19 @@ public class AppConfig {
 	}
 	
 	public AppConfig()	{
-    	URL url = RoutingProfileManager.class.getClassLoader().getResource("../app.config");
+		File file;
+
 		String appConfigName = "app.config";
 		if(System.getenv("ORS_APP_CONFIG") != null)
 			appConfigName = System.getenv("ORS_APP_CONFIG");
     	try {
 
     		ClassPathResource rs = new ClassPathResource(appConfigName);
-    		url = rs.getURL();
+			file = rs.getFile();
+			_config = ConfigFactory.parseFile(file);
 		} catch (IOException ioe) {
     		LOGGER.error(ioe);
 		}
-    	
-    	File file = new File(url.getPath());
-		_config = ConfigFactory.parseFile(file);
 
 		//Modification by H Leuschner: Save md5 hash of map file in static String for access with every request
 		File graphsDir = new File(getServiceParameter("routing.profiles.default_params", "graphs_root_path"));
