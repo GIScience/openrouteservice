@@ -14,8 +14,6 @@
 package heigit.ors.localization;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
@@ -30,6 +28,9 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 import heigit.ors.util.StringUtility;
+
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 public class LocalizationManager {
 	protected static Logger LOGGER = LoggerFactory.getLogger(LocalizationManager.class);
@@ -59,20 +60,19 @@ public class LocalizationManager {
 
 	private void loadLocalizations() throws Exception
 	{
-		File classFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getFile());
-		String classPath = classFile.getAbsolutePath();
-		String classesPath = classPath.substring(0, classPath.indexOf("classes") + "classes".length());
-		Path localesPath = Paths.get(classesPath, "resources", "locales");
+		PathMatchingResourcePatternResolver resource_pattern = new PathMatchingResourcePatternResolver(this.getClass().getClassLoader());
 
 		String filePattern = "ors_(.*?).resources";
+		String resourcePattern = "/resources/**/ors_*.resources";
+
+		Resource[] resources = resource_pattern.getResources(resourcePattern);
 		Pattern pattern = Pattern.compile(filePattern);
 
-		File[] files = new File(localesPath.toString()).listFiles();
-
-		if (files == null)
+		if (resources.length == 0)
 			throw new Exception("Resources can not be found.");
 
-		for (File file : files) {
+		for (Resource res : resources) {
+			File file = res.getFile();
 			try
 			{
 				if (file.isFile()) {
