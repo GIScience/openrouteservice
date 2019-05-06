@@ -133,7 +133,6 @@ public class RoutingRequestMockup {
             routingRequestMockup.getSearchParameters().setAvoidCountries(null);
             routingRequestMockup.getSearchParameters().setAvoidFeatureTypes(0);
             routingRequestMockup.getSearchParameters().setBearings(null);
-            routingRequestMockup.getSearchParameters().setConsiderTraffic(false);
             routingRequestMockup.getSearchParameters().setConsiderTurnRestrictions(false);
             routingRequestMockup.getSearchParameters().setFlexibleMode(false);
             routingRequestMockup.getSearchParameters().setMaximumRadiuses(null);

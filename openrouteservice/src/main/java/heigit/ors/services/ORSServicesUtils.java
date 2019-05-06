@@ -19,8 +19,6 @@ import heigit.ors.routing.RoutingProfile;
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.routing.RoutingProfileManagerStatus;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
-import heigit.ors.routing.traffic.RealTrafficDataProvider;
-//import heigit.ors.services.accessibility.AccessibilityServiceSettings;
 import heigit.ors.services.geocoding.GeocodingServiceSettings;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.services.mapmatching.MapMatchingServiceSettings;
@@ -40,6 +38,8 @@ import java.util.List;
 
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
+
+//import heigit.ors.services.accessibility.AccessibilityServiceSettings;
 
 public class ORSServicesUtils {
 
@@ -114,13 +114,6 @@ public class ORSServicesUtils {
 				}
 
 				jInfo.put("profiles", jProfiles);
-			}
-
-			if (RealTrafficDataProvider.getInstance().isInitialized())
-			{
-				JSONObject jTrafficInfo = new JSONObject(true);
-				jTrafficInfo.put("update_date", RealTrafficDataProvider.getInstance().getTimeStamp());
-				jInfo.put("tmc", jTrafficInfo);
 			}
 		}
 		else

@@ -44,19 +44,6 @@ public class RouteSearchParametersTest {
     }
 
     @Test
-    public void getConsiderTraffic() {
-        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertFalse(routeSearchParameters.getConsiderTraffic());
-    }
-
-    @Test
-    public void setConsiderTraffic() {
-        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        routeSearchParameters.setConsiderTraffic(true);
-        Assert.assertTrue(routeSearchParameters.getConsiderTraffic());
-    }
-
-    @Test
     public void getAvoidAreas() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         Assert.assertArrayEquals(null, routeSearchParameters.getAvoidAreas());
@@ -272,10 +259,5 @@ public class RouteSearchParametersTest {
         routeSearchParameters.setProfileType(RoutingProfileType.DRIVING_HGV);
         routeSearchParameters.setOptions("{\"profile_params\":{\"weightings\":{\"green\":{\"factor\":0.8}}}}");
         Assert.assertTrue("profile param", routeSearchParameters.requiresDynamicWeights());
-
-        routeSearchParameters = new RouteSearchParameters();
-        routeSearchParameters.setProfileType(RoutingProfileType.DRIVING_CAR);
-        routeSearchParameters.setConsiderTraffic(true);
-        Assert.assertTrue("consider traffic", routeSearchParameters.requiresDynamicWeights());
     }
 }

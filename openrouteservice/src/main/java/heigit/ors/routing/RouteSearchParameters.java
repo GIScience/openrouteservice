@@ -41,7 +41,6 @@ public class RouteSearchParameters {
 
     private int _profileType;
     private int _weightingMethod = WeightingMethod.FASTEST;
-    private Boolean _considerTraffic = false;
     private Boolean _considerTurnRestrictions = false;
     private Polygon[] _avoidAreas;
     private int _avoidFeaturesTypes;
@@ -74,14 +73,6 @@ public class RouteSearchParameters {
 
     public void setWeightingMethod(int weightingMethod) {
         _weightingMethod = weightingMethod;
-    }
-
-    public Boolean getConsiderTraffic() {
-        return _considerTraffic;
-    }
-
-    public void setConsiderTraffic(Boolean _considerTraffic) {
-        this._considerTraffic = _considerTraffic;
     }
 
     public Polygon[] getAvoidAreas() {
@@ -426,7 +417,7 @@ public class RouteSearchParameters {
             || getWeightingMethod() == WeightingMethod.RECOMMENDED
             || isProfileTypeHeavyVehicle() && getVehicleType() > 0
             || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
-            || isProfileTypeDriving() && getConsiderTraffic()
+            || isProfileTypeDriving()
         ;
     }
 }

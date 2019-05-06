@@ -140,8 +140,6 @@ public class RouteRequestHandler extends GenericHandler {
             params = processRouteRequestOptions(request, params);
         }
 
-        params.setConsiderTraffic(false);
-
         params.setConsiderTurnRestrictions(false);
 
         routingRequest.setSearchParameters(params);

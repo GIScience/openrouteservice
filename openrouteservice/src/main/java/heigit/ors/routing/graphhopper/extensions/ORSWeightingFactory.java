@@ -26,7 +26,6 @@ import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import heigit.ors.routing.ProfileWeighting;
 import heigit.ors.routing.graphhopper.extensions.weighting.*;
-import heigit.ors.routing.traffic.RealTrafficDataProvider;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -37,13 +36,10 @@ import java.util.List;
 import java.util.Map;
 
 public class ORSWeightingFactory implements WeightingFactory {
-
-	private RealTrafficDataProvider m_trafficDataProvider;
 	private Map<Object, TurnCostExtension> m_turnCostExtensions;
 
-	public ORSWeightingFactory(RealTrafficDataProvider trafficProvider)
+	public ORSWeightingFactory()
 	{
-		m_trafficDataProvider = trafficProvider;
 		m_turnCostExtensions = new HashMap<Object, TurnCostExtension>();
 	}
 
@@ -84,12 +80,6 @@ public class ORSWeightingFactory implements WeightingFactory {
 			}
 			else
 				result = new FastestWeighting(encoder, hintsMap);
-		} 
-
-		if (hintsMap.getBool("weighting_traffic_block", false))
-		{
-			//String strPref = weighting.substring(weighting.indexOf("-") + 1);
-			result = new TrafficAvoidWeighting(result, encoder, m_trafficDataProvider.getAvoidEdges(graphStorage));
 		}
 
 		if (encoder.supports(TurnWeighting.class) && !isFootBasedFlagEncoder(encoder) && graphStorage != null && !tMode.equals(TraversalMode.NODE_BASED)) {

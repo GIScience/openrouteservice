@@ -157,11 +157,6 @@ public class RoutingRequest extends ServiceRequest
 		return false;
 	}
 
-	public boolean getConsiderTraffic(){
-		return this._searchParameters.getConsiderTraffic();
-		
-	}
-
 	public int getLocationIndex() {
 		return _locationIndex;
 	}

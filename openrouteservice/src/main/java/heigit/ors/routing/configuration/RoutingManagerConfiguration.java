@@ -13,6 +13,13 @@
  */
 package heigit.ors.routing.configuration;
 
+import com.graphhopper.util.Helper;
+import com.typesafe.config.ConfigFactory;
+import com.vividsolutions.jts.geom.Envelope;
+import heigit.ors.services.routing.RoutingServiceSettings;
+import heigit.ors.util.FileUtility;
+import heigit.ors.util.StringUtility;
+
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -20,18 +27,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.graphhopper.util.Helper;
-import com.typesafe.config.ConfigFactory;
-import com.vividsolutions.jts.geom.Envelope;
-
-import heigit.ors.services.routing.RoutingServiceSettings;
-import heigit.ors.util.FileUtility;
-import heigit.ors.util.StringUtility;
-
 public class RoutingManagerConfiguration 
 {
 	public RouteUpdateConfiguration UpdateConfig;
-	public TrafficInformationConfiguration TrafficInfoConfig;
 	public RouteProfileConfiguration[] Profiles;
 
 	public static RoutingManagerConfiguration loadFromFile(String path) throws IOException, Exception
@@ -162,9 +160,6 @@ public class RoutingManagerConfiguration
 							profile.getGraphBuilders().put(storageEntry.getKey(), storageParams);
 						}
 						break;
-					case "traffic":
-						profile.setUseTrafficInformation(Boolean.parseBoolean(paramItem.getValue().toString()));
-						break;
 					case "maximum_distance":
 						profile.setMaximumDistance(Double.parseDouble(paramItem.getValue().toString()));
 						break;
@@ -205,18 +200,6 @@ public class RoutingManagerConfiguration
 		ruc.WorkingDirectory = RoutingServiceSettings.getParameter("update.working_directory");
 
 		gc.UpdateConfig = ruc;
-
-		// Read traffic settings
-		TrafficInformationConfiguration tic = new TrafficInformationConfiguration();
-		tic.Enabled = Boolean.parseBoolean(RoutingServiceSettings.getParameter("traffic.enabled"));
-		if (tic.Enabled)
-		{
-			tic.LocationCodesPath = RoutingServiceSettings.getParameter("traffic.location_codes_path");
-			tic.MessagesDatasource = RoutingServiceSettings.getParameter("traffic.source");
-			tic.OutputDirectory = RoutingServiceSettings.getParameter("traffic.output_directory");
-			tic.UpdateInterval = Integer.parseInt(RoutingServiceSettings.getParameter("traffic.update_interval"));
-		}
-		gc.TrafficInfoConfig = tic;
 
 		return gc;
 	}

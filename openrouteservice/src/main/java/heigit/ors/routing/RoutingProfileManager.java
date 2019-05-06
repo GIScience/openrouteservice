@@ -34,7 +34,6 @@ import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.configuration.RoutingManagerConfiguration;
 import heigit.ors.routing.pathprocessors.ElevationSmoothPathProcessor;
 import heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
-import heigit.ors.routing.traffic.RealTrafficDataProvider;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.FormatUtility;
 import heigit.ors.util.RuntimeUtility;
@@ -229,10 +228,6 @@ public class RoutingProfileManager {
                     LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
                     LOGGER.info("========================================================================");
 
-                    if (rmc.TrafficInfoConfig != null && rmc.TrafficInfoConfig.Enabled) {
-                        RealTrafficDataProvider.getInstance().initialize(rmc, _routeProfiles);
-                    }
-
                     if (rmc.UpdateConfig != null && rmc.UpdateConfig.Enabled) {
                         _profileUpdater = new RoutingProfilesUpdater(rmc.UpdateConfig, _routeProfiles);
                         _profileUpdater.start();
@@ -254,9 +249,6 @@ public class RoutingProfileManager {
     public void destroy() {
         if (_profileUpdater != null)
             _profileUpdater.destroy();
-
-        if (RealTrafficDataProvider.getInstance().isInitialized())
-            RealTrafficDataProvider.getInstance().destroy();
 
         _routeProfiles.destroy();
     }

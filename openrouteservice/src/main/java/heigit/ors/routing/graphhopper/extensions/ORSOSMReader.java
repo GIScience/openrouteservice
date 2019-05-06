@@ -44,8 +44,6 @@ public class ORSOSMReader extends OSMReader {
 	private static Logger LOGGER = Logger.getLogger(ORSOSMReader.class.getName());
 
 	private GraphProcessContext _procCntx;
-	private HashMap<Integer, Long> tmcEdges;
-	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds;
 	private RoutingProfile refProfile;
 	// MARQ24: REMOVED SINCE code that handles 'enrichInstructions = true' is already inactive!
 	//private boolean enrichInstructions;
@@ -60,19 +58,14 @@ public class ORSOSMReader extends OSMReader {
 
 	private List<OSMFeatureFilter> filtersToApply = new ArrayList<>();
 
-	private String[] TMC_ROAD_TYPES = new String[] { "motorway", "motorway_link", "trunk", "trunk_link", "primary",
-			"primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential" };
-
 	private HashSet<String> extraTagKeys;
 
-	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx, HashMap<Integer, Long> tmcEdges,  HashMap<Long, ArrayList<Integer>> osmId2EdgeIds, RoutingProfile refProfile) {
+	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx,  RoutingProfile refProfile) {
 		super(storage);
 
 		setCalcDistance3D(false);
 		this._procCntx = procCntx;
 		this._readerCntx = new OSMDataReaderContext(this);
-		this.tmcEdges = tmcEdges;
-		this.osmId2EdgeIds = osmId2EdgeIds;
 		this.refProfile = refProfile;
 
 		// MARQ24: REMOVED SINCE code that handles 'enrichInstructions = true' is already inactive!
@@ -386,30 +379,6 @@ public class ORSOSMReader extends OSMReader {
 		// by MARQ24 }
 
 		try {
-			if ((tmcEdges != null) && (osmId2EdgeIds!=null)) {
-				String highwayValue = way.getTag("highway");
-
-				if (!Helper.isEmpty(highwayValue)) {
-
-					for (int i = 0; i < TMC_ROAD_TYPES.length; i++) {
-						if (TMC_ROAD_TYPES[i].equalsIgnoreCase(highwayValue)) {
-							tmcEdges.put(edge.getEdge(), way.getId());
-
-							if (osmId2EdgeIds.containsKey(way.getId())){
-								osmId2EdgeIds.get(way.getId()).add(edge.getEdge());
-
-							} else{								
-								ArrayList<Integer> edgeIds = new ArrayList<Integer>();
-								edgeIds.add(edge.getEdge()); 
-								osmId2EdgeIds.put(way.getId(), edgeIds);
-							} 							
-
-							break;
-						}
-					}
-				}
-			}
-
 			// Pass through the coordinates of the graph nodes
 			Coordinate baseCoord = new Coordinate(
 					getLongitudeOfNode(edge.getBaseNode(), false),

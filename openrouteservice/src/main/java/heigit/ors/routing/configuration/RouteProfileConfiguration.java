@@ -34,7 +34,6 @@ public class RouteProfileConfiguration
 	private Double _maximumDistanceDynamicWeights = 0.0;
 	private Double _maximumDistanceAvoidAreas = 0.0;
 	private Integer _maximumWayPoints = 0;
-	private boolean _useTrafficInformation = false;
 	private boolean _instructions = true;
 	private boolean _optimize = false;
 	
@@ -91,7 +90,6 @@ public class RouteProfileConfiguration
 		rpc._maximumDistanceDynamicWeights = this._maximumDistanceDynamicWeights;
 		rpc._maximumDistanceAvoidAreas = this._maximumDistanceAvoidAreas;
 		rpc._maximumWayPoints = this._maximumWayPoints;
-		rpc._useTrafficInformation = this._useTrafficInformation;
 		rpc._optimize = this._optimize;
 		rpc._instructions = this._instructions;
 		
@@ -223,16 +221,6 @@ public class RouteProfileConfiguration
 	public Integer getMaximumWayPoints()
 	{
 		return _maximumWayPoints;
-	}
-	
-	public void setUseTrafficInformation(Boolean value)
-	{
-		_useTrafficInformation = value; 
-	}
-	
-	public Boolean getUseTrafficInformation()
-	{
-		return _useTrafficInformation;
 	}
 	
 	public void setEncoderFlagsSize(Integer value)

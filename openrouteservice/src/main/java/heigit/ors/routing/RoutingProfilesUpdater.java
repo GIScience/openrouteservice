@@ -18,7 +18,6 @@ import com.graphhopper.storage.StorableProperties;
 import com.graphhopper.util.Helper;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.configuration.RouteUpdateConfiguration;
-import heigit.ors.routing.traffic.RealTrafficDataProvider;
 import heigit.ors.util.DebugUtility;
 import heigit.ors.util.FileUtility;
 import heigit.ors.util.StackTraceUtility;
@@ -289,12 +288,6 @@ public class RoutingProfilesUpdater {
 
 						if (gh != null) {
 							profile.updateGH(gh);
-
-							if (RealTrafficDataProvider.getInstance().isInitialized())
-							{
-								m_updateStatus += ". Performing map matching...";
-								RealTrafficDataProvider.getInstance().updateGraphMatching(profile, profile.getGraphLocation());
-							}
 
 							nUpdatedProfiles++;
 						}

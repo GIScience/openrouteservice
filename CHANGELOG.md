@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Moved walking and hiking flag encoders to the ORS core system (#440)
 - Remove route optimization code (#499)
 ### Deprecated
+- Removed the code that was inserted for the prototype traffic weightings as it was not used and made GH updates more complicated.
 
 
 ## [5.0] - 2019-02-25

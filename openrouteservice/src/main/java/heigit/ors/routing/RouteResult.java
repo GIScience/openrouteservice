@@ -161,14 +161,14 @@ public class RouteResult
 
 	/**
 	 * set route summary values according to segments in this route and request parameters
-	 * @param request for parameter lookup (consider traffic, units, include elevation)
+	 * @param request for parameter lookup (units, include elevation)
 	 */
 	void calculateRouteSummary(RoutingRequest request) {
 		double distance = 0.0;
 		double duration = 0.0;
 		for (RouteSegment seg : getSegments()) {
 			distance += seg.getDistance();
-			duration += request.getSearchParameters().getConsiderTraffic() ? seg.getDurationTraffic() : seg.getDuration();
+			duration += seg.getDuration();
 		}
 		summary.setDuration(duration);
 		summary.setDistance(FormatUtility.roundToDecimalsForUnits(distance, request.getUnits()));

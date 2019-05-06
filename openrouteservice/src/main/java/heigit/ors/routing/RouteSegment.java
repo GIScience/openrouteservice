@@ -26,7 +26,6 @@ import heigit.ors.util.FormatUtility;
 public class RouteSegment {
 	private double _distance;
 	private double _duration;
-	private double _durationTraffic;
 	private double _ascent;
 	private double _descent;
 	private double _detourFactor = 0.0;
@@ -36,7 +35,6 @@ public class RouteSegment {
 	{
 		_distance = FormatUtility.roundToDecimalsForUnits(DistanceUnitUtil.convert(path.getDistance(), DistanceUnit.Meters, units), units);
 		_duration = FormatUtility.roundToDecimals(path.getTime()/1000.0, 1);
-		_durationTraffic += path.getRouteWeight();
 		_ascent = path.getAscend();
 		_descent = path.getDescend();
 
@@ -51,11 +49,6 @@ public class RouteSegment {
 	public double getDuration()
 	{
 		return _duration;
-	}
-
-	public double getDurationTraffic()
-	{
-		return _durationTraffic;
 	}
 
 	public double getAscent()

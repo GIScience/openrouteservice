@@ -41,8 +41,6 @@ public class RoutingServiceRequestProcessorFactory {
 
 		switch (requestParam.toLowerCase())
 		{
-			case "tmc":
-				return new TmcInformationRequestProcessor(request);
 			case "route":
 				String formatParam = request.getParameter("format");
 				if (Helper.isEmpty(formatParam))

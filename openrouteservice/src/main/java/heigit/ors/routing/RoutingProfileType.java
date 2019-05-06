@@ -119,8 +119,6 @@ public class RoutingProfileType {
                 return "driving-hgv";
             case DRIVING_MOTORCYCLE:
                 return "driving-motorcycle";
-            case DRIVING_TRAFFIC:
-                return "driving-traffic";
             case DRIVING_EMERGENCY:
                 return "driving-emergency";
 
@@ -176,8 +174,6 @@ public class RoutingProfileType {
                 return DRIVING_HGV;
             case "driving-motorcycle":
                 return DRIVING_MOTORCYCLE;
-            case "driving-traffic":
-                return DRIVING_TRAFFIC;
             case "driving-emergency":
                 return DRIVING_EMERGENCY;
 
@@ -236,9 +232,6 @@ public class RoutingProfileType {
 
             case RoutingProfileType.DRIVING_EMERGENCY:
                 return FlagEncoderNames.EMERGENCY;
-
-            case RoutingProfileType.DRIVING_TRAFFIC:
-                return FlagEncoderNames.CARTMC;
 
             case RoutingProfileType.DRIVING_MOTORCYCLE:
                 return FlagEncoderNames.GH_MOTOCYCLE;
@@ -315,10 +308,6 @@ public class RoutingProfileType {
             /* not in use */
             case FlagEncoderNames.CAROFFROAD: /* a ors self implemented flagencoder */
                 return RoutingProfileType.DRIVING_CAROFFROAD;
-
-            /* not ready for production */
-            case FlagEncoderNames.CARTMC: /* a ors self implemented flagencoder */
-                return RoutingProfileType.DRIVING_TRAFFIC;
 
             /* not in use */
             case FlagEncoderNames.EVEHICLE:
