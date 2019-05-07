@@ -358,12 +358,11 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			defaultVisitorThreshold = 0.0025;
 		}
 
-		boolean useHighDetail = false;
+		boolean useHighDetail = map.size() < 1000 || isochronesDifference < 1000;
 
-		if (map.size() < 1000 || isochronesDifference < 1000) {
+		if (useHighDetail) {
 			bufferSize = 0.00018;
 			defaultVisitorThreshold = 0.000005;
-			useHighDetail = true;
 		}
 		
 		int nodeId, edgeId;
