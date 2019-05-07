@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Replace usage of packages incompatible with Java >8 (#474)
 - Moved walking and hiking flag encoders to the ORS core system (#440)
 - Remove route optimization code (#499)
+- Reduced distance for neighbourhood point search in isochrones when small isochrones are generated (#494)
 ### Deprecated
 
 

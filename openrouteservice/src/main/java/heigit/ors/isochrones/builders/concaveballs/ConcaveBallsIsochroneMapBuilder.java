@@ -358,7 +358,9 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			defaultVisitorThreshold = 0.0025;
 		}
 
-		if (isochronesDifference < 1000) {
+		boolean useHighDetail = map.size() < 1000 || isochronesDifference < 1000;
+
+		if (useHighDetail) {
 			bufferSize = 0.00018;
 			defaultVisitorThreshold = 0.000005;
 		}
@@ -397,7 +399,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			if (isolineCost >= maxCost) {
 				// This checks for dead end edges, but we need to include those in small areas to provide realistic
 				// results
-				if (goalEdge.edge == -2 && isochronesDifference > 1000)
+				if (goalEdge.edge == -2 && !useHighDetail)
 				{
 					//addPoint(points, qtree, nodeAccess.getLon(nodeId), nodeAccess.getLat(nodeId), true);
 				}
