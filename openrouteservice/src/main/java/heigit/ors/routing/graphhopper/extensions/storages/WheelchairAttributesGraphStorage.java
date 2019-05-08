@@ -16,7 +16,7 @@ package heigit.ors.routing.graphhopper.extensions.storages;
 import heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 
 import com.graphhopper.routing.util.EncodedDoubleValue;
-import com.graphhopper.routing.util.EncodedValue;
+import com.graphhopper.routing.util.EncodedValueOld;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;

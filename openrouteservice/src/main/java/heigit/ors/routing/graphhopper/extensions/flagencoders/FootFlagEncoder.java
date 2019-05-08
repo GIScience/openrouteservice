@@ -17,10 +17,14 @@ package heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.EncodedDoubleValue;
-import com.graphhopper.routing.util.EncodedValue;
+import com.graphhopper.routing.profiles.FactorizedDecimalEncodedValue;
+import com.graphhopper.routing.profiles.DecimalEncodedValue;
+import com.graphhopper.routing.profiles.EncodedValue;
+import com.graphhopper.routing.util.EncodingManager; // Required because ORS FlagEncoders are outside of GH
+import com.graphhopper.routing.util.EncodedValueOld; // Required because ORS FlagEncoders are outside of GH
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
+import com.graphhopper.storage.IntsRef;
 import heigit.ors.routing.graphhopper.extensions.OSMTags;
 
 import java.util.*;
@@ -33,28 +37,25 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  *
  * @author Adam Rousell
  * @author Peter Karich
+ * @author Nop
+ * @author Karl Hübner
  */
 public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     static final int SLOW_SPEED = 2;
     static final int MEAN_SPEED = 5;
     static final int FERRY_SPEED = 15;
-
     private final Set<String> safeHighwayTags = new HashSet<>();
     private final Set<String> allowedHighwayTags = new HashSet<>();
     private final Set<String> avoidHighwayTags = new HashSet<>();
-
     Set<String> preferredWayTags = new HashSet<>();
-
     private final Set<String> avoidUnlessSidewalkTags = new HashSet<>();
-
     Set<String> suitableSacScales = new HashSet<>();
     // convert network tag of hiking routes into a way route code
     final Map<String, Integer> hikingNetworkToCode = new HashMap<>();
     Set<String> usableSidewalkValues = new HashSet<>(5);
     Set<String> noSidewalkValues = new HashSet<>(5);
-
-    protected EncodedValue priorityWayEncoder;
-    protected EncodedValue relationCodeEncoder;
+    protected DecimalEncodedValue priorityWayEncoder;
+    protected EncodedValueOld relationCodeEncoder;
 
     FootFlagEncoder(int speedBits, double speedFactor) {
         super(speedBits, speedFactor, 0);
@@ -90,7 +91,9 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         ));
 
         setBlockByDefault(false);
+        absoluteBarriers.add("fence"); // ORS TODO: added in GH 0.12; do we want it?
         potentialBarriers.add("gate");
+        potentialBarriers.add("cattle_grid"); // ORS TODO: added in GH 0.12; do we want it?
 
         safeHighwayTags.addAll(Arrays.asList(
                 "footway",
@@ -132,26 +135,22 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         hikingNetworkToCode.put("lwn", UNCHANGED.getValue());
 
         maxPossibleSpeed = FERRY_SPEED;
-
+        speedDefault = MEAN_SPEED; // ORS TODO: added in GH 0.12; do we want it?
         init();
     }
 
     @Override
-    public int defineWayBits(int index, int shift) {
+    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
         // first two bits are reserved for route handling in superclass
-        shift = super.defineWayBits(index, shift);
+        super.createEncodedValues(registerNewEncodedValue, prefix, index);
         // larger value required - ferries are faster than pedestrians
-        speedEncoder = new EncodedDoubleValue("Speed", shift, speedBits, speedFactor, MEAN_SPEED, maxPossibleSpeed);
-        shift += speedEncoder.getBits();
-
-        priorityWayEncoder = new EncodedValue("PreferWay", shift, 3, 1, 0, 7);
-        shift += priorityWayEncoder.getBits();
-        return shift;
+        registerNewEncodedValue.add(speedEncoder = new FactorizedDecimalEncodedValue(prefix + "average_speed", speedBits, speedFactor, false));
+        registerNewEncodedValue.add(priorityWayEncoder = new FactorizedDecimalEncodedValue(prefix + "priority", 3, PriorityCode.getFactor(1), false));
     }
 
     @Override
     public int defineRelationBits(int index, int shift) {
-        relationCodeEncoder = new EncodedValue("RelationCode", shift, 3, 1, 0, 7);
+        relationCodeEncoder = new EncodedValueOld("RelationCode", shift, 3, 1, 0, 7);
         return shift + relationCodeEncoder.getBits();
     }
 
@@ -170,7 +169,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
      * @return <code>false</code>
      */
     @Override
-    public boolean isTurnRestricted(long flag) {
+    public boolean isTurnRestricted(long flags) {
         return false;
     }
 
@@ -191,7 +190,44 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     @Override
-    public long handleRelationTags(ReaderRelation relation, long oldRelationFlags) {
+    public EncodingManager.Access getAccess(ReaderWay way) {
+        String highwayValue = way.getTag(OSMTags.Keys.HIGHWAY);
+
+        if (highwayValue == null)
+            return handleNonHighways(way);
+
+        if (hasTooDifficultSacScale(way))
+            return EncodingManager.Access.CAN_SKIP;
+
+        // no need to evaluate ferries or fords - already included here
+        if (way.hasTag(OSMTags.Keys.FOOT, intendedValues))
+            return EncodingManager.Access.WAY;
+
+        // check access restrictions
+        if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
+            return EncodingManager.Access.CAN_SKIP;
+
+        if (way.hasTag(OSMTags.Keys.SIDEWALK, usableSidewalkValues))
+            return EncodingManager.Access.WAY;
+
+        if (!allowedHighwayTags.contains(highwayValue))
+            return EncodingManager.Access.CAN_SKIP;
+
+        if (way.hasTag(OSMTags.Keys.MOTOR_ROAD, "yes"))
+            return EncodingManager.Access.CAN_SKIP;
+
+        // do not get our feet wet, "yes" is already included above
+        if (isBlockFords() && (way.hasTag(OSMTags.Keys.HIGHWAY, "ford") || way.hasTag(OSMTags.Keys.FORD)))
+            return EncodingManager.Access.CAN_SKIP;
+
+        if (getConditionalTagInspector().isPermittedWayConditionallyRestricted(way))
+            return EncodingManager.Access.CAN_SKIP;
+
+        return EncodingManager.Access.WAY;
+    }
+
+    @Override
+    public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
         int code = 0;
         if (relation.hasTag(OSMTags.Keys.ROUTE, "hiking") || relation.hasTag(OSMTags.Keys.ROUTE, "foot")) {
             Integer val = hikingNetworkToCode.get(relation.getTag("network"));
@@ -210,83 +246,34 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     @Override
-    public long handleWayTags(ReaderWay way, long allowed, long relationFlags) {
-        if (!isAccept(allowed))
-            return 0;
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, long relationFlags) {
+        if (access.canSkip())
+            return edgeFlags;
 
-        long flags = 0;
-        if (!isFerry(allowed)) {
+        if (!access.isFerry()) {
             String sacScale = way.getTag(OSMTags.Keys.SAC_SCALE);
             if (sacScale != null && !"hiking".equals(sacScale)) {
-                flags = speedEncoder.setDoubleValue(flags, SLOW_SPEED);
+                speedEncoder.setDecimal(false, edgeFlags, SLOW_SPEED);
             } else {
-                flags = speedEncoder.setDoubleValue(flags, MEAN_SPEED);
+                speedEncoder.setDecimal(false, edgeFlags, MEAN_SPEED);
             }
-            flags |= directionBitMask;
-
-            boolean isRoundabout = way.hasTag(OSMTags.Keys.JUNCTION, "roundabout") || way.hasTag(OSMTags.Keys.JUNCTION, "circular");
-            if (isRoundabout)
-                flags = setBool(flags, K_ROUNDABOUT, true);
-
+            accessEnc.setBool(false, edgeFlags, true);
+            accessEnc.setBool(true, edgeFlags, true);
         } else {
             double ferrySpeed = getFerrySpeed(way);
-            flags = setSpeed(flags, ferrySpeed);
-            flags |= directionBitMask;
+            setSpeed(false, edgeFlags, ferrySpeed);
+            accessEnc.setBool(false, edgeFlags, true);
+            accessEnc.setBool(true, edgeFlags, true);
         }
 
         int priorityFromRelation = 0;
         if (relationFlags != 0)
             priorityFromRelation = (int) relationCodeEncoder.getValue(relationFlags);
 
-        flags = priorityWayEncoder.setValue(flags, handlePriority(way, priorityFromRelation));
-
-        return flags;
+        priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation)));
+        return edgeFlags;
     }
 
-    @Override
-    public double getDouble(long flags, int key) {
-        if (key == PriorityWeighting.KEY)
-            return (double) priorityWayEncoder.getValue(flags) / BEST.getValue();
-        else
-            return super.getDouble(flags, key);
-    }
-
-    @Override
-    public long acceptWay(ReaderWay way) {
-        String highwayValue = way.getTag(OSMTags.Keys.HIGHWAY);
-
-        if (highwayValue == null)
-            return handleNonHighways(way);
-
-        if (hasTooDifficultSacScale(way))
-            return 0;
-
-        // no need to evaluate ferries or fords - already included here
-        if (way.hasTag(OSMTags.Keys.FOOT, intendedValues))
-            return acceptBit;
-
-        // check access restrictions
-        if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
-            return 0;
-
-        if (way.hasTag(OSMTags.Keys.SIDEWALK, usableSidewalkValues))
-            return acceptBit;
-
-        if (!allowedHighwayTags.contains(highwayValue))
-            return 0;
-
-        if (way.hasTag(OSMTags.Keys.MOTOR_ROAD, "yes"))
-            return 0;
-
-        // do not get our feet wet, "yes" is already included above
-        if (isBlockFords() && (way.hasTag(OSMTags.Keys.HIGHWAY, "ford") || way.hasTag(OSMTags.Keys.FORD)))
-            return 0;
-
-        if (getConditionalTagInspector().isPermittedWayConditionallyRestricted(way))
-            return 0;
-
-        return acceptBit;
-    }
 
     /**
      * Method which generates the acceptance flag for ways that are not seen as being highways (such as ferry routes)
@@ -294,29 +281,29 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
      * @param way   The way that is to be assessed
      * @return      The acceptance flag for the way
      */
-    private long handleNonHighways(ReaderWay way) {
-        long acceptPotentially = 0;
+    private EncodingManager.Access handleNonHighways(ReaderWay way) {
+        EncodingManager.Access acceptPotentially = EncodingManager.Access.CAN_SKIP;
 
         if (way.hasTag(OSMTags.Keys.ROUTE, ferries)) {
             String footTag = way.getTag(OSMTags.Keys.FOOT);
-            if (footTag == null || "yes".equals(footTag))
-                acceptPotentially = acceptBit | ferryBit;
+            if (footTag == null || intendedValues.contains(footTag))
+                acceptPotentially = EncodingManager.Access.FERRY;
         }
 
         // special case not for all acceptedRailways, only platform
         if (way.hasTag(OSMTags.Keys.RAILWAY, "platform"))
-            acceptPotentially = acceptBit;
+            acceptPotentially = EncodingManager.Access.WAY;
 
         if (way.hasTag(OSMTags.Keys.MAN_MADE, "pier"))
-            acceptPotentially = acceptBit;
+            acceptPotentially = EncodingManager.Access.WAY;
 
-        if (acceptPotentially != 0) {
+        if (!acceptPotentially.canSkip()) {
             if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
-                return 0;
+                return EncodingManager.Access.CAN_SKIP;
             return acceptPotentially;
         }
 
-        return 0;
+        return EncodingManager.Access.CAN_SKIP;
     }
 
     /**
@@ -459,7 +446,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
      * This method is a current hack, to allow ferries to be actually faster than our current storable maxSpeed.
      */
     @Override
-    public double getSpeed(long flags) {
+    double getSpeed(long flags) {
         double speed = super.getSpeed(flags);
         if (speed == getMaxSpeed()) {
             // We cannot be sure if it was a long or a short trip
