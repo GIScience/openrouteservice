@@ -446,8 +446,8 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
      * This method is a current hack, to allow ferries to be actually faster than our current storable maxSpeed.
      */
     @Override
-    double getSpeed(long flags) {
-        double speed = super.getSpeed(flags);
+    protected double getSpeed(boolean reverse, IntsRef edgeFlags) {
+        double speed = super.getSpeed(reverse, edgeFlags);
         if (speed == getMaxSpeed()) {
             // We cannot be sure if it was a long or a short trip
             return SHORT_TRIP_FERRY_SPEED;
