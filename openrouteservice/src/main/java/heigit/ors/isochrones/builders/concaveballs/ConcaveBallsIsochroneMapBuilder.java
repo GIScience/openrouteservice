@@ -16,9 +16,7 @@ package heigit.ors.isochrones.builders.concaveballs;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
-import com.graphhopper.routing.util.AbstractFlagEncoder;
-import com.graphhopper.routing.util.FootFlagEncoder;
-import com.graphhopper.routing.util.HikeFlagEncoder;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.storage.SPTEntry;
@@ -34,11 +32,19 @@ import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
 import heigit.ors.routing.RouteSearchContext;
 import heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.CarFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.HeavyVehicleFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.bike.ElectroBikeFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.bike.MountainBikeFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.bike.RegularBikeFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.bike.RoadBikeFlagEncoder;
 import heigit.ors.util.GeomUtility;
 import org.apache.log4j.Logger;
 import org.opensphere.geometry.algorithm.ConcaveHull;
 
+import javax.validation.constraints.Null;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
@@ -87,6 +93,8 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			maxSpeed = WheelchairFlagEncoder.MEAN_SPEED;
 		}
 
+		double meanSpeed = getMeanSpeed(_searchContext.getEncoder());
+		meanSpeed = (meanSpeed == -1) ? maxSpeed : meanSpeed;
 
 		AccessibilityMap edgeMap = GraphEdgeMapFinder.findEdgeMap(_searchContext, parameters);
 
@@ -127,6 +135,8 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		int nRanges = parameters.getRanges().length;
 
 		double metersPerSecond = maxSpeed / 3.6;
+		// only needed for reachfactor property
+		double meanMetersPerSecond = meanSpeed / 3.6;
 
 		double prevCost = 0;
 		for (int i = 0; i < nRanges; i++) {
@@ -145,12 +155,15 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			}
 
 			double maxRadius = 0;
+			double meanRadius = 0;
 			switch (isochroneType) {
 				case Distance:
 					maxRadius = isoValue;
+					meanRadius = isoValue;
 					break;
 				case Time:
 					maxRadius = metersPerSecond * isoValue;
+					meanRadius = meanMetersPerSecond * isoValue;
 					isochronesDifference = metersPerSecond * isochronesDifference;
 					break;
 			}
@@ -167,7 +180,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 				sw.start();
 			}
 
-			addIsochrone(isochroneMap, points, isoValue, maxRadius, smoothingFactor);
+			addIsochrone(isochroneMap, points, isoValue, maxRadius, meanRadius, smoothingFactor);
 
 
 			if (LOGGER.isDebugEnabled())
@@ -214,7 +227,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		return maxLength;
 	}
 
-	private void addIsochrone(IsochroneMap isochroneMap, GeometryCollection points, double isoValue, double maxRadius, float smoothingFactor)
+	private void addIsochrone(IsochroneMap isochroneMap, GeometryCollection points, double isoValue, double maxRadius, double meanRadius, float smoothingFactor)
 	{
 		if (points.isEmpty())
 			return;
@@ -233,7 +246,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 		copyConvexHullPoints(poly);
 
-		isochroneMap.addIsochrone(new Isochrone(poly, isoValue, maxRadius));
+		isochroneMap.addIsochrone(new Isochrone(poly, isoValue, meanRadius));
 	}
 
 	private void markDeadEndEdges(AccessibilityMap edgeMap)
@@ -524,4 +537,41 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			prevIsoPoints.add(new Coordinate(p.getX(), p.getY()));
 		}
 	}
+
+
+    /**
+     * Determines mean speed to calculate the reachfactor property.
+     *
+     * @param encoder The relevant {@link FlagEncoder} instance.
+     * @return mean speed constant
+     */
+    private double getMeanSpeed(FlagEncoder encoder){
+        int meanspeed = -1;
+
+        if (encoder instanceof FootFlagEncoder) {
+            // in the GH FootFlagEncoder, the maximum speed is set to 15km/h which is way too high
+            meanspeed = FootFlagEncoder.MEAN_SPEED;
+        }
+        else if (encoder instanceof MountainBikeFlagEncoder) {
+            meanspeed = MountainBikeFlagEncoder.MEAN_SPEED;
+        }
+        else if (encoder instanceof RegularBikeFlagEncoder) {
+            meanspeed = RegularBikeFlagEncoder.MEAN_SPEED;
+        }
+        else if (encoder instanceof RoadBikeFlagEncoder) {
+            meanspeed = RoadBikeFlagEncoder.MEAN_SPEED;
+        }
+        else if (encoder instanceof ElectroBikeFlagEncoder) {
+            meanspeed = ElectroBikeFlagEncoder.MEAN_SPEED;
+        }
+        else if (encoder instanceof CarFlagEncoder) {
+            meanspeed = CarFlagEncoder.MEAN_SPEED;
+        }
+        else if (encoder instanceof HeavyVehicleFlagEncoder) {
+            meanspeed = HeavyVehicleFlagEncoder.MEAN_SPEED;
+        }
+
+        return meanspeed;
+    }
+
 }

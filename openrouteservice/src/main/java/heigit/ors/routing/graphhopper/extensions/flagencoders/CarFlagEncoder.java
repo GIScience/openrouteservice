@@ -54,6 +54,9 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
     // Take into account acceleration calculations when determining travel speed
     protected boolean useAcceleration = false;
 
+    // Mean speed for isochrone reach_factor
+    public static final int MEAN_SPEED = 100;
+
     public CarFlagEncoder() {
         this(5, 5, 0);
     }

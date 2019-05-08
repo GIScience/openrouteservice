@@ -29,6 +29,8 @@ import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
  * @author Peter Karich
  */
 public class RegularBikeFlagEncoder extends CommonBikeFlagEncoder {
+    public static final int MEAN_SPEED = 15;
+
     public RegularBikeFlagEncoder() {
         // MARQ24 MOD START
         //this(4, 2, 0);

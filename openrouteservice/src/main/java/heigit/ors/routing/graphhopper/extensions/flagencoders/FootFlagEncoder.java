@@ -36,7 +36,7 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  */
 public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     static final int SLOW_SPEED = 2;
-    static final int MEAN_SPEED = 5;
+    public static final int MEAN_SPEED = 5;
     static final int FERRY_SPEED = 15;
 
     private final Set<String> safeHighwayTags = new HashSet<>();

@@ -37,6 +37,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
     protected boolean useAcceleration = false;
     
     protected int maxTrackGradeLevel = 3;
+    public static final int MEAN_SPEED = 70;
     
     /**
      * A map which associates string to speed. Get some impression:
