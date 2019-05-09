@@ -4,9 +4,6 @@ public interface FlagEncoderNames {
 
     public static final String CAR_ORS          = "car-ors";
     public static final String HEAVYVEHICLE     = "heavyvehicle";
-    public static final String CAROFFROAD       = "caroffroad";     // NOT IN USE!
-    // MARQ24: cartmc is not ready for production
-    public static final String CARTMC           = "cartmc";         // not ready for production
     public static final String EMERGENCY        = "emergency";
     // MARQ24 NO eVEHICLE FlagEncoder implemented yet!!!
     public static final String EVEHICLE         = "evehicle";       // NOT IN USE!
