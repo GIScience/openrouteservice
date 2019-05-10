@@ -41,11 +41,10 @@ import heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.graphhopper.extensions.*;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.*;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import heigit.ors.routing.parameters.*;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
-import heigit.ors.routing.traffic.TrafficEdgeAnnotator;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.services.matrix.MatrixServiceSettings;
 import heigit.ors.util.DebugUtility;
@@ -134,6 +133,9 @@ public class RoutingProfile {
 
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
+
+        ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
+        gh.setEdgeFilterFactory(edgeFilterFactory);
 
         gh.init(args);
 
@@ -483,7 +485,7 @@ public class RoutingProfile {
             else
                 graph = gh.getGraphHopperStorage().getBaseGraph();
 
-            MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), new DefaultEdgeFilter(flagEncoder), req.getResolveLocations());
+            MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), DefaultEdgeFilter.allEdges(flagEncoder), req.getResolveLocations());
             MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 
             HintsMap hintsMap = new HintsMap();
@@ -503,8 +505,8 @@ public class RoutingProfile {
         return mtxResult;
     }
 
-    private RouteSearchContext createSearchContext(RouteSearchParameters searchParams, RouteSearchMode mode, EdgeFilter customEdgeFilter) throws Exception {
-        PMap props = new PMap();
+    private RouteSearchContext createSearchContext(RouteSearchParameters searchParams) throws Exception {
+        ORSPMap props = new ORSPMap();
 
         int profileType = searchParams.getProfileType();
         String encoderName = RoutingProfileType.getEncoderName(profileType);
@@ -512,7 +514,7 @@ public class RoutingProfile {
         if ("UNKNOWN".equals(encoderName))
             throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "unknown vehicle profile.");
 
-        if (!mGraphHopper.getEncodingManager().supports(encoderName)) {
+        if (!mGraphHopper.getEncodingManager().hasEncoder(encoderName)) {
             throw new IllegalArgumentException("Vehicle " + encoderName + " unsupported. " + "Supported are: "
                     + mGraphHopper.getEncodingManager());
         }
@@ -521,55 +523,45 @@ public class RoutingProfile {
         GraphStorage gs = mGraphHopper.getGraphHopperStorage();
         ProfileParameters profileParams = searchParams.getProfileParameters();
 
-        /* Initialize empty edge filter sequence */
-
-        EdgeFilterSequence edgeFilters = new EdgeFilterSequence();
-
-        /* Default edge filter which accepts both directions of the specified vehicle */
-
-        edgeFilters.add(new DefaultEdgeFilter(flagEncoder));
-
         /* Avoid areas */
-
         if (searchParams.hasAvoidAreas()) {
             props.put("avoid_areas", true);
-            edgeFilters.add(new AvoidAreasEdgeFilter(searchParams.getAvoidAreas()));
+            props.putObj("avoid_areas", searchParams.getAvoidAreas());
         }
 
         /* Heavy vehicle filter */
-
-        if (RoutingProfileType.isDriving(profileType)) {
-            if (RoutingProfileType.isHeavyVehicle(profileType) && searchParams.hasParameters(VehicleParameters.class)) {
-                VehicleParameters vehicleParams = (VehicleParameters) profileParams;
-
-                if (vehicleParams.hasAttributes()) {
-
-                    if (profileType == RoutingProfileType.DRIVING_HGV)
-                        edgeFilters.add(new HeavyVehicleEdgeFilter(flagEncoder, searchParams.getVehicleType(), vehicleParams, gs));
-                    else if (profileType == RoutingProfileType.DRIVING_EMERGENCY)
-                        edgeFilters.add(new EmergencyVehicleEdgeFilter(vehicleParams, gs));
-                }
-            }
+        if (profileType == RoutingProfileType.DRIVING_HGV
+            && searchParams.hasParameters(VehicleParameters.class)
+            && ((VehicleParameters)profileParams).hasAttributes()
+        ) {
+            props.putObj("hgv_params", profileParams);
+            props.put("hgv_type", searchParams.getVehicleType());
+        } 
+        else if (profileType == RoutingProfileType.DRIVING_EMERGENCY
+            && searchParams.hasParameters(VehicleParameters.class)
+            && ((VehicleParameters)profileParams).hasAttributes()
+        ) {
+            props.putObj("emergency_params", profileParams);
         }
 
         /* Wheelchair filter */
-
-        else if (profileType == RoutingProfileType.WHEELCHAIR && searchParams.hasParameters(WheelchairParameters.class)) {
-            edgeFilters.add(new WheelchairEdgeFilter((WheelchairParameters) profileParams, gs));
+        else if (profileType == RoutingProfileType.WHEELCHAIR 
+            && searchParams.hasParameters(WheelchairParameters.class)) {
+            props.putObj("wheelchair_params", profileParams);
         }
 
         /* Avoid features */
-
         if (searchParams.hasAvoidFeatures()) {
             props.put("avoid_features", searchParams.getAvoidFeatureTypes());
-            edgeFilters.add(new AvoidFeaturesEdgeFilter(profileType, searchParams, gs));
+            props.putObj("avoid_features", searchParams);
+            props.put("avoid_features_type", profileType);
         }
 
         /* Avoid borders of some form */
 
         if (searchParams.hasAvoidBorders() || searchParams.hasAvoidCountries()) {
             if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)) {
-                edgeFilters.add(new AvoidBordersEdgeFilter(searchParams, gs));
+                props.putObj("avoid_borders", searchParams);
                 if(searchParams.hasAvoidCountries())
                     props.put("avoid_countries", Arrays.toString(searchParams.getAvoidCountries()));
             }
@@ -583,23 +575,13 @@ public class RoutingProfile {
                 ProfileWeighting weighting = iterator.next();
                 if (!weighting.getParameters().isEmpty()) {
                     String name = ProfileWeighting.encodeName(weighting.getName());
-                    for (Map.Entry<String, String> kv : weighting.getParameters().getMap().entrySet())
+                    for (Map.Entry<String, String> kv : weighting.getParameters().toMap().entrySet())
                         props.put(name + kv.getKey(), kv.getValue());
                 }
             }
         }
 
-        /* Live traffic filter - currently disabled */
-
-        if (searchParams.getConsiderTraffic()) {
-            RealTrafficDataProvider trafficData = RealTrafficDataProvider.getInstance();
-            if (RoutingProfileType.isDriving(profileType) && searchParams.getWeightingMethod() != WeightingMethod.SHORTEST && trafficData.isInitialized()) {
-                props.put("weighting_traffic_block", true);
-                edgeFilters.add(new BlockedEdgesEdgeFilter(flagEncoder, trafficData.getBlockedEdges(gs), trafficData.getHeavyVehicleBlockedEdges(gs)));
-            }
-        }
-
-        RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, edgeFilters, flagEncoder);
+        RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, flagEncoder);
         searchCntx.setProperties(props);
 
         return searchCntx;
@@ -646,7 +628,7 @@ public class RoutingProfile {
         return totalDistance <= maxDistance && wayPoints <= maxWayPoints;
     }
 
-    public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings, double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, EdgeFilter customEdgeFilter, RouteProcessContext routeProcCntx, Boolean geometrySimplify)
+    public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings, double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, RouteProcessContext routeProcCntx, Boolean geometrySimplify)
             throws Exception {
 
         GHResponse resp = null;
@@ -658,7 +640,7 @@ public class RoutingProfile {
         try {
             int profileType = searchParams.getProfileType();
             int weightingMethod = searchParams.getWeightingMethod();
-            RouteSearchContext searchCntx = createSearchContext(searchParams, RouteSearchMode.Routing, customEdgeFilter);
+            RouteSearchContext searchCntx = createSearchContext(searchParams);
 
             boolean flexibleMode = searchParams.getFlexibleMode();
             boolean optimized = searchParams.getOptimized();
@@ -677,7 +659,7 @@ public class RoutingProfile {
                 req.setMaxSearchDistance(radiuses);
 
             PMap props = searchCntx.getProperties();
-            if (props != null && props.size() > 0)
+            if (props != null && !props.isEmpty())
                 req.getHints().merge(props);
 
             if (supportWeightingMethod(profileType)) {
@@ -711,11 +693,11 @@ public class RoutingProfile {
                 flexibleMode = true;
             }
 
-            if (RoutingProfileType.isDriving(profileType) && RealTrafficDataProvider.getInstance().isInitialized())
-                req.setEdgeAnnotator(new TrafficEdgeAnnotator(mGraphHopper.getGraphHopperStorage()));
-
-            req.setEdgeFilter(searchCntx.getEdgeFilter());
-            req.setPathProcessor(routeProcCntx.getPathProcessor());
+//            if (RoutingProfileType.isDriving(profileType) && RealTrafficDataProvider.getInstance().isInitialized())
+//                req.setEdgeAnnotator(new TrafficEdgeAnnotator(mGraphHopper.getGraphHopperStorage()));
+//
+//            req.setEdgeFilter(searchCntx.getEdgeFilter());
+//            req.setPathProcessor(routeProcCntx.getPathProcessor());
 
             if (searchParams.requiresDynamicWeights() || flexibleMode) {
                 if (mGraphHopper.isCHEnabled())
@@ -809,7 +791,7 @@ public class RoutingProfile {
         beginUseGH();
 
         try {
-            RouteSearchContext searchCntx = createSearchContext(parameters.getRouteParameters(), RouteSearchMode.Isochrones, null);
+            RouteSearchContext searchCntx = createSearchContext(parameters.getRouteParameters());
 
             IsochroneMapBuilderFactory isochroneMapBuilderFactory = new IsochroneMapBuilderFactory(searchCntx);
             result = isochroneMapBuilderFactory.buildMap(parameters);

@@ -18,103 +18,62 @@ import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EdgeFilterFactory;
 import com.graphhopper.routing.util.FlagEncoder;
-import heigit.ors.routing.ProfileWeighting;
-import heigit.ors.routing.RouteSearchContext;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.WeightingMethod;
+import com.graphhopper.storage.GraphHopperStorage;
+import com.vividsolutions.jts.geom.Polygon;
+import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.*;
+import heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import heigit.ors.routing.parameters.VehicleParameters;
 import heigit.ors.routing.parameters.WheelchairParameters;
-import heigit.ors.routing.traffic.RealTrafficDataProvider;
-
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Map;
+import org.apache.log4j.Logger;
 
 public class ORSEdgeFilterFactory implements EdgeFilterFactory {
+    private static final Logger LOGGER = Logger.getLogger(ORSEdgeFilterFactory.class.getName());
 
     @Override
-    public EdgeFilter createEdgeFilter(AlgorithmOptions opts) {
-
+    public EdgeFilter createEdgeFilter(AlgorithmOptions opts, GraphHopperStorage gs) {
         FlagEncoder flagEncoder = opts.getWeighting().getFlagEncoder();
 
         /* Initialize empty edge filter sequence */
-
         EdgeFilterSequence edgeFilters = new EdgeFilterSequence();
 
         /* Default edge filter which accepts both directions of the specified vehicle */
-
         edgeFilters.add(DefaultEdgeFilter.allEdges(flagEncoder));
 
-        /* Avoid areas */
-
-        if (searchParams.hasAvoidAreas()) {
-            props.put("avoid_areas", true);
-            edgeFilters.add(new AvoidAreasEdgeFilter(searchParams.getAvoidAreas()));
-        }
-
-        /* Heavy vehicle filter */
-
-        if (RoutingProfileType.isDriving(profileType)) {
-            if (RoutingProfileType.isHeavyVehicle(profileType) && searchParams.hasParameters(VehicleParameters.class)) {
-                VehicleParameters vehicleParams = (VehicleParameters) profileParams;
-
-                if (vehicleParams.hasAttributes()) {
-
-                    if (profileType == RoutingProfileType.DRIVING_HGV)
-                        edgeFilters.add(new HeavyVehicleEdgeFilter(flagEncoder, searchParams.getVehicleType(), vehicleParams, gs));
-                    else if (profileType == RoutingProfileType.DRIVING_EMERGENCY)
-                        edgeFilters.add(new EmergencyVehicleEdgeFilter(vehicleParams, gs));
-                }
+        try {
+            ORSPMap params = (ORSPMap) opts.getHints();
+        
+            /* Avoid areas */
+            if (params.hasObj("avoid_areas")) {
+                edgeFilters.add(new AvoidAreasEdgeFilter((Polygon[]) params.getObj("avoid_areas")));
             }
-        }
-
-        /* Wheelchair filter */
-
-        else if (profileType == RoutingProfileType.WHEELCHAIR && searchParams.hasParameters(WheelchairParameters.class)) {
-            edgeFilters.add(new WheelchairEdgeFilter((WheelchairParameters) profileParams, gs));
-        }
-
-        /* Avoid features */
-
-        if (searchParams.hasAvoidFeatures()) {
-            props.put("avoid_features", searchParams.getAvoidFeatureTypes());
-            edgeFilters.add(new AvoidFeaturesEdgeFilter(profileType, searchParams, gs));
-        }
-
-        /* Avoid borders of some form */
-
-        if (searchParams.hasAvoidBorders() || searchParams.hasAvoidCountries()) {
-            if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)) {
-                edgeFilters.add(new AvoidBordersEdgeFilter(searchParams, gs));
-                if(searchParams.hasAvoidCountries())
-                    props.put("avoid_countries", Arrays.toString(searchParams.getAvoidCountries()));
+    
+            /* Heavy vehicle filter */
+            if (params.hasObj("hgv_params") && params.hasObj("hgv_type")) {
+                edgeFilters.add(new HeavyVehicleEdgeFilter(flagEncoder, params.getInt("hgv_type", 0), (VehicleParameters)params.getObj("hgv_params"), gs));
             }
-        }
-
-
-        if (profileParams != null && profileParams.hasWeightings()) {
-            props.put("custom_weightings", true);
-            Iterator<ProfileWeighting> iterator = profileParams.getWeightings().getIterator();
-            while (iterator.hasNext()) {
-                ProfileWeighting weighting = iterator.next();
-                if (!weighting.getParameters().isEmpty()) {
-                    String name = ProfileWeighting.encodeName(weighting.getName());
-                    for (Map.Entry<String, String> kv : weighting.getParameters().toMap().entrySet())
-                        props.put(name + kv.getKey(), kv.getValue());
-                }
+            else if (params.hasObj("emergency_params")) {
+                edgeFilters.add(new EmergencyVehicleEdgeFilter((VehicleParameters)params.getObj("emergency_params"), gs));
             }
+
+            /* Wheelchair filter */
+            else if (params.hasObj("wheelchair_params")) {
+                edgeFilters.add(new WheelchairEdgeFilter((WheelchairParameters)params.getObj("wheelchair_params"), gs));
+            }
+    
+            /* Avoid features */
+            if (params.hasObj("avoid_features") && params.hasObj("avoid_features_type")) {
+                edgeFilters.add(new AvoidFeaturesEdgeFilter(params.getInt("avoid_features_type", 0), (RouteSearchParameters) params.getObj("avoid_features"), gs));
+            }
+    
+            /* Avoid borders */
+            if (params.hasObj("avoid_borders")) {
+                edgeFilters.add(new AvoidBordersEdgeFilter((RouteSearchParameters) params.getObj("avoid_borders"), gs));
+            }
+            
+        } catch (Exception ex) {
+            LOGGER.error(ex);
         }
-
-        /* Live traffic filter - currently disabled */
-
-//        if (searchParams.getConsiderTraffic()) {
-//            RealTrafficDataProvider trafficData = RealTrafficDataProvider.getInstance();
-//            if (RoutingProfileType.isDriving(profileType) && searchParams.getWeightingMethod() != WeightingMethod.SHORTEST && trafficData.isInitialized()) {
-//                props.put("weighting_traffic_block", true);
-//                edgeFilters.add(new BlockedEdgesEdgeFilter(flagEncoder, trafficData.getBlockedEdges(gs), trafficData.getHeavyVehicleBlockedEdges(gs)));
-//            }
-//        }
-
-        RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, edgeFilters, flagEncoder);    }
+        return edgeFilters;
+    }
 }

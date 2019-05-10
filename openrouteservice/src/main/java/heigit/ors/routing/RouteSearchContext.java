@@ -20,24 +20,18 @@ import com.graphhopper.util.PMap;
 
 public class RouteSearchContext {
 	private GraphHopper _graphhopper;
-	private EdgeFilter _edgeFilter;
 	private FlagEncoder _encoder;
 	
 	private PMap _properties;
 
-	public RouteSearchContext(GraphHopper gh, EdgeFilter edgeFilter, FlagEncoder encoder)
+	public RouteSearchContext(GraphHopper gh, FlagEncoder encoder)
 	{
 		_graphhopper = gh;   
-		_edgeFilter = edgeFilter;
 		_encoder = encoder;
 	}
 
 	public FlagEncoder getEncoder() {
 		return _encoder;
-	}
-
-	public EdgeFilter getEdgeFilter() {
-		return _edgeFilter;
 	}
 
 	public GraphHopper getGraphHopper() {
