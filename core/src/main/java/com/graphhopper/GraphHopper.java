@@ -966,7 +966,7 @@ public class GraphHopper implements GraphHopperAPI {
     //public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph graph) {
     public Weighting createWeighting(HintsMap hintsMap, TraversalMode tMode, FlagEncoder encoder, Graph graph, GraphHopperStorage graphStorage) {
         if (weightingFactory != null) {
-            return weightingFactory.createWeighting(hintsMap, tMode, encoder, graph, locationIndex, graphStorage);
+            return weightingFactory.createWeighting(hintsMap, tMode, encoder, graph, locationIndex, getGraphHopperStorage());
         }
     // ORS-GH MOD END
         String weightingStr = toLowerCase(hintsMap.getWeighting());
@@ -1146,7 +1146,7 @@ public class GraphHopper implements GraphHopperAPI {
                         build();
 
                 // ORS-GH MOD START
-                algoOpts.setEdgeFilter(edgeFilterFactory.createEdgeFilter(algoOpts));
+                algoOpts.setEdgeFilter(edgeFilterFactory.createEdgeFilter(algoOpts, getGraphHopperStorage()));
                 // ORS MOD END
                 
                 // MARQ24: we "tunnel" all the additional object that we require for the additional storage

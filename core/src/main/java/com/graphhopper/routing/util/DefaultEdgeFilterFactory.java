@@ -18,6 +18,7 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.routing.AlgorithmOptions;
+import com.graphhopper.storage.GraphHopperStorage;
 
 /**
  * This class creates FlagEncoders that are already included in the GraphHopper distribution.
@@ -26,7 +27,7 @@ import com.graphhopper.routing.AlgorithmOptions;
  */
 public class DefaultEdgeFilterFactory implements EdgeFilterFactory {
     @Override
-    public EdgeFilter createEdgeFilter(AlgorithmOptions opts) {
+    public EdgeFilter createEdgeFilter(AlgorithmOptions opts, GraphHopperStorage storage) {
         return new DefaultEdgeFilter(opts.getWeighting().getFlagEncoder().getAccessEnc(), true, true);
     }
 }

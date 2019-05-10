@@ -18,6 +18,7 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.routing.AlgorithmOptions;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.PMap;
 
 /**
@@ -32,5 +33,5 @@ public interface EdgeFilterFactory {
     /**
      * @return true if the current edge should be processed and false otherwise.
      */
-    EdgeFilter createEdgeFilter(AlgorithmOptions opts);
+    EdgeFilter createEdgeFilter(AlgorithmOptions opts, GraphHopperStorage storage);
 }
