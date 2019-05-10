@@ -198,6 +198,10 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         this.init();
     }
 
+    public double getMeanSpeed() {
+        return MEAN_SPEED;
+    }
+
     @Override
     public int getVersion() {
         return 2;

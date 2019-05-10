@@ -32,10 +32,9 @@ import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
 import heigit.ors.routing.RouteSearchContext;
 import heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.*;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.CarFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.HeavyVehicleFlagEncoder;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.bike.ElectroBikeFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.bike.MountainBikeFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.bike.RegularBikeFlagEncoder;
@@ -93,8 +92,10 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			maxSpeed = WheelchairFlagEncoder.MEAN_SPEED;
 		}
 
-		double meanSpeed = getMeanSpeed(_searchContext.getEncoder());
-		meanSpeed = (meanSpeed == -1) ? maxSpeed : meanSpeed;
+		double meanSpeed = maxSpeed;
+        if (_searchContext.getEncoder() instanceof ORSAbstractFlagEncoder) {
+            meanSpeed = ((ORSAbstractFlagEncoder) _searchContext.getEncoder()).getMeanSpeed();
+        }
 
 		AccessibilityMap edgeMap = GraphEdgeMapFinder.findEdgeMap(_searchContext, parameters);
 
@@ -537,41 +538,4 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			prevIsoPoints.add(new Coordinate(p.getX(), p.getY()));
 		}
 	}
-
-
-    /**
-     * Determines mean speed to calculate the reachfactor property.
-     *
-     * @param encoder The relevant {@link FlagEncoder} instance.
-     * @return mean speed constant
-     */
-    private double getMeanSpeed(FlagEncoder encoder){
-        int meanspeed = -1;
-
-        if (encoder instanceof FootFlagEncoder) {
-            // in the GH FootFlagEncoder, the maximum speed is set to 15km/h which is way too high
-            meanspeed = FootFlagEncoder.MEAN_SPEED;
-        }
-        else if (encoder instanceof MountainBikeFlagEncoder) {
-            meanspeed = MountainBikeFlagEncoder.MEAN_SPEED;
-        }
-        else if (encoder instanceof RegularBikeFlagEncoder) {
-            meanspeed = RegularBikeFlagEncoder.MEAN_SPEED;
-        }
-        else if (encoder instanceof RoadBikeFlagEncoder) {
-            meanspeed = RoadBikeFlagEncoder.MEAN_SPEED;
-        }
-        else if (encoder instanceof ElectroBikeFlagEncoder) {
-            meanspeed = ElectroBikeFlagEncoder.MEAN_SPEED;
-        }
-        else if (encoder instanceof CarFlagEncoder) {
-            meanspeed = CarFlagEncoder.MEAN_SPEED;
-        }
-        else if (encoder instanceof HeavyVehicleFlagEncoder) {
-            meanspeed = HeavyVehicleFlagEncoder.MEAN_SPEED;
-        }
-
-        return meanspeed;
-    }
-
 }

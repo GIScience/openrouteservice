@@ -136,6 +136,10 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         init();
     }
 
+    public double getMeanSpeed() {
+        return MEAN_SPEED;
+    }
+
     @Override
     public int defineWayBits(int index, int shift) {
         // first two bits are reserved for route handling in superclass

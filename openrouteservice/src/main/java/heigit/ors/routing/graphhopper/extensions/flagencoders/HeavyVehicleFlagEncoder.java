@@ -187,6 +187,10 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
 
         init();
     }
+
+    public double getMeanSpeed() {
+        return MEAN_SPEED;
+    }
     
 	public double getDefaultMaxSpeed()
 	{

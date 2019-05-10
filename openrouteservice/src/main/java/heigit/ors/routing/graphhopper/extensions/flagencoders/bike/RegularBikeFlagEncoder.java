@@ -88,6 +88,10 @@ public class RegularBikeFlagEncoder extends CommonBikeFlagEncoder {
         init();
     }
 
+    public double getMeanSpeed() {
+        return MEAN_SPEED;
+    }
+
     @Override
     public int getVersion() {
         return 2;

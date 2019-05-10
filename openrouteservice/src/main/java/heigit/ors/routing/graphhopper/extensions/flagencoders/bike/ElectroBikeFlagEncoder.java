@@ -130,6 +130,10 @@ public class ElectroBikeFlagEncoder extends CommonBikeFlagEncoder
         this.init();
     }
 
+    public double getMeanSpeed() {
+        return MEAN_SPEED;
+    }
+
     @Override
     public int getVersion()
     {

@@ -187,6 +187,10 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         init();
     }
 
+    public double getMeanSpeed() {
+        return MEAN_SPEED;
+    }
+
     @Override
     public int getVersion() {
         return 1;
