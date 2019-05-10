@@ -28,9 +28,9 @@ public class WheelchairAttributes {
 		SMOOTHNESS
 	}
 
-	private float _incline = EMPTY_FLOAT;
-	private float _slopedKerbHeight = EMPTY_FLOAT;
-	private float _width = EMPTY_FLOAT;
+	private int _incline = EMPTY_INT;
+	private int _slopedKerbHeight = EMPTY_INT;
+	private int _width = EMPTY_INT;
 	private int _surfaceType = EMPTY_INT;
 	private int _trackType = EMPTY_INT;
 	private int _smoothnessType = EMPTY_INT;
@@ -52,20 +52,20 @@ public class WheelchairAttributes {
 	public void reset()
 	{
 		_hasAttributes = false;
-		_incline = EMPTY_FLOAT;
-		_slopedKerbHeight = EMPTY_FLOAT;
-		_width = EMPTY_FLOAT;
+		_incline = EMPTY_INT;
+		_slopedKerbHeight = EMPTY_INT;
+		_width = EMPTY_INT;
 		_surfaceType = EMPTY_INT;
 		_trackType= EMPTY_INT;
 		_smoothnessType = EMPTY_INT;
 		_side = Side.UNKNOWN;
 	}
 
-	public float getIncline() {
+	public int getIncline() {
 		return _incline;
 	}
 
-	public void setIncline(float incline) {
+	public void setIncline(int incline) {
 		_incline = incline;
 		_hasAttributes = true;
 	}
@@ -79,11 +79,11 @@ public class WheelchairAttributes {
 		_hasAttributes = true;
 	}
 
-	public float getSlopedKerbHeight() {
+	public int getSlopedKerbHeight() {
 		return _slopedKerbHeight;
 	}
 
-	public void setSlopedKerbHeight(float slopedKerbHeight) {
+	public void setSlopedKerbHeight(int slopedKerbHeight) {
 		_slopedKerbHeight = slopedKerbHeight;
 		_hasAttributes = true;
 	}
@@ -106,9 +106,9 @@ public class WheelchairAttributes {
 		_hasAttributes = true;
 	}
 
-	public float getWidth() { return _width; }
+	public int getWidth() { return _width; }
 
-	public void setWidth(float width)  {
+	public void setWidth(int width)  {
 		_width = width;
 		_hasAttributes = true;
 	}
@@ -123,15 +123,15 @@ public class WheelchairAttributes {
 
 	public void setAttribute(Attribute attribute, String valueAsText) {
 		switch(attribute) {
-			case INCLINE: setIncline(Float.parseFloat(valueAsText));
+			case INCLINE: setIncline(Integer.parseInt(valueAsText));
 			    break;
-			case KERB: setSlopedKerbHeight(Float.parseFloat(valueAsText));
+			case KERB: setSlopedKerbHeight(Integer.parseInt(valueAsText));
                 break;
 			case SMOOTHNESS: setSmoothnessType(Integer.parseInt(valueAsText));
                 break;
 			case SURFACE: setSurfaceType(Integer.parseInt(valueAsText));
                 break;
-			case WIDTH: setWidth(Float.parseFloat(valueAsText));
+			case WIDTH: setWidth(Integer.parseInt(valueAsText));
                 break;
 			case TRACK: setTrackType(Integer.parseInt(valueAsText));
                 break;

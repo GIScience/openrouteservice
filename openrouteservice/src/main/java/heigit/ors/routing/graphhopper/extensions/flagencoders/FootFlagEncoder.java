@@ -326,7 +326,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
      * @param priorityFromRelation  The priority obtained from any relations
      * @return                      The overall priority value for the way
      */
-    private int handlePriority(ReaderWay way, int priorityFromRelation) {
+    protected int handlePriority(ReaderWay way, int priorityFromRelation) {
         TreeMap<Double, Integer> weightToPrioMap = new TreeMap<>();
         if (priorityFromRelation == 0)
             weightToPrioMap.put(0d, UNCHANGED.getValue());

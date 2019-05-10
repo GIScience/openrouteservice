@@ -43,8 +43,6 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 	private WheelchairAttributes _wheelchairAttributesLeftSide;
 	private WheelchairAttributes _wheelchairAttributesRightSide;
 
-	private WheelchairFlagEncoder wheelchairFlagEncoder;
-
 	private HashMap<Integer, HashMap<String,String>> nodeTags;
 	private HashMap<String, Object> cleanedTags;
 
@@ -82,15 +80,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 	@Override
 	public GraphExtension init(GraphHopper graphhopper) throws Exception 
 	{
-		if (!graphhopper.getEncodingManager().supports("wheelchair"))
-			return null;
-
 		if (_storage != null)
 			throw new Exception("GraphStorageBuilder has been already initialized.");
-
-
-		wheelchairFlagEncoder = new WheelchairFlagEncoder();
-		wheelchairFlagEncoder.defineWayBits(0,0);
 
 		if(_parameters.containsKey("KerbsOnCrossings")) {
 			kerbOnCrossing = Boolean.parseBoolean(_parameters.get("KerbsOnCrossings"));
@@ -224,11 +215,10 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		// Get the incline of the way (10%, 6% etc.)
 		if (way.hasTag("incline"))
 		{
-			double incline = getInclineValueFromWay(way);
-			if (incline != 0.0)
-			{
-				_wheelchairAttributesLeftSide.setIncline((float)incline);
-				_wheelchairAttributesRightSide.setIncline((float)incline);
+			int incline = getInclineValueFromWay(way);
+			if (incline != -1) {
+				_wheelchairAttributesLeftSide.setIncline(incline);
+				_wheelchairAttributesRightSide.setIncline(incline);
 			}
 		}
 
@@ -337,6 +327,9 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		if(way.hasTag("sloped_curb")) {
 			height = convertKerbValueToHeight("sloped_curb", way.getTag("sloped_curb"));
 		}
+		if(way.hasTag("sloped_kerb")) {
+			height = convertKerbValueToHeight("sloped_kerb", way.getTag("sloped_kerb"));
+		}
 		if(way.hasTag("kerb:height")) {
 			height = convertKerbValueToHeight("kerb:height", way.getTag("kerb:height"));
 		}
@@ -350,38 +343,38 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		String[] tagValues = getCompoundKerb(way, "curb");
 		if(tagValues[0] != null && !tagValues[0].isEmpty()) {
 			_hasLeftSidewalk = true;
-			_wheelchairAttributesLeftSide.setSlopedKerbHeight((float) convertKerbValueToHeight("curb", tagValues[0].toLowerCase()));
+			_wheelchairAttributesLeftSide.setSlopedKerbHeight(convertKerbValueToHeight("curb", tagValues[0].toLowerCase()));
 		}
 		if(tagValues[1] != null && !tagValues[1].isEmpty()) {
 			_hasRightSidewalk = true;
-			_wheelchairAttributesRightSide.setSlopedKerbHeight((float) convertKerbValueToHeight("curb", tagValues[1].toLowerCase()));
+			_wheelchairAttributesRightSide.setSlopedKerbHeight(convertKerbValueToHeight("curb", tagValues[1].toLowerCase()));
 		}
 		tagValues = getCompoundKerb(way, "kerb");
 		if(tagValues[0] != null && !tagValues[0].isEmpty()) {
 			_hasLeftSidewalk = true;
-			_wheelchairAttributesLeftSide.setSlopedKerbHeight((float) convertKerbValueToHeight("kerb", tagValues[0].toLowerCase()));
+			_wheelchairAttributesLeftSide.setSlopedKerbHeight(convertKerbValueToHeight("kerb", tagValues[0].toLowerCase()));
 		}
 		if(tagValues[1] != null && !tagValues[1].isEmpty()) {
 			_hasRightSidewalk = true;
-			_wheelchairAttributesRightSide.setSlopedKerbHeight((float) convertKerbValueToHeight("kerb", tagValues[1].toLowerCase()));
+			_wheelchairAttributesRightSide.setSlopedKerbHeight(convertKerbValueToHeight("kerb", tagValues[1].toLowerCase()));
 		}
 		tagValues = getCompoundKerb(way, "sloped_curb");
 		if(tagValues[0] != null && !tagValues[0].isEmpty()) {
 			_hasLeftSidewalk = true;
-			_wheelchairAttributesLeftSide.setSlopedKerbHeight((float) convertKerbValueToHeight("sloped_curb", tagValues[0].toLowerCase()));
+			_wheelchairAttributesLeftSide.setSlopedKerbHeight(convertKerbValueToHeight("sloped_curb", tagValues[0].toLowerCase()));
 		}
 		if(tagValues[1] != null && !tagValues[1].isEmpty()) {
 			_hasRightSidewalk = true;
-			_wheelchairAttributesRightSide.setSlopedKerbHeight((float) convertKerbValueToHeight("sloped_curb", tagValues[1].toLowerCase()));
+			_wheelchairAttributesRightSide.setSlopedKerbHeight(convertKerbValueToHeight("sloped_curb", tagValues[1].toLowerCase()));
 		}
 		tagValues = getCompoundKerb(way, "kerb:height");
 		if(tagValues[0] != null && !tagValues[0].isEmpty()) {
 			_hasLeftSidewalk = true;
-			_wheelchairAttributesLeftSide.setSlopedKerbHeight((float) convertKerbValueToHeight("kerb:height", tagValues[0].toLowerCase()));
+			_wheelchairAttributesLeftSide.setSlopedKerbHeight(convertKerbValueToHeight("kerb:height", tagValues[0].toLowerCase()));
 		}
 		if(tagValues[1] != null && !tagValues[1].isEmpty()) {
 			_hasRightSidewalk = true;
-			_wheelchairAttributesRightSide.setSlopedKerbHeight((float) convertKerbValueToHeight("kerb:height", tagValues[1].toLowerCase()));
+			_wheelchairAttributesRightSide.setSlopedKerbHeight(convertKerbValueToHeight("kerb:height", tagValues[1].toLowerCase()));
 		}
 	}
 
@@ -474,18 +467,21 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 
 		if(way.hasTag("width")) {
 			double width = convertLinearValueToMetres(way.getTag("width"));
-			_wheelchairAttributes.setWidth((float)width);
+			if (width >= 0)
+				_wheelchairAttributes.setWidth((int) (width*100));
 		}
 
 		// kerb height is only valid on separated ways
 		if(way.hasTag("curb"))
-			_wheelchairAttributes.setSlopedKerbHeight((float) convertKerbValueToHeight("curb", way.getTag("curb")));
+			_wheelchairAttributes.setSlopedKerbHeight(convertKerbValueToHeight("curb", way.getTag("curb")));
 		if(way.hasTag("kerb"))
-			_wheelchairAttributes.setSlopedKerbHeight((float) convertKerbValueToHeight("kerb", way.getTag("kerb")));
+			_wheelchairAttributes.setSlopedKerbHeight(convertKerbValueToHeight("kerb", way.getTag("kerb")));
 		if(way.hasTag("sloped_curb"))
-			_wheelchairAttributes.setSlopedKerbHeight((float) convertKerbValueToHeight("sloped_curb", way.getTag("sloped_curb")));
+			_wheelchairAttributes.setSlopedKerbHeight(convertKerbValueToHeight("sloped_curb", way.getTag("sloped_curb")));
+		if(way.hasTag("sloped_kerb"))
+			_wheelchairAttributes.setSlopedKerbHeight(convertKerbValueToHeight("sloped_kerb", way.getTag("sloped_kerb")));
 		if(way.hasTag("kerb:height"))
-			_wheelchairAttributes.setSlopedKerbHeight((float) convertKerbValueToHeight("kerb:height", way.getTag("kerb:height")));
+			_wheelchairAttributes.setSlopedKerbHeight(convertKerbValueToHeight("kerb:height", way.getTag("kerb:height")));
 
 		// incline
 		// =======
@@ -494,10 +490,10 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		// http://wiki.openstreetmap.org/wiki/DE:Wheelchair_routing#Weg_Eigenschaften_allgemein
 		if (way.hasTag("incline"))
 		{
-			double incline = getInclineValueFromWay(way);
+			int incline = getInclineValueFromWay(way);
 			if (incline != 0.0)
 			{
-				_wheelchairAttributes.setIncline((float)incline);
+				_wheelchairAttributes.setIncline(incline);
 			}
 		}
 	}
@@ -565,7 +561,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
         // This is only applicable if the kerb height is stored on a node rather than on the way itself. If that is the
         // case, then the kerb height has already been stored in the attributes.
 
-		float kerbHeight = getKerbHeightForWay(way, edge);
+		int kerbHeight = getKerbHeightForWay(way, edge);
 		if(kerbHeight > -1) {
 			at.setSlopedKerbHeight(kerbHeight);
 		}
@@ -612,8 +608,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 
 	}
 
-	float getKerbHeightForWay(ReaderWay way, EdgeIteratorState edge) {
-		float kerbHeight = -1;
+	int getKerbHeightForWay(ReaderWay way, EdgeIteratorState edge) {
+		int kerbHeight = -1;
 
 		if((kerbOnCrossing && way.hasTag("footway") && way.getTag("footway").equals("crossing"))
 				|| !kerbOnCrossing) {
@@ -632,8 +628,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 	 * @param endNodeId
 	 * @return
 	 */
-	float getKerbHeightForWayFromNodeTags(int startNodeId, int endNodeId) {
-		List<Float> kerbHeights = new ArrayList<>();
+	int getKerbHeightForWayFromNodeTags(int startNodeId, int endNodeId) {
+		List<Integer> kerbHeights = new ArrayList<>();
 		for(int id : nodeTags.keySet()) {
 			// We only want to add the kerb height to the edge that is actually connected to it
 			if(id == endNodeId || id == startNodeId) {
@@ -645,7 +641,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 						case "kerb":
 						case "sloped_kerb":
 						case "kerb:height":
-							kerbHeights.add((float) convertKerbValueToHeight(key, tags.get(key)));
+							kerbHeights.add(convertKerbValueToHeight(key, tags.get(key)));
 							break;
 					}
 				}
@@ -654,9 +650,9 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		if(kerbHeights.size() > 0) {
 			// If we have multiple kerb heights, we need to apply the largest to the edge as this is the worst
 			if(kerbHeights.size() > 1) {
-				java.util.Collections.sort(kerbHeights, new Comparator<Float>() {
+				java.util.Collections.sort(kerbHeights, new Comparator<Integer>() {
 					@Override
-					public int compare(Float v1, Float v2) {
+					public int compare(Integer v1, Integer v2) {
 						return (v1 < v2) ? 1 : -1;
 					}
 				});
@@ -686,13 +682,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		int sm = getWorse(WheelchairAttributes.Attribute.SMOOTHNESS, Integer.class);
 		if (sm > 0) at.setSmoothnessType(sm);
 
-		float sl = getWorse(WheelchairAttributes.Attribute.KERB, Float.class);
+		int sl = getWorse(WheelchairAttributes.Attribute.KERB, Integer.class);
 		if (sl > 0) at.setSlopedKerbHeight(sl);
 
-		float wi = getWorse(WheelchairAttributes.Attribute.WIDTH, Float.class);
+		int wi = getWorse(WheelchairAttributes.Attribute.WIDTH, Integer.class);
 		if (wi > 0) at.setWidth(wi);
 
-		float in = getWorse(WheelchairAttributes.Attribute.INCLINE, Float.class);
+		int in = getWorse(WheelchairAttributes.Attribute.INCLINE, Integer.class);
 		if (in > 0) at.setIncline(in);
 
 		return at;
@@ -723,17 +719,17 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 	}
 
 	/**
-	 * Converts a kerb height value to a numerical height (in metres). A kerb could be stored as an explicit height or
+	 * Converts a kerb height value to a numerical height (in centimetres). A kerb could be stored as an explicit height or
 	 * as an indicator as to whether the kerb is lowered or not.
 	 *
 	 * @param tag		The key (tag) that was obtained describing the kerb information
 	 * @param value		The value of the tag
 	 * @return			The presumed height of the kerb in metres
 	 */
-	private double convertKerbValueToHeight(String tag, String value) {
-		double height = -1d;
+	private int convertKerbValueToHeight(String tag, String value) {
+		int height = -1;
 
-		if(tag.equals("sloped_curb") || tag.equals("curb") || tag.equals("kerb")) {
+		if(tag.equals("sloped_curb") || tag.equals("sloped_kurb") || tag.equals("curb") || tag.equals("kerb")) {
 			// THE TAGS sloped_curb AND curb SHOULD NOT BE USED
 			// also, many of the values are not recognised as proper OSM tags, but they still exist
 			switch(value) {
@@ -743,29 +739,35 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 				case "lowered":
 				case "dropped":
 				case "sloped":
-					height = 0.03d;
+					height = 3;
 					break;
 				case "no":
 				case "none":
 				case "one":
 				case "rolled":
 				case "regular":
-					height = 0.15d;
+					height = 15;
 					break;
 				case "at_grade":
 				case "flush":
-					height = 0d;
+					height = 0;
 					break;
 				default:
 					// May be that it is already numeric (though it shouldn't be)
-					height = convertLinearValueToMetres(value);
+					double metresHeight = convertLinearValueToMetres(value);
+					if (metresHeight >= 0) {
+						height = (int) (metresHeight*100);
+					}
 					break;
 			}
 		}
 		if(tag.equals("kerb:height")) {
 			// we need to also check for the measurement unit
 			// we can use the same unit conversion as width
-			height = convertLinearValueToMetres(value);
+			double metresHeight = convertLinearValueToMetres(value);
+			if (metresHeight >= 0) {
+				height = (int) (metresHeight*100);
+			}
 		}
 
 		return height;
@@ -810,7 +812,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		return values;
 	}
 
-	private double getInclineValueFromWay(ReaderWay way)
+	private int getInclineValueFromWay(ReaderWay way)
 	{
 		String inclineValue = way.getTag("incline");
 		return convertInclineValueToPercentage(inclineValue);
@@ -823,7 +825,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 	 * @param unprocessedInclineValue		The value obtained from the incline tag
 	 * @return					a percentage incline value
 	 */
-	private double convertInclineValueToPercentage(String unprocessedInclineValue) {
+	private int convertInclineValueToPercentage(String unprocessedInclineValue) {
 
 		if (unprocessedInclineValue != null)
 		{
@@ -862,10 +864,10 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 			    v = v * -1.0;
             }
 
-			return v;
+			return (int) Math.round(v);
 		}
 
-		return 0;
+		return -1;
 	}
 
 	/**

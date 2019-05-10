@@ -16,14 +16,16 @@ package heigit.ors.routing.graphhopper.extensions.flagencoders;
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.EncodedDoubleValue;
-import com.graphhopper.routing.util.EncodedValue;
+import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
+import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeMap;
 
 import static com.graphhopper.routing.util.PriorityCode.*;
 
@@ -65,8 +67,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     
     private final Set<String> accessibilityRelatedAttributes = new HashSet<>();
 
-  	public WheelchairFlagEncoder(PMap configuration)
-    {
+  	public WheelchairFlagEncoder(PMap configuration) {
 		 this(configuration.getInt("speed_bits", 4),
 			  configuration.getDouble("speed_factor", 1));
     }
@@ -74,13 +75,11 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     /**
      * Should be only instantiated via EncodingManager
      */
-    public WheelchairFlagEncoder()
-    {
+    public WheelchairFlagEncoder() {
         this(4, 1);
     }
 
-    public WheelchairFlagEncoder( int speedBits, double speedFactor )
-    {
+    public WheelchairFlagEncoder( int speedBits, double speedFactor ) {
         super(speedBits, speedFactor);
         // test for the following restriction keys
         restrictions.add("wheelchair");
@@ -185,51 +184,6 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 
         return shift;
     }
-    
-    
-    @Override
-    public double getMaxSpeed() {
-        return speedEncoder.getMaxValue();
-    }
-    
-    @Override
-    public double getSpeed( long flags )
-    {
-        double speedVal = speedEncoder.getDoubleValue(flags);
-        if (speedVal < 0)
-            throw new IllegalStateException("Speed was negative!? " + speedVal);
-
-        return speedVal;
-    }
-    
-    //@Override
-    public long adaptSpeed(long flags, double factor)
-    {
-    	
-    	double speedValue = getSpeed(flags);
-    	double adaptedSpeed = speedValue * factor;
-    	if (adaptedSpeed > MAX_SPEED) adaptedSpeed = MAX_SPEED;
-    	flags = speedEncoder.setDoubleValue(flags, 0);
-    	flags = speedEncoder.setDoubleValue(flags, adaptedSpeed);
-    	
-        return flags;
-    }
-    
-    //@Override
-    public long setSidewalkSpeed(long flags)
-    {
-    	// return flags;
-    	return adaptSpeed(flags, 1.25d);
-    	// return adaptSpeed(flags, 1d);
-    }
-    
-    //@Override
-    public long setNonSidewalkSpeed(long flags)
-    {
-    	// return flags;
-    	return adaptSpeed(flags, 0.5d);
-    	// return adaptSpeed(flags, 1d);
-    }
 
 
     /**
@@ -238,11 +192,10 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
      * @param way
      */
     @Override
-    public long acceptWay(ReaderWay way )
-    {
+    public EncodingManager.Access getAccess(ReaderWay way ) {
     	// check access restrictions
         if (way.hasTag(restrictions, restrictedValues) && !(way.hasTag(restrictions, intendedValues) || way.hasTag("sidewalk", usableSidewalkValues)))
-            return 0;
+            return EncodingManager.Access.CAN_SKIP;
         
     	String highwayValue = way.getTag("highway");
         if (highwayValue == null) {
@@ -253,24 +206,24 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
             	if (way.hasTag("wheelchair")) {
             		// wheelchair=yes, designated, official, permissive, limited
                 	if (way.hasTag("wheelchair", intendedValues)) {
-                		return acceptBit | ferryBit;
+                		return EncodingManager.Access.FERRY;
                 	}
                 	// wheelchair=no, restricted, private
                 	if (way.hasTag("wheelchair", restrictedValues)) {
-                		return 0;
+                		return EncodingManager.Access.CAN_SKIP;
                 	}
                 }
             	if (way.hasTag("foot")) {
             		// foot=yes, designated, official, permissive, limited
                 	if (way.hasTag("foot", intendedValues)) {
-                		return acceptBit | ferryBit;
+                        return EncodingManager.Access.FERRY;
                 	}
                 	// foot=no, restricted, private
                 	if (way.hasTag("foot", restrictedValues)) {
-                		return 0;
+                		return EncodingManager.Access.CAN_SKIP;
                 	}
             	}
-            	return acceptBit;
+            	return EncodingManager.Access.WAY;
             }
             
             // public transport in general
@@ -280,112 +233,102 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
             	if (way.hasTag("wheelchair")) {
             		// wheelchair=yes, designated, official, permissive, limited
                 	if (way.hasTag("wheelchair", intendedValues)) {
-                		return acceptBit;
+                		return EncodingManager.Access.WAY;
                 	}
                 	// wheelchair=no, restricted, private
                 	if (way.hasTag("wheelchair", restrictedValues)) {
-                		return 0;
+                		return EncodingManager.Access.CAN_SKIP;
                 	}
                 }
             	if (way.hasTag("foot")) {
             		// foot=yes, designated, official, permissive, limited
                 	if (way.hasTag("foot", intendedValues)) {
-                		return acceptBit;
+                		return EncodingManager.Access.WAY;
                 	}
                 	// foot=no, restricted, private
                 	if (way.hasTag("foot", restrictedValues)) {
-                		return 0;
+                		return EncodingManager.Access.CAN_SKIP;
                 	}
             	}
-                return acceptBit;
+                return EncodingManager.Access.WAY;
             }
             // no highway, no ferry, no railway? --> do not accept way
-            return 0;
+            return EncodingManager.Access.CAN_SKIP;
         }
         // highway != null
         else {
-        	/*
-        	// we allow all tracktype values
-        	if (way.hasTag("tracktype"))
-        	{
-        		String trackType = way.getTag("tracktype");
-        		if (!("grade1".equalsIgnoreCase(trackType) || "grade2".equalsIgnoreCase(trackType)))
-        				return 0;
-        	}
-        	*/
         	// wheelchair=yes, designated, official, permissive, limited
         	if (way.hasTag("wheelchair", intendedValues)) {
-        		return acceptBit;
+        		return EncodingManager.Access.WAY;
         	}
         	// wheelchair=no, restricted, private
         	if (way.hasTag("wheelchair", restrictedValues)) {
-        		return 0;
+        		return EncodingManager.Access.CAN_SKIP;
         	}
         	
         	// do not include nonWheelchairAccessibleHighways
             if (nonWheelchairAccessibleHighways.contains(highwayValue)) {
             	// check for wheelchair accessibility
-            	return 0;
+            	return EncodingManager.Access.CAN_SKIP;
             }
         	
         	// foot=yes, designated, official, permissive, limited
         	if (way.hasTag("foot", intendedValues)) {
-        		return acceptBit;
+        		return EncodingManager.Access.WAY;
         	}
         	
         	// foot=no, restricted, private
         	if (way.hasTag("foot", restrictedValues)) {
-        		return 0;
+        		return EncodingManager.Access.CAN_SKIP;
         	}
         	
             // http://wiki.openstreetmap.org/wiki/DE:Key:sac_scale
             String sacScale = way.getTag("sac_scale");
             if (sacScale != null) {
             	// even "hiking" is probably not possible for wheelchair user 
-                return 0;
+                return EncodingManager.Access.CAN_SKIP;
             }
 
             if (way.hasTag("sidewalk", usableSidewalkValues)) {
-            	return acceptBit;
+            	return EncodingManager.Access.WAY;
             }
             
             // Runge
             if (way.hasTag("sidewalk", noSidewalkValues) && assumedWheelchairAccessibleHighways.contains(highwayValue))
-           		return 0;
+           		return EncodingManager.Access.CAN_SKIP;
 
             // explicit motorroads are not usable
             if (way.hasTag("motorroad", "yes"))
-                return 0;
+                return EncodingManager.Access.CAN_SKIP;
 
             // do not get our feet wet, "yes" is already included above
             if (isBlockFords() && (way.hasTag("highway", "ford") || way.hasTag("ford")))
-                return 0;
+                return EncodingManager.Access.CAN_SKIP;
             
             boolean bicycleOrHorseOnlyWay = (way.hasTag("bicycle", "designated") || way.hasTag("bicycle", "official") || way.hasTag("horse", "designated") || way.hasTag("horse", "official")) && !way.hasTag(restrictions, intendedValues);
             if (bicycleOrHorseOnlyWay)
-                return 0;
+                return EncodingManager.Access.CAN_SKIP;
             
             if (restrictedWheelchairHighways.contains(highwayValue) && !bicycleOrHorseOnlyWay) {
             	// In some countries bridleways cannot be travelled by anything other than a horse, so we should check if they have been explicitly allowed for foot or pedestrian
                 if (highwayValue.equals("bridleway") && !(intendedValues.contains(way.getTag("foot", "no")) || intendedValues.contains(way.getTag("wheelchair", "no")))) {
-                    return 0;
+                    return EncodingManager.Access.CAN_SKIP;
                 }
-           		return acceptBit;
+           		return EncodingManager.Access.WAY;
             }
             
             if (fullyWheelchairAccessibleHighways.contains(highwayValue) || assumedWheelchairAccessibleHighways.contains(highwayValue) || limitedWheelchairAccessibleHighways.contains(highwayValue)) {
             	// check whether information on wheelchair accessbility is available
-            	return acceptBit;
+            	return EncodingManager.Access.WAY;
             }
             
             // anything else
-            return 0;
+            return EncodingManager.Access.CAN_SKIP;
         }
     }
 
     @Override
-    public long handleRelationTags(ReaderRelation relation, long oldRelationFlags )
-    {
+    public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
         int code = 0;
         if (relation.hasTag("route", "hiking") || relation.hasTag("route", "foot")) {
             Integer val = hikingNetworkToCode.get(relation.getTag("network"));
@@ -402,14 +345,14 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         return oldRelationFlags;
     }
 
-    @Override
-    public long handleWayTags(ReaderWay way, long allowed, long relationFlags )
-    {
-        if (!isAccept(allowed))
-            return 0;
+    //public long handleWayTags(ReaderWay way, long allowed, long relationFlags )
 
-        long encoded = 0;
-        if (!isFerry(allowed))
+    @Override
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, long relationFlags) {
+        if (access.canSkip())
+            return edgeFlags;
+
+        if (!access.isFerry())
         {
         	// TODO: Depending on availability of sidewalk, surface, smoothness, tracktype and incline MEAN_SPEED or SLOW_SPEED should be encoded
         	// TODO: Maybe also implement AvoidFeaturesWeighting for Wheelchairs
@@ -450,24 +393,22 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         	}
         	// *****************************************
         	
-            encoded = speedEncoder.setDoubleValue(0, speed);
-     
-         	// assumption: all ways are usable for wheelchair users in both direction
-            encoded |= directionBitMask;
+            speedEncoder.setDecimal(false, edgeFlags, speed);
             
             int priorityFromRelation = 0;
             if (relationFlags != 0)
                 priorityFromRelation = (int) relationCodeEncoder.getValue(relationFlags);
 
-            encoded = setLong(encoded, PriorityWeighting.KEY, handlePriority(way, priorityFromRelation));
+            priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation)));
         } 
         else {
-            double ferrySpeed = getFerrySpeed(way, SLOW_SPEED, MEAN_SPEED, FERRY_SPEED);
-            encoded = setSpeed(encoded, ferrySpeed);
-            encoded |= directionBitMask;
+            double ferrySpeed = getFerrySpeed(way);
+            setSpeed(false, edgeFlags, ferrySpeed);
+            accessEnc.setBool(false, edgeFlags, true);
+            accessEnc.setBool(true, edgeFlags, true);
         }
 
-        return encoded;
+        return edgeFlags;
     }
 
     /**
@@ -478,133 +419,18 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     @Override
     public long handleNodeTags(ReaderNode node)
     {
-    	long encoded = 0;
+        long encoded = super.handleNodeTags(node);
 
-        // absolute barriers always block
-        if (node.hasTag("barrier", absoluteBarriers)) {
-        	// barrier is not passable
-        	// set barrier flag for incoming/outgoing edges of the node
-        	encoded |= directionBitMask;
-        }
-        
-        // movable barriers block if they are not marked as passable
-        if (node.hasTag("barrier", potentialBarriers))
-        {
-            boolean isLocked = false;
-            if (node.hasTag("locked", "yes")) {
-            	isLocked = true;
-            }
-
-            for (String restriction : restrictions)
-            {
-            	// a node is passable if it is not explicitly locked and if it is explicitly intended to be used by this restriction
-            	// a node is not set to passable if only "foot" is allowed as the potential Barrier might even then still be a barrier for wheelchair user
-            	if (!isLocked && node.hasTag(restriction, intendedValues)) {
-            		// barrier is passable, no barrier flag
-            		encoded |= 0;
-            	}
-            }
-
-            if (isBlockByDefault()) {
-            	// depending on configuration barrier is (not) passable if no further information is available
-            	// set barrier flag for incoming/outgoing edges of the node
-            	encoded |= directionBitMask;
-            }
-        }
-
-        // block fords defaults to yes
-        // the following logic results in the vast majority of fords not being passable for wheelchair users
+        // We want to be more strict with fords, as only if it is declared as wheelchair accessible do we want to cross it
         if (isBlockFords()) {
-        	if ((node.hasTag("highway", "ford") || node.hasTag("ford"))) {
-        		for (String restriction : restrictions)
-                {
-                	// a ford is passable if it is explicitly intended to be used by this restriction
-                	// a node is not set to passable if only "foot" is allowed as the ford will probably still then be a barrier for wheelchair users 
-                	if (!restriction.equals("foot") && node.hasTag(restriction, intendedValues)) {
-                		// ford is passable, no barrier flag
-                		encoded |= 0;
-                	}
+            if (node.hasTag("highway", "ford") || node.hasTag("ford")) {
+                if (!node.hasTag("wheelchair", intendedValues)) {
+                    encoded = getEncoderBit();
                 }
-        		// ford is not passable
-        		// set barrier flag for incoming/outgoing edges of the node
-        		encoded |= directionBitMask;
-        	}
+            }
         }
 
-        /*if(node.hasTag("kerb") || node.hasTag("kerb:height")) {
-            // We do not know if the kerb is a barrier as this is defined by the user
-            encoded |= directionBitMask;
-        }*/
-      
-        /*
-        // https://github.com/species/osrm-wheelchair-profiles/blob/master/wheelchair-normal.lua
-        // http://mm.linuxtage.at/osm/routing/wheelchair-normal/?z=19&center=47.074193%2C15.449503&loc=47.074336%2C15.449848&loc=47.074871%2C15.451916&hl=en&ly=&alt=&df=&srv=
-        if (node.containsTag("kerb") || node.containsTag("curb") || node.containsTag("sloped_curb")) {
-    		// kerb is not passable
-    		// set barrier flag for incoming/outgoing edges of the node
-    	//	encoded |= kerbBit;
-    		double doubleValue = getKerbHeight(node);
-    		// System.out.println("WheelchairFlagEncoder.handleNodeTags(), nodeId="+node.getId()+", kerb="+doubleValue);
-    		// set value
-    		//encoded |= slopedCurbEncoder.setDoubleValue(0, doubleValue);    		
-    	}
-        
-        if (node.containsTag("crossing") || node.hasTag("highway", "crossing")) {
-    		// set flag for crossings
-    	//	encoded |= crossingBit;
-    	}
-		
-*/
-        // node is passable if nothing else applies
         return encoded;
-    }
-    
-
-    /**
-     * Second parsing step. Invoked after splitting the edges. Currently used to offer a hook to
-     * calculate precise speed values based on elevation data stored in the specified edge.
-     */
-    @Override
-    public void applyWayTags(ReaderWay way, EdgeIteratorState edge )
-    {
-    	/*
-        PointList pl = edge.fetchWayGeometry(3);
-        if (!pl.is3D())
-            throw new IllegalStateException("To support speed calculation based on elevation data it is necessary to enable import of it.");
-
-        long flags = edge.getFlags();
-
-        if (way.hasTag("sidewalk", "both"))
-        {
-        	way.getNodes();
-        	
-        }
-        */
-    }
-
-    @Override
-    // currently unused
-    public long getLong(long flags, int key)
-    {
-        switch (key)
-        {
-            case PriorityWeighting.KEY:
-                return priorityWayEncoder.getValue(flags);
-            default:
-                return super.getLong(flags, key);
-        }
-    }
-
-    @Override
-    public long setLong(long flags, int key, long value)
-    {
-        switch (key)
-        {
-            case PriorityWeighting.KEY:
-                return priorityWayEncoder.setValue(flags, value);
-            default:
-                return super.setLong(flags, key, value);
-        }
     }
     
     protected int handlePriority(ReaderWay way, int priorityFromRelation)

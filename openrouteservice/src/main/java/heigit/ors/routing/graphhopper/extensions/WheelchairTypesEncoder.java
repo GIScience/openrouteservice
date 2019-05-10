@@ -14,6 +14,7 @@
 package heigit.ors.routing.graphhopper.extensions;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public final class WheelchairTypesEncoder {
 	
@@ -31,7 +32,7 @@ public final class WheelchairTypesEncoder {
 	private final static int SURFACE_COBBLESTONE_FLATTENED = 6;
 	private final static int SURFACE_CONCRETE_LANES = 7;
 	private final static int SURFACE_COBBLESTONE = 8;
-	
+
 	// http://wiki.openstreetmap.org/wiki/Key:surface
 	// these might still be "feasable" for experienced wheelchair users
 	private final static int SURFACE_UNPAVED = 9;
@@ -114,7 +115,7 @@ public final class WheelchairTypesEncoder {
         put("very_horrible", SMOOTHNESS_VERY_HORRIBLE);
         put("impassable", SMOOTHNESS_IMPASSABLE);
     }};
-	
+
     
     // tracktype
 	// =========
