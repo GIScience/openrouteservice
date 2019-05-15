@@ -173,8 +173,8 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
     }
 
     @Override
-    public long handleRelationTags(ReaderRelation relation, long oldRelationFlags) {
-        oldRelationFlags = super.handleRelationTags(relation, oldRelationFlags);
+    public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
+        oldRelationFlags = super.handleRelationTags(oldRelationFlags, relation);
         int code = 0;
         if (relation.hasTag("route", "mtb"))
             code = PREFER.getValue();

@@ -19,8 +19,10 @@ package heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.profiles.*;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.PriorityWeighting;
+import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.*;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
 import org.apache.log4j.Logger;
@@ -56,15 +58,19 @@ abstract public class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     private final Map<String, SpeedValue> highwaySpeeds = new HashMap<>();
     // convert network tag of bicycle routes into a way route code
     private final Map<String, Integer> bikeNetworkToCode = new HashMap<>();
-    protected EncodedValue relationCodeEncoder;
-    EncodedValue priorityWayEncoder;
+    protected EncodedValueOld relationCodeEncoder;
+    protected boolean speedTwoDirections;
+    DecimalEncodedValue priorityWayEncoder;
+    BooleanEncodedValue unpavedEncoder;
     private long unpavedBit = 0;
-    private EncodedValue wayTypeEncoder;
+    private IntEncodedValue wayTypeEncoder;
     // Car speed limit which switches the preference from UNCHANGED to AVOID_IF_POSSIBLE
     private int avoidSpeedLimit;
 
     // This is the specific bicycle class
     private String classBicycleKey;
+
+    boolean considerElevation = false;
 
     // MARQ24 MOD START
     // MARQ24 ADDON in the case of the RoadBike Encoder we want to skip some
@@ -142,7 +148,7 @@ abstract public class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         // MARQ24 MOD START
         // we have to check, WHAT this really does - since when 'enabled' we get 'cracy' detours like this one
         // http://localhost:3035/directions?n1=51.563406&n2=8.713585&n3=16&a=51.566454,8.705764,51.559224,8.707244&b=1a&c=0&g1=-1&g2=0&h2=3&k1=en-US&k2=km
-        setConsiderElevation(considerElevation);
+        //setConsiderElevation(considerElevation);
         //setConsiderElevation(false);
         if (considerElevation) {
             maxPossibleSpeed = (int) getDownhillMaxSpeed();
@@ -230,81 +236,64 @@ abstract public class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     @Override
-    public int defineWayBits(int index, int shift) {
-        // first two bits are reserved for route handling in superclass
-        shift = super.defineWayBits(index, shift);
-        speedEncoder = new EncodedDoubleValue("Speed", shift, speedBits, speedFactor, highwaySpeeds.get("cycleway").speed, maxPossibleSpeed);
-        shift += speedEncoder.getBits();
-
-        unpavedBit = 1L << shift++;
-        // 2 bits
-        // MARQ24 2018/07/08 wayType-Encoder has NO IMPACT on the actual routing - the only place where it was/is used
-        // is in the TurnInstructions (where an different annotations will be added once a different WAYTYPE are present
-        wayTypeEncoder = new EncodedValue("wayType", shift, 2, 1, 0, 3, true);
-        shift += wayTypeEncoder.getBits();
-
-        priorityWayEncoder = new EncodedValue("PreferWay", shift, 3, 1, 0, 7);
-        shift += priorityWayEncoder.getBits();
-
-        // MARQ24 MOD START
-        if (considerElevation) {
-            reverseSpeedEncoder = new EncodedDoubleValue("Reverse Speed", shift, speedBits, speedFactor, getHighwaySpeed("cycleway").speed, maxPossibleSpeed);
-            shift += reverseSpeedEncoder.getBits();
-        }
-        // MARQ24 MOD END
-        return shift;
+    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
+        super.createEncodedValues(registerNewEncodedValue, prefix, index);
+        registerNewEncodedValue.add(speedEncoder = new FactorizedDecimalEncodedValue(prefix + "average_speed", speedBits, speedFactor, speedTwoDirections));
+        registerNewEncodedValue.add(unpavedEncoder = new SimpleBooleanEncodedValue(prefix + "paved", false));
+        registerNewEncodedValue.add(wayTypeEncoder = new SimpleIntEncodedValue(prefix + "waytype", 2, false));
+        registerNewEncodedValue.add(priorityWayEncoder = new FactorizedDecimalEncodedValue(prefix + "priority", 3, PriorityCode.getFactor(1), false));
     }
 
     @Override
     public int defineRelationBits(int index, int shift) {
-        relationCodeEncoder = new EncodedValue("RelationCode", shift, 3, 1, 0, 7);
+        relationCodeEncoder = new EncodedValueOld("RelationCode", shift, 3, 1, 0, 7);
         return shift + relationCodeEncoder.getBits();
     }
 
     @Override
-    public long acceptWay(ReaderWay way) {
+    public EncodingManager.Access getAccess(ReaderWay way) {
         String highwayValue = way.getTag("highway");
         if (highwayValue == null) {
-            long acceptPotentially = 0;
+            EncodingManager.Access acceptPotentially = EncodingManager.Access.CAN_SKIP;;
 
             if (way.hasTag("route", ferries)) {
                 // if bike is NOT explicitly tagged allow bike but only if foot is not specified
                 String bikeTag = way.getTag("bicycle");
                 if (bikeTag == null && !way.hasTag("foot") || "yes".equals(bikeTag)) {
-                    acceptPotentially = acceptBit | ferryBit;
+                    acceptPotentially = EncodingManager.Access.FERRY;
                 }
             }
 
             // special case not for all acceptedRailways, only platform
             if (way.hasTag("railway", "platform")) {
-                acceptPotentially = acceptBit;
+                acceptPotentially = EncodingManager.Access.WAY;
             }
 
             if (way.hasTag("man_made", "pier")) {
-                acceptPotentially = acceptBit;
+                acceptPotentially = EncodingManager.Access.WAY;
             }
 
-            if (acceptPotentially != 0) {
+            if (!acceptPotentially.canSkip()) {
                 if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way)){
-                    return 0;
+                    return EncodingManager.Access.CAN_SKIP;
                 }
                 return acceptPotentially;
             }
 
-            return 0;
+            return EncodingManager.Access.CAN_SKIP;
         }
 
         if (!highwaySpeeds.containsKey(highwayValue)) {
-            return 0;
+            return EncodingManager.Access.CAN_SKIP;
         }
 
         String sacScale = way.getTag("sac_scale");
         if (sacScale != null) {
             if ((way.hasTag("highway", "cycleway")) && (way.hasTag("sac_scale", "hiking"))) {
-                return acceptBit;
+                return EncodingManager.Access.WAY;
             }
             if (!isSacScaleAllowed(sacScale)) {
-                return 0;
+                return EncodingManager.Access.CAN_SKIP;
             }
         }
 
@@ -317,32 +306,32 @@ abstract public class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
                 || way.hasTag("bicycle_road", "yes")
                 // MARQ24 MOD END
         ){
-            return acceptBit;
+            return EncodingManager.Access.WAY;
         }
 
         // accept only if explicitly tagged for bike usage
         if ("motorway".equals(highwayValue) || "motorway_link".equals(highwayValue)) {
-            return 0;
+            return EncodingManager.Access.CAN_SKIP;
         }
 
         if (way.hasTag("motorroad", "yes")) {
-            return 0;
+            return EncodingManager.Access.CAN_SKIP;
         }
 
         // do not use fords with normal bikes, flagged fords are in included above
         if (isBlockFords() && (way.hasTag("highway", "ford") || way.hasTag("ford"))) {
-            return 0;
+            return EncodingManager.Access.CAN_SKIP;
         }
 
         // check access restrictions
         if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way)) {
-            return 0;
+            return EncodingManager.Access.CAN_SKIP;
         }
 
         if (getConditionalTagInspector().isPermittedWayConditionallyRestricted(way)){
-            return 0;
+            return EncodingManager.Access.CAN_SKIP;
         }else {
-            return acceptBit;
+            return EncodingManager.Access.WAY;
         }
     }
 
@@ -352,7 +341,7 @@ abstract public class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     @Override
-    public long handleRelationTags(ReaderRelation relation, long oldRelationFlags) {
+    public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
         int code = 0;
         if (relation.hasTag("route", "bicycle")) {
             Integer val = bikeNetworkToCode.get(relation.getTag("network"));
@@ -395,32 +384,31 @@ abstract public class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     @Override
-    public long handleWayTags(ReaderWay way, long allowed, long relationFlags) {
-        if (!isAccept(allowed)) {
-            return 0;
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, long relationFlags) {
+        if (access.canSkip()) {
+            return edgeFlags;
         }
-        long flags = 0;
+
         double wayTypeSpeed = getSpeed(way);
-        if (!isFerry(allowed)) {
+        if (!access.isFerry()) {
             wayTypeSpeed = applyMaxSpeed(way, wayTypeSpeed);
-            flags = handleSpeed(way, wayTypeSpeed, flags);
-            flags = handleBikeRelated(way, flags, relationFlags > UNCHANGED.getValue());
+            handleSpeed(edgeFlags, way, wayTypeSpeed);
+            handleBikeRelated(edgeFlags, way, relationFlags > UNCHANGED.getValue());
             boolean isRoundabout = way.hasTag("junction", "roundabout") || way.hasTag("junction", "circular");
             if (isRoundabout) {
-                flags = setBool(flags, K_ROUNDABOUT, true);
+                roundaboutEnc.setBool(true, edgeFlags, true);
             }
         } else {
             double ferrySpeed = getFerrySpeed(way);
-            flags = handleSpeed(way, ferrySpeed, flags);
-            flags |= directionBitMask;
+            handleSpeed(edgeFlags, way, ferrySpeed);
         }
         int priorityFromRelation = 0;
         if (relationFlags != 0) {
             priorityFromRelation = (int) relationCodeEncoder.getValue(relationFlags);
         }
 
-        flags = priorityWayEncoder.setValue(flags, handlePriority(way, wayTypeSpeed, priorityFromRelation));
-        return flags;
+        priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, wayTypeSpeed, priorityFromRelation)));
+        return edgeFlags;
     }
 
     int getSpeed(ReaderWay way) {
@@ -599,12 +587,12 @@ abstract public class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     @Override
-    public InstructionAnnotation getAnnotation(long flags, Translation tr) {
+    public InstructionAnnotation getAnnotation(IntsRef edgeFlags, Translation tr) {
         int paveType = 0; // paved
-        if (isBool(flags, K_UNPAVED)) {
+        if (unpavedEncoder.getBool(false, edgeFlags)) {
             paveType = 1; // unpaved
         }
-        int wayType = (int) wayTypeEncoder.getValue(flags);
+        int wayType = wayTypeEncoder.getInt(false, edgeFlags);
         String wayName = getWayName(paveType, wayType, tr);
         return new InstructionAnnotation(0, wayName);
     }
@@ -795,7 +783,7 @@ abstract public class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     /**
      * Handle surface and wayType encoding
      */
-    long handleBikeRelated(ReaderWay way, long encoded, boolean partOfCycleRelation) {
+    void handleBikeRelated(IntsRef edgeFlags, ReaderWay way, boolean partOfCycleRelation) {
         String surfaceTag = way.getTag("surface");
         String highway = way.getTag("highway");
         String trackType = way.getTag("tracktype");
@@ -804,7 +792,7 @@ abstract public class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         if ("track".equals(highway) && (trackType == null || !"grade1".equals(trackType))
                 || "path".equals(highway) && surfaceTag == null
                 || unpavedSurfaceTags.contains(surfaceTag)) {
-            encoded = setBool(encoded, K_UNPAVED, true);
+            unpavedEncoder.setBool(false, edgeFlags, true);
         }
 
         WayType wayType;
@@ -843,37 +831,7 @@ abstract public class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
                 wayType = WayType.CYCLEWAY;
             }
         }
-        return wayTypeEncoder.setValue(encoded, wayType.getValue());
-    }
-
-    @Override
-    public long setBool(long flags, int key, boolean value) {
-        switch (key) {
-            case K_UNPAVED:
-                return value ? flags | unpavedBit : flags & ~unpavedBit;
-            default:
-                return super.setBool(flags, key, value);
-        }
-    }
-
-    @Override
-    public boolean isBool(long flags, int key) {
-        switch (key) {
-            case K_UNPAVED:
-                return (flags & unpavedBit) != 0;
-            default:
-                return super.isBool(flags, key);
-        }
-    }
-
-    @Override
-    public double getDouble(long flags, int key) {
-        switch (key) {
-            case PriorityWeighting.KEY:
-                return (double) priorityWayEncoder.getValue(flags) / BEST.getValue();
-            default:
-                return super.getDouble(flags, key);
-        }
+        wayTypeEncoder.setInt(false, edgeFlags, wayType.getValue());
     }
 
     boolean isPushingSection(ReaderWay way) {
@@ -883,27 +841,8 @@ abstract public class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         // MARQ24 MOD END
     }
 
-    //MARQ24 MOD START
-    public long handleSpeed(ReaderWay way, double speed, long encoded) {
-        // MARQ24: taken from GH Bike2WeightFlagEncoder.handleSpeed(...)
-
-        // handle oneways
-        encoded = handleSpeedInt(way, speed, encoded);
-        if (isBackward(encoded)) {
-            encoded = setReverseSpeed(encoded, speed);
-        }
-        if (isForward(encoded)) {
-            encoded = setSpeed(encoded, speed);
-        }
-        return encoded;
-    }
-    //MARQ24 MOD END
-
-    //MARQ24 MOD START
-    //protected long handleSpeed(ReaderWay way, double speed, long encoded) {
-    private long handleSpeedInt(ReaderWay way, double speed, long encoded) {
-    //MARQ24 MOD END
-        encoded = setSpeed(encoded, speed);
+    private void handleSpeed(IntsRef edgeFlags, ReaderWay way, double speed) {
+        speedEncoder.setDecimal(false, edgeFlags, speed);
         // handle oneways
         boolean isOneway = way.hasTag("oneway", oneways)
                 || way.hasTag("oneway:bicycle", oneways)
@@ -924,14 +863,14 @@ abstract public class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
                     || way.hasTag("vehicle:forward", "no")
                     || way.hasTag("bicycle:forward", "no");
             if (isBackward)
-                encoded |= backwardBit;
+                accessEnc.setBool(true, edgeFlags, true);
             else
-                encoded |= forwardBit;
+                accessEnc.setBool(false, edgeFlags, true);
 
         } else {
-            encoded |= directionBitMask;
+            accessEnc.setBool(false, edgeFlags, true);
+            accessEnc.setBool(true, edgeFlags, true);
         }
-        return encoded;
     }
 
     protected void setHighwaySpeed(String highway, int speed) {
@@ -1038,371 +977,4 @@ abstract public class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     // MARQ24 MOD START
     protected abstract double getDownhillMaxSpeed();
     // MARQ24 MOD END
-
-    // MARQ24 08 July 2018
-    // I have decided to remove all the ors reverse speed calculations and include here the "original"
-    // gh speed calc (as it could be found in the Bike2WeightFlagEncoder...
-    @Override
-    public void applyWayTags(ReaderWay way, EdgeIteratorState edge) {
-        // MARQ24 MOD START
-        if (considerElevation) {
-        // MARQ24 MOD END
-            PointList pl = edge.fetchWayGeometry(3);
-            if (!pl.is3D())
-                throw new IllegalStateException("To support speed calculation based on elevation data it is necessary to enable import of it.");
-
-            long flags = edge.getFlags();
-
-            if (way.hasTag("tunnel", "yes") || way.hasTag("bridge", "yes") || way.hasTag("highway", "steps")) {
-                // do not change speed
-                // note: although tunnel can have a difference in elevation it is very unlikely that the elevation data is correct for a tunnel
-            } else {
-                // Decrease the speed for ele increase (incline), and decrease the speed for ele decrease (decline). The speed-decrease
-                // has to be bigger (compared to the speed-increase) for the same elevation difference to simulate loosing energy and avoiding hills.
-                // For the reverse speed this has to be the opposite but again keeping in mind that up+down difference.
-                double incEleSum = 0, incDist2DSum = 0;
-                double decEleSum = 0, decDist2DSum = 0;
-                // double prevLat = pl.getLatitude(0), prevLon = pl.getLongitude(0);
-                double prevEle = pl.getElevation(0);
-                double fullDist2D = edge.getDistance();
-
-                if (Double.isInfinite(fullDist2D))
-                    throw new IllegalStateException("Infinite distance should not happen due to #435. way ID=" + way.getId());
-
-                // for short edges an incline makes no sense and for 0 distances could lead to NaN values for speed, see #432
-                if (fullDist2D < 1)
-                    return;
-
-                double eleDelta = pl.getElevation(pl.size() - 1) - prevEle;
-                if (eleDelta > 0.1) {
-                    incEleSum = eleDelta;
-                    incDist2DSum = fullDist2D;
-                } else if (eleDelta < -0.1) {
-                    decEleSum = -eleDelta;
-                    decDist2DSum = fullDist2D;
-                }
-
-//            // get a more detailed elevation information, but due to bad SRTM data this does not make sense now.
-//            for (int i = 1; i < pl.size(); i++)
-//            {
-//                double lat = pl.getLatitude(i);
-//                double lon = pl.getLongitude(i);
-//                double ele = pl.getElevation(i);
-//                double eleDelta = ele - prevEle;
-//                double dist2D = distCalc.calcDist(prevLat, prevLon, lat, lon);
-//                if (eleDelta > 0.1)
-//                {
-//                    incEleSum += eleDelta;
-//                    incDist2DSum += dist2D;
-//                } else if (eleDelta < -0.1)
-//                {
-//                    decEleSum += -eleDelta;
-//                    decDist2DSum += dist2D;
-//                }
-//                fullDist2D += dist2D;
-//                prevLat = lat;
-//                prevLon = lon;
-//                prevEle = ele;
-//            }
-                // Calculate slop via tan(asin(height/distance)) but for rather smallish angles where we can assume tan a=a and sin a=a.
-                // Then calculate a factor which decreases or increases the speed.
-                // Do this via a simple quadratic equation where y(0)=1 and y(0.3)=1/4 for incline and y(0.3)=2 for decline
-                double fwdIncline = incDist2DSum > 1 ? incEleSum / incDist2DSum : 0;
-                double fwdDecline = decDist2DSum > 1 ? decEleSum / decDist2DSum : 0;
-                double restDist2D = fullDist2D - incDist2DSum - decDist2DSum;
-
-                // MARQ24 MOD START
-                //double maxSpeed = getHighwaySpeed("cycleway").speed;
-                double wayMaxSpeed = getMaxSpeed(way);
-                double maxSpeed = getDownhillMaxSpeed();
-                if (wayMaxSpeed != -1) {
-                    maxSpeed = Math.min(maxSpeed, wayMaxSpeed);
-                }
-                // MARQ24 MOD END
-
-                if (isForward(flags)) {
-                    // use weighted mean so that longer incline influences speed more than shorter
-                    double speed = getSpeed(flags);
-                    double fwdFaster = 1 + 2 * keepIn(fwdDecline, 0, 0.2);
-                    fwdFaster = fwdFaster * fwdFaster;
-                    double fwdSlower = 1 - 5 * keepIn(fwdIncline, 0, 0.2);
-                    fwdSlower = fwdSlower * fwdSlower;
-                    speed = speed * (fwdSlower * incDist2DSum + fwdFaster * decDist2DSum + 1 * restDist2D) / fullDist2D;
-                    flags = this.setSpeed(flags, keepIn(speed, PUSHING_SECTION_SPEED / 2, maxSpeed));
-                }
-
-                if (isBackward(flags)) {
-                    double speedReverse = getReverseSpeed(flags);
-                    double bwFaster = 1 + 2 * keepIn(fwdIncline, 0, 0.2);
-                    bwFaster = bwFaster * bwFaster;
-                    double bwSlower = 1 - 5 * keepIn(fwdDecline, 0, 0.2);
-                    bwSlower = bwSlower * bwSlower;
-                    speedReverse = speedReverse * (bwFaster * incDist2DSum + bwSlower * decDist2DSum + 1 * restDist2D) / fullDist2D;
-                    flags = this.setReverseSpeed(flags, keepIn(speedReverse, PUSHING_SECTION_SPEED / 2, maxSpeed));
-                }
-            }
-            edge.setFlags(flags);
-
-        // MARQ24 MOD START
-        }
-        // MARQ24 MOD END
-    }
-
-    /* REMOVED by MARQ24 (08 July 2018)
-    // MARQ24 MOD START [SHOULD BE REVIEWED!!!]
-    private List<RouteSplit> splits = new ArrayList<RouteSplit>();
-    private int prevEdgeId = Integer.MAX_VALUE;
-    private DistanceCalc distCalc = new DistanceCalc3D();
-
-    @Override
-    public void applyWayTags(ReaderWay way, EdgeIteratorState edge) {
-
-        // Modification by Maxim Rylov
-        if (isConsiderElevation()) {
-            PointList pl = edge.fetchWayGeometry(3);
-            if (!pl.is3D()) {
-                throw new IllegalStateException("To support speed calculation based on elevation data it is necessary to enable import of it.");
-            }
-
-            long flags = edge.getFlags();
-
-            if (way.hasTag("tunnel", "yes") || way.hasTag("bridge", "yes") || way.hasTag("highway", "steps")) {
-                // do not change speed
-                // note: although tunnel can have a difference in elevation it is very unlikely that the elevation data is correct for a tunnel
-            } else {
-                double fullDist2D = edge.getDistance();
-
-                if (Double.isInfinite(fullDist2D)) {
-                    System.err.println("infinity distance? for way:" + way.getId());
-                    return;
-                }
-
-                // for short edges an incline makes no sense and for 0 distances could lead to NaN values for speed, see #432
-                if (fullDist2D < 1)
-                    return;
-
-                double wayMaxSpeed = getMaxSpeed(way);
-                double maxSpeed = getDownhillMaxSpeed(); // getHighwaySpeed("cycleway");
-                if (wayMaxSpeed != -1) {
-                    maxSpeed = Math.min(maxSpeed, wayMaxSpeed);
-                }
-
-                // Formulas for the following calculations is taken from http://www.flacyclist.com/content/perf/science.html
-                double gradient = 0.0;
-
-                if (prevEdgeId != edge.getOriginalEdge()) {
-                    String incline = way.getTag("incline");
-                    if (!Helper.isEmpty(incline)) {
-                        incline = incline.replace("%", "").replace(",", ".");
-                        try {
-                            double v = Double.parseDouble(incline);
-                            splits.clear();
-                            RouteSplit split = new RouteSplit();
-                            split.Length = fullDist2D;
-                            split.Gradient = v;
-                        } catch (Exception ex) {
-                            SteepnessUtil.computeRouteSplits(pl, false, distCalc, splits);
-                        }
-                    } else
-                        SteepnessUtil.computeRouteSplits(pl, false, distCalc, splits);
-
-                    prevEdgeId = edge.getOriginalEdge();
-                }
-
-                double speed = 0;
-                double speedReverse = 0;
-
-                if (isForward(flags)) {
-                    speed = getSpeed(flags);
-                }
-
-                if (isBackward(flags)) {
-                    speedReverse = getReverseSpeed(flags);
-                }
-
-                if (splits.size() == 1) {
-                    RouteSplit split = splits.get(0);
-                    gradient = split.Gradient;
-
-                    if (split.Length < 60) {
-                        if (Math.abs(gradient) > 6) {
-                            if (Math.abs(gradient) < 9)
-                                gradient /= 2.0;
-                            else
-                                gradient /= 4.0;
-                        }
-                    }
-
-                    if (Math.abs(gradient) > 1.5) {
-                        if (speed != 0) {
-                            speed = getGradientSpeed(speed, (int) Math.round(gradient));
-                        }
-
-                        if (speedReverse != 0) {
-                            speedReverse = getGradientSpeed(speedReverse, (int) Math.round(-gradient));
-                        }
-                    }
-                } else {
-                    double distUphill = 0.0;
-                    double distDownhill = 0.0;
-                    double distUphillR = 0.0;
-                    double distDownhillR = 0.0;
-                    double distTotalEqFlat = 0.0;
-                    double length = 0.0;
-
-                    for (RouteSplit split : splits) {
-                        gradient = split.Gradient;
-                        length = split.Length;
-
-                        if (Math.abs(gradient) < 1.5) {
-
-                        } else {
-                            if (speed != 0) {
-                                double Vc = getGradientSpeed(speed, (int) Math.round(gradient));
-
-                                if (gradient > 0) {
-                                    distUphill += (speed / Vc - 1) * length;
-                                }else {
-                                    distDownhill += (speed / Vc - 1) * length;
-                                }
-                            }
-
-                            if (speedReverse != 0) {
-                                gradient = -gradient;
-                                double Vc = getGradientSpeed(speedReverse, (int) Math.round(gradient));
-
-                                if (gradient > 0) {
-                                    distUphillR += (speedReverse / Vc - 1) * length;
-                                }else {
-                                    distDownhillR += (speedReverse / Vc - 1) * length;
-                                }
-                            }
-                        }
-                    }
-
-                    if (speed != 0) {
-                        distTotalEqFlat = fullDist2D + distUphill + distDownhill;
-                        speed *= fullDist2D / distTotalEqFlat;
-                    }
-
-                    if (speedReverse != 0) {
-                        distTotalEqFlat = fullDist2D + distUphillR + distDownhillR;
-                        speedReverse *= fullDist2D / distTotalEqFlat;
-                    }
-                }
-
-                flags = this.setSpeed(flags, Helper.keepIn(speed, PUSHING_SECTION_SPEED / 2, maxSpeed));
-                flags = this.setReverseSpeed(flags, Helper.keepIn(speedReverse, PUSHING_SECTION_SPEED / 2, maxSpeed));
-            }
-            edge.setFlags(flags);
-        }
-    }
-
-    protected double getGradientSpeed(double speed, int gradient) {
-        if (gradient < -18) {
-            if (speed > 10)
-                return getDownhillMaxSpeed();
-            else
-                return speed;
-        } else {
-            if (speed > 10)
-                return speed * getGradientSpeedFactor(gradient);
-            else {
-                double result = speed * getGradientSpeedFactor(gradient);
-
-                // forbid high downhill speeds on surfaces with low speeds
-                if (result > speed)
-                    return speed;
-                else
-                    return result;
-            }
-        }
-    }
-
-    private double getGradientSpeedFactor(int gradient) {
-        if (gradient < -18)
-            return 3.5;
-        else if (gradient > 17)
-            return 0.1;
-        else {
-            switch (gradient) {
-                case -18:
-                    return 3.332978723;
-                case -17:
-                    return 3.241489362;
-                case -16:
-                    return 3.14751773;
-                case -15:
-                    return 3.05070922;
-                case -14:
-                    return 2.95106383;
-                case -13:
-                    return 2.84822695;
-                case -12:
-                    return 2.741843972;
-                case -11:
-                    return 2.631560284;
-                case -10:
-                    return 2.517021277;
-                case -9:
-                    return 2.39787234;
-                case -8:
-                    return 2.273049645;
-                case -7:
-                    return 2.142553191;
-                case -6:
-                    return 2.004964539;
-                case -5:
-                    return 1.859574468;
-                case -4:
-                    return 1.705673759;
-                case -3:
-                    return 1.542198582;
-                case -2:
-                    return 1.368439716;
-                case -1:
-                    return 1.186524823;
-                case 0:
-                    return 1;
-                case 1:
-                    return 0.820567376;
-                case 2:
-                    return 0.663120567;
-                case 3:
-                    return 0.537234043;
-                case 4:
-                    return 0.442553191;
-                case 5:
-                    return 0.372695035;
-                case 6:
-                    return 0.319858156;
-                case 7:
-                    return 0.279787234;
-                case 8:
-                    return 0.24822695;
-                case 9:
-                    return 0.222695035;
-                case 10:
-                    return 0.20177305;
-                case 11:
-                    return 0.184751773;
-                case 12:
-                    return 0.170212766;
-                case 13:
-                    return 0.157446809;
-                case 14:
-                    return 0.146808511;
-                case 15:
-                    return 0.137234043;
-                case 16:
-                    return 0.129078014;
-                case 17:
-                    return 0.121631206;
-            }
-        }
-
-        return 1;
-    }
-    // MARQ24 MOD END
-    */
 }
