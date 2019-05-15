@@ -17,11 +17,8 @@
  */
 package heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.storage.IntsRef;
-import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import org.apache.log4j.Logger;
 
