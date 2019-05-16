@@ -19,6 +19,7 @@ import java.util.Map;
 import com.carrotsearch.hppc.LongArrayList;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 
 import heigit.ors.plugins.Plugin;
@@ -27,7 +28,7 @@ import heigit.ors.routing.graphhopper.extensions.DataReaderContext;
 public interface GraphBuilder extends Plugin {
 	void init(GraphHopper graphhopper) throws Exception;
 	
-	boolean createEdges(DataReaderContext readerCntx, ReaderWay way, LongArrayList osmNodeIds, long wayFlags, List<EdgeIteratorState> createdEdges) throws Exception;
+	boolean createEdges(DataReaderContext readerCntx, ReaderWay way, LongArrayList osmNodeIds, IntsRef wayFlags, List<EdgeIteratorState> createdEdges) throws Exception;
 	
 	void finish();
 	

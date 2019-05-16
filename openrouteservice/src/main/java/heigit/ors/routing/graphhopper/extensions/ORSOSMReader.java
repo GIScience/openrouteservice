@@ -18,6 +18,7 @@ import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.*;
@@ -395,7 +396,7 @@ public class ORSOSMReader extends OSMReader {
 							} else{								
 								ArrayList<Integer> edgeIds = new ArrayList<Integer>();
 								edgeIds.add(edge.getEdge()); 
-								osmId2EdgeIds.put(way.getId(), edgeIds);		
+								osmId2EdgeIds.put(way.getId(), edgeIds);
 							} 							
 
 							break;
@@ -421,7 +422,7 @@ public class ORSOSMReader extends OSMReader {
 	}
 	
 	@Override 
-    protected boolean onCreateEdges(ReaderWay way, LongArrayList osmNodeIds, long wayFlags, List<EdgeIteratorState> createdEdges)
+    protected boolean onCreateEdges(ReaderWay way, LongArrayList osmNodeIds, IntsRef wayFlags, List<EdgeIteratorState> createdEdges)
     {
 		try
 		{

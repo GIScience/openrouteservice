@@ -18,6 +18,7 @@ import java.util.Collection;
 import com.carrotsearch.hppc.LongIndexedContainer;
 import com.graphhopper.coll.LongIntMap;
 import com.graphhopper.reader.osm.OSMReader;
+import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 
 public class OSMDataReaderContext implements DataReaderContext {
@@ -46,7 +47,7 @@ public class OSMDataReaderContext implements DataReaderContext {
 	}
 
 	@Override
-	public Collection<EdgeIteratorState> addWay(LongIndexedContainer subgraphNodes, long wayFlags, long wayId) {
+	public Collection<EdgeIteratorState> addWay(LongIndexedContainer subgraphNodes, IntsRef wayFlags, long wayId) {
 		// TODO Auto-generated method stub
 		return null;
 	}

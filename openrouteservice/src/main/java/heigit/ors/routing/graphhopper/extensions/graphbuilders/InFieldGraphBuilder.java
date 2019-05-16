@@ -27,6 +27,7 @@ import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.IntsRef;
 import com.graphhopper.storage.RAMDirectory;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.EdgeIteratorState;
@@ -55,13 +56,13 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 		// create local network taken from        
 		// https://github.com/graphhopper/graphhopper/blob/0.5/core/src/test/java/com/graphhopper/GraphHopperTest.java#L746
 		footEncoder = new FootFlagEncoder();
-		encodingManager = new EncodingManager(footEncoder);  
+		encodingManager = EncodingManager.create(footEncoder);
 		weightings = new ArrayList<Weighting>(1);
 		weightings.add(new FastestWeighting(footEncoder));
 	}
 
 	@Override
-	public boolean createEdges(DataReaderContext readerCntx, ReaderWay way, LongArrayList osmNodeIds, long wayFlags, List<EdgeIteratorState> createdEdges) throws Exception 
+	public boolean createEdges(DataReaderContext readerCntx, ReaderWay way, LongArrayList osmNodeIds, IntsRef wayFlags, List<EdgeIteratorState> createdEdges) throws Exception
 	{
 		if (!hasOpenSpace(way, osmNodeIds))
 			return false;
@@ -217,7 +218,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 		return true;
 	}
 
-	private void addNodePairAsEdgeToGraph(DataReaderContext readerCntx, long wayOsmId, long wayFlags,  List<EdgeIteratorState> createdEdges, long Node1, long Node2) {   
+	private void addNodePairAsEdgeToGraph(DataReaderContext readerCntx, long wayOsmId, IntsRef wayFlags,  List<EdgeIteratorState> createdEdges, long Node1, long Node2) {
 		// list which contains the Nodes of the new Edge     
 		LongArrayList subgraphNodes = new LongArrayList(5);  
 		subgraphNodes.add(Node1);     

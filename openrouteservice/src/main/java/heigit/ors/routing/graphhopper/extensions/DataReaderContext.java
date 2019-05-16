@@ -17,6 +17,7 @@ import java.util.Collection;
 
 import com.carrotsearch.hppc.LongIndexedContainer;
 import com.graphhopper.coll.LongIntMap;
+import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 
 public interface DataReaderContext {
@@ -26,5 +27,5 @@ public interface DataReaderContext {
 	   
 	   public double getNodeLatitude(int nodeId);
 
-	   Collection<EdgeIteratorState> addWay(final LongIndexedContainer subgraphNodes, final long wayFlags, final long wayId);
+	   Collection<EdgeIteratorState> addWay(final LongIndexedContainer subgraphNodes, final IntsRef wayFlags, final long wayId);
 }
