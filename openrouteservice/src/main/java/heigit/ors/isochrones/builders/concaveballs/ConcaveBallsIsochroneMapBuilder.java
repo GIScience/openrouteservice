@@ -33,17 +33,11 @@ import heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
 import heigit.ors.routing.RouteSearchContext;
 import heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.*;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.CarFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.bike.ElectroBikeFlagEncoder;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.bike.MountainBikeFlagEncoder;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.bike.RegularBikeFlagEncoder;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.bike.RoadBikeFlagEncoder;
 import heigit.ors.util.GeomUtility;
 import org.apache.log4j.Logger;
 import org.opensphere.geometry.algorithm.ConcaveHull;
 
-import javax.validation.constraints.Null;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;

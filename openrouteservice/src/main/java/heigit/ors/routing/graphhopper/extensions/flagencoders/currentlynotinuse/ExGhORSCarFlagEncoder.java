@@ -35,6 +35,7 @@ import java.util.*;
  * @author Nop
  */
 public class ExGhORSCarFlagEncoder extends ORSAbstractFlagEncoder {
+    private final static double MEAN_SPEED = 100;
     protected final Map<String, Integer> trackTypeSpeedMap = new HashMap<String, Integer>();
     protected final Set<String> badSurfaceSpeedMap = new HashSet<String>();
 
@@ -57,6 +58,8 @@ public class ExGhORSCarFlagEncoder extends ORSAbstractFlagEncoder {
     public ExGhORSCarFlagEncoder() {
         this(5, 5, 0);
     }
+
+    public double getMeanSpeed() { return MEAN_SPEED; }
 
     public ExGhORSCarFlagEncoder(PMap properties) {
         this((int) properties.getLong("speed_bits", 5),

@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 	private final static Logger logger = LoggerFactory.getLogger(ORSAbstractFlagEncoder.class);
-	protected static double MEAN_SPEED;
 
 	protected boolean considerElevation = false;
 	protected EncodedDoubleValue reverseSpeedEncoder;
@@ -36,9 +35,7 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 		this.considerElevation = considerElevation;
 	}
 
-	public double getMeanSpeed() {
-	    return MEAN_SPEED;
-    }
+	public abstract double getMeanSpeed();
 
 	@Override
 	public long reverseFlags(long flags) {

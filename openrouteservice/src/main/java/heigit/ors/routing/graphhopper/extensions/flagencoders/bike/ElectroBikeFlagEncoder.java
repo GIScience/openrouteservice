@@ -18,7 +18,7 @@ import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
 public class ElectroBikeFlagEncoder extends CommonBikeFlagEncoder
 {
-    public static final int MEAN_SPEED = 20;
+    private static final int MEAN_SPEED = 20;
 
     public ElectroBikeFlagEncoder()
     {

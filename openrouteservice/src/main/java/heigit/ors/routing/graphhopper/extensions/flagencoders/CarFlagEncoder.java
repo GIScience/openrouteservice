@@ -55,7 +55,7 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
     protected boolean useAcceleration = false;
 
     // Mean speed for isochrone reach_factor
-    public static final int MEAN_SPEED = 100;
+    private static final int MEAN_SPEED = 100;
 
     public CarFlagEncoder() {
         this(5, 5, 0);
