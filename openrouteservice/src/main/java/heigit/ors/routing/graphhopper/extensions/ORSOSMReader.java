@@ -14,6 +14,8 @@
 package heigit.ors.routing.graphhopper.extensions;
 
 import com.carrotsearch.hppc.LongArrayList;
+import com.google.common.collect.Lists;
+import com.graphhopper.coll.GHLongObjectHashMap;
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.OSMReader;
@@ -21,6 +23,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
+import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.*;
 import heigit.ors.routing.RoutingProfile;
 import heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
@@ -80,6 +83,7 @@ public class ORSOSMReader extends OSMReader {
 				|| storage.getEncodingManager().supports("SAFETYBIKE"));
         */
 
+		initNodeTagsToStore(new HashSet<>(Arrays.asList(new String[] {"maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload"})));
 		extraTagKeys = new HashSet<>();
 		// Look if we should do border processing - if so then we have to process the geometry
 		for(GraphStorageBuilder b : this._procCntx.getStorageBuilders()) {
@@ -198,6 +202,8 @@ public class ORSOSMReader extends OSMReader {
 			// If we are processing the node tags then we need to obtain the tags for nodes that are on the way. We
 			// should store the internal node id though rather than the osm node as during the edge processing, we
 			// do not know the osm node id
+
+			// TODO: CHeck this as this only stores tower nodes - is that what we want?
 			LongArrayList osmNodeIds = way.getNodes();
 			int size = osmNodeIds.size();
 
@@ -278,7 +284,7 @@ public class ORSOSMReader extends OSMReader {
 		if (id < TOWER_NODE) {
 			// tower node
 			id = -id - 3;
-			return nodeAccess.getLatitude(id);
+			return getNodeAccess().getLatitude(id);
 		} else if (id > -TOWER_NODE) {
 			// pillar node
 			// Do we want to return it if it is not a tower node?
@@ -305,7 +311,7 @@ public class ORSOSMReader extends OSMReader {
 		if (id < TOWER_NODE) {
 			// tower node
 			id = -id - 3;
-			return nodeAccess.getLongitude(id);
+			return getNodeAccess().getLongitude(id);
 		} else if (id > -TOWER_NODE) {
 			// pillar node
 			// Do we want to return it if it is not a tower node?
@@ -324,19 +330,18 @@ public class ORSOSMReader extends OSMReader {
 	 * regarded in the following storage building process. E.g. a maxheight tag on a node will
 	 * be treated like a maxheight tag on the way the node belongs to.
 	 *
-	 * @param  map  a map that projects node ids onto a property map
 	 * @param  way	the way to process
 	 */
 	@Override
-	public void applyNodeTagsToWay(HashMap<Long, Map<String, Object>> map, ReaderWay way){
+	public void applyNodeTagsToWay(ReaderWay way){
 		LongArrayList osmNodeIds = way.getNodes();
 		int size = osmNodeIds.size();
 		if (size > 2) {
 		    // If it is a crossing then we need to apply any kerb tags to the way, but we need to make sure we keep the "worse" one
 			for (int i = 1; i < size-1; i++) {
 				long nodeId = osmNodeIds.get(i);
-				if (map.containsKey(nodeId)) {
-					java.util.Iterator<Entry<String, Object>> it = map.get(nodeId).entrySet().iterator();
+				if (nodeHasTagsStored(nodeId)) {
+					java.util.Iterator<Entry<String, Object>> it = getStoredTagsForNode(nodeId).entrySet().iterator();
 					while (it.hasNext()) {
 						Map.Entry<String, Object> pairs = it.next();
 						String key = pairs.getKey();
@@ -434,6 +439,46 @@ public class ORSOSMReader extends OSMReader {
 		
 		return false;
     }
+
+    @Override
+	protected void recordWayDistance(ReaderWay way, LongArrayList osmNodeIds) {
+		double totalDist = 0d;
+		long nodeId = osmNodeIds.get(0);
+		int first = getNodeMap().get(nodeId);
+		double firstLat = getTmpLatitude(first);
+		double firstLon = getTmpLongitude(first);
+		double currLat = firstLat;
+		double currLon = firstLon;
+		double latSum = currLat;
+		double lonSum = currLon;
+		int sumCount = 1;
+		int len = osmNodeIds.size();
+		for(int i=1; i<len; i++){
+			long nextNodeId = osmNodeIds.get(i);
+			int next = getNodeMap().get(nextNodeId);
+			double nextLat = getTmpLatitude(next), nextLon = getTmpLongitude(next);
+			if(!Double.isNaN(currLat) && !Double.isNaN(currLon) && !Double.isNaN(nextLat) && !Double.isNaN(nextLon)) {
+				latSum = latSum + nextLat;
+				lonSum = lonSum + nextLon;
+				sumCount++;
+				totalDist = totalDist + getDistanceCalc(false).calcDist(currLat, currLon, nextLat, nextLon);
+
+				currLat = nextLat;
+				currLon = nextLon;
+			}
+		}
+		// make the simple dist & center calculations (who ever rely on it might want to use it!)
+		if (!Double.isNaN(firstLat) && !Double.isNaN(firstLon) && !Double.isNaN(currLat) && !Double.isNaN(currLon)) {
+			double estimatedDist = getDistanceCalc(false).calcDist(firstLat, firstLon, currLat, currLon);
+			// Add artificial tag for the estimated distance and center
+			way.setTag("estimated_distance", estimatedDist);
+			way.setTag("estimated_center", new GHPoint((firstLat + currLat) / 2, (firstLon + currLon) / 2));
+		}
+		if(totalDist > 0) {
+			way.setTag("exact_distance", totalDist);
+			way.setTag("exact_center", new GHPoint(latSum / sumCount, lonSum / sumCount));
+		}
+	}
 
 	@Override 
 	protected void finishedReading() {
