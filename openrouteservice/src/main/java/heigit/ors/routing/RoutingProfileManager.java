@@ -510,7 +510,7 @@ public class RoutingProfileManager {
         RouteSearchParameters searchParams = req.getSearchParameters();
         int profileType = searchParams.getProfileType();
 
-        boolean hasAvoidAreas = searchParams.hasAvoidAreas();
+        boolean fallbackAlgorithm = searchParams.requiresFallbackAlgorithm();
         boolean dynamicWeights = searchParams.requiresDynamicWeights();
 
         RoutingProfile rp = _routeProfiles.getRouteProfile(profileType, !dynamicWeights);
@@ -526,7 +526,7 @@ public class RoutingProfileManager {
         if (config.getMaximumDistance() > 0
                 || (dynamicWeights && config.getMaximumDistanceDynamicWeights() > 0)
                 || config.getMaximumWayPoints() > 0
-                || (hasAvoidAreas && config.getMaximumDistanceAvoidAreas() > 0)) {
+                || (fallbackAlgorithm && config.getMaximumDistanceAvoidAreas() > 0)) {
             Coordinate[] coords = req.getCoordinates();
             int nCoords = coords.length;
             if (config.getMaximumWayPoints() > 0) {
@@ -536,7 +536,7 @@ public class RoutingProfileManager {
 
             if (config.getMaximumDistance() > 0
                     || (dynamicWeights && config.getMaximumDistanceDynamicWeights() > 0)
-                    || (hasAvoidAreas && config.getMaximumDistanceAvoidAreas() > 0)) {
+                    || (fallbackAlgorithm && config.getMaximumDistanceAvoidAreas() > 0)) {
                 double longestSegmentDist = 0.0;
                 DistanceCalc distCalc = Helper.DIST_EARTH;
 
@@ -574,7 +574,7 @@ public class RoutingProfileManager {
 
                 if (dynamicWeights && config.getMaximumDistanceDynamicWeights() > 0 && totalDist > config.getMaximumDistanceDynamicWeights())
                     throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "By dynamic weighting, the approximated distance of a route segment must not be greater than " + Double.toString(config.getMaximumDistanceDynamicWeights()) + " meters.");
-                if (hasAvoidAreas && config.getMaximumDistanceAvoidAreas() > 0 && totalDist > config.getMaximumDistanceAvoidAreas())
+                if (fallbackAlgorithm && config.getMaximumDistanceAvoidAreas() > 0 && totalDist > config.getMaximumDistanceAvoidAreas())
                     throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "With areas to avoid, the approximated route distance must not be greater than " + Double.toString(config.getMaximumDistanceAvoidAreas()) + " meters.");
             }
         }

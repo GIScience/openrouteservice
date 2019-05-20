@@ -418,18 +418,21 @@ public class RouteSearchParameters {
 
     public boolean requiresDynamicWeights() {
         return hasAvoidAreas()
-            || hasAvoidFeatures()
-            || hasAvoidBorders()
-            || hasAvoidCountries()
-            || getConsiderTurnRestrictions()
-            || getWeightingMethod() == WeightingMethod.SHORTEST
-            || getWeightingMethod() == WeightingMethod.RECOMMENDED
-            || isProfileTypeHeavyVehicle() && getVehicleType() > 0
-            || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
-            || isProfileTypeDriving() && getConsiderTraffic()
-        ;
+                || hasAvoidFeatures()
+                || hasAvoidBorders()
+                || hasAvoidCountries()
+                || getConsiderTurnRestrictions()
+                || getWeightingMethod() == WeightingMethod.SHORTEST
+                || getWeightingMethod() == WeightingMethod.RECOMMENDED
+                || isProfileTypeHeavyVehicle() && getVehicleType() > 0
+                || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
+                || isProfileTypeDriving() && getConsiderTraffic()
+                ;
     }
 
+    /**
+     * Check if the request is compatible with preprocessed graphs
+     */
     public boolean requiresFallbackAlgorithm() {
         return hasAvoidAreas()
             || (getProfileParameters() != null && getProfileParameters().hasWeightings())
