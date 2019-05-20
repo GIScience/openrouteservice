@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Added a gpx schema validator into the api-tests, testing all gpx outputs while fixing the bug from (#496)
 - Added information for countries a route traverses (#349)
+- Refactor fallback to preprocessing-independent algorithm for certain routing request params
 ### Fixed
 - isochrone reachfactor gives now more realistic results (#325)
 - Fixed the wrong gpx header for api v2 (#496)
