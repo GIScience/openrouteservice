@@ -429,4 +429,10 @@ public class RouteSearchParameters {
             || isProfileTypeDriving() && getConsiderTraffic()
         ;
     }
+
+    public boolean requiresFallbackAlgorithm() {
+        return hasAvoidAreas()
+            || (getProfileParameters() != null && getProfileParameters().hasWeightings())
+            ;
+    }
 }
