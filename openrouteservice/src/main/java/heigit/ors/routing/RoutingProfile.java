@@ -880,9 +880,12 @@ public class RoutingProfile {
 
                     }
 
-                    if (parameters.hasAttribute("reachfactor") && parameters.getRangeType() == TravelRangeType.Time) {
+                    if (parameters.hasAttribute("reachfactor")) {
 
                         double reachfactor = isochrone.calcReachfactor(units);
+                        // reach factor could be > 1, which would confuse people
+                        reachfactor = (reachfactor > 1) ? 1 : reachfactor;
+
                         isochrone.setReachfactor(reachfactor);
 
                     }

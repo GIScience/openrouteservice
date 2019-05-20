@@ -35,6 +35,8 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 		this.considerElevation = considerElevation;
 	}
 
+	public abstract double getMeanSpeed();
+
 	@Override
 	public long reverseFlags(long flags) {
 		flags = super.reverseFlags(flags);

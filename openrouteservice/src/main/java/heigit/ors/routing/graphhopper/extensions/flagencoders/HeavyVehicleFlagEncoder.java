@@ -37,6 +37,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
     protected boolean useAcceleration = false;
     
     protected int maxTrackGradeLevel = 3;
+    private static final int MEAN_SPEED = 70;
     
     /**
      * A map which associates string to speed. Get some impression:
@@ -185,6 +186,10 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
         backwardKeys.add("delivery:backward");
 
         init();
+    }
+
+    public double getMeanSpeed() {
+        return MEAN_SPEED;
     }
     
 	public double getDefaultMaxSpeed()
