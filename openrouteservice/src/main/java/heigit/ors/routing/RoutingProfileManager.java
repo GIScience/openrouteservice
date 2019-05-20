@@ -46,7 +46,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class RoutingProfileManager {
     private static final Logger LOGGER = Logger.getLogger(RoutingProfileManager.class.getName());
@@ -340,8 +345,10 @@ public class RoutingProfileManager {
         RoutingProfile rp = getRouteProfile(req, false);
         RouteSearchParameters searchParams = req.getSearchParameters();
         PathProcessor pathProcessor = null;
-
-        pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req);
+        if (req.getIncludeCountryInfo())
+            pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req, rp.getGraphhopper().getGeneralCbReader());
+        else
+            pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req);
 
         Coordinate[] coords = req.getCoordinates();
         Coordinate c0 = coords[0];

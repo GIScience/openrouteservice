@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 
@@ -82,6 +83,7 @@ public class ResultTest extends ServiceTest {
         extraInfo.put("surface");
         extraInfo.put("suitability");
         extraInfo.put("steepness");
+        extraInfo.put("countryinfo");
         addParameter("extra_info", extraInfo);
 
         addParameter("preference", "fastest");
@@ -838,7 +840,7 @@ public class ResultTest extends ServiceTest {
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("bikeProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
@@ -849,6 +851,7 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].extras.containsKey('surface')", is(true))
                 .body("routes[0].extras.containsKey('suitability')", is(true))
                 .body("routes[0].extras.containsKey('steepness')", is(true))
+                .body("routes[0].extras.containsKey('countryinfo')", is(true))
                 .statusCode(200);
     }
 
@@ -2404,6 +2407,171 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].containsKey('summary')", is(true))
                 .body("routes[0].summary.distance", is(2878.6f))
                 .body("routes[0].summary.duration", is(4145.2f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testCountryTraversalNoBorderCrossing(){
+        JSONObject body = new JSONObject();
+        JSONArray noBorderCrossing = new JSONArray();
+        JSONArray coord = new JSONArray();
+        coord.put(8.692256212234497);
+        coord.put(49.405004518240005);
+        noBorderCrossing.put(coord);
+        coord = new JSONArray();
+        coord.put(8.689970970153809);
+        coord.put(49.40532565875338);
+        noBorderCrossing.put(coord);
+        body.put("coordinates", noBorderCrossing);
+        JSONArray extraInfo = new JSONArray();
+        extraInfo.put("countryinfo");
+        body.put("extra_info", extraInfo);
+
+        // No border crossing
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.containsKey('countryinfo')", is(true))
+                .body("routes[0].extras.countryinfo.containsKey('values')", is(true))
+                .body("routes[0].extras.countryinfo.containsKey('summary')", is(true))
+                .body("routes[0].extras.countryinfo.values[0][0]", is(0))
+                .body("routes[0].extras.countryinfo.values[0][1]", is(2))
+                .body("routes[0].extras.countryinfo.values[0][2]", is(4))
+                .body("routes[0].extras.countryinfo.summary[0].value", is(4.0f))
+                .body("routes[0].extras.countryinfo.summary[0].distance", is(169.2f))
+                .body("routes[0].extras.countryinfo.summary[0].amount", is(100.0f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testCountryTraversalOuterBorder() {
+        JSONObject body = new JSONObject();
+        JSONArray outerBorder = new JSONArray();
+        JSONArray coord = new JSONArray();
+        coord.put(8.688002);
+        coord.put(49.392946);
+        outerBorder.put(coord);
+        coord = new JSONArray();
+        coord.put(8.687809);
+        coord.put(49.39472);
+        outerBorder.put(coord);
+        body.put("coordinates", outerBorder);
+        JSONArray extraInfo = new JSONArray();
+        extraInfo.put("countryinfo");
+        body.put("extra_info", extraInfo);
+
+        // Outside of any borders
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.containsKey('countryinfo')", is(true))
+                .body("routes[0].extras.countryinfo.containsKey('values')", is(true))
+                .body("routes[0].extras.countryinfo.containsKey('summary')", is(true))
+                .body("routes[0].extras.countryinfo.values", empty())
+                .statusCode(200);
+    }
+
+    @Test
+    public void testCoutryTraversalCloseToBorder() {
+        JSONObject body = new JSONObject();
+        JSONArray closeToBorder = new JSONArray();
+        JSONArray coord = new JSONArray();
+        coord.put(8.685869872570038);
+        coord.put(49.402674441283786);
+        closeToBorder.put(coord);
+        coord = new JSONArray();
+        coord.put(8.687363862991333);
+        coord.put(49.4027128404518);
+        closeToBorder.put(coord);
+        body.put("coordinates", closeToBorder);
+        JSONArray extraInfo = new JSONArray();
+        extraInfo.put("countryinfo");
+        body.put("extra_info", extraInfo);
+
+        // Close to a border crossing
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.containsKey('countryinfo')", is(true))
+                .body("routes[0].extras.countryinfo.containsKey('values')", is(true))
+                .body("routes[0].extras.countryinfo.containsKey('summary')", is(true))
+                .body("routes[0].extras.countryinfo.values[0][0]", is(0))
+                .body("routes[0].extras.countryinfo.values[0][1]", is(2))
+                .body("routes[0].extras.countryinfo.values[0][2]", is(3))
+                .body("routes[0].extras.countryinfo.summary[0].value", is(3.0f))
+                .body("routes[0].extras.countryinfo.summary[0].distance", is(108.0f))
+                .body("routes[0].extras.countryinfo.summary[0].amount", is(100.0f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testCountryTraversalWithBorderCrossing() {
+        JSONObject body = new JSONObject();
+        JSONArray borderCrossing = new JSONArray();
+        JSONArray coord = new JSONArray();
+        coord.put(8.685046434402466);
+        coord.put(49.40267269586634);
+        borderCrossing.put(coord);
+        coord = new JSONArray();
+        coord.put(8.687556982040405);
+        coord.put(49.40271458586781);
+        borderCrossing.put(coord);
+        body.put("coordinates", borderCrossing);
+        JSONArray extraInfo = new JSONArray();
+        extraInfo.put("countryinfo");
+        body.put("extra_info", extraInfo);
+
+        // With Border crossing
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.containsKey('countryinfo')", is(true))
+                .body("routes[0].extras.countryinfo.containsKey('values')", is(true))
+                .body("routes[0].extras.countryinfo.containsKey('summary')", is(true))
+                .body("routes[0].extras.countryinfo.values[0][0]", is(0))
+                .body("routes[0].extras.countryinfo.values[0][1]", is(2))
+                .body("routes[0].extras.countryinfo.values[0][2]", is(2))
+                .body("routes[0].extras.countryinfo.summary[0].value", is(2.0f))
+                .body("routes[0].extras.countryinfo.summary[0].distance", is(150.4f))
+                .body("routes[0].extras.countryinfo.summary[0].amount", is(82.88f))
+                .body("routes[0].extras.countryinfo.values[1][0]", is(2))
+                .body("routes[0].extras.countryinfo.values[1][1]", is(3))
+                .body("routes[0].extras.countryinfo.values[1][2]", is(3))
+                .body("routes[0].extras.countryinfo.summary[1].value", is(3.0f))
+                .body("routes[0].extras.countryinfo.summary[1].distance", is(31.1f))
+                .body("routes[0].extras.countryinfo.summary[1].amount", is(17.12f))
                 .statusCode(200);
     }
 

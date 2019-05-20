@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Makes docker and docker-compose deployment of openrouteservice more customizable (Issue #434)
 - Add the possibility to predefine standard maximum search radii in general and for each used profile in the config file (Issue #418)
 - Added a gpx schema validator into the api-tests, testing all gpx outputs while fixing the bug from (#496)
+- Added information for countries a route traverses (#349)
 ### Fixed
 - isochrone reachfactor gives now more realistic results (#325)
 - v2 isochrones now respects max_locations in app.config (#482)

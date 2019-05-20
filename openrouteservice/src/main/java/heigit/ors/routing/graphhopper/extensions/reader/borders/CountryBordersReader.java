@@ -13,6 +13,8 @@
  */
 package heigit.ors.routing.graphhopper.extensions.reader.borders;
 
+import com.graphhopper.util.PointList;
+import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
@@ -379,6 +381,18 @@ public class CountryBordersReader {
      */
     public static int getCountryIdByISOCode(String code) {
         return currentInstance != null ? currentInstance.isoCodes.getOrDefault(code.toUpperCase(), 0) : 0;
+    }
+
+    public static CountryBordersPolygon[] getCountriesByPointList(PointList pointList) {
+        CountryBordersPolygon[] countries = new CountryBordersPolygon[0];
+        for (GHPoint3D point :
+                pointList) {
+            Coordinate coordinate = new Coordinate(point.lon, point.lat);
+            CountryBordersPolygon[] countries2 = currentInstance.getCandidateCountry(coordinate);
+            CountryBordersPolygon[] countries23 = currentInstance.getCandidateCountry(coordinate);
+
+        }
+        return countries;
     }
 
     /**
