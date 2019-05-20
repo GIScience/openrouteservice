@@ -750,8 +750,8 @@ public class RoutingProfile {
                     }
                 }
             }
-            //cannot use CH or CoreALT with avoid areas. Need to fallback to ALT with beeline approximator or Dijkstra
-            if(props.getBool("avoid_areas", false)){
+            //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
+            if(searchParams.requiresFallbackAlgorithm()) {
                 req.setAlgorithm("astarbi");
                 req.getHints().put("lm.disable", false);
                 req.getHints().put("core.disable", true);
