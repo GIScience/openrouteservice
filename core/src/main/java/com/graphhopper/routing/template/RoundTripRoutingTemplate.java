@@ -68,13 +68,19 @@ public class RoundTripRoutingTemplate extends AbstractRoutingTemplate implements
         this.maxRetries = maxRetries;
     }
 
+    // ORS-MOD START - add overloaded method to use radii in searches
     @Override
-    // ORS-GH MOD START
-    //public List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder) {
     public List<QueryResult> lookup(List<GHPoint> points, double[] radiuses, FlagEncoder encoder) {
-        // ORS-GH MOD END
+        // TODO implement radius lookup
+        return lookup(points, encoder);
+    }
+    // ORS-MOD END
+
+    @Override
+    public List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder) {
         if (points.size() != 1 || ghRequest.getPoints().size() != 1)
             throw new IllegalArgumentException("For round trip calculation exactly one point is required");
+
         final double distanceInMeter = ghRequest.getHints().getDouble(RoundTrip.DISTANCE, 10000);
         final long seed = ghRequest.getHints().getLong(RoundTrip.SEED, 0L);
         double initialHeading = ghRequest.getFavoredHeading(0);
