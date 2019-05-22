@@ -39,8 +39,8 @@ public interface RoutingTemplate {
     /**
      * This method takes the query points and returns the looked up QueryResults.
      */
-    // ORS-GH MOD START
-    //List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder);
+    List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder);
+    // ORS-GH MOD START - overloaded method for limiting radius of searching
     List<QueryResult> lookup(List<GHPoint> points, double[] radiuses, FlagEncoder encoder);
     // ORS-GH MOD END
 
