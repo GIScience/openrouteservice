@@ -71,7 +71,7 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
         // ORS-GH MOD START
         // EdgeFilter edgeFilter = DefaultEdgeFilter.allEdges(encoder);
         // Modification by Maxim Rylov: Added custom EdgeFilter
-        EdgeFilter edgeFilter = null; // ORS TODO EdgeFilter not avalable here: ghRequest.getEdgeFilter();
+        EdgeFilter edgeFilter = (ghRequest instanceof ExtendedGHRequest) ? ((ExtendedGHRequest) ghRequest).getEdgeFilter() : null; // ORS TODO EdgeFilter not avalable here: ghRequest.getEdgeFilter();
         if (edgeFilter == null) {
             edgeFilter = DefaultEdgeFilter.allEdges(encoder);
         }

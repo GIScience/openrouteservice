@@ -1146,16 +1146,21 @@ public class GraphHopper implements GraphHopperAPI {
                         build();
 
                 // ORS-GH MOD START
-                algoOpts.setEdgeFilter(edgeFilterFactory.createEdgeFilter(algoOpts, getGraphHopperStorage()));
+
+                if (request instanceof ExtendedGHRequest && ((ExtendedGHRequest)request).getEdgeFilter() != null) {
+                    algoOpts.setEdgeFilter(((ExtendedGHRequest)request).getEdgeFilter());
+                } else {
+                    algoOpts.setEdgeFilter(edgeFilterFactory.createEdgeFilter(algoOpts, getGraphHopperStorage()));
+                }
                 // ORS MOD END
                 
                 // MARQ24: we "tunnel" all the additional object that we require for the additional storage
                 // processing inside the TranslationMap Object - simply cause in this case we do not have to
                 // alter so many original GH classes...
                 // ORS TODO START: PathProcessor not available due to GH's new structure
-                //if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo){
-                //    ((TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr).init(encoder, weighting, request.getPathProcessor());
-                //}
+                if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo && request instanceof ExtendedGHRequest){
+                    ((TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr).init(encoder, weighting, ((ExtendedGHRequest)request).getPathProcessor());
+                }
                 // ORS TODO END
                 // ORS-GH MOD END
 
