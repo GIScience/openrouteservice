@@ -86,7 +86,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
 	@Override
 	public RouteSegmentInfo[] match(Coordinate[] locations, boolean bothDirections) {
-		EdgeFilter edgeFilter = _edgeFilter == null ? new DefaultEdgeFilter(encoder) : _edgeFilter;
+		EdgeFilter edgeFilter = _edgeFilter == null ? DefaultEdgeFilter.allEdges(encoder) : _edgeFilter;
 
 		boolean bPreciseMode = false;
 		int nPoints = locations.length;
@@ -328,7 +328,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 			}
 		}
 
-		res = gh.getRouteSegment(latitudes, longitudes, encoder.toString(), edgeFilter);
+		res = gh.getRouteSegment(latitudes, longitudes, encoder.toString());
 		
 		return res;
 	}

@@ -65,6 +65,8 @@ public class ORSGraphHopper extends GraphHopper {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private GraphProcessContext _procCntx;
+	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds; // one osm id can correspond to multiple edges
+	private HashMap<Integer, Long> tmcEdges;
 
 	private int _minNetworkSize = 200;
 	private int _minOneWayNetworkSize = 0;
@@ -88,6 +90,10 @@ public class ORSGraphHopper extends GraphHopper {
 		algoDecorators.add(getCHFactoryDecorator());
 		algoDecorators.add(getLMFactoryDecorator());
 
+//		if (useTmc){
+//			tmcEdges = new HashMap<Integer, Long>();
+//			osmId2EdgeIds = new HashMap<Long, ArrayList<Integer>>();
+//		}
 		_procCntx.init(this);
 	}
 
@@ -145,11 +151,63 @@ public class ORSGraphHopper extends GraphHopper {
 		super.flush();
 	}
 
+	@SuppressWarnings("unchecked")
+	public GraphHopper importOrLoad() {
+		GraphHopper gh = super.importOrLoad();
+
+
+		if ((tmcEdges != null) && (osmId2EdgeIds !=null)) {
+			java.nio.file.Path path = Paths.get(gh.getGraphHopperLocation(), "edges_ors_traffic");
+
+			if ((tmcEdges.size() == 0) || (osmId2EdgeIds.size()==0)) {
+				// try to load TMC edges from file.
+
+				try {
+					File file = path.toFile();
+
+					if (file.exists())
+					{
+						FileInputStream fis = new FileInputStream(path.toString());
+						ObjectInputStream ois = new ObjectInputStream(fis);
+						tmcEdges = (HashMap<Integer, Long>)ois.readObject();
+						osmId2EdgeIds = (HashMap<Long, ArrayList<Integer>>)ois.readObject();
+						ois.close();
+						fis.close();
+						System.out.printf("Serialized HashMap data is saved in trafficEdges");
+					}
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
+				}
+				catch(ClassNotFoundException c)
+				{
+					System.out.println("Class not found");
+					c.printStackTrace();
+				}
+			} else {
+				// save TMC edges if needed.
+				try {
+					FileOutputStream fos = new FileOutputStream(path.toString());
+					ObjectOutputStream oos = new ObjectOutputStream(fos);
+					oos.writeObject(tmcEdges);
+					oos.writeObject(osmId2EdgeIds);
+					oos.close();
+					fos.close();
+					System.out.printf("Serialized HashMap data is saved in trafficEdges");
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
+				}
+			}
+		}
+
+		return gh;
+	}
+
+	@Override
 	public List<Path> calcPaths(GHRequest request, GHResponse ghRsp) {
-		if (ghStorage == null || !isFullyLoaded())
+		if (getGraphHopperStorage() == null || !isFullyLoaded())
 			throw new IllegalStateException("Do a successful call to load or importOrLoad before routing");
 
-		if (ghStorage.isClosed())
+		if (getGraphHopperStorage().isClosed())
 			throw new IllegalStateException("You need to create a new GraphHopper instance as it is already closed");
 
 		// default handling
@@ -162,12 +220,12 @@ public class ORSGraphHopper extends GraphHopper {
 		Lock readLock = getReadWriteLock().readLock();
 		readLock.lock();
 		try {
-			if (!getEncodingManager().supports(vehicle))
+			if (!getEncodingManager().hasEncoder(vehicle))
 				throw new IllegalArgumentException(
 						"Vehicle " + vehicle + " unsupported. " + "Supported are: " + getEncodingManager());
 
 			HintsMap hints = request.getHints();
-			String tModeStr = hints.get("traversal_mode", traversalMode.toString());
+			String tModeStr = hints.get("traversal_mode", getTraversalMode().toString());
 			TraversalMode tMode = TraversalMode.fromString(tModeStr);
 			if (hints.has(Parameters.Routing.EDGE_BASED))
 				tMode = hints.getBool(Parameters.Routing.EDGE_BASED, false) ? TraversalMode.EDGE_BASED_2DIR
@@ -198,11 +256,11 @@ public class ORSGraphHopper extends GraphHopper {
 
 			RoutingTemplate routingTemplate;
 			if (ROUND_TRIP.equalsIgnoreCase(algoStr))
-				routingTemplate = new RoundTripRoutingTemplate(request, ghRsp, getLocationIndex(), getMaxRoundTripRetries());
+				routingTemplate = new RoundTripRoutingTemplate(request, ghRsp, getLocationIndex(), getEncodingManager(), getMaxRoundTripRetries());
 			else if (ALT_ROUTE.equalsIgnoreCase(algoStr))
-				routingTemplate = new AlternativeRoutingTemplate(request, ghRsp, getLocationIndex());
+				routingTemplate = new AlternativeRoutingTemplate(request, ghRsp, getLocationIndex(), getEncodingManager());
 			else
-				routingTemplate = new ViaRoutingTemplate(request, ghRsp, getLocationIndex());
+				routingTemplate = new ViaRoutingTemplate(request, ghRsp, getLocationIndex(), getEncodingManager());
 
 			List<Path> altPaths = null;
 			int maxRetries = routingTemplate.getMaxRetries();
@@ -228,7 +286,7 @@ public class ORSGraphHopper extends GraphHopper {
 					RoutingAlgorithmFactory coreAlgoFactory = coreFactoryDecorator.getDecoratedAlgorithmFactory(new RoutingAlgorithmFactorySimple(), hints);
 					weighting = ((PrepareCore) coreAlgoFactory).getWeighting();
 					tMode = getCoreFactoryDecorator().getNodeBase();
-					queryGraph = new QueryGraph(ghStorage.getGraph(CHGraph.class, weighting));
+					queryGraph = new QueryGraph(getGraphHopperStorage().getGraph(CHGraph.class, weighting));
 					queryGraph.lookup(qResults);
 				}
 				else{
@@ -250,16 +308,16 @@ public class ORSGraphHopper extends GraphHopper {
 									"Although CH was enabled a non-CH algorithm factory was returned " + tmpAlgoFactory);
 
 						tMode = getCHFactoryDecorator().getNodeBase();
-						queryGraph = new QueryGraph(ghStorage.getGraph(CHGraph.class, weighting));
+						queryGraph = new QueryGraph(getGraphHopperStorage().getGraph(CHGraph.class, weighting));
 						queryGraph.lookup(qResults);
 
 
 					} else {
 
 						checkNonChMaxWaypointDistance(points);
-						queryGraph = new QueryGraph(ghStorage);
+						queryGraph = new QueryGraph(getGraphHopperStorage());
 						queryGraph.lookup(qResults);
-						weighting = createWeighting(hints, tMode, encoder, queryGraph, ghStorage);
+						weighting = createWeighting(hints, tMode, encoder, queryGraph);
 						ghRsp.addDebugInfo("tmode:" + tMode.toString());
 					}
 				}
@@ -274,15 +332,15 @@ public class ORSGraphHopper extends GraphHopper {
 				AlgorithmOptions algoOpts = AlgorithmOptions.start().algorithm(algoStr).traversalMode(tMode)
 						.weighting(weighting).maxVisitedNodes(maxVisitedNodesForRequest).hints(hints).build();
 
-				if (request.getEdgeFilter() != null)
-					algoOpts.setEdgeFilter(request.getEdgeFilter());
+				algoOpts.setEdgeFilter(edgeFilterFactory.createEdgeFilter(algoOpts, getGraphHopperStorage()));
+				
 				if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo){
 					((TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr).init(encoder, weighting, request.getPathProcessor());
 				}
 
 				altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts);
 
-				boolean tmpEnableInstructions = hints.getBool(Parameters.Routing.INSTRUCTIONS, enableInstructions);
+				boolean tmpEnableInstructions = hints.getBool(Parameters.Routing.INSTRUCTIONS, getEncodingManager().isEnableInstructions());
 				boolean tmpCalcPoints = hints.getBool(Parameters.Routing.CALC_POINTS, isCalcPoints());
 				double wayPointMaxDistance = hints.getDouble(Parameters.Routing.WAY_POINT_MAX_DISTANCE, 1d);
 				DouglasPeucker peucker = new DouglasPeucker().setMaxDistance(wayPointMaxDistance);
@@ -304,8 +362,7 @@ public class ORSGraphHopper extends GraphHopper {
 		}
 	}
 
-	public RouteSegmentInfo getRouteSegment(double[] latitudes, double[] longitudes, String vehicle,
-											EdgeFilter edgeFilter) {
+	public RouteSegmentInfo getRouteSegment(double[] latitudes, double[] longitudes, String vehicle) {
 		RouteSegmentInfo result = null;
 
 		GHRequest req = new GHRequest();
@@ -317,8 +374,6 @@ public class ORSGraphHopper extends GraphHopper {
 		req.setWeighting("fastest");
 		// TODO add limit of maximum visited nodes
 
-		if (edgeFilter != null)
-			req.setEdgeFilter(edgeFilter);
 
 		GHResponse resp = new GHResponse();
 
@@ -422,6 +477,14 @@ public class ORSGraphHopper extends GraphHopper {
         return new GeometryFactory().createLineString(coords);
     }
 
+    public HashMap<Integer, Long> getTmcGraphEdges() {
+        return tmcEdges;
+    }
+
+    public HashMap<Long, ArrayList<Integer>> getOsmId2EdgeIds() {
+        return osmId2EdgeIds;
+    }
+
 	/**
 	 * Does the preparation and creates the location index
 	 */
@@ -440,7 +503,7 @@ public class ORSGraphHopper extends GraphHopper {
 		EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
 		/* Heavy vehicle filter */
 
-		if (encodingManager.supports("heavyvehicle")) {
+		if (encodingManager.hasEncoder("heavyvehicle")) {
 			coreEdgeFilter.add(new HeavyVehicleCoreEdgeFilter(gs));
 		}
 
@@ -509,16 +572,16 @@ public class ORSGraphHopper extends GraphHopper {
 		if (tmpPrepare) {
 			ensureWriteAccess();
 
-			ghStorage.freeze();
-			coreFactoryDecorator.prepare(ghStorage.getProperties());
-			ghStorage.getProperties().put(Core.PREPARE + "done", true);
+			getGraphHopperStorage().freeze();
+			coreFactoryDecorator.prepare(getGraphHopperStorage().getProperties());
+			getGraphHopperStorage().getProperties().put(Core.PREPARE + "done", true);
 		}
 	}
 
 	private boolean isCorePrepared() {
-		return "true".equals(ghStorage.getProperties().get(Core.PREPARE + "done"))
+		return "true".equals(getGraphHopperStorage().getProperties().get(Core.PREPARE + "done"))
 				// remove old property in >0.9
-				|| "true".equals(ghStorage.getProperties().get("prepare.done"));
+				|| "true".equals(getGraphHopperStorage().getProperties().get("prepare.done"));
 	}
 
 	/**
@@ -554,9 +617,9 @@ public class ORSGraphHopper extends GraphHopper {
 		boolean tmpPrepare = coreLMFactoryDecorator.isEnabled();
 		if (tmpPrepare) {
 			ensureWriteAccess();
-			ghStorage.freeze();
-			if (coreLMFactoryDecorator.loadOrDoWork(ghStorage.getProperties()))
-				ghStorage.getProperties().put(ORSParameters.CoreLandmark.PREPARE + "done", true);
+			getGraphHopperStorage().freeze();
+			if (coreLMFactoryDecorator.loadOrDoWork(getGraphHopperStorage().getProperties()))
+				getGraphHopperStorage().getProperties().put(ORSParameters.CoreLandmark.PREPARE + "done", true);
 		}
 	}
 }

@@ -87,7 +87,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         return this;
     }
 
-    @Override
+//    @Override
     protected SPTEntry createSPTEntry(int node, double weight) {
         throw new IllegalStateException("use AStarEdge constructor directly");
     }

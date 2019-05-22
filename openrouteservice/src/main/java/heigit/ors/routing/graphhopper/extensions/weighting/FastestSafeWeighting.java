@@ -32,7 +32,8 @@ public class FastestSafeWeighting extends FastestWeighting {
 	/**
 	 * For now used only in BikeCommonFlagEncoder and MotorcycleFlagEncoder
 	 */
-	public static final int KEY = 101;
+	//    public static final int KEY = 101;
+	public static final String KEY = "priority";
 
 	public FastestSafeWeighting(FlagEncoder encoder, PMap map) {
 		super(encoder, map);
@@ -45,7 +46,7 @@ public class FastestSafeWeighting extends FastestWeighting {
 		if (Double.isInfinite(weight))
 			return Double.POSITIVE_INFINITY;
 
-		double priority = flagEncoder.getDouble(edgeState.getFlags(), KEY);
+		double priority = getFlagEncoder().getDecimalEncodedValue(KEY).getDecimal(reverse, edgeState.getFlags());
 
 		if (priority <= THRESHOLD_AVOID_AT_ALL_COSTS)
 			weight *= 2;

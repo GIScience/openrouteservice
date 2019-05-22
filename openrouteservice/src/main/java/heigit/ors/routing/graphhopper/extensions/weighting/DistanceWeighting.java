@@ -13,6 +13,7 @@
  */
 package heigit.ors.routing.graphhopper.extensions.weighting;
 
+import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.util.EdgeIteratorState;
@@ -42,7 +43,7 @@ public class DistanceWeighting extends AbstractWeighting
     @Override
     public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId)
     {
-        double speed = reverse ? flagEncoder.getReverseSpeed(edge.getFlags()) : flagEncoder.getSpeed(edge.getFlags());
+        double speed = ((AbstractFlagEncoder)flagEncoder).getSpeed(reverse, edge.getFlags());
         if (speed == 0)
             return Double.POSITIVE_INFINITY;
 

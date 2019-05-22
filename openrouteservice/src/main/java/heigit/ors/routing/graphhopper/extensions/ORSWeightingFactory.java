@@ -112,7 +112,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 				if (name != null && !weightingNames.contains(name))
 					weightingNames.add(name);
 			}
-
+	
 			List<Weighting> softWeightings = new ArrayList<Weighting>();
 
 			for (int i = 0; i < weightingNames.size(); i++)

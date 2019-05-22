@@ -131,7 +131,7 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 		}
 
 		if (!weightings.isEmpty())
-			return new GraphHopperStorage(weightings,
+			return new GraphHopperStorage(weightings, weightings,
 					dir,
 					encodingManager,
 					gh.hasElevation(),

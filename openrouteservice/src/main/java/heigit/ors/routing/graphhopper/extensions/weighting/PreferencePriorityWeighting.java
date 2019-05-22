@@ -36,7 +36,8 @@ public class PreferencePriorityWeighting extends FastestWeighting
     /**
      * For now used only in BikeCommonFlagEncoder and MotorcycleFlagEncoder
      */
-    public static final int KEY = 101;
+//    public static final int KEY = 101;
+	public static final String KEY = "priority";
 
     public PreferencePriorityWeighting(FlagEncoder encoder, PMap map)
     {
@@ -50,7 +51,7 @@ public class PreferencePriorityWeighting extends FastestWeighting
 		if (Double.isInfinite(weight))
 			weight = 0.0; 
 
-    	double priority = getFlagEncoder().getDouble(edgeState.getFlags(), KEY);
+    	double priority = getFlagEncoder().getDecimalEncodedValue(KEY).getDecimal(reverse, edgeState.getFlags());
 
 		if (priority <= THRESHOLD_REACH_DEST)
 			priority /= 1.5;
