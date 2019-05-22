@@ -649,8 +649,8 @@ public class DataFlagEncoder extends AbstractFlagEncoder {
 
     @Override
     // ORS GH MOD start
-    // ORS GH MOD switch from package-private to protected for package-external flag encoders
-    protected double getSpeed(boolean reverse, IntsRef flags) {
+    // ORS GH MOD switch from package-private to public for package-external flag encoders and some weightings
+    public double getSpeed(boolean reverse, IntsRef flags) {
         throw new UnsupportedOperationException("Calculate speed via more customizable Weighting.calcMillis method");
     }
     // ORS GH MOD end

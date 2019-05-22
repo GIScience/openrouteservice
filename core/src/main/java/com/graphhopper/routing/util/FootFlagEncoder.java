@@ -369,8 +369,8 @@ public class FootFlagEncoder extends AbstractFlagEncoder {
      */
     @Override
     // ORS GH MOD start
-    // ORS GH MOD switch from package-private to protected for package-external flag encoders
-    protected double getSpeed(boolean reverse, IntsRef edgeFlags) {
+    // ORS GH MOD switch from package-private to public for package-external flag encoders and some weightings
+    public double getSpeed(boolean reverse, IntsRef edgeFlags) {
         double speed = super.getSpeed(reverse, edgeFlags);
         if (speed == getMaxSpeed()) {
             // We cannot be sure if it was a long or a short trip

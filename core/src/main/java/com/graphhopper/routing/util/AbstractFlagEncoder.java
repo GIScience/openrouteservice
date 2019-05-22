@@ -554,13 +554,13 @@ public abstract class AbstractFlagEncoder implements FlagEncoder {
     }
 
     // ORS GH MOD start
-    // ORS GH MOD switch from package-private to protected for packege-external FlagEncoders
-    protected double getSpeed(IntsRef edgeFlags) {
+    // ORS GH MOD switch from package-private to public for package-external flag encoders and some weightings
+    public double getSpeed(IntsRef edgeFlags) {
         return getSpeed(false, edgeFlags);
     }
 
-    // ORS GH MOD switch from package-private to protected for packege-external FlagEncoders
-    protected double getSpeed(boolean reverse, IntsRef edgeFlags) {
+    // ORS GH MOD switch from package-private to public for package-external flag encoders and some weightings
+    public double getSpeed(boolean reverse, IntsRef edgeFlags) {
         double speedVal = speedEncoder.getDecimal(reverse, edgeFlags);
         if (speedVal < 0)
             throw new IllegalStateException("Speed was negative!? " + speedVal);

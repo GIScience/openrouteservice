@@ -80,11 +80,7 @@ public class GraphHopper implements GraphHopperAPI {
     private final TranslationMap trMap = new TranslationMap().doImport();
     boolean removeZipped = true;
     // for graph:
-    // ORS-GH MOD START
-    // CALT
-    // private GraphHopperStorage ghStorage;
-    protected GraphHopperStorage ghStorage;
-    // ORS-GH MOD END
+    private GraphHopperStorage ghStorage;
     private EncodingManager encodingManager;
     private int defaultSegmentSize = -1;
     private String ghLocation = "";
@@ -98,11 +94,7 @@ public class GraphHopper implements GraphHopperAPI {
     // for routing
     private int maxRoundTripRetries = 3;
     private boolean simplifyResponse = true;
-    // ORS-GH MOD START
-    // CALT
-    //private TraversalMode traversalMode = TraversalMode.NODE_BASED;
-    protected TraversalMode traversalMode = TraversalMode.NODE_BASED;
-    // ORS-GH MOD END
+    private TraversalMode traversalMode = TraversalMode.NODE_BASED;
     private int maxVisitedNodes = Integer.MAX_VALUE;
 
     private int nonChMaxWaypointDistance = Integer.MAX_VALUE;
@@ -131,7 +123,21 @@ public class GraphHopper implements GraphHopperAPI {
     private PathDetailsBuilderFactory pathBuilderFactory = new PathDetailsBuilderFactory();
 
     // ORS-GH MOD START
-    private EdgeFilterFactory edgeFilterFactory = EdgeFilterFactory.DEFAULT;
+    protected EdgeFilterFactory edgeFilterFactory = EdgeFilterFactory.DEFAULT;
+    protected WeightingFactory weightingFactory;
+    protected GraphStorageFactory graphStorageFactory;
+
+    public void setEdgeFilterFactory(EdgeFilterFactory newFactory) {
+        this.edgeFilterFactory = newFactory;
+    }
+
+    public void setWeightingFactory(WeightingFactory weightingFactory) {
+        this.weightingFactory = weightingFactory;
+    }
+
+    public void setGraphStorageFactory(GraphStorageFactory graphStorageFactory) {
+        this.graphStorageFactory = graphStorageFactory;
+    }
     // ORS-GH MOD END
 
     public GraphHopper() {
@@ -152,12 +158,6 @@ public class GraphHopper implements GraphHopperAPI {
         initLocationIndex();
         return this;
     }
-
-    // ORS-GH MOD START
-    public void setEdgeFilterFactory(EdgeFilterFactory newFactory) {
-        this.edgeFilterFactory = newFactory;
-    }
-    // ORS-GH MOD END
 
     /**
      * @return the first flag encoder of the encoding manager
@@ -956,15 +956,8 @@ public class GraphHopper implements GraphHopperAPI {
      * @see HintsMap
      */
     // ORS-GH MOD START
-    // Modification by Maxim Rylov: new method
-    public Weighting createWeighting(HintsMap hintsMap, TraversalMode tMode, FlagEncoder encoder, Graph graph) {
-        return createWeighting(hintsMap, tMode, encoder, graph, ghStorage);
-    }
-    // ORS-GH MOD END
-
-    // ORS-GH MOD START
     //public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph graph) {
-    public Weighting createWeighting(HintsMap hintsMap, TraversalMode tMode, FlagEncoder encoder, Graph graph, GraphHopperStorage graphStorage) {
+    public Weighting createWeighting(HintsMap hintsMap, TraversalMode tMode, FlagEncoder encoder, Graph graph) {
         if (weightingFactory != null) {
             return weightingFactory.createWeighting(hintsMap, tMode, encoder, graph, locationIndex, getGraphHopperStorage());
         }
@@ -1128,7 +1121,7 @@ public class GraphHopper implements GraphHopperAPI {
                     queryGraph.lookup(qResults);
                     // ORS-GH MOD START
                     //weighting = createWeighting(hints, encoder, queryGraph);
-                    weighting = createWeighting(hints, tMode, encoder, queryGraph, ghStorage);
+                    weighting = createWeighting(hints, tMode, encoder, queryGraph);
                     // ORS-GH MOD END
                     ghRsp.addDebugInfo("tmode:" + tMode.toString());
                 }
@@ -1383,20 +1376,4 @@ public class GraphHopper implements GraphHopperAPI {
     public void setNonChMaxWaypointDistance(int nonChMaxWaypointDistance) {
         this.nonChMaxWaypointDistance = nonChMaxWaypointDistance;
     }
-
-    // ORS-GH MOD START
-    // Modification by Maxim Rylov: Added new class variables.
-    private WeightingFactory weightingFactory;
-    private GraphStorageFactory graphStorageFactory;
-
-    // Modification by Maxim Rylov: Added new method.
-    public void setWeightingFactory(WeightingFactory weightingFactory) {
-        this.weightingFactory = weightingFactory;
-    }
-
-    // Modification by Maxim Rylov: Added new method.
-    public void setGraphStorageFactory(GraphStorageFactory graphStorageFactory) {
-        this.graphStorageFactory = graphStorageFactory;
-    }
-    // ORS-GH MOD END
 }
