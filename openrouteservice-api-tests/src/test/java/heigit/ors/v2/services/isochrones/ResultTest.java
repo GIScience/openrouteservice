@@ -219,7 +219,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(both(greaterThan(6110000f)).and(lessThan(6120000f))))
-                .body("features[0].properties.reachfactor", is(0.1752f))
+                .body("features[0].properties.reachfactor", is(0.7007f))
                 .statusCode(200);
 
     }
@@ -245,7 +245,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(both(greaterThan(6110000f)).and(lessThan(6120000f))))
-                .body("features[0].properties.reachfactor", is(0.1752f))
+                .body("features[0].properties.reachfactor", is(0.7007f))
                 .statusCode(200);
 
     }
@@ -271,7 +271,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(both(greaterThan(6.11f)).and(lessThan(6.12f))))
-                .body("features[0].properties.reachfactor", is(0.1752f))
+                .body("features[0].properties.reachfactor", is(0.7007f))
                 .statusCode(200);
 
     }
@@ -324,7 +324,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(both(greaterThan(2.36f)).and(lessThan(2.37f))))
-                .body("features[0].properties.reachfactor", is(0.1752f))
+                .body("features[0].properties.reachfactor", is(0.7007f))
                 .statusCode(200);
 
     }

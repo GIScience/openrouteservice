@@ -81,6 +81,12 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
 
             case FlagEncoderNames.WHEELCHAIR:
                 return new heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder(configuration);
+
+            case FlagEncoderNames.PEDESTRIAN_ORS:
+                return new heigit.ors.routing.graphhopper.extensions.flagencoders.PedestrianFlagEncoder(configuration);
+
+            case FlagEncoderNames.HIKING_ORS:
+                return new heigit.ors.routing.graphhopper.extensions.flagencoders.HikingFlagEncoder(configuration);
         }
     }
 }

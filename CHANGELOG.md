@@ -6,8 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- Added a gpx schema validator into the api-tests, testing all gpx outputs while fixing the bug from (#496)
 ### Fixed
+- isochrone reachfactor gives now more realistic results (#325)
+- Fixed the wrong gpx header for api v2 (#496)
 ### Changed
+- Moved walking and hiking flag encoders to the ORS core system (#440)
+- Remove route optimization code (#499)
+- Reduced distance for neighbourhood point search in isochrones when small isochrones are generated (#494)
 ### Deprecated
 
 ## [5.0.1] - 2019-04-08
