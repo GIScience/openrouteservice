@@ -6,25 +6,33 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- CALT routing algorithm (Issue #433)
-- Makes docker and docker-compose deployment of openrouteservice more customizable (Issue #434)
-- Add the possibility to predefine standard maximum search radii in general and for each used profile in the config file (Issue #418)
 - Added a gpx schema validator into the api-tests, testing all gpx outputs while fixing the bug from (#496)
 ### Fixed
 - isochrone reachfactor gives now more realistic results (#325)
+- Fixed the wrong gpx header for api v2 (#496)
+### Changed
+- Moved walking and hiking flag encoders to the ORS core system (#440)
+- Remove route optimization code (#499)
+- Reduced distance for neighbourhood point search in isochrones when small isochrones are generated (#494)
+### Deprecated
+
+## [5.0.1] - 2019-04-08
+### Added
+- CALT routing algorithm - Not for production (Issue #433)
+- Makes docker and docker-compose deployment of openrouteservice more customizable (Issue #434)
+- Add the possibility to predefine standard maximum search radii in general and for each used profile in the config file (Issue #418)
+### Fixed
+- fix classpath issues for resources, Windows builds now (#489)
+- isochrone geojson bbox now format compliant (#493)
 - v2 isochrones now respects max_locations in app.config (#482)
 - Updated documentation to reflect correct isochrone smoothing algorithm (Issue #471)
 - Enable > 2 waypoints when geometry_simplify=true (#457)
 - Made it so that the wheelchair profile only goes over bridleways if they are set to be foot or wheelchair accessible (#415)
 - Fixed the build fail bug when `routing_name` was set in the config file (#424)
 - Fixed problem with border crossings where the way crosses three polygons (#491)
-- Fixed the wrong gpx header for api v2 (#496)
 ### Changed
 - Updated pom to always build ors.war (Issue #432)
 - Replace usage of packages incompatible with Java >8 (#474)
-- Moved walking and hiking flag encoders to the ORS core system (#440)
-- Remove route optimization code (#499)
-- Reduced distance for neighbourhood point search in isochrones when small isochrones are generated (#494)
 ### Deprecated
 
 
