@@ -112,7 +112,7 @@ public class AccessibilityServiceSettings
 		return responseLimit;
 	}
 	
-	public static int getMaximumLocations() {
+	public static int getMaximumRoutes() {
 		return maximumLocations;
 	}
 	

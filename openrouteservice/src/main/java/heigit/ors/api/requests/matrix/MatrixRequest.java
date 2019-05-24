@@ -111,7 +111,7 @@ public class MatrixRequest {
         if (locations.length < 2) {
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "locations");
         }
-        if (locations.length > MatrixServiceSettings.getMaximumLocations(false))
+        if (locations.length > MatrixServiceSettings.getMaximumRoutes(false))
             throw new ParameterValueException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations");
         this.locations = new ArrayList<>();
         for (Double[] coordPair : locations) {

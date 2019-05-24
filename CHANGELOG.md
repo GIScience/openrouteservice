@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Updated pom to always build ors.war (Issue #432)
 - Replace usage of packages incompatible with Java >8 (#474)
+- Updated Matrix to have a maximum number of routes to calculate rather than locations (#518)
 ### Deprecated
 
 
