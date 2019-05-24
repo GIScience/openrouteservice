@@ -85,16 +85,10 @@ public class BordersGraphStorage implements GraphExtension {
 	 * @return The value of the requested property
 	 */
 	public short getEdgeValue(int edgeId, Property prop) {
-		// TODO maybe implement a second function that accesses only the country data
 		long edgePointer = (long) edgeId * edgeEntryBytes;
-		short border;
-		short start;
-		short end;
-		short genuineCountry;
-		short edge = orsEdges.getShort(edgePointer);
-		border = orsEdges.getShort(edgePointer + EF_BORDER);
-		start = orsEdges.getShort(edgePointer + EF_START);
-		end = orsEdges.getShort(edgePointer + EF_END);
+		short border = orsEdges.getShort(edgePointer + EF_BORDER);
+		short start = orsEdges.getShort(edgePointer + EF_START);
+		short end = orsEdges.getShort(edgePointer + EF_END);
 
 		switch (prop) {
 			case TYPE:

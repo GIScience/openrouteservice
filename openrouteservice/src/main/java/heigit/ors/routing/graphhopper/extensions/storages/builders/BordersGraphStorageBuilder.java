@@ -151,7 +151,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
              // First get the start and end countries - if they are equal, then there is no crossing
              String startVal = way.getTag("country1");
              String endVal = way.getTag("country2");
-             short type;
+             short type = BordersGraphStorage.NO_BORDER;
              short start = 0;
              short end = 0;
              try {
@@ -161,11 +161,8 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
              } finally {
                  if (start != end) {
                      type = (cbReader.isOpen(cbReader.getEngName(startVal), cbReader.getEngName(endVal))) ? (short) 2 : (short) 1;
-                     _storage.setEdgeValue(edge.getEdge(), type, start, end);
-                 } else {
-                     type = BordersGraphStorage.NO_BORDER;
-                     _storage.setEdgeValue(edge.getEdge(), type, start, end);
                  }
+                 _storage.setEdgeValue(edge.getEdge(), type, start, end);
              }
          }
      }
@@ -258,9 +255,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             // Replace the arraylist
             countries = temp;
         }
-//        if (countries.size() > 2){
-//            countries = countries;
-//        }
+
         // Now we have a list of all the countries that the nodes are in - if this is more than one it is likely it is
         // crossing a border, but not certain as in some disputed areas, countries overlap and so it may not cross any
         // border.
