@@ -9,8 +9,8 @@
     "services": {
       "matrix": {
         "enabled": true,
-        "maximum_locations": 100,
-        "maximum_locations_flexible": 25,
+        "maximum_routes": 100,
+        "maximum_routes_flexible": 25,
         "maximum_search_radius": 5000,
         "maximum_visited_nodes": 100000,
         "allow_resolve_locations": true,

@@ -64,7 +64,7 @@ public class ResultTest extends ServiceTest {
         addParameter("locationsLong", locationsLong);
 
         // Fake array to test maximum exceedings
-        JSONArray maximumLocations = HelperFunctions.fakeJSONLocations(MatrixServiceSettings.getMaximumLocations(false) + 1);
+        JSONArray maximumLocations = HelperFunctions.fakeJSONLocations(MatrixServiceSettings.getMaximumRoutes(false) + 1);
         addParameter("maximumLocations", maximumLocations);
         JSONArray minimalLocations = HelperFunctions.fakeJSONLocations(1);
         addParameter("minimalLocations", minimalLocations);

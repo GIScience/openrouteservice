@@ -17,8 +17,8 @@ import heigit.ors.config.AppConfig;
 
 public class MatrixServiceSettings 
 {
-	private static int maximumLocations = 100;
-	private static int maximumLocationsFlexible = 25;
+	private static int maximumRoutes = 2500;
+	private static int maximumRoutesFlexible = 25;
 	private static int maximumVisitedNodes = 100000;
 	private static double maximumSearchRadius = 2000;
 	private static boolean allowResolveLocations = true;
@@ -30,12 +30,12 @@ public class MatrixServiceSettings
 		String value = AppConfig.Global().getServiceParameter("matrix", "enabled");
 		if (value != null)
 			enabled = Boolean.parseBoolean(value);		
-		value = AppConfig.Global().getServiceParameter("matrix", "maximum_locations");
+		value = AppConfig.Global().getServiceParameter("matrix", "maximum_routes");
 		if (value != null)
-			maximumLocations = Math.max(1, Integer.parseInt(value));
-		value = AppConfig.Global().getServiceParameter("matrix", "maximum_locations_flexible");
+			maximumRoutes = Math.max(1, Integer.parseInt(value));
+		value = AppConfig.Global().getServiceParameter("matrix", "maximum_routes_flexible");
 		if (value != null)
-			maximumLocationsFlexible = Math.max(1, Integer.parseInt(value));
+			maximumRoutesFlexible = Math.max(1, Integer.parseInt(value));
 		value = AppConfig.Global().getServiceParameter("matrix", "maximum_search_radius");
 		if (value != null)
 			maximumSearchRadius = Math.max(1, Double.parseDouble(value));
@@ -62,8 +62,8 @@ public class MatrixServiceSettings
 		return maximumVisitedNodes;
 	}
 	
-	public static int getMaximumLocations(boolean flexible) {
-		return (flexible? maximumLocationsFlexible : maximumLocations);
+	public static int getMaximumRoutes(boolean flexible) {
+		return (flexible? maximumRoutesFlexible : maximumRoutes);
 	}
 	
 	public static double getMaximumSearchRadius() {

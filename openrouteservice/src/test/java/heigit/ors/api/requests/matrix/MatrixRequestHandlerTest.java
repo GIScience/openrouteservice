@@ -3,6 +3,7 @@ package heigit.ors.api.requests.matrix;
 import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.common.DistanceUnit;
+import heigit.ors.exceptions.ServerLimitExceededException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.matrix.MatrixMetricsType;
@@ -31,8 +32,8 @@ public class MatrixRequestHandlerTest {
     private Coordinate coordinate2 = new Coordinate();
     private Coordinate coordinate3 = new Coordinate();
 
-    private List<List<Double>> maximumLocations;
     private List<List<Double>> minimalLocations;
+    private int maximumRoutes;
 
     @Before
     public void setUp() {
@@ -78,14 +79,16 @@ public class MatrixRequestHandlerTest {
 
         // Fake locations to test maximum exceedings
 
-        maximumLocations = HelperFunctions.fakeListLocations(MatrixServiceSettings.getMaximumLocations(false) + 1, 2);
         minimalLocations = HelperFunctions.fakeListLocations(1, 2);
+        maximumRoutes = MatrixServiceSettings.getMaximumRoutes(false) + 1;
     }
 
     @Test
     public void convertMatrixRequestTest() throws StatusCodeException {
         heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates);
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
+        springMatrixRequest.setSources(new String[]{"all"});
+        springMatrixRequest.setDestinations(new String[]{"all"});
         MatrixRequest matrixRequest = MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
         Assert.assertEquals(1, matrixRequest.getProfileType());
         Assert.assertEquals(3, matrixRequest.getSources().length);
@@ -99,6 +102,8 @@ public class MatrixRequestHandlerTest {
 
         springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates);
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
+        springMatrixRequest.setSources(new String[]{"all"});
+        springMatrixRequest.setDestinations(new String[]{"all"});
         MatrixRequestEnums.Metrics[] metrics = new MatrixRequestEnums.Metrics[2];
         metrics[0] = MatrixRequestEnums.Metrics.DURATION;
         metrics[1] = MatrixRequestEnums.Metrics.DISTANCE;
@@ -112,6 +117,8 @@ public class MatrixRequestHandlerTest {
     public void invalidLocationsTest() throws StatusCodeException {
         heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest(new ArrayList<>());
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
+        springMatrixRequest.setSources(new String[]{"foo"});
+        springMatrixRequest.setDestinations(new String[]{"bar"});
         MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
     }
 
@@ -121,6 +128,8 @@ public class MatrixRequestHandlerTest {
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setMetrics(new MatrixRequestEnums.Metrics[0]);
+        springMatrixRequest.setSources(new String[]{"foo"});
+        springMatrixRequest.setDestinations(new String[]{"bar"});
         MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
     }
 
@@ -130,6 +139,7 @@ public class MatrixRequestHandlerTest {
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setSources(new String[]{"foo"});
+        springMatrixRequest.setDestinations(new String[]{"bar"});
         MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
     }
 
@@ -151,18 +161,18 @@ public class MatrixRequestHandlerTest {
     }
 
     @Test(expected = ParameterValueException.class)
-    public void notEnoughLocationsTest() throws ParameterValueException {
-        MatrixRequestHandler.convertLocations(minimalLocations);
+    public void notEnoughLocationsTest() throws ParameterValueException, ServerLimitExceededException {
+        MatrixRequestHandler.convertLocations(minimalLocations, 5);
     }
 
-    @Test(expected = ParameterValueException.class)
-    public void maximumExceedingLocationsTest() throws ParameterValueException {
-        MatrixRequestHandler.convertLocations(maximumLocations);
+    @Test(expected = ServerLimitExceededException.class)
+    public void maximumExceedingLocationsTest() throws ParameterValueException, ServerLimitExceededException {
+        MatrixRequestHandler.convertLocations(listOfBareCoordinatesList, maximumRoutes);
     }
 
     @Test
-    public void convertLocationsTest() throws ParameterValueException {
-        Coordinate[] coordinates = MatrixRequestHandler.convertLocations(listOfBareCoordinatesList);
+    public void convertLocationsTest() throws ParameterValueException, ServerLimitExceededException {
+        Coordinate[] coordinates = MatrixRequestHandler.convertLocations(listOfBareCoordinatesList, 3);
         Assert.assertEquals(8.681495, coordinates[0].x, 0);
         Assert.assertEquals(49.41461, coordinates[0].y, 0);
         Assert.assertEquals(Double.NaN, coordinates[0].z, 0);

@@ -48,7 +48,7 @@ public class MatrixRequestTest {
         bareCoordinates[1] = bareCoordinate2;
         bareCoordinates[2] = bareCoordinate3;
 
-        maximumLocationsArray = HelperFunctions.fakeArrayLocations(MatrixServiceSettings.getMaximumLocations(false) + 1, 2);
+        maximumLocationsArray = HelperFunctions.fakeArrayLocations(MatrixServiceSettings.getMaximumRoutes(false) + 1, 2);
         minimalLocationsArray = HelperFunctions.fakeArrayLocations(1, 2);
 
 
