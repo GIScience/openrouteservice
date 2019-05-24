@@ -46,7 +46,7 @@ public class JsonMapMatchingRequestProcessor extends AbstractHttpRequestProcesso
 		if (req == null)
 			throw new StatusCodeException(StatusCode.BAD_REQUEST, MapMatchingErrorCodes.UNKNOWN, "MapMatchingRequest object is null.");
 
-		if (MapMatchingServiceSettings.getMaximumLocations() > 0 && req.getCoordinates().length > MatrixServiceSettings.getMaximumLocations(false))
+		if (MapMatchingServiceSettings.getMaximumLocations() > 0 && req.getCoordinates().length > MatrixServiceSettings.getMaximumRoutes(false))
 			throw new ParameterOutOfRangeException(MapMatchingErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "sources/destinations", Integer.toString(req.getCoordinates().length), Integer.toString(MapMatchingServiceSettings.getMaximumLocations()));
 
 		
