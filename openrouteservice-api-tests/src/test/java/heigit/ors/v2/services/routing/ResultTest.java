@@ -2268,6 +2268,68 @@ public class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
+    @Test
+    public void testRouteMergeIndexing() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", constructCoords("8.676131,49.418149|8.676142,49.417555|8.680733,49.417248"));
+        body.put("preference", "fastest");
+
+        // ensure indexing of merged routes waypoints dont get messed up
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].segments[0].steps[0].way_points[0]", is(0))
+                .body("routes[0].segments[0].steps[0].way_points[1]", is(1))
+                .body("routes[0].segments[0].steps[1].way_points[0]", is(1))
+                .body("routes[0].segments[0].steps[1].way_points[1]", is(1))
+                .body("routes[0].segments[1].steps[0].way_points[0]", is(1))
+                .body("routes[0].segments[1].steps[0].way_points[1]", is(4))
+                .body("routes[0].segments[1].steps[1].way_points[0]", is(4))
+                .body("routes[0].segments[1].steps[1].way_points[1]", is(15))
+                .body("routes[0].segments[1].steps[2].way_points[0]", is(15))
+                .body("routes[0].segments[1].steps[2].way_points[1]", is(15))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testRouteMergeInstructionsWithoutGeometry() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", constructCoords("8.676131,49.418149|8.676142,49.417555|8.680733,49.417248"));
+        body.put("preference", "fastest");
+        body.put("geometry", "false");
+
+        // ensure indexing of merged routes waypoints dont get messed up
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('geometry')", is(false))
+                .body("routes[0].segments[0].steps[0].way_points[0]", is(0))
+                .body("routes[0].segments[0].steps[0].way_points[1]", is(1))
+                .body("routes[0].segments[0].steps[1].way_points[0]", is(1))
+                .body("routes[0].segments[0].steps[1].way_points[1]", is(1))
+                .body("routes[0].segments[1].steps[0].way_points[0]", is(1))
+                .body("routes[0].segments[1].steps[0].way_points[1]", is(4))
+                .body("routes[0].segments[1].steps[1].way_points[0]", is(4))
+                .body("routes[0].segments[1].steps[1].way_points[1]", is(15))
+                .body("routes[0].segments[1].steps[2].way_points[0]", is(15))
+                .body("routes[0].segments[1].steps[2].way_points[1]", is(15))
+                .statusCode(200);
+    }
+
     private JSONArray constructCoords(String coordString) {
         JSONArray coordinates = new JSONArray();
         String[] coordPairs = coordString.split("\\|");
