@@ -79,7 +79,7 @@ class RouteResultBuilder
 
         result.addPointlist(pointsToAdd);
         result.calculateRouteSummary(request);
-        if (!request.getIncludeGeometry() || !request.getIncludeInstructions()) {
+        if (!request.getIncludeInstructions()) {
             result.resetSegments();
         }
 
@@ -100,7 +100,7 @@ class RouteResultBuilder
     private RouteSegment createRouteSegment(PathWrapper path, RoutingRequest request, PointList nextRouteFirstStepPoints) throws Exception {
         RouteSegment seg = new RouteSegment(path, request.getUnits());
 
-        if (request.getIncludeGeometry() && request.getIncludeInstructions()) {
+        if (request.getIncludeInstructions()) {
             if (request.hasAttribute(RoutingRequest.ATTR_DETOURFACTOR)) {
                 seg.setDetourFactor(FormatUtility.roundToDecimals(calculateDetourFactor(path), 2));
             }
@@ -182,8 +182,9 @@ class RouteResultBuilder
                 }
                 step.setInstruction(instrText);
 
-                step.setWayPoints(new int[]{startWayPointIndex, getEndWayPointIndex(startWayPointIndex, instrType, instr)});
-                startWayPointIndex += instr.getPoints().size();
+                int endWayPointIndex = getEndWayPointIndex(startWayPointIndex, instrType, instr);
+                step.setWayPoints(new int[]{startWayPointIndex, endWayPointIndex});
+                startWayPointIndex = endWayPointIndex;
 
                 seg.addStep(step);
             }
