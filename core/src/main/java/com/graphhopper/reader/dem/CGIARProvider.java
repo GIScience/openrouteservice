@@ -54,7 +54,10 @@ public class CGIARProvider extends AbstractTiffElevationProvider {
 
     public CGIARProvider(String cacheDir) {
         // Alternative URLs for the CGIAR data can be found in #346
-        super("http://srtm.csi.cgiar.org/SRT-ZIP/SRTM_V41/SRTM_Data_GeoTiff",
+        // MOD START nilsnolde
+        // Get the right CGIAR URL, #394
+        super("http://srtm.csi.cgiar.org/wp-content/uploads/files/srtm_5x5/TIFF/",
+        // MOD END nilsnolde
                 cacheDir.isEmpty() ? "/tmp/cgiar" : cacheDir,
                 "GraphHopper CGIARReader",
                 6000, 6000,
