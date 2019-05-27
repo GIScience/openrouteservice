@@ -24,7 +24,10 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     private final double ACCELERATION_SPEED_CUTOFF_MAX = 80.0;
@@ -48,8 +51,103 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     // This value determines the speed for roads with access=destination
     protected int destinationSpeed;
 
+    protected Map<String, Integer> trackTypeSpeedMap;
+    protected Map<String, Integer> badSurfaceSpeedMap;
+    protected Map<String, Integer> defaultSpeedMap;
+
+
     VehicleFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
         super(speedBits, speedFactor, maxTurnCosts);
+
+        restrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access"));
+
+        restrictedValues.add("private");
+        restrictedValues.add("no");
+        restrictedValues.add("restricted");
+        restrictedValues.add("military");
+
+        intendedValues.add("yes");
+        intendedValues.add("permissive");
+        intendedValues.add("destination");  // This is needed to allow the passing of barriers that are marked as destination
+
+        absoluteBarriers.add("bollard");
+        absoluteBarriers.add("stile");
+        absoluteBarriers.add("turnstile");
+        absoluteBarriers.add("cycle_barrier");
+        absoluteBarriers.add("motorcycle_barrier");
+        absoluteBarriers.add("block");
+
+        trackTypeSpeedMap = new HashMap<String, Integer>();
+
+        trackTypeSpeedMap.put("grade1", 40); // paved
+        trackTypeSpeedMap.put("grade2", 30); // now unpaved - gravel mixed with ...
+        trackTypeSpeedMap.put("grade3", 20); // ... hard and soft materials
+        trackTypeSpeedMap.put("grade4", 15);
+        trackTypeSpeedMap.put("grade5", 10);
+
+        badSurfaceSpeedMap = new HashMap<String, Integer>();
+
+        badSurfaceSpeedMap.put("asphalt", -1);
+        badSurfaceSpeedMap.put("concrete", -1);
+        badSurfaceSpeedMap.put("concrete:plates", -1);
+        badSurfaceSpeedMap.put("concrete:lanes", -1);
+        badSurfaceSpeedMap.put("paved", -1);
+        badSurfaceSpeedMap.put("cement", 80);
+        badSurfaceSpeedMap.put("compacted", 80);
+        badSurfaceSpeedMap.put("fine_gravel", 60);
+        badSurfaceSpeedMap.put("paving_stones", 40);
+        badSurfaceSpeedMap.put("metal", 40);
+        badSurfaceSpeedMap.put("bricks", 40);
+        badSurfaceSpeedMap.put("grass", 30);
+        badSurfaceSpeedMap.put("wood", 30);
+        badSurfaceSpeedMap.put("sett", 30);
+        badSurfaceSpeedMap.put("grass_paver", 30);
+        badSurfaceSpeedMap.put("gravel", 30);
+        badSurfaceSpeedMap.put("unpaved", 30);
+        badSurfaceSpeedMap.put("ground", 30);
+        badSurfaceSpeedMap.put("dirt", 30);
+        badSurfaceSpeedMap.put("pebblestone", 30);
+        badSurfaceSpeedMap.put("tartan", 30);
+        badSurfaceSpeedMap.put("cobblestone", 20);
+        badSurfaceSpeedMap.put("clay", 20);
+        badSurfaceSpeedMap.put("earth", 15);
+        badSurfaceSpeedMap.put("stone", 15);
+        badSurfaceSpeedMap.put("rocky", 15);
+        badSurfaceSpeedMap.put("sand", 15);
+        badSurfaceSpeedMap.put("mud", 10);
+        badSurfaceSpeedMap.put("unknown", 30);
+
+        // limit speed on bad surfaces to 30 km/h
+        badSurfaceSpeed = 30;
+        destinationSpeed = 5;
+        maxPossibleSpeed = 140;
+
+        defaultSpeedMap = new HashMap<String, Integer>();
+        // autobahn
+        defaultSpeedMap.put("motorway", 100);
+        defaultSpeedMap.put("motorway_link", 60);
+        defaultSpeedMap.put("motorroad", 90);
+        // bundesstraße
+        defaultSpeedMap.put("trunk", 85);
+        defaultSpeedMap.put("trunk_link", 60);
+        // linking bigger town
+        defaultSpeedMap.put("primary", 65);
+        defaultSpeedMap.put("primary_link", 50);
+        // linking towns + villages
+        defaultSpeedMap.put("secondary", 60);
+        defaultSpeedMap.put("secondary_link", 50);
+        // streets without middle line separation
+        defaultSpeedMap.put("tertiary", 50);
+        defaultSpeedMap.put("tertiary_link", 40);
+        defaultSpeedMap.put("unclassified", 30);
+        defaultSpeedMap.put("residential", 30);
+        // spielstraße
+        defaultSpeedMap.put("living_street", 10);
+        defaultSpeedMap.put("service", 20);
+        // unknown road
+        defaultSpeedMap.put("road", 20);
+        // forestry stuff
+        defaultSpeedMap.put("track", 15);
     }
 
     @Override
@@ -484,5 +582,9 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
      */
     private double convertMpsToKmph(double speedInMps) {
         return (3600 * speedInMps) / 1000;
+    }
+
+    protected void initSpeedLimitHandler(String profile) {
+        _speedLimitHandler = new SpeedLimitHandler(profile, defaultSpeedMap, badSurfaceSpeedMap, trackTypeSpeedMap);
     }
 }

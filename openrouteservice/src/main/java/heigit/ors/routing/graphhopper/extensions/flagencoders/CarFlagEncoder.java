@@ -20,11 +20,6 @@ package heigit.ors.routing.graphhopper.extensions.flagencoders;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.util.PMap;
-import org.apache.log4j.Logger;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Defines bit layout for cars. (speed, access, ferries, ...)
@@ -34,8 +29,6 @@ import java.util.Map;
  * @author Nop
  */
 public class CarFlagEncoder extends VehicleFlagEncoder {
-
-    private static Logger LOGGER = Logger.getLogger(CarFlagEncoder.class);
 
     public CarFlagEncoder() {
         this(5, 5, 0);
@@ -55,120 +48,20 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         maxTrackGradeLevel = properties.getInt("maximum_grade_level", 3);
     }
 
-    public CarFlagEncoder(String propertiesStr) {
-        this(new PMap(propertiesStr));
-    }
-
     public CarFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
         super(speedBits, speedFactor, maxTurnCosts);
-        restrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access"));
-        restrictedValues.add("private");
+
         restrictedValues.add("agricultural");
         restrictedValues.add("forestry");
-        restrictedValues.add("no");
-        restrictedValues.add("restricted");
         restrictedValues.add("delivery");
-        restrictedValues.add("military");
         restrictedValues.add("emergency");
 
-        intendedValues.add("yes");
-        intendedValues.add("permissive");
-        intendedValues.add("destination");  // This is needed to allow the passing of barriers that are marked as destination
-
-        potentialBarriers.add("gate");
-        potentialBarriers.add("lift_gate");
-        potentialBarriers.add("kissing_gate");
-        potentialBarriers.add("swing_gate");
-
-        absoluteBarriers.add("bollard");
-        absoluteBarriers.add("stile");
-        absoluteBarriers.add("turnstile");
-        absoluteBarriers.add("cycle_barrier");
-        absoluteBarriers.add("motorcycle_barrier");
-        absoluteBarriers.add("block");
         absoluteBarriers.add("bus_trap");
         absoluteBarriers.add("sump_buster");
-        
-        Map<String, Integer> trackTypeSpeedMap = new HashMap<String, Integer>();
 
-        trackTypeSpeedMap.put("grade1", 40); // paved
-        trackTypeSpeedMap.put("grade2", 30); // now unpaved - gravel mixed with ...
-        trackTypeSpeedMap.put("grade3", 20); // ... hard and soft materials
-        trackTypeSpeedMap.put("grade4", 15);
-        trackTypeSpeedMap.put("grade5", 10);
-
-        Map<String, Integer> badSurfaceSpeedMap = new HashMap<String, Integer>();
-
-        badSurfaceSpeedMap.put("asphalt", -1); 
-        badSurfaceSpeedMap.put("concrete", -1);
-        badSurfaceSpeedMap.put("concrete:plates", -1);
-        badSurfaceSpeedMap.put("concrete:lanes", -1);
-        badSurfaceSpeedMap.put("paved", -1);
-        badSurfaceSpeedMap.put("cement", 80);
-        badSurfaceSpeedMap.put("compacted", 80);
-        badSurfaceSpeedMap.put("fine_gravel", 60);
-        badSurfaceSpeedMap.put("paving_stones", 40);
-        badSurfaceSpeedMap.put("metal", 40);
-        badSurfaceSpeedMap.put("bricks", 40);
-        badSurfaceSpeedMap.put("grass", 30);
-        badSurfaceSpeedMap.put("wood", 30);
-        badSurfaceSpeedMap.put("sett", 30);
-        badSurfaceSpeedMap.put("grass_paver", 30);
-        badSurfaceSpeedMap.put("gravel", 30);
-        badSurfaceSpeedMap.put("unpaved", 30);
-        badSurfaceSpeedMap.put("ground", 30);
-        badSurfaceSpeedMap.put("dirt", 30);
-        badSurfaceSpeedMap.put("pebblestone", 30);
-        badSurfaceSpeedMap.put("tartan", 30);
-        badSurfaceSpeedMap.put("cobblestone", 20);
-        badSurfaceSpeedMap.put("clay", 20);
-        badSurfaceSpeedMap.put("earth", 15);
-        badSurfaceSpeedMap.put("stone", 15);
-        badSurfaceSpeedMap.put("rocky", 15);
-        badSurfaceSpeedMap.put("sand", 15);
-        badSurfaceSpeedMap.put("mud", 10);
-        badSurfaceSpeedMap.put("unknown", 30);
-
-        // limit speed on bad surfaces to 30 km/h
-        badSurfaceSpeed = 30;
-        destinationSpeed = 5;
-        maxPossibleSpeed = 140;
-
-        Map<String, Integer> defaultSpeedMap = new HashMap<String, Integer>();
-        // autobahn
-        defaultSpeedMap.put("motorway", 100);
-        defaultSpeedMap.put("motorway_link", 60);
-        defaultSpeedMap.put("motorroad", 90);
-        // bundesstraße
-        defaultSpeedMap.put("trunk", 85);
-        defaultSpeedMap.put("trunk_link", 60);
-        // linking bigger town
-        defaultSpeedMap.put("primary", 65);
-        defaultSpeedMap.put("primary_link", 50);
-        // linking towns + villages
-        defaultSpeedMap.put("secondary", 60);
-        defaultSpeedMap.put("secondary_link", 50);
-        // streets without middle line separation
-        defaultSpeedMap.put("tertiary", 50);
-        defaultSpeedMap.put("tertiary_link", 40);
-        defaultSpeedMap.put("unclassified", 30);
-        defaultSpeedMap.put("residential", 30);
-        // spielstraße
-        defaultSpeedMap.put("living_street", 10);
-        defaultSpeedMap.put("service", 20);
-        // unknown road
-        defaultSpeedMap.put("road", 20);
-        // forestry stuff
-        defaultSpeedMap.put("track", 15);
-        
-        _speedLimitHandler = new SpeedLimitHandler(this.toString(), defaultSpeedMap, badSurfaceSpeedMap, trackTypeSpeedMap);
+        initSpeedLimitHandler(this.toString());
 
         init();
-    }
-
-    @Override
-    public int getVersion() {
-        return 1;
     }
 
     @Override
@@ -247,5 +140,10 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
     @Override
     public String toString() {
         return FlagEncoderNames.CAR_ORS;
+    }
+
+    @Override
+    public int getVersion() {
+        return 1;
     }
 }

@@ -64,17 +64,8 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
     public HeavyVehicleFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts )
     {
         super(speedBits, speedFactor, maxTurnCosts);
-        restrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access"));
-        restrictedValues.add("private");
-        restrictedValues.add("no");
-        restrictedValues.add("restricted");
-        restrictedValues.add("military");
 
-        intendedValues.add("yes");
-        intendedValues.add("permissive");
         intendedValues.add("designated");
-        intendedValues.add("destination");  // This is needed to allow the passing of barriers that are marked as destination
-
         intendedValues.add("agricultural");
         intendedValues.add("forestry");
         intendedValues.add("delivery");
@@ -84,59 +75,12 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
 
         hgvAccess.addAll(Arrays.asList("hgv", "goods", "bus", "agricultural", "forestry", "delivery"));
 
-        potentialBarriers.add("gate");
-        potentialBarriers.add("lift_gate");
-        potentialBarriers.add("kissing_gate");
-        potentialBarriers.add("swing_gate");
-
-        absoluteBarriers.add("bollard");
-        absoluteBarriers.add("stile");
-        absoluteBarriers.add("turnstile");
-        absoluteBarriers.add("cycle_barrier");
-        absoluteBarriers.add("motorcycle_barrier");
-        absoluteBarriers.add("block");
-
-    	
-        Map<String, Integer> trackTypeSpeedMap = new HashMap<String, Integer>();
+    	// Override default speeds with lower values
         trackTypeSpeedMap.put("grade1", 20); // paved
         trackTypeSpeedMap.put("grade2", 15); // now unpaved - gravel mixed with ...
         trackTypeSpeedMap.put("grade3", 10); // ... hard and soft materials
         trackTypeSpeedMap.put("grade4", 5); // ... some hard or compressed materials
         trackTypeSpeedMap.put("grade5", 5); // ... no hard materials. soil/sand/grass
-
-        Map<String, Integer> badSurfaceSpeedMap =  new HashMap<String, Integer>();
-
-        badSurfaceSpeedMap.put("asphalt", -1); 
-        badSurfaceSpeedMap.put("concrete", -1);
-        badSurfaceSpeedMap.put("concrete:plates", -1);
-        badSurfaceSpeedMap.put("concrete:lanes", -1);
-        badSurfaceSpeedMap.put("paved", -1);
-        badSurfaceSpeedMap.put("cement", 80);
-        badSurfaceSpeedMap.put("compacted", 80);
-        badSurfaceSpeedMap.put("fine_gravel", 60);
-        badSurfaceSpeedMap.put("paving_stones", 40);
-        badSurfaceSpeedMap.put("metal", 40);
-        badSurfaceSpeedMap.put("bricks", 40);
-        badSurfaceSpeedMap.put("grass", 30);
-        badSurfaceSpeedMap.put("wood", 30);
-        badSurfaceSpeedMap.put("sett", 30);
-        badSurfaceSpeedMap.put("grass_paver", 30);
-        badSurfaceSpeedMap.put("gravel", 30);
-        badSurfaceSpeedMap.put("unpaved", 30);
-        badSurfaceSpeedMap.put("ground", 30);
-        badSurfaceSpeedMap.put("dirt", 30);
-        badSurfaceSpeedMap.put("pebblestone", 30);
-        badSurfaceSpeedMap.put("tartan", 30);
-        badSurfaceSpeedMap.put("cobblestone", 20);
-        badSurfaceSpeedMap.put("clay", 20);
-        badSurfaceSpeedMap.put("earth", 15);
-        badSurfaceSpeedMap.put("stone", 15);
-        badSurfaceSpeedMap.put("rocky", 15);
-        badSurfaceSpeedMap.put("sand", 15);
-        badSurfaceSpeedMap.put("mud", 10);
-        badSurfaceSpeedMap.put("unknown", 30);
-
-        Map<String, Integer> defaultSpeedMap = new HashMap<String, Integer>();
         // autobahn
         defaultSpeedMap.put("motorway", 80);
         defaultSpeedMap.put("motorway_link", 50);
@@ -145,25 +89,9 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
         defaultSpeedMap.put("trunk", 80);
         defaultSpeedMap.put("trunk_link", 50);
         // linking bigger town
-        defaultSpeedMap.put("primary", 60);  
-        defaultSpeedMap.put("primary_link", 50);
-        // linking towns + villages
-        defaultSpeedMap.put("secondary", 60);
-        defaultSpeedMap.put("secondary_link", 50);
-        // streets without middle line separation
-        defaultSpeedMap.put("tertiary", 60);
-        defaultSpeedMap.put("tertiary_link", 50);
-        defaultSpeedMap.put("unclassified", 60);
-        defaultSpeedMap.put("residential", 60);
-        // spielstraße
-        defaultSpeedMap.put("living_street", 10);
-        defaultSpeedMap.put("service", 20);
-        // unknown road
-        defaultSpeedMap.put("road", 20);
-        // forestry stuff
-        defaultSpeedMap.put("track", 15);
-        
-        _speedLimitHandler = new SpeedLimitHandler(this.toString(), defaultSpeedMap, badSurfaceSpeedMap, trackTypeSpeedMap);
+        defaultSpeedMap.put("primary", 60);
+
+        initSpeedLimitHandler(this.toString());
         
         forwardKeys.add("goods:forward");
         forwardKeys.add("hgv:forward");
@@ -181,11 +109,6 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
 
         init();
     }
-    
-	public double getDefaultMaxSpeed()
-	{
-		return 80;
-	}
 
 	@Override
     public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
@@ -228,51 +151,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
     double averageSecondsTo100KmpH() {
         return 10;
     }
-	
-	protected int getTrackGradeLevel(String grade)
-    {
-    	if (grade == null)
-    		return 0; 
-    	 
-    	if (grade.contains(";")) // grade3;grade2
-    	{
-    		int maxGrade = 0; 
-    		
-    		try
-    		{
-    			String[] values = grade.split(";"); 
-    			for(String v : values)
-    			{
-    		       int iv = Integer.parseInt(v.replace("grade","").trim());
-    		       if (iv > maxGrade)
-    		    	   maxGrade = iv;
-    			}
-    			
-    			return maxGrade;
-    		}
-    		catch(Exception ex)
-    		{}
-    	}
 
-    	switch(grade)
-    	{
-    	case "grade":
-    	case "grade1":
-    		return 1;
-    	case "grade2":
-    		return 2;
-    	case "grade3":
-    		return 3;
-    	case "grade4":
-    		return 4;
-    	case "grade5":
-    		return 5;
-    	case "grade6":
-    		return 6;
-    	}
-    	
-    	return 10;
-    }
     protected double getSpeed(ReaderWay way )
     {
         String highwayValue = way.getTag("highway");
@@ -469,8 +348,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
 	}
     
     @Override
-    public String toString()
-    {
+    public String toString() {
         return FlagEncoderNames.HEAVYVEHICLE;
     }
 
