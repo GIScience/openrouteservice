@@ -1145,7 +1145,7 @@ public class GraphHopper implements GraphHopperAPI {
                 } else {
                     algoOpts.setEdgeFilter(edgeFilterFactory.createEdgeFilter(algoOpts, getGraphHopperStorage()));
                 }
-                // ORS MOD END
+                // ORS-GH MOD END
                 
                 // MARQ24: we "tunnel" all the additional object that we require for the additional storage
                 // processing inside the TranslationMap Object - simply cause in this case we do not have to
