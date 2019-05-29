@@ -28,10 +28,10 @@ public class MatrixServiceSettings {
         String value = AppConfig.Global().getServiceParameter("matrix", "enabled");
         if (value != null)
             enabled = Boolean.parseBoolean(value);
-        value = AppConfig.Global().getServiceParameter("matrix", "maximum_locations");
+        value = AppConfig.Global().getServiceParameter("matrix", "maximum_routes");
         if (value != null)
             maximumRoutes = Math.max(1, Integer.parseInt(value));
-        value = AppConfig.Global().getServiceParameter("matrix", "maximum_locations_flexible");
+        value = AppConfig.Global().getServiceParameter("matrix", "maximum_routes_flexible");
         if (value != null)
             maximumRoutesFlexible = Math.max(1, Integer.parseInt(value));
         value = AppConfig.Global().getServiceParameter("matrix", "maximum_search_radius");
