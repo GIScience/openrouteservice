@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Makes docker and docker-compose deployment of openrouteservice more customizable (Issue #434)
 - Add the possibility to predefine standard maximum search radii in general and for each used profile in the config file (Issue #418)
 ### Fixed
+- fix SRTM URL in GH fork (#394)
 - fix classpath issues for resources, Windows builds now (#489)
 - isochrone geojson bbox now format compliant (#493)
 - v2 isochrones now respects max_locations in app.config (#482)
