@@ -9,7 +9,7 @@
     services: {
       matrix: {
         enabled: true,
-        maximum_locations: 200,
+        maximum_routes: 200,
         maximum_visited_nodes: 100000,
         allow_resolve_locations: true,
         attribution: "openrouteservice.org, OpenStreetMap contributors"

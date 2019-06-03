@@ -19,6 +19,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.common.DistanceUnit;
 import heigit.ors.exceptions.InternalServerException;
+import heigit.ors.exceptions.ServerLimitExceededException;
 import heigit.ors.exceptions.ParameterValueException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.matrix.MatrixErrorCodes;
@@ -52,7 +53,9 @@ public class MatrixRequestHandler {
     public static heigit.ors.matrix.MatrixRequest convertMatrixRequest(MatrixRequest request) throws StatusCodeException {
         heigit.ors.matrix.MatrixRequest coreRequest = new heigit.ors.matrix.MatrixRequest();
 
-        Coordinate[] locations = convertLocations(request.getLocations());
+        int sources = request.getSources() == null ? request.getLocations().size() : request.getSources().length;
+        int destinations = request.getDestinations() == null ? request.getLocations().size() : request.getDestinations().length;
+        Coordinate[] locations = convertLocations(request.getLocations(), sources * destinations);
 
         coreRequest.setProfileType(convertToMatrixProfileType(request.getProfile()));
 
@@ -97,11 +100,11 @@ public class MatrixRequestHandler {
         return combined;
     }
 
-    protected static Coordinate[] convertLocations(List<List<Double>> locations) throws ParameterValueException {
+    protected static Coordinate[] convertLocations(List<List<Double>> locations, int numberOfRoutes) throws ParameterValueException, ServerLimitExceededException {
         if (locations == null || locations.size() < 2)
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_LOCATIONS);
-        if (locations.size() > MatrixServiceSettings.getMaximumLocations(false))
-            throw new ParameterValueException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, MatrixRequest.PARAM_LOCATIONS);
+        if (numberOfRoutes > MatrixServiceSettings.getMaximumRoutes(false))
+            throw new ServerLimitExceededException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "Only a total of " + numberOfRoutes + " routes are allowed.");
         ArrayList<Coordinate> locationCoordinates = new ArrayList<>();
 
         for (List<Double> coordinate : locations) {
