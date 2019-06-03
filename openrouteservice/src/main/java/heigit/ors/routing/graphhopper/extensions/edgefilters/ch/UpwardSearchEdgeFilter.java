@@ -13,14 +13,16 @@
  */
 package heigit.ors.routing.graphhopper.extensions.edgefilters.ch;
 
+import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.util.EdgeIteratorState;
 
 public class UpwardSearchEdgeFilter extends CHLevelEdgeFilter {
-
+	BooleanEncodedValue accessEnc;
 	public UpwardSearchEdgeFilter(CHGraph g, FlagEncoder encoder) {
 		super(g, encoder);
+		this.accessEnc = encoder.getAccessEnc();
 	}
 	
 	@Override
@@ -28,7 +30,7 @@ public class UpwardSearchEdgeFilter extends CHLevelEdgeFilter {
 		int adj = edgeIterState.getAdjNode(); 
 
 		if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel <= graph.getLevel(adj))
-			return edgeIterState.isForward(encoder);
+			return edgeIterState.get(accessEnc);
 		else
 			return false;
 	}
