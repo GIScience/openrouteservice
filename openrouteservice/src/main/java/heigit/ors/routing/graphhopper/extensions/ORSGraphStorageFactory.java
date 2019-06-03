@@ -97,14 +97,6 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 			graphExtension = getExtension(graphExtensions);
 		}
 
-		if(gh instanceof ORSGraphHopper) {
-			if (((ORSGraphHopper) gh).isCoreEnabled())
-				((ORSGraphHopper) gh).initCoreAlgoFactoryDecorator();
-			if (((ORSGraphHopper) gh).isCoreLMEnabled())
-				((ORSGraphHopper) gh).initCoreLMAlgoFactoryDecorator();
-
-		}
-
 		if (gh.getLMFactoryDecorator().isEnabled())
 			gh.initLMAlgoFactoryDecorator();
 
@@ -120,13 +112,6 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 			chGraphs = weightings.size();
 			for (int i = 0; i < chGraphs; i++){
 				suffixes.add("ch");
-			}
-		}
-
-		if(((ORSGraphHopper) gh).isCoreEnabled()) {
-			weightings.addAll(((ORSGraphHopper) gh).getCoreFactoryDecorator().getWeightings());
-			for (int i = chGraphs; i < weightings.size(); i++) {
-				suffixes.add("core");
 			}
 		}
 

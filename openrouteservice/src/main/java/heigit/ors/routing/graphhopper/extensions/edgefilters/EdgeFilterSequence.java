@@ -17,7 +17,6 @@ import java.util.ArrayList;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.EdgeIteratorState;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
 
 public class EdgeFilterSequence extends ArrayList<EdgeFilter> implements EdgeFilter {
 

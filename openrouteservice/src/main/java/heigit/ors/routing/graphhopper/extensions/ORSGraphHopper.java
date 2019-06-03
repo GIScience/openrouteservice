@@ -38,16 +38,7 @@ import com.vividsolutions.jts.geom.LineString;
 import heigit.ors.mapmatching.RouteSegmentInfo;
 import heigit.ors.routing.RoutingProfile;
 import heigit.ors.routing.RoutingProfileCategory;
-import heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
-import heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
-import heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
-import heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
 import heigit.ors.util.CoordTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,19 +65,11 @@ public class ORSGraphHopper extends GraphHopper {
 	// A route profile for referencing which is used to extract names of adjacent streets and other objects.
 	private RoutingProfile refRouteProfile;
 
-	private final CoreAlgoFactoryDecorator coreFactoryDecorator =  new CoreAlgoFactoryDecorator();
-
-	private final CoreLMAlgoFactoryDecorator coreLMFactoryDecorator = new CoreLMAlgoFactoryDecorator();
-
-
-
 	public ORSGraphHopper(GraphProcessContext procCntx, RoutingProfile refProfile) {
 		_procCntx = procCntx;
 		this.refRouteProfile= refProfile;
 		this.forDesktop();
 		algoDecorators.clear();
-		algoDecorators.add(coreFactoryDecorator);
-		algoDecorators.add(coreLMFactoryDecorator);
 		algoDecorators.add(getCHFactoryDecorator());
 		algoDecorators.add(getLMFactoryDecorator());
 
@@ -241,9 +224,6 @@ public class ORSGraphHopper extends GraphHopper {
 			if (!getLMFactoryDecorator().isDisablingAllowed() && disableLM)
 				throw new IllegalArgumentException("Disabling LM not allowed on the server-side");
 
-			//TODO
-			boolean disableCore = hints.getBool(Core.DISABLE, false);
-
 			String algoStr = request.getAlgorithm();
 			if (algoStr.isEmpty())
 				algoStr = getCHFactoryDecorator().isEnabled() && !disableCH
@@ -277,49 +257,35 @@ public class ORSGraphHopper extends GraphHopper {
 				Weighting weighting;
 				QueryGraph queryGraph;
 
-				if (coreFactoryDecorator.isEnabled() && !disableCore) {
+				if (getCHFactoryDecorator().isEnabled() && !disableCH) {
 					boolean forceCHHeading = hints.getBool(Parameters.CH.FORCE_HEADING, false);
 					if (!forceCHHeading && request.hasFavoredHeading(0))
 						throw new IllegalArgumentException(
 								"Heading is not (fully) supported for CHGraph. See issue #483");
 
-					RoutingAlgorithmFactory coreAlgoFactory = coreFactoryDecorator.getDecoratedAlgorithmFactory(new RoutingAlgorithmFactorySimple(), hints);
-					weighting = ((PrepareCore) coreAlgoFactory).getWeighting();
-					tMode = getCoreFactoryDecorator().getNodeBase();
+					// if LM is enabled we have the LMFactory with the CH algo!
+					RoutingAlgorithmFactory chAlgoFactory = tmpAlgoFactory;
+					if (tmpAlgoFactory instanceof LMAlgoFactoryDecorator.LMRAFactory)
+						chAlgoFactory = ((LMAlgoFactoryDecorator.LMRAFactory) tmpAlgoFactory).getDefaultAlgoFactory();
+
+					if (chAlgoFactory instanceof PrepareContractionHierarchies)
+						weighting = ((PrepareContractionHierarchies) chAlgoFactory).getWeighting();
+					else
+						throw new IllegalStateException(
+								"Although CH was enabled a non-CH algorithm factory was returned " + tmpAlgoFactory);
+
+					tMode = getCHFactoryDecorator().getNodeBase();
 					queryGraph = new QueryGraph(getGraphHopperStorage().getGraph(CHGraph.class, weighting));
 					queryGraph.lookup(qResults);
-				}
-				else{
-					if (getCHFactoryDecorator().isEnabled() && !disableCH) {
-						boolean forceCHHeading = hints.getBool(Parameters.CH.FORCE_HEADING, false);
-						if (!forceCHHeading && request.hasFavoredHeading(0))
-							throw new IllegalArgumentException(
-									"Heading is not (fully) supported for CHGraph. See issue #483");
-
-						// if LM is enabled we have the LMFactory with the CH algo!
-						RoutingAlgorithmFactory chAlgoFactory = tmpAlgoFactory;
-						if (tmpAlgoFactory instanceof LMAlgoFactoryDecorator.LMRAFactory)
-							chAlgoFactory = ((LMAlgoFactoryDecorator.LMRAFactory) tmpAlgoFactory).getDefaultAlgoFactory();
-
-						if (chAlgoFactory instanceof PrepareContractionHierarchies)
-							weighting = ((PrepareContractionHierarchies) chAlgoFactory).getWeighting();
-						else
-							throw new IllegalStateException(
-									"Although CH was enabled a non-CH algorithm factory was returned " + tmpAlgoFactory);
-
-						tMode = getCHFactoryDecorator().getNodeBase();
-						queryGraph = new QueryGraph(getGraphHopperStorage().getGraph(CHGraph.class, weighting));
-						queryGraph.lookup(qResults);
 
 
-					} else {
+				} else {
 
-						checkNonChMaxWaypointDistance(points);
-						queryGraph = new QueryGraph(getGraphHopperStorage());
-						queryGraph.lookup(qResults);
-						weighting = createWeighting(hints, tMode, encoder, queryGraph);
-						ghRsp.addDebugInfo("tmode:" + tMode.toString());
-					}
+					checkNonChMaxWaypointDistance(points);
+					queryGraph = new QueryGraph(getGraphHopperStorage());
+					queryGraph.lookup(qResults);
+					weighting = createWeighting(hints, tMode, encoder, queryGraph);
+					ghRsp.addDebugInfo("tmode:" + tMode.toString());
 				}
 
 				int maxVisitedNodesForRequest = hints.getInt(Parameters.Routing.MAX_VISITED_NODES, getMaxVisitedNodes());
@@ -492,134 +458,7 @@ public class ORSGraphHopper extends GraphHopper {
 	public void postProcessing() {
 		super.postProcessing();
 
-		GraphHopperStorage gs = getGraphHopperStorage();
-
-		EncodingManager encodingManager = getEncodingManager();
-
-		int routingProfileCategory = RoutingProfileCategory.getFromEncoder(encodingManager);
-
-		/* Initialize edge filter sequence */
-
-		EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
-		/* Heavy vehicle filter */
-
-		if (encodingManager.hasEncoder("heavyvehicle")) {
-			coreEdgeFilter.add(new HeavyVehicleCoreEdgeFilter(gs));
-		}
-
-		/* Avoid features */
-
-		if ((routingProfileCategory & (RoutingProfileCategory.DRIVING | RoutingProfileCategory.CYCLING | RoutingProfileCategory.WALKING | RoutingProfileCategory.WHEELCHAIR)) != 0) {
-			coreEdgeFilter.add(new AvoidFeaturesCoreEdgeFilter(gs, routingProfileCategory));
-		}
-
-		/* Avoid borders of some form */
-
-		if ((routingProfileCategory & (RoutingProfileCategory.DRIVING | RoutingProfileCategory.CYCLING)) != 0) {
-			coreEdgeFilter.add(new AvoidBordersCoreEdgeFilter(gs));
-		}
-
-		if (routingProfileCategory == RoutingProfileCategory.WHEELCHAIR) {
-			coreEdgeFilter.add(new WheelchairCoreEdgeFilter(gs));
-		}
-
-		/* End filter sequence initialization */
-
-		//Create the core
-		if(coreFactoryDecorator.isEnabled())
-			coreFactoryDecorator.createPreparations(gs, traversalMode, coreEdgeFilter);
-		if (!isCorePrepared())
-			prepareCore();
-
-		//Create the landmarks in the core
-		if (coreLMFactoryDecorator.isEnabled())
-			coreLMFactoryDecorator.createPreparations(gs, super.getLocationIndex());
-		loadOrPrepareCoreLM();
 
 	}
 
-
-	/**
-	 * Enables or disables core calculation.
-	 */
-	public GraphHopper setCoreEnabled(boolean enable) {
-		ensureNotLoaded();
-		coreFactoryDecorator.setEnabled(enable);
-		return this;
-	}
-
-	public final boolean isCoreEnabled() {
-		return coreFactoryDecorator.isEnabled();
-	}
-
-	public void initCoreAlgoFactoryDecorator() {
-		if (!coreFactoryDecorator.hasWeightings()) {
-			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-				for (String coreWeightingStr : coreFactoryDecorator.getWeightingsAsStrings()) {
-					// ghStorage is null at this point
-					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), traversalMode, encoder, null);
-					coreFactoryDecorator.addWeighting(weighting);
-				}
-			}
-		}
-	}
-	public final CoreAlgoFactoryDecorator getCoreFactoryDecorator() {
-		return coreFactoryDecorator;
-	}
-
-	protected void prepareCore() {
-		boolean tmpPrepare = coreFactoryDecorator.isEnabled();
-		if (tmpPrepare) {
-			ensureWriteAccess();
-
-			getGraphHopperStorage().freeze();
-			coreFactoryDecorator.prepare(getGraphHopperStorage().getProperties());
-			getGraphHopperStorage().getProperties().put(Core.PREPARE + "done", true);
-		}
-	}
-
-	private boolean isCorePrepared() {
-		return "true".equals(getGraphHopperStorage().getProperties().get(Core.PREPARE + "done"))
-				// remove old property in >0.9
-				|| "true".equals(getGraphHopperStorage().getProperties().get("prepare.done"));
-	}
-
-	/**
-	 * Enables or disables core calculation.
-	 */
-	public GraphHopper setCoreLMEnabled(boolean enable) {
-		ensureNotLoaded();
-		coreLMFactoryDecorator.setEnabled(enable);
-		return this;
-	}
-
-	public final boolean isCoreLMEnabled() {
-		return coreLMFactoryDecorator.isEnabled();
-	}
-
-	public void initCoreLMAlgoFactoryDecorator() {
-		if (!coreLMFactoryDecorator.hasWeightings()) {
-			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-				for (String coreWeightingStr : coreFactoryDecorator.getWeightingsAsStrings()) {
-					// ghStorage is null at this point
-					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), traversalMode, encoder, null);
-					coreLMFactoryDecorator.addWeighting(weighting);
-				}
-			}
-		}
-	}
-
-
-	/**
-	 * For landmarks it is required to always call this method: either it creates the landmark data or it loads it.
-	 */
-	protected void loadOrPrepareCoreLM() {
-		boolean tmpPrepare = coreLMFactoryDecorator.isEnabled();
-		if (tmpPrepare) {
-			ensureWriteAccess();
-			getGraphHopperStorage().freeze();
-			if (coreLMFactoryDecorator.loadOrDoWork(getGraphHopperStorage().getProperties()))
-				getGraphHopperStorage().getProperties().put(ORSParameters.CoreLandmark.PREPARE + "done", true);
-		}
-	}
 }
