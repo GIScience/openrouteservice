@@ -34,7 +34,8 @@ public class GPXRouteElement {
     @XmlElement(name = "extensions")
     GPXRouteExtensions extensions;
 
-    public GPXRouteElement() { }
+    public GPXRouteElement() {
+    }
 
     public GPXRouteElement(RouteResult result) {
         routePoints = new ArrayList<>();
@@ -42,23 +43,31 @@ public class GPXRouteElement {
         List<RouteSegment> segments = result.getSegments();
         List<RouteStep> steps = new ArrayList<>();
 
-        for(RouteSegment segment : segments) {
+        for (RouteSegment segment : segments) {
             steps.addAll(segment.getSteps());
         }
 
-        for(int i=0; i<steps.size(); i++) {
+        for (int i = 0; i < steps.size(); i++) {
             RouteStep step = steps.get(i);
-            int coordinateId = step.getWayPoints()[0];
-            while(coordinateId < routeCoordinates.length) {
-                Coordinate c = routeCoordinates[coordinateId];
-                routePoints.add(new GPXRoutePointElement(step, c.x, c.y, c.z, i));
+            int coordStartId = step.getWayPoints()[0];
+            int coordEndId = step.getWayPoints()[1];
+            int coordinateId = coordStartId;
+            while (coordinateId >= coordStartId && coordinateId <= coordEndId) {
+                if (coordStartId == coordEndId) {
+                    Coordinate c = routeCoordinates[coordinateId];
+                    routePoints.add(new GPXRoutePointElement(step, c.x, c.y, c.z, i));
+                    break;
+                } else if (coordinateId < coordEndId) {
+                    Coordinate c = routeCoordinates[coordinateId];
+                    routePoints.add(new GPXRoutePointElement(step, c.x, c.y, c.z, i));
+                }
                 coordinateId++;
             }
         }
 
         // it may be the case that we did not ask for instructions so there will be no steps
-        if(steps.isEmpty() && routeCoordinates.length > 0) {
-            for(Coordinate coord : routeCoordinates) {
+        if (steps.isEmpty() && routeCoordinates.length > 0) {
+            for (Coordinate coord : routeCoordinates) {
                 routePoints.add(new GPXRoutePointElement(null, coord.x, coord.y, coord.z, -1));
             }
         }
