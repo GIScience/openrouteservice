@@ -15,8 +15,13 @@ package heigit.ors.routing.algorithms;
 
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
+import com.graphhopper.routing.profiles.BooleanEncodedValue;
+import com.graphhopper.routing.profiles.DecimalEncodedValue;
+import com.graphhopper.routing.profiles.EnumEncodedValue;
+import com.graphhopper.routing.profiles.IntEncodedValue;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +75,16 @@ public class SubGraph {
 		}
 
 		@Override
+		public int getOrigEdgeFirst() {
+			return 0;
+		}
+
+		@Override
+		public int getOrigEdgeLast() {
+			return 0;
+		}
+
+		@Override
 		public int getBaseNode() {
 			return _currState.getBaseNode();
 		}
@@ -100,14 +115,15 @@ public class SubGraph {
 		}
 
 		@Override
-		public long getFlags() {
+		public IntsRef getFlags() {
 			return _currState.getFlags();
 		}
 
 		@Override
-		public EdgeIteratorState setFlags(long flags) {
-			return _currState.setFlags(flags);
+		public EdgeIteratorState setFlags(IntsRef edgeFlags) {
+			return null;
 		}
+
 
 		@Override
 		public int getAdditionalField() {
@@ -120,18 +136,83 @@ public class SubGraph {
 		}
 
 		@Override
-		public boolean isForward(FlagEncoder encoder) {
-			return _currState.isForward(encoder);
+		public boolean get(BooleanEncodedValue property) {
+			return false;
 		}
 
 		@Override
-		public boolean isBackward(FlagEncoder encoder) {
-			return _currState.isBackward(encoder);
+		public EdgeIteratorState set(BooleanEncodedValue property, boolean value) {
+			return null;
 		}
 
 		@Override
-		public boolean getBool(int key, boolean _default) {
-			return _currState.getBool(key, _default);
+		public boolean getReverse(BooleanEncodedValue property) {
+			return false;
+		}
+
+		@Override
+		public EdgeIteratorState setReverse(BooleanEncodedValue property, boolean value) {
+			return null;
+		}
+
+		@Override
+		public int get(IntEncodedValue property) {
+			return 0;
+		}
+
+		@Override
+		public EdgeIteratorState set(IntEncodedValue property, int value) {
+			return null;
+		}
+
+		@Override
+		public int getReverse(IntEncodedValue property) {
+			return 0;
+		}
+
+		@Override
+		public EdgeIteratorState setReverse(IntEncodedValue property, int value) {
+			return null;
+		}
+
+		@Override
+		public double get(DecimalEncodedValue property) {
+			return 0;
+		}
+
+		@Override
+		public EdgeIteratorState set(DecimalEncodedValue property, double value) {
+			return null;
+		}
+
+		@Override
+		public double getReverse(DecimalEncodedValue property) {
+			return 0;
+		}
+
+		@Override
+		public EdgeIteratorState setReverse(DecimalEncodedValue property, double value) {
+			return null;
+		}
+
+		@Override
+		public <T extends Enum> T get(EnumEncodedValue<T> property) {
+			return null;
+		}
+
+		@Override
+		public <T extends Enum> EdgeIteratorState set(EnumEncodedValue<T> property, T value) {
+			return null;
+		}
+
+		@Override
+		public <T extends Enum> T getReverse(EnumEncodedValue<T> property) {
+			return null;
+		}
+
+		@Override
+		public <T extends Enum> EdgeIteratorState setReverse(EnumEncodedValue<T> property, T value) {
+			return null;
 		}
 
 		@Override
@@ -150,9 +231,10 @@ public class SubGraph {
 		}
 
 		@Override
-		public EdgeIteratorState copyPropertiesTo(EdgeIteratorState e) {
+		public EdgeIteratorState copyPropertiesFrom(EdgeIteratorState e) {
 			return null;
 		}
+
 
 		@Override
 		public boolean next() {
@@ -187,7 +269,13 @@ public class SubGraph {
 		}
 
 		@Override
-		public void setSkippedEdges(int edge1, int edge2) {
+		public CHEdgeIteratorState setSkippedEdges(int edge1, int edge2) {
+			return this;
+		}
+
+		@Override
+		public CHEdgeIteratorState setFirstAndLastOrigEdges(int firstOrigEdge, int lastOrigEdge) {
+			throw new IllegalStateException("Unsupported operation");
 		}
 
 		@Override
@@ -199,9 +287,10 @@ public class SubGraph {
 		}
 
 		@Override
-		public int getMergeStatus(long flags) {
+		public int getMergeStatus(int flags) {
 			return 0;
 		}
+
 
 		@Override
 		public double getWeight() {
@@ -211,6 +300,11 @@ public class SubGraph {
 		@Override
 		public CHEdgeIteratorState setWeight(double weight) {
 			return null;
+		}
+
+		@Override
+		public void setFlagsAndWeight(int flags, double weight) {
+
 		}
 	};
 

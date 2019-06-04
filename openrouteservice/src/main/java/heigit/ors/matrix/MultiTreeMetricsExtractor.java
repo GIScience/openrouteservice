@@ -68,7 +68,7 @@ public class MultiTreeMetricsExtractor {
 				_chGraph = (CHGraph) mainGraph;
 		}
 		
-		_maxEdgeId = _chGraph.getAllEdges().getMaxId();
+		_maxEdgeId = _chGraph.getAllEdges().length();
 	}
 
 	public void setEmptyValues(int sourceIndex, MatrixLocations srcData, MatrixLocations dstData, float[] times,
