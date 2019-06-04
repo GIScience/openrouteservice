@@ -690,28 +690,14 @@ public class RoutingProfile {
                     req.getHints().put("core.disable", true);
                     req.getHints().put("ch.disable", true);
                 }
-                if (mGraphHopper.isCoreEnabled() && optimized) {
-                    req.getHints().put("core.disable", false);
-                    req.getHints().put("lm.disable", true);
-                    req.getHints().put("ch.disable", true);
-                    req.setAlgorithm("astarbi");
-                }
             } else {
                 if (mGraphHopper.isCHEnabled()) {
                     req.getHints().put("lm.disable", true);
                     req.getHints().put("core.disable", true);
                 }
                 else {
-                    if (mGraphHopper.isCoreEnabled() && optimized) {
-                        req.getHints().put("core.disable", false);
-                        req.getHints().put("lm.disable", true);
-                        req.getHints().put("ch.disable", true);
-                        req.setAlgorithm("astarbi");
-                    }
-                    else {
-                        req.getHints().put("ch.disable", true);
-                        req.getHints().put("core.disable", true);
-                    }
+                    req.getHints().put("ch.disable", true);
+                    req.getHints().put("core.disable", true);
                 }
             }
             //cannot use CH or CoreALT with avoid areas. Need to fallback to ALT with beeline approximator or Dijkstra
