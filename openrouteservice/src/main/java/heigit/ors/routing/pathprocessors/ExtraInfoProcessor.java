@@ -22,17 +22,36 @@ import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
-import heigit.ors.routing.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import heigit.ors.routing.RouteExtraInfo;
+import heigit.ors.routing.RouteExtraInfoFlag;
+import heigit.ors.routing.RoutingProfileType;
+import heigit.ors.routing.RoutingRequest;
 import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
-import heigit.ors.routing.graphhopper.extensions.storages.*;
+import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
+import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
+import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
+import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import heigit.ors.routing.graphhopper.extensions.storages.GreenIndexGraphStorage;
+import heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStorage;
+import heigit.ors.routing.graphhopper.extensions.storages.NoiseIndexGraphStorage;
+import heigit.ors.routing.graphhopper.extensions.storages.OsmIdGraphStorage;
+import heigit.ors.routing.graphhopper.extensions.storages.RoadAccessRestrictionsGraphStorage;
+import heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStorage;
+import heigit.ors.routing.graphhopper.extensions.storages.TrailDifficultyScaleGraphStorage;
+import heigit.ors.routing.graphhopper.extensions.storages.WarningGraphExtension;
+import heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
+import heigit.ors.routing.graphhopper.extensions.storages.WaySurfaceTypeGraphStorage;
 import heigit.ors.routing.util.ElevationSmoother;
 import heigit.ors.routing.util.extrainfobuilders.RouteExtraInfoBuilder;
 import heigit.ors.routing.util.extrainfobuilders.SimpleRouteExtraInfoBuilder;
 import heigit.ors.routing.util.extrainfobuilders.SteepnessExtraInfoBuilder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ExtraInfoProcessor extends PathProcessor {
+
 	private WaySurfaceTypeGraphStorage _extWaySurface;
 	private WayCategoryGraphStorage _extWayCategory;
 	private GreenIndexGraphStorage _extGreenIndex;
@@ -42,7 +61,8 @@ public class ExtraInfoProcessor extends PathProcessor {
 	private HillIndexGraphStorage _extHillIndex;
 	private OsmIdGraphStorage _extOsmId;
 	private RoadAccessRestrictionsGraphStorage _extRoadAccessRestrictions;
-	
+	private BordersGraphStorage _extCountryTraversalInfo;
+
 	private RouteExtraInfo _surfaceInfo;
 	private RouteExtraInfoBuilder _surfaceInfoBuilder;
 
@@ -80,6 +100,9 @@ public class ExtraInfoProcessor extends PathProcessor {
 	private RouteExtraInfo _roadAccessRestrictionsInfo;
 	private RouteExtraInfoBuilder _roadAccessRestrictionsBuilder;
 
+	private RouteExtraInfo _countryTraversalInfo;
+	private RouteExtraInfoBuilder _countryTraversalBuilder;
+
 	private List<Integer> warningExtensions;
 
 	private int _profileType = RoutingProfileType.UNKNOWN;
@@ -87,6 +110,13 @@ public class ExtraInfoProcessor extends PathProcessor {
 	private boolean _encoderWithPriority = false;
 	private byte[] buffer;
 	private boolean _lastSegment;
+
+	private CountryBordersReader cbreader;
+
+	public ExtraInfoProcessor(ORSGraphHopper graphhopper, RoutingRequest req, CountryBordersReader cbReader) throws Exception {
+		this(graphhopper, req);
+		this.cbreader = cbReader;
+	}
 
 	public ExtraInfoProcessor(ORSGraphHopper graphHopper, RoutingRequest req) throws Exception
 	{
@@ -205,6 +235,13 @@ public class ExtraInfoProcessor extends PathProcessor {
 			_roadAccessRestrictionsBuilder = new SimpleRouteExtraInfoBuilder(_roadAccessRestrictionsInfo);
 		}
 
+		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.CountryInfo)) {
+			_extCountryTraversalInfo = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), BordersGraphStorage.class);
+			if (_extCountryTraversalInfo != null) {
+				_countryTraversalInfo = new RouteExtraInfo("countryinfo", _extCountryTraversalInfo);
+				_countryTraversalBuilder = new SimpleRouteExtraInfoBuilder(_countryTraversalInfo);
+			}
+		}
 		buffer = new byte[4];
 	}
 
@@ -276,12 +313,33 @@ public class ExtraInfoProcessor extends PathProcessor {
 			extras.add(_osmIdInfo);
 		if (_roadAccessRestrictionsInfo != null)
 			extras.add(_roadAccessRestrictionsInfo);
+		if (_countryTraversalInfo != null)
+			extras.add(_countryTraversalInfo);
 		return extras;
 	}
 
 	@Override
 	public void processEdge(EdgeIteratorState edge, boolean isLastEdge, PointList geom) {
 		double dist = edge.getDistance();
+
+		// TODO Add extra info for crossed countries
+		if (_extCountryTraversalInfo != null && cbreader != null) {
+			short country1 = _extCountryTraversalInfo.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), BordersGraphStorage.Property.START);
+			short country2 = _extCountryTraversalInfo.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), BordersGraphStorage.Property.END);
+			// This check will correct the countries of an edge if the starting coordinate of the route lies in a different country than the start of the edge.
+			if (country1 != country2 && geom.getSize() > 0) {
+				Coordinate coordinate = new Coordinate();
+				coordinate.x = geom.getLon(0);
+				coordinate.y = geom.getLat(0);
+				CountryBordersPolygon[] countries = cbreader.getCountry(coordinate);
+				if (countries.length >= 1) {
+					country1 = Short.parseShort(cbreader.getId(cbreader.getCountry(coordinate)[0].getName()));
+				}
+			}
+			if (_countryTraversalBuilder != null && country1 != 0) {
+				_countryTraversalBuilder.addSegment(country1, country1, geom, dist, isLastEdge && _lastSegment);
+			}
+		}
 
 		if (_extWaySurface != null && _wayTypeInfo != null || _surfaceInfo != null)
 		{

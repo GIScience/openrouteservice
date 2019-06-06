@@ -16,34 +16,62 @@ package heigit.ors.routing;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.*;
-import com.graphhopper.util.*;
+import com.graphhopper.storage.CHGraph;
+import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.storage.StorableProperties;
+import com.graphhopper.util.CmdArgs;
+import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.Helper;
+import com.graphhopper.util.PMap;
+import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import com.typesafe.config.Config;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import heigit.ors.common.TravelRangeType;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.isochrones.*;
+import heigit.ors.isochrones.Isochrone;
+import heigit.ors.isochrones.IsochroneMap;
+import heigit.ors.isochrones.IsochroneMapBuilderFactory;
+import heigit.ors.isochrones.IsochroneSearchParameters;
+import heigit.ors.isochrones.IsochronesErrorCodes;
 import heigit.ors.isochrones.statistics.StatisticsProvider;
 import heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
 import heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import heigit.ors.mapmatching.MapMatcher;
 import heigit.ors.mapmatching.RouteSegmentInfo;
 import heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
-import heigit.ors.matrix.*;
+import heigit.ors.matrix.MatrixErrorCodes;
+import heigit.ors.matrix.MatrixRequest;
+import heigit.ors.matrix.MatrixResult;
+import heigit.ors.matrix.MatrixSearchContext;
+import heigit.ors.matrix.MatrixSearchContextBuilder;
 import heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
-import heigit.ors.routing.graphhopper.extensions.*;
+import heigit.ors.routing.graphhopper.extensions.GraphProcessContext;
+import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
+import heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
+import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
+import heigit.ors.routing.graphhopper.extensions.ORSGraphStorageFactory;
+import heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.*;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import heigit.ors.routing.parameters.*;
+import heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
+import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import heigit.ors.routing.parameters.ProfileParameters;
+import heigit.ors.routing.parameters.VehicleParameters;
+import heigit.ors.routing.parameters.WheelchairParameters;
 import heigit.ors.routing.traffic.RealTrafficDataProvider;
 import heigit.ors.routing.traffic.TrafficEdgeAnnotator;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
@@ -60,7 +88,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class generates {@link RoutingProfile} classes and is used by mostly all service classes e.g.
@@ -149,6 +183,13 @@ public class RoutingProfile {
         gh.setWeightingFactory(new ORSWeightingFactory(RealTrafficDataProvider.getInstance()));
 
         gh.importOrLoad();
+
+        // Set the general country builder object for general use
+        for (GraphStorageBuilder builder : gpc.getStorageBuilders()) {
+            if (builder.getName().equals(BordersGraphStorageBuilder.builderName)) {
+                gh.setGeneralCbReader(((BordersGraphStorageBuilder) builder).getCbReader());
+            }
+        }
 
         if (LOGGER.isInfoEnabled()) {
             EncodingManager encodingMgr = gh.getEncodingManager();
