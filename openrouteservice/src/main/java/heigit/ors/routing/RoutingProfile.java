@@ -583,13 +583,8 @@ public class RoutingProfile {
             if (RoutingProfileType.isHeavyVehicle(profileType) && searchParams.hasParameters(VehicleParameters.class)) {
                 VehicleParameters vehicleParams = (VehicleParameters) profileParams;
 
-                if (vehicleParams.hasAttributes()) {
-
-                    if (profileType == RoutingProfileType.DRIVING_HGV)
-                        edgeFilters.add(new HeavyVehicleEdgeFilter(flagEncoder, searchParams.getVehicleType(), vehicleParams, gs));
-                    else if (profileType == RoutingProfileType.DRIVING_EMERGENCY)
-                        edgeFilters.add(new EmergencyVehicleEdgeFilter(vehicleParams, gs));
-                }
+                if (vehicleParams.hasAttributes() && profileType == RoutingProfileType.DRIVING_HGV)
+                    edgeFilters.add(new HeavyVehicleEdgeFilter(flagEncoder, searchParams.getVehicleType(), vehicleParams, gs));
             }
         }
 
