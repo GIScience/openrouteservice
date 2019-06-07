@@ -21,9 +21,9 @@ public class RoutingProfileType {
     // DRIVING STUFF
     public static final int DRIVING_CAR = 1;
     public static final int DRIVING_HGV = 2;
-    public static final int DRIVING_EMERGENCY = 3;
+    public static final int DRIVING_EMERGENCY = 3; // not supported
     public static final int DRIVING_CAROFFROAD = 4; // not supported
-    public static final int DRIVING_SEGWAY = 5; // not supported
+    public static final int DRIVING_SEGWAY = 5; // not implemented
     public static final int DRIVING_ELECTRIC_CAR = 6;
     public static final int DRIVING_MOTORCYCLE = 7;
     public static final int DRIVING_TRAFFIC = 8;
