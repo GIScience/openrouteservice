@@ -15,7 +15,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Moved walking and hiking flag encoders to the ORS core system (#440)
 - Remove route optimization code (#499)
 - Reduced distance for neighbourhood point search in isochrones when small isochrones are generated (#494)
-- Removed obsolete storages (#536) 
+- Removed obsolete storages (#536)
+- Refactor fallback to preprocessing-independent algorithm for certain routing request params
 ### Deprecated
 
 ## [5.0.1] - 2019-04-08
