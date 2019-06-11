@@ -1,5 +1,7 @@
 package com.graphhopper.routing.template;
 
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.PointList;
 
@@ -19,4 +21,16 @@ public class AbstractRoutingTemplate {
         }
         return pointList;
     }
+
+    // ORS-GH MOD START
+    protected EdgeFilter edgeFilter;
+
+    public EdgeFilter getEdgeFilter() {
+        return edgeFilter;
+    }
+
+    public void setEdgeFilter(EdgeFilter edgeFilter) {
+        this.edgeFilter = edgeFilter;
+    }
+    // ORS-GH MOD END
 }

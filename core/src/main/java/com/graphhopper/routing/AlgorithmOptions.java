@@ -43,18 +43,6 @@ public class AlgorithmOptions {
     private TraversalMode traversalMode = TraversalMode.NODE_BASED;
     private int maxVisitedNodes = Integer.MAX_VALUE;
 
-    // ORS-GH MOD START
-    private EdgeFilter edgeFilter;
-
-    public EdgeFilter getEdgeFilter() {
-        return edgeFilter;
-    }
-
-    public void setEdgeFilter(EdgeFilter edgeFilter) {
-        this.edgeFilter = edgeFilter;
-    }
-    // ORS-GH MOD END
-
     private AlgorithmOptions() {
     }
 
@@ -181,4 +169,16 @@ public class AlgorithmOptions {
             return opts;
         }
     }
+
+    // ORS-GH MOD START
+    protected EdgeFilter edgeFilter;
+
+    public EdgeFilter getEdgeFilter() {
+        return edgeFilter;
+    }
+
+    public void setEdgeFilter(EdgeFilter edgeFilter) {
+        this.edgeFilter = edgeFilter;
+    }
+    // ORS-GH MOD END
 }

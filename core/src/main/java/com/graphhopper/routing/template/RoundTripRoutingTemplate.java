@@ -68,14 +68,6 @@ public class RoundTripRoutingTemplate extends AbstractRoutingTemplate implements
         this.maxRetries = maxRetries;
     }
 
-    // ORS-MOD START - add overloaded method to use radii in searches
-    @Override
-    public List<QueryResult> lookup(List<GHPoint> points, double[] radiuses, FlagEncoder encoder) {
-        // TODO implement radius lookup
-        return lookup(points, encoder);
-    }
-    // ORS-MOD END
-
     @Override
     public List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder) {
         if (points.size() != 1 || ghRequest.getPoints().size() != 1)
@@ -89,7 +81,9 @@ public class RoundTripRoutingTemplate extends AbstractRoutingTemplate implements
 
         TourStrategy strategy = new MultiPointTour(new Random(seed), distanceInMeter, roundTripPointCount, initialHeading);
         queryResults = new ArrayList<>(2 + strategy.getNumberOfGeneratedPoints());
-        EdgeFilter edgeFilter = DefaultEdgeFilter.allEdges(encoder);
+        // ORS-GH MOD START
+        // EdgeFilter edgeFilter = DefaultEdgeFilter.allEdges(encoder);
+        // ORS-GH MOD END
         QueryResult startQR = locationIndex.findClosest(start.lat, start.lon, edgeFilter);
         if (!startQR.isValid())
             throw new PointNotFoundException("Cannot find point 0: " + start, 0);

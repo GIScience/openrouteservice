@@ -17,21 +17,12 @@
  */
 package com.graphhopper.routing.util;
 
-import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.PMap;
 
-/**
- * Class used to traverse a graph.
- *
- * @author Peter Karich
- */
+// ORS GH-MOD
 public interface EdgeFilterFactory {
+    EdgeFilterFactory DEFAULT = new DefaultEdgeFilterFactory();
 
-    final EdgeFilterFactory DEFAULT = new DefaultEdgeFilterFactory();
- 
-    /**
-     * @return true if the current edge should be processed and false otherwise.
-     */
-    EdgeFilter createEdgeFilter(AlgorithmOptions opts, GraphHopperStorage storage);
+    EdgeFilter createEdgeFilter(PMap opts, FlagEncoder flagEncoder, GraphHopperStorage gs);
 }

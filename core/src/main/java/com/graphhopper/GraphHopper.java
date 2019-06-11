@@ -43,6 +43,7 @@ import com.graphhopper.util.Parameters.Landmark;
 import com.graphhopper.util.Parameters.Routing;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import com.graphhopper.util.exceptions.PointDistanceExceededException;
+import com.graphhopper.util.exceptions.PointNotFoundException;
 import com.graphhopper.util.exceptions.PointOutOfBoundsException;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
@@ -124,11 +125,16 @@ public class GraphHopper implements GraphHopperAPI {
 
     // ORS-GH MOD START
     protected EdgeFilterFactory edgeFilterFactory = EdgeFilterFactory.DEFAULT;
+    protected PathProcessorFactory pathProcessorFactory = PathProcessorFactory.DEFAULT;
     protected WeightingFactory weightingFactory;
     protected GraphStorageFactory graphStorageFactory;
 
     public void setEdgeFilterFactory(EdgeFilterFactory newFactory) {
         this.edgeFilterFactory = newFactory;
+    }
+
+    public void setPathProcessorFactory(PathProcessorFactory newFactory) {
+        this.pathProcessorFactory = newFactory;
     }
 
     public void setWeightingFactory(WeightingFactory weightingFactory) {
@@ -1078,6 +1084,15 @@ public class GraphHopper implements GraphHopperAPI {
             else
                 routingTemplate = new ViaRoutingTemplate(request, ghRsp, locationIndex, encodingManager);
 
+            // ORS-GH MOD START
+            EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(hints, encoder, ghStorage);
+            routingTemplate.setEdgeFilter(edgeFilter);
+
+            PathProcessor pathProcessor = pathProcessorFactory.createPathProcessor(hints, ghStorage, encoder);
+            ghRsp.addReturnObject(pathProcessor);
+            
+            // ORS MOD END
+
             List<Path> altPaths = null;
             int maxRetries = routingTemplate.getMaxRetries();
             Locale locale = request.getLocale();
@@ -1085,9 +1100,18 @@ public class GraphHopper implements GraphHopperAPI {
             for (int i = 0; i < maxRetries; i++) {
                 StopWatch sw = new StopWatch().start();
 
-                // ORS-GH MOD START
-                //List<QueryResult> qResults = routingTemplate.lookup(points, encoder);
-                List<QueryResult> qResults = routingTemplate.lookup(points, request.getMaxSearchDistances(), encoder);
+                List<QueryResult> qResults = routingTemplate.lookup(points, encoder);
+
+                // ORS-GH MOD START - check for max search distances
+                double[] radiuses = request.getMaxSearchDistances();
+                if (points.size() == qResults.size()) {
+                    for (int placeIndex = 0; placeIndex < points.size(); placeIndex++) {
+                        QueryResult qr = qResults.get(placeIndex);
+                        if ((radiuses != null) && qr.isValid() && (qr.getQueryDistance() > radiuses[placeIndex]) && (radiuses[placeIndex] != -1.0)) {
+                            ghRsp.addError(new PointNotFoundException("Cannot find point " + placeIndex + ": " + points.get(placeIndex) + " within a radius of " + radiuses[placeIndex] + " meters.", placeIndex));
+                        }
+                    }
+                }
                 // ORS-GH MOD END
 
                 ghRsp.addDebugInfo("idLookup:" + sw.stop().getSeconds() + "s");
@@ -1139,23 +1163,8 @@ public class GraphHopper implements GraphHopperAPI {
                         build();
 
                 // ORS-GH MOD START
-
-                if (request instanceof ExtendedGHRequest && ((ExtendedGHRequest)request).getEdgeFilter() != null) {
-                    algoOpts.setEdgeFilter(((ExtendedGHRequest)request).getEdgeFilter());
-                } else {
-                    algoOpts.setEdgeFilter(edgeFilterFactory.createEdgeFilter(algoOpts, getGraphHopperStorage()));
-                }
-                // ORS-GH MOD END
-                
-                // MARQ24: we "tunnel" all the additional object that we require for the additional storage
-                // processing inside the TranslationMap Object - simply cause in this case we do not have to
-                // alter so many original GH classes...
-                // ORS TODO START: PathProcessor not available due to GH's new structure
-                if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo && request instanceof ExtendedGHRequest){
-                    ((TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr).init(encoder, weighting, ((ExtendedGHRequest)request).getPathProcessor());
-                }
-                // ORS TODO END
-                // ORS-GH MOD END
+                algoOpts.setEdgeFilter(edgeFilter);
+                // ORS MOD END
 
                 // do the actual route calculation !
                 altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts);
@@ -1163,18 +1172,21 @@ public class GraphHopper implements GraphHopperAPI {
                 boolean tmpEnableInstructions = hints.getBool(Routing.INSTRUCTIONS, getEncodingManager().isEnableInstructions());
                 boolean tmpCalcPoints = hints.getBool(Routing.CALC_POINTS, calcPoints);
                 double wayPointMaxDistance = hints.getDouble(Routing.WAY_POINT_MAX_DISTANCE, 1d);
-
+                
                 DouglasPeucker peucker = new DouglasPeucker().setMaxDistance(wayPointMaxDistance);
                 PathMerger pathMerger = new PathMerger().
                         setCalcPoints(tmpCalcPoints).
                         setDouglasPeucker(peucker).
                         setEnableInstructions(tmpEnableInstructions).
                         setPathDetailsBuilders(pathBuilderFactory, request.getPathDetails()).
+                        // ORS MOD START
+                        setPathProcessor(pathProcessor).
+                        // ORS MOD END
                         setSimplifyResponse(simplifyResponse && wayPointMaxDistance > 0);
 
                 if (request.hasFavoredHeading(0))
                     pathMerger.setFavoredHeading(request.getFavoredHeading(0));
-
+                
                 if (routingTemplate.isReady(pathMerger, tr))
                     break;
             }

@@ -60,25 +60,6 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
         this.encodingManager = encodingManager;
     }
 
-    // ORS-MOD START - add overloaded method to use radius in searches
-    @Override
-    public List<QueryResult> lookup(List<GHPoint> points, double[] radiuses, FlagEncoder encoder) {
-        List<QueryResult> results = lookup(points, encoder);
-
-        if (points.size() == results.size()) {
-            for (int placeIndex = 0; placeIndex < points.size(); placeIndex++) {
-                QueryResult qr = results.get(placeIndex);
-
-                if ((radiuses != null) && qr.isValid() && (qr.getQueryDistance() > radiuses[placeIndex]) && (radiuses[placeIndex] != -1.0)) {
-                    ghResponse.addError(new PointNotFoundException("Cannot find point " + placeIndex + ": " + points.get(placeIndex) + " within a radius of " + radiuses[placeIndex] + " meters.", placeIndex));
-                }
-            }
-        }
-
-        return results;
-    }
-    // ORS-MOD END
-
     @Override
     public List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder) {
         if (points.size() < 2)
@@ -86,13 +67,7 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
 
         // ORS-GH MOD START
         // EdgeFilter edgeFilter = DefaultEdgeFilter.allEdges(encoder);
-        // Modification by Maxim Rylov: Added custom EdgeFilter
-        EdgeFilter edgeFilter = (ghRequest instanceof ExtendedGHRequest) ? ((ExtendedGHRequest) ghRequest).getEdgeFilter() : null; // ORS TODO EdgeFilter not avalable here: ghRequest.getEdgeFilter();
-        if (edgeFilter == null) {
-            edgeFilter = DefaultEdgeFilter.allEdges(encoder);
-        }
         // ORS-GH MOD END
-
         queryResults = new ArrayList<>(points.size());
         for (int placeIndex = 0; placeIndex < points.size(); placeIndex++) {
             GHPoint point = points.get(placeIndex);

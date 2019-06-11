@@ -21,7 +21,9 @@ import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntIndexedContainer;
 import com.graphhopper.coll.GHIntArrayList;
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
+import com.graphhopper.routing.util.DefaultPathProcessor;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
@@ -255,15 +257,6 @@ public class Path {
     private void forEveryEdge(EdgeVisitor visitor) {
         int tmpNode = getFromNode();
         int len = edgeIds.size();
-        // ORS-GH MOD START
-        // MARQ24 ONLY required to let the InstructionsFromEdges know, WHEN the last
-        // edge will be processed, so that 'isLastEdge' could be passed to the
-        // ORS-PathProcessor
-        if(visitor instanceof InstructionsFromEdges){
-            ((InstructionsFromEdges) visitor).setTotalEdges(len);
-        }
-        // ORS-GH MOD END
-
         int prevEdgeId = EdgeIterator.NO_EDGE;
         for (int i = 0; i < len; i++) {
             EdgeIteratorState edgeBase = graph.getEdgeIteratorState(edgeIds.get(i), tmpNode);
@@ -369,6 +362,11 @@ public class Path {
      * @return the list of instructions for this path.
      */
     public InstructionList calcInstructions(BooleanEncodedValue roundaboutEnc, final Translation tr) {
+    // ORS-GH MOD START
+        return calcInstructions(roundaboutEnc, tr, PathProcessor.DEFAULT);
+    }
+    public InstructionList calcInstructions(BooleanEncodedValue roundaboutEnc, final Translation tr, PathProcessor pathProcessor) {
+    // ORS-GH MOD END
         final InstructionList ways = new InstructionList(edgeIds.size() / 4, tr);
         if (edgeIds.isEmpty()) {
             if (isFound()) {
@@ -376,7 +374,12 @@ public class Path {
             }
             return ways;
         }
-        forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, roundaboutEnc, nodeAccess, tr, ways));
+        // ORS-GH MOD START
+//        forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, roundaboutEnc, nodeAccess, tr, ways));
+        InstructionsFromEdges instructionsFromEdges = new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, roundaboutEnc, nodeAccess, tr, ways, pathProcessor);
+        instructionsFromEdges.setTotalEdges(edgeIds.size());
+        forEveryEdge(instructionsFromEdges);
+        // ORS-GH MOD END
         return ways;
     }
 
