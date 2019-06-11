@@ -24,10 +24,6 @@ import heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStorage;
 
 public class SteepnessDifficultyWeighting extends FastestWeighting
 {
-    /**
-     * For now used only in BikeCommonFlagEncoder and MotorcycleFlagEncoder
-     */
-    public static final int KEY = 101;
     
 	private HillIndexGraphStorage gsHillIndex;
 	private byte[] buffer;

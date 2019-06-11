@@ -80,9 +80,6 @@ public class RouteRequestHandler extends GenericHandler {
         if (request.hasAttributes())
             routingRequest.setAttributes(convertAttributes(request.getAttributes()));
 
-        if (request.hasExtraInfo())
-            routingRequest.setExtraInfo(convertExtraInfo(request.getExtraInfo()));
-
         if (request.hasLanguage())
             routingRequest.setLanguage(convertLanguage(request.getLanguage()));
 
@@ -110,11 +107,16 @@ public class RouteRequestHandler extends GenericHandler {
 
         int coordinatesLength = request.getCoordinates().size();
 
-        if (request.hasSuppressWarnings())
-            routingRequest.setSuppressWarnings(request.getSuppressWarnings());
-
         RouteSearchParameters params = new RouteSearchParameters();
 
+        if (request.hasExtraInfo()) {
+            routingRequest.setExtraInfo(convertExtraInfo(request.getExtraInfo()));
+            params.setExtraInfo(convertExtraInfo(request.getExtraInfo()));
+        }
+
+        if (request.hasSuppressWarnings())
+            params.setSuppressWarnings(request.getSuppressWarnings());
+        
         try {
             profileType = convertRouteProfileType(request.getProfile());
             params.setProfileType(profileType);

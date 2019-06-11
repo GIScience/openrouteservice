@@ -18,6 +18,7 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKeys;
 
 /**
  * Special weighting for (motor)bike
@@ -29,12 +30,6 @@ public class FastestSafeWeighting extends FastestWeighting {
 	private Double THRESHOLD_AVOID_AT_ALL_COSTS = (double) (PriorityCode.AVOID_AT_ALL_COSTS.getValue() / (double)PriorityCode.BEST
 			.getValue());
 	
-	/**
-	 * For now used only in BikeCommonFlagEncoder and MotorcycleFlagEncoder
-	 */
-	//    public static final int KEY = 101;
-	public static final String KEY = "priority";
-
 	public FastestSafeWeighting(FlagEncoder encoder, PMap map) {
 		super(encoder, map);
 
@@ -46,7 +41,7 @@ public class FastestSafeWeighting extends FastestWeighting {
 		if (Double.isInfinite(weight))
 			return Double.POSITIVE_INFINITY;
 
-		double priority = getFlagEncoder().getDecimalEncodedValue(KEY).getDecimal(reverse, edgeState.getFlags());
+		double priority = getFlagEncoder().getDecimalEncodedValue(FlagEncoderKeys.PRIORITY_KEY).getDecimal(reverse, edgeState.getFlags());
 
 		if (priority <= THRESHOLD_AVOID_AT_ALL_COSTS)
 			weight *= 2;

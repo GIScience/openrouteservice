@@ -46,8 +46,8 @@ public abstract class AbstractOneToManyRoutingAlgorithm implements OneToManyRout
         this.traversalMode = traversalMode;
         this.graph = graph;
         this.nodeAccess = graph.getNodeAccess();
-        outEdgeExplorer = graph.createEdgeExplorer(new DefaultEdgeFilter(flagEncoder.getAccessEnc(), false, true));
-        inEdgeExplorer = graph.createEdgeExplorer(new DefaultEdgeFilter(flagEncoder.getAccessEnc(), true, false));
+        outEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.inEdges(flagEncoder));
+        inEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
     }
     
     @Override

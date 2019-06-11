@@ -21,8 +21,7 @@ import heigit.ors.routing.RouteExtraInfo;
 import heigit.ors.routing.RouteSegmentItem;
 import heigit.ors.routing.util.SteepnessUtil;
 
-public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder 
-{
+public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder {
 	private boolean _firstSegment = true;
 	private double _x0, _y0, _z0, _x1, _y1, _z1;
 	private double _elevDiff = 0;
@@ -37,19 +36,20 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder
 	private DistanceCalc3D _distCalc;
 	private boolean _lastEdge;
 	
-    public SteepnessExtraInfoBuilder(RouteExtraInfo extraInfo) 
-    {
+    public SteepnessExtraInfoBuilder(RouteExtraInfo extraInfo) {
 		super(extraInfo);
 		_distCalc = Helper.DIST_3D;
 	}
 
-	public void addSegment(double value, long valueIndex, PointList geom, double dist, boolean lastEdge)
-    {
+	public void addSegment(double value, long valueIndex, PointList geom, double dist, boolean lastEdge) {
 		_lastEdge = lastEdge;
     }
+
+	public void addSegment(double value, long valueIndex, PointList geom, double dist) {
+		throw new UnsupportedOperationException("SimpleRouteExtraInfoBuilder does not support method addSegment without lastEdge flag.");
+	}
 	
-	public void addPoints(PointList geom)
-	{
+	public void addPoints(PointList geom) {
 		int nPoints = geom.getSize() - 1;
 		if (nPoints == 0)
 			return;		
@@ -181,7 +181,6 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder
 		}
 	}
 	
-	public void finish()
-	{
+	public void finish() {
 	}
 }

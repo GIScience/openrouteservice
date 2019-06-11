@@ -15,6 +15,7 @@ package heigit.ors.isochrones;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.GraphHopper;
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.util.TraversalMode;
@@ -31,6 +32,7 @@ import heigit.ors.routing.RouteSearchContext;
 import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.routing.algorithms.DijkstraCostCondition;
 import heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
+import heigit.ors.routing.graphhopper.extensions.ORSEdgeFilterFactory;
 import heigit.ors.routing.graphhopper.extensions.weighting.DistanceWeighting;
 
 public class GraphEdgeMapFinder {
@@ -40,8 +42,11 @@ public class GraphEdgeMapFinder {
 	    FlagEncoder encoder = searchCntx.getEncoder();
 		GraphHopperStorage graph = gh.getGraphHopperStorage();
 
+		ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
+		EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(searchCntx.getProperties(), encoder, graph);
+		
 		Coordinate loc = parameters.getLocation();
-		QueryResult res = gh.getLocationIndex().findClosest(loc.y, loc.x, searchCntx.getEdgeFilter());
+		QueryResult res = gh.getLocationIndex().findClosest(loc.y, loc.x, edgeFilter);
 
        GHPoint3D snappedPosition = res.getSnappedPoint();
 
@@ -63,7 +68,7 @@ public class GraphEdgeMapFinder {
 		// IMPORTANT: It only works with TraversalMode.NODE_BASED.
 		DijkstraCostCondition dijkstraAlg = new DijkstraCostCondition(graph, weighting, parameters.getMaximumRange(), parameters.getReverseDirection(),
 				TraversalMode.NODE_BASED);
-		dijkstraAlg.setEdgeFilter(searchCntx.getEdgeFilter());
+		dijkstraAlg.setEdgeFilter(edgeFilter);
 		dijkstraAlg.calcPath(fromId, Integer.MIN_VALUE);
 
 		IntObjectMap<SPTEntry> edgeMap = dijkstraAlg.getMap();

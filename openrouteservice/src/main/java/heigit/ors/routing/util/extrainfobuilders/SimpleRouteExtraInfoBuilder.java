@@ -74,9 +74,13 @@ public class SimpleRouteExtraInfoBuilder extends RouteExtraInfoBuilder {
 		_prevValue = value;
 		_prevValueIndex = valueIndex;
     }
+
+	public void addSegment(double value, long valueIndex, PointList geom, double dist) {
+    	throw new UnsupportedOperationException("SimpleRouteExtraInfoBuilder does not support method addSegment without lastEdge flag.");
+	}
 	
 	public void finish()
 	{
-		
+		throw new UnsupportedOperationException("SimpleRouteExtraInfoBuilder does not support method finish.");
 	}
 }

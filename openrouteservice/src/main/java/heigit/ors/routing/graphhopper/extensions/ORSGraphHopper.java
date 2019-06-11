@@ -31,6 +31,7 @@ import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.*;
+import com.graphhopper.util.exceptions.PointNotFoundException;
 import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -242,13 +243,26 @@ public class ORSGraphHopper extends GraphHopper {
 			else
 				routingTemplate = new ViaRoutingTemplate(request, ghRsp, getLocationIndex(), getEncodingManager());
 
+			EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(hints, encoder, getGraphHopperStorage());
+			routingTemplate.setEdgeFilter(edgeFilter);
+
 			List<Path> altPaths = null;
 			int maxRetries = routingTemplate.getMaxRetries();
 			Locale locale = request.getLocale();
 			Translation tr = getTranslationMap().getWithFallBack(locale);
 			for (int i = 0; i < maxRetries; i++) {
 				StopWatch sw = new StopWatch().start();
-				List<QueryResult> qResults = routingTemplate.lookup(points, request.getMaxSearchDistances(), encoder);
+				List<QueryResult> qResults = routingTemplate.lookup(points, encoder);
+				double[] radiuses = request.getMaxSearchDistances();
+				if (points.size() == qResults.size()) {
+					for (int placeIndex = 0; placeIndex < points.size(); placeIndex++) {
+						QueryResult qr = qResults.get(placeIndex);
+						if ((radiuses != null) && qr.isValid() && (qr.getQueryDistance() > radiuses[placeIndex]) && (radiuses[placeIndex] != -1.0)) {
+							ghRsp.addError(new PointNotFoundException("Cannot find point " + placeIndex + ": " + points.get(placeIndex) + " within a radius of " + radiuses[placeIndex] + " meters.", placeIndex));
+						}
+					}
+				}
+
 				ghRsp.addDebugInfo("idLookup:" + sw.stop().getSeconds() + "s");
 				if (ghRsp.hasErrors())
 					return Collections.emptyList();
@@ -297,13 +311,9 @@ public class ORSGraphHopper extends GraphHopper {
 
 				AlgorithmOptions algoOpts = AlgorithmOptions.start().algorithm(algoStr).traversalMode(tMode)
 						.weighting(weighting).maxVisitedNodes(maxVisitedNodesForRequest).hints(hints).build();
-
-				algoOpts.setEdgeFilter(edgeFilterFactory.createEdgeFilter(algoOpts, getGraphHopperStorage()));
 				
-				if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo){
-					((TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr).init(encoder, weighting, request.getPathProcessor());
-				}
-
+				algoOpts.setEdgeFilter(edgeFilter);
+				
 				altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts);
 
 				boolean tmpEnableInstructions = hints.getBool(Parameters.Routing.INSTRUCTIONS, getEncodingManager().isEnableInstructions());
@@ -311,8 +321,9 @@ public class ORSGraphHopper extends GraphHopper {
 				double wayPointMaxDistance = hints.getDouble(Parameters.Routing.WAY_POINT_MAX_DISTANCE, 1d);
 				DouglasPeucker peucker = new DouglasPeucker().setMaxDistance(wayPointMaxDistance);
 				PathMerger pathMerger = new PathMerger().setCalcPoints(tmpCalcPoints).setDouglasPeucker(peucker)
-						.setEnableInstructions(tmpEnableInstructions)
-						.setSimplifyResponse(isSimplifyResponse() && wayPointMaxDistance > 0);
+                        .setEnableInstructions(tmpEnableInstructions)
+                        .setPathProcessor(pathProcessorFactory.createPathProcessor(encoder))
+                        .setSimplifyResponse(isSimplifyResponse() && wayPointMaxDistance > 0);
 
 				if (routingTemplate.isReady(pathMerger, tr))
 					break;
@@ -411,7 +422,7 @@ public class ORSGraphHopper extends GraphHopper {
         wayPointList.add(lineString.getCoordinateN(1).x, lineString.getCoordinateN(1).y);
         startPointList.add(lineString.getCoordinateN(0).x, lineString.getCoordinateN(0).y);
         endPointList.add(lineString.getCoordinateN(1).x, lineString.getCoordinateN(1).y);
-        Translation translation = new TranslationMap.ORSTranslationHashMapWithExtendedInfo(new Locale(""));
+        Translation translation = new TranslationMap.TranslationHashMap(new Locale(""));
         InstructionList instructions = new InstructionList(translation);
         Instruction startInstruction = new Instruction(Instruction.REACHED_VIA, "free hand route", new InstructionAnnotation(0, ""), startPointList);
         Instruction endInstruction = new Instruction(Instruction.FINISH, "end of free hand route", new InstructionAnnotation(0, ""), endPointList);

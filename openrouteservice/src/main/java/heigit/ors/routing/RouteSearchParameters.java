@@ -50,6 +50,8 @@ public class RouteSearchParameters {
     private double[] _maxRadiuses;
     private boolean _flexibleMode = false;
     private boolean _optimized = true;
+    private int _extraInfo;
+    private boolean _suppressWarnings = false;
 
     private int[] _avoidCountries = null;
     private BordersExtractor.Avoid _avoidBorders = BordersExtractor.Avoid.NONE;
@@ -137,6 +139,22 @@ public class RouteSearchParameters {
 
     public void setVehicleType(int vehicleType) {
         this._vehicleType = vehicleType;
+    }
+
+    public int getExtraInfo() {
+        return _extraInfo;
+    }
+
+    public void setExtraInfo(int extraInfo) {
+        _extraInfo = extraInfo;
+    }
+
+    public boolean getSuppressWarnings() {
+        return _suppressWarnings;
+    }
+
+    public void setSuppressWarnings(boolean suppressWarnings) {
+        _suppressWarnings = suppressWarnings;
     }
 
     public String getOptions() {

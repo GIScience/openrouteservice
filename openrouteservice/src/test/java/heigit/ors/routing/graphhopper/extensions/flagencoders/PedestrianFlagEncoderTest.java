@@ -266,7 +266,8 @@ public class PedestrianFlagEncoderTest {
 
     @Test
     public void getWeighting() {
-        assertEquals(0.714, flagEncoder.getDouble(683, PriorityWeighting.KEY), 0.001);
+
+        assertEquals(0.714, flagEncoder.getDouble(683, FlagEncoderKeys.PRIORITY_KEY), 0.001);
         boolean throwsError = false;
         try {
             // Only priority weighting allowed
