@@ -215,9 +215,9 @@ public class AlternativeRoute implements RoutingAlgorithm {
     }
 
     // ORS-GH MOD START
-    // new method
-    public void setEdgeFilter(EdgeFilter additionalEdgeFilter) {
+    public RoutingAlgorithm setEdgeFilter(EdgeFilter additionalEdgeFilter) {
         this.additionalEdgeFilter = additionalEdgeFilter;
+        return this;
     }
     // ORS-GH MOD END
 

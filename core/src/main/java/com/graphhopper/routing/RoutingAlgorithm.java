@@ -17,6 +17,7 @@
  */
 package com.graphhopper.routing;
 
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.NotThreadSafe;
 
 import java.util.List;
@@ -57,4 +58,6 @@ public interface RoutingAlgorithm {
      * Returns the visited nodes after searching. Useful for debugging.
      */
     int getVisitedNodes();
+    
+    RoutingAlgorithm setEdgeFilter(EdgeFilter additionalEdgeFilter);
 }

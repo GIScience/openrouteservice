@@ -83,18 +83,21 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
 
     private final int MAX_U_TURN_DISTANCE = 35;
     // ORS-GH MOD START
-    private final PathProcessor mPathProcessor;
+    private PathProcessor mPathProcessor = PathProcessor.DEFAULT;
     private int mTotalEdgeCount = 0;
 
     void setTotalEdges(int len){
         mTotalEdgeCount = len;
     }
-    // ORS-GH MOD END
 
-
+//    public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder,
+//                                 BooleanEncodedValue roundaboutEnc, NodeAccess nodeAccess,
+//                                 Translation tr, InstructionList ways) {
     public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder,
-                                 BooleanEncodedValue roundaboutEnc, NodeAccess nodeAccess,
-                                 Translation tr, InstructionList ways) {
+                BooleanEncodedValue roundaboutEnc, NodeAccess nodeAccess,
+                Translation tr, InstructionList ways, PathProcessor pathProcessor) {
+        mPathProcessor = pathProcessor;
+    // ORS-GH MOD END
         this.weighting = weighting;
         this.encoder = encoder;
         this.accessEnc = encoder.getAccessEnc();
@@ -109,14 +112,6 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         prevName = null;
         outEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(encoder));
         crossingExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.allEdges(encoder));
-
-        // ORS-GH MOD START
-        if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo) {
-            mPathProcessor = ((TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr).getPathProcessor();
-        }else{
-            mPathProcessor = null;
-        }
-        // ORS-GH MOD END
     }
 
 
@@ -310,11 +305,7 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         prevEdge = edge;
 
         // ORS-GH MOD START
-        // Modification by Maxim Rylov
-        boolean isLastEdge = index == mTotalEdgeCount - 1;
-        if(mPathProcessor != null){
-            mPathProcessor.processEdge(edge, isLastEdge, wayGeo);
-        }
+        mPathProcessor.processPathEdge(edge, wayGeo);
         // ORS-GH MOD END
     }
 

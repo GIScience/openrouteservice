@@ -52,6 +52,16 @@ public class PathMerger {
     private List<String> requestedPathDetails = Collections.EMPTY_LIST;
     private double favoredHeading = Double.NaN;
 
+
+    // ORS-GH MOD START
+    protected PathProcessor pathProcessor = PathProcessor.DEFAULT;
+
+    public PathMerger setPathProcessor(PathProcessor pathProcessor) {
+        this.pathProcessor = pathProcessor; 
+        return this;
+    }
+    // ORS MOD END
+
     public PathMerger setCalcPoints(boolean calcPoints) {
         this.calcPoints = calcPoints;
         return this;
@@ -85,18 +95,6 @@ public class PathMerger {
         double fullDistance = 0;
         boolean allFound = true;
 
-        // ORS-GH MOD START
-        // Modification by Maxim Rylov
-        PathProcessor pathProcessor = null;
-        if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo){
-            TranslationMap.ORSTranslationHashMapWithExtendedInfo extraInfoFromTranslationMap = (TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr;
-            pathProcessor = extraInfoFromTranslationMap.getPathProcessor();
-            if (pathProcessor != null) {
-                pathProcessor.init(extraInfoFromTranslationMap.getEncoder());
-            }
-        }
-        // ORS-GH MOD END
-
         InstructionList fullInstructions = new InstructionList(tr);
         PointList fullPoints = PointList.EMPTY;
         List<String> description = new ArrayList<>();
@@ -112,7 +110,10 @@ public class PathMerger {
             fullDistance += path.getDistance();
             fullWeight += path.getWeight();
             if (enableInstructions) {
-                InstructionList il = path.calcInstructions(roundaboutEnc, tr);
+                // ORS-GH MOD START
+//                InstructionList il = path.calcInstructions(roundaboutEnc, tr);
+                InstructionList il = path.calcInstructions(roundaboutEnc, tr, pathProcessor);
+                // ORS-GH MOD END
 
                 if (!il.isEmpty()) {
                     fullInstructions.addAll(il);
@@ -144,17 +145,9 @@ public class PathMerger {
             allFound = allFound && path.isFound();
         }
 
-        // ORS-GH MOD START - Modification by Maxim Rylov
-        if (pathProcessor != null) {
-            pathProcessor.finish();
-        }
-        // ORS-GH MOD END
-
         if (!fullPoints.isEmpty()) {
             // ORS-GH MOD START
-            if (pathProcessor != null){
-                fullPoints = pathProcessor.processPoints(fullPoints);
-            }
+            fullPoints = pathProcessor.processPoints(fullPoints);
             // ORS-GH MOD END
 
             String debug = altRsp.getDebugInfo() + ", simplify (" + origPoints + "->" + fullPoints.getSize() + ")";

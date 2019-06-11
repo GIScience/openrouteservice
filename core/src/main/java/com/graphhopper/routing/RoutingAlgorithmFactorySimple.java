@@ -73,12 +73,7 @@ public class RoutingAlgorithmFactorySimple implements RoutingAlgorithmFactory {
         ra.setMaxVisitedNodes(opts.getMaxVisitedNodes());
 
         // ORS-GH MOD START
-        if (ra instanceof AbstractRoutingAlgorithm) {
-            ((AbstractRoutingAlgorithm)ra).setEdgeFilter(opts.getEdgeFilter());
-        }
-        if (ra instanceof AlternativeRoute) {
-            ((AlternativeRoute)ra).setEdgeFilter(opts.getEdgeFilter());
-        }
+        ra.setEdgeFilter(opts.getEdgeFilter());
         // ORS-GH MOD END
         return ra;
     }

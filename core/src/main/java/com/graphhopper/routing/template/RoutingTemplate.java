@@ -21,7 +21,9 @@ import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.RoutingAlgorithmFactory;
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.PathMerger;
 import com.graphhopper.util.Translation;
@@ -40,9 +42,6 @@ public interface RoutingTemplate {
      * This method takes the query points and returns the looked up QueryResults.
      */
     List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder);
-    // ORS-GH MOD START - overloaded method for limiting radius of searching
-    List<QueryResult> lookup(List<GHPoint> points, double[] radiuses, FlagEncoder encoder);
-    // ORS-GH MOD END
 
     /**
      * This method returns a list of Path objects which then can be merged to serve one route with
@@ -60,4 +59,10 @@ public interface RoutingTemplate {
      * This method returns the maximum number of full retries of these 3 steps
      */
     int getMaxRetries();
+
+    // ORS-GH MOD START
+    EdgeFilter getEdgeFilter();
+
+    void setEdgeFilter(EdgeFilter edgeFilter);
+    // ORS-GH MOD EǸD
 }
