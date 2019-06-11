@@ -23,7 +23,7 @@ package heigit.ors.servlet.listeners;
 import heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import heigit.ors.routing.RoutingProfileManager;
 import heigit.ors.routing.RoutingProfileManagerStatus;
-import org.apache.commons.logging.LogFactory;
+import org.apache.juli.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

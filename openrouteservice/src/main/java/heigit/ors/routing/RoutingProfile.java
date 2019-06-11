@@ -44,6 +44,7 @@ import heigit.ors.routing.graphhopper.extensions.*;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import heigit.ors.routing.parameters.*;
+import heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.services.matrix.MatrixServiceSettings;
 import heigit.ors.util.DebugUtility;
@@ -133,6 +134,9 @@ public class RoutingProfile {
 
         ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
         gh.setEdgeFilterFactory(edgeFilterFactory);
+
+        ORSPathProcessorFactory pathProcessorFactory = new ORSPathProcessorFactory();
+        gh.setPathProcessorFactory(pathProcessorFactory);
 
         gh.init(args);
 
@@ -505,8 +509,25 @@ public class RoutingProfile {
         }
 
         FlagEncoder flagEncoder = mGraphHopper.getEncodingManager().getEncoder(encoderName);
-        GraphStorage gs = mGraphHopper.getGraphHopperStorage();
         ProfileParameters profileParams = searchParams.getProfileParameters();
+
+        /*
+         * PARAMETERS FOR PathProcessorFactory
+         * ======================================================================================================
+         * TODO: put keys in consts somewhere
+         */
+
+        props.put("routing_extra_info", searchParams.getExtraInfo());
+        props.put("routing_suppress_warnings", searchParams.getSuppressWarnings());
+
+        props.put("routing_profile_type", profileType);
+        props.putObj("routing_profile_params", profileParams);
+
+        /*
+        * PARAMETERS FOR EdgeFilterFactory
+        * ======================================================================================================
+        * TODO: put keys in consts somewhere 
+        */
 
         /* Avoid areas */
         if (searchParams.hasAvoidAreas()) {
@@ -519,27 +540,25 @@ public class RoutingProfile {
             && searchParams.hasParameters(VehicleParameters.class)
             && ((VehicleParameters)profileParams).hasAttributes()
         ) {
-            props.putObj("hgv_params", profileParams);
-            props.put("hgv_type", searchParams.getVehicleType());
+            props.put("edgefilter_hgv", searchParams.getVehicleType());
         } 
         else if (profileType == RoutingProfileType.DRIVING_EMERGENCY
             && searchParams.hasParameters(VehicleParameters.class)
             && ((VehicleParameters)profileParams).hasAttributes()
         ) {
-            props.putObj("emergency_params", profileParams);
+            props.put("edgefilter_emergency", "true");
         }
 
         /* Wheelchair filter */
         else if (profileType == RoutingProfileType.WHEELCHAIR 
             && searchParams.hasParameters(WheelchairParameters.class)) {
-            props.putObj("wheelchair_params", profileParams);
+            props.put("edgefilter_wheelchair", "true");
         }
 
         /* Avoid features */
         if (searchParams.hasAvoidFeatures()) {
             props.put("avoid_features", searchParams.getAvoidFeatureTypes());
             props.putObj("avoid_features", searchParams);
-            props.put("avoid_features_type", profileType);
         }
 
         /* Avoid borders of some form */
@@ -565,6 +584,7 @@ public class RoutingProfile {
                 }
             }
         }
+
 
         RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, flagEncoder);
         searchCntx.setProperties(props);
@@ -613,7 +633,7 @@ public class RoutingProfile {
         return totalDistance <= maxDistance && wayPoints <= maxWayPoints;
     }
 
-    public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings, double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, RouteProcessContext routeProcCntx, Boolean geometrySimplify)
+    public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings, double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, Boolean geometrySimplify)
             throws Exception {
 
         GHResponse resp = null;
@@ -677,9 +697,6 @@ public class RoutingProfile {
             if(profileType == RoutingProfileType.WHEELCHAIR) {
                 flexibleMode = true;
             }
-
-//            req.setEdgeFilter(searchCntx.getEdgeFilter());
-//            req.setPathProcessor(routeProcCntx.getPathProcessor());
 
             if (searchParams.requiresDynamicWeights() || flexibleMode) {
                 if (mGraphHopper.isCHEnabled())

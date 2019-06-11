@@ -41,17 +41,17 @@ public class RoutingProfileCategory {
 
 	public static int getFromEncoder(EncodingManager encodingManager)
 	{
-		if (encodingManager.supports("car-ors") || encodingManager.supports("heavyvehicle"))
+		if (encodingManager.hasEncoder("car-ors") || encodingManager.hasEncoder("heavyvehicle"))
 			return RoutingProfileCategory.DRIVING;
 
-		if (encodingManager.supports("bike") || encodingManager.supports("mtb") || encodingManager.supports("racingbike")
-		 || encodingManager.supports("safetybike") || encodingManager.supports("cycletourbike") || encodingManager.supports("electrobike"))
+		if (encodingManager.hasEncoder("bike") || encodingManager.hasEncoder("mtb") || encodingManager.hasEncoder("racingbike")
+		 || encodingManager.hasEncoder("safetybike") || encodingManager.hasEncoder("cycletourbike") || encodingManager.hasEncoder("electrobike"))
 			return RoutingProfileCategory.CYCLING;
 
-		if (encodingManager.supports("foot") || encodingManager.supports("hiking"))
+		if (encodingManager.hasEncoder("foot") || encodingManager.hasEncoder("hiking"))
 			return RoutingProfileCategory.WALKING;
 
-		if (encodingManager.supports("wheelchair"))
+		if (encodingManager.hasEncoder("wheelchair"))
 			return RoutingProfileCategory.WHEELCHAIR;
 
 		return RoutingProfileCategory.UNKNOWN;

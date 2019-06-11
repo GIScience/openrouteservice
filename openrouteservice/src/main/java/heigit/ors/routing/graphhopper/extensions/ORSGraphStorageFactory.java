@@ -108,7 +108,8 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 		int chGraphs = 0;
 
 		if(gh.isCHEnabled()) {
-			weightings.addAll(gh.getCHFactoryDecorator().getWeightings());
+			weightings.addAll(gh.getCHFactoryDecorator().getNodeBasedWeightings());
+//			weightings.addAll(gh.getCHFactoryDecorator().getEdgeBasedWeightings()); possibly required when we implement support for edge-based CH?
 			chGraphs = weightings.size();
 			for (int i = 0; i < chGraphs; i++){
 				suffixes.add("ch");

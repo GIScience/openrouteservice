@@ -19,6 +19,7 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EdgeFilterFactory;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.util.PMap;
 import com.vividsolutions.jts.geom.Polygon;
 import heigit.ors.routing.RouteSearchParameters;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.*;
@@ -31,9 +32,7 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
     private static final Logger LOGGER = Logger.getLogger(ORSEdgeFilterFactory.class.getName());
 
     @Override
-    public EdgeFilter createEdgeFilter(AlgorithmOptions opts, GraphHopperStorage gs) {
-        FlagEncoder flagEncoder = opts.getWeighting().getFlagEncoder();
-
+    public EdgeFilter createEdgeFilter(PMap opts, FlagEncoder flagEncoder, GraphHopperStorage gs) {
         /* Initialize empty edge filter sequence */
         EdgeFilterSequence edgeFilters = new EdgeFilterSequence();
 
@@ -41,7 +40,7 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
         edgeFilters.add(DefaultEdgeFilter.allEdges(flagEncoder));
 
         try {
-            ORSPMap params = (ORSPMap) opts.getHints();
+            ORSPMap params = (ORSPMap)opts;
         
             /* Avoid areas */
             if (params.hasObj("avoid_areas")) {
@@ -49,21 +48,21 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
             }
     
             /* Heavy vehicle filter */
-            if (params.hasObj("hgv_params") && params.hasObj("hgv_type")) {
-                edgeFilters.add(new HeavyVehicleEdgeFilter(flagEncoder, params.getInt("hgv_type", 0), (VehicleParameters)params.getObj("hgv_params"), gs));
+            if (params.has("edgefilter_hgv")) {
+                edgeFilters.add(new HeavyVehicleEdgeFilter(flagEncoder, params.getInt("edgefilter_hgv", 0), (VehicleParameters)params.getObj("routing_profile_params"), gs));
             }
-            else if (params.hasObj("emergency_params")) {
-                edgeFilters.add(new EmergencyVehicleEdgeFilter((VehicleParameters)params.getObj("emergency_params"), gs));
+            else if (params.has("edgefilter_emergency")) {
+                edgeFilters.add(new EmergencyVehicleEdgeFilter((VehicleParameters)params.getObj("routing_profile_params"), gs));
             }
 
             /* Wheelchair filter */
-            else if (params.hasObj("wheelchair_params")) {
-                edgeFilters.add(new WheelchairEdgeFilter((WheelchairParameters)params.getObj("wheelchair_params"), gs));
+            else if (params.has("edgefilter_wheelchair")) {
+                edgeFilters.add(new WheelchairEdgeFilter((WheelchairParameters)params.getObj("routing_profile_params"), gs));
             }
     
             /* Avoid features */
-            if (params.hasObj("avoid_features") && params.hasObj("avoid_features_type")) {
-                edgeFilters.add(new AvoidFeaturesEdgeFilter(params.getInt("avoid_features_type", 0), (RouteSearchParameters) params.getObj("avoid_features"), gs));
+            if (params.hasObj("avoid_features") && params.hasObj("routing_profile_type")) {
+                edgeFilters.add(new AvoidFeaturesEdgeFilter(params.getInt("routing_profile_type", 0), (RouteSearchParameters) params.getObj("avoid_features"), gs));
             }
     
             /* Avoid borders */

@@ -23,7 +23,7 @@ import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Parameters;
-import heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
+//import heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
 import org.junit.Test;
 
 import java.util.Arrays;

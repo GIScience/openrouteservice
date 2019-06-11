@@ -41,7 +41,6 @@ public class RoutingRequest extends ServiceRequest
     private int _extraInfo;
     private int _locationIndex = -1;
     private boolean _continueStraight = false;
-    private Boolean _suppressWarnings = false;
 	private List<Integer> _skipSegments = new ArrayList<>();
 
 	public RoutingRequest()
@@ -187,14 +186,6 @@ public class RoutingRequest extends ServiceRequest
 
 	public void setIncludeRoundaboutExits(boolean includeRoundaboutExits) {
 		_includeRoundaboutExits = includeRoundaboutExits;
-	}
-
-	public boolean getSuppressWarnings() {
-		return _suppressWarnings;
-	}
-
-	public void setSuppressWarnings(boolean suppressWarnings) {
-		_suppressWarnings = suppressWarnings;
 	}
 
 	public boolean isValid() {

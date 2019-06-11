@@ -14,12 +14,12 @@
 package heigit.ors.routing;
 
 import com.graphhopper.GHResponse;
-import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.Coordinate;
+import heigit.ors.api.requests.common.APIEnums;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.PointNotFoundException;
 import heigit.ors.exceptions.RouteNotFoundException;
@@ -32,7 +32,6 @@ import heigit.ors.matrix.MatrixRequest;
 import heigit.ors.matrix.MatrixResult;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.configuration.RoutingManagerConfiguration;
-import heigit.ors.routing.pathprocessors.ElevationSmoothPathProcessor;
 import heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import heigit.ors.services.routing.RoutingServiceSettings;
 import heigit.ors.util.FormatUtility;
@@ -289,7 +288,6 @@ public class RoutingProfileManager {
 //        Coordinate[] coords = req.getCoordinates();
 //        Coordinate c0 = coords[0];
 //        int nSegments = coords.length - 1;
-//        RouteProcessContext routeProcCntx = new RouteProcessContext(pathProcessor);
 //        EdgeFilter customEdgeFilter = rp.createAccessRestrictionFilter(coords);
 //        List<GHResponse> resp = new ArrayList<GHResponse>();
 //
@@ -300,9 +298,9 @@ public class RoutingProfileManager {
 //            Coordinate c1 = coords[i];
 //            GHResponse gr = null;
 //            if (invertFlow)
-//                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, null, null, false, searchParams, customEdgeFilter, routeProcCntx, req.getGeometrySimplify());
+//                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, null, null, false, searchParams, customEdgeFilter, pathProcessor, req.getGeometrySimplify());
 //            else
-//                gr = rp.computeRoute(c1.y, c1.x, c0.y, c0.x, null, null, false, searchParams, customEdgeFilter, routeProcCntx, req.getGeometrySimplify());
+//                gr = rp.computeRoute(c1.y, c1.x, c0.y, c0.x, null, null, false, searchParams, customEdgeFilter, pathProcessor, req.getGeometrySimplify());
 //
 //            //if (gr.hasErrors())
 //            //	throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", i, FormatUtility.formatCoordinate(c0), i + 1, FormatUtility.formatCoordinate(c1)));
@@ -331,15 +329,11 @@ public class RoutingProfileManager {
 
         RoutingProfile rp = getRouteProfile(req, false);
         RouteSearchParameters searchParams = req.getSearchParameters();
-        PathProcessor pathProcessor = null;
-
-        pathProcessor = new ExtraInfoProcessor(rp.getGraphhopper(), req);
 
         Coordinate[] coords = req.getCoordinates();
         Coordinate c0 = coords[0];
         Coordinate c1;
         int nSegments = coords.length - 1;
-        RouteProcessContext routeProcCntx = new RouteProcessContext(pathProcessor);
         GHResponse prevResp = null;
         WayPointBearing[] bearings = (req.getContinueStraight() || searchParams.getBearings() != null) ? new WayPointBearing[2] : null;
         int profileType = req.getSearchParameters().getProfileType();
@@ -352,11 +346,10 @@ public class RoutingProfileManager {
             radiuses = null;
         }
 
+        ExtraInfoProcessor extraInfoProcessor = null;
+        
         for (int i = 1; i <= nSegments; ++i) {
             c1 = coords[i];
-
-            if (pathProcessor != null)
-                pathProcessor.setSegmentIndex(i - 1, nSegments);
 
             if (bearings != null) {
                 bearings[0] = null;
@@ -383,12 +376,7 @@ public class RoutingProfileManager {
 
             }
 
-            GHResponse gr;
-            if ((skipSegments.contains(i))) {
-                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, true, searchParams, routeProcCntx, req.getGeometrySimplify());
-            } else {
-                gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, false, searchParams, routeProcCntx, req.getGeometrySimplify());
-            }
+            GHResponse gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, skipSegments.contains(i), searchParams, req.getGeometrySimplify());
 
             if (gr.hasErrors()) {
                 if (gr.getErrors().size() > 0) {
@@ -426,12 +414,27 @@ public class RoutingProfileManager {
                 }
             }
 
+            try {
+                for (Object obj : gr.getReturnObjects()) {
+                    if (obj instanceof ExtraInfoProcessor) {
+                        if (extraInfoProcessor == null) {
+                            extraInfoProcessor = (ExtraInfoProcessor)obj;
+                        } else {
+                            extraInfoProcessor.appendData((ExtraInfoProcessor)obj);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                LOGGER.error(e);
+            }
+
             prevResp = gr;
             routes.add(gr);
             c0 = c1;
         }
         routes = enrichDirectRoutesTime(routes);
-        return new RouteResultBuilder().createMergedRouteResultFromBestPaths(routes, req, (pathProcessor != null && (pathProcessor instanceof ExtraInfoProcessor)) ? ((ExtraInfoProcessor) pathProcessor).getExtras() : null);
+        List<RouteExtraInfo> extraInfos = extraInfoProcessor != null ? extraInfoProcessor.getExtras() : null;
+        return new RouteResultBuilder().createMergedRouteResultFromBestPaths(routes, req, extraInfos);
     }
 
     /**

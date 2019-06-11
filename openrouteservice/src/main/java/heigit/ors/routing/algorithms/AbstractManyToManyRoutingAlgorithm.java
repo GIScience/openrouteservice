@@ -50,8 +50,8 @@ public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRo
 		_traversalMode = traversalMode;
 		_graph = graph;
 		_nodeAccess = graph.getNodeAccess();
-		_outEdgeExplorer = graph.createEdgeExplorer(new DefaultEdgeFilter(_flagEncoder.getAccessEnc(), false, true));
-		_inEdgeExplorer = graph.createEdgeExplorer(new DefaultEdgeFilter(_flagEncoder.getAccessEnc(), true, false));
+		_outEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.inEdges(_flagEncoder));
+		_inEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(_flagEncoder));
 	}
 
 	@Override

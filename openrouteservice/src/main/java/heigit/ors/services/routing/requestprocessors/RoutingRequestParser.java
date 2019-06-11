@@ -191,7 +191,7 @@ public class RoutingRequestParser
 
 		value = request.getParameter("suppress_warnings");
 		if (!Helper.isEmpty(value))
-			req.setSuppressWarnings(Boolean.parseBoolean(value));
+			req.getSearchParameters().setSuppressWarnings(Boolean.parseBoolean(value));
 
 		value = request.getParameter("instructions_format");
 		if (!Helper.isEmpty(value))
@@ -209,6 +209,7 @@ public class RoutingRequestParser
                 throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, "extra_info", "geometry_simplify");
 
 			req.setExtraInfo(RouteExtraInfoFlag.getFromString(value));
+			searchParams.setExtraInfo(RouteExtraInfoFlag.getFromString(value));
         }
 
 		value = request.getParameter("attributes");

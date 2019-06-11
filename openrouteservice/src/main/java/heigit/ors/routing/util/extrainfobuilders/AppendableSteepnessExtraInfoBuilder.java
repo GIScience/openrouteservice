@@ -14,39 +14,38 @@
 package heigit.ors.routing.util.extrainfobuilders;
 
 import com.graphhopper.util.PointList;
-
 import heigit.ors.routing.RouteExtraInfo;
-import heigit.ors.routing.RouteSegmentItem;
 
-public class DummyRouteExtraInfoBuilder extends RouteExtraInfoBuilder {
-	private int _prevIndex = 0;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+public class AppendableSteepnessExtraInfoBuilder extends SteepnessExtraInfoBuilder {
+	private ArrayList<PointList> segmentPointLists;
+
+    public AppendableSteepnessExtraInfoBuilder(RouteExtraInfo extraInfo) {
+    	super(extraInfo);
+		segmentPointLists = new ArrayList<>();
+	}
+
+	public ArrayList<PointList> getSegmentPointLists() {
+		return segmentPointLists;
+	}
+
+	public void append(AppendableSteepnessExtraInfoBuilder more) {
+		this.segmentPointLists.addAll(more.getSegmentPointLists());
+	}
+
+	@Override
+	public void addPoints(PointList geom) {
+    	this.segmentPointLists.add(geom);
+	}
 	
-    public DummyRouteExtraInfoBuilder(RouteExtraInfo extraInfo) {
-		super(extraInfo);
-	}
-
-	public void addSegment(double value, long valueIndex, PointList geom, double dist, boolean lastEdge)
-    {
-		int nPoints = geom.getSize() - 1;
-
-		RouteSegmentItem item = new RouteSegmentItem(_prevIndex, _prevIndex + nPoints, 0, dist);
-		_extraInfo.add(item);
-
-		_prevIndex += nPoints;
-    }
-
-	public void addSegment(double value, long valueIndex, PointList geom, double dist)
-	{
-		int nPoints = geom.getSize() - 1;
-
-		RouteSegmentItem item = new RouteSegmentItem(_prevIndex, _prevIndex + nPoints, 0, dist);
-		_extraInfo.add(item);
-
-		_prevIndex += nPoints;
-	}
-
-	public void finish()
-	{
-		
+	@Override
+	public void finish() {
+		for (Iterator<PointList> it = segmentPointLists.iterator(); it.hasNext(); ){
+			PointList s = it.next();
+			super.addSegment(0, 0, null, 0, !it.hasNext());
+			super.addPoints(s);
+		}
 	}
 }

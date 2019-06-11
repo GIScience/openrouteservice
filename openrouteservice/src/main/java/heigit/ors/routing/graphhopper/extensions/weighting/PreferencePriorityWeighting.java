@@ -18,6 +18,7 @@ import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKeys;
 
 public class PreferencePriorityWeighting extends FastestWeighting
 {
@@ -33,12 +34,6 @@ public class PreferencePriorityWeighting extends FastestWeighting
 	private Double THRESHOLD_VERY_NICE = (double) (PriorityCode.VERY_NICE.getValue() / (double)PriorityCode.BEST
 			.getValue());
 	
-    /**
-     * For now used only in BikeCommonFlagEncoder and MotorcycleFlagEncoder
-     */
-//    public static final int KEY = 101;
-	public static final String KEY = "priority";
-
     public PreferencePriorityWeighting(FlagEncoder encoder, PMap map)
     {
         super(encoder, map);
@@ -51,7 +46,7 @@ public class PreferencePriorityWeighting extends FastestWeighting
 		if (Double.isInfinite(weight))
 			weight = 0.0; 
 
-    	double priority = getFlagEncoder().getDecimalEncodedValue(KEY).getDecimal(reverse, edgeState.getFlags());
+    	double priority = getFlagEncoder().getDecimalEncodedValue(FlagEncoderKeys.PRIORITY_KEY).getDecimal(reverse, edgeState.getFlags());
 
 		if (priority <= THRESHOLD_REACH_DEST)
 			priority /= 1.5;

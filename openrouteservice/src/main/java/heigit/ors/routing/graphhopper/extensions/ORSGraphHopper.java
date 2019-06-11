@@ -18,27 +18,32 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.PathWrapper;
 import com.graphhopper.reader.DataReader;
-import com.graphhopper.routing.*;
+import com.graphhopper.routing.AlgorithmOptions;
+import com.graphhopper.routing.Path;
+import com.graphhopper.routing.QueryGraph;
+import com.graphhopper.routing.RoutingAlgorithmFactory;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.lm.LMAlgoFactoryDecorator;
 import com.graphhopper.routing.template.AlternativeRoutingTemplate;
 import com.graphhopper.routing.template.RoundTripRoutingTemplate;
 import com.graphhopper.routing.template.RoutingTemplate;
 import com.graphhopper.routing.template.ViaRoutingTemplate;
-import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.*;
+import com.graphhopper.util.exceptions.PointNotFoundException;
 import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import heigit.ors.mapmatching.RouteSegmentInfo;
 import heigit.ors.routing.RoutingProfile;
-import heigit.ors.routing.RoutingProfileCategory;
-import heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import heigit.ors.util.CoordTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,7 +105,7 @@ public class ORSGraphHopper extends GraphHopper {
 		if (ghs != null) {
 			this.logger.info("graph " + ghs.toString() + ", details:" + ghs.toDetailsString());
 			int prevNodeCount = ghs.getNodes();
-			int ex = ghs.getAllEdges().getMaxId();
+			int ex = ghs.getAllEdges().length();
 			List<FlagEncoder> list = getEncodingManager().fetchEdgeEncoders();
 			this.logger.info("will create PrepareRoutingSubnetworks with:\r\n"+
 					"\tNodeCountBefore: '" + prevNodeCount+"'\r\n"+
@@ -242,13 +247,26 @@ public class ORSGraphHopper extends GraphHopper {
 			else
 				routingTemplate = new ViaRoutingTemplate(request, ghRsp, getLocationIndex(), getEncodingManager());
 
+			EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(hints, encoder, getGraphHopperStorage());
+			routingTemplate.setEdgeFilter(edgeFilter);
+
 			List<Path> altPaths = null;
 			int maxRetries = routingTemplate.getMaxRetries();
 			Locale locale = request.getLocale();
 			Translation tr = getTranslationMap().getWithFallBack(locale);
 			for (int i = 0; i < maxRetries; i++) {
 				StopWatch sw = new StopWatch().start();
-				List<QueryResult> qResults = routingTemplate.lookup(points, request.getMaxSearchDistances(), encoder);
+				List<QueryResult> qResults = routingTemplate.lookup(points, encoder);
+				double[] radiuses = request.getMaxSearchDistances();
+				if (points.size() == qResults.size()) {
+					for (int placeIndex = 0; placeIndex < points.size(); placeIndex++) {
+						QueryResult qr = qResults.get(placeIndex);
+						if ((radiuses != null) && qr.isValid() && (qr.getQueryDistance() > radiuses[placeIndex]) && (radiuses[placeIndex] != -1.0)) {
+							ghRsp.addError(new PointNotFoundException("Cannot find point " + placeIndex + ": " + points.get(placeIndex) + " within a radius of " + radiuses[placeIndex] + " meters.", placeIndex));
+						}
+					}
+				}
+
 				ghRsp.addDebugInfo("idLookup:" + sw.stop().getSeconds() + "s");
 				if (ghRsp.hasErrors())
 					return Collections.emptyList();
@@ -274,7 +292,8 @@ public class ORSGraphHopper extends GraphHopper {
 						throw new IllegalStateException(
 								"Although CH was enabled a non-CH algorithm factory was returned " + tmpAlgoFactory);
 
-					tMode = getCHFactoryDecorator().getNodeBase();
+//					tMode = getCHFactoryDecorator().getNodeBase();  this method simply returned NODE_BASED, when we implement support for edge-based CH this will probably have to be fixed or removed
+					tMode = TraversalMode.NODE_BASED;
 					queryGraph = new QueryGraph(getGraphHopperStorage().getGraph(CHGraph.class, weighting));
 					queryGraph.lookup(qResults);
 
@@ -297,13 +316,9 @@ public class ORSGraphHopper extends GraphHopper {
 
 				AlgorithmOptions algoOpts = AlgorithmOptions.start().algorithm(algoStr).traversalMode(tMode)
 						.weighting(weighting).maxVisitedNodes(maxVisitedNodesForRequest).hints(hints).build();
-
-				algoOpts.setEdgeFilter(edgeFilterFactory.createEdgeFilter(algoOpts, getGraphHopperStorage()));
 				
-				if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo){
-					((TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr).init(encoder, weighting, request.getPathProcessor());
-				}
-
+				algoOpts.setEdgeFilter(edgeFilter);
+				
 				altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts);
 
 				boolean tmpEnableInstructions = hints.getBool(Parameters.Routing.INSTRUCTIONS, getEncodingManager().isEnableInstructions());
@@ -311,8 +326,9 @@ public class ORSGraphHopper extends GraphHopper {
 				double wayPointMaxDistance = hints.getDouble(Parameters.Routing.WAY_POINT_MAX_DISTANCE, 1d);
 				DouglasPeucker peucker = new DouglasPeucker().setMaxDistance(wayPointMaxDistance);
 				PathMerger pathMerger = new PathMerger().setCalcPoints(tmpCalcPoints).setDouglasPeucker(peucker)
-						.setEnableInstructions(tmpEnableInstructions)
-						.setSimplifyResponse(isSimplifyResponse() && wayPointMaxDistance > 0);
+                        .setEnableInstructions(tmpEnableInstructions)
+                        .setPathProcessor(pathProcessorFactory.createPathProcessor(hints, getGraphHopperStorage(), encoder))
+                        .setSimplifyResponse(isSimplifyResponse() && wayPointMaxDistance > 0);
 
 				if (routingTemplate.isReady(pathMerger, tr))
 					break;
@@ -411,7 +427,7 @@ public class ORSGraphHopper extends GraphHopper {
         wayPointList.add(lineString.getCoordinateN(1).x, lineString.getCoordinateN(1).y);
         startPointList.add(lineString.getCoordinateN(0).x, lineString.getCoordinateN(0).y);
         endPointList.add(lineString.getCoordinateN(1).x, lineString.getCoordinateN(1).y);
-        Translation translation = new TranslationMap.ORSTranslationHashMapWithExtendedInfo(new Locale(""));
+        Translation translation = new TranslationMap.TranslationHashMap(new Locale(""));
         InstructionList instructions = new InstructionList(translation);
         Instruction startInstruction = new Instruction(Instruction.REACHED_VIA, "free hand route", new InstructionAnnotation(0, ""), startPointList);
         Instruction endInstruction = new Instruction(Instruction.FINISH, "end of free hand route", new InstructionAnnotation(0, ""), endPointList);
