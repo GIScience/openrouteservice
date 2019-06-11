@@ -79,11 +79,9 @@ public class WayCategoryGraphStorageBuilder extends AbstractGraphStorageBuilder
 			}
 		}
 	}
-	
-	public void processEdge(ReaderWay way, EdgeIteratorState edge)
-	{
-		if (_wayType > 0) 
-			_storage.setEdgeValue(edge.getEdge(), _wayType);
+
+	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
+		_storage.setEdgeValue(edge.getEdge(), _wayType);
 	}
 
 	private boolean isFerryRoute(ReaderWay way) {
