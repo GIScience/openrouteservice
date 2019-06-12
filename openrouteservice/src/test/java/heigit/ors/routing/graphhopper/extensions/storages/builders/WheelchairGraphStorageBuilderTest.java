@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import java.util.HashMap;
 
+import static org.junit.Assert.fail;
+
 public class WheelchairGraphStorageBuilderTest {
     private WheelchairGraphStorageBuilder builder;
 
@@ -108,29 +110,31 @@ public class WheelchairGraphStorageBuilderTest {
 
     @Test
     public void TestAttachKerbHeightToCrossing() {
-        builder = new WheelchairGraphStorageBuilder(true);
-
-        ReaderWay way = new ReaderWay(1);
-
-        way.setTag("footway", "crossing");
-
-        HashMap<Integer, HashMap<String,String>> nodeTags = new HashMap<>();
-        HashMap<String, String> tags = new HashMap<>();
-        tags.put("kerb:height", "0.03");
-        nodeTags.put(1, tags);
-
-        builder.processWay(way, new Coordinate[0], nodeTags);
-        EdgeIteratorState edge = new VirtualEdgeIteratorState(1,1,1,1,2,1,1,"",null);
-
-        Assert.assertEquals(0.03f, builder.getKerbHeightForWay(way, edge));
-
-        way = new ReaderWay(2);
-
-        way.setTag("highway", "footway");
-
-        builder.processWay(way, new Coordinate[0], nodeTags);
-
-        Assert.assertEquals(-1f, builder.getKerbHeightForWay(way, edge));
+        fail("TODO: find out how to test this.");
+// TODO GH0.10:
+//        builder = new WheelchairGraphStorageBuilder(true);
+//
+//        ReaderWay way = new ReaderWay(1);
+//
+//        way.setTag("footway", "crossing");
+//
+//        HashMap<Integer, HashMap<String,String>> nodeTags = new HashMap<>();
+//        HashMap<String, String> tags = new HashMap<>();
+//        tags.put("kerb:height", "0.03");
+//        nodeTags.put(1, tags);
+//
+//        builder.processWay(way, new Coordinate[0], nodeTags);
+//        EdgeIteratorState edge = new VirtualEdgeIteratorState(1,1,1,1,2,1,1,"",null);
+//
+//        Assert.assertEquals(0.03f, builder.getKerbHeightForWay(way, edge));
+//
+//        way = new ReaderWay(2);
+//
+//        way.setTag("highway", "footway");
+//
+//        builder.processWay(way, new Coordinate[0], nodeTags);
+//
+//        Assert.assertEquals(-1f, builder.getKerbHeightForWay(way, edge));
     }
 
     private ReaderWay constructSidedWay(String side) {

@@ -18,6 +18,7 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.DAType;
 import com.graphhopper.storage.GHDirectory;
+import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
 import heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
@@ -27,6 +28,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class BordersExtractorTest {
+    private final EncodingManager encodingManager;
     private final FlagEncoder encoder = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4).getEncoder(FlagEncoderNames.CAR_ORS);
     private final BordersGraphStorage _graphstorage;
 
@@ -41,11 +43,19 @@ public class BordersExtractorTest {
         _graphstorage.setEdgeValue(1, BordersGraphStorage.CONTROLLED_BORDER, (short)1, (short)2);
         _graphstorage.setEdgeValue(2, BordersGraphStorage.OPEN_BORDER, (short)3, (short)4);
         _graphstorage.setEdgeValue(3, BordersGraphStorage.NO_BORDER, (short)5, (short)5);
+
+        // Initialize encoding manager
+        encodingManager = EncodingManager.create(encoder);
     }
 
     private VirtualEdgeIteratorState generateEdge(int id) {
-        return new VirtualEdgeIteratorState(0, id, id, 1, 2, 10,
-                encoder.setProperties(10, true, true), "test", Helper.createPointList(51,0,51,1));
+        IntsRef intsRef = encodingManager.createEdgeFlags();
+// TODO GH0.10:
+//        return new VirtualEdgeIteratorState(0, id, id, 1, 2, 10,
+//                encoder.setProperties(10, true, true), "test", Helper.createPointList(51,0,51,1));
+        VirtualEdgeIteratorState ve =  new VirtualEdgeIteratorState(0, id, id, 1, 2, 10,
+                intsRef, "test", Helper.createPointList(51,0,51,1),false);
+        return ve;
     }
 
     @Test
