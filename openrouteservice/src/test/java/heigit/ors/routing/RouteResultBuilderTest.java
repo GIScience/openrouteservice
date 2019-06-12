@@ -88,7 +88,7 @@ public class RouteResultBuilderTest {
         wayPointList.add(lineString.getCoordinateN(1).x, lineString.getCoordinateN(1).y);
         startPointList.add(lineString.getCoordinateN(0).x, lineString.getCoordinateN(0).y);
         endPointList.add(lineString.getCoordinateN(1).x, lineString.getCoordinateN(1).y);
-        Translation translation = new TranslationMap.ORSTranslationHashMapWithExtendedInfo(new Locale(""));
+        Translation translation = new TranslationMap.TranslationHashMap(new Locale(""));
         InstructionList instructions = new InstructionList(translation);
         Instruction startInstruction = new Instruction(Instruction.REACHED_VIA, "Instruction 1", new InstructionAnnotation(0, ""), startPointList);
         Instruction endInstruction = new Instruction(Instruction.FINISH, "Instruction 2", new InstructionAnnotation(0, ""), endPointList);

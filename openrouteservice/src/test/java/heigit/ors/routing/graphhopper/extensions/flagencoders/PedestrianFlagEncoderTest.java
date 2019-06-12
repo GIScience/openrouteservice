@@ -36,7 +36,7 @@ public class PedestrianFlagEncoderTest {
     private ReaderWay way;
 
     public PedestrianFlagEncoderTest() {
-        flagEncoder = (PedestrianFlagEncoder)new EncodingManager(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.PEDESTRIAN_ORS, 4).getEncoder(FlagEncoderNames.PEDESTRIAN_ORS);
+        flagEncoder = (PedestrianFlagEncoder)EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.PEDESTRIAN_ORS, 4).getEncoder(FlagEncoderNames.PEDESTRIAN_ORS);
     }
 
     @Before

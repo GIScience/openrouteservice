@@ -35,7 +35,7 @@ public class HikingFlagEncoderTest {
     public HikingFlagEncoderTest() {
         PMap properties = new PMap();
         ORSDefaultFlagEncoderFactory encoderFactory = new ORSDefaultFlagEncoderFactory();
-        flagEncoder = (HikingFlagEncoder)new EncodingManager(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.HIKING_ORS, 4).getEncoder(FlagEncoderNames.HIKING_ORS);
+        flagEncoder = (HikingFlagEncoder)EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.HIKING_ORS, 4).getEncoder(FlagEncoderNames.HIKING_ORS);
     }
 
     @Before

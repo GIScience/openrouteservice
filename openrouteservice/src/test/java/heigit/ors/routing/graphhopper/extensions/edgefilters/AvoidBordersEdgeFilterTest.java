@@ -31,7 +31,7 @@ import static org.junit.Assert.assertTrue;
 
 public class AvoidBordersEdgeFilterTest {
 
-    private final FlagEncoder encoder = new EncodingManager(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4).getEncoder(FlagEncoderNames.CAR_ORS);
+    private final FlagEncoder encoder = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4).getEncoder(FlagEncoderNames.CAR_ORS);
     private final BordersGraphStorage _graphStorage;
 
     private final RouteSearchParameters _searchParams;
