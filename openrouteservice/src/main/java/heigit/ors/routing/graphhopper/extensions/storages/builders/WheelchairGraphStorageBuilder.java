@@ -650,6 +650,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		if(kerbHeights.size() > 0) {
 			// If we have multiple kerb heights, we need to apply the largest to the edge as this is the worst
 			if(kerbHeights.size() > 1) {
+				// TODO: performance -- why is this sorted instead of computing max?
 				java.util.Collections.sort(kerbHeights, new Comparator<Integer>() {
 					@Override
 					public int compare(Integer v1, Integer v2) {
