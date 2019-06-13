@@ -26,10 +26,11 @@ import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class BordersExtractorTest {
-    private final EncodingManager encodingManager;
-    private final FlagEncoder encoder = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4).getEncoder(FlagEncoderNames.CAR_ORS);
+    private final EncodingManager encodingManager= EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4);
+    private final FlagEncoder encoder = encodingManager.getEncoder(FlagEncoderNames.CAR_ORS);
     private final BordersGraphStorage _graphstorage;
 
     public BordersExtractorTest() {
@@ -43,9 +44,6 @@ public class BordersExtractorTest {
         _graphstorage.setEdgeValue(1, BordersGraphStorage.CONTROLLED_BORDER, (short)1, (short)2);
         _graphstorage.setEdgeValue(2, BordersGraphStorage.OPEN_BORDER, (short)3, (short)4);
         _graphstorage.setEdgeValue(3, BordersGraphStorage.NO_BORDER, (short)5, (short)5);
-
-        // Initialize encoding manager
-        encodingManager = EncodingManager.create(encoder);
     }
 
     private VirtualEdgeIteratorState generateEdge(int id) {

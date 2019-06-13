@@ -25,14 +25,15 @@ import heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import heigit.ors.routing.pathprocessors.BordersExtractor;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class AvoidBordersEdgeFilterTest {
-    private final EncodingManager encodingManager;
-    private final FlagEncoder encoder = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4).getEncoder(FlagEncoderNames.CAR_ORS);
+    private EncodingManager encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4);
+    private final FlagEncoder encoder = encodingManager.getEncoder(FlagEncoderNames.CAR_ORS);
     private final BordersGraphStorage _graphStorage;
 
     private final RouteSearchParameters _searchParams;
@@ -46,14 +47,11 @@ public class AvoidBordersEdgeFilterTest {
 
         // (edgeId, borderType, startCountry, endCountry)
 
-        _graphStorage.setEdgeValue(1, BordersGraphStorage.CONTROLLED_BORDER, (short)1, (short)2);
-        _graphStorage.setEdgeValue(2, BordersGraphStorage.OPEN_BORDER, (short)3, (short)4);
-        _graphStorage.setEdgeValue(3, BordersGraphStorage.NO_BORDER, (short)5, (short)5);
+        _graphStorage.setEdgeValue(1, BordersGraphStorage.CONTROLLED_BORDER, (short) 1, (short) 2);
+        _graphStorage.setEdgeValue(2, BordersGraphStorage.OPEN_BORDER, (short) 3, (short) 4);
+        _graphStorage.setEdgeValue(3, BordersGraphStorage.NO_BORDER, (short) 5, (short) 5);
 
         _searchParams = new RouteSearchParameters();
-
-        // Initialize encoding manager
-        encodingManager = EncodingManager.create(encoder);
     }
 
     private VirtualEdgeIteratorState generateEdge(int id) {
