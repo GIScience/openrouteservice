@@ -58,7 +58,8 @@ public class HikingFlagEncoderTest {
         way = generateHikeWay();
         way.getTags().put("sac_scale", "alpine_hiking");
 
-        assertEquals(1, flagEncoder.getAccess(way));
+        // TODO GH0.10: assertEquals(1, flagEncoder.getAccess(way));
+        assertTrue(flagEncoder.getAccess(way).isWay());
     }
 
     @Test
