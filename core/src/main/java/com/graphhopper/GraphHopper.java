@@ -965,7 +965,7 @@ public class GraphHopper implements GraphHopperAPI {
     //public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph graph) {
     public Weighting createWeighting(HintsMap hintsMap, TraversalMode tMode, FlagEncoder encoder, Graph graph) {
         if (weightingFactory != null) {
-            return weightingFactory.createWeighting(hintsMap, tMode, encoder, graph, locationIndex, getGraphHopperStorage());
+            return weightingFactory.createWeighting(hintsMap, tMode, encoder, graph, locationIndex, ghStorage);
         }
     // ORS-GH MOD END
         String weightingStr = toLowerCase(hintsMap.getWeighting());
