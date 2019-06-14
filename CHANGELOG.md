@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - isochrone reachfactor gives now more realistic results (#325)
 - Fixed the wrong gpx header for api v2 (#496)
+- Check if BordersStorage exists before calling it in AvoidBordersCoreEdgeFilter
 ### Changed
 - Moved walking and hiking flag encoders to the ORS core system (#440)
 - Remove route optimization code (#499)
