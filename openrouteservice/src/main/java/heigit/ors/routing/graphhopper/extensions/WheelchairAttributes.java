@@ -15,7 +15,6 @@ package heigit.ors.routing.graphhopper.extensions;
 
 public class WheelchairAttributes {
     private static final int EMPTY_INT = -1;
-    private static final float EMPTY_FLOAT = 0.0F;
 
     public enum Side { LEFT, RIGHT, UNKNOWN}
 
@@ -158,11 +157,11 @@ public class WheelchairAttributes {
 	    if(src._hasAttributes)
 	        at._hasAttributes = true;
 
-	    if(src._incline != EMPTY_FLOAT)
+	    if(src._incline != EMPTY_INT)
 	        at._incline = src._incline;
-	    if(src._slopedKerbHeight != EMPTY_FLOAT)
+	    if(src._slopedKerbHeight != EMPTY_INT)
 	        at._slopedKerbHeight = src._slopedKerbHeight;
-	    if(src._width != EMPTY_FLOAT)
+	    if(src._width != EMPTY_INT)
 	        at._width = src._width;
 	    if(src._surfaceType != EMPTY_INT)
 	        at._surfaceType = src._surfaceType;

@@ -38,9 +38,9 @@ public class WheelchairGraphStorageBuilderTest {
         builder.processWay(way);
 
         WheelchairAttributes attrs = builder.getStoredAttributes(null);
-        Assert.assertEquals(0.5f, attrs.getWidth());
-        Assert.assertEquals(2f, attrs.getIncline());
-        Assert.assertEquals(0.03f, attrs.getSlopedKerbHeight());
+        Assert.assertEquals(50, attrs.getWidth());
+        Assert.assertEquals(2, attrs.getIncline());
+        Assert.assertEquals(3, attrs.getSlopedKerbHeight());
         Assert.assertEquals(2, attrs.getSmoothnessType());
         Assert.assertEquals(2, attrs.getSurfaceType());
         Assert.assertEquals(4, attrs.getTrackType());
@@ -79,8 +79,8 @@ public class WheelchairGraphStorageBuilderTest {
         way.setTag("sidewalk:right:surface", "paving_stones");
 
         WheelchairAttributes correctWheelchairAttributes = new WheelchairAttributes();
-        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.KERB, "0.03");
-        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.WIDTH, "0.5");
+        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.KERB, "3");
+        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.WIDTH, "50");
         correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.INCLINE, "5");
         correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.TRACK, "2");
         correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.SMOOTHNESS, "3");
@@ -105,7 +105,7 @@ public class WheelchairGraphStorageBuilderTest {
 
         builder.processWay(way, new Coordinate[0], nodeTags);
 
-        Assert.assertEquals(0.03f, builder.getKerbHeightForWayFromNodeTags(1, 2));
+        Assert.assertEquals(3, builder.getKerbHeightForWayFromNodeTags(1, 2));
     }
 
     @Test
@@ -151,9 +151,9 @@ public class WheelchairGraphStorageBuilderTest {
     }
 
     private void assertAttributeValues(WheelchairAttributes attrs) {
-        Assert.assertEquals(0.5f, attrs.getWidth());
-        Assert.assertEquals(2f, attrs.getIncline());
-        Assert.assertEquals(0.03f, attrs.getSlopedKerbHeight());
+        Assert.assertEquals(50, attrs.getWidth());
+        Assert.assertEquals(2, attrs.getIncline());
+        Assert.assertEquals(3, attrs.getSlopedKerbHeight());
         Assert.assertEquals(2, attrs.getSmoothnessType());
         Assert.assertEquals(2, attrs.getSurfaceType());
         Assert.assertEquals(4, attrs.getTrackType());

@@ -19,8 +19,8 @@ public class WheelchairAttributesGraphStorageTest {
         storage.create(1);
 
         WheelchairAttributes attrs = new WheelchairAttributes();
-        attrs.setAttribute(WheelchairAttributes.Attribute.WIDTH, "1");
-        attrs.setAttribute(WheelchairAttributes.Attribute.KERB, "0.03");
+        attrs.setAttribute(WheelchairAttributes.Attribute.WIDTH, "180");
+        attrs.setAttribute(WheelchairAttributes.Attribute.KERB, "3");
 
         storage.setEdgeValues(1, attrs);
 
@@ -28,8 +28,8 @@ public class WheelchairAttributesGraphStorageTest {
 
         storage.getEdgeValues(1, attrsRet, new byte[WheelchairAttributesGraphStorage.BYTE_COUNT]);
 
-        assertEquals(1f, attrsRet.getWidth(), 0.0);
-        assertEquals(0.03f, attrsRet.getSlopedKerbHeight(), 0.0);
+        assertEquals(180, attrsRet.getWidth(), 0.0);
+        assertEquals(3, attrsRet.getSlopedKerbHeight(), 0.0);
     }
 
 }

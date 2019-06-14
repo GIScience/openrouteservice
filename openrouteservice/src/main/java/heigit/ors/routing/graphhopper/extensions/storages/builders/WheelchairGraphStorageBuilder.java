@@ -299,9 +299,9 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 				return "";
 			}
 			case WIDTH:
-				return Double.toString(convertLinearValueToMetres(value.toLowerCase()));
+				return Integer.toString((int)(convertLinearValueToMetres(value.toLowerCase())*100));
 			case INCLINE:
-				return Double.toString(convertInclineValueToPercentage(value.toLowerCase()));
+				return Integer.toString(convertInclineValueToPercentage(value.toLowerCase()));
 			case KERB:
 				return value;
 			default:
@@ -316,7 +316,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 	 * @param way
 	 */
 	private void processKerbTags(ReaderWay way) {
-		double height = -1;
+		int height = -1;
 
 		if(way.hasTag("curb")) {
 			height = convertKerbValueToHeight("curb", way.getTag("curb"));
@@ -335,8 +335,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		}
 
 		if(height > -1) {
-			setSidewalkAttributeForSide(Double.toString(height), WheelchairAttributes.Attribute.KERB, Side.LEFT);
-			setSidewalkAttributeForSide(Double.toString(height), WheelchairAttributes.Attribute.KERB, Side.RIGHT);
+			setSidewalkAttributeForSide(Integer.toString(height), WheelchairAttributes.Attribute.KERB, Side.LEFT);
+			setSidewalkAttributeForSide(Integer.toString(height), WheelchairAttributes.Attribute.KERB, Side.RIGHT);
 		}
 
 		// Also check if they have been marked for specific sides
@@ -443,6 +443,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 	 * wheelchair routing and stores them against the generic wheechair storage object
 	 * @param way
 	 */
+	// TODO: This is ugly as hell, processSidewalksAttachedToWay() does basically the same thing but in a completely 
+	//  different way. Desperately needs refactoring!
 	private void processSeparate(ReaderWay way) {
 
 		if (way.hasTag("surface"))
@@ -523,15 +525,15 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 						_wheelchairAttributes.getSlopedKerbHeight()));
 			case WIDTH:
 				// default value is 0, but this will always be returned so we need to do a check
-				float l = _wheelchairAttributesLeftSide.getWidth(),
+				int l = _wheelchairAttributesLeftSide.getWidth(),
 						r = _wheelchairAttributesRightSide.getWidth(),
 						w = _wheelchairAttributes.getWidth();
-				if (l == 0) l = Float.MAX_VALUE;
-				if (r == 0) r = Float.MAX_VALUE;
-				if (w == 0) w = Float.MAX_VALUE;
+				if (l <= 0) l = Integer.MAX_VALUE;
+				if (r <= 0) r = Integer.MAX_VALUE;
+				if (w <= 0) w = Integer.MAX_VALUE;
 
-				float ret = Math.min(Math.min(l,r),w);
-				if (ret == Float.MAX_VALUE) ret = 0;
+				int ret = Math.min(Math.min(l,r),w);
+				if (ret == Integer.MAX_VALUE) ret = 0;
 
 				return type.cast(ret);
 			case TRACK:
