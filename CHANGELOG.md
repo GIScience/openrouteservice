@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed the wrong gpx header for api v2 (#496)
 - Make sure external storages contain entries for all edge IDs (#535)
 - Check if BordersStorage exists before calling it in AvoidBordersCoreEdgeFilter
+- Take into account shortcut direction in LM selection weighting (#550)
 ### Changed
 - Moved walking and hiking flag encoders to the ORS core system (#440)
 - Remove route optimization code (#499)
