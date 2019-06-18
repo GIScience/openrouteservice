@@ -15,7 +15,7 @@ public class ORSPathProcessorFactory implements PathProcessorFactory {
     }
     
     @Override
-    public PathProcessor createPathProcessor(PMap opts, GraphHopperStorage gs, FlagEncoder enc) {
+    public PathProcessor createPathProcessor(PMap opts, FlagEncoder enc, GraphHopperStorage gs) {
         try {
             return new ExtraInfoProcessor(opts, gs, enc);
         } catch (Exception e) {

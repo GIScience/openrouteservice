@@ -1,12 +1,13 @@
 package heigit.ors.routing.graphhopper.extensions.util;
 
+import  com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ORSPMap extends PMap {
+public class ORSPMap extends HintsMap {
     private final Map<String, Object> objMap = new HashMap();
     ;
 

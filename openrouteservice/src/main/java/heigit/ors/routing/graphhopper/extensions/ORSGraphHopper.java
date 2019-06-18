@@ -28,10 +28,7 @@ import com.graphhopper.routing.template.AlternativeRoutingTemplate;
 import com.graphhopper.routing.template.RoundTripRoutingTemplate;
 import com.graphhopper.routing.template.RoutingTemplate;
 import com.graphhopper.routing.template.ViaRoutingTemplate;
-import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.HintsMap;
-import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -247,8 +244,11 @@ public class ORSGraphHopper extends GraphHopper {
 			else
 				routingTemplate = new ViaRoutingTemplate(request, ghRsp, getLocationIndex(), getEncodingManager());
 
-			EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(hints, encoder, getGraphHopperStorage());
+			EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(request.getAdditionalHints(), encoder, getGraphHopperStorage());
 			routingTemplate.setEdgeFilter(edgeFilter);
+
+			PathProcessor pathProcessor = pathProcessorFactory.createPathProcessor(request.getAdditionalHints(), encoder, getGraphHopperStorage());
+			ghRsp.addReturnObject(pathProcessor);
 
 			List<Path> altPaths = null;
 			int maxRetries = routingTemplate.getMaxRetries();
@@ -327,8 +327,8 @@ public class ORSGraphHopper extends GraphHopper {
 				DouglasPeucker peucker = new DouglasPeucker().setMaxDistance(wayPointMaxDistance);
 				PathMerger pathMerger = new PathMerger().setCalcPoints(tmpCalcPoints).setDouglasPeucker(peucker)
                         .setEnableInstructions(tmpEnableInstructions)
-                        .setPathProcessor(pathProcessorFactory.createPathProcessor(hints, getGraphHopperStorage(), encoder))
-                        .setSimplifyResponse(isSimplifyResponse() && wayPointMaxDistance > 0);
+						.setPathProcessor(pathProcessor)
+						.setSimplifyResponse(isSimplifyResponse() && wayPointMaxDistance > 0);
 
 				if (routingTemplate.isReady(pathMerger, tr))
 					break;

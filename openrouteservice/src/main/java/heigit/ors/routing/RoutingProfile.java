@@ -664,6 +664,8 @@ public class RoutingProfile {
                 req.setMaxSearchDistance(radiuses);
 
             PMap props = searchCntx.getProperties();
+            req.setAdditionalHints(props);
+            
             if (props != null && !props.isEmpty())
                 req.getHints().merge(props);
 

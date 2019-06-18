@@ -405,9 +405,8 @@ public class ExtraInfoProcessor implements PathProcessor {
 			
 			if (_encoderWithPriority)
 			{
-				// TODO: get info about reverse state from edge
-				boolean reverse = false;
-				priority = _encoder.getDecimalEncodedValue(FlagEncoderKeys.PRIORITY_KEY).getDecimal(reverse, edge.getFlags());
+				// TODO: does the value for bool reverse need to be found correctly?
+				priority = _encoder.getDecimalEncodedValue(FlagEncoderKeys.PRIORITY_KEY).getDecimal(false, edge.getFlags());
 				priorityIndex = (int)(3 + priority*PriorityCode.BEST.getValue()); // normalize values between 3 and 10
 			}
 			else
