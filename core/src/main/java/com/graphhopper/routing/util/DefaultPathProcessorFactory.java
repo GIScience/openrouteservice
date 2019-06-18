@@ -7,7 +7,7 @@ import com.graphhopper.util.PMap;
 public class DefaultPathProcessorFactory implements PathProcessorFactory {
 
     @Override
-    public PathProcessor createPathProcessor(PMap opts, GraphHopperStorage ghStorage, FlagEncoder enc) {
+    public PathProcessor createPathProcessor(PMap opts, FlagEncoder enc, GraphHopperStorage ghStorage) {
         return new DefaultPathProcessor();
     }
 }

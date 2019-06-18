@@ -7,5 +7,5 @@ import com.graphhopper.util.PMap;
 public interface PathProcessorFactory {
     PathProcessorFactory DEFAULT = new DefaultPathProcessorFactory();
 
-    PathProcessor createPathProcessor(PMap opts, GraphHopperStorage ghStorage, FlagEncoder enc);
+    PathProcessor createPathProcessor(PMap opts, FlagEncoder enc, GraphHopperStorage ghStorage);
 }

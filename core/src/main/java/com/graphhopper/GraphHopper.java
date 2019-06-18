@@ -1085,10 +1085,10 @@ public class GraphHopper implements GraphHopperAPI {
                 routingTemplate = new ViaRoutingTemplate(request, ghRsp, locationIndex, encodingManager);
 
             // ORS-GH MOD START
-            EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(hints, encoder, ghStorage);
+            EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(request.getAdditionalHints(), encoder, ghStorage);
             routingTemplate.setEdgeFilter(edgeFilter);
 
-            PathProcessor pathProcessor = pathProcessorFactory.createPathProcessor(hints, ghStorage, encoder);
+            PathProcessor pathProcessor = pathProcessorFactory.createPathProcessor(request.getAdditionalHints(), encoder, ghStorage);
             ghRsp.addReturnObject(pathProcessor);
             
             // ORS MOD END
