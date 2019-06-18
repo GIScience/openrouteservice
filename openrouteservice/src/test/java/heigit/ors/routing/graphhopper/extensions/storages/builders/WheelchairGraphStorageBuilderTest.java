@@ -7,6 +7,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import junit.framework.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -108,6 +109,7 @@ public class WheelchairGraphStorageBuilderTest {
         Assert.assertEquals(3, builder.getKerbHeightForWayFromNodeTags(1, 2));
     }
 
+    @Ignore
     @Test
     public void TestAttachKerbHeightToCrossing() {
         fail("TODO: find out how to test this.");
