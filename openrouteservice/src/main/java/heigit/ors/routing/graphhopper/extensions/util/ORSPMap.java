@@ -11,12 +11,8 @@ public class ORSPMap extends PMap {
     ;
 
     public PMap putObj(String key, Object obj) {
-        if (obj == null) {
-             throw new NullPointerException("Value cannot be null. Use remove instead.");
-        } else {
-            objMap.put(Helper.camelCaseToUnderScore(key), obj);
-            return this;
-        }
+        objMap.put(Helper.camelCaseToUnderScore(key), obj);
+        return this;
     }
 
     public boolean hasObj(String key) {
