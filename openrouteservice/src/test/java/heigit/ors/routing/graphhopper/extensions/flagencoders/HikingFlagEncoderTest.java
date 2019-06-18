@@ -113,19 +113,17 @@ public class HikingFlagEncoderTest {
     @Test
     public void testOldRelationValueMaintained() {
         ReaderRelation rel = new ReaderRelation(1);
-        rel.getTags().put("route", "hiking");
+        rel.setTag("route", "hiking");
 
-        rel.getTags().put("network", "rwn");
+        rel.setTag("network", "rwn");
         assertEquals(7, flagEncoder.handleRelationTags(7, rel));
     }
 
-    @Ignore
     @Test
     public void testAddPriorityFromRelation() {
-        IntsRef intsRef;
         way = generateHikeWay();
         // TODO GH0.10: assertEquals(171, flagEncoder.handleWayTags(way, 1, 1));
-        fail("TODO: find out how to test this.");
+        assertEquals(PriorityCode.AVOID_AT_ALL_COSTS.getValue(), flagEncoder.handlePriority(way, 1));
     }
 
     @Ignore
@@ -140,6 +138,7 @@ public class HikingFlagEncoderTest {
     public void testFerrySpeed() {
         way = generateFerryWay();
         // TODO GH0.10: assertEquals(555, flagEncoder.handleWayTags(way, 3, 0));
+        // TODO 555d = 1000101011b seems incorrect (speed=5km/h)
         fail("TODO: find out how to test this.");
     }
 
@@ -148,59 +147,60 @@ public class HikingFlagEncoderTest {
     public void testHikingFlags() {
         way = generateHikeWay();
         // TODO GH0.10: assertEquals(811, flagEncoder.handleWayTags(way, 1, 0));
+        // TODO 811d = 1100101011b seems incorrect as lowest two bits mean ferry
         fail("TODO: find out how to test this.");
 
-        way.getTags().put("highway", "living_street");
+        way.setTag("highway", "living_street");
         // TODO GH0.10: assertEquals(683, flagEncoder.handleWayTags(way, 1, 0));
-        fail("TODO: find out how to test this.");
+        assertEquals(PriorityCode.PREFER.getValue(), flagEncoder.handlePriority(way, 0));
     }
 
     @Ignore
     @Test
     public void testDifficultHikingFlags() {
         way = generateHikeWay();
-        way.getTags().put("sac_scale", "alpine_hiking");
+        way.setTag("sac_scale", "alpine_hiking");
         // TODO GH0.10: assertEquals(787, flagEncoder.handleWayTags(way, 1, 0));
-        fail("TODO: find out how to test this.");
+        assertEquals(PriorityCode.UNCHANGED.getValue(), flagEncoder.handlePriority(way, 0));
+        // TODO: assertEquals(3, getSpeed(), delta);
+        fail("TODO");
     }
 
-    @Ignore
     @Test
     public void testAvoidWaysWithoutSidewalks() {
-        way.getTags().put("highway", "primary");
+        way.setTag("highway", "primary");
         // TODO GH0.10: assertEquals(171, flagEncoder.handleWayTags(way, 1, 0));
-        fail("TODO: find out how to test this.");
-        way.getTags().put("sidewalk", "both");
+        assertEquals(PriorityCode.AVOID_AT_ALL_COSTS.getValue(), flagEncoder.handlePriority(way, 0));
+        way.setTag("sidewalk", "both");
         // TODO GH0.10: assertEquals(555, flagEncoder.handleWayTags(way, 1, 0));
-        fail("TODO: find out how to test this.");
-        way.getTags().put("sidewalk", "none");
+        assertEquals(PriorityCode.UNCHANGED.getValue(), flagEncoder.handlePriority(way, 0));
+        way.setTag("sidewalk", "none");
         // TODO GH0.10: assertEquals(171, flagEncoder.handleWayTags(way, 1, 0));
-        fail("TODO: find out how to test this.");
+        assertEquals(PriorityCode.AVOID_AT_ALL_COSTS.getValue(), flagEncoder.handlePriority(way, 0));
     }
 
     @Test
     public void testSafeHighwayPriorities() {
         TreeMap<Double, Integer> priorityMap = new TreeMap<>();
-        way.getTags().put("highway", "track");
+        way.setTag("highway", "track");
         flagEncoder.assignSafeHighwayPriority(way, priorityMap);
         assertEquals((Integer)PriorityCode.VERY_NICE.getValue(), priorityMap.lastEntry().getValue());
         priorityMap.clear();
-        way.getTags().put("highway", "path");
+        way.setTag("highway", "path");
         flagEncoder.assignSafeHighwayPriority(way, priorityMap);
         assertEquals((Integer)PriorityCode.VERY_NICE.getValue(), priorityMap.lastEntry().getValue());
         priorityMap.clear();
-        way.getTags().put("highway", "footway");
+        way.setTag("highway", "footway");
         flagEncoder.assignSafeHighwayPriority(way, priorityMap);
         assertEquals((Integer)PriorityCode.VERY_NICE.getValue(), priorityMap.lastEntry().getValue());
         priorityMap.clear();
 
-        way.getTags().put("highway", "living_street");
+        way.setTag("highway", "living_street");
         flagEncoder.assignSafeHighwayPriority(way, priorityMap);
         assertEquals((Integer)PriorityCode.PREFER.getValue(), priorityMap.lastEntry().getValue());
         priorityMap.clear();
     }
 
-    @Ignore
     @Test
     public void testAcceptWayFerry() {
         way = generateFerryWay();
@@ -208,7 +208,6 @@ public class HikingFlagEncoderTest {
         assertTrue(flagEncoder.getAccess(way).isFerry());
     }
 
-    @Ignore
     @Test
     public void testAcceptFootway() {
         way = generateHikeWay();
@@ -226,7 +225,6 @@ public class HikingFlagEncoderTest {
         assertTrue(flagEncoder.getAccess(way).isWay());
     }
 
-    @Ignore
     @Test
     public void testRejectRestrictedFootway() {
         way = generateHikeWay();
@@ -264,7 +262,6 @@ public class HikingFlagEncoderTest {
         assertTrue(flagEncoder.getAccess(way).canSkip());
     }
 
-    @Ignore
     @Test
     public void testAcceptSidewalks() {
         way.getTags().put("highway", "secondary");
@@ -282,7 +279,6 @@ public class HikingFlagEncoderTest {
         assertTrue(flagEncoder.getAccess(way).isWay());
     }
 
-    @Ignore
     @Test
     public void testRejectMotorways() {
         way.getTags().put("highway", "motorway");
@@ -293,7 +289,6 @@ public class HikingFlagEncoderTest {
         assertTrue(flagEncoder.getAccess(way).canSkip());
     }
 
-    @Ignore
     @Test
     public void testRejectMotorRoad() {
         way = generateHikeWay();
@@ -302,7 +297,6 @@ public class HikingFlagEncoderTest {
         assertTrue(flagEncoder.getAccess(way).canSkip());
     }
 
-    @Ignore
     @Test
     public void testDefaultFords() {
         way = generateHikeWay();
