@@ -394,6 +394,9 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         	// *****************************************
         	
             speedEncoder.setDecimal(false, edgeFlags, speed);
+
+            accessEnc.setBool(false, edgeFlags, true);
+            accessEnc.setBool(true, edgeFlags, true);
             
             int priorityFromRelation = 0;
             if (relationFlags != 0)
