@@ -22,6 +22,7 @@ import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.routing.weighting.TurnWeighting;
+import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
 import heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
 import org.junit.Before;
@@ -33,11 +34,12 @@ import java.util.TreeMap;
 import static org.junit.Assert.*;
 
 public class PedestrianFlagEncoderTest {
+    private EncodingManager encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.PEDESTRIAN_ORS, 4);
     private PedestrianFlagEncoder flagEncoder;
     private ReaderWay way;
 
     public PedestrianFlagEncoderTest() {
-        flagEncoder = (PedestrianFlagEncoder)EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.PEDESTRIAN_ORS, 4).getEncoder(FlagEncoderNames.PEDESTRIAN_ORS);
+        flagEncoder = (PedestrianFlagEncoder)encodingManager.getEncoder(FlagEncoderNames.PEDESTRIAN_ORS);
     }
 
     @Before
@@ -81,29 +83,28 @@ public class PedestrianFlagEncoderTest {
         assertEquals(0.0, flagEncoder.getTurnFlags(false, 1.0), 0.0);
     }
 
-    @Ignore
     @Test
     public void handleRelationTags() {
         ReaderRelation rel = new ReaderRelation(1);
 
         rel.setTag("route", "ferry");
         // TODO GH0.10: assertEquals(PriorityCode.AVOID_IF_POSSIBLE.getValue(), flagEncoder.handleRelationTags(rel, 0));
-        fail("TODO: find out how to test this.");
+        assertEquals(PriorityCode.AVOID_IF_POSSIBLE.getValue(), flagEncoder.handleRelationTags(0, rel));
     }
 
-    @Ignore
     @Test
     public void testRejectWay() {
         // TODO GH0.10: assertEquals(0, flagEncoder.handleWayTags(way, 0, 0));
-        fail("TODO: find out how to test this.");
+        assertTrue(flagEncoder.getAccess(way).canSkip());
     }
 
-    @Ignore
     @Test
     public void testFerryFlags() {
         way = generateFerryWay();
         // TODO GH0.10: assertEquals(635, flagEncoder.handleWayTags(way, 3, 0));
-        fail("TODO: find out how to test this.");
+        IntsRef flags = flagEncoder.handleWayTags(encodingManager.createEdgeFlags(), way,
+                EncodingManager.Access.FERRY, 0);
+        assertEquals(20, flagEncoder.getSpeed(flags), 0.01); // TODO should use AbstractFlagEncoder.SHORT_TRIP_FERRY_SPEED
     }
 
     @Test
@@ -298,7 +299,7 @@ public class PedestrianFlagEncoderTest {
         assertEquals(PriorityCode.PREFER.getValue(), flagEncoder.handlePriority(way, 0));
     }
 
-    @Ignore
+    @Ignore // TODO: What is this test actually testing?
     @Test
     public void testSpeed() {
         // TODO GH0.10: assertEquals(5.0, flagEncoder.getSpeed(683), 0.0);
@@ -312,7 +313,7 @@ public class PedestrianFlagEncoderTest {
         assertFalse(flagEncoder.supports(TurnWeighting.class));
     }
 
-    @Ignore
+    @Ignore // TODO: Update to GH 0.12
     @Test
     public void getWeighting() {
         fail("TODO: find out how to test this.");
@@ -329,7 +330,7 @@ public class PedestrianFlagEncoderTest {
 //        assertTrue(throwsError);
     }
 
-    @Ignore
+    @Ignore // TODO: Update to GH 0.12
     @Test
     public void testRoundaboutFlag() {
         way = generatePedestrianWay();

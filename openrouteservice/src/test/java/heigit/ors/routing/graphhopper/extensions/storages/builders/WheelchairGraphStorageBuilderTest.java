@@ -2,6 +2,7 @@ package heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.VirtualEdgeIteratorState;
+import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
@@ -109,34 +110,34 @@ public class WheelchairGraphStorageBuilderTest {
         Assert.assertEquals(3, builder.getKerbHeightForWayFromNodeTags(1, 2));
     }
 
-    @Ignore
+    @Ignore // TODO: update to GH 0.12 (see TODO below)
     @Test
     public void TestAttachKerbHeightToCrossing() {
         fail("TODO: find out how to test this.");
-// TODO GH0.10:
-//        builder = new WheelchairGraphStorageBuilder(true);
-//
-//        ReaderWay way = new ReaderWay(1);
-//
-//        way.setTag("footway", "crossing");
-//
-//        HashMap<Integer, HashMap<String,String>> nodeTags = new HashMap<>();
-//        HashMap<String, String> tags = new HashMap<>();
-//        tags.put("kerb:height", "0.03");
-//        nodeTags.put(1, tags);
-//
-//        builder.processWay(way, new Coordinate[0], nodeTags);
-//        EdgeIteratorState edge = new VirtualEdgeIteratorState(1,1,1,1,2,1,1,"",null);
-//
-//        Assert.assertEquals(0.03f, builder.getKerbHeightForWay(way, edge));
-//
-//        way = new ReaderWay(2);
-//
-//        way.setTag("highway", "footway");
-//
-//        builder.processWay(way, new Coordinate[0], nodeTags);
-//
-//        Assert.assertEquals(-1f, builder.getKerbHeightForWay(way, edge));
+        builder = new WheelchairGraphStorageBuilder(true);
+
+        ReaderWay way = new ReaderWay(1);
+
+        way.setTag("footway", "crossing");
+
+        HashMap<Integer, HashMap<String,String>> nodeTags = new HashMap<>();
+        HashMap<String, String> tags = new HashMap<>();
+        tags.put("kerb:height", "0.03");
+        nodeTags.put(1, tags);
+
+        builder.processWay(way, new Coordinate[0], nodeTags);
+        IntsRef flags = IntsRef.EMPTY; // TODO GH 0.10: initialize correctly (flags were set to 1 with GH 0.10)
+        EdgeIteratorState edge = new VirtualEdgeIteratorState(1,1,1,1,2,1,flags,"",null, false);
+
+        Assert.assertEquals(0.03f, builder.getKerbHeightForWay(way, edge));
+
+        way = new ReaderWay(2);
+
+        way.setTag("highway", "footway");
+
+        builder.processWay(way, new Coordinate[0], nodeTags);
+
+        Assert.assertEquals(-1f, builder.getKerbHeightForWay(way, edge));
     }
 
     private ReaderWay constructSidedWay(String side) {

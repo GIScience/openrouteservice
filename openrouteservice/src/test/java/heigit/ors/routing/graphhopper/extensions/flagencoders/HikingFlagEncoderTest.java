@@ -17,7 +17,9 @@ package heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
@@ -31,13 +33,15 @@ import java.util.TreeMap;
 import static org.junit.Assert.*;
 
 public class HikingFlagEncoderTest {
+    private EncodingManager encodingManager;
     private HikingFlagEncoder flagEncoder;
     private ReaderWay way;
 
     public HikingFlagEncoderTest() {
         PMap properties = new PMap();
         ORSDefaultFlagEncoderFactory encoderFactory = new ORSDefaultFlagEncoderFactory();
-        flagEncoder = (HikingFlagEncoder)EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.HIKING_ORS, 4).getEncoder(FlagEncoderNames.HIKING_ORS);
+        encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.HIKING_ORS, 4);
+        flagEncoder = (HikingFlagEncoder)encodingManager.getEncoder(FlagEncoderNames.HIKING_ORS);
     }
 
     @Before
@@ -126,44 +130,40 @@ public class HikingFlagEncoderTest {
         assertEquals(PriorityCode.AVOID_AT_ALL_COSTS.getValue(), flagEncoder.handlePriority(way, 1));
     }
 
-    @Ignore
     @Test
     public void testRejectWay() {
         // TODO GH0.10: assertEquals(0, flagEncoder.handleWayTags(way, 0, 0));
-        fail("TODO: find out how to test this.");
+        assertTrue(flagEncoder.getAccess(way).canSkip());
     }
 
-    @Ignore
     @Test
     public void testFerrySpeed() {
         way = generateFerryWay();
         // TODO GH0.10: assertEquals(555, flagEncoder.handleWayTags(way, 3, 0));
-        // TODO 555d = 1000101011b seems incorrect (speed=5km/h)
-        fail("TODO: find out how to test this.");
+        IntsRef flags = flagEncoder.handleWayTags(encodingManager.createEdgeFlags(), way,
+                EncodingManager.Access.FERRY, 0);
+        assertEquals(5.0, flagEncoder.getSpeed(flags), 0.01);  // TODO should use AbstractFlagEncoder.UNKNOWN_DURATION_FERRY_SPEED
     }
 
-    @Ignore
     @Test
     public void testHikingFlags() {
         way = generateHikeWay();
         // TODO GH0.10: assertEquals(811, flagEncoder.handleWayTags(way, 1, 0));
-        // TODO 811d = 1100101011b seems incorrect as lowest two bits mean ferry
-        fail("TODO: find out how to test this.");
+        // TODO 811d = 1100101011b seems incorrect as lowest two bits mean 'ferry'
+        assertEquals(PriorityCode.VERY_NICE.getValue(), flagEncoder.handlePriority(way, 0));
 
         way.setTag("highway", "living_street");
         // TODO GH0.10: assertEquals(683, flagEncoder.handleWayTags(way, 1, 0));
         assertEquals(PriorityCode.PREFER.getValue(), flagEncoder.handlePriority(way, 0));
     }
 
-    @Ignore
     @Test
     public void testDifficultHikingFlags() {
         way = generateHikeWay();
         way.setTag("sac_scale", "alpine_hiking");
         // TODO GH0.10: assertEquals(787, flagEncoder.handleWayTags(way, 1, 0));
-        assertEquals(PriorityCode.UNCHANGED.getValue(), flagEncoder.handlePriority(way, 0));
-        // TODO: assertEquals(3, getSpeed(), delta);
-        fail("TODO");
+        IntsRef flags = flagEncoder.handleWayTags(encodingManager.createEdgeFlags(), way, EncodingManager.Access.WAY, 0);
+        assertEquals(FootFlagEncoder.SLOW_SPEED, flagEncoder.getSpeed(flags), 0.01);
     }
 
     @Test
