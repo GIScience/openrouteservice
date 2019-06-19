@@ -145,7 +145,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
         // larger value required - ferries are faster than pedestrians
         registerNewEncodedValue.add(speedEncoder = new FactorizedDecimalEncodedValue(prefix + "average_speed", speedBits, speedFactor, false));
-        registerNewEncodedValue.add(priorityWayEncoder = new FactorizedDecimalEncodedValue(prefix + "priority", 3, PriorityCode.getFactor(1), false));
+        registerNewEncodedValue.add(priorityWayEncoder = new FactorizedDecimalEncodedValue(prefix + FlagEncoderKeys.PRIORITY_KEY, 3, PriorityCode.getFactor(1), false));
     }
 
     @Override
