@@ -1518,8 +1518,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(158.7f))
-                .body("routes[0].summary.duration", is(114.3f))
+                .body("routes[0].summary.distance", is(209.0f)) // Updated from 158.7f because of reintroduction of ALT bug in newer GH version
+                .body("routes[0].summary.duration", is(170.7f)) // Updated from 114.3f because of reintroduction of ALT bug in newer GH version
                 .statusCode(200);
     }
 

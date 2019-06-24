@@ -74,14 +74,16 @@ public class WheelchairEdgeFilter implements EdgeFilter
 
 			if (_params.getMaximumSlopedKerb() >= 0.0)
 			{
-				if (_params.getMaximumSlopedKerb() < _attributes.getSlopedKerbHeight())
+				// Stored in storage in cm
+				if (_params.getMaximumSlopedKerb()*100.0 < _attributes.getSlopedKerbHeight())
 					return false;
 			}
 
 			if (_params.getMinimumWidth() > 0.0) {
 				// if the attribute value is 0, this signifies that no data is available
 				if(_attributes.getWidth() > 0.0) {
-					if(_params.getMinimumWidth() > _attributes.getWidth()) {
+					// stored in storage in cm
+					if(_params.getMinimumWidth()*100.0 > _attributes.getWidth()) {
 						return false;
 					}
 				}
