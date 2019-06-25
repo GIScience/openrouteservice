@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Make sure external storages contain entries for all edge IDs (#535)
 - Check if BordersStorage exists before calling it in AvoidBordersCoreEdgeFilter
 - Take into account shortcut direction in LM selection weighting (#550)
+- Updated Matrix api v2 response to correctly display sources (#560)
 ### Changed
 - Moved walking and hiking flag encoders to the ORS core system (#440)
 - Remove route optimization code (#499)
