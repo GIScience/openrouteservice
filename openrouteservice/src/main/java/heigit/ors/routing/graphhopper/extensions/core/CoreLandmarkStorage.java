@@ -118,7 +118,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
                     if (res >= Double.MAX_VALUE)
                         return Double.POSITIVE_INFINITY;
 
-                    expandEdge(tmp, false);
+                    expandEdge(tmp, reverse);
 
                     return count;
                 }
@@ -161,22 +161,25 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         int skippedEdge2 = mainEdgeState.getSkippedEdge2();
         int from = mainEdgeState.getBaseNode(), to = mainEdgeState.getAdjNode();
 
+        if (reverse) {
+            int tmp = from;
+            from = to;
+            to = tmp;
+        }
 
+        CHEdgeIteratorState iter = core.getEdgeIteratorState(skippedEdge1, from);
+        boolean empty = iter == null;
+        if (empty)
+            iter =  core.getEdgeIteratorState(skippedEdge2, from);
 
-            CHEdgeIteratorState iter = core.getEdgeIteratorState(skippedEdge1, from);
-            boolean empty = iter == null;
-            if (empty)
-                iter =  core.getEdgeIteratorState(skippedEdge2, from);
+        expandEdge(iter, true);
 
-            expandEdge(iter, true);
+        if (empty)
+            iter =  core.getEdgeIteratorState(skippedEdge1, to);
+        else
+            iter =  core.getEdgeIteratorState(skippedEdge2, to);
 
-            if (empty)
-                iter =  core.getEdgeIteratorState(skippedEdge1, to);
-            else
-                iter =  core.getEdgeIteratorState(skippedEdge2, to);
-
-            expandEdge(iter, false);
-
+        expandEdge(iter, false);
     }
 
     /**
