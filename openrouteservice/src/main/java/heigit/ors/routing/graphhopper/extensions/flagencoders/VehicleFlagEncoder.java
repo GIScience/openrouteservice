@@ -237,7 +237,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         }
 
         for (String restriction : restrictions) {
-            if (way.hasTag(restriction, "destination")) {
+            if (way.hasTag(restriction, "destination") && destinationSpeed != -1) {
                 // This is problematic as Speed != Time
                 speedEncoder.setDecimal(false, edgeFlags, destinationSpeed);
                 speedEncoder.setDecimal(true, edgeFlags, destinationSpeed);
