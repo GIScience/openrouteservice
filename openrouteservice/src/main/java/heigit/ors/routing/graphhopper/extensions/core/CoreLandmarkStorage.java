@@ -151,7 +151,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         this.subnetworkStorage = new SubnetworkStorage(dir, "landmarks_core_" + name);
     }
 
-    private void expandEdge(CHEdgeIteratorState mainEdgeState, boolean reverse) {
+    private void expandEdge(CHEdgeIteratorState mainEdgeState) {
         if (!mainEdgeState.isShortcut()) {
             count += 1;
             return;
@@ -161,25 +161,21 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         int skippedEdge2 = mainEdgeState.getSkippedEdge2();
         int from = mainEdgeState.getBaseNode(), to = mainEdgeState.getAdjNode();
 
-        if (reverse) {
-            int tmp = from;
-            from = to;
-            to = tmp;
-        }
-
         CHEdgeIteratorState iter = core.getEdgeIteratorState(skippedEdge1, from);
-        boolean empty = iter == null;
-        if (empty)
-            iter =  core.getEdgeIteratorState(skippedEdge2, from);
-
-        expandEdge(iter, true);
-
-        if (empty)
-            iter =  core.getEdgeIteratorState(skippedEdge1, to);
-        else
-            iter =  core.getEdgeIteratorState(skippedEdge2, to);
-
-        expandEdge(iter, false);
+        if (iter != null) {
+            expandEdge(iter);
+            iter = core.getEdgeIteratorState(skippedEdge2, to);
+            if(iter != null)
+                expandEdge(iter);
+        }
+        else {
+            iter = core.getEdgeIteratorState(skippedEdge1, to);
+            if (iter != null)
+                expandEdge(iter);
+            iter = core.getEdgeIteratorState(skippedEdge2, from);
+            if (iter != null)
+                expandEdge(iter);
+        }
     }
 
     /**
