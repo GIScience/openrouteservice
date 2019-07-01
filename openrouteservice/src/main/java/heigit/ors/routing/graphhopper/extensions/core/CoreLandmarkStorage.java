@@ -161,6 +161,8 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         int skippedEdge2 = mainEdgeState.getSkippedEdge2();
         int from = mainEdgeState.getBaseNode(), to = mainEdgeState.getAdjNode();
 
+        //TODO: This is an adaptation of the Path4CH expansion algo. The original algo does not properly apply to our core
+        // and therefore produces NPEs sometimes. For now this is fixed by a brute force algo that just tries to expand all edges and checks for null every time
         CHEdgeIteratorState iter = core.getEdgeIteratorState(skippedEdge1, from);
         if (iter != null) {
             expandEdge(iter);
