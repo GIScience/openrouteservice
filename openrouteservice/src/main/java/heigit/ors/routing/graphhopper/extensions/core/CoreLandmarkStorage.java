@@ -118,7 +118,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
                     if (res >= Double.MAX_VALUE)
                         return Double.POSITIVE_INFINITY;
 
-                    expandEdge(tmp, reverse);
+                    expandEdge(tmp);
 
                     return count;
                 }
