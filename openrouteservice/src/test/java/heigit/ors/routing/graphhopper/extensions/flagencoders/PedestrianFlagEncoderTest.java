@@ -17,6 +17,7 @@ package heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.FastestWeighting;
@@ -36,7 +37,12 @@ import static org.junit.Assert.*;
 public class PedestrianFlagEncoderTest {
     private EncodingManager encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.PEDESTRIAN_ORS, 4);
     private PedestrianFlagEncoder flagEncoder;
+    private BooleanEncodedValue roundaboutEnc = encodingManager.getBooleanEncodedValue(EncodingManager.ROUNDABOUT);
     private ReaderWay way;
+    // TODO: Refactor the design of this test class to make more sense. Currently, the member variable 'way' is
+    // TODO: modified in methods like 'generatePedestrianWay' or 'generateFerryWay', but also returned by this methods
+    // TODO: only to re-assign the return value to the member variable at the call sites of the methods. This is quite
+    // TODO: confusing and a potential source of subtle bugs.
 
     public PedestrianFlagEncoderTest() {
         flagEncoder = (PedestrianFlagEncoder)encodingManager.getEncoder(FlagEncoderNames.PEDESTRIAN_ORS);
@@ -299,7 +305,7 @@ public class PedestrianFlagEncoderTest {
         assertEquals(PriorityCode.PREFER.getValue(), flagEncoder.handlePriority(way, 0));
     }
 
-    @Ignore // TODO: What is this test actually testing?
+    @Ignore // TODO: What is this test meant to test?
     @Test
     public void testSpeed() {
         // TODO GH0.10: assertEquals(5.0, flagEncoder.getSpeed(683), 0.0);
@@ -313,7 +319,7 @@ public class PedestrianFlagEncoderTest {
         assertFalse(flagEncoder.supports(TurnWeighting.class));
     }
 
-    @Ignore // TODO: Update to GH 0.12
+    @Ignore // TODO: What is this test meant to test?
     @Test
     public void getWeighting() {
         fail("TODO: find out how to test this.");
@@ -330,15 +336,4 @@ public class PedestrianFlagEncoderTest {
 //        assertTrue(throwsError);
     }
 
-    @Ignore // TODO: Update to GH 0.12
-    @Test
-    public void testRoundaboutFlag() {
-        way = generatePedestrianWay();
-        way.setTag("junction", "roundabout");
-        // TODO GH0.10: assertEquals(687, flagEncoder.handleWayTags(way, 1, 0));
-        fail("TODO: find out how to test this.");
-        way.setTag("junction", "circular");
-        // TODO GH0.10: assertEquals(687, flagEncoder.handleWayTags(way, 1, 0));
-        fail("TODO: find out how to test this.");
-    }
 }
