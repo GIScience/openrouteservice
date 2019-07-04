@@ -142,12 +142,12 @@ public class RouteRequestHandlerTest {
         Assert.assertArrayEquals(new String[] {"avgspeed", "detourfactor"}, routingRequest.getAttributes());
 
         WayPointBearing[] bearings = routingRequest.getSearchParameters().getBearings();
-        Assert.assertEquals(bearings[0].getValue(), 10.0, 0);
-        Assert.assertEquals(bearings[0].getDeviation(), 10.0, 0);
-        Assert.assertEquals(bearings[1].getValue(), 260.0, 0);
-        Assert.assertEquals(bearings[1].getDeviation(), 90.0, 0);
-        Assert.assertEquals(bearings[2].getValue(), 45.0, 0);
-        Assert.assertEquals(bearings[2].getDeviation(), 30.0, 0);
+        Assert.assertEquals(10.0, bearings[0].getValue(), 0);
+        Assert.assertEquals(10.0, bearings[0].getDeviation(), 0);
+        Assert.assertEquals(260.0, bearings[1].getValue(), 0);
+        Assert.assertEquals(90.0, bearings[1].getDeviation(), 0);
+        Assert.assertEquals(45.0, bearings[2].getValue(), 0);
+        Assert.assertEquals(30.0, bearings[2].getDeviation(), 0);
 
         Assert.assertTrue(routingRequest.getContinueStraight());
 
