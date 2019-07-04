@@ -435,7 +435,6 @@ public class RouteSearchParameters {
             || getWeightingMethod() == WeightingMethod.RECOMMENDED
             || isProfileTypeHeavyVehicle() && getVehicleType() > 0
             || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
-            || isProfileTypeDriving()
         ;
     }
 }
