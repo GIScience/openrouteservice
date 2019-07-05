@@ -376,9 +376,7 @@ public class Path {
         }
         // ORS-GH MOD START
 //        forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, roundaboutEnc, nodeAccess, tr, ways));
-        InstructionsFromEdges instructionsFromEdges = new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, roundaboutEnc, nodeAccess, tr, ways, pathProcessor);
-        instructionsFromEdges.setTotalEdges(edgeIds.size());
-        forEveryEdge(instructionsFromEdges);
+        forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, roundaboutEnc, nodeAccess, tr, ways, pathProcessor));
         // ORS-GH MOD END
         return ways;
     }

@@ -84,12 +84,6 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
     private final int MAX_U_TURN_DISTANCE = 35;
     // ORS-GH MOD START
     private PathProcessor mPathProcessor = PathProcessor.DEFAULT;
-    private int mTotalEdgeCount = 0;
-
-    void setTotalEdges(int len){
-        mTotalEdgeCount = len;
-    }
-
 //    public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder,
 //                                 BooleanEncodedValue roundaboutEnc, NodeAccess nodeAccess,
 //                                 Translation tr, InstructionList ways) {
