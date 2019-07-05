@@ -97,7 +97,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].containsKey('properties')", is(true))
                 .body("features[0].properties.containsKey('summary')", is(true))
-                .body("features[0].properties.summary.distance", is(1046.1f))
+                .body("features[0].properties.summary.distance", is(1046.2f))
                 .body("features[0].properties.summary.duration", is(215.0f))
                 .statusCode(200);
     }
