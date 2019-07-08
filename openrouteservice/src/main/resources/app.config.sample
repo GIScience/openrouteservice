@@ -70,7 +70,7 @@
                 "lm": {
                   "enabled": true,
                   "threads": 1,
-                  "weightings": "fastest|shortest",
+                  "weightings": "fastest,shortest",
                   "landmarks": 16
                 }
               }
@@ -105,13 +105,13 @@
                   "lm": {
                     "enabled": false,
                     "threads": 1,
-                    "weightings": "fastest|shortest",
+                    "weightings": "fastest,shortest",
                     "landmarks": 16
                   },
                   "core": {
                       "enabled": true,
                       "threads": 1,
-                      "weightings": "fastest|shortest",
+                      "weightings": "fastest,shortest",
                       "landmarks": 64,
                       "lmsets": "highways;allow_all"
                   }
@@ -162,13 +162,13 @@
                   "lm": {
                     "enabled": true,
                     "threads": 1,
-                    "weightings": "fastest|shortest",
+                    "weightings": "fastest,shortest",
                     "landmarks": 16
                   },
                   "core": {
                     "enabled": true,
                     "threads": 1,
-                    "weightings": "fastest|shortest",
+                    "weightings": "fastest,shortest",
                     "landmarks": 64,
                     "lmsets": "highways;allow_all"
                   }
