@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Take into account shortcut direction in LM selection weighting (#550)
 - Updated Matrix api v2 response to correctly display sources (#560)
 - Check for null pointer in LM selection weighting (#550)
+- Use commas rather than pipes for weighting options in app.config.sample (#564)
 ### Changed
 - Moved walking and hiking flag encoders to the ORS core system (#440)
 - Remove route optimization code (#499)
