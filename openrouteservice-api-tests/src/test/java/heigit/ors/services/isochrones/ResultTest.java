@@ -258,6 +258,9 @@ public class ResultTest extends ServiceTest {
         json.put("attributes", "area|reachfactor");
         json.put("intersections", true);
 
+        // Updated in the GH 0.12 update from size = 22 as there is a difference in the order that edges are returned and
+        // so neighbourhood search results in slightly different results
+
         given()
                 .body(json.toString())
                 .when().log().ifValidationFails()
@@ -268,7 +271,7 @@ public class ResultTest extends ServiceTest {
                 .body("features.size()", is(5))
                 .body("features[0].type", is("Feature"))
                 .body("features[0].geometry.type", is("Polygon"))
-                .body("features[0].geometry.coordinates[0].size", is(22))
+                .body("features[0].geometry.coordinates[0].size", is(23))
                 .body("features[0].properties.containsKey('area')", is(true))
                 .body("features[1].type", is("Feature"))
                 .body("features[1].geometry.type", is("Polygon"))
@@ -288,18 +291,20 @@ public class ResultTest extends ServiceTest {
 
     @Test
     public void testSmoothingFactor() {
+        // Updated in the GH 0.12 update from size = 52 as there is a difference in the order that edges are returned and
+        // so neighbourhood search results in slightly different results
         given()
                 .param("locations", getParameter("location"))
                 .param("profile", getParameter("profile"))
                 .param("range", "2000")
                 .param("range_type", "distance")
                 .param("smoothing", "10")
-                .when()
+                .when().log().ifValidationFails()
                 .get(getEndPointName())
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size", is(52))
+                .body("features[0].geometry.coordinates[0].size", is(51))
                 .statusCode(200);
 
         given()
@@ -308,7 +313,7 @@ public class ResultTest extends ServiceTest {
                 .param("range", "2000")
                 .param("range_type", "distance")
                 .param("smoothing", "100")
-                .when()
+                .when().log().ifValidationFails()
                 .get(getEndPointName())
                 .then()
                 .body("any { it.key == 'type' }", is(true))

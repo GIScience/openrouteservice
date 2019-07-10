@@ -356,6 +356,9 @@ public class ResultTest extends ServiceTest {
         body.put("smoothing", "10");
         body.put("range_type", "distance");
 
+        // Updated in the GH 0.12 update from size = 52 as there is a difference in the order that edges are returned and
+        // so neighbourhood search results in slightly different results
+
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
@@ -367,7 +370,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size", is(52))
+                .body("features[0].geometry.coordinates[0].size", is(51))
                 .statusCode(200);
 
         body.put("smoothing", "100");

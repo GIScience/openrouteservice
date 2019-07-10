@@ -32,8 +32,6 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
     protected final HashSet<String> backwardKeys = new HashSet<String>(5);
     protected final List<String> hgvAccess = new ArrayList<String>(5);
 
-    // Take into account acceleration calculations when determining travel speed
-    protected boolean useAcceleration = false;
     
     protected int maxTrackGradeLevel = 3;
 
@@ -55,10 +53,15 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
         		properties.getBool("turn_costs", false) ? 3 : 0);
         
         setBlockFords(false);
+
+        setBlockFords(properties.getBool("block_fords", true));
+        setBlockByDefault(properties.getBool("block_barriers", true));
+
+        speedTwoDirections = properties.getBool("speed_two_directions", false);
         
         maxTrackGradeLevel = properties.getInt("maximum_grade_level", 1);
 
-        this.useAcceleration = properties.getBool("use_acceleration", false);
+        useAcceleration = properties.getBool("use_acceleration", false);
     }
 
     public HeavyVehicleFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts )

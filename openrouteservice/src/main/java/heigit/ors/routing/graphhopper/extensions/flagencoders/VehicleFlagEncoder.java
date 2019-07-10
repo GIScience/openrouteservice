@@ -38,7 +38,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
     private double accelerationModifier = 0.0;
 
-    protected boolean speedTwoDirections;
+    protected boolean speedTwoDirections = false;
 
     protected int maxTrackGradeLevel = 3;
 
@@ -69,6 +69,11 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         intendedValues.add("yes");
         intendedValues.add("permissive");
         intendedValues.add("destination");  // This is needed to allow the passing of barriers that are marked as destination
+
+        potentialBarriers.add("gate");
+        potentialBarriers.add("lift_gate");
+        potentialBarriers.add("kissing_gate");
+        potentialBarriers.add("swing_gate");
 
         absoluteBarriers.add("bollard");
         absoluteBarriers.add("stile");
@@ -154,7 +159,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
         // first two bits are reserved for route handling in superclass
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
-        registerNewEncodedValue.add(speedEncoder = new FactorizedDecimalEncodedValue("average_speed", speedBits, speedFactor, true));
+        registerNewEncodedValue.add(speedEncoder = new FactorizedDecimalEncodedValue("average_speed", speedBits, speedFactor, speedTwoDirections));
     }
 
     @Override

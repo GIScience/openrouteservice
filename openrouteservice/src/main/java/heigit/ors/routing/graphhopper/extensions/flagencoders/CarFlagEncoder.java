@@ -39,11 +39,11 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
                 properties.getDouble("speed_factor", 5),
                 properties.getBool("turn_costs", false) ? 1 : 0);
         this.properties = properties;
-        speedTwoDirections = properties.getBool("speed_two_directions", false);
+        speedTwoDirections = properties.getBool("speed_two_directions", true);
         this.setBlockFords(properties.getBool("block_fords", true));
         this.setBlockByDefault(properties.getBool("block_barriers", true));
 
-        this.useAcceleration = properties.getBool("use_acceleration", false);
+        useAcceleration = properties.getBool("use_acceleration", false);
 
         maxTrackGradeLevel = properties.getInt("maximum_grade_level", 3);
     }

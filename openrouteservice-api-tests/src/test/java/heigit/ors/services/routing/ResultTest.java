@@ -1251,33 +1251,33 @@ public class ResultTest extends ServiceTest {
 				.then().log().ifValidationFails()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(209)) // Updated from 158.7f because of reintroduction of ALT bug in newer GH version
-				.body("routes[0].summary.duration", is(170.7f)) // Updated from 114.3f because of reintroduction of ALT bug in newer GH version
+				.body("routes[0].summary.distance", is(158.7f))
+				.body("routes[0].summary.duration", is(114.3f))
 				.statusCode(200);
 	}
 
 	@Test
 	public void testWheelchairInclineRestriction() {
-//		given()
-//				.param("coordinates", "8.670290,49.418041|8.667490,49.418376")
-//				.param("preference", "shortest")
-//				.param("profile", "wheelchair")
-//				.param("options", "{\"profile_params\":{\"maximum_incline\":\"0.0\"}}")
-//				.when().log().ifValidationFails()
-//				.get(getEndPointName())
-//				.then().log().ifValidationFails()
-//				.assertThat()
-//				.body("any { it.key == 'routes' }", is(true))
-//				.body("routes[0].summary.distance", is(591.7f))
-//				.body("routes[0].summary.duration", is(498.7f))
-//				.statusCode(200);
+		given()
+				.param("coordinates", "8.670290,49.418041|8.667490,49.418376")
+				.param("preference", "shortest")
+				.param("profile", "wheelchair")
+				.param("options", "{\"profile_params\":{\"maximum_incline\":\"0.0\"}}")
+				.when().log().ifValidationFails()
+				.get(getEndPointName())
+				.then().log().ifValidationFails()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("routes[0].summary.distance", is(591.7f))
+				.body("routes[0].summary.duration", is(498.7f))
+				.statusCode(200);
 
 		given()
 				.param("coordinates", "8.670290,49.418041|8.667490,49.418376")
 				.param("preference", "shortest")
 				.param("profile", "wheelchair")
 				.param("options", "{\"profile_params\":{\"maximum_incline\":\"2\"}}")
-				.when().log().ifValidationFails()
+				.when().log().all()
 				.get(getEndPointName())
 				.then().log().ifValidationFails()
 				.assertThat()
