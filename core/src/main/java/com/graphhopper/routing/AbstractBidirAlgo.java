@@ -30,6 +30,7 @@ import com.graphhopper.util.GHUtility;
 
 import java.util.PriorityQueue;
 
+
 /**
  * Common subclass for bidirectional algorithms.
  * <p>
@@ -52,6 +53,12 @@ public abstract class AbstractBidirAlgo extends AbstractRoutingAlgorithm {
     protected boolean finishedTo;
     int visitedCountFrom;
     int visitedCountTo;
+    // ORS-GH MOD START
+    // Modification by Andrzej Oles: ALT patch https://github.com/GIScience/graphhopper/issues/21
+    protected double approximatorOffset = 0.0;
+    // ORS-GH MOD END
+
+
 
     public AbstractBidirAlgo(Graph graph, Weighting weighting, TraversalMode tMode) {
         super(graph, weighting, tMode);
@@ -171,7 +178,11 @@ public abstract class AbstractBidirAlgo extends AbstractRoutingAlgorithm {
         if (finishedFrom || finishedTo)
             return true;
 
-        return currFrom.weight + currTo.weight >= bestPath.getWeight();
+        // ORS-GH MOD START
+        // Modification by Andrzej Oles: ALT patch https://github.com/GIScience/graphhopper/issues/21
+        //return currFrom.weight + currTo.weight >= bestPath.getWeight();
+        return currFrom.weight + currTo.weight - approximatorOffset >= bestPath.getWeight();
+        // ORS-GH MOD END
     }
 
     boolean fillEdgesFrom() {

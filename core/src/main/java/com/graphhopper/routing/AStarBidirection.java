@@ -30,6 +30,11 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.Parameters;
 
+// ORS-GH MOD START
+// Modification by Andrzej Oles: ALT patch https://github.com/GIScience/graphhopper/issues/21
+import com.graphhopper.routing.lm.LMApproximator;
+// ORS-GH MOD END
+
 /**
  * This class implements a bidirectional A* algorithm. It is interesting to note that a
  * bidirectional dijkstra is far more efficient than a single direction one. The same does not hold
@@ -71,6 +76,12 @@ public class AStarBidirection extends AbstractBidirAlgo implements Recalculation
         weightApprox.setFrom(from);
         weightApprox.setTo(to);
         super.init(from, fromWeight, to, toWeight);
+        // ORS-GH MOD START
+        // Modification by Andrzej Oles: ALT patch https://github.com/GIScience/graphhopper/issues/21
+        if (weightApprox.getApproximation() instanceof LMApproximator) {
+            approximatorOffset = 2.0D * ((LMApproximator) weightApprox.getApproximation()).getFactor();
+        }
+        // ORS-GH MOD END
     }
 
     @Override
