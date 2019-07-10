@@ -2263,7 +2263,7 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('summary')", is(true))
-                .body("routes[0].summary.distance", is(2878.6f))
+                .body("routes[0].summary.distance", is(2878.7f))
                 .body("routes[0].summary.duration", is(4145.2f))
                 .statusCode(200);
     }
