@@ -76,12 +76,12 @@ public class SubGraph {
 
 		@Override
 		public int getOrigEdgeFirst() {
-			return 0;
+			return _currState.getOrigEdgeFirst();
 		}
 
 		@Override
 		public int getOrigEdgeLast() {
-			return 0;
+			return _currState.getOrigEdgeLast();
 		}
 
 		@Override
@@ -121,9 +121,8 @@ public class SubGraph {
 
 		@Override
 		public EdgeIteratorState setFlags(IntsRef edgeFlags) {
-			return null;
+			return _currState.setFlags(edgeFlags);
 		}
-
 
 		@Override
 		public int getAdditionalField() {
@@ -137,82 +136,82 @@ public class SubGraph {
 
 		@Override
 		public boolean get(BooleanEncodedValue property) {
-			return false;
+			return _currState.get(property);
 		}
 
 		@Override
 		public EdgeIteratorState set(BooleanEncodedValue property, boolean value) {
-			return null;
+			return _currState.set(property, value);
 		}
 
 		@Override
 		public boolean getReverse(BooleanEncodedValue property) {
-			return false;
+			return _currState.getReverse(property);
 		}
 
 		@Override
 		public EdgeIteratorState setReverse(BooleanEncodedValue property, boolean value) {
-			return null;
+			return _currState.setReverse(property, value);
 		}
 
 		@Override
 		public int get(IntEncodedValue property) {
-			return 0;
+			return _currState.get(property);
 		}
 
 		@Override
 		public EdgeIteratorState set(IntEncodedValue property, int value) {
-			return null;
+			return _currState.set(property, value);
 		}
 
 		@Override
 		public int getReverse(IntEncodedValue property) {
-			return 0;
+			return _currState.getReverse(property);
 		}
 
 		@Override
 		public EdgeIteratorState setReverse(IntEncodedValue property, int value) {
-			return null;
+			return _currState.setReverse(property, value);
 		}
 
 		@Override
 		public double get(DecimalEncodedValue property) {
-			return 0;
+			return _currState.get(property);
 		}
 
 		@Override
 		public EdgeIteratorState set(DecimalEncodedValue property, double value) {
-			return null;
+			return _currState.set(property, value);
 		}
 
 		@Override
 		public double getReverse(DecimalEncodedValue property) {
-			return 0;
+			return _currState.getReverse(property);
 		}
 
 		@Override
 		public EdgeIteratorState setReverse(DecimalEncodedValue property, double value) {
-			return null;
+			return _currState.setReverse(property, value);
 		}
 
 		@Override
 		public <T extends Enum> T get(EnumEncodedValue<T> property) {
-			return null;
+			return _currState.get(property);
 		}
 
 		@Override
 		public <T extends Enum> EdgeIteratorState set(EnumEncodedValue<T> property, T value) {
-			return null;
+			return _currState.set(property, value);
 		}
 
 		@Override
 		public <T extends Enum> T getReverse(EnumEncodedValue<T> property) {
-			return null;
+			return _currState.getReverse(property);
 		}
 
 		@Override
 		public <T extends Enum> EdgeIteratorState setReverse(EnumEncodedValue<T> property, T value) {
-			return null;
+			return _currState.setReverse(property, value);
 		}
 
 		@Override
