@@ -422,7 +422,21 @@ public class RoutingProfileManager {
                         for(Throwable error: gr.getErrors()) {
                             if(!StringUtility.isEmpty(message))
                                 message = message + "; ";
-                            message = message + error.getMessage();
+                            if (error instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
+                                com.graphhopper.util.exceptions.PointNotFoundException pointNotFoundException = (com.graphhopper.util.exceptions.PointNotFoundException) error;
+                                int pointReference = (i-1) + pointNotFoundException.getPointIndex();
+
+                                Coordinate pointCoordinate = (pointNotFoundException.getPointIndex() == 0) ? c0 : c1;
+                                double pointRadius = radiuses[pointNotFoundException.getPointIndex()];
+
+                                message = message + String.format("Could not find point %d: %s within a radius of %.1f meters.",
+                                        pointReference,
+                                        FormatUtility.formatCoordinate(pointCoordinate),
+                                        pointRadius);
+
+                            } else {
+                                message = message + error.getMessage();
+                            }
                         }
                         throw new PointNotFoundException(message);
                     } else {
