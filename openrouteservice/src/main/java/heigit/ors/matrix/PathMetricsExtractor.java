@@ -100,7 +100,7 @@ public class PathMetricsExtractor {
 
 		for (int i = 0; i < targets.length; ++i) {
 			SPTEntry goalEdge = targets[i];
-			//System.out.println("----------------------");
+//			System.out.println("end point: " + dstData.getLocations()[i].getCoordinate().y + ", " + dstData.getLocations()[i].getCoordinate().x);
 
 			if (goalEdge != null) {
 				pathTime = 0.0;

@@ -85,6 +85,7 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
 					if (targets != null)
 					{
+//						System.out.println("start point: " + srcData.getLocations()[srcIndex].getCoordinate().y + ", " + srcData.getLocations()[srcIndex].getCoordinate().x );
 						_pathMetricsExtractor.calcValues(srcIndex, targets, srcData, dstData, times, distances, weights);
 					}
 				}
