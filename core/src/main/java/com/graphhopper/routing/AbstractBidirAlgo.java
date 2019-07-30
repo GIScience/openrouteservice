@@ -234,6 +234,9 @@ public abstract class AbstractBidirAlgo extends AbstractRoutingAlgorithm {
             SPTEntry entry = bestWeightMap.get(traversalId);
             if (entry == null) {
                 entry = createEntry(iter, origEdgeId, weight, currEdge, reverse);
+                // ORS-GH MOD START
+                entry.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
+                // ORS-GH MOD END
                 bestWeightMap.put(traversalId, entry);
                 prioQueue.add(entry);
             } else if (entry.getWeightOfVisitedPath() > weight) {
@@ -291,7 +294,10 @@ public abstract class AbstractBidirAlgo extends AbstractRoutingAlgorithm {
     }
 
     protected int getIncomingEdge(SPTEntry entry) {
-        return entry.edge;
+        // ORS-GH MOD START
+//        return entry.edge;
+        return entry.originalEdge;
+        // ORS-GH MOD END
     }
 
     protected int getTraversalId(EdgeIteratorState edge, int origEdgeId, boolean reverse) {
