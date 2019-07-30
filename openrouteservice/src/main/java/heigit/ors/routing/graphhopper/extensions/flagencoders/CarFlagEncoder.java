@@ -30,6 +30,9 @@ import com.graphhopper.util.PMap;
  */
 public class CarFlagEncoder extends VehicleFlagEncoder {
 
+    // Mean speed for isochrone reach_factor
+    private static final int MEAN_SPEED = 100;
+
     public CarFlagEncoder() {
         this(5, 5, 0);
     }
@@ -135,6 +138,10 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
             return EncodingManager.Access.CAN_SKIP;
         else
             return EncodingManager.Access.WAY;
+    }
+
+    public double getMeanSpeed() {
+        return MEAN_SPEED;
     }
 
     @Override

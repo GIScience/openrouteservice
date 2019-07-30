@@ -316,9 +316,9 @@ public class ORSGraphHopper extends GraphHopper {
 
 				AlgorithmOptions algoOpts = AlgorithmOptions.start().algorithm(algoStr).traversalMode(tMode)
 						.weighting(weighting).maxVisitedNodes(maxVisitedNodesForRequest).hints(hints).build();
-				
+
 				algoOpts.setEdgeFilter(edgeFilter);
-				
+
 				altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts);
 
 				boolean tmpEnableInstructions = hints.getBool(Parameters.Routing.INSTRUCTIONS, getEncodingManager().isEnableInstructions());
@@ -473,8 +473,5 @@ public class ORSGraphHopper extends GraphHopper {
 	@Override
 	public void postProcessing() {
 		super.postProcessing();
-
-
 	}
-
 }

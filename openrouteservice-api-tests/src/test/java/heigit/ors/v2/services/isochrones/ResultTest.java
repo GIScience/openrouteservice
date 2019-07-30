@@ -177,6 +177,29 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
+    public void testBoundingBox() {
+
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations_1"));
+        body.put("range", getParameter("ranges_400"));
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("cyclingProfile"))
+                .body(body.toString())
+                .when()
+                .log().all()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .body("bbox[0]", is(8.663811f))
+                .body("bbox[1]", is(49.409103f))
+                .body("bbox[2]", is(8.699429f))
+                .body("bbox[3]", is(49.439289f))
+                .statusCode(200);
+    }
+
+    @Test
     public void testReachfactorAndArea() {
 
         JSONObject body = new JSONObject();
@@ -196,7 +219,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(both(greaterThan(6110000f)).and(lessThan(6120000f))))
-                .body("features[0].properties.reachfactor", is(0.1752f))
+                .body("features[0].properties.reachfactor", is(0.7007f))
                 .statusCode(200);
 
     }
@@ -222,7 +245,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(both(greaterThan(6110000f)).and(lessThan(6120000f))))
-                .body("features[0].properties.reachfactor", is(0.1752f))
+                .body("features[0].properties.reachfactor", is(0.7007f))
                 .statusCode(200);
 
     }
@@ -248,7 +271,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(both(greaterThan(6.11f)).and(lessThan(6.12f))))
-                .body("features[0].properties.reachfactor", is(0.1752f))
+                .body("features[0].properties.reachfactor", is(0.7007f))
                 .statusCode(200);
 
     }
@@ -301,7 +324,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(both(greaterThan(2.36f)).and(lessThan(2.37f))))
-                .body("features[0].properties.reachfactor", is(0.1752f))
+                .body("features[0].properties.reachfactor", is(0.7007f))
                 .statusCode(200);
 
     }

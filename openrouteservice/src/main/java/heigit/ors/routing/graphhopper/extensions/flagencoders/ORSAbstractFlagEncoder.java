@@ -21,4 +21,7 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
     protected ORSAbstractFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
         super(speedBits, speedFactor, maxTurnCosts);
     }
+
+    public abstract double getMeanSpeed();
+
 }

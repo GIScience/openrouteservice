@@ -35,6 +35,8 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
     
     protected int maxTrackGradeLevel = 3;
 
+    private static final int MEAN_SPEED = 70;
+
     // Encoder for storing whether the edge is on a preferred way
 	private DecimalEncodedValue priorityWayEncoder;
 	
@@ -58,7 +60,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
         setBlockByDefault(properties.getBool("block_barriers", true));
 
         speedTwoDirections = properties.getBool("speed_two_directions", false);
-        
+
         maxTrackGradeLevel = properties.getInt("maximum_grade_level", 1);
 
         useAcceleration = properties.getBool("use_acceleration", false);
@@ -352,7 +354,11 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
 			return true;
 		return PriorityWeighting.class.isAssignableFrom(feature);
 	}
-    
+
+    public double getMeanSpeed() {
+        return MEAN_SPEED;
+    }
+
     @Override
     public String toString() {
         return FlagEncoderNames.HEAVYVEHICLE;

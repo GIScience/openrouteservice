@@ -6,10 +6,37 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- CALT routing algorithm (Issue #433)
+- Added a gpx schema validator into the api-tests, testing all gpx outputs while fixing the bug from (#496)
+- Added information for countries a route traverses (#349)
+### Fixed
+- isochrone reachfactor gives now more realistic results (#325)
+- Fixed the wrong gpx header for api v2 (#496)
+- Make sure external storages contain entries for all edge IDs (#535)
+- Check if BordersStorage exists before calling it in AvoidBordersCoreEdgeFilter
+- Take into account shortcut direction in LM selection weighting (#550)
+- Updated Matrix api v2 response to correctly display sources (#560)
+- Check for null pointer in LM selection weighting (#550)
+- Use commas rather than pipes for weighting options in app.config.sample (#564)
+- Update point references when point is not found for routing (#567)
+### Changed
+- Moved walking and hiking flag encoders to the ORS core system (#440)
+- Remove route optimization code (#499)
+- Reduced distance for neighbourhood point search in isochrones when small isochrones are generated (#494)
+- Removed obsolete storages (#536)
+- Refactor fallback to preprocessing-independent algorithm for certain routing request params
+- Removed some landmark sets as default from app.config.sample
+### Deprecated
+
+## [5.0.1] - 2019-04-08
+### Added
+- CALT routing algorithm - Not for production (Issue #433)
 - Makes docker and docker-compose deployment of openrouteservice more customizable (Issue #434)
 - Add the possibility to predefine standard maximum search radii in general and for each used profile in the config file (Issue #418)
 ### Fixed
+- fix the GPX output of the APIv2. It was broken since release of api v2. (Issue #533)
+- fix SRTM URL in GH fork (#394)
+- fix classpath issues for resources, Windows builds now (#489)
+- isochrone geojson bbox now format compliant (#493)
 - v2 isochrones now respects max_locations in app.config (#482)
 - Updated documentation to reflect correct isochrone smoothing algorithm (Issue #471)
 - Enable > 2 waypoints when geometry_simplify=true (#457)
@@ -19,8 +46,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Updated pom to always build ors.war (Issue #432)
 - Replace usage of packages incompatible with Java >8 (#474)
-- Moved walking and hiking flag encoders to the ORS core system (#440)
-- Remove route optimization code (#499)
+- Updated Matrix to have a maximum number of routes to calculate rather than locations (#518)
 ### Deprecated
 - Removed the code that was inserted for the prototype traffic weightings as it was not used and made GH updates more complicated.
 

@@ -437,4 +437,12 @@ public class RouteSearchParameters {
             || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
         ;
     }
+
+    /**
+     * Check if the request is compatible with preprocessed graphs
+     */
+    public boolean requiresFallbackAlgorithm() {
+        return hasAvoidAreas()
+                || (getProfileParameters() != null && getProfileParameters().hasWeightings());
+    }
 }

@@ -76,8 +76,8 @@ public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProces
 
         List<TravellerInfo> travellers = req.getTravellers();
 
-        if (travellers.size() > AccessibilityServiceSettings.getMaximumLocations())
-            throw new ParameterOutOfRangeException(AccessibilityErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations", Integer.toString(travellers.size()), Integer.toString(AccessibilityServiceSettings.getMaximumLocations()));
+        if (travellers.size() > AccessibilityServiceSettings.getMaximumRoutes())
+            throw new ParameterOutOfRangeException(AccessibilityErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations", Integer.toString(travellers.size()), Integer.toString(AccessibilityServiceSettings.getMaximumRoutes()));
 
         for (int i = 0; i < travellers.size(); ++i) {
             TravellerInfo traveller = travellers.get(i);

@@ -36,7 +36,6 @@ import org.apache.log4j.Logger;
 
 import java.io.InvalidObjectException;
 import java.util.*;
-
 import java.util.Map.Entry;
 
 public class ORSOSMReader extends OSMReader {
@@ -449,7 +448,7 @@ public class ORSOSMReader extends OSMReader {
 		}
 	}
 
-	@Override 
+	@Override
 	protected void finishedReading() {
 
 		// System.out.println("----------  ORSOSMReader.finishedReading()");

@@ -13,7 +13,6 @@
  */
 package heigit.ors.routing.graphhopper.extensions;
 
-import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EdgeFilterFactory;
@@ -50,9 +49,6 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
             /* Heavy vehicle filter */
             if (params.has("edgefilter_hgv")) {
                 edgeFilters.add(new HeavyVehicleEdgeFilter(flagEncoder, params.getInt("edgefilter_hgv", 0), (VehicleParameters)params.getObj("routing_profile_params"), gs));
-            }
-            else if (params.has("edgefilter_emergency")) {
-                edgeFilters.add(new EmergencyVehicleEdgeFilter((VehicleParameters)params.getObj("routing_profile_params"), gs));
             }
 
             /* Wheelchair filter */

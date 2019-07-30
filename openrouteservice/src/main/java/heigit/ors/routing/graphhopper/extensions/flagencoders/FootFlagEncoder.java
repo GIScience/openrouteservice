@@ -42,7 +42,7 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  */
 public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     static final int SLOW_SPEED = 2;
-    static final int MEAN_SPEED = 5;
+    private static final int MEAN_SPEED = 5;
     static final int FERRY_SPEED = 15;
     private final Set<String> safeHighwayTags = new HashSet<>();
     private final Set<String> allowedHighwayTags = new HashSet<>();
@@ -137,6 +137,10 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         maxPossibleSpeed = FERRY_SPEED;
         speedDefault = MEAN_SPEED; // ORS TODO: added in GH 0.12; do we want it?
         init();
+    }
+
+    public double getMeanSpeed() {
+        return MEAN_SPEED;
     }
 
     @Override

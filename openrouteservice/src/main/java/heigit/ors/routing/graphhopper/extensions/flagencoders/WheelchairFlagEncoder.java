@@ -172,6 +172,10 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         
         init();
     }
+
+    public double getMeanSpeed() {
+        return MEAN_SPEED;
+    }
     
     public double getDefaultMaxSpeed()
 	{

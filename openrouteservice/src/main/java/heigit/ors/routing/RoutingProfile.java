@@ -18,7 +18,10 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.CHGraph;
+import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.StorableProperties;
 import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
@@ -26,7 +29,6 @@ import com.typesafe.config.Config;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import heigit.ors.common.TravelRangeType;
 import heigit.ors.exceptions.InternalServerException;
 import heigit.ors.exceptions.StatusCodeException;
 import heigit.ors.isochrones.*;
@@ -42,8 +44,12 @@ import heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
 import heigit.ors.routing.configuration.RouteProfileConfiguration;
 import heigit.ors.routing.graphhopper.extensions.*;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
+import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
-import heigit.ors.routing.parameters.*;
+import heigit.ors.routing.parameters.ProfileParameters;
+import heigit.ors.routing.parameters.VehicleParameters;
+import heigit.ors.routing.parameters.WheelchairParameters;
 import heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
 import heigit.ors.services.isochrones.IsochronesServiceSettings;
 import heigit.ors.services.matrix.MatrixServiceSettings;
@@ -152,6 +158,13 @@ public class RoutingProfile {
         gh.setWeightingFactory(new ORSWeightingFactory());
 
         gh.importOrLoad();
+
+        // store CountryBordersReader for later use
+        for (GraphStorageBuilder builder : gpc.getStorageBuilders()) {
+            if (builder.getName().equals(BordersGraphStorageBuilder.builderName)) {
+                pathProcessorFactory.setCountryBordersReader(((BordersGraphStorageBuilder) builder).getCbReader());
+            }
+        }
 
         if (LOGGER.isInfoEnabled()) {
             EncodingManager encodingMgr = gh.getEncodingManager();
@@ -526,7 +539,7 @@ public class RoutingProfile {
         /*
         * PARAMETERS FOR EdgeFilterFactory
         * ======================================================================================================
-        * TODO: put keys in consts somewhere 
+        * TODO: put keys in consts somewhere
         */
 
         /* Avoid areas */
@@ -541,7 +554,7 @@ public class RoutingProfile {
             && ((VehicleParameters)profileParams).hasAttributes()
         ) {
             props.put("edgefilter_hgv", searchParams.getVehicleType());
-        } 
+        }
         else if (profileType == RoutingProfileType.DRIVING_EMERGENCY
             && searchParams.hasParameters(VehicleParameters.class)
             && ((VehicleParameters)profileParams).hasAttributes()
@@ -550,7 +563,7 @@ public class RoutingProfile {
         }
 
         /* Wheelchair filter */
-        else if (profileType == RoutingProfileType.WHEELCHAIR 
+        else if (profileType == RoutingProfileType.WHEELCHAIR
             && searchParams.hasParameters(WheelchairParameters.class)) {
             props.put("edgefilter_wheelchair", "true");
         }
@@ -665,7 +678,7 @@ public class RoutingProfile {
 
             PMap props = searchCntx.getProperties();
             req.setAdditionalHints(props);
-            
+
             if (props != null && !props.isEmpty())
                 req.getHints().merge(props);
 
@@ -719,8 +732,8 @@ public class RoutingProfile {
                     req.getHints().put("core.disable", true);
                 }
             }
-            //cannot use CH or CoreALT with avoid areas. Need to fallback to ALT with beeline approximator or Dijkstra
-            if(props.getBool("avoid_areas", false)){
+            //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
+            if(searchParams.requiresFallbackAlgorithm()) {
                 req.setAlgorithm("astarbi");
                 req.getHints().put("lm.disable", false);
                 req.getHints().put("core.disable", true);
@@ -849,9 +862,12 @@ public class RoutingProfile {
 
                     }
 
-                    if (parameters.hasAttribute("reachfactor") && parameters.getRangeType() == TravelRangeType.Time) {
+                    if (parameters.hasAttribute("reachfactor")) {
 
                         double reachfactor = isochrone.calcReachfactor(units);
+                        // reach factor could be > 1, which would confuse people
+                        reachfactor = (reachfactor > 1) ? 1 : reachfactor;
+
                         isochrone.setReachfactor(reachfactor);
 
                     }
