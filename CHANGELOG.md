@@ -56,6 +56,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Updated api code to use the Spring framework, with the v2 api being added (Issue #233)
 - Added support for ISO 3166-1 Alpha-2 / Alpha-3 codes for routing directions option avoid_countries (Issue #195)
 - Added support for free hand route option/ skip segments (Issue #167)
+- Added support for GH alternative_route algorithm (Issue #377)
 - Added check on matrix service to make sure that the requested locations are within the bounding area of the graph (Issue #408)
 - Makes docker and docker-compose deployment of openrouteservice more customizable (Issue #434)
 ### Fixed

@@ -328,7 +328,7 @@ public class RoutingProfileManager {
         return null;
     }
 
-    public RouteResult computeRoute(RoutingRequest req) throws Exception {
+    public RouteResult[] computeRoute(RoutingRequest req) throws Exception {
         List<Integer> skipSegments = req.getSkipSegments();
         List<GHResponse> routes = new ArrayList<GHResponse>();
 
@@ -349,6 +349,14 @@ public class RoutingProfileManager {
             radiuses = new double[2];
         } else {
             radiuses = null;
+        }
+
+        if (req.getSearchParameters().getAlternativeRoutesCount() > 1 && coords.length > 2) {
+            throw new InternalServerException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "Alternative routes algorithm does not support more than two way points.");
+        }
+
+        if (req.getSearchParameters().getAlternativeRoutesCount() > 1 && coords.length > 2) {
+            throw new InternalServerException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "Alternative routes algorithm does not support more than two way points.");
         }
 
         ExtraInfoProcessor extraInfoProcessor = null;
@@ -453,7 +461,7 @@ public class RoutingProfileManager {
         }
         routes = enrichDirectRoutesTime(routes);
         List<RouteExtraInfo> extraInfos = extraInfoProcessor != null ? extraInfoProcessor.getExtras() : null;
-        return new RouteResultBuilder().createMergedRouteResultFromBestPaths(routes, req, extraInfos);
+        return new RouteResultBuilder().createRouteResults(routes, req, extraInfos);
     }
 
     /**

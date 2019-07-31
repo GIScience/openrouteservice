@@ -131,10 +131,9 @@ public class RouteResult
 
 	public void addPointlist(PointList pointlistToAdd) {
 		if (pointlist == null) {
-			pointlist = pointlistToAdd;
-		} else {
-			pointlist.add(pointlistToAdd);
+			pointlist = new PointList();
 		}
+		pointlist.add(pointlistToAdd);
 	}
 
 	public List<Integer> getWayPointsIndices() {

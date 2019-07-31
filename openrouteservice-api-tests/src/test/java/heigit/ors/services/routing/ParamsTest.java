@@ -728,7 +728,7 @@ public class ParamsTest extends ServiceTest {
 				.param("geometry_simplify", "true")
 				.when()
 				.get(getEndPointName())
-				.then()
+				.then().log().all()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.statusCode(200);
