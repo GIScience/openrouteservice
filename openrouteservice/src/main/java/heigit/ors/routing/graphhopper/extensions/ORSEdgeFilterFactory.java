@@ -57,7 +57,7 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
             }
     
             /* Avoid features */
-            if (params.hasObj("avoid_features") && params.hasObj("routing_profile_type")) {
+            if (params.hasObj("avoid_features") && params.has("routing_profile_type")) {
                 edgeFilters.add(new AvoidFeaturesEdgeFilter(params.getInt("routing_profile_type", 0), (RouteSearchParameters) params.getObj("avoid_features"), gs));
             }
     
