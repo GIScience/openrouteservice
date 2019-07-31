@@ -147,9 +147,12 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
 
 		if (bCheckMaxSpeed)
 		{
-			double defaultSpeed = _speedLimitHandler.getSpeed(way.getTag("highway"));
-			if (defaultSpeed < maxSpeed)
-				maxSpeed = defaultSpeed;
+		    String highway = way.getTag("highway");
+		    if (!Helper.isEmpty(highway)) {
+                double defaultSpeed = _speedLimitHandler.getSpeed(highway);
+                if (defaultSpeed < maxSpeed)
+                    maxSpeed = defaultSpeed;
+            }
 		}
 
 		return maxSpeed;
