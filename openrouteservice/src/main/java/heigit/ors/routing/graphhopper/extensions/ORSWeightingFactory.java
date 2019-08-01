@@ -25,6 +25,7 @@ import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import heigit.ors.routing.ProfileWeighting;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import heigit.ors.routing.graphhopper.extensions.weighting.*;
 
 import java.io.File;
@@ -56,7 +57,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 		}
 		else if ("fastest".equalsIgnoreCase(strWeighting)) 
 		{
-			if (encoder.supports(PriorityWeighting.class))
+			if (encoder.supports(PriorityWeighting.class) && !encoder.toString().equals(FlagEncoderNames.HEAVYVEHICLE))
 				result = new PriorityWeighting(encoder, hintsMap);
 	         else
 	        	 result = new FastestWeighting(encoder, hintsMap);
