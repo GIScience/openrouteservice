@@ -336,6 +336,7 @@ public class ORSGraphHopper extends GraphHopper {
 				if (request.getEdgeFilter() != null)
 					algoOpts.setEdgeFilter(request.getEdgeFilter());
 				if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo){
+					tr = new TranslationMap.ORSTranslationHashMapWithExtendedInfo(tr.getLocale());
 					((TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr).init(encoder, weighting, request.getPathProcessor());
 				}
 
