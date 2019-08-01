@@ -22,6 +22,7 @@ import com.graphhopper.routing.Path;
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.profiles.Roundabout;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 
@@ -51,6 +52,16 @@ public class PathMerger {
     private PathDetailsBuilderFactory pathBuilderFactory;
     private List<String> requestedPathDetails = Collections.EMPTY_LIST;
     private double favoredHeading = Double.NaN;
+
+
+    // ORS-GH MOD START
+    protected PathProcessor pathProcessor = PathProcessor.DEFAULT;
+
+    public PathMerger setPathProcessor(PathProcessor pathProcessor) {
+        this.pathProcessor = pathProcessor; 
+        return this;
+    }
+    // ORS MOD END
 
     public PathMerger setCalcPoints(boolean calcPoints) {
         this.calcPoints = calcPoints;
@@ -100,7 +111,10 @@ public class PathMerger {
             fullDistance += path.getDistance();
             fullWeight += path.getWeight();
             if (enableInstructions) {
-                InstructionList il = path.calcInstructions(roundaboutEnc, tr);
+                // ORS-GH MOD START
+//                InstructionList il = path.calcInstructions(roundaboutEnc, tr);
+                InstructionList il = path.calcInstructions(roundaboutEnc, tr, pathProcessor);
+                // ORS-GH MOD END
 
                 if (!il.isEmpty()) {
                     fullInstructions.addAll(il);
@@ -133,6 +147,10 @@ public class PathMerger {
         }
 
         if (!fullPoints.isEmpty()) {
+            // ORS-GH MOD START
+            fullPoints = pathProcessor.processPoints(fullPoints);
+            // ORS-GH MOD END
+
             String debug = altRsp.getDebugInfo() + ", simplify (" + origPoints + "->" + fullPoints.getSize() + ")";
             altRsp.addDebugInfo(debug);
             if (fullPoints.is3D)

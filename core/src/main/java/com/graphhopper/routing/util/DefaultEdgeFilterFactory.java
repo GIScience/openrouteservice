@@ -15,43 +15,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.graphhopper.reader;
+package com.graphhopper.routing.util;
 
-import com.carrotsearch.hppc.LongArrayList;
+import com.graphhopper.routing.AlgorithmOptions;
+import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.util.PMap;
 
+// ORS TODO: this class isn't part of GH anymore
 /**
- * Represents a way received from the reader.
- * <p>
+ * This class creates FlagEncoders that are already included in the GraphHopper distribution.
  *
- * @author Nop
+ * @author Peter Karich
  */
-public class ReaderWay extends ReaderElement {
-    // ORS-GH MOD START
-    // ORG CODE
-    /*protected final LongArrayList nodes = new LongArrayList(5);
-    public ReaderWay(long id) {
-        super(id, WAY);
-    }*/
-    // ORG CODE END
-
-    protected final LongArrayList nodes;
-
-    public ReaderWay(long id) {
-        this(id, 5);
-    }
-
-    public ReaderWay(long id, int size) {
-        super(id, WAY);
-        nodes = new LongArrayList(size);
-    }
-    // ORS-GH MOD END
-
-    public LongArrayList getNodes() {
-        return nodes;
-    }
-
+public class DefaultEdgeFilterFactory implements EdgeFilterFactory {
     @Override
-    public String toString() {
-        return "Way id:" + getId() + ", nodes:" + nodes.size() + ", tags:" + super.toString();
+    public EdgeFilter createEdgeFilter(PMap opts, FlagEncoder flagEncoder, GraphHopperStorage gs) {
+        return DefaultEdgeFilter.allEdges(flagEncoder);
     }
 }

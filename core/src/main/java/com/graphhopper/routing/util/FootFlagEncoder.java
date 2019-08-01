@@ -370,7 +370,8 @@ public class FootFlagEncoder extends AbstractFlagEncoder {
      * This method is a current hack, to allow ferries to be actually faster than our current storable maxSpeed.
      */
     @Override
-    double getSpeed(boolean reverse, IntsRef edgeFlags) {
+    // ORS-GH MOD - change access level from package-private to public due to change in superclass
+    public double getSpeed(boolean reverse, IntsRef edgeFlags) {
         double speed = super.getSpeed(reverse, edgeFlags);
         if (speed == getMaxSpeed()) {
             // We cannot be sure if it was a long or a short trip

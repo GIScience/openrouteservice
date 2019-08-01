@@ -39,6 +39,10 @@ public class GraphBuilder {
     private boolean edgeBasedCH;
     private long byteCapacity = 100;
     private Weighting singleCHWeighting;
+    // ORS-GH MOD START
+    // CALT add member
+    private Weighting singleCoreWeighting;
+    // ORS-GH MOD END
 
     public GraphBuilder(EncodingManager encodingManager) {
         this.encodingManager = encodingManager;
@@ -52,6 +56,17 @@ public class GraphBuilder {
         return this;
     }
 
+    // ORS-GH MOD START
+    // CALT add method
+    /**
+     * This method enables creating a CoreGraph with the specified weighting.
+     */
+    public GraphBuilder setCoreGraph(Weighting singleCoreWeighting) {
+        this.singleCoreWeighting = singleCoreWeighting;
+        return this;
+    }
+
+    // ORS-GH MOD END
     public GraphBuilder setLocation(String location) {
         this.location = location;
         return this;

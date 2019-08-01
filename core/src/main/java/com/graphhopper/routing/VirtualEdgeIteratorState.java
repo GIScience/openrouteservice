@@ -36,6 +36,9 @@ import com.graphhopper.util.PointList;
 public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIteratorState {
     private final PointList pointList;
     private final int edgeId;
+    // ORS-GH MOD START
+    private final int originalEdgeId;
+    // ORS-GH MOD END
     private final int baseNode;
     private final int adjNode;
     private final int originalEdgeKey;
@@ -47,10 +50,17 @@ public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIterat
     private EdgeIteratorState reverseEdge;
     private final boolean reverse;
 
-    public VirtualEdgeIteratorState(int originalEdgeKey, int edgeId, int baseNode, int adjNode, double distance,
+    // ORS-GH MOD START (added originalEdgeId)
+    //public VirtualEdgeIteratorState(int originalEdgeKey, int edgeId, int baseNode, int adjNode, double distance,
+    //                                IntsRef edgeFlags, String name, PointList pointList, boolean reverse) {
+    public VirtualEdgeIteratorState(int originalEdgeKey, int edgeId, int originalEdgeId, int baseNode, int adjNode, double distance,
                                     IntsRef edgeFlags, String name, PointList pointList, boolean reverse) {
+    // ORS-GH MOD END
         this.originalEdgeKey = originalEdgeKey;
         this.edgeId = edgeId;
+        // ORS-GH MOD START
+        this.originalEdgeId = originalEdgeId;
+        // ORS-GH MOD END
         this.baseNode = baseNode;
         this.adjNode = adjNode;
         this.distance = distance;
@@ -74,6 +84,12 @@ public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIterat
     public int getEdge() {
         return edgeId;
     }
+
+    // ORS-GH MOD START
+    public int getOriginalEdge() {
+        return originalEdgeId;
+    }
+    // ORS-GH MOD END
 
     @Override
     public int getBaseNode() {
@@ -284,12 +300,18 @@ public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIterat
 
     @Override
     public int getOrigEdgeFirst() {
-        return getEdge();
+        // ORS-GH MOD START
+//        return getEdge();
+        return originalEdgeId;
+        // ORS-GH MOD END
     }
 
     @Override
     public int getOrigEdgeLast() {
-        return getEdge();
+        // ORS-GH MOD START
+//        return getEdge();
+        return originalEdgeId;
+        // ORS-GH MOD END
     }
 
     @Override

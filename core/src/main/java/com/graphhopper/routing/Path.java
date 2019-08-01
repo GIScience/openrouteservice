@@ -36,6 +36,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+// ORS-GH MOD START - additional imports
+import com.graphhopper.routing.util.DefaultPathProcessor;
+import com.graphhopper.routing.util.PathProcessor;
+// ORS-GH MOD END
+
 /**
  * Stores the nodes for the found path of an algorithm. It additionally needs the edgeIds to make
  * edge determination faster and less complex as there could be several edges (u,v) especially for
@@ -359,6 +364,11 @@ public class Path {
      * @return the list of instructions for this path.
      */
     public InstructionList calcInstructions(BooleanEncodedValue roundaboutEnc, final Translation tr) {
+    // ORS-GH MOD START
+        return calcInstructions(roundaboutEnc, tr, PathProcessor.DEFAULT);
+    }
+    public InstructionList calcInstructions(BooleanEncodedValue roundaboutEnc, final Translation tr, PathProcessor pathProcessor) {
+    // ORS-GH MOD END
         final InstructionList ways = new InstructionList(edgeIds.size() / 4, tr);
         if (edgeIds.isEmpty()) {
             if (isFound()) {
@@ -366,7 +376,10 @@ public class Path {
             }
             return ways;
         }
-        forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, roundaboutEnc, nodeAccess, tr, ways));
+        // ORS-GH MOD START
+//        forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, roundaboutEnc, nodeAccess, tr, ways));
+        forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, roundaboutEnc, nodeAccess, tr, ways, pathProcessor));
+        // ORS-GH MOD END
         return ways;
     }
 

@@ -29,6 +29,11 @@ import com.graphhopper.util.shapes.GHPoint;
 
 import java.util.List;
 
+// ORS-GH MOD START
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.PathProcessor;
+// ORS-GH MOD END
+
 /**
  * This interface provides steps to create the final GHResponse consisting of multiple Paths (via
  * PathWrappers).
@@ -57,4 +62,11 @@ public interface RoutingTemplate {
      * This method returns the maximum number of full retries of these 3 steps
      */
     int getMaxRetries();
+
+    // ORS-GH MOD START
+    // ORS TODO: provide a reason for this change
+    EdgeFilter getEdgeFilter();
+
+    void setEdgeFilter(EdgeFilter edgeFilter);
+    // ORS-GH MOD EǸD
 }

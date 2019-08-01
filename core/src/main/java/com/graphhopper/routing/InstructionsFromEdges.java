@@ -28,6 +28,10 @@ import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.GHPoint;
 
+// ORS-GH MOD START - additional imports
+import com.graphhopper.routing.util.PathProcessor;
+// ORS-GH MOD END
+
 /**
  * This class calculates instructions from the edges in a Path.
  *
@@ -81,10 +85,16 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
     private InstructionAnnotation prevAnnotation;
 
     private final int MAX_U_TURN_DISTANCE = 35;
-
+    // ORS-GH MOD START
+    private PathProcessor mPathProcessor = PathProcessor.DEFAULT;
+//    public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder,
+//                                 BooleanEncodedValue roundaboutEnc, NodeAccess nodeAccess,
+//                                 Translation tr, InstructionList ways) {
     public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder,
                                  BooleanEncodedValue roundaboutEnc, NodeAccess nodeAccess,
-                                 Translation tr, InstructionList ways) {
+                Translation tr, InstructionList ways, PathProcessor pathProcessor) {
+        mPathProcessor = pathProcessor;
+    // ORS-GH MOD END
         this.weighting = weighting;
         this.encoder = encoder;
         this.accessEnc = encoder.getAccessEnc();
@@ -290,6 +300,10 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         prevLat = adjLat;
         prevLon = adjLon;
         prevEdge = edge;
+
+        // ORS-GH MOD START
+        mPathProcessor.processPathEdge(edge, wayGeo);
+        // ORS-GH MOD END
     }
 
     @Override

@@ -26,6 +26,10 @@ import com.graphhopper.util.Helper;
 import static com.graphhopper.util.Parameters.Algorithms.*;
 import static com.graphhopper.util.Parameters.Algorithms.AltRoute.*;
 
+// ORS-GH MOD START
+import com.graphhopper.routing.util.EdgeFilter;
+// ORS-GH MOD END
+
 /**
  * A simple factory creating normal algorithms (RoutingAlgorithm) without preparation.
  * <p>
@@ -70,6 +74,12 @@ public class RoutingAlgorithmFactorySimple implements RoutingAlgorithmFactory {
         }
 
         ra.setMaxVisitedNodes(opts.getMaxVisitedNodes());
+
+        // ORS-GH MOD START
+        // ORS TODO: provide a reason for this change
+        // ORS TODO: setEdgeFilter does not exist
+        //ra.setEdgeFilter(opts.getEdgeFilter());
+        // ORS-GH MOD END
         return ra;
     }
 

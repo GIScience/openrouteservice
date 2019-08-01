@@ -63,7 +63,11 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
         if (points.size() < 2)
             throw new IllegalArgumentException("At least 2 points have to be specified, but was:" + points.size());
 
-        EdgeFilter edgeFilter = DefaultEdgeFilter.allEdges(encoder);
+        // ORS-GH MOD START
+        // ORS TODO: provide a reason for this change 
+        // EdgeFilter edgeFilter = DefaultEdgeFilter.allEdges(encoder);
+        // ORS-GH MOD END
+        // ORS TODO: strictEdgeFilter is new in GH>0.13
         EdgeFilter strictEdgeFilter = !ghRequest.hasSnapPreventions() ? edgeFilter : new SnapPreventionEdgeFilter(edgeFilter,
                 encoder.getEnumEncodedValue(RoadClass.KEY, RoadClass.class),
                 encoder.getEnumEncodedValue(RoadEnvironment.KEY, RoadEnvironment.class), ghRequest.getSnapPreventions());
