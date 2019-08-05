@@ -650,12 +650,6 @@ public class RoutingProfile {
         ) {
             props.put("edgefilter_hgv", searchParams.getVehicleType());
         }
-        else if (profileType == RoutingProfileType.DRIVING_EMERGENCY
-            && searchParams.hasParameters(VehicleParameters.class)
-            && ((VehicleParameters)profileParams).hasAttributes()
-        ) {
-            props.put("edgefilter_emergency", "true");
-        }
 
         /* Wheelchair filter */
         else if (profileType == RoutingProfileType.WHEELCHAIR
@@ -670,7 +664,6 @@ public class RoutingProfile {
         }
 
         /* Avoid borders of some form */
-
         if (searchParams.hasAvoidBorders() || searchParams.hasAvoidCountries()) {
             if (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType)) {
                 props.putObj("avoid_borders", searchParams);
@@ -678,7 +671,6 @@ public class RoutingProfile {
                     props.put("avoid_countries", Arrays.toString(searchParams.getAvoidCountries()));
             }
         }
-
 
         if (profileParams != null && profileParams.hasWeightings()) {
             props.put("custom_weightings", true);
@@ -692,7 +684,6 @@ public class RoutingProfile {
                 }
             }
         }
-
 
         RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, flagEncoder);
         searchCntx.setProperties(props);
