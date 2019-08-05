@@ -13,11 +13,11 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.routing;
+package org.heigit.ors.api.responses.routing;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import heigit.ors.api.requests.routing.RouteRequest;
-import heigit.ors.api.responses.common.BoundingBox.BoundingBox;
+import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.api.responses.common.BoundingBox.BoundingBox;
 
 import java.util.List;
 

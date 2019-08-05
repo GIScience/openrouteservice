@@ -1,8 +1,8 @@
-package heigit.ors.routing.pathprocessors;
+package org.heigit.ors.routing.pathprocessors;
 
-import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
-import heigit.ors.routing.parameters.ProfileParameters;
-import heigit.ors.routing.parameters.VehicleParameters;
+import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
+import org.heigit.ors.routing.parameters.ProfileParameters;
+import org.heigit.ors.routing.parameters.VehicleParameters;
 
 
 public class BordersExtractor {

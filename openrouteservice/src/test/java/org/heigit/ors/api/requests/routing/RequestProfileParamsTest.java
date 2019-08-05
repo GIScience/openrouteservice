@@ -1,4 +1,4 @@
-package heigit.ors.api.requests.routing;
+package org.heigit.ors.api.requests.routing;
 
 import org.junit.Assert;
 import org.junit.Before;

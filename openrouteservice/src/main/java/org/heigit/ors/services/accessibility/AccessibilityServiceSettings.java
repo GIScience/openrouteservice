@@ -12,7 +12,7 @@
  *  if not, see <https://www.gnu.org/licenses/>.  
  *//*
 
-package heigit.ors.services.accessibility;
+package org.heigit.ors.services.accessibility;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,9 +20,9 @@ import java.util.Map;
 
 import com.typesafe.config.ConfigObject;
 
-import heigit.ors.common.TravelRangeType;
-import heigit.ors.config.AppConfig;
-import heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.common.TravelRangeType;
+import org.heigit.ors.config.AppConfig;
+import org.heigit.ors.routing.RoutingProfileType;
 
 public class AccessibilityServiceSettings 
 {

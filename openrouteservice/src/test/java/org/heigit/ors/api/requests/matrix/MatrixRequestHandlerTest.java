@@ -1,16 +1,16 @@
-package heigit.ors.api.requests.matrix;
+package org.heigit.ors.api.requests.matrix;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.common.DistanceUnit;
-import heigit.ors.exceptions.ServerLimitExceededException;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.matrix.MatrixMetricsType;
-import heigit.ors.matrix.MatrixRequest;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.services.matrix.MatrixServiceSettings;
-import heigit.ors.util.HelperFunctions;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.exceptions.ServerLimitExceededException;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.matrix.MatrixMetricsType;
+import org.heigit.ors.matrix.MatrixRequest;
+import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.services.matrix.MatrixServiceSettings;
+import org.heigit.ors.util.HelperFunctions;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -85,7 +85,7 @@ public class MatrixRequestHandlerTest {
 
     @Test
     public void convertMatrixRequestTest() throws StatusCodeException {
-        heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates);
+        org.heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates);
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setSources(new String[]{"all"});
         springMatrixRequest.setDestinations(new String[]{"all"});
@@ -100,7 +100,7 @@ public class MatrixRequestHandlerTest {
         Assert.assertFalse(matrixRequest.getFlexibleMode());
         Assert.assertNull(matrixRequest.getId());
 
-        springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates);
+        springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates);
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setSources(new String[]{"all"});
         springMatrixRequest.setDestinations(new String[]{"all"});
@@ -115,7 +115,7 @@ public class MatrixRequestHandlerTest {
 
     @Test(expected = ParameterValueException.class)
     public void invalidLocationsTest() throws StatusCodeException {
-        heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest(new ArrayList<>());
+        org.heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(new ArrayList<>());
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setSources(new String[]{"foo"});
         springMatrixRequest.setDestinations(new String[]{"bar"});
@@ -124,7 +124,7 @@ public class MatrixRequestHandlerTest {
 
     @Test(expected = ParameterValueException.class)
     public void invalidMetricsTest() throws StatusCodeException {
-        heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest(new ArrayList<>());
+        org.heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(new ArrayList<>());
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setMetrics(new MatrixRequestEnums.Metrics[0]);
@@ -135,7 +135,7 @@ public class MatrixRequestHandlerTest {
 
     @Test(expected = ParameterValueException.class)
     public void invalidSourceIndexTest() throws StatusCodeException {
-        heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest(new ArrayList<>());
+        org.heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(new ArrayList<>());
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setSources(new String[]{"foo"});
@@ -145,7 +145,7 @@ public class MatrixRequestHandlerTest {
 
     @Test(expected = ParameterValueException.class)
     public void invalidDestinationIndexTest() throws StatusCodeException {
-        heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new heigit.ors.api.requests.matrix.MatrixRequest(new ArrayList<>());
+        org.heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(new ArrayList<>());
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setSources(new String[]{"all"});

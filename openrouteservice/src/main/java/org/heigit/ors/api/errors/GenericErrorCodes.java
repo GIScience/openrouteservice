@@ -13,9 +13,9 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.errors;
+package org.heigit.ors.api.errors;
 
-import heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.exceptions.InternalServerException;
 
 public class GenericErrorCodes {
     private GenericErrorCodes() throws InternalServerException {

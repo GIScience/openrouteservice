@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.mapmatching;
+package org.heigit.ors.mapmatching;
 
 public class MapMatchingErrorCodes {
    public static int INVALID_JSON_FORMAT = 800; 

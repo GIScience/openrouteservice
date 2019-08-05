@@ -1,4 +1,4 @@
-package heigit.ors.routing.graphhopper.extensions.util;
+package org.heigit.ors.routing.graphhopper.extensions.util;
 
 import org.junit.Test;
 

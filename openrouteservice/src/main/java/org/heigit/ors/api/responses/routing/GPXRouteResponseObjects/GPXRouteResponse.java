@@ -13,12 +13,12 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.routing.GPXRouteResponseObjects;
+package org.heigit.ors.api.responses.routing.GPXRouteResponseObjects;
 
-import heigit.ors.api.requests.routing.RouteRequest;
-import heigit.ors.api.responses.routing.RouteResponse;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.routing.RouteResult;
+import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.api.responses.routing.RouteResponse;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.routing.RouteResult;
 import io.swagger.annotations.ApiModel;
 
 import javax.xml.bind.annotation.XmlAttribute;

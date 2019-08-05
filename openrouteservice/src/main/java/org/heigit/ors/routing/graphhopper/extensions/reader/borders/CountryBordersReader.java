@@ -11,12 +11,12 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions.reader.borders;
+package org.heigit.ors.routing.graphhopper.extensions.reader.borders;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import heigit.ors.geojson.GeometryJSON;
-import heigit.ors.util.CSVUtility;
+import org.heigit.ors.geojson.GeometryJSON;
+import org.heigit.ors.util.CSVUtility;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;

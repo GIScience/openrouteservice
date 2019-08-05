@@ -13,7 +13,7 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.common.BoundingBox;
+package org.heigit.ors.api.responses.common.BoundingBox;
 
 import com.graphhopper.util.shapes.BBox;
 

@@ -13,24 +13,24 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.controllers;
+package org.heigit.ors.api.controllers;
 
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
-import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.api.requests.routing.RouteRequest;
-import heigit.ors.api.requests.routing.RouteRequestHandler;
-import heigit.ors.api.responses.routing.GPXRouteResponseObjects.GPXRouteResponse;
-import heigit.ors.api.responses.routing.GeoJSONRouteResponseObjects.GeoJSONRouteResponse;
-import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONRouteResponse;
-import heigit.ors.common.StatusCode;
-import heigit.ors.exceptions.*;
-import heigit.ors.routing.RouteResult;
-import heigit.ors.routing.RoutingErrorCodes;
+import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.api.requests.routing.RouteRequestHandler;
+import org.heigit.ors.api.responses.routing.GPXRouteResponseObjects.GPXRouteResponse;
+import org.heigit.ors.api.responses.routing.GeoJSONRouteResponseObjects.GeoJSONRouteResponse;
+import org.heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONRouteResponse;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.exceptions.*;
+import org.heigit.ors.routing.RouteResult;
+import org.heigit.ors.routing.RoutingErrorCodes;
 import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;

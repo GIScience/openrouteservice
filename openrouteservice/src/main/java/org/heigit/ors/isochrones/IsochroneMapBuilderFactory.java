@@ -11,13 +11,13 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.isochrones;
+package org.heigit.ors.isochrones;
 
-import heigit.ors.isochrones.IsochroneSearchParameters;
-import heigit.ors.isochrones.builders.IsochroneMapBuilder;
-import heigit.ors.isochrones.builders.concaveballs.ConcaveBallsIsochroneMapBuilder;
-import heigit.ors.isochrones.builders.grid.GridBasedIsochroneMapBuilder;
-import heigit.ors.routing.RouteSearchContext;
+import org.heigit.ors.isochrones.IsochroneSearchParameters;
+import org.heigit.ors.isochrones.builders.IsochroneMapBuilder;
+import org.heigit.ors.isochrones.builders.concaveballs.ConcaveBallsIsochroneMapBuilder;
+import org.heigit.ors.isochrones.builders.grid.GridBasedIsochroneMapBuilder;
+import org.heigit.ors.routing.RouteSearchContext;
 
 import com.graphhopper.util.Helper;
 

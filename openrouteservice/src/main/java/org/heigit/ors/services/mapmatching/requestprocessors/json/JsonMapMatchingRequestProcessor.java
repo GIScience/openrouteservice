@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.services.mapmatching.requestprocessors.json;
+package org.heigit.ors.services.mapmatching.requestprocessors.json;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,17 +20,17 @@ import org.json.JSONObject;
 
 import com.graphhopper.util.Helper;
 
-import heigit.ors.common.StatusCode;
-import heigit.ors.exceptions.ParameterOutOfRangeException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.mapmatching.MapMatchingErrorCodes;
-import heigit.ors.mapmatching.MapMatchingRequest;
-import heigit.ors.routing.RouteResult;
-import heigit.ors.routing.RoutingProfileManager;
-import heigit.ors.services.mapmatching.MapMatchingServiceSettings;
-import heigit.ors.services.matrix.MatrixServiceSettings;
-import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
-import heigit.ors.servlet.util.ServletUtility;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.exceptions.ParameterOutOfRangeException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.mapmatching.MapMatchingErrorCodes;
+import org.heigit.ors.mapmatching.MapMatchingRequest;
+import org.heigit.ors.routing.RouteResult;
+import org.heigit.ors.routing.RoutingProfileManager;
+import org.heigit.ors.services.mapmatching.MapMatchingServiceSettings;
+import org.heigit.ors.services.matrix.MatrixServiceSettings;
+import org.heigit.ors.servlet.http.AbstractHttpRequestProcessor;
+import org.heigit.ors.servlet.util.ServletUtility;
 
 public class JsonMapMatchingRequestProcessor extends AbstractHttpRequestProcessor {
 

@@ -1,4 +1,4 @@
-package heigit.ors.exceptions;
+package org.heigit.ors.exceptions;
 
 import org.apache.log4j.Logger;
 

@@ -39,7 +39,7 @@
  * You should have received a copy of the GNU Lesser General Public 
  * License along with jai-tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-package heigit.ors.jts;
+package org.heigit.ors.jts;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

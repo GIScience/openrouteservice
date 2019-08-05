@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.algorithms;
+package org.heigit.ors.routing.algorithms;
 
 import java.util.PriorityQueue;
 
@@ -26,10 +26,10 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 
-import heigit.ors.routing.graphhopper.extensions.edgefilters.ch.DownwardSearchEdgeFilter;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.ch.UpwardSearchEdgeFilter;
-import heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
-import heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch.DownwardSearchEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch.UpwardSearchEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
+import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
 
 public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 	//private final Logger logger = LoggerFactory.getLogger(getClass());

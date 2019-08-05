@@ -13,7 +13,7 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.routing.graphhopper.extensions.flagencoders;
+package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
@@ -25,7 +25,7 @@ import com.graphhopper.routing.util.EncodedValueOld; // Required because ORS Fla
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.IntsRef;
-import heigit.ors.routing.graphhopper.extensions.OSMTags;
+import org.heigit.ors.routing.graphhopper.extensions.OSMTags;
 
 import java.util.*;
 

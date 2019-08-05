@@ -11,14 +11,14 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.services.geocoding;
+package org.heigit.ors.services.geocoding;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
-import heigit.ors.services.geocoding.requestprocessors.GeocodingServiceRequestProcessorFactory;
-import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
-import heigit.ors.servlet.http.BaseHttpServlet;
+import org.heigit.ors.services.geocoding.requestprocessors.GeocodingServiceRequestProcessorFactory;
+import org.heigit.ors.servlet.http.AbstractHttpRequestProcessor;
+import org.heigit.ors.servlet.http.BaseHttpServlet;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

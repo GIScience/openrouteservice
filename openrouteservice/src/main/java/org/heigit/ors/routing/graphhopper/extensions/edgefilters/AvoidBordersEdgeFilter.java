@@ -11,15 +11,15 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions.edgefilters;
+package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
-import heigit.ors.routing.RouteSearchParameters;
-import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
-import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import heigit.ors.routing.pathprocessors.BordersExtractor;
+import org.heigit.ors.routing.RouteSearchParameters;
+import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.apache.log4j.Logger;
 
 public class AvoidBordersEdgeFilter implements EdgeFilter {

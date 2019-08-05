@@ -1,8 +1,8 @@
-package heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects;
+package org.heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.isochrones.Isochrone;
-import heigit.ors.isochrones.IsochroneMap;
+import org.heigit.ors.isochrones.Isochrone;
+import org.heigit.ors.isochrones.IsochroneMap;
 
 import java.util.ArrayList;
 import java.util.List;

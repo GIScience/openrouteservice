@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions.storages.builders;
+package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +23,7 @@ import com.graphhopper.util.EdgeIteratorState;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
-import heigit.ors.plugins.Plugin;
+import org.heigit.ors.plugins.Plugin;
 
 public interface GraphStorageBuilder extends Plugin
 {

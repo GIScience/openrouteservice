@@ -11,11 +11,11 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions;
+package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.EncodingManager;
-import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.apache.log4j.Logger;
 
 import java.io.File;

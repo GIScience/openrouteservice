@@ -11,13 +11,13 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.instructions;
+package org.heigit.ors.routing.instructions;
 
 import com.graphhopper.util.Helper;
 
-import heigit.ors.common.ArrivalDirection;
-import heigit.ors.common.CardinalDirection;
-import heigit.ors.localization.LanguageResources;
+import org.heigit.ors.common.ArrivalDirection;
+import org.heigit.ors.common.CardinalDirection;
+import org.heigit.ors.localization.LanguageResources;
 
 public class InstructionTranslator 
 {

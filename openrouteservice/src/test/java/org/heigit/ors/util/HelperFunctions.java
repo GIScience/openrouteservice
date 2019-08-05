@@ -1,4 +1,4 @@
-package heigit.ors.util;
+package org.heigit.ors.util;
 
 import org.json.JSONArray;
 

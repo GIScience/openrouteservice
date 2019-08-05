@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.services.isochrones.requestprocessors.json;
+package org.heigit.ors.services.isochrones.requestprocessors.json;
 
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.BBox;
@@ -19,20 +19,20 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
-import heigit.ors.common.*;
-import heigit.ors.config.AppConfig;
-import heigit.ors.exceptions.ParameterOutOfRangeException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.geojson.GeometryJSON;
-import heigit.ors.isochrones.*;
-import heigit.ors.routing.RoutingProfileManager;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.services.isochrones.IsochronesServiceSettings;
-import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
-import heigit.ors.servlet.util.ServletUtility;
-import heigit.ors.util.AppInfo;
-import heigit.ors.util.FormatUtility;
-import heigit.ors.util.StringUtility;
+import org.heigit.ors.common.*;
+import org.heigit.ors.config.AppConfig;
+import org.heigit.ors.exceptions.ParameterOutOfRangeException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.geojson.GeometryJSON;
+import org.heigit.ors.isochrones.*;
+import org.heigit.ors.routing.RoutingProfileManager;
+import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
+import org.heigit.ors.servlet.http.AbstractHttpRequestProcessor;
+import org.heigit.ors.servlet.util.ServletUtility;
+import org.heigit.ors.util.AppInfo;
+import org.heigit.ors.util.FormatUtility;
+import org.heigit.ors.util.StringUtility;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

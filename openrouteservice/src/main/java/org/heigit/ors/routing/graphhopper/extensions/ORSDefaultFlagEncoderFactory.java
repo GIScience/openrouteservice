@@ -11,13 +11,13 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions;
+package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.routing.util.DefaultFlagEncoderFactory;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.FlagEncoderFactory;
 import com.graphhopper.util.PMap;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
 public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory implements FlagEncoderFactory {
 
@@ -34,19 +34,19 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
                 return super.createFlagEncoder(name, configuration);
 
             case FlagEncoderNames.CAR_ORS:
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.CarFlagEncoder(configuration);
+                return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.CarFlagEncoder(configuration);
 
             case FlagEncoderNames.EMERGENCY:
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.EmergencyFlagEncoder(configuration);
+                return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.EmergencyFlagEncoder(configuration);
 
             case FlagEncoderNames.HEAVYVEHICLE:
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.HeavyVehicleFlagEncoder(configuration);
+                return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.HeavyVehicleFlagEncoder(configuration);
 
             case FlagEncoderNames.BIKE_ORS:
                 if (configuration.getBool("consider_elevation", false)) {
                     configuration.remove("consider_elevation");
                 }
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.bike.RegularBikeFlagEncoder(configuration);
+                return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.RegularBikeFlagEncoder(configuration);
 
             case FlagEncoderNames.MTB_ORS:
                 // MARQ24 hardcoded "ignore" consider_elevation for the NextGenMountainBike FlagEncoder - when
@@ -54,7 +54,7 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
                 if(configuration.getBool("consider_elevation", false)){
                     configuration.remove("consider_elevation");
                 }
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.bike.MountainBikeFlagEncoder(configuration);
+                return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.MountainBikeFlagEncoder(configuration);
 
             case FlagEncoderNames.BIKE_ELECTRO:
                 // MARQ24 hardcoded "ignore" consider_elevation for the NextGenMountainBike FlagEncoder - when
@@ -62,7 +62,7 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
                 if(configuration.getBool("consider_elevation", false)){
                     configuration.remove("consider_elevation");
                 }
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.bike.ElectroBikeFlagEncoder(configuration);
+                return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.ElectroBikeFlagEncoder(configuration);
 
             case FlagEncoderNames.ROADBIKE_ORS:
                 // MARQ24 hardcoded "ignore" consider_elevation for the NextGenRoadbike FlagEncoder - when
@@ -71,16 +71,16 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
                 if(configuration.getBool("consider_elevation", false)){
                     configuration.remove("consider_elevation");
                 }
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.bike.RoadBikeFlagEncoder(configuration);
+                return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.RoadBikeFlagEncoder(configuration);
 
             case FlagEncoderNames.WHEELCHAIR:
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder(configuration);
+                return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder(configuration);
 
             case FlagEncoderNames.PEDESTRIAN_ORS:
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.PedestrianFlagEncoder(configuration);
+                return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.PedestrianFlagEncoder(configuration);
 
             case FlagEncoderNames.HIKING_ORS:
-                return new heigit.ors.routing.graphhopper.extensions.flagencoders.HikingFlagEncoder(configuration);
+                return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.HikingFlagEncoder(configuration);
         }
     }
 }

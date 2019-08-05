@@ -13,13 +13,13 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api;
+package org.heigit.ors.api;
 
 import com.bedatadriven.jackson.datatype.jts.JtsModule;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import heigit.ors.api.converters.APIRequestProfileConverter;
-import heigit.ors.api.converters.APIRequestSingleCoordinateConverter;
+import org.heigit.ors.api.converters.APIRequestProfileConverter;
+import org.heigit.ors.api.converters.APIRequestSingleCoordinateConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;

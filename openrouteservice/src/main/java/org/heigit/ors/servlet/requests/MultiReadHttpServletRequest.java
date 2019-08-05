@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.servlet.requests;
+package org.heigit.ors.servlet.requests;
 
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletRequest;
@@ -20,7 +20,7 @@ import javax.servlet.ServletInputStream;
 
 import java.io.*;
 
-import heigit.ors.util.StreamUtility;
+import org.heigit.ors.util.StreamUtility;
 
 public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
 

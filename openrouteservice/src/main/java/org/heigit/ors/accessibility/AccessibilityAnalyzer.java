@@ -12,7 +12,7 @@
  *  if not, see <https://www.gnu.org/licenses/>.  
  *//*
 
-package heigit.ors.accessibility;
+package org.heigit.ors.accessibility;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,21 +23,21 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
-import heigit.ors.common.NamedLocation;
-import heigit.ors.common.TravellerInfo;
-import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.isochrones.IsochroneMap;
-import heigit.ors.isochrones.IsochroneMapCollection;
-import heigit.ors.isochrones.IsochroneSearchParameters;
-import heigit.ors.locations.LocationsRequest;
-import heigit.ors.locations.LocationsResult;
-import heigit.ors.locations.providers.LocationsDataProvider;
-import heigit.ors.locations.providers.LocationsDataProviderFactory;
-import heigit.ors.routing.RouteResult;
-import heigit.ors.routing.RoutingProfileManager;
-import heigit.ors.routing.RoutingRequest;
-import heigit.ors.services.locations.LocationsServiceSettings;
-import heigit.ors.util.GeomUtility;
+import org.heigit.ors.common.NamedLocation;
+import org.heigit.ors.common.TravellerInfo;
+import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.isochrones.IsochroneMap;
+import org.heigit.ors.isochrones.IsochroneMapCollection;
+import org.heigit.ors.isochrones.IsochroneSearchParameters;
+import org.heigit.ors.locations.LocationsRequest;
+import org.heigit.ors.locations.LocationsResult;
+import org.heigit.ors.locations.providers.LocationsDataProvider;
+import org.heigit.ors.locations.providers.LocationsDataProviderFactory;
+import org.heigit.ors.routing.RouteResult;
+import org.heigit.ors.routing.RoutingProfileManager;
+import org.heigit.ors.routing.RoutingRequest;
+import org.heigit.ors.services.locations.LocationsServiceSettings;
+import org.heigit.ors.util.GeomUtility;
 
 public class AccessibilityAnalyzer 
 {

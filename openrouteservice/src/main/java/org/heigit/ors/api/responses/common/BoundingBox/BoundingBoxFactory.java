@@ -13,17 +13,17 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.common.BoundingBox;
+package org.heigit.ors.api.responses.common.BoundingBox;
 
 import com.graphhopper.util.shapes.BBox;
-import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.api.requests.isochrones.IsochronesRequest;
-import heigit.ors.api.requests.routing.RouteRequest;
-import heigit.ors.api.responses.routing.GPXRouteResponseObjects.GPXBounds;
-import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSON3DBoundingBox;
-import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONBoundingBox;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.routing.RoutingErrorCodes;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
+import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.api.responses.routing.GPXRouteResponseObjects.GPXBounds;
+import org.heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSON3DBoundingBox;
+import org.heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONBoundingBox;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.routing.RoutingErrorCodes;
 
 public class BoundingBoxFactory {
     private BoundingBoxFactory() {

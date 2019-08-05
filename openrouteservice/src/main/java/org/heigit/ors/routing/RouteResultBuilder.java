@@ -11,21 +11,21 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing;
+package org.heigit.ors.routing;
 
 import com.graphhopper.GHResponse;
 import com.graphhopper.PathWrapper;
 import com.graphhopper.util.*;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.common.ArrivalDirection;
-import heigit.ors.common.CardinalDirection;
-import heigit.ors.common.DistanceUnit;
-import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.routing.instructions.InstructionTranslator;
-import heigit.ors.routing.instructions.InstructionTranslatorsCache;
-import heigit.ors.routing.instructions.InstructionType;
-import heigit.ors.util.DistanceUnitUtil;
-import heigit.ors.util.FormatUtility;
+import org.heigit.ors.common.ArrivalDirection;
+import org.heigit.ors.common.CardinalDirection;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.routing.instructions.InstructionTranslator;
+import org.heigit.ors.routing.instructions.InstructionTranslatorsCache;
+import org.heigit.ors.routing.instructions.InstructionType;
+import org.heigit.ors.util.DistanceUnitUtil;
+import org.heigit.ors.util.FormatUtility;
 
 import java.util.List;
 

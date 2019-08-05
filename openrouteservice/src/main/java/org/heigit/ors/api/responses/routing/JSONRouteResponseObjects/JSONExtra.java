@@ -13,11 +13,11 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
+package org.heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import heigit.ors.routing.ExtraSummaryItem;
-import heigit.ors.routing.RouteSegmentItem;
+import org.heigit.ors.routing.ExtraSummaryItem;
+import org.heigit.ors.routing.RouteSegmentItem;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 

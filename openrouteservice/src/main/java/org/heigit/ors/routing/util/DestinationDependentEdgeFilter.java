@@ -1,4 +1,4 @@
-package heigit.ors.routing.util;
+package org.heigit.ors.routing.util;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;

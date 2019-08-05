@@ -23,16 +23,16 @@
  *
  */
 
-package heigit.ors.util.mockupUtil;
+package org.heigit.ors.util.mockupUtil;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.common.DistanceUnit;
-import heigit.ors.routing.RouteInstructionsFormat;
-import heigit.ors.routing.RoutingRequest;
-import heigit.ors.routing.pathprocessors.BordersExtractor;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.routing.RouteInstructionsFormat;
+import org.heigit.ors.routing.RoutingRequest;
+import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 
 /**
- * This is a {@link heigit.ors.routing.RoutingRequest} Mockup-Class, used in junit tests and wherever needed.
+ * This is a {@link org.heigit.ors.routing.RoutingRequest} Mockup-Class, used in junit tests and wherever needed.
  * The mockup is intended as generic as possible and is very flexible. Make sure you check the element out and understand it before integration!
  * The enum routeProfile is intended as a variable that makes the creation of new and personal mockups really easy and flexible.
  * For a new mockup routeProfile add it to the enum first and than to the create function as a new "else if()" choice.
@@ -124,7 +124,7 @@ public class RoutingRequestMockup {
     }
 
     /**
-     * This function initializes the {@link heigit.ors.routing.RouteSearchParameters} from the {@link RoutingRequest} with standard variables from self-designed profiles.
+     * This function initializes the {@link org.heigit.ors.routing.RouteSearchParameters} from the {@link RoutingRequest} with standard variables from self-designed profiles.
      */
     private void setRouteSearchParameters(searchParamProfile profile) throws Exception {
         if (profile == searchParamProfile.standardCarSearchProfile) {

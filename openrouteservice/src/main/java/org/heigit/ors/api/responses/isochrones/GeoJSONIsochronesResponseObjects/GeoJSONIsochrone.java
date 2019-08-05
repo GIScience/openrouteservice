@@ -1,9 +1,9 @@
-package heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects;
+package org.heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import heigit.ors.isochrones.Isochrone;
+import org.heigit.ors.isochrones.Isochrone;
 
 public class GeoJSONIsochrone extends GeoJSONIsochroneBase {
     private Isochrone isochrone;

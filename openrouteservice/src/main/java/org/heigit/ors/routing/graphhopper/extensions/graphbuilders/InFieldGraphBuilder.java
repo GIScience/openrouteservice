@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions.graphbuilders;
+package org.heigit.ors.routing.graphhopper.extensions.graphbuilders;
 
 import com.carrotsearch.hppc.IntIndexedContainer;
 import com.carrotsearch.hppc.LongArrayList;
@@ -33,7 +33,7 @@ import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.*;
-import heigit.ors.routing.graphhopper.extensions.DataReaderContext;
+import org.heigit.ors.routing.graphhopper.extensions.DataReaderContext;
 
 import java.util.*;
 

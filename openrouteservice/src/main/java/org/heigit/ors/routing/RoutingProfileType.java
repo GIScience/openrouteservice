@@ -11,9 +11,9 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing;
+package org.heigit.ors.routing;
 
-import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
 public class RoutingProfileType {
     public static final int UNKNOWN = 0;

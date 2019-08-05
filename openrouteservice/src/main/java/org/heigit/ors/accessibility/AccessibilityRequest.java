@@ -12,18 +12,18 @@
  *  if not, see <https://www.gnu.org/licenses/>.  
  *//*
 
-package heigit.ors.accessibility;
+package org.heigit.ors.accessibility;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import heigit.ors.common.NamedLocation;
-import heigit.ors.common.TravelRangeType;
-import heigit.ors.common.TravellerInfo;
-import heigit.ors.isochrones.IsochroneSearchParameters;
-import heigit.ors.locations.LocationsRequest;
-import heigit.ors.services.ServiceRequest;
-import heigit.ors.services.accessibility.AccessibilityServiceSettings;
+import org.heigit.ors.common.NamedLocation;
+import org.heigit.ors.common.TravelRangeType;
+import org.heigit.ors.common.TravellerInfo;
+import org.heigit.ors.isochrones.IsochroneSearchParameters;
+import org.heigit.ors.locations.LocationsRequest;
+import org.heigit.ors.services.ServiceRequest;
+import org.heigit.ors.services.accessibility.AccessibilityServiceSettings;
 
 public class AccessibilityRequest extends ServiceRequest
 {

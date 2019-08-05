@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions.storages.builders;
+package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,9 +30,9 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 
-import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
-import heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
-import heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
+import org.heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
+import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 
 public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 {

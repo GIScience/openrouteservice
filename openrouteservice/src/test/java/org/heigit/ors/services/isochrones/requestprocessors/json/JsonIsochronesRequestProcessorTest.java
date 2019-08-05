@@ -1,4 +1,4 @@
-package heigit.ors.services.isochrones.requestprocessors.json;
+package org.heigit.ors.services.isochrones.requestprocessors.json;
 
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.*;

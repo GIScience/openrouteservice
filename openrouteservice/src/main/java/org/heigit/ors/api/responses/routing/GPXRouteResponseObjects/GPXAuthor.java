@@ -13,10 +13,10 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.routing.GPXRouteResponseObjects;
+package org.heigit.ors.api.responses.routing.GPXRouteResponseObjects;
 
-import heigit.ors.config.AppConfig;
-import heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.config.AppConfig;
+import org.heigit.ors.exceptions.InternalServerException;
 
 import javax.xml.bind.annotation.XmlElement;
 

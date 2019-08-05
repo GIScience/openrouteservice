@@ -11,14 +11,14 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing;
+package org.heigit.ors.routing;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
-import heigit.ors.util.RuntimeUtility;
+import org.heigit.ors.util.RuntimeUtility;
 
 public class RoutingProfilesCollection {
 	private HashMap<Integer, RoutingProfile> m_routeProfiles;

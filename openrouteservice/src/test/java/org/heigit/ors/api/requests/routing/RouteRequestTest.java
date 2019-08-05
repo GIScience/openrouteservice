@@ -13,11 +13,11 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.requests.routing;
+package org.heigit.ors.api.requests.routing;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.exceptions.ParameterValueException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

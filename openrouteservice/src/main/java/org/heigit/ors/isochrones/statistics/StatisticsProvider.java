@@ -18,11 +18,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.isochrones.statistics;
+package org.heigit.ors.isochrones.statistics;
 
 import java.util.Map;
 
-import heigit.ors.isochrones.Isochrone;
+import org.heigit.ors.isochrones.Isochrone;
 
 public interface StatisticsProvider {
 	public void init(Map<String, Object> parameters) throws Exception;	

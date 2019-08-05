@@ -23,36 +23,36 @@
  *
  */
 
-package heigit.ors.globalResponseProcessor.gpx;
+package org.heigit.ors.globalResponseProcessor.gpx;
 
 
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
-import heigit.ors.config.AppConfig;
-import heigit.ors.exceptions.MissingConfigParameterException;
-import heigit.ors.routing.RouteResult;
-import heigit.ors.routing.RouteSegment;
-import heigit.ors.routing.RouteStep;
-import heigit.ors.routing.RouteSummary;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.RoutingRequest;
-import heigit.ors.routing.WeightingMethod;
-import heigit.ors.services.routing.RoutingServiceSettings;
-import heigit.ors.util.AppInfo;
-import heigit.ors.util.GeomUtility;
-import heigit.ors.globalResponseProcessor.gpx.beans.BoundsType;
-import heigit.ors.globalResponseProcessor.gpx.beans.CopyrightType;
-import heigit.ors.globalResponseProcessor.gpx.beans.EmailType;
-import heigit.ors.globalResponseProcessor.gpx.beans.Gpx;
-import heigit.ors.globalResponseProcessor.gpx.beans.GpxExtensions;
-import heigit.ors.globalResponseProcessor.gpx.beans.LinkType;
-import heigit.ors.globalResponseProcessor.gpx.beans.MetadataType;
-import heigit.ors.globalResponseProcessor.gpx.beans.PersonType;
-import heigit.ors.globalResponseProcessor.gpx.beans.RteType;
-import heigit.ors.globalResponseProcessor.gpx.beans.RteTypeExtensions;
-import heigit.ors.globalResponseProcessor.gpx.beans.WptType;
-import heigit.ors.globalResponseProcessor.gpx.beans.WptTypeExtensions;
+import org.heigit.ors.config.AppConfig;
+import org.heigit.ors.exceptions.MissingConfigParameterException;
+import org.heigit.ors.routing.RouteResult;
+import org.heigit.ors.routing.RouteSegment;
+import org.heigit.ors.routing.RouteStep;
+import org.heigit.ors.routing.RouteSummary;
+import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.RoutingRequest;
+import org.heigit.ors.routing.WeightingMethod;
+import org.heigit.ors.services.routing.RoutingServiceSettings;
+import org.heigit.ors.util.AppInfo;
+import org.heigit.ors.util.GeomUtility;
+import org.heigit.ors.globalResponseProcessor.gpx.beans.BoundsType;
+import org.heigit.ors.globalResponseProcessor.gpx.beans.CopyrightType;
+import org.heigit.ors.globalResponseProcessor.gpx.beans.EmailType;
+import org.heigit.ors.globalResponseProcessor.gpx.beans.Gpx;
+import org.heigit.ors.globalResponseProcessor.gpx.beans.GpxExtensions;
+import org.heigit.ors.globalResponseProcessor.gpx.beans.LinkType;
+import org.heigit.ors.globalResponseProcessor.gpx.beans.MetadataType;
+import org.heigit.ors.globalResponseProcessor.gpx.beans.PersonType;
+import org.heigit.ors.globalResponseProcessor.gpx.beans.RteType;
+import org.heigit.ors.globalResponseProcessor.gpx.beans.RteTypeExtensions;
+import org.heigit.ors.globalResponseProcessor.gpx.beans.WptType;
+import org.heigit.ors.globalResponseProcessor.gpx.beans.WptTypeExtensions;
 
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;

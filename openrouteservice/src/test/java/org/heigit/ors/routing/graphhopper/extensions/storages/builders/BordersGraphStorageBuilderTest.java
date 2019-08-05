@@ -11,14 +11,14 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions.storages.builders;
+package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.reader.ReaderWay;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersHierarchy;
-import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
-import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
+import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersHierarchy;
+import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
+import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.junit.Assert;
 import org.junit.Test;
 

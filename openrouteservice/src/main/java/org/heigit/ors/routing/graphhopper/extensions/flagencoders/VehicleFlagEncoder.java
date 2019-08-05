@@ -13,7 +13,7 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.routing.graphhopper.extensions.flagencoders;
+package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;

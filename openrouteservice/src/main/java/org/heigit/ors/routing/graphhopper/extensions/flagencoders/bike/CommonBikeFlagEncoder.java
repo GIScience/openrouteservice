@@ -15,7 +15,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
+package org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
@@ -24,7 +24,7 @@ import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.*;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
 import org.apache.log4j.Logger;
 
 import java.util.*;

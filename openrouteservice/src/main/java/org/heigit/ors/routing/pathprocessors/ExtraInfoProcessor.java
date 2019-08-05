@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.pathprocessors;
+package org.heigit.ors.routing.pathprocessors;
 
 import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
@@ -25,19 +25,19 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.routing.*;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKeys;
-import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
-import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
-import heigit.ors.routing.graphhopper.extensions.storages.*;
-import heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
-import heigit.ors.routing.parameters.ProfileParameters;
-import heigit.ors.routing.util.ElevationSmoother;
-import heigit.ors.routing.util.WaySurfaceDescription;
-import heigit.ors.routing.util.extrainfobuilders.AppendableSteepnessExtraInfoBuilder;
-import heigit.ors.routing.util.extrainfobuilders.RouteExtraInfoBuilder;
-import heigit.ors.routing.util.extrainfobuilders.AppendableRouteExtraInfoBuilder;
-import heigit.ors.routing.util.extrainfobuilders.SteepnessExtraInfoBuilder;
+import org.heigit.ors.routing.*;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKeys;
+import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
+import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
+import org.heigit.ors.routing.graphhopper.extensions.storages.*;
+import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
+import org.heigit.ors.routing.parameters.ProfileParameters;
+import org.heigit.ors.routing.util.ElevationSmoother;
+import org.heigit.ors.routing.util.WaySurfaceDescription;
+import org.heigit.ors.routing.util.extrainfobuilders.AppendableSteepnessExtraInfoBuilder;
+import org.heigit.ors.routing.util.extrainfobuilders.RouteExtraInfoBuilder;
+import org.heigit.ors.routing.util.extrainfobuilders.AppendableRouteExtraInfoBuilder;
+import org.heigit.ors.routing.util.extrainfobuilders.SteepnessExtraInfoBuilder;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;

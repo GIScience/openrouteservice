@@ -12,7 +12,7 @@
  *  if not, see <https://www.gnu.org/licenses/>.  
  *//*
 
-package heigit.ors.accessibility;
+package org.heigit.ors.accessibility;
 
 public class AccessibilityErrorCodes {
 	public static int INVALID_JSON_FORMAT = 500; 

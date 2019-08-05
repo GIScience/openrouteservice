@@ -11,10 +11,10 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.services.routing;
+package org.heigit.ors.services.routing;
 
-import heigit.ors.services.common.EndPointAnnotation;
-import heigit.ors.services.common.ServiceTest;
+import org.heigit.ors.services.common.EndPointAnnotation;
+import org.heigit.ors.services.common.ServiceTest;
 import io.restassured.response.Response;
 import junit.framework.Assert;
 import org.json.JSONArray;

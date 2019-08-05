@@ -1,14 +1,14 @@
-package heigit.ors.api.responses.matrix.JSONMatrixResponseObjects;
+package org.heigit.ors.api.responses.matrix.JSONMatrixResponseObjects;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.api.requests.matrix.MatrixRequest;
-import heigit.ors.api.requests.matrix.MatrixRequestEnums;
-import heigit.ors.api.responses.matrix.MatrixResponseInfo;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.matrix.MatrixMetricsType;
-import heigit.ors.matrix.MatrixResult;
-import heigit.ors.matrix.ResolvedLocation;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.matrix.MatrixRequest;
+import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
+import org.heigit.ors.api.responses.matrix.MatrixResponseInfo;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.matrix.MatrixMetricsType;
+import org.heigit.ors.matrix.MatrixResult;
+import org.heigit.ors.matrix.ResolvedLocation;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

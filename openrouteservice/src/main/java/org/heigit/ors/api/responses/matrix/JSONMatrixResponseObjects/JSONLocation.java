@@ -13,13 +13,13 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.matrix.JSONMatrixResponseObjects;
+package org.heigit.ors.api.responses.matrix.JSONMatrixResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.matrix.ResolvedLocation;
-import heigit.ors.util.FormatUtility;
+import org.heigit.ors.matrix.ResolvedLocation;
+import org.heigit.ors.util.FormatUtility;
 import io.swagger.annotations.ApiModelProperty;
 
 public class JSONLocation {

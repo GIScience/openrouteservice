@@ -11,9 +11,9 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.logging;
+package org.heigit.ors.logging;
 
-import heigit.ors.config.AppConfig;
+import org.heigit.ors.config.AppConfig;
 
 public class LoggingSettings {
 	private static boolean enabled;

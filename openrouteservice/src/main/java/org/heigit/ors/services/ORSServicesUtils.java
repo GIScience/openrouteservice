@@ -11,20 +11,20 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.services;
+package org.heigit.ors.services;
 
 import com.graphhopper.storage.StorableProperties;
-import heigit.ors.localization.LocalizationManager;
-import heigit.ors.routing.RoutingProfile;
-import heigit.ors.routing.RoutingProfileManager;
-import heigit.ors.routing.RoutingProfileManagerStatus;
-import heigit.ors.routing.configuration.RouteProfileConfiguration;
-import heigit.ors.services.geocoding.GeocodingServiceSettings;
-import heigit.ors.services.isochrones.IsochronesServiceSettings;
-import heigit.ors.services.mapmatching.MapMatchingServiceSettings;
-import heigit.ors.services.matrix.MatrixServiceSettings;
-import heigit.ors.services.routing.RoutingServiceSettings;
-import heigit.ors.util.AppInfo;
+import org.heigit.ors.localization.LocalizationManager;
+import org.heigit.ors.routing.RoutingProfile;
+import org.heigit.ors.routing.RoutingProfileManager;
+import org.heigit.ors.routing.RoutingProfileManagerStatus;
+import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.heigit.ors.services.geocoding.GeocodingServiceSettings;
+import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
+import org.heigit.ors.services.mapmatching.MapMatchingServiceSettings;
+import org.heigit.ors.services.matrix.MatrixServiceSettings;
+import org.heigit.ors.services.routing.RoutingServiceSettings;
+import org.heigit.ors.util.AppInfo;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,7 +39,7 @@ import java.util.List;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
-//import heigit.ors.services.accessibility.AccessibilityServiceSettings;
+//import org.heigit.ors.services.accessibility.AccessibilityServiceSettings;
 
 public class ORSServicesUtils {
 

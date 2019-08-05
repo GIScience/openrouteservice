@@ -13,7 +13,7 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.routing.graphhopper.extensions;
+package org.heigit.ors.routing.graphhopper.extensions;
 
 public class OSMTags {
     private OSMTags() { }

@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.isochrones;
+package org.heigit.ors.isochrones;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.Objects;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
-import heigit.ors.common.Pair;
+import org.heigit.ors.common.Pair;
 
 public class IsochroneUtility {
 	public static List<IsochronesIntersection> computeIntersections(IsochroneMapCollection isochroneMaps)

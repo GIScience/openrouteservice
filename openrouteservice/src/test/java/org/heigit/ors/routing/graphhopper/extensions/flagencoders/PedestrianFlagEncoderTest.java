@@ -13,7 +13,7 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.routing.graphhopper.extensions.flagencoders;
+package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
@@ -25,7 +25,7 @@ import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
-import heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
+import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

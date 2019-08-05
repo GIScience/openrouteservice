@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.util;
+package org.heigit.ors.util;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -20,7 +20,7 @@ import java.util.Locale;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import heigit.ors.common.DistanceUnit;
+import org.heigit.ors.common.DistanceUnit;
 
 public class FormatUtility {
 	//private static NumberFormat nfCoordRound;

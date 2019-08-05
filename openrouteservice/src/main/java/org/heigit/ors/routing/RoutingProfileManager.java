@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing;
+package org.heigit.ors.routing;
 
 import com.graphhopper.GHResponse;
 import com.graphhopper.routing.util.PathProcessor;
@@ -19,25 +19,25 @@ import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.exceptions.PointNotFoundException;
-import heigit.ors.exceptions.RouteNotFoundException;
-import heigit.ors.exceptions.ServerLimitExceededException;
-import heigit.ors.isochrones.IsochroneMap;
-import heigit.ors.isochrones.IsochroneSearchParameters;
-import heigit.ors.mapmatching.MapMatchingRequest;
-import heigit.ors.matrix.MatrixErrorCodes;
-import heigit.ors.matrix.MatrixRequest;
-import heigit.ors.matrix.MatrixResult;
-import heigit.ors.routing.configuration.RouteProfileConfiguration;
-import heigit.ors.routing.configuration.RoutingManagerConfiguration;
-import heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
-import heigit.ors.services.routing.RoutingServiceSettings;
-import heigit.ors.util.FormatUtility;
-import heigit.ors.util.RuntimeUtility;
-import heigit.ors.util.StringUtility;
-import heigit.ors.util.TimeUtility;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.exceptions.PointNotFoundException;
+import org.heigit.ors.exceptions.RouteNotFoundException;
+import org.heigit.ors.exceptions.ServerLimitExceededException;
+import org.heigit.ors.isochrones.IsochroneMap;
+import org.heigit.ors.isochrones.IsochroneSearchParameters;
+import org.heigit.ors.mapmatching.MapMatchingRequest;
+import org.heigit.ors.matrix.MatrixErrorCodes;
+import org.heigit.ors.matrix.MatrixRequest;
+import org.heigit.ors.matrix.MatrixResult;
+import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.heigit.ors.routing.configuration.RoutingManagerConfiguration;
+import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
+import org.heigit.ors.services.routing.RoutingServiceSettings;
+import org.heigit.ors.util.FormatUtility;
+import org.heigit.ors.util.RuntimeUtility;
+import org.heigit.ors.util.StringUtility;
+import org.heigit.ors.util.TimeUtility;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;

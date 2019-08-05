@@ -13,7 +13,7 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.routing.graphhopper.extensions.storages.builders;
+package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
@@ -22,9 +22,9 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
-import heigit.ors.routing.graphhopper.extensions.storages.RoadAccessRestrictionsGraphStorage;
+import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
+import org.heigit.ors.routing.graphhopper.extensions.storages.RoadAccessRestrictionsGraphStorage;
 
 import java.util.*;
 

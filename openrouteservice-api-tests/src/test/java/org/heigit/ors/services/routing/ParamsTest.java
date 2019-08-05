@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.services.routing;
+package org.heigit.ors.services.routing;
 
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
@@ -19,8 +19,8 @@ import static org.hamcrest.Matchers.*;
 import org.junit.Test;
 import org.json.JSONObject;
 
-import heigit.ors.services.common.EndPointAnnotation;
-import heigit.ors.services.common.ServiceTest;
+import org.heigit.ors.services.common.EndPointAnnotation;
+import org.heigit.ors.services.common.ServiceTest;
 
 @EndPointAnnotation(name = "routes")
 public class ParamsTest extends ServiceTest {

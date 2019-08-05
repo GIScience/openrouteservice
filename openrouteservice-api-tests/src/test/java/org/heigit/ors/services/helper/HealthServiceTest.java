@@ -18,14 +18,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.services.helper;
+package org.heigit.ors.services.helper;
 
 import static io.restassured.RestAssured.*;
 
 import org.junit.Test;
 
-import heigit.ors.services.common.EndPointAnnotation;
-import heigit.ors.services.common.ServiceTest;
+import org.heigit.ors.services.common.EndPointAnnotation;
+import org.heigit.ors.services.common.ServiceTest;
 
 @EndPointAnnotation(name="health")
 public class HealthServiceTest extends ServiceTest {

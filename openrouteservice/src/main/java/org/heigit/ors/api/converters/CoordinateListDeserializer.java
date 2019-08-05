@@ -13,7 +13,7 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.converters;
+package org.heigit.ors.api.converters;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.api.requests.common.CoordinateListWrapper;
+import org.heigit.ors.api.requests.common.CoordinateListWrapper;
 
 import java.io.IOException;
 import java.util.ArrayList;

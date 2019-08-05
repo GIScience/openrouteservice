@@ -13,10 +13,10 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.routing.graphhopper.extensions.storages;
+package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import heigit.ors.routing.RouteExtraInfo;
-import heigit.ors.routing.RouteWarning;
+import org.heigit.ors.routing.RouteExtraInfo;
+import org.heigit.ors.routing.RouteWarning;
 
 /**
  * Interface for declaring a graph storage as bein able to be used for producing warning messages

@@ -13,27 +13,27 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.requests.isochrones;
+package org.heigit.ors.api.requests.isochrones;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.api.requests.common.GenericHandler;
-import heigit.ors.api.requests.routing.RouteRequestHandler;
-import heigit.ors.api.requests.routing.RouteRequestOptions;
-import heigit.ors.common.DistanceUnit;
-import heigit.ors.common.StatusCode;
-import heigit.ors.common.TravelRangeType;
-import heigit.ors.common.TravellerInfo;
-import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.exceptions.ParameterOutOfRangeException;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.isochrones.*;
-import heigit.ors.routing.RouteSearchParameters;
-import heigit.ors.routing.RoutingProfileManager;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.services.isochrones.IsochronesServiceSettings;
-import heigit.ors.util.DistanceUnitUtil;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.common.GenericHandler;
+import org.heigit.ors.api.requests.routing.RouteRequestHandler;
+import org.heigit.ors.api.requests.routing.RouteRequestOptions;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.common.TravelRangeType;
+import org.heigit.ors.common.TravellerInfo;
+import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.exceptions.ParameterOutOfRangeException;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.isochrones.*;
+import org.heigit.ors.routing.RouteSearchParameters;
+import org.heigit.ors.routing.RoutingProfileManager;
+import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
+import org.heigit.ors.util.DistanceUnitUtil;
 
 import java.util.Arrays;
 import java.util.List;

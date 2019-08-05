@@ -1,7 +1,7 @@
-package heigit.ors.routing.graphhopper.extensions.storages;
+package org.heigit.ors.routing.graphhopper.extensions.storages;
 
 import com.graphhopper.storage.*;
-import heigit.ors.routing.graphhopper.extensions.util.EncodeUtils;
+import org.heigit.ors.routing.graphhopper.extensions.util.EncodeUtils;
 
 public class OsmIdGraphStorage implements GraphExtension {
     /* pointer for no entry */

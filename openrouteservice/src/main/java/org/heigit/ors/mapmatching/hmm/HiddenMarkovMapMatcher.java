@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.mapmatching.hmm;
+package org.heigit.ors.mapmatching.hmm;
 
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
@@ -26,10 +26,10 @@ import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.mapmatching.AbstractMapMatcher;
-import heigit.ors.mapmatching.LocationIndexMatch;
-import heigit.ors.mapmatching.RouteSegmentInfo;
-import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
+import org.heigit.ors.mapmatching.AbstractMapMatcher;
+import org.heigit.ors.mapmatching.LocationIndexMatch;
+import org.heigit.ors.mapmatching.RouteSegmentInfo;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 
 import java.util.ArrayList;
 import java.util.List;

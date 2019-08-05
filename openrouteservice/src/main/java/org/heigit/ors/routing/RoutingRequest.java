@@ -11,12 +11,12 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing;
+package org.heigit.ors.routing;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import heigit.ors.common.DistanceUnit;
-import heigit.ors.services.ServiceRequest;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.services.ServiceRequest;
 
 import java.util.ArrayList;
 import java.util.List;

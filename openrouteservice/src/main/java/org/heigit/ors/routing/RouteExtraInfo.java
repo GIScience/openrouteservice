@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing;
+package org.heigit.ors.routing;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -20,11 +20,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.graphhopper.storage.GraphExtension;
-import heigit.ors.common.DistanceUnit;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.routing.graphhopper.extensions.storages.WarningGraphExtension;
-import heigit.ors.util.DistanceUnitUtil;
-import heigit.ors.util.FormatUtility;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.routing.graphhopper.extensions.storages.WarningGraphExtension;
+import org.heigit.ors.util.DistanceUnitUtil;
+import org.heigit.ors.util.FormatUtility;
 
 public class RouteExtraInfo 
 {
@@ -44,7 +44,7 @@ public class RouteExtraInfo
 	 *
 	 * @param name			name of the extra info
 	 * @param extension		The GraphExtension that is used to generate the extra info. A check is made against this to
-	 *                      see if it is of type {@Link heigit.ors.routing.graphhopper.extensions.storages.WarningGraphExtension}.
+	 *                      see if it is of type {@Link org.heigit.ors.routing.graphhopper.extensions.storages.WarningGraphExtension}.
 	 *
 	 */
 	public RouteExtraInfo(String name, GraphExtension extension)

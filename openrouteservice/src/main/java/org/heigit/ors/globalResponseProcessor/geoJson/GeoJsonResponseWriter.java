@@ -23,15 +23,15 @@
  *
  */
 
-package heigit.ors.globalResponseProcessor.geoJson;
+package org.heigit.ors.globalResponseProcessor.geoJson;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
-import heigit.ors.isochrones.IsochroneRequest;
-import heigit.ors.routing.RouteResult;
-import heigit.ors.routing.RoutingRequest;
-import heigit.ors.services.routing.requestprocessors.json.JsonRoutingResponseWriter;
+import org.heigit.ors.isochrones.IsochroneRequest;
+import org.heigit.ors.routing.RouteResult;
+import org.heigit.ors.routing.RoutingRequest;
+import org.heigit.ors.services.routing.requestprocessors.json.JsonRoutingResponseWriter;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geojson.feature.FeatureJSON;
@@ -46,8 +46,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
 
-import static heigit.ors.util.JsonUtility.objectToJSONArray;
-import static heigit.ors.util.JsonUtility.objectToJSONObject;
+import static org.heigit.ors.util.JsonUtility.objectToJSONArray;
+import static org.heigit.ors.util.JsonUtility.objectToJSONObject;
 
 /**
  * The {@link GeoJsonResponseWriter} class handles the global GeoJSON export or should do this in the future.

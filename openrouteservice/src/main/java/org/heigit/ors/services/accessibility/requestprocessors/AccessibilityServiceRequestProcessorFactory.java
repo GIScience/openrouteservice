@@ -12,18 +12,18 @@
  *  if not, see <https://www.gnu.org/licenses/>.  
  *//*
 
-package heigit.ors.services.accessibility.requestprocessors;
+package org.heigit.ors.services.accessibility.requestprocessors;
 
 import javax.servlet.http.HttpServletRequest;
 
-import heigit.ors.accessibility.AccessibilityErrorCodes;
-import heigit.ors.common.StatusCode;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.exceptions.UnknownParameterValueException;
-import heigit.ors.routing.RoutingProfileManagerStatus;
-import heigit.ors.services.accessibility.AccessibilityServiceSettings;
-import heigit.ors.services.accessibility.requestprocessors.json.JsonAccessibilityRequestProcessor;
-import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
+import org.heigit.ors.accessibility.AccessibilityErrorCodes;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.exceptions.UnknownParameterValueException;
+import org.heigit.ors.routing.RoutingProfileManagerStatus;
+import org.heigit.ors.services.accessibility.AccessibilityServiceSettings;
+import org.heigit.ors.services.accessibility.requestprocessors.json.JsonAccessibilityRequestProcessor;
+import org.heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 
 import com.graphhopper.util.Helper;
 

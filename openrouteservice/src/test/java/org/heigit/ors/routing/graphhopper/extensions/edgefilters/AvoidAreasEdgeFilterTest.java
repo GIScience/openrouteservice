@@ -1,4 +1,4 @@
-package heigit.ors.routing.graphhopper.extensions.edgefilters;
+package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.DAType;
@@ -10,9 +10,9 @@ import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
-import heigit.ors.routing.RouteSearchParameters;
-import heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.RouteSearchParameters;
+import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;

@@ -11,22 +11,22 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing;
+package org.heigit.ors.routing;
 
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.UnknownParameterValueException;
-import heigit.ors.geojson.GeometryJSON;
-import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
-import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
-import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
-import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
-import heigit.ors.routing.parameters.*;
-import heigit.ors.routing.pathprocessors.BordersExtractor;
-import heigit.ors.util.StringUtility;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.UnknownParameterValueException;
+import org.heigit.ors.geojson.GeometryJSON;
+import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
+import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
+import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
+import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
+import org.heigit.ors.routing.parameters.*;
+import org.heigit.ors.routing.pathprocessors.BordersExtractor;
+import org.heigit.ors.util.StringUtility;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

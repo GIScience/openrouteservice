@@ -11,20 +11,20 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.servlet.http;
+package org.heigit.ors.servlet.http;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.common.StatusCode;
-import heigit.ors.exceptions.*;
-import heigit.ors.matrix.MatrixErrorCodes;
-import heigit.ors.util.ArraysUtility;
-import heigit.ors.util.CoordTools;
-import heigit.ors.util.JsonUtility;
-import heigit.ors.util.StreamUtility;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.exceptions.*;
+import org.heigit.ors.matrix.MatrixErrorCodes;
+import org.heigit.ors.util.ArraysUtility;
+import org.heigit.ors.util.CoordTools;
+import org.heigit.ors.util.JsonUtility;
+import org.heigit.ors.util.StreamUtility;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

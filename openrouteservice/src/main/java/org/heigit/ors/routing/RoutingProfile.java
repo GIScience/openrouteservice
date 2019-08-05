@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing;
+package org.heigit.ors.routing;
 
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
@@ -29,34 +29,34 @@ import com.typesafe.config.Config;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.isochrones.*;
-import heigit.ors.isochrones.statistics.StatisticsProvider;
-import heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
-import heigit.ors.isochrones.statistics.StatisticsProviderFactory;
-import heigit.ors.mapmatching.MapMatcher;
-import heigit.ors.mapmatching.RouteSegmentInfo;
-import heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
-import heigit.ors.matrix.*;
-import heigit.ors.matrix.algorithms.MatrixAlgorithm;
-import heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
-import heigit.ors.routing.configuration.RouteProfileConfiguration;
-import heigit.ors.routing.graphhopper.extensions.*;
-import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
-import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
-import heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
-import heigit.ors.routing.parameters.ProfileParameters;
-import heigit.ors.routing.parameters.VehicleParameters;
-import heigit.ors.routing.parameters.WheelchairParameters;
-import heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
-import heigit.ors.services.isochrones.IsochronesServiceSettings;
-import heigit.ors.services.matrix.MatrixServiceSettings;
-import heigit.ors.util.DebugUtility;
-import heigit.ors.util.RuntimeUtility;
-import heigit.ors.util.StringUtility;
-import heigit.ors.util.TimeUtility;
+import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.isochrones.*;
+import org.heigit.ors.isochrones.statistics.StatisticsProvider;
+import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
+import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
+import org.heigit.ors.mapmatching.MapMatcher;
+import org.heigit.ors.mapmatching.RouteSegmentInfo;
+import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
+import org.heigit.ors.matrix.*;
+import org.heigit.ors.matrix.algorithms.MatrixAlgorithm;
+import org.heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
+import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.heigit.ors.routing.graphhopper.extensions.*;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
+import org.heigit.ors.routing.parameters.ProfileParameters;
+import org.heigit.ors.routing.parameters.VehicleParameters;
+import org.heigit.ors.routing.parameters.WheelchairParameters;
+import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
+import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
+import org.heigit.ors.services.matrix.MatrixServiceSettings;
+import org.heigit.ors.util.DebugUtility;
+import org.heigit.ors.util.RuntimeUtility;
+import org.heigit.ors.util.StringUtility;
+import org.heigit.ors.util.TimeUtility;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
@@ -70,7 +70,7 @@ import java.util.*;
 /**
  * This class generates {@link RoutingProfile} classes and is used by mostly all service classes e.g.
  * <p>
- * {@link heigit.ors.services.isochrones.requestprocessors.json.JsonIsochronesRequestProcessor}
+ * {@link org.heigit.ors.services.isochrones.requestprocessors.json.JsonIsochronesRequestProcessor}
  * <p>
  * {@link RoutingProfileManager} etc.
  *

@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions;
+package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
@@ -39,9 +39,9 @@ import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
-import heigit.ors.mapmatching.RouteSegmentInfo;
-import heigit.ors.routing.RoutingProfile;
-import heigit.ors.util.CoordTools;
+import org.heigit.ors.mapmatching.RouteSegmentInfo;
+import org.heigit.ors.routing.RoutingProfile;
+import org.heigit.ors.util.CoordTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

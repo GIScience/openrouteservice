@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.isochrones;
+package org.heigit.ors.isochrones;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.GraphHopper;
@@ -26,14 +26,14 @@ import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.common.TravelRangeType;
-import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.routing.RouteSearchContext;
-import heigit.ors.routing.RouteSearchParameters;
-import heigit.ors.routing.algorithms.DijkstraCostCondition;
-import heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
-import heigit.ors.routing.graphhopper.extensions.ORSEdgeFilterFactory;
-import heigit.ors.routing.graphhopper.extensions.weighting.DistanceWeighting;
+import org.heigit.ors.common.TravelRangeType;
+import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.routing.RouteSearchContext;
+import org.heigit.ors.routing.RouteSearchParameters;
+import org.heigit.ors.routing.algorithms.DijkstraCostCondition;
+import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
+import org.heigit.ors.routing.graphhopper.extensions.ORSEdgeFilterFactory;
+import org.heigit.ors.routing.graphhopper.extensions.weighting.DistanceWeighting;
 
 public class GraphEdgeMapFinder {
 	

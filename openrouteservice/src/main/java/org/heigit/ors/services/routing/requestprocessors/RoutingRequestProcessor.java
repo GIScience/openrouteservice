@@ -11,22 +11,22 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.services.routing.requestprocessors;
+package org.heigit.ors.services.routing.requestprocessors;
 
 import com.graphhopper.util.Helper;
 
-import heigit.ors.exceptions.EmptyElementException;
+import org.heigit.ors.exceptions.EmptyElementException;
 
 
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.routing.RouteResult;
-import heigit.ors.routing.RoutingErrorCodes;
-import heigit.ors.routing.RoutingProfileManager;
-import heigit.ors.routing.RoutingRequest;
-import heigit.ors.globalResponseProcessor.GlobalResponseProcessor;
-import heigit.ors.services.routing.requestprocessors.json.JsonRoutingResponseWriter;
-import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
-import heigit.ors.servlet.util.ServletUtility;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.routing.RouteResult;
+import org.heigit.ors.routing.RoutingErrorCodes;
+import org.heigit.ors.routing.RoutingProfileManager;
+import org.heigit.ors.routing.RoutingRequest;
+import org.heigit.ors.globalResponseProcessor.GlobalResponseProcessor;
+import org.heigit.ors.services.routing.requestprocessors.json.JsonRoutingResponseWriter;
+import org.heigit.ors.servlet.http.AbstractHttpRequestProcessor;
+import org.heigit.ors.servlet.util.ServletUtility;
 
 import org.json.JSONObject;
 

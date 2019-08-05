@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.servlet.http;
+package org.heigit.ors.servlet.http;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
@@ -20,11 +20,11 @@ import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import heigit.ors.common.StatusCode;
-import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.servlet.util.ServletUtility;
-import heigit.ors.util.AppInfo;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.servlet.util.ServletUtility;
+import org.heigit.ors.util.AppInfo;
 
 public class BaseHttpServlet extends HttpServlet 
 {

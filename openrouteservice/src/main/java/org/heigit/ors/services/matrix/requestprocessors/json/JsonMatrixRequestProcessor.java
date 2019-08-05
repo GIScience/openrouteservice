@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.services.matrix.requestprocessors.json;
+package org.heigit.ors.services.matrix.requestprocessors.json;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,23 +22,23 @@ import org.json.JSONObject;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
-import heigit.ors.common.StatusCode;
-import heigit.ors.config.AppConfig;
-import heigit.ors.exceptions.ParameterOutOfRangeException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.matrix.MatrixRequest;
-import heigit.ors.matrix.MatrixResult;
-import heigit.ors.matrix.ResolvedLocation;
-import heigit.ors.matrix.MatrixErrorCodes;
-import heigit.ors.matrix.MatrixMetricsType;
-import heigit.ors.routing.RoutingProfileManager;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.services.matrix.MatrixServiceSettings;
-import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
-import heigit.ors.servlet.util.ServletUtility;
-import heigit.ors.util.AppInfo;
-import heigit.ors.util.DistanceUnitUtil;
-import heigit.ors.util.FormatUtility;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.config.AppConfig;
+import org.heigit.ors.exceptions.ParameterOutOfRangeException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.matrix.MatrixRequest;
+import org.heigit.ors.matrix.MatrixResult;
+import org.heigit.ors.matrix.ResolvedLocation;
+import org.heigit.ors.matrix.MatrixErrorCodes;
+import org.heigit.ors.matrix.MatrixMetricsType;
+import org.heigit.ors.routing.RoutingProfileManager;
+import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.services.matrix.MatrixServiceSettings;
+import org.heigit.ors.servlet.http.AbstractHttpRequestProcessor;
+import org.heigit.ors.servlet.util.ServletUtility;
+import org.heigit.ors.util.AppInfo;
+import org.heigit.ors.util.DistanceUnitUtil;
+import org.heigit.ors.util.FormatUtility;
 
 public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor 
 {

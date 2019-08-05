@@ -11,14 +11,14 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.v2.services.serviceSettings;
+package org.heigit.ors.v2.services.serviceSettings;
 
-import heigit.ors.v2.services.config.AppConfig;
+import org.heigit.ors.v2.services.config.AppConfig;
 
 import java.util.List;
 import java.util.Map;
 
-import static heigit.ors.v2.services.config.StringUtility.isEmpty;
+import static org.heigit.ors.v2.services.config.StringUtility.isEmpty;
 
 
 public class RoutingServiceSettings {

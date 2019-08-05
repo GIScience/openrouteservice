@@ -13,9 +13,9 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.common.BoundingBox;
+package org.heigit.ors.api.responses.common.BoundingBox;
 
-import heigit.ors.api.responses.routing.GPXRouteResponseObjects.GPXBounds;
+import org.heigit.ors.api.responses.routing.GPXRouteResponseObjects.GPXBounds;
 
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;

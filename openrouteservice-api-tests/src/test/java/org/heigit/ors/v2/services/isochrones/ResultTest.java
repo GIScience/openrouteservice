@@ -11,12 +11,12 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.v2.services.isochrones;
+package org.heigit.ors.v2.services.isochrones;
 
-import heigit.ors.services.isochrones.IsochronesErrorCodes;
-import heigit.ors.v2.services.common.EndPointAnnotation;
-import heigit.ors.v2.services.common.ServiceTest;
-import heigit.ors.v2.services.common.VersionAnnotation;
+import org.heigit.ors.services.isochrones.IsochronesErrorCodes;
+import org.heigit.ors.v2.services.common.EndPointAnnotation;
+import org.heigit.ors.v2.services.common.ServiceTest;
+import org.heigit.ors.v2.services.common.VersionAnnotation;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;

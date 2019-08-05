@@ -23,12 +23,12 @@
  *
  */
 
-package heigit.ors.util.mockupUtil;
+package org.heigit.ors.util.mockupUtil;
 
-import heigit.ors.services.routing.RoutingServiceSettings;
+import org.heigit.ors.services.routing.RoutingServiceSettings;
 
 /**
- * This is a {@link heigit.ors.services.routing.RoutingServiceSettings} Mockup-Class, used in junit tests and wherever needed.
+ * This is a {@link org.heigit.ors.services.routing.RoutingServiceSettings} Mockup-Class, used in junit tests and wherever needed.
  * The mockup is intended as generic as possible. Make sure you check the element out using debug before integrating it.
  *
  * @author Julian Psotta, julian@openrouteservice.org

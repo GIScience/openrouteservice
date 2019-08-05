@@ -13,16 +13,16 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.requests.routing;
+package org.heigit.ors.api.requests.routing;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.routing.RoutingErrorCodes;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.routing.RoutingErrorCodes;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 

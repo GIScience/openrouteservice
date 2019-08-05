@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.v2.services.config;
+package org.heigit.ors.v2.services.config;
 
 import java.io.UnsupportedEncodingException;
 

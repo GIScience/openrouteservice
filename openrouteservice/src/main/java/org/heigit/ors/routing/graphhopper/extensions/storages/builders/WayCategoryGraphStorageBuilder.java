@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions.storages.builders;
+package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -22,8 +22,8 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 
-import heigit.ors.routing.AvoidFeatureFlags;
-import heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
+import org.heigit.ors.routing.AvoidFeatureFlags;
+import org.heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
 
 public class WayCategoryGraphStorageBuilder extends AbstractGraphStorageBuilder
 {

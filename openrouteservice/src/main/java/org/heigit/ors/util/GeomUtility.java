@@ -11,15 +11,15 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.util;
+package org.heigit.ors.util;
 
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.*;
-import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.exceptions.StatusCodeException;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;

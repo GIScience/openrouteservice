@@ -12,11 +12,11 @@
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
 
-package heigit.ors.routing;
+package org.heigit.ors.routing;
 
 import java.util.concurrent.Callable;
 
-import heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 
 public class RoutingProfileLoader implements Callable<RoutingProfile> {
 	private String osmFile;

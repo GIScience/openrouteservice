@@ -13,7 +13,7 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api;
+package org.heigit.ors.api;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,7 +53,7 @@ public class SwaggerConfig {
                     }
                 })
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("heigit.ors.api"))
+                .apis(RequestHandlerSelectors.basePackage("org.heigit.ors.api"))
                 .paths(PathSelectors.any())
                 .build()
                 .apiInfo(apiInfo());

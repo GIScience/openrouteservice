@@ -12,7 +12,7 @@
  *  if not, see <https://www.gnu.org/licenses/>.  
  *//*
 
-package heigit.ors.services.accessibility.requestprocessors.json;
+package org.heigit.ors.services.accessibility.requestprocessors.json;
 
 import java.io.InputStream;
 
@@ -22,20 +22,20 @@ import org.json.JSONObject;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
-import heigit.ors.accessibility.AccessibilityErrorCodes;
-import heigit.ors.accessibility.AccessibilityRequest;
-import heigit.ors.common.NamedLocation;
-import heigit.ors.common.StatusCode;
-import heigit.ors.common.TravelRangeType;
-import heigit.ors.common.TravellerInfo;
-import heigit.ors.exceptions.MissingParameterException;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.exceptions.UnknownParameterValueException;
-import heigit.ors.locations.LocationsRequest;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.services.accessibility.AccessibilityServiceSettings;
-import heigit.ors.util.StreamUtility;
+import org.heigit.ors.accessibility.AccessibilityErrorCodes;
+import org.heigit.ors.accessibility.AccessibilityRequest;
+import org.heigit.ors.common.NamedLocation;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.common.TravelRangeType;
+import org.heigit.ors.common.TravellerInfo;
+import org.heigit.ors.exceptions.MissingParameterException;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.exceptions.UnknownParameterValueException;
+import org.heigit.ors.locations.LocationsRequest;
+import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.services.accessibility.AccessibilityServiceSettings;
+import org.heigit.ors.util.StreamUtility;
 
 public class JsonAccessibilityRequestParser {
 	public static AccessibilityRequest parseFromStream(InputStream stream) throws Exception 

@@ -1,4 +1,4 @@
-package heigit.ors.routing.util;
+package org.heigit.ors.routing.util;
 
 public class WaySurfaceDescription {
     private byte wayType;

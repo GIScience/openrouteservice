@@ -18,11 +18,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.servlet.listeners;
+package org.heigit.ors.servlet.listeners;
 
-import heigit.ors.isochrones.statistics.StatisticsProviderFactory;
-import heigit.ors.routing.RoutingProfileManager;
-import heigit.ors.routing.RoutingProfileManagerStatus;
+import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
+import org.heigit.ors.routing.RoutingProfileManager;
+import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.apache.juli.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,7 @@ import javax.servlet.annotation.WebListener;
 @WebListener
 public class ORSInitContextListener implements ServletContextListener
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger("heigit.ors.logging");    
+	private static final Logger LOGGER = LoggerFactory.getLogger("org.heigit.ors.logging");
 
 	public void contextInitialized(ServletContextEvent contextEvent) 
 	{

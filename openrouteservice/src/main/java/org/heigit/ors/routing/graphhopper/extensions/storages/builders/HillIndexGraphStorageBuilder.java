@@ -11,15 +11,15 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions.storages.builders;
+package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
-import heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStorage;
-import heigit.ors.routing.util.HillIndexCalculator;
+import org.heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStorage;
+import org.heigit.ors.routing.util.HillIndexCalculator;
 
 public class HillIndexGraphStorageBuilder extends AbstractGraphStorageBuilder
 {

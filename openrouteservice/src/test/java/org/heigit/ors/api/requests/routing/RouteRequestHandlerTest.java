@@ -13,23 +13,23 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.requests.routing;
+package org.heigit.ors.api.requests.routing;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Polygon;
-import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.common.DistanceUnit;
-import heigit.ors.exceptions.EmptyElementException;
-import heigit.ors.exceptions.IncompatibleParameterException;
-import heigit.ors.exceptions.ParameterOutOfRangeException;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.routing.*;
-import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
-import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
-import heigit.ors.routing.parameters.VehicleParameters;
-import heigit.ors.routing.parameters.WheelchairParameters;
-import heigit.ors.routing.pathprocessors.BordersExtractor;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.exceptions.EmptyElementException;
+import org.heigit.ors.exceptions.IncompatibleParameterException;
+import org.heigit.ors.exceptions.ParameterOutOfRangeException;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.routing.*;
+import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
+import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
+import org.heigit.ors.routing.parameters.VehicleParameters;
+import org.heigit.ors.routing.parameters.WheelchairParameters;
+import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.junit.Assert;

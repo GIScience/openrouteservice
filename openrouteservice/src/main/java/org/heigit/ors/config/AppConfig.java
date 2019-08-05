@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.config;
+package org.heigit.ors.config;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -28,8 +28,8 @@ import com.typesafe.config.ConfigValue;
 
 import org.apache.log4j.Logger;
 
-import heigit.ors.util.StringUtility;
-import heigit.ors.util.FileUtility;
+import org.heigit.ors.util.StringUtility;
+import org.heigit.ors.util.FileUtility;
 import org.springframework.core.io.ClassPathResource;
 
 public class AppConfig {

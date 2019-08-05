@@ -15,7 +15,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.mapmatching;
+package org.heigit.ors.mapmatching;
 
 import com.carrotsearch.hppc.procedures.IntProcedure;
 import com.graphhopper.coll.GHBitSet;

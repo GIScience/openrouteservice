@@ -13,13 +13,13 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.requests.routing;
+package org.heigit.ors.api.requests.routing;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.isochrones.IsochroneRequest;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.isochrones.IsochroneRequest;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.json.simple.JSONObject;

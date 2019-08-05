@@ -1,16 +1,16 @@
-package heigit.ors.api.requests.common;
+package org.heigit.ors.api.requests.common;
 
 import com.vividsolutions.jts.geom.Polygon;
-import heigit.ors.api.requests.routing.RequestProfileParams;
-import heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
-import heigit.ors.api.requests.routing.RouteRequestOptions;
-import heigit.ors.exceptions.IncompatibleParameterException;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.exceptions.UnknownParameterValueException;
-import heigit.ors.routing.parameters.ProfileParameters;
-import heigit.ors.routing.parameters.VehicleParameters;
-import heigit.ors.routing.pathprocessors.BordersExtractor;
+import org.heigit.ors.api.requests.routing.RequestProfileParams;
+import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
+import org.heigit.ors.api.requests.routing.RouteRequestOptions;
+import org.heigit.ors.exceptions.IncompatibleParameterException;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.exceptions.UnknownParameterValueException;
+import org.heigit.ors.routing.parameters.ProfileParameters;
+import org.heigit.ors.routing.parameters.VehicleParameters;
+import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.junit.Assert;

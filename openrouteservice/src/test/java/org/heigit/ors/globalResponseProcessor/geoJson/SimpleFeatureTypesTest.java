@@ -23,7 +23,7 @@
  *
  */
 
-package heigit.ors.globalResponseProcessor.geoJson;
+package org.heigit.ors.globalResponseProcessor.geoJson;
 
 import com.vividsolutions.jts.geom.LineString;
 import org.junit.Assert;
@@ -34,7 +34,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryType;
 
 
-import static heigit.ors.globalResponseProcessor.geoJson.SimpleFeatureTypes.RouteFeatureType;
+import static org.heigit.ors.globalResponseProcessor.geoJson.SimpleFeatureTypes.RouteFeatureType;
 
 
 public class SimpleFeatureTypesTest {

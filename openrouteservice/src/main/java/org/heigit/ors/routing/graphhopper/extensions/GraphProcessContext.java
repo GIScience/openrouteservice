@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions;
+package org.heigit.ors.routing.graphhopper.extensions;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,10 +27,10 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
 import com.vividsolutions.jts.geom.LineString;
-import heigit.ors.plugins.PluginManager;
-import heigit.ors.routing.configuration.RouteProfileConfiguration;
-import heigit.ors.routing.graphhopper.extensions.graphbuilders.GraphBuilder;
-import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import org.heigit.ors.plugins.PluginManager;
+import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.heigit.ors.routing.graphhopper.extensions.graphbuilders.GraphBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 
 public class GraphProcessContext {
 	private static Logger LOGGER = Logger.getLogger(GraphProcessContext.class.getName());

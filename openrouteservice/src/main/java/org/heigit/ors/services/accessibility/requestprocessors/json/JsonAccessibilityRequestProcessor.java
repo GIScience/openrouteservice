@@ -13,7 +13,7 @@
  */
 /*
 
-package heigit.ors.services.accessibility.requestprocessors.json;
+package org.heigit.ors.services.accessibility.requestprocessors.json;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,27 +30,27 @@ import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
-import heigit.ors.accessibility.AccessibilityAnalyzer;
-import heigit.ors.accessibility.AccessibilityErrorCodes;
-import heigit.ors.accessibility.AccessibilityRequest;
-import heigit.ors.accessibility.AccessibilityResult;
-import heigit.ors.common.StatusCode;
-import heigit.ors.common.TravellerInfo;
-import heigit.ors.config.AppConfig;
-import heigit.ors.exceptions.ParameterOutOfRangeException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.geojson.GeometryJSON;
-import heigit.ors.services.accessibility.AccessibilityServiceSettings;
-import heigit.ors.services.locations.LocationsServiceSettings;
-import heigit.ors.services.routing.requestprocessors.json.JsonRoutingResponseWriter;
-import heigit.ors.locations.LocationsResult;
-import heigit.ors.locations.LocationsSearchFilter;
-import heigit.ors.routing.RouteResult;
-import heigit.ors.routing.RoutingRequest;
-import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
-import heigit.ors.servlet.util.ServletUtility;
-import heigit.ors.util.AppInfo;
-import heigit.ors.util.GeomUtility;
+import org.heigit.ors.accessibility.AccessibilityAnalyzer;
+import org.heigit.ors.accessibility.AccessibilityErrorCodes;
+import org.heigit.ors.accessibility.AccessibilityRequest;
+import org.heigit.ors.accessibility.AccessibilityResult;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.common.TravellerInfo;
+import org.heigit.ors.config.AppConfig;
+import org.heigit.ors.exceptions.ParameterOutOfRangeException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.geojson.GeometryJSON;
+import org.heigit.ors.services.accessibility.AccessibilityServiceSettings;
+import org.heigit.ors.services.locations.LocationsServiceSettings;
+import org.heigit.ors.services.routing.requestprocessors.json.JsonRoutingResponseWriter;
+import org.heigit.ors.locations.LocationsResult;
+import org.heigit.ors.locations.LocationsSearchFilter;
+import org.heigit.ors.routing.RouteResult;
+import org.heigit.ors.routing.RoutingRequest;
+import org.heigit.ors.servlet.http.AbstractHttpRequestProcessor;
+import org.heigit.ors.servlet.util.ServletUtility;
+import org.heigit.ors.util.AppInfo;
+import org.heigit.ors.util.GeomUtility;
 
 
 public class JsonAccessibilityRequestProcessor extends AbstractHttpRequestProcessor {

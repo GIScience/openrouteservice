@@ -11,11 +11,11 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.matrix;
+package org.heigit.ors.matrix;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import heigit.ors.common.NamedLocation;
+import org.heigit.ors.common.NamedLocation;
 
 public class ResolvedLocation extends NamedLocation {
    private double _snappedDistance;

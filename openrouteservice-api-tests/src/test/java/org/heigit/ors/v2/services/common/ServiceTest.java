@@ -18,9 +18,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.v2.services.common;
+package org.heigit.ors.v2.services.common;
 
-import heigit.ors.services.common.Utils;
+import org.heigit.ors.services.common.Utils;
 import io.restassured.RestAssured;
 import org.junit.BeforeClass;
 

@@ -23,20 +23,20 @@
  *
  */
 
-package heigit.ors.util.mockupUtil;
+package org.heigit.ors.util.mockupUtil;
 
 import com.graphhopper.PathWrapper;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.BBox;
-import heigit.ors.common.DistanceUnit;
-import heigit.ors.routing.RouteResult;
-import heigit.ors.routing.RouteSegment;
-import heigit.ors.routing.RouteStep;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.routing.RouteResult;
+import org.heigit.ors.routing.RouteSegment;
+import org.heigit.ors.routing.RouteStep;
 
 import java.math.BigDecimal;
 
 /**
- * This is a {@link heigit.ors.routing.RouteResult} Mockup-Class, used in junit tests and wherever needed.
+ * This is a {@link org.heigit.ors.routing.RouteResult} Mockup-Class, used in junit tests and wherever needed.
  * The mockup is intended as generic as possible. Make sure you check the element out using debug before integrating it.
  * For now the class only supports single routes!
  * <p>

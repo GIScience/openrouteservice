@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.matrix;
+package org.heigit.ors.matrix;
 
 import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.util.EdgeFilter;
@@ -21,7 +21,7 @@ import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.exceptions.PointNotFoundException;
+import org.heigit.ors.exceptions.PointNotFoundException;
 
 import java.util.*;
 

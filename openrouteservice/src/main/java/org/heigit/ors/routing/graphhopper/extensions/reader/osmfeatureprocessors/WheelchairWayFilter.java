@@ -1,4 +1,4 @@
-package heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors;
+package org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors;
 
 import com.graphhopper.reader.ReaderElement;
 import com.graphhopper.reader.ReaderWay;

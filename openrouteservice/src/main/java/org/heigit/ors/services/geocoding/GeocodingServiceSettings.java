@@ -11,9 +11,9 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.services.geocoding;
+package org.heigit.ors.services.geocoding;
 
-import heigit.ors.config.AppConfig;
+import org.heigit.ors.config.AppConfig;
 
 public class GeocodingServiceSettings 
 {

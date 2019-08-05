@@ -11,23 +11,23 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.services.isochrones.requestprocessors.json;
+package org.heigit.ors.services.isochrones.requestprocessors.json;
 
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.common.StatusCode;
-import heigit.ors.common.TravelRangeType;
-import heigit.ors.common.TravellerInfo;
-import heigit.ors.exceptions.MissingParameterException;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.exceptions.UnknownParameterValueException;
-import heigit.ors.isochrones.IsochroneRequest;
-import heigit.ors.isochrones.IsochronesErrorCodes;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.services.isochrones.IsochronesServiceSettings;
-import heigit.ors.util.CoordTools;
-import heigit.ors.util.StreamUtility;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.common.TravelRangeType;
+import org.heigit.ors.common.TravellerInfo;
+import org.heigit.ors.exceptions.MissingParameterException;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.exceptions.UnknownParameterValueException;
+import org.heigit.ors.isochrones.IsochroneRequest;
+import org.heigit.ors.isochrones.IsochronesErrorCodes;
+import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
+import org.heigit.ors.util.CoordTools;
+import org.heigit.ors.util.StreamUtility;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.servlet.filters;
+package org.heigit.ors.servlet.filters;
 
 import java.io.IOException;
 import java.util.zip.GZIPOutputStream;
@@ -20,7 +20,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletResponse;
 
-import heigit.ors.io.ByteArrayOutputStreamEx;
+import org.heigit.ors.io.ByteArrayOutputStreamEx;
 
 class GZIPResponseStream extends ServletOutputStream { 
 	private ByteArrayOutputStreamEx _bufferStream = null;

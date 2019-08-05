@@ -1,10 +1,10 @@
-package heigit.ors.api.requests.isochrones;
+package org.heigit.ors.api.requests.isochrones;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.ParameterValueException;
 
-import static heigit.ors.isochrones.IsochronesErrorCodes.INVALID_PARAMETER_VALUE;
+import static org.heigit.ors.isochrones.IsochronesErrorCodes.INVALID_PARAMETER_VALUE;
 
 public class IsochronesRequestEnums {
 

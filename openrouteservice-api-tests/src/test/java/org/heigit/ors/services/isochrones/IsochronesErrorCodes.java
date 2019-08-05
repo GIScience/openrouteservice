@@ -20,7 +20,7 @@
  *  *  limitations under the License.
  *
  */
-package heigit.ors.services.isochrones;
+package org.heigit.ors.services.isochrones;
 
 /**
  * This Class handles the error Codes as described in the error_codes.md

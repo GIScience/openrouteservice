@@ -1,4 +1,4 @@
-package heigit.ors.v2.services.utils;
+package org.heigit.ors.v2.services.utils;
 
 import org.json.JSONArray;
 

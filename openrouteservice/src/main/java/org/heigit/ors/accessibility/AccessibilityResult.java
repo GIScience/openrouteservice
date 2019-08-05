@@ -12,12 +12,12 @@
  *  if not, see <https://www.gnu.org/licenses/>.  
  *//*
 
-package heigit.ors.accessibility;
+package org.heigit.ors.accessibility;
 
 import java.util.List;
 
-import heigit.ors.locations.LocationsResult;
-import heigit.ors.routing.RouteResult;
+import org.heigit.ors.locations.LocationsResult;
+import org.heigit.ors.routing.RouteResult;
 
 public class AccessibilityResult {
     private List<RouteResult> _routes;

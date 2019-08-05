@@ -11,16 +11,16 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing;
+package org.heigit.ors.routing;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.storage.StorableProperties;
 import com.graphhopper.util.Helper;
-import heigit.ors.routing.configuration.RouteProfileConfiguration;
-import heigit.ors.routing.configuration.RouteUpdateConfiguration;
-import heigit.ors.util.DebugUtility;
-import heigit.ors.util.FileUtility;
-import heigit.ors.util.StackTraceUtility;
+import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.heigit.ors.routing.configuration.RouteUpdateConfiguration;
+import org.heigit.ors.util.DebugUtility;
+import org.heigit.ors.util.FileUtility;
+import org.heigit.ors.util.StackTraceUtility;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;

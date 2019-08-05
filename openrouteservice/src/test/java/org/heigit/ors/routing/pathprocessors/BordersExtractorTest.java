@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.pathprocessors;
+package org.heigit.ors.routing.pathprocessors;
 
 import com.graphhopper.routing.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.EncodingManager;
@@ -20,9 +20,9 @@ import com.graphhopper.storage.DAType;
 import com.graphhopper.storage.GHDirectory;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
-import heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
-import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

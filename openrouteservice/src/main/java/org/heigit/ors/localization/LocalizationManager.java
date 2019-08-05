@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.localization;
+package org.heigit.ors.localization;
 
 import java.io.File;
 import java.util.Arrays;
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-import heigit.ors.util.StringUtility;
+import org.heigit.ors.util.StringUtility;
 
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;

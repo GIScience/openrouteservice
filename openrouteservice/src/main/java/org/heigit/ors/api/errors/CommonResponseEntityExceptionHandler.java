@@ -13,14 +13,14 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.errors;
+package org.heigit.ors.api.errors;
 
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.exceptions.UnknownParameterException;
-import heigit.ors.isochrones.IsochronesErrorCodes;
-import heigit.ors.util.AppInfo;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.exceptions.UnknownParameterException;
+import org.heigit.ors.isochrones.IsochronesErrorCodes;
+import org.heigit.ors.util.AppInfo;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.springframework.http.HttpHeaders;

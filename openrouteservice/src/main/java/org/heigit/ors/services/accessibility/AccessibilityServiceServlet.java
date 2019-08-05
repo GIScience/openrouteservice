@@ -12,14 +12,14 @@
  *  if not, see <https://www.gnu.org/licenses/>.  
  *//*
 
-package heigit.ors.services.accessibility;
+package org.heigit.ors.services.accessibility;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-import heigit.ors.services.accessibility.requestprocessors.AccessibilityServiceRequestProcessorFactory;
-import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
-import heigit.ors.servlet.http.BaseHttpServlet;
+import org.heigit.ors.services.accessibility.requestprocessors.AccessibilityServiceRequestProcessorFactory;
+import org.heigit.ors.servlet.http.AbstractHttpRequestProcessor;
+import org.heigit.ors.servlet.http.BaseHttpServlet;
 
 public class AccessibilityServiceServlet extends BaseHttpServlet {
 	*/

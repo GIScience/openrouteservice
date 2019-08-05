@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.services.shortenlink;
+package org.heigit.ors.services.shortenlink;
 
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
@@ -24,12 +24,12 @@ import javax.servlet.http.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import heigit.ors.common.StatusCode;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.servlet.http.BaseHttpServlet;
-import heigit.ors.servlet.util.ServletUtility;
-import heigit.ors.util.HTTPUtility;
-import heigit.ors.util.StringUtility;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.servlet.http.BaseHttpServlet;
+import org.heigit.ors.servlet.util.ServletUtility;
+import org.heigit.ors.util.HTTPUtility;
+import org.heigit.ors.util.StringUtility;
 
 import com.graphhopper.util.Helper;
 import org.springframework.web.bind.annotation.GetMapping;

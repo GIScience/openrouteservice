@@ -13,7 +13,7 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.routing;
+package org.heigit.ors.routing;
 
 /**
  * Holder class for a warning that could be used in the response

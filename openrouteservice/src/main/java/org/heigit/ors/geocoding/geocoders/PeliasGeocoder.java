@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.geocoding.geocoders;
+package org.heigit.ors.geocoding.geocoders;
 
 import java.net.URLEncoder;
 import java.util.Arrays;
@@ -24,10 +24,10 @@ import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
-import heigit.ors.exceptions.MissingParameterException;
-import heigit.ors.util.HTTPUtility;
-import heigit.ors.util.LocaleUtility;
-import heigit.ors.util.StringUtility;
+import org.heigit.ors.exceptions.MissingParameterException;
+import org.heigit.ors.util.HTTPUtility;
+import org.heigit.ors.util.LocaleUtility;
+import org.heigit.ors.util.StringUtility;
 
 public class PeliasGeocoder extends AbstractGeocoder
 {	

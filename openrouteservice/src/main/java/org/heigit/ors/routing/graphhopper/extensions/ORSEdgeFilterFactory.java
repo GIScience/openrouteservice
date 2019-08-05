@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions;
+package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
@@ -20,11 +20,11 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.PMap;
 import com.vividsolutions.jts.geom.Polygon;
-import heigit.ors.routing.RouteSearchParameters;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.*;
-import heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
-import heigit.ors.routing.parameters.VehicleParameters;
-import heigit.ors.routing.parameters.WheelchairParameters;
+import org.heigit.ors.routing.RouteSearchParameters;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.*;
+import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
+import org.heigit.ors.routing.parameters.VehicleParameters;
+import org.heigit.ors.routing.parameters.WheelchairParameters;
 import org.apache.log4j.Logger;
 
 public class ORSEdgeFilterFactory implements EdgeFilterFactory {

@@ -13,10 +13,10 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.routing.GPXRouteResponseObjects;
+package org.heigit.ors.api.responses.routing.GPXRouteResponseObjects;
 
-import heigit.ors.routing.RouteStep;
-import heigit.ors.util.FormatUtility;
+import org.heigit.ors.routing.RouteStep;
+import org.heigit.ors.util.FormatUtility;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;

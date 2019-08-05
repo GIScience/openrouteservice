@@ -11,27 +11,27 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.services.routing.requestprocessors.json;
+package org.heigit.ors.services.routing.requestprocessors.json;
 
 
 import java.util.List;
 
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.routing.*;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.routing.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.common.DistanceUnit;
-import heigit.ors.config.AppConfig;
-import heigit.ors.geojson.GeometryJSON;
-import heigit.ors.services.routing.RoutingServiceSettings;
-import heigit.ors.util.AppInfo;
-import heigit.ors.util.DistanceUnitUtil;
-import heigit.ors.util.FormatUtility;
-import heigit.ors.util.PolylineEncoder;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.config.AppConfig;
+import org.heigit.ors.geojson.GeometryJSON;
+import org.heigit.ors.services.routing.RoutingServiceSettings;
+import org.heigit.ors.util.AppInfo;
+import org.heigit.ors.util.DistanceUnitUtil;
+import org.heigit.ors.util.FormatUtility;
+import org.heigit.ors.util.PolylineEncoder;
 
 @Deprecated
 public class JsonRoutingResponseWriter {

@@ -1,7 +1,7 @@
-package heigit.ors.exceptions;
+package org.heigit.ors.exceptions;
 
-import heigit.ors.common.StatusCode;
-import heigit.ors.routing.RoutingErrorCodes;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.routing.RoutingErrorCodes;
 
 public class PointNotFoundException extends StatusCodeException {
 

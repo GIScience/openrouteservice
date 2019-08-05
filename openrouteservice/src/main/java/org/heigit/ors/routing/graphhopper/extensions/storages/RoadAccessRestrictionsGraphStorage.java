@@ -13,13 +13,13 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.routing.graphhopper.extensions.storages;
+package org.heigit.ors.routing.graphhopper.extensions.storages;
 
 import com.graphhopper.storage.*;
-import heigit.ors.routing.RouteExtraInfo;
-import heigit.ors.routing.RouteSegmentItem;
-import heigit.ors.routing.RouteWarning;
-import heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
+import org.heigit.ors.routing.RouteExtraInfo;
+import org.heigit.ors.routing.RouteSegmentItem;
+import org.heigit.ors.routing.RouteWarning;
+import org.heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
 
 /**
  * The graph storage for road access restrictions.

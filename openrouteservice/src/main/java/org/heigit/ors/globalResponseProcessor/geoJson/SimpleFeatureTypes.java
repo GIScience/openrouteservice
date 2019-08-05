@@ -23,11 +23,11 @@
  *
  */
 
-package heigit.ors.globalResponseProcessor.geoJson;
+package org.heigit.ors.globalResponseProcessor.geoJson;
 
 
 import com.vividsolutions.jts.geom.LineString;
-import heigit.ors.services.routing.RoutingServiceSettings;
+import org.heigit.ors.services.routing.RoutingServiceSettings;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeatureType;
 

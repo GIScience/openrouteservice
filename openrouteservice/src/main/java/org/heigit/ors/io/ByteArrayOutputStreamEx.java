@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.io;
+package org.heigit.ors.io;
 
 import java.io.ByteArrayOutputStream;
 

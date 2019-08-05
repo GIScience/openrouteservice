@@ -13,13 +13,13 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.routing.GPXRouteResponseObjects;
+package org.heigit.ors.api.responses.routing.GPXRouteResponseObjects;
 
 import com.graphhopper.util.Helper;
-import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.api.requests.routing.RouteRequest;
-import heigit.ors.services.routing.RoutingServiceSettings;
-import heigit.ors.util.AppInfo;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.services.routing.RoutingServiceSettings;
+import org.heigit.ors.util.AppInfo;
 
 import javax.xml.bind.annotation.XmlElement;
 

@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.isochrones.builders.grid;
+package org.heigit.ors.isochrones.builders.grid;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.EdgeFilter;
@@ -24,14 +24,14 @@ import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.StopWatch;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import heigit.ors.isochrones.IsochroneMap;
-import heigit.ors.isochrones.IsochroneSearchParameters;
-import heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
-import heigit.ors.matrix.MatrixMetricsType;
-import heigit.ors.matrix.MatrixRequest;
-import heigit.ors.matrix.algorithms.MatrixAlgorithm;
-import heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
-import heigit.ors.routing.RouteSearchContext;
+import org.heigit.ors.isochrones.IsochroneMap;
+import org.heigit.ors.isochrones.IsochroneSearchParameters;
+import org.heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
+import org.heigit.ors.matrix.MatrixMetricsType;
+import org.heigit.ors.matrix.MatrixRequest;
+import org.heigit.ors.matrix.algorithms.MatrixAlgorithm;
+import org.heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
+import org.heigit.ors.routing.RouteSearchContext;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;

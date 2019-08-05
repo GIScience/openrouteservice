@@ -11,11 +11,11 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.services.isochrones;
+package org.heigit.ors.services.isochrones;
 
-import heigit.ors.config.AppConfig;
-import heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
-import heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.config.AppConfig;
+import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
+import org.heigit.ors.routing.RoutingProfileType;
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +24,7 @@ import java.util.Map.Entry;
 
 import com.typesafe.config.ConfigObject;
 
-import heigit.ors.common.TravelRangeType;
+import org.heigit.ors.common.TravelRangeType;
 
 public class IsochronesServiceSettings {
 	private static boolean enabled = true;

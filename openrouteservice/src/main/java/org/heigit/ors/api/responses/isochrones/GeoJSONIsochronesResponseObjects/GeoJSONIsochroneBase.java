@@ -13,13 +13,13 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects;
+package org.heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
-import heigit.ors.geojson.GeometryJSON;
+import org.heigit.ors.geojson.GeometryJSON;
 import io.swagger.annotations.ApiModelProperty;
 import org.json.simple.JSONObject;
 

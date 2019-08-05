@@ -13,39 +13,39 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.requests.routing;
+package org.heigit.ors.api.requests.routing;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.api.requests.common.GenericHandler;
-import heigit.ors.common.DistanceUnit;
-import heigit.ors.common.StatusCode;
-import heigit.ors.exceptions.EmptyElementException;
-import heigit.ors.exceptions.IncompatibleParameterException;
-import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.exceptions.ParameterOutOfRangeException;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.exceptions.UnknownParameterValueException;
-import heigit.ors.geojson.GeometryJSON;
-import heigit.ors.localization.LocalizationManager;
-import heigit.ors.routing.AvoidFeatureFlags;
-import heigit.ors.routing.RouteExtraInfoFlag;
-import heigit.ors.routing.RouteInstructionsFormat;
-import heigit.ors.routing.RouteResult;
-import heigit.ors.routing.RouteSearchParameters;
-import heigit.ors.routing.RoutingErrorCodes;
-import heigit.ors.routing.RoutingProfileManager;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.RoutingRequest;
-import heigit.ors.routing.WayPointBearing;
-import heigit.ors.routing.WeightingMethod;
-import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
-import heigit.ors.routing.pathprocessors.BordersExtractor;
-import heigit.ors.util.DistanceUnitUtil;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.common.GenericHandler;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.exceptions.EmptyElementException;
+import org.heigit.ors.exceptions.IncompatibleParameterException;
+import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.exceptions.ParameterOutOfRangeException;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.exceptions.UnknownParameterValueException;
+import org.heigit.ors.geojson.GeometryJSON;
+import org.heigit.ors.localization.LocalizationManager;
+import org.heigit.ors.routing.AvoidFeatureFlags;
+import org.heigit.ors.routing.RouteExtraInfoFlag;
+import org.heigit.ors.routing.RouteInstructionsFormat;
+import org.heigit.ors.routing.RouteResult;
+import org.heigit.ors.routing.RouteSearchParameters;
+import org.heigit.ors.routing.RoutingErrorCodes;
+import org.heigit.ors.routing.RoutingProfileManager;
+import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.RoutingRequest;
+import org.heigit.ors.routing.WayPointBearing;
+import org.heigit.ors.routing.WeightingMethod;
+import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
+import org.heigit.ors.routing.pathprocessors.BordersExtractor;
+import org.heigit.ors.util.DistanceUnitUtil;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;

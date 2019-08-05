@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.isochrones.builders.concaveballs;
+package org.heigit.ors.isochrones.builders.concaveballs;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
@@ -24,17 +24,17 @@ import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
-import heigit.ors.common.TravelRangeType;
-import heigit.ors.isochrones.GraphEdgeMapFinder;
-import heigit.ors.isochrones.Isochrone;
-import heigit.ors.isochrones.IsochroneMap;
-import heigit.ors.isochrones.IsochroneSearchParameters;
-import heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
-import heigit.ors.routing.RouteSearchContext;
-import heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.*;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
-import heigit.ors.util.GeomUtility;
+import org.heigit.ors.common.TravelRangeType;
+import org.heigit.ors.isochrones.GraphEdgeMapFinder;
+import org.heigit.ors.isochrones.Isochrone;
+import org.heigit.ors.isochrones.IsochroneMap;
+import org.heigit.ors.isochrones.IsochroneSearchParameters;
+import org.heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
+import org.heigit.ors.routing.RouteSearchContext;
+import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.*;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
+import org.heigit.ors.util.GeomUtility;
 import org.apache.log4j.Logger;
 import org.opensphere.geometry.algorithm.ConcaveHull;
 

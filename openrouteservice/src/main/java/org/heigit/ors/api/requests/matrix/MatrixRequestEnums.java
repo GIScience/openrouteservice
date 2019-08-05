@@ -13,13 +13,13 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.requests.matrix;
+package org.heigit.ors.api.requests.matrix;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.ParameterValueException;
 
-import static heigit.ors.matrix.MatrixErrorCodes.INVALID_PARAMETER_VALUE;
+import static org.heigit.ors.matrix.MatrixErrorCodes.INVALID_PARAMETER_VALUE;
 
 public class MatrixRequestEnums {
     public enum Metrics {

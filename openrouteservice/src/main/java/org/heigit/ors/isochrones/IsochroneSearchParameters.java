@@ -11,12 +11,12 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.isochrones;
+package org.heigit.ors.isochrones;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import heigit.ors.common.TravelRangeType;
-import heigit.ors.routing.RouteSearchParameters;
+import org.heigit.ors.common.TravelRangeType;
+import org.heigit.ors.routing.RouteSearchParameters;
 
 public class IsochroneSearchParameters {
     private int _travellerId;

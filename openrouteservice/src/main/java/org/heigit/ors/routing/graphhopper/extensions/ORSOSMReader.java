@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions;
+package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.carrotsearch.hppc.LongArrayList;
 import com.google.common.collect.Lists;
@@ -25,13 +25,13 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.*;
-import heigit.ors.routing.RoutingProfile;
-import heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
-import heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.WheelchairWayFilter;
-import heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
-import heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
-import heigit.ors.routing.graphhopper.extensions.storages.builders.RoadAccessRestrictionsGraphStorageBuilder;
-import heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGraphStorageBuilder;
+import org.heigit.ors.routing.RoutingProfile;
+import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
+import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.WheelchairWayFilter;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.RoadAccessRestrictionsGraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGraphStorageBuilder;
 import org.apache.log4j.Logger;
 
 import java.io.InvalidObjectException;

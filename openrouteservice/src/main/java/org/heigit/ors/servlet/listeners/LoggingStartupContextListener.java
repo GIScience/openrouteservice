@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.servlet.listeners;
+package org.heigit.ors.servlet.listeners;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -21,7 +21,7 @@ import javax.servlet.annotation.WebListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import heigit.ors.logging.LoggingUtility;
+import org.heigit.ors.logging.LoggingUtility;
 
 //@WebListener
 public class LoggingStartupContextListener implements ServletContextListener
@@ -49,7 +49,7 @@ public class LoggingStartupContextListener implements ServletContextListener
 	private Logger getLogger() 
 	{
         if(LOGGER == null) 
-            LOGGER = LoggerFactory.getLogger("heigit.ors.logging");
+            LOGGER = LoggerFactory.getLogger("org.heigit.ors.logging");
         
         return LOGGER;
     }

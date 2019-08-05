@@ -13,15 +13,15 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.isochrones;
+package org.heigit.ors.api.responses.isochrones;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.Helper;
-import heigit.ors.api.requests.isochrones.IsochronesRequest;
-import heigit.ors.config.AppConfig;
-import heigit.ors.services.isochrones.IsochronesServiceSettings;
-import heigit.ors.util.AppInfo;
+import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
+import org.heigit.ors.config.AppConfig;
+import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
+import org.heigit.ors.util.AppInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.json.JSONObject;

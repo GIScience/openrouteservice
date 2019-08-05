@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions.storages.builders;
+package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,8 +22,8 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 
-import heigit.ors.routing.graphhopper.extensions.TollwayType;
-import heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.TollwayType;
+import org.heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStorage;
 
 public class TollwaysGraphStorageBuilder extends AbstractGraphStorageBuilder
 {

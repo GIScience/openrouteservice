@@ -1,7 +1,7 @@
-package heigit.ors.api.responses.routing.GPXRouteResponseObjects;
+package org.heigit.ors.api.responses.routing.GPXRouteResponseObjects;
 
-import heigit.ors.routing.RouteResult;
-import heigit.ors.util.mockupUtil.RouteResultMockup;
+import org.heigit.ors.routing.RouteResult;
+import org.heigit.ors.util.mockupUtil.RouteResultMockup;
 import org.junit.Test;
 
 public class GPXMetadataTest {

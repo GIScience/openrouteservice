@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.localization;
+package org.heigit.ors.localization;
 
 public class LocalString {
 	private Language _language; 

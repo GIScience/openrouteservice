@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.servlet.requests;
+package org.heigit.ors.servlet.requests;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;

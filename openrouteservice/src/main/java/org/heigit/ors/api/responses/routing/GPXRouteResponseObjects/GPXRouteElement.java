@@ -13,12 +13,12 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.routing.GPXRouteResponseObjects;
+package org.heigit.ors.api.responses.routing.GPXRouteResponseObjects;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.routing.RouteResult;
-import heigit.ors.routing.RouteSegment;
-import heigit.ors.routing.RouteStep;
+import org.heigit.ors.routing.RouteResult;
+import org.heigit.ors.routing.RouteSegment;
+import org.heigit.ors.routing.RouteStep;
 import io.swagger.annotations.ApiModel;
 
 import javax.xml.bind.annotation.XmlElement;

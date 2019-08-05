@@ -13,12 +13,12 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.isochrones;
+package org.heigit.ors.api.responses.isochrones;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import heigit.ors.api.requests.isochrones.IsochronesRequest;
-import heigit.ors.api.responses.common.BoundingBox.BoundingBox;
-import heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects.GeoJSONIsochroneBase;
+import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
+import org.heigit.ors.api.responses.common.BoundingBox.BoundingBox;
+import org.heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects.GeoJSONIsochroneBase;
 
 import java.util.List;
 

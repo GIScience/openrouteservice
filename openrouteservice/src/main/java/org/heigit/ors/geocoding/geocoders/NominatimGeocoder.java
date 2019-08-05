@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.geocoding.geocoders;
+package org.heigit.ors.geocoding.geocoders;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -21,8 +21,8 @@ import org.json.JSONObject;
 
 import com.graphhopper.util.Helper;
 
-import heigit.ors.geocoding.geocoders.AbstractGeocoder;
-import heigit.ors.util.HTTPUtility;
+import org.heigit.ors.geocoding.geocoders.AbstractGeocoder;
+import org.heigit.ors.util.HTTPUtility;
 
 public class NominatimGeocoder extends AbstractGeocoder {
 	

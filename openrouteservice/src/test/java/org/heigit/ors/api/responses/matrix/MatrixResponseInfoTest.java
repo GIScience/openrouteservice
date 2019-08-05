@@ -1,7 +1,7 @@
-package heigit.ors.api.responses.matrix;
+package org.heigit.ors.api.responses.matrix;
 
-import heigit.ors.api.requests.matrix.MatrixRequest;
-import heigit.ors.matrix.MatrixResult;
+import org.heigit.ors.api.requests.matrix.MatrixRequest;
+import org.heigit.ors.matrix.MatrixResult;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

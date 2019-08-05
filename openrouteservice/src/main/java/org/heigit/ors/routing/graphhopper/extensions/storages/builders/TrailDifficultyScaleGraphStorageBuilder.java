@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions.storages.builders;
+package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
@@ -19,7 +19,7 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 
-import heigit.ors.routing.graphhopper.extensions.storages.TrailDifficultyScaleGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.TrailDifficultyScaleGraphStorage;
 
 public class TrailDifficultyScaleGraphStorageBuilder extends AbstractGraphStorageBuilder
 {

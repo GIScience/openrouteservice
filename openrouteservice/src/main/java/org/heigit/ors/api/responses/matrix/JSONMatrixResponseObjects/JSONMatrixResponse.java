@@ -13,14 +13,14 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.matrix.JSONMatrixResponseObjects;
+package org.heigit.ors.api.responses.matrix.JSONMatrixResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import heigit.ors.api.requests.matrix.MatrixRequest;
-import heigit.ors.api.responses.matrix.MatrixResponse;
-import heigit.ors.api.responses.matrix.MatrixResponseInfo;
-import heigit.ors.matrix.MatrixResult;
+import org.heigit.ors.api.requests.matrix.MatrixRequest;
+import org.heigit.ors.api.responses.matrix.MatrixResponse;
+import org.heigit.ors.api.responses.matrix.MatrixResponseInfo;
+import org.heigit.ors.matrix.MatrixResult;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 

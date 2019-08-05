@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.isochrones.builders.concaveballs;
+package org.heigit.ors.isochrones.builders.concaveballs;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.index.ItemVisitor;

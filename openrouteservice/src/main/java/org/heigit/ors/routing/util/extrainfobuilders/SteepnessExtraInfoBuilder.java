@@ -11,15 +11,15 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.util.extrainfobuilders;
+package org.heigit.ors.routing.util.extrainfobuilders;
 
 import com.graphhopper.util.DistanceCalc3D;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PointList;
 
-import heigit.ors.routing.RouteExtraInfo;
-import heigit.ors.routing.RouteSegmentItem;
-import heigit.ors.routing.util.SteepnessUtil;
+import org.heigit.ors.routing.RouteExtraInfo;
+import org.heigit.ors.routing.RouteSegmentItem;
+import org.heigit.ors.routing.util.SteepnessUtil;
 
 public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder {
 	private boolean _firstSegment = true;

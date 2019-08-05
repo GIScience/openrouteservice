@@ -11,12 +11,12 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.servlet.http;
+package org.heigit.ors.servlet.http;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-import heigit.ors.services.ORSServicesUtils;
+import org.heigit.ors.services.ORSServicesUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

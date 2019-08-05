@@ -11,18 +11,18 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.services.routing.requestprocessors;
+package org.heigit.ors.services.routing.requestprocessors;
 
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.common.DistanceUnit;
-import heigit.ors.common.StatusCode;
-import heigit.ors.exceptions.*;
-import heigit.ors.localization.LocalizationManager;
-import heigit.ors.routing.*;
-import heigit.ors.util.ArraysUtility;
-import heigit.ors.util.CoordTools;
-import heigit.ors.util.DistanceUnitUtil;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.exceptions.*;
+import org.heigit.ors.localization.LocalizationManager;
+import org.heigit.ors.routing.*;
+import org.heigit.ors.util.ArraysUtility;
+import org.heigit.ors.util.CoordTools;
+import org.heigit.ors.util.DistanceUnitUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;

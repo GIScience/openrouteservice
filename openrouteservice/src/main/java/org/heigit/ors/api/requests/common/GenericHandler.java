@@ -13,27 +13,27 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.requests.common;
+package org.heigit.ors.api.requests.common;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
-import heigit.ors.api.errors.GenericErrorCodes;
-import heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
-import heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
-import heigit.ors.api.requests.routing.RouteRequestOptions;
-import heigit.ors.exceptions.*;
-import heigit.ors.geojson.GeometryJSON;
-import heigit.ors.routing.ProfileWeighting;
-import heigit.ors.routing.AvoidFeatureFlags;
-import heigit.ors.routing.RoutingErrorCodes;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
-import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
-import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
-import heigit.ors.routing.parameters.*;
-import heigit.ors.routing.pathprocessors.BordersExtractor;
+import org.heigit.ors.api.errors.GenericErrorCodes;
+import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
+import org.heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
+import org.heigit.ors.api.requests.routing.RouteRequestOptions;
+import org.heigit.ors.exceptions.*;
+import org.heigit.ors.geojson.GeometryJSON;
+import org.heigit.ors.routing.ProfileWeighting;
+import org.heigit.ors.routing.AvoidFeatureFlags;
+import org.heigit.ors.routing.RoutingErrorCodes;
+import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
+import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
+import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
+import org.heigit.ors.routing.parameters.*;
+import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONObject;
 

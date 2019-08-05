@@ -1,1 +1,1 @@
-heigit.ors.isochrones.statistics.postgresql.PostgresSQLStatisticsProvider
+org.heigit.ors.isochrones.statistics.postgresql.PostgresSQLStatisticsProvider

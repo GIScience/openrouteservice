@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.geojson;
+package org.heigit.ors.geojson;
 
 import org.geotools.geometry.jts.coordinatesequence.CoordinateSequences;
 import org.json.JSONArray;
@@ -29,7 +29,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
-import heigit.ors.util.FormatUtility;
+import org.heigit.ors.util.FormatUtility;
 
 public class GeometryJSON {
 

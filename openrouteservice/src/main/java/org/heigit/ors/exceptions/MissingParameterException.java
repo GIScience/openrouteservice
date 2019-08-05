@@ -11,9 +11,9 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.exceptions;
+package org.heigit.ors.exceptions;
 
-import heigit.ors.common.StatusCode;
+import org.heigit.ors.common.StatusCode;
 
 public class MissingParameterException extends StatusCodeException 
 {

@@ -1,4 +1,4 @@
-package heigit.ors.routing.util;
+package org.heigit.ors.routing.util;
 
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.PointList;

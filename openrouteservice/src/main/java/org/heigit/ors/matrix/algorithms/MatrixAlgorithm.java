@@ -11,16 +11,16 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.matrix.algorithms;
+package org.heigit.ors.matrix.algorithms;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 
-import heigit.ors.matrix.MatrixLocations;
-import heigit.ors.matrix.MatrixRequest;
-import heigit.ors.matrix.MatrixResult;
+import org.heigit.ors.matrix.MatrixLocations;
+import org.heigit.ors.matrix.MatrixRequest;
+import org.heigit.ors.matrix.MatrixResult;
 
 public interface MatrixAlgorithm {
   public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting);

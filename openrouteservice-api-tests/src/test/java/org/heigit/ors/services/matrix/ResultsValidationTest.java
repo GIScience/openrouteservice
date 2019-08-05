@@ -18,7 +18,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.services.matrix;
+package org.heigit.ors.services.matrix;
 
 import static io.restassured.RestAssured.*;
 
@@ -27,8 +27,8 @@ import org.junit.Test;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import heigit.ors.services.common.EndPointAnnotation;
-import heigit.ors.services.common.ServiceTest;
+import org.heigit.ors.services.common.EndPointAnnotation;
+import org.heigit.ors.services.common.ServiceTest;
 import io.restassured.response.Response;
 import junit.framework.Assert;
 

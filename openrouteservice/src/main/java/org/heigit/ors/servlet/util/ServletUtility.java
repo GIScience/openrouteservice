@@ -11,11 +11,11 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.servlet.util;
+package org.heigit.ors.servlet.util;
 
-import heigit.ors.common.StatusCode;
-import heigit.ors.util.StreamUtility;
-import heigit.ors.util.StringUtility;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.util.StreamUtility;
+import org.heigit.ors.util.StringUtility;
 import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;

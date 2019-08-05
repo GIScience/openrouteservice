@@ -11,16 +11,16 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.servlet.http;
+package org.heigit.ors.servlet.http;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
 
 import org.json.JSONObject;
 
-import heigit.ors.common.StatusCode;
-import heigit.ors.routing.RoutingProfileManagerStatus;
-import heigit.ors.servlet.util.ServletUtility;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.routing.RoutingProfileManagerStatus;
+import org.heigit.ors.servlet.util.ServletUtility;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

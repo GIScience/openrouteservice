@@ -11,14 +11,14 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions.graphbuilders;
+package org.heigit.ors.routing.graphhopper.extensions.graphbuilders;
 
 import com.carrotsearch.hppc.LongArrayList;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
-import heigit.ors.routing.graphhopper.extensions.DataReaderContext;
+import org.heigit.ors.routing.graphhopper.extensions.DataReaderContext;
 
 import java.util.List;
 import java.util.Map;

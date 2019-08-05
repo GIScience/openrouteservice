@@ -13,15 +13,15 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
+package org.heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.api.requests.routing.RouteRequest;
-import heigit.ors.routing.RouteSegment;
-import heigit.ors.routing.RouteStep;
-import heigit.ors.util.FormatUtility;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.routing.RouteSegment;
+import org.heigit.ors.routing.RouteStep;
+import org.heigit.ors.util.FormatUtility;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 

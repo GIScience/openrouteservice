@@ -13,16 +13,16 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.routing.GeoJSONRouteResponseObjects;
+package org.heigit.ors.api.responses.routing.GeoJSONRouteResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONExtra;
-import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONSegment;
-import heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONSummary;
-import heigit.ors.routing.RouteResult;
-import heigit.ors.routing.RouteWarning;
+import org.heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONExtra;
+import org.heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONSegment;
+import org.heigit.ors.api.responses.routing.JSONRouteResponseObjects.JSONSummary;
+import org.heigit.ors.routing.RouteResult;
+import org.heigit.ors.routing.RouteWarning;
 
 import java.util.ArrayList;
 import java.util.HashMap;

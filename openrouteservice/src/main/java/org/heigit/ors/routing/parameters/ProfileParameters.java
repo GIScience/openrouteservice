@@ -11,10 +11,10 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.parameters;
+package org.heigit.ors.routing.parameters;
 
-import heigit.ors.routing.ProfileWeighting;
-import heigit.ors.routing.ProfileWeightingCollection;
+import org.heigit.ors.routing.ProfileWeighting;
+import org.heigit.ors.routing.ProfileWeightingCollection;
 
 import java.util.ArrayList;
 import java.util.List;

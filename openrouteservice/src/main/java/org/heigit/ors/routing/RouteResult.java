@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing;
+package org.heigit.ors.routing;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,9 +19,9 @@ import java.util.List;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.common.DistanceUnit;
-import heigit.ors.util.FormatUtility;
-import heigit.ors.util.GeomUtility;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.util.FormatUtility;
+import org.heigit.ors.util.GeomUtility;
 
 public class RouteResult 
 {

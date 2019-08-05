@@ -13,19 +13,19 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.routing.GeoJSONRouteResponseObjects;
+package org.heigit.ors.api.responses.routing.GeoJSONRouteResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.shapes.BBox;
-import heigit.ors.api.requests.routing.RouteRequest;
-import heigit.ors.api.responses.common.BoundingBox.BoundingBoxFactory;
-import heigit.ors.api.responses.routing.IndividualRouteResponse;
-import heigit.ors.api.responses.routing.RouteResponse;
-import heigit.ors.api.responses.routing.RouteResponseInfo;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.routing.RouteResult;
-import heigit.ors.util.GeomUtility;
+import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.api.responses.common.BoundingBox.BoundingBoxFactory;
+import org.heigit.ors.api.responses.routing.IndividualRouteResponse;
+import org.heigit.ors.api.responses.routing.RouteResponse;
+import org.heigit.ors.api.responses.routing.RouteResponseInfo;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.routing.RouteResult;
+import org.heigit.ors.util.GeomUtility;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;

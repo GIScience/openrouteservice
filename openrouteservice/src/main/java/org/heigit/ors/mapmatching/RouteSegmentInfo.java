@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.mapmatching;
+package org.heigit.ors.mapmatching;
 
 import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.util.DistanceCalc;
@@ -21,7 +21,7 @@ import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
-import heigit.ors.util.FrechetDistance;
+import org.heigit.ors.util.FrechetDistance;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;

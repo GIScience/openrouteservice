@@ -1,4 +1,4 @@
-package heigit.ors.routing.graphhopper.extensions;
+package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.GHRequest;
 

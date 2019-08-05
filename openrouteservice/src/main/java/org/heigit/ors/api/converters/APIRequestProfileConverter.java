@@ -13,10 +13,10 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.converters;
+package org.heigit.ors.api.converters;
 
 import org.springframework.core.convert.converter.Converter;
-import heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.common.APIEnums;
 
 public class APIRequestProfileConverter implements Converter<String, APIEnums.Profile> {
     @Override

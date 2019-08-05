@@ -1,4 +1,4 @@
-package heigit.ors.api.responses.isochrones;
+package org.heigit.ors.api.responses.isochrones;
 
 import org.junit.Before;
 import org.junit.Test;

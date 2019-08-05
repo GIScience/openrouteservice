@@ -1,4 +1,4 @@
-package heigit.ors.routing;
+package org.heigit.ors.routing;
 
 import com.graphhopper.GHResponse;
 import com.graphhopper.PathWrapper;
@@ -6,9 +6,9 @@ import com.graphhopper.util.*;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
-import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.api.requests.routing.*;
-import heigit.ors.util.CoordTools;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.routing.*;
+import org.heigit.ors.util.CoordTools;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

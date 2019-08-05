@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.matrix.algorithms.rphast;
+package org.heigit.ors.matrix.algorithms.rphast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,14 +23,14 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 
-import heigit.ors.matrix.MatrixLocations;
-import heigit.ors.matrix.MatrixMetricsType;
-import heigit.ors.matrix.MatrixRequest;
-import heigit.ors.matrix.MatrixResult;
-import heigit.ors.matrix.MultiTreeMetricsExtractor;
-import heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
-import heigit.ors.routing.algorithms.RPHASTAlgorithm;
-import heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
+import org.heigit.ors.matrix.MatrixLocations;
+import org.heigit.ors.matrix.MatrixMetricsType;
+import org.heigit.ors.matrix.MatrixRequest;
+import org.heigit.ors.matrix.MatrixResult;
+import org.heigit.ors.matrix.MultiTreeMetricsExtractor;
+import org.heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
+import org.heigit.ors.routing.algorithms.RPHASTAlgorithm;
+import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
 
 public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 	private PrepareContractionHierarchies _prepareCH;

@@ -23,28 +23,28 @@
  *
  */
 
-package heigit.ors.globalResponseProcessor;
+package org.heigit.ors.globalResponseProcessor;
 
-import heigit.ors.common.StatusCode;
-import heigit.ors.exceptions.ExportException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.geocoding.geocoders.GeocodingErrorCodes;
-import heigit.ors.geocoding.geocoders.GeocodingResult;
-import heigit.ors.globalResponseProcessor.geoJson.GeoJsonResponseWriter;
-import heigit.ors.globalResponseProcessor.gpx.GpxResponseWriter;
-import heigit.ors.isochrones.IsochroneMapCollection;
-import heigit.ors.isochrones.IsochroneRequest;
-import heigit.ors.isochrones.IsochronesErrorCodes;
-import heigit.ors.mapmatching.MapMatchingRequest;
-import heigit.ors.matrix.MatrixErrorCodes;
-import heigit.ors.matrix.MatrixRequest;
-import heigit.ors.matrix.MatrixResult;
-import heigit.ors.routing.RouteResult;
-import heigit.ors.routing.RoutingErrorCodes;
-import heigit.ors.routing.RoutingRequest;
-import heigit.ors.services.ServiceRequest;
-import heigit.ors.services.geocoding.requestprocessors.GeocodingRequest;
-import heigit.ors.servlet.util.ServletUtility;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.exceptions.ExportException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.geocoding.geocoders.GeocodingErrorCodes;
+import org.heigit.ors.geocoding.geocoders.GeocodingResult;
+import org.heigit.ors.globalResponseProcessor.geoJson.GeoJsonResponseWriter;
+import org.heigit.ors.globalResponseProcessor.gpx.GpxResponseWriter;
+import org.heigit.ors.isochrones.IsochroneMapCollection;
+import org.heigit.ors.isochrones.IsochroneRequest;
+import org.heigit.ors.isochrones.IsochronesErrorCodes;
+import org.heigit.ors.mapmatching.MapMatchingRequest;
+import org.heigit.ors.matrix.MatrixErrorCodes;
+import org.heigit.ors.matrix.MatrixRequest;
+import org.heigit.ors.matrix.MatrixResult;
+import org.heigit.ors.routing.RouteResult;
+import org.heigit.ors.routing.RoutingErrorCodes;
+import org.heigit.ors.routing.RoutingRequest;
+import org.heigit.ors.services.ServiceRequest;
+import org.heigit.ors.services.geocoding.requestprocessors.GeocodingRequest;
+import org.heigit.ors.servlet.util.ServletUtility;
 import org.json.JSONObject;
 
 /**
@@ -52,8 +52,8 @@ import org.json.JSONObject;
  * The class will assure, that the exports will mostly look the same or at least will reuse parts of it, so integrating new exports will result in minimal adjusting with already existing processions of ors exports.
  * The benefit is that the user can get an easy overview about existing export options and also easily modify existing and integrate new ones in one place.
  * <p>
- * The {@link GlobalResponseProcessor} doesn't include the {@link heigit.ors.servlet.util.ServletUtility} function to write the output.
- * So {@link heigit.ors.servlet.util.ServletUtility} must be called separately with the returned {@link JSONObject}.
+ * The {@link GlobalResponseProcessor} doesn't include the {@link org.heigit.ors.servlet.util.ServletUtility} function to write the output.
+ * So {@link org.heigit.ors.servlet.util.ServletUtility} must be called separately with the returned {@link JSONObject}.
  *
  * @author Julian Psotta, julian@openrouteservice.com
  */

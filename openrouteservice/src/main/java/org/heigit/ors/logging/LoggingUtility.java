@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.logging;
+package org.heigit.ors.logging;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.logging.log4j.LogManager;

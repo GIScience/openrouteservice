@@ -11,12 +11,12 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions.edgefilters;
+package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
-import heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
-import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
-import heigit.ors.routing.parameters.WheelchairParameters;
+import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
+import org.heigit.ors.routing.parameters.WheelchairParameters;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphStorage;

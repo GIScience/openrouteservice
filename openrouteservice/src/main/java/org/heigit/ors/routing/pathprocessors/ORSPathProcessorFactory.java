@@ -1,4 +1,4 @@
-package heigit.ors.routing.pathprocessors;
+package org.heigit.ors.routing.pathprocessors;
 
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
@@ -6,7 +6,7 @@ import com.graphhopper.routing.util.PathProcessorFactory;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.PMap;
 
-import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
+import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.apache.log4j.Logger;
 
 public class ORSPathProcessorFactory implements PathProcessorFactory {

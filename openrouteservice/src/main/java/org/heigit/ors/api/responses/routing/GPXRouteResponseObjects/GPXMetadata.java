@@ -13,16 +13,16 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.routing.GPXRouteResponseObjects;
+package org.heigit.ors.api.responses.routing.GPXRouteResponseObjects;
 
 import com.graphhopper.util.shapes.BBox;
-import heigit.ors.api.requests.routing.RouteRequest;
-import heigit.ors.api.responses.common.BoundingBox.BoundingBox;
-import heigit.ors.api.responses.common.BoundingBox.BoundingBoxFactory;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.routing.RouteResult;
-import heigit.ors.services.routing.RoutingServiceSettings;
-import heigit.ors.util.GeomUtility;
+import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.api.responses.common.BoundingBox.BoundingBox;
+import org.heigit.ors.api.responses.common.BoundingBox.BoundingBoxFactory;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.routing.RouteResult;
+import org.heigit.ors.services.routing.RoutingServiceSettings;
+import org.heigit.ors.util.GeomUtility;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

@@ -1,9 +1,9 @@
-package heigit.ors.api.requests.matrix;
+package org.heigit.ors.api.requests.matrix;
 
-import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.services.matrix.MatrixServiceSettings;
-import heigit.ors.util.HelperFunctions;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.services.matrix.MatrixServiceSettings;
+import org.heigit.ors.util.HelperFunctions;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

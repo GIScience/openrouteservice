@@ -13,11 +13,11 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.matrix.JSONMatrixResponseObjects;
+package org.heigit.ors.api.responses.matrix.JSONMatrixResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import heigit.ors.matrix.ResolvedLocation;
-import heigit.ors.util.FormatUtility;
+import org.heigit.ors.matrix.ResolvedLocation;
+import org.heigit.ors.util.FormatUtility;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class JSON2DDestinations extends JSONLocation {

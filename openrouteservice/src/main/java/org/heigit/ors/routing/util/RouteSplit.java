@@ -1,4 +1,4 @@
-package heigit.ors.routing.util;
+package org.heigit.ors.routing.util;
 
 class RouteSplit {
     int start;

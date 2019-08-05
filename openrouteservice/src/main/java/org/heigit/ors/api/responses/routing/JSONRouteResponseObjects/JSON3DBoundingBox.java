@@ -13,15 +13,15 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
+package org.heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.graphhopper.util.shapes.BBox;
-import heigit.ors.api.responses.common.BoundingBox.BoundingBox;
-import heigit.ors.api.responses.common.BoundingBox.BoundingBox3DBase;
-import heigit.ors.util.FormatUtility;
+import org.heigit.ors.api.responses.common.BoundingBox.BoundingBox;
+import org.heigit.ors.api.responses.common.BoundingBox.BoundingBox3DBase;
+import org.heigit.ors.util.FormatUtility;
 
 @JsonFormat(shape = JsonFormat.Shape.ARRAY)
 @JsonPropertyOrder({"minLon", "minLat", "minEle", "maxLon", "maxLat", "maxEle"})

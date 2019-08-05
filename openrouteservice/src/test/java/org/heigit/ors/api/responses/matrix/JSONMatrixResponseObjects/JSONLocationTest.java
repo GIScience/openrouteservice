@@ -1,7 +1,7 @@
-package heigit.ors.api.responses.matrix.JSONMatrixResponseObjects;
+package org.heigit.ors.api.responses.matrix.JSONMatrixResponseObjects;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.matrix.ResolvedLocation;
+import org.heigit.ors.matrix.ResolvedLocation;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

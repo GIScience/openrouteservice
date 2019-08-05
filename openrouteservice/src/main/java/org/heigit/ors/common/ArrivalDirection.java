@@ -18,7 +18,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.common;
+package org.heigit.ors.common;
 
 public enum ArrivalDirection {
    Unknown,

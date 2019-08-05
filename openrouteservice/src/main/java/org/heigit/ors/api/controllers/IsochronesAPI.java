@@ -14,20 +14,20 @@
  */
 
 
-package heigit.ors.api.controllers;
+package org.heigit.ors.api.controllers;
 
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
-import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.api.requests.isochrones.IsochronesRequest;
-import heigit.ors.api.requests.isochrones.IsochronesRequestHandler;
-import heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects.GeoJSONIsochronesResponse;
-import heigit.ors.exceptions.*;
-import heigit.ors.isochrones.IsochroneMapCollection;
-import heigit.ors.isochrones.IsochronesErrorCodes;
+import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
+import org.heigit.ors.api.requests.isochrones.IsochronesRequestHandler;
+import org.heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects.GeoJSONIsochronesResponse;
+import org.heigit.ors.exceptions.*;
+import org.heigit.ors.isochrones.IsochroneMapCollection;
+import org.heigit.ors.isochrones.IsochronesErrorCodes;
 import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;

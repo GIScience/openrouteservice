@@ -11,12 +11,12 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.v2.services.serviceSettings;
+package org.heigit.ors.v2.services.serviceSettings;
 
 import com.typesafe.config.ConfigObject;
-import heigit.ors.v2.services.config.AppConfig;
-import heigit.ors.v2.services.config.RoutingProfileType;
-import heigit.ors.v2.services.config.StatisticsProviderConfiguration;
+import org.heigit.ors.v2.services.config.AppConfig;
+import org.heigit.ors.v2.services.config.RoutingProfileType;
+import org.heigit.ors.v2.services.config.StatisticsProviderConfiguration;
 
 import java.util.HashMap;
 import java.util.List;

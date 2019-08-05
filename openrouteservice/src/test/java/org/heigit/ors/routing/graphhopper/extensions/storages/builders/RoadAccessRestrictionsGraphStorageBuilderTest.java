@@ -13,11 +13,11 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.routing.graphhopper.extensions.storages.builders;
+package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.reader.ReaderWay;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
+import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
 import org.junit.Assert;
 import org.junit.Test;
 

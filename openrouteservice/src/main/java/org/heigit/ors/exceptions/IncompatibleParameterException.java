@@ -1,6 +1,6 @@
-package heigit.ors.exceptions;
+package org.heigit.ors.exceptions;
 
-import heigit.ors.common.StatusCode;
+import org.heigit.ors.common.StatusCode;
 
 public class IncompatibleParameterException extends StatusCodeException {
     private static final long serialVersionUID = 1527301848566685803L;

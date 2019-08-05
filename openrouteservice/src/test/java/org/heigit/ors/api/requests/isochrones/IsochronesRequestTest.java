@@ -1,16 +1,16 @@
-package heigit.ors.api.requests.isochrones;
+package org.heigit.ors.api.requests.isochrones;
 
-import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.api.requests.routing.RouteRequestOptions;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.services.isochrones.IsochronesServiceSettings;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.routing.RouteRequestOptions;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 
-import static heigit.ors.util.HelperFunctions.fakeArrayLocations;
+import static org.heigit.ors.util.HelperFunctions.fakeArrayLocations;
 
 public class IsochronesRequestTest {
 

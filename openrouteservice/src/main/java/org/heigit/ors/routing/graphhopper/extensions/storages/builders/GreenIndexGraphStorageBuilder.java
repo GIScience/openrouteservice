@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions.storages.builders;
+package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import heigit.ors.routing.graphhopper.extensions.storages.GreenIndexGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GreenIndexGraphStorage;
 
 /**
  * Created by lliu on 13/03/2017.

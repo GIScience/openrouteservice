@@ -20,7 +20,7 @@
  *  *  limitations under the License.
  *
  */
-package heigit.ors.services.routing;
+package org.heigit.ors.services.routing;
 
 /**
  * This Class handles the error Codes as described in the error_codes.md

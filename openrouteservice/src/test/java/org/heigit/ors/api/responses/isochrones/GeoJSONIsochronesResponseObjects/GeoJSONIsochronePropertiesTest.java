@@ -1,4 +1,4 @@
-package heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects;
+package org.heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects;
 
 import org.junit.Before;
 import org.junit.Test;

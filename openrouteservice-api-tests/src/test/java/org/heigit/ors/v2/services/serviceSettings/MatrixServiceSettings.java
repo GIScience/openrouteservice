@@ -11,9 +11,9 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.v2.services.serviceSettings;
+package org.heigit.ors.v2.services.serviceSettings;
 
-import heigit.ors.v2.services.config.AppConfig;
+import org.heigit.ors.v2.services.config.AppConfig;
 
 public class MatrixServiceSettings {
     private static int maximumRoutes = 100;

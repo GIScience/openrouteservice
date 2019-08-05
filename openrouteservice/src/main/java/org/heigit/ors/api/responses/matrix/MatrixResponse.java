@@ -13,11 +13,11 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.matrix;
+package org.heigit.ors.api.responses.matrix;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import heigit.ors.api.requests.matrix.MatrixRequest;
-import heigit.ors.matrix.MatrixResult;
+import org.heigit.ors.api.requests.matrix.MatrixRequest;
+import org.heigit.ors.matrix.MatrixResult;
 
 import java.util.List;
 

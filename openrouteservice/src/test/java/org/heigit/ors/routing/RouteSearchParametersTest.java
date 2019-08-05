@@ -1,10 +1,10 @@
-package heigit.ors.routing;
+package org.heigit.ors.routing;
 
 import com.vividsolutions.jts.geom.Polygon;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
-import heigit.ors.routing.parameters.VehicleParameters;
-import heigit.ors.routing.pathprocessors.BordersExtractor;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
+import org.heigit.ors.routing.parameters.VehicleParameters;
+import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.junit.Assert;
 import org.junit.Test;
 

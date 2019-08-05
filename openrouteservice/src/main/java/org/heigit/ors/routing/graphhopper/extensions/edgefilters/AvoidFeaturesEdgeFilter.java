@@ -11,14 +11,14 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions.edgefilters;
+package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
-import heigit.ors.routing.AvoidFeatureFlags;
-import heigit.ors.routing.RouteSearchParameters;
-import heigit.ors.routing.RoutingProfileCategory;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.graphhopper.extensions.storages.*;
-import heigit.ors.routing.pathprocessors.TollwayExtractor;
+import org.heigit.ors.routing.AvoidFeatureFlags;
+import org.heigit.ors.routing.RouteSearchParameters;
+import org.heigit.ors.routing.RoutingProfileCategory;
+import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.graphhopper.extensions.storages.*;
+import org.heigit.ors.routing.pathprocessors.TollwayExtractor;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;

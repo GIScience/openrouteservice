@@ -13,11 +13,11 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.routing;
+package org.heigit.ors.api.responses.routing;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.api.requests.routing.RouteRequest;
-import heigit.ors.routing.RouteResult;
+import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.routing.RouteResult;
 
 public class IndividualRouteResponse {
     protected Coordinate[] routeCoordinates;

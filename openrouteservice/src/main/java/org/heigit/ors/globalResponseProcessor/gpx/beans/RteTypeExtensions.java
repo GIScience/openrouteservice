@@ -23,7 +23,7 @@
  *
  */
 
-package heigit.ors.globalResponseProcessor.gpx.beans;
+package org.heigit.ors.globalResponseProcessor.gpx.beans;
 
 
 

@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions.edgefilters;
+package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
@@ -26,13 +26,13 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeIteratorState;
-import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
-import heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
-import heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
-import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
-import heigit.ors.routing.parameters.VehicleParameters;
-import heigit.ors.routing.util.DestinationDependentEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
+import org.heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
+import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
+import org.heigit.ors.routing.parameters.VehicleParameters;
+import org.heigit.ors.routing.util.DestinationDependentEdgeFilter;
 
 import java.util.ArrayList;
 import java.util.List;

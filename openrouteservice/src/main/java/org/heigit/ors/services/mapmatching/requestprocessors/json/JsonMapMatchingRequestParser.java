@@ -11,28 +11,28 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.services.mapmatching.requestprocessors.json;
+package org.heigit.ors.services.mapmatching.requestprocessors.json;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
-import heigit.ors.common.DistanceUnit;
-import heigit.ors.exceptions.MissingParameterException;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.UnknownParameterValueException;
-import heigit.ors.localization.LocalizationManager;
-import heigit.ors.mapmatching.MapMatchingErrorCodes;
-import heigit.ors.mapmatching.MapMatchingRequest;
-import heigit.ors.routing.RouteExtraInfoFlag;
-import heigit.ors.routing.RouteInstructionsFormat;
-import heigit.ors.routing.RouteSearchParameters;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.WeightingMethod;
-import heigit.ors.services.mapmatching.MapMatchingServiceSettings;
-import heigit.ors.util.CoordTools;
-import heigit.ors.util.DistanceUnitUtil;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.exceptions.MissingParameterException;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.UnknownParameterValueException;
+import org.heigit.ors.localization.LocalizationManager;
+import org.heigit.ors.mapmatching.MapMatchingErrorCodes;
+import org.heigit.ors.mapmatching.MapMatchingRequest;
+import org.heigit.ors.routing.RouteExtraInfoFlag;
+import org.heigit.ors.routing.RouteInstructionsFormat;
+import org.heigit.ors.routing.RouteSearchParameters;
+import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.WeightingMethod;
+import org.heigit.ors.services.mapmatching.MapMatchingServiceSettings;
+import org.heigit.ors.util.CoordTools;
+import org.heigit.ors.util.DistanceUnitUtil;
 
 public class JsonMapMatchingRequestParser 
 {

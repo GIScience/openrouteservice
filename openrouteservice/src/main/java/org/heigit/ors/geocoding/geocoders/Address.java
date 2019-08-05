@@ -12,7 +12,7 @@
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
 
-package heigit.ors.geocoding.geocoders;
+package org.heigit.ors.geocoding.geocoders;
 
 import java.util.HashMap;
 import java.util.Map;

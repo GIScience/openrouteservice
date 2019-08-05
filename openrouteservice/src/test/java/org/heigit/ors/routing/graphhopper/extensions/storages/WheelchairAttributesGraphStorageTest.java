@@ -1,7 +1,7 @@
-package heigit.ors.routing.graphhopper.extensions.storages;
+package org.heigit.ors.routing.graphhopper.extensions.storages;
 
 import com.graphhopper.storage.RAMDirectory;
-import heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
+import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

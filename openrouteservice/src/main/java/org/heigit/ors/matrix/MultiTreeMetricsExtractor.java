@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.matrix;
+package org.heigit.ors.matrix;
 
 import com.graphhopper.coll.GHLongObjectHashMap;
 import com.graphhopper.routing.QueryGraph;
@@ -24,10 +24,10 @@ import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 
-import heigit.ors.common.DistanceUnit;
-import heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
-import heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
-import heigit.ors.util.DistanceUnitUtil;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
+import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
+import org.heigit.ors.util.DistanceUnitUtil;
 
 public class MultiTreeMetricsExtractor {
 	private class MetricsItem {

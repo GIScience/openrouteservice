@@ -11,14 +11,14 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.matrix.algorithms;
+package org.heigit.ors.matrix.algorithms;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.FlagEncoder;
 
-import heigit.ors.matrix.MatrixRequest;
-import heigit.ors.matrix.algorithms.dijkstra.DijkstraMatrixAlgorithm;
-import heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
+import org.heigit.ors.matrix.MatrixRequest;
+import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraMatrixAlgorithm;
+import org.heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 
 public class MatrixAlgorithmFactory {
 	public static MatrixAlgorithm createAlgorithm(MatrixRequest req, GraphHopper gh, FlagEncoder encoder) {

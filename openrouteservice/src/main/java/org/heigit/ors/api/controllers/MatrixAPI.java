@@ -13,20 +13,20 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.controllers;
+package org.heigit.ors.api.controllers;
 
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
-import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.api.requests.matrix.MatrixRequest;
-import heigit.ors.api.requests.matrix.MatrixRequestHandler;
-import heigit.ors.api.responses.matrix.JSONMatrixResponseObjects.JSONMatrixResponse;
-import heigit.ors.exceptions.*;
-import heigit.ors.matrix.MatrixErrorCodes;
-import heigit.ors.matrix.MatrixResult;
+import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.matrix.MatrixRequest;
+import org.heigit.ors.api.requests.matrix.MatrixRequestHandler;
+import org.heigit.ors.api.responses.matrix.JSONMatrixResponseObjects.JSONMatrixResponse;
+import org.heigit.ors.exceptions.*;
+import org.heigit.ors.matrix.MatrixErrorCodes;
+import org.heigit.ors.matrix.MatrixResult;
 import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;

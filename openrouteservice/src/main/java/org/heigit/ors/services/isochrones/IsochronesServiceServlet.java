@@ -11,14 +11,14 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.services.isochrones;
+package org.heigit.ors.services.isochrones;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
-import heigit.ors.services.isochrones.requestprocessors.IsochronesServiceRequestProcessorFactory;
-import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
-import heigit.ors.servlet.http.BaseHttpServlet;
+import org.heigit.ors.services.isochrones.requestprocessors.IsochronesServiceRequestProcessorFactory;
+import org.heigit.ors.servlet.http.AbstractHttpRequestProcessor;
+import org.heigit.ors.servlet.http.BaseHttpServlet;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

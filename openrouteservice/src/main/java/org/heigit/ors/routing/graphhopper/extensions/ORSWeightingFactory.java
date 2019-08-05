@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions;
+package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.FootFlagEncoder;
@@ -24,9 +24,9 @@ import com.graphhopper.storage.TurnCostExtension;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
-import heigit.ors.routing.ProfileWeighting;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
-import heigit.ors.routing.graphhopper.extensions.weighting.*;
+import org.heigit.ors.routing.ProfileWeighting;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.weighting.*;
 
 import java.io.File;
 import java.nio.file.Path;

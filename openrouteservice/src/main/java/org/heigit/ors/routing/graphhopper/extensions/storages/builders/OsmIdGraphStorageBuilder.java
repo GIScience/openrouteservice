@@ -1,10 +1,10 @@
-package heigit.ors.routing.graphhopper.extensions.storages.builders;
+package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
-import heigit.ors.routing.graphhopper.extensions.storages.OsmIdGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.OsmIdGraphStorage;
 
 public class OsmIdGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private OsmIdGraphStorage osmIdGraphStorage;

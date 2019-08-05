@@ -1,4 +1,4 @@
-package heigit.ors.routing.graphhopper.extensions.flagencoders;
+package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 public interface FlagEncoderKeys {
 

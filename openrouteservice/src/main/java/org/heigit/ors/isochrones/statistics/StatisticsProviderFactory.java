@@ -18,7 +18,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.isochrones.statistics;
+package org.heigit.ors.isochrones.statistics;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,8 +27,8 @@ import java.util.ServiceLoader;
 
 import org.apache.log4j.Logger;
 
-import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.isochrones.IsochronesErrorCodes;
+import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.isochrones.IsochronesErrorCodes;
 
 public class StatisticsProviderFactory {
 	

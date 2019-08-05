@@ -1,4 +1,4 @@
-package heigit.ors.logging;
+package org.heigit.ors.logging;
 
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;

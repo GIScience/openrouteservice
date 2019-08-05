@@ -1,10 +1,10 @@
-package heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects;
+package org.heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.common.AttributeValue;
-import heigit.ors.isochrones.Isochrone;
+import org.heigit.ors.common.AttributeValue;
+import org.heigit.ors.isochrones.Isochrone;
 import io.swagger.annotations.ApiModelProperty;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)

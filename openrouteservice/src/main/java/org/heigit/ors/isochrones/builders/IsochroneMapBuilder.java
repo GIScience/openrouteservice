@@ -11,11 +11,11 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.isochrones.builders;
+package org.heigit.ors.isochrones.builders;
 
-import heigit.ors.isochrones.IsochroneSearchParameters;
-import heigit.ors.routing.RouteSearchContext;
-import heigit.ors.isochrones.IsochroneMap;
+import org.heigit.ors.isochrones.IsochroneSearchParameters;
+import org.heigit.ors.routing.RouteSearchContext;
+import org.heigit.ors.isochrones.IsochroneMap;
 
 public interface IsochroneMapBuilder {
 	

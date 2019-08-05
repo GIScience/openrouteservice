@@ -11,12 +11,12 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.matrix;
+package org.heigit.ors.matrix;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import heigit.ors.common.DistanceUnit;
-import heigit.ors.services.ServiceRequest;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.services.ServiceRequest;
 
 public class MatrixRequest extends ServiceRequest
 {

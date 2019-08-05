@@ -13,18 +13,18 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects;
+package org.heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vividsolutions.jts.geom.Geometry;
-import heigit.ors.api.requests.isochrones.IsochronesRequest;
-import heigit.ors.api.requests.isochrones.IsochronesRequestEnums;
-import heigit.ors.common.Pair;
-import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.isochrones.IsochronesErrorCodes;
-import heigit.ors.isochrones.IsochronesIntersection;
-import heigit.ors.util.FormatUtility;
+import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
+import org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums;
+import org.heigit.ors.common.Pair;
+import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.isochrones.IsochronesErrorCodes;
+import org.heigit.ors.isochrones.IsochronesIntersection;
+import org.heigit.ors.util.FormatUtility;
 
 import java.util.*;
 

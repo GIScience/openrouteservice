@@ -13,10 +13,10 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.common.BoundingBox;
+package org.heigit.ors.api.responses.common.BoundingBox;
 
 import com.graphhopper.util.shapes.BBox;
-import heigit.ors.util.FormatUtility;
+import org.heigit.ors.util.FormatUtility;
 
 public class BoundingBoxBase implements BoundingBox {
     protected static final int COORDINATE_DECIMAL_PLACES = 6;

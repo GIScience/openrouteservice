@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.algorithms;
+package org.heigit.ors.routing.algorithms;
 
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
@@ -23,7 +23,7 @@ import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 
-import heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
+import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
 
 public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRoutingAlgorithm {
 	protected final Graph _graph;

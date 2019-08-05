@@ -13,9 +13,9 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.controllers;
+package org.heigit.ors.api.controllers;
 
-import heigit.ors.routing.RoutingProfileManagerStatus;
+import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.json.simple.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

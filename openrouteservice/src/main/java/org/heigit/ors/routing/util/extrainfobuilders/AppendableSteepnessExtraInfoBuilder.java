@@ -11,10 +11,10 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.util.extrainfobuilders;
+package org.heigit.ors.routing.util.extrainfobuilders;
 
 import com.graphhopper.util.PointList;
-import heigit.ors.routing.RouteExtraInfo;
+import org.heigit.ors.routing.RouteExtraInfo;
 
 import java.util.ArrayList;
 import java.util.Iterator;

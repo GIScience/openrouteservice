@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.services.geocoding.requestprocessors.json;
+package org.heigit.ors.services.geocoding.requestprocessors.json;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,27 +24,27 @@ import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
-import heigit.ors.geojson.GeometryJSON;
-import heigit.ors.config.AppConfig;
-import heigit.ors.services.geocoding.GeocodingServiceSettings;
-import heigit.ors.common.StatusCode;
-import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.exceptions.MissingParameterException;
-import heigit.ors.exceptions.ParameterOutOfRangeException;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.geocoding.geocoders.Address;
-import heigit.ors.geocoding.geocoders.CircleSearchBoundary;
-import heigit.ors.geocoding.geocoders.Geocoder;
-import heigit.ors.geocoding.geocoders.GeocoderFactory;
-import heigit.ors.geocoding.geocoders.GeocodingErrorCodes;
-import heigit.ors.geocoding.geocoders.GeocodingResult;
-import heigit.ors.geocoding.geocoders.RectSearchBoundary;
-import heigit.ors.services.geocoding.requestprocessors.GeocodingRequest;
-import heigit.ors.servlet.http.AbstractHttpRequestProcessor;
-import heigit.ors.servlet.util.ServletUtility;
-import heigit.ors.util.FormatUtility;
-import heigit.ors.util.AppInfo;
+import org.heigit.ors.geojson.GeometryJSON;
+import org.heigit.ors.config.AppConfig;
+import org.heigit.ors.services.geocoding.GeocodingServiceSettings;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.exceptions.MissingParameterException;
+import org.heigit.ors.exceptions.ParameterOutOfRangeException;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.geocoding.geocoders.Address;
+import org.heigit.ors.geocoding.geocoders.CircleSearchBoundary;
+import org.heigit.ors.geocoding.geocoders.Geocoder;
+import org.heigit.ors.geocoding.geocoders.GeocoderFactory;
+import org.heigit.ors.geocoding.geocoders.GeocodingErrorCodes;
+import org.heigit.ors.geocoding.geocoders.GeocodingResult;
+import org.heigit.ors.geocoding.geocoders.RectSearchBoundary;
+import org.heigit.ors.services.geocoding.requestprocessors.GeocodingRequest;
+import org.heigit.ors.servlet.http.AbstractHttpRequestProcessor;
+import org.heigit.ors.servlet.util.ServletUtility;
+import org.heigit.ors.util.FormatUtility;
+import org.heigit.ors.util.AppInfo;
 
 
 public class JsonGeocodingRequestProcessor extends AbstractHttpRequestProcessor {

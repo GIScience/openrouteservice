@@ -11,13 +11,13 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions.storages;
+package org.heigit.ors.routing.graphhopper.extensions.storages;
 
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
-import heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
+import org.heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
 
 public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 	/* pointer for no entry */

@@ -20,10 +20,10 @@
  *  *  limitations under the License.
  *
  */
-package heigit.ors.services.isochrones;
+package org.heigit.ors.services.isochrones;
 
-import heigit.ors.services.common.EndPointAnnotation;
-import heigit.ors.services.common.ServiceTest;
+import org.heigit.ors.services.common.EndPointAnnotation;
+import org.heigit.ors.services.common.ServiceTest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;

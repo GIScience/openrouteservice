@@ -13,22 +13,22 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.requests.matrix;
+package org.heigit.ors.api.requests.matrix;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.api.requests.common.APIEnums;
-import heigit.ors.common.DistanceUnit;
-import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.exceptions.ServerLimitExceededException;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.matrix.MatrixErrorCodes;
-import heigit.ors.matrix.MatrixMetricsType;
-import heigit.ors.matrix.MatrixResult;
-import heigit.ors.routing.RoutingProfileManager;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.services.matrix.MatrixServiceSettings;
-import heigit.ors.util.DistanceUnitUtil;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.exceptions.ServerLimitExceededException;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.matrix.MatrixErrorCodes;
+import org.heigit.ors.matrix.MatrixMetricsType;
+import org.heigit.ors.matrix.MatrixResult;
+import org.heigit.ors.routing.RoutingProfileManager;
+import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.services.matrix.MatrixServiceSettings;
+import org.heigit.ors.util.DistanceUnitUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +39,7 @@ public class MatrixRequestHandler {
     }
 
     public static MatrixResult generateMatrixFromRequest(MatrixRequest request) throws StatusCodeException {
-        heigit.ors.matrix.MatrixRequest coreRequest = convertMatrixRequest(request);
+        org.heigit.ors.matrix.MatrixRequest coreRequest = convertMatrixRequest(request);
 
         try {
             return RoutingProfileManager.getInstance().computeMatrix(coreRequest);
@@ -50,8 +50,8 @@ public class MatrixRequestHandler {
         }
     }
 
-    public static heigit.ors.matrix.MatrixRequest convertMatrixRequest(MatrixRequest request) throws StatusCodeException {
-        heigit.ors.matrix.MatrixRequest coreRequest = new heigit.ors.matrix.MatrixRequest();
+    public static org.heigit.ors.matrix.MatrixRequest convertMatrixRequest(MatrixRequest request) throws StatusCodeException {
+        org.heigit.ors.matrix.MatrixRequest coreRequest = new org.heigit.ors.matrix.MatrixRequest();
 
         int sources = request.getSources() == null ? request.getLocations().size() : request.getSources().length;
         int destinations = request.getDestinations() == null ? request.getLocations().size() : request.getDestinations().length;

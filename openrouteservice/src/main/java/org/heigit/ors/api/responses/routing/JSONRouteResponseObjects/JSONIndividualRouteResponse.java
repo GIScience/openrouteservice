@@ -13,22 +13,22 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.responses.routing.JSONRouteResponseObjects;
+package org.heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.api.requests.routing.RouteRequest;
-import heigit.ors.api.responses.common.BoundingBox.BoundingBox;
-import heigit.ors.api.responses.common.BoundingBox.BoundingBoxFactory;
-import heigit.ors.common.DistanceUnit;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.routing.RouteExtraInfo;
-import heigit.ors.routing.RouteResult;
-import heigit.ors.routing.RouteWarning;
-import heigit.ors.util.DistanceUnitUtil;
-import heigit.ors.util.PolylineEncoder;
+import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.api.responses.common.BoundingBox.BoundingBox;
+import org.heigit.ors.api.responses.common.BoundingBox.BoundingBoxFactory;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.routing.RouteExtraInfo;
+import org.heigit.ors.routing.RouteResult;
+import org.heigit.ors.routing.RouteWarning;
+import org.heigit.ors.util.DistanceUnitUtil;
+import org.heigit.ors.util.PolylineEncoder;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 

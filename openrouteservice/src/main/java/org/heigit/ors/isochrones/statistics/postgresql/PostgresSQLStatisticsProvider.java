@@ -11,15 +11,15 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.isochrones.statistics.postgresql;
+package org.heigit.ors.isochrones.statistics.postgresql;
 
 import com.graphhopper.util.Helper;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.isochrones.Isochrone;
-import heigit.ors.isochrones.IsochronesErrorCodes;
-import heigit.ors.isochrones.statistics.AbstractStatisticsProvider;
+import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.isochrones.Isochrone;
+import org.heigit.ors.isochrones.IsochronesErrorCodes;
+import org.heigit.ors.isochrones.statistics.AbstractStatisticsProvider;
 import org.apache.log4j.Logger;
 import org.postgresql.ds.PGSimpleDataSource;
 
@@ -173,7 +173,7 @@ public class PostgresSQLStatisticsProvider extends AbstractStatisticsProvider {
     }
 
     /**
-     * Returns the driver name to be queried against the {@link heigit.ors.isochrones.statistics.StatisticsProviderFactory}.
+     * Returns the driver name to be queried against the {@link org.heigit.ors.isochrones.statistics.StatisticsProviderFactory}.
      *
      * @return Returns the provider name in a {@link String} format.
      */

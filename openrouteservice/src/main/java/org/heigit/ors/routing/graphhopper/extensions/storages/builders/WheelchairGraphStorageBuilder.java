@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions.storages.builders;
+package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
@@ -19,10 +19,10 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
-import heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
-import heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
+import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
 import org.apache.log4j.Logger;
 
 import java.util.HashMap;

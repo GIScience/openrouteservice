@@ -13,9 +13,9 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.routing.graphhopper.extensions.storages;
+package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
+import org.heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
 import org.junit.Assert;
 import org.junit.Test;
 

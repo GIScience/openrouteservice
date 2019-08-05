@@ -13,15 +13,15 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.requests.common;
+package org.heigit.ors.api.requests.common;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
-import heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.ParameterValueException;
 import io.swagger.annotations.ApiModel;
 
-import static heigit.ors.api.errors.GenericErrorCodes.INVALID_PARAMETER_VALUE;
+import static org.heigit.ors.api.errors.GenericErrorCodes.INVALID_PARAMETER_VALUE;
 
 public class APIEnums {
     @ApiModel(value = "Specify which type of border crossing to avoid")

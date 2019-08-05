@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.configuration;
+package org.heigit.ors.routing.configuration;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -20,7 +20,7 @@ import java.util.HashMap;
 import com.typesafe.config.Config;
 import com.vividsolutions.jts.geom.Envelope;
 
-import heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.RoutingProfileType;
 
 public class RouteProfileConfiguration
 {

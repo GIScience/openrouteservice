@@ -11,14 +11,14 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.pathprocessors;
+package org.heigit.ors.routing.pathprocessors;
 
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
-import heigit.ors.routing.graphhopper.extensions.TollwayType;
-import heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStorage;
-import heigit.ors.routing.parameters.ProfileParameters;
-import heigit.ors.routing.parameters.VehicleParameters;
+import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
+import org.heigit.ors.routing.graphhopper.extensions.TollwayType;
+import org.heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStorage;
+import org.heigit.ors.routing.parameters.ProfileParameters;
+import org.heigit.ors.routing.parameters.VehicleParameters;
 
 public class TollwayExtractor {
 	private VehicleParameters _vehicleParams;

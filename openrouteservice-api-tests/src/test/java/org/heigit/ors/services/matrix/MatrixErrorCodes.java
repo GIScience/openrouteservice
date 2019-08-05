@@ -20,7 +20,7 @@
  *  *  limitations under the License.
  *
  */
-package heigit.ors.services.matrix;
+package org.heigit.ors.services.matrix;
 
 /**
  * This Class handles the error Codes as described in the error_codes.md

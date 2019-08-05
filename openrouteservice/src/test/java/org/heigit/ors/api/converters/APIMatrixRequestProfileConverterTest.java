@@ -1,6 +1,6 @@
-package heigit.ors.api.converters;
+package org.heigit.ors.api.converters;
 
-import heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.common.APIEnums;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

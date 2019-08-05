@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions.weighting;
+package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
 import com.graphhopper.routing.profiles.DecimalEncodedValue;
 import com.graphhopper.routing.util.EncodingManager;
@@ -20,7 +20,7 @@ import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKeys;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKeys;
 
 public class OptimizedPriorityWeighting extends FastestWeighting {
 	private static final Double THRESHOLD_AVOID_IF_POSSIBLE = (double) (PriorityCode.AVOID_IF_POSSIBLE.getValue() / (double)PriorityCode.BEST

@@ -13,13 +13,13 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.requests.common;
+package org.heigit.ors.api.requests.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.vividsolutions.jts.geom.Coordinate;
-import heigit.ors.api.converters.CoordinateListDeserializer;
-import heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.api.converters.CoordinateListDeserializer;
+import org.heigit.ors.exceptions.ParameterValueException;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 

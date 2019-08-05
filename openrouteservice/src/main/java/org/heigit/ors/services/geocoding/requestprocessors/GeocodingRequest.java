@@ -11,15 +11,15 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.services.geocoding.requestprocessors;
+package org.heigit.ors.services.geocoding.requestprocessors;
 
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
-import heigit.ors.geocoding.geocoders.Address;
-import heigit.ors.geocoding.geocoders.SearchBoundary;
-import heigit.ors.services.ServiceRequest;
-import heigit.ors.services.geocoding.GeocodingServiceSettings;
+import org.heigit.ors.geocoding.geocoders.Address;
+import org.heigit.ors.geocoding.geocoders.SearchBoundary;
+import org.heigit.ors.services.ServiceRequest;
+import org.heigit.ors.services.geocoding.GeocodingServiceSettings;
 
 public class GeocodingRequest extends ServiceRequest
 {

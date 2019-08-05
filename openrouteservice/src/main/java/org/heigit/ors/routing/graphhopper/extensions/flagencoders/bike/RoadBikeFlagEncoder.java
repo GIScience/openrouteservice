@@ -15,12 +15,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
+package org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.util.PMap;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
 import java.util.TreeMap;
 

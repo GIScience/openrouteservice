@@ -13,7 +13,7 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package heigit.ors.api.converters;
+package org.heigit.ors.api.converters;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import org.springframework.core.convert.converter.Converter;

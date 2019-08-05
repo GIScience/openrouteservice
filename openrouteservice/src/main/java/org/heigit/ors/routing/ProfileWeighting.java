@@ -12,13 +12,13 @@
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
 
-package heigit.ors.routing;
+package org.heigit.ors.routing;
 
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 
-import heigit.ors.exceptions.InternalServerException;
-import heigit.ors.util.StringUtility;
+import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.util.StringUtility;
 
 public class ProfileWeighting {
 	private String _name;

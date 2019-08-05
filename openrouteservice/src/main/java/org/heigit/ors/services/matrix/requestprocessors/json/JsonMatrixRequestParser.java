@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.services.matrix.requestprocessors.json;
+package org.heigit.ors.services.matrix.requestprocessors.json;
 
 import java.io.InputStream;
 
@@ -24,23 +24,23 @@ import org.json.JSONObject;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
-import heigit.ors.common.DistanceUnit;
-import heigit.ors.common.StatusCode;
-import heigit.ors.exceptions.MissingParameterException;
-import heigit.ors.exceptions.ParameterOutOfRangeException;
-import heigit.ors.exceptions.ParameterValueException;
-import heigit.ors.exceptions.StatusCodeException;
-import heigit.ors.exceptions.UnknownParameterValueException;
-import heigit.ors.matrix.MatrixErrorCodes;
-import heigit.ors.matrix.MatrixMetricsType;
-import heigit.ors.matrix.MatrixRequest;
-import heigit.ors.routing.RoutingProfileType;
-import heigit.ors.routing.WeightingMethod;
-import heigit.ors.util.ArraysUtility;
-import heigit.ors.util.CoordTools;
-import heigit.ors.util.DistanceUnitUtil;
-import heigit.ors.util.JsonUtility;
-import heigit.ors.util.StreamUtility;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.exceptions.MissingParameterException;
+import org.heigit.ors.exceptions.ParameterOutOfRangeException;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.exceptions.UnknownParameterValueException;
+import org.heigit.ors.matrix.MatrixErrorCodes;
+import org.heigit.ors.matrix.MatrixMetricsType;
+import org.heigit.ors.matrix.MatrixRequest;
+import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.WeightingMethod;
+import org.heigit.ors.util.ArraysUtility;
+import org.heigit.ors.util.CoordTools;
+import org.heigit.ors.util.DistanceUnitUtil;
+import org.heigit.ors.util.JsonUtility;
+import org.heigit.ors.util.StreamUtility;
 
 public class JsonMatrixRequestParser {
 
