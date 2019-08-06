@@ -19,7 +19,6 @@ import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
-import org.heigit.ors.services.geocoding.GeocodingServiceSettings;
 import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
 import org.heigit.ors.services.mapmatching.MapMatchingServiceSettings;
 import org.heigit.ors.services.matrix.MatrixServiceSettings;
@@ -56,8 +55,6 @@ public class ORSServicesUtils {
 				List<String> list = new ArrayList<String>(4);
 				if (RoutingServiceSettings.getEnabled())
 					list.add("routing");
-				if (GeocodingServiceSettings.getEnabled())
-					list.add("geocoding");
 				if (IsochronesServiceSettings.getEnabled())
 					list.add("isochrones");
 				if (MatrixServiceSettings.getEnabled())

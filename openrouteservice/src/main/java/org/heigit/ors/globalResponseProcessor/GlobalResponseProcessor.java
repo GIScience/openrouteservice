@@ -28,8 +28,6 @@ package org.heigit.ors.globalResponseProcessor;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.exceptions.ExportException;
 import org.heigit.ors.exceptions.StatusCodeException;
-import org.heigit.ors.geocoding.geocoders.GeocodingErrorCodes;
-import org.heigit.ors.geocoding.geocoders.GeocodingResult;
 import org.heigit.ors.globalResponseProcessor.geoJson.GeoJsonResponseWriter;
 import org.heigit.ors.globalResponseProcessor.gpx.GpxResponseWriter;
 import org.heigit.ors.isochrones.IsochroneMapCollection;
@@ -43,7 +41,6 @@ import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import org.heigit.ors.routing.RoutingRequest;
 import org.heigit.ors.services.ServiceRequest;
-import org.heigit.ors.services.geocoding.requestprocessors.GeocodingRequest;
 import org.heigit.ors.servlet.util.ServletUtility;
 import org.json.JSONObject;
 
@@ -60,8 +57,6 @@ import org.json.JSONObject;
 @SuppressWarnings("FieldCanBeLocal")
 @Deprecated
 public class GlobalResponseProcessor {
-    private GeocodingRequest geocodingRequest;
-    private GeocodingResult geocodingResult;
     private IsochroneRequest isochroneRequest;
     private IsochroneMapCollection isochroneMapCollection; // The result type for Isochrones!!!
     private MapMatchingRequest mapMatchingRequest;
@@ -73,18 +68,6 @@ public class GlobalResponseProcessor {
     // TODO The constructors still need refinement with their inputs
     // TODO add try and catch errors to all subclasses
     // TODO finish commenting
-
-    /**
-     * Constructor to ensure the correct creation and processing of the desired export.
-     *
-     * @param geocodingRequest {@link GeocodingRequest} holding the initial {@link ServiceRequest}.
-     * @param geocodingResult  {@link GeocodingResult} holding the already processed result.
-     */
-    public GlobalResponseProcessor(GeocodingRequest geocodingRequest, GeocodingResult geocodingResult) {
-
-        this.geocodingRequest = geocodingRequest;
-        this.geocodingResult = geocodingResult;
-    }
 
     /**
      * Constructor to ensure the correct creation and processing of the desired export.
@@ -143,12 +126,7 @@ public class GlobalResponseProcessor {
     public JSONObject toGeoJson() throws Exception {
         // Check for the correct ServiceRequest and chose the right export function
         // TODO Integrate all exports here by time
-        if (!(this.geocodingRequest == null)) {
-            throw new ExportException(GeocodingErrorCodes.UNSUPPORTED_EXPORT_FORMAT, this.getClass(), geocodingRequest.getClass(), "GeoJSON");
-//            if (!(geocodingResult == null)) {
-//                // TODO Do export
-//            }
-        } else if (!(this.isochroneRequest == null)) {
+        if (!(this.isochroneRequest == null)) {
             throw new ExportException(IsochronesErrorCodes.UNSUPPORTED_EXPORT_FORMAT, this.getClass(), isochroneRequest.getClass(), "GeoJSON");
 //            if (this.isochroneMapCollection.size() > 0) {
 //                // TODO Do export
@@ -184,12 +162,7 @@ public class GlobalResponseProcessor {
     public String toGPX() throws Exception {
         // Check for the correct ServiceRequest and chose the right export function
         // TODO Integrate all exports here by time
-        if (!(this.geocodingRequest == null)) {
-            throw new ExportException(GeocodingErrorCodes.UNSUPPORTED_EXPORT_FORMAT, this.getClass(), geocodingRequest.getClass(), "GPX");
-            /*if (!(geocodingResult == null)) {
-                // TODO Do export
-            }*/
-        } else if (!(this.isochroneRequest == null)) {
+        if (!(this.isochroneRequest == null)) {
             throw new ExportException(IsochronesErrorCodes.UNSUPPORTED_EXPORT_FORMAT, this.getClass(), isochroneRequest.getClass(), "GPX");
             /*if (this.isochroneMapCollection.size() > 0) {
                 // TODO Do export
