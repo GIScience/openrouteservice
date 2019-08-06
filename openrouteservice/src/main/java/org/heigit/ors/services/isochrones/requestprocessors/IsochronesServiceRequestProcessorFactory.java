@@ -43,9 +43,7 @@ public class IsochronesServiceRequestProcessorFactory {
 
 		if (formatParam.equalsIgnoreCase("json"))
 			return new JsonIsochronesRequestProcessor(request);
-		/*else if (formatParam.equalsIgnoreCase("xml"))
-			return new XmlAccessibilityRequestProcessor(request);*/
-		else 
+		else
 			throw new UnknownParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "format", formatParam);
 	}
 }

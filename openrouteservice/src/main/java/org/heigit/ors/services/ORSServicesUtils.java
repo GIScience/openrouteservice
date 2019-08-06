@@ -39,8 +39,6 @@ import java.util.List;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
-//import org.heigit.ors.services.accessibility.AccessibilityServiceSettings;
-
 public class ORSServicesUtils {
 
 	public static void writeStatusInfo(HttpServletRequest req, HttpServletResponse res) throws Exception {
@@ -62,8 +60,6 @@ public class ORSServicesUtils {
 					list.add("geocoding");
 				if (IsochronesServiceSettings.getEnabled())
 					list.add("isochrones");
-				/*if (AccessibilityServiceSettings.getEnabled())
-					list.add("accessibility");*/
 				if (MatrixServiceSettings.getEnabled())
 					list.add("matrix");
 				if (MapMatchingServiceSettings.getEnabled())
