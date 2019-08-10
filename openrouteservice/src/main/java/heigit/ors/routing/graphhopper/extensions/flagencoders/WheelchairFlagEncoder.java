@@ -16,7 +16,6 @@ package heigit.ors.routing.graphhopper.extensions.flagencoders;
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodedDoubleValue;
 import com.graphhopper.routing.util.EncodedValue;
 import com.graphhopper.routing.util.PriorityCode;
@@ -28,54 +27,43 @@ import java.util.*;
 
 import static com.graphhopper.routing.util.PriorityCode.*;
 
-public class WheelchairFlagEncoder extends AbstractFlagEncoder 
-{
-	static final int SLOW_SPEED = 2;
+public class WheelchairFlagEncoder extends FootFlagEncoder {
     public static final int MEAN_SPEED = 4;
-    static final int FERRY_SPEED = 10;
     static final int MAX_SPEED = 15;
     
-    private EncodedValue priorityWayEncoder;
-    private EncodedValue relationCodeEncoder;
-
-    private final Set<String> usableSidewalkValues = new HashSet<String>();
-    private final Set<String> noSidewalkValues = new HashSet<String>();
-    // convert network tag of hiking routes into a way route code
-    private final Map<String, Integer> hikingNetworkToCode = new HashMap<String, Integer>();
-    
-    protected HashSet<String> acceptedPublicTransport = new HashSet<String>(5);
+    protected Set<String> acceptedPublicTransport = new HashSet<>(5);
     
     /**
      * Fully suitable for wheelchair users
      */
-    private final Set<String> fullyWheelchairAccessibleHighways = new HashSet<String>();
+    private final Set<String> fullyWheelchairAccessibleHighways = new HashSet<>();
     
     /**
      * Suitable for wheelchair users. However highways falling into this category that explicitly indicate a sidewalk is available will be prefered 
      */
-    private final Set<String> assumedWheelchairAccessibleHighways = new HashSet<String>();
+    private final Set<String> assumedWheelchairAccessibleHighways = new HashSet<>();
     
     /**
      * Highways that fall into this category will only be considered if further information about surface/smoothness is available
      */
-    private final Set<String> limitedWheelchairAccessibleHighways = new HashSet<String>();
+    private final Set<String> limitedWheelchairAccessibleHighways = new HashSet<>();
     
     /**
      * Highways that fall into this category will only be considered if further information about surface/smoothness is available
      */
-    private final Set<String> restrictedWheelchairHighways = new HashSet<String>();
+    private final Set<String> restrictedWheelchairHighways = new HashSet<>();
     
     /**
      * Highways that fall into this category cannot be accessed by Wheelchair users (e.g. steps)
      */
-    private final Set<String> nonWheelchairAccessibleHighways = new HashSet<String>();
+    private final Set<String> nonWheelchairAccessibleHighways = new HashSet<>();
     
     /**
      * Barriers (nodes) that are not accessible. Routes that would these nodes are not possible.
      */
-    private HashSet<String> inaccessibleBarriers = new HashSet<String>(5);
+    private Set<String> inaccessibleBarriers = new HashSet<>(5);
     
-    private final Set<String> accessibilityRelatedAttributes = new HashSet<String>();
+    private final Set<String> accessibilityRelatedAttributes = new HashSet<>();
 
   	public WheelchairFlagEncoder(PMap configuration)
     {
@@ -93,34 +81,12 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
 
     public WheelchairFlagEncoder( int speedBits, double speedFactor )
     {
-        super(speedBits, speedFactor, 0);
+        super(speedBits, speedFactor);
         // test for the following restriction keys
-        restrictions.addAll(Arrays.asList("foot", "access", "wheelchair"));
-        
-        // for nodes: these values make the node impassable for any value of restrictions
-        // for ways: these values make the way impassable for any value of restrictions
-        restrictedValues.add("private");
-        restrictedValues.add("no");
-        restrictedValues.add("restricted");
+        restrictions.add("wheelchair");
 
-        intendedValues.add("yes");
-        intendedValues.add("designated");
-        intendedValues.add("official");
-        intendedValues.add("permissive");
-        // TODO: include limited here or not? maybe make this is an parameter, selectable via client UI?
         intendedValues.add("limited");
 
-        usableSidewalkValues.add("yes");
-        usableSidewalkValues.add("both");
-        usableSidewalkValues.add("left");
-        usableSidewalkValues.add("right");
-        
-        noSidewalkValues.add("no");
-        noSidewalkValues.add("none");
-        noSidewalkValues.add("separate");
-        noSidewalkValues.add("seperate");
-        noSidewalkValues.add("detached");
-        
 
         // http://wiki.openstreetmap.org/wiki/Key:barrier
         // http://taginfo.openstreetmap.org/keys/?key=barrier#values
@@ -204,35 +170,18 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
         accessibilityRelatedAttributes.add("incline");
         accessibilityRelatedAttributes.add("sloped_curb");
         accessibilityRelatedAttributes.add("sloped_kerb");
-
-        // prefer international, national, regional or local hiking routes
-        hikingNetworkToCode.put("iwn", BEST.getValue());
-        hikingNetworkToCode.put("nwn", BEST.getValue());
-        hikingNetworkToCode.put("rwn", VERY_NICE.getValue());
-        hikingNetworkToCode.put("lwn", VERY_NICE.getValue());
         
         init();
+    }
+
+    public double getMeanSpeed() {
+        return MEAN_SPEED;
     }
     
     public double getDefaultMaxSpeed()
 	{
 		return 4;
 	}
-
-    @Override
-    public int defineWayBits( int index, int shift )
-    {
-        // first 3 bits are reserved for route handling in superclass
-        shift = super.defineWayBits(index, shift);
-        // larger value required - ferries are faster than pedestrians (4 bits)
-        speedEncoder = new EncodedDoubleValue("Speed", shift, speedBits, speedFactor, MEAN_SPEED, MAX_SPEED);
-        shift += speedEncoder.getBits();
-
-        priorityWayEncoder = new EncodedValue("PreferWay", shift, 3, 1, 0, 7);
-        shift += priorityWayEncoder.getBits();
-
-        return shift;
-    }
 
     @Override
     public int defineNodeBits(int index, int shift) {
@@ -286,49 +235,6 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
     	// return adaptSpeed(flags, 1d);
     }
 
-    @Override
-    public int defineRelationBits( int index, int shift )
-    {
-        relationCodeEncoder = new EncodedValue("RelationCode", shift, 3, 1, 0, 7);
-        return shift + relationCodeEncoder.getBits();
-    }
-
-    /**
-     * Wheelchair flag encoder does not provide any turn cost / restrictions
-     */
-    @Override
-    public int defineTurnBits( int index, int shift )
-    {
-        return shift;
-    }
-
-    /**
-     * Wheelchair flag encoder does not provide any turn cost / restrictions
-     * <p>
-     * @return <code>false</code>
-     */
-    @Override
-    public boolean isTurnRestricted( long flag )
-    {
-        return false;
-    }
-    
-    /**
-     * Foot flag encoder does not provide any turn cost / restrictions
-     * <p>
-     * @return 0
-     */
-    @Override
-    public double getTurnCost( long flag )
-    {
-        return 0;
-    }
-
-    @Override
-    public long getTurnFlags( boolean restricted, double costs )
-    {
-        return 0;
-    }
 
     /**
      * Some ways are okay but not separate for pedestrians.
@@ -679,26 +585,6 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
         }
         */
     }
-    
-    
-
-    
-    
-    @Override
-    public double getDouble(long flags, int key)
-    {
-        switch (key)
-        {
-            case PriorityWeighting.KEY:
-                double prio = priorityWayEncoder.getValue(flags);
-                if (prio == 0)
-                    return (double) UNCHANGED.getValue() / (double) BEST.getValue();
-
-                return prio / (double) BEST.getValue();
-            default:
-                return super.getDouble(flags, key);
-        }
-    }
 
     @Override
     // currently unused
@@ -830,8 +716,6 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
         
         int sum = positiveFeatures - negativeFeatures;
         
-       	// System.out.println("WheelchairFlagEncoder.collect(), sum="+sum+", wayId="+way.getId());
-        
         if (sum <= -6) weightToPrioMap.put(2d, AVOID_AT_ALL_COSTS.getValue());
         else if (sum >= -5 && sum <= -3) weightToPrioMap.put(2d, REACH_DEST.getValue());
         else if (sum >= -2 && sum <= -1) weightToPrioMap.put(2d, AVOID_IF_POSSIBLE.getValue());
@@ -839,16 +723,6 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
         else if (sum >= 1 && sum <= 2) weightToPrioMap.put(2d, PREFER.getValue());
         else if (sum >= 3 && sum <= 5) weightToPrioMap.put(2d, VERY_NICE.getValue());
         else if (sum >= 6) weightToPrioMap.put(2d, BEST.getValue());
-    }
-    
-
-    @Override
-    public boolean supports( Class<?> feature )
-    {
-        if (super.supports(feature))
-            return true;
-
-        return PriorityWeighting.class.isAssignableFrom(feature);
     }
 
     @Override
@@ -861,6 +735,4 @@ public class WheelchairFlagEncoder extends AbstractFlagEncoder
 	public int getVersion() {
 		return 2;
 	}
-
-
 }

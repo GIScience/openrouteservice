@@ -118,7 +118,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
                     if (res >= Double.MAX_VALUE)
                         return Double.POSITIVE_INFINITY;
 
-                    expandEdge(tmp, false);
+                    expandEdge(tmp);
 
                     return count;
                 }
@@ -151,7 +151,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         this.subnetworkStorage = new SubnetworkStorage(dir, "landmarks_core_" + name);
     }
 
-    private void expandEdge(CHEdgeIteratorState mainEdgeState, boolean reverse) {
+    private void expandEdge(CHEdgeIteratorState mainEdgeState) {
         if (!mainEdgeState.isShortcut()) {
             count += 1;
             return;
@@ -161,22 +161,23 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         int skippedEdge2 = mainEdgeState.getSkippedEdge2();
         int from = mainEdgeState.getBaseNode(), to = mainEdgeState.getAdjNode();
 
-
-
-            CHEdgeIteratorState iter = core.getEdgeIteratorState(skippedEdge1, from);
-            boolean empty = iter == null;
-            if (empty)
-                iter =  core.getEdgeIteratorState(skippedEdge2, from);
-
-            expandEdge(iter, true);
-
-            if (empty)
-                iter =  core.getEdgeIteratorState(skippedEdge1, to);
-            else
-                iter =  core.getEdgeIteratorState(skippedEdge2, to);
-
-            expandEdge(iter, false);
-
+        //TODO: This is an adaptation of the Path4CH expansion algo. The original algo does not properly apply to our core
+        // and therefore produces NPEs sometimes. For now this is fixed by a brute force algo that just tries to expand all edges and checks for null every time
+        CHEdgeIteratorState iter = core.getEdgeIteratorState(skippedEdge1, from);
+        if (iter != null) {
+            expandEdge(iter);
+            iter = core.getEdgeIteratorState(skippedEdge2, to);
+            if(iter != null)
+                expandEdge(iter);
+        }
+        else {
+            iter = core.getEdgeIteratorState(skippedEdge1, to);
+            if (iter != null)
+                expandEdge(iter);
+            iter = core.getEdgeIteratorState(skippedEdge2, from);
+            if (iter != null)
+                expandEdge(iter);
+        }
     }
 
     /**

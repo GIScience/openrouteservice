@@ -169,7 +169,7 @@ public class GpxResponseWriter {
                 RteTypeExtensions rteTypeExtensions = new RteTypeExtensions();
                 RouteSummary route_summary = route.getSummary();
                 rteTypeExtensions.setAscent(route_summary.getAscent());
-                rteTypeExtensions.setAvgSpeed(route_summary.getAverageSpeed());
+                rteTypeExtensions.setAvgspeed(route_summary.getAverageSpeed());
                 rteTypeExtensions.setDescent(route_summary.getDescent());
                 rteTypeExtensions.setDistance(route_summary.getDistance());
                 rteTypeExtensions.setDuration(route_summary.getDuration());

@@ -34,6 +34,8 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  * @author Peter Karich
  */
 public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
+    private static final int MEAN_SPEED = 14;
+
     public MountainBikeFlagEncoder() {
         // MARQ24 MOD START
         //this(4, 2, 0);
@@ -149,6 +151,10 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
         setSpecificClassBicycle("mtb");
 
         init();
+    }
+
+    public double getMeanSpeed() {
+        return MEAN_SPEED;
     }
 
     @Override

@@ -16,9 +16,7 @@ package heigit.ors.isochrones.builders.concaveballs;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
-import com.graphhopper.routing.util.AbstractFlagEncoder;
-import com.graphhopper.routing.util.FootFlagEncoder;
-import com.graphhopper.routing.util.HikeFlagEncoder;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.storage.SPTEntry;
@@ -34,7 +32,8 @@ import heigit.ors.isochrones.IsochroneSearchParameters;
 import heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
 import heigit.ors.routing.RouteSearchContext;
 import heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.*;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
 import heigit.ors.util.GeomUtility;
 import org.apache.log4j.Logger;
 import org.opensphere.geometry.algorithm.ConcaveHull;
@@ -87,6 +86,10 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			maxSpeed = WheelchairFlagEncoder.MEAN_SPEED;
 		}
 
+		double meanSpeed = maxSpeed;
+        if (_searchContext.getEncoder() instanceof ORSAbstractFlagEncoder) {
+            meanSpeed = ((ORSAbstractFlagEncoder) _searchContext.getEncoder()).getMeanSpeed();
+        }
 
 		AccessibilityMap edgeMap = GraphEdgeMapFinder.findEdgeMap(_searchContext, parameters);
 
@@ -127,6 +130,8 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		int nRanges = parameters.getRanges().length;
 
 		double metersPerSecond = maxSpeed / 3.6;
+		// only needed for reachfactor property
+		double meanMetersPerSecond = meanSpeed / 3.6;
 
 		double prevCost = 0;
 		for (int i = 0; i < nRanges; i++) {
@@ -145,12 +150,15 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			}
 
 			double maxRadius = 0;
+			double meanRadius = 0;
 			switch (isochroneType) {
 				case Distance:
 					maxRadius = isoValue;
+					meanRadius = isoValue;
 					break;
 				case Time:
 					maxRadius = metersPerSecond * isoValue;
+					meanRadius = meanMetersPerSecond * isoValue;
 					isochronesDifference = metersPerSecond * isochronesDifference;
 					break;
 			}
@@ -167,7 +175,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 				sw.start();
 			}
 
-			addIsochrone(isochroneMap, points, isoValue, maxRadius, smoothingFactor);
+			addIsochrone(isochroneMap, points, isoValue, maxRadius, meanRadius, smoothingFactor);
 
 
 			if (LOGGER.isDebugEnabled())
@@ -214,7 +222,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		return maxLength;
 	}
 
-	private void addIsochrone(IsochroneMap isochroneMap, GeometryCollection points, double isoValue, double maxRadius, float smoothingFactor)
+	private void addIsochrone(IsochroneMap isochroneMap, GeometryCollection points, double isoValue, double maxRadius, double meanRadius, float smoothingFactor)
 	{
 		if (points.isEmpty())
 			return;
@@ -233,7 +241,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 		copyConvexHullPoints(poly);
 
-		isochroneMap.addIsochrone(new Isochrone(poly, isoValue, maxRadius));
+		isochroneMap.addIsochrone(new Isochrone(poly, isoValue, meanRadius));
 	}
 
 	private void markDeadEndEdges(AccessibilityMap edgeMap)
@@ -358,7 +366,9 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			defaultVisitorThreshold = 0.0025;
 		}
 
-		if (isochronesDifference < 1000) {
+		boolean useHighDetail = map.size() < 1000 || isochronesDifference < 1000;
+
+		if (useHighDetail) {
 			bufferSize = 0.00018;
 			defaultVisitorThreshold = 0.000005;
 		}
@@ -397,7 +407,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			if (isolineCost >= maxCost) {
 				// This checks for dead end edges, but we need to include those in small areas to provide realistic
 				// results
-				if (goalEdge.edge == -2 && isochronesDifference > 1000)
+				if (goalEdge.edge == -2 && !useHighDetail)
 				{
 					//addPoint(points, qtree, nodeAccess.getLon(nodeId), nodeAccess.getLat(nodeId), true);
 				}

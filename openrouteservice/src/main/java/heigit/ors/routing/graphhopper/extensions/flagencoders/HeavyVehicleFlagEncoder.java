@@ -27,7 +27,7 @@ import java.util.*;
 import static com.graphhopper.routing.util.PriorityCode.BEST;
 import static com.graphhopper.routing.util.PriorityCode.UNCHANGED;
 
-public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
+public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
 {
     protected final HashSet<String> forwardKeys = new HashSet<String>(5);
     protected final HashSet<String> backwardKeys = new HashSet<String>(5);
@@ -37,6 +37,7 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
     protected boolean useAcceleration = false;
     
     protected int maxTrackGradeLevel = 3;
+    private static final int MEAN_SPEED = 70;
     
     /**
      * A map which associates string to speed. Get some impression:
@@ -185,6 +186,10 @@ public class HeavyVehicleFlagEncoder extends ORSAbstractFlagEncoder
         backwardKeys.add("delivery:backward");
 
         init();
+    }
+
+    public double getMeanSpeed() {
+        return MEAN_SPEED;
     }
     
 	public double getDefaultMaxSpeed()
