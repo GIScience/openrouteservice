@@ -328,7 +328,97 @@ public class RoutingProfileManager {
         return null;
     }
 
+    public RouteResult[] computeRoundTripRoute(RoutingRequest req) throws Exception {
+        List<GHResponse> routes = new ArrayList<GHResponse>();
+
+        RoutingProfile rp = getRouteProfile(req, false);
+        RouteSearchParameters searchParams = req.getSearchParameters();
+
+        Coordinate[] coords = req.getCoordinates();
+        Coordinate c0 = coords[0];
+
+        ExtraInfoProcessor extraInfoProcessor = null;
+
+        WayPointBearing bearing = null;
+        if (searchParams.getBearings() != null) {
+            bearing = searchParams.getBearings()[0];
+        }
+
+        GHResponse gr = rp.computeRoundTripRoute(c0.y, c0.x, bearing, searchParams, req.getGeometrySimplify());
+
+        if (gr.hasErrors()) {
+            if (gr.getErrors().size() > 0) {
+                if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.ConnectionNotFoundException) {
+                    throw new RouteNotFoundException(
+                            RoutingErrorCodes.ROUTE_NOT_FOUND,
+                            String.format("Unable to find a route for point (%s).",
+                                    FormatUtility.formatCoordinate(c0))
+                    );
+                } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
+                    String message = "";
+                    for (Throwable error : gr.getErrors()) {
+                        if (!StringUtility.isEmpty(message))
+                            message = message + "; ";
+                        if (error instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
+                            com.graphhopper.util.exceptions.PointNotFoundException pointNotFoundException = (com.graphhopper.util.exceptions.PointNotFoundException) error;
+                            /*int pointReference = (i-1) + pointNotFoundException.getPointIndex();
+
+                            Coordinate pointCoordinate = (pointNotFoundException.getPointIndex() == 0) ? c0 : c1;
+                            double pointRadius = radiuses[pointNotFoundException.getPointIndex()];
+
+                            message = message + String.format("Could not find point %d: %s within a radius of %.1f meters.",
+                                    pointReference,
+                                    FormatUtility.formatCoordinate(pointCoordinate),
+                                    pointRadius);*/
+
+                        } else {
+                            message = message + error.getMessage();
+                        }
+                    }
+                    throw new PointNotFoundException(message);
+                } else {
+                    throw new InternalServerException(RoutingErrorCodes.UNKNOWN, gr.getErrors().get(0).getMessage());
+                }
+            } else {
+                // If there are no errors stored but there is indication that there are errors, something strange
+                // has happened, so return that a route could not be found
+                throw new RouteNotFoundException(
+                        RoutingErrorCodes.ROUTE_NOT_FOUND,
+                        String.format("Unable to find a route for point (%s).",
+                                FormatUtility.formatCoordinate(c0)
+                        ));
+            }
+        }
+
+        try {
+            for (Object obj : gr.getReturnObjects()) {
+                if (obj instanceof ExtraInfoProcessor) {
+                    if (extraInfoProcessor == null) {
+                        extraInfoProcessor = (ExtraInfoProcessor)obj;
+                    } else {
+                        extraInfoProcessor.appendData((ExtraInfoProcessor)obj);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error(e);
+        }
+
+        routes.add(gr);
+
+        List<RouteExtraInfo> extraInfos = extraInfoProcessor != null ? extraInfoProcessor.getExtras() : null;
+            return new RouteResultBuilder().createRouteResults(routes, req, extraInfos);
+    }
+
     public RouteResult[] computeRoute(RoutingRequest req) throws Exception {
+        if (req.getSearchParameters().getRoundTripLength() > 0) {
+            return computeRoundTripRoute(req);
+        } else {
+            return computeLinearRoute(req);
+        }
+    }
+
+    public RouteResult[] computeLinearRoute(RoutingRequest req) throws Exception {
         List<Integer> skipSegments = req.getSkipSegments();
         List<GHResponse> routes = new ArrayList<GHResponse>();
 

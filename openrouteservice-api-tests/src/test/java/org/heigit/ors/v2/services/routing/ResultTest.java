@@ -2716,7 +2716,6 @@ public class ResultTest extends ServiceTest {
         options.put("avoid_polygons", avoidGeom);
         body.put("options", options);
 
-        System.out.println(getEndPointPath() + "/{profile}");
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
@@ -2733,6 +2732,92 @@ public class ResultTest extends ServiceTest {
                 .statusCode(200);
 
 
+    }
+
+    @Test
+    public void testRoundTrip() {
+        JSONObject body = new JSONObject();
+        JSONArray coordinates = new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.673191);
+        coord1.put(49.446812);
+        coordinates.put(coord1);
+        body.put("coordinates", coordinates);
+        body.put("preference", "shortest");
+
+        JSONObject roundTripOptions = new JSONObject();
+        roundTripOptions.put("length", "2000");
+        JSONObject options = new JSONObject();
+
+        options.put("round_trip", roundTripOptions);
+        body.put("options", options);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes.size()", is(1))
+                .body("routes[0].summary.distance", is(1732.7f))
+                .body("routes[0].summary.duration", is(501.8f))
+                .statusCode(200);
+
+        JSONObject avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[8.670658,49.446519], [8.671023,49.446331], [8.670723,49.446212], [8.670658,49.446519]]]}}");
+        options.put("avoid_polygons", avoidGeom);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes.size()", is(1))
+                .body("routes[0].summary.distance", is( 1905.4f))
+                .body("routes[0].summary.duration", is(546.5f))
+                .statusCode(200);
+
+        options.remove("avoid_polygons");
+        roundTripOptions.put("points", 3);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes.size()", is(1))
+                .body("routes[0].summary.distance", is( 2593.4f))
+                .body("routes[0].summary.duration", is(572.6f))
+                .statusCode(200);
+
+        body.put("bearings", constructBearings("25,30"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes.size()", is(1))
+                .body("routes[0].summary.distance", is( 2897.1f))
+                .body("routes[0].summary.duration", is(707.2f))
+                .statusCode(200);
     }
     
     private JSONArray constructCoords(String coordString) {

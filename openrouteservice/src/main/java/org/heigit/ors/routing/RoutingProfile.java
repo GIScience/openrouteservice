@@ -732,6 +732,125 @@ public class RoutingProfile {
         return totalDistance <= maxDistance && wayPoints <= maxWayPoints;
     }
 
+    public GHResponse computeRoundTripRoute(double lat0, double lon0, WayPointBearing bearing, RouteSearchParameters searchParams, Boolean geometrySimplify) throws Exception {
+        GHResponse resp = null;
+
+        waitForUpdateCompletion();
+
+        beginUseGH();
+
+        try {
+            int profileType = searchParams.getProfileType();
+            int weightingMethod = searchParams.getWeightingMethod();
+            RouteSearchContext searchCntx = createSearchContext(searchParams);
+
+            boolean flexibleMode = searchParams.getFlexibleMode();
+            boolean optimized = searchParams.getOptimized();
+            List<GHPoint> points = new ArrayList<>();
+            points.add(new GHPoint(lat0, lon0));
+            List<Double> bearings = new ArrayList<>();
+            GHRequest req;
+
+            if (bearing != null) {
+                bearings.add(bearing.getValue());
+                req = new GHRequest(points, bearings);
+            } else {
+                req = new GHRequest(points);
+            }
+
+            req.setVehicle(searchCntx.getEncoder().toString());
+            req.setAlgorithm(Parameters.Algorithms.ROUND_TRIP);
+            req.getHints().put(Parameters.Algorithms.RoundTrip.DISTANCE, searchParams.getRoundTripLength());
+            req.getHints().put(Parameters.Algorithms.RoundTrip.POINTS, searchParams.getRoundTripPoints());
+
+            if (searchParams.getRoundTripSeed() > -1) {
+               req.getHints().put(Parameters.Algorithms.RoundTrip.SEED, searchParams.getRoundTripSeed());
+            }
+
+            PMap props = searchCntx.getProperties();
+            req.setAdditionalHints(props);
+
+            if (props != null && !props.isEmpty())
+                req.getHints().merge(props);
+
+            if (supportWeightingMethod(profileType)) {
+                if (weightingMethod == WeightingMethod.FASTEST) {
+                    req.setWeighting("fastest");
+                    req.getHints().put("weighting_method", "fastest");
+                } else if (weightingMethod == WeightingMethod.SHORTEST) {
+                    req.setWeighting("shortest");
+                    req.getHints().put("weighting_method", "shortest");
+                    flexibleMode = true;
+                } else if (weightingMethod == WeightingMethod.RECOMMENDED) {
+                    req.setWeighting("fastest");
+                    req.getHints().put("weighting_method", "recommended");
+                    flexibleMode = true;
+                }
+            }
+            if (weightingMethod == WeightingMethod.RECOMMENDED){
+                if(profileType == RoutingProfileType.DRIVING_HGV && HeavyVehicleAttributes.HGV == searchParams.getVehicleType()){
+                    req.setWeighting("fastest");
+                    req.getHints().put("weighting_method", "recommended_pref");
+                    flexibleMode = true;
+                }
+            }
+
+            if(profileType == RoutingProfileType.WHEELCHAIR) {
+                flexibleMode = true;
+            }
+
+            if (searchParams.requiresDynamicWeights() || flexibleMode) {
+                if (mGraphHopper.isCHEnabled())
+                    req.getHints().put("ch.disable", true);
+                if (mGraphHopper.getLMFactoryDecorator().isEnabled()) {
+                    req.getHints().put("lm.disable", false);
+                    req.getHints().put("core.disable", true);
+                    req.getHints().put("ch.disable", true);
+                }
+            } else {
+                if (mGraphHopper.isCHEnabled()) {
+                    req.getHints().put("lm.disable", true);
+                    req.getHints().put("core.disable", true);
+                }
+                else {
+                    req.getHints().put("ch.disable", true);
+                    req.getHints().put("core.disable", true);
+                }
+            }
+            //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
+            if(searchParams.requiresFallbackAlgorithm()) {
+                req.getHints().put("lm.disable", false);
+                req.getHints().put("core.disable", true);
+                req.getHints().put("ch.disable", true);
+            }
+
+            if (profileType == RoutingProfileType.DRIVING_EMERGENCY) {
+                req.getHints().put("custom_weightings", true);
+                req.getHints().put("weighting_#acceleration#", true);
+                req.getHints().put("lm.disable", true); // REMOVE
+            }
+
+            if (_astarEpsilon != null)
+                req.getHints().put("astarbi.epsilon", _astarEpsilon);
+            if (_astarApproximation != null)
+                req.getHints().put("astarbi.approximation", _astarApproximation);
+
+            mGraphHopper.setSimplifyResponse(geometrySimplify);
+            resp = mGraphHopper.route(req);
+
+            endUseGH();
+
+        } catch (Exception ex) {
+            endUseGH();
+
+            LOGGER.error(ex);
+
+            throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to compute a route");
+        }
+
+        return resp;
+    }
+
     public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings, double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, Boolean geometrySimplify)
             throws Exception {
 

@@ -33,6 +33,7 @@ public class RouteRequestOptions {
     public static final String PARAM_VEHICLE_TYPE = "vehicle_type";
     public static final String PARAM_PROFILE_PARAMS = "profile_params";
     public static final String PARAM_AVOID_POLYGONS = "avoid_polygons";
+    public static final String PARAM_ROUND_TRIP_OPTIONS = "round_trip";
 
     @ApiModelProperty(name = PARAM_AVOID_FEATURES, value = "List of features to avoid. " +
             "CUSTOM_KEYS:{'itemRestrictions':{'ref':'profile', 'itemsWhen':{'driving-*':['highways','tollways','ferries'],'cycling-*':['ferries','steps','fords'],'foot-*':['ferries','fords','steps'],'wheelchair':['ferries','steps']}}}")
@@ -76,6 +77,12 @@ public class RouteRequestOptions {
     private JSONObject avoidPolygonFeatures;
     @JsonIgnore
     private boolean hasAvoidPolygonFeatures = false;
+
+    @ApiModelProperty(name = PARAM_ROUND_TRIP_OPTIONS, value = "Options to be applied on round trip routes.")
+    @JsonProperty(PARAM_ROUND_TRIP_OPTIONS)
+    private RouteRequestRoundTripOptions roundTripOptions;
+    @JsonIgnore
+    private boolean hasRoundTripOptions = false;
 
     public APIEnums.AvoidFeatures[] getAvoidFeatures() {
         return avoidFeatures;
@@ -131,6 +138,15 @@ public class RouteRequestOptions {
         hasAvoidPolygonFeatures = true;
     }
 
+    public RouteRequestRoundTripOptions getRoundTripOptions() {
+        return roundTripOptions;
+    }
+
+    public void setRoundTripOptions(RouteRequestRoundTripOptions roundTripOptions) {
+        this.roundTripOptions = roundTripOptions;
+        hasRoundTripOptions = true;
+    }
+
     public boolean hasAvoidFeatures() {
         return hasAvoidFeatures;
     }
@@ -153,5 +169,9 @@ public class RouteRequestOptions {
 
     public boolean hasAvoidPolygonFeatures() {
         return hasAvoidPolygonFeatures;
+    }
+
+    public boolean hasRoundTripOptions() {
+        return hasRoundTripOptions;
     }
 }

@@ -60,6 +60,10 @@ public class RouteSearchParameters {
     private double _alternativeRoutesWeightFactor = 1.4;
     private double _alternativeRoutesShareFactor = 0.6;
 
+    private float _roundTripLength = -1;
+    private int _roundTripPoints = 2;
+    private long _roundTripSeed = -1;
+
     private String _options;
 
     public int getProfileType() {
@@ -465,6 +469,30 @@ public class RouteSearchParameters {
 
     public void setBearings(WayPointBearing[] bearings) {
         _bearings = bearings;
+    }
+
+    public void setRoundTripLength(float length) {
+        _roundTripLength = length;
+    }
+
+    public float getRoundTripLength() {
+        return _roundTripLength;
+    }
+
+    public void setRoundTripPoints(int points) {
+        _roundTripPoints = points;
+    }
+
+    public int getRoundTripPoints() {
+        return _roundTripPoints;
+    }
+
+    public void setRoundTripSeed(long seed) {
+        _roundTripSeed = seed;
+    }
+
+    public long getRoundTripSeed() {
+        return _roundTripSeed;
     }
 
     public boolean isProfileTypeDriving() {

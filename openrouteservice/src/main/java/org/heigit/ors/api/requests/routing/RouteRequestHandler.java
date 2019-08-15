@@ -23,13 +23,7 @@ import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.common.GenericHandler;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.StatusCode;
-import org.heigit.ors.exceptions.EmptyElementException;
-import org.heigit.ors.exceptions.IncompatibleParameterException;
-import org.heigit.ors.exceptions.InternalServerException;
-import org.heigit.ors.exceptions.ParameterOutOfRangeException;
-import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.exceptions.StatusCodeException;
-import org.heigit.ors.exceptions.UnknownParameterValueException;
+import org.heigit.ors.exceptions.*;
 import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.AvoidFeatureFlags;
@@ -72,7 +66,8 @@ public class RouteRequestHandler extends GenericHandler {
 
     public  RoutingRequest convertRouteRequest(RouteRequest request) throws StatusCodeException {
         RoutingRequest routingRequest = new RoutingRequest();
-        routingRequest.setCoordinates(convertCoordinates(request.getCoordinates()));
+        boolean isRoundTrip = request.hasRouteOptions() && request.getRouteOptions().hasRoundTripOptions();
+        routingRequest.setCoordinates(convertCoordinates(request.getCoordinates(), isRoundTrip));
         routingRequest.setGeometryFormat(convertGeometryFormat(request.getResponseType()));
 
         if (request.hasUseElevation())
@@ -214,7 +209,7 @@ public class RouteRequestHandler extends GenericHandler {
         return params;
     }
 
-    public RouteSearchParameters processRequestOptions(RouteRequestOptions options, RouteSearchParameters params) throws ParameterValueException, IncompatibleParameterException, UnknownParameterValueException {
+    public RouteSearchParameters processRequestOptions(RouteRequestOptions options, RouteSearchParameters params) throws ParameterValueException, IncompatibleParameterException, UnknownParameterValueException, MissingParameterException {
         if (options.hasAvoidBorders())
             params.setAvoidBorders(convertAvoidBorders(options.getAvoidBorders()));
 
@@ -229,6 +224,22 @@ public class RouteRequestHandler extends GenericHandler {
 
         if (options.hasVehicleType())
             params.setVehicleType(convertVehicleType(options.getVehicleType(), params.getProfileType()));
+
+        if (options.hasRoundTripOptions()) {
+            RouteRequestRoundTripOptions roundTripOptions = options.getRoundTripOptions();
+            if (roundTripOptions.hasLength()) {
+                params.setRoundTripLength(roundTripOptions.getLength());
+            } else {
+                throw new MissingParameterException(RoutingErrorCodes.MISSING_PARAMETER, RouteRequestRoundTripOptions.PARAM_LENGTH);
+            }
+            if (roundTripOptions.hasPoints()) {
+                params.setRoundTripPoints(roundTripOptions.getPoints());
+            }
+            if (roundTripOptions.hasSeed()) {
+                params.setRoundTripSeed(roundTripOptions.getSeed());
+            }
+        }
+
         return params;
     }
 
@@ -255,9 +266,16 @@ public class RouteRequestHandler extends GenericHandler {
         }
     }
 
-    private  Coordinate[] convertCoordinates(List<List<Double>> coordinates) throws ParameterValueException {
-        if(coordinates.size() < 2)
+    private  Coordinate[] convertCoordinates(List<List<Double>> coordinates, boolean allowSingleCoordinate) throws ParameterValueException {
+        if(!allowSingleCoordinate && coordinates.size() < 2)
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_COORDINATES);
+
+        if (allowSingleCoordinate && coordinates.size() > 1)
+            throw new ParameterValueException(
+                    RoutingErrorCodes.INVALID_PARAMETER_VALUE,
+                    RouteRequest.PARAM_COORDINATES,
+                    "Length = " + coordinates.size(),
+                    "Only one coordinate pair is allowed");
 
         ArrayList<Coordinate> coords = new ArrayList<>();
 
