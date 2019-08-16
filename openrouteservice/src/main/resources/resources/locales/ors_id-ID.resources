@@ -35,60 +35,60 @@
 		"actions": {
 			"arrive": {
            		 	"default": {
-		                "default": "Arrive at your destination",
+		                "default": "Sampai pada titik tujuan",
 						"name": "Sampai di {way_name}"
                 	},
 					"left": {
-						"default": "Arrive at your destination, on the left",
+						"default": "Sampai pada titik tujuan, tetap berada di jalur kiri",
 						"name": "Sampai di {way_name}, tetap berada pada jalur kiri"
 					},
 					"right": {
-						"default": "Arrive at your destination, on the right",
+						"default": "Sampai pada titik tujuan, tetap berada di jalur kanan",
 						"name": "Sampai di {way_name}, tetap berada pada jalur kanan"
 					},
 					"straight": {
-						"default": "Arrive at your destination, straight ahead",
+						"default": "Sampai pada titik tujuan, lurus terus",
 						"name": "Sampai di {way_name}, lurus terus"
 					}
 			},          
 			"depart": {
 				"default": {
-					"default": "Head {direction}",
+					"default": "Ke arah {direction}",
 					"name": "Menuju ke arah {direction} di {way_name}"
 				}
 			},
 			"roundabout": {
 				"default": {
 					"exit": {
-						"default": "Enter the roundabout and take the {exit_number} exit",
+						"default": "Masuk pada bundarn dan mengambil jalur {exit_number} untuk keluar",
 						"name": "Masuk dalam bundaran dan keluar melalui {exit_number} keluar di {way_name}"
 					},
 					"default": {
-						"default": "Enter the roundabout",
+						"default": "Masuk ke bundaran",
 						"name": "Masuk dalam bundaran {way_name}"
 					}
 				}
 			},
 			"turn": {
 				"default": {
-					"default": "Turn {turn_maneuver}",
+					"default": "Belok {turn_maneuver}",
 					"name": "Belok {turn_maneuver} ke {way_name}",
 				},
 			},
 			"continue": {
 				"default": {
-					"default": "Continue {turn_maneuver}",
+					"default": "Dilanjutkan {turn_maneuver}",
 					"name": "Dilanjutkan {turn_maneuver} pada {way_name}"
 				},
 				"uturn": {
-					"default": "Make a U-turn",
+					"default": "Putar Balik",
 					"name": "Putar balik pada {way_name}"
 				}
 			}
 			"keep": {
 				"default": {
-					"default": "Keep {turn_maneuver}",
-					"name": "Tetap berada {turn_maneuver} di {way_name}"
+					"default": "Tetap berada pada {turn_maneuver}",
+					"name": "Tetap berada pada {turn_maneuver} di {way_name}"
 				},
 			}
 		}
