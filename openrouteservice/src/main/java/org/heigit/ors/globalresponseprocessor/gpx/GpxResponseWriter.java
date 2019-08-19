@@ -196,9 +196,9 @@ public class GpxResponseWriter {
         metadata.setBounds(bounds);
         PersonType orsPerson = new PersonType();
         EmailType orsMail = new EmailType();
-        if (AppConfig.Global().getParameter("info", "support_mail") != null) {
+        if (AppConfig.getGlobal().getParameter("info", "support_mail") != null) {
             try {
-                String[] mail = AppConfig.Global().getParameter("info", "support_mail").split("@");
+                String[] mail = AppConfig.getGlobal().getParameter("info", "support_mail").split("@");
                 orsMail.setDomain("@" + mail[1]);
                 orsMail.setId(mail[0]);
                 orsPerson.setEmail(orsMail);
@@ -217,9 +217,9 @@ public class GpxResponseWriter {
 
         LinkType orsLink = new LinkType();
         // set base_url
-        if (AppConfig.Global().getParameter("info", "base_url") != null) {
-            orsLink.setHref(AppConfig.Global().getParameter("info", "base_url"));
-            orsLink.setText(AppConfig.Global().getParameter("info", "base_url"));
+        if (AppConfig.getGlobal().getParameter("info", "base_url") != null) {
+            orsLink.setHref(AppConfig.getGlobal().getParameter("info", "base_url"));
+            orsLink.setText(AppConfig.getGlobal().getParameter("info", "base_url"));
             orsLink.setType("text/html");
             orsPerson.setLink(orsLink);
         } else {
@@ -231,8 +231,8 @@ public class GpxResponseWriter {
         }
 
         // set author_tag
-        if (AppConfig.Global().getParameter("info", "author_tag") != null) {
-            orsPerson.setName(AppConfig.Global().getParameter("info", "author_tag"));
+        if (AppConfig.getGlobal().getParameter("info", "author_tag") != null) {
+            orsPerson.setName(AppConfig.getGlobal().getParameter("info", "author_tag"));
         } else {
             orsPerson.setName("");
             new MissingConfigParameterException(GpxResponseWriter.class, "author_tag");
@@ -249,8 +249,8 @@ public class GpxResponseWriter {
             new MissingConfigParameterException(GpxResponseWriter.class, "attribution");
         }
         // set content_licence
-        if (AppConfig.Global().getParameter("info", "content_licence") != null) {
-            copyright.setLicense(AppConfig.Global().getParameter("info", "content_licence"));
+        if (AppConfig.getGlobal().getParameter("info", "content_licence") != null) {
+            copyright.setLicense(AppConfig.getGlobal().getParameter("info", "content_licence"));
         } else {
             copyright.setLicense("");
             new MissingConfigParameterException(GpxResponseWriter.class, "content_licence");
@@ -275,8 +275,8 @@ public class GpxResponseWriter {
         metadata.setTime(cal);
         gpx.setMetadata(metadata);
         // set author_tag
-        if (AppConfig.Global().getParameter("info", "author_tag") != null) {
-            gpx.setCreator(AppConfig.Global().getParameter("info", "author_tag"));
+        if (AppConfig.getGlobal().getParameter("info", "author_tag") != null) {
+            gpx.setCreator(AppConfig.getGlobal().getParameter("info", "author_tag"));
         } else {
             gpx.setCreator("");
             new MissingConfigParameterException(GpxResponseWriter.class, "author_tag");
