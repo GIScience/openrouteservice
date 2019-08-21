@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package heigit.ors.routing.graphhopper.extensions.storages;
 
@@ -19,11 +19,15 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.RAMDirectory;
 
+import org.apache.log4j.Logger;
+
 /**
  * Graph storage class for the Border Restriction routing
  */
 public class BordersGraphStorage implements GraphExtension {
-	public enum Property { TYPE, START, END };
+	private static final Logger LOGGER = Logger.getLogger(BordersGraphStorage.class.getName());
+
+	public enum Property { TYPE, START, END}
 	/* pointer for no entry */
 	protected final int NO_ENTRY = -1;
 	private final int EF_BORDER = 0;		// byte location of border type
@@ -40,7 +44,6 @@ public class BordersGraphStorage implements GraphExtension {
 	private int edgesCount; // number of edges with custom values
 
 	public BordersGraphStorage() {
-		//EF_BORDER = 0;
 
 		int edgeEntryIndex = 0;
 		edgeEntryBytes = edgeEntryIndex + 6;	// item uses 3 short values which are 2 bytes length each
@@ -52,11 +55,10 @@ public class BordersGraphStorage implements GraphExtension {
 	 *
 	 * This method takes the internal ID of the edge and adds the information obtained from the Borders CSV file to it
 	 * so that the values can be taken into account when generating a route.
-	 *
-	 * @param edgeId		Internal ID of the graph edge
-	 * @param borderType	Level of border crossing (0 - No border, 1 - controlled border, 2 - open border=
-	 * @param start			ID of the country that the edge starts in
-	 * @param end			ID of the country that the edge ends in
+	 *  @param edgeId        Internal ID of the graph edge
+	 * @param borderType    Level of border crossing (0 - No border, 1 - controlled border, 2 - open border=
+	 * @param start            ID of the country that the edge starts in
+	 * @param end            ID of the country that the edge ends in
 	 */
 	public void setEdgeValue(int edgeId, short borderType, short start, short end) {
 		edgesCount++;
@@ -74,24 +76,22 @@ public class BordersGraphStorage implements GraphExtension {
 
 	/**
 	 * Get the specified custom value of the edge that was assigned to it in the setValueEdge method<br/><br/>
-	 *
+	 * <p>
 	 * The method takes an identifier to the edge and then gets the requested value for the edge from the storage
 	 *
-	 * @param edgeId	Internal ID of the edge to get values for
-	 * @param prop		The property of the edge to get (TYPE - border type (0,1,2), START - the ID of the country
-	 *                  the edge starts in, END - the ID of the country the edge ends in.
-	 * @return			The value of the requested property
+	 * @param edgeId Internal ID of the edge to get values for
+	 * @param prop   The property of the edge to get (TYPE - border type (0,1,2), START - the ID of the country
+	 *               the edge starts in, END - the ID of the country the edge ends in.
+	 * @return The value of the requested property
 	 */
 	public short getEdgeValue(int edgeId, Property prop) {
 		long edgePointer = (long) edgeId * edgeEntryBytes;
-		short border = 0, start = 0, end = 0;
-		border = orsEdges.getShort(edgePointer + EF_BORDER);
-		start = orsEdges.getShort(edgePointer + EF_START);
-		end = orsEdges.getShort(edgePointer + EF_END);
+		short border = orsEdges.getShort(edgePointer + EF_BORDER);
+		short start = orsEdges.getShort(edgePointer + EF_START);
+		short end = orsEdges.getShort(edgePointer + EF_END);
 
 		switch (prop) {
 			case TYPE:
-
 				return border;
 			case START:
 				return start;

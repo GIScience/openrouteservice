@@ -23,6 +23,7 @@ import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodedDoubleValue;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
 
 import java.util.*;
 
@@ -33,7 +34,8 @@ import java.util.*;
  * @author Peter Karich
  * @author Nop
  */
-public class ExGhORSCarFlagEncoder extends AbstractFlagEncoder {
+public class ExGhORSCarFlagEncoder extends ORSAbstractFlagEncoder {
+    private final static double MEAN_SPEED = 100;
     protected final Map<String, Integer> trackTypeSpeedMap = new HashMap<String, Integer>();
     protected final Set<String> badSurfaceSpeedMap = new HashSet<String>();
 
@@ -56,6 +58,8 @@ public class ExGhORSCarFlagEncoder extends AbstractFlagEncoder {
     public ExGhORSCarFlagEncoder() {
         this(5, 5, 0);
     }
+
+    public double getMeanSpeed() { return MEAN_SPEED; }
 
     public ExGhORSCarFlagEncoder(PMap properties) {
         this((int) properties.getLong("speed_bits", 5),

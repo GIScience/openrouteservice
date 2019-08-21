@@ -35,7 +35,7 @@ import java.util.Map;
  * @author Peter Karich
  * @author Nop
  */
-public class CarFlagEncoder extends ORSAbstractFlagEncoder {
+public class CarFlagEncoder extends VehicleFlagEncoder {
 
     private static Logger LOGGER = Logger.getLogger(CarFlagEncoder.class);
 
@@ -53,6 +53,9 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
 
     // Take into account acceleration calculations when determining travel speed
     protected boolean useAcceleration = false;
+
+    // Mean speed for isochrone reach_factor
+    private static final int MEAN_SPEED = 100;
 
     public CarFlagEncoder() {
         this(5, 5, 0);
@@ -182,6 +185,10 @@ public class CarFlagEncoder extends ORSAbstractFlagEncoder {
         _speedLimitHandler = new SpeedLimitHandler(this.toString(), defaultSpeedMap, badSurfaceSpeedMap, trackTypeSpeedMap);
 
         init();
+    }
+
+    public double getMeanSpeed() {
+        return MEAN_SPEED;
     }
 
     @Override

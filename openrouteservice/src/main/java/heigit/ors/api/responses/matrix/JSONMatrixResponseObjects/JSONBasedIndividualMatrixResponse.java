@@ -44,7 +44,7 @@ class JSONBasedIndividualMatrixResponse {
 
     List<JSON2DSources> constructSources(MatrixResult matrixResult) {
         List<JSON2DSources> sources = new ArrayList<>();
-        for (ResolvedLocation location : matrixResult.getDestinations()) {
+        for (ResolvedLocation location : matrixResult.getSources()) {
             if (location != null)
                 sources.add(new JSON2DSources(location, includeResolveLocations));
             else

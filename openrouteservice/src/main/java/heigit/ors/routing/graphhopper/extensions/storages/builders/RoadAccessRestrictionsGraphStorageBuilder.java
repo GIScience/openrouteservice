@@ -253,8 +253,7 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
     }
 
     public void processEdge(ReaderWay way, EdgeIteratorState edge) {
-        if (hasRestrictions)
-            storage.setEdgeValue(edge.getEdge(), restrictions);
+        storage.setEdgeValue(edge.getEdge(), restrictions);
     }
 
     public final int getRestrictions() {

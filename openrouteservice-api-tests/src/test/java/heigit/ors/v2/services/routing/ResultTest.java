@@ -28,15 +28,22 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.imageio.metadata.IIOMetadataNode;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 
@@ -76,6 +83,7 @@ public class ResultTest extends ServiceTest {
         extraInfo.put("surface");
         extraInfo.put("suitability");
         extraInfo.put("steepness");
+        extraInfo.put("countryinfo");
         addParameter("extra_info", extraInfo);
 
         addParameter("preference", "fastest");
@@ -129,6 +137,7 @@ public class ResultTest extends ServiceTest {
                 .contentType("application/gpx+xml;charset=UTF-8")
                 .statusCode(200);
         testGpxConsistency(response, true);
+        testGpxSchema(response);
         testGpxGeometry(response);
 
         body.put("instructions", false);
@@ -146,6 +155,7 @@ public class ResultTest extends ServiceTest {
                 .contentType("application/gpx+xml;charset=UTF-8")
                 .statusCode(200);
         testGpxConsistency(response_without_instructions, false);
+        testGpxSchema(response);
         testGpxGeometry(response_without_instructions);
     }
 
@@ -468,6 +478,137 @@ public class ResultTest extends ServiceTest {
         Assert.assertTrue(gpxExtensions);
     }
 
+
+    /**
+     * Validates the gpx against the ors xsd schema.
+     */
+    private void testGpxSchema(Response response) throws IOException, SAXException {
+        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        String xsdSchema = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" targetNamespace=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" +
+                "    <xs:element name=\"gpx\" type=\"ors:gpxType\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
+                "    <xs:complexType name=\"extensionsType\">\n" +
+                "        <xs:sequence>\n" +
+                "            <xs:element type=\"xs:string\" name=\"distance\" minOccurs=\"0\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"duration\" minOccurs=\"0\"/>\n" +
+                "            <xs:element name=\"type\" minOccurs=\"0\">\n" +
+                "                <xs:simpleType>\n" +
+                "                    <xs:restriction base=\"xs:string\">\n" +
+                "                        <xs:enumeration value=\"0\"/>\n" +
+                "                        <xs:enumeration value=\"1\"/>\n" +
+                "                        <xs:enumeration value=\"2\"/>\n" +
+                "                        <xs:enumeration value=\"3\"/>\n" +
+                "                        <xs:enumeration value=\"4\"/>\n" +
+                "                        <xs:enumeration value=\"5\"/>\n" +
+                "                        <xs:enumeration value=\"6\"/>\n" +
+                "                        <xs:enumeration value=\"7\"/>\n" +
+                "                        <xs:enumeration value=\"8\"/>\n" +
+                "                        <xs:enumeration value=\"9\"/>\n" +
+                "                        <xs:enumeration value=\"10\"/>\n" +
+                "                        <xs:enumeration value=\"11\"/>\n" +
+                "                        <xs:enumeration value=\"12\"/>\n" +
+                "                        <xs:enumeration value=\"13\"/>\n" +
+                "                    </xs:restriction>\n" +
+                "                </xs:simpleType>\n" +
+                "            </xs:element>\n" +
+                "            <xs:element type=\"xs:string\" name=\"step\" minOccurs=\"0\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"distanceActual\" minOccurs=\"0\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"ascent\" minOccurs=\"0\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"descent\" minOccurs=\"0\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"avgspeed\" minOccurs=\"0\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"attribution\" minOccurs=\"0\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"engine\" minOccurs=\"0\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"build_date\" minOccurs=\"0\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"profile\" minOccurs=\"0\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"preference\" minOccurs=\"0\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"language\" minOccurs=\"0\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"distance-units\" minOccurs=\"0\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"instructions\" minOccurs=\"0\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"elevation\" minOccurs=\"0\"/>\n" +
+                "            <xs:element type=\"ors:boundsType\" name=\"bounds\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\" minOccurs=\"0\"/>\n" +
+                "        </xs:sequence>\n" +
+                "    </xs:complexType>\n" +
+                "    <xs:complexType name=\"metadataType\">\n" +
+                "        <xs:sequence>\n" +
+                "            <xs:element type=\"xs:string\" name=\"name\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"desc\"/>\n" +
+                "            <xs:element type=\"ors:authorType\" name=\"author\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
+                "            <xs:element type=\"ors:copyrightType\" name=\"copyright\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"time\"/>\n" +
+                "            <xs:element type=\"ors:boundsType\" name=\"bounds\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
+                "        </xs:sequence>\n" +
+                "    </xs:complexType>\n" +
+                "    <xs:complexType name=\"boundsType\">\n" +
+                "        <xs:simpleContent>\n" +
+                "            <xs:extension base=\"xs:string\">\n" +
+                "                <xs:attribute type=\"xs:string\" name=\"minLat\"/>\n" +
+                "                <xs:attribute type=\"xs:string\" name=\"minLon\"/>\n" +
+                "                <xs:attribute type=\"xs:string\" name=\"maxLat\"/>\n" +
+                "                <xs:attribute type=\"xs:string\" name=\"maxLon\"/>\n" +
+                "            </xs:extension>\n" +
+                "        </xs:simpleContent>\n" +
+                "    </xs:complexType>\n" +
+                "    <xs:complexType name=\"linkType\">\n" +
+                "        <xs:sequence>\n" +
+                "            <xs:element type=\"xs:string\" name=\"text\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"type\"/>\n" +
+                "        </xs:sequence>\n" +
+                "        <xs:attribute type=\"xs:string\" name=\"href\"/>\n" +
+                "    </xs:complexType>\n" +
+                "    <xs:complexType name=\"gpxType\">\n" +
+                "        <xs:sequence>\n" +
+                "            <xs:element type=\"ors:metadataType\" name=\"metadata\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
+                "            <xs:element type=\"ors:rteType\" name=\"rte\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
+                "            <xs:element type=\"ors:extensionsType\" name=\"extensions\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
+                "        </xs:sequence>\n" +
+                "        <xs:attribute type=\"xs:string\" name=\"version\"/>\n" +
+                "        <xs:attribute type=\"xs:string\" name=\"creator\"/>\n" +
+                "    </xs:complexType>\n" +
+                "    <xs:complexType name=\"emailType\">\n" +
+                "        <xs:simpleContent>\n" +
+                "            <xs:extension base=\"xs:string\">\n" +
+                "                <xs:attribute type=\"xs:string\" name=\"id\"/>\n" +
+                "                <xs:attribute type=\"xs:string\" name=\"domain\"/>\n" +
+                "            </xs:extension>\n" +
+                "        </xs:simpleContent>\n" +
+                "    </xs:complexType>\n" +
+                "    <xs:complexType name=\"authorType\">\n" +
+                "        <xs:sequence>\n" +
+                "            <xs:element type=\"xs:string\" name=\"name\"/>\n" +
+                "            <xs:element type=\"ors:emailType\" name=\"email\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
+                "            <xs:element type=\"ors:linkType\" name=\"link\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
+                "        </xs:sequence>\n" +
+                "    </xs:complexType>\n" +
+                "    <xs:complexType name=\"copyrightType\">\n" +
+                "        <xs:sequence>\n" +
+                "            <xs:element type=\"xs:string\" name=\"year\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"license\"/>\n" +
+                "        </xs:sequence>\n" +
+                "        <xs:attribute type=\"xs:string\" name=\"author\"/>\n" +
+                "    </xs:complexType>\n" +
+                "    <xs:complexType name=\"rteptType\">\n" +
+                "        <xs:sequence>\n" +
+                "            <xs:element type=\"xs:decimal\" name=\"ele\" minOccurs=\"0\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"name\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"desc\"/>\n" +
+                "            <xs:element type=\"ors:extensionsType\" name=\"extensions\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
+                "        </xs:sequence>\n" +
+                "        <xs:attribute type=\"xs:string\" name=\"lat\" use=\"optional\"/>\n" +
+                "        <xs:attribute type=\"xs:string\" name=\"lon\" use=\"optional\"/>\n" +
+                "    </xs:complexType>\n" +
+                "    <xs:complexType name=\"rteType\">\n" +
+                "        <xs:sequence>\n" +
+                "            <xs:element type=\"ors:rteptType\" name=\"rtept\" maxOccurs=\"unbounded\" minOccurs=\"0\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
+                "            <xs:element type=\"ors:extensionsType\" name=\"extensions\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
+                "        </xs:sequence>\n" +
+                "    </xs:complexType>\n" +
+                "</xs:schema>\n";
+        Schema schema = factory.newSchema(new StreamSource(new StringReader(xsdSchema)));
+        Validator validator = schema.newValidator();
+        Source xmlSource = new StreamSource(new StringReader(response.body().asString()));
+        validator.validate(xmlSource);
+    }
+
     /**
      * The function validates the whole GeoJson export except segments.
      * Segments hold the instructions and are not necessary for our valid GeoJson-export.
@@ -737,7 +878,7 @@ public class ResultTest extends ServiceTest {
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("bikeProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
@@ -748,6 +889,7 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].extras.containsKey('surface')", is(true))
                 .body("routes[0].extras.containsKey('suitability')", is(true))
                 .body("routes[0].extras.containsKey('steepness')", is(true))
+                .body("routes[0].extras.containsKey('countryinfo')", is(true))
                 .statusCode(200);
     }
 
@@ -2365,6 +2507,171 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].segments[1].steps[1].way_points[1]", is(15))
                 .body("routes[0].segments[1].steps[2].way_points[0]", is(15))
                 .body("routes[0].segments[1].steps[2].way_points[1]", is(15))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testCountryTraversalNoBorderCrossing(){
+        JSONObject body = new JSONObject();
+        JSONArray noBorderCrossing = new JSONArray();
+        JSONArray coord = new JSONArray();
+        coord.put(8.692256212234497);
+        coord.put(49.405004518240005);
+        noBorderCrossing.put(coord);
+        coord = new JSONArray();
+        coord.put(8.689970970153809);
+        coord.put(49.40532565875338);
+        noBorderCrossing.put(coord);
+        body.put("coordinates", noBorderCrossing);
+        JSONArray extraInfo = new JSONArray();
+        extraInfo.put("countryinfo");
+        body.put("extra_info", extraInfo);
+
+        // No border crossing
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.containsKey('countryinfo')", is(true))
+                .body("routes[0].extras.countryinfo.containsKey('values')", is(true))
+                .body("routes[0].extras.countryinfo.containsKey('summary')", is(true))
+                .body("routes[0].extras.countryinfo.values[0][0]", is(0))
+                .body("routes[0].extras.countryinfo.values[0][1]", is(2))
+                .body("routes[0].extras.countryinfo.values[0][2]", is(4))
+                .body("routes[0].extras.countryinfo.summary[0].value", is(4.0f))
+                .body("routes[0].extras.countryinfo.summary[0].distance", is(169.2f))
+                .body("routes[0].extras.countryinfo.summary[0].amount", is(100.0f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testCountryTraversalOuterBorder() {
+        JSONObject body = new JSONObject();
+        JSONArray outerBorder = new JSONArray();
+        JSONArray coord = new JSONArray();
+        coord.put(8.688002);
+        coord.put(49.392946);
+        outerBorder.put(coord);
+        coord = new JSONArray();
+        coord.put(8.687809);
+        coord.put(49.39472);
+        outerBorder.put(coord);
+        body.put("coordinates", outerBorder);
+        JSONArray extraInfo = new JSONArray();
+        extraInfo.put("countryinfo");
+        body.put("extra_info", extraInfo);
+
+        // Outside of any borders
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.containsKey('countryinfo')", is(true))
+                .body("routes[0].extras.countryinfo.containsKey('values')", is(true))
+                .body("routes[0].extras.countryinfo.containsKey('summary')", is(true))
+                .body("routes[0].extras.countryinfo.values", empty())
+                .statusCode(200);
+    }
+
+    @Test
+    public void testCoutryTraversalCloseToBorder() {
+        JSONObject body = new JSONObject();
+        JSONArray closeToBorder = new JSONArray();
+        JSONArray coord = new JSONArray();
+        coord.put(8.685869872570038);
+        coord.put(49.402674441283786);
+        closeToBorder.put(coord);
+        coord = new JSONArray();
+        coord.put(8.687363862991333);
+        coord.put(49.4027128404518);
+        closeToBorder.put(coord);
+        body.put("coordinates", closeToBorder);
+        JSONArray extraInfo = new JSONArray();
+        extraInfo.put("countryinfo");
+        body.put("extra_info", extraInfo);
+
+        // Close to a border crossing
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.containsKey('countryinfo')", is(true))
+                .body("routes[0].extras.countryinfo.containsKey('values')", is(true))
+                .body("routes[0].extras.countryinfo.containsKey('summary')", is(true))
+                .body("routes[0].extras.countryinfo.values[0][0]", is(0))
+                .body("routes[0].extras.countryinfo.values[0][1]", is(2))
+                .body("routes[0].extras.countryinfo.values[0][2]", is(3))
+                .body("routes[0].extras.countryinfo.summary[0].value", is(3.0f))
+                .body("routes[0].extras.countryinfo.summary[0].distance", is(108.0f))
+                .body("routes[0].extras.countryinfo.summary[0].amount", is(100.0f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testCountryTraversalWithBorderCrossing() {
+        JSONObject body = new JSONObject();
+        JSONArray borderCrossing = new JSONArray();
+        JSONArray coord = new JSONArray();
+        coord.put(8.685046434402466);
+        coord.put(49.40267269586634);
+        borderCrossing.put(coord);
+        coord = new JSONArray();
+        coord.put(8.687556982040405);
+        coord.put(49.40271458586781);
+        borderCrossing.put(coord);
+        body.put("coordinates", borderCrossing);
+        JSONArray extraInfo = new JSONArray();
+        extraInfo.put("countryinfo");
+        body.put("extra_info", extraInfo);
+
+        // With Border crossing
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.containsKey('countryinfo')", is(true))
+                .body("routes[0].extras.countryinfo.containsKey('values')", is(true))
+                .body("routes[0].extras.countryinfo.containsKey('summary')", is(true))
+                .body("routes[0].extras.countryinfo.values[0][0]", is(0))
+                .body("routes[0].extras.countryinfo.values[0][1]", is(2))
+                .body("routes[0].extras.countryinfo.values[0][2]", is(2))
+                .body("routes[0].extras.countryinfo.summary[0].value", is(2.0f))
+                .body("routes[0].extras.countryinfo.summary[0].distance", is(150.4f))
+                .body("routes[0].extras.countryinfo.summary[0].amount", is(82.88f))
+                .body("routes[0].extras.countryinfo.values[1][0]", is(2))
+                .body("routes[0].extras.countryinfo.values[1][1]", is(3))
+                .body("routes[0].extras.countryinfo.values[1][2]", is(3))
+                .body("routes[0].extras.countryinfo.summary[1].value", is(3.0f))
+                .body("routes[0].extras.countryinfo.summary[1].distance", is(31.1f))
+                .body("routes[0].extras.countryinfo.summary[1].amount", is(17.12f))
                 .statusCode(200);
     }
 
