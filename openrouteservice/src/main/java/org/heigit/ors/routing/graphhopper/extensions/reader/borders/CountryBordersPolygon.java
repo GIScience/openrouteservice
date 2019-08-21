@@ -25,7 +25,10 @@ public class CountryBordersPolygon {
     private Geometry boundaryLine;
     private double area = 0;
     private long hierarchyId;
-    private double minLat = 180f, minLon = 180f, maxLat = -180f, maxLon = -180f;
+    private double minLat = 180f;
+    private double minLon = 180f;
+    private double maxLat = -180f;
+    private double maxLon = -180f;
 
     /**
      * Construct a CountryBordersPolygon object used for determining if a way crosses a country border
@@ -83,10 +86,7 @@ public class CountryBordersPolygon {
     }
 
     public boolean inBbox(Coordinate c) {
-        if(c.x < minLon || c.x > maxLon || c.y < minLat || c.y > maxLat)
-            return false;
-        else
-            return true;
+        return !(c.x < minLon || c.x > maxLon || c.y < minLat || c.y > maxLat);
     }
 
     public boolean inArea(Coordinate c) {
@@ -103,5 +103,6 @@ public class CountryBordersPolygon {
         return this.area;
     }
 
+    // TODO check if this can be removed
     public long getHierarchyId() { return this.hierarchyId; }
 }

@@ -17,32 +17,14 @@ import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.PMap;
 
-public class DistanceWeighting extends AbstractWeighting
-{
-    protected final FlagEncoder flagEncoder;
-
-    public DistanceWeighting( FlagEncoder encoder, PMap pMap )
-    {
+public class DistanceWeighting extends AbstractWeighting {
+    public DistanceWeighting(FlagEncoder encoder) {
         super(encoder);
-
-        this.flagEncoder = encoder;
     }
 
-    public DistanceWeighting( FlagEncoder encoder )
-    {
-        this(encoder, new PMap(0));
-    }
-
-    public DistanceWeighting(double userMaxSpeed, FlagEncoder encoder)
-    {
-    	this(encoder);
-    }
-    
     @Override
-    public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId)
-    {
+    public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId) {
         double speed = ((AbstractFlagEncoder)flagEncoder).getSpeed(reverse, edge.getFlags());
         if (speed == 0)
             return Double.POSITIVE_INFINITY;
@@ -52,7 +34,6 @@ public class DistanceWeighting extends AbstractWeighting
 
 	@Override
 	public double getMinWeight(double distance) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -60,4 +41,19 @@ public class DistanceWeighting extends AbstractWeighting
 	public String getName() {
 		return "distance";
 	}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final DistanceWeighting other = (DistanceWeighting) obj;
+        return toString().equals(other.toString());
+    }
+
+    @Override
+    public int hashCode() {
+        return ("DistanceWeighting" + toString()).hashCode();
+    }
 }

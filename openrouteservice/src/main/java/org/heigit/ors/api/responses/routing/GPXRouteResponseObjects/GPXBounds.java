@@ -16,8 +16,8 @@
 package org.heigit.ors.api.responses.routing.GPXRouteResponseObjects;
 
 import com.graphhopper.util.shapes.BBox;
-import org.heigit.ors.api.responses.common.BoundingBox.BoundingBox;
-import org.heigit.ors.api.responses.common.BoundingBox.BoundingBoxBase;
+import org.heigit.ors.api.responses.common.boundingbox.BoundingBox;
+import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxBase;
 import org.heigit.ors.util.FormatUtility;
 
 import javax.xml.bind.annotation.XmlAttribute;

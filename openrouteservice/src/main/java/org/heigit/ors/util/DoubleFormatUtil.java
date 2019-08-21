@@ -59,7 +59,7 @@ public final class DoubleFormatUtil {
      * @param precision the precision to round at (use if abs(source) &lt; 1.0)
      * @param target the buffer to write to
      */
-    public static void formatDouble(double source, int decimals, int precision, StringBuffer target) {
+    public static void formatDouble(double source, int decimals, int precision, StringBuilder target) {
         int scale = (Math.abs(source) >= 1.0) ? decimals : precision;
         if (tooManyDigitsUsed(source, scale) || tooCloseToRound(source, scale)) {
             formatDoublePrecise(source, decimals, precision, target);
@@ -80,7 +80,7 @@ public final class DoubleFormatUtil {
      * @param precision the precision to round at (use if abs(source) &lt; 1.0)
      * @param target the buffer to write to
      */
-    public static void formatDoublePrecise(double source, int decimals, int precision, StringBuffer target) {
+    public static void formatDoublePrecise(double source, int decimals, int precision, StringBuilder target) {
         if (isRoundedToZero(source, decimals, precision)) {
             // Will always be rounded to 0
             target.append('0');
@@ -217,7 +217,7 @@ public final class DoubleFormatUtil {
      * @return ten to the power of n
      */
     public static long tenPow(int n) {
-        assert n >= 0;
+        if (n < 0) throw new AssertionError();
         return n < POWERS_OF_TEN_LONG.length ? POWERS_OF_TEN_LONG[n] : (long) Math.pow(10, n);
     }
 
@@ -234,7 +234,7 @@ public final class DoubleFormatUtil {
      * @param intP the source integer part
      * @param decP the source decimal part, truncated to scale + 1 digit
      */
-    private static void format(StringBuffer target, int scale, long intP, long decP) {
+    private static void format(StringBuilder target, int scale, long intP, long decP) {
         if (decP != 0L) {
             // decP is the decimal part of source, truncated to scale + 1 digit.
             // Custom rounding: add 5
@@ -279,7 +279,7 @@ public final class DoubleFormatUtil {
      * @param precision the precision to round at (use if abs(source) &lt; 1.0)
      * @param target the buffer to write to
      */
-    public static void formatDoubleFast(double source, int decimals, int precision, StringBuffer target) {
+    public static void formatDoubleFast(double source, int decimals, int precision, StringBuilder target) {
         if (isRoundedToZero(source, decimals, precision)) {
             // Will always be rounded to 0
             target.append('0');

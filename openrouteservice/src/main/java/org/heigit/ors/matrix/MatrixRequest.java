@@ -25,7 +25,7 @@ public class MatrixRequest extends ServiceRequest
 	private Coordinate[] _destinations;
 	private int _metrics =  MatrixMetricsType.Duration;
 	private String _weightingMethod; 
-	private DistanceUnit _units = DistanceUnit.Meters;
+	private DistanceUnit _units = DistanceUnit.METERS;
 	private boolean _resolveLocations = false;
 	private boolean _flexibleMode = false;
 	private String _algorithm;

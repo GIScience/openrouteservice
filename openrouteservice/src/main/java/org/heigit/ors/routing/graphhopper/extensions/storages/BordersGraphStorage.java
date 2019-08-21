@@ -13,26 +13,18 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphExtension;
-import com.graphhopper.storage.RAMDirectory;
-
-import org.apache.log4j.Logger;
+import com.graphhopper.storage.*;
 
 /**
  * Graph storage class for the Border Restriction routing
  */
 public class BordersGraphStorage implements GraphExtension {
-	private static final Logger LOGGER = Logger.getLogger(BordersGraphStorage.class.getName());
-
 	public enum Property { TYPE, START, END}
 	/* pointer for no entry */
-	protected final int NO_ENTRY = -1;
-	private final int EF_BORDER = 0;		// byte location of border type
-	private final int EF_START = 2;			// byte location of the start country id
-	private final int EF_END = 4;			// byte location of the end country id
+	protected static final int NO_ENTRY = -1;
+	private static final int EF_BORDER = 0;		// byte location of border type
+	private static final int EF_START = 2;			// byte location of the start country id
+	private static final int EF_END = 4;			// byte location of the end country id
 
 	// border types
 	public static final short NO_BORDER = 0;
@@ -206,7 +198,7 @@ public class BordersGraphStorage implements GraphExtension {
 	 */
 	@Override
 	public GraphExtension create(long initBytes) {
-		orsEdges.create((long) initBytes * edgeEntryBytes);
+		orsEdges.create(initBytes * edgeEntryBytes);
 		return this;
 	}
 

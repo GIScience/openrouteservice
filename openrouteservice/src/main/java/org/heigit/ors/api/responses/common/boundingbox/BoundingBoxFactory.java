@@ -13,7 +13,7 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.heigit.ors.api.responses.common.BoundingBox;
+package org.heigit.ors.api.responses.common.boundingbox;
 
 import com.graphhopper.util.shapes.BBox;
 import org.heigit.ors.api.requests.common.APIEnums;
@@ -34,7 +34,7 @@ public class BoundingBoxFactory {
         switch(request.getResponseType()) {
             case GEOJSON:
             case JSON:
-                if(request.hasUseElevation() && request.getUseElevation())
+                if(request.hasUseElevation() && request.getUseElevation().booleanValue())
                     return new JSON3DBoundingBox(bounds);
                 return new JSONBoundingBox(bounds);
             case GPX:

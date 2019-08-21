@@ -16,12 +16,12 @@
 package org.heigit.ors.api.errors;
 
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import org.apache.log4j.Logger;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.exceptions.UnknownParameterException;
 import org.heigit.ors.isochrones.IsochronesErrorCodes;
 import org.heigit.ors.util.AppInfo;
-import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -35,11 +35,11 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestController
 public class CommonResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String EXCEPTION_MESSAGE = "Exception";
-    protected static Logger LOCAL_LOGGER = Logger.getLogger(CommonResponseEntityExceptionHandler.class.getName());
+    private static final Logger LOCAL_LOGGER = Logger.getLogger(CommonResponseEntityExceptionHandler.class.getName());
 
     final int errorCodeBase;
 
-    public CommonResponseEntityExceptionHandler() {
+    public CommonResponseEntityExceptionHandler() { // required for Tomcat
         errorCodeBase = 0;
     }
 

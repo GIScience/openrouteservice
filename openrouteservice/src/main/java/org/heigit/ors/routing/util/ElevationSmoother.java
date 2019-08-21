@@ -13,28 +13,31 @@
  */
 package org.heigit.ors.routing.util;
 
-import java.util.LinkedList;
-
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalc3D;
 import com.graphhopper.util.PointList;
 
-public class ElevationSmoother 
-{
-	public static PointList smooth(PointList points)
-	{
+import java.util.LinkedList;
+
+public class ElevationSmoother {
+	public static PointList smooth(PointList points) {
 		int nSize = points.size();
 		if (nSize <= 2)
 			return points;
 
 		DistanceCalc distCalc = new DistanceCalc3D();
-		double MIN_DISTANCE = 10;
-		int WINDOW_SIZE = 20;
+		final double MIN_DISTANCE = 10;
+		final int WINDOW_SIZE = 20;
 
 		PointList newPoints = new PointList(nSize, true);
-		LinkedList<Double> values = new LinkedList<Double>();
+		LinkedList<Double> values = new LinkedList<>();
 
-		double x0, y0, z0, x1 = 0, y1 = 0, z1 = 0;
+		double x0;
+		double y0;
+		double z0;
+		double x1;
+		double y1;
+		double z1;
 		double elevSum = 0.0;
 
 		x0 = points.getLon(0);
@@ -46,36 +49,29 @@ public class ElevationSmoother
 
 		newPoints.add(y0, x0, z0);
 
-		for (int i = 1; i < nSize; ++i)
-		{
+		for (int i = 1; i < nSize; ++i) {
 			x1 = points.getLon(i);
 			y1 = points.getLat(i);
 			z1 = points.getEle(i);
 
 			double dist = distCalc.calcDist(y0, x0, y1, x1);
-			if (dist > MIN_DISTANCE)
-			{
+			if (dist > MIN_DISTANCE) {
 				int n = (int)Math.ceil(dist / MIN_DISTANCE);
 
-				for (int j = 1; j < n; j++)
-				{
+				for (int j = 1; j < n; j++) {
 					double ele = z0 + j*(z1 -z0)/((double)(n-1));
 					
-					if (values.size() == WINDOW_SIZE)
-		    		{
-		    			elevSum -= ((Double) values.getFirst()).doubleValue();
+					if (values.size() == WINDOW_SIZE) {
+		    			elevSum -= values.getFirst();
 		    			values.removeFirst();
 		    		}
 					
 					elevSum += ele;
 		    		values.addLast(ele);
 				}
-			}
-			else
-			{
-				if (values.size() == WINDOW_SIZE)
-	    		{
-	    			elevSum -= ((Double) values.getFirst()).doubleValue();
+			} else {
+				if (values.size() == WINDOW_SIZE) {
+	    			elevSum -= values.getFirst();
 	    			values.removeFirst();
 	    		}
 				

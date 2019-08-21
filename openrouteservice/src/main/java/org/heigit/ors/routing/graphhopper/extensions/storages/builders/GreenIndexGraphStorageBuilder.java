@@ -48,7 +48,7 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
         // TODO Check if the _greenIndexFile exists
-        String csvFile = _parameters.get("filepath");
+        String csvFile = parameters.get("filepath");
         readGreenIndicesFromCSV(csvFile);
         prepareGreenIndexSlots();
         _storage = new GreenIndexGraphStorage();

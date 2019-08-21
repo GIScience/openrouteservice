@@ -15,10 +15,10 @@ package org.heigit.ors.routing.util.extrainfobuilders;
 
 import com.graphhopper.util.PointList;
 import org.heigit.ors.routing.RouteExtraInfo;
-import org.heigit.ors.routing.RouteSegmentItem;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class AppendableRouteExtraInfoBuilder extends SimpleRouteExtraInfoBuilder {
 	private ArrayList<SegmentParams> segmentParamsList;
@@ -28,11 +28,12 @@ public class AppendableRouteExtraInfoBuilder extends SimpleRouteExtraInfoBuilder
 		segmentParamsList = new ArrayList<>();
 	}
 
+	@Override
 	public void addSegment(double value, long valueIndex, PointList geom, double dist) {
     	segmentParamsList.add(new SegmentParams(value, valueIndex, geom, dist));
     }
 
-	public ArrayList<SegmentParams> getSegmentParamsList() {
+	public List<SegmentParams> getSegmentParamsList() {
 		return segmentParamsList;
 	}
 

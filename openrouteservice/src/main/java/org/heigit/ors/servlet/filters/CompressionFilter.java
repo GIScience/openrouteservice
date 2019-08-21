@@ -24,46 +24,32 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class CompressionFilter implements Filter 
-{
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException 
-	{
-		if (req instanceof HttpServletRequest)
-		{
+public class CompressionFilter implements Filter {
+	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+		if (req instanceof HttpServletRequest) {
 			HttpServletRequest request = (HttpServletRequest) req;
 			HttpServletResponse response = (HttpServletResponse) res;
 			String acceptEncoding = request.getHeader("accept-encoding");
 			
 			if (acceptEncoding != null) {
-				/* Commented out as jBrotli library crashes the server.
-				 * Java frames: (J=compiled Java code, j=interpreted, Vv=VM code)
-                 *J 4868  org.meteogroup.jbrotli.BrotliStreamCompressor.freeNativeResources()I 
-				 * if (acceptEncoding.indexOf(ContentEncodingType.BROTLI) != -1) {
-					BrotliResponseWrapper wrappedResponse = new BrotliResponseWrapper(response);
-					chain.doFilter(req, wrappedResponse);
-					wrappedResponse.finishResponse();
-					return;
-				}
-				else*/ if(acceptEncoding.indexOf(ContentEncodingType.GZIP) != -1) {
+				if(acceptEncoding.indexOf(ContentEncodingType.GZIP) != -1) {
 					GZIPResponseWrapper wrappedResponse = new GZIPResponseWrapper(response);
 					chain.doFilter(req, wrappedResponse);
 					wrappedResponse.finishResponse();
 					return;
-				}
-				else if (acceptEncoding.indexOf(ContentEncodingType.DEFLATE) != -1) {
-                   // todo
+				} else if (acceptEncoding.indexOf(ContentEncodingType.DEFLATE) != -1) {
+                   // not implemented
 				}
 			}
-
 			chain.doFilter(req, res);
 		}
 	}
 
 	public void init(FilterConfig filterConfig) {
-
+		// nothing to do
 	}
 
 	public void destroy() {
-
+		// nothing to do
 	}
 }

@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.graphhopper.util.PointList;
-import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.util.FormatUtility;
@@ -173,7 +172,7 @@ public class RouteResult
 		summary.setDistance(FormatUtility.roundToDecimalsForUnits(distance, request.getUnits()));
 		double averageSpeed = 0;
 		if (duration > 0)
-			averageSpeed = distance / (request.getUnits() == DistanceUnit.Meters ? 1000 : 1) / (duration / 3600);
+			averageSpeed = distance / (request.getUnits() == DistanceUnit.METERS ? 1000 : 1) / (duration / 3600);
 		summary.setAverageSpeed(FormatUtility.roundToDecimals(averageSpeed, 1));
 		summary.setBBox(GeomUtility.calculateBoundingBox(pointlist));
 		if (request.getIncludeElevation()) {

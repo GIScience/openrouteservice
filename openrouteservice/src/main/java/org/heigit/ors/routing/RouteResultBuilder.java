@@ -33,7 +33,7 @@ class RouteResultBuilder
 {
 	private AngleCalc angleCalc;
 	private DistanceCalc distCalc;
-	private static final CardinalDirection[] directions = {CardinalDirection.North, CardinalDirection.NorthEast, CardinalDirection.East, CardinalDirection.SouthEast, CardinalDirection.South, CardinalDirection.SouthWest, CardinalDirection.West, CardinalDirection.NorthWest};
+	private static final CardinalDirection[] directions = {CardinalDirection.NORTH, CardinalDirection.NORTH_EAST, CardinalDirection.EAST, CardinalDirection.SOUTH_EAST, CardinalDirection.SOUTH, CardinalDirection.SOUTH_WEST, CardinalDirection.WEST, CardinalDirection.NORTH_WEST};
     private int startWayPointIndex = 0;
 
 	RouteResultBuilder() {
@@ -162,7 +162,7 @@ class RouteResultBuilder
 
                 step.setName(instr.getName());
 
-                double stepDistance = DistanceUnitUtil.convert(instr.getDistance(), DistanceUnit.Meters, request.getUnits());
+                double stepDistance = DistanceUnitUtil.convert(instr.getDistance(), DistanceUnit.METERS, request.getUnits());
                 step.setDistance(FormatUtility.roundToDecimalsForUnits(stepDistance, request.getUnits()));
 
                 step.setDuration(FormatUtility.roundToDecimals(instr.getTime() / 1000.0, 1));
@@ -247,7 +247,7 @@ class RouteResultBuilder
 
     private ArrivalDirection getArrivalDirection(PointList points, Coordinate destination) {
         if (points.size() < 2)
-            return ArrivalDirection.Unknown;
+            return ArrivalDirection.UNKNOWN;
 
 		int lastIndex = points.size() - 1;
 		double lon0 = points.getLon(lastIndex - 1);
@@ -258,16 +258,16 @@ class RouteResultBuilder
 		double dist = distCalc.calcDist(lat1, lon1, destination.y, destination.x);
 
 		if (dist < 1)
-			return ArrivalDirection.StraightAhead;
+			return ArrivalDirection.STRAIGHT_AHEAD;
 		else
 		{
 			double sign = Math.signum((lon1 - lon0) * (destination.y - lat0) - (lat1 - lat0) * (destination.x - lon0));
 			if (sign == 0)
-				return ArrivalDirection.StraightAhead;
+				return ArrivalDirection.STRAIGHT_AHEAD;
 			else if (sign == 1)
-				return ArrivalDirection.Left;
+				return ArrivalDirection.LEFT;
 			else
-				return ArrivalDirection.Right;
+				return ArrivalDirection.RIGHT;
 		}
 	}
 

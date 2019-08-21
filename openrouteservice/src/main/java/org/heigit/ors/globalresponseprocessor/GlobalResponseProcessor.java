@@ -23,13 +23,13 @@
  *
  */
 
-package org.heigit.ors.globalResponseProcessor;
+package org.heigit.ors.globalresponseprocessor;
 
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.exceptions.ExportException;
 import org.heigit.ors.exceptions.StatusCodeException;
-import org.heigit.ors.globalResponseProcessor.geoJson.GeoJsonResponseWriter;
-import org.heigit.ors.globalResponseProcessor.gpx.GpxResponseWriter;
+import org.heigit.ors.globalresponseprocessor.geoJson.GeoJsonResponseWriter;
+import org.heigit.ors.globalresponseprocessor.gpx.GpxResponseWriter;
 import org.heigit.ors.isochrones.IsochroneMapCollection;
 import org.heigit.ors.isochrones.IsochroneRequest;
 import org.heigit.ors.isochrones.IsochronesErrorCodes;

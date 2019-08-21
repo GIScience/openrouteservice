@@ -14,9 +14,9 @@
 package org.heigit.ors.common;
 
 public enum DistanceUnit {
-   Meters,
-   Kilometers,
-   Miles,
-   Unknown
+   METERS,
+   KILOMETERS,
+   MILES,
+   UNKNOWN
 }
 

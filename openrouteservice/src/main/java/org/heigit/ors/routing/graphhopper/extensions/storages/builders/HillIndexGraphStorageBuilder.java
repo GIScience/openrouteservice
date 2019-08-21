@@ -36,7 +36,7 @@ public class HillIndexGraphStorageBuilder extends AbstractGraphStorageBuilder
 			throw new Exception("GraphStorageBuilder has been already initialized.");
 		if (graphhopper.hasElevation())
 		{
-			_storage = new HillIndexGraphStorage(_parameters);
+			_storage = new HillIndexGraphStorage(parameters);
 			_hillIndexCalc = new HillIndexCalculator();
 			
 			return _storage;

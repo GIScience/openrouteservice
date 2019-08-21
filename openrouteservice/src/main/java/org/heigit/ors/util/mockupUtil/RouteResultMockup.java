@@ -91,7 +91,7 @@ public class RouteResultMockup {
             pathWrapper.setNumChanges(2);
             pathWrapper.setRouteWeight(0.0);
             pathWrapper.setPoints(pointList);
-            RouteSegment routeSegment = new RouteSegment(pathWrapper, DistanceUnit.Meters);
+            RouteSegment routeSegment = new RouteSegment(pathWrapper, DistanceUnit.METERS);
             // Create first routeStep
             RouteStep routeStep1 = new RouteStep();
             routeStep1.setDistance(0.0);

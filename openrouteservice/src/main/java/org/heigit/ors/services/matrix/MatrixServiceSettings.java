@@ -27,25 +27,25 @@ public class MatrixServiceSettings
 	
 	static 
 	{
-		String value = AppConfig.Global().getServiceParameter("matrix", "enabled");
+		String value = AppConfig.getGlobal().getServiceParameter("matrix", "enabled");
 		if (value != null)
 			enabled = Boolean.parseBoolean(value);		
-		value = AppConfig.Global().getServiceParameter("matrix", "maximum_routes");
+		value = AppConfig.getGlobal().getServiceParameter("matrix", "maximum_routes");
 		if (value != null)
 			maximumRoutes = Math.max(1, Integer.parseInt(value));
-		value = AppConfig.Global().getServiceParameter("matrix", "maximum_routes_flexible");
+		value = AppConfig.getGlobal().getServiceParameter("matrix", "maximum_routes_flexible");
 		if (value != null)
 			maximumRoutesFlexible = Math.max(1, Integer.parseInt(value));
-		value = AppConfig.Global().getServiceParameter("matrix", "maximum_search_radius");
+		value = AppConfig.getGlobal().getServiceParameter("matrix", "maximum_search_radius");
 		if (value != null)
 			maximumSearchRadius = Math.max(1, Double.parseDouble(value));
-		value = AppConfig.Global().getServiceParameter("matrix", "maximum_visited_nodes");
+		value = AppConfig.getGlobal().getServiceParameter("matrix", "maximum_visited_nodes");
 		if (value != null)
 			maximumVisitedNodes = Math.max(1, Integer.parseInt(value));
-		value = AppConfig.Global().getServiceParameter("matrix", " allow_resolve_locations");
+		value = AppConfig.getGlobal().getServiceParameter("matrix", " allow_resolve_locations");
 		if (value != null)
 			allowResolveLocations = Boolean.parseBoolean(value);
-		value = AppConfig.Global().getServiceParameter("matrix", "attribution");
+		value = AppConfig.getGlobal().getServiceParameter("matrix", "attribution");
 		if (value != null)
 			attribution = value;
 	}

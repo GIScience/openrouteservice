@@ -23,7 +23,7 @@
  *
  */
 
-package org.heigit.ors.globalResponseProcessor.gpx.beans;
+package org.heigit.ors.globalresponseprocessor.gpx.beans;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;

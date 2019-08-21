@@ -20,16 +20,6 @@ public class ElectroBikeFlagEncoder extends CommonBikeFlagEncoder
 {
     private static final int MEAN_SPEED = 20;
 
-    public ElectroBikeFlagEncoder()
-    {
-        this(4, 2, 0, false);
-    }
-
-    public ElectroBikeFlagEncoder( String propertiesString )
-    {
-        this(new PMap(propertiesString));
-    }
-
     public ElectroBikeFlagEncoder(PMap properties )
     {
         this((int) properties.getLong("speed_bits", 4) + (properties.getBool("consider_elevation", false) ? 1 : 0),
@@ -39,16 +29,10 @@ public class ElectroBikeFlagEncoder extends CommonBikeFlagEncoder
         this.setBlockFords(properties.getBool("block_fords", true));
     }
     
-    public ElectroBikeFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts)
-    {
-      this(speedBits, speedFactor, maxTurnCosts, false);
-    }
-
     public ElectroBikeFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation)
     {
         super(speedBits, speedFactor, maxTurnCosts, considerElevation);
 
-        // preferHighwayTags.add("road");
         preferHighwayTags.add("service");
         preferHighwayTags.add("tertiary");
         preferHighwayTags.add("tertiary_link");
@@ -140,52 +124,12 @@ public class ElectroBikeFlagEncoder extends CommonBikeFlagEncoder
         return 2;
     }
 
-    /*@Override
-    protected boolean isPushingSection(ReaderWay way )
-    {
-        String highway = way.getTag("highway");
-        String trackType = way.getTag("tracktype");
-        return way.hasTag("highway", pushingSectionsHighways)
-                || way.hasTag("railway", "platform")  || way.hasTag("route", ferries)
-                || "track".equals(highway) && trackType != null 
-            	&&  !("grade1".equals(trackType) || "grade2".equals(trackType) || "grade3".equals(trackType)); // Runge
-    }*/
-    
     @Override
 	protected double getDownhillMaxSpeed()
 	{
 		return 30;
 	}
     
-    /* MARQ24 getGradientSpeed is currently not implemented in any of the bike flag encoder - simply
-    // cause we get always this detours...
-	protected double getGradientSpeed(double speed, int gradient)
-	{
-    	if (speed > 10)
-    		return speed + getGradientSpeedChange(gradient);
-    	else
-    	{
-    		double result = speed + getGradientSpeedChange(gradient);
-
-    		// forbid high downhill speeds on surfaces with low speeds
-    		if (result > speed)
-    			return speed;
-    		else
-    			return result;
-    	}
-	}	
-    
-    private double getGradientSpeedChange(int gradient)
-    {
-    	if (gradient > 12)
-    		gradient = 12;
-    	else if (gradient < -12)
-    		gradient = -12;
-    	
-    	return -0.28*gradient;
-    }
-    */
-
     @Override
     public String toString()
     {

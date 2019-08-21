@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.graphhopper.PathWrapper;
-import com.graphhopper.util.shapes.BBox;
 
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.util.DistanceUnitUtil;
@@ -33,7 +32,7 @@ public class RouteSegment {
 
 	public RouteSegment(PathWrapper path, DistanceUnit units) throws Exception
 	{
-		_distance = FormatUtility.roundToDecimalsForUnits(DistanceUnitUtil.convert(path.getDistance(), DistanceUnit.Meters, units), units);
+		_distance = FormatUtility.roundToDecimalsForUnits(DistanceUnitUtil.convert(path.getDistance(), DistanceUnit.METERS, units), units);
 		_duration = FormatUtility.roundToDecimals(path.getTime()/1000.0, 1);
 		_ascent = path.getAscend();
 		_descent = path.getDescend();

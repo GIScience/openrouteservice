@@ -24,19 +24,19 @@ public class ShortenLinkServiceSettings {
 	
 	static 
 	{
-		String value = AppConfig.Global().getServiceParameter("shortenlink", "enabled");
+		String value = AppConfig.getGlobal().getServiceParameter("shortenlink", "enabled");
 		if (value != null)
 			enabled = Boolean.parseBoolean(value);		
-		value = AppConfig.Global().getServiceParameter("shortenlink", "user_name");
+		value = AppConfig.getGlobal().getServiceParameter("shortenlink", "user_name");
 		if (value != null)
 			userName = value;
-		value = AppConfig.Global().getServiceParameter("shortenlink", "user_password");
+		value = AppConfig.getGlobal().getServiceParameter("shortenlink", "user_password");
 		if (value != null)
 			userPassword = value;
-		value = AppConfig.Global().getServiceParameter("shortenlink", "api_key");
+		value = AppConfig.getGlobal().getServiceParameter("shortenlink", "api_key");
 		if (value != null)
 			apiKey = value;
-		value = AppConfig.Global().getServiceParameter("shortenlink", "attribution");
+		value = AppConfig.getGlobal().getServiceParameter("shortenlink", "attribution");
 		if (value != null)
 			attribution = value;
 	}

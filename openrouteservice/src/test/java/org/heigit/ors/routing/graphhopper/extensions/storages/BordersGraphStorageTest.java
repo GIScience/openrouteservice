@@ -31,8 +31,8 @@ public class BordersGraphStorageTest {
     public void TestItemCreation() {
         _storage.setEdgeValue(1, (short)1, (short)2, (short)3);
 
-        assertEquals(_storage.getEdgeValue(1, BordersGraphStorage.Property.TYPE), 1);
-        assertEquals(_storage.getEdgeValue(1, BordersGraphStorage.Property.START), 2);
-        assertEquals(_storage.getEdgeValue(1, BordersGraphStorage.Property.END), 3);
+        assertEquals(1, _storage.getEdgeValue(1, BordersGraphStorage.Property.TYPE));
+        assertEquals(2, _storage.getEdgeValue(1, BordersGraphStorage.Property.START));
+        assertEquals(3, _storage.getEdgeValue(1, BordersGraphStorage.Property.END));
     }
 }

@@ -40,18 +40,18 @@ public class IsochronesServiceSettings {
 
 	static 
 	{
-		String value = AppConfig.Global().getServiceParameter("isochrones", "enabled");
+		String value = AppConfig.getGlobal().getServiceParameter("isochrones", "enabled");
 		if (value != null)
 			enabled = Boolean.parseBoolean(value);
-		value = AppConfig.Global().getServiceParameter("isochrones", "maximum_locations");
+		value = AppConfig.getGlobal().getServiceParameter("isochrones", "maximum_locations");
 		if (value != null)
 			maximumLocations = Integer.parseInt(value);
-		value = AppConfig.Global().getServiceParameter("isochrones", "maximum_range_distance");
+		value = AppConfig.getGlobal().getServiceParameter("isochrones", "maximum_range_distance");
 		if (value != null)
 			maximumRangeDistance = Integer.parseInt(value);
 		else
 		{
-			List<? extends ConfigObject> params = AppConfig.Global().getObjectList("isochrones", "maximum_range_distance");
+			List<? extends ConfigObject> params = AppConfig.getGlobal().getObjectList("isochrones", "maximum_range_distance");
 			if (params != null)
 			{
 				profileMaxRangeDistances = getParameters(params);
@@ -60,12 +60,12 @@ public class IsochronesServiceSettings {
 			}
 		}
 
-		value = AppConfig.Global().getServiceParameter("isochrones", "maximum_range_time");
+		value = AppConfig.getGlobal().getServiceParameter("isochrones", "maximum_range_time");
 		if (value != null)
 			maximumRangeTime = Integer.parseInt(value);
 		else
 		{
-			List<? extends ConfigObject> params = AppConfig.Global().getObjectList("isochrones", "maximum_range_time");
+			List<? extends ConfigObject> params = AppConfig.getGlobal().getObjectList("isochrones", "maximum_range_time");
 			if (params != null)
 			{
 				profileMaxRangeTimes = getParameters(params);
@@ -74,29 +74,29 @@ public class IsochronesServiceSettings {
 			}
 		}
 
-		value = AppConfig.Global().getServiceParameter("isochrones", "maximum_intervals");
+		value = AppConfig.getGlobal().getServiceParameter("isochrones", "maximum_intervals");
 		if (value != null)
 			maximumIntervals = Integer.parseInt(value);
-		value = AppConfig.Global().getServiceParameter("isochrones", "allow_compute_area");
+		value = AppConfig.getGlobal().getServiceParameter("isochrones", "allow_compute_area");
 		if (value != null)
 			allowComputeArea = Boolean.parseBoolean(value);
 
 		statsProviders = new HashMap<String, StatisticsProviderConfiguration>();
 
-		Map<String, Object> providers = AppConfig.Global().getServiceParametersMap("isochrones", "statistics_providers", false);
+		Map<String, Object> providers = AppConfig.getGlobal().getServiceParametersMap("isochrones", "statistics_providers", false);
 		if (providers != null)
 		{
 			int id = 0;
 			for (Map.Entry<String, Object> entry : providers.entrySet())
 			{
-				Map<String, Object> provider = AppConfig.Global().getServiceParametersMap("isochrones", "statistics_providers." + entry.getKey(), false);
+				Map<String, Object> provider = AppConfig.getGlobal().getServiceParametersMap("isochrones", "statistics_providers." + entry.getKey(), false);
 
 				if (provider.containsKey("provider_name") && provider.containsKey("provider_parameters") && provider.containsKey("property_mapping"))
 				{
 					String provName = provider.get("provider_name").toString();
 
-					Map<String, Object> providerParams = AppConfig.Global().getServiceParametersMap("isochrones", "statistics_providers." + entry.getKey() +".provider_parameters", false);
-					Map<String, Object> map = AppConfig.Global().getServiceParametersMap("isochrones", "statistics_providers." + entry.getKey() +".property_mapping", false);
+					Map<String, Object> providerParams = AppConfig.getGlobal().getServiceParametersMap("isochrones", "statistics_providers." + entry.getKey() +".provider_parameters", false);
+					Map<String, Object> map = AppConfig.getGlobal().getServiceParametersMap("isochrones", "statistics_providers." + entry.getKey() +".property_mapping", false);
 					Map<String, String> propMapping = new HashMap<String, String>();
 
 					for (Map.Entry<String, Object> propEntry : map.entrySet())
@@ -117,7 +117,7 @@ public class IsochronesServiceSettings {
 			}
 		}
 
-		value = AppConfig.Global().getServiceParameter("isochrones", "attribution");
+		value = AppConfig.getGlobal().getServiceParameter("isochrones", "attribution");
 		if (value != null)
 			attribution = value;
 	}

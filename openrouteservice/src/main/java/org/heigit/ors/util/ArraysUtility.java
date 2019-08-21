@@ -14,74 +14,41 @@
 package org.heigit.ors.util;
 
 import com.graphhopper.util.Helper;
-
 import org.heigit.ors.exceptions.ParameterValueException;
 
 public class ArraysUtility {
-	public static String toString(int[] a, String separator) {
-		if (a == null)
-			return null;
-		int iMax = a.length - 1;
-		if (iMax == -1)
-			return "";
-
-		StringBuilder b = new StringBuilder();
-
-		for (int i = 0; ; i++) {
-			b.append(a[i]);
-			if (i == iMax)
-				return b.toString();
-
-			b.append(separator);
-		}
-	}
-
-	public static int[] parseIntArray(String strArray, String elemName, int errorCode) throws Exception
-	{
+	public static int[] parseIntArray(String strArray, String elemName, int errorCode) throws Exception {
 		if (Helper.isEmpty(strArray))
-			return null;
+			return new int[0];
 
 		String value = null;
-		
-		try
-		{
+		try {
 			String[] array = strArray.split(",");
 			int[] res = new int[array.length];
-			for (int i = 0; i < array.length; i++)
-			{
+			for (int i = 0; i < array.length; i++) {
 				value = array[i].trim();
 				res[i] = Integer.parseInt(value);
 			}
-
 			return res;
-		}
-		catch(Exception ex)
-		{
+		} catch(Exception ex) {
 			throw new ParameterValueException(errorCode, elemName, value);
 		}
 	}
 	
-	public static double[] parseDoubleArray(String strArray, String elemName, String separator, int errorCode) throws Exception
-	{
+	public static double[] parseDoubleArray(String strArray, String elemName, String separator, int errorCode) throws Exception {
 		if (Helper.isEmpty(strArray))
-			return null;
+			return new double[0];
 
 		String value = null;
-		
-		try
-		{
+		try {
 			String[] array = strArray.split(separator);
 			double[] res = new double[array.length];
-			for (int i = 0; i < array.length; i++)
-			{
+			for (int i = 0; i < array.length; i++) {
 				value = array[i].trim();
 				res[i] = Double.parseDouble(value);
 			}
-
 			return res;
-		}
-		catch(Exception ex)
-		{
+		} catch(Exception ex) {
 			throw new ParameterValueException(errorCode, elemName, value);
 		}
 	}

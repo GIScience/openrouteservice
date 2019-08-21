@@ -24,21 +24,20 @@ import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.StopWatch;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import org.apache.log4j.Logger;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
-import org.heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
+import org.heigit.ors.isochrones.builders.IsochroneMapBuilder;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixRequest;
 import org.heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
 import org.heigit.ors.routing.RouteSearchContext;
-import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class GridBasedIsochroneMapBuilder extends AbstractIsochroneMapBuilder 
-{
+public class GridBasedIsochroneMapBuilder implements IsochroneMapBuilder {
 	private final Logger LOGGER = Logger.getLogger(GridBasedIsochroneMapBuilder.class.getName());
 
 	private GeometryFactory _geomFactory;

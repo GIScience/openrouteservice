@@ -13,18 +13,12 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
-import java.io.Serializable;
-
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PointList;
+import com.vividsolutions.jts.geom.*;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.CoordinateSequence;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Polygon;
+import java.io.Serializable;
 
 public class AvoidAreasEdgeFilter implements EdgeFilter {
 
@@ -32,11 +26,6 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 	private Polygon[] polys;
 	private DefaultCoordinateSequence coordSequence;
 	private GeometryFactory geomFactory = new GeometryFactory();
-	
-	private double eMinX = Double.MAX_VALUE;
-	private double eMinY = Double.MAX_VALUE;
-	private double eMaxX = Double.MIN_VALUE;
-	private double eMaxY = Double.MIN_VALUE;
 	
 	/**
 	 * Creates an edges filter which accepts both direction of the specified vehicle.
@@ -52,18 +41,17 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 			double maxX = Double.MIN_VALUE;
 			double maxY = Double.MIN_VALUE;
 
-			for (int i = 0; i< polys.length; i++)
-			{
+			for (int i = 0; i < polys.length; i++) {
 				Polygon poly = polys[i];
-				Envelope env = poly.getEnvelopeInternal();
-				if (env.getMinX() < minX)
-					minX = env.getMinX();
-				if (env.getMinY() < minY)
-					minY = env.getMinY();
-				if (env.getMaxX() > maxX)
-					maxX = env.getMaxX();
-				if (env.getMaxY() > maxY)
-					maxY = env.getMaxY();
+				Envelope internal = poly.getEnvelopeInternal();
+				if (internal.getMinX() < minX)
+					minX = internal.getMinX();
+				if (internal.getMinY() < minY)
+					minY = internal.getMinY();
+				if (internal.getMaxX() > maxX)
+					maxX = internal.getMaxX();
+				if (internal.getMaxY() > maxY)
+					maxY = internal.getMaxY();
 			}
 
 			env = new Envelope(minX, maxX, minY, maxY);
@@ -82,10 +70,10 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 		PointList pl = iter.fetchWayGeometry(3);
 		int size = pl.getSize();
 
-		eMinX = Double.MAX_VALUE;
-		eMinY = Double.MAX_VALUE;
-		eMaxX = Double.MIN_VALUE;
-		eMaxY = Double.MIN_VALUE;
+		double eMinX = Double.MAX_VALUE;
+		double eMinY = Double.MAX_VALUE;
+		double eMaxX = Double.MIN_VALUE;
+		double eMaxY = Double.MIN_VALUE;
 
 		for (int j = 0; j < pl.getSize(); j++)
 		{
@@ -150,15 +138,6 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 				return false;
 			}
 		}
-			/*else
-			{
-				// Check if edge geomery intersects env.
-				if (!(eMinX > env.getMaxX() || eMaxX < env.getMinX() || eMinY > env.getMaxY() || eMaxY < env.getMinY()))
-				{
-					
-				}
-			}	*/
-
 		return true;
 	}
 
@@ -170,7 +149,7 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 	 *
 	 * @version 1.7
 	 */
-	class DefaultCoordinateSequence implements CoordinateSequence, Serializable
+	static class DefaultCoordinateSequence implements CoordinateSequence, Serializable
 	{
 		//With contributions from Markus Schaber [schabios@logi-track.com] 2004-03-26
 		private static final long serialVersionUID = -915438501601840650L;
@@ -244,21 +223,22 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 		public double getOrdinate(int index, int ordinateIndex)
 		{
 			switch (ordinateIndex) {
-			case CoordinateSequence.X: return coordinates[index].x;
-			case CoordinateSequence.Y: return coordinates[index].y;
-			case CoordinateSequence.Z: return coordinates[index].z;
+				case CoordinateSequence.X: return coordinates[index].x;
+				case CoordinateSequence.Y: return coordinates[index].y;
+				case CoordinateSequence.Z: return coordinates[index].z;
+				default: break;
 			}
 			return Double.NaN;
 		}
 		/**
 		 * @see com.vividsolutions.jts.geom.CoordinateSequence#setOrdinate(int, int, double)
 		 */
-		public void setOrdinate(int index, int ordinateIndex, double value)
-		{
+		public void setOrdinate(int index, int ordinateIndex, double value) {
 			switch (ordinateIndex) {
-			case CoordinateSequence.X: coordinates[index].x = value;
-			case CoordinateSequence.Y: coordinates[index].y = value;
-			case CoordinateSequence.Z: coordinates[index].z = value;
+				case CoordinateSequence.X: coordinates[index].x = value; break;
+				case CoordinateSequence.Y: coordinates[index].y = value; break;
+				case CoordinateSequence.Z: coordinates[index].z = value; break;
+				default: break;
 			}
 		}
 		/**
@@ -315,7 +295,7 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 		 */
 		public String toString() {
 			if (coordinates.length > 0) {
-				StringBuffer strBuf = new StringBuffer(17 * coordinates.length);
+				StringBuilder strBuf = new StringBuilder(17 * coordinates.length);
 				strBuf.append('(');
 				strBuf.append(coordinates[0]);
 				for (int i = 1; i < coordinates.length; i++) {

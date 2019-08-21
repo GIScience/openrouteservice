@@ -20,112 +20,90 @@
  */
 package org.heigit.ors.util;
 
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Properties;
-
+import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
-public class AppInfo
-{
-	    /**
-	     * The value of <tt>System.getProperty("java.version")</tt>. *
-	     */
-	    public static final String JAVA_VERSION = System.getProperty("java.version");
-	    /**
-	     * The value of <tt>System.getProperty("os.name")</tt>. *
-	     */
-	    public static final String OS_NAME = System.getProperty("os.name", "unknown");
-	    /**
-	     * True iff running on Linux.
-	     */
-	    public static final boolean LINUX = OS_NAME.startsWith("Linux");
-	    /**
-	     * True iff running on Windows.
-	     */
-	    public static final boolean WINDOWS = OS_NAME.startsWith("Windows");
-	    /**
-	     * True iff running on SunOS.
-	     */
-	    public static final boolean SUN_OS = OS_NAME.startsWith("SunOS");
-	    /**
-	     * True iff running on Mac OS X
-	     */
-	    public static final boolean MAC_OS_X = OS_NAME.startsWith("Mac OS X");
-	    public static final String OS_ARCH = System.getProperty("os.arch");
-	    public static final String OS_VERSION = System.getProperty("os.version");
-	    public static final String JAVA_VENDOR = System.getProperty("java.vendor");
-	     
-	    public static final String VERSION;
-	    public static final String BUILD_DATE;
-	    public static final boolean SNAPSHOT;
-	    
-	    static
-	    {
-	        String version = "0.0";
-        	Properties prop = new Properties();
+import java.io.InputStream;
+import java.util.Properties;
 
-	        try
-	        {
-	        	URL url = Thread.currentThread().getContextClassLoader().getResource("resources/version.properties");
-	        	InputStream in = url.openStream();
-	        	
-	        	try {
-	        	  prop.load(in);
-	        	  version = prop.getProperty("version");
-	        	} 
-	        	catch (Exception e) {
+public class AppInfo {
+	private static final Logger LOGGER = Logger.getLogger(AppInfo.class.getName());
+	/**
+	 * The value of <tt>System.getProperty("java.version")</tt>. *
+	 */
+	public static final String JAVA_VERSION = System.getProperty("java.version");
+	/**
+	 * The value of <tt>System.getProperty("os.name")</tt>. *
+	 */
+	public static final String OS_NAME = System.getProperty("os.name", "unknown");
+	/**
+	 * True iff running on Linux.
+	 */
+	public static final boolean LINUX = OS_NAME.startsWith("Linux");
+	/**
+	 * True iff running on Windows.
+	 */
+	public static final boolean WINDOWS = OS_NAME.startsWith("Windows");
+	/**
+	 * True iff running on SunOS.
+	 */
+	public static final boolean SUN_OS = OS_NAME.startsWith("SunOS");
+	/**
+	 * True iff running on Mac OS X
+	 */
+	public static final boolean MAC_OS_X = OS_NAME.startsWith("Mac OS X");
+	public static final String OS_ARCH = System.getProperty("os.arch");
+	public static final String OS_VERSION = System.getProperty("os.version");
+	public static final String JAVA_VENDOR = System.getProperty("java.vendor");
 
-	        	} finally {
-	        	    try { in.close(); } 
-	        	    catch (Exception ex){}
-	        	}
-	        } catch (Exception ex)
-	        {
-	            System.err.println("Initialization ERROR: cannot read version!? " + ex.getMessage());
-	        }
-	        
-	        
-	        int indexM = version.indexOf("-");
-	        if ("${project.version}".equals(version))
-	        {
-	            VERSION = "0.0";
-	            SNAPSHOT = true;
-	            System.err.println("OpenRouteService Initialization WARNING: maven did not preprocess the version file! Do not use the jar for a release!");
-	        } 
-	        else if ("0.0".equals(version))
-	        {
-	            VERSION = "0.0";
-	            SNAPSHOT = true;
-	            System.err.println("OpenRouteService Initialization WARNING: cannot get version!?");
-	        } else
-	        {
-	            String tmp = version;
-	            // throw away the "-SNAPSHOT"
-	            if (indexM >= 0)
-	                tmp = version.substring(0, indexM);
+	public static final String VERSION;
+	public static final String BUILD_DATE;
+	public static final boolean SNAPSHOT;
 
-	            SNAPSHOT = version.toLowerCase().contains("-snapshot");
-	            VERSION = tmp;
-	        }
-	        
-	        String buildDate = "";
-	        try
-	        {
-	        	buildDate = prop.getProperty("buildDate");
-	        } catch (Exception ex)
-	        {
-	        }
-	        
-	        BUILD_DATE = buildDate;
-	    }
-	    
-	    public static JSONObject getEngineInfo()
-	    {
-	    	JSONObject json = new JSONObject(true);
-	    	json.put("version", VERSION);
-	    	json.put("build_date", BUILD_DATE);
-	    	
-	    	return json;
-	    }
+	static {
+		String version = "0.0";
+		Properties prop = new Properties();
+
+		try (InputStream in = Thread.currentThread().getContextClassLoader().getResource("resources/version.properties").openStream()) {
+			prop.load(in);
+			version = prop.getProperty("version");
+		} catch (Exception e) {
+			LOGGER.error("Initialization ERROR: cannot read version!? " + e.getMessage());
+		}
+
+		int indexM = version.indexOf('-');
+		if ("${project.version}".equals(version)) {
+			VERSION = "0.0";
+			SNAPSHOT = true;
+			LOGGER.error("OpenRouteService Initialization WARNING: maven did not preprocess the version file! Do not use the jar for a release!");
+		} else if ("0.0".equals(version)) {
+			VERSION = "0.0";
+			SNAPSHOT = true;
+			LOGGER.error("OpenRouteService Initialization WARNING: cannot get version!?");
+		} else {
+			String tmp = version;
+			// throw away the "-SNAPSHOT"
+			if (indexM >= 0)
+				tmp = version.substring(0, indexM);
+
+			SNAPSHOT = version.toLowerCase().contains("-snapshot");
+			VERSION = tmp;
+		}
+
+		String buildDate = "";
+		try {
+			buildDate = prop.getProperty("buildDate");
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+
+		BUILD_DATE = buildDate;
+	}
+
+	public static JSONObject getEngineInfo() {
+		JSONObject json = new JSONObject(true);
+		json.put("version", VERSION);
+		json.put("build_date", BUILD_DATE);
+		return json;
+	}
 }

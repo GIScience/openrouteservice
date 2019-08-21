@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.shapes.BBox;
 import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.api.responses.common.BoundingBox.BoundingBoxFactory;
+import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
 import org.heigit.ors.api.responses.routing.IndividualRouteResponse;
 import org.heigit.ors.api.responses.routing.RouteResponse;
 import org.heigit.ors.api.responses.routing.RouteResponseInfo;

@@ -30,7 +30,7 @@ public class BaseHttpServlet extends HttpServlet
 {
 	private static final long serialVersionUID = 1L;
 	
-    protected static Logger LOGGER = Logger.getLogger(BaseHttpServlet.class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(BaseHttpServlet.class.getName());
 
     protected void writeError(HttpServletResponse res, Exception ex)
     {

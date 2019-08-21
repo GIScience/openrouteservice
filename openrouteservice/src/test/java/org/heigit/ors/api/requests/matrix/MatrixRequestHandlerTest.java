@@ -73,7 +73,7 @@ public class MatrixRequestHandlerTest {
         matrixRequest.setSources(coordinates);
         matrixRequest.setDestinations(coordinates);
         matrixRequest.setProfileType(RoutingProfileType.CYCLING_REGULAR);
-        matrixRequest.setUnits(DistanceUnit.Meters);
+        matrixRequest.setUnits(DistanceUnit.METERS);
         bareMatrixRequest.setSources(coordinates);
         bareMatrixRequest.setDestinations(coordinates);
 
@@ -95,7 +95,7 @@ public class MatrixRequestHandlerTest {
         Assert.assertEquals(3, matrixRequest.getDestinations().length);
         Assert.assertEquals(1, matrixRequest.getMetrics());
         Assert.assertNull(matrixRequest.getWeightingMethod());
-        Assert.assertEquals(DistanceUnit.Meters, matrixRequest.getUnits());
+        Assert.assertEquals(DistanceUnit.METERS, matrixRequest.getUnits());
         Assert.assertFalse(matrixRequest.getResolveLocations());
         Assert.assertFalse(matrixRequest.getFlexibleMode());
         Assert.assertNull(matrixRequest.getId());
@@ -298,9 +298,9 @@ public class MatrixRequestHandlerTest {
 
     @Test
     public void convertUnitsTest() throws ParameterValueException {
-        Assert.assertEquals(DistanceUnit.Meters, MatrixRequestHandler.convertUnits(APIEnums.Units.METRES));
-        Assert.assertEquals(DistanceUnit.Kilometers, MatrixRequestHandler.convertUnits(APIEnums.Units.KILOMETRES));
-        Assert.assertEquals(DistanceUnit.Miles, MatrixRequestHandler.convertUnits(APIEnums.Units.MILES));
+        Assert.assertEquals(DistanceUnit.METERS, MatrixRequestHandler.convertUnits(APIEnums.Units.METRES));
+        Assert.assertEquals(DistanceUnit.KILOMETERS, MatrixRequestHandler.convertUnits(APIEnums.Units.KILOMETRES));
+        Assert.assertEquals(DistanceUnit.MILES, MatrixRequestHandler.convertUnits(APIEnums.Units.MILES));
     }
 
     @Test

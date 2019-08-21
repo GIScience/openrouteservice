@@ -20,14 +20,13 @@ import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
-import org.apache.log4j.Logger;
 
 public class AvoidBordersEdgeFilter implements EdgeFilter {
-    private BordersExtractor.Avoid _avoidBorders = BordersExtractor.Avoid.NONE;
-    private boolean _avoidCountries = false;
+    private BordersExtractor.Avoid avoidBorders = BordersExtractor.Avoid.NONE;
+    private boolean avoidCountries = false;
     private boolean isStorageBuilt;
 
-    private BordersExtractor _bordersExtractor;
+    private BordersExtractor bordersExtractor;
 
     public AvoidBordersEdgeFilter(RouteSearchParameters searchParams, BordersGraphStorage extBorders) {
         init(searchParams, extBorders);
@@ -48,19 +47,19 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
         // Init the graph storage
         isStorageBuilt = extBorders != null;
         if(isStorageBuilt) {
-            int[] avoidCountries;
+            int[] countriesToAvoid;
             if(searchParams.hasAvoidCountries())
-                avoidCountries = searchParams.getAvoidCountries();
+                countriesToAvoid = searchParams.getAvoidCountries();
             else
-                avoidCountries = new int[0];
+                countriesToAvoid = new int[0];
 
-            _avoidCountries = avoidCountries.length > 0;
+            this.avoidCountries = countriesToAvoid.length > 0;
 
             if(searchParams.hasAvoidBorders()) {
-                _avoidBorders = searchParams.getAvoidBorders();
+                avoidBorders = searchParams.getAvoidBorders();
             }
 
-            _bordersExtractor = new BordersExtractor(extBorders, searchParams.getProfileParameters(), avoidCountries);
+            bordersExtractor = new BordersExtractor(extBorders, countriesToAvoid);
         }
     }
 
@@ -73,34 +72,30 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
      */
     @Override
     public final boolean accept(EdgeIteratorState iter) {
-        if(!isStorageBuilt)
+        if (!isStorageBuilt)
             return true;
 
-        if (_avoidBorders != BordersExtractor.Avoid.NONE) {
+        if (avoidBorders != BordersExtractor.Avoid.NONE) {
             // We have been told to avoid some form of border
-            switch(_avoidBorders) {
+            switch(avoidBorders) {
                 case ALL:
-                    if(_bordersExtractor.isBorder(iter.getEdge())) {
+                    if(bordersExtractor.isBorder(iter.getEdge())) {
                         // It is a border, and we want to avoid all borders
                         return false;
                     }
+                    break;
                 case CONTROLLED:
-                    if(_bordersExtractor.isControlledBorder(iter.getEdge())) {
+                    if(bordersExtractor.isControlledBorder(iter.getEdge())) {
                         // We want to only avoid controlled borders
                         return false;
                     }
                     break;
+                default:
+                    break;
             }
         }
 
-        if(_avoidCountries) {
-            if(_bordersExtractor.restrictedCountry(iter.getEdge())) {
-                return false;
-            }
-        }
-
-        return true;
-
+        return !avoidCountries || !bordersExtractor.restrictedCountry(iter.getEdge());
     }
 
 }

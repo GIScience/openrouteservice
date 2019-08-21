@@ -21,8 +21,8 @@
 package org.heigit.ors.common;
 
 public enum ArrivalDirection {
-   Unknown,
-   Left,
-   Right,
-   StraightAhead
+   UNKNOWN,
+   LEFT,
+   RIGHT,
+   STRAIGHT_AHEAD
 }

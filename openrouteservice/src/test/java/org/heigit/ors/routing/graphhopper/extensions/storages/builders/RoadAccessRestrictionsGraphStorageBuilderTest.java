@@ -36,17 +36,17 @@ public class RoadAccessRestrictionsGraphStorageBuilderTest {
         ReaderWay way = new ReaderWay(1);
         way.setTag("access", "no");
         builder.processWay(way);
-        Assert.assertEquals(AccessRestrictionType.No, builder.getRestrictions());
+        Assert.assertEquals(AccessRestrictionType.NO, builder.getRestrictions());
 
         way = new ReaderWay(1);
         way.setTag("motorcar", "destination");
         builder.processWay(way);
-        Assert.assertEquals(AccessRestrictionType.Destination, builder.getRestrictions());
+        Assert.assertEquals(AccessRestrictionType.DESTINATION, builder.getRestrictions());
 
         way = new ReaderWay(1);
         way.setTag("motorcar", "yes");
         builder.processWay(way);
-        Assert.assertEquals(AccessRestrictionType.None, builder.getRestrictions());
+        Assert.assertEquals(AccessRestrictionType.NONE, builder.getRestrictions());
     }
 
     @Test
@@ -55,17 +55,17 @@ public class RoadAccessRestrictionsGraphStorageBuilderTest {
         ReaderWay way = new ReaderWay(1);
         way.setTag("access", "no");
         builder.processWay(way);
-        Assert.assertEquals(AccessRestrictionType.No, builder.getRestrictions());
+        Assert.assertEquals(AccessRestrictionType.NO, builder.getRestrictions());
 
         way = new ReaderWay(1);
         way.setTag("bicycle", "destination");
         builder.processWay(way);
-        Assert.assertEquals(AccessRestrictionType.Destination, builder.getRestrictions());
+        Assert.assertEquals(AccessRestrictionType.DESTINATION, builder.getRestrictions());
 
         way = new ReaderWay(1);
         way.setTag("bicycle", "yes");
         builder.processWay(way);
-        Assert.assertEquals(AccessRestrictionType.None, builder.getRestrictions());
+        Assert.assertEquals(AccessRestrictionType.NONE, builder.getRestrictions());
     }
 
     @Test
@@ -74,23 +74,23 @@ public class RoadAccessRestrictionsGraphStorageBuilderTest {
         ReaderWay way = new ReaderWay(1);
         way.setTag("access", "no");
         builder.processWay(way);
-        Assert.assertEquals(AccessRestrictionType.No, builder.getRestrictions());
+        Assert.assertEquals(AccessRestrictionType.NO, builder.getRestrictions());
 
         way = new ReaderWay(1);
         way.setTag("foot", "destination");
         builder.processWay(way);
-        Assert.assertEquals(AccessRestrictionType.Destination, builder.getRestrictions());
+        Assert.assertEquals(AccessRestrictionType.DESTINATION, builder.getRestrictions());
 
         way = new ReaderWay(1);
         way.setTag("foot", "yes");
         builder.processWay(way);
-        Assert.assertEquals(AccessRestrictionType.None, builder.getRestrictions());
+        Assert.assertEquals(AccessRestrictionType.NONE, builder.getRestrictions());
     }
 
     private void initBuilder(int profileType) throws Exception {
         builder = new RoadAccessRestrictionsGraphStorageBuilder();
-        builder._parameters = new HashMap<>();
-        builder._parameters.put("use_for_warnings", "true");
+        builder.parameters = new HashMap<>();
+        builder.parameters.put("use_for_warnings", "true");
         builder.init(null, profileType);
     }
 }

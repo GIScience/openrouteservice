@@ -126,7 +126,7 @@ public class RoutingRequestParser
 		{
 			double[] radiuses = ArraysUtility.parseDoubleArray(value, "radiuses", "\\|", RoutingErrorCodes.INVALID_PARAMETER_VALUE);
 			
-			if (radiuses == null || radiuses.length != req.getCoordinates().length)
+			if (radiuses.length != req.getCoordinates().length)
 				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "radiuses", value);
 
 			req.getSearchParameters().setMaximumRadiuses(radiuses);
@@ -135,9 +135,9 @@ public class RoutingRequestParser
 		value = request.getParameter("units");
 		if (!Helper.isEmpty(value))
 		{
-			DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.Unknown);
+			DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.UNKNOWN);
 			
-			if (units == DistanceUnit.Unknown)
+			if (units == DistanceUnit.UNKNOWN)
 				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "units", value);
 			
 			req.setUnits(units);

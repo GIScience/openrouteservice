@@ -427,9 +427,9 @@ public class RouteRequestHandler extends GenericHandler {
     }
 
     private  DistanceUnit convertUnits(APIEnums.Units unitsIn) throws ParameterValueException {
-        DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.Unknown);
+        DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.UNKNOWN);
 
-        if (units == DistanceUnit.Unknown)
+        if (units == DistanceUnit.UNKNOWN)
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_UNITS, unitsIn.toString());
 
         return units;

@@ -29,8 +29,8 @@ public class GPXLink {
     private String type;
 
     public GPXLink() {
-        this.href = AppConfig.Global().getParameter("info", "base_url");
-        this.text = AppConfig.Global().getParameter("info", "base_url");
+        this.href = AppConfig.getGlobal().getParameter("info", "base_url");
+        this.text = AppConfig.getGlobal().getParameter("info", "base_url");
         this.type = "text/html";
     }
 

@@ -23,16 +23,16 @@ public class LoggingSettings {
 	
 	static 
 	{
-		String value = AppConfig.Global().getParameter("logging", "level_file");
+		String value = AppConfig.getGlobal().getParameter("logging", "level_file");
 		if (value != null)
 			levelFile = value;
-		value = AppConfig.Global().getParameter("logging", "enabled");
+		value = AppConfig.getGlobal().getParameter("logging", "enabled");
 		if (value != null)
 			enabled = Boolean.parseBoolean(value);	
-		value = AppConfig.Global().getParameter("logging", "location");
+		value = AppConfig.getGlobal().getParameter("logging", "location");
 		if (value != null)
 			location = value;
-		value = AppConfig.Global().getParameter("logging", "stdout");
+		value = AppConfig.getGlobal().getParameter("logging", "stdout");
 		if (value != null)
 			stdout = Boolean.parseBoolean(value);
 	}

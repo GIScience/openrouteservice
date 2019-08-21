@@ -32,15 +32,15 @@ public class RoadAccessRestrictionGraphStorageTest {
 
     @Test
     public void testItemCreation() {
-        storage.setEdgeValue(0, AccessRestrictionType.Destination);
-        storage.setEdgeValue(1, AccessRestrictionType.None);
-        storage.setEdgeValue(2, AccessRestrictionType.Permissive);
+        storage.setEdgeValue(0, AccessRestrictionType.DESTINATION);
+        storage.setEdgeValue(1, AccessRestrictionType.NONE);
+        storage.setEdgeValue(2, AccessRestrictionType.PERMISSIVE);
 
         storage.getEdgeValue(0, buffer);
-        Assert.assertEquals(AccessRestrictionType.Destination, buffer[0]);
+        Assert.assertEquals(AccessRestrictionType.DESTINATION, buffer[0]);
         storage.getEdgeValue(1, buffer);
-        Assert.assertEquals(AccessRestrictionType.None, buffer[0]);
+        Assert.assertEquals(AccessRestrictionType.NONE, buffer[0]);
         storage.getEdgeValue(2, buffer);
-        Assert.assertEquals(AccessRestrictionType.Permissive, buffer[0]);
+        Assert.assertEquals(AccessRestrictionType.PERMISSIVE, buffer[0]);
     }
 }

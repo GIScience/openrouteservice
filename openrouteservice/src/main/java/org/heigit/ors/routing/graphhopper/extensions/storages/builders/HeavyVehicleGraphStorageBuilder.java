@@ -71,9 +71,9 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 		if (_storage != null)
 			throw new Exception("GraphStorageBuilder has been already initialized.");
 		
-		if (_parameters != null)
+		if (parameters != null)
 		{
-			String value = _parameters.get("restrictions");
+			String value = parameters.get("restrictions");
 			if (!Helper.isEmpty(value))
 				_includeRestrictions = Boolean.parseBoolean(value);
 		}

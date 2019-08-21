@@ -118,8 +118,8 @@ public class IsochronesRequestHandler extends GenericHandler {
 
         DistanceUnit areaUnit;
         try {
-            areaUnit = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.Unknown);
-            if (areaUnit == DistanceUnit.Unknown)
+            areaUnit = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.UNKNOWN);
+            if (areaUnit == DistanceUnit.UNKNOWN)
                 throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_AREA_UNITS, unitsIn.toString());
 
             return DistanceUnitUtil.toString(areaUnit);
@@ -133,8 +133,8 @@ public class IsochronesRequestHandler extends GenericHandler {
 
         DistanceUnit units;
         try {
-            units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.Unknown);
-            if (units == DistanceUnit.Unknown)
+            units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.UNKNOWN);
+            if (units == DistanceUnit.UNKNOWN)
                 throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_RANGE_UNITS, unitsIn.toString());
         } catch (Exception e) {
             throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_RANGE_UNITS, unitsIn.toString());

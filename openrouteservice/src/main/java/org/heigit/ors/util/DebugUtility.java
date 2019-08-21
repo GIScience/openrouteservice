@@ -20,7 +20,7 @@ public class DebugUtility {
 	static 
 	{
 		isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString()
-				.indexOf("-agentlib:jdwp") > 0;
+				.contains("-agentlib:jdwp");
 	}
 	
 	public static boolean isDebug()

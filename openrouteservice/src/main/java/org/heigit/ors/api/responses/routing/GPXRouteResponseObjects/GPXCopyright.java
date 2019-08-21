@@ -32,7 +32,7 @@ public class GPXCopyright {
 
     public GPXCopyright() {
         this.author = RoutingServiceSettings.getAttribution();
-        this.license = AppConfig.Global().getParameter("info", "content_licence");
+        this.license = AppConfig.getGlobal().getParameter("info", "content_licence");
         this.year = Calendar.getInstance().get(Calendar.YEAR);
     }
 }

@@ -30,13 +30,13 @@ import org.heigit.ors.routing.algorithms.DijkstraOneToManyAlgorithm;
 import org.heigit.ors.services.matrix.MatrixServiceSettings;
 
 public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
-	private PathMetricsExtractor _pathMetricsExtractor;
+	private PathMetricsExtractor pathMetricsExtractor;
 
-	public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting)
-	{
+	@Override
+	public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting) {
 		super.init(req, gh, graph, encoder, weighting);
 
-		_pathMetricsExtractor = new PathMetricsExtractor(req.getMetrics(), _graph, _encoder, _weighting, req.getUnits());
+		pathMetricsExtractor = new PathMetricsExtractor(req.getMetrics(), this.graph, this.encoder, this.weighting, req.getUnits());
 	}
 
 	@Override
@@ -55,14 +55,11 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Weight))
 			weights = new float[tableSize];
 
-		if (!srcData.hasValidNodes() || !dstData.hasValidNodes())
-		{
+		if (!srcData.hasValidNodes() || !dstData.hasValidNodes()) {
 			for (int srcIndex = 0; srcIndex < srcData.size(); srcIndex++) 
-				_pathMetricsExtractor.setEmptyValues(srcIndex, srcData, dstData, times, distances, weights);
-		}
-		else
-		{
-			DijkstraOneToManyAlgorithm algorithm = new DijkstraOneToManyAlgorithm(_graph, _weighting, TraversalMode.NODE_BASED);
+				pathMetricsExtractor.setEmptyValues(srcIndex, srcData, dstData, times, distances, weights);
+		} else {
+			DijkstraOneToManyAlgorithm algorithm = new DijkstraOneToManyAlgorithm(graph, weighting, TraversalMode.NODE_BASED);
 			algorithm.prepare(srcData.getNodeIds(),  dstData.getNodeIds());
 			algorithm.setMaxVisitedNodes(MatrixServiceSettings.getMaximumVisitedNodes());
 			
@@ -71,22 +68,17 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 			for (int srcIndex = 0; srcIndex < srcData.size(); srcIndex++) {
 				sourceId = srcData.getNodeId(srcIndex);
 
-				if (sourceId == -1)
-				{
-					_pathMetricsExtractor.setEmptyValues(srcIndex, srcData, dstData, times, distances, weights);
-				}
-				else
-				{
+				if (sourceId == -1) {
+					pathMetricsExtractor.setEmptyValues(srcIndex, srcData, dstData, times, distances, weights);
+				} else {
 					algorithm.reset();
 					SPTEntry[] targets = algorithm.calcPaths(sourceId, dstData.getNodeIds());
 
 					if (algorithm.getFoundTargets() != algorithm.getTargetsCount())
 						throw new Exception("Search exceeds the limit of visited nodes.");
 
-					if (targets != null)
-					{
-//						System.out.println("start point: " + srcData.getLocations()[srcIndex].getCoordinate().y + ", " + srcData.getLocations()[srcIndex].getCoordinate().x );
-						_pathMetricsExtractor.calcValues(srcIndex, targets, srcData, dstData, times, distances, weights);
+					if (targets != null) {
+						pathMetricsExtractor.calcValues(srcIndex, targets, srcData, dstData, times, distances, weights);
 					}
 				}
 			}

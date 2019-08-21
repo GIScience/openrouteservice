@@ -23,7 +23,7 @@
  *
  */
 
-package org.heigit.ors.globalResponseProcessor.gpx;
+package org.heigit.ors.globalresponseprocessor.gpx;
 
 
 import com.graphhopper.util.shapes.BBox;
@@ -41,18 +41,18 @@ import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.services.routing.RoutingServiceSettings;
 import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.util.GeomUtility;
-import org.heigit.ors.globalResponseProcessor.gpx.beans.BoundsType;
-import org.heigit.ors.globalResponseProcessor.gpx.beans.CopyrightType;
-import org.heigit.ors.globalResponseProcessor.gpx.beans.EmailType;
-import org.heigit.ors.globalResponseProcessor.gpx.beans.Gpx;
-import org.heigit.ors.globalResponseProcessor.gpx.beans.GpxExtensions;
-import org.heigit.ors.globalResponseProcessor.gpx.beans.LinkType;
-import org.heigit.ors.globalResponseProcessor.gpx.beans.MetadataType;
-import org.heigit.ors.globalResponseProcessor.gpx.beans.PersonType;
-import org.heigit.ors.globalResponseProcessor.gpx.beans.RteType;
-import org.heigit.ors.globalResponseProcessor.gpx.beans.RteTypeExtensions;
-import org.heigit.ors.globalResponseProcessor.gpx.beans.WptType;
-import org.heigit.ors.globalResponseProcessor.gpx.beans.WptTypeExtensions;
+import org.heigit.ors.globalresponseprocessor.gpx.beans.BoundsType;
+import org.heigit.ors.globalresponseprocessor.gpx.beans.CopyrightType;
+import org.heigit.ors.globalresponseprocessor.gpx.beans.EmailType;
+import org.heigit.ors.globalresponseprocessor.gpx.beans.Gpx;
+import org.heigit.ors.globalresponseprocessor.gpx.beans.GpxExtensions;
+import org.heigit.ors.globalresponseprocessor.gpx.beans.LinkType;
+import org.heigit.ors.globalresponseprocessor.gpx.beans.MetadataType;
+import org.heigit.ors.globalresponseprocessor.gpx.beans.PersonType;
+import org.heigit.ors.globalresponseprocessor.gpx.beans.RteType;
+import org.heigit.ors.globalresponseprocessor.gpx.beans.RteTypeExtensions;
+import org.heigit.ors.globalresponseprocessor.gpx.beans.WptType;
+import org.heigit.ors.globalresponseprocessor.gpx.beans.WptTypeExtensions;
 
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;

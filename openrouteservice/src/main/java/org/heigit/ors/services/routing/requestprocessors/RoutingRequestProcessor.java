@@ -23,7 +23,7 @@ import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingRequest;
-import org.heigit.ors.globalResponseProcessor.GlobalResponseProcessor;
+import org.heigit.ors.globalresponseprocessor.GlobalResponseProcessor;
 import org.heigit.ors.services.routing.requestprocessors.json.JsonRoutingResponseWriter;
 import org.heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import org.heigit.ors.servlet.util.ServletUtility;
@@ -40,9 +40,11 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author OpenRouteServiceTeam
  * @author Julian Psotta, julian@openrouteservice.org
+ * @deprecated
  */
 @Deprecated
 public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
+
     /**
      * {@link RoutingRequestProcessor} is the constructor and calls the {@link AbstractHttpRequestProcessor} as the super class.
      * The output can than be generated through a call to the process function.
@@ -64,11 +66,11 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
     @Override
     public void process(HttpServletResponse response) throws Exception {
         // Get the routing Request to send it to the calculation function
-        RoutingRequest rreq = RoutingRequestParser.parseFromRequestParams(_request);
+        RoutingRequest rreq = RoutingRequestParser.parseFromRequestParams(request);
         JSONObject json = null;
         JSONObject geojson = null;
         String gpx;
-        String respFormat = _request.getParameter("format");
+        String respFormat = request.getParameter("format");
         String geometryFormat = rreq.getGeometryFormat();
 
         if (Helper.isEmpty(respFormat) || "json".equalsIgnoreCase(respFormat)) {
@@ -104,14 +106,13 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
             }
             RouteResult[] result = RoutingProfileManager.getInstance().computeRoute(rreq);
             gpx = new GlobalResponseProcessor(rreq, result).toGPX();
-            //gpx = GpxResponseWriter.toGPX(rreq, new RouteResult[]{result});
             if (gpx != null) {
                 ServletUtility.write(response, gpx);
             } else {
                 throw new EmptyElementException(RoutingErrorCodes.EMPTY_ELEMENT, "GPX was empty and therefore could not be created.");
             }
         } else {
-            throw new ParameterValueException(2003, "format", _request.getParameter("format").toLowerCase());
+            throw new ParameterValueException(2003, "format", request.getParameter("format").toLowerCase());
         }
 
     }

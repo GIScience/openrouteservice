@@ -46,7 +46,7 @@ public class NoiseIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
         // TODO Check if the _noiseIndexFile exists
-        String csvFile = _parameters.get("filepath");
+        String csvFile = parameters.get("filepath");
         readNoiseIndicesFromCSV(csvFile);
         _storage = new NoiseIndexGraphStorage();
 

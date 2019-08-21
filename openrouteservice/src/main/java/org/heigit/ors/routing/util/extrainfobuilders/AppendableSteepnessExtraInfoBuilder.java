@@ -18,6 +18,7 @@ import org.heigit.ors.routing.RouteExtraInfo;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class AppendableSteepnessExtraInfoBuilder extends SteepnessExtraInfoBuilder {
 	private ArrayList<PointList> segmentPointLists;
@@ -27,7 +28,7 @@ public class AppendableSteepnessExtraInfoBuilder extends SteepnessExtraInfoBuild
 		segmentPointLists = new ArrayList<>();
 	}
 
-	public ArrayList<PointList> getSegmentPointLists() {
+	public List<PointList> getSegmentPointLists() {
 		return segmentPointLists;
 	}
 

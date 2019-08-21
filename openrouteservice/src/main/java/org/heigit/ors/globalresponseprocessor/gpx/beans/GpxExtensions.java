@@ -23,7 +23,7 @@
  *
  */
 
-package org.heigit.ors.globalResponseProcessor.gpx.beans;
+package org.heigit.ors.globalresponseprocessor.gpx.beans;
 
 
 import javax.xml.bind.annotation.XmlAccessType;

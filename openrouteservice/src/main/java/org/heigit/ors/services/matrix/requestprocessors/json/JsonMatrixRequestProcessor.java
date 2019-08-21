@@ -88,16 +88,16 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor
 	@Override
 	public void process(HttpServletResponse response) throws Exception 
 	{
-		String reqMethod = _request.getMethod();
+		String reqMethod = request.getMethod();
 
 		MatrixRequest req = null;
 		switch (reqMethod)
 		{
 		case "GET":
-			req = JsonMatrixRequestParser.parseFromRequestParams(_request);
+			req = JsonMatrixRequestParser.parseFromRequestParams(request);
 			break;
 		case "POST": 
-			req = JsonMatrixRequestParser.parseFromStream(_request.getInputStream());  
+			req = JsonMatrixRequestParser.parseFromStream(request.getInputStream());
 			break;
 		default:
 			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED);

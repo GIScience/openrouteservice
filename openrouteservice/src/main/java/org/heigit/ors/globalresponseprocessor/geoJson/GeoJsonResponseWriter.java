@@ -23,7 +23,7 @@
  *
  */
 
-package org.heigit.ors.globalResponseProcessor.geoJson;
+package org.heigit.ors.globalresponseprocessor.geoJson;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;

@@ -14,29 +14,29 @@
 package org.heigit.ors.common;
 
 public class AttributeValue {
-	private String _name;
-	private double _value;
-	private String _source;
+	private String name;
+	private double value;
+	private String source;
 
 	public AttributeValue(String name, double value, String source)
 	{
-		_name = name;
-		_value = value;
-		_source = source;
+		this.name = name;
+		this.value = value;
+		this.source = source;
 	}
 
 	public String getName()
 	{
-		return _name;    	 
+		return name;
 	}
 
 	public double getValue()
 	{
-		return _value;    	 
+		return value;
 	}
 
 	public String getSource()
 	{
-		return _source;    	 
+		return source;
 	}
 }

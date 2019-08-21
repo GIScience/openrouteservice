@@ -17,7 +17,7 @@ package org.heigit.ors.api.responses.routing;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.api.responses.common.BoundingBox.BoundingBox;
+import org.heigit.ors.api.responses.common.boundingbox.BoundingBox;
 
 import java.util.List;
 

@@ -70,23 +70,23 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
 	public void setSearchRadius(double radius)
 	{
-		_searchRadius = radius;
+		searchRadius = radius;
 		if (locationIndex != null)
 			locationIndex.setGpxAccuracy(radius);
 	}
 
 	public void setGraphHopper(GraphHopper gh) {
-		_graphHopper = gh;
+		graphHopper = gh;
 
 		encoder = gh.getEncodingManager().fetchEdgeEncoders().get(0);
 		GraphHopperStorage graph = gh.getGraphHopperStorage();
 		locationIndex = new LocationIndexMatch(graph,
-				(com.graphhopper.storage.index.LocationIndexTree) gh.getLocationIndex(), (int)_searchRadius);
+				(com.graphhopper.storage.index.LocationIndexTree) gh.getLocationIndex(), (int) searchRadius);
 	}
 
 	@Override
 	public RouteSegmentInfo[] match(Coordinate[] locations, boolean bothDirections) {
-		EdgeFilter edgeFilter = _edgeFilter == null ? DefaultEdgeFilter.allEdges(encoder) : _edgeFilter;
+		EdgeFilter edgeFilter = this.edgeFilter == null ? DefaultEdgeFilter.allEdges(encoder) : this.edgeFilter;
 
 		boolean bPreciseMode = false;
 		int nPoints = locations.length;
@@ -103,11 +103,11 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 		
 		// Phase I: We are looking for the nearest road segments
 		MatchPoint[][] x = new MatchPoint[Nz][];
-		double searchRadius = _searchRadius;
+		double searchRadius = this.searchRadius;
 		
 		for (int i = 0; i < nPoints; i++) {
 			Coordinate zt = z[i];
-			_searchRadius = (bPreciseMode && i == 1) ? 50 : searchRadius;
+			this.searchRadius = (bPreciseMode && i == 1) ? 50 : searchRadius;
 				
 			MatchPoint[] xi = findNearestPoints(zt.y, zt.x, i, edgeFilter, matchPoints, roadSegments);
 
@@ -117,7 +117,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 			x[i] = xi;
 		}
 		
-		_searchRadius = searchRadius;
+		this.searchRadius = searchRadius;
 
 		Nr += roadSegments.size();
 
@@ -262,7 +262,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 						
 						try
 						{
-							GHResponse resp = _graphHopper.route(req);
+							GHResponse resp = graphHopper.route(req);
 						
 							if (!resp.hasErrors())
 							{
@@ -300,7 +300,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 		ViterbiSolver viterbiSolver = new ViterbiSolver();
 		int[] bestPath = viterbiSolver.findPath(startProbs, transProbs, emissionProbs, true);
 
-		ORSGraphHopper gh = (ORSGraphHopper)_graphHopper;
+		ORSGraphHopper gh = (ORSGraphHopper) graphHopper;
 		
 		RouteSegmentInfo res = null;
 
@@ -353,7 +353,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 			double distance = distCalcEarth.calcDist(qr.getQueryPoint().getLat(), qr.getQueryPoint().getLon(), spLat,
 					spLon);
 
-			if (distance <= _searchRadius) {
+			if (distance <= searchRadius) {
 				
 				int edgeId = EdgeIteratorStateHelper.getOriginalEdge(qr.getClosestEdge());
 

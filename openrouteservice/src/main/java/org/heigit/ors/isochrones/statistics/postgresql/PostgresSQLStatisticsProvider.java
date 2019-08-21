@@ -19,8 +19,8 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.isochrones.Isochrone;
 import org.heigit.ors.isochrones.IsochronesErrorCodes;
-import org.heigit.ors.isochrones.statistics.AbstractStatisticsProvider;
 import org.apache.log4j.Logger;
+import org.heigit.ors.isochrones.statistics.StatisticsProvider;
 import org.postgresql.ds.PGSimpleDataSource;
 
 import java.sql.Connection;
@@ -35,13 +35,14 @@ import java.util.Map;
  * @author OpenRouteServiceTeam
  * @author Julian Psotta, julian@openrouteservice.org
  */
-public class PostgresSQLStatisticsProvider extends AbstractStatisticsProvider {
+public class PostgresSQLStatisticsProvider implements StatisticsProvider {
     private static final Logger LOGGER = Logger.getLogger(PostgresSQLStatisticsProvider.class.getName());
 
-    private String _tableName = null;
-    private String _geomColumn = null;
-    private HikariDataSource _dataSource;
+    private static final String PARAM_KEY_PASS = "password";
 
+    private String tableName = null;
+    private String geomColumn = null;
+    private HikariDataSource dataSource;
     /**
      * This function initializes the connection to the server according to the settings in the app.config.
      * The connection is established using a {@link HikariDataSource} object with the configuration data from the app.config.
@@ -51,21 +52,21 @@ public class PostgresSQLStatisticsProvider extends AbstractStatisticsProvider {
      */
     @Override
     public void init(Map<String, Object> parameters) throws Exception {
-        _dataSource = null;
-        _tableName = null;
-        _geomColumn = null;
+        dataSource = null;
+        tableName = null;
+        geomColumn = null;
 
         String value = (String) parameters.get("table_name");
         if (Helper.isEmpty(value))
             throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "'table_name' parameter can not be null or empty.");
         else
-            _tableName = value;
+            tableName = value;
 
         value = (String) parameters.get("geometry_column");
         if (Helper.isEmpty(value))
             throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "'geometry_column' parameter can not be null or empty.");
         else
-            _geomColumn = value;
+            geomColumn = value;
 
 
         //https://github.com/pgjdbc/pgjdbc/pull/772
@@ -79,8 +80,8 @@ public class PostgresSQLStatisticsProvider extends AbstractStatisticsProvider {
         config.setDataSourceClassName(PGSimpleDataSource.class.getName());
         config.addDataSourceProperty("databaseName", parameters.get("db_name"));
         config.addDataSourceProperty("user", parameters.get("user"));
-        if (parameters.containsKey("password"))
-            config.addDataSourceProperty("password", parameters.get("password"));
+        if (parameters.containsKey(PARAM_KEY_PASS))
+            config.addDataSourceProperty(PARAM_KEY_PASS, parameters.get(PARAM_KEY_PASS));
         config.addDataSourceProperty("serverName", parameters.get("host"));
         config.addDataSourceProperty("portNumber", parameters.get("port"));
         if (parameters.containsKey("max_pool_size"))
@@ -88,7 +89,7 @@ public class PostgresSQLStatisticsProvider extends AbstractStatisticsProvider {
         config.setMinimumIdle(1);
         config.setConnectionTestQuery("SELECT 1");
 
-        _dataSource = new HikariDataSource(config);
+        dataSource = new HikariDataSource(config);
     }
 
     /**
@@ -98,9 +99,9 @@ public class PostgresSQLStatisticsProvider extends AbstractStatisticsProvider {
      */
     @Override
     public void close() {
-        if (_dataSource != null) {
-            _dataSource.close();
-            _dataSource = null;
+        if (dataSource != null) {
+            dataSource.close();
+            dataSource = null;
         }
     }
 
@@ -119,21 +120,16 @@ public class PostgresSQLStatisticsProvider extends AbstractStatisticsProvider {
         double[] res = new double[nProperties];
         Connection connection = null;
         PreparedStatement preparedStatement = null;
-        ResultSet resultSet;
+        ResultSet resultSet = null;
         try {
             String sql = null;
             for (String property : properties) {
                 String polyGeom = isochrone.getGeometry().toText();
-                switch (property) {
-                    case "total_pop":
-                        sql = "SELECT ROUND(SUM((ST_SummaryStats(ST_Clip(" + _geomColumn + ", poly))).sum)) AS total_pop FROM " + _tableName + ", ST_Transform(ST_GeomFromText('" + polyGeom + "', 4326), 954009) AS poly WHERE ST_Intersects(poly, " + _geomColumn + ") GROUP BY poly;";
-                        break;
-                    default:
-                        break;
+                if ("total_pop".equals(property)) {
+                    sql = "SELECT ROUND(SUM((ST_SummaryStats(ST_Clip(" + geomColumn + ", poly))).sum)) AS total_pop FROM " + tableName + ", ST_Transform(ST_GeomFromText('" + polyGeom + "', 4326), 954009) AS poly WHERE ST_Intersects(poly, " + geomColumn + ") GROUP BY poly;";
                 }
-
             }
-            connection = _dataSource.getConnection();
+            connection = dataSource.getConnection();
             connection.setAutoCommit(false);
             preparedStatement = connection.prepareStatement(sql);
 
@@ -163,7 +159,9 @@ public class PostgresSQLStatisticsProvider extends AbstractStatisticsProvider {
             if (preparedStatement != null) {
                 preparedStatement.close();
             }
-
+            if (resultSet != null) {
+                resultSet.close();
+            }
             if (connection != null) {
                 connection.close();
             }

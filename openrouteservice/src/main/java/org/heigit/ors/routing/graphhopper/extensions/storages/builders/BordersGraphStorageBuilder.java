@@ -36,14 +36,19 @@ import java.util.MissingResourceException;
  * @author Adam Rousell
  */
 public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
-    final static Logger LOGGER = Logger.getLogger(BordersGraphStorageBuilder.class.getName());
+    static final Logger LOGGER = Logger.getLogger(BordersGraphStorageBuilder.class.getName());
 
-    private BordersGraphStorage _storage;
+    private static final String PARAM_KEY_BOUNDARIES = "boundaries";
+    private static final String PARAM_KEY_OPEN_BORDERS = "openborders";
+    private static final String TAG_KEY_COUNTRY1 = "country1";
+    private static final String TAG_KEY_COUNTRY2 = "country2";
+
+    private BordersGraphStorage storage;
     private CountryBordersReader cbReader;
 
     private GeometryFactory gf;
 
-    public static String builderName = "Borders";
+    public static final String BUILDER_NAME = "Borders";
 
     public BordersGraphStorageBuilder() {
         gf = new GeometryFactory();
@@ -60,38 +65,40 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
      */
     @Override
     public GraphExtension init(GraphHopper graphhopper) throws Exception {
-        if (_storage != null)
+        if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
         if(this.cbReader == null) {
             // Read the border shapes from the file
             // First check if parameters are present
-            String bordersFile = "", countryIdsFile = "", openBordersFile = "";
+            String bordersFile = "";
+            String countryIdsFile = "";
+            String openBordersFile = "";
 
-            if(_parameters.containsKey("boundaries"))
-                bordersFile = _parameters.get("boundaries");
+            if(parameters.containsKey(PARAM_KEY_BOUNDARIES))
+                bordersFile = parameters.get(PARAM_KEY_BOUNDARIES);
             else {
-                new MissingConfigParameterException(BordersGraphStorageBuilder.class, "boundaries");
+                new MissingConfigParameterException(BordersGraphStorageBuilder.class, PARAM_KEY_BOUNDARIES);
                 // We cannot continue without the information
-                throw new MissingResourceException("A boundary geometry file is needed to use the borders extended storage!", BordersGraphStorage.class.getName(), "boundaries");
+                throw new MissingResourceException("A boundary geometry file is needed to use the borders extended storage!", BordersGraphStorage.class.getName(), PARAM_KEY_BOUNDARIES);
             }
 
-            if(_parameters.containsKey("ids"))
-                countryIdsFile = _parameters.get("ids");
+            if(parameters.containsKey("ids"))
+                countryIdsFile = parameters.get("ids");
             else
                 new MissingConfigParameterException(BordersGraphStorageBuilder.class, "ids");
 
-            if(_parameters.containsKey("openborders"))
-                openBordersFile = _parameters.get("openborders");
+            if(parameters.containsKey(PARAM_KEY_OPEN_BORDERS))
+                openBordersFile = parameters.get(PARAM_KEY_OPEN_BORDERS);
             else
-                new MissingConfigParameterException(BordersGraphStorageBuilder.class, "openborders");
+                new MissingConfigParameterException(BordersGraphStorageBuilder.class, PARAM_KEY_OPEN_BORDERS);
 
             // Read the file containing all of the country border polygons
             this.cbReader = new CountryBordersReader(bordersFile, countryIdsFile, openBordersFile);
         }
 
-        _storage = new BordersGraphStorage();
-        return _storage;
+        storage = new BordersGraphStorage();
+        return storage;
 
     }
 
@@ -124,11 +131,11 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             String[] countries = findBorderCrossing(coords);
             // If we find that the length of countries is more than one, then it does cross a border
             if (countries.length > 1 && !countries[0].equals(countries[1])) {
-                way.setTag("country1", countries[0]);
-                way.setTag("country2", countries[1]);
+                way.setTag(TAG_KEY_COUNTRY1, countries[0]);
+                way.setTag(TAG_KEY_COUNTRY2, countries[1]);
             } else if (countries.length == 1){
-                way.setTag("country1", countries[0]);
-                way.setTag("country2", countries[0]);
+                way.setTag(TAG_KEY_COUNTRY1, countries[0]);
+                way.setTag(TAG_KEY_COUNTRY2, countries[0]);
             }
         }
     }
@@ -145,12 +152,12 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
      @Override
      public void processEdge(ReaderWay way, EdgeIteratorState edge) {
          // Make sure we actually have the storage initialised - if there were errors accessing the data then this could be the case
-         if (_storage != null) {
+         if (storage != null) {
              // If there is no border crossing then we set the edge value to be 0
 
              // First get the start and end countries - if they are equal, then there is no crossing
-             String startVal = way.getTag("country1");
-             String endVal = way.getTag("country2");
+             String startVal = way.getTag(TAG_KEY_COUNTRY1);
+             String endVal = way.getTag(TAG_KEY_COUNTRY2);
              short type = BordersGraphStorage.NO_BORDER;
              short start = 0;
              short end = 0;
@@ -158,11 +165,12 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
                  start = Short.parseShort(cbReader.getId(startVal));
                  end = Short.parseShort(cbReader.getId(endVal));
              } catch (Exception ignore) {
+                 // do nothing
              } finally {
                  if (start != end) {
                      type = (cbReader.isOpen(cbReader.getEngName(startVal), cbReader.getEngName(endVal))) ? (short) 2 : (short) 1;
                  }
-                 _storage.setEdgeValue(edge.getEdge(), type, start, end);
+                 storage.setEdgeValue(edge.getEdge(), type, start, end);
              }
          }
      }
@@ -174,7 +182,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
      */
     @Override
     public String getName() {
-        return builderName;
+        return BUILDER_NAME;
     }
 
     /**
@@ -290,7 +298,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
         }
 
         // If there is an international point and at least one country name, then we know it is a border
-        if(hasInternational && countries.size() > 0) {
+        if(hasInternational && !countries.isEmpty()) {
             names.add(CountryBordersReader.INTERNATIONAL_NAME);
         }
 

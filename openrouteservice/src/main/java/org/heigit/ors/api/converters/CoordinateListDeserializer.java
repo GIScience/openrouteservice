@@ -16,7 +16,6 @@
 package org.heigit.ors.api.converters;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -29,9 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 
 public class CoordinateListDeserializer extends StdDeserializer<CoordinateListWrapper> {
-    public CoordinateListDeserializer() {
-        this(null);
-    }
 
     public CoordinateListDeserializer(Class<CoordinateListWrapper> listWrapper) {
         super(listWrapper);

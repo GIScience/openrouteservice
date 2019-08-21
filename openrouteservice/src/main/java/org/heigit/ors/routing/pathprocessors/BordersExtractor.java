@@ -1,56 +1,45 @@
 package org.heigit.ors.routing.pathprocessors;
 
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
-import org.heigit.ors.routing.parameters.ProfileParameters;
-import org.heigit.ors.routing.parameters.VehicleParameters;
 
 
 public class BordersExtractor {
-    public enum Avoid { CONTROLLED, NONE, ALL };
-    private VehicleParameters _vehicleParams;
-    private BordersGraphStorage _storage;
-    private int[] _avoidCountries;
+    public enum Avoid { CONTROLLED, NONE, ALL }
+    private BordersGraphStorage storage;
+    private int[] avoidCountries;
 
-    public BordersExtractor(BordersGraphStorage storage, ProfileParameters vehicleParams, int[] avoidCountries)
-    {
-        _storage = storage;
-
-        _avoidCountries = avoidCountries;
-
-        if (vehicleParams instanceof VehicleParameters)
-            _vehicleParams = (VehicleParameters)vehicleParams;
+    public BordersExtractor(BordersGraphStorage storage, int[] avoidCountries) {
+        this.storage = storage;
+        this.avoidCountries = avoidCountries;
     }
 
-    public int getValue(int edgeId)
-    {
+    public int getValue(int edgeId) {
         // Get the type of border
-        return _storage.getEdgeValue(edgeId, BordersGraphStorage.Property.TYPE);
+        return storage.getEdgeValue(edgeId, BordersGraphStorage.Property.TYPE);
     }
 
     public boolean isBorder(int edgeId) {
-        int type = _storage.getEdgeValue(edgeId, BordersGraphStorage.Property.TYPE);
-
+        int type = storage.getEdgeValue(edgeId, BordersGraphStorage.Property.TYPE);
         return (type == BordersGraphStorage.OPEN_BORDER || type == BordersGraphStorage.CONTROLLED_BORDER);
     }
 
     public boolean isControlledBorder(int edgeId) {
-        return _storage.getEdgeValue(edgeId, BordersGraphStorage.Property.TYPE) == BordersGraphStorage.CONTROLLED_BORDER;
+        return storage.getEdgeValue(edgeId, BordersGraphStorage.Property.TYPE) == BordersGraphStorage.CONTROLLED_BORDER;
     }
 
     public boolean isOpenBorder(int edgeId) {
-        return _storage.getEdgeValue(edgeId, BordersGraphStorage.Property.TYPE) == BordersGraphStorage.OPEN_BORDER;
+        return storage.getEdgeValue(edgeId, BordersGraphStorage.Property.TYPE) == BordersGraphStorage.OPEN_BORDER;
     }
 
     public boolean restrictedCountry(int edgeId) {
-        int startCountry = _storage.getEdgeValue(edgeId, BordersGraphStorage.Property.START);
-        int endCountry = _storage.getEdgeValue(edgeId, BordersGraphStorage.Property.END);
+        int startCountry = storage.getEdgeValue(edgeId, BordersGraphStorage.Property.START);
+        int endCountry = storage.getEdgeValue(edgeId, BordersGraphStorage.Property.END);
 
-        for(int i=0; i<_avoidCountries.length; i++) {
-            if(startCountry == _avoidCountries[i] || endCountry == _avoidCountries[i] ) {
+        for(int i = 0; i< avoidCountries.length; i++) {
+            if(startCountry == avoidCountries[i] || endCountry == avoidCountries[i] ) {
                 return true;
             }
         }
-
         return false;
     }
 }

@@ -30,12 +30,10 @@ import com.graphhopper.util.PMap;
  */
 public class CarFlagEncoder extends VehicleFlagEncoder {
 
+    private static final String KEY_IMPASSABLE = "impassable";
+
     // Mean speed for isochrone reach_factor
     private static final int MEAN_SPEED = 100;
-
-    public CarFlagEncoder() {
-        this(5, 5, 0);
-    }
 
     public CarFlagEncoder(PMap properties) {
         this((int) properties.getLong("speed_bits", 5),
@@ -91,9 +89,7 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
 
         if ("track".equals(highwayValue)) {
             String tt = way.getTag("tracktype");
-            //if (tt != null && !tt.equals("grade1") && !tt.equals("grade2") && !tt.equals("grade3"))
-            if (tt != null)
-            {
+            if (tt != null) {
             	int grade = getTrackGradeLevel(tt);
             	if (grade > maxTrackGradeLevel)
                     return EncodingManager.Access.CAN_SKIP;
@@ -103,7 +99,7 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         if (!_speedLimitHandler.hasSpeedValue(highwayValue))
             return EncodingManager.Access.CAN_SKIP;
 
-        if (way.hasTag("impassable", "yes") || way.hasTag("status", "impassable") || way.hasTag("smoothness", "impassable"))
+        if (way.hasTag(KEY_IMPASSABLE, "yes") || way.hasTag("status", KEY_IMPASSABLE) || way.hasTag("smoothness", KEY_IMPASSABLE))
             return EncodingManager.Access.CAN_SKIP;
 
         // multiple restrictions needs special handling compared to foot and bike, see also motorcycle
@@ -120,17 +116,13 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         
         
         String maxwidth = way.getTag("maxwidth"); // Runge added on 23.02.2016
-        if (maxwidth != null)
-        {
-        	try
-            {
-        		double mwv = Double.parseDouble(maxwidth);
-        		if (mwv < 2.0)
+        if (maxwidth != null) {
+            try {
+                double mwv = Double.parseDouble(maxwidth);
+                if (mwv < 2.0)
                     return EncodingManager.Access.CAN_SKIP;
-            }
-        	catch(Exception ex)
-            {
-            	
+            } catch (Exception ex) {
+                // ignore
             }
         }
 

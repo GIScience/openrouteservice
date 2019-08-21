@@ -73,8 +73,8 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 		_upwardEdgeFilter = new UpwardSearchEdgeFilter(chGraph, encoder);
 		_downwardEdgeFilter = new DownwardSearchEdgeFilter(chGraph, encoder);
 
-		_inEdgeExplorer = graph.createEdgeExplorer();
-		_outEdgeExplorer = graph.createEdgeExplorer();
+		inEdgeExplorer = graph.createEdgeExplorer();
+		outEdgeExplorer = graph.createEdgeExplorer();
 	}
 
 	protected void initCollections(int size) {
@@ -97,13 +97,13 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 
 		// Phase I: build shortest path tree from all target nodes to the
 		// highest node
-		_targetGraph = new SubGraph(_graph);
+		_targetGraph = new SubGraph(graph);
 
 		addNodes(_targetGraph, prioQueue, targets);
 
 		while (!prioQueue.isEmpty()) {
 			int adjNode = prioQueue.poll();
-			EdgeIterator iter = _outEdgeExplorer.setBaseNode(adjNode);
+			EdgeIterator iter = outEdgeExplorer.setBaseNode(adjNode);
 			_downwardEdgeFilter.setBaseNode(adjNode);
 
 			while (iter.next()) {
@@ -152,7 +152,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 			return false;
 
 		_currFrom = _prioQueue.poll();
-		fillEdgesUpward(_currFrom, _prioQueue, _bestWeightMapFrom, _outEdgeExplorer);
+		fillEdgesUpward(_currFrom, _prioQueue, _bestWeightMapFrom, outEdgeExplorer);
 		_visitedCountFrom++;
 
 		return true;
@@ -163,7 +163,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 			return false;
 
 		_currTo = _prioQueue.poll();
-		fillEdgesDownward(_currTo, _prioQueue, _bestWeightMapFrom, _outEdgeExplorer);
+		fillEdgesDownward(_currTo, _prioQueue, _bestWeightMapFrom, outEdgeExplorer);
 		_visitedCountTo++;
 
 		return true;
@@ -187,13 +187,13 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 			_currFrom.visited = true;
 				_prioQueue.add(_currFrom);
 
-			if (!_traversalMode.isEdgeBased()) 
+			if (!traversalMode.isEdgeBased())
 				_bestWeightMapFrom.put(from[i], _currFrom);
 			else
 				throw new IllegalStateException("Edge-based behavior not supported");
 		}
  
-		_outEdgeExplorer = _graph.createEdgeExplorer();
+		outEdgeExplorer = graph.createEdgeExplorer();
 	//	StopWatch sw = new StopWatch();
 	//	sw.start();
 
@@ -221,7 +221,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 			_prioQueue.add(mspTree);
 		}
 
-		_outEdgeExplorer = _targetGraph.createExplorer();
+		outEdgeExplorer = _targetGraph.createExplorer();
 	//	sw = new StopWatch();
 	//	sw.start();
 		runDownwardSearch();
@@ -266,7 +266,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 			
 			_upwardEdgeFilter.updateHighestNode(iter);
 			
-			_edgeWeight = _weighting.calcWeight(iter, false, 0);
+			_edgeWeight = weighting.calcWeight(iter, false, 0);
 
 			if (!Double.isInfinite(_edgeWeight)) {
 				MultiTreeSPEntry ee = shortestWeightMap.get(iter.getAdjNode());
@@ -328,7 +328,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 			return;
 
 		while (iter.next()) {
-			_edgeWeight = _weighting.calcWeight(iter, false, 0);
+			_edgeWeight = weighting.calcWeight(iter, false, 0);
 
 			if (!Double.isInfinite(_edgeWeight)) {
 				MultiTreeSPEntry ee = shortestWeightMap.get(iter.getAdjNode());

@@ -20,8 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.api.responses.common.BoundingBox.BoundingBox;
-import org.heigit.ors.api.responses.common.BoundingBox.BoundingBoxFactory;
+import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.routing.RouteExtraInfo;
@@ -81,9 +80,9 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
         List<RouteExtraInfo> responseExtras = routeResult.getExtraInfo();
         if(responseExtras != null) {
             double routeLength = routeResult.getSummary().getDistance();
-            DistanceUnit units = DistanceUnit.Meters;
+            DistanceUnit units = DistanceUnit.METERS;
             if (request.hasUnits())
-                units =  DistanceUnitUtil.getFromString(request.getUnits().toString(), DistanceUnit.Unknown);
+                units =  DistanceUnitUtil.getFromString(request.getUnits().toString(), DistanceUnit.UNKNOWN);
             for (RouteExtraInfo extraInfo : responseExtras) {
                 extras.put(extraInfo.getName(), new JSONExtra(extraInfo.getSegments(), extraInfo.getSummary(units, routeLength, true)));
             }

@@ -176,7 +176,7 @@ public class RoadAccessRestrictionsGraphStorage implements GraphExtension, Warni
     @Override
     public boolean generatesWarning(RouteExtraInfo extra) {
         for (RouteSegmentItem item : extra.getSegments()) {
-            if (item.getValue() != NO_ENTRY && item.getValue() != AccessRestrictionType.None)
+            if (item.getValue() != NO_ENTRY && item.getValue() != AccessRestrictionType.NONE)
                 return true;
         }
         return false;

@@ -13,44 +13,31 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
-import java.util.ArrayList;
-
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.EdgeIteratorState;
 
-public class EdgeFilterSequence extends ArrayList<EdgeFilter> implements EdgeFilter {
+import java.util.ArrayList;
 
-	private String name;
+public class EdgeFilterSequence  implements EdgeFilter {
+
+	private ArrayList<EdgeFilter> filters = new ArrayList<>();
+
 	@Override
-	public boolean accept(EdgeIteratorState iter) {
-		for (EdgeFilter edgeFilter: this) {
-			if (!edgeFilter.accept(iter)) {
+	public boolean accept(EdgeIteratorState eis) {
+		for (EdgeFilter edgeFilter: filters) {
+			if (!edgeFilter.accept(eis)) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	public String getName(){
-		if (this.name == null) {
-			String name = "";
-			for (EdgeFilter edgeFilter : this) {
-				name += "_" + edgeFilter.getClass().getSimpleName();
-			}
-			return name.toLowerCase();
-		}
-		else return this.name;
-	}
-
-	public void appendName(String name){
-		if (this.name == null)
-			this.name = ("_" + name);
-		else
-			this.name += ("_" + name);
+	public void add(EdgeFilter o) {
+		filters.add(o);
 	}
 
 	@Override
 	public String toString() {
-		return "EdgeFilter Sequence :" + size();
+		return "EdgeFilter Sequence :" + filters.size();
 	}
 }

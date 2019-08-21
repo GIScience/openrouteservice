@@ -26,14 +26,14 @@ import com.graphhopper.util.Parameters;
 import java.util.PriorityQueue;
 
 public class DijkstraOneToManyAlgorithm extends AbstractOneToManyRoutingAlgorithm {
-    protected IntObjectMap<SPTEntry> _fromMap;
-    protected PriorityQueue<SPTEntry> _fromHeap;
-    protected SPTEntry _currEdge;
-    private int _visitedNodes;
+    protected IntObjectMap<SPTEntry> fromMap;
+    protected PriorityQueue<SPTEntry> fromHeap;
+    protected SPTEntry currEdge;
+    private int visitedNodes;
     
-    private int _targetsFound = 0;
-    private IntObjectMap<SPTEntry> _targets;
-    private int _targetsCount = 0;
+    private int targetsFound = 0;
+    private IntObjectMap<SPTEntry> targets;
+    private int targetsCount = 0;
 
     public DijkstraOneToManyAlgorithm(Graph graph, Weighting weighting, TraversalMode tMode) {
         super(graph, weighting, tMode);
@@ -42,49 +42,49 @@ public class DijkstraOneToManyAlgorithm extends AbstractOneToManyRoutingAlgorith
     }
 
     protected void initCollections(int size) {
-        _fromHeap = new PriorityQueue<SPTEntry>(size);
-        _fromMap = new GHIntObjectHashMap<SPTEntry>(size);
-        _targets = new GHIntObjectHashMap<SPTEntry>();
+        fromHeap = new PriorityQueue<>(size);
+        fromMap = new GHIntObjectHashMap<>(size);
+        targets = new GHIntObjectHashMap<>();
     }
     
     public void reset()
     {
-    	_fromHeap.clear();
-    	_fromMap.clear();
-    	_targetsFound = 0;
+    	fromHeap.clear();
+    	fromMap.clear();
+    	targetsFound = 0;
     }
     
     public int getFoundTargets()
     {
-    	return _targetsFound;
+    	return targetsFound;
     }
     
     public int getTargetsCount()
     {
-    	return _targetsCount;	
+    	return targetsCount;
     }
     
     public void prepare(int[] from, int[] to)
     {
-    	this._targets.clear();
+    	this.targets.clear();
     	
     	for (int i = 0; i < to.length; ++i)
     	{
     		int nodeId = to[i];
     		if (nodeId >= 0)
-    			this._targets.put(nodeId, new SPTEntry(EdgeIterator.NO_EDGE, nodeId, 1));
+    			this.targets.put(nodeId, new SPTEntry(EdgeIterator.NO_EDGE, nodeId, 1));
     	}
     }
     
     @Override
     public SPTEntry[] calcPaths(int from, int[] to) {
-    	_targetsCount = _targets.containsKey(from) ? _targets.size() - 1 : _targets.size();
+    	targetsCount = targets.containsKey(from) ? targets.size() - 1 : targets.size();
     	
-    	if (_targetsCount > 0)
+    	if (targetsCount > 0)
     	{
-    		_currEdge = createSPTEntry(from, 0);
+    		currEdge = createSPTEntry(from, 0);
     		if (!traversalMode.isEdgeBased()) {
-    			_fromMap.put(from, _currEdge);
+    			fromMap.put(from, currEdge);
     		}
     		
     		runAlgo();
@@ -96,7 +96,7 @@ public class DijkstraOneToManyAlgorithm extends AbstractOneToManyRoutingAlgorith
     	{
     		int nodeId = to[i];
     		if (nodeId >= 0)
-    			res[i] = _fromMap.get(to[i]);
+    			res[i] = fromMap.get(to[i]);
     	}
     	
         return res;
@@ -105,75 +105,69 @@ public class DijkstraOneToManyAlgorithm extends AbstractOneToManyRoutingAlgorith
     protected void runAlgo() {
         EdgeExplorer explorer = outEdgeExplorer;
         while (true) {
-            _visitedNodes++;
+            visitedNodes++;
             if (isMaxVisitedNodesExceeded() || finished())
                 break;
 
-            int startNode = _currEdge.adjNode;
+            int startNode = currEdge.adjNode;
             EdgeIterator iter = explorer.setBaseNode(startNode);
             while (iter.next()) {
-                if (!accept(iter, _currEdge.edge))
+                if (!accept(iter, currEdge.edge))
                     continue;
 
                 int traversalId = traversalMode.createTraversalId(iter, false);
-                double tmpWeight = weighting.calcWeight(iter, false, _currEdge.edge) + _currEdge.weight;
+                double tmpWeight = weighting.calcWeight(iter, false, currEdge.edge) + currEdge.weight;
                 if (Double.isInfinite(tmpWeight))
                     continue;
 
-                SPTEntry nEdge = _fromMap.get(traversalId);
+                SPTEntry nEdge = fromMap.get(traversalId);
                 if (nEdge == null) {
                     nEdge = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
-                    nEdge.parent = _currEdge;
-                    _fromMap.put(traversalId, nEdge);
-                    _fromHeap.add(nEdge);
+                    nEdge.parent = currEdge;
+                    fromMap.put(traversalId, nEdge);
+                    fromHeap.add(nEdge);
                 } else if (nEdge.weight > tmpWeight) {
-                    _fromHeap.remove(nEdge);
+                    fromHeap.remove(nEdge);
                     nEdge.edge = iter.getEdge();
                     nEdge.weight = tmpWeight;
-                    nEdge.parent = _currEdge;
-                    _fromHeap.add(nEdge);
-                } else
-                    continue;
+                    nEdge.parent = currEdge;
+                    fromHeap.add(nEdge);
+                }
             }
 
-            if (_fromHeap.isEmpty())
+            if (fromHeap.isEmpty())
                 break;
 
-            _currEdge = _fromHeap.poll();
-            if (_currEdge == null)
+            currEdge = fromHeap.poll();
+            if (currEdge == null)
                 throw new AssertionError("Empty edge cannot happen");
         }
     }
 
     private boolean finished() {
-    	if (_currEdge.edge != -1)
+    	if (currEdge.edge != -1)
     	{
-    		SPTEntry entry = _targets.get(_currEdge.adjNode);
+    		SPTEntry entry = targets.get(currEdge.adjNode);
     		if (entry != null)
     		{
-    			entry.adjNode = _currEdge.adjNode;
-    			entry.weight = _currEdge.weight;
-    			entry.edge = _currEdge.edge;
-    			entry.parent = _currEdge.parent;
+    			entry.adjNode = currEdge.adjNode;
+    			entry.weight = currEdge.weight;
+    			entry.edge = currEdge.edge;
+    			entry.parent = currEdge.parent;
 
-    			// MARQ24 - this looks quite strange to me!
-                // ORG CODE START
-    			// entry.visited = entry.visited;
-                // ORG CODE END
-    			// IMHO this should be: [and also take over the originalEdge value!
-                entry.originalEdge = _currEdge.originalEdge;
+                entry.originalEdge = currEdge.originalEdge;
 
-    			_targetsFound++;
+    			targetsFound++;
     		}
     	}
     	
-    	return _targetsFound == _targetsCount;
+    	return targetsFound == targetsCount;
     }
 
 
     @Override
     public int getVisitedNodes() {
-        return _visitedNodes;
+        return visitedNodes;
     }
 
     @Override

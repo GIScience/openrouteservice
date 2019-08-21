@@ -13,12 +13,12 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
-public class AccessRestrictionType {
-	public static final int None = 0;
-	public static final int No = 1;
-	public static final int Customers = 2;
-	public static final int Destination = 4;
-	public static final int Delivery = 8;
-	public static final int Private = 16;
-	public static final int Permissive = 32;
+public abstract class AccessRestrictionType {
+	public static final int NONE = 0;
+	public static final int NO = 1;
+	public static final int CUSTOMERS = 2;
+	public static final int DESTINATION = 4;
+	public static final int DELIVERY = 8;
+	public static final int PRIVATE = 16;
+	public static final int PERMISSIVE = 32;
 }

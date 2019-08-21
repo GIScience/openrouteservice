@@ -191,7 +191,7 @@ public class RouteRequestHandlerTest {
         Assert.assertEquals("geojson", routingRequest.getGeometryFormat());
         Assert.assertTrue(routingRequest.getIncludeElevation());
         Assert.assertEquals(WeightingMethod.FASTEST, routingRequest.getSearchParameters().getWeightingMethod());
-        Assert.assertEquals(DistanceUnit.Meters, routingRequest.getUnits());
+        Assert.assertEquals(DistanceUnit.METERS, routingRequest.getUnits());
         Assert.assertTrue(routingRequest.getSearchParameters().getFlexibleMode());
 
         Assert.assertEquals(BordersExtractor.Avoid.CONTROLLED, routingRequest.getSearchParameters().getAvoidBorders());

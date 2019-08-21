@@ -17,11 +17,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.junit.Test;
 
-import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class CountryBordersHierarchyTest {
     private CountryBordersHierarchy cbh;
@@ -103,7 +101,7 @@ public class CountryBordersHierarchyTest {
      */
     @Test
     public void GetCountryTest() {
-        ArrayList<CountryBordersPolygon> containing = cbh1.getContainingPolygons(new Coordinate(0.9, 0.9));
+        List<CountryBordersPolygon> containing = cbh1.getContainingPolygons(new Coordinate(0.9, 0.9));
         assertEquals(1, containing.size());
         assertEquals("name1", containing.get(0).getName());
 

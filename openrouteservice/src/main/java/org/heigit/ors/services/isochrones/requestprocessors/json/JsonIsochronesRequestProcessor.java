@@ -48,15 +48,15 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
     @Override
     public void process(HttpServletResponse response) throws Exception {
-        String reqMethod = _request.getMethod();
+        String reqMethod = request.getMethod();
 
         IsochroneRequest req = null;
         switch (reqMethod) {
             case "GET":
-                req = JsonIsochroneRequestParser.parseFromRequestParams(_request);
+                req = JsonIsochroneRequestParser.parseFromRequestParams(request);
                 break;
             case "POST":
-                req = JsonIsochroneRequestParser.parseFromStream(_request.getInputStream());
+                req = JsonIsochroneRequestParser.parseFromStream(request.getInputStream());
                 break;
             default:
                 throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, IsochronesErrorCodes.UNKNOWN);

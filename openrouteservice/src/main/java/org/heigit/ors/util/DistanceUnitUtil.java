@@ -16,64 +16,48 @@ package org.heigit.ors.util;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.exceptions.StatusCodeException;
 
-public class DistanceUnitUtil
-{
-	public static DistanceUnit getFromString(String value, DistanceUnit defaultValue)
-	{
-		switch (value)
-		{
-		case "meters":
-			return DistanceUnit.Meters;
-		case "m":
-			return DistanceUnit.Meters;
-		case "kilometers":
-			return DistanceUnit.Kilometers;
-		case "km":
-			return DistanceUnit.Kilometers;
-		case "miles":
-			return DistanceUnit.Miles;
-		case "mi":
-			return DistanceUnit.Miles;
+public class DistanceUnitUtil {
+	public static DistanceUnit getFromString(String value, DistanceUnit defaultValue) {
+		switch (value) {
+			case "m":
+			case "meters":
+				return DistanceUnit.METERS;
+			case "km":
+			case "kilometers":
+				return DistanceUnit.KILOMETERS;
+			case "mi":
+			case "miles":
+				return DistanceUnit.MILES;
+			default:
+				return defaultValue;
 		}
-
-		return defaultValue;
 	}
 	
-	public static String toString( DistanceUnit unit)
-	{
-		switch (unit)
-		{
-		case Meters:
-			return "m";
-		case Kilometers:
-			return "km";
-		case Miles:
-			return "mi";
-		default:
-			break;
+	public static String toString( DistanceUnit unit) {
+		switch (unit) {
+			case METERS:
+				return "m";
+			case KILOMETERS:
+				return "km";
+			case MILES:
+				return "mi";
+			default:
+				return "";
 		}
-
-		return "";
 	}
 
-
 	public static double convert(double value, DistanceUnit unitsFrom, DistanceUnit unitsTo) throws StatusCodeException {
-		if (unitsFrom == DistanceUnit.Meters)
-		{
-			switch(unitsTo)
-			{
-			case Meters:
-				return value;
-			case Kilometers:
-				return value / 1000.0;
-			case Miles:
-				return value * 0.000621371192;
-			default:
-				break;
+		if (unitsFrom == DistanceUnit.METERS) {
+			switch(unitsTo) {
+				case KILOMETERS:
+					return value / 1000.0;
+				case MILES:
+					return value * 0.000621371192;
+				case METERS:
+				default:
+					return value;
 			}
-			return value;
 		}
-		else
-			throw new StatusCodeException(501, "Conversion not implemented.");
+		throw new StatusCodeException(501, "Conversion not implemented.");
 	}
 }

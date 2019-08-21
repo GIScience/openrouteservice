@@ -157,8 +157,8 @@ public class MatrixRequestHandler {
     }
 
     protected static DistanceUnit convertUnits(APIEnums.Units unitsIn) throws ParameterValueException {
-        DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.Unknown);
-        if (units == DistanceUnit.Unknown)
+        DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.UNKNOWN);
+        if (units == DistanceUnit.UNKNOWN)
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_UNITS, unitsIn.toString());
         return units;
     }

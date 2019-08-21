@@ -37,11 +37,11 @@ import java.util.List;
 import java.util.Map;
 
 public class ORSWeightingFactory implements WeightingFactory {
-	private Map<Object, TurnCostExtension> m_turnCostExtensions;
+	private Map<Object, TurnCostExtension> turnCostExtensionMap;
 
 	public ORSWeightingFactory()
 	{
-		m_turnCostExtensions = new HashMap<Object, TurnCostExtension>();
+		turnCostExtensionMap = new HashMap<>();
 	}
 
 	public Weighting createWeighting(HintsMap hintsMap, TraversalMode tMode, FlagEncoder encoder, Graph graph, LocationIndex locationIndex, GraphHopperStorage graphStorage) {
@@ -88,12 +88,12 @@ public class ORSWeightingFactory implements WeightingFactory {
 			File file = path.toFile();
 			if (file.exists()) {
 				TurnCostExtension turnCostExt = null;
-				synchronized (m_turnCostExtensions) {
-					turnCostExt = m_turnCostExtensions.get(graphStorage);
+				synchronized (turnCostExtensionMap) {
+					turnCostExt = turnCostExtensionMap.get(graphStorage);
 					if (turnCostExt == null) {
 						turnCostExt = new TurnCostExtension();
 						turnCostExt.init(graphStorage, graphStorage.getDirectory());
-						m_turnCostExtensions.put(graphStorage, turnCostExt);
+						turnCostExtensionMap.put(graphStorage, turnCostExt);
 					}
 				}
 
@@ -106,7 +106,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 		{
 			Map<String, String> map = hintsMap.toMap();
 
-			List<String> weightingNames = new ArrayList<String>();
+			List<String> weightingNames = new ArrayList<>();
 			for (Map.Entry<String, String> kv : map.entrySet())
 			{
 				String name = ProfileWeighting.decodeName(kv.getKey());
@@ -114,40 +114,36 @@ public class ORSWeightingFactory implements WeightingFactory {
 					weightingNames.add(name);
 			}
 	
-			List<Weighting> softWeightings = new ArrayList<Weighting>();
+			List<Weighting> softWeightings = new ArrayList<>();
 
-			for (int i = 0; i < weightingNames.size(); i++)
-			{
-				String weightingName = weightingNames.get(i);
-
-				switch(weightingName)
-				{
-				case "steepness_difficulty":
-					softWeightings.add(new SteepnessDifficultyWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
-					break;
-				case "avoid_hills":
-					softWeightings.add(new AvoidHillsWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
-					break;
-				case "green":
-					softWeightings.add(new GreenWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
-					break;
-				case "quiet":
-					softWeightings.add(new QuietWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
-					break;
-				case "acceleration":
-					softWeightings.add(new AccelerationWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
-					break;
+			for (String weightingName : weightingNames) {
+				switch (weightingName) {
+					case "steepness_difficulty":
+						softWeightings.add(new SteepnessDifficultyWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
+						break;
+					case "avoid_hills":
+						softWeightings.add(new AvoidHillsWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
+						break;
+					case "green":
+						softWeightings.add(new GreenWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
+						break;
+					case "quiet":
+						softWeightings.add(new QuietWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
+						break;
+					case "acceleration":
+						softWeightings.add(new AccelerationWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
+						break;
+					default:
+						break;
 				}
 			}
 
-			if (softWeightings.size() > 0)
-			{
+			if (!softWeightings.isEmpty()) {
 				Weighting[] arrWeightings = new Weighting[softWeightings.size()];
 				arrWeightings = softWeightings.toArray(arrWeightings);
-				result = new AdditionWeighting(arrWeightings, result, encoder, hintsMap, graphStorage);
+				result = new AdditionWeighting(arrWeightings, result, encoder);
 			}
 		}
-
 		return result;
 	}
 

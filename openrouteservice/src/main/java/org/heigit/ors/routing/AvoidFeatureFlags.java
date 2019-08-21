@@ -14,56 +14,52 @@
 package org.heigit.ors.routing;
 
 public class AvoidFeatureFlags {
-	public static final int Highways = 1; // 1 << 0;
-	public static final int Tollways = 2; // 1 << 1;
-	public static final int Steps = 4; // 1 << 2;
-	public static final int Ferries = 8; // 1 << 3;
-	public static final int Fords = 16; // 1 << 4;
+	public static final int HIGHWAYS = 1;
+	public static final int TOLLWAYS = 2;
+	public static final int STEPS = 4;
+	public static final int FERRIES = 8;
+	public static final int FORDS = 16;
 
-	public static final int DrivingFeatures = Highways | Tollways | Ferries | Fords;
-	public static final int CyclingFeatures = Steps | Ferries | Fords;
-	public static final int WalkingFeatures =  Steps | Ferries | Fords;
-	public static final int WheelchairFeatures = WalkingFeatures;
+	private static final int DRIVING_FEATURES = HIGHWAYS | TOLLWAYS | FERRIES | FORDS;
+	private static final int CYCLING_FEATURES = STEPS | FERRIES | FORDS;
+	private static final int WALKING_FEATURES =  STEPS | FERRIES | FORDS;
+	private static final int WHEELCHAIR_FEATURES = WALKING_FEATURES;
 
-	public static int getFromString(String value)
-	{
-		switch(value.toLowerCase())
-		{
+	public static int getFromString(String value) {
+		switch(value.toLowerCase()) {
 			case "highways":
-				return Highways;
+				return HIGHWAYS;
 			case "tollways":
-				return Tollways;
+				return TOLLWAYS;
 			case "ferries":
-				return Ferries;
+				return FERRIES;
 			case "steps":
-				return Steps;
+				return STEPS;
 			case "fords":
-				return Fords;
+				return FORDS;
+			default:
+				return 0;
 		}
-
-		return 0;
 	}
 
 	public static int getProfileFlags(int profileCategory) {
 		switch(profileCategory) {
 			case RoutingProfileCategory.DRIVING:
-				return DrivingFeatures;
+				return DRIVING_FEATURES;
 			case RoutingProfileCategory.CYCLING:
-				return CyclingFeatures;
+				return CYCLING_FEATURES;
 			case RoutingProfileCategory.WALKING:
-				return WalkingFeatures;
+				return WALKING_FEATURES;
 			case RoutingProfileCategory.WHEELCHAIR:
-				return WheelchairFeatures;
+				return WHEELCHAIR_FEATURES;
 			default:
 				return RoutingProfileCategory.UNKNOWN;
 		}
 	}
 
-	public static boolean isValid(int profileType, int value)
-	{
+	public static boolean isValid(int profileType, int value) {
 		int profileCategory = RoutingProfileCategory.getFromRouteProfile(profileType);
 		int nonProfileFlags = ~ getProfileFlags(profileCategory);
-
 		return (nonProfileFlags & value) == 0;
 	}
 }

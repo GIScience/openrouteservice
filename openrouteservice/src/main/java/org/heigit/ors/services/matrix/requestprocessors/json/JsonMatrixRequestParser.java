@@ -146,9 +146,9 @@ public class JsonMatrixRequestParser {
         if (MatrixMetricsType.isSet(req.getMetrics(), MatrixMetricsType.Distance)) {
             value = json.optString("units");
             if (!Helper.isEmpty(value)) {
-                DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.Unknown);
+                DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.UNKNOWN);
 
-                if (units == DistanceUnit.Unknown)
+                if (units == DistanceUnit.UNKNOWN)
                     throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "units");
 
                 req.setUnits(units);
@@ -240,9 +240,9 @@ public class JsonMatrixRequestParser {
         if (MatrixMetricsType.isSet(req.getMetrics(), MatrixMetricsType.Distance)) {
             value = request.getParameter("units");
             if (!Helper.isEmpty(value)) {
-                DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.Unknown);
+                DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.UNKNOWN);
 
-                if (units == DistanceUnit.Unknown)
+                if (units == DistanceUnit.UNKNOWN)
                     throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "units");
 
                 req.setUnits(units);

@@ -16,8 +16,8 @@
 package org.heigit.ors.api.responses.routing.JSONRouteResponseObjects;
 
 import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.api.responses.common.BoundingBox.BoundingBox;
-import org.heigit.ors.api.responses.common.BoundingBox.BoundingBoxFactory;
+import org.heigit.ors.api.responses.common.boundingbox.BoundingBox;
+import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
 import org.heigit.ors.api.responses.routing.IndividualRouteResponse;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.exceptions.StatusCodeException;
@@ -56,9 +56,9 @@ public class JSONBasedIndividualRouteResponse extends IndividualRouteResponse {
         List<RouteExtraInfo> responseExtras = routeResult.getExtraInfo();
         if(responseExtras != null) {
             double routeLength = routeResult.getSummary().getDistance();
-            DistanceUnit units = DistanceUnit.Meters;
+            DistanceUnit units = DistanceUnit.METERS;
             if (routeRequest.hasUnits())
-                DistanceUnitUtil.getFromString(routeRequest.getUnits().toString(), DistanceUnit.Unknown);
+                DistanceUnitUtil.getFromString(routeRequest.getUnits().toString(), DistanceUnit.UNKNOWN);
             for (RouteExtraInfo extraInfo : responseExtras) {
                 extras.put(extraInfo.getName(), new JSONExtra(extraInfo.getSegments(), extraInfo.getSummary(units, routeLength, true)));
 

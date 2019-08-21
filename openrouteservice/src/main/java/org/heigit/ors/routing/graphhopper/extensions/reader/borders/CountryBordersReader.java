@@ -32,13 +32,14 @@ public class CountryBordersReader {
 
     public static final String INTERNATIONAL_NAME = "INTERNATIONAL";
     public static final String INTERNATIONAL_ID = "-1";
+    public static final String KEY_PROPERTIES = "properties";
 
-    private final String BORDER_FILE;
-    private final String NAME_FIELD;
-    private final String HIERARCHY_ID_FIELD;
+    private final String borderFile;
+    private final String nameField;
+    private final String hierarchyIdField;
 
-    private final String IDS_PATH;
-    private final String OPEN_PATH;
+    private final String idsPath;
+    private final String openPath;
 
     private HashMap<String, CountryInfo> ids = new HashMap<>();
     private HashMap<String, ArrayList<String>> openBorders = new HashMap<>();
@@ -52,11 +53,11 @@ public class CountryBordersReader {
      * Empty constructor which does not read any data - the user must explicitly pass information
      */
     public CountryBordersReader() {
-        BORDER_FILE = "";
-        NAME_FIELD = "name";
-        HIERARCHY_ID_FIELD = "hierarchy";
-        IDS_PATH = "";
-        OPEN_PATH = "";
+        borderFile = "";
+        nameField = "name";
+        hierarchyIdField = "hierarchy";
+        idsPath = "";
+        openPath = "";
 
         currentInstance = this;
     }
@@ -69,12 +70,12 @@ public class CountryBordersReader {
      * @param openPath      Path to a csv file containing pairs of country names which have open borders
      */
     public CountryBordersReader(String filepath, String idsPath, String openPath) throws IOException {
-        BORDER_FILE = filepath;
-        NAME_FIELD = "name";
-        HIERARCHY_ID_FIELD = "hierarchy";
+        borderFile = filepath;
+        nameField = "name";
+        hierarchyIdField = "hierarchy";
 
-        IDS_PATH = idsPath;
-        OPEN_PATH = openPath;
+        this.idsPath = idsPath;
+        this.openPath = openPath;
 
         try {
             JSONObject data = readBordersData();
@@ -155,12 +156,13 @@ public class CountryBordersReader {
 
         InputStream is = null;
         BufferedReader buf = null;
+        TarArchiveInputStream tis = null;
         try {
-            is = new FileInputStream(BORDER_FILE);
+            is = new FileInputStream(borderFile);
 
-            if(BORDER_FILE.endsWith(".tar.gz")) {
+            if(borderFile.endsWith(".tar.gz")) {
                 // We are working with a compressed file
-                TarArchiveInputStream tis = new TarArchiveInputStream(
+                tis = new TarArchiveInputStream(
                         new GzipCompressorInputStream(
                                 new BufferedInputStream(is)
                         )
@@ -172,9 +174,8 @@ public class CountryBordersReader {
                 while((entry = tis.getNextTarEntry()) != null) {
                     if(!entry.isDirectory()) {
                         byte[] bytes = new byte[(int) entry.getSize()];
-                        tis.read(bytes);
-                        String str = new String(bytes);
-                        sb.append(str);
+                        while (tis.read(bytes) > 0)
+                            sb.append(new String(bytes));
                     }
                 }
                 data = sb.toString();
@@ -197,6 +198,8 @@ public class CountryBordersReader {
             throw ioe;
         } finally {
             try {
+                if(tis != null)
+                    tis.close();
                 if(is != null)
                     is.close();
                 if(buf != null)
@@ -205,13 +208,11 @@ public class CountryBordersReader {
                 LOGGER.warn("Error closing file reader buffers!");
             } catch (NullPointerException npe) {
                 // This can happen if the file itself wasn't available
-                throw new IOException("Borders file " + BORDER_FILE + " not found!");
+                throw new IOException("Borders file " + borderFile + " not found!");
             }
         }
 
-        JSONObject json = new JSONObject(data);
-
-        return json;
+        return new JSONObject(data);
     }
 
     /**
@@ -234,13 +235,13 @@ public class CountryBordersReader {
                 Geometry geom = GeometryJSON.parse(obj.getJSONObject("geometry"));
 
                 // Also need the id of the country and its hierarchy id
-                String id = obj.getJSONObject("properties").getString(NAME_FIELD);
+                String id = obj.getJSONObject(KEY_PROPERTIES).getString(nameField);
 
                 Long hId = -1l;
 
                 // If there is no hierarchy info, then we set the id of the hierarchy to be a default of 1
-                if(obj.getJSONObject("properties").has(HIERARCHY_ID_FIELD))
-                    hId = obj.getJSONObject("properties").getLong(HIERARCHY_ID_FIELD);
+                if(obj.getJSONObject(KEY_PROPERTIES).has(hierarchyIdField))
+                    hId = obj.getJSONObject(KEY_PROPERTIES).getLong(hierarchyIdField);
 
                 // Create the borders object
                 CountryBordersPolygon c = new CountryBordersPolygon(id, geom, hId);
@@ -279,7 +280,7 @@ public class CountryBordersReader {
             CountryBordersHierarchy h =  pair.getValue();
             if(h.inBbox(c)) {
                 // Now need to check the countries
-                ArrayList<CountryBordersPolygon> ps = h.getPolygons();
+                List<CountryBordersPolygon> ps = h.getPolygons();
                 for(CountryBordersPolygon cp : ps) {
                     if(cp.inBbox(c) && cp.inArea(c)) {
                         countries.add(cp);
@@ -308,7 +309,7 @@ public class CountryBordersReader {
             CountryBordersHierarchy h =  pair.getValue();
             if(h.inBbox(c)) {
                 // Now need to check the countries
-                ArrayList<CountryBordersPolygon> ps = h.getPolygons();
+                List<CountryBordersPolygon> ps = h.getPolygons();
                 for(CountryBordersPolygon cp : ps) {
                     if(cp.inBbox(c)) {
                         countries.add(cp);
@@ -387,7 +388,7 @@ public class CountryBordersReader {
      */
     private void readIds() {
         // First read the csv file
-        ArrayList<ArrayList<String>> data = CSVUtility.readFile(IDS_PATH);
+        ArrayList<ArrayList<String>> data = CSVUtility.readFile(idsPath);
 
         // Loop through and store in the hashmap
         int countries = 0;
@@ -437,7 +438,7 @@ public class CountryBordersReader {
      */
     private void readOpenBorders() {
         // First read the csv file
-        ArrayList<ArrayList<String>> data = CSVUtility.readFile(OPEN_PATH);
+        ArrayList<ArrayList<String>> data = CSVUtility.readFile(openPath);
 
         // Loop through and store in the hashmap
         for(ArrayList<String> col : data) {

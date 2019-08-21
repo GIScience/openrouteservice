@@ -19,8 +19,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.graphhopper.util.shapes.BBox;
-import org.heigit.ors.api.responses.common.BoundingBox.BoundingBox;
-import org.heigit.ors.api.responses.common.BoundingBox.BoundingBox3DBase;
+import org.heigit.ors.api.responses.common.boundingbox.BoundingBox;
+import org.heigit.ors.api.responses.common.boundingbox.BoundingBox3DBase;
 import org.heigit.ors.util.FormatUtility;
 
 @JsonFormat(shape = JsonFormat.Shape.ARRAY)

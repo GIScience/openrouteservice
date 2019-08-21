@@ -31,7 +31,7 @@ public class GPXAuthor {
     private GPXLink link;
 
     public GPXAuthor() throws InternalServerException  {
-        this.name = AppConfig.Global().getParameter("info", "author_tag");
+        this.name = AppConfig.getGlobal().getParameter("info", "author_tag");
         this.email = new GPXEmail();
         this.link = new GPXLink();
     }

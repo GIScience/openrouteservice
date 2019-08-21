@@ -161,7 +161,7 @@ public class RoutingProfile {
 
         // store CountryBordersReader for later use
         for (GraphStorageBuilder builder : gpc.getStorageBuilders()) {
-            if (builder.getName().equals(BordersGraphStorageBuilder.builderName)) {
+            if (builder.getName().equals(BordersGraphStorageBuilder.BUILDER_NAME)) {
                 pathProcessorFactory.setCountryBordersReader(((BordersGraphStorageBuilder) builder).getCbReader());
             }
         }

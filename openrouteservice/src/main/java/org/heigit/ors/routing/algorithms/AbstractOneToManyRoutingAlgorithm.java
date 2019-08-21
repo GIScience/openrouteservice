@@ -71,10 +71,6 @@ public abstract class AbstractOneToManyRoutingAlgorithm implements OneToManyRout
         return new SPTEntry(EdgeIterator.NO_EDGE, node, weight);
     }
 
-    public abstract SPTEntry[] calcPaths(int from, int[] to);
-    
-    public abstract void reset();
-    
     @Override
     public String getName() {
         return getClass().getSimpleName();

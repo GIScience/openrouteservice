@@ -39,8 +39,8 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 	public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting) {
 		super.init(req, gh, graph, encoder, weighting);
 
-		_prepareCH = _graphHopper.getCHFactoryDecorator().getPreparations().get(0);
-		_pathMetricsExtractor = new MultiTreeMetricsExtractor(req.getMetrics(), graph, _encoder, weighting,
+		_prepareCH = graphHopper.getCHFactoryDecorator().getPreparations().get(0);
+		_pathMetricsExtractor = new MultiTreeMetricsExtractor(req.getMetrics(), graph, this.encoder, weighting,
 				req.getUnits());
 	}
 
@@ -67,7 +67,7 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 		}
 		else
 		{
-			RPHASTAlgorithm algorithm = new RPHASTAlgorithm(_graph, _prepareCH.getPrepareWeighting(),
+			RPHASTAlgorithm algorithm = new RPHASTAlgorithm(graph, _prepareCH.getPrepareWeighting(),
 					TraversalMode.NODE_BASED);
 			
 			int[] srcIds = getValidNodeIds(srcData.getNodeIds());

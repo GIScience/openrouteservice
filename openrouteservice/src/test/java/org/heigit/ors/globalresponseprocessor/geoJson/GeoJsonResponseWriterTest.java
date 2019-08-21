@@ -23,7 +23,7 @@
  *
  */
 
-package org.heigit.ors.globalResponseProcessor.geoJson;
+package org.heigit.ors.globalresponseprocessor.geoJson;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -42,7 +42,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.util.HashMap;
 
-import static org.heigit.ors.globalResponseProcessor.geoJson.SimpleFeatureTypes.*;
+import static org.heigit.ors.globalresponseprocessor.geoJson.SimpleFeatureTypes.*;
 
 /**
  * This class tests the methods of {@link GeoJsonResponseWriter}.

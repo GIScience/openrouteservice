@@ -21,7 +21,6 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
-import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
 import org.apache.log4j.Logger;
 
@@ -83,8 +82,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder
 		if (_storage != null)
 			throw new Exception("GraphStorageBuilder has been already initialized.");
 
-		if(_parameters.containsKey("KerbsOnCrossings")) {
-			kerbOnCrossing = Boolean.parseBoolean(_parameters.get("KerbsOnCrossings"));
+		if(parameters.containsKey("KerbsOnCrossings")) {
+			kerbOnCrossing = Boolean.parseBoolean(parameters.get("KerbsOnCrossings"));
 		}
 		_storage = new WheelchairAttributesGraphStorage();
 		return _storage;

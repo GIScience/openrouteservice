@@ -117,7 +117,7 @@ public class RouteExtraInfo
 				{
 					double scaledValue = entry.getValue()/distScale;
 					ExtraSummaryItem esi = new ExtraSummaryItem(entry.getKey(),
-							FormatUtility.roundToDecimals(DistanceUnitUtil.convert(scaledValue, DistanceUnit.Meters, units), unitDecimals),
+							FormatUtility.roundToDecimals(DistanceUnitUtil.convert(scaledValue, DistanceUnit.METERS, units), unitDecimals),
 							FormatUtility.roundToDecimals(scaledValue * 100.0 / routeDistance, 2)
 							);
 					

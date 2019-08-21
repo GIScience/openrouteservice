@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Envelope;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
-import org.heigit.ors.api.responses.common.BoundingBox.BoundingBoxFactory;
+import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
 import org.heigit.ors.api.responses.isochrones.IsochronesResponse;
 import org.heigit.ors.api.responses.isochrones.IsochronesResponseInfo;
 import org.heigit.ors.exceptions.InternalServerException;

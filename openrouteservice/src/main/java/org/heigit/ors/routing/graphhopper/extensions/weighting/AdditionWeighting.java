@@ -14,148 +14,152 @@
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.routing.weighting.AbstractWeighting;
-import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.PMap;
 
 public class AdditionWeighting extends AbstractWeighting {
-	private Weighting _superWeighting;
-    private WeightCalc _weightCalc;
+	private Weighting superWeighting;
+    private WeightCalc weightCalc;
 
-    public AdditionWeighting(Weighting[] weightings, Weighting superWeighting, FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
+    public AdditionWeighting(Weighting[] weightings, Weighting superWeighting, FlagEncoder encoder) {
         super(encoder);
-        _superWeighting = superWeighting;
+        this.superWeighting = superWeighting;
         
         int count = weightings.length;
         if (count == 1)
-           _weightCalc = new OneWeightCalc(weightings);
+           weightCalc = new OneWeightCalc(weightings);
         else if (count == 2)
-            _weightCalc = new TwoWeightCalc(weightings);
+            weightCalc = new TwoWeightCalc(weightings);
         else if (count == 3)
-            _weightCalc = new ThreeWeightCalc(weightings);
+            weightCalc = new ThreeWeightCalc(weightings);
         else if (count == 4)
-            _weightCalc = new FourWeightCalc(weightings);
+            weightCalc = new FourWeightCalc(weightings);
         else if (count == 5)
-            _weightCalc = new FiveWeightCalc(weightings);
+            weightCalc = new FiveWeightCalc(weightings);
     }
     
-    public abstract class WeightCalc
-    {
-    	public abstract double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId);
-    	
-    	public abstract long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId);
+    public interface WeightCalc  {
+		 double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId);
+		 long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId);
     }
     
-    public class OneWeightCalc extends WeightCalc
+    public static class OneWeightCalc implements WeightCalc
     {
-    	private Weighting _weighting;
+    	private Weighting weighting;
     	
     	public OneWeightCalc(Weighting[] weightings)
     	{
-    		_weighting = weightings[0];
+    		weighting = weightings[0];
     	}
     	
     	public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId)
     	{
-    		return _weighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
+    		return weighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
     	}
     	
     	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId)
     	{
-    		return _weighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
+    		return weighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
     	}
     }
     
     public class TwoWeightCalc extends OneWeightCalc
     {
-    	private Weighting _weighting;
+    	private Weighting weighting;
     	
     	public TwoWeightCalc(Weighting[] weightings)
     	{
     		super(weightings);
-    		_weighting = weightings[1];
+    		weighting = weightings[1];
     	}
-    	
+
+		@Override
     	public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId)
     	{
-    		return super.calcWeight(edgeState, reverse, prevOrNextEdgeId) + _weighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
+    		return super.calcWeight(edgeState, reverse, prevOrNextEdgeId) + weighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
     	}
-    	
+
+    	@Override
     	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId)
     	{
-    		return super.calcMillis(edgeState, reverse, prevOrNextEdgeId) + _weighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
+    		return super.calcMillis(edgeState, reverse, prevOrNextEdgeId) + weighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
     	}
     }
     
     public class ThreeWeightCalc extends TwoWeightCalc
     {
-    	private Weighting _weighting;
+    	private Weighting weighting;
     	
     	public ThreeWeightCalc(Weighting[] weightings)
     	{
     		super(weightings);
-    		_weighting = weightings[2];
+    		weighting = weightings[2];
     	}
-    	
+
+		@Override
     	public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId)
     	{
-    		return super.calcWeight(edgeState, reverse, prevOrNextEdgeId) + _weighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
+    		return super.calcWeight(edgeState, reverse, prevOrNextEdgeId) + weighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
     	}
-    	
+
+		@Override
     	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId)
     	{
-    		return super.calcMillis(edgeState, reverse, prevOrNextEdgeId) + _weighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
+    		return super.calcMillis(edgeState, reverse, prevOrNextEdgeId) + weighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
     	}
     }
     
     public class FourWeightCalc extends ThreeWeightCalc
     {
-    	private Weighting _weighting;
+    	private Weighting weighting;
     	
     	public FourWeightCalc(Weighting[] weightings)
     	{
     		super(weightings);
-    		_weighting = weightings[3];
+    		weighting = weightings[3];
     	}
-    	
+
+		@Override
     	public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId)
     	{
-    		return super.calcWeight(edgeState, reverse, prevOrNextEdgeId) + _weighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
+    		return super.calcWeight(edgeState, reverse, prevOrNextEdgeId) + weighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
     	}
-    	
+
+		@Override
     	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId)
     	{
-    		return super.calcMillis(edgeState, reverse, prevOrNextEdgeId) + _weighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
+    		return super.calcMillis(edgeState, reverse, prevOrNextEdgeId) + weighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
     	}
     }
     
     public class FiveWeightCalc extends FourWeightCalc
     {
-    	private Weighting _weighting;
+    	private Weighting weighting;
     	
     	public FiveWeightCalc(Weighting[] weightings)
     	{
     		super(weightings);
-    		_weighting = weightings[4];
+    		weighting = weightings[4];
     	}
-    	
+
+		@Override
     	public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId)
     	{
-    		return super.calcWeight(edgeState, reverse, prevOrNextEdgeId) + _weighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
+    		return super.calcWeight(edgeState, reverse, prevOrNextEdgeId) + weighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
     	}
-    	
+
+		@Override
     	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId)
     	{
-    		return super.calcMillis(edgeState, reverse, prevOrNextEdgeId) + _weighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
+    		return super.calcMillis(edgeState, reverse, prevOrNextEdgeId) + weighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
     	}
     }
 
     @Override
     public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
         
-    	return _superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId) * _weightCalc.calcWeight(edgeState, reverse, prevOrNextEdgeId);
+    	return superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId) * weightCalc.calcWeight(edgeState, reverse, prevOrNextEdgeId);
     }
 
 	@Override
@@ -165,11 +169,26 @@ public class AdditionWeighting extends AbstractWeighting {
 	
 	@Override
 	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-		return _superWeighting.calcMillis(edgeState, reverse, prevOrNextEdgeId) + _weightCalc.calcMillis(edgeState, reverse, prevOrNextEdgeId);
+		return superWeighting.calcMillis(edgeState, reverse, prevOrNextEdgeId) + weightCalc.calcMillis(edgeState, reverse, prevOrNextEdgeId);
 	}
 
 	@Override
 	public String getName() {
 		return "addition";
+	}
+
+	@Override
+	public int hashCode() {
+		return ("AddWeighting" + toString()).hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		final AdditionWeighting other = (AdditionWeighting) obj;
+		return toString().equals(other.toString());
 	}
 }

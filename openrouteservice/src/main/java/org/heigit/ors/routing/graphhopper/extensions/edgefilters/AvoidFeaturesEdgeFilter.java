@@ -13,52 +13,50 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.RoutingProfileCategory;
-import org.heigit.ors.routing.RoutingProfileType;
-import org.heigit.ors.routing.graphhopper.extensions.storages.*;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
 import org.heigit.ors.routing.pathprocessors.TollwayExtractor;
 
-import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.GraphStorage;
-import com.graphhopper.util.EdgeIteratorState;
-
 public class AvoidFeaturesEdgeFilter implements EdgeFilter {
-	private byte[] _buffer;
-	private WayCategoryGraphStorage _storage;
-	private TollwayExtractor _tollwayExtractor;
-	private int _avoidFeatureType;
-	private int _profileCategory;
+	private byte[] buffer;
+	private WayCategoryGraphStorage storage;
+	private TollwayExtractor tollwayExtractor;
+	private int avoidFeatureType;
+	private int profileCategory;
 
-	private static final int NOT_TOLLWAYS = ~AvoidFeatureFlags.Tollways;
+	private static final int NOT_TOLLWAYS = ~AvoidFeatureFlags.TOLLWAYS;
 
 	public AvoidFeaturesEdgeFilter(int profileType, RouteSearchParameters searchParams, GraphStorage graphStorage) throws Exception {
-		this._buffer = new byte[10];
+		this.buffer = new byte[10];
 
-		_profileCategory = RoutingProfileCategory.getFromRouteProfile(profileType);
+		profileCategory = RoutingProfileCategory.getFromRouteProfile(profileType);
 
-		this._avoidFeatureType = searchParams.getAvoidFeatureTypes() & AvoidFeatureFlags.getProfileFlags(_profileCategory);
+		this.avoidFeatureType = searchParams.getAvoidFeatureTypes() & AvoidFeatureFlags.getProfileFlags(profileCategory);
 
-		_storage = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
-		if (_storage == null)
+		storage = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
+		if (storage == null)
 			throw new Exception("ExtendedGraphStorage for avoid features was not found.");
 
 		TollwaysGraphStorage extTollways = GraphStorageUtils.getGraphExtension(graphStorage, TollwaysGraphStorage.class);
 		if (extTollways != null)
-			_tollwayExtractor = new TollwayExtractor(extTollways, searchParams.getProfileType(), searchParams.getProfileParameters());
+			tollwayExtractor = new TollwayExtractor(extTollways, searchParams.getProfileType(), searchParams.getProfileParameters());
 	}
 
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {
-
-		if (_avoidFeatureType != 0) {
+		if (avoidFeatureType != 0) {
 			int edge = iter.getEdge();
-			int edgeFeatType = _storage.getEdgeValue(edge, _buffer);
+			int edgeFeatType = storage.getEdgeValue(edge, buffer);
 
 			if (edgeFeatType != 0) {
-				int avoidEdgeFeatureType = _avoidFeatureType & edgeFeatType;
+				int avoidEdgeFeatureType = avoidFeatureType & edgeFeatType;
 
 				if (avoidEdgeFeatureType != 0) {
 
@@ -66,15 +64,14 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 						// restrictions other than tollways are present
 						return false;
 					}
-					else if (_tollwayExtractor != null) {
+					else if (tollwayExtractor != null) {
 						// false when there is a toll for the given profile
-						return _tollwayExtractor.getValue(edge) == 0;
+						return tollwayExtractor.getValue(edge) == 0;
 					}
 
 				}
 			}
 		}
-
 		return true;
 	}
 }

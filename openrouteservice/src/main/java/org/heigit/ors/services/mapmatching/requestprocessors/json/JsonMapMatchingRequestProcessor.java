@@ -41,7 +41,7 @@ public class JsonMapMatchingRequestProcessor extends AbstractHttpRequestProcesso
 
 	@Override
 	public void process(HttpServletResponse response) throws Exception {
-		MapMatchingRequest req = JsonMapMatchingRequestParser.parseFromRequestParams(_request);
+		MapMatchingRequest req = JsonMapMatchingRequestParser.parseFromRequestParams(request);
 		
 		if (req == null)
 			throw new StatusCodeException(StatusCode.BAD_REQUEST, MapMatchingErrorCodes.UNKNOWN, "MapMatchingRequest object is null.");
@@ -54,7 +54,7 @@ public class JsonMapMatchingRequestProcessor extends AbstractHttpRequestProcesso
 		
 		JSONObject json = null;
 		
-		String respFormat = _request.getParameter("format");
+		String respFormat = request.getParameter("format");
 		if (Helper.isEmpty(respFormat) || "json".equalsIgnoreCase(respFormat))
 			json = JsonMapMatchingResponseWriter.toJson(req, new RouteResult[] { result });
 		else if ("geojson".equalsIgnoreCase(respFormat))

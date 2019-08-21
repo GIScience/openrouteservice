@@ -24,19 +24,19 @@ public class MapMatchingServiceSettings {
 		
 	static 
 	{
-		String value = AppConfig.Global().getServiceParameter("mapmatching", "enabled");
+		String value = AppConfig.getGlobal().getServiceParameter("mapmatching", "enabled");
 		if (value != null)
 			enabled = Boolean.parseBoolean(value);		
-		value = AppConfig.Global().getServiceParameter("mapmatching", "maximum_locations");
+		value = AppConfig.getGlobal().getServiceParameter("mapmatching", "maximum_locations");
 		if (value != null)
 			maximumLocations = Math.max(1, Integer.parseInt(value));
-		value = AppConfig.Global().getServiceParameter("mapmatching", "maximum_search_radius");
+		value = AppConfig.getGlobal().getServiceParameter("mapmatching", "maximum_search_radius");
 		if (value != null)
 			maximumSearchRadius = Math.max(1, Double.parseDouble(value));
-		value = AppConfig.Global().getServiceParameter("mapmatching", "maximum_visited_nodes");
+		value = AppConfig.getGlobal().getServiceParameter("mapmatching", "maximum_visited_nodes");
 		if (value != null)
 			maximumVisitedNodes = Math.max(1, Integer.parseInt(value));
-		value = AppConfig.Global().getServiceParameter("mapmatching", "attribution");
+		value = AppConfig.getGlobal().getServiceParameter("mapmatching", "attribution");
 		if (value != null)
 			attribution = value;
 	}

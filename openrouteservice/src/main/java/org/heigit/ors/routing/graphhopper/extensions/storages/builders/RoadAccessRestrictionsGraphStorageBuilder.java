@@ -79,8 +79,8 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
 
         storage = new RoadAccessRestrictionsGraphStorage();
 
-        if (_parameters.containsKey("use_for_warnings"))
-            storage.setIsUsedForWarning(Boolean.parseBoolean(_parameters.get("use_for_warnings")));
+        if (parameters.containsKey("use_for_warnings"))
+            storage.setIsUsedForWarning(Boolean.parseBoolean(parameters.get("use_for_warnings")));
 
         return storage;
     }
@@ -109,8 +109,8 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
 
         storage = new RoadAccessRestrictionsGraphStorage();
 
-        if (_parameters.containsKey("use_for_warnings"))
-            storage.setIsUsedForWarning(Boolean.parseBoolean(_parameters.get("use_for_warnings")));
+        if (parameters.containsKey("use_for_warnings"))
+            storage.setIsUsedForWarning(Boolean.parseBoolean(parameters.get("use_for_warnings")));
 
         return storage;
     }
@@ -208,22 +208,22 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
         if (restrictionValue != null && !restrictionValue.isEmpty()) {
             switch (restrictionValue) {
                 case "no":
-                    res |= AccessRestrictionType.No;
+                    res |= AccessRestrictionType.NO;
                     break;
                 case "destination":
-                    res |= AccessRestrictionType.Destination;
+                    res |= AccessRestrictionType.DESTINATION;
                     break;
                 case "private":
-                    res |= AccessRestrictionType.Private;
+                    res |= AccessRestrictionType.PRIVATE;
                     break;
                 case "permissive":
-                    res |= AccessRestrictionType.Permissive;
+                    res |= AccessRestrictionType.PERMISSIVE;
                     break;
                 case "delivery":
-                    res |= AccessRestrictionType.Delivery;
+                    res |= AccessRestrictionType.DELIVERY;
                     break;
                 case "customers":
-                    res |= AccessRestrictionType.Customers;
+                    res |= AccessRestrictionType.CUSTOMERS;
                     break;
 
             }

@@ -27,7 +27,7 @@ public class RoutingRequest extends ServiceRequest
 
     private Coordinate[] _coordinates;
 	private RouteSearchParameters _searchParameters;
-	private DistanceUnit _units = DistanceUnit.Meters;
+	private DistanceUnit _units = DistanceUnit.METERS;
 	private String _language = "en";
 	private String _geometryFormat = "encodedpolyline";
 	private Boolean _geometrySimplify = false;

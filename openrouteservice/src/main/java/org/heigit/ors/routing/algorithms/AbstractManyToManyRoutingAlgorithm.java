@@ -23,18 +23,16 @@ import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 
-import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
-
 public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRoutingAlgorithm {
-	protected final Graph _graph;
-	protected final Weighting _weighting;
-	protected final FlagEncoder _flagEncoder;
-	protected final TraversalMode _traversalMode;
-	protected NodeAccess _nodeAccess;
-	protected EdgeExplorer _inEdgeExplorer;
-	protected EdgeExplorer _outEdgeExplorer;
-	protected int _maxVisitedNodes = Integer.MAX_VALUE;
-	private EdgeFilter _additionalEdgeFilter;
+	protected final Graph graph;
+	protected final Weighting weighting;
+	protected final FlagEncoder flagEncoder;
+	protected final TraversalMode traversalMode;
+	protected NodeAccess nodeAccess;
+	protected EdgeExplorer inEdgeExplorer;
+	protected EdgeExplorer outEdgeExplorer;
+	protected int maxVisitedNodes = Integer.MAX_VALUE;
+	private EdgeFilter additionalEdgeFilter;
 
 	/**
 	 * @param graph
@@ -45,40 +43,31 @@ public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRo
 	 *            how the graph is traversed e.g. if via nodes or edges.
 	 */
 	public AbstractManyToManyRoutingAlgorithm(Graph graph, Weighting weighting, TraversalMode traversalMode) {
-		_weighting = weighting;
-		_flagEncoder = weighting.getFlagEncoder();
-		_traversalMode = traversalMode;
-		_graph = graph;
-		_nodeAccess = graph.getNodeAccess();
-		_outEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(_flagEncoder));
-		_inEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.inEdges(_flagEncoder));
+		this.weighting = weighting;
+		flagEncoder = weighting.getFlagEncoder();
+		this.traversalMode = traversalMode;
+		this.graph = graph;
+		nodeAccess = graph.getNodeAccess();
+		outEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
+		inEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.inEdges(flagEncoder));
 	}
 
 	@Override
 	public void setMaxVisitedNodes(int numberOfNodes) {
-		_maxVisitedNodes = numberOfNodes;
+		maxVisitedNodes = numberOfNodes;
 	}
 
 	public AbstractManyToManyRoutingAlgorithm setEdgeFilter(EdgeFilter additionalEdgeFilter) {
-		_additionalEdgeFilter = additionalEdgeFilter;
+		this.additionalEdgeFilter = additionalEdgeFilter;
 		return this;
 	}
 
 	protected boolean accept(EdgeIterator iter, int prevOrNextEdgeId) {
-		if (!_traversalMode.hasUTurnSupport() && iter.getEdge() == prevOrNextEdgeId)
+		if (!traversalMode.hasUTurnSupport() && iter.getEdge() == prevOrNextEdgeId)
 			return false;
 
-		return _additionalEdgeFilter == null || _additionalEdgeFilter.accept(iter);
+		return additionalEdgeFilter == null || additionalEdgeFilter.accept(iter);
 	}
-
-	// protected MultiTreeSPEntry createMultiTreeSPEntry(int node, double
-	// weight) {
-	// return new MultiTreeSPEntry(EdgeIterator.NO_EDGE, node, weight);
-	// }
-
-	public abstract MultiTreeSPEntry[] calcPaths(int[] from, int[] to);
-
-	public abstract void reset();
 
 	@Override
 	public String getName() {
@@ -87,10 +76,10 @@ public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRo
 
 	@Override
 	public String toString() {
-		return getName() + "|" + _weighting;
+		return getName() + "|" + weighting;
 	}
 
 	protected boolean isMaxVisitedNodesExceeded() {
-		return _maxVisitedNodes < getVisitedNodes();
+		return maxVisitedNodes < getVisitedNodes();
 	}
 }

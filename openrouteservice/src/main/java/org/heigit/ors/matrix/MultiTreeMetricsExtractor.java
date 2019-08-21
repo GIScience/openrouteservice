@@ -151,23 +151,23 @@ public class MultiTreeMetricsExtractor {
 											}
 
 											if (_unpackDistance)
-												_edgeDistance = (_distUnits == DistanceUnit.Meters) ? _edgeDistance
-														: DistanceUnitUtil.convert(_edgeDistance, DistanceUnit.Meters,
+												_edgeDistance = (_distUnits == DistanceUnit.METERS) ? _edgeDistance
+														: DistanceUnitUtil.convert(_edgeDistance, DistanceUnit.METERS,
 																_distUnits);
 										}
 
 										if (!_unpackDistance && calcDistance)
-											_edgeDistance = (_distUnits == DistanceUnit.Meters)
+											_edgeDistance = (_distUnits == DistanceUnit.METERS)
 													? iterState.getDistance()
 													: DistanceUnitUtil.convert(iterState.getDistance(),
-															DistanceUnit.Meters, _distUnits);
+															DistanceUnit.METERS, _distUnits);
 									} else {
 										EdgeIteratorState iter = _graph.getEdgeIteratorState(sptItem.edge,
 												targetEntry.adjNode);
 
 										if (calcDistance)
-											_edgeDistance = (_distUnits == DistanceUnit.Meters) ? iter.getDistance()
-													: DistanceUnitUtil.convert(iter.getDistance(), DistanceUnit.Meters,
+											_edgeDistance = (_distUnits == DistanceUnit.METERS) ? iter.getDistance()
+													: DistanceUnitUtil.convert(iter.getDistance(), DistanceUnit.METERS,
 															_distUnits);
 
 										if (calcTime)

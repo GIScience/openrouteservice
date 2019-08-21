@@ -1,17 +1,26 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.config;
+
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigObject;
+import com.typesafe.config.ConfigValue;
+import org.apache.log4j.Logger;
+import org.heigit.ors.util.FileUtility;
+import org.heigit.ors.util.StringUtility;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -20,32 +29,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigException;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigObject;
-import com.typesafe.config.ConfigValue;
-
-import org.apache.log4j.Logger;
-
-import org.heigit.ors.util.StringUtility;
-import org.heigit.ors.util.FileUtility;
-import org.springframework.core.io.ClassPathResource;
-
 public class AppConfig {
 
-	private Config _config;
-	private static AppConfig _global;
-	private static String osm_md5_hash = null;
+	public static final String PREFIX_ORS_SERVICES = "ors.services.";
+	private Config config;
+	private static AppConfig global;
+	private static String osmMd5Hash = null;
 	private static final Logger LOGGER = Logger.getLogger(AppConfig.class.getName());
 
-	public AppConfig(String path)
-	{
+	public AppConfig(String path) {
 		File file = new File(path);
-		_config = ConfigFactory.parseFile(file);
+		config = ConfigFactory.parseFile(file);
 	}
-	
-	public AppConfig()	{
+
+	public AppConfig() {
 		File file;
 
 		String appConfigName = "app.config";
@@ -55,7 +52,7 @@ public class AppConfig {
 
     		ClassPathResource rs = new ClassPathResource(appConfigName);
 			file = rs.getFile();
-			_config = ConfigFactory.parseFile(file);
+			config = ConfigFactory.parseFile(file);
 		} catch (IOException ioe) {
     		LOGGER.error(ioe);
 		}
@@ -68,138 +65,110 @@ public class AppConfig {
 			}
 		});
 		if (md5Files != null && md5Files.length == 1){
-			try{
-				osm_md5_hash = FileUtility.readFile(md5Files[0].toString()).trim();
+			try {
+				osmMd5Hash = FileUtility.readFile(md5Files[0].toString()).trim();
+			} catch (IOException e) {
+				LOGGER.error(e);
 			}
-			catch (IOException e)
-			{LOGGER.error(e);}
 		}
 	}
-	
-	public static AppConfig Global()
-	{
-		if (_global == null)
-			_global = new AppConfig();
-		
-		return _global;
+
+	public static AppConfig getGlobal() {
+		if (global == null)
+			global = new AppConfig();
+		return global;
 	}
-	
-	public String getParameter(String section, String paramName)
-	{
-		try
-		{
-			return _config.getString("ors." + section + "." + paramName);
+
+	public String getParameter(String section, String paramName) {
+		try {
+			return config.getString("ors." + section + "." + paramName);
+		} catch(Exception e) {
+			// IGNORE
 		}
-		catch(ConfigException ex)
-		{}
-		
-		return null;
-	}
-	
-	public String getServiceParameter(String serviceName, String paramName)
-	{
-		try
-		{
-			return _config.getString("ors.services." + serviceName + "." + paramName);
-		}
-		catch(ConfigException ex)
-		{}
-		
-		return null;
-	}
-	
-	public List<? extends ConfigObject> getObjectList(String serviceName, String paramName)
-	{
-		try
-		{
-			return _config.getObjectList("ors.services." + serviceName + "." + paramName);
-		}
-		catch(ConfigException ex)
-		{}
-		
-		return null;
-	}
-	
-	public List<Double> getDoubleList(String serviceName, String paramName) 
-	{
-		try
-		{
-			return _config.getDoubleList("ors.services." + serviceName + "." + paramName);
-		}
-		catch(Exception ex)
-		{}
-		
-		return null;
-	}
-	
-	public List<String> getServiceParametersList(String serviceName, String paramName)
-	{
-		try
-		{
-			return _config.getStringList("ors.services." + serviceName + "." + paramName);
-		}
-		catch(Exception ex)
-		{}
-		
 		return null;
 	}
 
-	public static boolean hasValidMD5Hash()
-	{
-		return osm_md5_hash != null;
+	public String getServiceParameter(String serviceName, String paramName) {
+		try {
+			return config.getString(PREFIX_ORS_SERVICES + serviceName + "." + paramName);
+		} catch(Exception e) {
+			// IGNORE
+		}
+		return null;
 	}
 
-	public static String getMD5Hash()
-	{
-		return osm_md5_hash;
+	public List<? extends ConfigObject> getObjectList(String serviceName, String paramName) {
+		try {
+			return config.getObjectList(PREFIX_ORS_SERVICES + serviceName + "." + paramName);
+		} catch(Exception e) {
+			// IGNORE
+		}
+		return null;
 	}
 
-	public Map<String,Object> getServiceParametersMap(String serviceName, String paramName, boolean quotedStrings)
-	{
+	public List<Double> getDoubleList(String serviceName, String paramName) {
+		try {
+			return config.getDoubleList(PREFIX_ORS_SERVICES + serviceName + "." + paramName);
+		} catch(Exception e) {
+			// IGNORE
+		}
+		return null;
+	}
+
+	public List<String> getServiceParametersList(String serviceName, String paramName) {
+		try {
+			return config.getStringList(PREFIX_ORS_SERVICES + serviceName + "." + paramName);
+		} catch(Exception e) {
+			// IGNORE
+		}
+		return null;
+	}
+
+	public static boolean hasValidMD5Hash() {
+		return osmMd5Hash != null;
+	}
+
+	public static String getMD5Hash() {
+		return osmMd5Hash;
+	}
+
+	public Map<String,Object> getServiceParametersMap(String serviceName, String paramName, boolean quotedStrings) {
 		Map<String,Object> result = null;
-		
-		try
-		{
-			String rootPath = "ors.services." + serviceName + "." + paramName;
-			ConfigObject configObj = _config.getObject(rootPath);
-			
-			result = new HashMap<String, Object>();
-			
-			for(String key : configObj.keySet())
-			{
+		try {
+			String rootPath = PREFIX_ORS_SERVICES + serviceName + "." + paramName;
+			ConfigObject configObj = config.getObject(rootPath);
+			result = new HashMap<>();
+			for(String key : configObj.keySet()) {
 				Object value = null;
-				ConfigValue paramValue = _config.getValue(rootPath + "." + key);
-
-				switch(paramValue.valueType())
-				{
-				case NUMBER:
-					value = paramValue.unwrapped();
-					break;
-				case OBJECT:
-					Map<String,Object> map = getServiceParametersMap(serviceName, paramName + "." + key, quotedStrings);
-					value = map;
-					break;
-				case LIST:
-					value = paramValue.unwrapped();
-					break;
-				case STRING:
-					if (quotedStrings)
-						value = paramValue.render();
-					else
-						value = StringUtility.trim(paramValue.render(), '"');
-					break;
-				case BOOLEAN:
-					value = paramValue.unwrapped();
-				default:
-					break;
+				ConfigValue paramValue = config.getValue(rootPath + "." + key);
+				switch(paramValue.valueType()) {
+					case NUMBER:
+						value = paramValue.unwrapped();
+						break;
+					case OBJECT:
+						value = getServiceParametersMap(serviceName, paramName + "." + key, quotedStrings);
+						break;
+					case LIST:
+						value = paramValue.unwrapped();
+						break;
+					case STRING:
+						if (quotedStrings)
+							value = paramValue.render();
+						else
+							value = StringUtility.trim(paramValue.render(), '"');
+						break;
+					case BOOLEAN:
+						value = paramValue.unwrapped();
+						break;
+					default:
+						break;
 				}
-				
 				result.put(key, value);
 			}
+		} catch(Exception ex) {
+			// IGNORE
 		}
-		catch(Exception ex)
-		{}
-		
+
 		return result;
 	}
 }

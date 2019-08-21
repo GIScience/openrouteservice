@@ -89,7 +89,7 @@ public class RoutingRequestMockup {
             routingRequestMockup.setInstructionsFormat(RouteInstructionsFormat.TEXT);
             routingRequestMockup.setLanguage("DE");
             routingRequestMockup.setLocationIndex(-1);
-            routingRequestMockup.setUnits(DistanceUnit.Meters);
+            routingRequestMockup.setUnits(DistanceUnit.METERS);
             // the search parameters are only accessible through local access.
             setRouteSearchParameters(searchParamProfile.standardCarSearchProfile);
             routingRequestMockup.setId(null);
@@ -113,7 +113,7 @@ public class RoutingRequestMockup {
             routingRequestMockup.setInstructionsFormat(RouteInstructionsFormat.TEXT);
             routingRequestMockup.setLanguage("DE");
             routingRequestMockup.setLocationIndex(-1);
-            routingRequestMockup.setUnits(DistanceUnit.Meters);
+            routingRequestMockup.setUnits(DistanceUnit.METERS);
             // the search parameters are only accessible through local access.
             setRouteSearchParameters(searchParamProfile.standardCarSearchProfile);
             routingRequestMockup.setId(null);

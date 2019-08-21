@@ -31,7 +31,7 @@ public class GPXEmail {
     private String domain;
 
     public GPXEmail() throws InternalServerException {
-        String email = AppConfig.Global().getParameter("info", "support_mail");
+        String email = AppConfig.getGlobal().getParameter("info", "support_mail");
         try {
             String[] parts = email.split("@");
 

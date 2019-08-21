@@ -64,18 +64,18 @@ public class WayCategoryGraphStorageBuilder extends AbstractGraphStorageBuilder
 				if (key.equals("highway")) {
 					if (value.equals("motorway") || value.equals("motorway_link"))
 					{
-						_wayType |= AvoidFeatureFlags.Highways;
+						_wayType |= AvoidFeatureFlags.HIGHWAYS;
 					}
 					else if (value.equals("steps"))
 					{
-						_wayType |= AvoidFeatureFlags.Steps;
+						_wayType |= AvoidFeatureFlags.STEPS;
 					}
 				} else if (value.equals("yes") && key.startsWith("toll")) 
-					_wayType |= AvoidFeatureFlags.Tollways;
+					_wayType |= AvoidFeatureFlags.TOLLWAYS;
 				else if (key.equals("route") && isFerryRoute) 
-					_wayType |= AvoidFeatureFlags.Ferries;
+					_wayType |= AvoidFeatureFlags.FERRIES;
 				else if (("ford".equals(key) && value.equals("yes")))
-					_wayType |= AvoidFeatureFlags.Fords;
+					_wayType |= AvoidFeatureFlags.FORDS;
 			}
 		}
 	}

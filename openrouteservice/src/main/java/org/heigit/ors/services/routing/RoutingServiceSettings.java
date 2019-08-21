@@ -33,7 +33,7 @@ public class RoutingServiceSettings {
 	
 	static 
 	{
-		_config = AppConfig.Global();
+		_config = AppConfig.getGlobal();
 		init(_config);
 	}
 	

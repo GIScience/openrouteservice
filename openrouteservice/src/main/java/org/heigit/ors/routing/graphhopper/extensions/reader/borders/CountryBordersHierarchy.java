@@ -16,17 +16,20 @@ package org.heigit.ors.routing.graphhopper.extensions.reader.borders;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Object used for storing country boundary polygons in a hiearchical structure.
  */
 public class CountryBordersHierarchy {
+    private double minLat = 180f;
+    private double minLon = 180f;
+    private double maxLat = -180f;
+    private double maxLon = -180f;
     private long id;
-    private double minLat = 180f, minLon = 180f, maxLat = -180f, maxLon = -180f;
     private ArrayList<CountryBordersPolygon> polygons = new ArrayList<>();
 
     public CountryBordersHierarchy(long id) {
-
         this.id = id;
     }
 
@@ -52,10 +55,7 @@ public class CountryBordersHierarchy {
      * @return
      */
     public boolean inBbox(Coordinate c) {
-        if(c.x <= minLon || c.x >= maxLon || c.y <= minLat || c.y >= maxLat)
-            return false;
-        else
-            return true;
+        return !(c.x <= minLon || c.x >= maxLon || c.y <= minLat || c.y >= maxLat);
     }
 
 
@@ -64,7 +64,7 @@ public class CountryBordersHierarchy {
     }
 
 
-    public ArrayList<CountryBordersPolygon> getPolygons() {
+    public List<CountryBordersPolygon> getPolygons() {
         return polygons;
     }
 
@@ -74,7 +74,7 @@ public class CountryBordersHierarchy {
      * @param c     The coordinate to lookup
      * @return      An array list of the polygon objects that the coordinate is found in
      */
-    public ArrayList<CountryBordersPolygon> getContainingPolygons(Coordinate c) {
+    public List<CountryBordersPolygon> getContainingPolygons(Coordinate c) {
 
         ArrayList<CountryBordersPolygon> containing = new ArrayList<>();
         if(!Double.isNaN(c.x) && !Double.isNaN(c.y) && inBbox(c)) {

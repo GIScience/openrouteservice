@@ -89,9 +89,9 @@ public class JsonMapMatchingRequestParser
 		value = request.getParameter("units");
 		if (!Helper.isEmpty(value))
 		{
-			DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.Unknown);
+			DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.UNKNOWN);
 			
-			if (units == DistanceUnit.Unknown)
+			if (units == DistanceUnit.UNKNOWN)
 				throw new ParameterValueException(MapMatchingErrorCodes.INVALID_PARAMETER_VALUE, "units", value);
 			
 			req.setUnits(units);

@@ -185,7 +185,7 @@ public class JsonMapMatchingResponseWriter {
 							jSegment.put("percentage", FormatUtility.roundToDecimals(seg.getDistance() * 100 / route.getSummary().getDistance(), 2));
 						if (attrAvgSpeed)
 						{
-							double distFactor = request.getUnits() == DistanceUnit.Meters ? 1000 : 1;
+							double distFactor = request.getUnits() == DistanceUnit.METERS ? 1000 : 1;
 							jSegment.put("avgspeed", FormatUtility.roundToDecimals(seg.getDistance() / distFactor / (seg.getDuration() / 3600) , 2));
 						}
 
