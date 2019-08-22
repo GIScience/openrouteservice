@@ -1,8 +1,9 @@
 # Openrouteservice
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[master](https://github.com/GIScience/openrouteservice)&nbsp;&nbsp;&nbsp;&nbsp; [development](https://github.com/GIScience/openrouteservice/tree/development)
-
-[![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=master)](https://travis-ci.org/GIScience/openrouteservice) [![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=development)](https://travis-ci.org/GIScience/openrouteservice)
+| | [master](https://github.com/GIScience/openrouteservice) | [development](https://github.com/GIScience/openrouteservice/tree/development) |
+| --- | --- | --- |
+| build status | [![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=master)](https://travis-ci.org/GIScience/openrouteservice) | [![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=development)](https://travis-ci.org/GIScience/openrouteservice) |
+| quality gate | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=heigit.ors%3Aopenrouteservice&metric=alert_status&branch=master)](https://sonarcloud.io/dashboard?id=heigit.ors%3Aopenrouteservice) | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=heigit.ors%3Aopenrouteservice&metric=alert_status&branch=development)](https://sonarcloud.io/dashboard?id=heigit.ors%3Aopenrouteservice) |
 
 The **openrouteservice API** provides global spatial services by consuming user-generated and collaboratively collected free geographic data directly from [OpenStreetMap](http://www.openstreetmap.org). It is highly customizable, performant and written in Java.
 
