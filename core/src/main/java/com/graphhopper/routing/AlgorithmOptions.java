@@ -83,6 +83,8 @@ public class AlgorithmOptions {
             b.maxVisitedNodes(opts.maxVisitedNodes);
         if (!opts.hints.isEmpty())
             b.hints(opts.hints);
+        if (opts.edgeFilter != null)
+            b.edgeFilter(opts.edgeFilter);
 
         return b;
     }
@@ -158,6 +160,11 @@ public class AlgorithmOptions {
 
         public Builder hints(PMap hints) {
             this.opts.hints.put(hints);
+            return this;
+        }
+
+        public Builder edgeFilter(EdgeFilter edgeFilter) {
+            this.opts.edgeFilter = edgeFilter;
             return this;
         }
 
