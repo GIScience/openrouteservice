@@ -2751,11 +2751,12 @@ public class ResultTest extends ServiceTest {
 
         options.put("round_trip", roundTripOptions);
         body.put("options", options);
+        body.put("instructions", false);
 
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when().log().ifValidationFails()
                 .post(getEndPointPath() + "/{profile}")
@@ -2763,8 +2764,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", is(1732.7f))
-                .body("routes[0].summary.duration", is(501.8f))
+                .body("routes[0].summary.distance", is(1792.8f))
+                .body("routes[0].summary.duration", is(1290.8f))
                 .statusCode(200);
 
         JSONObject avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[8.670658,49.446519], [8.671023,49.446331], [8.670723,49.446212], [8.670658,49.446519]]]}}");
@@ -2773,7 +2774,7 @@ public class ResultTest extends ServiceTest {
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when().log().ifValidationFails()
                 .post(getEndPointPath() + "/{profile}")
@@ -2781,8 +2782,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", is( 1905.4f))
-                .body("routes[0].summary.duration", is(546.5f))
+                .body("routes[0].summary.distance", is( 1792.8f))
+                .body("routes[0].summary.duration", is(1290.8f))
                 .statusCode(200);
 
         options.remove("avoid_polygons");
@@ -2791,7 +2792,7 @@ public class ResultTest extends ServiceTest {
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when().log().ifValidationFails()
                 .post(getEndPointPath() + "/{profile}")
@@ -2799,15 +2800,15 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", is( 2593.4f))
-                .body("routes[0].summary.duration", is(572.6f))
+                .body("routes[0].summary.distance", is( 1559.3f))
+                .body("routes[0].summary.duration", is(1122.7f))
                 .statusCode(200);
 
         body.put("bearings", constructBearings("25,30"));
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when().log().ifValidationFails()
                 .post(getEndPointPath() + "/{profile}")
@@ -2815,8 +2816,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", is( 2897.1f))
-                .body("routes[0].summary.duration", is(707.2f))
+                .body("routes[0].summary.distance", is( 2496.8f))
+                .body("routes[0].summary.duration", is(1797.6f))
                 .statusCode(200);
     }
     
