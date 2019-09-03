@@ -202,6 +202,17 @@ class VirtualEdgeIterator implements EdgeIterator, CHEdgeIteratorState {
     }
 
     @Override
+    public String getConditional() {
+        return edges.get(current).getConditional();
+    }
+
+    @Override
+    public EdgeIteratorState setConditional(String name) {
+        return edges.get(current).setConditional(name);
+    }
+
+
+    @Override
     public String getName() {
         return edges.get(current).getName();
     }
@@ -210,7 +221,6 @@ class VirtualEdgeIterator implements EdgeIterator, CHEdgeIteratorState {
     public EdgeIteratorState setName(String name) {
         return edges.get(current).setName(name);
     }
-
     @Override
     public String toString() {
         if (current >= 0 && current < edges.size()) {

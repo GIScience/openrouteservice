@@ -286,6 +286,17 @@ public class WrapperGraph implements Graph {
             }
 
             @Override
+            public String getConditional() {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public EdgeIteratorState setConditional(String name) {
+                throw new UnsupportedOperationException();
+            }
+
+
+            @Override
             public EdgeIteratorState detach(boolean reverse) {
                 throw new UnsupportedOperationException();
             }
@@ -496,6 +507,17 @@ public class WrapperGraph implements Graph {
                     }
 
                     @Override
+                    public String getConditional() {
+                        return current.getConditional();
+                    }
+
+                    @Override
+                    public EdgeIteratorState setConditional(String name) {
+                        current.setConditional(name);
+                        return this;
+                    }
+
+                    @Override
                     public String getName() {
                         return current.getName();
                     }
@@ -505,6 +527,7 @@ public class WrapperGraph implements Graph {
                         current.setName(name);
                         return this;
                     }
+
 
                     @Override
                     public EdgeIteratorState detach(boolean reverse) {

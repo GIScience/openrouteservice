@@ -42,6 +42,7 @@ public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIterat
     private double distance;
     private IntsRef edgeFlags;
     private String name;
+    private String conditional;
     // true if edge should be avoided as start/stop
     private boolean unfavored;
     private EdgeIteratorState reverseEdge;
@@ -235,6 +236,16 @@ public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIterat
         return this;
     }
 
+    @Override
+    public String getConditional() {
+        return conditional;
+    }
+
+    @Override
+    public EdgeIteratorState setConditional(String conditional) {
+        this.conditional = conditional;
+        return this;
+    }
     /**
      * This method sets edge to unfavored status for routing from the start or to the stop location.
      */

@@ -24,4 +24,6 @@ public interface ConditionalTagInspector {
     boolean isRestrictedWayConditionallyPermitted(ReaderWay way);
 
     boolean isPermittedWayConditionallyRestricted(ReaderWay way);
+
+    String getTagValue();
 }

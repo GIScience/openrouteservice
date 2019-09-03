@@ -179,6 +179,11 @@ public interface EdgeIteratorState {
 
     EdgeIteratorState setName(String name);
 
+    String getConditional();
+
+    EdgeIteratorState setConditional(String name);
+
+
     /**
      * Clones this EdgeIteratorState.
      *

@@ -850,7 +850,17 @@ public class GraphHopper implements GraphHopperAPI {
             interpolateBridgesAndOrTunnels();
         }
 
+        AllEdgesIterator edges = ghStorage.getAllEdges();
+
+        while (edges.next()) {
+            String conditional = edges.getConditional();
+            if (!"".equals(conditional))
+                System.out.println(edges.getEdge() + ": " + conditional);
+        }
+
         initLocationIndex();
+
+
 
         if (chFactoryDecorator.isEnabled())
             chFactoryDecorator.createPreparations(ghStorage);

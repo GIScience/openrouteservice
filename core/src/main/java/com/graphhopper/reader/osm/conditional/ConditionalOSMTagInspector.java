@@ -37,6 +37,13 @@ public class ConditionalOSMTagInspector implements ConditionalTagInspector {
     // enabling by default makes noise but could improve OSM data
     private boolean enabledLogs = true;
 
+    private String val;
+
+    @Override
+    public String getTagValue() {
+        return val;
+    }
+
     public ConditionalOSMTagInspector(Object value, List<String> tagsToCheck,
                                       Set<String> restrictiveValues, Set<String> permittedValues) {
         this(tagsToCheck, Arrays.asList(new DateRangeParser((Calendar) value)), restrictiveValues, permittedValues, false);
@@ -79,7 +86,7 @@ public class ConditionalOSMTagInspector implements ConditionalTagInspector {
     protected boolean applies(ReaderWay way, boolean checkPermissiveValues) {
         for (int index = 0; index < tagsToCheck.size(); index++) {
             String tagToCheck = tagsToCheck.get(index);
-            String val = way.getTag(tagToCheck);
+            val = way.getTag(tagToCheck);
             if (val == null || val.isEmpty())
                 continue;
 

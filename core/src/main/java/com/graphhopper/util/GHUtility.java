@@ -688,6 +688,16 @@ public class GHUtility {
         }
 
         @Override
+        public String getConditional() {
+            throw new UnsupportedOperationException("Not supported. Edge is empty.");
+        }
+
+        @Override
+        public EdgeIteratorState setConditional(String name) {
+            throw new UnsupportedOperationException("Not supported. Edge is empty.");
+        }
+
+        @Override
         public int getAdditionalField() {
             throw new UnsupportedOperationException("Not supported. Edge is empty.");
         }
