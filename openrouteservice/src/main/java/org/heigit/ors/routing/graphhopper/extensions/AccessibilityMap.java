@@ -35,6 +35,12 @@ public class AccessibilityMap {
 
     }
 
+    public AccessibilityMap(IntObjectMap<SPTEntry> map, GHPoint3D snappedPosition) {
+
+        this(map, null, snappedPosition);
+
+    }
+
     public boolean isEmpty() {
         return map.size() == 0;
     }

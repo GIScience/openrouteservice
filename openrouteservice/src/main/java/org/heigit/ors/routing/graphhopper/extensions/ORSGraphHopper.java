@@ -38,6 +38,13 @@ import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import org.heigit.ors.fastisochrones.CellCoreEdgeFilter;
+import org.heigit.ors.fastisochrones.Contour;
+import org.heigit.ors.fastisochrones.Eccentricity;
+import org.heigit.ors.fastisochrones.IsochroneCoreAlgoFactoryDecorator;
+import org.heigit.ors.partitioning.CellStorage;
+import org.heigit.ors.partitioning.IsochroneNodeStorage;
+import org.heigit.ors.partitioning.PartitioningFactoryDecorator;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
@@ -52,6 +59,7 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.MaximumSpe
 import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.util.CoordTools;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,13 +79,15 @@ public class ORSGraphHopper extends GraphHopper {
 	private GraphProcessContext processContext;
 	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds; // one osm id can correspond to multiple edges
 	private HashMap<Integer, Long> tmcEdges;
+	private Eccentricity eccentricity;
 
 	private int minNetworkSize = 200;
 	private int minOneWayNetworkSize = 0;
 
 	private final CoreAlgoFactoryDecorator coreFactoryDecorator =  new CoreAlgoFactoryDecorator();
-
 	private final CoreLMAlgoFactoryDecorator coreLMFactoryDecorator = new CoreLMAlgoFactoryDecorator();
+	private final PartitioningFactoryDecorator partitioningFactoryDecorator = new PartitioningFactoryDecorator();
+	private final IsochroneCoreAlgoFactoryDecorator isochroneCoreAlgoFactoryDecorator = new IsochroneCoreAlgoFactoryDecorator();
 
 	private double maximumSpeedLowerBound;
 
@@ -564,6 +574,33 @@ public class ORSGraphHopper extends GraphHopper {
 			coreLMFactoryDecorator.createPreparations(gs, super.getLocationIndex());
 		loadOrPrepareCoreLM();
 
+		if(partitioningFactoryDecorator.isEnabled())
+			partitioningFactoryDecorator.createPreparations(gs);
+		if (!isPartitionPrepared())
+			preparePartition();
+		else{
+			partitioningFactoryDecorator.setExistingStorages();
+			partitioningFactoryDecorator.getCellStorage().loadExisting();
+			partitioningFactoryDecorator.getIsochroneNodeStorage().loadExisting();
+		}
+		//No fast isochrones without partition
+		if(isPartitionPrepared()) {
+		/* Initialize edge filter sequence for fast isochrones*/
+
+			EdgeFilterSequence isochroneCoreEdgeFilter = new EdgeFilterSequence();
+			isochroneCoreEdgeFilter.add(new CellCoreEdgeFilter(partitioningFactoryDecorator.getIsochroneNodeStorage()));
+
+			if (isochroneCoreAlgoFactoryDecorator.isEnabled())
+				isochroneCoreAlgoFactoryDecorator.createPreparations(gs, isochroneCoreEdgeFilter);
+			if (!isIsochroneCorePrepared())
+				prepareIsochroneCore();
+			for(Weighting weighting : isochroneCoreAlgoFactoryDecorator.getWeightings()){
+				for(FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
+					calculateCellProperties(weighting, encoder, TraversalMode.NODE_BASED, partitioningFactoryDecorator.getIsochroneNodeStorage(), partitioningFactoryDecorator.getCellStorage());
+				}
+			}
+		}
+
 	}
 
 
@@ -680,5 +717,101 @@ public class ORSGraphHopper extends GraphHopper {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Partitioning
+	 */
+	
+	public GraphHopper setPartitionEnabled(boolean enable) {
+		ensureNotLoaded();
+		partitioningFactoryDecorator.setEnabled(enable);
+		return this;
+	}
+
+	public final boolean isPartitionEnabled() {
+		return partitioningFactoryDecorator.isEnabled();
+	}
+
+	public final PartitioningFactoryDecorator getPartitioningFactoryDecorator() {
+		return partitioningFactoryDecorator;
+	}
+
+	protected void preparePartition() {
+		boolean tmpPrepare = partitioningFactoryDecorator.isEnabled();
+		if (tmpPrepare) {
+			ensureWriteAccess();
+
+			getGraphHopperStorage().freeze();
+			partitioningFactoryDecorator.prepare(getGraphHopperStorage().getProperties());
+			getGraphHopperStorage().getProperties().put(ORSParameters.Partition.PREPARE + "done", true);
+		}
+	}
+
+	private boolean isPartitionPrepared() {
+		return "true".equals(getGraphHopperStorage().getProperties().get(ORSParameters.Partition.PREPARE + "done"));
+	}
+
+	/**
+	 * Isochrone graph contraction - core based on bordernodes
+	 */
+
+	public GraphHopper setIsochroneCoreEnabled(boolean enable) {
+		ensureNotLoaded();
+		isochroneCoreAlgoFactoryDecorator.setEnabled(enable);
+		return this;
+	}
+
+	public final boolean isIsochroneCoreEnabled() {
+		return isochroneCoreAlgoFactoryDecorator.isEnabled();
+	}
+
+	public void initIsochroneCoreAlgoFactoryDecorator() {
+		if (!isochroneCoreAlgoFactoryDecorator.hasWeightings()) {
+			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
+				for (String coreWeightingStr : isochroneCoreAlgoFactoryDecorator.getWeightingsAsStrings()) {
+					// ghStorage is null at this point
+					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), encoder, null);
+					isochroneCoreAlgoFactoryDecorator.addWeighting(weighting);
+				}
+			}
+		}
+	}
+	public final IsochroneCoreAlgoFactoryDecorator getIsochroneCoreFactoryDecorator() {
+		return isochroneCoreAlgoFactoryDecorator;
+	}
+
+	protected void prepareIsochroneCore() {
+		boolean tmpPrepare = isochroneCoreAlgoFactoryDecorator.isEnabled();
+		if (tmpPrepare) {
+			ensureWriteAccess();
+
+			getGraphHopperStorage().freeze();
+			isochroneCoreAlgoFactoryDecorator.prepare(getGraphHopperStorage().getProperties());
+			getGraphHopperStorage().getProperties().put(ORSParameters.IsoCore.PREPARE + "done", true);
+		}
+	}
+
+	private void calculateCellProperties(Weighting weighting, FlagEncoder flagEncoder, TraversalMode traversalMode, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage){
+		//>> Eccentricities
+//		Eccentricity ecc = getEccentricity();
+		Eccentricity ecc = new Eccentricity(getGraphHopperStorage());
+		if(!ecc.loadExisting(weighting)) {
+			ecc.calcEccentricities(getGraphHopperStorage(), getGraphHopperStorage().getBaseGraph(), weighting, flagEncoder, traversalMode, isochroneNodeStorage, cellStorage);
+			Contour contour = new Contour(getGraphHopperStorage(), getGraphHopperStorage().getNodeAccess(), this.getLocationIndex(), isochroneNodeStorage, cellStorage);
+			contour.calcCellContourPre();
+		}
+		this.eccentricity = ecc;
+	}
+
+	private boolean isIsochroneCorePrepared() {
+		return "true".equals(getGraphHopperStorage().getProperties().get(ORSParameters.IsoCore.PREPARE + "done"))
+				// remove old property in >0.9
+				|| "true".equals(getGraphHopperStorage().getProperties().get("prepare.done"));
+	}
+
+
+	public Eccentricity getEccentricity(){
+		return this.eccentricity;
 	}
 }
