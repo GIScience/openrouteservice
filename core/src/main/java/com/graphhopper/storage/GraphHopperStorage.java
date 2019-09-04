@@ -183,6 +183,18 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         throw new IllegalStateException("No core graph was found");
     }
 
+    public CHGraphImpl getIsochroneGraph(Weighting weighting) {
+        if (chGraphs.isEmpty())
+            throw new IllegalStateException("Cannot find graph implementation");
+        Iterator<CHGraphImpl> iterator = chGraphs.iterator();
+        while(iterator.hasNext()){
+            CHGraphImpl cg = iterator.next();
+            if(cg.getType() == "isocore" && cg.getWeighting().getName() == weighting.getName() && cg.getWeighting().getFlagEncoder().toString() == weighting.getFlagEncoder().toString())
+                return cg;
+        }
+        throw new IllegalStateException("No isochrone graph was found");
+    }
+
     // ORS-GH MOD END
     public boolean isCHPossible() {
         return !chGraphs.isEmpty();
