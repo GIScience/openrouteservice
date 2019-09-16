@@ -13,14 +13,13 @@
  */
 package org.heigit.ors.servlet.http;
 
+import org.apache.log4j.Logger;
 import org.heigit.ors.exceptions.InternalServerException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 
 public abstract class AbstractHttpRequestProcessor implements HttpRequestProcessor {
-    protected static Logger logger = LoggerFactory.getLogger(AbstractHttpRequestProcessor.class);
+    protected static Logger logger = Logger.getLogger(AbstractHttpRequestProcessor.class);
 
     protected HttpServletRequest request;
 

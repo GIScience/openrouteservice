@@ -16,9 +16,12 @@ package org.heigit.ors.util;
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class PolylineEncoder {
-	public static String encode(final Coordinate[] coords, boolean includeElevation, StringBuffer buffer) {
-		long lat, lon;
-	    long prevLat = 0;
+	private PolylineEncoder() {}
+
+	public static String encode(final Coordinate[] coords, boolean includeElevation, StringBuilder buffer) {
+		long lat;
+		long lon;
+		long prevLat = 0;
 	    long prevLon = 0;
 	    long elev = 0;
 	    long prevEle = 0;
@@ -46,7 +49,7 @@ public class PolylineEncoder {
 	    return buffer.toString();
 	}
 		
-	private static void encode(long v, StringBuffer buffer) {
+	private static void encode(long v, StringBuilder buffer) {
 	    v = v < 0 ? ~(v << 1) : v << 1;
 	    
 	    while (v >= 0x20) 

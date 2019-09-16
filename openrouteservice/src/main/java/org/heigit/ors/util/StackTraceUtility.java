@@ -13,6 +13,8 @@
  */
 package org.heigit.ors.util;
 
+import org.apache.log4j.Logger;
+
 import java.io.*;
 
 /**
@@ -20,6 +22,7 @@ import java.io.*;
 * exception as a String.
 */
 public final class StackTraceUtility {
+  private static final Logger LOGGER = Logger.getLogger(StackTraceUtility.class.getName());
 
   public static String getStackTrace(Throwable aThrowable) {
     final Writer result = new StringWriter();
@@ -49,7 +52,7 @@ public final class StackTraceUtility {
   /** Demonstrate output.  */
   public static void main (String... aArguments){
     final Throwable throwable = new IllegalArgumentException("Blah");
-    System.out.println( getStackTrace(throwable) );
-    System.out.println( getCustomStackTrace(throwable) );
+    LOGGER.info(getStackTrace(throwable));
+    LOGGER.info(getCustomStackTrace(throwable));
   }
 } 

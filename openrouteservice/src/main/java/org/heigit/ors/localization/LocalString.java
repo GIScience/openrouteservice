@@ -14,21 +14,21 @@
 package org.heigit.ors.localization;
 
 public class LocalString {
-	private Language _language; 
-	private String _string; 
+	private Language language;
+	private String string;
 
 	public LocalString(Language language, String string) 
 	{ 
-		this._language = language; 
-		this._string = string; 
+		this.language = language;
+		this.string = string;
 	} 
 
 	public Language getLanguage() { 
-		return _language; 
+		return language;
 	} 
 
 	public String getString() { 
-		return _string; 
+		return string;
 	} 
 
 	@Override 
@@ -38,22 +38,22 @@ public class LocalString {
 
 		LocalString that = (LocalString) o; 
 
-		return _language.equals(that._language) && _string.equals(that._string); 
+		return language.equals(that.language) && string.equals(that.string);
 
 	} 
 
 	@Override 
 	public int hashCode() { 
-		int result = _language.hashCode(); 
-		result = 31 * result + _string.hashCode(); 
+		int result = language.hashCode();
+		result = 31 * result + string.hashCode();
 		return result; 
 	} 
 
 	@Override 
 	public String toString() { 
 		return "LocalString{" + 
-				"language=" + _language + 
-				", string='" + _string + '\'' + 
+				"language=" + language +
+				", string='" + string + '\'' +
 				'}'; 
 	} 
 }

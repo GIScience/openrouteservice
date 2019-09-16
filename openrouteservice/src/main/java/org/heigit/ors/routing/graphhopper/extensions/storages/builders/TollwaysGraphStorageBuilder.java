@@ -27,38 +27,38 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStora
 
 public class TollwaysGraphStorageBuilder extends AbstractGraphStorageBuilder
 {
-	private TollwaysGraphStorage _storage;
-	private int _tollways;
-	private List<String> _tollTags = new ArrayList<String>(6);
+	private TollwaysGraphStorage storage;
+	private int tollways;
+	private List<String> tollTags = new ArrayList<>(6);
 	
 	public TollwaysGraphStorageBuilder() {
 		// Currently consider only toll tags relevant to cars or hgvs:
-		_tollTags.addAll(Arrays.asList("toll", "toll:hgv", "toll:N1", "toll:N2", "toll:N3",  "toll:motorcar"));
+		tollTags.addAll(Arrays.asList("toll", "toll:hgv", "toll:N1", "toll:N2", "toll:N3",  "toll:motorcar"));
 	}
 
 	public GraphExtension init(GraphHopper graphhopper) throws Exception {
-		if (_storage != null)
+		if (storage != null)
 			throw new Exception("GraphStorageBuilder has been already initialized.");
 
-		_storage = new TollwaysGraphStorage();
+		storage = new TollwaysGraphStorage();
 
-		return _storage;
+		return storage;
 	}
 
 	public void processWay(ReaderWay way) {
-		_tollways = TollwayType.None;
+		tollways = TollwayType.NONE;
 
-		for (String key : _tollTags) {
+		for (String key : tollTags) {
 			if (way.hasTag(key)) {
 				String value = way.getTag(key);
 
 				if (value != null) {
 					switch(key) {
 						case "toll":
-							setFlag(TollwayType.General, value);
+							setFlag(TollwayType.GENERAL, value);
 							break;
 						case "toll:hgv":
-							setFlag(TollwayType.Hgv, value);
+							setFlag(TollwayType.HGV, value);
 							break;
 						case "toll:N1": //currently not used in OSM
 							setFlag(TollwayType.N1, value);
@@ -70,7 +70,8 @@ public class TollwaysGraphStorageBuilder extends AbstractGraphStorageBuilder
 							setFlag(TollwayType.N3, value);
 							break;
 						case "toll:motorcar":
-							setFlag(TollwayType.Motorcar, value);
+							setFlag(TollwayType.MOTORCAR, value);
+							break;
 						default:
 							break;
 					}
@@ -83,16 +84,17 @@ public class TollwaysGraphStorageBuilder extends AbstractGraphStorageBuilder
 	private void setFlag(int flag, String value) {
 		switch(value) {
 			case "yes":
-				_tollways |= flag;
+				tollways |= flag;
 				break;
 			case "no":
-				_tollways &= ~flag;
+				tollways &= ~flag;
 				break;
+			default:
 		}
 	}
 
 	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
-		_storage.setEdgeValue(edge.getEdge(), _tollways);
+		storage.setEdgeValue(edge.getEdge(), tollways);
 	}
 
 	@Override

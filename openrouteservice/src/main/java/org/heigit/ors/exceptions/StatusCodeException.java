@@ -13,49 +13,41 @@
  */
 package org.heigit.ors.exceptions;
 
-public class StatusCodeException extends Exception 
-{
+public class StatusCodeException extends Exception  {
 	private static final long serialVersionUID = 5306540089149750357L;
 	
-	private int _statusCode = 200;
-	private int _internalCode = 0;
+	private int statusCode = 200;
+	private int internalCode = 0;
    
-	public StatusCodeException(int statusCode, int internalCode)
-	{
+	public StatusCodeException(int statusCode, int internalCode) {
 		super();
-		_statusCode = statusCode;
-		_internalCode = internalCode;
+		this.statusCode = statusCode;
+		this.internalCode = internalCode;
 	}
 	
-	public StatusCodeException(int statusCode)
-	{
+	public StatusCodeException(int statusCode) {
 		super();
-		
-		_statusCode = statusCode;
+		this.statusCode = statusCode;
 	}
 	
-	public StatusCodeException(int statusCode, String message)
-	{
+	public StatusCodeException(int statusCode, String message) {
 		super(message);
-		
-		_statusCode = statusCode;
+		this.statusCode = statusCode;
 	}
 	
-	public StatusCodeException(int statusCode, int internalCode, String message)
-	{
+	public StatusCodeException(int statusCode, int internalCode, String message) {
 		super(message);
-		
-		_statusCode = statusCode;
-		_internalCode = internalCode;
+		this.statusCode = statusCode;
+		this.internalCode = internalCode;
 	}
 	
 	public int getStatusCode()
 	{
-		return _statusCode;
+		return statusCode;
 	}
 	
 	public int getInternalCode()
 	{
-		return _internalCode;
+		return internalCode;
 	}
 }

@@ -17,43 +17,51 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 import org.heigit.ors.routing.RouteSearchParameters;
 
-public class TravellerInfo 
-{
-	private String _id = "0";
-	private Coordinate _location;
-	private String _locationType = "start"; // either start or destination
-	private double[] _ranges;
-	private TravelRangeType _rangeType = TravelRangeType.Time;
-	private RouteSearchParameters _routeSearchParams;
+public class TravellerInfo  {
+	private String id = "0";
+	private Coordinate location;
+	private String locationType = "start"; // either start or destination
+	private double[] ranges;
+	private TravelRangeType rangeType = TravelRangeType.TIME;
+	private RouteSearchParameters routeSearchParams;
 	
 	public TravellerInfo()
 	{
-		_routeSearchParams = new RouteSearchParameters();
+		routeSearchParams = new RouteSearchParameters();
+	}
+
+	public TravellerInfo(TravellerInfo old) {
+		this.id = old.id;
+		this.location = old.location;
+		this.locationType = old.locationType;
+		this.ranges = old.ranges;
+		this.rangeType = old.rangeType;
+		this.routeSearchParams = old.routeSearchParams;
 	}
 
 	public String getId() 
 	{
-		return _id;
+		return id;
 	}
 
 	public void setId(String id) 
 	{
-		_id = id;
+		this.id = id;
 	}
 
 	public Coordinate getLocation() 
 	{
-		return _location;
+		return location;
 	}
 
 	public void setLocation(Coordinate location) 
 	{
-		_location = location;
+		this.location = location;
 	}
 
 	public double[] getRanges() 
 	{
-		return _ranges;
+		return ranges;
 	}
 
 	/**
@@ -66,35 +74,32 @@ public class TravellerInfo
 
 	public double[] getRangesInUnit(String unit){
 		// convert ranges from meters to user specified unit
-		double[] rangesInUnit = new double[_ranges.length];
+		double[] rangesInUnit = new double[ranges.length];
 
-		if (!(unit == null || "m".equalsIgnoreCase(unit)))
-		{
+		if (!(unit == null || "m".equalsIgnoreCase(unit))) {
 			double scale = 1.0;
-			if (_rangeType == TravelRangeType.Distance)
-			{
-				switch(unit)
-				{
-					case "m":
-						break;
+			if (rangeType == TravelRangeType.DISTANCE) {
+				switch(unit) {
 					case "km":
 						scale = 1/1000.0;
 						break;
 					case "mi":
 						scale = 1/1609.34;
 						break;
+					default:
+					case "m":
+						break;
 				}
 			}
 
-			if (scale != 1.0)
-			{
-				for (int i = 0; i < _ranges.length; i++)
-					rangesInUnit[i] = _ranges[i]*scale;
+			if (scale != 1.0) {
+				for (int i = 0; i < ranges.length; i++)
+					rangesInUnit[i] = ranges[i]*scale;
 				return rangesInUnit;
 			}
-			return _ranges;
+			return ranges;
 		}
-		return _ranges;
+		return ranges;
 	}
 
 	public void setRanges(double range, double interval) {
@@ -102,23 +107,22 @@ public class TravellerInfo
 			range = interval;
 
 		int nRanges = (int) Math.ceil(range / interval);
-		_ranges = new double[nRanges];
+		ranges = new double[nRanges];
 		for (int i = 0; i < nRanges - 1; i++) 
-			_ranges[i] = (i + 1) * interval;
+			ranges[i] = (i + 1) * interval;
 
-		_ranges[nRanges - 1]= range;
+		ranges[nRanges - 1]= range;
 	}
 
 	public void setRanges(double[] ranges) 
 	{
-		_ranges = ranges;
+		this.ranges = ranges;
 	}
 	
 	public double getMaximumRange() {
 		double maxRange = Double.MIN_VALUE;
 		
-		for(double range : _ranges)
-		{
+		for(double range : ranges) {
 			if (maxRange < range)
 				maxRange = range;
 		}
@@ -128,42 +132,28 @@ public class TravellerInfo
 
 	public TravelRangeType getRangeType() 
 	{
-		return _rangeType;
+		return rangeType;
 	}
 
 	public void setRangeType(TravelRangeType rangeType) 
 	{
-		_rangeType = rangeType;
+		this.rangeType = rangeType;
 	}
 
 	public RouteSearchParameters getRouteSearchParameters()
 	{
-		return _routeSearchParams;
+		return routeSearchParams;
 	}
 
-	public void setRouteSearchParameters(RouteSearchParameters routeSearchParams)
-	{
-		_routeSearchParams = routeSearchParams;
+	public void setRouteSearchParameters(RouteSearchParameters routeSearchParams) {
+		this.routeSearchParams = routeSearchParams;
 	}
 
 	public String getLocationType() {
-		return _locationType;
+		return locationType;
 	}
 
 	public void setLocationType(String locationType) {
-		this._locationType = locationType;
-	}
-	
-	public TravellerInfo clone()
-	{
-		TravellerInfo res = new TravellerInfo();
-		res._id = res._id;
-		res._location = null;
-		res._locationType = _locationType;
-		res._ranges = _ranges;
-		res._rangeType = _rangeType;
-		res._routeSearchParams = _routeSearchParams;
-		
-		return res;
+		this.locationType = locationType;
 	}
 }

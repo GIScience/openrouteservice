@@ -27,78 +27,64 @@ import org.heigit.ors.util.UnitsConverter;
 import org.heigit.ors.common.Pair;
 
 public class IsochronesIntersection {
-	private Geometry _geometry;
-	private Envelope _envelope;
-	private double _area = 0.0;
-	private List<Pair<Integer, Integer>> _contourRefs;
+	private Geometry geometry;
+	private Envelope envelope;
+	private double area = 0.0;
+	private List<Pair<Integer, Integer>> contourRefs;
 
-	public IsochronesIntersection(Geometry geometry)
-	{
-		_geometry = geometry;
-		_contourRefs = new ArrayList<Pair<Integer, Integer>>();
+	public IsochronesIntersection(Geometry geometry) {
+		this.geometry = geometry;
+		contourRefs = new ArrayList<>();
 	}
 
 	public List<Pair<Integer, Integer>> getContourRefs()
 	{
-		return _contourRefs;
+		return contourRefs;
 	}
 
 	public void addContourRefs(Pair<Integer, Integer> ref)
 	{
-		_contourRefs.add(ref);
+		contourRefs.add(ref);
 	}
 
 	public void addContourRefs(Collection<Pair<Integer, Integer>> refs)
 	{
-		_contourRefs.addAll(refs);
+		contourRefs.addAll(refs);
 	}
 
 	public Geometry getGeometry()
 	{
-		return _geometry;
+		return geometry;
 	}
 
-	public double getArea(String units) throws InternalServerException
-	{
-		double area = getArea(true);
-
-		if (units != null)
-		{
-			switch(units)
-			{
+	public double getArea(String units) throws InternalServerException {
+		if (area == 0.0) {
+			area = FormatUtility.roundToDecimals(GeomUtility.getArea(geometry, true), 2);
+		}
+		if (units == null)
+			units = "m";
+		switch(units) {
+			default:
 			case "m":
 				return area;
 			case "mi":
-				return UnitsConverter.SqMetersToSqMiles(_area);
+				return UnitsConverter.sqMetersToSqMiles(this.area);
 			case "km":
-				return UnitsConverter.SqMetersToSqKilometers(_area); 
-			}
+				return UnitsConverter.sqMetersToSqKilometers(this.area);
 		}
-
-		return area;
 	}
 
-	public double getArea(Boolean inMeters) throws InternalServerException {
-		if (_area == 0.0) {
-			_area = FormatUtility.roundToDecimals(GeomUtility.getArea(_geometry, inMeters), 2);
-		}
-
-		return _area;
-	}
-
-	public boolean intersects(IsochronesIntersection other)
-	{
+	public boolean intersects(IsochronesIntersection other) {
 		if (!getEnvelope().intersects(other.getEnvelope()))
 			return false;
 
-		return _geometry.intersects(other._geometry);
+		return geometry.intersects(other.geometry);
 	}
 
-	public Envelope getEnvelope()
-	{
-		if(_envelope == null)
-			_envelope = _geometry.getEnvelopeInternal();
+	public Envelope getEnvelope() {
+		if(envelope == null)
+			envelope = geometry.getEnvelopeInternal();
 
-		return _envelope;
+		return envelope;
 	}
 }

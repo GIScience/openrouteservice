@@ -14,112 +14,104 @@
 package org.heigit.ors.matrix;
 
 import com.vividsolutions.jts.geom.Coordinate;
-
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.services.ServiceRequest;
 
-public class MatrixRequest extends ServiceRequest
-{
-	private int _profileType = -1;
-	private Coordinate[] _sources;
-	private Coordinate[] _destinations;
-	private int _metrics =  MatrixMetricsType.Duration;
-	private String _weightingMethod; 
-	private DistanceUnit _units = DistanceUnit.METERS;
-	private boolean _resolveLocations = false;
-	private boolean _flexibleMode = false;
-	private String _algorithm;
-
-	public MatrixRequest()
-	{
-
-	}
+public class MatrixRequest extends ServiceRequest {
+	private int profileType = -1;
+	private Coordinate[] sources;
+	private Coordinate[] destinations;
+	private int metrics =  MatrixMetricsType.DURATION;
+	private String weightingMethod;
+	private DistanceUnit units = DistanceUnit.METERS;
+	private boolean resolveLocations = false;
+	private boolean flexibleMode = false;
+	private String algorithm;
 
 	public Coordinate[] getSources()
 	{
-		return _sources;
+		return sources;
 	}
 
-	public void setSources(Coordinate[] sources)
-	{
-		_sources = sources;
+	public void setSources(Coordinate[] sources) {
+		this.sources = sources;
 	}
 
 	public Coordinate[] getDestinations()
 	{
-		return _destinations;
+		return destinations;
 	}    
 
 	public void setDestinations(Coordinate[] destinations)
 	{
-		_destinations = destinations;
+		this.destinations = destinations;
 	}
 
 	public int getMetrics() {
-		return _metrics;
+		return metrics;
 	}
 
 	public void setMetrics(int metrics) 
 	{
-		_metrics = metrics;
+		this.metrics = metrics;
 	}
 
 	public boolean getResolveLocations() 
 	{
-		return _resolveLocations;
+		return resolveLocations;
 	}
 
 	public void setResolveLocations(boolean resolveLocations) 
 	{
-		_resolveLocations = resolveLocations;
+		this.resolveLocations = resolveLocations;
 	}
 
 	public int getProfileType() {
-		return _profileType;
+		return profileType;
 	}
 
 	public void setProfileType(int profile) {
-		_profileType = profile;
+		profileType = profile;
 	}
 
 	public DistanceUnit getUnits() {
-		return _units;
+		return units;
 	}
 
 	public void setUnits(DistanceUnit units) {
-		_units = units;
+		this.units = units;
 	}
 
 	public int getTotalNumberOfLocations()
 	{
-		return _destinations.length * _sources.length;
+		return destinations.length * sources.length;
 	}
 
 	public String getWeightingMethod() {
-		return _weightingMethod;
+		return weightingMethod;
 	}
 
 	public void setWeightingMethod(String weighting) {
-		_weightingMethod = weighting;
+		weightingMethod = weighting;
 	}
 
 	public boolean getFlexibleMode() {
-		return _flexibleMode;
+		return flexibleMode;
 	}
 
 	public void setFlexibleMode(boolean flexibleMode) {
-		this._flexibleMode = flexibleMode;
+		this.flexibleMode = flexibleMode;
 	}
 
 	public String getAlgorithm() {
-		return _algorithm;
+		return algorithm;
 	}
 
-	public void setAlgorithm(String _algorithm) {
-		this._algorithm = _algorithm;
+	public void setAlgorithm(String algorithm) {
+		this.algorithm = algorithm;
 	}
 
 	public boolean isValid(){
-		return !(_sources == null && _destinations == null);
+		return !(sources == null && destinations == null);
 	}
 }

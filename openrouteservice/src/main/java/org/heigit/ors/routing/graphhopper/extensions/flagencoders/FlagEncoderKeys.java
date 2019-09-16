@@ -1,7 +1,8 @@
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-public interface FlagEncoderKeys {
+public class FlagEncoderKeys {
 
     public static final String PRIORITY_KEY = "priority";
 
+    private FlagEncoderKeys() {}
 }

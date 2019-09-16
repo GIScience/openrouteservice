@@ -20,58 +20,55 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IsochroneMap {
-	private int _travellerId;
-	private Envelope _envelope;
-	private List<Isochrone> _isochrones;
-	private Coordinate _center;
+	private int travellerId;
+	private Envelope envelope;
+	private List<Isochrone> isochrones;
+	private Coordinate center;
 
-    public IsochroneMap(int travellerId, Coordinate center)
-	{
-		_travellerId = travellerId;
-		_center = center;
-		_isochrones = new ArrayList<Isochrone>();
-		_envelope = new Envelope();
+    public IsochroneMap(int travellerId, Coordinate center) {
+		this.travellerId = travellerId;
+		this.center = center;
+		isochrones = new ArrayList<>();
+		envelope = new Envelope();
 	}
 	
 	public int getTravellerId()
 	{
-		return _travellerId;
+		return travellerId;
 	}
 
 	public boolean isEmpty()
 	{
-		return _isochrones.size() == 0;
+		return isochrones.isEmpty();
 	}
 
 	public Coordinate getCenter() 
 	{
-		return _center;
+		return center;
 	}
-
 
     public Iterable<Isochrone> getIsochrones()
 	{
-		return _isochrones;
+		return isochrones;
 	}
 	
 	public int getIsochronesCount()
 	{
-		return _isochrones.size();
+		return isochrones.size();
 	}
 
 	public Isochrone getIsochrone(int index)
 	{
-		return _isochrones.get(index);
+		return isochrones.get(index);
 	}
 
-	public void addIsochrone(Isochrone isochrone)
-	{
-		_isochrones.add(isochrone);
-		_envelope.expandToInclude(isochrone.getGeometry().getEnvelopeInternal());
+	public void addIsochrone(Isochrone isochrone) {
+		isochrones.add(isochrone);
+		envelope.expandToInclude(isochrone.getGeometry().getEnvelopeInternal());
 	}
 
 	public Envelope getEnvelope()
 	{
-		return _envelope;
+		return envelope;
 	}
 }

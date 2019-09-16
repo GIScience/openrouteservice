@@ -3,10 +3,10 @@ package org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessor
 import com.graphhopper.reader.ReaderWay;
 
 public abstract class Way {
-    protected ReaderWay way;
+    protected ReaderWay readerWay;
 
     public ReaderWay getReaderWay() {
-        return this.way;
+        return this.readerWay;
     }
 
     /**

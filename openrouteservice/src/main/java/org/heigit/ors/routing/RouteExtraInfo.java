@@ -26,12 +26,11 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.WarningGraphExtens
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.FormatUtility;
 
-public class RouteExtraInfo 
-{
-    private String _name;
-    private List<RouteSegmentItem> _segments;
-    private double _factor = 1.0;
-    private boolean _usedForWarnings = false;
+public class RouteExtraInfo {
+    private String name;
+    private List<RouteSegmentItem> segments;
+    private double factor = 1.0;
+    private boolean usedForWarnings = false;
     private WarningGraphExtension warningGraphExtension;
     
     public RouteExtraInfo(String name)
@@ -47,58 +46,52 @@ public class RouteExtraInfo
 	 *                      see if it is of type {@Link org.heigit.ors.routing.graphhopper.extensions.storages.WarningGraphExtension}.
 	 *
 	 */
-	public RouteExtraInfo(String name, GraphExtension extension)
-	{
-		_name = name;
-		_segments = new ArrayList<>();
+	public RouteExtraInfo(String name, GraphExtension extension) {
+		this.name = name;
+		segments = new ArrayList<>();
 		if(extension instanceof WarningGraphExtension) {
 			warningGraphExtension = (WarningGraphExtension) extension;
-			_usedForWarnings = true;
+			usedForWarnings = true;
 		}
 	}
     
     public String getName()
     {
-    	return _name;
+    	return name;
     }
     
     public boolean isEmpty()
     {
-    	return _segments.isEmpty();
+    	return segments.isEmpty();
     }
     
     public void add(RouteSegmentItem item)
     {
-    	_segments.add(item);
+    	segments.add(item);
     }    
 
 	public List<RouteSegmentItem> getSegments()
 	{
-		return _segments;
+		return segments;
 	}
 	
 	public List<ExtraSummaryItem> getSummary(DistanceUnit units, double routeDistance, boolean sort) throws StatusCodeException {
-		List<ExtraSummaryItem> summary = new ArrayList<ExtraSummaryItem>();
+		List<ExtraSummaryItem> summary = new ArrayList<>();
 		
-		if (_segments.size() > 0)
-		{
-			Comparator<ExtraSummaryItem> comp = (ExtraSummaryItem a, ExtraSummaryItem b) -> {
-			    return Double.compare(b.getAmount(), a.getAmount());
-			};
+		if (!segments.isEmpty()) {
+			Comparator<ExtraSummaryItem> comp = (ExtraSummaryItem a, ExtraSummaryItem b) -> Double.compare(b.getAmount(), a.getAmount());
 
 			double totalDist = 0.0;
 
-			Map<Double, Double> stats = new HashMap<Double, Double>();
+			Map<Double, Double> stats = new HashMap<>();
 			
-			for (RouteSegmentItem seg : _segments) 
-			{
-				Double scaledValue = seg.getValue()/_factor;
+			for (RouteSegmentItem seg : segments) {
+				Double scaledValue = seg.getValue()/ factor;
 				Double value = stats.get(scaledValue);
 				
 				if (value == null)
 					stats.put(scaledValue, seg.getDistance());
-				else
-				{
+				else {
 					value += seg.getDistance();
 					stats.put(scaledValue, value);
 				}
@@ -106,8 +99,7 @@ public class RouteExtraInfo
 				totalDist += seg.getDistance();
 			}
 			
-			if (totalDist != 0.0)
-			{
+			if (totalDist != 0.0) {
 				int unitDecimals = FormatUtility.getUnitDecimals(units);
 				// Some extras such as steepness might provide inconsistent distance values caused by multiple rounding. 
 				// Therefore, we try to scale distance so that their sum equals to the whole distance of a route  
@@ -133,15 +125,15 @@ public class RouteExtraInfo
 	}
 
 	public double getFactor() {
-		return _factor;
+		return factor;
 	}
 
-	public void setFactor(double _factor) {
-		this._factor = _factor;
+	public void setFactor(double factor) {
+		this.factor = factor;
 	}
 
 	public boolean isUsedForWarnings() {
-    	return  _usedForWarnings;
+    	return usedForWarnings;
     }
 
     public WarningGraphExtension getWarningGraphExtension() {

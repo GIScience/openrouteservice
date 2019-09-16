@@ -45,6 +45,7 @@ import org.json.simple.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class RouteRequestHandler extends GenericHandler {
     public RouteRequestHandler() {
@@ -169,9 +170,9 @@ public class RouteRequestHandler extends GenericHandler {
             if (alternativeRoutes.hasTargetCount())
                 params.setAlternativeRoutesCount(alternativeRoutes.getTargetCount());
             if (alternativeRoutes.hasWeightFactor())
-                params.set_alternativeRoutesWeightFactor(alternativeRoutes.getWeightFactor());
+                params.setAlternativeRoutesWeightFactor(alternativeRoutes.getWeightFactor());
             if (alternativeRoutes.hasShareFactor())
-                params.set_alternativeRoutesShareFactor(alternativeRoutes.getShareFactor());
+                params.setAlternativeRoutesShareFactor(alternativeRoutes.getShareFactor());
         }
 
         params.setConsiderTurnRestrictions(false);
@@ -386,26 +387,20 @@ public class RouteRequestHandler extends GenericHandler {
     }
 
     private  double[] convertMaxRadii(Double[] radiiIn, int coordinatesLength, int profileType) throws ParameterValueException {
-        double[] maxRadii = new double[coordinatesLength];
         if(radiiIn != null) {
             if(radiiIn.length != coordinatesLength)
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_RADII, Arrays.toString(radiiIn), "The number of radius pairs must be equal to the number of waypoints on the route.");
-            for(int i=0; i<coordinatesLength; i++) {
-                maxRadii[i] = radiiIn[i];
-            }
+            return Stream.of(radiiIn).mapToDouble(Double::doubleValue).toArray();
         } else if(profileType == RoutingProfileType.WHEELCHAIR) {
             // As there are generally less ways that can be used as pedestrian ways, we need to restrict search
             // radii else we end up with starting and ending ways really far from the actual points. This is
             // especially a problem for wheelchair users as the restrictions are stricter
-
-            for(int i=0; i<coordinatesLength; i++) {
-                maxRadii[i] = 50;
-            }
+            double[] maxRadii = new double[coordinatesLength];
+            Arrays.fill(maxRadii, 50);
+            return maxRadii;
         } else {
             return new double[0];
         }
-
-        return maxRadii;
     }
 
     private  String[] convertAttributes(APIEnums.Attributes[] attributes) {

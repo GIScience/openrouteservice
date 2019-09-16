@@ -22,30 +22,21 @@ import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStorage;
 
-public class SteepnessDifficultyWeighting extends FastestWeighting
-{
+public class SteepnessDifficultyWeighting extends FastestWeighting {
     
 	private HillIndexGraphStorage gsHillIndex;
 	private byte[] buffer;
 	private double[] difficultyWeights;
-	
-	private static double BIKE_DIFFICULTY_MATRIX[][];
-	//private static double HIKE_DIFFICULTY_MATRIX[][];
-	
-	static 
-	{
-		BIKE_DIFFICULTY_MATRIX = new double[4][20];
-		//HIKE_DIFFICULTY_MATRIX = new double[4][20];
-		
-		for (int d = 0; d <= 3; d++)
-		{
-			double[] bikeDifficultyWeights = BIKE_DIFFICULTY_MATRIX[d];
-			//double[] hikeDifficultyWeights = HIKE_DIFFICULTY_MATRIX[d];
+	private static final double[][] BIKE_DIFFICULTY_MATRIX;
 
-			for (int i = 0; i < 20; i++)
-			{
-				if (d == 0)
-				{
+	static  {
+		BIKE_DIFFICULTY_MATRIX = new double[4][20];
+
+		for (int d = 0; d <= 3; d++) {
+			double[] bikeDifficultyWeights = BIKE_DIFFICULTY_MATRIX[d];
+
+			for (int i = 0; i < 20; i++) {
+				if (d == 0) {
 					// BIKE 
 					if (i <= 0)
 						bikeDifficultyWeights[i] = 0.5;
@@ -67,13 +58,9 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
 						bikeDifficultyWeights[i] = 4;
 					else if (i == 9)
 						bikeDifficultyWeights[i] = 5;
-					else //if (i >= 6)
+					else
 						bikeDifficultyWeights[i] = 6 + 0.5*i;
-
-					// HIKE
-				}
-				else if (d == 1)
-				{
+				} else if (d == 1) {
 					if (i <= 0)
 						bikeDifficultyWeights[i] = 0.7;
 					else if(i == 1)
@@ -98,11 +85,7 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
 						bikeDifficultyWeights[i] = 5;
 					else 
 						bikeDifficultyWeights[i] = 6 + 0.5*i;
-					
-					// HIKE
-				}
-				else if (d ==2)
-				{
+				} else if (d == 2) {
 					if (i <= 0)
 						bikeDifficultyWeights[i] = 1.6;
 					else if(i == 1)
@@ -135,11 +118,7 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
 						bikeDifficultyWeights[i] = 5;
 					else 
 						bikeDifficultyWeights[i] = 6 + 0.1*i;
-					
-					// HIKE
-				}
-				else if (d ==3)
-				{
+				} else {
 					if (i <= 0)
 						bikeDifficultyWeights[i] = 1.6;
 					else if(i == 1)
@@ -174,51 +153,46 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
 						bikeDifficultyWeights[i] = 6;
 					else 
 						bikeDifficultyWeights[i] = 6 + 0.1*i;
-					
-					// HIKE
 				}
 			}
-			
 			// TODO create its own weights for hike/pedestrian profiles
-			//hikeDifficultyWeights = bikeDifficultyWeights;
 		}
 	}
 
-    public SteepnessDifficultyWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage)
-    {
+    public SteepnessDifficultyWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
         super(encoder, map);
-        
         buffer = new byte[1];
-
 	    int difficultyLevel = map.getInt("level", -1);
-
         gsHillIndex = GraphStorageUtils.getGraphExtension(graphStorage, HillIndexGraphStorage.class);
-        
-        if (gsHillIndex != null)
-        {
-        	if (difficultyLevel >= 0)
-        	{
-        		//String name = encoder.toString();
-        		/*if (name.equals("hike") || name.equals("hike2") || name.equals("foot"))
-        			difficultyWeights = HIKE_DIFFICULTY_MATRIX[difficultyLevel];
-        		else*/
-        			difficultyWeights = BIKE_DIFFICULTY_MATRIX[difficultyLevel];
-        	}
+        if (gsHillIndex != null && difficultyLevel >= 0) {
+				difficultyWeights = BIKE_DIFFICULTY_MATRIX[difficultyLevel];
         }
     }
     
     @Override
-    public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId )
-    {
-    	if (gsHillIndex != null)
-    	{
+    public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId ) {
+    	if (gsHillIndex != null) {
     		boolean revert = edgeState.getBaseNode() < edgeState.getAdjNode();
     		int hillIndex = gsHillIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), revert, buffer);
 
     		if (difficultyWeights != null)
     			return difficultyWeights[hillIndex];
     	}
-
    		return 1.0;
     }
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		final SteepnessDifficultyWeighting other = (SteepnessDifficultyWeighting) obj;
+		return toString().equals(other.toString());
+	}
+
+	@Override
+	public int hashCode() {
+		return ("SteepnessDifficultyWeighting" + toString()).hashCode();
+	}
 }

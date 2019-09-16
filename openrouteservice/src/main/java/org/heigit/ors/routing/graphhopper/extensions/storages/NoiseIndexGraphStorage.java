@@ -23,8 +23,7 @@ import com.graphhopper.storage.GraphExtension;
  */
 public class NoiseIndexGraphStorage implements GraphExtension {
     /* pointer for no entry */
-    protected final int NO_ENTRY = -1;
-    private final int EF_noiseIndex;
+    private final int efNoiseindex;
 
     private DataAccess orsEdges;
     private int edgeEntryBytes;
@@ -33,7 +32,7 @@ public class NoiseIndexGraphStorage implements GraphExtension {
     private byte[] byteValues;
 
     public NoiseIndexGraphStorage() {
-        EF_noiseIndex = 0;
+        efNoiseindex = 0;
 
         int edgeEntryIndex = 0;
         edgeEntryBytes = edgeEntryIndex + 1;
@@ -48,7 +47,7 @@ public class NoiseIndexGraphStorage implements GraphExtension {
         // add entry
         long edgePointer = (long) edgeId * edgeEntryBytes;
         byteValues[0] = noiseLevel;
-        orsEdges.setBytes(edgePointer + EF_noiseIndex, byteValues, 1);
+        orsEdges.setBytes(edgePointer + efNoiseindex, byteValues, 1);
     }
 
     private void ensureEdgesIndex(int edgeId) {
@@ -58,7 +57,7 @@ public class NoiseIndexGraphStorage implements GraphExtension {
     public int getEdgeValue(int edgeId, byte[] buffer) {
     	
         long edgePointer = (long) edgeId * edgeEntryBytes;
-        orsEdges.getBytes(edgePointer + EF_noiseIndex, buffer, 1);
+        orsEdges.getBytes(edgePointer + efNoiseindex, buffer, 1);
 
         return buffer[0];
     }
@@ -156,7 +155,7 @@ public class NoiseIndexGraphStorage implements GraphExtension {
      */
     @Override
     public GraphExtension create(long initBytes) {
-        orsEdges.create((long) initBytes * edgeEntryBytes);
+        orsEdges.create(initBytes * edgeEntryBytes);
         return this;
     }
 
@@ -168,7 +167,7 @@ public class NoiseIndexGraphStorage implements GraphExtension {
     @Override
     public void flush() {
         orsEdges.setHeader(0, edgeEntryBytes);
-        orsEdges.setHeader(1 * 4, edgesCount);
+        orsEdges.setHeader(4, edgesCount);
         orsEdges.flush();
     }
 

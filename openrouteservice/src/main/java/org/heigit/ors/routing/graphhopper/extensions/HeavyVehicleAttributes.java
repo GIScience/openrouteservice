@@ -15,8 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions;
 
 public class HeavyVehicleAttributes {
 	public static final int UNKNOWN = 0;
-	//public static final int Destination = 1;
-	// Vehicle type and 
+	// Vehicle type and
 	public static final int GOODS = 1;
 	public static final int HGV = 2;
 	public static final int BUS = 4;
@@ -26,14 +25,10 @@ public class HeavyVehicleAttributes {
 	public static final int ANY = GOODS | HGV | BUS | AGRICULTURE | FORESTRY | DELIVERY;
 	// Load characteristics
 	public static final int HAZMAT = 128;
-	
-	public static int getVehiclesCount()
-	{
-		return 6;	
-	}	
-	
-	public static int getFromString(String value)
-	{
+
+	private HeavyVehicleAttributes() {}
+
+	public static int getFromString(String value) {
 		if ("goods".equalsIgnoreCase(value)) {
 			return HeavyVehicleAttributes.GOODS;
 		} else if ("hgv".equalsIgnoreCase(value)) {
@@ -47,7 +42,6 @@ public class HeavyVehicleAttributes {
 		} else if ("delivery".equalsIgnoreCase(value)) {
 			return HeavyVehicleAttributes.DELIVERY;
 	    }
-		
 		return HeavyVehicleAttributes.UNKNOWN;
 	}
 }

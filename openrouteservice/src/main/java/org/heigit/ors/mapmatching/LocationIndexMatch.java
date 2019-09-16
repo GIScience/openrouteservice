@@ -39,12 +39,7 @@ import java.util.List;
  */
 public class LocationIndexMatch extends LocationIndexTree {
 
-    private static final Comparator<QueryResult> QR_COMPARATOR = new Comparator<QueryResult>() {
-        @Override
-        public int compare(QueryResult o1, QueryResult o2) {
-            return Double.compare(o1.getQueryDistance(), o2.getQueryDistance());
-        }
-    };
+    private static final Comparator<QueryResult> QR_COMPARATOR = (o1, o2) -> Double.compare(o1.getQueryDistance(), o2.getQueryDistance());
 
     private double returnAllResultsWithin;
     private final LocationIndexTree index;
@@ -70,7 +65,7 @@ public class LocationIndexMatch extends LocationIndexTree {
 
     public List<QueryResult> findNClosest(final double queryLat, final double queryLon, final EdgeFilter edgeFilter) {
     	 // implement a cheap priority queue via List, sublist and Collections.sort
-        final List<QueryResult> queryResults = new ArrayList<QueryResult>();
+        final List<QueryResult> queryResults = new ArrayList<>();
         GHIntHashSet set = new GHIntHashSet();
 
         for (int iteration = 0; iteration < 2; iteration++) {
@@ -80,63 +75,57 @@ public class LocationIndexMatch extends LocationIndexTree {
             final GHBitSet exploredNodes = new GHTBitSet(new GHIntHashSet(set));
             final EdgeExplorer explorer = graph.createEdgeExplorer(edgeFilter);
 
-            set.forEach(new IntProcedure() {
+            set.forEach((IntProcedure) node -> new XFirstSearchCheck(queryLat, queryLon, exploredNodes, edgeFilter) {
+                @Override
+                protected double getQueryDistance() {
+                    // do not skip search if distance is 0 or near zero (equalNormedDelta)
+                    return Double.MAX_VALUE;
+                }
 
                 @Override
-                public void apply(int node) {
-                    new XFirstSearchCheck(queryLat, queryLon, exploredNodes, edgeFilter) {
-                        @Override
-                        protected double getQueryDistance() {
-                            // do not skip search if distance is 0 or near zero (equalNormedDelta)
-                            return Double.MAX_VALUE;
-                        }
+                protected boolean check(int node, double normedDist, int wayIndex, EdgeIteratorState edge, QueryResult.Position pos) {
+                    if (normedDist < returnAllResultsWithin
+                            || queryResults.isEmpty()
+                            || queryResults.get(0).getQueryDistance() > normedDist) {
 
-                        @Override
-                        protected boolean check(int node, double normedDist, int wayIndex, EdgeIteratorState edge, QueryResult.Position pos) {
-                            if (normedDist < returnAllResultsWithin
-                                    || queryResults.isEmpty()
-                                    || queryResults.get(0).getQueryDistance() > normedDist) {
+                        int localIndex = -1;
+                        for (int qrIndex = 0; qrIndex < queryResults.size(); qrIndex++) {
+                            QueryResult qr = queryResults.get(qrIndex);
+                            // overwrite older queryResults which are potentially more far away than returnAllResultsWithin
+                            if (qr.getQueryDistance() > returnAllResultsWithin) {
+                                localIndex = qrIndex;
+                                break;
+                            }
 
-                                int index = -1;
-                                for (int qrIndex = 0; qrIndex < queryResults.size(); qrIndex++) {
-                                    QueryResult qr = queryResults.get(qrIndex);
-                                    // overwrite older queryResults which are potentially more far away than returnAllResultsWithin
-                                    if (qr.getQueryDistance() > returnAllResultsWithin) {
-                                        index = qrIndex;
-                                        break;
-                                    }
-
-                                    // avoid duplicate edges
-                                    if (qr.getClosestEdge().getEdge() == edge.getEdge()) {
-                                        if (qr.getQueryDistance() < normedDist) {
-                                            // do not add current edge
-                                            return true;
-                                        } else {
-                                            // overwrite old edge with current
-                                            index = qrIndex;
-                                            break;
-                                        }
-                                    }
-                                }
-
-                                QueryResult qr = new QueryResult(queryLat, queryLon);
-                                qr.setQueryDistance(normedDist);
-                                qr.setClosestNode(node);
-                                qr.setClosestEdge(edge.detach(false));
-                                qr.setWayIndex(wayIndex);
-                                qr.setSnappedPosition(pos);
-
-                                if (index < 0) {
-                                    queryResults.add(qr);
+                            // avoid duplicate edges
+                            if (qr.getClosestEdge().getEdge() == edge.getEdge()) {
+                                if (qr.getQueryDistance() < normedDist) {
+                                    // do not add current edge
+                                    return true;
                                 } else {
-                                    queryResults.set(index, qr);
+                                    // overwrite old edge with current
+                                    localIndex = qrIndex;
+                                    break;
                                 }
                             }
-                            return true;
                         }
-                    }.start(explorer, node);
+
+                        QueryResult qr = new QueryResult(queryLat, queryLon);
+                        qr.setQueryDistance(normedDist);
+                        qr.setClosestNode(node);
+                        qr.setClosestEdge(edge.detach(false));
+                        qr.setWayIndex(wayIndex);
+                        qr.setSnappedPosition(pos);
+
+                        if (localIndex < 0) {
+                            queryResults.add(qr);
+                        } else {
+                            queryResults.set(localIndex, qr);
+                        }
+                    }
+                    return true;
                 }
-            });
+            }.start(explorer, node));
         }
 
         Collections.sort(queryResults, QR_COMPARATOR);

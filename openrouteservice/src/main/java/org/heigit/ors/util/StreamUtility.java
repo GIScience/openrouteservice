@@ -39,6 +39,8 @@ import com.graphhopper.util.Helper;
  * @version 1.0 2014-05-15
  */
 public class StreamUtility {
+	private StreamUtility() {}
+
 	public static String readStream(InputStream stream, int bufferSize) throws IOException {
 		return readStream(stream, bufferSize, null);
 	}
@@ -46,7 +48,7 @@ public class StreamUtility {
 	/**
 	 * 
 	 * 
-	 * @param coordstream
+	 * @param stream
 	 *            InputStream
 	 * @param bufferSize
 	 *            int

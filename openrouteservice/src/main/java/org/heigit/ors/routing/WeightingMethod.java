@@ -18,7 +18,9 @@ public class WeightingMethod {
 	public static final int FASTEST = 1;
 	public static final int SHORTEST = 2;
 	public static final int RECOMMENDED = 3;
-	
+
+	private  WeightingMethod() {}
+
 	public static int getFromString(String method) {
 		if ("fastest".equalsIgnoreCase(method)) {
 			return WeightingMethod.FASTEST;
@@ -26,23 +28,20 @@ public class WeightingMethod {
 			return WeightingMethod.SHORTEST;
 		} else if ("recommended".equalsIgnoreCase(method)) {
 			return WeightingMethod.RECOMMENDED; 
-		} 
-		
+		}
 		return WeightingMethod.UNKNOWN;
 	}
 	
-	public static String getName(int profileType)
-	{
-		switch (profileType)
-		{
+	public static String getName(int profileType) {
+		switch (profileType) {
 		case FASTEST:
 			return "fastest";
 		case SHORTEST:
 			return "shortest";
 		case RECOMMENDED:
 			return "recommended";
+		default:
+			return "";
 		}
-		
-		return "";
 	}
 }

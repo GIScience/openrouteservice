@@ -13,42 +13,41 @@
  */
 package org.heigit.ors.routing.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalc3D;
 import com.graphhopper.util.PointList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HillIndexCalculator {
    private DistanceCalc distCalc;
    private List<RouteSplit> splits;
    
-   public HillIndexCalculator()
-   {
+   public HillIndexCalculator() {
 	   distCalc = new DistanceCalc3D();
-	   splits = new ArrayList<RouteSplit>();
+	   splits = new ArrayList<>();
    }
    
     // the formula for hillIndex is taken from http://www.roberts-1.com/bikehudson/r/m/hilliness/#grade
-	public byte getHillIndex(PointList points, boolean reverse)
-	{
+	public byte getHillIndex(PointList points, boolean reverse) {
 		SteepnessUtil.computeRouteSplits(points, reverse, distCalc, splits);
 		
 		double totalVerticalClimb = 0.0;
 		double excessSteepClimb = 0.0;
 		double totalDistance = 0.0;
 		
-		for(RouteSplit split : splits)
-		{
+		for(RouteSplit split : splits) {
 			double gradient = split.gradient;
-			if (gradient > 0)
-			{
+			if (gradient > 0) {
 				double vc = split.verticalClimb *3.28084;
 				totalVerticalClimb += vc;
-				gradient = Math.min(split.gradient, 30);
 			}
 			totalDistance += split.length *0.000621371;
+		}
+
+		if (totalDistance == 0.0) {
+			return 0;
 		}
 
 		int hillIndex = (int)(100*(totalVerticalClimb + excessSteepClimb)/(5280*totalDistance));

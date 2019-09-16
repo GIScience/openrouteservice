@@ -40,72 +40,28 @@ import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.FormatUtility;
 
-public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor 
-{
+public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor {
 	public JsonMatrixRequestProcessor(HttpServletRequest request) throws Exception {
 		super(request);
 	}
 
-    /*
-    @Override
-    public int getMethodNotSupportedErrorCode() {
-        return -1;
-    }
-
-    @Override
-    public int getInvalidJsonFormatErrorCode() {
-        return MatrixErrorCodes.INVALID_JSON_FORMAT;
-    }
-
-    @Override
-    public int getInvalidParameterFormatErrorCode() {
-        return MatrixErrorCodes.INVALID_PARAMETER_FORMAT;
-    }
-
-    @Override
-    public int getMissingParameterErrorCode() {
-        return MatrixErrorCodes.MISSING_PARAMETER;
-    }
-
-    @Override
-    public void process(AbstractHttpRequestProcessor.MixedRequestParameters map, HttpServletResponse response) throws Exception {
-        MatrixRequest req = JsonMatrixRequestParser.parseFromRequestParams(map);
-
-        if (req == null) {
-            throw new StatusCodeException(StatusCode.BAD_REQUEST, MatrixErrorCodes.UNKNOWN, "MatrixRequest object is null.");
-        }
-
-        boolean flexibleMode = req.getFlexibleMode() ? true : !RoutingProfileManager.getInstance().getProfiles().isCHProfileAvailable(req.getProfileType());
-        if (MatrixServiceSettings.getMaximumRoutes(flexibleMode) > 0 && req.getTotalNumberOfLocations() > MatrixServiceSettings.getMaximumRoutes(flexibleMode)) {
-            throw new ParameterOutOfRangeException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "sources/destinations", Integer.toString(req.getTotalNumberOfLocations()), Integer.toString(MatrixServiceSettings.getMaximumRoutes(flexibleMode)));
-        }
-        MatrixResult mtxResult = RoutingProfileManager.getInstance().computeMatrix(req);
-
-        writeResponse(response, req, mtxResult);
-    }
-    */
-
 	@Override
-	public void process(HttpServletResponse response) throws Exception 
-	{
+	public void process(HttpServletResponse response) throws Exception {
 		String reqMethod = request.getMethod();
 
-		MatrixRequest req = null;
-		switch (reqMethod)
-		{
-		case "GET":
-			req = JsonMatrixRequestParser.parseFromRequestParams(request);
-			break;
-		case "POST": 
-			req = JsonMatrixRequestParser.parseFromStream(request.getInputStream());
-			break;
-		default:
-			throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED);
+		MatrixRequest req;
+		switch (reqMethod) {
+			case "GET":
+				req = JsonMatrixRequestParser.parseFromRequestParams(request);
+				break;
+			case "POST":
+				req = JsonMatrixRequestParser.parseFromStream(request.getInputStream());
+				break;
+			default:
+				throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED);
 		}
 
-		if (req == null)
-			throw new StatusCodeException(StatusCode.BAD_REQUEST, MatrixErrorCodes.UNKNOWN, "MatrixRequest object is null.");
-		boolean flexibleMode = req.getFlexibleMode() ? true : !RoutingProfileManager.getInstance().getProfiles().isCHProfileAvailable(req.getProfileType());
+		boolean flexibleMode = req.getFlexibleMode() || !RoutingProfileManager.getInstance().getProfiles().isCHProfileAvailable(req.getProfileType());
 		if (MatrixServiceSettings.getMaximumRoutes(flexibleMode) > 0 && req.getTotalNumberOfLocations() > MatrixServiceSettings.getMaximumRoutes(flexibleMode))
 			throw new ParameterOutOfRangeException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "sources/destinations", Integer.toString(req.getTotalNumberOfLocations()), Integer.toString(MatrixServiceSettings.getMaximumRoutes(flexibleMode)));
 		
@@ -114,16 +70,15 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor
 		writeResponse(response, req, mtxResult);
 	}
 	
-	private void writeResponse(HttpServletResponse response, MatrixRequest request, MatrixResult mtxResult) throws Exception
-	{
+	private void writeResponse(HttpServletResponse response, MatrixRequest request, MatrixResult mtxResult) throws Exception {
 		JSONObject jResp = new JSONObject(true);
 		
-		if (MatrixMetricsType.isSet(request.getMetrics(), MatrixMetricsType.Distance))
-			jResp.put("distances", createTable(mtxResult.getTable(MatrixMetricsType.Distance), request.getSources().length, request.getDestinations().length));
-		if (MatrixMetricsType.isSet(request.getMetrics(), MatrixMetricsType.Duration))
-			jResp.put("durations", createTable(mtxResult.getTable(MatrixMetricsType.Duration), request.getSources().length, request.getDestinations().length));
-		if (MatrixMetricsType.isSet(request.getMetrics(), MatrixMetricsType.Weight))
-			jResp.put("weights", createTable(mtxResult.getTable(MatrixMetricsType.Weight), request.getSources().length, request.getDestinations().length));		
+		if (MatrixMetricsType.isSet(request.getMetrics(), MatrixMetricsType.DISTANCE))
+			jResp.put("distances", createTable(mtxResult.getTable(MatrixMetricsType.DISTANCE), request.getSources().length, request.getDestinations().length));
+		if (MatrixMetricsType.isSet(request.getMetrics(), MatrixMetricsType.DURATION))
+			jResp.put("durations", createTable(mtxResult.getTable(MatrixMetricsType.DURATION), request.getSources().length, request.getDestinations().length));
+		if (MatrixMetricsType.isSet(request.getMetrics(), MatrixMetricsType.WEIGHT))
+			jResp.put("weights", createTable(mtxResult.getTable(MatrixMetricsType.WEIGHT), request.getSources().length, request.getDestinations().length));
 
 		jResp.put("destinations", createLocations(mtxResult.getDestinations(), request.getResolveLocations()));
 		jResp.put("sources", createLocations(mtxResult.getSources(), request.getResolveLocations()));

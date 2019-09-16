@@ -34,28 +34,29 @@ import org.heigit.ors.services.mapmatching.MapMatchingServiceSettings;
 import org.heigit.ors.util.CoordTools;
 import org.heigit.ors.util.DistanceUnitUtil;
 
-public class JsonMapMatchingRequestParser 
-{
-	public static MapMatchingRequest parseFromRequestParams(HttpServletRequest request) throws Exception
-	{
+public class JsonMapMatchingRequestParser {
+
+	public static final String KEY_PROFILE = "profile";
+
+	private JsonMapMatchingRequestParser() {}
+
+	public static MapMatchingRequest parseFromRequestParams(HttpServletRequest request) throws Exception {
 		MapMatchingRequest req = new MapMatchingRequest();
 		RouteSearchParameters searchParams = req.getSearchParameters();
 
-		String value = request.getParameter("profile");
-		if (!Helper.isEmpty(value))
-		{
+		String value = request.getParameter(KEY_PROFILE);
+		if (!Helper.isEmpty(value)) {
 			int profileType = RoutingProfileType.getFromString(value);
 
 			if (profileType == RoutingProfileType.UNKNOWN)
-				throw new UnknownParameterValueException(MapMatchingErrorCodes.INVALID_PARAMETER_VALUE, "profile", value);
+				throw new UnknownParameterValueException(MapMatchingErrorCodes.INVALID_PARAMETER_VALUE, KEY_PROFILE, value);
 			searchParams.setProfileType(profileType);
+		} else {
+			throw new MissingParameterException(MapMatchingErrorCodes.MISSING_PARAMETER, KEY_PROFILE);
 		}
-		else
-			throw new MissingParameterException(MapMatchingErrorCodes.MISSING_PARAMETER, "profile");
 
 		value = request.getParameter("preference");
-		if (!Helper.isEmpty(value))
-		{
+		if (!Helper.isEmpty(value)) {
 			int weightingMethod = WeightingMethod.getFromString(value);
 			if (weightingMethod == WeightingMethod.UNKNOWN)
 				throw new UnknownParameterValueException(MapMatchingErrorCodes.INVALID_PARAMETER_VALUE, "preference", value);
@@ -64,16 +65,12 @@ public class JsonMapMatchingRequestParser
 		}
 
 		value = request.getParameter("coordinates");
-		if (!Helper.isEmpty(value))
-		{
+		if (!Helper.isEmpty(value)) {
 			Coordinate[] coords = null;
 
-			try
-			{
+			try {
 				coords = CoordTools.parse(value, "\\|", true, false);		
-			}
-			catch(NumberFormatException ex)
-			{
+			} catch(NumberFormatException ex) {
 				throw new ParameterValueException(MapMatchingErrorCodes.INVALID_PARAMETER_FORMAT, "coordinates");
 			}
 
@@ -87,8 +84,7 @@ public class JsonMapMatchingRequestParser
 		}		
 
 		value = request.getParameter("units");
-		if (!Helper.isEmpty(value))
-		{
+		if (!Helper.isEmpty(value)) {
 			DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.UNKNOWN);
 			
 			if (units == DistanceUnit.UNKNOWN)
@@ -98,8 +94,7 @@ public class JsonMapMatchingRequestParser
 		}
 
 		value = request.getParameter("language");
-		if (!Helper.isEmpty(value))
-		{
+		if (!Helper.isEmpty(value)) {
 			if(!LocalizationManager.getInstance().isLanguageSupported(value))
 				throw new ParameterValueException(MapMatchingErrorCodes.INVALID_PARAMETER_VALUE, "Specified language '" +  value + "' is not supported.");
 
@@ -111,8 +106,7 @@ public class JsonMapMatchingRequestParser
 			req.setIncludeGeometry(Boolean.parseBoolean(value));
 
 		value = request.getParameter("geometry_format");
-		if (!Helper.isEmpty(value))
-		{
+		if (!Helper.isEmpty(value)) {
 			if (!("geojson".equalsIgnoreCase(value) || "polyline".equalsIgnoreCase(value) || "encodedpolyline".equalsIgnoreCase(value)))
 				throw new UnknownParameterValueException(MapMatchingErrorCodes.INVALID_PARAMETER_VALUE, "geometry_format", value);
 
@@ -128,8 +122,7 @@ public class JsonMapMatchingRequestParser
 			req.setIncludeElevation(Boolean.parseBoolean(value));
 
 		value = request.getParameter("instructions_format");
-		if (!Helper.isEmpty(value))
-		{
+		if (!Helper.isEmpty(value)) {
 			RouteInstructionsFormat instrFormat = RouteInstructionsFormat.fromString(value);
 			if (instrFormat == RouteInstructionsFormat.UNKNOWN)
 				throw new UnknownParameterValueException(MapMatchingErrorCodes.INVALID_PARAMETER_VALUE, "instructions_format", value);
@@ -145,24 +138,6 @@ public class JsonMapMatchingRequestParser
 		if (!Helper.isEmpty(value))
 			req.setAttributes(value.split("\\|"));
 
-		/* options are not supported in mapmatching
-		value = request.getParameter("options");
-		if (!Helper.isEmpty(value))
-		{
-			try
-			{
-				searchParams.setOptions(value);
-			}
-			catch(ParseException ex)
-			{
-				throw new ParameterValueException(MapMatchingErrorCodes.INVALID_JSON_FORMAT, "Unable to parse 'options' value." + ex.getMessage());
-			}
-			catch(StatusCodeException scex)
-			{
-				throw scex;
-			}
-		}
-		*/
 		value = request.getParameter("id");
 		if (!Helper.isEmpty(value))
 			req.setId(value);

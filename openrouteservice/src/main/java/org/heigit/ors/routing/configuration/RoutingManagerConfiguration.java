@@ -27,26 +27,39 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RoutingManagerConfiguration 
-{
-	public RouteUpdateConfiguration UpdateConfig;
-	public RouteProfileConfiguration[] Profiles;
+public class RoutingManagerConfiguration  {
+	public RouteUpdateConfiguration getUpdateConfig() {
+		return updateConfig;
+	}
 
-	public static RoutingManagerConfiguration loadFromFile(String path) throws IOException, Exception
-	{
+	public void setUpdateConfig(RouteUpdateConfiguration updateConfig) {
+		this.updateConfig = updateConfig;
+	}
+
+	public RouteProfileConfiguration[] getProfiles() {
+		return profiles;
+	}
+
+	public void setProfiles(RouteProfileConfiguration[] profiles) {
+		this.profiles = profiles;
+	}
+
+	private RouteUpdateConfiguration updateConfig;
+	private RouteProfileConfiguration[] profiles;
+
+	public static RoutingManagerConfiguration loadFromFile(String path) throws IOException, Exception {
 		RoutingManagerConfiguration gc = new RoutingManagerConfiguration();
 
 		if (!Helper.isEmpty(path))
 			RoutingServiceSettings.loadFromFile(path);
 
 		// Read profile settings
-		List<RouteProfileConfiguration> profiles = new ArrayList<RouteProfileConfiguration>();
+		List<RouteProfileConfiguration> newProfiles = new ArrayList<>();
 		List<String> profileList = RoutingServiceSettings.getParametersList("profiles.active");
 		Map<String,Object> defaultParams = RoutingServiceSettings.getParametersMap("profiles.default_params", true);
 		String rootGraphsPath = (defaultParams != null && defaultParams.containsKey("graphs_root_path")) ? StringUtility.trim(defaultParams.get("graphs_root_path").toString(), '"') : null;
 
-		for(String item : profileList)
-		{
+		for(String item : profileList) {
 			String profileRef = "profiles.profile-" + item;
 
 			RouteProfileConfiguration profile = new RouteProfileConfiguration();
@@ -55,8 +68,7 @@ public class RoutingManagerConfiguration
 			profile.setProfiles(RoutingServiceSettings.getParameter(profileRef + ".profiles"));
 
 			String graphPath = RoutingServiceSettings.getParameter(profileRef + ".graph_path", false);
-			if (!Helper.isEmpty(rootGraphsPath))
-			{
+			if (!Helper.isEmpty(rootGraphsPath)) {
 				if (Helper.isEmpty(graphPath))
 					graphPath = Paths.get(rootGraphsPath, item).toString();
 				else if (!FileUtility.isAbsolutePath(graphPath))
@@ -69,21 +81,16 @@ public class RoutingManagerConfiguration
 
 			if (profileParams == null)
 				profileParams = defaultParams;
-			else if (defaultParams != null)
-			{
-				for(Map.Entry<String, Object> defParamItem : defaultParams.entrySet())
-				{
+			else if (defaultParams != null) {
+				for(Map.Entry<String, Object> defParamItem : defaultParams.entrySet()) {
 					if (!profileParams.containsKey(defParamItem.getKey()))
 						profileParams.put(defParamItem.getKey(), defParamItem.getValue());
 				}				
 			}
 
-			if (profileParams != null)
-			{
-				for(Map.Entry<String, Object> paramItem : profileParams.entrySet())
-				{
-					switch(paramItem.getKey())
-					{
+			if (profileParams != null) {
+				for(Map.Entry<String, Object> paramItem : profileParams.entrySet()) {
+					switch(paramItem.getKey()) {
 					case "preparation":
 						profile.setPreparationOpts(ConfigFactory.parseString(paramItem.getValue().toString()));
 						break;
@@ -103,15 +110,13 @@ public class RoutingManagerConfiguration
 						profile.setInstructions(Boolean.parseBoolean(paramItem.getValue().toString()));
 						break;
 					case "elevation":
-						if (Boolean.parseBoolean(paramItem.getValue().toString()))
-						{
+						if (Boolean.parseBoolean(paramItem.getValue().toString())) {
 							profile.setElevationProvider(StringUtility.trimQuotes(profileParams.get("elevation_provider").toString()));
 							if (profileParams.get("elevation_data_access") != null)
 								profile.setElevationDataAccess( StringUtility.trimQuotes(profileParams.get("elevation_data_access").toString()));
 							profile.setElevationCachePath( StringUtility.trimQuotes(profileParams.get("elevation_cache_path").toString()));
 
-							if (profileParams.get("elevation_cache_clear") != null)
-							{
+							if (profileParams.get("elevation_cache_clear") != null) {
 								String clearCache =  StringUtility.trimQuotes(profileParams.get("elevation_cache_clear").toString());
 								if (!Helper.isEmpty(clearCache))
 									profile.setElevationCacheClear(Boolean.parseBoolean(clearCache));
@@ -122,18 +127,13 @@ public class RoutingManagerConfiguration
 						@SuppressWarnings("unchecked") 
 						Map<String, Object> storageList = (Map<String, Object>)paramItem.getValue();
 
-						for(Map.Entry<String, Object> storageEntry : storageList.entrySet())
-						{
+						for(Map.Entry<String, Object> storageEntry : storageList.entrySet()) {
 							@SuppressWarnings("unchecked")
 							Map<String, Object> entryValue = (Map<String, Object>)storageEntry.getValue();
-							Map<String, String> storageParams = new HashMap<String, String>();
+							Map<String, String> storageParams = new HashMap<>();
 
-							if (storageParams != null)		
-							{		
-								for(Map.Entry<String, Object> entry : entryValue.entrySet())
-								{	
-									storageParams.put(entry.getKey(), StringUtility.trimQuotes(entry.getValue().toString()));
-								}
+							for(Map.Entry<String, Object> entry : entryValue.entrySet()) {
+								storageParams.put(entry.getKey(), StringUtility.trimQuotes(entry.getValue().toString()));
 							}
 
 							profile.getExtStorages().put(storageEntry.getKey(), storageParams);
@@ -143,16 +143,13 @@ public class RoutingManagerConfiguration
 						@SuppressWarnings("unchecked") 
 						Map<String, Object> storageList2 = (Map<String, Object>)paramItem.getValue();
 
-						for(Map.Entry<String, Object> storageEntry : storageList2.entrySet())
-						{
+						for(Map.Entry<String, Object> storageEntry : storageList2.entrySet()) {
 							@SuppressWarnings("unchecked")
 							Map<String, Object> entryValue = (Map<String, Object>)storageEntry.getValue();
-							Map<String, String> storageParams = new HashMap<String, String>();
+							Map<String, String> storageParams = new HashMap<>();
 
-							if (storageParams != null)		
-							{		
-								for(Map.Entry<String, Object> entry : entryValue.entrySet())
-								{	
+							if (storageParams != null) {
+								for(Map.Entry<String, Object> entry : entryValue.entrySet()) {
 									storageParams.put(entry.getKey(), StringUtility.trimQuotes(entry.getValue().toString()));
 								}
 							}
@@ -181,26 +178,25 @@ public class RoutingManagerConfiguration
 						profile.setExtent(new Envelope(bbox.get(0),bbox.get(1),bbox.get(2),bbox.get(3)));
 						break;
 					case "maximum_snapping_radius":
-							profile.setMaximumSnappingRadius(Integer.parseInt(paramItem.getValue().toString()));
+						profile.setMaximumSnappingRadius(Integer.parseInt(paramItem.getValue().toString()));
+						break;
+					default:
 					}
 				}
 			}
-
-			profiles.add(profile);
+			newProfiles.add(profile);
 		}
-
-		gc.Profiles = (RouteProfileConfiguration[])profiles.toArray(new RouteProfileConfiguration[profiles.size()]);
+		gc.setProfiles(newProfiles.toArray(new RouteProfileConfiguration[0]));
 
 		// Read update settings
 		RouteUpdateConfiguration ruc = new RouteUpdateConfiguration();
-		ruc.Enabled = Boolean.parseBoolean(RoutingServiceSettings.getParameter("update.enabled"));
-		ruc.Time = RoutingServiceSettings.getParameter("update.time");
-		ruc.DataSource = RoutingServiceSettings.getParameter("update.source");
-		ruc.Extent = RoutingServiceSettings.getParameter("update.extent");
-		ruc.WorkingDirectory = RoutingServiceSettings.getParameter("update.working_directory");
+		ruc.setEnabled(Boolean.parseBoolean(RoutingServiceSettings.getParameter("update.enabled")));
+		ruc.setTime(RoutingServiceSettings.getParameter("update.time"));
+		ruc.setDataSource(RoutingServiceSettings.getParameter("update.source"));
+		ruc.setExtent(RoutingServiceSettings.getParameter("update.extent"));
+		ruc.setWorkingDirectory(RoutingServiceSettings.getParameter("update.working_directory"));
 
-		gc.UpdateConfig = ruc;
-
+		gc.setUpdateConfig(ruc);
 		return gc;
 	}
 }

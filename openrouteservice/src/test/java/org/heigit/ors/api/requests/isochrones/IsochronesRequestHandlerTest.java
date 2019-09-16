@@ -7,10 +7,8 @@ import org.heigit.ors.api.requests.routing.RequestProfileParams;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
-import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.common.TravellerInfo;
-import org.heigit.ors.exceptions.ParameterOutOfRangeException;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.isochrones.IsochroneRequest;
 import org.heigit.ors.routing.*;
@@ -131,9 +129,9 @@ public class IsochronesRequestHandlerTest {
     @Test
     public void convertRangeType() throws ParameterValueException {
         TravelRangeType rangeType = handler.convertRangeType(IsochronesRequestEnums.RangeType.DISTANCE);
-        Assert.assertEquals(TravelRangeType.Distance, rangeType);
+        Assert.assertEquals(TravelRangeType.DISTANCE, rangeType);
         rangeType = handler.convertRangeType(IsochronesRequestEnums.RangeType.TIME);
-        Assert.assertEquals(TravelRangeType.Time, rangeType);
+        Assert.assertEquals(TravelRangeType.TIME, rangeType);
     }
 
     @Test
@@ -244,7 +242,7 @@ public class IsochronesRequestHandlerTest {
             Assert.assertEquals(coord0, travellerInfo.getLocation());
             Assert.assertEquals(IsochronesRequestEnums.LocationType.START.toString(), travellerInfo.getLocationType());
             Assert.assertNotNull(travellerInfo.getRanges());
-            Assert.assertEquals(TravelRangeType.Time, travellerInfo.getRangeType());
+            Assert.assertEquals(TravelRangeType.TIME, travellerInfo.getRangeType());
             Assert.assertNotNull(travellerInfo.getRouteSearchParameters());
         }
 
@@ -270,7 +268,7 @@ public class IsochronesRequestHandlerTest {
         Assert.assertEquals(realCoordinate, travellerInfo.getLocation());
         Assert.assertEquals("start", travellerInfo.getLocationType());
         Assert.assertEquals(range.toString(), Arrays.toString(travellerInfo.getRanges()));
-        Assert.assertEquals(TravelRangeType.Time, travellerInfo.getRangeType());
+        Assert.assertEquals(TravelRangeType.TIME, travellerInfo.getRangeType());
     }
 
     @Test

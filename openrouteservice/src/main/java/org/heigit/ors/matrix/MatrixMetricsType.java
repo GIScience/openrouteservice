@@ -16,51 +16,37 @@ package org.heigit.ors.matrix;
 import com.graphhopper.util.Helper;
 
 public class MatrixMetricsType {
-	public static final int Unknown = 0;
-	public static final int Duration = 1;
-	public static final int Distance = 2;
-	public static final int Weight = 4;
-	
+	public static final int UNKNOWN = 0;
+	public static final int DURATION = 1;
+	public static final int DISTANCE = 2;
+	public static final int WEIGHT = 4;
+
+	private MatrixMetricsType() {}
+
     public static boolean isSet(int metrics, int value) {
         return (metrics & value) == value;
     }
     
-    public int getMetricsCount(int metrics)
-    {
-    	int res = 0;
-    	
-    	if (isSet(metrics, Duration))
-    		res++;
-
-    	if (isSet(metrics, Distance))
-    		res++;
-
-    	if (isSet(metrics, Weight))
-    		res++;
-
-    	return res;
-    }
-
 	public static int getFromString(String value) {
 		if (Helper.isEmpty(value))
 			return 0;
 
 		String[] values = value.toLowerCase().split("\\|");
-		int res = Unknown;
+		int res = UNKNOWN;
 
 		for(String str : values) {
 			switch(str) {
 				case "duration":
-					res |= Duration;
+					res |= DURATION;
 					break;
 				case "distance":
-					res |= Distance;
+					res |= DISTANCE;
 					break;
 				case "weight":
-					res |= Weight;
+					res |= WEIGHT;
 					break;
 				default:
-					return Unknown;
+					return UNKNOWN;
 			}
 		}
 
@@ -70,13 +56,13 @@ public class MatrixMetricsType {
 	public static String getMetricNameFromInt(int metric) {
 		String res;
 		switch (metric) {
-			case MatrixMetricsType.Duration:
+			case MatrixMetricsType.DURATION:
 				res = "duration";
 				break;
-			case MatrixMetricsType.Distance:
+			case MatrixMetricsType.DISTANCE:
 				res = "distance";
 				break;
-			case MatrixMetricsType.Weight:
+			case MatrixMetricsType.WEIGHT:
 				res = "weight";
 				break;
 			default:

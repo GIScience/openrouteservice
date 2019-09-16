@@ -15,84 +15,77 @@ package org.heigit.ors.routing.parameters;
 
 import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class VehicleParameters extends ProfileParameters {
-	private double _length = 0.0;
-	private double _height = 0.0;
-	private double _width = 0.0;
-	private double _weight = 0.0;
-	private double _axleload = 0.0;
-
-	private int _characteristics = VehicleLoadCharacteristicsFlags.NONE;
-
-	public VehicleParameters() {}
+	private double length = 0.0;
+	private double height = 0.0;
+	private double width = 0.0;
+	private double weight = 0.0;
+	private double axleload = 0.0;
+	private int characteristics = VehicleLoadCharacteristicsFlags.NONE;
 
 	public double getLength() {
-		return _length;
+		return length;
 	}
 
 	public void setLength(double length) {
-		_length = length;
+		this.length = length;
 	}
 
 	public double getHeight() {
-		return _height;
+		return height;
 	}
 
 	public void setHeight(double height) {
-		_height = height;
+		this.height = height;
 	}
 
 	public double getWidth() {
-		return _width;
+		return width;
 	}
 
 	public void setWidth(double width) {
-		_width = width;
+		this.width = width;
 	}
 
 	public double getWeight() {
-		return _weight;
+		return weight;
 	}
 
 	public void setWeight(double weight) {
-		_weight = weight;
+		this.weight = weight;
 	}
 
 	public double getAxleload() {
-		return _axleload;
+		return axleload;
 	}
 
 	public void setAxleload(double axleload) {
-		_axleload = axleload;
+		this.axleload = axleload;
 	}
 
 	public int getLoadCharacteristics() {
-		return _characteristics;
+		return characteristics;
 	}
 
 	public void setLoadCharacteristics(int characteristics) {
-		_characteristics = characteristics;
+		this.characteristics = characteristics;
 	}
 	
 	public boolean hasAttributes() {
-		return _height > 0.0 || _length > 0.0 || _width > 0.0 || _weight > 0.0 || _axleload > 0.0 || _characteristics != 0;
+		return height > 0.0 || length > 0.0 || width > 0.0 || weight > 0.0 || axleload > 0.0 || characteristics != 0;
 	}
 
 	@Override
 	public List<String> getValidRestrictions() {
 		List<String> valid = super.getValidRestrictions();
-
 		valid.add("height");
 		valid.add("length");
 		valid.add("width");
 		valid.add("weight");
 		valid.add("hazmat");
 		valid.add("axleload");
-
 		return valid;
 	}
 }

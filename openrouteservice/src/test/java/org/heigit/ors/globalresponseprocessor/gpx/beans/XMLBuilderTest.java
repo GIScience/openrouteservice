@@ -138,9 +138,9 @@ public class XMLBuilderTest {
         // gpx extensions
         GpxExtensions gpxExtensions = new GpxExtensions();
         gpxExtensions.setAttribution("");
-        gpxExtensions.setBuild_date("");
-        gpxExtensions.setDistance_units("");
-        gpxExtensions.setDuration_units("");
+        gpxExtensions.setBuildDate("");
+        gpxExtensions.setDistanceUnits("");
+        gpxExtensions.setDurationUnits("");
         gpxExtensions.setElevation("");
         gpxExtensions.setEngine("");
         gpxExtensions.setInstructions("");

@@ -16,65 +16,67 @@ package org.heigit.ors.servlet.filters;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
 class GZIPResponseWrapper extends HttpServletResponseWrapper {
-	protected HttpServletResponse _origResponse = null;
-	protected GZIPResponseStream _stream = null;
-	protected PrintWriter _writer = null;
+	protected HttpServletResponse origResponse;
+	protected GZIPResponseStream responseStream = null;
+	protected PrintWriter writer = null;
 
 	public GZIPResponseWrapper(HttpServletResponse response) {
 		super(response);
-		_origResponse = response;
+		origResponse = response;
 	}
 
 	public GZIPResponseStream createOutputStream() throws IOException {
-		return new GZIPResponseStream(_origResponse);
+		return new GZIPResponseStream(origResponse);
 	}
 
 	public void finishResponse() {
 		try {
-			if (_writer != null) 
-				_writer.close();
+			if (writer != null)
+				writer.close();
 			else {
-				if (_stream != null && !_stream.isClosed()) 
-					_stream.close();
+				if (responseStream != null && !responseStream.isClosed())
+					responseStream.close();
 			}
-		} catch (IOException e) 
-		{
-
+		} catch (IOException e) {
+			// do nothing
 		}
 	}
 
 	public void flushBuffer() throws IOException {
-		if (_stream != null && !_stream.isClosed())
-			_stream.flush();
+		if (responseStream != null && !responseStream.isClosed())
+			responseStream.flush();
 	}
 
 	public ServletOutputStream getOutputStream() throws IOException {
-		if (_writer != null) 
+		if (writer != null)
 			throw new IllegalStateException("getWriter() has already been called!");
 
-		if (_stream == null)
-			_stream = createOutputStream();
+		if (responseStream == null)
+			responseStream = createOutputStream();
 
-		return (_stream);
+		return (responseStream);
 	}
 
 	public PrintWriter getWriter() throws IOException {
-		if (_writer != null) 
-			return (_writer);
+		if (writer != null)
+			return (writer);
 
-		if (_stream != null) 
+		if (responseStream != null)
 			throw new IllegalStateException("getOutputStream() has already been called!");
 
-		_stream = createOutputStream();
-		_writer = new PrintWriter(new OutputStreamWriter(_stream, "UTF-8"));
-		return (_writer);
+		responseStream = createOutputStream();
+		writer = new PrintWriter(new OutputStreamWriter(responseStream, StandardCharsets.UTF_8));
+		return (writer);
 	}
 
-	public void setContentLength(int length) {}
+	public void setContentLength(int length) {
+		// nothing to do
+	}
 }

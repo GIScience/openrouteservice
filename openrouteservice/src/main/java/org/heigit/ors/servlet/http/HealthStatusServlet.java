@@ -25,6 +25,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * @deprecated
+ */
 @Deprecated
 @RestController
 @RequestMapping("/health")
@@ -32,18 +35,23 @@ public class HealthStatusServlet extends BaseHttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
+	@Override
 	public void init() throws ServletException {
-
+		// do nothing
 	}
 
+	@Override
 	public void destroy() {
+		// do nothing
 	}
 
+	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-		
+		// do nothing
 	}
 
 	@GetMapping
+	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		try
 		{

@@ -20,8 +20,7 @@ import com.graphhopper.storage.GraphExtension;
 
 public class TollwaysGraphStorage implements GraphExtension {
 	/* pointer for no entry */
-	protected final int NO_ENTRY = -1;
-	protected final int EF_TOLLWAYS;
+	protected final int efTollways;
 
 	protected DataAccess edges;
 	protected int edgeEntryIndex = 0;
@@ -29,9 +28,8 @@ public class TollwaysGraphStorage implements GraphExtension {
 	protected int edgesCount; 
 	private byte[] byteValue;
 
-	public TollwaysGraphStorage() 
-	{
-		EF_TOLLWAYS = nextBlockEntryIndex (1);
+	public TollwaysGraphStorage()  {
+		efTollways = nextBlockEntryIndex (1);
 
 		edgeEntryBytes = edgeEntryIndex;
 		edgesCount = 0;
@@ -56,13 +54,13 @@ public class TollwaysGraphStorage implements GraphExtension {
 	}
 
 	public GraphExtension create(long initBytes) {
-		edges.create((long) initBytes * edgeEntryBytes);
+		edges.create(initBytes * edgeEntryBytes);
 		return this;
 	}
 
 	public void flush() {
 		edges.setHeader(0, edgeEntryBytes);
-		edges.setHeader(1 * 4, edgesCount);
+		edges.setHeader(4, edgesCount);
 		edges.flush();
 	}
 
@@ -97,11 +95,11 @@ public class TollwaysGraphStorage implements GraphExtension {
  
 		byteValue[0] = (byte) value;
 
-		edges.setBytes((long) edgeId * edgeEntryBytes + EF_TOLLWAYS, byteValue, 1);
+		edges.setBytes((long) edgeId * edgeEntryBytes + efTollways, byteValue, 1);
 	}
 
 	public int getEdgeValue(int edgeId) {
-		edges.getBytes((long) edgeId * edgeEntryBytes + EF_TOLLWAYS, byteValue, 1);
+		edges.getBytes((long) edgeId * edgeEntryBytes + efTollways, byteValue, 1);
 		
 		return byteValue[0] & 0xFF;
 	}
@@ -118,7 +116,6 @@ public class TollwaysGraphStorage implements GraphExtension {
 
 	public int getDefaultNodeFieldValue() {
 		return -1;
-		//		throw new UnsupportedOperationException("Not supported by this storage");
 	}
 
 	public int getDefaultEdgeFieldValue() {
@@ -140,7 +137,6 @@ public class TollwaysGraphStorage implements GraphExtension {
 
 	@Override
 	public boolean isClosed() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 }

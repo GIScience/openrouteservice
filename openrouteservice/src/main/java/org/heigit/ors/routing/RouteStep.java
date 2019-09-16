@@ -13,105 +13,104 @@
  */
 package org.heigit.ors.routing;
 
-public class RouteStep 
-{
-	private double _distance = 0.0;
-	private double _duration = 0.0;
-	private String _message;
-	private int _messageType = -1;
-	private String _instruction = "";
-	private String _name = null;
-	private int _exitNumber = -1;
-	private int _type;
-	private int[] _wayPoints;
-    private RouteStepManeuver _maneuver;
-    private int[] _roundaboutExitBearings;
+public class RouteStep {
+	private double distance = 0.0;
+	private double duration = 0.0;
+	private String message;
+	private int messageType = -1;
+	private String instruction = "";
+	private String name = null;
+	private int exitNumber = -1;
+	private int type;
+	private int[] wayPoints;
+    private RouteStepManeuver maneuver;
+    private int[] roundaboutExitBearings;
     
 	public double getDuration() {
-		return _duration;
+		return duration;
 	}
 
 	public void setDuration(double duration) {
-		_duration = duration;
+		this.duration = duration;
 	}
 	
 	public double getDistance() {
-		return _distance;
+		return distance;
 	}
 
 	public void setDistance(double distance) {
-		_distance = distance;
+		this.distance = distance;
 	}
 
 	public String getMessage() {
-		return _message;
+		return message;
 	}
 
 	public void setMessage(String message) {
-		_message = message;
+		this.message = message;
 	}
 
 	public int getExitNumber() {
-		return _exitNumber;
+		return exitNumber;
 	}
 
 	public void setExitNumber(int exitNumber) {
-		_exitNumber = exitNumber;
+		this.exitNumber = exitNumber;
 	}
 
 	public String getInstruction() {
-		return _instruction;
+		return instruction;
 	}
 
 	public void setInstruction(String text) {
-		_instruction = text;
+		instruction = text;
 	}
 
 	public int[] getWayPoints() {
-		return _wayPoints;
+		return wayPoints;
 	}
 
 	public void setWayPoints(int[] wayPoints) {
-		_wayPoints = wayPoints;
+		this.wayPoints = wayPoints;
 	}
 
 	public int getType() {
-		return _type;
+		return type;
 	}
 
 	public void setType(int type) {
-		this._type = type;
+		this.type = type;
 	}
 
 	public String getName() {
-		return _name;
+		return name;
 	}
 
 	public void setName(String name) {
-		_name = name;
+		this.name = name;
 	}
 
 	public int getMessageType() {
-		return _messageType;
+		return messageType;
 	}
 
 	public void setMessageType(int messageType) {
-		_messageType = messageType;
+		this.messageType = messageType;
 	}
 
 	public RouteStepManeuver getManeuver() {
-		return _maneuver;
+		return maneuver;
 	}
 
 	public void setManeuver(RouteStepManeuver maneuver) {
-		_maneuver = maneuver;
+		this.maneuver = maneuver;
 	}
 
 	public int[] getRoundaboutExitBearings() {
-		return _roundaboutExitBearings;
+		return roundaboutExitBearings;
 	}
 
 	public void setRoundaboutExitBearings(int[] roundaboutExitBearings) {
-		_roundaboutExitBearings = roundaboutExitBearings;
+		this.roundaboutExitBearings = roundaboutExitBearings;
 	}
 }

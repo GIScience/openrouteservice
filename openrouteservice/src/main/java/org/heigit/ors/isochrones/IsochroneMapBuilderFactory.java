@@ -13,39 +13,30 @@
  */
 package org.heigit.ors.isochrones;
 
-import org.heigit.ors.isochrones.IsochroneSearchParameters;
+import com.graphhopper.util.Helper;
 import org.heigit.ors.isochrones.builders.IsochroneMapBuilder;
 import org.heigit.ors.isochrones.builders.concaveballs.ConcaveBallsIsochroneMapBuilder;
 import org.heigit.ors.isochrones.builders.grid.GridBasedIsochroneMapBuilder;
 import org.heigit.ors.routing.RouteSearchContext;
 
-import com.graphhopper.util.Helper;
-
 public class IsochroneMapBuilderFactory {
-	private RouteSearchContext _searchContext;
+	private RouteSearchContext searchContext;
 
 	public IsochroneMapBuilderFactory(RouteSearchContext searchContext) {
-		_searchContext = searchContext;
+		this.searchContext = searchContext;
 	}
 
 	public IsochroneMap buildMap(IsochroneSearchParameters parameters) throws Exception {
-		IsochroneMapBuilder isochroneBuilder = null;
-
+		IsochroneMapBuilder isochroneBuilder ;
 		String method = parameters.getCalcMethod();
-
 		if (Helper.isEmpty(method) || "Default".equalsIgnoreCase(method) || "ConcaveBalls".equalsIgnoreCase(method)) {
 			isochroneBuilder = new ConcaveBallsIsochroneMapBuilder();
-		} 
-        else if ("grid".equalsIgnoreCase(method))
-        {
+		} else if ("grid".equalsIgnoreCase(method)) {
         	isochroneBuilder= new GridBasedIsochroneMapBuilder();
-        }
-        else
-        {
+        } else {
 			throw new Exception("Unknown method.");
 		}
-		
-		isochroneBuilder.initialize(_searchContext);
+		isochroneBuilder.initialize(searchContext);
 		return isochroneBuilder.compute(parameters);
 	}
 }

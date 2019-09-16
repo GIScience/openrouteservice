@@ -16,22 +16,21 @@ package org.heigit.ors.common;
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class NamedLocation {
-   private Coordinate _coordinate;
-   private String _name;
+   private Coordinate coordinate;
+   private String name;
    
-   public NamedLocation(Coordinate coord, String name)
-   {
-	   _coordinate = coord;
-	   _name = name;
+   public NamedLocation(Coordinate coord, String name) {
+	   coordinate = coord;
+	   this.name = name;
    }
    
    public Coordinate getCoordinate()
    {
-	   return _coordinate;
+	   return coordinate;
    }
    
    public String getName()
    {
-	   return _name;
+	   return name;
    }
 }

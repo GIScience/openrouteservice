@@ -19,79 +19,89 @@ import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.profiles.DecimalEncodedValue;
 import com.graphhopper.routing.profiles.EnumEncodedValue;
 import com.graphhopper.routing.profiles.IntEncodedValue;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 public class SubGraph {
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	private final Logger logger = Logger.getLogger(getClass());
 
-	private GHIntObjectHashMap<EdgeIteratorLink> _node2edgesMap;
-	private Graph _baseGraph;
+	private GHIntObjectHashMap<EdgeIteratorLink> node2EdgesMap;
+	private Graph baseGraph;
 
 	class EdgeIteratorLink  {
-		public EdgeIteratorState state;
-		public EdgeIteratorLink next;
+		private EdgeIteratorState state;
+		private EdgeIteratorLink next;
 
+		public EdgeIteratorState getState() {
+			return state;
+		}
+
+		public void setState(EdgeIteratorState state) {
+			this.state = state;
+		}
+
+		public EdgeIteratorLink getNext() {
+			return next;
+		}
+
+		public void setNext(EdgeIteratorLink next) {
+			this.next = next;
+		}
 
 		public EdgeIteratorLink(EdgeIteratorState iterState)
 		{
 			state = iterState;
 		}
-	};
+	}
 
-	class SubGraphEdgeExplorer implements EdgeExplorer  {
-		private SubGraph _graph;
+	class SubGraphEdgeExplorer implements EdgeExplorer {
+		private SubGraph graph;
 
-		public SubGraphEdgeExplorer(SubGraph graph)
-		{
-			_graph = graph;
+		public SubGraphEdgeExplorer(SubGraph graph) {
+			this.graph = graph;
 		}
 
 		@Override
 		public EdgeIterator setBaseNode(int baseNode) {
-			return _graph.setBaseNode(baseNode);
+			return graph.setBaseNode(baseNode);
 		}
-	};
+	}
 
-	class EdgeIteratorLinkIterator implements EdgeIterator, CHEdgeIteratorState
-	{
-		private EdgeIteratorState _currState;
-		private EdgeIteratorLink _link;
-		private boolean _firstRun = true;
+	class EdgeIteratorLinkIterator implements EdgeIterator, CHEdgeIteratorState {
+		private EdgeIteratorState currState;
+		private EdgeIteratorLink link;
+		private boolean firstRun = true;
 
-		public EdgeIteratorLinkIterator(EdgeIteratorLink link)
-		{
-			_link = link;
-			_currState = link.state;
+		public EdgeIteratorLinkIterator(EdgeIteratorLink link) {
+			this.link = link;
+			currState = link.state;
 		}
 
 		@Override
 		public int getEdge() {
-			return _currState.getEdge();
+			return currState.getEdge();
 		}
 
 		@Override
 		public int getOrigEdgeFirst() {
-			return _currState.getOrigEdgeFirst();
+			return currState.getOrigEdgeFirst();
 		}
 
 		@Override
 		public int getOrigEdgeLast() {
-			return _currState.getOrigEdgeLast();
+			return currState.getOrigEdgeLast();
 		}
 
 		@Override
 		public int getBaseNode() {
-			return _currState.getBaseNode();
+			return currState.getBaseNode();
 		}
 
 		@Override
 		public int getAdjNode() {
-			return _currState.getAdjNode();
+			return currState.getAdjNode();
 		}
 
 		@Override
@@ -106,7 +116,7 @@ public class SubGraph {
 
 		@Override
 		public double getDistance() {
-			return _currState.getDistance();
+			return currState.getDistance();
 		}
 
 		@Override
@@ -116,12 +126,12 @@ public class SubGraph {
 
 		@Override
 		public IntsRef getFlags() {
-			return _currState.getFlags();
+			return currState.getFlags();
 		}
 
 		@Override
 		public EdgeIteratorState setFlags(IntsRef edgeFlags) {
-			return _currState.setFlags(edgeFlags);
+			return currState.setFlags(edgeFlags);
 		}
 
 		@Override
@@ -136,87 +146,87 @@ public class SubGraph {
 
 		@Override
 		public boolean get(BooleanEncodedValue property) {
-			return _currState.get(property);
+			return currState.get(property);
 		}
 
 		@Override
 		public EdgeIteratorState set(BooleanEncodedValue property, boolean value) {
-			return _currState.set(property, value);
+			return currState.set(property, value);
 		}
 
 		@Override
 		public boolean getReverse(BooleanEncodedValue property) {
-			return _currState.getReverse(property);
+			return currState.getReverse(property);
 		}
 
 		@Override
 		public EdgeIteratorState setReverse(BooleanEncodedValue property, boolean value) {
-			return _currState.setReverse(property, value);
+			return currState.setReverse(property, value);
 		}
 
 		@Override
 		public int get(IntEncodedValue property) {
-			return _currState.get(property);
+			return currState.get(property);
 		}
 
 		@Override
 		public EdgeIteratorState set(IntEncodedValue property, int value) {
-			return _currState.set(property, value);
+			return currState.set(property, value);
 		}
 
 		@Override
 		public int getReverse(IntEncodedValue property) {
-			return _currState.getReverse(property);
+			return currState.getReverse(property);
 		}
 
 		@Override
 		public EdgeIteratorState setReverse(IntEncodedValue property, int value) {
-			return _currState.setReverse(property, value);
+			return currState.setReverse(property, value);
 		}
 
 		@Override
 		public double get(DecimalEncodedValue property) {
-			return _currState.get(property);
+			return currState.get(property);
 		}
 
 		@Override
 		public EdgeIteratorState set(DecimalEncodedValue property, double value) {
-			return _currState.set(property, value);
+			return currState.set(property, value);
 		}
 
 		@Override
 		public double getReverse(DecimalEncodedValue property) {
-			return _currState.getReverse(property);
+			return currState.getReverse(property);
 		}
 
 		@Override
 		public EdgeIteratorState setReverse(DecimalEncodedValue property, double value) {
-			return _currState.setReverse(property, value);
+			return currState.setReverse(property, value);
 		}
 
 		@Override
 		public <T extends Enum> T get(EnumEncodedValue<T> property) {
-			return _currState.get(property);
+			return currState.get(property);
 		}
 
 		@Override
 		public <T extends Enum> EdgeIteratorState set(EnumEncodedValue<T> property, T value) {
-			return _currState.set(property, value);
+			return currState.set(property, value);
 		}
 
 		@Override
 		public <T extends Enum> T getReverse(EnumEncodedValue<T> property) {
-			return _currState.getReverse(property);
+			return currState.getReverse(property);
 		}
 
 		@Override
 		public <T extends Enum> EdgeIteratorState setReverse(EnumEncodedValue<T> property, T value) {
-			return _currState.setReverse(property, value);
+			return currState.setReverse(property, value);
 		}
 
 		@Override
 		public String getName() {
-			return _currState.getName();
+			return currState.getName();
 		}
 
 		@Override
@@ -226,7 +236,7 @@ public class SubGraph {
 
 		@Override
 		public EdgeIteratorState detach(boolean reverse) {
-			return _currState.detach(reverse);
+			return currState.detach(reverse);
 		}
 
 		@Override
@@ -237,22 +247,22 @@ public class SubGraph {
 
 		@Override
 		public boolean next() {
-			if (_firstRun)
+			if (firstRun)
 			{
-				_firstRun = false;
+				firstRun = false;
 				return true;
 			}
 
-			_link = _link.next;
+			link = link.next;
 
-			if (_link == null)
+			if (link == null)
 			{
-				_currState = null;
+				currState = null;
 
 				return false;
 			}
 
-			_currState = _link.state;
+			currState = link.state;
 
 			return true;
 		}
@@ -279,8 +289,8 @@ public class SubGraph {
 
 		@Override
 		public boolean isShortcut() {
-			if (_currState instanceof CHEdgeIteratorState)
-				return (((CHEdgeIteratorState) _currState).isShortcut());
+			if (currState instanceof CHEdgeIteratorState)
+				return (((CHEdgeIteratorState) currState).isShortcut());
 			else 
 				return false;
 		}
@@ -293,7 +303,7 @@ public class SubGraph {
 
 		@Override
 		public double getWeight() {
-			return (((CHEdgeIteratorState) _currState).getWeight());
+			return (((CHEdgeIteratorState) currState).getWeight());
 		}
 
 		@Override
@@ -303,66 +313,53 @@ public class SubGraph {
 
 		@Override
 		public void setFlagsAndWeight(int flags, double weight) {
-
+			// do nothing
 		}
-	};
+	}
 
-	public SubGraph(Graph graph)
-	{
-		_baseGraph = graph;
-		_node2edgesMap = new GHIntObjectHashMap<EdgeIteratorLink>(Math.min(Math.max(200, graph.getNodes() / 10), 2000));
+	public SubGraph(Graph graph) {
+		baseGraph = graph;
+		node2EdgesMap = new GHIntObjectHashMap<>(Math.min(Math.max(200, graph.getNodes() / 10), 2000));
 	}
 
 	/**
 	 * Returns true/false depending on whether node is already in the graph or not.
 	 */
-	public boolean addEdge(int adjNode, EdgeIteratorState iter, boolean reverse)
-	{
-		if (iter == null)
-		{
-			_node2edgesMap.put(adjNode, null);
+	public boolean addEdge(int adjNode, EdgeIteratorState iter, boolean reverse) {
+		if (iter == null) {
+			node2EdgesMap.put(adjNode, null);
 			return true;
 		}
 
 		EdgeIteratorState iterState = null;
-		if (reverse)
-		{
-			iterState =  _baseGraph.getEdgeIteratorState(iter.getEdge(), adjNode);
+		if (reverse) {
+			iterState =  baseGraph.getEdgeIteratorState(iter.getEdge(), adjNode);
 			adjNode = iter.getAdjNode();
-		}
-		else
-		{
-			iterState =  _baseGraph.getEdgeIteratorState(iter.getEdge(), iter.getAdjNode());
+		} else {
+			iterState =  baseGraph.getEdgeIteratorState(iter.getEdge(), iter.getAdjNode());
 			adjNode = iter.getBaseNode();
 		}
 
-		EdgeIteratorLink link = _node2edgesMap.get(adjNode);
-		if (link == null)
-		{
+		EdgeIteratorLink link = node2EdgesMap.get(adjNode);
+		if (link == null) {
 			link = new EdgeIteratorLink(iterState);
-
-			_node2edgesMap.put(adjNode, link);
+			node2EdgesMap.put(adjNode, link);
 			return true;
-		}
-		else
-		{ 
+		} else {
 			while (link.next != null)
 				link = link.next;
-
 			link.next = new EdgeIteratorLink(iterState);
-
 			return false;
 		}
 	}
 
 	public boolean containsNode(int adjNode)
 	{
-		return _node2edgesMap.containsKey(adjNode);
+		return node2EdgesMap.containsKey(adjNode);
 	}
 
-	public EdgeIterator setBaseNode(int baseNode)
-	{
-		EdgeIteratorLink link = _node2edgesMap.get(baseNode);
+	public EdgeIterator setBaseNode(int baseNode) {
+		EdgeIteratorLink link = node2EdgesMap.get(baseNode);
 		return link == null ? null: new EdgeIteratorLinkIterator(link);
 	}
 
@@ -371,13 +368,12 @@ public class SubGraph {
 		return new SubGraphEdgeExplorer(this);
 	}
 
-	public void print()
-	{
+	public void print() {
 		int edgesCount = 0;
 
 		EdgeExplorer explorer = createExplorer();
 
-		for (IntObjectCursor<?> node : _node2edgesMap) {
+		for (IntObjectCursor<?> node : node2EdgesMap) {
 			EdgeIterator iter = explorer.setBaseNode(node.key);
 
 			if (iter != null)
@@ -389,6 +385,6 @@ public class SubGraph {
 			}
 		}
 
-		logger.info("SubGraph: nodes - " + _node2edgesMap.size() + "; edges - " + edgesCount);
+		logger.info("SubGraph: nodes - " + node2EdgesMap.size() + "; edges - " + edgesCount);
 	}
 }

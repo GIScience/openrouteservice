@@ -23,7 +23,7 @@
  *
  */
 
-package org.heigit.ors.globalresponseprocessor.geoJson;
+package org.heigit.ors.globalresponseprocessor.geojson;
 
 
 import com.vividsolutions.jts.geom.LineString;
@@ -41,7 +41,7 @@ class SimpleFeatureTypes {
     private RouteFeatureType type;
 
     public enum RouteFeatureType {
-        routeFeature
+        ROUTE_FEATURE
     }
 
     /**
@@ -59,7 +59,7 @@ class SimpleFeatureTypes {
      * @return The return is a {@link SimpleFeatureType}.
      */
     public SimpleFeatureType create() {
-        if (type == RouteFeatureType.routeFeature) {
+        if (type == RouteFeatureType.ROUTE_FEATURE) {
             SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
             builder.setName(RoutingServiceSettings.getRoutingName());
             builder.add("geometry", LineString.class);

@@ -15,9 +15,8 @@ package org.heigit.ors.mapmatching;
 
 import org.heigit.ors.routing.RoutingRequest;
 
-public class MapMatchingRequest extends RoutingRequest
-{
-	private double _accuracy = 50;
+public class MapMatchingRequest extends RoutingRequest {
+	private double accuracy = 50;
 
 	public MapMatchingRequest()
 	{
@@ -25,13 +24,14 @@ public class MapMatchingRequest extends RoutingRequest
 	}
 
 	public double getAccuracy() {
-		return _accuracy;
+		return accuracy;
 	}
 
 	public void setAccuracy(double accuracy) {
-		_accuracy = accuracy;
+		this.accuracy = accuracy;
 	}
 
+	@Override
 	public boolean isValid() {
 		return !(this.getId() == null && this.getCoordinates() == null);
 	}

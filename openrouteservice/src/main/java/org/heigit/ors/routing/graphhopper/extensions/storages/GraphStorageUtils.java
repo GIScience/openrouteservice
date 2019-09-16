@@ -18,82 +18,60 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.GraphStorage;
 
-import java.util.List;
-
 public class GraphStorageUtils {
+	private GraphStorageUtils() {}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends GraphExtension> T getGraphExtension(GraphStorage graphStorage, Class<T> type)
-	{
-		if (graphStorage != null) {
-			if (graphStorage instanceof GraphHopperStorage) {
-				GraphHopperStorage ghs = (GraphHopperStorage) graphStorage;
-				GraphExtension ge = ghs.getExtension();
+	public static <T extends GraphExtension> T getGraphExtension(GraphStorage graphStorage, Class<T> type) {
+		if (graphStorage instanceof GraphHopperStorage) {
+			GraphHopperStorage ghs = (GraphHopperStorage) graphStorage;
+			GraphExtension ge = ghs.getExtension();
 
-				if(ge instanceof ExtendedStorageSequence)
-				{
-					ExtendedStorageSequence ess = (ExtendedStorageSequence)ge;
-					GraphExtension[] exts = ess.getExtensions();
-					for (int i = 0; i < exts.length; i++)
-					{
-						if (type.isInstance(exts[i])) {
-							return (T)exts[i];
-						}
+			if(ge instanceof ExtendedStorageSequence) {
+				ExtendedStorageSequence ess = (ExtendedStorageSequence)ge;
+				GraphExtension[] exts = ess.getExtensions();
+				for (int i = 0; i < exts.length; i++) {
+					if (type.isInstance(exts[i])) {
+						return (T)exts[i];
 					}
 				}
-				else 
-				{
-					if (type.isInstance(ge)) {
-						return (T)ge;
-					}
+			} else  {
+				if (type.isInstance(ge)) {
+					return (T)ge;
 				}
 			}
 		}
-
 		return null;
 	}
 
 	public static GraphExtension[] getGraphExtensions(GraphStorage graphStorage) {
-		if(graphStorage != null) {
-			if(graphStorage instanceof GraphHopperStorage) {
-				GraphHopperStorage ghs = (GraphHopperStorage) graphStorage;
-				GraphExtension ge = ghs.getExtension();
-
-				if(ge instanceof  ExtendedStorageSequence) {
-					ExtendedStorageSequence ess = (ExtendedStorageSequence)ge;
-					return ess.getExtensions();
-				} else {
-					return new GraphExtension[] {ge};
-				}
-
+		if(graphStorage instanceof GraphHopperStorage) {
+			GraphHopperStorage ghs = (GraphHopperStorage) graphStorage;
+			GraphExtension ge = ghs.getExtension();
+			if(ge instanceof  ExtendedStorageSequence) {
+				ExtendedStorageSequence ess = (ExtendedStorageSequence)ge;
+				return ess.getExtensions();
+			} else {
+				return new GraphExtension[] {ge};
 			}
 		}
-		return null;
+		return new GraphExtension[] {};
 	}
 	
-	public static long getCapacity(GraphExtension ext)
-	{
-		if (!(ext instanceof GraphExtension.NoOpExtension))
-    	{
+	public static long getCapacity(GraphExtension ext) {
+		if (!(ext instanceof GraphExtension.NoOpExtension)) {
 			long capacity = 0;
-			
-    		if(ext instanceof ExtendedStorageSequence)
-			{
+    		if(ext instanceof ExtendedStorageSequence) {
 				ExtendedStorageSequence ess = (ExtendedStorageSequence)ext;
 				GraphExtension[] exts = ess.getExtensions();
-				for (int i = 0; i < exts.length; i++)
-				{
+				for (int i = 0; i < exts.length; i++) {
 					capacity += exts[i].getCapacity();
 				}
-			}
-			else 
-			{
+			} else {
 				capacity += ext.getCapacity();
 			}
-    		
     		return capacity;
     	}
-		
 		return 0;
 	}
 }

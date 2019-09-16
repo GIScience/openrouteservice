@@ -69,15 +69,15 @@ public class BordersGraphStorageBuilderTest {
         _builder= new BordersGraphStorageBuilder();
         _cbr = new CountryBordersReader();
 
-        CountryBordersHierarchy h = new CountryBordersHierarchy(1);
-        CountryBordersHierarchy h2 = new CountryBordersHierarchy(2);
+        CountryBordersHierarchy h = new CountryBordersHierarchy();
+        CountryBordersHierarchy h2 = new CountryBordersHierarchy();
         try {
-            h.add(new CountryBordersPolygon("c1", gf.createPolygon(coords1), 1));
-            h.add(new CountryBordersPolygon("c2", gf.createPolygon(coords2),1));
-            h.add(new CountryBordersPolygon("c3", gf.createPolygon(coords3),1));
+            h.add(new CountryBordersPolygon("c1", gf.createPolygon(coords1)));
+            h.add(new CountryBordersPolygon("c2", gf.createPolygon(coords2)));
+            h.add(new CountryBordersPolygon("c3", gf.createPolygon(coords3)));
 
-            h2.add(new CountryBordersPolygon("cO1", gf.createPolygon(coordsO1),2));
-            h2.add(new CountryBordersPolygon("cO2", gf.createPolygon(coordsO2),2));
+            h2.add(new CountryBordersPolygon("cO1", gf.createPolygon(coordsO1)));
+            h2.add(new CountryBordersPolygon("cO2", gf.createPolygon(coordsO2)));
         } catch (Exception e) {
 
         }

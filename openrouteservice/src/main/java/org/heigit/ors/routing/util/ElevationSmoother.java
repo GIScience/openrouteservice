@@ -20,6 +20,8 @@ import com.graphhopper.util.PointList;
 import java.util.LinkedList;
 
 public class ElevationSmoother {
+	private ElevationSmoother() {}
+
 	public static PointList smooth(PointList points) {
 		int nSize = points.size();
 		if (nSize <= 2)

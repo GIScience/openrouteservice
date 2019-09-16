@@ -14,132 +14,119 @@
 package org.heigit.ors.routing.instructions;
 
 import com.graphhopper.util.Helper;
-
 import org.heigit.ors.common.ArrivalDirection;
 import org.heigit.ors.common.CardinalDirection;
 import org.heigit.ors.localization.LanguageResources;
 
-public class InstructionTranslator 
-{
-	private LanguageResources _resources;
+public class InstructionTranslator {
+	private static final String STR_TURN_MANEUVER = "{turn_maneuver}";
+	private static final String STR_WAY_NAME = "{way_name}";
+	private static final String STR_EXIT_NUMBER = "{exit_number}";
+	private static final String STR_DIRECTION = "{direction}";
 
-	private String[] _directions;
-	private String _actionDepartDefault;
-	private String _actionDepartName;
-	private String[] _actionArriveDefault;	
-	private String[] _actionArriveName;
-	private String _actionRoundaboutDefault;
-	private String _actionRoundaboutName;
-	private String _actionContinueDefault;
-	private String _actionContinueName;
-	private String _actionKeepDefault;
-	private String _actionKeepName;
-	private String _actionTurnDefault;
-	private String _actionTurnName;
-	private String[] _numerals;
-	private String[] _turnManeuvers;
+	private LanguageResources resources;
+	private String[] directions;
+	private String actionDepartDefault;
+	private String actionDepartName;
+	private String[] actionArriveDefault;
+	private String[] actionArriveName;
+	private String actionRoundaboutDefault;
+	private String actionRoundaboutName;
+	private String actionContinueDefault;
+	private String actionContinueName;
+	private String actionKeepDefault;
+	private String actionKeepName;
+	private String actionTurnDefault;
+	private String actionTurnName;
+	private String[] numerals;
+	private String[] turnManeuvers;
 
-	public InstructionTranslator(LanguageResources resources) throws Exception
-	{
-		_resources = resources;
+	InstructionTranslator(LanguageResources resources) throws Exception {
+		this.resources = resources;
 
-		_directions = new String[8];
-		_directions[0] = _resources.getTranslation("instructions.directions.north");
-		_directions[1] = _resources.getTranslation("instructions.directions.northeast");
-		_directions[2] = _resources.getTranslation("instructions.directions.east");
-		_directions[3] = _resources.getTranslation("instructions.directions.southeast");
-		_directions[4] = _resources.getTranslation("instructions.directions.south");
-		_directions[5] = _resources.getTranslation("instructions.directions.southwest");
-		_directions[6] = _resources.getTranslation("instructions.directions.west");
-		_directions[7] = _resources.getTranslation("instructions.directions.northwest");
+		directions = new String[8];
+		directions[0] = this.resources.getTranslation("instructions.directions.north");
+		directions[1] = this.resources.getTranslation("instructions.directions.northeast");
+		directions[2] = this.resources.getTranslation("instructions.directions.east");
+		directions[3] = this.resources.getTranslation("instructions.directions.southeast");
+		directions[4] = this.resources.getTranslation("instructions.directions.south");
+		directions[5] = this.resources.getTranslation("instructions.directions.southwest");
+		directions[6] = this.resources.getTranslation("instructions.directions.west");
+		directions[7] = this.resources.getTranslation("instructions.directions.northwest");
 
-		_turnManeuvers = new String[10];
-		_turnManeuvers[0] = _resources.getTranslation("instructions.turn_maneuvers.left");
-		_turnManeuvers[1] = _resources.getTranslation("instructions.turn_maneuvers.right");
-		_turnManeuvers[2] = _resources.getTranslation("instructions.turn_maneuvers.sharp_left");
-		_turnManeuvers[3] = _resources.getTranslation("instructions.turn_maneuvers.sharp_right");
-		_turnManeuvers[4] = _resources.getTranslation("instructions.turn_maneuvers.slight_left");
-		_turnManeuvers[5] = _resources.getTranslation("instructions.turn_maneuvers.slight_right");
-		_turnManeuvers[6] = _resources.getTranslation("instructions.turn_maneuvers.straight");
-		_turnManeuvers[7] = _resources.getTranslation("instructions.turn_maneuvers.uturn");
-		_turnManeuvers[8] = _resources.getTranslation("instructions.turn_maneuvers.left");
-		_turnManeuvers[9] = _resources.getTranslation("instructions.turn_maneuvers.right");
+		turnManeuvers = new String[10];
+		turnManeuvers[0] = this.resources.getTranslation("instructions.turn_maneuvers.left");
+		turnManeuvers[1] = this.resources.getTranslation("instructions.turn_maneuvers.right");
+		turnManeuvers[2] = this.resources.getTranslation("instructions.turn_maneuvers.sharp_left");
+		turnManeuvers[3] = this.resources.getTranslation("instructions.turn_maneuvers.sharp_right");
+		turnManeuvers[4] = this.resources.getTranslation("instructions.turn_maneuvers.slight_left");
+		turnManeuvers[5] = this.resources.getTranslation("instructions.turn_maneuvers.slight_right");
+		turnManeuvers[6] = this.resources.getTranslation("instructions.turn_maneuvers.straight");
+		turnManeuvers[7] = this.resources.getTranslation("instructions.turn_maneuvers.uturn");
+		turnManeuvers[8] = this.resources.getTranslation("instructions.turn_maneuvers.left");
+		turnManeuvers[9] = this.resources.getTranslation("instructions.turn_maneuvers.right");
 
-		_numerals = new String[11];
+		numerals = new String[11];
 		for (int i = 1; i<=10; i++)
-			_numerals[i] = _resources.getTranslation("instructions.numerals."+Integer.toString(i));
+			numerals[i] = this.resources.getTranslation("instructions.numerals." + i);
 
-		_actionDepartDefault = _resources.getTranslation("instructions.actions.depart.default.default");
-		_actionDepartName = _resources.getTranslation("instructions.actions.depart.default.name");
-		_actionContinueDefault = _resources.getTranslation("instructions.actions.continue.default.default");
-		_actionContinueName = _resources.getTranslation("instructions.actions.continue.default.name");
-		_actionKeepDefault = _resources.getTranslation("instructions.actions.keep.default.default");
-		_actionKeepName = _resources.getTranslation("instructions.actions.keep.default.name");
-		_actionTurnDefault = _resources.getTranslation("instructions.actions.turn.default.default");
-		_actionTurnName = _resources.getTranslation("instructions.actions.turn.default.name");
-		_actionRoundaboutDefault = _resources.getTranslation("instructions.actions.roundabout.default.exit.default");
-		_actionRoundaboutName = _resources.getTranslation("instructions.actions.roundabout.default.exit.name");
+		actionDepartDefault = this.resources.getTranslation("instructions.actions.depart.default.default");
+		actionDepartName = this.resources.getTranslation("instructions.actions.depart.default.name");
+		actionContinueDefault = this.resources.getTranslation("instructions.actions.continue.default.default");
+		actionContinueName = this.resources.getTranslation("instructions.actions.continue.default.name");
+		actionKeepDefault = this.resources.getTranslation("instructions.actions.keep.default.default");
+		actionKeepName = this.resources.getTranslation("instructions.actions.keep.default.name");
+		actionTurnDefault = this.resources.getTranslation("instructions.actions.turn.default.default");
+		actionTurnName = this.resources.getTranslation("instructions.actions.turn.default.name");
+		actionRoundaboutDefault = this.resources.getTranslation("instructions.actions.roundabout.default.exit.default");
+		actionRoundaboutName = this.resources.getTranslation("instructions.actions.roundabout.default.exit.name");
 		
-		_actionArriveDefault = new String[4];
-		_actionArriveName = new String[4];
-		_actionArriveDefault[0] = _resources.getTranslation("instructions.actions.arrive.default.default");
-		_actionArriveDefault[1] = _resources.getTranslation("instructions.actions.arrive.left.default");
-		_actionArriveDefault[2] = _resources.getTranslation("instructions.actions.arrive.right.default");
-		_actionArriveDefault[3] = _resources.getTranslation("instructions.actions.arrive.straight.default");
-		_actionArriveName[0] = _resources.getTranslation("instructions.actions.arrive.default.name");
-		_actionArriveName[1] = _resources.getTranslation("instructions.actions.arrive.left.name");
-		_actionArriveName[2] = _resources.getTranslation("instructions.actions.arrive.right.name");
-		_actionArriveName[3] = _resources.getTranslation("instructions.actions.arrive.straight.name");
+		actionArriveDefault = new String[4];
+		actionArriveName = new String[4];
+		actionArriveDefault[0] = this.resources.getTranslation("instructions.actions.arrive.default.default");
+		actionArriveDefault[1] = this.resources.getTranslation("instructions.actions.arrive.left.default");
+		actionArriveDefault[2] = this.resources.getTranslation("instructions.actions.arrive.right.default");
+		actionArriveDefault[3] = this.resources.getTranslation("instructions.actions.arrive.straight.default");
+		actionArriveName[0] = this.resources.getTranslation("instructions.actions.arrive.default.name");
+		actionArriveName[1] = this.resources.getTranslation("instructions.actions.arrive.left.name");
+		actionArriveName[2] = this.resources.getTranslation("instructions.actions.arrive.right.name");
+		actionArriveName[3] = this.resources.getTranslation("instructions.actions.arrive.straight.name");
 	}
 
-	public String getContinue(InstructionType type, String wayName)
-	{
-		boolean isWayNull = Helper.isEmpty(wayName);
-		String str = isWayNull ? _actionContinueDefault: _actionContinueName;
-
-		if (isWayNull)
-			return str.replace("{turn_maneuver}",  _turnManeuvers[getTurnManeuver(type)]);
+	public String getContinue(InstructionType type, String wayName) {
+		if (Helper.isEmpty(wayName))
+			return actionContinueDefault.replace(STR_TURN_MANEUVER,  turnManeuvers[getTurnManeuver(type)]);
 		else 
-			return str.replace("{turn_maneuver}", _turnManeuvers[getTurnManeuver(type)]).replace("{way_name}", wayName);
+			return actionContinueName.replace(STR_TURN_MANEUVER, turnManeuvers[getTurnManeuver(type)]).replace(STR_WAY_NAME, wayName);
 	}
 
-	public String getTurn(InstructionType type, String wayName)
-	{
-		boolean isWayNull = Helper.isEmpty(wayName);
-		String str = isWayNull ? _actionTurnDefault: _actionTurnName;
-
-		if (isWayNull)
-			return str.replace("{turn_maneuver}",  _turnManeuvers[getTurnManeuver(type)]);
+	public String getTurn(InstructionType type, String wayName) {
+		if (Helper.isEmpty(wayName))
+			return actionTurnDefault.replace(STR_TURN_MANEUVER,  turnManeuvers[getTurnManeuver(type)]);
 		else 
-			return str.replace("{turn_maneuver}", _turnManeuvers[getTurnManeuver(type)]).replace("{way_name}", wayName);
+			return actionTurnName.replace(STR_TURN_MANEUVER, turnManeuvers[getTurnManeuver(type)]).replace(STR_WAY_NAME, wayName);
 	}
 
-	public String getKeep(InstructionType type, String wayName)
-	{
-		boolean isWayNull = Helper.isEmpty(wayName);
-		String str = isWayNull ? _actionKeepDefault: _actionKeepName;
-
-		if (isWayNull)
-			return str.replace("{turn_maneuver}",  _turnManeuvers[getTurnManeuver(type)]);
+	public String getKeep(InstructionType type, String wayName) {
+		if (Helper.isEmpty(wayName))
+			return actionKeepDefault.replace(STR_TURN_MANEUVER,  turnManeuvers[getTurnManeuver(type)]);
 		else
-			return str.replace("{turn_maneuver}", _turnManeuvers[getTurnManeuver(type)]).replace("{way_name}", wayName);
+			return actionKeepName.replace(STR_TURN_MANEUVER, turnManeuvers[getTurnManeuver(type)]).replace(STR_WAY_NAME, wayName);
 	}
 
-	public String getRoundabout(int exitNumber, String wayName)
-	{
+	public String getRoundabout(int exitNumber, String wayName) {
 		boolean isWayNull = Helper.isEmpty(wayName);
-		String str = isWayNull ? _actionRoundaboutDefault: _actionRoundaboutName;
+		String str = isWayNull ? actionRoundaboutDefault : actionRoundaboutName;
 		boolean isExitNull = (exitNumber == 0);
-		boolean highNumber = false;
 
 		// We need to check if the exit number is greater than 10, as that is the most we have in the n-th representation
-		highNumber = (exitNumber > _numerals.length-1);
+		boolean highNumber = (exitNumber > numerals.length-1);
 
 		//If there was an error in finding the exit number, return "UNKNOWN". If there is no way name, don't return a way name
 		if(isExitNull)
-			str = str.replace("{exit_number}",  "UNKNOWN");
+			str = str.replace(STR_EXIT_NUMBER,  "UNKNOWN");
 		else {
-			String numeral = "";
+			String numeral;
 			if(highNumber) {
 				// if it is a high number which is very rare, then we dont use the numeral representation, just the
 				// number itself
@@ -147,43 +134,34 @@ public class InstructionTranslator
 
 				numeral = Integer.toString(exitNumber);
 			} else {
-				numeral = _numerals[exitNumber];
+				numeral = numerals[exitNumber];
 			}
 
-			str = str.replace("{exit_number}", numeral);
+			str = str.replace(STR_EXIT_NUMBER, numeral);
 		}
 		if (isWayNull)
 			return str;
 		else 
-			return str.replace("{way_name}", wayName);
+			return str.replace(STR_WAY_NAME, wayName);
 	}
 
-	public String getDepart(CardinalDirection direction, String wayName) throws Exception
-	{
-		boolean isWayNull = Helper.isEmpty(wayName);
-		String str = isWayNull ? _actionDepartDefault: _actionDepartName;
-
-		if (isWayNull)
-			return str.replace("{direction}", _directions[direction.ordinal()]);
+	public String getDepart(CardinalDirection direction, String wayName) {
+		if (Helper.isEmpty(wayName))
+			return actionDepartDefault.replace(STR_DIRECTION, directions[direction.ordinal()]);
 		else 
-			return str.replace("{direction}", _directions[direction.ordinal()]).replace("{way_name}", wayName);
+			return actionDepartName.replace(STR_DIRECTION, directions[direction.ordinal()]).replace(STR_WAY_NAME, wayName);
 	}
 	
-	public String getArrive(ArrivalDirection direction, String wayName) throws Exception
-	{
-		boolean isWayNull = Helper.isEmpty(wayName);
-		
-		String str = isWayNull ? _actionArriveDefault[direction.ordinal()]: _actionArriveName[direction.ordinal()];
-		
-		if (isWayNull)
-			return str;
+	public String getArrive(ArrivalDirection direction, String wayName) {
+		if (Helper.isEmpty(wayName))
+			return actionArriveDefault[direction.ordinal()];
 		else 
-			return str.replace("{way_name}", wayName);
+			return actionArriveName[direction.ordinal()].replace(STR_WAY_NAME, wayName);
 	}
 
-	private int getTurnManeuver(InstructionType type)
-	{
+	private int getTurnManeuver(InstructionType type) {
 	    switch (type){
+			default:
             case TURN_LEFT:
                 return 0;
             case TURN_RIGHT:
@@ -204,7 +182,6 @@ public class InstructionTranslator
                 return 9;
         }
 		//TODO
-		//	_turnManeuvers[7] = _resources.getTranslation("instructions.turn_maneuvers.uturn");
-		return 0;
+		//	_turnManeuvers[7] = _resources.getTranslation("instructions.turn_maneuvers.uturn")
 	}
 }

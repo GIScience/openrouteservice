@@ -14,50 +14,49 @@
 package org.heigit.ors.routing;
 
 public class RouteSegmentItem {
-	private int _from;
-	private int _to;
-	private long _value;
-	private double _distance;
+	private int from;
+	private int to;
+	private long value;
+	private double distance;
 
-	public RouteSegmentItem(int from, int to, long value, double distance)
-	{
-		_from = from;
-		_to = to;
-		_value  = value;
-		_distance = distance;
+	public RouteSegmentItem(int from, int to, long value, double distance) {
+		this.from = from;
+		this.to = to;
+		this.value = value;
+		this.distance = distance;
 	}
 
 	public int getFrom() {
-		return _from;
+		return from;
 	}
 
 	public void setFrom(int from) {
-		_from = from;
+		this.from = from;
 	}
 	
 	public int getTo() {
-		return _to;
+		return to;
 	}
 	
 	public void setTo(int to) {
-		_to = to;
+		this.to = to;
 	}
 
 	public long getValue() {
-		return _value;
+		return value;
 	}
 
 	public void setValue(int value) {
-		_value = value;
+		this.value = value;
 	}	
 	
 	public double getDistance()
 	{
-		return _distance;
+		return distance;
 	}
 	
 	public void setDistance(double value)
 	{
-		_distance = value;
+		distance = value;
 	}
 }

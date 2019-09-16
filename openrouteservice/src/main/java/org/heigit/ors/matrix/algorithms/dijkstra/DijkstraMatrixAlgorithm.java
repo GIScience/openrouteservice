@@ -48,16 +48,16 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 		float[] weights = null;
 
 		int tableSize = srcData.size() * dstData.size();
-		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Duration))
+		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION))
 			times = new float[tableSize];
-		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Distance)) 
+		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE))
 			distances = new float[tableSize];
-		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Weight))
+		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT))
 			weights = new float[tableSize];
 
 		if (!srcData.hasValidNodes() || !dstData.hasValidNodes()) {
 			for (int srcIndex = 0; srcIndex < srcData.size(); srcIndex++) 
-				pathMetricsExtractor.setEmptyValues(srcIndex, srcData, dstData, times, distances, weights);
+				pathMetricsExtractor.setEmptyValues(srcIndex, dstData, times, distances, weights);
 		} else {
 			DijkstraOneToManyAlgorithm algorithm = new DijkstraOneToManyAlgorithm(graph, weighting, TraversalMode.NODE_BASED);
 			algorithm.prepare(srcData.getNodeIds(),  dstData.getNodeIds());
@@ -69,7 +69,7 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 				sourceId = srcData.getNodeId(srcIndex);
 
 				if (sourceId == -1) {
-					pathMetricsExtractor.setEmptyValues(srcIndex, srcData, dstData, times, distances, weights);
+					pathMetricsExtractor.setEmptyValues(srcIndex, dstData, times, distances, weights);
 				} else {
 					algorithm.reset();
 					SPTEntry[] targets = algorithm.calcPaths(sourceId, dstData.getNodeIds());
@@ -78,18 +78,18 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 						throw new Exception("Search exceeds the limit of visited nodes.");
 
 					if (targets != null) {
-						pathMetricsExtractor.calcValues(srcIndex, targets, srcData, dstData, times, distances, weights);
+						pathMetricsExtractor.calcValues(srcIndex, targets, dstData, times, distances, weights);
 					}
 				}
 			}
 		}
 
-		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Duration))
-			mtxResult.setTable(MatrixMetricsType.Duration, times);
-		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Distance))
-			mtxResult.setTable(MatrixMetricsType.Distance, distances);
-		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.Weight))
-			mtxResult.setTable(MatrixMetricsType.Weight, weights);
+		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION))
+			mtxResult.setTable(MatrixMetricsType.DURATION, times);
+		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE))
+			mtxResult.setTable(MatrixMetricsType.DISTANCE, distances);
+		if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT))
+			mtxResult.setTable(MatrixMetricsType.WEIGHT, weights);
 
 		return mtxResult;
 	}

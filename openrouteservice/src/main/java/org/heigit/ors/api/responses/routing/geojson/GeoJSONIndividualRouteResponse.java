@@ -31,7 +31,7 @@ import java.util.Map;
 
 public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResponse {
     @JsonProperty("type")
-    public final String TYPE = "Feature";
+    public final String type = "Feature";
 
     @JsonProperty("properties")
     private GeoJSONSummary properties;

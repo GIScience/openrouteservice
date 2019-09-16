@@ -16,46 +16,41 @@ package org.heigit.ors.routing;
 
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
-
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.util.StringUtility;
 
 public class ProfileWeighting {
-	private String _name;
-	private PMap _params;
+	private String name;
+	private PMap params;
 
-	public ProfileWeighting(String name) throws InternalServerException
-	{
+	public ProfileWeighting(String name) throws InternalServerException {
 		if (Helper.isEmpty(name))
 			throw new InternalServerException(RoutingErrorCodes.EMPTY_ELEMENT, "'name' can't be null or empty");
-
-		_name =  name;
+		this.name =  name;
 	}
 
 	public String getName()
 	{
-		return _name;
+		return name;
 	}
 
-	public void addParameter(String name, String value)
-	{
-		if (_params == null)
-			_params = new PMap();
-
-		_params.put(name, value);
+	public void addParameter(String name, String value) {
+		if (params == null)
+			params = new PMap();
+		params.put(name, value);
 	}
 
 	public PMap getParameters()
 	{
-		return _params;
+		return params;
 	}
+
 	public static String encodeName(String name)
 	{
 		return "weighting_#" + name + "#";
 	}
 
-	public static String decodeName(String value)
-	{
+	public static String decodeName(String value) {
 		if (value.startsWith("weighting_#"))
 			return StringUtility.substring(value, '#');
 		else

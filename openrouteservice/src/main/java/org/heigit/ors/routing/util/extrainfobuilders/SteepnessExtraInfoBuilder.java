@@ -22,27 +22,27 @@ import org.heigit.ors.routing.RouteSegmentItem;
 import org.heigit.ors.routing.util.SteepnessUtil;
 
 public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder {
-	private boolean _firstSegment = true;
-	private double _x0, _y0, _z0, _x1, _y1, _z1;
-	private double _elevDiff = 0;
-	private double _cumElevation = 0.0;
-	private double _maxAltitude = Double.MIN_VALUE;
-	private double _minAltitude = Double.MAX_VALUE;
-	private double _prevMinAltitude, _prevMaxAltitude;
-	private double _splitLength = 0.0;
-	private int _prevGradientCat = 0;
-	private int _pointsCount = 0;
-	private RouteSegmentItem _prevSegmentItem;
-	private DistanceCalc3D _distCalc;
-	private boolean _lastEdge;
+	private boolean firstSegment = true;
+	private double x0;
+	private double y0;
+	private double z0;
+	private double cumElevation = 0.0;
+	private double maxAltitude = Double.MIN_VALUE;
+	private double minAltitude = Double.MAX_VALUE;
+	private double splitLength = 0.0;
+	private int prevGradientCat = 0;
+	private int pointsCount = 0;
+	private RouteSegmentItem prevSegmentItem;
+	private DistanceCalc3D distCalc;
+	private boolean lastEdge;
 	
     public SteepnessExtraInfoBuilder(RouteExtraInfo extraInfo) {
 		super(extraInfo);
-		_distCalc = Helper.DIST_3D;
+		distCalc = Helper.DIST_3D;
 	}
 
 	public void addSegment(double value, long valueIndex, PointList geom, double dist, boolean lastEdge) {
-		_lastEdge = lastEdge;
+		this.lastEdge = lastEdge;
     }
 
 	public void addSegment(double value, long valueIndex, PointList geom, double dist) {
@@ -56,131 +56,116 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder {
 		
 		int j0 = 0;
 		
-		if (_firstSegment)
-		{
+		if (firstSegment) {
 			j0 = 1;
 
-			_x0 = geom.getLon(0);
-			_y0 = geom.getLat(0);
-			_z0 = geom.getEle(0);
+			x0 = geom.getLon(0);
+			y0 = geom.getLat(0);
+			z0 = geom.getEle(0);
 			
-			_maxAltitude = _z0;
-			_minAltitude = _z0;
-			_pointsCount++;
+			maxAltitude = z0;
+			minAltitude = z0;
+			pointsCount++;
 			
-			_firstSegment = false;
+			firstSegment = false;
 		}
-		
+
+		double elevDiff;
 		for (int j = j0; j < nPoints; ++j) {
-			_x1 = geom.getLon(j);
-			_y1 = geom.getLat(j);
-			_z1 = geom.getEle(j);
+			double x1 = geom.getLon(j);
+			double y1 = geom.getLat(j);
+			double z1 = geom.getEle(j);
 			
-			_elevDiff = _z1 - _z0;
-			_cumElevation += _elevDiff;
-			double segLength = _distCalc.calcDist(_y0, _x0, _z0, _y1, _x1, _z1);
+			elevDiff = z1 - z0;
+			cumElevation += elevDiff;
+			double segLength = distCalc.calcDist(y0, x0, z0, y1, x1, z1);
 
-			_prevMinAltitude = _minAltitude;
-			_prevMaxAltitude = _maxAltitude;
-			if (_z1 > _maxAltitude)
-				_maxAltitude = _z1;
-			if (_z1 < _minAltitude)
-				_minAltitude = _z1;
+			double prevMinAltitude = minAltitude;
+			double prevMaxAltitude = maxAltitude;
+			if (z1 > maxAltitude)
+				maxAltitude = z1;
+			if (z1 < minAltitude)
+				minAltitude = z1;
 
-			//if ((_maxAltitude - _z1 > SteepnessUtil.ELEVATION_THRESHOLD || _z1 - _minAltitude > SteepnessUtil.ELEVATION_THRESHOLD) && _splitLength > 30)
-			if ((_prevMaxAltitude - _z1 > SteepnessUtil.ELEVATION_THRESHOLD || _z1 - _prevMinAltitude > SteepnessUtil.ELEVATION_THRESHOLD) && _splitLength > 30)
-			{
+			if ((prevMaxAltitude - z1 > SteepnessUtil.ELEVATION_THRESHOLD || z1 - prevMinAltitude > SteepnessUtil.ELEVATION_THRESHOLD) && splitLength > 30) {
 				boolean bApply = true;
-				int elevSign = (_cumElevation -  _elevDiff) > 0 ? 1 : -1;
-				double gradient = elevSign*100*(_prevMaxAltitude - _prevMinAltitude) / _splitLength;
+				int elevSign = (cumElevation - elevDiff) > 0 ? 1 : -1;
+				double gradient = elevSign*100*(prevMaxAltitude - prevMinAltitude) / splitLength;
 				
-				if (_prevGradientCat != 0 )
-				{
+				if (prevGradientCat != 0 ) {
 					double zn= Double.MIN_NORMAL;
 					
 					if (j + 1 < nPoints)
 					  zn = geom.getEle(j + 1);
 
-					if (zn != Double.MIN_VALUE)
-					{						
+					if (zn != Double.MIN_VALUE) {
 						double elevGap = segLength/30;
-						if (elevSign > 0 /* && Math.Abs(prevSplit.Gradient - gradient) < gradientDiff)//*/ && _prevGradientCat > 0)
-						{
-							if (Math.abs(zn - _z1) < elevGap)
-								bApply = false;
-						}
-						else if(/*Math.Abs(prevSplit.Gradient - gradient) < gradientDiff)//*/_prevGradientCat < 0)
-						{
-							if (Math.abs(zn - _z1) < elevGap)
-								bApply = false;
-						}
+						if ((
+								elevSign > 0 /* && Math.Abs(prevSplit.Gradient - gradient) < gradientDiff)//*/ && prevGradientCat > 0
+								|| /*Math.Abs(prevSplit.Gradient - gradient) < gradientDiff)//*/prevGradientCat < 0
+							)
+							&& Math.abs(zn - z1) < elevGap)
+							bApply = false;
 					}
 				}
 				
-				if (bApply)
-				{
+				if (bApply) {
 					int gradientCat = SteepnessUtil.getCategory(gradient);
-					int startIndex = _prevSegmentItem != null ? _prevSegmentItem.getTo() : 0;
+					int startIndex = prevSegmentItem != null ? prevSegmentItem.getTo() : 0;
 
-					if (_prevGradientCat == gradientCat && _prevSegmentItem != null)
-					{
-						_prevSegmentItem.setTo(_prevSegmentItem.getTo() + _pointsCount);
-						_prevSegmentItem.setDistance(_prevSegmentItem.getDistance() + _splitLength);
-					}
-					else
-					{
+					if (prevGradientCat == gradientCat && prevSegmentItem != null) {
+						prevSegmentItem.setTo(prevSegmentItem.getTo() + pointsCount);
+						prevSegmentItem.setDistance(prevSegmentItem.getDistance() + splitLength);
+					} else {
 
-						RouteSegmentItem item = new RouteSegmentItem(startIndex, startIndex + _pointsCount, gradientCat, _splitLength);
-						_extraInfo.add(item);
-						_prevSegmentItem = item;
+						RouteSegmentItem item = new RouteSegmentItem(startIndex, startIndex + pointsCount, gradientCat, splitLength);
+						extraInfo.add(item);
+						prevSegmentItem = item;
 					}
 					
-					_pointsCount = 0;
-					_prevGradientCat = gradientCat;
-					_minAltitude = Math.min(_z0, _z1);
-					_maxAltitude = Math.max(_z0, _z1);
-					_splitLength = 0.0;
+					pointsCount = 0;
+					prevGradientCat = gradientCat;
+					minAltitude = Math.min(z0, z1);
+					maxAltitude = Math.max(z0, z1);
+					splitLength = 0.0;
 					
-					_cumElevation = _elevDiff;
+					cumElevation = elevDiff;
 				}
 			}
 			
-			_splitLength += segLength;
+			splitLength += segLength;
 			
-			_x0 = _x1;
-			_y0 = _y1;
-			_z0 = _z1;
+			x0 = x1;
+			y0 = y1;
+			z0 = z1;
 			
-			_pointsCount++;
+			pointsCount++;
 		}
 		
-		if (_lastEdge && _splitLength > 0)
-		{
-			_elevDiff = _maxAltitude - _minAltitude;
-			if (_extraInfo.isEmpty() && _splitLength < 50 && _elevDiff < SteepnessUtil.ELEVATION_THRESHOLD)
-				_elevDiff = 0;
+		if (lastEdge && splitLength > 0) {
+			elevDiff = maxAltitude - minAltitude;
+			if (extraInfo.isEmpty() && splitLength < 50 && elevDiff < SteepnessUtil.ELEVATION_THRESHOLD)
+				elevDiff = 0;
 			
-			double gradient = (_cumElevation > 0 ? 1: -1)*100*_elevDiff / _splitLength;
+			double gradient = (cumElevation > 0 ? 1: -1)*100* elevDiff / splitLength;
 			int gradientCat = SteepnessUtil.getCategory(gradient);
 			
-			if (_prevSegmentItem != null && (_prevGradientCat == gradientCat || _splitLength < 30))
-			{
-				_prevSegmentItem.setTo(_prevSegmentItem.getTo() + _pointsCount);
-			}
-			else
-			{
-				int startIndex = _prevSegmentItem != null ? _prevSegmentItem.getTo() : 0;
+			if (prevSegmentItem != null && (prevGradientCat == gradientCat || splitLength < 30)) {
+				prevSegmentItem.setTo(prevSegmentItem.getTo() + pointsCount);
+			} else {
+				int startIndex = prevSegmentItem != null ? prevSegmentItem.getTo() : 0;
 				
-				RouteSegmentItem item = new RouteSegmentItem(startIndex, startIndex + _pointsCount, gradientCat, _splitLength);
-				_extraInfo.add(item);
+				RouteSegmentItem item = new RouteSegmentItem(startIndex, startIndex + pointsCount, gradientCat, splitLength);
+				extraInfo.add(item);
 				
-				_prevSegmentItem = item;
-				_prevGradientCat = gradientCat;
-				_pointsCount = 0;
+				prevSegmentItem = item;
+				prevGradientCat = gradientCat;
+				pointsCount = 0;
 			}
 		}
 	}
 	
 	public void finish() {
+    	// do nothing
 	}
 }

@@ -26,7 +26,6 @@ import org.heigit.ors.services.mapmatching.MapMatchingServiceSettings;
 import org.heigit.ors.services.matrix.MatrixServiceSettings;
 import org.heigit.ors.services.routing.RoutingServiceSettings;
 import org.heigit.ors.util.AppInfo;
-import org.json.JSONException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,7 +34,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.HttpStatusCodeException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;

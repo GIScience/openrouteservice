@@ -90,11 +90,7 @@ public class RouteResult
 			int pointsSize = points.size() - index;
 			int newSize = oldSize + pointsSize;
 			Coordinate[] coords = new Coordinate[newSize];
-
-			for (int i = 0; i < oldSize; i++) {
-				coords[i] = geometry[i];
-			}
-
+			System.arraycopy(geometry, 0, coords, 0, oldSize);
 			for (int i = 0; i < pointsSize; ++i) {
 				int j = i + index;
 				if (includeElevation && points.is3D())

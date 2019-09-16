@@ -13,9 +13,9 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
-import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PriorityCode;
+import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKeys;
@@ -27,8 +27,7 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKey
  * @author Peter Karich
  */
 public class FastestSafeWeighting extends FastestWeighting {
-	private Double THRESHOLD_AVOID_AT_ALL_COSTS = (double) (PriorityCode.AVOID_AT_ALL_COSTS.getValue() / (double)PriorityCode.BEST
-			.getValue());
+	private Double thresholdAvoidAtAllCosts = PriorityCode.AVOID_AT_ALL_COSTS.getValue() / (double)PriorityCode.BEST.getValue();
 	
 	public FastestSafeWeighting(FlagEncoder encoder, PMap map) {
 		super(encoder, map);
@@ -43,9 +42,24 @@ public class FastestSafeWeighting extends FastestWeighting {
 
 		double priority = getFlagEncoder().getDecimalEncodedValue(FlagEncoderKeys.PRIORITY_KEY).getDecimal(reverse, edgeState.getFlags());
 
-		if (priority <= THRESHOLD_AVOID_AT_ALL_COSTS)
+		if (priority <= thresholdAvoidAtAllCosts)
 			weight *= 2;
 
 		return weight;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		final FastestSafeWeighting other = (FastestSafeWeighting) obj;
+		return toString().equals(other.toString());
+	}
+
+	@Override
+	public int hashCode() {
+		return ("FastestSafeWeighting" + toString()).hashCode();
 	}
 }

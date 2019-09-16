@@ -39,222 +39,219 @@ import java.util.Iterator;
  */
 public class RouteSearchParameters {
 
-    private int _profileType;
-    private int _weightingMethod = WeightingMethod.FASTEST;
-    private Boolean _considerTurnRestrictions = false;
-    private Polygon[] _avoidAreas;
-    private int _avoidFeaturesTypes;
-    private int _vehicleType = HeavyVehicleAttributes.UNKNOWN;
-    private ProfileParameters _profileParams;
-    private WayPointBearing[] _bearings = null;
-    private double[] _maxRadiuses;
-    private boolean _flexibleMode = false;
-    private boolean _optimized = true;
-    private int _extraInfo;
-    private boolean _suppressWarnings = false;
+    public static final String KEY_AVOID_COUNTRIES = "avoid_countries";
+    public static final String KEY_AVOID_BORDERS = "avoid_borders";
+    public static final String KEY_PROFILE_PARAMS = "profile_params";
+    public static final String KEY_AVOID_FEATURES = "avoid_features";
+    public static final String KEY_AVOID_POLYGONS = "avoid_polygons";
+    public static final String KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR = "alternative_routes_weight_factor";
+    public static final String KEY_ALTERNATIVE_ROUTES_SHARE_FACTOR = "alternative_routes_share_factor";
+    private int profileType;
+    private int weightingMethod = WeightingMethod.FASTEST;
+    private Boolean considerTurnRestrictions = false;
+    private Polygon[] avoidAreas;
+    private int avoidFeaturesTypes;
+    private int vehicleType = HeavyVehicleAttributes.UNKNOWN;
+    private ProfileParameters profileParams;
+    private WayPointBearing[] bearings = null;
+    private double[] maxRadiuses;
+    private boolean flexibleMode = false;
+    private boolean optimized = true;
+    private int extraInfo;
+    private boolean suppressWarnings = false;
 
-    private int[] _avoidCountries = null;
-    private BordersExtractor.Avoid _avoidBorders = BordersExtractor.Avoid.NONE;
+    private int[] avoidCountries = null;
+    private BordersExtractor.Avoid avoidBorders = BordersExtractor.Avoid.NONE;
 
-    private int _alternativeRoutesCount = -1;
-    private double _alternativeRoutesWeightFactor = 1.4;
-    private double _alternativeRoutesShareFactor = 0.6;
+    private int alternativeRoutesCount = -1;
+    private double alternativeRoutesWeightFactor = 1.4;
+    private double alternativeRoutesShareFactor = 0.6;
 
-    private float _roundTripLength = -1;
-    private int _roundTripPoints = 2;
-    private long _roundTripSeed = -1;
+    private float roundTripLength = -1;
+    private int roundTripPoints = 2;
+    private long roundTripSeed = -1;
 
-    private String _options;
+    private String options;
 
     public int getProfileType() {
-        return _profileType;
+        return profileType;
     }
 
     public void setProfileType(int profileType) throws Exception {
         if (profileType == RoutingProfileType.UNKNOWN)
             throw new Exception("Routing profile is unknown.");
 
-        this._profileType = profileType;
+        this.profileType = profileType;
     }
 
     public int getWeightingMethod() {
-        return _weightingMethod;
+        return weightingMethod;
     }
 
     public void setWeightingMethod(int weightingMethod) {
-        _weightingMethod = weightingMethod;
+        this.weightingMethod = weightingMethod;
     }
 
     public Polygon[] getAvoidAreas() {
-        return _avoidAreas;
+        return avoidAreas;
     }
 
     public void setAvoidAreas(Polygon[] avoidAreas) {
-        _avoidAreas = avoidAreas;
+        this.avoidAreas = avoidAreas;
     }
 
     public boolean hasAvoidAreas() {
-        return _avoidAreas != null && _avoidAreas.length > 0;
+        return avoidAreas != null && avoidAreas.length > 0;
     }
 
     public int getAvoidFeatureTypes() {
-        return _avoidFeaturesTypes;
+        return avoidFeaturesTypes;
     }
 
     public void setAvoidFeatureTypes(int avoidFeatures) {
-        _avoidFeaturesTypes = avoidFeatures;
+        avoidFeaturesTypes = avoidFeatures;
     }
 
     public boolean hasAvoidFeatures() {
-        return _avoidFeaturesTypes > 0;
+        return avoidFeaturesTypes > 0;
     }
 
     public int[] getAvoidCountries() {
-        return _avoidCountries;
+        return avoidCountries;
     }
 
     public void setAvoidCountries(int[] avoidCountries) {
-        _avoidCountries = avoidCountries;
+        this.avoidCountries = avoidCountries;
     }
 
     public boolean hasAvoidCountries() {
-        return _avoidCountries != null && _avoidCountries.length > 0;
+        return avoidCountries != null && avoidCountries.length > 0;
     }
 
     public boolean hasAvoidBorders() {
-        return _avoidBorders != BordersExtractor.Avoid.NONE;
+        return avoidBorders != BordersExtractor.Avoid.NONE;
     }
 
     public void setAvoidBorders(BordersExtractor.Avoid avoidBorders) {
-        _avoidBorders = avoidBorders;
+        this.avoidBorders = avoidBorders;
     }
 
     public BordersExtractor.Avoid getAvoidBorders() {
-        return _avoidBorders;
+        return avoidBorders;
     }
 
     public Boolean getConsiderTurnRestrictions() {
-        return _considerTurnRestrictions;
+        return considerTurnRestrictions;
     }
 
     public void setConsiderTurnRestrictions(Boolean considerTurnRestrictions) {
-        _considerTurnRestrictions = considerTurnRestrictions;
+        this.considerTurnRestrictions = considerTurnRestrictions;
     }
 
     public int getVehicleType() {
-        return _vehicleType;
+        return vehicleType;
     }
 
     public void setVehicleType(int vehicleType) {
-        this._vehicleType = vehicleType;
+        this.vehicleType = vehicleType;
     }
 
     public int getAlternativeRoutesCount() {
-        return _alternativeRoutesCount;
+        return alternativeRoutesCount;
     }
 
-    public void setAlternativeRoutesCount(int _alternativeRoutesCount) {
-        this._alternativeRoutesCount = _alternativeRoutesCount;
+    public void setAlternativeRoutesCount(int alternativeRoutesCount) {
+        this.alternativeRoutesCount = alternativeRoutesCount;
     }
 
     public double getAlternativeRoutesWeightFactor() {
-        return _alternativeRoutesWeightFactor;
+        return alternativeRoutesWeightFactor;
     }
 
-    public void set_alternativeRoutesWeightFactor(double _alternativeRoutesWeightFactor) {
-        this._alternativeRoutesWeightFactor = _alternativeRoutesWeightFactor;
+    public void setAlternativeRoutesWeightFactor(double alternativeRoutesWeightFactor) {
+        this.alternativeRoutesWeightFactor = alternativeRoutesWeightFactor;
     }
 
     public double getAlternativeRoutesShareFactor() {
-        return _alternativeRoutesShareFactor;
+        return alternativeRoutesShareFactor;
     }
 
-    public void set_alternativeRoutesShareFactor(double _alternativeRoutesShareFactor) {
-        this._alternativeRoutesShareFactor = _alternativeRoutesShareFactor;
+    public void setAlternativeRoutesShareFactor(double alternativeRoutesShareFactor) {
+        this.alternativeRoutesShareFactor = alternativeRoutesShareFactor;
     }
 
     public int getExtraInfo() {
-        return _extraInfo;
+        return extraInfo;
     }
 
     public void setExtraInfo(int extraInfo) {
-        _extraInfo = extraInfo;
+        this.extraInfo = extraInfo;
     }
 
     public boolean getSuppressWarnings() {
-        return _suppressWarnings;
+        return suppressWarnings;
     }
 
     public void setSuppressWarnings(boolean suppressWarnings) {
-        _suppressWarnings = suppressWarnings;
+        this.suppressWarnings = suppressWarnings;
     }
 
     public String getOptions() {
-        return _options;
+        return options;
     }
 
     public void setOptions(String options) throws Exception {
         if (options == null)
             return;
 
-        _options = StringUtility.trim(options, '\"');
-
-        //////////////
-        // FIXME Only for debugging!!
-        // This option for green routing should be constructed by the client
-        //		_options = "{\"profile_params\":{\"green_routing\":true}}"
-        //////////////
-
-        JSONObject json = null;
+        this.options = StringUtility.trim(options, '\"');
+        JSONObject json;
         try {
-            json = new JSONObject(_options);
+            json = new JSONObject(this.options);
         } catch (Exception ex) {
             throw new ParseException(ex.getMessage(), 0);
         }
 
-        if (json.has("avoid_features")) {
-            String keyValue = json.getString("avoid_features");
+        if (json.has(KEY_AVOID_FEATURES)) {
+            String keyValue = json.getString(KEY_AVOID_FEATURES);
             if (!Helper.isEmpty(keyValue)) {
                 String[] avoidFeatures = keyValue.split("\\|");
-                if (avoidFeatures != null && avoidFeatures.length > 0) {
+                if (avoidFeatures.length > 0) {
                     int flags = 0;
-                    for (int i = 0; i < avoidFeatures.length; i++) {
-                        String featName = avoidFeatures[i];
+                    for (String featName : avoidFeatures) {
                         if (featName != null) {
                             int flag = AvoidFeatureFlags.getFromString(featName);
                             if (flag == 0)
-                                throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", featName);
+                                throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_AVOID_FEATURES, featName);
 
-                            if (!AvoidFeatureFlags.isValid(_profileType, flag))
-                                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_features", featName);
+                            if (!AvoidFeatureFlags.isValid(profileType, flag))
+                                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_AVOID_FEATURES, featName);
 
                             flags |= flag;
                         }
                     }
-
                     if (flags != 0)
-                        _avoidFeaturesTypes = flags;
-
+                        avoidFeaturesTypes = flags;
                 }
             }
         }
 
-        if (json.has("avoid_countries")) {
-            String keyValue = json.getString("avoid_countries");
+        if (json.has(KEY_AVOID_COUNTRIES)) {
+            String keyValue = json.getString(KEY_AVOID_COUNTRIES);
             if (!Helper.isEmpty(keyValue)) {
-                String[] avoidCountries = keyValue.split("\\|");
-                if (avoidCountries.length > 0) {
-                    _avoidCountries = new int[avoidCountries.length];
-                    for (int i = 0; i < avoidCountries.length; i++) {
+                String[] countries = keyValue.split("\\|");
+                if (countries.length > 0) {
+                    this.avoidCountries = new int[countries.length];
+                    for (int i = 0; i < countries.length; i++) {
                         try {
-                            _avoidCountries[i] = Integer.parseInt(avoidCountries[i]);
+                            this.avoidCountries[i] = Integer.parseInt(countries[i]);
                         } catch (NumberFormatException nfe) {
                             // Check if ISO-3166-1 Alpha-2 / Alpha-3 code
-                            int countryId = CountryBordersReader.getCountryIdByISOCode(avoidCountries[i]);
+                            int countryId = CountryBordersReader.getCountryIdByISOCode(countries[i]);
                             if (countryId > 0) {
-                                _avoidCountries[i] = countryId;
+                                this.avoidCountries[i] = countryId;
                             } else {
-                                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_countries", avoidCountries[i]);
+                                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_AVOID_COUNTRIES, countries[i]);
                             }
                         }
                     }
@@ -262,37 +259,34 @@ public class RouteSearchParameters {
             }
         }
 
-        if (json.has("avoid_borders")) {
-            String keyValue = json.getString("avoid_borders");
+        if (json.has(KEY_AVOID_BORDERS)) {
+            String keyValue = json.getString(KEY_AVOID_BORDERS);
             if (!Helper.isEmpty(keyValue)) {
-                String borderType = keyValue;
-                if (borderType != null) {
-                    if (borderType.equals("controlled")) {
-                        _avoidBorders = BordersExtractor.Avoid.CONTROLLED;
-                    } else if (borderType.equals("all")) {
-                        _avoidBorders = BordersExtractor.Avoid.ALL;
-                    } else {
-                        throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_borders", borderType);
-                    }
+                if (keyValue.equals("controlled")) {
+                    avoidBorders = BordersExtractor.Avoid.CONTROLLED;
+                } else if (keyValue.equals("all")) {
+                    avoidBorders = BordersExtractor.Avoid.ALL;
+                } else {
+                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_AVOID_BORDERS, keyValue);
                 }
             }
         }
 
-        if (json.has("profile_params") && _profileType == RoutingProfileType.DRIVING_CAR) {
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "profile_params");
-        } else if (json.has("profile_params")) {
-            JSONObject jProfileParams = json.getJSONObject("profile_params");
+        if (json.has(KEY_PROFILE_PARAMS) && profileType == RoutingProfileType.DRIVING_CAR) {
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_PROFILE_PARAMS);
+        } else if (json.has(KEY_PROFILE_PARAMS)) {
+            JSONObject jProfileParams = json.getJSONObject(KEY_PROFILE_PARAMS);
             JSONObject jRestrictions = null;
 
             if (jProfileParams.has("restrictions"))
                 jRestrictions = jProfileParams.getJSONObject("restrictions");
 
-            if (RoutingProfileType.isHeavyVehicle(_profileType) == true) {
+            if (RoutingProfileType.isHeavyVehicle(profileType)) {
                 VehicleParameters vehicleParams = new VehicleParameters();
 
                 if (json.has("vehicle_type")) {
-                    String vehicleType = json.getString("vehicle_type");
-                    _vehicleType = HeavyVehicleAttributes.getFromString(vehicleType);
+                    String type = json.getString("vehicle_type");
+                    this.vehicleType = HeavyVehicleAttributes.getFromString(type);
 
                     // Since 4.2, all restrictions are packed in its own element
                     if (jRestrictions == null)
@@ -314,15 +308,15 @@ public class RouteSearchParameters {
                         vehicleParams.setAxleload(jRestrictions.getDouble("axleload"));
 
                     int loadCharacteristics = 0;
-                    if (jRestrictions.has("hazmat") && jRestrictions.getBoolean("hazmat") == true)
+                    if (jRestrictions.has("hazmat") && jRestrictions.getBoolean("hazmat"))
                         loadCharacteristics |= VehicleLoadCharacteristicsFlags.HAZMAT;
 
                     if (loadCharacteristics != 0)
                         vehicleParams.setLoadCharacteristics(loadCharacteristics);
                 }
 
-                _profileParams = vehicleParams;
-            } else if (_profileType == RoutingProfileType.WHEELCHAIR) {
+                profileParams = vehicleParams;
+            } else if (profileType == RoutingProfileType.WHEELCHAIR) {
                 WheelchairParameters wheelchairParams = new WheelchairParameters();
 
                 // Since 4.2, all restrictions are packed in its own element
@@ -348,53 +342,53 @@ public class RouteSearchParameters {
                     wheelchairParams.setMinimumWidth((float) jRestrictions.getDouble("minimum_width"));
                 }
 
-                _profileParams = wheelchairParams;
+                profileParams = wheelchairParams;
             } else
-                _profileParams = new ProfileParameters();
+                profileParams = new ProfileParameters();
 
-            processWeightings(jProfileParams, _profileParams);
+            processWeightings(jProfileParams, profileParams);
         }
 
-        if (json.has("avoid_polygons")) {
-            JSONObject jFeature = (JSONObject) json.get("avoid_polygons");
+        if (json.has(KEY_AVOID_POLYGONS)) {
+            JSONObject jFeature = (JSONObject) json.get(KEY_AVOID_POLYGONS);
 
             Geometry geom = null;
             try {
                 geom = GeometryJSON.parse(jFeature);
             } catch (Exception ex) {
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, "avoid_polygons");
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, KEY_AVOID_POLYGONS);
             }
 
             if (geom instanceof Polygon) {
-                _avoidAreas = new Polygon[]{(Polygon) geom};
+                avoidAreas = new Polygon[]{(Polygon) geom};
             } else if (geom instanceof MultiPolygon) {
                 MultiPolygon multiPoly = (MultiPolygon) geom;
-                _avoidAreas = new Polygon[multiPoly.getNumGeometries()];
+                avoidAreas = new Polygon[multiPoly.getNumGeometries()];
                 for (int i = 0; i < multiPoly.getNumGeometries(); i++)
-                    _avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
+                    avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
             } else {
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "avoid_polygons");
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_AVOID_POLYGONS);
             }
         }
 
         if (json.has("alternative_routes_count")) {
             try {
-                _alternativeRoutesCount = json.getInt("alternative_routes_count");
+                alternativeRoutesCount = json.getInt("alternative_routes_count");
             } catch (Exception ex) {
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "alternative_routes", json.getString("alternative_routes"));
             }
-            if (json.has("alternative_routes_weight_factor")) {
+            if (json.has(KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR)) {
                 try {
-                    _alternativeRoutesWeightFactor = json.getDouble("alternative_routes_weight_factor");
+                    alternativeRoutesWeightFactor = json.getDouble(KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR);
                 } catch (Exception ex) {
-                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "alternative_routes_weight_factor", json.getString("alternative_routes_weight_factor"));
+                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR, json.getString(KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR));
                 }
             }
-            if (json.has("alternative_routes_share_factor")) {
+            if (json.has(KEY_ALTERNATIVE_ROUTES_SHARE_FACTOR)) {
                 try {
-                    _alternativeRoutesShareFactor = json.getDouble("alternative_routes_share_factor");
+                    alternativeRoutesShareFactor = json.getDouble(KEY_ALTERNATIVE_ROUTES_SHARE_FACTOR);
                 } catch (Exception ex) {
-                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "alternative_routes_share_factor", json.getString("alternative_routes_share_factor"));
+                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, KEY_ALTERNATIVE_ROUTES_SHARE_FACTOR, json.getString(KEY_ALTERNATIVE_ROUTES_SHARE_FACTOR));
                 }
             }
         }
@@ -425,74 +419,74 @@ public class RouteSearchParameters {
     }
 
     public boolean hasParameters(Class<?> value) {
-        if (_profileParams == null)
+        if (profileParams == null)
             return false;
 
-        return _profileParams.getClass() == value;
+        return profileParams.getClass() == value;
     }
 
     public ProfileParameters getProfileParameters() {
-        return _profileParams;
+        return profileParams;
     }
 
     public void setProfileParams(ProfileParameters profileParams) {
-        this._profileParams = profileParams;
+        this.profileParams = profileParams;
     }
 
     public boolean getFlexibleMode() {
-        return _flexibleMode;
+        return flexibleMode;
     }
 
     public void setFlexibleMode(boolean flexibleMode) {
-        _flexibleMode = flexibleMode;
+        this.flexibleMode = flexibleMode;
     }
 
     public boolean getOptimized() {
-        return _optimized;
+        return optimized;
     }
 
     public void setOptimized(boolean optimized) {
-        _optimized = optimized;
+        this.optimized = optimized;
     }
 
     public double[] getMaximumRadiuses() {
-        return _maxRadiuses;
+        return maxRadiuses;
     }
 
     public void setMaximumRadiuses(double[] maxRadiuses) {
-        _maxRadiuses = maxRadiuses;
+        this.maxRadiuses = maxRadiuses;
     }
 
     public WayPointBearing[] getBearings() {
-        return _bearings;
+        return bearings;
     }
 
     public void setBearings(WayPointBearing[] bearings) {
-        _bearings = bearings;
+        this.bearings = bearings;
     }
 
     public void setRoundTripLength(float length) {
-        _roundTripLength = length;
+        roundTripLength = length;
     }
 
     public float getRoundTripLength() {
-        return _roundTripLength;
+        return roundTripLength;
     }
 
     public void setRoundTripPoints(int points) {
-        _roundTripPoints = points;
+        roundTripPoints = points;
     }
 
     public int getRoundTripPoints() {
-        return _roundTripPoints;
+        return roundTripPoints;
     }
 
     public void setRoundTripSeed(long seed) {
-        _roundTripSeed = seed;
+        roundTripSeed = seed;
     }
 
     public long getRoundTripSeed() {
-        return _roundTripSeed;
+        return roundTripSeed;
     }
 
     public boolean isProfileTypeDriving() {

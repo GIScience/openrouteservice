@@ -21,8 +21,7 @@ import com.graphhopper.storage.GraphExtension;
 
 public class WaySurfaceTypeGraphStorage implements GraphExtension {
 	/* pointer for no entry */
-	protected final int NO_ENTRY = -1;
-	protected final int EF_WAYTYPE;
+	protected final int efWaytype;
 
 	protected DataAccess orsEdges;
 	protected int edgeEntryIndex = 0;
@@ -32,7 +31,7 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
 	private byte[] byteValues;
 
 	public WaySurfaceTypeGraphStorage() {
-		EF_WAYTYPE = 0;
+		efWaytype = 0;
 	
 		edgeEntryBytes = edgeEntryIndex + 1;
 		edgesCount = 0;
@@ -56,13 +55,13 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
 	}
 
 	public GraphExtension create(long initBytes) {
-		orsEdges.create((long) initBytes * edgeEntryBytes);
+		orsEdges.create(initBytes * edgeEntryBytes);
 		return this;
 	}
 
 	public void flush() {
 		orsEdges.setHeader(0, edgeEntryBytes);
-		orsEdges.setHeader(1 * 4, edgesCount);
+		orsEdges.setHeader(4, edgesCount);
 		orsEdges.flush();
 	}
 
@@ -97,15 +96,14 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
 
 		// add entry
 		long edgePointer = (long) edgeId * edgeEntryBytes;
-		byteValues[0] = (byte)((wayDesc.getWayType() << 4) | wayDesc.getSurfaceType());
-		orsEdges.setBytes(edgePointer + EF_WAYTYPE, byteValues, 1);
+		byteValues[0] = (byte)((wayDesc.getWayType() << 4) | wayDesc.getSurfaceType() & 0xff);
+		orsEdges.setBytes(edgePointer + efWaytype, byteValues, 1);
 	}
 
 	
-	public WaySurfaceDescription getEdgeValue(int edgeId, byte[] buffer)
-	{
+	public WaySurfaceDescription getEdgeValue(int edgeId, byte[] buffer) {
 		long edgePointer = (long) edgeId * edgeEntryBytes;
-		orsEdges.getBytes(edgePointer + EF_WAYTYPE, buffer, 1);
+		orsEdges.getBytes(edgePointer + efWaytype, buffer, 1);
 		
 		byte compValue = buffer[0];
 		WaySurfaceDescription res = new WaySurfaceDescription();

@@ -14,11 +14,12 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 public class VehicleDimensionRestrictions {
-	public static int MaxHeight = 0;
-	public static int MaxWeight = 1;
-	public static int MaxWidth = 2;
-	public static int MaxLength = 3;
-	public static int MaxAxleLoad = 4;
-	
-	public static int Count = 5;
+	public static final int MAX_HEIGHT = 0;
+	public static final int MAX_WEIGHT = 1;
+	public static final int MAX_WIDTH = 2;
+	public static final int MAX_LENGTH = 3;
+	public static final int MAX_AXLE_LOAD = 4;
+	public static final int COUNT = 5;
+
+	private VehicleDimensionRestrictions() {}
 }

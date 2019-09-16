@@ -27,29 +27,37 @@ import org.heigit.ors.util.DistanceUnitUtil;
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 
+/**
+ * @deprecated
+ */
 @Deprecated
-public class RoutingRequestParser
-{
-	public static RoutingRequest parseFromRequestParams(HttpServletRequest request) throws Exception
-	{
+public class RoutingRequestParser {
+
+	public static final String KEY_PROFILE = "profile";
+	public static final String KEY_COORDINATES = "coordinates";
+	public static final String KEY_BEARINGS = "bearings";
+	public static final String KEY_RADIUSES = "radiuses";
+	public static final String KEY_OPTIMIZED = "optimized";
+
+	private RoutingRequestParser() {}
+
+	public static RoutingRequest parseFromRequestParams(HttpServletRequest request) throws Exception {
 		RoutingRequest req = new RoutingRequest();
 		RouteSearchParameters searchParams = req.getSearchParameters();
 
-		String value = request.getParameter("profile");
-		if (!Helper.isEmpty(value))
-		{
+		String value = request.getParameter(KEY_PROFILE);
+		if (!Helper.isEmpty(value)) {
 			int profileType = RoutingProfileType.getFromString(value);
 
 			if (profileType == RoutingProfileType.UNKNOWN)
-				throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "profile", value);
+				throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_PROFILE, value);
 			searchParams.setProfileType(profileType);
 		}
 		else
-			throw new MissingParameterException(RoutingErrorCodes.MISSING_PARAMETER, "profile");
+			throw new MissingParameterException(RoutingErrorCodes.MISSING_PARAMETER, KEY_PROFILE);
 
 		value = request.getParameter("preference");
-		if (!Helper.isEmpty(value))
-		{
+		if (!Helper.isEmpty(value)) {
 			int weightingMethod = WeightingMethod.getFromString(value);
 			if (weightingMethod == WeightingMethod.UNKNOWN)
 				throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "preference", value);
@@ -57,18 +65,14 @@ public class RoutingRequestParser
 			searchParams.setWeightingMethod(weightingMethod);
 		}
 
-		value = request.getParameter("coordinates");
-		if (!Helper.isEmpty(value))
-		{
+		value = request.getParameter(KEY_COORDINATES);
+		if (!Helper.isEmpty(value)) {
 			Coordinate[] coords = null;
 
-			try
-			{
+			try {
 				coords = CoordTools.parse(value, "\\|", true, false);
-			}
-			catch(NumberFormatException ex)
-			{
-				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "coordinates");
+			} catch(NumberFormatException ex) {
+				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, KEY_COORDINATES);
 			}
 
 			if (coords.length < 2)
@@ -77,23 +81,19 @@ public class RoutingRequestParser
 			req.setCoordinates(coords);
 		}	
 		else
-			throw new MissingParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "coordinates");
+			throw new MissingParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_COORDINATES);
 		
-		value = request.getParameter("bearings");
-		if (!Helper.isEmpty(value))
-		{
+		value = request.getParameter(KEY_BEARINGS);
+		if (!Helper.isEmpty(value)) {
 			WayPointBearing[] bearings = null;
 
-			try
-			{
+			try {
 				String[] array = value.split("\\|");
 				bearings = new WayPointBearing[array.length];
 				
-				for (int i = 0; i < array.length; i++)
-				{
+				for (int i = 0; i < array.length; i++) {
 					value = array[i].trim();
-					if (value.contains(","))
-					{
+					if (value.contains(",")) {
 						String[] bd = value.split("\\,");
 						if (bd.length >= 2)
 							bearings[i] = new WayPointBearing(Double.parseDouble(bd[0]), Double.parseDouble(bd[1]));
@@ -109,32 +109,28 @@ public class RoutingRequestParser
 					}
 						
 				}
-			}
-			catch(Exception ex)
-			{
-				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "bearings", value);
+			} catch(Exception ex) {
+				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_BEARINGS, value);
 			}
 
 			if (bearings == null || bearings.length < req.getCoordinates().length - 1 || bearings.length > req.getCoordinates().length)
-				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "bearings", value);
+				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_BEARINGS, value);
 
 			req.getSearchParameters().setBearings(bearings);
 		}
 		
-		value = request.getParameter("radiuses");
-		if (!Helper.isEmpty(value))
-		{
-			double[] radiuses = ArraysUtility.parseDoubleArray(value, "radiuses", "\\|", RoutingErrorCodes.INVALID_PARAMETER_VALUE);
+		value = request.getParameter(KEY_RADIUSES);
+		if (!Helper.isEmpty(value)) {
+			double[] radiuses = ArraysUtility.parseDoubleArray(value, KEY_RADIUSES, "\\|", RoutingErrorCodes.INVALID_PARAMETER_VALUE);
 			
 			if (radiuses.length != req.getCoordinates().length)
-				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "radiuses", value);
+				throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_RADIUSES, value);
 
 			req.getSearchParameters().setMaximumRadiuses(radiuses);
 		}
 		
 		value = request.getParameter("units");
-		if (!Helper.isEmpty(value))
-		{
+		if (!Helper.isEmpty(value)) {
 			DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.UNKNOWN);
 			
 			if (units == DistanceUnit.UNKNOWN)
@@ -144,8 +140,7 @@ public class RoutingRequestParser
 		}
 
 		value = request.getParameter("language");
-		if (!Helper.isEmpty(value))
-		{
+		if (!Helper.isEmpty(value)) {
 			if(!LocalizationManager.getInstance().isLanguageSupported(value))
 				throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, "Specified language '" +  value + "' is not supported.");
 
@@ -157,8 +152,7 @@ public class RoutingRequestParser
 			req.setIncludeGeometry(Boolean.parseBoolean(value));
 
 		value = request.getParameter("geometry_format");
-		if (!Helper.isEmpty(value))
-		{
+		if (!Helper.isEmpty(value)) {
 			if (!("geojson".equalsIgnoreCase(value) || "polyline".equalsIgnoreCase(value) || "encodedpolyline".equalsIgnoreCase(value)))
 				throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "geometry_format", value);
 
@@ -194,8 +188,7 @@ public class RoutingRequestParser
 			req.getSearchParameters().setSuppressWarnings(Boolean.parseBoolean(value));
 
 		value = request.getParameter("instructions_format");
-		if (!Helper.isEmpty(value))
-		{
+		if (!Helper.isEmpty(value)) {
 			RouteInstructionsFormat instrFormat = RouteInstructionsFormat.fromString(value);
 			if (instrFormat == RouteInstructionsFormat.UNKNOWN)
 				throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "instructions_format", value);
@@ -217,37 +210,27 @@ public class RoutingRequestParser
 			req.setAttributes(value.split("\\|"));
 
 		value = request.getParameter("options");
-		if (!Helper.isEmpty(value))
-		{
-			try
-			{
+		if (!Helper.isEmpty(value)) {
+			try {
 				searchParams.setOptions(value);
-			}
-			catch(ParseException ex)
-			{
+			} catch(ParseException ex) {
 				throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, "Unable to parse 'options' value." + ex.getMessage());
-			}
-			catch(StatusCodeException scex)
-			{
+			} catch(StatusCodeException scex) {
 				throw scex;
 			}
 		}
 		
-		value = request.getParameter("optimized");
-		if (!Helper.isEmpty(value))
-		{
-		   try
-		   {
-			   Boolean b = Boolean.parseBoolean(value);
+		value = request.getParameter(KEY_OPTIMIZED);
+		if (!Helper.isEmpty(value)) {
+		   try {
+			   boolean b = Boolean.parseBoolean(value);
 			   if (!b && !value.equalsIgnoreCase("false"))
-				   throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "optimized");
+				   throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, KEY_OPTIMIZED);
 			   
 			   searchParams.setFlexibleMode(!b);
 			   searchParams.setOptimized(b);
-		   }
-		   catch(Exception ex)
-		   {
-			   throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "optimized");
+		   } catch(Exception ex) {
+			   throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, KEY_OPTIMIZED);
 		   }
 		}
 

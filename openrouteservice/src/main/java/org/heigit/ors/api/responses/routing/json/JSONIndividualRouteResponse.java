@@ -98,7 +98,7 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
 
     private String constructEncodedGeometry(final Coordinate[] coordinates) {
         if(coordinates != null)
-            return PolylineEncoder.encode(coordinates, includeElevation, new StringBuffer());
+            return PolylineEncoder.encode(coordinates, includeElevation, new StringBuilder());
         else
             return "";
     }

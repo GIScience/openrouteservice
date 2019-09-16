@@ -1,19 +1,16 @@
 package org.heigit.ors.routing.graphhopper.extensions.util;
 
-import  com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.util.Helper;
-import com.graphhopper.util.PMap;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ORSPMap extends HintsMap {
-    private final Map<String, Object> objMap = new HashMap();
-    ;
+    private final Map<String, Object> objMap = new HashMap<>();
 
-    public PMap putObj(String key, Object obj) {
+    public void putObj(String key, Object obj) {
         objMap.put(Helper.camelCaseToUnderScore(key), obj);
-        return this;
     }
 
     public boolean hasObj(String key) {
@@ -26,5 +23,4 @@ public class ORSPMap extends HintsMap {
         }
         return objMap.get(Helper.camelCaseToUnderScore(key));
     }
-
 }

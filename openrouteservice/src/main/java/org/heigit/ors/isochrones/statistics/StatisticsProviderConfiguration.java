@@ -24,59 +24,53 @@ import java.util.List;
 import java.util.Map;
 
 public class StatisticsProviderConfiguration {
-	private int _id;
-	private String _name;
-	private Map<String, Object> _parameters;
-	private Map<String, String> _mapping;
-	private String _attribution;
+	private int id;
+	private String name;
+	private Map<String, Object> parameters;
+	private Map<String, String> mapping;
+	private String attribution;
 	
-	public StatisticsProviderConfiguration(int id, String name, Map<String, Object> parameters, Map<String, String> mapping, String attribution)
-	{
-		_id = id;
-		_name = name;
-		_parameters = parameters;
-		_mapping = mapping;
-		_attribution = attribution;
+	public StatisticsProviderConfiguration(int id, String name, Map<String, Object> parameters, Map<String, String> mapping, String attribution) {
+		this.id = id;
+		this.name = name;
+		this.parameters = parameters;
+		this.mapping = mapping;
+		this.attribution = attribution;
 	}
 	
 	@Override
 	public int hashCode()
 	{
-		return _id;
+		return id;
 	}
 
 	@Override
-	public boolean equals(Object obj)
-	{
-		return _id == ((StatisticsProviderConfiguration)obj)._id;
+	public boolean equals(Object obj) {
+		return obj != null && obj.getClass() == this.getClass() && id == ((StatisticsProviderConfiguration) obj).id;
 	}
 
 	public int getId()
 	{
-		return _id;
+		return id;
 	}
 	
 	public String getName() {
-		return _name;
+		return name;
 	}
 
 	public String getAttribution() {
-		return _attribution;
+		return attribution;
 	}
 
 	public Map<String, Object> getParameters() {
-		return _parameters;
+		return parameters;
 	}
 	
-	public String[] getMappedProperties(List<String> props)
-	{
+	public String[] getMappedProperties(List<String> props) {
 		String[] res = new String[props.size()];
-		
-		for (int i = 0; i < props.size(); i++)
-		{
-			res[i] = _mapping.get(props.get(i));			
+		for (int i = 0; i < props.size(); i++) {
+			res[i] = mapping.get(props.get(i));
 		}
-		
 		return res;
 	}
 }

@@ -13,77 +13,74 @@
  */
 package org.heigit.ors.routing;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.graphhopper.PathWrapper;
-
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.FormatUtility;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RouteSegment {
-	private double _distance;
-	private double _duration;
-	private double _ascent;
-	private double _descent;
-	private double _detourFactor = 0.0;
-	private List<RouteStep> _steps;
+	private double distance;
+	private double duration;
+	private double ascent;
+	private double descent;
+	private double detourFactor = 0.0;
+	private List<RouteStep> steps;
 
-	public RouteSegment(PathWrapper path, DistanceUnit units) throws Exception
-	{
-		_distance = FormatUtility.roundToDecimalsForUnits(DistanceUnitUtil.convert(path.getDistance(), DistanceUnit.METERS, units), units);
-		_duration = FormatUtility.roundToDecimals(path.getTime()/1000.0, 1);
-		_ascent = path.getAscend();
-		_descent = path.getDescend();
-
-		_steps = new ArrayList<>();
+	public RouteSegment(PathWrapper path, DistanceUnit units) throws Exception {
+		distance = FormatUtility.roundToDecimalsForUnits(DistanceUnitUtil.convert(path.getDistance(), DistanceUnit.METERS, units), units);
+		duration = FormatUtility.roundToDecimals(path.getTime()/1000.0, 1);
+		ascent = path.getAscend();
+		descent = path.getDescend();
+		steps = new ArrayList<>();
 	}
 
 	public double getDistance()
 	{
-		return _distance;
+		return distance;
 	}   
 
 	public double getDuration()
 	{
-		return _duration;
+		return duration;
 	}
 
 	public double getAscent()
 	{
-		return _ascent;
+		return ascent;
 	}
 
 	public double getDescent()
 	{
-		return _descent;
+		return descent;
 	}
 
 	public double getAscentRounded()
 	{
-		return FormatUtility.roundToDecimals(_ascent, 1);
+		return FormatUtility.roundToDecimals(ascent, 1);
 	}
 
 	public double getDescentRounded()
 	{
-		return FormatUtility.roundToDecimals(_descent, 1);
+		return FormatUtility.roundToDecimals(descent, 1);
 	}
 
 	public void addStep(RouteStep step)
 	{
-		_steps.add(step);
+		steps.add(step);
 	}
 
 	public List<RouteStep> getSteps() {
-		return _steps;
+		return steps;
 	}
 
 	public double getDetourFactor() {
-		return _detourFactor;
+		return detourFactor;
 	}
 
 	public void setDetourFactor(double detourFactor) {
-		_detourFactor = detourFactor;
+		this.detourFactor = detourFactor;
 	}
 }

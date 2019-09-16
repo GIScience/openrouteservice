@@ -13,9 +13,6 @@ public class ORSPathProcessorFactory implements PathProcessorFactory {
     private static final Logger LOGGER = Logger.getLogger(ORSPathProcessorFactory.class.getName());
     private CountryBordersReader countryBordersReader;
 
-    public ORSPathProcessorFactory () {
-    }
-    
     @Override
     public PathProcessor createPathProcessor(PMap opts, FlagEncoder enc, GraphHopperStorage gs) {
         try {

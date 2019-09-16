@@ -5,8 +5,7 @@ import org.heigit.ors.routing.graphhopper.extensions.util.EncodeUtils;
 
 public class OsmIdGraphStorage implements GraphExtension {
     /* pointer for no entry */
-    protected final int NO_ENTRY = -1;
-    protected final int EF_OSMID;
+    protected final int efOsmid;
 
     protected DataAccess orsEdges;
     protected int edgeEntryIndex = 0;
@@ -16,7 +15,7 @@ public class OsmIdGraphStorage implements GraphExtension {
     private byte[] byteValues;
 
     public OsmIdGraphStorage() {
-        EF_OSMID = 0;
+        efOsmid = 0;
         edgeEntryBytes = edgeEntryIndex + 4;
         edgesCount = 0;
         byteValues = new byte[4];
@@ -51,7 +50,7 @@ public class OsmIdGraphStorage implements GraphExtension {
 
     public void flush() {
         orsEdges.setHeader(0, edgeEntryBytes);
-        orsEdges.setHeader(1 * 4, edgesCount);
+        orsEdges.setHeader(4, edgesCount);
         orsEdges.flush();
     }
 
@@ -96,7 +95,7 @@ public class OsmIdGraphStorage implements GraphExtension {
         byteValues[1] = tempBytes[5];
         byteValues[2] = tempBytes[6];
         byteValues[3] = tempBytes[7];
-        orsEdges.setBytes(edgePointer + EF_OSMID, byteValues, 4);
+        orsEdges.setBytes(edgePointer + efOsmid, byteValues, 4);
     }
 
     /**
@@ -107,7 +106,7 @@ public class OsmIdGraphStorage implements GraphExtension {
     public long getEdgeValue(int edgeId) {
         byte[] buffer = new byte[4];
         long edgePointer = (long) edgeId * edgeEntryBytes;
-        orsEdges.getBytes(edgePointer + EF_OSMID, buffer, 4);
+        orsEdges.getBytes(edgePointer + efOsmid, buffer, 4);
 
         return EncodeUtils.byteArrayToLong(buffer);
     }
@@ -123,7 +122,7 @@ public class OsmIdGraphStorage implements GraphExtension {
     }
 
     public int getDefaultNodeFieldValue() {
-        return -1; //throw new UnsupportedOperationException("Not supported by this storage");
+        return -1;
     }
 
     public int getDefaultEdgeFieldValue() {
@@ -145,7 +144,6 @@ public class OsmIdGraphStorage implements GraphExtension {
 
     @Override
     public boolean isClosed() {
-        // TODO Auto-generated method stub
         return false;
     }
 }

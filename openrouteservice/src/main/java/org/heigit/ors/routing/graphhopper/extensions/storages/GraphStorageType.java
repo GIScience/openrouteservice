@@ -16,45 +16,45 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
 import com.graphhopper.util.Helper;
 
 public class GraphStorageType {
-	public static final int VehicleType = 1;
-	public static final int Restrictions = 2;
-	public static final int WayCategory = 4;
-	public static final int WaySurfaceType = 8;
-	public static final int HillIndex = 16;
-	
+	private static final int VEHICLE_TYPE = 1;
+	private static final int RESTRICTIONS = 2;
+	private static final int WAY_CATEGORY = 4;
+	private static final int WAY_SURFACE_TYPE = 8;
+	private static final int HILL_INDEX = 16;
+
+	private GraphStorageType() {}
+
 	public static boolean isSet(int type, int value)
 	{
 		return (type & value) == value;
 	}
 
-	public static int getFomString(String value)
-	{
+	public static int getFomString(String value) {
 		if (Helper.isEmpty(value))
 			return 0;
 
 		int res = 0;
-
 		String[] values = value.split("\\|");
 		for (int i = 0; i < values.length; ++i) {
 			switch (values[i].toLowerCase()) {
-			case "vehicletype":
-				res |= VehicleType;
-				break;
-			case "restrictions":
-				res |= Restrictions;
-				break;
-			case "waycategory":
-				res |= WayCategory;
-				break;
-			case "waysurfacetype":
-				res |= WaySurfaceType;
-				break;
-			case "hillindex":
-				res |= HillIndex;
-				break;
+				case "vehicletype":
+					res |= VEHICLE_TYPE;
+					break;
+				case "restrictions":
+					res |= RESTRICTIONS;
+					break;
+				case "waycategory":
+					res |= WAY_CATEGORY;
+					break;
+				case "waysurfacetype":
+					res |= WAY_SURFACE_TYPE;
+					break;
+				case "hillindex":
+					res |= HILL_INDEX;
+					break;
+				default:
 			}
 		}
-
 		return res;
 	}
 }

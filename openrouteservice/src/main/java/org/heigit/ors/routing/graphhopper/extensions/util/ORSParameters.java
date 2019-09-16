@@ -20,6 +20,8 @@ package org.heigit.ors.routing.graphhopper.extensions.util;
  * @author Hendrik Leuschner
  */
 public class ORSParameters {
+    private ORSParameters() {}
+
     /* Parameters with an 'INIT' prefix are used as defaults and/or are configured at start.*/
     static final String ROUTING_INIT_PREFIX = "routing.";
 
@@ -27,6 +29,8 @@ public class ORSParameters {
      * Properties for routing with contraction hierarchies speedup
      */
     public static final class Core {
+        private Core() {}
+
         public static final String PREPARE = "prepare.core.";
         /**
          * This property name in HintsMap configures at runtime if CH routing should be ignored.
@@ -47,6 +51,8 @@ public class ORSParameters {
      * Properties for routing with landmark speedup
      */
     public static final class CoreLandmark {
+        private CoreLandmark() {}
+
         public static final String PREPARE = "prepare.corelm.";
         /**
          * This property name in HintsMap configures at runtime if CH routing should be ignored.

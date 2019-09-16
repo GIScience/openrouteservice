@@ -27,9 +27,9 @@ import org.heigit.ors.services.isochrones.requestprocessors.json.JsonIsochronesR
 import com.graphhopper.util.Helper;
 
 public class IsochronesServiceRequestProcessorFactory {
+	private IsochronesServiceRequestProcessorFactory() {}
 
-	public static AbstractHttpRequestProcessor createProcessor(HttpServletRequest request) throws Exception  
-	{
+	public static AbstractHttpRequestProcessor createProcessor(HttpServletRequest request) throws Exception {
 		if (!IsochronesServiceSettings.getEnabled())
 			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, IsochronesErrorCodes.UNKNOWN, "Isochrones service is not enabled.");
 		

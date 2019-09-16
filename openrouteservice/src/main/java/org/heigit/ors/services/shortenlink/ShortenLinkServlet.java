@@ -37,6 +37,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * @deprecated
+ */
 @Deprecated
 @RestController
 @RequestMapping("/shortenlink")
@@ -44,14 +47,18 @@ public class ShortenLinkServlet extends BaseHttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
+	@Override
 	public void init() throws ServletException {
-
+		// do nothing
 	}
 
+	@Override
 	public void destroy() {
+		// do nothing
 	}
 
 	@PostMapping
+	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		try
 		{
@@ -68,19 +75,17 @@ public class ShortenLinkServlet extends BaseHttpServlet {
 	}
 
 	@GetMapping
+	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-		try
-		{
+		try {
 			if (!ShortenLinkServiceSettings.getEnabled())
 				throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, 0, "Shortenlink service is not enabled.");
-			
+
 			String decodedString = StringUtility.decodeRequestString(request.getQueryString());
 			String shortenLink = getShortenLink(decodedString);
 			response.setStatus(SC_OK);
 			response.getWriter().append(shortenLink);
-		}
-		catch(Exception ex)
-		{
+		} catch(Exception ex) {
 			writeError(response, ex);
 		}
 	}
@@ -94,13 +99,11 @@ public class ShortenLinkServlet extends BaseHttpServlet {
 		if (!Helper.isEmpty(resp)) {
 			String str = "?format=json(";
 			int index1 = resp.indexOf("?format=json(") + str.length();
-			int index2 = resp.indexOf(")");
+			int index2 = resp.indexOf(')');
 			resp = resp.substring(index1, index2);
 			JSONObject json = new JSONObject(resp);
 			JSONObject jsonData = (JSONObject) json.get("data");
-			String result = jsonData.getString("url");
-
-			return result;
+			return jsonData.getString("url");
 		} else {
 			throw new IOException("The response from api.bitly.com is empty.");
 		}

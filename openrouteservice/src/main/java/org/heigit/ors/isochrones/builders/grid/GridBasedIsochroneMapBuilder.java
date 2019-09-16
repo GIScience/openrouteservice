@@ -14,16 +14,12 @@
 package org.heigit.ors.isochrones.builders.grid;
 
 import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.MMapDirectory;
 import com.graphhopper.storage.index.Location2IDQuadtree;
 import com.graphhopper.storage.index.LocationIndex;
-import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.StopWatch;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import org.apache.log4j.Logger;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
@@ -38,97 +34,84 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GridBasedIsochroneMapBuilder implements IsochroneMapBuilder {
-	private final Logger LOGGER = Logger.getLogger(GridBasedIsochroneMapBuilder.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(GridBasedIsochroneMapBuilder.class.getName());
 
-	private GeometryFactory _geomFactory;
-	private RouteSearchContext _searchContext;
+//	private GeometryFactory geometryFactory;
+	private RouteSearchContext searchContext;
 	
-	private static LocationIndex _gridIndex;
+	private LocationIndex gridIndex;
 	
-	private double _grdiStep = 500; // measured in meters
-
-	public GridBasedIsochroneMapBuilder() 
-	{
-		
-	}
-
 	@Override
-	public void initialize(RouteSearchContext searchContext) 
+	public void initialize(RouteSearchContext searchContext)
 	{
-		_geomFactory = new GeometryFactory();
-		_searchContext = searchContext;		
+//		geometryFactory = new GeometryFactory();
+		this.searchContext = searchContext;
 	}
 
 	@Override
 	public IsochroneMap compute(IsochroneSearchParameters parameters) throws Exception {
-		StopWatch swTotal = null;
+		StopWatch swTotal;
 		StopWatch sw = null;
 		
-		if (LOGGER.isDebugEnabled())
-		{
+		if (LOGGER.isDebugEnabled()) {
 			swTotal = new StopWatch();
 			swTotal.start();
 			sw = new StopWatch();
 			sw.start();
 		}
 
-		FlagEncoder encoder = _searchContext.getEncoder();
+//		FlagEncoder encoder = searchContext.getEncoder();
 		// 1. Find all graph edges for a given cost.
-		double maxSpeed = encoder.getMaxSpeed();
-
 		Coordinate loc = parameters.getLocation();
-		GraphHopper gh = _searchContext.getGraphHopper();
-		//LocationIndexMatch index = new LocationIndexMatch(gh.getGraphHopperStorage(),(LocationIndexTree)gh.getLocationIndex()); 
+		GraphHopper gh = searchContext.getGraphHopper();
+		//LocationIndexMatch index = new LocationIndexMatch(gh.getGraphHopperStorage(),(LocationIndexTree)gh.getLocationIndex());
 		//gh.getGraphHopperStorage().getBounds()
 		//index.setGpxAccuracy(500);
      	//index.setMinResolutionInMeter(200);
-		
-		if (_gridIndex == null)
-		{
-			_gridIndex = new Location2IDQuadtree(gh.getGraphHopperStorage().getGraph(Graph.class), new MMapDirectory(gh.getGraphHopperLocation() + "grid_loc2idIndex").create()).
+
+		if (gridIndex == null) {
+			gridIndex = new Location2IDQuadtree(gh.getGraphHopperStorage().getGraph(Graph.class), new MMapDirectory(gh.getGraphHopperLocation() + "grid_loc2idIndex").create()).
 	                setResolution(500).prepareIndex();
 		}
 		
 		int gridSizeMeters = 500;
-		int[] gridValues = new int[gridSizeMeters*gridSizeMeters];
+//		int[] gridValues = new int[gridSizeMeters*gridSizeMeters];
 		double cx = loc.x;
 		double cy = loc.y;
 		double gridSizeY = Math.toDegrees(gridSizeMeters / 6378100.0);
 		double gridSizeX = gridSizeY / Math.cos(Math.toRadians(cx));
-		double halfN = gridSizeMeters/2;
-		List<Coordinate> gridLocations = new ArrayList<Coordinate>(gridValues.length);
+		double halfN = gridSizeMeters / 2.0;
+		List<Coordinate> gridLocations = new ArrayList<>(gridSizeMeters*gridSizeMeters);
 		
-		for (int xi = 0; xi < gridSizeMeters; xi++)
-		{
+		for (int xi = 0; xi < gridSizeMeters; xi++) {
 			double dx = (-halfN + xi)*gridSizeX;
-			
-			for (int yi = 0; yi< gridSizeMeters; yi++)
-			{
-				double dy = (-halfN + yi)*gridSizeX;
-				
-				int p = xi + yi*gridSizeMeters;
 
-				QueryResult res = _gridIndex.findClosest(cy + dy, cx + dx, EdgeFilter.ALL_EDGES);
-				if (res.isValid())
-					gridValues[p] = res.getClosestNode();
-				else
-					gridValues[p] = -1;
-				
+			for (int yi = 0; yi< gridSizeMeters; yi++) {
+				double dy = (-halfN + yi)*gridSizeX;
+
+//				int p = xi + yi*gridSizeMeters;
+
+//				QueryResult res = gridIndex.findClosest(cy + dy, cx + dx, EdgeFilter.ALL_EDGES);
+//				if (res.isValid())
+//					gridValues[p] = res.getClosestNode();
+//				else
+//					gridValues[p] = -1;
+
 				gridLocations.add(new Coordinate(cx + dx, cy + dy));
 			}
 		}
-		
-		
+
+
 		MatrixRequest mtxReq = new MatrixRequest();
-		mtxReq.setMetrics(MatrixMetricsType.Distance);
+		mtxReq.setMetrics(MatrixMetricsType.DISTANCE);
 		mtxReq.setFlexibleMode(true);
 		mtxReq.setSources(new Coordinate[] { parameters.getLocation() });
         Coordinate[] destinations = new Coordinate[gridLocations.size()];
         gridLocations.toArray(destinations);
-		mtxReq.setDestinations(destinations); 
+		mtxReq.setDestinations(destinations);
 
-		MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(mtxReq, gh, encoder);
-		
+		MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(mtxReq, gh);
+
 		if (alg == null)
 			throw new Exception("Unable to create an algorithm to distance/duration matrix.");
 
@@ -137,21 +120,19 @@ public class GridBasedIsochroneMapBuilder implements IsochroneMapBuilder {
 		//MatrixLocationDataResolver locResolver = new MatrixLocationDataResolver(gh.getLocationIndex(), new DefaultEdgeFilter(encoder), new ByteArrayBuffer(), mtxReq.getResolveLocations(), 2000);
 
 	/*	MatrixSearchData srcData = locResolver.resolve(mtxReq.getSources());
-		MatrixSearchData dstData = locResolver.resolve(mtxReq.getDestinations()); 
+		MatrixSearchData dstData = locResolver.resolve(mtxReq.getDestinations());
 
-		MatrixResult mtxResult = alg.compute(srcData, dstData, mtxReq.getMetrics()); 
+		MatrixResult mtxResult = alg.compute(srcData, dstData, mtxReq.getMetrics());
 		*/
 		IsochroneMap isochroneMap = new IsochroneMap(0, loc);
 
 		//AccessibilityMap edgeMap = GraphEdgeMapFinder.findEdgeMap(_searchContext, parameters);
 
-		if (LOGGER.isDebugEnabled())
-		{
+		if (LOGGER.isDebugEnabled() && sw != null) {
 			sw.stop();
-
 			LOGGER.debug("Find edges: " + sw.getSeconds());
 		}
-		
+
 
 		return isochroneMap;
 	}

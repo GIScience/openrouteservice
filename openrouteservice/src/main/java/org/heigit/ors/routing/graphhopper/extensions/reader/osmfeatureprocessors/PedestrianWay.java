@@ -4,7 +4,7 @@ import com.graphhopper.reader.ReaderWay;
 
 public abstract class PedestrianWay extends Way{
     public PedestrianWay(ReaderWay way) {
-        this.way = way;
+        this.readerWay = way;
     }
 
     @Override

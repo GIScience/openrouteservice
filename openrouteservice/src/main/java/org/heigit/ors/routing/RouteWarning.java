@@ -19,9 +19,9 @@ package org.heigit.ors.routing;
  * Holder class for a warning that could be used in the response
  */
 public class RouteWarning {
-    public final static int ACCESS_RESTRICTION = 1;
-    public final static int TOLLWAYS = 2;
-    public final static int SKIPPED_SEGMENTS = 3;
+    public static final int ACCESS_RESTRICTION = 1;
+    public static final int TOLLWAYS = 2;
+    public static final int SKIPPED_SEGMENTS = 3;
 
     private int warningCode = 0;
     private String warningMessage = "";
@@ -41,6 +41,9 @@ public class RouteWarning {
                 break;
             case SKIPPED_SEGMENTS:
                 warningMessage = "There are skipped segments along the route. Durations and accessibility may not be correct";
+                break;
+            default:
+                warningMessage = "Unknown error";
                 break;
         }
     }

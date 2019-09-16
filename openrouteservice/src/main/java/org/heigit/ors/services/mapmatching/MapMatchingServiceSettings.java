@@ -16,32 +16,35 @@ package org.heigit.ors.services.mapmatching;
 import org.heigit.ors.config.AppConfig;
 
 public class MapMatchingServiceSettings {
-	private static Boolean enabled  = true;
+	private static boolean enabled  = true;
 	private static int maximumLocations = 100;
 	private static double maximumSearchRadius = 200;
 	private static int maximumVisitedNodes = 10000;
 	private static String attribution = "";
-		
-	static 
-	{
-		String value = AppConfig.getGlobal().getServiceParameter("mapmatching", "enabled");
+
+	public static final String PARAM_MAPMATCHING = "mapmatching";
+
+	static {
+		String value = AppConfig.getGlobal().getServiceParameter(PARAM_MAPMATCHING, "enabled");
 		if (value != null)
 			enabled = Boolean.parseBoolean(value);		
-		value = AppConfig.getGlobal().getServiceParameter("mapmatching", "maximum_locations");
+		value = AppConfig.getGlobal().getServiceParameter(PARAM_MAPMATCHING, "maximum_locations");
 		if (value != null)
 			maximumLocations = Math.max(1, Integer.parseInt(value));
-		value = AppConfig.getGlobal().getServiceParameter("mapmatching", "maximum_search_radius");
+		value = AppConfig.getGlobal().getServiceParameter(PARAM_MAPMATCHING, "maximum_search_radius");
 		if (value != null)
 			maximumSearchRadius = Math.max(1, Double.parseDouble(value));
-		value = AppConfig.getGlobal().getServiceParameter("mapmatching", "maximum_visited_nodes");
+		value = AppConfig.getGlobal().getServiceParameter(PARAM_MAPMATCHING, "maximum_visited_nodes");
 		if (value != null)
 			maximumVisitedNodes = Math.max(1, Integer.parseInt(value));
-		value = AppConfig.getGlobal().getServiceParameter("mapmatching", "attribution");
+		value = AppConfig.getGlobal().getServiceParameter(PARAM_MAPMATCHING, "attribution");
 		if (value != null)
 			attribution = value;
 	}
+
+	private  MapMatchingServiceSettings() {}
 	
-	public static Boolean getEnabled() {
+	public static boolean getEnabled() {
 		return enabled;
 	}
 	

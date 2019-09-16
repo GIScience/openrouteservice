@@ -45,7 +45,7 @@ public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
         return new BufferedReader(new InputStreamReader(getInputStream(), enc));
     }
 
-    private class ServletInputStreamImpl extends ServletInputStream {
+    private static class ServletInputStreamImpl extends ServletInputStream {
 
         private InputStream is;
 
@@ -57,34 +57,34 @@ public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
             return is.read();
         }
 
+        @Override
         public boolean markSupported() {
             return false;
         }
 
+        @Override
         public synchronized void mark(int i) {
             throw new RuntimeException(new IOException("mark/reset not supported"));
         }
 
+        @Override
         public synchronized void reset() throws IOException {
             throw new IOException("mark/reset not supported");
         }
 
 		@Override
 		public boolean isFinished() {
-			// TODO Auto-generated method stub
 			return false;
 		}
 
 		@Override
 		public boolean isReady() {
-			// TODO Auto-generated method stub
 			return true;
 		}
 
 		@Override
 		public void setReadListener(ReadListener readListener) {
-			// TODO Auto-generated method stub
-			
+            // do nothing
 		}
     }
 

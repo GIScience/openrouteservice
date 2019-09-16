@@ -13,33 +13,30 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
-
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.LineString;
 import org.heigit.ors.plugins.Plugin;
 
-public interface GraphStorageBuilder extends Plugin
-{
-	public abstract GraphExtension init(GraphHopper graphhopper) throws Exception;
+import java.util.HashMap;
+import java.util.Map;
 
-	public abstract void processWay(ReaderWay way);
+public interface GraphStorageBuilder extends Plugin {
+	GraphExtension init(GraphHopper graphhopper) throws Exception;
 
-	public abstract void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String, String>> nodeTags);
+	void processWay(ReaderWay way);
+
+	void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String, String>> nodeTags);
 	
-	public abstract void processEdge(ReaderWay way, EdgeIteratorState edge);
+	void processEdge(ReaderWay way, EdgeIteratorState edge);
 
-	public abstract void processEdge(ReaderWay way, EdgeIteratorState edge, Coordinate[] coords);
+	void processEdge(ReaderWay way, EdgeIteratorState edge, Coordinate[] coords);
 
-	public abstract void setParameters(Map<String, String> parameters);
+	void setParameters(Map<String, String> parameters);
 
-	public abstract String getName();
+	String getName();
 	
-	public abstract void finish();
+	void finish();
 }

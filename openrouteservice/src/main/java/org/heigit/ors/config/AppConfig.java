@@ -23,8 +23,8 @@ import org.heigit.ors.util.StringUtility;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,11 +59,7 @@ public class AppConfig {
 
 		//Modification by H Leuschner: Save md5 hash of map file in static String for access with every request
 		File graphsDir = new File(getServiceParameter("routing.profiles.default_params", "graphs_root_path"));
-		File[] md5Files = graphsDir.listFiles(new FileFilter() {
-			public boolean accept(File pathname) {
-				return pathname.getName().endsWith(".md5");
-			}
-		});
+		File[] md5Files = graphsDir.listFiles(pathname -> pathname.getName().endsWith(".md5"));
 		if (md5Files != null && md5Files.length == 1){
 			try {
 				osmMd5Hash = FileUtility.readFile(md5Files[0].toString()).trim();
@@ -103,7 +99,7 @@ public class AppConfig {
 		} catch(Exception e) {
 			// IGNORE
 		}
-		return null;
+		return new ArrayList<>() ;
 	}
 
 	public List<Double> getDoubleList(String serviceName, String paramName) {
@@ -112,7 +108,7 @@ public class AppConfig {
 		} catch(Exception e) {
 			// IGNORE
 		}
-		return null;
+		return new ArrayList<>();
 	}
 
 	public List<String> getServiceParametersList(String serviceName, String paramName) {
@@ -121,7 +117,7 @@ public class AppConfig {
 		} catch(Exception e) {
 			// IGNORE
 		}
-		return null;
+		return new ArrayList<>();
 	}
 
 	public static boolean hasValidMD5Hash() {

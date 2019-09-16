@@ -13,17 +13,16 @@
  */
 package org.heigit.ors.routing;
 
-public class RoutingProfileManagerStatus 
-{
-	private static boolean _isReady = false;
+public class RoutingProfileManagerStatus {
+	private static boolean ready = false;
 
-	public static boolean isReady()
-	{
-		return _isReady;
+	private RoutingProfileManagerStatus() {}
+
+	public static boolean isReady() {
+		return ready;
 	}
 	
-	public static void setReady(boolean ready)
-	{
-		_isReady = ready;		
+	public static void setReady(boolean ready) {
+		RoutingProfileManagerStatus.ready = ready;
 	}
 }

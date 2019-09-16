@@ -20,29 +20,31 @@ public class ShortenLinkServiceSettings {
 	private static String userPassword = "";
 	private static String apiKey = "";
 	private static String attribution = "";
-	private static Boolean enabled = true;
-	
-	static 
-	{
-		String value = AppConfig.getGlobal().getServiceParameter("shortenlink", "enabled");
+	private static boolean enabled = true;
+
+	public static final String SERVICE_SHORTENLINK = "shortenlink";
+
+	static  {
+		String value = AppConfig.getGlobal().getServiceParameter(SERVICE_SHORTENLINK, "enabled");
 		if (value != null)
 			enabled = Boolean.parseBoolean(value);		
-		value = AppConfig.getGlobal().getServiceParameter("shortenlink", "user_name");
+		value = AppConfig.getGlobal().getServiceParameter(SERVICE_SHORTENLINK, "user_name");
 		if (value != null)
 			userName = value;
-		value = AppConfig.getGlobal().getServiceParameter("shortenlink", "user_password");
+		value = AppConfig.getGlobal().getServiceParameter(SERVICE_SHORTENLINK, "user_password");
 		if (value != null)
 			userPassword = value;
-		value = AppConfig.getGlobal().getServiceParameter("shortenlink", "api_key");
+		value = AppConfig.getGlobal().getServiceParameter(SERVICE_SHORTENLINK, "api_key");
 		if (value != null)
 			apiKey = value;
-		value = AppConfig.getGlobal().getServiceParameter("shortenlink", "attribution");
+		value = AppConfig.getGlobal().getServiceParameter(SERVICE_SHORTENLINK, "attribution");
 		if (value != null)
 			attribution = value;
 	}
+
+	private ShortenLinkServiceSettings() {}
 	
-	public static Boolean getEnabled()
-	{
+	public static boolean getEnabled() {
 		return enabled;
 	}
 

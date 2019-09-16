@@ -33,21 +33,25 @@ import java.util.*;
  * place for the particular vehicle type that is being processed for the profile.
  */
 public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStorageBuilder {
+    private static final String KEY_USE_FOR_WARNINGS = "use_for_warnings";
+    private static final String VAL_BICYCLE = "bicycle";
+    private static final String VAL_ACCESS = "access";
+    private static final String VAL_MOTOR_VEHICLE = "motor_vehicle";
     private RoadAccessRestrictionsGraphStorage storage;
     private boolean hasRestrictions = false;
     private int restrictions;
-    private List<String> accessRestrictedTags = new ArrayList<String>(5);
-    private List<String> motorCarTags = new ArrayList<String>(5);
-    private List<String> motorCycleTags = new ArrayList<String>(5);
-    private Set<String> restrictedValues = new HashSet<String>(5);
-    private Set<String> permissiveValues = new HashSet<String>(5);
+    private List<String> accessRestrictedTags = new ArrayList<>(5);
+    private List<String> motorCarTags = new ArrayList<>(5);
+    private List<String> motorCycleTags = new ArrayList<>(5);
+    private Set<String> restrictedValues = new HashSet<>(5);
+    private Set<String> permissiveValues = new HashSet<>(5);
 
     private int profileType;
 
     public RoadAccessRestrictionsGraphStorageBuilder() {
-        accessRestrictedTags.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access", "bicycle", "foot"));
-        motorCarTags.addAll(Arrays.asList("motorcar", "motor_vehicle"));
-        motorCycleTags.addAll(Arrays.asList("motorcycle", "motor_vehicle"));
+        accessRestrictedTags.addAll(Arrays.asList("motorcar", VAL_MOTOR_VEHICLE, "vehicle", VAL_ACCESS, VAL_BICYCLE, "foot"));
+        motorCarTags.addAll(Arrays.asList("motorcar", VAL_MOTOR_VEHICLE));
+        motorCycleTags.addAll(Arrays.asList("motorcycle", VAL_MOTOR_VEHICLE));
 
         restrictedValues.add("private");
         restrictedValues.add("no");
@@ -79,8 +83,8 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
 
         storage = new RoadAccessRestrictionsGraphStorage();
 
-        if (parameters.containsKey("use_for_warnings"))
-            storage.setIsUsedForWarning(Boolean.parseBoolean(parameters.get("use_for_warnings")));
+        if (parameters.containsKey(KEY_USE_FOR_WARNINGS))
+            storage.setIsUsedForWarning(Boolean.parseBoolean(parameters.get(KEY_USE_FOR_WARNINGS)));
 
         return storage;
     }
@@ -109,8 +113,8 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
 
         storage = new RoadAccessRestrictionsGraphStorage();
 
-        if (parameters.containsKey("use_for_warnings"))
-            storage.setIsUsedForWarning(Boolean.parseBoolean(parameters.get("use_for_warnings")));
+        if (parameters.containsKey(KEY_USE_FOR_WARNINGS))
+            storage.setIsUsedForWarning(Boolean.parseBoolean(parameters.get(KEY_USE_FOR_WARNINGS)));
 
         return storage;
     }
@@ -128,6 +132,7 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
      * @param nodeTags  List of node ids and the key value pairs for the tags of that node. These values can be used to
      *                  apply restrictions on a way introduced by items like lift gates that are nodes on the way
      */
+    @Override
     public void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String,String>> nodeTags) {
         if (hasRestrictions) {
             hasRestrictions = false;
@@ -149,7 +154,7 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
             if (profileType == RoutingProfileType.DRIVING_MOTORCYCLE)
                 restrictions = isAccessAllowed(way, motorCycleTags) ? 0 : getRestrictionType(way, motorCycleTags);
             if (RoutingProfileType.isCycling(profileType))
-                restrictions = isAccessAllowed(way, "bicycle") ? 0 : getRestrictionType(way, "bicycle");
+                restrictions = isAccessAllowed(way, VAL_BICYCLE) ? 0 : getRestrictionType(way, VAL_BICYCLE);
             if (RoutingProfileType.isPedestrian(profileType))
                 restrictions = isAccessAllowed(way, "foot") ? 0 : getRestrictionType(way, "foot");
         }
@@ -164,7 +169,7 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
     private int getRestrictionType(ReaderWay way, List<String> tags) {
         int res = 0;
 
-        String tagValue = way.getTag("access");
+        String tagValue = way.getTag(VAL_ACCESS);
         if (tagValue != null)
             res = updateRestriction(res, tagValue);
 
@@ -187,7 +192,7 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
     private int getRestrictionType(ReaderWay way, String tag) {
         int res = 0;
 
-        String tagValue = way.getTag("access");
+        String tagValue = way.getTag(VAL_ACCESS);
         if (tagValue != null)
             res = updateRestriction(res, tagValue);
 
@@ -225,7 +230,7 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
                 case "customers":
                     res |= AccessRestrictionType.CUSTOMERS;
                     break;
-
+                default:
             }
         }
 

@@ -20,24 +20,27 @@ public class LoggingSettings {
 	private static String levelFile = "DEFAULT_LOGGING.properties";
 	private static String location = "logs/output/ors.log";
 	private static boolean stdout = false;
-	
-	static 
-	{
-		String value = AppConfig.getGlobal().getParameter("logging", "level_file");
+
+	public static final String PARAM_LOGGING = "logging";
+
+	static {
+		String value = AppConfig.getGlobal().getParameter(PARAM_LOGGING, "level_file");
 		if (value != null)
 			levelFile = value;
-		value = AppConfig.getGlobal().getParameter("logging", "enabled");
+		value = AppConfig.getGlobal().getParameter(PARAM_LOGGING, "enabled");
 		if (value != null)
 			enabled = Boolean.parseBoolean(value);	
-		value = AppConfig.getGlobal().getParameter("logging", "location");
+		value = AppConfig.getGlobal().getParameter(PARAM_LOGGING, "location");
 		if (value != null)
 			location = value;
-		value = AppConfig.getGlobal().getParameter("logging", "stdout");
+		value = AppConfig.getGlobal().getParameter(PARAM_LOGGING, "stdout");
 		if (value != null)
 			stdout = Boolean.parseBoolean(value);
 	}
-	
-	public static Boolean getEnabled() {
+
+	private LoggingSettings() {}
+
+	public static boolean getEnabled() {
 		return enabled;
 	}
 	
@@ -49,7 +52,7 @@ public class LoggingSettings {
 		return location;
 	}
 	
-	public static Boolean getStdOut() {
+	public static boolean getStdOut() {
 		return stdout;
 	}
 }

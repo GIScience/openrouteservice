@@ -39,6 +39,6 @@ public class Pair<F, S> {
     }
     
     public static <A, B> Pair <A, B> create(A a, B b) {
-        return new Pair<A, B>(a, b);
+        return new Pair<>(a, b);
     }
 }

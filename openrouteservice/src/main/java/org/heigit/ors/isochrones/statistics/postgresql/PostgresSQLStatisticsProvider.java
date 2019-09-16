@@ -120,7 +120,6 @@ public class PostgresSQLStatisticsProvider implements StatisticsProvider {
         double[] res = new double[nProperties];
         Connection connection = null;
         PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
         try {
             String sql = null;
             for (String property : properties) {
@@ -133,23 +132,24 @@ public class PostgresSQLStatisticsProvider implements StatisticsProvider {
             connection.setAutoCommit(false);
             preparedStatement = connection.prepareStatement(sql);
 
-            resultSet = preparedStatement.executeQuery();
-            // check if the resultSet contains values
-            if (resultSet.next()) {
-                // check for each property if the result contains a value
-                int propertyCounter = 0;
-                for (String property : properties) {
-                    int i = 0;
-                    // check each value
-                    while (i < nProperties) {
-                        // Get the column name
-                        String columnName = resultSet.getMetaData().getColumnName(i + 1);
-                        // If a value fits the current property it is set in the correct place in the result[]
-                        if (columnName.equals(property))
-                            res[propertyCounter] = resultSet.getDouble(i + 1);
-                        i++;
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                // check if the resultSet contains values
+                if (resultSet.next()) {
+                    // check for each property if the result contains a value
+                    int propertyCounter = 0;
+                    for (String property : properties) {
+                        int i = 0;
+                        // check each value
+                        while (i < nProperties) {
+                            // Get the column name
+                            String columnName = resultSet.getMetaData().getColumnName(i + 1);
+                            // If a value fits the current property it is set in the correct place in the result[]
+                            if (columnName.equals(property))
+                                res[propertyCounter] = resultSet.getDouble(i + 1);
+                            i++;
+                        }
+                        propertyCounter++;
                     }
-                    propertyCounter++;
                 }
             }
         } catch (Exception ex) {
@@ -158,9 +158,6 @@ public class PostgresSQLStatisticsProvider implements StatisticsProvider {
         } finally {
             if (preparedStatement != null) {
                 preparedStatement.close();
-            }
-            if (resultSet != null) {
-                resultSet.close();
             }
             if (connection != null) {
                 connection.close();

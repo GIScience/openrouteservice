@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import io.swagger.annotations.*;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
@@ -27,7 +28,6 @@ import org.heigit.ors.api.responses.matrix.json.JSONMatrixResponse;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.matrix.MatrixResult;
-import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -35,7 +35,6 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 
 @RestController
 @Api(value = "Matrix Service", description = "Obtain one-to-many, many-to-one and many-to-many matrices for time and distance", tags = "Matrix")
@@ -50,7 +49,7 @@ import java.util.List;
         @ApiResponse(code = 503, message = "The server is currently unavailable due to overload or maintenance.")
 })
 public class MatrixAPI {
-    final static CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(MatrixErrorCodes.BASE);
+    static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(MatrixErrorCodes.BASE);
 
     // generic catch methods - when extra info is provided in the url, the other methods are accessed.
     @GetMapping

@@ -44,6 +44,8 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     static final int SLOW_SPEED = 2;
     private static final int MEAN_SPEED = 5;
     static final int FERRY_SPEED = 15;
+    public static final String KEY_DESIGNATED = "designated";
+
     private final Set<String> safeHighwayTags = new HashSet<>();
     private final Set<String> allowedHighwayTags = new HashSet<>();
     private final Set<String> avoidHighwayTags = new HashSet<>();
@@ -71,7 +73,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
 
         intendedValues.addAll(Arrays.asList(
                 "yes",
-                "designated",
+                KEY_DESIGNATED,
                 "official",
                 "permissive"
         ));
@@ -148,8 +150,10 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         // first two bits are reserved for route handling in superclass
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
         // larger value required - ferries are faster than pedestrians
-        registerNewEncodedValue.add(speedEncoder = new FactorizedDecimalEncodedValue(prefix + "average_speed", speedBits, speedFactor, false));
-        registerNewEncodedValue.add(priorityWayEncoder = new FactorizedDecimalEncodedValue(prefix + FlagEncoderKeys.PRIORITY_KEY, 3, PriorityCode.getFactor(1), false));
+        speedEncoder = new FactorizedDecimalEncodedValue(prefix + "average_speed", speedBits, speedFactor, false);
+        registerNewEncodedValue.add(speedEncoder);
+        priorityWayEncoder = new FactorizedDecimalEncodedValue(prefix + FlagEncoderKeys.PRIORITY_KEY, 3, PriorityCode.getFactor(1), false);
+        registerNewEncodedValue.add(priorityWayEncoder);
     }
 
     @Override
@@ -348,7 +352,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
      *                        subclasses to 'insert' more important priorities as well as overwrite determined priorities.
      */
     private void assignPriorities(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
-        if (way.hasTag(OSMTags.Keys.FOOT, "designated"))
+        if (way.hasTag(OSMTags.Keys.FOOT, KEY_DESIGNATED))
             weightToPrioMap.put(100d, PREFER.getValue());
 
         assignSafeHighwayPriority(way, weightToPrioMap);
@@ -433,7 +437,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
      * @param weightToPrioMap   The priority weight map that will have the weightings updated
      */
     private void assignBicycleWayPriority(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
-        if (way.hasTag(OSMTags.Keys.BICYCLE, "official") || way.hasTag(OSMTags.Keys.BICYCLE, "designated"))
+        if (way.hasTag(OSMTags.Keys.BICYCLE, "official") || way.hasTag(OSMTags.Keys.BICYCLE, KEY_DESIGNATED))
             weightToPrioMap.put(44d, AVOID_IF_POSSIBLE.getValue());
     }
 
@@ -458,5 +462,20 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         }
 
         return speed;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final FootFlagEncoder other = (FootFlagEncoder) obj;
+        return toString().equals(other.toString());
+    }
+
+    @Override
+    public int hashCode() {
+        return ("FootFlagEncoder" + toString()).hashCode();
     }
 }

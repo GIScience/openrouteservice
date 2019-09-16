@@ -44,13 +44,26 @@ import org.heigit.ors.util.StreamUtility;
 
 public class JsonMatrixRequestParser {
 
+    public static final String KEY_PROFILE = "profile";
+    public static final String KEY_PREFERENCE = "preference";
+    public static final String KEY_LOCATIONS = "locations";
+    public static final String KEY_SOURCES = "sources";
+    public static final String KEY_DESTINATIONS = "destinations";
+    public static final String KEY_METRICS = "metrics";
+    public static final String KEY_UNITS = "units";
+    public static final String KEY_RESOLVE_LOCATIONS = "resolve_locations";
+    public static final String KEY_OPTIMIZED = "optimized";
+    public static final String VAL_FALSE = "false";
+
+    private JsonMatrixRequestParser() {}
+
     public static MatrixRequest parseFromStream(InputStream stream) throws Exception {
         String body = StreamUtility.readStream(stream);
 
         if (Helper.isEmpty(body))
             throw new StatusCodeException(StatusCode.BAD_REQUEST, MatrixErrorCodes.INVALID_JSON_FORMAT, "Unable to parse JSON document.");
 
-        JSONObject json = null;
+        JSONObject json;
 
         try {
             json = new JSONObject(body);
@@ -60,36 +73,36 @@ public class JsonMatrixRequestParser {
 
         MatrixRequest req = new MatrixRequest();
 
-        String value = json.optString("profile");
+        String value = json.optString(KEY_PROFILE);
 
         if (!Helper.isEmpty(value)) {
             int profileType = RoutingProfileType.getFromString(value);
             if (profileType == RoutingProfileType.UNKNOWN)
-                throw new UnknownParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "profile", value);
+                throw new UnknownParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, KEY_PROFILE, value);
             req.setProfileType(profileType);
         } else {
-            throw new MissingParameterException(MatrixErrorCodes.MISSING_PARAMETER, "profile");
+            throw new MissingParameterException(MatrixErrorCodes.MISSING_PARAMETER, KEY_PROFILE);
         }
 
         // MARQ24 WHERE the heck are the 'preferences here???
         // -> so I add them!
-        value = json.optString("preference");
+        value = json.optString(KEY_PREFERENCE);
         if (!Helper.isEmpty(value)) {
             int weightingMethod = WeightingMethod.getFromString(value);
             if (weightingMethod == WeightingMethod.UNKNOWN)
-                throw new UnknownParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "preference", value);
+                throw new UnknownParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, KEY_PREFERENCE, value);
             req.setWeightingMethod(value);
         }
 
 
-        JSONArray jLocations = json.optJSONArray("locations");
+        JSONArray jLocations = json.optJSONArray(KEY_LOCATIONS);
         Coordinate[] locations = null;
 
         if (jLocations != null) {
             try {
                 int nLocations = jLocations.length();
                 if (nLocations < 2)
-                    throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "locations");
+                    throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, KEY_LOCATIONS);
 
                 locations = new Coordinate[nLocations];
 
@@ -97,85 +110,83 @@ public class JsonMatrixRequestParser {
                     JSONArray jCoordinate = jLocations.getJSONArray(i);
 
                     if (jCoordinate.length() < 2)
-                        throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "locations");
+                        throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, KEY_LOCATIONS);
 
                     locations[i] = new Coordinate(jCoordinate.getDouble(0), jCoordinate.getDouble(1));
                 }
-            } catch (NumberFormatException nfex) {
-                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "locations");
-            } catch (JSONException jex) {
-                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "locations");
+            } catch (NumberFormatException|JSONException ex) {
+                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, KEY_LOCATIONS);
             }
         } else {
-            throw new MissingParameterException(MatrixErrorCodes.MISSING_PARAMETER, "locations");
+            throw new MissingParameterException(MatrixErrorCodes.MISSING_PARAMETER, KEY_LOCATIONS);
         }
 
-        if (json.has("sources")) {
-            JSONArray jSources = json.optJSONArray("sources");
+        if (json.has(KEY_SOURCES)) {
+            JSONArray jSources = json.optJSONArray(KEY_SOURCES);
 
             if (jSources != null) {
-                int[] index = JsonUtility.parseIntArray(jSources, "sources", MatrixErrorCodes.INVALID_PARAMETER_FORMAT);
-                req.setSources(getLocations(locations, index, "sources"));
+                int[] index = JsonUtility.parseIntArray(jSources, KEY_SOURCES, MatrixErrorCodes.INVALID_PARAMETER_FORMAT);
+                req.setSources(getLocations(locations, index, KEY_SOURCES));
             } else
-                req.setSources(getLocations(locations, json.getString("sources"), "sources"));
+                req.setSources(getLocations(locations, json.getString(KEY_SOURCES), KEY_SOURCES));
         } else
             req.setSources(locations);
 
-        if (json.has("destinations")) {
-            JSONArray jDestinations = json.optJSONArray("destinations");
+        if (json.has(KEY_DESTINATIONS)) {
+            JSONArray jDestinations = json.optJSONArray(KEY_DESTINATIONS);
 
             if (jDestinations != null) {
-                int[] index = JsonUtility.parseIntArray(jDestinations, "destinations", MatrixErrorCodes.INVALID_PARAMETER_FORMAT);
-                req.setDestinations(getLocations(locations, index, "destinations"));
+                int[] index = JsonUtility.parseIntArray(jDestinations, KEY_DESTINATIONS, MatrixErrorCodes.INVALID_PARAMETER_FORMAT);
+                req.setDestinations(getLocations(locations, index, KEY_DESTINATIONS));
             } else
-                req.setDestinations(getLocations(locations, json.getString("destinations"), "destinations"));
+                req.setDestinations(getLocations(locations, json.getString(KEY_DESTINATIONS), KEY_DESTINATIONS));
         } else
             req.setDestinations(locations);
 
 
-        value = json.optString("metrics");
+        value = json.optString(KEY_METRICS);
         if (!Helper.isEmpty(value)) {
             int metrics = MatrixMetricsType.getFromString(value);
 
-            if (metrics == MatrixMetricsType.Unknown)
-                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "metrics");
+            if (metrics == MatrixMetricsType.UNKNOWN)
+                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, KEY_METRICS);
 
             req.setMetrics(metrics);
         }
 
-        if (MatrixMetricsType.isSet(req.getMetrics(), MatrixMetricsType.Distance)) {
-            value = json.optString("units");
+        if (MatrixMetricsType.isSet(req.getMetrics(), MatrixMetricsType.DISTANCE)) {
+            value = json.optString(KEY_UNITS);
             if (!Helper.isEmpty(value)) {
                 DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.UNKNOWN);
 
                 if (units == DistanceUnit.UNKNOWN)
-                    throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "units");
+                    throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, KEY_UNITS);
 
                 req.setUnits(units);
             }
         }
 
-        value = json.optString("resolve_locations");
+        value = json.optString(KEY_RESOLVE_LOCATIONS);
         if (!Helper.isEmpty(value)) {
             try {
-                Boolean b = Boolean.parseBoolean(value);
-                if (!b && !value.equalsIgnoreCase("false"))
-                    throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "resolve_locations");
+                boolean b = Boolean.parseBoolean(value);
+                if (!b && !value.equalsIgnoreCase(VAL_FALSE))
+                    throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, KEY_RESOLVE_LOCATIONS);
                 req.setResolveLocations(b);
             } catch (Exception ex) {
-                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "resolve_locations");
+                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, KEY_RESOLVE_LOCATIONS);
             }
         }
 
-        value = json.optString("optimized");
+        value = json.optString(KEY_OPTIMIZED);
         if (!Helper.isEmpty(value)) {
             try {
-                Boolean b = Boolean.parseBoolean(value);
-                if (!b && !value.equalsIgnoreCase("false"))
-                    throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "optimized");
+                boolean b = Boolean.parseBoolean(value);
+                if (!b && !value.equalsIgnoreCase(VAL_FALSE))
+                    throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, KEY_OPTIMIZED);
                 req.setFlexibleMode(!b);
             } catch (Exception ex) {
-                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "optimized");
+                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, KEY_OPTIMIZED);
             }
         }
 
@@ -191,85 +202,85 @@ public class JsonMatrixRequestParser {
     public static MatrixRequest parseFromRequestParams(HttpServletRequest request) throws Exception {
         MatrixRequest req = new MatrixRequest();
 
-        String value = request.getParameter("profile");
+        String value = request.getParameter(KEY_PROFILE);
         if (!Helper.isEmpty(value)) {
             int profileType = RoutingProfileType.getFromString(value);
             if (profileType == RoutingProfileType.UNKNOWN)
-                throw new UnknownParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "profile", value);
+                throw new UnknownParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, KEY_PROFILE, value);
             req.setProfileType(profileType);
         } else {
-            throw new MissingParameterException(MatrixErrorCodes.MISSING_PARAMETER, "profile");
+            throw new MissingParameterException(MatrixErrorCodes.MISSING_PARAMETER, KEY_PROFILE);
         }
 
-        value = request.getParameter("preference");
+        value = request.getParameter(KEY_PREFERENCE);
         if (!Helper.isEmpty(value)) {
             int weightingMethod = WeightingMethod.getFromString(value);
             if (weightingMethod == WeightingMethod.UNKNOWN)
-                throw new UnknownParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "preference", value);
+                throw new UnknownParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, KEY_PREFERENCE, value);
 
             req.setWeightingMethod(value);
         }
 
         Coordinate[] locations = null;
-        value = request.getParameter("locations");
+        value = request.getParameter(KEY_LOCATIONS);
         if (!Helper.isEmpty(value)) {
             try {
                 locations = CoordTools.parse(value, "\\|", false, false);
                 if (locations.length < 2)
-                    throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "locations");
+                    throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, KEY_LOCATIONS);
             } catch (NumberFormatException nfex) {
-                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "locations");
+                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, KEY_LOCATIONS);
             }
         } else {
-            throw new MissingParameterException(MatrixErrorCodes.MISSING_PARAMETER, "locations");
+            throw new MissingParameterException(MatrixErrorCodes.MISSING_PARAMETER, KEY_LOCATIONS);
         }
 
-        req.setSources(getLocations(locations, request.getParameter("sources"), "sources"));
-        req.setDestinations(getLocations(locations, request.getParameter("destinations"), "destinations"));
+        req.setSources(getLocations(locations, request.getParameter(KEY_SOURCES), KEY_SOURCES));
+        req.setDestinations(getLocations(locations, request.getParameter(KEY_DESTINATIONS), KEY_DESTINATIONS));
 
-        value = request.getParameter("metrics");
+        value = request.getParameter(KEY_METRICS);
         if (!Helper.isEmpty(value)) {
             int metrics = MatrixMetricsType.getFromString(value);
 
-            if (metrics == MatrixMetricsType.Unknown)
-                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "metrics");
+            if (metrics == MatrixMetricsType.UNKNOWN)
+                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, KEY_METRICS);
 
             req.setMetrics(metrics);
         }
 
-        if (MatrixMetricsType.isSet(req.getMetrics(), MatrixMetricsType.Distance)) {
-            value = request.getParameter("units");
+        if (MatrixMetricsType.isSet(req.getMetrics(), MatrixMetricsType.DISTANCE)) {
+            value = request.getParameter(KEY_UNITS);
             if (!Helper.isEmpty(value)) {
                 DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.UNKNOWN);
 
                 if (units == DistanceUnit.UNKNOWN)
-                    throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "units");
+                    throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, KEY_UNITS);
 
                 req.setUnits(units);
             }
         }
 
-        value = request.getParameter("resolve_locations");
+        value = request.getParameter(KEY_RESOLVE_LOCATIONS);
         if (!Helper.isEmpty(value)) {
             try {
-                Boolean b = Boolean.parseBoolean(value);
-                if (!b && !value.equalsIgnoreCase("false"))
-                    throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "resolve_locations");
+                boolean b = Boolean.parseBoolean(value);
+                if (!b && !value.equalsIgnoreCase(VAL_FALSE))
+                    throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, KEY_RESOLVE_LOCATIONS);
                 req.setResolveLocations(b);
             } catch (Exception ex) {
-                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "resolve_locations");
+                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, KEY_RESOLVE_LOCATIONS);
             }
         }
 
-        value = request.getParameter("optimized");
+        value = request.getParameter(KEY_OPTIMIZED);
         if (!Helper.isEmpty(value)) {
             try {
-                Boolean b = Boolean.parseBoolean(value);
-                if (!b && !value.equalsIgnoreCase("false"))
-                    throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "optimized");
+                boolean b = Boolean.parseBoolean(value);
+                if (!b && !value.equalsIgnoreCase(VAL_FALSE))
+                    throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, KEY_OPTIMIZED);
                 req.setFlexibleMode(!b);
             } catch (Exception ex) {
-                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "optimized");
+                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, KEY_OPTIMIZED);
             }
         }
 
@@ -304,91 +315,4 @@ public class JsonMatrixRequestParser {
 
         return res;
     }
-
-    /*
-    public static MatrixRequest parseFromRequestParams(AbstractHttpRequestProcessor.MixedRequestParameters reqParams) throws Exception {
-        MatrixRequest req = new MatrixRequest();
-
-        String value = reqParams.getString("profile");
-        if (!Helper.isEmpty(value)) {
-            int profileType = RoutingProfileType.getFromString(value);
-            if (profileType == RoutingProfileType.UNKNOWN) {
-                throw new UnknownParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "profile", value);
-            }
-            req.setProfileType(profileType);
-        } else {
-            throw new MissingParameterException(MatrixErrorCodes.MISSING_PARAMETER, "profile");
-        }
-
-        Coordinate[] locations = reqParams.getLocations("locations");
-        req.setSources(reqParams.getSubLocations(locations, "sources"));
-        req.setDestinations(reqParams.getSubLocations(locations, "destinations"));
-
-        value = reqParams.getString("preference");
-        if (!Helper.isEmpty(value)) {
-            int weightingMethod = WeightingMethod.getFromString(value);
-            if (weightingMethod == WeightingMethod.UNKNOWN) {
-                throw new UnknownParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "preference", value);
-            }
-            req.setWeightingMethod(value);
-        }
-
-        value = reqParams.getString("metrics");
-        if (!Helper.isEmpty(value)) {
-            int metrics =  MatrixMetricsType.getFromString(value);
-            if (metrics == MatrixMetricsType.Unknown) {
-                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "metrics");
-            }
-            req.setMetrics(metrics);
-        }
-
-        if (MatrixMetricsType.isSet(req.getMetrics(), MatrixMetricsType.Distance)) {
-            value = reqParams.getString("units");
-            if (!Helper.isEmpty(value)) {
-                DistanceUnit units = DistanceUnitUtil.getFromString(value, DistanceUnit.Unknown);
-                if (units == DistanceUnit.Unknown) {
-                    throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, "units");
-                }
-                req.setUnits(units);
-            }
-        }
-
-        value = reqParams.getString("resolve_locations");
-        if (!Helper.isEmpty(value)){
-            try {
-                Boolean b = Boolean.parseBoolean(value);
-                if (!b && !value.equalsIgnoreCase("false")) {
-                    throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "resolve_locations");
-                }
-                req.setResolveLocations(b);
-            } catch(Exception ex) {
-                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "resolve_locations");
-            }
-        }
-
-        value = reqParams.getString("optimized");
-        if (!Helper.isEmpty(value)) {
-            try {
-                Boolean b = Boolean.parseBoolean(value);
-                if (!b && !value.equalsIgnoreCase("false")) {
-                    throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "optimized");
-                }
-                req.setFlexibleMode(!b);
-            } catch(Exception ex) {
-                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "optimized");
-            }
-        }
-
-        value = reqParams.getString("id");
-        if (!Helper.isEmpty(value)) {
-            req.setId(value);
-        }
-
-        // REMOVE
-        req.setAlgorithm(reqParams.getString("algorithm"));
-
-        return req;
-    }
-    */
-
 }

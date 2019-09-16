@@ -54,9 +54,10 @@ public class RoutingProfileType {
     public static final int GH_FOOT = 46;
     public static final int GH_HIKE = 47;
 
+    private RoutingProfileType() {}
 
     public static boolean isDriving(int routePref) {
-        if (routePref == DRIVING_CAR
+        return routePref == DRIVING_CAR
             || routePref == DRIVING_HGV
             || routePref == DRIVING_ELECTRIC_CAR
             || routePref == DRIVING_EMERGENCY
@@ -64,22 +65,21 @@ public class RoutingProfileType {
             || routePref == DRIVING_CAROFFROAD
             || routePref == DRIVING_TRAFFIC
             || routePref == GH_CAR
-            || routePref == GH_CAR4WD
-        )
-            return true;
-        else
-            return false;
+            || routePref == GH_CAR4WD;
     }
 
     public static boolean isHeavyVehicle(int routePref) {
-        if (routePref == DRIVING_HGV || routePref == DRIVING_CAROFFROAD || routePref == DRIVING_EMERGENCY)
-            return true;
-        else
-            return false;
+        return routePref == DRIVING_HGV
+            || routePref == DRIVING_CAROFFROAD
+            || routePref == DRIVING_EMERGENCY;
     }
 
     public static boolean isWalking(int routePref) {
-        return (routePref == FOOT_WALKING || routePref == FOOT_HIKING || routePref == FOOT_JOGGING || routePref == GH_FOOT || routePref == GH_HIKE);
+        return routePref == FOOT_WALKING
+            || routePref == FOOT_HIKING
+            || routePref == FOOT_JOGGING
+            || routePref == GH_FOOT
+            || routePref == GH_HIKE;
     }
 
     public static boolean isPedestrian(int routePref) {
@@ -91,18 +91,14 @@ public class RoutingProfileType {
     }
 
     public static boolean isCycling(int routePref) {
-        if (routePref == CYCLING_REGULAR
+        return routePref == CYCLING_REGULAR
             || routePref == CYCLING_MOUNTAIN
             || routePref == CYCLING_ROAD
             || routePref == CYCLING_ELECTRIC
             || routePref == GH_BIKE
             || routePref == GH_BIKE2
             || routePref == GH_BIKE_MTB
-            || routePref == GH_BIKE_ROAD
-        )
-            return true;
-        else
-            return false;
+            || routePref == GH_BIKE_ROAD;
     }
 
     public static boolean supportMessages(int profileType) {
@@ -227,9 +223,6 @@ public class RoutingProfileType {
             case RoutingProfileType.DRIVING_HGV:
                 return FlagEncoderNames.HEAVYVEHICLE;
 
-//            case RoutingProfileType.DRIVING_CAROFFROAD:
-//                return FlagEncoderNames.CAROFFROAD;
-
             case RoutingProfileType.DRIVING_EMERGENCY:
                 return FlagEncoderNames.EMERGENCY;
 
@@ -306,10 +299,6 @@ public class RoutingProfileType {
                 return RoutingProfileType.DRIVING_HGV;
 
             /* not in use */
-//            case FlagEncoderNames.CAROFFROAD: /* a ors self implemented flagencoder */
-//                return RoutingProfileType.DRIVING_CAROFFROAD;
-
-            /* not in use */
             case FlagEncoderNames.EVEHICLE:
                 return RoutingProfileType.DRIVING_ELECTRIC_CAR;
 
@@ -356,11 +345,9 @@ public class RoutingProfileType {
                 return RoutingProfileType.GH_BIKE_ROAD;
 
             case FlagEncoderNames.GH_FOOT:
-                //return RoutingProfileType.GH_FOOT;
                 return RoutingProfileType.FOOT_WALKING;
 
             case FlagEncoderNames.GH_HIKE:
-                //return RoutingProfileType.GH_HIKE;
                 return RoutingProfileType.FOOT_HIKING;
 
             case FlagEncoderNames.BIKE_ELECTRO:

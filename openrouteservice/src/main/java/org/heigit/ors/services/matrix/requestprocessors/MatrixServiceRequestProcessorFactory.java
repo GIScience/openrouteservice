@@ -27,9 +27,9 @@ import org.heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import com.graphhopper.util.Helper;
 
 public class MatrixServiceRequestProcessorFactory {
+	private MatrixServiceRequestProcessorFactory() {}
 
-	public static AbstractHttpRequestProcessor createProcessor(HttpServletRequest request) throws Exception  
-	{
+	public static AbstractHttpRequestProcessor createProcessor(HttpServletRequest request) throws Exception {
 		if (!MatrixServiceSettings.getEnabled())
 			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, MatrixErrorCodes.UNKNOWN,  "Matrix service is not enabled.");
 

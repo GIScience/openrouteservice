@@ -14,10 +14,50 @@
 package org.heigit.ors.routing.configuration;
 
 public class RouteUpdateConfiguration {
-	public String Extent;
-	public Boolean Enabled = true;
+	private String extent;
+	private boolean enabled = true;
 	/// Either a web or a file link
-	public String DataSource; 
-	public String Time = "7, 12:00:00, 60000";
-	public String WorkingDirectory;
+	private String dataSource;
+	private String time = "7, 12:00:00, 60000";
+	private String workingDirectory;
+
+	public String getExtent() {
+		return extent;
+	}
+
+	public void setExtent(String extent) {
+		this.extent = extent;
+	}
+
+	public boolean getEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public String getDataSource() {
+		return dataSource;
+	}
+
+	public void setDataSource(String dataSource) {
+		this.dataSource = dataSource;
+	}
+
+	public String getTime() {
+		return time;
+	}
+
+	public void setTime(String time) {
+		this.time = time;
+	}
+
+	public String getWorkingDirectory() {
+		return workingDirectory;
+	}
+
+	public void setWorkingDirectory(String workingDirectory) {
+		this.workingDirectory = workingDirectory;
+	}
 }

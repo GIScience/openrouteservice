@@ -18,28 +18,26 @@ import java.util.Iterator;
 import java.util.List;
 
 public class ProfileWeightingCollection {
-	protected List<ProfileWeighting> _weightings;
+	protected List<ProfileWeighting> weightings;
 
 	public ProfileWeightingCollection()
 	{
-		_weightings = new ArrayList<ProfileWeighting>();
+		weightings = new ArrayList<>();
 	}
 
-	public void add(ProfileWeighting weighting)
-	{
-		if (_weightings == null)
-			_weightings = new ArrayList<ProfileWeighting>();
-
-		_weightings.add(weighting);
+	public void add(ProfileWeighting weighting) {
+		if (weightings == null)
+			weightings = new ArrayList<>();
+		weightings.add(weighting);
 	}
 	
 	public Iterator<ProfileWeighting> getIterator()
 	{
-		return _weightings.iterator();
+		return weightings.iterator();
 	}
 	
 	public int size()
 	{
-		return _weightings.size();
+		return weightings.size();
 	}
 }

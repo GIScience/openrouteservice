@@ -23,18 +23,15 @@
  *
  */
 
-package org.heigit.ors.globalresponseprocessor.geoJson;
+package org.heigit.ors.globalresponseprocessor.geojson;
 
 import com.vividsolutions.jts.geom.LineString;
+import org.geotools.feature.simple.SimpleFeatureTypeImpl;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.geotools.feature.simple.SimpleFeatureTypeImpl;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryType;
-
-
-import static org.heigit.ors.globalresponseprocessor.geoJson.SimpleFeatureTypes.RouteFeatureType;
 
 
 public class SimpleFeatureTypesTest {
@@ -43,7 +40,7 @@ public class SimpleFeatureTypesTest {
 
     @BeforeClass
     public static void setUp() {
-        simpleFeatureType = new SimpleFeatureTypes(RouteFeatureType.routeFeature).create();
+        simpleFeatureType = new SimpleFeatureTypes(SimpleFeatureTypes.RouteFeatureType.ROUTE_FEATURE).create();
     }
 
     @Test

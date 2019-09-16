@@ -22,96 +22,91 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IsochroneRequest extends ServiceRequest {
-    private List<TravellerInfo> _travellers;
-    private String _calcMethod;
-    private String _units = null;
-    private String _area_units = null;
-    private Boolean _includeIntersections = false;
-    private String[] _attributes;
-    private float _smoothingFactor = -1.0f;
+    private List<TravellerInfo> travellers;
+    private String calcMethod;
+    private String units = null;
+    private String areaUnits = null;
+    private boolean includeIntersections = false;
+    private String[] attributes;
+    private float smoothingFactor = -1.0f;
 
     public IsochroneRequest() {
-        _travellers = new ArrayList<TravellerInfo>();
+        travellers = new ArrayList<>();
     }
 
     public String getCalcMethod() {
-        return _calcMethod;
+        return calcMethod;
     }
 
     public void setCalcMethod(String calcMethod) {
-        _calcMethod = calcMethod;
+        this.calcMethod = calcMethod;
     }
 
     public String getUnits() {
-        return _units;
+        return units;
     }
 
     public String getAreaUnits() {
-        return _area_units;
+        return areaUnits;
     }
 
     public void setUnits(String units) {
-        _units = units.toLowerCase();
+        this.units = units.toLowerCase();
     }
 
-    public void setAreaUnits(String area_units) {
-        _area_units = area_units.toLowerCase();
+    public void setAreaUnits(String areaUnits) {
+        this.areaUnits = areaUnits.toLowerCase();
     }
 
     public boolean isValid() {
-        return _travellers.size() >= 1;
+        return !travellers.isEmpty();
     }
 
     public String[] getAttributes() {
-        return _attributes;
+        return attributes;
     }
 
     public void setAttributes(String[] attributes) {
-        _attributes = attributes;
+        this.attributes = attributes;
     }
 
     public boolean hasAttribute(String attr) {
-        if (_attributes == null || attr == null)
+        if (attributes == null || attr == null)
             return false;
 
-        for (int i = 0; i < _attributes.length; i++)
-            if (attr.equalsIgnoreCase(_attributes[i]))
+        for (String attribute : attributes)
+            if (attr.equalsIgnoreCase(attribute))
                 return true;
 
         return false;
     }
 
-    public Boolean getIncludeIntersections() {
-        return _includeIntersections;
+    public boolean getIncludeIntersections() {
+        return includeIntersections;
     }
 
-    public void setIncludeIntersections(Boolean value) {
-        _includeIntersections = value;
+    public void setIncludeIntersections(boolean value) {
+        includeIntersections = value;
     }
 
     public Coordinate[] getLocations() {
-        Coordinate[] locations = new Coordinate[_travellers.size()];
-
-        for (int i = 0; i < _travellers.size(); i++) {
-            locations[i] = _travellers.get(i).getLocation();
-        }
-
-        return locations;
+        return travellers.stream().map(TravellerInfo::getLocation).toArray(Coordinate[]::new);
     }
 
     public void setSmoothingFactor(float smoothingFactor) {
-        this._smoothingFactor = smoothingFactor;
+        this.smoothingFactor = smoothingFactor;
     }
 
     public IsochroneSearchParameters getSearchParameters(int travellerIndex) {
-        TravellerInfo traveller = _travellers.get(travellerIndex);
+        TravellerInfo traveller = travellers.get(travellerIndex);
         double[] ranges = traveller.getRanges();
 
         // convert ranges in units to meters or seconds
-        if (!(_units == null || "m".equalsIgnoreCase(_units))) {
+        if (!(units == null || "m".equalsIgnoreCase(units))) {
             double scale = 1.0;
-            if (traveller.getRangeType() == TravelRangeType.Distance) {
-                switch (_units) {
+            if (traveller.getRangeType() == TravelRangeType.DISTANCE) {
+                switch (units) {
+                    default:
                     case "m":
                         break;
                     case "km":
@@ -132,25 +127,25 @@ public class IsochroneRequest extends ServiceRequest {
         IsochroneSearchParameters parameters = new IsochroneSearchParameters(travellerIndex, traveller.getLocation(), ranges);
         parameters.setLocation(traveller.getLocation());
         parameters.setRangeType(traveller.getRangeType());
-        parameters.setCalcMethod(_calcMethod);
-        parameters.setAttributes(_attributes);
-        parameters.setUnits(_units);
-        parameters.setAreaUnits(_area_units);
+        parameters.setCalcMethod(calcMethod);
+        parameters.setAttributes(attributes);
+        parameters.setUnits(units);
+        parameters.setAreaUnits(areaUnits);
         parameters.setRouteParameters(traveller.getRouteSearchParameters());
         if ("destination".equalsIgnoreCase(traveller.getLocationType()))
             parameters.setReverseDirection(true);
-        parameters.setSmoothingFactor(_smoothingFactor);
+        parameters.setSmoothingFactor(smoothingFactor);
         return parameters;
     }
 
     public List<TravellerInfo> getTravellers() {
-        return _travellers;
+        return travellers;
     }
 
     public void addTraveller(TravellerInfo traveller) throws Exception {
         if (traveller == null)
             throw new Exception("'traveller' argument is null.");
 
-        _travellers.add(traveller);
+        travellers.add(traveller);
     }
 }

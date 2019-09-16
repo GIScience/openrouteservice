@@ -17,7 +17,6 @@ import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
@@ -29,15 +28,15 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.routing.RouteSearchContext;
-import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.algorithms.DijkstraCostCondition;
 import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSEdgeFilterFactory;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.DistanceWeighting;
 
 public class GraphEdgeMapFinder {
+	private  GraphEdgeMapFinder() {}
 	
-   public static AccessibilityMap findEdgeMap(RouteSearchContext searchCntx, IsochroneSearchParameters parameters) throws Exception {
+	public static AccessibilityMap findEdgeMap(RouteSearchContext searchCntx, IsochroneSearchParameters parameters) throws Exception {
 		GraphHopper gh = searchCntx.getGraphHopper();
 	    FlagEncoder encoder = searchCntx.getEncoder();
 		GraphHopperStorage graph = gh.getGraphHopperStorage();
@@ -55,16 +54,8 @@ public class GraphEdgeMapFinder {
 		if (fromId == -1)
 			throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "The closest node is null.");
 	
-		Weighting weighting = null;
-		
-		if (parameters.getRangeType() == TravelRangeType.Time)
-		{
-		    weighting = new FastestWeighting(encoder);
-		}
-		else
-		{
-			weighting  = new DistanceWeighting(encoder);
-		}
+		Weighting weighting =  parameters.getRangeType() == TravelRangeType.TIME ?  new FastestWeighting(encoder) : new DistanceWeighting(encoder);
+
 		// IMPORTANT: It only works with TraversalMode.NODE_BASED.
 		DijkstraCostCondition dijkstraAlg = new DijkstraCostCondition(graph, weighting, parameters.getMaximumRange(), parameters.getReverseDirection(),
 				TraversalMode.NODE_BASED);

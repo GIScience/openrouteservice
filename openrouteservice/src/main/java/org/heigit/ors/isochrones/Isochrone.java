@@ -32,7 +32,7 @@ public class Isochrone {
     private double reachfactor;
     private double meanRadius;
     private Envelope envelope;
-    private List<AttributeValue> _attributes;
+    private List<AttributeValue> attributes;
 
     public Isochrone(Geometry geometry, double value, double meanRadius) {
         this.geometry = geometry;
@@ -48,86 +48,62 @@ public class Isochrone {
         return value;
     }
 
-    public double getMeanRadius(String units) {
-
-        if (units != null) {
-            switch (units) {
-                case "m":
-                    return meanRadius;
-                case "mi":
-                    return UnitsConverter.MetersToMiles(meanRadius);
-                case "km":
-                    return UnitsConverter.MetersToKilometers(meanRadius);
-            }
+    private double getMeanRadius(String units) {
+        if (units == null) units = "m";
+        switch (units) {
+            default:
+            case "m":
+                return meanRadius;
+            case "mi":
+                return UnitsConverter.metersToMiles(meanRadius);
+            case "km":
+                return UnitsConverter.metersToKilometers(meanRadius);
         }
-
-        // return default meter
-        return meanRadius;
     }
 
     public double calcArea(String units) throws Exception {
-        double area = calcArea(true);
-        if (units != null) {
-            switch (units) {
-                case "m":
-                    return area;
-                case "mi":
-                    return UnitsConverter.SqMetersToSqMiles(area);
-                case "km":
-                    return UnitsConverter.SqMetersToSqKilometers(area);
-            }
-        }
-
-        // return default square meter
-        return area;
-
-    }
-
-    public double calcArea(Boolean inMeters) throws Exception {
         if (area == 0.0) {
-            area = FormatUtility.roundToDecimals(GeomUtility.getArea(geometry, inMeters), 2);
+            area = FormatUtility.roundToDecimals(GeomUtility.getArea(geometry, true), 2);
         }
-
         hasArea = true;
-        return area;
+        if (units == null) units = "m";
+        switch (units) {
+            default:
+            case "m":
+                return area;
+            case "mi":
+                return UnitsConverter.sqMetersToSqMiles(area);
+            case "km":
+                return UnitsConverter.sqMetersToSqKilometers(area);
+        }
     }
 
     public void setArea(double area) {
-
         this.area = area;
-
     }
 
     public double getArea() {
-
         return area;
-
     }
 
     public boolean hasArea() {
         return hasArea;
     }
 
-    public double calcReachfactor(String units) throws Exception {
-
+    public double calcReachfactor(String units) {
         double r = getMeanRadius(units);
         double maxArea = Math.PI * r * r;
-
         hasReachfactor = true;
         return FormatUtility.roundToDecimals(area / maxArea, 4);
 
     }
 
     public void setReachfactor(double reachfactor) {
-
         this.reachfactor = reachfactor;
-
     }
 
     public double getReachfactor() {
-
         return reachfactor;
-
     }
 
     public boolean hasReachfactor() {
@@ -138,23 +114,19 @@ public class Isochrone {
     public Envelope getEnvelope() {
         if (envelope == null)
             envelope = geometry.getEnvelopeInternal();
-
         return envelope;
     }
 
     public List<AttributeValue> getAttributes() {
-        return _attributes;
+        return attributes;
     }
 
     public void setAttributes(List<String> statNames, double[] statValues, String source) {
         if (statNames == null)
             return;
-
-        if (_attributes == null)
-            _attributes = new ArrayList<AttributeValue>();
-
+        if (attributes == null)
+            attributes = new ArrayList<>();
         for (int i = 0; i < statNames.size(); i++)
-            _attributes.add(new AttributeValue(statNames.get(i), statValues[i], source));
+            attributes.add(new AttributeValue(statNames.get(i), statValues[i], source));
     }
-
 }

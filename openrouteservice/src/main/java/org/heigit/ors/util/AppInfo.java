@@ -100,6 +100,8 @@ public class AppInfo {
 		BUILD_DATE = buildDate;
 	}
 
+	private AppInfo() {}
+
 	public static JSONObject getEngineInfo() {
 		JSONObject json = new JSONObject(true);
 		json.put("version", VERSION);

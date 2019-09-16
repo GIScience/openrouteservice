@@ -19,8 +19,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.matrix.MatrixResult;
 
-import java.util.List;
-
 public class MatrixResponse {
     @JsonIgnore
     protected MatrixResponseInfo responseInformation;

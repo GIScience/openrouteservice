@@ -25,17 +25,17 @@ import org.heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
  * The graph storage for road access restrictions.
  */
 public class RoadAccessRestrictionsGraphStorage implements GraphExtension, WarningGraphExtension {
-    protected final int NO_ENTRY = -1;
-    protected final int EF_RESTRICTIONS;
+    private static final int NO_ENTRY = -1;
+    private final int efRestrictions;
 
     protected DataAccess edges;
     protected int edgeEntryIndex = 0;
     protected int edgeEntryBytes;
     protected int edgesCount;
-    private byte byteData[];
+    private byte[] byteData;
 
     public RoadAccessRestrictionsGraphStorage() {
-        EF_RESTRICTIONS = nextBlockEntryIndex(1);
+        efRestrictions = nextBlockEntryIndex(1);
         edgeEntryBytes = edgeEntryIndex;
         edgesCount = 0;
         byteData = new byte[1];
@@ -64,12 +64,12 @@ public class RoadAccessRestrictionsGraphStorage implements GraphExtension, Warni
         ensureEdgesIndex(edgeId);
         long edgePointer = (long) edgeId * edgeEntryBytes;
         byteData[0] = (byte) restriction;
-        edges.setBytes(edgePointer + EF_RESTRICTIONS, byteData, 1);
+        edges.setBytes(edgePointer + efRestrictions, byteData, 1);
     }
 
     public int getEdgeValue(int edgeId, byte[] buffer) {
         long edgeBase = (long) edgeId * edgeEntryBytes;
-        edges.getBytes(edgeBase + EF_RESTRICTIONS, buffer, 1);
+        edges.getBytes(edgeBase + efRestrictions, buffer, 1);
         return buffer[0] & 0xFF;
     }
 
@@ -152,7 +152,6 @@ public class RoadAccessRestrictionsGraphStorage implements GraphExtension, Warni
 
     @Override
     public boolean isClosed() {
-        // TODO Auto-generated method stub
         return false;
     }
 

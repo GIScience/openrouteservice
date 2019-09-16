@@ -15,50 +15,46 @@ package org.heigit.ors.routing;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import org.heigit.ors.util.RuntimeUtility;
 
 public class RoutingProfilesCollection {
-	private HashMap<Integer, RoutingProfile> m_routeProfiles;
-	private ArrayList<RoutingProfile> m_uniqueProfiles;
+	private HashMap<Integer, RoutingProfile> routeProfiles;
+	private ArrayList<RoutingProfile> uniqueProfiles;
 
 	public RoutingProfilesCollection() {
-		m_routeProfiles = new HashMap<Integer, RoutingProfile>();
-		m_uniqueProfiles = new ArrayList<RoutingProfile>();
+		routeProfiles = new HashMap<>();
+		uniqueProfiles = new ArrayList<>();
 	}
 
 	public void destroy() {
-		for (RoutingProfile rp : m_uniqueProfiles) {
+		for (RoutingProfile rp : uniqueProfiles) {
 			rp.close();
 		}
-		
-		m_routeProfiles.clear();	
+		routeProfiles.clear();
 	}
 	
-	public ArrayList<RoutingProfile> getUniqueProfiles()
-	{
-		return m_uniqueProfiles;
+	public List<RoutingProfile> getUniqueProfiles() {
+		return uniqueProfiles;
 	}
 	
 	public int size()
 	{
-		return m_uniqueProfiles.size();
+		return uniqueProfiles.size();
 	}
 	
 	public void clear() {
-		m_routeProfiles.clear();
-		m_uniqueProfiles.clear();
+		routeProfiles.clear();
+		uniqueProfiles.clear();
 	}
 	
-	public boolean add(RoutingProfile rp )
-	{
+	public boolean add(RoutingProfile rp ) {
 		boolean result = true;
-		
-		synchronized (m_uniqueProfiles) {
-			m_uniqueProfiles.add(rp);
-
+		synchronized (uniqueProfiles) {
+			uniqueProfiles.add(rp);
 			Integer[] routePrefs = rp.getPreferences();
 			if (routePrefs != null) {
 				for (int j = 0; j < routePrefs.length; j++) {
@@ -67,35 +63,31 @@ public class RoutingProfilesCollection {
 				}
 			}
 		}
-		
 		return result;
 	}
 
 	public boolean add(int routePref, RoutingProfile rp, boolean isUnique) {
 		boolean res = false;
 
-		synchronized (m_routeProfiles) {
+		synchronized (routeProfiles) {
 			int key = getRoutePreferenceKey(routePref, rp.isCHEnabled());
 
-			if (!m_routeProfiles.containsKey(key))
-			{
-				m_routeProfiles.put(key, rp);
+			if (!routeProfiles.containsKey(key)) {
+				routeProfiles.put(key, rp);
 				if (isUnique)
-					m_uniqueProfiles.add(rp);
+					uniqueProfiles.add(rp);
 				
 				res = true;
 			}
 			
-			if (rp.isCHEnabled())
-			{
+			if (rp.isCHEnabled()) {
 				//  add the same profile but with dynamic weights
 				key = getRoutePreferenceKey(routePref, false);
 
-				if (!m_routeProfiles.containsKey(key))
-				{
-					m_routeProfiles.put(key, rp);
+				if (!routeProfiles.containsKey(key)) {
+					routeProfiles.put(key, rp);
 					if (isUnique)
-						m_uniqueProfiles.add(rp);
+						uniqueProfiles.add(rp);
 					
 					res = true;
 				}
@@ -105,27 +97,24 @@ public class RoutingProfilesCollection {
 		return res;
 	}
 
-	public ArrayList<RoutingProfile> getCarProfiles() {
-		ArrayList<RoutingProfile> result = new ArrayList<RoutingProfile>();
-		for (RoutingProfile rp : m_routeProfiles.values()) {
+	public List<RoutingProfile> getCarProfiles() {
+		ArrayList<RoutingProfile> result = new ArrayList<>();
+		for (RoutingProfile rp : routeProfiles.values()) {
 			if (rp.hasCarPreferences())
 				result.add(rp);
 		}
-
 		return result;
 	}
 
 	public RoutingProfile getRouteProfile(int routePref, boolean chEnabled) throws Exception {
 		int routePrefKey = getRoutePreferenceKey(routePref, chEnabled);
 		//Fall back to non-CH version if CH routing profile does not exist
-		if (!m_routeProfiles.containsKey(routePrefKey)){
+		if (!routeProfiles.containsKey(routePrefKey)){
 			routePrefKey = getRoutePreferenceKey(routePref, false);
-			if (!m_routeProfiles.containsKey(routePrefKey))
+			if (!routeProfiles.containsKey(routePrefKey))
 				return null;
 		}
-		RoutingProfile rp = m_routeProfiles.get(routePrefKey);
-		return rp;
-
+		return routeProfiles.get(routePrefKey);
 	}
 
 	/**
@@ -136,53 +125,37 @@ public class RoutingProfilesCollection {
 
 	public boolean isCHProfileAvailable(int routePref) throws Exception {
 		int routePrefKey = getRoutePreferenceKey(routePref, true);
-		if (!m_routeProfiles.containsKey(routePrefKey)) return false;
-		return true;
+		return routeProfiles.containsKey(routePrefKey);
 	}
 	
-	public RoutingProfile getRouteProfile(int routePref) throws Exception
-	{
-		RoutingProfile rp = getRouteProfileByKey(getRoutePreferenceKey(routePref, false));
-		//if (rp == null)
-		//	rp = getRouteProfileByKey(getRoutePreferenceKey(routePref, false));
-		
-		return rp;
+	public RoutingProfile getRouteProfile(int routePref) throws Exception {
+		return getRouteProfileByKey(getRoutePreferenceKey(routePref, false));
 	}
 
 	private RoutingProfile getRouteProfileByKey(int routePrefKey) throws Exception {
-		if (!m_routeProfiles.containsKey(routePrefKey))
-			return null;
-		else {
-			RoutingProfile rp = m_routeProfiles.get(routePrefKey);
-			return rp;
-		}
+		return routeProfiles.getOrDefault(routePrefKey, null);
 	}
 
 	private int getRoutePreferenceKey(int routePref, boolean chEnabled) {
 		int key = routePref;
 		if (chEnabled)
 			key += 100;
-
 		return key;
 	}
 	
-	public void printStatistics(Logger logger)
-	{
+	public void printStatistics(Logger logger) {
 		logger.info("====> Memory usage by profiles:");
 		long totalUsedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 		long totalProfilesMemory = 0;
 		
 		int i = 0;
-		for(RoutingProfile profile : getUniqueProfiles())
-		{
+		for(RoutingProfile profile : getUniqueProfiles()) {
 			i++;
 			long capacity = profile.getCapacity();
 			totalProfilesMemory += capacity;
 			logger.info(String.format("[%d] %s (%.1f%%)", i, RuntimeUtility.getMemorySize(capacity), ((double)capacity/totalUsedMemory)*100)); 
 		}
-		
-		logger.info(String.format("Total: %s (%.1f%%)", RuntimeUtility.getMemorySize(totalProfilesMemory), ((double)totalProfilesMemory/totalUsedMemory)*100)); 
-		
+		logger.info(String.format("Total: %s (%.1f%%)", RuntimeUtility.getMemorySize(totalProfilesMemory), ((double)totalProfilesMemory/totalUsedMemory)*100));
 		logger.info("========================================================================");
 	}
 }

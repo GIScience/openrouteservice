@@ -14,18 +14,15 @@
 package org.heigit.ors.routing.util.extrainfobuilders;
 
 import com.graphhopper.util.PointList;
-
 import org.heigit.ors.routing.RouteExtraInfo;
 
 public abstract class RouteExtraInfoBuilder {
-    protected RouteExtraInfo _extraInfo;
+    protected RouteExtraInfo extraInfo;
     
-    public RouteExtraInfoBuilder(RouteExtraInfo extraInfo)
-    {
+    RouteExtraInfoBuilder(RouteExtraInfo extraInfo) {
     	if (extraInfo == null)
     		throw new NullPointerException("extraInfo");
-    	
-    	_extraInfo = extraInfo;
+    	this.extraInfo = extraInfo;
     }
     
     public abstract void addSegment(double value, long valueIndex, PointList geom, double dist, boolean lastEdge);

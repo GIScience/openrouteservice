@@ -21,18 +21,11 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNam
 
 public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory implements FlagEncoderFactory {
 
+    public static final String KEY_CONSIDER_ELEVATION = "consider_elevation";
+
     @Override
     public FlagEncoder createFlagEncoder(String name, PMap configuration) {
         switch(name){
-            default:
-                // for all the types that DOES not match the ORS specific encoders we make
-                // use of the GH defaults - PLEASE note, that even if the GH defaults are
-                // used, the ors-fork of gh includes an adjustment in the
-                // 'AbstractFlagEncoder' (which is the parent class of ALL vehicles - so
-                // even if a gh default flagEncoder impl ist used - we have some additional
-                // features inside!
-                return super.createFlagEncoder(name, configuration);
-
             case FlagEncoderNames.CAR_ORS:
                 return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.CarFlagEncoder(configuration);
 
@@ -43,24 +36,24 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
                 return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.HeavyVehicleFlagEncoder(configuration);
 
             case FlagEncoderNames.BIKE_ORS:
-                if (configuration.getBool("consider_elevation", false)) {
-                    configuration.remove("consider_elevation");
+                if (configuration.getBool(KEY_CONSIDER_ELEVATION, false)) {
+                    configuration.remove(KEY_CONSIDER_ELEVATION);
                 }
                 return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.RegularBikeFlagEncoder(configuration);
 
             case FlagEncoderNames.MTB_ORS:
                 // MARQ24 hardcoded "ignore" consider_elevation for the NextGenMountainBike FlagEncoder - when
                 // consider_elevation is enabled we have various detours (over smaler tracks)
-                if(configuration.getBool("consider_elevation", false)){
-                    configuration.remove("consider_elevation");
+                if(configuration.getBool(KEY_CONSIDER_ELEVATION, false)){
+                    configuration.remove(KEY_CONSIDER_ELEVATION);
                 }
                 return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.MountainBikeFlagEncoder(configuration);
 
             case FlagEncoderNames.BIKE_ELECTRO:
                 // MARQ24 hardcoded "ignore" consider_elevation for the NextGenMountainBike FlagEncoder - when
                 // consider_elevation is enabled we have various detours (over smaler tracks)
-                if(configuration.getBool("consider_elevation", false)){
-                    configuration.remove("consider_elevation");
+                if(configuration.getBool(KEY_CONSIDER_ELEVATION, false)){
+                    configuration.remove(KEY_CONSIDER_ELEVATION);
                 }
                 return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.ElectroBikeFlagEncoder(configuration);
 
@@ -68,8 +61,8 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
                 // MARQ24 hardcoded "ignore" consider_elevation for the NextGenRoadbike FlagEncoder - when
                 // consider_elevation is enabled we have various detours (over smaler tracks)
                 // see http://localhost:3035/directions?n1=51.562385&n2=8.724582&n3=15&a=51.573202,8.709326,51.54879,8.710184&b=1c&c=0&g1=-1&g2=0&h2=3&k1=en-US&k2=km
-                if(configuration.getBool("consider_elevation", false)){
-                    configuration.remove("consider_elevation");
+                if(configuration.getBool(KEY_CONSIDER_ELEVATION, false)){
+                    configuration.remove(KEY_CONSIDER_ELEVATION);
                 }
                 return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.RoadBikeFlagEncoder(configuration);
 
@@ -81,6 +74,15 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
 
             case FlagEncoderNames.HIKING_ORS:
                 return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.HikingFlagEncoder(configuration);
+
+            default:
+                // for all the types that DOES not match the ORS specific encoders we make
+                // use of the GH defaults - PLEASE note, that even if the GH defaults are
+                // used, the ors-fork of gh includes an adjustment in the
+                // 'AbstractFlagEncoder' (which is the parent class of ALL vehicles - so
+                // even if a gh default flagEncoder impl ist used - we have some additional
+                // features inside!
+                return super.createFlagEncoder(name, configuration);
         }
     }
 }

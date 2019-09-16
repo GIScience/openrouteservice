@@ -101,10 +101,10 @@ public class IsochronesRequestHandler extends GenericHandler {
 
         switch (rangeType) {
             case DISTANCE:
-                travelRangeType = TravelRangeType.Distance;
+                travelRangeType = TravelRangeType.DISTANCE;
                 break;
             case TIME:
-                travelRangeType = TravelRangeType.Time;
+                travelRangeType = TravelRangeType.TIME;
                 break;
             default:
                 throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_RANGE_TYPE, rangeType.toString());

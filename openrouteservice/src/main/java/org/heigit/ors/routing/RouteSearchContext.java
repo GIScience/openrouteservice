@@ -14,37 +14,34 @@
 package org.heigit.ors.routing;
 
 import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.util.PMap;
 
 public class RouteSearchContext {
-	private GraphHopper _graphhopper;
-	private FlagEncoder _encoder;
-	
-	private PMap _properties;
+	private GraphHopper graphhopper;
+	private FlagEncoder encoder;
+	private PMap properties;
 
-	public RouteSearchContext(GraphHopper gh, FlagEncoder encoder)
-	{
-		_graphhopper = gh;   
-		_encoder = encoder;
+	public RouteSearchContext(GraphHopper gh, FlagEncoder encoder) {
+		graphhopper = gh;
+		this.encoder = encoder;
 	}
 
 	public FlagEncoder getEncoder() {
-		return _encoder;
+		return encoder;
 	}
 
 	public GraphHopper getGraphHopper() {
-		return _graphhopper;
+		return graphhopper;
 	}
 	
 	public PMap getProperties()
 	{
-		return _properties;
+		return properties;
 	}
 	
 	public void setProperties(PMap value)
 	{
-		_properties = value;
+		properties = value;
 	}
 }

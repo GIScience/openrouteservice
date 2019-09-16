@@ -3,12 +3,10 @@ package org.heigit.ors.api.responses.matrix.json;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
-import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.matrix.ResolvedLocation;
-import org.heigit.ors.routing.RoutingProfileType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,9 +37,9 @@ public class JSONBasedIndividualMatrixResponseTest {
         ResolvedLocation[] resolvedLocations = new ResolvedLocation[1];
         resolvedLocations[0] = resolvedLocation;
         matrixResult = new MatrixResult(resolvedLocations, resolvedLocations);
-        matrixResult.setTable(MatrixMetricsType.Duration, new float[]{0, 1});
-        matrixResult.setTable(MatrixMetricsType.Distance, new float[]{0, 1});
-        matrixResult.setTable(MatrixMetricsType.Weight, new float[]{0, 1});
+        matrixResult.setTable(MatrixMetricsType.DURATION, new float[]{0, 1});
+        matrixResult.setTable(MatrixMetricsType.DISTANCE, new float[]{0, 1});
+        matrixResult.setTable(MatrixMetricsType.WEIGHT, new float[]{0, 1});
         List<MatrixResult> matrixResults = new ArrayList<>();
         matrixResults.add(matrixResult);
     }

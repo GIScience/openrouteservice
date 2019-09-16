@@ -7,17 +7,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public class OSMPedestrianProcessor {
-    List<String> allowed;
+    private List<String> allowed;
 
     public OSMPedestrianProcessor() {
         allowed = new ArrayList<>();
         allowed.add("yes");
-        allowed.addAll(Arrays.asList(new String[] {
-                "yes",
-                "designated",
-                "permissive",
-                "destination"
-        }));
+        allowed.addAll(Arrays.asList("yes", "designated",  "permissive", "destination"));
     }
     /**
      * Determine if the way is pedestrianised, i.e. that a person should be able to traverse it on foot.
@@ -39,6 +34,7 @@ public class OSMPedestrianProcessor {
                 case "track":
                     isPedestrian = true;
                     break;
+                default:
             }
         }
         if(way.hasTag("public_transport") && way.getTag("public_transport").equals("platform"))

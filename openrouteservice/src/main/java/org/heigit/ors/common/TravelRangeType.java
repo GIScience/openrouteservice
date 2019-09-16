@@ -14,6 +14,6 @@
 package org.heigit.ors.common;
 
 public enum TravelRangeType {
-   Distance,
-   Time
+   DISTANCE,
+   TIME
 }

@@ -21,78 +21,63 @@ import com.graphhopper.util.Helper;
 
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrailDifficultyScaleGraphStorage;
 
-public class TrailDifficultyScaleGraphStorageBuilder extends AbstractGraphStorageBuilder
-{
-	private TrailDifficultyScaleGraphStorage _storage;
-	private int _hikingScale;
-	private int _mtbScale;
-	private int _mtbUphillScale;
-
-	public TrailDifficultyScaleGraphStorageBuilder()
-	{
-	}
+public class TrailDifficultyScaleGraphStorageBuilder extends AbstractGraphStorageBuilder {
+	private TrailDifficultyScaleGraphStorage storage;
+	private int hikingScale;
+	private int mtbScale;
+	private int mtbUphillScale;
 
 	public GraphExtension init(GraphHopper graphhopper) throws Exception {
-		if (_storage != null)
+		if (storage != null)
 			throw new Exception("GraphStorageBuilder has been already initialized.");
-
-		_storage = new TrailDifficultyScaleGraphStorage();
-
-		return _storage;
+		storage = new TrailDifficultyScaleGraphStorage();
+		return storage;
 	}
 
 	public void processWay(ReaderWay way) {
-		_hikingScale = getSacScale(way.getTag("sac_scale"));
-		_mtbScale = getMtbScale(way.getTag("mtb:scale"));
-		if (_mtbScale == 0)
-			_mtbScale = getMtbScale(way.getTag("mtb:scale:imba"));
-		_mtbUphillScale = getMtbScale(way.getTag("mtb:scale:uphill"));
-		if (_mtbUphillScale == 0)
-			_mtbUphillScale = _mtbScale;
+		hikingScale = getSacScale(way.getTag("sac_scale"));
+		mtbScale = getMtbScale(way.getTag("mtb:scale"));
+		if (mtbScale == 0)
+			mtbScale = getMtbScale(way.getTag("mtb:scale:imba"));
+		mtbUphillScale = getMtbScale(way.getTag("mtb:scale:uphill"));
+		if (mtbUphillScale == 0)
+			mtbUphillScale = mtbScale;
 	}
 
-	private int getSacScale(String value)
-	{
-		if (!Helper.isEmpty(value))
-		{
-			switch(value)
-			{
-			case "hiking":
-				return 1;
-			case "mountain_hiking":
-				return 2;
-			case "demanding_mountain_hiking":
-				return 3;
-			case "alpine_hiking":
-				return 4;
-			case "demanding_alpine_hiking":
-				return 5;
-			case "difficult_alpine_hiking":
-				return 6;
+	private int getSacScale(String value) {
+		if (!Helper.isEmpty(value)) {
+			switch(value) {
+				case "hiking":
+					return 1;
+				case "mountain_hiking":
+					return 2;
+				case "demanding_mountain_hiking":
+					return 3;
+				case "alpine_hiking":
+					return 4;
+				case "demanding_alpine_hiking":
+					return 5;
+				case "difficult_alpine_hiking":
+					return 6;
+				default:
 			}
 		}
-
 		return 0;
 	}
 
-	private int getMtbScale(String value)
-	{
-		if (!Helper.isEmpty(value))
-		{
-			try
-			{
+	private int getMtbScale(String value) {
+		if (!Helper.isEmpty(value)) {
+			try {
 				return Integer.parseInt(value) + 1;
+			} catch(Exception ex) {
+				// do nothing
 			}
-			catch(Exception ex)
-			{}
 		}
-
 		return 0;
 	}
 
-	public void processEdge(ReaderWay way, EdgeIteratorState edge)
-	{ 
-		_storage.setEdgeValue(edge.getEdge(), _hikingScale, _mtbScale, _mtbUphillScale);
+	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
+		storage.setEdgeValue(edge.getEdge(), hikingScale, mtbScale, mtbUphillScale);
 	}
 
 	@Override

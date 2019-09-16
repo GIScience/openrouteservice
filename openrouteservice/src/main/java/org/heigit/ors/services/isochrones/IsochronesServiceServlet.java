@@ -24,6 +24,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * @deprecated
+ */
 @Deprecated
 @RestController
 @RequestMapping("/isochrones")
@@ -34,9 +37,12 @@ public class IsochronesServiceServlet extends BaseHttpServlet {
 	 */
 	private static final long serialVersionUID = 12342412347892L;
 
+	@Override
 	public void init() {
+		// do nothing
 	}
 
+	@Override
 	@PostMapping
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException 
 	{
@@ -52,6 +58,7 @@ public class IsochronesServiceServlet extends BaseHttpServlet {
 		}
 	}
 
+	@Override
 	@GetMapping
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException{
 		try
@@ -66,7 +73,8 @@ public class IsochronesServiceServlet extends BaseHttpServlet {
 		}
 	}
 
+	@Override
     public void destroy() {
-    	
+    	// do nothing
     }
 }

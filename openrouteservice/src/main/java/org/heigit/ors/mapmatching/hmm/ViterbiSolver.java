@@ -14,9 +14,9 @@
 package org.heigit.ors.mapmatching.hmm;
 
 public class ViterbiSolver {
+	private ViterbiSolver() {}
 	
-	public int[] findPath(double[] startProbability, double[][] transitionProbability, double[][] emissionProbability, boolean scaled)
-	{
+	public static int[] findPath(double[] startProbability, double[][] transitionProbability, double[][] emissionProbability, boolean scaled) {
 		int nObservations = emissionProbability[0].length;
 		int nStates = startProbability.length;
 

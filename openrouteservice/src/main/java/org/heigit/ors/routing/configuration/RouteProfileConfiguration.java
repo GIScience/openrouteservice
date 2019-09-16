@@ -22,311 +22,302 @@ import com.vividsolutions.jts.geom.Envelope;
 
 import org.heigit.ors.routing.RoutingProfileType;
 
-public class RouteProfileConfiguration
-{
-	private String _name = "";
-	private Boolean _enabled = true;
-	private String _profiles; // comma separated
-	private String _graphPath;
-	private Map<String, Map<String, String>> _extStorages;
-	private Map<String, Map<String, String>> _graphBuilders;
-	private Double _maximumDistance = 0.0;
-	private Double _maximumDistanceDynamicWeights = 0.0;
-	private Double _maximumDistanceAvoidAreas = 0.0;
-	private Integer _maximumWayPoints = 0;
-	private boolean _instructions = true;
-	private boolean _optimize = false;
+public class RouteProfileConfiguration {
+	private String name = "";
+	private boolean enabled = true;
+	private String profiles; // comma separated
+	private String graphPath;
+	private Map<String, Map<String, String>> extStorages;
+	private Map<String, Map<String, String>> graphBuilders;
+	private Double maximumDistance = 0.0;
+	private Double maximumDistanceDynamicWeights = 0.0;
+	private Double maximumDistanceAvoidAreas = 0.0;
+	private Integer maximumWayPoints = 0;
+	private boolean instructions = true;
+	private boolean optimize = false;
 	
-	private int _encoderFlagsSize = 4;
-	private String _encoderOptions = null;
+	private int encoderFlagsSize = 4;
+	private String encoderOptions = null;
 	
-	private Config _preparationOpts;
-	private Config _executionOpts;
+	private Config preparationOpts;
+	private Config executionOpts;
 	
-	private String _elevationProvider = null; 
-	private String _elevationCachePath = null;
-	private String _elevationDataAccess = "MMAP";
-	private boolean _elevationCacheClear = true;
-	private int _maximumSnappingRadius;
+	private String elevationProvider = null;
+	private String elevationCachePath = null;
+	private String elevationDataAccess = "MMAP";
+	private boolean elevationCacheClear = true;
+	private int maximumSnappingRadius;
 	
-	private Envelope _extent;
-	private boolean _hasMaximumSnappingRadius = false;
+	private Envelope extent;
+	private boolean hasMaximumSnappingRadius = false;
 
-	public RouteProfileConfiguration()
-	{
-		_extStorages = new HashMap<String, Map<String, String>>();
-		_graphBuilders = new HashMap<String, Map<String, String>>();
+	public RouteProfileConfiguration() {
+		extStorages = new HashMap<>();
+		graphBuilders = new HashMap<>();
 	}
-	
-	public Integer[] getProfilesTypes()
-	{
-		ArrayList<Integer> list = new ArrayList<Integer>();
+
+	public RouteProfileConfiguration(RouteProfileConfiguration rpc) {
+		name = rpc.name;
+		enabled = rpc.enabled;
+		profiles = rpc.profiles;
+		graphPath = rpc.graphPath;
+
+		maximumDistance = rpc.maximumDistance;
+		maximumDistanceDynamicWeights = rpc.maximumDistanceDynamicWeights;
+		maximumDistanceAvoidAreas = rpc.maximumDistanceAvoidAreas;
+		maximumWayPoints = rpc.maximumWayPoints;
+		optimize = rpc.optimize;
+		instructions = rpc.instructions;
+
+		encoderFlagsSize = rpc.encoderFlagsSize;
+		encoderOptions = rpc.encoderOptions;
+		preparationOpts = rpc.preparationOpts;
+		executionOpts = rpc.executionOpts;
+
+		extStorages = rpc.extStorages;
+		graphBuilders = rpc.graphBuilders;
+
+		elevationCachePath = rpc.elevationCachePath;
+		elevationCacheClear = rpc.elevationCacheClear;
+		elevationProvider = rpc.elevationProvider;
+		elevationDataAccess = rpc.elevationDataAccess;
+
+		maximumSnappingRadius = rpc.maximumSnappingRadius;
+		hasMaximumSnappingRadius = rpc.hasMaximumSnappingRadius;
+
+		extent = rpc.extent;
+	}
+
+	public Integer[] getProfilesTypes() {
+		ArrayList<Integer> list = new ArrayList<>();
 		
-		String[] elements = _profiles.split("\\s*,\\s*");
+		String[] elements = profiles.split("\\s*,\\s*");
 		
-		for (int i = 0; i< elements.length; i++)
-		{
-			int profileType = (int)RoutingProfileType.getFromString(elements[i]);
+		for (int i = 0; i< elements.length; i++) {
+			int profileType = RoutingProfileType.getFromString(elements[i]);
 			
-			if (profileType != (int)RoutingProfileType.UNKNOWN)
-			{
+			if (profileType != RoutingProfileType.UNKNOWN) {
 				list.add(profileType);
 			}
 		}
 		
-		return (Integer[])list.toArray(new Integer[list.size()]);
-	}
-	
-	public RouteProfileConfiguration clone()
-	{
-		RouteProfileConfiguration rpc = new RouteProfileConfiguration();
-		
-		rpc._name = this._name;
-		rpc._enabled = this._enabled;
-		rpc._profiles = this._profiles;
-		rpc._graphPath = this._graphPath;
-			
-		rpc._maximumDistance = this._maximumDistance;
-		rpc._maximumDistanceDynamicWeights = this._maximumDistanceDynamicWeights;
-		rpc._maximumDistanceAvoidAreas = this._maximumDistanceAvoidAreas;
-		rpc._maximumWayPoints = this._maximumWayPoints;
-		rpc._optimize = this._optimize;
-		rpc._instructions = this._instructions;
-		
-		rpc._encoderFlagsSize = this._encoderFlagsSize;
-		rpc._encoderOptions = this._encoderOptions;
-		rpc._preparationOpts = this._preparationOpts;
-		rpc._executionOpts = this._executionOpts;
-
-		rpc._extStorages = this._extStorages;
-		rpc._graphBuilders = this._graphBuilders;
-
-		rpc._elevationCachePath = this._elevationCachePath;
-		rpc._elevationCacheClear = this._elevationCacheClear;
-		rpc._elevationProvider = this._elevationProvider;
-		rpc._elevationDataAccess = this._elevationDataAccess;
-
-		rpc._maximumSnappingRadius = this._maximumSnappingRadius;
-
-		rpc._extent = this._extent;
-		
-		return rpc;
+		return list.toArray(new Integer[list.size()]);
 	}
 	
 	public void setName(String value)
 	{
-		_name = value; 
+		name = value;
 	}
 	
 	public String getName()
 	{
-		return _name;
+		return name;
 	}
 	
 	public void setEnabled(Boolean value)
 	{
-		_enabled = value; 
+		enabled = value;
 	}
 	
-	public Boolean getEnabled()
+	public boolean getEnabled()
 	{
-		return _enabled;
+		return enabled;
 	}
 	
 	public void setProfiles(String value)
 	{
-		_profiles = value; 
+		profiles = value;
 	}
 	
 	public String getProfiles()
 	{
-		return _profiles;
+		return profiles;
 	}
 	
 	public void setGraphPath(String value)
 	{
-		_graphPath = value; 
+		graphPath = value;
 	}
 	
 	public String getGraphPath()
 	{
-		return _graphPath;
+		return graphPath;
 	}
 	
 	public void setExtStorages(Map<String, Map<String, String>> value)
 	{
-		_extStorages = value; 
+		extStorages = value;
 	}
 	
 	public Map<String, Map<String, String>> getExtStorages()
 	{
-		return _extStorages;
+		return extStorages;
 	}
 	
 	public void setGraphBuilders(Map<String, Map<String, String>> value)
 	{
-		_graphBuilders = value; 
+		graphBuilders = value;
 	}
 	
 	public Map<String, Map<String, String>> getGraphBuilders()
 	{
-		return _graphBuilders;
+		return graphBuilders;
 	}
 	
 	public void setInstructions(Boolean value)
 	{
-		_instructions = value; 
+		instructions = value;
 	}
 	
-	public Boolean getInstructions()
+	public boolean getInstructions()
 	{
-		return _instructions;
+		return instructions;
 	}
 	
 	public void setMaximumDistance(Double value)
 	{
-		_maximumDistance = value; 
+		maximumDistance = value;
 	}
 	
 	public Double getMaximumDistance()
 	{
-		return _maximumDistance;
+		return maximumDistance;
 	}
 	
 	public void setMaximumDistanceDynamicWeights(Double value)
 	{
-		_maximumDistanceDynamicWeights = value;
+		maximumDistanceDynamicWeights = value;
 	}
 	
 	public Double getMaximumDistanceDynamicWeights()
 	{
-		return _maximumDistanceDynamicWeights;
+		return maximumDistanceDynamicWeights;
 	}
 
 	public void setMaximumDistanceAvoidAreas(Double value)
 	{
-		_maximumDistanceAvoidAreas = value;
+		maximumDistanceAvoidAreas = value;
 	}
 
 	public Double getMaximumDistanceAvoidAreas()
 	{
-		return _maximumDistanceAvoidAreas;
+		return maximumDistanceAvoidAreas;
 	}
 	
 	public void setMaximumWayPoints(Integer value)
 	{
-		_maximumWayPoints = value; 
+		maximumWayPoints = value;
 	}
 	
 	public Integer getMaximumWayPoints()
 	{
-		return _maximumWayPoints;
+		return maximumWayPoints;
 	}
 	
 	public void setEncoderFlagsSize(Integer value)
 	{
-		_encoderFlagsSize = value; 
+		encoderFlagsSize = value;
 	}
 	
 	public Integer getEncoderFlagsSize()
 	{
-		return _encoderFlagsSize;
+		return encoderFlagsSize;
 	}
 	
 	public void setEncoderOptions(String value)
 	{
-		_encoderOptions = value; 
+		encoderOptions = value;
 	}
 	
 	public String getEncoderOptions()
 	{
-		return _encoderOptions;
+		return encoderOptions;
 	}
 	
 	public void setExtent(Envelope value)
 	{
-		_extent = value; 
+		extent = value;
 	}
 	
 	public Envelope getExtent()
 	{
-		return _extent;
+		return extent;
 	}
 	
 	public void setElevationProvider(String value)
 	{
-		_elevationProvider = value; 
+		elevationProvider = value;
 	}
 	
 	public String getElevationProvider()
 	{
-		return _elevationProvider;
+		return elevationProvider;
 	}
 	
 	public void setElevationCachePath(String value)
 	{
-		_elevationCachePath = value; 
+		elevationCachePath = value;
 	}
 	
 	public String getElevationCachePath()
 	{
-		return _elevationCachePath;
+		return elevationCachePath;
 	}
 	
 	public void setElevationDataAccess(String value)
 	{
-		_elevationDataAccess = value; 
+		elevationDataAccess = value;
 	}
 	
 	public String getElevationDataAccess()
 	{
-		return _elevationDataAccess;
+		return elevationDataAccess;
 	}
 	
 	public void setElevationCacheClear(Boolean value)
 	{
-		_elevationCacheClear = value; 
+		elevationCacheClear = value;
 	}
 	
-	public Boolean getElevationCacheClear()
+	public boolean getElevationCacheClear()
 	{
-		return _elevationCacheClear;
+		return elevationCacheClear;
 	}
 
 	public Config getPreparationOpts() {
-		return _preparationOpts;
+		return preparationOpts;
 	}
 
 	public void setPreparationOpts(Config preparationOpts) {
-		_preparationOpts = preparationOpts;
+		this.preparationOpts = preparationOpts;
 	}
 
 	public Config getExecutionOpts() {
-		return _executionOpts;
+		return executionOpts;
 	}
 
 	public void setExecutionOpts(Config executionOpts) {
-		this._executionOpts = executionOpts;
+		this.executionOpts = executionOpts;
 	}
 
 	public boolean getOptimize() {
-		return _optimize;
+		return optimize;
 	}
 
 	public void setOptimize(boolean optimize) {
-		this._optimize = optimize;
+		this.optimize = optimize;
 	}
 
 	public boolean hasMaximumSnappingRadius() {
-		return _hasMaximumSnappingRadius;
+		return hasMaximumSnappingRadius;
 	}
 
 	public int getMaximumSnappingRadius() {
-		return _maximumSnappingRadius;
+		return maximumSnappingRadius;
 	}
 
-	public void setMaximumSnappingRadius(int _maximumSnappingRadius) {
-		this._maximumSnappingRadius = _maximumSnappingRadius;
-		this._hasMaximumSnappingRadius = true;
+	public void setMaximumSnappingRadius(int maximumSnappingRadius) {
+		this.maximumSnappingRadius = maximumSnappingRadius;
+		this.hasMaximumSnappingRadius = true;
 	}
 }

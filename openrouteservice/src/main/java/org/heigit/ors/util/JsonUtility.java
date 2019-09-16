@@ -17,9 +17,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.json.JSONArray;
-
+import org.apache.log4j.Logger;
 import org.heigit.ors.exceptions.ParameterValueException;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -27,10 +27,13 @@ import org.json.JSONTokener;
 import java.util.Iterator;
 
 public class JsonUtility {
+    private static final Logger LOGGER = Logger.getLogger(JsonUtility.class.getName());
+
+    private JsonUtility() {}
 
     public static int[] parseIntArray(JSONArray array, String elemName, int errorCode) throws Exception {
         if (array.length() <= 0)
-            return null;
+            return new int[]{};
 
         try {
             int[] res = new int[array.length()];
@@ -48,7 +51,7 @@ public class JsonUtility {
         try {
             json = new JSONTokener(object.toString()).nextValue();
         } catch (JSONException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getStackTrace());
         }
         if (json instanceof JSONObject) {
             jsonObject = (JSONObject) json;
@@ -62,7 +65,7 @@ public class JsonUtility {
         try {
             json = new JSONTokener(object.toString()).nextValue();
         } catch (JSONException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getStackTrace());
         }
         if (json instanceof JSONArray) {
             jsonArray = (JSONArray) json;
@@ -75,7 +78,7 @@ public class JsonUtility {
 
         @SuppressWarnings("unchecked")
         Iterator<String> iterator = json.keys();
-        for (; iterator.hasNext();) {
+        while (iterator.hasNext()) {
             String key = iterator.next();
             Object value;
             try {
@@ -96,9 +99,9 @@ public class JsonUtility {
             else if (value instanceof Boolean)
                 ret.put(key, (Boolean) value);
             else if (value instanceof JSONObject)
-                ret.put(key, convertJsonFormat((JSONObject) value));
+                ret.set(key, convertJsonFormat((JSONObject) value));
             else if (value instanceof JSONArray)
-                ret.put(key, convertJsonFormat((JSONArray) value));
+                ret.set(key, convertJsonFormat((JSONArray) value));
             else
                 throw new RuntimeException("not prepared for converting instance of class " + value.getClass());
         }

@@ -16,67 +16,32 @@ package org.heigit.ors.isochrones;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-
 public class IsochroneMapCollection {
-	private int _nIsochrones = 0;
-	private List<IsochroneMap> _isochroneMaps = new ArrayList<IsochroneMap>();
+	private int nIsochrones = 0;
+	private List<IsochroneMap> isochroneMaps = new ArrayList<>();
 	
-	public IsochroneMapCollection()
-	{}
-	
-	public void add(IsochroneMap map)
-	{
-		_isochroneMaps.add(map);
-		_nIsochrones += map.getIsochronesCount();
+	public void add(IsochroneMap map) {
+		isochroneMaps.add(map);
+		nIsochrones += map.getIsochronesCount();
 	}
 	
 	public Iterable<IsochroneMap> getIsochroneMaps()
 	{
-		return _isochroneMaps;
+		return isochroneMaps;
 	}
 	
 	public IsochroneMap getIsochrone(int index)
 	{
-		return _isochroneMaps.get(index);
+		return isochroneMaps.get(index);
 	}
 	
 	public int getIsochronesCount()
 	{
-		return _nIsochrones;
+		return nIsochrones;
 	}
 	
 	public int size()
 	{
-		return _isochroneMaps.size();
-	}
-	
-	public Geometry computeIntersection()
-	{
-		if (_isochroneMaps.size() == 0)
-			return null;
-		
-		if (_isochroneMaps.size() == 1)
-			return _isochroneMaps.get(0).getIsochrone(0).getGeometry();
-		
-		Isochrone iso = _isochroneMaps.get(0).getIsochrone(0);
-		Geometry geomIntersection = iso.getGeometry();
-		Envelope envIntersection = iso.getEnvelope();
-		
-		for (int i = 1; i < _isochroneMaps.size(); ++i)
-		{
-			iso = _isochroneMaps.get(i).getIsochrone(0);
-			if (envIntersection.intersects(iso.getEnvelope()))
-			{
-				geomIntersection = geomIntersection.intersection(iso.getGeometry());
-				if (geomIntersection == null || geomIntersection.isEmpty())
-					return null;
-			}
-			else
-				return null;
-		}
-		
-		return geomIntersection;
+		return isochroneMaps.size();
 	}
 }

@@ -35,11 +35,12 @@ import static java.lang.Math.*;
  * @version 1.0 2006-05-01
  */
 public class CoordTools {
-
 	private static final double R = 6371000;
 	private static final double R2 = 2 * R;
 	private static final double DEG_TO_RAD = 0.017453292519943295769236907684886;
 	private static final double DEG_TO_RAD_HALF = 0.017453292519943295769236907684886 / 2.0;
+
+	private CoordTools() {}
 
 	public static double calcDistHaversine(double lon0, double lat0, double lon1, double lat1) {
 		double sinDLat = sin(DEG_TO_RAD_HALF * (lat1 - lat0));

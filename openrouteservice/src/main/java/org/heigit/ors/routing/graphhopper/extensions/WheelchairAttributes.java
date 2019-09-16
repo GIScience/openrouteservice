@@ -14,9 +14,11 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 public class WheelchairAttributes {
-    private static final int EMPTY_INT = -1;
-
-    public enum Side { LEFT, RIGHT, UNKNOWN}
+    public enum Side {
+    	LEFT,
+		RIGHT,
+		UNKNOWN
+    }
 
     public enum Attribute {
     	INCLINE,
@@ -27,97 +29,91 @@ public class WheelchairAttributes {
 		SMOOTHNESS
 	}
 
-	private int _incline = EMPTY_INT;
-	private int _slopedKerbHeight = EMPTY_INT;
-	private int _width = EMPTY_INT;
-	private int _surfaceType = EMPTY_INT;
-	private int _trackType = EMPTY_INT;
-	private int _smoothnessType = EMPTY_INT;
-	private Side _side = Side.UNKNOWN;
+	private static final int EMPTY_INT = -1;
 
-
-	private boolean _hasAttributes = false;
-
-	public WheelchairAttributes()
-	{
-
-	}
+	private int incline = EMPTY_INT;
+	private int slopedKerbHeight = EMPTY_INT;
+	private int width = EMPTY_INT;
+	private int surfaceType = EMPTY_INT;
+	private int trackType = EMPTY_INT;
+	private int smoothnessType = EMPTY_INT;
+	private Side side = Side.UNKNOWN;
+	private boolean hasAttributes = false;
 
 	public boolean hasValues()
 	{
-		return _hasAttributes;
+		return hasAttributes;
 	}
 
-	public void reset()
-	{
-		_hasAttributes = false;
-		_incline = EMPTY_INT;
-		_slopedKerbHeight = EMPTY_INT;
-		_width = EMPTY_INT;
-		_surfaceType = EMPTY_INT;
-		_trackType= EMPTY_INT;
-		_smoothnessType = EMPTY_INT;
-		_side = Side.UNKNOWN;
+	public void reset() {
+		hasAttributes = false;
+		incline = EMPTY_INT;
+		slopedKerbHeight = EMPTY_INT;
+		width = EMPTY_INT;
+		surfaceType = EMPTY_INT;
+		trackType = EMPTY_INT;
+		smoothnessType = EMPTY_INT;
+		side = Side.UNKNOWN;
 	}
 
 	public int getIncline() {
-		return _incline;
+		return incline;
 	}
 
 	public void setIncline(int incline) {
-		_incline = incline;
-		_hasAttributes = true;
+		this.incline = incline;
+		hasAttributes = true;
 	}
 
 	public int getSurfaceType() {
-		return _surfaceType;
+		return surfaceType;
 	}
 
 	public void setSurfaceType(int surfaceType) {
-		_surfaceType = surfaceType;
-		_hasAttributes = true;
+		this.surfaceType = surfaceType;
+		hasAttributes = true;
 	}
 
 	public int getSlopedKerbHeight() {
-		return _slopedKerbHeight;
+		return slopedKerbHeight;
 	}
 
 	public void setSlopedKerbHeight(int slopedKerbHeight) {
-		_slopedKerbHeight = slopedKerbHeight;
-		_hasAttributes = true;
+		this.slopedKerbHeight = slopedKerbHeight;
+		hasAttributes = true;
 	}
 
 	public int getTrackType() {
-		return _trackType;
+		return trackType;
 	}
 
 	public void setTrackType(int trackType) {
-		_trackType = trackType;
-		_hasAttributes = true;
+		this.trackType = trackType;
+		hasAttributes = true;
 	}
 
 	public int getSmoothnessType() {
-		return _smoothnessType;
+		return smoothnessType;
 	}
 
 	public void setSmoothnessType(int smoothnessType) {
-		_smoothnessType = smoothnessType;
-		_hasAttributes = true;
+		this.smoothnessType = smoothnessType;
+		hasAttributes = true;
 	}
 
-	public int getWidth() { return _width; }
+	public int getWidth() { return width; }
 
 	public void setWidth(int width)  {
-		_width = width;
-		_hasAttributes = true;
+		this.width = width;
+		hasAttributes = true;
 	}
 
 	public Side getSide() {
-		return _side;
+		return side;
 	}
 
 	public void setSide(Side side) {
-		this._side = side;
+		this.side = side;
 	}
 
 	public void setAttribute(Attribute attribute, String valueAsText) {
@@ -137,11 +133,10 @@ public class WheelchairAttributes {
 		}
 	}
 	
-	public boolean equals(WheelchairAttributes attrs)
-	{
-		return _surfaceType == attrs._surfaceType && _smoothnessType == attrs._smoothnessType
-				&& _trackType == attrs._trackType && _slopedKerbHeight == attrs._slopedKerbHeight
-				&& _incline == attrs._incline && _width == attrs._width && _side == attrs._side;
+	public boolean equalsWheelchairAttributes(WheelchairAttributes attrs) {
+		return surfaceType == attrs.surfaceType && smoothnessType == attrs.smoothnessType
+				&& trackType == attrs.trackType && slopedKerbHeight == attrs.slopedKerbHeight
+				&& incline == attrs.incline && width == attrs.width && side == attrs.side;
 	}
 
 	/**
@@ -154,37 +149,36 @@ public class WheelchairAttributes {
 	public WheelchairAttributes merge(WheelchairAttributes src) {
 	    WheelchairAttributes at = this.copy();
 
-	    if(src._hasAttributes)
-	        at._hasAttributes = true;
+	    if(src.hasAttributes)
+	        at.hasAttributes = true;
 
-	    if(src._incline != EMPTY_INT)
-	        at._incline = src._incline;
-	    if(src._slopedKerbHeight != EMPTY_INT)
-	        at._slopedKerbHeight = src._slopedKerbHeight;
-	    if(src._width != EMPTY_INT)
-	        at._width = src._width;
-	    if(src._surfaceType != EMPTY_INT)
-	        at._surfaceType = src._surfaceType;
-	    if(src._trackType != EMPTY_INT)
-	        at._trackType = src._trackType;
-	    if(src._smoothnessType != EMPTY_INT)
-	        at._smoothnessType = src._smoothnessType;
-		if(src._side != Side.UNKNOWN)
-			at._side = src._side;
+	    if(src.incline != EMPTY_INT)
+	        at.incline = src.incline;
+	    if(src.slopedKerbHeight != EMPTY_INT)
+	        at.slopedKerbHeight = src.slopedKerbHeight;
+	    if(src.width != EMPTY_INT)
+	        at.width = src.width;
+	    if(src.surfaceType != EMPTY_INT)
+	        at.surfaceType = src.surfaceType;
+	    if(src.trackType != EMPTY_INT)
+	        at.trackType = src.trackType;
+	    if(src.smoothnessType != EMPTY_INT)
+	        at.smoothnessType = src.smoothnessType;
+		if(src.side != Side.UNKNOWN)
+			at.side = src.side;
 	    return at;
     }
 
 	public WheelchairAttributes copy() {
 		WheelchairAttributes at = new WheelchairAttributes();
-		at._hasAttributes = this._hasAttributes;
-		at._incline = this._incline;
-		at._width = this._width;
-		at._surfaceType = this._surfaceType;
-		at._smoothnessType = this._smoothnessType;
-		at._trackType = this._trackType;
-		at._slopedKerbHeight = this._slopedKerbHeight;
-		at._side = this._side;
-
+		at.hasAttributes = this.hasAttributes;
+		at.incline = this.incline;
+		at.width = this.width;
+		at.surfaceType = this.surfaceType;
+		at.smoothnessType = this.smoothnessType;
+		at.trackType = this.trackType;
+		at.slopedKerbHeight = this.slopedKerbHeight;
+		at.side = this.side;
 		return at;
 	}
 }

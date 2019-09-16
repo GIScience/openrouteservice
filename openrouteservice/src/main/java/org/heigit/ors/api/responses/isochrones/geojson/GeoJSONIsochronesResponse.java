@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Envelope;
+import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
 import org.heigit.ors.api.responses.isochrones.IsochronesResponse;
@@ -30,7 +31,6 @@ import org.heigit.ors.isochrones.IsochroneMapCollection;
 import org.heigit.ors.isochrones.IsochroneUtility;
 import org.heigit.ors.isochrones.IsochronesIntersection;
 import org.heigit.ors.util.GeomUtility;
-import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
 import java.util.List;

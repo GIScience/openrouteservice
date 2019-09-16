@@ -16,19 +16,21 @@ package org.heigit.ors.routing;
 import com.graphhopper.util.Helper;
 
 public class RouteExtraInfoFlag {
-    public static final int Steepness = 1;
-    public static final int Surface = 2;
-    public static final int WayType = 4;
-    public static final int WayCategory = 8;
-    public static final int Suitability = 16;
-    public static final int Green = 32;
-    public static final int Noise = 64;
-    public static final int AvgSpeed = 128;
-    public static final int Tollways = 256;
-    public static final int TrailDifficulty = 512;
-    public static final int OsmId = 1024;
-    public static final int RoadAccessRestrictions = 2048;
-    public static final int CountryInfo = 4096;
+    public static final int STEEPNESS = 1;
+    public static final int SURFACE = 2;
+    public static final int WAY_TYPE = 4;
+    public static final int WAY_CATEGORY = 8;
+    public static final int SUITABILITY = 16;
+    public static final int GREEN = 32;
+    public static final int NOISE = 64;
+    public static final int AVG_SPEED = 128;
+    public static final int TOLLWAYS = 256;
+    public static final int TRAIL_DIFFICULTY = 512;
+    public static final int OSM_ID = 1024;
+    public static final int ROAD_ACCESS_RESTRICTIONS = 2048;
+    public static final int COUNTRY_INFO = 4096;
+
+    private RouteExtraInfoFlag() {}
 
     public static boolean isSet(int extraInfo, int value) {
         return (extraInfo & value) == value;
@@ -41,50 +43,50 @@ public class RouteExtraInfoFlag {
         int res = 0;
 
         String[] values = value.split("\\|");
-        for (int i = 0; i < values.length; ++i) {
-            switch (values[i].toLowerCase()) {
+        for (String s : values) {
+            switch (s.toLowerCase()) {
                 case "steepness":
-                    res |= Steepness;
+                    res |= STEEPNESS;
                     break;
                 case "surface":
-                    res |= Surface;
+                    res |= SURFACE;
                     break;
                 case "waytype":
-                    res |= WayType;
+                    res |= WAY_TYPE;
                     break;
                 case "waycategory":
-                    res |= WayCategory;
+                    res |= WAY_CATEGORY;
                     break;
                 case "suitability":
-                    res |= Suitability;
+                    res |= SUITABILITY;
                     break;
                 case "green":
-                    res |= Green;
+                    res |= GREEN;
                     break;
                 case "noise":
-                    res |= Noise;
+                    res |= NOISE;
                     break;
                 case "avgspeed":
-                    res |= AvgSpeed;
+                    res |= AVG_SPEED;
                     break;
                 case "tollways":
-                    res |= Tollways;
+                    res |= TOLLWAYS;
                     break;
                 case "traildifficulty":
-                	res |= TrailDifficulty;
-                	break;
+                    res |= TRAIL_DIFFICULTY;
+                    break;
                 case "osmid":
-                    res |= OsmId;
+                    res |= OSM_ID;
                     break;
                 case "roadaccessrestrictions":
-                    res |= RoadAccessRestrictions;
+                    res |= ROAD_ACCESS_RESTRICTIONS;
                     break;
                 case "countryinfo":
-                    res |= CountryInfo;
+                    res |= COUNTRY_INFO;
                     break;
+                default:
             }
         }
-
         return res;
     }
 }

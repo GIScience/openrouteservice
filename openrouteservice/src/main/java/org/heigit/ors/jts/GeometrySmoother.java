@@ -101,18 +101,17 @@ class GeometrySmoother {
      * vertex distance and a constant number of points
      * per smoothed segment.
      */
-    private SmootherControl DEFAULT_CONTROL = new SmootherControl() {
+    private SmootherControl defaultControl = new SmootherControl() {
         public double getMinLength() {
             return 0.0;
         }
-        
         public int getNumVertices(double length) {
             return 10;
         }
     };
     
     /** The current SmootherControl instance. */
-    private SmootherControl control;;
+    private SmootherControl control;
     
     /** The current {@code GeometryFactory} being used. */
     private final GeometryFactory geomFactory;
@@ -129,7 +128,7 @@ class GeometrySmoother {
      * Cache of previously calculated interpolation parameters
      */
     private Map<Integer, WeakReference<InterpPoint[]>> lookup = 
-            new HashMap<Integer, WeakReference<InterpPoint[]>>();
+            new HashMap<>();
 
     /**
      * Creates a new smoother that will use the given {@code GeometryFactory}.
@@ -144,7 +143,7 @@ class GeometrySmoother {
         }
         this.geomFactory = geomFactory;
         
-        this.control = DEFAULT_CONTROL;
+        this.control = defaultControl;
     }
 
     /**
@@ -164,7 +163,7 @@ class GeometrySmoother {
         Coordinate[][] controlPoints = getLineControlPoints(coords, alpha);
         
         final int N = coords.length;
-        List<Coordinate> smoothCoords = new ArrayList<Coordinate>();
+        List<Coordinate> smoothCoords = new ArrayList<>();
         double dist;
         for (int i = 0; i < N - 1; i++) {
             dist = coords[i].distance(coords[i+1]);
@@ -209,7 +208,7 @@ class GeometrySmoother {
         
         Coordinate[][] controlPoints = getPolygonControlPoints(coords, N, alpha);
         
-        List<Coordinate> smoothCoords = new ArrayList<Coordinate>();
+        List<Coordinate> smoothCoords = new ArrayList<>();
         double dist;
         for (int i = 0; i < N; i++) {
             int next = (i + 1) % N;
@@ -244,7 +243,7 @@ class GeometrySmoother {
      *        default control will be set
      */
     void setControl(SmootherControl control) {
-        this.control = control == null ? DEFAULT_CONTROL : control;
+        this.control = control == null ? defaultControl : control;
     }
     
     /**
@@ -274,7 +273,6 @@ class GeometrySmoother {
 
         Coordinate anchor = new Coordinate();
         double[] vdist = new double[2];
-        // double mdist;
 
         // Start with dummy coordinate preceding first real coordinate
         v[1] = new Coordinate(
@@ -327,18 +325,18 @@ class GeometrySmoother {
      * array of {@code Coordinates}.
      * 
      * @param coords input vertices
-     * @param N number of coordinates in {@coords} to use
+     * @param n number of coordinates in {@coords} to use
      * @param alpha tightness of fit
      * 
      * @return 2D array of {@code Coordinates} for positions of each pair of
      *         control points per input vertex
      */
-    private Coordinate[][] getPolygonControlPoints(Coordinate[] coords, int N, double alpha) {
+    private Coordinate[][] getPolygonControlPoints(Coordinate[] coords, int n, double alpha) {
         if (alpha < 0.0 || alpha > 1.0) {
             throw new IllegalArgumentException("alpha must be a value between 0 and 1 inclusive");
         }
 
-        Coordinate[][] ctrl = new Coordinate[N][2];
+        Coordinate[][] ctrl = new Coordinate[n][2];
 
         Coordinate[] v = new Coordinate[3];
 
@@ -348,18 +346,17 @@ class GeometrySmoother {
 
         Coordinate anchor = new Coordinate();
         double[] vdist = new double[2];
-        //double mdist;
 
-        v[1] = coords[N - 1];
+        v[1] = coords[n - 1];
         v[2] = coords[0];
         mid[1].x = (v[1].x + v[2].x) / 2.0;
         mid[1].y = (v[1].y + v[2].y) / 2.0;
         vdist[1] = v[1].distance(v[2]);
 
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < n; i++) {
             v[0] = v[1];
             v[1] = v[2];
-            v[2] = coords[(i + 1) % N];
+            v[2] = coords[(i + 1) % n];
 
             mid[0].x = mid[1].x;
             mid[0].y = mid[1].y;

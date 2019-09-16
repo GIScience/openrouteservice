@@ -18,7 +18,7 @@ import com.vividsolutions.jts.index.ItemVisitor;
 
 public class PointItemVisitor implements ItemVisitor 
 {
-	private double _threshold;
+	private double threshold;
 	private boolean bFound;
 	private double lat;
 	private double lon;
@@ -26,12 +26,12 @@ public class PointItemVisitor implements ItemVisitor
 	public PointItemVisitor(double lon, double lat, double threshold) {
 		this.lat = lat;
 		this.lon = lon;
-		this._threshold = threshold;
+		this.threshold = threshold;
 	}
 
 	public void setThreshold(double value)
 	{
-		_threshold = value;
+		threshold = value;
 	}
 	
 	public void setPoint(double lon, double lat) {
@@ -41,19 +41,19 @@ public class PointItemVisitor implements ItemVisitor
 	}
 
 	public void visitItem(Object item) {
-		if (bFound == false) {
+		if (!bFound) {
 			Coordinate p = (Coordinate) item;
 
 			double dx = p.x - lon;
-			if (dx > _threshold)
+			if (dx > threshold)
 				return;
 
 			double dy = p.y - lat;
-			if (Math.abs(dy) > _threshold )
+			if (Math.abs(dy) > threshold)
 				return;
 
 			double dist = Math.sqrt(dx*dx+dy*dy);
-			if (dist < _threshold)
+			if (dist < threshold)
 				bFound = true;
 		}
 	}

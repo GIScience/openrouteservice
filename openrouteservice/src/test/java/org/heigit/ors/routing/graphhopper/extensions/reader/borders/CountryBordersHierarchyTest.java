@@ -52,15 +52,15 @@ public class CountryBordersHierarchyTest {
 
     public CountryBordersHierarchyTest() {
         try {
-            cbp1 = new CountryBordersPolygon("name1", gf.createPolygon(country1Geom),-1);
-            cbp2 = new CountryBordersPolygon("name2", gf.createPolygon(country2Geom),-1);
-            cbp3 = new CountryBordersPolygon("name3", gf.createPolygon(country3Geom),-1);
+            cbp1 = new CountryBordersPolygon("name1", gf.createPolygon(country1Geom));
+            cbp2 = new CountryBordersPolygon("name2", gf.createPolygon(country2Geom));
+            cbp3 = new CountryBordersPolygon("name3", gf.createPolygon(country3Geom));
 
-            cbh1 = new CountryBordersHierarchy(1);
+            cbh1 = new CountryBordersHierarchy();
             cbh1.add(cbp1);
             cbh1.add(cbp2);
 
-            cbh2 = new CountryBordersHierarchy(2);
+            cbh2 = new CountryBordersHierarchy();
             cbh2.add(cbp3);
         } catch (Exception e) {
             System.out.println(e.toString());

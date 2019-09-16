@@ -26,13 +26,18 @@ import com.graphhopper.util.PMap;
 
 import java.util.*;
 
-public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
-{
-    protected final HashSet<String> forwardKeys = new HashSet<String>(5);
-    protected final HashSet<String> backwardKeys = new HashSet<String>(5);
-    protected final List<String> hgvAccess = new ArrayList<String>(5);
+public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
+    public static final String VAL_DESIGNATED = "designated";
+    public static final String VAL_AGRICULTURAL = "agricultural";
+    public static final String VAL_FORESTRY = "forestry";
+    public static final String VAL_GOODS = "goods";
+    public static final String KEY_HIGHWAY = "highway";
+    public static final String VAL_TRACK = "track";
+    public static final String KEY_IMPASSABLE = "impassable";
+    protected final HashSet<String> forwardKeys = new HashSet<>(5);
+    protected final HashSet<String> backwardKeys = new HashSet<>(5);
+    protected final List<String> hgvAccess = new ArrayList<>(5);
 
-    
     protected int maxTrackGradeLevel = 3;
 
     private static final int MEAN_SPEED = 70;
@@ -48,8 +53,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
         this(5, 5, 0);
     }
 
-    public HeavyVehicleFlagEncoder(PMap properties)
-    {
+    public HeavyVehicleFlagEncoder(PMap properties) {
         this(properties.getInt("speed_bits", 5),
         		properties.getDouble("speed_factor", 5),
         		properties.getBool("turn_costs", false) ? 3 : 0);
@@ -66,19 +70,18 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
         useAcceleration = properties.getBool("use_acceleration", false);
     }
 
-    public HeavyVehicleFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts )
-    {
+    public HeavyVehicleFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
         super(speedBits, speedFactor, maxTurnCosts);
 
-        intendedValues.add("designated");
-        intendedValues.add("agricultural");
-        intendedValues.add("forestry");
+        intendedValues.add(VAL_DESIGNATED);
+        intendedValues.add(VAL_AGRICULTURAL);
+        intendedValues.add(VAL_FORESTRY);
         intendedValues.add("delivery");
         intendedValues.add("bus");
         intendedValues.add("hgv");
-        intendedValues.add("goods");
+        intendedValues.add(VAL_GOODS);
 
-        hgvAccess.addAll(Arrays.asList("hgv", "goods", "bus", "agricultural", "forestry", "delivery"));
+        hgvAccess.addAll(Arrays.asList("hgv", VAL_GOODS, "bus", VAL_AGRICULTURAL, VAL_FORESTRY, "delivery"));
 
     	// Override default speeds with lower values
         trackTypeSpeedMap.put("grade1", 20); // paved
@@ -121,16 +124,15 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
 	@Override
     public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
-        registerNewEncodedValue.add(priorityWayEncoder = new FactorizedDecimalEncodedValue(prefix + "priority", 3, PriorityCode.getFactor(1), false));
+        priorityWayEncoder = new FactorizedDecimalEncodedValue(prefix + "priority", 3, PriorityCode.getFactor(1), false);
+        registerNewEncodedValue.add(priorityWayEncoder);
     }
 	
 	@Override
-	public double getMaxSpeed( ReaderWay way ) // runge
-	{
+	public double getMaxSpeed( ReaderWay way ) {
 		boolean bCheckMaxSpeed = false;
 		String maxspeedTag = way.getTag("maxspeed:hgv");
-		if (maxspeedTag == null)
-		{
+		if (maxspeedTag == null) {
 			maxspeedTag = way.getTag("maxspeed");
 			bCheckMaxSpeed = true;
 		}
@@ -145,11 +147,10 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
 		if (backSpeed >= 0 && (maxSpeed < 0 || backSpeed < maxSpeed))
 			maxSpeed = backSpeed;
 
-		if (bCheckMaxSpeed)
-		{
-		    String highway = way.getTag("highway");
+		if (bCheckMaxSpeed) {
+		    String highway = way.getTag(KEY_HIGHWAY);
 		    if (!Helper.isEmpty(highway)) {
-                double defaultSpeed = _speedLimitHandler.getSpeed(highway);
+                double defaultSpeed = speedLimitHandler.getSpeed(highway);
                 if (defaultSpeed < maxSpeed)
                     maxSpeed = defaultSpeed;
             }
@@ -159,64 +160,43 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
 	}
 
     @Override
-    double averageSecondsTo100KmpH() {
-        return 10;
-    }
-
-    protected double getSpeed(ReaderWay way )
-    {
-        String highwayValue = way.getTag("highway");
-        Integer speed = _speedLimitHandler.getSpeed(highwayValue);
+    protected double getSpeed(ReaderWay way) {
+        String highwayValue = way.getTag(KEY_HIGHWAY);
+        Integer speed = speedLimitHandler.getSpeed(highwayValue);
         if (speed == null)
             throw new IllegalStateException(toString() + ", no speed found for:" + highwayValue);
 
-        if (highwayValue.equals("track"))
-        {
+        if (highwayValue.equals(VAL_TRACK)) {
             String tt = way.getTag("tracktype");
-            if (!Helper.isEmpty(tt))
-            {
-                Integer tInt = _speedLimitHandler.getTrackTypeSpeed(tt);
+            if (!Helper.isEmpty(tt)) {
+                Integer tInt = speedLimitHandler.getTrackTypeSpeed(tt);
                 if (tInt != null && tInt != -1)
                     speed = tInt;
             }
         }
         
         String hgvSpeed = way.getTag("maxspeed:hgv");
-        if (!Helper.isEmpty(hgvSpeed))
-        {
-        	try
-        	{
+        if (!Helper.isEmpty(hgvSpeed)) {
+        	try {
         		if ("walk".equals(hgvSpeed))
         			speed = 10;
         		else
         	        speed = Integer.parseInt(hgvSpeed);
-        	}
-        	catch(Exception ex)
-        	{
-        		// TODO
+        	} catch(Exception ex) {
+        		// do nothing
         	}
         }
         
-     /*   if (way.hasTag("access")) // Runge  //https://www.openstreetmap.org/way/132312559
-        {
-        	String accessTag = way.getTag("access");
-        	if ("destination".equals(accessTag))
-        		return 1; 
-        }*/
-
         return speed;
     }
 
     @Override
-    public EncodingManager.Access getAccess(ReaderWay way)
-    {
-        String highwayValue = way.getTag("highway");
+    public EncodingManager.Access getAccess(ReaderWay way) {
+        String highwayValue = way.getTag(KEY_HIGHWAY);
         
         String firstValue = way.getFirstPriorityTag(restrictions);
-        if (highwayValue == null)
-        {
-            if (way.hasTag("route", ferries))
-            {
+        if (highwayValue == null) {
+            if (way.hasTag("route", ferries)) {
             	 if (restrictedValues.contains(firstValue))
                      return EncodingManager.Access.CAN_SKIP;
                  if (intendedValues.contains(firstValue) ||
@@ -227,18 +207,17 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
             return EncodingManager.Access.CAN_SKIP;
         }
         
-        if ("track".equals(highwayValue))
-        {
+        if (VAL_TRACK.equals(highwayValue)) {
             String tt = way.getTag("tracktype");
             int grade = getTrackGradeLevel(tt);
             if (grade > maxTrackGradeLevel)
                 return EncodingManager.Access.CAN_SKIP;
         }
 
-        if (!_speedLimitHandler.hasSpeedValue(highwayValue))
+        if (!speedLimitHandler.hasSpeedValue(highwayValue))
             return EncodingManager.Access.CAN_SKIP;
 
-        if (way.hasTag("impassable", "yes") || way.hasTag("status", "impassable") || way.hasTag("smoothness", "impassable"))
+        if (way.hasTag(KEY_IMPASSABLE, "yes") || way.hasTag("status", KEY_IMPASSABLE) || way.hasTag("smoothness", KEY_IMPASSABLE))
             return EncodingManager.Access.CAN_SKIP;
 
         // multiple restrictions needs special handling compared to foot and bike, see also motorcycle
@@ -255,25 +234,19 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
             return EncodingManager.Access.CAN_SKIP;
 
         // check access restrictions
-        if (way.hasTag(restrictions, restrictedValues) && !carsAllowed)
-        {
-        	// filter special type of access for hgv
-        	if (!way.hasTag(hgvAccess, intendedValues))
+        // filter special type of access for hgv
+        if (way.hasTag(restrictions, restrictedValues) && !carsAllowed && !way.hasTag(hgvAccess, intendedValues)) {
                 return EncodingManager.Access.CAN_SKIP;
         }
         
         String maxwidth = way.getTag("maxwidth"); // Runge added on 23.02.2016
-        if (maxwidth != null)
-        {
-        	try
-            {
+        if (maxwidth != null) {
+        	try {
         		double mwv = Double.parseDouble(maxwidth);
         		if (mwv < 2.0)
                     return EncodingManager.Access.CAN_SKIP;
-            }
-        	catch(Exception ex)
-            {
-            	
+            } catch(Exception ex) {
+            	// do nothing
             }
         }
        
@@ -292,7 +265,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
     }
     
     protected int handlePriority(ReaderWay way) {
-		TreeMap<Double, Integer> weightToPrioMap = new TreeMap<Double, Integer>();
+		TreeMap<Double, Integer> weightToPrioMap = new TreeMap<>();
 		
 		collect(way, weightToPrioMap);
 		
@@ -307,42 +280,55 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
 	 *            overwrite determined priorities.
 	 */
 	protected void collect(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) { // Runge
-		if (way.hasTag("hgv", "designated") || (way.hasTag("access", "designated") && (way.hasTag("goods", "yes") || way.hasTag("hgv", "yes") || way.hasTag("bus", "yes") || way.hasTag("agricultural", "yes") || way.hasTag("forestry", "yes") )))
+		if (way.hasTag("hgv", VAL_DESIGNATED) || (way.hasTag("access", VAL_DESIGNATED) && (way.hasTag(VAL_GOODS, "yes") || way.hasTag("hgv", "yes") || way.hasTag("bus", "yes") || way.hasTag(VAL_AGRICULTURAL, "yes") || way.hasTag(VAL_FORESTRY, "yes") )))
 			weightToPrioMap.put(100d, PriorityCode.BEST.getValue());
-		else
-		{
-			String highway = way.getTag("highway");
+		else {
+			String highway = way.getTag(KEY_HIGHWAY);
 			double maxSpeed = getMaxSpeed(way);
 			
-			if (!Helper.isEmpty(highway))
-			{
-				if ("motorway".equals(highway) || "motorway_link".equals(highway) || "trunk".equals(highway) || "trunk_link".equals(highway))
-					weightToPrioMap.put(100d,  PriorityCode.BEST.getValue());
-				else if ("primary".equals(highway) || "primary_link".equals(highway))
-					weightToPrioMap.put(100d,  PriorityCode.PREFER.getValue());
-				else if ("secondary".equals(highway) || "secondary_link".equals(highway))
-					weightToPrioMap.put(100d,  PriorityCode.PREFER.getValue());
-				else if ("tertiary".equals(highway) || "tertiary_link".equals(highway))
-					weightToPrioMap.put(100d,  PriorityCode.UNCHANGED.getValue());
-				else if ("residential".equals(highway) || "service".equals(highway) || "road".equals(highway) || "unclassified".equals(highway))
-				{
-					 if (maxSpeed > 0 && maxSpeed <= 30)
-						 weightToPrioMap.put(120d,  PriorityCode.REACH_DEST.getValue());
-					 else
-						 weightToPrioMap.put(100d,  PriorityCode.AVOID_IF_POSSIBLE.getValue());
-				}
-				else if ("living_street".equals(highway))
-					 weightToPrioMap.put(100d,  PriorityCode.AVOID_IF_POSSIBLE.getValue());
-				else if ("track".equals(highway))
-					 weightToPrioMap.put(100d,  PriorityCode.REACH_DEST.getValue());
-				else 
-					weightToPrioMap.put(40d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
-			}
-			else	
+			if (!Helper.isEmpty(highway)) {
+                switch (highway) {
+                    case "motorway":
+                    case "motorway_link":
+                    case "trunk":
+                    case "trunk_link":
+                        weightToPrioMap.put(100d, PriorityCode.BEST.getValue());
+                        break;
+                    case "primary":
+                    case "primary_link":
+                    case "secondary":
+                    case "secondary_link":
+                        weightToPrioMap.put(100d, PriorityCode.PREFER.getValue());
+                        break;
+                    case "tertiary":
+                    case "tertiary_link":
+                        weightToPrioMap.put(100d, PriorityCode.UNCHANGED.getValue());
+                        break;
+                    case "residential":
+                    case "service":
+                    case "road":
+                    case "unclassified":
+                        if (maxSpeed > 0 && maxSpeed <= 30) {
+                            weightToPrioMap.put(120d, PriorityCode.REACH_DEST.getValue());
+                        } else {
+                            weightToPrioMap.put(100d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
+                        }
+                        break;
+                    case "living_street":
+                        weightToPrioMap.put(100d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
+                        break;
+                    case VAL_TRACK:
+                        weightToPrioMap.put(100d, PriorityCode.REACH_DEST.getValue());
+                        break;
+                    default:
+                        weightToPrioMap.put(40d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
+                        break;
+                }
+			} else {
 				weightToPrioMap.put(100d, PriorityCode.UNCHANGED.getValue());
-			
-			if (maxSpeed > 0)
-			{
+            }
+
+			if (maxSpeed > 0) {
 				// We assume that the given road segment goes through a settlement.
 				if (maxSpeed <= 40)
 					weightToPrioMap.put(110d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
@@ -352,6 +338,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
 		}
 	}
 
+	@Override
     public boolean supports(Class<?> feature) {
 		if (super.supports(feature))
 			return true;
@@ -371,4 +358,19 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder
 	public int getVersion() {
 		return 2;
 	}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final HeavyVehicleFlagEncoder other = (HeavyVehicleFlagEncoder) obj;
+        return toString().equals(other.toString());
+    }
+
+    @Override
+    public int hashCode() {
+        return ("HeavyVehicleFlagEncoder" + toString()).hashCode();
+    }
 }

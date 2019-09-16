@@ -75,7 +75,7 @@ public class RequestProfileParamsRestrictions {
     @ApiModelProperty(name = PARAM_HAZMAT, value = "Specifies whether to use appropriate routing for delivering hazardous goods and avoiding water protected areas. Default is `false`. " +
             "CUSTOM_KEYS:{'apiDefault':false,'validWhen':{'ref':'profile','value':['driving-hgv']}}")
     @JsonProperty(value = PARAM_HAZMAT)
-    private Boolean hazardousMaterial;
+    private boolean hazardousMaterial;
     @JsonIgnore
     private boolean hasHazardousMaterial = false;
 
@@ -172,10 +172,6 @@ public class RequestProfileParamsRestrictions {
         hasWeight = true;
     }
 
-    public Boolean hazardousMaterial() {
-        return hazardousMaterial;
-    }
-
     public void setHazardousMaterial(Boolean hazardousMaterial) {
         this.hazardousMaterial = hazardousMaterial;
         hasHazardousMaterial = true;
@@ -255,7 +251,7 @@ public class RequestProfileParamsRestrictions {
         return hasWeight;
     }
 
-    public Boolean getHazardousMaterial() {
+    public boolean getHazardousMaterial() {
         return hazardousMaterial;
     }
 

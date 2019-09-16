@@ -40,14 +40,13 @@ import java.util.*;
 public class InFieldGraphBuilder extends AbstractGraphBuilder {
 
 	private GeometryFactory geometryFactory = new GeometryFactory();
-	private Map<Integer, Integer> intId2idx = new HashMap<Integer, Integer>(); 
-	private Map<Integer, Integer> idx2intId =  new HashMap<Integer, Integer>(); 
-	private Map<Integer, Long> intId2osmId = new HashMap<Integer, Long>();
-	private ArrayList<Integer> internalTowerNodeIds = new ArrayList<Integer>(); 
-	private Coordinate[] _coordinates;
-	private Set<ArrayList<Integer>> _edges = new HashSet<ArrayList<Integer>>();
-	private ArrayList<Integer> tmpEdge = new ArrayList<Integer>();   
-	private FootFlagEncoder footEncoder;
+	private Map<Integer, Integer> intId2idx = new HashMap<>();
+	private Map<Integer, Integer> idx2intId =  new HashMap<>();
+	private Map<Integer, Long> intId2osmId = new HashMap<>();
+	private ArrayList<Integer> internalTowerNodeIds = new ArrayList<>();
+	private Coordinate[] coordinates;
+	private Set<ArrayList<Integer>> edges = new HashSet<>();
+	private ArrayList<Integer> tmpEdge = new ArrayList<>();
 	private List<Weighting> weightings;
 	private EncodingManager encodingManager;
 
@@ -55,15 +54,14 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 	public void init(GraphHopper graphhopper) throws Exception {
 		// create local network taken from        
 		// https://github.com/graphhopper/graphhopper/blob/0.5/core/src/test/java/com/graphhopper/GraphHopperTest.java#L746
-		footEncoder = new FootFlagEncoder();
+		FootFlagEncoder footEncoder = new FootFlagEncoder();
 		encodingManager = EncodingManager.create(footEncoder);
-		weightings = new ArrayList<Weighting>(1);
+		weightings = new ArrayList<>(1);
 		weightings.add(new FastestWeighting(footEncoder));
 	}
 
 	@Override
-	public boolean createEdges(DataReaderContext readerCntx, ReaderWay way, LongArrayList osmNodeIds, IntsRef wayFlags, List<EdgeIteratorState> createdEdges) throws Exception
-	{
+	public boolean createEdges(DataReaderContext readerCntx, ReaderWay way, LongArrayList osmNodeIds, IntsRef wayFlags, List<EdgeIteratorState> createdEdges) {
 		if (!hasOpenSpace(way, osmNodeIds))
 			return false;
 
@@ -88,166 +86,159 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 		}
 
 		DistanceCalc distCalc = Helper.DIST_EARTH;
-		@SuppressWarnings("resource")
-		GraphHopperStorage graphStorage = new GraphHopperStorage(weightings,  new RAMDirectory(), encodingManager, false,  new GraphExtension.NoOpExtension()).create(20);
-
-		for (int j = 0; j < osmNodeIds.size() - 1; j++) {                 
-			long mainOsmId = osmNodeIds.get(j);        
-			int internalMainId = nodeMap.get(mainOsmId);       
-			int idxMain = j;         
-			// coordinates of the first nodes     
-			double latMain = readerCntx.getNodeLatitude(internalMainId),      
-					lonMain = readerCntx.getNodeLongitude(internalMainId);     
-			// connect the boundary of the open space        
-			long neighborOsmId = osmNodeIds.get(j + 1);           
-			int internalNeighborId = nodeMap.get(neighborOsmId);   
-			int idxNeighbor = idxMain + 1;                               
-			double latNeighbor = readerCntx.getNodeLatitude(internalNeighborId), lonNeighbor = readerCntx.getNodeLongitude(internalNeighborId);         
-			double distance = distCalc.calcDist(latMain, lonMain, latNeighbor, lonNeighbor);    
-			graphStorage.edge(idxMain, idxNeighbor, distance, true);         
-			// iterate through remaining nodes,        
-			// but not through the direct neighbors 
-			for (int k = j + 2; k < osmNodeIds.size() - 1; k++) {  
-				long partnerOsmId = osmNodeIds.get(k);          
-				int internalPartnerId = nodeMap.get(partnerOsmId);  
-				// coordinates of second nodes            
-				double latPartner = readerCntx.getNodeLatitude(internalPartnerId),
-						lonPartner = readerCntx.getNodeLatitude(internalPartnerId);   
-				// connect nodes            
-				LineString ls = (LineString) geometryFactory.createLineString( new Coordinate[] { new Coordinate(lonMain, latMain), new Coordinate(lonPartner, latPartner) }); 
-				// check if new edge is within open space     
-				if (ls.within(openSpace)) {        
-					// compute distance between nodes        
-					distance = distCalc.calcDist(latMain, lonMain, latPartner, lonPartner);    
-					// the index number of the nodes in the local network                  
-					// necessary, because it does not accept big values              
-					int idxPartner = k;                   
-					// fill             
-					intId2idx.put(internalMainId, idxMain);  
-					intId2idx.put(internalPartnerId, idxPartner);      
-					// fill                   
-					idx2intId.put(idxMain, internalMainId);     
-					idx2intId.put(idxPartner, internalPartnerId);    
-					// add edge to local graph          
-					graphStorage.edge(idxMain, idxPartner, distance, true);                               
-				}         
-			}    
-		}
-
-		// a set with all created edges.  
-		// the nodes which create the edge are stored in a ArrayList.   
-		// it is important that the first node is smaller than the second node.  
-		// TODO maybe a treeset would make the code more elegant
-		_edges.clear();
-
-		// compute routes between all tower nodes using the local graph    
-		for (int i = 0; i < internalTowerNodeIds.size(); i++) {  
-			int internalIdTowerStart = internalTowerNodeIds.get(i);   
-			// check if tower node is in map         
-			// it can miss if no edge is starting from here    
-			if (false == intId2idx.containsKey(internalIdTowerStart)) {     
-				continue;             }      
-			int idxTowerStart = intId2idx.get(internalIdTowerStart);   
-			for (int j = i + 1; j < internalTowerNodeIds.size(); j++) { 
-				int internalIdTowerDestination = internalTowerNodeIds.get(j);      
-				// check if tower node is in map          
-				// it can miss if no edge is starting from here      
-				if (false == intId2idx.containsKey(internalIdTowerDestination)) {    
-					continue;                 }          
-				int idxTowerDest = intId2idx.get(internalIdTowerDestination);  
-				// compute route between tower nodes          
-				try
-				{
-					Dijkstra dijkstra = new Dijkstra(graphStorage, weightings.get(0), TraversalMode.EDGE_BASED_2DIR);  
-					Path path = dijkstra.calcPath(idxTowerStart, idxTowerDest);            
-					IntIndexedContainer pathNodes = path.calcNodes();           
-					// iterate through nodes of routing result           
-					for (int k = 0; k < pathNodes.size() - 1; k++) {      
-						// local index                 
-						int idxNodeA = pathNodes.get(k);            
-						int idxNodeB = pathNodes.get(k + 1);            
-						// internal Node IDs                
-						int nodeA = idx2intId.get(idxNodeA);     
-						int nodeB = idx2intId.get(idxNodeB);             
-						// add to nodes to array sorted              
-						int minNode = Integer.min(nodeA, nodeB);         
-						int maxNode = Integer.max(nodeA, nodeB);            
-						tmpEdge.clear(); 
-						tmpEdge.add(minNode);          
-						tmpEdge.add(maxNode);           
-						boolean edgeIsNew = _edges.add(tmpEdge);        
-						if (edgeIsNew) {     
-							// it is necessary to get the long node OSM IDs...           
-							long osmNodeA = intId2osmId.get(minNode);         
-							long osmNodeB = intId2osmId.get(maxNode);            
-							addNodePairAsEdgeToGraph(readerCntx, way.getId(), wayFlags, createdEdges, osmNodeA, osmNodeB);           
-						}     
+		try (GraphHopperStorage graphStorage = new GraphHopperStorage(weightings,  new RAMDirectory(), encodingManager, false,  new GraphExtension.NoOpExtension()).create(20)) {
+			for (int idxMain = 0; idxMain < osmNodeIds.size() - 1; idxMain++) {
+				long mainOsmId = osmNodeIds.get(idxMain);
+				int internalMainId = nodeMap.get(mainOsmId);
+				// coordinates of the first nodes
+				double latMain = readerCntx.getNodeLatitude(internalMainId);
+				double lonMain = readerCntx.getNodeLongitude(internalMainId);
+				// connect the boundary of the open space
+				long neighborOsmId = osmNodeIds.get(idxMain + 1);
+				int internalNeighborId = nodeMap.get(neighborOsmId);
+				int idxNeighbor = idxMain + 1;
+				double latNeighbor = readerCntx.getNodeLatitude(internalNeighborId);
+				double lonNeighbor = readerCntx.getNodeLongitude(internalNeighborId);
+				double distance = distCalc.calcDist(latMain, lonMain, latNeighbor, lonNeighbor);
+				graphStorage.edge(idxMain, idxNeighbor, distance, true);
+				// iterate through remaining nodes,
+				// but not through the direct neighbors
+				for (int idxPartner = idxMain + 2; idxPartner < osmNodeIds.size() - 1; idxPartner++) {
+					long partnerOsmId = osmNodeIds.get(idxPartner);
+					int internalPartnerId = nodeMap.get(partnerOsmId);
+					// coordinates of second nodes
+					double latPartner = readerCntx.getNodeLatitude(internalPartnerId);
+					double lonPartner = readerCntx.getNodeLatitude(internalPartnerId);
+					// connect nodes
+					LineString ls = geometryFactory.createLineString(new Coordinate[]{new Coordinate(lonMain, latMain), new Coordinate(lonPartner, latPartner)});
+					// check if new edge is within open space
+					if (ls.within(openSpace)) {
+						// compute distance between nodes
+						distance = distCalc.calcDist(latMain, lonMain, latPartner, lonPartner);
+						// the index number of the nodes in the local network
+						// necessary, because it does not accept big values
+						// fill
+						intId2idx.put(internalMainId, idxMain);
+						intId2idx.put(internalPartnerId, idxPartner);
+						// fill
+						idx2intId.put(idxMain, internalMainId);
+						idx2intId.put(idxPartner, internalPartnerId);
+						// add edge to local graph
+						graphStorage.edge(idxMain, idxPartner, distance, true);
 					}
 				}
-				catch(Exception ex)
-				{
-					
+			}
+
+			// a set with all created edges.
+			// the nodes which create the edge are stored in a ArrayList.
+			// it is important that the first node is smaller than the second node.
+			// TODO maybe a treeset would make the code more elegant
+			edges.clear();
+
+			// compute routes between all tower nodes using the local graph
+			for (int i = 0; i < internalTowerNodeIds.size(); i++) {
+				int internalIdTowerStart = internalTowerNodeIds.get(i);
+				// check if tower node is in map
+				// it can miss if no edge is starting from here
+				if (!intId2idx.containsKey(internalIdTowerStart)) {
+					continue;
+				}
+				int idxTowerStart = intId2idx.get(internalIdTowerStart);
+				for (int j = i + 1; j < internalTowerNodeIds.size(); j++) {
+					int internalIdTowerDestination = internalTowerNodeIds.get(j);
+					// check if tower node is in map
+					// it can miss if no edge is starting from here
+					if (!intId2idx.containsKey(internalIdTowerDestination)) {
+						continue;
+					}
+					int idxTowerDest = intId2idx.get(internalIdTowerDestination);
+					// compute route between tower nodes
+					try {
+						Dijkstra dijkstra = new Dijkstra(graphStorage, weightings.get(0), TraversalMode.EDGE_BASED_2DIR);
+						Path path = dijkstra.calcPath(idxTowerStart, idxTowerDest);
+						IntIndexedContainer pathNodes = path.calcNodes();
+						// iterate through nodes of routing result
+						for (int k = 0; k < pathNodes.size() - 1; k++) {
+							// local index
+							int idxNodeA = pathNodes.get(k);
+							int idxNodeB = pathNodes.get(k + 1);
+							// internal Node IDs
+							int nodeA = idx2intId.get(idxNodeA);
+							int nodeB = idx2intId.get(idxNodeB);
+							// add to nodes to array sorted
+							int minNode = Integer.min(nodeA, nodeB);
+							int maxNode = Integer.max(nodeA, nodeB);
+							tmpEdge.clear();
+							tmpEdge.add(minNode);
+							tmpEdge.add(maxNode);
+							boolean edgeIsNew = edges.add(tmpEdge);
+							if (edgeIsNew) {
+								// it is necessary to get the long node OSM IDs...
+								long osmNodeA = intId2osmId.get(minNode);
+								long osmNodeB = intId2osmId.get(maxNode);
+								addNodePairAsEdgeToGraph(readerCntx, way.getId(), wayFlags, createdEdges, osmNodeA, osmNodeB);
+							}
+						}
+					} catch (Exception ex) {
+						// do nothing
+					}
+				}
+			}
+
+			// TODO this loop can maybe be integrated at the part where the boundary edges are handled alread<
+			// add boundary of open space
+			for (int i = 0; i < osmNodeIds.size() - 1; i++) {
+				long osmIdA = osmNodeIds.get(i);
+				long osmIdB = osmNodeIds.get(i + 1);
+				int internalIdA = nodeMap.get(osmIdA);
+				int internalIdB = nodeMap.get(osmIdB);
+				// add to nodes to array sorted
+				int minIntId = Integer.min(internalIdA, internalIdB);
+				int maxIndId = Integer.max(internalIdA, internalIdB);
+				// create a boundary edge
+				tmpEdge.clear();
+				tmpEdge.add(minIntId);
+				tmpEdge.add(maxIndId);
+				// test if already exists
+				boolean edgeIsNew = edges.add(tmpEdge);
+				if (edgeIsNew) {
+					// edge is added to global GraphHopper graph
+					addNodePairAsEdgeToGraph(readerCntx, way.getId(), wayFlags, createdEdges, osmIdA, osmIdB);
 				}
 			}
 		}
-
-		// TODO this loop can maybe be integrated at the part where the boundary edges are handled alread<       
-		// add boundary of open space
-		for (int i = 0; i < osmNodeIds.size() - 1; i++) {     
-			long osmIdA = osmNodeIds.get(i);        
-			long osmIdB = osmNodeIds.get(i + 1);   
-			int internalIdA = nodeMap.get(osmIdA);     
-			int internalIdB = nodeMap.get(osmIdB);         
-			// add to nodes to array sorted     
-			int minIntId = Integer.min(internalIdA, internalIdB);    
-			int maxIndId = Integer.max(internalIdA, internalIdB);
-			// create a boundary edge     
-			tmpEdge.clear();
-			tmpEdge.add(minIntId);        
-			tmpEdge.add(maxIndId);             
-			// test if already exists       
-			boolean edgeIsNew = _edges.add(tmpEdge);    
-			if (edgeIsNew) {     
-				// edge is added to global GraphHopper graph  
-				addNodePairAsEdgeToGraph(readerCntx, way.getId(), wayFlags, createdEdges, osmIdA, osmIdB);   
-			}     
-		}
-
-		graphStorage.close();
-		
 		return true;
 	}
 
-	private void addNodePairAsEdgeToGraph(DataReaderContext readerCntx, long wayOsmId, IntsRef wayFlags,  List<EdgeIteratorState> createdEdges, long Node1, long Node2) {
+	private void addNodePairAsEdgeToGraph(DataReaderContext readerCntx, long wayOsmId, IntsRef wayFlags,  List<EdgeIteratorState> createdEdges, long node1, long node2) {
 		// list which contains the Nodes of the new Edge     
 		LongArrayList subgraphNodes = new LongArrayList(5);  
-		subgraphNodes.add(Node1);     
-		subgraphNodes.add(Node2);      
+		subgraphNodes.add(node1);
+		subgraphNodes.add(node2);
 		createdEdges.addAll(readerCntx.addWay(subgraphNodes, wayFlags, wayOsmId));   
 	}
 
 	private Polygon osmPolygon2JTS(DataReaderContext readerCntx, LongArrayList osmNodeIds) {     
 		// collect all coordinates in ArrayList       
-		if (_coordinates == null || _coordinates.length < osmNodeIds.size())
-			_coordinates = new Coordinate[osmNodeIds.size()];
+		if (coordinates == null || coordinates.length < osmNodeIds.size())
+			coordinates = new Coordinate[osmNodeIds.size()];
 
 		for (int i = 0; i < osmNodeIds.size(); i++) 
 		{      
 			long osmNodeId = osmNodeIds.get(i);       
 			int internalID = readerCntx.getNodeMap().get(osmNodeId);   
-			_coordinates[i] = new Coordinate(readerCntx.getNodeLongitude(internalID),  readerCntx.getNodeLatitude(internalID));
+			coordinates[i] = new Coordinate(readerCntx.getNodeLongitude(internalID),  readerCntx.getNodeLatitude(internalID));
 		}  
 
-		Coordinate[] coords  = Arrays.copyOf(_coordinates, osmNodeIds.size());
+		Coordinate[] coords  = Arrays.copyOf(coordinates, osmNodeIds.size());
 		LinearRing ring = geometryFactory.createLinearRing(coords);     
-		LinearRing holes[] = null;    
-		// a JTS polygon consists of a ring and holes   
-		return geometryFactory.createPolygon(ring, holes);  
+		// a JTS polygon consists of a ring and holes
+		return geometryFactory.createPolygon(ring, null);
 	}
 
 	@Override
 	public void finish() {
-		
+		// do nothing
 	}
 
 	/* * checks if the OSM way is an open space      *      

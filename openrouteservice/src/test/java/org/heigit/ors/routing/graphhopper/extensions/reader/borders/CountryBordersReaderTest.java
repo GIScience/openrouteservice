@@ -64,15 +64,15 @@ public class CountryBordersReaderTest {
         hierarchies = new CountryBordersHierarchy[2];
 
         try {
-            hierarchies[0] = new CountryBordersHierarchy(1);
-            hierarchies[0].add(new CountryBordersPolygon("country1", gf.createPolygon(country1Geom),1));
-            hierarchies[0].add(new CountryBordersPolygon("country2", gf.createPolygon(country2Geom),1));
+            hierarchies[0] = new CountryBordersHierarchy();
+            hierarchies[0].add(new CountryBordersPolygon("country1", gf.createPolygon(country1Geom)));
+            hierarchies[0].add(new CountryBordersPolygon("country2", gf.createPolygon(country2Geom)));
 
             _reader.addHierarchy(1l, hierarchies[0]);
 
-            hierarchies[1] = new CountryBordersHierarchy(2);
-            hierarchies[1].add(new CountryBordersPolygon("country3", gf.createPolygon(country3Geom),2));
-            hierarchies[1].add(new CountryBordersPolygon("country4", gf.createPolygon(country4Geom),2));
+            hierarchies[1] = new CountryBordersHierarchy();
+            hierarchies[1].add(new CountryBordersPolygon("country3", gf.createPolygon(country3Geom)));
+            hierarchies[1].add(new CountryBordersPolygon("country4", gf.createPolygon(country4Geom)));
 
             _reader.addHierarchy(2l, hierarchies[1]);
         } catch (Exception e) {

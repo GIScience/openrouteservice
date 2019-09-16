@@ -67,14 +67,14 @@ public class JSONMatrixResponseTest {
         resolvedLocations[2] = resolvedLocation3;
 
         matrixResultCombined = new MatrixResult(resolvedLocations, resolvedLocations);
-        matrixResultCombined.setTable(MatrixMetricsType.Duration, new float[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
-        matrixResultCombined.setTable(MatrixMetricsType.Distance, new float[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
+        matrixResultCombined.setTable(MatrixMetricsType.DURATION, new float[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
+        matrixResultCombined.setTable(MatrixMetricsType.DISTANCE, new float[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
 
         matrixResultDistance = new MatrixResult(resolvedLocations, resolvedLocations);
-        matrixResultDistance.setTable(MatrixMetricsType.Distance, new float[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
+        matrixResultDistance.setTable(MatrixMetricsType.DISTANCE, new float[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
 
         matrixResultDuration = new MatrixResult(resolvedLocations, resolvedLocations);
-        matrixResultDuration.setTable(MatrixMetricsType.Duration, new float[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
+        matrixResultDuration.setTable(MatrixMetricsType.DURATION, new float[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
 
 
         MatrixRequest apiRequestDuration = new MatrixRequest(bareCoordinates);

@@ -16,9 +16,10 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 public class OSMTags {
-    private OSMTags() { }
+    private OSMTags() {}
 
     public static class Keys {
+        private Keys() {}
         public static final String HIGHWAY = "highway";
         public static final String SIDEWALK = "sidewalk";
         public static final String ROUTE = "route";

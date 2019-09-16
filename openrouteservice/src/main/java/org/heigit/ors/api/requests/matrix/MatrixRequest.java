@@ -82,7 +82,7 @@ public class MatrixRequest {
             "`destinations` and `sources` will contain a `name` element that identifies the name of the closest street. Default is `false`. " +
             "CUSTOM_KEYS:{'apiDefault':false}")
     @JsonProperty(value = PARAM_RESOLVE_LOCATIONS)
-    private Boolean resolveLocations;
+    private boolean resolveLocations;
     @JsonIgnore
     private boolean hasResolveLocations = false;
 
@@ -109,14 +109,14 @@ public class MatrixRequest {
 
     public MatrixRequest(Double[][] locations) throws ParameterValueException {
         if (locations.length < 2) {
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "locations");
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, PARAM_LOCATIONS);
         }
         if (locations.length > MatrixServiceSettings.getMaximumRoutes(false))
-            throw new ParameterValueException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "locations");
+            throw new ParameterValueException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, PARAM_LOCATIONS);
         this.locations = new ArrayList<>();
         for (Double[] coordPair : locations) {
             if (coordPair.length != 2)
-                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, "locations");
+                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, PARAM_LOCATIONS);
             List<Double> coordPairList = new ArrayList<>();
             coordPairList.add(coordPair[0]);
             coordPairList.add(coordPair[1]);
@@ -191,7 +191,7 @@ public class MatrixRequest {
         return hasMetrics;
     }
 
-    public Boolean getResolveLocations() {
+    public boolean getResolveLocations() {
         return resolveLocations;
     }
 

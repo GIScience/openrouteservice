@@ -28,7 +28,7 @@ package org.heigit.ors.globalresponseprocessor;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.exceptions.ExportException;
 import org.heigit.ors.exceptions.StatusCodeException;
-import org.heigit.ors.globalresponseprocessor.geoJson.GeoJsonResponseWriter;
+import org.heigit.ors.globalresponseprocessor.geojson.GeoJsonResponseWriter;
 import org.heigit.ors.globalresponseprocessor.gpx.GpxResponseWriter;
 import org.heigit.ors.isochrones.IsochroneMapCollection;
 import org.heigit.ors.isochrones.IsochroneRequest;
@@ -53,10 +53,12 @@ import org.json.JSONObject;
  * So {@link org.heigit.ors.servlet.util.ServletUtility} must be called separately with the returned {@link JSONObject}.
  *
  * @author Julian Psotta, julian@openrouteservice.com
+ * @deprecated
  */
 @SuppressWarnings("FieldCanBeLocal")
 @Deprecated
 public class GlobalResponseProcessor {
+    public static final String FORMAT_GEO_JSON = "GeoJSON";
     private IsochroneRequest isochroneRequest;
     private IsochroneMapCollection isochroneMapCollection; // The result type for Isochrones!!!
     private MapMatchingRequest mapMatchingRequest;
@@ -126,27 +128,27 @@ public class GlobalResponseProcessor {
     public JSONObject toGeoJson() throws Exception {
         // Check for the correct ServiceRequest and chose the right export function
         // TODO Integrate all exports here by time
-        if (!(this.isochroneRequest == null)) {
-            throw new ExportException(IsochronesErrorCodes.UNSUPPORTED_EXPORT_FORMAT, this.getClass(), isochroneRequest.getClass(), "GeoJSON");
+        if (this.isochroneRequest != null) {
+            throw new ExportException(IsochronesErrorCodes.UNSUPPORTED_EXPORT_FORMAT, this.getClass(), isochroneRequest.getClass(), FORMAT_GEO_JSON);
 //            if (this.isochroneMapCollection.size() > 0) {
 //                // TODO Do export
 //            }
-        } else if (!(this.mapMatchingRequest == null)) {
+        } else if (this.mapMatchingRequest != null) {
             throw new StatusCodeException(StatusCode.NOT_IMPLEMENTED);
 //            if (this.isochroneMapCollection.size() > 0) {
 //                // TODO Do export
 //            }
-        } else if (!(this.matrixRequest == null)) {
-            throw new ExportException(MatrixErrorCodes.UNSUPPORTED_EXPORT_FORMAT, this.getClass(), matrixRequest.getClass(), "GeoJSON");
+        } else if (this.matrixRequest != null) {
+            throw new ExportException(MatrixErrorCodes.UNSUPPORTED_EXPORT_FORMAT, this.getClass(), matrixRequest.getClass(), FORMAT_GEO_JSON);
 //            if (this.matrixResult.getSources().length > 0 && this.matrixResult.getDestinations().length > 0) {
 //                // TODO Do export
 //            }
-        } else if (!(this.routingRequest == null)) {
+        } else if (this.routingRequest != null) {
             try {
                 if (this.routeResult.length > 0)
                     return GeoJsonResponseWriter.toGeoJson(routingRequest, routeResult);
             } catch (ExportException e) {
-                throw new ExportException(RoutingErrorCodes.EXPORT_HANDLER_ERROR, this.routingRequest.getClass(), "GeoJSON");
+                throw new ExportException(RoutingErrorCodes.EXPORT_HANDLER_ERROR, this.routingRequest.getClass(), FORMAT_GEO_JSON);
             }
         }
         return null;
@@ -162,25 +164,27 @@ public class GlobalResponseProcessor {
     public String toGPX() throws Exception {
         // Check for the correct ServiceRequest and chose the right export function
         // TODO Integrate all exports here by time
-        if (!(this.isochroneRequest == null)) {
+        if (this.isochroneRequest == null) {
+            if (this.mapMatchingRequest != null) {
+                throw new StatusCodeException(StatusCode.NOT_IMPLEMENTED);
+            } else if (this.matrixRequest != null) {
+                throw new ExportException(MatrixErrorCodes.UNSUPPORTED_EXPORT_FORMAT, this.getClass(), matrixRequest.getClass(), "GPX");
+                /*if (this.matrixResult.getSources().length > 0 && this.matrixResult.getDestinations().length > 0) {
+                    // TODO Do export
+                }*/
+            } else if (this.routingRequest != null) {
+                try {
+                    if (this.routeResult.length > 0)
+                        return GpxResponseWriter.toGPX(routingRequest, routeResult);
+                } catch (ExportException e) {
+                    throw new ExportException(RoutingErrorCodes.EXPORT_HANDLER_ERROR, this.routingRequest.getClass(), "GPX");
+                }
+            }
+        } else {
             throw new ExportException(IsochronesErrorCodes.UNSUPPORTED_EXPORT_FORMAT, this.getClass(), isochroneRequest.getClass(), "GPX");
             /*if (this.isochroneMapCollection.size() > 0) {
                 // TODO Do export
             }*/
-        } else if (!(this.mapMatchingRequest == null)) {
-            throw new StatusCodeException(StatusCode.NOT_IMPLEMENTED);
-        } else if (!(this.matrixRequest == null)) {
-            throw new ExportException(MatrixErrorCodes.UNSUPPORTED_EXPORT_FORMAT, this.getClass(), matrixRequest.getClass(), "GPX");
-            /*if (this.matrixResult.getSources().length > 0 && this.matrixResult.getDestinations().length > 0) {
-                // TODO Do export
-            }*/
-        } else if (!(this.routingRequest == null)) {
-            try {
-                if (this.routeResult.length > 0)
-                    return GpxResponseWriter.toGPX(routingRequest, routeResult);
-            } catch (ExportException e) {
-                throw new ExportException(RoutingErrorCodes.EXPORT_HANDLER_ERROR, this.routingRequest.getClass(), "GPX");
-            }
         }
         return null;
     }

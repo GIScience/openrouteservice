@@ -13,44 +13,24 @@
  */
 package org.heigit.ors.servlet.listeners;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
-
-import org.slf4j.Logger;
+import org.heigit.ors.logging.LoggingUtility;
 import org.slf4j.LoggerFactory;
 
-import org.heigit.ors.logging.LoggingUtility;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 
 //@WebListener
-public class LoggingStartupContextListener implements ServletContextListener
-{
-	private static Logger LOGGER;    
-
-	public void contextInitialized(ServletContextEvent contextEvent)
-	{
-		 final ServletContext context = contextEvent.getServletContext();
-		 
-		 try
-		 {
+public class LoggingStartupContextListener implements ServletContextListener {
+	public void contextInitialized(ServletContextEvent contextEvent) {
+		 contextEvent.getServletContext();
+		 try {
 			 LoggingUtility.init();
-		 }
-		 catch(Exception ex)
-		 {
-			 getLogger().error("Unable to initialize logging system.");
+		 } catch(Exception ex) {
+			 LoggerFactory.getLogger("org.heigit.ors.logging").error("Unable to initialize logging system.");
 		 }
 	}
 
 	public void contextDestroyed(ServletContextEvent contextEvent) {
-		
+		// DO NOTHING
 	}
-	
-	private Logger getLogger() 
-	{
-        if(LOGGER == null) 
-            LOGGER = LoggerFactory.getLogger("org.heigit.ors.logging");
-        
-        return LOGGER;
-    }
-} 
+}

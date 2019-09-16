@@ -6,6 +6,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class OSMAttachedSidewalkProcessor {
+
+    public static final String KEY_ORS_SIDEWALK_SIDE = "ors-sidewalk-side";
+    public static final String VAL_RIGHT = "right";
+    public static final String VAL_LEFT = "left";
+
     protected enum Side { LEFT, RIGHT, BOTH, NONE }
 
     protected boolean hasSidewalkInfo(ReaderWay way) {
@@ -38,11 +43,7 @@ public class OSMAttachedSidewalkProcessor {
      * @return
      */
     private boolean isSidewalkInfoKey(String osmTagKey) {
-        if(osmTagKey.startsWith("sidewalk:") || osmTagKey.startsWith("footway:")) {
-            return true;
-        }
-
-        return false;
+        return osmTagKey.startsWith("sidewalk:") || osmTagKey.startsWith("footway:");
     }
 
     /**
@@ -55,23 +56,23 @@ public class OSMAttachedSidewalkProcessor {
     public ReaderWay attachSidewalkTag(ReaderWay way, Side side) {
         switch(side) {
             case LEFT:
-                way.setTag("ors-sidewalk-side", "left");
+                way.setTag(KEY_ORS_SIDEWALK_SIDE, VAL_LEFT);
                 break;
             case RIGHT:
-                way.setTag("ors-sidewalk-side", "right");
+                way.setTag(KEY_ORS_SIDEWALK_SIDE, VAL_RIGHT);
                 break;
             case BOTH:
-                if(way.hasTag("ors-sidewalk-side") && way.getTag("ors-sidewalk-side").equalsIgnoreCase("left")) {
+                if(way.hasTag(KEY_ORS_SIDEWALK_SIDE) && way.getTag(KEY_ORS_SIDEWALK_SIDE).equalsIgnoreCase(VAL_LEFT)) {
                     // The left side has been attached previously, so now attach the right side
-                    way.setTag("ors-sidewalk-side", "right");
+                    way.setTag(KEY_ORS_SIDEWALK_SIDE, VAL_RIGHT);
                 } else {
                     // start with the left side
-                    way.setTag("ors-sidewalk-side", "left");
+                    way.setTag(KEY_ORS_SIDEWALK_SIDE, VAL_LEFT);
                 }
                 break;
             case NONE:
-                if(way.hasTag("ors-sidewalk-side")) {
-                    way.removeTag("ors-sidewalk-side");
+                if(way.hasTag(KEY_ORS_SIDEWALK_SIDE)) {
+                    way.removeTag(KEY_ORS_SIDEWALK_SIDE);
                 }
         }
 
@@ -85,12 +86,12 @@ public class OSMAttachedSidewalkProcessor {
      * @return
      */
     public Side getPreparedSide(ReaderWay way) {
-        if(way.hasTag("ors-sidewalk-side")) {
-            String preparedSide = way.getTag("ors-sidewalk-side");
-            if(preparedSide.equalsIgnoreCase("left")) {
+        if(way.hasTag(KEY_ORS_SIDEWALK_SIDE)) {
+            String preparedSide = way.getTag(KEY_ORS_SIDEWALK_SIDE);
+            if(preparedSide.equalsIgnoreCase(VAL_LEFT)) {
                 return Side.LEFT;
             }
-            if(preparedSide.equalsIgnoreCase("right")) {
+            if(preparedSide.equalsIgnoreCase(VAL_RIGHT)) {
                 return Side.RIGHT;
             }
         }
@@ -112,15 +113,16 @@ public class OSMAttachedSidewalkProcessor {
         if(osmWay.hasTag("sidewalk")) {
             String side = osmWay.getTag("sidewalk");
             switch(side) {
-                case "left":
+                case VAL_LEFT:
                     sidewalkOnLeftSide = true;
                     break;
-                case "right":
+                case VAL_RIGHT:
                     sidewalkOnRightSide = true;
                     break;
                 case "both":
                     sidewalkOnBothSides = true;
                     break;
+                default:
             }
         }
 

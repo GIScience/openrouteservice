@@ -21,18 +21,9 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 public class FormatUtility {
-	 private static final ThreadLocal< NumberFormat > nfCoordRound = new ThreadLocal< NumberFormat >() {
-	        @Override
-	        protected NumberFormat initialValue() {
-	        	NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
-	        	nf.setMaximumFractionDigits(7);
-	        	nf.setMinimumFractionDigits(7);
-	        	nf.setRoundingMode(RoundingMode.HALF_UP);
-	        	return nf;
-	        }
-	    };
+	private FormatUtility() {}
 
-	private static final ThreadLocal< NumberFormat > nfCoordRound8 = ThreadLocal.withInitial(() -> {
+	private static final ThreadLocal< NumberFormat > nfCoordRound = ThreadLocal.withInitial(() -> {
 		NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
 		nf.setMaximumFractionDigits(7);
 		nf.setMinimumFractionDigits(7);
@@ -45,17 +36,15 @@ public class FormatUtility {
 	 * @return result String
 	 */
 	public static String formatCoordinate(Coordinate coord) {
-		return nfCoordRound.get().format(coord.x) + " " + nfCoordRound8.get().format(coord.y);
+		return nfCoordRound.get().format(coord.x) + " " + nfCoordRound.get().format(coord.y);
 	}
 
-	public static double roundToDecimals(double d, int c)
-	{
+	public static double roundToDecimals(double d, int c) {
 		double denom = Math.pow(10 , c);
 	    return Math.round (d * denom) / denom;
 	}
 
-	public static int getUnitDecimals(DistanceUnit unit)
-	{
+	public static int getUnitDecimals(DistanceUnit unit) {
 		if (unit == DistanceUnit.METERS)
 			return 1;
 		else if (unit == DistanceUnit.KILOMETERS || unit == DistanceUnit.MILES)
@@ -64,8 +53,7 @@ public class FormatUtility {
 		return 1;
 	}
 
-	public static double roundToDecimalsForUnits(double d, DistanceUnit unit)
-	{
+	public static double roundToDecimalsForUnits(double d, DistanceUnit unit) {
 		return roundToDecimals(d, getUnitDecimals(unit));
 	}
 }

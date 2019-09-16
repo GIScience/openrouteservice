@@ -150,7 +150,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 
 			double maxRadius = 0;
 			double meanRadius = 0;
-			if (isochroneType == TravelRangeType.Distance) {
+			if (isochroneType == TravelRangeType.DISTANCE) {
 				maxRadius = isoValue;
 				meanRadius = isoValue;
 			} else {

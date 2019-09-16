@@ -13,79 +13,69 @@
  */
 package org.heigit.ors.routing.parameters;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class WheelchairParameters extends ProfileParameters
-{
-	private float _maxIncline = Float.MAX_VALUE * -1.0f;
-	private float _maxSlopedKerb = -1.0F;
-	private int _surfaceType;
-	private int _trackType;
-	private int _smoothnessType;
-	private float _minWidth = 0.0f;
-
-	public WheelchairParameters()
-	{
-
-	}
+public class WheelchairParameters extends ProfileParameters {
+	private float maxIncline = Float.MAX_VALUE * -1.0f;
+	private float maxSlopedKerb = -1.0F;
+	private int surfaceType;
+	private int trackType;
+	private int smoothnessType;
+	private float minWidth = 0.0f;
 
 	public float getMaximumIncline() {
-		return _maxIncline;
+		return maxIncline;
 	}
 
 	public void setMaximumIncline(float maxIncline) {
-		_maxIncline = maxIncline;
+		this.maxIncline = maxIncline;
 	}
 
 	public int getSurfaceType() {
-		return _surfaceType;
+		return surfaceType;
 	}
 
 	public void setSurfaceType(int surfaceType) {
-		_surfaceType = surfaceType;
+		this.surfaceType = surfaceType;
 	}
 
 	public float getMaximumSlopedKerb() {
-		return _maxSlopedKerb;
+		return maxSlopedKerb;
 	}
 
 	public void setMaximumSlopedKerb(float maxSlopedKerb) {
-		_maxSlopedKerb = maxSlopedKerb;
+		this.maxSlopedKerb = maxSlopedKerb;
 	}
 
 	public int getTrackType() {
-		return _trackType;
+		return trackType;
 	}
 
 	public void setTrackType(int trackType) {
-		_trackType = trackType;
+		this.trackType = trackType;
 	}
 
 	public int getSmoothnessType() {
-		return _smoothnessType;
+		return smoothnessType;
 	}
 
 	public void setSmoothnessType(int smoothnessType) {
-		_smoothnessType = smoothnessType;
+		this.smoothnessType = smoothnessType;
 	}
 
-	public float getMinimumWidth() { return _minWidth; }
+	public float getMinimumWidth() { return minWidth; }
 
-	public void setMinimumWidth(float width) { _minWidth = width; }
+	public void setMinimumWidth(float width) { minWidth = width; }
 
 	@Override
 	public List<String> getValidRestrictions() {
 		List<String> valid = super.getValidRestrictions();
-
 		valid.add("surface_type");
 		valid.add("track_type");
 		valid.add("smoothness_type");
 		valid.add("maximum_sloped_kerb");
 		valid.add("maximum_incline");
 		valid.add("minimum_width");
-
 		return valid;
 	}
 }

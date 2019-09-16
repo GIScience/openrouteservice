@@ -1,22 +1,20 @@
 package org.heigit.ors.util;
 
+import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.util.GeometricShapeFactory;
+
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineSegment;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.util.GeometricShapeFactory;
-
 public class FrechetDistance {
 
         static double delta = 0.01;
-        public double[][] a, b, c, d;
+        double[][] a;
+        double[][] b;
+        double[][] c;
+        double[][] d;
         Point2D[] pl1;
         Point2D[] pl2;
         int pLength;
@@ -26,27 +24,24 @@ public class FrechetDistance {
 
         /**
          * P and Q are two polylines
-         * 
-         * @param P
-         * @param Q
+         *
+         * @param p
+         * @param q
          */
-        public FrechetDistance(Point2D[] P, Point2D[] Q) {
-                pl1 = P;
-                pl2 = Q;
-                pLength = P.length;
-                qLength = Q.length;
-                int p = P.length;
-                int q = Q.length;
-                a = new double[p][q];
-                b = new double[p][q];
-                c = new double[p][q];
-                d = new double[p][q];
+        public FrechetDistance(Point2D[] p, Point2D[] q) {
+                pl1 = p;
+                pl2 = q;
+                pLength = p.length;
+                qLength = q.length;
+                int pL = p.length;
+                int qL = q.length;
+                a = new double[pL][qL];
+                b = new double[pL][qL];
+                c = new double[pL][qL];
+                d = new double[pL][qL];
         }
 
         /**
-         * 
-         * @param P
-         * @param Q
          * @param epsilon
          * @return true if the Frechet distance is <= epsilon
          */
@@ -89,7 +84,10 @@ public class FrechetDistance {
 
                 LineString tempLsQ;
                 LineString tempLsP;
-                Coordinate p1, p2, q1, q2;
+                Coordinate p1;
+                Coordinate p2;
+                Coordinate q1;
+                Coordinate q2;
                 Polygon tempCircle;
                 Geometry tempGeom;
 
@@ -100,18 +98,18 @@ public class FrechetDistance {
                                 p2 = new Coordinate(pl1[i + 1].getX(), pl1[i + 1].getY());
                                 q1 = new Coordinate(pl2[j].getX(), pl2[j].getY());
                                 q2 = new Coordinate(pl2[j + 1].getX(), pl2[j + 1].getY());
-                                
+
                                 if (Line2D.ptSegDist(pl2[j].getX(), pl2[j].getY(),
                                                 pl2[j + 1].getX(), pl2[j + 1].getY(), pl1[i].getX(),
                                                 pl1[i].getY()) > epsilon) {
                                         a[i][j] = b[i][j] = -1;
                                 } else {
                                         // make line string out of j's two end points
-                                        
+
                                         tempLsQ = gf.createLineString(new Coordinate[] { q1, q2 });
 
                                         // make circle with i's first end point
-                                        
+
                                         gsf.setCentre(p1);
                                         gsf.setSize(2 * epsilon);
                                         tempCircle = gsf.createCircle();
@@ -144,12 +142,12 @@ public class FrechetDistance {
                                                 }
                                         }
                                 }
-                                
+
                                 // fill up c_ij and d_ij
                                 double val1 = Line2D.ptSegDist(pl1[i].getX(), pl1[i].getY(),
                                                 pl1[i + 1].getX(), pl1[i + 1].getY(), pl2[j].getX(),
                                                 pl2[j].getY()) ;
-                                
+
                                 if (val1 > epsilon) {
                                         c[i][j] = d[i][j] = -1;
                                 }else{
@@ -163,7 +161,7 @@ public class FrechetDistance {
                                         } else {
                                                 // collapse the circle and the line
                                                 tempGeom = tempCircle.intersection(tempLsP);
-                
+
                                                 int numCoords = tempGeom.getCoordinates().length;
                                                 if (numCoords == 1) {
                                                         //1 point
@@ -176,11 +174,6 @@ public class FrechetDistance {
                                                                 d[i][j] = 1;
                                                         }
                                                 } else {
-                                                        // 2 points
-//                                                      System.out.println("i, j, eps: "+i+","+j+", "+epsilon);
-//                                                      System.out.println("tempCircle center:"+tempCircle.getCentroid());
-//                                                      System.out.println("tempCircle extent: "+tempCircle.toText());
-//                                                      System.out.println(tempGeom.toString());
                                                         Coordinate[] intersections = ((LineString) tempGeom)
                                                                         .getCoordinates();
                                                         c[i][j] = getProportion(intersections[0], tempLsP);
@@ -231,7 +224,7 @@ public class FrechetDistance {
         }
 
         public Double[] computeCriticalValues() {
-                ArrayList<Double> list = new ArrayList<Double>();
+                ArrayList<Double> list = new ArrayList<>();
 
                 // distances between starting and ending points
                 list.add(pl1[0].distance(pl2[0]));
@@ -240,19 +233,15 @@ public class FrechetDistance {
                 // distances between vertices of one curve and edges of the other curve
                 for (int i = 0; i < pLength; i++) {
                         for (int j = 0; j < qLength - 1; j++) {
-                                double d = Line2D.ptSegDist(pl2[j].getX(), pl2[j].getY(),
-                                                pl2[j + 1].getX(), pl2[j + 1].getY(), pl1[i].getX(),
-                                                pl1[i].getY());
-                                list.add(d);
+                                list.add(Line2D.ptSegDist(pl2[j].getX(), pl2[j].getY(), pl2[j + 1].getX(), pl2[j + 1].getY(), pl1[i].getX(), pl1[i].getY()));
                         }
                 }
 
                 for (int j = 0; j < qLength; j++) {
                         for (int i = 0; i < pLength - 1; i++) {
-                                double d = Line2D.ptSegDist(pl1[i].getX(), pl1[i].getY(),
-                                                pl1[i + 1].getX(), pl1[i + 1].getY(), pl2[j].getX(),
-                                                pl2[j].getY());
-                                list.add(d);
+                                list.add(Line2D.ptSegDist(pl1[i].getX(), pl1[i].getY(),
+                                        pl1[i + 1].getX(), pl1[i + 1].getY(), pl2[j].getX(),
+                                        pl2[j].getY()));
                         }
                 }
 
@@ -271,14 +260,15 @@ public class FrechetDistance {
                 LineString ls;
                 LineString temp;
                 LineSegment lseg;
-                Coordinate c1, midPoint, c2;
+                Coordinate c1;
+                Coordinate midPoint;
+                Coordinate c2;
                 Coordinate intersect = null;
                 for (int i = 0; i < pLength - 2; i++) {
                         for (int j = i + 2; j < pLength; j++) {
                                 // comp seg between i and j
                                 // comp bisector and intersection point with q
                                 // comp the distance
-                                // ls = new LineString(pCurve[i], pCurve[j]);
                                 lseg = new LineSegment(pCurve[i], pCurve[j]);
                                 midPoint = lseg.midPoint();
                                 double origSlope = getSlope(pCurve[i].x, pCurve[i].y,
@@ -340,12 +330,8 @@ public class FrechetDistance {
                                 ls = gf.createLineString(new Coordinate[] { c1, midPoint, c2 });
                                 temp = gf.createLineString(pCurve);
 
-                                // System.out.println(ls.intersects(temp));
-                                // System.out.println(ls);
                                 if (ls.intersects(temp)) {
-                                        // System.out.println(ls.intersection(temp));
                                         intersect = ls.intersection(temp).getCoordinate();
-
                                 }
                                 if (intersect != null) {
                                         list.add(intersect.distance(qCurve[i]));
@@ -373,7 +359,7 @@ public class FrechetDistance {
 
         /**
          * Performs the standard binary search using two comparisons per level.
-         * 
+         *
          * @return index where item is found, or NOT_FOUND.
          */
         public int binarySearch(Double[] a) {

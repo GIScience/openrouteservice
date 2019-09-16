@@ -25,6 +25,8 @@ public class AvoidFeatureFlags {
 	private static final int WALKING_FEATURES =  STEPS | FERRIES | FORDS;
 	private static final int WHEELCHAIR_FEATURES = WALKING_FEATURES;
 
+	private AvoidFeatureFlags() {}
+
 	public static int getFromString(String value) {
 		switch(value.toLowerCase()) {
 			case "highways":

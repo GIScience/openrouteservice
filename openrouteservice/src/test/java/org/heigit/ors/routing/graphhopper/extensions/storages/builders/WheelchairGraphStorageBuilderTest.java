@@ -110,10 +110,8 @@ public class WheelchairGraphStorageBuilderTest {
         Assert.assertEquals(3, builder.getKerbHeightForWayFromNodeTags(1, 2));
     }
 
-    @Ignore // TODO: update to GH 0.12 (see TODO below)
     @Test
     public void TestAttachKerbHeightToCrossing() {
-        fail("TODO: find out how to test this.");
         builder = new WheelchairGraphStorageBuilder(true);
 
         ReaderWay way = new ReaderWay(1);
@@ -126,10 +124,10 @@ public class WheelchairGraphStorageBuilderTest {
         nodeTags.put(1, tags);
 
         builder.processWay(way, new Coordinate[0], nodeTags);
-        IntsRef flags = IntsRef.EMPTY; // TODO GH 0.10: initialize correctly (flags were set to 1 with GH 0.10)
+        IntsRef flags = IntsRef.EMPTY;
         EdgeIteratorState edge = new VirtualEdgeIteratorState(1,1,1,1,2,1,flags,"",null, false);
 
-        Assert.assertEquals(0.03f, builder.getKerbHeightForWay(way, edge));
+        Assert.assertEquals(3, builder.getKerbHeightForWay(way, edge));
 
         way = new ReaderWay(2);
 
@@ -137,7 +135,7 @@ public class WheelchairGraphStorageBuilderTest {
 
         builder.processWay(way, new Coordinate[0], nodeTags);
 
-        Assert.assertEquals(-1f, builder.getKerbHeightForWay(way, edge));
+        Assert.assertEquals(-1, builder.getKerbHeightForWay(way, edge));
     }
 
     private ReaderWay constructSidedWay(String side) {

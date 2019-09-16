@@ -19,10 +19,10 @@ package org.heigit.ors.api.responses.routing.json;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.heigit.ors.routing.RouteStep;
-import org.heigit.ors.util.StringUtility;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.heigit.ors.routing.RouteStep;
+import org.heigit.ors.util.StringUtility;
 
 @ApiModel(value="JSONStep", description = "Step of a route segment")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)

@@ -21,191 +21,190 @@ import org.heigit.ors.services.ServiceRequest;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RoutingRequest extends ServiceRequest
-{
+public class RoutingRequest extends ServiceRequest {
     public static final String ATTR_DETOURFACTOR = "detourfactor";
 
-    private Coordinate[] _coordinates;
-	private RouteSearchParameters _searchParameters;
-	private DistanceUnit _units = DistanceUnit.METERS;
-	private String _language = "en";
-	private String _geometryFormat = "encodedpolyline";
-	private Boolean _geometrySimplify = false;
-	private RouteInstructionsFormat _instructionsFormat = RouteInstructionsFormat.TEXT;
-	private Boolean _includeInstructions = true;
-	private Boolean _includeElevation = false;
-	private Boolean _includeGeometry = true;
-	private Boolean _includeManeuvers = false;
-    private boolean _includeRoundaboutExits = false;
-	private String[] _attributes = null;
-    private int _extraInfo;
-    private int _locationIndex = -1;
-    private boolean _continueStraight = false;
-	private List<Integer> _skipSegments = new ArrayList<>();
-	private boolean _includeCountryInfo = false;
+    private Coordinate[] coordinates;
+	private RouteSearchParameters searchParameters;
+	private DistanceUnit units = DistanceUnit.METERS;
+	private String language = "en";
+	private String geometryFormat = "encodedpolyline";
+	private boolean geometrySimplify = false;
+	private RouteInstructionsFormat instructionsFormat = RouteInstructionsFormat.TEXT;
+	private boolean includeInstructions = true;
+	private boolean includeElevation = false;
+	private boolean includeGeometry = true;
+	private boolean includeManeuvers = false;
+    private boolean includeRoundaboutExits = false;
+	private String[] attributes = null;
+    private int extraInfo;
+    private int locationIndex = -1;
+    private boolean continueStraight = false;
+	private List<Integer> skipSegments = new ArrayList<>();
+	private boolean includeCountryInfo = false;
 
 	public RoutingRequest()
 	{
-		_searchParameters = new RouteSearchParameters();
+		searchParameters = new RouteSearchParameters();
 	}
 
 	public Coordinate[] getCoordinates() {
-		return _coordinates;
+		return coordinates;
 	}
 	
 	public Coordinate getDestination()
 	{
-		return _coordinates[_coordinates.length - 1];
+		return coordinates[coordinates.length - 1];
 	}
 
-	public void setCoordinates(Coordinate[] _coordinates) {
-		this._coordinates = _coordinates;
+	public void setCoordinates(Coordinate[] coordinates) {
+		this.coordinates = coordinates;
 	}
 
 	public RouteSearchParameters getSearchParameters() {
-		return _searchParameters;
+		return searchParameters;
 	}
 
-	public void setSearchParameters(RouteSearchParameters _searchParameters) {
-		this._searchParameters = _searchParameters;
+	public void setSearchParameters(RouteSearchParameters searchParameters) {
+		this.searchParameters = searchParameters;
 	}
 
 	public boolean getIncludeInstructions() {
-		return _includeInstructions;
+		return includeInstructions;
 	}
 
 	public void setIncludeInstructions(boolean includeInstructions) {
-		_includeInstructions = includeInstructions;
+		this.includeInstructions = includeInstructions;
 	}
 
 	public DistanceUnit getUnits() {
-		return _units;
+		return units;
 	}
 
 	public void setUnits(DistanceUnit units) {
-		_units = units;
+		this.units = units;
 	}
 
 	public String getGeometryFormat() {
-		return _geometryFormat;
+		return geometryFormat;
 	}
 
 	public void setGeometryFormat(String geometryFormat) {
-		_geometryFormat = geometryFormat;
+		this.geometryFormat = geometryFormat;
 	}
 
-	public boolean getGeometrySimplify() { return _geometrySimplify; }
+	public boolean getGeometrySimplify() { return geometrySimplify; }
 
-	public void setGeometrySimplify(boolean geometrySimplify) { _geometrySimplify = geometrySimplify; }
+	public void setGeometrySimplify(boolean geometrySimplify) { this.geometrySimplify = geometrySimplify; }
 
 	public String getLanguage() {
-		return _language;
+		return language;
 	}
 
 	public void setLanguage(String language) {
-		_language = language;
+		this.language = language;
 	}
 
 	public RouteInstructionsFormat getInstructionsFormat() {
-		return _instructionsFormat;
+		return instructionsFormat;
 	}
 
 	public void setInstructionsFormat(RouteInstructionsFormat format) {
-		_instructionsFormat = format;
+		instructionsFormat = format;
 	}
 
 	public int getExtraInfo() {
-		return _extraInfo;
+		return extraInfo;
 	}
 
 	public void setExtraInfo(int extraInfo) {
-		_extraInfo = extraInfo;
+		this.extraInfo = extraInfo;
 	}
 
-	public Boolean getIncludeElevation() {
-		return _includeElevation;
+	public boolean getIncludeElevation() {
+		return includeElevation;
 	}
 
-	public void setIncludeElevation(Boolean includeElevation) {
-		this._includeElevation = includeElevation;
+	public void setIncludeElevation(boolean includeElevation) {
+		this.includeElevation = includeElevation;
 	}
 
-	public Boolean getIncludeGeometry() {
-		return _includeGeometry;
+	public boolean getIncludeGeometry() {
+		return includeGeometry;
 	}
 
-	public void setIncludeGeometry(Boolean includeGeometry) {
-		this._includeGeometry = includeGeometry;
+	public void setIncludeGeometry(boolean includeGeometry) {
+		this.includeGeometry = includeGeometry;
 	}
 
 	public String[] getAttributes() {
-		return _attributes;
+		return attributes;
 	}
 
 	public void setAttributes(String[] attributes) {
-		_attributes = attributes;
+		this.attributes = attributes;
 	}
 	
 	public boolean hasAttribute(String attr) {
-		if (_attributes == null || attr == null)
+		if (attributes == null || attr == null)
 			return false;
 
-		for (int i = 0; i< _attributes.length; i++)
-			if (attr.equalsIgnoreCase(_attributes[i]))
+		for (String attribute : attributes)
+			if (attr.equalsIgnoreCase(attribute))
 				return true;
 
 		return false;
 	}
 
 	public int getLocationIndex() {
-		return _locationIndex;
+		return locationIndex;
 	}
 
 	public void setLocationIndex(int locationIndex) {
-		_locationIndex = locationIndex;
+		this.locationIndex = locationIndex;
 	}
 
-	public Boolean getIncludeManeuvers() {
-		return _includeManeuvers;
+	public boolean getIncludeManeuvers() {
+		return includeManeuvers;
 	}
 
-	public void setIncludeManeuvers(Boolean includeManeuvers) {
-		_includeManeuvers = includeManeuvers;
+	public void setIncludeManeuvers(boolean includeManeuvers) {
+		this.includeManeuvers = includeManeuvers;
 	}
 
 	public boolean getContinueStraight() {
-		return _continueStraight;
+		return continueStraight;
 	}
 
 	public void setContinueStraight(boolean continueStraight) {
-		_continueStraight = continueStraight;
+		this.continueStraight = continueStraight;
 	}
 
 	public boolean getIncludeRoundaboutExits() {
-		return _includeRoundaboutExits;
+		return includeRoundaboutExits;
 	}
 
 	public void setIncludeRoundaboutExits(boolean includeRoundaboutExits) {
-		_includeRoundaboutExits = includeRoundaboutExits;
+		this.includeRoundaboutExits = includeRoundaboutExits;
 	}
 
 	public boolean isValid() {
-		return !(_coordinates == null);
+		return coordinates != null;
 	}
 
 	public List<Integer> getSkipSegments() {
-		return _skipSegments;
+		return skipSegments;
 	}
 
 	public void setSkipSegments(List<Integer> skipSegments) {
-		_skipSegments = skipSegments;
+		this.skipSegments = skipSegments;
 	}
 
 	public boolean getIncludeCountryInfo() {
-		return _includeCountryInfo;
+		return includeCountryInfo;
 	}
 
 	public void setIncludeCountryInfo(boolean includeCountryInfo) {
-		this._includeCountryInfo = includeCountryInfo;
+		this.includeCountryInfo = includeCountryInfo;
 	}
 }

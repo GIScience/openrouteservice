@@ -13,39 +13,36 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
-
 import org.heigit.ors.routing.graphhopper.extensions.SurfaceType;
 import org.heigit.ors.routing.graphhopper.extensions.WayType;
 import org.heigit.ors.routing.graphhopper.extensions.storages.WaySurfaceTypeGraphStorage;
 import org.heigit.ors.routing.util.WaySurfaceDescription;
 
-public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuilder
-{
-	private WaySurfaceTypeGraphStorage _storage;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+
+public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuilder {
+	private WaySurfaceTypeGraphStorage storage;
 	private final WaySurfaceDescription waySurfaceDesc = new WaySurfaceDescription();
 	protected final HashSet<String> ferries;
 	
-	public WaySurfaceTypeGraphStorageBuilder()
-	{
-		ferries = new HashSet<String>(5);
+	public WaySurfaceTypeGraphStorageBuilder() {
+		ferries = new HashSet<>(5);
 		ferries.add("shuttle_train");
 		ferries.add("ferry");
 	}
 	
 	public GraphExtension init(GraphHopper graphhopper) throws Exception {
-		if (_storage != null)
+		if (storage != null)
 			throw new Exception("GraphStorageBuilder has been already initialized.");
 		
-		_storage = new WaySurfaceTypeGraphStorage();
-		return _storage;
+		storage = new WaySurfaceTypeGraphStorage();
+		return storage;
 	}
 
 	public void processWay(ReaderWay way) {
@@ -63,13 +60,13 @@ public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuild
 
 			if (hasHighway || isFerryRoute) {
 				if (key.equals("highway")) {
-					byte wayType = (isFerryRoute) ? WayType.Ferry : (byte)WayType.getFromString(value);
+					byte wayType = (isFerryRoute) ? WayType.FERRY : (byte)WayType.getFromString(value);
 
 					if (waySurfaceDesc.getSurfaceType() == 0) {
-						if (wayType == WayType.Road ||  wayType == WayType.StateRoad || wayType == WayType.Street)
-							waySurfaceDesc.setSurfaceType((byte)SurfaceType.Asphalt);
-						else if (wayType == WayType.Path)
-							waySurfaceDesc.setSurfaceType((byte)SurfaceType.Unpaved);
+						if (wayType == WayType.ROAD ||  wayType == WayType.STATE_ROAD || wayType == WayType.STREET)
+							waySurfaceDesc.setSurfaceType((byte)SurfaceType.ASPHALT);
+						else if (wayType == WayType.PATH)
+							waySurfaceDesc.setSurfaceType((byte)SurfaceType.UNPAVED);
 					}
 
 					waySurfaceDesc.setWayType(wayType);
@@ -80,9 +77,8 @@ public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuild
 		}
 	}
 
-	public void processEdge(ReaderWay way, EdgeIteratorState edge) 
-	{
-		_storage.setEdgeValue(edge.getEdge(), waySurfaceDesc);
+	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
+		storage.setEdgeValue(edge.getEdge(), waySurfaceDesc);
 	}
 
 	@Override

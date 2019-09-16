@@ -13,49 +13,38 @@
  */
 package org.heigit.ors.routing.instructions;
 
+import org.heigit.ors.localization.LocalizationManager;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import org.heigit.ors.localization.LocalizationManager;
-
-public class InstructionTranslatorsCache 
-{
-	private Map<Integer, InstructionTranslator> _translators = null;
-	private static volatile InstructionTranslatorsCache m_instance = null;
+public class InstructionTranslatorsCache {
+	private Map<Integer, InstructionTranslator> translators;
+	private static InstructionTranslatorsCache mInstance = null;
 
 	private InstructionTranslatorsCache()
 	{
-		_translators = new HashMap<Integer, InstructionTranslator>();
+		translators = new HashMap<>();
 	}
 
-	public static InstructionTranslatorsCache getInstance()
-	{
-		if(null == m_instance)
-		{
-			synchronized(InstructionTranslatorsCache.class)
-			{
-				m_instance = new InstructionTranslatorsCache();
+	public static InstructionTranslatorsCache getInstance() {
+		if(null == mInstance) {
+			synchronized(InstructionTranslatorsCache.class) {
+				mInstance = new InstructionTranslatorsCache();
 			}
 		}
-
-		return m_instance;
+		return mInstance;
 	}
 
-	public InstructionTranslator getTranslator(String langCode) throws Exception
-	{
+	public InstructionTranslator getTranslator(String langCode) throws Exception {
 		int hashCode = langCode.hashCode();
-
-		InstructionTranslator res = _translators.get(hashCode);
-
-		if (res == null)
-		{
-			synchronized(InstructionTranslatorsCache.class)
-			{
+		InstructionTranslator res = translators.get(hashCode);
+		if (res == null) {
+			synchronized(InstructionTranslatorsCache.class) {
 				res = new InstructionTranslator(LocalizationManager.getInstance().getLanguageResources(langCode));
-				_translators.put(hashCode, res);
+				translators.put(hashCode, res);
 			}
 		}
-
 		return res;
 	}
 }

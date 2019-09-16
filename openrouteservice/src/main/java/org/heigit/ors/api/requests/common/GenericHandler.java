@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 
 public class GenericHandler {
+    public static final String KEY_PROFILE = "profile";
     protected Map<String, Integer> errorCodes;
 
     public GenericHandler() {
@@ -68,7 +69,7 @@ public class GenericHandler {
         if (!RoutingProfileType.isHeavyVehicle(profileType)) {
             throw new IncompatibleParameterException(getInvalidParameterValueErrorCode(),
                     "vehicle_type", vehicleTypeIn.toString(),
-                    "profile", RoutingProfileType.getName(profileType));
+                    KEY_PROFILE, RoutingProfileType.getName(profileType));
         }
 
         if (vehicleTypeIn == null) {
@@ -149,7 +150,7 @@ public class GenericHandler {
                 throw new UnknownParameterValueException(getInvalidParameterValueErrorCode(), "avoid_features", avoidFeatureName);
 
             if (!AvoidFeatureFlags.isValid(profileType, flag))
-                throw new IncompatibleParameterException(getInvalidParameterValueErrorCode(), "avoid_features", avoidFeatureName, "profile", RoutingProfileType.getName(profileType));
+                throw new IncompatibleParameterException(getInvalidParameterValueErrorCode(), "avoid_features", avoidFeatureName, KEY_PROFILE, RoutingProfileType.getName(profileType));
 
             flags |= flag;
         }
@@ -304,7 +305,7 @@ public class GenericHandler {
         if (!invalidParams.isEmpty()) {
             // There are some parameters present that shouldn't be there
             String invalidParamsString = StringUtils.join(invalidParams, ", ");
-            throw new IncompatibleParameterException(getErrorCode("UNKNOWN_PARAMETER"), "restrictions", invalidParamsString, "profile", RoutingProfileType.getName(profile));
+            throw new IncompatibleParameterException(getErrorCode("UNKNOWN_PARAMETER"), "restrictions", invalidParamsString, KEY_PROFILE, RoutingProfileType.getName(profile));
         }
     }
 

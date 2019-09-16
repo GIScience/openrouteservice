@@ -23,7 +23,7 @@
  *
  */
 
-package org.heigit.ors.util.mockupUtil;
+package org.heigit.ors.util.mockuputil;
 
 import com.graphhopper.PathWrapper;
 import com.graphhopper.util.PointList;
@@ -48,7 +48,7 @@ public class RouteResultMockup {
 
     // The enum holds the possible profiles
     public enum routeResultProfile {
-        standardHeidelberg
+        STANDARD_HEIDELBERG
     }
 
 
@@ -62,7 +62,7 @@ public class RouteResultMockup {
      */
     public static RouteResult[] create(routeResultProfile profile) throws Exception {
         RouteResult routeResult = new RouteResult(0);
-        if (profile == routeResultProfile.standardHeidelberg) {
+        if (profile == routeResultProfile.STANDARD_HEIDELBERG) {
             BBox bbox = new BBox(8.690603626917166, 8.690675487235653, 49.38366164068056, 49.38376283758349);
             routeResult.getSummary().setAscent(0.0);
             routeResult.getSummary().setAverageSpeed(0.0);
@@ -86,8 +86,6 @@ public class RouteResultMockup {
             pathWrapper.setDescend(0.0);
             pathWrapper.setDescription(null);
             pathWrapper.setFare(BigDecimal.ZERO);
-            // MARQ24 UPDATE to gh 0.10.1 - method not present anylonger
-            //pathWrapper.setFirstPtLegDeparture(0);
             pathWrapper.setNumChanges(2);
             pathWrapper.setRouteWeight(0.0);
             pathWrapper.setPoints(pointList);
@@ -143,7 +141,7 @@ public class RouteResultMockup {
 
             return new RouteResult[]{routeResult};
         } else {
-            return null;
+            return new RouteResult[]{};
         }
     }
 }

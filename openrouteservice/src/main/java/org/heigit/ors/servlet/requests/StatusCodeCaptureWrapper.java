@@ -13,16 +13,14 @@
  */
 package org.heigit.ors.servlet.requests;
 
-import java.io.IOException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
+import java.io.IOException;
 
 // suppress calls to sendError() and just setStatus() instead
 // do NOT use sendError() otherwise per servlet spec the container will send an html error page
-public class StatusCodeCaptureWrapper extends HttpServletResponseWrapper 
-{
+public class StatusCodeCaptureWrapper extends HttpServletResponseWrapper  {
     private Integer statusCode;
 
     public StatusCodeCaptureWrapper(HttpServletRequest request, HttpServletResponse response) {

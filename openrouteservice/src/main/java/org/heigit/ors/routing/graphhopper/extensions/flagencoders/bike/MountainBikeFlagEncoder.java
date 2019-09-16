@@ -35,39 +35,21 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  */
 public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
     private static final int MEAN_SPEED = 14;
-
-    public MountainBikeFlagEncoder() {
-        // MARQ24 MOD START
-        //this(4, 2, 0);
-        this(6, 2, 0, false);
-        // MARQ24 MOD END
-    }
+    public static final String KEY_TRACK = "track";
 
     public MountainBikeFlagEncoder(PMap properties) {
         this(
-            // MARQ24 MOD START
             properties.getInt("speed_bits", 4 + (properties.getBool("consider_elevation", false) ? 1 : 0)),
-            // MARQ24 MOD END
             properties.getDouble("speed_factor", 2),
-            properties.getBool("turn_costs", false) ? 1 : 0
-            // MARQ24 MOD START
-            ,properties.getBool("consider_elevation", false)
-            // MARQ24 MOD END
+            properties.getBool("turn_costs", false) ? 1 : 0,
+            properties.getBool("consider_elevation", false)
         );
         this.properties = properties;
         this.setBlockFords(properties.getBool("block_fords", true));
     }
 
-    public MountainBikeFlagEncoder(String propertiesStr) {
-        this(new PMap(propertiesStr));
-    }
-
-    // MARQ24 MOD START
-    //public NextGenMountainBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
     public MountainBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
-        //super(speedBits, speedFactor, maxTurnCosts);
         super(speedBits, speedFactor, maxTurnCosts, considerElevation);
-    // MARQ24 MOD END
         setTrackTypeSpeed("grade1", 18); // paved
         setTrackTypeSpeed("grade2", 16); // now unpaved ...
         setTrackTypeSpeed("grade3", 12);
@@ -109,7 +91,7 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
         setHighwaySpeed("footway", 6);
         setHighwaySpeed("pedestrian", 6);
         setHighwaySpeed("road", 12);
-        setHighwaySpeed("track", 18);
+        setHighwaySpeed(KEY_TRACK, 18);
         setHighwaySpeed("service", 14);
         setHighwaySpeed("unclassified", 16);
         setHighwaySpeed("residential", 16);
@@ -139,7 +121,7 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
         avoidHighwayTags.add("secondary_link");
 
         preferHighwayTags.add("road");
-        preferHighwayTags.add("track");
+        preferHighwayTags.add(KEY_TRACK);
         preferHighwayTags.add("path");
         preferHighwayTags.add("service");
         preferHighwayTags.add("tertiary");
@@ -167,7 +149,7 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
         super.collect(way, wayTypeSpeed, weightToPrioMap);
 
         String highway = way.getTag("highway");
-        if ("track".equals(highway)) {
+        if (KEY_TRACK.equals(highway)) {
             String trackType = way.getTag("tracktype");
             if ("grade1".equals(trackType))
                 weightToPrioMap.put(50d, UNCHANGED.getValue());
@@ -200,16 +182,11 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
 
     @Override
     public String toString() {
-        // MARQ24 MOD START
-        //return "mtb";
         return FlagEncoderNames.MTB_ORS;
-        // MARQ24 MOD END
     }
 
-    // MARQ24 MOD START
     @Override
     protected double getDownhillMaxSpeed() {
         return 60;
     }
-    // MARQ24 MOD END
 }

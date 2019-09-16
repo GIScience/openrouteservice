@@ -17,6 +17,8 @@ import com.graphhopper.util.Helper;
 import org.heigit.ors.exceptions.ParameterValueException;
 
 public class ArraysUtility {
+	private ArraysUtility() {}
+
 	public static int[] parseIntArray(String strArray, String elemName, int errorCode) throws Exception {
 		if (Helper.isEmpty(strArray))
 			return new int[0];

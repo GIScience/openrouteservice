@@ -24,61 +24,55 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class ServletUtility
-{
-	public static String readRequestContent(HttpServletRequest request) throws IOException
-	{
+public class ServletUtility {
+
+	public static final String KEY_UTF_8 = "UTF-8";
+
+	private ServletUtility() {}
+
+	public static String readRequestContent(HttpServletRequest request) throws IOException {
 		InputStream in = request.getInputStream();
 		String strDecoded = StringUtility.decodeRequestString(StreamUtility.readStream(in));
 		in.close();
-
 		return strDecoded;
 	}
 
 	public static void write(HttpServletResponse response, String gpx) throws IOException{
-		write(response,gpx, "UTF-8");
+		write(response,gpx, KEY_UTF_8);
 	}
+
 	public static void write(HttpServletResponse response, String gpx, String encoding) throws IOException{
 		byte[] bytes = gpx.getBytes(encoding);
 		write(response, bytes, "application/xml", encoding);
 	}
 
-	public static void write(HttpServletResponse response, JSONObject json) throws IOException
-	{
-		write(response, json, "UTF-8");
+	public static void write(HttpServletResponse response, JSONObject json) throws IOException {
+		write(response, json, KEY_UTF_8);
 	}
 
-	public static void write(HttpServletResponse response, JSONObject json, String encoding) throws IOException
-	{
+	public static void write(HttpServletResponse response, JSONObject json, String encoding) throws IOException {
 		byte[] bytes = json.toString().getBytes(encoding);
 		write(response, bytes, "application/json", encoding);
 	}
 
-	public static void write(HttpServletResponse response, JSONObject json, int statusCode) throws IOException
-	{
-		write(response, json, "UTF-8", statusCode);
+	public static void write(HttpServletResponse response, JSONObject json, int statusCode) throws IOException {
+		write(response, json, KEY_UTF_8, statusCode);
 	}
 
-	public static void write(HttpServletResponse response, JSONObject json, String encoding, int statusCode) throws IOException
-	{
+	public static void write(HttpServletResponse response, JSONObject json, String encoding, int statusCode) throws IOException {
 		byte[] bytes = json.toString().getBytes(encoding);
 		write(response, bytes, "application/json", encoding, statusCode);
 	}
 
-	public static void write(HttpServletResponse response, byte[] bytes, String contentType) throws IOException
-	{
-		write(response, bytes, contentType, "UTF-8");
+	public static void write(HttpServletResponse response, byte[] bytes, String contentType) throws IOException {
+		write(response, bytes, contentType, KEY_UTF_8);
 	}
 
-	public static void write(HttpServletResponse response, byte[] bytes, String contentType, String encoding) throws IOException
-	{
+	public static void write(HttpServletResponse response, byte[] bytes, String contentType, String encoding) throws IOException {
 		write (response, bytes, contentType, encoding, StatusCode.OK);
 	}
 
-	public static void write(HttpServletResponse response, byte[] bytes, String contentType, String encoding, int statusCode) throws IOException
-	{
-
-		//TODO Add content type
+	public static void write(HttpServletResponse response, byte[] bytes, String contentType, String encoding, int statusCode) throws IOException {
 		OutputStream outStream = response.getOutputStream();
 		response.setHeader("Content-Type", contentType);
 		response.setContentLength(bytes.length);

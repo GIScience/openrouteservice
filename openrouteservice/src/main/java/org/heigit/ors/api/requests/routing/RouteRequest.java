@@ -107,7 +107,7 @@ public class RouteRequest {
                     "CUSTOM_KEYS:{'apiDefault':true, 'validWhen':{'ref':'format','value':['json']}}",
                     example = "true")
     @JsonProperty(value = PARAM_GEOMETRY)
-    private Boolean includeGeometry;
+    private boolean includeGeometry;
     @JsonIgnore
     private boolean hasIncludeGeometry = false;
 
@@ -115,7 +115,7 @@ public class RouteRequest {
             value = "Specifies whether to return instructions. CUSTOM_KEYS:{'apiDefault':true}",
             example = "true")
     @JsonProperty(value = PARAM_INSTRUCTIONS)
-    private Boolean includeInstructionsInResponse;
+    private boolean includeInstructionsInResponse;
     @JsonIgnore
     private boolean hasIncludeInstructions = false;
 
@@ -132,7 +132,7 @@ public class RouteRequest {
                     "CUSTOM_KEYS:{'apiDefault':false}",
             example = "false")
     @JsonProperty(value = PARAM_ROUNDABOUT_EXITS)
-    private Boolean includeRoundaboutExitInfo;
+    private boolean includeRoundaboutExitInfo;
     @JsonIgnore
     private boolean hasIncludeRoundaboutExitInfo = false;
 
@@ -148,7 +148,7 @@ public class RouteRequest {
             "CUSTOM_KEYS:{'apiDefault':false}",
             example = "false")
     @JsonProperty(value = PARAM_MANEUVERS)
-    private Boolean includeManeuvers;
+    private boolean includeManeuvers;
     @JsonIgnore
     private boolean hasIncludeManeuvers = false;
 
@@ -179,7 +179,7 @@ public class RouteRequest {
             "CUSTOM_KEYS:{'apiDefault':'true','validWhen':{'ref':'profile','valueNot':['driving-*']}}",
             example = "false")
     @JsonProperty(value = PARAM_CONTINUE_STRAIGHT)
-    private Boolean continueStraightAtWaypoints;
+    private boolean continueStraightAtWaypoints;
     @JsonIgnore
     private boolean hasContinueStraightAtWaypoints = false;
 
@@ -187,7 +187,7 @@ public class RouteRequest {
             value = "Specifies whether to return elevation values for points. Please note that elevation also gets encoded for json response encoded polyline.",
             example = "false")
     @JsonProperty(value = PARAM_ELEVATION)
-    private Boolean useElevation;
+    private boolean useElevation;
     @JsonIgnore
     private boolean hasUseElevation = false;
 
@@ -202,7 +202,7 @@ public class RouteRequest {
     @ApiModelProperty(name = PARAM_OPTIMIZED, value = "Uses contraction hierarchies if available (false). " +
             "CUSTOM_KEYS:{'apiDefault':true}", hidden = true)
     @JsonProperty(value = PARAM_OPTIMIZED)
-    private Boolean useContractionHierarchies;
+    private boolean useContractionHierarchies;
     @JsonIgnore
     private boolean hasUseContractionHierarchies = false;
 
@@ -218,7 +218,7 @@ public class RouteRequest {
             value = "Suppress warning messages in the response",
             example = "false")
     @JsonProperty(PARAM_SUPPRESS_WARNINGS)
-    private Boolean suppressWarnings;
+    private boolean suppressWarnings;
     @JsonIgnore
     private boolean hasSuppressWarnings = false;
 
@@ -227,7 +227,7 @@ public class RouteRequest {
             "CUSTOM_KEYS:{'apiDefault':false}",
             example = "false")
     @JsonProperty(value = PARAM_SIMPLIFY_GEOMETRY)
-    private Boolean simplifyGeometry;
+    private boolean simplifyGeometry;
     @JsonIgnore
     private boolean hasSimplifyGeometry = false;
 
@@ -369,16 +369,16 @@ public class RouteRequest {
         hasRouteOptions = true;
     }
 
-    public Boolean getIncludeGeometry() {
+    public boolean getIncludeGeometry() {
         return includeGeometry;
     }
 
-    public void setIncludeGeometry(Boolean includeGeometry) {
+    public void setIncludeGeometry(boolean includeGeometry) {
         this.includeGeometry = includeGeometry;
         this.hasIncludeGeometry = true;
     }
 
-    public Boolean getIncludeInstructionsInResponse() {
+    public boolean getIncludeInstructionsInResponse() {
         return includeInstructionsInResponse;
     }
 
@@ -396,7 +396,7 @@ public class RouteRequest {
         hasInstructionsFormat = true;
     }
 
-    public Boolean getIncludeRoundaboutExitInfo() {
+    public boolean getIncludeRoundaboutExitInfo() {
         return includeRoundaboutExitInfo;
     }
 
@@ -414,7 +414,7 @@ public class RouteRequest {
         this.hasAttributes = true;
     }
 
-    public Boolean getIncludeManeuvers() {
+    public boolean getIncludeManeuvers() {
         return includeManeuvers;
     }
 
@@ -441,7 +441,7 @@ public class RouteRequest {
         hasBearings = true;
     }
 
-    public Boolean getContinueStraightAtWaypoints() {
+    public boolean getContinueStraightAtWaypoints() {
         return continueStraightAtWaypoints;
     }
 
@@ -450,7 +450,7 @@ public class RouteRequest {
         hasContinueStraightAtWaypoints = true;
     }
 
-    public Boolean getUseElevation() {
+    public boolean getUseElevation() {
         return useElevation;
     }
 
@@ -459,7 +459,7 @@ public class RouteRequest {
         hasUseElevation = true;
     }
 
-    public Boolean getUseContractionHierarchies() {
+    public boolean getUseContractionHierarchies() {
         return useContractionHierarchies;
     }
 
@@ -468,7 +468,7 @@ public class RouteRequest {
         hasUseContractionHierarchies = true;
     }
 
-    public Boolean getSuppressWarnings() {
+    public boolean getSuppressWarnings() {
         return suppressWarnings;
     }
 
@@ -477,7 +477,7 @@ public class RouteRequest {
         hasSuppressWarnings = true;
     }
 
-    public Boolean getSimplifyGeometry() {
+    public boolean getSimplifyGeometry() {
         return simplifyGeometry;
     }
 

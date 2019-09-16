@@ -23,69 +23,73 @@ import javax.servlet.http.HttpServletResponse;
 import org.heigit.ors.io.ByteArrayOutputStreamEx;
 
 class GZIPResponseStream extends ServletOutputStream { 
-	private ByteArrayOutputStreamEx _bufferStream = null;
-	private GZIPOutputStream _gzipstream = null;
-	private ServletOutputStream _outputStream = null;
-	private HttpServletResponse _response = null;
-	private boolean _closed = false;
+	private ByteArrayOutputStreamEx bufferStream = null;
+	private GZIPOutputStream gzipOutputStream = null;
+	private ServletOutputStream servletOutputStream = null;
+	private HttpServletResponse servletResponse = null;
+	private boolean closed = false;
 
 	public GZIPResponseStream(HttpServletResponse response) throws IOException {
 		super();
 		
-		this._response = response;
-		this._outputStream = response.getOutputStream();
-		_bufferStream = new ByteArrayOutputStreamEx();
-		_gzipstream = new GZIPOutputStream(_bufferStream);
+		this.servletResponse = response;
+		this.servletOutputStream = response.getOutputStream();
+		bufferStream = new ByteArrayOutputStreamEx();
+		gzipOutputStream = new GZIPOutputStream(bufferStream);
 	}
 
+	@Override
 	public void close() throws IOException {
-		if (_closed) 
+		if (closed)
 			throw new IOException("This output stream has already been closed");
 		
-		_gzipstream.finish();
+		gzipOutputStream.finish();
 
-		byte[] bytes = _bufferStream.getBuffer();
-		int bytesLength = _bufferStream.size();
+		byte[] bytes = bufferStream.getBuffer();
+		int bytesLength = bufferStream.size();
 				
-		_response.setContentLength(bytesLength); 
-        _response.addHeader("Content-Encoding", ContentEncodingType.GZIP);
+		servletResponse.setContentLength(bytesLength);
+        servletResponse.addHeader("Content-Encoding", ContentEncodingType.GZIP);
 
-        _outputStream.write(bytes, 0, bytesLength);
-        _outputStream.close();
-		_closed = true;
+        servletOutputStream.write(bytes, 0, bytesLength);
+        servletOutputStream.close();
+		closed = true;
 	}
 	
 	public boolean isClosed() {
-		return _closed;
+		return closed;
 	}
 
+	@Override
 	public void flush() throws IOException {
-		if (_closed) 
+		if (closed)
 			throw new IOException("Cannot flush a closed output stream");
 		
-		_gzipstream.flush();
+		gzipOutputStream.flush();
 	}
 
 	public void write(int b) throws IOException {
-		if (_closed) 
+		if (closed)
 			throw new IOException("Cannot write to a closed output stream");
 		
-		_gzipstream.write((byte)b);
+		gzipOutputStream.write((byte)b);
 	}
 
-	public void write(byte b[]) throws IOException {
+	@Override
+	public void write(byte[] b) throws IOException {
 		write(b, 0, b.length);
 	}
 
-	public void write(byte b[], int off, int len) throws IOException {
-		if (_closed) 
+	@Override
+	public void write(byte[] b, int off, int len) throws IOException {
+		if (closed)
 			throw new IOException("Cannot write to a closed output stream");
 		
-		_gzipstream.write(b, off, len);
+		gzipOutputStream.write(b, off, len);
 	}
 
 	public void reset() {
-
+		// nothing to do
 	}
 
 	@Override
@@ -95,5 +99,6 @@ class GZIPResponseStream extends ServletOutputStream {
 
 	@Override
 	public void setWriteListener(WriteListener arg0) {
+		// nothing to do
 	}
 }

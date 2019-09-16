@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.plugins;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,19 +27,18 @@ import org.apache.log4j.Logger;
 public class PluginManager<T extends Plugin> {
 	private static final Logger LOGGER = Logger.getLogger(PluginManager.class.getName());
 
-	private ServiceLoader<T> _loader;
-	private Object _lockObj;
-	private static Map<String, Object> _pluginMgrCache = new HashMap<String, Object>();
+	private ServiceLoader<T> loader;
+	private Object lockObj;
+	private static Map<String, Object> pluginMgrCache = new HashMap<>();
 
 	@SuppressWarnings("unchecked")
-	public synchronized static <T extends Plugin> PluginManager<T> getPluginManager(Class<?> cls) throws Exception
-	{
+	public static synchronized <T extends Plugin> PluginManager<T> getPluginManager(Class<?> cls) throws Exception {
 		PluginManager<T> pmgr = null;
-		pmgr = (PluginManager<T>)_pluginMgrCache.get(cls.getName());
+		pmgr = (PluginManager<T>) pluginMgrCache.get(cls.getName());
 		if (pmgr == null)
 		{
-			pmgr = new PluginManager<T>(cls);
-			_pluginMgrCache.put(cls.getName(), pmgr);
+			pmgr = new PluginManager<>(cls);
+			pluginMgrCache.put(cls.getName(), pmgr);
 		}
 		return pmgr;
 	}
@@ -47,61 +47,46 @@ public class PluginManager<T extends Plugin> {
 	public PluginManager(Class<?> cls) throws Exception {
 		if (cls.equals(getClass()))
 			throw new Exception("Wrong class parameter");
-		_loader = (ServiceLoader<T>)ServiceLoader.load(cls);
-		_lockObj = new Object();
+		loader = (ServiceLoader<T>)ServiceLoader.load(cls);
+		lockObj = new Object();
 	}
 
-	public List<T> createInstances(Map<String, Map<String, String>> parameters)
-	{
-		List<T> result = new ArrayList<T>(parameters.size());
-
-		if (parameters != null && parameters.size() > 0)
-		{
-			for(Map.Entry<String, Map<String, String>> storageEntry : parameters.entrySet())
-			{
+	public List<T> createInstances(Map<String, Map<String, String>> parameters) {
+		List<T> result = new ArrayList<>(parameters.size());
+		if (!parameters.isEmpty()) {
+			for(Map.Entry<String, Map<String, String>> storageEntry : parameters.entrySet()) {
 				T instance = createInstance(storageEntry.getKey(), storageEntry.getValue());
 
-				if (instance != null)
-				{
-					
+				if (instance != null) {
 					result.add(instance);
 				}
 				else
-					LOGGER.warn(String.format(storageEntry.getKey() + " '%s' was not found.", storageEntry.getKey()));
+					LOGGER.warn(String.format("'%s' was not found.", storageEntry.getKey()));
 			}
 		}
-
 		return result;
 	}
 
 	@SuppressWarnings("unchecked")
-	public T createInstance(String name, Map<String, String> params)
-	{
+	public T createInstance(String name, Map<String, String> params) {
 		T instance = null;
-
-		try
-		{
+		try {
 			// ServiceLoader is not threadsafe
-			synchronized(_lockObj)
-			{
-				Iterator<T> entries = _loader.iterator();
-				while (instance == null && entries.hasNext()) {
+			synchronized(lockObj) {
+				Iterator<T> entries = loader.iterator();
+				while (entries.hasNext()) {
 					T entry = entries.next();
-					if (entry.getName().equalsIgnoreCase(name))
-					{
-						instance = ((Class<T>)entry.getClass()).newInstance();
+					if (entry.getName().equalsIgnoreCase(name)) {
+						instance = ((Class<T>)entry.getClass()).getDeclaredConstructor().newInstance();
 						instance.setParameters(params);
 						break;
 					}
 				}
 			}
-		}
-		catch (ServiceConfigurationError | InstantiationException | IllegalAccessException se) 
-		{
+		} catch (ServiceConfigurationError | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException se)  {
 			instance = null;
-			se.printStackTrace();
+			LOGGER.error(se);
 		}
-
 		return instance;
 	}
 }

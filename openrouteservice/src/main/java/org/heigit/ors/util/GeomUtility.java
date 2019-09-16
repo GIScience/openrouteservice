@@ -18,11 +18,10 @@ import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.*;
-import org.heigit.ors.exceptions.InternalServerException;
-import org.heigit.ors.exceptions.StatusCodeException;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.heigit.ors.exceptions.InternalServerException;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
@@ -33,37 +32,15 @@ import org.opengis.referencing.operation.TransformException;
 
 public class GeomUtility {
 
-	private static GeometryFactory GEOM_FACTORY = new GeometryFactory();
+	private static GeometryFactory geometryFactory = new GeometryFactory();
 	
-	private static MathTransform TRANSFORM_WGS84_SPHERICALMERCATOR = null;// CRS.findMathTransform(DefaultGeographicCRS.WGS84,
-	
-	public static Point createPoint(Coordinate c)
-	{
-	  return GEOM_FACTORY.createPoint(c);	
-	}
-	
+	private static MathTransform transformWgs84Sphericalmercator = null;// CRS.findMathTransform(DefaultGeographicCRS.WGS84,
+
+	private GeomUtility() {}
+
 	public static LineString createLinestring(Coordinate[] coords)
 	{
-	  return GEOM_FACTORY.createLineString(coords);
-	}
-
-    // CRS.decode("EPSG:3785",
-	// true), true);
-	public static double pointToLineDistance(double ax, double ay, double bx, double by, double px, double py) {
-		if (ax == bx && ay == by)
-			return distance2(ax, ay, px, py);
-
-		double len2 = ((bx - ax) * (bx - ax) + (by - ay) * (by - ay));
-		double  r = ((px - ax) * (bx - ax) + (py - ay) * (by - ay)) / len2;
-
-		if (r <= 0.0)
-			return distance2(px, py, ax, ay);
-		if (r >= 1.0)
-			return distance2(px, py, bx, by);
-
-		double s = ((ay - py) * (bx - ax) - (ax - px) * (by - ay)) / len2;
-
-		return Math.abs(s) * Math.sqrt(len2);
+	  return geometryFactory.createLineString(coords);
 	}
 
 	/**
@@ -104,7 +81,7 @@ public class GeomUtility {
 	/**
 	 * Takes an array of bounding boxes and calculates a bounding box that covers them all.
 	 *
-	 * @param boundingBoxes
+	 * @param boundingBoxes array of bounding boxes
 	 * @return	A graphhopper bounding box that covers all provided bounding boxes
 	 */
 	public static BBox generateBoundingFromMultiple(BBox[] boundingBoxes) {
@@ -132,42 +109,7 @@ public class GeomUtility {
 			return new BBox(minLon, maxLon, minLat, maxLat);
 	}
 
-	public static double distance2(double ax, double ay, double bx, double by)
-	{
-		return Math.sqrt((bx - ax) * (bx - ax) + (by - ay) * (by - ay));
-	}
-
-	public static Coordinate getProjectedPointOnLine(double ax, double ay, double bx, double by, double px, double py)
-	{
-		// get dot product of e1, e2
-		double e1x = bx - ax;
-		double e1y = by - ay;
-
-		double e2x = px - ax;
-		double e2y = py - ay;
-		//Point e2 = new Point(p.x - v1.x, p.y - v1.y);
-		double val = e1x*e2x +e1y*e2y;// dotProduct(e1, e2);
-		// get squared length of e1
-		double len2 = e1x * e1x + e1y * e1y;
-		Coordinate p = new Coordinate(ax + (val * e1x) / len2, ay + (val * e1y) / len2);
-		return p;
-	}
-
-	public static boolean isProjectedPointOnLineSegment(double ax, double ay, double bx, double by, double px, double py)
-	{
-		// get dotproduct |e1| * |e2|
-		double e1x = bx - ax;
-		double e1y = by - ay;
-		double recArea = e1x*e1x + e1y*e1y;
-		// dot product of |e1| * |e2|
-		double e2x = px - ax;
-		double e2y = py - ay;
-		double val = e1x*e2x + e1y*e2y;
-		return (val > 0 && val < recArea);
-	}
-
-	public static double getLength(Geometry geom, Boolean inMeters) throws Exception
-	{
+	public static double getLength(Geometry geom, boolean inMeters) throws Exception {
 		if (!(geom instanceof LineString))
 			throw new Exception("Specified geometry type is not supported.");
 
@@ -175,14 +117,12 @@ public class GeomUtility {
 		if (ls.getNumPoints() == 0)
 			return 0.0;
 
-		if (inMeters)
-		{
+		if (inMeters) {
 			double length = 0.0;
 			DistanceCalc dc = new DistanceCalcEarth();
 
 			Coordinate c0  = ls.getCoordinateN(0);
-			for (int i = 1; i < ls.getNumPoints(); ++i)
-			{
+			for (int i = 1; i < ls.getNumPoints(); ++i) {
 				Coordinate c1 = ls.getCoordinateN(i);
 				length += dc.calcDist(c0.y, c0.x, c1.y, c1.x);
 				c0 = c1;
@@ -197,14 +137,9 @@ public class GeomUtility {
 	public static double metresToDegrees(double metres) {
 		// One degree latitude is approximately 111,139 metres on a spherical earth
 		return metres / 111139;
-
 	}
 
-    public static double degreesToMetres(double degrees) {
-		return degrees * 111139;
-	}
-
-	public static double getArea(Geometry geom, Boolean inMeters) throws InternalServerException {
+	public static double getArea(Geometry geom, boolean inMeters) throws InternalServerException {
 		try {
 			if (inMeters) {
 				if (geom instanceof Polygon) {
@@ -223,18 +158,15 @@ public class GeomUtility {
 					MathTransform transform = CRS.findMathTransform(sourceCRS, targetCRS);
 					Geometry targetGeometry = JTS.transform(poly, transform);
 
-					double area = targetGeometry.getArea();
-
-					return area;
-
+					return targetGeometry.getArea();
 				} else {
-					if (TRANSFORM_WGS84_SPHERICALMERCATOR == null) {
+					if (transformWgs84Sphericalmercator == null) {
 						String wkt = "PROJCS[\"WGS 84 / Pseudo-Mercator\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4326\"]],PROJECTION[\"Mercator_1SP\"],PARAMETER[\"central_meridian\",0],PARAMETER[\"scale_factor\",1],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"X\",EAST],AXIS[\"Y\",NORTH],AUTHORITY[\"EPSG\",\"3857\"]]";
-						CoordinateReferenceSystem crs = CRS.parseWKT(wkt);//  CRS.decode("EPSG:3857");
-						TRANSFORM_WGS84_SPHERICALMERCATOR = CRS.findMathTransform(DefaultGeographicCRS.WGS84, crs, true);
+						CoordinateReferenceSystem crs = CRS.parseWKT(wkt);//  CRS.decode("EPSG:3857")
+						transformWgs84Sphericalmercator = CRS.findMathTransform(DefaultGeographicCRS.WGS84, crs, true);
 					}
 
-					Geometry transformedGeometry = JTS.transform(geom, TRANSFORM_WGS84_SPHERICALMERCATOR);
+					Geometry transformedGeometry = JTS.transform(geom, transformWgs84Sphericalmercator);
 					return transformedGeometry.getArea();
 				}
 			} else {
@@ -250,28 +182,4 @@ public class GeomUtility {
 			throw new InternalServerException("Could not transform features (getting area of feature)");
 		}
     }
-
-	/**
-	 * Determine the 2D bearing between two points. Note that this does not take into account the spheroid shape of
-	 * the Earth.
-	 *
-	 * @param lat1		Latitude of point 1
-	 * @param lon1		Longitude of point 1
-	 * @param lat2		Latitude of point 2
-	 * @param lon2		Longitude of point 2
-	 *
-	 * @return			The bearing from point 1 to point 2 in degrees from North
-	 */
-	public static double getSimpleBearing(double lat1, double lon1, double lat2, double lon2) {
-		// if points are equal, do nothing
-		if(lat1 == lat2 && lon1 == lon2)
-			return -1;
-
-		double theta = Math.atan2(lon2 - lon1, lat2 - lat1);
-		if(theta < 0.0)
-			theta += (Math.PI * 2);
-
-		return Math.toDegrees(theta);
-	}
-
 }

@@ -45,7 +45,7 @@ public class IsochronesRequestTest {
         Assert.assertFalse(request.hasAttributes());
         request.setAttributes(new IsochronesRequestEnums.Attributes[]{IsochronesRequestEnums.Attributes.AREA});
         Assert.assertTrue(request.hasAttributes());
-        Assert.assertEquals(request.getAttributes().length, 1);
+        Assert.assertEquals(1, request.getAttributes().length);
         Assert.assertEquals(IsochronesRequestEnums.Attributes.AREA, request.getAttributes()[0]);
     }
 

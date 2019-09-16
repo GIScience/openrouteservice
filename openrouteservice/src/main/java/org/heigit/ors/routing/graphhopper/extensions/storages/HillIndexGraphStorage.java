@@ -21,25 +21,24 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
 
 public class HillIndexGraphStorage implements GraphExtension {
-	protected final int NO_ENTRY = -1;
-	protected final int EF_HILLINDEX;
+	private final int efHillIndex;
 
-	protected DataAccess orsEdges;
+	private DataAccess orsEdges;
 	protected int edgeEntryIndex = 0;
 	protected int edgeEntryBytes;
 	protected int edgesCount; // number of edges with custom values
 
-	protected int _maxHillIndex = 15;
+	private int maxHillIndex = 15;
 
 	private byte[] byteValues;
 
 	public HillIndexGraphStorage(Map<String, String> parameters) {
-		EF_HILLINDEX = 0;
+		efHillIndex = 0;
 
 		if (parameters.containsKey("maximum_slope"))
-			_maxHillIndex = (int)Double.parseDouble(parameters.get("maximum_slope"));
+			maxHillIndex = (int)Double.parseDouble(parameters.get("maximum_slope"));
 
-		edgeEntryBytes = edgeEntryIndex + (_maxHillIndex > 15 ? 2 : 1);
+		edgeEntryBytes = edgeEntryIndex + (maxHillIndex > 15 ? 2 : 1);
 		edgesCount = 0;
 		byteValues = new byte[2];
 	}
@@ -56,13 +55,13 @@ public class HillIndexGraphStorage implements GraphExtension {
 	}
 
 	public GraphExtension create(long initBytes) {
-		orsEdges.create((long) initBytes * edgeEntryBytes);
+		orsEdges.create(initBytes * edgeEntryBytes);
 		return this;
 	}
 
 	public void flush() {
 		orsEdges.setHeader(0, edgeEntryBytes);
-		orsEdges.setHeader(1 * 4, edgesCount);
+		orsEdges.setHeader(4, edgesCount);
 		orsEdges.flush();
 	}
 
@@ -87,33 +86,29 @@ public class HillIndexGraphStorage implements GraphExtension {
 		return true;
 	}
 
-	void ensureEdgesIndex(int edgeIndex) {
+	private void ensureEdgesIndex(int edgeIndex) {
 		orsEdges.ensureCapacity(((long) edgeIndex + 1) * edgeEntryBytes);
 	}
 
 	private int getHillIndex(int value)
 	{
-		return value > _maxHillIndex ? _maxHillIndex : value;
+		return Math.min(value, maxHillIndex);
 	}
 
 	public void setEdgeValue(int edgeId, int hillIndex, int reverseHillIndex) {
 		edgesCount++;
 		ensureEdgesIndex(edgeId);
 
-		if (hillIndex != 0 || reverseHillIndex != 0)
-		{
+		if (hillIndex != 0 || reverseHillIndex != 0) {
 			// add entry
 			long edgePointer = (long) edgeId * edgeEntryBytes;
-			if (_maxHillIndex <= 15)
-			{
-				byteValues[0] = (byte)(getHillIndex(hillIndex) << 4 | (0x0F & getHillIndex(reverseHillIndex))); //hillIndex | (reverseHillIndex << 4));
-				orsEdges.setBytes(edgePointer + EF_HILLINDEX, byteValues, 1);
-			}
-			else
-			{
+			if (maxHillIndex <= 15) {
+				byteValues[0] = (byte)(getHillIndex(hillIndex) << 4 | (0x0F & getHillIndex(reverseHillIndex))); //hillIndex | (reverseHillIndex << 4))
+				orsEdges.setBytes(edgePointer + efHillIndex, byteValues, 1);
+			} else {
 				byteValues[0] = (byte)getHillIndex(hillIndex);
 				byteValues[1] = (byte)getHillIndex(reverseHillIndex);
-				orsEdges.setBytes(edgePointer + EF_HILLINDEX, byteValues, 2);
+				orsEdges.setBytes(edgePointer + efHillIndex, byteValues, 2);
 			}
 		}
 	}
@@ -121,9 +116,8 @@ public class HillIndexGraphStorage implements GraphExtension {
 	public int getEdgeValue(int edgeId, boolean reverse, byte[] buffer) {
 		long edgePointer = (long) edgeId * edgeEntryBytes;
 
-		if (_maxHillIndex <= 15)
-		{
-			orsEdges.getBytes(edgePointer + EF_HILLINDEX, buffer, 1);
+		if (maxHillIndex <= 15) {
+			orsEdges.getBytes(edgePointer + efHillIndex, buffer, 1);
 
 			int value = buffer[0];
 			if (value < 0)
@@ -133,10 +127,8 @@ public class HillIndexGraphStorage implements GraphExtension {
 				return (value >> 4) & 0xF;
 			else
 				return value & 0xF;
-		}
-		else
-		{
-			orsEdges.getBytes(edgePointer + EF_HILLINDEX, buffer, 2);
+		} else {
+			orsEdges.getBytes(edgePointer + efHillIndex, buffer, 2);
 
 			return reverse ? buffer[1] : buffer[0];
 		}
@@ -153,7 +145,7 @@ public class HillIndexGraphStorage implements GraphExtension {
 	}
 
 	public int getDefaultNodeFieldValue() {
-		return -1; //throw new UnsupportedOperationException("Not supported by this storage");
+		return -1; //throw new UnsupportedOperationException("Not supported by this storage")
 	}
 
 	public int getDefaultEdgeFieldValue() {
@@ -175,7 +167,6 @@ public class HillIndexGraphStorage implements GraphExtension {
 
 	@Override
 	public boolean isClosed() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 }

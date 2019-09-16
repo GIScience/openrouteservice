@@ -40,7 +40,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
-import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.util.CoordTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,31 +54,23 @@ import static com.graphhopper.util.Parameters.Algorithms.*;
 
 
 public class ORSGraphHopper extends GraphHopper {
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private static final Logger LOGGER = LoggerFactory.getLogger(ORSGraphHopper.class);
 
-	private GraphProcessContext _procCntx;
+	private GraphProcessContext processContext;
 	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds; // one osm id can correspond to multiple edges
 	private HashMap<Integer, Long> tmcEdges;
 
-	private int _minNetworkSize = 200;
-	private int _minOneWayNetworkSize = 0;
+	private int minNetworkSize = 200;
+	private int minOneWayNetworkSize = 0;
 
-	// A route profile for referencing which is used to extract names of adjacent streets and other objects.
-	private RoutingProfile refRouteProfile;
-
-	public ORSGraphHopper(GraphProcessContext procCntx, RoutingProfile refProfile) {
-		_procCntx = procCntx;
-		this.refRouteProfile= refProfile;
+	public ORSGraphHopper(GraphProcessContext procCntx) {
+		processContext = procCntx;
 		this.forDesktop();
 		algoDecorators.clear();
 		algoDecorators.add(getCHFactoryDecorator());
 		algoDecorators.add(getLMFactoryDecorator());
 
-//		if (useTmc){
-//			tmcEdges = new HashMap<Integer, Long>();
-//			osmId2EdgeIds = new HashMap<Long, ArrayList<Integer>>();
-//		}
-		_procCntx.init(this);
+		processContext.init(this);
 	}
 
 
@@ -90,56 +81,40 @@ public class ORSGraphHopper extends GraphHopper {
 	@Override
 	public GraphHopper init(CmdArgs args) {
 		GraphHopper ret = super.init(args);
-		_minNetworkSize = args.getInt("prepare.min_network_size", _minNetworkSize);
-		_minOneWayNetworkSize = args.getInt("prepare.min_one_way_network_size", _minOneWayNetworkSize);
+		minNetworkSize = args.getInt("prepare.min_network_size", minNetworkSize);
+		minOneWayNetworkSize = args.getInt("prepare.min_one_way_network_size", minOneWayNetworkSize);
 		return ret;
 	}
 
 	@Override
 	protected void cleanUp() {
-		logger.info("call cleanUp for '" + getGraphHopperLocation() + "' ");
+		if (LOGGER.isInfoEnabled())
+			LOGGER.info(String.format("call cleanUp for '%s' ", getGraphHopperLocation()));
 		GraphHopperStorage ghs = getGraphHopperStorage();
 		if (ghs != null) {
-			this.logger.info("graph " + ghs.toString() + ", details:" + ghs.toDetailsString());
+			if (LOGGER.isInfoEnabled())
+				LOGGER.info(String.format("graph %s, details:%s", ghs.toString(), ghs.toDetailsString()));
 			int prevNodeCount = ghs.getNodes();
 			int ex = ghs.getAllEdges().length();
 			List<FlagEncoder> list = getEncodingManager().fetchEdgeEncoders();
-			this.logger.info("will create PrepareRoutingSubnetworks with:\r\n"+
-					"\tNodeCountBefore: '" + prevNodeCount+"'\r\n"+
-					"\tgetAllEdges().getMaxId(): '" + ex+"'\r\n"+
-					"\tList<FlagEncoder>: '" + list+"'\r\n"+
-					"\tminNetworkSize: '" + _minNetworkSize+"'\r\n"+
-					"\tminOneWayNetworkSize: '" + _minOneWayNetworkSize+"'"
+			if (LOGGER.isInfoEnabled())
+				LOGGER.info(String.format("will create PrepareRoutingSubnetworks with:%n\tNodeCountBefore: '%d'%n\tgetAllEdges().getMaxId(): '%d'%n\tList<FlagEncoder>: '%s'%n\tminNetworkSize: '%d'%n\tminOneWayNetworkSize: '%d'", prevNodeCount, ex, list, minNetworkSize, minOneWayNetworkSize)
 			);
 		} else {
-			this.logger.info("graph GraphHopperStorage is null?!");
+			LOGGER.info("graph GraphHopperStorage is null?!");
 		}
 		super.cleanUp();
 	}
 
-
+	@Override
 	protected DataReader createReader(GraphHopperStorage tmpGraph) {
-
-		return initDataReader(new ORSOSMReader(tmpGraph, _procCntx, refRouteProfile));
-	}
-
-	public boolean load( String graphHopperFolder )
-	{
-		boolean res = super.load(graphHopperFolder);
-
-
-		return res;
-	}
-
-	protected void flush()
-	{
-		super.flush();
+		return initDataReader(new ORSOSMReader(tmpGraph, processContext));
 	}
 
 	@SuppressWarnings("unchecked")
+	@Override
 	public GraphHopper importOrLoad() {
 		GraphHopper gh = super.importOrLoad();
-
 
 		if ((tmcEdges != null) && (osmId2EdgeIds !=null)) {
 			java.nio.file.Path path = Paths.get(gh.getGraphHopperLocation(), "edges_ors_traffic");
@@ -147,39 +122,30 @@ public class ORSGraphHopper extends GraphHopper {
 			if ((tmcEdges.size() == 0) || (osmId2EdgeIds.size()==0)) {
 				// try to load TMC edges from file.
 
-				try {
-					File file = path.toFile();
-
-					if (file.exists())
-					{
-						FileInputStream fis = new FileInputStream(path.toString());
-						ObjectInputStream ois = new ObjectInputStream(fis);
+				File file = path.toFile();
+				if (file.exists()) {
+					try (FileInputStream fis = new FileInputStream(path.toString());
+						 ObjectInputStream ois = new ObjectInputStream(fis)) {
 						tmcEdges = (HashMap<Integer, Long>)ois.readObject();
 						osmId2EdgeIds = (HashMap<Long, ArrayList<Integer>>)ois.readObject();
-						ois.close();
-						fis.close();
-						System.out.printf("Serialized HashMap data is saved in trafficEdges");
+						LOGGER.info("Serialized HashMap data is saved in trafficEdges");
+					} catch (IOException ioe) {
+						LOGGER.error(Arrays.toString(ioe.getStackTrace()));
 					}
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-				}
-				catch(ClassNotFoundException c)
-				{
-					System.out.println("Class not found");
-					c.printStackTrace();
+					catch(ClassNotFoundException c) {
+						LOGGER.error("Class not found");
+						LOGGER.error(Arrays.toString(c.getStackTrace()));
+					}
 				}
 			} else {
 				// save TMC edges if needed.
-				try {
-					FileOutputStream fos = new FileOutputStream(path.toString());
-					ObjectOutputStream oos = new ObjectOutputStream(fos);
+				try (FileOutputStream fos = new FileOutputStream(path.toString());
+					 ObjectOutputStream oos = new ObjectOutputStream(fos)){
 					oos.writeObject(tmcEdges);
 					oos.writeObject(osmId2EdgeIds);
-					oos.close();
-					fos.close();
-					System.out.printf("Serialized HashMap data is saved in trafficEdges");
+					LOGGER.info("Serialized HashMap data is saved in trafficEdges");
 				} catch (IOException ioe) {
-					ioe.printStackTrace();
+					LOGGER.error(Arrays.toString(ioe.getStackTrace()));
 				}
 			}
 		}
@@ -363,8 +329,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 		if (!resp.hasErrors()) {
 
-			List<EdgeIteratorState> fullEdges = new ArrayList<EdgeIteratorState>();
-			List<String> edgeNames = new ArrayList<String>();
+			List<EdgeIteratorState> fullEdges = new ArrayList<>();
 			PointList fullPoints = PointList.EMPTY;
 			long time = 0;
 			double distance = 0;
@@ -374,7 +339,6 @@ public class ORSGraphHopper extends GraphHopper {
 
 				for (EdgeIteratorState edge : path.calcEdges()) {
 					fullEdges.add(edge);
-					edgeNames.add(edge.getName());
 				}
 
 				PointList tmpPoints = path.calcPoints();
@@ -458,20 +422,4 @@ public class ORSGraphHopper extends GraphHopper {
         Coordinate[] coords = new Coordinate[]{start, end};
         return new GeometryFactory().createLineString(coords);
     }
-
-    public HashMap<Integer, Long> getTmcGraphEdges() {
-        return tmcEdges;
-    }
-
-    public HashMap<Long, ArrayList<Integer>> getOsmId2EdgeIds() {
-        return osmId2EdgeIds;
-    }
-
-	/**
-	 * Does the preparation and creates the location index
-	 */
-	@Override
-	public void postProcessing() {
-		super.postProcessing();
-	}
 }

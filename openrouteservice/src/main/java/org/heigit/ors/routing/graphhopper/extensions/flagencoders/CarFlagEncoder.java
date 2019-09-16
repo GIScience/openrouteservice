@@ -66,11 +66,6 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
     }
 
     @Override
-    double averageSecondsTo100KmpH() {
-        return 10;
-    }
-
-    @Override
     public EncodingManager.Access getAccess(ReaderWay way) {
         // TODO: Ferries have conditionals, like opening hours or are closed during some time in the year
         String highwayValue = way.getTag("highway");
@@ -96,7 +91,7 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
             }
         }
 
-        if (!_speedLimitHandler.hasSpeedValue(highwayValue))
+        if (!speedLimitHandler.hasSpeedValue(highwayValue))
             return EncodingManager.Access.CAN_SKIP;
 
         if (way.hasTag(KEY_IMPASSABLE, "yes") || way.hasTag("status", KEY_IMPASSABLE) || way.hasTag("smoothness", KEY_IMPASSABLE))

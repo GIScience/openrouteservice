@@ -14,48 +14,47 @@
 package org.heigit.ors.matrix;
 
 public class MatrixResult {
-  private float[][] _tables;
-  private ResolvedLocation[] _destinations;
-  private ResolvedLocation[] _sources;
+  private float[][] tables;
+  private ResolvedLocation[] destinations;
+  private ResolvedLocation[] sources;
 
-  public MatrixResult(ResolvedLocation[] sources, ResolvedLocation[] destinations)
-  {
-	  _tables = new float[6][];
-	  _sources = sources;
-	  _destinations = destinations;
+  public MatrixResult(ResolvedLocation[] sources, ResolvedLocation[] destinations) {
+	  tables = new float[6][];
+	  this.sources = sources;
+	  this.destinations = destinations;
   }
 
   public void setTable(int metric, float[] values)
   {
-	  _tables[metric] = values;
+	  tables[metric] = values;
   }
 
   public float[] getTable(int metric)
   {
-	  return _tables[metric];
+	  return tables[metric];
   }
 
   public float[][] getTables() {
-      return _tables;
+      return tables;
   }
 
   public ResolvedLocation[] getDestinations()
   {
-	  return _destinations;
+	  return destinations;
   }
 
   public void setDestinations(ResolvedLocation[] locations)
   {
-	  _destinations = locations;
+	  destinations = locations;
   }
 
   public ResolvedLocation[] getSources()
   {
-	  return _sources;
+	  return sources;
   }
 
   public void setSources(ResolvedLocation[] locations)
   {
-	  _sources = locations;
+	  sources = locations;
   }
 }

@@ -17,6 +17,8 @@ import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.exceptions.StatusCodeException;
 
 public class DistanceUnitUtil {
+	private DistanceUnitUtil() {}
+
 	public static DistanceUnit getFromString(String value, DistanceUnit defaultValue) {
 		switch (value) {
 			case "m":

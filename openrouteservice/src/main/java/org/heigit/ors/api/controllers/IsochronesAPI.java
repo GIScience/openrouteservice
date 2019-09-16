@@ -123,8 +123,6 @@ public class IsochronesAPI {
             return errorHandler.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, ((InvalidDefinitionException) cause).getPath().get(0).getFieldName()));
         } else if (cause instanceof MismatchedInputException) {
             return errorHandler.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, ((MismatchedInputException) cause).getPath().get(0).getFieldName()));
-        } else if (cause instanceof InvalidDefinitionException) {
-            return errorHandler.handleStatusCodeException((new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, ((InvalidDefinitionException) cause).getPath().get(0).getFieldName())));
         } else {
             // Check if we are missing the body as a whole
             if (e.getLocalizedMessage().startsWith("Required request body is missing")) {

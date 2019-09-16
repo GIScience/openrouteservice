@@ -54,10 +54,10 @@ public class JSONIndividualMatrixResponse extends JSONBasedIndividualMatrixRespo
         for (int i=0; i<result.getTables().length; i++) {
             if (result.getTable(i) != null) {
                 switch (i) {
-                    case MatrixMetricsType.Duration:
+                    case MatrixMetricsType.DURATION:
                         durations = constructMetric(result.getTable(i), result);
                         break;
-                    case MatrixMetricsType.Distance:
+                    case MatrixMetricsType.DISTANCE:
                         distances = constructMetric(result.getTable(i), result);
                         break;
                     default:

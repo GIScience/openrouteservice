@@ -16,29 +16,28 @@ package org.heigit.ors.matrix;
 import com.graphhopper.storage.Graph;
 
 public class MatrixSearchContext {
-	private Graph _graph;
-	private MatrixLocations _sources;
-	private MatrixLocations _destinations;
+	private Graph graph;
+	private MatrixLocations sources;
+	private MatrixLocations destinations;
 
-	public MatrixSearchContext(Graph graph, MatrixLocations sources, MatrixLocations destinations)
-	{
-		_graph = graph;
-		_sources = sources;
-		_destinations = destinations;
+	public MatrixSearchContext(Graph graph, MatrixLocations sources, MatrixLocations destinations) {
+		this.graph = graph;
+		this.sources = sources;
+		this.destinations = destinations;
 	}
 	
 	public Graph getGraph()
 	{
-		return _graph;
+		return graph;
 	}
 	
 	public MatrixLocations getSources()
 	{
-		return _sources;
+		return sources;
 	}
 	
 	public MatrixLocations getDestinations()
 	{
-		return _destinations;
+		return destinations;
 	}
 }

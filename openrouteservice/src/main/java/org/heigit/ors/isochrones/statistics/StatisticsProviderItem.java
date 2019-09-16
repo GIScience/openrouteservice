@@ -13,28 +13,27 @@
  */
 package org.heigit.ors.isochrones.statistics;
 
-public class StatisticsProviderItem 
-{
-	private StatisticsProvider _provider;
-	private boolean _isInitialized = false;
+public class StatisticsProviderItem  {
+	private StatisticsProvider provider;
+	private boolean isInitialized = false;
 
 	public StatisticsProviderItem(StatisticsProvider provider)
 	{
-		_provider = provider;
+		this.provider = provider;
 	}
 
 	public StatisticsProvider getProvider()
 	{
-		return _provider;
+		return provider;
 	}
 
 	public boolean getIsInitialized() 
 	{
-		return _isInitialized;
+		return isInitialized;
 	}
 
 	public void setIsInitialized(boolean isInitialized) 
 	{
-		_isInitialized = isInitialized;
+		this.isInitialized = isInitialized;
 	}
 }

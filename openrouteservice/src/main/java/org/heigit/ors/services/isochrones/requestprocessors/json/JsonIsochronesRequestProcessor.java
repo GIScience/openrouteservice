@@ -50,7 +50,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
     public void process(HttpServletResponse response) throws Exception {
         String reqMethod = request.getMethod();
 
-        IsochroneRequest req = null;
+        IsochroneRequest req;
         switch (reqMethod) {
             case "GET":
                 req = JsonIsochroneRequestParser.parseFromRequestParams(request);
@@ -62,15 +62,12 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
                 throw new StatusCodeException(StatusCode.METHOD_NOT_ALLOWED, IsochronesErrorCodes.UNKNOWN);
         }
 
-        if (req == null)
-            throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.UNKNOWN, "IsochronesRequest object is null.");
-
         if (!req.isValid())
             throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.UNKNOWN, "IsochronesRequest is not valid.");
 
         List<TravellerInfo> travellers = req.getTravellers();
 
-        if (IsochronesServiceSettings.getAllowComputeArea() == false && req.hasAttribute("area"))
+        if (!IsochronesServiceSettings.getAllowComputeArea() && req.hasAttribute("area"))
             throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.FEATURE_NOT_SUPPORTED, "Area computation is not enabled.");
 
         if (travellers.size() > IsochronesServiceSettings.getMaximumLocations())
@@ -83,16 +80,12 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
             if (maxRange > maxAllowedRange)
                 throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Double.toString(maxRange), Integer.toString(maxAllowedRange));
 
-            if (IsochronesServiceSettings.getMaximumIntervals() > 0) {
-                if (IsochronesServiceSettings.getMaximumIntervals() < traveller.getRanges().length)
-                    throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(traveller.getRanges().length), Integer.toString(IsochronesServiceSettings.getMaximumIntervals()));
+            if (IsochronesServiceSettings.getMaximumIntervals() > 0 && IsochronesServiceSettings.getMaximumIntervals() < traveller.getRanges().length) {
+                throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Integer.toString(traveller.getRanges().length), Integer.toString(IsochronesServiceSettings.getMaximumIntervals()));
             }
         }
 
-        if (travellers.size() > 0) {
-
-            //String[] attrs = req.getAttributes();
-
+        if (!travellers.isEmpty()) {
             IsochroneMapCollection isoMaps = new IsochroneMapCollection();
 
             for (int i = 0; i < travellers.size(); ++i) {
@@ -115,18 +108,15 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
         BBox bbox = new BBox(0, 0, 0, 0);
 
 
-        TravellerInfo traveller = null;
         int groupIndex = 0;
         boolean hasAttributes = request.getAttributes() != null;
         boolean includeArea = request.hasAttribute("area");
-        boolean includeReachFactor = request.hasAttribute("reachfactor");
         String units = request.getUnits() != null ? request.getUnits().toLowerCase() : null;
-        String area_units = request.getAreaUnits() != null ? request.getAreaUnits().toLowerCase() : null;
-        String sourceAttribution = IsochronesServiceSettings.getAttribution();
+        String areaUnits = request.getAreaUnits() != null ? request.getAreaUnits().toLowerCase() : null;
+        StringBuilder sourceAttribution = new StringBuilder(IsochronesServiceSettings.getAttribution());
         List<String> attributeSources = null;
 
         for (IsochroneMap isoMap : isochroneMaps.getIsochroneMaps()) {
-            traveller = request.getTravellers().get(isoMap.getTravellerId());
 
             for (Isochrone isoLine : isoMap.getIsochrones()) {
                 Polygon isoPoly = (Polygon) isoLine.getGeometry();
@@ -152,25 +142,10 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
                 // using units for time mode determines the area calculation unit m/km/mi
                 // this is misleading which is why we are introducing area_units
                 // to calculate the area of an isochrone in m/km/mi
-                if (area_units != null) units = area_units;
+                if (areaUnits != null) units = areaUnits;
 
                 if (isoLine.hasArea()) jProperties.put("area", FormatUtility.roundToDecimals(isoLine.getArea(), 4));
                 if (isoLine.hasReachfactor()) jProperties.put("reachfactor", isoLine.getReachfactor());
-
-                //if (includeArea || includeReachFactor) {
-
-                //double area = isoLine.getArea();
-
-                //if (includeReachFactor && traveller.getRangeType() == TravelRangeType.Time) {
-
-                // double r = isoLine.getMeanRadius(units);
-                // double maxArea = Math.PI * r * r;
-
-                //  jProperties.put("reachfactor", FormatUtility.roundToDecimals(area / maxArea, 4));
-
-                // }
-
-                //}
 
                 if (hasAttributes && isoLine.getAttributes() != null) {
                     List<AttributeValue> attrStats = isoLine.getAttributes();
@@ -179,10 +154,10 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
                         if (attrValue.getSource() != null) {
                             if (attributeSources == null)
-                                attributeSources = new ArrayList<String>();
+                                attributeSources = new ArrayList<>();
                             if (!attributeSources.contains(attrValue.getSource())) {
                                 attributeSources.add(attrValue.getSource());
-                                sourceAttribution += " | " + attrValue.getSource();
+                                sourceAttribution.append(" | " + attrValue.getSource());
                             }
                         }
                     }
@@ -210,7 +185,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
                     JSONObject jGeometry = new JSONObject(true);
                     jGeometry.put("type", geom.getGeometryType());
-                    jGeometry.put("coordinates", GeometryJSON.toJSON(geom, null));
+                    jGeometry.put("coordinates", GeometryJSON.toJSON(geom));
 
                     jFeature.put("geometry", jGeometry);
 
@@ -238,13 +213,13 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
         jResp.put("bbox", GeometryJSON.toJSON(bbox.minLon, bbox.minLat, bbox.maxLon, bbox.maxLat));
 
-        traveller = request.getTravellers().get(0);
+        TravellerInfo traveller = request.getTravellers().get(0);
 
         JSONObject jInfo = new JSONObject();
         jInfo.put("service", "isochrones");
         jInfo.put("engine", AppInfo.getEngineInfo());
-        if (!Helper.isEmpty(sourceAttribution))
-            jInfo.put("attribution", sourceAttribution);
+        if (!Helper.isEmpty(sourceAttribution.toString()))
+            jInfo.put("attribution", sourceAttribution.toString());
         jInfo.put("timestamp", System.currentTimeMillis());
 
         if (AppConfig.hasValidMD5Hash())
@@ -288,6 +263,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
         ServletUtility.write(response, jResp);
     }
+
     public static BBox constructIsochroneBBox(Envelope env){
         BBox bbox = new BBox(0,0,0,0);
         if (Double.isFinite(env.getMinX()))

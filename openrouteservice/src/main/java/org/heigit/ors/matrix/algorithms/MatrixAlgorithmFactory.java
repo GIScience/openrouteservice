@@ -14,21 +14,17 @@
 package org.heigit.ors.matrix.algorithms;
 
 import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.util.FlagEncoder;
-
 import org.heigit.ors.matrix.MatrixRequest;
 import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraMatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 
 public class MatrixAlgorithmFactory {
-	public static MatrixAlgorithm createAlgorithm(MatrixRequest req, GraphHopper gh, FlagEncoder encoder) {
-		MatrixAlgorithm alg = null;
+	private MatrixAlgorithmFactory() {}
 
+	public static MatrixAlgorithm createAlgorithm(MatrixRequest req, GraphHopper gh) {
 		if (!req.getFlexibleMode() && gh.isCHEnabled())
-			alg = new RPHASTMatrixAlgorithm();
+			return new RPHASTMatrixAlgorithm();
 		else
-			alg = new DijkstraMatrixAlgorithm();
-
-		return alg;
+			return new DijkstraMatrixAlgorithm();
 	}
 }

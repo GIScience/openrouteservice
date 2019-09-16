@@ -26,20 +26,20 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.GreenIndexGraphSto
  * Created by lliu on 15/03/2017.
  */
 public class GreenWeighting extends FastestWeighting {
-    private GreenIndexGraphStorage _gsGreenIndex;
-    private byte[] _buffer = new byte[1];
-    private double[] _factors = new double[totalLevel]; 
+    private GreenIndexGraphStorage gsGreenIndex;
+    private byte[] buffer = new byte[1];
+    private double[] factors = new double[TOTAL_LEVEL];
 
-    private static final int totalLevel = 64;
+    private static final int TOTAL_LEVEL = 64;
 
     public GreenWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
         super(encoder, map);
         
-        _gsGreenIndex = GraphStorageUtils.getGraphExtension(graphStorage, GreenIndexGraphStorage.class);
+        gsGreenIndex = GraphStorageUtils.getGraphExtension(graphStorage, GreenIndexGraphStorage.class);
         double factor = map.getDouble("factor", 1);
         
-        for (int i = 0; i < totalLevel; i++)
-        	_factors[i] = calcGreenWeightFactor(i, factor);
+        for (int i = 0; i < TOTAL_LEVEL; i++)
+        	factors[i] = calcGreenWeightFactor(i, factor);
     }
 
     private double calcGreenWeightFactor(int level, double factor) {
@@ -51,17 +51,32 @@ public class GreenWeighting extends FastestWeighting {
         // a weighting factor will be taken into account
         // to control the impact of the "green consideration"
         // just like an amplifier
-        double wf = (double) (level + 1) * 2.0 / totalLevel;
+        double wf = (double) (level + 1) * 2.0 / TOTAL_LEVEL;
         return 1.0 - (1.0 - wf) * factor;
     }
 
     @Override
     public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-        if (_gsGreenIndex != null) {
-            int greenLevel = _gsGreenIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), _buffer);
-            return _factors[greenLevel];
+        if (gsGreenIndex != null) {
+            int greenLevel = gsGreenIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), buffer);
+            return factors[greenLevel];
         }
 
         return 1.0;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final GreenWeighting other = (GreenWeighting) obj;
+        return toString().equals(other.toString());
+    }
+
+    @Override
+    public int hashCode() {
+        return ("GreenWeighting" + toString()).hashCode();
     }
 }

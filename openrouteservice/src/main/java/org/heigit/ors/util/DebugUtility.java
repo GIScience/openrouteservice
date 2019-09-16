@@ -17,12 +17,13 @@ public class DebugUtility {
 
 	private static boolean isDebug;
 	
-	static 
-	{
+	static {
 		isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString()
 				.contains("-agentlib:jdwp");
 	}
-	
+
+	private DebugUtility() {}
+
 	public static boolean isDebug()
 	{
 		return isDebug;	

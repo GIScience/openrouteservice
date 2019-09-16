@@ -23,7 +23,7 @@
  *
  */
 
-package org.heigit.ors.globalresponseprocessor.geoJson;
+package org.heigit.ors.globalresponseprocessor.geojson;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -31,7 +31,6 @@ import com.vividsolutions.jts.geom.LineString;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.json.JSONArray;
-
 import org.json.JSONObject;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -41,8 +40,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.util.HashMap;
-
-import static org.heigit.ors.globalresponseprocessor.geoJson.SimpleFeatureTypes.*;
+import java.util.Map;
 
 /**
  * This class tests the methods of {@link GeoJsonResponseWriter}.
@@ -52,7 +50,7 @@ import static org.heigit.ors.globalresponseprocessor.geoJson.SimpleFeatureTypes.
  * @author Julian Psotta, julian@openrouteservice.org
  */
 public class GeoJsonResponseWriterTest {
-    private static HashMap<String, HashMap<String, Object>> featurePropertiesMap;
+    private static Map<String, Map<String, Object>> featurePropertiesMap;
     private static HashMap<String, Object> defaultFeatureCollectionProperties;
     private static DefaultFeatureCollection defaultFeatureCollection;
     private static SimpleFeature routingFeature = null;
@@ -72,14 +70,14 @@ public class GeoJsonResponseWriterTest {
         coords2d[1] = new Coordinate(Double.parseDouble("1"), Double.parseDouble("1"));
         coords2d[2] = new Coordinate(Double.parseDouble("1"), Double.parseDouble("1"));
         // Create HashMap of HashMaps to store properties for individual Features in it, accessible through unique identifiers
-        featurePropertiesMap = new HashMap<String, HashMap<String, Object>>();
+        featurePropertiesMap = new HashMap<>();
         // Create HashMap to store FeatureCollection properties. No identifier necessary because there will be just one FeatureCollection at a time
         defaultFeatureCollectionProperties = new HashMap<>();
         // Create GeometryFactory for reuse purposes
         GeometryFactory geometryFactory = new GeometryFactory();
         // Create a new SimpleFeatureType to create a SimpleFeature from it
         // its written capital because a custom SimpleFeatureType is a static and immutable object once created
-        SimpleFeatureType ROUTINGFEATURETYPE = new SimpleFeatureTypes(RouteFeatureType.routeFeature).create();
+        SimpleFeatureType ROUTINGFEATURETYPE = new SimpleFeatureTypes(SimpleFeatureTypes.RouteFeatureType.ROUTE_FEATURE).create();
         // Create DefaultFeatureCollection to store the SimpleFeature
         defaultFeatureCollection = new DefaultFeatureCollection("routing", ROUTINGFEATURETYPE);
         // Create a HashMap for the individual feature properties

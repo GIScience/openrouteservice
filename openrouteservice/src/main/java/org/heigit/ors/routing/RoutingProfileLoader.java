@@ -21,19 +21,17 @@ import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 public class RoutingProfileLoader implements Callable<RoutingProfile> {
 	private String osmFile;
 	private RouteProfileConfiguration rpc;
-	private RoutingProfilesCollection routeProfiles;
 	private RoutingProfileLoadContext loadCntx;
 
-	public RoutingProfileLoader(String osmFile, RouteProfileConfiguration rpc, RoutingProfilesCollection routeProfiles, RoutingProfileLoadContext loadCntx) {
+	public RoutingProfileLoader(String osmFile, RouteProfileConfiguration rpc, RoutingProfileLoadContext loadCntx) {
 		this.osmFile = osmFile;
 		this.rpc = rpc;
-		this.routeProfiles = routeProfiles;
 		this.loadCntx = loadCntx;
 	}
 
 	@Override
 	public RoutingProfile call() throws Exception {
 		Thread.currentThread().setName("ORS-pl-" + rpc.getName());
-		return new RoutingProfile(osmFile, rpc, routeProfiles, loadCntx);
+		return new RoutingProfile(osmFile, rpc, loadCntx);
 	}
 }

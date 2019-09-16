@@ -258,7 +258,6 @@ public final class DoubleFormatUtil {
             // Use tenPow instead of tenPowDouble for scale below 18,
             // since the casting of decP to double may cause some imprecisions:
             // E.g. for decP = 9999999999999999L and scale = 17,
-            // decP < tenPow(16) while (double) decP == tenPowDouble(16)
             while (scale > 0 && (scale > 18 ? decP < tenPowDouble(--scale) : decP < tenPow(--scale))) {
                 // Insert leading zeroes
                 target.append('0');

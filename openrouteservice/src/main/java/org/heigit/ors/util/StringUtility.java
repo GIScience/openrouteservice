@@ -17,28 +17,26 @@ import java.io.UnsupportedEncodingException;
 
 public class StringUtility {
 
+	private StringUtility() {}
+
 	public static boolean isEmpty( String str )
     {
         return str == null || str.trim().length() == 0;
     }
 	
-	public static String substring(String str, char pattern)
-	{
-		int pos1 = -1, pos2 = -1;
-		for (int j = 0; j < str.length(); j++)
-		{
-			if (str.charAt(j) == pattern) 
-			{
+	public static String substring(String str, char pattern) {
+		int pos1 = -1;
+		int pos2 = -1;
+		for (int j = 0; j < str.length(); j++) {
+			if (str.charAt(j) == pattern)  {
 				if (pos1 == -1)
 					pos1 = j;
-				else
-				{
+				else {
 					pos2 = j;
 					break;
 				}
 			}
 		}
-		
 		if (pos1 != -1 && pos2 != -1)
 			return str.substring(pos1 + 1, pos2);
 		else
@@ -53,7 +51,6 @@ public class StringUtility {
 			           return true;
 			 }
 		}
-
 		return false;
 	}
 	
@@ -75,14 +72,12 @@ public class StringUtility {
 		return result;
 	}
 
-	public static String arrayToString(double[] array, String separator)
-	{
+	public static String arrayToString(double[] array, String separator) {
 		int length = array.length;
 	    if (length == 0) return "";
 	    StringBuilder sb = new StringBuilder();	    
 	    
-	    for (int i = 0; i < length; ++i)
-	    {
+	    for (int i = 0; i < length; ++i) {
 	    	sb.append(array[i]);
 	    	if (i < length -1 )
 	    		sb.append(separator);
@@ -90,20 +85,15 @@ public class StringUtility {
 	    return sb.toString();
 	}
 	
-	public static String combine(String[] values, String separator)
-	{
+	public static String combine(String[] values, String separator) {
 		if (values == null)
 			return null;
-		
-		String result = "";
-		
+		StringBuilder result = new StringBuilder();
 		int n = values.length;
-		for (int i = 0 ; i < n; ++i)
-		{
-			result += values[i] + (i < n -1 ? separator: "");
+		for (int i = 0 ; i < n; ++i) {
+			result.append(values[i]).append(i < n - 1 ? separator : "");
 		}
-		
-		return result;
+		return result.toString();
 	}
 	
 	public static String decodeRequestString(String inputString) throws UnsupportedEncodingException {
@@ -120,7 +110,7 @@ public class StringUtility {
 		}
 
 		// Decode the application/x-www-form-url encoded query string
-		return java.net.URLDecoder.decode(inputString, "ISO-8859-1");// "UTF-8");
+		return java.net.URLDecoder.decode(inputString, "ISO-8859-1");// "UTF-8"
 	}
 
 	public static String decodeRequestString2(String inputString) throws UnsupportedEncodingException {
@@ -134,6 +124,6 @@ public class StringUtility {
 		}
 
 		// Decode the application/x-www-form-url encoded query string
-		return java.net.URLDecoder.decode(inputString, "ISO-8859-1");// "UTF-8");
+		return java.net.URLDecoder.decode(inputString, "ISO-8859-1");// "UTF-8"
 	}
 }

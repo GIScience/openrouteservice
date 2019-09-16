@@ -18,6 +18,7 @@ import java.text.DecimalFormat;
 import org.apache.log4j.Logger;
 
 public class RuntimeUtility {
+    private RuntimeUtility() {}
 
 	public static void clearMemory(Logger logger) {
 		logger.info("====> Recycling garbage...");
@@ -34,8 +35,7 @@ public class RuntimeUtility {
 				+ getMemorySize(Runtime.getRuntime().totalMemory() -(Runtime.getRuntime().freeMemory())));
 	}
 	
-	public static String getMemorySize(long size)
-	{
+	public static String getMemorySize(long size) {
         String hrSize = null;
         double b = size;
         double k = size/1024.0;
@@ -56,15 +56,10 @@ public class RuntimeUtility {
         } else {
             hrSize = isDouble(b) ? dec1.format(b).concat(" B") : dec2.format(b).concat(" B");
         }
-        
         return hrSize;
     }
 	
 	private static boolean isDouble(double value) {
-        if (value % 1 == 0) {
-            return false;
-        } else {
-            return true;
-        }
+        return value % 1 != 0;
     }
 }

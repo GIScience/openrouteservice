@@ -16,12 +16,12 @@ package org.heigit.ors.routing;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.storage.StorableProperties;
 import com.graphhopper.util.Helper;
+import org.apache.commons.io.FileUtils;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.configuration.RouteUpdateConfiguration;
 import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.FileUtility;
 import org.heigit.ors.util.StackTraceUtility;
-import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 import java.net.URL;
@@ -36,53 +36,54 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class RoutingProfilesUpdater {
 
 	public class UpdateTask extends TimerTask {
 
-		private RoutingProfilesUpdater m_updater;
+		private RoutingProfilesUpdater updater;
 
 		public UpdateTask(RoutingProfilesUpdater updater) {
-			m_updater = updater;
+			this.updater = updater;
 		}
 
 		public void run() {
-			m_updater.run();
+			updater.run();
 		}
 	}
 
-	private static Logger LOGGER = Logger.getLogger(RoutingProfilesUpdater.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(RoutingProfilesUpdater.class.getName());
 
-	private RouteUpdateConfiguration m_config;
-	private RoutingProfilesCollection m_routeProfiles;
-	private Timer m_timer;
-	private long m_updatePeriod;
-	private boolean m_isRunning;
-	private String m_updateStatus = null;
-	private Date m_nextUpdate;
+	private RouteUpdateConfiguration config;
+	private RoutingProfilesCollection routingProfilesCollection;
+	private Timer timer;
+	private long updatePeriod;
+	private boolean isRunning;
+	private String updateStatus = null;
+	private Date nextUpdate;
 
 	public RoutingProfilesUpdater(RouteUpdateConfiguration config, RoutingProfilesCollection profiles) {
-		m_config = config;
-		m_routeProfiles = profiles;
+		this.config = config;
+		routingProfilesCollection = profiles;
 
-		if (m_config.DataSource == null || m_config.DataSource.isEmpty())
+		if (this.config.getDataSource() == null || this.config.getDataSource().isEmpty())
 			throw new IllegalArgumentException("DataSource is null or empty.");
-		if (m_config.WorkingDirectory == null || m_config.WorkingDirectory.isEmpty())
+		if (this.config.getWorkingDirectory() == null || this.config.getWorkingDirectory().isEmpty())
 			throw new IllegalArgumentException("WorkingDirectory is null or empty.");
 	}
 
 	public void start() {
 		// parse time of the format: day of the week, time, period
-		String strDateTime = m_config.Time;
+		String strDateTime = config.getTime();
 		String[] splitValues = strDateTime.split(",");
-		int dayOfWeek = Integer.valueOf(splitValues[0].trim()) + 1; // Sunday is 1.
-		m_updatePeriod = Integer.valueOf(splitValues[2].trim());
+		int dayOfWeek = Integer.parseInt(splitValues[0].trim()) + 1; // Sunday is 1.
+		updatePeriod = Integer.parseInt(splitValues[2].trim());
 		splitValues = splitValues[1].trim().split(":");
-		int hours = Integer.valueOf(splitValues[0].trim());
-		int minutes = Integer.valueOf(splitValues[1].trim());
-		int seconds = Integer.valueOf(splitValues[2].trim());
+		int hours = Integer.parseInt(splitValues[0].trim());
+		int minutes = Integer.parseInt(splitValues[1].trim());
+		int seconds = Integer.parseInt(splitValues[2].trim());
 
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
@@ -93,22 +94,20 @@ public class RoutingProfilesUpdater {
 		Date firstUpdateTime = calendar.getTime();
 
 		TimerTask timerTask = new UpdateTask(this);
-		m_timer = new Timer(true);
-		m_timer.schedule(timerTask, firstUpdateTime, m_updatePeriod);
+		timer = new Timer(true);
+		timer.schedule(timerTask, firstUpdateTime, updatePeriod);
 
-		m_nextUpdate = firstUpdateTime;
-		LOGGER.info("Profile updater is started and scheduled at " + firstUpdateTime.toString() + ".");
+		nextUpdate = firstUpdateTime;
+		if (LOGGER.isLoggable(Level.INFO))
+			LOGGER.info("Profile updater is started and scheduled at " + firstUpdateTime.toString() + ".");
 	}
 
 	private void downloadFile(String url, File destination) {
-		try {
-			URL website = new URL(url);
-			ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-			FileOutputStream fos = new FileOutputStream(destination);
+		try (FileOutputStream fos = new FileOutputStream(destination)){
+			ReadableByteChannel rbc = Channels.newChannel(new URL(url).openStream());
 			fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-			fos.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.severe(e.getMessage());
 		}
 	}
 
@@ -131,75 +130,68 @@ public class RoutingProfilesUpdater {
 
 	public Date getNextUpdate()
 	{
-		return m_nextUpdate;		
+		return nextUpdate;
 	}
 
 	public String getStatus()
 	{
-		return m_updateStatus;
+		return updateStatus;
 	}
 
 	public boolean isRunning()
 	{
-		return m_isRunning;
+		return isRunning;
 	}
 
 	private void run() {
-		if (m_isRunning)
+		if (isRunning)
 			return;
 
-		m_isRunning = true;
+		isRunning = true;
 
 		try {
 			long startTime = System.currentTimeMillis();
 
 			LOGGER.info("Start updating profiles...");
 
-			m_nextUpdate = new Date(startTime + m_updatePeriod);
+			nextUpdate = new Date(startTime + updatePeriod);
 
 			String osmFile = null;
-			String datasource = m_config.DataSource;
+			String datasource = config.getDataSource();
 
-			FileUtility.makeDirectory(m_config.WorkingDirectory);
+			FileUtility.makeDirectory(config.getWorkingDirectory());
 
 			String md5Sum = null;
 			String newMd5Sum = null;
 			boolean skipUpdate = false;  
 
-			File fileLastUpdate =  Paths.get(m_config.WorkingDirectory,"last-update.md5").toFile();
+			File fileLastUpdate =  Paths.get(config.getWorkingDirectory(),"last-update.md5").toFile();
 			if (fileLastUpdate.exists())
 				md5Sum =  FileUtils.readFileToString(fileLastUpdate);
 
 			if (datasource.contains("http")) {
-				m_updateStatus = "donwloading data";
+				updateStatus = "donwloading data";
 
-				try
-				{
+				try {
 					newMd5Sum = downloadFileContent(datasource + ".md5");
-				}
-				catch(Exception ex2)
-				{
-
+				} catch(Exception ex2) {
+					// do nothing
 				}
 
 				if (md5Sum != null && newMd5Sum != null && md5Sum.contains(newMd5Sum))
 					skipUpdate = true;
 
-				if (!skipUpdate)
-				{
-					Path path = Paths.get(m_config.WorkingDirectory, FileUtility.getFileName(new URL(datasource)));
+				if (!skipUpdate) {
+					Path path = Paths.get(config.getWorkingDirectory(), FileUtility.getFileName(new URL(datasource)));
 
-					try
-					{
+					try {
 						downloadFile(datasource, path.toFile());
-					}
-					catch(Exception ex)
-					{
+					} catch(Exception ex) {
 						LOGGER.warning(ex.getMessage());
 
 						Thread.sleep(300000);
 
-						m_isRunning = false;
+						isRunning = false;
 						run();
 
 						return;
@@ -217,7 +209,7 @@ public class RoutingProfilesUpdater {
 				if (!skipUpdate)
 				{
 					file = new File(datasource);
-					Path path = Paths.get(m_config.WorkingDirectory, file.getName());
+					Path path = Paths.get(config.getWorkingDirectory(), file.getName());
 
 					// make a local copy of the file
 					FileUtils.copyFile(file, path.toFile());
@@ -226,8 +218,7 @@ public class RoutingProfilesUpdater {
 				}
 			}
 
-			if (!skipUpdate)
-			{
+			if (!skipUpdate) {
 				if (Helper.isEmpty(newMd5Sum))
 					newMd5Sum = FileUtility.getMd5OfFile(osmFile);
 
@@ -235,24 +226,23 @@ public class RoutingProfilesUpdater {
 				File file = new File(osmFile);
 				String newFileStamp = Long.toString(file.length());
 
-				String tempGraphLocation = Paths.get(m_config.WorkingDirectory, "graph").toString();
+				String tempGraphLocation = Paths.get(config.getWorkingDirectory(), "graph").toString();
 
-				try
-				{
+				try {
 					// Clear directory from a previous build
 					File fileGraph = new File(tempGraphLocation);
 					if (fileGraph.exists())
 						FileUtils.deleteDirectory(fileGraph);	
+				} catch(Exception ex) {
+					// do nothing
 				}
-				catch(Exception ex)
-				{}
 
 				FileUtility.makeDirectory(tempGraphLocation);
 
 				RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
 				int nUpdatedProfiles = 0;
 
-				for (RoutingProfile profile : m_routeProfiles.getUniqueProfiles()) {
+				for (RoutingProfile profile : routingProfilesCollection.getUniqueProfiles()) {
 					RouteProfileConfiguration rpc = profile.getConfiguration();
 
 					Path pathTimestamp = Paths.get(rpc.getGraphPath(), "stamp.txt");
@@ -263,8 +253,7 @@ public class RoutingProfilesUpdater {
 							continue;
 					}
 
-					if (m_updatePeriod > 0)
-					{
+					if (updatePeriod > 0) {
 						StorableProperties storageProps = profile.getGraphProperties();
 						DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
@@ -272,30 +261,23 @@ public class RoutingProfilesUpdater {
 
 						long diff = startTime - importDate.getTime();
 
-						if (!DebugUtility.isDebug())
-						{
-							if (diff < m_updatePeriod)
-								continue;
+						if (!DebugUtility.isDebug() && diff < updatePeriod) {
+							continue;
 						}
 					}
 
 					try {
-						m_updateStatus = "preparing profile '" + rpc.getProfiles() +"'";
-
-						RouteProfileConfiguration rpcNew = rpc.clone();
+						updateStatus = "preparing profile '" + rpc.getProfiles() +"'";
+						RouteProfileConfiguration rpcNew = new RouteProfileConfiguration(rpc);
 						rpcNew.setGraphPath(tempGraphLocation);
-						GraphHopper gh = RoutingProfile.initGraphHopper(osmFile, rpcNew, RoutingProfileManager.getInstance().getProfiles(), loadCntx);
-
-						if (gh != null) {
-							profile.updateGH(gh);
-
-							nUpdatedProfiles++;
-						}
+						GraphHopper gh = RoutingProfile.initGraphHopper(osmFile, rpcNew, loadCntx);
+						profile.updateGH(gh);
+						nUpdatedProfiles++;
 					} catch (Exception ex) {
 						LOGGER.severe("Failed to update graph profile. Message:" + ex.getMessage() + "; StackTrace: " +	StackTraceUtility.getStackTrace(ex));
 					}
 
-					m_updateStatus = null;
+					updateStatus = null;
 				}
 
 				loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
@@ -303,9 +285,10 @@ public class RoutingProfilesUpdater {
 				FileUtils.writeStringToFile(fileLastUpdate, md5Sum);
 
 				long seconds = (System.currentTimeMillis() - startTime) / 1000;
-				LOGGER.info(nUpdatedProfiles + " of " + m_routeProfiles.size() + " profiles were updated in " + seconds + " s.");
+				if (LOGGER.isLoggable(Level.INFO))
+					LOGGER.info(nUpdatedProfiles + " of " + routingProfilesCollection.size() + " profiles were updated in " + seconds + " s.");
 
-				m_updateStatus = "Last update on " + new Date() + " took " + seconds + " s.";
+				updateStatus = "Last update on " + new Date() + " took " + seconds + " s.";
 			}
 			else
 			{
@@ -316,15 +299,16 @@ public class RoutingProfilesUpdater {
 			LOGGER.warning(ex.getMessage());
 		}
 
-		LOGGER.info("Next route profiles update is scheduled on " + m_nextUpdate.toString());
+		if (LOGGER.isLoggable(Level.INFO))
+			LOGGER.info("Next route profiles update is scheduled on " + nextUpdate.toString());
 
-		m_isRunning = false;
+		isRunning = false;
 	}
 
 	public void stop() {
-		if (m_timer != null) {
-			m_timer.cancel();
-			m_timer = null;
+		if (timer != null) {
+			timer.cancel();
+			timer = null;
 		}
 	}
 

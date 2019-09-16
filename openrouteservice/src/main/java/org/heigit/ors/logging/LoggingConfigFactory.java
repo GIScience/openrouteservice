@@ -1,5 +1,6 @@
 package org.heigit.ors.logging;
 
+import org.apache.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
@@ -17,6 +18,7 @@ import java.io.IOException;
 )
 @Order(50)
 public class LoggingConfigFactory extends ConfigurationFactory{
+    protected static final Logger LOGGER = Logger.getLogger(LoggingConfigFactory.class);
 
     public Configuration getConfiguration(LoggerContext context, ConfigurationSource source) {
         // We need to read the settings from the app.config if it is available
@@ -30,13 +32,11 @@ public class LoggingConfigFactory extends ConfigurationFactory{
                 try {
                     source = new ConfigurationSource(rs.getInputStream());
                 } catch (IOException ioe) {
-                    System.out.println("LOGGING FILE DOES NOT EXIST!");
+                    LOGGER.error("LOGGING FILE DOES NOT EXIST!");
                 }
             }
 
-            Configuration conf =  new LoggingJsonConfiguration(context, source);
-
-            return conf;
+            return new LoggingJsonConfiguration(context, source);
         }
 
         return null;

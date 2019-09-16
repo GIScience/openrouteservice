@@ -15,71 +15,61 @@ package org.heigit.ors.routing;
 
 import com.graphhopper.util.shapes.BBox;
 
-public class RouteSummary 
-{
-	private double _distance;
-	//private double _distanceActual;
-	private double _duration;
-	private double _ascent;
-	private double _descent;
-	private double _avgSpeed;
-	private BBox _bbox;
+public class RouteSummary {
+	private double distance;
+	private double duration;
+	private double ascent;
+	private double descent;
+	private double avgSpeed;
+	private BBox bbox;
 
 	public double getDistance() {
-		return _distance;
+		return distance;
 	}
 
 	public void setDistance(double distance) {
-		_distance = distance;
+		this.distance = distance;
 	}
 
 	public double getDuration() {
-		return _duration;
+		return duration;
 	}
 
 	public void setDuration(double duration) {
-		this._duration = duration;
+		this.duration = duration;
 	}
 	
 	public BBox getBBox()
 	{
-		return _bbox;
+		return bbox;
 	}
 	
 	public void setBBox(BBox bbox)
 	{
-		_bbox = bbox;
+		this.bbox = bbox;
 	}
 
 	public double getAscent() {
-		return _ascent;
+		return ascent;
 	}
 
 	public void setAscent(double ascent) {
-		_ascent = ascent;
+		this.ascent = ascent;
 	}
 
 	public double getDescent() {
-		return _descent;
+		return descent;
 	}
 
 	public void setDescent(double descent) {
-		_descent = descent;
+		this.descent = descent;
 	}
 
-	//MARQ24 removed not implemented
-	//public double getDistanceActual() {
-	//	return _distanceActual;
-	//}
-	//public void setDistanceActual(double distanceActual) {
-	//	_distanceActual = distanceActual;
-	//}
-
 	public double getAverageSpeed() {
-		return _avgSpeed;
+		return avgSpeed;
 	}
 
 	public void setAverageSpeed(double avgSpeed) {
-		_avgSpeed = avgSpeed;
+		this.avgSpeed = avgSpeed;
 	}
 }

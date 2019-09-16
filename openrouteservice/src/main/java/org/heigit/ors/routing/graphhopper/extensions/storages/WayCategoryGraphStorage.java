@@ -20,8 +20,7 @@ import com.graphhopper.storage.GraphExtension;
 
 public class WayCategoryGraphStorage implements GraphExtension {
 	/* pointer for no entry */
-	protected final int NO_ENTRY = -1;
-	protected final int EF_WAYTYPE;
+	protected final int efWaytype;
 
 	protected DataAccess orsEdges;
 	protected int edgeEntryIndex = 0;
@@ -31,7 +30,7 @@ public class WayCategoryGraphStorage implements GraphExtension {
 	private byte[] byteValues;
 
 	public WayCategoryGraphStorage() {
-		EF_WAYTYPE = 0;
+		efWaytype = 0;
 	
 		edgeEntryBytes = edgeEntryIndex + 1;
 		edgesCount = 0;
@@ -50,7 +49,7 @@ public class WayCategoryGraphStorage implements GraphExtension {
 	}
 
 	public GraphExtension create(long initBytes) {
-		orsEdges.create((long) initBytes * edgeEntryBytes);
+		orsEdges.create(initBytes * edgeEntryBytes);
 		return this;
 	}
 
@@ -92,16 +91,16 @@ public class WayCategoryGraphStorage implements GraphExtension {
 		// add entry
 		long edgePointer = (long) edgeId * edgeEntryBytes;
 		byteValues[0] = (byte)wayType;
-		orsEdges.setBytes(edgePointer + EF_WAYTYPE, byteValues, 1);
+		orsEdges.setBytes(edgePointer + efWaytype, byteValues, 1);
 	}
 
 	public int getEdgeValue(int edgeId, byte[] buffer) {
 		long edgePointer = (long) edgeId * edgeEntryBytes;
-		orsEdges.getBytes(edgePointer + EF_WAYTYPE, buffer, 1);
+		orsEdges.getBytes(edgePointer + efWaytype, buffer, 1);
 		
 		int result = buffer[0];
 	    if (result < 0)
-	    	result = (int)result & 0xff;
+	    	result = result & 0xff;
 		
 		return result;
 	}
@@ -117,7 +116,7 @@ public class WayCategoryGraphStorage implements GraphExtension {
 	}
 
 	public int getDefaultNodeFieldValue() {
-		return -1; //throw new UnsupportedOperationException("Not supported by this storage");
+		return -1;
 	}
 
 	public int getDefaultEdgeFieldValue() {
@@ -139,7 +138,6 @@ public class WayCategoryGraphStorage implements GraphExtension {
 
 	@Override
 	public boolean isClosed() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 }

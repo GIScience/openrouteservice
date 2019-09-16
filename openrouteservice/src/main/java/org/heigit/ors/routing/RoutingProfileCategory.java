@@ -22,8 +22,7 @@ public class RoutingProfileCategory {
 	public static final int WALKING = 4;
 	public static final int WHEELCHAIR = 8;
 	
-	public static int getFromRouteProfile(int profileType)
-	{
+	public static int getFromRouteProfile(int profileType) {
 		if (RoutingProfileType.isDriving(profileType))
 			return RoutingProfileCategory.DRIVING;
 
@@ -39,8 +38,7 @@ public class RoutingProfileCategory {
 		return RoutingProfileCategory.UNKNOWN;
 	}
 
-	public static int getFromEncoder(EncodingManager encodingManager)
-	{
+	public static int getFromEncoder(EncodingManager encodingManager) {
 		if (encodingManager.hasEncoder("car-ors") || encodingManager.hasEncoder("heavyvehicle"))
 			return RoutingProfileCategory.DRIVING;
 
@@ -56,4 +54,6 @@ public class RoutingProfileCategory {
 
 		return RoutingProfileCategory.UNKNOWN;
 	}
+
+	private RoutingProfileCategory() {}
 }

@@ -15,36 +15,23 @@ package org.heigit.ors.routing;
 
 import com.graphhopper.reader.dem.ElevationProvider;
 
-public class RoutingProfileLoadContext
-{
+public class RoutingProfileLoadContext {
 	// add here any other shared resources
-	private int _threads = 1;
-
-	private ElevationProvider _elevProvider = null;
+	private ElevationProvider elevationProvider = null;
 	
-	public RoutingProfileLoadContext()
-	{
-		this(1);
-	}
-	
-	public RoutingProfileLoadContext(int threads)
-	{
-		_threads = threads;
-	}
-
 	public ElevationProvider getElevationProvider(){
-		return _elevProvider;
+		return elevationProvider;
 	}
 
 	public void setElevationProvider(ElevationProvider ep) {
-		if(_elevProvider == null) {
-			_elevProvider = ep;
+		if (elevationProvider == null) {
+			elevationProvider = ep;
 		}
 	}
 
 	public void releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed() {
-		if(_elevProvider != null){
-			_elevProvider.release();
+		if (elevationProvider != null){
+			elevationProvider.release();
 		}
 	}
 }

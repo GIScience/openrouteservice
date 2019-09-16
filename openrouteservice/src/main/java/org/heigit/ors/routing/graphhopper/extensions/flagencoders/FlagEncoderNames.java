@@ -1,7 +1,6 @@
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-public interface FlagEncoderNames {
-
+public class FlagEncoderNames {
     public static final String CAR_ORS          = "car-ors";
     public static final String HEAVYVEHICLE     = "heavyvehicle";
     public static final String EMERGENCY        = "emergency";
@@ -31,4 +30,6 @@ public interface FlagEncoderNames {
     public static final String GH_BIKE2         = "bike2";
     public static final String GH_GENERIC       = "generic";
     public static final String GH_PT            = "pt";
+
+    private FlagEncoderNames() {}
 }

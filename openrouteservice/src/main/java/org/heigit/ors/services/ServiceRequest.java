@@ -14,13 +14,13 @@
 package org.heigit.ors.services;
 
 public class ServiceRequest {
-	private String _id;
+	private String id;
 
 	public String getId() {
-		return _id;
+		return id;
 	}
 
 	public void setId(String id) {
-		_id = id;
+		this.id = id;
 	}
 }

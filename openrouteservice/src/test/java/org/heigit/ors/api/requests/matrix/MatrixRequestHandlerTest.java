@@ -69,7 +69,7 @@ public class MatrixRequestHandlerTest {
         coordinates[1] = coordinate2;
         coordinates[2] = coordinate3;
         matrixRequest.setResolveLocations(true);
-        matrixRequest.setMetrics(MatrixMetricsType.Duration);
+        matrixRequest.setMetrics(MatrixMetricsType.DURATION);
         matrixRequest.setSources(coordinates);
         matrixRequest.setDestinations(coordinates);
         matrixRequest.setProfileType(RoutingProfileType.CYCLING_REGULAR);

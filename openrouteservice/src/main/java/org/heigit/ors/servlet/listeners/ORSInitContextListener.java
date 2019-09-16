@@ -20,32 +20,28 @@
  */
 package org.heigit.ors.servlet.listeners;
 
+import org.apache.log4j.Logger;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.apache.juli.logging.LogFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 @WebListener
-public class ORSInitContextListener implements ServletContextListener
-{
-	private static final Logger LOGGER = LoggerFactory.getLogger("org.heigit.ors.logging");
+public class ORSInitContextListener implements ServletContextListener {
+	private static final Logger LOGGER = Logger.getLogger("org.heigit.ors.logging");
 
-	public void contextInitialized(ServletContextEvent contextEvent) 
-	{
+	public void contextInitialized(ServletContextEvent contextEvent)  {
 		Runnable runnable = () -> {
 		    try {
-		    	RoutingProfileManager.getInstance().toString();
+		    	RoutingProfileManager.getInstance();
 		    }
 		    catch (Exception e) {
-		    	LOGGER.warn("Unable to initialize ORS.");
-				e.printStackTrace();
-		    } 
+		    	LOGGER.warn("Unable to initialize ORS." + e);
+		    }
 		};
 
 		Thread thread = new Thread(runnable);
@@ -56,25 +52,18 @@ public class ORSInitContextListener implements ServletContextListener
 	public void contextDestroyed(ServletContextEvent contextEvent) {
 		try {
 			LOGGER.info("Start shutting down ORS and releasing resources.");
-
 			if (RoutingProfileManagerStatus.isReady())
 				RoutingProfileManager.getInstance().destroy();
-
 			StatisticsProviderFactory.releaseProviders();
-			
 			LogFactory.release(Thread.currentThread().getContextClassLoader());
-
-			try {
-				System.gc();
-				System.runFinalization();
-				System.gc();
-				System.runFinalization();
-			} catch(Throwable t) {
-				LOGGER.error("Failed to perform finalization.");
-				t.printStackTrace();
-			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error(e.getStackTrace());
+		} finally {
+			try {
+				System.runFinalization();
+			} catch(Exception e) {
+				LOGGER.error("Failed to perform finalization." + e);
+			}
 		}
 	}
 } 

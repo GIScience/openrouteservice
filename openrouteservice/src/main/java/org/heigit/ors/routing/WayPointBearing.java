@@ -14,23 +14,29 @@
 package org.heigit.ors.routing;
 
 public class WayPointBearing {
-    private double _value;
+    private double value;
 
+    /**
+     * @deprecated
+     */
     @Deprecated
     // MARQ24 - GHRequest does not support an additional deviation value - and it had never any effect...
-    private double _deviation = 0.0;
+    private double deviation = 0.0;
 
     public WayPointBearing(double value, double deviation) {
-        _value = value;
-        _deviation = deviation;
+        this.value = value;
+        this.deviation = deviation;
     }
 
     public double getValue() {
-        return _value == -1.0 ? Double.NaN : _value;
+        return value == -1.0 ? Double.NaN : value;
     }
 
+    /**
+     * @deprecated
+     */
     @Deprecated
     public double getDeviation() {
-        return _deviation;
+        return deviation;
     }
 }

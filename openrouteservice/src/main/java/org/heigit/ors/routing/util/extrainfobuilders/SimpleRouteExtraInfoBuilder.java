@@ -14,73 +14,56 @@
 package org.heigit.ors.routing.util.extrainfobuilders;
 
 import com.graphhopper.util.PointList;
-
 import org.heigit.ors.routing.RouteExtraInfo;
 import org.heigit.ors.routing.RouteSegmentItem;
 
 public class SimpleRouteExtraInfoBuilder extends RouteExtraInfoBuilder {
-	private int _prevIndex = 0;
-	private int _segmentLength = 0;
-	private long _prevValueIndex = -1;
-	private double _prevValue = Double.MAX_VALUE;
-	private double _segmentDist = 0;
+	private int prevIndex = 0;
+	private int segmentLength = 0;
+	private long prevValueIndex = -1;
+	private double prevValue = Double.MAX_VALUE;
+	private double segmentDist = 0;
 	
     public SimpleRouteExtraInfoBuilder(RouteExtraInfo extraInfo) {
 		super(extraInfo);
 	}
 
-	public void addSegment(double value, long valueIndex, PointList geom, double dist, boolean lastEdge)
-    {
+	public void addSegment(double value, long valueIndex, PointList geom, double dist, boolean lastEdge) {
 		int nPoints = geom.getSize() - 1;
-
-		if ((_prevValue != Double.MAX_VALUE && value != _prevValue) || (lastEdge))
-		{
+		if ((prevValue != Double.MAX_VALUE && value != prevValue) || (lastEdge)) {
 			RouteSegmentItem item = null;
-			if (lastEdge)
-			{
-				if (value != _prevValue)
-				{
-					if (_prevValueIndex != -1)
-					{
-						item = new RouteSegmentItem(_prevIndex, _prevIndex + _segmentLength, _prevValueIndex, _segmentDist);
-						_extraInfo.add(item);
+			if (lastEdge) {
+				if (value != prevValue) {
+					if (prevValueIndex != -1) {
+						item = new RouteSegmentItem(prevIndex, prevIndex + segmentLength, prevValueIndex, segmentDist);
+						extraInfo.add(item);
 					}
-					
-					item = new RouteSegmentItem(_prevIndex + _segmentLength, _prevIndex + _segmentLength + nPoints, valueIndex, dist);
-					_extraInfo.add(item);
+					item = new RouteSegmentItem(prevIndex + segmentLength, prevIndex + segmentLength + nPoints, valueIndex, dist);
+					extraInfo.add(item);
+				} else {
+					item = new RouteSegmentItem(prevIndex, prevIndex + segmentLength + nPoints, valueIndex, segmentDist + dist);
+					extraInfo.add(item);
 				}
-				else
-				{
-					item = new RouteSegmentItem(_prevIndex, _prevIndex + _segmentLength + nPoints, valueIndex, _segmentDist + dist);
-					_extraInfo.add(item);
-				}
+			} else {
+				item = new RouteSegmentItem(prevIndex, prevIndex + segmentLength, prevValueIndex, segmentDist);
+				prevIndex += segmentLength;
+				segmentDist = dist;
+				segmentLength = nPoints;
+				extraInfo.add(item);
 			}
-			else
-			{
-				item = new RouteSegmentItem(_prevIndex, _prevIndex + _segmentLength, _prevValueIndex, _segmentDist);
-				_prevIndex +=_segmentLength;
-				_segmentDist = dist;
-				_segmentLength = nPoints;
-				
-				_extraInfo.add(item);
-			}
+		} else {
+			segmentLength += nPoints;
+			segmentDist += dist;
 		}
-		else
-		{
-			_segmentLength += nPoints;
-			_segmentDist += dist;
-		}
-
-		_prevValue = value;
-		_prevValueIndex = valueIndex;
+		prevValue = value;
+		prevValueIndex = valueIndex;
     }
 
 	public void addSegment(double value, long valueIndex, PointList geom, double dist) {
     	throw new UnsupportedOperationException("SimpleRouteExtraInfoBuilder does not support method addSegment without lastEdge flag.");
 	}
 	
-	public void finish()
-	{
+	public void finish() {
 		throw new UnsupportedOperationException("SimpleRouteExtraInfoBuilder does not support method finish.");
 	}
 }

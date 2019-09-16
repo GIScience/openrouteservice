@@ -23,7 +23,7 @@
  *
  */
 
-package org.heigit.ors.util.mockupUtil;
+package org.heigit.ors.util.mockuputil;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.common.DistanceUnit;
@@ -42,24 +42,23 @@ import org.heigit.ors.routing.pathprocessors.BordersExtractor;
  */
 public class RoutingRequestMockup {
 
-    private static RoutingRequest routingRequestMockup;
+    private RoutingRequest routingRequest;
 
 
     // For now only two profiles are integrated. Both referring to a Heidelberg graph!
     public enum routeProfile {
-        standardHeidelberg2d, standardHeidelberg3d
+        STANDARD_HEIDELBERG_2D, STANDARD_HEIDELBERG_3D
     }
 
     private enum searchParamProfile {
-        standardCarSearchProfile
+        STANDARD_CAR_SEARCH_PROFILE
     }
 
     private Coordinate[] coords2d = new Coordinate[3];
     private Coordinate[] coords3d = new Coordinate[3];
 
     public RoutingRequestMockup() {
-        routingRequestMockup = new RoutingRequest();
-
+        routingRequest = new RoutingRequest();
     }
 
     /**
@@ -71,53 +70,53 @@ public class RoutingRequestMockup {
      */
     public RoutingRequest create(routeProfile profile) throws Exception {
 
-        if (profile == RoutingRequestMockup.routeProfile.standardHeidelberg2d) {
-            routingRequestMockup.setGeometryFormat("geojson");
+        if (profile == RoutingRequestMockup.routeProfile.STANDARD_HEIDELBERG_2D) {
+            routingRequest.setGeometryFormat("geojson");
             // Fill the two-dimensional coordinate
             coords2d[0] = new Coordinate(Double.parseDouble("8.690614"), Double.parseDouble("49.38365"));
             coords2d[1] = new Coordinate(Double.parseDouble("8.7007"), Double.parseDouble("49.411699"));
             coords2d[2] = new Coordinate(Double.parseDouble("8.7107"), Double.parseDouble("49.4516"));
-            routingRequestMockup.setCoordinates(coords2d);
-            routingRequestMockup.setIncludeElevation(false);
-            routingRequestMockup.setIncludeGeometry(true);
-            routingRequestMockup.setAttributes(null);
-            routingRequestMockup.setContinueStraight(false);
-            routingRequestMockup.setExtraInfo(0);
-            routingRequestMockup.setIncludeInstructions(true);
-            routingRequestMockup.setIncludeManeuvers(false);
-            routingRequestMockup.setIncludeRoundaboutExits(false);
-            routingRequestMockup.setInstructionsFormat(RouteInstructionsFormat.TEXT);
-            routingRequestMockup.setLanguage("DE");
-            routingRequestMockup.setLocationIndex(-1);
-            routingRequestMockup.setUnits(DistanceUnit.METERS);
+            routingRequest.setCoordinates(coords2d);
+            routingRequest.setIncludeElevation(false);
+            routingRequest.setIncludeGeometry(true);
+            routingRequest.setAttributes(null);
+            routingRequest.setContinueStraight(false);
+            routingRequest.setExtraInfo(0);
+            routingRequest.setIncludeInstructions(true);
+            routingRequest.setIncludeManeuvers(false);
+            routingRequest.setIncludeRoundaboutExits(false);
+            routingRequest.setInstructionsFormat(RouteInstructionsFormat.TEXT);
+            routingRequest.setLanguage("DE");
+            routingRequest.setLocationIndex(-1);
+            routingRequest.setUnits(DistanceUnit.METERS);
             // the search parameters are only accessible through local access.
-            setRouteSearchParameters(searchParamProfile.standardCarSearchProfile);
-            routingRequestMockup.setId(null);
-            return routingRequestMockup;
-        } else if (profile == RoutingRequestMockup.routeProfile.standardHeidelberg3d) {
-            routingRequestMockup.setGeometryFormat("geojson");
+            setRouteSearchParameters(searchParamProfile.STANDARD_CAR_SEARCH_PROFILE);
+            routingRequest.setId(null);
+            return routingRequest;
+        } else if (profile == RoutingRequestMockup.routeProfile.STANDARD_HEIDELBERG_3D) {
+            routingRequest.setGeometryFormat("geojson");
             // Fill the three-dimensional coordinate
             // TODO fill with third coordinate!!!
             coords3d[0] = new Coordinate(Double.parseDouble("8.690614"), Double.parseDouble("49.38365"), Double.parseDouble("NaN"));
             coords3d[1] = new Coordinate(Double.parseDouble("8.7007"), Double.parseDouble("49.411699"), Double.parseDouble("NaN"));
             coords3d[2] = new Coordinate(Double.parseDouble("8.7107"), Double.parseDouble("49.4516"), Double.parseDouble("NaN"));
-            routingRequestMockup.setCoordinates(coords3d);
-            routingRequestMockup.setIncludeElevation(false);
-            routingRequestMockup.setIncludeGeometry(true);
-            routingRequestMockup.setAttributes(null);
-            routingRequestMockup.setContinueStraight(false);
-            routingRequestMockup.setExtraInfo(0);
-            routingRequestMockup.setIncludeInstructions(true);
-            routingRequestMockup.setIncludeManeuvers(false);
-            routingRequestMockup.setIncludeRoundaboutExits(false);
-            routingRequestMockup.setInstructionsFormat(RouteInstructionsFormat.TEXT);
-            routingRequestMockup.setLanguage("DE");
-            routingRequestMockup.setLocationIndex(-1);
-            routingRequestMockup.setUnits(DistanceUnit.METERS);
+            routingRequest.setCoordinates(coords3d);
+            routingRequest.setIncludeElevation(false);
+            routingRequest.setIncludeGeometry(true);
+            routingRequest.setAttributes(null);
+            routingRequest.setContinueStraight(false);
+            routingRequest.setExtraInfo(0);
+            routingRequest.setIncludeInstructions(true);
+            routingRequest.setIncludeManeuvers(false);
+            routingRequest.setIncludeRoundaboutExits(false);
+            routingRequest.setInstructionsFormat(RouteInstructionsFormat.TEXT);
+            routingRequest.setLanguage("DE");
+            routingRequest.setLocationIndex(-1);
+            routingRequest.setUnits(DistanceUnit.METERS);
             // the search parameters are only accessible through local access.
-            setRouteSearchParameters(searchParamProfile.standardCarSearchProfile);
-            routingRequestMockup.setId(null);
-            return routingRequestMockup;
+            setRouteSearchParameters(searchParamProfile.STANDARD_CAR_SEARCH_PROFILE);
+            routingRequest.setId(null);
+            return routingRequest;
         }
         return null;
 
@@ -127,19 +126,19 @@ public class RoutingRequestMockup {
      * This function initializes the {@link org.heigit.ors.routing.RouteSearchParameters} from the {@link RoutingRequest} with standard variables from self-designed profiles.
      */
     private void setRouteSearchParameters(searchParamProfile profile) throws Exception {
-        if (profile == searchParamProfile.standardCarSearchProfile) {
-            routingRequestMockup.getSearchParameters().setAvoidAreas(null);
-            routingRequestMockup.getSearchParameters().setAvoidBorders(BordersExtractor.Avoid.NONE);
-            routingRequestMockup.getSearchParameters().setAvoidCountries(null);
-            routingRequestMockup.getSearchParameters().setAvoidFeatureTypes(0);
-            routingRequestMockup.getSearchParameters().setBearings(null);
-            routingRequestMockup.getSearchParameters().setConsiderTurnRestrictions(false);
-            routingRequestMockup.getSearchParameters().setFlexibleMode(false);
-            routingRequestMockup.getSearchParameters().setMaximumRadiuses(null);
-            routingRequestMockup.getSearchParameters().setOptions(null);
-            routingRequestMockup.getSearchParameters().setProfileType(1);
-            routingRequestMockup.getSearchParameters().setVehicleType(0);
-            routingRequestMockup.getSearchParameters().setWeightingMethod(1);
+        if (profile == searchParamProfile.STANDARD_CAR_SEARCH_PROFILE) {
+            routingRequest.getSearchParameters().setAvoidAreas(null);
+            routingRequest.getSearchParameters().setAvoidBorders(BordersExtractor.Avoid.NONE);
+            routingRequest.getSearchParameters().setAvoidCountries(null);
+            routingRequest.getSearchParameters().setAvoidFeatureTypes(0);
+            routingRequest.getSearchParameters().setBearings(null);
+            routingRequest.getSearchParameters().setConsiderTurnRestrictions(false);
+            routingRequest.getSearchParameters().setFlexibleMode(false);
+            routingRequest.getSearchParameters().setMaximumRadiuses(null);
+            routingRequest.getSearchParameters().setOptions(null);
+            routingRequest.getSearchParameters().setProfileType(1);
+            routingRequest.getSearchParameters().setVehicleType(0);
+            routingRequest.getSearchParameters().setWeightingMethod(1);
         }
     }
 }

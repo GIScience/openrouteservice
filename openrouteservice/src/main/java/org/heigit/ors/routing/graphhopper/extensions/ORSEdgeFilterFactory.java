@@ -48,7 +48,7 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
     
             /* Heavy vehicle filter */
             if (params.has("edgefilter_hgv")) {
-                edgeFilters.add(new HeavyVehicleEdgeFilter(flagEncoder, params.getInt("edgefilter_hgv", 0), (VehicleParameters)params.getObj("routing_profile_params"), gs));
+                edgeFilters.add(new HeavyVehicleEdgeFilter(params.getInt("edgefilter_hgv", 0), (VehicleParameters)params.getObj("routing_profile_params"), gs));
             }
 
             /* Wheelchair filter */

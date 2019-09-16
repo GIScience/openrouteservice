@@ -26,36 +26,57 @@ import org.heigit.ors.exceptions.PointNotFoundException;
 import java.util.*;
 
 public class MatrixSearchContextBuilder {
-	private Map<Coordinate, LocationEntry> _locationCache;
-	private boolean _resolveNames;
-	private LocationIndex _locIndex;
-	private EdgeFilter _edgeFilter;
+	private Map<Coordinate, LocationEntry> locationCache;
+	private boolean resolveNames;
+	private LocationIndex locIndex;
+	private EdgeFilter edgeFilter;
 
-	class LocationEntry
-	{
-		public int nodeId;
-		public ResolvedLocation location;
-		public QueryResult queryResult;
+	class LocationEntry {
+		private int nodeId;
+		private ResolvedLocation location;
+		private QueryResult queryResult;
+
+		public int getNodeId() {
+			return nodeId;
+		}
+
+		public void setNodeId(int nodeId) {
+			this.nodeId = nodeId;
+		}
+
+		public ResolvedLocation getLocation() {
+			return location;
+		}
+
+		public void setLocation(ResolvedLocation location) {
+			this.location = location;
+		}
+
+		public QueryResult getQueryResult() {
+			return queryResult;
+		}
+
+		public void setQueryResult(QueryResult queryResult) {
+			this.queryResult = queryResult;
+		}
 	}
 
-	public MatrixSearchContextBuilder(LocationIndex index, EdgeFilter edgeFilter, boolean resolveNames)
-	{
-		_locIndex = index;
-		_edgeFilter = edgeFilter;
-		_resolveNames = resolveNames;
+	public MatrixSearchContextBuilder(LocationIndex index, EdgeFilter edgeFilter, boolean resolveNames) {
+		locIndex = index;
+		this.edgeFilter = edgeFilter;
+		this.resolveNames = resolveNames;
 	}
 
-	public MatrixSearchContext create(Graph graph, Coordinate[] sources, Coordinate[] destinations, double maxSearchRadius) throws Exception
-	{
-		if (_locationCache == null)
-			_locationCache = new HashMap<Coordinate, LocationEntry>();
+	public MatrixSearchContext create(Graph graph, Coordinate[] sources, Coordinate[] destinations, double maxSearchRadius) throws Exception {
+		if (locationCache == null)
+			locationCache = new HashMap<>();
 		else
-			_locationCache.clear();
+			locationCache.clear();
 
 		checkBounds(graph.getBounds(), sources, destinations);
 
 		QueryGraph queryGraph = new QueryGraph(graph);
-		List<QueryResult> queryResults = new ArrayList<QueryResult>(sources.length + destinations.length);
+		List<QueryResult> queryResults = new ArrayList<>(sources.length + destinations.length);
 		
 		resolveLocations(sources, queryResults, maxSearchRadius);
 		resolveLocations(destinations, queryResults, maxSearchRadius);
@@ -85,93 +106,69 @@ public class MatrixSearchContextBuilder {
 	private String constructPointOutOfBoundsMessage(String pointsType, BBox bounds, Coordinate[] coords) {
 		int[] pointIds = pointIdsOutOfBounds(bounds, coords);
 		String message = "";
-
 		if (pointIds.length > 0) {
 			String idString = Arrays.toString(pointIds);
-			String coordsString = "";
+			StringBuilder coordsString = new StringBuilder();
 			for (int id : pointIds) {
-				coordsString = coordsString + coords[id].y + "," + coords[id].x + "; ";
-			}
-			if (coordsString.length() > 1) {
-				coordsString = coordsString.substring(0, coordsString.length() - 2);
+				if (coordsString.length() > 0) {
+					coordsString.append("; ");
+				}
+				coordsString.append(coords[id].y).append(",").append(coords[id].x);
 			}
 
 			message = pointsType + " point(s) " + idString + " out of bounds: " + coordsString;
 		}
-
 		return message;
 	}
 
 	private int[] pointIdsOutOfBounds(BBox bounds, Coordinate[] coords) {
-		List<Integer> ids = new ArrayList();
+		List<Integer> ids = new ArrayList<>();
 		for (int i=0; i<coords.length; i++) {
 			Coordinate c = coords[i];
 			if (!bounds.contains(c.y, c.x)) {
 				ids.add(i);
 			}
 		}
-
 		int[] idsArray = new int[ids.size()];
 		for(int i=0; i<ids.size(); i++) {
-			idsArray[i] = ids.get(i).intValue();
+			idsArray[i] = ids.get(i);
 		}
-
 		return idsArray;
 	}
 	
-	private void resolveLocations(Coordinate[] coords, List<QueryResult> queryResults, double maxSearchRadius)
-	{
-		Coordinate p = null;
-		
-		for (int i = 0; i < coords.length; i++)
-		{
-			p = coords[i];
+	private void resolveLocations(Coordinate[] coords, List<QueryResult> queryResults, double maxSearchRadius) {
+		for (Coordinate p : coords) {
+			LocationEntry ld = locationCache.get(p);
+			if (ld == null) {
+				QueryResult qr = locIndex.findClosest(p.y, p.x, edgeFilter);
 
-			LocationEntry ld = _locationCache.get(p);
-			if (ld == null)
-			{  
-				QueryResult qr = _locIndex.findClosest(p.y, p.x, _edgeFilter);
-				
 				ld = new LocationEntry();
 				ld.queryResult = qr;
-				
-				if (qr.isValid() && qr.getQueryDistance() < maxSearchRadius)
-				{
+
+				if (qr.isValid() && qr.getQueryDistance() < maxSearchRadius) {
 					GHPoint3D pt = qr.getSnappedPoint();
 					ld.nodeId = qr.getClosestNode();
-					ld.location = new ResolvedLocation(new Coordinate(pt.getLon(), pt.getLat()), _resolveNames ? qr.getClosestEdge().getName(): null, qr.getQueryDistance());
+					ld.location = new ResolvedLocation(new Coordinate(pt.getLon(), pt.getLat()), resolveNames ? qr.getClosestEdge().getName() : null, qr.getQueryDistance());
 
 					queryResults.add(qr);
-				}
-				else
-				{
+				} else {
 					ld.nodeId = -1;
 				}
-
-				_locationCache.put(p, ld);
+				locationCache.put(p, ld);
 			}
 		}
 	}
  	
-	private MatrixLocations createLocations(Coordinate[] coords) throws Exception
-	{
-		MatrixLocations mlRes = new MatrixLocations(coords.length, _resolveNames);
-		
-		Coordinate p = null;
-		
-		for (int i = 0; i < coords.length; i++)
-		{
-			p = coords[i];
-
-			LocationEntry ld = _locationCache.get(p);
+	private MatrixLocations createLocations(Coordinate[] coords) throws Exception {
+		MatrixLocations mlRes = new MatrixLocations(coords.length);
+		for (int i = 0; i < coords.length; i++) {
+			Coordinate p = coords[i];
+			LocationEntry ld = locationCache.get(p);
 			if (ld != null)
 				mlRes.setData(i, ld.nodeId == -1 ? -1 : ld.queryResult.getClosestNode(), ld.location);
 			else
-			{  
 				throw new Exception("Oops!");
-			}
 		}
-		
 		return mlRes;
 	}
 }

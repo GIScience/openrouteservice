@@ -19,8 +19,7 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
 
 public class TrailDifficultyScaleGraphStorage implements GraphExtension {
-	protected final int NO_ENTRY = -1;
-	protected final int EF_DIFFICULTY_SCALE;
+	protected final int efDifficultyScale;
 
 	protected DataAccess edges;
 	protected int edgeEntryIndex = 0;
@@ -28,9 +27,8 @@ public class TrailDifficultyScaleGraphStorage implements GraphExtension {
 	protected int edgesCount; 
 	private byte[] byteValues;
 
-	public TrailDifficultyScaleGraphStorage() 
-	{
-		EF_DIFFICULTY_SCALE = nextBlockEntryIndex (2);
+	public TrailDifficultyScaleGraphStorage()  {
+		efDifficultyScale = nextBlockEntryIndex (2);
 
 		edgeEntryBytes = edgeEntryIndex;
 		edgesCount = 0;
@@ -55,13 +53,13 @@ public class TrailDifficultyScaleGraphStorage implements GraphExtension {
 	}
 
 	public GraphExtension create(long initBytes) {
-		edges.create((long) initBytes * edgeEntryBytes);
+		edges.create(initBytes * edgeEntryBytes);
 		return this;
 	}
 
 	public void flush() {
 		edges.setHeader(0, edgeEntryBytes);
-		edges.setHeader(1 * 4, edgesCount);
+		edges.setHeader(4, edgesCount);
 		edges.flush();
 	}
 
@@ -99,13 +97,13 @@ public class TrailDifficultyScaleGraphStorage implements GraphExtension {
 		byteValues[0] = (byte)sacScale;
 		byteValues[1] = (byte)(mtbScale << 4 | (0x0F & mtbUphillScale));
 		
-		edges.setBytes(edgePointer + EF_DIFFICULTY_SCALE, byteValues, 2);
+		edges.setBytes(edgePointer + efDifficultyScale, byteValues, 2);
 	}
 
 	public int getHikingScale(int edgeId, byte[] buffer) {
 		long edgeBase = (long) edgeId * edgeEntryBytes;
 		
-		edges.getBytes(edgeBase + EF_DIFFICULTY_SCALE, buffer, 1);
+		edges.getBytes(edgeBase + efDifficultyScale, buffer, 1);
 
 		return buffer[0];
 	}
@@ -113,7 +111,7 @@ public class TrailDifficultyScaleGraphStorage implements GraphExtension {
 	public int getMtbScale(int edgeId, byte[] buffer, boolean uphill) {
 		long edgeBase = (long) edgeId * edgeEntryBytes;
 		
-		edges.getBytes(edgeBase + EF_DIFFICULTY_SCALE + 1, buffer, 1);
+		edges.getBytes(edgeBase + efDifficultyScale + 1, buffer, 1);
 		
 		if (uphill)
 			return  (byte)(buffer[0] & 0x0F);
@@ -133,7 +131,6 @@ public class TrailDifficultyScaleGraphStorage implements GraphExtension {
 
 	public int getDefaultNodeFieldValue() {
 		return -1;
-		//		throw new UnsupportedOperationException("Not supported by this storage");
 	}
 
 	public int getDefaultEdgeFieldValue() {
@@ -155,7 +152,6 @@ public class TrailDifficultyScaleGraphStorage implements GraphExtension {
 
 	@Override
 	public boolean isClosed() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 }

@@ -13,68 +13,58 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-import java.nio.file.Files;
+import com.graphhopper.reader.ReaderWay;
+import org.apache.log4j.Logger;
+import org.heigit.ors.util.FileUtility;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import com.graphhopper.reader.ReaderWay;
-
-import org.heigit.ors.util.FileUtility;
-
 public class SpeedLimitHandler {
 	private static final Logger LOGGER = Logger.getLogger(SpeedLimitHandler.class.getName());
 	
-	private Map<String, Integer> _defaultSpeeds = new HashMap<String, Integer>();
-	private Map<String, Integer> _surfaceSpeeds = new HashMap<String, Integer>();
-	private Map<String, Integer> _trackTypeSpeeds = new HashMap<String, Integer>();
-	private Map<String, Integer> _countryMaxSpeeds = new HashMap<String, Integer>();
+	private Map<String, Integer> defaultSpeeds = new HashMap<>();
+	private Map<String, Integer> surfaceSpeeds = new HashMap<>();
+	private Map<String, Integer> trackTypeSpeeds = new HashMap<>();
+	private Map<String, Integer> countryMaxSpeeds = new HashMap<>();
 	
-	public SpeedLimitHandler(String encoderName, Map<String, Integer> defaultSpeeds, Map<String, Integer> surfaceSpeeds, Map<String, Integer> trackTypeSpeeds)
-	{
-		_defaultSpeeds.putAll(defaultSpeeds);
-		_surfaceSpeeds.putAll(surfaceSpeeds);
-		_trackTypeSpeeds.putAll(trackTypeSpeeds);
+	public SpeedLimitHandler(String encoderName, Map<String, Integer> defaultSpeeds, Map<String, Integer> surfaceSpeeds, Map<String, Integer> trackTypeSpeeds) {
+		this.defaultSpeeds.putAll(defaultSpeeds);
+		this.surfaceSpeeds.putAll(surfaceSpeeds);
+		this.trackTypeSpeeds.putAll(trackTypeSpeeds);
 		
 		Path path = Paths.get(FileUtility.getResourcesPath().toString(), "services", "routing", "speed_limits", encoderName + ".json");
 		
-		if (Files.exists(path))
-		{
+		if (path.toFile().exists()) {
 			try {
 				JSONObject json = new JSONObject(FileUtility.readFile(path.toString()));
 				
-				readSpeedValues(json, "default", _defaultSpeeds);
-				readSpeedValues(json, "max_speeds", _countryMaxSpeeds);
-				readSpeedValues(json, "surface", _surfaceSpeeds);
-				readSpeedValues(json, "tracktype", _trackTypeSpeeds);
+				readSpeedValues(json, "default", this.defaultSpeeds);
+				readSpeedValues(json, "max_speeds", countryMaxSpeeds);
+				readSpeedValues(json, "surface", this.surfaceSpeeds);
+				readSpeedValues(json, "tracktype", this.trackTypeSpeeds);
 			} catch (Exception e) {
 				LOGGER.error(e);
 			}
 		}
 	}
 	
-	private void readSpeedValues(JSONObject json, String keyName,  Map<String, Integer> speeds)
-	{
-		if (json.has(keyName))
-		{
+	private void readSpeedValues(JSONObject json, String keyName,  Map<String, Integer> speeds) {
+		if (json.has(keyName)) {
 			JSONObject jLimits = json.getJSONObject(keyName);
 			JSONArray jKeys = jLimits.names();
-			
-			for(int i = 0; i < jKeys.length(); i++)
-			{  
+			for(int i = 0; i < jKeys.length(); i++) {
 				String key = jKeys.getString(i);
 				speeds.put(key.toLowerCase(), jLimits.getInt(key));
 			}
 		}
 	}
 	
-    public Integer getMaxSpeed(ReaderWay way)
-    {
+    public Integer getMaxSpeed(ReaderWay way) {
     	// check if maxspeed is explicitly given
     	if (way.hasTag("maxspeed"))
     		return -1;
@@ -86,30 +76,29 @@ public class SpeedLimitHandler {
     	if (key == null)
     		return -1;
     	
-    	Integer res = _countryMaxSpeeds.get(key.toLowerCase());
+    	Integer res = countryMaxSpeeds.get(key.toLowerCase());
     	
     	return res == null ? -1 : res;
     }
     
-    public Integer getTrackTypeSpeed(String tracktype)
-    {
-    	Integer res = _trackTypeSpeeds.get(tracktype);
+    public Integer getTrackTypeSpeed(String tracktype) {
+    	Integer res = trackTypeSpeeds.get(tracktype);
     	return res == null ? -1 : res;
     }
     
     public Integer getSurfaceSpeed(String surface)
     {
-    	Integer res = _surfaceSpeeds.get(surface);
+    	Integer res = surfaceSpeeds.get(surface);
     	return res == null ? -1 : res;
     }
     
     public Integer getSpeed(String highway)
     {
-    	return _defaultSpeeds.get(highway);
+    	return defaultSpeeds.get(highway);
     }
     
     public boolean hasSpeedValue(String highway)
     {
-    	return _defaultSpeeds.containsKey(highway);
+    	return defaultSpeeds.containsKey(highway);
     }
 }

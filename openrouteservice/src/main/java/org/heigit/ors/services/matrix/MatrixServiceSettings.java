@@ -15,8 +15,7 @@ package org.heigit.ors.services.matrix;
 
 import org.heigit.ors.config.AppConfig;
 
-public class MatrixServiceSettings 
-{
+public class MatrixServiceSettings {
 	private static int maximumRoutes = 2500;
 	private static int maximumRoutesFlexible = 25;
 	private static int maximumVisitedNodes = 100000;
@@ -24,33 +23,36 @@ public class MatrixServiceSettings
 	private static boolean allowResolveLocations = true;
 	private static String attribution = "";
 	private static boolean enabled = true;
-	
-	static 
-	{
-		String value = AppConfig.getGlobal().getServiceParameter("matrix", "enabled");
+
+	public static final String PARAM_MATRIX = "matrix";
+
+	static  {
+		String value = AppConfig.getGlobal().getServiceParameter(PARAM_MATRIX, "enabled");
 		if (value != null)
 			enabled = Boolean.parseBoolean(value);		
-		value = AppConfig.getGlobal().getServiceParameter("matrix", "maximum_routes");
+		value = AppConfig.getGlobal().getServiceParameter(PARAM_MATRIX, "maximum_routes");
 		if (value != null)
 			maximumRoutes = Math.max(1, Integer.parseInt(value));
-		value = AppConfig.getGlobal().getServiceParameter("matrix", "maximum_routes_flexible");
+		value = AppConfig.getGlobal().getServiceParameter(PARAM_MATRIX, "maximum_routes_flexible");
 		if (value != null)
 			maximumRoutesFlexible = Math.max(1, Integer.parseInt(value));
-		value = AppConfig.getGlobal().getServiceParameter("matrix", "maximum_search_radius");
+		value = AppConfig.getGlobal().getServiceParameter(PARAM_MATRIX, "maximum_search_radius");
 		if (value != null)
 			maximumSearchRadius = Math.max(1, Double.parseDouble(value));
-		value = AppConfig.getGlobal().getServiceParameter("matrix", "maximum_visited_nodes");
+		value = AppConfig.getGlobal().getServiceParameter(PARAM_MATRIX, "maximum_visited_nodes");
 		if (value != null)
 			maximumVisitedNodes = Math.max(1, Integer.parseInt(value));
-		value = AppConfig.getGlobal().getServiceParameter("matrix", " allow_resolve_locations");
+		value = AppConfig.getGlobal().getServiceParameter(PARAM_MATRIX, " allow_resolve_locations");
 		if (value != null)
 			allowResolveLocations = Boolean.parseBoolean(value);
-		value = AppConfig.getGlobal().getServiceParameter("matrix", "attribution");
+		value = AppConfig.getGlobal().getServiceParameter(PARAM_MATRIX, "attribution");
 		if (value != null)
 			attribution = value;
 	}
+
+	private MatrixServiceSettings() {}
 	
-	public static Boolean getEnabled() {
+	public static boolean getEnabled() {
 		return enabled;
 	}
 

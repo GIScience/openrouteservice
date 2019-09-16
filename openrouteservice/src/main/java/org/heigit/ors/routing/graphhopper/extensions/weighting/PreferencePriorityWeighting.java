@@ -20,19 +20,11 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKeys;
 
-public class PreferencePriorityWeighting extends FastestWeighting
-{
-	private static final Double THRESHOLD_AVOID_IF_POSSIBLE = (double) (PriorityCode.AVOID_IF_POSSIBLE.getValue() / (double)PriorityCode.BEST
-			.getValue());
-	
-	private static final Double THRESHOLD_REACH_DEST = (double) (PriorityCode.REACH_DEST.getValue() / (double)PriorityCode.BEST
-			.getValue());
-	
-	private Double THRESHOLD_PREFER = (double) (PriorityCode.PREFER.getValue() / (double)PriorityCode.BEST
-			.getValue());
-
-	private Double THRESHOLD_VERY_NICE = (double) (PriorityCode.VERY_NICE.getValue() / (double)PriorityCode.BEST
-			.getValue());
+public class PreferencePriorityWeighting extends FastestWeighting {
+	private static final double THRESHOLD_AVOID_IF_POSSIBLE = PriorityCode.AVOID_IF_POSSIBLE.getValue() / (double)PriorityCode.BEST.getValue();
+	private static final double THRESHOLD_REACH_DEST = PriorityCode.REACH_DEST.getValue() / (double)PriorityCode.BEST.getValue();
+	private static final double THRESHOLD_PREFER = PriorityCode.PREFER.getValue() / (double)PriorityCode.BEST.getValue();
+	private static final double THRESHOLD_VERY_NICE = PriorityCode.VERY_NICE.getValue() / (double)PriorityCode.BEST.getValue();
 	
     public PreferencePriorityWeighting(FlagEncoder encoder, PMap map)
     {
@@ -40,8 +32,7 @@ public class PreferencePriorityWeighting extends FastestWeighting
     }
 
     @Override
-    public double calcWeight( EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId)
-    {
+    public double calcWeight( EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
     	double weight = super.calcWeight(edgeState, reverse, prevOrNextEdgeId);
 		if (Double.isInfinite(weight))
 			weight = 0.0; 
@@ -63,5 +54,20 @@ public class PreferencePriorityWeighting extends FastestWeighting
     @Override
     public String getName() {
         return "priority";
-    } 
+    }
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		final PreferencePriorityWeighting other = (PreferencePriorityWeighting) obj;
+		return toString().equals(other.toString());
+	}
+
+	@Override
+	public int hashCode() {
+		return ("PreferencePriorityWeighting" + toString()).hashCode();
+	}
 }

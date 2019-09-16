@@ -21,32 +21,25 @@ import com.graphhopper.util.PointList;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStorage;
 import org.heigit.ors.routing.util.HillIndexCalculator;
 
-public class HillIndexGraphStorageBuilder extends AbstractGraphStorageBuilder
-{
-	private HillIndexGraphStorage _storage;
-	private HillIndexCalculator _hillIndexCalc;
+public class HillIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
+	private HillIndexGraphStorage storage;
+	private HillIndexCalculator hillIndexCalc;
 
-	public HillIndexGraphStorageBuilder()
-	{
-		
-	}
-	
 	public GraphExtension init(GraphHopper graphhopper) throws Exception {
-		if (_storage != null)
+		if (storage != null)
 			throw new Exception("GraphStorageBuilder has been already initialized.");
-		if (graphhopper.hasElevation())
-		{
-			_storage = new HillIndexGraphStorage(parameters);
-			_hillIndexCalc = new HillIndexCalculator();
+		if (graphhopper.hasElevation()) {
+			storage = new HillIndexGraphStorage(parameters);
+			hillIndexCalc = new HillIndexCalculator();
 			
-			return _storage;
+			return storage;
 		}
 		else 
 			return null;
 	}
 
 	public void processWay(ReaderWay way) {
-		
+		// do nothing
 	}
 
 	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
@@ -54,13 +47,13 @@ public class HillIndexGraphStorageBuilder extends AbstractGraphStorageBuilder
 
 		PointList points = edge.fetchWayGeometry(3);
 	
-		byte hillIndex = _hillIndexCalc.getHillIndex(points, false);
-		byte reverseHillIndex = _hillIndexCalc.getHillIndex(points, true);
+		byte hillIndex = hillIndexCalc.getHillIndex(points, false);
+		byte reverseHillIndex = hillIndexCalc.getHillIndex(points, true);
 
 		if (revert)
-			_storage.setEdgeValue(edge.getEdge(), reverseHillIndex, hillIndex);
+			storage.setEdgeValue(edge.getEdge(), reverseHillIndex, hillIndex);
 		else
-			_storage.setEdgeValue(edge.getEdge(), hillIndex, reverseHillIndex);
+			storage.setEdgeValue(edge.getEdge(), hillIndex, reverseHillIndex);
 	}
 
 	@Override

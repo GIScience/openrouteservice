@@ -14,7 +14,7 @@ public class WheelchairSidewalkWay extends PedestrianWay {
 
         sidewalkProcessor = new OSMAttachedSidewalkProcessor();
 
-        this.side = sidewalkProcessor.identifySidesWhereSidewalkIsPresent(this.way);
+        this.side = sidewalkProcessor.identifySidesWhereSidewalkIsPresent(this.readerWay);
     }
 
     @Override
@@ -36,8 +36,8 @@ public class WheelchairSidewalkWay extends PedestrianWay {
         }
 
         if(lastPrepared != side) {
-            this.way = sidewalkProcessor.attachSidewalkTag(this.way, side);
-            lastPrepared = sidewalkProcessor.getPreparedSide(this.way);
+            this.readerWay = sidewalkProcessor.attachSidewalkTag(this.readerWay, side);
+            lastPrepared = sidewalkProcessor.getPreparedSide(this.readerWay);
         }
     }
 }

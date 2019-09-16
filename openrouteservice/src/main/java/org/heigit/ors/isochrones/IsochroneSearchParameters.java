@@ -19,78 +19,78 @@ import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.routing.RouteSearchParameters;
 
 public class IsochroneSearchParameters {
-    private int _travellerId;
-    private Coordinate _location;
-    private Boolean _reverseDirection = false;
-    private TravelRangeType _rangeType = TravelRangeType.Time;
-    private double[] _ranges;
-    private RouteSearchParameters _parameters;
-    private String _calcMethod;
-    private float _smoothingFactor = -1.0f;
-    private String[] _attributes;
-    private String _units;
-    private String _area_units;
+    private int travellerId;
+    private Coordinate location;
+    private Boolean reverseDirection = false;
+    private TravelRangeType rangeType = TravelRangeType.TIME;
+    private double[] ranges;
+    private RouteSearchParameters parameters;
+    private String calcMethod;
+    private float smoothingFactor = -1.0f;
+    private String[] attributes;
+    private String units;
+    private String areaUnits;
 
     public boolean hasAttribute(String attr) {
-        if (_attributes == null || attr == null)
+        if (attributes == null || attr == null)
             return false;
 
-        for (int i = 0; i < _attributes.length; i++)
-            if (attr.equalsIgnoreCase(_attributes[i]))
+        for (String attribute : attributes)
+            if (attr.equalsIgnoreCase(attribute))
                 return true;
 
         return false;
     }
 
     public IsochroneSearchParameters(int travellerId, Coordinate location, double[] ranges) {
-        _travellerId = travellerId;
-        _location = location;
-        _ranges = ranges;
+        this.travellerId = travellerId;
+        this.location = location;
+        this.ranges = ranges;
     }
 
     public int getTravellerId() {
-        return _travellerId;
+        return travellerId;
     }
 
     public Coordinate getLocation() {
-        return _location;
+        return location;
     }
 
     public void setLocation(Coordinate location) {
-        _location = location;
+        this.location = location;
     }
 
     public Boolean getReverseDirection() {
-        return _reverseDirection;
+        return reverseDirection;
     }
 
     public void setReverseDirection(Boolean value) {
-        _reverseDirection = value;
+        reverseDirection = value;
     }
 
     public void setRangeType(TravelRangeType rangeType) {
-        _rangeType = rangeType;
+        this.rangeType = rangeType;
     }
 
     public TravelRangeType getRangeType() {
-        return _rangeType;
+        return rangeType;
     }
 
     public void setRanges(double[] values) {
-        _ranges = values;
+        ranges = values;
     }
 
     public double[] getRanges() {
-        return _ranges;
+        return ranges;
     }
 
     public double getMaximumRange() {
-        if (_ranges.length == 1)
-            return _ranges[0];
+        if (ranges.length == 1)
+            return ranges[0];
         else {
             double maxValue = Double.MIN_VALUE;
-            for (int i = 0; i < _ranges.length; ++i) {
-                double v = _ranges[i];
+            for (int i = 0; i < ranges.length; ++i) {
+                double v = ranges[i];
                 if (v > maxValue)
                     maxValue = v;
             }
@@ -100,50 +100,50 @@ public class IsochroneSearchParameters {
     }
 
     public float getSmoothingFactor() {
-        return _smoothingFactor;
+        return smoothingFactor;
     }
 
     public void setSmoothingFactor(float smoothingFactor) {
-        this._smoothingFactor = smoothingFactor;
+        this.smoothingFactor = smoothingFactor;
     }
 
     public RouteSearchParameters getRouteParameters() {
-        return _parameters;
+        return parameters;
     }
 
     public void setRouteParameters(RouteSearchParameters parameters) {
-        _parameters = parameters;
+        this.parameters = parameters;
     }
 
     public String getCalcMethod() {
-        return _calcMethod;
+        return calcMethod;
     }
 
     public void setCalcMethod(String calcMethod) {
-        _calcMethod = calcMethod;
+        this.calcMethod = calcMethod;
     }
 
     public void setAttributes(String[] attributes) {
-        _attributes = attributes;
+        this.attributes = attributes;
     }
 
     public void setUnits(String units) {
-        _units = units;
+        this.units = units;
     }
 
     public void setAreaUnits(String areaUnits) {
-        _area_units = areaUnits;
+        this.areaUnits = areaUnits;
     }
 
     public String getUnits() {
-        return _units;
+        return units;
     }
 
     public String getAreaUnits() {
-        return _area_units;
+        return areaUnits;
     }
 
     public String[] getAttributes() {
-        return _attributes;
+        return attributes;
     }
 }

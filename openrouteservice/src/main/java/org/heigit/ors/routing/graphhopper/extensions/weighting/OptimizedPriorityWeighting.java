@@ -20,13 +20,10 @@ import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
-import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKeys;
 
 public class OptimizedPriorityWeighting extends FastestWeighting {
-	private static final Double THRESHOLD_AVOID_IF_POSSIBLE = (double) (PriorityCode.AVOID_IF_POSSIBLE.getValue() / (double)PriorityCode.BEST
-			.getValue());
-	private  static final Double THRESHOLD_REACH_DEST = (double) (PriorityCode.REACH_DEST.getValue() / (double)PriorityCode.BEST
-			.getValue());
+	private static final Double THRESHOLD_AVOID_IF_POSSIBLE = PriorityCode.AVOID_IF_POSSIBLE.getValue() / (double)PriorityCode.BEST.getValue();
+	private  static final Double THRESHOLD_REACH_DEST = PriorityCode.REACH_DEST.getValue() / (double)PriorityCode.BEST.getValue();
 	private final DecimalEncodedValue priorityEncoder;
 
 	public OptimizedPriorityWeighting(FlagEncoder encoder, PMap map) {
@@ -48,5 +45,20 @@ public class OptimizedPriorityWeighting extends FastestWeighting {
 			weight *= 2;
 
 		return weight / (0.5 + priority);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		final OptimizedPriorityWeighting other = (OptimizedPriorityWeighting) obj;
+		return toString().equals(other.toString());
+	}
+
+	@Override
+	public int hashCode() {
+		return ("OptimizedPriorityWeighting" + toString()).hashCode();
 	}
 }

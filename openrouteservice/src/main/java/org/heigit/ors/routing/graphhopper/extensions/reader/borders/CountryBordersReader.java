@@ -154,12 +154,9 @@ public class CountryBordersReader {
     private JSONObject readBordersData() throws IOException {
         String data = "";
 
-        InputStream is = null;
         BufferedReader buf = null;
         TarArchiveInputStream tis = null;
-        try {
-            is = new FileInputStream(borderFile);
-
+        try (InputStream is = new FileInputStream(borderFile)) {
             if(borderFile.endsWith(".tar.gz")) {
                 // We are working with a compressed file
                 tis = new TarArchiveInputStream(
@@ -200,15 +197,10 @@ public class CountryBordersReader {
             try {
                 if(tis != null)
                     tis.close();
-                if(is != null)
-                    is.close();
                 if(buf != null)
                     buf.close();
             } catch (IOException ioe) {
                 LOGGER.warn("Error closing file reader buffers!");
-            } catch (NullPointerException npe) {
-                // This can happen if the file itself wasn't available
-                throw new IOException("Borders file " + borderFile + " not found!");
             }
         }
 
@@ -244,12 +236,12 @@ public class CountryBordersReader {
                     hId = obj.getJSONObject(KEY_PROPERTIES).getLong(hierarchyIdField);
 
                 // Create the borders object
-                CountryBordersPolygon c = new CountryBordersPolygon(id, geom, hId);
+                CountryBordersPolygon c = new CountryBordersPolygon(id, geom);
 
                 // add to the hierarchy
                 if(c != null) {
                     if(!hierarchies.containsKey(hId)) {
-                        hierarchies.put(hId, new CountryBordersHierarchy(hId));
+                        hierarchies.put(hId, new CountryBordersHierarchy());
                         hierarchyCount++;
                     }
 
@@ -456,9 +448,33 @@ public class CountryBordersReader {
      * Holder class for storing information about a country read from the ids csv.
      */
     private class CountryInfo {
-        public String id;
-        public String name;
-        public String nameEng;
+        private String id;
+        private String name;
+        private String nameEng;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getNameEng() {
+            return nameEng;
+        }
+
+        public void setNameEng(String nameEng) {
+            this.nameEng = nameEng;
+        }
 
         public CountryInfo(String id, String name, String nameEng) {
             this.id = id;

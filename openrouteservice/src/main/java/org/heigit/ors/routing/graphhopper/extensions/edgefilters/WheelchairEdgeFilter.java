@@ -22,74 +22,55 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
 
-public class WheelchairEdgeFilter implements EdgeFilter 
-{
-	private byte[] _buffer;
-	private WheelchairAttributesGraphStorage _storage;
-	private WheelchairAttributes _attributes;
-	private WheelchairParameters _params;
+public class WheelchairEdgeFilter implements EdgeFilter  {
+	private byte[] buffer;
+	private WheelchairAttributesGraphStorage storage;
+	private WheelchairAttributes attributes;
+	private WheelchairParameters params;
 	
 	public WheelchairEdgeFilter(WheelchairParameters params, GraphStorage graphStorage) throws Exception {
-
-		_storage = GraphStorageUtils.getGraphExtension(graphStorage, WheelchairAttributesGraphStorage.class);
-
-		if (_storage ==  null)
+		storage = GraphStorageUtils.getGraphExtension(graphStorage, WheelchairAttributesGraphStorage.class);
+		if (storage ==  null)
 			throw new Exception("ExtendedGraphStorage for wheelchair attributes was not found.");
-		
-		_params = params;
-		_attributes = new WheelchairAttributes();
-		_buffer = new byte[WheelchairAttributesGraphStorage.BYTE_COUNT];
+		this.params = params;
+		attributes = new WheelchairAttributes();
+		buffer = new byte[WheelchairAttributesGraphStorage.BYTE_COUNT];
 	}
 
 	@Override
 	public boolean accept(EdgeIteratorState iter) {
+		storage.getEdgeValues(iter.getEdge(), attributes, buffer);
+		return !attributes.hasValues() || !(checkSurfaceType() || checkSmoothnessType() || checkTrackType() || checkMaximumIncline() || checkMaximumSlopedKerb() || checkMinimumWidth());
+	}
 
-		_storage.getEdgeValues(iter.getEdge(), _attributes, _buffer);
+	private boolean checkSurfaceType() {
+		return params.getSurfaceType() > 0
+			&& params.getSurfaceType() < attributes.getSurfaceType();
+	}
 
-		if (_attributes.hasValues())
-		{
-			if (_params.getSurfaceType() > 0)
-			{
-				if (_params.getSurfaceType() < _attributes.getSurfaceType())
-					return false;
-			}
+	private boolean checkSmoothnessType() {
+		return params.getSmoothnessType() > 0
+			&& params.getSmoothnessType() < attributes.getSmoothnessType();
+	}
 
-			if (_params.getSmoothnessType() > 0)
-			{
-				if (_params.getSmoothnessType() < _attributes.getSmoothnessType())
-					return false;
-			}
+	private boolean checkTrackType() {
+		return params.getTrackType() > 0 && attributes.getTrackType() != 0
+			&& params.getTrackType() <= attributes.getTrackType();
+	}
 
-			if (_params.getTrackType() > 0 && _attributes.getTrackType() != 0)
-			{
-				if ( _params.getTrackType() <= _attributes.getTrackType())
-					return false;
-			}
+	private boolean checkMaximumIncline() {
+		return params.getMaximumIncline() > (Float.MAX_VALUE * -1.0f)
+			&& params.getMaximumIncline() < attributes.getIncline();
+	}
 
-			if (_params.getMaximumIncline() > (Float.MAX_VALUE * -1.0f))
-			{
-				if (_params.getMaximumIncline() < _attributes.getIncline())
-					return false;
-			}
+	private boolean checkMaximumSlopedKerb() {
+		return params.getMaximumSlopedKerb() >= 0.0
+			&& params.getMaximumSlopedKerb() * 100.0 < attributes.getSlopedKerbHeight();// Stored in storage in cm
+	}
 
-			if (_params.getMaximumSlopedKerb() >= 0.0)
-			{
-				// Stored in storage in cm
-				if (_params.getMaximumSlopedKerb()*100.0 < _attributes.getSlopedKerbHeight())
-					return false;
-			}
-
-			if (_params.getMinimumWidth() > 0.0) {
-				// if the attribute value is 0, this signifies that no data is available
-				if(_attributes.getWidth() > 0.0) {
-					// stored in storage in cm
-					if(_params.getMinimumWidth()*100.0 > _attributes.getWidth()) {
-						return false;
-					}
-				}
-			}
-		}
-
-		return true;
+	private boolean checkMinimumWidth() {
+		return params.getMinimumWidth() > 0.0
+			&& attributes.getWidth() > 0.0 // if the attribute value is 0, this signifies that no data is available
+			&& params.getMinimumWidth()*100.0 > attributes.getWidth(); // stored in storage in cm
 	}
 }

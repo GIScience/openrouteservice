@@ -22,8 +22,7 @@ import com.graphhopper.util.PMap;
 
 import java.util.*;
 
-public class EmergencyFlagEncoder extends VehicleFlagEncoder
-{
+public class EmergencyFlagEncoder extends VehicleFlagEncoder {
     private static final double MEAN_SPEED = 80;
     public static final String KEY_AGRICULTURAL = "agricultural";
     public static final String KEY_MOTORWAY_LINK = "motorway_link";
@@ -41,17 +40,14 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder
 
     public double getMeanSpeed() { return MEAN_SPEED; }
 
-    public EmergencyFlagEncoder(PMap properties)
-    {
+    public EmergencyFlagEncoder(PMap properties) {
         this(properties.getInt("speed_bits", 5),
         		properties.getDouble("speed_factor", 5),
         		properties.getBool("turn_costs", false) ? 3 : 0);
-        
         setBlockFords(false);
     }
 
-    public EmergencyFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts )
-    {
+    public EmergencyFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
         super(speedBits, speedFactor, maxTurnCosts);
         restrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access"));
         restrictedValues.add("private");
@@ -158,7 +154,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder
         
         // FIXME: allow highway=footway, pedestrian
         
-        _speedLimitHandler = new SpeedLimitHandler(this.toString(), defaultSpeedMap, badSurfaceSpeedMap, trackTypeSpeedMap);
+        speedLimitHandler = new SpeedLimitHandler(this.toString(), defaultSpeedMap, badSurfaceSpeedMap, trackTypeSpeedMap);
 
         forwardKeys.add("goods:forward");
         forwardKeys.add("hgv:forward");
@@ -202,7 +198,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder
 		double maxSpeed = parseSpeed(maxspeedTag);
 		
         String highway = way.getTag(KEY_HIGHWAY);
-        double defaultSpeed = _speedLimitHandler.getSpeed(highway);
+        double defaultSpeed = speedLimitHandler.getSpeed(highway);
         if (defaultSpeed < maxSpeed) // TODO
             maxSpeed = defaultSpeed;
 
@@ -216,14 +212,14 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder
                  && !highwayValue.equals(KEY_MOTORWAY) && !highwayValue.equals(KEY_MOTORWAY_LINK) ) {
              highwayValue = KEY_MOTORROAD;
          }
-         Integer speed = _speedLimitHandler.getSpeed(highwayValue);
+         Integer speed = speedLimitHandler.getSpeed(highwayValue);
          if (speed == null)
              throw new IllegalStateException(toString() + ", no speed found for: " + highwayValue + ", tags: " + way);
 
          if (highwayValue.equals(KEY_TRACK)) {
              String tt = way.getTag("tracktype");
              if (!Helper.isEmpty(tt)) {
-                 Integer tInt = _speedLimitHandler.getTrackTypeSpeed(tt); // FIXME
+                 Integer tInt = speedLimitHandler.getTrackTypeSpeed(tt); // FIXME
                  if (tInt != null && tInt != -1)
                      speed = tInt;
              }
@@ -251,7 +247,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder
             return EncodingManager.Access.CAN_SKIP;
         }
         
-        if (!_speedLimitHandler.hasSpeedValue(highwayValue))
+        if (!speedLimitHandler.hasSpeedValue(highwayValue))
             return EncodingManager.Access.CAN_SKIP;
 
         if (way.hasTag("impassable", "yes") || way.hasTag("status", "impassable"))
@@ -320,18 +316,16 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder
 		// Amandus
         else if (way.hasTag(KEY_HIGHWAY, KEY_SERVICE) && way.hasTag(KEY_SERVICE, "emergency_access"))
             weightToPrioMap.put(100d, PriorityCode.BEST.getValue());
-        else
-		{
+        else {
             // Amandus
-			String busway = way.getTag("busway");// FIXME || way.getTag("busway:right") || way.getTag("busway:left");
+			String busway = way.getTag("busway");// FIXME || way.getTag("busway:right") || way.getTag("busway:left")
             if (!Helper.isEmpty(busway) && "lane".equals(busway))
                 weightToPrioMap.put(10d, PriorityCode.PREFER.getValue());
 
             String highway = way.getTag(KEY_HIGHWAY);
 			double maxSpeed = getMaxSpeed(way);
 			
-			if (!Helper.isEmpty(highway))
-			{
+			if (!Helper.isEmpty(highway)) {
 				if (KEY_MOTORWAY.equals(highway) || KEY_MOTORWAY_LINK.equals(highway) || "trunk".equals(highway) || "trunk_link".equals(highway))
 					weightToPrioMap.put(100d,  PriorityCode.BEST.getValue());
 				else if ("primary".equals(highway) || "primary_link".equals(highway))
@@ -340,8 +334,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder
 					weightToPrioMap.put(100d,  PriorityCode.PREFER.getValue());
 				else if ("tertiary".equals(highway) || "tertiary_link".equals(highway))
 					weightToPrioMap.put(100d,  PriorityCode.UNCHANGED.getValue());
-				else if ("residential".equals(highway) || KEY_SERVICE.equals(highway) || "road".equals(highway) || "unclassified".equals(highway))
-				{
+				else if ("residential".equals(highway) || KEY_SERVICE.equals(highway) || "road".equals(highway) || "unclassified".equals(highway)) {
 					 if (maxSpeed > 0 && maxSpeed <= 30)
 						 weightToPrioMap.put(120d,  PriorityCode.REACH_DEST.getValue());
 					 else
@@ -357,8 +350,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder
 			else	
 				weightToPrioMap.put(100d, PriorityCode.UNCHANGED.getValue());
 			
-			if (maxSpeed > 0)
-			{
+			if (maxSpeed > 0) {
 				// We assume that the given road segment goes through a settlement.
 				if (maxSpeed <= 40)
 					weightToPrioMap.put(110d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
@@ -367,7 +359,22 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder
 			}
 		}
 	}
-    
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final EmergencyFlagEncoder other = (EmergencyFlagEncoder) obj;
+        return toString().equals(other.toString());
+    }
+
+    @Override
+    public int hashCode() {
+        return ("EmergencyFlagEncoder" + toString()).hashCode();
+    }
+
     @Override
     public String toString()
     {
@@ -376,7 +383,6 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder
 
 	@Override
 	public int getVersion() {
-		// TODO Auto-generated method stub
 		return 2;
 	}
 }

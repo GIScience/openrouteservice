@@ -18,6 +18,8 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
+import org.apache.log4j.Logger;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GreenIndexGraphStorage;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -26,72 +28,60 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.heigit.ors.routing.graphhopper.extensions.storages.GreenIndexGraphStorage;
-
 /**
  * Created by lliu on 13/03/2017.
  */
 public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
-    private GreenIndexGraphStorage _storage;
-    private Map<Long, Double> _greenIndices = new HashMap<>();
-    private static int TOTAL_LEVEL = 64;
-    private static int DEFAULT_LEVEL = TOTAL_LEVEL - 1;
-    private Map<Byte, SlotRange> _slots = new HashMap<>(TOTAL_LEVEL);
+    private static final Logger LOGGER = Logger.getLogger(GreenIndexGraphStorageBuilder.class.getName());
 
-    public GreenIndexGraphStorageBuilder() {
-
-    }
+    private GreenIndexGraphStorage storage;
+    private Map<Long, Double> greenIndices = new HashMap<>();
+    private static final int TOTAL_LEVEL = 64;
+    private static final int DEFAULT_LEVEL = TOTAL_LEVEL - 1;
+    private Map<Byte, SlotRange> slots = new HashMap<>(TOTAL_LEVEL);
 
     @Override
     public GraphExtension init(GraphHopper graphhopper) throws Exception {
-        if (_storage != null)
+        if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
         // TODO Check if the _greenIndexFile exists
         String csvFile = parameters.get("filepath");
         readGreenIndicesFromCSV(csvFile);
         prepareGreenIndexSlots();
-        _storage = new GreenIndexGraphStorage();
+        storage = new GreenIndexGraphStorage();
 
-        return _storage;
+        return storage;
     }
 
     private void prepareGreenIndexSlots() {
-        double max = Collections.max(_greenIndices.values());
-        double min = Collections.min(_greenIndices.values());
+        double max = Collections.max(greenIndices.values());
+        double min = Collections.min(greenIndices.values());
         double step = (max - min) / TOTAL_LEVEL;
         // Divide the range of raw green index values into TOTAL_LEVEL,
         // then map the raw value to [0..TOTAL_LEVEL - 1]
         for (byte i = 0; i < TOTAL_LEVEL; i++) {
-            _slots.put(i, new SlotRange(min + i * step, min + (i + 1) * step));
+            slots.put(i, new SlotRange(min + i * step, min + (i + 1) * step));
         }
     }
 
     private void readGreenIndicesFromCSV(String csvFile) throws IOException {
-        BufferedReader csvBuffer = null;
-        
-        try {
+        try (BufferedReader csvBuffer = new BufferedReader(new FileReader(csvFile))) {
             String row;
-            csvBuffer = new BufferedReader(new FileReader(csvFile));
             // Jump the header line
             row = csvBuffer.readLine();
             char separator = row.contains(";") ? ';': ',';
             String[] rowValues = new String[2];
             
-            while ((row = csvBuffer.readLine()) != null) 
-            {
+            while ((row = csvBuffer.readLine()) != null)  {
                 if (!parseCSVrow(row, separator, rowValues)) 
                 	continue;
                 
-                _greenIndices.put(Long.parseLong(rowValues[0]), Double.parseDouble(rowValues[1]));
+                greenIndices.put(Long.parseLong(rowValues[0]), Double.parseDouble(rowValues[1]));
             }
-
         } catch (IOException openFileEx) {
-            openFileEx.printStackTrace();
+            LOGGER.error(openFileEx.getStackTrace());
             throw openFileEx;
-        } finally {
-            if (csvBuffer != null) 
-            	csvBuffer.close();
         }
     }
 
@@ -100,28 +90,23 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
         	return false;
         
         int pos = row.indexOf(separator);
-        if (pos > 0)
-        {
+        if (pos > 0) {
         	rowValues[0] = row.substring(0, pos).trim();
         	rowValues[1] = row.substring(pos+1, row.length()).trim();
         	// read, check and push "osm_id" and "ungreen_factor" values
-        	if (Helper.isEmpty(rowValues[0]) || Helper.isEmpty(rowValues[1])) 
-        		return false;
-        	
-        	return true;
+            return !Helper.isEmpty(rowValues[0]) && !Helper.isEmpty(rowValues[1]);
         }
-        else
-        	return false;
+       	return false;
     }
 
     @Override
     public void processWay(ReaderWay way) {
-
+        // do nothing
     }
 
     @Override
     public void processEdge(ReaderWay way, EdgeIteratorState edge) {
-        _storage.setEdgeValue(edge.getEdge(), calcGreenIndex(way.getId()));
+        storage.setEdgeValue(edge.getEdge(), calcGreenIndex(way.getId()));
     }
 
     private class SlotRange {
@@ -135,13 +120,12 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
         boolean within(double val) {
             // check if the @val falls in [left, right] range
-            if ((val < left) || (val > right)) return false;
-            return true;
+            return (val >= left) && (val <= right);
         }
     }
 
     private byte calcGreenIndex(long id) {
-        Double gi = _greenIndices.get(id);
+        Double gi = greenIndices.get(id);
 
         // No such @id key in the _greenIndices, or the value of it is null
         // We set its green level to TOTAL_LEVEL/2 indicating the middle value for such cases
@@ -150,7 +134,7 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
         if (gi == null)
             return (byte) (DEFAULT_LEVEL);
 
-        for (Map.Entry<Byte, SlotRange> s : _slots.entrySet()) {
+        for (Map.Entry<Byte, SlotRange> s : slots.entrySet()) {
             if (s.getValue().within(gi))
                 return s.getKey();
         }

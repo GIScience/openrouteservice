@@ -20,28 +20,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProfileParameters {
-    protected ProfileWeightingCollection _weightings;
+    protected ProfileWeightingCollection weightings;
 
-    public void add(ProfileWeighting weighting)
-    {
-    	if (_weightings == null)
-    		_weightings = new ProfileWeightingCollection();
-    	
-    	_weightings.add(weighting);
+    public void add(ProfileWeighting weighting) {
+    	if (weightings == null)
+    		weightings = new ProfileWeightingCollection();
+    	weightings.add(weighting);
     }
     
     public ProfileWeightingCollection getWeightings()
     {
-    	return _weightings;
+    	return weightings;
     }
     
     public boolean hasWeightings()
     {
-    	return _weightings != null && _weightings.size() > 0;
+    	return weightings != null && weightings.size() > 0;
     }
 
     public List<String> getValidRestrictions() {
-        List<String> valid = new ArrayList<>();
-        return valid;
+        return new ArrayList<>();
     }
 }

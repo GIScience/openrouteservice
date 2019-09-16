@@ -16,16 +16,40 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
 import com.graphhopper.util.EdgeIterator;
 
 public class MultiTreeSPEntryItem {
-	public int edge = EdgeIterator.NO_EDGE;
-	public double weight = Double.POSITIVE_INFINITY;
-	public boolean update =  false;
-	public MultiTreeSPEntry parent = null;
-	
-	public void assignFrom(MultiTreeSPEntryItem item)
-	{
-		edge = item.edge;
-		weight = item.weight;
-		update = item.update;
-		parent = item.parent;
+	private int edge = EdgeIterator.NO_EDGE;
+	private double weight = Double.POSITIVE_INFINITY;
+	private boolean update =  false;
+	private MultiTreeSPEntry parent = null;
+
+	public int getEdge() {
+		return edge;
+	}
+
+	public void setEdge(int edge) {
+		this.edge = edge;
+	}
+
+	public double getWeight() {
+		return weight;
+	}
+
+	public void setWeight(double weight) {
+		this.weight = weight;
+	}
+
+	public boolean isUpdate() {
+		return update;
+	}
+
+	public void setUpdate(boolean update) {
+		this.update = update;
+	}
+
+	public MultiTreeSPEntry getParent() {
+		return parent;
+	}
+
+	public void setParent(MultiTreeSPEntry parent) {
+		this.parent = parent;
 	}
 }

@@ -31,17 +31,6 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNam
 public class RegularBikeFlagEncoder extends CommonBikeFlagEncoder {
     private static final int MEAN_SPEED = 15;
 
-    public RegularBikeFlagEncoder() {
-        // MARQ24 MOD START
-        //this(4, 2, 0);
-        this(4, 2, 0, false);
-        // MARQ24 MOD END
-    }
-
-    public RegularBikeFlagEncoder(String propertiesString) {
-        this(new PMap(propertiesString));
-    }
-
     public RegularBikeFlagEncoder(PMap properties) {
         this(
             // MARQ24 MOD START
@@ -57,12 +46,8 @@ public class RegularBikeFlagEncoder extends CommonBikeFlagEncoder {
         this.setBlockFords(properties.getBool("block_fords", true));
     }
 
-    // MARQ24 MOD START
-    //public NextGenBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
     public RegularBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
-        //super(speedBits, speedFactor, maxTurnCosts);
         super(speedBits, speedFactor, maxTurnCosts, considerElevation);
-        // MARQ24 MOD END
         addPushingSection("path");
         addPushingSection("footway");
         addPushingSection("pedestrian");
@@ -75,7 +60,6 @@ public class RegularBikeFlagEncoder extends CommonBikeFlagEncoder {
         avoidHighwayTags.add("secondary");
         avoidHighwayTags.add("secondary_link");
 
-        // preferHighwayTags.add("road");
         preferHighwayTags.add("service");
         preferHighwayTags.add("tertiary");
         preferHighwayTags.add("tertiary_link");
@@ -103,7 +87,6 @@ public class RegularBikeFlagEncoder extends CommonBikeFlagEncoder {
         String trackType = way.getTag("tracktype");
         return super.isPushingSection(way) || "track".equals(highway) && trackType != null
         // MARQ24 MOD START - by Runge
-                //&& !"grade1".equals(trackType);
                 && !("grade1".equals(trackType) || "grade2".equals(trackType) || "grade3".equals(trackType));
         // MARQ24 MOD END
     }
@@ -111,7 +94,6 @@ public class RegularBikeFlagEncoder extends CommonBikeFlagEncoder {
     @Override
     public String toString() {
         // MARQ24 MOD START
-        //return "bike";
         return FlagEncoderNames.BIKE_ORS;
         // MARQ24 MOD END
     }

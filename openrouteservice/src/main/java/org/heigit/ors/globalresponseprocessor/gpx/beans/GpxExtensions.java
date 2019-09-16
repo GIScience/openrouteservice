@@ -85,12 +85,12 @@ public class GpxExtensions extends ExtensionsType {
         this.engine = engine;
     }
 
-    public String getBuild_date() {
+    public String getBuildDate() {
         return build_date;
     }
 
-    public void setBuild_date(String build_date) {
-        this.build_date = build_date;
+    public void setBuildDate(String buildDate) {
+        this.build_date = buildDate;
     }
 
     public String getProfile() {
@@ -117,20 +117,20 @@ public class GpxExtensions extends ExtensionsType {
         this.language = language;
     }
 
-    public String getDistance_units() {
+    public String getDistanceUnits() {
         return distance_units;
     }
 
-    public void setDistance_units(String distance_units) {
-        this.distance_units = distance_units;
+    public void setDistanceUnits(String distanceUnits) {
+        this.distance_units = distanceUnits;
     }
 
-    public String getDuration_units() {
+    public String getDurationUnits() {
         return duration_units;
     }
 
-    public void setDuration_units(String duration_units) {
-        this.duration_units = duration_units;
+    public void setDurationUnits(String durationUnits) {
+        this.duration_units = durationUnits;
     }
 
     public String getInstructions() {

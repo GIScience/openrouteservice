@@ -69,11 +69,11 @@ public class ByteStreamResponseWrapper extends HttpServletResponseWrapper
     }
     
 	public class ServletOutputStreamImpl extends ServletOutputStream {
-		private OutputStream _out;
-		private byte[] _buffer;
+		private OutputStream outputStream;
+		private byte[] buffer;
 
 		public ServletOutputStreamImpl(OutputStream out) {
-			_out = out;
+			outputStream = out;
 		}
 
 
@@ -81,15 +81,16 @@ public class ByteStreamResponseWrapper extends HttpServletResponseWrapper
 		 * Writes a byte to the output stream.
 		 */
 		public final void write(int b) throws IOException {
-			_out.write(b);
+			outputStream.write(b);
 		}
 
 		/**
 		 * Writes a byte buffer to the output stream.
 		 */
+		@Override
 		public final void write(byte[] buf, int offset, int len)
 				throws IOException {
-			_out.write(buf, offset, len);
+			outputStream.write(buf, offset, len);
 		}
 
 		/**
@@ -104,29 +105,27 @@ public class ByteStreamResponseWrapper extends HttpServletResponseWrapper
 			if (s == null)
 				s = "null";
 
-			OutputStream out = _out;
-
-			{
+			try (OutputStream out = outputStream) {
 				int length = s.length();
 
-				if (_buffer == null)
-					_buffer = new byte[128];
+				if (buffer == null)
+					buffer = new byte[128];
 
-				byte[] buffer = _buffer;
+				byte[] localBuffer = this.buffer;
 
 				// server/0810
 				int offset = 0;
 
 				while (length > 0) {
-					int sublen = buffer.length;
+					int sublen = localBuffer.length;
 					if (length < sublen)
 						sublen = length;
 
 					for (int i = 0; i < sublen; i++) {
-						buffer[i] = (byte) s.charAt(i + offset);
+						localBuffer[i] = (byte) s.charAt(i + offset);
 					}
 
-					out.write(buffer, 0, sublen);
+					out.write(localBuffer, 0, sublen);
 
 					length -= sublen;
 					offset += sublen;
@@ -134,29 +133,25 @@ public class ByteStreamResponseWrapper extends HttpServletResponseWrapper
 			}
 		}
 
+		@Override
 		public final void flush() throws IOException {
-			_out.flush();
-		}
-
-		public final void close() throws IOException {
+			outputStream.flush();
 		}
 
 		public String toString() {
-			return getClass().getSimpleName() + "[" + _out + "]";
+			return getClass().getSimpleName() + "[" + outputStream + "]";
 		}
 
 
 		@Override
 		public boolean isReady() {
-			// TODO Auto-generated method stub
 			return true;
 		}
 
 
 		@Override
 		public void setWriteListener(WriteListener writeListener) {
-			// TODO Auto-generated method stub
-			
+			// do nothing
 		}
 	}
 }

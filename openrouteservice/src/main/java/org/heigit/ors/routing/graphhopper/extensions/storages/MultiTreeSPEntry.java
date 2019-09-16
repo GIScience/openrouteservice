@@ -18,9 +18,10 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
  * <p>
  *
  */
-public class MultiTreeSPEntry implements Cloneable, Comparable<MultiTreeSPEntry> {
-	public int adjNode;
-	public boolean visited = false;
+public class MultiTreeSPEntry implements Comparable<MultiTreeSPEntry> {
+
+	private int adjNode;
+	private boolean visited = false;
 	private MultiTreeSPEntryItem[] items;
 	private double totalWeight = 0.0;
 
@@ -29,35 +30,36 @@ public class MultiTreeSPEntry implements Cloneable, Comparable<MultiTreeSPEntry>
 		this.items = new MultiTreeSPEntryItem[numTrees];
 		double entryWeight;
 		
-		for (int i = 0; i < numTrees; ++i)
-		{
+		for (int i = 0; i < numTrees; ++i) {
 			MultiTreeSPEntryItem item = new MultiTreeSPEntryItem();
 			items[i] = item;
 
-			entryWeight = parent == null ? Double.POSITIVE_INFINITY : parent.items[i].weight;
+			entryWeight = parent == null ? Double.POSITIVE_INFINITY : parent.items[i].getWeight();
 			if (entryWeight == Double.POSITIVE_INFINITY && parent != null)
 				continue;
 
-			item.weight = edgeWeight + entryWeight;
-			item.parent = parent;
-			item.edge = edgeId;
-			item.update = updated;
-			totalWeight += item.weight;
+			item.setWeight(edgeWeight + entryWeight);
+			item.setParent(parent);
+			item.setEdge(edgeId);
+			item.setUpdate(updated);
+			totalWeight += item.getWeight();
 		}
 	}
-	
-	private MultiTreeSPEntry(MultiTreeSPEntry entry) {
-		int numTrees = entry.items.length;
-		this.items = new MultiTreeSPEntryItem[numTrees];
-		
-		for (int i = 0; i < numTrees; ++i)
-		{
-			MultiTreeSPEntryItem item = new MultiTreeSPEntryItem();
-			entry.items[i].assignFrom(item);
-			items[i] = item;
-		}
-		
-		totalWeight = entry.totalWeight;
+
+	public int getAdjNode() {
+		return adjNode;
+	}
+
+	public void setAdjNode(int adjNode) {
+		this.adjNode = adjNode;
+	}
+
+	public boolean isVisited() {
+		return visited;
+	}
+
+	public void setVisited(boolean visited) {
+		this.visited = visited;
 	}
 
 	public int getSize()
@@ -70,30 +72,18 @@ public class MultiTreeSPEntry implements Cloneable, Comparable<MultiTreeSPEntry>
 		return items[index];
 	}
 
-	public void resetUpdate(boolean value)
-	{
+	public void resetUpdate(boolean value) {
 		for (int i = 0; i < items.length; i++) {
-			items[i].update = value;
+			items[i].setUpdate(value);
 		}
 	}
 
-	@Override
-	public MultiTreeSPEntry clone() {
-		MultiTreeSPEntry res = new MultiTreeSPEntry(this);
-		return res;
-	}
-
-	public MultiTreeSPEntry cloneFull() {
-		throw new UnsupportedOperationException("cloneFull not supported");
-	}
-	
-	public void updateWeights()
-	{
+	public void updateWeights() {
 		totalWeight = 0.0;
 		
 		for (int i = 0; i < items.length; i++) {
-			if(items[i].weight == Double.POSITIVE_INFINITY) continue;
-			totalWeight += items[i].weight;
+			if(items[i].getWeight() == Double.POSITIVE_INFINITY) continue;
+			totalWeight += items[i].getWeight();
 		}
 	}
 
@@ -104,6 +94,21 @@ public class MultiTreeSPEntry implements Cloneable, Comparable<MultiTreeSPEntry>
 
 		// assumption no NaN and no -0
 		return totalWeight > o.totalWeight ? 1 : 0;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		final MultiTreeSPEntry other = (MultiTreeSPEntry) obj;
+		return toString().equals(other.toString());
+	}
+
+	@Override
+	public int hashCode() {
+		return ("MultiTreeSPEntry" + toString()).hashCode();
 	}
 
 	@Override

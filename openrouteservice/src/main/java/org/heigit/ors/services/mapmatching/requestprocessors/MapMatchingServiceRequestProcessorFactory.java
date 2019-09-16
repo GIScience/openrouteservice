@@ -27,9 +27,9 @@ import org.heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import com.graphhopper.util.Helper;
 
 public class MapMatchingServiceRequestProcessorFactory {
+	private MapMatchingServiceRequestProcessorFactory() {}
 
-	public static AbstractHttpRequestProcessor createProcessor(HttpServletRequest request) throws Exception  
-	{
+	public static AbstractHttpRequestProcessor createProcessor(HttpServletRequest request) throws Exception   {
 		if (!MapMatchingServiceSettings.getEnabled())
 			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, MapMatchingErrorCodes.UNKNOWN,  "Map Matching service is not enabled.");
 
@@ -41,8 +41,7 @@ public class MapMatchingServiceRequestProcessorFactory {
 		if (Helper.isEmpty(formatParam))
 			formatParam = "json";
 		
-		switch(formatParam)
-		{
+		switch(formatParam) {
 			case "json":
 			case "geojson":
 				return new JsonMapMatchingRequestProcessor(request);

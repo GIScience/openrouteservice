@@ -19,13 +19,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.heigit.ors.api.requests.common.APIEnums;
-import org.heigit.ors.api.requests.routing.RouteRequestOptions;
-import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.isochrones.IsochronesErrorCodes;
-import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 
 import java.util.List;
 
@@ -125,7 +122,7 @@ public class IsochronesRequest {
             value = "Specifies whether to return intersecting polygons. " +
                     "CUSTOM_KEYS:{'apiDefault':false}")
     @JsonProperty(value = PARAM_INTERSECTIONS)
-    private Boolean intersections;
+    private boolean intersections;
     @JsonIgnore
     private boolean hasIntersections = false;
 
@@ -161,6 +158,7 @@ public class IsochronesRequest {
 
     @JsonCreator
     public IsochronesRequest() {
+        // nothing to do
     }
 
     public String getId() {
@@ -210,7 +208,7 @@ public class IsochronesRequest {
         this.responseType = responseType;
     }
 
-    public Boolean getIntersections() {
+    public boolean getIntersections() {
         return intersections;
     }
 

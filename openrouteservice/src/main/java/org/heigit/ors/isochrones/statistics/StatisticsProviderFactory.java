@@ -20,107 +20,74 @@
  */
 package org.heigit.ors.isochrones.statistics;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.ServiceLoader;
-
 import org.apache.log4j.Logger;
-
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.isochrones.IsochronesErrorCodes;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ServiceLoader;
 
 public class StatisticsProviderFactory {
 	
 	private static final Logger LOGGER = Logger.getLogger(StatisticsProviderFactory.class.getName());
 	
-	private static Map<String, StatisticsProviderItem> _providers;
-    private static Object _lockObj;
+	private static Map<String, StatisticsProviderItem> providers;
+    private static final Object lockObj;
 
-	static
-	{
-    	_lockObj = new Object();
-		_providers = new HashMap<String, StatisticsProviderItem>();
-		
-		synchronized(_lockObj)
-		{
+	static {
+    	lockObj = new Object();
+		providers = new HashMap<>();
+		synchronized(lockObj) {
 			ServiceLoader<StatisticsProvider> loader = ServiceLoader.load(StatisticsProvider.class);
-
-			Iterator<StatisticsProvider> entries = loader.iterator();
-			while (entries.hasNext()) {
-				StatisticsProvider entry = entries.next();
+			for (StatisticsProvider entry : loader) {
 				String name = entry.getName().toLowerCase();
-				
-				if (!_providers.containsKey(name))
-				{
+				if (!providers.containsKey(name)) {
 					try {
-						StatisticsProvider provider = entry.getClass().newInstance();
+						StatisticsProvider provider = entry.getClass().getConstructor().newInstance();
 						StatisticsProviderItem item = new StatisticsProviderItem(provider);
-						_providers.put(name, item);
-					} catch (InstantiationException e) {
-						e.printStackTrace();
-					} catch (IllegalAccessException e) {
-						e.printStackTrace();
+						providers.put(name, item);
+					} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+						LOGGER.error(e);
 					}
 				}
 			}
 		}
 	}
-	public static String getProviderName(String statName)
-	{
-		return null;
-	}
-	
-	public static StatisticsProvider getProvider(String name, Map<String, Object> parameters) throws Exception
-	{
+
+	private StatisticsProviderFactory() {}
+
+	public static StatisticsProvider getProvider(String name, Map<String, Object> parameters) throws Exception {
 		if (name == null)
 			throw new Exception("Data provider is not defined.");
-		
-		StatisticsProvider provider = null;
-
-		synchronized(_lockObj)
-		{
+		StatisticsProvider provider ;
+		synchronized(lockObj) {
 			String pname = name.toLowerCase();
-
-			StatisticsProviderItem item = _providers.get(pname);
-
-			if (item == null)
-			{
+			StatisticsProviderItem item = providers.get(pname);
+			if (item == null) {
 				Exception ex = new Exception("Unable to find a data provider with name '" + name + "'.");
 				LOGGER.error(ex);
-				
 				throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, ex.getMessage());
 			}
-
 			provider = item.getProvider();
-			
-			if (!item.getIsInitialized())
-			{
-				try
-				{
+			if (!item.getIsInitialized()) {
+				try {
 					provider.init(parameters);
-				}
-				catch(Exception ex)
-				{
+				} catch(Exception ex) {
 					LOGGER.error(ex);
-					
 					throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to initialize a data provider with name '" + name + "'.");
 				}
-				
 				item.setIsInitialized(true);
 			}
 		}
-
 		return provider;
 	}
 	
 
-	public static void releaseProviders() throws Exception
-	{
-		synchronized(_lockObj)
-		{
-			for(Map.Entry<String, StatisticsProviderItem> item: _providers.entrySet())
-			{
+	public static void releaseProviders() throws Exception {
+		synchronized(lockObj) {
+			for(Map.Entry<String, StatisticsProviderItem> item: providers.entrySet()) {
 				if (item.getValue().getIsInitialized())
 					item.getValue().getProvider().close();
 			}

@@ -16,38 +16,35 @@ package org.heigit.ors.routing;
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class RouteStepManeuver {
-	private Coordinate _location;
-	private int _bearingBefore = 0;
-	private int _bearingAfter = 0;
+	private Coordinate location;
+	private int bearingBefore = 0;
+	private int bearingAfter = 0;
 	
-	public RouteStepManeuver()
-	{}
-
 	public Coordinate getLocation() {
-		return _location;
+		return location;
 	}
 
 	public void setLocation(Coordinate location) {
-		_location = location;
+		this.location = location;
 	}
 
 	public int getBearingBefore() {
-		return _bearingBefore;
+		return bearingBefore;
 	}
 
 	public void setBearingBefore(int value) {
-		_bearingBefore = value;
+		bearingBefore = value;
 	}
 	
 	public int getBearingAfter() {
-		return _bearingAfter;
+		return bearingAfter;
 	}
 
 	public void setBearingAfter(int value) {
-		_bearingAfter = value;
+		bearingAfter = value;
 	}
 
     public boolean isContinue() {
-		return Math.abs(_bearingAfter - _bearingBefore) < 6;
+		return Math.abs(bearingAfter - bearingBefore) < 6;
 	}
 }

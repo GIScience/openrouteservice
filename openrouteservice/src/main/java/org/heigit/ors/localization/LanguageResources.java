@@ -16,50 +16,43 @@ package org.heigit.ors.localization;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LanguageResources 
-{
-	private Map<Integer,LocalString> _localStrings = null;
-	private Language _lang;
+public class LanguageResources {
+	private Map<Integer,LocalString> localStrings;
+	private Language lang;
 	
-	public LanguageResources(Language lang)
-	{
-		_lang = lang;
-		_localStrings = new HashMap<Integer, LocalString>();
+	public LanguageResources(Language lang) {
+		this.lang = lang;
+		localStrings = new HashMap<>();
 	}
 	
-	public void addLocalString(String resourceName, String resourceText)
-	{
+	public void addLocalString(String resourceName, String resourceText) {
 		int hashCode = resourceName.hashCode();
 
-		if (!_localStrings.containsKey(hashCode))
-		{
-			LocalString localString = new LocalString(_lang, resourceText);
-			_localStrings.put(hashCode, localString);
+		if (!localStrings.containsKey(hashCode)) {
+			LocalString localString = new LocalString(lang, resourceText);
+			localStrings.put(hashCode, localString);
 		}
 	}
 	
 	public Language getLangCode()
 	{
-		return _lang;
+		return lang;
 	}
 	
-	public String getTranslation(String name) throws Exception
-	{
+	public String getTranslation(String name) throws Exception {
 		return getTranslation(name, false);
 	}
 	
-	public String getTranslation(String name, boolean throwException) throws Exception
-	{
+	public String getTranslation(String name, boolean throwException) throws Exception {
 		if (name == null)
 			return null;
 
-		LocalString ls = _localStrings.get(name.hashCode());
-		if (ls != null)
+		LocalString ls = localStrings.get(name.hashCode());
+		if (ls != null) {
 			return ls.getString();
-		else
-		{
+		} else {
 			if (throwException)
-				throw new Exception("Unable to find translation for '" + name + "' in language '" + _lang.getLangCode() + "'.");
+				throw new Exception("Unable to find translation for '" + name + "' in language '" + lang.getLangCode() + "'.");
 			else
 				return null;
 		}

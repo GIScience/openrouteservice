@@ -20,11 +20,11 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
-import org.heigit.ors.exceptions.MissingConfigParameterException;
+import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
-import org.apache.log4j.Logger;
+import org.heigit.ors.util.ErrorLoggingUtility;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -78,7 +78,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             if(parameters.containsKey(PARAM_KEY_BOUNDARIES))
                 bordersFile = parameters.get(PARAM_KEY_BOUNDARIES);
             else {
-                new MissingConfigParameterException(BordersGraphStorageBuilder.class, PARAM_KEY_BOUNDARIES);
+                ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_BOUNDARIES);
                 // We cannot continue without the information
                 throw new MissingResourceException("A boundary geometry file is needed to use the borders extended storage!", BordersGraphStorage.class.getName(), PARAM_KEY_BOUNDARIES);
             }
@@ -86,12 +86,12 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             if(parameters.containsKey("ids"))
                 countryIdsFile = parameters.get("ids");
             else
-                new MissingConfigParameterException(BordersGraphStorageBuilder.class, "ids");
+                ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, "ids");
 
             if(parameters.containsKey(PARAM_KEY_OPEN_BORDERS))
                 openBordersFile = parameters.get(PARAM_KEY_OPEN_BORDERS);
             else
-                new MissingConfigParameterException(BordersGraphStorageBuilder.class, PARAM_KEY_OPEN_BORDERS);
+                ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_OPEN_BORDERS);
 
             // Read the file containing all of the country border polygons
             this.cbReader = new CountryBordersReader(bordersFile, countryIdsFile, openBordersFile);

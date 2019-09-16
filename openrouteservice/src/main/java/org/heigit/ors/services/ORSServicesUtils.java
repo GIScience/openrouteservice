@@ -39,6 +39,7 @@ import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 public class ORSServicesUtils {
+	private ORSServicesUtils() {}
 
 	public static void writeStatusInfo(HttpServletRequest req, HttpServletResponse res) throws Exception {
 
@@ -46,13 +47,12 @@ public class ORSServicesUtils {
 
 		jInfo.put("engine", AppInfo.getEngineInfo());
 
-		if (RoutingProfileManagerStatus.isReady())
-		{
+		if (RoutingProfileManagerStatus.isReady()) {
 			RoutingProfileManager profileManager = RoutingProfileManager.getInstance();
 
-			if (profileManager.getProfiles().getUniqueProfiles().size() > 0) {
+			if (!profileManager.getProfiles().getUniqueProfiles().isEmpty()) {
 
-				List<String> list = new ArrayList<String>(4);
+				List<String> list = new ArrayList<>(4);
 				if (RoutingServiceSettings.getEnabled())
 					list.add("routing");
 				if (IsochronesServiceSettings.getEnabled())
@@ -108,10 +108,8 @@ public class ORSServicesUtils {
 
 				jInfo.put("profiles", jProfiles);
 			}
-		}
-		else
-		{
-			// TODO
+		} else {
+			// do nothing
 		}
 
 		writeJson(req, res, jInfo);
@@ -146,25 +144,23 @@ public class ORSServicesUtils {
 		}
 	}
 
-	private static String formatDateTime(Date date )
-	{
+	private static String formatDateTime(Date date ) {
 		return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(date);
 	}
 
-	protected static boolean getBooleanParam(HttpServletRequest req, String string, boolean _default) {
+	protected static boolean getBooleanParam(HttpServletRequest req, String string, boolean defaultValue) {
 		try {
-			return Boolean.parseBoolean(getParam(req, string, "" + _default));
+			return Boolean.parseBoolean(getParam(req, string, "" + defaultValue));
 		} catch (Exception ex) {
-			return _default;
+			return defaultValue;
 		}
 	}
 
-	protected static String getParam(HttpServletRequest req, String string, String _default) {
+	protected static String getParam(HttpServletRequest req, String string, String defaultValue) {
 		String[] l = req.getParameterMap().get(string);
 		if (l != null && l.length > 0)
 			return l[0];
-
-		return _default;
+		return defaultValue;
 	}
 
 	protected static String[] getParams(HttpServletRequest req, String string) {
@@ -180,7 +176,7 @@ public class ORSServicesUtils {
 			res.setStatus(SC_OK);
 			res.getWriter().append(str);
 		} catch (IOException ex) {
-			// logger.error("Cannot write message:" + str, ex);
+			// logger.error("Cannot write message:" + str, ex)
 		}
 	}
 }

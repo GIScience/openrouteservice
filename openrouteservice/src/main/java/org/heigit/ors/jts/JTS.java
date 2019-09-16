@@ -66,14 +66,14 @@ public final class JTS {
      * A pool of direct positions for use in {@link #orthodromicDistance}.
      */
     private static final GeneralDirectPosition[] POSITIONS = new GeneralDirectPosition[4];
-    private static GeometryFactory _factory;
+    private static GeometryFactory factory;
 
     static {
         for (int i = 0; i < POSITIONS.length; i++) {
             POSITIONS[i] = new GeneralDirectPosition(i);
         }
         
-        _factory = new GeometryFactory();
+        factory = new GeometryFactory();
     }
 
     /**
@@ -83,7 +83,7 @@ public final class JTS {
      * Note: We would like to use {@link org.geotools.util.CanonicalSet}, but we can't because
      * {@link GeodeticCalculator} keep a reference to the CRS which is used as the key.
      */
-    private static final Map<CoordinateReferenceSystem, GeodeticCalculator> CALCULATORS = new HashMap<CoordinateReferenceSystem, GeodeticCalculator>();
+    private static final Map<CoordinateReferenceSystem, GeodeticCalculator> CALCULATORS = new HashMap<>();
 
     /**
      * Do not allow instantiation of this class.
@@ -101,8 +101,7 @@ public final class JTS {
      * @throws IllegalArgumentException
      *             if {@code object} is null.
      */
-    private static void ensureNonNull(final String name, final Object object)
-            throws IllegalArgumentException {
+    private static void ensureNonNull(final String name, final Object object) throws IllegalArgumentException {
         if (object == null) {
             throw new IllegalArgumentException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1, name));
         }
@@ -147,13 +146,13 @@ public final class JTS {
          * shared instances of GeodeticCalculator and GeneralDirectPosition (POSITIONS). None of
          * them are thread-safe.
          */
-        GeodeticCalculator gc = (GeodeticCalculator) CALCULATORS.get(crs);
+        GeodeticCalculator gc = CALCULATORS.get(crs);
 
         if (gc == null) {
             gc = new GeodeticCalculator(crs);
             CALCULATORS.put(crs, gc);
         }
-        assert crs.equals(gc.getCoordinateReferenceSystem()) : crs;
+        if (!crs.equals(gc.getCoordinateReferenceSystem())) throw new AssertionError(crs);
 
         final GeneralDirectPosition pos = POSITIONS[Math.min(POSITIONS.length - 1, crs
                 .getCoordinateSystem().getDimension())];
@@ -183,20 +182,20 @@ public final class JTS {
         ensureNonNull("ordinates", ordinates);
 
         switch (ordinates.length) {
-        default:
-            Arrays.fill(ordinates, 3, ordinates.length, Double.NaN); // Fall through
+            case 3:
+                ordinates[2] = point.z; // Fall through
 
-        case 3:
-            ordinates[2] = point.z; // Fall through
+            case 2:
+                ordinates[1] = point.y; // Fall through
 
-        case 2:
-            ordinates[1] = point.y; // Fall through
+            case 1:
+                ordinates[0] = point.x; // Fall through
 
-        case 1:
-            ordinates[0] = point.x; // Fall through
+            case 0:
+                break;
 
-        case 0:
-            break;
+            default:
+                Arrays.fill(ordinates, 3, ordinates.length, Double.NaN); // Fall through
         }
     }
 
@@ -366,10 +365,12 @@ public final class JTS {
         final int N = ls.getNumPoints();
         final boolean isLinearRing = ls instanceof LinearRing;
 
-        List<Coordinate> retain = new ArrayList<Coordinate>();
+        List<Coordinate> retain = new ArrayList<>();
         retain.add(ls.getCoordinateN(0));
 
-        int i0 = 0, i1 = 1, i2 = 2;
+        int i0 = 0;
+        int i1 = 1;
+        int i2 = 2;
         Coordinate firstCoord = ls.getCoordinateN(i0);
         Coordinate midCoord;
         Coordinate lastCoord;
@@ -430,7 +431,7 @@ public final class JTS {
         }
 
         // work on the holes
-        List<LineString> holes = new ArrayList<LineString>();
+        List<LineString> holes = new ArrayList<>();
         final int size = polygon.getNumInteriorRing();
         for (int i = 0; i < size; i++) {
             LineString hole = polygon.getInteriorRingN(i);
@@ -518,20 +519,17 @@ public final class JTS {
     
     public static Polygon toGeometry(final Envelope env)
     {
-    	return toGeometry(env, _factory);
+    	return toGeometry(env, factory);
     }
     
     public static Polygon toGeometry(final Envelope env, GeometryFactory factory) {
         ensureNonNull("env", env);
         
-        Polygon polygon = factory.createPolygon(
-                factory.createLinearRing(new Coordinate[] {
-                        new Coordinate(env.getMinX(), env.getMinY()),
-                        new Coordinate(env.getMaxX(), env.getMinY()),
-                        new Coordinate(env.getMaxX(), env.getMaxY()),
-                        new Coordinate(env.getMinX(), env.getMaxY()),
-                        new Coordinate(env.getMinX(), env.getMinY()) }), null);
-        
-        return polygon;
-}
+        return factory.createPolygon(factory.createLinearRing(new Coordinate[] {
+            new Coordinate(env.getMinX(), env.getMinY()),
+            new Coordinate(env.getMaxX(), env.getMinY()),
+            new Coordinate(env.getMaxX(), env.getMaxY()),
+            new Coordinate(env.getMinX(), env.getMaxY()),
+            new Coordinate(env.getMinX(), env.getMinY()) }), null);
+    }
 }

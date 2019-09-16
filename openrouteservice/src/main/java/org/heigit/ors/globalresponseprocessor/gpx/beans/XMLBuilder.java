@@ -38,20 +38,12 @@ import java.io.StringWriter;
 public class XMLBuilder {
 
     /**
-     * {@link XMLBuilder} functions as an empty placeholder class.
-     */
-    public XMLBuilder() {
-
-    }
-
-    /**
      * The function creates a XML Element from a GPX and returns it as a string representation.
      *
      * @param gpx Needs a gpx as an Input.
      * @return Returns the GPX as a well formatted XML
      * @throws JAXBException Throws {@link JAXBException} exception in case of failure
      */
-
     public String build(Gpx gpx) throws JAXBException {
         JAXBContext context = JAXBContext.newInstance(Gpx.class);
         Marshaller m = context.createMarshaller();

@@ -21,20 +21,22 @@
 package org.heigit.ors.util;
 
 public class UnitsConverter {
-   public static double SqMetersToSqMiles(double value)  {
-	   return value * 3.86102e-7;
-   }
-   
-   public static double SqMetersToSqKilometers(double value)  {
-	   return value * 1e-6;
-   }
-   
-   public static double MetersToKilometers(double value) {
+    private UnitsConverter() {}
+
+    public static double sqMetersToSqMiles(double value)  {
+       return value * 3.86102e-7;
+    }
+
+    public static double sqMetersToSqKilometers(double value)  {
+       return value * 1e-6;
+    }
+
+    public static double metersToKilometers(double value) {
        return value * 0.001;
-   }
-   
-   public static double MetersToMiles(double value)
-   {
-	   return value * 0.000621371;
-   }
+    }
+
+    public static double metersToMiles(double value)
+    {
+       return value * 0.000621371;
+    }
 }

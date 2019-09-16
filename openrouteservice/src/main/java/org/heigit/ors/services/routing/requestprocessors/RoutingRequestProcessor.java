@@ -45,6 +45,9 @@ import javax.servlet.http.HttpServletResponse;
 @Deprecated
 public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
 
+    public static final String KEY_FORMAT = "format";
+    public static final String KEY_GEOJSON = "geojson";
+
     /**
      * {@link RoutingRequestProcessor} is the constructor and calls the {@link AbstractHttpRequestProcessor} as the super class.
      * The output can than be generated through a call to the process function.
@@ -70,24 +73,19 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
         JSONObject json = null;
         JSONObject geojson = null;
         String gpx;
-        String respFormat = request.getParameter("format");
+        String respFormat = request.getParameter(KEY_FORMAT);
         String geometryFormat = rreq.getGeometryFormat();
 
         if (Helper.isEmpty(respFormat) || "json".equalsIgnoreCase(respFormat)) {
             RouteResult[] result = RoutingProfileManager.getInstance().computeRoute(rreq);
             json = JsonRoutingResponseWriter.toJson(rreq, result);
-            if (json != null) {
-                ServletUtility.write(response, json, "UTF-8");
+            ServletUtility.write(response, json, "UTF-8");
 
-            } else {
-                throw new EmptyElementException(RoutingErrorCodes.EMPTY_ELEMENT, "JSON was empty and therefore could not be exported.");
-            }
-
-        } else if ("geojson".equalsIgnoreCase(respFormat)) {
+        } else if (KEY_GEOJSON.equalsIgnoreCase(respFormat)) {
             // Manually set the geometryFormat to geojson. Else an encoded polyline could be parsed by accident and cause problems.
             // Encoded polyline is anyway not needed in this export format.
-            if (Helper.isEmpty(geometryFormat) || !geometryFormat.equals("geojson")) {
-                rreq.setGeometryFormat("geojson");
+            if (Helper.isEmpty(geometryFormat) || !geometryFormat.equals(KEY_GEOJSON)) {
+                rreq.setGeometryFormat(KEY_GEOJSON);
             }
             RouteResult[] result = RoutingProfileManager.getInstance().computeRoute(rreq);
             geojson = new GlobalResponseProcessor(rreq, result).toGeoJson();
@@ -101,8 +99,8 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
         } else if ("gpx".equalsIgnoreCase(respFormat)) {
             // Manually set the geometryFormat to geojson. Else an encoded polyline could be parsed by accident and cause problems.
             // Encoded polyline is anyway not needed in this export format.
-            if (Helper.isEmpty(geometryFormat) || !geometryFormat.equals("geojson")) {
-                rreq.setGeometryFormat("geojson");
+            if (Helper.isEmpty(geometryFormat) || !geometryFormat.equals(KEY_GEOJSON)) {
+                rreq.setGeometryFormat(KEY_GEOJSON);
             }
             RouteResult[] result = RoutingProfileManager.getInstance().computeRoute(rreq);
             gpx = new GlobalResponseProcessor(rreq, result).toGPX();
@@ -112,7 +110,7 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
                 throw new EmptyElementException(RoutingErrorCodes.EMPTY_ELEMENT, "GPX was empty and therefore could not be created.");
             }
         } else {
-            throw new ParameterValueException(2003, "format", request.getParameter("format").toLowerCase());
+            throw new ParameterValueException(2003, KEY_FORMAT, request.getParameter(KEY_FORMAT).toLowerCase());
         }
 
     }

@@ -94,7 +94,7 @@ public class MatrixRequestHandler {
 
         int combined = MatrixMetricsType.getFromString(concatMetrics);
 
-        if (combined == MatrixMetricsType.Unknown)
+        if (combined == MatrixMetricsType.UNKNOWN)
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_METRICS);
 
         return combined;

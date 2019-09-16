@@ -14,47 +14,46 @@
 package org.heigit.ors.matrix;
 
 public class MatrixLocations {
-	private int[] _nodeIds;
-	private ResolvedLocation[] _locations;
-	private boolean _hasValidNodes = false;
+	private int[] nodeIds;
+	private ResolvedLocation[] locations;
+	private boolean hasValidNodes = false;
 
-	public MatrixLocations(int size, boolean resolveNames)
-	{
-		_nodeIds = new int[size];
-		_locations = new ResolvedLocation[size];
+	public MatrixLocations(int size) {
+		nodeIds = new int[size];
+		locations = new ResolvedLocation[size];
 	}
 
 	public ResolvedLocation[] getLocations()
 	{
-		return _locations;
+		return locations;
 	}
 	
 	public int size()
 	{
-		return _nodeIds.length;
+		return nodeIds.length;
 	}
 
 	public int[] getNodeIds()
 	{
-		return _nodeIds;
+		return nodeIds;
 	}
 	
 	public int getNodeId(int index)
 	{
-		return _nodeIds[index];
+		return nodeIds[index];
 	}
 	
 	public void setData(int index, int nodeId, ResolvedLocation location)
 	{
-		_nodeIds[index] = nodeId;
-		_locations[index] = location;
+		nodeIds[index] = nodeId;
+		locations[index] = location;
 		
-		if (nodeId >= 0 && !_hasValidNodes)
-			_hasValidNodes = true;
+		if (nodeId >= 0 && !hasValidNodes)
+			hasValidNodes = true;
 	}
 	
 	public boolean hasValidNodes()
 	{
-		return _hasValidNodes;
+		return hasValidNodes;
 	}
 }

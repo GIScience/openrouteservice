@@ -13,89 +13,79 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
-
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 
-public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
-{
-	private boolean _includeRestrictions = true;
-	private HeavyVehicleAttributesGraphStorage _storage;
-	private int _hgvType = 0;
-	private int _hgvDestination = 0;
-	private boolean _hasRestrictionValues;
-	private double[] _restrictionValues = new double[VehicleDimensionRestrictions.Count];
-	private List<String> _motorVehicleRestrictions = new ArrayList<String>(5);
-	private Set<String> _motorVehicleRestrictedValues = new HashSet<String>(5);
-	private Set<String> _motorVehicleHgvValues = new HashSet<String>(6);
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-	private Set<String> _noValues = new HashSet<String>(5);
-	private Set<String> _yesValues = new HashSet<String>(5);
-	private Pattern _patternDimension;
+public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder {
+	private static final String VAL_DELIVERY = "delivery";
+	private boolean includeRestrictions = true;
+	private HeavyVehicleAttributesGraphStorage storage;
+	private int hgvType = 0;
+	private int hgvDestination = 0;
+	private boolean hasRestrictionValues;
+	private double[] restrictionValues = new double[VehicleDimensionRestrictions.COUNT];
+	private List<String> motorVehicleRestrictions = new ArrayList<>(5);
+	private Set<String> motorVehicleRestrictedValues = new HashSet<>(5);
+	private Set<String> motorVehicleHgvValues = new HashSet<>(6);
 
-	public HeavyVehicleGraphStorageBuilder()
-	{
-		_motorVehicleRestrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access"));
+	private Set<String> noValues = new HashSet<>(5);
+	private Set<String> yesValues = new HashSet<>(5);
+	private Pattern patternDimension;
 
-		_motorVehicleRestrictedValues.add("private");
-		_motorVehicleRestrictedValues.add("no");
-		_motorVehicleRestrictedValues.add("restricted");
-		_motorVehicleRestrictedValues.add("military");
+	public HeavyVehicleGraphStorageBuilder() {
+		motorVehicleRestrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access"));
 
-		_motorVehicleHgvValues.addAll(Arrays.asList("hgv", "goods", "bus", "agricultural", "forestry", "delivery"));
+		motorVehicleRestrictedValues.add("private");
+		motorVehicleRestrictedValues.add("no");
+		motorVehicleRestrictedValues.add("restricted");
+		motorVehicleRestrictedValues.add("military");
 
-		_noValues.addAll(Arrays.asList("no", "private"));
-		_yesValues.addAll(Arrays.asList("yes", "designated"));
+		motorVehicleHgvValues.addAll(Arrays.asList("hgv", "goods", "bus", "agricultural", "forestry", VAL_DELIVERY));
 
-		_patternDimension = Pattern.compile("(?:\\s*(\\d+)\\s*(?:feet|ft\\.|ft|'))?(?:(\\d+)\\s*(?:inches|in\\.|in|''|\"))?");
+		noValues.addAll(Arrays.asList("no", "private"));
+		yesValues.addAll(Arrays.asList("yes", "designated"));
+
+		patternDimension = Pattern.compile("(?:\\s*(\\d+)\\s*(?:feet|ft\\.|ft|'))?(?:(\\d+)\\s*(?:inches|in\\.|in|''|\"))?");
 	}
 	
 	public GraphExtension init(GraphHopper graphhopper) throws Exception {
-		if (_storage != null)
+		if (storage != null)
 			throw new Exception("GraphStorageBuilder has been already initialized.");
 		
-		if (parameters != null)
-		{
+		if (parameters != null) {
 			String value = parameters.get("restrictions");
 			if (!Helper.isEmpty(value))
-				_includeRestrictions = Boolean.parseBoolean(value);
+				includeRestrictions = Boolean.parseBoolean(value);
 		}
 		
-		_storage = new HeavyVehicleAttributesGraphStorage(_includeRestrictions);
+		storage = new HeavyVehicleAttributesGraphStorage(includeRestrictions);
 		
-		return _storage;
+		return storage;
 	}
 
 	public void processWay(ReaderWay way) {
 		// reset values
-		_hgvType = 0;
-		_hgvDestination = 0;
+		hgvType = 0;
+		hgvDestination = 0;
 
-		if (_hasRestrictionValues) {
-			_restrictionValues[0] = 0.0;
-			_restrictionValues[1] = 0.0;
-			_restrictionValues[2] = 0.0;
-			_restrictionValues[3] = 0.0;
-			_restrictionValues[4] = 0.0;
-
-			_hasRestrictionValues = false;
+		if (hasRestrictionValues) {
+			restrictionValues[0] = 0.0;
+			restrictionValues[1] = 0.0;
+			restrictionValues[2] = 0.0;
+			restrictionValues[3] = 0.0;
+			restrictionValues[4] = 0.0;
+			hasRestrictionValues = false;
 		}
 
 		boolean hasHighway = way.hasTag("highway");
@@ -104,18 +94,18 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 			// process motor vehicle restrictions before any more specific vehicle type tags which override the former
 
 			// if there are any generic motor vehicle restrictions restrict all types...
-			if (way.hasTag(_motorVehicleRestrictions, _motorVehicleRestrictedValues))
-				_hgvType = HeavyVehicleAttributes.ANY;
+			if (way.hasTag(motorVehicleRestrictions, motorVehicleRestrictedValues))
+				hgvType = HeavyVehicleAttributes.ANY;
 
 			//...or all but the explicitly listed ones
-			if (way.hasTag(_motorVehicleRestrictions, _motorVehicleHgvValues)) {
+			if (way.hasTag(motorVehicleRestrictions, motorVehicleHgvValues)) {
 				int flag = 0;
-				for (String key : _motorVehicleRestrictions) {
+				for (String key : motorVehicleRestrictions) {
 					String val = way.getTag(key);
-					if (_motorVehicleHgvValues.contains(val))
+					if (motorVehicleHgvValues.contains(val))
 						flag |= HeavyVehicleAttributes.getFromString(val);
 				}
-				_hgvType = HeavyVehicleAttributes.ANY & ~flag;
+				hgvType = HeavyVehicleAttributes.ANY & ~flag;
 			}
 
 			Iterator<Entry<String, Object>> it = way.getProperties();
@@ -133,72 +123,71 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 
 				switch(key) {
 					case "maxheight":
-						valueIndex = VehicleDimensionRestrictions.MaxHeight;
+						valueIndex = VehicleDimensionRestrictions.MAX_HEIGHT;
 						break;
 					case "maxweight":
 					case "maxweight:hgv":
-						valueIndex = VehicleDimensionRestrictions.MaxWeight;
+						valueIndex = VehicleDimensionRestrictions.MAX_WEIGHT;
 						break;
 					case "maxwidth":
-						valueIndex = VehicleDimensionRestrictions.MaxWidth;
+						valueIndex = VehicleDimensionRestrictions.MAX_WIDTH;
 						break;
 					case "maxlength":
 					case "maxlength:hgv":
-						valueIndex = VehicleDimensionRestrictions.MaxLength;
+						valueIndex = VehicleDimensionRestrictions.MAX_LENGTH;
 						break;
 					case "maxaxleload":
-						valueIndex = VehicleDimensionRestrictions.MaxAxleLoad;
+						valueIndex = VehicleDimensionRestrictions.MAX_AXLE_LOAD;
 						break;
+					default:
 				}
 
 				// given tag is a weight/dimension restriction
-				if (valueIndex >= 0) {
-					if (_includeRestrictions && !("none".equals(value) || "default".equals(value))) {
-						double parsedValue = -1;
+				if (valueIndex >= 0 && includeRestrictions && !("none".equals(value) || "default".equals(value))) {
+					double parsedValue = -1;
 
-						// sanitize decimal separators
-						if (value.contains(","))
-							value = value.replace(',', '.');
+					// sanitize decimal separators
+					if (value.contains(","))
+						value = value.replace(',', '.');
 
-						// weight restrictions
-						if (valueIndex == VehicleDimensionRestrictions.MaxWeight || valueIndex == VehicleDimensionRestrictions.MaxAxleLoad) {
-							if (value.contains("t")) {
-								value = value.replace('t', ' ');
-							} else if (value.contains("lbs")) {
-								value = value.replace("lbs", " ");
-								parsedValue = parseDouble(value) / 2204.622;
-							}
+					// weight restrictions
+					if (valueIndex == VehicleDimensionRestrictions.MAX_WEIGHT || valueIndex == VehicleDimensionRestrictions.MAX_AXLE_LOAD) {
+						if (value.contains("t")) {
+							value = value.replace('t', ' ');
+						} else if (value.contains("lbs")) {
+							value = value.replace("lbs", " ");
+							parsedValue = parseDouble(value) / 2204.622;
 						}
+					}
 
-						// dimension restrictions
-						else {
-							if (value.contains("m")) {
-								value = value.replace('m', ' ');
-							} else {
-								Matcher m = _patternDimension.matcher(value);
-								if (m.matches() && m.lookingAt()) {
-									double feet = parseDouble(m.group(1));
-									double inches = 0;
-									if (m.groupCount() > 1 && m.group(2) != null) {
-										inches = parseDouble(m.group(2));
-									}
-									parsedValue = feet * 0.3048 + inches * 0.0254;
+					// dimension restrictions
+					else {
+						if (value.contains("m")) {
+							value = value.replace('m', ' ');
+						} else {
+							Matcher m = patternDimension.matcher(value);
+							if (m.matches() && m.lookingAt()) {
+								double feet = parseDouble(m.group(1));
+								double inches = 0;
+								if (m.groupCount() > 1 && m.group(2) != null) {
+									inches = parseDouble(m.group(2));
 								}
+								parsedValue = feet * 0.3048 + inches * 0.0254;
 							}
 						}
+					}
 
-						if (parsedValue == -1)
-							parsedValue = parseDouble(value);
+					if (parsedValue == -1)
+						parsedValue = parseDouble(value);
 
-						// it was possible to extract a reasonable value
-						if (parsedValue > 0) {
-							_restrictionValues[valueIndex] = parsedValue;
-							_hasRestrictionValues = true;
-						}
+					// it was possible to extract a reasonable value
+					if (parsedValue > 0) {
+						restrictionValues[valueIndex] = parsedValue;
+						hasRestrictionValues = true;
 					}
 				}
 
-				if (_motorVehicleHgvValues.contains(key)) {
+				if (motorVehicleHgvValues.contains(key)) {
 
 					// TODO: the following implementation does not pick up access:destination
 					String hgvTag = getHeavyVehicleValue(key, "hgv", value);
@@ -206,7 +195,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 					String busTag = getHeavyVehicleValue(key, "bus", value);
 					String agriculturalTag = getHeavyVehicleValue(key, "agricultural", value);
 					String forestryTag = getHeavyVehicleValue(key, "forestry", value);
-					String deliveryTag = getHeavyVehicleValue(key, "delivery", value);
+					String deliveryTag = getHeavyVehicleValue(key, VAL_DELIVERY, value);
 
 					setFlagsFromTag(goodsTag, HeavyVehicleAttributes.GOODS);
 					setFlagsFromTag(hgvTag, HeavyVehicleAttributes.HGV);
@@ -217,23 +206,23 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 
 				}
 				else if (key.equals("hazmat") && "no".equals(value)) {
-					_hgvType |= HeavyVehicleAttributes.HAZMAT;
+					hgvType |= HeavyVehicleAttributes.HAZMAT;
 				}
 			}
 		}
 	}
 
 	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
-		_storage.setEdgeValue(edge.getEdge(), _hgvType, _hgvDestination, _restrictionValues);
+		storage.setEdgeValue(edge.getEdge(), hgvType, hgvDestination, restrictionValues);
 	}
 
 	private String getHeavyVehicleValue(String key, String hv, String value) {
 		if (value.equals(hv))
 			return value;
 		else if (key.equals(hv)) {
-			if (_yesValues.contains(value))
+			if (yesValues.contains(value))
 				return "yes";
-			else if (_noValues.contains(value))
+			else if (noValues.contains(value))
 				return "no";
 		}
 		else if (key.equals(hv+":forward") || key.equals(hv+":backward"))
@@ -257,12 +246,12 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 	private void setFlagsFromTag (String tag, int flag) {
 		if (tag != null) {
 			if ("no".equals(tag))
-				_hgvType |= flag;
+				hgvType |= flag;
 			else if ("yes".equals(tag))
-				_hgvType &= ~flag;
-			else if ("destination".equals(tag) || (flag==HeavyVehicleAttributes.DELIVERY && "delivery".equals(tag))) {
-				_hgvType |= flag;
-				_hgvDestination |= flag;
+				hgvType &= ~flag;
+			else if ("destination".equals(tag) || (flag==HeavyVehicleAttributes.DELIVERY && VAL_DELIVERY.equals(tag))) {
+				hgvType |= flag;
+				hgvDestination |= flag;
 			}
 		}
 	}

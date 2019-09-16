@@ -24,10 +24,13 @@ import org.heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * @deprecated
+ */
 @Deprecated
 public class RoutingServiceRequestProcessorFactory {
-	public static AbstractHttpRequestProcessor createProcessor(HttpServletRequest request) throws Exception
-	{
+	private RoutingServiceRequestProcessorFactory() {}
+	public static AbstractHttpRequestProcessor createProcessor(HttpServletRequest request) throws Exception {
 		if (!RoutingServiceSettings.getEnabled())
 			throw new StatusCodeException(StatusCode.SERVICE_UNAVAILABLE, RoutingErrorCodes.UNKNOWN, "Routing service is not enabled.");
 
@@ -39,27 +42,22 @@ public class RoutingServiceRequestProcessorFactory {
 		if (Helper.isEmpty(requestParam))
 			requestParam = "route";
 
-		switch (requestParam.toLowerCase())
-		{
-			case "route":
-				String formatParam = request.getParameter("format");
-				if (Helper.isEmpty(formatParam))
-					formatParam = "json";
-				else
-					formatParam = formatParam.toLowerCase();
-
-				switch(formatParam)
-				{
-					case "json":
-					case "geojson":
-					case"gpx":
-						return new RoutingRequestProcessor(request);
-					default:
-						throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "format", formatParam);
-				}
-
-			default:
-				throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "request", requestParam);
+		if (requestParam.equalsIgnoreCase("route")) {
+			String formatParam = request.getParameter("format");
+			if (Helper.isEmpty(formatParam))
+				formatParam = "json";
+			else
+				formatParam = formatParam.toLowerCase();
+			switch(formatParam) {
+				case "json":
+				case "geojson":
+				case"gpx":
+					return new RoutingRequestProcessor(request);
+				default:
+					throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "format", formatParam);
+			}
+		} else {
+			throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "request", requestParam);
 		}
 	}
 }

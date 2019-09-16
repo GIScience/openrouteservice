@@ -20,8 +20,8 @@ import com.graphhopper.storage.GraphExtension;
 
 public class GreenIndexGraphStorage implements GraphExtension {
     /* pointer for no entry */
-    protected final int NO_ENTRY = -1;
-    private final int EF_GREENINDEX;
+    protected static final int NO_ENTRY = -1;
+    private static final int EF_GREENINDEX = 0;
 
     private DataAccess orsEdges;
     private int edgeEntryBytes;
@@ -30,8 +30,6 @@ public class GreenIndexGraphStorage implements GraphExtension {
     private byte[] byteValues;
 
     public GreenIndexGraphStorage() {
-        EF_GREENINDEX = 0;
-
         int edgeEntryIndex = 0;
         edgeEntryBytes = edgeEntryIndex + 1;
         edgesCount = 0;
@@ -157,7 +155,7 @@ public class GreenIndexGraphStorage implements GraphExtension {
      */
     @Override
     public GraphExtension create(long initBytes) {
-        orsEdges.create((long) initBytes * edgeEntryBytes);
+        orsEdges.create(initBytes * edgeEntryBytes);
         return this;
     }
 

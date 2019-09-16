@@ -19,7 +19,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Helper class for reading data from a CSV file. Based on code from
@@ -31,6 +30,8 @@ public class CSVUtility {
     private static final char DEFAULT_SEPARATOR = ',';
     private static final char DEFAULT_QUOTE = '"';
     private static final boolean HAS_HEADER = true;
+
+    private CSVUtility() {}
 
     public static ArrayList<ArrayList<String>> readFile(String file) {
         return readFile(file, HAS_HEADER);

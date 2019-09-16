@@ -28,11 +28,9 @@ import org.heigit.ors.servlet.requests.StatusCodeCaptureWrapper;
 
 public class StatusCodeHandlerFilter implements Filter {
 
-	public StatusCodeHandlerFilter() {
-	}
-
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
+		// do nothing
 	}
 
 	@Override
@@ -60,6 +58,6 @@ public class StatusCodeHandlerFilter implements Filter {
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
+		// do nothing
 	}
 }

@@ -23,121 +23,81 @@ import com.vividsolutions.jts.geom.Geometry;
 import org.heigit.ors.common.Pair;
 
 public class IsochroneUtility {
-	public static List<IsochronesIntersection> computeIntersections(IsochroneMapCollection isochroneMaps)
-	{
+	private IsochroneUtility() {}
+
+	public static List<IsochronesIntersection> computeIntersections(IsochroneMapCollection isochroneMaps) {
+		List<IsochronesIntersection> result = new ArrayList<>();
 		if (isochroneMaps.size() == 1)
-			return null;
-
-		List<Integer> processedPairs = new ArrayList<Integer>();
-
-		List<IsochronesIntersection> result = null;
+			return result;
 
 		int im = 0;
-		for (IsochroneMap isoMap : isochroneMaps.getIsochroneMaps())
-		{
+		for (IsochroneMap isoMap : isochroneMaps.getIsochroneMaps()) {
 			int ii = 0;
-			for (Isochrone isoLine : isoMap.getIsochrones()) 
-			{
-				List<IsochronesIntersection> isoIntersection = computeIntersection(isoLine, ii, isoMap, im, isochroneMaps, processedPairs);
-				if (isoIntersection != null)
-				{
-					if (result == null)
-						result = new ArrayList<IsochronesIntersection>();
-
+			for (Isochrone isoLine : isoMap.getIsochrones())  {
+				List<IsochronesIntersection> isoIntersection = computeIntersection(isoLine, ii, isoMap, im, isochroneMaps);
+				if (!isoIntersection.isEmpty()) {
 					result.addAll(isoIntersection);
 				}
-
 				ii++;
 			}
-
 			im++;
 		}
 
-		// Find intersections  between IsochronesIntersection objects
-		if (result != null && result.size() > 1)
-		{
-			List<IsochronesIntersection> isoIntersections = null;
-			
+		// Find intersections between IsochronesIntersection objects
+		if (result.size() > 1) {
+			List<IsochronesIntersection> isoIntersections = new ArrayList<>();
 			int i = 0;
-			for (IsochronesIntersection isoIntersection : result)
-			{
+			for (IsochronesIntersection isoIntersection : result) {
 				List<IsochronesIntersection> overlaps = computeIntersection(isoIntersection, i, result);
-				if (overlaps != null)
-				{
-					isoIntersections = new ArrayList<IsochronesIntersection>();
+				if (!overlaps.isEmpty()) {
 					isoIntersections.addAll(overlaps);
 				}
                 i++;
 			}
-			
-			if (isoIntersections != null)
+			if (!isoIntersections.isEmpty())
 				result.addAll(isoIntersections);
 		}
-
 		return result;
 	}
 
-	private static List<IsochronesIntersection> computeIntersection(IsochronesIntersection isoIntersection, Integer intersectionIndex, List<IsochronesIntersection> intersections)
-	{
-		List<IsochronesIntersection> result = null;
-		for  (int i = intersectionIndex + 1 ; i < intersections.size(); i++)
-		{
+	private static List<IsochronesIntersection> computeIntersection(IsochronesIntersection isoIntersection, Integer intersectionIndex, List<IsochronesIntersection> intersections) {
+		List<IsochronesIntersection> result = new ArrayList<>();
+		for  (int i = intersectionIndex + 1 ; i < intersections.size(); i++) {
 			IsochronesIntersection isoIntersection2 = intersections.get(i);
-
-			if (isoIntersection.intersects(isoIntersection2))
-			{
+			if (isoIntersection.intersects(isoIntersection2)) {
 				Geometry geomIntersection = isoIntersection.getGeometry().intersection(isoIntersection2.getGeometry());
-				if (geomIntersection != null)
-				{
-					if (result == null)
-						result = new ArrayList<IsochronesIntersection>();
-					
+				if (geomIntersection != null) {
 					IsochronesIntersection isoIntersectionNew = new IsochronesIntersection(geomIntersection);
 					isoIntersectionNew.addContourRefs(isoIntersection.getContourRefs());
 					isoIntersectionNew.addContourRefs(isoIntersection2.getContourRefs());
 				}
 			}
 		}
-
 		return result;
 	}
 
-	private static List<IsochronesIntersection> computeIntersection(Isochrone isoLine, Integer isoIndex, IsochroneMap isoMap, Integer isoMapIndex, IsochroneMapCollection isochroneMaps, List<Integer> processedPairs)
-	{
-		List<IsochronesIntersection> result = null;
+	private static List<IsochronesIntersection> computeIntersection(Isochrone isoLine, Integer isoIndex, IsochroneMap isoMap, Integer isoMapIndex, IsochroneMapCollection isochroneMaps) {
+		List<IsochronesIntersection> result = new ArrayList<>();
 		Envelope isoEnvelope = isoLine.getEnvelope();
 		Geometry isoGeometry = isoLine.getGeometry();
-
-		for (int im = isoMapIndex + 1; im < isochroneMaps.size(); im++)
-		{
+		for (int im = isoMapIndex + 1; im < isochroneMaps.size(); im++) {
 			IsochroneMap isoMap2 =  isochroneMaps.getIsochrone(im);
-			if (!Objects.equals(isoMap2, isoMap) && isoMap2.getEnvelope().intersects(isoEnvelope))
-			{
+			if (!Objects.equals(isoMap2, isoMap) && isoMap2.getEnvelope().intersects(isoEnvelope)) {
 				int ii = 0;
-				for (Isochrone isoLine2 : isoMap2.getIsochrones()) 
-				{
-					if (isoEnvelope.intersects(isoLine2.getEnvelope()))
-					{
+				for (Isochrone isoLine2 : isoMap2.getIsochrones())  {
+					if (isoEnvelope.intersects(isoLine2.getEnvelope())) {
 						Geometry geomIntersection =  isoGeometry.intersection(isoLine2.getGeometry());
-
-						if (geomIntersection != null && geomIntersection.isEmpty() == false)
-						{
-							if (result == null)
-								result = new ArrayList<IsochronesIntersection>();
-
+						if (geomIntersection != null && !geomIntersection.isEmpty()) {
 							IsochronesIntersection isoIntersection = new IsochronesIntersection(geomIntersection);
-							isoIntersection.addContourRefs(new Pair<Integer, Integer>(isoMapIndex, isoIndex));
-							isoIntersection.addContourRefs(new Pair<Integer, Integer>(im, ii));
-
+							isoIntersection.addContourRefs(new Pair<>(isoMapIndex, isoIndex));
+							isoIntersection.addContourRefs(new Pair<>(im, ii));
 							result.add(isoIntersection);
 						}
 					}
-
 					ii++;
 				}
 			}
 		}
-
 		return result;
 	}
 }

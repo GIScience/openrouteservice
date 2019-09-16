@@ -13,8 +13,6 @@
  */
 package org.heigit.ors.routing;
 
-import org.heigit.ors.routing.RoutingProfileManager;
-
 public class GraphBuilder{
 	public static void main(String[] args) {
 

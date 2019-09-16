@@ -34,22 +34,21 @@ import com.graphhopper.storage.TurnCostExtension;
 
 public class ORSGraphStorageFactory implements GraphStorageFactory {
 
-	private static Logger LOGGER = Logger.getLogger(ORSGraphStorageFactory.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(ORSGraphStorageFactory.class.getName());
 
-	private List<GraphStorageBuilder> _graphStorageBuilders;
+	private List<GraphStorageBuilder> graphStorageBuilders;
 
 	public ORSGraphStorageFactory(List<GraphStorageBuilder> graphStorageBuilders) {
-		_graphStorageBuilders = graphStorageBuilders;
+		this.graphStorageBuilders = graphStorageBuilders;
 	}
 
 	@Override
 	public GraphHopperStorage createStorage(GHDirectory dir, GraphHopper gh) {
 		EncodingManager encodingManager = gh.getEncodingManager();
 		GraphExtension geTurnCosts = null;
-		ArrayList<GraphExtension> graphExtensions = new ArrayList<GraphExtension>();
+		ArrayList<GraphExtension> graphExtensions = new ArrayList<>();
 
-		if (encodingManager.needsTurnCostsSupport())
-		{
+		if (encodingManager.needsTurnCostsSupport()) {
 			Path path = Paths.get(dir.getLocation(), "turn_costs");
 			File fileEdges  = Paths.get(dir.getLocation(), "edges").toFile();
 			File fileTurnCosts = path.toFile();
@@ -59,18 +58,13 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 				geTurnCosts =  new TurnCostExtension();
 		}
 
-		if (_graphStorageBuilders != null && _graphStorageBuilders.size() > 0)
-		{
-			for(GraphStorageBuilder builder : _graphStorageBuilders)
-			{
-				try
-				{
+		if (graphStorageBuilders != null) {
+			for(GraphStorageBuilder builder : graphStorageBuilders) {
+				try {
 					GraphExtension ext = builder.init(gh);
 					if (ext != null)
 						graphExtensions.add(ext);
-				}
-				catch(Exception ex)
-				{
+				} catch(Exception ex) {
 					LOGGER.error(ex);
 				}
 			}
@@ -78,22 +72,17 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 
 		GraphExtension graphExtension = null;
 
-		if (geTurnCosts == null && graphExtensions.size() == 0)
-			graphExtension =  new GraphExtension.NoOpExtension();
-		else if (geTurnCosts != null && graphExtensions.size() > 0)
-		{
-			ArrayList<GraphExtension> seq = new ArrayList<GraphExtension>();
+		if (geTurnCosts == null && graphExtensions.isEmpty())
+			graphExtension = new GraphExtension.NoOpExtension();
+		else if (geTurnCosts != null && !graphExtensions.isEmpty()) {
+			ArrayList<GraphExtension> seq = new ArrayList<>();
 			seq.add(geTurnCosts);
 			seq.addAll(graphExtensions);
 
 			graphExtension = getExtension(seq);
-		}
-		else if (geTurnCosts != null)
-		{
+		} else if (geTurnCosts != null) {
 			graphExtension = geTurnCosts;
-		}
-		else if (graphExtensions.size() > 0)
-		{
+		} else {
 			graphExtension = getExtension(graphExtensions);
 		}
 
@@ -127,34 +116,24 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 			return new GraphHopperStorage(dir, encodingManager, gh.hasElevation(), graphExtension);
 	}
 
-	private GraphExtension getExtension(ArrayList<GraphExtension> graphExtensions)
-	{
-		if (graphExtensions.size() > 1)
-		{
-			ArrayList<GraphExtension> seq = new ArrayList<GraphExtension>();
-			seq.addAll(graphExtensions);
+	private GraphExtension getExtension(ArrayList<GraphExtension> graphExtensions) {
+		if (graphExtensions.size() > 1) {
+			ArrayList<GraphExtension> seq = new ArrayList<>(graphExtensions);
 			return new ExtendedStorageSequence(seq);
 		}
 		else
-			return graphExtensions.size() == 0 ? new GraphExtension.NoOpExtension() : graphExtensions.get(0);
+			return graphExtensions.isEmpty() ? new GraphExtension.NoOpExtension() : graphExtensions.get(0);
 	}
 
-	private boolean hasGraph(GraphHopper gh)
-	{
-		try
-		{
+	private boolean hasGraph(GraphHopper gh) {
+		try {
 			gh.getGraphHopperStorage();
 			return true;
+		} catch (IllegalStateException ex){
+			// do nothing
+		} catch(Exception ex) {
+			LOGGER.error(ex.getStackTrace());
 		}
-		catch(Exception ex)
-		{
-			if(ex instanceof IllegalStateException){
-
-			}else {
-				ex.printStackTrace();
-			}
-		}
-		
 		return false;
 	}
 }

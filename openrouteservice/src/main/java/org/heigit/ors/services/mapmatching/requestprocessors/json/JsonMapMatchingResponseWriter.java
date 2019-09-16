@@ -13,39 +13,36 @@
  */
 package org.heigit.ors.services.mapmatching.requestprocessors.json;
 
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Coordinate;
-
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.geojson.GeometryJSON;
-import org.heigit.ors.routing.ExtraSummaryItem;
-import org.heigit.ors.routing.RouteExtraInfo;
-import org.heigit.ors.routing.RouteResult;
-import org.heigit.ors.routing.RouteSegment;
-import org.heigit.ors.routing.RouteSegmentItem;
-import org.heigit.ors.routing.RouteStep;
-import org.heigit.ors.routing.RouteSummary;
-import org.heigit.ors.routing.RoutingProfileType;
-import org.heigit.ors.routing.RoutingRequest;
-import org.heigit.ors.routing.WeightingMethod;
+import org.heigit.ors.routing.*;
 import org.heigit.ors.services.mapmatching.MapMatchingServiceSettings;
 import org.heigit.ors.services.routing.RoutingServiceSettings;
 import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.PolylineEncoder;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.List;
 
 public class JsonMapMatchingResponseWriter {
 
-	public static JSONObject toJson(RoutingRequest request, RouteResult[] routeResult) throws Exception
-	{
+	public static final String KEY_AVGSPEED = "avgspeed";
+	public static final String KEY_PERCENTAGE = "percentage";
+	public static final String KEY_DETOURFACTOR = "detourfactor";
+	public static final String KEY_ELEVATION = "elevation";
+	public static final String KEY_DISTANCE = "distance";
+	public static final String KEY_DURATION = "duration";
+
+	private  JsonMapMatchingResponseWriter() {}
+
+	public static JSONObject toJson(RoutingRequest request, RouteResult[] routeResult) throws Exception {
 		JSONObject jResp = new JSONObject(true, 1);
 		BBox bbox = new BBox(0, 0, 0, 0);
 		JSONArray jRoutes = toJsonArray(request, routeResult, bbox);
@@ -54,8 +51,7 @@ public class JsonMapMatchingResponseWriter {
 
 		// *************** bbox ***************
 
-		if (bbox != null)
-			jResp.put("bbox", GeometryJSON.toJSON(bbox.minLon, bbox.minLat, bbox.maxLon, bbox.maxLat));
+		jResp.put("bbox", GeometryJSON.toJSON(bbox.minLon, bbox.minLat, bbox.maxLon, bbox.maxLat));
 
 		// *************** info ***************
 
@@ -84,15 +80,14 @@ public class JsonMapMatchingResponseWriter {
 			jQuery.put("units", DistanceUnitUtil.toString(request.getUnits()));
 
 		jQuery.put("geometry", request.getIncludeGeometry());
-		if (request.getIncludeGeometry())
-		{
+		if (request.getIncludeGeometry()) {
 			jQuery.put("geometry_format", Helper.isEmpty(request.getGeometryFormat()) ? "encodedpolyline" : request.getGeometryFormat());
 
 			if (request.getIncludeInstructions())
 				jQuery.put("instructions_format", request.getInstructionsFormat().toString().toLowerCase());
 
 			jQuery.put("instructions", request.getIncludeInstructions());
-			jQuery.put("elevation", request.getIncludeElevation());
+			jQuery.put(KEY_ELEVATION, request.getIncludeElevation());
 		}
 
 		if (!Helper.isEmpty(request.getSearchParameters().getOptions()))
@@ -108,58 +103,53 @@ public class JsonMapMatchingResponseWriter {
 		return jResp;
 	}
 	
-	public static JSONObject toGeoJson(RoutingRequest request, RouteResult[] routeResult) throws Exception
-	{
-		// TODO
+	public static JSONObject toGeoJson(RoutingRequest request, RouteResult[] routeResult) throws Exception {
+		// NOT IMPLEMENTED
 		return null;
 	}
 
-	public static JSONArray toJsonArray(RoutingRequest request, RouteResult[] routeResult, BBox bbox) throws Exception
-	{
-		StringBuffer buffer = new StringBuffer();
+	public static JSONArray toJsonArray(RoutingRequest request, RouteResult[] routeResult, BBox bbox) throws Exception {
+		StringBuilder buffer = new StringBuilder();
 		// *************** routes ***************
 
-		boolean attrDetourFactor = request.hasAttribute("detourfactor");
-		boolean attrPercentage = request.hasAttribute("percentage");
-		boolean attrAvgSpeed = request.hasAttribute("avgspeed");
+		boolean attrDetourFactor = request.hasAttribute(KEY_DETOURFACTOR);
+		boolean attrPercentage = request.hasAttribute(KEY_PERCENTAGE);
+		boolean attrAvgSpeed = request.hasAttribute(KEY_AVGSPEED);
 		
 		int nRoutes = routeResult.length;
 
 		JSONArray jRoutes = new JSONArray(nRoutes);
 
-		for (int i = 0; i < nRoutes; ++i)
-		{
+		for (int i = 0; i < nRoutes; ++i) {
 			RouteResult route = routeResult[i];
 			JSONObject jRoute = new JSONObject(true);
 
 			if (request.getIncludeElevation())
-				jRoute.put("elevation", true);
+				jRoute.put(KEY_ELEVATION, true);
 
 			JSONObject jSummary = new JSONObject(true, 6);
 
 			RouteSummary rSummary = route.getSummary();
-			jSummary.put("distance", rSummary.getDistance());
-			jSummary.put("duration", rSummary.getDuration());
+			jSummary.put(KEY_DISTANCE, rSummary.getDistance());
+			jSummary.put(KEY_DURATION, rSummary.getDuration());
 
-			if (rSummary.getAscent() != 0.0 || rSummary.getDescent() != 0.0)
-			{
+			if (rSummary.getAscent() != 0.0 || rSummary.getDescent() != 0.0) {
 				jSummary.put("ascent", rSummary.getAscent());
 				jSummary.put("descent", rSummary.getDescent());
 			}
 			
 			if (attrAvgSpeed)
-				jSummary.put("avgspeed", rSummary.getAverageSpeed());
+				jSummary.put(KEY_AVGSPEED, rSummary.getAverageSpeed());
 
 			jRoute.put("summary", jSummary);
 
-			if (request.getIncludeGeometry())
-			{
+			if (request.getIncludeGeometry()) {
 				if (request.getGeometryFormat() != null)
 					jRoute.put("geometry_format", request.getGeometryFormat());
 
 				jRoute.put("geometry", getGeometry(route.getGeometry(), request.getIncludeElevation(), request.getGeometryFormat(), buffer));
 
-				if (request.getIncludeInstructions() && route.getSegments().size() > 0)
+				if (request.getIncludeInstructions() && !route.getSegments().isEmpty())
 				{
 					int nSegments = route.getSegments().size();
 					JSONArray jSegments = new JSONArray(nSegments);
@@ -170,8 +160,8 @@ public class JsonMapMatchingResponseWriter {
 
 						RouteSegment seg = route.getSegments().get(j);
 
-						jSegment.put("distance", seg.getDistance());
-						jSegment.put("duration", seg.getDuration());
+						jSegment.put(KEY_DISTANCE, seg.getDistance());
+						jSegment.put(KEY_DURATION, seg.getDuration());
 
 						if (request.getIncludeElevation() && (seg.getAscentRounded() !=0.0 || seg.getDescentRounded() != 0.0))
 						{
@@ -180,13 +170,13 @@ public class JsonMapMatchingResponseWriter {
 						}
 
 						if (attrDetourFactor)
-							jSegment.put("detourfactor", seg.getDetourFactor());
+							jSegment.put(KEY_DETOURFACTOR, seg.getDetourFactor());
 						if (attrPercentage)
-							jSegment.put("percentage", FormatUtility.roundToDecimals(seg.getDistance() * 100 / route.getSummary().getDistance(), 2));
+							jSegment.put(KEY_PERCENTAGE, FormatUtility.roundToDecimals(seg.getDistance() * 100 / route.getSummary().getDistance(), 2));
 						if (attrAvgSpeed)
 						{
 							double distFactor = request.getUnits() == DistanceUnit.METERS ? 1000 : 1;
-							jSegment.put("avgspeed", FormatUtility.roundToDecimals(seg.getDistance() / distFactor / (seg.getDuration() / 3600) , 2));
+							jSegment.put(KEY_AVGSPEED, FormatUtility.roundToDecimals(seg.getDistance() / distFactor / (seg.getDuration() / 3600) , 2));
 						}
 
 						int nSteps = seg.getSteps().size();
@@ -197,8 +187,8 @@ public class JsonMapMatchingResponseWriter {
 							RouteStep step = seg.getSteps().get(k);
 
 							JSONObject jStep = new JSONObject(true);
-							jStep.put("distance", step.getDistance());
-							jStep.put("duration", step.getDuration());
+							jStep.put(KEY_DISTANCE, step.getDistance());
+							jStep.put(KEY_DURATION, step.getDuration());
 							jStep.put("type", step.getType());
 							jStep.put("instruction", step.getInstruction());
 							if (step.getName() != null)
@@ -226,16 +216,12 @@ public class JsonMapMatchingResponseWriter {
 					jRoute.put("segments", jSegments);
 				}
 				
-				//if (route.getLocationIndex() >= 0)
-				//	jRoute.put("location_index", route.getLocationIndex());
-
 				if (route.getWayPointsIndices() != null)
 					jRoute.put("way_points", new JSONArray(route.getWayPointsIndices()));
 
 				List<RouteExtraInfo> extras = route.getExtraInfo();
 
-				if (extras != null && extras.size() > 0)
-				{
+				if (extras != null && !extras.isEmpty()) {
 					JSONObject jExtras = new JSONObject(true);
 
 					for (int j = 0; j < extras.size(); ++j)
@@ -268,16 +254,14 @@ public class JsonMapMatchingResponseWriter {
 
 							List<ExtraSummaryItem> summaryItems = extraInfo.getSummary(request.getUnits(), rSummary.getDistance(), true);
 
-							if (summaryItems.size() > 0)
-							{
+							if (!summaryItems.isEmpty()) {
 								JSONArray jExtraItemSummary = new JSONArray(summaryItems.size());
 
-								for (ExtraSummaryItem esi : summaryItems)
-								{
+								for (ExtraSummaryItem esi : summaryItems) {
 									JSONObject jExtraItemSummaryType = new JSONObject(true);
 									
 									jExtraItemSummaryType.put("value", esi.getValue());
-									jExtraItemSummaryType.put("distance", esi.getDistance());
+									jExtraItemSummaryType.put(KEY_DISTANCE, esi.getDistance());
 									jExtraItemSummaryType.put("amount", esi.getAmount());
 
 									jExtraItemSummary.put(jExtraItemSummaryType);
@@ -319,32 +303,20 @@ public class JsonMapMatchingResponseWriter {
 		return jRoutes;
 	}  
 
-	private static Object getGeometry(Coordinate[] points, boolean includeElevation, String format, StringBuffer buffer)
-	{
+	private static Object getGeometry(Coordinate[] points, boolean includeElevation, String format, StringBuilder buffer) {
 		if (points == null)
 			return "";
 
-		if (Helper.isEmpty(format) || "encodedpolyline".equalsIgnoreCase(format))
-		{
+		if (Helper.isEmpty(format) || "encodedpolyline".equalsIgnoreCase(format)) {
 			return PolylineEncoder.encode(points, includeElevation, buffer);
-		}
-		else if ("geojson".equalsIgnoreCase(format))
-		{
+		} else if ("geojson".equalsIgnoreCase(format)) {
 			JSONObject json = new JSONObject(true);
 
-			/*
-			 *{
-			    "type": "LineString",
-                "coordinates": [ [102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0] ]
-             }
-			 */
 			json.put("type", "LineString");
 			json.put("coordinates", GeometryJSON.toJSON(points, includeElevation));
 
 			return json;
-		}
-		else if ("polyline".equalsIgnoreCase(format))
-		{
+		} else if ("polyline".equalsIgnoreCase(format)) {
 			return GeometryJSON.toJSON(points, includeElevation);
 		}
 

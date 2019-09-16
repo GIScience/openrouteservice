@@ -18,12 +18,11 @@ import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.PriorityCode;
-import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.IntsRef;
-import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -31,8 +30,19 @@ import static com.graphhopper.routing.util.PriorityCode.*;
 
 public class WheelchairFlagEncoder extends FootFlagEncoder {
     public static final int MEAN_SPEED = 4;
-    static final int MAX_SPEED = 15;
-    
+    public static final String KEY_WHEELCHAIR = "wheelchair";
+    public static final String KEY_FOOTWAY = "footway";
+    public static final String KEY_PEDESTRIAN = "pedestrian";
+    public static final String KEY_LIVING_STREET = "living_street";
+    public static final String KEY_BRIDLEWAY = "bridleway";
+    public static final String KEY_SIDEWALK = "sidewalk";
+    public static final String KEY_HIGHWAY = "highway";
+    public static final String KEY_ROUTE = "route";
+    public static final String KEY_BICYCLE = "bicycle";
+    public static final String KEY_DESIGNATED = "designated";
+    public static final String KEY_OFFICIAL = "official";
+    public static final String KEY_CROSSING = "crossing";
+
     protected Set<String> acceptedPublicTransport = new HashSet<>(5);
     
     /**
@@ -82,7 +92,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     public WheelchairFlagEncoder( int speedBits, double speedFactor ) {
         super(speedBits, speedFactor);
         // test for the following restriction keys
-        restrictions.add("wheelchair");
+        restrictions.add(KEY_WHEELCHAIR);
 
         intendedValues.add("limited");
 
@@ -115,8 +125,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         potentialBarriers.add("swing_gate");
         potentialBarriers.add("chain");
         potentialBarriers.add("bump_gate");
-        // potentialBarriers.add("kerb");
-        
+
         // add these to absolute barriers
         inaccessibleBarriers.add("stile");
         inaccessibleBarriers.add("block");
@@ -134,9 +143,9 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         // --> this would be multi-modal routing, which is currently discouraged for ORS
         
         // fully wheelchair accessible, needs double check with tracktype, surface, smoothness
-        fullyWheelchairAccessibleHighways.add("footway"); // fußweg, separat modelliert
-        fullyWheelchairAccessibleHighways.add("pedestrian"); // fußgängerzone
-        fullyWheelchairAccessibleHighways.add("living_street"); //spielstraße
+        fullyWheelchairAccessibleHighways.add(KEY_FOOTWAY); // fußweg, separat modelliert
+        fullyWheelchairAccessibleHighways.add(KEY_PEDESTRIAN); // fußgängerzone
+        fullyWheelchairAccessibleHighways.add(KEY_LIVING_STREET); //spielstraße
         fullyWheelchairAccessibleHighways.add("residential"); // Straße im Wohngebiet
         fullyWheelchairAccessibleHighways.add("unclassified"); // unklassifizierter Fahrweg, meistens schmal
         fullyWheelchairAccessibleHighways.add("service"); // Zufahrtsweg
@@ -156,7 +165,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         limitedWheelchairAccessibleHighways.add("track"); // Feldweg  
         
         // potentially not allowed for wheelchair users
-        restrictedWheelchairHighways.add("bridleway"); // disallowed in some countries - needs to be doublechecked with foot=yes
+        restrictedWheelchairHighways.add(KEY_BRIDLEWAY); // disallowed in some countries - needs to be doublechecked with foot=yes
         restrictedWheelchairHighways.add("cycleway"); // disallowed in some countries - needs to be doublechecked with foot=yes or wheelchair=yes
         
         // highways that are not suitable for wheelchair users
@@ -173,15 +182,11 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         init();
     }
 
+    @Override
     public double getMeanSpeed() {
         return MEAN_SPEED;
     }
     
-    public double getDefaultMaxSpeed()
-	{
-		return 4;
-	}
-
     @Override
     public int defineNodeBits(int index, int shift) {
         shift = super.defineNodeBits(index, shift);
@@ -198,22 +203,22 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     @Override
     public EncodingManager.Access getAccess(ReaderWay way ) {
     	// check access restrictions
-        if (way.hasTag(restrictions, restrictedValues) && !(way.hasTag(restrictions, intendedValues) || way.hasTag("sidewalk", usableSidewalkValues)))
+        if (way.hasTag(restrictions, restrictedValues) && !(way.hasTag(restrictions, intendedValues) || way.hasTag(KEY_SIDEWALK, usableSidewalkValues)))
             return EncodingManager.Access.CAN_SKIP;
         
-    	String highwayValue = way.getTag("highway");
+    	String highwayValue = way.getTag(KEY_HIGHWAY);
         if (highwayValue == null) {
         	
         	// ferries and shuttle_trains
-            if (way.hasTag("route", ferries)) {
+            if (way.hasTag(KEY_ROUTE, ferries)) {
             	// check whether information on wheelchair accessbility is available
-            	if (way.hasTag("wheelchair")) {
+            	if (way.hasTag(KEY_WHEELCHAIR)) {
             		// wheelchair=yes, designated, official, permissive, limited
-                	if (way.hasTag("wheelchair", intendedValues)) {
+                	if (way.hasTag(KEY_WHEELCHAIR, intendedValues)) {
                 		return EncodingManager.Access.FERRY;
                 	}
                 	// wheelchair=no, restricted, private
-                	if (way.hasTag("wheelchair", restrictedValues)) {
+                	if (way.hasTag(KEY_WHEELCHAIR, restrictedValues)) {
                 		return EncodingManager.Access.CAN_SKIP;
                 	}
                 }
@@ -234,13 +239,13 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
             // railways (platform, station)
             if (way.hasTag("public_transport", acceptedPublicTransport) || way.hasTag("railway", acceptedPublicTransport)) {
             	// check whether information on wheelchair accessbility is available
-            	if (way.hasTag("wheelchair")) {
+            	if (way.hasTag(KEY_WHEELCHAIR)) {
             		// wheelchair=yes, designated, official, permissive, limited
-                	if (way.hasTag("wheelchair", intendedValues)) {
+                	if (way.hasTag(KEY_WHEELCHAIR, intendedValues)) {
                 		return EncodingManager.Access.WAY;
                 	}
                 	// wheelchair=no, restricted, private
-                	if (way.hasTag("wheelchair", restrictedValues)) {
+                	if (way.hasTag(KEY_WHEELCHAIR, restrictedValues)) {
                 		return EncodingManager.Access.CAN_SKIP;
                 	}
                 }
@@ -262,11 +267,11 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         // highway != null
         else {
         	// wheelchair=yes, designated, official, permissive, limited
-        	if (way.hasTag("wheelchair", intendedValues)) {
+        	if (way.hasTag(KEY_WHEELCHAIR, intendedValues)) {
         		return EncodingManager.Access.WAY;
         	}
         	// wheelchair=no, restricted, private
-        	if (way.hasTag("wheelchair", restrictedValues)) {
+        	if (way.hasTag(KEY_WHEELCHAIR, restrictedValues)) {
         		return EncodingManager.Access.CAN_SKIP;
         	}
         	
@@ -293,12 +298,12 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
                 return EncodingManager.Access.CAN_SKIP;
             }
 
-            if (way.hasTag("sidewalk", usableSidewalkValues)) {
+            if (way.hasTag(KEY_SIDEWALK, usableSidewalkValues)) {
             	return EncodingManager.Access.WAY;
             }
             
             // Runge
-            if (way.hasTag("sidewalk", noSidewalkValues) && assumedWheelchairAccessibleHighways.contains(highwayValue))
+            if (way.hasTag(KEY_SIDEWALK, noSidewalkValues) && assumedWheelchairAccessibleHighways.contains(highwayValue))
            		return EncodingManager.Access.CAN_SKIP;
 
             // explicit motorroads are not usable
@@ -306,16 +311,16 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
                 return EncodingManager.Access.CAN_SKIP;
 
             // do not get our feet wet, "yes" is already included above
-            if (isBlockFords() && (way.hasTag("highway", "ford") || way.hasTag("ford")))
+            if (isBlockFords() && (way.hasTag(KEY_HIGHWAY, "ford") || way.hasTag("ford")))
                 return EncodingManager.Access.CAN_SKIP;
             
-            boolean bicycleOrHorseOnlyWay = (way.hasTag("bicycle", "designated") || way.hasTag("bicycle", "official") || way.hasTag("horse", "designated") || way.hasTag("horse", "official")) && !way.hasTag(restrictions, intendedValues);
+            boolean bicycleOrHorseOnlyWay = (way.hasTag(KEY_BICYCLE, KEY_DESIGNATED) || way.hasTag(KEY_BICYCLE, KEY_OFFICIAL) || way.hasTag("horse", KEY_DESIGNATED) || way.hasTag("horse", KEY_OFFICIAL)) && !way.hasTag(restrictions, intendedValues);
             if (bicycleOrHorseOnlyWay)
                 return EncodingManager.Access.CAN_SKIP;
             
-            if (restrictedWheelchairHighways.contains(highwayValue) && !bicycleOrHorseOnlyWay) {
+            if (restrictedWheelchairHighways.contains(highwayValue)) {
             	// In some countries bridleways cannot be travelled by anything other than a horse, so we should check if they have been explicitly allowed for foot or pedestrian
-                if (highwayValue.equals("bridleway") && !(intendedValues.contains(way.getTag("foot", "no")) || intendedValues.contains(way.getTag("wheelchair", "no")))) {
+                if (highwayValue.equals(KEY_BRIDLEWAY) && !(intendedValues.contains(way.getTag("foot", "no")) || intendedValues.contains(way.getTag(KEY_WHEELCHAIR, "no")))) {
                     return EncodingManager.Access.CAN_SKIP;
                 }
            		return EncodingManager.Access.WAY;
@@ -334,12 +339,12 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     @Override
     public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
         int code = 0;
-        if (relation.hasTag("route", "hiking") || relation.hasTag("route", "foot")) {
+        if (relation.hasTag(KEY_ROUTE, "hiking") || relation.hasTag(KEY_ROUTE, "foot")) {
             Integer val = hikingNetworkToCode.get(relation.getTag("network"));
             if (val != null)
                 code = val;
         } 
-        else if (relation.hasTag("route", "ferry")) {
+        else if (relation.hasTag(KEY_ROUTE, "ferry")) {
             code = PriorityCode.AVOID_IF_POSSIBLE.getValue();
         }
 
@@ -356,8 +361,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         if (access.canSkip())
             return edgeFlags;
 
-        if (!access.isFerry())
-        {
+        if (!access.isFerry()) {
         	// TODO: Depending on availability of sidewalk, surface, smoothness, tracktype and incline MEAN_SPEED or SLOW_SPEED should be encoded
         	// TODO: Maybe also implement AvoidFeaturesWeighting for Wheelchairs
         	
@@ -365,31 +369,28 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         	// This is a trick, where we try to underrate the speed for highways that do not have tagged sidewalks.
         	// TODO: this actually affects travel time estimation (might be a good or negative side effect depending on context)
         	double speed = MEAN_SPEED;
-        	if (way.hasTag("highway"))
+        	if (way.hasTag(KEY_HIGHWAY))
         	{
         		
-        		String highway = way.getTag("highway");
-        		if (assumedWheelchairAccessibleHighways.contains(highway))
-        		{
-        			if (!way.hasTag("sidewalk", usableSidewalkValues)) {
-        				speed *= 0.8d;
-        			}
+        		String highway = way.getTag(KEY_HIGHWAY);
+        		if (assumedWheelchairAccessibleHighways.contains(highway) && !way.hasTag(KEY_SIDEWALK, usableSidewalkValues)) {
+                    speed *= 0.8d;
         		}
         		if (fullyWheelchairAccessibleHighways.contains(highway)) {
-        			if (highway.equalsIgnoreCase("footway") || highway.equalsIgnoreCase("pedestrian") || highway.equalsIgnoreCase("living_street")) {
+        			if (highway.equalsIgnoreCase(KEY_FOOTWAY) || highway.equalsIgnoreCase(KEY_PEDESTRIAN) || highway.equalsIgnoreCase(KEY_LIVING_STREET)) {
         				speed *= 1.25d;
-        				if (way.hasTag("footway", "crossing") || way.hasTag("highway", "crossing")) {
+        				if (way.hasTag(KEY_FOOTWAY, KEY_CROSSING) || way.hasTag(KEY_HIGHWAY, KEY_CROSSING)) {
         					speed *= 2d; // should not exceed 10 in total due to encoding restrictions
         				}
         			}
         			// residential, unclassified
-        			else if (!way.hasTag("sidewalk", usableSidewalkValues)) {
+        			else if (!way.hasTag(KEY_SIDEWALK, usableSidewalkValues)) {
         				speed *= 0.9d;
         			}
         		}
-        		if (restrictedWheelchairHighways.contains(highway) && (way.hasTag("foot", intendedValues) || way.hasTag("wheelchair", intendedValues))) {
+        		if (restrictedWheelchairHighways.contains(highway) && (way.hasTag("foot", intendedValues) || way.hasTag(KEY_WHEELCHAIR, intendedValues))) {
         			speed *= 1.25d;
-    				if (way.hasTag("cycleway", "crossing") || way.hasTag("bridleway", "crossing") || way.hasTag("highway", "crossing")) {
+    				if (way.hasTag("cycleway", KEY_CROSSING) || way.hasTag(KEY_BRIDLEWAY, KEY_CROSSING) || way.hasTag(KEY_HIGHWAY, KEY_CROSSING)) {
     					speed *= 2d; // should not exceed 10 in total due to encoding restrictions
     				}
         		}
@@ -424,25 +425,18 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
      * method is called in the second parsing step.
      */
     @Override
-    public long handleNodeTags(ReaderNode node)
-    {
+    public long handleNodeTags(ReaderNode node) {
         long encoded = super.handleNodeTags(node);
-
         // We want to be more strict with fords, as only if it is declared as wheelchair accessible do we want to cross it
-        if (isBlockFords()) {
-            if (node.hasTag("highway", "ford") || node.hasTag("ford")) {
-                if (!node.hasTag("wheelchair", intendedValues)) {
-                    encoded = getEncoderBit();
-                }
-            }
+        if (isBlockFords() && (node.hasTag(KEY_HIGHWAY, "ford") || node.hasTag("ford")) && !node.hasTag(KEY_WHEELCHAIR, intendedValues)) {
+            encoded = getEncoderBit();
         }
-
         return encoded;
     }
-    
-    protected int handlePriority(ReaderWay way, int priorityFromRelation)
-    {
-        TreeMap<Double, Integer> weightToPrioMap = new TreeMap<Double, Integer>();
+
+    @Override
+    protected int handlePriority(ReaderWay way, int priorityFromRelation) {
+        TreeMap<Double, Integer> weightToPrioMap = new TreeMap<>();
         if (priorityFromRelation == 0)
             weightToPrioMap.put(1d, UNCHANGED.getValue());
         else
@@ -458,13 +452,12 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
      * @param weightToPrioMap associate a weight with every priority. This sorted map allows
      * subclasses to 'insert' more important priorities as well as overwrite determined priorities.
      */
-    public void collect(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap)
-    { 
+    public void collect(ReaderWay way, Map<Double, Integer> weightToPrioMap) {
     	int positiveFeatures = 0;
     	int negativeFeatures = 0;
     	
     	// http://wiki.openstreetmap.org/wiki/DE:Key:traffic_calming
-        String highwayValue = way.getTag("highway");
+        String highwayValue = way.getTag(KEY_HIGHWAY);
         double maxSpeed = getMaxSpeed(way);
         
         if (maxSpeed > 0) {
@@ -487,7 +480,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         	negativeFeatures+=4;
         }
         
-        if (way.hasTag("bicycle", "official")) {
+        if (way.hasTag(KEY_BICYCLE, KEY_OFFICIAL)) {
         	negativeFeatures+=2;
         }
         
@@ -517,8 +510,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         // do not rate foot features twice
         boolean isFootEvaluated = false;
         if (fullyWheelchairAccessibleHighways.contains(highwayValue)) {
-        	// positiveFeatures++;
-       		if (highwayValue.equalsIgnoreCase("footway") || highwayValue.equalsIgnoreCase("pedestrian") || highwayValue.equalsIgnoreCase("living_street")) {
+       		if (highwayValue.equalsIgnoreCase(KEY_FOOTWAY) || highwayValue.equalsIgnoreCase(KEY_PEDESTRIAN) || highwayValue.equalsIgnoreCase(KEY_LIVING_STREET)) {
         		positiveFeatures+=5;
         		isFootEvaluated = true;
         	}
@@ -530,14 +522,14 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         
         if (!isFootEvaluated) {
         	// key=sidewalk
-        	if (way.hasTag("sidewalk", usableSidewalkValues)) {
+        	if (way.hasTag(KEY_SIDEWALK, usableSidewalkValues)) {
             	positiveFeatures+=5;
             }
         	// key=foot
-        	else if (way.hasTag("foot", "designated")) {
+        	else if (way.hasTag("foot", KEY_DESIGNATED)) {
     			positiveFeatures += 5;
     		}
-    		else if (way.hasTag("foot", intendedValues) || way.hasTag("bicycle", "designated")) {
+    		else if (way.hasTag("foot", intendedValues) || way.hasTag(KEY_BICYCLE, KEY_DESIGNATED)) {
     			positiveFeatures += 2;
     		}
         }
@@ -564,4 +556,19 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 	public int getVersion() {
 		return 2;
 	}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final WheelchairFlagEncoder other = (WheelchairFlagEncoder) obj;
+        return toString().equals(other.toString());
+    }
+
+    @Override
+    public int hashCode() {
+        return ("WheelchairFlagEncoder" + toString()).hashCode();
+    }
 }

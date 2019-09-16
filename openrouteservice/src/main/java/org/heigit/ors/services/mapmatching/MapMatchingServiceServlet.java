@@ -24,6 +24,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * @deprecated
+ */
 @Deprecated
 @RestController
 @RequestMapping("/matching")
@@ -31,13 +34,17 @@ public class MapMatchingServiceServlet extends BaseHttpServlet {
 	/** Serial Version UID */
 	private static final long serialVersionUID = 7528348959945L;
 
+	@Override
 	public void init() throws ServletException {
+		// do nothing
 	}
 
+	@Override
 	public void destroy() {
-		
+		// do nothing
 	}
 
+	@Override
 	@PostMapping
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException   {
 		try
@@ -51,6 +58,7 @@ public class MapMatchingServiceServlet extends BaseHttpServlet {
 		}
 	}
 
+	@Override
 	@GetMapping
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		try

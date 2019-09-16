@@ -14,25 +14,21 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.carrotsearch.hppc.LongArrayList;
-import com.google.common.collect.Lists;
-import com.graphhopper.coll.GHLongObjectHashMap;
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.GHPoint;
-import com.vividsolutions.jts.geom.*;
-import org.heigit.ors.routing.RoutingProfile;
+import com.vividsolutions.jts.geom.Coordinate;
+import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.WheelchairWayFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.RoadAccessRestrictionsGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGraphStorageBuilder;
-import org.apache.log4j.Logger;
 
 import java.io.InvalidObjectException;
 import java.util.*;
@@ -40,14 +36,11 @@ import java.util.Map.Entry;
 
 public class ORSOSMReader extends OSMReader {
 
-	private static Logger LOGGER = Logger.getLogger(ORSOSMReader.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(ORSOSMReader.class.getName());
 
-	private GraphProcessContext _procCntx;
-	private RoutingProfile refProfile;
-	// MARQ24: REMOVED SINCE code that handles 'enrichInstructions = true' is already inactive!
-	//private boolean enrichInstructions;
+	private GraphProcessContext procCntx;
 	private boolean processNodeTags;
-	private OSMDataReaderContext _readerCntx;
+	private OSMDataReaderContext readerCntx;
 
 	private HashMap<Long, HashMap<String, String>> nodeTags = new HashMap<>();
 
@@ -59,26 +52,17 @@ public class ORSOSMReader extends OSMReader {
 
 	private HashSet<String> extraTagKeys;
 
-	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx,  RoutingProfile refProfile) {
+	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx) {
 		super(storage);
 
 		setCalcDistance3D(false);
-		this._procCntx = procCntx;
-		this._readerCntx = new OSMDataReaderContext(this);
-		this.refProfile = refProfile;
+		this.procCntx = procCntx;
+		this.readerCntx = new OSMDataReaderContext(this);
 
-		// MARQ24: REMOVED SINCE code that handles 'enrichInstructions = true' is already inactive!
-		/*enrichInstructions = (refProfile != null) && (storage.getEncodingManager().supports("foot")
-				|| storage.getEncodingManager().supports("bike")  
-				|| storage.getEncodingManager().supports("MTB")
-				|| storage.getEncodingManager().supports("RACINGBIKE")
-				|| storage.getEncodingManager().supports("SAFETYBIKE"));
-        */
-
-		initNodeTagsToStore(new HashSet<>(Arrays.asList(new String[] {"maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload"})));
+		initNodeTagsToStore(new HashSet<>(Arrays.asList("maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload")));
 		extraTagKeys = new HashSet<>();
 		// Look if we should do border processing - if so then we have to process the geometry
-		for(GraphStorageBuilder b : this._procCntx.getStorageBuilders()) {
+		for(GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
 			if ( b instanceof BordersGraphStorageBuilder) {
 				this.processGeom = true;
 			}
@@ -113,8 +97,8 @@ public class ORSOSMReader extends OSMReader {
 
 	@Override
 	protected boolean isInBounds(ReaderNode node) {
-		if (_procCntx != null) {
-			return _procCntx.isValidPoint(node.getLon(), node.getLat());
+		if (procCntx != null) {
+			return procCntx.isValidPoint(node.getLon(), node.getLat());
 		}
 
 		return super.isInBounds(node);
@@ -240,9 +224,9 @@ public class ORSOSMReader extends OSMReader {
 						double lon = getLongitudeOfNode(id, true);
 						// Add the point to the line
 						// Check that we have a tower node
-						if(!(lat == 0 || lon == 0 || Double.isNaN(lat) || Double.isNaN(lon)))
-						if (lat != 0 || lon != 0)
+						if (!(lat == 0 || lon == 0 || Double.isNaN(lat) || Double.isNaN(lon))) {
 							coords.add(new Coordinate(lon, lat));
+						}
 					} catch (Exception e) {
 						LOGGER.error("Could not process node " + osmNodeIds.get(i) );
 					}
@@ -253,9 +237,9 @@ public class ORSOSMReader extends OSMReader {
 
 		if(tags.size() > 0 || coords.size() > 1) {
 			// Use an overloaded method that allows the passing of parameters from this reader
-			_procCntx.processWay(way, coords.toArray(new Coordinate[coords.size()]), tags);
+			procCntx.processWay(way, coords.toArray(new Coordinate[coords.size()]), tags);
 		} else {
-			_procCntx.processWay(way);
+			procCntx.processWay(way);
 		}
 	}
 
@@ -285,9 +269,10 @@ public class ORSOSMReader extends OSMReader {
 			} else {
 				return pillarInfo.getLatitude(id);
 			}
-		} else
+		} else {
 			// e.g. if id is not handled from preparse (e.g. was ignored via isInBounds)
 			return Double.NaN;
+		}
 	}
 
 	/**
@@ -312,9 +297,10 @@ public class ORSOSMReader extends OSMReader {
 			} else {
 				return pillarInfo.getLatitude(id);
 			}
-		} else
+		} else {
 			// e.g. if id is not handled from preparse (e.g. was ignored via isInBounds)
 			return Double.NaN;
+		}
 	}
 
 	/**
@@ -348,35 +334,6 @@ public class ORSOSMReader extends OSMReader {
 
 	@Override
 	protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge) {
-
-		// MARQ24: REMOVED SINCE code that handles 'enrichInstructions = true' is already inactive!
-		// by MARQ24 if (enrichInstructions && Helper.isEmpty(way.getTag("name")) && Helper.isEmpty(way.getTag("ref"))) {
-		// by MARQ24 	try {
-				/*	if (way.getId() != prevMatchedWayId)
-				{
-					prevMatchedWayId = way.getId();
-					PointList pl = getWayPoints(way);
-					matchedEdgeName = null;
-					RouteSegmentInfo rsi = refProfile.getMatchedSegment(pl, 15.0);
-
-					if (rsi != null) {
-						String objName = rsi.getNearbyStreetName(pl, true);
-						if (!Helper.isEmpty(objName)) {
-							matchedEdgeName = objName;
-							way.setTag("name", matchedEdgeName);
-						}
-					}
-				}
-
-				if (!Helper.isEmpty(matchedEdgeName)) {
-					edge.setName(matchedEdgeName);
-				}*/
-
-		// by MARQ24 	}
-		// by MARQ24 	catch (Exception ex) {
-		// by MARQ24 	}
-		// by MARQ24 }
-
 		try {
 			// Pass through the coordinates of the graph nodes
 			Coordinate baseCoord = new Coordinate(
@@ -388,7 +345,7 @@ public class ORSOSMReader extends OSMReader {
 					getLatitudeOfNode(edge.getAdjNode(), false)
 			);
 
-			_procCntx.processEdge(way, edge, new Coordinate[] {baseCoord, adjCoordinate});
+			procCntx.processEdge(way, edge, new Coordinate[] {baseCoord, adjCoordinate});
 		} catch (Exception ex) {
 			LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
 		}
@@ -399,7 +356,7 @@ public class ORSOSMReader extends OSMReader {
     {
 		try
 		{
-			return _procCntx.createEdges(_readerCntx, way, osmNodeIds, wayFlags, createdEdges);
+			return procCntx.createEdges(readerCntx, way, osmNodeIds, wayFlags, createdEdges);
 		}
 		catch (Exception ex) {
 			LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
@@ -424,7 +381,8 @@ public class ORSOSMReader extends OSMReader {
 		for(int i=1; i<len; i++){
 			long nextNodeId = osmNodeIds.get(i);
 			int next = getNodeMap().get(nextNodeId);
-			double nextLat = getTmpLatitude(next), nextLon = getTmpLongitude(next);
+			double nextLat = getTmpLatitude(next);
+			double nextLon = getTmpLongitude(next);
 			if(!Double.isNaN(currLat) && !Double.isNaN(currLon) && !Double.isNaN(nextLat) && !Double.isNaN(nextLon)) {
 				latSum = latSum + nextLat;
 				lonSum = lonSum + nextLon;
@@ -450,11 +408,8 @@ public class ORSOSMReader extends OSMReader {
 
 	@Override
 	protected void finishedReading() {
-
-		// System.out.println("----------  ORSOSMReader.finishedReading()");
 		super.finishedReading();
-		
-		_procCntx.finish();
+		procCntx.finish();
 	}
 
 

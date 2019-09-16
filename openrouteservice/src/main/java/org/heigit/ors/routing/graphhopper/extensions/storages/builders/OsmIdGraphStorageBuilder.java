@@ -19,6 +19,7 @@ public class OsmIdGraphStorageBuilder extends AbstractGraphStorageBuilder {
     }
 
     public void processWay(ReaderWay way) {
+        // do nothing
     }
 
     /**
