@@ -13,20 +13,26 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.heigit.ors.api.responses.common.boundingbox;
+package org.heigit.ors.api.responses.routing.gpx;
 
-import org.heigit.ors.api.responses.routing.gpx.GPXBounds;
+import org.heigit.ors.config.AppConfig;
+import org.heigit.ors.exceptions.InternalServerException;
 
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlElement;
 
-@XmlSeeAlso(GPXBounds.class)
-@XmlTransient
-public interface BoundingBox {
-    double getMinLon();
-    double getMaxLon();
-    double getMinLat();
-    double getMaxLat();
+public class GPXAuthor {
+    @XmlElement(name = "name")
+    private String name;
 
-    double[] getAsArray();
+    @XmlElement(name = "email")
+    private GPXEmail email;
+
+    @XmlElement(name = "link")
+    private GPXLink link;
+
+    public GPXAuthor() throws InternalServerException  {
+        this.name = AppConfig.getGlobal().getParameter("info", "author_tag");
+        this.email = new GPXEmail();
+        this.link = new GPXLink();
+    }
 }

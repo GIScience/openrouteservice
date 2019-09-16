@@ -23,7 +23,7 @@ import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.matrix.MatrixRequestHandler;
-import org.heigit.ors.api.responses.matrix.JSONMatrixResponseObjects.JSONMatrixResponse;
+import org.heigit.ors.api.responses.matrix.json.JSONMatrixResponse;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.matrix.MatrixResult;

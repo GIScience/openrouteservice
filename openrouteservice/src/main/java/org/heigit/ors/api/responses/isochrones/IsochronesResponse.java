@@ -18,7 +18,7 @@ package org.heigit.ors.api.responses.isochrones;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBox;
-import org.heigit.ors.api.responses.isochrones.GeoJSONIsochronesResponseObjects.GeoJSONIsochroneBase;
+import org.heigit.ors.api.responses.isochrones.geojson.GeoJSONIsochroneBase;
 
 import java.util.List;
 

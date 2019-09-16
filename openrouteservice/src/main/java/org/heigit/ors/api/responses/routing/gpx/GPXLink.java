@@ -13,20 +13,25 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.heigit.ors.api.responses.common.boundingbox;
+package org.heigit.ors.api.responses.routing.gpx;
 
-import org.heigit.ors.api.responses.routing.gpx.GPXBounds;
+import org.heigit.ors.config.AppConfig;
 
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 
-@XmlSeeAlso(GPXBounds.class)
-@XmlTransient
-public interface BoundingBox {
-    double getMinLon();
-    double getMaxLon();
-    double getMinLat();
-    double getMaxLat();
+public class GPXLink {
+    @XmlAttribute(name = "href")
+    private String href;
+    @XmlElement(name = "text")
+    private String text;
+    @XmlElement
+    private String type;
 
-    double[] getAsArray();
+    public GPXLink() {
+        this.href = AppConfig.getGlobal().getParameter("info", "base_url");
+        this.text = AppConfig.getGlobal().getParameter("info", "base_url");
+        this.type = "text/html";
+    }
+
 }
