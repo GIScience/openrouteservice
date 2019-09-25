@@ -92,7 +92,6 @@ public class InertialFlow_Ser extends PartitioningBase {
         int mincutScore = Integer.MAX_VALUE;
         Set<Integer> mincutSrcSet = new HashSet<>();
         Set<Integer> mincutSnkSet = new HashSet<>();
-        Set<Integer> mincutEdgBaseSet = new HashSet<>();
         Map<Integer, Double> tmpNodeProjMap = new HashMap<>();
 
         //>> Loop through Projections and project each Node

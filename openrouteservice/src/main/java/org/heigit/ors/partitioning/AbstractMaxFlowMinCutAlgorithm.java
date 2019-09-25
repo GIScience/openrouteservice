@@ -11,18 +11,19 @@ public abstract class AbstractMaxFlowMinCutAlgorithm extends MaxFlowMinCut {
     private Set<Integer> srcPartition, snkPartition;
 
 
-    public AbstractMaxFlowMinCutAlgorithm(GraphHopperStorage ghStorage) {
-        super(ghStorage);
+    public AbstractMaxFlowMinCutAlgorithm(GraphHopperStorage ghStorage, boolean init) {
+        super(ghStorage, init);
     }
 
     public AbstractMaxFlowMinCutAlgorithm() {}
 
-    public void setVisited(FlowNode node) {
-        node.visited = visitedToken;
+    public void setVisited(int node) {
+        FlowNodeData flowNodeData = PartitioningData.flowNodeDataMap.get(node);
+        flowNodeData.visited = visitedToken;
     }
 
-    public boolean isVisited(FlowNode node) {
-        return (node.visited == visitedToken);
+    public boolean isVisited(int visited) {
+        return (visited == visitedToken);
     }
 
     public void setUnvisitedAll() {
@@ -40,7 +41,7 @@ public abstract class AbstractMaxFlowMinCutAlgorithm extends MaxFlowMinCut {
 
         execute();
         for (int nodeId : nodeIdSet) {
-            if (isVisited(_nodeMap.get(nodeId)))
+            if (isVisited(PartitioningData.flowNodeDataMap.get(nodeId).visited))
                 this.srcPartition.add(nodeId);
             else
                 this.snkPartition.add(nodeId);

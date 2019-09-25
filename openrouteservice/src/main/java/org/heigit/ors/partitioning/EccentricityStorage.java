@@ -34,6 +34,8 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
 
     private final DataAccess eccentricities;
     private int ECCENTRICITYBYTES;
+    private int FULLYREACHABLEPOSITION;
+    private int ECCENTRICITYPOSITION;
     private int nodeCount;
     private Weighting weighting;
 
@@ -45,7 +47,10 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
         //TODO for now just create for all nodes... optimize to use only border nodes... will save 95% space
         nodeCount = graph.getNodes();
         //  1 int per eccentricity value
-        this.ECCENTRICITYBYTES = 5;
+        this.ECCENTRICITYBYTES = 8;
+        this.FULLYREACHABLEPOSITION = 0;
+        this.ECCENTRICITYPOSITION = FULLYREACHABLEPOSITION + 4;
+
     }
 
 
@@ -64,25 +69,26 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
 
 
     public void setEccentricity(int node, double eccentricity){
-        eccentricities.setInt(node * ECCENTRICITYBYTES + 1, (int)Math.ceil(eccentricity));
+        eccentricities.setInt(node * ECCENTRICITYBYTES + ECCENTRICITYPOSITION, (int)Math.ceil(eccentricity));
     }
 
     public int getEccentricity(int node){
-        return eccentricities.getInt(node * ECCENTRICITYBYTES + 1);
+        return eccentricities.getInt(node * ECCENTRICITYBYTES + ECCENTRICITYPOSITION);
     }
 
     public void setFullyReachable(int node, boolean isFullyReachable){
         if(isFullyReachable)
-            eccentricities.setBytes(node * ECCENTRICITYBYTES, new byte[] {(byte) 1}, 1);
+//            eccentricities.setInt(node * ECCENTRICITYBYTES + FULLYREACHABLEPOSITION, new byte[] {(byte) 1}, 1);
+        eccentricities.setInt(node * ECCENTRICITYBYTES + FULLYREACHABLEPOSITION, 1);
         else
-            eccentricities.setBytes(node * ECCENTRICITYBYTES, new byte[] {(byte) 0}, 1);
+            eccentricities.setInt(node * ECCENTRICITYBYTES + FULLYREACHABLEPOSITION, 0);
     }
 
     public boolean getFullyReachable(int node){
-        byte[] buffer = new byte[1];
-        eccentricities.getBytes(node * ECCENTRICITYBYTES, buffer, 1);
+//        byte[] buffer = new byte[1];
+        int isFullyReachable = eccentricities.getInt(node * ECCENTRICITYBYTES + FULLYREACHABLEPOSITION);
 
-        return buffer[0] == 1;
+        return isFullyReachable == 1;
     }
 
     @Override

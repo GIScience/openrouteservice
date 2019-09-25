@@ -40,18 +40,21 @@ public class PreparePartition implements RoutingAlgorithmFactory {
         partitioningAlgo.run();
 
         prepareData();
+
         //Create and calculate isochrone info that is ordered by node
         if (!isochroneNodeStorage.loadExisting()) {
             isochroneNodeStorage.setCellId(this.nodeCellId);
             isochroneNodeStorage.setBorderness(this.nodeBorderness);
             isochroneNodeStorage.flush();
         }
+
         //Info that is ordered by cell
         if (!cellStorage.loadExisting()) {
             cellStorage.init();
             cellStorage.calcCellNodesMap();
             cellStorage.flush();
         }
+
         freeMemory();
         return this;
     }

@@ -12,7 +12,6 @@ public class FastIsochroneParameters {
     public static final int INFL__GRAPH_EDGE_CAPACITY = 1;
     public static final int INFL__DUMMY_EDGE_CAPACITY = Integer.MAX_VALUE;
 
-
     /**
      * Default tolerance.
      */

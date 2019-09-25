@@ -2,28 +2,40 @@ package org.heigit.ors.partitioning;
 
 
 import com.graphhopper.storage.GraphHopperStorage;
-import java.util.ArrayDeque;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
+
+import java.util.*;
 
 
 public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
 
-    private Map<FlowNode, FlowEdge> prevMap;
+    private Map<Integer, Integer> prevMap;
+    private Map<Integer, Integer> prevBaseNodeMap;
 
 
-    public EdmondsKarp(GraphHopperStorage ghStorage) {
-        super(ghStorage);
+    public EdmondsKarp(GraphHopperStorage ghStorage, boolean init) {
+        super(ghStorage, init);
     }
 
     public EdmondsKarp() {
+    }
+
+    public int getRemainingCapacity(int edgeId) {
+        FlowEdgeData flowEdgeData = PartitioningData.flowEdgeDataMap.get(edgeId);
+        return flowEdgeData.capacity - flowEdgeData.flow;
+    }
+
+    public void augment(int edge, int bottleNeck) {
+        FlowEdgeData flowEdgeData = PartitioningData.flowEdgeDataMap.get(edge);
+        flowEdgeData.flow += bottleNeck;
+        FlowEdgeData inverseFlowEdgeData = PartitioningData.flowEdgeDataMap.get(flowEdgeData.inverse);
+        inverseFlowEdgeData.flow -= bottleNeck;
     }
 
     @Override
     public void flood() {
         int flow;
         prevMap = new HashMap<>();
+        prevBaseNodeMap = new HashMap<>();
 
         do {
             setUnvisitedAll();
@@ -36,44 +48,96 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
         } while (flow > 0);
 
         for (int nodeId : nodeIdSet) {
-            FlowNode node = _nodeMap.get(nodeId);
-            node.minCut = isVisited(node);
+            FlowNodeData flowNodeData = PartitioningData.flowNodeDataMap.get(nodeId);
+            flowNodeData.minCut = isVisited(flowNodeData.visited);
         }
 
-        prevMap.clear();
+        prevMap = null;
+        prevBaseNodeMap = null;
     }
 
     private int bfs() {
-        Queue<FlowNode> queue = new ArrayDeque<>(nodes);
-        setVisited(srcNode);
-        queue.offer(srcNode);
+        Queue<Integer> queue = new ArrayDeque<>(nodes);
+        setVisited(srcNode.id);
+        queue.offer(srcNode.id);
+        int node;
+
 
         while (!queue.isEmpty()) {
-            FlowNode node = queue.poll();
-            if (node == snkNode)
-                break;
+            Set<Integer> targSet = new HashSet<>();
+            node = queue.poll();
 
-            for (FlowEdge edge : node.getOutEdges()) {
-                if ((edge.getRemainingCapacity() > 0) && (!isVisited(edge.targNode))) {
-                    setVisited(edge.targNode);
-                    prevMap.put(edge.targNode, edge);
-                    queue.offer(edge.targNode);
-                } else {
+            if (node == snkNode.id)
+                break;
+            if (node == srcNode.id){
+                bfsSrcNode(queue);
+                continue;
+            }
+            _edgeIter = _edgeExpl.setBaseNode(node);
+            //Iterate over normal edges
+            while(_edgeIter.next()){
+                if(targSet.contains(_edgeIter.getAdjNode())
+                        || _edgeIter.getAdjNode() == _edgeIter.getBaseNode())
+                    continue;
+                targSet.add(_edgeIter.getAdjNode());
+
+                FlowEdgeData flowEdgeData = PartitioningData.flowEdgeDataMap.get(_edgeIter.getEdge());
+                if(flowEdgeData.active != true)
+                    continue;
+                if ((getRemainingCapacity(_edgeIter.getEdge()) > 0)
+                        && !isVisited(PartitioningData.flowNodeDataMap.get(_edgeIter.getAdjNode()).visited)) {
+                    setVisited(_edgeIter.getAdjNode());
+                    prevMap.put(_edgeIter.getAdjNode(), _edgeIter.getEdge());
+                    prevBaseNodeMap.put(_edgeIter.getEdge(), _edgeIter.getBaseNode());
+                    queue.offer(_edgeIter.getAdjNode());
                 }
             }
+
+            //do the same for the dummyedge of the node
+            FlowEdge dummyEdge = PartitioningData.dummyEdges.get(node);
+            if(PartitioningData.flowEdgeDataMap.get(dummyEdge.id).active != true)
+                continue;
+            if ((getRemainingCapacity(dummyEdge.id) > 0)
+                    && !isVisited(PartitioningData.flowNodeDataMap.get(dummyEdge.targNode).visited)
+                    ) {
+                setVisited(dummyEdge.targNode);
+                prevMap.put(dummyEdge.targNode, dummyEdge.id);
+                prevBaseNodeMap.put(dummyEdge.id, dummyEdge.baseNode);
+                queue.offer(dummyEdge.targNode);
+            }
+
         }
 
-        if (prevMap.get(snkNode) == null)
+        if (prevMap.getOrDefault(snkNode.id, -1) == -1)
             return 0;
         int bottleNeck = Integer.MAX_VALUE;
 
-        for (FlowEdge edge = prevMap.get(snkNode); edge != null; edge = prevMap.get(edge.baseNode))
-            bottleNeck = Math.min(bottleNeck, edge.getRemainingCapacity());
+        for (int edge = prevMap.getOrDefault(snkNode.id, -1); edge != -1; edge = prevMap.getOrDefault(prevBaseNodeMap.get(edge), -1))
+            bottleNeck = Math.min(bottleNeck, getRemainingCapacity(edge));
 
-        for (FlowEdge edge = prevMap.get(snkNode); edge != null; edge = prevMap.get(edge.baseNode))
-            edge.augment(bottleNeck);
+        for (int edge = prevMap.getOrDefault(snkNode.id, -1); edge != -1; edge = prevMap.getOrDefault(prevBaseNodeMap.get(edge), -1))
+            augment(edge, bottleNeck);
 
         return bottleNeck;
+    }
+
+    private void bfsSrcNode(Queue queue) {
+        Set<Integer> targSet = new HashSet<>();
+
+        for(FlowEdge flowEdge : srcNode.outEdges){
+            if(targSet.contains(flowEdge.targNode)
+                    || flowEdge.targNode == flowEdge.baseNode)
+                continue;
+            targSet.add(flowEdge.targNode);
+
+            if ((getRemainingCapacity(flowEdge.id) > 0)
+                    && !isVisited(PartitioningData.flowNodeDataMap.get(flowEdge.targNode).visited)) {
+                setVisited(flowEdge.targNode);
+                prevMap.put(flowEdge.targNode, flowEdge.id);
+                prevBaseNodeMap.put(flowEdge.id, flowEdge.baseNode);
+                queue.offer(flowEdge.targNode);
+            }
+        }
     }
 }
 

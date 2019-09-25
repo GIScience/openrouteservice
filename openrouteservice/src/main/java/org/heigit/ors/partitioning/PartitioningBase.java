@@ -50,11 +50,11 @@ public abstract class PartitioningBase {
     }
 
     void initAlgo() {
-        mincutAlgo = new EdmondsKarp(ghStorage);
+        mincutAlgo = new EdmondsKarp(ghStorage, true);
     }
 
     void setAlgo() {
-        mincutAlgo = new EdmondsKarp();
+        mincutAlgo = new EdmondsKarp(ghStorage, false);
     }
 
     AbstractMaxFlowMinCutAlgorithm getAlgo() {
