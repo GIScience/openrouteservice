@@ -44,6 +44,9 @@ The following sections describes the list of possible internal error codes that 
 | 2007 |  Unsupported export format. |
 | 2008 |  Empty Element. |
 | 2009 |  Route could not be found between locations. |
+| 2010 |  Point outside of bounds. |
+| 2011 |  Incompatible parameters. |
+| 2012 |  Unknown parameter. |
 | 2099 |  Unknown internal error. |
 
 ## Isochrones API
@@ -58,6 +61,7 @@ The following sections describes the list of possible internal error codes that 
 | 3006 |  Unable to parse the request to the export handler. |
 | 3007 |  Unsupported export format. |
 | 3008 |  Empty Element. |
+| 3011 |  Unknown parameter. |
 | 3099 |  Unknown internal error. |
 
 ## POIs API
@@ -85,4 +89,6 @@ The following sections describes the list of possible internal error codes that 
 | 6006 |  Unable to parse the request to the export handler. |
 | 6007 |  Unsupported export format. |
 | 6008 |  Empty Element. |
+| 6010 |  Point not found. |
+| 6011 |  Unknown parameter. |
 | 6099 |  Unknown internal error. |
