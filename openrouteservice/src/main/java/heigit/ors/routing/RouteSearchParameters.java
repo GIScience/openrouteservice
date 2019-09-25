@@ -429,4 +429,12 @@ public class RouteSearchParameters {
             || isProfileTypeDriving() && getConsiderTraffic()
         ;
     }
+
+    /**
+     * Check if the request is compatible with preprocessed graphs
+     */
+    public boolean requiresFallbackAlgorithm() {
+        return hasAvoidAreas()
+                || (getProfileParameters() != null && getProfileParameters().hasWeightings());
+    }
 }

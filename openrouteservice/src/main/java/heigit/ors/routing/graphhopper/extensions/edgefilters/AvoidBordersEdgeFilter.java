@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 public class AvoidBordersEdgeFilter implements EdgeFilter {
     private BordersExtractor.Avoid _avoidBorders = BordersExtractor.Avoid.NONE;
     private boolean _avoidCountries = false;
+    private boolean isStorageBuilt;
 
     private BordersExtractor _bordersExtractor;
 
@@ -45,7 +46,8 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
      */
     private void init(RouteSearchParameters searchParams, BordersGraphStorage extBorders) {
         // Init the graph storage
-        if(extBorders != null) {
+        isStorageBuilt = extBorders != null;
+        if(isStorageBuilt) {
             int[] avoidCountries;
             if(searchParams.hasAvoidCountries())
                 avoidCountries = searchParams.getAvoidCountries();
@@ -71,6 +73,8 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
      */
     @Override
     public final boolean accept(EdgeIteratorState iter) {
+        if(!isStorageBuilt)
+            return true;
 
         if (_avoidBorders != BordersExtractor.Avoid.NONE) {
             // We have been told to avoid some form of border

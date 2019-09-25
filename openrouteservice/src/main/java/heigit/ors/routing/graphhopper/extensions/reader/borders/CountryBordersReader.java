@@ -15,7 +15,6 @@ package heigit.ors.routing.graphhopper.extensions.reader.borders;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
 import heigit.ors.geojson.GeometryJSON;
 import heigit.ors.util.CSVUtility;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;

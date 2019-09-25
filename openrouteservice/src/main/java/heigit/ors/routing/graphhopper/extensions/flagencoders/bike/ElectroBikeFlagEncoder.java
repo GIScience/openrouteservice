@@ -18,7 +18,8 @@ import heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
 public class ElectroBikeFlagEncoder extends CommonBikeFlagEncoder
 {
-	  
+    private static final int MEAN_SPEED = 20;
+
     public ElectroBikeFlagEncoder()
     {
         this(4, 2, 0, false);
@@ -127,6 +128,10 @@ public class ElectroBikeFlagEncoder extends CommonBikeFlagEncoder
         // MARQ24 -> till here this will just overwite the default values of the common bike flag encoder...
 
         this.init();
+    }
+
+    public double getMeanSpeed() {
+        return MEAN_SPEED;
     }
 
     @Override

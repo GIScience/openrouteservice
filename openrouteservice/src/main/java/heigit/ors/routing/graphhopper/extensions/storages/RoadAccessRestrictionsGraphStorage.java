@@ -138,11 +138,11 @@ public class RoadAccessRestrictionsGraphStorage implements GraphExtension, Warni
     }
 
     public GraphExtension copyTo(GraphExtension clonedStorage) {
-        if (!(clonedStorage instanceof AccessRestrictionsGraphStorage)) {
+        if (!(clonedStorage instanceof RoadAccessRestrictionsGraphStorage)) {
             throw new IllegalStateException("the extended storage to clone must be the same");
         }
 
-        AccessRestrictionsGraphStorage clonedTC = (AccessRestrictionsGraphStorage) clonedStorage;
+        RoadAccessRestrictionsGraphStorage clonedTC = (RoadAccessRestrictionsGraphStorage) clonedStorage;
 
         edges.copyTo(clonedTC.edges);
         clonedTC.edgesCount = edgesCount;

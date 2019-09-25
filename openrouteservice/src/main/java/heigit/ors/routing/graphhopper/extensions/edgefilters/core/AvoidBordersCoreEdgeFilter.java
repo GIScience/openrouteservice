@@ -24,16 +24,19 @@ public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
     private BordersGraphStorage storage;
     private int[] avoidCountries;
     private boolean isAvoidCountries = false;
+    private boolean isStorageBuilt;
 
     //Used to avoid all borders
     public AvoidBordersCoreEdgeFilter(GraphStorage graphStorage) {
         this.storage = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
+        isStorageBuilt = storage != null;
     }
     //Used to specify multiple countries to avoid (For a specific LM set)
     public AvoidBordersCoreEdgeFilter(GraphStorage graphStorage, int[] avoidCountries) {
         this.storage = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
         this.avoidCountries = avoidCountries;
         if(avoidCountries.length > 0) isAvoidCountries = true;
+        isStorageBuilt = storage != null;
     }
 
     public int[] getAvoidCountries(){
@@ -46,17 +49,16 @@ public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
      */
     @Override
     public final boolean accept(EdgeIteratorState iter) {
+        //If there is no borders storage, we accept everything
+        if(!isStorageBuilt) return true;
         //If a specific country was given, just check if its one of the country borders
         if(iter instanceof CHEdgeIterator)
             if(((CHEdgeIterator)iter).isShortcut()) return true;
         if(isAvoidCountries)
             return !restrictedCountry(iter.getEdge());
         //else check if there is ANY border
-        if (storage == null) {
-            return true;
-        } else {
-            return storage.getEdgeValue(iter.getEdge(), BordersGraphStorage.Property.TYPE) == BordersGraphStorage.NO_BORDER;
-        }
+        return storage.getEdgeValue(iter.getEdge(), BordersGraphStorage.Property.TYPE) == BordersGraphStorage.NO_BORDER;
+
 
     }
 

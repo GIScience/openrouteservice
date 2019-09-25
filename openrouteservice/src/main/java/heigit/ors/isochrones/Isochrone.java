@@ -30,14 +30,14 @@ public class Isochrone {
     private boolean hasArea = false;
     private boolean hasReachfactor = false;
     private double reachfactor;
-    private double maxRadius;
+    private double meanRadius;
     private Envelope envelope;
     private List<AttributeValue> _attributes;
 
-    public Isochrone(Geometry geometry, double value, double maxRadius) {
+    public Isochrone(Geometry geometry, double value, double meanRadius) {
         this.geometry = geometry;
         this.value = value;
-        this.maxRadius = maxRadius;
+        this.meanRadius = meanRadius;
     }
 
     public Geometry getGeometry() {
@@ -48,21 +48,21 @@ public class Isochrone {
         return value;
     }
 
-    public double getMaxRadius(String units) {
+    public double getMeanRadius(String units) {
 
         if (units != null) {
             switch (units) {
                 case "m":
-                    return maxRadius;
+                    return meanRadius;
                 case "mi":
-                    return UnitsConverter.MetersToMiles(maxRadius);
+                    return UnitsConverter.MetersToMiles(meanRadius);
                 case "km":
-                    return UnitsConverter.MetersToKilometers(maxRadius);
+                    return UnitsConverter.MetersToKilometers(meanRadius);
             }
         }
 
         // return default meter
-        return maxRadius;
+        return meanRadius;
     }
 
     public double calcArea(String units) throws Exception {
@@ -110,7 +110,7 @@ public class Isochrone {
 
     public double calcReachfactor(String units) throws Exception {
 
-        double r = getMaxRadius(units);
+        double r = getMeanRadius(units);
         double maxArea = Math.PI * r * r;
 
         hasReachfactor = true;

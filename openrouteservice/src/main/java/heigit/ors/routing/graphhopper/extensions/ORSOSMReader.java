@@ -20,7 +20,7 @@ import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
 import heigit.ors.routing.RoutingProfile;
 import heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
 import heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.WheelchairWayFilter;
@@ -31,9 +31,13 @@ import heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGra
 import org.apache.log4j.Logger;
 
 import java.io.InvalidObjectException;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 public class ORSOSMReader extends OSMReader {
 

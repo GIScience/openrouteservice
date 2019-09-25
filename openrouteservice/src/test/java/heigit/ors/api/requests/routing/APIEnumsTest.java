@@ -33,6 +33,7 @@ public class APIEnumsTest {
         Assert.assertEquals(APIEnums.ExtraInfo.TOLLWAYS, APIEnums.ExtraInfo.forValue("tollways"));
         Assert.assertEquals(APIEnums.ExtraInfo.TRAIL_DIFFICULTY, APIEnums.ExtraInfo.forValue("traildifficulty"));
         Assert.assertEquals(APIEnums.ExtraInfo.OSM_ID, APIEnums.ExtraInfo.forValue("osmid"));
+        Assert.assertEquals(APIEnums.ExtraInfo.COUNTRY_INFO, APIEnums.ExtraInfo.forValue("countryinfo"));
 
         APIEnums.ExtraInfo.forValue("invalid");
     }
@@ -47,6 +48,7 @@ public class APIEnumsTest {
         Assert.assertEquals("tollways", APIEnums.ExtraInfo.TOLLWAYS.toString());
         Assert.assertEquals("traildifficulty", APIEnums.ExtraInfo.TRAIL_DIFFICULTY.toString());
         Assert.assertEquals("osmid", APIEnums.ExtraInfo.OSM_ID.toString());
+        Assert.assertEquals("countryinfo", APIEnums.ExtraInfo.COUNTRY_INFO.toString());
     }
 
     @Test(expected = ParameterValueException.class)

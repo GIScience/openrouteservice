@@ -46,6 +46,7 @@ import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCo
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
+import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
 import heigit.ors.util.CoordTools;
@@ -65,6 +66,7 @@ public class ORSGraphHopper extends GraphHopper {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private GraphProcessContext _procCntx;
+	private CountryBordersReader _generalCbReader;
 	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds; // one osm id can correspond to multiple edges
 	private HashMap<Integer, Long> tmcEdges;
 
@@ -624,4 +626,14 @@ public class ORSGraphHopper extends GraphHopper {
 				ghStorage.getProperties().put(ORSParameters.CoreLandmark.PREPARE + "done", true);
 		}
 	}
+
+	public CountryBordersReader getGeneralCbReader() {
+		return _generalCbReader;
+	}
+
+	public void setGeneralCbReader(CountryBordersReader _generalCbReader) {
+		this._generalCbReader = _generalCbReader;
+	}
+
+
 }

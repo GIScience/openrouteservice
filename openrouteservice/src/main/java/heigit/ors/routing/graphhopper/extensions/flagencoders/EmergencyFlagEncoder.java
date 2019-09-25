@@ -22,8 +22,9 @@ import com.graphhopper.util.PMap;
 
 import java.util.*;
 
-public class EmergencyFlagEncoder extends ORSAbstractFlagEncoder
+public class EmergencyFlagEncoder extends VehicleFlagEncoder
 {
+    private final static double MEAN_SPEED = 80;
     protected final HashSet<String> forwardKeys = new HashSet<String>(5);
     protected final HashSet<String> backwardKeys = new HashSet<String>(5);
     protected final HashSet<String> noValues = new HashSet<String>(5);
@@ -49,6 +50,8 @@ public class EmergencyFlagEncoder extends ORSAbstractFlagEncoder
     {
         this(5, 5, 0);
     }
+
+    public double getMeanSpeed() { return MEAN_SPEED; }
 
     public EmergencyFlagEncoder(PMap properties)
     {

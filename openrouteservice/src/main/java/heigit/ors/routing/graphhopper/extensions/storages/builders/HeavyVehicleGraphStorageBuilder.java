@@ -223,15 +223,8 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 		}
 	}
 
-	public void processEdge(ReaderWay way, EdgeIteratorState edge)
-	{
-		if (_hgvType > HeavyVehicleAttributes.UNKNOWN || _hgvDestination > 0 || _hasRestrictionValues) 
-		{
-			if (_hasRestrictionValues)
-				_storage.setEdgeValue(edge.getEdge(), _hgvType, _hgvDestination, _restrictionValues);
-			else
-				_storage.setEdgeValue(edge.getEdge(), _hgvType, _hgvDestination, null);
-	    }
+	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
+		_storage.setEdgeValue(edge.getEdge(), _hgvType, _hgvDestination, _restrictionValues);
 	}
 
 	private String getHeavyVehicleValue(String key, String hv, String value) {

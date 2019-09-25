@@ -56,7 +56,7 @@ public class XMLBuilderTest {
         // set route Extensions
         RteTypeExtensions rteTypeExtensions = new RteTypeExtensions();
         rteTypeExtensions.setAscent(0);
-        rteTypeExtensions.setAvgSpeed(0);
+        rteTypeExtensions.setAvgspeed(0);
         rteTypeExtensions.setDescent(0);
         rteTypeExtensions.setDistance(0);
         rteTypeExtensions.setDistanceActual(0);
@@ -203,8 +203,8 @@ public class XMLBuilderTest {
                 "            <distanceActual>0.0</distanceActual>\n" +
                 "            <ascent>0.0</ascent>\n" +
                 "            <descent>0.0</descent>\n" +
-                "            <avgSpeed>0.0</avgSpeed>\n" +
-                "            <bounds minlat=\"0.0\" minlon=\"0.0\" maxlat=\"0.0\" maxlon=\"0.0\"/>\n" +
+                "            <avgspeed>0.0</avgspeed>\n" +
+                "            <bounds minLat=\"0.0\" minLon=\"0.0\" maxLat=\"0.0\" maxLon=\"0.0\"/>\n" +
                 "        </extensions>\n" +
                 "    </rte>\n" +
                 "    <trk>\n" +

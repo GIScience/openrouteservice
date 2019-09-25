@@ -45,10 +45,10 @@ import java.math.BigDecimal;
  * <complexType name="boundsType">
  *   <complexContent>
  *     <restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       <attribute name="minlat" use="required" type="{http://www.topografix.com/GPX/1/1}latitudeType" />
- *       <attribute name="minlon" use="required" type="{http://www.topografix.com/GPX/1/1}longitudeType" />
- *       <attribute name="maxlat" use="required" type="{http://www.topografix.com/GPX/1/1}latitudeType" />
- *       <attribute name="maxlon" use="required" type="{http://www.topografix.com/GPX/1/1}longitudeType" />
+ *       <attribute name="minLat" use="required" type="{http://www.topografix.com/GPX/1/1}latitudeType" />
+ *       <attribute name="minLon" use="required" type="{http://www.topografix.com/GPX/1/1}longitudeType" />
+ *       <attribute name="maxLat" use="required" type="{http://www.topografix.com/GPX/1/1}latitudeType" />
+ *       <attribute name="maxLon" use="required" type="{http://www.topografix.com/GPX/1/1}longitudeType" />
  *     </restriction>
  *   </complexContent>
  * </complexType>
@@ -61,13 +61,13 @@ import java.math.BigDecimal;
 @XmlType(name = "boundsType")
 public class BoundsType {
 
-    @XmlAttribute(name = "minlat", required = true)
+    @XmlAttribute(name = "minLat", required = true)
     protected BigDecimal minlat;
-    @XmlAttribute(name = "minlon", required = true)
+    @XmlAttribute(name = "minLon", required = true)
     protected BigDecimal minlon;
-    @XmlAttribute(name = "maxlat", required = true)
+    @XmlAttribute(name = "maxLat", required = true)
     protected BigDecimal maxlat;
-    @XmlAttribute(name = "maxlon", required = true)
+    @XmlAttribute(name = "maxLon", required = true)
     protected BigDecimal maxlon;
 
     /**

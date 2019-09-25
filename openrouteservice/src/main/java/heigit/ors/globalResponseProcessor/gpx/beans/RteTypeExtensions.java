@@ -44,7 +44,7 @@ import javax.xml.bind.annotation.XmlType;
         "distanceActual",
         "ascent",
         "descent",
-        "avgSpeed",
+        "avgspeed",
         "bounds"
         // always add new variables here! and below
 })
@@ -56,7 +56,7 @@ public class RteTypeExtensions extends ExtensionsType {
     private double distanceActual;
     private double ascent;
     private double descent;
-    private double avgSpeed;
+    private double avgspeed;
     private BoundsType bounds;
 
 
@@ -156,17 +156,17 @@ public class RteTypeExtensions extends ExtensionsType {
      *
      * @return avgspeed as double
      */
-    public double getAvgSpeed() {
-        return avgSpeed;
+    public double getAvgspeed() {
+        return avgspeed;
     }
 
     /**
      * Sets the value of the avgspeed property
      *
-     * @param avgSpeed needs a double as input
+     * @param avgspeed needs a double as input
      */
-    public void setAvgSpeed(double avgSpeed) {
-        this.avgSpeed = avgSpeed;
+    public void setAvgspeed(double avgspeed) {
+        this.avgspeed = avgspeed;
     }
 
     /**

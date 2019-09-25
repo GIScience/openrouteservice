@@ -63,6 +63,30 @@ public class ResultTest extends ServiceTest {
         locationsLong.put(coord3);
         addParameter("locationsLong", locationsLong);
 
+        JSONArray locations5 = new JSONArray();
+        coord1 = new JSONArray();
+        coord1.put(8.684682);
+        coord1.put(49.401961);
+        locations5.put(coord1);
+        coord2 = new JSONArray();
+        coord2.put(8.690518);
+        coord2.put(49.405326);
+        locations5.put(coord2);
+        coord3 = new JSONArray();
+        coord3.put(8.690915);
+        coord3.put(49.430117);
+        locations5.put(coord3);
+        coord4 = new JSONArray();
+        coord4.put(8.68834);
+        coord4.put(49.427758);
+        locations5.put(coord4);
+        JSONArray coord5 = new JSONArray();
+        coord5.put(8.687525);
+        coord5.put(49.405437);
+        locations5.put(coord5);
+
+        addParameter("locations5", locations5);
+
         // Fake array to test maximum exceedings
         JSONArray maximumLocations = HelperFunctions.fakeJSONLocations(MatrixServiceSettings.getMaximumRoutes(false) + 1);
         addParameter("maximumLocations", maximumLocations);
@@ -792,6 +816,36 @@ public class ResultTest extends ServiceTest {
                 .body("durations[1][1]", is(102.53f))
                 .body("durations[2][0]", is(90.42f))
                 .body("durations[2][1]", is(0.0f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testDefinedSourcesAndDestinations() {
+
+        JSONObject body = new JSONObject();
+
+        body.put("locations", getParameter("locations5"));
+        body.put("sources", new JSONArray(new int[] {0,1}));
+        body.put("destinations", new JSONArray(new int[] {2,3,4}));
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'destinations' }", is(true))
+                .body("any { it.key == 'sources' }", is(true))
+                .body("destinations.size()", is(3))
+                .body("sources.size()", is(2))
+                .body("destinations[0].snapped_distance", is(4.18f))
+                .body("destinations[1].snapped_distance", is(2.42f))
+                .body("destinations[2].snapped_distance", is(7.11f))
+                .body("sources[0].snapped_distance", is(8.98f))
+                .body("sources[1].snapped_distance", is(7.87f))
                 .statusCode(200);
     }
 }

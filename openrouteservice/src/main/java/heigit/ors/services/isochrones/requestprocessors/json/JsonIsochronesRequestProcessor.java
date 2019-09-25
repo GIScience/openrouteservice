@@ -163,7 +163,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
                 //if (includeReachFactor && traveller.getRangeType() == TravelRangeType.Time) {
 
-                // double r = isoLine.getMaxRadius(units);
+                // double r = isoLine.getMeanRadius(units);
                 // double maxArea = Math.PI * r * r;
 
                 //  jProperties.put("reachfactor", FormatUtility.roundToDecimals(area / maxArea, 4));

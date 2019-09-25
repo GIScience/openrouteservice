@@ -113,7 +113,7 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 			throw new IllegalStateException("EF_RESTRICTION is not supported.");
 
 		for (int i = 0; i < VehicleDimensionRestrictions.Count; i++) {
-			short shortValue = restrictionValues == null ? 0 : (short) (restrictionValues[i] * factor);
+			short shortValue = (short) (restrictionValues[i] * factor);
 			orsEdges.setShort(edgePointer + EF_RESTRICTIONS + i * EF_RESTRICTION_BYTES, shortValue);
 		}
 	}

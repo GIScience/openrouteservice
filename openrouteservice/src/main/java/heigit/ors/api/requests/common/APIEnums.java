@@ -63,7 +63,8 @@ public class APIEnums {
         TOLLWAYS("tollways"),
         TRAIL_DIFFICULTY("traildifficulty"),
         OSM_ID("osmid"),
-        ROAD_ACCESS_RESTRICTIONS("roadaccessrestrictions");
+        ROAD_ACCESS_RESTRICTIONS("roadaccessrestrictions"),
+        COUNTRY_INFO("countryinfo");
 
         private final String value;
 

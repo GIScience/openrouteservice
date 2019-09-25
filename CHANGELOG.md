@@ -10,6 +10,29 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 ### Deprecated
 
+## [5.0.2] - 2019-07-29
+### Added
+- Added a gpx schema validator into the api-tests, testing all gpx outputs while fixing the bug from (#496)
+- Added information for countries a route traverses (#349)
+### Fixed
+- isochrone reachfactor gives now more realistic results (#325)
+- Fixed the wrong gpx header for api v2 (#496)
+- Make sure external storages contain entries for all edge IDs (#535)
+- Check if BordersStorage exists before calling it in AvoidBordersCoreEdgeFilter
+- Take into account shortcut direction in LM selection weighting (#550)
+- Updated Matrix api v2 response to correctly display sources (#560)
+- Check for null pointer in LM selection weighting (#550)
+- Use commas rather than pipes for weighting options in app.config.sample (#564)
+- Update point references when point is not found for routing (#567)
+### Changed
+- Moved walking and hiking flag encoders to the ORS core system (#440)
+- Remove route optimization code (#499)
+- Reduced distance for neighbourhood point search in isochrones when small isochrones are generated (#494)
+- Removed obsolete storages (#536)
+- Refactor fallback to preprocessing-independent algorithm for certain routing request params
+- Removed some landmark sets as default from app.config.sample
+### Deprecated
+
 ## [5.0.1] - 2019-04-08
 ### Added
 - CALT routing algorithm - Not for production (Issue #433)

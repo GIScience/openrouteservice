@@ -22,6 +22,7 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.util.*;
+import heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -37,7 +38,7 @@ import static com.graphhopper.util.Helper.keepIn;
  * @author Nop
  * @author ratrun
  */
-abstract public class CommonBikeFlagEncoder extends AbstractFlagEncoder {
+abstract public class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     /**
      * Reports whether this edge is unpaved.
      */
@@ -246,7 +247,7 @@ abstract public class CommonBikeFlagEncoder extends AbstractFlagEncoder {
         shift += priorityWayEncoder.getBits();
 
         // MARQ24 MOD START
-        if (isConsiderElevation()) {
+        if (considerElevation) {
             reverseSpeedEncoder = new EncodedDoubleValue("Reverse Speed", shift, speedBits, speedFactor, getHighwaySpeed("cycleway").speed, maxPossibleSpeed);
             shift += reverseSpeedEncoder.getBits();
         }
@@ -1044,7 +1045,7 @@ abstract public class CommonBikeFlagEncoder extends AbstractFlagEncoder {
     @Override
     public void applyWayTags(ReaderWay way, EdgeIteratorState edge) {
         // MARQ24 MOD START
-        if (isConsiderElevation()) {
+        if (considerElevation) {
         // MARQ24 MOD END
             PointList pl = edge.fetchWayGeometry(3);
             if (!pl.is3D())

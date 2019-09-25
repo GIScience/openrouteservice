@@ -16,7 +16,6 @@ package heigit.ors.routing.graphhopper.extensions.storages.builders;
 import com.graphhopper.reader.ReaderWay;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
 import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersHierarchy;
 import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
 import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
@@ -118,8 +117,8 @@ public class BordersGraphStorageBuilderTest {
 
         _builder.processWay(rw2, cs2, null);
 
-        Assert.assertFalse(rw2.hasTag("country1"));
-        Assert.assertFalse(rw2.hasTag("country2"));
+        Assert.assertEquals("c1", rw2.getTag("country1"));
+        Assert.assertEquals("c1", rw2.getTag("country2"));
     }
 
     /**

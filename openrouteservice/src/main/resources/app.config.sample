@@ -70,7 +70,7 @@
                 "lm": {
                   "enabled": true,
                   "threads": 1,
-                  "weightings": "fastest|shortest",
+                  "weightings": "fastest,shortest",
                   "landmarks": 16
                 }
               }
@@ -105,15 +105,15 @@
                   "lm": {
                     "enabled": false,
                     "threads": 1,
-                    "weightings": "fastest|shortest",
+                    "weightings": "fastest,shortest",
                     "landmarks": 16
                   },
                   "core": {
                       "enabled": true,
                       "threads": 1,
-                      "weightings": "fastest|shortest",
+                      "weightings": "fastest,shortest",
                       "landmarks": 64,
-                      "lmsets": "highways,tollways;highways;tollways;country_193;allow_all"
+                      "lmsets": "highways;allow_all"
                   }
                 }
               },
@@ -162,15 +162,15 @@
                   "lm": {
                     "enabled": true,
                     "threads": 1,
-                    "weightings": "fastest|shortest",
+                    "weightings": "fastest,shortest",
                     "landmarks": 16
                   },
                   "core": {
                     "enabled": true,
                     "threads": 1,
-                    "weightings": "fastest|shortest",
+                    "weightings": "fastest,shortest",
                     "landmarks": 64,
-                    "lmsets": "highways,tollways;highways;tollways;country_193;allow_all"
+                    "lmsets": "highways;allow_all"
                   }
                 }
               },
