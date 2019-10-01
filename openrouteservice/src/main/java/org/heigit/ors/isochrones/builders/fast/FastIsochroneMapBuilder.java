@@ -140,59 +140,56 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		IsochroneNodeStorage isochroneNodeStorage = ((ORSGraphHopper) _searchContext.getGraphHopper()).getPartitioningFactoryDecorator().getIsochroneNodeStorage();
 		EccentricityStorage eccentricityStorage = ((ORSGraphHopper) _searchContext.getGraphHopper()).getEccentricity().getEccentricityStorage(weighting);
 
-		FastIsochroneAlgorithm fastIsochroneAlgorithm = new FastIsochroneAlgorithm(
-				queryGraph,
-				new PreparationWeighting(weighting),
-				TraversalMode.NODE_BASED,
-				cellStorage,
-				isochroneNodeStorage,
-				eccentricityStorage);
-		fastIsochroneAlgorithm.setOriginalFrom(nonvirtualClosestNode);
-		fastIsochroneAlgorithm.calcIsochroneNodes(res.get(0).getClosestNode(), parameters.getMaximumRange());
-
-		List<Double> contourCoordinates = new ArrayList<>();
-
-		for (int cellId : fastIsochroneAlgorithm.getFullyReachableCells()){
-			contourCoordinates.addAll(cellStorage.getCellContourOrder(cellId));
-		}
-
-
-		GHPoint3D snappedPosition = res.get(0).getSnappedPoint();
-
-		AccessibilityMap edgeMap = new AccessibilityMap(fastIsochroneAlgorithm.getBestWeightMap(), snappedPosition);
-
-        GHPoint3D point = edgeMap.getSnappedPosition();
-
-        loc = (point == null) ? parameters.getLocation() : new Coordinate(point.lon, point.lat);
-
-		IsochroneMap isochroneMap = new IsochroneMap(parameters.getTravellerId(), loc);
-
-		if (LOGGER.isDebugEnabled())
-		{
-			sw.stop();
-
-			LOGGER.debug("Find edges: " + sw.getSeconds());
-		}
-
-		if (edgeMap.isEmpty())
-			return isochroneMap;
-
-		_treeSet = new TreeSet<Coordinate>();
-
-		List<Coordinate> isoPoints = new ArrayList<Coordinate>((int)(1.2*edgeMap.getMap().size()));
-
-
-
 		int nRanges = parameters.getRanges().length;
-		//TODO for now just one range
-		nRanges = 1;
-
-		double metersPerSecond = maxSpeed / 3.6;
-		// only needed for reachfactor property
-		double meanMetersPerSecond = meanSpeed / 3.6;
-
 		double prevCost = 0;
+		IsochroneMap isochroneMap = null;
+
 		for (int i = 0; i < nRanges; i++) {
+
+			FastIsochroneAlgorithm fastIsochroneAlgorithm = new FastIsochroneAlgorithm(
+					queryGraph,
+					new PreparationWeighting(weighting),
+					TraversalMode.NODE_BASED,
+					cellStorage,
+					isochroneNodeStorage,
+					eccentricityStorage);
+			fastIsochroneAlgorithm.setOriginalFrom(nonvirtualClosestNode);
+			fastIsochroneAlgorithm.calcIsochroneNodes(res.get(0).getClosestNode(), parameters.getRanges()[i]);
+
+			List<Double> contourCoordinates = new ArrayList<>();
+
+			for (int cellId : fastIsochroneAlgorithm.getFullyReachableCells()){
+				contourCoordinates.addAll(cellStorage.getCellContourOrder(cellId));
+			}
+
+			GHPoint3D snappedPosition = res.get(0).getSnappedPoint();
+
+			AccessibilityMap edgeMap = new AccessibilityMap(fastIsochroneAlgorithm.getBestWeightMap(), snappedPosition);
+
+			GHPoint3D point = edgeMap.getSnappedPosition();
+
+			loc = (point == null) ? parameters.getLocation() : new Coordinate(point.lon, point.lat);
+
+			if(isochroneMap == null) isochroneMap = new IsochroneMap(parameters.getTravellerId(), loc);
+
+			if (LOGGER.isDebugEnabled())
+			{
+				sw.stop();
+
+				LOGGER.debug("Find edges: " + sw.getSeconds());
+			}
+
+			if (edgeMap.isEmpty())
+				return isochroneMap;
+
+			_treeSet = new TreeSet<Coordinate>();
+
+			List<Coordinate> isoPoints = new ArrayList<Coordinate>((int)(1.2*edgeMap.getMap().size() + 1.2*contourCoordinates.size()));
+
+			double metersPerSecond = maxSpeed / 3.6;
+			// only needed for reachfactor property
+			double meanMetersPerSecond = meanSpeed / 3.6;
+
 			double isoValue = parameters.getRanges()[i];
 			double isochronesDifference = parameters.getRanges()[i];
 			if (i > 0)
