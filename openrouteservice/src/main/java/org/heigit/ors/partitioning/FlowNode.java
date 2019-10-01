@@ -10,6 +10,5 @@ public class FlowNode {
     FlowNode(int id) {
         this.id = id;
         this.outEdges = new ArrayList<>();
-        PartitioningData.flowNodeDataMap.put(id, new FlowNodeData(false, 0));
     }
 }

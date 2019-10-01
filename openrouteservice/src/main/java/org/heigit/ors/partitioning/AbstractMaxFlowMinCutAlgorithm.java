@@ -18,7 +18,7 @@ public abstract class AbstractMaxFlowMinCutAlgorithm extends MaxFlowMinCut {
     public AbstractMaxFlowMinCutAlgorithm() {}
 
     public void setVisited(int node) {
-        FlowNodeData flowNodeData = PartitioningData.flowNodeDataMap.get(node);
+        FlowNodeData flowNodeData = pData.getFlowNodeData(node);
         flowNodeData.visited = visitedToken;
     }
 
@@ -41,7 +41,7 @@ public abstract class AbstractMaxFlowMinCutAlgorithm extends MaxFlowMinCut {
 
         execute();
         for (int nodeId : nodeIdSet) {
-            if (isVisited(PartitioningData.flowNodeDataMap.get(nodeId).visited))
+            if (isVisited(pData.getFlowNodeData(nodeId).visited))
                 this.srcPartition.add(nodeId);
             else
                 this.snkPartition.add(nodeId);

@@ -32,9 +32,11 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
     }
 
     public void run(){
+        _dummyEdgeId = _graph.getAllEdges().getMaxId() + 1;
+        _dummyNodeId = _graph.getNodes() + 1;
         //Need entries for all edges + one dummy edge for all nodes
-        PartitioningData.createEdgeDataStructures(_graph.getAllEdges().getMaxId() + _graph.getNodes());
-        PartitioningData.createNodeDataStructures(_graph.getNodes());
+        pData.createEdgeDataStructures(2 * _dummyEdgeId + 2* _dummyNodeId);
+        pData.createNodeDataStructures(_dummyNodeId);
         buildStaticNetwork();
         pairEdges();
         freeMemory();
@@ -70,7 +72,7 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
     }
 
     private int addEdge(int edgeId, int capacity) {
-        PartitioningData.flowEdgeDataMap.put(edgeId,
+        pData.setFlowEdgeData(edgeId,
                 new FlowEdgeData(0, capacity, -1, false));
         if(maxEdgeId < edgeId)
             maxEdgeId = edgeId;
@@ -80,7 +82,7 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
 
     private void pairEdges() {
         for (Map.Entry<String, Integer> entry : flowEdgeMap.entrySet()) {
-            FlowEdgeData edgeData = PartitioningData.flowEdgeDataMap.get(entry.getValue());
+            FlowEdgeData edgeData = pData.getFlowEdgeData(entry.getValue());
             if (edgeData.inverse == -1) {
 //                String[] ids = entry.getKey().split(",");
 //                int baseId = Integer.parseInt(ids[0]);
@@ -95,8 +97,8 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
                 edgeData.inverse = invEdgeId;
                 FlowEdgeData invEdgeData = new FlowEdgeData(edgeData.flow, edgeData.capacity, entry.getValue(), false);
 
-                PartitioningData.flowEdgeDataMap.put(entry.getValue(), edgeData);
-                PartitioningData.flowEdgeDataMap.put(invEdgeId, invEdgeData);
+                pData.setFlowEdgeData(entry.getValue(), edgeData);
+                pData.setFlowEdgeData(invEdgeId, invEdgeData);
             }
         }
     }
@@ -106,13 +108,13 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
         FlowEdge backEdge = new FlowEdge(getDummyEdgeId(), -1, node);
         forwEdge.inverse = backEdge;
         backEdge.inverse = forwEdge;
-        PartitioningData.dummyEdges.put(node, forwEdge);
+        pData.setDummyEdge(node, forwEdge);
 
         FlowEdgeData flowEdgeData = new FlowEdgeData(0, 0, backEdge.id, false);
-        PartitioningData.flowEdgeDataMap.put(forwEdge.id, flowEdgeData);
+        pData.setFlowEdgeData(forwEdge.id, flowEdgeData);
 
         FlowEdgeData invFlowEdgeData = new FlowEdgeData(0, 0, forwEdge.id, false);
-        PartitioningData.flowEdgeDataMap.put(backEdge.id, invFlowEdgeData);
+        pData.setFlowEdgeData(backEdge.id, invFlowEdgeData);
     }
 
 

@@ -20,14 +20,14 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
     }
 
     public int getRemainingCapacity(int edgeId) {
-        FlowEdgeData flowEdgeData = PartitioningData.flowEdgeDataMap.get(edgeId);
+        FlowEdgeData flowEdgeData = pData.getFlowEdgeData(edgeId);
         return flowEdgeData.capacity - flowEdgeData.flow;
     }
 
     public void augment(int edge, int bottleNeck) {
-        FlowEdgeData flowEdgeData = PartitioningData.flowEdgeDataMap.get(edge);
+        FlowEdgeData flowEdgeData = pData.getFlowEdgeData(edge);
         flowEdgeData.flow += bottleNeck;
-        FlowEdgeData inverseFlowEdgeData = PartitioningData.flowEdgeDataMap.get(flowEdgeData.inverse);
+        FlowEdgeData inverseFlowEdgeData = pData.getFlowEdgeData(flowEdgeData.inverse);
         inverseFlowEdgeData.flow -= bottleNeck;
     }
 
@@ -48,7 +48,7 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
         } while (flow > 0);
 
         for (int nodeId : nodeIdSet) {
-            FlowNodeData flowNodeData = PartitioningData.flowNodeDataMap.get(nodeId);
+            FlowNodeData flowNodeData = pData.getFlowNodeData(nodeId);
             flowNodeData.minCut = isVisited(flowNodeData.visited);
         }
 
@@ -81,11 +81,11 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
                     continue;
                 targSet.add(_edgeIter.getAdjNode());
 
-                FlowEdgeData flowEdgeData = PartitioningData.flowEdgeDataMap.get(_edgeIter.getEdge());
+                FlowEdgeData flowEdgeData = pData.getFlowEdgeData(_edgeIter.getEdge());
                 if(flowEdgeData.active != true)
                     continue;
                 if ((getRemainingCapacity(_edgeIter.getEdge()) > 0)
-                        && !isVisited(PartitioningData.flowNodeDataMap.get(_edgeIter.getAdjNode()).visited)) {
+                        && !isVisited(pData.getFlowNodeData(_edgeIter.getAdjNode()).visited)) {
                     setVisited(_edgeIter.getAdjNode());
                     prevMap.put(_edgeIter.getAdjNode(), _edgeIter.getEdge());
                     prevBaseNodeMap.put(_edgeIter.getEdge(), _edgeIter.getBaseNode());
@@ -94,11 +94,11 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
             }
 
             //do the same for the dummyedge of the node
-            FlowEdge dummyEdge = PartitioningData.dummyEdges.get(node);
-            if(PartitioningData.flowEdgeDataMap.get(dummyEdge.id).active != true)
+            FlowEdge dummyEdge = pData.getDummyEdge(node);
+            if(pData.getFlowEdgeData(dummyEdge.id).active != true)
                 continue;
             if ((getRemainingCapacity(dummyEdge.id) > 0)
-                    && !isVisited(PartitioningData.flowNodeDataMap.get(dummyEdge.targNode).visited)
+                    && !isVisited(pData.getFlowNodeData(dummyEdge.targNode).visited)
                     ) {
                 setVisited(dummyEdge.targNode);
                 prevMap.put(dummyEdge.targNode, dummyEdge.id);
@@ -131,7 +131,7 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
             targSet.add(flowEdge.targNode);
 
             if ((getRemainingCapacity(flowEdge.id) > 0)
-                    && !isVisited(PartitioningData.flowNodeDataMap.get(flowEdge.targNode).visited)) {
+                    && !isVisited(pData.getFlowNodeData(flowEdge.targNode).visited)) {
                 setVisited(flowEdge.targNode);
                 prevMap.put(flowEdge.targNode, flowEdge.id);
                 prevBaseNodeMap.put(flowEdge.id, flowEdge.baseNode);

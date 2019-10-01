@@ -11,6 +11,8 @@ import java.util.*;
 
 public class MaxFlowMinCut {
 
+    protected static PartitioningData pData = new PartitioningData();
+
     protected FlowNode srcNode, snkNode;
     protected boolean flooded;
     protected int nodes, visitedToken, maxFlow, maxFlowLimit;
@@ -74,22 +76,24 @@ public class MaxFlowMinCut {
 
     private void buildSrcSnkNodes() {
         this.srcNode = new FlowNode(getDummyNodeId());
+        pData.setFlowNodeData(this.srcNode.id, new FlowNodeData(false, 0));
         this.snkNode = new FlowNode(getDummyNodeId());
+        pData.setFlowNodeData(this.snkNode.id, new FlowNodeData(false, 0));
     }
 
     private void identifySrcSnkEdges(double a, double b, List<Integer> sortedNodes) {
         this.nodes = sortedNodes.size();
         this.nodeIdSet.addAll(sortedNodes);
-        PartitioningData.clearActiveEdges();
-        PartitioningData.clearVisitedNodes();
+        pData.clearActiveEdges();
+        pData.clearVisitedNodes();
 
         for (int i = 0; i < nodes; i++) {
             Set<Integer> targSet = new HashSet<>();
             int nodeId = sortedNodes.get(i);
-            FlowNodeData flowNodeData = PartitioningData.flowNodeDataMap.getOrDefault(nodeId, new FlowNodeData(false, 0));
+            FlowNodeData flowNodeData = pData.getFlowNodeDataOrDefault(nodeId, new FlowNodeData(false, 0));
             flowNodeData.visited = 0;
             flowNodeData.minCut = false;
-            PartitioningData.flowNodeDataMap.put(nodeId, flowNodeData);
+            pData.setFlowNodeData(nodeId, flowNodeData);
 
             _edgeIter = _edgeExpl.setBaseNode(nodeId);
             while (_edgeIter.next()) {
@@ -98,7 +102,7 @@ public class MaxFlowMinCut {
                     continue;
                 targSet.add(_edgeIter.getAdjNode());
                 //reset
-                FlowEdgeData flowEdgeData = PartitioningData.flowEdgeDataMap.get(_edgeIter.getEdge());
+                FlowEdgeData flowEdgeData = pData.getFlowEdgeData(_edgeIter.getEdge());
                 flowEdgeData.flow = 0;
                 if (nodeIdSet.contains(_edgeIter.getAdjNode()))
                     flowEdgeData.active = true;
@@ -109,11 +113,11 @@ public class MaxFlowMinCut {
             if ((int) (a * nodes) <= i && i < (int) (b * nodes)) {
                 //>> bring DummySourceEdges to Life
 
-                FlowEdge dummBack = PartitioningData.dummyEdges.get(nodeId);
-                FlowEdge dummForw = PartitioningData.dummyEdges.get(nodeId).inverse;
+                FlowEdge dummBack = pData.getDummyEdge(nodeId);
+                FlowEdge dummForw = pData.getDummyEdge(nodeId).inverse;
 
-                FlowEdgeData dummyBackData = PartitioningData.flowEdgeDataMap.get(dummBack.id);
-                FlowEdgeData dummyForwData = PartitioningData.flowEdgeDataMap.get(dummForw.id);
+                FlowEdgeData dummyBackData = pData.getFlowEdgeData(dummBack.id);
+                FlowEdgeData dummyForwData = pData.getFlowEdgeData(dummForw.id);
 
                 dummForw.baseNode = dummBack.targNode = srcNode.id;
 //                PartitioningData.dummyEdges.put(nodeId, dummBack);
@@ -125,11 +129,11 @@ public class MaxFlowMinCut {
 
             } else if ((int) ((1 - b) * nodes) < i && i <= (int) ((1 - a) * nodes)) {
                 //>> bring DummySinkEdges to Life
-                FlowEdge dummBack = PartitioningData.dummyEdges.get(nodeId).inverse;
-                FlowEdge dummForw = PartitioningData.dummyEdges.get(nodeId);
+                FlowEdge dummBack = pData.getDummyEdge(nodeId).inverse;
+                FlowEdge dummForw = pData.getDummyEdge(nodeId);
 
-                FlowEdgeData dummyBackData = PartitioningData.flowEdgeDataMap.get(dummBack.id);
-                FlowEdgeData dummyForwData = PartitioningData.flowEdgeDataMap.get(dummForw.id);
+                FlowEdgeData dummyBackData = pData.getFlowEdgeData(dummBack.id);
+                FlowEdgeData dummyForwData = pData.getFlowEdgeData(dummForw.id);
 
                 dummForw.targNode = dummBack.baseNode = snkNode.id;
                 snkNode.outEdges.add(dummBack);
@@ -139,25 +143,25 @@ public class MaxFlowMinCut {
                 dummyForwData.active = true;
             } else {
                 //>> let all other DummyEdges sleep
-                FlowEdge dummyEdge = PartitioningData.dummyEdges.get(nodeId);
-                FlowEdge inverseDummyEdge = PartitioningData.dummyEdges.get(nodeId).inverse;
+                FlowEdge dummyEdge = pData.getDummyEdge(nodeId);
+                FlowEdge inverseDummyEdge = pData.getDummyEdge(nodeId).inverse;
                 dummyEdge.targNode = inverseDummyEdge.baseNode = -1;
                 dummyEdge.inverse = inverseDummyEdge;
                 inverseDummyEdge.inverse = dummyEdge;
 
-                FlowEdgeData flowEdgeData = PartitioningData.flowEdgeDataMap.get(dummyEdge.id);
-                FlowEdgeData invFlowEdgeData = PartitioningData.flowEdgeDataMap.get(inverseDummyEdge.id);
+                FlowEdgeData flowEdgeData = pData.getFlowEdgeData(dummyEdge.id);
+                FlowEdgeData invFlowEdgeData = pData.getFlowEdgeData(inverseDummyEdge.id);
                 flowEdgeData.capacity = invFlowEdgeData.capacity = -1;
             }
         }
     }
 
     private synchronized int getDummyNodeId() {
-        return --_dummyNodeId;
+        return ++_dummyNodeId;
     }
 
     protected synchronized int getDummyEdgeId() {
-        return --_dummyEdgeId;
+        return ++_dummyEdgeId;
     }
 
 }
