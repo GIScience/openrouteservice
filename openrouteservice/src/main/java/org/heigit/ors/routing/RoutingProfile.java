@@ -864,6 +864,8 @@ public class RoutingProfile {
             RouteSearchContext searchCntx = createSearchContext(searchParams);
 
             boolean flexibleMode = searchParams.getFlexibleMode();
+            boolean optimized = searchParams.getOptimized();
+
             GHRequest req;
             if (bearings == null || bearings[0] == null)
                 req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
@@ -922,14 +924,28 @@ public class RoutingProfile {
                     req.getHints().put(KEY_CORE_DISABLE, true);
                     req.getHints().put(KEY_CH_DISABLE, true);
                 }
+                if (mGraphHopper.isCoreEnabled() && optimized) {
+                    req.getHints().put("core.disable", false);
+                    req.getHints().put("lm.disable", true);
+                    req.getHints().put("ch.disable", true);
+                    req.setAlgorithm("astarbi");
+                }
             } else {
                 if (mGraphHopper.isCHEnabled()) {
                     req.getHints().put(KEY_LM_DISABLE, true);
                     req.getHints().put(KEY_CORE_DISABLE, true);
                 }
                 else {
-                    req.getHints().put(KEY_CH_DISABLE, true);
-                    req.getHints().put(KEY_CORE_DISABLE, true);
+                    if (mGraphHopper.isCoreEnabled() && optimized) {
+                        req.getHints().put("core.disable", false);
+                        req.getHints().put("lm.disable", true);
+                        req.getHints().put("ch.disable", true);
+                        req.setAlgorithm("astarbi");
+                    }
+                    else {
+                        req.getHints().put("ch.disable", true);
+                        req.getHints().put("core.disable", true);
+                    }
                 }
             }
             //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
