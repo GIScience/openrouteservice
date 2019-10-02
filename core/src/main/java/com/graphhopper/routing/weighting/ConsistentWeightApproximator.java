@@ -43,7 +43,7 @@ public class ConsistentWeightApproximator {
     }
 
     // ORS-GH MOD START
-    // CALT
+    // CALT - add method
     public WeightApproximator getReverseApproximation() {
         return uniDirApproximatorReverse;
     }

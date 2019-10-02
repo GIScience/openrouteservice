@@ -21,12 +21,13 @@ import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.PMap;
 
-// ORS TODO: this class isn't part of GH anymore
+
 /**
  * This class creates FlagEncoders that are already included in the GraphHopper distribution.
  *
  * @author Peter Karich
  */
+@Deprecated // ORS TODO: this class isn't part of GH anymore
 public class DefaultEdgeFilterFactory implements EdgeFilterFactory {
     @Override
     public EdgeFilter createEdgeFilter(PMap opts, FlagEncoder flagEncoder, GraphHopperStorage gs) {

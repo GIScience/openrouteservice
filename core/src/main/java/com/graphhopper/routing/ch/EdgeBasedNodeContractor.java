@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Set;
 
 import static com.graphhopper.routing.ch.CHParameters.*;
@@ -87,9 +86,6 @@ class EdgeBasedNodeContractor extends AbstractNodeContractor {
         this.encoder = turnWeighting.getFlagEncoder();
         this.pMap = pMap;
         extractParams(pMap);
-        if (!Double.isInfinite(turnWeighting.getUTurnCost())) {
-            throw new IllegalArgumentException("edge-based CH currently does not support finite u-turn costs");
-        }
     }
 
     private void extractParams(PMap pMap) {
@@ -300,10 +296,8 @@ class EdgeBasedNodeContractor extends AbstractNodeContractor {
         int origFirst = edgeFrom.getParent().incEdge;
         LOGGER.trace("Adding shortcut from {} to {}, weight: {}, firstOrigEdge: {}, lastOrigEdge: {}",
                 from, adjNode, edgeTo.weight, edgeFrom.getParent().incEdge, edgeTo.incEdge);
-        // todo: so far we are not using the distance in edge based CH
-        double distance = 0.0;
         int accessFlags = PrepareEncoder.getScFwdDir();
-        int shortcutId = prepareGraph.shortcutEdgeBased(from, adjNode, accessFlags, edgeTo.weight, distance, edgeFrom.edge, edgeTo.edge, origFirst, edgeTo.incEdge);
+        int shortcutId = prepareGraph.shortcutEdgeBased(from, adjNode, accessFlags, edgeTo.weight, edgeFrom.edge, edgeTo.edge, origFirst, edgeTo.incEdge);
         final int origEdgeCount = getOrigEdgeCount(edgeFrom.edge) + getOrigEdgeCount(edgeTo.edge);
         setOrigEdgeCount(shortcutId, origEdgeCount);
         addedShortcutsCount++;
@@ -428,6 +422,9 @@ class EdgeBasedNodeContractor extends AbstractNodeContractor {
     }
 
     private class AggressiveStrategy implements SearchStrategy {
+        private IntSet sourceNodes = new IntHashSet(10);
+        private IntSet toNodes = new IntHashSet(10);
+
         @Override
         public String getStatisticsString() {
             return witnessPathSearcher.getStatisticsString();
@@ -446,8 +443,7 @@ class EdgeBasedNodeContractor extends AbstractNodeContractor {
             Set<AddedShortcut> addedShortcuts = new HashSet<>();
 
             // first we need to identify the possible source nodes from which we can reach the center node
-            // todo: optimize collection size
-            IntSet sourceNodes = new IntHashSet(100);
+            sourceNodes.clear();
             EdgeIterator incomingEdges = inEdgeExplorer.setBaseNode(node);
             while (incomingEdges.next()) {
                 int sourceNode = incomingEdges.getAdjNode();
@@ -467,8 +463,7 @@ class EdgeBasedNodeContractor extends AbstractNodeContractor {
                     }
 
                     // now we need to identify all target nodes that can be reached from the center node
-                    // todo: optimize collection size
-                    IntSet toNodes = new IntHashSet(100);
+                    toNodes.clear();
                     EdgeIterator outgoingEdges = outEdgeExplorer.setBaseNode(node);
                     while (outgoingEdges.next()) {
                         int targetNode = outgoingEdges.getAdjNode();
@@ -540,7 +535,7 @@ class EdgeBasedNodeContractor extends AbstractNodeContractor {
 
         @Override
         public int hashCode() {
-            return Objects.hash(startNode, startEdge, endNode, targetEdge);
+            return 31 * startNode + endNode;
         }
     }
 

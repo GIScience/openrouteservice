@@ -66,6 +66,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.graphhopper.routing.ch.CHAlgoFactoryDecorator.EdgeBasedCHMode.EDGE_OR_NODE;
 import static com.graphhopper.routing.ch.CHAlgoFactoryDecorator.EdgeBasedCHMode.OFF;
+import static com.graphhopper.routing.weighting.TurnWeighting.INFINITE_U_TURN_COSTS;
 import static com.graphhopper.util.Helper.*;
 import static com.graphhopper.util.Parameters.Algorithms.*;
 
@@ -79,7 +80,7 @@ public class GraphHopper implements GraphHopperAPI {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final String fileLockName = "gh.lock";
     // ORS-GH MOD START
-    // CALT
+    // CALT - change access level
     private final Set<RoutingAlgorithmFactoryDecorator> algoDecorators = new LinkedHashSet<>();
     //protected final Set<RoutingAlgorithmFactoryDecorator> algoDecorators = new LinkedHashSet<>();
     // ORS-GH MOD END
@@ -101,7 +102,6 @@ public class GraphHopper implements GraphHopperAPI {
     // for routing
     private int maxRoundTripRetries = 3;
     private boolean simplifyResponse = true;
-    private TraversalMode traversalMode = TraversalMode.NODE_BASED;
     private int maxVisitedNodes = Integer.MAX_VALUE;
 
     private int nonChMaxWaypointDistance = Integer.MAX_VALUE;
@@ -198,9 +198,6 @@ public class GraphHopper implements GraphHopperAPI {
     public GraphHopper setEncodingManager(EncodingManager em) {
         ensureNotLoaded();
         this.encodingManager = em;
-        if (em.needsTurnCostsSupport())
-            traversalMode = TraversalMode.EDGE_BASED;
-
         return this;
     }
 
@@ -247,18 +244,6 @@ public class GraphHopper implements GraphHopperAPI {
      */
     public GraphHopper setWayPointMaxDistance(double wayPointMaxDistance) {
         this.dataReaderWayPointMaxDistance = wayPointMaxDistance;
-        return this;
-    }
-
-    public TraversalMode getTraversalMode() {
-        return traversalMode;
-    }
-
-    /**
-     * Sets the default traversal mode used for the algorithms and preparation.
-     */
-    public GraphHopper setTraversalMode(TraversalMode traversalMode) {
-        this.traversalMode = traversalMode;
         return this;
     }
 
@@ -812,19 +797,18 @@ public class GraphHopper implements GraphHopperAPI {
 
         if (ghStorage == null) {
         //ORS-GH MOD END
-          GraphExtension ext = encodingManager.needsTurnCostsSupport()
-                  ? new TurnCostExtension() : new GraphExtension.NoOpExtension();
+            GraphExtension ext = encodingManager.needsTurnCostsSupport()
+                    ? new TurnCostExtension() : new GraphExtension.NoOpExtension();
 
-          if (lmFactoryDecorator.isEnabled())
-              initLMAlgoFactoryDecorator();
+            if (lmFactoryDecorator.isEnabled())
+                initLMAlgoFactoryDecorator();
 
-          if (chFactoryDecorator.isEnabled()) {
-              initCHAlgoFactoryDecorator();
-              ghStorage = new GraphHopperStorage(chFactoryDecorator.getNodeBasedWeightings(), chFactoryDecorator.getEdgeBasedWeightings(),
-                      dir, encodingManager, hasElevation(), ext);
-          } else {
-              ghStorage = new GraphHopperStorage(dir, encodingManager, hasElevation(), ext);
-          }
+            if (chFactoryDecorator.isEnabled()) {
+                initCHAlgoFactoryDecorator();
+                ghStorage = new GraphHopperStorage(chFactoryDecorator.getCHProfiles(), dir, encodingManager, hasElevation(), ext);
+            } else {
+                ghStorage = new GraphHopperStorage(dir, encodingManager, hasElevation(), ext);
+            }
         //ORS-GH MOD START
         }
         //ORS-GH MOD END
@@ -879,24 +863,44 @@ public class GraphHopper implements GraphHopperAPI {
     }
 
     // ORS-GH MOD START
+    // change access level
     //private void initCHAlgoFactoryDecorator() {
     public void initCHAlgoFactoryDecorator() {
     // ORS-GH MOD END
-        if (!chFactoryDecorator.hasWeightings()) {
+        if (!chFactoryDecorator.hasCHProfiles()) {
             for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
-                for (String chWeightingStr : chFactoryDecorator.getWeightingsAsStrings()) {
+                for (String chWeightingStr : chFactoryDecorator.getCHProfileStrings()) {
                     // ghStorage is null at this point
+
+                    // extract weighting string and u-turn-costs
+                    String configStr = "";
+                    if (chWeightingStr.contains("|")) {
+                        configStr = chWeightingStr;
+                        chWeightingStr = chWeightingStr.split("\\|")[0];
+                    }
+                    PMap config = new PMap(configStr);
+                    int uTurnCosts = config.getInt(Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
+
                     CHAlgoFactoryDecorator.EdgeBasedCHMode edgeBasedCHMode = chFactoryDecorator.getEdgeBasedCHMode();
                     if (!(edgeBasedCHMode == EDGE_OR_NODE && encoder.supports(TurnWeighting.class))) {
                         // ORS-GH MOD START
-                        //chFactoryDecorator.addNodeBasedWeighting(createWeighting(new HintsMap(chWeightingStr), encoder, null));
-                        chFactoryDecorator.addNodeBasedWeighting(createWeighting(new HintsMap(chWeightingStr), traversalMode, encoder, null));
+                        // ORS TODO: investigate - this modification makes no sense with profiles
+                        //chFactoryDecorator.addCHProfile(CHProfile.nodeBased(createWeighting(new HintsMap(chWeightingStr), encoder, null)));
+                        chFactoryDecorator.addCHProfile(CHProfile.nodeBased(createWeighting(new HintsMap(chWeightingStr), TraversalMode.NODE_BASED, encoder, null)));
                         // ORS-GH MOD END
                     }
                     if (edgeBasedCHMode != OFF && encoder.supports(TurnWeighting.class)) {
                         // ORS-GH MOD START
-                        //chFactoryDecorator.addEdgeBasedWeighting(createWeighting(new HintsMap(chWeightingStr), encoder, null));
-                        chFactoryDecorator.addEdgeBasedWeighting(createWeighting(new HintsMap(chWeightingStr), traversalMode, encoder, null));
+                        // ORS TODO: investigate - this modification makes no sense with profiles
+                        //chFactoryDecorator.addCHProfile(CHProfile.nodeBased(createWeighting(new HintsMap(chWeightingStr), encoder, null)));
+                        chFactoryDecorator.addCHProfile(CHProfile.nodeBased(createWeighting(new HintsMap(chWeightingStr), TraversalMode.NODE_BASED, encoder, null)));
+                        // ORS-GH MOD END
+                    }
+                    if (edgeBasedCHMode != OFF && encoder.supports(TurnWeighting.class)) {
+                        // ORS-GH MOD START
+                        // ORS TODO: investigate - this modification makes no sense with profiles
+                        //chFactoryDecorator.addCHProfile(CHProfile.edgeBased(createWeighting(new HintsMap(chWeightingStr), encoder, null), uTurnCosts));
+                        chFactoryDecorator.addCHProfile(CHProfile.edgeBased(createWeighting(new HintsMap(chWeightingStr), TraversalMode.EDGE_BASED, encoder, null), uTurnCosts));
                         // ORS-GH MOD END
                     }
                 }
@@ -918,8 +922,9 @@ public class GraphHopper implements GraphHopperAPI {
         for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
             for (String lmWeightingStr : lmFactoryDecorator.getWeightingsAsStrings()) {
                 // ORS-GH MOD START
+                // ORS TODO: investigate - this modification makes no sense with profiles
                 //Weighting weighting = createWeighting(new HintsMap(lmWeightingStr), encoder, null);
-                Weighting weighting = createWeighting(new HintsMap(lmWeightingStr), traversalMode, encoder, null);
+                Weighting weighting = createWeighting(new HintsMap(lmWeightingStr), TraversalMode.NODE_BASED, encoder, null);
                 // ORS-GH MOD END
                 lmFactoryDecorator.addWeighting(weighting);
             }
@@ -1033,15 +1038,15 @@ public class GraphHopper implements GraphHopperAPI {
     /**
      * Potentially wraps the specified weighting into a TurnWeighting instance.
      */
-    public Weighting createTurnWeighting(Graph graph, Weighting weighting, TraversalMode tMode) {
+    public Weighting createTurnWeighting(Graph graph, Weighting weighting, TraversalMode tMode, double uTurnCosts) {
         // ORS-GH MOD START
         if (!(weighting instanceof TurnWeighting)) {
             // ORS-GH MOD END
             FlagEncoder encoder = weighting.getFlagEncoder();
             if (encoder.supports(TurnWeighting.class) && tMode.isEdgeBased()) {
                 // ORS-GH MOD START
-                //return new TurnWeighting(weighting, (TurnCostExtension) graph.getExtension());
-                return new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()));
+                //return new TurnWeighting(weighting, (TurnCostExtension) graph.getExtension(), uTurnCosts);
+                return new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()), uTurnCosts);
                 // ORS-GH MOD END
             }
         }
@@ -1078,13 +1083,18 @@ public class GraphHopper implements GraphHopperAPI {
             if (!encodingManager.hasEncoder(vehicle))
                 throw new IllegalArgumentException("Vehicle not supported: " + vehicle + ". Supported are: " + encodingManager.toString());
 
+            FlagEncoder encoder = encodingManager.getEncoder(vehicle);
             HintsMap hints = request.getHints();
-            String tModeStr = hints.get("traversal_mode", traversalMode.toString());
-            TraversalMode tMode = TraversalMode.fromString(tModeStr);
+
+            // we use edge-based routing if the encoder supports turn-costs *unless* the edge_based parameter is set
+            // explicitly.
+            TraversalMode tMode = encoder.supports(TurnWeighting.class) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
             if (hints.has(Routing.EDGE_BASED))
                 tMode = hints.getBool(Routing.EDGE_BASED, false) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
 
-            FlagEncoder encoder = encodingManager.getEncoder(vehicle);
+            if (tMode.isEdgeBased() && !encoder.supports(TurnWeighting.class)) {
+                throw new IllegalArgumentException("You need a turn cost extension to make use of edge_based=true, e.g. use car|turn_costs=true");
+            }
 
             boolean disableCH = hints.getBool(CH.DISABLE, false);
             if (!chFactoryDecorator.isDisablingAllowed() && disableCH)
@@ -1158,13 +1168,14 @@ public class GraphHopper implements GraphHopperAPI {
                     if (tmpAlgoFactory instanceof LMAlgoFactoryDecorator.LMRAFactory)
                         chAlgoFactory = ((LMAlgoFactoryDecorator.LMRAFactory) tmpAlgoFactory).getDefaultAlgoFactory();
 
-                    if (chAlgoFactory instanceof PrepareContractionHierarchies)
-                        weighting = ((PrepareContractionHierarchies) chAlgoFactory).getWeighting();
-                    else
+                    if (chAlgoFactory instanceof PrepareContractionHierarchies) {
+                        CHProfile chProfile = ((PrepareContractionHierarchies) chAlgoFactory).getCHProfile();
+                        queryGraph = new QueryGraph(ghStorage.getCHGraph(chProfile));
+                        queryGraph.lookup(qResults);
+                        weighting = chProfile.getWeighting();
+                    } else {
                         throw new IllegalStateException("Although CH was enabled a non-CH algorithm factory was returned " + tmpAlgoFactory);
-
-                    queryGraph = new QueryGraph(ghStorage.getCHGraph(weighting));
-                    queryGraph.lookup(qResults);
+                    }
                 } else {
                     checkNonChMaxWaypointDistance(points);
                     queryGraph = new QueryGraph(ghStorage);
@@ -1180,7 +1191,12 @@ public class GraphHopper implements GraphHopperAPI {
                 if (maxVisitedNodesForRequest > maxVisitedNodes)
                     throw new IllegalArgumentException("The max_visited_nodes parameter has to be below or equal to:" + maxVisitedNodes);
 
-                weighting = createTurnWeighting(queryGraph, weighting, tMode);
+                int uTurnCostInt = request.getHints().getInt(Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
+                if (uTurnCostInt != INFINITE_U_TURN_COSTS && !tMode.isEdgeBased()) {
+                    throw new IllegalArgumentException("Finite u-turn costs can only be used for edge-based routing, use `" + Routing.EDGE_BASED + "=true'");
+                }
+                double uTurnCosts = uTurnCostInt == INFINITE_U_TURN_COSTS ? Double.POSITIVE_INFINITY : uTurnCostInt;
+                weighting = createTurnWeighting(queryGraph, weighting, tMode, uTurnCosts);
 
                 AlgorithmOptions algoOpts = AlgorithmOptions.start().
                         algorithm(algoStr).traversalMode(tMode).weighting(weighting).
