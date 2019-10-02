@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - Indonesian Translation Language
+### Fixed
+### Changed
+### Deprecated
+
+## [5.0.2] - 2019-07-29
+### Added
 - Added a gpx schema validator into the api-tests, testing all gpx outputs while fixing the bug from (#496)
 - Added information for countries a route traverses (#349)
 ### Fixed
