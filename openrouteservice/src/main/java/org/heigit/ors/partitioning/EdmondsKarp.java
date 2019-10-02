@@ -79,6 +79,8 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
                 if(targSet.contains(_edgeIter.getAdjNode())
                         || _edgeIter.getAdjNode() == _edgeIter.getBaseNode())
                     continue;
+                if(!acceptForPartitioning(_edgeIter))
+                    continue;
                 targSet.add(_edgeIter.getAdjNode());
 
                 FlowEdgeData flowEdgeData = pData.getFlowEdgeData(_edgeIter.getEdge());

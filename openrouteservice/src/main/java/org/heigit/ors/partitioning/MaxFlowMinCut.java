@@ -100,6 +100,8 @@ public class MaxFlowMinCut {
                 if(targSet.contains(_edgeIter.getAdjNode())
                         || _edgeIter.getAdjNode() == _edgeIter.getBaseNode())
                     continue;
+                if(!acceptForPartitioning(_edgeIter))
+                    continue;
                 targSet.add(_edgeIter.getAdjNode());
                 //reset
                 FlowEdgeData flowEdgeData = pData.getFlowEdgeData(_edgeIter.getEdge());
@@ -155,6 +157,13 @@ public class MaxFlowMinCut {
             }
         }
     }
+
+    protected boolean acceptForPartitioning(EdgeIterator edgeIterator){
+        if(edgeIterator.getDistance() > 5000)
+            return false;
+        return true;
+    }
+
 
     private synchronized int getDummyNodeId() {
         return ++_dummyNodeId;

@@ -60,6 +60,8 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
             _edgeIter = _edgeExpl.setBaseNode(baseId);
             while (_edgeIter.next()) {
                 int targId = _edgeIter.getAdjNode();
+                if(!acceptForPartitioning(_edgeIter))
+                    continue;
                 //>> eliminate Loops and MultiEdges
                 if ((baseId != targId) && (!targSet.contains(targId))) {
                     targSet.add(targId);
