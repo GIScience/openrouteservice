@@ -1,5 +1,7 @@
 package com.graphhopper.reader.osm.conditional;
 
+import ch.poole.conditionalrestrictionparser.Condition;
+
 import java.text.ParseException;
 
 /**
@@ -11,6 +13,13 @@ public interface ConditionalValueParser {
      * This method checks if the condition is satisfied for this parser.
      */
     ConditionState checkCondition(String conditionalValue) throws ParseException;
+
+    ConditionState checkCondition(Condition conditionalValue) throws ParseException;
+
+    /**
+     * True if the condition value is undetermined at parse time
+     */
+    boolean isLazyEvaluated();
 
     enum ConditionState {
         TRUE(true, true),

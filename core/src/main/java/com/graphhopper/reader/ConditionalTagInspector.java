@@ -25,5 +25,7 @@ public interface ConditionalTagInspector {
 
     boolean isPermittedWayConditionallyRestricted(ReaderWay way);
 
+    boolean isConditionLazyEvaluated();
+
     String getTagValue();
 }

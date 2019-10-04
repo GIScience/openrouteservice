@@ -38,19 +38,18 @@ public class ConditionalOSMTagInspector implements ConditionalTagInspector {
     private boolean enabledLogs = true;
 
     private String val;
+    private boolean isLazyEvaluated;
 
     @Override
     public String getTagValue() {
         return val;
     }
 
-    public ConditionalOSMTagInspector(Object value, List<String> tagsToCheck,
-                                      Set<String> restrictiveValues, Set<String> permittedValues) {
-        this(tagsToCheck, Arrays.asList(new DateRangeParser((Calendar) value)), restrictiveValues, permittedValues, false);
+    public ConditionalOSMTagInspector(List<String> tagsToCheck, Set<String> restrictiveValues, Set<String> permittedValues) {
+        this(tagsToCheck, restrictiveValues, permittedValues, false);
     }
 
-    public ConditionalOSMTagInspector(List<String> tagsToCheck, List<? extends ConditionalValueParser> valueParsers,
-                                      Set<String> restrictiveValues, Set<String> permittedValues, boolean enabledLogs) {
+    public ConditionalOSMTagInspector(List<String> tagsToCheck, Set<String> restrictiveValues, Set<String> permittedValues, boolean enabledLogs) {
         this.tagsToCheck = new ArrayList<>(tagsToCheck.size());
         for (String tagToCheck : tagsToCheck) {
             this.tagsToCheck.add(tagToCheck + ":conditional");
@@ -62,10 +61,6 @@ public class ConditionalOSMTagInspector implements ConditionalTagInspector {
         boolean logUnsupportedFeatures = false;
         this.permitParser = new ConditionalParser(permittedValues, logUnsupportedFeatures);
         this.restrictiveParser = new ConditionalParser(restrictiveValues, logUnsupportedFeatures);
-        for (ConditionalValueParser cvp : valueParsers) {
-            permitParser.addConditionalValueParser(cvp);
-            restrictiveParser.addConditionalValueParser(cvp);
-        }
     }
 
     public void addValueParser(ConditionalValueParser vp) {
@@ -83,22 +78,27 @@ public class ConditionalOSMTagInspector implements ConditionalTagInspector {
         return applies(way, false);
     }
 
+    @Override
+    public boolean isConditionLazyEvaluated() {
+        return isLazyEvaluated;
+    }
+
     protected boolean applies(ReaderWay way, boolean checkPermissiveValues) {
+        ConditionalParser parser = checkPermissiveValues ? permitParser : restrictiveParser;
+
         for (int index = 0; index < tagsToCheck.size(); index++) {
             String tagToCheck = tagsToCheck.get(index);
             val = way.getTag(tagToCheck);
             if (val == null || val.isEmpty())
                 continue;
-
             try {
-                if (checkPermissiveValues) {
-                    if (permitParser.checkCondition(val))
-                        return true;
-                } else {
-                    if (restrictiveParser.checkCondition(val))
-                        return true;
+                if (parser.checkCondition(val)) {
+                    if (parser.isLazyEvaluated()) {
+                        isLazyEvaluated = true;
+                        val = parser.getSimplifiedValue();
+                    }
+                    return true;
                 }
-
             } catch (Exception e) {
                 if (enabledLogs) {
                     // log only if no date ala 21:00 as currently date and numbers do not support time precise restrictions
