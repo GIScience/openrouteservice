@@ -1,8 +1,10 @@
 package org.heigit.ors.partitioning;
 
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIterator;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,6 +18,7 @@ public abstract class PartitioningBase {
     String[] partAlgoAll;
     Set<Integer> nodeIdSet;
     AbstractMaxFlowMinCutAlgorithm mincutAlgo;
+    EdgeFilter edgeFilter;
 
     static int[] nodeToCellArr;
     static GraphHopperStorage ghStorage;
@@ -24,10 +27,10 @@ public abstract class PartitioningBase {
     PartitioningBase() {
     }
 
-    PartitioningBase(GraphHopperStorage _ghStorage) {
+    PartitioningBase(GraphHopperStorage _ghStorage, EdgeFilterSequence edgeFilters) {
         ghStorage = _ghStorage;
         nodeToCellArr = new int[ghStorage.getNodes()];
-
+        this.edgeFilter = edgeFilters;
         init();
     }
 
@@ -50,11 +53,12 @@ public abstract class PartitioningBase {
     }
 
     void initAlgo() {
-        mincutAlgo = new EdmondsKarp(ghStorage, true);
+        mincutAlgo = new EdmondsKarp(ghStorage, this.edgeFilter, true);
+//        mincutAlgo.setAdditionalEdgeFilter(this.edgeFilter);
     }
 
     void setAlgo() {
-        mincutAlgo = new EdmondsKarp(ghStorage, false);
+        mincutAlgo = new EdmondsKarp(ghStorage, this.edgeFilter, false);
     }
 
     AbstractMaxFlowMinCutAlgorithm getAlgo() {

@@ -21,13 +21,13 @@ import static org.heigit.ors.partitioning.FastIsochroneParameters.PART__MAX_CELL
 public class Eccentricity extends AbstractEccentricity {
 
     double acceptedFullyReachablePercentage = 1.0;
-    int eccentricityDijkstraLimitFactor = 5;
+    int eccentricityDijkstraLimitFactor = 10;
 
     public Eccentricity(GraphHopperStorage graphHopperStorage){
         super(graphHopperStorage);
     }
 
-    public void calcEccentricities(GraphHopperStorage ghStorage, Graph graph, Weighting weighting, FlagEncoder flagEncoder, TraversalMode traversalMode, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage) {
+        public void calcEccentricities(GraphHopperStorage ghStorage, Graph graph, Weighting weighting, FlagEncoder flagEncoder, TraversalMode traversalMode, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage) {
         if(eccentricityStorages == null) {
             eccentricityStorages = new ArrayList<>();
         }

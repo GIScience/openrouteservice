@@ -1,6 +1,7 @@
 package org.heigit.ors.partitioning;
 
 
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 
 import java.util.*;
@@ -12,8 +13,8 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
     private Map<Integer, Integer> prevBaseNodeMap;
 
 
-    public EdmondsKarp(GraphHopperStorage ghStorage, boolean init) {
-        super(ghStorage, init);
+    public EdmondsKarp(GraphHopperStorage ghStorage, EdgeFilter edgeFilter, boolean init) {
+        super(ghStorage, edgeFilter, init);
     }
 
     public EdmondsKarp() {

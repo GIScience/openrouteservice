@@ -6,7 +6,7 @@ import java.util.*;
 import static org.heigit.ors.partitioning.FastIsochroneParameters.*;
 import static org.heigit.ors.partitioning.Sort.sortByValueReturnList;
 
-public class InertialFlow_Ser extends PartitioningBase {
+public class InertialFlow extends PartitioningBase {
 
     private enum Projection {  // Sortier-Projektionen der Koordinaten
         Line_p90
@@ -60,7 +60,7 @@ public class InertialFlow_Ser extends PartitioningBase {
     private static double[] bArray = new double[]{0.4};//, 0.27, 0.3, 0.33, 0.36, 0.39, 0.42, 0.45}; // somewhat between 0.25 and 0.45
 
 
-    public InertialFlow_Ser(GraphHopperStorage ghStorage) {
+    public InertialFlow(GraphHopperStorage ghStorage) {
         super(ghStorage);
         this.cellId = 1;
         this.splitNodeSet = new HashMap<>();
@@ -69,7 +69,7 @@ public class InertialFlow_Ser extends PartitioningBase {
         initAlgo();
     }
 
-    private InertialFlow_Ser(int cellId, Set<Integer> nodeSet) {
+    private InertialFlow(int cellId, Set<Integer> nodeSet) {
         this.cellId = cellId;
         this.nodeIdSet = nodeSet;
         this.splitNodeSet = new HashMap<>();
@@ -148,7 +148,7 @@ public class InertialFlow_Ser extends PartitioningBase {
 
             //>> Execution
             if (nextRecursionLevel) {
-                new InertialFlow_Ser(cellId << 1 | entry.getKey(), entry.getValue());
+                new InertialFlow(cellId << 1 | entry.getKey(), entry.getValue());
             }
         }
     }

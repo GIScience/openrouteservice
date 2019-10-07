@@ -18,6 +18,8 @@
 package org.heigit.ors.partitioning;
 
 
+import com.graphhopper.routing.weighting.AbstractWeighting;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -41,8 +43,10 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
     private int nodeCount;
     private Set<Integer> cellIdsSet = new HashSet<>();
 
-    public IsochroneNodeStorage(GraphHopperStorage graph, Directory dir) {
+    public IsochroneNodeStorage(GraphHopperStorage graph, Directory dir){//, Weighting weighting) {
+//        final String name = AbstractWeighting.weightingToFileName(weighting);
 
+//        isochroneNodes = dir.find("isochronenodes_" + name);
         isochroneNodes = dir.find("isochronenodes");
         nodeCount = graph.getNodes();
         //  1 byte for isBordernode,

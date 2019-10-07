@@ -1,5 +1,6 @@
 package org.heigit.ors.partitioning;
 
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 
 import java.util.HashSet;
@@ -11,8 +12,8 @@ public abstract class AbstractMaxFlowMinCutAlgorithm extends MaxFlowMinCut {
     private Set<Integer> srcPartition, snkPartition;
 
 
-    public AbstractMaxFlowMinCutAlgorithm(GraphHopperStorage ghStorage, boolean init) {
-        super(ghStorage, init);
+    public AbstractMaxFlowMinCutAlgorithm(GraphHopperStorage ghStorage, EdgeFilter edgeFilter, boolean init) {
+        super(ghStorage, edgeFilter, init);
     }
 
     public AbstractMaxFlowMinCutAlgorithm() {}

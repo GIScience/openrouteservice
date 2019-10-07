@@ -60,6 +60,7 @@ import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedWeigh
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.util.CoordTools;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -574,8 +575,14 @@ public class ORSGraphHopper extends GraphHopper {
 			coreLMFactoryDecorator.createPreparations(gs, super.getLocationIndex());
 		loadOrPrepareCoreLM();
 
-		if(partitioningFactoryDecorator.isEnabled())
-			partitioningFactoryDecorator.createPreparations(gs);
+
+		if(partitioningFactoryDecorator.isEnabled()) {
+			for(FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
+				EdgeFilterSequence partitioningEdgeFilter = new EdgeFilterSequence();
+				partitioningEdgeFilter.add(new DefaultEdgeFilter(encoder, false, true));
+				partitioningFactoryDecorator.createPreparations(gs, partitioningEdgeFilter);
+			}
+		}
 		if (!isPartitionPrepared())
 			preparePartition();
 		else{
@@ -750,6 +757,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 	private boolean isPartitionPrepared() {
 		return "true".equals(getGraphHopperStorage().getProperties().get(ORSParameters.Partition.PREPARE + "done"));
+
 	}
 
 	/**

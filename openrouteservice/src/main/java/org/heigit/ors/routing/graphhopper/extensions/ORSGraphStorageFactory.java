@@ -87,12 +87,11 @@ public class 		ORSGraphStorageFactory implements GraphStorageFactory {
 				((ORSGraphHopper) gh).initCoreAlgoFactoryDecorator();
 			if (((ORSGraphHopper) gh).isCoreLMEnabled())
 				((ORSGraphHopper) gh).initCoreLMAlgoFactoryDecorator();
-<<<<<<< HEAD:openrouteservice/src/main/java/org/heigit/ors/routing/graphhopper/extensions/ORSGraphStorageFactory.java
-=======
+
+//			if (((ORSGraphHopper) gh).isPartitionEnabled())
+//				((ORSGraphHopper) gh).initPartitioningFactoryDecorator();
 			if (((ORSGraphHopper) gh).isIsochroneCoreEnabled())
 				((ORSGraphHopper) gh).initIsochroneCoreAlgoFactoryDecorator();
-
->>>>>>> Implement FastIsochrones algorithm:openrouteservice/src/main/java/heigit/ors/routing/graphhopper/extensions/ORSGraphStorageFactory.java
 		}
 
 		if (gh.getLMFactoryDecorator().isEnabled())
@@ -109,26 +108,12 @@ public class 		ORSGraphStorageFactory implements GraphStorageFactory {
 		if (((ORSGraphHopper)gh).isCoreEnabled()) {
 			profiles.addAll(((ORSGraphHopper)gh).getCoreFactoryDecorator().getCHProfiles());
 		}
-<<<<<<< HEAD:openrouteservice/src/main/java/org/heigit/ors/routing/graphhopper/extensions/ORSGraphStorageFactory.java
+		if(((ORSGraphHopper) gh).isIsochroneCoreEnabled()) {
+			profiles.addAll(((ORSGraphHopper) gh).getIsochroneCoreFactoryDecorator().getCHProfiles());
+		}
 		if (!profiles.isEmpty())
 			return new GraphHopperStorage(profiles, dir, encodingManager, gh.hasElevation(), graphExtension);
-=======
 
-		if(((ORSGraphHopper) gh).isIsochroneCoreEnabled()) {
-			weightings.addAll(((ORSGraphHopper) gh).getIsochroneCoreFactoryDecorator().getWeightings());
-			for (int i = chGraphs; i < weightings.size(); i++) {
-				suffixes.add("isocore");
-			}
-		}
-
-		if (!weightings.isEmpty())
-			return new GraphHopperStorage(weightings,
-					dir,
-					encodingManager,
-					gh.hasElevation(),
-					graphExtension,
-					suffixes);
->>>>>>> Implement FastIsochrones algorithm:openrouteservice/src/main/java/heigit/ors/routing/graphhopper/extensions/ORSGraphStorageFactory.java
 		else
 			return new GraphHopperStorage(dir, encodingManager, gh.hasElevation(), graphExtension);
 	}

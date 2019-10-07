@@ -1,9 +1,11 @@
 package org.heigit.ors.partitioning;
 
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import io.swagger.annotations.OAuth2Definition;
 
 import static org.heigit.ors.partitioning.FastIsochroneParameters.*;
@@ -29,13 +31,17 @@ public class MaxFlowMinCut {
     protected double limit;
     protected Set<Integer> nodeIdSet;
 
-    MaxFlowMinCut(GraphHopperStorage ghStorage, boolean init) {
+    protected EdgeFilter edgeFilter;
+
+    MaxFlowMinCut(GraphHopperStorage ghStorage, EdgeFilter edgeFilter, boolean init) {
         this._ghStorage = ghStorage;
         this._graph = ghStorage.getBaseGraph();
         this._edgeExpl = _graph.createEdgeExplorer();
+        setAdditionalEdgeFilter(edgeFilter);
         if(init) {
             init();
             MaxFlowMinCutImpl maxFlowMinCut = new MaxFlowMinCutImpl(ghStorage);
+            maxFlowMinCut.setAdditionalEdgeFilter(edgeFilter);
             maxFlowMinCut.run();
         }
     }
@@ -159,9 +165,13 @@ public class MaxFlowMinCut {
     }
 
     protected boolean acceptForPartitioning(EdgeIterator edgeIterator){
-        if(edgeIterator.getDistance() > 5000)
+        if(edgeIterator.getDistance() > 3000)
             return false;
-        return true;
+        return edgeFilter.accept(edgeIterator);
+    }
+
+    public void setAdditionalEdgeFilter(EdgeFilter edgeFilter){
+        this.edgeFilter = edgeFilter;
     }
 
 

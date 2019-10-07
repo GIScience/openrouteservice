@@ -3,10 +3,13 @@ package org.heigit.ors.partitioning;
 import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.routing.RoutingAlgorithm;
 import com.graphhopper.routing.RoutingAlgorithmFactory;
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
 import java.util.Timer;
 
@@ -16,6 +19,7 @@ public class PreparePartition implements RoutingAlgorithmFactory {
     private EdgeIterator edgeIter;
     private EdgeExplorer ghEdgeExpl;
     private GraphHopperStorage ghStorage;
+    private EdgeFilterSequence edgeFilters;
     private IsochroneNodeStorage isochroneNodeStorage;
     private CellStorage cellStorage;
 
@@ -25,13 +29,14 @@ public class PreparePartition implements RoutingAlgorithmFactory {
     private boolean[] nodeBorderness;
     private PartitioningBase partitioningAlgo;
 
-    public PreparePartition(GraphHopperStorage ghStorage) {
+    public PreparePartition(GraphHopperStorage ghStorage, EdgeFilterSequence edgeFilters) {
         this.ghStorage = ghStorage;
         this.ghGraph = ghStorage.getBaseGraph();
+        this.edgeFilters = edgeFilters;
         this.isochroneNodeStorage = new IsochroneNodeStorage(ghStorage, ghStorage.getDirectory());
         this.cellStorage = new CellStorage(ghStorage, ghStorage.getDirectory(), isochroneNodeStorage);
         this.ghEdgeExpl = ghGraph.createEdgeExplorer();
-        partitioningAlgo = new InertialFlow_Ser(ghStorage);
+        partitioningAlgo = new InertialFlow(ghStorage, edgeFilters);
         this.nodes = ghGraph.getNodes();
         this.nodeBorderness = new boolean[nodes];
     }
@@ -100,6 +105,10 @@ public class PreparePartition implements RoutingAlgorithmFactory {
     public int getNodes() {
         return nodes;
     }
+
+//    public Weighting getWeighting() {
+//        return weighting;
+//    }
 
     @Override
     public RoutingAlgorithm createAlgo(Graph g, AlgorithmOptions opts) {
