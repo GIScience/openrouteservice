@@ -22,6 +22,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.graphhopper.routing.weighting.Weighting;
@@ -91,7 +92,6 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 				((ORSGraphHopper) gh).initCoreAlgoFactoryDecorator();
 			if (((ORSGraphHopper) gh).isCoreLMEnabled())
 				((ORSGraphHopper) gh).initCoreLMAlgoFactoryDecorator();
-
 		}
 
 		if (gh.getLMFactoryDecorator().isEnabled())
@@ -100,33 +100,25 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 		if (gh.getCHFactoryDecorator().isEnabled())
 			gh.initCHAlgoFactoryDecorator();
 
-		List<Weighting> weightings = new ArrayList<>();
-		List<String> suffixes = new ArrayList<>();
-		int chGraphs = 0;
-
-		if(gh.isCHEnabled()) {
-			weightings.addAll(gh.getCHFactoryDecorator().getNodeBasedWeightings());
-//			weightings.addAll(gh.getCHFactoryDecorator().getEdgeBasedWeightings()); possibly required when we implement support for edge-based CH?
-			chGraphs = weightings.size();
-			for (int i = 0; i < chGraphs; i++){
-				suffixes.add("ch");
-			}
+		List<Weighting> nodeBasedWeightings = new ArrayList<>();
+		List<Weighting> edgeBasedWeightings = new ArrayList<>();
+		List<String> nodeBasedTypes = new ArrayList<>();
+		List<String> edgeBasedTypes = new ArrayList<>();
+		if (gh.isCHEnabled()) {
+			nodeBasedWeightings.addAll(gh.getCHFactoryDecorator().getNodeBasedWeightings());
+			String[] types = new String[gh.getCHFactoryDecorator().getNodeBasedWeightings().size()];
+			Arrays.fill(types, "ch");
+			nodeBasedTypes.addAll(Arrays.asList(types));
 		}
-
-		if(((ORSGraphHopper) gh).isCoreEnabled()) {
-			weightings.addAll(((ORSGraphHopper) gh).getCoreFactoryDecorator().getWeightings());
-			for (int i = chGraphs; i < weightings.size(); i++) {
-				suffixes.add("core");
-			}
+		if (((ORSGraphHopper)gh).isCoreEnabled()) {
+			nodeBasedWeightings.addAll(((ORSGraphHopper) gh).getCoreFactoryDecorator().getWeightings());
+			String[] types = new String[((ORSGraphHopper) gh).getCoreFactoryDecorator().getWeightings().size()];
+			Arrays.fill(types, "core");
+			nodeBasedTypes.addAll(Arrays.asList(types));
 		}
-
-		if (!weightings.isEmpty())
-			return new GraphHopperStorage(weightings, weightings,
-					dir,
-					encodingManager,
-					gh.hasElevation(),
-					graphExtension,
-					suffixes);
+		if (!nodeBasedWeightings.isEmpty())
+			return new GraphHopperStorage(nodeBasedWeightings, edgeBasedWeightings, dir, encodingManager,
+				gh.hasElevation(), graphExtension, nodeBasedTypes, edgeBasedTypes);
 		else
 			return new GraphHopperStorage(dir, encodingManager, gh.hasElevation(), graphExtension);
 	}

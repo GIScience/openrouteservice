@@ -1460,6 +1460,7 @@ public class ResultTest extends ServiceTest {
         body.put("coordinates", constructCoords("8.684682,49.401961|8.690518,49.405326"));
         body.put("preference", "shortest");
         body.put("instructions", false);
+        body.put("optimized", false);
         body.put("units", "m");
 
         JSONObject options = new JSONObject();
@@ -1505,6 +1506,7 @@ public class ResultTest extends ServiceTest {
         body.put("coordinates", constructCoords("8.684682,49.401961|8.690518,49.405326"));
         body.put("preference", "shortest");
         body.put("instructions", false);
+        body.put("optimized", false);
         body.put("units", "m");
 
         JSONObject options = new JSONObject();

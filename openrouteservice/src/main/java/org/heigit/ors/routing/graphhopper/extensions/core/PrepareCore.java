@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions.core;
+package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.coll.GHTreeMapComposed;
 import com.graphhopper.routing.*;
@@ -159,12 +159,11 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     }
 
     @Override
-    public void doWork() {
+    public void doSpecificWork() {
         if (prepareWeighting == null)
             throw new IllegalStateException("No weight calculation set.");
 
         allSW.start();
-        super.doWork();
 
         initFromGraph();
         if (!prepareNodes())
@@ -190,7 +189,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     }
 
     void contractNodes() {
-        meanDegree = prepareGraph.getAllEdges().getMaxId() / prepareGraph.getNodes();
+        meanDegree = prepareGraph.getAllEdges().length() / prepareGraph.getNodes();
         int level = 1;
         counter = 0;
         int initSize = sortedNodes.getSize();
@@ -466,7 +465,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     PrepareCore initFromGraph() {
         ghStorage.freeze();
         FlagEncoder prepareFlagEncoder = prepareWeighting.getFlagEncoder();
-        final EdgeFilter allFilter = new DefaultEdgeFilter(prepareFlagEncoder, true, true);
+        final EdgeFilter allFilter = DefaultEdgeFilter.allEdges(prepareFlagEncoder);
 
         // filter by vehicle and level number
         final EdgeFilter accessWithLevelFilter = new LevelEdgeFilter(prepareGraph) {

@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions.core;
+package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
@@ -230,7 +230,6 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
         }
     }
 
-    @Override
     protected void updateBestPath(EdgeIteratorState edgeState, SPTEntry entryCurrent, int traversalId) {
         SPTEntry entryOther = bestWeightMapOther.get(traversalId);
         if (entryOther == null)

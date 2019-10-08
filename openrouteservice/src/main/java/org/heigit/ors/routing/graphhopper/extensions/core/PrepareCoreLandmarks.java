@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions.core;
+package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.*;
 import com.graphhopper.routing.lm.LandmarkStorage;
@@ -25,8 +25,8 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
-import heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,8 +126,7 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
     }
 
     @Override
-    public void doWork() {
-        super.doWork();
+    public void doSpecificWork() {
 
         LOGGER.info("Start calculating " + lms.getLandmarkCount() + " landmarks, default active lms:"
                 + defaultActiveLandmarks + ", weighting:" + lms.getLmSelectionWeighting() + ", " + Helper.getMemInfo());

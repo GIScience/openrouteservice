@@ -11,15 +11,15 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions.edgefilters.core;
+package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.CHEdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
-import heigit.ors.routing.AvoidFeatureFlags;
-import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
+import org.heigit.ors.routing.AvoidFeatureFlags;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
 
 public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
 	private byte[] buffer;

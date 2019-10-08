@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions.core;
+package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
@@ -32,9 +32,9 @@ import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
-import heigit.ors.routing.graphhopper.extensions.util.ORSParameters.CoreLandmark;
-import heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.CoreLandmark;
+import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -250,7 +250,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
         for (final PrepareCoreLandmarks plm : preparations) {
             counter++;
             final int tmpCounter = counter;
-            final String name = AbstractWeighting.weightingToFileName(plm.getWeighting());
+            final String name = AbstractWeighting.weightingToFileName(plm.getWeighting(), false);
             completionService.submit(new Runnable() {
                 @Override
                 public void run() {

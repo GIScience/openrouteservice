@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions.core;
+package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntHashSet;
@@ -36,8 +36,8 @@ import com.graphhopper.util.*;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,7 +139,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         // Edge based is not really necessary because when adding turn costs while routing we can still
         // use the node based traversal as this is a smaller weight approximation and will still produce correct results
         this.traversalMode = TraversalMode.NODE_BASED;
-        final String name = AbstractWeighting.weightingToFileName(weighting) + landmarksFilter.getName();
+        final String name = AbstractWeighting.weightingToFileName(weighting, traversalMode.isEdgeBased()) + landmarksFilter.getName();
         this.landmarkWeightDA = dir.find("landmarks_core_" + name);
 
         this.landmarks = landmarks;
@@ -834,6 +834,14 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             return lastNode;
         }
 
+        public void initFrom(int from, double weight) {
+            super.initFrom(from, weight);
+        }
+
+        public void initTo(int to, double weight) {
+            super.initTo(to, weight);
+        }
+
         public void runAlgo(boolean from, EdgeFilter filter) {
             // no path should be calculated
             setUpdateBestPath(false);
@@ -937,10 +945,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
         @Override
         public boolean accept(EdgeIteratorState edgeState) {
-            if(edgeState instanceof CHEdgeIterator)
-                return edgeState.isForward(flagEncoder) && edgeState.isBackward(flagEncoder);
-
-            return flagEncoder.isForward(edgeState.getFlags()) && flagEncoder.isBackward(edgeState.getFlags());
+            return edgeState.get(flagEncoder.getAccessEnc()) && edgeState.getReverse(flagEncoder.getAccessEnc());
         }
     }
 
@@ -983,7 +988,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
                 return false;
 
             boolean blocked = blockedEdges.contains(iter.getEdge());
-            return fwd && iter.isForward(encoder) && !blocked || bwd && iter.isBackward(encoder) && !blocked;
+            return fwd && iter.get(encoder.getAccessEnc()) && !blocked || bwd && iter.getReverse(encoder.getAccessEnc()) && !blocked;
         }
 
         public boolean acceptsBackward() {

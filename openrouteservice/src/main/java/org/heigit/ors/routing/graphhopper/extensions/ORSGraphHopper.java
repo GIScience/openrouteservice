@@ -36,13 +36,13 @@ import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
-import heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
-import heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
-import heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
+import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
+import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
@@ -266,11 +266,11 @@ public class ORSGraphHopper extends GraphHopper {
 
 					// if LM is enabled we have the LMFactory with the CH algo!
 					RoutingAlgorithmFactory chAlgoFactory = tmpAlgoFactory;
-					if (tmpAlgoFactory instanceof LMAlgoFactoryDecorator.LMRAFactory)
-						chAlgoFactory = ((LMAlgoFactoryDecorator.LMRAFactory) tmpAlgoFactory).getDefaultAlgoFactory();
+					if (tmpAlgoFactory instanceof CoreLMAlgoFactoryDecorator.CoreLMRAFactory)
+						chAlgoFactory = ((CoreLMAlgoFactoryDecorator.CoreLMRAFactory) tmpAlgoFactory).getDefaultAlgoFactory();
 
-					if (chAlgoFactory instanceof PrepareContractionHierarchies)
-						weighting = ((PrepareContractionHierarchies) chAlgoFactory).getWeighting();
+					if (chAlgoFactory instanceof PrepareCore)
+						weighting = ((PrepareCore) chAlgoFactory).getWeighting();
 					else
 						throw new IllegalStateException(
 								"Although CH was enabled a non-CH algorithm factory was returned " + tmpAlgoFactory);

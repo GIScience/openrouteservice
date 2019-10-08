@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions.core;
+package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.*;
 import com.graphhopper.routing.ch.Path4CH;
@@ -19,6 +19,7 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.*;
 
 import java.util.PriorityQueue;
@@ -166,5 +167,9 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
             return false;
 
         return additionalEdgeFilter == null || additionalEdgeFilter.accept(iter);
+    }
+
+    protected SPTEntry createSPTEntry(int node, double weight) {
+        return new SPTEntry(EdgeIterator.NO_EDGE, node, weight);
     }
 }

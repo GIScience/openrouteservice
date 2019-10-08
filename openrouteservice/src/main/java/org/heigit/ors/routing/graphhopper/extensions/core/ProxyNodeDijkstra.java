@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions.core;
+package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
@@ -83,7 +83,7 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
      */
     public SPTEntry getProxyNode(int from, boolean bwd){
         checkAlreadyRun();
-        currEdge = createSPTEntry(from, 0);
+        currEdge = new SPTEntry(EdgeIterator.NO_EDGE, from, 0);
         if (!traversalMode.isEdgeBased()) {
             fromMap.put(from, currEdge);
         }

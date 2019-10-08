@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions.core;
+package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.DijkstraOneToMany;
 import com.graphhopper.routing.ch.PreparationWeighting;
@@ -24,7 +24,7 @@ import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -69,7 +69,7 @@ class CoreNodeContractor {
         this.prepareGraph = prepareGraph;
         this.prepareWeighting = new PreparationWeighting(weighting);
         this.traversalMode = traversalMode;
-        originalEdges = dir.find("original_edges_" + AbstractWeighting.weightingToFileName(weighting));
+        originalEdges = dir.find("original_edges_" + AbstractWeighting.weightingToFileName(weighting, traversalMode.isEdgeBased()));
         originalEdges.create(1000);
     }
 
@@ -77,12 +77,12 @@ class CoreNodeContractor {
         // todo: do we really need this method ? the problem is that ghStorage/prepareGraph can potentially be modified
         // between the constructor call and contractNode,calcShortcutCount etc. ...
         maxLevel = prepareGraph.getNodes() + 1;
-        maxEdgesCount = ghStorage.getAllEdges().getMaxId();
+        maxEdgesCount = ghStorage.getAllEdges().length();
         ignoreNodeFilterSequence = new IgnoreNodeFilterSequence(prepareGraph, maxLevel);
         ignoreNodeFilterSequence.add(restrictionFilter);
         FlagEncoder prepareFlagEncoder = prepareWeighting.getFlagEncoder();
-        vehicleInExplorer = prepareGraph.createEdgeExplorer(new DefaultEdgeFilter(prepareFlagEncoder, true, false));
-        vehicleOutExplorer = prepareGraph.createEdgeExplorer(new DefaultEdgeFilter(prepareFlagEncoder, false, true));
+        vehicleInExplorer = prepareGraph.createEdgeExplorer(DefaultEdgeFilter.inEdges(prepareFlagEncoder));
+        vehicleOutExplorer = prepareGraph.createEdgeExplorer(DefaultEdgeFilter.outEdges(prepareFlagEncoder));
         prepareAlgo = new DijkstraOneToMany(prepareGraph, prepareWeighting, traversalMode);
     }
 
@@ -217,8 +217,7 @@ class CoreNodeContractor {
                     }
 
                     // note: flags overwrite weight => call first
-                    iter.setFlags(sc.flags);
-                    iter.setWeight(sc.weight);
+                    iter.setFlagsAndWeight(sc.flags, sc.weight);
                     iter.setDistance(sc.dist);
                     iter.setSkippedEdges(sc.skippedEdge1, sc.skippedEdge2);
                     setOrigEdgeCount(iter.getEdge(), sc.originalEdges);
@@ -230,8 +229,7 @@ class CoreNodeContractor {
             if (!updatedInGraph) {
                 CHEdgeIteratorState edgeState = prepareGraph.shortcut(sc.from, sc.to);
                 // note: flags overwrite weight => call first
-                edgeState.setFlags(sc.flags);
-                edgeState.setWeight(sc.weight);
+                edgeState.setFlagsAndWeight(sc.flags, sc.weight);
                 edgeState.setDistance(sc.dist);
                 edgeState.setSkippedEdges(sc.skippedEdge1, sc.skippedEdge2);
                 setOrigEdgeCount(edgeState.getEdge(), sc.originalEdges);
@@ -260,7 +258,7 @@ class CoreNodeContractor {
             if (value != 1)
                 throw new IllegalStateException("Trying to set original edge count for normal edge to a value = " + value
                         + ", edge:" + (edgeId + maxEdgesCount) + ", max:" + maxEdgesCount + ", graph.max:" +
-                        prepareGraph.getAllEdges().getMaxId());
+                        prepareGraph.getAllEdges().length());
             return;
         }
 
@@ -329,7 +327,7 @@ class CoreNodeContractor {
         double dist;
         double weight;
         int originalEdges;
-        long flags = PrepareEncoder.getScFwdDir();
+        int flags = PrepareEncoder.getScFwdDir();
 
         public Shortcut(int from, int to, double weight, double dist) {
             this.from = from;

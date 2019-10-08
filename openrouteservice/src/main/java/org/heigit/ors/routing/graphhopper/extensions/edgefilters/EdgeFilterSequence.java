@@ -15,13 +15,14 @@ package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.EdgeIteratorState;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
 
 import java.util.ArrayList;
 
 public class EdgeFilterSequence  implements EdgeFilter {
 
-	private ArrayList<EdgeFilter> filters = new ArrayList<>();
+	protected ArrayList<EdgeFilter> filters = new ArrayList<>();
+	private String name = "";
 
 	@Override
 	public boolean accept(EdgeIteratorState eis) {
@@ -31,6 +32,17 @@ public class EdgeFilterSequence  implements EdgeFilter {
 			}
 		}
 		return true;
+	}
+
+	public void appendName(String name){
+		if (this.name == null)
+			this.name = ("_" + name);
+		else
+			this.name += ("_" + name);
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public void add(EdgeFilter o) {

@@ -11,12 +11,12 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package heigit.ors.routing.graphhopper.extensions.edgefilters.core;
+package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +58,7 @@ public class LMEdgeFilterSequence extends EdgeFilterSequence implements EdgeFilt
 			}
 		}
 		//Check if the avoidBordersFilter has the same countries or a subset
-		for (EdgeFilter edgeFilter: this) {
+		for (EdgeFilter edgeFilter: filters) {
 			if (edgeFilter instanceof AvoidBordersCoreEdgeFilter){
 				ArrayList<Integer> filterCountries =
 						new ArrayList<Integer>() {{ for (int i : ((AvoidBordersCoreEdgeFilter) edgeFilter).getAvoidCountries()) add(i); }};
@@ -78,7 +78,7 @@ public class LMEdgeFilterSequence extends EdgeFilterSequence implements EdgeFilt
 	 *
 	 * */
 	private boolean isAvoidFeature(int avoidable){
-		for (EdgeFilter edgeFilter: this) {
+		for (EdgeFilter edgeFilter: filters) {
 			//There is only one AvoidFeaturesCoreEdgeFilter per EdgeFilterSequence
 			if (edgeFilter instanceof AvoidFeaturesCoreEdgeFilter){
 				//Some bit magic to find if the storage bits are a subset of the query bits, but not the other way around

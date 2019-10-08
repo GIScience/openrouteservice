@@ -11,11 +11,10 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions.core;
+package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.RoutingAlgorithmFactory;
 import com.graphhopper.routing.RoutingAlgorithmFactoryDecorator;
-import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.util.TraversalMode;
@@ -24,7 +23,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
-import heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
+import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +31,6 @@ import java.util.*;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import static com.graphhopper.util.Parameters.CH.DISABLE;
 
 /**
  * This class implements the Core Algo decorator and provides several helper methods related to core
@@ -285,7 +282,7 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
         int counter = 0;
         for (final PrepareCore prepare : getPreparations()) {
             LOGGER.info((++counter) + "/" + getPreparations().size() + " calling Core prepare.doWork for " + prepare.getWeighting() + " ... (" + Helper.getMemInfo() + ")");
-            final String name = AbstractWeighting.weightingToFileName(prepare.getWeighting());
+            final String name = AbstractWeighting.weightingToFileName(prepare.getWeighting(), false);
             completionService.submit(new Runnable() {
                 @Override
                 public void run() {
