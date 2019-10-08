@@ -789,8 +789,6 @@ public class GraphHopper implements GraphHopperAPI {
 
         GHDirectory dir = new GHDirectory(ghLocation, dataAccessType);
         //ORS-GH MOD START
-        //GraphExtension ext = encodingManager.needsTurnCostsSupport()
-        //        ? new TurnCostExtension() : new GraphExtension.NoOpExtension();
         if (graphStorageFactory != null) {
             ghStorage = graphStorageFactory.createStorage(dir, this);
         }
@@ -883,13 +881,6 @@ public class GraphHopper implements GraphHopperAPI {
 
                     CHAlgoFactoryDecorator.EdgeBasedCHMode edgeBasedCHMode = chFactoryDecorator.getEdgeBasedCHMode();
                     if (!(edgeBasedCHMode == EDGE_OR_NODE && encoder.supports(TurnWeighting.class))) {
-                        // ORS-GH MOD START
-                        // ORS TODO: investigate - this modification makes no sense with profiles
-                        //chFactoryDecorator.addCHProfile(CHProfile.nodeBased(createWeighting(new HintsMap(chWeightingStr), encoder, null)));
-                        chFactoryDecorator.addCHProfile(CHProfile.nodeBased(createWeighting(new HintsMap(chWeightingStr), TraversalMode.NODE_BASED, encoder, null)));
-                        // ORS-GH MOD END
-                    }
-                    if (edgeBasedCHMode != OFF && encoder.supports(TurnWeighting.class)) {
                         // ORS-GH MOD START
                         // ORS TODO: investigate - this modification makes no sense with profiles
                         //chFactoryDecorator.addCHProfile(CHProfile.nodeBased(createWeighting(new HintsMap(chWeightingStr), encoder, null)));
