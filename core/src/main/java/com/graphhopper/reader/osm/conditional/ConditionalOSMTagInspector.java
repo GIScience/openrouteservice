@@ -93,9 +93,10 @@ public class ConditionalOSMTagInspector implements ConditionalTagInspector {
                 continue;
             try {
                 if (parser.checkCondition(val)) {
-                    if (parser.isLazyEvaluated()) {
+                    if (parser.hasUnevaluatedRestrictions()) {
                         isLazyEvaluated = true;
-                        val = parser.getSimplifiedValue();
+                        //System.out.println(way.getId() + ": " + val + " -> " + parser.getUnevaluatedRestrictions());
+                        val = parser.getUnevaluatedRestrictions();
                     }
                     return true;
                 }

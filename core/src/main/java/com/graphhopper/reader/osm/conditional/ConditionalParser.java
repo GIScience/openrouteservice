@@ -18,6 +18,8 @@
 package com.graphhopper.reader.osm.conditional;
 
 import ch.poole.conditionalrestrictionparser.*;
+import ch.poole.openinghoursparser.OpeningHoursParser;
+import ch.poole.openinghoursparser.Rule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,8 +43,7 @@ public class ConditionalParser {
     private final boolean enabledLogs;
 
     private final String simpleValue;
-    private String simplifiedValue;
-
+    private String unevaluatedRestrictions;
     private Conditions unevaluatedConditions;
 
     public ConditionalParser(Set<String> restrictedValues) {
@@ -104,32 +105,35 @@ public class ConditionalParser {
 
                 return ConditionState.INVALID;
             }
-            @Override
-            public boolean isLazyEvaluated() {
-                return false;
-            };
         };
     }
 
     public static ConditionalValueParser createDateTimeParser() {
         return new ConditionalValueParser() {
             @Override
-            public ConditionState checkCondition(String conditionalValue) throws ParseException {
-                return ConditionState.INVALID;
+            public ConditionState checkCondition(String conditionString) {
+                ArrayList<Rule> rules;
+                try {
+                    OpeningHoursParser parser = new OpeningHoursParser(new ByteArrayInputStream(conditionString.getBytes()));
+                    rules = parser.rules(false);
+                }
+                catch (Exception e) {
+                    return ConditionState.INVALID;
+                }
+                if (rules.isEmpty())
+                    return ConditionState.INVALID;
+                else {
+                    String parsedConditionString = ch.poole.openinghoursparser.Util.rulesToOpeningHoursString(rules);
+                    return ConditionState.UNEVALUATED.setCondition(new Condition(parsedConditionString, true));
+                }
             }
             @Override
-            public ConditionState checkCondition(Condition condition) throws ParseException {
-                if (condition.isOpeningHours()) {
-                    // properly parse with checkCondition(String conditionalValue)
-                    return ConditionState.TRUE;
-                }
+            public ConditionState checkCondition(Condition condition) {
+                if (condition.isOpeningHours())
+                    return checkCondition(condition.toString()); // attempt to properly parse the condition
                 else
                     return ConditionState.INVALID;
             }
-            @Override
-            public boolean isLazyEvaluated() {
-                return true;
-            };
         };
     }
 
@@ -152,13 +156,12 @@ public class ConditionalParser {
         for (ConditionalValueParser valueParser : valueParsers) {
             ConditionalValueParser.ConditionState c = valueParser.checkCondition(condition);
             if (c.isValid()) {
-                // condition could not be evaluated
-                if (valueParser.isLazyEvaluated()) {
-                    unevaluatedConditions.addCondition(condition);
+                if (c.isEvaluated())
+                    return c.isCheckPassed();
+                else { // condition could not be evaluated but might evaluate to true during query
+                    unevaluatedConditions.addCondition(c.getCondition());
                     return true;
                 }
-                else
-                    return c.isCheckPassed();
             }
         }
         return false;
@@ -180,7 +183,7 @@ public class ConditionalParser {
             return false;
 
         ArrayList<Restriction> parsedRestrictions = new ArrayList<>();
-        simplifiedValue = new String();
+        unevaluatedRestrictions = new String();
 
         try {
             ConditionalRestrictionParser parser = new ConditionalRestrictionParser(new ByteArrayInputStream(tagValue.getBytes()));
@@ -194,16 +197,16 @@ public class ConditionalParser {
                 if (restrictedValues.contains(restriction.getValue())) {
                     List<Condition> conditions = restriction.getConditions();
 
-                    unevaluatedConditions = new Conditions(new ArrayList<Condition>(), false);
+                    unevaluatedConditions = new Conditions(new ArrayList<Condition>(), restriction.inParen());
 
                     if (checkCombinedCondition(conditions)) {
                         // check for unevaluated conditions
                         if (unevaluatedConditions.getConditions().isEmpty()) {
-                            return true; // jump out at first condition which can be fully evaluated;
+                            return true; // terminate once the first matching condition which can be fully evaluated is encountered
                         }
                         else {
                             parsedRestrictions.add(new Restriction(simpleValue, unevaluatedConditions));
-                            simplifiedValue = Util.restrictionsToString(parsedRestrictions);
+                            unevaluatedRestrictions = Util.restrictionsToString(parsedRestrictions);
                         }
                     }
                 }
@@ -213,16 +216,16 @@ public class ConditionalParser {
                 logger.warn("Parser exception for " + tagValue + " " + e.toString());
             return false;
         }
-        // either no matching restriction or all encountered restrictions need to be lazy evaluated
+        // at this point either no matching restriction was found or the encountered restrictions need to be lazy evaluated
         return (!parsedRestrictions.isEmpty());
     }
 
-    public String getSimplifiedValue() {
-        return simplifiedValue;
+    public String getUnevaluatedRestrictions() {
+        return unevaluatedRestrictions;
     }
 
-    public boolean isLazyEvaluated() {
-        return !simplifiedValue.isEmpty();
+    public boolean hasUnevaluatedRestrictions() {
+        return !unevaluatedRestrictions.isEmpty();
     }
 
     protected static double parseNumber(String str) {

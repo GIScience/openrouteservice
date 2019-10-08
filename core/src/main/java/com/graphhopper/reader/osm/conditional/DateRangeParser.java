@@ -143,8 +143,4 @@ public class DateRangeParser implements ConditionalValueParser {
             return ConditionState.FALSE;
     }
 
-    @Override
-    public boolean isLazyEvaluated() {
-        return false;
-    };
 }

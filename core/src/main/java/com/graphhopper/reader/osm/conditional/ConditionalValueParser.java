@@ -16,21 +16,21 @@ public interface ConditionalValueParser {
 
     ConditionState checkCondition(Condition conditionalValue) throws ParseException;
 
-    /**
-     * True if the condition value is undetermined at parse time
-     */
-    boolean isLazyEvaluated();
-
     enum ConditionState {
-        TRUE(true, true),
-        FALSE(true, false),
-        INVALID(false, false);
+        TRUE(true, true, true),
+        FALSE(true, true, false),
+        INVALID(false, false, false),
+        UNEVALUATED(true, false, false);
 
         boolean valid;
+        boolean evaluated;
         boolean checkPassed;
 
-        ConditionState(boolean valid, boolean checkPassed) {
+        Condition condition;
+
+        ConditionState(boolean valid, boolean evaluated, boolean checkPassed) {
             this.valid = valid;
+            this.evaluated = evaluated;
             this.checkPassed = checkPassed;
         }
 
@@ -38,11 +38,25 @@ public interface ConditionalValueParser {
             return valid;
         }
 
+        public boolean isEvaluated() {
+            return evaluated;
+        }
+
         public boolean isCheckPassed() {
             if (!isValid())
                 throw new IllegalStateException("Cannot call this method for invalid state");
-
+            if (!isEvaluated())
+                throw new IllegalStateException("Cannot call this method for unevaluated state");
             return checkPassed;
+        }
+
+        public ConditionState setCondition(Condition condition) {
+            this.condition = condition;
+            return this;
+        }
+
+        public Condition getCondition() {
+            return condition;
         }
     }
 }
