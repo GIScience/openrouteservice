@@ -22,6 +22,7 @@ import com.graphhopper.routing.weighting.Weighting;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * For now this is just a helper class to quickly create a {@link GraphHopperStorage}
@@ -121,11 +122,26 @@ public class GraphBuilder {
                 new TurnCostExtension() :
                 new TurnCostExtension.NoOpExtension();
 
-        return singleCHWeighting == null ?
-                new GraphHopperStorage(dir, encodingManager, elevation, graphExtension) :
-                edgeBasedCH ?
-                        new GraphHopperStorage(Collections.<Weighting>emptyList(), Arrays.asList(singleCHWeighting), dir, encodingManager, elevation, graphExtension) :
-                        new GraphHopperStorage(Arrays.asList(singleCHWeighting), Collections.<Weighting>emptyList(), dir, encodingManager, elevation, graphExtension);
+// ORS-GH MOD START
+// CALT
+        if (singleCoreWeighting != null && singleCHWeighting != null)
+            throw new IllegalStateException("Cannot build CHGraph and CoreGraph at the same time");
+
+//        return singleCHWeighting == null ?
+//                new GraphHopperStorage(dir, encodingManager, elevation, graphExtension) :
+//                edgeBasedCH ?
+//                        new GraphHopperStorage(Collections.<Weighting>emptyList(), Arrays.asList(singleCHWeighting), dir, encodingManager, elevation, graphExtension) :
+//                        new GraphHopperStorage(Arrays.asList(singleCHWeighting), Collections.<Weighting>emptyList(), dir, encodingManager, elevation, graphExtension);
+        if (singleCHWeighting == null && singleCoreWeighting == null)
+            return new GraphHopperStorage(dir, encodingManager, elevation, graphExtension);
+
+        Weighting weightingToUse = singleCHWeighting != null ? singleCHWeighting : singleCoreWeighting;
+        String type = singleCHWeighting != null ? "ch" : "core";
+
+        return edgeBasedCH ?
+            new GraphHopperStorage(Collections.<Weighting>emptyList(), Arrays.asList(weightingToUse), dir, encodingManager, elevation, graphExtension, Collections.singletonList(type), Collections.<String>emptyList()) :
+            new GraphHopperStorage(Arrays.asList(weightingToUse), Collections.<Weighting>emptyList(), dir, encodingManager, elevation, graphExtension, Collections.singletonList(type), Collections.<String>emptyList());
+// ORS-GH MOD END
     }
 
     /**

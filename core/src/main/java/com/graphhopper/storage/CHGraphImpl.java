@@ -78,9 +78,8 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
 
     // ORS-GH MOD START
     // CALT add type parameter
-    // ORS TODO: temporarily changed back to make it compile
-    CHGraphImpl(Weighting w, Directory dir, final BaseGraph baseGraph, boolean edgeBased) {
-    //CHGraphImpl(Weighting w, Directory dir, final BaseGraph baseGraph, boolean edgeBased, final String type) {
+//    CHGraphImpl(Weighting w, Directory dir, final BaseGraph baseGraph, boolean edgeBased) {
+    CHGraphImpl(Weighting w, Directory dir, final BaseGraph baseGraph, boolean edgeBased, final String type) {
     // ORS-GH MOD END
         if (w == null)
             throw new IllegalStateException("Weighting for CHGraph cannot be null");
@@ -89,14 +88,14 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
         this.baseGraph = baseGraph;
         final String name = AbstractWeighting.weightingToFileName(w, edgeBased);
         this.edgeBased = edgeBased;
-        // ORS-GH MOD START
-        // CALT include type in directory location
-        //this.nodesCH = dir.find("nodes_ch_" + name, DAType.getPreferredInt(dir.getDefaultType()));
-        //this.shortcuts = dir.find("shortcuts_" + name, DAType.getPreferredInt(dir.getDefaultType()));
+// ORS-GH MOD START
+// CALT include type in directory location
+//        this.nodesCH = dir.find("nodes_ch_" + name, DAType.getPreferredInt(dir.getDefaultType()));
+//        this.shortcuts = dir.find("shortcuts_" + name, DAType.getPreferredInt(dir.getDefaultType()));
         this.nodesCH = dir.find("nodes_" + type + "_" + name, DAType.getPreferredInt(dir.getDefaultType()));
         this.shortcuts = dir.find("shortcuts_" + type + "_" + name, DAType.getPreferredInt(dir.getDefaultType()));
         this.type = type;
-        // ORS-GH MOD END
+// ORS-GH MOD END
         this.chEdgeAccess = new CHEdgeAccess(name);
     }
 

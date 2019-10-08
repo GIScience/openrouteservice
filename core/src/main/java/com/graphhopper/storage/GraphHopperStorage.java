@@ -55,25 +55,24 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
     private final Collection<CHGraphImpl> edgeBasedCHGraphs = new ArrayList<>(5);
 
     public GraphHopperStorage(Directory dir, EncodingManager encodingManager, boolean withElevation, GraphExtension extendedStorage) {
-        this(Collections.<Weighting>emptyList(), Collections.<Weighting>emptyList(), dir, encodingManager, withElevation, extendedStorage, null);
+        this(Collections.<Weighting>emptyList(), Collections.<Weighting>emptyList(), dir, encodingManager, withElevation, extendedStorage);
     }
 
     public GraphHopperStorage(List<? extends Weighting> nodeBasedCHWeightings, Directory dir, EncodingManager encodingManager,
                               boolean withElevation, GraphExtension extendedStorage) {
-        this(nodeBasedCHWeightings, Collections.<Weighting>emptyList(), dir, encodingManager, withElevation, extendedStorage, null);
+        this(nodeBasedCHWeightings, Collections.<Weighting>emptyList(), dir, encodingManager, withElevation, extendedStorage);
     }
 
-    // ORS-GH MOD START
-    // CALT
     public GraphHopperStorage(List<? extends Weighting> nodeBasedCHWeightings, List<? extends Weighting> edgeBasedCHWeightings, Directory dir, EncodingManager encodingManager,
                               boolean withElevation, GraphExtension extendedStorage) {
-        this(nodeBasedCHWeightings, edgeBasedCHWeightings, dir, encodingManager, withElevation, extendedStorage, null);
+// ORS-GH MOD START
+// CALT
+        this(nodeBasedCHWeightings, edgeBasedCHWeightings, dir, encodingManager, withElevation, extendedStorage, null, null);
     }
 
     public GraphHopperStorage(List<? extends Weighting> nodeBasedCHWeightings, List<? extends Weighting> edgeBasedCHWeightings, Directory dir, final EncodingManager encodingManager,
-                              //boolean withElevation, GraphExtension extendedStorage) {
-                              boolean withElevation, GraphExtension extendedStorage, List<String> types) {
-        // ORS-GH MOD END
+                              boolean withElevation, GraphExtension extendedStorage, List<String> nodeBasedWeightingsTypes, List<String> edgeBasedWeightingsTypes) {
+// ORS-GH MOD END
         if (extendedStorage == null)
             throw new IllegalArgumentException("GraphExtension cannot be null, use NoOpExtension");
 
@@ -101,27 +100,29 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
 
         this.baseGraph = new BaseGraph(dir, encodingManager, withElevation, listener, extendedStorage);
 
-
-        // ORS-GH MOD START
-        // CALT
-        //default to ch
-//        if(types == null && chWeightings != null){
-//            types = new ArrayList<>();
-//            for(int i = 0; i < chWeightings.size(); i++)
-//                types.add("ch");
+// ORS-GH MOD START
+// CALT
+//        for (Weighting w : nodeBasedCHWeightings) {
+//            nodeBasedCHGraphs.add(new CHGraphImpl(w, dir, this.baseGraph, false));
 //        }
-//        Collection<CHGraphImpl> chGraphs = getAllCHGraphs();
-//        for (int i = 0; i < chWeightings.size(); i++) {
-//            chGraphs.add(new CHGraphImpl(chWeightings.get(i), dir, this.baseGraph, types.get(i) == ""));
+//        for (Weighting w : edgeBasedCHWeightings) {
+//            edgeBasedCHGraphs.add(new CHGraphImpl(w, dir, this.baseGraph, true));
 //        }
-        // ORS-GH MOD END
-
+        int c = 0;
         for (Weighting w : nodeBasedCHWeightings) {
-            nodeBasedCHGraphs.add(new CHGraphImpl(w, dir, this.baseGraph, false));
+            String type = nodeBasedWeightingsTypes == null || nodeBasedWeightingsTypes.isEmpty() ? "ch" : //default to ch
+                nodeBasedWeightingsTypes.get(c);
+            nodeBasedCHGraphs.add(new CHGraphImpl(w, dir, this.baseGraph, false, type));
+            c++;
         }
+        c = 0;
         for (Weighting w : edgeBasedCHWeightings) {
-            edgeBasedCHGraphs.add(new CHGraphImpl(w, dir, this.baseGraph, true));
+            String type = edgeBasedWeightingsTypes == null || edgeBasedWeightingsTypes.isEmpty() ? "ch" : //default to ch
+                edgeBasedWeightingsTypes.get(c);
+            edgeBasedCHGraphs.add(new CHGraphImpl(w, dir, this.baseGraph, true, type));
+            c++;
         }
+// ORS-GH MOD END
     }
 
     // ORS-GH MOD START - just add a singleMethod
