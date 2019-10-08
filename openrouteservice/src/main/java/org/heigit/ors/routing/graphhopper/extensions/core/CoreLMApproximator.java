@@ -121,12 +121,10 @@ public class CoreLMApproximator implements WeightApproximator {
             return fallBackApproximation.approximate(queryNode);
 
         int node = queryNode;
-        int virtEdgeWeightInt = 0;
         if (queryNode >= maxBaseNodes) {
             // handle virtual node
             VirtEntry virtEntry = virtNodeMap.get(queryNode);
             node = virtEntry.node;
-            virtEdgeWeightInt = virtEntry.weight;
         }
 
         // select better active landmarks, LATER: use 'success' statistics about last active landmark
@@ -137,14 +135,12 @@ public class CoreLMApproximator implements WeightApproximator {
                 return fallBackApproximation.approximate(queryNode);
         }
 
-        int maxWeightInt = getMaxWeight(node, virtEdgeWeightInt, activeLandmarks, activeFromIntWeights, activeToIntWeights);
+        int maxWeightInt = getMaxWeight(node, activeLandmarks, activeFromIntWeights, activeToIntWeights);
 
-        double weightDouble = maxWeightInt * factor * epsilon - proxyWeight;
-
-        return weightDouble;
+        return maxWeightInt * factor * epsilon - proxyWeight;
     }
 
-    int getMaxWeight(int node, int virtEdgeWeightInt, int[] activeLandmarks, int[] activeFromIntWeights, int[] activeToIntWeights) {
+    int getMaxWeight(int node, int[] activeLandmarks, int[] activeFromIntWeights, int[] activeToIntWeights) {
         int maxWeightInt = -1;
         for (int activeLMIdx = 0; activeLMIdx < activeLandmarks.length; activeLMIdx++) {
             int landmarkIndex = activeLandmarks[activeLMIdx];

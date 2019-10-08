@@ -51,11 +51,11 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
 
     @Override
     protected void initCollections(int size) {
-        fromPriorityQueueCH = new PriorityQueue<SPTEntry>(size);
-        bestWeightMapFrom = new GHIntObjectHashMap<SPTEntry>(size);
+        fromPriorityQueueCH = new PriorityQueue<>(size);
+        bestWeightMapFrom = new GHIntObjectHashMap<>(size);
 
-        toPriorityQueueCH = new PriorityQueue<SPTEntry>(size);
-        bestWeightMapTo = new GHIntObjectHashMap<SPTEntry>(size);
+        toPriorityQueueCH = new PriorityQueue<>(size);
+        bestWeightMapTo = new GHIntObjectHashMap<>(size);
 
         fromPriorityQueueCore = new PriorityQueue<>(size);
         toPriorityQueueCore = new PriorityQueue<>(size);
@@ -225,7 +225,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
             } else
                 continue;
 
-            if (updateBestPath)
+            if (doUpdateBestPath)
                 updateBestPath(iter, ee, traversalId);
         }
     }

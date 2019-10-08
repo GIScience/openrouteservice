@@ -53,7 +53,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Hendrik Leuschner
  */
 public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorator {
-    private Logger LOGGER = LoggerFactory.getLogger(CoreLMAlgoFactoryDecorator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoreLMAlgoFactoryDecorator.class);
     private int landmarkCount = 16;
     private int activeLandmarkCount = 4;
 
@@ -174,7 +174,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
     }
 
     public CoreLMAlgoFactoryDecorator addWeighting(String weighting) {
-        String str[] = weighting.split("\\|");
+        String[] str = weighting.split("\\|");
         double value = -1;
         if (str.length > 1) {
             PMap map = new PMap(weighting);
@@ -251,19 +251,15 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
             counter++;
             final int tmpCounter = counter;
             final String name = AbstractWeighting.weightingToFileName(plm.getWeighting(), false);
-            completionService.submit(new Runnable() {
-                @Override
-                public void run() {
-                    if (plm.loadExisting())
-                        return;
-
-                    LOGGER.info(tmpCounter + "/" + getPreparations().size() + " calling CoreLM prepare.doWork for "
-                            + plm.getWeighting() + " ... (" + Helper.getMemInfo() + ")");
-                    prepared.set(true);
-                    Thread.currentThread().setName(name);
-                    plm.doWork();
-                    properties.put(CoreLandmark.PREPARE + "date." + name, Helper.createFormatter().format(new Date()));
-                }
+            completionService.submit(() -> {
+                if (plm.loadExisting())
+                    return;
+                LOGGER.info(tmpCounter + "/" + getPreparations().size() + " calling CoreLM prepare.doWork for "
+                        + plm.getWeighting() + " ... (" + Helper.getMemInfo() + ")");
+                prepared.set(true);
+                Thread.currentThread().setName(name);
+                plm.doWork();
+                properties.put(CoreLandmark.PREPARE + "date." + name, Helper.createFormatter().format(new Date()));
             }, name);
         }
 
@@ -305,7 +301,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
 
         for (Weighting weighting : getWeightings()) {
 
-            HashMap<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(ghStorage, weighting);
+            Map<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(ghStorage, weighting);
 
             for (LMEdgeFilterSequence edgeFilterSequence : coreLMOptions.getFilters()) {
                 Double maximumWeight = maximumWeights.get(weighting.getName());
@@ -328,7 +324,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
      * Otherwise we would have to store a lot of empty info
      */
 
-    public HashMap<Integer, Integer> createCoreNodeIdMap(GraphHopperStorage graph, Weighting weighting) {
+    public Map<Integer, Integer> createCoreNodeIdMap(GraphHopperStorage graph, Weighting weighting) {
         CHGraphImpl core = graph.getCoreGraph(weighting);
         HashMap<Integer, Integer> coreNodeIdMap = new HashMap<>();
         int maxNode = graph.getNodes();

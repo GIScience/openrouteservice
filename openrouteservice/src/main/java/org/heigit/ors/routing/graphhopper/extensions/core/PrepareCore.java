@@ -37,7 +37,8 @@ import static com.graphhopper.util.Parameters.Algorithms.DIJKSTRA_BI;
  * @author Hendrik Leuschner, Andrzej Oles
  */
 public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgorithmFactory {
-    private static final Logger LOGGER = Logger.getLogger(RoutingAlgorithmFactory.class);
+    private static final Logger LOGGER = Logger.getLogger(PrepareCore.class);
+    private static final boolean LOG_DEBUG = false;
     private final PreparationWeighting prepareWeighting;
     private final TraversalMode traversalMode;
     private final EdgeFilter restrictionFilter;
@@ -55,12 +56,10 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     private int maxLevel;
     // the most important nodes comes last
     private GHTreeMapComposed sortedNodes;
-    private int oldPriorities[];
+    private int[] oldPriorities;
     private int restrictedNodes = 0;
 
-    private long counter;
     private double meanDegree;
-    private StopWatch dijkstraSW = new StopWatch();
     private int periodicUpdatesPercentage = 10;
     private int lastNodesLazyUpdatePercentage = 10;
     private int neighborUpdatePercentage = 90;
@@ -189,11 +188,11 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     }
 
     void contractNodes() {
-        meanDegree = prepareGraph.getAllEdges().length() / prepareGraph.getNodes();
+        meanDegree = (double)prepareGraph.getAllEdges().length() / prepareGraph.getNodes();
         int level = 1;
-        counter = 0;
+        long counter = 0;
         int initSize = sortedNodes.getSize();
-        long logSize = Math.round(Math.max(10, sortedNodes.getSize() / 100 * logMessagesPercentage));
+        long logSize = Math.round(Math.max(10, (double)sortedNodes.getSize() / 100 * logMessagesPercentage));
         if (logMessagesPercentage == 0)
             logSize = Integer.MAX_VALUE;
 
@@ -235,7 +234,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                     if (prepareGraph.getLevel(node) != maxLevel)
                         continue;
                     int priority = oldPriorities[node];
-                    if (!(priority == RESTRICTION_PRIORITY)) {
+                    if (priority != RESTRICTION_PRIORITY) {
                         priority = oldPriorities[node] = calculatePriority(node);
                     }
                     sortedNodes.insert(node, priority);
@@ -253,7 +252,8 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 lazyTime += lazySW.getSeconds();
                 neighborTime += neighborSW.getSeconds();
 
-                LOGGER.info(Helper.nf(counter) + ", updates:" + updateCounter
+                if (LOG_DEBUG)
+                    LOGGER.info(Helper.nf(counter) + ", updates:" + updateCounter
                         + ", nodes: " + Helper.nf(sortedNodes.getSize())
                         + ", shortcuts:" + Helper.nf(nodeContractor.getAddedShortcutsCount())
                         + ", dijkstras:" + Helper.nf(nodeContractor.getDijkstraCount())
@@ -355,8 +355,8 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         periodTime += periodSW.getSeconds();
         lazyTime += lazySW.getSeconds();
         neighborTime += neighborSW.getSeconds();
-        LOGGER.info("took:" + (int) allSW.stop().getSeconds()
-                + ", new shortcuts: " + Helper.nf(nodeContractor.getAddedShortcutsCount())
+        LOGGER.info("took:" + allSW.stop().getSeconds()
+                + "s, new shortcuts: " + Helper.nf(nodeContractor.getAddedShortcutsCount())
                 + ", " + prepareWeighting
                 + ", dijkstras:" + nodeContractor.getDijkstraCount()
                 + ", " + getTimesAsString()
@@ -367,8 +367,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 + ", neighbor:" + neighborUpdatePercentage
                 + ", " + Helper.getMemInfo());
     }
-
-
 
     public double getLazyTime() {
         return lazyTime;

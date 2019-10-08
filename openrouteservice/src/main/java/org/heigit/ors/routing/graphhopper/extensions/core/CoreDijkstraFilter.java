@@ -17,8 +17,6 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeIteratorState;
-
-import java.util.HashMap;
 /**
  * Only certain nodes are accepted and therefor the others are ignored.
  *

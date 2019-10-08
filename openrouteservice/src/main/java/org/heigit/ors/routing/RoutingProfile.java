@@ -98,6 +98,7 @@ public class RoutingProfile {
     private static final String KEY_ACTIVE_LANDMARKS = "active_landmarks";
     private static final String KEY_TOTAL_POP = "total_pop";
     private static final String KEY_TOTAL_AREA_KM = "total_area_km";
+    private static final String KEY_ASTARBI = "astarbi";
     private static int profileIdentifier = 0;
     private static final Object lockObj = new Object();
 
@@ -919,16 +920,16 @@ public class RoutingProfile {
                 if (mGraphHopper.isCHEnabled())
                     req.getHints().put(KEY_CH_DISABLE, true);
                 if (mGraphHopper.getLMFactoryDecorator().isEnabled()) {
-                    req.setAlgorithm("astarbi");
+                    req.setAlgorithm(KEY_ASTARBI);
                     req.getHints().put(KEY_LM_DISABLE, false);
                     req.getHints().put(KEY_CORE_DISABLE, true);
                     req.getHints().put(KEY_CH_DISABLE, true);
                 }
                 if (mGraphHopper.isCoreEnabled() && optimized) {
-                    req.getHints().put("core.disable", false);
-                    req.getHints().put("lm.disable", true);
-                    req.getHints().put("ch.disable", true);
-                    req.setAlgorithm("astarbi");
+                    req.getHints().put(KEY_CORE_DISABLE, false);
+                    req.getHints().put(KEY_LM_DISABLE, true);
+                    req.getHints().put(KEY_CH_DISABLE, true);
+                    req.setAlgorithm(KEY_ASTARBI);
                 }
             } else {
                 if (mGraphHopper.isCHEnabled()) {
@@ -937,20 +938,20 @@ public class RoutingProfile {
                 }
                 else {
                     if (mGraphHopper.isCoreEnabled() && optimized) {
-                        req.getHints().put("core.disable", false);
-                        req.getHints().put("lm.disable", true);
-                        req.getHints().put("ch.disable", true);
-                        req.setAlgorithm("astarbi");
+                        req.getHints().put(KEY_CORE_DISABLE, false);
+                        req.getHints().put(KEY_LM_DISABLE, true);
+                        req.getHints().put(KEY_CH_DISABLE, true);
+                        req.setAlgorithm(KEY_ASTARBI);
                     }
                     else {
-                        req.getHints().put("ch.disable", true);
-                        req.getHints().put("core.disable", true);
+                        req.getHints().put(KEY_CH_DISABLE, true);
+                        req.getHints().put(RoutingProfile.KEY_CORE_DISABLE, true);
                     }
                 }
             }
             //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
             if(searchParams.requiresFallbackAlgorithm()) {
-                req.setAlgorithm("astarbi");
+                req.setAlgorithm(KEY_ASTARBI);
                 req.getHints().put(KEY_LM_DISABLE, false);
                 req.getHints().put(KEY_CORE_DISABLE, true);
                 req.getHints().put(KEY_CH_DISABLE, true);

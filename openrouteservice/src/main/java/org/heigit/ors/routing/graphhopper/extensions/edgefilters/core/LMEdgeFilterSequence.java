@@ -14,12 +14,10 @@
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class LMEdgeFilterSequence extends EdgeFilterSequence implements EdgeFilter {
 
@@ -48,7 +46,7 @@ public class LMEdgeFilterSequence extends EdgeFilterSequence implements EdgeFilt
 	 * */
 	private boolean isAvoidCountry(String countries){
 		ArrayList<Integer> queryCountries = new ArrayList<>();
-		if(!(countries == "" || countries == "[]")) {
+		if(!(countries.equals("") || countries.equals("[]"))) {
 			//Cut away the brackets
 			countries = countries.substring(1, countries.length() - 1);
 			String[] countryList = countries.split(", ");
@@ -84,10 +82,8 @@ public class LMEdgeFilterSequence extends EdgeFilterSequence implements EdgeFilt
 				//Some bit magic to find if the storage bits are a subset of the query bits, but not the other way around
 				int reverseQueryFeatures = Integer.MAX_VALUE ^ avoidable;
 				int filterFeatures = ((AvoidFeaturesCoreEdgeFilter) edgeFilter).getAvoidFeatures();
-				if ((reverseQueryFeatures & filterFeatures) == 0)
-					return true;
-				return false;
-			}
+                return (reverseQueryFeatures & filterFeatures) == 0;
+            }
 		}
 		return true;
 	}

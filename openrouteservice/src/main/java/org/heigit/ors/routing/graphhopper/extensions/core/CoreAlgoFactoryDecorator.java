@@ -42,7 +42,7 @@ import java.util.concurrent.Executors;
  * @author Hendrik Leuschner
  */
 public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorator {
-    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoreAlgoFactoryDecorator.class);
     private final List<PrepareCore> preparations = new ArrayList<>();
     // we need to decouple weighting objects from the weighting list of strings
     // as we need the strings to create the GraphHopperStorage and the GraphHopperStorage to create the preparations from the Weighting objects currently requiring the encoders
@@ -253,14 +253,14 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
         if (map.getWeighting().isEmpty())
             map.setWeighting(getDefaultWeighting());
 
-        String entriesStr = "";
+        StringBuilder entriesStr = new StringBuilder();
         for (PrepareCore p : preparations) {
             if (p.getWeighting().matches(map))
                 return p;
-
-            entriesStr += p.getWeighting() + ", ";
+            if (entriesStr.length() > 0)
+                entriesStr.append(", ");
+            entriesStr.append(p.getWeighting());
         }
-
         throw new IllegalArgumentException("Cannot find Core RoutingAlgorithmFactory for weighting map " + map + " in entries " + entriesStr);
     }
 
@@ -281,16 +281,14 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
         ExecutorCompletionService completionService = new ExecutorCompletionService<>(threadPool);
         int counter = 0;
         for (final PrepareCore prepare : getPreparations()) {
-            LOGGER.info((++counter) + "/" + getPreparations().size() + " calling Core prepare.doWork for " + prepare.getWeighting() + " ... (" + Helper.getMemInfo() + ")");
+            if (LOGGER.isInfoEnabled())
+                LOGGER.info(String.format("%d/%d calling Core prepare.doWork for %s ... (%s)", ++counter, getPreparations().size(), prepare.getWeighting(), Helper.getMemInfo()));
             final String name = AbstractWeighting.weightingToFileName(prepare.getWeighting(), false);
-            completionService.submit(new Runnable() {
-                @Override
-                public void run() {
-                    // toString is not taken into account so we need to cheat, see http://stackoverflow.com/q/6113746/194609 for other options
-                    Thread.currentThread().setName(name);
-                    prepare.doWork();
-                    properties.put(Core.PREPARE + "date." + name, Helper.createFormatter().format(new Date()));
-                }
+            completionService.submit(() -> {
+                // toString is not taken into account so we need to cheat, see http://stackoverflow.com/q/6113746/194609 for other options
+                Thread.currentThread().setName(name);
+                prepare.doWork();
+                properties.put(Core.PREPARE + "date." + name, Helper.createFormatter().format(new Date()));
             }, name);
 
         }

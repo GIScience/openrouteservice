@@ -47,8 +47,8 @@ public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
     @Override
     public final boolean accept(EdgeIteratorState iter) {
         //If a specific country was given, just check if its one of the country borders
-        if(iter instanceof CHEdgeIterator)
-            if(((CHEdgeIterator)iter).isShortcut()) return true;
+        if(iter instanceof CHEdgeIterator && ((CHEdgeIterator)iter).isShortcut())
+            return true;
         if(isAvoidCountries)
             return !restrictedCountry(iter.getEdge());
         //else check if there is ANY border

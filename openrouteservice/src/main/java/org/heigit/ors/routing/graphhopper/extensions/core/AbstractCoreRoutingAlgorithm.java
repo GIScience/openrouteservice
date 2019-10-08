@@ -20,9 +20,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
-import com.graphhopper.util.*;
-
-import java.util.PriorityQueue;
+import com.graphhopper.util.EdgeIterator;
 
 /**
  * Calculates best path using core routing algorithm.
@@ -41,13 +39,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     int visitedCountTo2;
     int visitedEdgesALTCount;
 
-    protected PathBidirRef bestPath;
-    protected boolean updateBestPath = true;
-
-    CHGraph chGraph;
-    int coreNodeLevel;
-
-    private CoreDijkstraFilter additionalEdgeFilter;
+    private CoreDijkstraFilter additionalCoreEdgeFilter;
 
     boolean inCore;
 
@@ -62,6 +54,12 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     }
 
     protected abstract void initCollections(int size);
+    protected PathBidirRef bestPath;
+    protected boolean doUpdateBestPath = true;
+
+    CHGraph chGraph;
+    int coreNodeLevel;
+
 
     public abstract void initFrom(int from, double weight);
 
@@ -119,18 +117,18 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         return bestPath;
     }
 
-    protected void setUpdateBestPath(boolean b) {
-        updateBestPath = b;
+    protected void setDoUpdateBestPath(boolean b) {
+        doUpdateBestPath = b;
     }
 
     protected void runAlgo() {
         // PHASE 1: run modified CH outside of core to find entry points
         inCore = false;
-        additionalEdgeFilter.setInCore(false);
+        additionalCoreEdgeFilter.setInCore(false);
         runPhase1();
 
         // PHASE 2 Perform routing in core with the restrictions filter
-        additionalEdgeFilter.setInCore(true);
+        additionalCoreEdgeFilter.setInCore(true);
         inCore = true;
         runPhase2();
     }
@@ -159,14 +157,14 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     }
 
     public RoutingAlgorithm setEdgeFilter(CoreDijkstraFilter additionalEdgeFilter) {
-        this.additionalEdgeFilter = additionalEdgeFilter;
+        this.additionalCoreEdgeFilter = additionalEdgeFilter;
         return this;
     }
     protected boolean accept(EdgeIterator iter, int prevOrNextEdgeId) {
         if (!traversalMode.hasUTurnSupport() && iter.getEdge() == prevOrNextEdgeId)
             return false;
 
-        return additionalEdgeFilter == null || additionalEdgeFilter.accept(iter);
+        return additionalCoreEdgeFilter == null || additionalCoreEdgeFilter.accept(iter);
     }
 
     protected SPTEntry createSPTEntry(int node, double weight) {

@@ -54,7 +54,10 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     private PriorityQueue<AStarEntry> fromPriorityQueueCore;
     private PriorityQueue<AStarEntry> toPriorityQueueCore;
 
-    int from, to, fromProxy, toProxy;
+    int from;
+    int to;
+    int fromProxy;
+    int toProxy;
 
     double approximatorOffset;
 
@@ -69,11 +72,11 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
 
     @Override
     protected void initCollections(int size) {
-        fromPriorityQueueCH = new PriorityQueue<AStarEntry>(size);
-        bestWeightMapFrom = new GHIntObjectHashMap<AStarEntry>(size);
+        fromPriorityQueueCH = new PriorityQueue<>(size);
+        bestWeightMapFrom = new GHIntObjectHashMap<>(size);
 
-        toPriorityQueueCH = new PriorityQueue<AStarEntry>(size);
-        bestWeightMapTo = new GHIntObjectHashMap<AStarEntry>(size);
+        toPriorityQueueCH = new PriorityQueue<>(size);
+        bestWeightMapTo = new GHIntObjectHashMap<>(size);
 
         fromPriorityQueueCore = new PriorityQueue<>(size);
         toPriorityQueueCore = new PriorityQueue<>(size);
@@ -87,7 +90,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         return this;
     }
 
-//    @Override
+    @Override
     protected SPTEntry createSPTEntry(int node, double weight) {
         throw new IllegalStateException("use AStarEdge constructor directly");
     }
@@ -292,7 +295,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             } else
                 continue;
 
-            if (updateBestPath)
+            if (doUpdateBestPath)
                 updateBestPath(iter, aStarEntry, traversalId);
         }
     }
@@ -363,7 +366,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                 aStarEntry.parent = currEdge;
                 prioQueueOpenSet.add(aStarEntry);
 
-                if (updateBestPath)
+                if (doUpdateBestPath)
                     updateBestPath(iter, aStarEntry, traversalId);
             }
         }

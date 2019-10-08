@@ -122,13 +122,13 @@ class CoreNodeContractor {
         EdgeIterator incomingEdges = vehicleInExplorer.setBaseNode(sch.getNode());
         // collect outgoing nodes (goal-nodes) only once
         while (incomingEdges.next()) {
-            int u_fromNode = incomingEdges.getAdjNode();
+            int uFromNode = incomingEdges.getAdjNode();
             // accept only uncontracted nodes
-            if (prepareGraph.getLevel(u_fromNode) != maxLevel)
+            if (prepareGraph.getLevel(uFromNode) != maxLevel)
                 continue;
 
-            double v_u_dist = incomingEdges.getDistance();
-            double v_u_weight = prepareWeighting.calcWeight(incomingEdges, true, EdgeIterator.NO_EDGE);
+            double vuDist = incomingEdges.getDistance();
+            double vuWeight = prepareWeighting.calcWeight(incomingEdges, true, EdgeIterator.NO_EDGE);
             int skippedEdge1 = incomingEdges.getEdge();
             int incomingEdgeOrigCount = getOrigEdgeCount(skippedEdge1);
             // collect outgoing nodes (goal-nodes) only once
@@ -137,15 +137,15 @@ class CoreNodeContractor {
             prepareAlgo.clear();
             tmpDegreeCounter++;
             while (outgoingEdges.next()) {
-                int w_toNode = outgoingEdges.getAdjNode();
+                int wToNode = outgoingEdges.getAdjNode();
                 // add only uncontracted nodes
-                if (prepareGraph.getLevel(w_toNode) != maxLevel || u_fromNode == w_toNode)
+                if (prepareGraph.getLevel(wToNode) != maxLevel || uFromNode == wToNode)
                     continue;
 
                 // Limit weight as ferries or forbidden edges can increase local search too much.
                 // If we decrease the correct weight we only explore less and introduce more shortcuts.
                 // I.e. no change to accuracy is made.
-                double existingDirectWeight = v_u_weight
+                double existingDirectWeight = vuWeight
                         + prepareWeighting.calcWeight(outgoingEdges, false, incomingEdges.getEdge());
                 if (Double.isNaN(existingDirectWeight))
                     throw new IllegalStateException("Weighting should never return NaN values" + ", in:"
@@ -155,22 +155,22 @@ class CoreNodeContractor {
                 if (Double.isInfinite(existingDirectWeight))
                     continue;
 
-                double existingDistSum = v_u_dist + outgoingEdges.getDistance();
+                double existingDistSum = vuDist + outgoingEdges.getDistance();
                 prepareAlgo.setWeightLimit(existingDirectWeight);
                 prepareAlgo.setMaxVisitedNodes(maxVisitedNodes);
                 prepareAlgo.setEdgeFilter(ignoreNodeFilterSequence.setAvoidNode(sch.getNode()));
 
                 dijkstraSW.start();
                 dijkstraCount++;
-                int endNode = prepareAlgo.findEndNode(u_fromNode, w_toNode);
+                int endNode = prepareAlgo.findEndNode(uFromNode, wToNode);
                 dijkstraSW.stop();
 
                 // compare end node as the limit could force dijkstra to finish earlier
-                if (endNode == w_toNode && prepareAlgo.getWeight(endNode) <= existingDirectWeight)
+                if (endNode == wToNode && prepareAlgo.getWeight(endNode) <= existingDirectWeight)
                     // FOUND witness path, so do not add shortcut
                     continue;
                 
-                sch.foundShortcut(u_fromNode, w_toNode,
+                sch.foundShortcut(uFromNode, wToNode,
                         existingDirectWeight, existingDistSum,
                         outgoingEdges.getEdge(), getOrigEdgeCount(outgoingEdges.getEdge()),
                         skippedEdge1, incomingEdgeOrigCount);

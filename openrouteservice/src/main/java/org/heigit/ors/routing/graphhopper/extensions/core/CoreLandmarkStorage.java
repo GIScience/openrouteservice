@@ -28,7 +28,6 @@ import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.util.spatialrules.SpatialRule;
 import com.graphhopper.routing.util.spatialrules.SpatialRuleLookup;
 import com.graphhopper.routing.weighting.AbstractWeighting;
-import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
@@ -60,15 +59,15 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
     // This value should only be used if subnetwork is too small to be explicitely stored
     private static final int UNCLEAR_SUBNETWORK = 0;
     // one node has an associated landmark information ('one landmark row'): the forward and backward weight
-    private long LM_ROW_LENGTH;
+    private long lmRowLength;
     private int landmarks;
-    private final int FROM_OFFSET;
-    private final int TO_OFFSET;
+    private final int fromOffset;
+    private final int toOffset;
     private final DataAccess landmarkWeightDA;
     /* every subnetwork has its own landmark mapping but the count of landmarks is always the same */
     private final List<int[]> landmarkIDs;
     private double factor = -1;
-    private final static double DOUBLE_MLTPL = 1e6;
+    private static final double DOUBLE_MLTPL = 1e6;
     private final GraphHopperStorage graph;
     private final CHGraphImpl core;
     private final FlagEncoder encoder;
@@ -85,14 +84,13 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
     private LMEdgeFilterSequence landmarksFilter;
     private int count = 0;
 
-    private HashMap<Integer, Integer> coreNodeIdMap;
+    private Map<Integer, Integer> coreNodeIdMap;
     /**
      * 'to' and 'from' fit into 32 bit => 16 bit for each of them => 65536
      */
     static final long PRECISION = 1 << 16;
 
-    public CoreLandmarkStorage(Directory dir, GraphHopperStorage graph, HashMap<Integer, Integer> coreNodeIdMap, final Weighting weighting, LMEdgeFilterSequence landmarksFilter, int landmarks) {
-//        super(graph, dir, weighting, landmarks);
+    public CoreLandmarkStorage(Directory dir, GraphHopperStorage graph, Map<Integer, Integer> coreNodeIdMap, final Weighting weighting, LMEdgeFilterSequence landmarksFilter, int landmarks) {
         this.graph = graph;
         this.coreNodeIdMap = coreNodeIdMap;
         this.core = graph.getCoreGraph(weighting);
@@ -144,9 +142,9 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
         this.landmarks = landmarks;
         // one short per landmark and two directions => 2*2 byte
-        this.LM_ROW_LENGTH = landmarks * 4;
-        this.FROM_OFFSET = 0;
-        this.TO_OFFSET = 2;
+        this.lmRowLength = landmarks * 4L;
+        this.fromOffset = 0;
+        this.toOffset = 2;
         this.landmarkIDs = new ArrayList<>();
         this.subnetworkStorage = new SubnetworkStorage(dir, "landmarks_core_" + name);
     }
@@ -159,11 +157,11 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
         int skippedEdge1 = mainEdgeState.getSkippedEdge1();
         int skippedEdge2 = mainEdgeState.getSkippedEdge2();
-        int from = mainEdgeState.getBaseNode(), to = mainEdgeState.getAdjNode();
+        int from = mainEdgeState.getBaseNode();
+        int to = mainEdgeState.getAdjNode();
 
 
-
-            CHEdgeIteratorState iter = core.getEdgeIteratorState(skippedEdge1, from);
+        CHEdgeIteratorState iter = core.getEdgeIteratorState(skippedEdge1, from);
             boolean empty = iter == null;
             if (empty)
                 iter =  core.getEdgeIteratorState(skippedEdge2, from);
@@ -187,7 +185,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             throw new IllegalStateException("Initialize the landmark storage only once!");
 
         // fill 'from' and 'to' weights with maximum value
-        long maxBytes = (long) core.getCoreNodes() * LM_ROW_LENGTH;
+        long maxBytes = (long) core.getCoreNodes() * lmRowLength;
         this.landmarkWeightDA.create(2000);
         this.landmarkWeightDA.ensureCapacity(maxBytes);
 
@@ -217,9 +215,8 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             additionalInfo = ", maxWeight:" + maxWeight + ", from max distance:" + distanceInMeter / 1000f + "km";
         }
 
-        if (logDetails)
-            LOGGER.info("init landmarks for subnetworks with node count greater than " + minimumNodes + " with factor:"
-                    + factor + additionalInfo);
+        if (logDetails && LOGGER.isInfoEnabled())
+            LOGGER.info(String.format("init landmarks for subnetworks with node count greater than %d with factor:%s%s", minimumNodes, factor, additionalInfo));
 
         int[] empty = new int[landmarks];
         Arrays.fill(empty, UNSET_SUBNETWORK);
@@ -234,12 +231,11 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         if (ruleLookup != null && ruleLookup.size() > 0) {
             StopWatch sw = new StopWatch().start();
             blockedEdges = findBorderEdgeIds(ruleLookup);
-            if (logDetails)
-                LOGGER.info("Made " + blockedEdges.size() + " edges inaccessible. Calculated country cut in "
-                        + sw.stop().getSeconds() + "s, " + Helper.getMemInfo());
+            if (logDetails&& LOGGER.isInfoEnabled())
+                LOGGER.info(String.format("Made %d edges inaccessible. Calculated country cut in %ss, %s", blockedEdges.size(), sw.stop().getSeconds(), Helper.getMemInfo()));
         }
 
-        tarjanFilter.add(new CoreAndBlockedEdgesFilter(encoder, false, true, blockedEdges, graph));
+        tarjanFilter.add(new CoreAndBlockedEdgesFilter(encoder, false, true, blockedEdges));
         tarjanFilter.add(landmarksFilter);
 
 
@@ -249,10 +245,9 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         // also calculating subnetworks from scratch makes bigger problems when working with many oneways
         TarjansCoreSCCAlgorithm tarjanAlgo = new TarjansCoreSCCAlgorithm(graph, core,  tarjanFilter, false);
         List<IntArrayList> graphComponents = tarjanAlgo.findComponents();
-        if (logDetails)
-            LOGGER.info("Calculated " + graphComponents.size() + " subnetworks via tarjan in " + sw.stop().getSeconds()
-                    + "s, " + Helper.getMemInfo());
-        CHEdgeExplorer tmpExplorer = this.core.createEdgeExplorer(new CoreAndRequireBothDirectionsEdgeFilter(encoder, graph));
+        if (logDetails && LOGGER.isInfoEnabled())
+            LOGGER.info(String.format("Calculated %d subnetworks via tarjan in %ss, %s", graphComponents.size(), sw.stop().getSeconds(), Helper.getMemInfo()));
+        CHEdgeExplorer tmpExplorer = this.core.createEdgeExplorer(new CoreAndRequireBothDirectionsEdgeFilter(encoder));
 
         int nodes = 0;
         for (IntArrayList subnetworkIds : graphComponents) {
@@ -265,11 +260,9 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             for (; index >= 0; index--) {
                 int nextStartNode = subnetworkIds.get(index);
                 if (subnetworks[coreNodeIdMap.get(nextStartNode)] == UNSET_SUBNETWORK
-                        && GHUtility.count(tmpExplorer.setBaseNode(nextStartNode)) > 0) {
-
-                    if (createLandmarksForSubnetwork(nextStartNode, subnetworks, blockedEdges))
-                        break;
-                }
+                    && GHUtility.count(tmpExplorer.setBaseNode(nextStartNode)) > 0
+                    && createLandmarksForSubnetwork(nextStartNode, subnetworks, blockedEdges))
+                    break;
             }
         }
 
@@ -280,20 +273,19 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
         // calculate offset to point into landmark mapping
         long bytePos = maxBytes;
-        for (int[] landmarks : landmarkIDs) {
-            for (int lmNodeId : landmarks) {
+        for (int[] localLandmarks : landmarkIDs) {
+            for (int lmNodeId : localLandmarks) {
                 landmarkWeightDA.setInt(bytePos, lmNodeId);
                 bytePos += 4L;
             }
         }
         //Changed to core
-        landmarkWeightDA.setHeader(0 * 4, core.getCoreNodes());
-        landmarkWeightDA.setHeader(1 * 4, landmarks);
-        landmarkWeightDA.setHeader(2 * 4, subnetworkCount);
+        landmarkWeightDA.setHeader(0, core.getCoreNodes());
+        landmarkWeightDA.setHeader(4, landmarks);
+        landmarkWeightDA.setHeader(8, subnetworkCount);
         if (factor * DOUBLE_MLTPL > Integer.MAX_VALUE)
-            throw new UnsupportedOperationException(
-                    "landmark weight factor cannot be bigger than Integer.MAX_VALUE " + factor * DOUBLE_MLTPL);
-        landmarkWeightDA.setHeader(3 * 4, (int) Math.round(factor * DOUBLE_MLTPL));
+            throw new UnsupportedOperationException( "landmark weight factor cannot be bigger than Integer.MAX_VALUE " + factor * DOUBLE_MLTPL);
+        landmarkWeightDA.setHeader(23, (int) Math.round(factor * DOUBLE_MLTPL));
 
         // serialize fast byte[] into DataAccess
         //Changed to core
@@ -302,10 +294,9 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             subnetworkStorage.setSubnetwork(nodeId, subnetworks[nodeId]);
         }
 
-        if (logDetails)
+        if (logDetails && LOGGER.isInfoEnabled())
             //Changed to core
-            LOGGER.info("Finished landmark creation. Subnetwork node count sum " + nodes + " vs. nodes "
-                    + core.getCoreNodes());
+            LOGGER.info(String.format("Finished landmark creation. Subnetwork node count sum %d vs. nodes %d", nodes, core.getCoreNodes()));
         initialized = true;
     }
 
@@ -315,8 +306,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
      *
      * @return landmark mapping
      */
-    protected boolean createLandmarksForSubnetwork(final int startNode, final byte[] subnetworks,
-                                                   IntHashSet blockedEdges) {
+    protected boolean createLandmarksForSubnetwork(final int startNode, final byte[] subnetworks, IntHashSet blockedEdges) {
         final int subnetworkId = landmarkIDs.size();
         int[] tmpLandmarkNodeIds = new int[landmarks];
         int logOffset = Math.max(1, tmpLandmarkNodeIds.length / 2);
@@ -324,7 +314,8 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
         if (!landmarkSuggestions.isEmpty()) {
             NodeAccess na = graph.getNodeAccess();
-            double lat = na.getLatitude(startNode), lon = na.getLongitude(startNode);
+            double lat = na.getLatitude(startNode);
+            double lon = na.getLongitude(startNode);
             LandmarkSuggestion selectedSuggestion = null;
             for (LandmarkSuggestion lmsugg : landmarkSuggestions) {
                 if (lmsugg.getBox().contains(lat, lon)) {
@@ -346,16 +337,15 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             }
         }
 
-        if (pickedPrecalculatedLandmarks) {
-            LOGGER.info("Picked " + tmpLandmarkNodeIds.length
-                    + " landmark suggestions, skipped expensive landmark determination");
-        } else {
+        if (pickedPrecalculatedLandmarks && LOGGER.isInfoEnabled())
+            LOGGER.info(String.format("Picked %d landmark suggestions, skipped expensive landmark determination", tmpLandmarkNodeIds.length));
+        else {
             // 1a) pick landmarks via special weighting for a better geographical spreading
             Weighting initWeighting = lmSelectionWeighting;
             CoreLandmarkExplorer explorer = new CoreLandmarkExplorer(graph, this, initWeighting, traversalMode);
             explorer.initFrom(startNode, 0);
             EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
-            coreEdgeFilter.add(new CoreAndBlockedEdgesFilter(encoder, true, true, blockedEdges, graph));
+            coreEdgeFilter.add(new CoreAndBlockedEdgesFilter(encoder, true, true, blockedEdges));
             coreEdgeFilter.add(landmarksFilter);
             explorer.setFilter(coreEdgeFilter);
             explorer.runAlgo(true, coreEdgeFilter);
@@ -400,35 +390,30 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             CoreLandmarkExplorer explorer = new CoreLandmarkExplorer(graph, this, lmWeighting, traversalMode);
             explorer.initFrom(lmNodeId, 0);
             EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
-            coreEdgeFilter.add(new CoreAndBlockedEdgesFilter(encoder, false, true, blockedEdges, graph));
+            coreEdgeFilter.add(new CoreAndBlockedEdgesFilter(encoder, false, true, blockedEdges));
             coreEdgeFilter.add(landmarksFilter);
             explorer.setFilter(coreEdgeFilter);
             explorer.runAlgo(true, coreEdgeFilter);
-            explorer.initLandmarkWeights(lmIdx, lmNodeId, LM_ROW_LENGTH, FROM_OFFSET);
+            explorer.initLandmarkWeights(lmIdx, lmNodeId, lmRowLength, fromOffset);
 
             // set subnetwork id to all explored nodes, but do this only for the first landmark
-            if (lmIdx == 0) {
-                if (explorer.setSubnetworks(subnetworks, subnetworkId))
-                    return false;
-            }
+            if (lmIdx == 0 && explorer.setSubnetworks(subnetworks, subnetworkId))
+                return false;
 
             explorer = new CoreLandmarkExplorer(graph, this, lmWeighting, traversalMode);
             explorer.initTo(lmNodeId, 0);
             EdgeFilterSequence coreEdgeFilterBWD = new EdgeFilterSequence();
-            coreEdgeFilterBWD.add(new CoreAndBlockedEdgesFilter(encoder, true, false, blockedEdges, graph));
+            coreEdgeFilterBWD.add(new CoreAndBlockedEdgesFilter(encoder, true, false, blockedEdges));
             coreEdgeFilterBWD.add(landmarksFilter);
             explorer.setFilter(coreEdgeFilterBWD);
             explorer.runAlgo(false, coreEdgeFilterBWD);
-            explorer.initLandmarkWeights(lmIdx, lmNodeId, LM_ROW_LENGTH, TO_OFFSET);
+            explorer.initLandmarkWeights(lmIdx, lmNodeId, lmRowLength, toOffset);
 
-            if (lmIdx == 0) {
-                if (explorer.setSubnetworks(subnetworks, subnetworkId))
-                    return false;
-            }
+            if (lmIdx == 0 && explorer.setSubnetworks(subnetworks, subnetworkId))
+                return false;
 
-            if (logDetails && lmIdx % logOffset == 0)
-                LOGGER.info("Set landmarks weights [" + lmWeighting + "]. " + "Progress "
-                        + (int) (100.0 * lmIdx / tmpLandmarkNodeIds.length) + "%");
+            if (logDetails && lmIdx % logOffset == 0 && LOGGER.isInfoEnabled())
+                LOGGER.info(String.format("Set landmarks weights [%s]. Progress %d%%", lmWeighting, (int) (100.0 * lmIdx / tmpLandmarkNodeIds.length)));
         }
 
         // TODO (Peter TODO) set weight to SHORT_MAX if entry has either no 'from' or no 'to' entry
@@ -444,16 +429,16 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             if (!subnetworkStorage.loadExisting())
                 throw new IllegalStateException("landmark weights loaded but not the subnetworks!?");
 
-            int nodes = landmarkWeightDA.getHeader(0 * 4);
+            int nodes = landmarkWeightDA.getHeader(0);
             if (nodes != core.getCoreNodes())
                 throw new IllegalArgumentException(
                         "Cannot load landmark data as written for different graph storage with " + nodes
                                 + " nodes, not " + core.getCoreNodes());
-            landmarks = landmarkWeightDA.getHeader(1 * 4);
-            int subnetworks = landmarkWeightDA.getHeader(2 * 4);
-            factor = landmarkWeightDA.getHeader(3 * 4) / DOUBLE_MLTPL;
-            LM_ROW_LENGTH = landmarks * 4;
-            long maxBytes = LM_ROW_LENGTH * nodes;
+            landmarks = landmarkWeightDA.getHeader(4);
+            int subnetworks = landmarkWeightDA.getHeader(8);
+            factor = landmarkWeightDA.getHeader(12) / DOUBLE_MLTPL;
+            lmRowLength = landmarks * 4L;
+            long maxBytes = lmRowLength * nodes;
             long bytePos = maxBytes;
 
             // in the first subnetwork 0 there are no landmark IDs stored
@@ -595,9 +580,10 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
      * a node ID but the internal index of the landmark array.
      */
     public int getFromWeight(int landmarkIndex, int node) {
-        int res = (int) landmarkWeightDA.getShort((long) coreNodeIdMap.get(node) * LM_ROW_LENGTH + landmarkIndex * 4 + FROM_OFFSET)
+        int res = (int) landmarkWeightDA.getShort((long) coreNodeIdMap.get(node) * lmRowLength + landmarkIndex * 4 + fromOffset)
                 & 0x0000FFFF;
-        assert res >= 0 : "Negative to weight " + res + ", landmark index:" + landmarkIndex + ", node:" + node;
+        if (res < 0)
+            throw new AssertionError("Negative to weight " + res + ", landmark index:" + landmarkIndex + ", node:" + node);
         if (res == SHORT_INFINITY)
             // TODO can happen if endstanding oneway
             // we should set a 'from' value to SHORT_MAX if the 'to' value was already set to find real bugs
@@ -612,9 +598,10 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
      * @return the weight from the specified node to the landmark (specified *as index*)
      */
     public int getToWeight(int landmarkIndex, int node) {
-        int res = (int) landmarkWeightDA.getShort((long) coreNodeIdMap.get(node) * LM_ROW_LENGTH + landmarkIndex * 4 + TO_OFFSET)
+        int res = (int) landmarkWeightDA.getShort((long) coreNodeIdMap.get(node) * lmRowLength + landmarkIndex * 4 + toOffset)
                 & 0x0000FFFF;
-        assert res >= 0 : "Negative to weight " + res + ", landmark index:" + landmarkIndex + ", node:" + node;
+        if (res < 0)
+            throw new AssertionError("Negative to weight " + res + ", landmark index:" + landmarkIndex + ", node:" + node);
         if (res == SHORT_INFINITY)
             return SHORT_MAX;
         //            throw new IllegalStateException("Do not call getToWeight for wrong landmark[" + landmarkIndex + "]=" + landmarkIDs[landmarkIndex] + " and node " + node);
@@ -741,13 +728,13 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
     @Override
     public String toString() {
-        String str = "";
+        StringBuilder str = new StringBuilder();
         for (int[] ints : landmarkIDs) {
-            if (!str.isEmpty())
-                str += ", ";
-            str += Arrays.toString(ints);
+            if (str.length() > 0)
+                str.append(", ");
+            str.append(Arrays.toString(ints));
         }
-        return str;
+        return str.toString();
     }
 
     /**
@@ -755,21 +742,19 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
      */
     public String getLandmarksAsGeoJSON() {
         NodeAccess na = graph.getNodeAccess();
-        String str = "";
+        StringBuilder str = new StringBuilder();
         for (int subnetwork = 1; subnetwork < landmarkIDs.size(); subnetwork++) {
             int[] lmArray = landmarkIDs.get(subnetwork);
             for (int lmIdx = 0; lmIdx < lmArray.length; lmIdx++) {
                 int index = lmArray[lmIdx];
-                if (!str.isEmpty())
-                    str += ",";
-
-                str += "{ \"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": ["
-                        + na.getLon(index) + ", " + na.getLat(index) + "]},";
-                str += "  \"properties\":{\"node_index\":" + index + "," + "\"subnetwork\":" + subnetwork + ","
-                        + "\"lm_index\":" + lmIdx + "}" + "}";
+                if (str.length() > 0)
+                    str.append(",");
+                str.append("{ \"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [")
+                    .append(na.getLon(index)).append(", ").append(na.getLat(index)).append("]},")
+                    .append("  \"properties\":{\"node_index\":").append(index).append(",").append("\"subnetwork\":")
+                    .append(subnetwork).append(",").append("\"lm_index\":").append(lmIdx).append("}}");
             }
         }
-
         return "{ \"type\": \"FeatureCollection\", \"features\": [" + str + "]}";
     }
 
@@ -801,19 +786,21 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         return landmarkWeightDA.getCapacity() + subnetworkStorage.getCapacity();
     }
 
-
-
     /**
      * This class is used to calculate landmark location (equally distributed).
      */
     protected class CoreLandmarkExplorer extends DijkstraBidirectionRef {
         private int lastNode;
-        private boolean from;
+        private boolean fromMode;
         private final CoreLandmarkStorage lms;
 
         public CoreLandmarkExplorer(Graph g, CoreLandmarkStorage lms, Weighting weighting, TraversalMode tMode) {
             super(g, weighting, tMode);
             this.lms = lms;
+        }
+
+        private GHPoint createPoint(Graph graph, int nodeId) {
+            return new GHPoint(graph.getNodeAccess().getLatitude(nodeId), graph.getNodeAccess().getLongitude(nodeId));
         }
 
         public void setFilter(EdgeFilter filter) {
@@ -852,13 +839,13 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             else
                 finishedFrom = true;
 
-            this.from = from;
+            this.fromMode = from;
             super.runAlgo();
         }
 
         @Override
         public boolean finished() {
-            if (from) {
+            if (fromMode) {
                 lastNode = currFrom.adjNode;
                 return finishedFrom;
             } else {
@@ -872,51 +859,46 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
                 throw new IllegalStateException("Too many subnetworks " + subnetworkId);
 
             final AtomicBoolean failed = new AtomicBoolean(false);
-            IntObjectMap<SPTEntry> map = from ? bestWeightMapFrom : bestWeightMapTo;
-            map.forEach(new IntObjectPredicate<SPTEntry>() {
-                @Override
-                public boolean apply(int nodeId, SPTEntry value) {
-                    int sn = subnetworks[coreNodeIdMap.get(nodeId)];
-                    if (sn != subnetworkId) {
-                        if (sn != UNSET_SUBNETWORK && sn != UNCLEAR_SUBNETWORK) {
-                            // this is ugly but can happen in real world, see testWithOnewaySubnetworks
-                            LOGGER.error("subnetworkId for node " + nodeId + " (" + createPoint(graph, nodeId)
-                                    + ") already set (" + sn + "). " + "Cannot change to " + subnetworkId);
+            IntObjectMap<SPTEntry> map = fromMode ? bestWeightMapFrom : bestWeightMapTo;
+            map.forEach((IntObjectPredicate<SPTEntry>) (nodeId, value) -> {
+                int sn = subnetworks[coreNodeIdMap.get(nodeId)];
+                if (sn != subnetworkId) {
+                    if (sn != UNSET_SUBNETWORK && sn != UNCLEAR_SUBNETWORK) {
+                        // this is ugly but can happen in real world, see testWithOnewaySubnetworks
+                        LOGGER.error("subnetworkId for node " + nodeId + " (" + createPoint(graph, nodeId)
+                                + ") already set (" + sn + "). " + "Cannot change to " + subnetworkId);
 
-                            failed.set(true);
-                            return false;
-                        }
-
-                        subnetworks[coreNodeIdMap.get(nodeId)] = (byte) subnetworkId;
+                        failed.set(true);
+                        return false;
                     }
-                    return true;
+
+                    subnetworks[coreNodeIdMap.get(nodeId)] = (byte) subnetworkId;
                 }
+                return true;
             });
             return failed.get();
         }
 
         public void initLandmarkWeights(final int lmIdx, int lmNodeId, final long rowSize, final int offset) {
-            IntObjectMap<SPTEntry> map = from ? bestWeightMapFrom : bestWeightMapTo;
+            IntObjectMap<SPTEntry> map = fromMode ? bestWeightMapFrom : bestWeightMapTo;
             final AtomicInteger maxedout = new AtomicInteger(0);
             final Map.Entry<Double, Double> finalMaxWeight = new MapEntry<>(0d, 0d);
 
-            map.forEach(new IntObjectProcedure<SPTEntry>() {
-                @Override
-                public void apply(int nodeId, SPTEntry b) {
-                    nodeId = coreNodeIdMap.get(nodeId);
-                    if (!lms.setWeight(nodeId * rowSize + lmIdx * 4 + offset, b.weight)) {
-                        maxedout.incrementAndGet();
-                        finalMaxWeight.setValue(Math.max(b.weight, finalMaxWeight.getValue()));
-                    }
+            map.forEach((IntObjectProcedure<SPTEntry>) (nodeId, b) -> {
+                nodeId = coreNodeIdMap.get(nodeId);
+                if (!lms.setWeight(nodeId * rowSize + lmIdx * 4 + offset, b.weight)) {
+                    maxedout.incrementAndGet();
+                    finalMaxWeight.setValue(Math.max(b.weight, finalMaxWeight.getValue()));
                 }
             });
 
-            if ((double) maxedout.get() / map.size() > 0.1) {
-                LOGGER.warn("landmark " + lmIdx + " (" + nodeAccess.getLatitude(lmNodeId) + ","
-                        + nodeAccess.getLongitude(lmNodeId) + "): " + "too many weights were maxed out ("
-                        + maxedout.get() + "/" + map.size() + "). Use a bigger factor than " + lms.factor
-                        + ". For example use the following in the config.properties: weighting=" + weighting.getName()
-                        + "|maximum=" + finalMaxWeight.getValue() * 1.2);
+            if ((double) maxedout.get() / map.size() > 0.1 && LOGGER.isInfoEnabled()) {
+                LOGGER.warn(new StringBuilder().append("landmark ")
+                    .append(lmIdx).append(" (").append(nodeAccess.getLatitude(lmNodeId)).append(",")
+                    .append(nodeAccess.getLongitude(lmNodeId)).append("): ").append("too many weights were maxed out (")
+                    .append(maxedout.get()).append("/").append(map.size()).append("). Use a bigger factor than ")
+                    .append(lms.factor).append(". For example use the following in the config.properties: weighting=")
+                    .append(weighting.getName()).append("|maximum=").append(finalMaxWeight.getValue() * 1.2).toString());
             }
         }
     }
@@ -924,16 +906,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
     /**
      * Sort landmark by weight and let maximum weight come first, to pick best active landmarks.
      */
-    final static Comparator<Map.Entry<Integer, Integer>> SORT_BY_WEIGHT = new Comparator<Map.Entry<Integer, Integer>>() {
-        @Override
-        public int compare(Map.Entry<Integer, Integer> o1, Map.Entry<Integer, Integer> o2) {
-            return Integer.compare(o2.getKey(), o1.getKey());
-        }
-    };
-
-    static GHPoint createPoint(Graph graph, int nodeId) {
-        return new GHPoint(graph.getNodeAccess().getLatitude(nodeId), graph.getNodeAccess().getLongitude(nodeId));
-    }
+    private static final Comparator<Map.Entry<Integer, Integer>> SORT_BY_WEIGHT = (o1, o2) -> Integer.compare(o2.getKey(), o1.getKey());
 
     protected static class RequireBothDirectionsEdgeFilter implements EdgeFilter {
 
@@ -960,14 +933,8 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         private final boolean bwd;
         private final int coreNodeLevel;
         private final int maxNodes;
-        private int base;
-        private int adj;
 
-        public CoreAndBlockedEdgesFilter(FlagEncoder encoder, boolean bwd, boolean fwd, GraphHopperStorage storage) {
-            this(encoder, bwd, fwd, new IntHashSet(), storage);
-        }
-
-        public CoreAndBlockedEdgesFilter(FlagEncoder encoder, boolean bwd, boolean fwd, IntHashSet blockedEdges, GraphHopperStorage storage) {
+        public CoreAndBlockedEdgesFilter(FlagEncoder encoder, boolean bwd, boolean fwd, IntHashSet blockedEdges) {
             this.maxNodes = core.getNodes();
             this.coreNodeLevel = this.maxNodes + 1;
             this.encoder = encoder;
@@ -978,8 +945,8 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
         @Override
         public final boolean accept(EdgeIteratorState iter) {
-            base = iter.getBaseNode();
-            adj = iter.getAdjNode();
+            int base = iter.getBaseNode();
+            int adj = iter.getAdjNode();
 
             if (base >= maxNodes || adj >= maxNodes)
                 return true;
@@ -1008,11 +975,10 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
     /**
      * Filter out edges that are NOT in the core and then super.accept
      */
-    final protected class CoreAndRequireBothDirectionsEdgeFilter extends RequireBothDirectionsEdgeFilter {
+    protected final class CoreAndRequireBothDirectionsEdgeFilter extends RequireBothDirectionsEdgeFilter {
         private final int coreNodeLevel;
 
-
-        public CoreAndRequireBothDirectionsEdgeFilter(FlagEncoder flagEncoder, GraphHopperStorage storage) {
+        public CoreAndRequireBothDirectionsEdgeFilter(FlagEncoder flagEncoder) {
             super(flagEncoder);
             this.coreNodeLevel = core.getNodes() + 1;
         }
@@ -1024,6 +990,4 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             return super.accept(iter);
         }
     }
-
-
 }

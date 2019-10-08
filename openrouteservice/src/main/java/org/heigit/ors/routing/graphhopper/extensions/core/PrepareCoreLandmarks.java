@@ -30,8 +30,8 @@ import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class does the preprocessing for the ALT algorithm (A* , landmark, triangle inequality) in the core.
@@ -45,13 +45,15 @@ import java.util.List;
  */
 public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
     private static final Logger LOGGER = LoggerFactory.getLogger(PrepareCoreLandmarks.class);
+    public static final String ERROR_NOT_INITIALIZED = "Initalize landmark storage before creating algorithms";
+    public static final String KEY_EPSILON = ".epsilon";
     private final Graph graph;
     private final CoreLandmarkStorage lms;
     private final Weighting weighting;
     private int defaultActiveLandmarks;
     private LMEdgeFilterSequence landmarksFilter;
 
-    public PrepareCoreLandmarks(Directory dir, GraphHopperStorage graph, HashMap<Integer, Integer> coreNodeIdMap, Weighting weighting, LMEdgeFilterSequence landmarksFilter, int landmarks,
+    public PrepareCoreLandmarks(Directory dir, GraphHopperStorage graph, Map<Integer, Integer> coreNodeIdMap, Weighting weighting, LMEdgeFilterSequence landmarksFilter, int landmarks,
                                 int activeLandmarks) {
         if (activeLandmarks > landmarks)
             throw new IllegalArgumentException("Default value for active landmarks " + activeLandmarks
@@ -127,9 +129,8 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
 
     @Override
     public void doSpecificWork() {
-
-        LOGGER.info("Start calculating " + lms.getLandmarkCount() + " landmarks, default active lms:"
-                + defaultActiveLandmarks + ", weighting:" + lms.getLmSelectionWeighting() + ", " + Helper.getMemInfo());
+        if (LOGGER.isInfoEnabled())
+            LOGGER.info(String.format("Start calculating %d landmarks, default active lms:%d, weighting:%s, %s", lms.getLandmarkCount(), defaultActiveLandmarks, lms.getLmSelectionWeighting(), Helper.getMemInfo()));
         lms.createLandmarks();
         lms.flush();
     }
@@ -139,9 +140,9 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
 
         if (algo instanceof CoreALT) {
             if (!lms.isInitialized())
-                throw new IllegalStateException("Initalize landmark storage before creating algorithms");
+                throw new IllegalStateException(ERROR_NOT_INITIALIZED);
 
-            double epsilon = opts.getHints().getDouble(Parameters.Algorithms.ASTAR_BI + ".epsilon", 1);
+            double epsilon = opts.getHints().getDouble(Parameters.Algorithms.ASTAR_BI + KEY_EPSILON, 1);
             CoreALT coreALT = (CoreALT) algo;
 
             coreALT.setApproximation(
@@ -151,9 +152,9 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
         }
         if (algo instanceof AStar) {
             if (!lms.isInitialized())
-                throw new IllegalStateException("Initalize landmark storage before creating algorithms");
+                throw new IllegalStateException(ERROR_NOT_INITIALIZED);
 
-            double epsilon = opts.getHints().getDouble(Parameters.Algorithms.ASTAR + ".epsilon", 1);
+            double epsilon = opts.getHints().getDouble(Parameters.Algorithms.ASTAR + KEY_EPSILON, 1);
             AStar astar = (AStar) algo;
 
             astar.setApproximation(
@@ -162,9 +163,9 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
             return algo;
         } else if (algo instanceof AStarBidirection) {
             if (!lms.isInitialized())
-                throw new IllegalStateException("Initalize landmark storage before creating algorithms");
+                throw new IllegalStateException(ERROR_NOT_INITIALIZED);
 
-            double epsilon = opts.getHints().getDouble(Parameters.Algorithms.ASTAR_BI + ".epsilon", 1);
+            double epsilon = opts.getHints().getDouble(Parameters.Algorithms.ASTAR_BI + KEY_EPSILON, 1);
             AStarBidirection astarbi = (AStarBidirection) algo;
 
             astarbi.setApproximation(
@@ -173,9 +174,9 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
             return algo;
         } else if (algo instanceof AlternativeRoute) {
             if (!lms.isInitialized())
-                throw new IllegalStateException("Initalize landmark storage before creating algorithms");
+                throw new IllegalStateException(ERROR_NOT_INITIALIZED);
 
-            double epsilon = opts.getHints().getDouble(Parameters.Algorithms.ASTAR_BI + ".epsilon", 1);
+            double epsilon = opts.getHints().getDouble(Parameters.Algorithms.ASTAR_BI + KEY_EPSILON, 1);
             AlternativeRoute altRoute = (AlternativeRoute) algo;
             //TODO  //TODO Should work with standard LMApproximator
 
@@ -193,9 +194,7 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
     public boolean matchesFilter(PMap pmap){
         //Returns true if the landmarkset is for the avoidables.
         //Also returns true if the query has no avoidables and the set has no avoidables
-        if(landmarksFilter.isFilter(pmap))
-            return true;
-        return false;
+        return landmarksFilter.isFilter(pmap);
     }
 
     /**
@@ -204,11 +203,12 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
     public void printLandmarksLongLat(){
         int[] currentSubnetwork;
         for(int subnetworkId = 1; subnetworkId < lms.getSubnetworksWithLandmarks(); subnetworkId++){
-            System.out.println("Subnetwork " + subnetworkId);
+            if (LOGGER.isInfoEnabled())
+                LOGGER.info(String.format("Subnetwork %d", subnetworkId));
             currentSubnetwork = lms.getLandmarks(subnetworkId);
             for(int landmark : currentSubnetwork){
-                System.out.println("[" + graph.getNodeAccess().getLon(landmark)
-                    + ", " + graph.getNodeAccess().getLat(landmark) + "],");
+                if (LOGGER.isInfoEnabled())
+                    LOGGER.info(String.format("[%s, %s],", graph.getNodeAccess().getLon(landmark), graph.getNodeAccess().getLat(landmark)));
             }
         }
     }

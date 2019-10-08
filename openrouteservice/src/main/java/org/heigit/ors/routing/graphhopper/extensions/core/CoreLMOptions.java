@@ -50,12 +50,14 @@ public class CoreLMOptions {
         //Create one edgefiltersequence for each lmset
         for(String set : coreLMSets) {
             //Now iterate over all comma separated values in one lm set
-            List<String> filters = Arrays.asList(set.split(","));
+            List<String> tmpFilters = Arrays.asList(set.split(","));
             LMEdgeFilterSequence edgeFilterSequence = new LMEdgeFilterSequence();
-            int feature, country, avoidFeatures = 0;
-            List<Integer> countries = new ArrayList<Integer>();
+            int feature;
+            int country;
+            int avoidFeatures = 0;
+            List<Integer> countries = new ArrayList<>();
 
-            for (String filterType : filters) {
+            for (String filterType : tmpFilters) {
 
                 //Do not add any filter if it is allow_all
                 if (filterType.equalsIgnoreCase("allow_all")) {
@@ -88,7 +90,6 @@ public class CoreLMOptions {
                         countries.add(country);
                         edgeFilterSequence.appendName(filterType.toLowerCase());
                     }
-                    continue;
                 }
             }
 
@@ -104,13 +105,11 @@ public class CoreLMOptions {
                 edgeFilterSequence.add(new AvoidBordersCoreEdgeFilter(ghStorage, avoidCountries));
             }
 
-            if(edgeFilterSequence != null)
-                this.filters.add(edgeFilterSequence);
+            this.filters.add(edgeFilterSequence);
         }
     }
 
     public List<LMEdgeFilterSequence> getFilters(){
         return filters;
     }
-
 }

@@ -15,11 +15,10 @@ package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.EdgeIteratorState;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
 
 import java.util.ArrayList;
 
-public class EdgeFilterSequence  implements EdgeFilter {
+public class EdgeFilterSequence implements EdgeFilter {
 
 	protected ArrayList<EdgeFilter> filters = new ArrayList<>();
 	private String name = "";
@@ -51,6 +50,6 @@ public class EdgeFilterSequence  implements EdgeFilter {
 
 	@Override
 	public String toString() {
-		return "EdgeFilter Sequence :" + filters.size();
+		return "EdgeFilter Sequence: " + name + " (" + filters.size() + ")";
 	}
 }

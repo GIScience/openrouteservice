@@ -18,10 +18,11 @@ import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.AbstractRoutingAlgorithm;
 import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.Path;
-import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.CHGraph;
+import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.Parameters;
@@ -42,7 +43,6 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
     protected PriorityQueue<SPTEntry> fromHeap;
     protected SPTEntry currEdge;
     private int visitedNodes;
-    private int maxVisitedNodes = Integer.MAX_VALUE;
     private int coreNodeLevel = -1;
     private CHGraph chGraph;
     EdgeExplorer explorer;
@@ -58,15 +58,9 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
         initCollections(size);
     }
 
-    public ProxyNodeDijkstra(GraphHopperStorage graph, Weighting weighting, TraversalMode tMode, int maxVisitedNodes) {
-        this(graph,weighting,tMode);
-        this.maxVisitedNodes = maxVisitedNodes;
-    }
-
-
     protected void initCollections(int size) {
-        fromHeap = new PriorityQueue<SPTEntry>(size);
-        fromMap = new GHIntObjectHashMap<SPTEntry>(size);
+        fromHeap = new PriorityQueue<>(size);
+        fromMap = new GHIntObjectHashMap<>(size);
     }
 
     @Override

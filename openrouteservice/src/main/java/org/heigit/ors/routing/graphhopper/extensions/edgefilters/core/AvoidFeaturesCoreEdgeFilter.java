@@ -25,29 +25,28 @@ public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
 	private byte[] buffer;
 	private WayCategoryGraphStorage storage;
 	private int avoidFeatures;
-	private final String type = "avoid_features";
+	private static final String TYPE = "avoid_features";
 
 	public AvoidFeaturesCoreEdgeFilter(GraphStorage graphStorage, int profileCategory) {
 		buffer = new byte[10];
 		avoidFeatures = AvoidFeatureFlags.getProfileFlags(profileCategory);
 		storage = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
 	}
+
 	public AvoidFeaturesCoreEdgeFilter(GraphStorage graphStorage, int profileCategory, int overrideClass) {
-		this(graphStorage, -1);
+		this(graphStorage, profileCategory);
 		avoidFeatures = overrideClass;
 	}
 
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {
-		if(iter instanceof CHEdgeIterator)
-			if(((CHEdgeIterator)iter).isShortcut()) return true;
-
+		if(iter instanceof CHEdgeIterator && ((CHEdgeIterator)iter).isShortcut())
+			return true;
 		return (storage.getEdgeValue(iter.getEdge(), buffer) & avoidFeatures) == 0;
-
 	}
 
 	public String getType() {
-		return type;
+		return TYPE;
 	}
 
 	public int getAvoidFeatures() {
