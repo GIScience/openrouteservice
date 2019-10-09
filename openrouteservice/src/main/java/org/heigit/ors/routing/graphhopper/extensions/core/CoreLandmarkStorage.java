@@ -285,7 +285,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         landmarkWeightDA.setHeader(8, subnetworkCount);
         if (factor * DOUBLE_MLTPL > Integer.MAX_VALUE)
             throw new UnsupportedOperationException( "landmark weight factor cannot be bigger than Integer.MAX_VALUE " + factor * DOUBLE_MLTPL);
-        landmarkWeightDA.setHeader(23, (int) Math.round(factor * DOUBLE_MLTPL));
+        landmarkWeightDA.setHeader(12, (int) Math.round(factor * DOUBLE_MLTPL));
 
         // serialize fast byte[] into DataAccess
         //Changed to core

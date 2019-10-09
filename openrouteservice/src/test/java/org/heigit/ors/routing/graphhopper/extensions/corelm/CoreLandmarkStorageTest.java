@@ -11,17 +11,17 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions.corelm;
+package org.heigit.ors.routing.graphhopper.extensions.corelm;
 
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
-import heigit.ors.routing.graphhopper.extensions.core.CoreLandmarkStorage;
-import heigit.ors.routing.graphhopper.extensions.core.CoreTestEdgeFilter;
-import heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
-import heigit.ors.util.DebugUtility;
+import org.heigit.ors.routing.graphhopper.extensions.core.CoreLandmarkStorage;
+import org.heigit.ors.routing.graphhopper.extensions.core.CoreTestEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
+import org.heigit.ors.util.DebugUtility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,25 +29,24 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Andrzej Oles, Hendrik Leuschner
  */
 public class CoreLandmarkStorageTest {
     private GraphHopperStorage ghStorage;
-    private FlagEncoder encoder;
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
-    private final EncodingManager encodingManager = new EncodingManager(carEncoder);
+    private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private final Weighting weighting = new ShortestWeighting(carEncoder);
     private final TraversalMode tMode = TraversalMode.NODE_BASED;
     private Directory dir;
 
     @Before
     public void setUp() {
-        encoder = new CarFlagEncoder();
+        FlagEncoder encoder = new CarFlagEncoder();
         ghStorage = new GraphHopperStorage(new RAMDirectory(),
-                new EncodingManager(encoder), false, new GraphExtension.NoOpExtension());
+                EncodingManager.create(encoder), false, new GraphExtension.NoOpExtension());
         ghStorage.create(1000);
         dir = new GHDirectory("", DAType.RAM_INT);
     }
@@ -58,12 +57,12 @@ public class CoreLandmarkStorageTest {
             ghStorage.close();
     }
 
-    GraphHopperStorage createGHStorage() {
+    private GraphHopperStorage createGHStorage() {
         return new GraphBuilder(encodingManager).setCoreGraph(weighting).create();
     }
 
 
-    public GraphHopperStorage createMediumGraph() {
+    private GraphHopperStorage createMediumGraph() {
         //    3---4--5
         //   /\   |  |
         //  2--0  6--7
@@ -87,7 +86,7 @@ public class CoreLandmarkStorageTest {
         return g;
     }
 
-    public HashMap<Integer, Integer> createCoreNodeIdMap(CHGraph core, Weighting weighting) {
+    private HashMap<Integer, Integer> createCoreNodeIdMap(CHGraph core) {
        HashMap<Integer, Integer> coreNodeIdMap = new HashMap<>();
         int maxNode = core.getNodes();
         int coreNodeLevel = maxNode + 1;
@@ -101,7 +100,7 @@ public class CoreLandmarkStorageTest {
         return coreNodeIdMap;
     }
 
-    public CHGraph contractGraph(GraphHopperStorage g, CoreTestEdgeFilter restrictedEdges) {
+    private CHGraph contractGraph(GraphHopperStorage g, CoreTestEdgeFilter restrictedEdges) {
         CHGraph lg = g.getGraph(CHGraph.class);
         PrepareCore prepare = new PrepareCore(dir, g, lg, weighting, tMode, restrictedEdges);
 
@@ -146,7 +145,7 @@ public class CoreLandmarkStorageTest {
         restrictedEdges.add(12);
         ghStorage = createMediumGraph();
         CHGraph g = contractGraph(ghStorage, restrictedEdges);
-        HashMap<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(g, weighting);
+        HashMap<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(g);
 
         CoreLandmarkStorage storage = new CoreLandmarkStorage(dir, ghStorage, coreNodeIdMap, weighting,new LMEdgeFilterSequence(), 2 );
         storage.setMinimumNodes(2);
@@ -179,7 +178,7 @@ public class CoreLandmarkStorageTest {
 
         ghStorage = createMediumGraph();
         CHGraph g = contractGraph(ghStorage, restrictedEdges);
-        HashMap<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(g, weighting);
+        HashMap<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(g);
 
 
         LMEdgeFilterSequence lmEdgeFilterSequence = new LMEdgeFilterSequence();

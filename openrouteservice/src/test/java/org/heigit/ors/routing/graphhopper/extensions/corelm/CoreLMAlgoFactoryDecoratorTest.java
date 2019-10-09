@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions.corelm;
+package org.heigit.ors.routing.graphhopper.extensions.corelm;
 
 import com.graphhopper.routing.lm.LMAlgoFactoryDecorator;
 import com.graphhopper.routing.util.CarFlagEncoder;
@@ -23,14 +23,14 @@ import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Parameters;
-//import heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
+import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
-
 
 public class CoreLMAlgoFactoryDecoratorTest {
 
@@ -38,7 +38,7 @@ public class CoreLMAlgoFactoryDecoratorTest {
     public void addWeighting() {
         CoreLMAlgoFactoryDecorator dec = new CoreLMAlgoFactoryDecorator().setEnabled(true);
         dec.addWeighting("fastest");
-        assertEquals(Arrays.asList("fastest"), dec.getWeightingsAsStrings());
+        assertEquals(Collections.singletonList("fastest"), dec.getWeightingsAsStrings());
 
         // special parameters like the maximum weight
         dec = new CoreLMAlgoFactoryDecorator().setEnabled(true);
@@ -47,7 +47,7 @@ public class CoreLMAlgoFactoryDecoratorTest {
         assertEquals(Arrays.asList("fastest", "shortest"), dec.getWeightingsAsStrings());
 
         FlagEncoder car = new CarFlagEncoder();
-        EncodingManager em = new EncodingManager(car);
+        EncodingManager em = EncodingManager.create(car);
         Weighting weighting = new ShortestWeighting(car);
         dec.addWeighting(weighting);
         String coreLMSets = "allow_all";

@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package heigit.ors.routing.graphhopper.extensions.corelm;
+package org.heigit.ors.routing.graphhopper.extensions.corelm;
 
 import com.graphhopper.routing.*;
 import com.graphhopper.routing.util.*;
@@ -25,12 +25,12 @@ import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.Helper;
-import heigit.ors.routing.graphhopper.extensions.core.CoreLandmarkStorage;
-import heigit.ors.routing.graphhopper.extensions.core.CoreTestEdgeFilter;
-import heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
-import heigit.ors.routing.graphhopper.extensions.core.PrepareCoreLandmarks;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
-import heigit.ors.util.DebugUtility;
+import org.heigit.ors.routing.graphhopper.extensions.core.CoreLandmarkStorage;
+import org.heigit.ors.routing.graphhopper.extensions.core.CoreTestEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
+import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCoreLandmarks;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
+import org.heigit.ors.util.DebugUtility;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -61,7 +61,7 @@ public class PrepareCoreLandmarksTest
     @Before
     public void setUp() {
         encoder = new CarFlagEncoder();
-        encodingManager = new EncodingManager(encoder);
+        encodingManager = EncodingManager.create(encoder);
         weighting = new FastestWeighting(encoder);
         tm = TraversalMode.NODE_BASED;
         distCalc = new DistanceCalcEarth();
@@ -124,14 +124,18 @@ public class PrepareCoreLandmarksTest
             for (int wIndex = 0; wIndex < width; wIndex++) {
                 int node = wIndex + hIndex * width;
 
-                long flags = encoder.setProperties(20 + rand.nextDouble() * 30, true, true);
+                IntsRef edgeFlags = encodingManager.createEdgeFlags();
+                encoder.getAverageSpeedEnc().setDecimal(false, edgeFlags, 20 + rand.nextDouble() * 30);
+                encoder.getAccessEnc().setBool(false, edgeFlags, true);
+                encoder.getAccessEnc().setBool(true, edgeFlags, true);
+
                 // do not connect first with last column!
                 if (wIndex + 1 < width)
-                    graph.edge(node, node + 1).setFlags(flags);
+                    graph.edge(node, node + 1).setFlags(edgeFlags);
 
                 // avoid dead ends
                 if (hIndex + 1 < height)
-                    graph.edge(node, node + width).setFlags(flags);
+                    graph.edge(node, node + width).setFlags(edgeFlags);
 
                 NodeAccess na = graph.getNodeAccess();
                 na.setNode(node, -hIndex / 50.0, wIndex / 50.0);
