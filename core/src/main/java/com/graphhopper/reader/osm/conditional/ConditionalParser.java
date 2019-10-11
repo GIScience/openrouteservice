@@ -43,7 +43,7 @@ public class ConditionalParser {
     private final boolean enabledLogs;
 
     private final String simpleValue;
-    private String unevaluatedRestrictions;
+    private String unevaluatedRestrictions = "";
     private Conditions unevaluatedConditions;
 
     public ConditionalParser(Set<String> restrictedValues) {
@@ -183,7 +183,7 @@ public class ConditionalParser {
             return false;
 
         ArrayList<Restriction> parsedRestrictions = new ArrayList<>();
-        unevaluatedRestrictions = new String();
+        //unevaluatedRestrictions = new String();
 
         try {
             ConditionalRestrictionParser parser = new ConditionalRestrictionParser(new ByteArrayInputStream(tagValue.getBytes()));

@@ -28,6 +28,7 @@ import com.graphhopper.routing.profiles.DefaultEncodedValueFactory;
 import com.graphhopper.routing.profiles.EncodedValueFactory;
 import com.graphhopper.routing.profiles.EnumEncodedValue;
 import com.graphhopper.routing.profiles.RoadEnvironment;
+import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.subnetwork.PrepareRoutingSubnetworks;
 import com.graphhopper.routing.template.AlternativeRoutingTemplate;
 import com.graphhopper.routing.template.RoundTripRoutingTemplate;
@@ -850,12 +851,19 @@ public class GraphHopper implements GraphHopperAPI {
             interpolateBridgesAndOrTunnels();
         }
 
-        AllEdgesIterator edges = ghStorage.getAllEdges();
+        // FIXME: print out debug info on stored conditionals
+        for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
+            String name = encodingManager.getKey(encoder, "conditional_access");
+            if (encodingManager.hasEncodedValue(name)) {
+                BooleanEncodedValue conditionalEnc = encodingManager.getBooleanEncodedValue(name);
+                TimeDependentEdgeFilter edgeFilter = new ConditionalAccessEdgeFilter(conditionalEnc, true, true);
+                AllEdgesIterator edges = ghStorage.getAllEdges();
 
-        while (edges.next()) {
-            String conditional = edges.getConditional();
-            if (!"".equals(conditional))
-                System.out.println(edges.getEdge() + ": " + conditional);
+                long time = Calendar.getInstance().getTimeInMillis();
+
+                while (edges.next())
+                    edgeFilter.accept(edges, time);
+            }
         }
 
         initLocationIndex();
