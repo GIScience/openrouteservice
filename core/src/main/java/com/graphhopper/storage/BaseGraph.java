@@ -813,10 +813,6 @@ class BaseGraph implements Graph {
         return extStorage;
     }
 
-    private ConditionalEdges getConditionalEdges() {
-        return conditionalEdges;
-    }
-
     @Override
     public int getOtherNode(int edge, int node) {
         long edgePointer = edgeAccess.toPointer(edge);
@@ -1381,12 +1377,12 @@ class BaseGraph implements Graph {
 
         @Override
         public String getConditional() {
-            return baseGraph.getConditionalEdges().getEdgeValue(edgeId);
+            return baseGraph.conditionalEdges.getEdgeValue(edgeId);
         }
 
         @Override
         public EdgeIteratorState setConditional(String value) {
-            baseGraph.getConditionalEdges().setEdgeValue(edgeId, value);
+            baseGraph.conditionalEdges.setEdgeValue(edgeId, value);
             return this;
         }
 

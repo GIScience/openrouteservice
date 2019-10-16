@@ -19,9 +19,12 @@ package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.profiles.EncodedValue;
+import com.graphhopper.routing.profiles.SimpleBooleanEncodedValue;
 import com.graphhopper.routing.profiles.UnsignedDecimalEncodedValue;
 import com.graphhopper.storage.IntsRef;
+import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 
@@ -49,6 +52,8 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
      * http://wiki.openstreetmap.org/wiki/OSM_tags_for_routing/Maxspeed
      */
     protected final Map<String, Integer> defaultSpeedMap = new HashMap<>();
+
+    private BooleanEncodedValue conditionalEncoder;
 
     public CarFlagEncoder() {
         this(5, 5, 0);
@@ -162,6 +167,8 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
         // first two bits are reserved for route handling in superclass
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
         registerNewEncodedValue.add(speedEncoder = new UnsignedDecimalEncodedValue(EncodingManager.getKey(prefix, "average_speed"), speedBits, speedFactor, speedTwoDirections));
+        // FIXME: shouldn't this be directional?
+        registerNewEncodedValue.add(conditionalEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, "conditional_access"), false));
     }
 
     protected double getSpeed(ReaderWay way) {
@@ -274,6 +281,9 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
                 accessEnc.setBool(true, edgeFlags, true);
             }
 
+            if (accept.isConditional())
+                conditionalEncoder.setBool(false, edgeFlags, true);
+
         } else {
             double ferrySpeed = getFerrySpeed(way);
             accessEnc.setBool(false, edgeFlags, true);
@@ -292,6 +302,18 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
             }
         }
         return edgeFlags;
+    }
+
+    @Override
+    public void applyWayTags(ReaderWay way, EdgeIteratorState edge) {
+        if (edge.get(conditionalEncoder))
+            edge.setConditional(getConditionalTagInspector().getTagValue());
+    }
+
+    public final BooleanEncodedValue getConditionalEnc() {
+        if (conditionalEncoder == null)
+            throw new NullPointerException("FlagEncoder " + toString() + " not yet initialized");
+        return conditionalEncoder;
     }
 
     /**

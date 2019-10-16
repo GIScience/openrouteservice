@@ -986,7 +986,7 @@ public abstract class AbstractGraphStorageTester {
             }
         });
         list.add(new TmpCarFlagEncoder(29, 0.001, 0));
-        EncodingManager manager = EncodingManager.create(list, 8);
+        EncodingManager manager = EncodingManager.create(list, 12);
         graph = new GraphHopperStorage(dir, manager, false, new GraphExtension.NoOpExtension()).create(defaultSize);
 
         EdgeIteratorState edge = graph.edge(0, 1);
