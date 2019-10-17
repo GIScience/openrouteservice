@@ -435,6 +435,13 @@ public class PrepareContractionHierarchies extends AbstractAlgoPreparation imple
         return chProfile;
     }
 
+    // ORS-GH MOD START ADDED (exposed prepareWeighting)
+    public Weighting getPrepareWeighting() {
+        return prepareWeighting;
+    }
+    // ORS-GH MOD END
+
+
     private String getTimesAsString() {
         float totalTime = allSW.getCurrentSeconds();
         float periodicUpdateTime = periodicUpdateSW.getCurrentSeconds();

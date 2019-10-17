@@ -181,7 +181,7 @@ class InstructionsOutgoingEdges {
         }
 
         // If flags are changing, there might be a chance we find these flags on a different edge
-        boolean checkFlag = currentEdge.getFlags() != prevEdge.getFlags();
+        boolean checkFlag = !currentEdge.getFlags().equals(prevEdge.getFlags());
         for (EdgeIteratorState edge : allowedOutgoingEdges) {
             String edgeName = edge.getName();
             IntsRef edgeFlag = edge.getFlags();

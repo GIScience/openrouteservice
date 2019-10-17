@@ -588,6 +588,10 @@ public abstract class AbstractFlagEncoder implements FlagEncoder {
         return "speed_factor=" + speedFactor + "|speed_bits=" + speedBits + "|turn_costs=" + (maxTurnCosts > 0);
     }
 
+    protected long getEncoderBit() {
+        return this.encoderBit;
+    }
+
     @Override
     public <T extends EncodedValue> T getEncodedValue(String key, Class<T> encodedValueType) {
         return encodedValueLookup.getEncodedValue(key, encodedValueType);

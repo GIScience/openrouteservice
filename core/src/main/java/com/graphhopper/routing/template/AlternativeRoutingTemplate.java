@@ -54,7 +54,6 @@ final public class AlternativeRoutingTemplate extends ViaRoutingTemplate {
     public List<QueryResult> lookup(List<GHPoint> points, FlagEncoder encoder) {
         if (points.size() > 2)
             throw new IllegalArgumentException("Currently alternative routes work only with start and end point. You tried to use: " + points.size() + " points");
-
         return super.lookup(points, encoder);
     }
 

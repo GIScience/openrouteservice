@@ -379,4 +379,5 @@ public class FootFlagEncoder extends AbstractFlagEncoder {
         }
         return speed;
     }
+    // ORS GH MOD end
 }

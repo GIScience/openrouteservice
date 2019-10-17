@@ -1,5 +1,7 @@
 package com.graphhopper.routing.template;
 
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.PointList;
 

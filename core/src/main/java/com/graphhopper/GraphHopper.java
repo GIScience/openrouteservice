@@ -1118,7 +1118,7 @@ public class GraphHopper implements GraphHopperAPI {
 
             PathProcessor pathProcessor = pathProcessorFactory.createPathProcessor(request.getAdditionalHints(), encoder, ghStorage);
             ghRsp.addReturnObject(pathProcessor);
-            
+
             // ORS MOD END
 
             List<Path> altPaths = null;

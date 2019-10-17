@@ -22,7 +22,9 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import static com.graphhopper.util.Helper.*;
-
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.PathProcessor;
+import com.graphhopper.routing.weighting.Weighting;
 /**
  * A class which manages the translations in-memory. See here for more information:
  * ./docs/core/translations.md
