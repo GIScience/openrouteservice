@@ -46,8 +46,8 @@ public class RouteProfileConfiguration {
 	private String elevationCachePath = null;
 	private String elevationDataAccess = "MMAP";
 	private boolean elevationCacheClear = true;
-	private int maximumSnappingRadius;
-	
+	private int maximumSnappingRadius = 350;
+
 	private Envelope extent;
 	private boolean hasMaximumSnappingRadius = false;
 
