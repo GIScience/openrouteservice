@@ -365,9 +365,10 @@ public abstract class AbstractBidirAlgo extends AbstractRoutingAlgorithm {
 
     protected int getIncomingEdge(SPTEntry entry) {
         // ORS-GH MOD START
+        // REMOVED: causes test failure, investigate
         // TODO ORS: provide a reason for this change
-//        return entry.edge;
-        return entry.originalEdge;
+        return entry.edge;
+//        return entry.originalEdge;
         // ORS-GH MOD END
     }
 

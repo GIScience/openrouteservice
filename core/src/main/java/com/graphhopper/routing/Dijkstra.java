@@ -91,9 +91,10 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
                     continue;
 
                 // ORS-GH MOD START
-                //double tmpWeight = weighting.calcWeight(iter, false, currEdge.edge) + currEdge.weight;
+                // REMOVED: causes test failure, investigate
+                double tmpWeight = weighting.calcWeight(iter, false, currEdge.edge) + currEdge.weight;
                 // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
-                double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight;
+//                double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight;
                 // ORS-GH MOD END
                 if (Double.isInfinite(tmpWeight)) {
                     continue;
