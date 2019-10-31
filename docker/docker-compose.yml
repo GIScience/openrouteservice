@@ -1,5 +1,12 @@
 version: '3'
 services:
+    client:
+        image: benbergstein/route-web:latest
+        ports:
+            - "3000:3000"
+        volumes:
+            - ../route-web:/app
+
     tileserver:
         image: overv/openstreetmap-tile-server
         volumes:
