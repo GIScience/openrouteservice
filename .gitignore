@@ -30,3 +30,4 @@ cgiar_cache/docker/data/SanFrancisco.osm.pbf
 *.swp
 docker/logs
 docker/data
+docker/elevation_cache

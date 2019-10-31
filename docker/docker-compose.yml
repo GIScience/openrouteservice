@@ -2,8 +2,10 @@ version: '3'
 services:
     client:
         image: benbergstein/route-web:latest
+        environment:
+            - TILE_SERVICE_KEY
         ports:
-            - "3000:3000"
+            - 3000:3000
         volumes:
             - ../route-web:/app
 
@@ -17,7 +19,7 @@ services:
     ors-app:
         container_name: ors-app
         ports:
-        - 8080:8080
+            - 8080:8080
         build:
             context: ../
             args:
