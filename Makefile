@@ -3,7 +3,7 @@ download:
 
 setup: download
 	make -C docker volume
-	make -C route-web build-image
+	make -C route-web build-image install
 
 start:
 	make -C docker up

@@ -3,7 +3,7 @@ services:
     client:
         image: benbergstein/route-web:latest
         environment:
-            - TILE_SERVICE_KEY
+            - REACT_APP_TILE_SERVICE_KEY=${TILE_SERVICE_KEY}
         ports:
             - 3000:3000
         volumes:

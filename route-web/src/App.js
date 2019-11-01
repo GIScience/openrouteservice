@@ -1,79 +1,76 @@
 import React from 'react';
 import L from 'leaflet';
-import get from 'lodash/get';
-import logo from './logo.svg';
 import './App.css';
+import {
+  createRoute,
+  addLatlng,
+  removeLastLatLng,
+  remove,
+} from './route';
 
-const ROUTING_HOST = '157.245.236.49';
-const ROUTING_URL = `http://${ROUTING_HOST}:8080/ors/v2/directions`;
-const routeCache = {};
-const fetchRoute = ([ start, end ]) => {
-  if (routeCache[[start, end]]) return routeCache[[start, end]];
-
-  return fetch(`${ROUTING_URL}/driving-car?start=${start}&end=${end}`)
-    .then((res) => res.json())
-    .then((res) => {
-      routeCache[[ start, end ]] = res;
-      return res;
-    });
-}
-
-const accessToken = process.env.TILE_SERVICE_KEY;
+const UndoButton = ({ onClick }) => (
+  <button
+    style={{
+      position: 'absolute',
+      top: '10px',
+      right: '10px',
+      zIndex: 1000,
+      border: '1px solid gray',
+      padding: '10px',
+    }}
+    onClick={onClick}
+  >
+    Undo
+  </button>
+)
 
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      path: [],
-    };
+    this.state = { route: createRoute([]) };
     this.handleClick = this.handleClick.bind(this);
-    this.fetchRoute = this.fetchRoute.bind(this);
+    this.undo = this.undo.bind(this);
   }
 
   render() {
     return (
-      <div id="map" style={{ height: '100%' }}></div>
+      <div style={{ position: 'relative', height: '100%' }}>
+        <div id="map" style={{ height: '100%' }}></div>
+        <UndoButton onClick={this.undo} />
+      </div>
     );
   }
 
-  fetchRoute() {
-    const { path } = this.state;
-    if (path.length === 1) return;
+  undo() {
+    this.updateRoute(removeLastLatLng);
+  }
 
-    Promise.all(
-      path.reduce(([prev, promises], next) => {
-        if (!prev) return [next, promises];
-        const promise = fetchRoute([
-          Object.values(prev).reverse(),
-          Object.values(next).reverse()
-        ]);
-        return [next, [...promises, promise]]
-      }, [undefined, []])[1]
-    ).then((routes) => this.setState({ routes }))
+  updateRoute(fn, ...args) {
+    const { route: oldRoute } = this.state;
+    const { markers } = oldRoute;
+    remove(markers)
+    const route =fn(oldRoute, ...args);
+    this.setState({ route });
+    route.buildRoutePromise.then(
+      (hydratedRoute) => this.setState({ route: hydratedRoute })
+    );
   }
 
   handleClick({ latlng }) {
-    const { path, map } = this.state;
-
-    L.marker(latlng).addTo(map)
-    this.setState({ path: [...path, latlng] })
-    this.fetchRoute();
+    this.updateRoute(addLatlng, latlng);
   }
 
-  componentDidUpdate() {
-    const { map, routes } = this.state;
-
-    if (routes) {
-      routes.forEach((route) => {
-        const coordinates = get(route, 'features[0].geometry.coordinates')
-        L.polyline(
-          coordinates.map((latlng) => latlng.reverse())
-        ).addTo(map)
-      });
+  componentDidUpdate(prevProps, prevState) {
+    const { route, map } = this.state;
+    const { markers, polylines } = route;
+    markers.forEach((m) => m.addTo(map));
+    if (polylines) {
+      polylines.addTo(map);
     }
   }
 
   componentDidMount() {
+    const { accessToken } = this.props;
     const map = L.map('map', {
         center: [37.773033, -122.438811],
         zoom: 13,
