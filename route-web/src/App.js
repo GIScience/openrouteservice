@@ -1,43 +1,29 @@
 import React from 'react';
+import compose from 'recompose/compose';
+import { Map, TileLayer, Circle, Polyline } from 'react-leaflet';
+import L from 'leaflet';
+
 import './App.css';
 import withRoute from './withRoute';
 import withTarget from './withTarget';
 import withLocationHash from './withLocationHash';
-import compose from 'recompose/compose';
-import { Map, TileLayer, Circle, Polyline } from 'react-leaflet';
+import { ControlsPanel, Button } from './Controls';
 
+const determineBounds = ({ loading, path }) => {
+  if (loading && path.length > 0) {
+    const group = new L.featureGroup(path.map((p) => L.marker(p)));
+    return group.getBounds();
+  }
 
-const ControlsPanel = ({ children }) => (
-  <div
-    style={{
-      position: 'absolute',
-      top: '10px',
-      right: '10px',
-      zIndex: 1000,
-      border: '1px solid gray',
-      padding: '10px',
-      background: '#ddd',
-    }}
-  >
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-    }}>
-      {children}
-    </div>
-  </div>
-);
-
-const UndoButton = ({ onClick }) => (
-  <div style={{flex: '1'}}>
-    <button onClick={onClick} >
-      Undo
-    </button>
-  </div>
-)
+  return undefined;
+}
 
 const FEET_PER_MILES = 5280.0;
 const MILES_PER_METER = 0.0006213712;
+const INIITAL_CENTER = {
+  center: [37.773033, -122.438811],
+  zoom: "15"
+};
 
 class App extends React.Component {
   constructor(props) {
@@ -51,22 +37,28 @@ class App extends React.Component {
       accessToken,
       setTarget,
       undo,
+      clear,
       path,
       lines,
       totalDistance,
       target,
       targetType,
+      loading,
     } = this.props;
+
+    const bounds = determineBounds({ loading, path })
+    const additionalProps = bounds ?
+      { bounds } : loading ?
+      INIITAL_CENTER : {};
 
     const totalMiles = Math.floor(totalDistance * MILES_PER_METER * 100.0) / 100.0
     return (
       <div style={{position: 'relative', height: '100%'}}>
         <Map
           dragging={target === undefined}
-          center={[37.773033, -122.438811]}
-          zoom="15"
           style={{height: '100%'}}
           onClick={this.handleClick}
+          {...additionalProps}
         >
           <TileLayer
             attribution='Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
@@ -87,7 +79,8 @@ class App extends React.Component {
           ))}
         </Map>
         <ControlsPanel>
-          <UndoButton onClick={undo} />
+          <Button onClick={undo} text='Undo' />
+          <Button onClick={clear} text='Clear' />
           <div style={{flex: '1'}}>{totalMiles} miles</div>
         </ControlsPanel>
       </div>

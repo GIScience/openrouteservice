@@ -16,21 +16,22 @@ const withRoute = (Component) =>
 
       const path = locationHash ?
         JSON.parse(atob(locationHash)) : [];
-      this.state = { path, lines: [], totalDistance: 0 };
+      this.state = { loading: true, path, lines: [], totalDistance: 0 };
       this.appendPoint = this.appendPoint.bind(this);
       this.movePoint = this.movePoint.bind(this);
       this.undo = this.undo.bind(this);
+      this.clear= this.clear.bind(this);
     }
 
     componentDidMount() {
-      const { path } = this.state;
-      if (path.length > 1) {
+      const { path, loading } = this.state;
+      if (loading && path.length > 1) {
         this.updatePath(path);
       }
     }
 
     updatePath(newPath, setPrevPath) {
-      const { path } = this.state;
+      const { path, loading } = this.state;
       const promise = buildPath(newPath);
       promise.then((paths) => {
         const [lines, totalDistance] = paths.reduce(([lines, totalDistance], p) => {
@@ -42,7 +43,7 @@ const withRoute = (Component) =>
       });
       if (setPrevPath !== false) newPath.prevPath = path;
       global.location.hash = btoa(JSON.stringify(newPath));
-      this.setState({ path: newPath });
+      this.setState({ path: newPath, loading: false });
     }
 
     undo() {
@@ -65,14 +66,12 @@ const withRoute = (Component) =>
       this.updatePath(newPath);
     }
 
+    clear() {
+      this.updatePath([]);
+    }
+
     appendPoint({ latlng, after }) {
       const { path } = this.state;
-      if (after) {
-        console.log(after);
-      console.log(path.reduce((memo, ll) => {
-          return sameLatlng(ll, after) ?
-            [...memo, ll, latlng] : [...memo, ll];
-        }, [])) }
       this.updatePath(
         after ?
         path.reduce((memo, ll) => {
@@ -90,6 +89,8 @@ const withRoute = (Component) =>
         appendPoint={this.appendPoint}
         movePoint={this.movePoint}
         undo={this.undo}
+        clear={this.clear}
+        loading={this.state.loading}
         {...this.props}
       />
     }

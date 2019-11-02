@@ -10,13 +10,15 @@
     "react-dom": "^16.11.0",
     "react-leaflet": "^2.5.0",
     "react-scripts": "3.2.0",
-    "recompose": "^0.30.0"
+    "recompose": "^0.30.0",
+    "serve": "^11.2.0"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "serve": "serve -s build -l 5000"
   },
   "eslintConfig": {
     "extends": "react-app"
