@@ -2,10 +2,11 @@ import fetchRoute from './fetchRoute'
 
 const reducer = ([prev, promises], next) => {
   if (!prev) return [next, promises];
-  const promise = fetchRoute([
+  const coords = [
     Object.values(prev).reverse(),
     Object.values(next).reverse()
-  ]);
+  ];
+  const promise = fetchRoute(coords).then((res) => ({ ...res, coords: coords }));
   return [next, [...promises, promise]]
 }
 

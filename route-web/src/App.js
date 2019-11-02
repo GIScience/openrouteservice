@@ -1,12 +1,13 @@
 import React from 'react';
-import L from 'leaflet';
 import './App.css';
 import {
   createRoute,
   addLatlng,
-  removeLastLatLng,
+  undo,
   remove,
 } from './route';
+import { polylineFactory } from './polyline';
+import { initializeMap, setTarget, unsetTarget } from './map';
 
 const UndoButton = ({ onClick }) => (
   <button
@@ -27,7 +28,7 @@ const UndoButton = ({ onClick }) => (
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { route: createRoute([]) };
+    this.state = { info: { dragging: false } };
     this.handleClick = this.handleClick.bind(this);
     this.undo = this.undo.bind(this);
   }
@@ -42,49 +43,50 @@ class App extends React.Component {
   }
 
   undo() {
-    this.updateRoute(removeLastLatLng);
+    this.updateRoute(undo);
   }
 
   updateRoute(fn, ...args) {
     const { route: oldRoute } = this.state;
     const { markers } = oldRoute;
     remove(markers)
-    const route =fn(oldRoute, ...args);
+    const route = fn(oldRoute, ...args);
     this.setState({ route });
     route.buildRoutePromise.then(
       (hydratedRoute) => this.setState({ route: hydratedRoute })
     );
   }
 
-  handleClick({ latlng }) {
-    this.updateRoute(addLatlng, latlng);
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    const { route, map } = this.state;
-    const { markers, polylines } = route;
-    markers.forEach((m) => m.addTo(map));
-    if (polylines) {
-      polylines.addTo(map);
+  handleClick({ latlng, ...rest }) {
+    const { map, route } = this.state;
+    const { leaflet } = map;
+    if (map.target) {
+      this.setState({ map: unsetTarget(map) });
+      const [ll1] = route.getPolylineInfo(map.target)
+      const [lng, lat] = ll1
+      this.updateRoute(addLatlng, { latlng, after: { lat, lng }});
+    } else {
+      this.updateRoute(addLatlng, { latlng });
     }
   }
 
   componentDidMount() {
     const { accessToken } = this.props;
-    const map = L.map('map', {
-        center: [37.773033, -122.438811],
-        zoom: 13,
+    const map = initializeMap({ accessToken, id: 'map' })
+    const { getPolyline, getPolylineInfo } = polylineFactory(({ target }) => {
+      target.on('mousedown', () => {
+        this.setState({ map: setTarget(map, target) });
+      });
     });
 
-    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-      maxZoom: 18,
-      id: 'mapbox.streets',
-      accessToken,
-    }).addTo(map);
-
-    map.on('click', this.handleClick)
-    this.setState({ map });
+    map.leaflet.on('click', this.handleClick)
+    const route = createRoute({
+      path: [],
+      map,
+      getPolyline,
+      getPolylineInfo,
+    });
+    this.setState({ map, route });
   }
 }
 
