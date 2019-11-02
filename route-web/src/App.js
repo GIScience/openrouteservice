@@ -3,6 +3,7 @@ import './App.css';
 import {
   createRoute,
   addLatlng,
+  moveLatlng,
   undo,
   remove,
 } from './route';
@@ -59,12 +60,18 @@ class App extends React.Component {
 
   handleClick({ latlng, ...rest }) {
     const { map, route } = this.state;
-    const { leaflet } = map;
-    if (map.target) {
-      this.setState({ map: unsetTarget(map) });
-      const [ll1] = route.getPolylineInfo(map.target)
-      const [lng, lat] = ll1
-      this.updateRoute(addLatlng, { latlng, after: { lat, lng }});
+    const { leaflet, target, targetType } = map;
+    if (target) {
+      if (targetType === 'polyline') {
+        this.setState({ map: unsetTarget(map) });
+        const [ll1] = route.getPolylineInfo(map.target)
+        const [lng, lat] = ll1
+        this.updateRoute(addLatlng, { latlng, after: { lat, lng }});
+      } else if (targetType === 'marker') {
+        const { _latlng: targetLatlng } = target;
+        this.setState({ map: unsetTarget(map) });
+        this.updateRoute(moveLatlng, { latlng: targetLatlng, updatedLatlng: latlng });
+      }
     } else {
       this.updateRoute(addLatlng, { latlng });
     }
@@ -73,10 +80,11 @@ class App extends React.Component {
   componentDidMount() {
     const { accessToken } = this.props;
     const map = initializeMap({ accessToken, id: 'map' })
+    const setTargetWithState = (target, type) => () => {
+      this.setState({ map: setTarget(map, target, type) });
+    };
     const { getPolyline, getPolylineInfo } = polylineFactory(({ target }) => {
-      target.on('mousedown', () => {
-        this.setState({ map: setTarget(map, target) });
-      });
+      target.on('mousedown', setTargetWithState(target, 'polyline'));
     });
 
     map.leaflet.on('click', this.handleClick)
@@ -85,6 +93,7 @@ class App extends React.Component {
       map,
       getPolyline,
       getPolylineInfo,
+      setTargetWithState,
     });
     this.setState({ map, route });
   }

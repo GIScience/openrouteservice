@@ -1,16 +1,17 @@
 import L from 'leaflet';
 
-const setTarget = (map, target) => {
+const setTarget = (map, target, targetType) => {
   const { leaflet } = map;
   leaflet.dragging.disable();
 
   return {
     ...map,
     target,
+    targetType,
   }
 }
 
-const unsetTarget = ({ target, ...map }) => {
+const unsetTarget = ({ target, targetType, ...map }) => {
   const { leaflet } = map;
   leaflet.dragging.enable();
 

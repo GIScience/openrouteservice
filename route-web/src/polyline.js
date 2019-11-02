@@ -4,6 +4,10 @@ import get from 'lodash/get';
 import L from 'leaflet';
 import uuid from './uuid';
 
+const POLYLINE_OPTIONS = {
+  opacity: 1,
+}
+
 const polylineFactory = (onAdd) => {
   const cache = {};
   const reverseCache = {};
@@ -18,7 +22,8 @@ const polylineFactory = (onAdd) => {
 
       if (!cache[cacheKey]) {
         const polyline = L.polyline(
-          points.map(([lat, lng]) => [lng, lat])
+          points.map(([lat, lng]) => [lng, lat]),
+          POLYLINE_OPTIONS,
         )
         polyline.uuid = uuid();
         cache[cacheKey] = polyline;

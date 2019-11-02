@@ -10,11 +10,11 @@ const reducer = ([prev, promises], next) => {
   return [next, [...promises, promise]]
 }
 
-const buildRoutePath = (path) => Promise.all(
+const buildPath = (path) => Promise.all(
   path.reduce(
     reducer,
     [undefined, []]
   )[1]
 );
 
-export default buildRoutePath;
+export default buildPath;
