@@ -2,6 +2,10 @@ import React from 'react';
 import buildPath from './route/buildPath.js';
 import get from 'lodash/get';
 import slice from 'lodash/slice';
+import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
+
+const serializePath = (path) => compressToEncodedURIComponent(JSON.stringify(path));
+const deserializePath = (serialized) => JSON.parse(decompressFromEncodedURIComponent(serialized));
 
 const sameLatlng = (
   { lat: lat1, lng: lng1 },
@@ -14,8 +18,7 @@ const withRoute = (Component) =>
       super(props);
       const { locationHash } = this.props;
 
-      const path = locationHash ?
-        JSON.parse(atob(locationHash)) : [];
+      const path = locationHash ? deserializePath(locationHash) : [];
       this.state = { loading: true, path, lines: [], totalDistance: 0 };
       this.appendPoint = this.appendPoint.bind(this);
       this.movePoint = this.movePoint.bind(this);
@@ -42,7 +45,7 @@ const withRoute = (Component) =>
         this.setState({ lines, totalDistance });
       });
       if (setPrevPath !== false) newPath.prevPath = path;
-      global.location.hash = btoa(JSON.stringify(newPath));
+      global.location.hash = serializePath(newPath);
       this.setState({ path: newPath, loading: false });
     }
 

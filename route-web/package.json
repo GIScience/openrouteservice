@@ -6,6 +6,7 @@
     "fetch": "^1.1.0",
     "leaflet": "^1.5.1",
     "lodash": "^4.17.15",
+    "lz-string": "^1.4.4",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-leaflet": "^2.5.0",
