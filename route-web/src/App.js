@@ -1,20 +1,14 @@
 import React from 'react';
 import './App.css';
-import {
-  createRoute,
-  addLatlng,
-  moveLatlng,
-  remove,
-} from './route';
-import { polylineFactory } from './polyline';
-import { initializeMap, setTarget, unsetTarget } from './map';
 import withRoute from './withRoute';
 import withTarget from './withTarget';
+import withLocationHash from './withLocationHash';
 import compose from 'recompose/compose';
 import { Map, TileLayer, Circle, Polyline } from 'react-leaflet';
 
-const UndoButton = ({ onClick }) => (
-  <button
+
+const ControlsPanel = ({ children }) => (
+  <div
     style={{
       position: 'absolute',
       top: '10px',
@@ -22,19 +16,34 @@ const UndoButton = ({ onClick }) => (
       zIndex: 1000,
       border: '1px solid gray',
       padding: '10px',
+      background: '#ddd',
     }}
-    onClick={onClick}
   >
-    Undo
-  </button>
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+    }}>
+      {children}
+    </div>
+  </div>
+);
+
+const UndoButton = ({ onClick }) => (
+  <div style={{flex: '1'}}>
+    <button onClick={onClick} >
+      Undo
+    </button>
+  </div>
 )
+
+const FEET_PER_MILES = 5280.0;
+const MILES_PER_METER = 0.0006213712;
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
     this.handleClick = this.handleClick.bind(this);
-    // this.undo = this.undo.bind(this);
   }
 
   render() {
@@ -44,10 +53,12 @@ class App extends React.Component {
       undo,
       path,
       lines,
+      totalDistance,
       target,
       targetType,
     } = this.props;
 
+    const totalMiles = Math.floor(totalDistance * MILES_PER_METER * 100.0) / 100.0
     return (
       <div style={{position: 'relative', height: '100%'}}>
         <Map
@@ -75,23 +86,11 @@ class App extends React.Component {
             />
           ))}
         </Map>
-        <UndoButton onClick={undo} />
+        <ControlsPanel>
+          <UndoButton onClick={undo} />
+          <div style={{flex: '1'}}>{totalMiles} miles</div>
+        </ControlsPanel>
       </div>
-    );
-  }
-
-  // undo() {
-  //   this.updateRoute(undo);
-  // }
-
-  updateRoute(fn, ...args) {
-    const { route: oldRoute } = this.state;
-    const { markers } = oldRoute;
-    remove(markers)
-    const route = fn(oldRoute, ...args);
-    this.setState({ route });
-    route.buildRoutePromise.then(
-      (hydratedRoute) => this.setState({ route: hydratedRoute })
     );
   }
 
@@ -121,4 +120,4 @@ class App extends React.Component {
   }
 }
 
-export default withRoute(withTarget(App));
+export default withLocationHash(withRoute(withTarget(App)));

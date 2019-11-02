@@ -12,22 +12,36 @@ const withRoute = (Component) =>
   class extends React.Component {
     constructor(props) {
       super(props);
-      this.state = { path: [], lines: [] };
+      const { locationHash } = this.props;
+
+      const path = locationHash ?
+        JSON.parse(atob(locationHash)) : [];
+      this.state = { path, lines: [], totalDistance: 0 };
       this.appendPoint = this.appendPoint.bind(this);
       this.movePoint = this.movePoint.bind(this);
       this.undo = this.undo.bind(this);
+    }
+
+    componentDidMount() {
+      const { path } = this.state;
+      if (path.length > 1) {
+        this.updatePath(path);
+      }
     }
 
     updatePath(newPath, setPrevPath) {
       const { path } = this.state;
       const promise = buildPath(newPath);
       promise.then((paths) => {
-        const lines = paths.map((p) =>
-          get(p, 'features[0].geometry.coordinates')
-            .map(([lat, lng]) => [lng, lat]));
-        this.setState({ lines });
+        const [lines, totalDistance] = paths.reduce(([lines, totalDistance], p) => {
+          const distance = get(p, 'features[0].properties.summary.distance');
+          const line = get(p, 'features[0].geometry.coordinates').map(([lat, lng]) => [lng, lat])
+          return [[...lines, line], totalDistance + distance]
+        }, [[], 0]);
+        this.setState({ lines, totalDistance });
       });
       if (setPrevPath !== false) newPath.prevPath = path;
+      global.location.hash = btoa(JSON.stringify(newPath));
       this.setState({ path: newPath });
     }
 
@@ -72,6 +86,7 @@ const withRoute = (Component) =>
       return <Component
         path={this.state.path}
         lines={this.state.lines}
+        totalDistance={this.state.totalDistance}
         appendPoint={this.appendPoint}
         movePoint={this.movePoint}
         undo={this.undo}
