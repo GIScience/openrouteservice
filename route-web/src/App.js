@@ -4,11 +4,14 @@ import {
   createRoute,
   addLatlng,
   moveLatlng,
-  undo,
   remove,
 } from './route';
 import { polylineFactory } from './polyline';
 import { initializeMap, setTarget, unsetTarget } from './map';
+import withRoute from './withRoute';
+import withTarget from './withTarget';
+import compose from 'recompose/compose';
+import { Map, TileLayer, Circle, Polyline } from 'react-leaflet';
 
 const UndoButton = ({ onClick }) => (
   <button
@@ -29,23 +32,57 @@ const UndoButton = ({ onClick }) => (
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { info: { dragging: false } };
+    this.state = {};
     this.handleClick = this.handleClick.bind(this);
-    this.undo = this.undo.bind(this);
+    // this.undo = this.undo.bind(this);
   }
 
   render() {
+    const {
+      accessToken,
+      setTarget,
+      undo,
+      path,
+      lines,
+      target,
+      targetType,
+    } = this.props;
+
     return (
-      <div style={{ position: 'relative', height: '100%' }}>
-        <div id="map" style={{ height: '100%' }}></div>
-        <UndoButton onClick={this.undo} />
+      <div style={{position: 'relative', height: '100%'}}>
+        <Map
+          dragging={target === undefined}
+          center={[37.773033, -122.438811]}
+          zoom="15"
+          style={{height: '100%'}}
+          onClick={this.handleClick}
+        >
+          <TileLayer
+            attribution='Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
+            url={`https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=${accessToken}`}
+            id='mapbox.streets'
+          />
+          {path.map((latlng) => (
+            <Circle
+              center={latlng}
+              onMouseDown={(e) => setTarget('waypoint', e.target, { latlng })}
+            />
+          ))}
+          {lines.map((coords, i) => (
+            <Polyline
+              positions={coords}
+              onMouseDown={(e) => setTarget('polyline', e.target, { startLatlng: path[i] })}
+            />
+          ))}
+        </Map>
+        <UndoButton onClick={undo} />
       </div>
     );
   }
 
-  undo() {
-    this.updateRoute(undo);
-  }
+  // undo() {
+  //   this.updateRoute(undo);
+  // }
 
   updateRoute(fn, ...args) {
     const { route: oldRoute } = this.state;
@@ -59,44 +96,29 @@ class App extends React.Component {
   }
 
   handleClick({ latlng, ...rest }) {
-    const { map, route } = this.state;
-    const { leaflet, target, targetType } = map;
+    const {
+      appendPoint,
+      movePoint,
+      clearTarget,
+      target,
+      targetType,
+      targetData,
+    } = this.props;
+
     if (target) {
       if (targetType === 'polyline') {
-        this.setState({ map: unsetTarget(map) });
-        const [ll1] = route.getPolylineInfo(map.target)
-        const [lng, lat] = ll1
-        this.updateRoute(addLatlng, { latlng, after: { lat, lng }});
-      } else if (targetType === 'marker') {
-        const { _latlng: targetLatlng } = target;
-        this.setState({ map: unsetTarget(map) });
-        this.updateRoute(moveLatlng, { latlng: targetLatlng, updatedLatlng: latlng });
+        const { startLatlng } = targetData;
+        clearTarget();
+        appendPoint({ latlng, after: startLatlng });
+      } else if (targetType === 'waypoint') {
+        const { latlng: oldLatlng } = targetData;
+        clearTarget();
+        movePoint(oldLatlng, latlng);
       }
     } else {
-      this.updateRoute(addLatlng, { latlng });
+      appendPoint({ latlng });
     }
-  }
-
-  componentDidMount() {
-    const { accessToken } = this.props;
-    const map = initializeMap({ accessToken, id: 'map' })
-    const setTargetWithState = (target, type) => () => {
-      this.setState({ map: setTarget(map, target, type) });
-    };
-    const { getPolyline, getPolylineInfo } = polylineFactory(({ target }) => {
-      target.on('mousedown', setTargetWithState(target, 'polyline'));
-    });
-
-    map.leaflet.on('click', this.handleClick)
-    const route = createRoute({
-      path: [],
-      map,
-      getPolyline,
-      getPolylineInfo,
-      setTargetWithState,
-    });
-    this.setState({ map, route });
   }
 }
 
-export default App;
+export default withRoute(withTarget(App));
