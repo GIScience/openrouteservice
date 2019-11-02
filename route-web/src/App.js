@@ -37,6 +37,7 @@ class App extends React.Component {
       accessToken,
       setTarget,
       undo,
+      redo,
       clear,
       path,
       lines,
@@ -80,6 +81,7 @@ class App extends React.Component {
         </Map>
         <ControlsPanel>
           <Button onClick={undo} text='Undo' />
+          <Button onClick={redo} text='Redo' />
           <Button onClick={clear} text='Clear' />
           <div style={{flex: '1'}}>{totalMiles} miles</div>
         </ControlsPanel>

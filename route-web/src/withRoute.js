@@ -23,6 +23,7 @@ const withRoute = (Component) =>
       this.appendPoint = this.appendPoint.bind(this);
       this.movePoint = this.movePoint.bind(this);
       this.undo = this.undo.bind(this);
+      this.redo= this.redo.bind(this);
       this.clear= this.clear.bind(this);
     }
 
@@ -47,6 +48,15 @@ const withRoute = (Component) =>
       if (setPrevPath !== false) newPath.prevPath = path;
       global.location.hash = serializePath(newPath);
       this.setState({ path: newPath, loading: false });
+    }
+
+    redo() {
+      const { path } = this.state;
+      const { nextPath } = path;
+      if (nextPath) {
+        nextPath.prevPath = path;
+        this.updatePath(nextPath, false);
+      }
     }
 
     undo() {
@@ -92,6 +102,7 @@ const withRoute = (Component) =>
         appendPoint={this.appendPoint}
         movePoint={this.movePoint}
         undo={this.undo}
+        redo={this.redo}
         clear={this.clear}
         loading={this.state.loading}
         {...this.props}
