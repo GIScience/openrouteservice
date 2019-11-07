@@ -21,6 +21,7 @@ import com.graphhopper.routing.ch.PreparationWeighting;
 import com.graphhopper.routing.util.HikeFlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.FastestWeighting;
+import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
@@ -118,7 +119,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 		{
 			weighting = ((ORSGraphHopper) _searchContext.getGraphHopper())
 					.getIsochroneCoreFactoryDecorator()
-					.getDecoratedAlgorithmFactory(new DistanceWeighting(_searchContext.getEncoder()))
+					.getDecoratedAlgorithmFactory(new ShortestWeighting(_searchContext.getEncoder()))
 					.getWeighting();
 		}
 

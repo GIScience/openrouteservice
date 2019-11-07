@@ -11,6 +11,7 @@ import com.graphhopper.storage.*;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.IsoCore;
+import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
