@@ -18,6 +18,7 @@
       },
       "isochrones": {
         "enabled": true,
+        "weightings": "fastest, shortest",
         "maximum_range_distance": [
           { "profiles": "any", "value": 50000 },
           { "profiles": "driving-car, driving-hgv", "value": 100000 }
