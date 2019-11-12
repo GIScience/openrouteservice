@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- Indonesian Translation Language
+### Fixed
+### Changed
+### Deprecated
+
+## [5.0.2] - 2019-07-29
+### Added
+- Added a gpx schema validator into the api-tests, testing all gpx outputs while fixing the bug from (#496)
+- Added information for countries a route traverses (#349)
 ### Fixed
 ### Changed
 ### Deprecated
@@ -19,11 +28,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed the wrong gpx header for api v2 ([#496](https://github.com/GIScience/openrouteservice/issues/496))
 - Make sure external storages contain entries for all edge IDs ([#535](https://github.com/GIScience/openrouteservice/issues/535))
 - Check if BordersStorage exists before calling it in AvoidBordersCoreEdgeFilter
-- Take into account shortcut direction in LM selection weighting ([#550](https://github.com/GIScience/openrouteservice/issues/550))
-- Updated Matrix api v2 response to correctly display sources ([#560](https://github.com/GIScience/openrouteservice/issues/560))
-- Check for null pointer in LM selection weighting ([#550](https://github.com/GIScience/openrouteservice/issues/550))
-- Use commas rather than pipes for weighting options in app.config.sample ([#564](https://github.com/GIScience/openrouteservice/issues/564))
-- Update point references when point is not found for routing ([#567](https://github.com/GIScience/openrouteservice/issues/567))
+- Take into account shortcut direction in LM selection weighting (#550)
+- Updated Matrix api v2 response to correctly display sources (#560)
+- Check for null pointer in LM selection weighting (#550)
+- Use commas rather than pipes for weighting options in app.config.sample (#564)
+- Update point references when point is not found for routing (#567)
+- Fix concurrency issues when requesting extra info in routing (#571)
 ### Changed
 - Moved walking and hiking flag encoders to the ORS core system ([#440](https://github.com/GIScience/openrouteservice/issues/440))
 - Remove route optimization code ([#499](https://github.com/GIScience/openrouteservice/issues/499))
