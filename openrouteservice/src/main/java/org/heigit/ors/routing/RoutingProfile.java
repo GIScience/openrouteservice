@@ -588,8 +588,8 @@ public class RoutingProfile {
         try {
             String weightingStr = Helper.isEmpty(req.getWeightingMethod()) ? VAL_FASTEST : req.getWeightingMethod();
             Graph graph = null;
-            if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getWeightingsAsStrings().contains(weightingStr))
-                graph = gh.getGraphHopperStorage().getGraph(CHGraph.class);
+            if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getCHProfileStrings().contains(weightingStr))
+                graph = gh.getGraphHopperStorage().getCHGraph();
             else
                 graph = gh.getGraphHopperStorage().getBaseGraph();
 
@@ -598,7 +598,7 @@ public class RoutingProfile {
 
             HintsMap hintsMap = new HintsMap();
             hintsMap.setWeighting(weightingStr);
-            Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, gh.getTraversalMode(), flagEncoder, graph, null, gh.getGraphHopperStorage());
+            Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
 
             alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
 

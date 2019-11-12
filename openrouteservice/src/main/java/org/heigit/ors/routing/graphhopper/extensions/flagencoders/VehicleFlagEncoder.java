@@ -18,7 +18,7 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.profiles.EncodedValue;
-import com.graphhopper.routing.profiles.FactorizedDecimalEncodedValue;
+import com.graphhopper.routing.profiles.UnsignedDecimalEncodedValue;
 import com.graphhopper.routing.util.EncodedValueOld;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.IntsRef;
@@ -49,7 +49,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
     private double accelerationModifier = 0.0;
 
-    protected boolean speedTwoDirections = false;
+    protected boolean speedTwoDirections = true;
 
     protected int maxTrackGradeLevel = 3;
 
@@ -170,7 +170,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
         // first two bits are reserved for route handling in superclass
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
-        speedEncoder = new FactorizedDecimalEncodedValue("average_speed", speedBits, speedFactor, speedTwoDirections);
+        speedEncoder = new UnsignedDecimalEncodedValue("average_speed", speedBits, speedFactor, speedTwoDirections);
         registerNewEncodedValue.add(speedEncoder);
     }
 

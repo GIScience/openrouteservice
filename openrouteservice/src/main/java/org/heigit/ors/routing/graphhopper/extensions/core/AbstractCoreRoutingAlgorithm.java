@@ -161,9 +161,6 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         return this;
     }
     protected boolean accept(EdgeIterator iter, int prevOrNextEdgeId) {
-        if (!traversalMode.hasUTurnSupport() && iter.getEdge() == prevOrNextEdgeId)
-            return false;
-
         return additionalCoreEdgeFilter == null || additionalCoreEdgeFilter.accept(iter);
     }
 

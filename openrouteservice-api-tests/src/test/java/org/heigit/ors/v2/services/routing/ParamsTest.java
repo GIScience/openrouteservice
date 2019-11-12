@@ -379,7 +379,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath()+"/{profile}/json")
-				.then()
+				.then().log().all()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('geometry')", is(true))

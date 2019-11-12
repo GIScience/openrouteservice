@@ -385,13 +385,8 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             if (entryOther.edge != entryCurrent.edge)
                 throw new IllegalStateException("cannot happen for edge based execution of " + getName());
 
-            if (entryOther.adjNode != entryCurrent.adjNode) {
-                // prevents the path to contain the edge at the meeting point twice and subtract the weight (excluding turn weight => no previous edge)
-                entryCurrent = (AStarEntry) entryCurrent.parent;
-                newWeight -= weighting.calcWeight(edgeState, reverse, EdgeIterator.NO_EDGE);
-            } else if (!traversalMode.hasUTurnSupport())
-                // we detected a u-turn at meeting point, skip if not supported
-                return;
+            entryCurrent = (AStarEntry) entryCurrent.parent;
+            newWeight -= weighting.calcWeight(edgeState, reverse, EdgeIterator.NO_EDGE);
         }
 
         if (newWeight < bestPath.getWeight()) {

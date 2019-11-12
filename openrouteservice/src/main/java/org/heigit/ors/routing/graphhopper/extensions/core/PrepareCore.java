@@ -38,7 +38,7 @@ import static com.graphhopper.util.Parameters.Algorithms.DIJKSTRA_BI;
  */
 public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgorithmFactory {
     private static final Logger LOGGER = Logger.getLogger(PrepareCore.class);
-    private static final boolean LOG_DEBUG = false;
+    private final CHProfile chProfile;
     private final PreparationWeighting prepareWeighting;
     private final TraversalMode traversalMode;
     private final EdgeFilter restrictionFilter;
@@ -74,13 +74,13 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
 
     private static final int RESTRICTION_PRIORITY = Integer.MAX_VALUE;
 
-    public PrepareCore(Directory dir, GraphHopperStorage ghStorage, CHGraph chGraph,
-                          Weighting weighting, TraversalMode traversalMode, EdgeFilter restrictionFilter) {
+    public PrepareCore(Directory dir, GraphHopperStorage ghStorage, CHGraph chGraph, EdgeFilter restrictionFilter) {
         this.ghStorage = ghStorage;
         this.prepareGraph = (CHGraphImpl) chGraph;
-        this.traversalMode = traversalMode;
+        this.chProfile = chGraph.getCHProfile();
+        this.traversalMode = chProfile.getTraversalMode();
+        this.weighting = chProfile.getWeighting();
         this.restrictionFilter = restrictionFilter;
-        this.weighting = weighting;
         prepareWeighting = new PreparationWeighting(weighting);
         this.dir = dir;
     }
@@ -163,6 +163,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             throw new IllegalStateException("No weight calculation set.");
 
         allSW.start();
+        super.doWork();
 
         initFromGraph();
         if (!prepareNodes())
@@ -252,8 +253,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 lazyTime += lazySW.getSeconds();
                 neighborTime += neighborSW.getSeconds();
 
-                if (LOG_DEBUG)
-                    LOGGER.info(Helper.nf(counter) + ", updates:" + updateCounter
+                LOGGER.info(Helper.nf(counter) + ", updates:" + updateCounter
                         + ", nodes: " + Helper.nf(sortedNodes.getSize())
                         + ", shortcuts:" + Helper.nf(nodeContractor.getAddedShortcutsCount())
                         + ", dijkstras:" + Helper.nf(nodeContractor.getDijkstraCount())
@@ -355,8 +355,8 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         periodTime += periodSW.getSeconds();
         lazyTime += lazySW.getSeconds();
         neighborTime += neighborSW.getSeconds();
-        LOGGER.info("took:" + allSW.stop().getSeconds()
-                + "s, new shortcuts: " + Helper.nf(nodeContractor.getAddedShortcutsCount())
+        LOGGER.info("took:" + (int) allSW.stop().getSeconds()
+                + ", new shortcuts: " + Helper.nf(nodeContractor.getAddedShortcutsCount())
                 + ", " + prepareWeighting
                 + ", dijkstras:" + nodeContractor.getDijkstraCount()
                 + ", " + getTimesAsString()
@@ -367,6 +367,8 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 + ", neighbor:" + neighborUpdatePercentage
                 + ", " + Helper.getMemInfo());
     }
+
+
 
     public double getLazyTime() {
         return lazyTime;
@@ -385,7 +387,11 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     }
 
     public Weighting getWeighting() {
-        return prepareGraph.getWeighting();
+        return chProfile.getWeighting();
+    }
+
+    public CHProfile getCHProfile() {
+        return chProfile;
     }
 
     private String getTimesAsString() {
@@ -490,7 +496,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         //   but we need the additional oldPriorities array to keep the old value which is necessary for the update method
         sortedNodes = new GHTreeMapComposed();
         oldPriorities = new int[prepareGraph.getNodes()];
-        nodeContractor = new CoreNodeContractor(dir, ghStorage, prepareGraph, weighting, traversalMode);
+        nodeContractor = new CoreNodeContractor(dir, ghStorage, prepareGraph, prepareGraph.getCHProfile());
         nodeContractor.setRestrictionFilter(restrictionFilter);
         nodeContractor.initFromGraph();
         return this;

@@ -24,6 +24,7 @@ import com.graphhopper.storage.TurnCostExtension;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
+import com.graphhopper.util.Parameters;
 import org.heigit.ors.routing.ProfileWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.*;
@@ -44,7 +45,15 @@ public class ORSWeightingFactory implements WeightingFactory {
 		turnCostExtensionMap = new HashMap<>();
 	}
 
-	public Weighting createWeighting(HintsMap hintsMap, TraversalMode tMode, FlagEncoder encoder, Graph graph, LocationIndex locationIndex, GraphHopperStorage graphStorage) {
+	public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, GraphHopperStorage graphStorage) {
+
+		TraversalMode tMode = encoder.supports(TurnWeighting.class) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
+		if (hintsMap.has(Parameters.Routing.EDGE_BASED))
+			tMode = hintsMap.getBool(Parameters.Routing.EDGE_BASED, false) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
+		if (tMode.isEdgeBased() && !encoder.supports(TurnWeighting.class)) {
+			throw new IllegalArgumentException("You need a turn cost extension to make use of edge_based=true, e.g. use car|turn_costs=true");
+		}
+
 		String strWeighting = hintsMap.get("weighting_method", "").toLowerCase();
 		if (Helper.isEmpty(strWeighting))
 			strWeighting = hintsMap.getWeighting();

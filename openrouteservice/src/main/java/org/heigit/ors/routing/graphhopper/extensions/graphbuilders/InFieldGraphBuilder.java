@@ -154,7 +154,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 					int idxTowerDest = intId2idx.get(internalIdTowerDestination);
 					// compute route between tower nodes
 					try {
-						Dijkstra dijkstra = new Dijkstra(graphStorage, weightings.get(0), TraversalMode.EDGE_BASED_2DIR);
+						Dijkstra dijkstra = new Dijkstra(graphStorage, weightings.get(0), TraversalMode.EDGE_BASED);
 						Path path = dijkstra.calcPath(idxTowerStart, idxTowerDest);
 						IntIndexedContainer pathNodes = path.calcNodes();
 						// iterate through nodes of routing result

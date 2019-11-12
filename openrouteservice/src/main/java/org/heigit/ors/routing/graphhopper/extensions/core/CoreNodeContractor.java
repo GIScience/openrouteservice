@@ -42,7 +42,7 @@ class CoreNodeContractor {
     private final CHGraph prepareGraph;
     private final PreparationWeighting prepareWeighting;
     // todo: so far node contraction can only be done for node-based graph traversal
-    private final TraversalMode traversalMode;
+    private final CHProfile chProfile;
     private final DataAccess originalEdges;
     private final Map<Shortcut, Shortcut> shortcuts = new HashMap<>();
     private final AddShortcutHandler addScHandler = new AddShortcutHandler();
@@ -59,17 +59,16 @@ class CoreNodeContractor {
     private int maxEdgesCount;
     private int maxLevel;
 
-    CoreNodeContractor(Directory dir, GraphHopperStorage ghStorage, CHGraph prepareGraph, Weighting weighting,
-                   TraversalMode traversalMode) {
-        if (traversalMode.isEdgeBased()) {
-            throw new IllegalArgumentException("Contraction Hierarchies only support node based traversal so far, given: " + traversalMode);
+    CoreNodeContractor(Directory dir, GraphHopperStorage ghStorage, CHGraph prepareGraph, CHProfile chProfile) {
+        if (chProfile.getTraversalMode().isEdgeBased()) {
+            throw new IllegalArgumentException("Contraction Hierarchies only support node based traversal so far, given: " + chProfile.getTraversalMode());
         }
         // todo: it would be nice to check if ghStorage is frozen here
         this.ghStorage = ghStorage;
         this.prepareGraph = prepareGraph;
-        this.prepareWeighting = new PreparationWeighting(weighting);
-        this.traversalMode = traversalMode;
-        originalEdges = dir.find("original_edges_" + AbstractWeighting.weightingToFileName(weighting, traversalMode.isEdgeBased()));
+        this.prepareWeighting = new PreparationWeighting(chProfile.getWeighting());
+        this.chProfile = chProfile;
+        originalEdges = dir.find("original_edges_" + AbstractWeighting.weightingToFileName(chProfile.getWeighting()));
         originalEdges.create(1000);
     }
 
@@ -83,7 +82,7 @@ class CoreNodeContractor {
         FlagEncoder prepareFlagEncoder = prepareWeighting.getFlagEncoder();
         vehicleInExplorer = prepareGraph.createEdgeExplorer(DefaultEdgeFilter.inEdges(prepareFlagEncoder));
         vehicleOutExplorer = prepareGraph.createEdgeExplorer(DefaultEdgeFilter.outEdges(prepareFlagEncoder));
-        prepareAlgo = new DijkstraOneToMany(prepareGraph, prepareWeighting, traversalMode);
+        prepareAlgo = new DijkstraOneToMany(prepareGraph, prepareWeighting, chProfile.getTraversalMode());
     }
 
     void close() {
@@ -227,12 +226,8 @@ class CoreNodeContractor {
             }
 
             if (!updatedInGraph) {
-                CHEdgeIteratorState edgeState = prepareGraph.shortcut(sc.from, sc.to);
-                // note: flags overwrite weight => call first
-                edgeState.setFlagsAndWeight(sc.flags, sc.weight);
-                edgeState.setDistance(sc.dist);
-                edgeState.setSkippedEdges(sc.skippedEdge1, sc.skippedEdge2);
-                setOrigEdgeCount(edgeState.getEdge(), sc.originalEdges);
+                int scId = prepareGraph.shortcut(sc.from, sc.to, sc.flags, sc.weight, sc.skippedEdge1, sc.skippedEdge2);
+                setOrigEdgeCount(scId, sc.originalEdges);
                 tmpNewShortcuts++;
             }
         }

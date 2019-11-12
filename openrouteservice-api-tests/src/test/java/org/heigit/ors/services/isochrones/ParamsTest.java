@@ -235,7 +235,7 @@ public class ParamsTest extends ServiceTest {
 				.all()
 				.when()
 				.get(getEndPointName())
-				.then()
+				.then().log().all()
 				.statusCode(200);
 	}
 
