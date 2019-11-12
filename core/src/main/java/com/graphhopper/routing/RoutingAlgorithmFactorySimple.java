@@ -77,9 +77,8 @@ public class RoutingAlgorithmFactorySimple implements RoutingAlgorithmFactory {
         ra.setMaxVisitedNodes(opts.getMaxVisitedNodes());
 
         // ORS-GH MOD START
-        // ORS TODO: provide a reason for this change
-        // ORS TODO: setEdgeFilter does not exist
-        //ra.setEdgeFilter(opts.getEdgeFilter());
+        // ORS pass edgefilter to algorithm
+        ra.setEdgeFilter(opts.getEdgeFilter());
         // ORS-GH MOD END
         return ra;
     }

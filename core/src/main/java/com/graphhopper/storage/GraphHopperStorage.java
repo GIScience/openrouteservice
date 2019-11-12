@@ -61,19 +61,6 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         this(createProfilesForWeightings(nodeBasedCHWeightings), dir, encodingManager, withElevation, extendedStorage);
     }
 
-    // ORS-GH MOD START
-    // CALT
-    // ORS TODO: unclear modifications commented out - maybe use profies instead
-//    public GraphHopperStorage(List<? extends Weighting> nodeBasedCHWeightings, List<? extends Weighting> edgeBasedCHWeightings, Directory dir, EncodingManager encodingManager,
-//                              boolean withElevation, GraphExtension extendedStorage) {
-//        this(nodeBasedCHWeightings, edgeBasedCHWeightings, dir, encodingManager, withElevation, extendedStorage, null);
-//    }
-//
-//    public GraphHopperStorage(List<? extends Weighting> nodeBasedCHWeightings, List<? extends Weighting> edgeBasedCHWeightings, Directory dir, final EncodingManager encodingManager,
-//                              //boolean withElevation, GraphExtension extendedStorage) {
-//                              boolean withElevation, GraphExtension extendedStorage, List<String> types) {
-        // ORS-GH MOD END
-
     public GraphHopperStorage(List<CHProfile> chProfiles, Directory dir, EncodingManager encodingManager, boolean withElevation, GraphExtension extendedStorage) {
         if (extendedStorage == null)
             throw new IllegalArgumentException("GraphExtension cannot be null, use NoOpExtension");
@@ -105,28 +92,6 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         for (CHProfile chProfile : chProfiles) {
             chGraphs.add(new CHGraphImpl(chProfile, dir, baseGraph));
         }
-// ORS-GH MOD START
-// CALT
-//        for (Weighting w : nodeBasedCHWeightings) {
-//            nodeBasedCHGraphs.add(new CHGraphImpl(w, dir, this.baseGraph, false));
-//        }
-//        for (Weighting w : edgeBasedCHWeightings) {
-//            edgeBasedCHGraphs.add(new CHGraphImpl(w, dir, this.baseGraph, true));
-//        }
-//        int c = 0;
-//        for (Weighting w : nodeBasedCHWeightings) {
-//            String type = nodeBasedWeightingsTypes == null || nodeBasedWeightingsTypes.isEmpty() ? "ch" : //default to ch
-//                nodeBasedWeightingsTypes.get(c);
-//            nodeBasedCHGraphs.add(new CHGraphImpl(w, dir, this.baseGraph, false, type));
-//            c++;
-//        }
-//        c = 0;
-//        for (Weighting w : edgeBasedCHWeightings) {
-//            String type = edgeBasedWeightingsTypes == null || edgeBasedWeightingsTypes.isEmpty() ? "ch" : //default to ch
-//                    edgeBasedWeightingsTypes.get(c);
-//            edgeBasedCHGraphs.add(new CHGraphImpl(w, dir, this.baseGraph, true, type));
-//            c++;
-//        }
     }
 
     public CHGraph getCHGraph() {
@@ -161,8 +126,8 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         throw new IllegalStateException("Cannot find CHGraph for the specified profile: " + profile + ", existing:" + existing);
     }
 
-    // ORS-GH MOD START
-    // CALT
+//    // ORS-GH MOD START
+//    // CALT
     public CHGraphImpl getCoreGraph(Weighting weighting) {
         Collection<CHGraphImpl> chGraphs = getAllCHGraphs();
         if (chGraphs.isEmpty())
@@ -170,13 +135,12 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         Iterator<CHGraphImpl> iterator = chGraphs.iterator();
         while(iterator.hasNext()){
             CHGraphImpl cg = iterator.next();
-            // ORS TODO: unclear modification commented out
-            // if(cg.getType() == "core" && cg.getWeighting().getName() == weighting.getName() && cg.getWeighting().getFlagEncoder().toString() == weighting.getFlagEncoder().toString())
+             if(cg.getCHProfile().getType() == "core" && cg.getCHProfile().getWeighting().getName() == weighting.getName() && cg.getCHProfile().getWeighting().getFlagEncoder().toString() == weighting.getFlagEncoder().toString())
                 return cg;
         }
         throw new IllegalStateException("No core graph was found");
     }
-    // ORS-GH MOD END
+//    // ORS-GH MOD END
 
     public boolean isCHPossible() {
         return !getAllCHGraphs().isEmpty();

@@ -10,5 +10,5 @@ import com.graphhopper.storage.index.LocationIndex;
 // ORS-GH MOD - Modification by Maxim Rylov: Added a new class.
 public interface WeightingFactory {
 	
-	public Weighting createWeighting(HintsMap hintsMap, TraversalMode tMode, FlagEncoder encoder, Graph graph, LocationIndex index, GraphHopperStorage graphStorage);
+	public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, GraphHopperStorage graphStorage);
 }

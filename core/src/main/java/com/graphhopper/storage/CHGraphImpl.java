@@ -70,18 +70,11 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
     private boolean isReadyForContraction;
 
     // ORS-GH MOD START
-    // CALT add member variables
+    // CALT add member variable
     private int coreNodeCount = -1;
-    private String type;  // Either "ch" or "core"
     // ORS-GH MOD END
 
-    // ORS-GH MOD START
-    // CALT add type parameter
-    // ORS TODO: temporarily changed back to make it compile
-    // ORS TODO: maybe move type into profile (new in GH0.13)?
-    CHGraphImpl(CHProfile chProfile, Directory dir, final BaseGraph baseGraph) {
-    // CHGraphImpl(CHProfile chProfile, Directory dir, final BaseGraph baseGraph, final String type) {
-    // ORS-GH MOD END
+     CHGraphImpl(CHProfile chProfile, Directory dir, final BaseGraph baseGraph) {
         if (chProfile.getWeighting() == null)
             throw new IllegalStateException("Weighting for CHGraph cannot be null");
         this.chProfile = chProfile;
@@ -91,9 +84,8 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
         // CALT include type in directory location
         //this.nodesCH = dir.find("nodes_ch_" + name, DAType.getPreferredInt(dir.getDefaultType()));
         //this.shortcuts = dir.find("shortcuts_" + name, DAType.getPreferredInt(dir.getDefaultType()));
-        this.nodesCH = dir.find("nodes_" + type + "_" + name, DAType.getPreferredInt(dir.getDefaultType()));
-        this.shortcuts = dir.find("shortcuts_" + type + "_" + name, DAType.getPreferredInt(dir.getDefaultType()));
-        this.type = type;
+        this.nodesCH = dir.find("nodes_" + chProfile.getType() + "_" + name, DAType.getPreferredInt(dir.getDefaultType()));
+        this.shortcuts = dir.find("shortcuts_" + chProfile.getType() + "_" + name, DAType.getPreferredInt(dir.getDefaultType()));
         // ORS-GH MOD END
         this.chEdgeAccess = new CHEdgeAccess(name);
     }
@@ -215,12 +207,6 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
     }
     public void setCoreNodes(int coreNodeCount) {
         this.coreNodeCount = coreNodeCount;
-    }
-    public String getType() {
-        return type;
-    }
-    public void setType(String type) {
-        this.type = type;
     }
     // ORS-GH MOD END
 

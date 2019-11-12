@@ -19,6 +19,11 @@ public class CHProfile {
     private final Weighting weighting;
     private final boolean edgeBased;
     private final int uTurnCosts;
+    // ORS-GH MOD START
+    // CALT add member variable
+    public static final String TYPE_CORE = "core";
+    private String type = "ch";  // Either "ch" or "core"
+    // ORS-GH MOD END
 
     public static CHProfile nodeBased(Weighting weighting) {
         return new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS);
@@ -31,6 +36,13 @@ public class CHProfile {
     public CHProfile(Weighting weighting, TraversalMode traversalMode, int uTurnCosts) {
         this(weighting, traversalMode.isEdgeBased(), uTurnCosts);
     }
+
+    // ORS-GH MOD START
+    public CHProfile(Weighting weighting, TraversalMode traversalMode, int uTurnCosts, String type) {
+        this(weighting, traversalMode.isEdgeBased(), uTurnCosts);
+        this.type = type;
+    }
+    // ORS-GH MOD END
 
     /**
      * @param uTurnCosts the costs of a u-turn in seconds, for {@link TurnWeighting#INFINITE_U_TURN_COSTS} the u-turn costs
@@ -70,6 +82,12 @@ public class CHProfile {
     public TraversalMode getTraversalMode() {
         return edgeBased ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
     }
+
+    // ORS-GH MOD START
+    public String getType() {
+        return type;
+    }
+    // ORS-GH MOD END
 
     public String toFileName() {
         return AbstractWeighting.weightingToFileName(weighting) + "_" + (edgeBased ? ("edge_utc" + uTurnCosts) : "node");

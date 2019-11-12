@@ -17,6 +17,7 @@
  */
 package com.graphhopper.routing.weighting;
 
+import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.util.TurnCostEncoder;
@@ -40,6 +41,7 @@ public class TurnWeighting implements Weighting {
     private final TurnCostExtension turnCostExt;
     private final Weighting superWeighting;
     private final double uTurnCosts;
+    public boolean inORS = false;
 
     public TurnWeighting(Weighting superWeighting, TurnCostExtension turnCostExt) {
         this(superWeighting, turnCostExt, INFINITE_U_TURN_COSTS);
@@ -77,7 +79,19 @@ public class TurnWeighting implements Weighting {
         if (!EdgeIterator.Edge.isValid(prevOrNextEdgeId))
             return weight;
 
-        final int origEdgeId = reverse ? edgeState.getOrigEdgeLast() : edgeState.getOrigEdgeFirst();
+        int origEdgeId = reverse ? edgeState.getOrigEdgeLast() : edgeState.getOrigEdgeFirst();
+        if (inORS) {
+            origEdgeId = EdgeIteratorStateHelper.getOriginalEdge(edgeState);
+        }
+//        int actualEdgeId = EdgeIteratorStateHelper.getOriginalEdge(edgeState);
+//        if (inORS && actualEdgeId != origEdgeId) {
+//            double actualEdgeTurnCost = reverse
+//                    ? calcTurnWeight(actualEdgeId, edgeState.getBaseNode(), prevOrNextEdgeId)
+//                    : calcTurnWeight(prevOrNextEdgeId, edgeState.getBaseNode(), actualEdgeId);
+//            if (Double.isInfinite(actualEdgeTurnCost)) {
+//                return actualEdgeTurnCost;
+//            }
+//        }
         double turnCosts = reverse
                 ? calcTurnWeight(origEdgeId, edgeState.getBaseNode(), prevOrNextEdgeId)
                 : calcTurnWeight(prevOrNextEdgeId, edgeState.getBaseNode(), origEdgeId);
@@ -145,5 +159,9 @@ public class TurnWeighting implements Weighting {
     @Override
     public String getName() {
         return "turn|" + superWeighting.getName();
+    }
+
+    public void setInORS(boolean inORS) {
+        this.inORS = inORS;
     }
 }

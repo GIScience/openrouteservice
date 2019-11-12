@@ -522,7 +522,7 @@ public class LocationIndexTree implements LocationIndex {
      * @return true if no further call of this method is required. False otherwise, ie. a next
      * iteration is necessary and no early finish possible.
      */
-    final boolean findNetworkEntries(double queryLat, double queryLon,
+    public final boolean findNetworkEntries(double queryLat, double queryLon,
                                      GHIntHashSet foundEntries, int iteration) {
         // find entries in border of searchbox
         for (int yreg = -iteration; yreg <= iteration; yreg++) {

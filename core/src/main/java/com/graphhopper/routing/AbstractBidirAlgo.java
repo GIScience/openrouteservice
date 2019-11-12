@@ -21,6 +21,7 @@ import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
@@ -330,6 +331,15 @@ public abstract class AbstractBidirAlgo extends AbstractRoutingAlgorithm {
         if (entryOther == null)
             return;
 
+//        if (weighting instanceof TurnWeighting && ((TurnWeighting) weighting).inORS) {
+//            System.out.println("check turn restriction: " + entry.originalEdge + " => " + entryOther.originalEdge + "(" + reverse + ") @ " + edgeState.getBaseNode() + "/" +  edgeState.getAdjNode());
+//            if (Double.isInfinite(reverse
+//                    ? ((TurnWeighting)weighting).calcTurnWeight(entryOther.originalEdge, edgeState.getAdjNode(), entry.originalEdge)
+//                    : ((TurnWeighting)weighting).calcTurnWeight(entry.originalEdge, edgeState.getAdjNode(), entryOther.originalEdge))) {
+//                return;
+//            }
+//        }
+//
         // update μ
         double weight = entry.getWeightOfVisitedPath() + entryOther.getWeightOfVisitedPath();
         if (traversalMode.isEdgeBased()) {
@@ -367,8 +377,9 @@ public abstract class AbstractBidirAlgo extends AbstractRoutingAlgorithm {
         // ORS-GH MOD START
         // REMOVED: causes test failure, investigate
         // TODO ORS: provide a reason for this change
+        if (weighting instanceof TurnWeighting && ((TurnWeighting) weighting).inORS)
+            return entry.originalEdge;
         return entry.edge;
-//        return entry.originalEdge;
         // ORS-GH MOD END
     }
 

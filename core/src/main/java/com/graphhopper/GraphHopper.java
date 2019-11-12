@@ -81,8 +81,8 @@ public class GraphHopper implements GraphHopperAPI {
     private final String fileLockName = "gh.lock";
     // ORS-GH MOD START
     // CALT - change access level
-    private final Set<RoutingAlgorithmFactoryDecorator> algoDecorators = new LinkedHashSet<>();
-    //protected final Set<RoutingAlgorithmFactoryDecorator> algoDecorators = new LinkedHashSet<>();
+//    private final Set<RoutingAlgorithmFactoryDecorator> algoDecorators = new LinkedHashSet<>();
+    protected final Set<RoutingAlgorithmFactoryDecorator> algoDecorators = new LinkedHashSet<>();
     // ORS-GH MOD END
     // utils
     private final TranslationMap trMap = new TranslationMap().doImport();
@@ -881,18 +881,10 @@ public class GraphHopper implements GraphHopperAPI {
 
                     CHAlgoFactoryDecorator.EdgeBasedCHMode edgeBasedCHMode = chFactoryDecorator.getEdgeBasedCHMode();
                     if (!(edgeBasedCHMode == EDGE_OR_NODE && encoder.supports(TurnWeighting.class))) {
-                        // ORS-GH MOD START
-                        // ORS TODO: investigate - this modification makes no sense with profiles
-                        //chFactoryDecorator.addCHProfile(CHProfile.nodeBased(createWeighting(new HintsMap(chWeightingStr), encoder, null)));
-                        chFactoryDecorator.addCHProfile(CHProfile.nodeBased(createWeighting(new HintsMap(chWeightingStr), TraversalMode.NODE_BASED, encoder, null)));
-                        // ORS-GH MOD END
+                        chFactoryDecorator.addCHProfile(CHProfile.nodeBased(createWeighting(new HintsMap(chWeightingStr), encoder, null)));
                     }
                     if (edgeBasedCHMode != OFF && encoder.supports(TurnWeighting.class)) {
-                        // ORS-GH MOD START
-                        // ORS TODO: investigate - this modification makes no sense with profiles
-                        //chFactoryDecorator.addCHProfile(CHProfile.edgeBased(createWeighting(new HintsMap(chWeightingStr), encoder, null), uTurnCosts));
-                        chFactoryDecorator.addCHProfile(CHProfile.edgeBased(createWeighting(new HintsMap(chWeightingStr), TraversalMode.EDGE_BASED, encoder, null), uTurnCosts));
-                        // ORS-GH MOD END
+                        chFactoryDecorator.addCHProfile(CHProfile.edgeBased(createWeighting(new HintsMap(chWeightingStr), encoder, null), uTurnCosts));
                     }
                 }
             }
@@ -912,11 +904,7 @@ public class GraphHopper implements GraphHopperAPI {
 
         for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
             for (String lmWeightingStr : lmFactoryDecorator.getWeightingsAsStrings()) {
-                // ORS-GH MOD START
-                // ORS TODO: investigate - this modification makes no sense with profiles
-                //Weighting weighting = createWeighting(new HintsMap(lmWeightingStr), encoder, null);
-                Weighting weighting = createWeighting(new HintsMap(lmWeightingStr), TraversalMode.NODE_BASED, encoder, null);
-                // ORS-GH MOD END
+                Weighting weighting = createWeighting(new HintsMap(lmWeightingStr), encoder, null);
                 lmFactoryDecorator.addWeighting(weighting);
             }
         }
@@ -979,47 +967,53 @@ public class GraphHopper implements GraphHopperAPI {
      * created. Note that all URL parameters are available in the hintsMap as String if
      * you use the web module.
      *
-     * @param hintsMap all parameters influencing the weighting. E.g. parameters coming via
+     * @param hints all parameters influencing the weighting. E.g. parameters coming via
      *                 GHRequest.getHints or directly via "&amp;api.xy=" from the URL of the web UI
      * @param encoder  the required vehicle
      * @param graph    The Graph enables the Weighting for NodeAccess and more
      * @return the weighting to be used for route calculation
      * @see HintsMap
      */
-    // ORS-GH MOD START
-    //public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, Graph graph) {
-    public Weighting createWeighting(HintsMap hintsMap, TraversalMode tMode, FlagEncoder encoder, Graph graph) {
-        if (weightingFactory != null) {
-            return weightingFactory.createWeighting(hintsMap, tMode, encoder, graph, locationIndex, ghStorage);
+    public Weighting createWeighting(HintsMap hints, FlagEncoder encoder, Graph graph) {
+// ORS-GH MOD START
+        TraversalMode tMode = encoder.supports(TurnWeighting.class) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
+        if (hints.has(Routing.EDGE_BASED))
+            tMode = hints.getBool(Routing.EDGE_BASED, false) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
+
+        if (tMode.isEdgeBased() && !encoder.supports(TurnWeighting.class)) {
+            throw new IllegalArgumentException("You need a turn cost extension to make use of edge_based=true, e.g. use car|turn_costs=true");
         }
-    // ORS-GH MOD END
-        String weightingStr = toLowerCase(hintsMap.getWeighting());
+        if (weightingFactory != null) {
+            return weightingFactory.createWeighting(hints, encoder, ghStorage);
+        }
+// ORS-GH MOD END
+        String weightingStr = toLowerCase(hints.getWeighting());
         Weighting weighting = null;
 
         if (encoder.supports(GenericWeighting.class)) {
-            weighting = new GenericWeighting((DataFlagEncoder) encoder, hintsMap);
+            weighting = new GenericWeighting((DataFlagEncoder) encoder, hints);
         } else if ("shortest".equalsIgnoreCase(weightingStr)) {
             weighting = new ShortestWeighting(encoder);
         } else if ("fastest".equalsIgnoreCase(weightingStr) || weightingStr.isEmpty()) {
             if (encoder.supports(PriorityWeighting.class))
-                weighting = new PriorityWeighting(encoder, hintsMap);
+                weighting = new PriorityWeighting(encoder, hints);
             else
-                weighting = new FastestWeighting(encoder, hintsMap);
+                weighting = new FastestWeighting(encoder, hints);
         } else if ("curvature".equalsIgnoreCase(weightingStr)) {
             if (encoder.supports(CurvatureWeighting.class))
-                weighting = new CurvatureWeighting(encoder, hintsMap);
+                weighting = new CurvatureWeighting(encoder, hints);
 
         } else if ("short_fastest".equalsIgnoreCase(weightingStr)) {
-            weighting = new ShortFastestWeighting(encoder, hintsMap);
+            weighting = new ShortFastestWeighting(encoder, hints);
         }
 
         if (weighting == null)
             throw new IllegalArgumentException("weighting " + weightingStr + " not supported");
 
-        if (hintsMap.has(Routing.BLOCK_AREA)) {
-            String blockAreaStr = hintsMap.get(Parameters.Routing.BLOCK_AREA, "");
+        if (hints.has(Routing.BLOCK_AREA)) {
+            String blockAreaStr = hints.get(Parameters.Routing.BLOCK_AREA, "");
             GraphEdgeIdFinder.BlockArea blockArea = new GraphEdgeIdFinder(graph, locationIndex).
-                    parseBlockArea(blockAreaStr, DefaultEdgeFilter.allEdges(encoder), hintsMap.getDouble("block_area.edge_id_max_area", 1000 * 1000));
+                    parseBlockArea(blockAreaStr, DefaultEdgeFilter.allEdges(encoder), hints.getDouble("block_area.edge_id_max_area", 1000 * 1000));
             return new BlockAreaWeighting(weighting, blockArea);
         }
 
@@ -1171,10 +1165,7 @@ public class GraphHopper implements GraphHopperAPI {
                     checkNonChMaxWaypointDistance(points);
                     queryGraph = new QueryGraph(ghStorage);
                     queryGraph.lookup(qResults);
-                    // ORS-GH MOD START
-                    //weighting = createWeighting(hints, encoder, queryGraph);
-                    weighting = createWeighting(hints, tMode, encoder, queryGraph);
-                    // ORS-GH MOD END
+                    weighting = createWeighting(hints, encoder, queryGraph);
                 }
                 ghRsp.addDebugInfo("tmode:" + tMode.toString());
 

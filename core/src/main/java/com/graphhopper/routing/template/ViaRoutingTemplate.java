@@ -64,10 +64,9 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
             throw new IllegalArgumentException("At least 2 points have to be specified, but was:" + points.size());
 
         // ORS-GH MOD START
-        // ORS TODO: provide a reason for this change
+        // use edgeFilter passed from outside
         // EdgeFilter edgeFilter = DefaultEdgeFilter.allEdges(encoder);
         // ORS-GH MOD END
-        // ORS TODO: strictEdgeFilter is new in GH>0.13
         EdgeFilter strictEdgeFilter = !ghRequest.hasSnapPreventions() ? edgeFilter : new SnapPreventionEdgeFilter(edgeFilter,
                 encoder.getEnumEncodedValue(RoadClass.KEY, RoadClass.class),
                 encoder.getEnumEncodedValue(RoadEnvironment.KEY, RoadEnvironment.class), ghRequest.getSnapPreventions());
@@ -130,8 +129,8 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
 
             int idx = 0;
             for (Path path : tmpPathList) {
-                if (path.getTime() < 0)
-                    throw new RuntimeException("Time was negative " + path.getTime() + " for index " + idx + ". Please report as bug and include:" + ghRequest);
+//                if (path.getTime() < 0)
+//                    throw new RuntimeException("Time was negative " + path.getTime() + " for index " + idx + ". Please report as bug and include:" + ghRequest);
 
                 pathList.add(path);
                 debug += ", " + path.getDebugInfo();

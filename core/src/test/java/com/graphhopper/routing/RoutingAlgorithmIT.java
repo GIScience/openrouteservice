@@ -57,10 +57,7 @@ public class RoutingAlgorithmIT {
             addStr = "turn|";
 
         FlagEncoder encoder = hopper.getEncodingManager().getEncoder(hints.getVehicle());
-        // ORS-GH MOD START - use traversalMode
-        // Weighting weighting = hopper.createWeighting(hints, encoder, hopper.getGraphHopperStorage());
-        Weighting weighting = hopper.createWeighting(hints, tMode, encoder, hopper.getGraphHopperStorage());
-        // ORS-GH MOD END
+        Weighting weighting = hopper.createWeighting(hints, encoder, hopper.getGraphHopperStorage());
 
         HintsMap defaultHints = new HintsMap().put(Parameters.CH.DISABLE, true).put(Parameters.Landmark.DISABLE, true)
                 .setVehicle(hints.getVehicle()).setWeighting(hints.getWeighting());
