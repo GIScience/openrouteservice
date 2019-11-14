@@ -8,16 +8,17 @@ import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.util.EdgeIteratorState;
 
 import java.io.ByteArrayInputStream;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
+
 
 public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
     private final BooleanEncodedValue conditionalEnc;
     private final boolean fwd;
     private final boolean bwd;
-
-    private Calendar calendar = Calendar.getInstance();
 
     public ConditionalAccessEdgeFilter(BooleanEncodedValue conditionalEnc, boolean fwd, boolean bwd) {
         this.conditionalEnc = conditionalEnc;
@@ -28,14 +29,17 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
     @Override
     public final boolean accept(EdgeIteratorState iter, long time) {
         boolean conditional = fwd && iter.get(conditionalEnc) || bwd && iter.getReverse(conditionalEnc);
-        boolean result = conditional && accept(iter.getConditional(), time);
+        // TODO: get actual edge timeZoneID
+        ZoneId edgeZoneId = ZoneId.of("Europe/Berlin");
+        Instant edgeEnterTime = Instant.ofEpochMilli(time);
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(edgeEnterTime, edgeZoneId);
+        boolean result = conditional && accept(iter.getConditional(), zonedDateTime);
         if (conditional)
             System.out.println(iter.getEdge() + ": " + iter.getConditional() + " -> " + result);  //FIXME: debug string
         return result;
     }
 
-    boolean accept(String conditional, long time) {
-        this.calendar.setTimeInMillis(time);
+    boolean accept(String conditional, ZonedDateTime zonedDateTime) {
         boolean matchValue = false;
 
         try {
@@ -52,7 +56,7 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
                 List<Condition> conditions = restriction.getConditions();
 
                 // stop as soon as time matches the combined conditions
-                if (match(conditions))
+                if (match(conditions, zonedDateTime))
                     return matchValue;
             }
 
@@ -66,13 +70,13 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
         return false;
     }
 
-    boolean match(List<Condition> conditions) {
+    boolean match(List<Condition> conditions,  ZonedDateTime zonedDateTime) {
         for (Condition condition : conditions) {
             try {
                 OpeningHoursParser parser = new OpeningHoursParser(new ByteArrayInputStream(condition.toString().getBytes()));
                 List<Rule> rules = parser.rules(false);
                 // failed to match any of the rules
-                if (!matchRules(rules))
+                if (!matchRules(rules, zonedDateTime))
                     return false;
             } catch (Exception e) {
                 return false;
@@ -95,9 +99,9 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
         return false;
     }
 
-    boolean matchRules(List<Rule> rules) {
-        TimePoint timePoint = new TimePoint(calendar, false);
-        TimePoint timePointExtended = new TimePoint(calendar, true);
+    boolean matchRules(List<Rule> rules, ZonedDateTime zonedDateTime) {
+        TimePoint timePoint = new TimePoint(zonedDateTime, false);
+        TimePoint timePointExtended = new TimePoint(zonedDateTime, true);
         for (Rule rule: rules) {
             if (matches(timePoint, rule))
                 return true;
@@ -109,7 +113,6 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
     }
 
     boolean inYearRange(TimePoint timePoint, List<YearRange> years) {
-        int year = timePoint.getYear();
         for (YearRange yearRange: years)
             if (inRange(timePoint.getYear(), yearRange.getStartYear(), yearRange.getEndYear(), YearRange.UNDEFINED_YEAR))
                 return true;
@@ -117,21 +120,19 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
     }
 
     boolean inDateRange(TimePoint timePoint, List<DateRange> dates) {
-        int year = timePoint.getYear();
-        int month = timePoint.getMonth();
-        int day = timePoint.getDay();
-
         for (DateRange dateRange: dates) {
-            DateWithOffset date1 = dateRange.getStartDate();
-            DateWithOffset date2 = dateRange.getEndDate();
+            DateWithOffset startDate = dateRange.getStartDate();
+            DateWithOffset endDate = dateRange.getEndDate();
 
-            if (!inRange(year, date1.getYear(), date2.getYear(), YearRange.UNDEFINED_YEAR))
-                return false;
-
-            if (!inRange(month, date1.getMonth(), date2.getMonth()))
-                return false;
+            if (endDate == null) {
+                if (timePoint.atDate(startDate))
+                    return true;
+            } else {
+                if (timePoint.inRange(startDate, endDate))
+                    return true;
+            }
         }
-        return true;
+        return false;
     }
 
     boolean inWeekdayRange(TimePoint timePoint, List<WeekDayRange> days) {
@@ -141,7 +142,7 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
         return false;
     }
 
-    static boolean inRange(int value, Enum start, Enum end) {
+    boolean inRange(int value, Enum start, Enum end) {
         if (start == null)
             return true; // unspecified range matches to any value
         if (value >= start.ordinal()) {
