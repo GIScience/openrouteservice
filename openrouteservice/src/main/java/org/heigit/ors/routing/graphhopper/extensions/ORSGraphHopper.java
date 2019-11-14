@@ -193,7 +193,7 @@ public class ORSGraphHopper extends GraphHopper {
 						"Vehicle " + vehicle + " unsupported. " + "Supported are: " + getEncodingManager());
 
 			HintsMap hints = request.getHints();
-			String tModeStr = hints.get("traversal_mode", TraversalMode.NODE_BASED.name());
+			String tModeStr = hints.get("traversal_mode", TraversalMode.EDGE_BASED.name());
 			TraversalMode tMode = TraversalMode.fromString(tModeStr);
 			if (hints.has(Parameters.Routing.EDGE_BASED))
 				tMode = hints.getBool(Parameters.Routing.EDGE_BASED, false) ? TraversalMode.EDGE_BASED
