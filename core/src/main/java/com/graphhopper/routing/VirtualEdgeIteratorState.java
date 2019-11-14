@@ -36,9 +36,6 @@ import com.graphhopper.util.PointList;
 public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIteratorState {
     private final PointList pointList;
     private final int edgeId;
-    // ORS-GH MOD START
-    private final int originalEdgeId;
-    // ORS-GH MOD END
     private final int baseNode;
     private final int adjNode;
     private final int originalEdgeKey;
@@ -50,17 +47,22 @@ public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIterat
     private EdgeIteratorState reverseEdge;
     private final boolean reverse;
 
-    // ORS-GH MOD START (added originalEdgeId)
+    // ORS-GH MOD START
+    // store actual edge ID for use in TurnWeighting, fixes turn restrictions on virtual edges
+    private final int originalEdgeId;
+
+    public int getOriginalEdge() {
+        return originalEdgeId;
+    }
+
     //public VirtualEdgeIteratorState(int originalEdgeKey, int edgeId, int baseNode, int adjNode, double distance,
     //                                IntsRef edgeFlags, String name, PointList pointList, boolean reverse) {
     public VirtualEdgeIteratorState(int originalEdgeKey, int edgeId, int originalEdgeId, int baseNode, int adjNode, double distance,
                                     IntsRef edgeFlags, String name, PointList pointList, boolean reverse) {
+        this.originalEdgeId = originalEdgeId;
     // ORS-GH MOD END
         this.originalEdgeKey = originalEdgeKey;
         this.edgeId = edgeId;
-        // ORS-GH MOD START
-        this.originalEdgeId = originalEdgeId;
-        // ORS-GH MOD END
         this.baseNode = baseNode;
         this.adjNode = adjNode;
         this.distance = distance;
@@ -84,12 +86,6 @@ public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIterat
     public int getEdge() {
         return edgeId;
     }
-
-    // ORS-GH MOD START
-    public int getOriginalEdge() {
-        return originalEdgeId;
-    }
-    // ORS-GH MOD END
 
     @Override
     public int getBaseNode() {

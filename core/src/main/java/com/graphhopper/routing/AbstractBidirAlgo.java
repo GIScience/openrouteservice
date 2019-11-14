@@ -309,7 +309,7 @@ public abstract class AbstractBidirAlgo extends AbstractRoutingAlgorithm {
             if (entry == null) {
                 entry = createEntry(iter, origEdgeId, weight, currEdge, reverse);
                 // ORS-GH MOD START
-                // ORS TODO: provide a reason for this change
+                // store actual edge ID for use by getIncomingEdge
                 entry.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
                 // ORS-GH MOD END
                 bestWeightMap.put(traversalId, entry);
@@ -331,15 +331,6 @@ public abstract class AbstractBidirAlgo extends AbstractRoutingAlgorithm {
         if (entryOther == null)
             return;
 
-//        if (weighting instanceof TurnWeighting && ((TurnWeighting) weighting).inORS) {
-//            System.out.println("check turn restriction: " + entry.originalEdge + " => " + entryOther.originalEdge + "(" + reverse + ") @ " + edgeState.getBaseNode() + "/" +  edgeState.getAdjNode());
-//            if (Double.isInfinite(reverse
-//                    ? ((TurnWeighting)weighting).calcTurnWeight(entryOther.originalEdge, edgeState.getAdjNode(), entry.originalEdge)
-//                    : ((TurnWeighting)weighting).calcTurnWeight(entry.originalEdge, edgeState.getAdjNode(), entryOther.originalEdge))) {
-//                return;
-//            }
-//        }
-//
         // update μ
         double weight = entry.getWeightOfVisitedPath() + entryOther.getWeightOfVisitedPath();
         if (traversalMode.isEdgeBased()) {
@@ -375,8 +366,7 @@ public abstract class AbstractBidirAlgo extends AbstractRoutingAlgorithm {
 
     protected int getIncomingEdge(SPTEntry entry) {
         // ORS-GH MOD START
-        // REMOVED: causes test failure, investigate
-        // TODO ORS: provide a reason for this change
+        // use actual edge ID instead of virtual edge ID (passed to TurnWeighting as prevOrNextEdgeId)
         if (weighting instanceof TurnWeighting && ((TurnWeighting) weighting).inORS)
             return entry.originalEdge;
         return entry.edge;

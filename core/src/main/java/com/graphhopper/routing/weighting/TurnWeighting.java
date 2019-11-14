@@ -41,7 +41,13 @@ public class TurnWeighting implements Weighting {
     private final TurnCostExtension turnCostExt;
     private final Weighting superWeighting;
     private final double uTurnCosts;
+    // ORS-GH MOD START
+    // corrected turn restrictions for virtual edges have to be turned off if not in ORS due to failing tests
     public boolean inORS = false;
+    public void setInORS(boolean inORS) {
+        this.inORS = inORS;
+    }
+    // ORS-GH MOD END
 
     public TurnWeighting(Weighting superWeighting, TurnCostExtension turnCostExt) {
         this(superWeighting, turnCostExt, INFINITE_U_TURN_COSTS);
@@ -83,15 +89,6 @@ public class TurnWeighting implements Weighting {
         if (inORS) {
             origEdgeId = EdgeIteratorStateHelper.getOriginalEdge(edgeState);
         }
-//        int actualEdgeId = EdgeIteratorStateHelper.getOriginalEdge(edgeState);
-//        if (inORS && actualEdgeId != origEdgeId) {
-//            double actualEdgeTurnCost = reverse
-//                    ? calcTurnWeight(actualEdgeId, edgeState.getBaseNode(), prevOrNextEdgeId)
-//                    : calcTurnWeight(prevOrNextEdgeId, edgeState.getBaseNode(), actualEdgeId);
-//            if (Double.isInfinite(actualEdgeTurnCost)) {
-//                return actualEdgeTurnCost;
-//            }
-//        }
         double turnCosts = reverse
                 ? calcTurnWeight(origEdgeId, edgeState.getBaseNode(), prevOrNextEdgeId)
                 : calcTurnWeight(prevOrNextEdgeId, edgeState.getBaseNode(), origEdgeId);
@@ -159,9 +156,5 @@ public class TurnWeighting implements Weighting {
     @Override
     public String getName() {
         return "turn|" + superWeighting.getName();
-    }
-
-    public void setInORS(boolean inORS) {
-        this.inORS = inORS;
     }
 }
