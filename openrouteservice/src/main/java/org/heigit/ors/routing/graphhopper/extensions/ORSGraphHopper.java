@@ -807,6 +807,7 @@ public class ORSGraphHopper extends GraphHopper {
 		if(!ecc.loadExisting(weighting)) {
 			ecc.calcEccentricities(getGraphHopperStorage(), getGraphHopperStorage().getBaseGraph(), weighting, flagEncoder, traversalMode, isochroneNodeStorage, cellStorage);
 			Contour contour = new Contour(getGraphHopperStorage(), getGraphHopperStorage().getNodeAccess(), this.getLocationIndex(), isochroneNodeStorage, cellStorage);
+
 			contour.calcCellContourPre();
 		}
 		this.eccentricity = ecc;
